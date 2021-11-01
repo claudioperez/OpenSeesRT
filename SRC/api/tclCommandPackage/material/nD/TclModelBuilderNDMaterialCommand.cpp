@@ -185,7 +185,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-//  OPS_ResetInput(clientData, interp, 2, argc, argv, 0, theTclBuilder);
+    OPS_ResetInput(clientData, interp, 2, argc, argv, 0, theTclBuilder);
 
   // Pointer to an ND material that will be added to the model builder
   NDMaterial *theMaterial = 0;
@@ -868,16 +868,16 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     param[8] = 0.0;
     param[9] = 20;
 
-    char *arg[] = {"nd",
-                   "rho",
-                   "refShearModul",
-                   "refBulkModul",
-                   "cohesi",
-                   "peakShearStra",
-                   "frictionAng (=0)",
-                   "refPress (=100)",
-                   "pressDependCoe (=0.0)",
-                   "numberOfYieldSurf (=20)"};
+    const char *arg[] = {"nd",
+                         "rho",
+                         "refShearModul",
+                         "refBulkModul",
+                         "cohesi",
+                         "peakShearStra",
+                         "frictionAng (=0)",
+                         "refPress (=100)",
+                         "pressDependCoe (=0.0)",
+                         "numberOfYieldSurf (=20)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
       printCommand(argc, argv);
@@ -939,16 +939,16 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     param[8] = 0.0;
     param[9] = 20;
 
-    char *arg[] = {"nd",
-                   "rho",
-                   "refShearModul",
-                   "refBulkModul",
-                   "cohesi",
-                   "peakShearStra",
-                   "frictionAng (=0)",
-                   "refPress (=100)",
-                   "pressDependCoe (=0.0)",
-                   "numberOfYieldSurf (=20)"};
+    const char *arg[] = {"nd",
+                         "rho",
+                         "refShearModul",
+                         "refBulkModul",
+                         "cohesi",
+                         "peakShearStra",
+                         "frictionAng (=0)",
+                         "refPress (=100)",
+                         "pressDependCoe (=0.0)",
+                         "numberOfYieldSurf (=20)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
       printCommand(argc, argv);
@@ -1016,30 +1016,30 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     param[22] = 0.;
     param[23] = 1.;
 
-    char *arg[] = {"nd",
-                   "rho",
-                   "refShearModul",
-                   "refBulkModul",
-                   "frictionAng",
-                   "peakShearStra",
-                   "refPress",
-                   "pressDependCoe",
-                   "phaseTransformAngle",
-                   "contractionParam1",
-                   "dilationParam1",
-                   "dilationParam2",
-                   "liquefactionParam1",
-                   "liquefactionParam2",
-                   "liquefactionParam4",
-                   "numberOfYieldSurf (=20)",
-                   "e (=0.6)",
-                   "volLimit1 (=0.9)",
-                   "volLimit2 (=0.02)",
-                   "volLimit3 (=0.7)",
-                   "Atmospheric pressure (=101)",
-                   "cohesi (=.5)",
-                   "Hv (=0)",
-                   "Pv (=1.)"};
+    const char *arg[] = {"nd",
+                         "rho",
+                         "refShearModul",
+                         "refBulkModul",
+                         "frictionAng",
+                         "peakShearStra",
+                         "refPress",
+                         "pressDependCoe",
+                         "phaseTransformAngle",
+                         "contractionParam1",
+                         "dilationParam1",
+                         "dilationParam2",
+                         "liquefactionParam1",
+                         "liquefactionParam2",
+                         "liquefactionParam4",
+                         "numberOfYieldSurf (=20)",
+                         "e (=0.6)",
+                         "volLimit1 (=0.9)",
+                         "volLimit2 (=0.02)",
+                         "volLimit3 (=0.7)",
+                         "Atmospheric pressure (=101)",
+                         "cohesi (=.5)",
+                         "Hv (=0)",
+                         "Pv (=1.)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
       printCommand(argc, argv);
@@ -1140,32 +1140,32 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     param[numParam + 11] = 0.;
     param[numParam + 12] = 1.;
 
-    char *arg[] = {"nd",
-                   "rho",
-                   "refShearModul",
-                   "refBulkModul",
-                   "frictionAng",
-                   "peakShearStra",
-                   "refPress",
-                   "pressDependCoe",
-                   "phaseTransformAngle",
-                   "contractionParam1",
-                   "contractionParam3",
-                   "dilationParam1",
-                   "dilationParam3",
-                   "numberOfYieldSurf (=20)",
-                   "contractionParam2=5.0",
-                   "dilationParam2=3.0",
-                   "liquefactionParam1=1.0",
-                   "liquefactionParam2=0.0",
-                   "e (=0.6)",
-                   "volLimit1 (=0.9)",
-                   "volLimit2 (=0.02)",
-                   "volLimit3 (=0.7)",
-                   "Atmospheric pressure (=101)",
-                   "cohesi (=.1)",
-                   "Hv (=0)",
-                   "Pv (=1.)"};
+    const char *arg[] = {"nd",
+                         "rho",
+                         "refShearModul",
+                         "refBulkModul",
+                         "frictionAng",
+                         "peakShearStra",
+                         "refPress",
+                         "pressDependCoe",
+                         "phaseTransformAngle",
+                         "contractionParam1",
+                         "contractionParam3",
+                         "dilationParam1",
+                         "dilationParam3",
+                         "numberOfYieldSurf (=20)",
+                         "contractionParam2=5.0",
+                         "dilationParam2=3.0",
+                         "liquefactionParam1=1.0",
+                         "liquefactionParam2=0.0",
+                         "e (=0.6)",
+                         "volLimit1 (=0.9)",
+                         "volLimit2 (=0.02)",
+                         "volLimit3 (=0.7)",
+                         "Atmospheric pressure (=101)",
+                         "cohesi (=.1)",
+                         "Hv (=0)",
+                         "Pv (=1.)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
       printCommand(argc, argv);
@@ -1267,29 +1267,29 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     param[numParam + 3] = 101.;
     param[numParam + 4] = 1.73;
 
-    char *arg[] = {"nd",
-                   "rho",
-                   "refShearModul",
-                   "refBulkModul",
-                   "frictionAng",
-                   "peakShearStra",
-                   "refPress",
-                   "pressDependCoe",
-                   "phaseTransformAngle",
-                   "mType",
-                   "ca",
-                   "cb",
-                   "cc",
-                   "cd",
-                   "ce",
-                   "da",
-                   "db",
-                   "dc",
-                   "numberOfYieldSurf (=20)",
-                   "liquefactionParam1=1.0",
-                   "liquefactionParam2=0.0",
-                   "Atmospheric pressure (=101)",
-                   "cohesi (=1.73)"};
+    const char *arg[] = {"nd",
+                         "rho",
+                         "refShearModul",
+                         "refBulkModul",
+                         "frictionAng",
+                         "peakShearStra",
+                         "refPress",
+                         "pressDependCoe",
+                         "phaseTransformAngle",
+                         "mType",
+                         "ca",
+                         "cb",
+                         "cc",
+                         "cd",
+                         "ce",
+                         "da",
+                         "db",
+                         "dc",
+                         "numberOfYieldSurf (=20)",
+                         "liquefactionParam1=1.0",
+                         "liquefactionParam2=0.0",
+                         "Atmospheric pressure (=101)",
+                         "cohesi (=1.73)"};
 
     if (argc < (3 + numParam)) { // 3 refers to "nDMaterial
                                  // PressureDependMultiYield03  $tag"
@@ -1380,7 +1380,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
     int tag;
     double param[4];
-    char *arg[] = {"nd", "soilMatTag", "combinedBulkModul",
+    const char *arg[] = {"nd", "soilMatTag", "combinedBulkModul",
                    "Atmospheric pressure"};
     if (argc < 6) {
       opserr << "WARNING insufficient arguments\n";
