@@ -19,6 +19,8 @@
 #ifndef TCLSAFEBUILDER_H
 #define TCLSAFEBUILDER_H
 
+#include <map>
+#include <string>
 #include <ModelBuilder.h>
 #include <MultiSupportPattern.h>
 
@@ -32,6 +34,7 @@ class PlasticHardeningMaterial;
 class CyclicModel; //!!
 class DamageModel;
 class FrictionModel;
+class TimeSeries;
 
 #include <tcl.h>
 
@@ -45,6 +48,8 @@ public:
   int getNDM(void) const;
   int getNDF(void) const;
 
+  int addTimeSeries(std::string, TimeSeries*);
+
   // methods needed for the truss and fiber-beam elements for
   // adding/getting uniaxial material objects
   // REMOVED    int addUniaxialMaterial(UniaxialMaterial &theMaterial);
@@ -54,7 +59,7 @@ public:
   // models to add/get ND material models
 
   //    int addNDMaterial(NDMaterial &theMaterial);
-  //    NDMaterial *getNDMaterial(int tag);
+  NDMaterial *getNDMaterial(int tag);
 
   // methods needed for the nonlinear beam column elements to
   // add/get section objects
@@ -114,6 +119,8 @@ private:
   // previously extern variables
   LoadPattern *theTclLoadPattern = 0;
   MultiSupportPattern *theTclMultiSupportPattern = 0;
+
+  std::map<std::string, TimeSeries*> theTimeSeriesObjects;
 
 protected:
   Tcl_Interp *theInterp;

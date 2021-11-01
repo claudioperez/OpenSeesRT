@@ -19,11 +19,7 @@
 ** ****************************************************************** */
 
 /*
-** $Revision: 1.12 $
-** $Date: 2010-03-05 22:32:36 $
-** $Source: /usr/local/cvs/OpenSees/SRC/api/elementAPI.cpp,v $
-
-** Written: fmk
+** Written: cmp
 */
 
 #include <elementAPI.h>

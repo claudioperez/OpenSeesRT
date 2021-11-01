@@ -18,12 +18,12 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// Written: fmk
-// Revision: A
+// Written: cmp
 //
 // Purpose: This file contains the class definition for TclPackageClassBroker.
-// TclPackageClassBroker is is an object broker class for the finite element
-// method. All methods are virtual to allow for subclasses; which can be
+// TclPackageClassBroker is is an object broker class that is meant to become
+// a threadsafe replacement for the BrokerAllClasses class.
+// All methods are virtual to allow for subclasses; which can be
 // used by programmers when introducing new subclasses of the main objects.
 
 #ifdef _PARALLEL_PROCESSING
