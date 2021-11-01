@@ -91,7 +91,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char **argv, Domain *theDomain)
 {
   // note the 1 instead of usual 2
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, theDomain);
+//  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, theDomain);
 
   TimeSeries *theSeries = 0;
 

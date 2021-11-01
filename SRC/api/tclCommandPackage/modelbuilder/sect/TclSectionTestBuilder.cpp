@@ -20,7 +20,7 @@
 
 // $Revision: 1.1 $
 // $Date: 2008-12-09 21:24:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/TclSectionTester.cpp,v
+// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/TclSectionTestBuilder.cpp,v
 // $
 
 // Written: fmk
@@ -36,7 +36,7 @@
 
 #include <ArrayOfTaggedObjects.h>
 #include <SectionForceDeformation.h>
-#include <TclSectionTester.h>
+#include <TclSectionTestBuilder.h>
 #include <Vector.h>
 #include <DummyStream.h>
 #include <Response.h>
@@ -45,26 +45,26 @@
 // SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-static TclSectionTester *theTclBuilder = 0;
+static TclSectionTestBuilder *theTclBuilder = 0;
 static SectionForceDeformation *theTestingSection = 0;
 
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-int TclSectionTester_setSection(ClientData clientData, Tcl_Interp *interp,
+int TclSectionTestBuilder_setSection(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv);
 
-int TclSectionTester_setStrainSection(ClientData clientData, Tcl_Interp *interp,
+int TclSectionTestBuilder_setStrainSection(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv);
 
-int TclSectionTester_getStressSection(ClientData clientData, Tcl_Interp *interp,
+int TclSectionTestBuilder_getStressSection(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv);
 
-int TclSectionTester_getTangSection(ClientData clientData, Tcl_Interp *interp,
+int TclSectionTestBuilder_getTangSection(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv);
 
-int TclSectionTester_getResponseSection(ClientData clientData,
+int TclSectionTestBuilder_getResponseSection(ClientData clientData,
                                         Tcl_Interp *interp, int argc,
                                         TCL_Char **argv);
 
@@ -76,32 +76,32 @@ static int count;
 static int countsTillCommit;
 
 // constructor: the constructor will add certain commands to the interpreter
-TclSectionTester::TclSectionTester(Domain &theDomain, Tcl_Interp *interp,
+TclSectionTestBuilder::TclSectionTestBuilder(Domain &theDomain, Tcl_Interp *interp,
                                    int cTC)
     : TclBasicBuilder(theDomain, interp, 3, 6), theInterp(interp)
 {
   countsTillCommit = cTC;
-  Tcl_CreateCommand(interp, "sectionTest", TclSectionTester_setSection,
+  Tcl_CreateCommand(interp, "sectionTest", TclSectionTestBuilder_setSection,
                     (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "strainSectionTest",
-                    TclSectionTester_setStrainSection, (ClientData)NULL, NULL);
+                    TclSectionTestBuilder_setStrainSection, (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "stressSectionTest",
-                    TclSectionTester_getStressSection, (ClientData)NULL, NULL);
+                    TclSectionTestBuilder_getStressSection, (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "tangSectionTest", TclSectionTester_getTangSection,
+  Tcl_CreateCommand(interp, "tangSectionTest", TclSectionTestBuilder_getTangSection,
                     (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "responseSectionTest",
-                    TclSectionTester_getResponseSection, (ClientData)NULL,
+                    TclSectionTestBuilder_getResponseSection, (ClientData)NULL,
                     NULL);
 
   // set the static pointers in this file
   theTclBuilder = this;
 }
 
-TclSectionTester::~TclSectionTester()
+TclSectionTestBuilder::~TclSectionTestBuilder()
 {
 
   theTclBuilder = 0;
@@ -118,7 +118,7 @@ TclSectionTester::~TclSectionTester()
 //
 
 int
-TclSectionTester_setSection(ClientData clientData, Tcl_Interp *interp, int argc,
+TclSectionTestBuilder_setSection(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
   count = 1;
@@ -162,7 +162,7 @@ TclSectionTester_setSection(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclSectionTester_setStrainSection(ClientData clientData, Tcl_Interp *interp,
+TclSectionTestBuilder_setStrainSection(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -204,7 +204,7 @@ TclSectionTester_setStrainSection(ClientData clientData, Tcl_Interp *interp,
 }
 
 int
-TclSectionTester_getStressSection(ClientData clientData, Tcl_Interp *interp,
+TclSectionTestBuilder_getStressSection(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
   // if the section exists, otherwise throw an error
@@ -224,7 +224,7 @@ TclSectionTester_getStressSection(ClientData clientData, Tcl_Interp *interp,
 }
 
 int
-TclSectionTester_getTangSection(ClientData clientData, Tcl_Interp *interp,
+TclSectionTestBuilder_getTangSection(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
 
@@ -246,7 +246,7 @@ TclSectionTester_getTangSection(ClientData clientData, Tcl_Interp *interp,
 }
 
 int
-TclSectionTester_getResponseSection(ClientData clientData, Tcl_Interp *interp,
+TclSectionTestBuilder_getResponseSection(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 {
   // if the section exists, otherwise throw an error

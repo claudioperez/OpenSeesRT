@@ -185,7 +185,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  OPS_ResetInput(clientData, interp, 2, argc, argv, 0, theTclBuilder);
+//  OPS_ResetInput(clientData, interp, 2, argc, argv, 0, theTclBuilder);
 
   // Pointer to an ND material that will be added to the model builder
   NDMaterial *theMaterial = 0;

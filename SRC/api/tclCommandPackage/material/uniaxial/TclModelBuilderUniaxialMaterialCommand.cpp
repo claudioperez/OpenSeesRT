@@ -270,7 +270,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+//  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a uniaxial material that will be added to the model builder
   UniaxialMaterial *theMaterial = 0;

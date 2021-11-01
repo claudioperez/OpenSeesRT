@@ -183,7 +183,7 @@ OPS_ResetCurrentInputArg(int cArg)
   return 0;
 }
 
-/* 
+
 // extern "C"
 int
 OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
@@ -198,7 +198,7 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
 
   return 0;
 }
-*/
+
 
 extern "C" int
 OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,

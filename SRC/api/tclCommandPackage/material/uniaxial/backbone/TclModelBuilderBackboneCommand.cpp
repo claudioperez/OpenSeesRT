@@ -83,7 +83,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+//  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a hysteretic backbone that will be added to the model builder
   HystereticBackbone *theBackbone = 0;

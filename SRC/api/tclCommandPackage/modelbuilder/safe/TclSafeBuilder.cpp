@@ -130,7 +130,7 @@ extern int OPS_ResetInput(ClientData clientData,
                           int mArg,
                           TCL_Char **argv,
                           Domain *domain,
-                          TclPackageBasicBuilder *builder);
+                          TclSafeBuilder *builder);
 #include <packages.h>
 */
 
@@ -139,7 +139,7 @@ extern int OPS_ResetInput(ClientData clientData,
 //
 
 // static Domain *theTclDomain =0;
-// static TclPackageBasicBuilder *theTclBuilder =0;
+// static TclSafeBuilder *theTclBuilder =0;
 
 // extern LoadPattern *theTclLoadPattern;
 // extern MultiSupportPattern *theTclMultiSupportPattern;
@@ -287,7 +287,7 @@ TclCommand_doTzSimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // Added by Prishati Raychowdhury (UCSD)
 int
-TclPackageBasicBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
+TclSafeBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
 *interp, int argc, TCL_Char **argv);
 // End PRC
 
@@ -320,7 +320,7 @@ TclCommand_addRemoFiber(ClientData clientData,
 
 //Leo
 int
-TclPackageBasicBuilder_addRemoHFiber(ClientData clientData,
+TclSafeBuilder_addRemoHFiber(ClientData clientData,
                              Tcl_Interp *interp,
                              int argc,
                              TCL_Char **argv);
@@ -397,30 +397,30 @@ TclCommand_addElementRayleigh(ClientData clientData,
 extern int
 TclCommand_addPatch (ClientData clientData, Tcl_Interp *interp,
                      int argc, TCL_Char **argv,
-                     TclPackageBasicBuilder *theTclBuilder);
+                     TclSafeBuilder *theTclBuilder);
 
 
 extern int
 TclCommand_addFiber (ClientData clientData, Tcl_Interp *interp,
                      int argc, TCL_Char **argv,
-                     TclPackageBasicBuilder *theTclBuilder);
+                     TclSafeBuilder *theTclBuilder);
 
 
 extern int
 TclCommand_addHFiber (ClientData clientData, Tcl_Interp *interp,
                           int argc, TCL_Char **argv,
-                          TclPackageBasicBuilder *theTclBuilder);
+                          TclSafeBuilder *theTclBuilder);
 
 
 extern int
 TclCommand_addReinfLayer (ClientData clientData, Tcl_Interp *interp,
                           int argc, TCL_Char **argv,
-                          TclPackageBasicBuilder *theTclBuilder);
+                          TclSafeBuilder *theTclBuilder);
 
 
 extern int
 TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char **,
-                         Domain*, TclPackageBasicBuilder *);
+                         Domain*, TclSafeBuilder *);
 
 
 int
@@ -440,18 +440,18 @@ int argc, TCL_Char **argv);
 //
 
 Domain *
-TclPackageBasicBuilder::getDomain()
+TclSafeBuilder::getDomain()
 {
   return theTclDomain;
 }
-TclPackageBasicBuilder *
-TclPackageBasicBuilder::getBuilder()
+TclSafeBuilder *
+TclSafeBuilder::getBuilder()
 {
   return theTclBuilder;
 }
 
 // constructor: the constructor will add certain commands to the interpreter
-TclPackageBasicBuilder::TclPackageBasicBuilder(Domain &theDomain,
+TclSafeBuilder::TclSafeBuilder(Domain &theDomain,
                                                Tcl_Interp *interp, int NDM,
                                                int NDF)
     : ModelBuilder(theDomain), ndm(NDM), ndf(NDF), theInterp(interp)
@@ -585,7 +585,7 @@ TclPackageBasicBuilder::TclPackageBasicBuilder(Domain &theDomain,
 
   // Added by Prishati Raychowdhury (UCSD)
     Tcl_CreateCommand(interp, "ShallowFoundationGen",
-  TclPackageBasicBuilder_doShallowFoundationGen, (ClientData)NULL, NULL);
+  TclSafeBuilder_doShallowFoundationGen, (ClientData)NULL, NULL);
   // End PRC
 
     Tcl_CreateCommand(interp, "block2D", TclCommand_doBlock2D,
@@ -604,7 +604,7 @@ TclPackageBasicBuilder::TclPackageBasicBuilder(Domain &theDomain,
                       (ClientData)NULL, NULL);
 
     //LEO
-    Tcl_CreateCommand(interp, "Hfiber", TclPackageBasicBuilder_addRemoHFiber,
+    Tcl_CreateCommand(interp, "Hfiber", TclSafeBuilder_addRemoHFiber,
                       (ClientData)NULL, NULL);
 
     Tcl_CreateCommand(interp, "geomTransf", TclCommand_addRemoGeomTransf,
@@ -674,12 +674,12 @@ TclPackageBasicBuilder::TclPackageBasicBuilder(Domain &theDomain,
 
   nodeLoadTag = 0;
   eleArgStart = 0;
-  Tcl_SetAssocData(interp, "OPS::theTclPackageBasicBuilder", NULL,
+  Tcl_SetAssocData(interp, "OPS::theTclSafeBuilder", NULL,
                    (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
-TclPackageBasicBuilder::~TclPackageBasicBuilder()
+TclSafeBuilder::~TclSafeBuilder()
 {
   /*
   OPS_clearAllTimeSeries();
@@ -779,40 +779,40 @@ TclPackageBasicBuilder::~TclPackageBasicBuilder()
 //
 
 int
-TclPackageBasicBuilder::buildFE_Model(void)
+TclSafeBuilder::buildFE_Model(void)
 {
   // does nothing
   return 0;
 }
 
 int
-TclPackageBasicBuilder::getNDM(void) const
+TclSafeBuilder::getNDM(void) const
 {
   return ndm;
 }
 
 int
-TclPackageBasicBuilder::getNDF(void) const
+TclSafeBuilder::getNDF(void) const
 {
   return ndf;
 }
 
 /*
 int
-TclPackageBasicBuilder::addNDMaterial(NDMaterial &theMaterial)
+TclSafeBuilder::addNDMaterial(NDMaterial &theMaterial)
 {
   bool result = theNDMaterials->addComponent(&theMaterial);
   if (result == true)
     return 0;
   else {
-    opserr << "TclPackageBasicBuilder::addNDMaterial() - failed to add material:
+    opserr << "TclSafeBuilder::addNDMaterial() - failed to add material:
 " << theMaterial; return -1;
   }
 }
 
 
 NDMaterial *
-TclPackageBasicBuilder::getNDMaterial(int tag)
+TclSafeBuilder::getNDMaterial(int tag)
 {
   TaggedObject *mc = theNDMaterials->getComponentPtr(tag);
   if (mc == 0)
@@ -826,14 +826,14 @@ TclPackageBasicBuilder::getNDMaterial(int tag)
 
 /*
 int
-TclPackageBasicBuilder::addSection(SectionForceDeformation &theSection)
+TclSafeBuilder::addSection(SectionForceDeformation &theSection)
 {
   //  bool result = theSections->addComponent(&theSection);
   bool result = OPS_addSectionForceDeformation(&theSection);
   if (result == true)
     return 0;
   else {
-    opserr << "TclPackageBasicBuilder::addSection() - failed to add section: "
+    opserr << "TclSafeBuilder::addSection() - failed to add section: "
 << theSection; return -1;
   }
 }
@@ -841,7 +841,7 @@ TclPackageBasicBuilder::addSection(SectionForceDeformation &theSection)
 */
 
 // SectionForceDeformation *
-// TclPackageBasicBuilder::getSection(int tag)
+// TclSafeBuilder::getSection(int tag)
 // {
 //   return nullptr;
 //
@@ -859,20 +859,20 @@ TclPackageBasicBuilder::addSection(SectionForceDeformation &theSection)
 
 /*
 int
-TclPackageBasicBuilder::addYS_EvolutionModel(YS_Evolution &theModel)
+TclSafeBuilder::addYS_EvolutionModel(YS_Evolution &theModel)
 {
   bool result = theYS_EvolutionModels->addComponent(&theModel);
   if (result == true)
     return 0;
   else {
-    opserr << "TclPackageBasicBuilder::addYS_EvolutionModel() - failed to add
+    opserr << "TclSafeBuilder::addYS_EvolutionModel() - failed to add
 model " << theModel; return -1;
   }
 }
 
 
 YS_Evolution *
-TclPackageBasicBuilder::getYS_EvolutionModel(int tag)
+TclSafeBuilder::getYS_EvolutionModel(int tag)
 {
   TaggedObject *mc = theYS_EvolutionModels->getComponentPtr(tag);
   if (mc == 0)
@@ -884,7 +884,7 @@ TclPackageBasicBuilder::getYS_EvolutionModel(int tag)
 }
 
 int
-TclPackageBasicBuilder::addYieldSurface_BC(YieldSurface_BC &theYS)
+TclSafeBuilder::addYieldSurface_BC(YieldSurface_BC &theYS)
 {
 //	TaggedObject *mc = &theYS;
 
@@ -892,13 +892,13 @@ TclPackageBasicBuilder::addYieldSurface_BC(YieldSurface_BC &theYS)
   if (result == true)
     return 0;
   else {
-    opserr << "TclPackageBasicBuilder::addYieldSurfaceBC() - failed to add YS: "
+    opserr << "TclSafeBuilder::addYieldSurfaceBC() - failed to add YS: "
 << theYS; return -1;
   }
 }
 
 int //!!
-TclPackageBasicBuilder::addCyclicModel(CyclicModel &theCM)
+TclSafeBuilder::addCyclicModel(CyclicModel &theCM)
 {
 //	TaggedObject *mc = &theYS;
 
@@ -906,13 +906,13 @@ TclPackageBasicBuilder::addCyclicModel(CyclicModel &theCM)
   if (result == true)
     return 0;
   else {
-    opserr << "TclPackageBasicBuilder::addCyclicModel() - failed to add : " <<
+    opserr << "TclSafeBuilder::addCyclicModel() - failed to add : " <<
 theCM; return -1;
   }
 }
 
 YieldSurface_BC *
-TclPackageBasicBuilder::getYieldSurface_BC(int tag)
+TclSafeBuilder::getYieldSurface_BC(int tag)
 {
   TaggedObject *mc = theYieldSurface_BCs->getComponentPtr(tag);
   if (mc == 0)
@@ -924,7 +924,7 @@ TclPackageBasicBuilder::getYieldSurface_BC(int tag)
 }
 
 CyclicModel * //!!
-TclPackageBasicBuilder::getCyclicModel(int tag)
+TclSafeBuilder::getCyclicModel(int tag)
 {
   TaggedObject *mc = theCycModels->getComponentPtr(tag);
   if (mc == 0)
@@ -936,7 +936,7 @@ TclPackageBasicBuilder::getCyclicModel(int tag)
 }
 
 int
-TclPackageBasicBuilder::addPlasticMaterial(PlasticHardeningMaterial &theMat)
+TclSafeBuilder::addPlasticMaterial(PlasticHardeningMaterial &theMat)
 {
 //	TaggedObject *mc = &theYS;
 
@@ -944,13 +944,13 @@ TclPackageBasicBuilder::addPlasticMaterial(PlasticHardeningMaterial &theMat)
   if (result == true)
     return 0;
   else {
-    opserr << "TclPackageBasicBuilder::addPlasticMaterial() - failed to add
+    opserr << "TclSafeBuilder::addPlasticMaterial() - failed to add
 Material: " << theMat; return -1;
   }
 }
 
 PlasticHardeningMaterial *
-TclPackageBasicBuilder::getPlasticMaterial(int tag)
+TclSafeBuilder::getPlasticMaterial(int tag)
 {
   TaggedObject *mc = thePlasticMaterials->getComponentPtr(tag);
   if (mc == 0)
@@ -962,21 +962,21 @@ TclPackageBasicBuilder::getPlasticMaterial(int tag)
 }
 
 int
-TclPackageBasicBuilder::addSectionRepres(SectionRepres &theSectionRepres)
+TclSafeBuilder::addSectionRepres(SectionRepres &theSectionRepres)
 {
   bool result = theSectionRepresents->addComponent(&theSectionRepres);
 
   if (result == true)
     return 0;
   else {
-      opserr << "TclPackageBasicBuilder::addSectionRepres() - failed to add
+      opserr << "TclSafeBuilder::addSectionRepres() - failed to add
 SectionRepres\n"; return -1;
   }
 }
 
 
 SectionRepres *
-TclPackageBasicBuilder::getSectionRepres(int tag)
+TclSafeBuilder::getSectionRepres(int tag)
 {
   TaggedObject *mc = theSectionRepresents->getComponentPtr(tag);
   if (mc == 0) return 0;
@@ -1003,9 +1003,9 @@ static int
 TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
-  TclPackageBasicBuilder *theTclBuilder =
-      (TclPackageBasicBuilder *)Tcl_GetAssocData(
-          interp, "OPS::theTclPackageBasicBuilder", NULL);
+  TclSafeBuilder *theTclBuilder =
+      (TclSafeBuilder *)Tcl_GetAssocData(
+          interp, "OPS::theTclSafeBuilder", NULL);
 
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
@@ -1290,30 +1290,30 @@ file.
 // does so at the expense of an extra procedure call.
 
 extern int
-TclPackageBasicBuilderParameterCommand(ClientData clientData,
+TclSafeBuilderParameterCommand(ClientData clientData,
                                 Tcl_Interp *interp, int argc,
                                 TCL_Char **argv,
-                                Domain *theDomain, TclPackageBasicBuilder
+                                Domain *theDomain, TclSafeBuilder
 *theTclBuilder); int TclCommand_addParameter(ClientData clientData, Tcl_Interp
 *interp, int argc, TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderParameterCommand(clientData, interp,
+  return TclSafeBuilderParameterCommand(clientData, interp,
                                          argc, argv, theTclDomain,
 theTclBuilder);
 }
 
 
 extern int
-TclPackageBasicBuilderElementCommand(ClientData clientData,
+TclSafeBuilderElementCommand(ClientData clientData,
                               Tcl_Interp *interp, int argc,
                               TCL_Char **argv,
-                              Domain *theDomain, TclPackageBasicBuilder
+                              Domain *theDomain, TclSafeBuilder
 *theTclBuilder); int TclCommand_addElement(ClientData clientData, Tcl_Interp
 *interp, int argc,    TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderElementCommand(clientData, interp,
+  return TclSafeBuilderElementCommand(clientData, interp,
                                        argc, argv, theTclDomain, theTclBuilder);
 }
 
@@ -1339,7 +1339,7 @@ TclCommand_mesh(ClientData clientData, Tcl_Interp *interp,  int argc,
         return TCL_ERROR;
     }
 
-    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
+//    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     // mesh type
     int res = 0;
@@ -1379,7 +1379,7 @@ TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,  int argc,
         return TCL_ERROR;
     }
 
-    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
+//    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     // mesh type
     int res = 0;
@@ -1448,7 +1448,7 @@ argc, TCL_Char **argv)
         return TCL_ERROR;
     }
 
-    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
+//    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     int iTag;
     ID secTags;
@@ -1511,14 +1511,14 @@ argc, TCL_Char **argv)
 }
 
 extern int
-TclPackageBasicBuilderUniaxialMaterialCommand (ClientData clienData, Tcl_Interp
+TclSafeBuilderUniaxialMaterialCommand (ClientData clienData, Tcl_Interp
 *interp, int argc, TCL_Char **argv, Domain *theDomain);
 
 int
 TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp, int
 argc, TCL_Char **argv)
 {
-  return TclPackageBasicBuilderUniaxialMaterialCommand(clientData, interp, argc,
+  return TclSafeBuilderUniaxialMaterialCommand(clientData, interp, argc,
 argv, theTclDomain);
 }
 
@@ -1535,21 +1535,21 @@ TCL_Char **argv)
 }
 
 extern int
-TclPackageBasicBuilderNDMaterialCommand (ClientData clienData, Tcl_Interp
-*interp, int argc, TCL_Char **argv, TclPackageBasicBuilder *theTclBuilder);
+TclSafeBuilderNDMaterialCommand (ClientData clienData, Tcl_Interp
+*interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                             int argc,    TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderNDMaterialCommand(clientData, interp,
+  return TclSafeBuilderNDMaterialCommand(clientData, interp,
                                           argc, argv, theTclBuilder);
 }
 
 extern int
-TclPackageBasicBuilderSectionCommand (ClientData clienData, Tcl_Interp *interp,
-int argc, TCL_Char **argv, Domain *theDomain, TclPackageBasicBuilder
+TclSafeBuilderSectionCommand (ClientData clienData, Tcl_Interp *interp,
+int argc, TCL_Char **argv, Domain *theDomain, TclSafeBuilder
 *theTclBuilder);
 
 int
@@ -1557,63 +1557,63 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
                             int argc,    TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderSectionCommand(clientData, interp,
+  return TclSafeBuilderSectionCommand(clientData, interp,
                                        argc, argv, theTclDomain, theTclBuilder);
 }
 
 
 
 extern int
-TclPackageBasicBuilderYieldSurface_BCCommand (ClientData clienData, Tcl_Interp
-*interp, int argc, TCL_Char **argv, TclPackageBasicBuilder *theTclBuilder);
+TclSafeBuilderYieldSurface_BCCommand (ClientData clienData, Tcl_Interp
+*interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
 TclCommand_addYieldSurface_BC(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderYieldSurface_BCCommand(clientData, interp,
+  return TclSafeBuilderYieldSurface_BCCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
 extern int
-TclPackageBasicBuilderYS_EvolutionModelCommand (ClientData clienData, Tcl_Interp
-*interp, int argc, TCL_Char **argv, TclPackageBasicBuilder *theTclBuilder);
+TclSafeBuilderYS_EvolutionModelCommand (ClientData clienData, Tcl_Interp
+*interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
 TclCommand_addYS_EvolutionModel(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderYS_EvolutionModelCommand(clientData, interp,
+  return TclSafeBuilderYS_EvolutionModelCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
 extern int
-TclPackageBasicBuilderPlasticMaterialCommand (ClientData clienData, Tcl_Interp
-*interp, int argc, TCL_Char **argv, TclPackageBasicBuilder *theTclBuilder);
+TclSafeBuilderPlasticMaterialCommand (ClientData clienData, Tcl_Interp
+*interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
 TclCommand_addYS_PlasticMaterial(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderPlasticMaterialCommand(clientData, interp,
+  return TclSafeBuilderPlasticMaterialCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
 //!!
-extern int TclPackageBasicBuilderCyclicModelCommand(ClientData clienData,
-Tcl_Interp *interp, int argc, TCL_Char **argv, TclPackageBasicBuilder
+extern int TclSafeBuilderCyclicModelCommand(ClientData clienData,
+Tcl_Interp *interp, int argc, TCL_Char **argv, TclSafeBuilder
 *theTclBuilder); int TclCommand_addCyclicModel(ClientData clientData, Tcl_Interp
 *interp, int argc, TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderCyclicModelCommand(clientData, interp,
+  return TclSafeBuilderCyclicModelCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
-extern int TclPackageBasicBuilderDamageModelCommand(ClientData clienData,
+extern int TclSafeBuilderDamageModelCommand(ClientData clienData,
 Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 int
@@ -1621,7 +1621,7 @@ TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclPackageBasicBuilderDamageModelCommand(clientData, interp, argc,
+  return TclSafeBuilderDamageModelCommand(clientData, interp, argc,
 argv);
 
 }
@@ -1634,9 +1634,9 @@ int
 TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
-  TclPackageBasicBuilder *theTclBuilder =
-      (TclPackageBasicBuilder *)Tcl_GetAssocData(
-          interp, "OPS::theTclPackageBasicBuilder", NULL);
+  TclSafeBuilder *theTclBuilder =
+      (TclSafeBuilder *)Tcl_GetAssocData(
+          interp, "OPS::theTclSafeBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
   return TclPatternCommand(clientData, interp, argc, argv, theTclDomain);
 }
@@ -1925,7 +1925,7 @@ into else{ }
 
   // add the load to the domain
   if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
-    opserr << "WARNING TclPackageBasicBuilder - could not add load to domain\n";
+    opserr << "WARNING TclSafeBuilder - could not add load to domain\n";
     printCommand(argc, argv);
     delete theLoad;
     return TCL_ERROR;
@@ -2744,7 +2744,7 @@ data;
 input for -beamThermal\n";
                                   }
 #ifdef _DEBUG
-                                  opserr << "TclPackageBasicBuilder:: locs" <<
+                                  opserr << "TclSafeBuilder:: locs" <<
 locs << endln; #endif for (int i = 0; i<theEleTags.Size(); i++) { theLoad = new
 Beam2dThermalAction(eleLoadTag, locs, theSeries, theEleTags(i)); if (theLoad ==
 0) { opserr << "WARNING eleLoad - out of memory creating load of type " <<
@@ -4056,7 +4056,7 @@ argv[3], argv[4], argv[5], argv[6]);
 
 // Added by Prishati Raychowdhury (UCSD)
 int
-TclPackageBasicBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
+TclSafeBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
 *interp, int argc, TCL_Char **argv)
 {
         if(argc != 5){
@@ -4473,7 +4473,7 @@ TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclPackageBasicBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
+TclSafeBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
 int argc, TCL_Char **argv)
 {
   return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
@@ -4499,7 +4499,7 @@ argc, TCL_Char **argv)
 }
 
 extern int
-TclPackageBasicBuilderStiffnessDegradationCommand(ClientData clientData,
+TclSafeBuilderStiffnessDegradationCommand(ClientData clientData,
                                            Tcl_Interp *interp,
                                            int argc, TCL_Char **argv, Domain
 *theDomain);
@@ -4509,12 +4509,12 @@ TclCommand_addStiffnessDegradation(ClientData clientData,
                                         Tcl_Interp *interp,
                                         int argc, TCL_Char **argv)
 {
-  return TclPackageBasicBuilderStiffnessDegradationCommand(clientData, interp,
+  return TclSafeBuilderStiffnessDegradationCommand(clientData, interp,
 argc, argv, theTclDomain);
 }
 
 extern int
-TclPackageBasicBuilderUnloadingRuleCommand(ClientData clientData,
+TclSafeBuilderUnloadingRuleCommand(ClientData clientData,
                                     Tcl_Interp *interp,
                                     int argc, TCL_Char **argv, Domain
 *theDomain);
@@ -4524,12 +4524,12 @@ TclCommand_addUnloadingRule(ClientData clientData,
                                  Tcl_Interp *interp,
                                  int argc, TCL_Char **argv)
 {
-  return TclPackageBasicBuilderUnloadingRuleCommand(clientData, interp, argc,
+  return TclSafeBuilderUnloadingRuleCommand(clientData, interp, argc,
 argv, theTclDomain);
 }
 
 extern int
-TclPackageBasicBuilderStrengthDegradationCommand(ClientData clientData,
+TclSafeBuilderStrengthDegradationCommand(ClientData clientData,
                                           Tcl_Interp *interp,
                                           int argc, TCL_Char **argv, Domain
 *theDomain);
@@ -4539,12 +4539,12 @@ TclCommand_addStrengthDegradation(ClientData clientData,
                                        Tcl_Interp *interp,
                                        int argc, TCL_Char **argv)
 {
-  return TclPackageBasicBuilderStrengthDegradationCommand(clientData, interp,
+  return TclSafeBuilderStrengthDegradationCommand(clientData, interp,
 argc, argv, theTclDomain);
 }
 
 extern int
-TclPackageBasicBuilderHystereticBackboneCommand(ClientData clientData,
+TclSafeBuilderHystereticBackboneCommand(ClientData clientData,
                                          Tcl_Interp *interp,
                                          int argc, TCL_Char **argv, Domain
 *theDomain);
@@ -4554,17 +4554,17 @@ TclCommand_addHystereticBackbone(ClientData clientData,
                                       Tcl_Interp *interp,
                                       int argc,	TCL_Char **argv)
 {
-  return TclPackageBasicBuilderHystereticBackboneCommand(clientData, interp,
+  return TclSafeBuilderHystereticBackboneCommand(clientData, interp,
 argc, argv, theTclDomain);
 }
 
 /// added by ZHY
 extern int
-TclPackageBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
+TclSafeBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           Tcl_Interp *interp,
                                           int argc,
                                           TCL_Char **argv,
-                                          TclPackageBasicBuilder *theTclBuilder,
+                                          TclSafeBuilder *theTclBuilder,
                                           Domain *theDomain);
 int
 TclCommand_UpdateMaterialStage(ClientData clientData,
@@ -4572,7 +4572,7 @@ TclCommand_UpdateMaterialStage(ClientData clientData,
                                     int argc,
                                     TCL_Char **argv)
 {
-  return TclPackageBasicBuilderUpdateMaterialStageCommand(clientData, interp,
+  return TclSafeBuilderUpdateMaterialStageCommand(clientData, interp,
                                                    argc, argv, theTclBuilder,
 theTclDomain);
 }
@@ -4583,7 +4583,7 @@ TclCommand_UpdateMaterialsCommand(ClientData clientData,
                                   Tcl_Interp *interp,
                                   int argc,
                                   TCL_Char **argv,
-                                  TclPackageBasicBuilder *theTclBuilder,
+                                  TclSafeBuilder *theTclBuilder,
                                   Domain *theDomain);
 int
 TclCommand_UpdateMaterials(ClientData clientData,
@@ -4598,22 +4598,22 @@ theTclDomain);
 
 /// added by ZHY
 extern int
-TclPackageBasicBuilderUpdateParameterCommand(ClientData clientData,
+TclSafeBuilderUpdateParameterCommand(ClientData clientData,
                                           Tcl_Interp *interp,
                                           int argc,
                                           TCL_Char **argv,
-                                          TclPackageBasicBuilder
+                                          TclSafeBuilder
 *theTclBuilder); int TclCommand_UpdateParameter(ClientData clientData,
                                     Tcl_Interp *interp,
                                     int argc,
                                     TCL_Char **argv)
 {
-  return TclPackageBasicBuilderUpdateParameterCommand(clientData, interp,
+  return TclSafeBuilderUpdateParameterCommand(clientData, interp,
                                        argc, argv, theTclBuilder);
 }
 
 extern int
-TclPackageBasicBuilderFrictionModelCommand (ClientData clienData,
+TclSafeBuilderFrictionModelCommand (ClientData clienData,
                                      Tcl_Interp *interp, int argc, TCL_Char
 **argv, Domain *theDomain);
 
@@ -4621,7 +4621,7 @@ int
 TclCommand_addFrictionModel(ClientData clientData,
                     Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  return TclPackageBasicBuilderFrictionModelCommand(clientData, interp, argc,
+  return TclSafeBuilderFrictionModelCommand(clientData, interp, argc,
 argv, theTclDomain);
 }
 
@@ -4632,7 +4632,7 @@ TclCommand_Package(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 
   void *libHandle;
   int (*funcPtr)(ClientData clientData, Tcl_Interp *interp,  int argc,
-                 TCL_Char **argv, Domain*, TclPackageBasicBuilder*);
+                 TCL_Char **argv, Domain*, TclSafeBuilder*);
 
   const char *funcName = 0;
   int res = -1;

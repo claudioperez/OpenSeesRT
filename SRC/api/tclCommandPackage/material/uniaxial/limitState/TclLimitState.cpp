@@ -78,7 +78,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv, Domain *theDomain)
 {
 
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+//  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Make sure there is a minimum number of arguments
   if (argc < 8) {
@@ -458,7 +458,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       bool found = false;
       while (limCrvCommands != NULL && found == false) {
         if (strcmp(argv[1], limCrvCommands->funcName) == 0) {
-          OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+//          OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
           theCurve = (LimitCurve *)(*(limCrvCommands->funcPtr))(argc, argv);
           found = true;
           ;
@@ -508,7 +508,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         theLimCrvCommand->next = theLimitCurvePackageCommands;
         theLimitCurvePackageCommands = theLimCrvCommand;
 
-        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+//        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
         theCurve = (LimitCurve *)(*funcPtr)(argc, argv);
       }
     }

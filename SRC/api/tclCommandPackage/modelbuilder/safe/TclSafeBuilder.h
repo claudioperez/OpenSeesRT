@@ -4,20 +4,20 @@
 \* ****************************************************************** */
 
 // $Date: 2021-10-30 $
-// $Source: OpenSees/SRC/api/tclPackage/modelbuilder/TclPackageBasicBuilder.h,v
+// $Source: OpenSees/SRC/api/tclPackage/modelbuilder/TclSafeBuilder.h,v
 // $
 
 // Written: cmp
 // Created: 10/21
 //
 // Description: This file contains the class definition for
-// TclPackageBasicBuilder. A TclPackageBasicBuilder aims to be a threadsafe
+// TclSafeBuilder. A TclSafeBuilder aims to be a threadsafe
 // alternative to the TclBasicBuilder class. This class adds the commands to
 // create the model for the standard models that can be generated using the
 // elements released with the g3 framework.
 
-#ifndef TclPackageBasicBuilder_h
-#define TclPackageBasicBuilder_h
+#ifndef TCLSAFEBUILDER_H
+#define TCLSAFEBUILDER_H
 
 #include <ModelBuilder.h>
 #include <MultiSupportPattern.h>
@@ -35,11 +35,11 @@ class FrictionModel;
 
 #include <tcl.h>
 
-class TclPackageBasicBuilder : public ModelBuilder {
+class TclSafeBuilder : public ModelBuilder {
 public:
-  TclPackageBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm,
+  TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm,
                          int ndf);
-  ~TclPackageBasicBuilder();
+  ~TclSafeBuilder();
 
   int buildFE_Model(void);
   int getNDM(void) const;
@@ -85,7 +85,7 @@ public:
 
   /* ----------------------------------------------- */
   Domain *getDomain();
-  TclPackageBasicBuilder *getBuilder();
+  TclSafeBuilder *getBuilder();
   /* ----------------------------------------------- */
 
 private:
@@ -106,7 +106,7 @@ private:
   TaggedObjectStorage *theLimitCurves; // MRL
 
   Domain *theTclDomain = 0;
-  TclPackageBasicBuilder *theTclBuilder = 0;
+  TclSafeBuilder *theTclBuilder = 0;
   int eleArgStart = 0;
   int nodeLoadTag = 0;
   int eleLoadTag = 0;
@@ -119,4 +119,5 @@ protected:
   Tcl_Interp *theInterp;
 };
 
-#endif
+#endif // TCLSAFEBUILDER_H
+

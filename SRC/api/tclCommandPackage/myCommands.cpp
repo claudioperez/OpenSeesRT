@@ -35,7 +35,8 @@
 #include "TclBasicBuilder.h"
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
-#include "TclSectionTester.h"
+#include "modelbuilder/safe/TclSafeBuilder.h"
+#include "modelbuilder/sect/TclSectionTestBuilder.h"
 
 #include <tcl.h>
 
@@ -71,7 +72,9 @@ int
 specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
-  int cArg = 0;
+  /* int cArg = 0; */
+  ModelBuilder *theNewBuilder = 0;
+  Domain *theNewDomain = new Domain();
 
   // make sure at least one other argument to contain model builder type given
   if (argc < 2) {
@@ -87,12 +90,18 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // check argv[1] for type of ModelBuilder and create the object
-  if ((strcmp(argv[1], "basic") == 0) ||
+  if ((strcmp(argv[1], "basic") == 0)        ||
       (strcmp(argv[1], "BasicBuilder") == 0) ||
-      (strcmp(argv[1], "Basic") == 0) ||
+      (strcmp(argv[1], "Basic") == 0)        ||
+      (strcmp(argv[1], "safe") == 0)         ||
       (strcmp(argv[1], "basicBuilder") == 0)) {
     int ndm = 0;
     int ndf = 0;
+    bool safe_builder = false;
+
+    if (strcmp(argv[1], "safe") == 0) {
+      safe_builder = true;
+    }
 
     if (argc < 4) {
       opserr << "WARNING incorrect number of command arguments\n";
@@ -125,7 +134,6 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         argPos++;
       }
-
       else // Advance to next input argument if there are no matches -- MHS
         argPos++;
     }
@@ -151,12 +159,16 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
     }
-
     // create the model builder
-    TclBasicBuilder *theTclBuilder =
-        new TclBasicBuilder(theDomain, interp, ndm, ndf);
+    if (!safe_builder) {
+      theNewBuilder = new TclBasicBuilder(theDomain, interp, ndm, ndf);
+      // set global variables
+      theBuilder = theNewBuilder;
+    } else {
+      theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
+    }
 
-    if (theBuilder == 0) {
+    if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating BasicBuilder model\n";
       return TCL_ERROR;
     }
@@ -173,7 +185,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
     }
-    theBuilder = new TclUniaxialMaterialTester(theDomain, interp, count);
+    theNewBuilder = new TclUniaxialMaterialTester(theDomain, interp, count);
     if (theBuilder == 0) {
       opserr << "WARNING ran out of memory in creating "
                 "TclUniaxialMAterialTester model\n";
@@ -190,8 +202,8 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    theBuilder = new TclPlaneStressMaterialTester(theDomain, interp, count);
-    if (theBuilder == 0) {
+    theNewBuilder = new TclPlaneStressMaterialTester(theDomain, interp, count);
+    if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating "
                 "TclUniaxialMAterialTester model\n";
       return TCL_ERROR;
@@ -209,8 +221,8 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
     }
-    theBuilder = new TclSectionTester(theDomain, interp, count);
-    if (theBuilder == 0) {
+    theNewBuilder = new TclSectionTestBuilder(theDomain, interp, count);
+    if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating "
                 "TclUniaxialMAterialTester model\n";
       return TCL_ERROR;

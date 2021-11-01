@@ -16,7 +16,7 @@ target_sources(OpenSeesCommandPackage
     #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
     #"modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
     "modelbuilder/safe/TclSafeBuilder.cpp"
-    #"modelbuilder/sect/TclSectionTester.cpp"
+    "modelbuilder/sect/TclSectionTestBuilder.cpp"
 
     "commands.cpp"
     "myCommands.cpp"
