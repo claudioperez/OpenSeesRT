@@ -167,7 +167,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 /*
-//  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 */
   // Pointer to a section that will be added to the model builder
   SectionForceDeformation *theSection = 0;

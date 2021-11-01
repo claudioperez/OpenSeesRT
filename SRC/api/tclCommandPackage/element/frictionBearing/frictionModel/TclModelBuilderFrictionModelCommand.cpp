@@ -63,7 +63,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-//  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // pointer to a friction model that will be added to the model builder
   FrictionModel *theFrnMdl = 0;

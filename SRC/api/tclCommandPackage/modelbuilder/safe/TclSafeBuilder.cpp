@@ -1339,7 +1339,7 @@ TclCommand_mesh(ClientData clientData, Tcl_Interp *interp,  int argc,
         return TCL_ERROR;
     }
 
-//    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
+      OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     // mesh type
     int res = 0;
@@ -1379,7 +1379,7 @@ TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,  int argc,
         return TCL_ERROR;
     }
 
-//    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
+      OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     // mesh type
     int res = 0;
@@ -1448,7 +1448,7 @@ argc, TCL_Char **argv)
         return TCL_ERROR;
     }
 
-//    OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
+      OPS_ResetInput(clientData,interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     int iTag;
     ID secTags;
