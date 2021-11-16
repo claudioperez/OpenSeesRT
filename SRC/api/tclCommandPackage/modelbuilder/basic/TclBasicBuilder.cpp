@@ -577,7 +577,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   nodeLoadTag = 0;
   eleArgStart = 0;
-  Tcl_SetAssocData(interp, "OPS::theTclBasicBuilder", NULL, (ClientData)this);
+  Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
