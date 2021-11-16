@@ -108,7 +108,7 @@ enable_language(Fortran)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
-add_compile_options(-g)
+add_compile_options(-ggdb)
 
 # Warnings
 opensees_add_cxx_flag(

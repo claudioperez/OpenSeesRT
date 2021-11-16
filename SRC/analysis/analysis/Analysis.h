@@ -49,7 +49,7 @@ class Analysis
     //    virtual int analyze(void) =0;
     virtual int domainChanged(void) = 0;
     
-  protected:
+  // protected:
     Domain *getDomainPtr(void);
     
   private:
