@@ -65,6 +65,7 @@ myCommands(Tcl_Interp *interp)
 {
   Tcl_CreateCommand(interp, "model", specifyModelBuilder, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
+  Tcl_Eval(interp, "rename load import;");
   return 0;
 }
 
@@ -174,8 +175,8 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-/*
   else if ((strcmp(argv[1], "test") == 0) ||
+           (strcmp(argv[1], "uniaxial") == 0) ||
            (strcmp(argv[1], "TestUniaxial") == 0) ||
            (strcmp(argv[1], "testUniaxial") == 0) ||
            (strcmp(argv[1], "UniaxialMaterialTest") == 0)) {
@@ -186,12 +187,13 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
     theNewBuilder = new TclUniaxialMaterialTester(theDomain, interp, count);
-    if (theBuilder == 0) {
+    if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating "
-                "TclUniaxialMAterialTester model\n";
+                "TclUniaxialMaterialTester model\n";
       return TCL_ERROR;
     }
   }
+/*
 
   else if ((strcmp(argv[1], "testPlaneStress") == 0) ||
            (strcmp(argv[1], "PlaneStressMaterialTest") == 0)) {

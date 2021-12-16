@@ -65,10 +65,7 @@ extern SimulationInformation simulationInfo;
 //   note Tcl_Split list stores the array of pointers and the strings in
 //   one array, which is why Tcl_Free needs only be called on the array.
 static void
-cleanup(TCL_Char **argv)
-{
-  Tcl_Free((char *)argv);
-}
+cleanup(TCL_Char **argv){Tcl_Free((char *)argv);}
 
 extern void *OPS_ConstantSeries(void);
 extern void *OPS_LinearSeries(void);
@@ -80,18 +77,65 @@ extern void *OPS_PeerMotion(void);
 extern void *OPS_PeerNGAMotion(void);
 
 #include <elementAPI.h>
+#include <elementAPI_G3.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-#include <TclBasicBuilder.h>
+// #include <TclBasicBuilder.h>
+
+void *
+G3_newLinearSeries(Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  // Pointer to a uniaxial material that will be returned
+  TimeSeries *theSeries = 0;
+
+  int numRemainingArgs = argc;
+
+  int tag = 0;
+  double cFactor = 1.0;
+  int numData = 0;
+
+  if (numRemainingArgs != 0) {
+
+    if (numRemainingArgs == 1 || numRemainingArgs == 3) {
+      if (Tcl_GetInt(interp, argv[0], &tag) != 0) {
+	    opserr << "WARNING invalid series tag in LinearSeries tag? <-factor factor?>" << endln;
+	    return 0;
+      }
+      numRemainingArgs--;
+    }
+
+    if (numRemainingArgs > 1) {
+       const char *argvS = argv[1];
+	   if (argvS == 0) {
+		  opserr << "WARNING string error in LinearSeries with tag: " << tag << endln;
+		return 0;
+	  }
+      numData = 1;
+      if (Tcl_GetDouble(interp, argv[2], &cFactor) != 0) {
+	opserr << "WARNING invalid factor in LinearSeries with tag: " << tag << endln;
+	return 0;
+      }
+    }
+  }
+
+  theSeries = new LinearSeries(tag, cFactor);
+
+  if (theSeries == 0) {
+    opserr << "WARNING ran out of memory creating ConstantTimeSeries with tag: " << tag << "\n";
+    return 0;
+  }
+
+  return theSeries;
+}
 
 TimeSeries *
 TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char **argv, Domain *theDomain)
 {
   // note the 1 instead of usual 2
-    OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, theDomain);
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, theDomain);
 
   TimeSeries *theSeries = 0;
 
@@ -116,9 +160,12 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[0], "Linear") == 0) ||
            (strcmp(argv[0], "LinearSeries") == 0)) {
 
-    void *theResult = OPS_LinearSeries();
+    // void *theResult = OPS_LinearSeries();
+    void *theResult = G3_newLinearSeries(interp, argc-1, &argv[1]);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
+    else
+      opserr << "ERROR\n";
 
   }
 
@@ -614,10 +661,13 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
 {
   int argc;
   TCL_Char **argv;
-
+  TimeSeries* series;
   int timeSeriesTag = 0;
   if (Tcl_GetInt(interp, arg, &timeSeriesTag) == TCL_OK) {
-    return OPS_getTimeSeries(timeSeriesTag);
+    if (series = G3_getTimeSeries(interp, timeSeriesTag))
+      return series;
+    else
+      return OPS_getTimeSeries(timeSeriesTag);
   }
 
   // split the list

@@ -39,6 +39,8 @@
 // What: "@(#) TclPatternCommand.C, revA"
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
+#include <elementAPI_G3.h>
 
 #include <tcl.h>
 #include <Domain.h>
@@ -886,6 +888,9 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   theTclLoadPattern = thePattern;
+  TclSafeBuilder *builder = G3_getSafeBuilder(interp);
+  if (builder)
+    builder->setEnclosingPattern(thePattern);
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands

@@ -14,7 +14,7 @@ target_sources(OpenSeesCommandPackage
     # Model Builders
     "modelbuilder/basic/TclBasicBuilder.cpp"
     #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
-    #"modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
+    "modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
     "modelbuilder/safe/TclSafeBuilder.cpp"
     "modelbuilder/sect/TclSectionTestBuilder.cpp"
 
@@ -72,15 +72,22 @@ target_sources(OpenSeesCommandPackage
     "element/zeroLength/TclZeroLength.cpp"
     #"element/nonlinearBeamColumn/tcl/TclElmtBuilder.cpp"
 
-    ## Materials
+    #------------------------------------------------
+    # Materials
+    #------------------------------------------------
     "material/nD/TclModelBuilderNDMaterialCommand.cpp"
     "material/nD/soil/TclUpdateMaterialStageCommand.cpp"
 
     "material/section/TclModelBuilderSectionCommand.cpp"
     "material/section/yieldSurface/TclModelBuilderYS_SectionCommand.cpp"
 
-    "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
     "material/uniaxial/TclModelBuilderUniaxialMaterialCommand.cpp"
+    "material/uniaxial/TclSafeUniaxialCommand.cpp"
+    "material/uniaxial/TclKikuchiAiken.cpp"
+    "material/uniaxial/TclAxialSp.cpp"
+    #"material/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    "material/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
     "material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
     "material/uniaxial/limitState/TclLimitState.cpp"
     "material/uniaxial/snap/TclSnapMaterialCommand.cpp"
@@ -93,11 +100,6 @@ target_sources(OpenSeesCommandPackage
     "material/yieldSurface/yieldSurfaceBC/TclModelBuilderYieldSurfaceBCCommand.cpp"
 
     #"damage/TclModelBuilderDamageModelCommand.cpp"
-
-    "elementAPI_PYG3.cpp"
-    tcl_packages.cpp
-    "misc/TclFeViewer.cpp"
-
     ## Optimization 
     #"optimization/tcl/TclOptimizationBuilder.cpp"
 
@@ -110,13 +112,17 @@ target_sources(OpenSeesCommandPackage
     
     #"material/nD/feap/TclFeapMaterialCommand.cpp"
     "material/uniaxial/drain/TclDrainMaterialCommand.cpp"
-    #"material/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     #"element/feap/TclFeapElementCommand.cpp"
     #"element/PFEMElement/TclModelBuilder_addPFEMElement.cpp"
     #"element/PFEMElement/TclPFEMCommands.cpp"
     
     #"interpreter/TclWrapper.cpp"
     #"${OPS_SRC_DIR}/interpreter/OpenSeesMiscCommands.cpp"
+
+    "elementAPI_PYG3.cpp"
+    tcl_packages.cpp
+    "misc/TclFeViewer.cpp"
+
 )
 
 target_compile_definitions(OpenSeesCommandPackage PRIVATE USE_TCL_STUBS _TCL85 _NOGRAPHICS)

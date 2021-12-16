@@ -30,6 +30,7 @@
 #include <Node.h>
 #include <tcl.h>
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 #include <WrapperElement.h>
 
 #include <map>
@@ -107,10 +108,10 @@ struct cmp_str {
   }
 };
 
-std::map<char *, eleFunct, cmp_str>
-    theEleFunctions; // map of user added ele functions
-std::map<char *, eleFunct, cmp_str>
-    theUniaxialMaterialFunctions; // map of user added material functions
+// std::map<char *, eleFunct, cmp_str>
+//     theEleFunctions; // map of user added ele functions
+// std::map<char *, eleFunct, cmp_str>
+//     theUniaxialMaterialFunctions; // map of user added material functions
 
 // std::map<int, UniaxialMaterial *>theUniaxialMaterials;           // map for
 // UniaxialMaterial objects needed by user added ele functions'
@@ -973,6 +974,65 @@ OPS_InvokeMaterialDirectly(matObject **theMat, modelState *model,
   return error;
 }
 
+TclSafeBuilder *
+G3_getSafeBuilder(Tcl_Interp *interp)
+{
+  TclSafeBuilder *theTclBuilder =
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
+  return theTclBuilder;
+}
+
+
+Domain *
+G3_getDomain(Tcl_Interp *interp)
+{
+  ModelBuilder *theTclBuilder =
+      (ModelBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
+  Domain *theTclDomain = theTclBuilder->getDomainPtr();
+  return theTclDomain;
+}
+
+int G3_addTimeSeries(Tcl_Interp *interp, TimeSeries *series)
+{
+  TclSafeBuilder *builder =
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+
+  return builder->addTimeSeries(series);
+}
+
+/*
+int G3_removeTimeSeries(Tcl_Interp *interp, int tag) {
+    TaggedObject* obj = theTimeSeriesObjects.removeComponent(tag);
+    if (obj != 0) {
+      delete obj;
+      return true;
+    }
+    return false;
+}
+*/
+
+TimeSeries *G3_getTimeSeries(Tcl_Interp *interp, int tag)
+{
+  TimeSeries *series;
+  TclSafeBuilder *builder =
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  if (builder) {
+     series = builder->getTimeSeries(std::to_string(tag));
+  } else {
+    // opserr << "WARNING: Unable to find safe model builder\n";
+    series = nullptr;
+  }
+
+  return series;
+}
+/*
+void G3_clearAllTimeSeries(void) {
+  theTimeSeriesObjects.clearAll();
+}
+*/   
+
+
+
 extern "C" int
 OPS_InvokeMaterialDirectly2(matObject *theMat, modelState *model,
                             double *strain, double *stress, double *tang,
@@ -994,6 +1054,33 @@ OPS_GetUniaxialMaterial(int matTag)
 {
   return OPS_getUniaxialMaterial(matTag);
 }
+
+UniaxialMaterial *
+G3_getUniaxialMaterialInstance(Tcl_Interp *interp, int tag)
+{
+  TclSafeBuilder* builder = G3_getSafeBuilder(interp);
+  if (!builder) {
+    return 0;
+  }
+
+  UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
+  // if (theResult == 0) {
+  //   opserr << "UniaxialMaterial *getUniaxialMaterialInstance(int tag) - none found with tag: " << tag << endln;
+  //   return 0;
+  // }
+  // UniaxialMaterial *theMat = (UniaxialMaterial *)theResult;
+
+  return mat ? mat : OPS_getUniaxialMaterial(tag);
+}
+
+int G3_addUniaxialMaterial(Tcl_Interp* interp, UniaxialMaterial *newComponent) {
+  TclSafeBuilder* builder = G3_getSafeBuilder(interp);
+  if (!builder) {
+    return 0;
+  }
+  return builder->addUniaxialMaterial(newComponent);
+}
+
 
 NDMaterial *
 OPS_GetNDMaterial(int matTag)
@@ -1103,11 +1190,70 @@ OPS_GetStaticAnalysis(void)
   return &theStaticAnalysis;
 }
 
+StaticAnalysis *
+G3_getStaticAnalysis(Tcl_Interp* interp)
+{
+  StaticAnalysis *analysis =
+      (StaticAnalysis *)Tcl_GetAssocData(interp, "OPS::theStaticAnalysis", NULL);
+
+  return analysis;
+}
+
+int
+G3_setStaticAnalysis(Tcl_Interp* interp, StaticAnalysis *the_analysis)
+{
+  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", NULL, (ClientData)the_analysis);
+  return 1;
+}
+int
+G3_delStaticAnalysis(Tcl_Interp* interp)
+{
+  StaticAnalysis* ana;
+  if (ana=G3_getStaticAnalysis(interp))
+    ;// delete ana;
+  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", NULL, (ClientData)NULL);
+  return 1;
+}
+
+StaticIntegrator *
+G3_getStaticIntegrator(Tcl_Interp* interp)
+{
+  StaticIntegrator *analysis =
+      (StaticIntegrator *)Tcl_GetAssocData(interp, "OPS::theStaticIntegrator", NULL);
+
+  return analysis;
+}
+
+int
+G3_setStaticIntegrator(Tcl_Interp* interp, StaticIntegrator *the_analysis)
+{
+  Tcl_SetAssocData(interp, "OPS::theStaticIntegrator", NULL, (ClientData)the_analysis);
+  return 1;
+}
+
+
 DirectIntegrationAnalysis **
 OPS_GetTransientAnalysis(void)
 {
   return &theTransientAnalysis;
 }
+
+DirectIntegrationAnalysis *
+G3_getTransientAnalysis(Tcl_Interp* interp)
+{
+  DirectIntegrationAnalysis *analysis =
+      (DirectIntegrationAnalysis *)Tcl_GetAssocData(interp, "OPS::theTransientAnalysis", NULL);
+
+  return analysis;
+}
+
+int
+G3_setTransientAnalysis(Tcl_Interp* interp, DirectIntegrationAnalysis *the_analysis)
+{
+  Tcl_SetAssocData(interp, "OPS::theTransientAnalysis", NULL, (ClientData)the_analysis);
+  return 1;
+}
+
 
 VariableTimeStepDirectIntegrationAnalysis **
 OPS_GetVariableTimeStepTransientAnalysis(void)

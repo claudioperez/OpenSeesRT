@@ -27,6 +27,7 @@
 class SectionForceDeformation;
 class SectionRepres;
 class NDMaterial;
+class UniaxialMaterial;
 class TaggedObjectStorage;
 class YieldSurface_BC;
 class YS_Evolution;
@@ -48,12 +49,22 @@ public:
   int getNDM(void) const;
   int getNDF(void) const;
 
-  int addTimeSeries(std::string, TimeSeries*);
+  int addTimeSeries(const std::string&, TimeSeries*);
+  int addTimeSeries(TimeSeries*);
+  TimeSeries* getTimeSeries(const std::string&);
+
+  int incrNodalLoadTag(void);
+  int decrNodalLoadTag(void);
+  int getNodalLoadTag(void) const;
+
+  LoadPattern* getEnclosingPattern(void) const;
+  int setEnclosingPattern(LoadPattern*);
 
   // methods needed for the truss and fiber-beam elements for
   // adding/getting uniaxial material objects
-  // REMOVED    int addUniaxialMaterial(UniaxialMaterial &theMaterial);
-  //            UniaxialMaterial *getUniaxialMaterial(int tag);
+  // REMOVED
+  int addUniaxialMaterial(UniaxialMaterial *theMaterial);
+  UniaxialMaterial *getUniaxialMaterial(int tag);
 
   // methods needed for the continuum elements and generic section
   // models to add/get ND material models
@@ -89,8 +100,8 @@ public:
   // FrictionModel *getFrictionModel(int tag);
 
   /* ----------------------------------------------- */
-  Domain *getDomain();
-  TclSafeBuilder *getBuilder();
+  Domain *getDomain(void) const;
+  TclSafeBuilder *getBuilder(void) const;
   /* ----------------------------------------------- */
 
 private:
@@ -98,7 +109,7 @@ private:
   int ndf; // number of degrees of freedom per node
 
   // TODO: change to std::map<>
-  //    TaggedObjectStorage *theUniaxialMaterials;
+  TaggedObjectStorage *theUniaxialMaterials;
   TaggedObjectStorage *theNDMaterials;
   TaggedObjectStorage *theSections;
   TaggedObjectStorage *theSectionRepresents;
@@ -117,10 +128,11 @@ private:
   int eleLoadTag = 0;
 
   // previously extern variables
-  LoadPattern *theTclLoadPattern = 0;
+  LoadPattern *tclEnclosingPattern = 0;
+
   MultiSupportPattern *theTclMultiSupportPattern = 0;
 
-  std::map<std::string, TimeSeries*> theTimeSeriesObjects;
+  std::map<std::string, TimeSeries*> theTimeSeriesMap;
 
 protected:
   Tcl_Interp *theInterp;

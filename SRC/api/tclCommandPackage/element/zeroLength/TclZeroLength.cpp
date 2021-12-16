@@ -31,6 +31,7 @@
 #include <string.h>
 #include <tcl.h>
 
+#include <elementAPI_G3.h>
 #include <ZeroLength.h>
 #include <ZeroLengthND.h>
 #include <ZeroLengthSection.h>
@@ -166,10 +167,10 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp,
 
       // get a pointer to the material from the modelbuilder
       argi++;
-      UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matID);
+      UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(interp,matID);
       if (theMat == 0) {
         opserr << "WARNING no material " << matID
-               << "exitsts - element ZeroLength eleTag? iNode? jNode? "
+               << " exists - element ZeroLength eleTag? iNode? jNode? "
                << "-mat matID1? ... -dir dirMat1? .. "
                << "<-orient x1? x2? x3? y1? y2? y3?>\n";
         delete[] theMats;
@@ -303,10 +304,10 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp,
           delete[] theMats;
           return TCL_ERROR;
         } else {
-          UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matID);
+          UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(interp,matID);
           if (theMat == 0) {
             opserr << "WARNING no material " << matID
-                   << "exitsts - element ZeroLength eleTag? iNode? jNode? "
+                   << " exists - element ZeroLength eleTag? iNode? jNode? "
                    << "-mat matID1? ... -dir dirMat1? .. "
                    << "<-orient x1? x2? x3? y1? y2? y3?>\n";
             delete[] theMats;
@@ -822,7 +823,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    the1DMat = OPS_getUniaxialMaterial(uniTag);
+    the1DMat = G3_getUniaxialMaterialInstance(interp,uniTag);
 
     if (the1DMat == 0)
       opserr << "WARNING UniaxialMaterial " << uniTag

@@ -24,7 +24,7 @@
 // /usr/local/cvs/OpenSees/SRC/material/uniaxial/TclBasicBuilderUniaxialMaterialCommand.cpp,v
 // $
 
-// Written: fmk, MHS
+// Written: fmk, MHS, cmp
 // Created: 07/99
 //
 // Description: This file contains the function invoked when the user invokes
@@ -34,8 +34,10 @@
 
 //#include <TclBasicBuilder.h>
 #include <unordered_map> // std::unordered_map
+#include <iostream>
 #include <tcl.h>
 #include <elementAPI.h>
+#include <elementAPI_G3.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
@@ -187,13 +189,23 @@ extern void *OPS_Trilinwp2(void);
 extern void *OPS_Masonryt(void);
 
 
-// typedef  UniaxialMaterial *(*G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
+typedef  int (*G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
 // G3_UniaxialCommand TclBasicBuilder_addFedeasMaterial;
-// G3_UniaxialCommand TclSafeBuilder_addFedeasWrapper;
-// const std::unordered_map<std::string, G3_UniaxialCommand> compiled_material_map {
+G3_UniaxialCommand TclSafeBuilder_addFedeasWrapper;
+G3_UniaxialCommand TclCommand_KikuchiAikenHDR;
+G3_UniaxialCommand TclCommand_KikuchiAikenLRB;
+G3_UniaxialCommand TclCommand_AxialSp;
+G3_UniaxialCommand TclCommand_AxialSpHD;
+
+const std::unordered_map<std::string, G3_UniaxialCommand> compiled_material_map {
 // {"fedeas", TclBasicBuilder_addFedeasMaterial}
-//    {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper}
-// };
+    {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper}
+   ,{"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR     }
+   ,{"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB     }
+   ,{"AxialSp",             TclCommand_AxialSp             }
+   ,{"AxialSpHD",           TclCommand_AxialSpHD           }
+  // }
+};
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
 // *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder *theTclBuilder);
@@ -227,18 +239,6 @@ printCommand(int argc, TCL_Char **argv)
 
 // external functions
 
-int TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv);
-
-int TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv);
-
-int TclCommand_AxialSp(ClientData clientData, Tcl_Interp *interp, int argc,
-                       TCL_Char **argv);
-
-int TclCommand_AxialSpHD(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv);
-
 // UniaxialMaterial *TclBasicBuilder_addFedeasMaterial(ClientData clientData,
 //                                                     Tcl_Interp *interp,
 //                                                     int argc, TCL_Char **argv);
@@ -265,7 +265,7 @@ UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
                                                        int, TCL_Char **);
 
 int
-TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
+TclSafeBuilderUniaxialCommand(ClientData clientData,
                                        Tcl_Interp *interp, int argc,
                                        TCL_Char **argv, Domain *theDomain)
 {
@@ -278,10 +278,18 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a uniaxial material that will be added to the model builder
   UniaxialMaterial *theMaterial = 0;
+  
+  auto cmd = compiled_material_map.find(argv[1]);
+
+  if (cmd != compiled_material_map.end()) {
+    opserr << cmd->first.c_str() << "----------\n";
+    return cmd->second(clientData,interp,argc,&argv[0]);
+  }
+  
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Check argv[2] for uniaxial material type
   if (strcmp(argv[1], "Elastic") == 0) {
@@ -1455,7 +1463,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *material = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *material = G3_getUniaxialMaterialInstance(interp,matTag);
 
     if (material == 0) {
       opserr << "WARNING material does not exist\n";
@@ -1570,7 +1578,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       j++;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(interp,matTag);
 
     if (theMat == 0) {
       opserr << "WARNING component material does not exist\n";
@@ -2940,14 +2948,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
   if (theMaterial == 0)
     theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
 
-#if defined(OPSDEF_DAMAGE_FEDEAS)
-  if (theMaterial == 0)
-    theMaterial =
-        TclBasicBuilder_addDegradingMaterial(clientData, interp, argc, argv);
-#endif
-
   if (theMaterial == 0) {
-
     //
     // maybe element in a class package already loaded
     //  loop through linked list of loaded functions comparing names & if find
@@ -3049,21 +3050,20 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
 }
 /*
 int
-TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv)
+TclCommand_AxialSp(ClientData clientData, Tcl_Interp *interp, int argc,
+                   TCL_Char **argv)
 {
   // arguments (necessary)
   int tag;
-  int tp;
-  double ar;
-  double hr;
+  double sce;
+  double fty;
+  double fcy;
 
   // arguments (optional)
-  double cg = 1.0;
-  double ch = 1.0;
-  double cu = 1.0;
-  double rs = 1.0;
-  double rf = 1.0;
+  double bte = 0.0;
+  double bty = 0.0;
+  double bcy = 0.0;
+  double fcr = 0.0;
 
   //
   UniaxialMaterial *theMaterial = 0;
@@ -3071,92 +3071,67 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
   // error flag
   bool ifNoError = true;
 
-  if (argc < 6) { // uniaxialMaterial KikuchiAikenHDR matTag? tp? ar? hr?
+  if (argc < 6 ||
+      argc > 10) { // uniaxialMaterial AxialSp matTag? sce? fty? fcy?
 
     opserr << "WARNING invalid number of arguments\n";
     ifNoError = false;
+  }
 
-  } else {
+  // argv[2~5]
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    opserr << "WARNING invalid AxialSp tag" << endln;
+    ifNoError = false;
+  }
 
-    // argv[2~5]
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid KikuchiAikenHDR tag" << endln;
+  if (Tcl_GetDouble(interp, argv[3], &sce) != TCL_OK) {
+    opserr << "WARNING invalid sce\n";
+    opserr << "AxialSp: " << tag << endln;
+    ifNoError = false;
+  }
+
+  if (Tcl_GetDouble(interp, argv[4], &fty) != TCL_OK) {
+    opserr << "WARNING invalid fty\n";
+    opserr << "AxialSp: " << tag << endln;
+    ifNoError = false;
+  }
+
+  if (Tcl_GetDouble(interp, argv[5], &fcy) != TCL_OK) {
+    opserr << "WARNING invalid fcy\n";
+    opserr << "AxialSp: " << tag << endln;
+    ifNoError = false;
+  }
+
+  // argv[6~]
+  if (argc >= 7) {
+    if (Tcl_GetDouble(interp, argv[6], &bte) != TCL_OK) {
+      opserr << "WARNING invalid bte\n";
+      opserr << "AxialSp: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if ((strcmp(argv[3], "X0.6") == 0) || (strcmp(argv[3], "1") == 0)) {
-      tp = 1;
-    } else if ((strcmp(argv[3], "X0.6-0MPa") == 0) ||
-               (strcmp(argv[3], "2") == 0)) {
-      tp = 2;
-    } else if ((strcmp(argv[3], "X0.4") == 0) || (strcmp(argv[3], "3") == 0)) {
-      tp = 3;
-    } else if ((strcmp(argv[3], "X0.4-0MPa") == 0) ||
-               (strcmp(argv[3], "4") == 0)) {
-      tp = 4;
-    } else if ((strcmp(argv[3], "X0.3") == 0) || (strcmp(argv[3], "5") == 0)) {
-      tp = 5;
-    } else if ((strcmp(argv[3], "X0.3-0MPa") == 0) ||
-               (strcmp(argv[3], "6") == 0)) {
-      tp = 6;
-    } else {
-      opserr << "WARNING invalid KikuchiAikenHDR tp" << endln;
+  if (argc >= 8) {
+    if (Tcl_GetDouble(interp, argv[7], &bty) != TCL_OK) {
+      opserr << "WARNING invalid bty\n";
+      opserr << "AxialSp: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetDouble(interp, argv[4], &ar) != TCL_OK || ar <= 0.0) {
-      opserr << "WARNING invalid ar\n";
+  if (argc >= 9) {
+    if (Tcl_GetDouble(interp, argv[8], &bcy) != TCL_OK) {
+      opserr << "WARNING invalid bcy\n";
+      opserr << "AxialSp: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetDouble(interp, argv[5], &hr) != TCL_OK || hr <= 0.0) {
-      opserr << "WARNING invalid hr\n";
+  if (argc == 10) {
+    if (Tcl_GetDouble(interp, argv[9], &fcr) != TCL_OK) {
+      opserr << "WARNING invalid fcr\n";
+      opserr << "AxialSp: " << tag << endln;
       ifNoError = false;
-    }
-
-    // argv[6~]
-    for (int i = 6; i <= (argc - 1); i++) {
-
-      if (strcmp(argv[i], "-coGHU") == 0 &&
-          (i + 3) <= (argc - 1)) { // <-coGHU cg? ch? cu?>
-
-        if (Tcl_GetDouble(interp, argv[i + 1], &cg) != TCL_OK || cg < 0.0) {
-          opserr << "WARNING invalid cg\n";
-          ifNoError = false;
-        }
-
-        if (Tcl_GetDouble(interp, argv[i + 2], &ch) != TCL_OK || ch < 0.0) {
-          opserr << "WARNING invalid ch\n";
-          ifNoError = false;
-        }
-
-        if (Tcl_GetDouble(interp, argv[i + 3], &cu) != TCL_OK || cu < 0.0) {
-          opserr << "WARNING invalid cu\n";
-          ifNoError = false;
-        }
-
-        i += 3;
-
-      } else if (strcmp(argv[i], "-coMSS") == 0 &&
-                 (i + 2) <= (argc - 1)) { // <-coMSS rs? rf?>
-
-        if (Tcl_GetDouble(interp, argv[i + 1], &rs) != TCL_OK || rs < 0.0) {
-          opserr << "WARNING invalid rs\n";
-          ifNoError = false;
-        }
-
-        if (Tcl_GetDouble(interp, argv[i + 2], &rf) != TCL_OK || rf < 0.0) {
-          opserr << "WARNING invalid rf\n";
-          ifNoError = false;
-        }
-
-        i += 2;
-
-      } else { // invalid option
-        opserr << "WARNING invalid optional arguments \n";
-        ifNoError = false;
-        break;
-      }
     }
   }
 
@@ -3170,26 +3145,14 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << endln;
 
     // want:
-    opserr << "Want: uniaxialMaterial KikuchiAikenHDR matTag? tp? ar? hr? "
-              "<-coGHU cg? ch? cu?> <-coMSS rs? rf?>"
+    opserr << "WANT: AxialSp tag? sce? fty? fcy? <bte?> <bty?> <bcy?> <fcr?>"
            << endln;
+
     return TCL_ERROR;
   }
 
-  // regard 0.0 input as mistake (substitute 1.0 for 0.0)
-  if (cg == 0.0)
-    cg = 1.0;
-  if (ch == 0.0)
-    ch = 1.0;
-  if (cu == 0.0)
-    cu = 1.0;
-  if (rs == 0.0)
-    rs = 1.0;
-  if (rf == 0.0)
-    rf = 1.0;
-
   // Parsing was successful, allocate the material
-  theMaterial = new KikuchiAikenHDR(tag, tp, ar, hr, cg, ch, cu, rs, rf);
+  theMaterial = new AxialSp(tag, sce, fty, fcy, bte, bty, bcy, fcr);
 
   if (theMaterial == 0) {
     opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
@@ -3203,33 +3166,28 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
     delete theMaterial; // invoke the material objects destructor, otherwise mem
                         // leak
     return TCL_ERROR;
+  } else {
+    return TCL_OK;
   }
-
-  // succeeded
-  return TCL_OK;
 }
 
 int
-TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv)
+TclCommand_AxialSpHD(ClientData clientData, Tcl_Interp *interp, int argc,
+                     TCL_Char **argv)
 {
   // arguments (necessary)
   int tag;
-  int type = 1;
-  double ar = 0.0;
-  double hr = 0.0;
-  double gr = 0.392e6;
-  double ap = 0.0;
-  double tp = 8.33e6;
-  double alph = 0.588e6;
-  double beta = 13.0;
+  double sce;
+  double fty;
+  double fcy;
 
   // arguments (optional)
-  double temp = 15.0;
-  double rk = 1.0;
-  double rq = 1.0;
-  double rs = 1.0;
-  double rf = 1.0;
+  double bte = 1.0;
+  double bty = 1.0;
+  double bth = 1.0;
+  double bcy = 1.0;
+  double fcr = 0.0;
+  double ath = 1.0;
 
   //
   UniaxialMaterial *theMaterial = 0;
@@ -3237,106 +3195,83 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
   // error flag
   bool ifNoError = true;
 
-  if (argc < 11) { // uniaxialMaterial KikuchiAikenLRB matTag? type? ar? hr? gr?
-                   // ap? tp? alph? beta?
+  if (argc < 6 ||
+      argc > 12) { // uniaxialMaterial AxialSpHD matTag? sce? fty? fcy?
 
-    opserr << "WARNING KikuchiAikenLRB invalid number of arguments\n";
+    opserr << "WARNING invalid number of arguments\n";
     ifNoError = false;
+  }
 
-  } else {
+  // argv[2~5]
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    opserr << "WARNING invalid AxialSpHD tag" << endln;
+    ifNoError = false;
+  }
 
-    // argv[2~10]
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING KikuchiAikenLRB invalid tag" << endln;
+  if (Tcl_GetDouble(interp, argv[3], &sce) != TCL_OK) {
+    opserr << "WARNING invalid sce\n";
+    opserr << "AxialSpHD: " << tag << endln;
+    ifNoError = false;
+  }
+
+  if (Tcl_GetDouble(interp, argv[4], &fty) != TCL_OK) {
+    opserr << "WARNING invalid fty\n";
+    opserr << "AxialSpHD: " << tag << endln;
+    ifNoError = false;
+  }
+
+  if (Tcl_GetDouble(interp, argv[5], &fcy) != TCL_OK) {
+    opserr << "WARNING invalid fcy\n";
+    opserr << "AxialSpHD: " << tag << endln;
+    ifNoError = false;
+  }
+
+  // argv[6~]
+  if (argc >= 7) {
+    if (Tcl_GetDouble(interp, argv[6], &bte) != TCL_OK) {
+      opserr << "WARNING invalid bte\n";
+      opserr << "AxialSpHD: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetInt(interp, argv[3], &type) != TCL_OK) {
-      opserr << "WARNING KikuchiAikenLRB invalid type" << endln;
+  if (argc >= 8) {
+    if (Tcl_GetDouble(interp, argv[7], &bty) != TCL_OK) {
+      opserr << "WARNING invalid bty\n";
+      opserr << "AxialSpHD: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetDouble(interp, argv[4], &ar) != TCL_OK || ar <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid ar" << endln;
+  if (argc >= 9) {
+    if (Tcl_GetDouble(interp, argv[8], &bth) != TCL_OK) {
+      opserr << "WARNING invalid bth\n";
+      opserr << "AxialSpHD: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetDouble(interp, argv[5], &hr) != TCL_OK || ar <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid hr" << endln;
+  if (argc >= 10) {
+    if (Tcl_GetDouble(interp, argv[9], &bcy) != TCL_OK) {
+      opserr << "WARNING invalid bcy\n";
+      opserr << "AxialSpHD: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetDouble(interp, argv[6], &gr) != TCL_OK || gr <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid gr" << endln;
+  if (argc >= 11) {
+    if (Tcl_GetDouble(interp, argv[10], &fcr) != TCL_OK) {
+      opserr << "WARNING invalid fcr\n";
+      opserr << "AxialSpHD: " << tag << endln;
       ifNoError = false;
     }
+  }
 
-    if (Tcl_GetDouble(interp, argv[7], &ap) != TCL_OK || ap <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid ap" << endln;
+  if (argc == 12) {
+    if (Tcl_GetDouble(interp, argv[11], &ath) != TCL_OK) {
+      opserr << "WARNING invalid ath\n";
+      opserr << "AxialSpHD: " << tag << endln;
       ifNoError = false;
-    }
-
-    if (Tcl_GetDouble(interp, argv[8], &tp) != TCL_OK || tp <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid tp" << endln;
-      ifNoError = false;
-    }
-
-    if (Tcl_GetDouble(interp, argv[9], &alph) != TCL_OK || alph <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid alph" << endln;
-      ifNoError = false;
-    }
-
-    if (Tcl_GetDouble(interp, argv[10], &beta) != TCL_OK || beta <= 0.0) {
-      opserr << "WARNING KikuchiAikenLRB invalid beta" << endln;
-      ifNoError = false;
-    }
-
-    // argv[11~]
-    for (int i = 11; i <= (argc - 1); i++) {
-
-      if (strcmp(argv[i], "-T") == 0 && (i + 1) <= (argc - 1)) { // <-T temp?>
-
-        if (Tcl_GetDouble(interp, argv[i + 1], &temp) != TCL_OK) {
-          opserr << "WARNING KikuchiAikenLRB invalid temp" << endln;
-          ifNoError = false;
-        }
-
-        i += 1;
-
-      } else if (strcmp(argv[i], "-coKQ") == 0 &&
-                 (i + 2) <= (argc - 1)) { // <-coKQ rk? rq?>
-
-        if (Tcl_GetDouble(interp, argv[i + 1], &rk) != TCL_OK || rk < 0.0) {
-          opserr << "WARNING KikuchiAikenLRB invalid rk" << endln;
-          ifNoError = false;
-        }
-
-        if (Tcl_GetDouble(interp, argv[i + 2], &rq) != TCL_OK || rq < 0.0) {
-          opserr << "WARNING KikuchiAikenLRB invalid rq" << endln;
-          ifNoError = false;
-        }
-
-        i += 2;
-      } else if (strcmp(argv[i], "-coMSS") == 0 &&
-                 (i + 2) <= (argc - 1)) { // <-coMSS rs? rf?>
-
-        if (Tcl_GetDouble(interp, argv[i + 1], &rs) != TCL_OK || rs < 0.0) {
-          opserr << "WARNING KikuchiAikenLRB invalid rs" << endln;
-          ifNoError = false;
-        }
-
-        if (Tcl_GetDouble(interp, argv[i + 2], &rf) != TCL_OK || rf < 0.0) {
-          opserr << "WARNING KikuchiAikenLRB invalid rf" << endln;
-          ifNoError = false;
-        }
-
-        i += 2;
-
-      } else { // invalid option
-        opserr << "WAINING KikuchiAikenLRB invalid optional arguments" << endln;
-        ifNoError = false;
-        break;
-      }
     }
   }
 
@@ -3349,28 +3284,16 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     opserr << endln;
 
-    // want:
-    opserr
-        << "Want: uniaxialMaterial KikuchiAikenLRB matTag? type? ar? hr? gr? "
-           "ap? tp? alph? beta? <-T temp? > <-coKQ rk? rq?> <-coMSS rs? rf?>"
-        << endln;
-    //
+    // wand:
+    opserr << "WANT: AxialSpHD tag? sce? fty? fcy? <bte?> <bty?> <bth?> <bcy?> "
+              "<fcr?> <ath?>"
+           << endln;
+
     return TCL_ERROR;
   }
 
-  // regard 0.0 input as misteke (substitute 1.0 for 0.0)
-  if (rk == 0.0)
-    rk = 1.0;
-  if (rq == 0.0)
-    rq = 1.0;
-  if (rs == 0.0)
-    rs = 1.0;
-  if (rf == 0.0)
-    rf = 1.0;
-
   // Parsing was successful, allocate the material
-  theMaterial = new KikuchiAikenLRB(tag, type, ar, hr, gr, ap, tp, alph, beta,
-                                    temp, rk, rq, rs, rf);
+  theMaterial = new AxialSpHD(tag, sce, fty, fcy, bte, bty, bth, bcy, fcr, ath);
 
   if (theMaterial == 0) {
     opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
@@ -3389,4 +3312,3 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 }
 */
-

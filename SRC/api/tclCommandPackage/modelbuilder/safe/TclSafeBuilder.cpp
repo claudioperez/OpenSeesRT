@@ -29,9 +29,11 @@
 
 //
 // What: "@(#) TclSafeBuilder.cpp, revA"
-
+//
+#include <elementAPI_G3.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 #include <Matrix.h>
 #include <Vector.h>
@@ -88,8 +90,8 @@ using std::vector;                 // L.Jiang [SIF]
 /*
 #include <SimulationInformation.h>				//L.Jiang [SIF]
 extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
-extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 */
+extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
 /*--------------------------------------------------------------------
 #include <Block2D.h>
@@ -154,16 +156,14 @@ extern int OPS_ResetInput(ClientData clientData,
 int
 TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int ,
                         TCL_Char **argv);
+
 */
+static int TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int,
+                              TCL_Char **argv);
+int TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int,
+                          TCL_Char **);
 
-static int
-TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int ,
-                       TCL_Char **argv);
 /*
-int
-TclCommand_addElement(ClientData clientData, Tcl_Interp *interp,  int ,
-                      TCL_Char **);
-
 int
 TclCommand_mesh(ClientData clientData, Tcl_Interp *interp,  int ,
                 TCL_Char **);
@@ -174,25 +174,27 @@ TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,  int ,
 int
 TclCommand_backgroundMesh(ClientData clientData, Tcl_Interp *interp, int ,
 TCL_Char **); #endif // _OPS_Element_PFEM
+*/
+int TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
+                                   int, TCL_Char **);
+/*
+int
+TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp, int ,
+TCL_Char **);
 
 int
-TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp, int
-, TCL_Char **);
-
-int
-TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp, int , TCL_Char **);
-
-int
-TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int , TCL_Char **);
+TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int ,
+TCL_Char **);
 
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp, int ,
                          TCL_Char **);
 
-int TclCommand_addSection        (ClientData , Tcl_Interp *interp, int , TCL_Char **);
-int TclCommand_addYieldSurface_BC(ClientData , Tcl_Interp *, int , TCL_Char **);
-int TclCommand_addYS_EvolutionModel(ClientData , Tcl_Interp *, int , TCL_Char **);
-int TclCommand_addYS_PlasticMaterial(ClientData , Tcl_Interp *, int , TCL_Char **);
+int TclCommand_addSection        (ClientData , Tcl_Interp *interp, int ,
+TCL_Char **); int TclCommand_addYieldSurface_BC(ClientData , Tcl_Interp *, int ,
+TCL_Char **); int TclCommand_addYS_EvolutionModel(ClientData , Tcl_Interp *, int
+, TCL_Char **); int TclCommand_addYS_PlasticMaterial(ClientData , Tcl_Interp *,
+int , TCL_Char **);
 
 int //!!
 TclCommand_addCyclicModel(ClientData , Tcl_Interp *, int , TCL_Char **);
@@ -201,16 +203,16 @@ TclCommand_addDamageModel(ClientData , Tcl_Interp *, int , TCL_Char **);
 */
 
 static int TclCommand_addTimeSeries(ClientData, Tcl_Interp *, int, TCL_Char **);
-static int TclCommand_addPattern   (ClientData, Tcl_Interp *, int, TCL_Char **);
+static int TclCommand_addPattern(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 /*
 int
 TclCommand_addSeries(ClientData clientData, Tcl_Interp *interp, int ,
                      TCL_Char **);
+*/
+int TclCommand_addHomogeneousBC(ClientData, Tcl_Interp *, int, TCL_Char **);
 
-int
-TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int ,
-                            TCL_Char **);
+/*
 int
 TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp, int
 , TCL_Char **); int TclCommand_addHomogeneousBC_Y(ClientData clientData,
@@ -232,17 +234,20 @@ TclCommand_RigidDiaphragm(ClientData , Tcl_Interp *interp, int, TCL_Char **);
 
 int
 TclCommand_addMP(ClientData , Tcl_Interp *interp, int, TCL_Char **);
-
+*/
 int
 TclCommand_addNodalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char **);
 
-int TclCommand_addElementalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char **);
+/*
+int TclCommand_addElementalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char
+**);
 
 int TclCommand_addNodalMass(ClientData , Tcl_Interp *interp, int , TCL_Char **);
 int TclCommand_addSP(ClientData , Tcl_Interp *, int , TCL_Char **);
 
 int
-TclCommand_addImposedMotionSP(ClientData , Tcl_Interp *, int argc, TCL_Char **argv);
+TclCommand_addImposedMotionSP(ClientData , Tcl_Interp *, int argc, TCL_Char
+**argv);
 
 // Added by Scott J. Brandenberg
 int
@@ -409,12 +414,12 @@ int argc, TCL_Char **argv);
 //
 
 // constructor: the constructor will add certain commands to the interpreter
-TclSafeBuilder::TclSafeBuilder(Domain &theDomain,
-                                               Tcl_Interp *interp, int NDM,
-                                               int NDF)
+TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
+                               int NDF)
     : ModelBuilder(theDomain), ndm(NDM), ndf(NDF), theInterp(interp)
 {
   theSections = new ArrayOfTaggedObjects(32);
+  theUniaxialMaterials = new ArrayOfTaggedObjects(32);
   theSectionRepresents = new ArrayOfTaggedObjects(32);
   theYieldSurface_BCs = new ArrayOfTaggedObjects(32);
   theCycModels = new ArrayOfTaggedObjects(32); //!!
@@ -434,10 +439,10 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain,
   */
   Tcl_CreateCommand(interp, "node", TclCommand_addNode, (ClientData)NULL, NULL);
 
-  /*
-    Tcl_CreateCommand(interp, "element", TclCommand_addElement,
-                      (ClientData)NULL, NULL);
+  Tcl_CreateCommand(interp, "element", TclCommand_addElement, (ClientData)NULL,
+                    NULL);
 
+  /*
     Tcl_CreateCommand(interp, "mesh", TclCommand_mesh,
                       (ClientData)NULL, NULL);
     Tcl_CreateCommand(interp, "remesh", TclCommand_remesh,
@@ -446,10 +451,10 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain,
     Tcl_CreateCommand(interp, "background", &TclCommand_backgroundMesh,
                       (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   #endif // _OPS_Element_PFEM
-
-    Tcl_CreateCommand(interp, "uniaxialMaterial",
-  TclCommand_addUniaxialMaterial, (ClientData)NULL, NULL);
-
+  */
+  Tcl_CreateCommand(interp, "uniaxialMaterial", TclCommand_addUniaxialMaterial,
+                    (ClientData)NULL, NULL);
+  /*
     Tcl_CreateCommand(interp, "beamIntegration", TclCommand_addBeamIntegration,
                       (ClientData)NULL, NULL);
 
@@ -477,153 +482,153 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain,
     Tcl_CreateCommand(interp, "damageModel", TclCommand_addDamageModel,
                       (ClientData)NULL, NULL); //!!
   */
-  Tcl_CreateCommand(interp, "pattern", TclCommand_addPattern, (ClientData)NULL, NULL);
+  Tcl_CreateCommand(interp, "pattern", TclCommand_addPattern, (ClientData)NULL,
+                    NULL);
 
   Tcl_CreateCommand(interp, "timeSeries", TclCommand_addTimeSeries,
-                      (ClientData)NULL, NULL);
+                    (ClientData)NULL, NULL);
+
+  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, (ClientData)NULL,NULL);
 
   /*
-    Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad,
-                      (ClientData)NULL, NULL);
-
     Tcl_CreateCommand(interp, "eleLoad", TclCommand_addElementalLoad,
                       (ClientData)NULL, NULL);
 
     Tcl_CreateCommand(interp, "mass", TclCommand_addNodalMass,
                       (ClientData)NULL, NULL);
+*/
+  Tcl_CreateCommand(interp, "fix", TclCommand_addHomogeneousBC,
+                    (ClientData)NULL, NULL);
+  /*
+      Tcl_CreateCommand(interp, "fixX", TclCommand_addHomogeneousBC_X,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "fix", TclCommand_addHomogeneousBC,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "fixY", TclCommand_addHomogeneousBC_Y,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "fixX", TclCommand_addHomogeneousBC_X,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "fixZ", TclCommand_addHomogeneousBC_Z,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "fixY", TclCommand_addHomogeneousBC_Y,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "sp", TclCommand_addSP,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "fixZ", TclCommand_addHomogeneousBC_Z,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "imposedMotion",
+                        TclCommand_addImposedMotionSP,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "sp", TclCommand_addSP,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "imposedSupportMotion",
+                        TclCommand_addImposedMotionSP,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "imposedMotion",
-                      TclCommand_addImposedMotionSP,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "groundMotion",
+                        TclCommand_addGroundMotion,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "imposedSupportMotion",
-                      TclCommand_addImposedMotionSP,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "equalDOF", TclCommand_addEqualDOF_MP,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "groundMotion",
-                      TclCommand_addGroundMotion,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "equalDOF_Mixed",
+    TclCommand_addEqualDOF_MP_Mixed, (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "equalDOF", TclCommand_addEqualDOF_MP,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "rigidLink", &TclCommand_RigidLink,
+                        (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-    Tcl_CreateCommand(interp, "equalDOF_Mixed", TclCommand_addEqualDOF_MP_Mixed,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "rigidDiaphragm", &TclCommand_RigidDiaphragm,
+                        (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-    Tcl_CreateCommand(interp, "rigidLink", &TclCommand_RigidLink,
-                      (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+      Tcl_CreateCommand(interp, "mp", TclCommand_addMP,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "rigidDiaphragm", &TclCommand_RigidDiaphragm,
-                      (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+      // Added by Scott J. Brandenberg
+      Tcl_CreateCommand(interp, "PySimple1Gen", TclCommand_doPySimple1Gen,
+                            (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "TzSimple1Gen", TclCommand_doTzSimple1Gen,
+                            (ClientData)NULL, NULL);
+      // End added by SJB
 
-    Tcl_CreateCommand(interp, "mp", TclCommand_addMP,
-                      (ClientData)NULL, NULL);
+    // Added by Prishati Raychowdhury (UCSD)
+      Tcl_CreateCommand(interp, "ShallowFoundationGen",
+    TclSafeBuilder_doShallowFoundationGen, (ClientData)NULL, NULL);
+    // End PRC
 
-    // Added by Scott J. Brandenberg
-    Tcl_CreateCommand(interp, "PySimple1Gen", TclCommand_doPySimple1Gen,
-                          (ClientData)NULL, NULL);
-    Tcl_CreateCommand(interp, "TzSimple1Gen", TclCommand_doTzSimple1Gen,
-                          (ClientData)NULL, NULL);
-    // End added by SJB
+      Tcl_CreateCommand(interp, "block2D", TclCommand_doBlock2D,
+                        (ClientData)NULL, NULL);
 
-  // Added by Prishati Raychowdhury (UCSD)
-    Tcl_CreateCommand(interp, "ShallowFoundationGen",
-  TclSafeBuilder_doShallowFoundationGen, (ClientData)NULL, NULL);
-  // End PRC
+      Tcl_CreateCommand(interp, "block3D", TclCommand_doBlock3D,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "block2D", TclCommand_doBlock2D,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "patch", TclCommand_addRemoPatch,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "block3D", TclCommand_doBlock3D,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "layer", TclCommand_addRemoLayer,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "patch", TclCommand_addRemoPatch,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "fiber", TclCommand_addRemoFiber,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "layer", TclCommand_addRemoLayer,
-                      (ClientData)NULL, NULL);
+      //LEO
+      Tcl_CreateCommand(interp, "Hfiber", TclSafeBuilder_addRemoHFiber,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "fiber", TclCommand_addRemoFiber,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "geomTransf", TclCommand_addRemoGeomTransf,
+                        (ClientData)NULL, NULL);
 
-    //LEO
-    Tcl_CreateCommand(interp, "Hfiber", TclSafeBuilder_addRemoHFiber,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "frictionModel",
+                        TclCommand_addFrictionModel,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "geomTransf", TclCommand_addRemoGeomTransf,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "stiffnessDegradation",
+                        TclCommand_addStiffnessDegradation,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "frictionModel",
-                      TclCommand_addFrictionModel,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "unloadingRule",
+                        TclCommand_addUnloadingRule,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "stiffnessDegradation",
-                      TclCommand_addStiffnessDegradation,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "strengthDegradation",
+                        TclCommand_addStrengthDegradation,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "unloadingRule",
-                      TclCommand_addUnloadingRule,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "hystereticBackbone",
+                        TclCommand_addHystereticBackbone,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "strengthDegradation",
-                      TclCommand_addStrengthDegradation,
-                      (ClientData)NULL, NULL);
+      ///new command for elast2plast in Multi-yield plasticity, by ZHY
+      Tcl_CreateCommand(interp, "updateMaterialStage",
+                        TclCommand_UpdateMaterialStage,
+                        (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(interp, "hystereticBackbone",
-                      TclCommand_addHystereticBackbone,
-                      (ClientData)NULL, NULL);
-
-    ///new command for elast2plast in Multi-yield plasticity, by ZHY
-    Tcl_CreateCommand(interp, "updateMaterialStage",
-                      TclCommand_UpdateMaterialStage,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "updateMaterials",
-                      TclCommand_UpdateMaterials,
-                      (ClientData)NULL, NULL);
-
-
-    ///new command for updating properties of soil materials, by ZHY
-    //Tcl_CreateCommand(interp, "updateParameter",
-    //		    TclCommand_UpdateParameter,
-    //	    (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "loadPackage", TclCommand_Package,
-                      (ClientData)NULL, NULL);
+      Tcl_CreateCommand(interp, "updateMaterials",
+                        TclCommand_UpdateMaterials,
+                        (ClientData)NULL, NULL);
 
 
-    ////// gnp adding per element damping ///////////////////////////////
-    Tcl_CreateCommand(interp, "setElementRayleighFactors",
-                      TclCommand_addElementRayleigh,
-                      (ClientData)NULL, NULL);
-    /////////////////////////////////////////////////////////////////////
+      ///new command for updating properties of soil materials, by ZHY
+      //Tcl_CreateCommand(interp, "updateParameter",
+      //		    TclCommand_UpdateParameter,
+      //	    (ClientData)NULL, NULL);
 
-    // Added by Alborz Ghofrani - U.Washington
-    Tcl_CreateCommand(interp, "generateInterfacePoints",
-                      TclCommand_GenerateInterfacePoints,
-                      (ClientData)NULL, NULL);
-    // End Added by Alborz
+      Tcl_CreateCommand(interp, "loadPackage", TclCommand_Package,
+                        (ClientData)NULL, NULL);
 
-   */
+
+      ////// gnp adding per element damping ///////////////////////////////
+      Tcl_CreateCommand(interp, "setElementRayleighFactors",
+                        TclCommand_addElementRayleigh,
+                        (ClientData)NULL, NULL);
+      /////////////////////////////////////////////////////////////////////
+
+      // Added by Alborz Ghofrani - U.Washington
+      Tcl_CreateCommand(interp, "generateInterfacePoints",
+                        TclCommand_GenerateInterfacePoints,
+                        (ClientData)NULL, NULL);
+      // End Added by Alborz
+
+     */
   // set the static pointers in this file
   theTclBuilder = this;
   theTclDomain = &theDomain;
-  theTclLoadPattern = 0;
+  tclEnclosingPattern = 0;
   theTclMultiSupportPattern = 0;
 
   /*
@@ -633,6 +638,7 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain,
   nodeLoadTag = 0;
   eleArgStart = 0;
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
+  Tcl_SetAssocData(interp, "OPS::theTclSafeBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
@@ -670,7 +676,7 @@ TclSafeBuilder::~TclSafeBuilder()
   // set the pointers to 0
   theTclDomain = 0;
   theTclBuilder = 0;
-  theTclLoadPattern = 0;
+  tclEnclosingPattern = 0;
   theTclMultiSupportPattern = 0;
   /* TCL_OPS_setModelBuilder(0); */
 
@@ -734,24 +740,27 @@ TclSafeBuilder::~TclSafeBuilder()
 //
 // CLASS METHODS
 //
+int TclSafeBuilder::getNDM(void) const {return ndm;}
+int TclSafeBuilder::getNDF(void) const {return ndf;}
+int TclSafeBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
+int TclSafeBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
+int TclSafeBuilder::getNodalLoadTag(void) const {return   nodeLoadTag;};
+LoadPattern *
+TclSafeBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
+int
+TclSafeBuilder::setEnclosingPattern(LoadPattern* pat){
+  tclEnclosingPattern = pat;
+  return 1;
+};
 
 Domain *
-TclSafeBuilder::getDomain() {return theTclDomain;}
+TclSafeBuilder::getDomain(void) const {return theTclDomain;}
 
 TclSafeBuilder *
-TclSafeBuilder::getBuilder(){return theTclBuilder;}
+TclSafeBuilder::getBuilder(void) const {return theTclBuilder;}
 
 int
-TclSafeBuilder::buildFE_Model(void)
-{
-  return 0;
-}
-
-int
-TclSafeBuilder::getNDM(void) const {return ndm;}
-
-int
-TclSafeBuilder::getNDF(void) const {return ndf;}
+TclSafeBuilder::buildFE_Model(void) {return 0;}
 
 /*
 int
@@ -767,6 +776,24 @@ TclSafeBuilder::addNDMaterial(NDMaterial &theMaterial)
 }
 
 */
+
+UniaxialMaterial *
+TclSafeBuilder::getUniaxialMaterial(int tag)
+{
+  TaggedObject *mc = theUniaxialMaterials->getComponentPtr(tag);
+  if (mc == 0)
+    return 0;
+
+  // otherweise cast and return
+  UniaxialMaterial *result = (UniaxialMaterial *)mc;
+  return result;
+}
+
+int
+TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
+{
+  return theUniaxialMaterials->addComponent(mat);
+}
 
 NDMaterial *
 TclSafeBuilder::getNDMaterial(int tag)
@@ -941,13 +968,31 @@ TclSafeBuilder::getSectionRepres(int tag)
 }
 
 */
+TimeSeries *
+TclSafeBuilder::getTimeSeries(const std::string &name)
+{
+  TimeSeries *series = theTimeSeriesMap.at(name);
+  if (series)
+    return series->getCopy();
+  else
+    return 0;
+}
 
 int
-TclSafeBuilder::addTimeSeries(std::string name, TimeSeries* theSeries)
+TclSafeBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
 {
-  theTimeSeriesObjects.insert(std::pair<std::string, TimeSeries*>(name, theSeries));
+  theTimeSeriesMap[name] = series;
   return 1;
 }
+
+int
+TclSafeBuilder::addTimeSeries(TimeSeries *series)
+{
+  const std::string &name = std::to_string(series->getTag());
+  theTimeSeriesMap[name] = series;
+  return 1;
+}
+
 //
 // THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
@@ -965,9 +1010,7 @@ static int
 TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(
-          interp, "OPS::theTclSafeBuilder", NULL);
+  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(interp);
 
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
@@ -1169,6 +1212,275 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
+int
+TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(interp);
+  Domain *theTclDomain = G3_getDomain(interp);
+  int nodeLoadTag = theTclBuilder->getNodalLoadTag();
+  LoadPattern *theTclLoadPattern = theTclBuilder->getEnclosingPattern();
+  // ensure the destructor has not been called -
+  if (theTclBuilder == 0) {
+    opserr << "WARNING builder has been destroyed - load \n";
+    return TCL_ERROR;
+  }
+
+  //  int ndf = theTclBuilder->getNDF();
+
+  int ndf = argc - 2;
+  NodalLoad *theLoad = 0;
+
+  bool isLoadConst = false;
+  bool userSpecifiedPattern = false;
+  int loadPatternTag = 0;
+  // The above definition are moved forward for the use in both cases
+
+  //-------------Adding Proc for NodalThermalAction, By Liming Jiang, [SIF] 2017
+  if ((strcmp(argv[2], "-NodalThermal") == 0) ||
+      (strcmp(argv[2], "-nodalThermal") == 0)) {
+
+    int nodeId;
+    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
+      opserr << "WARNING invalid nodeId: " << argv[1] << endln;
+      return TCL_ERROR;
+    }
+
+    Vector *thecrds = new Vector();
+    Node *theNode = theTclDomain->getNode(nodeId);
+    if (theNode == 0) {
+      opserr << "WARNING invalid nodeID: " << argv[1] << endln;
+      return TCL_ERROR;
+    }
+    (*thecrds) = theNode->getCrds();
+
+    int count = 3;
+    if (strcmp(argv[count], "-source") == 0) {
+      count++;
+      const char *pwd = getInterpPWD(interp);
+      // simulationInfo.addInputFile(argv[count], pwd);
+      TimeSeries *theSeries;
+      // default num of temperature input for nodal ThermalAction;
+      int dataLen = 9; 
+
+      if (argc - count == 5) {
+        // which indicates the nodal thermal action is applied to 3D I section
+        // Beam;
+        dataLen = 15;
+        theSeries = new PathTimeSeriesThermal(nodeId, argv[count], dataLen);
+        count++;
+        double RcvLoc1, RcvLoc2, RcvLoc3, RcvLoc4;
+        if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
+          opserr << "WARNING NodalLoad - invalid loc1  " << argv[count]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[count + 1], &RcvLoc2) != TCL_OK) {
+          opserr << "WARNING NodalLoad - invalid loc2  " << argv[count + 1]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[count + 2], &RcvLoc3) != TCL_OK) {
+          opserr << "WARNING NodalLoad - invalid loc3  " << argv[count + 2]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[count + 3], &RcvLoc4) != TCL_OK) {
+          opserr << "WARNING NodalLoad - invalid loc4  " << argv[count + 3]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        // end of recieving data;
+        theLoad = new NodalThermalAction(nodeLoadTag, nodeId, RcvLoc1, RcvLoc2,
+                                         RcvLoc3, RcvLoc4, theSeries, thecrds);
+      }
+      // end of for 15 data input;
+      else if (argc - count == 3 || argc - count == 10) {
+
+        theSeries = new PathTimeSeriesThermal(nodeId, argv[count]);
+        count++;
+        Vector locy;
+        if (argc - count == 2) {
+          double RcvLoc1, RcvLoc2;
+          if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
+            opserr << "WARNING NodalLoad - invalid loc1  " << argv[count]
+                   << " for NodalThermalAction\n";
+            return TCL_ERROR;
+          }
+          if (Tcl_GetDouble(interp, argv[count + 1], &RcvLoc2) != TCL_OK) {
+            opserr << "WARNING NodalLoad - invalid loc2  " << argv[count + 1]
+                   << " for NodalThermalAction\n";
+            return TCL_ERROR;
+          }
+          locy = Vector(9);
+          locy(0) = RcvLoc1;
+          locy(1) = (7 * RcvLoc1 + 1 * RcvLoc2) / 8;
+          locy(2) = (6 * RcvLoc1 + 2 * RcvLoc2) / 8;
+          locy(3) = (5 * RcvLoc1 + 3 * RcvLoc2) / 8;
+          locy(4) = (4 * RcvLoc1 + 4 * RcvLoc2) / 8;
+          locy(5) = (3 * RcvLoc1 + 5 * RcvLoc2) / 8;
+          locy(6) = (2 * RcvLoc1 + 6 * RcvLoc2) / 8;
+          locy(7) = (1 * RcvLoc1 + 7 * RcvLoc2) / 8;
+          locy(8) = RcvLoc2;
+
+        } // end of if only recieving one loc data;
+        else if (argc - count == 9) {
+          double indata[9];
+          double BufferData;
+
+          for (int i = 0; i < 9; i++) {
+            if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
+              opserr << "WARNING eleLoad - invalid data " << argv[count]
+                     << " for -beamThermal 3D\n";
+              return TCL_ERROR;
+            }
+            indata[i] = BufferData;
+            count++;
+          }
+          locy = Vector(indata, 9);
+          // temp1,loc1,temp2,loc2...temp9,loc9
+        } // end of if only recieving 9 loc data;
+        theLoad = new NodalThermalAction(nodeLoadTag, nodeId, locy, theSeries,
+                                         thecrds);
+        delete thecrds;
+      }
+      // end of recieving 9 temp data in external file;
+      else {
+        opserr << "WARNING NodalThermalAction - invalid dataLen\n";
+      }
+      // end of definition for different data input length(9or15)
+    }
+    // end for detecting source
+    else {
+      if (argc - count == 4) {
+        double t1, t2, locY1, locY2;
+        if (Tcl_GetDouble(interp, argv[count], &t1) != TCL_OK) {
+          opserr << "WARNING eleLoad - invalid T1 " << argv[count]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[count + 1], &locY1) != TCL_OK) {
+          opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[count + 2], &t2) != TCL_OK) {
+          opserr << "WARNING eleLoad - invalid T1 " << argv[count]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[count + 3], &locY2) != TCL_OK) {
+          opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1]
+                 << " for NodalThermalAction\n";
+          return TCL_ERROR;
+        }
+        theLoad = new NodalThermalAction(nodeLoadTag, nodeId, t1, locY1, t2,
+                                         locY2, thecrds);
+      }
+      // for defining a uniform gradient thermal action
+    }
+    // end for source or no source
+    if (theLoad == 0) {
+      opserr << "WARNING NodalLoad - out of memory creating load " << argv[1];
+      return TCL_ERROR;
+    }
+    // get the current pattern tag if no tag given in i/p
+    if (userSpecifiedPattern == false) {
+      if (theTclLoadPattern == 0) {
+        opserr << "WARNING no current load pattern -NodalThermalAction "
+               << nodeId;
+        return TCL_ERROR;
+      } else
+        loadPatternTag = theTclLoadPattern->getTag();
+    }
+  }
+  // end of adding NodalThermalAction -------------end--------- Liming,[SIF]2017
+
+      // start of else block, Liming [SIF]
+      else
+  {
+
+    // make sure at least one other argument to contain type of system
+    if (argc < (2 + ndf)) {
+      opserr << "WARNING bad command - want: load nodeId " << ndf << "forces\n";
+      printCommand(argc, argv);
+      return TCL_ERROR;
+    }
+
+    // get the id of the node
+    int nodeId;
+    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
+      opserr << "WARNING invalid nodeId: " << argv[1];
+      opserr << " - load nodeId " << ndf << " forces\n";
+      return TCL_ERROR;
+    }
+
+    // get the load vector
+    Vector forces(ndf);
+    for (int i = 0; i < ndf; i++) {
+      double theForce;
+      if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
+        opserr << "WARNING invalid force " << i + 1 << " - load" << nodeId;
+        opserr << " " << ndf << " forces\n";
+        return TCL_ERROR;
+      } else
+        forces(i) = theForce;
+    }
+
+    // allow some additional options at end of command
+    int endMarker = 2 + ndf;
+    while (endMarker != argc) {
+      if (strcmp(argv[endMarker], "-const") == 0) {
+        // allow user to specify const load
+        isLoadConst = true;
+      } else if (strcmp(argv[endMarker], "-pattern") == 0) {
+        // allow user to specify load pattern other than current
+        endMarker++;
+        userSpecifiedPattern = true;
+        if (endMarker == argc ||
+            Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
+
+          opserr << "WARNING invalid patternTag - load " << nodeId << " ";
+          opserr << ndf << " forces pattern patterntag\n";
+          return TCL_ERROR;
+        }
+      }
+      endMarker++;
+    }
+
+    // get the current pattern tag if no tag given in i/p
+    if (userSpecifiedPattern == false) {
+      if (theTclLoadPattern == 0) {
+        opserr << "WARNING no current load pattern - load " << nodeId;
+        opserr << " " << ndf << " forces\n";
+        return TCL_ERROR;
+      } else
+        loadPatternTag = theTclLoadPattern->getTag();
+    }
+
+    // create the load
+    theLoad = new NodalLoad(nodeLoadTag, nodeId, forces, isLoadConst);
+    if (theLoad == 0) {
+      opserr << "WARNING ran out of memory for load  - load " << nodeId;
+      opserr << " " << ndf << " forces\n";
+      return TCL_ERROR;
+    }
+
+  } // end of Liming change for nodal thermal action , putting the above block
+    // into else{ }
+
+  // add the load to the domain
+  if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
+    opserr << "WARNING TclSafeBuilder - could not add load to domain\n";
+    printCommand(argc, argv);
+    delete theLoad;
+    return TCL_ERROR;
+  }
+  theTclBuilder->incrNodalLoadTag();
+
+  // if get here we have sucessfully created the load and added it to the domain
+  return TCL_OK;
+}
+
 /*
 
 
@@ -1255,31 +1567,38 @@ extern int
 TclSafeBuilderParameterCommand(ClientData clientData,
                                 Tcl_Interp *interp, int argc,
                                 TCL_Char **argv,
-                                Domain *theDomain, 
+                                Domain *theDomain,
                                 TclSafeBuilder *theTclBuilder);
 
-int 
-TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+int
+TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc,
+TCL_Char **argv)
 
 {
   return TclSafeBuilderParameterCommand(clientData, interp,
-                                         argc, argv, theTclDomain, theTclBuilder);
+                                         argc, argv, theTclDomain,
+theTclBuilder);
 }
 
+*/
+class TclBasicBuilder;
+extern int TclBasicBuilderElementCommand(ClientData clientData,
+                                         Tcl_Interp *interp, int argc,
+                                         TCL_Char **argv, Domain *theDomain,
+                                         TclBasicBuilder *theTclBuilder);
 
-extern int
-TclSafeBuilderElementCommand(ClientData clientData,
-                              Tcl_Interp *interp, int argc,
-                              TCL_Char **argv,
-                              Domain *theDomain, TclSafeBuilder
-*theTclBuilder); int TclCommand_addElement(ClientData clientData, Tcl_Interp
-*interp, int argc,    TCL_Char **argv)
+int
+TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc,
+                      TCL_Char **argv)
 
 {
-  return TclSafeBuilderElementCommand(clientData, interp,
-                                       argc, argv, theTclDomain, theTclBuilder);
+  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(interp);
+  Domain *theTclDomain = G3_getDomain(interp);
+  return TclBasicBuilderElementCommand(clientData, interp, argc, argv,
+                                       theTclDomain,
+                                       (TclBasicBuilder *)theTclBuilder);
 }
-
+/*
 // extern int OPS_LineMesh(Domain& domain, int ndm);
 // extern int OPS_TriMesh(Domain& domain);
 // extern int OPS_TriReMesh(Domain& domain, int ndf);
@@ -1473,19 +1792,22 @@ argc, TCL_Char **argv)
     return TCL_OK;
 }
 
-extern int
-TclSafeBuilderUniaxialMaterialCommand (ClientData clienData, Tcl_Interp
-*interp, int argc, TCL_Char **argv, Domain *theDomain);
-
+*/
+extern int TclBasicBuilderUniaxialMaterialCommand(ClientData, Tcl_Interp *, int,
+                                                  TCL_Char **, Domain *);
+extern int TclSafeBuilderUniaxialCommand(ClientData, Tcl_Interp *, int,
+                                         TCL_Char **, Domain *);
 int
-TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp, int
-argc, TCL_Char **argv)
+TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
+                               int argc, TCL_Char **argv)
 {
-  return TclSafeBuilderUniaxialMaterialCommand(clientData, interp, argc,
-argv, theTclDomain);
+  // return TclBasicBuilderUniaxialMaterialCommand(clientData, interp, argc,
+  // argv, G3_getDomain(interp));
+  return TclSafeBuilderUniaxialCommand(clientData, interp, argc, argv,
+                                       G3_getDomain(interp));
 }
 
-
+/*
 extern int
 Tcl_AddLimitCurveCommand (ClientData clienData, Tcl_Interp *interp, int argc,
 TCL_Char **argv, Domain *theDomain);
@@ -1585,7 +1907,7 @@ TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
   return TclSafeBuilderDamageModelCommand(clientData, interp, argc, argv);
 
@@ -1600,28 +1922,28 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
   return TclPatternCommand(clientData, interp, argc, argv, theTclDomain);
 }
 
-
-extern TimeSeries *
-TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp,
-                     int argc, TCL_Char **argv, Domain *theDomain);
+extern TimeSeries *TclTimeSeriesCommand(ClientData clientData,
+                                        Tcl_Interp *interp, int argc,
+                                        TCL_Char **argv, Domain *theDomain);
 
 static int
-TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp,
-                         int argc, TCL_Char **argv)
+TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
+                         TCL_Char **argv)
 {
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder *)Tcl_GetAssocData(
+      interp, "OPS::theTclSafeBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
 
-  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc-1, &argv[1], theTclDomain);
+  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc - 1,
+                                               &argv[1], theTclDomain);
 
   if (theSeries != 0) {
-    if (theTclBuilder->addTimeSeries(argv[1], theSeries))
+    if (theTclBuilder->addTimeSeries(argv[2], theSeries))
       return TCL_OK;
     else
       return TCL_ERROR;
@@ -1647,261 +1969,9 @@ TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
                                 theTclMultiSupportPattern);
 }
 
+*/
 
-int
-TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
-        TCL_Char **argv)
-{
-        // ensure the destructor has not been called -
-        if (theTclBuilder == 0) {
-                opserr << "WARNING builder has been destroyed - load \n";
-                return TCL_ERROR;
-        }
-
-        //  int ndf = theTclBuilder->getNDF();
-
-        int ndf = argc - 2;
-        NodalLoad *theLoad = 0;
-
-        bool isLoadConst = false;
-        bool userSpecifiedPattern = false;
-        int loadPatternTag = 0;
-        //The above definition are moved forward for the use in both cases
-
-        //-------------Adding Proc for NodalThermalAction, By Liming Jiang,
-[SIF] 2017 if ((strcmp(argv[2], "-NodalThermal") == 0) || (strcmp(argv[2],
-"-nodalThermal") == 0)) {
-
-                int nodeId;
-                if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-                        opserr << "WARNING invalid nodeId: " << argv[1] <<
-endln; return TCL_ERROR;
-                }
-
-                Vector* thecrds = new Vector();
-                Node* theNode = theTclDomain->getNode(nodeId);
-                if (theNode == 0) {
-                        opserr << "WARNING invalid nodeID: " << argv[1] <<
-endln; return TCL_ERROR;
-                }
-                (*thecrds) = theNode->getCrds();
-
-                int count = 3;
-                if (strcmp(argv[count], "-source") == 0) {
-                        count++;
-                        const char *pwd = getInterpPWD(interp);
-                        // simulationInfo.addInputFile(argv[count], pwd);
-                        TimeSeries* theSeries;
-
-                        int dataLen = 9;//default num of temperature input for
-nodal ThermalAction;
-
-                        if (argc - count == 5) {
-                                //which indicates the nodal thermal action is
-applied to 3D I section Beam; dataLen = 15; theSeries = new
-PathTimeSeriesThermal(nodeId, argv[count], dataLen); count++; double RcvLoc1,
-RcvLoc2, RcvLoc3, RcvLoc4; if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) !=
-TCL_OK) { opserr << "WARNING NodalLoad - invalid loc1  " << argv[count] << " for
-NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                if (Tcl_GetDouble(interp, argv[count + 1],
-&RcvLoc2) != TCL_OK) { opserr << "WARNING NodalLoad - invalid loc2  " <<
-argv[count + 1] << " for NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                if (Tcl_GetDouble(interp, argv[count + 2],
-&RcvLoc3) != TCL_OK) { opserr << "WARNING NodalLoad - invalid loc3  " <<
-argv[count + 2] << " for NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                if (Tcl_GetDouble(interp, argv[count + 3],
-&RcvLoc4) != TCL_OK) { opserr << "WARNING NodalLoad - invalid loc4  " <<
-argv[count + 3] << " for NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                //end of recieving data;
-                                theLoad = new NodalThermalAction(nodeLoadTag,
-nodeId, RcvLoc1, RcvLoc2, RcvLoc3, RcvLoc4, theSeries, thecrds);
-                        }
-                        //end of for 15 data input;
-                        else if (argc - count == 3 || argc - count == 10) {
-
-                                theSeries = new PathTimeSeriesThermal(nodeId,
-argv[count]); count++; Vector locy; if (argc - count == 2) { double RcvLoc1,
-RcvLoc2; if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) { opserr <<
-"WARNING NodalLoad - invalid loc1  " << argv[count] << " for
-NodalThermalAction\n"; return TCL_ERROR;
-                                        }
-                                        if (Tcl_GetDouble(interp, argv[count +
-1], &RcvLoc2) != TCL_OK) { opserr << "WARNING NodalLoad - invalid loc2  " <<
-argv[count + 1] << " for NodalThermalAction\n"; return TCL_ERROR;
-                                        }
-                                        locy = Vector(9);
-                                        locy(0) = RcvLoc1; locy(1) = (7 *
-RcvLoc1 + 1 * RcvLoc2) / 8; locy(2) = (6 * RcvLoc1 + 2 * RcvLoc2) / 8; locy(3) =
-(5 * RcvLoc1 + 3 * RcvLoc2) / 8; locy(4) = (4 * RcvLoc1 + 4 * RcvLoc2) / 8;
-                                        locy(5) = (3 * RcvLoc1 + 5 * RcvLoc2) /
-8; locy(6) = (2 * RcvLoc1 + 6 * RcvLoc2) / 8; locy(7) = (1 * RcvLoc1 + 7 *
-RcvLoc2) / 8;  locy(8) = RcvLoc2;
-
-                                }//end of if only recieving one loc data;
-                                else if (argc - count == 9) {
-                                        double indata[9];
-                                        double BufferData;
-
-                                        for (int i = 0; i<9; i++) {
-                                                if (Tcl_GetDouble(interp,
-argv[count], &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data
-" << argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
-                                                }
-                                                indata[i] = BufferData;
-                                                count++;
-                                        }
-                                        locy = Vector(indata, 9);
-                                        //temp1,loc1,temp2,loc2...temp9,loc9
-                                }//end of if only recieving 9 loc data;
-
-                                theLoad = new NodalThermalAction(nodeLoadTag,
-nodeId, locy, theSeries, thecrds); delete thecrds;
-                        }
-                        //end of recieving 9 temp data in external file;
-                        else {
-                                opserr << "WARNING NodalThermalAction - invalid
-dataLen\n";
-                        }
-                        //end of definition for different data input length(9
-or15)
-                }
-                //end for detecting source
-                else {
-                        if (argc - count == 4) {
-                                double t1, t2, locY1, locY2;
-                                if (Tcl_GetDouble(interp, argv[count], &t1) !=
-TCL_OK) { opserr << "WARNING eleLoad - invalid T1 " << argv[count] << " for
-NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                if (Tcl_GetDouble(interp, argv[count + 1],
-&locY1) != TCL_OK) { opserr << "WARNING eleLoad - invalid LocY1 " << argv[count
-+ 1] << " for NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                if (Tcl_GetDouble(interp, argv[count + 2], &t2)
-!= TCL_OK) { opserr << "WARNING eleLoad - invalid T1 " << argv[count] << " for
-NodalThermalAction\n"; return TCL_ERROR;
-                                }
-                                if (Tcl_GetDouble(interp, argv[count + 3],
-&locY2) != TCL_OK) { opserr << "WARNING eleLoad - invalid LocY1 " << argv[count
-+ 1] << " for NodalThermalAction\n"; return TCL_ERROR;
-                                }
-
-                                theLoad = new NodalThermalAction(nodeLoadTag,
-nodeId, t1, locY1, t2, locY2, thecrds);
-                        }
-                        //for defining a uniform gradient thermal action
-                }
-                //end for source or no source
-                if (theLoad == 0) {
-                        opserr << "WARNING NodalLoad - out of memory creating
-load " << argv[1]; return TCL_ERROR;
-                }
-                // get the current pattern tag if no tag given in i/p
-                if (userSpecifiedPattern == false) {
-                        if (theTclLoadPattern == 0) {
-                                opserr << "WARNING no current load pattern -
-NodalThermalAction " << nodeId; return TCL_ERROR;
-                        }
-                        else
-                                loadPatternTag = theTclLoadPattern->getTag();
-
-                }
-
-        }
-        //end of adding NodalThermalAction -------------end---------Liming,[SIF]
-2017
-
-        //start of else block, Liming [SIF]
-        else{
-
-
-        // make sure at least one other argument to contain type of system
-        if (argc < (2 + ndf)) {
-                opserr << "WARNING bad command - want: load nodeId " << ndf << "
-forces\n"; printCommand(argc, argv); return TCL_ERROR;
-        }
-
-        // get the id of the node
-        int nodeId;
-        if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-                opserr << "WARNING invalid nodeId: " << argv[1];
-                opserr << " - load nodeId " << ndf << " forces\n";
-                return TCL_ERROR;
-        }
-
-        // get the load vector
-        Vector forces(ndf);
-        for (int i = 0; i < ndf; i++) {
-                double theForce;
-                if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
-                        opserr << "WARNING invalid force " << i + 1 << " - load
-" << nodeId; opserr << " " << ndf << " forces\n"; return TCL_ERROR;
-                }
-                else
-                        forces(i) = theForce;
-        }
-
-        // allow some additional options at end of command
-        int endMarker = 2 + ndf;
-        while (endMarker != argc) {
-                if (strcmp(argv[endMarker], "-const") == 0) {
-                        // allow user to specify const load
-                        isLoadConst = true;
-                }
-                else if (strcmp(argv[endMarker], "-pattern") == 0) {
-                        // allow user to specify load pattern other than current
-                        endMarker++;
-                        userSpecifiedPattern = true;
-                        if (endMarker == argc ||
-                                Tcl_GetInt(interp, argv[endMarker],
-&loadPatternTag) != TCL_OK) {
-
-                                opserr << "WARNING invalid patternTag - load "
-<< nodeId << " "; opserr << ndf << " forces pattern patterntag\n"; return
-TCL_ERROR;
-                        }
-                }
-                endMarker++;
-        }
-
-        // get the current pattern tag if no tag given in i/p
-        if (userSpecifiedPattern == false) {
-                if (theTclLoadPattern == 0) {
-                        opserr << "WARNING no current load pattern - load " <<
-nodeId; opserr << " " << ndf << " forces\n"; return TCL_ERROR;
-                }
-                else
-                        loadPatternTag = theTclLoadPattern->getTag();
-        }
-
-        // create the load
-        theLoad = new NodalLoad(nodeLoadTag, nodeId, forces, isLoadConst);
-        if (theLoad == 0) {
-                opserr << "WARNING ran out of memory for load  - load " <<
-nodeId; opserr << " " << ndf << " forces\n"; return TCL_ERROR;
-        }
-
-} // end of Liming change for nodal thermal action , putting the above block
-into else{ }
-
-  // add the load to the domain
-  if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
-    opserr << "WARNING TclSafeBuilder - could not add load to domain\n";
-    printCommand(argc, argv);
-    delete theLoad;
-    return TCL_ERROR;
-  }
-  nodeLoadTag++;
-
-  // if get here we have sucessfully created the load and added it to the domain
-  return TCL_OK;
-}
-
-
+/*
 
 
 int
@@ -3291,12 +3361,14 @@ values\n"; printCommand(argc, argv); return TCL_ERROR;
   return TCL_OK;
 }
 
-
+*/
 
 int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
-                                 TCL_Char **argv)
+                            TCL_Char **argv)
 {
+  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(interp);
+  Domain *theTclDomain = G3_getDomain(interp);
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
@@ -3308,24 +3380,27 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fix nodeId " << ndf << " [0,1]
-conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fix nodeId " << ndf
+           << " [0,1] conditions";
+    printCommand(argc, argv);
+    return TCL_ERROR;
   }
 
   // get the id of the node
   int nodeId;
   if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-      opserr << "WARNING invalid nodeId - fix nodeId " << ndf << " [0,1]
-conditions\n"; return TCL_ERROR;
+    opserr << "WARNING invalid nodeId - fix nodeId " << ndf
+           << " [0,1] conditions\n";
+    return TCL_ERROR;
   }
 
   char buffer[80];
-  strcpy(buffer,"");
+  strcpy(buffer, "");
   // get the fixity condition and add the constraint if fixed
-  for (int i=0; i<ndf; i++) {
+  for (int i = 0; i < ndf; i++) {
     int theFixity;
-    if (Tcl_GetInt(interp, argv[2+i], &theFixity) != TCL_OK) {
-      opserr << "WARNING invalid fixity " << i+1 << " - load " << nodeId;
+    if (Tcl_GetInt(interp, argv[2 + i], &theFixity) != TCL_OK) {
+      opserr << "WARNING invalid fixity " << i + 1 << " - load " << nodeId;
       opserr << " " << ndf << " fixities\n";
       return TCL_ERROR;
     } else {
@@ -3341,9 +3416,12 @@ conditions\n"; return TCL_ERROR;
 
         // add it to the domain
         if (theTclDomain->addSP_Constraint(theSP) == false) {
-          opserr << "WARNING could not add SP_Constraint to domain using fix
-command - node may already be constrained\n"; sprintf(buffer, "%d ", 0); delete
-theSP; } else { sprintf(buffer, "%d ", theSP->getTag());
+          opserr << "WARNING could not add SP_Constraint to domain using fix "
+                    "command - node may already be constrained\n";
+          sprintf(buffer, "%d ", 0);
+          delete theSP;
+        } else {
+          sprintf(buffer, "%d ", theSP->getTag());
           Tcl_AppendResult(interp, buffer, NULL);
         }
       }
@@ -3353,7 +3431,7 @@ theSP; } else { sprintf(buffer, "%d ", theSP->getTag());
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
-
+/*
 
 int
 TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
@@ -4505,7 +4583,7 @@ TclCommand_addStrengthDegradation(ClientData clientData,
                                        int argc, TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
   return TclSafeBuilderStrengthDegradationCommand(clientData, interp,
 argc, argv, theTclDomain);
@@ -4523,7 +4601,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
                                       int argc,	TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
   return TclSafeBuilderHystereticBackboneCommand(clientData, interp,
 argc, argv, theTclDomain);
@@ -4563,9 +4641,10 @@ TclCommand_UpdateMaterials(ClientData clientData,
                            TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   return TclCommand_UpdateMaterialsCommand(clientData, interp,
-                                           argc, argv, theTclBuilder, theTclDomain);
+                                           argc, argv, theTclBuilder,
+theTclDomain);
 }
 
 /// added by ZHY

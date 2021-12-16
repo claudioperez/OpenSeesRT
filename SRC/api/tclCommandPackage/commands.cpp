@@ -86,6 +86,8 @@ OPS_Stream *opserrPtr = &sserr;
 #include <vector>
 
 #include <elementAPI.h>
+#include <elementAPI_G3.h>
+
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
@@ -1517,6 +1519,7 @@ int
 OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
+  Domain *domain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
 
   // clmnID starts from 1
@@ -1557,7 +1560,7 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
       reset = true;
     curArg++;
   }
-  Recorder *theRecorder = theDomain.getRecorder(tag);
+  Recorder *theRecorder = domain->getRecorder(tag);
   double res = theRecorder->getRecordedValue(dof, rowOffset, reset);
   // now we copy the value to the tcl string that is returned
   // sprintf(interp->result, "%35.8f ", res);
@@ -1571,7 +1574,8 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 resetModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  theDomain.revertToStart();
+  Domain* domain = G3_getDomain(interp);
+  domain->revertToStart();
 
   if (theTransientIntegrator != 0) {
     theTransientIntegrator->revertToStart();
@@ -1584,12 +1588,23 @@ int
 initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
-  if (theTransientAnalysis != 0)
-    theTransientAnalysis->initialize();
-  else if (theStaticAnalysis != 0)
-    theStaticAnalysis->initialize();
+  Domain* domain = G3_getDomain(interp);
+  
+  if (theTransientAnalysis != 0) {
+    DirectIntegrationAnalysis* ana;
+    if (ana=G3_getTransientAnalysis(interp))
+      ana->initialize();
+    else
+      theTransientAnalysis->initialize();
+  } else if (theStaticAnalysis != 0) {
+    StaticAnalysis* ana;
+    if (ana=G3_getStaticAnalysis(interp))
+      ana->initialize();
+    else
+      theStaticAnalysis->initialize();
+  }
 
-  theDomain.initialize();
+  domain->initialize();
 
   return TCL_OK;
 }
@@ -1598,7 +1613,9 @@ int
 setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-  theDomain.setLoadConstant();
+  Domain* domain = G3_getDomain(interp);
+  
+  domain->setLoadConstant();
   if (argc == 3) {
     if (strcmp(argv[1], "-time") == 0) {
       double newTime;
@@ -1606,8 +1623,8 @@ setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << "WARNING readingvalue - loadConst -time value \n";
         return TCL_ERROR;
       } else {
-        theDomain.setCurrentTime(newTime);
-        theDomain.setCommittedTime(newTime);
+        domain->setCurrentTime(newTime);
+        domain->setCommittedTime(newTime);
       }
     }
   }
@@ -1635,6 +1652,7 @@ setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  Domain* domain = G3_getDomain(interp);
   if (argc < 2) {
     opserr << "WARNING illegal command - time pseudoTime? \n";
     return TCL_ERROR;
@@ -1644,8 +1662,8 @@ setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     opserr << "WARNING reading time value - time pseudoTime? \n";
     return TCL_ERROR;
   } else {
-    theDomain.setCurrentTime(newTime);
-    theDomain.setCommittedTime(newTime);
+    domain->setCurrentTime(newTime);
+    domain->setCommittedTime(newTime);
   }
   return TCL_OK;
 }
@@ -1675,6 +1693,8 @@ int
 getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  Domain* domain = G3_getDomain(interp);
+
   if (argc < 2) {
     opserr << "WARNING no load pattern supplied -- getLoadFactor\n";
     return TCL_ERROR;
@@ -1686,7 +1706,7 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  LoadPattern *thePattern = theDomain.getLoadPattern(pattern);
+  LoadPattern *thePattern = domain->getLoadPattern(pattern);
   if (thePattern == 0) {
     opserr << "ERROR load pattern with tag " << pattern
            << " not found in domain -- getLoadFactor\n";
@@ -1880,6 +1900,9 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
   int result = 0;
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(interp);
+  if (!the_static_analysis)
+    the_static_analysis = theStaticAnalysis;
 
 #ifdef _PARALLEL_PROCESSING
   if (OPS_PARTITIONED == false && OPS_NUM_SUBDOMAINS > 1) {
@@ -1892,7 +1915,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 #endif
 
-  if (theStaticAnalysis != 0) {
+  if (the_static_analysis != 0) {
     if (argc < 2) {
       opserr << "WARNING static analysis: analysis numIncr?\n";
       return TCL_ERROR;
@@ -1902,7 +1925,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
     if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
       return TCL_ERROR;
 
-    result = theStaticAnalysis->analyze(numIncr);
+    result = the_static_analysis->analyze(numIncr);
   } else if (thePFEMAnalysis != 0) {
     result = thePFEMAnalysis->analyze();
   } else if (theTransientAnalysis != 0) {
@@ -2079,10 +2102,11 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
 {
   int flag = 0; // default flag sent to a nodes Print() method
   int nodeArg = 0;
+  Domain* domain = G3_getDomain(interp);
 
   // if just 'print <filename> node' print all the nodes - no flag
   if (argc == 0) {
-    NodeIter &theNodes = theDomain.getNodes();
+    NodeIter &theNodes = domain->getNodes();
     Node *theNode;
     while ((theNode = theNodes()) != 0)
       theNode->Print(output);
@@ -2109,7 +2133,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
   // if 'print <filename> node flag'
   //     print out all the nodes in the domain with flag
   if (nodeArg == argc) {
-    NodeIter &theNodes = theDomain.getNodes();
+    NodeIter &theNodes = domain->getNodes();
     Node *theNode;
     while ((theNode = theNodes()) != 0)
       theNode->Print(output, flag);
@@ -2129,7 +2153,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
       nodeArg++;
     }
 
-    theDomain.Print(output, theNodes, 0, flag);
+    domain->Print(output, theNodes, 0, flag);
     delete theNodes;
   }
 
@@ -2371,6 +2395,7 @@ int
 specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
+  Domain *domain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING need to specify an analysis type (Static, Transient)\n";
@@ -2397,7 +2422,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   // analysis changing .. delete the old analysis
   //
 
-  if (theStaticAnalysis != 0) {
+  if (theStaticAnalysis != 0 || G3_getStaticAnalysis(interp)) {
+    G3_delStaticAnalysis(interp);
     delete theStaticAnalysis;
     theStaticAnalysis = 0;
     opserr << "WARNING: analysis .. StaticAnalysis already exists => "
@@ -2458,8 +2484,10 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     theStaticAnalysis = new StaticAnalysis(
-        theDomain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
+        *domain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
         *theSOE, *theStaticIntegrator, theTest);
+
+    G3_setStaticAnalysis(interp, theStaticAnalysis);
 
 #ifdef _PARALLEL_INTERPRETERS
     if (setMPIDSOEFlag) {
@@ -2599,7 +2627,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     theTransientAnalysis = new DirectIntegrationAnalysis(
-        theDomain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
+        *domain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
         *theSOE, *theTransientIntegrator, theTest, numSubLevels, numSubSteps);
     ;
 #ifdef _PARALLEL_INTERPRETERS
@@ -2678,7 +2706,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
     theVariableTimeStepTransientAnalysis =
         new VariableTimeStepDirectIntegrationAnalysis(
-            theDomain, *theHandler, *theNumberer, *theAnalysisModel,
+            *domain, *theHandler, *theNumberer, *theAnalysisModel,
             *theAlgorithm, *theSOE, *theTransientIntegrator, theTest);
 
     // set the pointer for variabble time step analysis
@@ -2840,7 +2868,7 @@ computeateachstep\n"; return TCL_ERROR;
 #endif
 
   if (theEigenSOE != 0) {
-    if (theStaticAnalysis != 0) {
+    if (theStaticAnalysis != 0 ) {
       theStaticAnalysis->setEigenSOE(*theEigenSOE);
     } else if (theTransientAnalysis != 0) {
       theTransientAnalysis->setEigenSOE(*theEigenSOE);
@@ -2875,6 +2903,7 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   if ((strcmp(argv[1], "BandGeneral") == 0) ||
       (strcmp(argv[1], "BandGEN") == 0) || (strcmp(argv[1], "BandGen") == 0)) {
     BandGenLinSolver *theSolver = new BandGenLinLapackSolver();
+
 #ifdef _PARALLEL_PROCESSING
     theSOE = new DistributedBandGenLinSOE(*theSolver);
 #else
@@ -4360,7 +4389,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
 
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+  Domain* domain = G3_getDomain(interp);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
 
   // make sure at least one other argument to contain integrator
   if (argc < 2) {
@@ -4462,14 +4492,11 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theStaticAnalysis != 0)
       theStaticAnalysis->setIntegrator(*theStaticIntegrator);
   }
-  /************************added for
-     HSConstraint*************************************/
+  /* ************ added for HSConstraint *******************/
 
   else if (strcmp(argv[1], "HSConstraint") == 0) {
-    double arcLength;
-    double psi_u;
-    double psi_f;
-    double u_ref;
+    double arcLength, psi_u, psi_f, u_ref;
+
     if (argc < 3) {
       opserr << "WARNING integrator HSConstraint <arcLength> <psi_u> <psi_f> "
                 "<u_ref> \n";
@@ -4576,10 +4603,9 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (strcmp(argv[1], "DisplacementControl") == 0) {
-    int node;
-    int dof;
+    int node, dof, numIter;
     double increment, minIncr, maxIncr;
-    int numIter;
+
     if (argc < 5) {
       opserr << "WARNING integrator DisplacementControl node dof dU \n";
       opserr << "<Jd minIncrement maxIncrement>\n";
@@ -4619,7 +4645,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     theStaticIntegrator = new DistributedDisplacementControl(
         node, dof - 1, increment, numIter, minIncr, maxIncr);
 #else
-    Node *theNode = theDomain.getNode(node);
+    Node *theNode = domain->getNode(node);
     if (theNode == 0) {
       opserr << "WARNING integrator DisplacementControl node dof dU : Node "
                 "does not exist\n";
@@ -4634,8 +4660,10 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     theStaticIntegrator =
-        new DisplacementControl(node, dof - 1, increment, &theDomain, numIter,
+        new DisplacementControl(node, dof-1, increment, domain, numIter,
                                 minIncr, maxIncr, tangFlag);
+
+    G3_setStaticIntegrator(interp,theStaticIntegrator);
 #endif
 
     // if the analysis exists - we want to change the Integrator
@@ -5266,7 +5294,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
       if (strcmp(argv[2], integratorCommands->funcName) == 0) {
 
-          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, &theDomain);
+          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
         void *theRes = (*(integratorCommands->funcPtr))();
         if (theRes != 0) {
           theTransientIntegrator = (TransientIntegrator *)theRes;
@@ -5304,7 +5332,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
         theIntegratorCommand->next = theExternalTransientIntegratorCommands;
         theExternalTransientIntegratorCommands = theIntegratorCommand;
 
-          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
 
         void *theRes = (*funcPtr)();
         if (theRes != 0) {
@@ -5336,7 +5364,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
       if (strcmp(argv[2], integratorCommands->funcName) == 0) {
 
-          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, &theDomain);
+          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
         void *theRes = (*(integratorCommands->funcPtr))();
         if (theRes != 0) {
           theStaticIntegrator = (StaticIntegrator *)theRes;
@@ -5374,7 +5402,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
         theIntegratorCommand->next = theExternalStaticIntegratorCommands;
         theExternalStaticIntegratorCommands = theIntegratorCommand;
 
-          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
 
         void *theRes = (*funcPtr)();
         if (theRes != 0) {
@@ -5432,7 +5460,8 @@ int
 addRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
-  return TclAddRecorder(clientData, interp, argc, argv, theDomain);
+  Domain& domain = *G3_getDomain(interp);
+  return TclAddRecorder(clientData, interp, argc, argv, domain);
 }
 
 extern int TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp,
@@ -5443,8 +5472,9 @@ int
 addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
+  Domain* domain = G3_getDomain(interp);
   if (theAlgorithm != 0)
-    return TclAddAlgorithmRecorder(clientData, interp, argc, argv, theDomain,
+    return TclAddAlgorithmRecorder(clientData, interp, argc, argv, *domain,
                                    theAlgorithm);
 
   else
@@ -5513,6 +5543,7 @@ int
 eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  Domain *domain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eigen <type> numModes?\n";
@@ -5607,7 +5638,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     theTransientAnalysis = new DirectIntegrationAnalysis(
-        theDomain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
+        *domain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
         *theSOE, *theTransientIntegrator, theTest);
   }
 
@@ -5662,7 +5693,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     if (theStaticAnalysis != 0 || theTransientAnalysis != 0) {
-      SubdomainIter &theSubdomains = theDomain.getSubdomains();
+      SubdomainIter &theSubdomains = domain->getSubdomains();
       Subdomain *theSub;
       while ((theSub = theSubdomains()) != 0) {
         theSub->setAnalysisEigenSOE(*theEigenSOE);
@@ -5695,7 +5726,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (result == 0) {
     //      char *eigenvalueS = new char[15 * numEigen];
-    const Vector &eigenvalues = theDomain.getEigenvalues();
+    const Vector &eigenvalues = domain->getEigenvalues();
     int cnt = 0;
     for (int i = 0; i < numEigen; i++) {
       cnt += sprintf(&resDataPtr[cnt], "%35.20f  ", eigenvalues[i]);
@@ -6103,6 +6134,7 @@ getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  Domain* theDomain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeDisp nodeTag? <dof?>\n";
@@ -6126,7 +6158,7 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   dof--;
 
-  const Vector *nodalResponse = theDomain.getNodeResponse(tag, Disp);
+  const Vector *nodalResponse = theDomain->getNodeResponse(tag, Disp);
 
   if (nodalResponse == 0)
     return TCL_ERROR;
@@ -6163,6 +6195,7 @@ int
 nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  Domain *domain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeReaction nodeTag? <dof?>\n";
@@ -6186,7 +6219,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
 
   dof--;
 
-  const Vector *nodalResponse = theDomain.getNodeResponse(tag, Reaction);
+  const Vector *nodalResponse = domain->getNodeResponse(tag, Reaction);
 
   if (nodalResponse == 0)
     return TCL_ERROR;
@@ -6223,6 +6256,7 @@ int
 nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  Domain *domain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeUnbalance nodeTag? <dof?>\n";
@@ -6247,7 +6281,7 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
 
   dof--;
 
-  const Vector *nodalResponse = theDomain.getNodeResponse(tag, Unbalance);
+  const Vector *nodalResponse = domain->getNodeResponse(tag, Unbalance);
 
   if (nodalResponse == 0)
     return TCL_ERROR;
@@ -6284,6 +6318,7 @@ int
 nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
+  Domain* domain = G3_getDomain(interp);
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - nodeEigenVector nodeTag? eigenVector? <dof?>\n";
@@ -6315,7 +6350,7 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
 
   dof--;
   eigenvector--;
-  Node *theNode = theDomain.getNode(tag);
+  Node *theNode = domain->getNode(tag);
   const Matrix &theEigenvectors = theNode->getEigenvectors();
 
   int size = theEigenvectors.noRows();
