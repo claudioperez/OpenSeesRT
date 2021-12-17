@@ -43,8 +43,8 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt,
-                               int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
+                               TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   // ensure the destructor has not been called

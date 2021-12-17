@@ -45,8 +45,7 @@ cleanup(TCL_Char **argv)
 }
 
 TimeSeriesIntegrator *
-TclSeriesIntegratorCommand(ClientData clientData, G3_Runtime *rt,
-                           TCL_Char *arg)
+TclSeriesIntegratorCommand(ClientData clientData, G3_Runtime *rt, TCL_Char *arg)
 {
   int argc;
   TCL_Char **argv;

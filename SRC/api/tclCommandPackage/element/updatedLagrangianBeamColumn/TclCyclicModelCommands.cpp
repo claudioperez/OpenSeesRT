@@ -13,9 +13,8 @@
 #include <TclBasicBuilder.h>
 
 int
-TclBasicBuilder_addLinearCylic(ClientData clientData, G3_Runtime *rt,
-                               int argc, TCL_Char **argv,
-                               TclBasicBuilder *theBuilder)
+TclBasicBuilder_addLinearCylic(ClientData clientData, G3_Runtime *rt, int argc,
+                               TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   int tag;
 
@@ -110,14 +109,14 @@ TclBasicBuilderCyclicModelCommand(ClientData clientData, G3_Runtime *rt,
                                                 theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "bilinear") == 0) {
-    int result = TclBasicBuilder_addBilinearCyclic(clientData, rt, argc,
-                                                   argv, theTclBuilder);
+    int result = TclBasicBuilder_addBilinearCyclic(clientData, rt, argc, argv,
+                                                   theTclBuilder);
     return result;
   }
 
   else if (strcmp(argv[1], "quadratic") == 0) {
-    int result = TclBasicBuilder_addQuadraticCyclic(clientData, rt, argc,
-                                                    argv, theTclBuilder);
+    int result = TclBasicBuilder_addQuadraticCyclic(clientData, rt, argc, argv,
+                                                    theTclBuilder);
     return result;
   }
 

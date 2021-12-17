@@ -89,9 +89,9 @@ extern void *OPS_NodeRecorderRMS();
 
 #include <packages.h>
 #include <elementAPI.h>
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       G3_Runtime *rt, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, G3_Runtime *rt,
+                                       int cArg, int mArg, TCL_Char **argv,
+                                       Domain *domain);
 
 extern TimeSeries *TclSeriesCommand(ClientData clientData, G3_Runtime *rt,
                                     TCL_Char *arg);
@@ -632,7 +632,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
   }
   //////////////////////End of ElementDamage
-  ///recorder////////////////////////////
+  /// recorder////////////////////////////
 
   else if ((strcmp(argv[1], "Remove") == 0) ||
            (strcmp(argv[1], "ElementRemoval") == 0) ||
@@ -784,7 +784,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
         //	    if (loc == argc) {
         //	      opserr << "ERROR: No response type specified for element
-        //recorder. " << endln; 	      return TCL_ERROR;
+        // recorder. " << endln; 	      return TCL_ERROR;
         //	    }
 
         if (strcmp(argv[loc], "all") == 0) {
@@ -897,16 +897,14 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         loc++;
         double eleM = 0;
 
-        if (loc < argc &&
-            Tcl_GetDouble(rt, argv[loc + 1], &eleM) != TCL_OK) {
+        if (loc < argc && Tcl_GetDouble(rt, argv[loc + 1], &eleM) != TCL_OK) {
           Tcl_GetDouble(rt, argv[loc], &eleM);
           for (int i = 0; i < numEle; i++)
             eleMass(i) = eleM;
           loc++;
         } else {
           int i = 0;
-          while (loc < argc &&
-                 Tcl_GetDouble(rt, argv[loc], &eleM) == TCL_OK) {
+          while (loc < argc && Tcl_GetDouble(rt, argv[loc], &eleM) == TCL_OK) {
             eleMass(i) = eleM;
             loc++;
             i++;
@@ -1071,7 +1069,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   //////////////////////End of Component Remove
-  ///recorder////////////////////////////
+  /// recorder////////////////////////////
 
   // create a recorder to write nodal displacement quantities to a file
   else if ((strcmp(argv[1], "Node") == 0) ||
@@ -1885,21 +1883,21 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     (*theRecorder) = thePlotter;
 #endif // _NOGRAPHICS
   } else if (strcmp(argv[1], "pvd") == 0 || strcmp(argv[1], "PVD") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_PVDRecorder();
   }
 
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_VTK_Recorder();
   } else if (strcmp(argv[1], "ElementRMS") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS();
   } else if (strcmp(argv[1], "NodeRMS") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS();
   } else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_VTK_Recorder();
   }
   /*
@@ -1912,7 +1910,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
   }
   */
   else if (strcmp(argv[1], "gmsh") == 0 || strcmp(argv[1], "GMSH") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_GmshRecorder();
   }
   // else if (strcmp(argv[1],"gmshparallel") == 0 ||
@@ -2012,7 +2010,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     while (recorderCommands != NULL && found == false) {
       if (strcmp(argv[1], recorderCommands->funcName) == 0) {
 
-          OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
         void *theRes = (*(recorderCommands->funcPtr))();
         if (theRes != 0) {
           *theRecorder = (Recorder *)theRes;
@@ -2051,7 +2049,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         theRecorderCommand->next = theExternalRecorderCommands;
         theExternalRecorderCommands = theRecorderCommand;
 
-          OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
 
         void *theRes = (*funcPtr)();
         if (theRes != 0) {
@@ -2081,8 +2079,8 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclAddRecorder(ClientData clientData, G3_Runtime *rt, int argc,
-               TCL_Char **argv, Domain &theDomain)
+TclAddRecorder(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
+               Domain &theDomain)
 {
   Recorder *theRecorder = 0;
 

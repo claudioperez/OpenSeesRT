@@ -185,8 +185,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, G3_Runtime *rt, int argc,
       double m;
       for (j = 0; j < numDOF; j++) {
         for (k = 0; k < numDOF; k++) {
-          if (Tcl_GetDouble(rt, argv[i + 1 + numDOF * j + k], &m) !=
-              TCL_OK) {
+          if (Tcl_GetDouble(rt, argv[i + 1 + numDOF * j + k], &m) != TCL_OK) {
             opserr << "WARNING invalid mass term\n";
             opserr << "adapter element: " << tag << endln;
             return TCL_ERROR;

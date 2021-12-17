@@ -479,9 +479,9 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, G3_Runtime *rt,
  */
 
 int
-TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData,
-                                          G3_Runtime *rt, int argc,
-                                          TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData, G3_Runtime *rt,
+                                          int argc, TCL_Char **argv,
+                                          Domain *theTclDomain,
                                           TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -789,8 +789,8 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, G3_Runtime *rt,
  */
 
 int
-TclBasicBuilder_addBBarBrickUP(ClientData clientData, G3_Runtime *rt,
-                               int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addBBarBrickUP(ClientData clientData, G3_Runtime *rt, int argc,
+                               TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -

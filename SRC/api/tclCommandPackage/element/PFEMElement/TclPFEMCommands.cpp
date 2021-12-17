@@ -46,8 +46,8 @@ static PFEMMesher2D theMesher2D;
 static PFEMMesher3D theMesher3D;
 
 int
-TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt,
-                             int argc, TCL_Char **argv, Domain *theDomain)
+TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
+                             TCL_Char **argv, Domain *theDomain)
 {
 
   if (argc < 2) {
@@ -2656,8 +2656,8 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt,
-                             int argc, TCL_Char **argv, Domain *theDomain)
+TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
+                             TCL_Char **argv, Domain *theDomain)
 {
 
   if (argc < 2) {
@@ -2788,8 +2788,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt,
               double coord[3];
               int count = 0;
               for (int floc = fl0; floc < fl1; floc++) {
-                if (Tcl_GetDouble(rt, argv[floc], &coord[count++]) !=
-                    TCL_OK) {
+                if (Tcl_GetDouble(rt, argv[floc], &coord[count++]) != TCL_OK) {
                   opserr << "WARNING: invalid coordinate " << argv[floc];
                   opserr << " -- PFEM3D discretize\n";
                   return TCL_ERROR;

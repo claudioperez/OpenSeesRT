@@ -200,9 +200,8 @@ extern void *OPS_MixedBeamColumnAsym3dTcl(); // Xinlong Du
 extern void *OPS_ZeroLengthContactASDimplex(
     void); // Onur Deniz Akan (IUSS), Massimo Petracca (ASDEA)
 
-extern int TclBasicBuilder_addFeapTruss(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
-                                        TCL_Char **argv, Domain *,
+extern int TclBasicBuilder_addFeapTruss(ClientData clientData, G3_Runtime *rt,
+                                        int argc, TCL_Char **argv, Domain *,
                                         TclBasicBuilder *, int argStart);
 
 extern int Tcl_addWrapperElement(eleObj *, ClientData clientData,
@@ -375,9 +374,8 @@ extern int TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData,
                                                  TclBasicBuilder *);
 
 // Added by Quan Gu and Yongdou Liu, et al. on 2018/10/31 (Xiamen University)
-extern int TclBasicBuilder_addWheelRail(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
-                                        TCL_Char **argv, Domain *,
+extern int TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
+                                        int argc, TCL_Char **argv, Domain *,
                                         TclBasicBuilder *, int argStart);
 
 // MSN
@@ -387,8 +385,8 @@ extern int TclBasicBuilder_addGradientInelasticBeamColumn(ClientData,
                                                           TclBasicBuilder *);
 
 int
-TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
-                              int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt, int argc,
+                              TCL_Char **argv, Domain *theTclDomain,
                               TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -397,8 +395,7 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
     return TCL_ERROR;
   }
 
-  OPS_ResetInput(clientData, rt, 2, argc, argv, theTclDomain,
-                 theTclBuilder);
+  OPS_ResetInput(clientData, rt, 2, argc, argv, theTclDomain, theTclBuilder);
 
   // check at least two arguments so don't segemnt fault on strcmp
   if (argc < 2) {
@@ -632,9 +629,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
   } else if ((strcmp(argv[1], "WheelRail") == 0)) {
     // ------------------------------add------------------------------------------
     int eleArgStart = 1;
-    int result =
-        TclBasicBuilder_addWheelRail(clientData, rt, argc, argv,
-                                     theTclDomain, theTclBuilder, eleArgStart);
+    int result = TclBasicBuilder_addWheelRail(
+        clientData, rt, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
 
     // End of WheelRail element TCL command
@@ -1563,14 +1559,14 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
     if (OPS_GetNDM() == 2)
       theEle = (Element *)OPS_ElastomericBearingUFRP2d();
     else
-        // theEle = (Element *)OPS_ElastomericBearingUFRP3d();
-        if (theEle != 0)
-      theElement = theEle;
-    else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
-      return TCL_ERROR;
-    }
+      // theEle = (Element *)OPS_ElastomericBearingUFRP3d();
+      if (theEle != 0)
+        theElement = theEle;
+      else {
+        opserr << "TclElementCommand -- unable to create element of type : "
+               << argv[1] << endln;
+        return TCL_ERROR;
+      }
   }
 
   else if (strcmp(argv[1], "flatSliderBearing") == 0) {
@@ -1705,9 +1701,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
 #if defined(OPSDEF_ELEMENT_FEAP)
   if (strcmp(argv[1], "fTruss") == 0) {
     int eleArgStart = 1;
-    int result =
-        TclBasicBuilder_addFeapTruss(clientData, rt, argc, argv,
-                                     theTclDomain, theTclBuilder, eleArgStart);
+    int result = TclBasicBuilder_addFeapTruss(
+        clientData, rt, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
 
   }
@@ -1736,8 +1731,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
         clientData, rt, argc, argv, theTclDomain, theTclBuilder);
     return result;
   } else if (strstr(argv[1], "beamWithHinges") != 0) {
-    int result = TclBasicBuilder_addBeamWithHinges(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addBeamWithHinges(clientData, rt, argc, argv,
+                                                   theTclDomain, theTclBuilder);
     return result;
   } else if ((strcmp(argv[1], "quad") == 0) ||
              (strcmp(argv[1], "stdQuad") == 0)) {
@@ -1768,16 +1763,16 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
                                                  theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "quad8n") == 0) {
-    int result = TclBasicBuilder_addEightNodeQuad(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addEightNodeQuad(clientData, rt, argc, argv,
+                                                  theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "tri6n") == 0) {
     int result = TclBasicBuilder_addSixNodeTri(clientData, rt, argc, argv,
                                                theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "quadUP") == 0) {
-    int result = TclBasicBuilder_addFourNodeQuadUP(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addFourNodeQuadUP(clientData, rt, argc, argv,
+                                                   theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "brickUP") == 0) {
     int result = TclBasicBuilder_addBrickUP(clientData, rt, argc, argv,
@@ -1805,27 +1800,23 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
     return result;
   } else if (strcmp(argv[1], "stdBrick") == 0) {
     int eleArgStart = 1;
-    int result =
-        TclBasicBuilder_addBrick(clientData, rt, argc, argv, theTclDomain,
-                                 theTclBuilder, eleArgStart);
+    int result = TclBasicBuilder_addBrick(
+        clientData, rt, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
   } else if (strcmp(argv[1], "bbarBrick") == 0) {
     int eleArgStart = 1;
-    int result =
-        TclBasicBuilder_addBrick(clientData, rt, argc, argv, theTclDomain,
-                                 theTclBuilder, eleArgStart);
+    int result = TclBasicBuilder_addBrick(
+        clientData, rt, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
   } else if (strcmp(argv[1], "bbarBrickWithSensitivity") == 0) {
     int eleArgStart = 1;
-    int result =
-        TclBasicBuilder_addBrick(clientData, rt, argc, argv, theTclDomain,
-                                 theTclBuilder, eleArgStart);
+    int result = TclBasicBuilder_addBrick(
+        clientData, rt, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
   } else if (strcmp(argv[1], "flBrick") == 0) {
     int eleArgStart = 1;
-    int result =
-        TclBasicBuilder_addBrick(clientData, rt, argc, argv, theTclDomain,
-                                 theTclBuilder, eleArgStart);
+    int result = TclBasicBuilder_addBrick(
+        clientData, rt, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
   } else if (strcmp(argv[1], "zeroLength") == 0) {
     int result = TclBasicBuilder_addZeroLength(clientData, rt, argc, argv,
@@ -1853,8 +1844,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
     return result;
   } else if ((strcmp(argv[1], "Joint2D") == 0) ||
              (strcmp(argv[1], "Joint2d") == 0)) {
-    int result = TclBasicBuilder_addJoint2D(clientData, rt, argc, argv,
-                                            theTclDomain);
+    int result =
+        TclBasicBuilder_addJoint2D(clientData, rt, argc, argv, theTclDomain);
 
     return result;
   } else if ((strcmp(argv[1], "Joint3D") == 0) ||
@@ -1888,8 +1879,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
 
   else if (strcmp(argv[1], "beamColumnJoint") == 0) {
     int eleArgStart = 1;
-    int result = TclBasicBuilder_addBeamColumnJoint(
-        clientData, rt, argc, argv, theTclDomain, eleArgStart);
+    int result = TclBasicBuilder_addBeamColumnJoint(clientData, rt, argc, argv,
+                                                    theTclDomain, eleArgStart);
 
     return result;
   }
@@ -1910,8 +1901,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
   }
 
   else if (strcmp(argv[1], "KikuchiBearing") == 0) {
-    int result = TclBasicBuilder_addKikuchiBearing(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addKikuchiBearing(clientData, rt, argc, argv,
+                                                   theTclDomain, theTclBuilder);
     return result;
   }
 
@@ -1972,8 +1963,8 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
 
     if (eleObject != 0) {
 
-      int result = Tcl_addWrapperElement(eleObject, clientData, rt, argc,
-                                         argv, theTclDomain, theTclBuilder);
+      int result = Tcl_addWrapperElement(eleObject, clientData, rt, argc, argv,
+                                         theTclDomain, theTclBuilder);
 
       if (result != 0)
         delete eleObject;
@@ -2033,9 +2024,9 @@ TclBasicBuilderElementCommand(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addMultipleShearSpring(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
-                                       TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addMultipleShearSpring(ClientData clientData, G3_Runtime *rt,
+                                       int argc, TCL_Char **argv,
+                                       Domain *theTclDomain,
                                        TclBasicBuilder *theTclBuilder)
 {
 
@@ -2215,8 +2206,7 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData,
       } else if (strcmp(argv[i], "-lim") == 0 &&
                  (i + 1) <= (argc - 1)) { // <-lim limDisp?> の読み込み
 
-        if (Tcl_GetDouble(rt, argv[i + 1], &limDisp) != TCL_OK ||
-            limDisp < 0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &limDisp) != TCL_OK || limDisp < 0) {
           opserr << "WARNING invalid limDisp\n";
           ifNoError = false;
         }
@@ -2294,9 +2284,9 @@ errDetected(bool ifNoError, const char *msg)
 };
 
 int
-TclBasicBuilder_addMultipleNormalSpring(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
-                                        TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, G3_Runtime *rt,
+                                        int argc, TCL_Char **argv,
+                                        Domain *theTclDomain,
                                         TclBasicBuilder *theTclBuilder)
 {
 
@@ -2425,8 +2415,7 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData,
       } else if (strcmp(argv[i], "-lambda") == 0 &&
                  (i + 1) <= (argc - 1)) { // <-lambda lambda?>
 
-        if (Tcl_GetDouble(rt, argv[i + 1], &lambda) != TCL_OK ||
-            lambda < 0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &lambda) != TCL_OK || lambda < 0) {
           ifNoError = errDetected(ifNoError, "invalid lambda");
         }
 
@@ -2759,8 +2748,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, G3_Runtime *rt,
       } else if (strcmp(argv[i], "-limDisp") == 0 &&
                  (i + 1) <= (argc - 1)) { // <-limDisp limDisp?>
 
-        if (Tcl_GetDouble(rt, argv[i + 1], &limDisp) != TCL_OK ||
-            limDisp < 0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &limDisp) != TCL_OK || limDisp < 0) {
           ifNoError = errDetected(ifNoError, "invalid limDisp");
         }
 
@@ -2796,8 +2784,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, G3_Runtime *rt,
       } else if (strcmp(argv[i], "-lambda") == 0 &&
                  (i + 1) <= (argc - 1)) { // <-lambda lambda?>
 
-        if (Tcl_GetDouble(rt, argv[i + 1], &lambda) != TCL_OK ||
-            lambda < 0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &lambda) != TCL_OK || lambda < 0) {
           ifNoError = errDetected(ifNoError, "invalid lambda");
         }
 
@@ -2886,13 +2873,11 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, G3_Runtime *rt,
       } else if (strcmp(argv[i], "-doBalance") == 0 &&
                  (i + 3) <= (argc - 1)) { // -doBalance limFo? limFi? nIter?
 
-        if (Tcl_GetDouble(rt, argv[i + 1], &limFo) != TCL_OK ||
-            limFo <= 0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &limFo) != TCL_OK || limFo <= 0) {
           ifNoError = errDetected(ifNoError, "invalid limFo");
         }
 
-        if (Tcl_GetDouble(rt, argv[i + 2], &limFi) != TCL_OK ||
-            limFi <= 0) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &limFi) != TCL_OK || limFi <= 0) {
           ifNoError = errDetected(ifNoError, "invalid limFi");
         }
 
@@ -3319,8 +3304,8 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
-                             int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt, int argc,
+                             TCL_Char **argv, Domain *theTclDomain,
                              TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   // ensure the destructor has not been called -
@@ -3336,7 +3321,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
 
   int pTag, pnLoad;
   //-------------Beginning of a 2D wheel-rail element(By Quan Gu, Yongdou Liu,
-  //et al.) on 2018/10/29
+  // et al.) on 2018/10/29
   if (ndm == 2) {
 
     // check plane frame problem has 3 dof per node
@@ -3377,8 +3362,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &pInitLocation) !=
-        TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &pInitLocation) != TCL_OK) {
       opserr << "WARNING invalid pInitLocation - WheelRail " << pTag
              << " iNode jNode A E I\n";
       return TCL_ERROR;
@@ -3435,11 +3419,11 @@ TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
       int pathSize;
       TCL_Char **pathStrings;
 
-      int debug = Tcl_SplitList(rt, argv[13 + eleArgStart], &pathSize,
-                                &pathStrings);
+      int debug =
+          Tcl_SplitList(rt, argv[13 + eleArgStart], &pathSize, &pathStrings);
 
-      if (Tcl_SplitList(rt, argv[13 + eleArgStart], &pathSize,
-                        &pathStrings) != TCL_OK) {
+      if (Tcl_SplitList(rt, argv[13 + eleArgStart], &pathSize, &pathStrings) !=
+          TCL_OK) {
         opserr << "WARNING problem splitting path list "
                << argv[13 + eleArgStart] << " - ";
         opserr << " NodeList -values {path} ... \n";
@@ -3461,8 +3445,8 @@ TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
     if (strcmp(argv[14 + eleArgStart], "-DeltaYList") == 0) {
       int pathSize;
       TCL_Char **pathStrings;
-      if (Tcl_SplitList(rt, argv[15 + eleArgStart], &pathSize,
-                        &pathStrings) != TCL_OK) {
+      if (Tcl_SplitList(rt, argv[15 + eleArgStart], &pathSize, &pathStrings) !=
+          TCL_OK) {
         opserr << "WARNING problem splitting path list "
                << argv[15 + eleArgStart] << " - ";
         opserr << " NodeList -values {path} ... \n";
@@ -3483,8 +3467,8 @@ TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
     if (strcmp(argv[16 + eleArgStart], "-LocationList") == 0) {
       int pathSize;
       TCL_Char **pathStrings;
-      if (Tcl_SplitList(rt, argv[17 + eleArgStart], &pathSize,
-                        &pathStrings) != TCL_OK) {
+      if (Tcl_SplitList(rt, argv[17 + eleArgStart], &pathSize, &pathStrings) !=
+          TCL_OK) {
         opserr << "WARNING problem splitting path list "
                << argv[17 + eleArgStart] << " - ";
         opserr << " NodeList -values {path} ... \n";
@@ -3513,7 +3497,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
     }
 
   } //--------------End of a 2D wheel-rail element(By Quan Gu, Yongdou Liu, et
-    //al.) on 2018/10/29 */
+    // al.) on 2018/10/29 */
   else if (ndm == 3) {
 
     opserr << "Have not developed yet." << endln;

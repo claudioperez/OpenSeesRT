@@ -184,8 +184,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
         secTag[i] = section;
     }
 
-    if (argi >= argc ||
-        Tcl_GetInt(rt, argv[argi++], &transfTag) != TCL_OK) {
+    if (argi >= argc || Tcl_GetInt(rt, argv[argi++], &transfTag) != TCL_OK) {
       opserr << "WARNING invalid transfTag? - element nonlinearBeamColumn "
                 "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
                 "massDens?> <-iter nMaxLocIters? locToler?>\n";

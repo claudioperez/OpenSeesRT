@@ -46,8 +46,8 @@ extern ReliabilityDomain *theReliabilityDomain;
 #endif
 
 int
-TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt,
-                                int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
+                                TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -

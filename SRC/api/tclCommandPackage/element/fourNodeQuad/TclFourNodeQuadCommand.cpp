@@ -60,8 +60,8 @@ extern void printCommand(int argc, TCL_Char **argv);
  */
 
 int
-TclBasicBuilder_addFourNodeQuad(ClientData clientData, G3_Runtime *rt,
-                                int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addFourNodeQuad(ClientData clientData, G3_Runtime *rt, int argc,
+                                TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -232,8 +232,7 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
   int ConstantPressureVolumeQuadId, iNode, jNode, kNode, lNode, matID;
   double thickness = 1.0;
 
-  if (Tcl_GetInt(rt, argv[argStart], &ConstantPressureVolumeQuadId) !=
-      TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &ConstantPressureVolumeQuadId) != TCL_OK) {
     opserr << "WARNING invalid ConstantPressureVolumeQuad eleTag" << endln;
     return TCL_ERROR;
   }
@@ -320,8 +319,8 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     *****************************************************************************
  */
 int
-TclBasicBuilder_addEnhancedQuad(ClientData clientData, G3_Runtime *rt,
-                                int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addEnhancedQuad(ClientData clientData, G3_Runtime *rt, int argc,
+                                TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -711,8 +710,8 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
 // Regular nine node quad
 
 int
-TclBasicBuilder_addNineNodeQuad(ClientData clientData, G3_Runtime *rt,
-                                int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addNineNodeQuad(ClientData clientData, G3_Runtime *rt, int argc,
+                                TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -1038,8 +1037,8 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, G3_Runtime *rt,
 // Six node tri
 
 int
-TclBasicBuilder_addSixNodeTri(ClientData clientData, G3_Runtime *rt,
-                              int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addSixNodeTri(ClientData clientData, G3_Runtime *rt, int argc,
+                              TCL_Char **argv, Domain *theTclDomain,
                               TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -

@@ -64,14 +64,13 @@ static bool createdDatabaseCommands = false;
 
 int save(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
 
-int restore(ClientData clientData, G3_Runtime *rt, int argc,
-            TCL_Char **argv);
+int restore(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
 
 extern FE_Datastore *theDatabase;
 
 int
-TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc,
-               TCL_Char **argv, Domain &theDomain, FEM_ObjectBroker &theBroker)
+TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
+               Domain &theDomain, FEM_ObjectBroker &theBroker)
 {
   if (createdDatabaseCommands == false) {
 
@@ -128,9 +127,8 @@ TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc,
     bool found = false;
     while (dataCommands != NULL && found == false) {
       if (strcmp(argv[1], dataCommands->funcName) == 0) {
-        int result =
-            (*(dataCommands->funcPtr))(clientData, rt, argc, argv,
-                                       &theDomain, &theBroker, &theDatabase);
+        int result = (*(dataCommands->funcPtr))(
+            clientData, rt, argc, argv, &theDomain, &theBroker, &theDatabase);
         return result;
       } else
         dataCommands = dataCommands->next;
@@ -139,7 +137,7 @@ TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc,
     // load new package
 
     void *libHandle;
-    int (*funcPtr)(ClientData clientData, G3_Runtime *rt, int argc,
+    int (*funcPtr)(ClientData clientData, G3_Runtime * rt, int argc,
                    TCL_Char **argv, Domain *, FEM_ObjectBroker *,
                    FE_Datastore **);
     int databaseNameLength = strlen(argv[1]);

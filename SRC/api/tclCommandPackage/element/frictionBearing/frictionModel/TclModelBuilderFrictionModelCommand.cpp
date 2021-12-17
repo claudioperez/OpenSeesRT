@@ -32,9 +32,9 @@
 #include <FrictionModel.h>
 #include <g3_api.h>
 #include <elementAPI.h>
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       G3_Runtime *rt, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, G3_Runtime *rt,
+                                       int cArg, int mArg, TCL_Char **argv,
+                                       Domain *domain);
 
 extern void *OPS_Coulomb();
 extern void *OPS_VelDependent();
@@ -63,7 +63,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, G3_Runtime *rt,
     return TCL_ERROR;
   }
 
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
+  OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
 
   // pointer to a friction model that will be added to the model builder
   FrictionModel *theFrnMdl = 0;

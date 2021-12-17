@@ -46,8 +46,8 @@
 #include <NDMaterial.h>
 
 int
-TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt,
-                              int argc, TCL_Char **argv, Domain *theDomain,
+TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
+                              TCL_Char **argv, Domain *theDomain,
                               TclBasicBuilder *theBuilder)
 {
 
@@ -167,7 +167,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt,
 
       // get a pointer to the material from the modelbuilder
       argi++;
-      UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt,matID);
+      UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt, matID);
       if (theMat == 0) {
         opserr << "WARNING no material " << matID
                << " exists - element ZeroLength eleTag? iNode? jNode? "
@@ -304,7 +304,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt,
           delete[] theMats;
           return TCL_ERROR;
         } else {
-          UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt,matID);
+          UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt, matID);
           if (theMat == 0) {
             opserr << "WARNING no material " << matID
                    << " exists - element ZeroLength eleTag? iNode? jNode? "
@@ -516,9 +516,9 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
 //
 
 int
-TclBasicBuilder_addZeroLengthContact2D(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
-                                       TCL_Char **argv, Domain *theDomain,
+TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, G3_Runtime *rt,
+                                       int argc, TCL_Char **argv,
+                                       Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
 {
 
@@ -635,9 +635,9 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData,
 //
 
 int
-TclBasicBuilder_addZeroLengthContact3D(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
-                                       TCL_Char **argv, Domain *theDomain,
+TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, G3_Runtime *rt,
+                                       int argc, TCL_Char **argv,
+                                       Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
 {
 
@@ -749,8 +749,8 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData,
 }
 
 int
-TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt,
-                                int argc, TCL_Char **argv, Domain *theDomain,
+TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
+                                TCL_Char **argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
 
@@ -823,7 +823,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt,
       return TCL_ERROR;
     }
 
-    the1DMat = G3_getUniaxialMaterialInstance(rt,uniTag);
+    the1DMat = G3_getUniaxialMaterialInstance(rt, uniTag);
 
     if (the1DMat == 0)
       opserr << "WARNING UniaxialMaterial " << uniTag

@@ -115,9 +115,10 @@ TclBasicBuilder_addElement2dYS01(ClientData clientData, G3_Runtime *rt,
     return TCL_ERROR;
   }
 
-  // 		Inelastic2DYS(	int tag, double A, double E, double I, int Nd1, int
-  // Nd2, 						YieldSurface_BC *ysEnd1, YieldSurface_BC *ysEnd2, 						int rf_algo = -1, //
-  // updated
+  // 		Inelastic2DYS(	int tag, double A, double E, double I, int Nd1,
+  // int Nd2, 						YieldSurface_BC *ysEnd1,
+  // YieldSurface_BC *ysEnd2, 						int rf_algo = -1,
+  // // updated
   Element *theElement =
       new Inelastic2DYS01(tag, A, E, I, ndI, ndJ, theYS1, theYS2, rf_algo);
 
@@ -733,24 +734,24 @@ TCL_ERROR;
 
 /*******************************************************************************************/
 int
-TclBasicBuilder_addElement2dYS(ClientData clientData, G3_Runtime *rt,
-                               int argc, TCL_Char **argv, Domain *theTclDomain,
+TclBasicBuilder_addElement2dYS(ClientData clientData, G3_Runtime *rt, int argc,
+                               TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder)
 {
 
   if (strcmp(argv[1], "inelastic2dYS01") == 0) {
-    int result = TclBasicBuilder_addElement2dYS01(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addElement2dYS01(clientData, rt, argc, argv,
+                                                  theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "inelastic2dYS02") == 0) {
-    int result = TclBasicBuilder_addElement2dYS02(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addElement2dYS02(clientData, rt, argc, argv,
+                                                  theTclDomain, theTclBuilder);
     return result;
   }
 
   else if (strcmp(argv[1], "inelastic2dYS03") == 0) {
-    int result = TclBasicBuilder_addElement2dYS03(
-        clientData, rt, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addElement2dYS03(clientData, rt, argc, argv,
+                                                  theTclDomain, theTclBuilder);
     return result;
   }
 

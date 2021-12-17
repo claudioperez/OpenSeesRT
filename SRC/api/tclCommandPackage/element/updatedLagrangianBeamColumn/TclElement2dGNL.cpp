@@ -16,8 +16,8 @@
 //             double rho = 0.0, bool islinear = false);
 
 int
-TclBasicBuilder_addElastic2dGNL(ClientData clientData, G3_Runtime *rt,
-                                int argc, TCL_Char **argv, Domain *theDomain,
+TclBasicBuilder_addElastic2dGNL(ClientData clientData, G3_Runtime *rt, int argc,
+                                TCL_Char **argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
   // cerr << "Press key to continue...\n";

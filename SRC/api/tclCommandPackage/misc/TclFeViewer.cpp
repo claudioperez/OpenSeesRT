@@ -78,20 +78,20 @@ int TclFeViewer_setVPN(ClientData clientData, G3_Runtime *rt, int argc,
                        TCL_Char **argv);
 int TclFeViewer_setVUP(ClientData clientData, G3_Runtime *rt, int argc,
                        TCL_Char **argv);
-int TclFeViewer_setViewWindow(ClientData clientData, G3_Runtime *rt,
-                              int argc, TCL_Char **argv);
-int TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt,
-                             int argc, TCL_Char **argv);
+int TclFeViewer_setViewWindow(ClientData clientData, G3_Runtime *rt, int argc,
+                              TCL_Char **argv);
+int TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt, int argc,
+                             TCL_Char **argv);
 int TclFeViewer_setProjectionMode(ClientData clientData, G3_Runtime *rt,
                                   int argc, TCL_Char **argv);
 int TclFeViewer_setFillMode(ClientData clientData, G3_Runtime *rt, int argc,
                             TCL_Char **argv);
 int TclFeViewer_setPRP(ClientData clientData, G3_Runtime *rt, int argc,
                        TCL_Char **argv);
-int TclFeViewer_setPortWindow(ClientData clientData, G3_Runtime *rt,
-                              int argc, TCL_Char **argv);
-int TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt,
-                             int argc, TCL_Char **argv);
+int TclFeViewer_setPortWindow(ClientData clientData, G3_Runtime *rt, int argc,
+                              TCL_Char **argv);
+int TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
+                             TCL_Char **argv);
 int TclFeViewer_saveImage(ClientData clientData, G3_Runtime *rt, int argc,
                           TCL_Char **argv);
 int TclFeViewer_clearImage(ClientData clientData, G3_Runtime *rt, int argc,
@@ -167,14 +167,14 @@ TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
   Tcl_CreateCommand(rt, "port", TclFeViewer_setPortWindow, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "display", TclFeViewer_displayModel,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(rt, "display", TclFeViewer_displayModel, (ClientData)NULL,
+                    (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "clearImage", TclFeViewer_clearImage,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(rt, "clearImage", TclFeViewer_clearImage, (ClientData)NULL,
+                    (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "saveImage", TclFeViewer_saveImage,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(rt, "saveImage", TclFeViewer_saveImage, (ClientData)NULL,
+                    (Tcl_CmdDeleteProc *)NULL);
 }
 
 TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
@@ -236,14 +236,14 @@ TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
   Tcl_CreateCommand(rt, "port", TclFeViewer_setPortWindow, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "display", TclFeViewer_displayModel,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(rt, "display", TclFeViewer_displayModel, (ClientData)NULL,
+                    (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "clearImage", TclFeViewer_clearImage,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(rt, "clearImage", TclFeViewer_clearImage, (ClientData)NULL,
+                    (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "saveImage", TclFeViewer_saveImage,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(rt, "saveImage", TclFeViewer_saveImage, (ClientData)NULL,
+                    (Tcl_CmdDeleteProc *)NULL);
 }
 
 TclFeViewer::~TclFeViewer()
@@ -730,8 +730,8 @@ TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setProjectionMode(ClientData clientData, G3_Runtime *rt,
-                              int argc, TCL_Char **argv)
+TclFeViewer_setProjectionMode(ClientData clientData, G3_Runtime *rt, int argc,
+                              TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
   // if no graphics .. just return 0
