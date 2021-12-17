@@ -65,51 +65,51 @@ static Domain *theStructuralDomain = 0;
 OptimizationDomain *theOptimizationDomain = 0;
 
 int TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
-                                                  Tcl_Interp *interp, int argc,
+                                                  G3_Runtime *rt, int argc,
                                                   TCL_Char **argv);
 int TclOptimizationModelBuilder_addDesignVariablePositioner(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
 int TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
-                                                     Tcl_Interp *interp,
+                                                     G3_Runtime *rt,
                                                      int argc, TCL_Char **argv);
 int TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
-                                                      Tcl_Interp *interp,
+                                                      G3_Runtime *rt,
                                                       int argc,
                                                       TCL_Char **argv);
 int TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
-                                                 Tcl_Interp *interp, int argc,
+                                                 G3_Runtime *rt, int argc,
                                                  TCL_Char **argv);
 
 // constructor: the constructor will add certain commands to the interpreter
 
 TclOptimizationBuilder::TclOptimizationBuilder(Domain &passedSructuralDomain,
-                                               Tcl_Interp *interp)
+                                               G3_Runtime *rt)
 {
 
-  theInterp = interp;
+  theInterp = rt;
   theStructuralDomain = &passedSructuralDomain;
   theOptimizationDomain = new OptimizationDomain();
 
   // call Tcl_CreateCommand for class specific commands
-  // Tcl_CreateCommand(interp, "wipe",                  &wipeModel,
+  // Tcl_CreateCommand(rt, "wipe",                  &wipeModel,
   // (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(
-      interp, "designVariable",
+      rt, "designVariable",
       (Tcl_CmdProc *)TclOptimizationModelBuilder_addDesignVariable,
       (ClientData)NULL, NULL);
   Tcl_CreateCommand(
-      interp, "designVariablePositioner",
+      rt, "designVariablePositioner",
       (Tcl_CmdProc *)TclOptimizationModelBuilder_addDesignVariablePositioner,
       (ClientData)NULL, NULL);
   Tcl_CreateCommand(
-      interp, "constraintFunction",
+      rt, "constraintFunction",
       (Tcl_CmdProc *)TclOptimizationModelBuilder_addConstraintFunction,
       (ClientData)NULL, NULL);
   Tcl_CreateCommand(
-      interp, "objectiveFunction",
+      rt, "objectiveFunction",
       (Tcl_CmdProc *)TclOptimizationModelBuilder_addObjectiveFunction,
       (ClientData)NULL, NULL);
-  Tcl_CreateCommand(interp, "runSNOPTAnalysis",
+  Tcl_CreateCommand(rt, "runSNOPTAnalysis",
                     (Tcl_CmdProc *)TclOptimizationModelBuilder_runSNOPTAnalysis,
                     (ClientData)NULL, NULL);
 }
@@ -146,7 +146,7 @@ TclOptimizationBuilder::getOptimizationDomain()
 
 int
 TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
-                                              Tcl_Interp *interp, int argc,
+                                              G3_Runtime *rt, int argc,
                                               TCL_Char **argv)
 {
 
@@ -166,7 +166,7 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
   }
 
   // GET TAG NUMBER
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: invalid input: tag \n";
     return TCL_ERROR;
   }
@@ -183,7 +183,7 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-startPt") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &value) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &value) != TCL_OK) {
         opserr << "ERROR: invalid input: startPt \n";
         return TCL_ERROR;
       }
@@ -195,7 +195,7 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-lowerBound") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &lowerBound) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &lowerBound) != TCL_OK) {
         opserr << "ERROR: invalid input: startPt \n";
         return TCL_ERROR;
       }
@@ -204,7 +204,7 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-upperBound") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &upperBound) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &upperBound) != TCL_OK) {
         opserr << "ERROR: invalid input: startPt \n";
         return TCL_ERROR;
       }
@@ -227,13 +227,13 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
   // _gcvt( value, 7, buffer );
   strcat(tclAssignment, valueString);
 
-  if (Tcl_GetVar(interp, name, TCL_GLOBAL_ONLY) != NULL) {
+  if (Tcl_GetVar(rt, name, TCL_GLOBAL_ONLY) != NULL) {
     opserr << "Fatal::the variable with name: " << name
            << " is already in system, please use another name!" << endln;
     exit(-1);
   }
 
-  if (Tcl_Eval(interp, tclAssignment) != TCL_OK) {
+  if (Tcl_Eval(rt, tclAssignment) != TCL_OK) {
     opserr << "Fatal::can not set varuable with name: " << name
            << "in tcl command!" << endln;
     exit(-1);
@@ -241,7 +241,7 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
 
   // here tag ;
   theDesignVariable =
-      new DesignVariable(tag, name, value, upperBound, lowerBound, interp,
+      new DesignVariable(tag, name, value, upperBound, lowerBound, rt,
                          theOptimizationDomain, 0);
 
   if (theDesignVariable == 0) {
@@ -266,7 +266,7 @@ TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
 // -parameter 1>
 int
 TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
-                                                        Tcl_Interp *interp,
+                                                        G3_Runtime *rt,
                                                         int argc,
                                                         TCL_Char **argv)
 {
@@ -279,7 +279,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
   int argvCounter = 1;
 
   // READ THE TAG NUMBER
-  if (Tcl_GetInt(interp, argv[argvCounter++], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argvCounter++], &tag) != TCL_OK) {
     opserr << "ERROR: Invalid input tag to design variable positioner."
            << endln;
     return TCL_ERROR;
@@ -289,7 +289,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
     argvCounter++;
 
     // READ THE RANDOM VARIABLE NUMBER
-    if (Tcl_GetInt(interp, argv[argvCounter++], &dvNumber) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argvCounter++], &dvNumber) != TCL_OK) {
       opserr << "ERROR: invalid input: dvNumber \n";
       return TCL_ERROR;
     }
@@ -317,7 +317,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
   if (strcmp(argv[argvCounter], "-element") == 0) {
     argvCounter++;
 
-    if (Tcl_GetInt(interp, argv[argvCounter++], &tagOfObject) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argvCounter++], &tagOfObject) != TCL_OK) {
       argvCounter++;
       opserr << "ERROR: invalid input: tagOfObject \n";
       return TCL_ERROR;
@@ -336,7 +336,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
   else if (strcmp(argv[argvCounter], "-loadPattern") == 0) {
     argvCounter++;
 
-    if (Tcl_GetInt(interp, argv[argvCounter++], &tagOfObject) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argvCounter++], &tagOfObject) != TCL_OK) {
       opserr << "ERROR: invalid input: tagOfObject \n";
       return TCL_ERROR;
     }
@@ -352,7 +352,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
   else if (strcmp(argv[argvCounter], "-node") == 0) {
     argvCounter++;
 
-    if (Tcl_GetInt(interp, argv[argvCounter++], &tagOfObject) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argvCounter++], &tagOfObject) != TCL_OK) {
       opserr << "ERROR: invalid input: tagOfObject \n";
       return TCL_ERROR;
     }
@@ -364,7 +364,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
   } else if (strcmp(argv[argvCounter], "-parameter") == 0) {
     argvCounter++;
     int paramTag;
-    if (Tcl_GetInt(interp, argv[argvCounter++], &paramTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argvCounter++], &paramTag) != TCL_OK) {
       opserr << "ERROR: invalid input in positioner: parameter tag \n";
       return TCL_ERROR;
     }
@@ -403,7 +403,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
 // A ;
 int
 TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
-                                                 Tcl_Interp *interp, int argc,
+                                                 G3_Runtime *rt, int argc,
                                                  TCL_Char **argv)
 {
 
@@ -435,7 +435,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
   }
 
   // GET TAG NUMBER
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: invalid input: tag \n";
     return TCL_ERROR;
   }
@@ -449,9 +449,9 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
       argvCounter++;
       strcpy(name, argv[argvCounter]);
 
-      if ((Tcl_GetVar(interp, name, TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, name, "1", TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, name, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
+      if ((Tcl_GetVar(rt, name, TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, name, "1", TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, name, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
         opserr << "Fatal: objectiveFunction Name " << name
                << " is already been used, please change another name" << endln;
         exit(-1);
@@ -469,9 +469,9 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
       strcpy(gradientName, argv[argvCounter]);
 
-      if ((Tcl_GetVar(interp, gradientName, TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, gradientName, "1", TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, gradientName, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
+      if ((Tcl_GetVar(rt, gradientName, TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, gradientName, "1", TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, gradientName, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
         opserr << "Fatal: objectiveFunction gradient Name " << gradientName
                << " is already been used, please change another name" << endln;
         exit(-1);
@@ -490,7 +490,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-lowerBound") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &lowerBound) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &lowerBound) != TCL_OK) {
         opserr << "ERROR: invalid input: lowerBound \n";
         return TCL_ERROR;
       }
@@ -499,7 +499,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-upperBound") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &upperBound) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &upperBound) != TCL_OK) {
         opserr << "ERROR: invalid input: upperBound \n";
         return TCL_ERROR;
       }
@@ -508,7 +508,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-multiplier") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &multiplier) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &multiplier) != TCL_OK) {
         opserr << "ERROR: invalid input: multiplier \n";
         return TCL_ERROR;
       }
@@ -517,7 +517,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-state") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(interp, argv[argvCounter], &state) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argvCounter], &state) != TCL_OK) {
         opserr << "ERROR: invalid input: state \n";
         return TCL_ERROR;
       }
@@ -530,7 +530,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
       argvCounter++;
       strcpy(linearAddName, argv[argvCounter]);
 
-      if (Tcl_GetVar2(interp, linearAddName, "1", TCL_GLOBAL_ONLY) != NULL) {
+      if (Tcl_GetVar2(rt, linearAddName, "1", TCL_GLOBAL_ONLY) != NULL) {
 
         int numOfDV = theOptimizationDomain->getNumberOfDesignVariables();
         linearAdd = new Vector(numOfDV);
@@ -539,7 +539,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
         char index[5];
         for (int i = 0; i < numOfDV; i++) {
           sprintf(index, "%d", i + 1); // begin with 1
-          theValue = Tcl_GetVar2(interp, linearAddName, index, TCL_GLOBAL_ONLY);
+          theValue = Tcl_GetVar2(rt, linearAddName, index, TCL_GLOBAL_ONLY);
           (*linearAdd)(i) = atof(theValue);
         };
 
@@ -561,7 +561,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
   // here tag ;
   theObjectiveFunction =
-      new ObjectiveFunction(tag, theOptimizationDomain, interp, isGradProvided,
+      new ObjectiveFunction(tag, theOptimizationDomain, rt, isGradProvided,
                             linearAdd, tclFileName, name, gradientName,
                             lowerBound, upperBound, multiplier, state);
 
@@ -591,7 +591,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 
 int
 TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
-                                                  Tcl_Interp *interp, int argc,
+                                                  G3_Runtime *rt, int argc,
                                                   TCL_Char **argv)
 {
 
@@ -624,7 +624,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
   }
 
   // GET TAG NUMBER
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: invalid input: tag \n";
     return TCL_ERROR;
   }
@@ -638,9 +638,9 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
       argvCounter++;
       strcpy(name, argv[argvCounter]);
 
-      if ((Tcl_GetVar(interp, name, TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, name, "1", TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, name, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
+      if ((Tcl_GetVar(rt, name, TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, name, "1", TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, name, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
         opserr << "Fatal: ConstraintFunction Name " << name
                << " is already been used, please change another name" << endln;
         exit(-1);
@@ -658,9 +658,9 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 
       strcpy(gradientName, argv[argvCounter]);
 
-      if ((Tcl_GetVar(interp, gradientName, TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, gradientName, "1", TCL_GLOBAL_ONLY) != NULL) ||
-          (Tcl_GetVar2(interp, gradientName, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
+      if ((Tcl_GetVar(rt, gradientName, TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, gradientName, "1", TCL_GLOBAL_ONLY) != NULL) ||
+          (Tcl_GetVar2(rt, gradientName, "1,1", TCL_GLOBAL_ONLY) != NULL)) {
         opserr << "Fatal: ConstraintFunction gradient Name " << gradientName
                << " is already been used, please change another name" << endln;
         exit(-1);
@@ -687,7 +687,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
       int ii = 1;
       char index[5];
       sprintf(index, "%d", ii);
-      while (Tcl_GetVar2(interp, lowerBoundName, index, TCL_GLOBAL_ONLY) !=
+      while (Tcl_GetVar2(rt, lowerBoundName, index, TCL_GLOBAL_ONLY) !=
              NULL) {
         ii++;
         sprintf(index, "%d", ii);
@@ -707,7 +707,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 
       for (int i = 0; i < numberOfConstraints; i++) {
         sprintf(index, "%d", i + 1); // begin with 1
-        theValue = Tcl_GetVar2(interp, lowerBoundName, index, TCL_GLOBAL_ONLY);
+        theValue = Tcl_GetVar2(rt, lowerBoundName, index, TCL_GLOBAL_ONLY);
         (*lowerBound)(i) = atof(theValue);
       };
 
@@ -724,7 +724,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
       int ii = 1;
       char index[5];
       sprintf(index, "%d", ii);
-      while (Tcl_GetVar2(interp, upperBoundName, index, TCL_GLOBAL_ONLY) !=
+      while (Tcl_GetVar2(rt, upperBoundName, index, TCL_GLOBAL_ONLY) !=
              NULL) {
         ii++;
         sprintf(index, "%d", ii);
@@ -744,7 +744,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 
       for (int i = 0; i < numberOfConstraints; i++) {
         sprintf(index, "%d", i + 1); // begin with 1
-        theValue = Tcl_GetVar2(interp, upperBoundName, index, TCL_GLOBAL_ONLY);
+        theValue = Tcl_GetVar2(rt, upperBoundName, index, TCL_GLOBAL_ONLY);
         (*upperBound)(i) = atof(theValue);
       };
 
@@ -761,7 +761,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
       int ii = 1;
       char index[5];
       sprintf(index, "%d", ii);
-      while (Tcl_GetVar2(interp, stateName, index, TCL_GLOBAL_ONLY) != NULL) {
+      while (Tcl_GetVar2(rt, stateName, index, TCL_GLOBAL_ONLY) != NULL) {
         ii++;
         sprintf(index, "%d", ii);
       }
@@ -780,7 +780,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 
       for (int i = 0; i < numberOfConstraints; i++) {
         sprintf(index, "%d", i + 1); // begin with 1
-        theValue = Tcl_GetVar2(interp, stateName, index, TCL_GLOBAL_ONLY);
+        theValue = Tcl_GetVar2(rt, stateName, index, TCL_GLOBAL_ONLY);
         (*state)(i) = atof(theValue);
       };
 
@@ -797,7 +797,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
       int ii = 1;
       char index[5];
       sprintf(index, "%d", ii);
-      while (Tcl_GetVar2(interp, multiplierName, index, TCL_GLOBAL_ONLY) !=
+      while (Tcl_GetVar2(rt, multiplierName, index, TCL_GLOBAL_ONLY) !=
              NULL) {
         ii++;
         sprintf(index, "%d", ii);
@@ -817,7 +817,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 
       for (int i = 0; i < numberOfConstraints; i++) {
         sprintf(index, "%d", i + 1); // begin with 1
-        theValue = Tcl_GetVar2(interp, multiplierName, index, TCL_GLOBAL_ONLY);
+        theValue = Tcl_GetVar2(rt, multiplierName, index, TCL_GLOBAL_ONLY);
         (*multiplier)(i) = atof(theValue);
       };
 
@@ -837,7 +837,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
       sprintf(index, "%d", ii);
       strcat(index, ",1");
 
-      while (Tcl_GetVar2(interp, linearAddName, index, TCL_GLOBAL_ONLY) !=
+      while (Tcl_GetVar2(rt, linearAddName, index, TCL_GLOBAL_ONLY) !=
              NULL) {
         ii++;
         sprintf(index, "%d", ii);
@@ -852,7 +852,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 
       int numOfDVs = theOptimizationDomain->getNumberOfDesignVariables();
 
-      if (Tcl_GetVar2(interp, linearAddName, "1,1", TCL_GLOBAL_ONLY) != NULL) {
+      if (Tcl_GetVar2(rt, linearAddName, "1,1", TCL_GLOBAL_ONLY) != NULL) {
 
         linearAdd = new Matrix(numberOfConstraints, numOfDVs);
 
@@ -869,7 +869,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
             strcat(index, temp);
 
             theValue =
-                Tcl_GetVar2(interp, linearAddName, index, TCL_GLOBAL_ONLY);
+                Tcl_GetVar2(rt, linearAddName, index, TCL_GLOBAL_ONLY);
             (*linearAdd)(i, j) = atof(theValue);
           }; // for
         }    // for
@@ -893,7 +893,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
   // here tag ;
 
   theConstraintFunction = new ConstraintFunction(
-      tag, numberOfConstraints, theOptimizationDomain, interp,
+      tag, numberOfConstraints, theOptimizationDomain, rt,
 
       isGradProvided, linearAdd, tclFileName, name, gradientName,
 
@@ -937,7 +937,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 // -tclFileToRun tclFileToRun.tcl -printFlag 1
 int
 TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
-                                             Tcl_Interp *interp, int argc,
+                                             G3_Runtime *rt, int argc,
                                              TCL_Char **argv)
 {
 
@@ -967,7 +967,7 @@ TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
 
       argvCounter++;
 
-      if (Tcl_GetInt(interp, argv[argvCounter], &maxNumberOfIterations) !=
+      if (Tcl_GetInt(rt, argv[argvCounter], &maxNumberOfIterations) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: maxNumberOfIterations \n";
         return TCL_ERROR;
@@ -981,7 +981,7 @@ TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
 
       argvCounter++;
 
-      if (Tcl_GetInt(interp, argv[argvCounter], &printFlag) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[argvCounter], &printFlag) != TCL_OK) {
         opserr << "ERROR: invalid input: printFlag \n";
         return TCL_ERROR;
       }
@@ -1019,7 +1019,7 @@ TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
 #ifdef _HAVESNOPT
   theSNOPTAnalysis =
       new SNOPTAnalysis(maxNumberOfIterations, printFlag, fileNamePrint,
-                        probType, theOptimizationDomain, interp, tclFileName);
+                        probType, theOptimizationDomain, rt, tclFileName);
 
   if (theSNOPTAnalysis == 0) {
     opserr << "ERROR: could not create random theSNOPTAnalysis " << endln;
