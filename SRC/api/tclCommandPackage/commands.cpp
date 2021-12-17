@@ -86,7 +86,7 @@ OPS_Stream *opserrPtr = &sserr;
 #include <vector>
 
 #include <elementAPI.h>
-#include <elementAPI_G3.h>
+#include <g3_api.h>
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,

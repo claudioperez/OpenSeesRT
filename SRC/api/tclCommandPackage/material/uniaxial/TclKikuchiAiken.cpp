@@ -1,7 +1,7 @@
 #include <tcl.h>
 #include <KikuchiAikenHDR.h>
 #include <KikuchiAikenLRB.h>
-#include <elementAPI_G3.h>
+#include <g3_api.h>
 
 int
 TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -152,7 +152,7 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // Now add the material to the modelBuilder
-  if (!G3_addUniaxialMaterial(interp,theMaterial)) {
+  if (G3_addUniaxialMaterial(interp,theMaterial)!=TCL_OK) {
     opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -333,7 +333,7 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // Now add the material to the modelBuilder
-  if (!G3_addUniaxialMaterial(interp,theMaterial)) {
+  if (G3_addUniaxialMaterial(interp,theMaterial) != TCL_OK) {
     opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem

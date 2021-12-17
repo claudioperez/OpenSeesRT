@@ -31,7 +31,7 @@
 #include <string.h>
 #include <tcl.h>
 
-#include <elementAPI_G3.h>
+#include <g3_api.h>
 #include <ZeroLength.h>
 #include <ZeroLengthND.h>
 #include <ZeroLengthSection.h>

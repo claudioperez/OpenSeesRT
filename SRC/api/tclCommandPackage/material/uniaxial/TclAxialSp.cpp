@@ -1,7 +1,7 @@
 #include <tcl.h>
 #include <AxialSp.h>
 #include <AxialSpHD.h>
-#include <elementAPI_G3.h>
+#include <g3_api.h>
 
 int
 TclCommand_AxialSp(ClientData clientData, Tcl_Interp *interp, int argc,

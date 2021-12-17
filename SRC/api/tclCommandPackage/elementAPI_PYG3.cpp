@@ -978,7 +978,7 @@ TclSafeBuilder *
 G3_getSafeBuilder(Tcl_Interp *interp)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return theTclBuilder;
 }
 
@@ -1060,7 +1060,7 @@ G3_getUniaxialMaterialInstance(Tcl_Interp *interp, int tag)
 {
   TclSafeBuilder* builder = G3_getSafeBuilder(interp);
   if (!builder) {
-    return 0;
+    return OPS_getUniaxialMaterial(tag);
   }
 
   UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
@@ -1073,12 +1073,14 @@ G3_getUniaxialMaterialInstance(Tcl_Interp *interp, int tag)
   return mat ? mat : OPS_getUniaxialMaterial(tag);
 }
 
-int G3_addUniaxialMaterial(Tcl_Interp* interp, UniaxialMaterial *newComponent) {
+int G3_addUniaxialMaterial(Tcl_Interp* interp, UniaxialMaterial *mat) {
   TclSafeBuilder* builder = G3_getSafeBuilder(interp);
   if (!builder) {
+    opserr << "#WARNING Failed to find safe model builder\n";
     return 0;
   }
-  return builder->addUniaxialMaterial(newComponent);
+  int stat = builder->addUniaxialMaterial(mat);
+  return stat ? TCL_OK : TCL_ERROR;
 }
 
 

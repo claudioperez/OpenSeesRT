@@ -37,7 +37,7 @@
 #include <iostream>
 #include <tcl.h>
 #include <elementAPI.h>
-#include <elementAPI_G3.h>
+#include <g3_api.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
@@ -103,7 +103,7 @@ extern void *OPS_Bilin(void);
 extern void *OPS_Bilin02(void);
 extern void *OPS_Steel01(void);
 extern void *OPS_FRPConfinedConcrete02(void);
-extern void *OPS_Steel02(void);
+// extern void *OPS_Steel02(void);
 extern void *OPS_SteelFractureDI(void); // galvisf
 extern void *OPS_Steel02Fatigue(void);
 extern void *OPS_RambergOsgoodSteel(void);
@@ -189,7 +189,7 @@ extern void *OPS_Trilinwp2(void);
 extern void *OPS_Masonryt(void);
 
 
-typedef  int (*G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
+typedef  int (G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
 // G3_UniaxialCommand TclBasicBuilder_addFedeasMaterial;
 G3_UniaxialCommand TclSafeBuilder_addFedeasWrapper;
 G3_UniaxialCommand TclCommand_KikuchiAikenHDR;
@@ -197,7 +197,7 @@ G3_UniaxialCommand TclCommand_KikuchiAikenLRB;
 G3_UniaxialCommand TclCommand_AxialSp;
 G3_UniaxialCommand TclCommand_AxialSpHD;
 
-const std::unordered_map<std::string, G3_UniaxialCommand> compiled_material_map {
+std::unordered_map<std::string, G3_UniaxialCommand*> compiled_material_map = {
 // {"fedeas", TclBasicBuilder_addFedeasMaterial}
     {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper}
    ,{"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR     }
@@ -263,6 +263,83 @@ UniaxialMaterial *TclBasicBuilder_FRPCnfinedConcrete(ClientData clientData,
 
 UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
                                                        int, TCL_Char **);
+#include <Steel02.h>
+static void *
+OPS_Steel02()
+{
+  // Pointer to a uniaxial material that will be returned
+  UniaxialMaterial *theMaterial = 0;
+
+  int    iData[1];
+  double dData[12];
+  int numData = 1;
+
+  if (OPS_GetIntInput(&numData, iData) != 0) {
+    opserr << "WARNING invalid uniaxialMaterial Steel02 tag" << endln;
+    return 0;
+  }
+
+  numData = OPS_GetNumRemainingInputArgs();
+
+  if (numData != 3 && numData != 6 && numData != 10 && numData != 11) {
+    opserr << "Invalid #args, want: uniaxialMaterial Steel02 " << iData[0] << 
+      " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+    return 0;
+  }
+
+  if (numData == 3) {
+    if (OPS_GetDoubleInput(&numData, dData) != 0) {
+      opserr << "Invalid double: uniaxialMaterial Steel02 " << iData[0] << 
+	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+      return 0;
+    }
+
+    // Parsing was successful, allocate the material
+    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2]);    
+
+  } else if (numData == 6) {
+    if (OPS_GetDoubleInput(&numData, dData) != 0) {
+      opserr << "Invalid int: uniaxialMaterial Steel02 " << iData[0] << 
+	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+      return 0;
+    }
+
+    // Parsing was successful, allocate the material
+    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], dData[3], dData[4], dData[5]);    
+
+  } else if (numData == 10) {
+    if (OPS_GetDoubleInput(&numData, dData) != 0) {
+      opserr << "Invalid arggs: uniaxialMaterial Steel02 " << iData[0] << 
+	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+      return 0;
+    }
+
+    // Parsing was successful, allocate the material
+    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], 
+			      dData[3], dData[4], dData[5], dData[6], 
+			      dData[7], dData[8], dData[9]);    
+
+  } else if (numData == 11) {
+    if (OPS_GetDoubleInput(&numData, dData) != 0) {
+      opserr << "Invalid arggs: uniaxialMaterial Steel02 " << iData[0] << 
+	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+      return 0;
+    }
+
+    // Parsing was successful, allocate the material
+    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], 
+			      dData[3], dData[4], dData[5], dData[6], 
+			      dData[7], dData[8], dData[9], dData[10]);    
+
+  }   
+
+  if (theMaterial == 0) {
+    opserr << "WARNING could not create uniaxialMaterial of type Steel02 Material\n";
+    return 0;
+  }
+
+  return theMaterial;
+}
 
 int
 TclSafeBuilderUniaxialCommand(ClientData clientData,
@@ -278,18 +355,19 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a uniaxial material that will be added to the model builder
   UniaxialMaterial *theMaterial = 0;
   
-  auto cmd = compiled_material_map.find(argv[1]);
+  auto cmd = compiled_material_map.find(std::string(argv[1]));
 
   if (cmd != compiled_material_map.end()) {
-    opserr << cmd->first.c_str() << "----------\n";
-    return cmd->second(clientData,interp,argc,&argv[0]);
+    // opserr << cmd->first.c_str() << "\n";
+    int stat = (*cmd->second)(clientData,interp,argc,&argv[0]);
+    return stat;
   }
   
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Check argv[2] for uniaxial material type
   if (strcmp(argv[1], "Elastic") == 0) {
@@ -3038,7 +3116,9 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
   }
 
   // Now add the material to the modelBuilder
-  if (OPS_addUniaxialMaterial(theMaterial) == false) {
+  if (
+      G3_addUniaxialMaterial(interp, theMaterial)==TCL_ERROR){// ||
+      //!OPS_addUniaxialMaterial(theMaterial)) {
     opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem

@@ -40,7 +40,7 @@
 
 #include <TclBasicBuilder.h>
 #include <TclSafeBuilder.h>
-#include <elementAPI_G3.h>
+#include <g3_api.h>
 
 #include <tcl.h>
 #include <Domain.h>
