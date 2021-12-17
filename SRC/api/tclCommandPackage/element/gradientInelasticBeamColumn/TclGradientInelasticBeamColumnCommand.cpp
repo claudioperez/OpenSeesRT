@@ -43,7 +43,7 @@ extern void printCommand(int argc, TCL_Char **argv);
 
 int
 TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
-                                               Tcl_Interp *interp, int argc,
+                                               G3_Runtime *rt, int argc,
                                                TCL_Char **argv,
                                                Domain *theTclDomain,
                                                TclBasicBuilder *theTclBuilder)
@@ -91,42 +91,42 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     bool constH = false;
     double maxEpsInc = 0.0, maxPhiInc = 0.0;
 
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid gradientInelasticBeamColumn eleTag\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &numIntegrPts) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &numIntegrPts) != TCL_OK) {
       opserr << "WARNING invalid numIntegrPts";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[5 + eleArgStart], &endSecTag1) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[5 + eleArgStart], &endSecTag1) != TCL_OK) {
       opserr << "WARNING invalid firstSecTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[6 + eleArgStart], &intSecTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[6 + eleArgStart], &intSecTag) != TCL_OK) {
       opserr << "WARNING invalid intSecTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7 + eleArgStart], &endSecTag2) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7 + eleArgStart], &endSecTag2) != TCL_OK) {
       opserr << "WARNING invalid lastSecTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
@@ -161,25 +161,25 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &secLR1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[8 + eleArgStart], &secLR1) != TCL_OK) {
       opserr << "WARNING invalid secLR1";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[9 + eleArgStart], &secLR2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[9 + eleArgStart], &secLR2) != TCL_OK) {
       opserr << "WARNING invalid secLR2";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[10 + eleArgStart], &lc) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10 + eleArgStart], &lc) != TCL_OK) {
       opserr << "WARNING invalid lc";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[11 + eleArgStart], &transfTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[11 + eleArgStart], &transfTag) != TCL_OK) {
       opserr << "WARNING invalid transfTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
@@ -248,19 +248,19 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
 
     for (int i = 12 + eleArgStart; i < argc; i++) {
       if (i + 3 < argc && strcmp(argv[i], "-iter") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter";
           opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
           return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 2], &minTol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &minTol) != TCL_OK) {
           opserr << "WARNING invalid minTol";
           opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
           return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 3], &maxTol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 3], &maxTol) != TCL_OK) {
           opserr << "WARNING invalid maxTol";
           opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
           return TCL_ERROR;
@@ -274,14 +274,14 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
 
         if (i + 2 < argc && strcmp(argv[i + 1], "auto") != 0) {
 
-          if (Tcl_GetDouble(interp, argv[i + 1], &maxEpsInc) != TCL_OK) {
+          if (Tcl_GetDouble(rt, argv[i + 1], &maxEpsInc) != TCL_OK) {
             opserr << "WARNING invalid maxEpsInc";
             opserr << " - gradientInelasticBeamColumn element: " << tag
                    << endln;
             return TCL_ERROR;
           }
 
-          if (Tcl_GetDouble(interp, argv[i + 2], &maxPhiInc) != TCL_OK) {
+          if (Tcl_GetDouble(rt, argv[i + 2], &maxPhiInc) != TCL_OK) {
             opserr << "WARNING invalid maxPhiInc";
             opserr << " - gradientInelasticBeamColumn element: " << tag
                    << endln;
@@ -344,42 +344,42 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     bool constH = false;
     double maxEpsInc = 0.0, maxPhiInc = 0.0;
 
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid gradientInelasticBeamColumn eleTag\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &numIntegrPts) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &numIntegrPts) != TCL_OK) {
       opserr << "WARNING invalid numIntegrPts";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[5 + eleArgStart], &endSecTag1) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[5 + eleArgStart], &endSecTag1) != TCL_OK) {
       opserr << "WARNING invalid firstSecTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[6 + eleArgStart], &intSecTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[6 + eleArgStart], &intSecTag) != TCL_OK) {
       opserr << "WARNING invalid intSecTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7 + eleArgStart], &endSecTag2) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7 + eleArgStart], &endSecTag2) != TCL_OK) {
       opserr << "WARNING invalid lastSecTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
@@ -414,25 +414,25 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &secLR1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[8 + eleArgStart], &secLR1) != TCL_OK) {
       opserr << "WARNING invalid secLR1";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[9 + eleArgStart], &secLR2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[9 + eleArgStart], &secLR2) != TCL_OK) {
       opserr << "WARNING invalid secLR2";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[10 + eleArgStart], &lc) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10 + eleArgStart], &lc) != TCL_OK) {
       opserr << "WARNING invalid lc";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[11 + eleArgStart], &transfTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[11 + eleArgStart], &transfTag) != TCL_OK) {
       opserr << "WARNING invalid transfTag";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       return TCL_ERROR;
@@ -501,19 +501,19 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
 
     for (int i = 12 + eleArgStart; i < argc; i++) {
       if (i + 3 < argc && strcmp(argv[i], "-iter") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter";
           opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
           return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 2], &minTol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &minTol) != TCL_OK) {
           opserr << "WARNING invalid minTol";
           opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
           return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 3], &maxTol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 3], &maxTol) != TCL_OK) {
           opserr << "WARNING invalid maxTol";
           opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
           return TCL_ERROR;
@@ -527,14 +527,14 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
 
         if (i + 2 < argc && strcmp(argv[i + 1], "auto") != 0) {
 
-          if (Tcl_GetDouble(interp, argv[i + 1], &maxEpsInc) != TCL_OK) {
+          if (Tcl_GetDouble(rt, argv[i + 1], &maxEpsInc) != TCL_OK) {
             opserr << "WARNING invalid maxEpsInc";
             opserr << " - gradientInelasticBeamColumn element: " << tag
                    << endln;
             return TCL_ERROR;
           }
 
-          if (Tcl_GetDouble(interp, argv[i + 2], &maxPhiInc) != TCL_OK) {
+          if (Tcl_GetDouble(rt, argv[i + 2], &maxPhiInc) != TCL_OK) {
             opserr << "WARNING invalid maxPhiInc";
             opserr << " - gradientInelasticBeamColumn element: " << tag
                    << endln;

@@ -33,10 +33,10 @@
 #include <OPS_Globals.h>
 #include <UniaxialMaterial.h>
 
-#include <tcl.h>
+#include <g3_api.h>
 #include <elementAPI.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       Tcl_Interp *interp, int cArg, int mArg,
+                                       G3_Runtime *rt, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
 #include <TrilinearBackbone.h>
@@ -72,7 +72,7 @@ printCommand(int argc, TCL_Char **argv)
 
 int
 TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
+                                         G3_Runtime *rt, int argc,
                                          TCL_Char **argv, Domain *theDomain)
 {
   if (argc < 3) {
@@ -83,7 +83,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
 
   // Pointer to a hysteretic backbone that will be added to the model builder
   HystereticBackbone *theBackbone = 0;
@@ -133,22 +133,22 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     int tag;
     double pu, y50, n;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSoftClay tag" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[3], &pu) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[3], &pu) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSoftClay pu" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[4], &y50) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &y50) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSoftClay y50" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[5], &n) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &n) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSoftClay n" << endln;
       return TCL_ERROR;
     }
@@ -168,28 +168,28 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     int tag;
     double kx, ym, pm, yu, pu;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSand tag" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[3], &kx) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[3], &kx) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSand kx" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[4], &ym) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &ym) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSand ym" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[5], &pm) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &pm) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSand pm" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[6], &yu) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[6], &yu) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSand yu" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[7], &pu) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[7], &pu) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseSand pu" << endln;
       return TCL_ERROR;
     }
@@ -210,27 +210,27 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     int tag;
     double Esi, y50, As, Pc;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseStiffClayBelowWS tag"
              << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[3], &Esi) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[3], &Esi) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseStiffClayBelowWS Esi"
              << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[4], &y50) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &y50) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseStiffClayBelowWS y50"
              << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[5], &As) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &As) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseStiffClayBelowWS As"
              << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[6], &Pc) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[6], &Pc) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone ReeseStiffClayBelowWS Pc"
              << endln;
       return TCL_ERROR;
@@ -261,35 +261,35 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     int tag;
     double Es, fy, fsu, Epsilonsh, Epsilonsm, C1, Ey;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor tag" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[3], &Es) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[3], &Es) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor Es" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[4], &fy) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &fy) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor fy" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[5], &fsu) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &fsu) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor fsu" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[6], &Epsilonsh) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[6], &Epsilonsh) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor Epsilonsh" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[7], &Epsilonsm) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[7], &Epsilonsm) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor Epsilonsm" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[8], &C1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[8], &C1) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor fy" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[9], &Ey) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[9], &Ey) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Raynor fsu" << endln;
       return TCL_ERROR;
     }
@@ -311,19 +311,19 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
 
     int tag, bTag, cTag;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Capped tag" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[3], &bTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &bTag) != TCL_OK) {
       opserr
           << "WARNING invalid hystereticBackbone Capped hystereticBackboneTag"
           << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[4], &cTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[4], &cTag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone Capped capTag" << endln;
       return TCL_ERROR;
     }
@@ -367,28 +367,28 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
     int tag, bTag;
     double e, E, s;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone LinearCapped tag" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[3], &bTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &bTag) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone LinearCapped backboneTag"
              << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[4], &e) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &e) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone LinearCapped eCap" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[5], &E) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &E) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone LinearCapped E" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(interp, argv[6], &s) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[6], &s) != TCL_OK) {
       opserr << "WARNING invalid hystereticBackbone LinearCapped sRes" << endln;
       return TCL_ERROR;
     }
@@ -417,13 +417,13 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
 
     int tag, matTag;
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid tag\n";
       opserr << "hystereticBackbone Material: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &matTag) != TCL_OK) {
       opserr << "WARNING invalid matTag\n";
       opserr << "hystereticBackbone Material: " << tag << endln;
       return TCL_ERROR;

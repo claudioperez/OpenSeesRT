@@ -45,14 +45,14 @@
 #include <FEM_ObjectBroker.h>
 #include <Renderer.h>
 #include <UniaxialMaterial.h>
-#include <tcl.h>
+#include <g3_api.h>
 #include <elementAPI.h>
 
 extern void printCommand(int argc, TCL_Char **argv);
 static Domain *theTclBasicBuilderDomain = 0;
 
 int
-TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addBeamColumnJoint(ClientData clientData, G3_Runtime *rt,
                                    int argc, TCL_Char **argv,
                                    Domain *theTclDomain, int eleArgStart)
 {
@@ -97,103 +97,103 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
     UniaxialMaterial *theMaterial12 = 0;
     UniaxialMaterial *theMaterial13 = 0;
 
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &id) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &id) != TCL_OK) {
       opserr << "WARNING invalid beamColumnJoint eleTag" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &nd1) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &nd1) != TCL_OK) {
       opserr << "WARNING invalid Node 1\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &nd2) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &nd2) != TCL_OK) {
       opserr << "WARNING invalid Node 2\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &nd3) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &nd3) != TCL_OK) {
       opserr << "WARNING invalid Node 3\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[5 + eleArgStart], &nd4) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[5 + eleArgStart], &nd4) != TCL_OK) {
       opserr << "WARNING invalid Node 4\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[6 + eleArgStart], &matId1) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[6 + eleArgStart], &matId1) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 1\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[7 + eleArgStart], &matId2) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7 + eleArgStart], &matId2) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 2\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[8 + eleArgStart], &matId3) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[8 + eleArgStart], &matId3) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 3\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[9 + eleArgStart], &matId4) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[9 + eleArgStart], &matId4) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 4\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[10 + eleArgStart], &matId5) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[10 + eleArgStart], &matId5) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 5\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[11 + eleArgStart], &matId6) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[11 + eleArgStart], &matId6) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 6\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[12 + eleArgStart], &matId7) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[12 + eleArgStart], &matId7) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 7\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[13 + eleArgStart], &matId8) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[13 + eleArgStart], &matId8) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 8\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[14 + eleArgStart], &matId9) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[14 + eleArgStart], &matId9) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 9\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[15 + eleArgStart], &matId10) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[15 + eleArgStart], &matId10) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 10\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[16 + eleArgStart], &matId11) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[16 + eleArgStart], &matId11) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 11\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[17 + eleArgStart], &matId12) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[17 + eleArgStart], &matId12) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 12\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[18 + eleArgStart], &matId13) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[18 + eleArgStart], &matId13) != TCL_OK) {
       opserr << "WARNING invalid Material Tag 13\n";
       opserr << "beamColumnJoint Element: " << id << endln;
       return TCL_ERROR;
     }
 
     if ((argc - eleArgStart) == 21) {
-      if (Tcl_GetDouble(interp, argv[19 + eleArgStart], &hgtfac) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[19 + eleArgStart], &hgtfac) != TCL_OK) {
         opserr << "WARNING invalid factor for height\n";
         opserr << "beamColumnJoint Element: " << id << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[20 + eleArgStart], &wdtfac) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[20 + eleArgStart], &wdtfac) != TCL_OK) {
         opserr << "WARNING invalid factor for width\n";
         opserr << "beamColumnJoint Element: " << id << endln;
         return TCL_ERROR;

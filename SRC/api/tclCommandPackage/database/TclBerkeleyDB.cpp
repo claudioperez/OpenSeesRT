@@ -32,7 +32,7 @@
 #include <OPS_Globals.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tcl.h>
+#include <g3_api.h>
 
 #include <BerkeleyDbDatastore.h>
 
@@ -43,7 +43,7 @@
 #endif
 
 extern "C" DllExport int
-TclCommand_BerkeleyDB(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_BerkeleyDB(ClientData clientData, G3_Runtime *rt, int argc,
                       TCL_Char **argv, Domain *theDomain,
                       FEM_ObjectBroker *theBroker, FE_Datastore **theDatabase)
 {

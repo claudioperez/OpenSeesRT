@@ -40,7 +40,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
+TclBasicBuilder_addAdapter(ClientData clientData, G3_Runtime *rt, int argc,
                            TCL_Char **argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -68,7 +68,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   int doRayleigh = 0;
   Matrix *mass = 0;
 
-  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
     opserr << "WARNING invalid adapter eleTag" << endln;
     return TCL_ERROR;
   }
@@ -99,7 +99,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   // fill in the nodes ID
   for (i = 0; i < numNodes; i++) {
-    if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argi], &node) != TCL_OK) {
       opserr << "WARNING invalid node\n";
       opserr << "adapter element: " << tag << endln;
       return TCL_ERROR;
@@ -126,7 +126,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     // fill in the dofs ID array
     ID dofsj(numDOFj);
     for (i = 0; i < numDOFj; i++) {
-      if (Tcl_GetInt(interp, argv[argi], &dof) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[argi], &dof) != TCL_OK) {
         opserr << "WARNING invalid dof\n";
         opserr << "adapter element: " << tag << endln;
         return TCL_ERROR;
@@ -152,7 +152,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   double stif;
   for (j = 0; j < numDOF; j++) {
     for (k = 0; k < numDOF; k++) {
-      if (Tcl_GetDouble(interp, argv[argi], &stif) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argi], &stif) != TCL_OK) {
         opserr << "WARNING invalid stiffness term\n";
         opserr << "adapter element: " << tag << endln;
         return TCL_ERROR;
@@ -162,7 +162,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
   // get ip-port
-  if (Tcl_GetInt(interp, argv[argi], &ipPort) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argi], &ipPort) != TCL_OK) {
     opserr << "WARNING invalid ipPort\n";
     opserr << "adapter element: " << tag << endln;
     return TCL_ERROR;
@@ -185,7 +185,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
       double m;
       for (j = 0; j < numDOF; j++) {
         for (k = 0; k < numDOF; k++) {
-          if (Tcl_GetDouble(interp, argv[i + 1 + numDOF * j + k], &m) !=
+          if (Tcl_GetDouble(rt, argv[i + 1 + numDOF * j + k], &m) !=
               TCL_OK) {
             opserr << "WARNING invalid mass term\n";
             opserr << "adapter element: " << tag << endln;

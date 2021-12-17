@@ -32,7 +32,7 @@
 #include <OPS_Globals.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tcl.h>
+#include <g3_api.h>
 
 #include <MySqlDatastore.h>
 
@@ -43,7 +43,7 @@
 #endif
 
 extern "C" DllExport int
-TclCommand_MySQL(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_MySQL(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv, Domain *theDomain,
                  FEM_ObjectBroker *theBroker, FE_Datastore **theDatabase)
 {
@@ -83,11 +83,11 @@ TclCommand_MySQL(ClientData clientData, Tcl_Interp *interp, int argc,
         socket = argv[counter + 1];
         counter += 2;
       } else if (strcmp(argv[counter], "-port") == 0) {
-        if (Tcl_GetInt(interp, argv[counter + 1], &port) != TCL_OK)
+        if (Tcl_GetInt(rt, argv[counter + 1], &port) != TCL_OK)
           return TCL_ERROR;
         counter += 2;
       } else if (strcmp(argv[counter], "-clientFlag") == 0) {
-        if (Tcl_GetInt(interp, argv[counter + 1], &clientFlag) != TCL_OK)
+        if (Tcl_GetInt(rt, argv[counter + 1], &clientFlag) != TCL_OK)
           return TCL_ERROR;
         counter += 2;
       } else {

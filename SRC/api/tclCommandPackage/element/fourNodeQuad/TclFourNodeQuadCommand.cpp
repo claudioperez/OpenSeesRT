@@ -60,7 +60,7 @@ extern void printCommand(int argc, TCL_Char **argv);
  */
 
 int
-TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addFourNodeQuad(ClientData clientData, G3_Runtime *rt,
                                 int argc, TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
@@ -95,35 +95,35 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &FourNodeQuadId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &FourNodeQuadId) != TCL_OK) {
     opserr << "WARNING invalid FourNodeQuad eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
@@ -131,29 +131,29 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp,
 
   TCL_Char *type = argv[6 + argStart];
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) > 11) {
-    if (Tcl_GetDouble(interp, argv[8 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[8 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[9 + argStart], &rho) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[9 + argStart], &rho) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[10 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[11 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
@@ -200,7 +200,7 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
-                                              Tcl_Interp *interp, int argc,
+                                              G3_Runtime *rt, int argc,
                                               TCL_Char **argv,
                                               Domain *theTclDomain,
                                               TclBasicBuilder *theTclBuilder)
@@ -232,47 +232,47 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
   int ConstantPressureVolumeQuadId, iNode, jNode, kNode, lNode, matID;
   double thickness = 1.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &ConstantPressureVolumeQuadId) !=
+  if (Tcl_GetInt(rt, argv[argStart], &ConstantPressureVolumeQuadId) !=
       TCL_OK) {
     opserr << "WARNING invalid ConstantPressureVolumeQuad eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "ConstantPressureVolumeQuad element: "
            << ConstantPressureVolumeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "ConstantPressureVolumeQuad element: "
            << ConstantPressureVolumeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "ConstantPressureVolumeQuad element: "
            << ConstantPressureVolumeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "ConstantPressureVolumeQuad element: "
            << ConstantPressureVolumeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "ConstantPressureVolumeQuad element: "
            << ConstantPressureVolumeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "ConstantPressureVolumeQuad element: "
            << ConstantPressureVolumeQuadId << endln;
@@ -320,7 +320,7 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     *****************************************************************************
  */
 int
-TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addEnhancedQuad(ClientData clientData, G3_Runtime *rt,
                                 int argc, TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
@@ -351,35 +351,35 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp,
   int EnhancedQuadId, iNode, jNode, kNode, lNode, matID;
   double thickness = 1.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &EnhancedQuadId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &EnhancedQuadId) != TCL_OK) {
     opserr << "WARNING invalid EnhancedQuad eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "EnhancedQuad element: " << EnhancedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "EnhancedQuad element: " << EnhancedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "EnhancedQuad element: " << EnhancedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "EnhancedQuad element: " << EnhancedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "EnhancedQuad element: " << EnhancedQuadId << endln;
     return TCL_ERROR;
@@ -387,7 +387,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp,
 
   TCL_Char *type = argv[6 + argStart];
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "EnhancedQuad element: " << EnhancedQuadId << endln;
     return TCL_ERROR;
@@ -432,7 +432,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp,
  */
 
 int
-TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, G3_Runtime *rt,
                                      int argc, TCL_Char **argv,
                                      Domain *theTclDomain,
                                      TclBasicBuilder *theTclBuilder)
@@ -468,66 +468,66 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
   int centerNode;
   int matID;
 
-  if (Tcl_GetInt(interp, argv[argStart], &NineNodeMixedQuadId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &NineNodeMixedQuadId) != TCL_OK) {
     opserr << "WARNING invalid NineNodeMixedQuad eleTag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[5 + argStart], &mNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5 + argStart], &mNode) != TCL_OK) {
     opserr << "WARNING invalid mNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &nNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &nNode) != TCL_OK) {
     opserr << "WARNING invalid nNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &pNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &pNode) != TCL_OK) {
     opserr << "WARNING invalid pNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[8 + argStart], &qNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[8 + argStart], &qNode) != TCL_OK) {
     opserr << "WARNING invalid qNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[9 + argStart], &centerNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + argStart], &centerNode) != TCL_OK) {
     opserr << "WARNING invalid centerNode\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[10 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[10 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "NineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
     return TCL_ERROR;
@@ -567,7 +567,7 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
-                                               Tcl_Interp *interp, int argc,
+                                               G3_Runtime *rt, int argc,
                                                TCL_Char **argv,
                                                Domain *theTclDomain,
                                                TclBasicBuilder *theTclBuilder)
@@ -603,39 +603,39 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &FourNodeQuadId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &FourNodeQuadId) != TCL_OK) {
     opserr << "WARNING invalid FourNodeQuadWithSensitivity eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "FourNodeQuadWithSensitivity element: " << FourNodeQuadId
            << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "FourNodeQuadWithSensitivity element: " << FourNodeQuadId
            << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "FourNodeQuadWithSensitivity element: " << FourNodeQuadId
            << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "FourNodeQuadWithSensitivity element: " << FourNodeQuadId
            << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "FourNodeQuadWithSensitivity element: " << FourNodeQuadId
            << endln;
@@ -644,7 +644,7 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
 
   TCL_Char *type = argv[6 + argStart];
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "FourNodeQuadWithSensitivity element: " << FourNodeQuadId
            << endln;
@@ -652,22 +652,22 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
   }
 
   if ((argc - argStart) > 11) {
-    if (Tcl_GetDouble(interp, argv[8 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[8 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[9 + argStart], &r) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[9 + argStart], &r) != TCL_OK) {
       opserr << "WARNING invalid rho\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[10 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[11 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
       return TCL_ERROR;
@@ -711,7 +711,7 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
 // Regular nine node quad
 
 int
-TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addNineNodeQuad(ClientData clientData, G3_Runtime *rt,
                                 int argc, TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
@@ -748,65 +748,65 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &NineNodeQuadId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &NineNodeQuadId) != TCL_OK) {
     opserr << "WARNING invalid NineNodeQuad eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[5 + argStart], &nNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5 + argStart], &nNode) != TCL_OK) {
     opserr << "WARNING invalid nNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &mNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &mNode) != TCL_OK) {
     opserr << "WARNING invalid mNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &pNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &pNode) != TCL_OK) {
     opserr << "WARNING invalid pNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[8 + argStart], &qNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[8 + argStart], &qNode) != TCL_OK) {
     opserr << "WARNING invalid qNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[9 + argStart], &cNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + argStart], &cNode) != TCL_OK) {
     opserr << "WARNING invalid cNode\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[10 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[10 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
@@ -814,29 +814,29 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp,
 
   TCL_Char *type = argv[11 + argStart];
 
-  if (Tcl_GetInt(interp, argv[12 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[12 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) > 16) {
-    if (Tcl_GetDouble(interp, argv[13 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[14 + argStart], &rho) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[14 + argStart], &rho) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[15 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[15 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[16 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[16 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "NineNodeQuad element: " << NineNodeQuadId << endln;
       return TCL_ERROR;
@@ -877,7 +877,7 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp,
 // Regular eight node quad
 
 int
-TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addEightNodeQuad(ClientData clientData, G3_Runtime *rt,
                                  int argc, TCL_Char **argv,
                                  Domain *theTclDomain,
                                  TclBasicBuilder *theTclBuilder)
@@ -915,59 +915,59 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &EightNodeQuadId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &EightNodeQuadId) != TCL_OK) {
     opserr << "WARNING invalid EightNodeQuad eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[5 + argStart], &nNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5 + argStart], &nNode) != TCL_OK) {
     opserr << "WARNING invalid nNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &mNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &mNode) != TCL_OK) {
     opserr << "WARNING invalid mNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &pNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &pNode) != TCL_OK) {
     opserr << "WARNING invalid pNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[8 + argStart], &qNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[8 + argStart], &qNode) != TCL_OK) {
     opserr << "WARNING invalid qNode\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[9 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[9 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
@@ -975,29 +975,29 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
 
   TCL_Char *type = argv[10 + argStart];
 
-  if (Tcl_GetInt(interp, argv[11 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[11 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) > 15) {
-    if (Tcl_GetDouble(interp, argv[12 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[12 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[13 + argStart], &rho) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13 + argStart], &rho) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[14 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[14 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[15 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[15 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "EightNodeQuad element: " << EightNodeQuadId << endln;
       return TCL_ERROR;
@@ -1038,7 +1038,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
 // Six node tri
 
 int
-TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addSixNodeTri(ClientData clientData, G3_Runtime *rt,
                               int argc, TCL_Char **argv, Domain *theTclDomain,
                               TclBasicBuilder *theTclBuilder)
 {
@@ -1075,47 +1075,47 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &SixNodeTriId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &SixNodeTriId) != TCL_OK) {
     opserr << "WARNING invalid SixNodeTri eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[5 + argStart], &nNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5 + argStart], &nNode) != TCL_OK) {
     opserr << "WARNING invalid nNode\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &mNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &mNode) != TCL_OK) {
     opserr << "WARNING invalid mNode\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[7 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[7 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
@@ -1123,29 +1123,29 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp,
 
   TCL_Char *type = argv[8 + argStart];
 
-  if (Tcl_GetInt(interp, argv[9 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) > 13) {
-    if (Tcl_GetDouble(interp, argv[10 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "SixNodeTri element: " << SixNodeTriId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[11 + argStart], &rho) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11 + argStart], &rho) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "SixNodeTri element: " << SixNodeTriId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[12 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[12 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "SixNodeTri element: " << SixNodeTriId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[13 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "SixNodeTri element: " << SixNodeTriId << endln;
       return TCL_ERROR;

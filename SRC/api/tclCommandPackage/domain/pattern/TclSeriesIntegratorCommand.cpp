@@ -29,7 +29,7 @@
 // Description: This file contains the function invoked when the user invokes
 // the groundMotion command in the interpreter.
 
-#include <tcl.h>
+#include <g3_api.h>
 #include <string.h>
 
 #include <TrapezoidalTimeSeriesIntegrator.h>
@@ -45,14 +45,14 @@ cleanup(TCL_Char **argv)
 }
 
 TimeSeriesIntegrator *
-TclSeriesIntegratorCommand(ClientData clientData, Tcl_Interp *interp,
+TclSeriesIntegratorCommand(ClientData clientData, G3_Runtime *rt,
                            TCL_Char *arg)
 {
   int argc;
   TCL_Char **argv;
 
   // split the list
-  if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {
+  if (Tcl_SplitList(rt, arg, &argc, &argv) != TCL_OK) {
     opserr << "WARNING could not split series integrator list " << arg << endln;
     return 0;
   }

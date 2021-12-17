@@ -42,7 +42,7 @@
 // extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
+TclBasicBuilder_addJoint3D(ClientData clientData, G3_Runtime *rt, int argc,
                            TCL_Char **argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder)
 {
@@ -75,49 +75,49 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // get the id and end nodes
   int Joint3DId, iNode, jNode, kNode, lNode, mNode, nNode;
-  if (Tcl_GetInt(interp, argv[argStart], &Joint3DId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &Joint3DId) != TCL_OK) {
     opserr << "WARNING invalid Joint3D eleTag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[5 + argStart], &mNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5 + argStart], &mNode) != TCL_OK) {
     opserr << "WARNING invalid mNode\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &nNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &nNode) != TCL_OK) {
     opserr << "WARNING invalid nNode\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
   }
   // Get the center node
   int CenterNodeTag;
-  if (Tcl_GetInt(interp, argv[7 + argStart], &CenterNodeTag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + argStart], &CenterNodeTag) != TCL_OK) {
     opserr << "WARNING invalid tag for center node\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
@@ -135,7 +135,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   UniaxialMaterial *MatX = NULL;
   int MatXid;
-  if (Tcl_GetInt(interp, argv[8 + argStart], &MatXid) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[8 + argStart], &MatXid) != TCL_OK) {
     opserr << "WARNING invalid material ID for spring X\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
@@ -151,7 +151,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   UniaxialMaterial *MatY = NULL;
   int MatYid;
-  if (Tcl_GetInt(interp, argv[9 + argStart], &MatYid) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + argStart], &MatYid) != TCL_OK) {
     opserr << "WARNING invalid material ID for spring Y\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
@@ -167,7 +167,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   UniaxialMaterial *MatZ = NULL;
   int MatZid;
-  if (Tcl_GetInt(interp, argv[10 + argStart], &MatZid) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[10 + argStart], &MatZid) != TCL_OK) {
     opserr << "WARNING invalid material ID for spring Z\n";
     opserr << "Joint3D element: " << Joint3DId << endln;
     return TCL_ERROR;
@@ -182,7 +182,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   int LargeDisp;
-  if (Tcl_GetInt(interp, argv[11 + argStart], &LargeDisp) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[11 + argStart], &LargeDisp) != TCL_OK) {
     // use 0 as default
     LargeDisp = 0;
   }

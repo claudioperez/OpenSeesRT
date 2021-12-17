@@ -35,335 +35,335 @@
 #include <OPS_Globals.h>
 
 // by SAJalali
-int OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
+int OPS_recorderValue(ClientData clientData, G3_Runtime *rt, int argc,
                       TCL_Char **argv);
 
-int OpenSeesAppInit(Tcl_Interp *interp);
+int OpenSeesAppInit(G3_Runtime *rt);
 
-int OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int argc,
+int OPS_SetObjCmd(ClientData clientData, G3_Runtime *rt, int argc,
                   Tcl_Obj *const *argv);
 
-int OPS_SourceCmd(ClientData clientData, Tcl_Interp *interp, int argc,
+int OPS_SourceCmd(ClientData clientData, G3_Runtime *rt, int argc,
                   Tcl_Obj *const *argv);
 
-int getNDM(ClientData clientData, Tcl_Interp *interp, int argc,
+int getNDM(ClientData clientData, G3_Runtime *rt, int argc,
            TCL_Char **argv);
 
-int getNDF(ClientData clientData, Tcl_Interp *interp, int argc,
+int getNDF(ClientData clientData, G3_Runtime *rt, int argc,
            TCL_Char **argv);
 
-int wipeModel(ClientData clientData, Tcl_Interp *interp, int argc,
+int wipeModel(ClientData clientData, G3_Runtime *rt, int argc,
               TCL_Char **argv);
 
-int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
+int wipeAnalysis(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,
+int resetModel(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
+int initializeAnalysis(ClientData clientData, G3_Runtime *rt, int argc,
                        TCL_Char **argv);
 
-int setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,
+int setLoadConst(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int setCreep(ClientData clientData, Tcl_Interp *interp, int argc,
+int setCreep(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int setTime(ClientData clientData, Tcl_Interp *interp, int argc,
+int setTime(ClientData clientData, G3_Runtime *rt, int argc,
             TCL_Char **argv);
 
-int getTime(ClientData clientData, Tcl_Interp *interp, int argc,
+int getTime(ClientData clientData, G3_Runtime *rt, int argc,
             TCL_Char **argv);
 
-int getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
+int getLoadFactor(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int buildModel(ClientData clientData, Tcl_Interp *interp, int argc,
+int buildModel(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
+int analyzeModel(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int printModel(ClientData clientData, Tcl_Interp *interp, int argc,
+int printModel(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
-int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
+int specifyAnalysis(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
-int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,
+int specifySOE(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,
+int specifyNumberer(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
-int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp,
+int specifyConstraintHandler(ClientData clientData, G3_Runtime *rt,
                              int argc, TCL_Char **argv);
-int specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
+int specifyAlgorithm(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
+int specifyCTest(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
-int getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
+int getCTestNorms(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
-int getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc,
+int getCTestIter(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
+int specifyIntegrator(ClientData clientData, G3_Runtime *rt, int argc,
                       TCL_Char **argv);
-int addRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
+int addRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
-int addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
+int addAlgoRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int addDatabase(ClientData clientData, Tcl_Interp *interp, int argc,
+int addDatabase(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
-int playbackRecorders(ClientData clientData, Tcl_Interp *interp, int argc,
+int playbackRecorders(ClientData clientData, G3_Runtime *rt, int argc,
                       TCL_Char **argv);
 
-int playbackAlgorithmRecorders(ClientData clientData, Tcl_Interp *interp,
+int playbackAlgorithmRecorders(ClientData clientData, G3_Runtime *rt,
                                int argc, TCL_Char **argv);
 
-int groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
+int groundExcitation(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
+int eigenAnalysis(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
+int modalProperties(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
+int responseSpectrum(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int videoPlayer(ClientData clientData, Tcl_Interp *interp, int argc,
+int videoPlayer(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
-int removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
+int removeObject(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int eleForce(ClientData clientData, Tcl_Interp *interp, int argc,
+int eleForce(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int localForce(ClientData clientData, Tcl_Interp *interp, int argc,
+int localForce(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
+int eleDynamicalForce(ClientData clientData, G3_Runtime *rt, int argc,
                       TCL_Char **argv);
 
-int eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
+int eleResponse(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
-int findID(ClientData clientData, Tcl_Interp *interp, int argc,
+int findID(ClientData clientData, G3_Runtime *rt, int argc,
            TCL_Char **argv);
 
-int nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeDisp(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeReaction(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeUnbalance(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeEigenvector(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeCoord(ClientData clientData, G3_Runtime *rt, int argc,
               TCL_Char **argv);
 
-int setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
+int setNodeCoord(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
+int updateElementDomain(ClientData clientData, G3_Runtime *rt, int argc,
                         TCL_Char **argv);
 
-int eleType(ClientData clientData, Tcl_Interp *interp, int argc,
+int eleType(ClientData clientData, G3_Runtime *rt, int argc,
             TCL_Char **argv);
 
-int eleNodes(ClientData clientData, Tcl_Interp *interp, int argc,
+int eleNodes(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeBounds(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int nodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeVel(ClientData clientData, G3_Runtime *rt, int argc,
             TCL_Char **argv);
 
-int setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
+int setNodeVel(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
+int setNodeDisp(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
-int setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
+int setNodeAccel(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeAccel(ClientData clientData, G3_Runtime *rt, int argc,
               TCL_Char **argv);
 
-int nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeResponse(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
+int calculateNodalReactions(ClientData clientData, G3_Runtime *rt, int argc,
                             TCL_Char **argv);
 
-int getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
+int getNodeTags(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
-int getEleTags(ClientData clientData, Tcl_Interp *interp, int argc,
+int getEleTags(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
+int fixedNodes(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
+int fixedDOFs(ClientData clientData, G3_Runtime *rt, int argc,
               TCL_Char **argv);
 
-int constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
+int constrainedNodes(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
+int constrainedDOFs(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
+int retainedNodes(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
+int retainedDOFs(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeDOFs(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int nodeMass(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodeMass(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
+int nodePressure(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
+int getParamTags(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
+int getParamValue(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int sdfResponse(ClientData clientData, Tcl_Interp *interp, int argc,
+int sdfResponse(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
 
-int computeGradients(ClientData clientData, Tcl_Interp *interp, int argc,
+int computeGradients(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensNodeDisp(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int sensLambda(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensLambda(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv); // Abbas
 
-int sensNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensNodeVel(ClientData clientData, G3_Runtime *rt, int argc,
                 TCL_Char **argv);
 
-int sensNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensNodeAccel(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int sensNodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensNodePressure(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int sensSectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensSectionForce(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensitivityAlgorithm(ClientData clientData, G3_Runtime *rt, int argc,
                          TCL_Char **argv);
 
-int sensitivityIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
+int sensitivityIntegrator(ClientData clientData, G3_Runtime *rt, int argc,
                           TCL_Char **argv);
 // AddingSensitivity:END ///////////////////////////////////////////////////
 
-int getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
+int getNumElements(ClientData clientData, G3_Runtime *rt, int argc,
                    TCL_Char **argv);
 
-int getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
+int getEleClassTags(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
+int getEleLoadClassTags(ClientData clientData, G3_Runtime *rt, int argc,
                         TCL_Char **argv);
 
-int getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
+int getEleLoadTags(ClientData clientData, G3_Runtime *rt, int argc,
                    TCL_Char **argv);
 
-int getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
+int getEleLoadData(ClientData clientData, G3_Runtime *rt, int argc,
                    TCL_Char **argv);
 
-int startTimer(ClientData clientData, Tcl_Interp *interp, int argc,
+int startTimer(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int stopTimer(ClientData clientData, Tcl_Interp *interp, int argc,
+int stopTimer(ClientData clientData, G3_Runtime *rt, int argc,
               TCL_Char **argv);
 
-int rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
+int rayleighDamping(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
+int modalDamping(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
+int modalDampingQ(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
+int setElementRayleighDampingFactors(ClientData clientData, G3_Runtime *rt,
                                      int argc, TCL_Char **argv);
 
-int addRegion(ClientData clientData, Tcl_Interp *interp, int argc,
+int addRegion(ClientData clientData, G3_Runtime *rt, int argc,
               TCL_Char **argv);
 
-int sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
+int sectionForce(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv);
 
-int sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
+int sectionDeformation(ClientData clientData, G3_Runtime *rt, int argc,
                        TCL_Char **argv);
 
-int sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
+int sectionStiffness(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
+int sectionFlexibility(ClientData clientData, G3_Runtime *rt, int argc,
                        TCL_Char **argv);
 
-int sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
+int sectionLocation(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
 
-int sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
+int sectionWeight(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv);
 
-int basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
+int basicDeformation(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv);
 
-int basicForce(ClientData clientData, Tcl_Interp *interp, int argc,
+int basicForce(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
+int basicStiffness(ClientData clientData, G3_Runtime *rt, int argc,
                    TCL_Char **argv);
 
 // added: Chris McGann, U.Washington for initial state analysis of nDMaterials
-int InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
+int InitialStateAnalysis(ClientData clientData, G3_Runtime *rt, int argc,
                          TCL_Char **argv);
 
-int totalCPU(ClientData clientData, Tcl_Interp *interp, int argc,
+int totalCPU(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int solveCPU(ClientData clientData, Tcl_Interp *interp, int argc,
+int solveCPU(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int accelCPU(ClientData clientData, Tcl_Interp *interp, int argc,
+int accelCPU(ClientData clientData, G3_Runtime *rt, int argc,
              TCL_Char **argv);
 
-int numFact(ClientData clientData, Tcl_Interp *interp, int argc,
+int numFact(ClientData clientData, G3_Runtime *rt, int argc,
             TCL_Char **argv);
 
-int numIter(ClientData clientData, Tcl_Interp *interp, int argc,
+int numIter(ClientData clientData, G3_Runtime *rt, int argc,
             TCL_Char **argv);
 
-int systemSize(ClientData clientData, Tcl_Interp *interp, int argc,
+int systemSize(ClientData clientData, G3_Runtime *rt, int argc,
                TCL_Char **argv);
 
-int elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,
+int elementActivate(ClientData clientData, G3_Runtime *rt, int argc,
                     TCL_Char **argv);
-int elementDeactivate(ClientData clientData, Tcl_Interp *interp, int argc,
+int elementDeactivate(ClientData clientData, G3_Runtime *rt, int argc,
                       TCL_Char **argv);

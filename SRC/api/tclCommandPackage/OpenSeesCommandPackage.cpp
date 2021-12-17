@@ -1,8 +1,8 @@
 /* Claudio Perez */
-#include <tcl.h>
+#include <g3_api.h>
 
-int myCommands(Tcl_Interp *interp);
-int OpenSeesAppInit(Tcl_Interp *interp);
+int myCommands(G3_Runtime *rt);
+int OpenSeesAppInit(G3_Runtime *rt);
 
 // Error streams
 #include <handler/OPS_Stream.h>
@@ -16,9 +16,9 @@ void *simulationInfo=0;
 
 extern "C" {
 static int
-Hello_Cmd(ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+Hello_Cmd(ClientData cdata, G3_Runtime *rt, int objc, Tcl_Obj *const objv[])
 {
-  Tcl_SetObjResult(interp, Tcl_NewStringObj("Hello, World!", -1));
+  Tcl_SetObjResult(rt, Tcl_NewStringObj("Hello, World!", -1));
   return TCL_OK;
 }
 
@@ -26,20 +26,20 @@ Hello_Cmd(ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
  * Hello_Init -- Called when Tcl loads your extension.
  */
 int DLLEXPORT
-Openseescommandpackage_Init(Tcl_Interp *interp)
+Openseescommandpackage_Init(G3_Runtime *rt)
 {
-  if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL) {
+  if (Tcl_InitStubs(rt, TCL_VERSION, 0) == NULL) {
     return TCL_ERROR;
   }
 
-  if (Tcl_PkgProvide(interp, "OpenSeesCommandPackage", "0.0.1") == TCL_ERROR) {
+  if (Tcl_PkgProvide(rt, "OpenSeesCommandPackage", "0.0.1") == TCL_ERROR) {
     return TCL_ERROR;
   }
 
-  Tcl_CreateObjCommand(interp, "hello", Hello_Cmd, NULL, NULL);
+  Tcl_CreateObjCommand(rt, "hello", Hello_Cmd, NULL, NULL);
 
-  OpenSeesAppInit(interp);
-  myCommands(interp);
+  OpenSeesAppInit(rt);
+  myCommands(rt);
   return TCL_OK;
 }
 } // extern "C"

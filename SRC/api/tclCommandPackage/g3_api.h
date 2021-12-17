@@ -9,6 +9,7 @@ typedef int G3_Tag;
 typedef Tcl_Interp G3_Runtime;
 #define G3_getDouble Tcl_GetDoubleFromObj
 
+
 class TclSafeBuilder;
 class AnalysisModel;
 class EquiSolnAlgo;

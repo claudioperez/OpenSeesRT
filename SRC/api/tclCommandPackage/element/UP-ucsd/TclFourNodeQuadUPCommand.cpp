@@ -36,7 +36,7 @@ extern void printCommand(int argc, TCL_Char **argv);
  */
 
 int
-TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, G3_Runtime *rt,
                                   int argc, TCL_Char **argv,
                                   Domain *theTclDomain,
                                   TclBasicBuilder *theTclBuilder)
@@ -73,86 +73,86 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   double b2 = 0.0;
 
   TCL_Char *type;
-  if (Tcl_GetInt(interp, argv[argStart], &FourNodeQuadUPId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &FourNodeQuadUPId) != TCL_OK) {
     opserr << "WARNING invalid FourNodeQuadUP eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[7 + argStart], &bk) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[7 + argStart], &bk) != TCL_OK) {
     opserr << "WARNING invalid fluid bulk modulus\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[8 + argStart], &r) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[8 + argStart], &r) != TCL_OK) {
     opserr << "WARNING invalid fluid mass density\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[9 + argStart], &perm1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[9 + argStart], &perm1) != TCL_OK) {
     opserr << "WARNING invalid lateral permeability\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[10 + argStart], &perm2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[10 + argStart], &perm2) != TCL_OK) {
     opserr << "WARNING invalid vertical permeability\n";
     opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) >= 12) {
-    if (Tcl_GetDouble(interp, argv[11 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 13) {
-    if (Tcl_GetDouble(interp, argv[12 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[12 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 14) {
-    if (Tcl_GetDouble(interp, argv[13 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "FourNodeQuadUP element: " << FourNodeQuadUPId << endln;
       return TCL_ERROR;
@@ -198,7 +198,7 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
  */
 
 int
-TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
+TclBasicBuilder_addBrickUP(ClientData clientData, G3_Runtime *rt, int argc,
                            TCL_Char **argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder)
 {
@@ -232,70 +232,70 @@ TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
   double b2 = 0.0;
   double b3 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &brickUPId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &brickUPId) != TCL_OK) {
     opserr << "WARNING invalid brickUP eleTag" << endln;
     return TCL_ERROR;
   }
 
   for (int i = 0; i < 8; i++)
-    if (Tcl_GetInt(interp, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
       opserr << "WARNING invalid Node number\n";
       opserr << "brickUP element: " << brickUPId << endln;
       return TCL_ERROR;
     }
 
-  if (Tcl_GetInt(interp, argv[9 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "brickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[10 + argStart], &bk) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[10 + argStart], &bk) != TCL_OK) {
     opserr << "WARNING invalid fluid bulk modulus\n";
     opserr << "brickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[11 + argStart], &r) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[11 + argStart], &r) != TCL_OK) {
     opserr << "WARNING invalid fluid mass density\n";
     opserr << "brickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[12 + argStart], &perm1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[12 + argStart], &perm1) != TCL_OK) {
     opserr << "WARNING invalid permeability_x\n";
     opserr << "brickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[13 + argStart], &perm2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[13 + argStart], &perm2) != TCL_OK) {
     opserr << "WARNING invalid permeability_y\n";
     opserr << "brickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[14 + argStart], &perm3) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[14 + argStart], &perm3) != TCL_OK) {
     opserr << "WARNING invalid permeability_z\n";
     opserr << "brickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) >= 16) {
-    if (Tcl_GetDouble(interp, argv[15 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[15 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "brickUP element: " << brickUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 17) {
-    if (Tcl_GetDouble(interp, argv[16 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[16 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "brickUP element: " << brickUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 18) {
-    if (Tcl_GetDouble(interp, argv[17 + argStart], &b3) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[17 + argStart], &b3) != TCL_OK) {
       opserr << "WARNING invalid b3\n";
       opserr << "brickUP element: " << brickUPId << endln;
       return TCL_ERROR;
@@ -341,7 +341,7 @@ TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
  */
 
 int
-TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, G3_Runtime *rt,
                                       int argc, TCL_Char **argv,
                                       Domain *theTclDomain,
                                       TclBasicBuilder *theTclBuilder)
@@ -376,63 +376,63 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &NineFourNodeQuadUPId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &NineFourNodeQuadUPId) != TCL_OK) {
     opserr << "WARNING invalid FourNodeQuadUP eleTag" << endln;
     return TCL_ERROR;
   }
   for (int i = 1; i <= 9; i++) {
-    if (Tcl_GetInt(interp, argv[i + argStart], &Node[i - 1]) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[i + argStart], &Node[i - 1]) != TCL_OK) {
       opserr << "WARNING invalid Node\n";
       opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
       return TCL_ERROR;
     }
   }
 
-  if (Tcl_GetDouble(interp, argv[10 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[10 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[11 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[11 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[12 + argStart], &bk) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[12 + argStart], &bk) != TCL_OK) {
     opserr << "WARNING invalid fluid bulk modulus\n";
     opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[13 + argStart], &r) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[13 + argStart], &r) != TCL_OK) {
     opserr << "WARNING invalid fluid mass density\n";
     opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[14 + argStart], &perm1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[14 + argStart], &perm1) != TCL_OK) {
     opserr << "WARNING invalid lateral permeability\n";
     opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[15 + argStart], &perm2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[15 + argStart], &perm2) != TCL_OK) {
     opserr << "WARNING invalid vertical permeability\n";
     opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) >= 17) {
-    if (Tcl_GetDouble(interp, argv[16 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[16 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 18) {
-    if (Tcl_GetDouble(interp, argv[17 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[17 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "FourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
       return TCL_ERROR;
@@ -480,7 +480,7 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData,
-                                          Tcl_Interp *interp, int argc,
+                                          G3_Runtime *rt, int argc,
                                           TCL_Char **argv, Domain *theTclDomain,
                                           TclBasicBuilder *theTclBuilder)
 {
@@ -515,70 +515,70 @@ TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData,
   double b2 = 0.0;
   double b3 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &brickUPId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &brickUPId) != TCL_OK) {
     opserr << "WARNING invalid 20_8_BrickUP eleTag" << endln;
     return TCL_ERROR;
   }
 
   for (int i = 0; i < 20; i++)
-    if (Tcl_GetInt(interp, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
       opserr << "WARNING invalid Node number\n";
       opserr << "20_8_BrickUP element: " << brickUPId << endln;
       return TCL_ERROR;
     }
 
-  if (Tcl_GetInt(interp, argv[21 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[21 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "20_8_BrickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[22 + argStart], &bk) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[22 + argStart], &bk) != TCL_OK) {
     opserr << "WARNING invalid fluid bulk modulus\n";
     opserr << "20_8_BrickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[23 + argStart], &r) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[23 + argStart], &r) != TCL_OK) {
     opserr << "WARNING invalid fluid mass density\n";
     opserr << "20_8_BrickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[24 + argStart], &perm1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[24 + argStart], &perm1) != TCL_OK) {
     opserr << "WARNING invalid permeability_x\n";
     opserr << "20_8_BrickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[25 + argStart], &perm2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[25 + argStart], &perm2) != TCL_OK) {
     opserr << "WARNING invalid permeability_y\n";
     opserr << "20_8_BrickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[26 + argStart], &perm3) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[26 + argStart], &perm3) != TCL_OK) {
     opserr << "WARNING invalid permeability_z\n";
     opserr << "20_8_BrickUP element: " << brickUPId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) >= 28) {
-    if (Tcl_GetDouble(interp, argv[27 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[27 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "20_8_BrickUP element: " << brickUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 29) {
-    if (Tcl_GetDouble(interp, argv[28 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[28 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "20_8_BrickUP element: " << brickUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 30) {
-    if (Tcl_GetDouble(interp, argv[29 + argStart], &b3) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[29 + argStart], &b3) != TCL_OK) {
       opserr << "WARNING invalid b3\n";
       opserr << "20_8_BrickUP element: " << brickUPId << endln;
       return TCL_ERROR;
@@ -627,7 +627,7 @@ TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData,
  */
 
 int
-TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, G3_Runtime *rt,
                                       int argc, TCL_Char **argv,
                                       Domain *theTclDomain,
                                       TclBasicBuilder *theTclBuilder)
@@ -664,86 +664,86 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   double b2 = 0.0;
 
   TCL_Char *type;
-  if (Tcl_GetInt(interp, argv[argStart], &BBarFourNodeQuadUPId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &BBarFourNodeQuadUPId) != TCL_OK) {
     opserr << "WARNING invalid BBarFourNodeQuadUP eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[7 + argStart], &bk) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[7 + argStart], &bk) != TCL_OK) {
     opserr << "WARNING invalid fluid bulk modulus\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[8 + argStart], &r) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[8 + argStart], &r) != TCL_OK) {
     opserr << "WARNING invalid fluid mass density\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[9 + argStart], &perm1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[9 + argStart], &perm1) != TCL_OK) {
     opserr << "WARNING invalid lateral permeability\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[10 + argStart], &perm2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[10 + argStart], &perm2) != TCL_OK) {
     opserr << "WARNING invalid vertical permeability\n";
     opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) >= 12) {
-    if (Tcl_GetDouble(interp, argv[11 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 13) {
-    if (Tcl_GetDouble(interp, argv[12 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[12 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 14) {
-    if (Tcl_GetDouble(interp, argv[13 + argStart], &p) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
       opserr << "BBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
       return TCL_ERROR;
@@ -789,7 +789,7 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
  */
 
 int
-TclBasicBuilder_addBBarBrickUP(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addBBarBrickUP(ClientData clientData, G3_Runtime *rt,
                                int argc, TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder)
 {
@@ -823,70 +823,70 @@ TclBasicBuilder_addBBarBrickUP(ClientData clientData, Tcl_Interp *interp,
   double b2 = 0.0;
   double b3 = 0.0;
 
-  if (Tcl_GetInt(interp, argv[argStart], &BBarBrickUPId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[argStart], &BBarBrickUPId) != TCL_OK) {
     opserr << "WARNING invalid BBarBrickUP eleTag" << endln;
     return TCL_ERROR;
   }
 
   for (int i = 0; i < 8; i++)
-    if (Tcl_GetInt(interp, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
       opserr << "WARNING invalid Node number\n";
       opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
       return TCL_ERROR;
     }
 
-  if (Tcl_GetInt(interp, argv[9 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
     opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[10 + argStart], &bk) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[10 + argStart], &bk) != TCL_OK) {
     opserr << "WARNING invalid fluid bulk modulus\n";
     opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[11 + argStart], &r) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[11 + argStart], &r) != TCL_OK) {
     opserr << "WARNING invalid fluid mass density\n";
     opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[12 + argStart], &perm1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[12 + argStart], &perm1) != TCL_OK) {
     opserr << "WARNING invalid permeability_x\n";
     opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[13 + argStart], &perm2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[13 + argStart], &perm2) != TCL_OK) {
     opserr << "WARNING invalid permeability_y\n";
     opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[14 + argStart], &perm3) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[14 + argStart], &perm3) != TCL_OK) {
     opserr << "WARNING invalid permeability_z\n";
     opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
     return TCL_ERROR;
   }
 
   if ((argc - argStart) >= 16) {
-    if (Tcl_GetDouble(interp, argv[15 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[15 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 17) {
-    if (Tcl_GetDouble(interp, argv[16 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[16 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
       return TCL_ERROR;
     }
   }
   if ((argc - argStart) >= 18) {
-    if (Tcl_GetDouble(interp, argv[17 + argStart], &b3) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[17 + argStart], &b3) != TCL_OK) {
       opserr << "WARNING invalid b3\n";
       opserr << "BBarBrickUP element: " << BBarBrickUPId << endln;
       return TCL_ERROR;

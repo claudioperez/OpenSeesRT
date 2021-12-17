@@ -54,18 +54,18 @@ static NDMaterial *theMaterial = 0;
 //
 
 int TclPlaneStressMaterialTester_setPlaneStressMaterial(ClientData clientData,
-                                                        Tcl_Interp *interp,
+                                                        G3_Runtime *rt,
                                                         int argc,
                                                         TCL_Char **argv);
 
 int TclPlaneStressMaterialTester_setStrainPlaneStressMaterial(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
 
 int TclPlaneStressMaterialTester_getStressPlaneStressMaterial(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
 
 int TclPlaneStressMaterialTester_getTangPlaneStressMaterial(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
@@ -76,24 +76,24 @@ static int countsTillCommit;
 
 // constructor: the constructor will add certain commands to the interpreter
 TclPlaneStressMaterialTester::TclPlaneStressMaterialTester(Domain &theDomain,
-                                                           Tcl_Interp *interp,
+                                                           G3_Runtime *rt,
                                                            int cTC)
-    : TclBasicBuilder(theDomain, interp, 1, 1), theInterp(interp)
+    : TclBasicBuilder(theDomain, rt, 1, 1), theInterp(rt)
 {
   countsTillCommit = cTC;
-  Tcl_CreateCommand(interp, "setMaterial",
+  Tcl_CreateCommand(rt, "setMaterial",
                     TclPlaneStressMaterialTester_setPlaneStressMaterial,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "setStrain",
+  Tcl_CreateCommand(rt, "setStrain",
                     TclPlaneStressMaterialTester_setStrainPlaneStressMaterial,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "getStress",
+  Tcl_CreateCommand(rt, "getStress",
                     TclPlaneStressMaterialTester_getStressPlaneStressMaterial,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "getTangent",
+  Tcl_CreateCommand(rt, "getTangent",
                     TclPlaneStressMaterialTester_getTangPlaneStressMaterial,
                     (ClientData)NULL, NULL);
 
@@ -118,7 +118,7 @@ TclPlaneStressMaterialTester::~TclPlaneStressMaterialTester()
 
 int
 TclPlaneStressMaterialTester_setPlaneStressMaterial(ClientData clientData,
-                                                    Tcl_Interp *interp,
+                                                    G3_Runtime *rt,
                                                     int argc, TCL_Char **argv)
 {
   count = 1;
@@ -136,7 +136,7 @@ TclPlaneStressMaterialTester_setPlaneStressMaterial(ClientData clientData,
 
   // get the matID form command line
   int matID;
-  if (Tcl_GetInt(interp, argv[1], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1], &matID) != TCL_OK) {
     opserr << "WARNING could not read matID: plane stressTest matID?\n";
     return TCL_ERROR;
   }
@@ -162,7 +162,7 @@ TclPlaneStressMaterialTester_setPlaneStressMaterial(ClientData clientData,
 
 int
 TclPlaneStressMaterialTester_setStrainPlaneStressMaterial(ClientData clientData,
-                                                          Tcl_Interp *interp,
+                                                          G3_Runtime *rt,
                                                           int argc,
                                                           TCL_Char **argv)
 {
@@ -181,15 +181,15 @@ TclPlaneStressMaterialTester_setStrainPlaneStressMaterial(ClientData clientData,
   // get the matID form command line
   static double strain[3];
   static Vector strainV(strain, 3);
-  if (Tcl_GetDouble(interp, argv[1], &strain[0]) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[1], &strain[0]) != TCL_OK) {
     opserr << "WARNING could not read strain: strainPlaneStressTest strain?\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(interp, argv[2], &strain[1]) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[2], &strain[1]) != TCL_OK) {
     opserr << "WARNING could not read strain: strainPlaneStressTest strain?\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(interp, argv[3], &strain[2]) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[3], &strain[2]) != TCL_OK) {
     opserr << "WARNING could not read strain: strainPlaneStressTest strain?\n";
     return TCL_ERROR;
   }
@@ -208,7 +208,7 @@ TclPlaneStressMaterialTester_setStrainPlaneStressMaterial(ClientData clientData,
 
 int
 TclPlaneStressMaterialTester_getStressPlaneStressMaterial(ClientData clientData,
-                                                          Tcl_Interp *interp,
+                                                          G3_Runtime *rt,
                                                           int argc,
                                                           TCL_Char **argv)
 {
@@ -219,7 +219,7 @@ TclPlaneStressMaterialTester_getStressPlaneStressMaterial(ClientData clientData,
     stress = theMaterial->getStress();
     char buffer[60];
     sprintf(buffer, "%.10e %.10e %.10e", stress(0), stress(1), stress(2));
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
     return TCL_OK;
   } else {
     opserr << "WARNING no active Plane StressMaterial - use plane stressTest "
@@ -230,7 +230,7 @@ TclPlaneStressMaterialTester_getStressPlaneStressMaterial(ClientData clientData,
 
 int
 TclPlaneStressMaterialTester_getTangPlaneStressMaterial(ClientData clientData,
-                                                        Tcl_Interp *interp,
+                                                        G3_Runtime *rt,
                                                         int argc,
                                                         TCL_Char **argv)
 {
@@ -244,7 +244,7 @@ TclPlaneStressMaterialTester_getTangPlaneStressMaterial(ClientData clientData,
             tangent(0, 0), tangent(0, 1), tangent(0, 2), tangent(1, 0),
             tangent(1, 1), tangent(1, 2), tangent(2, 0), tangent(2, 1),
             tangent(2, 2));
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
     return TCL_OK;
   } else {
     opserr << "WARNING no active PlaneStressMaterial - use plane stressTest "

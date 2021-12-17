@@ -41,7 +41,7 @@
 #include <Parameter.h>
 #include <RandomVariablePositionerIter.h>
 
-#include <tcl.h>
+#include <g3_api.h>
 #include <stdlib.h>
 #include <string.h>
 

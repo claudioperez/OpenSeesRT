@@ -33,7 +33,7 @@
 #include <OPS_Globals.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tcl.h>
+#include <g3_api.h>
 
 #include <PetscSOE.h>
 #include <PetscSolver.h>
@@ -47,7 +47,7 @@
 #endif
 
 extern "C" DllExport int
-TclCommand_Petsc(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_Petsc(ClientData clientData, G3_Runtime *rt, int argc,
                  TCL_Char **argv, FEM_ObjectBroker *theBroker,
                  LinearSOE **theSOE)
 {
@@ -70,22 +70,22 @@ TclCommand_Petsc(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[count], "-rTol") == 0 ||
                strcmp(argv[count], "-relTol") ||
                strcmp(argv[count], "-relativeTolerance")) {
-      if (Tcl_GetDouble(interp, argv[count + 1], &rTol) != TCL_OK)
+      if (Tcl_GetDouble(rt, argv[count + 1], &rTol) != TCL_OK)
         return TCL_ERROR;
     } else if (strcmp(argv[count], "-aTol") == 0 ||
                strcmp(argv[count], "-absTol") ||
                strcmp(argv[count], "-absoluteTolerance")) {
-      if (Tcl_GetDouble(interp, argv[count + 1], &aTol) != TCL_OK)
+      if (Tcl_GetDouble(rt, argv[count + 1], &aTol) != TCL_OK)
         return TCL_ERROR;
     } else if (strcmp(argv[count], "-dTol") == 0 ||
                strcmp(argv[count], "-divTol") ||
                strcmp(argv[count], "-divergenceTolerance")) {
-      if (Tcl_GetDouble(interp, argv[count + 1], &dTol) != TCL_OK)
+      if (Tcl_GetDouble(rt, argv[count + 1], &dTol) != TCL_OK)
         return TCL_ERROR;
     } else if (strcmp(argv[count], "-mIts") == 0 ||
                strcmp(argv[count], "-maxIts") ||
                strcmp(argv[count], "-maxIterations")) {
-      if (Tcl_GetInt(interp, argv[count + 1], &maxIts) != TCL_OK)
+      if (Tcl_GetInt(rt, argv[count + 1], &maxIts) != TCL_OK)
         return TCL_ERROR;
     } else if (strcmp(argv[count], "-KSP") == 0 ||
                strcmp(argv[count], "-KSPType")) {

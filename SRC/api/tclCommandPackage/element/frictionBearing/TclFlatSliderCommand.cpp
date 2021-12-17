@@ -45,7 +45,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addFlatSliderBearing(ClientData clientData, G3_Runtime *rt,
                                      int argc, TCL_Char **argv,
                                      Domain *theTclDomain,
                                      TclBasicBuilder *theTclBuilder,
@@ -91,21 +91,21 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     double tol = 1E-12;
     double kFactUplift = 1E-12;
 
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid flatSliderBearing eleTag\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
       opserr << "WARNING invalid frnMdlTag\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -117,7 +117,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &kInit) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -126,7 +126,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
         theMaterials[0] = 0;
-        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -143,7 +143,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -185,7 +185,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
           double value;
           // read the x values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "flatSliderBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -196,7 +196,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
           }
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "flatSliderBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -214,7 +214,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
-        if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -227,7 +227,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -236,12 +236,12 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -299,21 +299,21 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     double tol = 1E-12;
     double kFactUplift = 1E-12;
 
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid flatSliderBearing eleTag\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
       opserr << "WARNING invalid frnMdlTag\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -325,7 +325,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &kInit) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -333,7 +333,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     UniaxialMaterial *theMaterials[4];
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid axial matTag\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -350,7 +350,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-T") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid torsional matTag\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -367,7 +367,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-My") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment y matTag\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -384,7 +384,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment z matTag\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -428,7 +428,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
           double value;
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "flatSliderBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -443,7 +443,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
           double value;
           // read the x values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "flatSliderBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -454,7 +454,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
           }
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "flatSliderBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -472,7 +472,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
-        if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -485,7 +485,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -494,12 +494,12 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
-        if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
           opserr << "flatSliderBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -508,7 +508,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-kFactUplift") == 0) {
-        if (Tcl_GetDouble(interp, argv[i + 1], &kFactUplift) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &kFactUplift) != TCL_OK) {
           opserr << "WARNING invalid kFactUplift\n";
           opserr << "singleFPBearing element: " << tag << endln;
           return TCL_ERROR;

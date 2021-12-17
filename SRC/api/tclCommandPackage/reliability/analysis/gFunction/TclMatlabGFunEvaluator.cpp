@@ -6,7 +6,7 @@
 #include <RandomVariablePositioner.h>
 #include <ReliabilityDomain.h>
 
-#include <tcl.h>
+#include <g3_api.h>
 #include <string.h>
 
 #include <fstream.h>

@@ -44,7 +44,7 @@ printCommand(int argc, TCL_Char **argv)
 
 // UniaxialMaterial *
 Damage1D<Steel02> *
-TclBasicBuilder_addDegradingMaterial(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addDegradingMaterial(ClientData clientData, G3_Runtime *rt,
                                      int argc, TCL_Char **argv)
 {
 
@@ -60,7 +60,7 @@ TclBasicBuilder_addDegradingMaterial(ClientData clientData, Tcl_Interp *interp,
 
   // for (int argi=0; argi<argc; argi++){
   int tag;
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     printCommand(argc, argv);
     return 0;
@@ -72,54 +72,54 @@ TclBasicBuilder_addDegradingMaterial(ClientData clientData, Tcl_Interp *interp,
     double R0, cR1 = 0.925, cR2 = 0.15;
     double a1, a2 = 1.0, a3 = 0.0, a4 = 1.0;
 
-    if (Tcl_GetDouble(interp, argv[++argi], &fy) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[++argi], &fy) != TCL_OK) {
       opserr << "WARNING invalid fy\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(interp, argv[++argi], &E) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[++argi], &E) != TCL_OK) {
       opserr << "WARNING invalid E\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(interp, argv[++argi], &b) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[++argi], &b) != TCL_OK) {
       opserr << "WARNING invalid b\n";
       printCommand(argc, argv);
       return 0;
     }
     if (argc > 8) {
-      if (Tcl_GetDouble(interp, argv[++argi], &R0) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[++argi], &R0) != TCL_OK) {
         opserr << "WARNING invalid R0\n";
         printCommand(argc, argv);
         return 0;
       }
-      if (Tcl_GetDouble(interp, argv[++argi], &cR1) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[++argi], &cR1) != TCL_OK) {
         opserr << "WARNING invalid cR1\n";
         printCommand(argc, argv);
         return 0;
       }
-      if (Tcl_GetDouble(interp, argv[++argi], &cR2) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[++argi], &cR2) != TCL_OK) {
         opserr << "WARNING invalid cR2\n";
         printCommand(argc, argv);
         return 0;
       }
       if (argc > 12) {
-        if (Tcl_GetDouble(interp, argv[++argi], &a1) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[++argi], &a1) != TCL_OK) {
           opserr << "WARNING invalid a1\n";
           printCommand(argc, argv);
           return 0;
         }
-        if (Tcl_GetDouble(interp, argv[++argi], &a2) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[++argi], &a2) != TCL_OK) {
           opserr << "WARNING invalid a2\n";
           printCommand(argc, argv);
           return 0;
         }
-        if (Tcl_GetDouble(interp, argv[++argi], &a3) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[++argi], &a3) != TCL_OK) {
           opserr << "WARNING invalid a3\n";
           printCommand(argc, argv);
           return 0;
         }
-        if (Tcl_GetDouble(interp, argv[++argi], &a4) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[++argi], &a4) != TCL_OK) {
           opserr << "WARNING invalid a4\n";
           printCommand(argc, argv);
           return 0;
@@ -136,14 +136,14 @@ TclBasicBuilder_addDegradingMaterial(ClientData clientData, Tcl_Interp *interp,
   }
 
   if (dmg_tag)
-    dmgMat->setDamageWrapper(interp, dmg_tag);
+    dmgMat->setDamageWrapper(rt, dmg_tag);
 
   return dmgMat;
 }
 
 /*
 void *
-OPS_Steel02D(Tcl_Interp *interp)
+OPS_Steel02D(G3_Runtime *rt)
 {
   // Pointer to a uniaxial material that will be returned
   Damage1D<Steel02> *theMaterial = nullptr;

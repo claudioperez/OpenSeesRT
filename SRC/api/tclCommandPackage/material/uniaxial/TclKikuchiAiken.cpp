@@ -1,10 +1,10 @@
-#include <tcl.h>
+#include <g3_api.h>
 #include <KikuchiAikenHDR.h>
 #include <KikuchiAikenLRB.h>
 #include <g3_api.h>
 
 int
-TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_KikuchiAikenHDR(ClientData clientData, G3_Runtime *rt, int argc,
                            TCL_Char **argv)
 {
   // arguments (necessary)
@@ -34,7 +34,7 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
   } else {
 
     // argv[2~5]
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid KikuchiAikenHDR tag" << endln;
       ifNoError = false;
     }
@@ -59,12 +59,12 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[4], &ar) != TCL_OK || ar <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[4], &ar) != TCL_OK || ar <= 0.0) {
       opserr << "WARNING invalid ar\n";
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[5], &hr) != TCL_OK || hr <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[5], &hr) != TCL_OK || hr <= 0.0) {
       opserr << "WARNING invalid hr\n";
       ifNoError = false;
     }
@@ -75,17 +75,17 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[i], "-coGHU") == 0 &&
           (i + 3) <= (argc - 1)) { // <-coGHU cg? ch? cu?>
 
-        if (Tcl_GetDouble(interp, argv[i + 1], &cg) != TCL_OK || cg < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &cg) != TCL_OK || cg < 0.0) {
           opserr << "WARNING invalid cg\n";
           ifNoError = false;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 2], &ch) != TCL_OK || ch < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &ch) != TCL_OK || ch < 0.0) {
           opserr << "WARNING invalid ch\n";
           ifNoError = false;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 3], &cu) != TCL_OK || cu < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 3], &cu) != TCL_OK || cu < 0.0) {
           opserr << "WARNING invalid cu\n";
           ifNoError = false;
         }
@@ -95,12 +95,12 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
       } else if (strcmp(argv[i], "-coMSS") == 0 &&
                  (i + 2) <= (argc - 1)) { // <-coMSS rs? rf?>
 
-        if (Tcl_GetDouble(interp, argv[i + 1], &rs) != TCL_OK || rs < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &rs) != TCL_OK || rs < 0.0) {
           opserr << "WARNING invalid rs\n";
           ifNoError = false;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 2], &rf) != TCL_OK || rf < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &rf) != TCL_OK || rf < 0.0) {
           opserr << "WARNING invalid rf\n";
           ifNoError = false;
         }
@@ -152,7 +152,7 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // Now add the material to the modelBuilder
-  if (G3_addUniaxialMaterial(interp,theMaterial)!=TCL_OK) {
+  if (G3_addUniaxialMaterial(rt,theMaterial)!=TCL_OK) {
     opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -165,7 +165,7 @@ TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_KikuchiAikenLRB(ClientData clientData, G3_Runtime *rt, int argc,
                            TCL_Char **argv)
 {
   // arguments (necessary)
@@ -201,47 +201,47 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
   } else {
 
     // argv[2~10]
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING KikuchiAikenLRB invalid tag" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetInt(interp, argv[3], &type) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &type) != TCL_OK) {
       opserr << "WARNING KikuchiAikenLRB invalid type" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[4], &ar) != TCL_OK || ar <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[4], &ar) != TCL_OK || ar <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid ar" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[5], &hr) != TCL_OK || ar <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[5], &hr) != TCL_OK || ar <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid hr" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[6], &gr) != TCL_OK || gr <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[6], &gr) != TCL_OK || gr <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid gr" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[7], &ap) != TCL_OK || ap <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[7], &ap) != TCL_OK || ap <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid ap" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[8], &tp) != TCL_OK || tp <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[8], &tp) != TCL_OK || tp <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid tp" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[9], &alph) != TCL_OK || alph <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[9], &alph) != TCL_OK || alph <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid alph" << endln;
       ifNoError = false;
     }
 
-    if (Tcl_GetDouble(interp, argv[10], &beta) != TCL_OK || beta <= 0.0) {
+    if (Tcl_GetDouble(rt, argv[10], &beta) != TCL_OK || beta <= 0.0) {
       opserr << "WARNING KikuchiAikenLRB invalid beta" << endln;
       ifNoError = false;
     }
@@ -251,7 +251,7 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
 
       if (strcmp(argv[i], "-T") == 0 && (i + 1) <= (argc - 1)) { // <-T temp?>
 
-        if (Tcl_GetDouble(interp, argv[i + 1], &temp) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &temp) != TCL_OK) {
           opserr << "WARNING KikuchiAikenLRB invalid temp" << endln;
           ifNoError = false;
         }
@@ -261,12 +261,12 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
       } else if (strcmp(argv[i], "-coKQ") == 0 &&
                  (i + 2) <= (argc - 1)) { // <-coKQ rk? rq?>
 
-        if (Tcl_GetDouble(interp, argv[i + 1], &rk) != TCL_OK || rk < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &rk) != TCL_OK || rk < 0.0) {
           opserr << "WARNING KikuchiAikenLRB invalid rk" << endln;
           ifNoError = false;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 2], &rq) != TCL_OK || rq < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &rq) != TCL_OK || rq < 0.0) {
           opserr << "WARNING KikuchiAikenLRB invalid rq" << endln;
           ifNoError = false;
         }
@@ -275,12 +275,12 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
       } else if (strcmp(argv[i], "-coMSS") == 0 &&
                  (i + 2) <= (argc - 1)) { // <-coMSS rs? rf?>
 
-        if (Tcl_GetDouble(interp, argv[i + 1], &rs) != TCL_OK || rs < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 1], &rs) != TCL_OK || rs < 0.0) {
           opserr << "WARNING KikuchiAikenLRB invalid rs" << endln;
           ifNoError = false;
         }
 
-        if (Tcl_GetDouble(interp, argv[i + 2], &rf) != TCL_OK || rf < 0.0) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &rf) != TCL_OK || rf < 0.0) {
           opserr << "WARNING KikuchiAikenLRB invalid rf" << endln;
           ifNoError = false;
         }
@@ -333,7 +333,7 @@ TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // Now add the material to the modelBuilder
-  if (G3_addUniaxialMaterial(interp,theMaterial) != TCL_OK) {
+  if (G3_addUniaxialMaterial(rt,theMaterial) != TCL_OK) {
     opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem

@@ -40,7 +40,7 @@
 
 #include <TclBasicBuilder.h>
 
-#include <tcl.h>
+#include <g3_api.h>
 #include <Domain.h>
 #include <LoadPattern.h>
 #include <LinearSeries.h>
@@ -63,20 +63,20 @@
 
 #include <SimulationInformation.h>
 extern SimulationInformation simulationInfo;
-extern const char *getInterpPWD(Tcl_Interp *interp); // commands.cpp
+extern const char *getInterpPWD(G3_Runtime *rt); // commands.cpp
 
 LoadPattern *theTclLoadPattern = 0;
 MultiSupportPattern *theTclMultiSupportPattern = 0;
 
 extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
-                                                        Tcl_Interp *interp,
+                                                        G3_Runtime *rt,
                                                         TCL_Char *arg);
 
-extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
+extern TimeSeries *TclSeriesCommand(ClientData clientData, G3_Runtime *rt,
                                     TCL_Char *arg);
 
 int
-TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
+TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
                   TCL_Char **argv, Domain *theDomain)
 {
   LoadPattern *thePattern = 0;
@@ -93,7 +93,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   TimeSeries *theSeries = 0;
   int patternID = 0;
 
-  if (Tcl_GetInt(interp, argv[2], &patternID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &patternID) != TCL_OK) {
     opserr << "WARNING invalid patternID: pattern type " << argv[2]
            << "<type args>\n";
     return TCL_ERROR;
@@ -104,7 +104,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcmp(argv[1], "Plain") == 0) {
 
     thePattern = new LoadPattern(patternID);
-    theSeries = TclSeriesCommand(clientData, interp, argv[3]);
+    theSeries = TclSeriesCommand(clientData, rt, argv[3]);
 
     if (thePattern == 0 || theSeries == 0) {
 
@@ -132,7 +132,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
     int dir;
 
-    if (Tcl_GetInt(interp, argv[3], &dir) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &dir) != TCL_OK) {
       opserr << "WARNING invalid patternID: pattern type " << argv[2]
              << "<type args>\n";
       return TCL_ERROR;
@@ -155,7 +155,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
         currentArg++;
         if ((currentArg < argc) &&
-            (Tcl_GetDouble(interp, argv[currentArg], &vel0) != TCL_OK)) {
+            (Tcl_GetDouble(rt, argv[currentArg], &vel0) != TCL_OK)) {
           opserr << "WARNING invalid vel0: pattern type UniformExcitation\n";
           return TCL_ERROR;
         }
@@ -167,7 +167,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                (strcmp(argv[currentArg], "-acceleration") == 0)) {
 
         currentArg++;
-        accelSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
+        accelSeries = TclSeriesCommand(clientData, rt, argv[currentArg]);
         if (accelSeries == 0) {
           opserr << "WARNING invalid accel series: pattern UniformExcitation "
                     "-accel <args>\n";
@@ -180,7 +180,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                  (strcmp(argv[currentArg], "-velocity") == 0)) {
 
         currentArg++;
-        velSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
+        velSeries = TclSeriesCommand(clientData, rt, argv[currentArg]);
 
         if (velSeries == 0) {
           opserr << "WARNING invalid vel series: " << argv[currentArg];
@@ -194,7 +194,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                  (strcmp(argv[currentArg], "-displacement") == 0)) {
 
         currentArg++;
-        dispSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
+        dispSeries = TclSeriesCommand(clientData, rt, argv[currentArg]);
 
         if (dispSeries == 0) {
           opserr << "WARNING invalid vel series: " << argv[currentArg];
@@ -208,7 +208,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand(clientData, interp, argv[currentArg]);
+            TclSeriesIntegratorCommand(clientData, rt, argv[currentArg]);
         if (seriesIntegrator == 0) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - pattern UniformExcitation -int {Series Integrator}\n";
@@ -270,7 +270,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         accelFileName = argv[i + 1];
 
         // Read the time interval
-        if (Tcl_GetDouble(interp, argv[i + 2], &dt) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[i + 2], &dt) != TCL_OK) {
           opserr << "WARNING problem reading ground motion "
                  << "time interval - pattern UniformExcitation: " << patternID
                  << endln;
@@ -287,7 +287,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     int dir;
-    if (Tcl_GetInt(interp, argv[3], &dir) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &dir) != TCL_OK) {
 
       char inputDir;
       inputDir = argv[3][0];
@@ -317,7 +317,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       dir--; // change to c++ indexing
 
     double factor;
-    if (Tcl_GetDouble(interp, argv[4], &factor) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &factor) != TCL_OK) {
       opserr << "WARNING insufficient number of arguments - want: pattern ";
       opserr << "UniformExcitation " << patternID << " dir factor\n";
       return TCL_ERROR;
@@ -341,7 +341,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    const char *pwd = getInterpPWD(interp);
+    const char *pwd = getInterpPWD(rt);
     simulationInfo.addInputFile(accelFileName, pwd);
 
     // create the UniformExcitation Pattern
@@ -463,7 +463,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
   if (commandEndMarker < (argc - 1)) {
-    if (Tcl_Eval(interp, argv[argc - 1]) != TCL_OK) {
+    if (Tcl_Eval(rt, argv[argc - 1]) != TCL_OK) {
       opserr << "WARNING - error reading load pattern information in { } ";
       return TCL_ERROR;
     }

@@ -45,7 +45,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addFeapTruss(ClientData clientData, G3_Runtime *rt,
                              int argc, TCL_Char **argv, Domain *theTclDomain,
                              TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -76,26 +76,26 @@ TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp,
   // get the id and end nodes
   int trussId, iNode, jNode;
   double A, E;
-  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &trussId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + eleArgStart], &trussId) != TCL_OK) {
     opserr << "WARNING invalid truss eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "truss element: " << trussId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "truss element: " << trussId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &A) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &A) != TCL_OK) {
     opserr << "WARNING invalid A\n";
     opserr << "truss element: " << trussId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &E) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &E) != TCL_OK) {
     opserr << "WARNING invalid E\n";
     opserr << "truss element: " << trussId << endln;
     return TCL_ERROR;

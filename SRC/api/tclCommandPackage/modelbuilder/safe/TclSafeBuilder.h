@@ -41,7 +41,7 @@ class TimeSeries;
 
 class TclSafeBuilder : public ModelBuilder {
 public:
-  TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm,
+  TclSafeBuilder(Domain &theDomain, G3_Runtime *rt, int ndm,
                          int ndf);
   ~TclSafeBuilder();
 

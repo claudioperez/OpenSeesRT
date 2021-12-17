@@ -83,7 +83,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addForceBeamColumn(ClientData clientData, G3_Runtime *rt,
                                    int inArgc, TCL_Char **inArgv,
                                    Domain *theTclDomain,
                                    TclBasicBuilder *theTclBuilder)
@@ -128,7 +128,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   int argc;
   TCL_Char **argv;
 
-  if (Tcl_SplitList(interp, List, &argc, &argv) != TCL_OK) {
+  if (Tcl_SplitList(rt, List, &argc, &argv) != TCL_OK) {
     opserr << "WARNING - TclBasicBuilder_addForceBeamColumn - problem "
               "splitting list\n";
     return TCL_ERROR;
@@ -148,18 +148,18 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   CrdTransf *theTransf3d = 0;
   Element *theElement = 0;
 
-  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
     opserr << "WARNING invalid " << argv[1] << " eleTag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << argv[1] << " element: " << eleTag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << argv[1] << " element: " << eleTag << endln;
     return TCL_ERROR;
@@ -189,7 +189,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     int nIP, secTag;
 
-    if (Tcl_GetInt(interp, argv[5], &nIP) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[5], &nIP) != TCL_OK) {
       opserr << "WARNING invalid nIP\n";
       opserr << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -206,7 +206,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (strcmp(argv[argi], "-sections") != 0) {
 
-      if (Tcl_GetInt(interp, argv[argi], &secTag) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[argi], &secTag) != TCL_OK) {
         opserr << "WARNING invalid secTag\n";
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -221,7 +221,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(interp, argv[argi], &transfTag) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[argi], &transfTag) != TCL_OK) {
         opserr << "WARNING invalid transfTag\n";
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -236,7 +236,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       argi++;
       // get section tags
       for (int i = 0; i < nIP; i++) {
-        if (Tcl_GetInt(interp, argv[argi], &secTag) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[argi], &secTag) != TCL_OK) {
           opserr << "WARNING invalid secTag\n";
           opserr << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
@@ -253,7 +253,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         sections[i] = theSection;
       }
 
-      if (Tcl_GetInt(interp, argv[argi], &transfTag) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[argi], &transfTag) != TCL_OK) {
         opserr << "WARNING invalid transfTag\n";
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -274,12 +274,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
           opserr << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetInt(interp, argv[argi + 1], &numIter) != TCL_OK) {
+        if (Tcl_GetInt(rt, argv[argi + 1], &numIter) != TCL_OK) {
           opserr << "WARNING invalid numIter\n";
           opserr << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(interp, argv[argi + 2], &tol) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[argi + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
           opserr << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
@@ -291,7 +291,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
           opserr << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(interp, argv[argi + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[argi + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid numIter\n";
           opserr << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
@@ -457,7 +457,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   // otherwise use correct format of command as found in current documentation
   //
 
-  if (Tcl_GetInt(interp, argv[5], &transfTag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5], &transfTag) != TCL_OK) {
     opserr << "WARNING invalid transfTag\n";
     opserr << argv[1] << " element: " << eleTag << endln;
     return TCL_ERROR;
@@ -506,12 +506,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7], &secTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &secTag) != TCL_OK) {
       opserr << "WARNING invalid secTag\n";
       opserr << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[8], &numSections) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[8], &numSections) != TCL_OK) {
       opserr << "WARNING invalid nIP\n";
       opserr << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -558,17 +558,17 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   transfTag? GaussQ type? secTag? nIP?\n"; return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7], &type) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &type) != TCL_OK) {
       opserr << "WARNING invalid type\n";
       opserr << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[8], &secTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[8], &secTag) != TCL_OK) {
       opserr << "WARNING invalid secTag\n";
       opserr << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[9], &numSections) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[9], &numSections) != TCL_OK) {
       opserr << "WARNING invalid nIP\n";
       opserr << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -600,7 +600,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7], &numSections) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &numSections) != TCL_OK) {
       opserr << "WARNING invalid numSections\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -614,17 +614,17 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     for (i = 0, j = 8; i < numSections; i++, j++) {
       int sec;
       double pt, wt;
-      if (Tcl_GetInt(interp, argv[j], &sec) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[j], &sec) != TCL_OK) {
         opserr << "WARNING invalid sec\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + numSections], &pt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + numSections], &pt) != TCL_OK) {
         opserr << "WARNING invalid pt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + 2 * numSections], &wt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + 2 * numSections], &wt) != TCL_OK) {
         opserr << "WARNING invalid wt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -666,27 +666,27 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     int secTagI, secTagJ, secTagE;
     double lpI, lpJ;
 
-    if (Tcl_GetInt(interp, argv[7], &secTagI) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &secTagI) != TCL_OK) {
       opserr << "WARNING invalid secTagI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[8], &lpI) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[8], &lpI) != TCL_OK) {
       opserr << "WARNING invalid lpI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[9], &secTagJ) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[9], &secTagJ) != TCL_OK) {
       opserr << "WARNING invalid secTagJ\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[10], &lpJ) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10], &lpJ) != TCL_OK) {
       opserr << "WARNING invalid lpJ\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[11], &secTagE) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[11], &secTagE) != TCL_OK) {
       opserr << "WARNING invalid secTagE\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -766,7 +766,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     int secTagE;
 
-    if (Tcl_GetInt(interp, argv[7], &secTagE) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &secTagE) != TCL_OK) {
       opserr << "WARNING invalid secTagE\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -776,12 +776,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     int npL, npR;
 
-    if (Tcl_GetInt(interp, argv[argStart], &npL) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argStart], &npL) != TCL_OK) {
       opserr << "WARNING invalid npL\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[argStart + 3 * npL + 1], &npR) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[argStart + 3 * npL + 1], &npR) != TCL_OK) {
       opserr << "WARNING invalid npR\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -799,17 +799,17 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     for (i = 0, j = argStart + 1; i < npL; i++, j++) {
       int sec;
       double pt, wt;
-      if (Tcl_GetInt(interp, argv[j], &sec) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[j], &sec) != TCL_OK) {
         opserr << "WARNING invalid sec\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + npL], &pt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + npL], &pt) != TCL_OK) {
         opserr << "WARNING invalid pt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + 2 * npL], &wt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + 2 * npL], &wt) != TCL_OK) {
         opserr << "WARNING invalid wt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -821,17 +821,17 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     for (i = 0, j = 1 + (argStart + 1) + 3 * npL; i < npR; i++, j++) {
       int sec;
       double pt, wt;
-      if (Tcl_GetInt(interp, argv[j], &sec) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[j], &sec) != TCL_OK) {
         opserr << "WARNING invalid sec\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + npR], &pt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + npR], &pt) != TCL_OK) {
         opserr << "WARNING invalid pt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + 2 * npR], &wt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + 2 * npR], &wt) != TCL_OK) {
         opserr << "WARNING invalid wt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -904,32 +904,32 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[8], &nIP) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[8], &nIP) != TCL_OK) {
       opserr << "WARNING invalid nIP\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[9], &secTagI) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[9], &secTagI) != TCL_OK) {
       opserr << "WARNING invalid secTagI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[10], &lpI) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10], &lpI) != TCL_OK) {
       opserr << "WARNING invalid lpI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[11], &secTagJ) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[11], &secTagJ) != TCL_OK) {
       opserr << "WARNING invalid secTagJ\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[12], &lpJ) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[12], &lpJ) != TCL_OK) {
       opserr << "WARNING invalid lpJ\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[13], &secTagE) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[13], &secTagE) != TCL_OK) {
       opserr << "WARNING invalid secTagE\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -1010,42 +1010,42 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[8], &nIP) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[8], &nIP) != TCL_OK) {
       opserr << "WARNING invalid nIP\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[9], &secTagI) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[9], &secTagI) != TCL_OK) {
       opserr << "WARNING invalid secTagI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[10], &lpI) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[10], &lpI) != TCL_OK) {
       opserr << "WARNING invalid lpI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[11], &zetaI) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11], &zetaI) != TCL_OK) {
       opserr << "WARNING invalid zetaI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[12], &secTagJ) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[12], &secTagJ) != TCL_OK) {
       opserr << "WARNING invalid secTagJ\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[13], &lpJ) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13], &lpJ) != TCL_OK) {
       opserr << "WARNING invalid lpJ\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(interp, argv[14], &zetaJ) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[14], &zetaJ) != TCL_OK) {
       opserr << "WARNING invalid zetaI\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[15], &secTagE) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[15], &secTagE) != TCL_OK) {
       opserr << "WARNING invalid secTagE\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -1105,7 +1105,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7], &numSections) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &numSections) != TCL_OK) {
       opserr << "WARNING invalid numSections\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -1119,12 +1119,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     for (i = 0, j = 8; i < numSections; i++, j++) {
       int sec;
       double pt;
-      if (Tcl_GetInt(interp, argv[j], &sec) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[j], &sec) != TCL_OK) {
         opserr << "WARNING invalid sec\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + numSections], &pt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + numSections], &pt) != TCL_OK) {
         opserr << "WARNING invalid pt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -1159,7 +1159,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7], &numSections) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &numSections) != TCL_OK) {
       opserr << "WARNING invalid numSections\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -1174,14 +1174,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     for (i = 0, j = 8; i < numSections; i++, j++) {
       int sec;
       double pt, wt;
-      if (Tcl_GetInt(interp, argv[j], &sec) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[j], &sec) != TCL_OK) {
         opserr << "WARNING invalid sec\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
       secs(i) = sec;
 
-      if (Tcl_GetDouble(interp, argv[j + numSections], &pt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + numSections], &pt) != TCL_OK) {
         opserr << "WARNING invalid pt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -1189,7 +1189,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       pts(i) = pt;
 
       if (j + 2 * numSections < argc) {
-        if (Tcl_GetDouble(interp, argv[j + 2 * numSections], &wt) != TCL_OK) {
+        if (Tcl_GetDouble(rt, argv[j + 2 * numSections], &wt) != TCL_OK) {
           opserr << "WARNING invalid wt\n";
           opserr << "" << argv[1] << " element: " << eleTag << endln;
           return TCL_ERROR;
@@ -1226,7 +1226,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[7], &numSections) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[7], &numSections) != TCL_OK) {
       opserr << "WARNING invalid nIP\n";
       opserr << "" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
@@ -1240,12 +1240,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     for (i = 0, j = 8; i < numSections; i++, j++) {
       int sec;
       double pt;
-      if (Tcl_GetInt(interp, argv[j], &sec) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[j], &sec) != TCL_OK) {
         opserr << "WARNING invalid sec\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[j + numSections], &pt) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[j + numSections], &pt) != TCL_OK) {
         opserr << "WARNING invalid pt\n";
         opserr << "" << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -1310,12 +1310,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(interp, argv[argi + 1], &numIter) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[argi + 1], &numIter) != TCL_OK) {
         opserr << "WARNING invalid numIter\n";
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[argi + 2], &tol) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argi + 2], &tol) != TCL_OK) {
         opserr << "WARNING invalid tol\n";
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
@@ -1327,7 +1327,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(interp, argv[argi + 1], &mass) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[argi + 1], &mass) != TCL_OK) {
         opserr << "WARNING invalid numIter\n";
         opserr << argv[1] << " element: " << eleTag << endln;
         return TCL_ERROR;

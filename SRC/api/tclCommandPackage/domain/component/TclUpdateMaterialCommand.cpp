@@ -12,7 +12,7 @@
 #include <string.h>
 
 int
-TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,
+TclCommand_UpdateMaterialsCommand(ClientData clientData, G3_Runtime *rt,
                                   int argc, TCL_Char **argv,
                                   TclBasicBuilder *theTclBuilder,
                                   Domain *theDomain)
@@ -35,7 +35,7 @@ TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,
   int materialTag, value;
   double valueD;
 
-  if (Tcl_GetInt(interp, argv[2], &materialTag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &materialTag) != TCL_OK) {
     opserr << "WARNING MYSstage: invalid material tag" << endln;
     return TCL_ERROR;
   }
@@ -45,7 +45,7 @@ TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,
 
   if (argc > 5) {
     if (strcmp(argv[5], "-parameter") == 0) {
-      if (Tcl_GetInt(interp, argv[6], &parTag) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[6], &parTag) != TCL_OK) {
         opserr << "WARNING UpdateMaterialStage: invalid parameter tag" << endln;
         return TCL_ERROR;
       }
@@ -62,9 +62,9 @@ TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   int res = 0;
-  if (Tcl_GetInt(interp, argv[4], &value) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4], &value) != TCL_OK) {
 
-    if (Tcl_GetDouble(interp, argv[4], &valueD) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &valueD) != TCL_OK) {
       opserr << "WARNING UpdateMaterialStage: could not read value" << endln;
       return TCL_ERROR;
     } else {

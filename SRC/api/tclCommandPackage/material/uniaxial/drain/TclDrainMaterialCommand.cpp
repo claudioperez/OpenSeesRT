@@ -38,7 +38,7 @@
 
 #include <Vector.h>
 #include <string.h>
-#include <tcl.h>
+#include <g3_api.h>
 
 static void
 printCommand(int argc, TCL_Char **argv)
@@ -50,7 +50,7 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 UniaxialMaterial *
-TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilder_addDrainMaterial(ClientData clientData, G3_Runtime *rt,
                                  int argc, TCL_Char **argv)
 {
   if (argc < 3) {
@@ -60,7 +60,7 @@ TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
   }
 
   int tag;
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     printCommand(argc, argv);
     return 0;
@@ -80,22 +80,22 @@ TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
 
     double E, sigY, Hiso, Hkin;
 
-    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[3], &E) != TCL_OK) {
       opserr << "WARNING invalid E\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(interp, argv[4], &sigY) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[4], &sigY) != TCL_OK) {
       opserr << "WARNING invalid sigY\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(interp, argv[5], &Hiso) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &Hiso) != TCL_OK) {
       opserr << "WARNING invalid Hiso\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(interp, argv[6], &Hkin) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[6], &Hkin) != TCL_OK) {
       opserr << "WARNING invalid Hkin\n";
       printCommand(argc, argv);
       return 0;
@@ -116,7 +116,7 @@ TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
     double temp;
 
     for (int i = 3, j = 0; j < 16; i++, j++) {
-      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -139,7 +139,7 @@ TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
     double temp;
 
     for (int i = 3, j = 0; j < 16; i++, j++) {
-      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -162,7 +162,7 @@ TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
     double temp;
 
     for (int i = 3, j = 0; j < 16; i++, j++) {
-      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -185,7 +185,7 @@ TclBasicBuilder_addDrainMaterial(ClientData clientData, Tcl_Interp *interp,
     double temp;
 
     for (int i = 3, j = 0; j < 19; i++, j++) {
-      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;

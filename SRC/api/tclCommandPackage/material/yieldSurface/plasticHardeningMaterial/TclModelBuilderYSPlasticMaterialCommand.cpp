@@ -7,7 +7,7 @@
 #include "NullPlasticMaterial.h"
 
 int
-TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
+TclMultiLinearCommand(ClientData clienData, G3_Runtime *rt, int argc,
                       TCL_Char **argv, TclBasicBuilder *theTclBuilder)
 {
   // Pointer to a uniaxial material that will be added to the model builder
@@ -24,7 +24,7 @@ TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid uniaxialMaterial MultilinearUniaxial tag"
              << endln;
       return TCL_ERROR;
@@ -37,7 +37,7 @@ TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
     int indx = 3, j1, j2;
 
     for (j1 = 0; j1 < numPoints; j1++) {
-      if (Tcl_GetDouble(interp, argv[indx], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[indx], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << temp << '\n';
         opserr << "MultilinearUniaxial material: " << tag << endln;
         return TCL_ERROR;
@@ -48,7 +48,7 @@ TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
     }
 
     for (j2 = 0; j2 < numPoints; j2++) {
-      if (Tcl_GetDouble(interp, argv[indx], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[indx], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << temp << '\n';
         opserr << "MultilinearUniaxial material: " << tag << endln;
         return TCL_ERROR;
@@ -83,7 +83,7 @@ TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
 }
 
 // QuadrReducing(int tag, double kp0, double kp_half);
-/*int TclQuadrReducingCommand(ClientData clienData, Tcl_Interp *interp, int
+/*int TclQuadrReducingCommand(ClientData clienData, G3_Runtime *rt, int
 argc, char **argv, TclBasicBuilder *theTclBuilder)
 {
     // Pointer to a uniaxial material that will be added to the model builder
@@ -93,17 +93,17 @@ argc, char **argv, TclBasicBuilder *theTclBuilder)
         double kp_0;
         double kp_half;
 
-        if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
+        if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
         {
                 opserr << "WARNING invalid  PlaticHardening quadrReducing tag"
 << endln; return TCL_ERROR;
         }
-        if (Tcl_GetDouble(interp, argv[3], &kp_0) != TCL_OK)
+        if (Tcl_GetDouble(rt, argv[3], &kp_0) != TCL_OK)
         {
                 opserr << "WARNING invalid  PlaticHardening quadrReducing kp_0"
 << endln; return TCL_ERROR;
         }
-        if (Tcl_GetDouble(interp, argv[4], &kp_half) != TCL_OK)
+        if (Tcl_GetDouble(rt, argv[4], &kp_half) != TCL_OK)
         {
                 opserr << "WARNING invalid  PlaticHardening quadrReducing
 kp_half" << endln; return TCL_ERROR;
@@ -122,7 +122,7 @@ material objects destructor, otherwise mem leak return TCL_ERROR;
 */
 
 int
-TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
+TclExponReducingCommand(ClientData clienData, G3_Runtime *rt, int argc,
                         TCL_Char **argv, TclBasicBuilder *theTclBuilder)
 {
   if (argc < 5) {
@@ -138,23 +138,23 @@ TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
   // plasticMaterial exponReducing (int tag, double kp0, double alfa); //5
   // plasticMaterial exponReducing (int tag, double kp0, double x0, double tol);
   // //6
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid  PlaticHardening exponReducing tag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[3], &arg1) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[3], &arg1) != TCL_OK) {
     opserr << "WARNING invalid double PlaticHardening exponReducing" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[4], &arg2) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[4], &arg2) != TCL_OK) {
     opserr << "WARNING invalid double PlaticHardening exponReducing" << endln;
     return TCL_ERROR;
   }
 
   if (argc == 6) {
-    if (Tcl_GetDouble(interp, argv[5], &arg3) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[5], &arg3) != TCL_OK) {
       opserr << "WARNING invalid double PlaticHardening exponReducing" << endln;
       return TCL_ERROR;
     }
@@ -176,7 +176,7 @@ TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
+TclNullPlasticMaterialCommand(ClientData clienData, G3_Runtime *rt,
                               int argc, TCL_Char **argv,
                               TclBasicBuilder *theTclBuilder)
 {
@@ -184,7 +184,7 @@ TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
 
   int tag;
 
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid  PlaticHardening quadrReducing tag" << endln;
     return TCL_ERROR;
   }
@@ -204,24 +204,24 @@ TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int
-TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilderPlasticMaterialCommand(ClientData clientData, G3_Runtime *rt,
                                       int argc, TCL_Char **argv,
                                       TclBasicBuilder *theTclBuilder)
 {
 
   if (strcmp(argv[1], "multiLinearKp") == 0) {
-    return TclMultiLinearCommand(clientData, interp, argc, argv, theTclBuilder);
+    return TclMultiLinearCommand(clientData, rt, argc, argv, theTclBuilder);
   }
   /*else if(strcmp(argv[1],"quadrReducing") == 0)
   {
-          return TclQuadrReducingCommand(clientData, interp, argc, argv,
+          return TclQuadrReducingCommand(clientData, rt, argc, argv,
   theTclBuilder);
   }*/
   else if (strcmp(argv[1], "exponReducing") == 0) {
-    return TclExponReducingCommand(clientData, interp, argc, argv,
+    return TclExponReducingCommand(clientData, rt, argc, argv,
                                    theTclBuilder);
   } else if (strcmp(argv[1], "null") == 0) {
-    return TclNullPlasticMaterialCommand(clientData, interp, argc, argv,
+    return TclNullPlasticMaterialCommand(clientData, rt, argc, argv,
                                          theTclBuilder);
   } else {
     opserr << "Unknown PlasticMaterial: \nValid types: null, multiLinearKp, "

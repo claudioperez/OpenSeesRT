@@ -24,7 +24,7 @@
 
 int
 TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
-                                          Tcl_Interp *interp, int argc,
+                                          G3_Runtime *rt, int argc,
                                           TCL_Char **argv,
                                           TclBasicBuilder *theTclBuilder,
                                           Domain *theDomain)
@@ -45,7 +45,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
 
   int materialTag, value;
 
-  if (Tcl_GetInt(interp, argv[2], &materialTag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &materialTag) != TCL_OK) {
     opserr << "WARNING MYSstage: invalid material tag" << endln;
     return TCL_ERROR;
   }
@@ -55,7 +55,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
 
   if (argc > 6) {
     if (strcmp(argv[5], "-parameter") == 0) {
-      if (Tcl_GetInt(interp, argv[6], &parTag) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[6], &parTag) != TCL_OK) {
         opserr << "WARNING UpdateMaterialStage: invalid parameter tag used"
                << endln;
         return TCL_ERROR;
@@ -79,7 +79,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[4], &value) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4], &value) != TCL_OK) {
     opserr << "WARNING UpdateMaterialStage: invalid parameter value" << endln;
     return TCL_ERROR;
   }
@@ -94,7 +94,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
 }
 
 int
-TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
+TclBasicBuilderUpdateParameterCommand(ClientData clientData, G3_Runtime *rt,
                                       int argc, TCL_Char **argv,
                                       TclBasicBuilder *theTclBuilder)
 {
@@ -115,7 +115,7 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
   int tag, id;
   double value;
 
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING UpdateParameter: invalid material tag" << endln;
     return TCL_ERROR;
   }
@@ -133,7 +133,7 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
     if (strcmp(argv[3], "-E") == 0) {
-      if (Tcl_GetDouble(interp, argv[4], &value) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[4], &value) != TCL_OK) {
         opserr << "WARNING UpdateParameter: invalid parameter value" << endln;
         return TCL_ERROR;
       }
@@ -141,7 +141,7 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
       info.setDouble(value);
       a->updateParameter(0, info);
     } else if (strcmp(argv[3], "-fy") == 0) {
-      if (Tcl_GetDouble(interp, argv[4], &value) != TCL_OK) {
+      if (Tcl_GetDouble(rt, argv[4], &value) != TCL_OK) {
         opserr << "WARNING UpdateParameter: invalid parameter value" << endln;
         return TCL_ERROR;
       }
@@ -168,7 +168,7 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[4], &value) != TCL_OK) {
+  if (Tcl_GetDouble(rt, argv[4], &value) != TCL_OK) {
     opserr << "WARNING UpdateParameter: invalid parameter value" << endln;
     return TCL_ERROR;
   }

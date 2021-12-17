@@ -23,7 +23,7 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 SectionForceDeformation *
-TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
+TclBasicBuilderYS_SectionCommand(ClientData clienData, G3_Runtime *rt,
                                  int argc, TCL_Char **argv,
                                  TclBasicBuilder *theBuilder)
 {
@@ -34,7 +34,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
   }
 
   int tag;
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid section tag\n";
     printCommand(argc, argv);
     return 0;
@@ -57,25 +57,25 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
     double E, A, Iz;
     int indx = 3;
 
-    if (Tcl_GetDouble(interp, argv[indx++], &E) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &E) != TCL_OK) {
       opserr << "WARNING invalid E" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &A) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &A) != TCL_OK) {
       opserr << "WARNING invalid A" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &Iz) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &Iz) != TCL_OK) {
       opserr << "WARNING invalid Iz" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetInt(interp, argv[indx++], &ysTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[indx++], &ysTag) != TCL_OK) {
       opserr << "WARNING invalid ysTag" << endln;
       opserr << " section: " << tag << endln;
       return 0;
@@ -92,7 +92,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
 
     bool useKr = true;
     if (argc > indx) {
-      if (Tcl_GetInt(interp, argv[indx++], &algo) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[indx++], &algo) != TCL_OK) {
         opserr << "WARNING invalid algo" << endln;
         opserr << " section: " << tag << endln;
         return 0;
@@ -120,31 +120,31 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
     double E, A, Iz, maxPlstkRot;
     int indx = 3;
 
-    if (Tcl_GetDouble(interp, argv[indx++], &E) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &E) != TCL_OK) {
       opserr << "WARNING invalid E" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &A) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &A) != TCL_OK) {
       opserr << "WARNING invalid A" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &Iz) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &Iz) != TCL_OK) {
       opserr << "WARNING invalid Iz" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &maxPlstkRot) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &maxPlstkRot) != TCL_OK) {
       opserr << "WARNING maxPlstkRot " << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetInt(interp, argv[indx++], &ysTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[indx++], &ysTag) != TCL_OK) {
       opserr << "WARNING invalid ysTag" << endln;
       opserr << " section: " << tag << endln;
       return 0;
@@ -161,7 +161,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
 
     bool useKr = true;
     if (argc > indx) {
-      if (Tcl_GetInt(interp, argv[indx++], &algo) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[indx++], &algo) != TCL_OK) {
         opserr << "WARNING invalid algo" << endln;
         opserr << " section: " << tag << endln;
         return 0;
@@ -189,43 +189,43 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
     double FS, Vult, L, Kv, Kh, Rv, deltaL;
     int indx = 3;
 
-    if (Tcl_GetDouble(interp, argv[indx++], &FS) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &FS) != TCL_OK) {
       opserr << "WARNING invalid FS" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &Vult) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &Vult) != TCL_OK) {
       opserr << "WARNING invalid Vult" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &L) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &L) != TCL_OK) {
       opserr << "WARNING invalid L" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &Kv) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &Kv) != TCL_OK) {
       opserr << "WARNING invalid Kv" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &Kh) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &Kh) != TCL_OK) {
       opserr << "WARNING invalid Kh" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &Rv) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &Rv) != TCL_OK) {
       opserr << "WARNING invalid Rv" << endln;
       opserr << " section: " << tag << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[indx++], &deltaL) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[indx++], &deltaL) != TCL_OK) {
       opserr << "WARNING invalid Kv" << endln;
       opserr << " section: " << tag << endln;
       return 0;

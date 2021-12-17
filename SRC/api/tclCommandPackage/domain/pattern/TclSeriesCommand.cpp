@@ -31,7 +31,7 @@
 // TclBasicBuilder_addPattern function in the TclBasicBuilder.C file. Current
 // valid Pattern types are:
 
-#include <tcl.h>
+#include <g3_api.h>
 #include <Domain.h>
 #include <LinearSeries.h>
 #include <ConstantSeries.h>
@@ -59,7 +59,7 @@ extern RandomNumberGenerator *theRandomNumberGenerator;
 
 #include <SimulationInformation.h>
 extern SimulationInformation simulationInfo;
-// extern const char * getInterpPWD(Tcl_Interp *interp);  // commands.cpp
+// extern const char * getInterpPWD(G3_Runtime *rt);  // commands.cpp
 
 // little function to free memory after invoke Tcl_SplitList
 //   note Tcl_Split list stores the array of pointers and the strings in
@@ -79,13 +79,13 @@ extern void *OPS_PeerNGAMotion(void);
 #include <elementAPI.h>
 #include <g3_api.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       Tcl_Interp *interp, int cArg, int mArg,
+                                       G3_Runtime *rt, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
 // #include <TclBasicBuilder.h>
 
 void *
-G3_newLinearSeries(Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3_newLinearSeries(G3_Runtime *rt, int argc, TCL_Char **argv)
 {
   // Pointer to a uniaxial material that will be returned
   TimeSeries *theSeries = 0;
@@ -99,7 +99,7 @@ G3_newLinearSeries(Tcl_Interp *interp, int argc, TCL_Char **argv)
   if (numRemainingArgs != 0) {
 
     if (numRemainingArgs == 1 || numRemainingArgs == 3) {
-      if (Tcl_GetInt(interp, argv[0], &tag) != 0) {
+      if (Tcl_GetInt(rt, argv[0], &tag) != 0) {
 	    opserr << "WARNING invalid series tag in LinearSeries tag? <-factor factor?>" << endln;
 	    return 0;
       }
@@ -113,7 +113,7 @@ G3_newLinearSeries(Tcl_Interp *interp, int argc, TCL_Char **argv)
 		return 0;
 	  }
       numData = 1;
-      if (Tcl_GetDouble(interp, argv[2], &cFactor) != 0) {
+      if (Tcl_GetDouble(rt, argv[2], &cFactor) != 0) {
 	opserr << "WARNING invalid factor in LinearSeries with tag: " << tag << endln;
 	return 0;
       }
@@ -131,11 +131,11 @@ G3_newLinearSeries(Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 TimeSeries *
-TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
+TclTimeSeriesCommand(ClientData clientData, G3_Runtime *rt, int argc,
                      TCL_Char **argv, Domain *theDomain)
 {
   // note the 1 instead of usual 2
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, theDomain);
+  OPS_ResetInputNoBuilder(clientData, rt, 1, argc, argv, theDomain);
 
   TimeSeries *theSeries = 0;
 
@@ -161,7 +161,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
            (strcmp(argv[0], "LinearSeries") == 0)) {
 
     // void *theResult = OPS_LinearSeries();
-    void *theResult = G3_newLinearSeries(interp, argc-1, &argv[1]);
+    void *theResult = G3_newLinearSeries(rt, argc-1, &argv[1]);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
     else
@@ -220,7 +220,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     bool prependZero = false;
     double startTime = 0.0;
 
-    if (Tcl_GetInt(interp, argv[endMarker], &tag) == TCL_OK) {
+    if (Tcl_GetInt(rt, argv[endMarker], &tag) == TCL_OK) {
       endMarker++;
     }
 
@@ -230,7 +230,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         // allow user to specify the time increment
         endMarker++;
         if (endMarker == argc ||
-            Tcl_GetDouble(interp, argv[endMarker], &timeIncr) != TCL_OK) {
+            Tcl_GetDouble(rt, argv[endMarker], &timeIncr) != TCL_OK) {
 
           opserr << "WARNING invalid dt " << argv[endMarker] << " - ";
           opserr << " Series -dt dt ... \n";
@@ -242,7 +242,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         // allow user to specify the tag
         endMarker++;
         if (endMarker == argc ||
-            Tcl_GetInt(interp, argv[endMarker], &tag) != TCL_OK) {
+            Tcl_GetInt(rt, argv[endMarker], &tag) != TCL_OK) {
 
           opserr << "WARNING invalid tag " << argv[endMarker] << " - ";
           return 0;
@@ -253,7 +253,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         // allow user to specify the factor
         endMarker++;
         if (endMarker == argc ||
-            Tcl_GetDouble(interp, argv[endMarker], &cFactor) != TCL_OK) {
+            Tcl_GetDouble(rt, argv[endMarker], &cFactor) != TCL_OK) {
 
           opserr << "WARNING invalid cFactor " << argv[endMarker] << " - ";
           opserr << " Series -factor ... \n";
@@ -292,7 +292,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           int pathSize;
           TCL_Char **pathStrings;
 
-          if (Tcl_SplitList(interp, argv[endMarker], &pathSize, &pathStrings) !=
+          if (Tcl_SplitList(rt, argv[endMarker], &pathSize, &pathStrings) !=
               TCL_OK) {
 
             opserr << "WARNING problem splitting path list " << argv[endMarker]
@@ -304,7 +304,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           dataPath = new Vector(pathSize);
           for (int i = 0; i < pathSize; i++) {
             double value;
-            if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, pathStrings[i], &value) != TCL_OK) {
               opserr << "WARNING problem reading path data value "
                      << pathStrings[i] << " - ";
               opserr << " Series -values {path} ... \n";
@@ -325,7 +325,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           int pathSize;
           TCL_Char **pathStrings;
 
-          if (Tcl_SplitList(interp, argv[endMarker], &pathSize, &pathStrings) !=
+          if (Tcl_SplitList(rt, argv[endMarker], &pathSize, &pathStrings) !=
               TCL_OK) {
 
             opserr << "WARNING problem spltting time path " << argv[endMarker]
@@ -337,7 +337,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           dataTime = new Vector(pathSize);
           for (int i = 0; i < pathSize; i++) {
             double value;
-            if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
+            if (Tcl_GetDouble(rt, pathStrings[i], &value) != TCL_OK) {
               opserr << "WARNING problem reading time path value "
                      << pathStrings[i] << " - ";
               opserr << " Series -values {path} ... \n";
@@ -365,7 +365,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         // allow user to specify the start time
         endMarker++;
         if (endMarker == argc ||
-            Tcl_GetDouble(interp, argv[endMarker], &startTime) != TCL_OK) {
+            Tcl_GetDouble(rt, argv[endMarker], &startTime) != TCL_OK) {
 
           opserr << "WARNING invalid tStart " << argv[endMarker] << " - ";
           opserr << " Series -startTime tStart ... \n";
@@ -377,19 +377,19 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     if (filePathName != 0 && fileTimeName == 0 && timeIncr != 0.0) {
-      //      const char *pwd = getInterpPWD(interp);
+      //      const char *pwd = getInterpPWD(rt);
       //      simulationInfo.addInputFile(argv[filePathName], pwd);
       theSeries = new PathSeries(tag, argv[filePathName], timeIncr, cFactor,
                                  useLast, prependZero, startTime);
     }
 
     else if (fileName != 0) {
-      // const char *pwd = getInterpPWD(interp);
+      // const char *pwd = getInterpPWD(rt);
       //      simulationInfo.addInputFile(argv[fileName], pwd);
       theSeries = new PathTimeSeries(tag, argv[fileName], cFactor, useLast);
 
     } else if (filePathName != 0 && fileTimeName != 0) {
-      //      const char *pwd = getInterpPWD(interp);
+      //      const char *pwd = getInterpPWD(rt);
       //      simulationInfo.addInputFile(argv[filePathName], pwd);
       //      simulationInfo.addInputFile(argv[fileTimeName], pwd);
       theSeries = new PathTimeSeries(tag, argv[filePathName],
@@ -440,7 +440,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           double dT = thePeerMotion->getDt();
           char string[30];
           sprintf(string, "set %s %.18e", variableName, dT);
-          Tcl_Eval(interp, string);
+          Tcl_Eval(rt, string);
           argCount += 2;
         } else if ((strcmp(argv[argCount], "-nPts") == 0) ||
                    (strcmp(argv[argCount], "-NPTS") == 0)) {
@@ -448,7 +448,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           int nPts = thePeerMotion->getNPts();
           char string[30];
           sprintf(string, "set %s %d", variableName, nPts);
-          Tcl_Eval(interp, string);
+          Tcl_Eval(rt, string);
           argCount += 2;
         } else
           argCount++;
@@ -476,7 +476,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           double dT = thePeerMotion->getDt();
           char string[30];
           sprintf(string, "set %s %.18e", variableName, dT);
-          Tcl_Eval(interp, string);
+          Tcl_Eval(rt, string);
           argCount += 2;
 
         } else if ((strcmp(argv[argCount], "-nPts") == 0) ||
@@ -485,7 +485,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           int nPts = thePeerMotion->getNPts();
           char string[30];
           sprintf(string, "set %s %d", variableName, nPts);
-          Tcl_Eval(interp, string);
+          Tcl_Eval(rt, string);
 
           argCount += 2;
         } else
@@ -501,12 +501,12 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     double mean, maxStdv;
     ModulatingFunction *theModFunc;
 
-    if (Tcl_GetDouble(interp, argv[1], &mean) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[1], &mean) != TCL_OK) {
       opserr << "WARNING invalid input: random process mean \n";
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[2], &maxStdv) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[2], &maxStdv) != TCL_OK) {
       opserr << "WARNING invalid input: random process max stdv \n";
       return 0;
     }
@@ -521,7 +521,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     // For each modulating function, get the tag and ensure it exists
     int tagI;
     for (int i = 0; i < numModFuncs; i++) {
-      if (Tcl_GetInt(interp, argv[i + argsBeforeModList], &tagI) != TCL_OK) {
+      if (Tcl_GetInt(rt, argv[i + argsBeforeModList], &tagI) != TCL_OK) {
         opserr << "WARNING invalid modulating function tag. " << endln;
         return 0;
       }
@@ -551,12 +551,12 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
    double mean, maxStdv;
    ModulatingFunction *theModFunc;
 
-   if (Tcl_GetDouble(interp, argv[1], &mean) != TCL_OK) {
+   if (Tcl_GetDouble(rt, argv[1], &mean) != TCL_OK) {
      opserr << "WARNING invalid input: random process mean \n";
      return 0;
    }
 
-   if (Tcl_GetDouble(interp, argv[2], &maxStdv) != TCL_OK) {
+   if (Tcl_GetDouble(rt, argv[2], &maxStdv) != TCL_OK) {
      opserr << "WARNING invalid input: random process max stdv \n";
      return 0;
    }
@@ -571,7 +571,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
    // For each modulating function, get the tag and ensure it exists
    int tagI;
    for (int i=0; i<numModFuncs; i++) {
-     if (Tcl_GetInt(interp, argv[i+argsBeforeModList], &tagI) != TCL_OK) {
+     if (Tcl_GetInt(rt, argv[i+argsBeforeModList], &tagI) != TCL_OK) {
        opserr << "WARNING invalid modulating function tag. " << endln;
        return 0;
      }
@@ -599,19 +599,19 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     int spectrumTag, numFreqIntervals;
     double mean;
 
-    if (Tcl_GetInt(interp, argv[1], &spectrumTag) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[1], &spectrumTag) != TCL_OK) {
       opserr << "WARNING invalid input to SimulatedRandomProcess: spectrumTag"
              << endln;
       return 0;
     }
 
-    if (Tcl_GetDouble(interp, argv[2], &mean) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[2], &mean) != TCL_OK) {
       opserr << "WARNING invalid input to SimulatedRandomProcess: mean"
              << endln;
       return 0;
     }
 
-    if (Tcl_GetInt(interp, argv[3], &numFreqIntervals) != TCL_OK) {
+    if (Tcl_GetInt(rt, argv[3], &numFreqIntervals) != TCL_OK) {
       opserr
           << "WARNING invalid input to SimulatedRandomProcess: numFreqIntervals"
           << endln;
@@ -657,27 +657,27 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 TimeSeries *
-TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
+TclSeriesCommand(ClientData clientData, G3_Runtime *rt, TCL_Char *arg)
 {
   int argc;
   TCL_Char **argv;
   TimeSeries* series;
   int timeSeriesTag = 0;
-  if (Tcl_GetInt(interp, arg, &timeSeriesTag) == TCL_OK) {
-    if (series = G3_getTimeSeries(interp, timeSeriesTag))
+  if (Tcl_GetInt(rt, arg, &timeSeriesTag) == TCL_OK) {
+    if (series = G3_getTimeSeries(rt, timeSeriesTag))
       return series;
     else
       return OPS_getTimeSeries(timeSeriesTag);
   }
 
   // split the list
-  if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {
+  if (Tcl_SplitList(rt, arg, &argc, &argv) != TCL_OK) {
     opserr << "WARNING could not split series list " << arg << endln;
     return 0;
   }
 
   TimeSeries *theSeries =
-      TclTimeSeriesCommand(clientData, interp, argc, argv, 0);
+      TclTimeSeriesCommand(clientData, rt, argc, argv, 0);
 
   // clean up after ourselves and return the series
   cleanup(argv);

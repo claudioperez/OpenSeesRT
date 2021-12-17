@@ -44,7 +44,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
+TclBasicBuilder_addBrick(ClientData clientData, G3_Runtime *rt, int argc,
                          TCL_Char **argv, Domain *theTclDomain,
                          TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -67,54 +67,54 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   int BrickId, Node1, Node2, Node3, Node4, matID;
   int Node5, Node6, Node7, Node8;
 
-  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &BrickId) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[1 + eleArgStart], &BrickId) != TCL_OK) {
     opserr << "WARNING invalid Brick eleTag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[2 + eleArgStart], &Node1) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2 + eleArgStart], &Node1) != TCL_OK) {
     opserr << "WARNING invalid Node1\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[3 + eleArgStart], &Node2) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3 + eleArgStart], &Node2) != TCL_OK) {
     opserr << "WARNING invalid Node2\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[4 + eleArgStart], &Node3) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[4 + eleArgStart], &Node3) != TCL_OK) {
     opserr << "WARNING invalid Node3\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[5 + eleArgStart], &Node4) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[5 + eleArgStart], &Node4) != TCL_OK) {
     opserr << "WARNING invalid Node4\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[6 + eleArgStart], &Node5) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[6 + eleArgStart], &Node5) != TCL_OK) {
     opserr << "WARNING invalid Node5\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[7 + eleArgStart], &Node6) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[7 + eleArgStart], &Node6) != TCL_OK) {
     opserr << "WARNING invalid Node6\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[8 + eleArgStart], &Node7) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[8 + eleArgStart], &Node7) != TCL_OK) {
     opserr << "WARNING invalid Node7\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[9 + eleArgStart], &Node8) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[9 + eleArgStart], &Node8) != TCL_OK) {
     opserr << "WARNING invalid Node8\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[10 + eleArgStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[10 + eleArgStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matTag\n";
     opserr << "Brick element: " << BrickId << endln;
     return TCL_ERROR;
@@ -133,7 +133,7 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   double b2 = 0.0;
   double b3 = 0.0;
   if ((argc - eleArgStart) > 11) {
-    if (Tcl_GetDouble(interp, argv[11 + eleArgStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[11 + eleArgStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "Brick element: " << BrickId << endln;
       return TCL_ERROR;
@@ -141,7 +141,7 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if ((argc - eleArgStart) > 12) {
-    if (Tcl_GetDouble(interp, argv[12 + eleArgStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[12 + eleArgStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
       opserr << "Brick element: " << BrickId << endln;
       return TCL_ERROR;
@@ -149,7 +149,7 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if ((argc - eleArgStart) > 13) {
-    if (Tcl_GetDouble(interp, argv[13 + eleArgStart], &b3) != TCL_OK) {
+    if (Tcl_GetDouble(rt, argv[13 + eleArgStart], &b3) != TCL_OK) {
       opserr << "WARNING invalid b3\n";
       opserr << "Brick element: " << BrickId << endln;
       return TCL_ERROR;

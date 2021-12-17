@@ -53,10 +53,11 @@ class DamageModel;
 class FrictionModel;
 
 #include <tcl.h>
+#include <g3_api.h>
 
 class TclBasicBuilder : public ModelBuilder {
 public:
-  TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm, int ndf);
+  TclBasicBuilder(Domain &theDomain, G3_Runtime *rt, int ndm, int ndf);
   ~TclBasicBuilder();
 
   int buildFE_Model(void);

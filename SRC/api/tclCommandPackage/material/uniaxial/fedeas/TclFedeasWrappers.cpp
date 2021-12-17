@@ -1,4 +1,4 @@
-#include <tcl.h>
+#include <g3_api.h>
 #include <stdio.h>
 #include <g3_api.h>
 #include <DegradingUniaxialWrapper.hh>
@@ -7,7 +7,7 @@
 
 // TODO: change to TclSafeBuildObj_
 int
-TclSafeBuilder_addFedeasWrapper(ClientData clientData, Tcl_Interp *interp,
+TclSafeBuilder_addFedeasWrapper(ClientData clientData, G3_Runtime *rt,
                                   int argc, TCL_Char **argv)
 {
   // Pointer to a uniaxial material that will be returned
@@ -25,20 +25,20 @@ TclSafeBuilder_addFedeasWrapper(ClientData clientData, Tcl_Interp *interp,
   }
 
   // Get wrapper tag
-  if (Tcl_GetInt(interp, argv[2], &tags[0]) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[2], &tags[0]) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     // printCommand(argc, argv);
     return 0;
   }
   // Get base tag
-  if (Tcl_GetInt(interp, argv[3], &tags[1]) != TCL_OK) {
+  if (Tcl_GetInt(rt, argv[3], &tags[1]) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     // printCommand(argc, argv);
     return 0;
   }
 
   // Get base material
-  theWrappedMaterial = G3_getUniaxialMaterialInstance(interp, tags[1]);
+  theWrappedMaterial = G3_getUniaxialMaterialInstance(rt, tags[1]);
   if (theWrappedMaterial == 0) {
     opserr << "WARNING unable to retrieve uniaxialMaterial with tag" WRAPPER_CMD " tag: "
            << tags[1] << endln;
@@ -79,11 +79,11 @@ TclSafeBuilder_addFedeasWrapper(ClientData clientData, Tcl_Interp *interp,
   }
   theMaterial->setCoupling(Ccd);
   if (dmgtag){
-    if (theMaterial->setDamageWrapper(interp, dmgtag) > 0)
+    if (theMaterial->setDamageWrapper(rt, dmgtag) > 0)
       opserr << "#Set damage wrapper '" << dmgtag << "'\n";
   }
 
-  return G3_addUniaxialMaterial(interp, theMaterial);
+  return G3_addUniaxialMaterial(rt, theMaterial);
   // return theMaterial;
 }
 
