@@ -189,15 +189,15 @@ extern void *OPS_RJWatsonEQS2d(void);
 extern void *OPS_RJWatsonEQS3d(void);
 // extern void* OPS_GradientInelasticBeamColumn2d();
 // extern void* OPS_GradientInelasticBeamColumn3d();
-extern void *OPS_RockingBC(void);
-extern void *OPS_LehighJoint2d(void);
-extern void *OPS_MasonPan12(void);
-extern void *OPS_MasonPan3D(void);
-extern void *OPS_BeamGT(void);
+void *OPS_RockingBC(void);
+void *OPS_LehighJoint2d(void);
+void *OPS_MasonPan12(void);
+void *OPS_MasonPan3D(void);
+void *OPS_BeamGT(void);
 
-extern void *OPS_DispBeamColumnAsym3dTcl();  // Xinlong Du
-extern void *OPS_MixedBeamColumnAsym3dTcl(); // Xinlong Du
-extern void *OPS_ZeroLengthContactASDimplex(
+void *OPS_DispBeamColumnAsym3dTcl();  // Xinlong Du
+void *OPS_MixedBeamColumnAsym3dTcl(); // Xinlong Du
+void *OPS_ZeroLengthContactASDimplex(
     void); // Onur Deniz Akan (IUSS), Massimo Petracca (ASDEA)
 
 extern int TclBasicBuilder_addFeapTruss(ClientData clientData, G3_Runtime *rt,
@@ -213,142 +213,142 @@ extern int TclBasicBuilder_addBrick(ClientData clientData, G3_Runtime *rt,
                                     TclBasicBuilder *, int argStart);
 
 extern int TclBasicBuilder_addConstantPressureVolumeQuad(ClientData,
-                                                         Tcl_Interp *, int,
+                                                         G3_Runtime *, int,
                                                          TCL_Char **, Domain *,
                                                          TclBasicBuilder *);
 
-extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addJoint2D(ClientData, G3_Runtime *, int,
                                       TCL_Char **, Domain *);
 
-extern int TclBasicBuilder_addJoint3D(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addJoint3D(ClientData, G3_Runtime *, int,
                                       TCL_Char **, Domain *, TclBasicBuilder *);
 
-extern int TclBasicBuilder_addEnhancedQuad(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addEnhancedQuad(ClientData, G3_Runtime *, int,
                                            TCL_Char **, Domain *,
                                            TclBasicBuilder *);
 
-extern int TclBasicBuilder_addNineNodeMixedQuad(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addNineNodeMixedQuad(ClientData, G3_Runtime *, int,
                                                 TCL_Char **, Domain *,
                                                 TclBasicBuilder *);
 
-extern int TclBasicBuilder_addNineNodeQuad(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addNineNodeQuad(ClientData, G3_Runtime *, int,
                                            TCL_Char **, Domain *,
                                            TclBasicBuilder *);
 
-extern int TclBasicBuilder_addEightNodeQuad(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addEightNodeQuad(ClientData, G3_Runtime *, int,
                                             TCL_Char **, Domain *,
                                             TclBasicBuilder *);
 
-extern int TclBasicBuilder_addSixNodeTri(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addSixNodeTri(ClientData, G3_Runtime *, int,
                                          TCL_Char **, Domain *,
                                          TclBasicBuilder *);
 
 // GLF
-extern int TclBasicBuilder_addZeroLength(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addZeroLength(ClientData, G3_Runtime *, int,
                                          TCL_Char **, Domain *,
                                          TclBasicBuilder *);
 
 // add by Gang Wang for Contact Element
-extern int TclBasicBuilder_addZeroLengthContact2D(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addZeroLengthContact2D(ClientData, G3_Runtime *, int,
                                                   TCL_Char **, Domain *,
                                                   TclBasicBuilder *);
 
 // add by Gang Wang for Contact Element
-extern int TclBasicBuilder_addZeroLengthContact3D(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addZeroLengthContact3D(ClientData, G3_Runtime *, int,
                                                   TCL_Char **, Domain *,
                                                   TclBasicBuilder *);
 
 // KRM added for rocking element
-extern int TclBasicBuilder_addZeroLengthRocking(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addZeroLengthRocking(ClientData, G3_Runtime *, int,
                                                 TCL_Char **, Domain *,
                                                 TclBasicBuilder *);
 
 // MHS
-extern int TclBasicBuilder_addZeroLengthSection(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addZeroLengthSection(ClientData, G3_Runtime *, int,
                                                 TCL_Char **, Domain *,
                                                 TclBasicBuilder *);
 
 // MHS
-extern int TclBasicBuilder_addZeroLengthND(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addZeroLengthND(ClientData, G3_Runtime *, int,
                                            TCL_Char **, Domain *,
                                            TclBasicBuilder *);
 
 // MHS
-extern int TclBasicBuilder_addBeamWithHinges(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addBeamWithHinges(ClientData, G3_Runtime *, int,
                                              TCL_Char **, Domain *,
                                              TclBasicBuilder *);
 // Quan
 extern int TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData,
-                                                          Tcl_Interp *, int,
+                                                          G3_Runtime *, int,
                                                           TCL_Char **, Domain *,
                                                           TclBasicBuilder *);
 
-extern int TclBasicBuilder_addFourNodeQuad(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addFourNodeQuad(ClientData, G3_Runtime *, int,
                                            TCL_Char **, Domain *,
                                            TclBasicBuilder *);
 
-extern int TclBasicBuilder_addDispBeamColumnInt(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addDispBeamColumnInt(ClientData, G3_Runtime *, int,
                                                 TCL_Char **, Domain *,
                                                 TclBasicBuilder *);
 
-extern int TclBasicBuilder_addForceBeamColumn(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addForceBeamColumn(ClientData, G3_Runtime *, int,
                                               TCL_Char **, Domain *,
                                               TclBasicBuilder *);
 
-extern int TclBasicBuilder_addMasonPan12(ClientData, Tcl_Interp *, int argc,
+extern int TclBasicBuilder_addMasonPan12(ClientData, G3_Runtime *, int argc,
                                          TCL_Char **argv, Domain *,
                                          TclBasicBuilder *);
 
-extern int TclBasicBuilder_addMasonPan3D(ClientData, Tcl_Interp *, int argc,
+extern int TclBasicBuilder_addMasonPan3D(ClientData, G3_Runtime *, int argc,
                                          TCL_Char **argv, Domain *,
                                          TclBasicBuilder *);
 
-extern int TclBasicBuilder_addBeamGT(ClientData, Tcl_Interp *, int argc,
+extern int TclBasicBuilder_addBeamGT(ClientData, G3_Runtime *, int argc,
                                      TCL_Char **argv, Domain *,
                                      TclBasicBuilder *);
 
 // NM
-extern int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addBeamColumnJoint(ClientData, G3_Runtime *, int,
                                               TCL_Char **, Domain *, int);
 
 // Rohit Kraul
-extern int TclBasicBuilder_addElastic2dGNL(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addElastic2dGNL(ClientData, G3_Runtime *, int,
                                            TCL_Char **, Domain *,
                                            TclBasicBuilder *);
-extern int TclBasicBuilder_addElement2dYS(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addElement2dYS(ClientData, G3_Runtime *, int,
                                           TCL_Char **, Domain *,
                                           TclBasicBuilder *);
 
 // Zhaohui Yang
-extern int TclBasicBuilder_addFourNodeQuadUP(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addFourNodeQuadUP(ClientData, G3_Runtime *, int,
                                              TCL_Char **, Domain *,
                                              TclBasicBuilder *);
 
 // Zhaohui Yang
-extern int TclBasicBuilder_addBrickUP(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addBrickUP(ClientData, G3_Runtime *, int,
                                       TCL_Char **, Domain *, TclBasicBuilder *);
 
 // Zhaohui Yang
-extern int TclBasicBuilder_addNineFourNodeQuadUP(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addNineFourNodeQuadUP(ClientData, G3_Runtime *, int,
                                                  TCL_Char **, Domain *,
                                                  TclBasicBuilder *);
 
 // Zhaohui Yang
-extern int TclBasicBuilder_addBBarFourNodeQuadUP(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addBBarFourNodeQuadUP(ClientData, G3_Runtime *, int,
                                                  TCL_Char **, Domain *,
                                                  TclBasicBuilder *);
 
 // Zhaohui Yang
-extern int TclBasicBuilder_addBBarBrickUP(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addBBarBrickUP(ClientData, G3_Runtime *, int,
                                           TCL_Char **, Domain *,
                                           TclBasicBuilder *);
 
 // Jinchi Lu
-extern int TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData, Tcl_Interp *,
+extern int TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData, G3_Runtime *,
                                                      int, TCL_Char **, Domain *,
                                                      TclBasicBuilder *);
 // Jinchi Lu
-extern int TclBasicBuilder_addTwentyNodeBrick(ClientData, Tcl_Interp *, int,
+extern int TclBasicBuilder_addTwentyNodeBrick(ClientData, G3_Runtime *, int,
                                               TCL_Char **, Domain *,
                                               TclBasicBuilder *);
 
@@ -380,7 +380,7 @@ extern int TclBasicBuilder_addWheelRail(ClientData clientData, G3_Runtime *rt,
 
 // MSN
 extern int TclBasicBuilder_addGradientInelasticBeamColumn(ClientData,
-                                                          Tcl_Interp *, int,
+                                                          G3_Runtime *, int,
                                                           TCL_Char **, Domain *,
                                                           TclBasicBuilder *);
 
