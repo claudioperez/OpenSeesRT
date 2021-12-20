@@ -4,6 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+target_sources(OPS_Material PRIVATE DegradingUniaxialWrapper.cc)
 add_library(OPS_Uniaxial_Fedeas)
 target_sources(OPS_Uniaxial_Fedeas
     PRIVATE

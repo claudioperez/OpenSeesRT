@@ -18,8 +18,8 @@ target_sources(OpenSeesCommandPackage
     "modelbuilder/safe/TclSafeBuilder.cpp"
     "modelbuilder/sect/TclSectionTestBuilder.cpp"
 
-    "commands.cpp"
-    "myCommands.cpp"
+    "commands/commands.cpp"
+    "commands/myCommands.cpp"
     OpenSeesCommandPackage.cpp
     TclPackageClassBroker.cpp
     "coordTransformation/TclGeomTransfCommand.cpp"
@@ -124,6 +124,7 @@ target_sources(OpenSeesCommandPackage
     "misc/TclFeViewer.cpp"
 
 )
+# add_subdirectory(libraries/uniaxial)
 
 target_compile_definitions(OpenSeesCommandPackage PRIVATE USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 target_compile_options(OpenSeesCommandPackage PUBLIC -fPIC)
@@ -147,6 +148,7 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   OPS_Paraview
   OPS_ModelBuilder
   G3_ObjectBroker
+  g3_uniaxial_io
   G3
   ${MYSQL_LIBRARIES}
   ${TCL_STUB_LIBRARY}
