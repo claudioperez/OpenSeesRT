@@ -44,13 +44,13 @@ extern void *OPS_KarsanUnloadingRule(void);
 #include <g3_api.h>
 #include <elementAPI.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       G3_Runtime *rt, int cArg, int mArg,
+                                       Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
 #include <packages.h>
 
 int
-TclBasicBuilderUnloadingRuleCommand(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilderUnloadingRuleCommand(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv,
                                     Domain *theDomain)
 {
@@ -62,7 +62,7 @@ TclBasicBuilderUnloadingRuleCommand(ClientData clientData, G3_Runtime *rt,
     return TCL_ERROR;
   }
 
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a unloadingRule that will be added to the model builder
   UnloadingRule *theState = 0;

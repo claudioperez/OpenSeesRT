@@ -22,7 +22,7 @@
 //             double rho = 0.0, bool islinear = false);
 
 int
-TclBasicBuilder_addElement2dYS01(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addElement2dYS01(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
@@ -46,56 +46,56 @@ TclBasicBuilder_addElement2dYS01(ClientData clientData, G3_Runtime *rt,
   int ysID1, ysID2;
   int rf_algo;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid element2dYS tag" << endln;
     return TCL_ERROR;
   }
   if (tcl_debug)
     opserr << "\tElement tag = " << tag << "\n";
 
-  if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK) {
     opserr << "WARNING invalid node I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK) {
     opserr << "WARNING invalid node J\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[5], &A) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &A) != TCL_OK) {
     opserr << "WARNING invalid A\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[6], &E) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &E) != TCL_OK) {
     opserr << "WARNING invalid E\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[7], &I) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &I) != TCL_OK) {
     opserr << "WARNING invalid I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[8], &ysID1) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[8], &ysID1) != TCL_OK) {
     opserr << "WARNING invalid ysID1\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[9], &ysID2) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[9], &ysID2) != TCL_OK) {
     opserr << "WARNING invalid ysID2\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[10], &rf_algo) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[10], &rf_algo) != TCL_OK) {
     opserr << "WARNING invalid ysID1\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
@@ -149,7 +149,7 @@ TclBasicBuilder_addElement2dYS01(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addElement2dYS02(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addElement2dYS02(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
@@ -176,62 +176,62 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, G3_Runtime *rt,
 
   int rf_algo = -1;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid element2dYS tag" << endln;
     return TCL_ERROR;
   }
   if (tcl_debug)
     opserr << "\tElement tag = " << tag << "\n";
 
-  if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK) {
     opserr << "WARNING invalid node I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK) {
     opserr << "WARNING invalid node J\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[5], &A) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &A) != TCL_OK) {
     opserr << "WARNING invalid A\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[6], &E) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &E) != TCL_OK) {
     opserr << "WARNING invalid E\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[7], &I) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &I) != TCL_OK) {
     opserr << "WARNING invalid I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[8], &ysID1) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[8], &ysID1) != TCL_OK) {
     opserr << "WARNING invalid ysID1\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[9], &ysID2) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[9], &ysID2) != TCL_OK) {
     opserr << "WARNING invalid ysID2\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[10], &cyc_type) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[10], &cyc_type) != TCL_OK) {
     opserr << "WARNING invalid cyc_type\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  /*if (Tcl_GetDouble(rt, argv[11], &wt) != TCL_OK)
+  /*if (Tcl_GetDouble(interp, argv[11], &wt) != TCL_OK)
   {
           opserr << "WARNING invalid wt\n";
           opserr << "element2dYS: " << tag << endln;
@@ -239,19 +239,19 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, G3_Runtime *rt,
   }*/
 
   double delpmax, alfa, beta;
-  if (Tcl_GetDouble(rt, argv[11], &delpmax) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[11], &delpmax) != TCL_OK) {
     opserr << "WARNING invalid power\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[12], &alfa) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[12], &alfa) != TCL_OK) {
     opserr << "WARNING invalid power\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[13], &beta) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[13], &beta) != TCL_OK) {
     opserr << "WARNING invalid rfalgo\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
@@ -312,7 +312,7 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addElement2dYS03(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addElement2dYS03(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
@@ -337,68 +337,68 @@ TclBasicBuilder_addElement2dYS03(ClientData clientData, G3_Runtime *rt,
 
   int rf_algo;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid element2dYS tag" << endln;
     return TCL_ERROR;
   }
   if (tcl_debug)
     opserr << "\tElement tag = " << tag << "\n";
 
-  if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK) {
     opserr << "WARNING invalid node I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK) {
     opserr << "WARNING invalid node J\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[5], &aTens) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &aTens) != TCL_OK) {
     opserr << "WARNING invalid A\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[6], &aComp) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &aComp) != TCL_OK) {
     opserr << "WARNING invalid A\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[7], &E) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &E) != TCL_OK) {
     opserr << "WARNING invalid E\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[8], &Ipos) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[8], &Ipos) != TCL_OK) {
     opserr << "WARNING invalid I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[9], &Ineg) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[9], &Ineg) != TCL_OK) {
     opserr << "WARNING invalid I\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[10], &ysID1) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[10], &ysID1) != TCL_OK) {
     opserr << "WARNING invalid ysID1\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[11], &ysID2) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[11], &ysID2) != TCL_OK) {
     opserr << "WARNING invalid ysID2\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[12], &rf_algo) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[12], &rf_algo) != TCL_OK) {
     opserr << "WARNING invalid ysID1\n";
     opserr << "element2dYS: " << tag << endln;
     return TCL_ERROR;
@@ -458,7 +458,7 @@ TclBasicBuilder_addElement2dYS03(ClientData clientData, G3_Runtime *rt,
 
 /*
 int
-TclBasicBuilder_addElement2dYS04 (ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addElement2dYS04 (ClientData clientData, Tcl_Interp *interp,
                                                                    int argc,
 char **argv, Domain *theDomain, TclBasicBuilder *theBuilder)
 {
@@ -480,21 +480,21 @@ ysID2? algo?";
         int ysID1, ysID2;
         int rf_algo;
 
-        if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
         {
                 opserr << "WARNING invalid element2dYS04 tag" << endln;
                 return TCL_ERROR;
         }
     if(tcl_debug) opserr << "\tElement tag = " << tag << "\n";
 
-    if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK)
         {
                 opserr << "WARNING invalid node I\n";
                 opserr << "element2dYS04: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK)
         {
                 opserr << "WARNING invalid node J\n";
                 opserr << "element2dYS04: " << tag << endln;
@@ -502,42 +502,42 @@ ysID2? algo?";
         }
 
 
-        if (Tcl_GetDouble(rt, argv[5], &A) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[5], &A) != TCL_OK)
         {
                 opserr << "WARNING invalid A\n";
                 opserr << "element2dYS04: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(rt, argv[6], &E) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[6], &E) != TCL_OK)
         {
                 opserr << "WARNING invalid E\n";
                 opserr << "element2dYS04: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(rt, argv[7], &I) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[7], &I) != TCL_OK)
         {
                 opserr << "WARNING invalid I\n";
                 opserr << "element2dYS04: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[8], &ysID1) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[8], &ysID1) != TCL_OK)
         {
                 opserr << "WARNING invalid ysID1\n";
                 opserr << "element2dYS04: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[9], &ysID2) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[9], &ysID2) != TCL_OK)
         {
                 opserr << "WARNING invalid ysID2\n";
                 opserr << "element2dYS04: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[10], &rf_algo) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[10], &rf_algo) != TCL_OK)
         {
                 opserr << "WARNING invalid ysID1\n";
                 opserr << "element2dYS04: " << tag << endln;
@@ -596,7 +596,7 @@ TCL_ERROR;
 
 /*
 int
-TclBasicBuilder_addElement2dYS05 (ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addElement2dYS05 (ClientData clientData, Tcl_Interp *interp,
                                                                    int argc,
 char **argv, Domain *theDomain, TclBasicBuilder *theBuilder)
 {
@@ -618,21 +618,21 @@ ysID2? algo?";
         int ysID1, ysID2;
         int rf_algo;
 
-        if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
         {
                 opserr << "WARNING invalid element2dYS05 tag" << endln;
                 return TCL_ERROR;
         }
     if(tcl_debug) opserr << "\tElement tag = " << tag << "\n";
 
-    if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK)
         {
                 opserr << "WARNING invalid node I\n";
                 opserr << "element2dYS05: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK)
         {
                 opserr << "WARNING invalid node J\n";
                 opserr << "element2dYS05: " << tag << endln;
@@ -640,42 +640,42 @@ ysID2? algo?";
         }
 
 
-        if (Tcl_GetDouble(rt, argv[5], &A) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[5], &A) != TCL_OK)
         {
                 opserr << "WARNING invalid A\n";
                 opserr << "element2dYS05: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(rt, argv[6], &E) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[6], &E) != TCL_OK)
         {
                 opserr << "WARNING invalid E\n";
                 opserr << "element2dYS05: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(rt, argv[7], &I) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[7], &I) != TCL_OK)
         {
                 opserr << "WARNING invalid I\n";
                 opserr << "element2dYS05: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[8], &ysID1) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[8], &ysID1) != TCL_OK)
         {
                 opserr << "WARNING invalid ysID1\n";
                 opserr << "element2dYS05: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[9], &ysID2) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[9], &ysID2) != TCL_OK)
         {
                 opserr << "WARNING invalid ysID2\n";
                 opserr << "element2dYS05: " << tag << endln;
                 return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[10], &rf_algo) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[10], &rf_algo) != TCL_OK)
         {
                 opserr << "WARNING invalid ysID1\n";
                 opserr << "element2dYS05: " << tag << endln;
@@ -734,36 +734,36 @@ TCL_ERROR;
 
 /*******************************************************************************************/
 int
-TclBasicBuilder_addElement2dYS(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addElement2dYS(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder)
 {
 
   if (strcmp(argv[1], "inelastic2dYS01") == 0) {
-    int result = TclBasicBuilder_addElement2dYS01(clientData, rt, argc, argv,
+    int result = TclBasicBuilder_addElement2dYS01(clientData, interp, argc, argv,
                                                   theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "inelastic2dYS02") == 0) {
-    int result = TclBasicBuilder_addElement2dYS02(clientData, rt, argc, argv,
+    int result = TclBasicBuilder_addElement2dYS02(clientData, interp, argc, argv,
                                                   theTclDomain, theTclBuilder);
     return result;
   }
 
   else if (strcmp(argv[1], "inelastic2dYS03") == 0) {
-    int result = TclBasicBuilder_addElement2dYS03(clientData, rt, argc, argv,
+    int result = TclBasicBuilder_addElement2dYS03(clientData, interp, argc, argv,
                                                   theTclDomain, theTclBuilder);
     return result;
   }
 
   /*	else if (strcmp(argv[1],"inelastic2dYS04") == 0) {
             int result = TclBasicBuilder_addElement2dYS04
-            (clientData, rt, argc, argv,
+            (clientData, interp, argc, argv,
                                                    theTclDomain, theTclBuilder);
       return result;
     }*/
   /*else if (strcmp(argv[1],"inelastic2dYS05") == 0) {
           int result = TclBasicBuilder_addElement2dYS05
-          (clientData, rt, argc, argv,
+          (clientData, interp, argc, argv,
                                                  theTclDomain, theTclBuilder);
     return result;
   }*/

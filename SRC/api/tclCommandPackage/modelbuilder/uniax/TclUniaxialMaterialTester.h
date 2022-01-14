@@ -52,7 +52,7 @@ class CrdTransf3d;
 class TclUniaxialMaterialTester : public TclSafeBuilder
 {
   public:
-    TclUniaxialMaterialTester(Domain &theDomain,G3_Runtime *rt, int count=1);
+    TclUniaxialMaterialTester(Domain &theDomain,Tcl_Interp *interp, int count=1);
     ~TclUniaxialMaterialTester();    
 
   protected:

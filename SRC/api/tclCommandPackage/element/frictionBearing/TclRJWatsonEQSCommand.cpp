@@ -45,7 +45,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv,
                                       Domain *theTclDomain,
                                       TclBasicBuilder *theTclBuilder,
@@ -92,21 +92,21 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     double tol = 1E-12;
     double kFactUplift = 1E-12;
 
-    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid RJWatsonEqsBearing eleTag\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
       opserr << "WARNING invalid frnMdlTag\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -118,7 +118,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &kInit) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -127,7 +127,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
         theMaterials[0] = 0;
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid axial matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -144,7 +144,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Vy") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid shear y matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -161,7 +161,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment z matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -204,7 +204,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
           double value;
           // read the x values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "RJWatsonEqsBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -215,7 +215,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
           }
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "RJWatsonEqsBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -233,7 +233,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &shearDistI) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -246,7 +246,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -255,12 +255,12 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &maxIter) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[i + 2], &tol) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -269,7 +269,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-kFactUplift") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &kFactUplift) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &kFactUplift) != TCL_OK) {
           opserr << "WARNING invalid kFactUplift\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -327,21 +327,21 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     double tol = 1E-12;
     double kFactUplift = 1E-12;
 
-    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid RJWatsonEqsBearing eleTag\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[4 + eleArgStart], &frnMdlTag) != TCL_OK) {
       opserr << "WARNING invalid frnMdlTag\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -353,7 +353,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &kInit) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -361,7 +361,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     UniaxialMaterial *theMaterials[6];
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid axial matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -378,7 +378,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Vy") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid shear y matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -395,7 +395,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Vz") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid shear z matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -412,7 +412,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-T") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid torsional matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -429,7 +429,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-My") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment y matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -446,7 +446,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment z matTag\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -490,7 +490,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
           double value;
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "RJWatsonEqsBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -505,7 +505,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
           double value;
           // read the x values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "RJWatsonEqsBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -516,7 +516,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
           }
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "RJWatsonEqsBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -534,7 +534,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &shearDistI) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -547,7 +547,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -556,12 +556,12 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &maxIter) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[i + 2], &tol) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -570,7 +570,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, G3_Runtime *rt,
     }
     for (int i = 6 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-kFactUplift") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &kFactUplift) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &kFactUplift) != TCL_OK) {
           opserr << "WARNING invalid kFactUplift\n";
           opserr << "singleFPBearing element: " << tag << endln;
           return TCL_ERROR;

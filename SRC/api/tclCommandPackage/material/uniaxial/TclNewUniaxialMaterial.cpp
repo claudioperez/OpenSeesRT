@@ -34,7 +34,7 @@
 #include <string.h>
 
 int
-TclCommand_NewUniaxialMaterial(ClientData clientData, G3_Runtime *rt,
+TclCommand_NewUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                int argc, TCL_Char **argv,
                                TclBasicBuilder *theTclBuilder)
 {
@@ -47,13 +47,13 @@ TclCommand_NewUniaxialMaterial(ClientData clientData, G3_Runtime *rt,
     return 0;
   }
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     return 0;
   }
 
   /*
-  if (Tcl_GetDouble(rt, argv[3], &E) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
     opserr << "WARNING invalid E\n";
     return 0;
   }

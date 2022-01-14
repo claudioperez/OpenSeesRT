@@ -52,7 +52,7 @@
 
 typedef struct databasePackageCommand {
   char *funcName;
-  int (*funcPtr)(ClientData clientData, G3_Runtime *rt, int argc,
+  int (*funcPtr)(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv, Domain *, FEM_ObjectBroker *,
                  FE_Datastore **);
   struct databasePackageCommand *next;
@@ -62,22 +62,22 @@ typedef struct databasePackageCommand {
 static DatabasePackageCommand *theDatabasePackageCommands = NULL;
 static bool createdDatabaseCommands = false;
 
-int save(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+int save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
-int restore(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+int restore(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 extern FE_Datastore *theDatabase;
 
 int
-TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
+TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
                Domain &theDomain, FEM_ObjectBroker &theBroker)
 {
   if (createdDatabaseCommands == false) {
 
     // create the commands to commit and reset
-    Tcl_CreateCommand(rt, "save", save, (ClientData)NULL,
+    Tcl_CreateCommand(interp, "save", save, (ClientData)NULL,
                       (Tcl_CmdDeleteProc *)NULL);
-    Tcl_CreateCommand(rt, "restore", restore, (ClientData)NULL,
+    Tcl_CreateCommand(interp, "restore", restore, (ClientData)NULL,
                       (Tcl_CmdDeleteProc *)NULL);
 
     createdDatabaseCommands = true;
@@ -128,7 +128,7 @@ TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
     while (dataCommands != NULL && found == false) {
       if (strcmp(argv[1], dataCommands->funcName) == 0) {
         int result = (*(dataCommands->funcPtr))(
-            clientData, rt, argc, argv, &theDomain, &theBroker, &theDatabase);
+            clientData, interp, argc, argv, &theDomain, &theBroker, &theDatabase);
         return result;
       } else
         dataCommands = dataCommands->next;
@@ -137,7 +137,7 @@ TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
     // load new package
 
     void *libHandle;
-    int (*funcPtr)(ClientData clientData, G3_Runtime * rt, int argc,
+    int (*funcPtr)(ClientData, Tcl_Interp *, int ,
                    TCL_Char **argv, Domain *, FEM_ObjectBroker *,
                    FE_Datastore **);
     int databaseNameLength = strlen(argv[1]);
@@ -157,7 +157,7 @@ TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
       theDataCommand->next = theDatabasePackageCommands;
       theDatabasePackageCommands = theDataCommand;
 
-      int result = (*funcPtr)(clientData, rt, argc, argv, &theDomain,
+      int result = (*funcPtr)(clientData, interp, argc, argv, &theDomain,
                               &theBroker, &theDatabase);
       return result;
     }
@@ -169,7 +169,7 @@ TclAddDatabase(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
 }
 
 int
-save(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
   if (theDatabase == 0) {
@@ -185,7 +185,7 @@ save(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
 
   // check argv[1] for commitTag
   int commitTag;
-  if (Tcl_GetInt(rt, argv[1], &commitTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &commitTag) != TCL_OK) {
     opserr << "WARNING - save could not read commitTag " << argv[1] << endln;
     return TCL_OK;
   }
@@ -199,7 +199,7 @@ save(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
 }
 
 int
-restore(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+restore(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
   if (theDatabase == 0) {
@@ -215,7 +215,7 @@ restore(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
 
   // check argv[1] for commitTag
   int commitTag;
-  if (Tcl_GetInt(rt, argv[1], &commitTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &commitTag) != TCL_OK) {
     opserr << "WARNING - restore could not read commitTag " << argv[1] << endln;
     return TCL_OK;
   }

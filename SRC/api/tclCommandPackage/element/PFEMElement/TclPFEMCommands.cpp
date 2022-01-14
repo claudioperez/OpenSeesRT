@@ -46,7 +46,7 @@ static PFEMMesher2D theMesher2D;
 static PFEMMesher3D theMesher3D;
 
 int
-TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                              TCL_Char **argv, Domain *theDomain)
 {
 
@@ -71,13 +71,13 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int startnodetag;
-      if (Tcl_GetInt(rt, argv[3], &startnodetag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnodetag) != TCL_OK) {
         opserr << "WARNING: invalid startnodetag " << argv[3]
                << " -- PFEM2D discretize\n";
         return TCL_ERROR;
       }
       double maxarea;
-      if (Tcl_GetDouble(rt, argv[4], &maxarea) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &maxarea) != TCL_OK) {
         opserr << "WARNING: invalid maxarea " << argv[4]
                << " -- PFEM2D discretize\n";
         return TCL_ERROR;
@@ -88,7 +88,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int ndf;
-      if (Tcl_GetInt(rt, argv[5], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[5], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[5]
                << " -- PFEM2D discretize\n";
         return TCL_ERROR;
@@ -132,7 +132,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -141,7 +141,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -166,7 +166,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnodetag));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnodetag));
 
     } else if (strcmp(argv[2], "particles") == 0 ||
                strcmp(argv[2], "Particles") == 0) {
@@ -178,13 +178,13 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int startnodetag;
-      if (Tcl_GetInt(rt, argv[3], &startnodetag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnodetag) != TCL_OK) {
         opserr << "WARNING: invalid startnodetag " << argv[3]
                << " -- PFEM2D discretize\n";
         return TCL_ERROR;
       }
       int ndf;
-      if (Tcl_GetInt(rt, argv[4], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[4]
                << " -- PFEM2D discretize\n";
         return TCL_ERROR;
@@ -220,7 +220,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -229,7 +229,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -253,7 +253,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnodetag));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnodetag));
 
     } else if (strcmp(argv[2], "rectangle") == 0 ||
                strcmp(argv[2], "Rectangle") == 0) {
@@ -267,47 +267,47 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       double x1, y1, hx, hy, angle;
       int nx, ny, ndf, startnodetag;
-      if (Tcl_GetInt(rt, argv[3], &startnodetag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnodetag) != TCL_OK) {
         opserr << "WARNING: invalid startnodetag " << argv[3]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
         opserr << "WARNING: invalid x1 " << argv[4]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
         opserr << "WARNING: invalid y1 " << argv[5]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &hx) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &hx) != TCL_OK) {
         opserr << "WARNING: invalid hx " << argv[6]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &hy) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &hy) != TCL_OK) {
         opserr << "WARNING: invalid hy " << argv[7]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[8], &angle) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[8], &angle) != TCL_OK) {
         opserr << "WARNING: invalid angle " << argv[8]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9], &nx) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &nx) != TCL_OK) {
         opserr << "WARNING: invalid nx " << argv[9]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &ny) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &ny) != TCL_OK) {
         opserr << "WARNING: invalid ny " << argv[10]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[11], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[11]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
@@ -339,7 +339,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -348,7 +348,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -373,7 +373,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnodetag));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnodetag));
 
     } else if (strcmp(argv[2], "line") == 0 || strcmp(argv[2], "Line") == 0) {
       if (argc < 10) {
@@ -385,37 +385,37 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       double x1, y1, h, angle;
       int num, ndf, startnodetag;
-      if (Tcl_GetInt(rt, argv[3], &startnodetag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnodetag) != TCL_OK) {
         opserr << "WARNING: invalid startnodetag " << argv[3]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
         opserr << "WARNING: invalid x1 " << argv[4]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
         opserr << "WARNING: invalid y1 " << argv[5]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &h) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &h) != TCL_OK) {
         opserr << "WARNING: invalid h " << argv[6]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &angle) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &angle) != TCL_OK) {
         opserr << "WARNING: invalid angle " << argv[7]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[8], &num) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &num) != TCL_OK) {
         opserr << "WARNING: invalid num " << argv[8]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[9]
                << " -- PFEM2D discretize Rectangle\n";
         return TCL_ERROR;
@@ -447,7 +447,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -456,7 +456,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -481,7 +481,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnodetag));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnodetag));
 
     } else if (strcmp(argv[2], "triangle") == 0 ||
                strcmp(argv[2], "Triangle") == 0) {
@@ -496,52 +496,52 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       double x1, y1, x2, y2, x3, y3;
       int n1, n2, ndf, startnode;
-      if (Tcl_GetInt(rt, argv[3], &startnode) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnode) != TCL_OK) {
         opserr << "WARNING: invalid startnod " << argv[3]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
         opserr << "WARNING: invalid x1 " << argv[4]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
         opserr << "WARNING: invalid y1 " << argv[5]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &x2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &x2) != TCL_OK) {
         opserr << "WARNING: invalid x2 " << argv[6]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &y2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &y2) != TCL_OK) {
         opserr << "WARNING: invalid y2 " << argv[7]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[8], &x3) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[8], &x3) != TCL_OK) {
         opserr << "WARNING: invalid x3 " << argv[8]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[9], &y3) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[9], &y3) != TCL_OK) {
         opserr << "WARNING: invalid y3 " << argv[9]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &n1) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &n1) != TCL_OK) {
         opserr << "WARNING: invalid n1 " << argv[10]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[11], &n2) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11], &n2) != TCL_OK) {
         opserr << "WARNING: invalid n2 " << argv[11]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[12], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[12], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[12]
                << " -- PFEM2D discretize triangle\n";
         return TCL_ERROR;
@@ -573,7 +573,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -582,7 +582,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -607,7 +607,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnode));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnode));
 
     } else if (strcmp(argv[2], "circle") == 0 ||
                strcmp(argv[2], "Circle") == 0) {
@@ -623,42 +623,42 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
       double xc, yc, r1, r2;
       int nc, nr, ndf, startnode;
-      if (Tcl_GetInt(rt, argv[3], &startnode) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnode) != TCL_OK) {
         opserr << "WARNING: invalid startnod " << argv[3]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &xc) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &xc) != TCL_OK) {
         opserr << "WARNING: invalid xc " << argv[4]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &yc) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &yc) != TCL_OK) {
         opserr << "WARNING: invalid yc " << argv[5]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &r1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &r1) != TCL_OK) {
         opserr << "WARNING: invalid r1 " << argv[6]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &r2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &r2) != TCL_OK) {
         opserr << "WARNING: invalid r2 " << argv[7]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[8], &nc) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &nc) != TCL_OK) {
         opserr << "WARNING: invalid nc " << argv[8]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9], &nr) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &nr) != TCL_OK) {
         opserr << "WARNING: invalid nr " << argv[9]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[10]
                << " -- PFEM2D discretize circle\n";
         return TCL_ERROR;
@@ -692,7 +692,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -701,7 +701,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -726,7 +726,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnode));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnode));
 
     } else if (strcmp(argv[2], "frame") == 0 || strcmp(argv[2], "Frame") == 0) {
 
@@ -741,32 +741,32 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       int startnode, ndf;
       double x, y, hcol, hbeam;
-      if (Tcl_GetInt(rt, argv[3], &startnode) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnode) != TCL_OK) {
         opserr << "WARNING: invalid startnod " << argv[3]
                << " -- PFEM2D discretize frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x) != TCL_OK) {
         opserr << "WARNING: invalid x " << argv[4]
                << " -- PFEM2D discretize frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y) != TCL_OK) {
         opserr << "WARNING: invalid y " << argv[5]
                << " -- PFEM2D discretize frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &hcol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &hcol) != TCL_OK) {
         opserr << "WARNING: invalid ncol " << argv[6]
                << " -- PFEM2D discretize frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &hbeam) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &hbeam) != TCL_OK) {
         opserr << "WARNING: invalid hbeam " << argv[7]
                << " -- PFEM2D discretize frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[8], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid nbeam " << argv[8]
                << " -- PFEM2D discretize frame\n";
         return TCL_ERROR;
@@ -812,7 +812,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D discretize\n";
             return TCL_ERROR;
@@ -821,7 +821,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D discretize\n";
               return TCL_ERROR;
@@ -848,7 +848,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       for (int i = 0; i < nodelist.Size(); i++) {
         char buffer[100];
         sprintf(buffer, "%d ", nodelist(i));
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
       }
 
     } else {
@@ -870,7 +870,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       return TCL_ERROR;
     }
     double alpha;
-    if (Tcl_GetDouble(rt, argv[2], &alpha) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &alpha) != TCL_OK) {
       opserr << "WARNING: invalid alpha " << argv[2]
              << " -- PFEM2D doTriangulation\n";
       return TCL_ERROR;
@@ -917,7 +917,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       if (vecPtr != 0 || idPtr != 0) {
         int num = 0;
         const char **argvPtr = 0;
-        if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+        if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
           opserr << "WARNING: failed to read the list " << argv[loc];
           opserr << " -- PFEM2D doTriangulation\n";
           return TCL_ERROR;
@@ -935,7 +935,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
               continue;
             }
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D doTriangulation\n";
               return TCL_ERROR;
@@ -945,7 +945,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         } else if (idPtr != 0) {
           for (int i = 0; i < num; i++) {
             int x;
-            if (Tcl_GetInt(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetInt(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D doTriangulation\n";
               return TCL_ERROR;
@@ -1039,12 +1039,12 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       for (int i = 0; i < eles.Size(); i++) {
         char buffer[100];
         sprintf(buffer, "%d ", eles(i));
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
       }
     }
 
     if (eletype >= 1 && eletype <= 4) {
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endele));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endele));
     }
 
   } else if (strcmp(argv[1], "save") == 0) {
@@ -1056,7 +1056,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
     int maxelenodes = 3;
     if (argc > 3) {
-      if (Tcl_GetInt(rt, argv[3], &maxelenodes) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &maxelenodes) != TCL_OK) {
         opserr << "WANRING: invalid integer " << argv[3];
         opserr << " -- PFEM2D save\n";
         return TCL_ERROR;
@@ -1074,22 +1074,22 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     double x1, y1, x2, y2;
-    if (Tcl_GetDouble(rt, argv[2], &x1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &x1) != TCL_OK) {
       opserr << "WARNING: invalid node x1 " << argv[2];
       opserr << " -- PFEM2D removeOutBoundNodes\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[3], &y1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &y1) != TCL_OK) {
       opserr << "WARNING: invalid node y1 " << argv[3];
       opserr << " -- PFEM2D removeOutBoundNodes\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4], &x2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &x2) != TCL_OK) {
       opserr << "WARNING: invalid node x2 " << argv[4];
       opserr << " -- PFEM2D removeOutBoundNodes\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5], &y2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &y2) != TCL_OK) {
       opserr << "WARNING: invalid node y2 " << argv[5];
       opserr << " -- PFEM2D removeOutBoundNodes\n";
       return TCL_ERROR;
@@ -1099,7 +1099,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     ID *idPtr = &groups;
     int num = 0, loc = 6;
     const char **argvPtr = 0;
-    if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+    if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
       opserr << "WARNING: failed to read the list " << argv[loc];
       opserr << " -- PFEM2D removeOutBoundNodes\n";
       return TCL_ERROR;
@@ -1108,7 +1108,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       idPtr->resize(num);
     for (int i = 0; i < num; i++) {
       int tag;
-      if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
         opserr << "WARNING: invalid input " << argvPtr[i];
         opserr << " -- PFEM2D removeOutBoundNodes\n";
         return TCL_ERROR;
@@ -1149,7 +1149,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         loc++;
       } else if (strcmp(argv[loc], "-basenode") == 0) {
         loc++;
-        if (Tcl_GetInt(rt, argv[loc], &basenode) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc], &basenode) != TCL_OK) {
           opserr << "WARNING: invalid input " << argv[loc];
           opserr << " -- PFEM2D calculateForces\n";
           return TCL_ERROR;
@@ -1160,7 +1160,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       if (vecPtr != 0 || idPtr != 0) {
         int num = 0;
         const char **argvPtr = 0;
-        if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+        if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
           opserr << "WARNING: failed to read the list " << argv[loc];
           opserr << " -- PFEM2D calculateForces\n";
           return TCL_ERROR;
@@ -1174,7 +1174,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D calculateForces\n";
               return TCL_ERROR;
@@ -1184,7 +1184,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         } else if (idPtr != 0) {
           for (int i = 0; i < num; i++) {
             int x;
-            if (Tcl_GetInt(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetInt(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D calculateForce\n";
               return TCL_ERROR;
@@ -1206,7 +1206,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     for (int i = 0; i < forces.Size(); i++) {
       char buffer[60];
       sprintf(buffer, "%35.20f ", forces(i));
-      Tcl_AppendResult(rt, buffer, NULL);
+      Tcl_AppendResult(interp, buffer, NULL);
     }
   } else if (strcmp(argv[1], "pc") == 0 || strcmp(argv[1], "PC") == 0) {
     if (argc < 5) {
@@ -1218,7 +1218,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     ID nodes;
     int num = 0;
     const char **argvPtr = 0;
-    if (Tcl_SplitList(rt, argv[2], &num, &argvPtr) != TCL_OK) {
+    if (Tcl_SplitList(interp, argv[2], &num, &argvPtr) != TCL_OK) {
       opserr << "WARNING: failed to read the list " << argv[2];
       opserr << " -- PFEM2D pc\n";
       return TCL_ERROR;
@@ -1227,7 +1227,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       nodes.resize(num);
     for (int i = 0; i < num; i++) {
       int tag;
-      if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
         opserr << "WARNING: invalid input " << argvPtr[i];
         opserr << " -- PFEM2D pc\n";
         return TCL_ERROR;
@@ -1239,14 +1239,14 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       Tcl_Free((char *)argvPtr);
 
     int startpnode;
-    if (Tcl_GetInt(rt, argv[3], &startpnode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &startpnode) != TCL_OK) {
       opserr << "WARNING: invalid startpnode " << argv[3];
       opserr << " -- PFEM2D pc\n";
       return TCL_ERROR;
     }
 
     int ndf;
-    if (Tcl_GetInt(rt, argv[4], &ndf) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[4], &ndf) != TCL_OK) {
       opserr << "WARNING: invalid ndf " << argv[4];
       opserr << " -- PFEM2D pc\n";
       return TCL_ERROR;
@@ -1260,7 +1260,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       return TCL_ERROR;
     }
 
-    Tcl_SetObjResult(rt, Tcl_NewIntObj(endpnode));
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(endpnode));
 
   } else if (strcmp(argv[1], "group") == 0 || strcmp(argv[1], "Group") == 0) {
     if (argc < 3) {
@@ -1270,7 +1270,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     int type = -1;
-    if (Tcl_GetInt(rt, argv[2], &type) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &type) != TCL_OK) {
       opserr << "WARNING: invalid type " << argv[2];
       opserr << " -- PFEM2D group \n";
       return TCL_ERROR;
@@ -1279,7 +1279,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     ID nodes;
     int num = 0;
     const char **argvPtr = 0;
-    if (Tcl_SplitList(rt, argv[3], &num, &argvPtr) != TCL_OK) {
+    if (Tcl_SplitList(interp, argv[3], &num, &argvPtr) != TCL_OK) {
       opserr << "WARNING: failed to read the list " << argv[3];
       opserr << " -- PFEM2D " << argv[1] << "\n";
       return TCL_ERROR;
@@ -1288,7 +1288,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       nodes.resize(num);
     for (int i = 0; i < num; i++) {
       int tag;
-      if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
         opserr << "WARNING: invalid input " << argvPtr[i];
         opserr << " -- PFEM2D " << argv[1] << "\n";
         return TCL_ERROR;
@@ -1335,17 +1335,17 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       opserr << "PFEM2D updateNode coord/disp/vel/accel tag dof val\n";
       return -1;
     }
-    if (Tcl_GetInt(rt, argv[3], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &tag) != TCL_OK) {
       opserr << "WARNING: invalid input " << argv[3];
       opserr << " -- PFEM2D updateNode\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[4], &dof) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[4], &dof) != TCL_OK) {
       opserr << "WARNING: invalid input " << argv[4];
       opserr << " -- PFEM2D updateNode\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5], &value) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &value) != TCL_OK) {
       opserr << "WARNING: invalid input " << argv[5];
       opserr << " -- PFEM2D updateNode\n";
       return TCL_ERROR;
@@ -1365,13 +1365,13 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int regTag;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3];
         opserr << " -- PFEM2D region PSLG\n";
         return TCL_ERROR;
       }
       double maxarea;
-      if (Tcl_GetDouble(rt, argv[4], &maxarea) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &maxarea) != TCL_OK) {
         opserr << "WARNING: invalid maxarea " << argv[4];
         opserr << " -- PFEM2D region PSLG\n";
         return TCL_ERROR;
@@ -1382,7 +1382,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int ndf;
-      if (Tcl_GetInt(rt, argv[5], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[5], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[5];
         opserr << " -- PFEM2D region PSLG\n";
         return TCL_ERROR;
@@ -1426,7 +1426,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region PSLG\n";
             return TCL_ERROR;
@@ -1435,7 +1435,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region PSLG\n";
               return TCL_ERROR;
@@ -1479,13 +1479,13 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int regTag;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3]
                << " -- PFEM2D region\n";
         return TCL_ERROR;
       }
       int ndf;
-      if (Tcl_GetInt(rt, argv[4], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[4] << " -- PFEM2D region\n";
         return TCL_ERROR;
       }
@@ -1520,7 +1520,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region\n";
             return TCL_ERROR;
@@ -1529,7 +1529,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region\n";
               return TCL_ERROR;
@@ -1573,47 +1573,47 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       double x1, y1, hx, hy, angle;
       int nx, ny, ndf, regTag;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
         opserr << "WARNING: invalid x1 " << argv[4]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
         opserr << "WARNING: invalid y1 " << argv[5]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &hx) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &hx) != TCL_OK) {
         opserr << "WARNING: invalid hx " << argv[6]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &hy) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &hy) != TCL_OK) {
         opserr << "WARNING: invalid hy " << argv[7]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[8], &angle) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[8], &angle) != TCL_OK) {
         opserr << "WARNING: invalid angle " << argv[8]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9], &nx) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &nx) != TCL_OK) {
         opserr << "WARNING: invalid nx " << argv[9]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &ny) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &ny) != TCL_OK) {
         opserr << "WARNING: invalid ny " << argv[10]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[11], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[11]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
@@ -1645,7 +1645,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region\n";
             return TCL_ERROR;
@@ -1654,7 +1654,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region\n";
               return TCL_ERROR;
@@ -1698,37 +1698,37 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       double x1, y1, h, angle;
       int num, ndf, regTag;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
         opserr << "WARNING: invalid x1 " << argv[4]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
         opserr << "WARNING: invalid y1 " << argv[5]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &h) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &h) != TCL_OK) {
         opserr << "WARNING: invalid h " << argv[6]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &angle) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &angle) != TCL_OK) {
         opserr << "WARNING: invalid angle " << argv[7]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[8], &num) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &num) != TCL_OK) {
         opserr << "WARNING: invalid num " << argv[8]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[9]
                << " -- PFEM2D region Rectangle\n";
         return TCL_ERROR;
@@ -1760,7 +1760,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region\n";
             return TCL_ERROR;
@@ -1769,7 +1769,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region\n";
               return TCL_ERROR;
@@ -1815,52 +1815,52 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       double x1, y1, x2, y2, x3, y3;
       int n1, n2, ndf, regTag;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
         opserr << "WARNING: invalid x1 " << argv[4]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
         opserr << "WARNING: invalid y1 " << argv[5]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &x2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &x2) != TCL_OK) {
         opserr << "WARNING: invalid x2 " << argv[6]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &y2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &y2) != TCL_OK) {
         opserr << "WARNING: invalid y2 " << argv[7]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[8], &x3) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[8], &x3) != TCL_OK) {
         opserr << "WARNING: invalid x3 " << argv[8]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[9], &y3) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[9], &y3) != TCL_OK) {
         opserr << "WARNING: invalid y3 " << argv[9]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &n1) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &n1) != TCL_OK) {
         opserr << "WARNING: invalid n1 " << argv[10]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[11], &n2) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11], &n2) != TCL_OK) {
         opserr << "WARNING: invalid n2 " << argv[11]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[12], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[12], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[12]
                << " -- PFEM2D region triangle\n";
         return TCL_ERROR;
@@ -1892,7 +1892,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region\n";
             return TCL_ERROR;
@@ -1901,7 +1901,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region\n";
               return TCL_ERROR;
@@ -1949,42 +1949,42 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
       double xc, yc, r1, r2;
       int nc, nr, ndf, regTag;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &xc) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &xc) != TCL_OK) {
         opserr << "WARNING: invalid xc " << argv[4]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &yc) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &yc) != TCL_OK) {
         opserr << "WARNING: invalid yc " << argv[5]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &r1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &r1) != TCL_OK) {
         opserr << "WARNING: invalid r1 " << argv[6]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &r2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &r2) != TCL_OK) {
         opserr << "WARNING: invalid r2 " << argv[7]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[8], &nc) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &nc) != TCL_OK) {
         opserr << "WARNING: invalid nc " << argv[8]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9], &nr) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &nr) != TCL_OK) {
         opserr << "WARNING: invalid nr " << argv[9]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[10]
                << " -- PFEM2D region circle\n";
         return TCL_ERROR;
@@ -2018,7 +2018,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region\n";
             return TCL_ERROR;
@@ -2027,7 +2027,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region\n";
               return TCL_ERROR;
@@ -2074,32 +2074,32 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       int regTag, ndf;
       double x, y, hcol, hbeam;
-      if (Tcl_GetInt(rt, argv[3], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[3]
                << " -- PFEM2D region frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[4], &x) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &x) != TCL_OK) {
         opserr << "WARNING: invalid x " << argv[4]
                << " -- PFEM2D region frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5], &y) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &y) != TCL_OK) {
         opserr << "WARNING: invalid y " << argv[5]
                << " -- PFEM2D region frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6], &hcol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &hcol) != TCL_OK) {
         opserr << "WARNING: invalid ncol " << argv[6]
                << " -- PFEM2D region frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7], &hbeam) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &hbeam) != TCL_OK) {
         opserr << "WARNING: invalid hbeam " << argv[7]
                << " -- PFEM2D region frame\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[8], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid nbeam " << argv[8]
                << " -- PFEM2D region frame\n";
         return TCL_ERROR;
@@ -2145,7 +2145,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region\n";
             return TCL_ERROR;
@@ -2154,7 +2154,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
             vecPtr->resize(num);
           for (int i = 0; i < num; i++) {
             double x;
-            if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
               opserr << " -- PFEM2D region\n";
               return TCL_ERROR;
@@ -2200,13 +2200,13 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       double alpha;
-      if (Tcl_GetDouble(rt, argv[3], &alpha) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[3], &alpha) != TCL_OK) {
         opserr << "WARNING: invalid alpha " << argv[3]
                << " -- PFEM2D region mesh\n";
         return TCL_ERROR;
       }
       int eleRegTag;
-      if (Tcl_GetInt(rt, argv[4], &eleRegTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4], &eleRegTag) != TCL_OK) {
         opserr << "WARNING: invalid element region tag " << argv[4]
                << " -- PFEM2D region mesh\n";
         return TCL_ERROR;
@@ -2253,7 +2253,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if (vecPtr != 0 || idPtr != 0) {
           int num = 0;
           const char **argvPtr = 0;
-          if (Tcl_SplitList(rt, argv[loc], &num, &argvPtr) != TCL_OK) {
+          if (Tcl_SplitList(interp, argv[loc], &num, &argvPtr) != TCL_OK) {
             opserr << "WARNING: failed to read the list " << argv[loc];
             opserr << " -- PFEM2D region mesh\n";
             return TCL_ERROR;
@@ -2271,7 +2271,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
                 continue;
               }
               double x;
-              if (Tcl_GetDouble(rt, argvPtr[i], &x) != TCL_OK) {
+              if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
                 opserr << "WARNING: invalid input " << argvPtr[i];
                 opserr << " -- PFEM2D region mesh\n";
                 return TCL_ERROR;
@@ -2281,7 +2281,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
           } else if (idPtr != 0) {
             for (int i = 0; i < num; i++) {
               int x;
-              if (Tcl_GetInt(rt, argvPtr[i], &x) != TCL_OK) {
+              if (Tcl_GetInt(interp, argvPtr[i], &x) != TCL_OK) {
                 opserr << "WARNING: invalid input " << argvPtr[i];
                 opserr << " -- PFEM2D region mesh\n";
                 return TCL_ERROR;
@@ -2431,7 +2431,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         series = false;
       } else if (strcmp(argv[3], "get") == 0 || strcmp(argv[3], "Get") == 0) {
 
-        if (Tcl_GetInt(rt, argv[4], &regTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[4], &regTag) != TCL_OK) {
           opserr << "WARNING: invalid region tag " << argv[4];
           opserr << " -- PFEM2D region node " << argv[3] << "\n";
           return TCL_ERROR;
@@ -2444,7 +2444,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         char buffer[20];
         for (int i = 0; i < regNodes.Size(); i++) {
           sprintf(buffer, "%d ", regNodes(i));
-          Tcl_AppendResult(rt, buffer, NULL);
+          Tcl_AppendResult(interp, buffer, NULL);
         }
 
         return TCL_OK;
@@ -2461,7 +2461,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[4], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[4];
         opserr << " -- PFEM2D region node " << argv[3] << "\n";
         return TCL_ERROR;
@@ -2469,7 +2469,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
       int num = 0;
       const char **argvPtr = 0;
-      if (Tcl_SplitList(rt, argv[5], &num, &argvPtr) != TCL_OK) {
+      if (Tcl_SplitList(interp, argv[5], &num, &argvPtr) != TCL_OK) {
         opserr << "WARNING: failed to read the list " << argv[5];
         opserr << " -- PFEM2D region node " << argv[3] << "\n";
         return TCL_ERROR;
@@ -2478,7 +2478,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         nodelist.resize(num);
       for (int i = 0; i < num; i++) {
         int tag;
-        if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
           opserr << " -- PFEM2D region node " << argv[3] << "\n";
           return TCL_ERROR;
@@ -2522,7 +2522,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         series = false;
       } else if (strcmp(argv[3], "get") == 0 || strcmp(argv[3], "Get") == 0) {
 
-        if (Tcl_GetInt(rt, argv[4], &regTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[4], &regTag) != TCL_OK) {
           opserr << "WARNING: invalid region tag " << argv[4];
           opserr << " -- PFEM2D region ele " << argv[3] << "\n";
           return TCL_ERROR;
@@ -2535,7 +2535,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         char buffer[20];
         for (int i = 0; i < regEles.Size(); i++) {
           sprintf(buffer, "%d ", regEles(i));
-          Tcl_AppendResult(rt, buffer, NULL);
+          Tcl_AppendResult(interp, buffer, NULL);
         }
 
         return TCL_OK;
@@ -2552,7 +2552,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[4], &regTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4], &regTag) != TCL_OK) {
         opserr << "WARNING: invalid region tag " << argv[4];
         opserr << " -- PFEM2D region ele " << argv[3] << "\n";
         return TCL_ERROR;
@@ -2560,7 +2560,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
       int num = 0;
       const char **argvPtr = 0;
-      if (Tcl_SplitList(rt, argv[5], &num, &argvPtr) != TCL_OK) {
+      if (Tcl_SplitList(interp, argv[5], &num, &argvPtr) != TCL_OK) {
         opserr << "WARNING: failed to read the list " << argv[5];
         opserr << " -- PFEM2D region ele " << argv[3] << "\n";
         return TCL_ERROR;
@@ -2569,7 +2569,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         elelist.resize(num);
       for (int i = 0; i < num; i++) {
         int tag;
-        if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
           opserr << " -- PFEM2D region node " << argv[3] << "\n";
           return TCL_ERROR;
@@ -2593,7 +2593,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       ID nodeRegs, eleRegs;
       int num = 0;
       const char **argvPtr = 0;
-      if (Tcl_SplitList(rt, argv[3], &num, &argvPtr) != TCL_OK) {
+      if (Tcl_SplitList(interp, argv[3], &num, &argvPtr) != TCL_OK) {
         opserr << "WARNING: failed to read the list " << argv[3];
         opserr << " -- PFEM2D region save \n";
         return TCL_ERROR;
@@ -2602,7 +2602,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         nodeRegs.resize(num);
       for (int i = 0; i < num; i++) {
         int tag;
-        if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
           opserr << " -- PFEM2D region save \n";
           return TCL_ERROR;
@@ -2611,7 +2611,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
       if (argvPtr != 0)
         Tcl_Free((char *)argvPtr);
-      if (Tcl_SplitList(rt, argv[4], &num, &argvPtr) != TCL_OK) {
+      if (Tcl_SplitList(interp, argv[4], &num, &argvPtr) != TCL_OK) {
         opserr << "WARNING: failed to read the list " << argv[4];
         opserr << " -- PFEM2D region save \n";
         return TCL_ERROR;
@@ -2620,7 +2620,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         eleRegs.resize(num);
       for (int i = 0; i < num; i++) {
         int tag;
-        if (Tcl_GetInt(rt, argvPtr[i], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
           opserr << " -- PFEM2D region save \n";
           return TCL_ERROR;
@@ -2632,7 +2632,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
       int max = 3;
       if (argc > 6) {
-        if (Tcl_GetInt(rt, argv[6], &max) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[6], &max) != TCL_OK) {
           opserr << "WARNING: invalid integer " << argv[6];
           opserr << " -- PFEM2D region save \n";
           return TCL_ERROR;
@@ -2656,7 +2656,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                              TCL_Char **argv, Domain *theDomain)
 {
 
@@ -2686,13 +2686,13 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int startnode;
-      if (Tcl_GetInt(rt, argv[3], &startnode) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &startnode) != TCL_OK) {
         opserr << "WARNING: invalid startnode " << argv[3]
                << " -- PFEM3D discretize\n";
         return TCL_ERROR;
       }
       double maxvol;
-      if (Tcl_GetDouble(rt, argv[4], &maxvol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &maxvol) != TCL_OK) {
         opserr << "WARNING: invalid maxvol " << argv[4]
                << " -- PFEM3D discretize\n";
         return TCL_ERROR;
@@ -2703,7 +2703,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
       int ndf;
-      if (Tcl_GetInt(rt, argv[5], &ndf) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[5], &ndf) != TCL_OK) {
         opserr << "WARNING: invalid ndf " << argv[5]
                << " -- PFEM3D discretize\n";
         return TCL_ERROR;
@@ -2749,7 +2749,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
           double coord[3];
           int count = 0;
           for (int loc = l0; loc < l1; loc++) {
-            if (Tcl_GetDouble(rt, argv[loc], &coord[count++]) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[loc], &coord[count++]) != TCL_OK) {
               opserr << "WARNING: invalid coordinate " << argv[loc];
               opserr << " -- PFEM3D discretize\n";
               return TCL_ERROR;
@@ -2788,7 +2788,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
               double coord[3];
               int count = 0;
               for (int floc = fl0; floc < fl1; floc++) {
-                if (Tcl_GetDouble(rt, argv[floc], &coord[count++]) != TCL_OK) {
+                if (Tcl_GetDouble(interp, argv[floc], &coord[count++]) != TCL_OK) {
                   opserr << "WARNING: invalid coordinate " << argv[floc];
                   opserr << " -- PFEM3D discretize\n";
                   return TCL_ERROR;
@@ -2802,7 +2802,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
               PFEMMesher3D::Polygon polygon;
               for (int floc = fl0; floc < fl1; floc++) {
                 int tag;
-                if (Tcl_GetInt(rt, argv[floc], &tag) != TCL_OK) {
+                if (Tcl_GetInt(interp, argv[floc], &tag) != TCL_OK) {
                   opserr << "WARNING: invalid point " << argv[floc];
                   opserr << " -- PFEM3D discretize\n";
                   return TCL_ERROR;
@@ -2816,7 +2816,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         } else if (state == 3) { // mass
           for (int loc = l0; loc < l1; loc++) {
             double m;
-            if (Tcl_GetDouble(rt, argv[loc], &m) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[loc], &m) != TCL_OK) {
               opserr << "WARNING: invalid mass " << argv[loc];
               opserr << " -- PFEM3D discretize\n";
               return TCL_ERROR;
@@ -2826,7 +2826,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         } else if (state == 4) { // fix
           for (int loc = l0; loc < l1; loc++) {
             int fixity;
-            if (Tcl_GetInt(rt, argv[loc], &fixity) != TCL_OK) {
+            if (Tcl_GetInt(interp, argv[loc], &fixity) != TCL_OK) {
               opserr << "WARNNG: invalid fixity " << argv[loc];
               opserr << " -- PFEM3D discretize\n";
               return TCL_ERROR;
@@ -2837,7 +2837,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
           double coord[3];
           int count = 0;
           for (int loc = l0; loc < l1; loc++) {
-            if (Tcl_GetDouble(rt, argv[loc], &coord[count++]) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[loc], &coord[count++]) != TCL_OK) {
               opserr << "WARNING: invalid coordinate " << argv[loc];
               opserr << " -- PFEM3D discretize\n";
               return TCL_ERROR;
@@ -2860,7 +2860,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(endnode));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(endnode));
     }
 
   } else if (strcmp(argv[1], "doTriangulation") == 0) {
@@ -2874,7 +2874,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       return TCL_ERROR;
     }
     double alpha;
-    if (Tcl_GetDouble(rt, argv[2], &alpha) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &alpha) != TCL_OK) {
       opserr << "WARNING: invalid alpha " << argv[2]
              << " -- PFEM3D doTriangulation\n";
       return TCL_ERROR;
@@ -2917,7 +2917,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         }
         for (int loc = l0; loc < l1; loc++) {
           int tag;
-          if (Tcl_GetInt(rt, argv[loc], &tag) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[loc], &tag) != TCL_OK) {
             opserr << "WARNING: invalid node tag " << argv[loc];
             opserr << " -- PFEM3D doTriangulation\n";
             return TCL_ERROR;
@@ -2932,7 +2932,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
         }
         for (int loc = l0; loc < l1; loc++) {
           int tag;
-          if (Tcl_GetInt(rt, argv[loc], &tag) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[loc], &tag) != TCL_OK) {
             opserr << "WARNING: invalid node tag " << argv[loc];
             opserr << " -- PFEM3D doTriangulation\n";
             return TCL_ERROR;
@@ -2946,13 +2946,13 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
           return TCL_ERROR;
         }
         pfem = true;
-        if (Tcl_GetInt(rt, argv[l0], &starteletag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[l0], &starteletag) != TCL_OK) {
           opserr << "WARNING: invalid element tag " << argv[l0];
           opserr << " -- PFEM3D doTriangulation\n";
           return TCL_ERROR;
         }
         for (int loc = l0 + 1; loc < l0 + 6; loc++) {
-          if (Tcl_GetDouble(rt, argv[loc], &pfemparams[loc - l0 - 1]) !=
+          if (Tcl_GetDouble(interp, argv[loc], &pfemparams[loc - l0 - 1]) !=
               TCL_OK) {
             opserr << "WARNING: invalid parameter " << argv[loc];
             opserr << " -- PFEM3D doTriangulation\n";
@@ -2965,7 +2965,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
               << "WARNING: wrong no of arguments -- PFEM3D doTriangulation\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[l0], &volthresh) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[l0], &volthresh) != TCL_OK) {
           opserr << "WARNING: invalid volthresh " << argv[l0];
           opserr << " -- PFEM3D doTriangulation\n";
           return TCL_ERROR;
@@ -2992,12 +2992,12 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     if (pfem) {
-      Tcl_SetObjResult(rt, Tcl_NewIntObj(res));
+      Tcl_SetObjResult(interp, Tcl_NewIntObj(res));
     } else {
       for (int i = 0; i < (int)eles.size(); i++) {
         char buffer[100];
         sprintf(buffer, "%d ", eles[i]);
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
       }
     }
 
@@ -3010,7 +3010,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     int step;
-    if (Tcl_GetInt(rt, argv[3], &step) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &step) != TCL_OK) {
       opserr << "WARNING: invalid step " << argv[3] << " -- PFEM3D save\n";
       return TCL_ERROR;
     }
@@ -3019,7 +3019,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       int numnodes = argc - 5;
       ID snodes(numnodes);
       for (int i = 0; i < numnodes; i++) {
-        if (Tcl_GetInt(rt, argv[5 + i], &snodes(i)) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[5 + i], &snodes(i)) != TCL_OK) {
           opserr << "WARNING: invalid strcutural node " << argv[4 + i]
                  << " -- PFEM3D save\n";
           return TCL_ERROR;
@@ -3039,7 +3039,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     // }
 
     // int step = 0;
-    // if(Tcl_GetInt(rt, argv[3], &step) != TCL_OK) {
+    // if(Tcl_GetInt(interp, argv[3], &step) != TCL_OK) {
     //     opserr<<"WARNING: invalid step "<<argv[3]<<" -- PFEM3D save\n";
     //     return TCL_ERROR;
     // }
@@ -3055,7 +3055,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
     double bound[6];
     for (int i = 0; i < 6; i++) {
-      if (Tcl_GetDouble(rt, argv[i + 2], &bound[i]) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i + 2], &bound[i]) != TCL_OK) {
         opserr << "WARNING: invalid coordinate " << argv[i + 2];
         opserr << " -- PFEM3D setBoundary\n";
         return TCL_ERROR;
@@ -3077,7 +3077,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, G3_Runtime *rt, int argc,
       int numnodes = argc - 3;
       ID nodes(numnodes);
       for (int i = 0; i < numnodes; i++) {
-        if (Tcl_GetInt(rt, argv[3 + i], &nodes(i)) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[3 + i], &nodes(i)) != TCL_OK) {
           opserr << "WARNING: invalid node " << argv[3 + i]
                  << " -- PFEM3D removeOutBoundNodes\n";
           return TCL_ERROR;

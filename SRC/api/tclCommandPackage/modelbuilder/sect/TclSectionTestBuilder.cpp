@@ -52,20 +52,20 @@ static SectionForceDeformation *theTestingSection = 0;
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-int TclSectionTestBuilder_setSection(ClientData clientData, G3_Runtime *rt,
+int TclSectionTestBuilder_setSection(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv);
 
-int TclSectionTestBuilder_setStrainSection(ClientData clientData, G3_Runtime *rt,
+int TclSectionTestBuilder_setStrainSection(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv);
 
-int TclSectionTestBuilder_getStressSection(ClientData clientData, G3_Runtime *rt,
+int TclSectionTestBuilder_getStressSection(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv);
 
-int TclSectionTestBuilder_getTangSection(ClientData clientData, G3_Runtime *rt,
+int TclSectionTestBuilder_getTangSection(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv);
 
 int TclSectionTestBuilder_getResponseSection(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
+                                        Tcl_Interp *interp, int argc,
                                         TCL_Char **argv);
 
 //
@@ -76,24 +76,24 @@ static int count;
 static int countsTillCommit;
 
 // constructor: the constructor will add certain commands to the interpreter
-TclSectionTestBuilder::TclSectionTestBuilder(Domain &theDomain, G3_Runtime *rt,
+TclSectionTestBuilder::TclSectionTestBuilder(Domain &theDomain, Tcl_Interp *interp,
                                    int cTC)
-    : TclBasicBuilder(theDomain, rt, 3, 6), theInterp(rt)
+    : TclBasicBuilder(theDomain, interp, 3, 6), theInterp(interp)
 {
   countsTillCommit = cTC;
-  Tcl_CreateCommand(rt, "sectionTest", TclSectionTestBuilder_setSection,
+  Tcl_CreateCommand(interp, "sectionTest", TclSectionTestBuilder_setSection,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "strainSectionTest",
+  Tcl_CreateCommand(interp, "strainSectionTest",
                     TclSectionTestBuilder_setStrainSection, (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "stressSectionTest",
+  Tcl_CreateCommand(interp, "stressSectionTest",
                     TclSectionTestBuilder_getStressSection, (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "tangSectionTest", TclSectionTestBuilder_getTangSection,
+  Tcl_CreateCommand(interp, "tangSectionTest", TclSectionTestBuilder_getTangSection,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "responseSectionTest",
+  Tcl_CreateCommand(interp, "responseSectionTest",
                     TclSectionTestBuilder_getResponseSection, (ClientData)NULL,
                     NULL);
 
@@ -118,7 +118,7 @@ TclSectionTestBuilder::~TclSectionTestBuilder()
 //
 
 int
-TclSectionTestBuilder_setSection(ClientData clientData, G3_Runtime *rt, int argc,
+TclSectionTestBuilder_setSection(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
   count = 1;
@@ -136,7 +136,7 @@ TclSectionTestBuilder_setSection(ClientData clientData, G3_Runtime *rt, int argc
 
   // get the matID form command line
   int sectionID;
-  if (Tcl_GetInt(rt, argv[1], &sectionID) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &sectionID) != TCL_OK) {
     opserr << "WARNING could not read sectionID: sectionTest sectionID?\n";
     return TCL_ERROR;
   }
@@ -162,7 +162,7 @@ TclSectionTestBuilder_setSection(ClientData clientData, G3_Runtime *rt, int argc
 }
 
 int
-TclSectionTestBuilder_setStrainSection(ClientData clientData, G3_Runtime *rt,
+TclSectionTestBuilder_setStrainSection(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -183,7 +183,7 @@ TclSectionTestBuilder_setStrainSection(ClientData clientData, G3_Runtime *rt,
   static Vector data(argc - 1);
   double strain;
   for (int i = 1; i < argc; i++) {
-    if (Tcl_GetDouble(rt, argv[i], &strain) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[i], &strain) != TCL_OK) {
       opserr << "WARNING could not read strain: strainSectionTest strain1? "
                 "strain2? ... strainN?\n";
       return TCL_ERROR;
@@ -204,7 +204,7 @@ TclSectionTestBuilder_setStrainSection(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclSectionTestBuilder_getStressSection(ClientData clientData, G3_Runtime *rt,
+TclSectionTestBuilder_getStressSection(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
   // if the section exists, otherwise throw an error
@@ -213,7 +213,7 @@ TclSectionTestBuilder_getStressSection(ClientData clientData, G3_Runtime *rt,
     for (int i = 0; i < stress.Size(); i++) {
       char buffer[40];
       sprintf(buffer, "%.10e ", stress(i));
-      Tcl_AppendResult(rt, buffer, NULL);
+      Tcl_AppendResult(interp, buffer, NULL);
       //      sprintf(interp->result,"%.10e",stress(i));
     }
     return TCL_OK;
@@ -224,7 +224,7 @@ TclSectionTestBuilder_getStressSection(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclSectionTestBuilder_getTangSection(ClientData clientData, G3_Runtime *rt,
+TclSectionTestBuilder_getTangSection(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
 
@@ -235,7 +235,7 @@ TclSectionTestBuilder_getTangSection(ClientData clientData, G3_Runtime *rt,
       for (int j = 0; j < tangent.noCols(); j++) {
         char buffer[40];
         sprintf(buffer, "%.10e ", tangent(i, j));
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
         //	sprintf(interp->result,"%.10e",tangent(i,j));
       }
     return TCL_OK;
@@ -246,7 +246,7 @@ TclSectionTestBuilder_getTangSection(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclSectionTestBuilder_getResponseSection(ClientData clientData, G3_Runtime *rt,
+TclSectionTestBuilder_getResponseSection(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 {
   // if the section exists, otherwise throw an error
@@ -266,7 +266,7 @@ TclSectionTestBuilder_getResponseSection(ClientData clientData, G3_Runtime *rt,
     for (int i = 0; i < data.Size(); i++) {
       char buffer[40];
       sprintf(buffer, "%.10e ", data(i));
-      Tcl_AppendResult(rt, buffer, NULL);
+      Tcl_AppendResult(interp, buffer, NULL);
       //      sprintf(interp->result,"%.10e",stress(i));
     }
     // Now delete theResponse since I already retrieved the data

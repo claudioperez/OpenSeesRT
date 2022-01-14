@@ -40,7 +40,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addGenericCopy(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addGenericCopy(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -65,7 +65,7 @@ TclBasicBuilder_addGenericCopy(ClientData clientData, G3_Runtime *rt, int argc,
   int tag, node, srcTag, argi, i;
   int numNodes = 0;
 
-  if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
     opserr << "WARNING invalid genericCopy eleTag\n";
     return TCL_ERROR;
   }
@@ -89,7 +89,7 @@ TclBasicBuilder_addGenericCopy(ClientData clientData, G3_Runtime *rt, int argc,
   // create and fill in the ID array to hold the nodes
   ID nodes(numNodes);
   for (i = 0; i < numNodes; i++) {
-    if (Tcl_GetInt(rt, argv[argi], &node) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
       opserr << "WARNING invalid node\n";
       opserr << "genericCopy element: " << tag << endln;
       return TCL_ERROR;
@@ -103,7 +103,7 @@ TclBasicBuilder_addGenericCopy(ClientData clientData, G3_Runtime *rt, int argc,
     return TCL_ERROR;
   }
   argi++;
-  if (Tcl_GetInt(rt, argv[argi], &srcTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi], &srcTag) != TCL_OK) {
     opserr << "WARNING invalid srcTag\n";
     opserr << "genericCopy element: " << tag << endln;
     return TCL_ERROR;

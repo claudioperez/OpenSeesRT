@@ -68,7 +68,7 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 int
-TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv, Domain *theDomain,
                                   TclBasicBuilder *theBuilder)
 {
@@ -94,66 +94,66 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
     int numIters = 10;
     double tol = 1.0e-10;
 
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid beamWithHinges tag" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK) {
       opserr << "WARNING invalid ndI\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK) {
       opserr << "WARNING invalid ndJ\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[5], &secTagI) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[5], &secTagI) != TCL_OK) {
       opserr << "WARNING invalid secTagI\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[6], &lenI) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &lenI) != TCL_OK) {
       opserr << "WARNING invalid lenI\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[7], &secTagJ) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[7], &secTagJ) != TCL_OK) {
       opserr << "WARNING invalid ndJ\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[8], &lenJ) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8], &lenJ) != TCL_OK) {
       opserr << "WARNING invalid lenJ\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[9], &E) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[9], &E) != TCL_OK) {
       opserr << "WARNING invalid E\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[10], &A) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[10], &A) != TCL_OK) {
       opserr << "WARNING invalid A\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[11], &I) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[11], &I) != TCL_OK) {
       opserr << "WARNING invalid I\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[12], &transfTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[12], &transfTag) != TCL_OK) {
       opserr << "WARNING invalid transfTag\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
@@ -166,7 +166,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
     if (argc > 13) {
       for (int i = 13; i < argc; i++) {
         if (strcmp(argv[i], "-mass") == 0 && ++i < argc) {
-          if (Tcl_GetDouble(rt, argv[i], &massDens) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &massDens) != TCL_OK) {
             opserr << "WARNING invalid massDens\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
@@ -174,7 +174,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
         }
 
         if (strcmp(argv[i], "-constHinge") == 0 && ++i < argc) {
-          if (Tcl_GetInt(rt, argv[i], &shearTag) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[i], &shearTag) != TCL_OK) {
             opserr << "WARNING invalid constHinge tag\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
@@ -183,12 +183,12 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
         }
 
         if (strcmp(argv[i], "-iter") == 0 && i + 2 < argc) {
-          if (Tcl_GetInt(rt, argv[++i], &numIters) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[++i], &numIters) != TCL_OK) {
             opserr << "WARNING invalid maxIters\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
           }
-          if (Tcl_GetDouble(rt, argv[++i], &tol) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[++i], &tol) != TCL_OK) {
             opserr << "WARNING invalid tolerance\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
@@ -333,84 +333,84 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
     double tol = 1.0e-10;
     double shearLength = 1.0;
 
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid beamWithHinges tag" << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK) {
       opserr << "WARNING invalid ndI\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK) {
       opserr << "WARNING invalid ndJ\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[5], &secTagI) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[5], &secTagI) != TCL_OK) {
       opserr << "WARNING invalid secTagI\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[6], &lenI) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &lenI) != TCL_OK) {
       opserr << "WARNING invalid lenI\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[7], &secTagJ) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[7], &secTagJ) != TCL_OK) {
       opserr << "WARNING invalid ndJ\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[8], &lenJ) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8], &lenJ) != TCL_OK) {
       opserr << "WARNING invalid lenJ\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[9], &E) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[9], &E) != TCL_OK) {
       opserr << "WARNING invalid E\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[10], &A) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[10], &A) != TCL_OK) {
       opserr << "WARNING invalid A\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[11], &Iz) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[11], &Iz) != TCL_OK) {
       opserr << "WARNING invalid Iz\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[12], &Iy) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[12], &Iy) != TCL_OK) {
       opserr << "WARNING invalid Iy\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[13], &G) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[13], &G) != TCL_OK) {
       opserr << "WARNING invalid G\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[14], &J) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[14], &J) != TCL_OK) {
       opserr << "WARNING invalid J\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[15], &transfTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[15], &transfTag) != TCL_OK) {
       opserr << "WARNING invalid transfTag\n";
       opserr << "BeamWithHinges: " << tag << endln;
       return TCL_ERROR;
@@ -421,7 +421,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
     if (argc > 16) {
       for (int i = 16; i < argc; i++) {
         if (strcmp(argv[i], "-mass") == 0 && ++i < argc) {
-          if (Tcl_GetDouble(rt, argv[i], &massDens) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &massDens) != TCL_OK) {
             opserr << "WARNING invalid massDens\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
@@ -429,7 +429,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
         }
 
         if (strcmp(argv[i], "-shear") == 0 && ++i < argc) {
-          if (Tcl_GetDouble(rt, argv[i], &shearLength) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &shearLength) != TCL_OK) {
             opserr << "WARNING invalid shearLength\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
@@ -437,12 +437,12 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, G3_Runtime *rt,
         }
 
         if (strcmp(argv[i], "-iter") == 0 && i + 2 < argc) {
-          if (Tcl_GetInt(rt, argv[++i], &numIters) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[++i], &numIters) != TCL_OK) {
             opserr << "WARNING invalid maxIters\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
           }
-          if (Tcl_GetDouble(rt, argv[++i], &tol) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[++i], &tol) != TCL_OK) {
             opserr << "WARNING invalid tolerance\n";
             opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;

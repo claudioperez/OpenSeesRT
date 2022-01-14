@@ -54,7 +54,7 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 UniaxialMaterial *
-TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addSnapMaterial(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
   if (argc < 3) {
@@ -65,7 +65,7 @@ TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
   }
 
   int tag;
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     printCommand(argc, argv);
     return 0;
@@ -84,7 +84,7 @@ TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
     double temp;
 
     for (int i = 3, j = 0; j < 12; i++, j++) {
-      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -153,7 +153,7 @@ TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
     double temp;
 
     for (int i = 3, j = 0; j < 16; i++, j++) {
-      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -182,7 +182,7 @@ TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
     double temp;
 
     for (int i = 3, j = 0; j < 12; i++, j++) {
-      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -264,7 +264,7 @@ TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
     double temp;
 
     for (int i = 3, j = 0; j < 19; i++, j++) {
-      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;
@@ -289,7 +289,7 @@ TclBasicBuilder_addSnapMaterial(ClientData clientData, G3_Runtime *rt,
     double temp;
 
     for (int i = 3, j = 0; j < 15; i++, j++) {
-      if (Tcl_GetDouble(rt, argv[i], &temp) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i], &temp) != TCL_OK) {
         opserr << "WARNING invalid input, data " << i << endln;
         printCommand(argc, argv);
         return 0;

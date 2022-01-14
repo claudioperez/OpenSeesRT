@@ -41,7 +41,7 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 NDMaterial *
-TclBasicBuilder_addFeapMaterial(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addFeapMaterial(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv,
                                 TclBasicBuilder *theTclBuilder)
 {
@@ -52,7 +52,7 @@ TclBasicBuilder_addFeapMaterial(ClientData clientData, G3_Runtime *rt,
   }
 
   int tag;
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     printCommand(argc, argv);
     return 0;
@@ -71,12 +71,12 @@ TclBasicBuilder_addFeapMaterial(ClientData clientData, G3_Runtime *rt,
 
     double E, nu;
 
-    if (Tcl_GetDouble(rt, argv[3], &E) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
       opserr << "WARNING invalid E\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[4], &nu) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &nu) != TCL_OK) {
       opserr << "WARNING invalid nu\n";
       printCommand(argc, argv);
       return 0;
@@ -95,22 +95,22 @@ TclBasicBuilder_addFeapMaterial(ClientData clientData, G3_Runtime *rt,
 
     double K, G, sigY, Hiso;
 
-    if (Tcl_GetDouble(rt, argv[3], &K) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &K) != TCL_OK) {
       opserr << "WARNING invalid K\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[4], &G) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &G) != TCL_OK) {
       opserr << "WARNING invalid G\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[5], &sigY) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &sigY) != TCL_OK) {
       opserr << "WARNING invalid sigY\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[6], &Hiso) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &Hiso) != TCL_OK) {
       opserr << "WARNING invalid Hiso\n";
       printCommand(argc, argv);
       return 0;
@@ -132,37 +132,37 @@ TclBasicBuilder_addFeapMaterial(ClientData clientData, G3_Runtime *rt,
 
     double K, G, muK, muG, lamK, lamG, theta;
 
-    if (Tcl_GetDouble(rt, argv[3], &K) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &K) != TCL_OK) {
       opserr << "WARNING invalid K\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[4], &G) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &G) != TCL_OK) {
       opserr << "WARNING invalid G\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[5], &muK) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &muK) != TCL_OK) {
       opserr << "WARNING invalid muK\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[6], &muG) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &muG) != TCL_OK) {
       opserr << "WARNING invalid muG\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[7], &lamK) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7], &lamK) != TCL_OK) {
       opserr << "WARNING invalid lamK\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[8], &lamG) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8], &lamG) != TCL_OK) {
       opserr << "WARNING invalid lamG\n";
       printCommand(argc, argv);
       return 0;
     }
-    if (Tcl_GetDouble(rt, argv[9], &theta) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[9], &theta) != TCL_OK) {
       opserr << "WARNING invalid theta\n";
       printCommand(argc, argv);
       return 0;

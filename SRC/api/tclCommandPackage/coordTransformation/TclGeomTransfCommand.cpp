@@ -41,7 +41,7 @@ static TclBasicBuilder *theTclBasicBuilder = 0;
 // to create a coordinate transformation
 //
 int
-TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv, Domain *theDomain,
                          TclBasicBuilder *theBuilder)
 
@@ -75,7 +75,7 @@ TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     int argi = 2;
-    if (Tcl_GetInt(rt, argv[argi++], &crdTransfTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &crdTransfTag) != TCL_OK) {
       opserr << "WARNING invalid tag - want: geomTransf type? tag? <-jntOffset "
                 "dXi? dYi? dXj? dYj?>\n";
       return TCL_ERROR;
@@ -89,7 +89,7 @@ TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
         argi++;
         for (i = 0; i < 2; i++) {
           if (argi == argc ||
-              Tcl_GetDouble(rt, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
+              Tcl_GetDouble(interp, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
             opserr << "WARNING invalid jntOffset value - want: geomTransf "
                       "type? tag? <-jntOffset dXi? dYi? dXj? dYj?>\n";
             return TCL_ERROR;
@@ -98,7 +98,7 @@ TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
 
         for (i = 0; i < 2; i++) {
           if (argi == argc ||
-              Tcl_GetDouble(rt, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
+              Tcl_GetDouble(interp, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
             opserr << "WARNING invalid jntOffset value - want: geomTransf "
                       "type? tag? <-jntOffset dXi? dYi? dXj? dYj?>\n";
             return TCL_ERROR;
@@ -171,28 +171,28 @@ TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     int argi = 2;
-    if (Tcl_GetInt(rt, argv[argi++], &crdTransfTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &crdTransfTag) != TCL_OK) {
       opserr << "WARNING invalid tag - want: geomTransf type? tag? "
                 "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? dYi? "
                 "dZi? dXj? dYj? dZj? >\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[argi++], &vecxzPlane(0)) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[argi++], &vecxzPlane(0)) != TCL_OK) {
       opserr << "WARNING invalid vecxzPlaneX - want: geomTransf type? tag? "
                 "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? dYi? "
                 "dZi? dXj? dYj? dZj? >\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[argi++], &vecxzPlane(1)) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[argi++], &vecxzPlane(1)) != TCL_OK) {
       opserr << "WARNING invalid vecxzPlaneY - want: geomTransf type? tag? "
                 "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? dYi? "
                 "dZi? dXj? dYj? dZj? >\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[argi++], &vecxzPlane(2)) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[argi++], &vecxzPlane(2)) != TCL_OK) {
       opserr << "WARNING invalid vecxzPlaneZ - want: geomTransf type? tag? "
                 "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? dYi? "
                 "dZi? dXj? dYj? dZj? >\n";
@@ -207,7 +207,7 @@ TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
         argi++;
         for (i = 0; i < 3; i++) {
           if (argi == argc ||
-              Tcl_GetDouble(rt, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
+              Tcl_GetDouble(interp, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
             opserr << "WARNING invalid jntOffset value - want: geomTransf "
                       "type? tag? vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  "
                       "<-jntOffset dXi? dYi? dZi? dXj? dYj? dZj? >\n";
@@ -217,7 +217,7 @@ TclCommand_addGeomTransf(ClientData clientData, G3_Runtime *rt, int argc,
 
         for (i = 0; i < 3; i++) {
           if (argi == argc ||
-              Tcl_GetDouble(rt, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
+              Tcl_GetDouble(interp, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
             opserr << "WARNING invalid jntOffset value - want: geomTransf "
                       "type? tag? vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  "
                       "<-jntOffset dXi? dYi? dZi? dXj? dYj? dZj? >\n";

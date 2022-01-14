@@ -9,7 +9,7 @@
 #include <string>
 
 int
-TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addPFEMElement2D(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
@@ -21,28 +21,28 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
   }
   int loc = 2;
   int tag;
-  if (Tcl_GetInt(rt, argv[loc], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &tag) != TCL_OK) {
     opserr << "WARNING invalid tag " << argv[loc]
            << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd1;
-  if (Tcl_GetInt(rt, argv[loc], &nd1) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd1) != TCL_OK) {
     opserr << "WARNING invalid nd1 " << argv[loc]
            << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd2;
-  if (Tcl_GetInt(rt, argv[loc], &nd2) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd2) != TCL_OK) {
     opserr << "WARNING invalid nd2 " << argv[loc]
            << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd3;
-  if (Tcl_GetInt(rt, argv[loc], &nd3) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd3) != TCL_OK) {
     opserr << "WARNING invalid nd3 " << argv[loc]
            << ": element PFEMElement2D\n";
     return TCL_ERROR;
@@ -66,33 +66,33 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
   }
   loc++;
   double rho;
-  if (Tcl_GetDouble(rt, argv[loc], &rho) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &rho) != TCL_OK) {
     opserr << "WARNING invalid rho " << argv[loc]
            << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   double mu;
-  if (Tcl_GetDouble(rt, argv[loc], &mu) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &mu) != TCL_OK) {
     opserr << "WARNING invalid mu " << argv[loc] << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   double b1;
-  if (Tcl_GetDouble(rt, argv[loc], &b1) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &b1) != TCL_OK) {
     opserr << "WARNING invalid b1 " << argv[loc] << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   double b2;
-  if (Tcl_GetDouble(rt, argv[loc], &b2) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &b2) != TCL_OK) {
     opserr << "WARNING invalid b2 " << argv[loc] << ": element PFEMElement2D\n";
     return TCL_ERROR;
   }
   loc++;
   double thickness = 1.0;
   if (argc > loc) {
-    if (Tcl_GetDouble(rt, argv[loc], &thickness) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[loc], &thickness) != TCL_OK) {
       opserr << "WARNING invalid thickness " << argv[loc]
              << ": element PFEMElement2D\n";
       return TCL_ERROR;
@@ -101,7 +101,7 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
   loc++;
   double kappa = 2.2e9;
   if (argc > loc) {
-    if (Tcl_GetDouble(rt, argv[loc], &kappa) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[loc], &kappa) != TCL_OK) {
       opserr << "WARNING invalid kappa " << argv[loc]
              << ": element PFEMElement2D\n";
       return TCL_ERROR;
@@ -110,7 +110,7 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
   loc++;
   int lumped = 0;
   if (argc > loc) {
-    if (Tcl_GetInt(rt, argv[loc], &lumped) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[loc], &lumped) != TCL_OK) {
       opserr << "WARNING invalid lumped " << argv[loc]
              << ": element PFEMElement2D\n";
       return TCL_ERROR;
@@ -119,7 +119,7 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
   loc++;
   int checkJ = 0;
   if (argc > loc) {
-    if (Tcl_GetInt(rt, argv[loc], &checkJ) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[loc], &checkJ) != TCL_OK) {
       opserr << "WARNING invalid checkJ " << argv[loc]
              << ": element PFEMElement2D\n";
       return TCL_ERROR;
@@ -158,7 +158,7 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addPFEMElement3D(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addPFEMElement3D(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
@@ -173,35 +173,35 @@ TclBasicBuilder_addPFEMElement3D(ClientData clientData, G3_Runtime *rt,
   int loc = 2;
 
   int tag;
-  if (Tcl_GetInt(rt, argv[loc], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &tag) != TCL_OK) {
     opserr << "WARNING invalid tag " << argv[loc]
            << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd1;
-  if (Tcl_GetInt(rt, argv[loc], &nd1) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd1) != TCL_OK) {
     opserr << "WARNING invalid nd1 " << argv[loc]
            << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd2;
-  if (Tcl_GetInt(rt, argv[loc], &nd2) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd2) != TCL_OK) {
     opserr << "WARNING invalid nd2 " << argv[loc]
            << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd3;
-  if (Tcl_GetInt(rt, argv[loc], &nd3) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd3) != TCL_OK) {
     opserr << "WARNING invalid nd3 " << argv[loc]
            << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   int nd4;
-  if (Tcl_GetInt(rt, argv[loc], &nd4) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &nd4) != TCL_OK) {
     opserr << "WARNING invalid nd4 " << argv[loc]
            << ": element PFEMElement3D\n";
     return TCL_ERROR;
@@ -210,39 +210,39 @@ TclBasicBuilder_addPFEMElement3D(ClientData clientData, G3_Runtime *rt,
   std::string type = argv[loc];
   loc++;
   double rho;
-  if (Tcl_GetDouble(rt, argv[loc], &rho) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &rho) != TCL_OK) {
     opserr << "WARNING invalid rho " << argv[loc]
            << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   double mu;
-  if (Tcl_GetDouble(rt, argv[loc], &mu) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &mu) != TCL_OK) {
     opserr << "WARNING invalid mu " << argv[loc] << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   double b1;
-  if (Tcl_GetDouble(rt, argv[loc], &b1) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &b1) != TCL_OK) {
     opserr << "WARNING invalid b1 " << argv[loc] << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   double b2;
-  if (Tcl_GetDouble(rt, argv[loc], &b2) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &b2) != TCL_OK) {
     opserr << "WARNING invalid b2 " << argv[loc] << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   double b3;
-  if (Tcl_GetDouble(rt, argv[loc], &b3) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[loc], &b3) != TCL_OK) {
     opserr << "WARNING invalid b3 " << argv[loc] << ": element PFEMElement3D\n";
     return TCL_ERROR;
   }
   loc++;
   double kappa = 2.2e9;
   if (argc > loc) {
-    if (Tcl_GetDouble(rt, argv[loc], &kappa) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[loc], &kappa) != TCL_OK) {
       opserr << "WARNING invalid kappa " << argv[loc]
              << ": element PFEMElement3D\n";
       return TCL_ERROR;
@@ -251,7 +251,7 @@ TclBasicBuilder_addPFEMElement3D(ClientData clientData, G3_Runtime *rt,
   }
   int lumped = 0;
   if (argc > loc) {
-    if (Tcl_GetInt(rt, argv[loc], &lumped) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[loc], &lumped) != TCL_OK) {
       opserr << "WARNING invalid lumped " << argv[loc]
              << ": element PFEMElement3D\n";
       return TCL_ERROR;
@@ -260,7 +260,7 @@ TclBasicBuilder_addPFEMElement3D(ClientData clientData, G3_Runtime *rt,
   }
   int check = 0;
   if (argc > loc) {
-    if (Tcl_GetInt(rt, argv[loc], &check) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[loc], &check) != TCL_OK) {
       opserr << "WARNING invalid check " << argv[loc]
              << ": element PFEMElement3D\n";
       return TCL_ERROR;

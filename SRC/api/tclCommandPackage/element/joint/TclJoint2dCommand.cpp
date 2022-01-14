@@ -44,7 +44,7 @@
 extern void printCommand(int argc, char **argv);
 
 int
-TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv, Domain *theTclDomain)
 {
   // check the number of arguments is correct
@@ -70,30 +70,30 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the id and end nodes
   int Joint2DId, iNode, jNode, kNode, lNode;
-  if (Tcl_GetInt(rt, argv[argStart], &Joint2DId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argStart], &Joint2DId) != TCL_OK) {
     opserr << "WARNING invalid Joint2D eleTag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[1 + argStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "Joint2D element: " << Joint2DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[2 + argStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "Joint2D element: " << Joint2DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[3 + argStart], &kNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
     opserr << "WARNING invalid kNode\n";
     opserr << "Joint2D element: " << Joint2DId << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4 + argStart], &lNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
     opserr << "WARNING invalid lNode\n";
     opserr << "Joint2D element: " << Joint2DId << endln;
     return TCL_ERROR;
@@ -101,7 +101,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
 
   // Get the center node
   int CenterNodeTag;
-  if (Tcl_GetInt(rt, argv[5 + argStart], &CenterNodeTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[5 + argStart], &CenterNodeTag) != TCL_OK) {
     opserr << "WARNING invalid tag for center node\n";
     opserr << "Joint2D element: " << Joint2DId << endln;
     return TCL_ERROR;
@@ -132,13 +132,13 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
 
     if ((argc - argStart) == 8) {
       int PanelMatId;
-      if (Tcl_GetInt(rt, argv[6 + argStart], &PanelMatId) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[6 + argStart], &PanelMatId) != TCL_OK) {
         opserr << "WARNING invalid matID\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[7 + argStart], &LargeDisp) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[7 + argStart], &LargeDisp) != TCL_OK) {
         // use 0 as default
         LargeDisp = 0;
       }
@@ -156,7 +156,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
     else // if ( (argc-argStart) == 12  )
     {
       int MatIid;
-      if (Tcl_GetInt(rt, argv[6 + argStart], &MatIid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[6 + argStart], &MatIid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring I\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -175,7 +175,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatI = NULL;
 
       int MatJid;
-      if (Tcl_GetInt(rt, argv[7 + argStart], &MatJid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[7 + argStart], &MatJid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring J\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -194,7 +194,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatJ = NULL;
 
       int MatKid;
-      if (Tcl_GetInt(rt, argv[8 + argStart], &MatKid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8 + argStart], &MatKid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring K\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
 
@@ -213,7 +213,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatK = NULL;
 
       int MatLid;
-      if (Tcl_GetInt(rt, argv[9 + argStart], &MatLid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9 + argStart], &MatLid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring L\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -231,7 +231,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatL = NULL;
 
       int PanelMatId;
-      if (Tcl_GetInt(rt, argv[10 + argStart], &PanelMatId) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10 + argStart], &PanelMatId) != TCL_OK) {
         opserr << "WARNING invalid matID\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -245,7 +245,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[11 + argStart], &LargeDisp) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11 + argStart], &LargeDisp) != TCL_OK) {
         // use 0 as default
         LargeDisp = 0;
       }
@@ -284,13 +284,13 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
 
     if ((argc - argStart) == 10) {
       int PanelMatId;
-      if (Tcl_GetInt(rt, argv[6 + argStart], &PanelMatId) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[6 + argStart], &PanelMatId) != TCL_OK) {
         opserr << "WARNING invalid matID\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[7 + argStart], &LargeDisp) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[7 + argStart], &LargeDisp) != TCL_OK) {
         // use 0 as default
         LargeDisp = 0;
       }
@@ -312,7 +312,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       int PanelDamageId;
-      if (Tcl_GetInt(rt, argv[9 + argStart], &PanelDamageId) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9 + argStart], &PanelDamageId) != TCL_OK) {
         opserr << "WARNING invalid damageID\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -332,7 +332,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
     else // if ( (argc-argStart) == 18  )
     {
       int MatIid;
-      if (Tcl_GetInt(rt, argv[6 + argStart], &MatIid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[6 + argStart], &MatIid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring I\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -351,7 +351,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatI = NULL;
 
       int MatJid;
-      if (Tcl_GetInt(rt, argv[7 + argStart], &MatJid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[7 + argStart], &MatJid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring J\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -370,7 +370,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatJ = NULL;
 
       int MatKid;
-      if (Tcl_GetInt(rt, argv[8 + argStart], &MatKid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8 + argStart], &MatKid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring K\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
 
@@ -389,7 +389,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatK = NULL;
 
       int MatLid;
-      if (Tcl_GetInt(rt, argv[9 + argStart], &MatLid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9 + argStart], &MatLid) != TCL_OK) {
         opserr << "WARNING invalid material ID for spring L\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -407,7 +407,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         MatL = NULL;
 
       int PanelMatId;
-      if (Tcl_GetInt(rt, argv[10 + argStart], &PanelMatId) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10 + argStart], &PanelMatId) != TCL_OK) {
         opserr << "WARNING invalid matID\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -421,7 +421,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[11 + argStart], &LargeDisp) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11 + argStart], &LargeDisp) != TCL_OK) {
         // use 0 as default
         LargeDisp = 0;
       }
@@ -434,7 +434,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       int DmgIid;
-      if (Tcl_GetInt(rt, argv[13 + argStart], &DmgIid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[13 + argStart], &DmgIid) != TCL_OK) {
         opserr << "WARNING invalid damage model ID for spring I\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -453,7 +453,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         DmgI = NULL;
 
       int DmgJid;
-      if (Tcl_GetInt(rt, argv[14 + argStart], &DmgJid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[14 + argStart], &DmgJid) != TCL_OK) {
         opserr << "WARNING invalid damage model ID for spring J\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -472,7 +472,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         DmgJ = NULL;
 
       int DmgKid;
-      if (Tcl_GetInt(rt, argv[15 + argStart], &DmgKid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[15 + argStart], &DmgKid) != TCL_OK) {
         opserr << "WARNING invalid damage model ID for spring K\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -491,7 +491,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         DmgK = NULL;
 
       int DmgLid;
-      if (Tcl_GetInt(rt, argv[16 + argStart], &DmgLid) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[16 + argStart], &DmgLid) != TCL_OK) {
         opserr << "WARNING invalid damage model ID for spring L\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
@@ -510,7 +510,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, G3_Runtime *rt, int argc,
         DmgL = NULL;
 
       int PanelDmgId;
-      if (Tcl_GetInt(rt, argv[17 + argStart], &PanelDmgId) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[17 + argStart], &PanelDmgId) != TCL_OK) {
         opserr << "WARNING invalid panel DmgID\n";
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;

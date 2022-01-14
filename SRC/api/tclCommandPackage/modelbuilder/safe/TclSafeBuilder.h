@@ -21,7 +21,8 @@
 
 #include <map>
 #include <string>
-#include <ModelBuilder.h>
+// #include <ModelBuilder.h>
+#include <TclBuilder.h>
 #include <MultiSupportPattern.h>
 
 class SectionForceDeformation;
@@ -39,15 +40,14 @@ class TimeSeries;
 
 #include <tcl.h>
 
-class TclSafeBuilder : public ModelBuilder {
+class TclSafeBuilder : public TclBuilder {
 public:
-  TclSafeBuilder(Domain &theDomain, G3_Runtime *rt, int ndm,
+  TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm,
                          int ndf);
   ~TclSafeBuilder();
 
-  int buildFE_Model(void);
-  int getNDM(void) const;
-  int getNDF(void) const;
+  using TclBuilder::buildFE_Model;
+  // int buildFE_Model(void);
 
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);

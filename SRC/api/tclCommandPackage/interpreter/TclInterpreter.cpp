@@ -74,7 +74,7 @@ OPS_Stream *opserrPtr = &sserr;
 #endif
 
 extern "C" {
-#include <tcl.h>
+#include <g3_api.h>
 #include <tclDecls.h>
 #ifdef _TCL85
 #define TclFormatInt(buf, n) sprintf((buf), "%ld", (long)(n))
@@ -86,7 +86,7 @@ EXTERN int TclObjCommandComplete _ANSI_ARGS_((Tcl_Obj * cmdPtr));
 
 // extern int addOpenSeesCommands(Tcl_Interp *interp);
 
-int Tcl_AppInit _ANSI_ARGS_((Tcl_Interp * interp));
+int Tcl_AppInit _ANSI_ARGS_((Tcl_Interp *interp));
 
 #undef TCL_STORAGE_CLASS
 #define TCL_STORAGE_CLASS DLLEXPORT

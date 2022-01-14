@@ -60,7 +60,7 @@ static TclBasicBuilder *theTclBasicBuilder = 0;
 // to create a NL frame element and add to the domain
 //
 int
-TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addFrameElement(ClientData clientData, Tcl_Interp *interp,
                                 int inArgc, TCL_Char **inArgv,
                                 Domain *theDomain, TclBasicBuilder *theBuilder)
 
@@ -95,7 +95,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
   int argc;
   TCL_Char **argv;
 
-  if (Tcl_SplitList(rt, List, &argc, &argv) != TCL_OK) {
+  if (Tcl_SplitList(interp, List, &argc, &argv) != TCL_OK) {
     opserr << "WARNING - TclBasicBuilder_addFrameElement - problem splitting "
               "list\n";
     return TCL_ERROR;
@@ -122,28 +122,28 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
       return TCL_ERROR;
     }
     int argi = 2;
-    if (Tcl_GetInt(rt, argv[argi++], &eleTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &eleTag) != TCL_OK) {
       opserr << "WARNING invalid eleTag: element nonlinearBeamColumn eleTag? "
                 "iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
                 "massDens?> <-iter nMaxLocIters? locToler?>\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[argi++], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode:  element nonlinearBeamColumn eleTag? "
                 "iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
                 "massDens?> <-iter nMaxLocIters? locToler?>\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[argi++], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode: element nonlinearBeamColumn eleTag? "
                 "iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
                 "massDens?> <-iter nMaxLocIters? locToler?>\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[argi++], &numIntgrPts) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &numIntgrPts) != TCL_OK) {
       opserr << "WARNING invalid numIntgrPts: element nonlinearBeamColumn "
                 "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
                 "massDens?> <-iter nMaxLocIters? locToler?>\n";
@@ -161,7 +161,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
       }
       int section;
       for (int i = 0; i < numIntgrPts; i++) {
-        if (Tcl_GetInt(rt, argv[argi + i], &section) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argi + i], &section) != TCL_OK) {
           opserr << "WARNING invalid secTag - element nonlinearBeamColumn "
                     "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? "
                     "<-mass massDens?> <-iter nMaxLocIters? locToler?>\n";
@@ -174,7 +174,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
 
     else {
       int section;
-      if (Tcl_GetInt(rt, argv[argi++], &section) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argi++], &section) != TCL_OK) {
         opserr << "WARNING invalid secTag - element nonlinearBeamColumn "
                   "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? "
                   "<-mass massDens?> <-iter nMaxLocIters? locToler?>\n";
@@ -184,7 +184,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
         secTag[i] = section;
     }
 
-    if (argi >= argc || Tcl_GetInt(rt, argv[argi++], &transfTag) != TCL_OK) {
+    if (argi >= argc || Tcl_GetInt(interp, argv[argi++], &transfTag) != TCL_OK) {
       opserr << "WARNING invalid transfTag? - element nonlinearBeamColumn "
                 "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
                 "massDens?> <-iter nMaxLocIters? locToler?>\n";
@@ -202,7 +202,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
         // allow user to specify mass (per unit length)
         argi++;
         if (argi == argc ||
-            Tcl_GetDouble(rt, argv[argi++], &massDens) != TCL_OK) {
+            Tcl_GetDouble(interp, argv[argi++], &massDens) != TCL_OK) {
           opserr << "WARNING invalid massDens - element nonlinearBeamColumn "
                     "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? "
                     "<-mass massDens?> <-iter nMaxLocIters? locToler?>\n";
@@ -214,7 +214,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
         // allow user to specify maximum number of local iterations
         argi++;
         if (argi == argc ||
-            Tcl_GetInt(rt, argv[argi++], &nMaxLocIters) != TCL_OK) {
+            Tcl_GetInt(interp, argv[argi++], &nMaxLocIters) != TCL_OK) {
           opserr
               << "WARNING invalid nMaxLocIters - element nonlinearBeamColumn "
                  "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? <-mass "
@@ -224,7 +224,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, G3_Runtime *rt,
 
         // specify local tolerance
         if (argi == argc ||
-            Tcl_GetDouble(rt, argv[argi++], &locToler) != TCL_OK) {
+            Tcl_GetDouble(interp, argv[argi++], &locToler) != TCL_OK) {
           opserr << "WARNING invalid locToler - element nonlinearBeamColumn "
                     "eleTag? iNode? jNode? numIntgrPts? secTag? transfTag? "
                     "<-mass massDens?> <-iter nMaxLocIters? locToler?>\n";

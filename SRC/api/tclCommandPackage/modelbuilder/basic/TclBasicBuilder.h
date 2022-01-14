@@ -39,7 +39,7 @@
 #ifndef TclBasicBuilder_h
 #define TclBasicBuilder_h
 
-#include <ModelBuilder.h>
+#include <TclBuilder.h>
 
 class SectionForceDeformation;
 class SectionRepres;
@@ -55,14 +55,18 @@ class FrictionModel;
 #include <tcl.h>
 #include <g3_api.h>
 
-class TclBasicBuilder : public ModelBuilder {
+class TclBasicBuilder : public TclBuilder {
 public:
-  TclBasicBuilder(Domain &theDomain, G3_Runtime *rt, int ndm, int ndf);
+  TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm, int ndf);
   ~TclBasicBuilder();
 
+  using TclBuilder::buildFE_Model;
+
+/*
   int buildFE_Model(void);
   int getNDM(void) const;
   int getNDF(void) const;
+*/
 
   // methods needed for the truss and fiber-beam elements for
   // adding/getting uniaxial material objects

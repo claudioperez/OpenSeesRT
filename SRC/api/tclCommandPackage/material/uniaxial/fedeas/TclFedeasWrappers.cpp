@@ -7,9 +7,10 @@
 
 // TODO: change to TclSafeBuildObj_
 int
-TclSafeBuilder_addFedeasWrapper(ClientData clientData, G3_Runtime *rt,
+TclSafeBuilder_addFedeasWrapper(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   // Pointer to a uniaxial material that will be returned
   DegradingUniaxialWrapper *theMaterial = 0;
   UniaxialMaterial *theWrappedMaterial = 0;
@@ -25,13 +26,13 @@ TclSafeBuilder_addFedeasWrapper(ClientData clientData, G3_Runtime *rt,
   }
 
   // Get wrapper tag
-  if (Tcl_GetInt(rt, argv[2], &tags[0]) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tags[0]) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     // printCommand(argc, argv);
     return 0;
   }
   // Get base tag
-  if (Tcl_GetInt(rt, argv[3], &tags[1]) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &tags[1]) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     // printCommand(argc, argv);
     return 0;
@@ -79,7 +80,7 @@ TclSafeBuilder_addFedeasWrapper(ClientData clientData, G3_Runtime *rt,
   }
   theMaterial->setCoupling(Ccd);
   if (dmgtag){
-    if (theMaterial->setDamageWrapper(rt, dmgtag) > 0)
+    if (theMaterial->setDamageWrapper(interp, dmgtag) > 0)
       opserr << "#Set damage wrapper '" << dmgtag << "'\n";
   }
 

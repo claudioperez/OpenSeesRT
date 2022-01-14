@@ -39,7 +39,7 @@
 #include <g3_api.h>
 #include <elementAPI.h> //MRL
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       G3_Runtime *rt, int cArg, int mArg,
+                                       Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
 #include <packages.h>   //MRL
@@ -58,7 +58,7 @@ printCommand(int argc, TCL_Char **argv)
 // start //**MRL
 // Package Commands
 extern LimitCurve *Tcl_addWrapperLimitCurve(limCrvObj *, ClientData clientData,
-                                            G3_Runtime *rt, int argc,
+                                            Tcl_Interp *interp, int argc,
                                             TCL_Char **argv);
 
 typedef struct limitCurvePackageCommand {
@@ -74,11 +74,11 @@ static LimitCurvePackageCommand *theLimitCurvePackageCommands = NULL;
 // the proceure invoked by the interpreter when limitCurve is invoked
 //////////////////////////////////////////////////////////////////////
 int
-Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
+Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv, Domain *theDomain)
 {
 
-//  OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
+//  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Make sure there is a minimum number of arguments
   if (argc < 8) {
@@ -115,72 +115,72 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
     int eleRemove = 0;
     double delta = 0.0;
 
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid Axial LimitCurve tag" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3], &eleTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &eleTag) != TCL_OK) {
       opserr << "WARNING invalid element tag for associated beam-column "
                 "element (eleTag)\n";
       opserr << "LimitCurve Axial: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4], &Fsw) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &Fsw) != TCL_OK) {
       opserr << "WARNING invalid Fsw\n";
       opserr << "LimitCurve Axial: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5], &Kdeg) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &Kdeg) != TCL_OK) {
       opserr << "WARNING invalid degrading slope Kdeg\n";
       opserr << "LimitCurve Axial: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[6], &Fres) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &Fres) != TCL_OK) {
       opserr << "WARNING invalid residual capacity Fres\n";
       opserr << "LimitCurve Axial: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[7], &defType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[7], &defType) != TCL_OK) {
       opserr << "WARNING invalid deformation type defType\n";
       opserr << "LimitCurve Axial: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[8], &forType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[8], &forType) != TCL_OK) {
       opserr << "WARNING invalid force type forType\n";
       opserr << "LimitCurve Axial: " << tag << endln;
       return TCL_ERROR;
     }
     if (defType == 2) {
-      if (Tcl_GetInt(rt, argv[9], &ndI) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9], &ndI) != TCL_OK) {
         opserr << "WARNING invalid node I\n";
         opserr << "LimitCurve Axial: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10], &ndJ) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10], &ndJ) != TCL_OK) {
         opserr << "WARNING invalid node J\n";
         opserr << "LimitCurve Axial: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[11], &dof) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[11], &dof) != TCL_OK) {
         opserr << "WARNING invalid degree of freedom for drift\n";
         opserr << "LimitCurve Axial: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[12], &perpDirn) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[12], &perpDirn) != TCL_OK) {
         opserr << "WARNING invalid direction for column length\n";
         opserr << "LimitCurve Axial: " << tag << endln;
         return TCL_ERROR;
       }
     }
     if (argc >= 14) {
-      if (Tcl_GetDouble(rt, argv[13], &delta) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[13], &delta) != TCL_OK) {
         opserr << "WARNING invalid shift in drift surface (delta)\n";
         opserr << "LimitCurve Axial: " << tag << endln;
         return TCL_ERROR;
       }
     }
     if (argc >= 15) {
-      if (Tcl_GetInt(rt, argv[14], &eleRemove) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[14], &eleRemove) != TCL_OK) {
         opserr << "WARNING invalid element removal option\n";
         opserr << "LimitCurve Axial: " << tag << endln;
         return TCL_ERROR;
@@ -188,7 +188,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
     // Parsing was successful, allocate the limit curve
     // Subtract one from dof and perpDirn for C indexing
-    theCurve = new AxialCurve(rt, tag, eleTag, theDomain, Fsw, // SDK
+    theCurve = new AxialCurve(interp, tag, eleTag, theDomain, Fsw, // SDK
                               Kdeg, Fres, defType, forType, ndI, ndJ, dof - 1,
                               perpDirn - 1, delta, eleRemove);
   }
@@ -226,83 +226,83 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
     int dof = 0;
     int perpDirn = 0;
 
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid limitCurve ThreePoint tag" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3], &eleTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &eleTag) != TCL_OK) {
       opserr << "WARNING invalid element tag for associated beam-column "
                 "element (eleTag)\n";
       opserr << "LimitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4], &x1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) {
       opserr << "WARNING invalid x1\n";
       opserr << "limitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5], &y1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) {
       opserr << "WARNING invalid y1\n";
       opserr << "limitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[6], &x2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &x2) != TCL_OK) {
       opserr << "WARNING invalid x2\n";
       opserr << "limitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[7], &y2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7], &y2) != TCL_OK) {
       opserr << "WARNING invalid y2\n";
       opserr << "limitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[8], &x3) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8], &x3) != TCL_OK) {
       opserr << "WARNING invalid x3\n";
       opserr << "limitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[9], &y3) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[9], &y3) != TCL_OK) {
       opserr << "WARNING invalid y3\n";
       opserr << "limitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[10], &Kdeg) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[10], &Kdeg) != TCL_OK) {
       opserr << "WARNING invalid degrading slope Kdeg\n";
       opserr << "LimitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[11], &Fres) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[11], &Fres) != TCL_OK) {
       opserr << "WARNING invalid residual capacity Fres\n";
       opserr << "LimitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[12], &defType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[12], &defType) != TCL_OK) {
       opserr << "WARNING invalid deformation type defType\n";
       opserr << "LimitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[13], &forType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[13], &forType) != TCL_OK) {
       opserr << "WARNING invalid force type forType\n";
       opserr << "LimitCurve ThreePoint: " << tag << endln;
       return TCL_ERROR;
     }
     if (defType == 2) {
-      if (Tcl_GetInt(rt, argv[14], &ndI) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[14], &ndI) != TCL_OK) {
         opserr << "WARNING invalid node I\n";
         opserr << "LimitCurve ThreePoint: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[15], &ndJ) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[15], &ndJ) != TCL_OK) {
         opserr << "WARNING invalid node J\n";
         opserr << "LimitCurve ThreePoint: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[16], &dof) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[16], &dof) != TCL_OK) {
         opserr << "WARNING invalid degree of freedom for drift\n";
         opserr << "LimitCurve ThreePoint: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[17], &perpDirn) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[17], &perpDirn) != TCL_OK) {
         opserr << "WARNING invalid direction for column length\n";
         opserr << "LimitCurve ThreePoint: " << tag << endln;
         return TCL_ERROR;
@@ -342,83 +342,83 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
     double Fsw = 0.0; // SDK
     double delta = 0.0;
 
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid limitCurve Shear tag" << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3], &eleTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &eleTag) != TCL_OK) {
       opserr << "WARNING invalid element tag for associated beam-column "
                 "element (eleTag)\n";
       opserr << "LimitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4], &rho) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &rho) != TCL_OK) {
       opserr << "WARNING invalid trans reinf ratio\n";
       opserr << "limitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5], &fc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &fc) != TCL_OK) {
       opserr << "WARNING invalid concrete strength\n";
       opserr << "limitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[6], &b) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &b) != TCL_OK) {
       opserr << "WARNING invalid b\n";
       opserr << "limitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[7], &h) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7], &h) != TCL_OK) {
       opserr << "WARNING invalid h\n";
       opserr << "limitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[8], &d) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8], &d) != TCL_OK) {
       opserr << "WARNING invalid d\n";
       opserr << "limitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[9], &Fsw) != TCL_OK) { // SDK
+    if (Tcl_GetDouble(interp, argv[9], &Fsw) != TCL_OK) { // SDK
       opserr << "WARNING invalid Fsw\n";
       opserr << "limitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[10], &Kdeg) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[10], &Kdeg) != TCL_OK) {
       opserr << "WARNING invalid degrading slope Kdeg\n";
       opserr << "LimitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[11], &Fres) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[11], &Fres) != TCL_OK) {
       opserr << "WARNING invalid residual capacity Fres\n";
       opserr << "LimitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[12], &defType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[12], &defType) != TCL_OK) {
       opserr << "WARNING invalid deformation type defType\n";
       opserr << "LimitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[13], &forType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[13], &forType) != TCL_OK) {
       opserr << "WARNING invalid force type forType\n";
       opserr << "LimitCurve Shear: " << tag << endln;
       return TCL_ERROR;
     }
     if (defType == 2) {
-      if (Tcl_GetInt(rt, argv[14], &ndI) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[14], &ndI) != TCL_OK) {
         opserr << "WARNING invalid node I\n";
         opserr << "LimitCurve Shear: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[15], &ndJ) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[15], &ndJ) != TCL_OK) {
         opserr << "WARNING invalid node J\n";
         opserr << "LimitCurve Shear: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[16], &dof) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[16], &dof) != TCL_OK) {
         opserr << "WARNING invalid degree of freedom for drift\n";
         opserr << "LimitCurve Shear: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[17], &perpDirn) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[17], &perpDirn) != TCL_OK) {
         opserr << "WARNING invalid direction for column length\n";
         opserr << "LimitCurve Shear: " << tag << endln;
         return TCL_ERROR;
@@ -426,7 +426,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     if (argc == 19) {
-      if (Tcl_GetDouble(rt, argv[18], &delta) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[18], &delta) != TCL_OK) {
         opserr << "WARNING invalid shift in drift surface (delta)\n";
         opserr << "LimitCurve Shear: " << tag << endln;
         return TCL_ERROR;
@@ -458,7 +458,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
       bool found = false;
       while (limCrvCommands != NULL && found == false) {
         if (strcmp(argv[1], limCrvCommands->funcName) == 0) {
-//          OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
+//          OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
           theCurve = (LimitCurve *)(*(limCrvCommands->funcPtr))(argc, argv);
           found = true;
           ;
@@ -477,7 +477,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
       delete[] limCrvType;
 
       if (limCrvObject != 0) {
-        theCurve = Tcl_addWrapperLimitCurve(limCrvObject, clientData, rt,
+        theCurve = Tcl_addWrapperLimitCurve(limCrvObject, clientData, interp,
                                             argc, argv);
         if (theCurve == 0)
           delete limCrvObject;
@@ -508,7 +508,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
         theLimCrvCommand->next = theLimitCurvePackageCommands;
         theLimitCurvePackageCommands = theLimCrvCommand;
 
-//        OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
+//        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
         theCurve = (LimitCurve *)(*funcPtr)(argc, argv);
       }
     }
@@ -553,7 +553,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, G3_Runtime *rt, int argc,
 /////////////////////////////////////////////////////////////////////////////////////////
 
 UniaxialMaterial *
-Tcl_AddLimitStateMaterial(ClientData clientData, G3_Runtime *rt, int argc,
+Tcl_AddLimitStateMaterial(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 {
   if (strcmp(argv[1], "LimitState") != 0)
@@ -587,113 +587,113 @@ Tcl_AddLimitStateMaterial(ClientData clientData, G3_Runtime *rt, int argc,
 
   int i = 2;
 
-  if (Tcl_GetInt(rt, argv[i++], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[i++], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial LimitState tag" << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &mom1p) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &mom1p) != TCL_OK) {
     opserr << "WARNING invalid mom1p\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &rot1p) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &rot1p) != TCL_OK) {
     opserr << "WARNING invalid rot1p\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &mom2p) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &mom2p) != TCL_OK) {
     opserr << "WARNING invalid mom2p\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &rot2p) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &rot2p) != TCL_OK) {
     opserr << "WARNING invalid rot2p\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
   if (argc > 16) {
-    if (Tcl_GetDouble(rt, argv[i++], &mom3p) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[i++], &mom3p) != TCL_OK) {
       opserr << "WARNING invalid mom3p\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
     }
 
-    if (Tcl_GetDouble(rt, argv[i++], &rot3p) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[i++], &rot3p) != TCL_OK) {
       opserr << "WARNING invalid rot3p\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
     }
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &mom1n) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &mom1n) != TCL_OK) {
     opserr << "WARNING invalid mom1n\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &rot1n) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &rot1n) != TCL_OK) {
     opserr << "WARNING invalid rot1n\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &mom2n) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &mom2n) != TCL_OK) {
     opserr << "WARNING invalid mom2n\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &rot2n) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &rot2n) != TCL_OK) {
     opserr << "WARNING invalid rot2n\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
   if (argc > 16) {
-    if (Tcl_GetDouble(rt, argv[i++], &mom3n) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[i++], &mom3n) != TCL_OK) {
       opserr << "WARNING invalid mom3n\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
     }
 
-    if (Tcl_GetDouble(rt, argv[i++], &rot3n) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[i++], &rot3n) != TCL_OK) {
       opserr << "WARNING invalid rot3n\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
     }
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &pinchX) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &pinchX) != TCL_OK) {
     opserr << "WARNING invalid pinchX\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &pinchY) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &pinchY) != TCL_OK) {
     opserr << "WARNING invalid pinchY\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &damfc1) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &damfc1) != TCL_OK) {
     opserr << "WARNING invalid damfc1\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
-  if (Tcl_GetDouble(rt, argv[i++], &damfc2) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[i++], &damfc2) != TCL_OK) {
     opserr << "WARNING invalid damfc2\n";
     opserr << "LimitState material: " << tag << endln;
     return theMaterial;
   }
 
   if (argc == 20 || argc == 16 || argc >= 22) {
-    if (Tcl_GetDouble(rt, argv[i++], &beta) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[i++], &beta) != TCL_OK) {
       opserr << "WARNING invalid beta\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
@@ -701,7 +701,7 @@ Tcl_AddLimitStateMaterial(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   if (argc == 22 || argc == 23) {
-    if (Tcl_GetInt(rt, argv[i++], &curveTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[i++], &curveTag) != TCL_OK) {
       opserr << "WARNING invalid tag for LimitCurve (curveTag)\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
@@ -717,14 +717,14 @@ Tcl_AddLimitStateMaterial(ClientData clientData, G3_Runtime *rt, int argc,
       return theMaterial;
     }
 
-    if (Tcl_GetInt(rt, argv[i++], &curveType) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[i++], &curveType) != TCL_OK) {
       opserr << "WARNING invalid curveType\n";
       opserr << "LimitState material: " << tag << endln;
       return theMaterial;
     }
 
     if (argc == 23) {
-      if (Tcl_GetInt(rt, argv[i++], &degrade) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[i++], &degrade) != TCL_OK) {
         opserr << "WARNING invalid degrade option\n";
         opserr << "LimitState material: " << tag << endln;
         return theMaterial;

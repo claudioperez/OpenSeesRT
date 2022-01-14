@@ -29,7 +29,7 @@ extern Domain theDomain;
 #endif
 
 int
-TclCommand_GenerateInterfacePoints(ClientData clientData, G3_Runtime *rt,
+TclCommand_GenerateInterfacePoints(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   static int tagOffset = 0;
@@ -671,7 +671,7 @@ TclCommand_GenerateInterfacePoints(ClientData clientData, G3_Runtime *rt,
             // Create the return of the tcl command
             char buffer[40];
             sprintf(buffer, "%10i", maxTag);
-            Tcl_AppendResult(rt, buffer, NULL);
+            Tcl_AppendResult(interp, buffer, NULL);
 
             // Add the created element to the domain
             if (theElement != 0) {
@@ -767,7 +767,7 @@ TclCommand_GenerateInterfacePoints(ClientData clientData, G3_Runtime *rt,
       // Create the return of the tcl command
       char buffer[40];
       sprintf(buffer, "%10i", maxTag);
-      Tcl_AppendResult(rt, buffer, NULL);
+      Tcl_AppendResult(interp, buffer, NULL);
 
       // Add the created element to the domain
       if (theElement != 0) {
@@ -821,7 +821,7 @@ TclCommand_GenerateInterfacePoints(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclCommand_GenerateToeInterfacePoints(ClientData clientData, G3_Runtime *rt,
+TclCommand_GenerateToeInterfacePoints(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv)
 {
   int numArgsRemaining = argc - 1;
@@ -1168,7 +1168,7 @@ TclCommand_GenerateToeInterfacePoints(ClientData clientData, G3_Runtime *rt,
 
           char buffer[40];
           sprintf(buffer, "%10i", maxTag);
-          Tcl_AppendResult(rt, buffer, NULL);
+          Tcl_AppendResult(interp, buffer, NULL);
 
           if (theElement != 0) {
             if (theDomain.addElement(theElement) == false) {
@@ -1216,7 +1216,7 @@ TclCommand_GenerateToeInterfacePoints(ClientData clientData, G3_Runtime *rt,
     }
     char buffer[40];
     sprintf(buffer, "%10i", maxTag);
-    Tcl_AppendResult(rt, buffer, NULL);
+    Tcl_AppendResult(interp, buffer, NULL);
 
     if (theElement != 0) {
       if (theDomain.addElement(theElement) == false) {
