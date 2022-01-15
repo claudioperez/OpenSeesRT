@@ -2447,7 +2447,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   // analysis changing .. delete the old analysis
   //
 
-  if (theStaticAnalysis != 0 || the_static_analysis != 0) {
+  if (the_static_analysis != 0) {
     G3_delStaticAnalysis(rt);
     delete theStaticAnalysis;
     theStaticAnalysis = 0;
@@ -2932,6 +2932,11 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     opserr << "WARNING need to specify a model type \n";
     return TCL_ERROR;
   }
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+
+
 
   // check argv[1] for type of SOE and create it
   // BAND GENERAL SOE & SOLVER
@@ -3604,13 +3609,13 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   // if the analysis exists - we want to change the SOEif
 
   if (theSOE != 0) {
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setLinearSOE(*theSOE);
+    if (the_static_analysis != 0)
+      the_static_analysis->setLinearSOE(*theSOE);
     if (theTransientAnalysis != 0)
       theTransientAnalysis->setLinearSOE(*theSOE);
 
 #ifdef _PARALLEL_PROCESSING
-    if (theStaticAnalysis != 0 || theTransientAnalysis != 0) {
+    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
       SubdomainIter &theSubdomains = theDomain.getSubdomains();
       Subdomain *theSub;
       while ((theSub = theSubdomains()) != 0) {
@@ -3771,8 +3776,11 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "WARNING need to specify an Algorithm type \n";
     return TCL_ERROR;
   }
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   EquiSolnAlgo *theNewAlgo = 0;
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
 
   // check argv[1] for type of Algorithm and create the object
   if (strcmp(argv[1], "Linear") == 0) {
@@ -4156,13 +4164,13 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
     theAlgorithm = theNewAlgo;
 
     // if the analysis exists - we want to change the SOE
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setAlgorithm(*theAlgorithm);
+    if (the_static_analysis != 0)
+      the_static_analysis->setAlgorithm(*theAlgorithm);
     else if (theTransientAnalysis != 0)
       theTransientAnalysis->setAlgorithm(*theAlgorithm);
 
 #ifdef _PARALLEL_PROCESSING
-    if (theStaticAnalysis != 0 || theTransientAnalysis != 0) {
+    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
       SubdomainIter &theSubdomains = theDomain.getSubdomains();
       Subdomain *theSub;
       while ((theSub = theSubdomains()) != 0) {
@@ -4187,6 +4195,9 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "WARNING need to specify a ConvergenceTest Type type \n";
     return TCL_ERROR;
   }
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
 
   // get the tolerence first
   double tol = 0.0;
@@ -4395,14 +4406,14 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
     theTest = theNewTest;
 
     // if the analysis exists - we want to change the Test
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setConvergenceTest(*theTest);
+    if (the_static_analysis != 0)
+      the_static_analysis->setConvergenceTest(*theTest);
 
     else if (theTransientAnalysis != 0)
       theTransientAnalysis->setConvergenceTest(*theTest);
 
 #ifdef _PARALLEL_PROCESSING
-    if (theStaticAnalysis != 0 || theTransientAnalysis != 0) {
+    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
       SubdomainIter &theSubdomains = theDomain.getSubdomains();
       Subdomain *theSub;
       while ((theSub = theSubdomains()) != 0) {
@@ -4423,8 +4434,10 @@ int
 specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
+  bool assign_to_static_analysis = false;
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  Domain *domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
 
   // make sure at least one other argument to contain integrator
@@ -4459,9 +4472,10 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     theStaticIntegrator = new LoadControl(dLambda, numIter, minIncr, maxIncr);
 
+    assign_to_static_analysis = true;
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   } else if (strcmp(argv[1], "StagedLoadControl") == 0) {
     double dLambda;
     double minIncr, maxIncr;
@@ -4487,9 +4501,9 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     theStaticIntegrator =
         new StagedLoadControl(dLambda, numIter, minIncr, maxIncr);
-
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    assign_to_static_analysis = true;
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 
   else if (strcmp(argv[1], "ArcLength") == 0) {
@@ -4505,9 +4519,10 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     theStaticIntegrator = new ArcLength(arcLength, alpha);
 
+    assign_to_static_analysis = true;
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 
   else if (strcmp(argv[1], "ArcLength1") == 0) {
@@ -4556,6 +4571,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     case 6:
       theStaticIntegrator = new HSConstraint(arcLength, psi_u, psi_f, u_ref);
     }
+    assign_to_static_analysis = true;
     // if the analysis exists - we want to change the Integrator
     if (theStaticAnalysis != 0)
       theStaticAnalysis->setIntegrator(*theStaticIntegrator);
