@@ -787,12 +787,12 @@ OPS_GetNodeIncrDeltaDisp(int *nodeTag, int *sizeData, double *data)
 
 int
 Tcl_addWrapperElement(eleObj *theEle, ClientData clientData, Tcl_Interp *interp,
-                      int argc, TCL_Char **argv, Domain *domain,
-                      TclBasicBuilder *builder)
+                      int argc, TCL_Char **argv, Domain *theDomain,
+                      TclBuilder *theModelBuilder)
 {
   theInterp = interp;
-  theDomain = domain;
-  theModelBuilder = builder;
+  // theDomain = domain;
+  // theModelBuilder = builder;
   currentArgv = argv;
   currentArg = 2;
   maxArg = argc;
@@ -868,11 +868,11 @@ Tcl_addWrapperUniaxialMaterial(matObj *theMat, ClientData clientData,
 NDMaterial *
 Tcl_addWrapperNDMaterial(matObj *theMat, ClientData clientData,
                          Tcl_Interp *interp, int argc, TCL_Char **argv,
-                         TclBasicBuilder *builder)
+                         TclBasicBuilder *theModelbuilder)
 {
   theInterp = interp;
 
-  theModelBuilder = builder;
+  // theModelBuilder = builder;
   currentArgv = argv;
   currentArg = 2;
   maxArg = argc;
@@ -976,13 +976,72 @@ OPS_InvokeMaterialDirectly(matObject **theMat, modelState *model,
   return error;
 }
 
+int
+G3_raise(G3_Runtime *rt, const char *msg, ...){
+  va_list ap;
+
+  va_start(ap, msg);
+  int n = vsnprintf(NULL, 0, msg, ap);
+  va_end(ap);
+
+  if (n < 0)
+    return -1;
+
+  size_t size = (size_t)n + 1 + 8;
+  char *new_str = (char*)malloc(size);
+  if (new_str == NULL)
+    return -1;
+
+  strcpy(new_str, "error {");
+  va_start(ap, msg);
+  n = vsnprintf(new_str+7, size, msg, ap);
+  va_end(ap);
+  strcpy(new_str+7+n, "}\n");
+
+
+  Tcl_Interp *tcl_interp = G3_getInterpreter(rt);
+  Tcl_Eval(tcl_interp, new_str);
+  Tcl_Obj *infoObj = Tcl_GetVar2Ex(tcl_interp, "errorInfo", NULL, TCL_GLOBAL_ONLY);
+  const char * error_str = Tcl_GetString(infoObj);
+  opserr << error_str;
+
+  /*
+  Tcl_Obj *top_interpInfoName ;
+  Tcl_Obj *top_interpInfo ;
+    top_interpInfoName = Tcl_NewStringObj("errorInfo", -1) ;
+    Tcl_IncrRefCount(top_interpInfoName) ;
+    top_interpInfo =  Tcl_ObjGetVar2(tcl_interp,
+                                     top_interpInfoName,
+                                     NULL,
+                                     TCL_LEAVE_ERR_MSG) ;
+    Tcl_IncrRefCount(top_interpInfo) ;
+    const char *error_str = Tcl_GetString(top_interpInfo);
+    opserr << "ERROR -- " << msg << "\n\n" << error_str;
+    Tcl_DecrRefCount(top_interpInfoName) ;
+    Tcl_DecrRefCount(top_interpInfo);
+    */
+    // throw 20;
+    return 0;
+}
+
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
 {return (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", NULL);}
 
 Tcl_Interp *
 G3_getInterpreter(G3_Runtime* rt)
-{return rt->interp;}
+{return rt->m_interp;}
+
+TclBuilder *
+G3_getModelBuilder(G3_Runtime *rt)
+{return rt->m_builder;}
+
+int
+G3_setModelBuilder(G3_Runtime *rt, TclBuilder* builder)
+{
+  rt->m_builder = builder;
+  return 1;
+}
 
 TclSafeBuilder *
 G3_getSafeBuilder(G3_Runtime *rt)
@@ -994,15 +1053,28 @@ G3_getSafeBuilder(G3_Runtime *rt)
 }
 
 
+int
+G3_setDomain(G3_Runtime *rt, Domain* domain){
+  int exists = rt->m_domain ? 1 : 0;
+  rt->m_domain = domain;
+  return exists;
+}
+
 
 Domain *
 G3_getDomain(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
+  if (!rt->m_domain){
+    G3_raise(rt, "No domain");
+  }
+  return rt->m_domain;
+  /* 
   ModelBuilder *theTclBuilder =
       (ModelBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomainPtr();
   return theTclDomain;
+  */
 }
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
@@ -1138,25 +1210,21 @@ G3_modelIsBuilt(G3_Runtime* rt)
 int
 G3_getNDM(G3_Runtime *rt)
 {
-  void *builder;
-  if (builder=G3_getSafeBuilder(rt)) {
-    return ((TclSafeBuilder*)builder)->getNDM();
-  } else {
-    return OPS_GetNDM();
-  }
-  // return G3_getDomain(rt)->getNDM();
+  TclBuilder *builder;
+  if (builder = G3_getModelBuilder(rt))
+    return builder->getNDM();
+  else
+    return -1;
 }
 
 int
 G3_getNDF(G3_Runtime *rt)
 {
-  void *builder;
-  if (builder=G3_getSafeBuilder(rt)) {
-    return ((TclSafeBuilder*)builder)->getNDF();
-  } else {
-    return OPS_GetNDF();
-  }
-  // return G3_getDomain(rt)->getNDM();
+  TclBuilder *builder;
+  if (builder = G3_getModelBuilder(rt))
+    return builder->getNDF();
+  else
+    return -1;
 }
 
 int

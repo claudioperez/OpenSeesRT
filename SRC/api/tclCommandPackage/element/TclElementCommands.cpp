@@ -206,7 +206,7 @@ extern int TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *inter
 
 extern int Tcl_addWrapperElement(eleObj *, ClientData clientData,
                                  Tcl_Interp *interp, int argc, TCL_Char **argv,
-                                 Domain *, TclBasicBuilder *);
+                                 Domain *, TclBuilder *);
 
 extern int TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv, Domain *,

@@ -74,8 +74,10 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
   /* int cArg = 0; */
-  ModelBuilder *theNewBuilder = 0;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  TclBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
+  G3_setDomain(rt,theNewDomain);
 
   // make sure at least one other argument to contain model builder type given
   if (argc < 2) {
@@ -182,14 +184,15 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
     if (!safe_builder) {
       theNewBuilder = new TclBasicBuilder(theDomain, interp, ndm, ndf);
       // set global variables
-      theBuilder = theNewBuilder;
     } else {
       theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
     }
-
     if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating BasicBuilder model\n";
       return TCL_ERROR;
+    } else {
+      theBuilder = theNewBuilder;
+      G3_setModelBuilder(rt, theNewBuilder);
     }
   }
   else if ((strcmp(argv[1], "test") == 0) ||
@@ -208,10 +211,11 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << "WARNING ran out of memory in creating "
                 "TclUniaxialMaterialTester model\n";
       return TCL_ERROR;
+    } else {
+      G3_setModelBuilder(rt, theNewBuilder);
     }
   }
 /*
-
   else if ((strcmp(argv[1], "testPlaneStress") == 0) ||
            (strcmp(argv[1], "PlaneStressMaterialTest") == 0)) {
     int count = 1;
@@ -245,11 +249,12 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << "WARNING ran out of memory in creating "
                 "TclUniaxialMAterialTester model\n";
       return TCL_ERROR;
+    } else {
+      G3_setModelBuilder(rt, theNewBuilder);
     }
   }
   else {
     opserr << "WARNING unknown model builder type\n";
-
     opserr << "WARNING model builder type " << argv[1] << " not supported\n";
     return TCL_ERROR;
   }

@@ -3,11 +3,13 @@
 #ifndef G3_API_H_
 #define G3_API_H_
 
+#define G3_MAX_NUM_DOFS 1000000000000
+#define G3_NUM_DOF_BUFFER 20
 #include <tcl.h>
 // #include <g3_io.h>
 
 #ifndef OPS_Export
-#define OPS_Export
+# define OPS_Export
 #endif
 
 typedef int G3_Tag;
@@ -17,6 +19,7 @@ typedef int G3_Tag;
 #define G3_getDouble Tcl_GetDoubleFromObj
 class G3_Runtime;
 class ModelBuilder;
+class TclBuilder;
 class TclSafeBuilder;
 class TclBasicBuilder;
 class AnalysisModel;
@@ -55,9 +58,12 @@ G3_Runtime *G3_getRuntime(Tcl_Interp *);
 Tcl_Interp *G3_getInterpreter(G3_Runtime*);
 
 // Domain
+int G3_setDomain(G3_Runtime*, Domain*);
 Domain *G3_getDomain(G3_Runtime *);
+
 TclSafeBuilder *G3_getSafeBuilder(G3_Runtime *);
-ModelBuilder *G3_getModelBuilder(G3_Runtime *);
+TclBuilder     *G3_getModelBuilder(G3_Runtime *);
+int             G3_setModelBuilder(G3_Runtime *, TclBuilder*);
 bool G3_modelIsBuilt(G3_Runtime *);
 int G3_getNDM(G3_Runtime *);
 int G3_getNDF(G3_Runtime *);

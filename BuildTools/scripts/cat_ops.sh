@@ -1,9 +1,9 @@
-library="uniaxial"
+library="element"
 
 shopt -s globstar
 #files=`echo SRC/material/uniaxial/**/*.cpp | sed 's/ /\n/g'`
 
-for i in SRC/material/uniaxial/**/*.cpp; do
+for i in SRC/element/**/*.cpp; do
   case $i in
     Tcl*)
       continue
@@ -13,7 +13,7 @@ for i in SRC/material/uniaxial/**/*.cpp; do
       classname="${filename##*/}"
       classname="${classname%.*}"
       echo ${filename/$classname/IO_$classname} $classname
-      mkdir -p SRC/api/tclCommandPackage/libraries/$library/${filename/$classname/}
+      mkdir -p "SRC/api/tclCommandPackage/libraries/$library/${filename/$classname/}"
       {
       printf "\n\n#include <g3_api.h>\n"
       printf "\n\n#include <${i/cpp/h}>\n"

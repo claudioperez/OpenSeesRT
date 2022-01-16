@@ -797,8 +797,9 @@ Tcl_InterpOpenSeesObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
 int
 OpenSeesAppInit(Tcl_Interp *interp)
 {
-
-  ops_TheActiveDomain = &theDomain;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+  ops_TheActiveDomain = the_domain;
 
   //
   // redo puts command so we can capture puts into std:cerr
@@ -1151,11 +1152,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   // create an error handler
 
-#if defined(_NOGRAPHICS)
-
-#else
-  theTclVideoPlayer = 0;
-#endif
 
   return myCommands(interp);
 }
@@ -1337,7 +1333,7 @@ sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     IncrementalIntegrator *theIntegrator = 0;
 
-    if (theStaticAnalysis != 0 && theStaticIntegrator != 0) {
+    if (the_static_analysis != 0 && theStaticIntegrator != 0) {
       theIntegrator = theStaticIntegrator;
 
       theIntegrator->setComputeType(analysisTypeTag);
@@ -1358,8 +1354,8 @@ sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (theIntegrator->shouldComputeAtEachStep()) {
 
-      // if (theStaticAnalysis !=0)
-      // theStaticAnalysis->setSensitivityAlgorithm(theIntegrator);
+      // if (the_static_analysis !=0)
+      // the_static_analysis->setSensitivityAlgorithm(theIntegrator);
       // else if (theTransientAnalysis !=0)
       // theTransientAnalysis->setSensitivityAlgorithm(theIntegrator);
       // else if (theVariableTimeStepTransientAnalysis !=0)
@@ -1381,6 +1377,8 @@ int
 wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   wipeAnalysis(clientData, interp, argc, argv);
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
 
   /*
   // to build the model make sure the ModelBuilder has been constructed
@@ -1391,9 +1389,9 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     theBuilder = 0;
   }
 
-  if (theStaticAnalysis != 0) {
-      theStaticAnalysis->clearAll();
-      delete theStaticAnalysis;
+  if (the_static_analysis != 0) {
+      the_static_analysis->clearAll();
+      delete the_static_analysis;
   }
 
   if (theTransientAnalysis != 0) {
@@ -1407,6 +1405,8 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   if (theDatabase != 0)
     delete theDatabase;
 
+  if (domain != nullptr)
+    domain->clearAll();
   theDomain.clearAll();
   OPS_clearAllUniaxialMaterial();
   OPS_clearAllNDMaterial();
@@ -1423,14 +1423,6 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   OPS_PARTITIONED = false;
 #endif
 
-#ifdef _NOGRAPHICS
-
-#else
-  if (theTclVideoPlayer != 0) {
-    delete theTclVideoPlayer;
-    theTclVideoPlayer = 0;
-  }
-#endif
 
   theAlgorithm = 0;
   theHandler = 0;
@@ -1462,21 +1454,13 @@ int
 wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
 
-#ifdef _PARALLEL_PROCESSING
-  if (OPS_PARTITIONED == true && OPS_NUM_SUBDOMAINS > 1) {
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub = 0;
-
-    // create the appropriate domain decomposition analysis
-    while ((theSub = theSubdomains()) != 0)
-      theSub->wipeAnalysis();
-  }
-#endif
-
-  if (theStaticAnalysis != 0) {
-    theStaticAnalysis->clearAll();
-    delete theStaticAnalysis;
+  if (the_static_analysis != 0) {
+    the_static_analysis->clearAll();
+    G3_delStaticAnalysis(rt);
   }
 
   if (theTransientAnalysis != 0) {
@@ -1592,6 +1576,7 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   
   if (theTransientAnalysis != 0) {
     DirectIntegrationAnalysis* ana;
@@ -1599,12 +1584,8 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       ana->initialize();
     else
       theTransientAnalysis->initialize();
-  } else if (theStaticAnalysis != 0) {
-    StaticAnalysis* ana;
-    if (ana=G3_getStaticAnalysis(rt))
-      ana->initialize();
-    else
-      theStaticAnalysis->initialize();
+  } else if (the_static_analysis != 0) {
+    the_static_analysis->initialize();
   }
 
   domain->initialize();
@@ -1739,6 +1720,8 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+
   if (argc < 3) {
     opserr << "WARNING no load pattern supplied -- getLoadFactor\n";
     return TCL_ERROR;
@@ -1769,7 +1752,7 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   IncrementalIntegrator *theIntegrator = 0;
 
-  if (theStaticAnalysis != 0 && theStaticIntegrator != 0) {
+  if (the_static_analysis != 0 && theStaticIntegrator != 0) {
     theIntegrator = theStaticIntegrator;
     //   opserr<<" commands.cpp: calling static integrator"<<endln;
 
@@ -1801,7 +1784,8 @@ int
 buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  ModelBuilder* builder = (ModelBuilder*)G3_getSafeBuilder(rt);
+  // ModelBuilder* builder = (ModelBuilder*)G3_getSafeBuilder(rt);
+  ModelBuilder* builder = (ModelBuilder*)G3_getModelBuilder(rt);
   if (!builder)
     builder = theBuilder;
   // TODO: Remove `builtModel` var.
@@ -1871,14 +1855,14 @@ partitionModel(int eleTag)
 
   // create the appropriate domain decomposition analysis
   while ((theSub = theSubdomains()) != 0) {
-    if (theStaticAnalysis != 0) {
+    if (the_static_analysis != 0) {
       theSubAnalysis = new StaticDomainDecompositionAnalysis(
-          *theSub, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
+          *theSub, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
           *theSOE, *theStaticIntegrator, theTest, false);
 
     } else {
       theSubAnalysis = new TransientDomainDecompositionAnalysis(
-          *theSub, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
+          *theSub, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
           *theSOE, *theTransientIntegrator, theTest, false);
     }
     theSub->setDomainDecompAnalysis(*theSubAnalysis);
@@ -1918,7 +1902,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   G3_Runtime *rt = G3_getRuntime(interp);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   if (!the_static_analysis)
-    the_static_analysis = theStaticAnalysis;
+    the_static_analysis = the_static_analysis;
 
 #ifdef _PARALLEL_PROCESSING
   if (OPS_PARTITIONED == false && OPS_NUM_SUBDOMAINS > 1) {
@@ -2449,8 +2433,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (the_static_analysis != 0) {
     G3_delStaticAnalysis(rt);
-    delete theStaticAnalysis;
-    theStaticAnalysis = 0;
+    delete the_static_analysis;
+    the_static_analysis = 0;
     opserr << "WARNING: analysis .. StaticAnalysis already exists => "
               "wipeAnalysis not invoked, problems may arise\n";
   }
@@ -2470,7 +2454,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     // otherwise print a warning and use some defaults
     if (the_analysis_model == 0){
       the_analysis_model = new AnalysisModel();
-      theAnalysisModel = the_analysis_model;
       G3_setAnalysisModel(rt, the_analysis_model);
     }
 
@@ -2516,8 +2499,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
         *domain, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
         *theSOE, *theStaticIntegrator, theTest);
 
-    theStaticAnalysis = the_static_analysis;
-
     G3_setStaticAnalysis(rt, the_static_analysis);
 
 #ifdef _PARALLEL_INTERPRETERS
@@ -2530,7 +2511,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 #ifdef _RELIABILITY
     if (theSensitivityAlgorithm != 0 &&
         theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-      // theStaticAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
+      // the_static_analysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
     }
 #endif
     // AddingSensitivity:END /////////////////////////////////
@@ -2563,7 +2544,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (the_analysis_model == 0) {
       the_analysis_model = new AnalysisModel();
-      theAnalysisModel = the_analysis_model;
       G3_setAnalysisModel(rt,the_analysis_model);
     }
     if (theTest == 0) {
@@ -2589,7 +2569,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       theSOE = new PFEMLinSOE(*theSolver);
     }
     thePFEMAnalysis = new PFEMAnalysis(theDomain, *theHandler, *theNumberer,
-                                       *theAnalysisModel, *theAlgorithm,
+                                       *the_analysis_model, *theAlgorithm,
                                        *theSOE, *theTransientIntegrator,
                                        theTest, dtmax, dtmin, gravity, ratio);
 
@@ -2600,7 +2580,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     // otherwise print a warning and use some defaults
     if (the_analysis_model == 0){
       the_analysis_model = new AnalysisModel();
-      theAnalysisModel = the_analysis_model;
       G3_setAnalysisModel(rt,the_analysis_model);
     }
 
@@ -2694,8 +2673,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
              (strcmp(argv[1], "VariableTransient") == 0)) {
     // make sure all the components have been built,
     // otherwise print a warning and use some defaults
-    if (theAnalysisModel == 0)
-      theAnalysisModel = new AnalysisModel();
+    if (the_analysis_model == 0)
+      the_analysis_model = new AnalysisModel();
 
     if (theTest == 0)
       theTest = new CTestNormUnbalance(1.0e-6, 25, 0);
@@ -2742,7 +2721,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
     theVariableTimeStepTransientAnalysis =
         new VariableTimeStepDirectIntegrationAnalysis(
-            *domain, *theHandler, *theNumberer, *theAnalysisModel,
+            *domain, *theHandler, *theNumberer, *the_analysis_model,
             *theAlgorithm, *theSOE, *theTransientIntegrator, theTest);
 
     // set the pointer for variabble time step analysis
@@ -2758,8 +2737,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 } else if (strcmp(argv[1],"ReliabilityStatic") == 0) {
             // make sure all the components have been built,
             // otherwise print a warning and use some defaults
-            if (theAnalysisModel == 0)
-                    theAnalysisModel = new AnalysisModel();
+            if (the_analysis_model == 0)
+                    the_analysis_model = new AnalysisModel();
             if (theTest == 0)
               theTest = new CTestNormUnbalance(1.0e-6,25,0);
             if (theAlgorithm == 0) {
@@ -2768,88 +2747,94 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 NewtonRaphson(*theTest); 	} if (theHandler == 0) { opserr << "WARNING
 analysis Static - no ConstraintHandler yet specified, \n"; opserr << "
 PlainHandler default will be used\n"; theHandler = new PlainHandler(); } if
-(theNumberer == 0) { opserr << "WARNING analysis Static - no Numberer specified,
-\n"; opserr << " RCM default will be used\n"; RCM *theRCM = new RCM(false);
-                    theNumberer = new DOF_Numberer(*theRCM); } if
-(theStaticIntegrator == 0) { opserr << "Fatal ! theStaticIntegrator must be
-defined before defining\n"; opserr << "ReliabilityStaticAnalysis by
-NewStaticSensitivity\n"; return TCL_ERROR;
+    (theNumberer == 0) { 
+      opserr << "WARNING analysis Static - no Numberer specified,\n"; 
+      opserr << " RCM default will be used\n"; 
+      RCM *theRCM = new RCM(false);
+      theNumberer = new DOF_Numberer(*theRCM); } 
+  if (theStaticIntegrator == 0) {
+      opserr << "Fatal ! theStaticIntegrator must be defined before defining\n"; 
+      opserr << "ReliabilityStaticAnalysis by NewStaticSensitivity\n"; 
+      return TCL_ERROR;
             }
             if (theSOE == 0) {
-                    opserr << "WARNING analysis Static - no LinearSOE specified,
-\n"; opserr << " ProfileSPDLinSOE default will be used\n"; ProfileSPDLinSolver
-*theSolver; theSolver = new ProfileSPDLinDirectSolver(); theSOE = new
-ProfileSPDLinSOE(*theSolver);      	}
+                    opserr << "WARNING analysis Static - no LinearSOE specified,\n"; 
+        opserr << " ProfileSPDLinSOE default will be used\n"; 
+        ProfileSPDLinSolver *theSolver; 
+      theSolver = new ProfileSPDLinDirectSolver(); theSOE = new
+      ProfileSPDLinSOE(*theSolver);      	
+  }
 
-            theReliabilityStaticAnalysis = new
-ReliabilityStaticAnalysis(theDomain, *theHandler, *theNumberer,
-                                           *theAnalysisModel,
+            theReliabilityStaticAnalysis = new ReliabilityStaticAnalysis(
+                       theDomain, *theHandler, *theNumberer,
+                                           *the_analysis_model,
                                            *theAlgorithm,
                                            *theSOE,
                                            *theStaticIntegrator,
                                            theTest);
 
-            if (theSensitivityAlgorithm != 0 &&
-theSensitivityAlgorithm->shouldComputeAtEachStep()) {
+            if (theSensitivityAlgorithm != 0 && theSensitivityAlgorithm->shouldComputeAtEachStep()) {
 
               //This if-statement cannot stay -- MHS
               //if(!theSensitivityAlgorithm->newAlgorithm()){
-              //  opserr << "WARNING new sensitivity algorothm needs to be
-specified \n";
+              //  opserr << "WARNING new sensitivity algorothm needs to be specified \n";
                // opserr << "for reliability static analysis \n";
                // return TCL_ERROR;
               //}
 
 
-              //theStaticAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
+              //the_static_analysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
             } else {
-                    opserr << "Faltal SensitivityAlgorithm must be definde
-before defining \n"; opserr << "ReliabilityStaticAnalysis with
-computeateachstep\n"; return TCL_ERROR;
+                    opserr << "Faltal SensitivityAlgorithm must be definde before defining \n"; opserr << "ReliabilityStaticAnalysis with computeateachstep\n"; return TCL_ERROR;
             }
 
 } else if (strcmp(argv[1],"ReliabilityTransient") == 0) {
             // make sure all the components have been built,
             // otherwise print a warning and use some defaults
-            if (theAnalysisModel == 0)
+            if (the_analysis_model == 0)
                     theAnalysisModel = new AnalysisModel();
             if (theTest == 0)
               theTest = new CTestNormUnbalance(1.0e-6,25,0);
             if (theAlgorithm == 0) {
-                opserr << "WARNING analysis Transient - no Algorithm yet
-specified, \n"; opserr << " NewtonRaphson default will be used\n"; theAlgorithm
-= new NewtonRaphson(*theTest);
+                opserr << "WARNING analysis Transient - no Algorithm yet specified, \n"; 
+                opserr << " NewtonRaphson default will be used\n";
+                theAlgorithm = new NewtonRaphson(*theTest);
             }
             if (theHandler == 0) {
-                    opserr << "WARNING analysis Transient dt tFinal - no
-ConstraintHandler\n"; opserr << " yet specified, PlainHandler default will be
-used\n"; theHandler = new PlainHandler();
+                    opserr << "WARNING analysis Transient dt tFinal - no ConstraintHandler\n"; 
+                    opserr << " yet specified, PlainHandler default will be used\n"; 
+                    theHandler = new PlainHandler();
             }
             if (theNumberer == 0) {
-                    opserr << "WARNING analysis Transient dt tFinal - no
-Numberer specified, \n"; opserr << " RCM default will be used\n"; RCM *theRCM =
-new RCM(false); theNumberer = new DOF_Numberer(*theRCM);
+                    opserr << "WARNING analysis Transient dt tFinal - no Numberer specified, \n"; 
+                    opserr << " RCM default will be used\n"; 
+                    RCM *theRCM = new RCM(false); 
+                    theNumberer = new DOF_Numberer(*theRCM);
             }
             if (theTransientIntegrator == 0) {
-                    opserr << "Fatal ! theTransientIntegrator must be defined
-before defining\n"; opserr << "ReliabilityTransientAnalysis by
-NewNewmarkWithSensitivity\n"; return TCL_ERROR;
+              opserr << "Fatal ! theTransientIntegrator must be defined before defining\n";
+              opserr << "ReliabilityTransientAnalysis by NewNewmarkWithSensitivity\n";
+              return TCL_ERROR;
             }
             if (theSOE == 0) {
-                    opserr << "WARNING analysis Transient dt tFinal - no
-LinearSOE specified, \n"; opserr << " ProfileSPDLinSOE default will be used\n";
+                    opserr << "WARNING analysis Transient dt tFinal - no LinearSOE specified, \n";
+                    opserr << " ProfileSPDLinSOE default will be used\n";
                     ProfileSPDLinSolver *theSolver;
+             
                     theSolver = new ProfileSPDLinDirectSolver();
+             
                     theSOE = new ProfileSPDLinSOE(*theSolver);
+             
             }
 
-            theReliabilityTransientAnalysis = new
-ReliabilityDirectIntegrationAnalysis(theDomain, *theHandler, *theNumberer,
-                                                         *theAnalysisModel,
-                                                         *theAlgorithm,
-                                                         *theSOE,
-                                                         *theTransientIntegrator,
-                                                         theTest);
+            theReliabilityTransientAnalysis = 
+              new ReliabilityDirectIntegrationAnalysis(
+                        theDomain, *theHandler, *theNumberer,
+                                     *theAnalysisModel,
+                                     *theAlgorithm,
+                                     *theSOE,
+                                     *theTransientIntegrator,
+                                     theTest);
 
             if (theSensitivityAlgorithm != 0 &&
 theSensitivityAlgorithm->shouldComputeAtEachStep()) {
@@ -2878,30 +2863,6 @@ computeateachstep\n"; return TCL_ERROR;
     opserr << "WARNING No Analysis type exists (Static Transient only) \n";
     return TCL_ERROR;
   }
-
-#ifdef _PARALLEL_PROCESSING
-  if (OPS_PARTITIONED == true && OPS_NUM_SUBDOMAINS > 1) {
-    DomainDecompositionAnalysis *theSubAnalysis;
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub = 0;
-    // create the appropriate domain decomposition analysis
-    while ((theSub = theSubdomains()) != 0) {
-      if (theStaticAnalysis != 0) {
-        theSubAnalysis = new StaticDomainDecompositionAnalysis(
-            *theSub, *theHandler, *theNumberer, *theAnalysisModel,
-            *theAlgorithm, *theSOE, *theStaticIntegrator, theTest, false);
-
-      } else {
-        theSubAnalysis = new TransientDomainDecompositionAnalysis(
-            *theSub, *theHandler, *theNumberer, *theAnalysisModel,
-            *theAlgorithm, *theSOE, *theTransientIntegrator, theTest, false);
-      }
-
-      theSub->setDomainDecompAnalysis(*theSubAnalysis);
-      //	delete theSubAnalysis;
-    }
-  }
-#endif
 
   if (theEigenSOE != 0) {
     if (the_static_analysis != 0 ) {
@@ -4539,8 +4500,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     theStaticIntegrator = new ArcLength1(arcLength, alpha);
 
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
   /* ************ added for HSConstraint *******************/
 
@@ -4573,8 +4534,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     assign_to_static_analysis = true;
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
   /*********************************************************************************/
 
@@ -4612,8 +4573,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
                                                maxlambda, signFirstStepMethod);
 
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 
   else if (strcmp(argv[1], "EQPath") == 0) {
@@ -4649,8 +4610,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     theStaticIntegrator = new EQPath(arcLength, type);
 
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 
   else if (strcmp(argv[1], "DisplacementControl") == 0) {
@@ -4718,8 +4679,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif
 
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 
 #ifdef _PARALLEL_INTERPRETERS
@@ -4762,8 +4723,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     theStaticIntegrator = theDDC;
 
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 #endif
 
@@ -5468,8 +5429,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // if the analysis exists - we want to change the Integrator
-    if (theStaticAnalysis != 0)
-      theStaticAnalysis->setIntegrator(*theStaticIntegrator);
+    if (the_static_analysis != 0)
+      the_static_analysis->setIntegrator(*theStaticIntegrator);
   }
 
   else {
@@ -5479,7 +5440,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
 #ifdef _PARALLEL_PROCESSING
 
-  if (theStaticAnalysis != 0 && theStaticIntegrator != 0) {
+  if (the_static_analysis != 0 && theStaticIntegrator != 0) {
 
     IncrementalIntegrator *theIntegrator;
     theIntegrator = theStaticIntegrator;
@@ -5598,6 +5559,8 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
+  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+  AnalysisModel* the_analysis_model = G3_getAnalysisModel(rt);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eigen <type> numModes?\n";
@@ -5662,10 +5625,10 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   // create a transient analysis if no analysis exists
   //
 
-  if (theStaticAnalysis == 0 && theTransientAnalysis == 0) {
+  if (the_static_analysis == 0 && theTransientAnalysis == 0) {
 
-    if (theAnalysisModel == 0)
-      theAnalysisModel = new AnalysisModel();
+    if (the_analysis_model == 0)
+      the_analysis_model = new AnalysisModel();
     if (theTest == 0)
       theTest = new CTestNormUnbalance(1.0e-6, 25, 0);
     if (theAlgorithm == 0) {
@@ -5692,7 +5655,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     theTransientAnalysis = new DirectIntegrationAnalysis(
-        *domain, *theHandler, *theNumberer, *theAnalysisModel, *theAlgorithm,
+        *domain, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
         *theSOE, *theTransientIntegrator, theTest);
   }
 
@@ -5713,12 +5676,12 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
       SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver();
-      theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *theAnalysisModel);
+      theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *the_analysis_model);
 
     } else if (typeSolver == EigenSOE_TAGS_FullGenEigenSOE) {
 
       FullGenEigenSolver *theEigenSolver = new FullGenEigenSolver();
-      theEigenSOE = new FullGenEigenSOE(*theEigenSolver, *theAnalysisModel);
+      theEigenSOE = new FullGenEigenSOE(*theEigenSolver, *the_analysis_model);
 
     } else {
 
@@ -5729,8 +5692,8 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     // set the eigen soe in the system
     //
 
-    if (theStaticAnalysis != 0) {
-      theStaticAnalysis->setEigenSOE(*theEigenSOE);
+    if (the_static_analysis != 0) {
+      the_static_analysis->setEigenSOE(*theEigenSOE);
     } else if (theTransientAnalysis != 0) {
       theTransientAnalysis->setEigenSOE(*theEigenSOE);
     }
@@ -5746,7 +5709,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    if (theStaticAnalysis != 0 || theTransientAnalysis != 0) {
+    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
       SubdomainIter &theSubdomains = domain->getSubdomains();
       Subdomain *theSub;
       while ((theSub = theSubdomains()) != 0) {
@@ -5771,8 +5734,8 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int result = 0;
 
-  if (theStaticAnalysis != 0) {
-    result = theStaticAnalysis->eigen(numEigen, generalizedAlgo, findSmallest);
+  if (the_static_analysis != 0) {
+    result = the_static_analysis->eigen(numEigen, generalizedAlgo, findSmallest);
   } else if (theTransientAnalysis != 0) {
     result =
         theTransientAnalysis->eigen(numEigen, generalizedAlgo, findSmallest);
@@ -5870,6 +5833,9 @@ int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain * the_domain = G3_getDomain(rt);
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - remove objectType?\n";
@@ -5888,10 +5854,10 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              << endln;
       return TCL_ERROR;
     }
-    Element *theEle = theDomain.removeElement(tag);
+    Element *theEle = the_domain->removeElement(tag);
     if (theEle != 0) {
       // we also have to remove any elemental loads from the domain
-      LoadPatternIter &theLoadPatterns = theDomain.getLoadPatterns();
+      LoadPatternIter &theLoadPatterns = the_domain->getLoadPatterns();
       LoadPattern *thePattern;
 
       // go through all load patterns
@@ -5930,7 +5896,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              << argv[2] << endln;
       return TCL_ERROR;
     }
-    LoadPattern *thePattern = theDomain.removeLoadPattern(tag);
+    LoadPattern *thePattern = the_domain->removeLoadPattern(tag);
     if (thePattern != 0) {
       thePattern->clearAll();
       delete thePattern;
@@ -5965,7 +5931,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              << endln;
       return TCL_ERROR;
     }
-    Parameter *theParameter = theDomain.removeParameter(tag);
+    Parameter *theParameter = the_domain->removeParameter(tag);
     if (theParameter != 0) {
       delete theParameter;
     }
@@ -5981,18 +5947,18 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              << endln;
       return TCL_ERROR;
     }
-    Node *theNode = theDomain.removeNode(tag);
+    Node *theNode = the_domain->removeNode(tag);
     if (theNode != 0) {
       delete theNode;
     }
-    Pressure_Constraint *thePC = theDomain.removePressure_Constraint(tag);
+    Pressure_Constraint *thePC = the_domain->removePressure_Constraint(tag);
     if (thePC != 0) {
       delete thePC;
     }
   }
 
   else if (strcmp(argv[1], "recorders") == 0) {
-    theDomain.removeRecorders();
+    the_domain->removeRecorders();
   }
 
   else if ((strcmp(argv[1], "recorder") == 0)) {
@@ -6006,7 +5972,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              << endln;
       return TCL_ERROR;
     }
-    return theDomain.removeRecorder(tag);
+    return the_domain->removeRecorder(tag);
   }
 
   else if ((strcmp(argv[1], "timeSeries") == 0)) {
@@ -6037,7 +6003,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      SP_Constraint *theSPconstraint = theDomain.removeSP_Constraint(tag);
+      SP_Constraint *theSPconstraint = the_domain->removeSP_Constraint(tag);
       if (theSPconstraint != 0) {
         delete theSPconstraint;
       }
@@ -6065,7 +6031,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       dofTag--; // one for C++ indexing of dof
 
-      theDomain.removeSP_Constraint(nodeTag, dofTag, patternTag);
+      the_domain->removeSP_Constraint(nodeTag, dofTag, patternTag);
 
       return TCL_OK;
     }
@@ -6086,7 +6052,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      theDomain.removeMP_Constraints(nodTag);
+      the_domain->removeMP_Constraints(nodTag);
       return TCL_OK;
     }
     if (strcmp(argv[2], "-tag") == 0 && argc > 3) {
@@ -6096,7 +6062,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      theDomain.removeMP_Constraint(nodTag);
+      the_domain->removeMP_Constraint(nodTag);
       return TCL_OK;
     }
   }
@@ -6132,7 +6098,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     theReliabilityDomain->removeCutset(cutTag);
   } else if (strcmp(argv[1], "sensitivityAlgorithm") == 0) {
     if (theSensitivityAlgorithm != 0) {
-      // theStaticAnalysis->setSensitivityAlgorithm(0);
+      // the_static_analysis->setSensitivityAlgorithm(0);
       theSensitivityAlgorithm = 0;
       theSensitivityIntegrator = 0;
     }
@@ -6473,7 +6439,7 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   dof--;
 
   /*
-  Element *theEle = theDomain.getElement(tag);
+  Element *theEle = the_domain->getElement(tag);
   if (theEle == 0)
     return TCL_ERROR;
 
@@ -7139,12 +7105,14 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
   // Need to "setDomain" to make the change take effect.
-  ElementIter &theElements = theDomain.getElements();
+  G3_Runtime* rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+
+  ElementIter &theElements = the_domain->getElements();
   Element *theElement;
   while ((theElement = theElements()) != 0) {
-    theElement->setDomain(&theDomain);
+    theElement->setDomain(the_domain);
   }
-
   return 0;
 }
 
@@ -7152,6 +7120,8 @@ int
 getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   int ndm;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
 
   if (argc > 1) {
     int tag;
@@ -7159,7 +7129,7 @@ getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       opserr << "WARNING ndm nodeTag? \n";
       return TCL_ERROR;
     }
-    Node *theNode = theDomain.getNode(tag);
+    Node *theNode = the_domain->getNode(tag);
     if (theNode == 0) {
       opserr << "WARNING nodeTag " << tag << " does not exist \n";
       return TCL_ERROR;
@@ -7167,10 +7137,10 @@ getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     const Vector &coords = theNode->getCrds();
     ndm = coords.Size();
   } else {
-    if (theBuilder == 0) {
+    if (G3_getModelBuilder(rt) == 0) {
       return TCL_OK;
     } else {
-      ndm = OPS_GetNDM();
+      ndm = G3_getNDM(rt);
     }
   }
 
@@ -7185,6 +7155,8 @@ int
 getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   int ndf;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
 
   if (argc > 1) {
     int tag;
@@ -7192,7 +7164,7 @@ getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       opserr << "WARNING ndf nodeTag? \n";
       return TCL_ERROR;
     }
-    Node *theNode = theDomain.getNode(tag);
+    Node *theNode = the_domain->getNode(tag);
     if (theNode == 0) {
       opserr << "WARNING nodeTag " << tag << " does not exist \n";
       return TCL_ERROR;
@@ -7202,12 +7174,18 @@ getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     if (theBuilder == 0) {
       return TCL_OK;
     } else {
-      ndf = OPS_GetNDF();
+      ndf = G3_getNDF(rt);
     }
   }
 
-  char buffer[20];
-  sprintf(buffer, "%d", ndf);
+  char buffer[G3_NUM_DOF_BUFFER];
+  if (abs(ndf) <  G3_MAX_NUM_DOFS){
+    sprintf(buffer, "%d", ndf);
+  } else {
+    opserr << "ERROR -- Invalid DOF count encountered; got '" << ndf << "'.\n";
+    return TCL_ERROR;
+  }
+
   Tcl_AppendResult(interp, buffer, NULL);
 
   return TCL_OK;
@@ -7216,6 +7194,9 @@ getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+
   if (argc < 2) {
     opserr << "WARNING want - eleType eleTag?\n";
     return TCL_ERROR;
@@ -7229,7 +7210,7 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
 
   char buffer[80];
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == 0) {
     opserr << "WARNING eleType ele " << tag << " not found" << endln;
     return TCL_ERROR;
@@ -7244,6 +7225,9 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+
   if (argc < 2) {
     opserr << "WARNING want - eleNodes eleTag?\n";
     return TCL_ERROR;
@@ -7263,8 +7247,8 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   strcpy(myArgv0, "nodeTags");
   myArgv[0] = myArgv0;
 
-  // const Vector *tags = theDomain.getElementResponse(tag, &myArgv[0], 1);
-  Element *theElement = theDomain.getElement(tag);
+  // const Vector *tags = the_domain->getElementResponse(tag, &myArgv[0], 1);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == 0) {
     opserr << "WARNING eleNodes ele " << tag << " not found" << endln;
     return TCL_ERROR;
@@ -7282,6 +7266,9 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+
   if (argc < 2) {
     opserr << "WARNING want - nodeDOFs nodeTag?\n";
     return TCL_ERROR;
@@ -7296,7 +7283,7 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   char buffer[40];
 
-  Node *theNode = theDomain.getNode(tag);
+  Node *theNode = the_domain->getNode(tag);
   if (theNode == 0) {
     opserr << "WARNING nodeDOFs node " << tag << " not found" << endln;
     return TCL_ERROR;
@@ -7320,6 +7307,9 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeMass(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+
   if (argc < 3) {
     opserr << "WARNING want - nodeMass nodeTag? nodeDOF?\n";
     return TCL_ERROR;
@@ -7338,7 +7328,7 @@ nodeMass(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   char buffer[40];
 
-  Node *theNode = theDomain.getNode(tag);
+  Node *theNode = the_domain->getNode(tag);
   if (theNode == 0) {
     opserr << "WARNING nodeMass node " << tag << " not found" << endln;
     return TCL_ERROR;
@@ -7360,6 +7350,8 @@ int
 nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
   if (argc < 2) {
     opserr << "WARNING: want - nodePressure nodeTag?\n";
     return TCL_ERROR;
@@ -7585,185 +7577,8 @@ setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
-setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  // make sure at least one other argument to contain type of system
-  if (argc < 4) {
-    opserr << "WARNING want - setNodeAccel nodeTag? dof? value? <-commit>\n";
-    return TCL_ERROR;
-  }
 
-  int tag;
-  int dof = -1;
-  double value = 0.0;
-  bool commit = false;
 
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING setNodeAccel nodeTag? dof? value?- could not read "
-              "nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  Node *theNode = theDomain.getNode(tag);
-  if (theNode == 0) {
-    opserr << "WARNING setNodeAccel -- node with tag " << tag << " not found"
-           << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr
-        << "WARNING setNodeDisp nodeTag? dof? value?- could not read dof? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
-    opserr << "WARNING setNodeAccel nodeTag? dof? value?- could not read "
-              "value? \n";
-    return TCL_ERROR;
-  }
-  if (argc > 4 && strcmp(argv[4], "-commit") == 0)
-    commit = true;
-
-  dof--;
-
-  int numDOF = theNode->getNumberDOF();
-
-  if (dof >= 0 && dof < numDOF) {
-    Vector vel(numDOF);
-    vel = theNode->getAccel();
-    vel(dof) = value;
-    theNode->setTrialAccel(vel);
-  }
-  if (commit)
-    theNode->commitState();
-
-  return TCL_OK;
-}
-
-int
-nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  // make sure at least one other argument to contain type of system
-  if (argc < 2) {
-    opserr << "WARNING want - nodeAccel nodeTag? dof?\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeAccel nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING nodeAccel nodeTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-  const Vector *nodalResponse = theDomain.getNodeResponse(tag, Accel);
-  if (nodalResponse == 0)
-    return TCL_ERROR;
-
-  int size = nodalResponse->Size();
-
-  if (dof >= 0) {
-    if (size < dof)
-      return TCL_ERROR;
-
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-    // sprintf(interp->result,"%35.20f",value);
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  } else {
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  // make sure at least one other argument to contain type of system
-  if (argc < 4) {
-    opserr << "WARNING want - nodeResponse nodeTag? dof? responseID?\n";
-    return TCL_ERROR;
-  }
-
-  int tag, dof, responseID;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? - could not read dof? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[3], &responseID) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? responseID? - could not read "
-              "responseID? \n";
-    return TCL_ERROR;
-  }
-
-  dof--;
-
-  const Vector *nodalResponse =
-      theDomain.getNodeResponse(tag, (NodeResponseType)responseID);
-  if (nodalResponse == 0 || nodalResponse->Size() < dof || dof < 0)
-    return TCL_ERROR;
-
-  double value = (*nodalResponse)(dof);
-
-  // now we copy the value to the tcl string that is returned
-  //    sprintf(interp->result,"%35.20f",value);
-  char buffer[40];
-  sprintf(buffer, "%35.20f", value);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
-
-int
-calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv)
-{
-  // make sure at least one other argument to contain type of system
-  int incInertia = 0;
-
-  if (argc == 2) {
-    if ((strcmp(argv[1], "-incInertia") == 0) ||
-        (strcmp(argv[1], "-dynamical") == 0) ||
-        (strcmp(argv[1], "-Dynamic") == 0) ||
-        (strcmp(argv[1], "-dynamic") == 0))
-
-      incInertia = 1;
-
-    else if ((strcmp(argv[1], "-rayleigh") == 0))
-
-      incInertia = 2;
-  }
-
-  theDomain.calculateNodalReactions(incInertia);
-
-  return TCL_OK;
-}
 
 // AddingSensitivity:BEGIN ////////////////////////////////////
 int

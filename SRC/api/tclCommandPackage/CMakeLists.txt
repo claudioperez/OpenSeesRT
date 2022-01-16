@@ -12,6 +12,7 @@ add_library(OpenSeesCommandPackage SHARED)
 target_sources(OpenSeesCommandPackage
   PRIVATE
     # Model Builders
+    "modelbuilder/TclBuilder.cpp"
     "modelbuilder/basic/TclBasicBuilder.cpp"
     #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
     "modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
@@ -20,6 +21,7 @@ target_sources(OpenSeesCommandPackage
 
     "commands/commands.cpp"
     "commands/myCommands.cpp"
+    "domain/nodes.cpp"
     OpenSeesCommandPackage.cpp
     TclPackageClassBroker.cpp
     "coordTransformation/TclGeomTransfCommand.cpp"
@@ -82,13 +84,15 @@ target_sources(OpenSeesCommandPackage
     "material/section/yieldSurface/TclModelBuilderYS_SectionCommand.cpp"
 
     "material/uniaxial/TclModelBuilderUniaxialMaterialCommand.cpp"
-    "material/uniaxial/TclSafeUniaxialCommand.cpp"
+    # "material/uniaxial/TclSafeUniaxialCommand.cpp"
+    "modeling/uniaxial.cpp"
     "material/uniaxial/TclKikuchiAiken.cpp"
     "material/uniaxial/TclAxialSp.cpp"
     #"material/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     "material/uniaxial/fedeas/TclFedeasWrappers.cpp"
     "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
-    "material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
+    #"material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
+    "material/hystereticBackbone.cpp"
     "material/uniaxial/limitState/TclLimitState.cpp"
     "material/uniaxial/snap/TclSnapMaterialCommand.cpp"
     "material/uniaxial/stiffness/TclModelBuilderStiffnessDegradationCommand.cpp"
@@ -124,9 +128,9 @@ target_sources(OpenSeesCommandPackage
     "misc/TclFeViewer.cpp"
 
 )
-# add_subdirectory(libraries/uniaxial)
+add_subdirectory(libraries/uniaxial)
 
-target_compile_definitions(OpenSeesCommandPackage PRIVATE USE_TCL_STUBS _TCL85 _NOGRAPHICS)
+target_compile_definitions(OpenSeesCommandPackage PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 target_compile_options(OpenSeesCommandPackage PUBLIC -fPIC)
 
 # Dependencies
@@ -148,7 +152,7 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   OPS_Paraview
   OPS_ModelBuilder
   G3_ObjectBroker
-  g3_uniaxial_io
+  #g3_uniaxial_io
   G3
   ${MYSQL_LIBRARIES}
   ${TCL_STUB_LIBRARY}

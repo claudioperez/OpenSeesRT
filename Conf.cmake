@@ -107,6 +107,6 @@ set(OPS_Exclude_List
   OPS_Element_feap
   OPS_Material_StressDensity
   OPS_Recorder_PVD
-  OPS_Uniaxial_Fedeas
+  # OPS_Uniaxial_Fedeas
 )
 
