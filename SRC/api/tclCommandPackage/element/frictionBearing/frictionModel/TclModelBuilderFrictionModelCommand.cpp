@@ -36,11 +36,11 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
                                        int cArg, int mArg, TCL_Char **argv,
                                        Domain *domain);
 
-extern void *OPS_Coulomb();
-extern void *OPS_VelDependent();
-extern void *OPS_VelDepMultiLinear();
-extern void *OPS_VelNormalFrcDep();
-extern void *OPS_VelPressureDep();
+extern void *OPS_Coulomb(G3_Runtime*);
+extern void *OPS_VelDependent(G3_Runtime*);
+extern void *OPS_VelDepMultiLinear(G3_Runtime*);
+extern void *OPS_VelNormalFrcDep(G3_Runtime*);
+extern void *OPS_VelPressureDep(G3_Runtime*);
 
 static void
 printCommand(int argc, TCL_Char **argv)
@@ -56,6 +56,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv,
                                     Domain *theDomain)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   // make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of friction model arguments\n";
@@ -70,7 +71,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
 
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "Coulomb") == 0 || strcmp(argv[1], "Constant") == 0) {
-    void *theFrn = OPS_Coulomb();
+    void *theFrn = OPS_Coulomb(rt);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -80,7 +81,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelDependent") == 0 ||
       strcmp(argv[1], "VDependent") == 0) {
-    void *theFrn = OPS_VelDependent();
+    void *theFrn = OPS_VelDependent(rt);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -90,7 +91,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelDepMultiLinear") == 0 ||
       strcmp(argv[1], "VDependentMultiLinear") == 0) {
-    void *theFrn = OPS_VelDepMultiLinear();
+    void *theFrn = OPS_VelDepMultiLinear(rt);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -100,7 +101,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelNormalFrcDep") == 0 ||
       strcmp(argv[1], "VNDependent") == 0) {
-    void *theFrn = OPS_VelNormalFrcDep();
+    void *theFrn = OPS_VelNormalFrcDep(rt);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -110,7 +111,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelPressureDep") == 0 ||
       strcmp(argv[1], "VPDependent") == 0) {
-    void *theFrn = OPS_VelPressureDep();
+    void *theFrn = OPS_VelPressureDep(rt);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else

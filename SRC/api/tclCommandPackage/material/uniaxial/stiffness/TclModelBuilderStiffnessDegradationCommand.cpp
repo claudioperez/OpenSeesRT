@@ -41,10 +41,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <string.h>
 
-extern void *OPS_DuctilityStiffnessDegradation(void);
-extern void *OPS_EnergyStiffnessDegradation(void);
-extern void *OPS_ConstantStiffnessDegradation(void);
-extern void *OPS_PincheiraStiffnessDegradation(void);
+extern void *OPS_DuctilityStiffnessDegradation(G3_Runtime*);
+extern void *OPS_EnergyStiffnessDegradation(G3_Runtime*);
+extern void *OPS_ConstantStiffnessDegradation(G3_Runtime*);
+extern void *OPS_PincheiraStiffnessDegradation(G3_Runtime*);
 
 #include <elementAPI.h>
 #include <packages.h>
@@ -54,6 +54,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
                                            TCL_Char **argv, Domain *theDomain)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   // Make sure there is a minimum number of arguments
   if (argc < 2) {
     opserr << "WARNING insufficient number of stiffnessDegradation arguments\n";
@@ -70,7 +71,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
 
   // Check argv[1] for stiffnessDegradation type
   if (strcmp(argv[1], "Ductility") == 0) {
-    void *theDegr = OPS_DuctilityStiffnessDegradation();
+    void *theDegr = OPS_DuctilityStiffnessDegradation(rt);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
@@ -78,7 +79,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Energy") == 0) {
-    void *theDegr = OPS_EnergyStiffnessDegradation();
+    void *theDegr = OPS_EnergyStiffnessDegradation(rt);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
@@ -86,7 +87,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Constant") == 0) {
-    void *theDegr = OPS_ConstantStiffnessDegradation();
+    void *theDegr = OPS_ConstantStiffnessDegradation(rt);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
@@ -94,7 +95,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Pincheira") == 0) {
-    void *theDegr = OPS_PincheiraStiffnessDegradation();
+    void *theDegr = OPS_PincheiraStiffnessDegradation(rt);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else

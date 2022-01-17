@@ -89,7 +89,7 @@ static LimitCurveFunction *theLimitCurveFunctions = NULL;
 static Tcl_Interp *theInterp = 0;
 static Domain *theDomain = 0;
 
-static TclBasicBuilder *theModelBuilder = 0;
+static TclBuilder *theModelBuilder = 0;
 
 static TCL_Char **currentArgv = 0;
 static int currentArg = 0;
@@ -186,8 +186,11 @@ OPS_ResetCurrentInputArg(int cArg)
 // extern "C"
 int
 OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
-               TCL_Char **argv, Domain *domain, TclBasicBuilder *builder)
+               TCL_Char **argv, Domain *domain, TclBuilder *builder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  G3_setDomain(rt, domain);
+  G3_setModelBuilder(rt, builder);
   theInterp = interp;
   theDomain = domain;
   theModelBuilder = builder;
@@ -203,6 +206,8 @@ extern "C" int
 OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                         int mArg, TCL_Char **argv, Domain *domain)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  G3_setDomain(rt, domain);
   theInterp = interp;
   theDomain = domain;
   currentArgv = argv;
@@ -1056,7 +1061,14 @@ G3_getSafeBuilder(G3_Runtime *rt)
 int
 G3_setDomain(G3_Runtime *rt, Domain* domain){
   int exists = rt->m_domain ? 1 : 0;
+  Domain *old = rt->m_domain;
+  /*
+  if (old && old != domain)
+    throw 20;
+  printf("SETTING: %p->%p\n", rt, rt->m_domain);
+  */
   rt->m_domain = domain;
+  // opserr << "Domain set from '" << (long int)old << "' to '" << (long int)domain << "'\n";
   return exists;
 }
 
@@ -1066,8 +1078,11 @@ G3_getDomain(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   if (!rt->m_domain){
-    G3_raise(rt, "No domain");
+    opserr << "WARNING -- No domain\n";
   }
+  /*
+  printf("GETTING: %p->%p\n", rt, rt->m_domain);
+  */
   return rt->m_domain;
   /* 
   ModelBuilder *theTclBuilder =
@@ -1136,11 +1151,13 @@ OPS_InvokeMaterialDirectly2(matObject *theMat, modelState *model,
   return error;
 }
 
+#if !defined(OPS_USE_RUNTIME)
 UniaxialMaterial *
 OPS_GetUniaxialMaterial(int matTag)
 {
   return OPS_getUniaxialMaterial(matTag);
 }
+#endif
 
 UniaxialMaterial *
 G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)

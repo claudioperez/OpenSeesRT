@@ -83,66 +83,66 @@ extern NDMaterial *Tcl_addWrapperNDMaterial(matObj *, ClientData, Tcl_Interp *,
                                             int, TCL_Char **,
                                             TclBasicBuilder *);
 
-extern void *OPS_ReinforcedConcretePlaneStressMaterial(void);
-extern void *OPS_FAReinforcedConcretePlaneStressMaterial(void);
-extern void *OPS_FAFourSteelRCPlaneStressMaterial(void);
-extern void *OPS_RAFourSteelRCPlaneStressMaterial(void);
-extern void *OPS_PrestressedConcretePlaneStressMaterial(void);
-extern void *OPS_FAPrestressedConcretePlaneStressMaterial(void);
-extern void *OPS_FAFourSteelPCPlaneStressMaterial(void);
-extern void *OPS_RAFourSteelPCPlaneStressMaterial(void);
-extern void *OPS_MaterialCMM(void);
-extern void *OPS_NewMaterialCMM(void);
-extern void *OPS_NewPlasticDamageConcrete3d(void);
-extern void *OPS_NewPlasticDamageConcretePlaneStress(void);
-extern void *OPS_ElasticIsotropicMaterial(void);
-extern void *OPS_ElasticIsotropic3D(void);
-extern void *OPS_IncrementalElasticIsotropicThreeDimensional(void);
-extern void *OPS_ElasticOrthotropicMaterial(void);
-extern void *OPS_DruckerPragerMaterial(void);
-extern void *OPS_BoundingCamClayMaterial(void);
-extern void *OPS_ContactMaterial2DMaterial(void);
-extern void *OPS_ContactMaterial3DMaterial(void);
-extern void *OPS_InitialStateAnalysisWrapperMaterial(void);
-extern void *OPS_ManzariDafaliasMaterial(void);
-extern void *OPS_ManzariDafaliasMaterialRO(void);
-extern void *OPS_PM4SandMaterial(void);
-extern void *OPS_PM4SiltMaterial(void);
-extern void *OPS_J2CyclicBoundingSurfaceMaterial(void);
-extern void *OPS_CycLiqCPMaterial(void);
-extern void *OPS_CycLiqCPSPMaterial(void);
-extern void *OPS_InitStressNDMaterial(void);
-extern void *OPS_StressDensityMaterial(void);
-extern void *OPS_J2Plasticity(void);
-extern void *OPS_J2BeamFiber2dMaterial(void);
-extern void *OPS_J2BeamFiber3dMaterial(void);
-extern void *OPS_J2PlateFibreMaterial(void);
-extern void *OPS_PlaneStressLayeredMaterial(void);
-extern void *OPS_PlaneStressRebarMaterial(void);
-extern void *OPS_PlateFiberMaterial(void);
-extern void *OPS_BeamFiberMaterial(void);
-extern void *OPS_BeamFiberMaterial2d(void);
-extern void *OPS_BeamFiberMaterial2dPS(void);
-extern void *OPS_LinearCap(void);
-extern void *OPS_AcousticMedium(void);
-extern void *OPS_UVCmultiaxial(void);
-extern void *OPS_UVCplanestress(void);
-extern void *OPS_SAniSandMSMaterial(void);
+extern void *OPS_ReinforcedConcretePlaneStressMaterial(G3_Runtime*);
+extern void *OPS_FAReinforcedConcretePlaneStressMaterial(G3_Runtime*);
+extern void *OPS_FAFourSteelRCPlaneStressMaterial(G3_Runtime*);
+extern void *OPS_RAFourSteelRCPlaneStressMaterial(G3_Runtime*);
+extern void *OPS_PrestressedConcretePlaneStressMaterial(G3_Runtime*);
+extern void *OPS_FAPrestressedConcretePlaneStressMaterial(G3_Runtime*);
+extern void *OPS_FAFourSteelPCPlaneStressMaterial(G3_Runtime*);
+extern void *OPS_RAFourSteelPCPlaneStressMaterial(G3_Runtime*);
+extern void *OPS_MaterialCMM(G3_Runtime*);
+extern void *OPS_NewMaterialCMM(G3_Runtime*);
+extern void *OPS_NewPlasticDamageConcrete3d(G3_Runtime*);
+extern void *OPS_NewPlasticDamageConcretePlaneStress(G3_Runtime*);
+extern void *OPS_ElasticIsotropicMaterial(G3_Runtime*);
+extern void *OPS_ElasticIsotropic3D(G3_Runtime*);
+extern void *OPS_IncrementalElasticIsotropicThreeDimensional(G3_Runtime*);
+extern void *OPS_ElasticOrthotropicMaterial(G3_Runtime*);
+extern void *OPS_DruckerPragerMaterial(G3_Runtime*);
+extern void *OPS_BoundingCamClayMaterial(G3_Runtime*);
+extern void *OPS_ContactMaterial2DMaterial(G3_Runtime*);
+extern void *OPS_ContactMaterial3DMaterial(G3_Runtime*);
+extern void *OPS_InitialStateAnalysisWrapperMaterial(G3_Runtime*);
+extern void *OPS_ManzariDafaliasMaterial(G3_Runtime*);
+extern void *OPS_ManzariDafaliasMaterialRO(G3_Runtime*);
+extern void *OPS_PM4SandMaterial(G3_Runtime*);
+extern void *OPS_PM4SiltMaterial(G3_Runtime*);
+extern void *OPS_J2CyclicBoundingSurfaceMaterial(G3_Runtime*);
+extern void *OPS_CycLiqCPMaterial(G3_Runtime*);
+extern void *OPS_CycLiqCPSPMaterial(G3_Runtime*);
+extern void *OPS_InitStressNDMaterial(G3_Runtime*);
+extern void *OPS_StressDensityMaterial(G3_Runtime*);
+extern void *OPS_J2Plasticity(G3_Runtime*);
+extern void *OPS_J2BeamFiber2dMaterial(G3_Runtime*);
+extern void *OPS_J2BeamFiber3dMaterial(G3_Runtime*);
+extern void *OPS_J2PlateFibreMaterial(G3_Runtime*);
+extern void *OPS_PlaneStressLayeredMaterial(G3_Runtime*);
+extern void *OPS_PlaneStressRebarMaterial(G3_Runtime*);
+extern void *OPS_PlateFiberMaterial(G3_Runtime*);
+extern void *OPS_BeamFiberMaterial(G3_Runtime*);
+extern void *OPS_BeamFiberMaterial2d(G3_Runtime*);
+extern void *OPS_BeamFiberMaterial2dPS(G3_Runtime*);
+extern void *OPS_LinearCap(G3_Runtime*);
+extern void *OPS_AcousticMedium(G3_Runtime*);
+extern void *OPS_UVCmultiaxial(G3_Runtime*);
+extern void *OPS_UVCplanestress(G3_Runtime*);
+extern void *OPS_SAniSandMSMaterial(G3_Runtime*);
 
-extern void *OPS_ElasticIsotropicMaterialThermal(void); // L.Jiang [SIF]
-extern void *OPS_DruckerPragerMaterialThermal(void);    // L.Jiang [SIF]
-// extern  void *OPS_PlasticDamageConcretePlaneStressThermal(void);//L.Jiang
+extern void *OPS_ElasticIsotropicMaterialThermal(G3_Runtime*); // L.Jiang [SIF]
+extern void *OPS_DruckerPragerMaterialThermal(G3_Runtime*);    // L.Jiang [SIF]
+// extern  void *OPS_PlasticDamageConcretePlaneStressThermal(G3_Runtime*);//L.Jiang
 // [SIF]
 
 #ifdef _HAVE_Faria1998
-extern void *OPS_NewFaria1998Material(void);
-extern void *OPS_NewConcreteMaterial(void);
+extern void *OPS_NewFaria1998Material(G3_Runtime*);
+extern void *OPS_NewConcreteMaterial(G3_Runtime*);
 #endif
 
-extern void *OPS_FSAMMaterial(void); // K Kolozvari
+extern void *OPS_FSAMMaterial(G3_Runtime*); // K Kolozvari
 
 #ifdef _HAVE_Damage2p
-extern void *OPS_Damage2p(void);
+extern void *OPS_Damage2p(G3_Runtime*);
 #endif
 
 #if defined(OPSDEF_Material_FEAP)
@@ -154,7 +154,7 @@ NDMaterial *TclBasicBuilder_addFeapMaterial(ClientData clientData,
 
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
-                          TclBasicBuilder *builder);
+                          TclBuilder *builder);
 
 typedef struct ndMaterialPackageCommand {
   char *funcName;
@@ -178,6 +178,8 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv,
                                  TclBasicBuilder *theTclBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of ND material arguments\n";
@@ -195,7 +197,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   if ((strcmp(argv[1], "ReinforcedConcretePlaneStress") == 0) ||
       (strcmp(argv[1], "ReinforceConcretePlaneStress") == 0)) {
 
-    void *theMat = OPS_ReinforcedConcretePlaneStressMaterial();
+    void *theMat = OPS_ReinforcedConcretePlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -205,7 +207,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "PlasticDamageConcrete") == 0) ||
            (strcmp(argv[1], "PlasticDamageConcrete3d") == 0)) {
 
-    void *theMat = OPS_NewPlasticDamageConcrete3d();
+    void *theMat = OPS_NewPlasticDamageConcrete3d(rt);
     if (theMat != 0) {
       theMaterial = (NDMaterial *)theMat;
     } else
@@ -213,7 +215,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if ((strcmp(argv[1], "PlasticDamageConcretePlaneStress") == 0)) {
-    void *theMat = OPS_NewPlasticDamageConcretePlaneStress();
+    void *theMat = OPS_NewPlasticDamageConcretePlaneStress(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -222,7 +224,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "InitStressMaterial") == 0) ||
            (strcmp(argv[1], "InitStress") == 0)) {
-    void *theMat = OPS_InitStressNDMaterial();
+    void *theMat = OPS_InitStressNDMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -230,7 +232,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "PlaneStressLayeredMaterial") == 0) {
-    void *theMat = OPS_PlaneStressLayeredMaterial();
+    void *theMat = OPS_PlaneStressLayeredMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -238,7 +240,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "PlaneStressRebarMaterial") == 0) {
-    void *theMat = OPS_PlaneStressRebarMaterial();
+    void *theMat = OPS_PlaneStressRebarMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -248,9 +250,9 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "J2BeamFiber") == 0) {
     void *theMat = 0;
     if (theTclBuilder->getNDM() == 2)
-      theMat = OPS_J2BeamFiber2dMaterial();
+      theMat = OPS_J2BeamFiber2dMaterial(rt);
     else
-      theMat = OPS_J2BeamFiber3dMaterial();
+      theMat = OPS_J2BeamFiber3dMaterial(rt);
 
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
@@ -259,7 +261,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "J2PlateFibre") == 0) {
-    void *theMat = OPS_J2PlateFibreMaterial();
+    void *theMat = OPS_J2PlateFibreMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -268,13 +270,13 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
 #ifdef _HAVE_Faria1998
   else if (strcmp(argv[1], "Faria1998") == 0) {
-    void *theMat = OPS_NewFaria1998Material();
+    void *theMat = OPS_NewFaria1998Material(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
       return TCL_ERROR;
   } else if (strcmp(argv[1], "Concrete") == 0) {
-    void *theMat = OPS_NewConcreteMaterial();
+    void *theMat = OPS_NewConcreteMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -285,7 +287,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "FAReinforceConcretePlaneStress") == 0) ||
            (strcmp(argv[1], "FAReinforcedConcretePlaneStress") == 0)) {
 
-    void *theMat = OPS_FAReinforcedConcretePlaneStressMaterial();
+    void *theMat = OPS_FAReinforcedConcretePlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -294,7 +296,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "RAFourSteelRCPlaneStress") == 0)) {
 
-    void *theMat = OPS_RAFourSteelRCPlaneStressMaterial();
+    void *theMat = OPS_RAFourSteelRCPlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -303,7 +305,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "FAFourSteelRCPlaneStress") == 0)) {
 
-    void *theMat = OPS_FAFourSteelRCPlaneStressMaterial();
+    void *theMat = OPS_FAFourSteelRCPlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -313,7 +315,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 #ifdef _HAVE_Damage2p
   else if ((strcmp(argv[1], "Damage2p") == 0)) {
 
-    void *theMat = OPS_Damage2p();
+    void *theMat = OPS_Damage2p(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -328,7 +330,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "PrestressedConcretePlaneStress") == 0)) {
 
-    void *theMat = OPS_PrestressedConcretePlaneStressMaterial();
+    void *theMat = OPS_PrestressedConcretePlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -337,7 +339,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "FAPrestressedConcretePlaneStress") == 0)) {
 
-    void *theMat = OPS_FAPrestressedConcretePlaneStressMaterial();
+    void *theMat = OPS_FAPrestressedConcretePlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -346,7 +348,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "RAFourSteetPCPlaneStress") == 0)) {
 
-    void *theMat = OPS_RAFourSteelPCPlaneStressMaterial();
+    void *theMat = OPS_RAFourSteelPCPlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -355,7 +357,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "FAFourSteelPCPlaneStress") == 0)) {
 
-    void *theMat = OPS_FAFourSteelPCPlaneStressMaterial();
+    void *theMat = OPS_FAFourSteelPCPlaneStressMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -364,7 +366,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "DruckerPrager") == 0)) {
 
-    void *theMat = OPS_DruckerPragerMaterial();
+    void *theMat = OPS_DruckerPragerMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -373,7 +375,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "TruncatedDP") == 0)) {
 
-    void *theMat = OPS_LinearCap();
+    void *theMat = OPS_LinearCap(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -383,7 +385,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   // K Kolozvari
   else if ((strcmp(argv[1], "FSAM") == 0) || (strcmp(argv[1], "FSAM") == 0)) {
 
-    void *theMat = OPS_FSAMMaterial();
+    void *theMat = OPS_FSAMMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -392,7 +394,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "AcousticMedium") == 0)) {
 
-    void *theMat = OPS_AcousticMedium();
+    void *theMat = OPS_AcousticMedium(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -401,7 +403,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "UVCplanestress") == 0)) {
 
-    void *theMat = OPS_UVCplanestress();
+    void *theMat = OPS_UVCplanestress(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -410,7 +412,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "UVCmultiaxial") == 0)) {
 
-    void *theMat = OPS_UVCmultiaxial();
+    void *theMat = OPS_UVCmultiaxial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -419,7 +421,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "MaterialCMM") == 0)) {
 
-    void *theMat = OPS_MaterialCMM();
+    void *theMat = OPS_MaterialCMM(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -428,7 +430,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "CycLiqCP") == 0)) {
 
-    void *theMat = OPS_CycLiqCPMaterial();
+    void *theMat = OPS_CycLiqCPMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -437,7 +439,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "CycLiqCPSP") == 0)) {
 
-    void *theMat = OPS_CycLiqCPSPMaterial();
+    void *theMat = OPS_CycLiqCPSPMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -446,7 +448,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "BoundingCamClay") == 0)) {
 
-    void *theMat = OPS_BoundingCamClayMaterial();
+    void *theMat = OPS_BoundingCamClayMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -455,7 +457,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "ManzariDafalias") == 0)) {
 
-    void *theMat = OPS_ManzariDafaliasMaterial();
+    void *theMat = OPS_ManzariDafaliasMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -464,7 +466,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "ManzariDafaliasRO") == 0)) {
 
-    void *theMat = OPS_ManzariDafaliasMaterialRO();
+    void *theMat = OPS_ManzariDafaliasMaterialRO(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -473,7 +475,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "PM4Sand") == 0)) {
 
-    void *theMat = OPS_PM4SandMaterial();
+    void *theMat = OPS_PM4SandMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -482,7 +484,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "J2CyclicBoundingSurface") == 0)) {
 
-    void *theMat = OPS_J2CyclicBoundingSurfaceMaterial();
+    void *theMat = OPS_J2CyclicBoundingSurfaceMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -491,7 +493,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "PM4Silt") == 0)) {
 
-    void *theMat = OPS_PM4SiltMaterial();
+    void *theMat = OPS_PM4SiltMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -500,7 +502,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "ContactMaterial2D") == 0)) {
 
-    void *theMat = OPS_ContactMaterial2DMaterial();
+    void *theMat = OPS_ContactMaterial2DMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -509,7 +511,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "ContactMaterial3D") == 0)) {
 
-    void *theMat = OPS_ContactMaterial3DMaterial();
+    void *theMat = OPS_ContactMaterial3DMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -518,7 +520,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "InitialStateAnalysisWrapper") == 0)) {
 
-    void *theMat = OPS_InitialStateAnalysisWrapperMaterial();
+    void *theMat = OPS_InitialStateAnalysisWrapperMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -528,7 +530,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "stressDensity") == 0) ||
            (strcmp(argv[1], "StressDensity") == 0)) {
 
-    void *theMat = OPS_StressDensityMaterial();
+    void *theMat = OPS_StressDensityMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -537,7 +539,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "ElasticIsotropic3D") == 0)) {
 
-    void *theMat = OPS_ElasticIsotropic3D();
+    void *theMat = OPS_ElasticIsotropic3D(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -546,7 +548,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "ElasticIsotropic") == 0)) {
 
-    void *theMat = OPS_ElasticIsotropicMaterial();
+    void *theMat = OPS_ElasticIsotropicMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -556,7 +558,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "ElasticOrthotropic3D") == 0) ||
            (strcmp(argv[1], "ElasticOrthotropic") == 0)) {
 
-    void *theMat = OPS_ElasticOrthotropicMaterial();
+    void *theMat = OPS_ElasticOrthotropicMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -566,7 +568,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "IncrementalElasticIsotropic3D") == 0) ||
            (strcmp(argv[1], "incrementalElasticIsotropic3D") == 0)) {
 
-    void *theMat = OPS_IncrementalElasticIsotropicThreeDimensional();
+    void *theMat = OPS_IncrementalElasticIsotropicThreeDimensional(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -575,7 +577,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if ((strcmp(argv[1], "SAniSandMS") == 0)) {
 
-    void *theMat = OPS_SAniSandMSMaterial();
+    void *theMat = OPS_SAniSandMSMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -689,7 +691,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "J2Plasticity") == 0) ||
            (strcmp(argv[1], "J2") == 0)) {
 
-    void *theMat = OPS_J2Plasticity();
+    void *theMat = OPS_J2Plasticity(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -1494,7 +1496,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "PlateFiberMaterial") == 0 ||
            strcmp(argv[1], "PlateFiber") == 0) {
 
-    void *theMat = OPS_PlateFiberMaterial();
+    void *theMat = OPS_PlateFiberMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -1865,7 +1867,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "BeamFiberMaterial") == 0 ||
            strcmp(argv[1], "BeamFiber") == 0) {
 
-    void *theMat = OPS_BeamFiberMaterial();
+    void *theMat = OPS_BeamFiberMaterial(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -1875,7 +1877,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "BeamFiberMaterial2d") == 0 ||
            strcmp(argv[1], "BeamFiber2d") == 0) {
 
-    void *theMat = OPS_BeamFiberMaterial2d();
+    void *theMat = OPS_BeamFiberMaterial2d(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -1885,7 +1887,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "BeamFiberMaterial2dPS") == 0 ||
            strcmp(argv[1], "BeamFiber2dPS") == 0) {
 
-    void *theMat = OPS_BeamFiberMaterial2dPS();
+    void *theMat = OPS_BeamFiberMaterial2dPS(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -1985,7 +1987,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   //-------nD materials for thermo-mechanical analysis---Added by L.Jiang[SIF]
   else if ((strcmp(argv[1], "DruckerPragerThermal") == 0)) {
 
-    void *theMat = OPS_DruckerPragerMaterialThermal();
+    void *theMat = OPS_DruckerPragerMaterialThermal(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else
@@ -1994,7 +1996,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   //-------------------------------------------------------------
   /*
       else if ((strcmp(argv[1], "CDPPlaneStressThermal") == 0)) {
-              void *theMat = OPS_PlasticDamageConcretePlaneStressThermal();
+              void *theMat = OPS_PlasticDamageConcretePlaneStressThermal(rt);
               if (theMat != 0)
                       theMaterial = (NDMaterial *)theMat;
               else
@@ -2176,7 +2178,7 @@ TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "ElasticIsotropicThermal") == 0) ||
            (strcmp(argv[1], "ElasticIsotropic3DThermal") == 0)) {
 
-    void *theMat = OPS_ElasticIsotropicMaterialThermal();
+    void *theMat = OPS_ElasticIsotropicMaterialThermal(rt);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else

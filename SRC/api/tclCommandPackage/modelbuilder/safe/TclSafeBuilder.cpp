@@ -133,7 +133,7 @@ extern int OPS_ResetInput(ClientData clientData,
                           int mArg,
                           TCL_Char **argv,
                           Domain *domain,
-                          TclSafeBuilder *builder);
+                          TclBuilder *builder);
 #include <packages.h>
 */
 
@@ -412,8 +412,6 @@ int argc, TCL_Char **argv);
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
-//
-
 // constructor: the constructor will add certain commands to the interpreter
 TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
@@ -638,8 +636,10 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   nodeLoadTag = 0;
   eleArgStart = 0;
+  m_runtime = G3_getRuntime(interp);
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theTclSafeBuilder", NULL, (ClientData)this);
+  G3_setDomain(m_runtime, &theDomain);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
@@ -1019,11 +1019,10 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "WARNING builder has been destroyed" << endln;
     return TCL_ERROR;
   }
-  opserr<< "ok\n" << endln;
 
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = G3_getNDM(rt);
+  int ndf = G3_getNDF(rt);
 
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {

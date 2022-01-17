@@ -77,22 +77,21 @@ target_sources(OpenSeesCommandPackage
     #------------------------------------------------
     # Materials
     #------------------------------------------------
-    "material/nD/TclModelBuilderNDMaterialCommand.cpp"
+    "modeling/nDMaterial.cpp"
     "material/nD/soil/TclUpdateMaterialStageCommand.cpp"
 
-    "material/section/TclModelBuilderSectionCommand.cpp"
+    "modeling/section.cpp"
+    "modeling/uniaxialMaterial.cpp"
+    "modeling/uniaxial.cpp"
+    "modeling/hystereticBackbone.cpp"
     "material/section/yieldSurface/TclModelBuilderYS_SectionCommand.cpp"
 
-    "material/uniaxial/TclModelBuilderUniaxialMaterialCommand.cpp"
-    # "material/uniaxial/TclSafeUniaxialCommand.cpp"
-    "modeling/uniaxial.cpp"
     "material/uniaxial/TclKikuchiAiken.cpp"
     "material/uniaxial/TclAxialSp.cpp"
     #"material/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     "material/uniaxial/fedeas/TclFedeasWrappers.cpp"
     "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
     #"material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
-    "material/hystereticBackbone.cpp"
     "material/uniaxial/limitState/TclLimitState.cpp"
     "material/uniaxial/snap/TclSnapMaterialCommand.cpp"
     "material/uniaxial/stiffness/TclModelBuilderStiffnessDegradationCommand.cpp"
@@ -131,7 +130,11 @@ target_sources(OpenSeesCommandPackage
 add_subdirectory(libraries/uniaxial)
 
 target_compile_definitions(OpenSeesCommandPackage PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
-target_compile_options(OpenSeesCommandPackage PUBLIC -fPIC)
+
+target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)
+target_compile_options(OPS_ElementFortran             PRIVATE -fPIC)
+target_compile_options(OPS_Material_Uniaxial_Drain_f  PRIVATE -fPIC)
+target_compile_options(OpenSeesCommandPackage         PUBLIC  -fPIC)
 
 # Dependencies
 find_package(TclStub)
@@ -146,10 +149,12 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   ${OPS_Element_List}
   #-Wl,--whole-archive
   #OPS_Uniaxial_Fedeas
-  OPS_Element_PFEMElement OPS_PFEM ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
+  #OPS_Element_PFEMElement 
+  #OPS_PFEM 
+  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
   #OpenSees 
   OPS_Damage
-  OPS_Paraview
+  #OPS_Paraview
   OPS_ModelBuilder
   G3_ObjectBroker
   #g3_uniaxial_io

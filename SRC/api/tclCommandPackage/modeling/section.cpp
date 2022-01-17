@@ -107,18 +107,18 @@ using std::ios;
 #include <packages.h>
 
 extern void *OPS_ElasticSection(void);
-extern void *OPS_ElasticWarpingShearSection2d();
+extern void *OPS_ElasticWarpingShearSection2d(void);
 extern void *OPS_ElasticTubeSection3d(void);
-extern void *OPS_WFSection2d(void);
-extern void *OPS_RCCircularSection(void);
-extern void *OPS_RCSection2d(void);
-extern void *OPS_RCTBeamSection2d(void);
-extern void *OPS_RCTunnelSection(void);
-extern void *OPS_UniaxialSection(void);
-extern void *OPS_TubeSection(void);
-extern void *OPS_ParallelSection(void);
-extern void *OPS_Bidirectional(void);
-extern void *OPS_Elliptical2(void);
+extern void *OPS_WFSection2d(G3_Runtime*);
+extern void *OPS_RCCircularSection(G3_Runtime*);
+extern void *OPS_RCSection2d(G3_Runtime*);
+extern void *OPS_RCTBeamSection2d(G3_Runtime*);
+extern void *OPS_RCTunnelSection(G3_Runtime*);
+extern void *OPS_UniaxialSection(G3_Runtime*);
+extern void *OPS_TubeSection(G3_Runtime*);
+extern void *OPS_ParallelSection(G3_Runtime*);
+extern void *OPS_Bidirectional(G3_Runtime*);
+extern void *OPS_Elliptical2(G3_Runtime*);
 
 int TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp,
                                int argc, TCL_Char **argv,
@@ -160,6 +160,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char **argv, Domain *theDomain,
                               TclBasicBuilder *theTclBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of section arguments\n";
@@ -201,7 +202,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "Generic1D") == 0 ||
            strcmp(argv[1], "Generic1d") == 0 ||
            strcmp(argv[1], "Uniaxial") == 0) {
-    void *theMat = OPS_UniaxialSection();
+    void *theMat = OPS_UniaxialSection(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -275,7 +276,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "WFSection2d") == 0 ||
            strcmp(argv[1], "WSection2d") == 0) {
-    void *theMat = OPS_WFSection2d();
+    void *theMat = OPS_WFSection2d(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -387,7 +388,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "RCSection2d") == 0) {
-    void *theMat = OPS_RCSection2d();
+    void *theMat = OPS_RCSection2d(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -395,7 +396,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "RCCircularSection") == 0) {
-    void *theMat = OPS_RCCircularSection();
+    void *theMat = OPS_RCCircularSection(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -403,7 +404,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "RCTunnelSection") == 0) {
-    void *theMat = OPS_RCTunnelSection();
+    void *theMat = OPS_RCTunnelSection(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -412,7 +413,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "RCTBeamSection2d") == 0 ||
            strcmp(argv[1], "RCTBeamSectionUniMat2d") == 0) {
-    void *theMat = OPS_RCTBeamSection2d();
+    void *theMat = OPS_RCTBeamSection2d(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -420,7 +421,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "Parallel") == 0) {
-    void *theMat = OPS_ParallelSection();
+    void *theMat = OPS_ParallelSection(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -876,7 +877,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   // created by Yuli Huang & Xinzheng Lu ----
 
   else if (strcmp(argv[1], "Bidirectional") == 0) {
-    void *theMat = OPS_Bidirectional();
+    void *theMat = OPS_Bidirectional(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -885,7 +886,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "Elliptical") == 0 ||
            strcmp(argv[1], "Elliptical2") == 0) {
-    void *theMat = OPS_Elliptical2();
+    void *theMat = OPS_Elliptical2(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else

@@ -127,7 +127,7 @@ extern const char *getInterpPWD(Tcl_Interp *interp); // L.Jiang [SIF]
 extern void TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder);
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
-                          TclBasicBuilder *builder);
+                          TclBuilder *builder);
 #include <packages.h>
 
 //

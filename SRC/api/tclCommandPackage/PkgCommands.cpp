@@ -66,7 +66,7 @@ OPS_ResetInput(ClientData clientData,
                int mArg,
                TCL_Char **argv,
                Domain *domain,
-               TclBasicBuilder *builder);
+               TclBuilder *builder);
 */
 
 int

@@ -28,11 +28,13 @@
 
 // Description: This file contains the implementation for the SAniSandMS class.
 
-#include <SAniSandMS.h>
-#include <SAniSandMS3D.h>
-#include <SAniSandMSPlaneStrain.h>
+//#include <SAniSandMS.h>
+#include "SAniSandMS.h"
+//#include <SAniSandMS3D.h>
+#include "SAniSandMS3D.h"
+//#include <SAniSandMSPlaneStrain.h>
+#include "SAniSandMSPlaneStrain.h"
 #include <MaterialResponse.h>
-
 #include <string.h>
 
 // #if defined(_WIN32) || defined(_WIN64)
@@ -74,8 +76,7 @@ SAniSandMS::initTensors SAniSandMS::initTensorOps;
 
 static int numSAniSandMSMaterials = 0;
 
-void *
-OPS_SAniSandMSMaterial(void)
+void * OPS_ADD_RUNTIME_VPV(OPS_SAniSandMSMaterial)
 {
 	// feenableexcept(FE_DIVBYZERO);// | FE_INVALID );//| FE_OVERFLOW);
 
@@ -453,7 +454,7 @@ SAniSandMS::commitState(void)
 	malpha_in_n = malpha_in;
 
 	if ((GetTrace(mSigma) / 3) > (m_P_atm / 5))
-		mUseElasticTan = false;
+	  mUseElasticTan = false;
 
 	// mAlpha_in_n  = mAlpha_in;
 	mSigma_n = mSigma;
@@ -839,7 +840,7 @@ void SAniSandMS::integrate()
 	// ElastoPlastic response
 	else {
 		// implicit schemes
-		if ((mScheme == INT_BackwardEuler))
+		if (mScheme == INT_BackwardEuler)
 			opserr << "SAniSandMS::integrate() -- Implicit integration not avialable yet" << endln;
 		// explicit schemes
 		else

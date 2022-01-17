@@ -70,14 +70,14 @@ cleanup(TCL_Char **argv)
   Tcl_Free((char *)argv);
 }
 
-extern void *OPS_ConstantSeries(void);
-extern void *OPS_LinearSeries(void);
-extern void *OPS_TriangleSeries(void);
-extern void *OPS_TrigSeries(void);
-extern void *OPS_RectangularSeries(void);
-extern void *OPS_PulseSeries(void);
-extern void *OPS_PeerMotion(void);
-extern void *OPS_PeerNGAMotion(void);
+extern void *OPS_ConstantSeries(G3_Runtime*);
+extern void *OPS_LinearSeries(G3_Runtime*);
+extern void *OPS_TriangleSeries(G3_Runtime*);
+extern void *OPS_TrigSeries(G3_Runtime*);
+extern void *OPS_RectangularSeries(G3_Runtime*);
+extern void *OPS_PulseSeries(G3_Runtime*);
+extern void *OPS_PeerMotion(G3_Runtime*);
+extern void *OPS_PeerNGAMotion(G3_Runtime*);
 
 #include <elementAPI.h>
 #include <g3_api.h>
@@ -154,7 +154,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   if ((strcmp(argv[0], "Constant") == 0) ||
       (strcmp(argv[0], "ConstantSeries") == 0)) {
 
-    void *theResult = OPS_ConstantSeries();
+    void *theResult = OPS_ConstantSeries(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 
@@ -163,7 +163,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
              (strcmp(argv[0], "Sine") == 0) ||
              (strcmp(argv[0], "SineSeries") == 0)) {
 
-    void *theResult = OPS_TrigSeries();
+    void *theResult = OPS_TrigSeries(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 
@@ -172,7 +172,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[0], "Linear") == 0) ||
            (strcmp(argv[0], "LinearSeries") == 0)) {
 
-    // void *theResult = OPS_LinearSeries();
+    // void *theResult = OPS_LinearSeries(rt);
     void *theResult = G3_newLinearSeries(rt, argc - 1, &argv[1]);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
@@ -183,7 +183,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
   else if (strcmp(argv[0], "Rectangular") == 0) {
 
-    void *theResult = OPS_RectangularSeries();
+    void *theResult = OPS_RectangularSeries(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 
@@ -192,7 +192,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[0], "Pulse") == 0) ||
            (strcmp(argv[0], "PulseSeries") == 0)) {
 
-    void *theResult = OPS_PulseSeries();
+    void *theResult = OPS_PulseSeries(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 
@@ -201,7 +201,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[0], "Triangle") == 0) ||
            (strcmp(argv[0], "TriangleSeries") == 0)) {
 
-    void *theResult = OPS_TriangleSeries();
+    void *theResult = OPS_TriangleSeries(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 
@@ -435,7 +435,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[0], "PeerDatabase") == 0) ||
            (strcmp(argv[0], "PeerMotion") == 0)) {
 
-    void *theResult = OPS_PeerMotion();
+    void *theResult = OPS_PeerMotion(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 
@@ -471,7 +471,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[0], "PeerNGADatabase") == 0) ||
            (strcmp(argv[0], "PeerNGAMotion") == 0)) {
 
-    void *theResult = OPS_PeerNGAMotion();
+    void *theResult = OPS_PeerNGAMotion(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
 

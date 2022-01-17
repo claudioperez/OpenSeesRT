@@ -56,9 +56,8 @@ extern Domain theDomain;
 int specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv);
 
-extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char **argv, Domain *domain,
-                          TclBasicBuilder *builder);
+extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **,
+    Domain *, TclBuilder *);
 
 int
 myCommands(Tcl_Interp *interp)
@@ -182,7 +181,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     // create the model builder
     if (!safe_builder) {
-      theNewBuilder = new TclBasicBuilder(theDomain, interp, ndm, ndf);
+      theNewBuilder = new TclBasicBuilder(*theNewDomain, interp, ndm, ndf);
       // set global variables
     } else {
       theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);

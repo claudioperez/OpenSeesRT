@@ -51,7 +51,9 @@
 #include <NormElementRecorder.h>
 #include <NormEnvelopeElementRecorder.h>
 
+#ifdef OPS_USE_PFEM
 #include <PVDRecorder.h>
+#endif
 
 // #include <MPCORecorder.h>
 #include <GmshRecorder.h>
@@ -1882,11 +1884,12 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                                 height, displayRecord, fileName);
     (*theRecorder) = thePlotter;
 #endif // _NOGRAPHICS
+#ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "pvd") == 0 || strcmp(argv[1], "PVD") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_PVDRecorder();
+#endif
   }
-
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
     (*theRecorder) = (Recorder *)OPS_VTK_Recorder();

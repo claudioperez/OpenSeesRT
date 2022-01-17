@@ -44,12 +44,12 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <string.h>
 
-extern void *OPS_SectionStrengthDegradation(void);
-extern void *OPS_DuctilityStrengthDegradation(void);
-extern void *OPS_EnergyStrengthDegradation(void);
-extern void *OPS_ConstantStrengthDegradation(void);
-extern void *OPS_ACIStrengthDegradation(void);
-extern void *OPS_PetrangeliStrengthDegradation(void);
+extern void *OPS_SectionStrengthDegradation(G3_Runtime*);
+extern void *OPS_DuctilityStrengthDegradation(G3_Runtime*);
+extern void *OPS_EnergyStrengthDegradation(G3_Runtime*);
+extern void *OPS_ConstantStrengthDegradation(G3_Runtime*);
+extern void *OPS_ACIStrengthDegradation(G3_Runtime*);
+extern void *OPS_PetrangeliStrengthDegradation(G3_Runtime*);
 
 #include <elementAPI.h>
 #include <packages.h>
@@ -68,6 +68,8 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
                                           TCL_Char **argv, Domain *theDomain)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // Make sure there is a minimum number of arguments
   if (argc < 2) {
     opserr << "WARNING insufficient number of strengthDegradation arguments\n";
@@ -155,7 +157,7 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Ductility") == 0) {
-    void *theDegr = OPS_DuctilityStrengthDegradation();
+    void *theDegr = OPS_DuctilityStrengthDegradation(rt);
     if (theDegr != 0)
       theState = (StrengthDegradation *)theDegr;
     else
@@ -163,7 +165,7 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Energy") == 0) {
-    void *theDegr = OPS_EnergyStrengthDegradation();
+    void *theDegr = OPS_EnergyStrengthDegradation(rt);
     if (theDegr != 0)
       theState = (StrengthDegradation *)theDegr;
     else
@@ -171,7 +173,7 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Constant") == 0) {
-    void *theDegr = OPS_ConstantStrengthDegradation();
+    void *theDegr = OPS_ConstantStrengthDegradation(rt);
     if (theDegr != 0)
       theState = (StrengthDegradation *)theDegr;
     else
@@ -179,7 +181,7 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "ACI") == 0) {
-    void *theDegr = OPS_ACIStrengthDegradation();
+    void *theDegr = OPS_ACIStrengthDegradation(rt);
     if (theDegr != 0)
       theState = (StrengthDegradation *)theDegr;
     else
@@ -187,7 +189,7 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Petrangeli") == 0) {
-    void *theDegr = OPS_PetrangeliStrengthDegradation();
+    void *theDegr = OPS_PetrangeliStrengthDegradation(rt);
     if (theDegr != 0)
       theState = (StrengthDegradation *)theDegr;
     else

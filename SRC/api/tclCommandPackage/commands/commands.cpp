@@ -141,9 +141,9 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <CTestFixedNumIter.h>
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
-
+#ifdef OPS_USE_PFEM
 #include <CTestPFEM.h>
-
+#endif
 // soln algorithms
 #include <Linear.h>
 #include <NewtonRaphson.h>
@@ -192,7 +192,9 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <DisplacementControl.h>
 #include <EQPath.h>
 
+#ifdef OPS_USE_PFEM
 #include <PFEMIntegrator.h>
+#endif
 
 #include <Integrator.h> //Abbas
 
@@ -260,7 +262,9 @@ extern void OPS_ResponseSpectrumAnalysis(void);
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
+#ifdef OPS_USE_PFEM
 #include <PFEMAnalysis.h>
+#endif
 
 // system of eqn and solvers
 #include <BandSPDLinSOE.h>
@@ -293,11 +297,13 @@ extern void OPS_ResponseSpectrumAnalysis(void);
 // #include <BandSPDLinThreadSolver.h>
 
 #include <SparseGenColLinSOE.h>
+#ifdef OPS_USE_PFEM
 #include <PFEMSolver.h>
 #include <PFEMSolver_Umfpack.h>
 #include <PFEMLinSOE.h>
 #include <PFEMCompressibleSolver.h>
 #include <PFEMCompressibleLinSOE.h>
+#endif
 #ifdef _MUMPS
 #include <PFEMSolver_Mumps.h>
 #include <PFEMCompressibleSolver_Mumps.h>
@@ -529,7 +535,9 @@ VariableTimeStepDirectIntegrationAnalysis
     *theVariableTimeStepTransientAnalysis = 0;
 int numEigen = 0;
 
+#ifdef OPS_USE_PFEM
 static PFEMAnalysis *thePFEMAnalysis = 0;
+#endif
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////
 #ifdef _RELIABILITY
@@ -1483,7 +1491,9 @@ wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   theTransientAnalysis = 0;
   theVariableTimeStepTransientAnalysis = 0;
   //  theSensitivityAlgorithm=0;
+#ifdef OPS_USE_PFEM
   thePFEMAnalysis = 0;
+#endif
   theTest = 0;
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
@@ -1928,8 +1938,10 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "??????";
 
     result = the_static_analysis->analyze(numIncr);
+#ifdef OPS_USE_PFEM
   } else if (thePFEMAnalysis != 0) {
     result = thePFEMAnalysis->analyze();
+#endif
   } else if (theTransientAnalysis != 0) {
     if (argc < 3) {
       opserr << "WARNING transient analysis: analysis numIncr? deltaT?\n";
@@ -2515,6 +2527,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 #endif
     // AddingSensitivity:END /////////////////////////////////
+#ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "PFEM") == 0) {
 
     if (argc < 5) {
@@ -2574,7 +2587,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                                        theTest, dtmax, dtmin, gravity, ratio);
 
     theTransientAnalysis = thePFEMAnalysis;
-
+#endif
   } else if (strcmp(argv[1], "Transient") == 0) {
     // make sure all the components have been built,
     // otherwise print a warning and use some defaults
@@ -3034,6 +3047,7 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
 #endif
 
+#ifdef OPS_USE_PFEM
   else if (strcmp(argv[1], "PFEM") == 0) {
     if (argc <= 2) {
       PFEMSolver *theSolver = new PFEMSolver();
@@ -3068,6 +3082,7 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 #endif // _PARALLEL_INTERPRETERS
     }
   }
+#endif // PFEM
 
 #ifdef _CUSP
   else if ((_stricmp(argv[1], "CuSP") == 0)) {
@@ -3517,8 +3532,7 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     while (solverCommands != NULL && found == false) {
 
       if (strcmp(argv[1], solverCommands->funcName) == 0) {
-
-          OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
         void *theRes = (*(solverCommands->funcPtr))();
         if (theRes != 0) {
 
@@ -3557,7 +3571,7 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
         theSolverCommand->next = theExternalSolverCommands;
         theExternalSolverCommands = theSolverCommand;
 
-          OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+          OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
 
         void *theRes = (*funcPtr)();
         if (theRes != 0) {
@@ -3732,6 +3746,7 @@ int
 specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
+
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
     opserr << "WARNING need to specify an Algorithm type \n";
@@ -3741,7 +3756,7 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *domain = G3_getDomain(rt);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   EquiSolnAlgo *theNewAlgo = 0;
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
 
   // check argv[1] for type of Algorithm and create the object
   if (strcmp(argv[1], "Linear") == 0) {
@@ -4217,6 +4232,8 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
       if (Tcl_GetInt(interp, argv[7], &maxIncr) != TCL_OK)
         return TCL_ERROR;
     }
+
+#ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "PFEM") == 0) {
     if (argc > 8) {
       if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
@@ -4246,7 +4263,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
       if (Tcl_GetInt(interp, argv[11], &normType) != TCL_OK)
         return TCL_ERROR;
     }
-
+#endif
   } else if (strcmp(argv[1], "FixedNumIter") == 0) {
 
     if (argc == 3) {
@@ -4350,9 +4367,11 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
     else if (strcmp(argv[1], "RelativeTotalNormDispIncr") == 0)
       theNewTest =
           new CTestRelativeTotalNormDispIncr(tol, numIter, printIt, normType);
+#ifdef OPS_USE_PFEM
     else if (strcmp(argv[1], "PFEM") == 0)
       theNewTest = new CTestPFEM(tol, tolp, tol2, tolp2, tolrel, tolprel,
                                  numIter, maxIncr, printIt, normType);
+#endif
     else {
       opserr << "WARNING No ConvergenceTest type (NormUnbalance, NormDispIncr, "
                 "EnergyIncr, \n";
@@ -4774,8 +4793,11 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     // if the analysis exists - we want to change the Integrator
     if (theTransientAnalysis != 0)
       theTransientAnalysis->setIntegrator(*theTransientIntegrator);
+
+#ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "PFEM") == 0) {
     theTransientIntegrator = new PFEMIntegrator();
+#endif
 
     // if the analysis exists - we want to change the Integrator
     if (theTransientAnalysis != 0)
@@ -5759,7 +5781,8 @@ int
 modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
-    OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, &theDomain);
+  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
   OPS_DomainModalProperties();
   return TCL_OK;
 }
@@ -5768,7 +5791,8 @@ int
 responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
-    OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, &theDomain);
+  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
   OPS_ResponseSpectrumAnalysis();
   return TCL_OK;
 }
@@ -8810,7 +8834,8 @@ extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-    OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, &theDomain);
+  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
   return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
 }
 

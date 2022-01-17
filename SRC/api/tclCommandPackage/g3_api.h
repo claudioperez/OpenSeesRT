@@ -12,6 +12,9 @@
 # define OPS_Export
 #endif
 
+#define OPS_GetDomain() G3_getDomain(rt)
+#define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+
 typedef int G3_Tag;
 // typedef Tcl_Interp G3_Runtime;
 // #define G3_Runtime Tcl_Interp

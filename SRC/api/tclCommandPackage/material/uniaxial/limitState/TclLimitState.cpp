@@ -45,7 +45,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <packages.h>   //MRL
 #include <LimitCurve.h> //**MRL
 
-extern void *OPS_RotationShearCurve(void);
+extern void *OPS_RotationShearCurve(G3_Runtime*);
 
 static void
 printCommand(int argc, TCL_Char **argv)
@@ -77,6 +77,7 @@ int
 Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv, Domain *theDomain)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
 
 //  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
@@ -197,7 +198,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   //////////////////////////
 
   else if (strcmp(argv[1], "RotationShearCurve") == 0) {
-    void *theRSC = OPS_RotationShearCurve();
+    void *theRSC = OPS_RotationShearCurve(rt);
     if (theRSC != 0) {
       theCurve = (LimitCurve *)theRSC;
     } else

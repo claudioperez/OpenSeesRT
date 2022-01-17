@@ -37,6 +37,7 @@ class CyclicModel; //!!
 class DamageModel;
 class FrictionModel;
 class TimeSeries;
+class G3_Runtime;
 
 #include <tcl.h>
 
@@ -122,6 +123,7 @@ private:
   TaggedObjectStorage *theLimitCurves; // MRL
 
   Domain *theTclDomain = 0;
+  G3_Runtime *m_runtime = nullptr;
   TclSafeBuilder *theTclBuilder = 0;
   int eleArgStart = 0;
   int nodeLoadTag = 0;

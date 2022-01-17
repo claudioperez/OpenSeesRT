@@ -61,7 +61,7 @@ extern
 
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
-                          TclBasicBuilder *builder);
+                          TclBuilder *builder);
 
 typedef struct elementPackageCommand {
   char *funcName;
@@ -77,128 +77,131 @@ extern void printCommand(int argc, TCL_Char **argv);
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-void *OPS_ComponentElement2d(void);
-// extern  void *OPS_ComponentElementDamp2d(void);
-void *OPS_TrussElement(void);
-void *OPS_TrussSectionElement(void);
-void *OPS_CorotTrussElement(void);
-void *OPS_CorotTrussSectionElement(void);
-void *OPS_ElasticTubularJoint(void);
-void *OPS_ZeroLengthContactNTS2D(void);
-void *OPS_ZeroLengthVG_HG(void);
-void *OPS_ZeroLengthInterface2D(void);
-extern "C" void *OPS_PY_Macro2D(void);
-extern void *OPS_SimpleContact2D(void);
-extern void *OPS_SimpleContact3D(void);
-extern void *OPS_BeamContact2D(void);
-extern void *OPS_BeamContact2Dp(void);
-extern void *OPS_BeamContact3D(void);
-extern void *OPS_BeamContact3Dp(void);
-extern void *OPS_PileToe3D(void);
-extern void *OPS_SurfaceLoad(void);
-extern void *OPS_TriSurfaceLoad(void);
-extern void *OPS_ModElasticBeam2d(void);
+void *OPS_ComponentElement2d(G3_Runtime*);
+// extern  void *OPS_ComponentElementDamp2d(G3_Runtime*);
+void *OPS_TrussElement(G3_Runtime*);
+void *OPS_TrussSectionElement(G3_Runtime*);
+void *OPS_CorotTrussElement(G3_Runtime*);
+void *OPS_CorotTrussSectionElement(G3_Runtime*);
+void *OPS_ElasticTubularJoint(G3_Runtime*);
+void *OPS_ZeroLengthContactNTS2D(G3_Runtime*);
+void *OPS_ZeroLengthVG_HG(G3_Runtime*);
+void *OPS_ZeroLengthInterface2D(G3_Runtime*);
+extern "C" void *OPS_PY_Macro2D(G3_Runtime*);
+extern void *OPS_SimpleContact2D(G3_Runtime*);
+extern void *OPS_SimpleContact3D(G3_Runtime*);
+extern void *OPS_BeamContact2D(G3_Runtime*);
+extern void *OPS_BeamContact2Dp(G3_Runtime*);
+extern void *OPS_BeamContact3D(G3_Runtime*);
+extern void *OPS_BeamContact3Dp(G3_Runtime*);
+extern void *OPS_PileToe3D(G3_Runtime*);
+extern void *OPS_SurfaceLoad(G3_Runtime*);
+extern void *OPS_TriSurfaceLoad(G3_Runtime*);
+extern void *OPS_ModElasticBeam2d(G3_Runtime*);
 extern void *OPS_ElasticBeam2d(const ID &info);
-extern void *OPS_ElasticBeam3d(void);
-extern void *OPS_ElasticTimoshenkoBeam2d(void);
-extern void *OPS_ElasticTimoshenkoBeam3d(void);
-extern void *OPS_TPB1D(void);
-extern void *OPS_BeamEndContact3D(void);
-extern void *OPS_BeamEndContact3Dp(void);
-extern void *OPS_TFP_Bearing(void);
-extern void *OPS_FPBearingPTV();
-extern void *OPS_MultiFP2d(void);
-extern void *OPS_CoupledZeroLength(void);
-extern void *OPS_FourNodeQuad3d(void);
+extern void *OPS_ElasticBeam3d(G3_Runtime*);
+extern void *OPS_ElasticTimoshenkoBeam2d(G3_Runtime*);
+extern void *OPS_ElasticTimoshenkoBeam3d(G3_Runtime*);
+extern void *OPS_TPB1D(G3_Runtime*);
+extern void *OPS_BeamEndContact3D(G3_Runtime*);
+extern void *OPS_BeamEndContact3Dp(G3_Runtime*);
+extern void *OPS_TFP_Bearing(G3_Runtime*);
+extern void *OPS_FPBearingPTV(G3_Runtime*);
+extern void *OPS_MultiFP2d(G3_Runtime*);
+extern void *OPS_CoupledZeroLength(G3_Runtime*);
+extern void *OPS_FourNodeQuad3d(G3_Runtime*);
 extern void *OPS_Tri31(const ID &info);
-extern void *OPS_SSPquad(void);
-extern void *OPS_SSPquadUP(void);
-extern void *OPS_SSPbrick(void);
-extern void *OPS_SSPbrickUP(void);
-extern void *OPS_ShellMITC4(void);
-extern void *OPS_ShellMITC9(void);
-extern void *OPS_ShellDKGQ(
-    void); // Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
-extern void *OPS_ShellNLDKGQ(
-    void); // Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
-extern void *OPS_ShellDKGT(void);   // Added by Shuhao Zhang and  Xinzheng Lu
-extern void *OPS_ShellNLDKGT(void); // Added by Shuhao Zhang and  Xinzheng Lu
-extern void *OPS_ASDShellQ4(void);  // Massimo Petracca (ASDEA)
-extern void *OPS_Quad4FiberOverlay(void);
-extern void *OPS_Brick8FiberOverlay(void);
-extern void *OPS_QuadBeamEmbedContact(void);
-extern void *OPS_TripleFrictionPendulum(void);
-extern void *OPS_Truss2(void);
-extern void *OPS_PML3D(void);
-extern void *OPS_PML2D(void);
-extern void *OPS_CorotTruss2(void);
-extern void *OPS_ZeroLengthImpact3D(void);
-extern void *OPS_HDR(void);
-extern void *OPS_LeadRubberX(void);
-extern void *OPS_ElastomericX(void);
-extern void *OPS_N4BiaxialTruss(void);
-extern void *OPS_AC3D8HexWithSensitivity(void);
-extern void *OPS_ASID8QuadWithSensitivity(void);
-extern void *OPS_AV3D4QuadWithSensitivity(void);
-extern void *OPS_VS3D4WuadWithSensitivity(void);
-extern void *OPS_MVLEM(void);        // Kristijan Kolozvari
-extern void *OPS_SFI_MVLEM(void);    // Kristijan Kolozvari
-extern void *OPS_MVLEM_3D(void);     // Kristijan Kolozvari
-extern void *OPS_SFI_MVLEM_3D(void); // Kristijan Kolozvari
-extern void *OPS_AxEqDispBeamColumn2d(void);
-extern void *OPS_ElastomericBearingBoucWenMod3d(void);
+extern void *OPS_SSPquad(G3_Runtime*);
+extern void *OPS_SSPquadUP(G3_Runtime*);
+extern void *OPS_SSPbrick(G3_Runtime*);
+extern void *OPS_SSPbrickUP(G3_Runtime*);
+extern void *OPS_ShellMITC4(G3_Runtime*);
+extern void *OPS_ShellMITC9(G3_Runtime*);
+// Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu {
+extern void *OPS_ShellDKGQ(G3_Runtime*); 
+extern void *OPS_ShellNLDKGQ(G3_Runtime*);
+// }
+extern void *OPS_ShellDKGT(G3_Runtime*);   // Added by Shuhao Zhang and  Xinzheng Lu
+extern void *OPS_ShellNLDKGT(G3_Runtime*); // Added by Shuhao Zhang and  Xinzheng Lu
+extern void *OPS_ASDShellQ4(G3_Runtime*);  // Massimo Petracca (ASDEA)
+extern void *OPS_Quad4FiberOverlay(G3_Runtime*);
+extern void *OPS_Brick8FiberOverlay(G3_Runtime*);
+extern void *OPS_QuadBeamEmbedContact(G3_Runtime*);
+extern void *OPS_TripleFrictionPendulum(G3_Runtime*);
+extern void *OPS_Truss2(G3_Runtime*);
+extern void *OPS_PML3D(G3_Runtime*);
+extern void *OPS_PML2D(G3_Runtime*);
+extern void *OPS_CorotTruss2(G3_Runtime*);
+extern void *OPS_ZeroLengthImpact3D(G3_Runtime*);
+extern void *OPS_HDR(G3_Runtime*);
+extern void *OPS_LeadRubberX(G3_Runtime*);
+extern void *OPS_ElastomericX(G3_Runtime*);
+extern void *OPS_N4BiaxialTruss(G3_Runtime*);
+extern void *OPS_AC3D8HexWithSensitivity(G3_Runtime*);
+extern void *OPS_ASID8QuadWithSensitivity(G3_Runtime*);
+extern void *OPS_AV3D4QuadWithSensitivity(G3_Runtime*);
+extern void *OPS_VS3D4WuadWithSensitivity(G3_Runtime*);
+extern void *OPS_MVLEM(G3_Runtime*);        // Kristijan Kolozvari
+extern void *OPS_SFI_MVLEM(G3_Runtime*);    // Kristijan Kolozvari
+extern void *OPS_MVLEM_3D(G3_Runtime*);     // Kristijan Kolozvari
+extern void *OPS_SFI_MVLEM_3D(G3_Runtime*); // Kristijan Kolozvari
+extern void *OPS_AxEqDispBeamColumn2d(G3_Runtime*);
+extern void *OPS_ElastomericBearingBoucWenMod3d(G3_Runtime*);
+#ifdef OPS_USE_PFEM
 extern void *OPS_PFEMElement2DBubble(const ID &info);
 extern void *OPS_PFEMElement2Dmini(const ID &info);
-extern void *OPS_PFEMElement2D();
+extern void *OPS_PFEMElement2D(G3_Runtime*);
+#endif
 extern void *
-OPS_InertiaTrussElement(void); // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
+OPS_InertiaTrussElement(G3_Runtime*); // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
 
 #if defined(_HAVE_LHNMYS) || defined(OPSDEF_ELEMENT_LHNMYS)
-extern void *OPS_BeamColumn2DwLHNMYS(void);
-extern void *OPS_Beam2dDamage(void);
-extern void *OPS_BeamColumn2DwLHNMYS_Damage(void);
-extern void *OPS_BeamColumn3DwLHNMYS(void);
+extern void *OPS_BeamColumn2DwLHNMYS(G3_Runtime*);
+extern void *OPS_Beam2dDamage(G3_Runtime*);
+extern void *OPS_BeamColumn2DwLHNMYS_Damage(G3_Runtime*);
+extern void *OPS_BeamColumn3DwLHNMYS(G3_Runtime*);
 #endif
-extern void *OPS_ShellMITC4Thermal(void);  // Added by L.Jiang [SIF]
-extern void *OPS_ShellNLDKGQThermal(void); // Added by L.Jiang [SIF]
-extern void *OPS_CatenaryCableElement(void);
-extern void *OPS_ASDEmbeddedNodeElement(void); // Massimo Petracca (ASDEA)
-extern void *OPS_ShellANDeS(void);
-extern void *OPS_FourNodeTetrahedron(void);
-extern void *OPS_LysmerTriangle(void);
-extern void *OPS_ASDAbsorbingBoundary2D(void); // Massimo Petracca (ASDEA)
-extern void *OPS_ASDAbsorbingBoundary3D(void); // Massimo Petracca (ASDEA)
-extern void *OPS_TwoNodeLink(void);
-extern void *OPS_LinearElasticSpring(void);
-extern void *OPS_Inerter(void);
-extern void *OPS_Adapter(void);
-extern void *OPS_Actuator(void);
-extern void *OPS_ActuatorCorot(void);
-extern void *OPS_GenericClient(void);
-extern void *OPS_GenericCopy(void);
-extern void *OPS_ElastomericBearingPlasticity2d(void);
-extern void *OPS_ElastomericBearingPlasticity3d(void);
-extern void *OPS_ElastomericBearingBoucWen2d(void);
-extern void *OPS_ElastomericBearingBoucWen3d(void);
-extern void *OPS_ElastomericBearingUFRP2d(void);
-extern void *OPS_FlatSliderSimple2d(void);
-extern void *OPS_FlatSliderSimple3d(void);
-extern void *OPS_SingleFPSimple2d(void);
-extern void *OPS_SingleFPSimple3d(void);
-extern void *OPS_RJWatsonEQS2d(void);
-extern void *OPS_RJWatsonEQS3d(void);
+extern void *OPS_ShellMITC4Thermal(G3_Runtime*);  // Added by L.Jiang [SIF]
+extern void *OPS_ShellNLDKGQThermal(G3_Runtime*); // Added by L.Jiang [SIF]
+extern void *OPS_CatenaryCableElement(G3_Runtime*);
+extern void *OPS_ASDEmbeddedNodeElement(G3_Runtime*); // Massimo Petracca (ASDEA)
+extern void *OPS_ShellANDeS(G3_Runtime*);
+extern void *OPS_FourNodeTetrahedron(G3_Runtime*);
+extern void *OPS_LysmerTriangle(G3_Runtime*);
+extern void *OPS_ASDAbsorbingBoundary2D(G3_Runtime*); // Massimo Petracca (ASDEA)
+extern void *OPS_ASDAbsorbingBoundary3D(G3_Runtime*); // Massimo Petracca (ASDEA)
+extern void *OPS_TwoNodeLink(G3_Runtime*);
+extern void *OPS_LinearElasticSpring(G3_Runtime*);
+extern void *OPS_Inerter(G3_Runtime*);
+extern void *OPS_Adapter(G3_Runtime*);
+extern void *OPS_Actuator(G3_Runtime*);
+extern void *OPS_ActuatorCorot(G3_Runtime*);
+extern void *OPS_GenericClient(G3_Runtime*);
+extern void *OPS_GenericCopy(G3_Runtime*);
+extern void *OPS_ElastomericBearingPlasticity2d(G3_Runtime*);
+extern void *OPS_ElastomericBearingPlasticity3d(G3_Runtime*);
+extern void *OPS_ElastomericBearingBoucWen2d(G3_Runtime*);
+extern void *OPS_ElastomericBearingBoucWen3d(G3_Runtime*);
+extern void *OPS_ElastomericBearingUFRP2d(G3_Runtime*);
+extern void *OPS_FlatSliderSimple2d(G3_Runtime*);
+extern void *OPS_FlatSliderSimple3d(G3_Runtime*);
+extern void *OPS_SingleFPSimple2d(G3_Runtime*);
+extern void *OPS_SingleFPSimple3d(G3_Runtime*);
+extern void *OPS_RJWatsonEQS2d(G3_Runtime*);
+extern void *OPS_RJWatsonEQS3d(G3_Runtime*);
 // extern void* OPS_GradientInelasticBeamColumn2d();
 // extern void* OPS_GradientInelasticBeamColumn3d();
-void *OPS_RockingBC(void);
-void *OPS_LehighJoint2d(void);
-void *OPS_MasonPan12(void);
-void *OPS_MasonPan3D(void);
-void *OPS_BeamGT(void);
+void *OPS_RockingBC(G3_Runtime*);
+void *OPS_LehighJoint2d(G3_Runtime*);
+void *OPS_MasonPan12(G3_Runtime*);
+void *OPS_MasonPan3D(G3_Runtime*);
+void *OPS_BeamGT(G3_Runtime*);
 
-void *OPS_DispBeamColumnAsym3dTcl();  // Xinlong Du
-void *OPS_MixedBeamColumnAsym3dTcl(); // Xinlong Du
-void *OPS_ZeroLengthContactASDimplex(
-    void); // Onur Deniz Akan (IUSS), Massimo Petracca (ASDEA)
+void *OPS_DispBeamColumnAsym3dTcl(G3_Runtime*);  // Xinlong Du
+void *OPS_MixedBeamColumnAsym3dTcl(G3_Runtime*); // Xinlong Du
+
+// Onur Deniz Akan (IUSS), Massimo Petracca (ASDEA)
+void *OPS_ZeroLengthContactASDimplex(G3_Runtime *rt); 
 
 extern int TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp,
                                         int argc, TCL_Char **argv, Domain *,
@@ -301,6 +304,8 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
                               TCL_Char **argv, Domain *theTclDomain,
                               TclBasicBuilder *theTclBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -321,10 +326,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   if ((strcmp(argv[1], "truss") == 0) || (strcmp(argv[1], "Truss") == 0)) {
 
-    void *theEle = OPS_TrussElement();
+    void *theEle = OPS_TrussElement(rt);
     // for backward compatibility
     if (theEle == 0) {
-      theEle = OPS_TrussSectionElement();
+      theEle = OPS_TrussSectionElement(rt);
     }
 
     if (theEle != 0)
@@ -339,7 +344,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "trussSection") == 0) ||
              (strcmp(argv[1], "TrussSection") == 0)) {
 
-    void *theEle = OPS_TrussSectionElement();
+    void *theEle = OPS_TrussSectionElement(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -352,11 +357,11 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   else if ((strcmp(argv[1], "corotTruss") == 0) ||
            (strcmp(argv[1], "CorotTruss") == 0)) {
 
-    void *theEle = OPS_CorotTrussElement();
+    void *theEle = OPS_CorotTrussElement(rt);
 
     // for backward compatibility
     if (theEle == 0)
-      theEle = OPS_CorotTrussSectionElement();
+      theEle = OPS_CorotTrussSectionElement(rt);
 
     if (theEle != 0)
       theElement = (Element *)theEle;
@@ -369,7 +374,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "corotTrussSection") == 0) ||
              (strcmp(argv[1], "CorotTrussSection") == 0)) {
 
-    void *theEle = OPS_CorotTrussSectionElement();
+    void *theEle = OPS_CorotTrussSectionElement(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -379,7 +384,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
 
   } else if (strcmp(argv[1], "zeroLengthContactNTS2D") == 0) {
-    Element *theEle = (Element *)OPS_ZeroLengthContactNTS2D();
+    Element *theEle = (Element *)OPS_ZeroLengthContactNTS2D(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -389,7 +394,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
 
   } else if (strcmp(argv[1], "zeroLengthInterface2D") == 0) {
-    Element *theEle = (Element *)OPS_ZeroLengthInterface2D();
+    Element *theEle = (Element *)OPS_ZeroLengthInterface2D(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -399,7 +404,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
 
   } else if (strcmp(argv[1], "componentElement2d") == 0) {
-    void *theEle = OPS_ComponentElement2d();
+    void *theEle = OPS_ComponentElement2d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -410,7 +415,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
     /*
   } else if (strcmp(argv[1],"componentElementDamp2d") == 0) {
-    void *theEle = OPS_ComponentElementDamp2d();
+    void *theEle = OPS_ComponentElementDamp2d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -419,7 +424,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
     */
   } else if (strcmp(argv[1], "zeroLengthImpact3D") == 0) {
-    void *theEle = OPS_ZeroLengthImpact3D();
+    void *theEle = OPS_ZeroLengthImpact3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -430,7 +435,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if ((strcmp(argv[1], "ModElasticBeam2d") == 0) ||
              (strcmp(argv[1], "modElasticBeam2d")) == 0) {
-    Element *theEle = (Element *)OPS_ModElasticBeam2d();
+    Element *theEle = (Element *)OPS_ModElasticBeam2d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -443,10 +448,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              (strcmp(argv[1], "elasticBeam")) == 0) {
     Element *theEle = 0;
     ID info;
-    if (OPS_GetNDM() == 2)
+    if (G3_getNDM(rt) == 2)
       theEle = (Element *)OPS_ElasticBeam2d(info);
     else
-      theEle = (Element *)OPS_ElasticBeam3d();
+      theEle = (Element *)OPS_ElasticBeam3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -457,10 +462,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "PML") == 0) || (strcmp(argv[1], "pml")) == 0) {
     Element *theEle = 0;
     ID info;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_PML2D();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_PML2D(rt);
     else
-      theEle = (Element *)OPS_PML3D();
+      theEle = (Element *)OPS_PML3D(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -471,10 +476,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     /* } else if (strcmp(argv[1], "gradientInelasticBeamColumn") == 0) {
 
       Element *theEle = 0;
-      if (OPS_GetNDM() == 2)
-        theEle = (Element *)OPS_GradientInelasticBeamColumn2d();
+      if (G3_getNDM(rt) == 2)
+        theEle = (Element *)OPS_GradientInelasticBeamColumn2d(rt);
       else
-        theEle = (Element *)OPS_GradientInelasticBeamColumn3d();
+        theEle = (Element *)OPS_GradientInelasticBeamColumn3d(rt);
 
       if (theEle != 0)
         theElement = theEle;
@@ -488,7 +493,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if (strcmp(argv[1], "beamColumn2DwLHNMYS") == 0) {
     Element *theEle = 0;
     ID info;
-    theEle = (Element *)OPS_BeamColumn2DwLHNMYS();
+    theEle = (Element *)OPS_BeamColumn2DwLHNMYS(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -500,7 +505,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if (strcmp(argv[1], "beamColumn2dDamage") == 0) {
     Element *theEle = 0;
     ID info;
-    theEle = (Element *)OPS_Beam2dDamage();
+    theEle = (Element *)OPS_Beam2dDamage(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -512,7 +517,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if (strcmp(argv[1], "beamColumn2DwLHNMYS_Damage") == 0) {
     Element *theEle = 0;
     ID info;
-    theEle = (Element *)OPS_BeamColumn2DwLHNMYS_Damage();
+    theEle = (Element *)OPS_BeamColumn2DwLHNMYS_Damage(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -524,7 +529,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if (strcmp(argv[1], "beamColumn3DwLHNMYS") == 0) {
     Element *theEle = 0;
     ID info;
-    theEle = (Element *)OPS_BeamColumn3DwLHNMYS();
+    theEle = (Element *)OPS_BeamColumn3DwLHNMYS(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -550,10 +555,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "ElasticTimoshenkoBeam") == 0) ||
              (strcmp(argv[1], "elasticTimoshenkoBeam")) == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_ElasticTimoshenkoBeam2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_ElasticTimoshenkoBeam2d(rt);
     else
-      theEle = (Element *)OPS_ElasticTimoshenkoBeam3d();
+      theEle = (Element *)OPS_ElasticTimoshenkoBeam3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -565,7 +570,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "pyMacro2D") == 0) ||
              (strcmp(argv[1], "PY_Macro2D") == 0)) {
 
-    void *theEle = OPS_PY_Macro2D();
+    void *theEle = OPS_PY_Macro2D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -577,7 +582,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "SimpleContact2d") == 0) ||
              (strcmp(argv[1], "SimpleContact2D") == 0)) {
 
-    void *theEle = OPS_SimpleContact2D();
+    void *theEle = OPS_SimpleContact2D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -588,7 +593,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if ((strcmp(argv[1], "N4BiaxialTruss") == 0)) {
 
-    void *theEle = OPS_N4BiaxialTruss();
+    void *theEle = OPS_N4BiaxialTruss(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -599,7 +604,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "SimpleContact3d") == 0) ||
              (strcmp(argv[1], "SimpleContact3D") == 0)) {
 
-    void *theEle = OPS_SimpleContact3D();
+    void *theEle = OPS_SimpleContact3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -611,7 +616,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "BeamContact3d") == 0) ||
              (strcmp(argv[1], "BeamContact3D") == 0)) {
 
-    void *theEle = OPS_BeamContact3D();
+    void *theEle = OPS_BeamContact3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -623,7 +628,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "BeamContact3dp") == 0) ||
              (strcmp(argv[1], "BeamContact3Dp") == 0)) {
 
-    void *theEle = OPS_BeamContact3Dp();
+    void *theEle = OPS_BeamContact3Dp(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -635,7 +640,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "PileToe3d") == 0) ||
              (strcmp(argv[1], "PileToe3D") == 0)) {
 
-    void *theEle = OPS_PileToe3D();
+    void *theEle = OPS_PileToe3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -649,7 +654,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              (strcmp(argv[1], "TPFbearing") == 0) ||
              (strcmp(argv[1], "TPF") == 0)) {
 
-    void *theEle = OPS_TFP_Bearing();
+    void *theEle = OPS_TFP_Bearing(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -660,7 +665,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if ((strcmp(argv[1], "FPBearingPTV") == 0)) {
 
-    void *theEle = OPS_FPBearingPTV();
+    void *theEle = OPS_FPBearingPTV(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -671,7 +676,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "TripleFrictionPendulum") == 0) {
 
-    void *theEle = OPS_TripleFrictionPendulum();
+    void *theEle = OPS_TripleFrictionPendulum(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -682,7 +687,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "HDR") == 0) {
 
-    void *theEle = OPS_HDR();
+    void *theEle = OPS_HDR(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -693,7 +698,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "LeadRubberX") == 0) {
 
-    void *theEle = OPS_LeadRubberX();
+    void *theEle = OPS_LeadRubberX(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -704,7 +709,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "ElastomericX") == 0) {
 
-    void *theEle = OPS_ElastomericX();
+    void *theEle = OPS_ElastomericX(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -715,7 +720,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "AxEqDispBeamColumn2d") == 0) {
 
-    void *theEle = OPS_AxEqDispBeamColumn2d();
+    void *theEle = OPS_AxEqDispBeamColumn2d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -726,7 +731,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "MVLEM") == 0) { // Kristijan Kolozvari
 
-    void *theEle = OPS_MVLEM();
+    void *theEle = OPS_MVLEM(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -737,7 +742,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "SFI_MVLEM") == 0) { // Kristijan Kolozvari
 
-    void *theEle = OPS_SFI_MVLEM();
+    void *theEle = OPS_SFI_MVLEM(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -748,7 +753,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "MVLEM_3D") == 0) { // Kristijan Kolozvari
 
-    void *theEle = OPS_MVLEM_3D();
+    void *theEle = OPS_MVLEM_3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -759,7 +764,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "SFI_MVLEM_3D") == 0) { // Kristijan Kolozvari
 
-    void *theEle = OPS_SFI_MVLEM_3D();
+    void *theEle = OPS_SFI_MVLEM_3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -771,7 +776,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if ((strcmp(argv[1], "MasonPan12") == 0)) {
 
-    void *theEle = OPS_MasonPan12();
+    void *theEle = OPS_MasonPan12(rt);
 
     if (theEle != 0)
       theElement = (Element *)theEle;
@@ -782,7 +787,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
   } else if ((strcmp(argv[1], "MasonPan3D") == 0)) {
 
-    void *theEle = OPS_MasonPan3D();
+    void *theEle = OPS_MasonPan3D(rt);
 
     if (theEle != 0)
       theElement = (Element *)theEle;
@@ -794,7 +799,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if ((strcmp(argv[1], "BeamGT") == 0)) {
 
-    void *theEle = OPS_BeamGT();
+    void *theEle = OPS_BeamGT(rt);
 
     if (theEle != 0)
       theElement = (Element *)theEle;
@@ -807,7 +812,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "MultiFP2d") == 0) ||
              (strcmp(argv[1], "MultiFPB2d") == 0)) {
 
-    void *theEle = OPS_MultiFP2d();
+    void *theEle = OPS_MultiFP2d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -821,7 +826,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              (strcmp(argv[1], "Shell") == 0) ||
              (strcmp(argv[1], "ShellMITC4") == 0)) {
 
-    void *theEle = OPS_ShellMITC4();
+    void *theEle = OPS_ShellMITC4(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -834,7 +839,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "shellMITC4Thermal") == 0) ||
              (strcmp(argv[1], "ShellMITC4Thermal") == 0)) {
 
-    void *theEle = OPS_ShellMITC4Thermal();
+    void *theEle = OPS_ShellMITC4Thermal(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -847,7 +852,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   else if ((strcmp(argv[1], "shellNLDKGQThermal") == 0) ||
            (strcmp(argv[1], "ShellNLDKGQThermal") == 0)) {
 
-    void *theEle = OPS_ShellNLDKGQThermal();
+    void *theEle = OPS_ShellNLDKGQThermal(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -862,7 +867,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              (strcmp(argv[1], "shellMITC9") == 0) ||
              (strcmp(argv[1], "ShellMITC9") == 0)) {
 
-    void *theEle = OPS_ShellMITC9();
+    void *theEle = OPS_ShellMITC9(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -874,7 +879,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "shellDKGQ") == 0) ||
              (strcmp(argv[1], "ShellDKGQ") == 0)) { // Lisha Wang & Xinzheng Lu
 
-    void *theEle = OPS_ShellDKGQ();
+    void *theEle = OPS_ShellDKGQ(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -887,7 +892,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              (strcmp(argv[1], "ShellNLDKGQ") ==
               0)) { // Lisha Wang & Xinzheng Lu
 
-    void *theEle = OPS_ShellNLDKGQ();
+    void *theEle = OPS_ShellNLDKGQ(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -899,7 +904,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "shellDKGT") == 0) ||
              (strcmp(argv[1], "ShellDKGT") == 0)) {
 
-    void *theEle = OPS_ShellDKGT();
+    void *theEle = OPS_ShellDKGT(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -911,7 +916,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "shellNLDKGT") == 0) ||
              (strcmp(argv[1], "ShellNLDKGT") == 0)) {
 
-    void *theEle = OPS_ShellNLDKGT();
+    void *theEle = OPS_ShellNLDKGT(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -922,7 +927,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if (strcmp(argv[1], "ASDShellQ4") == 0) {
 
-    void *theEle = OPS_ASDShellQ4();
+    void *theEle = OPS_ASDShellQ4(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -934,7 +939,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "CoupledZeroLength") == 0) ||
              (strcmp(argv[1], "ZeroLengthCoupled") == 0)) {
 
-    void *theEle = OPS_CoupledZeroLength();
+    void *theEle = OPS_CoupledZeroLength(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -946,7 +951,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "BeamContact2d") == 0) ||
              (strcmp(argv[1], "BeamContact2D") == 0)) {
 
-    void *theEle = OPS_BeamContact2D();
+    void *theEle = OPS_BeamContact2D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -958,7 +963,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "BeamContact2dp") == 0) ||
              (strcmp(argv[1], "BeamContact2Dp") == 0)) {
 
-    void *theEle = OPS_BeamContact2Dp();
+    void *theEle = OPS_BeamContact2Dp(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -970,7 +975,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "BeamEndContact3d") == 0) ||
              (strcmp(argv[1], "BeamEndContact3D") == 0)) {
 
-    void *theEle = OPS_BeamEndContact3D();
+    void *theEle = OPS_BeamEndContact3D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -982,7 +987,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "BeamEndContact3dp") == 0) ||
              (strcmp(argv[1], "BeamEndContact3Dp") == 0)) {
 
-    void *theEle = OPS_BeamEndContact3Dp();
+    void *theEle = OPS_BeamEndContact3Dp(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1007,7 +1012,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "SSPquad") == 0) ||
              (strcmp(argv[1], "SSPQuad") == 0)) {
 
-    void *theEle = OPS_SSPquad();
+    void *theEle = OPS_SSPquad(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1019,7 +1024,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "SSPquadUP") == 0) ||
              (strcmp(argv[1], "SSPQuadUP") == 0)) {
 
-    void *theEle = OPS_SSPquadUP();
+    void *theEle = OPS_SSPquadUP(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1031,7 +1036,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "SSPbrick") == 0) ||
              (strcmp(argv[1], "SSPBrick") == 0)) {
 
-    void *theEle = OPS_SSPbrick();
+    void *theEle = OPS_SSPbrick(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1043,7 +1048,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "SSPbrickUP") == 0) ||
              (strcmp(argv[1], "SSPBrickUP") == 0)) {
 
-    void *theEle = OPS_SSPbrickUP();
+    void *theEle = OPS_SSPbrickUP(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1054,7 +1059,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   } else if ((strcmp(argv[1], "SurfaceLoad") == 0)) {
 
-    void *theEle = OPS_SurfaceLoad();
+    void *theEle = OPS_SurfaceLoad(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1064,7 +1069,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
   } else if ((strcmp(argv[1], "TriSurfaceLoad") == 0)) {
 
-    void *theEle = OPS_TriSurfaceLoad();
+    void *theEle = OPS_TriSurfaceLoad(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1074,7 +1079,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
   } else if ((strcmp(argv[1], "TPB1D") == 0)) {
 
-    void *theEle = OPS_TPB1D();
+    void *theEle = OPS_TPB1D(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1086,7 +1091,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "elasticTubularJoint") == 0) ||
              (strcmp(argv[1], "ElasticTubularJoint") == 0)) {
 
-    void *theEle = OPS_ElasticTubularJoint();
+    void *theEle = OPS_ElasticTubularJoint(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1098,7 +1103,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "quad3d") == 0) ||
              (strcmp(argv[1], "Quad3d") == 0)) {
 
-    void *theEle = OPS_FourNodeQuad3d();
+    void *theEle = OPS_FourNodeQuad3d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1110,7 +1115,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "Quad4FiberOverlay") ==
               0)) { //////////////////////// mmc
 
-    void *theEle = OPS_Quad4FiberOverlay();
+    void *theEle = OPS_Quad4FiberOverlay(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1121,7 +1126,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "Brick8FiberOverlay") ==
               0)) { //////////////////////// mmc
 
-    void *theEle = OPS_Brick8FiberOverlay();
+    void *theEle = OPS_Brick8FiberOverlay(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1132,7 +1137,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "QuadBeamEmbedContact") ==
               0)) { //////////////////////// mmc
 
-    void *theEle = OPS_QuadBeamEmbedContact();
+    void *theEle = OPS_QuadBeamEmbedContact(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1142,7 +1147,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     }
   } else if ((strcmp(argv[1], "Truss2") == 0)) { //////////////////////// mmc
 
-    void *theEle = OPS_Truss2();
+    void *theEle = OPS_Truss2(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1153,7 +1158,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   } else if ((strcmp(argv[1], "CorotTruss2") ==
               0)) { //////////////////////// mmc
 
-    void *theEle = OPS_CorotTruss2();
+    void *theEle = OPS_CorotTruss2(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1165,7 +1170,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if (strcmp(argv[1], "AC3D8") == 0) {
 
-    void *theEle = OPS_AC3D8HexWithSensitivity();
+    void *theEle = OPS_AC3D8HexWithSensitivity(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1177,7 +1182,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if (strcmp(argv[1], "ASI3D8") == 0) {
 
-    void *theEle = OPS_ASID8QuadWithSensitivity();
+    void *theEle = OPS_ASID8QuadWithSensitivity(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1190,7 +1195,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if (strcmp(argv[1], "AV3D4") == 0) {
 
-    void *theEle = OPS_AV3D4QuadWithSensitivity();
+    void *theEle = OPS_AV3D4QuadWithSensitivity(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1201,7 +1206,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "elastomericBearingBoucWenMod") == 0) {
-    void *theEle = OPS_ElastomericBearingBoucWenMod3d();
+    void *theEle = OPS_ElastomericBearingBoucWenMod3d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1213,7 +1218,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if (strcmp(argv[1], "VS3D4") == 0) {
 
-    void *theEle = OPS_VS3D4WuadWithSensitivity();
+    void *theEle = OPS_VS3D4WuadWithSensitivity(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1221,8 +1226,9 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              << argv[1] << endln;
       return TCL_ERROR;
     }
-
-  } else if (strcmp(argv[1], "PFEMElement2DBuble") == 0) {
+  }
+#ifdef OPS_USE_PFEM
+  else if (strcmp(argv[1], "PFEMElement2DBuble") == 0) {
     ID info;
     void *theEle = OPS_PFEMElement2DBubble(info);
     if (theEle != 0) {
@@ -1247,7 +1253,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "PFEMElement2D") == 0) {
-    void *theEle = OPS_PFEMElement2D();
+    void *theEle = OPS_PFEMElement2D(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1256,9 +1262,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
       return TCL_ERROR;
     }
   }
+#endif
 
   else if (strcmp(argv[1], "CatenaryCable") == 0) {
-    void *theEle = OPS_CatenaryCableElement();
+    void *theEle = OPS_CatenaryCableElement(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1269,7 +1276,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "ASDEmbeddedNodeElement") == 0) {
-    void *theEle = OPS_ASDEmbeddedNodeElement();
+    void *theEle = OPS_ASDEmbeddedNodeElement(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1280,7 +1287,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "ShellANDeS") == 0) {
-    void *theEle = OPS_ShellANDeS();
+    void *theEle = OPS_ShellANDeS(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1291,7 +1298,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "LysmerTriangle") == 0) {
-    void *theEle = OPS_LysmerTriangle();
+    void *theEle = OPS_LysmerTriangle(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1302,7 +1309,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "ASDAbsorbingBoundary2D") == 0) {
-    void *theEle = OPS_ASDAbsorbingBoundary2D();
+    void *theEle = OPS_ASDAbsorbingBoundary2D(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1313,7 +1320,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "ASDAbsorbingBoundary3D") == 0) {
-    void *theEle = OPS_ASDAbsorbingBoundary3D();
+    void *theEle = OPS_ASDAbsorbingBoundary3D(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1324,7 +1331,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "FourNodeTetrahedron") == 0) {
-    void *theEle = OPS_FourNodeTetrahedron();
+    void *theEle = OPS_FourNodeTetrahedron(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1336,7 +1343,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "ZeroLengthVG_HG") == 0) {
-    Element *theEle = (Element *)OPS_ZeroLengthVG_HG();
+    Element *theEle = (Element *)OPS_ZeroLengthVG_HG(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1347,7 +1354,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "twoNodeLink") == 0) {
-    void *theEle = OPS_TwoNodeLink();
+    void *theEle = OPS_TwoNodeLink(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1358,7 +1365,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "linearElasticSpring") == 0) {
-    void *theEle = OPS_LinearElasticSpring();
+    void *theEle = OPS_LinearElasticSpring(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1369,7 +1376,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "inerter") == 0) {
-    void *theEle = OPS_Inerter();
+    void *theEle = OPS_Inerter(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1380,7 +1387,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "adapter") == 0) {
-    void *theEle = OPS_Adapter();
+    void *theEle = OPS_Adapter(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1391,7 +1398,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "actuator") == 0) {
-    void *theEle = OPS_Actuator();
+    void *theEle = OPS_Actuator(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1402,7 +1409,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "corotActuator") == 0) {
-    void *theEle = OPS_ActuatorCorot();
+    void *theEle = OPS_ActuatorCorot(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1413,7 +1420,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "genericClient") == 0) {
-    void *theEle = OPS_GenericClient();
+    void *theEle = OPS_GenericClient(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1424,7 +1431,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "genericCopy") == 0) {
-    void *theEle = OPS_GenericCopy();
+    void *theEle = OPS_GenericCopy(rt);
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
@@ -1437,10 +1444,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   else if (strcmp(argv[1], "elastomericBearing") == 0 ||
            (strcmp(argv[1], "elastomericBearingPlasticity")) == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_ElastomericBearingPlasticity2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_ElastomericBearingPlasticity2d(rt);
     else
-      theEle = (Element *)OPS_ElastomericBearingPlasticity3d();
+      theEle = (Element *)OPS_ElastomericBearingPlasticity3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1453,10 +1460,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   else if (strcmp(argv[1], "elastomericBearingBoucWen") == 0 ||
            (strcmp(argv[1], "elastomericBearingBW")) == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_ElastomericBearingBoucWen2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_ElastomericBearingBoucWen2d(rt);
     else
-      theEle = (Element *)OPS_ElastomericBearingBoucWen3d();
+      theEle = (Element *)OPS_ElastomericBearingBoucWen3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1468,10 +1475,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if (strcmp(argv[1], "elastomericBearingUFRP") == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_ElastomericBearingUFRP2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_ElastomericBearingUFRP2d(rt);
     else
-      // theEle = (Element *)OPS_ElastomericBearingUFRP3d();
+      // theEle = (Element *)OPS_ElastomericBearingUFRP3d(rt);
       if (theEle != 0)
         theElement = theEle;
       else {
@@ -1483,10 +1490,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if (strcmp(argv[1], "flatSliderBearing") == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_FlatSliderSimple2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_FlatSliderSimple2d(rt);
     else
-      theEle = (Element *)OPS_FlatSliderSimple3d();
+      theEle = (Element *)OPS_FlatSliderSimple3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1501,10 +1508,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
            (strcmp(argv[1], "singlePFBearing")) == 0 ||
            (strcmp(argv[1], "SPFBearing")) == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_SingleFPSimple2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_SingleFPSimple2d(rt);
     else
-      theEle = (Element *)OPS_SingleFPSimple3d();
+      theEle = (Element *)OPS_SingleFPSimple3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1518,10 +1525,10 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
            strcmp(argv[1], "RJWatsonBearing") == 0 ||
            strcmp(argv[1], "EQSBearing") == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 2)
-      theEle = (Element *)OPS_RJWatsonEQS2d();
+    if (G3_getNDM(rt) == 2)
+      theEle = (Element *)OPS_RJWatsonEQS2d(rt);
     else
-      theEle = (Element *)OPS_RJWatsonEQS3d();
+      theEle = (Element *)OPS_RJWatsonEQS3d(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1532,7 +1539,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if ((strcmp(argv[1], "RockingBC") == 0)) {
-    void *theEle = OPS_RockingBC();
+    void *theEle = OPS_RockingBC(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1546,8 +1553,8 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   else if ((strcmp(argv[1], "dispBeamColumnAsym") == 0) ||
            (strcmp(argv[1], "dispBeamAsym")) == 0) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 3)
-      theEle = (Element *)OPS_DispBeamColumnAsym3dTcl();
+    if (G3_getNDM(rt) == 3)
+      theEle = (Element *)OPS_DispBeamColumnAsym3dTcl(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1561,8 +1568,8 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   else if ((strcmp(argv[1], "mixedBeamColumnAsym") == 0) ||
            (strcmp(argv[1], "mixedBeamAsym") == 0)) {
     Element *theEle = 0;
-    if (OPS_GetNDM() == 3)
-      theEle = (Element *)OPS_MixedBeamColumnAsym3dTcl();
+    if (G3_getNDM(rt) == 3)
+      theEle = (Element *)OPS_MixedBeamColumnAsym3dTcl(rt);
     if (theEle != 0)
       theElement = theEle;
     else {
@@ -1576,7 +1583,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
 
   else if ((strcmp(argv[1], "InertiaTruss") == 0)) {
 
-    void *theEle = OPS_InertiaTrussElement();
+    void *theEle = OPS_InertiaTrussElement(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1587,7 +1594,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   else if (strcmp(argv[1], "zeroLengthContactASDimplex") == 0) {
-    void *theEle = OPS_ZeroLengthContactASDimplex();
+    void *theEle = OPS_ZeroLengthContactASDimplex(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
@@ -1767,7 +1774,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     return result;
   } else if ((strcmp(argv[1], "LehighJoint2D") == 0) ||
              (strcmp(argv[1], "LehighJoint2d") == 0)) {
-    void *theEle = OPS_LehighJoint2d();
+    void *theEle = OPS_LehighJoint2d(rt);
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
