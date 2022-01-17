@@ -492,20 +492,14 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
       theMaterial = (UniaxialMaterial *)theMat;
     else
       return TCL_ERROR;
-    /*
-          } else if (strcmp(argv[1],"HoehlerStanton") == 0) {
-    void *theMat = OPS_HoehlerStanton(rt);
-    if (theMat != 0)
-      theMaterial = (UniaxialMaterial *)theMat;
-    else
-      return TCL_ERROR;
-    */
+
   } else if (strcmp(argv[1], "Concrete02") == 0) {
     void *theMat = OPS_Concrete02(rt);
     if (theMat != 0)
       theMaterial = (UniaxialMaterial *)theMat;
     else
       return TCL_ERROR;
+
   } else if (strcmp(argv[1], "Concrete02IS") == 0) {
     void *theMat = OPS_Concrete02IS(rt);
     if (theMat != 0)
@@ -638,13 +632,7 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
     else
       return TCL_ERROR;
 */
-  else if (strcmp(argv[1], "UVCuniaxial") == 0) {
-    void *theMat = OPS_UVCuniaxial(rt);
-    if (theMat != 0)
-      theMaterial = (UniaxialMaterial *)theMat;
-    else
-      return TCL_ERROR;
-  } else if (strcmp(argv[1], "SLModel") == 0) {
+  else if (strcmp(argv[1], "SLModel") == 0) {
     void *theMat = OPS_SLModel(rt);
     if (theMat != 0)
       theMaterial = (UniaxialMaterial *)theMat;
@@ -1753,14 +1741,6 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
     else
       return TCL_ERROR;
 
-  }
-
-  else if (strcmp(argv[1], "UVCuniaxial") == 0) {
-    void *theMat = OPS_UVCuniaxial(rt);
-    if (theMat != 0)
-      theMaterial = (UniaxialMaterial *)theMat;
-    else
-      return TCL_ERROR;
   }
 
   else if (strcmp(argv[1], "Pinching4") == 0) {

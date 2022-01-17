@@ -583,6 +583,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
 TclBasicBuilder::~TclBasicBuilder()
 {
+/* CMP
   OPS_clearAllTimeSeries();
   //  OPS_clearAllUniaxialMaterial();
   //  OPS_clearAllNDMaterial();
@@ -596,7 +597,7 @@ TclBasicBuilder::~TclBasicBuilder()
   OPS_clearAllFrictionModel();
   OPS_clearAllHystereticBackbone();
   //  OPS_clearAllNDMaterial();
-
+*/
   theSections->clearAll();
   theSectionRepresents->clearAll();
   theYieldSurface_BCs->clearAll();

@@ -42,6 +42,7 @@
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
 #include <MapOfTaggedObjectsIter.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theSectionForceDeformationObjects;
 
@@ -71,7 +72,9 @@ SectionForceDeformation *OPS_getSectionForceDeformation(int tag) {
   return theMat;
 }
 
-void OPS_clearAllSectionForceDeformation(void) {
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllSectionForceDeformation)
+{
   theSectionForceDeformationObjects.clearAll();
 }
 

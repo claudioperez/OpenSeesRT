@@ -192,7 +192,7 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
   G3_setDomain(rt, domain);
   G3_setModelBuilder(rt, builder);
   theInterp = interp;
-  theDomain = domain;
+  // theDomain = domain;
   theModelBuilder = builder;
   currentArgv = argv;
   currentArg = cArg;
@@ -209,11 +209,10 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
   G3_Runtime *rt = G3_getRuntime(interp);
   G3_setDomain(rt, domain);
   theInterp = interp;
-  theDomain = domain;
+  // theDomain = domain;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
-
   return 0;
 }
 
@@ -1128,6 +1127,7 @@ TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 
   return series;
 }
+
 /*
 void G3_clearAllTimeSeries(void) {
   theTimeSeriesObjects.clearAll();
@@ -1203,26 +1203,16 @@ OPS_GetSectionForceDeformation(int secTag)
 }
 
 CrdTransf *
-OPS_GetCrdTransf(int crdTag)
-{
-  return OPS_getCrdTransf(crdTag);
-}
+OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
 
 FrictionModel *
-OPS_GetFrictionModel(int frnTag)
-{
-  return OPS_getFrictionModel(frnTag);
-}
+OPS_GetFrictionModel(int frnTag) {return OPS_getFrictionModel(frnTag);}
 
 int
-OPS_GetNDF()
-{
-  return theModelBuilder->getNDF();
-}
+OPS_GetNDF() {return theModelBuilder->getNDF();}
 
 bool
-G3_modelIsBuilt(G3_Runtime* rt)
-{return rt->model_is_built;}
+G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
 
 int
 G3_getNDM(G3_Runtime *rt)
@@ -1245,45 +1235,28 @@ G3_getNDF(G3_Runtime *rt)
 }
 
 int
-OPS_GetNDM(void)
-{
-  return theModelBuilder->getNDM();
-}
+OPS_GetNDM(void) {return theModelBuilder->getNDM();}
 
 FE_Datastore *
-OPS_GetFEDatastore()
-{
-  return theDatabase;
-}
+OPS_GetFEDatastore() {return theDatabase;}
 
 const char *
-OPS_GetInterpPWD()
-{
-  return getInterpPWD(theInterp);
-}
+OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
 
-Domain *
-OPS_GetDomain(void)
-{
-  return theDomain;
-}
+#if !defined(OPS_USE_RUNTIME)
+  Domain *
+  OPS_GetDomain(void) {return theDomain;}
+  AnalysisModel **
+  OPS_GetAnalysisModel(void){return &theAnalysisModel;}
+#endif
 
 void
-TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder)
-{
-  theModelBuilder = theNewBuilder;
-}
+TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder) {theModelBuilder = theNewBuilder;}
 
 LimitCurve *
 OPS_GetLimitCurve(int LimCrvTag)
 {
   return OPS_getLimitCurve(LimCrvTag);
-}
-
-AnalysisModel **
-OPS_GetAnalysisModel(void)
-{
-  return &theAnalysisModel;
 }
 
 EquiSolnAlgo **
@@ -1325,19 +1298,17 @@ OPS_GetStaticAnalysis(void)
 int
 G3_setAnalysisModel(G3_Runtime *rt, AnalysisModel *the_analysis)
 {
+  rt->m_analysis_model = the_analysis;
   Tcl_Interp *interp = G3_getInterpreter(rt);
   Tcl_SetAssocData(interp, "OPS::theAnalysisModel", NULL, (ClientData)the_analysis);
   return 1;
 }
 
 AnalysisModel *
-G3_getAnalysisModel(G3_Runtime *rt)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  AnalysisModel *analysis =
-      (AnalysisModel *)Tcl_GetAssocData(interp, "OPS::theAnalysisModel", NULL);
-  return analysis;
-}
+G3_getAnalysisModel(G3_Runtime *rt){return rt->m_analysis_model;}
+
+AnalysisModel **
+G3_getAnalysisModelPtr(G3_Runtime *rt){return rt->m_analysis_model_ptr;}
 
 
 StaticAnalysis *
@@ -1346,7 +1317,6 @@ G3_getStaticAnalysis(G3_Runtime *rt)
   Tcl_Interp *interp = G3_getInterpreter(rt);
   StaticAnalysis *analysis =
       (StaticAnalysis *)Tcl_GetAssocData(interp, "OPS::theStaticAnalysis", NULL);
-
   return analysis;
 }
 
@@ -1374,10 +1344,10 @@ StaticIntegrator *
 G3_getStaticIntegrator(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  StaticIntegrator *analysis =
+  StaticIntegrator *tsi =
       (StaticIntegrator *)Tcl_GetAssocData(interp, "OPS::theStaticIntegrator", NULL);
 
-  return analysis;
+  return tsi;
 }
 
 int

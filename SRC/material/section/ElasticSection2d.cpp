@@ -40,7 +40,8 @@ Vector ElasticSection2d::s(2);
 Matrix ElasticSection2d::ks(2,2);
 ID ElasticSection2d::code(2);
 
-void* OPS_ElasticSection2d()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_ElasticSection2d)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
 	opserr<<"insufficient arguments for ealstic section\n";
@@ -60,26 +61,27 @@ void* OPS_ElasticSection2d()
     return new ElasticSection2d(tag,data[0],data[1],data[2]);
 }
 
-extern void* OPS_ElasticSection3d(void);
-extern void* OPS_ElasticShearSection2d(void);
-extern void* OPS_ElasticShearSection3d(void);
+extern void* OPS_ADD_RUNTIME_VPV(OPS_ElasticSection3d);
+extern void* OPS_ADD_RUNTIME_VPV(OPS_ElasticShearSection2d);
+extern void* OPS_ADD_RUNTIME_VPV(OPS_ElasticShearSection3d);
 
-void *OPS_ElasticSection(void)
+void *
+OPS_ADD_RUNTIME_VPV(OPS_ElasticSection)
 {
   int numData = OPS_GetNumRemainingInputArgs();
   void* theSec = 0;
   int ndm = OPS_GetNDM();
   if(ndm == 2) {
     if(numData == 4) {
-      theSec = OPS_ElasticSection2d();
+      theSec = OPS_CALL_RUNTIME_VPV(OPS_ElasticSection2d);
     } else if(numData >=5) {
-      theSec = OPS_ElasticShearSection2d();
+      theSec = OPS_CALL_RUNTIME_VPV(OPS_ElasticShearSection2d);
     }
   } else if(ndm == 3) {
     if(numData == 7) {
-      theSec = OPS_ElasticSection3d();
+      theSec = OPS_CALL_RUNTIME_VPV(OPS_ElasticSection3d);
     } else if(numData >= 8) {
-      theSec = OPS_ElasticShearSection3d();
+      theSec = OPS_CALL_RUNTIME_VPV(OPS_ElasticShearSection3d);
     }
   }
   

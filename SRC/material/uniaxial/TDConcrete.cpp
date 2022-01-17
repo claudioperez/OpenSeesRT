@@ -75,6 +75,7 @@
 using namespace std; //Added by AMK for debugging
 #include <MaterialResponse.h>
 #include <Vector.h>
+#include <api/runtimeAPI.h>
 
 
 //Added by AMK to use dylib:
@@ -334,7 +335,7 @@ TDConcrete::setTrialStrain(double trialStrain, double strainRate)
             	eps_sh = epsP_sh;
             	eps_m = eps_total-eps_cr-eps_sh;
     	        sig = setStress(eps_m, e);
-    	}
+    	} 
 		//
 		//opserr<<"\n   eps_cr = "<<eps_cr;
 		//opserr<<"\n   eps_sh = "<<eps_sh;
@@ -824,5 +825,3 @@ TDConcrete::getResponse(int responseID, Information &matInfo)
 			return -1;
 	}
 }
-
-

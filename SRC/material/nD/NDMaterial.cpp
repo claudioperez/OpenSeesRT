@@ -48,6 +48,7 @@
 #include <string.h>
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 Matrix NDMaterial::errMatrix(1,1);
 Vector NDMaterial::errVector(1);
@@ -81,7 +82,8 @@ NDMaterial *OPS_getNDMaterial(int tag)
   return theMat;
 }
 
-void OPS_clearAllNDMaterial(void)
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllNDMaterial)
 {
     theNDMaterialObjects.clearAll();
 }

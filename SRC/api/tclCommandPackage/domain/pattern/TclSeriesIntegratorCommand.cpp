@@ -49,6 +49,7 @@ TclSeriesIntegratorCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *
 {
   int argc;
   TCL_Char **argv;
+  G3_Runtime *rt = G3_getRuntime(interp);
 
   // split the list
   if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {

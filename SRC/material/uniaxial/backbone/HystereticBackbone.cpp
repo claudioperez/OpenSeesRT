@@ -32,6 +32,7 @@
 
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theHystereticBackboneObjects;
 
@@ -51,7 +52,9 @@ HystereticBackbone *OPS_getHystereticBackbone(int tag) {
   return theMat;
 }
 
-void OPS_clearAllHystereticBackbone(void) {
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllHystereticBackbone)
+{
   theHystereticBackboneObjects.clearAll();
 }
 

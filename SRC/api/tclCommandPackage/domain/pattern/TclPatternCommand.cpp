@@ -557,12 +557,12 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         }
       }
 
-      Mesh3DSubdomain *myMesher = new Mesh3DSubdomain(theDomain);
+      Mesh3DSubdomain *myMesher = new Mesh3DSubdomain(domain);
       PlaneDRMInputHandler *patternhandler = new PlaneDRMInputHandler(
           1.0, files, nf, dt, 0, num_steps, f_d, 15, n1, n2, drm_box_crds,
-          drm_box_crds, ele_d, myMesher, steps_cached, theDomain);
+          drm_box_crds, ele_d, myMesher, steps_cached, domain);
       DRMLoadPattern *ptr =
-          new DRMLoadPattern(1, 1.0, patternhandler, theDomain);
+          new DRMLoadPattern(1, 1.0, patternhandler, domain);
       ptr->setMaps();
       thePattern = ptr;
       theTclMultiSupportPattern = 0;
@@ -868,7 +868,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
            << " filename = " << filename.c_str() << " factor = " << factor
            << endln;
 
-    theDomain->addLoadPattern(thePattern);
+    domain->addLoadPattern(thePattern);
     return TCL_OK;
   }
 #endif
@@ -882,7 +882,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // now add the load pattern to the modelBuilder
-  if (theDomain->addLoadPattern(thePattern) == false) {
+  if (domain->addLoadPattern(thePattern) == false) {
     opserr << "WARNING could not add load pattern to the domain "
            << *thePattern;
     delete thePattern; // free up the memory, pattern destroys the time series

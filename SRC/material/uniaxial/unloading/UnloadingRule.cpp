@@ -32,6 +32,7 @@
 
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theUnloadingRuleObjects;
 
@@ -52,7 +53,8 @@ UnloadingRule *OPS_getUnloadingRule(int tag)
   return theMat;  
 }
 
-void OPS_clearAllUnloadingRule(void)
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllUnloadingRule)
 {
   theUnloadingRuleObjects.clearAll();
 }

@@ -56,16 +56,11 @@
 #endif
 
 // #include <MPCORecorder.h>
-#include <GmshRecorder.h>
-#include <VTK_Recorder.h>
 
-extern void *OPS_PVDRecorder();
+// #include <GmshRecorder.h>
+// #include <VTK_Recorder.h>
 
-extern void *OPS_GmshRecorder();
-extern void *OPS_MPCORecorder();
-extern void *OPS_VTK_Recorder();
-extern void *OPS_ElementRecorderRMS();
-extern void *OPS_NodeRecorderRMS();
+#include <recorderAPI.h>
 
 #include <NodeIter.h>
 #include <ElementIter.h>
@@ -144,6 +139,8 @@ int
 TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv, Domain &theDomain, Recorder **theRecorder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // make sure at least one other argument to contain integrator
   if (argc < 2) {
     opserr << "WARNING need to specify a Recorder type\n";
@@ -1887,26 +1884,26 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 #ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "pvd") == 0 || strcmp(argv[1], "PVD") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_PVDRecorder();
+    (*theRecorder) = (Recorder *)OPS_PVDRecorder(rt);
 #endif
   }
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_VTK_Recorder();
+    (*theRecorder) = (Recorder *)OPS_VTK_Recorder(rt);
+
   } else if (strcmp(argv[1], "ElementRMS") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS();
+    (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS(rt);
+
   } else if (strcmp(argv[1], "NodeRMS") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS();
-  } else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_VTK_Recorder();
+    (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS(rt);
+
   }
   /*
   else if (strcmp(argv[1], "mpco") == 0) {
       OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder*)OPS_MPCORecorder();
+    (*theRecorder) = (Recorder*)OPS_MPCORecorder(rt);
     if (theRecorder == 0) {
       return TCL_ERROR;
     }
@@ -1914,7 +1911,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   */
   else if (strcmp(argv[1], "gmsh") == 0 || strcmp(argv[1], "GMSH") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_GmshRecorder();
+    (*theRecorder) = (Recorder *)OPS_GmshRecorder(rt);
   }
   // else if (strcmp(argv[1],"gmshparallel") == 0 ||
   // strcmp(argv[1],"GMSHPARALLEL") == 0) {

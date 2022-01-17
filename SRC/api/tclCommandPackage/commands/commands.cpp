@@ -1,43 +1,11 @@
-/* ****************************************************************** **
-**    OpenSees System for Earthquake Engineering Simulation           **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
+// Written: cmp
 
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: fmk
-// Created: 04/98
-//
 // Description: This file contains the functions that will be called by
-// the interpreter when the appropriate command name is specified,
-// see tkAppInit.C for command names.
+// the interpreter when the appropriate command name is specified.
+
 #include <g3_api.h>
 #include <classTags.h>
-
 #include <DOF_Group.h>
-
-#ifdef _PARALLEL_PROCESSING
-#include <mpi.h>
-#elif _PARALLEL_INTERPRETERS
-#include <mpi.h>
-#endif
 
 extern "C" {
 #include <g3_api.h>
@@ -50,34 +18,29 @@ extern "C" {
 #include <set>
 #include <algorithm>
 
-extern void OPS_clearAllUniaxialMaterial(void);
-extern void OPS_clearAllNDMaterial(void);
-extern void OPS_clearAllSectionForceDeformation(void);
+extern void OPS_clearAllUniaxialMaterial(G3_Runtime*);
+extern void OPS_clearAllNDMaterial(G3_Runtime*);
+extern void OPS_clearAllSectionForceDeformation(G3_Runtime*);
 
-extern void OPS_clearAllHystereticBackbone(void);
-extern void OPS_clearAllStiffnessDegradation(void);
-extern void OPS_clearAllStrengthDegradation(void);
-extern void OPS_clearAllUnloadingRule(void);
+extern void OPS_clearAllHystereticBackbone(G3_Runtime*);
+extern void OPS_clearAllStiffnessDegradation(G3_Runtime*);
+extern void OPS_clearAllStrengthDegradation(G3_Runtime*);
+extern void OPS_clearAllUnloadingRule(G3_Runtime*);
 
 // the following is a little kludgy but it works!
 #ifdef _USING_STL_STREAMS
-
-#include <iomanip>
-using std::ios;
-#include <iostream>
-using std::ofstream;
-
+#  include <iomanip>
+   using std::ios;
+#  include <iostream>
+   using std::ofstream;
 #else
-
-#include <StandardStream.h>
-#include <FileStream.h>
-#include <DummyStream.h>
-
-bool OPS_suppressOpenSeesOutput = false;
-bool OPS_showHeader = true;
-StandardStream sserr;
-OPS_Stream *opserrPtr = &sserr;
-
+#  include <StandardStream.h>
+#  include <FileStream.h>
+#  include <DummyStream.h>
+   bool OPS_suppressOpenSeesOutput = false;
+   bool OPS_showHeader = true;
+   StandardStream sserr;
+   OPS_Stream *opserrPtr = &sserr;
 #endif
 
 #include <stdio.h>
@@ -87,10 +50,6 @@ OPS_Stream *opserrPtr = &sserr;
 
 #include <elementAPI.h>
 #include <g3_api.h>
-
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
 
 #include <packages.h>
 
@@ -102,9 +61,9 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 // domain
 #ifdef _PARALLEL_PROCESSING
-#include <PartitionedDomain.h>
+#  include <PartitionedDomain.h>
 #else
-#include <Domain.h>
+#  include <Domain.h>
 #endif
 
 #include <Information.h>
@@ -144,6 +103,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #ifdef OPS_USE_PFEM
 #include <CTestPFEM.h>
 #endif
+
 // soln algorithms
 #include <Linear.h>
 #include <NewtonRaphson.h>
@@ -156,20 +116,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <AcceleratedNewton.h>
 #include <ExpressNewton.h>
 
-// accelerators
-#include <RaphsonAccelerator.h>
-#include <PeriodicAccelerator.h>
-#include <KrylovAccelerator.h>
-#include <SecantAccelerator1.h>
-#include <SecantAccelerator2.h>
-#include <SecantAccelerator3.h>
-//#include <MillerAccelerator.h>
-
-// line searches
-#include <BisectionLineSearch.h>
-#include <InitialInterpolatedLineSearch.h>
-#include <RegulaFalsiLineSearch.h>
-#include <SecantLineSearch.h>
+#include <StaticIntegrator.h>
 
 // constraint handlers
 #include <PlainHandler.h>
@@ -181,16 +128,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 // numberers
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
+// graph
+#include <RCM.h>
+#include <AMDNumberer.h>
 
-// integrators
-#include <LoadControl.h>
-#include <StagedLoadControl.h>
-#include <ArcLength.h>
-#include <ArcLength1.h>
-#include <HSConstraint.h>
-#include <MinUnbalDispNorm.h>
-#include <DisplacementControl.h>
-#include <EQPath.h>
 
 #ifdef OPS_USE_PFEM
 #include <PFEMIntegrator.h>
@@ -200,53 +141,8 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 //  recorders
 #include <Recorder.h> //SAJalali
+#include <analysisAPI.h>
 
-extern void *OPS_NewtonRaphsonAlgorithm(void);
-extern void *OPS_ExpressNewton(void);
-extern void *OPS_ModifiedNewton(void);
-extern void *OPS_NewtonHallM(void);
-
-extern void *OPS_Newmark(void);
-extern void *OPS_StagedNewmark(void);
-extern void *OPS_GimmeMCK(void);
-extern void *OPS_AlphaOS(void);
-extern void *OPS_AlphaOS_TP(void);
-extern void *OPS_AlphaOSGeneralized(void);
-extern void *OPS_AlphaOSGeneralized_TP(void);
-extern void *OPS_ExplicitDifference(void);
-extern void *OPS_CentralDifference(void);
-extern void *OPS_CentralDifferenceAlternative(void);
-extern void *OPS_CentralDifferenceNoDamping(void);
-extern void *OPS_Collocation(void);
-extern void *OPS_CollocationHSFixedNumIter(void);
-extern void *OPS_CollocationHSIncrLimit(void);
-extern void *OPS_CollocationHSIncrReduct(void);
-extern void *OPS_GeneralizedAlpha(void);
-extern void *OPS_HHT(void);
-extern void *OPS_HHT_TP(void);
-extern void *OPS_HHTExplicit(void);
-extern void *OPS_HHTExplicit_TP(void);
-extern void *OPS_HHTGeneralized(void);
-extern void *OPS_HHTGeneralized_TP(void);
-extern void *OPS_HHTGeneralizedExplicit(void);
-extern void *OPS_HHTGeneralizedExplicit_TP(void);
-extern void *OPS_HHTHSFixedNumIter(void);
-extern void *OPS_HHTHSFixedNumIter_TP(void);
-extern void *OPS_HHTHSIncrLimit(void);
-extern void *OPS_HHTHSIncrLimit_TP(void);
-extern void *OPS_HHTHSIncrReduct(void);
-extern void *OPS_HHTHSIncrReduct_TP(void);
-extern void *OPS_KRAlphaExplicit(void);
-extern void *OPS_KRAlphaExplicit_TP(void);
-extern void *OPS_NewmarkExplicit(void);
-extern void *OPS_NewmarkHSFixedNumIter(void);
-extern void *OPS_NewmarkHSIncrLimit(void);
-extern void *OPS_NewmarkHSIncrReduct(void);
-extern void *OPS_WilsonTheta(void);
-
-// for response spectrum analysis
-extern void OPS_DomainModalProperties(void);
-extern void OPS_ResponseSpectrumAnalysis(void);
 
 #include <Newmark.h>
 #include <StagedNewmark.h>
@@ -366,144 +262,121 @@ extern void OPS_ResponseSpectrumAnalysis(void);
 #include <FullGenEigenSolver.h>
 
 #ifdef _CUDA
-#include <BandGenLinSOE_Single.h>
-#include <BandGenLinLapackSolver_Single.h>
+#  include <BandGenLinSOE_Single.h>
+#  include <BandGenLinLapackSolver_Single.h>
 #endif
-
-// graph
-#include <RCM.h>
-#include <AMDNumberer.h>
 
 #include <ErrorHandler.h>
 #include <ConsoleErrorHandler.h>
 
 #ifdef _NOGRAPHICS
-
+// Do nothing
 #else
-#include <TclVideoPlayer.h>
+#  include <TclVideoPlayer.h>
 #endif
 
 #include <FE_Datastore.h>
 
 #ifdef _RELIABILITY
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
-#include <ReliabilityDomain.h>
-#include <SensitivityAlgorithm.h>
-// #include <SensitivityIntegrator.h>
-// #include <StaticSensitivityIntegrator.h>
-//#include <DynamicSensitivityIntegrator.h>
-// #include <NewmarkSensitivityIntegrator.h>
-// #include <NewNewmarkSensitivityIntegrator.h>
-// #include <NewStaticSensitivityIntegrator.h>
-// #include <PFEMSensitivityIntegrator.h>
-//#include <OrigSensitivityAlgorithm.h>
-//#include <NewSensitivityAlgorithm.h>
-//#include <ReliabilityStaticAnalysis.h>
-//#include <ReliabilityDirectIntegrationAnalysis.h>
+#  include <ReliabilityDomain.h>
+#  include <SensitivityAlgorithm.h>
 // AddingSensitivity:END /////////////////////////////////////////////////
-#include <TclReliabilityBuilder.h>
-
-int reliability(ClientData, Tcl_Interp *, int, TCL_Char **);
-int wipeReliability(ClientData, Tcl_Interp *, int, TCL_Char **);
-int optimization(ClientData, Tcl_Interp *, int, TCL_Char **); // Quan  (2)
-
+#  include <TclReliabilityBuilder.h>
+   int reliability(ClientData, Tcl_Interp *, int, TCL_Char **);
+   int wipeReliability(ClientData, Tcl_Interp *, int, TCL_Char **);
+   int optimization(ClientData, Tcl_Interp *, int, TCL_Char **); // Quan  (2)
 #endif
 
 const char *getInterpPWD(Tcl_Interp *interp);
 
 #include <XmlFileStream.h>
-
 #include <Response.h>
 
 ModelBuilder *theBuilder = 0;
 
 // some global variables
 #ifdef _PARALLEL_PROCESSING
-
-#include <DistributedDisplacementControl.h>
-#include <ShadowSubdomain.h>
-#include <Metis.h>
-#include <ShedHeaviest.h>
-#include <DomainPartitioner.h>
-#include <GraphPartitioner.h>
-#include <TclPackageClassBroker.h>
-#include <Subdomain.h>
-#include <SubdomainIter.h>
-#include <MachineBroker.h>
-#include <MPIDiagonalSOE.h>
-#include <MPIDiagonalSolver.h>
-
+#  include <DistributedDisplacementControl.h>
+#  include <ShadowSubdomain.h>
+#  include <Metis.h>
+#  include <ShedHeaviest.h>
+#  include <DomainPartitioner.h>
+#  include <GraphPartitioner.h>
+#  include <TclPackageClassBroker.h>
+#  include <Subdomain.h>
+#  include <SubdomainIter.h>
+#  include <MachineBroker.h>
+#  include <MPIDiagonalSOE.h>
+#  include <MPIDiagonalSolver.h>
 // parallel analysis
-#include <StaticDomainDecompositionAnalysis.h>
-#include <TransientDomainDecompositionAnalysis.h>
-#include <ParallelNumberer.h>
+#  include <StaticDomainDecompositionAnalysis.h>
+#  include <TransientDomainDecompositionAnalysis.h>
+#  include <ParallelNumberer.h>
 
 //  parallel soe & solvers
-#include <DistributedBandSPDLinSOE.h>
-#include <DistributedSparseGenColLinSOE.h>
-#include <DistributedSparseGenRowLinSOE.h>
-#include <DistributedBandGenLinSOE.h>
-#include <DistributedDiagonalSOE.h>
-#include <DistributedDiagonalSolver.h>
+#  include <DistributedBandSPDLinSOE.h>
+#  include <DistributedSparseGenColLinSOE.h>
+#  include <DistributedSparseGenRowLinSOE.h>
+#  include <DistributedBandGenLinSOE.h>
+#  include <DistributedDiagonalSOE.h>
+#  include <DistributedDiagonalSolver.h>
 
-#define MPIPP_H
-#include <DistributedSuperLU.h>
-#include <DistributedProfileSPDLinSOE.h>
+#  define MPIPP_H
+#  include <DistributedSuperLU.h>
+#  include <DistributedProfileSPDLinSOE.h>
 
 // MachineBroker *theMachineBroker = 0;
-PartitionedDomain theDomain;
-int OPS_PARALLEL_PROCESSING = 0;
-int OPS_NUM_SUBDOMAINS = 0;
-bool OPS_PARTITIONED = false;
-bool OPS_USING_MAIN_DOMAIN = false;
-int OPS_MAIN_DOMAIN_PARTITION_ID = 0;
+   int  OPS_PARALLEL_PROCESSING = 0;
+   int  OPS_NUM_SUBDOMAINS = 0;
+   bool OPS_PARTITIONED = false;
+   bool OPS_USING_MAIN_DOMAIN = false;
+   bool setMPIDSOEFlag = false;
+   int  OPS_MAIN_DOMAIN_PARTITION_ID = 0;
+   PartitionedDomain     theDomain;
+   DomainPartitioner     *OPS_DOMAIN_PARTITIONER = 0;
+   GraphPartitioner      *OPS_GRAPH_PARTITIONER = 0;
+   LoadBalancer          *OPS_BALANCER = 0;
+   TclPackageClassBroker *OPS_OBJECT_BROKER = 0;
+   MachineBroker         *OPS_MACHINE = 0;
+   Channel               **OPS_theChannels = 0;  
 
-DomainPartitioner *OPS_DOMAIN_PARTITIONER = 0;
-GraphPartitioner *OPS_GRAPH_PARTITIONER = 0;
-LoadBalancer *OPS_BALANCER = 0;
-TclPackageClassBroker *OPS_OBJECT_BROKER = 0;
-MachineBroker *OPS_MACHINE = 0;
-Channel **OPS_theChannels = 0;
+#  elif _PARALLEL_INTERPRETERS
 
-bool setMPIDSOEFlag = false;
-
-#elif _PARALLEL_INTERPRETERS
-
-bool setMPIDSOEFlag = false;
-
-// parallel analysis
-#include <ParallelNumberer.h>
-#include <DistributedDisplacementControl.h>
-
-//  parallel soe & solvers
-#include <DistributedBandSPDLinSOE.h>
-#include <DistributedSparseGenColLinSOE.h>
-#include <DistributedSparseGenRowLinSOE.h>
-
-#include <DistributedBandGenLinSOE.h>
-#include <DistributedDiagonalSOE.h>
-#include <DistributedDiagonalSolver.h>
-#include <MPIDiagonalSOE.h>
-#include <MPIDiagonalSolver.h>
-#define MPIPP_H
-#include <DistributedSuperLU.h>
-#include <DistributedProfileSPDLinSOE.h>
-
-Domain theDomain;
-
+  bool setMPIDSOEFlag = false;
+  
+  // parallel analysis
+  #include <ParallelNumberer.h>
+  #include <DistributedDisplacementControl.h>
+  
+  //  parallel soe & solvers
+  #include <DistributedBandSPDLinSOE.h>
+  #include <DistributedSparseGenColLinSOE.h>
+  #include <DistributedSparseGenRowLinSOE.h>
+  
+  #include <DistributedBandGenLinSOE.h>
+  #include <DistributedDiagonalSOE.h>
+  #include <DistributedDiagonalSolver.h>
+  #include <MPIDiagonalSOE.h>
+  #include <MPIDiagonalSolver.h>
+  #define MPIPP_H
+  #include <DistributedSuperLU.h>
+  #include <DistributedProfileSPDLinSOE.h>
+  Domain theDomain;
 #else
-
-Domain theDomain;
-
+  Domain theDomain;
 #endif
 
 #include <MachineBroker.h>
 
-MachineBroker *theMachineBroker = 0;
-Channel **theChannels = 0;
-int numChannels = 0;
-int OPS_rank = 0;
-int OPS_np = 0;
+
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
+                                       Tcl_Interp *interp, int cArg, int mArg,
+                                       TCL_Char **argv, Domain *domain);
+
+// for response spectrum analysis
+extern void OPS_DomainModalProperties(G3_Runtime*);
+extern void OPS_ResponseSpectrumAnalysis(G3_Runtime*);
 
 typedef struct parameterValues {
   char *value;
@@ -516,12 +389,25 @@ typedef struct parameter {
   struct parameter *next;
 } OpenSeesTcl_Parameter;
 
+typedef struct externalClassFunction {
+  char *funcName;
+  void *(*funcPtr)();
+  struct externalClassFunction *next;
+} ExternalClassFunction;
+static ExternalClassFunction *theExternalSolverCommands = NULL;
+
+
 static OpenSeesTcl_Parameter *theParameters = NULL;
 static OpenSeesTcl_Parameter *endParameters = NULL;
-
 static int numParam = 0;
 static char **paramNames = 0;
 static char **paramValues = 0;
+
+MachineBroker *theMachineBroker = 0;
+Channel **theChannels = 0;
+int numChannels = 0;
+int OPS_rank = 0;
+int OPS_np = 0;
 
 AnalysisModel *theAnalysisModel = 0;
 EquiSolnAlgo *theAlgorithm = 0;
@@ -536,32 +422,21 @@ VariableTimeStepDirectIntegrationAnalysis
 int numEigen = 0;
 
 #ifdef OPS_USE_PFEM
-static PFEMAnalysis *thePFEMAnalysis = 0;
+   static PFEMAnalysis *thePFEMAnalysis = 0;
 #endif
 
-// AddingSensitivity:BEGIN /////////////////////////////////////////////
 #ifdef _RELIABILITY
+// AddingSensitivity:BEGIN /////////////////////////////////////////////
 static TclReliabilityBuilder *theReliabilityBuilder = 0;
 
 Integrator *theSensitivityAlgorithm = 0;
 Integrator *theSensitivityIntegrator = 0;
-// FMK RELIABILITY ReliabilityStaticAnalysis *theReliabilityStaticAnalysis = 0;
-// FMK RELIABILITY ReliabilityDirectIntegrationAnalysis
-// *theReliabilityTransientAnalysis = 0;
-
-// static NewmarkSensitivityIntegrator *theNSI = 0;
-// static NewNewmarkSensitivityIntegrator *theNNSI = 0;
-// static PFEMSensitivityIntegrator* thePFEMSI = 0;
-
-// static SensitivityIntegrator *theSensitivityIntegrator = 0;
-// static NewmarkSensitivityIntegrator *theNSI = 0;
-
 #include <TclOptimizationBuilder.h>
 static TclOptimizationBuilder *theOptimizationBuilder =
     0; // Quan March 2010 (3)
 
-#endif
 // AddingSensitivity:END ///////////////////////////////////////////////
+#endif
 
 StaticIntegrator *theStaticIntegrator = 0;
 TransientIntegrator *theTransientIntegrator = 0;
@@ -582,15 +457,11 @@ char *simulationInfoOutputFilename = 0;
 FE_Datastore *theDatabase = 0;
 TclPackageClassBroker theBroker;
 
-// init the global variabled defined in OPS_Globals.h
-// double        ops_Dt = 1.0;
-// Element    *ops_TheActiveElement = 0;
-// bool          ops_InitialStateAnalysis = false; // McGann, U.Washington
 
 #ifdef _NOGRAPHICS
 
 #else
-TclVideoPlayer *theTclVideoPlayer = 0;
+   TclVideoPlayer *theTclVideoPlayer = 0;
 #endif
 
 // g3AppInit() is the method called by tkAppInit() when the
@@ -603,63 +474,36 @@ int printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 int printA(ClientData clientData, Tcl_Interp *interp, int argc,
            TCL_Char **argv);
 
-int printB(ClientData clientData, Tcl_Interp *interp, int argc,
+int printB(ClientData, Tcl_Interp *, int argc,
            TCL_Char **argv);
 
-int setPrecision(ClientData clientData, Tcl_Interp *interp, int argc,
+int setPrecision(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+
+int logFile(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+
+int version(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int getPID(ClientData,  Tcl_Interp *, int, TCL_Char **argv);
+int getNP( ClientData,  Tcl_Interp *, int, TCL_Char **argv);
+int opsBarrier(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int domainChange(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int record(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int opsSend(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int opsRecv(ClientData, Tcl_Interp *, int,TCL_Char **argv);
+int opsPartition(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int peerNGA(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int defaultUnits(ClientData, Tcl_Interp *, int,
                  TCL_Char **argv);
-
-int logFile(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv);
-
-int version(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv);
-
-int getPID(ClientData clientData, Tcl_Interp *interp, int argc,
-           TCL_Char **argv);
-
-int getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
-
-int opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char **argv);
-
-int domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv);
-
-int record(ClientData clientData, Tcl_Interp *interp, int argc,
-           TCL_Char **argv);
-
-int opsSend(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv);
-
-int opsRecv(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv);
-
-int opsPartition(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv);
-
-int peerNGA(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv);
-
-int defaultUnits(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv);
-
-int stripOpenSeesXML(ClientData clientData, Tcl_Interp *interp, int argc,
+int stripOpenSeesXML(ClientData, Tcl_Interp *, int,
                      TCL_Char **argv);
 
-int setParameter(ClientData clientData, Tcl_Interp *interp, int argc,
+int setParameter(ClientData, Tcl_Interp *, int,
                  TCL_Char **argv);
 
 // extern
-int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv);
+int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 extern int myCommands(Tcl_Interp *interp);
 
-// extern "C" int Tcl_InterpObjCmd(ClientData clientData,
-//			Tcl_Interp *interp,
-//		int objc,
-//	Tcl_Obj *const objv[]);
 
 int convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv);
@@ -778,9 +622,6 @@ Tcl_InterpOpenSeesObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
   };
 
   int ok = TCL_OK;
-  // int ok = Tcl_InterpObjCmd(clientData, interp, objc, objv);
-  // if (ok != TCL_OK)
-  // return ok;
 
   if (Tcl_GetIndexFromObj(interp, objv[1], options, "option", 0, &index) !=
       TCL_OK) {
@@ -889,6 +730,11 @@ OpenSeesAppInit(Tcl_Interp *interp)
   // Talledo End
   Tcl_CreateCommand(interp, "analysis", &specifyAnalysis, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
+
+  Tcl_CreateCommand(interp, "fault", 
+      [](ClientData,Tcl_Interp*,int,const char **)->int{throw 20; return 0;}, 
+        (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+
   Tcl_CreateCommand(interp, "system", &specifySOE, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "numberer", &specifyNumberer, (ClientData)NULL,
@@ -904,8 +750,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "testIter", &getCTestIter, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "integrator", &specifyIntegrator, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+ // Tcl_CreateCommand(interp, "integrator", &specifyIntegrator, (ClientData)NULL,
+ //                   (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "integrator", &specifyIntegrator, nullptr, nullptr);
+
   Tcl_CreateCommand(interp, "recorder", &addRecorder, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder,
@@ -1194,7 +1042,6 @@ OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
     return TCL_ERROR;
   }
 
-  //    Tcl_SetObjCmd(clientData, interp, objc, objv);
   return 0;
 }
 
@@ -1276,107 +1123,6 @@ wipeReliability(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   return TCL_OK;
 }
-
-int
-sensitivityIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
-{
-  // Does nothing, but keeping command for backward compatibility
-  return TCL_OK;
-}
-
-int
-sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv)
-{
-  bool withRespectToRVs = true;
-  bool newalgorithm = false;
-  int analysisTypeTag = 1;
-  if (theStaticIntegrator != 0) {
-    theSensitivityIntegrator = theStaticIntegrator;
-  } else if (theTransientIntegrator != 0) {
-    theSensitivityIntegrator = theTransientIntegrator;
-  }
-  // 1: compute at each step (default); 2: compute by command
-
-  if (argc < 2) {
-    opserr << "ERROR: Wrong number of parameters to sensitivity algorithm."
-           << endln;
-    return TCL_ERROR;
-  }
-  if (theReliabilityBuilder == 0) {
-    opserr << "The command 'reliability' needs to be issued before " << endln
-           << " the sensitivity algorithm can be created." << endln;
-    return TCL_ERROR;
-  } else if (theSensitivityIntegrator == 0) {
-    opserr << "The sensitivity integrator needs to be instantiated before "
-           << endln << " the sensitivity algorithm can be created." << endln;
-    return TCL_ERROR;
-  }
-
-  if (strcmp(argv[1], "-computeAtEachStep") == 0)
-    analysisTypeTag = 1;
-  else if (strcmp(argv[1], "-computeByCommand") == 0)
-    analysisTypeTag = 2;
-  else {
-    opserr << "Unknown sensitivity algorithm option: " << argv[1] << endln;
-    return TCL_ERROR;
-  }
-
-  ReliabilityDomain *theReliabilityDomain;
-  theReliabilityDomain = theReliabilityBuilder->getReliabilityDomain();
-  if (newalgorithm) {
-    // theSensitivityAlgorithm = new
-    //   NewSensitivityAlgorithm(theReliabilityDomain,
-    // 			    &theDomain,
-    // 			    theAlgorithm,
-    // 			    theSensitivityIntegrator,
-    // 			    analysisTypeTag);
-  } else {
-    //  theSensitivityAlgorithm = new
-    //   SensitivityAlgorithm(&theDomain,
-    //			 theAlgorithm,
-    //			 theSensitivityIntegrator,
-    //			 analysisTypeTag);
-
-    IncrementalIntegrator *theIntegrator = 0;
-
-    if (the_static_analysis != 0 && theStaticIntegrator != 0) {
-      theIntegrator = theStaticIntegrator;
-
-      theIntegrator->setComputeType(analysisTypeTag);
-      theIntegrator->activateSensitivityKey();
-
-    } else if (theTransientAnalysis != 0 && theTransientIntegrator != 0) {
-
-      theIntegrator = theTransientIntegrator;
-      theIntegrator->setComputeType(analysisTypeTag);
-      theIntegrator->activateSensitivityKey();
-    }
-
-    if (theIntegrator == 0) {
-      opserr << "ERROR: Could not create theSensitivityAlgorithm. " << endln;
-      return TCL_ERROR;
-    }
-    // ---- by Quan 2009 for recover the previous framework ---
-
-    if (theIntegrator->shouldComputeAtEachStep()) {
-
-      // if (the_static_analysis !=0)
-      // the_static_analysis->setSensitivityAlgorithm(theIntegrator);
-      // else if (theTransientAnalysis !=0)
-      // theTransientAnalysis->setSensitivityAlgorithm(theIntegrator);
-      // else if (theVariableTimeStepTransientAnalysis !=0)
-      // theVariableTimeStepTransientAnalysis->setSensitivityAlgorithm(theIntegrator);
-      // else {
-      // 	// do nothing
-      // }
-    }
-  }
-
-  return TCL_OK;
-}
-
 // AddingSensitivity:END /////////////////////////////////////////////////
 
 #endif
@@ -1413,17 +1159,18 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   if (theDatabase != 0)
     delete theDatabase;
 
-  if (domain != nullptr)
+  if (domain) {
     domain->clearAll();
-  theDomain.clearAll();
-  OPS_clearAllUniaxialMaterial();
-  OPS_clearAllNDMaterial();
-  OPS_clearAllSectionForceDeformation();
+  }
 
-  OPS_clearAllHystereticBackbone();
-  OPS_clearAllStiffnessDegradation();
-  OPS_clearAllStrengthDegradation();
-  OPS_clearAllUnloadingRule();
+  OPS_clearAllUniaxialMaterial(rt);
+  OPS_clearAllNDMaterial(rt);
+  OPS_clearAllSectionForceDeformation(rt);
+
+  OPS_clearAllHystereticBackbone(rt);
+  OPS_clearAllStiffnessDegradation(rt);
+  OPS_clearAllStrengthDegradation(rt);
+  OPS_clearAllUnloadingRule(rt);
 
   ops_Dt = 0.0;
 
@@ -1435,11 +1182,11 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   theAlgorithm = 0;
   theHandler = 0;
   theNumberer = 0;
-  theAnalysisModel = 0;
+  G3_setAnalysisModel(rt,nullptr);
   theSOE = 0;
-  theStaticIntegrator = 0;
+  G3_setStaticIntegrator(rt,nullptr);
   theTransientIntegrator = 0;
-  theStaticAnalysis = 0;
+  G3_setStaticAnalysis(rt,nullptr);
   theTransientAnalysis = 0;
   theVariableTimeStepTransientAnalysis = 0;
 
@@ -1482,29 +1229,25 @@ wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   theAlgorithm = 0;
   theHandler = 0;
   theNumberer = 0;
-  theAnalysisModel = 0;
+  G3_setAnalysisModel(rt,nullptr);
   theSOE = 0;
   theEigenSOE = 0;
-  theStaticIntegrator = 0;
+  G3_setStaticIntegrator(rt,nullptr);
   theTransientIntegrator = 0;
-  theStaticAnalysis = 0;
+  G3_setStaticAnalysis(rt,nullptr);
   theTransientAnalysis = 0;
   theVariableTimeStepTransientAnalysis = 0;
-  //  theSensitivityAlgorithm=0;
 #ifdef OPS_USE_PFEM
   thePFEMAnalysis = 0;
 #endif
   theTest = 0;
 
-// AddingSensitivity:BEGIN /////////////////////////////////////////////////
 #ifdef _RELIABILITY
+  // AddingSensitivity:BEGIN /////////////////////////////////////////////////
   theSensitivityAlgorithm = 0;
   theSensitivityIntegrator = 0;
-#endif
   // AddingSensitivity:END /////////////////////////////////////////////////
-  // the domain deletes the record objects,
-  // just have to delete the private array
-
+#endif
   return TCL_OK;
 }
 
@@ -1623,7 +1366,6 @@ setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
   }
-
   return TCL_OK;
 }
 
@@ -1674,10 +1416,8 @@ getTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   // get the display format
   char format[80];
   if (argc == 1) {
-    //      strcpy(format,"%f");
     sprintf(format, "%f", time);
   } else if (argc == 2) {
-    //      strcpy(format,argv[1]);
     sprintf(format, argv[1], time);
   }
 
@@ -1714,8 +1454,6 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
 
   double factor = the_pattern->getLoadFactor();
 
-  //  sprintf(interp->result,"%f",factor);
-
   char buffer[40];
   sprintf(buffer, "%35.20f", factor);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -1731,6 +1469,7 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = G3_getDomain(rt);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+  StaticIntegrator* the_static_integrator = G3_getStaticIntegrator(rt);
 
   if (argc < 3) {
     opserr << "WARNING no load pattern supplied -- getLoadFactor\n";
@@ -1762,30 +1501,23 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   IncrementalIntegrator *theIntegrator = 0;
 
-  if (the_static_analysis != 0 && theStaticIntegrator != 0) {
-    theIntegrator = theStaticIntegrator;
-    //   opserr<<" commands.cpp: calling static integrator"<<endln;
-
+  if (the_static_analysis != 0 && the_static_integrator != 0) {
+    theIntegrator = the_static_integrator;
   } else if (theTransientAnalysis != 0 && theTransientIntegrator != 0) {
-
     theIntegrator = theTransientIntegrator;
-    //   opserr<<"commands.cpp:calling transientIntegrator"<<endln;
   }
 
   int gradIndex = theParam->getGradIndex();
-  // double   factor = thePattern->getSensLambda(theIntegrator);
-  // double factor = theIntegrator->dLambdadh(gradIndex);
   double factor = thePattern->getLoadFactorSensitivity(gradIndex);
 
   char buffer[40];
   sprintf(buffer, "%35.20f", factor);
-
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
-//////////////////////////////////////////////Abbas///////////////////////////////////////
+///////////////////////////////Abbas///////////////////////////////////////
 
 // command invoked to build the model, i.e. to invoke buildFE_Model()
 // on the ModelBuilder
@@ -1794,7 +1526,6 @@ int
 buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  // ModelBuilder* builder = (ModelBuilder*)G3_getSafeBuilder(rt);
   ModelBuilder* builder = (ModelBuilder*)G3_getModelBuilder(rt);
   if (!builder)
     builder = theBuilder;
@@ -1876,7 +1607,6 @@ partitionModel(int eleTag)
           *theSOE, *theTransientIntegrator, theTest, false);
     }
     theSub->setDomainDecompAnalysis(*theSubAnalysis);
-    //  delete theSubAnalysis;
   }
 
   return result;
@@ -1911,31 +1641,16 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   int result = 0;
   G3_Runtime *rt = G3_getRuntime(interp);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  if (!the_static_analysis)
-    the_static_analysis = the_static_analysis;
-
-#ifdef _PARALLEL_PROCESSING
-  if (OPS_PARTITIONED == false && OPS_NUM_SUBDOMAINS > 1) {
-    if (partitionModel(0) < 0) {
-      opserr
-          << "WARNING before analysis; partition failed - too few elements\n";
-      OpenSeesExit(clientData, interp, argc, argv);
-      return TCL_ERROR;
-    }
-  }
-#endif
 
   if (the_static_analysis != 0) {
+    int numIncr;
     if (argc < 2) {
       opserr << "WARNING static analysis: analysis numIncr?\n";
       return TCL_ERROR;
     }
-    int numIncr;
 
     if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
       return TCL_ERROR;
-
-    opserr << "??????";
 
     result = the_static_analysis->analyze(numIncr);
 #ifdef OPS_USE_PFEM
@@ -1943,14 +1658,14 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
     result = thePFEMAnalysis->analyze();
 #endif
   } else if (theTransientAnalysis != 0) {
+    double dT;
+    int numIncr;
     if (argc < 3) {
       opserr << "WARNING transient analysis: analysis numIncr? deltaT?\n";
       return TCL_ERROR;
     }
-    int numIncr;
     if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
       return TCL_ERROR;
-    double dT;
     if (Tcl_GetDouble(interp, argv[2], &dT) != TCL_OK)
       return TCL_ERROR;
 
@@ -2066,14 +1781,12 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
                            argv + currentArg, *output);
       done = true;
     }
-
     else if ((strcmp(argv[currentArg], "-JSON") == 0)) {
       currentArg++;
       flag = OPS_PRINT_PRINTMODEL_JSON;
     }
 
     else {
-
       if ((strcmp(argv[currentArg], "file") == 0) ||
           (strcmp(argv[currentArg], "-file") == 0))
         currentArg++;
@@ -2106,11 +1819,11 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return res;
 }
 
-// printNode():
 // function to print out the nodal information conatined in line
 //     print <filename> node <flag int> <int int int>
-// input: nodeArg: integer equal to arg count to node plus 1
-//        output: output stream to which the results are sent
+// Parameters
+//   nodeArg: integer equal to arg count to node plus 1
+//   output:  output stream to which the results are sent
 //
 int
 printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
@@ -2266,13 +1979,15 @@ int
 printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv, OPS_Stream &output)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
   int eleArg = 0;
-  if (theStaticIntegrator == 0 && theTransientIntegrator == 0)
+  if (the_static_integrator == 0 && theTransientIntegrator == 0)
     return TCL_OK;
 
   IncrementalIntegrator *theIntegrator;
-  if (theStaticIntegrator != 0)
-    theIntegrator = theStaticIntegrator;
+  if (the_static_integrator != 0)
+    theIntegrator = the_static_integrator;
   else
     theIntegrator = theTransientIntegrator;
 
@@ -2405,498 +2120,7 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return res;
 }
 
-//
-// command invoked to allow the Analysis object to be built
-//
-int
-specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  AnalysisModel* the_analysis_model = nullptr;
 
-  // make sure at least one other argument to contain type of system
-  if (argc < 2) {
-    opserr << "WARNING need to specify an analysis type (Static, Transient)\n";
-    return TCL_ERROR;
-  }
-
-  //
-  // do nothing if request is for the same analysis type!
-  //
-
-  if ((strcmp(argv[1], "Static") == 0) && (the_static_analysis != 0))
-    return TCL_OK;
-
-  if (((strcmp(argv[1], "VariableTimeStepTransient") == 0) ||
-       (strcmp(argv[1], "TransientWithVariableTimeStep") == 0) ||
-       (strcmp(argv[1], "VariableTransient") == 0)) &&
-      (theVariableTimeStepTransientAnalysis != 0))
-    return TCL_OK;
-
-  if ((strcmp(argv[1], "Transient") == 0) && (theTransientAnalysis != 0))
-    return TCL_OK;
-
-  //
-  // analysis changing .. delete the old analysis
-  //
-
-  if (the_static_analysis != 0) {
-    G3_delStaticAnalysis(rt);
-    delete the_static_analysis;
-    the_static_analysis = 0;
-    opserr << "WARNING: analysis .. StaticAnalysis already exists => "
-              "wipeAnalysis not invoked, problems may arise\n";
-  }
-
-  if (theTransientAnalysis != 0) {
-    delete theTransientAnalysis;
-    theTransientAnalysis = 0;
-    theVariableTimeStepTransientAnalysis = 0;
-    opserr << "WARNING: analysis .. TransientAnalysis already exists => "
-              "wipeAnalysis not invoked, problems may arise\n";
-  }
-
-  // check argv[1] for type of SOE and create it
-  if (strcmp(argv[1], "Static") == 0) {
-    the_analysis_model = G3_getAnalysisModel(rt);
-    // make sure all the components have been built,
-    // otherwise print a warning and use some defaults
-    if (the_analysis_model == 0){
-      the_analysis_model = new AnalysisModel();
-      G3_setAnalysisModel(rt, the_analysis_model);
-    }
-
-    if (theTest == 0)
-      theTest = new CTestNormUnbalance(1.0e-6, 25, 0);
-
-    if (theAlgorithm == 0) {
-      opserr << "WARNING analysis Static - no Algorithm yet specified, \n";
-      opserr << " NewtonRaphson default will be used\n";
-
-      theAlgorithm = new NewtonRaphson(*theTest);
-    }
-    if (theHandler == 0) {
-      opserr
-          << "WARNING analysis Static - no ConstraintHandler yet specified, \n";
-      opserr << " PlainHandler default will be used\n";
-      theHandler = new PlainHandler();
-    }
-    if (theNumberer == 0) {
-      // opserr << "WARNING analysis Static - no Numberer specified, \n";
-      // opserr << " RCM default will be used\n";
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM);
-    }
-    if (theStaticIntegrator == 0) {
-      opserr << "WARNING analysis Static - no Integrator specified, \n";
-      opserr << " StaticIntegrator default will be used\n";
-      theStaticIntegrator = new LoadControl(1, 1, 1, 1);
-    }
-    if (theSOE == 0) {
-      opserr << "WARNING analysis Static - no LinearSOE specified, \n";
-      opserr << " ProfileSPDLinSOE default will be used\n";
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-      theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-      theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
-    }
-
-    the_static_analysis = new StaticAnalysis(
-        *domain, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
-        *theSOE, *theStaticIntegrator, theTest);
-
-    G3_setStaticAnalysis(rt, the_static_analysis);
-
-#ifdef _PARALLEL_INTERPRETERS
-    if (setMPIDSOEFlag) {
-      ((MPIDiagonalSOE *)theSOE)->setAnalysisModel(*the_analysis_model);
-    }
-#endif
-
-// AddingSensitivity:BEGIN ///////////////////////////////
-#ifdef _RELIABILITY
-    if (theSensitivityAlgorithm != 0 &&
-        theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-      // the_static_analysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-    }
-#endif
-    // AddingSensitivity:END /////////////////////////////////
-#ifdef OPS_USE_PFEM
-  } else if (strcmp(argv[1], "PFEM") == 0) {
-
-    if (argc < 5) {
-      opserr << "WARNING: wrong no of args -- analysis PFEM dtmax dtmin "
-                "gravity <ratio>\n";
-      return TCL_ERROR;
-    }
-    double dtmax, dtmin, gravity, ratio = 0.5;
-    if (Tcl_GetDouble(interp, argv[2], &dtmax) != TCL_OK) {
-      opserr << "WARNING: invalid dtmax " << argv[2] << "\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &dtmin) != TCL_OK) {
-      opserr << "WARNING: invalid dtmin " << argv[3] << "\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[4], &gravity) != TCL_OK) {
-      opserr << "WARNING: invalid gravity " << argv[4] << "\n";
-      return TCL_ERROR;
-    }
-    if (argc > 5) {
-      if (Tcl_GetDouble(interp, argv[5], &ratio) != TCL_OK) {
-        opserr << "WARNING: invalid ratio " << argv[5] << "\n";
-        return TCL_ERROR;
-      }
-    }
-
-    if (the_analysis_model == 0) {
-      the_analysis_model = new AnalysisModel();
-      G3_setAnalysisModel(rt,the_analysis_model);
-    }
-    if (theTest == 0) {
-      // theTest = new CTestNormUnbalance(1e-2,10000,1,2,3);
-      theTest =
-          new CTestPFEM(1e-2, 1e-2, 1e-2, 1e-2, 1e-4, 1e-3, 10000, 100, 1, 2);
-    }
-    if (theAlgorithm == 0) {
-      theAlgorithm = new NewtonRaphson(*theTest);
-    }
-    if (theHandler == 0) {
-      theHandler = new TransformationConstraintHandler();
-    }
-    if (theNumberer == 0) {
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM);
-    }
-    if (theTransientIntegrator == 0) {
-      theTransientIntegrator = new PFEMIntegrator();
-    }
-    if (theSOE == 0) {
-      PFEMSolver *theSolver = new PFEMSolver();
-      theSOE = new PFEMLinSOE(*theSolver);
-    }
-    thePFEMAnalysis = new PFEMAnalysis(theDomain, *theHandler, *theNumberer,
-                                       *the_analysis_model, *theAlgorithm,
-                                       *theSOE, *theTransientIntegrator,
-                                       theTest, dtmax, dtmin, gravity, ratio);
-
-    theTransientAnalysis = thePFEMAnalysis;
-#endif
-  } else if (strcmp(argv[1], "Transient") == 0) {
-    // make sure all the components have been built,
-    // otherwise print a warning and use some defaults
-    if (the_analysis_model == 0){
-      the_analysis_model = new AnalysisModel();
-      G3_setAnalysisModel(rt,the_analysis_model);
-    }
-
-    if (theTest == 0)
-      theTest = new CTestNormUnbalance(1.0e-6, 25, 0);
-
-    if (theAlgorithm == 0) {
-      opserr << "WARNING analysis Transient - no Algorithm yet specified, \n";
-      opserr << " NewtonRaphson default will be used\n";
-
-      theAlgorithm = new NewtonRaphson(*theTest);
-    }
-    if (theHandler == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no ConstraintHandler\n";
-      opserr << " yet specified, PlainHandler default will be used\n";
-      theHandler = new PlainHandler();
-    }
-    if (theNumberer == 0) {
-      opserr
-          << "WARNING analysis Transient dt tFinal - no Numberer specified, \n";
-      opserr << " RCM default will be used\n";
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM);
-    }
-    if (theTransientIntegrator == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no Integrator "
-                "specified, \n";
-      opserr << " Newmark(.5,.25) default will be used\n";
-      theTransientIntegrator = new Newmark(0.5, 0.25);
-    }
-    if (theSOE == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no LinearSOE "
-                "specified, \n";
-      opserr << " ProfileSPDLinSOE default will be used\n";
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-      theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-      theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
-    }
-
-    int count = 2;
-    int numSubLevels = 0;
-    int numSubSteps = 10;
-    while (count < argc) {
-      if (strcmp(argv[count], "-numSubLevels") == 0) {
-        count++;
-        if (count < argc)
-          if (Tcl_GetInt(interp, argv[count], &numSubLevels) != TCL_OK)
-            return TCL_ERROR;
-      } else if ((strcmp(argv[count], "-numSubSteps") == 0)) {
-        count++;
-        if (count < argc)
-          if (Tcl_GetInt(interp, argv[count], &numSubSteps) != TCL_OK)
-            return TCL_ERROR;
-      }
-      count++;
-    }
-
-    theTransientAnalysis = new DirectIntegrationAnalysis(
-        *domain, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
-        *theSOE, *theTransientIntegrator, theTest, numSubLevels, numSubSteps);
-    ;
-#ifdef _PARALLEL_INTERPRETERS
-    if (setMPIDSOEFlag) {
-      ((MPIDiagonalSOE *)theSOE)->setAnalysisModel(*theAnalysisModel);
-    }
-#endif
-
-// AddingSensitivity:BEGIN ///////////////////////////////
-#ifdef _RELIABILITY
-    if (theSensitivityAlgorithm != 0 &&
-        theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-
-      /* This if-statement cannot possibly stay in the code -- MHS
-      if(theSensitivityAlgorithm->newAlgorithm()){
-        opserr << "WARNING original sensitivity algorothm needs to be specified
-      \n"; opserr << "for static analysis \n"; return TCL_ERROR;
-      }
-      */
-
-      // theTransientAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-    }
-#endif
-    // AddingSensitivity:END /////////////////////////////////
-
-  } else if ((strcmp(argv[1], "VariableTimeStepTransient") == 0) ||
-             (strcmp(argv[1], "TransientWithVariableTimeStep") == 0) ||
-             (strcmp(argv[1], "VariableTransient") == 0)) {
-    // make sure all the components have been built,
-    // otherwise print a warning and use some defaults
-    if (the_analysis_model == 0)
-      the_analysis_model = new AnalysisModel();
-
-    if (theTest == 0)
-      theTest = new CTestNormUnbalance(1.0e-6, 25, 0);
-
-    if (theAlgorithm == 0) {
-      opserr << "WARNING analysis Transient - no Algorithm yet specified, \n";
-      opserr << " NewtonRaphson default will be used\n";
-      theAlgorithm = new NewtonRaphson(*theTest);
-    }
-
-    if (theHandler == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no ConstraintHandler\n";
-      opserr << " yet specified, PlainHandler default will be used\n";
-      theHandler = new PlainHandler();
-    }
-
-    if (theNumberer == 0) {
-      opserr
-          << "WARNING analysis Transient dt tFinal - no Numberer specified, \n";
-      opserr << " RCM default will be used\n";
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM);
-    }
-
-    if (theTransientIntegrator == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no Integrator "
-                "specified, \n";
-      opserr << " Newmark(.5,.25) default will be used\n";
-      theTransientIntegrator = new Newmark(0.5, 0.25);
-    }
-
-    if (theSOE == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no LinearSOE "
-                "specified, \n";
-      opserr << " ProfileSPDLinSOE default will be used\n";
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-      theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-      theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
-    }
-
-    theVariableTimeStepTransientAnalysis =
-        new VariableTimeStepDirectIntegrationAnalysis(
-            *domain, *theHandler, *theNumberer, *the_analysis_model,
-            *theAlgorithm, *theSOE, *theTransientIntegrator, theTest);
-
-    // set the pointer for variabble time step analysis
-    theTransientAnalysis = theVariableTimeStepTransientAnalysis;
-
-#ifdef _RELIABILITY
-
-    //////////////////////////////////
-    ////// added by K Fujimura ///////
-
-    // FMK RELIABILITY
-    /*
-} else if (strcmp(argv[1],"ReliabilityStatic") == 0) {
-            // make sure all the components have been built,
-            // otherwise print a warning and use some defaults
-            if (the_analysis_model == 0)
-                    the_analysis_model = new AnalysisModel();
-            if (theTest == 0)
-              theTest = new CTestNormUnbalance(1.0e-6,25,0);
-            if (theAlgorithm == 0) {
-                opserr << "WARNING analysis Static - no Algorithm yet specified,
-\n"; opserr << " NewtonRaphson default will be used\n"; theAlgorithm = new
-NewtonRaphson(*theTest); 	} if (theHandler == 0) { opserr << "WARNING
-analysis Static - no ConstraintHandler yet specified, \n"; opserr << "
-PlainHandler default will be used\n"; theHandler = new PlainHandler(); } if
-    (theNumberer == 0) { 
-      opserr << "WARNING analysis Static - no Numberer specified,\n"; 
-      opserr << " RCM default will be used\n"; 
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM); } 
-  if (theStaticIntegrator == 0) {
-      opserr << "Fatal ! theStaticIntegrator must be defined before defining\n"; 
-      opserr << "ReliabilityStaticAnalysis by NewStaticSensitivity\n"; 
-      return TCL_ERROR;
-            }
-            if (theSOE == 0) {
-                    opserr << "WARNING analysis Static - no LinearSOE specified,\n"; 
-        opserr << " ProfileSPDLinSOE default will be used\n"; 
-        ProfileSPDLinSolver *theSolver; 
-      theSolver = new ProfileSPDLinDirectSolver(); theSOE = new
-      ProfileSPDLinSOE(*theSolver);      	
-  }
-
-            theReliabilityStaticAnalysis = new ReliabilityStaticAnalysis(
-                       theDomain, *theHandler, *theNumberer,
-                                           *the_analysis_model,
-                                           *theAlgorithm,
-                                           *theSOE,
-                                           *theStaticIntegrator,
-                                           theTest);
-
-            if (theSensitivityAlgorithm != 0 && theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-
-              //This if-statement cannot stay -- MHS
-              //if(!theSensitivityAlgorithm->newAlgorithm()){
-              //  opserr << "WARNING new sensitivity algorothm needs to be specified \n";
-               // opserr << "for reliability static analysis \n";
-               // return TCL_ERROR;
-              //}
-
-
-              //the_static_analysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-            } else {
-                    opserr << "Faltal SensitivityAlgorithm must be definde before defining \n"; opserr << "ReliabilityStaticAnalysis with computeateachstep\n"; return TCL_ERROR;
-            }
-
-} else if (strcmp(argv[1],"ReliabilityTransient") == 0) {
-            // make sure all the components have been built,
-            // otherwise print a warning and use some defaults
-            if (the_analysis_model == 0)
-                    theAnalysisModel = new AnalysisModel();
-            if (theTest == 0)
-              theTest = new CTestNormUnbalance(1.0e-6,25,0);
-            if (theAlgorithm == 0) {
-                opserr << "WARNING analysis Transient - no Algorithm yet specified, \n"; 
-                opserr << " NewtonRaphson default will be used\n";
-                theAlgorithm = new NewtonRaphson(*theTest);
-            }
-            if (theHandler == 0) {
-                    opserr << "WARNING analysis Transient dt tFinal - no ConstraintHandler\n"; 
-                    opserr << " yet specified, PlainHandler default will be used\n"; 
-                    theHandler = new PlainHandler();
-            }
-            if (theNumberer == 0) {
-                    opserr << "WARNING analysis Transient dt tFinal - no Numberer specified, \n"; 
-                    opserr << " RCM default will be used\n"; 
-                    RCM *theRCM = new RCM(false); 
-                    theNumberer = new DOF_Numberer(*theRCM);
-            }
-            if (theTransientIntegrator == 0) {
-              opserr << "Fatal ! theTransientIntegrator must be defined before defining\n";
-              opserr << "ReliabilityTransientAnalysis by NewNewmarkWithSensitivity\n";
-              return TCL_ERROR;
-            }
-            if (theSOE == 0) {
-                    opserr << "WARNING analysis Transient dt tFinal - no LinearSOE specified, \n";
-                    opserr << " ProfileSPDLinSOE default will be used\n";
-                    ProfileSPDLinSolver *theSolver;
-             
-                    theSolver = new ProfileSPDLinDirectSolver();
-             
-                    theSOE = new ProfileSPDLinSOE(*theSolver);
-             
-            }
-
-            theReliabilityTransientAnalysis = 
-              new ReliabilityDirectIntegrationAnalysis(
-                        theDomain, *theHandler, *theNumberer,
-                                     *theAnalysisModel,
-                                     *theAlgorithm,
-                                     *theSOE,
-                                     *theTransientIntegrator,
-                                     theTest);
-
-            if (theSensitivityAlgorithm != 0 &&
-theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-
-              //This if-statement must go -- MHS
-              //if(!theSensitivityAlgorithm->newAlgorithm()){
-               // opserr << "WARNING new sensitivity algorothm needs to be
-specified \n";
-               // opserr << "for reliability static analysis \n";
-               // return TCL_ERROR;
-              //}
-
-
-                    theReliabilityTransientAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-            }else{
-                    opserr << "Faltal SensitivityAlgorithm must be definde
-before defining \n"; opserr << "ReliabilityStaticAnalysis with
-computeateachstep\n"; return TCL_ERROR;
-            }
-            FMK RELIABILITY
-        *************************/
-// AddingSensitivity:END /////////////////////////////////
-#endif
-
-  } else {
-    opserr << "WARNING No Analysis type exists (Static Transient only) \n";
-    return TCL_ERROR;
-  }
-
-  if (theEigenSOE != 0) {
-    if (the_static_analysis != 0 ) {
-      the_static_analysis->setEigenSOE(*theEigenSOE);
-    } else if (theTransientAnalysis != 0) {
-      theTransientAnalysis->setEigenSOE(*theEigenSOE);
-    }
-  }
-  return TCL_OK;
-}
-
-typedef struct externalClassFunction {
-  char *funcName;
-  void *(*funcPtr)();
-  struct externalClassFunction *next;
-} ExternalClassFunction;
-
-static ExternalClassFunction *theExternalSolverCommands = NULL;
-static ExternalClassFunction *theExternalStaticIntegratorCommands = NULL;
-static ExternalClassFunction *theExternalTransientIntegratorCommands = NULL;
-static ExternalClassFunction *theExternalAlgorithmCommands = NULL;
 
 int
 specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -3379,7 +2603,6 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
 
 #ifdef _PETSC
-
   else if (strcmp(argv[1], "Petsc") == 0) {
     // now must determine the type of solver to create from rest of args
     KSPType method = KSPCG;           // KSPCG KSPGMRES
@@ -3520,11 +2743,8 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 #endif
 
   else {
-
-    //
     // maybe a package
     //
-
     // try existing loaded packages
     ExternalClassFunction *solverCommands = theExternalSolverCommands;
     bool found = false;
@@ -3543,9 +2763,9 @@ specifySOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
         solverCommands = solverCommands->next;
     }
 
-    //
+
     // if not there try loading package
-    //
+
 
     if (found == false) {
 
@@ -3644,7 +2864,7 @@ specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,
     theNumberer = new DOF_Numberer(*theAMD);
   }
 
-#ifdef _PARALLEL_INTERPRETERS
+#  ifdef _PARALLEL_INTERPRETERS
 
   else if ((strcmp(argv[1], "ParallelPlain") == 0) ||
            (strcmp(argv[1], "Parallel") == 0)) {
@@ -3660,7 +2880,7 @@ specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,
     theParallelNumberer->setChannels(numChannels, theChannels);
   }
 
-#endif
+#  endif
 
   else {
     opserr << "WARNING No Numberer type exists (Plain, RCM only) \n";
@@ -3739,425 +2959,6 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-//
-// command invoked to allow the SolnAlgorithm object to be built
-//
-int
-specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
-{
-
-  // make sure at least one other argument to contain numberer
-  if (argc < 2) {
-    opserr << "WARNING need to specify an Algorithm type \n";
-    return TCL_ERROR;
-  }
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  EquiSolnAlgo *theNewAlgo = 0;
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
-
-  // check argv[1] for type of Algorithm and create the object
-  if (strcmp(argv[1], "Linear") == 0) {
-    int formTangent = CURRENT_TANGENT;
-    int factorOnce = 0;
-    int count = 2;
-    while (count < argc) {
-      if ((strcmp(argv[count], "-secant") == 0) ||
-          (strcmp(argv[count], "-Secant") == 0)) {
-        formTangent = CURRENT_SECANT;
-      } else if ((strcmp(argv[count], "-initial") == 0) ||
-                 (strcmp(argv[count], "-Initial") == 0)) {
-        formTangent = INITIAL_TANGENT;
-      } else if ((strcmp(argv[count], "-factorOnce") == 0) ||
-                 (strcmp(argv[count], "-FactorOnce") == 0)) {
-        factorOnce = 1;
-      }
-      count++;
-    }
-    theNewAlgo = new Linear(formTangent, factorOnce);
-  }
-
-  else if (strcmp(argv[1], "Newton") == 0) {
-    void *theNewtonAlgo = OPS_NewtonRaphsonAlgorithm();
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
-    theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
-  }
-
-  else if ((strcmp(argv[1], "NewtonHallM") == 0) ||
-           (strcmp(argv[1], "NewtonHall") == 0)) {
-    void *theNewtonAlgo = OPS_NewtonHallM();
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
-    theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
-  }
-
-  else if (strcmp(argv[1], "ModifiedNewton") == 0) {
-    void *theNewtonAlgo = OPS_ModifiedNewton();
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
-    theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
-  }
-
-  else if (strcmp(argv[1], "KrylovNewton") == 0) {
-    int incrementTangent = CURRENT_TANGENT;
-    int iterateTangent = CURRENT_TANGENT;
-    int maxDim = 3;
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          iterateTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          iterateTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          iterateTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          incrementTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          incrementTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          incrementTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
-        i++;
-        maxDim = atoi(argv[i]);
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    Accelerator *theAccel;
-    theAccel = new KrylovAccelerator(maxDim, iterateTangent);
-
-    theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  }
-
-  else if (strcmp(argv[1], "RaphsonNewton") == 0) {
-    int incrementTangent = CURRENT_TANGENT;
-    int iterateTangent = CURRENT_TANGENT;
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          iterateTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          iterateTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          iterateTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          incrementTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          incrementTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          incrementTangent = NO_TANGENT;
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    Accelerator *theAccel;
-    theAccel = new RaphsonAccelerator(iterateTangent);
-
-    theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  }
-
-  else if (strcmp(argv[1], "MillerNewton") == 0) {
-    int incrementTangent = CURRENT_TANGENT;
-    int iterateTangent = CURRENT_TANGENT;
-    int maxDim = 3;
-
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          iterateTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          iterateTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          iterateTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          incrementTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          incrementTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          incrementTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
-        i++;
-        maxDim = atoi(argv[i]);
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    Accelerator *theAccel = 0;
-    // theAccel = new MillerAccelerator(maxDim, 0.01, iterateTangent);
-
-    theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  }
-
-  else if (strcmp(argv[1], "SecantNewton") == 0) {
-    int incrementTangent = CURRENT_TANGENT;
-    int iterateTangent = CURRENT_TANGENT;
-    int maxDim = 3;
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          iterateTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          iterateTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          iterateTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          incrementTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          incrementTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          incrementTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
-        i++;
-        maxDim = atoi(argv[i]);
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    Accelerator *theAccel;
-    theAccel = new SecantAccelerator2(maxDim, iterateTangent);
-
-    theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  }
-
-  else if (strcmp(argv[1], "PeriodicNewton") == 0) {
-    int incrementTangent = CURRENT_TANGENT;
-    int iterateTangent = CURRENT_TANGENT;
-    int maxDim = 3;
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          iterateTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          iterateTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          iterateTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          incrementTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          incrementTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          incrementTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
-        i++;
-        maxDim = atoi(argv[i]);
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    Accelerator *theAccel;
-    theAccel = new PeriodicAccelerator(maxDim, iterateTangent);
-
-    theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  }
-
-  else if (strcmp(argv[1], "Broyden") == 0) {
-    int formTangent = CURRENT_TANGENT;
-    int count = -1;
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-secant") == 0) {
-        formTangent = CURRENT_SECANT;
-      } else if (strcmp(argv[i], "-initial") == 0) {
-        formTangent = INITIAL_TANGENT;
-      } else if (strcmp(argv[i++], "-count") == 0 && i < argc) {
-        count = atoi(argv[i]);
-      }
-    }
-
-    if (count == -1)
-      theNewAlgo = new Broyden(*theTest, formTangent);
-    else
-      theNewAlgo = new Broyden(*theTest, formTangent, count);
-  }
-
-  else if (strcmp(argv[1], "BFGS") == 0) {
-    int formTangent = CURRENT_TANGENT;
-    int count = -1;
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-secant") == 0) {
-        formTangent = CURRENT_SECANT;
-      } else if (strcmp(argv[i], "-initial") == 0) {
-        formTangent = INITIAL_TANGENT;
-      } else if (strcmp(argv[i++], "-count") == 0 && i < argc) {
-        count = atoi(argv[i]);
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    if (count == -1)
-      theNewAlgo = new BFGS(*theTest, formTangent);
-    else
-      theNewAlgo = new BFGS(*theTest, formTangent, count);
-  }
-
-  else if (strcmp(argv[1], "NewtonLineSearch") == 0) {
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    int count = 2;
-
-    // set some default variable
-    double tol = 0.8;
-    int maxIter = 10;
-    double maxEta = 10.0;
-    double minEta = 0.1;
-    int pFlag = 1;
-    int typeSearch = 0;
-
-    while (count < argc) {
-      if (strcmp(argv[count], "-tol") == 0) {
-        count++;
-        if (Tcl_GetDouble(interp, argv[count], &tol) != TCL_OK)
-          return TCL_ERROR;
-        count++;
-      } else if (strcmp(argv[count], "-maxIter") == 0) {
-        count++;
-        if (Tcl_GetInt(interp, argv[count], &maxIter) != TCL_OK)
-          return TCL_ERROR;
-        count++;
-      } else if (strcmp(argv[count], "-pFlag") == 0) {
-        count++;
-        if (Tcl_GetInt(interp, argv[count], &pFlag) != TCL_OK)
-          return TCL_ERROR;
-        count++;
-      } else if (strcmp(argv[count], "-minEta") == 0) {
-        count++;
-        if (Tcl_GetDouble(interp, argv[count], &minEta) != TCL_OK)
-          return TCL_ERROR;
-        count++;
-      } else if (strcmp(argv[count], "-maxEta") == 0) {
-        count++;
-        if (Tcl_GetDouble(interp, argv[count], &maxEta) != TCL_OK)
-          return TCL_ERROR;
-        count++;
-      } else if (strcmp(argv[count], "-type") == 0) {
-        count++;
-        if (strcmp(argv[count], "Bisection") == 0)
-          typeSearch = 1;
-        else if (strcmp(argv[count], "Secant") == 0)
-          typeSearch = 2;
-        else if (strcmp(argv[count], "RegulaFalsi") == 0)
-          typeSearch = 3;
-        else if (strcmp(argv[count], "LinearInterpolated") == 0)
-          typeSearch = 3;
-        else if (strcmp(argv[count], "InitialInterpolated") == 0)
-          typeSearch = 0;
-        count++;
-      } else
-        count++;
-    }
-
-    LineSearch *theLineSearch = 0;
-    if (typeSearch == 0)
-      theLineSearch = new InitialInterpolatedLineSearch(tol, maxIter, minEta,
-                                                        maxEta, pFlag);
-
-    else if (typeSearch == 1)
-      theLineSearch =
-          new BisectionLineSearch(tol, maxIter, minEta, maxEta, pFlag);
-    else if (typeSearch == 2)
-      theLineSearch = new SecantLineSearch(tol, maxIter, minEta, maxEta, pFlag);
-    else if (typeSearch == 3)
-      theLineSearch =
-          new RegulaFalsiLineSearch(tol, maxIter, minEta, maxEta, pFlag);
-
-    theNewAlgo = new NewtonLineSearch(*theTest, theLineSearch);
-  }
-
-  else if (strcmp(argv[1], "ExpressNewton") == 0) {
-    void *theNewtonAlgo = OPS_ExpressNewton();
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
-    theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
-  }
-
-  else {
-    opserr << "WARNING No EquiSolnAlgo type " << argv[1] << " exists\n";
-    return TCL_ERROR;
-  }
-
-  if (theNewAlgo != 0) {
-    theAlgorithm = theNewAlgo;
-
-    // if the analysis exists - we want to change the SOE
-    if (the_static_analysis != 0)
-      the_static_analysis->setAlgorithm(*theAlgorithm);
-    else if (theTransientAnalysis != 0)
-      theTransientAnalysis->setAlgorithm(*theAlgorithm);
-
-#ifdef _PARALLEL_PROCESSING
-    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
-      SubdomainIter &theSubdomains = theDomain.getSubdomains();
-      Subdomain *theSub;
-      while ((theSub = theSubdomains()) != 0) {
-        theSub->setAnalysisAlgorithm(*theAlgorithm);
-      }
-    }
-#endif
-  }
-
-  return TCL_OK;
-}
 
 //
 // command invoked to allow the SolnAlgorithm object to be built
@@ -4407,1085 +3208,6 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-//
-// command invoked to allow the Integrator object to be built
-//
-int
-specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
-{
-  bool assign_to_static_analysis = false;
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
-
-  // make sure at least one other argument to contain integrator
-  if (argc < 2) {
-    opserr << "WARNING need to specify an Integrator type \n";
-    return TCL_ERROR;
-  }
-
-  // check argv[1] for type of Numberer and create the object
-  if (strcmp(argv[1], "LoadControl") == 0) {
-    double dLambda;
-    double minIncr, maxIncr;
-    int numIter;
-    if (argc < 3) {
-      opserr << "WARNING incorrect # args - integrator LoadControl dlam <Jd "
-                "dlamMin dlamMax>\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &dLambda) != TCL_OK)
-      return TCL_ERROR;
-    if (argc > 5) {
-      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[4], &minIncr) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[5], &maxIncr) != TCL_OK)
-        return TCL_ERROR;
-    } else {
-      minIncr = dLambda;
-      maxIncr = dLambda;
-      numIter = 1;
-    }
-    theStaticIntegrator = new LoadControl(dLambda, numIter, minIncr, maxIncr);
-
-    assign_to_static_analysis = true;
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  } else if (strcmp(argv[1], "StagedLoadControl") == 0) {
-    double dLambda;
-    double minIncr, maxIncr;
-    int numIter;
-    if (argc < 3) {
-      opserr << "WARNING incorrect # args - integrator StagedLoadControl dlam "
-                "<Jd dlamMin dlamMax>\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &dLambda) != TCL_OK)
-      return TCL_ERROR;
-    if (argc > 5) {
-      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[4], &minIncr) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[5], &maxIncr) != TCL_OK)
-        return TCL_ERROR;
-    } else {
-      minIncr = dLambda;
-      maxIncr = dLambda;
-      numIter = 1;
-    }
-    theStaticIntegrator =
-        new StagedLoadControl(dLambda, numIter, minIncr, maxIncr);
-    assign_to_static_analysis = true;
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-
-  else if (strcmp(argv[1], "ArcLength") == 0) {
-    double arcLength;
-    double alpha;
-    if (argc != 4) {
-      opserr << "WARNING integrator ArcLength arcLength alpha \n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[3], &alpha) != TCL_OK)
-      return TCL_ERROR;
-    theStaticIntegrator = new ArcLength(arcLength, alpha);
-
-    assign_to_static_analysis = true;
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-
-  else if (strcmp(argv[1], "ArcLength1") == 0) {
-    double arcLength;
-    double alpha;
-    if (argc != 4) {
-      opserr << "WARNING integrator ArcLength1 arcLength alpha \n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[3], &alpha) != TCL_OK)
-      return TCL_ERROR;
-    theStaticIntegrator = new ArcLength1(arcLength, alpha);
-
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-  /* ************ added for HSConstraint *******************/
-
-  else if (strcmp(argv[1], "HSConstraint") == 0) {
-    double arcLength, psi_u, psi_f, u_ref;
-
-    if (argc < 3) {
-      opserr << "WARNING integrator HSConstraint <arcLength> <psi_u> <psi_f> "
-                "<u_ref> \n";
-      return TCL_ERROR;
-    }
-    if (argc >= 3 && Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
-      return TCL_ERROR;
-    if (argc >= 4 && Tcl_GetDouble(interp, argv[3], &psi_u) != TCL_OK)
-      return TCL_ERROR;
-    if (argc >= 5 && Tcl_GetDouble(interp, argv[4], &psi_f) != TCL_OK)
-      return TCL_ERROR;
-    if (argc == 6 && Tcl_GetDouble(interp, argv[5], &u_ref) != TCL_OK)
-      return TCL_ERROR;
-
-    switch (argc) {
-    case 3:
-      theStaticIntegrator = new HSConstraint(arcLength);
-    case 4:
-      theStaticIntegrator = new HSConstraint(arcLength, psi_u);
-    case 5:
-      theStaticIntegrator = new HSConstraint(arcLength, psi_u, psi_f);
-    case 6:
-      theStaticIntegrator = new HSConstraint(arcLength, psi_u, psi_f, u_ref);
-    }
-    assign_to_static_analysis = true;
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-  /*********************************************************************************/
-
-  else if (strcmp(argv[1], "MinUnbalDispNorm") == 0) {
-    double lambda11, minlambda, maxlambda;
-    int numIter;
-    if (argc < 3) {
-      opserr << "WARNING integrator MinUnbalDispNorm lambda11 <Jd minLambda1j "
-                "maxLambda1j>\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &lambda11) != TCL_OK)
-      return TCL_ERROR;
-    if (argc > 5) {
-      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[4], &minlambda) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[5], &maxlambda) != TCL_OK)
-        return TCL_ERROR;
-    } else {
-      minlambda = lambda11;
-      maxlambda = lambda11;
-      numIter = 1;
-      argc += 3;
-    }
-
-    int signFirstStepMethod = SIGN_LAST_STEP;
-    if (argc == 7)
-      if ((strcmp(argv[argc - 1], "-determinant") == 0) ||
-          (strcmp(argv[argc - 1], "-det") == 0))
-        signFirstStepMethod = CHANGE_DETERMINANT;
-
-    theStaticIntegrator = new MinUnbalDispNorm(lambda11, numIter, minlambda,
-                                               maxlambda, signFirstStepMethod);
-
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-
-  else if (strcmp(argv[1], "EQPath") == 0) {
-    double arcLength;
-    int type;
-    int numIter;
-    if (argc != 4) {
-      opserr << "WARNING integrator EQPath $arc_length $type \n";
-      opserr << "REFS : \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK) {
-      opserr << "WARNING integrator EQPath $arc_length $type \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
-      return TCL_ERROR;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[3], &type) != TCL_OK) {
-      opserr << "WARNING integrator $arc_length $type \n";
-      opserr << "$type = 1 Minimum Residual Displacement \n";
-      opserr << "$type = 2 Normal Plain \n";
-      opserr << "$type = 3 Update Normal Plain \n";
-      opserr << "$type = 4 Cylindrical Arc-Length \n";
-
-      return TCL_ERROR;
-    }
-
-    theStaticIntegrator = new EQPath(arcLength, type);
-
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-
-  else if (strcmp(argv[1], "DisplacementControl") == 0) {
-    int node, dof, numIter;
-    double increment, minIncr, maxIncr;
-
-    if (argc < 5) {
-      opserr << "WARNING integrator DisplacementControl node dof dU \n";
-      opserr << "<Jd minIncrement maxIncrement>\n";
-      return TCL_ERROR;
-    }
-    int tangFlag = 0;
-
-    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
-      return TCL_ERROR;
-
-    if (argc == 6 || argc == 9)
-      if (argc == 6) {
-        if (strcmp(argv[5], "-initial") == 0)
-          tangFlag = 1;
-      } else if (strcmp(argv[8], "-initial") == 0)
-        tangFlag = 1;
-
-    if (argc > 6) {
-      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK)
-        return TCL_ERROR;
-    } else {
-      minIncr = increment;
-      maxIncr = increment;
-      numIter = 1;
-    }
-
-#ifdef _PARALLEL_PROCESSING
-
-    theStaticIntegrator = new DistributedDisplacementControl(
-        node, dof - 1, increment, numIter, minIncr, maxIncr);
-#else
-    Node *theNode = domain->getNode(node);
-    if (theNode == 0) {
-      opserr << "WARNING integrator DisplacementControl node dof dU : Node "
-                "does not exist\n";
-      return TCL_ERROR;
-    }
-
-    int numDOF = theNode->getNumberDOF();
-    if (dof <= 0 || dof > numDOF) {
-      opserr << "WARNING integrator DisplacementControl node dof dU : invalid "
-                "dof given\n";
-      return TCL_ERROR;
-    }
-
-    theStaticIntegrator =
-        new DisplacementControl(node, dof-1, increment, domain, numIter,
-                                minIncr, maxIncr, tangFlag);
-
-    G3_setStaticIntegrator(rt, theStaticIntegrator);
-#endif
-
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-
-#ifdef _PARALLEL_INTERPRETERS
-
-  else if ((strcmp(argv[1], "ParallelDisplacementControl") == 0) ||
-           (strcmp(argv[1], "ParallelDisplacementControl") == 0)) {
-    int node;
-    int dof;
-    double increment, minIncr, maxIncr;
-    int numIter;
-    if (argc < 5) {
-      opserr << "WARNING integrator DisplacementControl node dof dU \n";
-      opserr << "<Jd minIncrement maxIncrement>\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
-      return TCL_ERROR;
-    if (argc > 7) {
-      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK)
-        return TCL_ERROR;
-    } else {
-      minIncr = increment;
-      maxIncr = increment;
-      numIter = 1;
-    }
-
-    DistributedDisplacementControl *theDDC = new DistributedDisplacementControl(
-        node, dof - 1, increment, numIter, minIncr, maxIncr);
-
-    theDDC->setProcessID(OPS_rank);
-    theDDC->setChannels(numChannels, theChannels);
-    theStaticIntegrator = theDDC;
-
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-#endif
-
-  else if ((strcmp(argv[1], "TRBDF2") == 0) ||
-           (strcmp(argv[1], "Bathe") == 0)) {
-    theTransientIntegrator = new TRBDF2();
-  }
-
-  else if ((strcmp(argv[1], "TRBDF3") == 0) ||
-           (strcmp(argv[1], "Bathe3") == 0)) {
-    theTransientIntegrator = new TRBDF3();
-  }
-
-  else if (strcmp(argv[1], "Houbolt") == 0) {
-    theTransientIntegrator = new Houbolt();
-  }
-
-  /*else if (strcmp(argv[1],"ParkLMS3") == 0) {
-      theTransientIntegrator = new ParkLMS3();
-  }*/
-
-  else if (strcmp(argv[1], "BackwardEuler") == 0) {
-    int optn = 0;
-    if (argc == 3) {
-      if (Tcl_GetInt(interp, argv[2], &optn) != TCL_OK) {
-        opserr << "WARNING integrator BackwardEuler <option> - undefined "
-                  "option specified\n";
-        return TCL_ERROR;
-      }
-    }
-    theTransientIntegrator = new BackwardEuler(optn);
-  }
-
-  else if (strcmp(argv[1], "Newmark") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_Newmark();
-
-    // if the analysis exists - we want to change the Integrator
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_GimmeMCK();
-  } else if (strcmp(argv[1], "StagedNewmark") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_StagedNewmark();
-
-    // if the analysis exists - we want to change the Integrator
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-
-#ifdef OPS_USE_PFEM
-  } else if (strcmp(argv[1], "PFEM") == 0) {
-    theTransientIntegrator = new PFEMIntegrator();
-#endif
-
-    // if the analysis exists - we want to change the Integrator
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "NewmarkExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkExplicit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "NewmarkHSIncrReduct") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSIncrReduct();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "NewmarkHSIncrLimit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSIncrLimit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "NewmarkHSFixedNumIter") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSFixedNumIter();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  // #ifdef _RELIABILITY
-  //   else if (strcmp(argv[1],"NewmarkWithSensitivity") == 0) {
-  // 	  int assemblyFlag = 0;
-  //       double gamma;
-  //       double beta;
-  //       double alphaM, betaK, betaKi, betaKc;
-  //       if (argc != 4 && argc != 6 && argc != 8 && argc != 10) {
-  // 	     interp->result = "WARNING integrator Newmark gamma beta <alphaM?
-  // betaKcurrent?  betaKi? betaKlastCommitted?> <-assemble tag?> "; 	     return
-  // TCL_ERROR;
-  //       }
-
-  // 	  // Take care of argc == 4, the basic case
-  //       if (Tcl_GetDouble(interp, argv[2], &gamma) != TCL_OK) {
-  // 		  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 		  return TCL_ERROR;
-  //       }
-  //       if (Tcl_GetDouble(interp, argv[3], &beta) != TCL_OK) {
-  // 		  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 		  return TCL_ERROR;
-  //       }
-
-  // 	  // If only assembly flag is given extra
-  // 	  if (argc == 6) {
-  // 		  if (strcmp(argv[4],"-assemble") != 0) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln;
-  // 		  }
-  // 		  if (Tcl_GetInt(interp, argv[5], &assemblyFlag) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 	  }
-  // 	  // If only extra integrator (damping) parameters are given extra
-  //       if (argc == 8) {
-  // 		  if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  //       }
-  // 	  // If everything is given extra
-  // 	  if (argc == 10) {
-  // 		  if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (strcmp(argv[8],"-assemble") != 0) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln;
-  // 		  }
-  // 		  if (Tcl_GetInt(interp, argv[9], &assemblyFlag) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 	  }
-
-  //       if (argc == 4 || argc == 6) {
-  // 	theNSI = new NewmarkSensitivityIntegrator(assemblyFlag,gamma,beta);
-  //       }
-  //       else {
-  // 	theNSI = new
-  // NewmarkSensitivityIntegrator(assemblyFlag,gamma,beta,alphaM,betaK,betaKi,betaKc);
-  //       }
-  //       theTransientIntegrator = theNSI;
-
-  //       // if the analysis exists - we want to change the Integrator
-  // 	  if (theTransientAnalysis != 0)
-  // 		theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  //   }
-
-  //   else if (strcmp(argv[1],"NewNewmarkWithSensitivity") == 0) {
-  // 	  int assemblyFlag = 0;
-  //       double gamma;
-  //       double beta;
-  //       double alphaM, betaK, betaKi, betaKc;
-  //       if (argc != 4 && argc != 6 && argc != 8 && argc != 10) {
-  // 	     interp->result = "WARNING integrator Newmark gamma beta <alphaM?
-  // betaKcurrent?  betaKi? betaKlastCommitted?> <-assemble tag?> "; 	     return
-  // TCL_ERROR;
-  //       }
-
-  // 	  // Take care of argc == 4, the basic case
-  //       if (Tcl_GetDouble(interp, argv[2], &gamma) != TCL_OK) {
-  // 		  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 		  return TCL_ERROR;
-  //       }
-  //       if (Tcl_GetDouble(interp, argv[3], &beta) != TCL_OK) {
-  // 		  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 		  return TCL_ERROR;
-  //       }
-
-  // 	  // If only assembly flag is given extra
-  // 	  if (argc == 6) {
-  // 		  if (strcmp(argv[4],"-assemble") != 0) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln;
-  // 		  }
-  // 		  if (Tcl_GetInt(interp, argv[5], &assemblyFlag) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 	  }
-  // 	  // If only extra integrator (damping) parameters are given extra
-  //       if (argc == 8) {
-  // 		  if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  //       }
-  // 	  // If everything is given extra
-  // 	  if (argc == 10) {
-  // 		  if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 		  if (strcmp(argv[8],"-assemble") != 0) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln;
-  // 		  }
-  // 		  if (Tcl_GetInt(interp, argv[9], &assemblyFlag) != TCL_OK) {
-  // 			  opserr << "WARNING: Error in input to Newmark sensitivity
-  // integrator" << endln; 			  return TCL_ERROR;
-  // 		  }
-  // 	  }
-
-  //       if (argc == 4 || argc == 6) {
-  // 	theNNSI = new NewNewmarkSensitivityIntegrator(assemblyFlag,gamma,beta);
-  //       }
-  //       else {
-  // 	theNNSI = new
-  // NewNewmarkSensitivityIntegrator(assemblyFlag,gamma,beta,alphaM,betaK,betaKi,betaKc);
-  //       }
-  //       theTransientIntegrator = theNNSI;
-
-  // 	  //// added by K Fujimura
-  // 	  if (theTransientAnalysis != 0){
-  // 	    opserr << "For the TransientAnalysis, the integrator must be \n";
-  // 	    opserr << "NewmarkSensitivityIntegrator \n";
-  // 	    return TCL_ERROR;
-  // 	  }
-  //       // if the analysis exists - we want to change the Integrator
-  // 	  if (theReliabilityTransientAnalysis != 0)
-  // 		theReliabilityTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  //   }
-
-  //   else if(strcmp(argv[1], "PFEMWithSensitivity") == 0) {
-  //       int flag = 0;
-  //       if(argc > 4) {
-  //           if(strcmp(argv[2],"-assemble") != TCL_OK) {
-  //               opserr<<"WARNING: Error in input to
-  //               PFEMSensitivityIntegrator\n"; return TCL_ERROR;
-  //           }
-  //           if(Tcl_GetInt(interp, argv[3], &flag) != TCL_OK) {
-  //               opserr<<"WARNING: Error in input to
-  //               PFEMSensitivityIntegrator\n"; return TCL_ERROR;
-  //           }
-  //       }
-
-  //       thePFEMSI = new PFEMSensitivityIntegrator(flag);
-  //       theTransientIntegrator = thePFEMSI;
-  //       if (theTransientAnalysis != 0) {
-  //           theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  //       }
-  //   }
-
-  // #endif
-
-  else if (strcmp(argv[1], "HHT") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHT();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHT_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHT_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTGeneralized") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralized();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTGeneralized_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralized_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTExplicit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTExplicit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTExplicit_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTGeneralizedExplicit") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_HHTGeneralizedExplicit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTGeneralizedExplicit_TP") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_HHTGeneralizedExplicit_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTHSIncrLimit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrLimit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTHSIncrLimit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrLimit_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTHSIncrReduct") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrReduct();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTHSIncrReduct_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrReduct_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTHSFixedNumIter") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSFixedNumIter();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "HHTHSFixedNumIter_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSFixedNumIter_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "GeneralizedAlpha") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_GeneralizedAlpha();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "KRAlphaExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "KRAlphaExplicit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "AlphaOS") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOS();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "AlphaOS_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOS_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "AlphaOSGeneralized") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOSGeneralized();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "AlphaOSGeneralized_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOSGeneralized_TP();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "Collocation") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_Collocation();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "CollocationHSIncrReduct") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_CollocationHSIncrReduct();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "CollocationHSIncrLimit") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_CollocationHSIncrLimit();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "CollocationHSFixedNumIter") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_CollocationHSFixedNumIter();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "Newmark1") == 0) {
-    double gamma;
-    double beta;
-    double alphaM, betaK, betaKi, betaKc;
-    if (argc != 4 && argc != 8) {
-      opserr << "WARNING integrator Newmark1 gamma beta <alphaM> "
-                "<betaKcurrent> <betaKi> <betaKlastCommitted>\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &gamma) != TCL_OK) {
-      opserr << "WARNING integrator Newmark1 gamma beta - undefined gamma\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &beta) != TCL_OK) {
-      opserr << "WARNING integrator Newmark1 gamma beta - undefined beta\n";
-      return TCL_ERROR;
-    }
-
-    if (argc == 8 || argc == 7) {
-      if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - alphaM\n";
-        return TCL_ERROR;
-      }
-      if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaK\n";
-        return TCL_ERROR;
-      }
-      if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaKi\n";
-        return TCL_ERROR;
-      }
-      if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaKc\n";
-        return TCL_ERROR;
-      }
-    }
-    if (argc == 4)
-      theTransientIntegrator = new Newmark1(gamma, beta);
-    else
-      theTransientIntegrator =
-          new Newmark1(gamma, beta, alphaM, betaK, betaKi, betaKc);
-
-    // if the analysis exists - we want to change the Integrator
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "WilsonTheta") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_WilsonTheta();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "ExplicitDifference") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_ExplicitDifference();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "CentralDifference") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifference();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "CentralDifferenceAlternative") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_CentralDifferenceAlternative();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "CentralDifferenceNoDamping") == 0) {
-    theTransientIntegrator =
-        (TransientIntegrator *)OPS_CentralDifferenceNoDamping();
-
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "Transient") == 0) {
-
-    theTransientIntegrator = 0;
-
-    // try existing loaded packages
-    ExternalClassFunction *integratorCommands =
-        theExternalTransientIntegratorCommands;
-    bool found = false;
-    //    int result = TCL_ERROR;
-    while (integratorCommands != NULL && found == false) {
-
-      if (strcmp(argv[2], integratorCommands->funcName) == 0) {
-
-          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
-        void *theRes = (*(integratorCommands->funcPtr))();
-        if (theRes != 0) {
-          theTransientIntegrator = (TransientIntegrator *)theRes;
-          found = true;
-        }
-      } else
-        integratorCommands = integratorCommands->next;
-    }
-
-    //
-    // if not there try loading package
-    //
-
-    if (found == false) {
-
-      void *libHandle;
-      void *(*funcPtr)();
-      int integratorNameLength = strlen(argv[2]);
-      char *tclFuncName = new char[integratorNameLength + 5];
-      strcpy(tclFuncName, "OPS_");
-      strcpy(&tclFuncName[4], argv[2]);
-
-      int res = getLibraryFunction(argv[2], tclFuncName, &libHandle,
-                                   (void **)&funcPtr);
-
-      delete[] tclFuncName;
-
-      if (res == 0) {
-
-        char *integratorName = new char[integratorNameLength + 1];
-        strcpy(integratorName, argv[2]);
-        ExternalClassFunction *theIntegratorCommand = new ExternalClassFunction;
-        theIntegratorCommand->funcPtr = funcPtr;
-        theIntegratorCommand->funcName = integratorName;
-        theIntegratorCommand->next = theExternalTransientIntegratorCommands;
-        theExternalTransientIntegratorCommands = theIntegratorCommand;
-
-        OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
-
-        void *theRes = (*funcPtr)();
-        if (theRes != 0) {
-          theTransientIntegrator = (TransientIntegrator *)theRes;
-        }
-      }
-    }
-
-    if (theTransientIntegrator == 0) {
-      opserr << "Transient Integrator Not Found \n";
-      return TCL_ERROR;
-    }
-
-    // if the analysis exists - we want to change the Integrator
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setIntegrator(*theTransientIntegrator);
-  }
-
-  else if (strcmp(argv[1], "Static") == 0) {
-
-    theStaticIntegrator = 0;
-
-    // try existing loaded packages
-    ExternalClassFunction *integratorCommands =
-        theExternalStaticIntegratorCommands;
-    bool found = false;
-
-    while (integratorCommands != NULL && found == false) {
-
-      if (strcmp(argv[2], integratorCommands->funcName) == 0) {
-
-          OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
-        void *theRes = (*(integratorCommands->funcPtr))();
-        if (theRes != 0) {
-          theStaticIntegrator = (StaticIntegrator *)theRes;
-          found = true;
-        }
-      } else
-        integratorCommands = integratorCommands->next;
-    }
-
-    //
-    // if not there try loading package
-    //
-
-    if (found == false) {
-
-      void *libHandle;
-      void *(*funcPtr)();
-      int integratorNameLength = strlen(argv[2]);
-      char *tclFuncName = new char[integratorNameLength + 5];
-      strcpy(tclFuncName, "OPS_");
-      strcpy(&tclFuncName[4], argv[2]);
-
-      int res = getLibraryFunction(argv[2], tclFuncName, &libHandle,
-                                   (void **)&funcPtr);
-
-      delete[] tclFuncName;
-
-      if (res == 0) {
-
-        char *integratorName = new char[integratorNameLength + 1];
-        strcpy(integratorName, argv[2]);
-        ExternalClassFunction *theIntegratorCommand = new ExternalClassFunction;
-        theIntegratorCommand->funcPtr = funcPtr;
-        theIntegratorCommand->funcName = integratorName;
-        theIntegratorCommand->next = theExternalStaticIntegratorCommands;
-        theExternalStaticIntegratorCommands = theIntegratorCommand;
-
-        OPS_ResetInputNoBuilder(clientData, interp, 3, argc, argv, domain);
-
-        void *theRes = (*funcPtr)();
-        if (theRes != 0) {
-          theStaticIntegrator = (StaticIntegrator *)theRes;
-        }
-      }
-    }
-
-    if (theStaticIntegrator == 0) {
-      opserr << "Static Integrator Not Found \n";
-      return TCL_ERROR;
-    }
-
-    // if the analysis exists - we want to change the Integrator
-    if (the_static_analysis != 0)
-      the_static_analysis->setIntegrator(*theStaticIntegrator);
-  }
-
-  else {
-    opserr << "WARNING No Integrator type exists \n";
-    return TCL_ERROR;
-  }
-
-#ifdef _PARALLEL_PROCESSING
-
-  if (the_static_analysis != 0 && theStaticIntegrator != 0) {
-
-    IncrementalIntegrator *theIntegrator;
-    theIntegrator = theStaticIntegrator;
-
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub;
-    while ((theSub = theSubdomains()) != 0) {
-      theSub->setAnalysisIntegrator(*theIntegrator);
-    }
-  } else if (theTransientAnalysis != 0 && theTransientIntegrator != 0) {
-    IncrementalIntegrator *theIntegrator;
-    theIntegrator = theTransientIntegrator;
-
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub;
-    while ((theSub = theSubdomains()) != 0) {
-      theSub->setAnalysisIntegrator(*theIntegrator);
-    }
-  }
-#endif
-
-  return TCL_OK;
-}
 
 extern int TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv, Domain &theDomain);
@@ -5781,9 +3503,10 @@ int
 modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
-  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
-  OPS_DomainModalProperties();
+  OPS_DomainModalProperties(rt);
   return TCL_OK;
 }
 
@@ -5791,9 +3514,10 @@ int
 responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
-  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
-  OPS_ResponseSpectrumAnalysis();
+  OPS_ResponseSpectrumAnalysis(rt);
   return TCL_OK;
 }
 
@@ -6500,6 +4224,9 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
         Tcl_AppendResult(interp, buffer, NULL);
       }
     }
+  } else {
+    opserr << "WARNING - failed to retrieve element force.\n";
+    return TCL_ERROR;
   }
   return TCL_OK;
 }
@@ -6634,6 +4361,8 @@ int
 eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain* the_domain = G3_getDomain(rt);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eleResponse eleTag? eleArgs...\n";
@@ -6648,7 +4377,7 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   /*
-  Element *theEle = theDomain.getElement(tag);
+  Element *theEle = the_domain->getElement(tag);
   if (theEle == 0)
     return TCL_ERROR;
 
@@ -6667,7 +4396,7 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   const Vector &data = eleInfo.getData();
   */
 
-  const Vector *data = theDomain.getElementResponse(tag, argv + 2, argc - 2);
+  const Vector *data = the_domain->getElementResponse(tag, argv + 2, argc - 2);
   if (data != 0) {
     int size = data->Size();
     char buffer[40];
@@ -6676,7 +4405,6 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
       Tcl_AppendResult(interp, buffer, NULL);
     }
   }
-
   return TCL_OK;
 }
 

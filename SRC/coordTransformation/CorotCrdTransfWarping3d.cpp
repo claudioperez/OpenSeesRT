@@ -66,7 +66,8 @@ Matrix CorotCrdTransfWarping3d::Lr3(14,3);  // chagne dimension of the matrix to
 Matrix CorotCrdTransfWarping3d::A(3,3);
 
 
-void* OPS_CorotCrdTransfWarping3d()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_CorotCrdTransfWarping3d)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
 	opserr<<"insufficient arguments for CorotCrdTransfWarping3d\n";
@@ -120,7 +121,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
     else
         vAxis = vecInLocXZPlane;
     // check rigid joint offset for node I
-    if (&rigJntOffsetI == 0 || rigJntOffsetI.Size() != 3 )
+    if (rigJntOffsetI.Size() != 3 )
     {
         opserr << "CorotCrdTransfWarping3d::CorotCrdTransfWarping3d:  Invalid rigid joint offset vector for node I\n";
         opserr << "Size must be 3\n";      
@@ -130,7 +131,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
         nodeIOffset = rigJntOffsetI;
     
     // check rigid joint offset for node J
-    if (&rigJntOffsetJ == 0 || rigJntOffsetJ.Size() != 3 )
+    if (rigJntOffsetJ.Size() != 3 )
     {
         opserr << "CorotCrdTransfWarping3d::CorotCrdTransfWarping3d:  Invalid rigid joint offset vector for node J\n";
         opserr << "Size must be 3\n";      

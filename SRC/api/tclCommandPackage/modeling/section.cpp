@@ -106,9 +106,9 @@ using std::ios;
 
 #include <packages.h>
 
-extern void *OPS_ElasticSection(void);
-extern void *OPS_ElasticWarpingShearSection2d(void);
-extern void *OPS_ElasticTubeSection3d(void);
+extern void *OPS_ElasticSection(G3_Runtime*);
+extern void *OPS_ElasticWarpingShearSection2d(G3_Runtime*);
+extern void *OPS_ElasticTubeSection3d(G3_Runtime*);
 extern void *OPS_WFSection2d(G3_Runtime*);
 extern void *OPS_RCCircularSection(G3_Runtime*);
 extern void *OPS_RCSection2d(G3_Runtime*);
@@ -175,7 +175,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
 
   // Check argv[1] for section type
   if (strcmp(argv[1], "Elastic") == 0) {
-    void *theMat = OPS_ElasticSection();
+    void *theMat = OPS_ElasticSection(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -183,7 +183,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "ElasticWarpingShear") == 0) {
-    void *theMat = OPS_ElasticWarpingShearSection2d();
+    void *theMat = OPS_ElasticWarpingShearSection2d(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -192,7 +192,7 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
 
   // Check argv[1] for section type
   else if (strcmp(argv[1], "ElasticTube") == 0) {
-    void *theMat = OPS_ElasticTubeSection3d();
+    void *theMat = OPS_ElasticTubeSection3d(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -1007,10 +1007,11 @@ int
 TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
 {
+  G3_Runtime* rt = G3_getRuntime(interp);
   int secTag;
   int maxNumPatches = 30;
   int maxNumReinfLayers = 30;
-  int NDM = theTclBasicBuilder->getNDM();
+  int NDM = G3_getNDM(rt);
 
   if (argc < 4)
     return TCL_ERROR;
@@ -1124,10 +1125,11 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char **argv,
                               TclBasicBuilder *theTclBasicBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   int secTag;
   int maxNumPatches = 30;
   int maxNumReinfLayers = 30;
-  int NDM = theTclBasicBuilder->getNDM();
+  int NDM = G3_getNDM(rt);
 
   if (argc < 4)
     return TCL_ERROR;
@@ -1257,6 +1259,8 @@ int
 TclCommand_addPatch(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // check if a section is being processed
   if (currentSectionTag == 0) {
     opserr << "WARNING subcommand 'patch' is only valid inside a 'section' "
@@ -1605,6 +1609,8 @@ int
 TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // check if a section is being processed
   if (currentSectionTag == 0) {
     opserr << "WARNING subcommand 'fiber' is only valid inside a 'section' "
@@ -1638,7 +1644,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   Fiber *theFiber = 0;
   int matTag;
   double yLoc, zLoc, area;
-  int NDM = theTclBasicBuilder->getNDM();
+  int NDM = G3_getNDM(rt);
 
   if (Tcl_GetDouble(interp, argv[1], &yLoc) != TCL_OK) {
     opserr << "WARNING invalid yLoc: fiber yLoc zLoc area matTag\n";
@@ -1731,6 +1737,7 @@ int
 TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   // check if a section is being processed
   if (currentSectionTag == 0) {
     opserr << "WARNING subcommand 'Hfiber' is only valid inside a 'section' "
@@ -1764,7 +1771,7 @@ TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   Fiber *theHFiber = 0;
   int matHTag;
   double yHLoc, zHLoc, Harea;
-  int HNDM = theTclBasicBuilder->getNDM();
+  int HNDM = G3_getNDM(rt);
 
   if (Tcl_GetDouble(interp, argv[1], &yHLoc) != TCL_OK) {
     opserr << "WARNING invalid yLoc: Hfiber yLoc zLoc area matTag\n";
@@ -2102,6 +2109,8 @@ int
 buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
              int secTag, UniaxialMaterial &theTorsion)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
   if (sectionRepres == 0) {
     opserr << "WARNING cannot retrieve section\n";
@@ -2209,7 +2218,7 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
     NDMaterial *ndmaterial;
 
     // dimension of the structure (1d, 2d, or 3d)
-    int NDM = theTclBasicBuilder->getNDM();
+    int NDM = G3_getNDM(rt);
 
     Fiber **fiber = new Fiber *[numFibers];
     if (fiber == 0) {
@@ -3095,6 +3104,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                  int secTag, bool isTorsion, double GJ, double Ys,
                  double Zs) // Xinlong
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
   if (sectionRepres == 0) {
     opserr << "WARNING cannot retrieve section\n";
@@ -3202,7 +3212,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
     NDMaterial *ndmaterial;
 
     // dimension of the structure (1d, 2d, or 3d)
-    int NDM = theTclBasicBuilder->getNDM();
+    int NDM = G3_getNDM(rt);
 
     Fiber **fiber = new Fiber *[numFibers];
     if (fiber == 0) {

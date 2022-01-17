@@ -22,6 +22,9 @@ target_sources(OpenSeesCommandPackage
     "commands/commands.cpp"
     "commands/myCommands.cpp"
     "domain/nodes.cpp"
+    "analysis/algorithm.cpp"
+    "analysis/integrator.cpp"
+    "analysis/analysis.cpp"
     OpenSeesCommandPackage.cpp
     TclPackageClassBroker.cpp
     "coordTransformation/TclGeomTransfCommand.cpp"
