@@ -17,26 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/LoadControl.cpp,v $
-                                                                        
-                                                                        
-// 
-// Written: fmk 
-// Created: 07/98
-// Revision: A
+
+// Written: Seweryn Kokot, Opole University of Technology, Poland
+// Created: 2021
 //
-// Description: This file contains the class definition for LoadControl.
-// LoadControl is an algorithmic class for performing a static analysis
-// using a load control integration scheme.
+// based on LoadControl.cpp
+// written: fmk
 //
-// What: "@(#) LoadControl.h, revA"
+// Description: This file contains the class definition for HarmonicSteadyState.
+// HarmonicSteadyState is an algorithmic class for performing a quasi-static harmonic
+// steady-state analysis.
 
-
-
-#include <LoadControl.h>
+#include "HarmonicSteadyState.h"
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
 #include <Vector.h>
@@ -56,9 +48,9 @@
 #include <iostream>
 
 void *
-OPS_ADD_RUNTIME_VPV(OPS_LoadControlIntegrator)
+OPS_ADD_RUNTIME_VPV(OPS_HarmonicSteadyState)
 {
-    if(OPS_GetNumRemainingInputArgs() < 1) {
+    if(OPS_GetNumRemainingInputArgs() < 2) {
 	opserr<<"insufficient arguments\n";
 	return 0;
     }
@@ -69,6 +61,13 @@ OPS_ADD_RUNTIME_VPV(OPS_LoadControlIntegrator)
 	opserr<<"WARNING failed to read double lambda\n";
 	return 0;
     }
+
+	double period = 0;
+	numData = 1;
+	if(OPS_GetDoubleInput(&numData,&period) < 0) {
+	    opserr<<"WARNING failed to read double period\n";
+	    return 0;
+	}
 
     int numIter = 1;
     double mLambda[2] = {lambda,lambda};
@@ -84,35 +83,35 @@ OPS_ADD_RUNTIME_VPV(OPS_LoadControlIntegrator)
 	}
     }
 
-    return new LoadControl(lambda,numIter,mLambda[0],mLambda[1]);
+    return new HarmonicSteadyState(lambda,period,numIter,mLambda[0],mLambda[1]);
 }
 
-LoadControl::LoadControl(double dLambda, int numIncr, double min, double max, int classtag)
+HarmonicSteadyState::HarmonicSteadyState(double dLambda, double period, int numIncr, double min, double max,  int classtag)
     : StaticIntegrator(classtag),
- deltaLambda(dLambda), 
+ deltaLambda(dLambda), loadPeriod(period),
  specNumIncrStep(numIncr), numIncrLastStep(numIncr),
- dLambdaMin(min), dLambdaMax(max), gradNumber(0), sensitivityFlag(0)
+	  dLambdaMin(min), dLambdaMax(max), gradNumber(0), sensitivityFlag(0)
 {
   // to avoid divide-by-zero error on first update() ensure numIncr != 0
   if (numIncr == 0) {
-    opserr << "WARNING LoadControl::LoadControl() - numIncr set to 0, 1 assumed\n";
+    opserr << "WARNING HarmonicSteadyState::HarmonicSteadyState() - numIncr set to 0, 1 assumed\n";
     specNumIncrStep = 1.0;
     numIncrLastStep = 1.0;
   }
 }
 
 
-LoadControl::~LoadControl()
+HarmonicSteadyState::~HarmonicSteadyState()
 {
-    
+
 }
 
-int 
-LoadControl::newStep(void)
+int
+HarmonicSteadyState::newStep(void)
 {
-    AnalysisModel *theModel = this->getAnalysisModel();    
+    AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0) {
-	opserr << "LoadControl::newStep() - no associated AnalysisModel\n";
+	opserr << "HarmonicSteadyState::newStep() - no associated AnalysisModel\n";
 	return -1;
     }
 
@@ -124,31 +123,31 @@ LoadControl::newStep(void)
       deltaLambda = dLambdaMin;
     else if (deltaLambda > dLambdaMax)
       deltaLambda = dLambdaMax;
-    
+
     double currentLambda = theModel->getCurrentDomainTime();
 
     currentLambda += deltaLambda;
     theModel->applyLoadDomain(currentLambda);
 
     numIncrLastStep = 0;
-   
+
      return 0;
 }
-    
+
 int
-LoadControl::update(const Vector &deltaU)
+HarmonicSteadyState::update(const Vector &deltaU)
 {
     AnalysisModel *myModel = this->getAnalysisModel();
     LinearSOE *theSOE = this->getLinearSOE();
     if (myModel == 0 || theSOE == 0) {
-	opserr << "WARNING LoadControl::update() ";
+	opserr << "WARNING HarmonicSteadyState::update() ";
 	opserr << "No AnalysisModel or LinearSOE has been set\n";
 	return -1;
     }
 
-    myModel->incrDisp(deltaU);    
+    myModel->incrDisp(deltaU);
     if (myModel->updateDomain() < 0) {
-      opserr << "LoadControl::update - model failed to update for new dU\n";
+      opserr << "HarmonicSteadyState::update - model failed to update for new dU\n";
       return -1;
     }
 
@@ -162,7 +161,7 @@ LoadControl::update(const Vector &deltaU)
 
 
 int
-LoadControl::setDeltaLambda(double newValue)
+HarmonicSteadyState::setDeltaLambda(double newValue)
 {
   // we set the #incr at last step = #incr so get newValue incr
   numIncrLastStep = specNumIncrStep;
@@ -172,17 +171,18 @@ LoadControl::setDeltaLambda(double newValue)
 
 
 int
-LoadControl::sendSelf(int cTag,
+HarmonicSteadyState::sendSelf(int cTag,
 		      Channel &theChannel)
 {
-  Vector data(5);
+  Vector data(6);
   data(0) = deltaLambda;
-  data(1) = specNumIncrStep;
-  data(2) = numIncrLastStep;
-  data(3) = dLambdaMin;
-  data(4) = dLambdaMax;
+  data(1) = loadPeriod;
+  data(2) = specNumIncrStep;
+  data(3) = numIncrLastStep;
+  data(4) = dLambdaMin;
+  data(5) = dLambdaMax;
   if (theChannel.sendVector(this->getDbTag(), cTag, data) < 0) {
-      opserr << "LoadControl::sendSelf() - failed to send the Vector\n";
+      opserr << "HarmonicSteadyState::sendSelf() - failed to send the Vector\n";
       return -1;
   }
   return 0;
@@ -190,40 +190,66 @@ LoadControl::sendSelf(int cTag,
 
 
 int
-LoadControl::recvSelf(int cTag,
+HarmonicSteadyState::recvSelf(int cTag,
 		      Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
-  Vector data(5);
+  Vector data(6);
   if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0) {
-      opserr << "LoadControl::sendSelf() - failed to send the Vector\n";
+      opserr << "HarmonicSteadyState::sendSelf() - failed to send the Vector\n";
       deltaLambda = 0;
       return -1;
-  }      
+  }
   deltaLambda = data(0);
-  specNumIncrStep = data(1);
-  numIncrLastStep = data(2);
-  dLambdaMin = data(3);
-  dLambdaMax = data(4);
+  loadPeriod = data(1);
+  specNumIncrStep = data(2);
+  numIncrLastStep = data(3);
+  dLambdaMin = data(4);
+  dLambdaMax = data(5);
   return 0;
 }
 
 
 
 void
-LoadControl::Print(OPS_Stream &s, int flag)
-{ 
+HarmonicSteadyState::Print(OPS_Stream &s, int flag)
+{
      AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel != 0) {
 	double currentLambda = theModel->getCurrentDomainTime();
-	s << "\t LoadControl - currentLambda: " << currentLambda;
+	s << "\t HarmonicSteadyState - currentLambda: " << currentLambda;
 	s << "  deltaLambda: " << deltaLambda << endln;
-    } else 
-	s << "\t LoadControl - no associated AnalysisModel\n";
-    
+	s << "  Load Period: " << loadPeriod << endln;
+    } else
+	s << "\t HarmonicSteadyState - no associated AnalysisModel\n";
+
 }
 
 int
-LoadControl::formEleResidual(FE_Element* theEle)
+HarmonicSteadyState::formEleTangent(FE_Element *theEle)
+{
+  static const double twoPi = 2*3.1415926535897932;
+  static double twoPiSquareOverPeriodSquare = twoPi*twoPi/(loadPeriod*loadPeriod);
+  if (statusFlag == CURRENT_TANGENT) {
+    theEle->zeroTangent();
+    theEle->addKtToTang();
+	theEle->addMtoTang(-twoPiSquareOverPeriodSquare);
+  } else if (statusFlag == INITIAL_TANGENT) {
+    theEle->zeroTangent();
+    theEle->addKiToTang();
+	theEle->addMtoTang(-twoPiSquareOverPeriodSquare);
+  } else if (statusFlag == HALL_TANGENT)  {
+    theEle->zeroTangent();
+    theEle->addKtToTang(cFactor);
+    theEle->addKiToTang(iFactor);
+	theEle->addMtoTang(-twoPiSquareOverPeriodSquare);
+  }
+
+  return 0;
+}
+
+
+int
+HarmonicSteadyState::formEleResidual(FE_Element* theEle)
 {
     if(sensitivityFlag == 0) {  // no sensitivity
 	this->StaticIntegrator::formEleResidual(theEle);
@@ -235,13 +261,13 @@ LoadControl::formEleResidual(FE_Element* theEle)
 }
 
 int
-LoadControl::formIndependentSensitivityRHS()
+HarmonicSteadyState::formIndependentSensitivityRHS()
 {
     return 0;
 }
 
 int
-LoadControl::formSensitivityRHS(int passedGradNumber)
+HarmonicSteadyState::formSensitivityRHS(int passedGradNumber)
 {
     sensitivityFlag = 1;
 
@@ -254,7 +280,7 @@ LoadControl::formSensitivityRHS(int passedGradNumber)
 
     // Loop through elements
     FE_Element *elePtr;
-    FE_EleIter &theEles = theAnalysisModel->getFEs();   
+    FE_EleIter &theEles = theAnalysisModel->getFEs();
     while((elePtr = theEles()) != 0) {
       theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
     }
@@ -300,44 +326,44 @@ LoadControl::formSensitivityRHS(int passedGradNumber)
 }
 
 int
-LoadControl::saveSensitivity(const Vector &v, int gradNum, int numGrads)
+HarmonicSteadyState::saveSensitivity(const Vector &v, int gradNum, int numGrads)
 {
     // get model
     AnalysisModel* theAnalysisModel = this->getAnalysisModel();
-    
+
     DOF_GrpIter &theDOFGrps = theAnalysisModel->getDOFs();
     DOF_Group 	*dofPtr;
-    
+
     while ( (dofPtr = theDOFGrps() ) != 0)  {
 //	dofPtr->saveSensitivity(v,0,0,gradNum,numGrads);
 	dofPtr->saveDispSensitivity(v,gradNum,numGrads);
-	
+
     }
-    
+
     return 0;
 }
 
-int 
-LoadControl::commitSensitivity(int gradNum, int numGrads)
+int
+HarmonicSteadyState::commitSensitivity(int gradNum, int numGrads)
 {
       // get model
     AnalysisModel* theAnalysisModel = this->getAnalysisModel();
-    
+
     // Loop through the FE_Elements and set unconditional sensitivities
     FE_Element *elePtr;
-    FE_EleIter &theEles = theAnalysisModel->getFEs();    
+    FE_EleIter &theEles = theAnalysisModel->getFEs();
     while((elePtr = theEles()) != 0) {
 	elePtr->commitSensitivity(gradNum, numGrads);
     }
-    
+
     return 0;
 }
 
 
 
 // false for LC and true for DC
-   bool 
-LoadControl::computeSensitivityAtEachIteration()
+   bool
+HarmonicSteadyState::computeSensitivityAtEachIteration()
 {
 
 return false;
@@ -347,10 +373,10 @@ return false;
 
 
 
-int 
-LoadControl::computeSensitivities(void)
+int
+HarmonicSteadyState::computeSensitivities(void)
 {
-//  opserr<<" computeSensitivity::start"<<endln; 
+//  opserr<<" computeSensitivity::start"<<endln;
     LinearSOE *theSOE = this->getLinearSOE();
 
     /*
@@ -390,21 +416,28 @@ LoadControl::computeSensitivities(void)
 	// Zero out the old right-hand side of the SOE
 	theSOE->zeroB();
 
+
+	if (this == 0) {
+	  opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
+	  opserr << "the SensitivityIntegrator is NULL\n";
+	  return -1;
+	}
+
 	// Form the part of the RHS which are indepent of parameter
 	this->formIndependentSensitivityRHS();
-	AnalysisModel *theModel = this->getAnalysisModel();  
+	AnalysisModel *theModel = this->getAnalysisModel();
 	Domain *theDomain=theModel->getDomainPtr();
 	ParameterIter &paramIter = theDomain->getParameters();
-	
+
 	Parameter *theParam;
 	// De-activate all parameters
 	while ((theParam = paramIter()) != 0)
 	  theParam->activate(false);
-	
+
 	// Now, compute sensitivity wrt each parameter
 	int numGrads = theDomain->getNumParameters();
 	paramIter = theDomain->getParameters();
-	
+
 	while ((theParam = paramIter()) != 0) {
 
 	  // Activate this parameter
@@ -418,23 +451,22 @@ LoadControl::computeSensitivities(void)
 
 	  // Form the RHS
 	  this->formSensitivityRHS(gradIndex);
-         
+
 	  // Solve for displacement sensitivity
-	 
+
 	  theSOE->solve();
 	  // Save sensitivity to nodes
 	  this->saveSensitivity( theSOE->getX(), gradIndex, numGrads );
-	 
+
 
 
 	  // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
 	  this->commitSensitivity(gradIndex, numGrads);
-	  
+
 	  // De-activate this parameter for next sensitivity calc
 	  theParam->activate(false);
-	//  opserr<<"LoadControl::..........ComputeSensitivities. end"<<endln;
+	//  opserr<<"HarmonicSteadyState::..........ComputeSensitivities. end"<<endln;
 	}
 
 	return 0;
 }
-

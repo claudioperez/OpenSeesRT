@@ -60,7 +60,8 @@
 #include<DOF_GrpIter.h>
 #include<TaggedObjectStorage.h>
 #include<EquiSolnAlgo.h>
-void* OPS_ArcLength()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_ArcLength)
 {
     double arcLength;
     double alpha;
@@ -1012,12 +1013,6 @@ ArcLength::computeSensitivities(void)
 //opserr<<"computeSensitivities : start"<<endln;
    // Zero out the old right-hand side of the SOE
    theSOE->zeroB();
-   if (this == 0) {
-      opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
-      opserr << "the SensitivityIntegrator is NULL\n";
-      return -1;
-   }
-
 
    // Form the part of the RHS which are indepent of parameter
    this->formIndependentSensitivityRHS();
