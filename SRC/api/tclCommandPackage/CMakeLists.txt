@@ -11,6 +11,7 @@ add_library(OpenSeesCommandPackage SHARED)
 
 target_sources(OpenSeesCommandPackage
   PRIVATE
+    "modeling/TclGeomTransfCommand.cpp"
     # Model Builders
     "modelbuilder/TclBuilder.cpp"
     "modelbuilder/basic/TclBasicBuilder.cpp"
@@ -27,7 +28,6 @@ target_sources(OpenSeesCommandPackage
     "analysis/analysis.cpp"
     OpenSeesCommandPackage.cpp
     TclPackageClassBroker.cpp
-    "coordTransformation/TclGeomTransfCommand.cpp"
 
     ## Database
     "database/TclDatabaseCommands.cpp"
