@@ -43,7 +43,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -74,18 +74,18 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
   int doRayleigh = 0;
   double mass = 0.0;
 
-  if (Tcl_GetInt(rt, argv[argi], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi], &tag) != TCL_OK) {
     opserr << "WARNING invalid twoNodeLink eleTag\n";
     return TCL_ERROR;
   }
   argi++;
-  if (Tcl_GetInt(rt, argv[argi], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "twoNodeLink element: " << tag << endln;
     return TCL_ERROR;
   }
   argi++;
-  if (Tcl_GetInt(rt, argv[argi], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "twoNodeLink element: " << tag << endln;
     return TCL_ERROR;
@@ -113,7 +113,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
   UniaxialMaterial **theMaterials = new UniaxialMaterial *[numMat];
   for (i = 0; i < numMat; i++) {
     theMaterials[i] = 0;
-    if (Tcl_GetInt(rt, argv[argi], &matTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi], &matTag) != TCL_OK) {
       opserr << "WARNING invalid matTag\n";
       opserr << "twoNodeLink element: " << tag << endln;
       return TCL_ERROR;
@@ -152,7 +152,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
   ID theDirIDs(numDir);
   // fill in the directions
   for (i = 0; i < numDir; i++) {
-    if (Tcl_GetInt(rt, argv[argi], &dirID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi], &dirID) != TCL_OK) {
       opserr << "WARNING invalid direction ID\n";
       opserr << "twoNodeLink element: " << tag << endln;
       return TCL_ERROR;
@@ -185,7 +185,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
         double value;
         // read the y values
         for (j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[i + 1 + j], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value\n";
             opserr << "twoNodeLink element: " << tag << endln;
             return TCL_ERROR;
@@ -199,7 +199,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
         double value;
         // read the x values
         for (j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[i + 1 + j], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value\n";
             opserr << "twoNodeLink element: " << tag << endln;
             return TCL_ERROR;
@@ -209,7 +209,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
         }
         // read the y values
         for (j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[i + 4 + j], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i + 4 + j], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value\n";
             opserr << "twoNodeLink element: " << tag << endln;
             return TCL_ERROR;
@@ -231,7 +231,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
       if (ndm == 2) {
         Mratio.Zero();
         for (j = 0; j < 2; j++) {
-          if (Tcl_GetDouble(rt, argv[i + 1 + j], &Mr) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &Mr) != TCL_OK) {
             opserr << "WARNING invalid -pDelta value\n";
             opserr << "twoNodeLink element: " << tag << endln;
             return TCL_ERROR;
@@ -240,7 +240,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
         }
       } else if (ndm == 3) {
         for (j = 0; j < 4; j++) {
-          if (Tcl_GetDouble(rt, argv[i + 1 + j], &Mr) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &Mr) != TCL_OK) {
             opserr << "WARNING invalid -pDelta value\n";
             opserr << "twoNodeLink element: " << tag << endln;
             return TCL_ERROR;
@@ -255,7 +255,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
       double sDI;
       shearDistI.resize(2);
       if (ndm == 2) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &sDI) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &sDI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "twoNodeLink element: " << tag << endln;
           return TCL_ERROR;
@@ -264,7 +264,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
         shearDistI(1) = 0.5;
       } else if (ndm == 3) {
         for (j = 0; j < 2; j++) {
-          if (Tcl_GetDouble(rt, argv[i + 1 + j], &sDI) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &sDI) != TCL_OK) {
             opserr << "WARNING invalid -shearDist value\n";
             opserr << "twoNodeLink element: " << tag << endln;
             return TCL_ERROR;
@@ -280,7 +280,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, G3_Runtime *rt, int argc,
   }
   for (i = argi; i < argc; i++) {
     if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-      if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
         opserr << "WARNING invalid -mass value\n";
         opserr << "twoNodeLink element: " << tag << endln;
         return TCL_ERROR;

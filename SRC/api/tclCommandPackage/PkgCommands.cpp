@@ -55,30 +55,30 @@ extern PartitionedDomain theDomain;
 // extern Domain theDomain;
 #endif
 
-int specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
+int specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv);
 
 /*
 extern int
 OPS_ResetInput(ClientData clientData,
-               G3_Runtime *rt,
+               Tcl_Interp *interp,
                int cArg,
                int mArg,
                TCL_Char **argv,
                Domain *domain,
-               TclBasicBuilder *builder);
+               TclBuilder *builder);
 */
 
 int
-myCommands(G3_Runtime *rt)
+myCommands(Tcl_Interp *interp)
 {
-  Tcl_CreateCommand(rt, "model", specifyModelBuilder, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "model", specifyModelBuilder, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   return 0;
 }
 
 int
-specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
+specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
   /* int cArg = 0; */
@@ -112,7 +112,7 @@ specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
           strcmp(argv[argPos], "-NDM") == 0) {
         argPos++;
         if (argPos < argc)
-          if (Tcl_GetInt(rt, argv[argPos], &ndm) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[argPos], &ndm) != TCL_OK) {
             opserr << "WARNING error reading ndm: " << argv[argPos];
             opserr << "\nmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
             return TCL_ERROR;
@@ -124,7 +124,7 @@ specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
                strcmp(argv[argPos], "-NDF") == 0) {
         argPos++;
         if (argPos < argc)
-          if (Tcl_GetInt(rt, argv[argPos], &ndf) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[argPos], &ndf) != TCL_OK) {
             opserr << "WARNING error reading ndf: " << argv[argPos];
             opserr << "\nmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
             return TCL_ERROR;
@@ -160,11 +160,11 @@ specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
 
     // create the model builder
     TclBasicBuilder *theTclBuilder =
-        new TclBasicBuilder(*theDomain, rt, ndm, ndf);
+        new TclBasicBuilder(*theDomain, interp, ndm, ndf);
     /*
 
     if (theTclBuilder != 0) {
-      OPS_ResetInput(clientData, rt, 0, argc, argv, &theDomain,
+      OPS_ResetInput(clientData, interp, 0, argc, argv, &theDomain,
     theTclBuilder); theBuilder = theTclBuilder;
     }
 
@@ -179,10 +179,10 @@ specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
   else if ((strcmp(argv[1],"test") == 0) || (strcmp(argv[1],"TestUniaxial") ==
   0) || (strcmp(argv[1],"testUniaxial") == 0) ||
   (strcmp(argv[1],"UniaxialMaterialTest") == 0)) { int count = 1; if (argc == 3)
-  { if (Tcl_GetInt(rt, argv[2], &count) != TCL_OK) { return TCL_ERROR;
+  { if (Tcl_GetInt(interp, argv[2], &count) != TCL_OK) { return TCL_ERROR;
       }
     }
-    theBuilder = new TclUniaxialMaterialTester(theDomain, rt, count);
+    theBuilder = new TclUniaxialMaterialTester(theDomain, interp, count);
     if (theBuilder == 0) {
       opserr << "WARNING ran out of memory in creating TclUniaxialMAterialTester
   model\n"; return TCL_ERROR;
@@ -193,12 +193,12 @@ specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
            (strcmp(argv[1],"PlaneStressMaterialTest") == 0)) {
     int count = 1;
     if (argc == 3) {
-      if (Tcl_GetInt(rt, argv[2], &count) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[2], &count) != TCL_OK) {
         return TCL_ERROR;
       }
     }
 
-    theBuilder = new TclPlaneStressMaterialTester(theDomain, rt, count);
+    theBuilder = new TclPlaneStressMaterialTester(theDomain, interp, count);
     if (theBuilder == 0) {
       opserr << "WARNING ran out of memory in creating TclUniaxialMAterialTester
   model\n"; return TCL_ERROR;
@@ -209,11 +209,11 @@ specifyModelBuilder(ClientData clientData, G3_Runtime *rt, int argc,
   else if ((strcmp(argv[1],"sectionTest") == 0) ||
   (strcmp(argv[1],"TestSection") == 0) || (strcmp(argv[1],"testSection") == 0)
   || (strcmp(argv[1],"SectionForceDeformationTest") == 0)) { int count = 1; if
-  (argc == 3) { if (Tcl_GetInt(rt, argv[2], &count) != TCL_OK) { return
+  (argc == 3) { if (Tcl_GetInt(interp, argv[2], &count) != TCL_OK) { return
   TCL_ERROR;
       }
     }
-    theBuilder = new TclSectionTester(theDomain, rt, count);
+    theBuilder = new TclSectionTester(theDomain, interp, count);
     if (theBuilder == 0) {
       opserr << "WARNING ran out of memory in creating TclUniaxialMAterialTester
   model\n"; return TCL_ERROR;

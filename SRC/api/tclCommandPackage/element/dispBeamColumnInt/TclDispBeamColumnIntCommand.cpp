@@ -15,7 +15,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
                                      int argc, TCL_Char **argv,
                                      Domain *theTclDomain,
                                      TclBasicBuilder *theTclBuilder)
@@ -53,24 +53,24 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, G3_Runtime *rt,
   int secTag[10]; // Max size of integration rule ... can change if needed
   int argi = 2;
 
-  if (Tcl_GetInt(rt, argv[argi++], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi++], &eleTag) != TCL_OK) {
     opserr << "WARNING invalid dispBeamColumn eleTag" << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[argi++], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi++], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode ";
     opserr << "dispBeamColumn element: " << eleTag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[argi++], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi++], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode ";
     opserr << "dispBeamColumn element: " << eleTag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[argi++], &nIP) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argi++], &nIP) != TCL_OK) {
     opserr << "WARNING invalid nIP ";
     opserr << "dispBeamColumn element: " << eleTag << endln;
     return TCL_ERROR;
@@ -86,7 +86,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, G3_Runtime *rt,
     }
     int section;
     for (int i = 0; i < nIP; i++) {
-      if (Tcl_GetInt(rt, argv[argi + i], &section) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argi + i], &section) != TCL_OK) {
         opserr << "WARNING invalid secTag - element dispBeamColumn eleTag? "
                   "iNode? jNode? nIP? secTag? transfTag?\n";
         return TCL_ERROR;
@@ -98,7 +98,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, G3_Runtime *rt,
 
   else {
     int section;
-    if (Tcl_GetInt(rt, argv[argi++], &section) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi++], &section) != TCL_OK) {
       opserr << "WARNING invalid secTag - element dispBeamColumn eleTag? "
                 "iNode? jNode? nIP? secTag? transfTag?\n";
       return TCL_ERROR;
@@ -107,13 +107,13 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, G3_Runtime *rt,
       secTag[i] = section;
   }
 
-  if (argi >= argc || Tcl_GetInt(rt, argv[argi++], &transfTag) != TCL_OK) {
+  if (argi >= argc || Tcl_GetInt(interp, argv[argi++], &transfTag) != TCL_OK) {
     opserr << "WARNING invalid transfTag? - element dispBeamColumn eleTag? "
               "iNode? jNode? nIP? secTag? transfTag?\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[argi++], &C1) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[argi++], &C1) != TCL_OK) {
     opserr << "WARNING invalid dispBeamColumn C1" << endln;
     return TCL_ERROR;
   }
@@ -122,7 +122,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, G3_Runtime *rt,
 
   while (argi != argc) {
     if (strcmp(argv[argi++], "-mass") == 0 && argi < argc) {
-      if (Tcl_GetDouble(rt, argv[argi++], &massDens) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argi++], &massDens) != TCL_OK) {
         opserr << "WARNING invalid massDens - element dispBeamColumn eleTag? "
                   "iNode? jNode? nIP? secTag? transfTag? C1? t? NStrip?\n";
         return TCL_ERROR;

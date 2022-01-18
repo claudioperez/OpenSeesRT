@@ -29,6 +29,8 @@
 #ifndef _eleAPI
 #define _eleAPI
 
+#include <api/runtimeAPI.h>
+
 #define ISW_INIT 0
 #define ISW_COMMIT 1
 #define ISW_REVERT 2

@@ -48,6 +48,7 @@
 #include <string.h>
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 Matrix NDMaterial::errMatrix(1,1);
 Vector NDMaterial::errVector(1);
@@ -81,7 +82,8 @@ NDMaterial *OPS_getNDMaterial(int tag)
   return theMat;
 }
 
-void OPS_clearAllNDMaterial(void)
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllNDMaterial)
 {
     theNDMaterialObjects.clearAll();
 }
@@ -300,12 +302,15 @@ NDMaterial::setResponse (const char **argv, int argc, OPS_Stream &output)
 	  const Matrix &res = this->getTangent();
 	  theResponse = new MaterialResponse(this, 4, this->getTangent());
   }
+
+  // Massimo Petracca - 28/12/2021:
+  // this should be handled by the PlaneStressUserMaterial... not here!
   //default damage output - added by V.K. Papanikolaou [AUTh] - start
-  else if (strcmp(argv[0], "Damage") == 0 || strcmp(argv[0], "damage") == 0) {
-      static Vector vec = Vector(3);
-      for (int i = 0; i < 3; i++) vec[i] = 0;
-      theResponse = new MaterialResponse(this, 5, vec);  // zero vector
-  }
+  //else if (strcmp(argv[0], "Damage") == 0 || strcmp(argv[0], "damage") == 0) {
+  //    static Vector vec = Vector(3);
+  //    for (int i = 0; i < 3; i++) vec[i] = 0;
+  //    theResponse = new MaterialResponse(this, 5, vec);  // zero vector
+  //}
   //default damage output - added by V.K. Papanikolaou [AUTh] - end 
 
   output.endTag(); // NdMaterialOutput
@@ -323,6 +328,12 @@ NDMaterial::getResponse (int responseID, Information &matInfo)
   case 2:
     return matInfo.setVector(this->getStrain());
     
+    // Massimo Petracca - 28/12/2021: adding missing responseID
+  case 3:
+      return matInfo.setVector(this->getTempAndElong());
+  case 4:
+      return matInfo.setMatrix(this->getTangent());
+
   default:
     return -1;
   }

@@ -77,23 +77,25 @@
 
 #include <SimulationInformation.h>
 extern SimulationInformation simulationInfo;
-// extern const char * getInterpPWD(G3_Runtime *rt);  // commands.cpp
+// extern const char * getInterpPWD(Tcl_Interp *interp);  // commands.cpp
 
 LoadPattern *theTclLoadPattern = 0;
 MultiSupportPattern *theTclMultiSupportPattern = 0;
 
 extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
-                                                        G3_Runtime *rt,
+                                                        Tcl_Interp *interp,
                                                         TCL_Char *arg);
 
-extern TimeSeries *TclSeriesCommand(ClientData clientData, G3_Runtime *rt,
+extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
 
 int
-TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
+TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv, Domain *theDomain)
 {
   LoadPattern *thePattern = 0;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain* domain = G3_getDomain(rt);
 
   // make sure at least one other argument to contain integrator
   if (argc < 4) {
@@ -107,7 +109,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
   TimeSeries *theSeries = 0;
   int patternID = 0;
 
-  if (Tcl_GetInt(rt, argv[2], &patternID) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &patternID) != TCL_OK) {
     opserr << "WARNING invalid patternID: pattern type " << argv[2]
            << "<type args>\n";
     return TCL_ERROR;
@@ -120,13 +122,13 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
     double fact = 1.0;
     if (argc == 7 && ((strcmp(argv[4], "-fact") == 0) ||
                       (strcmp(argv[4], "-factor") == 0))) {
-      if (Tcl_GetDouble(rt, argv[5], &fact) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &fact) != TCL_OK) {
         opserr << "WARNING invalid fact: pattern type Plain\n";
         return TCL_ERROR;
       }
     }
     thePattern = new LoadPattern(patternID, fact);
-    theSeries = TclSeriesCommand(clientData, rt, argv[3]);
+    theSeries = TclSeriesCommand(clientData, interp, argv[3]);
 
     if (thePattern == 0 || theSeries == 0) {
 
@@ -154,15 +156,15 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
   else if (strcmp(argv[1], "Fire") == 0) {
     FireLoadPattern *theFirePattern = new FireLoadPattern(patternID);
     thePattern = theFirePattern;
-    TimeSeries *theSeries1 = TclSeriesCommand(clientData, rt, argv[3]);
-    TimeSeries *theSeries2 = TclSeriesCommand(clientData, rt, argv[4]);
-    TimeSeries *theSeries3 = TclSeriesCommand(clientData, rt, argv[5]);
-    TimeSeries *theSeries4 = TclSeriesCommand(clientData, rt, argv[6]);
-    TimeSeries *theSeries5 = TclSeriesCommand(clientData, rt, argv[7]);
-    TimeSeries *theSeries6 = TclSeriesCommand(clientData, rt, argv[8]);
-    TimeSeries *theSeries7 = TclSeriesCommand(clientData, rt, argv[9]);
-    TimeSeries *theSeries8 = TclSeriesCommand(clientData, rt, argv[10]);
-    TimeSeries *theSeries9 = TclSeriesCommand(clientData, rt, argv[11]);
+    TimeSeries *theSeries1 = TclSeriesCommand(clientData, interp, argv[3]);
+    TimeSeries *theSeries2 = TclSeriesCommand(clientData, interp, argv[4]);
+    TimeSeries *theSeries3 = TclSeriesCommand(clientData, interp, argv[5]);
+    TimeSeries *theSeries4 = TclSeriesCommand(clientData, interp, argv[6]);
+    TimeSeries *theSeries5 = TclSeriesCommand(clientData, interp, argv[7]);
+    TimeSeries *theSeries6 = TclSeriesCommand(clientData, interp, argv[8]);
+    TimeSeries *theSeries7 = TclSeriesCommand(clientData, interp, argv[9]);
+    TimeSeries *theSeries8 = TclSeriesCommand(clientData, interp, argv[10]);
+    TimeSeries *theSeries9 = TclSeriesCommand(clientData, interp, argv[11]);
 
     // opserr << "series1 ";
     //*theSeries1->Print;
@@ -219,7 +221,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
     int dir;
 
-    if (Tcl_GetInt(rt, argv[3], &dir) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &dir) != TCL_OK) {
       opserr << "WARNING invalid patternID: pattern type " << argv[2]
              << "<type args>\n";
       return TCL_ERROR;
@@ -243,7 +245,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         currentArg++;
         if ((currentArg < argc) &&
-            (Tcl_GetDouble(rt, argv[currentArg], &vel0) != TCL_OK)) {
+            (Tcl_GetDouble(interp, argv[currentArg], &vel0) != TCL_OK)) {
           opserr << "WARNING invalid vel0: pattern type UniformExcitation\n";
           return TCL_ERROR;
         }
@@ -256,7 +258,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         currentArg++;
         if ((currentArg < argc) &&
-            (Tcl_GetDouble(rt, argv[currentArg], &fact) != TCL_OK)) {
+            (Tcl_GetDouble(interp, argv[currentArg], &fact) != TCL_OK)) {
           opserr << "WARNING invalid fact: pattern type UniformExcitation\n";
           return TCL_ERROR;
         }
@@ -268,7 +270,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
                (strcmp(argv[currentArg], "-acceleration") == 0)) {
 
         currentArg++;
-        accelSeries = TclSeriesCommand(clientData, rt, argv[currentArg]);
+        accelSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
         if (accelSeries == 0) {
           opserr << "WARNING invalid accel series: " << argv[currentArg];
@@ -281,7 +283,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
                  (strcmp(argv[currentArg], "-velocity") == 0)) {
 
         currentArg++;
-        velSeries = TclSeriesCommand(clientData, rt, argv[currentArg]);
+        velSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
         if (velSeries == 0) {
           opserr << "WARNING invalid vel series: " << argv[currentArg];
@@ -294,7 +296,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
                  (strcmp(argv[currentArg], "-displacement") == 0)) {
 
         currentArg++;
-        dispSeries = TclSeriesCommand(clientData, rt, argv[currentArg]);
+        dispSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
         if (dispSeries == 0) {
           opserr << "WARNING invalid disp series: " << argv[currentArg];
@@ -308,7 +310,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand(clientData, rt, argv[currentArg]);
+            TclSeriesIntegratorCommand(clientData, interp, argv[currentArg]);
         if (seriesIntegrator == 0) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - pattern UniformExcitation -int {Series Integrator}\n";
@@ -370,7 +372,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         accelFileName = argv[i + 1];
 
         // Read the time interval
-        if (Tcl_GetDouble(rt, argv[i + 2], &dt) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 2], &dt) != TCL_OK) {
           opserr << "WARNING problem reading ground motion "
                  << "time interval - pattern UniformExcitation: " << patternID
                  << endln;
@@ -387,7 +389,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     int dir;
-    if (Tcl_GetInt(rt, argv[3], &dir) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &dir) != TCL_OK) {
 
       char inputDir;
       inputDir = argv[3][0];
@@ -417,7 +419,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
       dir--; // change to c++ indexing
 
     double factor;
-    if (Tcl_GetDouble(rt, argv[4], &factor) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &factor) != TCL_OK) {
       opserr << "WARNING insufficient number of arguments - want: pattern ";
       opserr << "UniformExcitation " << patternID << " dir factor\n";
       return TCL_ERROR;
@@ -441,7 +443,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
       return TCL_ERROR;
     }
 
-    //    const char *pwd = getInterpPWD(rt);
+    //    const char *pwd = getInterpPWD(interp);
     //    simulationInfo.addInputFile(accelFileName, pwd);
 
     // create the UniformExcitation Pattern
@@ -479,7 +481,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 #ifdef _H5DRM
   else if ((strcmp(argv[1], "H5DRM") == 0) || (strcmp(argv[1], "h5drm") == 0)) {
     int tag = 0;
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING insufficient number of arguments - want: pattern ";
       opserr << "H5DRM tag filename factor\n";
       return TCL_ERROR;
@@ -488,7 +490,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
     std::string filename = argv[3];
 
     double factor = 1.0;
-    if (Tcl_GetDouble(rt, argv[4], &factor) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &factor) != TCL_OK) {
       opserr << "WARNING insufficient number of arguments - want: pattern ";
       opserr << "H5DRM " << patternID << " filename factor\n";
       return TCL_ERROR;
@@ -504,7 +506,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
            << " filename = " << filename.c_str() << " factor = " << factor
            << endln;
 
-    theDomain->addLoadPattern(thePattern);
+    domain->addLoadPattern(thePattern);
     return TCL_OK;
   }
 #endif
@@ -555,12 +557,12 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         }
       }
 
-      Mesh3DSubdomain *myMesher = new Mesh3DSubdomain(theDomain);
+      Mesh3DSubdomain *myMesher = new Mesh3DSubdomain(domain);
       PlaneDRMInputHandler *patternhandler = new PlaneDRMInputHandler(
           1.0, files, nf, dt, 0, num_steps, f_d, 15, n1, n2, drm_box_crds,
-          drm_box_crds, ele_d, myMesher, steps_cached, theDomain);
+          drm_box_crds, ele_d, myMesher, steps_cached, domain);
       DRMLoadPattern *ptr =
-          new DRMLoadPattern(1, 1.0, patternhandler, theDomain);
+          new DRMLoadPattern(1, 1.0, patternhandler, domain);
       ptr->setMaps();
       thePattern = ptr;
       theTclMultiSupportPattern = 0;
@@ -594,7 +596,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if ((strcmp(argv[c_arg], "-dt") == 0) ||
             (strcmp(argv[c_arg], "-deltaT") == 0)) {
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &dt) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &dt) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
             exit(-1);
           }
@@ -604,7 +606,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         if ((strcmp(argv[c_arg], "-numSteps") == 0) ||
             (strcmp(argv[c_arg], "-numberOfSteps") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &num_steps) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &num_steps) != TCL_OK) {
             opserr << " Error reading number of steps for DRMLoadPattern \n";
             exit(-1);
           }
@@ -614,7 +616,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         else if ((strcmp(argv[c_arg], "-stepsCached") == 0) ||
                  (strcmp(argv[c_arg], "-cache") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &steps_cached) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &steps_cached) != TCL_OK) {
             opserr << " Error reading number of steps for DRMLoadPattern \n";
             exit(-1);
           }
@@ -624,17 +626,17 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         else if ((strcmp(argv[c_arg], "-gridSize") == 0) ||
                  (strcmp(argv[c_arg], "-eleSize") == 0)) {
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &ele_d[0]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &ele_d[0]) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &ele_d[1]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &ele_d[1]) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &ele_d[2]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &ele_d[2]) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
             exit(-1);
           }
@@ -643,12 +645,12 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-gridDataFace1") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[1]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[1]) != TCL_OK) {
             opserr << " Error reading grid data f1 for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[2]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[2]) != TCL_OK) {
             opserr << " Error reading grid data f1 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -658,12 +660,12 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-gridDataFace2") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[4]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[4]) != TCL_OK) {
             opserr << " Error reading grid data f2 for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[5]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[5]) != TCL_OK) {
             opserr << " Error reading grid data f2 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -673,12 +675,12 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-gridDataFace3") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[7]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[7]) != TCL_OK) {
             opserr << " Error reading grid data f3 for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[8]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[8]) != TCL_OK) {
             opserr << " Error reading grid data f3 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -688,12 +690,12 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-gridDataFace4") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[10]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[10]) != TCL_OK) {
             opserr << " Error reading grid data f4 for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[11]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[11]) != TCL_OK) {
             opserr << " Error reading grid data f4 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -703,12 +705,12 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-gridDataFace5") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[13]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[13]) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &f_d[14]) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &f_d[14]) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -766,7 +768,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-fileFace5aGridPoints") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &n1) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &n1) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -775,7 +777,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-fileFace5bGridPoints") == 0)) {
           c_arg++;
-          if (Tcl_GetInt(rt, argv[c_arg], &n2) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[c_arg], &n2) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
             exit(-1);
           }
@@ -785,7 +787,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
         else if ((strcmp(argv[c_arg], "-factor") == 0) ||
                  (strcmp(argv[c_arg], "-Factor") == 0)) {
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &factor) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &factor) != TCL_OK) {
             opserr << " Error reading number of steps for DRMLoadPattern \n";
             exit(-1);
           }
@@ -794,32 +796,32 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
         else if ((strcmp(argv[c_arg], "-DRMBoxCrds") == 0)) {
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &drm_box_crds[0]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[0]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, xmin for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &drm_box_crds[1]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[1]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, xmax for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &drm_box_crds[2]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[2]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, ymin for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &drm_box_crds[3]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[3]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, ymax for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &drm_box_crds[4]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[4]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, zmin for DRMLoadPattern \n";
             exit(-1);
           }
           c_arg++;
-          if (Tcl_GetDouble(rt, argv[c_arg], &drm_box_crds[5]) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[5]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, zmax for DRMLoadPattern \n";
             exit(-1);
           }
@@ -841,7 +843,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
   else if ((strcmp(argv[1], "H5DRM") == 0) || (strcmp(argv[1], "h5drm") == 0)) {
 
     int tag = 0;
-    if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING insufficient number of arguments - want: pattern ";
       opserr << "H5DRM tag filename factor\n";
       return TCL_ERROR;
@@ -850,7 +852,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
     std::string filename = argv[3];
 
     double factor = 1.0;
-    if (Tcl_GetDouble(rt, argv[4], &factor) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &factor) != TCL_OK) {
       opserr << "WARNING insufficient number of arguments - want: pattern ";
       opserr << "H5DRM " << patternID << " filename factor\n";
       return TCL_ERROR;
@@ -866,7 +868,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
            << " filename = " << filename.c_str() << " factor = " << factor
            << endln;
 
-    theDomain->addLoadPattern(thePattern);
+    domain->addLoadPattern(thePattern);
     return TCL_OK;
   }
 #endif
@@ -880,7 +882,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   // now add the load pattern to the modelBuilder
-  if (theDomain->addLoadPattern(thePattern) == false) {
+  if (domain->addLoadPattern(thePattern) == false) {
     opserr << "WARNING could not add load pattern to the domain "
            << *thePattern;
     delete thePattern; // free up the memory, pattern destroys the time series
@@ -895,7 +897,7 @@ TclPatternCommand(ClientData clientData, G3_Runtime *rt, int argc,
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
   if (commandEndMarker < (argc - 1)) {
-    if (Tcl_Eval(rt, argv[argc - 1]) != TCL_OK) {
+    if (Tcl_Eval(interp, argv[argc - 1]) != TCL_OK) {
       opserr << "WARNING - error reading load pattern information in { } ";
       return TCL_ERROR;
     }

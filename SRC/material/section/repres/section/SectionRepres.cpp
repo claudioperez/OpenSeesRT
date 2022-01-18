@@ -31,6 +31,7 @@
 #include <SectionRepres.h>
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theSectionRepresObjects;
 
@@ -50,7 +51,8 @@ SectionRepres *OPS_getSectionRepres(int tag)
     return theRep;
 }
 
-void OPS_clearAllSectionRepres(void)
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllSectionRepres)
 {
     theSectionRepresObjects.clearAll();
 }

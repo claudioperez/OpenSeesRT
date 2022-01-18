@@ -53,11 +53,11 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <string.h>
 
-extern void *OPS_ArctangentBackbone(void);
-extern void *OPS_ManderBackbone(void);
-extern void *OPS_TrilinearBackbone(void);
-extern void *OPS_BilinearBackbone(void);
-extern void *OPS_MultilinearBackbone(void);
+extern void *OPS_ArctangentBackbone(G3_Runtime*);
+extern void *OPS_ManderBackbone(G3_Runtime*);
+extern void *OPS_TrilinearBackbone(G3_Runtime*);
+extern void *OPS_BilinearBackbone(G3_Runtime*);
+extern void *OPS_MultilinearBackbone(G3_Runtime*);
 
 #include <packages.h>
 
@@ -90,7 +90,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
 
   // Check argv[1] for backbone type
   if (strcmp(argv[1], "Bilinear") == 0) {
-    void *theBB = OPS_BilinearBackbone();
+    void *theBB = OPS_BilinearBackbone(rt);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -98,7 +98,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Trilinear") == 0) {
-    void *theBB = OPS_TrilinearBackbone();
+    void *theBB = OPS_TrilinearBackbone(rt);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -106,7 +106,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Multilinear") == 0) {
-    void *theBB = OPS_MultilinearBackbone();
+    void *theBB = OPS_MultilinearBackbone(rt);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -114,7 +114,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Arctangent") == 0) {
-    void *theBB = OPS_ArctangentBackbone();
+    void *theBB = OPS_ArctangentBackbone(rt);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -241,7 +241,7 @@ TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Mander") == 0) {
-    void *theBB = OPS_ManderBackbone();
+    void *theBB = OPS_ManderBackbone(rt);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else

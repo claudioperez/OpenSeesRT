@@ -271,142 +271,142 @@ static RandomVibrationAnalysis *theRandomVibrationAnalysis = 0;
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 int TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv);
 int TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
-                                            G3_Runtime *rt, int argc,
+                                            Tcl_Interp *interp, int argc,
                                             TCL_Char **argv);
 int TclReliabilityModelBuilder_addCutset(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv);
 int TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
-                                              G3_Runtime *rt, int argc,
+                                              Tcl_Interp *interp, int argc,
                                               TCL_Char **argv);
 int TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addLimitState(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv);
 int TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv);
 int TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
-                                                     G3_Runtime *rt,
+                                                     Tcl_Interp *interp,
                                                      int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addFilter(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv);
 int TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv);
 int TclReliabilityModelBuilder_addProbabilityTransformation(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv);
 int TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
-                                              G3_Runtime *rt, int argc,
+                                              Tcl_Interp *interp, int argc,
                                               TCL_Char **argv);
 int TclReliabilityModelBuilder_addRandomNumberGenerator(ClientData clientData,
-                                                        G3_Runtime *rt,
+                                                        Tcl_Interp *interp,
                                                         int argc,
                                                         TCL_Char **argv);
 int TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
-                                                  G3_Runtime *rt, int argc,
+                                                  Tcl_Interp *interp, int argc,
                                                   TCL_Char **argv);
 int TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
-                                                   G3_Runtime *rt, int argc,
+                                                   Tcl_Interp *interp, int argc,
                                                    TCL_Char **argv);
 int TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
-                                                     G3_Runtime *rt,
+                                                     Tcl_Interp *interp,
                                                      int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addReliabilityConvergenceCheck(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv);
 int TclReliabilityModelBuilder_addFunctionEvaluator(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addFindDesignPointAlgorithm(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_addFindCurvatures(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv);
 int TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv);
 int TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv);
 // int TclReliabilityModelBuilder_runParametricReliabilityAnalysis(ClientData
-// clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+// clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_runGFunVisualizationAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
-                                                      G3_Runtime *rt,
+                                                      Tcl_Interp *interp,
                                                       int argc,
                                                       TCL_Char **argv);
 int TclReliabilityModelBuilder_runSORMAnalysis(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv);
 int TclReliabilityModelBuilder_runSystemAnalysis(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv);
 int TclReliabilityModelBuilder_runImportanceSamplingAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_printReliability(ClientData clientData,
-                                                G3_Runtime *rt, int argc,
+                                                Tcl_Interp *interp, int argc,
                                                 TCL_Char **argv);
 int TclReliabilityModelBuilder_getMean(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
+                                       Tcl_Interp *interp, int argc,
                                        TCL_Char **argv);
 int TclReliabilityModelBuilder_getStdv(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
+                                       Tcl_Interp *interp, int argc,
                                        TCL_Char **argv);
 // int TclReliabilityModelBuilder_rvReduction(ClientData clientData, Tcl_Interp
 // *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv);
 int TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
-                                            G3_Runtime *rt, int argc,
+                                            Tcl_Interp *interp, int argc,
                                             TCL_Char **argv);
 int TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
-                                            G3_Runtime *rt, int argc,
+                                            Tcl_Interp *interp, int argc,
                                             TCL_Char **argv);
-int TclReliabilityModelBuilder_getPDF(ClientData clientData, G3_Runtime *rt,
+int TclReliabilityModelBuilder_getPDF(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv);
-int TclReliabilityModelBuilder_getCDF(ClientData clientData, G3_Runtime *rt,
+int TclReliabilityModelBuilder_getCDF(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv);
 int TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv);
 int TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
-                                                      G3_Runtime *rt,
+                                                      Tcl_Interp *interp,
                                                       int argc,
                                                       TCL_Char **argv);
 int TclReliabilityModelBuilder_getRVTags(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv);
 int TclReliabilityModelBuilder_getLSFTags(ClientData clientData,
-                                          G3_Runtime *rt, int argc,
+                                          Tcl_Interp *interp, int argc,
                                           TCL_Char **argv);
 int TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv);
 int TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
-                                                   G3_Runtime *rt, int argc,
+                                                   Tcl_Interp *interp, int argc,
                                                    TCL_Char **argv);
 /////////////////////////////////////////////////////////
 /// S added by K Fujimura for Random Vibration Analysis ///
@@ -415,19 +415,19 @@ int TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
 int TclReliabilityModelBuilder_addAnalyzer(ClientData clientData, Tcl_Interp
 *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_addInitialStaticAnalysis(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_addInitialPointBuilder(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_addCrossingRateAnalyzer(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_addFOSeriesSimulation(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_addFirstPassageAnalyzer(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_addRandomVibrationSimulation(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char **argv); int
 TclReliabilityModelBuilder_runRandomVibrationAnalysis(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv);
+Tcl_Interp *interp, int argc, TCL_Char **argv);
 /////////////////////////////////////////////////////////
 ///E added by K Fujimura for Random Vibration Analysis ///
 /////////////////////////////////////////////////////////
@@ -435,28 +435,28 @@ G3_Runtime *rt, int argc, TCL_Char **argv);
 
 //--Quan --
 int TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_updateParameterValue(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_computeHessian(ClientData clientData,
-                                              G3_Runtime *rt, int argc,
+                                              Tcl_Interp *interp, int argc,
                                               TCL_Char **argv);
 int TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
-                                                     G3_Runtime *rt,
+                                                     Tcl_Interp *interp,
                                                      int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv);
 int TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv);
 int TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
@@ -464,166 +464,166 @@ int TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
 // constructor: the constructor will add certain commands to the interpreter
 TclReliabilityBuilder::TclReliabilityBuilder(Domain &passedDomain,
-                                             G3_Runtime *rt)
+                                             Tcl_Interp *interp)
 {
   // Set the interpreter (the destructor needs it to delete commands)
   // Well... not any more.
-  theInterp = rt;
+  theInterp = interp;
 
   // call Tcl_CreateCommand for class specific commands
-  Tcl_CreateCommand(rt, "randomVariable",
+  Tcl_CreateCommand(interp, "randomVariable",
                     TclReliabilityModelBuilder_addRandomVariable,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "correlate",
+  Tcl_CreateCommand(interp, "correlate",
                     TclReliabilityModelBuilder_addCorrelate, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "correlateGroup",
+  Tcl_CreateCommand(interp, "correlateGroup",
                     TclReliabilityModelBuilder_correlateGroup, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "correlationStructure",
+  Tcl_CreateCommand(interp, "correlationStructure",
                     TclReliabilityModelBuilder_correlationStructure,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "cutset", TclReliabilityModelBuilder_addCutset,
+  Tcl_CreateCommand(interp, "cutset", TclReliabilityModelBuilder_addCutset,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "performanceFunction",
+  Tcl_CreateCommand(interp, "performanceFunction",
                     TclReliabilityModelBuilder_addLimitState, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "gradPerformanceFunction",
+  Tcl_CreateCommand(interp, "gradPerformanceFunction",
                     TclReliabilityModelBuilder_addGradLimitState,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "modulatingFunction",
+  Tcl_CreateCommand(interp, "modulatingFunction",
                     TclReliabilityModelBuilder_addModulatingFunction,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "filter", TclReliabilityModelBuilder_addFilter,
+  Tcl_CreateCommand(interp, "filter", TclReliabilityModelBuilder_addFilter,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "spectrum", TclReliabilityModelBuilder_addSpectrum,
+  Tcl_CreateCommand(interp, "spectrum", TclReliabilityModelBuilder_addSpectrum,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "findDesignPoint",
+  Tcl_CreateCommand(interp, "findDesignPoint",
                     TclReliabilityModelBuilder_addFindDesignPointAlgorithm,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "startPoint",
+  Tcl_CreateCommand(interp, "startPoint",
                     TclReliabilityModelBuilder_addStartPoint, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "rootFinding",
+  Tcl_CreateCommand(interp, "rootFinding",
                     TclReliabilityModelBuilder_addRootFinding, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "functionEvaluator",
+  Tcl_CreateCommand(interp, "functionEvaluator",
                     TclReliabilityModelBuilder_addFunctionEvaluator,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "gradientEvaluator",
+  Tcl_CreateCommand(interp, "gradientEvaluator",
                     TclReliabilityModelBuilder_addGradientEvaluator,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "stepSizeRule",
+  Tcl_CreateCommand(interp, "stepSizeRule",
                     TclReliabilityModelBuilder_addStepSizeRule,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "searchDirection",
+  Tcl_CreateCommand(interp, "searchDirection",
                     TclReliabilityModelBuilder_addSearchDirection,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "hessianEvaluator",
+  Tcl_CreateCommand(interp, "hessianEvaluator",
                     TclReliabilityModelBuilder_addHessianEvaluator,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "meritFunctionCheck",
+  Tcl_CreateCommand(interp, "meritFunctionCheck",
                     TclReliabilityModelBuilder_addMeritFunctionCheck,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "reliabilityConvergenceCheck",
+  Tcl_CreateCommand(interp, "reliabilityConvergenceCheck",
                     TclReliabilityModelBuilder_addReliabilityConvergenceCheck,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "probabilityTransformation",
+  Tcl_CreateCommand(interp, "probabilityTransformation",
                     TclReliabilityModelBuilder_addProbabilityTransformation,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "findCurvatures",
+  Tcl_CreateCommand(interp, "findCurvatures",
                     TclReliabilityModelBuilder_addFindCurvatures,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "randomNumberGenerator",
+  Tcl_CreateCommand(interp, "randomNumberGenerator",
                     TclReliabilityModelBuilder_addRandomNumberGenerator,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runFORMAnalysis",
+  Tcl_CreateCommand(interp, "runFORMAnalysis",
                     TclReliabilityModelBuilder_runFORMAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runFOSMAnalysis",
+  Tcl_CreateCommand(interp, "runFOSMAnalysis",
                     TclReliabilityModelBuilder_runFOSMAnalysis,
                     (ClientData)NULL, NULL);
-  //  Tcl_CreateCommand(rt,
+  //  Tcl_CreateCommand(interp,
   //  "runParametricReliabilityAnalysis",TclReliabilityModelBuilder_runParametricReliabilityAnalysis,(ClientData)NULL,
   //  NULL);
-  Tcl_CreateCommand(rt, "runGFunVizAnalysis",
+  Tcl_CreateCommand(interp, "runGFunVizAnalysis",
                     TclReliabilityModelBuilder_runGFunVisualizationAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runOutCrossingAnalysis",
+  Tcl_CreateCommand(interp, "runOutCrossingAnalysis",
                     TclReliabilityModelBuilder_runOutCrossingAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runSORMAnalysis",
+  Tcl_CreateCommand(interp, "runSORMAnalysis",
                     TclReliabilityModelBuilder_runSORMAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runSystemAnalysis",
+  Tcl_CreateCommand(interp, "runSystemAnalysis",
                     TclReliabilityModelBuilder_runSystemAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runImportanceSamplingAnalysis",
+  Tcl_CreateCommand(interp, "runImportanceSamplingAnalysis",
                     TclReliabilityModelBuilder_runImportanceSamplingAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "printReliability",
+  Tcl_CreateCommand(interp, "printReliability",
                     TclReliabilityModelBuilder_printReliability,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getMean", TclReliabilityModelBuilder_getMean,
+  Tcl_CreateCommand(interp, "getMean", TclReliabilityModelBuilder_getMean,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getStdv", TclReliabilityModelBuilder_getStdv,
+  Tcl_CreateCommand(interp, "getStdv", TclReliabilityModelBuilder_getStdv,
                     (ClientData)NULL, NULL);
-  //  Tcl_CreateCommand(rt,
+  //  Tcl_CreateCommand(interp,
   //  "rvReduction",TclReliabilityModelBuilder_rvReduction,(ClientData)NULL,
   //  NULL);
-  Tcl_CreateCommand(rt, "betaFORM", TclReliabilityModelBuilder_getBetaFORM,
+  Tcl_CreateCommand(interp, "betaFORM", TclReliabilityModelBuilder_getBetaFORM,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "gammaFORM",
+  Tcl_CreateCommand(interp, "gammaFORM",
                     TclReliabilityModelBuilder_getGammaFORM, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "alphaFORM",
+  Tcl_CreateCommand(interp, "alphaFORM",
                     TclReliabilityModelBuilder_getAlphaFORM, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "getPDF", TclReliabilityModelBuilder_getPDF,
+  Tcl_CreateCommand(interp, "getPDF", TclReliabilityModelBuilder_getPDF,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getStdNormalPDF",
+  Tcl_CreateCommand(interp, "getStdNormalPDF",
                     TclReliabilityModelBuilder_getStdNormalPDF,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getCDF", TclReliabilityModelBuilder_getCDF,
+  Tcl_CreateCommand(interp, "getCDF", TclReliabilityModelBuilder_getCDF,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getStdNormalCDF",
+  Tcl_CreateCommand(interp, "getStdNormalCDF",
                     TclReliabilityModelBuilder_getStdNormalCDF,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getInverseCDF",
+  Tcl_CreateCommand(interp, "getInverseCDF",
                     TclReliabilityModelBuilder_getInverseCDF, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "getStdNormalInverseCDF",
+  Tcl_CreateCommand(interp, "getStdNormalInverseCDF",
                     TclReliabilityModelBuilder_getStdNormalInverseCDF,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getRVTags", TclReliabilityModelBuilder_getRVTags,
+  Tcl_CreateCommand(interp, "getRVTags", TclReliabilityModelBuilder_getRVTags,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getLSFTags", TclReliabilityModelBuilder_getLSFTags,
+  Tcl_CreateCommand(interp, "getLSFTags", TclReliabilityModelBuilder_getLSFTags,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "getCutsetTags",
+  Tcl_CreateCommand(interp, "getCutsetTags",
                     TclReliabilityModelBuilder_getCutsetTags, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "getCutsetComponents",
+  Tcl_CreateCommand(interp, "getCutsetComponents",
                     TclReliabilityModelBuilder_getCutsetComponents,
                     (ClientData)NULL, NULL);
   /////////////////////////////////////////////////////////
   /// S added by K Fujimura for Random Vibration Analysis ///
   /////////////////////////////////////////////////////////
   /*
-  Tcl_CreateCommand(rt,
+  Tcl_CreateCommand(interp,
   "analyzer",TclReliabilityModelBuilder_addAnalyzer,(ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt,
+  Tcl_CreateCommand(interp,
   "initialstaticanalysis",TclReliabilityModelBuilder_addInitialStaticAnalysis,(ClientData)NULL,
-  NULL); Tcl_CreateCommand(rt,
+  NULL); Tcl_CreateCommand(interp,
   "initialpoint",TclReliabilityModelBuilder_addInitialPointBuilder,(ClientData)NULL,
-  NULL); Tcl_CreateCommand(rt,
+  NULL); Tcl_CreateCommand(interp,
   "crossingrateanalyzer",TclReliabilityModelBuilder_addCrossingRateAnalyzer,(ClientData)NULL,
-  NULL); Tcl_CreateCommand(rt,
+  NULL); Tcl_CreateCommand(interp,
   "foseries",TclReliabilityModelBuilder_addFOSeriesSimulation,(ClientData)NULL,
-  NULL); Tcl_CreateCommand(rt,
+  NULL); Tcl_CreateCommand(interp,
   "firstpassage",TclReliabilityModelBuilder_addFirstPassageAnalyzer,(ClientData)NULL,
-  NULL); Tcl_CreateCommand(rt,
+  NULL); Tcl_CreateCommand(interp,
   "randomvibrationsimulation",TclReliabilityModelBuilder_addRandomVibrationSimulation,(ClientData)NULL,
-  NULL); Tcl_CreateCommand(rt,
+  NULL); Tcl_CreateCommand(interp,
   "randomvibrationanalysis",TclReliabilityModelBuilder_runRandomVibrationAnalysis,(ClientData)NULL,
   NULL);
   */
@@ -633,33 +633,33 @@ TclReliabilityBuilder::TclReliabilityBuilder(Domain &passedDomain,
 
   // Quan --
 
-  Tcl_CreateCommand(rt, "runMonteCarloResponseAnalysis",
+  Tcl_CreateCommand(interp, "runMonteCarloResponseAnalysis",
                     TclReliabilityModelBuilder_runMonteCarloResponseAnalysis,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "updateParameterValue",
+  Tcl_CreateCommand(interp, "updateParameterValue",
                     TclReliabilityModelBuilder_updateParameterValue,
                     (ClientData)NULL, NULL);
   Tcl_CreateCommand(
-      rt, "runOrthogonalPlaneSamplingAnalysis",
+      interp,"runOrthogonalPlaneSamplingAnalysis",
       TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis,
       (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "computeHessian",
+  Tcl_CreateCommand(interp, "computeHessian",
                     TclReliabilityModelBuilder_computeHessian, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "runMultiDimVisualPrinPlane",
+  Tcl_CreateCommand(interp, "runMultiDimVisualPrinPlane",
                     TclReliabilityModelBuilder_MultiDimVisPrincPlane,
                     (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "transformXtoU",
+  Tcl_CreateCommand(interp, "transformXtoU",
                     TclReliabilityModelBuilder_transformXtoU, (ClientData)NULL,
                     NULL);
-  Tcl_CreateCommand(rt, "transformUtoX",
+  Tcl_CreateCommand(interp, "transformUtoX",
                     TclReliabilityModelBuilder_transformUtoX, (ClientData)NULL,
                     NULL);
   Tcl_CreateCommand(
-      rt, "runDP_RSM_SimTimeInvariantAnalysis",
+      interp,"runDP_RSM_SimTimeInvariantAnalysis",
       TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis,
       (ClientData)NULL, NULL);
-  Tcl_CreateCommand(rt, "runDP_RSM_SimTimeVariantAnalysis",
+  Tcl_CreateCommand(interp, "runDP_RSM_SimTimeVariantAnalysis",
                     TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis,
                     (ClientData)NULL, NULL);
 
@@ -979,7 +979,7 @@ return TCL_ERROR;
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv)
 {
   RandomVariable *theRandomVariable = 0;
@@ -1000,7 +1000,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
   }
 
   // GET TAG NUMBER
-  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: invalid input: tag \n";
     return TCL_ERROR;
   }
@@ -1014,7 +1014,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
         opserr << argv[1] << " for random variable: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[argi + 1], &mean) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argi + 1], &mean) != TCL_OK) {
         opserr << "WARNING invalid mean\n";
         opserr << argv[1] << " for random variable: " << tag << endln;
         return TCL_ERROR;
@@ -1029,7 +1029,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
         opserr << argv[1] << " for random variable: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[argi + 1], &stdv) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argi + 1], &stdv) != TCL_OK) {
         opserr << "WARNING invalid standard deviation\n";
         opserr << argv[1] << " for random variable: " << tag << endln;
         return TCL_ERROR;
@@ -1044,7 +1044,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
         opserr << argv[1] << " for random variable: " << tag << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[argi + 1], &startPt) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argi + 1], &startPt) != TCL_OK) {
         opserr << "WARNING invalid starting point\n";
         opserr << argv[1] << " for random variable: " << tag << endln;
         return TCL_ERROR;
@@ -1064,7 +1064,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
       argi++;
       int err_break = 0;
       while (argi < argc && err_break == 0) {
-        if (Tcl_GetDouble(rt, argv[argi], &param) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[argi], &param) != TCL_OK)
           err_break = 1;
 
         param_temp(param_indx) = param;
@@ -1248,12 +1248,12 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
 
       // Read the points
       for (int i = 0; i < numPoints; i++) {
-        if (Tcl_GetDouble(rt, argv[4 + 2 * i], &x) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[4 + 2 * i], &x) != TCL_OK) {
           opserr << "ERROR: Invalid x point to user-defined random variable."
                  << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[5 + 2 * i], &pdf) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[5 + 2 * i], &pdf) != TCL_OK) {
           opserr << "ERROR: Invalid PDF value point to user-defined random "
                     "variable."
                  << endln;
@@ -1360,12 +1360,12 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
 
 //////////////////////////////////////////////////////////////////
 int
-TclReliabilityModelBuilder_getMean(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_getMean(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   int tag;
   RandomVariable *rv;
-  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: Invalid random variable number tag to getMean command."
            << endln;
     return TCL_ERROR;
@@ -1379,19 +1379,19 @@ TclReliabilityModelBuilder_getMean(ClientData clientData, G3_Runtime *rt,
   char buffer[40];
   sprintf(buffer, "%35.20f", rv->getMean());
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 //////////////////////////////////////////////////////////////////
 int
-TclReliabilityModelBuilder_getStdv(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_getStdv(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   int tag;
   RandomVariable *rv;
-  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: Invalid random variable number tag to getStdv command."
            << endln;
     return TCL_ERROR;
@@ -1405,7 +1405,7 @@ TclReliabilityModelBuilder_getStdv(ClientData clientData, G3_Runtime *rt,
   char buffer[40];
   sprintf(buffer, "%35.20f", rv->getStdv());
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
@@ -1413,7 +1413,7 @@ TclReliabilityModelBuilder_getStdv(ClientData clientData, G3_Runtime *rt,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
+                                        Tcl_Interp *interp, int argc,
                                         TCL_Char **argv)
 {
   if (argc != 4) {
@@ -1428,19 +1428,19 @@ TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
   double correlationValue;
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[1], &rv1) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &rv1) != TCL_OK) {
     opserr << "ERROR: invalid input: rv1 \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[2], &rv2) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &rv2) != TCL_OK) {
     opserr << "ERROR: invalid input: rv2 \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (double)
-  if (Tcl_GetDouble(rt, argv[3], &correlationValue) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &correlationValue) != TCL_OK) {
     opserr << "ERROR: invalid input: correlationValue \n";
     return TCL_ERROR;
   }
@@ -1470,14 +1470,14 @@ TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
 
 //////////////////////////////////////////////////////////////////
 int
-TclReliabilityModelBuilder_addCutset(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_addCutset(ClientData clientData, Tcl_Interp *interp,
                                      int argc, TCL_Char **argv)
 {
   Cutset *theCutset = 0;
   int tag, set;
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: invalid input: tag \n";
     return TCL_ERROR;
   }
@@ -1485,7 +1485,7 @@ TclReliabilityModelBuilder_addCutset(ClientData clientData, G3_Runtime *rt,
   Vector components(argc - 2);
   int argi = 2;
   while (argi < argc) {
-    if (Tcl_GetInt(rt, argv[argi], &set) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi], &set) != TCL_OK) {
       opserr << "ERROR: invalid input: cutset components \n";
       return TCL_ERROR;
     }
@@ -1522,26 +1522,26 @@ TclReliabilityModelBuilder_addCutset(ClientData clientData, G3_Runtime *rt,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
-                                          G3_Runtime *rt, int argc,
+                                          Tcl_Interp *interp, int argc,
                                           TCL_Char **argv)
 {
   int firstRV, lastRV;
   double correlationValue;
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[1], &firstRV) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &firstRV) != TCL_OK) {
     opserr << "ERROR: invalid input: firstRV \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[2], &lastRV) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &lastRV) != TCL_OK) {
     opserr << "ERROR: invalid input: lastRV \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (double)
-  if (Tcl_GetDouble(rt, argv[3], &correlationValue) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &correlationValue) != TCL_OK) {
     opserr << "ERROR: invalid input: correlationValue \n";
     return TCL_ERROR;
   }
@@ -1552,7 +1552,7 @@ TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
     for (int j = i + 1; j <= lastRV; j++) {
       sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
               correlationValue);
-      Tcl_Eval(rt, theCorrelateCommand);
+      Tcl_Eval(interp, theCorrelateCommand);
     }
   }
 
@@ -1562,7 +1562,7 @@ TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
-                                                G3_Runtime *rt, int argc,
+                                                Tcl_Interp *interp, int argc,
                                                 TCL_Char **argv)
 {
   int firstRV, lastRV, i;
@@ -1570,19 +1570,19 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
   char theCorrelateCommand[50];
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[2], &firstRV) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &firstRV) != TCL_OK) {
     opserr << "ERROR: invalid input: firstRV \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[3], &lastRV) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &lastRV) != TCL_OK) {
     opserr << "ERROR: invalid input: lastRV \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (double)
-  if (Tcl_GetDouble(rt, argv[4], &theta) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &theta) != TCL_OK) {
     opserr << "ERROR: invalid input: theta \n";
     return TCL_ERROR;
   }
@@ -1595,7 +1595,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
         correlationValue = exp(-abs(i - j) / theta);
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
                 correlationValue);
-        Tcl_Eval(rt, theCorrelateCommand);
+        Tcl_Eval(interp, theCorrelateCommand);
       }
     }
   } else if (strcmp(argv[1], "homogeneous2") == 0) {
@@ -1604,7 +1604,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
         correlationValue = exp(-pow((i - j) / theta, 2.0));
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
                 correlationValue);
-        Tcl_Eval(rt, theCorrelateCommand);
+        Tcl_Eval(interp, theCorrelateCommand);
       }
     }
   } else if (strcmp(argv[1], "homogeneous3") == 0) {
@@ -1613,7 +1613,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
         correlationValue = 1.0 / (theta * (i - j) * (i - j));
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
                 correlationValue);
-        Tcl_Eval(rt, theCorrelateCommand);
+        Tcl_Eval(interp, theCorrelateCommand);
       }
     }
   } else if (strcmp(argv[1], "homogeneous4") == 0) {
@@ -1623,7 +1623,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
           correlationValue = 1.0 - (abs(i - j) / theta);
           sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
                   correlationValue);
-          Tcl_Eval(rt, theCorrelateCommand);
+          Tcl_Eval(interp, theCorrelateCommand);
         }
       }
     }
@@ -1681,7 +1681,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
             theta * theVector(i - firstRV + 1) * theVector(j - firstRV + 1);
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
                 correlationValue);
-        Tcl_Eval(rt, theCorrelateCommand);
+        Tcl_Eval(interp, theCorrelateCommand);
       }
     }
   } else {
@@ -1695,7 +1695,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addLimitState(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv)
 {
   LimitStateFunction *theLimitStateFunction = 0;
@@ -1709,7 +1709,7 @@ TclReliabilityModelBuilder_addLimitState(ClientData clientData,
   }
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "ERROR: invalid input: tag \n";
     return TCL_ERROR;
   }
@@ -1722,7 +1722,7 @@ TclReliabilityModelBuilder_addLimitState(ClientData clientData,
     char buffer[40];
     sprintf(buffer, "%35.20f", g);
 
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
     return TCL_OK;
   }
@@ -1750,7 +1750,7 @@ TclReliabilityModelBuilder_addLimitState(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv)
 {
   LimitStateFunction *theLimitStateFunction = 0;
@@ -1762,13 +1762,13 @@ TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
   }
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[1], &lsfTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &lsfTag) != TCL_OK) {
     opserr << "ERROR: invalid input: lsfTag \n";
     return TCL_ERROR;
   }
 
   // GET INPUT PARAMETER (integer)
-  if (Tcl_GetInt(rt, argv[2], &rvTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &rvTag) != TCL_OK) {
     opserr << "ERROR: invalid input: rvTag \n";
     return TCL_ERROR;
   }
@@ -1796,7 +1796,7 @@ TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv)
 {
   ModulatingFunction *theModulatingFunction = 0;
@@ -1814,13 +1814,13 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     double a, b, c;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &thisTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &thisTag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[3], &filterTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &filterTag) != TCL_OK) {
       opserr << "ERROR: invalid input: filterTag \n";
       return TCL_ERROR;
     }
@@ -1835,19 +1835,19 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &a) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &a) != TCL_OK) {
       opserr << "ERROR: invalid input: a \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[5], &b) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &b) != TCL_OK) {
       opserr << "ERROR: invalid input: b \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[6], &c) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &c) != TCL_OK) {
       opserr << "ERROR: invalid input: c \n";
       return TCL_ERROR;
     }
@@ -1876,13 +1876,13 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     double amplitude = 0.0;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &thisTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &thisTag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[3], &filterTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &filterTag) != TCL_OK) {
       opserr << "ERROR: invalid input: filterTag \n";
       return TCL_ERROR;
     }
@@ -1897,7 +1897,7 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &amplitude) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &amplitude) != TCL_OK) {
       opserr << "ERROR: invalid input: amplitude \n";
       return TCL_ERROR;
     }
@@ -1925,13 +1925,13 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     int thisTag, filterTag;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &thisTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &thisTag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[3], &filterTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &filterTag) != TCL_OK) {
       opserr << "ERROR: invalid input: filterTag \n";
       return TCL_ERROR;
     }
@@ -1948,31 +1948,31 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     double t1, t2, t3, t4, amplitude;
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &t1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &t1) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: t1 \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[5], &t2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &t2) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: t2 \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[6], &t3) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &t3) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: t3 \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[7], &t4) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7], &t4) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: t4 \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[8], &amplitude) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8], &amplitude) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: amplitude \n";
       return TCL_ERROR;
     }
@@ -2000,13 +2000,13 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     int thisTag, filterTag;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &thisTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &thisTag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[3], &filterTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &filterTag) != TCL_OK) {
       opserr << "ERROR: invalid input: filterTag \n";
       return TCL_ERROR;
     }
@@ -2023,13 +2023,13 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
     double t1, t2;
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &t1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &t1) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: t1 \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[5], &t2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &t2) != TCL_OK) {
       opserr << "ERROR: invalid input to modulating function: t2 \n";
       return TCL_ERROR;
     }
@@ -2062,7 +2062,7 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
 
 //////////////////////////////////////////////////////////////////
 int
-TclReliabilityModelBuilder_addFilter(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_addFilter(ClientData clientData, Tcl_Interp *interp,
                                      int argc, TCL_Char **argv)
 {
   Filter *theFilter = 0;
@@ -2079,17 +2079,17 @@ TclReliabilityModelBuilder_addFilter(ClientData clientData, G3_Runtime *rt,
       return TCL_ERROR;
     }
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[3], &period_Tn) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &period_Tn) != TCL_OK) {
       opserr << "ERROR: invalid input: freq_wn \n";
       return TCL_ERROR;
     }
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &damping) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &damping) != TCL_OK) {
       opserr << "ERROR: invalid input: damping \n";
       return TCL_ERROR;
     }
@@ -2115,30 +2115,30 @@ TclReliabilityModelBuilder_addFilter(ClientData clientData, G3_Runtime *rt,
     ){
 
             if ( strcmp(argv[2],"whitenoise") == 0){
-                    if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+                    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
                             opserr << "ERROR: invalid input: tag \n";
                             return TCL_ERROR;
                     }
                     // GET INPUT PARAMETER (double)
-                    if (Tcl_GetDouble(rt, argv[3], &period_Tn) != TCL_OK) {
+                    if (Tcl_GetDouble(interp, argv[3], &period_Tn) != TCL_OK) {
                             opserr << "ERROR: invalid input: freq_wn \n";
                             return TCL_ERROR;
                     }
                     theFilter = new NewWhitenoiseFilter(tag,period_Tn);
             }else{
-                    if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+                    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
                             opserr << "ERROR: invalid input: tag \n";
                             return TCL_ERROR;
                     }
-                    if (Tcl_GetDouble(rt, argv[3], &period_Tn) != TCL_OK) {
+                    if (Tcl_GetDouble(interp, argv[3], &period_Tn) != TCL_OK) {
                             opserr << "ERROR: invalid input: freq_wn \n";
                             return TCL_ERROR;
                     }
-                    if (Tcl_GetDouble(rt, argv[4], &damping) != TCL_OK) {
+                    if (Tcl_GetDouble(interp, argv[4], &damping) != TCL_OK) {
                             opserr << "ERROR: invalid input: damping \n";
                             return TCL_ERROR;
                     }
-                    if (Tcl_GetDouble(rt, argv[4], &dtpulse) != TCL_OK) {
+                    if (Tcl_GetDouble(interp, argv[4], &dtpulse) != TCL_OK) {
                             opserr << "ERROR: invalid input: damping \n";
                             return TCL_ERROR;
                     }
@@ -2168,7 +2168,7 @@ TclReliabilityModelBuilder_addFilter(ClientData clientData, G3_Runtime *rt,
 
 /*
 int
-TclReliabilityModelBuilder_addFilter(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_addFilter(ClientData clientData, Tcl_Interp *interp,
 int argc, TCL_Char **argv)
 {
         Filter *theFilter = 0;
@@ -2177,7 +2177,7 @@ int argc, TCL_Char **argv)
         double period_Tn, damping;
 
         // GET INPUT PARAMETER (integer)
-        if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
                 opserr << "ERROR: invalid input: tag \n";
                 return TCL_ERROR;
         }
@@ -2205,13 +2205,13 @@ filter \n"; opserr << "filter: " << tag << endln; return TCL_ERROR;
 
 
         // GET INPUT PARAMETER (double)
-        if (Tcl_GetDouble(rt, argv[3], &period_Tn) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[3], &period_Tn) != TCL_OK) {
                 opserr << "ERROR: invalid input: freq_wn \n";
                 return TCL_ERROR;
         }
 
         // GET INPUT PARAMETER (double)
-        if (Tcl_GetDouble(rt, argv[4], &damping) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[4], &damping) != TCL_OK) {
                 opserr << "ERROR: invalid input: damping \n";
                 return TCL_ERROR;
         }
@@ -2266,7 +2266,7 @@ StandardLinearOscillatorAccelerationFilter(tag,period_Tn,damping);
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
+                                       Tcl_Interp *interp, int argc,
                                        TCL_Char **argv)
 {
   Spectrum *theSpectrum = 0;
@@ -2277,37 +2277,37 @@ TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
     double minFreq, maxFreq, alpha, wp, gamma;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[3], &minFreq) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &minFreq) != TCL_OK) {
       opserr << "ERROR: invalid input: minFreq \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &maxFreq) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &maxFreq) != TCL_OK) {
       opserr << "ERROR: invalid input: maxFreq \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[5], &alpha) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &alpha) != TCL_OK) {
       opserr << "ERROR: invalid input: alpha \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[6], &wp) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6], &wp) != TCL_OK) {
       opserr << "ERROR: invalid input: wp \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[7], &gamma) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7], &gamma) != TCL_OK) {
       opserr << "ERROR: invalid input: gamma \n";
       return TCL_ERROR;
     }
@@ -2334,25 +2334,25 @@ TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
     double minFreq, maxFreq, amplitude;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[3], &minFreq) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &minFreq) != TCL_OK) {
       opserr << "ERROR: invalid input: minFreq \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[4], &maxFreq) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &maxFreq) != TCL_OK) {
       opserr << "ERROR: invalid input: maxFreq \n";
       return TCL_ERROR;
     }
 
     // GET INPUT PARAMETER (double)
-    if (Tcl_GetDouble(rt, argv[5], &amplitude) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &amplitude) != TCL_OK) {
       opserr << "ERROR: invalid input: amplitude \n";
       return TCL_ERROR;
     }
@@ -2379,7 +2379,7 @@ TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
     double frequency, amplitude;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
       opserr << "ERROR: invalid input: tag \n";
       return TCL_ERROR;
     }
@@ -2397,14 +2397,14 @@ TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
     for (int iii = 1; iii <= numPoints; iii++) {
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[(iii - 1) * 2 + 3], &frequency) !=
+      if (Tcl_GetDouble(interp, argv[(iii - 1) * 2 + 3], &frequency) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: frequency \n";
         return TCL_ERROR;
       }
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[(iii - 1) * 2 + 4], &amplitude) !=
+      if (Tcl_GetDouble(interp, argv[(iii - 1) * 2 + 4], &amplitude) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: amplitude \n";
         return TCL_ERROR;
@@ -2445,7 +2445,7 @@ TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addRandomNumberGenerator(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv)
 {
   // In case this is a replacement
@@ -2472,7 +2472,7 @@ TclReliabilityModelBuilder_addRandomNumberGenerator(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addProbabilityTransformation(ClientData clientData,
-                                                        G3_Runtime *rt,
+                                                        Tcl_Interp *interp,
                                                         int argc,
                                                         TCL_Char **argv)
 {
@@ -2496,7 +2496,7 @@ TclReliabilityModelBuilder_addProbabilityTransformation(ClientData clientData,
     if (argc > 2) {
       if (strcmp(argv[2], "-print") == 0) {
 
-        if (Tcl_GetInt(rt, argv[3], &printFlag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[3], &printFlag) != TCL_OK) {
           opserr
               << "ERROR: invalid input: printFlag to Nataf transformation \n";
           return TCL_ERROR;
@@ -2514,7 +2514,7 @@ TclReliabilityModelBuilder_addProbabilityTransformation(ClientData clientData,
     if (argc > 2) {
       if (strcmp(argv[2], "-print") == 0) {
 
-        if (Tcl_GetInt(rt, argv[3], &printFlag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[3], &printFlag) != TCL_OK) {
           opserr << "ERROR: invalid input: printFlag to AllIndependent "
                     "transformation \n";
           return TCL_ERROR;
@@ -2542,7 +2542,7 @@ TclReliabilityModelBuilder_addProbabilityTransformation(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
-                                              G3_Runtime *rt, int argc,
+                                              Tcl_Interp *interp, int argc,
                                               TCL_Char **argv)
 {
   // In case this is a replacement
@@ -2577,7 +2577,7 @@ TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
       if (strcmp(argv[argvCounter], "-gamma") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &gamma) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &gamma) != TCL_OK) {
           opserr << "ERROR: invalid input: gamma for Polak-He algorithm"
                  << endln;
           return TCL_ERROR;
@@ -2587,7 +2587,7 @@ TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-delta") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &delta) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &delta) != TCL_OK) {
           opserr << "ERROR: invalid input: delta for Polak-He algorithm"
                  << endln;
           return TCL_ERROR;
@@ -2655,7 +2655,7 @@ TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
       if (strcmp(argv[argvCounter], "-c_bar") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &c_bar) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &c_bar) != TCL_OK) {
           opserr << "ERROR: invalid input: c_bar for algorithm" << endln;
           return TCL_ERROR;
         }
@@ -2664,7 +2664,7 @@ TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-e_bar") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &e_bar) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &e_bar) != TCL_OK) {
           opserr << "ERROR: invalid input: e_bar for SQP algorithm" << endln;
           return TCL_ERROR;
         }
@@ -2703,7 +2703,7 @@ TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv)
 {
   // In case this is a replacement
@@ -2747,7 +2747,7 @@ TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
         if (strcmp(argv[counter], "-pert") == 0) {
           counter++;
 
-          if (Tcl_GetDouble(rt, argv[counter], &perturbationFactor) !=
+          if (Tcl_GetDouble(interp, argv[counter], &perturbationFactor) !=
               TCL_OK) {
             opserr << "ERROR: invalid input: perturbationFactor \n";
             return TCL_ERROR;
@@ -2806,7 +2806,7 @@ TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv)
 {
   // In case this is a replacement
@@ -2830,7 +2830,7 @@ TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
       if (strcmp(argv[argvCounter], "-multi") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &multi) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &multi) != TCL_OK) {
           opserr << "ERROR: invalid input: multi \n";
           return TCL_ERROR;
         }
@@ -2838,7 +2838,7 @@ TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-add") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &add) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &add) != TCL_OK) {
           opserr << "ERROR: invalid input: add \n";
           return TCL_ERROR;
         }
@@ -2846,7 +2846,7 @@ TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-factor") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &factor) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &factor) != TCL_OK) {
           opserr << "ERROR: invalid input: factor \n";
           return TCL_ERROR;
         }
@@ -2883,7 +2883,7 @@ TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
       if (strcmp(argv[argvCounter], "-factor") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &factor) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &factor) != TCL_OK) {
           opserr << "ERROR: invalid input: factor \n";
           return TCL_ERROR;
         }
@@ -2915,7 +2915,7 @@ TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
       if (strcmp(argv[argvCounter], "-factor") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &factor) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &factor) != TCL_OK) {
           opserr << "ERROR: invalid input: factor \n";
           return TCL_ERROR;
         }
@@ -2944,7 +2944,7 @@ TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
-                                                          G3_Runtime *rt,
+                                                          Tcl_Interp *interp,
                                                           int argc,
                                                           TCL_Char **argv)
 {
@@ -2977,7 +2977,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       if (strcmp(argv[argvCounter], "-e1") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &e1) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &e1) != TCL_OK) {
           opserr << "ERROR: invalid input: e1 \n";
           return TCL_ERROR;
         }
@@ -2985,7 +2985,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-e2") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &e2) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &e2) != TCL_OK) {
           opserr << "ERROR: invalid input: e2 \n";
           return TCL_ERROR;
         }
@@ -2993,7 +2993,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-print") == 0) {
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &print) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argvCounter], &print) != TCL_OK) {
           opserr << "ERROR: invalid input: print \n";
           return TCL_ERROR;
         }
@@ -3001,7 +3001,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-scaleValue") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &scaleValue) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &scaleValue) != TCL_OK) {
           opserr << "ERROR: invalid input: scaleValue \n";
           return TCL_ERROR;
         }
@@ -3030,7 +3030,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       if (strcmp(argv[argvCounter], "-e1") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &e1) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &e1) != TCL_OK) {
           opserr << "ERROR: invalid input: e1 \n";
           return TCL_ERROR;
         }
@@ -3038,7 +3038,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-e2") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &e2) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &e2) != TCL_OK) {
           opserr << "ERROR: invalid input: e2 \n";
           return TCL_ERROR;
         }
@@ -3046,7 +3046,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-print") == 0) {
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &print) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argvCounter], &print) != TCL_OK) {
           opserr << "ERROR: invalid input: print \n";
           return TCL_ERROR;
         }
@@ -3054,7 +3054,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-scaleValue") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &scaleValue) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &scaleValue) != TCL_OK) {
           opserr << "ERROR: invalid input: scaleValue \n";
           return TCL_ERROR;
         }
@@ -3084,7 +3084,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv)
 {
   // In case this is a replacement
@@ -3144,7 +3144,7 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
       if (strcmp(argv[argvCounter], "-print") == 0) {
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &printFlag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argvCounter], &printFlag) != TCL_OK) {
           opserr << "ERROR: invalid input: printFlag \n";
           return TCL_ERROR;
         }
@@ -3152,7 +3152,7 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-maxNum") == 0) {
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &maxNumReductions) !=
+        if (Tcl_GetInt(interp, argv[argvCounter], &maxNumReductions) !=
             TCL_OK) {
           opserr << "ERROR: invalid input: maxNumReductions \n";
           return TCL_ERROR;
@@ -3161,7 +3161,7 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-base") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &base) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &base) != TCL_OK) {
           opserr << "ERROR: invalid input: base \n";
           return TCL_ERROR;
         }
@@ -3169,13 +3169,13 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-initial") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &b0) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &b0) != TCL_OK) {
           opserr << "ERROR: invalid input: b0 \n";
           return TCL_ERROR;
         }
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &numberOfShortSteps) !=
+        if (Tcl_GetInt(interp, argv[argvCounter], &numberOfShortSteps) !=
             TCL_OK) {
           opserr << "ERROR: invalid input: numberOfShortSteps \n";
           return TCL_ERROR;
@@ -3184,20 +3184,20 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
       } else if (strcmp(argv[argvCounter], "-sphere") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &radius) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &radius) != TCL_OK) {
           opserr << "ERROR: invalid input: radius \n";
           return TCL_ERROR;
         }
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &surfaceDistance) !=
+        if (Tcl_GetDouble(interp, argv[argvCounter], &surfaceDistance) !=
             TCL_OK) {
           opserr << "ERROR: invalid input: surfaceDistance \n";
           return TCL_ERROR;
         }
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &evolution) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &evolution) != TCL_OK) {
           opserr << "ERROR: invalid input: evolution \n";
           return TCL_ERROR;
         }
@@ -3224,7 +3224,7 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
       if (strcmp(argv[argvCounter], "-stepSize") == 0) {
         argvCounter++;
 
-        if (Tcl_GetDouble(rt, argv[argvCounter], &stepSize) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argvCounter], &stepSize) != TCL_OK) {
           opserr << "ERROR: Invalid step size input to Fixed step size rule."
                  << endln;
           return TCL_ERROR;
@@ -3252,7 +3252,7 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addFunctionEvaluator(ClientData clientData,
-                                                G3_Runtime *rt, int argc,
+                                                Tcl_Interp *interp, int argc,
                                                 TCL_Char **argv)
 {
   // In case this is a replacement
@@ -3344,7 +3344,7 @@ TclReliabilityModelBuilder_addFunctionEvaluator(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
-                                                G3_Runtime *rt, int argc,
+                                                Tcl_Interp *interp, int argc,
                                                 TCL_Char **argv)
 {
   // In case this is a replacement
@@ -3388,7 +3388,7 @@ TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
         if (strcmp(argv[counter], "-pert") == 0) {
           counter++;
 
-          if (Tcl_GetDouble(rt, argv[counter], &perturbationFactor) !=
+          if (Tcl_GetDouble(interp, argv[counter], &perturbationFactor) !=
               TCL_OK) {
             opserr << "ERROR: invalid input: perturbationFactor \n";
             return TCL_ERROR;
@@ -3491,7 +3491,7 @@ TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addFindCurvatures(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv)
 {
   // In case this is a replacement
@@ -3524,7 +3524,7 @@ TclReliabilityModelBuilder_addFindCurvatures(ClientData clientData,
     int numberOfCurvatures;
 
     // GET INPUT PARAMETER (integer)
-    if (Tcl_GetInt(rt, argv[2], &numberOfCurvatures) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &numberOfCurvatures) != TCL_OK) {
       opserr << "ERROR: invalid input: numberOfCurvatures \n";
       return TCL_ERROR;
     }
@@ -3568,7 +3568,7 @@ TclReliabilityModelBuilder_addFindCurvatures(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_addFindDesignPointAlgorithm(ClientData clientData,
-                                                       G3_Runtime *rt,
+                                                       Tcl_Interp *interp,
                                                        int argc,
                                                        TCL_Char **argv)
 {
@@ -3648,7 +3648,7 @@ TclReliabilityModelBuilder_addFindDesignPointAlgorithm(ClientData clientData,
       if (strcmp(argv[argvCounter], "-maxNumIter") == 0) {
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &maxNumIter) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argvCounter], &maxNumIter) != TCL_OK) {
           opserr << "ERROR: invalid input: maxNumIter \n";
           return TCL_ERROR;
         }
@@ -3756,7 +3756,7 @@ TclReliabilityModelBuilder_addFindDesignPointAlgorithm(ClientData clientData,
       if (strcmp(argv[argvCounter], "-maxNumIter") == 0) {
         argvCounter++;
 
-        if (Tcl_GetInt(rt, argv[argvCounter], &maxNumIter) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argvCounter], &maxNumIter) != TCL_OK) {
           opserr << "ERROR: invalid input: maxNumIter \n";
           return TCL_ERROR;
         }
@@ -3828,7 +3828,7 @@ TclReliabilityModelBuilder_addFindDesignPointAlgorithm(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv)
 {
 
@@ -3908,7 +3908,7 @@ TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
-                                          G3_Runtime *rt, int argc,
+                                          Tcl_Interp *interp, int argc,
                                           TCL_Char **argv)
 {
   // In case this is a replacement
@@ -3951,7 +3951,7 @@ TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
     if (strcmp(argv[argvCounter], "-maxIter") == 0) {
       argvCounter++;
 
-      if (Tcl_GetInt(rt, argv[argvCounter], &maxIter) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &maxIter) != TCL_OK) {
         opserr << "ERROR: invalid input: maxIter for projection" << endln;
         return TCL_ERROR;
       }
@@ -3960,7 +3960,7 @@ TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
     } else if (strcmp(argv[argvCounter], "-tol") == 0) {
       argvCounter++;
 
-      if (Tcl_GetDouble(rt, argv[argvCounter], &tol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &tol) != TCL_OK) {
         opserr << "ERROR: invalid input: tol factor \n";
         return TCL_ERROR;
       }
@@ -3969,7 +3969,7 @@ TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
     } else if (strcmp(argv[argvCounter], "-maxStepLength") == 0) {
       argvCounter++;
 
-      if (Tcl_GetDouble(rt, argv[argvCounter], &maxStepLength) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &maxStepLength) != TCL_OK) {
         opserr << "ERROR: invalid input: maxStepLength factor \n";
         return TCL_ERROR;
       }
@@ -4002,7 +4002,7 @@ TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv)
 {
   // In case this is a replacement
@@ -4044,7 +4044,7 @@ TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
   int relSensTag = 0;
   if (argc == 4) {
     if (strcmp(argv[2], "-relSens") == 0) {
-      if (Tcl_GetInt(rt, argv[3], &relSensTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &relSensTag) != TCL_OK) {
         opserr << "ERROR: invalid input: relSensTag \n";
         return TCL_ERROR;
       }
@@ -4074,7 +4074,7 @@ TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv)
 {
   // In case this is a replacement
@@ -4107,7 +4107,7 @@ TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
 
   theFOSMAnalysis = new FOSMAnalysis(theReliabilityDomain, theStructuralDomain,
                                      theFunctionEvaluator, theGradientEvaluator,
-                                     rt, argv[1]);
+                                     interp,argv[1]);
 
   if (theFOSMAnalysis == 0) {
     opserr << "ERROR: could not create theFOSMAnalysis \n";
@@ -4124,7 +4124,7 @@ TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runParametricReliabilityAnalysis(ClientData
-clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         // In case this is a replacement
         if (theParametricReliabilityAnalysis != 0) {
@@ -4169,7 +4169,7 @@ ParametricReliabilityAnalysis can be created" << endln; return TCL_ERROR;
 
                 if (strcmp(argv[counter-1],"-par") == 0) {
                         // GET INPUT PARAMETER (int)
-                        if (Tcl_GetInt(rt, argv[counter], &parameterNumber)
+                        if (Tcl_GetInt(interp, argv[counter], &parameterNumber)
 != TCL_OK) { opserr << "ERROR: invalid input: parameterNumber \n"; return
 TCL_ERROR;
                         }
@@ -4178,13 +4178,13 @@ TCL_ERROR;
                 }
                 else if (strcmp(argv[counter-1],"-range") == 0) {
                         // GET INPUT PARAMETER (double)
-                        if (Tcl_GetDouble(rt, argv[counter], &first) !=
+                        if (Tcl_GetDouble(interp, argv[counter], &first) !=
 TCL_OK) { opserr << "ERROR: invalid input: first bound to range \n"; return
 TCL_ERROR;
                         }
                         counter++;
                         // GET INPUT PARAMETER (double)
-                        if (Tcl_GetDouble(rt, argv[counter], &last) !=
+                        if (Tcl_GetDouble(interp, argv[counter], &last) !=
 TCL_OK) { opserr << "ERROR: invalid input: last bound to range \n"; return
 TCL_ERROR;
                         }
@@ -4193,7 +4193,7 @@ TCL_ERROR;
                 }
                 else if (strcmp(argv[counter-1],"-numInt") == 0) {
                         // GET INPUT PARAMETER (int)
-                        if (Tcl_GetInt(rt, argv[counter], &numIntervals) !=
+                        if (Tcl_GetInt(interp, argv[counter], &numIntervals) !=
 TCL_OK) { opserr << "ERROR: invalid input: number of intervals \n"; return
 TCL_ERROR;
                         }
@@ -4239,7 +4239,7 @@ theParametricReliabilityAnalysis \n"; return TCL_ERROR;
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runSORMAnalysis(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv)
 {
   // In case this is a replacement
@@ -4288,7 +4288,7 @@ TclReliabilityModelBuilder_runSORMAnalysis(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runSystemAnalysis(ClientData clientData,
-                                             G3_Runtime *rt, int argc,
+                                             Tcl_Interp *interp, int argc,
                                              TCL_Char **argv)
 {
   // In case this is a replacement
@@ -4332,7 +4332,7 @@ TclReliabilityModelBuilder_runSystemAnalysis(ClientData clientData,
           return TCL_ERROR;
         }
       } else if (strcmp(argv[argi], "-tol") == 0) {
-        if (Tcl_GetDouble(rt, argv[argi + 1], &tol) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argi + 1], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol = " << argv[argi + 1] << endln;
           return TCL_ERROR;
         }
@@ -4394,7 +4394,7 @@ TclReliabilityModelBuilder_runSystemAnalysis(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
-                                                         G3_Runtime *rt,
+                                                         Tcl_Interp *interp,
                                                          int argc,
                                                          TCL_Char **argv)
 {
@@ -4492,7 +4492,7 @@ TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
       }
     } else if (strcmp(argv[i], "-variance") == 0) {
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[i + 1], &samplingVariance) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &samplingVariance) != TCL_OK) {
         opserr << "ERROR: invalid input: samplingVariance \n";
         return TCL_ERROR;
       }
@@ -4504,19 +4504,19 @@ TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
     } else if (strcmp(argv[i], "-maxNum") == 0) {
       // GET INPUT PARAMETER (integer)
       numberOfSimulations = atol(argv[i + 1]);
-      // if (Tcl_GetInt(rt, argv[i+1], &numberOfSimulations) != TCL_OK) {
+      // if (Tcl_GetInt(interp, argv[i+1], &numberOfSimulations) != TCL_OK) {
       //	opserr << "ERROR: invalid input: numberOfSimulations \n";
       //	return TCL_ERROR;
       //}
     } else if (strcmp(argv[i], "-targetCOV") == 0) {
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[i + 1], &targetCOV) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &targetCOV) != TCL_OK) {
         opserr << "ERROR: invalid input: targetCOV \n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[i], "-print") == 0) {
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[i + 1], &printFlag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[i + 1], &printFlag) != TCL_OK) {
         opserr << "ERROR: invalid input: printFlag \n";
         return TCL_ERROR;
       }
@@ -4536,7 +4536,7 @@ TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
 
   theImportanceSamplingAnalysis = new ImportanceSamplingAnalysis(
       theReliabilityDomain, theStructuralDomain, theProbabilityTransformation,
-      theFunctionEvaluator, theRandomNumberGenerator, rt,
+      theFunctionEvaluator, theRandomNumberGenerator, interp,
       numberOfSimulations, targetCOV, samplingVariance, printFlag, argv[1],
       analysisTypeTag);
 
@@ -4563,7 +4563,7 @@ TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
 //
 int
 TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
-                                                  G3_Runtime *rt, int argc,
+                                                  Tcl_Interp *interp, int argc,
                                                   TCL_Char **argv)
 {
   // In case this is a replacement
@@ -4613,7 +4613,7 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &stepsToStart) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &stepsToStart) != TCL_OK) {
         opserr
             << "ERROR: invalid input stepsToStart to theOutCrossingAnalysis \n";
         return TCL_ERROR;
@@ -4621,7 +4621,7 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &stepsToEnd) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &stepsToEnd) != TCL_OK) {
         opserr
             << "ERROR: invalid input stepsToEnd to theOutCrossingAnalysis \n";
         return TCL_ERROR;
@@ -4629,14 +4629,14 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &sampleFreq) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &sampleFreq) != TCL_OK) {
         opserr
             << "ERROR: invalid input sampleFreq to theOutCrossingAnalysis \n";
         return TCL_ERROR;
       }
       argvCounter++;
 
-      if (Tcl_GetInt(rt, argv[argvCounter], &impulseFreq) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &impulseFreq) != TCL_OK) {
         opserr
             << "ERROR: invalid input impulseFreq to theOutCrossingAnalysis \n";
         return TCL_ERROR;
@@ -4646,7 +4646,7 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &littleDt) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &littleDt) != TCL_OK) {
         opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis \n";
         return TCL_ERROR;
       }
@@ -4659,7 +4659,7 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
       analysisType = 1;
       if (strcmp(argv[argvCounter], "-integralTolerance") == 0) {
         argvCounter++;
-        if (Tcl_GetDouble(rt, argv[argvCounter], &integralTolerance) !=
+        if (Tcl_GetDouble(interp, argv[argvCounter], &integralTolerance) !=
             TCL_OK) {
           opserr
               << "ERROR: invalid input littleDt to theOutCrossingAnalysis \n";
@@ -4708,7 +4708,7 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
 // ????????????????????????????????????????????????????????????????????????????
 int
 TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   // In case this is a replacement
   if (theSamplingAnalysis != 0) {
@@ -4806,7 +4806,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
     else if ((strcmp(argv[argvCounter], "-maxNum") == 0) ||
              (strcmp(argv[argvCounter], "-maxnum") == 0)) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter], &numberOfSimulations) !=
+      if (Tcl_GetInt(interp, argv[argvCounter], &numberOfSimulations) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: numberOfSimulations \n";
         return TCL_ERROR;
@@ -4826,13 +4826,13 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
 
     else if (strcmp(argv[argvCounter], "-targetCOV") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter++], &targetCOV) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter++], &targetCOV) != TCL_OK) {
         opserr << "ERROR: invalid input: targetCOV \n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[argvCounter], "-print") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter++], &printFlag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter++], &printFlag) != TCL_OK) {
         opserr << "ERROR: invalid input: printFlag \n";
         return TCL_ERROR;
       }
@@ -4840,7 +4840,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
 
     else if (strcmp(argv[argvCounter], "-funcTol") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter++], &funcTol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter++], &funcTol) != TCL_OK) {
         opserr << "ERROR: invalid input: funcTol \n";
         return TCL_ERROR;
       }
@@ -4848,7 +4848,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
 
     else if (strcmp(argv[argvCounter], "-varTol") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter++], &varTol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter++], &varTol) != TCL_OK) {
         opserr << "ERROR: invalid input: varTol \n";
         return TCL_ERROR;
       }
@@ -4856,13 +4856,13 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
 
     else if (strcmp(argv[argvCounter], "-maxIter") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter++], &maxIter) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter++], &maxIter) != TCL_OK) {
         opserr << "ERROR: invalid input: maxIter \n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[argvCounter], "-littleDt") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter++], &littleDt) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter++], &littleDt) != TCL_OK) {
         opserr << "ERROR: invalid input: littleDt \n";
         return TCL_ERROR;
       }
@@ -4875,7 +4875,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
   }
 
   /*
-          OrthogonalPlaneSamplingAnalysis(   G3_Runtime *rt,
+          OrthogonalPlaneSamplingAnalysis(   Tcl_Interp *interp,
                           ReliabilityDomain *passedReliabilityDomain,
                                           ProbabilityTransformation
      *passedProbabilityTransformation, GFunEvaluator *passedGFunEvaluator,
@@ -4889,7 +4889,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
 
   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxx
   theSamplingAnalysis = new OrthogonalPlaneSamplingAnalysis(
-      rt, theReliabilityDomain, theProbabilityTransformation,
+      interp,theReliabilityDomain, theProbabilityTransformation,
       theFunctionEvaluator, theRandomNumberGenerator, numberOfSimulations,
       maxIter, targetCOV, printFlag, name, theDesignPoint, analysisTypeTag, 1,
       funcTol, varTol, maxIter, littleDt);
@@ -4915,7 +4915,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
 
 int
 TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
-                                                        G3_Runtime *rt,
+                                                        Tcl_Interp *interp,
                                                         int argc,
                                                         TCL_Char **argv)
 {
@@ -5020,7 +5020,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
         dir = 1;
 
         // GET INPUT PARAMETER (integer)
-        if (Tcl_GetInt(rt, argv[argvCounter], &rvDir) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argvCounter], &rvDir) != TCL_OK) {
           opserr << "ERROR: invalid input: rvDir  in "
                     "theGFunVisualizationAnalysis \n";
           return TCL_ERROR;
@@ -5093,7 +5093,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &rv1) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &rv1) != TCL_OK) {
         opserr
             << "ERROR: invalid input: rv1  in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5101,7 +5101,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &from1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &from1) != TCL_OK) {
         opserr
             << "ERROR: invalid input: from1 in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5109,7 +5109,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &to1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &to1) != TCL_OK) {
         opserr
             << "ERROR: invalid input: to1 in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5117,7 +5117,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetInt(rt, argv[argvCounter], &numPts1) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numPts1) != TCL_OK) {
         opserr << "ERROR: invalid input: numPts1 in "
                   "theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5137,7 +5137,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &rv1) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &rv1) != TCL_OK) {
         opserr
             << "ERROR: invalid input: rv1  in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5145,7 +5145,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &from1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &from1) != TCL_OK) {
         opserr
             << "ERROR: invalid input: from1 in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5153,7 +5153,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &to1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &to1) != TCL_OK) {
         opserr
             << "ERROR: invalid input: to1 in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5161,7 +5161,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetInt(rt, argv[argvCounter], &numPts1) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numPts1) != TCL_OK) {
         opserr << "ERROR: invalid input: numPts1 in "
                   "theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5169,7 +5169,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &rv2) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &rv2) != TCL_OK) {
         opserr
             << "ERROR: invalid input: rv2  in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5177,7 +5177,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &from2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &from2) != TCL_OK) {
         opserr
             << "ERROR: invalid input: from2 in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5185,7 +5185,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetDouble(rt, argv[argvCounter], &to2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &to2) != TCL_OK) {
         opserr
             << "ERROR: invalid input: to2 in theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5193,7 +5193,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       argvCounter++;
 
       // GET INPUT PARAMETER (double)
-      if (Tcl_GetInt(rt, argv[argvCounter], &numPts2) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numPts2) != TCL_OK) {
         opserr << "ERROR: invalid input: numPts2 in "
                   "theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5271,7 +5271,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
       theMatrix = dummyMatrix;
 
       // GET INPUT PARAMETER (integer)
-      if (Tcl_GetInt(rt, argv[argvCounter], &numLinePts) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numLinePts) != TCL_OK) {
         opserr << "ERROR: invalid input: numPts  in "
                   "theGFunVisualizationAnalysis \n";
         return TCL_ERROR;
@@ -5414,7 +5414,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_printReliability(ClientData clientData,
-                                            G3_Runtime *rt, int argc,
+                                            Tcl_Interp *interp, int argc,
                                             TCL_Char **argv)
 {
   if (argc > 1)
@@ -5431,7 +5431,7 @@ TclReliabilityModelBuilder_printReliability(ClientData clientData,
 /// -print 1 -tclFileToRun test.tcl <-seed 1>
 int
 TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
-                                                         G3_Runtime *rt,
+                                                         Tcl_Interp *interp,
                                                          int argc,
                                                          TCL_Char **argv)
 {
@@ -5484,7 +5484,7 @@ TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
 
       argvCounter++;
 
-      if (Tcl_GetInt(rt, argv[argvCounter], &numberOfSimulations) !=
+      if (Tcl_GetInt(interp, argv[argvCounter], &numberOfSimulations) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: numberOfSimulations \n";
         return TCL_ERROR;
@@ -5498,7 +5498,7 @@ TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
 
       argvCounter++;
 
-      if (Tcl_GetInt(rt, argv[argvCounter], &printFlag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &printFlag) != TCL_OK) {
         opserr << "ERROR: invalid input: printFlag \n";
         return TCL_ERROR;
       }
@@ -5526,7 +5526,7 @@ TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
     else if (strcmp(argv[argvCounter], "-seed") == 0) {
       argvCounter++;
 
-      if (Tcl_GetInt(rt, argv[argvCounter], &seed) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &seed) != TCL_OK) {
         opserr << "ERROR: invalid input: seed \n";
         return TCL_ERROR;
       }
@@ -5542,7 +5542,7 @@ TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
   }; // while
 
   theMonteCarloResponseAnalysis = new MonteCarloResponseAnalysis(
-      theReliabilityDomain, rt, theProbabilityTransformation,
+      theReliabilityDomain, interp, theProbabilityTransformation,
       theRandomNumberGenerator, numberOfSimulations, printFlag, outPutFile,
       tclFileName, seed);
 
@@ -5566,7 +5566,7 @@ TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
 ///            updateParameterValue  -dv 3 -value 20.0
 int
 TclReliabilityModelBuilder_updateParameterValue(ClientData clientData,
-                                                G3_Runtime *rt, int argc,
+                                                Tcl_Interp *interp, int argc,
                                                 TCL_Char **argv)
 {
   /*
@@ -5590,7 +5590,7 @@ TclReliabilityModelBuilder_updateParameterValue(ClientData clientData,
 
                         argvCounter++;
 
-                        if (Tcl_GetInt(rt, argv[argvCounter], &dvrv) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &dvrv) !=
 TCL_OK) { opserr << "ERROR: invalid input: dv number \n"; return TCL_ERROR;
                         }
                         dvrvMark=1; // dv
@@ -5602,7 +5602,7 @@ TCL_OK) { opserr << "ERROR: invalid input: dv number \n"; return TCL_ERROR;
 
                         argvCounter++;
 
-                        if (Tcl_GetInt(rt, argv[argvCounter], &dvrv) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &dvrv) !=
 TCL_OK) { opserr << "ERROR: invalid input: rv Number \n"; return TCL_ERROR;
                         }
                         dvrvMark=0; // rv
@@ -5610,7 +5610,7 @@ TCL_OK) { opserr << "ERROR: invalid input: rv Number \n"; return TCL_ERROR;
                 }// if
                 else if ((strcmp(argv[argvCounter],"-value") ==
 0)||(strcmp(argv[argvCounter],"-VALUE") == 0)) { argvCounter++; if
-(Tcl_GetDouble(rt, argv[argvCounter], &value) != TCL_OK) { opserr << "ERROR:
+(Tcl_GetDouble(interp, argv[argvCounter], &value) != TCL_OK) { opserr << "ERROR:
 invalid input: value \n"; return TCL_ERROR;
                         }
 //			opserr<<"value is:"<<value<<endln;
@@ -5679,7 +5679,7 @@ theRandomVariablePositioner->getRvNumber(); value =
 //////
 int
 TclReliabilityModelBuilder_computeHessian(ClientData clientData,
-                                          G3_Runtime *rt, int argc,
+                                          Tcl_Interp *interp, int argc,
                                           TCL_Char **argv)
 {
   char fileName[20] = "HessianByFDM.out";
@@ -5714,7 +5714,7 @@ TclReliabilityModelBuilder_computeHessian(ClientData clientData,
     else if ((strcmp(argv[argvCounter], "-perturbation") == 0) ||
              (strcmp(argv[argvCounter], "-perturbationTolerance") == 0)) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter], &pTol) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &pTol) != TCL_OK) {
         opserr << "ERROR: invalid input: perturbationTolerance \n";
         return TCL_ERROR;
       }
@@ -5786,7 +5786,7 @@ TclReliabilityModelBuilder_computeHessian(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
-                                                 G3_Runtime *rt, int argc,
+                                                 Tcl_Interp *interp, int argc,
                                                  TCL_Char **argv)
 {
   int argvCounter = 1;
@@ -5841,7 +5841,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
 
     else if (strcmp(argv[argvCounter], "-ndir") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter], &numPPlane) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numPPlane) != TCL_OK) {
         opserr << "ERROR: invalid input: numPPlane \n";
         return TCL_ERROR;
       }
@@ -5859,7 +5859,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
       int pathSize;
       TCL_Char **pathStrings;
 
-      if (Tcl_SplitList(rt, argv[argvCounter], &pathSize, &pathStrings) !=
+      if (Tcl_SplitList(interp, argv[argvCounter], &pathSize, &pathStrings) !=
           TCL_OK) {
 
         opserr << "WARNING problem splitting path list in gridInfo\n";
@@ -5870,7 +5870,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
 
       for (int i = 0; i < pathSize; i++) {
         double value;
-        if (Tcl_GetDouble(rt, pathStrings[i], &value) != TCL_OK) {
+        if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
                  << "\n";
 
@@ -5926,7 +5926,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
     } // else if
     else if (strcmp(argv[argvCounter], "-littleDt") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter], &littleDt) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &littleDt) != TCL_OK) {
         opserr << "ERROR: invalid input: littleDt \n";
         return TCL_ERROR;
       }
@@ -5943,7 +5943,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
   MultiDimVisPrincPlane *theMultiDimVisPrincPlane = new MultiDimVisPrincPlane(
       theReliabilityDomain, theFunctionEvaluator, theProbabilityTransformation,
       outputFile, theGradientEvaluator, designPoint, numPPlane, type, gridInfo,
-      rt, passedHessian, hessianFileName, analysisType, littleDt);
+      interp,passedHessian, hessianFileName, analysisType, littleDt);
 
   if (passedHessian != 0)
     delete passedHessian;
@@ -5963,7 +5963,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv)
 {
   if (theProbabilityTransformation == 0) {
@@ -5978,7 +5978,7 @@ TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
   TCL_Char **rvInput;
   // Version using a Tcl list
   if (argc == 2) {
-    if (Tcl_SplitList(rt, argv[1], &numInput, &rvInput) != TCL_OK) {
+    if (Tcl_SplitList(interp, argv[1], &numInput, &rvInput) != TCL_OK) {
       opserr << "transformXtoU -- error splitting input list of X realizations"
              << endln;
       return 0;
@@ -5989,7 +5989,7 @@ TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
     }
     for (int i = 0; i < nrv; i++) {
       double value;
-      if (Tcl_GetDouble(rt, rvInput[i], &value) != TCL_OK) {
+      if (Tcl_GetDouble(interp, rvInput[i], &value) != TCL_OK) {
         opserr << "WARNING problem reading X realization " << rvInput[i]
                << "\n";
 
@@ -6076,7 +6076,7 @@ TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv)
 {
   if (theProbabilityTransformation == 0) {
@@ -6090,7 +6090,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
   int numInput = 0;
   TCL_Char **rvInput;
   if (argc == 2) {
-    if (Tcl_SplitList(rt, argv[1], &numInput, &rvInput) != TCL_OK) {
+    if (Tcl_SplitList(interp, argv[1], &numInput, &rvInput) != TCL_OK) {
       opserr << "transformUtoX -- error splitting input list of U realizations"
              << endln;
       return 0;
@@ -6102,7 +6102,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
     Vector u(nrv);
     for (int i = 0; i < nrv; i++) {
       double value;
-      if (Tcl_GetDouble(rt, rvInput[i], &value) != TCL_OK) {
+      if (Tcl_GetDouble(interp, rvInput[i], &value) != TCL_OK) {
         opserr << "WARNING problem reading U realization " << rvInput[i]
                << "\n";
 
@@ -6117,7 +6117,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
     char buffer[20];
     for (int i = 0; i < nrv; i++) {
       sprintf(buffer, "%f ", x(i));
-      Tcl_AppendResult(rt, buffer, NULL);
+      Tcl_AppendResult(interp, buffer, NULL);
     }
 
     return TCL_OK;
@@ -6201,7 +6201,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
   if ((theRandomNumberGenerator == 0) || (theFunctionEvaluator == 0) ||
@@ -6258,7 +6258,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-ndir") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter], &numPPlane) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numPPlane) != TCL_OK) {
         opserr << "ERROR: invalid input: numPPlane \n";
         return TCL_ERROR;
       }
@@ -6288,7 +6288,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-tarCOV") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter], &tarCov) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &tarCov) != TCL_OK) {
         opserr << "ERROR: invalid input: tarCov \n";
         return TCL_ERROR;
       }
@@ -6298,7 +6298,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-numSimulation") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter], &numberOfSimulations) !=
+      if (Tcl_GetInt(interp, argv[argvCounter], &numberOfSimulations) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: numOfSimulations \n";
         return TCL_ERROR;
@@ -6320,7 +6320,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
       int pathSize;
       TCL_Char **pathStrings;
 
-      if (Tcl_SplitList(rt, argv[argvCounter], &pathSize, &pathStrings) !=
+      if (Tcl_SplitList(interp, argv[argvCounter], &pathSize, &pathStrings) !=
           TCL_OK) {
 
         opserr << "WARNING problem splitting path list in gridInfo\n";
@@ -6331,7 +6331,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
       for (int i = 0; i < pathSize; i++) {
         double value;
-        if (Tcl_GetDouble(rt, pathStrings[i], &value) != TCL_OK) {
+        if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
                  << "\n";
 
@@ -6388,7 +6388,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
   DP_RSM_Sim *theDP_RSM_Sim = new DP_RSM_Sim(
       theReliabilityDomain, theFunctionEvaluator, theProbabilityTransformation,
       outputFile, theGradientEvaluator, designPoint, numPPlane,
-      experimentalPointRule, rt, passedHessian, hessianFileName, surfDesign,
+      experimentalPointRule, interp, passedHessian, hessianFileName, surfDesign,
       typeRespSurfaceSimulation, gridInfo, theRandomNumberGenerator, tarCov,
       numberOfSimulations);
 
@@ -6414,7 +6414,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
 int
 TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
   if ((theRandomNumberGenerator == 0) || (theFunctionEvaluator == 0) ||
@@ -6474,7 +6474,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-ndir") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter], &numPPlane) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argvCounter], &numPPlane) != TCL_OK) {
         opserr << "ERROR: invalid input: numPPlane \n";
         return TCL_ERROR;
       }
@@ -6504,7 +6504,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-tarCOV") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter], &tarCov) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &tarCov) != TCL_OK) {
         opserr << "ERROR: invalid input: tarCov \n";
         return TCL_ERROR;
       }
@@ -6514,7 +6514,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-numSimulation") == 0) {
       argvCounter++;
-      if (Tcl_GetInt(rt, argv[argvCounter], &numberOfSimulations) !=
+      if (Tcl_GetInt(interp, argv[argvCounter], &numberOfSimulations) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: numOfSimulations \n";
         return TCL_ERROR;
@@ -6536,7 +6536,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
       int pathSize;
       TCL_Char **pathStrings;
 
-      if (Tcl_SplitList(rt, argv[argvCounter], &pathSize, &pathStrings) !=
+      if (Tcl_SplitList(interp, argv[argvCounter], &pathSize, &pathStrings) !=
           TCL_OK) {
 
         opserr << "WARNING problem splitting path list in gridInfo\n";
@@ -6547,7 +6547,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
       for (int i = 0; i < pathSize; i++) {
         double value;
-        if (Tcl_GetDouble(rt, pathStrings[i], &value) != TCL_OK) {
+        if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
                  << "\n";
 
@@ -6598,7 +6598,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-littleDt") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter], &littleDt) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argvCounter], &littleDt) != TCL_OK) {
         opserr << "ERROR: invalid input: littleDt \n";
         return TCL_ERROR;
       }
@@ -6608,7 +6608,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
     else if (strcmp(argv[argvCounter], "-ImpulseInterval") == 0) {
       argvCounter++;
-      if (Tcl_GetDouble(rt, argv[argvCounter], &ImpulseInterval) !=
+      if (Tcl_GetDouble(interp, argv[argvCounter], &ImpulseInterval) !=
           TCL_OK) {
         opserr << "ERROR: invalid input: ImpulseInterval \n";
         return TCL_ERROR;
@@ -6641,7 +6641,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
       new DP_RSM_Sim_TimeVariant(
           theReliabilityDomain, theFunctionEvaluator,
           theProbabilityTransformation, outputFile, theGradientEvaluator,
-          designPoint, numPPlane, experimentalPointRule, rt, passedHessian,
+          designPoint, numPPlane, experimentalPointRule, interp, passedHessian,
           hessianFileName, surfDesign, typeRespSurfaceSimulation, gridInfo,
           theRandomNumberGenerator, tarCov, numberOfSimulations, littleDt,
           ImpulseInterval);
@@ -6660,7 +6660,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
 int
 TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
-                                       G3_Runtime *rt, int argc,
+                                       Tcl_Interp *interp, int argc,
                                        TCL_Char **argv)
 {
   if (argc < 2) {
@@ -6675,7 +6675,7 @@ TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
   }
 
   int lsfTag;
-  if (Tcl_GetInt(rt, argv[1], &lsfTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &lsfTag) != TCL_OK) {
     opserr << "WARNING betaFORM lsfTag? - could not read lsfTag\n";
     return TCL_ERROR;
   }
@@ -6685,14 +6685,14 @@ TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
   char buffer[40];
   sprintf(buffer, "%35.20f", beta);
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
 TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
+                                        Tcl_Interp *interp, int argc,
                                         TCL_Char **argv)
 {
   if (argc < 3) {
@@ -6707,13 +6707,13 @@ TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
   }
 
   int lsfTag;
-  if (Tcl_GetInt(rt, argv[1], &lsfTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &lsfTag) != TCL_OK) {
     opserr << "WARNING gammaFORM lsfTag? rvTag? - could not read lsfTag\n";
     return TCL_ERROR;
   }
 
   int rvTag;
-  if (Tcl_GetInt(rt, argv[2], &rvTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &rvTag) != TCL_OK) {
     opserr << "WARNING gammaFORM lsfTag? rvTag? - could not read rvTag\n";
     return TCL_ERROR;
   }
@@ -6733,14 +6733,14 @@ TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
   char buffer[40];
   sprintf(buffer, "%35.20f", gamma);
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
 TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
+                                        Tcl_Interp *interp, int argc,
                                         TCL_Char **argv)
 {
   if (argc < 3) {
@@ -6755,13 +6755,13 @@ TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
   }
 
   int lsfTag;
-  if (Tcl_GetInt(rt, argv[1], &lsfTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &lsfTag) != TCL_OK) {
     opserr << "WARNING alphaFORM lsfTag? rvTag? - could not read lsfTag\n";
     return TCL_ERROR;
   }
 
   int rvTag;
-  if (Tcl_GetInt(rt, argv[2], &rvTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &rvTag) != TCL_OK) {
     opserr << "WARNING alphaFORM lsfTag? rvTag? - could not read rvTag\n";
     return TCL_ERROR;
   }
@@ -6781,13 +6781,13 @@ TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
   char buffer[40];
   sprintf(buffer, "%35.20f", alpha);
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
-TclReliabilityModelBuilder_getPDF(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_getPDF(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
   if (argc < 3) {
@@ -6797,11 +6797,11 @@ TclReliabilityModelBuilder_getPDF(ClientData clientData, G3_Runtime *rt,
 
   int rvTag;
   double x;
-  if (Tcl_GetInt(rt, argv[1], &rvTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &rvTag) != TCL_OK) {
     opserr << "WARNING getPDF tag? x? -- could not read tag\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &x) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &x) != TCL_OK) {
     opserr << "WARNING getPDF tag? x? -- could not read x\n";
     return TCL_ERROR;
   }
@@ -6817,14 +6817,14 @@ TclReliabilityModelBuilder_getPDF(ClientData clientData, G3_Runtime *rt,
 
   sprintf(buffer, "%35.20f", theRV->getPDFvalue(x));
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
 TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv)
 {
   if (argc < 2) {
@@ -6834,7 +6834,7 @@ TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
   }
 
   double x;
-  if (Tcl_GetDouble(rt, argv[1], &x) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &x) != TCL_OK) {
     opserr << "WARNING getStdNormalPDF x? -- could not read x\n";
     return TCL_ERROR;
   }
@@ -6845,13 +6845,13 @@ TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
 
   sprintf(buffer, "%35.20f", theRV.getPDFvalue(x));
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
-TclReliabilityModelBuilder_getCDF(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_getCDF(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv)
 {
   if (argc < 3) {
@@ -6861,11 +6861,11 @@ TclReliabilityModelBuilder_getCDF(ClientData clientData, G3_Runtime *rt,
 
   int rvTag;
   double x;
-  if (Tcl_GetInt(rt, argv[1], &rvTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &rvTag) != TCL_OK) {
     opserr << "WARNING getCDF tag? x? -- could not read tag\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &x) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &x) != TCL_OK) {
     opserr << "WARNING getCDF tag? x? -- could not read x\n";
     return TCL_ERROR;
   }
@@ -6881,14 +6881,14 @@ TclReliabilityModelBuilder_getCDF(ClientData clientData, G3_Runtime *rt,
 
   sprintf(buffer, "%35.20f", theRV->getCDFvalue(x));
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
 TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
-                                           G3_Runtime *rt, int argc,
+                                           Tcl_Interp *interp, int argc,
                                            TCL_Char **argv)
 {
   if (argc < 2) {
@@ -6898,7 +6898,7 @@ TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
   }
 
   double x;
-  if (Tcl_GetDouble(rt, argv[1], &x) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &x) != TCL_OK) {
     opserr << "WARNING getStdNormalCDF x? -- could not read x\n";
     return TCL_ERROR;
   }
@@ -6909,14 +6909,14 @@ TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
 
   sprintf(buffer, "%35.20f", theRV.getCDFvalue(x));
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
 TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv)
 {
   if (argc < 3) {
@@ -6927,11 +6927,11 @@ TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
 
   int rvTag;
   double x;
-  if (Tcl_GetInt(rt, argv[1], &rvTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &rvTag) != TCL_OK) {
     opserr << "WARNING getInverseCDF tag? p? -- could not read tag\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &x) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &x) != TCL_OK) {
     opserr << "WARNING getInverseCDF tag? p? -- could not read p\n";
     return TCL_ERROR;
   }
@@ -6947,14 +6947,14 @@ TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
 
   sprintf(buffer, "%35.20f", theRV->getInverseCDFvalue(x));
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
 TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
-                                                  G3_Runtime *rt, int argc,
+                                                  Tcl_Interp *interp, int argc,
                                                   TCL_Char **argv)
 {
   if (argc < 2) {
@@ -6964,7 +6964,7 @@ TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
   }
 
   double x;
-  if (Tcl_GetDouble(rt, argv[1], &x) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &x) != TCL_OK) {
     opserr << "WARNING getStdNormalInverseCDF p? -- could not read p\n";
     return TCL_ERROR;
   }
@@ -6975,13 +6975,13 @@ TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
 
   sprintf(buffer, "%35.20f", theRV.getInverseCDFvalue(x));
 
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }
 
 int
-TclReliabilityModelBuilder_getRVTags(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_getRVTags(ClientData clientData, Tcl_Interp *interp,
                                      int argc, TCL_Char **argv)
 {
   RandomVariable *theEle;
@@ -6991,14 +6991,14 @@ TclReliabilityModelBuilder_getRVTags(ClientData clientData, G3_Runtime *rt,
 
   while ((theEle = eleIter()) != 0) {
     sprintf(buffer, "%d ", theEle->getTag());
-    Tcl_AppendResult(rt, buffer, NULL);
+    Tcl_AppendResult(interp, buffer, NULL);
   }
 
   return TCL_OK;
 }
 
 int
-TclReliabilityModelBuilder_getLSFTags(ClientData clientData, G3_Runtime *rt,
+TclReliabilityModelBuilder_getLSFTags(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv)
 {
   LimitStateFunction *theEle;
@@ -7009,7 +7009,7 @@ TclReliabilityModelBuilder_getLSFTags(ClientData clientData, G3_Runtime *rt,
 
   while ((theEle = eleIter()) != 0) {
     sprintf(buffer, "%d ", theEle->getTag());
-    Tcl_AppendResult(rt, buffer, NULL);
+    Tcl_AppendResult(interp, buffer, NULL);
   }
 
   return TCL_OK;
@@ -7017,7 +7017,7 @@ TclReliabilityModelBuilder_getLSFTags(ClientData clientData, G3_Runtime *rt,
 
 int
 TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv)
 {
   Cutset *theEle;
@@ -7027,7 +7027,7 @@ TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
 
   while ((theEle = eleIter()) != 0) {
     sprintf(buffer, "%d ", theEle->getTag());
-    Tcl_AppendResult(rt, buffer, NULL);
+    Tcl_AppendResult(interp, buffer, NULL);
   }
 
   return TCL_OK;
@@ -7035,7 +7035,7 @@ TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
-                                               G3_Runtime *rt, int argc,
+                                               Tcl_Interp *interp, int argc,
                                                TCL_Char **argv)
 {
   if (argc < 2) {
@@ -7045,7 +7045,7 @@ TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
   }
 
   int tag;
-  if (Tcl_GetInt(rt, argv[1], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "WARNING getCutsetComponents tag? -- could not read tag\n";
     return TCL_ERROR;
   }
@@ -7063,7 +7063,7 @@ TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
   char buffer[20];
   for (int i = 0; i < numComponents; i++) {
     sprintf(buffer, "%d ", int(theComponents(i)));
-    Tcl_AppendResult(rt, buffer, NULL);
+    Tcl_AppendResult(interp, buffer, NULL);
   }
 
   return TCL_OK;
@@ -7104,7 +7104,7 @@ TclReliabilityModelBuilder_addAnalyzer(ClientData clientData, Tcl_Interp
                 }
                 else if(strcmp(argv[argvCounter],"-delta") == 0) {
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &delta) !=
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &delta) !=
 TCL_OK) { opserr << "Invalid Input for ratio \n"; opserr << "for FreeVibration
 in tclModelbuidler \n"; return TCL_ERROR;
                         }
@@ -7112,7 +7112,7 @@ in tclModelbuidler \n"; return TCL_ERROR;
                 }
                 else if(strcmp(argv[argvCounter],"-step") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &nstep) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &nstep) !=
 TCL_OK) { opserr << "Invalid Input for ratio \n"; opserr << "for FreeVibration
 in tclModelbuidler \n"; return TCL_ERROR;
                         }
@@ -7196,7 +7196,7 @@ created" << endln;
 
 int
 TclReliabilityModelBuilder_addInitialStaticAnalysis(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         int* StaticLoadPatterns=0;
         int* temploads=0;
@@ -7223,7 +7223,7 @@ G3_Runtime *rt, int argc, TCL_Char **argv)
                         }
                         else if (strcmp(argv[argvCounter],"-nstep") == 0) {
                                 argvCounter++;
-                                if (Tcl_GetInt(rt, argv[argvCounter],
+                                if (Tcl_GetInt(interp, argv[argvCounter],
 &nstep) != TCL_OK) { opserr << "ERROR: Invalid input"; opserr << " nstep for
 initial static analysis" << endln; return TCL_ERROR;
                                 }
@@ -7234,7 +7234,7 @@ initial static analysis" << endln; return TCL_ERROR;
                                 numLoadPatterns=0;
                                 while(argvCounter<argc){
                                         if(argv[argvCounter][0]!= '-'){
-                                                if (Tcl_GetInt(rt,
+                                                if (Tcl_GetInt(interp,
 argv[argvCounter], &loadtag) != TCL_OK) { opserr << "Error invalid input for";
                                                 opserr << " LoadPattern ID for
 the initial static analysis"; opserr << endln; return TCL_ERROR;
@@ -7323,7 +7323,7 @@ Analysis. " << endln; return TCL_ERROR;
 /////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addInitialPointBuilder(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         bool print=false;
         double eps=0.01;
@@ -7356,7 +7356,7 @@ RandomVibrationAnalysis can be created" << endln; return TCL_ERROR;
 //			}
 //			else if (strcmp(argv[argvCounter],"-eps") == 0) {
 //				argvCounter++;
-//				if (Tcl_GetDouble(rt, argv[argvCounter],
+//				if (Tcl_GetDouble(interp, argv[argvCounter],
 &eps) != TCL_OK) {
 //					opserr << "Invalid Input for threshold
 \n";
@@ -7369,7 +7369,7 @@ tclModelbuidler \n";
 //			else if (strcmp(argv[argvCounter],"-maxlinesearch") ==
 0) {
 //				argvCounter++;
-//				if (Tcl_GetInt(rt, argv[argvCounter],
+//				if (Tcl_GetInt(interp, argv[argvCounter],
 &MaxLineSearch) != TCL_OK) {
 //					opserr << "Invalid Input for
 MaxLineSearch \n";
@@ -7405,7 +7405,7 @@ InitialPointBuilder " << endln;
                         }
                         else if (strcmp(argv[argvCounter],"-eps") == 0) {
                                 argvCounter++;
-                                if (Tcl_GetDouble(rt, argv[argvCounter],
+                                if (Tcl_GetDouble(interp, argv[argvCounter],
 &eps) != TCL_OK) { opserr << "Invalid Input for threshold \n"; opserr << "for
 InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
                                 }
@@ -7413,7 +7413,7 @@ InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
                         }
                         else if (strcmp(argv[argvCounter],"-maxdivide") == 0) {
                                 argvCounter++;
-                                if (Tcl_GetInt(rt, argv[argvCounter],
+                                if (Tcl_GetInt(interp, argv[argvCounter],
 &maxDivide) != TCL_OK) { opserr << "Invalid Input for threshold \n"; opserr <<
 "for InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
                                 }
@@ -7426,13 +7426,13 @@ InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
                                 }else if(strcmp(argv[argvCounter],"mirror")==0){
                                         opserr << "Invalid Input for -stattpoint
 for initialpoint \n"; opserr << "mirror can not be selected\n"; return
-TCL_ERROR; start_mirror=true; argvCounter++; if (Tcl_GetDouble(rt,
+TCL_ERROR; start_mirror=true; argvCounter++; if (Tcl_GetDouble(interp,
 argv[argvCounter], &mirroreps) != TCL_OK) { opserr << "Invalid Input for
 threshold \n"; opserr << "for InitialPointBuilder in tclModelbuidler \n"; return
 TCL_ERROR;
                                         }
                                         argvCounter++;
-                                        if (Tcl_GetInt(rt,
+                                        if (Tcl_GetInt(interp,
 argv[argvCounter], &MaxLineSearch) != TCL_OK) { opserr << "Invalid Input for
 threshold \n"; opserr << "for InitialPointBuilder in tclModelbuidler \n"; return
 TCL_ERROR;
@@ -7476,7 +7476,7 @@ endln; opserr << argv[1]<< endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addCrossingRateAnalyzer(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         if (theCrossingRateAnalyzer != 0) {
                 delete theCrossingRateAnalyzer;
@@ -7492,7 +7492,7 @@ G3_Runtime *rt, int argc, TCL_Char **argv)
                 if (strcmp(argv[argvCounter],"-littledt") == 0) {
                         argvCounter++;
                           // GET INPUT PARAMETER (double)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &littleDt)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &littleDt)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7552,7 +7552,7 @@ CrossingRateAnalyzer can be created" << endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addFOSeriesSimulation(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         if (theFOSeriesSimulation != 0) {
                 delete theFOSeriesSimulation;
@@ -7570,7 +7570,7 @@ G3_Runtime *rt, int argc, TCL_Char **argv)
         while (argc > argvCounter) {
                 if (strcmp(argv[argvCounter],"-maxsim") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &MaxSim) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &MaxSim) !=
 TCL_OK) { opserr << "ERROR: invalid input maxsim to FOSeriesSimulation \n";
                                 return TCL_ERROR;
                         }
@@ -7578,7 +7578,7 @@ TCL_OK) { opserr << "ERROR: invalid input maxsim to FOSeriesSimulation \n";
                 }
                 else if (strcmp(argv[argvCounter],"-interval") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &Interval) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &Interval) !=
 TCL_OK) { opserr << "ERROR: invalid input interval to FOSeriesSimulation \n";
                                 return TCL_ERROR;
                         }
@@ -7586,7 +7586,7 @@ TCL_OK) { opserr << "ERROR: invalid input interval to FOSeriesSimulation \n";
                 }
                 else if (strcmp(argv[argvCounter],"-analysis") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &analysis) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &analysis) !=
 TCL_OK) { opserr << "ERROR: invalid input analysis to FOSeriesSimulation \n";
                                 return TCL_ERROR;
                         }
@@ -7594,7 +7594,7 @@ TCL_OK) { opserr << "ERROR: invalid input analysis to FOSeriesSimulation \n";
                 }
                 else if (strcmp(argv[argvCounter],"-eps") == 0) {
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &Eps) !=
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &Eps) !=
 TCL_OK) { opserr << "ERROR: invalid input eps to FOSeriesSimulation \n"; return
 TCL_ERROR;
                         }
@@ -7637,7 +7637,7 @@ endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addFirstPassageAnalyzer(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         if (theFirstPassageAnalyzer != 0) {
                 delete theFirstPassageAnalyzer;
@@ -7654,7 +7654,7 @@ G3_Runtime *rt, int argc, TCL_Char **argv)
         while (argc > argvCounter) {
                 if (strcmp(argv[argvCounter],"-analysis") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &analysis) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &analysis) !=
 TCL_OK) { opserr << "ERROR: invalid input analysis to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7662,7 +7662,7 @@ TCL_OK) { opserr << "ERROR: invalid input analysis to theOutCrossingAnalysis
                 }
                 else if (strcmp(argv[argvCounter],"-interpolation") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter],
+                        if (Tcl_GetInt(interp, argv[argvCounter],
 &interpolation) != TCL_OK) { opserr << "ERROR: invalid input interpolation to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -7679,7 +7679,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-twoside") == 0) {
                         argvCounter++;
                         int ind;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &ind) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &ind) !=
 TCL_OK) { opserr << "ERROR: invalid input twoside to theOutCrossingAnalysis \n";
                                 return TCL_ERROR;
                         }
@@ -7746,7 +7746,7 @@ can be created" << endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addRandomVibrationSimulation(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         // In case this is a replacement
         if (theRandomVibrationSimulation != 0) {
@@ -7806,7 +7806,7 @@ AllIndependentTransformation(theReliabilityDomain,0);
                 if (strcmp(argv[argvCounter],"-starttime") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &StartTime)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &StartTime)
 != TCL_OK) { opserr << "ERROR: invalid input stepsToStart to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -7815,7 +7815,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-endtime") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &EndTime)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &EndTime)
 != TCL_OK) { opserr << "ERROR: invalid input stepsToEnd to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -7824,7 +7824,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-interval") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter],
+                        if (Tcl_GetDouble(interp, argv[argvCounter],
 &TimeInterval) != TCL_OK) { opserr << "ERROR: invalid input sampleFreq to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -7833,17 +7833,17 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-fragility") == 0) {
                         argvCounter++;
                           // GET INPUT PARAMETER (double)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &FragMin)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &FragMin)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &FragInt)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &FragInt)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &nFrag) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &nFrag) !=
 TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7851,7 +7851,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
                 }
                 else if (strcmp(argv[argvCounter],"-maxsim") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &maxSim) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &maxSim) !=
 TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7859,7 +7859,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
                 }
                 else if (strcmp(argv[argvCounter],"-intervalsim") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &intervalSim)
+                        if (Tcl_GetInt(interp, argv[argvCounter], &intervalSim)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7867,7 +7867,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
                 }
                 else if (strcmp(argv[argvCounter],"-instantaneous") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter],
+                        if (Tcl_GetInt(interp, argv[argvCounter],
 &instantaneous) != TCL_OK) { opserr << "ERROR: invalid input littleDt to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -7875,7 +7875,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 }
                 else if (strcmp(argv[argvCounter],"-firstpassage") == 0) {
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &firstpassage)
+                        if (Tcl_GetInt(interp, argv[argvCounter], &firstpassage)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7883,7 +7883,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 }
                 else if (strcmp(argv[argvCounter],"-eps") == 0) {
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &eps) !=
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &eps) !=
 TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -7891,7 +7891,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
                 }
                 else if (strcmp(argv[argvCounter],"-stationarytime") == 0) {
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter],
+                        if (Tcl_GetDouble(interp, argv[argvCounter],
 &stationaryTime) != TCL_OK) { opserr << "ERROR: invalid input littleDt to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -7903,12 +7903,12 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 }
                 else if (strcmp(argv[argvCounter],"-sample") == 0) {
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &sampleAmp)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &sampleAmp)
 != TCL_OK) { opserr << "ERROR: invalid input samplAmp theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter],
+                        if (Tcl_GetDouble(interp, argv[argvCounter],
 &sampleTime) != TCL_OK) { opserr << "ERROR: invalid input samplAmp
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -8036,7 +8036,7 @@ theRandomVibrationSimulation\n"; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_runRandomVibrationAnalysis(ClientData clientData,
-G3_Runtime *rt, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
         // In case this is a replacement
         if (theRandomVibrationAnalysis != 0) {
@@ -8095,7 +8095,7 @@ passage bool stationary = true;  // true - stationary problem bool print=false;
                 if (strcmp(argv[argvCounter],"-starttime") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &StartTime)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &StartTime)
 != TCL_OK) { opserr << "ERROR: invalid input stepsToStart to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -8104,7 +8104,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-endtime") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &EndTime)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &EndTime)
 != TCL_OK) { opserr << "ERROR: invalid input stepsToEnd to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -8113,7 +8113,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-interval") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter],
+                        if (Tcl_GetDouble(interp, argv[argvCounter],
 &TimeInterval) != TCL_OK) { opserr << "ERROR: invalid input sampleFreq to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -8122,7 +8122,7 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-startanalysis") == 0) {
                         argvCounter++;
                         // GET INPUT PARAMETER (integer)
-                        if (Tcl_GetDouble(rt, argv[argvCounter],
+                        if (Tcl_GetDouble(interp, argv[argvCounter],
 &StartAnalysis) != TCL_OK) { opserr << "ERROR: invalid input stepsToEnd to
 theOutCrossingAnalysis \n"; return TCL_ERROR;
                         }
@@ -8139,17 +8139,17 @@ theOutCrossingAnalysis \n"; return TCL_ERROR;
                 else if (strcmp(argv[argvCounter],"-fragility") == 0) {
                         argvCounter++;
                           // GET INPUT PARAMETER (double)
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &FragMin)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &FragMin)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
                         argvCounter++;
-                        if (Tcl_GetDouble(rt, argv[argvCounter], &FragInt)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &FragInt)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
                         argvCounter++;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &nFrag) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &nFrag) !=
 TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -8158,7 +8158,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
                 else if (strcmp(argv[argvCounter],"-designpoint") == 0) {
                         argvCounter++;
                           // GET INPUT PARAMETER (double)
-                        if (Tcl_GetInt(rt, argv[argvCounter], &designPoint)
+                        if (Tcl_GetInt(interp, argv[argvCounter], &designPoint)
 != TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -8171,7 +8171,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 //			argvCounter++;
 //			  // GET INPUT PARAMETER (double)
 //			int ind;
-//			if (Tcl_GetInt(rt, argv[argvCounter], &ind) !=
+//			if (Tcl_GetInt(interp, argv[argvCounter], &ind) !=
 TCL_OK) {
 //				opserr << "ERROR: invalid input littleDt to
 theOutCrossingAnalysis \n";
@@ -8190,7 +8190,7 @@ theOutCrossingAnalysis \n";
                         argvCounter++;
                           // GET INPUT PARAMETER (double)
                         int ind;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &ind) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &ind) !=
 TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }
@@ -8202,7 +8202,7 @@ TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
                         argvCounter++;
                           // GET INPUT PARAMETER (double)
                         int ind;
-                        if (Tcl_GetInt(rt, argv[argvCounter], &ind) !=
+                        if (Tcl_GetInt(interp, argv[argvCounter], &ind) !=
 TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
 \n"; return TCL_ERROR;
                         }

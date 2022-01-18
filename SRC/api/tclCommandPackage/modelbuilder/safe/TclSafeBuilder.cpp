@@ -92,7 +92,7 @@ using std::vector;                 // L.Jiang [SIF]
 #include <SimulationInformation.h>				//L.Jiang [SIF]
 extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
 */
-extern const char * getInterpPWD(G3_Runtime *rt);  //L.Jiang [SIF]
+extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
 /*--------------------------------------------------------------------
 #include <Block2D.h>
@@ -128,12 +128,12 @@ extern const char * getInterpPWD(G3_Runtime *rt);  //L.Jiang [SIF]
 /*
 extern void TCL_OPS_setModelBuilder(TclSafeBuilder *theNewBuilder);
 extern int OPS_ResetInput(ClientData clientData,
-                          G3_Runtime *rt,
+                          Tcl_Interp *interp,
                           int cArg,
                           int mArg,
                           TCL_Char **argv,
                           Domain *domain,
-                          TclSafeBuilder *builder);
+                          TclBuilder *builder);
 #include <packages.h>
 */
 
@@ -155,43 +155,43 @@ extern int OPS_ResetInput(ClientData clientData,
 //
 /*
 int
-TclCommand_addParameter(ClientData clientData, G3_Runtime *rt, int ,
+TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int ,
                         TCL_Char **argv);
 
 */
-static int TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int,
+static int TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int,
                               TCL_Char **argv);
-int TclCommand_addElement(ClientData clientData, G3_Runtime *rt, int,
+int TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int,
                           TCL_Char **);
 
 /*
 int
-TclCommand_mesh(ClientData clientData, G3_Runtime *rt,  int ,
+TclCommand_mesh(ClientData clientData, Tcl_Interp *interp,  int ,
                 TCL_Char **);
 int
-TclCommand_remesh(ClientData clientData, G3_Runtime *rt,  int ,
+TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,  int ,
                   TCL_Char **);
 #if defined(OPSDEF_Element_PFEM)
 int
-TclCommand_backgroundMesh(ClientData clientData, G3_Runtime *rt, int ,
+TclCommand_backgroundMesh(ClientData clientData, Tcl_Interp *interp, int ,
 TCL_Char **); #endif // _OPS_Element_PFEM
 */
-int TclCommand_addUniaxialMaterial(ClientData clientData, G3_Runtime *rt,
+int TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                    int, TCL_Char **);
 /*
 int
-TclCommand_addBeamIntegration(ClientData clientData, G3_Runtime *rt, int ,
+TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp, int ,
 TCL_Char **);
 
 int
-TclCommand_addLimitCurve(ClientData clientData, G3_Runtime *rt, int ,
+TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int ,
 TCL_Char **);
 
 int
-TclCommand_addNDMaterial(ClientData clientData, G3_Runtime *rt, int ,
+TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp, int ,
                          TCL_Char **);
 
-int TclCommand_addSection        (ClientData , G3_Runtime *rt, int ,
+int TclCommand_addSection        (ClientData , Tcl_Interp *interp, int ,
 TCL_Char **); int TclCommand_addYieldSurface_BC(ClientData , Tcl_Interp *, int ,
 TCL_Char **); int TclCommand_addYS_EvolutionModel(ClientData , Tcl_Interp *, int
 , TCL_Char **); int TclCommand_addYS_PlasticMaterial(ClientData , Tcl_Interp *,
@@ -208,42 +208,42 @@ static int TclCommand_addPattern(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 /*
 int
-TclCommand_addSeries(ClientData clientData, G3_Runtime *rt, int ,
+TclCommand_addSeries(ClientData clientData, Tcl_Interp *interp, int ,
                      TCL_Char **);
 */
 int TclCommand_addHomogeneousBC(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 /*
 int
-TclCommand_addHomogeneousBC_X(ClientData clientData, G3_Runtime *rt, int
+TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp, int
 , TCL_Char **); int TclCommand_addHomogeneousBC_Y(ClientData clientData,
-G3_Runtime *rt, int , TCL_Char **); int
-TclCommand_addHomogeneousBC_Z(ClientData clientData, G3_Runtime *rt, int
+Tcl_Interp *interp, int , TCL_Char **); int
+TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp, int
 , TCL_Char **); int TclCommand_addEqualDOF_MP (ClientData clientData,
-G3_Runtime *rt, int , TCL_Char **);
+Tcl_Interp *interp, int , TCL_Char **);
 
 int
-TclCommand_addEqualDOF_MP_Mixed (ClientData , G3_Runtime *rt,
+TclCommand_addEqualDOF_MP_Mixed (ClientData , Tcl_Interp *interp,
                            int , TCL_Char **);
 
 int
-TclCommand_RigidLink(ClientData , G3_Runtime *rt, int, TCL_Char **);
+TclCommand_RigidLink(ClientData , Tcl_Interp *interp, int, TCL_Char **);
 
 int
-TclCommand_RigidDiaphragm(ClientData , G3_Runtime *rt, int, TCL_Char **);
+TclCommand_RigidDiaphragm(ClientData , Tcl_Interp *interp, int, TCL_Char **);
 
 
 int
-TclCommand_addMP(ClientData , G3_Runtime *rt, int, TCL_Char **);
+TclCommand_addMP(ClientData , Tcl_Interp *interp, int, TCL_Char **);
 */
 int
-TclCommand_addNodalLoad(ClientData , G3_Runtime *rt, int, TCL_Char **);
+TclCommand_addNodalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char **);
 
 /*
-int TclCommand_addElementalLoad(ClientData , G3_Runtime *rt, int, TCL_Char
+int TclCommand_addElementalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char
 **);
 
-int TclCommand_addNodalMass(ClientData , G3_Runtime *rt, int , TCL_Char **);
+int TclCommand_addNodalMass(ClientData , Tcl_Interp *interp, int , TCL_Char **);
 int TclCommand_addSP(ClientData , Tcl_Interp *, int , TCL_Char **);
 
 int
@@ -252,11 +252,11 @@ TclCommand_addImposedMotionSP(ClientData , Tcl_Interp *, int argc, TCL_Char
 
 // Added by Scott J. Brandenberg
 int
-TclCommand_doPySimple1Gen(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doPySimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv);
 
 int
-TclCommand_doTzSimple1Gen(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doTzSimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv);
 // End added by SJB
 
@@ -267,28 +267,28 @@ TclSafeBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
 // End PRC
 
 int
-TclCommand_doBlock2D(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char **argv);
 
 int
-TclCommand_doBlock3D(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char **argv);
 
 int
 TclCommand_addRemoPatch(ClientData clientData,
-                        G3_Runtime *rt,
+                        Tcl_Interp *interp,
                         int argc,
                         TCL_Char **argv);
 
 int
 TclCommand_addRemoLayer(ClientData clientData,
-                        G3_Runtime *rt,
+                        Tcl_Interp *interp,
                         int argc,
                         TCL_Char **argv);
 
 int
 TclCommand_addRemoFiber(ClientData clientData,
-                        G3_Runtime *rt,
+                        Tcl_Interp *interp,
                         int argc,
                         TCL_Char **argv);
 
@@ -296,57 +296,57 @@ TclCommand_addRemoFiber(ClientData clientData,
 //Leo
 int
 TclSafeBuilder_addRemoHFiber(ClientData clientData,
-                             G3_Runtime *rt,
+                             Tcl_Interp *interp,
                              int argc,
                              TCL_Char **argv);
 
 int
 TclCommand_addRemoGeomTransf(ClientData clientData,
-                             G3_Runtime *rt,
+                             Tcl_Interp *interp,
                              int argc,
                              TCL_Char **argv);
 
 int
 TclCommand_addFrictionModel(ClientData clientData,
-                                 G3_Runtime *rt,
+                                 Tcl_Interp *interp,
                                  int argc,
                                  TCL_Char **argv);
 
 int
 TclCommand_addStiffnessDegradation(ClientData clientData,
-                                   G3_Runtime *rt,
+                                   Tcl_Interp *interp,
                                    int argc, TCL_Char **argv);
 
 int
 TclCommand_addUnloadingRule(ClientData clientData,
-                            G3_Runtime *rt,
+                            Tcl_Interp *interp,
                             int argc, TCL_Char **argv);
 
 int
 TclCommand_addStrengthDegradation(ClientData clientData,
-                                  G3_Runtime *rt,
+                                  Tcl_Interp *interp,
                                   int argc, TCL_Char **argv);
 
 int
 TclCommand_addHystereticBackbone(ClientData clientData,
-                                 G3_Runtime *rt,
+                                 Tcl_Interp *interp,
                                  int argc, TCL_Char **argv);
 
 int
 TclCommand_addGroundMotion(ClientData clientData,
-                           G3_Runtime *rt,
+                           Tcl_Interp *interp,
                            int argc,
                            TCL_Char **argv);
 
 /// added by ZHY
 int
 TclCommand_UpdateMaterialStage(ClientData clientData,
-                               G3_Runtime *rt,
+                               Tcl_Interp *interp,
                                int argc,
                                TCL_Char **argv);
 int
 TclCommand_UpdateMaterials(ClientData clientData,
-                           G3_Runtime *rt,
+                           Tcl_Interp *interp,
                            int argc,
                            TCL_Char **argv);
 
@@ -354,14 +354,14 @@ TclCommand_UpdateMaterials(ClientData clientData,
 /// added by ZHY
 int
 TclCommand_UpdateParameter(ClientData clientData,
-                           G3_Runtime *rt,
+                           Tcl_Interp *interp,
                            int argc,
                            TCL_Char **argv);
 
 ////////////////gnp adding rayleigh //////////////////////////
 int
 TclCommand_addElementRayleigh(ClientData clientData,
-                              G3_Runtime *rt,
+                              Tcl_Interp *interp,
                               int argc,
                               TCL_Char **argv);
 ///////////////////////////////////////////////////////////////
@@ -370,25 +370,25 @@ TclCommand_addElementRayleigh(ClientData clientData,
 
 // REMO
 extern int
-TclCommand_addPatch (ClientData clientData, G3_Runtime *rt,
+TclCommand_addPatch (ClientData clientData, Tcl_Interp *interp,
                      int argc, TCL_Char **argv,
                      TclSafeBuilder *theTclBuilder);
 
 
 extern int
-TclCommand_addFiber (ClientData clientData, G3_Runtime *rt,
+TclCommand_addFiber (ClientData clientData, Tcl_Interp *interp,
                      int argc, TCL_Char **argv,
                      TclSafeBuilder *theTclBuilder);
 
 
 extern int
-TclCommand_addHFiber (ClientData clientData, G3_Runtime *rt,
+TclCommand_addHFiber (ClientData clientData, Tcl_Interp *interp,
                           int argc, TCL_Char **argv,
                           TclSafeBuilder *theTclBuilder);
 
 
 extern int
-TclCommand_addReinfLayer (ClientData clientData, G3_Runtime *rt,
+TclCommand_addReinfLayer (ClientData clientData, Tcl_Interp *interp,
                           int argc, TCL_Char **argv,
                           TclSafeBuilder *theTclBuilder);
 
@@ -399,12 +399,12 @@ TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char **,
 
 
 int
-TclCommand_Package(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_Package(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv);
 
 // Added by Alborz Ghofrani - U.Washington
 int
-TclCommand_GenerateInterfacePoints(ClientData clientData, G3_Runtime *rt,
+TclCommand_GenerateInterfacePoints(ClientData clientData, Tcl_Interp *interp,
 int argc, TCL_Char **argv);
 // End Added by Alborz
 
@@ -412,12 +412,10 @@ int argc, TCL_Char **argv);
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
-//
-
 // constructor: the constructor will add certain commands to the interpreter
-TclSafeBuilder::TclSafeBuilder(Domain &theDomain, G3_Runtime *rt, int NDM,
+TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
-    : ModelBuilder(theDomain), ndm(NDM), ndf(NDF), theInterp(rt)
+    : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
 {
   theSections = new ArrayOfTaggedObjects(32);
   theUniaxialMaterials = new MapOfTaggedObjects();
@@ -429,198 +427,198 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, G3_Runtime *rt, int NDM,
 
   /*
     // call Tcl_CreateCommand for class specific commands
-    Tcl_CreateCommand(rt, "parameter", TclCommand_addParameter,
+    Tcl_CreateCommand(interp, "parameter", TclCommand_addParameter,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "addToParameter", TclCommand_addParameter,
+    Tcl_CreateCommand(interp, "addToParameter", TclCommand_addParameter,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "updateParameter", TclCommand_addParameter,
+    Tcl_CreateCommand(interp, "updateParameter", TclCommand_addParameter,
                       (ClientData)NULL, NULL);
   */
-  Tcl_CreateCommand(rt, "node", TclCommand_addNode, (ClientData)NULL, NULL);
+  Tcl_CreateCommand(interp, "node", TclCommand_addNode, (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "element", TclCommand_addElement, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "element", TclCommand_addElement, (ClientData)NULL,
                     NULL);
 
   /*
-    Tcl_CreateCommand(rt, "mesh", TclCommand_mesh,
+    Tcl_CreateCommand(interp, "mesh", TclCommand_mesh,
                       (ClientData)NULL, NULL);
-    Tcl_CreateCommand(rt, "remesh", TclCommand_remesh,
+    Tcl_CreateCommand(interp, "remesh", TclCommand_remesh,
                       (ClientData)NULL, NULL);
   #if defined(OPSDEF_Element_PFEM)
-    Tcl_CreateCommand(rt, "background", &TclCommand_backgroundMesh,
+    Tcl_CreateCommand(interp, "background", &TclCommand_backgroundMesh,
                       (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   #endif // _OPS_Element_PFEM
   */
-  Tcl_CreateCommand(rt, "uniaxialMaterial", TclCommand_addUniaxialMaterial,
+  Tcl_CreateCommand(interp, "uniaxialMaterial", TclCommand_addUniaxialMaterial,
                     (ClientData)NULL, NULL);
   /*
-    Tcl_CreateCommand(rt, "beamIntegration", TclCommand_addBeamIntegration,
+    Tcl_CreateCommand(interp, "beamIntegration", TclCommand_addBeamIntegration,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "limitCurve", TclCommand_addLimitCurve,
+    Tcl_CreateCommand(interp, "limitCurve", TclCommand_addLimitCurve,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "nDMaterial", TclCommand_addNDMaterial,
+    Tcl_CreateCommand(interp, "nDMaterial", TclCommand_addNDMaterial,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "section", TclCommand_addSection,
+    Tcl_CreateCommand(interp, "section", TclCommand_addSection,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "yieldSurface_BC", TclCommand_addYieldSurface_BC,
+    Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "ysEvolutionModel",
+    Tcl_CreateCommand(interp, "ysEvolutionModel",
   TclCommand_addYS_EvolutionModel, (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "plasticMaterial",
+    Tcl_CreateCommand(interp, "plasticMaterial",
   TclCommand_addYS_PlasticMaterial, (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "cyclicModel", TclCommand_addCyclicModel,
+    Tcl_CreateCommand(interp, "cyclicModel", TclCommand_addCyclicModel,
                       (ClientData)NULL, NULL); //!!
 
-    Tcl_CreateCommand(rt, "damageModel", TclCommand_addDamageModel,
+    Tcl_CreateCommand(interp, "damageModel", TclCommand_addDamageModel,
                       (ClientData)NULL, NULL); //!!
   */
-  Tcl_CreateCommand(rt, "pattern", TclCommand_addPattern, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "pattern", TclCommand_addPattern, (ClientData)NULL,
                     NULL);
 
-  Tcl_CreateCommand(rt, "timeSeries", TclCommand_addTimeSeries,
+  Tcl_CreateCommand(interp, "timeSeries", TclCommand_addTimeSeries,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "load", TclCommand_addNodalLoad, (ClientData)NULL,NULL);
+  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, (ClientData)NULL,NULL);
 
   /*
-    Tcl_CreateCommand(rt, "eleLoad", TclCommand_addElementalLoad,
+    Tcl_CreateCommand(interp, "eleLoad", TclCommand_addElementalLoad,
                       (ClientData)NULL, NULL);
 
-    Tcl_CreateCommand(rt, "mass", TclCommand_addNodalMass,
+    Tcl_CreateCommand(interp, "mass", TclCommand_addNodalMass,
                       (ClientData)NULL, NULL);
 */
-  Tcl_CreateCommand(rt, "fix", TclCommand_addHomogeneousBC,
+  Tcl_CreateCommand(interp, "fix", TclCommand_addHomogeneousBC,
                     (ClientData)NULL, NULL);
   /*
-      Tcl_CreateCommand(rt, "fixX", TclCommand_addHomogeneousBC_X,
+      Tcl_CreateCommand(interp, "fixX", TclCommand_addHomogeneousBC_X,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "fixY", TclCommand_addHomogeneousBC_Y,
+      Tcl_CreateCommand(interp, "fixY", TclCommand_addHomogeneousBC_Y,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "fixZ", TclCommand_addHomogeneousBC_Z,
+      Tcl_CreateCommand(interp, "fixZ", TclCommand_addHomogeneousBC_Z,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "sp", TclCommand_addSP,
+      Tcl_CreateCommand(interp, "sp", TclCommand_addSP,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "imposedMotion",
+      Tcl_CreateCommand(interp, "imposedMotion",
                         TclCommand_addImposedMotionSP,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "imposedSupportMotion",
+      Tcl_CreateCommand(interp, "imposedSupportMotion",
                         TclCommand_addImposedMotionSP,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "groundMotion",
+      Tcl_CreateCommand(interp, "groundMotion",
                         TclCommand_addGroundMotion,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "equalDOF", TclCommand_addEqualDOF_MP,
+      Tcl_CreateCommand(interp, "equalDOF", TclCommand_addEqualDOF_MP,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "equalDOF_Mixed",
+      Tcl_CreateCommand(interp, "equalDOF_Mixed",
     TclCommand_addEqualDOF_MP_Mixed, (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "rigidLink", &TclCommand_RigidLink,
+      Tcl_CreateCommand(interp, "rigidLink", &TclCommand_RigidLink,
                         (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-      Tcl_CreateCommand(rt, "rigidDiaphragm", &TclCommand_RigidDiaphragm,
+      Tcl_CreateCommand(interp, "rigidDiaphragm", &TclCommand_RigidDiaphragm,
                         (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-      Tcl_CreateCommand(rt, "mp", TclCommand_addMP,
+      Tcl_CreateCommand(interp, "mp", TclCommand_addMP,
                         (ClientData)NULL, NULL);
 
       // Added by Scott J. Brandenberg
-      Tcl_CreateCommand(rt, "PySimple1Gen", TclCommand_doPySimple1Gen,
+      Tcl_CreateCommand(interp, "PySimple1Gen", TclCommand_doPySimple1Gen,
                             (ClientData)NULL, NULL);
-      Tcl_CreateCommand(rt, "TzSimple1Gen", TclCommand_doTzSimple1Gen,
+      Tcl_CreateCommand(interp, "TzSimple1Gen", TclCommand_doTzSimple1Gen,
                             (ClientData)NULL, NULL);
       // End added by SJB
 
     // Added by Prishati Raychowdhury (UCSD)
-      Tcl_CreateCommand(rt, "ShallowFoundationGen",
+      Tcl_CreateCommand(interp, "ShallowFoundationGen",
     TclSafeBuilder_doShallowFoundationGen, (ClientData)NULL, NULL);
     // End PRC
 
-      Tcl_CreateCommand(rt, "block2D", TclCommand_doBlock2D,
+      Tcl_CreateCommand(interp, "block2D", TclCommand_doBlock2D,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "block3D", TclCommand_doBlock3D,
+      Tcl_CreateCommand(interp, "block3D", TclCommand_doBlock3D,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "patch", TclCommand_addRemoPatch,
+      Tcl_CreateCommand(interp, "patch", TclCommand_addRemoPatch,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "layer", TclCommand_addRemoLayer,
+      Tcl_CreateCommand(interp, "layer", TclCommand_addRemoLayer,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "fiber", TclCommand_addRemoFiber,
+      Tcl_CreateCommand(interp, "fiber", TclCommand_addRemoFiber,
                         (ClientData)NULL, NULL);
 
       //LEO
-      Tcl_CreateCommand(rt, "Hfiber", TclSafeBuilder_addRemoHFiber,
+      Tcl_CreateCommand(interp, "Hfiber", TclSafeBuilder_addRemoHFiber,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "geomTransf", TclCommand_addRemoGeomTransf,
+      Tcl_CreateCommand(interp, "geomTransf", TclCommand_addRemoGeomTransf,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "frictionModel",
+      Tcl_CreateCommand(interp, "frictionModel",
                         TclCommand_addFrictionModel,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "stiffnessDegradation",
+      Tcl_CreateCommand(interp, "stiffnessDegradation",
                         TclCommand_addStiffnessDegradation,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "unloadingRule",
+      Tcl_CreateCommand(interp, "unloadingRule",
                         TclCommand_addUnloadingRule,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "strengthDegradation",
+      Tcl_CreateCommand(interp, "strengthDegradation",
                         TclCommand_addStrengthDegradation,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "hystereticBackbone",
+      Tcl_CreateCommand(interp, "hystereticBackbone",
                         TclCommand_addHystereticBackbone,
                         (ClientData)NULL, NULL);
 
       ///new command for elast2plast in Multi-yield plasticity, by ZHY
-      Tcl_CreateCommand(rt, "updateMaterialStage",
+      Tcl_CreateCommand(interp, "updateMaterialStage",
                         TclCommand_UpdateMaterialStage,
                         (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "updateMaterials",
+      Tcl_CreateCommand(interp, "updateMaterials",
                         TclCommand_UpdateMaterials,
                         (ClientData)NULL, NULL);
 
 
       ///new command for updating properties of soil materials, by ZHY
-      //Tcl_CreateCommand(rt, "updateParameter",
+      //Tcl_CreateCommand(interp, "updateParameter",
       //		    TclCommand_UpdateParameter,
       //	    (ClientData)NULL, NULL);
 
-      Tcl_CreateCommand(rt, "loadPackage", TclCommand_Package,
+      Tcl_CreateCommand(interp, "loadPackage", TclCommand_Package,
                         (ClientData)NULL, NULL);
 
 
       ////// gnp adding per element damping ///////////////////////////////
-      Tcl_CreateCommand(rt, "setElementRayleighFactors",
+      Tcl_CreateCommand(interp, "setElementRayleighFactors",
                         TclCommand_addElementRayleigh,
                         (ClientData)NULL, NULL);
       /////////////////////////////////////////////////////////////////////
 
       // Added by Alborz Ghofrani - U.Washington
-      Tcl_CreateCommand(rt, "generateInterfacePoints",
+      Tcl_CreateCommand(interp, "generateInterfacePoints",
                         TclCommand_GenerateInterfacePoints,
                         (ClientData)NULL, NULL);
       // End Added by Alborz
@@ -638,9 +636,11 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, G3_Runtime *rt, int NDM,
 
   nodeLoadTag = 0;
   eleArgStart = 0;
-  Tcl_SetAssocData(rt, "OPS::theTclBuilder", NULL, (ClientData)this);
-  Tcl_SetAssocData(rt, "OPS::theTclSafeBuilder", NULL, (ClientData)this);
-  Tcl_SetAssocData(rt, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
+  m_runtime = G3_getRuntime(interp);
+  Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
+  Tcl_SetAssocData(interp, "OPS::theTclSafeBuilder", NULL, (ClientData)this);
+  G3_setDomain(m_runtime, &theDomain);
+  Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
 TclSafeBuilder::~TclSafeBuilder()
@@ -740,9 +740,11 @@ TclSafeBuilder::~TclSafeBuilder()
 
 //
 // CLASS METHODS
-//
+/*
 int TclSafeBuilder::getNDM(void) const {return ndm;}
 int TclSafeBuilder::getNDF(void) const {return ndf;}
+int TclSafeBuilder::buildFE_Model(void) {return 0;}
+*/
 int TclSafeBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
 int TclSafeBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
 int TclSafeBuilder::getNodalLoadTag(void) const {return   nodeLoadTag;};
@@ -759,9 +761,6 @@ TclSafeBuilder::getDomain(void) const {return theTclDomain;}
 
 TclSafeBuilder *
 TclSafeBuilder::getBuilder(void) const {return theTclBuilder;}
-
-int
-TclSafeBuilder::buildFE_Model(void) {return 0;}
 
 /*
 int
@@ -1008,10 +1007,12 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 static int
-TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+  Domain *theTclDomain = G3_getDomain(rt);
 
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
@@ -1019,10 +1020,9 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
     return TCL_ERROR;
   }
 
-  Domain *theTclDomain = theTclBuilder->getDomain();
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = G3_getNDM(rt);
+  int ndf = G3_getNDF(rt);
 
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {
@@ -1036,7 +1036,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the nodal id
   int nodeId;
-  if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
     opserr << "WARNING invalid nodeTag\n";
     opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
@@ -1046,7 +1046,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
   double xLoc, yLoc, zLoc;
   if (ndm == 1) {
     // create a node in 1d space
-    if (Tcl_GetDouble(rt, argv[2], &xLoc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
       opserr << "WARNING invalid XCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
@@ -1056,12 +1056,12 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
 
   else if (ndm == 2) {
     // create a node in 2d space
-    if (Tcl_GetDouble(rt, argv[2], &xLoc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
       opserr << "WARNING invalid XCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[3], &yLoc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
       opserr << "WARNING invalid YCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
@@ -1071,17 +1071,17 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
 
   else if (ndm == 3) {
     // create a node in 3d space
-    if (Tcl_GetDouble(rt, argv[2], &xLoc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
       opserr << "WARNING invalid XCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[3], &yLoc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
       opserr << "WARNING invalid YCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4], &zLoc) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &zLoc) != TCL_OK) {
       opserr << "WARNING invalid ZCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
@@ -1097,7 +1097,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
   // check for -ndf override option
   int currentArg = 2 + ndm;
   if (currentArg < argc && strcmp(argv[currentArg], "-ndf") == 0) {
-    if (Tcl_GetInt(rt, argv[currentArg + 1], &ndf) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[currentArg + 1], &ndf) != TCL_OK) {
       opserr << "WARNING invalid nodal ndf given for node " << nodeId << endln;
       return TCL_ERROR;
     }
@@ -1137,7 +1137,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
       Matrix mass(ndf, ndf);
       double theMass;
       for (int i = 0; i < ndf; i++) {
-        if (Tcl_GetDouble(rt, argv[currentArg++], &theMass) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
           opserr << "WARNING invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
@@ -1156,7 +1156,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
       Vector displayLoc(ndm);
       double theCrd;
       for (int i = 0; i < ndm; i++) {
-        if (Tcl_GetDouble(rt, argv[currentArg++], &theCrd) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theCrd) != TCL_OK) {
           opserr << "WARNING invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
@@ -1175,7 +1175,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
       Vector disp(ndf);
       double theDisp;
       for (int i = 0; i < ndf; i++) {
-        if (Tcl_GetDouble(rt, argv[currentArg++], &theDisp) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << "WARNING invalid nodal disp term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
@@ -1195,7 +1195,7 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
       Vector disp(ndf);
       double theDisp;
       for (int i = 0; i < ndf; i++) {
-        if (Tcl_GetDouble(rt, argv[currentArg++], &theDisp) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << "WARNING invalid nodal vel term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
@@ -1214,8 +1214,9 @@ TclCommand_addNode(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv)
+TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
   int nodeLoadTag = theTclBuilder->getNodalLoadTag();
@@ -1241,7 +1242,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
       (strcmp(argv[2], "-nodalThermal") == 0)) {
 
     int nodeId;
-    if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
       opserr << "WARNING invalid nodeId: " << argv[1] << endln;
       return TCL_ERROR;
     }
@@ -1257,7 +1258,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
     int count = 3;
     if (strcmp(argv[count], "-source") == 0) {
       count++;
-      const char *pwd = getInterpPWD(rt);
+      const char *pwd = getInterpPWD(interp);
       // simulationInfo.addInputFile(argv[count], pwd);
       TimeSeries *theSeries;
       // default num of temperature input for nodal ThermalAction;
@@ -1270,22 +1271,22 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
         theSeries = new PathTimeSeriesThermal(nodeId, argv[count], dataLen);
         count++;
         double RcvLoc1, RcvLoc2, RcvLoc3, RcvLoc4;
-        if (Tcl_GetDouble(rt, argv[count], &RcvLoc1) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
           opserr << "WARNING NodalLoad - invalid loc1  " << argv[count]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count + 1], &RcvLoc2) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count + 1], &RcvLoc2) != TCL_OK) {
           opserr << "WARNING NodalLoad - invalid loc2  " << argv[count + 1]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count + 2], &RcvLoc3) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count + 2], &RcvLoc3) != TCL_OK) {
           opserr << "WARNING NodalLoad - invalid loc3  " << argv[count + 2]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count + 3], &RcvLoc4) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count + 3], &RcvLoc4) != TCL_OK) {
           opserr << "WARNING NodalLoad - invalid loc4  " << argv[count + 3]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
@@ -1302,12 +1303,12 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
         Vector locy;
         if (argc - count == 2) {
           double RcvLoc1, RcvLoc2;
-          if (Tcl_GetDouble(rt, argv[count], &RcvLoc1) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
             opserr << "WARNING NodalLoad - invalid loc1  " << argv[count]
                    << " for NodalThermalAction\n";
             return TCL_ERROR;
           }
-          if (Tcl_GetDouble(rt, argv[count + 1], &RcvLoc2) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[count + 1], &RcvLoc2) != TCL_OK) {
             opserr << "WARNING NodalLoad - invalid loc2  " << argv[count + 1]
                    << " for NodalThermalAction\n";
             return TCL_ERROR;
@@ -1329,7 +1330,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
           double BufferData;
 
           for (int i = 0; i < 9; i++) {
-            if (Tcl_GetDouble(rt, argv[count], &BufferData) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
               opserr << "WARNING eleLoad - invalid data " << argv[count]
                      << " for -beamThermal 3D\n";
               return TCL_ERROR;
@@ -1354,22 +1355,22 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
     else {
       if (argc - count == 4) {
         double t1, t2, locY1, locY2;
-        if (Tcl_GetDouble(rt, argv[count], &t1) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count], &t1) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid T1 " << argv[count]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count + 1], &locY1) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count + 1], &locY1) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count + 2], &t2) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count + 2], &t2) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid T1 " << argv[count]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count + 3], &locY2) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count + 3], &locY2) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1]
                  << " for NodalThermalAction\n";
           return TCL_ERROR;
@@ -1409,7 +1410,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
 
     // get the id of the node
     int nodeId;
-    if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
       opserr << "WARNING invalid nodeId: " << argv[1];
       opserr << " - load nodeId " << ndf << " forces\n";
       return TCL_ERROR;
@@ -1419,7 +1420,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
     Vector forces(ndf);
     for (int i = 0; i < ndf; i++) {
       double theForce;
-      if (Tcl_GetDouble(rt, argv[2 + i], &theForce) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
         opserr << "WARNING invalid force " << i + 1 << " - load" << nodeId;
         opserr << " " << ndf << " forces\n";
         return TCL_ERROR;
@@ -1438,7 +1439,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
         endMarker++;
         userSpecifiedPattern = true;
         if (endMarker == argc ||
-            Tcl_GetInt(rt, argv[endMarker], &loadPatternTag) != TCL_OK) {
+            Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
 
           opserr << "WARNING invalid patternTag - load " << nodeId << " ";
           opserr << ndf << " forces pattern patterntag\n";
@@ -1488,7 +1489,7 @@ TclCommand_addNodalLoad(ClientData clientData, G3_Runtime *rt, int argc, TCL_Cha
 /////////////////////////////   gnp adding element damping
 int
 TclCommand_addElementRayleigh(ClientData clientData,
-                              G3_Runtime *rt,
+                              Tcl_Interp *interp,
                               int argc,
                               TCL_Char **argv)
 {
@@ -1508,7 +1509,7 @@ $betaKinit? $betaKcomm? \n"; return TCL_ERROR;
 
   int eleTag =0;
 
-  if (Tcl_GetInt(rt, argv[1], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
     opserr << "WARNING: setElementRayleighFactors invalid eleTag: " << argv[1];
     opserr << " \n";
     return TCL_ERROR;
@@ -1516,25 +1517,25 @@ $betaKinit? $betaKcomm? \n"; return TCL_ERROR;
 
   double alphaM,betaK,betaKinit,betaKcomm;
 
-  if (Tcl_GetDouble(rt, argv[2], &alphaM) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &alphaM) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
     opserr << "alphaM: " << argv[2] << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[3], &betaK) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &betaK) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
     opserr << "betaK: " << argv[3] << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[4], &betaKinit) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &betaKinit) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
     opserr << "betaKinit: " << argv[4] << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[5], &betaKcomm) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &betaKcomm) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
     opserr << "betaKcomm: " << argv[5] << endln;
     return TCL_ERROR;
@@ -1566,17 +1567,17 @@ file.
 
 extern int
 TclSafeBuilderParameterCommand(ClientData clientData,
-                                G3_Runtime *rt, int argc,
+                                Tcl_Interp *interp, int argc,
                                 TCL_Char **argv,
                                 Domain *theDomain,
                                 TclSafeBuilder *theTclBuilder);
 
 int
-TclCommand_addParameter(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc,
 TCL_Char **argv)
 
 {
-  return TclSafeBuilderParameterCommand(clientData, rt,
+  return TclSafeBuilderParameterCommand(clientData, interp,
                                          argc, argv, theTclDomain,
 theTclBuilder);
 }
@@ -1584,18 +1585,19 @@ theTclBuilder);
 */
 class TclBasicBuilder;
 extern int TclBasicBuilderElementCommand(ClientData clientData,
-                                         G3_Runtime *rt, int argc,
+                                         Tcl_Interp *interp, int argc,
                                          TCL_Char **argv, Domain *theDomain,
                                          TclBasicBuilder *theTclBuilder);
 
 int
-TclCommand_addElement(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
-  return TclBasicBuilderElementCommand(clientData, rt, argc, argv,
+  return TclBasicBuilderElementCommand(clientData, interp, argc, argv,
                                        theTclDomain,
                                        (TclBasicBuilder *)theTclBuilder);
 }
@@ -1604,7 +1606,7 @@ TclCommand_addElement(ClientData clientData, G3_Runtime *rt, int argc,
 // extern int OPS_TriMesh(Domain& domain);
 // extern int OPS_TriReMesh(Domain& domain, int ndf);
 int
-TclCommand_mesh(ClientData clientData, G3_Runtime *rt,  int argc,
+TclCommand_mesh(ClientData clientData, Tcl_Interp *interp,  int argc,
                 TCL_Char **argv)
 {
     // ensure the destructor has not been called -
@@ -1622,7 +1624,7 @@ TclCommand_mesh(ClientData clientData, G3_Runtime *rt,  int argc,
         return TCL_ERROR;
     }
 
-      OPS_ResetInput(clientData, rt,2,argc,argv,theTclDomain,theTclBuilder);
+      OPS_ResetInput(clientData, interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     // mesh type
     int res = 0;
@@ -1644,7 +1646,7 @@ TclCommand_mesh(ClientData clientData, G3_Runtime *rt,  int argc,
 }
 
 int
-TclCommand_remesh(ClientData clientData, G3_Runtime *rt,  int argc,
+TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,  int argc,
                 TCL_Char **argv)
 {
     // ensure the destructor has not been called -
@@ -1662,7 +1664,7 @@ TclCommand_remesh(ClientData clientData, G3_Runtime *rt,  int argc,
         return TCL_ERROR;
     }
 
-      OPS_ResetInput(clientData, rt,2,argc,argv,theTclDomain,theTclBuilder);
+      OPS_ResetInput(clientData, interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     // mesh type
     int res = 0;
@@ -1687,7 +1689,7 @@ TclCommand_remesh(ClientData clientData, G3_Runtime *rt,  int argc,
 extern int OPS_BgMesh();
 
 int
-TclCommand_backgroundMesh(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_backgroundMesh(ClientData clientData, Tcl_Interp *interp, int argc,
 TCL_Char **argv)
 {
     // ensure the destructor has not been called -
@@ -1696,7 +1698,7 @@ TCL_Char **argv)
         return TCL_ERROR;
     }
 
-    OPS_ResetInput(clientData, rt, 1, argc, argv, theTclDomain,
+    OPS_ResetInput(clientData, interp, 1, argc, argv, theTclDomain,
 theTclBuilder);
 
     if(OPS_BgMesh() >= 0) return TCL_OK;
@@ -1710,20 +1712,20 @@ extern void* OPS_LegendreBeamIntegration(int& integrationTag, ID& secTags);
 extern void* OPS_NewtonCotesBeamIntegration(int& integrationTag, ID& secTags);
 extern void* OPS_RadauBeamIntegration(int& integrationTag, ID& secTags);
 extern void* OPS_TrapezoidalBeamIntegration(int& integrationTag, ID& secTags);
-extern void* OPS_CompositeSimpsonBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_UserDefinedBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_FixedLocationBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_LowOrderBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_MidDistanceBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_UserHingeBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_HingeMidpointBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_HingeRadauBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_HingeRadauTwoBeamIntegration(int& integrationTag, ID&
-secTags); extern void* OPS_HingeEndpointBeamIntegration(int& integrationTag, ID&
-secTags);
+extern void* OPS_CompositeSimpsonBeamIntegration(int& integrationTag, ID& secTags);
+extern void* OPS_UserDefinedBeamIntegration(int& integrationTag, ID& secTags);
+extern void* OPS_FixedLocationBeamIntegration(int& integrationTag, ID& secTags); 
+extern void* OPS_LowOrderBeamIntegration(int& integrationTag, ID& secTags); 
+
+extern void* OPS_MidDistanceBeamIntegration(int& integrationTag, ID& secTags); 
+extern void* OPS_UserHingeBeamIntegration(int& integrationTag, ID& secTags); 
+extern void* OPS_HingeMidpointBeamIntegration(int& integrationTag, ID& secTags); 
+extern void* OPS_HingeRadauBeamIntegration(int& integrationTag, ID& secTags); 
+extern void* OPS_HingeRadauTwoBeamIntegration(int& integrationTag, ID& secTags); 
+extern void* OPS_HingeEndpointBeamIntegration(int& integrationTag, ID& secTags);
 
 int
-TclCommand_addBeamIntegration(ClientData clientData, G3_Runtime *rt, int
+TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp, int
 argc, TCL_Char **argv)
 {
     if (argc < 2) {
@@ -1731,7 +1733,7 @@ argc, TCL_Char **argv)
         return TCL_ERROR;
     }
 
-      OPS_ResetInput(clientData, rt,2,argc,argv,theTclDomain,theTclBuilder);
+      OPS_ResetInput(clientData, interp,2,argc,argv,theTclDomain,theTclBuilder);
 
     int iTag;
     ID secTags;
@@ -1799,26 +1801,24 @@ extern int TclBasicBuilderUniaxialMaterialCommand(ClientData, Tcl_Interp *, int,
 extern int TclSafeBuilderUniaxialCommand(ClientData, Tcl_Interp *, int,
                                          TCL_Char **, Domain *);
 int
-TclCommand_addUniaxialMaterial(ClientData clientData, G3_Runtime *rt,
+TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                int argc, TCL_Char **argv)
 {
-  // return TclBasicBuilderUniaxialMaterialCommand(clientData, rt, argc,
-  // argv, G3_getDomain(rt));
-  int stat = TclSafeBuilderUniaxialCommand(clientData, rt, argc, argv,
-                                       G3_getDomain(rt));
+  int stat = TclSafeBuilderUniaxialCommand(clientData, interp, argc, argv,
+                                       G3_getDomain(G3_getRuntime(interp)));
   return stat;
 }
 
 /*
 extern int
-Tcl_AddLimitCurveCommand (ClientData clienData, G3_Runtime *rt, int argc,
+Tcl_AddLimitCurveCommand (ClientData clienData, Tcl_Interp *interp, int argc,
 TCL_Char **argv, Domain *theDomain);
 
 int
-TclCommand_addLimitCurve(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int argc,
 TCL_Char **argv)
 {
-  return Tcl_AddLimitCurveCommand(clientData, rt, argc, argv, theTclDomain);
+  return Tcl_AddLimitCurveCommand(clientData, interp, argc, argv, theTclDomain);
 }
 
 extern int
@@ -1826,25 +1826,25 @@ TclSafeBuilderNDMaterialCommand (ClientData clienData, Tcl_Interp
 *interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
-TclCommand_addNDMaterial(ClientData clientData, G3_Runtime *rt,
+TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                             int argc,    TCL_Char **argv)
 
 {
-  return TclSafeBuilderNDMaterialCommand(clientData, rt,
+  return TclSafeBuilderNDMaterialCommand(clientData, interp,
                                           argc, argv, theTclBuilder);
 }
 
 extern int
-TclSafeBuilderSectionCommand (ClientData clienData, G3_Runtime *rt,
+TclSafeBuilderSectionCommand (ClientData clienData, Tcl_Interp *interp,
 int argc, TCL_Char **argv, Domain *theDomain, TclSafeBuilder
 *theTclBuilder);
 
 int
-TclCommand_addSection(ClientData clientData, G3_Runtime *rt,
+TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
                             int argc,    TCL_Char **argv)
 
 {
-  return TclSafeBuilderSectionCommand(clientData, rt,
+  return TclSafeBuilderSectionCommand(clientData, interp,
                                        argc, argv, theTclDomain, theTclBuilder);
 }
 
@@ -1855,11 +1855,11 @@ TclSafeBuilderYieldSurface_BCCommand (ClientData clienData, Tcl_Interp
 *interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
-TclCommand_addYieldSurface_BC(ClientData clientData, G3_Runtime *rt,
+TclCommand_addYieldSurface_BC(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclSafeBuilderYieldSurface_BCCommand(clientData, rt,
+  return TclSafeBuilderYieldSurface_BCCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
@@ -1868,11 +1868,11 @@ TclSafeBuilderYS_EvolutionModelCommand (ClientData clienData, Tcl_Interp
 *interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
-TclCommand_addYS_EvolutionModel(ClientData clientData, G3_Runtime *rt,
+TclCommand_addYS_EvolutionModel(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclSafeBuilderYS_EvolutionModelCommand(clientData, rt,
+  return TclSafeBuilderYS_EvolutionModelCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
@@ -1881,67 +1881,67 @@ TclSafeBuilderPlasticMaterialCommand (ClientData clienData, Tcl_Interp
 *interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
-TclCommand_addYS_PlasticMaterial(ClientData clientData, G3_Runtime *rt,
+TclCommand_addYS_PlasticMaterial(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 
 {
-  return TclSafeBuilderPlasticMaterialCommand(clientData, rt,
+  return TclSafeBuilderPlasticMaterialCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
 //!!
 extern int TclSafeBuilderCyclicModelCommand(ClientData clienData,
-G3_Runtime *rt, int argc, TCL_Char **argv, TclSafeBuilder
+Tcl_Interp *interp, int argc, TCL_Char **argv, TclSafeBuilder
 *theTclBuilder); int TclCommand_addCyclicModel(ClientData clientData, Tcl_Interp
 *interp, int argc, TCL_Char **argv)
 
 {
-  return TclSafeBuilderCyclicModelCommand(clientData, rt,
+  return TclSafeBuilderCyclicModelCommand(clientData, interp,
                                                 argc, argv, theTclBuilder);
 }
 
 extern int TclSafeBuilderDamageModelCommand(ClientData clienData,
-G3_Runtime *rt, int argc, TCL_Char **argv);
+Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 
 int
-TclCommand_addDamageModel(ClientData clientData, G3_Runtime *rt,
+TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(rt, "OPS::theTclBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
-  return TclSafeBuilderDamageModelCommand(clientData, rt, argc, argv);
+  return TclSafeBuilderDamageModelCommand(clientData, interp, argc, argv);
 
 }
 */
 
-extern int TclPatternCommand(ClientData clientData, G3_Runtime *rt,
+extern int TclPatternCommand(ClientData clientData, Tcl_Interp *interp,
                              int argc, TCL_Char **argv, Domain *theDomain);
 
 static int
-TclCommand_addPattern(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(rt, "OPS::theTclBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
-  return TclPatternCommand(clientData, rt, argc, argv, theTclDomain);
+  return TclPatternCommand(clientData, interp, argc, argv, theTclDomain);
 }
 
 extern TimeSeries *TclTimeSeriesCommand(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
+                                        Tcl_Interp *interp, int argc,
                                         TCL_Char **argv, Domain *theDomain);
 
 static int
-TclCommand_addTimeSeries(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder = (TclSafeBuilder *)Tcl_GetAssocData(
-      rt, "OPS::theTclSafeBuilder", NULL);
+      interp,"OPS::theTclSafeBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
 
-  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, rt, argc - 1,
+  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc - 1,
                                                &argv[1], theTclDomain);
 
   if (theSeries != 0) {
@@ -1957,17 +1957,17 @@ TclCommand_addTimeSeries(ClientData clientData, G3_Runtime *rt, int argc,
 
 extern int
 TclGroundMotionCommand(ClientData clientData,
-                       G3_Runtime *rt,
+                       Tcl_Interp *interp,
                        int argc,
                        TCL_Char **argv,
                        MultiSupportPattern *thePattern);
 
 int
-TclCommand_addGroundMotion(ClientData clientData, G3_Runtime *rt,
+TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
                            int argc, TCL_Char **argv)
 
 {
-  return TclGroundMotionCommand(clientData, rt, argc, argv,
+  return TclGroundMotionCommand(clientData, interp, argc, argv,
                                 theTclMultiSupportPattern);
 }
 
@@ -1977,7 +1977,7 @@ TclCommand_addGroundMotion(ClientData clientData, G3_Runtime *rt,
 
 
 int
-TclCommand_addElementalLoad(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -2008,14 +2008,14 @@ TclCommand_addElementalLoad(ClientData clientData, G3_Runtime *rt, int argc,
       int eleEnd = 0;
       int eleID;
       while (count < argc && eleEnd == 0) {
-        if (Tcl_GetInt(rt, argv[count], &eleID) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[count], &eleID) != TCL_OK)
           eleEnd = count;
         else
           count++;
       }
       if (eleStart != eleEnd) {
         for (int i=eleStart; i<eleEnd; i++) {
-          Tcl_GetInt(rt, argv[i], &eleID);
+          Tcl_GetInt(interp, argv[i], &eleID);
           theEleTags[eleCount++] = eleID;
         }
       }
@@ -2023,12 +2023,12 @@ TclCommand_addElementalLoad(ClientData clientData, G3_Runtime *rt, int argc,
     else if (strcmp(argv[count],"-range") == 0) {
       count ++;
       int eleStart, eleEnd;
-      if (Tcl_GetInt(rt, argv[count], &eleStart) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[count], &eleStart) != TCL_OK) {
         opserr << "WARNING eleLoad -range invalid eleStart " << argv[count] <<
 "\n"; return TCL_ERROR;
       }
       count++;
-      if (Tcl_GetInt(rt, argv[count], &eleEnd) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[count], &eleEnd) != TCL_OK) {
         opserr << "WARNING eleLoad -range invalid eleEnd " << argv[count] <<
 "\n"; return TCL_ERROR;
       }
@@ -2053,36 +2053,36 @@ TclCommand_addElementalLoad(ClientData clientData, G3_Runtime *rt, int argc,
     if (ndm == 2) {
       double wta;
       double waa = 0.0;
-      if (count >= argc || Tcl_GetDouble(rt, argv[count], &wta) != TCL_OK) {
+      if (count >= argc || Tcl_GetDouble(interp, argv[count], &wta) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wt for beamUniform \n";
         return TCL_ERROR;
       }
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &waa) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &waa) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wa for beamUniform \n";
         return TCL_ERROR;
       }
       double aL = 0.0;
       double bL = 1.0;
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &aL) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &aL) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid aOverL for beamUniform \n";
         return TCL_ERROR;
       }
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &bL) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &bL) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid bOverL for beamUniform \n";
         return TCL_ERROR;
       }
       double wab = waa;
       double wtb = wta;
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &wtb) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &wtb) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wt for beamUniform \n";
         return TCL_ERROR;
       }
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &wab) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &wab) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wa for beamUniform \n";
         return TCL_ERROR;
       }
@@ -2113,29 +2113,29 @@ argv[count] ; return TCL_ERROR;
     else if (ndm == 3) {
       double wy, wz;
       double wx = 0.0;
-      if (count >= argc || Tcl_GetDouble(rt, argv[count], &wy) != TCL_OK) {
+      if (count >= argc || Tcl_GetDouble(interp, argv[count], &wy) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wy for beamUniform \n";
         return TCL_ERROR;
       }
       count++;
-      if (count >= argc || Tcl_GetDouble(rt, argv[count], &wz) != TCL_OK) {
+      if (count >= argc || Tcl_GetDouble(interp, argv[count], &wz) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wz for beamUniform \n";
         return TCL_ERROR;
       }
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &wx) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &wx) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid wx for beamUniform \n";
         return TCL_ERROR;
       }
       double aL = 0.0;
       double bL = 1.0;
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &aL) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &aL) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid aOverL for beamUniform \n";
         return TCL_ERROR;
       }
       count++;
-      if (count < argc && Tcl_GetDouble(rt, argv[count], &bL) != TCL_OK) {
+      if (count < argc && Tcl_GetDouble(interp, argv[count], &bL) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid bOverL for beamUniform \n";
         return TCL_ERROR;
       }
@@ -2176,14 +2176,14 @@ or 3\n"; return TCL_ERROR;
     if (ndm == 2) {
       double P, x;
       double N = 0.0;
-      if (count >= argc || Tcl_GetDouble(rt, argv[count], &P) != TCL_OK) {
+      if (count >= argc || Tcl_GetDouble(interp, argv[count], &P) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid P for beamPoint\n";
         return TCL_ERROR;
       }
-      if (count+1 >= argc || Tcl_GetDouble(rt, argv[count+1], &x) != TCL_OK)
+      if (count+1 >= argc || Tcl_GetDouble(interp, argv[count+1], &x) != TCL_OK)
 { opserr << "WARNING eleLoad - invalid xDivL for beamPoint\n"; return TCL_ERROR;
       }
-      if (count+2 < argc && Tcl_GetDouble(rt, argv[count+2], &N) != TCL_OK)
+      if (count+2 < argc && Tcl_GetDouble(interp, argv[count+2], &N) != TCL_OK)
 { opserr << "WARNING eleLoad - invalid N for beamPoint\n"; return TCL_ERROR;
       }
 
@@ -2219,18 +2219,18 @@ argv[count] ; return TCL_ERROR;
     else if (ndm == 3) {
       double Py, Pz, x;
       double N = 0.0;
-      if (count >= argc || Tcl_GetDouble(rt, argv[count], &Py) != TCL_OK) {
+      if (count >= argc || Tcl_GetDouble(interp, argv[count], &Py) != TCL_OK) {
         opserr << "WARNING eleLoad - invalid Py for beamPoint\n";
         return TCL_ERROR;
       }
-      if (count+1 >= argc || Tcl_GetDouble(rt, argv[count+1], &Pz) !=
+      if (count+1 >= argc || Tcl_GetDouble(interp, argv[count+1], &Pz) !=
 TCL_OK) { opserr << "WARNING eleLoad - invalid Pz  for beamPoint\n"; return
 TCL_ERROR;
       }
-      if (count+2 >= argc || Tcl_GetDouble(rt, argv[count+2], &x) != TCL_OK)
+      if (count+2 >= argc || Tcl_GetDouble(interp, argv[count+2], &x) != TCL_OK)
 { opserr << "WARNING eleLoad - invalid xDivL for beamPoint\n"; return TCL_ERROR;
       }
-      if (count+3 < argc && Tcl_GetDouble(rt, argv[count+3], &N) != TCL_OK)
+      if (count+3 < argc && Tcl_GetDouble(interp, argv[count+3], &N) != TCL_OK)
 { opserr << "WARNING eleLoad - invalid N for beamPoint\n"; return TCL_ERROR;
       }
 
@@ -2316,16 +2316,16 @@ false) { opserr << "WARNING eleLoad - could not add following load to domain:\n
 (strcmp(argv[count],"-SelfWeight") == 0)) { count++;
 
     double xf = 0.0, yf = 0.0, zf = 0.0;
-    if (Tcl_GetDouble(rt, argv[count], &xf) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[count], &xf) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid xFactor " << argv[count] << " for
 -selfWeight\n"; return TCL_ERROR;
         }
-    if (Tcl_GetDouble(rt, argv[count+1], &yf) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[count+1], &yf) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid yFactor " << argv[count+1] << "
 for -selfWeight\n"; return TCL_ERROR;
         }
     if (count+2 < argc) { // adding to stop seg faults
-      if (Tcl_GetDouble(rt, argv[count+2], &zf) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[count+2], &zf) != TCL_OK) {
             opserr << "WARNING eleLoad - invalid zFactor " << argv[count+2] << "
 for -selfWeight\n"; return TCL_ERROR;
       }
@@ -2373,7 +2373,7 @@ temperatures at the nearby temperature points.
                   if (strcmp(argv[count + 1], "-node") != 0) {
                           count++;
 
-                          const char *pwd = getInterpPWD(rt);
+                          const char *pwd = getInterpPWD(interp);
                           // simulationInfo.addInputFile(argv[count], pwd);
                           TimeSeries* theSeries = new
 PathTimeSeriesThermal(eleLoadTag, argv[count]);
@@ -2383,11 +2383,11 @@ PathTimeSeriesThermal(eleLoadTag, argv[count]);
                           double RcvLoc1, RcvLoc2;
                           if (argc - count == 2) {
 
-                                  if (Tcl_GetDouble(rt, argv[count],
+                                  if (Tcl_GetDouble(interp, argv[count],
 &RcvLoc1) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count] << " for -beamThermal\n"; return TCL_ERROR;
                                   }
-                                  if (Tcl_GetDouble(rt, argv[count + 1],
+                                  if (Tcl_GetDouble(interp, argv[count + 1],
 &RcvLoc2) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count + 1] << " for -beamThermal\n"; return TCL_ERROR;
                                   }
@@ -2445,7 +2445,7 @@ file else
                           double BufferData;
 
                           for (int i = 0; i<18; i++) {
-                                  if (Tcl_GetDouble(rt, argv[count],
+                                  if (Tcl_GetDouble(interp, argv[count],
 &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data " <<
 argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
                                   }
@@ -2487,7 +2487,7 @@ load to domain:\n "; opserr << theLoad; delete theLoad; return TCL_ERROR;
                           double BufferData;
 
                           for (int i = 0; i<10; i++) {
-                                  if (Tcl_GetDouble(rt, argv[count],
+                                  if (Tcl_GetDouble(interp, argv[count],
 &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data " <<
 argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
                                   }
@@ -2526,20 +2526,20 @@ load to domain:\n "; opserr << theLoad; delete theLoad; return TCL_ERROR;
 change in element
                   //if the two temperatures are different,i.e. linear
 Temperature change in element else if (argc - count == 4) { if
-(Tcl_GetDouble(rt, argv[count], &t1) != TCL_OK) { opserr << "WARNING eleLoad
+(Tcl_GetDouble(interp, argv[count], &t1) != TCL_OK) { opserr << "WARNING eleLoad
 - invalid T1 " << argv[count] << " for -shellThermal\n"; return TCL_ERROR;
                           }
 
-                          if (Tcl_GetDouble(rt, argv[count + 1], &locY1) !=
+                          if (Tcl_GetDouble(interp, argv[count + 1], &locY1) !=
 TCL_OK) { opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1] << "
 for -shellThermal\n"; return TCL_ERROR;
                           }
-                          if (Tcl_GetDouble(rt, argv[count + 2], &t2) !=
+                          if (Tcl_GetDouble(interp, argv[count + 2], &t2) !=
 TCL_OK) { opserr << "WARNING eleLoad - invalid T2 " << argv[count] << " for
 -shellThermal\n"; return TCL_ERROR;
                           }
 
-                          if (Tcl_GetDouble(rt, argv[count + 3], &locY2) !=
+                          if (Tcl_GetDouble(interp, argv[count + 3], &locY2) !=
 TCL_OK) { opserr << "WARNING eleLoad - invalid LocY2 " << argv[count + 1] << "
 for -shellThermal\n"; return TCL_ERROR;
                           }
@@ -2599,12 +2599,12 @@ input)//Liming,2014
                           double Dblloc;
                           int NodalTtag;
 
-                          if (Tcl_GetDouble(rt, argv[count + i * 2 + 1],
+                          if (Tcl_GetDouble(interp, argv[count + i * 2 + 1],
 &Dblloc) != TCL_OK) { opserr << "WARNING NodalLoad - invalid loc  " <<
 argv[count] << " for NodalThermalAction\n"; return TCL_ERROR;
                           }
 
-                          if (Tcl_GetInt(rt, argv[count + 2 * i],
+                          if (Tcl_GetInt(interp, argv[count + 2 * i],
 &NodalTtag) != TCL_OK) { opserr << "WARNING invalid nodeId: " << argv[1]; return
 TCL_ERROR;
                           }
@@ -2625,7 +2625,7 @@ TCL_ERROR;
 
                           int NodalTtag;
 
-                          if (Tcl_GetInt(rt, argv[count + i], &NodalTtag) !=
+                          if (Tcl_GetInt(interp, argv[count + i], &NodalTtag) !=
 TCL_OK) { opserr << "WARNING invalid nodeId: " << argv[1]; return TCL_ERROR;
                           }
 
@@ -2735,7 +2735,7 @@ theLoad; delete theLoad; return TCL_ERROR;
                           //end of <if(strcmp(argv[count+1],"-node") != 0)>
                           else {
                                   count++;
-                                  const char *pwd = getInterpPWD(rt);
+                                  const char *pwd = getInterpPWD(interp);
                                   // simulationInfo.addInputFile(argv[count],
 pwd); TimeSeries* theSeries = new PathTimeSeriesThermal(eleLoadTag,
 argv[count]);
@@ -2745,11 +2745,11 @@ argv[count]);
                                   //---------------for recieving 2 arguments
                                   if (argc - count == 2) {
                                           double RcvLoc1, RcvLoc2;
-                                          if (Tcl_GetDouble(rt, argv[count],
+                                          if (Tcl_GetDouble(interp, argv[count],
 &RcvLoc1) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count] << " for -beamThermal\n"; return TCL_ERROR;
                                           }
-                                          if (Tcl_GetDouble(rt, argv[count +
+                                          if (Tcl_GetDouble(interp, argv[count +
 1], &RcvLoc2) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count + 1] << " for -beamThermal\n"; return TCL_ERROR;
                                           }
@@ -2769,7 +2769,7 @@ argv[count + 1] << " for -beamThermal\n"; return TCL_ERROR;
 
                                           if (ArgStart != ArgEnd) {
                                                   for (int i = ArgStart;
-i<ArgEnd; i++) { Tcl_GetDouble(rt, argv[i], &data); locs(i - ArgStart) =
+i<ArgEnd; i++) { Tcl_GetDouble(interp, argv[i], &data); locs(i - ArgStart) =
 data;
                                                   }
                                           }
@@ -2820,7 +2820,7 @@ interpolating of temperatures at the nearby temperature points. if (argc - count
 == 18) { double indata[18]; double BufferData;
 
                                   for (int i = 0; i<18; i++) {
-                                          if (Tcl_GetDouble(rt, argv[count],
+                                          if (Tcl_GetDouble(interp, argv[count],
 &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data " <<
 argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
                                           }
@@ -2842,7 +2842,7 @@ defined. else if (argc - count == 10) {
                                   double BufferData;
 
                                   for (int i = 0; i<10; i++) {
-                                          if (Tcl_GetDouble(rt, argv[count],
+                                          if (Tcl_GetDouble(interp, argv[count],
 &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data " <<
 argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
                                           }
@@ -2869,7 +2869,7 @@ Temperature change in element else if (argc - count == 4) { double indata[4];
                                   double BufferData;
 
                                   for (int i = 0; i<4; i++) {
-                                          if (Tcl_GetDouble(rt, argv[count],
+                                          if (Tcl_GetDouble(interp, argv[count],
 &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data " <<
 argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
                                           }
@@ -2945,7 +2945,7 @@ theLoad; delete theLoad; return TCL_ERROR;
                                   return 0;
                           }//end for defing thermal action with nodal input
                           else {
-                                  const char *pwd = getInterpPWD(rt);
+                                  const char *pwd = getInterpPWD(interp);
                                   // simulationInfo.addInputFile(argv[count],
 pwd); count++; bool using2Ddata = false;
 
@@ -2956,19 +2956,19 @@ pwd); count++; bool using2Ddata = false;
                                           theSeries = new
 PathTimeSeriesThermal(eleLoadTag, argv[count - 1], 15); using2Ddata = false;
 
-                                          if (Tcl_GetDouble(rt, argv[count],
+                                          if (Tcl_GetDouble(interp, argv[count],
 &RcvLoc1) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count] << " for -beamThermal\n"; return TCL_ERROR;
                                           }
-                                          if (Tcl_GetDouble(rt, argv[count +
+                                          if (Tcl_GetDouble(interp, argv[count +
 1], &RcvLoc2) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count + 1] << " for -beamThermal\n"; return TCL_ERROR;
                                           }
-                                          if (Tcl_GetDouble(rt, argv[count +
+                                          if (Tcl_GetDouble(interp, argv[count +
 2], &RcvLoc3) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count + 2] << " for -beamThermal\n"; return TCL_ERROR;
                                           }
-                                          if (Tcl_GetDouble(rt, argv[count +
+                                          if (Tcl_GetDouble(interp, argv[count +
 3], &RcvLoc4) != TCL_OK) { opserr << "WARNING eleLoad - invalid single loc  " <<
 argv[count + 3] << " for -beamThermal\n"; return TCL_ERROR;
                                           }
@@ -3009,11 +3009,11 @@ similiar structure as 2D beam section Vector locs(9); using2Ddata = true;
 PathTimeSeriesThermal(eleLoadTag, argv[count - 1], 9); if (argc - count == 2) {
 
                                                   double RcvLoc1, RcvLoc2;
-                                                  if (Tcl_GetDouble(rt,
+                                                  if (Tcl_GetDouble(interp,
 argv[count], &RcvLoc1) != TCL_OK) { opserr << "WARNING eleLoad - invalid single
 loc  " << argv[count] << " for -beamThermal\n"; return TCL_ERROR;
                                                   }
-                                                  if (Tcl_GetDouble(rt,
+                                                  if (Tcl_GetDouble(interp,
 argv[count + 1], &RcvLoc2) != TCL_OK) { opserr << "WARNING eleLoad - invalid
 single loc  " << argv[count + 1] << " for -beamThermal\n"; return TCL_ERROR;
                                                   }
@@ -3029,7 +3029,7 @@ RcvLoc2; for (int i = 1; i<8; i++) { locs(i) = locs(0) - i*(locs(0) - locs(8)) /
                                                   double BufferData;
                                                   for (int i = 0; i<9; i++) {
                                                           if
-(Tcl_GetDouble(rt, argv[count], &BufferData) != TCL_OK) { opserr << "WARNING
+(Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) { opserr << "WARNING
 eleLoad - invalid data " << argv[count] << " for -beamThermal 3D\n"; return
 TCL_ERROR;
                                                           }
@@ -3086,7 +3086,7 @@ t13, locZ4, t14,t15, locZ5;
                                   double BufferData;
 
                                   for (int i = 0; i<25; i++) {
-                                          if (Tcl_GetDouble(rt, argv[count],
+                                          if (Tcl_GetDouble(interp, argv[count],
 &BufferData) != TCL_OK) { opserr << "WARNING eleLoad - invalid data " <<
 argv[count] << " for -beamThermal 3D\n"; return TCL_ERROR;
                                           }
@@ -3120,19 +3120,19 @@ theLoad; delete theLoad; return TCL_ERROR;
                           //end of  if (argc-count == 25){
                           else if (argc - count == 4) {
 
-                                  if (Tcl_GetDouble(rt, argv[count], &t1) !=
+                                  if (Tcl_GetDouble(interp, argv[count], &t1) !=
 TCL_OK) { opserr << "WARNING eleLoad - invalid T1 " << argv[count] << " for
 -beamThermal\n"; return TCL_ERROR;
                                   }
-                                  if (Tcl_GetDouble(rt, argv[count + 1],
+                                  if (Tcl_GetDouble(interp, argv[count + 1],
 &locY1) != TCL_OK) { opserr << "WARNING eleLoad - invalid LocY1 " << argv[count
 + 1] << " for -beamThermal\n"; return TCL_ERROR;
                                   }
-                                  if (Tcl_GetDouble(rt, argv[count + 2],
+                                  if (Tcl_GetDouble(interp, argv[count + 2],
 &t5) != TCL_OK) { opserr << "WARNING eleLoad - invalid T1 " << argv[count] << "
 for -beamThermal\n"; return TCL_ERROR;
                                   }
-                                  if (Tcl_GetDouble(rt, argv[count + 3],
+                                  if (Tcl_GetDouble(interp, argv[count + 3],
 &locY5) != TCL_OK) { opserr << "WARNING eleLoad - invalid LocY1 " << argv[count
 + 1] << " for -beamThermal\n"; return TCL_ERROR;
                                   }
@@ -3188,20 +3188,20 @@ arguments for Temperatures and cordinates.\n";
       double temp1, temp2, temp3, temp4;
 
       // Four temps given, Temp change at top node 1, bottom node 1, top node 2,
-bottom node 2. if (argc-count == 4){ if (Tcl_GetDouble(rt, argv[count],
+bottom node 2. if (argc-count == 4){ if (Tcl_GetDouble(interp, argv[count],
 &temp1) != TCL_OK) { opserr << "WARNING eleLoad - invalid Ttop1 " << argv[count]
 << " for -beamTemp\n"; return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(rt, argv[count+1],&temp2 ) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count+1],&temp2 ) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid Tbot1 " << argv[count+1] << " for
 -beamTemp\n"; return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count+2], &temp3) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count+2], &temp3) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid Ttop2 " << argv[count+1] << " for
 -beamTemp\n"; return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[count+3], &temp4) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count+3], &temp4) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid Tbot2 " << argv[count+1] << " for
 -beamTemp\n"; return TCL_ERROR;
         }
@@ -3233,12 +3233,12 @@ theEleTags(i));
       }
       // Two temps given, temp change at top, temp at bottom of element
       else if (argc-count == 2) {
-        if (Tcl_GetDouble(rt, argv[count], &temp1) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count], &temp1) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid Ttop " << argv[count] << " for
 -beamTemp\n"; return TCL_ERROR;
         }
 
-        if (Tcl_GetDouble(rt, argv[count+1],&temp2 ) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count+1],&temp2 ) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid Tbot " << argv[count+1] << " for
 -beamTemp\n"; return TCL_ERROR;
         }
@@ -3266,7 +3266,7 @@ theEleTags(i));
       }
       // One twmp change give, uniform temp change in element
       else if (argc-count == 1) {
-        if (Tcl_GetDouble(rt, argv[count],&temp1 ) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[count],&temp1 ) != TCL_OK) {
           opserr << "WARNING eleLoad - invalid Tbot " << argv[count+1] << " for
 -beamTemp\n"; return TCL_ERROR;
         }
@@ -3314,7 +3314,7 @@ for ndm=2\n"; return TCL_ERROR;
 
 
 int
-TclCommand_addNodalMass(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -3334,7 +3334,7 @@ values\n"; printCommand(argc, argv); return TCL_ERROR;
 
   // get the id of the node
   int nodeId;
-  if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
     opserr << "WARNING invalid nodeId: " << argv[1];
     opserr << " - mass nodeId " << ndf << " forces\n";
     return TCL_ERROR;
@@ -3345,7 +3345,7 @@ values\n"; printCommand(argc, argv); return TCL_ERROR;
   double theMass;
   for (int i=0; i<ndf; i++)
   {
-     if (Tcl_GetDouble(rt, argv[i+2], &theMass) != TCL_OK)
+     if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK)
      {
           opserr << "WARNING invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i+1 << endln;
@@ -3366,9 +3366,10 @@ values\n"; printCommand(argc, argv); return TCL_ERROR;
 */
 
 int
-TclCommand_addHomogeneousBC(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called -
@@ -3390,7 +3391,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the id of the node
   int nodeId;
-  if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
     opserr << "WARNING invalid nodeId - fix nodeId " << ndf
            << " [0,1] conditions\n";
     return TCL_ERROR;
@@ -3401,7 +3402,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, G3_Runtime *rt, int argc,
   // get the fixity condition and add the constraint if fixed
   for (int i = 0; i < ndf; i++) {
     int theFixity;
-    if (Tcl_GetInt(rt, argv[2 + i], &theFixity) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + i], &theFixity) != TCL_OK) {
       opserr << "WARNING invalid fixity " << i + 1 << " - load " << nodeId;
       opserr << " " << ndf << " fixities\n";
       return TCL_ERROR;
@@ -3424,7 +3425,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, G3_Runtime *rt, int argc,
           delete theSP;
         } else {
           sprintf(buffer, "%d ", theSP->getTag());
-          Tcl_AppendResult(rt, buffer, NULL);
+          Tcl_AppendResult(interp, buffer, NULL);
         }
       }
     }
@@ -3436,7 +3437,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, G3_Runtime *rt, int argc,
 /*
 
 int
-TclCommand_addHomogeneousBC_X(ClientData clientData, G3_Runtime *rt,
+TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -3458,7 +3459,7 @@ conditions"; printCommand(argc, argv); return TCL_ERROR;
 
   // get the xCrd of nodes to be constrained
   double xLoc;
-  if (Tcl_GetDouble(rt, argv[1], &xLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
       opserr << "WARNING invalid xCrd - fixX xLoc " << ndf << " [0,1]
 conditions\n"; return TCL_ERROR;
   }
@@ -3466,7 +3467,7 @@ conditions\n"; return TCL_ERROR;
   // read in the fixities
   ID fixity(ndf);
   for (int i=0; i<ndf; i++) {
-    if (Tcl_GetInt(rt, argv[2+i], &fixity(i)) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2+i], &fixity(i)) != TCL_OK) {
       opserr << "WARNING invalid fixity " << i+1 << " - fixX " << xLoc;
       opserr << " " << ndf << " fixities\n";
       return TCL_ERROR;
@@ -3478,7 +3479,7 @@ conditions\n"; return TCL_ERROR;
   double tol = 1.0e-10;
   if (argc >= (4 + ndf)) {
     if (strcmp(argv[2+ndf],"-tol") == 0)
-    if (Tcl_GetDouble(rt, argv[3+ndf], &tol) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
       opserr << "WARNING invalid tol specified - fixX " << xLoc << endln;
       return TCL_ERROR;
     }
@@ -3494,7 +3495,7 @@ conditions\n"; return TCL_ERROR;
 
 
 int
-TclCommand_addHomogeneousBC_Y(ClientData clientData, G3_Runtime *rt,
+TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -3516,7 +3517,7 @@ conditions"; printCommand(argc, argv); return TCL_ERROR;
 
   // get the yCrd of nodes to be constrained
   double yLoc;
-  if (Tcl_GetDouble(rt, argv[1], &yLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &yLoc) != TCL_OK) {
       opserr << "WARNING invalid yCrd - fixY yLoc " << ndf << " [0,1]
 conditions\n"; return TCL_ERROR;
   }
@@ -3524,7 +3525,7 @@ conditions\n"; return TCL_ERROR;
   // read in the fixities
   ID fixity(ndf);
   for (int i=0; i<ndf; i++) {
-    if (Tcl_GetInt(rt, argv[2+i], &fixity(i)) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2+i], &fixity(i)) != TCL_OK) {
       opserr << "WARNING invalid fixity " << i+1 << " - fixY " << yLoc;
       opserr << " " << ndf << " fixities\n";
       return TCL_ERROR;
@@ -3536,7 +3537,7 @@ conditions\n"; return TCL_ERROR;
   double tol = 1.0e-10;
   if (argc >= (4 + ndf)) {
     if (strcmp(argv[2+ndf],"-tol") == 0)
-    if (Tcl_GetDouble(rt, argv[3+ndf], &tol) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
       opserr << "WARNING invalid tol specified - fixY " << yLoc << endln;
       return TCL_ERROR;
     }
@@ -3552,7 +3553,7 @@ conditions\n"; return TCL_ERROR;
 
 
 int
-TclCommand_addHomogeneousBC_Z(ClientData clientData, G3_Runtime *rt,
+TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -3574,7 +3575,7 @@ conditions"; printCommand(argc, argv); return TCL_ERROR;
 
   // get the yCrd of nodes to be constrained
   double zLoc;
-  if (Tcl_GetDouble(rt, argv[1], &zLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &zLoc) != TCL_OK) {
       opserr << "WARNING invalid zCrd - fixZ zLoc " << ndf << " [0,1]
 conditions\n"; return TCL_ERROR;
   }
@@ -3582,7 +3583,7 @@ conditions\n"; return TCL_ERROR;
   // read in the fixities
   ID fixity(ndf);
   for (int i=0; i<ndf; i++) {
-    if (Tcl_GetInt(rt, argv[2+i], &fixity(i)) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2+i], &fixity(i)) != TCL_OK) {
       opserr << "WARNING invalid fixity " << i+1 << " - fixZ " << zLoc;
       opserr << " " << ndf << " fixities\n";
       return TCL_ERROR;
@@ -3594,7 +3595,7 @@ conditions\n"; return TCL_ERROR;
   double tol = 1.0e-10;
   if (argc >= (4 + ndf)) {
     if (strcmp(argv[2+ndf],"-tol") == 0)
-    if (Tcl_GetDouble(rt, argv[3+ndf], &tol) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
       opserr << "WARNING invalid tol specified - fixZ " << zLoc << endln;
       return TCL_ERROR;
     }
@@ -3609,7 +3610,7 @@ conditions\n"; return TCL_ERROR;
 
 
 int
-TclCommand_addSP(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -3631,18 +3632,18 @@ TclCommand_addSP(ClientData clientData, G3_Runtime *rt, int argc,
   int nodeId, dofId;
   double value;
 
-  if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
     opserr << "WARNING invalid nodeId: " << argv[1] << " -  sp nodeId dofID
 value\n"; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[2], &dofId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &dofId) != TCL_OK) {
     opserr << "WARNING invalid dofId: " << argv[2] << " -  sp ";
     opserr << nodeId << " dofID value\n";
       return TCL_ERROR;
   }
   dofId--; // DECREMENT THE DOF VALUE BY 1 TO GO TO OUR C++ INDEXING
 
-  if (Tcl_GetDouble(rt, argv[3], &value) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
     opserr << "WARNING invalid value: " << argv[3] << " -  sp ";
     opserr << nodeId << " dofID value\n";
       return TCL_ERROR;
@@ -3662,7 +3663,7 @@ value\n"; return TCL_ERROR;
       endMarker++;
       userSpecifiedPattern = true;
       if (endMarker == argc ||
-          Tcl_GetInt(rt, argv[endMarker], &loadPatternTag) != TCL_OK) {
+          Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
 
         opserr << "WARNING invalid patternTag - load " << nodeId << "\n";
         return TCL_ERROR;
@@ -3701,7 +3702,7 @@ value\n"; return TCL_ERROR; } else loadPatternTag = theTclLoadPattern->getTag();
 
 int
 TclCommand_addImposedMotionSP(ClientData clientData,
-                                   G3_Runtime *rt,
+                                   Tcl_Interp *interp,
                                    int argc,
                                    TCL_Char **argv)
 {
@@ -3722,20 +3723,20 @@ gMotionID\n"; printCommand(argc, argv); return TCL_ERROR;
   // get the nodeID, dofId and value of the constraint
   int nodeId, dofId, gMotionID;
 
-  if (Tcl_GetInt(rt, argv[1], &nodeId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
     opserr << "WARNING invalid nodeId: " << argv[1];
     opserr << " - imposedMotion nodeId dofID gMotionID\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[2], &dofId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &dofId) != TCL_OK) {
     opserr << "WARNING invalid dofId: " << argv[2] << " -  imposedMotion ";
     opserr << nodeId << " dofID gMotionID\n";
       return TCL_ERROR;
   }
   dofId--; // DECREMENT THE DOF VALUE BY 1 TO GO TO OUR C++ INDEXING
 
-  if (Tcl_GetInt(rt, argv[3], &gMotionID) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &gMotionID) != TCL_OK) {
     opserr << "WARNING invalid gMotionID: " << argv[3] << " -  imposedMotion ";
     opserr << nodeId << " dofID gMotionID\n";
     return TCL_ERROR;
@@ -3795,7 +3796,7 @@ gMotionID\n"; printCommand(argc, argv); return TCL_ERROR;
 
 
 int
-TclCommand_addEqualDOF_MP (ClientData clientData, G3_Runtime *rt,
+TclCommand_addEqualDOF_MP (ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
         // Ensure the destructor has not been called
@@ -3813,12 +3814,12 @@ DOF1? DOF2? ..."; printCommand (argc, argv); return TCL_ERROR;
         // Read in the node IDs and the DOF
         int RnodeID, CnodeID, dofID;
 
-        if (Tcl_GetInt (rt, argv[1], &RnodeID) != TCL_OK) {
+        if (Tcl_GetInt (interp, argv[1], &RnodeID) != TCL_OK) {
           opserr << "WARNING invalid RnodeID: " << argv[1]
                << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
           return TCL_ERROR;
         }
-        if (Tcl_GetInt (rt, argv[2], &CnodeID) != TCL_OK) {
+        if (Tcl_GetInt (interp, argv[2], &CnodeID) != TCL_OK) {
           opserr << "WARNING invalid CnodeID: " << argv[2]
                << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
           return TCL_ERROR;
@@ -3837,7 +3838,7 @@ DOF1? DOF2? ..."; printCommand (argc, argv); return TCL_ERROR;
         int i, j;
         // Read the degrees of freedom which are to be coupled
         for (i = 3, j = 0; i < argc; i++, j++) {
-          if (Tcl_GetInt (rt, argv[i], &dofID) != TCL_OK) {
+          if (Tcl_GetInt (interp, argv[i], &dofID) != TCL_OK) {
             opserr << "WARNING invalid dofID: " << argv[3]
                  << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
             return TCL_ERROR;
@@ -3869,14 +3870,14 @@ MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
 
         char buffer[80];
         sprintf(buffer, "%d", theMP->getTag());
-        Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+        Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
         return TCL_OK;
 }
 
 
 int
-TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, G3_Runtime *rt,
+TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
         // Ensure the destructor has not been called
@@ -3894,18 +3895,18 @@ numDOF? RDOF1? CDOF1? ... ..."; printCommand (argc, argv); return TCL_ERROR;
         // Read in the node IDs and the DOF
         int RnodeID, CnodeID, dofIDR, dofIDC, numDOF;
 
-        if (Tcl_GetInt (rt, argv[1], &RnodeID) != TCL_OK) {
+        if (Tcl_GetInt (interp, argv[1], &RnodeID) != TCL_OK) {
           opserr << "WARNING invalid RnodeID: " << argv[1]
                << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
         }
-        if (Tcl_GetInt (rt, argv[2], &CnodeID) != TCL_OK) {
+        if (Tcl_GetInt (interp, argv[2], &CnodeID) != TCL_OK) {
           opserr << "WARNING invalid CnodeID: " << argv[2]
                << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
         }
 
-        if (Tcl_GetInt (rt, argv[3], &numDOF) != TCL_OK) {
+        if (Tcl_GetInt (interp, argv[3], &numDOF) != TCL_OK) {
           opserr << "WARNING invalid numDOF: " << argv[2]
                << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
@@ -3925,12 +3926,12 @@ numDOF? RDOF1? CDOF1? ... ..."; printCommand (argc, argv); return TCL_ERROR;
         int i, j, k;
         // Read the degrees of freedom which are to be coupled
         for (i = 4, j = 5, k = 0; k < numDOF; i+=2, j+=2, k++) {
-          if (Tcl_GetInt (rt, argv[i], &dofIDR) != TCL_OK) {
+          if (Tcl_GetInt (interp, argv[i], &dofIDR) != TCL_OK) {
             opserr << "WARNING invalid dofID: " << argv[3]
                  << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
             return TCL_ERROR;
           }
-          if (Tcl_GetInt(rt, argv[j], &dofIDC) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[j], &dofIDC) != TCL_OK) {
             opserr << "WARNING invalid dofID: " << argv[3]
                  << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
             return TCL_ERROR;
@@ -3964,14 +3965,14 @@ MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
 
         char buffer[80];
         sprintf(buffer, "%d", theMP->getTag());
-        Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+        Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
         return TCL_OK;
 }
 
 
 int
-TclCommand_RigidLink(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
 TCL_Char **argv)
 {
   if (argc < 4) {
@@ -3980,11 +3981,11 @@ TCL_Char **argv)
   }
 
   int rNode, cNode;
-  if (Tcl_GetInt(rt, argv[2], &rNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
       opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read
 rNode \n"; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[3], &cNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &cNode) != TCL_OK) {
       opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read
 CNode \n"; return TCL_ERROR;
   }
@@ -4003,7 +4004,7 @@ type (-bar, -beam) \n"; return TCL_ERROR;
 }
 
 int
-TclCommand_RigidDiaphragm(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc,
 TCL_Char **argv)
 {
   if (argc < 3) {
@@ -4012,12 +4013,12 @@ TCL_Char **argv)
   }
 
   int rNode, perpDirn;
-  if (Tcl_GetInt(rt, argv[1], &perpDirn) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
       opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read
 perpDirn? \n"; return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[2], &rNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
       opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode
 \n"; return TCL_ERROR;
   }
@@ -4027,7 +4028,7 @@ perpDirn? \n"; return TCL_ERROR;
   ID constrainedNodes(numConstrainedNodes);
   for (int i=0; i<numConstrainedNodes; i++) {
       int cNode;
-      if (Tcl_GetInt(rt, argv[3+i], &cNode) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
           opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a
 cNode\n"; return TCL_ERROR;
       }
@@ -4044,7 +4045,7 @@ cNode\n"; return TCL_ERROR;
 
 
 int
-TclCommand_addMP(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addMP(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv)
 {
   opserr << "WARNING - TclCommand_addMP() not yet implemented\n";
@@ -4054,7 +4055,7 @@ TclCommand_addMP(ClientData clientData, G3_Runtime *rt, int argc,
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Added by Scott J. Brandenberg, UC Davis, sjbrandenberg@ucdavis.edu
 int
-TclCommand_doPySimple1Gen(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doPySimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv)
 {
         if(argc < 6 || argc > 7){
@@ -4076,7 +4077,7 @@ argv[3], argv[4], argv[5], argv[6]);
 }
 
 int
-TclCommand_doTzSimple1Gen(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doTzSimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv)
 {
         if(argc < 6 || argc > 7){
@@ -4117,17 +4118,17 @@ arguments." << endln;
       // Checking for error
         int FoundationID; int ConnectingNode; int FoundationMatType;
 
-                if (Tcl_GetInt(rt, argv[1], &FoundationID) != TCL_OK) {
+                if (Tcl_GetInt(interp, argv[1], &FoundationID) != TCL_OK) {
           opserr << "WARNING invalid FoundationID: " << argv[1]
                << ". ShallowFoundationGen FoundationID? ConnectingNode?
 InputDataFile? FoundationMatType? "; return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[2], &ConnectingNode) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[2], &ConnectingNode) != TCL_OK) {
           opserr << "WARNING invalid ConnectingNode: " << argv[2]
                << ". ShallowFoundationGen FoundationID? ConnectingNode?
 InputDataFile? FoundationMatType? "; return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[4], &FoundationMatType) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[4], &FoundationMatType) != TCL_OK) {
           opserr << "WARNING invalid FoundationMatType: " << argv[4]
                << ". ShallowFoundationGen FoundationID? ConnectingNode?
 InputDataFile? FoundationMatType? "; return TCL_ERROR;
@@ -4141,7 +4142,7 @@ argv[4]); delete theShallowFoundationGen;
 // End PRC
 
 int
-TclCommand_doBlock2D(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 {
 
@@ -4157,20 +4158,20 @@ eleArgs?"; opserr << " : model dimension (ndm) must be at leat 2 " << endln;
 startEle? eleType? eleArgs?"; return TCL_ERROR;
   }
   int numX, numY, startNodeNum, startEleNum;
-  if (Tcl_GetInt(rt, argv[1], &numX) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &numX) != TCL_OK) {
     opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid numX: " << argv[1] << endln; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[2], &numY) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &numY) != TCL_OK) {
     opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid numY: " << argv[2] << endln; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[3], &startNodeNum) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &startNodeNum) != TCL_OK) {
     opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid startNode: " << argv[3] << endln; return
 TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[4], &startEleNum) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &startEleNum) != TCL_OK) {
     opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid startEle: " << argv[4] << endln; return
 TCL_ERROR;
@@ -4185,7 +4186,7 @@ TCL_ERROR;
   int numNodes = 4;
   if (argc == 10) {
     if (strcmp(argv[7],"-numEleNodes") == 0)
-      if (Tcl_GetInt(rt, argv[8], &numNodes) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[8], &numNodes) != TCL_OK) {
         opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " -numEleNodes numNodes?: invalid numNodes: " << argv[8] <<
 endln; return TCL_ERROR;
@@ -4217,7 +4218,7 @@ eleArgs? "; opserr << "-numEleNodes 9: numX and numY MUST BOTH BE EVEN\n";
   TCL_Char **argvNodes;
   int  argcNodes;
 
-  Tcl_SplitList(rt, argv[nodalInfo], &argcNodes, &argvNodes);
+  Tcl_SplitList(interp, argv[nodalInfo], &argcNodes, &argvNodes);
 
   int ndf = theTclBuilder->getNDF();
 
@@ -4231,7 +4232,7 @@ eleArgs?"; opserr << " : invalid number of node args: " << argv[7] << endln;
     }
     int nodeTag;
     double value;
-    if (Tcl_GetInt(rt, argvNodes[count], &nodeTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argvNodes[count], &nodeTag) != TCL_OK) {
       opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid node tag: " << argvNodes[count] << endln;
       Tcl_Free((char *)argvNodes);
@@ -4243,7 +4244,7 @@ eleArgs?"; opserr << " : invalid node tag out of bounds [1,9]: " <<
 argvNodes[count] << endln; Tcl_Free((char *)argvNodes); return TCL_ERROR;
     }
     for (int i=0; i<ndm; i++) {
-      if (Tcl_GetDouble(rt, argvNodes[count+1+i], &value) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
         opserr << "WARNING block2D numX? numY? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid node coordinate for node: " << argvNodes[count]
 << endln; Tcl_Free((char *)argvNodes); return TCL_ERROR;
@@ -4326,7 +4327,7 @@ strlen(eleType));
       strcat(eleCommand, additionalEleArgs);
 
       // now to create the element we get the string eveluated
-      if (Tcl_Eval(rt, eleCommand) != TCL_OK) {
+      if (Tcl_Eval(interp, eleCommand) != TCL_OK) {
           delete [] eleCommand;
         return TCL_ERROR;
       }
@@ -4340,7 +4341,7 @@ strlen(eleType));
 
 
 int
-TclCommand_doBlock3D(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 {
 
@@ -4352,24 +4353,24 @@ eleArgs?"; opserr << " : model dimension (ndm) must be at leat 2 " << endln;
   }
 
   int numX, numY, numZ, startNodeNum, startEleNum;
-  if (Tcl_GetInt(rt, argv[1], &numX) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &numX) != TCL_OK) {
     opserr << "WARNING block3D numX? numY? numZ? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid numX: " << argv[1] << endln; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[2], &numY) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &numY) != TCL_OK) {
     opserr << "WARNING block3D numX? numY? numZ? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid numY: " << argv[2] << endln; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[3], &numZ) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &numZ) != TCL_OK) {
     opserr << "WARNING block3D numX? numY? numZ? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid numZ: " << argv[3] << endln; return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[4], &startNodeNum) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &startNodeNum) != TCL_OK) {
     opserr << "WARNING block3D numX? numY? numZ? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid startNode: " << argv[4] << endln; return
 TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[5], &startEleNum) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[5], &startEleNum) != TCL_OK) {
     opserr << "WARNING block3D numX? numY? numZ? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid startEle: " << argv[5] << endln; return
 TCL_ERROR;
@@ -4384,7 +4385,7 @@ TCL_ERROR;
   TCL_Char **argvNodes;
   int  argcNodes;
 
-  Tcl_SplitList(rt, nodalInfo, &argcNodes, &argvNodes);
+  Tcl_SplitList(interp, nodalInfo, &argcNodes, &argvNodes);
 
   int ndf = theTclBuilder->getNDF();
 
@@ -4398,7 +4399,7 @@ eleArgs?"; opserr << " : invalid number of node args: " << argv[8] << endln;
     }
     int nodeTag;
     double value;
-    if (Tcl_GetInt(rt, argvNodes[count], &nodeTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argvNodes[count], &nodeTag) != TCL_OK) {
       opserr << "WARNING block3D numX? numY? numZ? startNode? startEle? eleType?
 eleArgs?"; opserr << " : invalid node id in node args: " << argvNodes[count] <<
 endln; Tcl_Free((char *)argvNodes); return TCL_ERROR;
@@ -4409,7 +4410,7 @@ eleArgs?"; opserr << " : node tag out of bounds [1, 27]: " << argvNodes[count]
 << endln; Tcl_Free((char *)argvNodes); return TCL_ERROR;
     }
     for (int i=0; i<ndm; i++) {
-      if (Tcl_GetDouble(rt, argvNodes[count+1+i], &value) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
         opserr << "WARNING block3D numX? numY? numZ? startNode? startEle?
 eleType? eleArgs?"; opserr << " : invalid coordinate in node args: " <<
 argvNodes[count] << endln; Tcl_Free((char *)argvNodes); return TCL_ERROR;
@@ -4485,7 +4486,7 @@ strlen(eleType));
         strcat(eleCommand, additionalEleArgs);
 
         // now to create the element we get the string eveluated
-        if (Tcl_Eval(rt, eleCommand) != TCL_OK) {
+        if (Tcl_Eval(interp, eleCommand) != TCL_OK) {
         delete [] eleCommand;
           return TCL_ERROR;
         }
@@ -4502,128 +4503,128 @@ strlen(eleType));
 
 
 int
-TclCommand_addRemoPatch(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addRemoPatch(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv)
 {
-  return TclCommand_addPatch(clientData, rt, argc,argv,
+  return TclCommand_addPatch(clientData, interp, argc,argv,
                                     theTclBuilder);
 }
 
 int
-TclCommand_addRemoFiber(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv)
 {
-  return TclCommand_addFiber(clientData, rt, argc,argv,
+  return TclCommand_addFiber(clientData, interp, argc,argv,
                                   theTclBuilder);
 }
 
 int
-TclSafeBuilder_addRemoHFiber(ClientData clientData, G3_Runtime *rt,
+TclSafeBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
 int argc, TCL_Char **argv)
 {
-  return TclCommand_addHFiber(clientData, rt, argc,argv,theTclBuilder);
+  return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
 
 }
 
 int
-TclCommand_addRemoLayer(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_addRemoLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv)
 {
-  return TclCommand_addReinfLayer(clientData, rt, argc,argv,
+  return TclCommand_addReinfLayer(clientData, interp, argc,argv,
                                        theTclBuilder);
 }
 
 
 int
-TclCommand_addRemoGeomTransf(ClientData clientData, G3_Runtime *rt, int
+TclCommand_addRemoGeomTransf(ClientData clientData, Tcl_Interp *interp, int
 argc, TCL_Char **argv)
 {
-  return TclCommand_addGeomTransf(clientData, rt, argc,argv,
+  return TclCommand_addGeomTransf(clientData, interp, argc,argv,
                                        theTclDomain,
                                        theTclBuilder);
 }
 
 extern int
 TclSafeBuilderStiffnessDegradationCommand(ClientData clientData,
-                                           G3_Runtime *rt,
+                                           Tcl_Interp *interp,
                                            int argc, TCL_Char **argv, Domain
 *theDomain);
 
 int
 TclCommand_addStiffnessDegradation(ClientData clientData,
-                                        G3_Runtime *rt,
+                                        Tcl_Interp *interp,
                                         int argc, TCL_Char **argv)
 {
-  return TclSafeBuilderStiffnessDegradationCommand(clientData, rt,
+  return TclSafeBuilderStiffnessDegradationCommand(clientData, interp,
 argc, argv, theTclDomain);
 }
 
 extern int
 TclSafeBuilderUnloadingRuleCommand(ClientData clientData,
-                                    G3_Runtime *rt,
+                                    Tcl_Interp *interp,
                                     int argc, TCL_Char **argv, Domain
 *theDomain);
 
 int
 TclCommand_addUnloadingRule(ClientData clientData,
-                                 G3_Runtime *rt,
+                                 Tcl_Interp *interp,
                                  int argc, TCL_Char **argv)
 {
-  return TclSafeBuilderUnloadingRuleCommand(clientData, rt, argc,
+  return TclSafeBuilderUnloadingRuleCommand(clientData, interp, argc,
 argv, theTclDomain);
 }
 
 extern int
 TclSafeBuilderStrengthDegradationCommand(ClientData clientData,
-                                          G3_Runtime *rt,
+                                          Tcl_Interp *interp,
                                           int argc, TCL_Char **argv, Domain
 *theDomain);
 
 int
 TclCommand_addStrengthDegradation(ClientData clientData,
-                                       G3_Runtime *rt,
+                                       Tcl_Interp *interp,
                                        int argc, TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(rt, "OPS::theTclBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
-  return TclSafeBuilderStrengthDegradationCommand(clientData, rt,
+  return TclSafeBuilderStrengthDegradationCommand(clientData, interp,
 argc, argv, theTclDomain);
 }
 
 extern int
 TclSafeBuilderHystereticBackboneCommand(ClientData clientData,
-                                         G3_Runtime *rt,
+                                         Tcl_Interp *interp,
                                          int argc, TCL_Char **argv, Domain
 *theDomain);
 
 int
 TclCommand_addHystereticBackbone(ClientData clientData,
-                                      G3_Runtime *rt,
+                                      Tcl_Interp *interp,
                                       int argc,	TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(rt, "OPS::theTclBuilder", NULL);
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
-  return TclSafeBuilderHystereticBackboneCommand(clientData, rt,
+  return TclSafeBuilderHystereticBackboneCommand(clientData, interp,
 argc, argv, theTclDomain);
 }
 
 /// added by ZHY
 extern int
 TclSafeBuilderUpdateMaterialStageCommand(ClientData clientData,
-                                          G3_Runtime *rt,
+                                          Tcl_Interp *interp,
                                           int argc,
                                           TCL_Char **argv,
                                           TclSafeBuilder *theTclBuilder,
                                           Domain *theDomain);
 int
 TclCommand_UpdateMaterialStage(ClientData clientData,
-                                    G3_Runtime *rt,
+                                    Tcl_Interp *interp,
                                     int argc,
                                     TCL_Char **argv)
 {
-  return TclSafeBuilderUpdateMaterialStageCommand(clientData, rt,
+  return TclSafeBuilderUpdateMaterialStageCommand(clientData, interp,
                                                    argc, argv, theTclBuilder,
 theTclDomain);
 }
@@ -4631,20 +4632,20 @@ theTclDomain);
 /// added by ZHY
 extern int
 TclCommand_UpdateMaterialsCommand(ClientData clientData,
-                                  G3_Runtime *rt,
+                                  Tcl_Interp *interp,
                                   int argc,
                                   TCL_Char **argv,
                                   TclSafeBuilder *theTclBuilder,
                                   Domain *theDomain);
 static int
 TclCommand_UpdateMaterials(ClientData clientData,
-                           G3_Runtime *rt,
+                           Tcl_Interp *interp,
                            int argc,
                            TCL_Char **argv)
 {
   TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(rt, "OPS::theTclBuilder", NULL);
-  return TclCommand_UpdateMaterialsCommand(clientData, rt,
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
+  return TclCommand_UpdateMaterialsCommand(clientData, interp,
                                            argc, argv, theTclBuilder,
 theTclDomain);
 }
@@ -4652,39 +4653,39 @@ theTclDomain);
 /// added by ZHY
 extern int
 TclSafeBuilderUpdateParameterCommand(ClientData clientData,
-                                          G3_Runtime *rt,
+                                          Tcl_Interp *interp,
                                           int argc,
                                           TCL_Char **argv,
                                           TclSafeBuilder
 *theTclBuilder); int TclCommand_UpdateParameter(ClientData clientData,
-                                    G3_Runtime *rt,
+                                    Tcl_Interp *interp,
                                     int argc,
                                     TCL_Char **argv)
 {
-  return TclSafeBuilderUpdateParameterCommand(clientData, rt,
+  return TclSafeBuilderUpdateParameterCommand(clientData, interp,
                                        argc, argv, theTclBuilder);
 }
 
 extern int
 TclSafeBuilderFrictionModelCommand (ClientData clienData,
-                                     G3_Runtime *rt, int argc, TCL_Char
+                                     Tcl_Interp *interp, int argc, TCL_Char
 **argv, Domain *theDomain);
 
 int
 TclCommand_addFrictionModel(ClientData clientData,
-                    G3_Runtime *rt, int argc, TCL_Char **argv)
+                    Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  return TclSafeBuilderFrictionModelCommand(clientData, rt, argc,
+  return TclSafeBuilderFrictionModelCommand(clientData, interp, argc,
 argv, theTclDomain);
 }
 
 int
-TclCommand_Package(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char
+TclCommand_Package(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 **argv)
 {
 
   void *libHandle;
-  int (*funcPtr)(ClientData clientData, G3_Runtime *rt,  int argc,
+  int (*funcPtr)(ClientData clientData, Tcl_Interp *interp,  int argc,
                  TCL_Char **argv, Domain*, TclSafeBuilder*);
 
   const char *funcName = 0;
@@ -4697,7 +4698,7 @@ TclCommand_Package(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char
   }
 
   if (res == 0) {
-    int result = (*funcPtr)(clientData, rt,
+    int result = (*funcPtr)(clientData, interp,
                             argc,
                             argv,
                             theTclDomain,
@@ -4714,7 +4715,7 @@ TclCommand_Package(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char
 
 // Added by Alborz Ghofrani - U.Washington
 extern int
-TclCommand_GenerateInterfacePoints(ClientData clientData, G3_Runtime *rt,
+TclCommand_GenerateInterfacePoints(ClientData clientData, Tcl_Interp *interp,
 int argc, TCL_Char **argv);
 // End Added by Alborz
 //

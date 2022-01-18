@@ -54,21 +54,21 @@ static TclUniaxialMaterialTester *theTclBuilder = 0;
 //
 static
 int TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
-                                                  G3_Runtime *rt, int argc,
+                                                  Tcl_Interp *interp, int argc,
                                                   TCL_Char **argv);
 
 int TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
-                                                        G3_Runtime *rt,
+                                                        Tcl_Interp *interp,
                                                         int argc,
                                                         TCL_Char **argv);
 
 int TclUniaxialMaterialTester_getStressUniaxialMaterial(ClientData clientData,
-                                                        G3_Runtime *rt,
+                                                        Tcl_Interp *interp,
                                                         int argc,
                                                         TCL_Char **argv);
 
 int TclUniaxialMaterialTester_getTangUniaxialMaterial(ClientData clientData,
-                                                      G3_Runtime *rt,
+                                                      Tcl_Interp *interp,
                                                       int argc,
                                                       TCL_Char **argv);
 
@@ -81,24 +81,24 @@ static int countsTillCommit;
 
 // constructor: the constructor will add certain commands to the interpreter
 TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
-                                                     G3_Runtime *rt,
+                                                     Tcl_Interp *interp,
                                                      int cTC)
-    : TclSafeBuilder(theDomain, rt, 1, 1), theInterp(rt)
+    : TclSafeBuilder(theDomain, interp, 1, 1), theInterp(interp)
 {
   countsTillCommit = cTC;
-  Tcl_CreateCommand(rt, "uniaxialTest",
+  Tcl_CreateCommand(interp, "uniaxialTest",
                     TclUniaxialMaterialTester_setUniaxialMaterial,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "strainUniaxialTest",
+  Tcl_CreateCommand(interp, "strainUniaxialTest",
                     TclUniaxialMaterialTester_setStrainUniaxialMaterial,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "stressUniaxialTest",
+  Tcl_CreateCommand(interp, "stressUniaxialTest",
                     TclUniaxialMaterialTester_getStressUniaxialMaterial,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(rt, "tangUniaxialTest",
+  Tcl_CreateCommand(interp, "tangUniaxialTest",
                     TclUniaxialMaterialTester_getTangUniaxialMaterial,
                     (ClientData)NULL, NULL);
 
@@ -121,17 +121,18 @@ TclUniaxialMaterialTester::~TclUniaxialMaterialTester()
 // THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 static UniaxialMaterial*
-getUniaxialMaterial(G3_Runtime *rt)
+getUniaxialMaterial(Tcl_Interp *interp)
 {
-    return (UniaxialMaterial*)Tcl_GetAssocData(rt, "OPS::the_uniaxial_material", NULL);
+    return (UniaxialMaterial*)Tcl_GetAssocData(interp, "OPS::the_uniaxial_material", NULL);
 }
 
 static int
 TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
-                                              G3_Runtime *rt, int argc,
+                                              Tcl_Interp *interp, int argc,
                                               TCL_Char **argv)
 {
-  UniaxialMaterial *theTestingUniaxialMaterial = getUniaxialMaterial(rt);
+  G3_Runtime *rt = G3_getRuntime(interp);
+  UniaxialMaterial *theTestingUniaxialMaterial = getUniaxialMaterial(interp);
 
   count = 1;
   // ensure the destructor has not been called -
@@ -148,7 +149,7 @@ TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
 
   // get the matID form command line
   int matID;
-  if (Tcl_GetInt(rt, argv[1], &matID) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &matID) != TCL_OK) {
     opserr << "WARNING could not read matID: uniaxialTest matID?";
     return TCL_ERROR;
   }
@@ -157,7 +158,7 @@ TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
   if (theTestingUniaxialMaterial != 0) {
     delete theTestingUniaxialMaterial;
     // theTestingUniaxialMaterial = 0;
-    Tcl_SetAssocData(rt, "OPS::the_uniaxial_material", NULL, (ClientData)0);
+    Tcl_SetAssocData(interp, "OPS::the_uniaxial_material", NULL, (ClientData)0);
   }
 
   // get the material from the modelbuilder with matID
@@ -168,7 +169,7 @@ TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
     return TCL_ERROR;
   } else {
     theTestingUniaxialMaterial = theOrigMaterial->getCopy();
-    Tcl_SetAssocData(rt, "OPS::the_uniaxial_material", NULL, (ClientData)theTestingUniaxialMaterial);
+    Tcl_SetAssocData(interp, "OPS::the_uniaxial_material", NULL, (ClientData)theTestingUniaxialMaterial);
   }
 
   return TCL_OK;
@@ -176,7 +177,7 @@ TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
 
 int
 TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
@@ -186,6 +187,7 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
   // }
 
   // check number of arguments in command line
+  G3_Runtime *rt = G3_getRuntime(interp);
   if (argc < 2) {
     opserr
         << "WARNING bad command - want: strainUniaxialTest strain? <temp?>\n";
@@ -194,7 +196,7 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
 
   // get the matID form command line
   double strain;
-  if (Tcl_GetDouble(rt, argv[1], &strain) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &strain) != TCL_OK) {
     opserr << "WARNING could not read strain: strainUniaxialTest strain? "
               "<temp?>\n";
     return TCL_ERROR;
@@ -202,7 +204,7 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
 
   double temp = 0.0;
   if (argc > 2) {
-    if (Tcl_GetDouble(rt, argv[2], &temp) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &temp) != TCL_OK) {
       opserr << "WARNING could not read strain: strainUniaxialTest strain? "
                 "<temp?>\n";
       return TCL_ERROR;
@@ -211,7 +213,7 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
 
   // delete the old testing material
   UniaxialMaterial* theTestingUniaxialMaterial;
-  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(rt))) {
+  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
     if (argc > 2)
       theTestingUniaxialMaterial->setTrialStrain(strain, temp, 0.0);
     else
@@ -227,18 +229,18 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
 
 int
 TclUniaxialMaterialTester_getStressUniaxialMaterial(ClientData clientData,
-                                                    G3_Runtime *rt,
+                                                    Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv)
 {
   double stress = 0.0;
 
   // delete the old testing material
   UniaxialMaterial* theTestingUniaxialMaterial;
-  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(rt))) {
+  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
     stress = theTestingUniaxialMaterial->getStress();
     char buffer[40];
     sprintf(buffer, "%.10e", stress);
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     //    sprintf(interp->result,"%.10e",stress);
     return TCL_OK;
   } else {
@@ -249,18 +251,18 @@ TclUniaxialMaterialTester_getStressUniaxialMaterial(ClientData clientData,
 
 int
 TclUniaxialMaterialTester_getTangUniaxialMaterial(ClientData clientData,
-                                                  G3_Runtime *rt, int argc,
+                                                  Tcl_Interp *interp, int argc,
                                                   TCL_Char **argv)
 {
   double tangent = 0.0;
 
   // delete the old testing material
   UniaxialMaterial* theTestingUniaxialMaterial;
-  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(rt))) {
+  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
     tangent = theTestingUniaxialMaterial->getTangent();
     char buffer[40];
     sprintf(buffer, "%.10e", tangent);
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     //    sprintf(interp->result,"%.10e",tangent);
     return TCL_OK;
   } else {

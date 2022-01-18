@@ -5,6 +5,7 @@
 #include "YieldSurface_BC.h"
 #include <stdlib.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 const int YieldSurface_BC::dFReturn(0);
 const int YieldSurface_BC::RadialReturn(1);
@@ -34,7 +35,9 @@ YieldSurface_BC *OPS_getYieldSurface_BC(int tag)
   return theobj;
 }
 
-void OPS_clearAllYieldSurface_BC(void) {
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllYieldSurface_BC)
+{
     theYieldSurface_BCObjects.clearAll();
 }
 

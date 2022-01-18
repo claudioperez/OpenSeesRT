@@ -45,7 +45,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -79,34 +79,34 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
     // get the id, end nodes, and section properties
     int beamId, iNode, jNode, transTag;
     double A, E, I;
-    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &beamId) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &beamId) != TCL_OK) {
       opserr << "WARNING invalid beamId: " << argv[1 + eleArgStart];
       opserr << " - elasticBeamColumn beamId iNode jNode A E I\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode - elasticBeamColumn " << beamId
              << " iNode jNode A E I\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode - elasticBeamColumn " << beamId
              << " iNode jNode A E I\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &A) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &A) != TCL_OK) {
       opserr << "WARNING invalid A - elasticBeamColumn " << beamId
              << " iNode jNode A E I\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &E) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &E) != TCL_OK) {
       opserr << "WARNING invalid E - elasticBeam " << beamId
              << " iNode jNode A E I\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetDouble(rt, argv[6 + eleArgStart], &I) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &I) != TCL_OK) {
       opserr << "WARNING invalid I - elasticBeamColumn " << beamId
              << " iNode jNode A E I\n";
       return TCL_ERROR;
@@ -121,17 +121,17 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
     if (((argc - eleArgStart) == 10) &&
         (strcmp(argv[eleArgStart + 8], "-mass") != 0)) {
 
-      if (Tcl_GetDouble(rt, argv[7 + eleArgStart], &alpha) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha) != TCL_OK) {
         opserr << "WARNING invalid alpha - elasticBeamColumn " << beamId
                << " iNode jNode A E I alpha d \n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[8 + eleArgStart], &d) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &d) != TCL_OK) {
         opserr << "WARNING invalid d - elasticBeamColumn " << beamId
                << " iNode jNode A E I alpha d \n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[9 + eleArgStart], &transTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[9 + eleArgStart], &transTag) != TCL_OK) {
         opserr << "WARNING invalid transTag - elasticBeamColumn " << beamId
                << " iNode jNode A E I alpha d transTag\n";
         return TCL_ERROR;
@@ -140,7 +140,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     else {
-      if (Tcl_GetInt(rt, argv[7 + eleArgStart], &transTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[7 + eleArgStart], &transTag) != TCL_OK) {
         opserr << "WARNING invalid transTag - elasticBeamColumn " << beamId
                << " iNode jNode A E I transTag\n";
         return TCL_ERROR;
@@ -163,7 +163,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
           opserr << argv[1] << " element: " << beamId << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetDouble(rt, argv[argi + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argi + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid mass\n";
           opserr << argv[1] << " element: " << beamId << endln;
           return TCL_ERROR;
@@ -212,17 +212,17 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
     // get the id, end nodes, and section properties
     int beamId, iNode, jNode, transTag;
     double A, E, G, Jx, Iy, Iz;
-    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &beamId) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &beamId) != TCL_OK) {
       opserr << "WARNING invalid beamId: " << argv[1 + eleArgStart];
       opserr << " - elasticBeamColumn beamId iNode jNode A E G Jx Iy Iz\n ";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode - elasticBeamColumn " << beamId;
       opserr << " iNode jNode A E G Jx Iy Iz\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode - elasticBeamColumn " << beamId;
       opserr << " iNode jNode A E G Jx Iy Iz\n";
       return TCL_ERROR;
@@ -230,7 +230,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
 
     if ((argc - eleArgStart) == 6) {
       int section;
-      if (Tcl_GetInt(rt, argv[4 + eleArgStart], &section) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4 + eleArgStart], &section) != TCL_OK) {
         opserr << "WARNING invalid secTag - elasticBeamColumn iNode jNode "
                   "sectionTag? transfTag?\n";
         return TCL_ERROR;
@@ -238,7 +238,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
 
       SectionForceDeformation *theSection = theTclBuilder->getSection(section);
 
-      if (Tcl_GetInt(rt, argv[5 + eleArgStart], &transTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[5 + eleArgStart], &transTag) != TCL_OK) {
         opserr << "WARNING invalid transTag - elasticBeamColumn " << beamId;
         opserr << " iNode jNode sectionTag? transfTag?\n";
         return TCL_ERROR;
@@ -263,7 +263,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
             opserr << argv[1] << " element: " << beamId << endln;
             return TCL_ERROR;
           }
-          if (Tcl_GetDouble(rt, argv[argi + 1], &mass) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi + 1], &mass) != TCL_OK) {
             opserr << "WARNING invalid mass\n";
             opserr << argv[1] << " element: " << beamId << endln;
             return TCL_ERROR;
@@ -287,37 +287,37 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
 
     } else {
 
-      if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &A) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &A) != TCL_OK) {
         opserr << "WARNING invalid A - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &E) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &E) != TCL_OK) {
         opserr << "WARNING invalid E - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[6 + eleArgStart], &G) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &G) != TCL_OK) {
         opserr << "WARNING invalid G - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[7 + eleArgStart], &Jx) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &Jx) != TCL_OK) {
         opserr << "WARNING invalid Jx - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[8 + eleArgStart], &Iy) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &Iy) != TCL_OK) {
         opserr << "WARNING invalid Iy - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[9 + eleArgStart], &Iz) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[9 + eleArgStart], &Iz) != TCL_OK) {
         opserr << "WARNING invalid Iz - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[10 + eleArgStart], &transTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[10 + eleArgStart], &transTag) != TCL_OK) {
         opserr << "WARNING invalid transTag - elasticBeamColumn " << beamId;
         opserr << " iNode jNode A E G Jx Iy Iz\n";
         return TCL_ERROR;
@@ -342,7 +342,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, G3_Runtime *rt, int argc,
             opserr << argv[1] << " element: " << beamId << endln;
             return TCL_ERROR;
           }
-          if (Tcl_GetDouble(rt, argv[argi + 1], &mass) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi + 1], &mass) != TCL_OK) {
             opserr << "WARNING invalid mass\n";
             opserr << argv[1] << " element: " << beamId << endln;
             return TCL_ERROR;

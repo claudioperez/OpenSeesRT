@@ -39,7 +39,7 @@ extern void printCommand(int argc, TCL_Char **argv);
 
 int
 
-TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, Tcl_Interp *interp,
 
                                    int argc,
 
@@ -95,7 +95,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
 
   double b3 = 0.0;
 
-  if (Tcl_GetInt(rt, argv[argStart], &brickId) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[argStart], &brickId) != TCL_OK) {
 
     opserr << "WARNING invalid 20NodeBrick eleTag" << endln;
 
@@ -104,7 +104,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
 
   for (int i = 0; i < 20; i++)
 
-    if (Tcl_GetInt(rt, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + argStart + i], &(Nod[i])) != TCL_OK) {
 
       opserr << "WARNING invalid Node number\n";
 
@@ -113,7 +113,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
       return TCL_ERROR;
     }
 
-  if (Tcl_GetInt(rt, argv[21 + argStart], &matID) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[21 + argStart], &matID) != TCL_OK) {
 
     opserr << "WARNING invalid matID\n";
 
@@ -124,7 +124,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
 
   if ((argc - argStart) >= 23) {
 
-    if (Tcl_GetDouble(rt, argv[22 + argStart], &b1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[22 + argStart], &b1) != TCL_OK) {
 
       opserr << "WARNING invalid b1\n";
 
@@ -136,7 +136,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
 
   if ((argc - argStart) >= 24) {
 
-    if (Tcl_GetDouble(rt, argv[23 + argStart], &b2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[23 + argStart], &b2) != TCL_OK) {
 
       opserr << "WARNING invalid b2\n";
 
@@ -148,7 +148,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, G3_Runtime *rt,
 
   if ((argc - argStart) >= 25) {
 
-    if (Tcl_GetDouble(rt, argv[24 + argStart], &b3) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[24 + argStart], &b3) != TCL_OK) {
 
       opserr << "WARNING invalid b3\n";
 

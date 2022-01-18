@@ -45,7 +45,7 @@ extern void printCommand(int argc, TCL_Char **argv);
 
 int
 TclBasicBuilder_addElastomericBearingPlasticity(
-    ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
     Domain *theTclDomain, TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   // ensure the destructor has not been called
@@ -87,41 +87,41 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     int doRayleigh = 0;
     double mass = 0.0;
 
-    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid elastomericBearing eleTag\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &kInit) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &qd) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &qd) != TCL_OK) {
       opserr << "WARNING invalid qd\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
       opserr << "WARNING invalid alpha1\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
       opserr << "WARNING invalid alpha2\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[8 + eleArgStart], &mu) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &mu) != TCL_OK) {
       opserr << "WARNING invalid mu\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -130,7 +130,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     for (int i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
         theMaterials[0] = 0;
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -147,7 +147,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (int i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -189,7 +189,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           double value;
           // read the x values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "elastomericBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -200,7 +200,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           }
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "elastomericBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -218,7 +218,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (int i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &shearDistI) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -231,7 +231,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (int i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -287,41 +287,41 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     int doRayleigh = 0;
     double mass = 0.0;
 
-    if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid elastomericBearing eleTag\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &kInit) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[5 + eleArgStart], &qd) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &qd) != TCL_OK) {
       opserr << "WARNING invalid qd\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
       opserr << "WARNING invalid alpha1\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
       opserr << "WARNING invalid alpha2\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[8 + eleArgStart], &mu) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &mu) != TCL_OK) {
       opserr << "WARNING invalid mu\n";
       opserr << "elastomericBearing element: " << tag << endln;
       return TCL_ERROR;
@@ -329,7 +329,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     UniaxialMaterial *theMaterials[4];
     for (i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid axial matTag\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -346,7 +346,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-T") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid torsional matTag\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -363,7 +363,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-My") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment y matTag\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -380,7 +380,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
-        if (Tcl_GetInt(rt, argv[i + 1], &matTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment z matTag\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -423,7 +423,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           double value;
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "elastomericBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -438,7 +438,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           double value;
           // read the x values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "elastomericBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -449,7 +449,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           }
           // read the y values
           for (j = 0; j < 3; j++) {
-            if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
               opserr << "elastomericBearing element: " << tag << endln;
               return TCL_ERROR;
@@ -467,7 +467,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &shearDistI) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;
@@ -480,7 +480,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     for (i = 9 + eleArgStart; i < argc; i++) {
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
-        if (Tcl_GetDouble(rt, argv[i + 1], &mass) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
           opserr << "elastomericBearing element: " << tag << endln;
           return TCL_ERROR;

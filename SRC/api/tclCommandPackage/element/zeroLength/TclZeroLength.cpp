@@ -31,7 +31,6 @@
 #include <string.h>
 #include <g3_api.h>
 
-#include <g3_api.h>
 #include <ZeroLength.h>
 #include <ZeroLengthND.h>
 #include <ZeroLengthSection.h>
@@ -46,12 +45,13 @@
 #include <NDMaterial.h>
 
 int
-TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int argc,
                               TCL_Char **argv, Domain *theDomain,
                               TclBasicBuilder *theBuilder)
 {
 
-  int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+  G3_Runtime *rt = G3_getRuntime(interp);
+  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -72,7 +72,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   // get the ele tag
-  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
     opserr << "WARNING invalied eleTag " << argv[2]
            << "- element ZeroLength eleTag? iNode? jNode? -mat matID1? ... "
               "-dir dirMat1? .. "
@@ -81,7 +81,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   // get the two end nodes
-  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
     opserr << "WARNING invalied iNode " << argv[3]
            << "- element ZeroLength eleTag? iNode? jNode? "
            << "-mat matID1? ... -dir dirMat1? .. "
@@ -90,7 +90,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode " << argv[4]
            << "- element ZeroLength eleTag? iNode? jNode? "
            << "-mat matID1? ... -dir dirMat1? .. "
@@ -156,7 +156,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
     int matID;
 
     // read the material tag
-    if (Tcl_GetInt(rt, argv[argi], &matID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi], &matID) != TCL_OK) {
       opserr << "WARNING invalid matID " << argv[argi]
              << "- element ZeroLength eleTag? iNode? jNode? "
              << "-mat matID1? ... -dir dirMat1? .. "
@@ -211,7 +211,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
 
   // read the dirn identifiers
   for (int j = 0; j < numMat; j++) {
-    if (Tcl_GetInt(rt, argv[argi], &dirnID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[argi], &dirnID) != TCL_OK) {
       opserr << "WARNING invalid directiion " << argv[argi]
              << "- element ZeroLength eleTag? iNode? jNode? "
              << "-mat matID1? ... -dir dirMat1? .. "
@@ -252,7 +252,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
         double value;
         // read the x values
         for (int i = 0; i < 3; i++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value for ele  " << eleTag
                    << argv[i] << "- element ZeroLength eleTag? iNode? jNode? "
                    << "-mat matID1? ... -dir dirMat1? .. "
@@ -266,7 +266,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
         }
         // read the y values
         for (int j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value for ele  " << eleTag
                    << argv[argi]
                    << "- element ZeroLength eleTag? iNode? jNode? "
@@ -286,7 +286,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
       doRayleighDamping = 1;
       argi++;
       if (argi < argc)
-        if ((Tcl_GetInt(rt, argv[argi], &doRayleighDamping) == TCL_OK))
+        if ((Tcl_GetInt(interp, argv[argi], &doRayleighDamping) == TCL_OK))
           argi++;
     } else if (strcmp(argv[argi], "-dampMats") == 0) {
       doRayleighDamping = 2;
@@ -296,7 +296,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
         int matID;
 
         // read the material tag
-        if (Tcl_GetInt(rt, argv[argi], &matID) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[argi], &matID) != TCL_OK) {
           opserr << "WARNING invalid matID " << argv[argi]
                  << "- element ZeroLength eleTag? iNode? jNode? "
                  << "-mat matID1? ... -dir dirMat1? .. "
@@ -355,13 +355,14 @@ TclBasicBuilder_addZeroLength(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
                                      int argc, TCL_Char **argv,
                                      Domain *theDomain,
                                      TclBasicBuilder *theBuilder)
 {
 
-  int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+  G3_Runtime *rt = G3_getRuntime(interp);
+  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -381,7 +382,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
   }
 
   // get the ele tag
-  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
     opserr << "WARNING invalied eleTag " << argv[2]
            << "- element zeroLengthSection eleTag? iNode? jNode? "
            << "secTag? "
@@ -390,7 +391,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
   }
 
   // get the two end nodes
-  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
     opserr << "WARNING invalied iNode " << argv[3]
            << "- element zeroLengthSection eleTag? iNode? jNode? "
            << "secTag? "
@@ -399,7 +400,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode " << argv[4]
            << "- element zeroLengthSection eleTag? iNode? jNode? "
            << "secTag? "
@@ -409,7 +410,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
 
   int secTag;
 
-  if (Tcl_GetInt(rt, argv[5], &secTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[5], &secTag) != TCL_OK) {
     opserr << "WARNING invalid secTag " << argv[5]
            << "- element zeroLengthSection eleTag? iNode? jNode? "
            << "secTag? "
@@ -444,7 +445,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
         double value;
         // read the x values
         for (int i = 0; i < 3; i++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr
                 << "WARNING invalid -orient value for ele  " << eleTag
                 << argv[argi]
@@ -458,7 +459,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
         }
         // read the y values
         for (int j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr
                 << "WARNING invalid -orient value for ele  " << eleTag
                 << argv[argi]
@@ -475,7 +476,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
       doRayleighDamping = 1;
       argi++;
       if (argi < argc)
-        if ((Tcl_GetInt(rt, argv[argi], &doRayleighDamping) == TCL_OK))
+        if ((Tcl_GetInt(interp, argv[argi], &doRayleighDamping) == TCL_OK))
           argi++;
     } else
       argi++;
@@ -516,7 +517,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, G3_Runtime *rt,
 //
 
 int
-TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp,
                                        int argc, TCL_Char **argv,
                                        Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
@@ -541,20 +542,20 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, G3_Runtime *rt,
   }
 
   // get the ele tag
-  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
     opserr << "ZeroLengthContact2D::WARNING invalied eleTag " << argv[2]
            << "\n";
     return TCL_ERROR;
   }
 
   // get the two end nodes
-  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
     opserr << "ZeroLengthContact2D::WARNING invalied iNode " << argv[3] << "\n";
 
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
     opserr << "ZeroLengthContact2D::WARNING invalid jNode " << argv[4] << "\n";
     return TCL_ERROR;
   }
@@ -562,17 +563,17 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, G3_Runtime *rt,
   double Kn, Kt, fs;
 
   // read the material properties
-  if (Tcl_GetDouble(rt, argv[5], &Kn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &Kn) != TCL_OK) {
     opserr << "ZeroLengthContact2D::WARNING invalid Kn " << argv[5] << "\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[6], &Kt) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &Kt) != TCL_OK) {
     opserr << "ZeroLengthContact2D::WARNING invalid Kt " << argv[6] << "\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[7], &fs) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &fs) != TCL_OK) {
     opserr << "ZeroLengthContact2D::WARNING invalid fs " << argv[7] << "\n";
     return TCL_ERROR;
   }
@@ -592,7 +593,7 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, G3_Runtime *rt,
   double value;
   // read the NormalDir values
   for (int i = 0; i < 2; i++) {
-    if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
       opserr << "ZeroLengthContact2D:: invalid -normal value for ele " << eleTag
              << "- element ZeroLengthContact2D eleTag? iNode? jNode? Kn? Kt? "
                 "fs? -normal Nx? Ny? \n";
@@ -635,7 +636,7 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, G3_Runtime *rt,
 //
 
 int
-TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp,
                                        int argc, TCL_Char **argv,
                                        Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
@@ -659,20 +660,20 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, G3_Runtime *rt,
   }
 
   // get the ele tag
-  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalied eleTag " << argv[2]
            << "\n";
     return TCL_ERROR;
   }
 
   // get the two end nodes
-  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalied iNode " << argv[3] << "\n";
 
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalid jNode " << argv[4] << "\n";
     return TCL_ERROR;
   }
@@ -680,29 +681,29 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, G3_Runtime *rt,
   double Kn, Kt, fs, c;
 
   // read the material properties
-  if (Tcl_GetDouble(rt, argv[5], &Kn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &Kn) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalid Kn " << argv[5] << "\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[6], &Kt) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &Kt) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalid Kt " << argv[6] << "\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[7], &fs) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &fs) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalid fs " << argv[7] << "\n";
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[8], &c) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[8], &c) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalid c " << argv[8] << "\n";
     return TCL_ERROR;
   }
 
   int dir;
 
-  if (Tcl_GetInt(rt, argv[9], &dir) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[9], &dir) != TCL_OK) {
     opserr << "ZeroLengthContact3D::WARNING invalid direction " << argv[9]
            << "\n";
     return TCL_ERROR;
@@ -720,12 +721,12 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, G3_Runtime *rt,
 
   if (dir == 0) {
     if (argc == 12) {
-      if (Tcl_GetDouble(rt, argv[10], &originX) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[10], &originX) != TCL_OK) {
         opserr << "ZeroLengthContact3D::WARNING invalid originX " << argv[9]
                << "\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[11], &originY) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[11], &originY) != TCL_OK) {
         opserr << "ZeroLengthContact3D::WARNING invalid originY " << argv[10]
                << "\n";
         return TCL_ERROR;
@@ -749,12 +750,12 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int argc,
                                 TCL_Char **argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
-
-  int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+  G3_Runtime *rt = G3_getRuntime(interp); 
+  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -774,7 +775,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   // get the ele tag
-  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
     opserr << "WARNING invalied eleTag " << argv[2]
            << " - element zeroLengthND eleTag? iNode? jNode? NDTag? <1DTag?> "
               "<-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -783,7 +784,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   // get the two end nodes
-  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
     opserr << "WARNING invalied iNode " << argv[3]
            << "- element zeroLengthND eleTag? iNode? jNode? "
            << "NDTag? <1DTag?>"
@@ -791,7 +792,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode " << argv[4]
            << "- element zeroLengthND eleTag? iNode? jNode? "
            << "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -800,7 +801,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
 
   int NDTag;
 
-  if (Tcl_GetInt(rt, argv[5], &NDTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[5], &NDTag) != TCL_OK) {
     opserr << "WARNING invalid NDTag %s %s %s %s\n"
            << argv[5] << "- element zeroLengthND eleTag? iNode? jNode? "
            << "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -816,7 +817,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
 
     int uniTag;
 
-    if (Tcl_GetInt(rt, argv[6], &uniTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[6], &uniTag) != TCL_OK) {
       opserr << "WARNING invalid NDTag " << argv[5]
              << "- element zeroLengthND eleTag? iNode? jNode? "
              << "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -855,7 +856,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
         double value;
         // read the x values
         for (int i = 0; i < 3; i++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value for ele  " << eleTag
                    << argv[argi]
                    << "- element zeroLengthND eleTag? iNode? jNode? "
@@ -869,7 +870,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
         }
         // read the y values
         for (int j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value for ele  " << eleTag << " "
                    << argv[argi]
                    << "- element zeroLengthND eleTag? iNode? jNode? "
@@ -914,13 +915,13 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addZeroLengthRocking(ClientData clientData, Tcl_Interp *interp,
                                      int argc, TCL_Char **argv,
                                      Domain *theDomain,
                                      TclBasicBuilder *theBuilder)
 {
-
-  int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+  G3_Runtime *rt = G3_getRuntime(interp);
+  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, and the
@@ -939,7 +940,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
   }
 
   // get the ele tag
-  if (Tcl_GetInt(rt, argv[2], &eleTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
     opserr << "WARNING invalied eleTag " << argv[2]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -947,7 +948,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
   }
 
   // get the two end nodes
-  if (Tcl_GetInt(rt, argv[3], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
     opserr << "WARNING invalied iNode " << argv[3]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -955,7 +956,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode " << argv[4]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -969,7 +970,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
   double kap = 1.0e12;
 
   // rotational stiffness
-  if (Tcl_GetDouble(rt, argv[5], &kr) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &kr) != TCL_OK) {
     opserr << "WARNING invalid kr " << argv[5]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -977,7 +978,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
   }
 
   // rocking radius
-  if (Tcl_GetDouble(rt, argv[6], &R) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &R) != TCL_OK) {
     opserr << "WARNING invalid radius " << argv[6]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -985,7 +986,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
   }
 
   // theta0
-  if (Tcl_GetDouble(rt, argv[7], &theta) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &theta) != TCL_OK) {
     opserr << "WARNING invalid theta0 " << argv[7]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -993,7 +994,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
   }
 
   // kappa
-  if (Tcl_GetDouble(rt, argv[8], &kap) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[8], &kap) != TCL_OK) {
     opserr << "WARNING invalid kappa " << argv[8]
            << "- element ZeroLengthRocking eleTag? iNode? jNode? "
            << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? y3?>\n";
@@ -1028,7 +1029,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
         double value;
         // read the x values
         for (int i = 0; i < 3; i++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value for ele  " << eleTag
                    << argv[i] << "- element ZeroLength eleTag? iNode? jNode? "
                    << "kr? radius? theta0? kappa? <-orient x1? x2? x3? y1? y2? "
@@ -1041,7 +1042,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
         }
         // read the y values
         for (int j = 0; j < 3; j++) {
-          if (Tcl_GetDouble(rt, argv[argi], &value) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value for ele  " << eleTag
                    << argv[argi]
                    << "- element ZeroLength eleTag? iNode? jNode? "
@@ -1062,7 +1063,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
         return TCL_ERROR;
       } else {
         argi++;
-        if (Tcl_GetDouble(rt, argv[argi], &xi) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argi], &xi) != TCL_OK) {
           opserr << "WARNING invalid -xi value for ele  " << eleTag << endln;
           return TCL_ERROR;
         } else
@@ -1076,7 +1077,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
         return TCL_ERROR;
       } else {
         argi++;
-        if (Tcl_GetDouble(rt, argv[argi], &dTol) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argi], &dTol) != TCL_OK) {
           opserr << "WARNING invalid -dTol value for ele  " << eleTag << endln;
           return TCL_ERROR;
         } else
@@ -1090,7 +1091,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, G3_Runtime *rt,
         return TCL_ERROR;
       } else {
         argi++;
-        if (Tcl_GetDouble(rt, argv[argi], &vTol) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argi], &vTol) != TCL_OK) {
           opserr << "WARNING invalid -vTol value for ele  " << eleTag << endln;
           return TCL_ERROR;
         } else

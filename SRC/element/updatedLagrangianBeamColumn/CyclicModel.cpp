@@ -1,6 +1,7 @@
 #include "CyclicModel.h"
 #include <math.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 const int    CyclicModel::Loading(1);
 const int    CyclicModel::Unloading(2);
@@ -28,7 +29,9 @@ CyclicModel *OPS_getCyclicModel(int tag)
   return theobj;
 }
 
-void OPS_clearAllCyclicModel(void) {
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllCyclicModel)
+{
     theCyclicModelObjects.clearAll();
 }
 

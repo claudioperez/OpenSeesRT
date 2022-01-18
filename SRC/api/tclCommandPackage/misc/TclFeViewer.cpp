@@ -72,29 +72,29 @@ static TclFeViewer *theTclFeViewer = 0;
 // model
 //
 
-int TclFeViewer_setVRP(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setVRP(ClientData clientData, Tcl_Interp *interp, int argc,
                        TCL_Char **argv);
-int TclFeViewer_setVPN(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setVPN(ClientData clientData, Tcl_Interp *interp, int argc,
                        TCL_Char **argv);
-int TclFeViewer_setVUP(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setVUP(ClientData clientData, Tcl_Interp *interp, int argc,
                        TCL_Char **argv);
-int TclFeViewer_setViewWindow(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setViewWindow(ClientData clientData, Tcl_Interp *interp, int argc,
                               TCL_Char **argv);
-int TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setPlaneDist(ClientData clientData, Tcl_Interp *interp, int argc,
                              TCL_Char **argv);
-int TclFeViewer_setProjectionMode(ClientData clientData, G3_Runtime *rt,
+int TclFeViewer_setProjectionMode(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv);
-int TclFeViewer_setFillMode(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setFillMode(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv);
-int TclFeViewer_setPRP(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setPRP(ClientData clientData, Tcl_Interp *interp, int argc,
                        TCL_Char **argv);
-int TclFeViewer_setPortWindow(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_setPortWindow(ClientData clientData, Tcl_Interp *interp, int argc,
                               TCL_Char **argv);
-int TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_displayModel(ClientData clientData, Tcl_Interp *interp, int argc,
                              TCL_Char **argv);
-int TclFeViewer_saveImage(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_saveImage(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv);
-int TclFeViewer_clearImage(ClientData clientData, G3_Runtime *rt, int argc,
+int TclFeViewer_clearImage(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv);
 //
 // the class constructor, destructor and methods
@@ -113,7 +113,7 @@ TclFeViewer::TclFeViewer()
 
 TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
                          int height, Domain &_theDomain, int WipeFlag,
-                         G3_Runtime *rt, double dT)
+                         Tcl_Interp *interp, double dT)
     : Recorder(RECORDER_TAGS_TclFeViewer), theMap(0), theRenderer(0),
       theDomain(&_theDomain), theEleMode(-1), theNodeMode(-1),
       theDisplayFact(1), deltaT(dT), nextTimeStampToRecord(0.0),
@@ -140,46 +140,46 @@ TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
 #endif
 
   // Call Tcl_CreateCommand for class specific commands
-  Tcl_CreateCommand(rt, "vrp", TclFeViewer_setVRP, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "vrp", TclFeViewer_setVRP, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "vpn", TclFeViewer_setVPN, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "vpn", TclFeViewer_setVPN, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "vup", TclFeViewer_setVUP, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "vup", TclFeViewer_setVUP, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "viewWindow", TclFeViewer_setViewWindow,
+  Tcl_CreateCommand(interp, "viewWindow", TclFeViewer_setViewWindow,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "plane", TclFeViewer_setPlaneDist, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "plane", TclFeViewer_setPlaneDist, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "projection", TclFeViewer_setProjectionMode,
+  Tcl_CreateCommand(interp, "projection", TclFeViewer_setProjectionMode,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "fill", TclFeViewer_setFillMode, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "fill", TclFeViewer_setFillMode, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "prp", TclFeViewer_setPRP, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "prp", TclFeViewer_setPRP, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "port", TclFeViewer_setPortWindow, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "port", TclFeViewer_setPortWindow, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "display", TclFeViewer_displayModel, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "display", TclFeViewer_displayModel, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "clearImage", TclFeViewer_clearImage, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "clearImage", TclFeViewer_clearImage, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "saveImage", TclFeViewer_saveImage, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "saveImage", TclFeViewer_saveImage, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 }
 
 TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
                          int height, const char *fileName, Domain &_theDomain,
-                         G3_Runtime *rt, double dT)
+                         Tcl_Interp *interp, double dT)
     : Recorder(RECORDER_TAGS_TclFeViewer), theMap(0), theRenderer(0),
       theDomain(&_theDomain), theEleMode(-1), theNodeMode(-1),
       theDisplayFact(1), deltaT(dT), nextTimeStampToRecord(0.0), wipeFlag(1),
@@ -209,40 +209,40 @@ TclFeViewer::TclFeViewer(const char *title, int xLoc, int yLoc, int width,
 #endif
 
   // call Tcl_CreateCommand for class specific commands
-  Tcl_CreateCommand(rt, "vrp", TclFeViewer_setVRP, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "vrp", TclFeViewer_setVRP, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "vpn", TclFeViewer_setVPN, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "vpn", TclFeViewer_setVPN, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "vup", TclFeViewer_setVUP, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "vup", TclFeViewer_setVUP, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "viewWindow", TclFeViewer_setViewWindow,
+  Tcl_CreateCommand(interp, "viewWindow", TclFeViewer_setViewWindow,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "plane", TclFeViewer_setPlaneDist, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "plane", TclFeViewer_setPlaneDist, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "projection", TclFeViewer_setProjectionMode,
+  Tcl_CreateCommand(interp, "projection", TclFeViewer_setProjectionMode,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "fill", TclFeViewer_setFillMode, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "fill", TclFeViewer_setFillMode, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "prp", TclFeViewer_setPRP, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "prp", TclFeViewer_setPRP, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "port", TclFeViewer_setPortWindow, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "port", TclFeViewer_setPortWindow, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "display", TclFeViewer_displayModel, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "display", TclFeViewer_displayModel, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "clearImage", TclFeViewer_clearImage, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "clearImage", TclFeViewer_clearImage, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(rt, "saveImage", TclFeViewer_saveImage, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "saveImage", TclFeViewer_saveImage, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 }
 
@@ -541,7 +541,7 @@ TclFeViewer::saveImage(const char *imageName, const char *fileName)
 }
 
 int
-TclFeViewer_setVRP(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setVRP(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -560,15 +560,15 @@ TclFeViewer_setVRP(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the xLoc, yLoc and zLoc
   double xLoc, yLoc, zLoc;
-  if (Tcl_GetDouble(rt, argv[1], &xLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
     opserr << "WARNING invalid x_loc - vrp x_loc y_loc z_loc\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &yLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &yLoc) != TCL_OK) {
     opserr << "WARNING invalid y_loc - vrp x_loc y_loc z_loc\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &zLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &zLoc) != TCL_OK) {
     opserr << "WARNING invalid z_loc - vrp x_loc y_loc z_loc\n";
     return TCL_ERROR;
   }
@@ -579,7 +579,7 @@ TclFeViewer_setVRP(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setVPN(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setVPN(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -598,15 +598,15 @@ TclFeViewer_setVPN(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the id, x_dirn and y_dirn
   double xDirn, yDirn, zDirn;
-  if (Tcl_GetDouble(rt, argv[1], &xDirn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &xDirn) != TCL_OK) {
     opserr << "WARNING invalid x_dirn - vpn x_dirn y_dirn z_dirn\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &yDirn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &yDirn) != TCL_OK) {
     opserr << "WARNING invalid y_dirn - vpn x_dirn y_dirn z_dirn\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &zDirn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &zDirn) != TCL_OK) {
     opserr << "WARNING invalid z_dirn - vpn x_dirn y_dirn z_dirn\n";
     return TCL_ERROR;
   }
@@ -617,7 +617,7 @@ TclFeViewer_setVPN(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setVUP(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setVUP(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -636,15 +636,15 @@ TclFeViewer_setVUP(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the id, x_dirn and y_dirn
   double xDirn, yDirn, zDirn;
-  if (Tcl_GetDouble(rt, argv[1], &xDirn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &xDirn) != TCL_OK) {
     opserr << "WARNING invalid x_dirn - vup x_dirn y_dirn z_dirn\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &yDirn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &yDirn) != TCL_OK) {
     opserr << "WARNING invalid y_dirn - vup x_dirn y_dirn z_dirn\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &zDirn) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &zDirn) != TCL_OK) {
     opserr << "WARNING invalid z_dirn - vup x_dirn y_dirn z_dirn\n";
     return TCL_ERROR;
   }
@@ -655,7 +655,7 @@ TclFeViewer_setVUP(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setViewWindow(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setViewWindow(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -673,19 +673,19 @@ TclFeViewer_setViewWindow(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   double uMin, uMax, vMin, vMax;
-  if (Tcl_GetDouble(rt, argv[1], &uMin) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &uMin) != TCL_OK) {
     opserr << "WARNING invalid uMin - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &uMax) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &uMax) != TCL_OK) {
     opserr << "WARNING invalid uMax - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &vMin) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &vMin) != TCL_OK) {
     opserr << "WARNING invalid vMin - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[4], &vMax) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &vMax) != TCL_OK) {
     opserr << "WARNING invalid vMin - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
@@ -696,7 +696,7 @@ TclFeViewer_setViewWindow(ClientData clientData, G3_Runtime *rt, int argc,
 #endif
 }
 int
-TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setPlaneDist(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -715,11 +715,11 @@ TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt, int argc,
   }
   // get distnces to near view and far planes
   double anear, afar;
-  if (Tcl_GetDouble(rt, argv[1], &anear) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &anear) != TCL_OK) {
     opserr << "WARNING invalid near - vup near far\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &afar) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &afar) != TCL_OK) {
     opserr << "WARNING invalid far - vup near far\n";
     return TCL_ERROR;
   }
@@ -730,7 +730,7 @@ TclFeViewer_setPlaneDist(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setProjectionMode(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setProjectionMode(ClientData clientData, Tcl_Interp *interp, int argc,
                               TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -755,7 +755,7 @@ TclFeViewer_setProjectionMode(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setFillMode(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setFillMode(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -780,7 +780,7 @@ TclFeViewer_setFillMode(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setPRP(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setPRP(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -800,15 +800,15 @@ TclFeViewer_setPRP(ClientData clientData, G3_Runtime *rt, int argc,
 
   // get the xLoc, yLoc and zLoc
   double xLoc, yLoc, zLoc;
-  if (Tcl_GetDouble(rt, argv[1], &xLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
     opserr << "WARNING invalid x_loc - cop x_loc y_loc z_loc\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &yLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &yLoc) != TCL_OK) {
     opserr << "WARNING invalid y_loc - cop x_loc y_loc z_loc\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &zLoc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &zLoc) != TCL_OK) {
     opserr << "WARNING invalid z_loc - cop x_loc y_loc z_loc\n";
     return TCL_ERROR;
   }
@@ -819,7 +819,7 @@ TclFeViewer_setPRP(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_setPortWindow(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_setPortWindow(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -838,19 +838,19 @@ TclFeViewer_setPortWindow(ClientData clientData, G3_Runtime *rt, int argc,
   }
 
   double uMin, uMax, vMin, vMax;
-  if (Tcl_GetDouble(rt, argv[1], &uMin) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[1], &uMin) != TCL_OK) {
     opserr << "WARNING invalid uMin - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[2], &uMax) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[2], &uMax) != TCL_OK) {
     opserr << "WARNING invalid uMax - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &vMin) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &vMin) != TCL_OK) {
     opserr << "WARNING invalid vMin - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[4], &vMax) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &vMax) != TCL_OK) {
     opserr << "WARNING invalid vMin - vup uMin uMax vMin vMax\n";
     return TCL_ERROR;
   }
@@ -862,7 +862,7 @@ TclFeViewer_setPortWindow(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_displayModel(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -884,12 +884,12 @@ TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
   if (argc == 3) {
     int displayMode;
     double displayFact;
-    if (Tcl_GetInt(rt, argv[1], &displayMode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &displayMode) != TCL_OK) {
       opserr
           << "WARNING invalid displayMode - display displayMode displayFact\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[2], &displayFact) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &displayFact) != TCL_OK) {
       opserr
           << "WARNING invalid displayFact - display displayMode displayFact\n";
       return TCL_ERROR;
@@ -900,17 +900,17 @@ TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
   } else {
     int eleMode, nodeMode;
     double displayFact;
-    if (Tcl_GetInt(rt, argv[1], &eleMode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &eleMode) != TCL_OK) {
       opserr
           << "WARNING invalid eleMode - display eleMode nodeMode displayFact\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[2], &nodeMode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &nodeMode) != TCL_OK) {
       opserr << "WARNING invalid nodeMode - display eleMode nodeMode "
                 "displayFact\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetDouble(rt, argv[3], &displayFact) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &displayFact) != TCL_OK) {
       opserr << "WARNING invalid displayFact - display eleMode nodeMode "
                 "displayFact\n";
       return TCL_ERROR;
@@ -918,7 +918,7 @@ TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
     // line width
     if (argc == 5) {
       int lineWidth;
-      if (Tcl_GetInt(rt, argv[4], &lineWidth) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[4], &lineWidth) != TCL_OK) {
         opserr << "WARNING invalid lineWidth - display eleMode nodeMode "
                   "displayFact lineWidth\n";
         return TCL_ERROR;
@@ -934,7 +934,7 @@ TclFeViewer_displayModel(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_clearImage(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_clearImage(ClientData clientData, Tcl_Interp *interp, int argc,
                        TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS
@@ -952,7 +952,7 @@ TclFeViewer_clearImage(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclFeViewer_saveImage(ClientData clientData, G3_Runtime *rt, int argc,
+TclFeViewer_saveImage(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS

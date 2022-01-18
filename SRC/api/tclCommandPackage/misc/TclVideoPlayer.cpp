@@ -68,7 +68,7 @@ using std::ios;
 
 extern TclVideoPlayer *theTclVideoPlayer;
 
-int TclVideoPlayer_play(ClientData clientData, G3_Runtime *rt, int argc,
+int TclVideoPlayer_play(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv);
 
 //
@@ -76,7 +76,7 @@ int TclVideoPlayer_play(ClientData clientData, G3_Runtime *rt, int argc,
 //
 
 TclVideoPlayer::TclVideoPlayer(const char *title, const char *fileName,
-                               const char *imageName, G3_Runtime *rt,
+                               const char *imageName, Tcl_Interp *interp,
                                const char *offsetFileName, double fact)
     : theMap(0), theRenderer(0), theOffsetFileName(0), factor(fact)
 {
@@ -160,7 +160,7 @@ TclVideoPlayer::TclVideoPlayer(const char *title, const char *fileName,
   }
 
   // call Tcl_CreateCommand for class specific commands
-  Tcl_CreateCommand(rt, "play", TclVideoPlayer_play, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "play", TclVideoPlayer_play, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 }
 
@@ -297,7 +297,7 @@ TclVideoPlayer::play(void)
 }
 
 int
-TclVideoPlayer_play(ClientData clientData, G3_Runtime *rt, int argc,
+TclVideoPlayer_play(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
 #ifdef _NOGRAPHICS

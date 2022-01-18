@@ -46,7 +46,7 @@ extern ReliabilityDomain *theReliabilityDomain;
 #endif
 
 int
-TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                                 TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
@@ -66,7 +66,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
   // Figure out which parameter we are dealing with
   int paramTag;
-  if (Tcl_GetInt(rt, argv[1], &paramTag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1], &paramTag) != TCL_OK) {
     return TCL_ERROR;
   }
 
@@ -82,7 +82,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
     return TCL_OK;
   }
@@ -92,7 +92,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
     Parameter *newParameter = new Parameter(paramTag, 0, 0, 0);
 
     double value;
-    if (Tcl_GetDouble(rt, argv[2], &value) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[2], &value) != TCL_OK)
       return TCL_ERROR;
 
     newParameter->setValue(value);
@@ -101,7 +101,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
     return TCL_OK;
   }
@@ -110,13 +110,13 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
       strcmp(argv[2], "node") == 0 && strcmp(argv[4], "disp") == 0) {
 
     int nodeTag;
-    if (Tcl_GetInt(rt, argv[3], &nodeTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &nodeTag) != TCL_OK) {
       return TCL_ERROR;
     }
     Node *theNode = theTclDomain->getNode(nodeTag);
 
     int dof;
-    if (Tcl_GetInt(rt, argv[5], &dof) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[5], &dof) != TCL_OK) {
       return TCL_ERROR;
     }
 
@@ -127,7 +127,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
     return TCL_OK;
   }
@@ -136,7 +136,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
       strcmp(argv[2], "pattern") == 0 && strcmp(argv[4], "lambda") == 0) {
 
     int patternTag;
-    if (Tcl_GetInt(rt, argv[3], &patternTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &patternTag) != TCL_OK) {
       return TCL_ERROR;
     }
     LoadPattern *thePattern = theTclDomain->getLoadPattern(patternTag);
@@ -147,7 +147,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
     return TCL_OK;
   }
@@ -163,7 +163,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
     if (strstr(argv[2], "randomVariable") != 0) {
 #ifdef _RELIABILITY
       int rvTag;
-      if (Tcl_GetInt(rt, argv[3], &rvTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[3], &rvTag) != TCL_OK) {
         return TCL_ERROR;
       }
 
@@ -193,7 +193,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
         return TCL_ERROR;
       }
 
-      if (Tcl_GetInt(rt, argv[argStart + 1], &eleTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argStart + 1], &eleTag) != TCL_OK) {
         opserr << "WARNING parameter -- invalid element tag\n";
         return TCL_ERROR;
       }
@@ -213,7 +213,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       int nodeTag;
-      if (Tcl_GetInt(rt, argv[argStart + 1], &nodeTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argStart + 1], &nodeTag) != TCL_OK) {
         opserr << "WARNING parameter -- invalid node tag\n";
         return TCL_ERROR;
       }
@@ -231,7 +231,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       int loadTag;
-      if (Tcl_GetInt(rt, argv[argStart + 1], &loadTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[argStart + 1], &loadTag) != TCL_OK) {
         opserr << "WARNING parameter -- invalid load pattern tag\n";
         return TCL_ERROR;
       }
@@ -281,7 +281,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
 
       char buffer[40];
       sprintf(buffer, "%d", paramTag);
-      Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+      Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     }
     // Add to an existing parameter
     if (strcmp(argv[0], "addToParameter") == 0) {
@@ -318,7 +318,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, G3_Runtime *rt, int argc,
     }
 
     double newValue;
-    if (Tcl_GetDouble(rt, argv[2], &newValue) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &newValue) != TCL_OK) {
       opserr << "WARNING updateParameter -- invalid parameter value\n";
       return TCL_ERROR;
     }

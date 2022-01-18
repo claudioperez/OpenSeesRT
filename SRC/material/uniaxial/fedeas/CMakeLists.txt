@@ -4,7 +4,6 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(OPS_Material PRIVATE DegradingUniaxialWrapper.cc)
 add_library(OPS_Uniaxial_Fedeas)
 target_sources(OPS_Uniaxial_Fedeas
     PRIVATE
@@ -48,4 +47,5 @@ target_link_libraries(OPS_Uniaxial_Fedeas PUBLIC
   #${BUNDLE_LIBS}/fedeas.lib
 )
 #target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_sources(OPS_Material PRIVATE DegradingUniaxialWrapper.cc)
 

@@ -47,7 +47,8 @@
 Matrix LinearCrdTransf3d::Tlg(12,12);
 Matrix LinearCrdTransf3d::kg(12,12);
 
-void* OPS_LinearCrdTransf3d()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf3d)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
 	opserr<<"insufficient arguments for LinearCrdTransf3d\n";
@@ -117,7 +118,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
         R[2][2] = vecInLocXZPlane(2);
         
         // check rigid joint offset for node I
-        if (&rigJntOffset1 == 0 || rigJntOffset1.Size() != 3 ) {
+        if (rigJntOffset1.Size() != 3 ) {
             opserr << "LinearCrdTransf3d::LinearCrdTransf3d:  Invalid rigid joint offset vector for node I\n";
             opserr << "Size must be 3\n";      
         }
@@ -129,7 +130,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
         }
         
         // check rigid joint offset for node J
-        if (&rigJntOffset2 == 0 || rigJntOffset2.Size() != 3 ) {
+        if (rigJntOffset2.Size() != 3 ) {
             opserr << "LinearCrdTransf3d::LinearCrdTransf3d:  Invalid rigid joint offset vector for node J\n";
             opserr << "Size must be 3\n";      
         }

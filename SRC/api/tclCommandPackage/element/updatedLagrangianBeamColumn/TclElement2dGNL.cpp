@@ -16,7 +16,7 @@
 //             double rho = 0.0, bool islinear = false);
 
 int
-TclBasicBuilder_addElastic2dGNL(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addElastic2dGNL(ClientData clientData, Tcl_Interp *interp, int argc,
                                 TCL_Char **argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
@@ -39,38 +39,38 @@ TclBasicBuilder_addElastic2dGNL(ClientData clientData, G3_Runtime *rt, int argc,
   double massDens = 0.0;
   bool linear = false;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid Elastic2dGNL tag" << endln;
     return TCL_ERROR;
   }
   if (tcl_debug)
     opserr << "\tElement tag = " << tag << "\n";
 
-  if (Tcl_GetInt(rt, argv[3], &ndI) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK) {
     opserr << "WARNING invalid node I\n";
     opserr << "Elastic2dGNL: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[4], &ndJ) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[4], &ndJ) != TCL_OK) {
     opserr << "WARNING invalid node J\n";
     opserr << "Elastic2dGNL: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[5], &A) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &A) != TCL_OK) {
     opserr << "WARNING invalid A\n";
     opserr << "Elastic2dGNL: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[6], &E) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &E) != TCL_OK) {
     opserr << "WARNING invalid E\n";
     opserr << "Elastic2dGNL: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(rt, argv[7], &I) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &I) != TCL_OK) {
     opserr << "WARNING invalid I\n";
     opserr << "Elastic2dGNL: " << tag << endln;
     return TCL_ERROR;
@@ -78,7 +78,7 @@ TclBasicBuilder_addElastic2dGNL(ClientData clientData, G3_Runtime *rt, int argc,
 
   if (argc == 9) {
     int lin = 0;
-    if (Tcl_GetInt(rt, argv[8], &lin) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[8], &lin) != TCL_OK) {
       opserr << "WARNING invalid Linear Flag\n";
       opserr << "Elastic2dGNL: " << tag << endln;
       return TCL_ERROR;

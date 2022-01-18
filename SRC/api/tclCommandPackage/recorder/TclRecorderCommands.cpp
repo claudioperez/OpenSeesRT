@@ -51,19 +51,16 @@
 #include <NormElementRecorder.h>
 #include <NormEnvelopeElementRecorder.h>
 
+#ifdef OPS_USE_PFEM
 #include <PVDRecorder.h>
+#endif
 
 // #include <MPCORecorder.h>
-#include <GmshRecorder.h>
-#include <VTK_Recorder.h>
 
-extern void *OPS_PVDRecorder();
+// #include <GmshRecorder.h>
+// #include <VTK_Recorder.h>
 
-extern void *OPS_GmshRecorder();
-extern void *OPS_MPCORecorder();
-extern void *OPS_VTK_Recorder();
-extern void *OPS_ElementRecorderRMS();
-extern void *OPS_NodeRecorderRMS();
+#include <recorderAPI.h>
 
 #include <NodeIter.h>
 #include <ElementIter.h>
@@ -89,14 +86,14 @@ extern void *OPS_NodeRecorderRMS();
 
 #include <packages.h>
 #include <elementAPI.h>
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, G3_Runtime *rt,
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                                        int cArg, int mArg, TCL_Char **argv,
                                        Domain *domain);
 
-extern TimeSeries *TclSeriesCommand(ClientData clientData, G3_Runtime *rt,
+extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
 
-extern const char *getInterpPWD(G3_Runtime *rt); // commands.cpp
+extern const char *getInterpPWD(Tcl_Interp *interp); // commands.cpp
 
 // extern TclBasicBuilder *theDamageTclBasicBuilder;
 
@@ -139,9 +136,11 @@ extern FE_Datastore *theDatabase;
 extern FEM_ObjectBroker theBroker;
 
 int
-TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
+TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv, Domain &theDomain, Recorder **theRecorder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // make sure at least one other argument to contain integrator
   if (argc < 2) {
     opserr << "WARNING need to specify a Recorder type\n";
@@ -201,12 +200,12 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         loc++;
         int eleTag;
         eleIDs = new ID(0, 32);
-        while (loc < argc && Tcl_GetInt(rt, argv[loc], &eleTag) == TCL_OK) {
+        while (loc < argc && Tcl_GetInt(interp, argv[loc], &eleTag) == TCL_OK) {
           (*eleIDs)[numEle] = eleTag;
           numEle++;
           loc++;
         }
-        Tcl_ResetResult(rt);
+        Tcl_ResetResult(interp);
 
         if (loc == argc) {
           opserr << "ERROR: No response type specified for element recorder. "
@@ -234,13 +233,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         //
 
         int start, end;
-        if (Tcl_GetInt(rt, argv[loc + 1], &start) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &start) != TCL_OK) {
           opserr << "WARNING recorder Element -eleRange start? end? - invalid "
                     "start "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[loc + 2], &end) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 2], &end) != TCL_OK) {
           opserr
               << "WARNING recorder Element -eleRange start? end? - invalid end "
               << argv[loc + 2] << endln;
@@ -273,7 +272,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           return TCL_ERROR;
         }
         int tag;
-        if (Tcl_GetInt(rt, argv[loc + 1], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &tag) != TCL_OK) {
           opserr << "WARNING recorder Element -region tag? - invalid tag "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
@@ -316,12 +315,12 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         int index;
         int numIndex = 0;
         specificIndices = new ID(0, 6);
-        while (loc < argc && Tcl_GetInt(rt, argv[loc], &index) == TCL_OK) {
+        while (loc < argc && Tcl_GetInt(interp, argv[loc], &index) == TCL_OK) {
           (*specificIndices)[numIndex] = index - 1; // opensees to c indexing
           numIndex++;
           loc++;
         }
-        Tcl_ResetResult(rt);
+        Tcl_ResetResult(interp);
 
       } else if ((strcmp(argv[loc], "-time") == 0) ||
                  (strcmp(argv[loc], "-load") == 0)) {
@@ -333,14 +332,14 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[loc], "-dT") == 0) {
         // allow user to specify time step size for recording
         loc++;
-        if (Tcl_GetDouble(rt, argv[loc], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[loc], &dT) != TCL_OK)
           return TCL_ERROR;
         loc++;
       }
 
       else if (strcmp(argv[loc], "-precision") == 0) {
         loc++;
-        if (Tcl_GetInt(rt, argv[loc], &precision) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[loc], &precision) != TCL_OK)
           return TCL_ERROR;
         loc++;
       }
@@ -353,7 +352,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[loc], "-file") == 0) {
         fileName = argv[loc + 1];
         eMode = DATA_STREAM;
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
 
         simulationInfo.addOutputFile(fileName, pwd);
         loc += 2;
@@ -376,7 +375,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[loc], "-buffer") == 0 ||
                strcmp(argv[loc], "-bufferSize") == 0) {
         loc++;
-        if (Tcl_GetInt(rt, argv[loc], &writeBufferSize) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[loc], &writeBufferSize) != TCL_OK)
           return TCL_ERROR;
         loc++;
       }
@@ -385,7 +384,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                (strcmp(argv[loc], "-csv") == 0)) {
         fileName = argv[loc + 1];
         eMode = DATA_STREAM_CSV;
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         loc += 2;
       }
@@ -408,7 +407,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                (strcmp(argv[loc], "-xml") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = XML_STREAM;
         loc += 2;
@@ -417,7 +416,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[loc], "-fileAdd") == 0) {
         // allow user to specify load pattern other than current
         fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM_ADD;
         loc += 2;
@@ -426,7 +425,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if ((strcmp(argv[loc], "-TCP") == 0) ||
                (strcmp(argv[loc], "-tcp") == 0)) {
         inetAddr = argv[loc + 1];
-        if (Tcl_GetInt(rt, argv[loc + 2], &inetPort) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 2], &inetPort) != TCL_OK) {
           ;
         }
         eMode = TCP_STREAM;
@@ -436,7 +435,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if ((strcmp(argv[loc], "-binary") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = BINARY_STREAM;
         loc += 2;
@@ -536,7 +535,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     int loc = 2;
     int eleID;
 
-    if (Tcl_GetInt(rt, argv[loc], &eleID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[loc], &eleID) != TCL_OK) {
       opserr << "WARNING recorder ElementDamage: No element tag specified ";
       return TCL_ERROR;
     }
@@ -550,7 +549,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     } else if (strcmp(argv[loc], "-dT") == 0) {
       // allow user to specify time step size for recording
       loc++;
-      if (Tcl_GetDouble(rt, argv[loc], &dT) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[loc], &dT) != TCL_OK)
         return TCL_ERROR;
       loc++;
     }
@@ -573,7 +572,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     int secID;
     int endSecIDs = loc;
     int numSec = 0;
-    while (Tcl_GetInt(rt, argv[endSecIDs], &secID) == TCL_OK) {
+    while (Tcl_GetInt(interp, argv[endSecIDs], &secID) == TCL_OK) {
       endSecIDs++;
     }
 
@@ -583,7 +582,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
     // read in the sec tags to the ID
     for (int i = loc; i < endSecIDs; i++) {
-      if (Tcl_GetInt(rt, argv[i], &secID) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[i], &secID) != TCL_OK)
         return TCL_ERROR;
       secIDs[loc - i] = secID;
     }
@@ -594,7 +593,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     if (strcmp(argv[loc], "-dof") == 0 || strcmp(argv[loc], "dof") == 0 ||
         strcmp(argv[loc], "-DOF") == 0 || strcmp(argv[loc], "DOF") == 0) {
       loc++;
-      if (Tcl_GetInt(rt, argv[loc], &dofID) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[loc], &dofID) != TCL_OK) {
         opserr << "WARNING recorder ElementDamage: No dof tag specified ";
         return TCL_ERROR;
       }
@@ -608,7 +607,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     loc++;
 
     int dmgID;
-    if (Tcl_GetInt(rt, argv[loc], &dmgID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[loc], &dmgID) != TCL_OK) {
       opserr << "WARNING recorder ElementDamage: No damege tag specified ";
       return TCL_ERROR;
     }
@@ -697,7 +696,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
       if (strcmp(argv[loc], "-node") == 0) {
 
-        if (Tcl_GetInt(rt, argv[loc + 1], &nodeTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &nodeTag) != TCL_OK) {
           opserr << "WARNING recorder Collapse -node - invalid node tag "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
@@ -719,17 +718,17 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       else if (strcmp(argv[loc], "-checknodes") == 0) {
-        if (Tcl_GetInt(rt, argv[loc + 1], &nTagbotn) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &nTagbotn) != TCL_OK) {
           opserr << "WARNING recorder Collapse -node - invalid node tag "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[loc + 2], &nTagmidn) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 2], &nTagmidn) != TCL_OK) {
           opserr << "WARNING recorder Collapse -node - invalid node tag "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[loc + 3], &nTagtopn) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 3], &nTagtopn) != TCL_OK) {
           opserr << "WARNING recorder Collapse -node - invalid node tag "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
@@ -738,7 +737,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       else if (strcmp(argv[loc], "-global_gravaxis") == 0) {
-        if (Tcl_GetInt(rt, argv[loc + 1], &globgrav) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &globgrav) != TCL_OK) {
           opserr << "WARNING recorder Collapse -global_gravaxis - invalid "
                     "global axis for gravity "
                  << argv[loc + 1] << endln;
@@ -771,7 +770,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         //
         loc++;
         int eleTag;
-        while (loc < argc && Tcl_GetInt(rt, argv[loc], &eleTag) == TCL_OK) {
+        while (loc < argc && Tcl_GetInt(interp, argv[loc], &eleTag) == TCL_OK) {
           if (secondaryFlag == false)
             eleIDs[numEle++] = eleTag;
           else
@@ -780,7 +779,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           loc++;
         }
 
-        Tcl_ResetResult(rt);
+        Tcl_ResetResult(interp);
 
         //	    if (loc == argc) {
         //	      opserr << "ERROR: No response type specified for element
@@ -811,13 +810,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         //
 
         int start, end;
-        if (Tcl_GetInt(rt, argv[loc + 1], &start) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &start) != TCL_OK) {
           opserr << "WARNING recorder Element -eleRange start? end? - invalid "
                     "start "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[loc + 2], &end) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 2], &end) != TCL_OK) {
           opserr
               << "WARNING recorder Element -eleRange start? end? - invalid end "
               << argv[loc + 2] << endln;
@@ -848,7 +847,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           return TCL_ERROR;
         }
         int tag;
-        if (Tcl_GetInt(rt, argv[loc + 1], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &tag) != TCL_OK) {
           opserr << "WARNING recorder Element -region tag? - invalid tag "
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
@@ -880,7 +879,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[loc], "-dT") == 0) {
         // allow user to specify time step size for recording
         loc++;
-        if (Tcl_GetDouble(rt, argv[loc], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[loc], &dT) != TCL_OK)
           return TCL_ERROR;
         loc++;
       }
@@ -897,41 +896,41 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         loc++;
         double eleM = 0;
 
-        if (loc < argc && Tcl_GetDouble(rt, argv[loc + 1], &eleM) != TCL_OK) {
-          Tcl_GetDouble(rt, argv[loc], &eleM);
+        if (loc < argc && Tcl_GetDouble(interp, argv[loc + 1], &eleM) != TCL_OK) {
+          Tcl_GetDouble(interp, argv[loc], &eleM);
           for (int i = 0; i < numEle; i++)
             eleMass(i) = eleM;
           loc++;
         } else {
           int i = 0;
-          while (loc < argc && Tcl_GetDouble(rt, argv[loc], &eleM) == TCL_OK) {
+          while (loc < argc && Tcl_GetDouble(interp, argv[loc], &eleM) == TCL_OK) {
             eleMass(i) = eleM;
             loc++;
             i++;
           }
         }
 
-        // Tcl_ResetResult(rt);
+        // Tcl_ResetResult(interp);
       }
 
       else if ((strcmp(argv[loc], "-g") == 0)) {
         loc++;
 
-        if (Tcl_GetDouble(rt, argv[loc], &gAcc) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[loc], &gAcc) != TCL_OK) {
           opserr << "WARNING recorder Remove -g gValue? gDir? gPat?... invalid "
                     "gValue ";
           opserr << argv[loc] << endln;
           return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[loc + 1], &gDir) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 1], &gDir) != TCL_OK) {
           opserr << "WARNING recorder Remove -g gValue? gDir? gPat?... invalid "
                     "gDir ";
           opserr << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
 
-        if (Tcl_GetInt(rt, argv[loc + 2], &gPat) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[loc + 2], &gPat) != TCL_OK) {
           opserr << "WARNING recorder Remove -g gValue? gDir? gPat?... invalid "
                     "gPat ";
           opserr << argv[loc + 1] << endln;
@@ -962,7 +961,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         int secID;
         int endSecIDs = loc;
         int numSec = 0;
-        while (Tcl_GetInt(rt, argv[endSecIDs], &secID) == TCL_OK) {
+        while (Tcl_GetInt(interp, argv[endSecIDs], &secID) == TCL_OK) {
           endSecIDs++;
         }
 
@@ -972,7 +971,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
         // read in the sec tags to the ID
         for (int i = loc; i < endSecIDs; i++) {
-          if (Tcl_GetInt(rt, argv[i], &secID) != TCL_OK)
+          if (Tcl_GetInt(interp, argv[i], &secID) != TCL_OK)
             return TCL_ERROR;
           secIDs[i - loc] = secID;
         }
@@ -1016,7 +1015,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         }
         //     new
         if (critTag != 7) {
-          if (Tcl_GetDouble(rt, argv[loc + 2], &critValue) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[loc + 2], &critValue) != TCL_OK) {
             opserr << "WARNING recorder Remove -crit critTag? critValue?... "
                       "invalid critValue ";
             opserr << argv[loc + 1] << endln;
@@ -1136,7 +1135,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
       else if (strcmp(argv[pos], "-file") == 0) {
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM;
         pos += 2;
@@ -1144,7 +1143,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
       else if (strcmp(argv[pos], "-fileAdd") == 0) {
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM_ADD;
         pos += 2;
@@ -1158,14 +1157,14 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[pos], "-buffer") == 0 ||
                strcmp(argv[pos], "-bufferSize") == 0) {
         pos++;
-        if (Tcl_GetInt(rt, argv[pos], &writeBufferSize) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[pos], &writeBufferSize) != TCL_OK)
           return TCL_ERROR;
         pos++;
       }
 
       else if (strcmp(argv[pos], "-fileCSV") == 0) {
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM_CSV;
         pos += 2;
@@ -1188,7 +1187,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if ((strcmp(argv[pos], "-TCP") == 0) ||
                (strcmp(argv[pos], "-tcp") == 0)) {
         inetAddr = argv[pos + 1];
-        if (Tcl_GetInt(rt, argv[pos + 2], &inetPort) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos + 2], &inetPort) != TCL_OK) {
           return TCL_ERROR;
         }
         eMode = TCP_STREAM;
@@ -1199,7 +1198,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                (strcmp(argv[pos], "-xml") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = XML_STREAM;
         pos += 2;
@@ -1208,7 +1207,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if ((strcmp(argv[pos], "-binary") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = BINARY_STREAM;
         pos += 2;
@@ -1216,7 +1215,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
       else if (strcmp(argv[pos], "-dT") == 0) {
         pos++;
-        if (Tcl_GetDouble(rt, argv[pos], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[pos], &dT) != TCL_OK)
           return TCL_ERROR;
         pos++;
       }
@@ -1228,9 +1227,9 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         int dof;
 
         for (int j = pos; j < argc; j++) {
-          if (Tcl_GetInt(rt, argv[pos], &dof) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[pos], &dof) != TCL_OK) {
             j = argc;
-            Tcl_ResetResult(rt);
+            Tcl_ResetResult(interp);
           } else {
             theTimeSeriesID[numTimeSeries] =
                 dof; // -1 for c indexing of the dof's
@@ -1252,7 +1251,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
       else if (strcmp(argv[pos], "-precision") == 0) {
         pos++;
-        if (Tcl_GetInt(rt, argv[pos], &precision) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[pos], &precision) != TCL_OK)
           return TCL_ERROR;
         pos++;
       }
@@ -1270,9 +1269,9 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           theNodes = new ID(0, 16);
           int node;
           for (int j = pos; j < argc; j++)
-            if (Tcl_GetInt(rt, argv[pos], &node) != TCL_OK) {
+            if (Tcl_GetInt(interp, argv[pos], &node) != TCL_OK) {
               j = argc;
-              Tcl_ResetResult(rt);
+              Tcl_ResetResult(interp);
             } else {
               (*theNodes)[numNodes] = node;
               numNodes++;
@@ -1295,13 +1294,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         //
 
         int start, end;
-        if (Tcl_GetInt(rt, argv[pos + 1], &start) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos + 1], &start) != TCL_OK) {
           opserr
               << "WARNING recorder Node -nodeRange start? end? - invalid start "
               << argv[pos + 1] << endln;
           return TCL_ERROR;
         }
-        if (Tcl_GetInt(rt, argv[pos + 2], &end) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos + 2], &end) != TCL_OK) {
           opserr
               << "WARNING recorder Node -nodeRange start? end? - invalid end "
               << argv[pos + 2] << endln;
@@ -1328,7 +1327,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           return TCL_ERROR;
         }
         int tag;
-        if (Tcl_GetInt(rt, argv[pos + 1], &tag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos + 1], &tag) != TCL_OK) {
           opserr << "WARNING recorder Node -region tag? - invalid tag "
                  << argv[pos + 1] << endln;
           return TCL_ERROR;
@@ -1350,9 +1349,9 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         int numDOF = 0;
         int dof;
         for (int j = pos; j < argc; j++)
-          if (Tcl_GetInt(rt, argv[pos], &dof) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[pos], &dof) != TCL_OK) {
             j = argc;
-            Tcl_ResetResult(rt);
+            Tcl_ResetResult(interp);
           } else {
             theDofs[numDOF] = dof - 1; // -1 for c indexing of the dof's
             numDOF++;
@@ -1363,7 +1362,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       // AddingSensitivity:BEGIN //////////////////////////////////////
       else if (strcmp(argv[pos], "-sensitivity") == 0) {
         pos++;
-        if (Tcl_GetInt(rt, argv[pos], &paramTag) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos], &paramTag) != TCL_OK) {
           opserr << "ERROR: Invalid parameter tag to node recorder." << endln;
           return TCL_ERROR;
         }
@@ -1463,7 +1462,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
     int patternTag;
 
-    if (Tcl_GetInt(rt, argv[pos++], &patternTag) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[pos++], &patternTag) != TCL_OK)
       return TCL_ERROR;
 
     (*theRecorder) =
@@ -1492,7 +1491,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       if (strcmp(argv[pos], "-file") == 0) {
         fileName = argv[pos + 1];
         eMode = DATA_STREAM;
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         pos += 2;
         if (strcmp(argv[pos], "-xml") == 0) {
@@ -1507,7 +1506,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[pos], "-fileCSV") == 0) {
         fileName = argv[pos + 1];
         eMode = DATA_STREAM_CSV;
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         pos += 2;
       }
@@ -1529,7 +1528,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if ((strcmp(argv[pos], "-binary") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = BINARY_STREAM;
         pos += 2;
@@ -1539,7 +1538,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                (strcmp(argv[pos], "-xml") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(rt);
+        const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
         eMode = XML_STREAM;
         pos += 2;
@@ -1557,7 +1556,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 
       else if (strcmp(argv[pos], "-precision") == 0) {
         pos++;
-        if (Tcl_GetInt(rt, argv[pos], &precision) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[pos], &precision) != TCL_OK)
           return TCL_ERROR;
         pos++;
       }
@@ -1569,9 +1568,9 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         int node;
         int numNodes = 0;
         for (int j = pos; j < argc; j++)
-          if (Tcl_GetInt(rt, argv[pos], &node) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[pos], &node) != TCL_OK) {
             j = argc;
-            Tcl_ResetResult(rt);
+            Tcl_ResetResult(interp);
           } else {
             iNodes[numNodes] = node;
             numNodes++;
@@ -1585,9 +1584,9 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         int node;
         int numNodes = 0;
         for (int j = pos; j < argc; j++)
-          if (Tcl_GetInt(rt, argv[pos], &node) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[pos], &node) != TCL_OK) {
             j = argc;
-            Tcl_ResetResult(rt);
+            Tcl_ResetResult(interp);
           } else {
             jNodes[numNodes] = node;
             numNodes++;
@@ -1596,14 +1595,14 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       else if (strcmp(argv[pos], "-dof") == 0) {
-        if (Tcl_GetInt(rt, argv[pos + 1], &dof) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos + 1], &dof) != TCL_OK) {
           pos = argc;
         }
         pos += 2;
       }
 
       else if (strcmp(argv[pos], "-perpDirn") == 0) {
-        if (Tcl_GetInt(rt, argv[pos + 1], &perpDirn) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[pos + 1], &perpDirn) != TCL_OK) {
           pos = argc;
         }
         pos += 2;
@@ -1618,7 +1617,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       else if (strcmp(argv[pos], "-dT") == 0) {
         // allow user to specify time step size for recording
         pos++;
-        if (Tcl_GetDouble(rt, argv[pos], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[pos], &dT) != TCL_OK)
           return TCL_ERROR;
         pos++;
 
@@ -1675,13 +1674,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                 "<-wipe> <-dT deltaT?> <-file fileName?>";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3], &xLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[3], &xLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[4], &yLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[4], &yLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[5], &width) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[5], &width) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[6], &height) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[6], &height) != TCL_OK)
       return TCL_ERROR;
 
     while (pos < argc) {
@@ -1693,7 +1692,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       }
       // allow user to specify time step size for recording
       else if (strcmp(argv[pos], "-dT") == 0) {
-        if (Tcl_GetDouble(rt, argv[pos + 1], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[pos + 1], &dT) != TCL_OK)
           return TCL_ERROR;
         pos += 2;
       }
@@ -1706,10 +1705,10 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     }
     if (!saveToFile)
       (*theRecorder) = new TclFeViewer(argv[2], xLoc, yLoc, width, height,
-                                       theDomain, wipeFlag, rt, dT);
+                                       theDomain, wipeFlag, interp, dT);
     else
       (*theRecorder) = new TclFeViewer(argv[2], xLoc, yLoc, width, height,
-                                       fileName, theDomain, rt, dT);
+                                       fileName, theDomain, interp, dT);
 
   }
 
@@ -1722,13 +1721,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(rt, argv[4], &xLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[4], &xLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[5], &yLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[5], &yLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[6], &width) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[6], &width) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[7], &height) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[7], &height) != TCL_OK)
       return TCL_ERROR;
 
     int loc = 8;
@@ -1745,10 +1744,10 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           return TCL_ERROR;
 
         int colX, colY;
-        if (Tcl_GetInt(rt, argv[loc + 1], &colX) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[loc + 1], &colX) != TCL_OK)
           return TCL_ERROR;
 
-        if (Tcl_GetInt(rt, argv[loc + 2], &colY) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[loc + 2], &colY) != TCL_OK)
           return TCL_ERROR;
 
         cols[numCols++] = colX;
@@ -1756,7 +1755,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         loc += 3;
       } else if (strcmp(argv[loc], "-dT") == 0) {
 
-        if (Tcl_GetDouble(rt, argv[loc + 1], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[loc + 1], &dT) != TCL_OK)
           return TCL_ERROR;
         loc += 2;
       } else
@@ -1781,13 +1780,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                 "pixelsX pixelsY -columns colX1 colY1 -columns colX2 ...";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[5], &xLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[5], &xLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[6], &yLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[6], &yLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[7], &width) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[7], &width) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[8], &height) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[8], &height) != TCL_OK)
       return TCL_ERROR;
 
     int loc = 9;
@@ -1804,10 +1803,10 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           return TCL_ERROR;
 
         int colX, colY;
-        if (Tcl_GetInt(rt, argv[loc + 1], &colX) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[loc + 1], &colX) != TCL_OK)
           return TCL_ERROR;
 
-        if (Tcl_GetInt(rt, argv[loc + 2], &colY) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[loc + 2], &colY) != TCL_OK)
           return TCL_ERROR;
 
         cols[numCols++] = colX;
@@ -1815,7 +1814,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         loc += 3;
       } else if (strcmp(argv[loc], "-dT") == 0) {
 
-        if (Tcl_GetDouble(rt, argv[loc + 1], &dT) != TCL_OK)
+        if (Tcl_GetDouble(interp, argv[loc + 1], &dT) != TCL_OK)
           return TCL_ERROR;
         loc += 2;
       } else
@@ -1846,13 +1845,13 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           << "WARNING recorder display windowTitle? xLoc yLoc pixelsX pixelsY ";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(rt, argv[3], &xLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[3], &xLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[4], &yLoc) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[4], &yLoc) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[5], &width) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[5], &width) != TCL_OK)
       return TCL_ERROR;
-    if (Tcl_GetInt(rt, argv[6], &height) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[6], &height) != TCL_OK)
       return TCL_ERROR;
 
     TCL_Char *fileName = 0;
@@ -1882,40 +1881,41 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
                                 height, displayRecord, fileName);
     (*theRecorder) = thePlotter;
 #endif // _NOGRAPHICS
+#ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "pvd") == 0 || strcmp(argv[1], "PVD") == 0) {
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_PVDRecorder();
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    (*theRecorder) = (Recorder *)OPS_PVDRecorder(rt);
+#endif
   }
-
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_VTK_Recorder();
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    (*theRecorder) = (Recorder *)OPS_VTK_Recorder(rt);
+
   } else if (strcmp(argv[1], "ElementRMS") == 0) {
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS();
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS(rt);
+
   } else if (strcmp(argv[1], "NodeRMS") == 0) {
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS();
-  } else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_VTK_Recorder();
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS(rt);
+
   }
   /*
   else if (strcmp(argv[1], "mpco") == 0) {
-      OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder*)OPS_MPCORecorder();
+      OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    (*theRecorder) = (Recorder*)OPS_MPCORecorder(rt);
     if (theRecorder == 0) {
       return TCL_ERROR;
     }
   }
   */
   else if (strcmp(argv[1], "gmsh") == 0 || strcmp(argv[1], "GMSH") == 0) {
-    OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
-    (*theRecorder) = (Recorder *)OPS_GmshRecorder();
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    (*theRecorder) = (Recorder *)OPS_GmshRecorder(rt);
   }
   // else if (strcmp(argv[1],"gmshparallel") == 0 ||
   // strcmp(argv[1],"GMSHPARALLEL") == 0) {
-  //  OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+  //  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
   //  (*theRecorder) = (Recorder*) OPS_GmshRecorderParallel();
   //  }
 
@@ -1987,7 +1987,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
           loc += 2;
         }
         else if (strcmp(argv[loc],"-dT") == 0) {
-          if (Tcl_GetDouble(rt, argv[loc+1], &dT) != TCL_OK)
+          if (Tcl_GetDouble(interp, argv[loc+1], &dT) != TCL_OK)
             return TCL_ERROR;
           loc += 2;
         }
@@ -2010,7 +2010,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
     while (recorderCommands != NULL && found == false) {
       if (strcmp(argv[1], recorderCommands->funcName) == 0) {
 
-        OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
         void *theRes = (*(recorderCommands->funcPtr))();
         if (theRes != 0) {
           *theRecorder = (Recorder *)theRes;
@@ -2049,7 +2049,7 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
         theRecorderCommand->next = theExternalRecorderCommands;
         theExternalRecorderCommands = theRecorderCommand;
 
-        OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
 
         void *theRes = (*funcPtr)();
         if (theRes != 0) {
@@ -2079,17 +2079,17 @@ TclCreateRecorder(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclAddRecorder(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
+TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
                Domain &theDomain)
 {
   Recorder *theRecorder = 0;
 
-  TclCreateRecorder(clientData, rt, argc, argv, theDomain, &theRecorder);
+  TclCreateRecorder(clientData, interp, argc, argv, theDomain, &theRecorder);
 
   if (theRecorder == 0) {
 
     char buffer[] = "-1";
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     // sprintf(interp->result,"-1");
     return TCL_ERROR;
   }
@@ -2098,7 +2098,7 @@ TclAddRecorder(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
     opserr << "WARNING could not add to domain - recorder " << argv[1] << endln;
     delete theRecorder;
     char buffer[] = "-1";
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     //    sprintf(interp->result,"-1");
     return TCL_ERROR;
   }
@@ -2106,25 +2106,25 @@ TclAddRecorder(ClientData clientData, G3_Runtime *rt, int argc, TCL_Char **argv,
   int recorderTag = theRecorder->getTag();
   char buffer[30];
   sprintf(buffer, "%d", recorderTag);
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
   //  sprintf(interp->result,"%d",recorderTag);
 
   return TCL_OK;
 }
 
 int
-TclAddAlgorithmRecorder(ClientData clientData, G3_Runtime *rt, int argc,
+TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv, Domain &theDomain,
                         EquiSolnAlgo *theAlgo)
 {
   Recorder *theRecorder = 0;
   theAlgorithm = theAlgo;
 
-  TclCreateRecorder(clientData, rt, argc, argv, theDomain, &theRecorder);
+  TclCreateRecorder(clientData, interp, argc, argv, theDomain, &theRecorder);
 
   if (theRecorder == 0) {
     char buffer[] = "-1";
-    Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     //    sprintf(interp->result,"-1");
     return TCL_ERROR;
   }
@@ -2144,7 +2144,7 @@ TclAddAlgorithmRecorder(ClientData clientData, G3_Runtime *rt, int argc,
   int recorderTag = theRecorder->getTag();
   char buffer[30];
   sprintf(buffer, "%d", recorderTag);
-  Tcl_SetResult(rt, buffer, TCL_VOLATILE);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   return TCL_OK;
 }

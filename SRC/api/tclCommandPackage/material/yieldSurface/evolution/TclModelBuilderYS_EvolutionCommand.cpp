@@ -39,11 +39,11 @@ addTclYS_Evolution(TclBasicBuilder *theBuilder, YS_Evolution *theModel)
 }
 
 PlasticHardeningMaterial *
-getTclPlasticMaterial(G3_Runtime *rt, TCL_Char *arg,
+getTclPlasticMaterial(Tcl_Interp *interp, TCL_Char *arg,
                       TclBasicBuilder *theBuilder)
 {
   int id;
-  if (Tcl_GetInt(rt, arg, &id) != TCL_OK) {
+  if (Tcl_GetInt(interp, arg, &id) != TCL_OK) {
     opserr << "WARNING: TclModelYS_EvolutionCommand - Invalid plastic material "
               "tag \n";
     return 0;
@@ -60,11 +60,11 @@ getTclPlasticMaterial(G3_Runtime *rt, TCL_Char *arg,
 }
 
 YieldSurface_BC *
-getTclYieldSurface_BC(G3_Runtime *rt, TCL_Char *arg,
+getTclYieldSurface_BC(Tcl_Interp *interp, TCL_Char *arg,
                       TclBasicBuilder *theBuilder)
 {
   int id;
-  if (Tcl_GetInt(rt, arg, &id) != TCL_OK) {
+  if (Tcl_GetInt(interp, arg, &id) != TCL_OK) {
     opserr << "WARNING: TclModelYS_EvolutionCommand - Invalid YieldSurface_BC "
               "tag \n";
     return 0;
@@ -85,7 +85,7 @@ getTclYieldSurface_BC(G3_Runtime *rt, TCL_Char *arg,
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 int
-TclNullEvolutionCommand(ClientData clienData, G3_Runtime *rt, int argc,
+TclNullEvolutionCommand(ClientData clienData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
@@ -95,21 +95,21 @@ TclNullEvolutionCommand(ClientData clienData, G3_Runtime *rt, int argc,
   double isoz;
   int dim = 0;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
   if (argc > 3) {
-    if (Tcl_GetDouble(rt, argv[3], &isox) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[3], &isox) != TCL_OK)
       return TCL_ERROR;
     dim++;
   }
   if (argc > 4) {
-    if (Tcl_GetDouble(rt, argv[4], &isoy) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[4], &isoy) != TCL_OK)
       return TCL_ERROR;
     dim++;
   }
   if (argc > 5) {
-    if (Tcl_GetDouble(rt, argv[5], &isoz) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[5], &isoz) != TCL_OK)
       return TCL_ERROR;
     dim++;
   }
@@ -131,31 +131,31 @@ TclNullEvolutionCommand(ClientData clienData, G3_Runtime *rt, int argc,
 }
 
 int
-TclKinematic2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclKinematic2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
   double minIsoFactor;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[3], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatX =
-      getTclPlasticMaterial(rt, argv[4], theBuilder);
+      getTclPlasticMaterial(interp, argv[4], theBuilder);
   if (theMatX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatY =
-      getTclPlasticMaterial(rt, argv[5], theBuilder);
+      getTclPlasticMaterial(interp, argv[5], theBuilder);
   if (theMatY == 0)
     return TCL_ERROR;
 
   double dir;
-  if (Tcl_GetDouble(rt, argv[6], &dir) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[6], &dir) != TCL_OK)
     return TCL_ERROR;
 
   // Parsing was successful, allocate the material
@@ -165,7 +165,7 @@ TclKinematic2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
 }
 
 int
-TclIsotropic2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclIsotropic2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
@@ -173,19 +173,19 @@ TclIsotropic2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
   int tag;
   double minIsoFactor;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[3], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatX =
-      getTclPlasticMaterial(rt, argv[4], theBuilder);
+      getTclPlasticMaterial(interp, argv[4], theBuilder);
   if (theMatX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatY =
-      getTclPlasticMaterial(rt, argv[5], theBuilder);
+      getTclPlasticMaterial(interp, argv[5], theBuilder);
   if (theMatY == 0)
     return TCL_ERROR;
 
@@ -196,26 +196,26 @@ TclIsotropic2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
 }
 
 int
-TclPeakOriented2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclPeakOriented2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
   double minIsoFactor;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[3], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatX =
-      getTclPlasticMaterial(rt, argv[4], theBuilder);
+      getTclPlasticMaterial(interp, argv[4], theBuilder);
   if (theMatX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatY =
-      getTclPlasticMaterial(rt, argv[5], theBuilder);
+      getTclPlasticMaterial(interp, argv[5], theBuilder);
   if (theMatY == 0)
     return TCL_ERROR;
 
@@ -226,7 +226,7 @@ TclPeakOriented2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
 }
 
 int
-TclCombinedIsoKin2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclCombinedIsoKin2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
                              TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
@@ -236,44 +236,44 @@ TclCombinedIsoKin2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
   int deformable;
   bool deform = false;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
-  if (Tcl_GetDouble(rt, argv[3], &iso_ratio) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &iso_ratio) != TCL_OK)
     return TCL_ERROR;
-  if (Tcl_GetDouble(rt, argv[4], &kin_ratio) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[4], &kin_ratio) != TCL_OK)
     return TCL_ERROR;
-  if (Tcl_GetDouble(rt, argv[5], &shr_iso_ratio) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[5], &shr_iso_ratio) != TCL_OK)
     return TCL_ERROR;
-  if (Tcl_GetDouble(rt, argv[6], &shr_kin_ratio) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[6], &shr_kin_ratio) != TCL_OK)
     return TCL_ERROR;
-  if (Tcl_GetDouble(rt, argv[7], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[7], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kpx_pos =
-      getTclPlasticMaterial(rt, argv[8], theBuilder);
+      getTclPlasticMaterial(interp, argv[8], theBuilder);
   if (kpx_pos == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kpx_neg =
-      getTclPlasticMaterial(rt, argv[9], theBuilder);
+      getTclPlasticMaterial(interp, argv[9], theBuilder);
   if (kpx_neg == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kpy_pos =
-      getTclPlasticMaterial(rt, argv[10], theBuilder);
+      getTclPlasticMaterial(interp, argv[10], theBuilder);
   if (kpx_pos == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kpy_neg =
-      getTclPlasticMaterial(rt, argv[11], theBuilder);
+      getTclPlasticMaterial(interp, argv[11], theBuilder);
   if (kpx_neg == 0)
     return TCL_ERROR;
 
-  if (Tcl_GetInt(rt, argv[12], &deformable) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[12], &deformable) != TCL_OK)
     return TCL_ERROR;
 
   double dir;
-  if (Tcl_GetDouble(rt, argv[13], &dir) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[13], &dir) != TCL_OK)
     return TCL_ERROR;
 
   if (deformable == 1)
@@ -289,46 +289,46 @@ TclCombinedIsoKin2D01Command(ClientData clienData, G3_Runtime *rt, int argc,
 
 ////////////////////////////////////////////////////////////////////////////////////////
 int
-TclKinematic2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclKinematic2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
   double minIsoFactor;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[3], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
-  YieldSurface_BC *ys = getTclYieldSurface_BC(rt, argv[4], theBuilder);
+  YieldSurface_BC *ys = getTclYieldSurface_BC(interp, argv[4], theBuilder);
   if (ys == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatX =
-      getTclPlasticMaterial(rt, argv[5], theBuilder);
+      getTclPlasticMaterial(interp, argv[5], theBuilder);
   if (theMatX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *theMatY =
-      getTclPlasticMaterial(rt, argv[6], theBuilder);
+      getTclPlasticMaterial(interp, argv[6], theBuilder);
   if (theMatY == 0)
     return TCL_ERROR;
 
   int algo;
   double resfact, appfact, dir;
 
-  if (Tcl_GetInt(rt, argv[7], &algo) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[7], &algo) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[8], &resfact) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[8], &resfact) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[9], &appfact) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[9], &appfact) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[10], &dir) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[10], &dir) != TCL_OK)
     return TCL_ERROR;
 
   // Parsing was successful, allocate the material
@@ -339,7 +339,7 @@ TclKinematic2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
 }
 
 int
-TclPeakOriented2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclPeakOriented2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
@@ -347,37 +347,37 @@ TclPeakOriented2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
   int tag;
   double minIsoFactor;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[3], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
-  YieldSurface_BC *ys = getTclYieldSurface_BC(rt, argv[4], theBuilder);
+  YieldSurface_BC *ys = getTclYieldSurface_BC(interp, argv[4], theBuilder);
   if (ys == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kinX =
-      getTclPlasticMaterial(rt, argv[5], theBuilder);
+      getTclPlasticMaterial(interp, argv[5], theBuilder);
   if (kinX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kinY =
-      getTclPlasticMaterial(rt, argv[6], theBuilder);
+      getTclPlasticMaterial(interp, argv[6], theBuilder);
   if (kinY == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *isoX =
-      getTclPlasticMaterial(rt, argv[7], theBuilder);
+      getTclPlasticMaterial(interp, argv[7], theBuilder);
   if (isoX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *isoY =
-      getTclPlasticMaterial(rt, argv[8], theBuilder);
+      getTclPlasticMaterial(interp, argv[8], theBuilder);
   if (isoY == 0)
     return TCL_ERROR;
   int algo;
-  if (Tcl_GetInt(rt, argv[9], &algo) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[9], &algo) != TCL_OK)
     return TCL_ERROR;
 
   // Parsing was successful, allocate the material
@@ -388,7 +388,7 @@ TclPeakOriented2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
 }
 
 int
-TclCombinedIsoKin2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
+TclCombinedIsoKin2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
                              TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
@@ -396,70 +396,70 @@ TclCombinedIsoKin2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
   bool deform = false;
   double minIsoFactor, isoRatio, kinRatio;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[3], &minIsoFactor) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &minIsoFactor) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[4], &isoRatio) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[4], &isoRatio) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[5], &kinRatio) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[5], &kinRatio) != TCL_OK)
     return TCL_ERROR;
 
-  YieldSurface_BC *ys = getTclYieldSurface_BC(rt, argv[6], theBuilder);
+  YieldSurface_BC *ys = getTclYieldSurface_BC(interp, argv[6], theBuilder);
   if (ys == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kinX =
-      getTclPlasticMaterial(rt, argv[7], theBuilder);
+      getTclPlasticMaterial(interp, argv[7], theBuilder);
   if (kinX == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *kinY =
-      getTclPlasticMaterial(rt, argv[8], theBuilder);
+      getTclPlasticMaterial(interp, argv[8], theBuilder);
   if (kinY == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *isoXPos =
-      getTclPlasticMaterial(rt, argv[9], theBuilder);
+      getTclPlasticMaterial(interp, argv[9], theBuilder);
   if (isoXPos == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *isoXNeg =
-      getTclPlasticMaterial(rt, argv[10], theBuilder);
+      getTclPlasticMaterial(interp, argv[10], theBuilder);
   if (isoXNeg == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *isoYPos =
-      getTclPlasticMaterial(rt, argv[11], theBuilder);
+      getTclPlasticMaterial(interp, argv[11], theBuilder);
   if (isoYPos == 0)
     return TCL_ERROR;
 
   PlasticHardeningMaterial *isoYNeg =
-      getTclPlasticMaterial(rt, argv[12], theBuilder);
+      getTclPlasticMaterial(interp, argv[12], theBuilder);
   if (isoYNeg == 0)
     return TCL_ERROR;
 
-  if (Tcl_GetInt(rt, argv[13], &deformable) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[13], &deformable) != TCL_OK)
     return TCL_ERROR;
 
   if (deformable == 1)
     deform = true;
   int algo;
-  if (Tcl_GetInt(rt, argv[14], &algo) != TCL_OK)
+  if (Tcl_GetInt(interp, argv[14], &algo) != TCL_OK)
     return TCL_ERROR;
 
   double resfact, appfact, dir;
 
-  if (Tcl_GetDouble(rt, argv[15], &resfact) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[15], &resfact) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[16], &appfact) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[16], &appfact) != TCL_OK)
     return TCL_ERROR;
 
-  if (Tcl_GetDouble(rt, argv[17], &dir) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[17], &dir) != TCL_OK)
     return TCL_ERROR;
 
   // Parsing was successful, allocate the material
@@ -472,31 +472,31 @@ TclCombinedIsoKin2D02Command(ClientData clienData, G3_Runtime *rt, int argc,
 
 int
 TclBasicBuilderYS_EvolutionModelCommand(ClientData clientData,
-                                        G3_Runtime *rt, int argc,
+                                        Tcl_Interp *interp, int argc,
                                         TCL_Char **argv,
                                         TclBasicBuilder *theBuilder)
 {
   if (strcmp(argv[1], "null") == 0) {
-    return TclNullEvolutionCommand(clientData, rt, argc, argv, theBuilder);
+    return TclNullEvolutionCommand(clientData, interp, argc, argv, theBuilder);
   } else if (strcmp(argv[1], "kinematic2D01") == 0) {
-    return TclKinematic2D01Command(clientData, rt, argc, argv, theBuilder);
+    return TclKinematic2D01Command(clientData, interp, argc, argv, theBuilder);
   } else if (strcmp(argv[1], "isotropic2D01") == 0) {
-    return TclIsotropic2D01Command(clientData, rt, argc, argv, theBuilder);
+    return TclIsotropic2D01Command(clientData, interp, argc, argv, theBuilder);
   } else if (strcmp(argv[1], "peakOriented2D01") == 0) {
-    return TclPeakOriented2D01Command(clientData, rt, argc, argv,
+    return TclPeakOriented2D01Command(clientData, interp, argc, argv,
                                       theBuilder);
   } else if (strcmp(argv[1], "combinedIsoKin2D01") == 0) {
-    return TclCombinedIsoKin2D01Command(clientData, rt, argc, argv,
+    return TclCombinedIsoKin2D01Command(clientData, interp, argc, argv,
                                         theBuilder);
   }
 
   else if (strcmp(argv[1], "kinematic2D02") == 0) {
-    return TclKinematic2D02Command(clientData, rt, argc, argv, theBuilder);
+    return TclKinematic2D02Command(clientData, interp, argc, argv, theBuilder);
   } else if (strcmp(argv[1], "peakOriented2D02") == 0) {
-    return TclPeakOriented2D02Command(clientData, rt, argc, argv,
+    return TclPeakOriented2D02Command(clientData, interp, argc, argv,
                                       theBuilder);
   } else if (strcmp(argv[1], "combinedIsoKin2D02") == 0) {
-    return TclCombinedIsoKin2D02Command(clientData, rt, argc, argv,
+    return TclCombinedIsoKin2D02Command(clientData, interp, argc, argv,
                                         theBuilder);
   } else {
     opserr << "Unknown YS_Evolution type: " << argv[1] << endln;

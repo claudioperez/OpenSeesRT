@@ -42,7 +42,7 @@
 #include <ID.h>
 
 int
-TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
+TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv, Domain &theDomain)
 {
   int loc = 1;
@@ -66,7 +66,7 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(rt, argv[loc], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[loc], &tag) != TCL_OK) {
     opserr << "WARNING region tag? .. - invalid tag " << argv[loc] << endln;
     return TCL_ERROR;
   }
@@ -97,7 +97,7 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
         theElements = new ID(0, 64);
       int eleTag;
 
-      while (loc < argc && Tcl_GetInt(rt, argv[loc++], &eleTag) == TCL_OK) {
+      while (loc < argc && Tcl_GetInt(interp, argv[loc++], &eleTag) == TCL_OK) {
         (*theElements)[numElements++] = eleTag;
       }
       if (loc < argc)
@@ -121,12 +121,12 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
       //
 
       int start, end;
-      if (Tcl_GetInt(rt, argv[loc + 1], &start) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[loc + 1], &start) != TCL_OK) {
         opserr << "WARNING region tag? -eleRange start? end? - invalid start "
                << argv[loc + 1] << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[loc + 2], &end) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[loc + 2], &end) != TCL_OK) {
         opserr << "WARNING region tag? -eleRange start? end? - invalid end "
                << argv[loc + 2] << endln;
         return TCL_ERROR;
@@ -165,7 +165,7 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
       if (theNodes == 0)
         theNodes = new ID(0, 64);
       int nodTag;
-      while (loc < argc && Tcl_GetInt(rt, argv[loc++], &nodTag) == TCL_OK) {
+      while (loc < argc && Tcl_GetInt(interp, argv[loc++], &nodTag) == TCL_OK) {
         (*theNodes)[numNodes++] = nodTag;
       }
 
@@ -187,12 +187,12 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
 
       // read in start and end ele tags
       int start, end;
-      if (Tcl_GetInt(rt, argv[loc + 1], &start) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[loc + 1], &start) != TCL_OK) {
         opserr << "WARNING region tag? -eleRange start? end? - invalid start "
                << argv[loc + 1] << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(rt, argv[loc + 2], &end) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[loc + 2], &end) != TCL_OK) {
         opserr << "WARNING region tag? -eleRange start? end? - invalid end "
                << argv[loc + 1] << endln;
         return TCL_ERROR;
@@ -221,22 +221,22 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
       }
 
       // read in rayleigh damping factors
-      if (Tcl_GetDouble(rt, argv[loc + 1], &alphaM) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[loc + 1], &alphaM) != TCL_OK) {
         opserr << "WARNING region tag? .. -rayleigh aM bK bK0 - invalid aM "
                << argv[loc + 1] << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[loc + 2], &betaK) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[loc + 2], &betaK) != TCL_OK) {
         opserr << "WARNING region tag? .. -rayleigh aM bK bK0 - invalid bK "
                << argv[loc + 2] << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[loc + 3], &betaK0) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[loc + 3], &betaK0) != TCL_OK) {
         opserr << "WARNING region tag? .. -rayleigh aM bK bK0 - invalid bK0 "
                << argv[loc + 3] << endln;
         return TCL_ERROR;
       }
-      if (Tcl_GetDouble(rt, argv[loc + 4], &betaKc) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[loc + 4], &betaKc) != TCL_OK) {
         opserr << "WARNING region tag? .. -rayleigh aM bK bK0 - invalid bKc "
                << argv[loc + 4] << endln;
         return TCL_ERROR;
@@ -255,7 +255,7 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
       char buffer[20];
       for (int i = 0; i < nodes.Size(); i++) {
         sprintf(buffer, "%d ", nodes(i));
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
       }
 
       return TCL_OK;
@@ -273,7 +273,7 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
 
       for (int i = 0; i < eles.Size(); i++) {
         sprintf(buffer, "%d ", eles(i));
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
       }
 
       return TCL_OK;
@@ -291,7 +291,7 @@ TclAddMeshRegion(ClientData clientData, G3_Runtime *rt, int argc,
 
       for (int i = 0; i < eles.Size(); i++) {
         sprintf(buffer, "%d ", eles(i));
-        Tcl_AppendResult(rt, buffer, NULL);
+        Tcl_AppendResult(interp, buffer, NULL);
       }
 
       return TCL_OK;

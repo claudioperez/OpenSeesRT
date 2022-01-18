@@ -43,7 +43,7 @@
 #endif
 
 extern "C" DllExport int
-TclCommand_BerkeleyDB(ClientData clientData, G3_Runtime *rt, int argc,
+TclCommand_BerkeleyDB(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv, Domain *theDomain,
                       FEM_ObjectBroker *theBroker, FE_Datastore **theDatabase)
 {

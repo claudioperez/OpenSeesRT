@@ -38,7 +38,7 @@ class SectionForceDeformation;
 class TclSectionTestBuilder : public TclBasicBuilder
 {
   public:
-  TclSectionTestBuilder(Domain &theDomain,G3_Runtime *rt, int count=1);
+  TclSectionTestBuilder(Domain &theDomain,Tcl_Interp *interp, int count=1);
   ~TclSectionTestBuilder();    
   
   protected:

@@ -32,6 +32,7 @@
 
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theStiffnessDegradationObjects;
 
@@ -52,7 +53,8 @@ StiffnessDegradation *OPS_getStiffnessDegradation(int tag)
   return theMat;  
 }
 
-void OPS_clearAllStiffnessDegradation(void)
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllStiffnessDegradation)
 {
   theStiffnessDegradationObjects.clearAll();
 }

@@ -45,13 +45,14 @@ cleanup(TCL_Char **argv)
 }
 
 TimeSeriesIntegrator *
-TclSeriesIntegratorCommand(ClientData clientData, G3_Runtime *rt, TCL_Char *arg)
+TclSeriesIntegratorCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
 {
   int argc;
   TCL_Char **argv;
+  G3_Runtime *rt = G3_getRuntime(interp);
 
   // split the list
-  if (Tcl_SplitList(rt, arg, &argc, &argv) != TCL_OK) {
+  if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {
     opserr << "WARNING could not split series integrator list " << arg << endln;
     return 0;
   }

@@ -40,7 +40,7 @@
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
-TclBasicBuilder_addActuator(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv, Domain *theTclDomain,
                             TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
@@ -69,26 +69,26 @@ TclBasicBuilder_addActuator(ClientData clientData, G3_Runtime *rt, int argc,
   int doRayleigh = 0;
   double rho = 0.0;
 
-  if (Tcl_GetInt(rt, argv[1 + eleArgStart], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
     opserr << "WARNING invalid actuator eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
     opserr << "WARNING invalid iNode\n";
     opserr << "actuator element: " << tag << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
     opserr << "WARNING invalid jNode\n";
     opserr << "actuator element: " << tag << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[4 + eleArgStart], &EA) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &EA) != TCL_OK) {
     opserr << "WARNING invalid EA\n";
     opserr << "actuator element: " << tag << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(rt, argv[5 + eleArgStart], &ipPort) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[5 + eleArgStart], &ipPort) != TCL_OK) {
     opserr << "WARNING invalid ipPort\n";
     opserr << "actuator element: " << tag << endln;
     return TCL_ERROR;
@@ -99,7 +99,7 @@ TclBasicBuilder_addActuator(ClientData clientData, G3_Runtime *rt, int argc,
   }
   for (int i = 6 + eleArgStart; i < argc; i++) {
     if (i + 1 < argc && strcmp(argv[i], "-rho") == 0) {
-      if (Tcl_GetDouble(rt, argv[i + 1], &rho) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &rho) != TCL_OK) {
         opserr << "WARNING invalid rho\n";
         opserr << "actuator element: " << tag << endln;
         return TCL_ERROR;

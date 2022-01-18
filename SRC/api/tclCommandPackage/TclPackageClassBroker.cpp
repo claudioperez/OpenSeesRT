@@ -300,8 +300,9 @@
 #include "frictionBearing/SingleFPSimple2d.h"
 #include "frictionBearing/SingleFPSimple3d.h"
 #include "frictionBearing/TripleFrictionPendulum.h"
-
+#if 0
 #include "PFEMElement/PFEMElement2D.h"
+#endif
 #include "RockingBC/RockingBC.h"
 
 #include "CEqElement/ASDEmbeddedNodeElement.h"
@@ -468,7 +469,9 @@
 #include "NewmarkHSFixedNumIter.h"
 #include "NewmarkHSIncrLimit.h"
 #include "NewmarkHSIncrReduct.h"
+#if 0
 #include "PFEMIntegrator.h"
+#endif
 #include "TRBDF2.h"
 #include "TRBDF3.h"
 #include "WilsonTheta.h"
@@ -881,10 +884,10 @@ TclPackageClassBroker::getNewElement(int classTag)
 
   case ELE_TAG_TripleFrictionPendulum:
     return new TripleFrictionPendulum();
-
+#if 0
   case ELE_TAG_PFEMElement2D:
     return new PFEMElement2D();
-
+#endif
   case ELE_TAG_RockingBC:
     return new RockingBC();
 
@@ -2138,10 +2141,10 @@ TclPackageClassBroker::getNewTransientIntegrator(int classTag)
 
   case INTEGRATOR_TAGS_NewmarkHSIncrReduct:
     return new NewmarkHSIncrReduct();
-
+#if 0
   case INTEGRATOR_TAGS_PFEMIntegrator:
     return new PFEMIntegrator();
-
+#endif
   case INTEGRATOR_TAGS_TRBDF2:
     return new TRBDF2();
 

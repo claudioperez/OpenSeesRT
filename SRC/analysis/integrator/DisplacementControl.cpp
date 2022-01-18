@@ -62,7 +62,8 @@
 #include <TaggedObjectStorage.h>
 #include <elementAPI.h>
 
-void* OPS_DisplacementControlIntegrator()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_DisplacementControlIntegrator)
 {
     if(OPS_GetNumRemainingInputArgs() < 3) {
        opserr<<"insufficient arguments for DisplacementControl\n";
@@ -1018,12 +1019,6 @@ DisplacementControl::computeSensitivities(void)
   
   // Zero out the old right-hand side of the SOE
   theSOE->zeroB();
-  if (this == 0) {
-    opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
-    opserr << "the SensitivityIntegrator is NULL\n";
-    return -1;
-  }
-
 
   // Form the part of the RHS which are indepent of parameter
   this->formIndependentSensitivityRHS();

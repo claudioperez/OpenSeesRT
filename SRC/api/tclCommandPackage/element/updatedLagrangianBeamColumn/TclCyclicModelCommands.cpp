@@ -13,12 +13,12 @@
 #include <TclBasicBuilder.h>
 
 int
-TclBasicBuilder_addLinearCylic(ClientData clientData, G3_Runtime *rt, int argc,
+TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char **argv, TclBasicBuilder *theBuilder)
 {
   int tag;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid CyclicModel tag" << endln;
     return TCL_ERROR;
   }
@@ -39,18 +39,18 @@ TclBasicBuilder_addLinearCylic(ClientData clientData, G3_Runtime *rt, int argc,
 }
 
 int
-TclBasicBuilder_addBilinearCyclic(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv,
                                   TclBasicBuilder *theBuilder)
 {
   int tag;
   double wt;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid CyclicModel tag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &wt) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &wt) != TCL_OK) {
     opserr << "WARNING invalid arg[3]" << endln;
     return TCL_ERROR;
   }
@@ -67,22 +67,22 @@ TclBasicBuilder_addBilinearCyclic(ClientData clientData, G3_Runtime *rt,
 }
 
 int
-TclBasicBuilder_addQuadraticCyclic(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv,
                                    TclBasicBuilder *theBuilder)
 {
   int tag;
   double wt, qy;
 
-  if (Tcl_GetInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid CyclicModel tag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[3], &wt) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &wt) != TCL_OK) {
     opserr << "WARNING invalid arg[3]" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(rt, argv[4], &qy) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &qy) != TCL_OK) {
     opserr << "WARNING invalid arg[4]" << endln;
     return TCL_ERROR;
   }
@@ -99,23 +99,23 @@ TclBasicBuilder_addQuadraticCyclic(ClientData clientData, G3_Runtime *rt,
 
 /*******************************************************************************************/
 int
-TclBasicBuilderCyclicModelCommand(ClientData clientData, G3_Runtime *rt,
+TclBasicBuilderCyclicModelCommand(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv,
                                   TclBasicBuilder *theTclBuilder)
 {
 
   if (strcmp(argv[1], "linear") == 0) {
-    int result = TclBasicBuilder_addLinearCylic(clientData, rt, argc, argv,
+    int result = TclBasicBuilder_addLinearCylic(clientData, interp, argc, argv,
                                                 theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "bilinear") == 0) {
-    int result = TclBasicBuilder_addBilinearCyclic(clientData, rt, argc, argv,
+    int result = TclBasicBuilder_addBilinearCyclic(clientData, interp, argc, argv,
                                                    theTclBuilder);
     return result;
   }
 
   else if (strcmp(argv[1], "quadratic") == 0) {
-    int result = TclBasicBuilder_addQuadraticCyclic(clientData, rt, argc, argv,
+    int result = TclBasicBuilder_addQuadraticCyclic(clientData, interp, argc, argv,
                                                     theTclBuilder);
     return result;
   }

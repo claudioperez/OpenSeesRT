@@ -65,7 +65,7 @@ Vector PressureDependMultiYield03::workV6(6);
 T2Vector PressureDependMultiYield03::workT2V;
 const	double pi = 3.14159265358979;
 
-void* OPS_PressureDependMultiYield03()
+void * OPS_ADD_RUNTIME_VPV(OPS_PressureDependMultiYield03)
 {
     const int numParam = 18;
     const int totParam = 23;
@@ -77,12 +77,11 @@ void* OPS_PressureDependMultiYield03()
     param[numParam + 3] = 101.;
     param[numParam + 4] = 1.73;
 
-    char* arg[] = {"nd", "rho", "refShearModul", "refBulkModul",
-                   "frictionAng",
-                   "peakShearStra", "refPress", "pressDependCoe", "phaseTransformAngle",
-                   "mType", "ca", "cb", "cc", "cd", "ce", "da", "db", "dc",
-                   "numberOfYieldSurf (=20)", "liquefactionParam1=1.0", "liquefactionParam2=0.0",
-                   "Atmospheric pressure (=101)", "cohesi (=1.73)"};
+    const char* arg[] = {"nd", "rho", "refShearModul", "refBulkModul", "frictionAng",
+                         "peakShearStra", "refPress", "pressDependCoe", "phaseTransformAngle",
+                         "mType", "ca", "cb", "cc", "cd", "ce", "da", "db", "dc",
+                         "numberOfYieldSurf (=20)", "liquefactionParam1=1.0", "liquefactionParam2=0.0",
+                         "Atmospheric pressure (=101)", "cohesi (=1.73)"};
 
     int argc = OPS_GetNumRemainingInputArgs() + 2;
     if (argc < (3 + numParam)) {  
