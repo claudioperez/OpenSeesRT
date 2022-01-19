@@ -34,6 +34,7 @@ class YieldSurface_BC;
 class YS_Evolution;
 class PlasticHardeningMaterial;
 class CyclicModel; //!!
+class LimitCurve;
 class DamageModel;
 class FrictionModel;
 class TimeSeries;
@@ -42,63 +43,77 @@ class G3_Runtime;
 #include <tcl.h>
 
 class TclSafeBuilder : public TclBuilder {
+//
+// CONSTRUCTORS / DESTRUCTORS
+//
 public:
-  TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int ndm,
-                         int ndf);
+  TclSafeBuilder(Domain &domain, Tcl_Interp *interp, int ndm, int ndf);
   ~TclSafeBuilder();
-
   using TclBuilder::buildFE_Model;
-  // int buildFE_Model(void);
 
+
+//
+// OBJECT CONTAINERS
+// 
+   // Time series
+private:
+  std::map<std::string, TimeSeries*> m_TimeSeriesMap;
+public:
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);
   TimeSeries* getTimeSeries(const std::string&);
-
+  LoadPattern* getEnclosingPattern(void) const;
+  int setEnclosingPattern(LoadPattern*);
   int incrNodalLoadTag(void);
   int decrNodalLoadTag(void);
   int getNodalLoadTag(void) const;
 
-  LoadPattern* getEnclosingPattern(void) const;
-  int setEnclosingPattern(LoadPattern*);
+  // Uniaxial materials
+private: std::map<std::string, UniaxialMaterial*> m_UniaxialMaterialMap;
+public:  int  addUniaxialMaterial(UniaxialMaterial &theMaterial);
+         int  addUniaxialMaterial(const std::string&, UniaxialMaterial &);
+         int  addUniaxialMaterial(UniaxialMaterial *theMaterial);
+         UniaxialMaterial *getUniaxialMaterial(int tag);
+         UniaxialMaterial *getUniaxialMaterial(const std::string &);
 
-  // methods needed for the truss and fiber-beam elements for
-  // adding/getting uniaxial material objects
-  // REMOVED
-  int addUniaxialMaterial(UniaxialMaterial *theMaterial);
-  UniaxialMaterial *getUniaxialMaterial(int tag);
 
-  // methods needed for the continuum elements and generic section
-  // models to add/get ND material models
+  // Multi-dimensional materials
+private: std::map<std::string,  NDMaterial*> m_NDMaterialMap;
+public:  int         addNDMaterial(NDMaterial &theMaterial);
+         int         addNDMaterial(const std::string&, NDMaterial &);
+         NDMaterial *getNDMaterial(int tag);
+         NDMaterial *getNDMaterial(const std::string &);
 
-  //    int addNDMaterial(NDMaterial &theMaterial);
-  NDMaterial *getNDMaterial(int tag);
+  // Cross sections
+private: std::map<std::string, SectionForceDeformation*> m_SectionForceDeformationMap;
+         std::map<std::string, SectionRepres*          > m_SectionRepresMap;
+public:  int addSection(SectionForceDeformation &theSection);
+         int addSection(const std::string&, SectionForceDeformation &);
+         SectionForceDeformation *getSection(int tag);
+         SectionForceDeformation *getSection(const std::string &);
+         int addSectionRepres(SectionRepres &theSectionRepres);
+         int addSectionRepres(const std::string &, SectionRepres &);
+         SectionRepres *getSectionRepres(int tag);
+         SectionRepres *getSectionRepres(const std::string&);
 
-  // methods needed for the nonlinear beam column elements to
-  // add/get section objects
-  /*
-  int addSection(SectionForceDeformation &theSection);
-  SectionForceDeformation *getSection(int tag);
-  int addSectionRepres(SectionRepres &theSectionRepres);
-  SectionRepres *getSectionRepres(int tag);
-  */
-
-  /*
   // methods needed for the yield surfaces
+/*
   int addYieldSurface_BC(YieldSurface_BC &theYS);
   YieldSurface_BC *getYieldSurface_BC(int tag);
   int addYS_EvolutionModel(YS_Evolution &theModel);
   YS_Evolution *getYS_EvolutionModel(int tag);
   int addPlasticMaterial(PlasticHardeningMaterial &theMaterial);
   PlasticHardeningMaterial *getPlasticMaterial(int tag);
+
   int addCyclicModel(CyclicModel &theModel); //!!
   CyclicModel *getCyclicModel(int tag); //!!
   int addDamageModel(DamageModel &theModel); //!!
   DamageModel *getDamageModel(int tag); //!!
-  */
 
   // methods needed for the friction models
-  // int addFrictionModel(FrictionModel &theFrnMdl);
-  // FrictionModel *getFrictionModel(int tag);
+  int addFrictionModel(FrictionModel &theFrnMdl);
+  FrictionModel *getFrictionModel(int tag);
+*/
 
   /* ----------------------------------------------- */
   Domain *getDomain(void) const;
@@ -110,9 +125,8 @@ private:
   int ndf; // number of degrees of freedom per node
 
   // TODO: change to std::map<>
-  TaggedObjectStorage *theUniaxialMaterials;
   TaggedObjectStorage *theNDMaterials;
-  TaggedObjectStorage *theSections;
+  // TaggedObjectStorage *theSections;
   TaggedObjectStorage *theSectionRepresents;
   TaggedObjectStorage *theYieldSurface_BCs;
   TaggedObjectStorage *thePlasticMaterials;
@@ -120,7 +134,8 @@ private:
   TaggedObjectStorage *theCycModels; //!!
   //    TaggedObjectStorage *theDamageModels; //!!
   //    TaggedObjectStorage *theFrictionModels;
-  TaggedObjectStorage *theLimitCurves; // MRL
+  std::map<std::string, LimitCurve*> theLimitCurves; // MRL
+
 
   Domain *theTclDomain = 0;
   G3_Runtime *m_runtime = nullptr;
@@ -133,8 +148,6 @@ private:
   LoadPattern *tclEnclosingPattern = 0;
 
   MultiSupportPattern *theTclMultiSupportPattern = 0;
-
-  std::map<std::string, TimeSeries*> theTimeSeriesMap;
 
 protected:
   Tcl_Interp *theInterp;

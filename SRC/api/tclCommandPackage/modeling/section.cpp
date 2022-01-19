@@ -156,20 +156,21 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
                                  TclBasicBuilder *theTclBuilder);
 
 int
-TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char **argv, Domain *theDomain,
-                              TclBasicBuilder *theTclBuilder)
+TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
+                              int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *theDomain = G3_getDomain(rt);
+  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of section arguments\n";
     opserr << "Want: section type? tag? <specific material args>" << endln;
     return TCL_ERROR;
   }
-/*
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
-*/
+
+//OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+
   // Pointer to a section that will be added to the model builder
   SectionForceDeformation *theSection = 0;
 
@@ -190,7 +191,6 @@ TclBasicBuilderSectionCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
   }
 
-  // Check argv[1] for section type
   else if (strcmp(argv[1], "ElasticTube") == 0) {
     void *theMat = OPS_ElasticTubeSection3d(rt);
     if (theMat != 0)

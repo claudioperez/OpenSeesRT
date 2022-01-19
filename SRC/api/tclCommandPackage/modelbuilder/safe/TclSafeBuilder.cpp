@@ -1,35 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-
-// $Date: 2021-10-30 20:17:50 $
-
 // Written: cmp
 //
 // Description: This file contains the class definition for TclSafeBuilder.
 // A TclSafeBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
 // framework.
-
-//
-// What: "@(#) TclSafeBuilder.cpp, revA"
-//
+#include "TclCommands.h"
 #include <g3_api.h>
 #include <stdlib.h>
 #include <string.h>
@@ -109,19 +84,12 @@ extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
 #include <YieldSurface_BC.h>
 #include <YS_Evolution.h>
-#include <PlasticHardeningMaterial.h>
-#include <CyclicModel.h> //!!
-#include <DamageModel.h> //!!
 
-#include <FrictionModel.h>
-
-#include <StiffnessDegradation.h>
-#include <UnloadingRule.h>
-#include <StrengthDegradation.h>
 #include <HystereticBackbone.h>
 #include <BeamIntegration.h>
 */
-////////////////////// gnp adding damping
+
+//////// gnp adding damping ////////////////
 #include <Element.h>
 ////////////////////////////////////////////
 
@@ -137,506 +105,43 @@ extern int OPS_ResetInput(ClientData clientData,
 #include <packages.h>
 */
 
-//
-// SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
-
-// static Domain *theTclDomain =0;
-// static TclSafeBuilder *theTclBuilder =0;
-
-// extern LoadPattern *theTclLoadPattern;
-// extern MultiSupportPattern *theTclMultiSupportPattern;
-// static int eleArgStart = 0;
-// static int nodeLoadTag = 0;
-// static int eleLoadTag = 0;
-
-//
-// THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
-/*
-int
-TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int ,
-                        TCL_Char **argv);
-
-*/
-static int TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int,
-                              TCL_Char **argv);
-int TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int,
-                          TCL_Char **);
-
-/*
-int
-TclCommand_mesh(ClientData clientData, Tcl_Interp *interp,  int ,
-                TCL_Char **);
-int
-TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,  int ,
-                  TCL_Char **);
-#if defined(OPSDEF_Element_PFEM)
-int
-TclCommand_backgroundMesh(ClientData clientData, Tcl_Interp *interp, int ,
-TCL_Char **); #endif // _OPS_Element_PFEM
-*/
-int TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
-                                   int, TCL_Char **);
-/*
-int
-TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp, int ,
-TCL_Char **);
-
-int
-TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int ,
-TCL_Char **);
-
-int
-TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp, int ,
-                         TCL_Char **);
-
-int TclCommand_addSection        (ClientData , Tcl_Interp *interp, int ,
-TCL_Char **); int TclCommand_addYieldSurface_BC(ClientData , Tcl_Interp *, int ,
-TCL_Char **); int TclCommand_addYS_EvolutionModel(ClientData , Tcl_Interp *, int
-, TCL_Char **); int TclCommand_addYS_PlasticMaterial(ClientData , Tcl_Interp *,
-int , TCL_Char **);
-
-int //!!
-TclCommand_addCyclicModel(ClientData , Tcl_Interp *, int , TCL_Char **);
-int //!!
-TclCommand_addDamageModel(ClientData , Tcl_Interp *, int , TCL_Char **);
-*/
-
-static int TclCommand_addTimeSeries(ClientData, Tcl_Interp *, int, TCL_Char **);
-static int TclCommand_addPattern(ClientData, Tcl_Interp *, int, TCL_Char **);
-
-/*
-int
-TclCommand_addSeries(ClientData clientData, Tcl_Interp *interp, int ,
-                     TCL_Char **);
-*/
-int TclCommand_addHomogeneousBC(ClientData, Tcl_Interp *, int, TCL_Char **);
-
-/*
-int
-TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp, int
-, TCL_Char **); int TclCommand_addHomogeneousBC_Y(ClientData clientData,
-Tcl_Interp *interp, int , TCL_Char **); int
-TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp, int
-, TCL_Char **); int TclCommand_addEqualDOF_MP (ClientData clientData,
-Tcl_Interp *interp, int , TCL_Char **);
-
-int
-TclCommand_addEqualDOF_MP_Mixed (ClientData , Tcl_Interp *interp,
-                           int , TCL_Char **);
-
-int
-TclCommand_RigidLink(ClientData , Tcl_Interp *interp, int, TCL_Char **);
-
-int
-TclCommand_RigidDiaphragm(ClientData , Tcl_Interp *interp, int, TCL_Char **);
-
-
-int
-TclCommand_addMP(ClientData , Tcl_Interp *interp, int, TCL_Char **);
-*/
-int
-TclCommand_addNodalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char **);
-
-/*
-int TclCommand_addElementalLoad(ClientData , Tcl_Interp *interp, int, TCL_Char
-**);
-
-int TclCommand_addNodalMass(ClientData , Tcl_Interp *interp, int , TCL_Char **);
-int TclCommand_addSP(ClientData , Tcl_Interp *, int , TCL_Char **);
-
-int
-TclCommand_addImposedMotionSP(ClientData , Tcl_Interp *, int argc, TCL_Char
-**argv);
-
-// Added by Scott J. Brandenberg
-int
-TclCommand_doPySimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv);
-
-int
-TclCommand_doTzSimple1Gen(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv);
-// End added by SJB
-
-// Added by Prishati Raychowdhury (UCSD)
-int
-TclSafeBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
-*interp, int argc, TCL_Char **argv);
-// End PRC
-
-int
-TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv);
-
-int
-TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv);
-
-int
-TclCommand_addRemoPatch(ClientData clientData,
-                        Tcl_Interp *interp,
-                        int argc,
-                        TCL_Char **argv);
-
-int
-TclCommand_addRemoLayer(ClientData clientData,
-                        Tcl_Interp *interp,
-                        int argc,
-                        TCL_Char **argv);
-
-int
-TclCommand_addRemoFiber(ClientData clientData,
-                        Tcl_Interp *interp,
-                        int argc,
-                        TCL_Char **argv);
-
-
-//Leo
-int
-TclSafeBuilder_addRemoHFiber(ClientData clientData,
-                             Tcl_Interp *interp,
-                             int argc,
-                             TCL_Char **argv);
-
-int
-TclCommand_addRemoGeomTransf(ClientData clientData,
-                             Tcl_Interp *interp,
-                             int argc,
-                             TCL_Char **argv);
-
-int
-TclCommand_addFrictionModel(ClientData clientData,
-                                 Tcl_Interp *interp,
-                                 int argc,
-                                 TCL_Char **argv);
-
-int
-TclCommand_addStiffnessDegradation(ClientData clientData,
-                                   Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
-
-int
-TclCommand_addUnloadingRule(ClientData clientData,
-                            Tcl_Interp *interp,
-                            int argc, TCL_Char **argv);
-
-int
-TclCommand_addStrengthDegradation(ClientData clientData,
-                                  Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv);
-
-int
-TclCommand_addHystereticBackbone(ClientData clientData,
-                                 Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv);
-
-int
-TclCommand_addGroundMotion(ClientData clientData,
-                           Tcl_Interp *interp,
-                           int argc,
-                           TCL_Char **argv);
-
-/// added by ZHY
-int
-TclCommand_UpdateMaterialStage(ClientData clientData,
-                               Tcl_Interp *interp,
-                               int argc,
-                               TCL_Char **argv);
-int
-TclCommand_UpdateMaterials(ClientData clientData,
-                           Tcl_Interp *interp,
-                           int argc,
-                           TCL_Char **argv);
-
-
-/// added by ZHY
-int
-TclCommand_UpdateParameter(ClientData clientData,
-                           Tcl_Interp *interp,
-                           int argc,
-                           TCL_Char **argv);
-
-////////////////gnp adding rayleigh //////////////////////////
-int
-TclCommand_addElementRayleigh(ClientData clientData,
-                              Tcl_Interp *interp,
-                              int argc,
-                              TCL_Char **argv);
-///////////////////////////////////////////////////////////////
-
-
-
-// REMO
-extern int
-TclCommand_addPatch (ClientData clientData, Tcl_Interp *interp,
-                     int argc, TCL_Char **argv,
-                     TclSafeBuilder *theTclBuilder);
-
-
-extern int
-TclCommand_addFiber (ClientData clientData, Tcl_Interp *interp,
-                     int argc, TCL_Char **argv,
-                     TclSafeBuilder *theTclBuilder);
-
-
-extern int
-TclCommand_addHFiber (ClientData clientData, Tcl_Interp *interp,
-                          int argc, TCL_Char **argv,
-                          TclSafeBuilder *theTclBuilder);
-
-
-extern int
-TclCommand_addReinfLayer (ClientData clientData, Tcl_Interp *interp,
-                          int argc, TCL_Char **argv,
-                          TclSafeBuilder *theTclBuilder);
-
-
-extern int
-TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char **,
-                         Domain*, TclSafeBuilder *);
-
-
-int
-TclCommand_Package(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv);
-
-// Added by Alborz Ghofrani - U.Washington
-int
-TclCommand_GenerateInterfacePoints(ClientData clientData, Tcl_Interp *interp,
-int argc, TCL_Char **argv);
-// End Added by Alborz
-
-*/
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
+//
 // constructor: the constructor will add certain commands to the interpreter
 TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
     : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
 {
+  /*
   theSections = new ArrayOfTaggedObjects(32);
   theUniaxialMaterials = new MapOfTaggedObjects();
   theSectionRepresents = new ArrayOfTaggedObjects(32);
-  theYieldSurface_BCs = new ArrayOfTaggedObjects(32);
-  theCycModels = new ArrayOfTaggedObjects(32); //!!
-  theYS_EvolutionModels = new ArrayOfTaggedObjects(32);
-  thePlasticMaterials = new ArrayOfTaggedObjects(32);
-
-  /*
-    // call Tcl_CreateCommand for class specific commands
-    Tcl_CreateCommand(interp, "parameter", TclCommand_addParameter,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "addToParameter", TclCommand_addParameter,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "updateParameter", TclCommand_addParameter,
-                      (ClientData)NULL, NULL);
   */
-  Tcl_CreateCommand(interp, "node", TclCommand_addNode, (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "element", TclCommand_addElement, (ClientData)NULL,
-                    NULL);
+  // theYieldSurface_BCs = new ArrayOfTaggedObjects(32);
+  // theCycModels = new ArrayOfTaggedObjects(32); //!!
+  // theYS_EvolutionModels = new ArrayOfTaggedObjects(32);
+  // thePlasticMaterials = new ArrayOfTaggedObjects(32);
 
-  /*
-    Tcl_CreateCommand(interp, "mesh", TclCommand_mesh,
-                      (ClientData)NULL, NULL);
-    Tcl_CreateCommand(interp, "remesh", TclCommand_remesh,
-                      (ClientData)NULL, NULL);
-  #if defined(OPSDEF_Element_PFEM)
-    Tcl_CreateCommand(interp, "background", &TclCommand_backgroundMesh,
-                      (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  #endif // _OPS_Element_PFEM
-  */
-  Tcl_CreateCommand(interp, "uniaxialMaterial", TclCommand_addUniaxialMaterial,
-                    (ClientData)NULL, NULL);
-  /*
-    Tcl_CreateCommand(interp, "beamIntegration", TclCommand_addBeamIntegration,
-                      (ClientData)NULL, NULL);
+  static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
 
-    Tcl_CreateCommand(interp, "limitCurve", TclCommand_addLimitCurve,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "nDMaterial", TclCommand_addNDMaterial,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "section", TclCommand_addSection,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "ysEvolutionModel",
-  TclCommand_addYS_EvolutionModel, (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "plasticMaterial",
-  TclCommand_addYS_PlasticMaterial, (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "cyclicModel", TclCommand_addCyclicModel,
-                      (ClientData)NULL, NULL); //!!
-
-    Tcl_CreateCommand(interp, "damageModel", TclCommand_addDamageModel,
-                      (ClientData)NULL, NULL); //!!
-  */
-  Tcl_CreateCommand(interp, "pattern", TclCommand_addPattern, (ClientData)NULL,
-                    NULL);
-
-  Tcl_CreateCommand(interp, "timeSeries", TclCommand_addTimeSeries,
-                    (ClientData)NULL, NULL);
-
-  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, (ClientData)NULL,NULL);
-
-  /*
-    Tcl_CreateCommand(interp, "eleLoad", TclCommand_addElementalLoad,
-                      (ClientData)NULL, NULL);
-
-    Tcl_CreateCommand(interp, "mass", TclCommand_addNodalMass,
-                      (ClientData)NULL, NULL);
-*/
-  Tcl_CreateCommand(interp, "fix", TclCommand_addHomogeneousBC,
-                    (ClientData)NULL, NULL);
-  /*
-      Tcl_CreateCommand(interp, "fixX", TclCommand_addHomogeneousBC_X,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "fixY", TclCommand_addHomogeneousBC_Y,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "fixZ", TclCommand_addHomogeneousBC_Z,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "sp", TclCommand_addSP,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "imposedMotion",
-                        TclCommand_addImposedMotionSP,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "imposedSupportMotion",
-                        TclCommand_addImposedMotionSP,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "groundMotion",
-                        TclCommand_addGroundMotion,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "equalDOF", TclCommand_addEqualDOF_MP,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "equalDOF_Mixed",
-    TclCommand_addEqualDOF_MP_Mixed, (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "rigidLink", &TclCommand_RigidLink,
-                        (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-      Tcl_CreateCommand(interp, "rigidDiaphragm", &TclCommand_RigidDiaphragm,
-                        (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-      Tcl_CreateCommand(interp, "mp", TclCommand_addMP,
-                        (ClientData)NULL, NULL);
-
-      // Added by Scott J. Brandenberg
-      Tcl_CreateCommand(interp, "PySimple1Gen", TclCommand_doPySimple1Gen,
-                            (ClientData)NULL, NULL);
-      Tcl_CreateCommand(interp, "TzSimple1Gen", TclCommand_doTzSimple1Gen,
-                            (ClientData)NULL, NULL);
-      // End added by SJB
-
-    // Added by Prishati Raychowdhury (UCSD)
-      Tcl_CreateCommand(interp, "ShallowFoundationGen",
-    TclSafeBuilder_doShallowFoundationGen, (ClientData)NULL, NULL);
-    // End PRC
-
-      Tcl_CreateCommand(interp, "block2D", TclCommand_doBlock2D,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "block3D", TclCommand_doBlock3D,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "patch", TclCommand_addRemoPatch,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "layer", TclCommand_addRemoLayer,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "fiber", TclCommand_addRemoFiber,
-                        (ClientData)NULL, NULL);
-
-      //LEO
-      Tcl_CreateCommand(interp, "Hfiber", TclSafeBuilder_addRemoHFiber,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "geomTransf", TclCommand_addRemoGeomTransf,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "frictionModel",
-                        TclCommand_addFrictionModel,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "stiffnessDegradation",
-                        TclCommand_addStiffnessDegradation,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "unloadingRule",
-                        TclCommand_addUnloadingRule,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "strengthDegradation",
-                        TclCommand_addStrengthDegradation,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "hystereticBackbone",
-                        TclCommand_addHystereticBackbone,
-                        (ClientData)NULL, NULL);
-
-      ///new command for elast2plast in Multi-yield plasticity, by ZHY
-      Tcl_CreateCommand(interp, "updateMaterialStage",
-                        TclCommand_UpdateMaterialStage,
-                        (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "updateMaterials",
-                        TclCommand_UpdateMaterials,
-                        (ClientData)NULL, NULL);
-
-
-      ///new command for updating properties of soil materials, by ZHY
-      //Tcl_CreateCommand(interp, "updateParameter",
-      //		    TclCommand_UpdateParameter,
-      //	    (ClientData)NULL, NULL);
-
-      Tcl_CreateCommand(interp, "loadPackage", TclCommand_Package,
-                        (ClientData)NULL, NULL);
-
-
-      ////// gnp adding per element damping ///////////////////////////////
-      Tcl_CreateCommand(interp, "setElementRayleighFactors",
-                        TclCommand_addElementRayleigh,
-                        (ClientData)NULL, NULL);
-      /////////////////////////////////////////////////////////////////////
-
-      // Added by Alborz Ghofrani - U.Washington
-      Tcl_CreateCommand(interp, "generateInterfacePoints",
-                        TclCommand_GenerateInterfacePoints,
-                        (ClientData)NULL, NULL);
-      // End Added by Alborz
-
-     */
-  // set the static pointers in this file
+  for (int i = 0; i < ncmd; i++)
+    Tcl_CreateCommand(interp, 
+        tcl_char_cmds[i].name, 
+        tcl_char_cmds[i].func, 
+        (ClientData)NULL, NULL);
+ 
   theTclBuilder = this;
   theTclDomain = &theDomain;
   tclEnclosingPattern = 0;
   theTclMultiSupportPattern = 0;
 
-  /*
-   * TCL_OPS_setModelBuilder(this);
-   */
-
   nodeLoadTag = 0;
   eleArgStart = 0;
   m_runtime = G3_getRuntime(interp);
+
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theTclSafeBuilder", NULL, (ClientData)this);
   G3_setDomain(m_runtime, &theDomain);
@@ -647,33 +152,27 @@ TclSafeBuilder::~TclSafeBuilder()
 {
   /*
   OPS_clearAllTimeSeries();
-  //  OPS_clearAllUniaxialMaterial();
-  //  OPS_clearAllNDMaterial();
-  //  OPS_clearAllSectionForceDeformation();
+  OPS_clearAllUniaxialMaterial();
+  OPS_clearAllNDMaterial();
+  OPS_clearAllSectionForceDeformation();
   OPS_clearAllCrdTransf();
-  OPS_clearAllFrictionModel();
-  OPS_clearAllLimitCurve();
-  OPS_clearAllDamageModel();
-  OPS_clearAllFrictionModel();
-  OPS_clearAllHystereticBackbone();
-  //  OPS_clearAllNDMaterial();
   */
+  // OPS_clearAllHystereticBackbone();
+  // OPS_clearAllFrictionModel();
+  // OPS_clearAllLimitCurve();
+  // OPS_clearAllDamageModel();
+  // theYieldSurface_BCs->clearAll();
+  // theYS_EvolutionModels->clearAll();
+  // thePlasticMaterials->clearAll();
+  // theCycModels->clearAll(); //!!
 
+/*
   theSections->clearAll();
   theSectionRepresents->clearAll();
-  theYieldSurface_BCs->clearAll();
-  theYS_EvolutionModels->clearAll();
-  thePlasticMaterials->clearAll();
-  theCycModels->clearAll(); //!!
-
   // free up memory allocated in the constructor
   delete theSections;
   delete theSectionRepresents;
-  delete theYieldSurface_BCs;
-  delete theYS_EvolutionModels;
-  delete thePlasticMaterials;
-  delete theCycModels; //!!
-
+*/
   // set the pointers to 0
   theTclDomain = 0;
   theTclBuilder = 0;
@@ -682,60 +181,14 @@ TclSafeBuilder::~TclSafeBuilder()
   /* TCL_OPS_setModelBuilder(0); */
 
   // may possibly invoke Tcl_DeleteCommand() later
-  Tcl_DeleteCommand(theInterp, "parameter");
-  Tcl_DeleteCommand(theInterp, "addToParameter");
-  Tcl_DeleteCommand(theInterp, "updateParameter");
   Tcl_DeleteCommand(theInterp, "node");
   Tcl_DeleteCommand(theInterp, "element");
-  Tcl_DeleteCommand(theInterp, "mesh");
-  Tcl_DeleteCommand(theInterp, "remesh");
-  Tcl_DeleteCommand(theInterp, "background");
   Tcl_DeleteCommand(theInterp, "uniaxialMaterial");
   Tcl_DeleteCommand(theInterp, "nDMaterial");
   Tcl_DeleteCommand(theInterp, "section");
   Tcl_DeleteCommand(theInterp, "pattern");
   Tcl_DeleteCommand(theInterp, "timeSeries");
   Tcl_DeleteCommand(theInterp, "load");
-  Tcl_DeleteCommand(theInterp, "mass");
-  Tcl_DeleteCommand(theInterp, "fix");
-  Tcl_DeleteCommand(theInterp, "fixX");
-  Tcl_DeleteCommand(theInterp, "fixY");
-  Tcl_DeleteCommand(theInterp, "fixZ");
-  Tcl_DeleteCommand(theInterp, "sp");
-  Tcl_DeleteCommand(theInterp, "imposedSupportMotion");
-  Tcl_DeleteCommand(theInterp, "groundMotion");
-  Tcl_DeleteCommand(theInterp, "equalDOF");
-  Tcl_DeleteCommand(theInterp, "mp");
-  Tcl_DeleteCommand(theInterp, "PySimple1Gen"); // Added by Scott J. Brandenberg
-  Tcl_DeleteCommand(theInterp, "TzSimple1Gen"); // Added by Scott J. Brandenberg
-  Tcl_DeleteCommand(theInterp, "block2D");
-  Tcl_DeleteCommand(theInterp, "block3D");
-  Tcl_DeleteCommand(theInterp, "patch");
-  Tcl_DeleteCommand(theInterp, "layer");
-
-  Tcl_DeleteCommand(theInterp, "fiber");
-  Tcl_DeleteCommand(theInterp, "Hfiber"); // LEO
-  Tcl_DeleteCommand(theInterp, "geomTransf");
-  Tcl_DeleteCommand(theInterp, "updateMaterialStage");
-  Tcl_DeleteCommand(theInterp, "updateMaterials");
-
-  Tcl_DeleteCommand(theInterp, "frictionModel");
-
-  Tcl_DeleteCommand(theInterp, "unloadingRule");
-  Tcl_DeleteCommand(theInterp, "stiffnessDegradation");
-  Tcl_DeleteCommand(theInterp, "strengthDegradation");
-  Tcl_DeleteCommand(theInterp, "hystereticBackbone");
-
-  Tcl_DeleteCommand(theInterp, "yieldSurface_BC");
-  Tcl_DeleteCommand(theInterp, "ysEvolutionModel");
-  Tcl_DeleteCommand(theInterp, "plasticMaterial");
-  Tcl_DeleteCommand(theInterp, "cyclicModel");
-  Tcl_DeleteCommand(theInterp, "damageModel");
-
-  Tcl_DeleteCommand(theInterp, "loadPackage");
-  Tcl_DeleteCommand(
-      theInterp,
-      "generateInterfacePoints"); // Added by Alborz Ghofrani - U.Washington
 }
 
 //
@@ -748,8 +201,10 @@ int TclSafeBuilder::buildFE_Model(void) {return 0;}
 int TclSafeBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
 int TclSafeBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
 int TclSafeBuilder::getNodalLoadTag(void) const {return   nodeLoadTag;};
+
 LoadPattern *
 TclSafeBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
+
 int
 TclSafeBuilder::setEnclosingPattern(LoadPattern* pat){
   tclEnclosingPattern = pat;
@@ -762,21 +217,13 @@ TclSafeBuilder::getDomain(void) const {return theTclDomain;}
 TclSafeBuilder *
 TclSafeBuilder::getBuilder(void) const {return theTclBuilder;}
 
-/*
 int
-TclSafeBuilder::addNDMaterial(NDMaterial &theMaterial)
+TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
 {
-  bool result = theNDMaterials->addComponent(&theMaterial);
-  if (result == true)
-    return 0;
-  else {
-    opserr << "TclSafeBuilder::addNDMaterial() - failed to add material:
-" << theMaterial; return -1;
-  }
+  return this->addUniaxialMaterial(*mat);
 }
 
-*/
-
+/*
 UniaxialMaterial *
 TclSafeBuilder::getUniaxialMaterial(int tag)
 {
@@ -790,9 +237,14 @@ TclSafeBuilder::getUniaxialMaterial(int tag)
 }
 
 int
-TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
+TclSafeBuilder::addNDMaterial(NDMaterial &theMaterial)
 {
-  return  theUniaxialMaterials->addComponent(mat);
+  bool result = theNDMaterials->addComponent(&theMaterial);
+  if (result == true)
+    return 0;
+  else {
+    opserr << "TclSafeBuilder::addNDMaterial() - failed to add material:" << theMaterial; return -1;
+  }
 }
 
 NDMaterial *
@@ -807,38 +259,37 @@ TclSafeBuilder::getNDMaterial(int tag)
   return result;
 }
 
-/*
+
 int
 TclSafeBuilder::addSection(SectionForceDeformation &theSection)
 {
   //  bool result = theSections->addComponent(&theSection);
-  bool result = OPS_addSectionForceDeformation(&theSection);
+  // bool result = OPS_addSectionForceDeformation(&theSection);
   if (result == true)
     return 0;
+
   else {
     opserr << "TclSafeBuilder::addSection() - failed to add section: "
-<< theSection; return -1;
+           << theSection;
+
+  return -1;
   }
 }
 
-*/
+SectionForceDeformation *
+TclSafeBuilder::getSection(int tag)
+{
 
-// SectionForceDeformation *
-// TclSafeBuilder::getSection(int tag)
-// {
-//   return nullptr;
-//
-//   return OPS_getSectionForceDeformation(tag);
-// /*
-//   TaggedObject *mc = theSections->getComponentPtr(tag);
-//   if (mc == 0)
-//     return 0;
-//
-//   // do a cast and return
-//   SectionForceDeformation *result = (SectionForceDeformation *)mc;
-//   return result;
-// */
-// }
+  // return OPS_getSectionForceDeformation(tag);
+  TaggedObject *mc = theSections->getComponentPtr(tag);
+  if (mc == 0)
+    return 0;
+
+  // do a cast and return
+  SectionForceDeformation *result = (SectionForceDeformation *)mc;
+  return result;
+}
+*/
 
 /*
 int
@@ -952,11 +403,10 @@ TclSafeBuilder::addSectionRepres(SectionRepres &theSectionRepres)
   if (result == true)
     return 0;
   else {
-      opserr << "TclSafeBuilder::addSectionRepres() - failed to add
-SectionRepres\n"; return -1;
+      opserr << "TclSafeBuilder::addSectionRepres() - failed to add SectionRepres\n";
+      return -1;
   }
 }
-
 
 SectionRepres *
 TclSafeBuilder::getSectionRepres(int tag)
@@ -966,12 +416,12 @@ TclSafeBuilder::getSectionRepres(int tag)
   SectionRepres *result = (SectionRepres *)mc;
   return result;
 }
-
 */
+
 TimeSeries *
 TclSafeBuilder::getTimeSeries(const std::string &name)
 {
-  TimeSeries *series = theTimeSeriesMap.at(name);
+  TimeSeries *series = m_TimeSeriesMap.at(name);
   if (series)
     return series->getCopy();
   else
@@ -981,7 +431,7 @@ TclSafeBuilder::getTimeSeries(const std::string &name)
 int
 TclSafeBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
 {
-  theTimeSeriesMap[name] = series;
+  m_TimeSeriesMap[name] = series;
   return 1;
 }
 
@@ -989,7 +439,7 @@ int
 TclSafeBuilder::addTimeSeries(TimeSeries *series)
 {
   const std::string &name = std::to_string(series->getTag());
-  theTimeSeriesMap[name] = series;
+  m_TimeSeriesMap[name] = series;
   return 1;
 }
 
@@ -1833,22 +1283,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   return TclSafeBuilderNDMaterialCommand(clientData, interp,
                                           argc, argv, theTclBuilder);
 }
-
-extern int
-TclSafeBuilderSectionCommand (ClientData clienData, Tcl_Interp *interp,
-int argc, TCL_Char **argv, Domain *theDomain, TclSafeBuilder
-*theTclBuilder);
-
-int
-TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
-                            int argc,    TCL_Char **argv)
-
-{
-  return TclSafeBuilderSectionCommand(clientData, interp,
-                                       argc, argv, theTclDomain, theTclBuilder);
-}
-
-
 
 extern int
 TclSafeBuilderYieldSurface_BCCommand (ClientData clienData, Tcl_Interp
@@ -4710,14 +4144,190 @@ TclCommand_Package(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 
   return res;
 }
+*/
 
 
-
-// Added by Alborz Ghofrani - U.Washington
-extern int
-TclCommand_GenerateInterfacePoints(ClientData clientData, Tcl_Interp *interp,
-int argc, TCL_Char **argv);
-// End Added by Alborz
+//
+// BEGIN AUTGEN
 //
 
+//
+// SectionForceDeformation Operations
+//
+
+// Retrieve a SectionForceDeformation instance from the model
+// runtime
+SectionForceDeformation*
+TclSafeBuilder::getSection(const std::string &name)
+{
+  SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
+  if (instance) {
+    return instance->getCopy();
+  } else {
+    return nullptr;
+  }
+}
+
+SectionForceDeformation*
+TclSafeBuilder::getSection(int tag)
+{
+  const std::string &name = std::to_string(tag);
+  return this->getSection(name);
+}
+
+// Add a new SectionForceDeformation to the model runtime
+int
+TclSafeBuilder::addSection(const std::string &name, SectionForceDeformation &instance)
+{
+  m_SectionForceDeformationMap[name] = &instance;
+  return 1;
+}
+
+// Add a new SectionForceDeformation to the model runtime
+int
+TclSafeBuilder::addSection(SectionForceDeformation &instance)
+{
+  const std::string &name = std::to_string(instance.getTag());
+  m_SectionForceDeformationMap[name] = &instance;
+/*
+  opserr << "WARNING (ModelBuilder) Failed to add SectionForceDeformation \n"
+         << "         with tag '" << name.c_str() << "' to model.\n";
 */
+  return 1;
+}
+
+//
+// SectionRepres Operations
+//
+
+// Retrieve a SectionRepres instance from the model
+// runtime
+SectionRepres*
+TclSafeBuilder::getSectionRepres(const std::string &name)
+{
+  SectionRepres *instance = m_SectionRepresMap.at(name);
+  if (instance) {
+    return instance;
+  } else {
+    return nullptr;
+  }
+}
+
+SectionRepres*
+TclSafeBuilder::getSectionRepres(int tag)
+{
+  const std::string &name = std::to_string(tag);
+  return this->getSectionRepres(name);
+}
+
+// Add a new SectionRepres to the model runtime
+int
+TclSafeBuilder::addSectionRepres(const std::string &name, SectionRepres &instance)
+{
+  m_SectionRepresMap[name] = &instance;
+  return 1;
+}
+
+// Add a new SectionRepres to the model runtime
+int
+TclSafeBuilder::addSectionRepres(SectionRepres &instance)
+{
+  const std::string &name = std::to_string(instance.getTag());
+  m_SectionRepresMap[name] = &instance;
+/*
+  opserr << "WARNING (ModelBuilder) Failed to add SectionRepres \n"
+         << "         with tag '" << name.c_str() << "' to model.\n";
+*/
+  return 1;
+}
+
+//
+// NDMaterial Operations
+//
+
+// Retrieve a NDMaterial instance from the model
+// runtime
+NDMaterial*
+TclSafeBuilder::getNDMaterial(const std::string &name)
+{
+  NDMaterial *instance = m_NDMaterialMap.at(name);
+  if (instance) {
+    return instance->getCopy();
+  } else {
+    return nullptr;
+  }
+}
+
+NDMaterial*
+TclSafeBuilder::getNDMaterial(int tag)
+{
+  const std::string &name = std::to_string(tag);
+  return this->getNDMaterial(name);
+}
+
+// Add a new NDMaterial to the model runtime
+int
+TclSafeBuilder::addNDMaterial(const std::string &name, NDMaterial &instance)
+{
+  m_NDMaterialMap[name] = &instance;
+  return 1;
+}
+
+// Add a new NDMaterial to the model runtime
+int
+TclSafeBuilder::addNDMaterial(NDMaterial &instance)
+{
+  const std::string &name = std::to_string(instance.getTag());
+  m_NDMaterialMap[name] = &instance;
+/*
+  opserr << "WARNING (ModelBuilder) Failed to add NDMaterial \n"
+         << "         with tag '" << name.c_str() << "' to model.\n";
+*/
+  return 1;
+}
+
+//
+// UniaxialMaterial Operations
+//
+
+// Retrieve a UniaxialMaterial instance from the model
+// runtime
+UniaxialMaterial*
+TclSafeBuilder::getUniaxialMaterial(const std::string &name)
+{
+  UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
+  if (instance) {
+    return instance->getCopy();
+  } else {
+    return nullptr;
+  }
+}
+
+UniaxialMaterial*
+TclSafeBuilder::getUniaxialMaterial(int tag)
+{
+  const std::string &name = std::to_string(tag);
+  return this->getUniaxialMaterial(name);
+}
+
+// Add a new UniaxialMaterial to the model runtime
+int
+TclSafeBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
+{
+  m_UniaxialMaterialMap[name] = &instance;
+  return 1;
+}
+
+// Add a new UniaxialMaterial to the model runtime
+int
+TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
+{
+  const std::string &name = std::to_string(instance.getTag());
+  m_UniaxialMaterialMap[name] = &instance;
+/*
+  opserr << "WARNING (ModelBuilder) Failed to add UniaxialMaterial \n"
+         << "         with tag '" << name.c_str() << "' to model.\n";
+*/
+  return 1;
+}
+
