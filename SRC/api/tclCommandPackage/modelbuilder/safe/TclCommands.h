@@ -4,6 +4,7 @@
 #include <tcl.h>
 
 typedef int (TclCharFn)(ClientData, Tcl_Interp*, int, const char**);
+// typedef int (TclObjFn)(ClientData,  Tcl_Interp*, int, Tcl_Obj**);
 
 static TclCharFn  TclCommand_addNode;
 static TclCharFn  TclCommand_addPattern;
@@ -14,6 +15,27 @@ extern TclCharFn  TclCommand_addUniaxialMaterial;
 extern TclCharFn  TclCommand_addSection;
 extern TclCharFn  TclCommand_addHomogeneousBC;
 extern TclCharFn  TclCommand_addNodalLoad;
+
+TclCharFn TclCommand_addParameter;
+TclCharFn TclCommand_mesh;
+TclCharFn TclCommand_remesh;
+TclCharFn TclCommand_backgroundMesh; 
+TclCharFn TclCommand_addBeamIntegration;
+TclCharFn TclCommand_addLimitCurve;
+TclCharFn TclCommand_addNDMaterial;
+TclCharFn TclCommand_addSeries;
+TclCharFn TclCommand_addElementalLoad;
+TclCharFn TclCommand_addNodalMass;
+TclCharFn TclCommand_addHomogeneousBC_X;
+TclCharFn TclCommand_addHomogeneousBC_Y; 
+TclCharFn TclCommand_addHomogeneousBC_Z;
+TclCharFn TclCommand_addEqualDOF_MP;
+TclCharFn TclCommand_addEqualDOF_MP_Mixed;
+TclCharFn TclCommand_addMP;
+TclCharFn TclCommand_addSP;
+TclCharFn TclCommand_RigidLink;
+TclCharFn TclCommand_addImposedMotionSP;
+TclCharFn TclCommand_RigidDiaphragm;
 
 
 struct char_cmd {
@@ -82,7 +104,7 @@ struct char_cmd {
   {"stiffnessDegradation", TclCommand_addStiffnessDegradation},
   {"unloadingRule",        TclCommand_addUnloadingRule},
   {"strengthDegradation",  TclCommand_addStrengthDegradation},
-  {"loadPackage",     TclCommand_Package},
+  {"loadPackage",          TclCommand_Package},
 */
 
 /*
@@ -108,26 +130,7 @@ struct char_cmd {
 
 
 
-TclCharFn TclCommand_addParameter;
-TclCharFn TclCommand_mesh;
-TclCharFn TclCommand_remesh;
-TclCharFn TclCommand_backgroundMesh; 
-TclCharFn TclCommand_addBeamIntegration;
-TclCharFn TclCommand_addLimitCurve;
-TclCharFn TclCommand_addNDMaterial;
-TclCharFn TclCommand_addSeries;
-TclCharFn TclCommand_addHomogeneousBC_X;
-TclCharFn TclCommand_addHomogeneousBC_Y; 
-TclCharFn TclCommand_addHomogeneousBC_Z;
-TclCharFn TclCommand_addEqualDOF_MP;
-TclCharFn TclCommand_addEqualDOF_MP_Mixed;
-TclCharFn TclCommand_RigidLink;
-TclCharFn TclCommand_RigidDiaphragm;
-TclCharFn TclCommand_addMP;
-TclCharFn TclCommand_addElementalLoad;
-TclCharFn TclCommand_addNodalMass;
-TclCharFn TclCommand_addSP;
-TclCharFn TclCommand_addImposedMotionSP;
+TclCharFn TclCommand_Package;
 
 // Added by Scott J. Brandenberg
 TclCharFn TclCommand_doPySimple1Gen;
@@ -159,10 +162,9 @@ TclCharFn TclCommand_UpdateParameter;
 ////////////////gnp adding rayleigh /////////////////////
 TclCharFn TclCommand_addElementRayleigh;
 /////////////////////////////////////////////////////////
-TclCharFn TclCommand_Package;
+
 // Added by Alborz Ghofrani - U.Washington
 TclCharFn TclCommand_GenerateInterfacePoints;
-// End Added by Alborz
 
 
 

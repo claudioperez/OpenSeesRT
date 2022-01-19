@@ -1076,19 +1076,7 @@ Domain *
 G3_getDomain(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  if (!rt->m_domain){
-    opserr << "WARNING -- No domain\n";
-  }
-  /*
-  printf("GETTING: %p->%p\n", rt, rt->m_domain);
-  */
   return rt->m_domain;
-  /* 
-  ModelBuilder *theTclBuilder =
-      (ModelBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
-  Domain *theTclDomain = theTclBuilder->getDomainPtr();
-  return theTclDomain;
-  */
 }
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)

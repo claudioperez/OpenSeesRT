@@ -47,13 +47,35 @@ class FrictionModel;
 
 class TclBuilder : public ModelBuilder {
 public:
-  TclBuilder(Domain &theDomain, int ndm, int ndf); // , Tcl_Interp *interp, int ndm, int ndf);
+  TclBuilder(Domain &theDomain, int ndm, int ndf);
   ~TclBuilder();
 
   int buildFE_Model(void);
   int getNDM(void) const;
   int getNDF(void) const;
 
+  // Section models
+  virtual int addSection(SectionForceDeformation &theSection)=0;
+  virtual SectionForceDeformation *getSection(int tag)=0;
+  virtual int addSectionRepres(SectionRepres &theSectionRepres)=0;
+  virtual SectionRepres *getSectionRepres(int tag)=0;
+
+/*
+  virtual int addYieldSurface_BC(YieldSurface_BC &theYS)=0
+  virtual YieldSurface_BC *getYieldSurface_BC(int tag)=0;
+  virtual int addYS_EvolutionModel(YS_Evolution &theModel)=0;
+  virtual YS_Evolution *getYS_EvolutionModel(int tag)=0;
+  virtual int addPlasticMaterial(PlasticHardeningMaterial &theMaterial)=0;
+  virtual PlasticHardeningMaterial *getPlasticMaterial(int tag)=0;
+  virtual int addCyclicModel(CyclicModel &theModel); //!!
+  virtual CyclicModel *getCyclicModel(int tag);      //!!
+  // Damage models
+  virtual int addDamageModel(DamageModel &theModel); //!!
+  virtual DamageModel *getDamageModel(int tag);      //!!
+  // Friction models
+  virtual int            addFrictionModel(FrictionModel &theFrnMdl);
+  virtual FrictionModel *getFrictionModel(int tag);
+*/
 private:
   int ndm; // space dimension of the mesh
   int ndf; // number of degrees of freedom per node
@@ -63,3 +85,4 @@ protected:
 };
 
 #endif
+

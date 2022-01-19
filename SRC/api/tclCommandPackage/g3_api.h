@@ -14,7 +14,7 @@
 
 #define OPS_GetDomain() G3_getDomain(rt)
 #define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
-#define OPS_GetAnalysisModel() G3_getAnalysisModel(rt)
+#define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)
 
 typedef int G3_Tag;
 // typedef Tcl_Interp G3_Runtime;
@@ -79,6 +79,7 @@ int G3_addUniaxialMaterial(G3_Runtime *, UniaxialMaterial *);
 
 // Analysis
 AnalysisModel *G3_getAnalysisModel(G3_Runtime *);
+AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
 int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
 
 StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
