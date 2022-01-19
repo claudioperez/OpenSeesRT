@@ -40,7 +40,7 @@
 #include <MovableObject.h>
 #include <OPS_Globals.h>
 #include <Information.h>
-
+#include <elementAPI.h>
 
 class TimeSeries : public TaggedObject, public MovableObject
 {
@@ -77,10 +77,11 @@ class TimeSeries : public TaggedObject, public MovableObject
   private:
 };
 
-
+#if !defined(OPS_USE_RUNTIME)
 extern void OPS_clearAllTimeSeries(void);
 extern bool OPS_addTimeSeries(TimeSeries *newComponent);
 extern TimeSeries *OPS_getTimeSeries(int tag);
 extern bool OPS_removeTimeSeries(int tag);
+#endif // OPS_USE_RUNTIME
 
 #endif

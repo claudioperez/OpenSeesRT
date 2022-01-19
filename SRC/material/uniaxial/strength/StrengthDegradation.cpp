@@ -32,6 +32,7 @@
 
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theStrengthDegradationObjects;
 
@@ -52,7 +53,8 @@ StrengthDegradation *OPS_getStrengthDegradation(int tag)
   return theMat;  
 }
 
-void OPS_clearAllStrengthDegradation(void)
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllStrengthDegradation)
 {
   theStrengthDegradationObjects.clearAll();
 }

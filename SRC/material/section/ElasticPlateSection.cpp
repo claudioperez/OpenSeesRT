@@ -35,7 +35,8 @@
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
 
-void* OPS_ElasticPlateSection()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_ElasticPlateSection)
 {
     if (OPS_GetNumRemainingInputArgs() < 4) {
 	opserr << "WARNING insufficient arguments\n";
@@ -125,7 +126,16 @@ int ElasticPlateSection::getOrder( ) const
 //send back order of strain in vector form
 const ID& ElasticPlateSection::getType( ) 
 {
-  return array ;
+    static bool initialized = false;
+    if (!initialized) {
+        array(0) = SECTION_RESPONSE_MXX;
+        array(1) = SECTION_RESPONSE_MYY;
+        array(2) = SECTION_RESPONSE_MXY;
+        array(3) = SECTION_RESPONSE_VXZ;
+        array(4) = SECTION_RESPONSE_VYZ;
+        initialized = true;
+    }
+    return array;
 }
 
 

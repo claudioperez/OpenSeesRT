@@ -44,9 +44,10 @@
 #include <SP_Constraint.h>
 #include <elementAPI.h>
 
-void* OPS_TimeSeriesIntegrator();
+void* OPS_ADD_RUNTIME_VPV(OPS_TimeSeriesIntegrator);
 
-void* OPS_UniformExcitationPattern()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_UniformExcitationPattern)
 {
     if (OPS_GetNumRemainingInputArgs() < 2) {
 	opserr << "WARNING insufficient args : pattern UniformExcitation tag dir\n";
@@ -146,7 +147,7 @@ void* OPS_UniformExcitationPattern()
 	
 	} else if ((strcmp(flag,"-int") == 0) || (strcmp(flag,"-integrator") == 0)) {
 
-	    seriesIntegrator = (TimeSeriesIntegrator*) OPS_TimeSeriesIntegrator();
+	    seriesIntegrator = (TimeSeriesIntegrator*) OPS_CALL_RUNTIME_VPV(OPS_TimeSeriesIntegrator);
 	    if (seriesIntegrator == 0) return 0;
 	}
     

@@ -50,7 +50,7 @@
 #include <elementAPI.h>
 
 
-void* OPS_PML2D()
+void * OPS_ADD_RUNTIME_VPV(OPS_PML2D)
 {
   if (OPS_GetNumRemainingInputArgs() < (5+PML2D_NUM_PROPS)) {
     opserr << "WARNING insufficient arguments\n";
@@ -145,7 +145,7 @@ void  PML2D::setDomain( Domain *theDomain )
   int MCRD = 2; 
   int NNODE = PML2D_NUM_NODES;
 
-  pml_(K, 
+  pml2d_(K, 
        C, 
        M,   
        &NDOFEL, 

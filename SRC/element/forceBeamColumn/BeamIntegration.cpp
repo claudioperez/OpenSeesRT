@@ -26,6 +26,7 @@
 #include <Matrix.h>
 
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theBeamIntegrationRuleObjects;
 
@@ -45,7 +46,9 @@ BeamIntegrationRule *OPS_getBeamIntegrationRule(int tag) {
   return theMat;
 }
 
-void OPS_clearAllBeamIntegrationRule(void) {
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllBeamIntegrationRule)
+{
   theBeamIntegrationRuleObjects.clearAll();
 }
 

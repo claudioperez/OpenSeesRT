@@ -39,6 +39,7 @@
 
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theLimitCurveObjects;
 
@@ -59,7 +60,9 @@ LimitCurve *OPS_getLimitCurve(int tag) {
   return theMat;
 }
 
-void OPS_clearAllLimitCurve(void) {
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllLimitCurve)
+{
   theLimitCurveObjects.clearAll();
 }
 

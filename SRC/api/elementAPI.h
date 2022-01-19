@@ -29,6 +29,7 @@
 #ifndef _eleAPI
 #define _eleAPI
 
+
 #define ISW_INIT 0
 #define ISW_COMMIT 1
 #define ISW_REVERT 2
@@ -216,14 +217,16 @@ class FrictionModel;
 class LimitCurve;
 class Domain;
 class FE_Datastore;
-
-extern UniaxialMaterial* OPS_GetUniaxialMaterial(int matTag);
+#if !defined(OPS_USE_RUNTIME)
+  UniaxialMaterial* OPS_GetUniaxialMaterial(int matTag);
+  Domain* OPS_GetDomain(void);
+  AnalysisModel** OPS_GetAnalysisModel(void);
+#endif
 extern NDMaterial* OPS_GetNDMaterial(int matTag);
 extern SectionForceDeformation* OPS_GetSectionForceDeformation(int secTag);
 extern CrdTransf* OPS_GetCrdTransf(int crdTag);
 extern FrictionModel* OPS_GetFrictionModel(int frnTag);
 extern LimitCurve* OPS_GetLimitCurve(int LimCrvTag);
-extern Domain* OPS_GetDomain(void);
 
 extern FE_Datastore* OPS_GetFEDatastore();
 extern "C" const char* OPS_GetInterpPWD();
@@ -245,7 +248,7 @@ extern "C" bool* OPS_builtModel(void);
 
 int OPS_numIter();
 
-#else
+#else // __cplusplus
 
 int     OPS_GetNDF();
 int     OPS_GetNDM();
@@ -278,7 +281,6 @@ int    OPS_GetNodeAcc(int* nodeTag, int* sizeData, double* data);
 int    OPS_GetNodeIncrDisp(int* nodeTag, int* sizeData, double* data);
 int    OPS_GetNodeIncrDeltaDisp(int* nodeTag, int* sizeData, double* data);
 
-AnalysisModel** OPS_GetAnalysisModel(void);
 EquiSolnAlgo** OPS_GetAlgorithm(void);
 ConstraintHandler** OPS_GetHandler(void);
 DOF_Numberer** OPS_GetNumberer(void);
@@ -293,6 +295,9 @@ TransientIntegrator** OPS_GetTransientIntegrator(void);
 ConvergenceTest** OPS_GetTest(void);
 bool* OPS_builtModel(void);
 
-#endif
 
-#endif
+
+#endif // __cplusplus
+
+#endif // _eleAPI
+#include <api/runtimeAPI.h>

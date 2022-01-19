@@ -33,6 +33,7 @@
 
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
+#include <api/runtimeAPI.h>
 
 static MapOfTaggedObjects theFrictionModelObjects;
 
@@ -56,7 +57,8 @@ FrictionModel *OPS_getFrictionModel(int tag)
 }
 
 
-void OPS_clearAllFrictionModel()
+void
+OPS_ADD_RUNTIME_VXV(OPS_clearAllFrictionModel)
 {
     theFrictionModelObjects.clearAll();
 }

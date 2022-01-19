@@ -55,7 +55,8 @@
 #include <elementAPI.h>
 #include <iostream>
 
-void* OPS_LoadControlIntegrator()
+void *
+OPS_ADD_RUNTIME_VPV(OPS_LoadControlIntegrator)
 {
     if(OPS_GetNumRemainingInputArgs() < 1) {
 	opserr<<"insufficient arguments\n";
@@ -388,13 +389,6 @@ LoadControl::computeSensitivities(void)
 	*/
 	// Zero out the old right-hand side of the SOE
 	theSOE->zeroB();
-		
-
-	if (this == 0) {
-	  opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
-	  opserr << "the SensitivityIntegrator is NULL\n";
-	  return -1;
-	}
 
 	// Form the part of the RHS which are indepent of parameter
 	this->formIndependentSensitivityRHS();

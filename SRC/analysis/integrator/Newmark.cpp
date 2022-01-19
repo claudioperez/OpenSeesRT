@@ -57,7 +57,7 @@ static bool converged = false;
 static int count = 0;
 
 void *
-OPS_Newmark(void)
+OPS_ADD_RUNTIME_VPV(OPS_Newmark)
 {
   // Pointer to a uniaxial material that will be returned
   TransientIntegrator *theIntegrator = 0;
@@ -986,12 +986,6 @@ Newmark::computeSensitivities(void)
   */
   // Zero out the old right-hand side of the SOE
   theSOE->zeroB();
-  
-  if (this == 0) {
-    opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
-    opserr << "the SensitivityIntegrator is NULL\n";
-    return -1;
-  }
   
   // Form the part of the RHS which are indepent of parameter
   this->formIndependentSensitivityRHS();
