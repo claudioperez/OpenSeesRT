@@ -3575,7 +3575,6 @@ videoPlayer(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-extern bool OPS_removeTimeSeries(int tag);
 
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -6388,7 +6387,8 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  theDomain.setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
+  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  the_domain->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
 
   return TCL_OK;
 }
