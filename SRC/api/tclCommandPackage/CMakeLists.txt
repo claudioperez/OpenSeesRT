@@ -22,6 +22,7 @@ target_sources(OpenSeesCommandPackage
 
     "commands/commands.cpp"
     "commands/myCommands.cpp"
+
     "domain/nodes.cpp"
     "analysis/algorithm.cpp"
     "analysis/integrator.cpp"
@@ -89,10 +90,11 @@ target_sources(OpenSeesCommandPackage
     "modeling/hystereticBackbone.cpp"
     "material/section/yieldSurface/TclModelBuilderYS_SectionCommand.cpp"
 
-    "material/uniaxial/TclKikuchiAiken.cpp"
-    "material/uniaxial/TclAxialSp.cpp"
-    #"material/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-    "material/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    "contrib/uniaxial/TclKikuchiAiken.cpp"
+    "contrib/uniaxial/TclAxialSp.cpp"
+    "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
+
+    #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
     #"material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
     "material/uniaxial/limitState/TclLimitState.cpp"
@@ -105,7 +107,6 @@ target_sources(OpenSeesCommandPackage
     "material/yieldSurface/plasticHardeningMaterial/TclModelBuilderYSPlasticMaterialCommand.cpp"
     "material/yieldSurface/yieldSurfaceBC/TclModelBuilderYieldSurfaceBCCommand.cpp"
 
-    #"damage/TclModelBuilderDamageModelCommand.cpp"
     ## Optimization 
     #"optimization/tcl/TclOptimizationBuilder.cpp"
 
@@ -126,10 +127,10 @@ target_sources(OpenSeesCommandPackage
     #"${OPS_SRC_DIR}/interpreter/OpenSeesMiscCommands.cpp"
 
     "elementAPI_PYG3.cpp"
-    tcl_packages.cpp
+    "packages/tcl_packages.cpp"
     "misc/TclFeViewer.cpp"
-
 )
+
 add_subdirectory(libraries/uniaxial)
 
 target_compile_definitions(OpenSeesCommandPackage PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
