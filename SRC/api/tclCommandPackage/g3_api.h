@@ -12,9 +12,20 @@
 # define OPS_Export
 #endif
 
+//
+// RUNTIME
+//
 #define OPS_GetDomain() G3_getDomain(rt)
-#define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 #define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)
+//
+// MODELBUILDER
+//
+// Materials
+#define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+// Time series
+#define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
+#define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))
+#define OPS_removeTimeSeries(tag) G3_removeTimeSeries(rt, (tag))
 
 typedef int G3_Tag;
 // typedef Tcl_Interp G3_Runtime;
@@ -93,6 +104,7 @@ int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
 
 int G3_addTimeSeries(G3_Runtime *, TimeSeries *);
 TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
+int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 
 #ifdef __cplusplus
 }

@@ -69,6 +69,7 @@ UniaxialMaterial *
 TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv, Domain *theDomain)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   TimeSeries *theSeries = 0;
 
   if (argc < 3) {

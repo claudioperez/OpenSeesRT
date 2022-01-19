@@ -1087,16 +1087,17 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
   return builder->addTimeSeries(series);
 }
 
-/*
-int G3_removeTimeSeries(Tcl_Interp *interp, int tag) {
-    TaggedObject* obj = theTimeSeriesObjects.removeComponent(tag);
-    if (obj != 0) {
-      delete obj;
-      return true;
-    }
+
+int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
+  Tcl_Interp *interp = G3_getInterpreter(rt);
+  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+  if (builder)
+    // TODO
+    return true;
+  else
     return false;
 }
-*/
+
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
