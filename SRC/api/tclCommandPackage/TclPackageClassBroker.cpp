@@ -737,6 +737,7 @@ TclPackageClassBroker::getNewElement(int classTag)
   case ELE_TAG_Brick:
     return new Brick();
 
+#if defined(OPSDEF_Elements_UW)
   case ELE_TAG_SSPquad:
     return new SSPquad();
 
@@ -748,13 +749,14 @@ TclPackageClassBroker::getNewElement(int classTag)
 
   case ELE_TAG_SSPbrickUP:
     return new SSPbrickUP();
-
+#endif
   case ELE_TAG_PML2D:
     return new PML2D();
 
   case ELE_TAG_PML3D:
     return new PML3D();
 
+#if defined(OPSDEF_Elements_UW)
   case ELE_TAG_BeamContact2D:
     return new BeamContact2D();
 
@@ -775,6 +777,7 @@ TclPackageClassBroker::getNewElement(int classTag)
 
   case ELE_TAG_QuadBeamEmbedContact:
     return new QuadBeamEmbedContact();
+#endif // UW elements
 
   case ELE_TAG_ShellMITC4:
     return new ShellMITC4();

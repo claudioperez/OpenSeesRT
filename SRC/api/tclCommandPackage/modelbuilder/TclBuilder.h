@@ -30,25 +30,31 @@
 #define TclBuilder_h
 
 #include <ModelBuilder.h>
+#include <string>
+#include <tcl.h>
+#include <g3_api.h>
 
 class SectionForceDeformation;
 class SectionRepres;
 class NDMaterial;
+class CrdTrasnf;
 class TaggedObjectStorage;
+/*
 class YieldSurface_BC;
 class YS_Evolution;
 class PlasticHardeningMaterial;
 class CyclicModel; //!!
 class DamageModel;
 class FrictionModel;
-
-#include <tcl.h>
-#include <g3_api.h>
+*/
 
 class TclBuilder : public ModelBuilder {
 public:
   TclBuilder(Domain &theDomain, int ndm, int ndf);
   ~TclBuilder();
+
+  // eventually make private
+  int currentSectionTag = -1;
 
   int buildFE_Model(void);
   int getNDM(void) const;
@@ -59,6 +65,11 @@ public:
   virtual SectionForceDeformation *getSection(int tag)=0;
   virtual int addSectionRepres(SectionRepres &theSectionRepres)=0;
   virtual SectionRepres *getSectionRepres(int tag)=0;
+
+//  virtual int         addCrdTransf(CrdTransf &);
+//  virtual int         addCrdTransf(const std::string&, CrdTransf &);
+//  virtual CrdTransf *getCrdTransf(int tag);
+//  virtual CrdTransf *getCrdTransf(const std::string &);
 
 /*
   virtual int addYieldSurface_BC(YieldSurface_BC &theYS)=0

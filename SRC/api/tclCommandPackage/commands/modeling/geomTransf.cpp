@@ -23,7 +23,7 @@
 // $Source:
 // /usr/local/cvs/OpenSees/SRC/coordTransformation/TclGeomTransfCommand.cpp,v $
 #include <string.h>
-#include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <LinearCrdTransf2d.h>
 #include <LinearCrdTransf2dInt.h>
@@ -34,18 +34,19 @@
 #include <CorotCrdTransf3d.h>
 #include <CorotCrdTransfWarping2d.h>
 
-static Domain *theTclBasicBuilderDomain = 0;
-static TclBasicBuilder *theTclBasicBuilder = 0;
 
 //
 // to create a coordinate transformation
 //
 int
 TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv, Domain *theDomain,
-                         TclBasicBuilder *theBuilder)
+                         TCL_Char **argv)
 
 {
+  G3_Runtime * rt = G3_getRuntime(interp);
+  TclSafeBuilder * theTclBasicBuilder = G3_getSafeBuilder(rt);
+  Domain * theTclBasicBuilerDomain = G3_getDomain(rt);
+
   // Make sure there is a minimum number of arguments
   if (argc < 2) {
     opserr << "WARNING insufficient number of geomTransf arguments\n";
@@ -53,13 +54,9 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  theTclBasicBuilderDomain = theDomain;
-  theTclBasicBuilder = theBuilder;
-
   int NDM, NDF;
 
-  NDM = theTclBasicBuilder
-            ->getNDM(); // dimension of the structure (1d, 2d, or 3d)
+  NDM = theTclBasicBuilder->getNDM();
   NDF = theTclBasicBuilder->getNDF(); // number of degrees of freedom per node
 
   // create 2d coordinate transformation
@@ -122,8 +119,6 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       crdTransf2d = new LinearCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "LinearInt") == 0)
-      //      crdTransf2d = new LinearCrdTransf2dInt(crdTransfTag, jntOffsetI,
-      //      jntOffsetJ);
       crdTransf2d =
           new LinearCrdTransf2dInt(crdTransfTag, jntOffsetI, jntOffsetJ);
 
@@ -151,7 +146,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (OPS_addCrdTransf(crdTransf2d) != true) {
+    if (theTclBasicBuilder->addCrdTransf(*crdTransf2d) != true) {
       opserr << "WARNING TclElmtBuilder - addGeomTransf  - could not add "
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;
@@ -262,7 +257,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (OPS_addCrdTransf(crdTransf3d) != true) {
+    if (theTclBasicBuilder->addCrdTransf(*crdTransf3d) != true) {
       opserr << "WARNING TclElmtBuilder - addGeomTransf  - could not add "
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;

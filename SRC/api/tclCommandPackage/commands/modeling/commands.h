@@ -9,11 +9,17 @@ typedef int (TclCharFn)(ClientData, Tcl_Interp*, int, const char**);
 static TclCharFn  TclCommand_addNode;
 static TclCharFn  TclCommand_addPattern;
 static TclCharFn  TclCommand_addTimeSeries;
+static TclCharFn  TclCommand_addNodalMass;
+extern TclCharFn  TclCommand_addGeomTransf;
 
 extern TclCharFn  TclCommand_addElement;
 extern TclCharFn  TclCommand_addUniaxialMaterial;
 extern TclCharFn  TclCommand_addSection;
+extern TclCharFn  TclCommand_addPatch;
+// Constraints
 extern TclCharFn  TclCommand_addHomogeneousBC;
+static TclCharFn  TclCommand_addEqualDOF_MP;
+// Loads
 extern TclCharFn  TclCommand_addNodalLoad;
 
 TclCharFn TclCommand_addParameter;
@@ -25,11 +31,9 @@ TclCharFn TclCommand_addLimitCurve;
 TclCharFn TclCommand_addNDMaterial;
 TclCharFn TclCommand_addSeries;
 TclCharFn TclCommand_addElementalLoad;
-TclCharFn TclCommand_addNodalMass;
 TclCharFn TclCommand_addHomogeneousBC_X;
 TclCharFn TclCommand_addHomogeneousBC_Y; 
 TclCharFn TclCommand_addHomogeneousBC_Z;
-TclCharFn TclCommand_addEqualDOF_MP;
 TclCharFn TclCommand_addEqualDOF_MP_Mixed;
 TclCharFn TclCommand_addMP;
 TclCharFn TclCommand_addSP;
@@ -45,23 +49,27 @@ struct char_cmd {
 }  tcl_char_cmds[] =  {
 
   {"node",             TclCommand_addNode},
+  {"mass",             TclCommand_addNodalMass},
   {"element",          TclCommand_addElement},
+// Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},
   {"section",          TclCommand_addSection},
+  {"patch",            TclCommand_addPatch},
+
+  {"geomTransf",       TclCommand_addGeomTransf},
+
+  {"load",             TclCommand_addNodalLoad},
   {"pattern",          TclCommand_addPattern},
   {"timeSeries",       TclCommand_addTimeSeries},
-  {"load",             TclCommand_addNodalLoad},
-  {"fix",              TclCommand_addHomogeneousBC},
 
+  {"fix",              TclCommand_addHomogeneousBC},
+  {"equalDOF",             TclCommand_addEqualDOF_MP},
 /*
-  {"mass",             TclCommand_addNodalMass},
-  {"patch",            TclCommand_addRemoPatch},
   {"layer",            TclCommand_addRemoLayer},
   {"fiber",            TclCommand_addRemoFiber},
   {"beamIntegration",  TclCommand_addBeamIntegration},
   {"nDMaterial",       TclCommand_addNDMaterial},
   {"eleLoad",          TclCommand_addElementalLoad},
-  {"geomTransf",       TclCommand_addRemoGeomTransf},
 */
 
 #if defined(OPSDEF_Element_PFEM)
@@ -76,7 +84,6 @@ struct char_cmd {
   {"fixZ",                 TclCommand_addHomogeneousBC_Z},
   {"sp",                   TclCommand_addSP},
   {"mp",                   TclCommand_addMP},
-  {"equalDOF",             TclCommand_addEqualDOF_MP},
   {"imposedMotion",        TclCommand_addImposedMotionSP},
   {"imposedSupportMotion", TclCommand_addImposedMotionSP},
   {"groundMotion",         TclCommand_addGroundMotion},
@@ -91,7 +98,7 @@ struct char_cmd {
 
   {"Hfiber",             TclSafeBuilder_addRemoHFiber},
 */
-
+// OTHER OBJECT TYPES
 /*
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
@@ -142,12 +149,10 @@ TclCharFn TclSafeBuilder_doShallowFoundationGen;
 // End PRC
 TclCharFn TclCommand_doBlock2D;
 TclCharFn TclCommand_doBlock3D;
-TclCharFn TclCommand_addRemoPatch;
 TclCharFn TclCommand_addRemoLayer;
 TclCharFn TclCommand_addRemoFiber;
 //Leo
 TclCharFn TclSafeBuilder_addRemoHFiber;
-TclCharFn TclCommand_addRemoGeomTransf;
 TclCharFn TclCommand_addFrictionModel;
 TclCharFn TclCommand_addStiffnessDegradation;
 TclCharFn TclCommand_addUnloadingRule;
