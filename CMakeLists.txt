@@ -36,6 +36,8 @@ include(OpenSeesFunctions)
 include(conan)
 enable_testing()
 
+add_definitions(-DOPS_USE_RUNTIME)
+
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -232,15 +234,17 @@ add_library(OPS_Analysis           OBJECT)
 add_library(OPS_ConvergenceTest    OBJECT)
 add_library(OPS_Thermal            OBJECT)
 add_library(OPS_Element            OBJECT)
+add_library(OPS_ElementFortran     OBJECT)
 #add_library(OPS_Element_MP         OBJECT)
 #add_library(OPS_Element_SP         OBJECT)
 add_library(OPS_Material           OBJECT)
+add_library(OPS_MaterialFortran    OBJECT)
 add_library(OPS_Damage             OBJECT)
 add_library(OPS_Database           OBJECT)
 add_library(OPS_Interp_Tcl         STATIC)
 
 # Optional Extensions
-add_library(OPS_DRM                OBJECT EXCLUDE_FROM_ALL)
+#add_library(OPS_DRM                OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Renderer           OBJECT EXCLUDE_FROM_ALL)
@@ -309,8 +313,10 @@ target_link_libraries(G3
     OPS_Thermal
     OPS_ConvergenceTest
     OPS_Element
+    OPS_ElementFortran
     OPS_Renderer
     OPS_Material
+    OPS_MaterialFortran
     OPS_Material_YieldSurface
     OPS_Section_Repres
     OPS_Section_YieldSurface
@@ -446,8 +452,10 @@ endforeach()
 #----------------------------
 if (OPS_Use_PFEM)
   #add_subdirectory("${OPS_EXTERNALS_DIR}/Tetgen")
+  message("Using PFEM extensions")
   target_link_libraries(${OPS_FINAL_TARGET}
-    OPS_Element_PFEMElement OPS_PFEM  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
+    # OPS_Element_PFEMElement
+    OPS_PFEM  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
   )
   else()
     add_compile_definitions(OPS_EXCLUDE_PFEMELEMENT)

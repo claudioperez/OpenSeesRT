@@ -54,13 +54,13 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  int NDM, NDF;
+  int ndm, ndf;
 
-  NDM = theTclBasicBuilder->getNDM();
-  NDF = theTclBasicBuilder->getNDF(); // number of degrees of freedom per node
+  ndm = theTclBasicBuilder->getNDM();
+  ndf = theTclBasicBuilder->getNDF(); // number of degrees of freedom per node
 
   // create 2d coordinate transformation
-  if ((NDM == 2 && NDF == 3) || (NDM == 2 && NDF == 4)) {
+  if ((ndm == 2 && ndf == 3) || (ndm == 2 && ndf == 4)) {
 
     int crdTransfTag;
     Vector jntOffsetI(2), jntOffsetJ(2);
@@ -113,7 +113,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // construct the transformation object
 
-    CrdTransf *crdTransf2d = 0;
+    CrdTransf *crdTransf2d = nullptr;
 
     if (strcmp(argv[1], "Linear") == 0)
       crdTransf2d = new LinearCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
@@ -126,10 +126,10 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
              strcmp(argv[1], "LinearWithPDelta") == 0)
       crdTransf2d = new PDeltaCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
 
-    else if (strcmp(argv[1], "Corotational") == 0 && NDF == 3)
+    else if (strcmp(argv[1], "Corotational") == 0 && ndf == 3)
       crdTransf2d = new CorotCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
 
-    else if (strcmp(argv[1], "Corotational") == 0 && NDF == 4)
+    else if (strcmp(argv[1], "Corotational") == 0 && ndf == 4)
       crdTransf2d =
           new CorotCrdTransfWarping2d(crdTransfTag, jntOffsetI, jntOffsetJ);
 
@@ -146,14 +146,14 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (theTclBasicBuilder->addCrdTransf(*crdTransf2d) != true) {
+    if (theTclBasicBuilder->addCrdTransf(crdTransf2d) != true) {
       opserr << "WARNING TclElmtBuilder - addGeomTransf  - could not add "
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;
     }
   }
 
-  else if (NDM == 3 && NDF == 6) {
+  else if (ndm == 3 && ndf == 6) {
     int crdTransfTag;
     Vector vecxzPlane(3);                // vector that defines local xz plane
     Vector jntOffsetI(3), jntOffsetJ(3); // joint offsets in global coordinates
@@ -257,13 +257,13 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (theTclBasicBuilder->addCrdTransf(*crdTransf3d) != true) {
+    if (theTclBasicBuilder->addCrdTransf(crdTransf3d) != true) {
       opserr << "WARNING TclElmtBuilder - addGeomTransf  - could not add "
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;
     }
   } else {
-    opserr << "WARNING NDM = " << NDM << " and NDF = " << NDF
+    opserr << "WARNING ndm = " << ndm << " and ndf = " << ndf
            << "is imcompatible with available frame elements\n";
     return TCL_ERROR;
   }

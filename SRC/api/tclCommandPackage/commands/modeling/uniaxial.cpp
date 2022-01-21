@@ -175,15 +175,15 @@ extern void *OPS_Trilinwp(G3_Runtime*);
 extern void *OPS_Trilinwp2(G3_Runtime*);
 extern void *OPS_Masonryt(G3_Runtime*);
 
-typedef  int (G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
+typedef  int (G3_TclUniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
 // G3_UniaxialCommand TclBasicBuilder_addFedeasMaterial;
-G3_UniaxialCommand TclSafeBuilder_addFedeasWrapper;
-G3_UniaxialCommand TclCommand_KikuchiAikenHDR;
-G3_UniaxialCommand TclCommand_KikuchiAikenLRB;
-G3_UniaxialCommand TclCommand_AxialSp;
-G3_UniaxialCommand TclCommand_AxialSpHD;
+G3_TclUniaxialCommand TclSafeBuilder_addFedeasWrapper;
+G3_TclUniaxialCommand TclCommand_KikuchiAikenHDR;
+G3_TclUniaxialCommand TclCommand_KikuchiAikenLRB;
+G3_TclUniaxialCommand TclCommand_AxialSp;
+G3_TclUniaxialCommand TclCommand_AxialSpHD;
 
-std::unordered_map<std::string, G3_UniaxialCommand*> compiled_material_map = {
+std::unordered_map<std::string, G3_TclUniaxialCommand*> uniaxial_tcl_table = {
 // {"fedeas", TclBasicBuilder_addFedeasMaterial}
     {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper}
    ,{"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR     }
@@ -191,6 +191,9 @@ std::unordered_map<std::string, G3_UniaxialCommand*> compiled_material_map = {
    ,{"AxialSp",             TclCommand_AxialSp             }
    ,{"AxialSpHD",           TclCommand_AxialSpHD           }
 };
+
+#include "uniaxial.hpp"
+
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
 // *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder *theTclBuilder);
@@ -271,15 +274,21 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
   // Pointer to a uniaxial material that will be added to the model builder
   UniaxialMaterial *theMaterial = 0;
   
-  auto cmd = compiled_material_map.find(std::string(argv[1]));
-
-  if (cmd != compiled_material_map.end()) {
-    int stat = (*cmd->second)(clientData, interp,argc,&argv[0]);
+  auto tcl_cmd = uniaxial_tcl_table.find(std::string(argv[1]));
+  if (tcl_cmd != uniaxial_tcl_table.end()) {
+    int stat = (*tcl_cmd->second)(clientData, interp,argc,&argv[0]);
     return stat;
-  }
-  
-
-  // Check argv[2] for uniaxial material type
+  } else {
+    auto rt_cmd = uniaxial_rt_table.find(std::string(argv[1]));
+    if (rt_cmd != uniaxial_rt_table.end()) {
+      void *mat = (*rt_cmd->second)(rt);
+      if (mat != nullptr)
+        theMaterial = static_cast<UniaxialMaterial*>(mat);
+      else
+        return TCL_ERROR;
+    }
+  } 
+if (theMaterial == 0){
   if (strcmp(argv[1], "Elastic") == 0) {
 
     void *theMat = OPS_ElasticMaterial(rt);
@@ -2873,6 +2882,7 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
       }
     // Parsing was successful, allocate the material
     theMaterial = new UniaxialJ2Plasticity(tag, E, sigmaY, Hkin, Hiso);
+  }
   }
   if (strcmp(argv[1], "HystereticPoly") == 0) { 
     // BEGIN Salvatore Sessa 14-Jan-2021 Mail: salvatore.sessa2@unina.it
