@@ -72,6 +72,8 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv, Domain *theDomain,
                                   TclBasicBuilder *theBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   int NDM = theBuilder->getNDM();
   int NDF = theBuilder->getNDF();
 

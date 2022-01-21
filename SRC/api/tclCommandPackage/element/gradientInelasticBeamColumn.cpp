@@ -48,6 +48,8 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
                                                Domain *theTclDomain,
                                                TclBasicBuilder *theTclBuilder)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // ensure the destructor has not been called
   if (theTclBuilder == 0) {
     opserr

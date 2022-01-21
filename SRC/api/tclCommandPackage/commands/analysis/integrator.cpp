@@ -30,7 +30,6 @@
 #include <ParkLMS3.h>
 #include <BackwardEuler.h>
 
-extern StaticIntegrator *theStaticIntegrator;
 extern TransientIntegrator *theTransientIntegrator;
 extern StaticAnalysis *theStaticAnalysis;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
@@ -884,30 +883,6 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "WARNING No Integrator type exists \n";
     return TCL_ERROR;
   }
-
-#ifdef _PARALLEL_PROCESSING
-
-  if (the_static_analysis != 0 && the_static_integrator != 0) {
-
-    IncrementalIntegrator *theIntegrator;
-    theIntegrator = the_static_integrator;
-
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub;
-    while ((theSub = theSubdomains()) != 0) {
-      theSub->setAnalysisIntegrator(*theIntegrator);
-    }
-  } else if (theTransientAnalysis != 0 && theTransientIntegrator != 0) {
-    IncrementalIntegrator *theIntegrator;
-    theIntegrator = theTransientIntegrator;
-
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub;
-    while ((theSub = theSubdomains()) != 0) {
-      theSub->setAnalysisIntegrator(*theIntegrator);
-    }
-  }
-#endif
 
   return TCL_OK;
 }

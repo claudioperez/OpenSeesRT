@@ -18,21 +18,13 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.72 $
-// $Date: 2010-09-16 00:04:05 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/uniaxial/TclBasicBuilderUniaxialMaterialCommand.cpp,v
-// $
-
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
 // Description: This file contains the function invoked when the user invokes
 // the uniaxialMaterial command in the interpreter.
 //
-// What: "@(#) TclBasicBuilderUniaxialMaterialCommand.C, revA"
 
-//#include <TclBasicBuilder.h>
 #include <unordered_map> // std::unordered_map
 #include <iostream>
 #include <g3_api.h>
@@ -69,11 +61,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <SmoothPSConcrete.h>      //Quan & Michele
 #include <SelfCenteringMaterial.h> //JAE
 #include <ASD_SMA_3K.h>            //LA
-
-// #include <KikuchiAikenHDR.h>
-// #include <KikuchiAikenLRB.h>
-// #include <AxialSp.h>
-// #include <AxialSpHD.h>
 
 #include <SMAMaterial.h> // Davide Fugazza
 #include <Masonry.h>
@@ -188,7 +175,6 @@ extern void *OPS_Trilinwp(G3_Runtime*);
 extern void *OPS_Trilinwp2(G3_Runtime*);
 extern void *OPS_Masonryt(G3_Runtime*);
 
-
 typedef  int (G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
 // G3_UniaxialCommand TclBasicBuilder_addFedeasMaterial;
 G3_UniaxialCommand TclSafeBuilder_addFedeasWrapper;
@@ -204,7 +190,6 @@ std::unordered_map<std::string, G3_UniaxialCommand*> compiled_material_map = {
    ,{"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB     }
    ,{"AxialSp",             TclCommand_AxialSp             }
    ,{"AxialSpHD",           TclCommand_AxialSpHD           }
-  // }
 };
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
@@ -263,85 +248,6 @@ UniaxialMaterial *TclBasicBuilder_FRPCnfinedConcrete(ClientData clientData,
 
 UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
                                                        int, TCL_Char **);
-/*
-#include <Steel02.h>
-static void *
-OPS_Steel02()
-{
-  // Pointer to a uniaxial material that will be returned
-  UniaxialMaterial *theMaterial = 0;
-
-  int    iData[1];
-  double dData[12];
-  int numData = 1;
-
-  if (OPS_GetIntInput(&numData, iData) != 0) {
-    opserr << "WARNING invalid uniaxialMaterial Steel02 tag" << endln;
-    return 0;
-  }
-
-  numData = OPS_GetNumRemainingInputArgs();
-
-  if (numData != 3 && numData != 6 && numData != 10 && numData != 11) {
-    opserr << "Invalid #args, want: uniaxialMaterial Steel02 " << iData[0] << 
-      " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
-    return 0;
-  }
-
-  if (numData == 3) {
-    if (OPS_GetDoubleInput(&numData, dData) != 0) {
-      opserr << "Invalid double: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
-      return 0;
-    }
-
-    // Parsing was successful, allocate the material
-    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2]);    
-
-  } else if (numData == 6) {
-    if (OPS_GetDoubleInput(&numData, dData) != 0) {
-      opserr << "Invalid int: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
-      return 0;
-    }
-
-    // Parsing was successful, allocate the material
-    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], dData[3], dData[4], dData[5]);    
-
-  } else if (numData == 10) {
-    if (OPS_GetDoubleInput(&numData, dData) != 0) {
-      opserr << "Invalid arggs: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
-      return 0;
-    }
-
-    // Parsing was successful, allocate the material
-    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], 
-			      dData[3], dData[4], dData[5], dData[6], 
-			      dData[7], dData[8], dData[9]);    
-
-  } else if (numData == 11) {
-    if (OPS_GetDoubleInput(&numData, dData) != 0) {
-      opserr << "Invalid arggs: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
-      return 0;
-    }
-
-    // Parsing was successful, allocate the material
-    theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], 
-			      dData[3], dData[4], dData[5], dData[6], 
-			      dData[7], dData[8], dData[9], dData[10]);    
-
-  }   
-
-  if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial of type Steel02 Material\n";
-    return 0;
-  }
-
-  return theMaterial;
-}
-*/
 
 int
 TclSafeBuilderUniaxialCommand(ClientData clientData,
@@ -349,8 +255,9 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
                                        TCL_Char **argv, Domain *_dom)
 {
 
-  G3_Runtime *rt = G3_getRuntime(interp);
+  G3_Runtime *rt =    G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
+
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of uniaxial material arguments\n";
@@ -367,7 +274,6 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
   auto cmd = compiled_material_map.find(std::string(argv[1]));
 
   if (cmd != compiled_material_map.end()) {
-    // opserr << cmd->first.c_str() << "\n";
     int stat = (*cmd->second)(clientData, interp,argc,&argv[0]);
     return stat;
   }
@@ -2965,20 +2871,11 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
         opserr << "uniaxialMaterial UniaxialJ2Plasticity: " << tag << endln;
         return TCL_ERROR;
       }
-
     // Parsing was successful, allocate the material
     theMaterial = new UniaxialJ2Plasticity(tag, E, sigmaY, Hkin, Hiso);
-  } else if (strcmp(argv[1], "KikuchiAikenHDR") == 0) {
-    return TclCommand_KikuchiAikenHDR(clientData, interp, argc, argv);
-  } else if (strcmp(argv[1], "KikuchiAikenLRB") == 0) {
-    return TclCommand_KikuchiAikenLRB(clientData, interp, argc, argv);
-  } else if (strcmp(argv[1], "AxialSp") == 0) {
-    return TclCommand_AxialSp(clientData, interp, argc, argv);
-  } else if (strcmp(argv[1], "AxialSpHD") == 0) {
-    return TclCommand_AxialSpHD(clientData, interp, argc, argv);
   }
-  if (strcmp(argv[1], "HystereticPoly") ==
-      0) { // BEGIN Salvatore Sessa 14-Jan-2021 Mail: salvatore.sessa2@unina.it
+  if (strcmp(argv[1], "HystereticPoly") == 0) { 
+    // BEGIN Salvatore Sessa 14-Jan-2021 Mail: salvatore.sessa2@unina.it
     void *theMat = OPS_HystereticPoly(rt);
     if (theMat != 0)
       theMaterial = (UniaxialMaterial *)theMat;
@@ -3035,7 +2932,7 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
   //   package yet to be loaded
   //
   if (theMaterial == 0) {
-
+    //
     // maybe material in a routine
     //
     char *matType = new char[strlen(argv[1]) + 1];
@@ -3100,9 +2997,7 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
   }
 
   // Now add the material to the modelBuilder
-  if (
-      G3_addUniaxialMaterial(rt, theMaterial)==TCL_ERROR){// ||
-      //!OPS_addUniaxialMaterial(theMaterial)) {
+  if (G3_addUniaxialMaterial(rt, theMaterial)==TCL_ERROR){
     opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -3112,267 +3007,4 @@ TclSafeBuilderUniaxialCommand(ClientData clientData,
 
   return TCL_OK;
 }
-/*
-int
-TclCommand_AxialSp(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
-{
-  // arguments (necessary)
-  int tag;
-  double sce;
-  double fty;
-  double fcy;
 
-  // arguments (optional)
-  double bte = 0.0;
-  double bty = 0.0;
-  double bcy = 0.0;
-  double fcr = 0.0;
-
-  //
-  UniaxialMaterial *theMaterial = 0;
-
-  // error flag
-  bool ifNoError = true;
-
-  if (argc < 6 ||
-      argc > 10) { // uniaxialMaterial AxialSp matTag? sce? fty? fcy?
-
-    opserr << "WARNING invalid number of arguments\n";
-    ifNoError = false;
-  }
-
-  // argv[2~5]
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-    opserr << "WARNING invalid AxialSp tag" << endln;
-    ifNoError = false;
-  }
-
-  if (Tcl_GetDouble(interp, argv[3], &sce) != TCL_OK) {
-    opserr << "WARNING invalid sce\n";
-    opserr << "AxialSp: " << tag << endln;
-    ifNoError = false;
-  }
-
-  if (Tcl_GetDouble(interp, argv[4], &fty) != TCL_OK) {
-    opserr << "WARNING invalid fty\n";
-    opserr << "AxialSp: " << tag << endln;
-    ifNoError = false;
-  }
-
-  if (Tcl_GetDouble(interp, argv[5], &fcy) != TCL_OK) {
-    opserr << "WARNING invalid fcy\n";
-    opserr << "AxialSp: " << tag << endln;
-    ifNoError = false;
-  }
-
-  // argv[6~]
-  if (argc >= 7) {
-    if (Tcl_GetDouble(interp, argv[6], &bte) != TCL_OK) {
-      opserr << "WARNING invalid bte\n";
-      opserr << "AxialSp: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc >= 8) {
-    if (Tcl_GetDouble(interp, argv[7], &bty) != TCL_OK) {
-      opserr << "WARNING invalid bty\n";
-      opserr << "AxialSp: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc >= 9) {
-    if (Tcl_GetDouble(interp, argv[8], &bcy) != TCL_OK) {
-      opserr << "WARNING invalid bcy\n";
-      opserr << "AxialSp: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc == 10) {
-    if (Tcl_GetDouble(interp, argv[9], &fcr) != TCL_OK) {
-      opserr << "WARNING invalid fcr\n";
-      opserr << "AxialSp: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  // if error detected
-  if (!ifNoError) {
-    // input:
-    opserr << "Input command: ";
-    for (int i = 0; i < argc; i++) {
-      opserr << argv[i] << " ";
-    }
-    opserr << endln;
-
-    // want:
-    opserr << "WANT: AxialSp tag? sce? fty? fcy? <bte?> <bty?> <bcy?> <fcr?>"
-           << endln;
-
-    return TCL_ERROR;
-  }
-
-  // Parsing was successful, allocate the material
-  theMaterial = new AxialSp(tag, sce, fty, fcy, bte, bty, bcy, fcr);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
-    return TCL_ERROR;
-  }
-
-  // Now add the material to the modelBuilder
-  if (OPS_addUniaxialMaterial(theMaterial) == false) {
-    opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
-    opserr << *theMaterial << endln;
-    delete theMaterial; // invoke the material objects destructor, otherwise mem
-                        // leak
-    return TCL_ERROR;
-  } else {
-    return TCL_OK;
-  }
-}
-
-int
-TclCommand_AxialSpHD(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv)
-{
-  // arguments (necessary)
-  int tag;
-  double sce;
-  double fty;
-  double fcy;
-
-  // arguments (optional)
-  double bte = 1.0;
-  double bty = 1.0;
-  double bth = 1.0;
-  double bcy = 1.0;
-  double fcr = 0.0;
-  double ath = 1.0;
-
-  //
-  UniaxialMaterial *theMaterial = 0;
-
-  // error flag
-  bool ifNoError = true;
-
-  if (argc < 6 ||
-      argc > 12) { // uniaxialMaterial AxialSpHD matTag? sce? fty? fcy?
-
-    opserr << "WARNING invalid number of arguments\n";
-    ifNoError = false;
-  }
-
-  // argv[2~5]
-  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-    opserr << "WARNING invalid AxialSpHD tag" << endln;
-    ifNoError = false;
-  }
-
-  if (Tcl_GetDouble(interp, argv[3], &sce) != TCL_OK) {
-    opserr << "WARNING invalid sce\n";
-    opserr << "AxialSpHD: " << tag << endln;
-    ifNoError = false;
-  }
-
-  if (Tcl_GetDouble(interp, argv[4], &fty) != TCL_OK) {
-    opserr << "WARNING invalid fty\n";
-    opserr << "AxialSpHD: " << tag << endln;
-    ifNoError = false;
-  }
-
-  if (Tcl_GetDouble(interp, argv[5], &fcy) != TCL_OK) {
-    opserr << "WARNING invalid fcy\n";
-    opserr << "AxialSpHD: " << tag << endln;
-    ifNoError = false;
-  }
-
-  // argv[6~]
-  if (argc >= 7) {
-    if (Tcl_GetDouble(interp, argv[6], &bte) != TCL_OK) {
-      opserr << "WARNING invalid bte\n";
-      opserr << "AxialSpHD: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc >= 8) {
-    if (Tcl_GetDouble(interp, argv[7], &bty) != TCL_OK) {
-      opserr << "WARNING invalid bty\n";
-      opserr << "AxialSpHD: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc >= 9) {
-    if (Tcl_GetDouble(interp, argv[8], &bth) != TCL_OK) {
-      opserr << "WARNING invalid bth\n";
-      opserr << "AxialSpHD: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc >= 10) {
-    if (Tcl_GetDouble(interp, argv[9], &bcy) != TCL_OK) {
-      opserr << "WARNING invalid bcy\n";
-      opserr << "AxialSpHD: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc >= 11) {
-    if (Tcl_GetDouble(interp, argv[10], &fcr) != TCL_OK) {
-      opserr << "WARNING invalid fcr\n";
-      opserr << "AxialSpHD: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  if (argc == 12) {
-    if (Tcl_GetDouble(interp, argv[11], &ath) != TCL_OK) {
-      opserr << "WARNING invalid ath\n";
-      opserr << "AxialSpHD: " << tag << endln;
-      ifNoError = false;
-    }
-  }
-
-  // if error detected
-  if (!ifNoError) {
-    // input:
-    opserr << "Input command: ";
-    for (int i = 0; i < argc; i++) {
-      opserr << argv[i] << " ";
-    }
-    opserr << endln;
-
-    // wand:
-    opserr << "WANT: AxialSpHD tag? sce? fty? fcy? <bte?> <bty?> <bth?> <bcy?> "
-              "<fcr?> <ath?>"
-           << endln;
-
-    return TCL_ERROR;
-  }
-
-  // Parsing was successful, allocate the material
-  theMaterial = new AxialSpHD(tag, sce, fty, fcy, bte, bty, bth, bcy, fcr, ath);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
-    return TCL_ERROR;
-  }
-
-  // Now add the material to the modelBuilder
-  if (OPS_addUniaxialMaterial(theMaterial) == false) {
-    opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
-    opserr << *theMaterial << endln;
-    delete theMaterial; // invoke the material objects destructor, otherwise mem
-                        // leak
-    return TCL_ERROR;
-  } else {
-    return TCL_OK;
-  }
-}
-*/

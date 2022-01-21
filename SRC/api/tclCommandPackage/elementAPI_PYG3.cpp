@@ -1056,7 +1056,6 @@ G3_getSafeBuilder(G3_Runtime *rt)
   return theTclBuilder;
 }
 
-
 int
 G3_setDomain(G3_Runtime *rt, Domain* domain){
   int exists = rt->m_domain ? 1 : 0;
@@ -1076,19 +1075,7 @@ Domain *
 G3_getDomain(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  if (!rt->m_domain){
-    opserr << "WARNING -- No domain\n";
-  }
-  /*
-  printf("GETTING: %p->%p\n", rt, rt->m_domain);
-  */
   return rt->m_domain;
-  /* 
-  ModelBuilder *theTclBuilder =
-      (ModelBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
-  Domain *theTclDomain = theTclBuilder->getDomainPtr();
-  return theTclDomain;
-  */
 }
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
@@ -1099,16 +1086,16 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
   return builder->addTimeSeries(series);
 }
 
-/*
-int G3_removeTimeSeries(Tcl_Interp *interp, int tag) {
-    TaggedObject* obj = theTimeSeriesObjects.removeComponent(tag);
-    if (obj != 0) {
-      delete obj;
-      return true;
-    }
+int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
+  Tcl_Interp *interp = G3_getInterpreter(rt);
+  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+  if (builder)
+    // TODO
+    return true;
+  else
     return false;
 }
-*/
+
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
@@ -1159,21 +1146,25 @@ OPS_GetUniaxialMaterial(int matTag)
 }
 #endif
 
+CrdTransf *
+G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
+{
+  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  if (!builder) {
+    return nullptr;
+  }
+  return builder->getCrdTransf(tag);
+}
+
 UniaxialMaterial *
 G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     return OPS_getUniaxialMaterial(tag);
   }
 
   UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
-  // if (theResult == 0) {
-  //   opserr << "UniaxialMaterial *getUniaxialMaterialInstance(int tag) - none found with tag: " << tag << endln;
-  //   return 0;
-  // }
-  // UniaxialMaterial *theMat = (UniaxialMaterial *)theResult;
 
   return mat ? mat : OPS_getUniaxialMaterial(tag);
 }
@@ -1201,9 +1192,6 @@ OPS_GetSectionForceDeformation(int secTag)
 {
   return OPS_getSectionForceDeformation(secTag);
 }
-
-CrdTransf *
-OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
 
 FrictionModel *
 OPS_GetFrictionModel(int frnTag) {return OPS_getFrictionModel(frnTag);}
@@ -1246,8 +1234,13 @@ OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
 #if !defined(OPS_USE_RUNTIME)
   Domain *
   OPS_GetDomain(void) {return theDomain;}
+
   AnalysisModel **
   OPS_GetAnalysisModel(void){return &theAnalysisModel;}
+
+  CrdTransf *
+  OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
+
 #endif
 
 void

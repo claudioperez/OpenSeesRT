@@ -18,15 +18,6 @@ extern "C" {
 #include <set>
 #include <algorithm>
 
-extern void OPS_clearAllUniaxialMaterial(G3_Runtime*);
-extern void OPS_clearAllNDMaterial(G3_Runtime*);
-extern void OPS_clearAllSectionForceDeformation(G3_Runtime*);
-
-extern void OPS_clearAllHystereticBackbone(G3_Runtime*);
-extern void OPS_clearAllStiffnessDegradation(G3_Runtime*);
-extern void OPS_clearAllStrengthDegradation(G3_Runtime*);
-extern void OPS_clearAllUnloadingRule(G3_Runtime*);
-
 // the following is a little kludgy but it works!
 #ifdef _USING_STL_STREAMS
 #  include <iomanip>
@@ -101,7 +92,7 @@ extern void OPS_clearAllUnloadingRule(G3_Runtime*);
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
 #ifdef OPS_USE_PFEM
-#include <CTestPFEM.h>
+#  include <CTestPFEM.h>
 #endif
 
 // soln algorithms
@@ -395,8 +386,6 @@ typedef struct externalClassFunction {
   struct externalClassFunction *next;
 } ExternalClassFunction;
 static ExternalClassFunction *theExternalSolverCommands = NULL;
-
-
 static OpenSeesTcl_Parameter *theParameters = NULL;
 static OpenSeesTcl_Parameter *endParameters = NULL;
 static int numParam = 0;
@@ -468,19 +457,12 @@ TclPackageClassBroker theBroker;
 // interpreter is being set up .. this is where all the
 // commands defined in this file are registered with the interpreter.
 
-int printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv);
-
-int printA(ClientData clientData, Tcl_Interp *interp, int argc,
-           TCL_Char **argv);
-
-int printB(ClientData, Tcl_Interp *, int argc,
-           TCL_Char **argv);
+int printModelGID(ClientData, Tcl_Interp *, int, TCL_Char **);
+int printA(ClientData, Tcl_Interp *, int, TCL_Char **);
+int printB(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 int setPrecision(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-
 int logFile(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-
 int version(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int getPID(ClientData,  Tcl_Interp *, int, TCL_Char **argv);
 int getNP( ClientData,  Tcl_Interp *, int, TCL_Char **argv);
@@ -491,13 +473,9 @@ int opsSend(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int opsRecv(ClientData, Tcl_Interp *, int,TCL_Char **argv);
 int opsPartition(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int peerNGA(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-int defaultUnits(ClientData, Tcl_Interp *, int,
-                 TCL_Char **argv);
-int stripOpenSeesXML(ClientData, Tcl_Interp *, int,
-                     TCL_Char **argv);
-
-int setParameter(ClientData, Tcl_Interp *, int,
-                 TCL_Char **argv);
+int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int stripOpenSeesXML(ClientData, Tcl_Interp *, int, TCL_Char **);
+int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 // extern
 int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
@@ -1008,7 +986,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   // create an error handler
 
-
   return myCommands(interp);
 }
 
@@ -1133,6 +1110,7 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   wipeAnalysis(clientData, interp, argc, argv);
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
+  // TclSafeBuilder *builder = G3_getSafeBuilder(rt);
 
   /*
   // to build the model make sure the ModelBuilder has been constructed
@@ -1163,21 +1141,19 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     domain->clearAll();
   }
 
-  OPS_clearAllUniaxialMaterial(rt);
-  OPS_clearAllNDMaterial(rt);
-  OPS_clearAllSectionForceDeformation(rt);
-
-  OPS_clearAllHystereticBackbone(rt);
-  OPS_clearAllStiffnessDegradation(rt);
-  OPS_clearAllStrengthDegradation(rt);
-  OPS_clearAllUnloadingRule(rt);
+  // builder->clearAllUniaxialMaterial();
+  // builder->clearAllNDMaterial();
+  // builder->clearAllSectionForceDeformation();
+  // OPS_clearAllHystereticBackbone(rt);
+  // OPS_clearAllStiffnessDegradation(rt);
+  // OPS_clearAllStrengthDegradation(rt);
+  // OPS_clearAllUnloadingRule(rt);
 
   ops_Dt = 0.0;
 
 #ifdef _PARALLEL_PROCESSING
   OPS_PARTITIONED = false;
 #endif
-
 
   theAlgorithm = 0;
   theHandler = 0;
@@ -1461,7 +1437,7 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-////////////////////////////////////////////////Abbas//////////////////////////////
+///////////////////////Abbas//////////////////////////////
 
 int
 sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -1517,7 +1493,7 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
-///////////////////////////////Abbas///////////////////////////////////////
+////////////////////////////Abbas///////////////////////////////////////
 
 // command invoked to build the model, i.e. to invoke buildFE_Model()
 // on the ModelBuilder
@@ -1894,12 +1870,13 @@ int
 printElement(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv, OPS_Stream &output)
 {
+  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
   int flag = 0; // default flag sent to a nodes Print() method
   int eleArg = 0;
 
   // if just 'print <filename> node' print all the nodes - no flag
   if (argc == 0) {
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0)
       theElement->Print(output);
@@ -1923,7 +1900,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // now print the Elements with the specified flag, 0 by default
   if (argc == eleArg) {
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0)
       theElement->Print(output, flag);
@@ -1943,7 +1920,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
       (*theEle)(i) = eleTag;
     }
 
-    theDomain.Print(output, 0, theEle, flag);
+    the_domain->Print(output, 0, theEle, flag);
     delete theEle;
   }
 
@@ -3255,6 +3232,9 @@ int
 groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
+  G3_Runtime *rt =  G3_getRuntime(interp);
+  Domain* the_domain = G3_getDomain(rt);
+
   // make sure at least one other argument to contain integrator
   if (argc < 2) {
       opserr << "WARNING need to specify the commitTag \n";
@@ -3286,7 +3266,7 @@ groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       Load *theLoad = new SingleExcitation(*theMotion, dof, nextTag++);
-      theDomain.addOtherLoad(theLoad);
+      the_domain->addOtherLoad(theLoad);
       return TCL_OK;
   }
 
@@ -3359,7 +3339,6 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // check argv[loc] for number of modes
-  //    int numEigen;
   if ((Tcl_GetInt(interp, argv[loc], &numEigen) != TCL_OK) || numEigen < 0) {
     opserr << "WARNING eigen numModes?  - illegal numModes\n";
     return TCL_ERROR;
@@ -3575,7 +3554,6 @@ videoPlayer(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-extern bool OPS_removeTimeSeries(int tag);
 
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -4257,13 +4235,6 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   dof--;
 
-  /*
-  Element *theEle = theDomain.getElement(tag);
-  if (theEle == 0)
-    return TCL_ERROR;
-
-  const Vector &force = theEle->getResistingForce();
-  */
 
   const char *myArgv[1];
   char myArgv0[80];
@@ -5117,15 +5088,6 @@ nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
   Pressure_Constraint *thePC = theDomain.getPressure_Constraint(tag);
   if (thePC != 0) {
     pressure = thePC->getPressure();
-    // int ptag = thePC->getPressureNode();
-    // Node* pNode = theDomain.getNode(ptag);
-    // if(pNode != 0) {
-    //     const Vector& vel = pNode->getVel();
-    //     if(vel.Size() > 0)  {
-    //         pressure = vel(0);
-    //         // opserr<<"pressure = "<<pressure<<"\n";
-    //     }
-    // }
   }
   char buffer[80];
   sprintf(buffer, "%35.20f", pressure);
@@ -6388,7 +6350,8 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  theDomain.setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
+  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  the_domain->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
 
   return TCL_OK;
 }
@@ -6912,13 +6875,18 @@ int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
-  Node *theEle;
-  NodeIter &eleIter = theDomain.getNodes();
+  G3_Runtime *rt  = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+  Node *node;
+  if (the_domain==nullptr)
+    return TCL_ERROR;
+
+  NodeIter &nodeIter = the_domain->getNodes();
 
   char buffer[20];
 
-  while ((theEle = eleIter()) != 0) {
-    sprintf(buffer, "%d ", theEle->getTag());
+  while ((node = nodeIter()) != 0) {
+    sprintf(buffer, "%d ", node->getTag());
     Tcl_AppendResult(interp, buffer, NULL);
   }
 
