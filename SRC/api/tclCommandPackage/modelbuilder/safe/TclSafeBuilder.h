@@ -16,7 +16,7 @@
 #ifndef TCLSAFEBUILDER_H
 #define TCLSAFEBUILDER_H
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <TclBuilder.h>
 #include <MultiSupportPattern.h>
@@ -51,7 +51,7 @@ public:
   using TclBuilder::buildFE_Model;
   typedef std::string key_t;
   template <typename ObjectType> class map_t
-  : public std::map<key_t, ObjectType> {};
+  : public std::unordered_map<key_t, ObjectType> {};
 
 //
 // OBJECT CONTAINERS
@@ -71,8 +71,8 @@ public:
 
 // Coordinate Transformations
 private: map_t<CrdTransf*> m_CrdTransfMap;
-public:  int addCrdTransf(CrdTransf &);
-         int addCrdTransf(const key_t&, CrdTransf&);
+public:  int addCrdTransf(CrdTransf *);
+         int addCrdTransf(const key_t, CrdTransf*);
          CrdTransf *getCrdTransf(int tag);
          CrdTransf *getCrdTransf(const key_t&);
 

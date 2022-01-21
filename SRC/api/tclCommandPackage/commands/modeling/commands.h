@@ -45,12 +45,14 @@ TclCharFn TclCommand_RigidDiaphragm;
 struct char_cmd {
   const char* name;
   TclCharFn*  func;
+  bool was_added = false;
 
 }  tcl_char_cmds[] =  {
 
   {"node",             TclCommand_addNode},
   {"mass",             TclCommand_addNodalMass},
   {"element",          TclCommand_addElement},
+
 // Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},
   {"section",          TclCommand_addSection},
@@ -63,7 +65,9 @@ struct char_cmd {
   {"timeSeries",       TclCommand_addTimeSeries},
 
   {"fix",              TclCommand_addHomogeneousBC},
-  {"equalDOF",             TclCommand_addEqualDOF_MP},
+  {"equalDOF",         TclCommand_addEqualDOF_MP},
+  {"rigidLink",            &TclCommand_RigidLink},
+
 /*
   {"layer",            TclCommand_addRemoLayer},
   {"fiber",            TclCommand_addRemoFiber},
@@ -72,13 +76,10 @@ struct char_cmd {
   {"eleLoad",          TclCommand_addElementalLoad},
 */
 
-#if defined(OPSDEF_Element_PFEM)
-  {"mesh",             TclCommand_mesh},
-  {"remesh",           TclCommand_remesh},
-  {"background",      &TclCommand_backgroundMesh},
-#endif // OPSDEF_Element_PFEM
-
 /*
+  {"block2D",              TclCommand_doBlock2D},
+  {"block3D",              TclCommand_doBlock3D},
+
   {"fixX",                 TclCommand_addHomogeneousBC_X},
   {"fixY",                 TclCommand_addHomogeneousBC_Y},
   {"fixZ",                 TclCommand_addHomogeneousBC_Z},
@@ -88,15 +89,18 @@ struct char_cmd {
   {"imposedSupportMotion", TclCommand_addImposedMotionSP},
   {"groundMotion",         TclCommand_addGroundMotion},
   {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
-  {"rigidLink",            &TclCommand_RigidLink},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
   {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
-  {"block2D",              TclCommand_doBlock2D},
-  {"block3D",              TclCommand_doBlock3D},
-
   {"Hfiber",             TclSafeBuilder_addRemoHFiber},
+
+#if defined(OPSDEF_Element_PFEM)
+  {"mesh",             TclCommand_mesh},
+  {"remesh",           TclCommand_remesh},
+  {"background",      &TclCommand_backgroundMesh},
+#endif // OPSDEF_Element_PFEM
+
 */
 // OTHER OBJECT TYPES
 /*

@@ -365,15 +365,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-extern void OPS_clearAllUniaxialMaterial(G3_Runtime*);
-extern void OPS_clearAllNDMaterial(G3_Runtime*);
-extern void OPS_clearAllSectionForceDeformation(G3_Runtime*);
-
-extern void OPS_clearAllHystereticBackbone(G3_Runtime*);
-extern void OPS_clearAllStiffnessDegradation(G3_Runtime*);
-extern void OPS_clearAllStrengthDegradation(G3_Runtime*);
-extern void OPS_clearAllUnloadingRule(G3_Runtime*);
-
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
 extern void OPS_ResponseSpectrumAnalysis(G3_Runtime*);
@@ -1119,6 +1110,7 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   wipeAnalysis(clientData, interp, argc, argv);
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
+  // TclSafeBuilder *builder = G3_getSafeBuilder(rt);
 
   /*
   // to build the model make sure the ModelBuilder has been constructed
@@ -1149,21 +1141,19 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     domain->clearAll();
   }
 
-  OPS_clearAllUniaxialMaterial(rt);
-  OPS_clearAllNDMaterial(rt);
-  OPS_clearAllSectionForceDeformation(rt);
-
-  OPS_clearAllHystereticBackbone(rt);
-  OPS_clearAllStiffnessDegradation(rt);
-  OPS_clearAllStrengthDegradation(rt);
-  OPS_clearAllUnloadingRule(rt);
+  // builder->clearAllUniaxialMaterial();
+  // builder->clearAllNDMaterial();
+  // builder->clearAllSectionForceDeformation();
+  // OPS_clearAllHystereticBackbone(rt);
+  // OPS_clearAllStiffnessDegradation(rt);
+  // OPS_clearAllStrengthDegradation(rt);
+  // OPS_clearAllUnloadingRule(rt);
 
   ops_Dt = 0.0;
 
 #ifdef _PARALLEL_PROCESSING
   OPS_PARTITIONED = false;
 #endif
-
 
   theAlgorithm = 0;
   theHandler = 0;
@@ -6885,13 +6875,18 @@ int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
-  Node *theEle;
-  NodeIter &eleIter = theDomain.getNodes();
+  G3_Runtime *rt  = G3_getRuntime(interp);
+  Domain *the_domain = G3_getDomain(rt);
+  Node *node;
+  if (the_domain==nullptr)
+    return TCL_ERROR;
+
+  NodeIter &nodeIter = the_domain->getNodes();
 
   char buffer[20];
 
-  while ((theEle = eleIter()) != 0) {
-    sprintf(buffer, "%d ", theEle->getTag());
+  while ((node = nodeIter()) != 0) {
+    sprintf(buffer, "%d ", node->getTag());
     Tcl_AppendResult(interp, buffer, NULL);
   }
 

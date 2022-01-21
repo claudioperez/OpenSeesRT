@@ -3417,37 +3417,6 @@ MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
 }
 
 
-int
-TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
-TCL_Char **argv)
-{
-  if (argc < 4) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode?\n";
-      return TCL_ERROR;
-  }
-
-  int rNode, cNode;
-  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read
-rNode \n"; return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[3], &cNode) != TCL_OK) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read
-CNode \n"; return TCL_ERROR;
-  }
-
-  // construct a rigid rod or beam depending on 1st arg
-  if ((strcmp(argv[1],"-bar") == 0) || (strcmp(argv[1],"bar") == 0)) {
-    RigidRod theLink(*theTclDomain, rNode, cNode);
-  } else if ((strcmp(argv[1],"-beam") == 0) || (strcmp(argv[1],"beam") == 0)) {
-    RigidBeam theLink(*theTclDomain, rNode, cNode);
-  } else {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - unrecognised link
-type (-bar, -beam) \n"; return TCL_ERROR;
-  }
-
-  return TCL_OK;
-}
 
 int
 TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -4350,22 +4319,20 @@ TclSafeBuilder::getCrdTransf(int tag)
 
 // Add a new CrdTransf to the model runtime
 int
-TclSafeBuilder::addCrdTransf(const std::string &name, CrdTransf &instance)
+TclSafeBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
 {
-  m_CrdTransfMap[name] = &instance;
+  // m_CrdTransfMap[name] = instance;
+  m_CrdTransfMap.insert({name, instance});
   return 1;
 }
 
 // Add a new CrdTransf to the model runtime
 int
-TclSafeBuilder::addCrdTransf(CrdTransf &instance)
+TclSafeBuilder::addCrdTransf(CrdTransf *instance)
 {
-  const std::string &name = std::to_string(instance.getTag());
-  m_CrdTransfMap[name] = &instance;
-/*
-  opserr << "WARNING (ModelBuilder) Failed to add CrdTransf \n"
-         << "         with tag '" << name.c_str() << "' to model.\n";
-*/
-  return 1;
+  const key_t name = std::to_string(instance->getTag());
+  // m_CrdTransfMap[name]std::stringnstance;
+  // m_CrdTransfMap.insert(std::make_pair<key_t,CrdTransf*>(std::move(name), instance);
+  return this->addCrdTransf(name, instance);
 }
 
