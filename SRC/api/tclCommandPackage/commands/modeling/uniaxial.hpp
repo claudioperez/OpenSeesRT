@@ -65,7 +65,7 @@ extern void *OPS_UVCuniaxial(G3_Runtime *);
 extern void *OPS_Steel01Thermal(G3_Runtime *);
 extern void *OPS_Steel02Thermal(G3_Runtime *);
 extern void *OPS_Concrete02Thermal(G3_Runtime *);
-extern void *OPS_StainlessECThermal(G3_Runtime *); // L.Jiang [SIF]
+extern void *OPS_StainlessECThermal(G3_Runtime *);
 extern void *OPS_SteelECThermal(G3_Runtime *);
 extern void *OPS_ConcreteECThermal(G3_Runtime *);
 extern void *OPS_ElasticMaterialThermal(G3_Runtime *);
@@ -77,7 +77,6 @@ extern void *OPS_IMKPinching(G3_Runtime *);
 extern void *OPS_ModIMKPeakOriented(G3_Runtime *);
 extern void *OPS_ModIMKPeakOriented02(G3_Runtime *);
 extern void *OPS_ModIMKPinching(G3_Runtime *);
-extern void *OPS_ModIMKPinching02(G3_Runtime *);
 extern void *OPS_ConcretewBeta(void);
 extern void *OPS_ConcreteD(G3_Runtime *);
 extern void *OPS_PinchingLimitState(G3_Runtime *);
@@ -114,9 +113,17 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 {
 
     {"Elastic",                OPS_ElasticMaterial           },
+
     {"Steel01",                OPS_Steel01                   },
+
     {"Steel02",                OPS_Steel02                   },
+
+    {"Parallel",               OPS_ParallelMaterial          },
+
+    {"Series",                 OPS_SeriesMaterial            },
+
     {"SteelFractureDI",        OPS_SteelFractureDI           },
+
     {"Steel02Fatigue",         OPS_Steel02Fatigue            },
     {"Steel4",                 OPS_Steel4                    },
     {"UVCuniaxial",            OPS_UVCuniaxial               },
@@ -145,26 +152,45 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"ViscousDamper",          OPS_ViscousDamper             },
 
+    {"DamperMaterial",         OPS_DamperMaterial            },
+
     {"BilinearOilDamper",      OPS_BilinearOilDamper         },
 
     {"Cast",                   OPS_Cast                      },
     {"CastFuse",               OPS_Cast                      },
 
+    {"Dodd_Restrepo",          OPS_Dodd_Restrepo             },
+    {"DoddRestrepo" ,          OPS_Dodd_Restrepo             },
+    {"Restrepo",               OPS_Dodd_Restrepo             },
+
+#if !defined(_NO_NEW_RESTREPO)
+    {"DoddRestr",              OPS_DoddRestr                 },
+#endif
+
     {"ElasticMultiLinear",     OPS_ElasticMultiLinear        },
     {"ElasticPowerFunc",       OPS_ElasticPowerFunc          },
 
- /*
-  {"HoehlerStanton",    OPS_HoehlerStanton},*/
+/* 
+    {"HoehlerStanton",         OPS_HoehlerStanton            },
+*/  
+
     {"SLModel",                OPS_SLModel                   },
+
     {"RambergOsgood",          OPS_RambergOsgoodSteel        },
     {"RambergOsgoodSteel",     OPS_RambergOsgoodSteel        },
+
     {"ReinforcingSteel",       OPS_ReinforcingSteel          },
+
     {"Steel2",                 OPS_Steel2                    },
+
     {"OriginCentered",         OPS_OriginCentered            },
+
     {"HookGap",                OPS_HookGap                   },
+
     {"HyperbolicGapMaterial",  OPS_HyperbolicGapMaterial     },
+
     {"FRPConfinedConcrete02",  OPS_FRPConfinedConcrete02     },
-    {"PinchingLimitState",     OPS_PinchingLimitState        },
+
     {"PinchingLimitState",     OPS_PinchingLimitState        },
 
     {"InitStrainMaterial",     OPS_InitStrainMaterial        },
@@ -194,6 +220,8 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"Bilin02",                OPS_Bilin02                   },
 
+    {"BoucWenOriginal",        OPS_BoucWenOriginal           },
+
 // Thermal
     {"Steel01Thermal",         OPS_Steel01Thermal            },
 
@@ -207,6 +235,10 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"ConcreteECThermal",      OPS_ConcreteECThermal         },
 
+    {"Concrete02Thermal",      OPS_Concrete02Thermal         },
+
+
+
 #if 0
     {"ConcretewBeta",          OPS_ConcretewBeta             },
 #endif
@@ -214,7 +246,6 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"ConcreteSakaiKawashima", OPS_ConcreteSakaiKawashima    },
 
-    {"Concrete02Thermal",      OPS_Concrete02Thermal         },
 
     {"SteelMPF",               OPS_SteelMPF                  },
 
@@ -245,10 +276,6 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"Hardening",              OPS_HardeningMaterial         },
     {"Hardening2",             OPS_HardeningMaterial         },
 
-    {"Parallel",               OPS_ParallelMaterial          },
-
-    {"Series",                 OPS_SeriesMaterial            },
-
     {"Hysteretic",             OPS_HystereticMaterial        },
 
     {"OOHysteretic",           OPS_OOHystereticMaterial      },
@@ -277,7 +304,9 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"ConfinedConcrete",       OPS_ConfinedConcrete01Material},
 
     {"Cable",                  OPS_CableMaterial             },
+
     {"SMA",                    OPS_SMAMaterial               },
+
     {"ASD_SMA_3K",             OPS_ASD_SMA_3K                },
 
     {"HystereticPoly",         OPS_HystereticPoly            },
@@ -294,14 +323,41 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 };
 
 /*
-  {"PlateBearingConnectionThermal", OPS_PlateBearingConnectionThermal},
+  {"PlateBearingConnectionThermal",  OPS_PlateBearingConnectionThermal},
+  {"PinchingLimitStateMaterial",     OPS_PinchingLimitState           },
 
-  } else if ((strcmp(argv[1], "Dodd_Restrepo") == 0) ||
-             (strcmp(argv[1], "DoddRestrepo") == 0) ||
-    {"Restrepo"    OPS_Dodd_Restrepo},
-
-#ifndef _NO_NEW_RESTREPO
-    {"DoddRestr",            OPS_DoddRestr(rt);
-#endif
 */
+
+typedef int(G3_TclUniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char **);
+G3_TclUniaxialCommand TclSafeBuilder_addFedeasWrapper;
+G3_TclUniaxialCommand TclCommand_KikuchiAikenHDR;
+G3_TclUniaxialCommand TclCommand_KikuchiAikenLRB;
+G3_TclUniaxialCommand TclCommand_AxialSp;
+G3_TclUniaxialCommand TclCommand_AxialSpHD;
+
+std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
+    {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper  },
+    {"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR       },
+    {"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB       },
+    {"AxialSp",             TclCommand_AxialSp               },
+    {"AxialSpHD",           TclCommand_AxialSpHD             }
+};
+
+
+typedef UniaxialMaterial*(G3_TclUniaxialPackage)(ClientData, Tcl_Interp *, int, TCL_Char **);
+G3_TclUniaxialPackage TclBasicBuilder_addFedeasMaterial;
+G3_TclUniaxialPackage TclBasicBuilder_addSnapMaterial;
+G3_TclUniaxialPackage TclBasicBuilder_addDrainMaterial;
+std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_table {
+
+  {"DRAIN",              TclBasicBuilder_addDrainMaterial },
+
+  {"SNAP",               TclBasicBuilder_addSnapMaterial  },
+  {"snap",               TclBasicBuilder_addSnapMaterial  },
+
+// #if defined(_STEEL2) || defined(OPSDEF_UNIAXIAL_FEDEAS)
+  {"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
+// #endif
+
+};
 

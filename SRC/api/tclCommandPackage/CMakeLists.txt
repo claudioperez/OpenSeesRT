@@ -109,6 +109,7 @@ target_sources(OpenSeesCommandPackage PRIVATE
     "contrib/uniaxial/TclKikuchiAiken.cpp"
     "contrib/uniaxial/TclAxialSp.cpp"
     "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
     "material/uniaxial/limitState/TclLimitState.cpp"
     "material/uniaxial/snap/TclSnapMaterialCommand.cpp"
@@ -145,6 +146,7 @@ target_sources(OpenSeesCommandPackage PRIVATE
     "elementAPI_PYG3.cpp"
     "packages/tcl_packages.cpp"
     "misc/TclFeViewer.cpp"
+    "utilities/tclutils.cpp"
 )
 
 add_subdirectory(libraries/uniaxial)
@@ -168,6 +170,9 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   OPS_Damage
   #OPS_Paraview
   OPS_ModelBuilder
+  OPS_Uniaxial_Fedeas
+  #OPS_Uniaxial_Fedeas_f
+  /home/claudio/pkgs/FEDEAS/bin/src/uniaxial/libfedeas_uniaxial.a
   G3_ObjectBroker
   #g3_uniaxial_io
   G3
