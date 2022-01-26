@@ -47,7 +47,7 @@ struct char_cmd {
   TclCharFn*  func;
   bool was_added = false;
 
-}  tcl_char_cmds[] =  {
+}  const tcl_char_cmds[] =  {
 
   {"node",             TclCommand_addNode},
   {"mass",             TclCommand_addNodalMass},
@@ -119,9 +119,9 @@ struct char_cmd {
 */
 
 /*
-  {"parameter",       TclCommand_addParameter},
-  {"addToParameter",  TclCommand_addParameter},
-  {"updateParameter", TclCommand_addParameter},
+  {"parameter",            TclCommand_addParameter},
+  {"addToParameter",       TclCommand_addParameter},
+  {"updateParameter",      TclCommand_addParameter},
 */
 
 /*

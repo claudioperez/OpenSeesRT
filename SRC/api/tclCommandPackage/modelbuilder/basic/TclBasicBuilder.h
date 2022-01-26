@@ -62,12 +62,6 @@ public:
 
   using TclBuilder::buildFE_Model;
 
-/*
-  int buildFE_Model(void);
-  int getNDM(void) const;
-  int getNDF(void) const;
-*/
-
   // methods needed for the truss and fiber-beam elements for
   // adding/getting uniaxial material objects
   // REMOVED    int addUniaxialMaterial(UniaxialMaterial &theMaterial);
