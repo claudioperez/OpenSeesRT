@@ -147,223 +147,219 @@ static int eleLoadTag = 0;
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-static int TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
+static int TclCommand_addParameter(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
 
-static int TclCommand_addNode(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char **argv);
+static int TclCommand_addNode(ClientData, Tcl_Interp*,
+                              int argc, TCL_Char **);
 
-static int TclCommand_addElement(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv);
+static int TclCommand_addElement(ClientData, Tcl_Interp*,
+                                 int argc, TCL_Char **);
 
-static int TclCommand_mesh(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv);
-static int TclCommand_remesh(ClientData clientData, Tcl_Interp *interp,
-                             int argc, TCL_Char **argv);
+static int TclCommand_mesh(ClientData, Tcl_Interp*, int argc,
+                           TCL_Char **);
+static int TclCommand_remesh(ClientData, Tcl_Interp*,
+                             int argc, TCL_Char **);
 #if defined(OPSDEF_Element_PFEM)
-static int TclCommand_backgroundMesh(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv);
+static int TclCommand_backgroundMesh(ClientData, Tcl_Interp*,
+                                     int argc, TCL_Char **);
 #endif // _OPS_Element_PFEM
 
-static int TclCommand_addUniaxialMaterial(ClientData clientData,
-                                          Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv);
+static int TclCommand_addUniaxialMaterial(ClientData,
+                                          Tcl_Interp*, int argc,
+                                          TCL_Char **);
 
-static int TclCommand_addBeamIntegration(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+static int TclCommand_addBeamIntegration(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
 
-static int TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv);
+static int TclCommand_addLimitCurve(ClientData, Tcl_Interp*,
+                                    int argc, TCL_Char **);
 
-static int TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv);
+static int TclCommand_addNDMaterial(ClientData, Tcl_Interp*,
+                                    int argc, TCL_Char **);
 
-static int TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv);
 
-static int TclCommand_addYieldSurface_BC(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+extern int TclCommand_addSection(ClientData, Tcl_Interp*,
+                                 int argc, TCL_Char **);
 
-static int TclCommand_addYS_EvolutionModel(ClientData clientData,
-                                           Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv);
+static int TclCommand_addYieldSurface_BC(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
 
-static int TclCommand_addYS_PlasticMaterial(ClientData clientData,
-                                            Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv);
+static int TclCommand_addYS_EvolutionModel(ClientData,
+                                           Tcl_Interp*, int argc,
+                                           TCL_Char **);
 
-int //!!
-TclCommand_addCyclicModel(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv);
+static int TclCommand_addYS_PlasticMaterial(ClientData,
+                                            Tcl_Interp*, int argc,
+                                            TCL_Char **);
+
+int
+TclCommand_addCyclicModel(ClientData, Tcl_Interp*, int argc,
+                          TCL_Char **);
 
 #ifdef OPSDEF_DAMAGE
-int //!!
-TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv);
+int
+TclCommand_addDamageModel(ClientData, Tcl_Interp*, int argc,
+                          TCL_Char **);
 #endif // OPSDEF_DAMAGE
 
-static int TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv);
+static int TclCommand_addTimeSeries(ClientData, Tcl_Interp*,
+                                    int argc, TCL_Char **);
 
-static int TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv);
+static int TclCommand_addPattern(ClientData, Tcl_Interp*,
+                                 int argc, TCL_Char **);
 
-static int TclCommand_addSeries(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv);
+static int TclCommand_addSeries(ClientData, Tcl_Interp*,
+                                int argc, TCL_Char **);
 
-static int TclCommand_addHomogeneousBC(ClientData clientData,
-                                       Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv);
-static int TclCommand_addHomogeneousBC_X(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
-static int TclCommand_addHomogeneousBC_Y(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
-static int TclCommand_addHomogeneousBC_Z(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
-static int TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv);
+static int TclCommand_addHomogeneousBC(ClientData,
+                                       Tcl_Interp*, int argc,
+                                       TCL_Char **);
+static int TclCommand_addHomogeneousBC_X(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
+static int TclCommand_addHomogeneousBC_Y(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
+static int TclCommand_addHomogeneousBC_Z(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
+static int TclCommand_addEqualDOF_MP(ClientData, Tcl_Interp*,
+                                     int argc, TCL_Char **);
 
-static int TclCommand_addEqualDOF_MP_Mixed(ClientData clientData,
-                                           Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv);
+static int TclCommand_addEqualDOF_MP_Mixed(ClientData,
+                                           Tcl_Interp*, int argc,
+                                           TCL_Char **);
 
-static int TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv);
+static int TclCommand_RigidLink(ClientData, Tcl_Interp*,
+                                int argc, TCL_Char **);
 
-static int TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv);
+static int TclCommand_RigidDiaphragm(ClientData, Tcl_Interp*,
+                                     int argc, TCL_Char **);
 
-static int TclCommand_addMP(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char **argv);
+static int TclCommand_addMP(ClientData, Tcl_Interp*, int argc,
+                            TCL_Char **);
 
-static int TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
+static int TclCommand_addNodalLoad(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
 
-static int TclCommand_addElementalLoad(ClientData clientData,
-                                       Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv);
+static int TclCommand_addElementalLoad(ClientData,
+                                       Tcl_Interp*, int argc,
+                                       TCL_Char **);
 
-static int TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
-static int TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char **argv);
+static int TclCommand_addNodalMass(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
+static int TclCommand_addSP(ClientData, Tcl_Interp*, int argc,
+                            TCL_Char **);
 
-static int TclCommand_addImposedMotionSP(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+static int TclCommand_addImposedMotionSP(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
 // Added by Scott J. Brandenberg
-static int TclCommand_doPySimple1Gen(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv);
+static int TclCommand_doPySimple1Gen(ClientData, Tcl_Interp*,
+                                     int argc, TCL_Char **);
 
-static int TclCommand_doTzSimple1Gen(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv);
+static int TclCommand_doTzSimple1Gen(ClientData, Tcl_Interp*,
+                                     int argc, TCL_Char **);
 // End added by SJB
 
 // Added by Prishati Raychowdhury (UCSD)
-static int TclBasicBuilder_doShallowFoundationGen(ClientData clientData,
-                                                  Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv);
+static int TclBasicBuilder_doShallowFoundationGen(ClientData,
+                                                  Tcl_Interp*, int argc,
+                                                  TCL_Char **);
 // End PRC
 
 #ifdef OPSDEF_ELEMENT_BLOCKND
-static int TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv);
+static int TclCommand_doBlock2D(ClientData, Tcl_Interp*,
+                                int argc, TCL_Char **);
 
-static int TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv);
+static int TclCommand_doBlock3D(ClientData, Tcl_Interp*,
+                                int argc, TCL_Char **);
 
 #endif // OPSDEF_ELEMENT_BLOCKND
-static int TclCommand_addRemoPatch(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
+static int TclCommand_addRemoPatch(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
 
-static int TclCommand_addRemoLayer(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
+static int TclCommand_addRemoLayer(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
 
-static int TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv);
+static int TclCommand_addRemoFiber(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
 
 // Leo
-static int TclBasicBuilder_addRemoHFiber(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+static int TclBasicBuilder_addRemoHFiber(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
 
-static int TclCommand_addRemoGeomTransf(ClientData clientData,
-                                        Tcl_Interp *interp, int argc,
-                                        TCL_Char **argv);
 
-static int TclCommand_addFrictionModel(ClientData clientData,
-                                       Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv);
+static int TclCommand_addFrictionModel(ClientData,
+                                       Tcl_Interp*, int argc,
+                                       TCL_Char **);
 
-static int TclCommand_addStiffnessDegradation(ClientData clientData,
-                                              Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv);
+static int TclCommand_addStiffnessDegradation(ClientData,
+                                              Tcl_Interp*, int argc,
+                                              TCL_Char **);
 
-static int TclCommand_addUnloadingRule(ClientData clientData,
-                                       Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv);
+static int TclCommand_addUnloadingRule(ClientData,
+                                       Tcl_Interp*, int argc,
+                                       TCL_Char **);
 
-static int TclCommand_addStrengthDegradation(ClientData clientData,
-                                             Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+static int TclCommand_addStrengthDegradation(ClientData,
+                                             Tcl_Interp*, int argc,
+                                             TCL_Char **);
 
-static int TclCommand_addHystereticBackbone(ClientData clientData,
-                                            Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv);
+static int TclCommand_addHystereticBackbone(ClientData,
+                                            Tcl_Interp*, int argc,
+                                            TCL_Char **);
 
-static int TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv);
+static int TclCommand_addGroundMotion(ClientData, Tcl_Interp*,
+                                      int argc, TCL_Char **);
 
 /// added by ZHY
-static int TclCommand_UpdateMaterialStage(ClientData clientData,
-                                          Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv);
-static int TclCommand_UpdateMaterials(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv);
+static int TclCommand_UpdateMaterialStage(ClientData,
+                                          Tcl_Interp*, int argc,
+                                          TCL_Char **);
+static int TclCommand_UpdateMaterials(ClientData, Tcl_Interp*,
+                                      int argc, TCL_Char **);
 
 /// added by ZHY
-static int TclCommand_UpdateParameter(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv);
+static int TclCommand_UpdateParameter(ClientData, Tcl_Interp*,
+                                      int argc, TCL_Char **);
 
 ////////////////gnp adding rayleigh //////////////////////////
-static int TclCommand_addElementRayleigh(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+static int TclCommand_addElementRayleigh(ClientData,
+                                         Tcl_Interp*, int argc,
+                                         TCL_Char **);
 ///////////////////////////////////////////////////////////////
 
 // REMO
-extern int TclCommand_addPatch(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv,
-                               TclBasicBuilder *theTclBuilder);
+extern int TclCommand_addPatch(ClientData, Tcl_Interp*,
+                               int argc, TCL_Char **);
 
-extern int TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv,
-                               TclBasicBuilder *theTclBuilder);
+extern int TclCommand_addFiber(ClientData, Tcl_Interp*,
+                               int argc, TCL_Char **,
+                               TclBuilder *theTclBuilder);
 
-extern int TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv,
+extern int TclCommand_addHFiber(ClientData, Tcl_Interp*,
+                                int argc, TCL_Char **,
                                 TclBasicBuilder *theTclBuilder);
 
-extern int TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv,
+extern int TclCommand_addReinfLayer(ClientData, Tcl_Interp*,
+                                    int argc, TCL_Char **,
                                     TclBasicBuilder *theTclBuilder);
 
-extern int TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char **,
-                                    Domain *, TclBasicBuilder *);
+extern int TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char **);
 
-static int TclCommand_Package(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char **argv);
+static int TclCommand_Package(ClientData, Tcl_Interp*,
+                              int argc, TCL_Char **);
 
 
 // Added by Alborz Ghofrani - U.Washington
-extern int TclCommand_GenerateInterfacePoints(ClientData clientData,
-                                              Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv);
+extern int TclCommand_GenerateInterfacePoints(ClientData,
+                                              Tcl_Interp*, int argc,
+                                              TCL_Char **);
 // End Added by Alborz
 
 
@@ -511,8 +507,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                     NULL);
 #endif // OPSDEF_ELEMENT_BLOCKND
 
-  Tcl_CreateCommand(interp, "patch", TclCommand_addRemoPatch, (ClientData)NULL,
-                    NULL);
+  Tcl_CreateCommand(interp, "patch", TclCommand_addPatch, (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "layer", TclCommand_addRemoLayer, (ClientData)NULL,
                     NULL);
@@ -524,7 +519,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   Tcl_CreateCommand(interp, "Hfiber", TclBasicBuilder_addRemoHFiber,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "geomTransf", TclCommand_addRemoGeomTransf,
+  Tcl_CreateCommand(interp, "geomTransf", TclCommand_addGeomTransf,
                     (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "frictionModel", TclCommand_addFrictionModel,
@@ -561,12 +556,12 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   Tcl_CreateCommand(interp, "setElementRayleighFactors",
                     TclCommand_addElementRayleigh, (ClientData)NULL, NULL);
   /////////////////////////////////////////////////////////////////////
-
+#if defined(OPSDEF_Elements_UW)
   // Added by Alborz Ghofrani - U.Washington
   Tcl_CreateCommand(interp, "generateInterfacePoints",
                     TclCommand_GenerateInterfacePoints, (ClientData)NULL, NULL);
   // End Added by Alborz
-
+#endif
   // set the static pointers in this file
   theTclBuilder = this;
   theTclDomain = &theDomain;
@@ -1426,20 +1421,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp, int argc,
                                           theTclBuilder);
 }
 
-extern int TclBasicBuilderSectionCommand(ClientData clienData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv, Domain *theDomain,
-                                         TclBasicBuilder *theTclBuilder);
-
-int
-TclCommand_addSection(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
-
-{
-  return TclBasicBuilderSectionCommand(clientData, interp, argc, argv,
-                                       theTclDomain, theTclBuilder);
-}
-
 extern int
 TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv,
@@ -1527,6 +1508,7 @@ int
 TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
   TimeSeries *theSeries =
       TclTimeSeriesCommand(clientData, interp, argc - 1, &argv[1], 0);
 
@@ -4564,12 +4546,14 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 #endif // OPSDEF_ELEMENT_BLOCKND
 
+/*
 int
 TclCommand_addRemoPatch(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
   return TclCommand_addPatch(clientData, interp, argc, argv, theTclBuilder);
 }
+*/
 
 int
 TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -4593,13 +4577,6 @@ TclCommand_addRemoLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                                   theTclBuilder);
 }
 
-int
-TclCommand_addRemoGeomTransf(ClientData clientData, Tcl_Interp *interp,
-                             int argc, TCL_Char **argv)
-{
-  return TclCommand_addGeomTransf(clientData, interp, argc, argv, theTclDomain,
-                                  theTclBuilder);
-}
 
 extern int TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
                                                       Tcl_Interp *interp,

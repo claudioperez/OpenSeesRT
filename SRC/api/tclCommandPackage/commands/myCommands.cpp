@@ -32,7 +32,7 @@
 // What: "@(#) myCommands.C, revA"
 #include <g3_api.h>
 #include <Domain.h>
-#include "TclBasicBuilder.h"
+// #include "TclBasicBuilder.h"
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
 #include "modelbuilder/safe/TclSafeBuilder.h"
@@ -180,12 +180,9 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
     // create the model builder
-    if (!safe_builder) {
-      theNewBuilder = new TclBasicBuilder(*theNewDomain, interp, ndm, ndf);
-      // set global variables
-    } else {
-      theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
-    }
+
+    theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
+
     if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating BasicBuilder model\n";
       return TCL_ERROR;

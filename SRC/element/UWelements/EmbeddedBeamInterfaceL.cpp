@@ -89,9 +89,19 @@ EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag) : Element(tag, ELE_TAG_E
 }
 
 EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTag, std::vector <int> solidTag, int crdTransfTag,
-    std::vector <double>  beamRho, std::vector <double>  beamTheta, std::vector <double>  solidXi, std::vector <double>  solidEta,
-    std::vector <double>  solidZeta, double radius, std::vector <double> area, std::vector <double> length, bool writeConnectivity,
-    const char * connectivityFN): Element(tag, ELE_TAG_EmbeddedBeamInterfaceL),
+    std::vector <double>  beamRho,
+    std::vector <double>  beamTheta,
+    std::vector <double>  solidXi, 
+    std::vector <double>  solidEta,
+    std::vector <double>  solidZeta, 
+    double radius, 
+    std::vector <double> area, 
+    std::vector <double> length, 
+    bool writeConnectivity,
+    const char * connectivityFN
+
+) : 
+    Element(tag, ELE_TAG_EmbeddedBeamInterfaceL),
     m_beam_radius(radius), mQa(3, 3), mQb(3, 3), mQc(3, 3),
     mBphi(3, 12), mBu(3, 12), mHf(3, 12), m_Ns(8)
 {
@@ -172,7 +182,7 @@ EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTa
     theNodes = new Node*[EBIL_numNodes];
 
     int count = 0;
-    for (std::set <int>::iterator it = uniqueSolidNodeTags.begin(); it != uniqueSolidNodeTags.end(); ++it)
+    for (std::set<int>::iterator it = uniqueSolidNodeTags.begin(); it != uniqueSolidNodeTags.end(); ++it)
     {
         m_solidNodeMap[*it] = count;
         externalNodes(count) = *it;
@@ -188,7 +198,7 @@ EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTa
     }
 
     int curCount = count;
-    for (std::set <int>::iterator it = uniqueBeamNodeTags.begin(); it != uniqueBeamNodeTags.end(); ++it)
+    for (std::set<int>::iterator it = uniqueBeamNodeTags.begin(); it != uniqueBeamNodeTags.end(); ++it)
     {
         m_beamNodeMap[*it] = count - curCount;
         externalNodes(count) = *it;
