@@ -58,7 +58,7 @@ Matrix ElasticBeam2d::K(6,6);
 Vector ElasticBeam2d::P(6);
 Matrix ElasticBeam2d::kb(3,3);
 
-void *OPS_ElasticBeam2d(const ID &info) {
+void *OPS_DECL_RUNTIME_VPID(OPS_ElasticBeam2d, const ID &info) {
     /*!
 ## OPS_ElasticBeam2D(const ID& info)
 
@@ -246,7 +246,7 @@ to get element data
     }
 }
 
-int OPS_ElasticBeam2d(Domain& theDomain, const ID& elenodes, ID& eletags)
+int OPS_DECL_RUNTIME(OPS_ElasticBeam2d, Domain& theDomain, const ID& elenodes, ID& eletags)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
 	opserr<<"insufficient arguments:A,E,Iz,transfTag\n";

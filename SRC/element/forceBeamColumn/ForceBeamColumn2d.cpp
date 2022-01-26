@@ -174,7 +174,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn2d)
     return theEle;
 }
 
-void* OPS_ForceBeamColumn2d(const ID &info)
+void *OPS_DECL_RUNTIME_VPID(OPS_ForceBeamColumn2d, const ID &info)
 {
     // data
     int iData[5];
@@ -318,7 +318,7 @@ void* OPS_ForceBeamColumn2d(const ID &info)
     return theEle;
 }
 
-int OPS_ForceBeamColumn2d(Domain& theDomain, const ID& elenodes, ID& eletags)
+int OPS_DECL_RUNTIME(OPS_ForceBeamColumn2d, Domain& theDomain, const ID& elenodes, ID& eletags)
 {
     if(OPS_GetNumRemainingInputArgs() < 2) {
 	opserr<<"insufficient arguments:transfTag,integrationTag\n";

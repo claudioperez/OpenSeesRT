@@ -20,9 +20,10 @@ DegradingUniaxialWrapper::DegradingUniaxialWrapper(int tag,
                                                    UniaxialMaterial &material,
                                                    double min, double max)
     : UniaxialMaterial(tag, MAT_TAG_FedeasDeg), theMaterial(0), minStrain(min),
-      maxStrain(max), Tfailed(false), Cfailed(false)
+      maxStrain(max), m_stress(0.0)
 {
   theMaterial = material.getCopy();
+  m_tangent = theMaterial->getInitialTangent();
 
   if (theMaterial == 0) {
     opserr << "DegradingUniaxialWrapper::DegradingUniaxialWrapper -- failed to "
@@ -32,8 +33,8 @@ DegradingUniaxialWrapper::DegradingUniaxialWrapper(int tag,
 }
 
 DegradingUniaxialWrapper::DegradingUniaxialWrapper()
-    : UniaxialMaterial(0, MAT_TAG_MinMax), theMaterial(0), minStrain(0.0),
-      maxStrain(0.0), Tfailed(false), Cfailed(false)
+    : UniaxialMaterial(0, MAT_TAG_FedeasDeg), theMaterial(0), minStrain(0.0),
+      maxStrain(0.0)
 {
 }
 
@@ -44,9 +45,8 @@ DegradingUniaxialWrapper::~DegradingUniaxialWrapper()
 }
 
 int
-DegradingUniaxialWrapper::setCoupling(double coupling_param){
-  return 0;
-}
+DegradingUniaxialWrapper::setCoupling(double coupling_param){return 0;}
+
 int 
 DegradingUniaxialWrapper::setDamageWrapper(Tcl_Interp *interp, std::string tag) {
 
@@ -63,21 +63,24 @@ DegradingUniaxialWrapper::setDamageWrapper(Tcl_Interp *interp, std::string tag) 
     this->degrade = (degrade_t) ((*map)["Uniaxial"](interp, tag));
 
     return 1;
-  }
+}
   
 int
 DegradingUniaxialWrapper::setTrialStrain(double strain, double temp, double strainRate)
 {
+
     double pastStrain = theMaterial->getStrain();
     theMaterial->setTrialStrain(strain, temp, strainRate);
     double trialStrain = theMaterial->getStrain();
-    if (degrade){
-      // double currStrain = BaseMaterial::getStrain();
+
+    double strain_incr = trialStrain - pastStrain;
+
+    if (degrade) {//  && abs(strain_incr) > m_rate_tol){
 
       UniaxialState pres, past = {
         .e   = pastStrain,
         .ep  = trialStrain,
-        .De  = trialStrain - pastStrain,
+        .De  = strain_incr,
         .se  = theMaterial->getStress(),
         .kt  = theMaterial->getTangent(),
         .ke  = theMaterial->getInitialTangent()
@@ -85,17 +88,22 @@ DegradingUniaxialWrapper::setTrialStrain(double strain, double temp, double stra
 
       this->degrade((void*)&past, (void*)&pres);
 
-      this->sig = pres.se;
-      this->e   = pres.kt;
+      this->m_stress   = pres.se;
+      this->m_tangent  = pres.kt;
+
     } else {
+      this->m_stress   = theMaterial->getStress();
+      this->m_tangent  = theMaterial->getTangent();
     }
     return 0;
 }
 
 int
-// DegradingUniaxialWrapper::setTrialStrain(double strain, double temp,
 DegradingUniaxialWrapper::setTrialStrain(double trialStrain, double strainRate)
 {
+
+  return this->setTrialStrain(trialStrain, 0.0, strainRate);
+  /*
     double pastStrain = theMaterial->getStrain();
     theMaterial->setTrialStrain(trialStrain, strainRate);
     // double trialStrain = theMaterial->getStrain();
@@ -114,33 +122,38 @@ DegradingUniaxialWrapper::setTrialStrain(double trialStrain, double strainRate)
 
       degrade((void*)&past, (void*)&pres);
 
-      this->sig = pres.se;
-      this->e   = pres.kt;
+      this->m_stress  = pres.se;
+      this->m_tangent = pres.kt;
     } else {
       // opserr << "#Not Degrading\n";
     }
     return 0;
-
+*/
 }
 
 double
 DegradingUniaxialWrapper::getTangent(void)
 {
   // return theMaterial->getTangent();
+  
   if (degrade)
-    return e;
+    return this->m_tangent;
   else
     return theMaterial->getTangent();
+  
 }
 
 double
 DegradingUniaxialWrapper::getStress(void)
 {
   if (degrade)
-    return sig;
+    return m_stress;
   else
     return theMaterial->getStress();
 }
+
+double
+DegradingUniaxialWrapper::getInitialTangent(void){return theMaterial->getInitialTangent();}
 
 double
 DegradingUniaxialWrapper::getDampTangent(void){return theMaterial->getDampTangent();}
@@ -197,10 +210,7 @@ DegradingUniaxialWrapper::sendSelf(int cTag, Channel &theChannel)
   static Vector dataVec(3);
   dataVec(0) = minStrain;
   dataVec(1) = maxStrain;
-  if (Cfailed == true)
-    dataVec(2) = 1.0;
-  else
-    dataVec(2) = 0.0;
+  dataVec(2) = 0.0;
 
   if (theChannel.sendVector(dbTag, cTag, dataVec) < 0) {
     opserr
@@ -253,12 +263,7 @@ DegradingUniaxialWrapper::recvSelf(int cTag, Channel &theChannel,
   minStrain = dataVec(0);
   maxStrain = dataVec(1);
 
-  if (dataVec(2) == 1.0)
-    Cfailed = true;
-  else
-    Cfailed = false;
 
-  Tfailed = Cfailed;
 
   if (theMaterial->recvSelf(cTag, theChannel, theBroker) < 0) {
     opserr << "DegradingUniaxialWrapper::recvSelf() - failed to get the "
@@ -307,9 +312,6 @@ DegradingUniaxialWrapper::updateParameter(int parameterID, Information &info)
 double
 DegradingUniaxialWrapper::getStressSensitivity(int gradIndex, bool conditional)
 {
-  if (Cfailed)
-    return 0.0;
-  else
     return theMaterial->getStressSensitivity(gradIndex, conditional);
 }
 
@@ -341,8 +343,5 @@ int
 DegradingUniaxialWrapper::commitSensitivity(double strainGradient,
                                             int gradIndex, int numGrads)
 {
-  if (Cfailed)
-    return 0;
-  else
-    return theMaterial->commitSensitivity(strainGradient, gradIndex, numGrads);
+  return theMaterial->commitSensitivity(strainGradient, gradIndex, numGrads);
 }

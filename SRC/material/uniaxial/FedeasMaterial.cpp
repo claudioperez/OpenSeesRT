@@ -310,7 +310,7 @@ FedeasMaterial::Print(OPS_Stream &s, int flag)
 
 
 
-#ifdef _WIN32
+#if defined(_WIN32)
 
 extern "C" int BOND_1(double *matpar, double *hstvP, double *hstv,
 			       double *strainP, double *stressP, double *dStrain,
@@ -403,7 +403,7 @@ extern "C" int steel_1__(double *matpar, double *hstvP, double *hstv,
 			 double *strainP, double *stressP, double *dStrain,
 			 double *tangent, double *stress, int *ist);
 
-extern "C" int steel_2__(double *matpar, double *hstvP, double *hstv,
+extern "C" int steel_2_(double *matpar, double *hstvP, double *hstv,
 			 double *strainP, double *stressP, double *dStrain,
 			 double *tangent, double *stress, int *ist);
 
@@ -420,7 +420,7 @@ FedeasMaterial::invokeSubroutine(int ist)
   
   switch (this->getClassTag()) {
   case MAT_TAG_FedeasHardening:
-#ifdef _WIN32
+#if defined(_WIN32) 
     hard_1__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 	     &sigma, &tangent, &ist);
 #else
@@ -429,7 +429,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
 
   case MAT_TAG_FedeasBond1:
-#ifdef _WIN32
+#if defined(_WIN32) 
     bond_1__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon,
 	     &sigma, &tangent, &ist);
 #else
@@ -438,7 +438,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasBond2:
-#ifdef _WIN32
+#if defined(_WIN32) 
     bond_2__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon,
 	     &sigma, &tangent, &ist);
 #else
@@ -447,7 +447,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasConcrete1:
-#ifdef _WIN32
+#if defined(_WIN32) 
     concrete_1__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 		 &sigma, &tangent, &ist);
 #else
@@ -456,7 +456,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasConcrete2:
-#ifdef _WIN32
+#if defined(_WIN32) 
     concrete_2__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 		 &sigma, &tangent, &ist);
 #elif _CONCR2
@@ -468,7 +468,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasConcrete3:
-#ifdef _WIN32
+#if defined(_WIN32) 
     concrete_3__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 		 &sigma, &tangent, &ist);
 #else
@@ -477,7 +477,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
         
   case MAT_TAG_FedeasHysteretic1:
-#ifdef _WIN32
+#if defined(_WIN32) 
     hyster_1__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 	       &sigma, &tangent, &ist);
 #else
@@ -486,7 +486,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasHysteretic2:
-#ifdef _WIN32
+#if defined(_WIN32) 
     hyster_2__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 	       &sigma, &tangent, &ist);
 #else
@@ -495,7 +495,7 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasSteel1:
-#ifdef _WIN32
+#if defined(_WIN32) 
     steel_1__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 	      &sigma, &tangent, &ist);
 #else
@@ -504,14 +504,16 @@ FedeasMaterial::invokeSubroutine(int ist)
     break;
     
   case MAT_TAG_FedeasSteel2:
-#ifdef _WIN32
+#if defined(_WIN32)
     steel_2__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 	      &sigma, &tangent, &ist);
 #elif _STEEL2
-    steel_2__(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
+    steel_2_(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
 	      &sigma, &tangent, &ist);
 #else
-    opserr << "FedeasMaterial::invokeSubroutine -- Steel2 subroutine not yet linked\n";
+    steel_2_(data, hstv, &hstv[numHstv], &epsilonP, &sigmaP, &dEpsilon, 
+	      &sigma, &tangent, &ist);
+    // opserr << "FedeasMaterial::invokeSubroutine -- Steel2 subroutine not yet linked\n";
 #endif
     break;
     

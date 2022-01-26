@@ -108,8 +108,10 @@ private:
 };
 
 // some additional methods related to prototypes created for copy constructors
+#if !defined(OPS_USE_RUNTIME)
 extern bool       OPS_addCrdTransf(CrdTransf *newComponent);
 extern CrdTransf *OPS_getCrdTransf(int tag);
+#endif
 extern bool       OPS_removeCrdTransf(int tag);
 extern void       OPS_clearAllCrdTransf(void);
 extern void       OPS_printCrdTransf(OPS_Stream &s, int flag=0);

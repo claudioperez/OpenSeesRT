@@ -155,7 +155,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_CorotTrussElement)
 }
 
 void *
-OPS_CorotTrussElement(const ID& info)
+OPS_CorotTrussElement(const ID& info, G3_Runtime* rt=0)
 {
     if (info.Size() == 0) return 0;
 
@@ -282,7 +282,6 @@ OPS_CorotTrussElement(const ID& info)
 
     return theElement;
 }
-
 
 // constructor:
 //  responsible for allocating the necessary space needed by each object
