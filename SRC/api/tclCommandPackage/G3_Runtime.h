@@ -15,3 +15,9 @@ public:
   AnalysisModel **m_analysis_model_ptr = &m_analysis_model;
   bool model_is_built=false;
 };
+
+class G3_ParallelRuntime : public G3_Runtime {
+  bool is_partitioned=false;
+  int num_subdomains = 0;
+  bool flag_MPID_SOE = false;
+};
