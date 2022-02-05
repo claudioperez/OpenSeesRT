@@ -66,7 +66,9 @@ int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **
 
 int printModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+
 int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
 int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);

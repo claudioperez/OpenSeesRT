@@ -35,6 +35,7 @@ target_sources(OpenSeesCommandPackage PRIVATE
     "commands/analysis/algorithm.cpp"
     "commands/analysis/integrator.cpp"
     "commands/analysis/analysis.cpp"
+    "commands/analysis/solver.cpp"
     OpenSeesCommandPackage.cpp
     TclPackageClassBroker.cpp
 
@@ -172,7 +173,8 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   OPS_ModelBuilder
   OPS_Uniaxial_Fedeas
   #OPS_Uniaxial_Fedeas_f
-  /home/claudio/pkgs/FEDEAS/bin/src/uniaxial/libfedeas_uniaxial.a
+  /home/claudio/packages/FEDEAS/build/src/uniaxial/libfedeas_uniaxial.a
+  #/home/claudio/pkgs/FEDEAS/bin/src/uniaxial/libfedeas_uniaxial.a
   G3_ObjectBroker
   #g3_uniaxial_io
   G3
