@@ -241,7 +241,7 @@ add_library(OPS_Material           OBJECT)
 add_library(OPS_MaterialFortran    OBJECT)
 add_library(OPS_Damage             OBJECT)
 add_library(OPS_Database           OBJECT)
-add_library(OPS_Interp_Tcl         STATIC)
+#add_library(OPS_Interp_Tcl         STATIC)
 
 # Optional Extensions
 #add_library(OPS_DRM                OBJECT EXCLUDE_FROM_ALL)
@@ -299,7 +299,7 @@ target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
 message("Numlibs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
-target_link_libraries(OPS_Interp_Tcl   PRIVATE ${OPS_Element_List})
+#target_link_libraries(OPS_Interp_Tcl   PRIVATE ${OPS_Element_List})
 
 #----------------------------
 # G3
@@ -361,23 +361,23 @@ target_link_libraries(OpenSees
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   target_include_directories(OpenSees PUBLIC ${TCL_INCLUDE_PATH})
-  target_include_directories(OPS_Interp_Tcl PUBLIC ${TCL_INCLUDE_PATH})
-  target_link_libraries(OPS_Interp_Tcl PRIVATE ${TCL_LIBRARIES})
+  #target_include_directories(OPS_Interp_Tcl PUBLIC ${TCL_INCLUDE_PATH})
+  #target_link_libraries(OPS_Interp_Tcl PRIVATE ${TCL_LIBRARIES})
 endif()
 
-target_compile_definitions(OPS_Interp_Tcl PUBLIC _TCL85)
+#target_compile_definitions(OPS_Interp_Tcl PUBLIC _TCL85)
 
-opensees_add_cxx_flag(TARGETS OPS_Interp_Tcl
-  GNU -fpermissive -fvisibility=hidden
-)
+#opensees_add_cxx_flag(TARGETS OPS_Interp_Tcl
+#  GNU -fpermissive -fvisibility=hidden
+#)
 
 #----------------------------
 # OpenSeesTcl
 #----------------------------
-target_link_libraries(OpenSeesTcl
-	OPS_Interp_Tcl #${OPS_Element_List}
-   OpenSees ${CMAKE_DL_LIBS}
-)
+#target_link_libraries(OpenSeesTcl
+#	OPS_Interp_Tcl #${OPS_Element_List}
+#   OpenSees ${CMAKE_DL_LIBS}
+#)
 
 #----------------------------
 # OpenSeesPy
@@ -511,14 +511,14 @@ endif()
 #----------------------------
 # DRM
 #----------------------------
-if (OPS_Use_DRM)
-    message("OPS >>> Including OPS_DRM option")
-    target_sources(OPS_Interp_Tcl 
-      PRIVATE
-	      ${OPS_SRC_DIR}/domain/pattern/drm/TclPatternCommand.cpp
-    )
-    target_link_libraries(${OPS_FINAL_TARGET} OPS_DRM)
-endif()
+#if (OPS_Use_DRM)
+#    message("OPS >>> Including OPS_DRM option")
+#    target_sources(OPS_Interp_Tcl 
+#      PRIVATE
+#	      ${OPS_SRC_DIR}/domain/pattern/drm/TclPatternCommand.cpp
+#    )
+#    target_link_libraries(${OPS_FINAL_TARGET} OPS_DRM)
+#endif()
 
 
 if (OPS_Use_Dev_Directories)
