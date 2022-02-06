@@ -1056,7 +1056,6 @@ G3_getSafeBuilder(G3_Runtime *rt)
   return theTclBuilder;
 }
 
-
 int
 G3_setDomain(G3_Runtime *rt, Domain* domain){
   int exists = rt->m_domain ? 1 : 0;
@@ -1086,7 +1085,6 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
       (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return builder->addTimeSeries(series);
 }
-
 
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
   Tcl_Interp *interp = G3_getInterpreter(rt);
@@ -1148,21 +1146,25 @@ OPS_GetUniaxialMaterial(int matTag)
 }
 #endif
 
+CrdTransf *
+G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
+{
+  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  if (!builder) {
+    return nullptr;
+  }
+  return builder->getCrdTransf(tag);
+}
+
 UniaxialMaterial *
 G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     return OPS_getUniaxialMaterial(tag);
   }
 
   UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
-  // if (theResult == 0) {
-  //   opserr << "UniaxialMaterial *getUniaxialMaterialInstance(int tag) - none found with tag: " << tag << endln;
-  //   return 0;
-  // }
-  // UniaxialMaterial *theMat = (UniaxialMaterial *)theResult;
 
   return mat ? mat : OPS_getUniaxialMaterial(tag);
 }
@@ -1190,9 +1192,6 @@ OPS_GetSectionForceDeformation(int secTag)
 {
   return OPS_getSectionForceDeformation(secTag);
 }
-
-CrdTransf *
-OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
 
 FrictionModel *
 OPS_GetFrictionModel(int frnTag) {return OPS_getFrictionModel(frnTag);}
@@ -1235,8 +1234,13 @@ OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
 #if !defined(OPS_USE_RUNTIME)
   Domain *
   OPS_GetDomain(void) {return theDomain;}
+
   AnalysisModel **
   OPS_GetAnalysisModel(void){return &theAnalysisModel;}
+
+  CrdTransf *
+  OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
+
 #endif
 
 void

@@ -49,6 +49,8 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
                                TCL_Char **argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeamColumn \n";

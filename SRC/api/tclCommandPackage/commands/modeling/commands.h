@@ -9,11 +9,17 @@ typedef int (TclCharFn)(ClientData, Tcl_Interp*, int, const char**);
 static TclCharFn  TclCommand_addNode;
 static TclCharFn  TclCommand_addPattern;
 static TclCharFn  TclCommand_addTimeSeries;
+static TclCharFn  TclCommand_addNodalMass;
+extern TclCharFn  TclCommand_addGeomTransf;
 
 extern TclCharFn  TclCommand_addElement;
 extern TclCharFn  TclCommand_addUniaxialMaterial;
 extern TclCharFn  TclCommand_addSection;
+extern TclCharFn  TclCommand_addPatch;
+// Constraints
 extern TclCharFn  TclCommand_addHomogeneousBC;
+static TclCharFn  TclCommand_addEqualDOF_MP;
+// Loads
 extern TclCharFn  TclCommand_addNodalLoad;
 
 TclCharFn TclCommand_addParameter;
@@ -25,11 +31,9 @@ TclCharFn TclCommand_addLimitCurve;
 TclCharFn TclCommand_addNDMaterial;
 TclCharFn TclCommand_addSeries;
 TclCharFn TclCommand_addElementalLoad;
-TclCharFn TclCommand_addNodalMass;
 TclCharFn TclCommand_addHomogeneousBC_X;
 TclCharFn TclCommand_addHomogeneousBC_Y; 
 TclCharFn TclCommand_addHomogeneousBC_Z;
-TclCharFn TclCommand_addEqualDOF_MP;
 TclCharFn TclCommand_addEqualDOF_MP_Mixed;
 TclCharFn TclCommand_addMP;
 TclCharFn TclCommand_addSP;
@@ -41,28 +45,55 @@ TclCharFn TclCommand_RigidDiaphragm;
 struct char_cmd {
   const char* name;
   TclCharFn*  func;
+  bool was_added = false;
 
-}  tcl_char_cmds[] =  {
+}  const tcl_char_cmds[] =  {
 
   {"node",             TclCommand_addNode},
+  {"mass",             TclCommand_addNodalMass},
   {"element",          TclCommand_addElement},
+
+// Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},
   {"section",          TclCommand_addSection},
+  {"patch",            TclCommand_addPatch},
+
+  {"geomTransf",       TclCommand_addGeomTransf},
+
+  {"load",             TclCommand_addNodalLoad},
   {"pattern",          TclCommand_addPattern},
   {"timeSeries",       TclCommand_addTimeSeries},
-  {"load",             TclCommand_addNodalLoad},
+
   {"fix",              TclCommand_addHomogeneousBC},
+  {"equalDOF",         TclCommand_addEqualDOF_MP},
+  {"rigidLink",            &TclCommand_RigidLink},
 
 /*
-  {"mass",             TclCommand_addNodalMass},
-  {"patch",            TclCommand_addRemoPatch},
   {"layer",            TclCommand_addRemoLayer},
   {"fiber",            TclCommand_addRemoFiber},
   {"beamIntegration",  TclCommand_addBeamIntegration},
   {"nDMaterial",       TclCommand_addNDMaterial},
   {"eleLoad",          TclCommand_addElementalLoad},
-  {"geomTransf",       TclCommand_addRemoGeomTransf},
 */
+
+/*
+  {"block2D",              TclCommand_doBlock2D},
+  {"block3D",              TclCommand_doBlock3D},
+
+  {"fixX",                 TclCommand_addHomogeneousBC_X},
+  {"fixY",                 TclCommand_addHomogeneousBC_Y},
+  {"fixZ",                 TclCommand_addHomogeneousBC_Z},
+  {"sp",                   TclCommand_addSP},
+  {"mp",                   TclCommand_addMP},
+  {"imposedMotion",        TclCommand_addImposedMotionSP},
+  {"imposedSupportMotion", TclCommand_addImposedMotionSP},
+  {"groundMotion",         TclCommand_addGroundMotion},
+  {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
+  {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
+  {"PySimple1Gen",         TclCommand_doPySimple1Gen},
+  {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
+  {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
+  {"Hfiber",             TclSafeBuilder_addRemoHFiber},
 
 #if defined(OPSDEF_Element_PFEM)
   {"mesh",             TclCommand_mesh},
@@ -70,28 +101,8 @@ struct char_cmd {
   {"background",      &TclCommand_backgroundMesh},
 #endif // OPSDEF_Element_PFEM
 
-/*
-  {"fixX",                 TclCommand_addHomogeneousBC_X},
-  {"fixY",                 TclCommand_addHomogeneousBC_Y},
-  {"fixZ",                 TclCommand_addHomogeneousBC_Z},
-  {"sp",                   TclCommand_addSP},
-  {"mp",                   TclCommand_addMP},
-  {"equalDOF",             TclCommand_addEqualDOF_MP},
-  {"imposedMotion",        TclCommand_addImposedMotionSP},
-  {"imposedSupportMotion", TclCommand_addImposedMotionSP},
-  {"groundMotion",         TclCommand_addGroundMotion},
-  {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
-  {"rigidLink",            &TclCommand_RigidLink},
-  {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
-  {"PySimple1Gen",         TclCommand_doPySimple1Gen},
-  {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
-  {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
-  {"block2D",              TclCommand_doBlock2D},
-  {"block3D",              TclCommand_doBlock3D},
-
-  {"Hfiber",             TclSafeBuilder_addRemoHFiber},
 */
-
+// OTHER OBJECT TYPES
 /*
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
@@ -108,9 +119,9 @@ struct char_cmd {
 */
 
 /*
-  {"parameter",       TclCommand_addParameter},
-  {"addToParameter",  TclCommand_addParameter},
-  {"updateParameter", TclCommand_addParameter},
+  {"parameter",            TclCommand_addParameter},
+  {"addToParameter",       TclCommand_addParameter},
+  {"updateParameter",      TclCommand_addParameter},
 */
 
 /*
@@ -142,12 +153,10 @@ TclCharFn TclSafeBuilder_doShallowFoundationGen;
 // End PRC
 TclCharFn TclCommand_doBlock2D;
 TclCharFn TclCommand_doBlock3D;
-TclCharFn TclCommand_addRemoPatch;
 TclCharFn TclCommand_addRemoLayer;
 TclCharFn TclCommand_addRemoFiber;
 //Leo
 TclCharFn TclSafeBuilder_addRemoHFiber;
-TclCharFn TclCommand_addRemoGeomTransf;
 TclCharFn TclCommand_addFrictionModel;
 TclCharFn TclCommand_addStiffnessDegradation;
 TclCharFn TclCommand_addUnloadingRule;

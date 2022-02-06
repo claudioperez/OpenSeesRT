@@ -2,37 +2,14 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 **                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.5 $
-// $Date: 2003-02-25 23:34:26 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/TclUniaxialMaterialTester.cpp,v
-// $
-
-// File: ~/modelbuilder/tcl/TclUniaxialMaterialTester.C
-//
-// Written: fmk
+// Written: cmp
 // Created: 03/01
 //
 // Description: This file contains the implementaion of the
 // TclUniaxialMaterialTester class.
 //
-// What: "@(#) TclUniaxialMaterialTester.C, revA"
 
 #include <stdlib.h>
 #include <string.h>
@@ -42,42 +19,29 @@
 #include <UniaxialMaterial.h>
 #include <TclUniaxialMaterialTester.h>
 
-//
-// SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
-
-static TclUniaxialMaterialTester *theTclBuilder = 0;
-// static UniaxialMaterial *theTestingUniaxialMaterial = 0;
 
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
-static
-int TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
-                                                  Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv);
+typedef int (TclUniaxialTestCommand)(ClientData, Tcl_Interp*, int, TCL_Char**);
 
-int TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
-                                                        Tcl_Interp *interp,
-                                                        int argc,
-                                                        TCL_Char **argv);
+TclUniaxialTestCommand TclUniaxialMaterialTester_setUniaxialMaterial;
+TclUniaxialTestCommand TclUniaxialMaterialTester_setStrainUniaxialMaterial;
+TclUniaxialTestCommand TclUniaxialMaterialTester_commitState;
+TclUniaxialTestCommand TclUniaxialMaterialTester_getStressUniaxialMaterial;
+TclUniaxialTestCommand TclUniaxialMaterialTester_getTangUniaxialMaterial;
 
-int TclUniaxialMaterialTester_getStressUniaxialMaterial(ClientData clientData,
-                                                        Tcl_Interp *interp,
-                                                        int argc,
-                                                        TCL_Char **argv);
-
-int TclUniaxialMaterialTester_getTangUniaxialMaterial(ClientData clientData,
-                                                      Tcl_Interp *interp,
-                                                      int argc,
-                                                      TCL_Char **argv);
+const struct {const char*name; const TclUniaxialTestCommand*func;} command_table[] = {
+  {"with",     TclUniaxialMaterialTester_setUniaxialMaterial       },
+  {"strain",   TclUniaxialMaterialTester_setStrainUniaxialMaterial },
+  {"commit",   TclUniaxialMaterialTester_commitState               },
+  {"stress",   TclUniaxialMaterialTester_getStressUniaxialMaterial },
+  {"tangent",  TclUniaxialMaterialTester_getTangUniaxialMaterial   }
+};
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
-
-static int count;
-static int countsTillCommit;
 
 // constructor: the constructor will add certain commands to the interpreter
 TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
@@ -85,48 +49,39 @@ TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
                                                      int cTC)
     : TclSafeBuilder(theDomain, interp, 1, 1), theInterp(interp)
 {
-  countsTillCommit = cTC;
-  Tcl_CreateCommand(interp, "uniaxialTest",
-                    TclUniaxialMaterialTester_setUniaxialMaterial,
-                    (ClientData)NULL, NULL);
-
-  Tcl_CreateCommand(interp, "strainUniaxialTest",
-                    TclUniaxialMaterialTester_setStrainUniaxialMaterial,
-                    (ClientData)NULL, NULL);
-
-  Tcl_CreateCommand(interp, "stressUniaxialTest",
-                    TclUniaxialMaterialTester_getStressUniaxialMaterial,
-                    (ClientData)NULL, NULL);
-
-  Tcl_CreateCommand(interp, "tangUniaxialTest",
-                    TclUniaxialMaterialTester_getTangUniaxialMaterial,
-                    (ClientData)NULL, NULL);
-
-  // set the static pointers in this file
-  // theTclBuilder = this;
+  const int ncmd = sizeof(command_table)/sizeof(command_table[0]);
+  for (int i=0; i<ncmd; i++)
+    Tcl_CreateCommand(interp,
+                      command_table[i].name,
+                      command_table[i].func,
+                      (ClientData)NULL, 
+                      NULL);
 }
 
 TclUniaxialMaterialTester::~TclUniaxialMaterialTester()
 {
 
-  // theTclBuilder = 0;
 
   Tcl_DeleteCommand(theInterp, "uniaxialTest");
+
   Tcl_DeleteCommand(theInterp, "strainUniaxialTest");
+  Tcl_DeleteCommand(theInterp, "strain");
+  Tcl_DeleteCommand(theInterp, "commit");
+
   Tcl_DeleteCommand(theInterp, "stressUniaxialTest");
   Tcl_DeleteCommand(theInterp, "tangUniaxialTest");
 }
 
-//
-// THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
 static UniaxialMaterial*
 getUniaxialMaterial(Tcl_Interp *interp)
 {
     return (UniaxialMaterial*)Tcl_GetAssocData(interp, "OPS::the_uniaxial_material", NULL);
 }
 
-static int
+//
+// THE FUNCTIONS INVOKED BY THE INTERPRETER
+//
+int
 TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
                                               TCL_Char **argv)
@@ -134,23 +89,16 @@ TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
   G3_Runtime *rt = G3_getRuntime(interp);
   UniaxialMaterial *theTestingUniaxialMaterial = getUniaxialMaterial(interp);
 
-  count = 1;
-  // ensure the destructor has not been called -
-  // if (theTclBuilder == 0) {
-  //   opserr << "WARNING builder has been destroyed";
-  //   return TCL_ERROR;
-  // }
-
   // check number of arguments in command line
-  if (argc < 2) {
-    opserr << "WARNING bad command - want: uniaxialTest matID?";
+  if (argc < 4) {
+    opserr << "WARNING bad arguments - want: using <obj-type> <obj-tag> {<operations>...}";
     return TCL_ERROR;
   }
 
   // get the matID form command line
   int matID;
-  if (Tcl_GetInt(interp, argv[1], &matID) != TCL_OK) {
-    opserr << "WARNING could not read matID: uniaxialTest matID?";
+  if (Tcl_GetInt(interp, argv[2], &matID) != TCL_OK) {
+    opserr << "WARNING could not read obj-tag: using <obj-tag>?";
     return TCL_ERROR;
   }
 
@@ -165,12 +113,15 @@ TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
   // and set the testing material to point to a copy of it
   UniaxialMaterial *theOrigMaterial = G3_getUniaxialMaterialInstance(rt, matID);
   if (theOrigMaterial == 0) {
-    opserr << "WARNING no material found with matID";
+    opserr << "WARNING no material found with tag '" << matID << "'.\n";
     return TCL_ERROR;
+
   } else {
     theTestingUniaxialMaterial = theOrigMaterial->getCopy();
     Tcl_SetAssocData(interp, "OPS::the_uniaxial_material", NULL, (ClientData)theTestingUniaxialMaterial);
   }
+
+  if (argc > 3) Tcl_Eval(interp, argv[3]);
 
   return TCL_OK;
 }
@@ -180,17 +131,11 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv)
 {
-  // ensure the destructor has not been called -
-  // if (theTclBuilder == 0) {
-  //   opserr << "WARNING builder has been destroyed";
-  //   return TCL_ERROR;
-  // }
-
-  // check number of arguments in command line
   G3_Runtime *rt = G3_getRuntime(interp);
+
   if (argc < 2) {
     opserr
-        << "WARNING bad command - want: strainUniaxialTest strain? <temp?>\n";
+        << "WARNING bad arguments - want: strainUniaxialTest strain? <temp?>\n";
     return TCL_ERROR;
   }
 
@@ -202,29 +147,44 @@ TclUniaxialMaterialTester_setStrainUniaxialMaterial(ClientData clientData,
     return TCL_ERROR;
   }
 
+  bool use_temp = false;
+  bool commit = false;
   double temp = 0.0;
   if (argc > 2) {
-    if (Tcl_GetDouble(interp, argv[2], &temp) != TCL_OK) {
-      opserr << "WARNING could not read strain: strainUniaxialTest strain? "
-                "<temp?>\n";
-      return TCL_ERROR;
+    for (int i=2; i < argc; i++) {
+      if (strcmp(argv[i], "-commit")==0){
+        commit = true;
+      } else if (Tcl_GetDouble(interp, argv[2], &temp) != TCL_OK) {
+        opserr << "WARNING could not read strain: strainUniaxialTest strain? "
+                  "<temp?>\n";
+        return TCL_ERROR;
+      }
     }
   }
 
   // delete the old testing material
   UniaxialMaterial* theTestingUniaxialMaterial;
-  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
-    if (argc > 2)
+  if ((theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
+    if (use_temp)
       theTestingUniaxialMaterial->setTrialStrain(strain, temp, 0.0);
     else
       theTestingUniaxialMaterial->setTrialStrain(strain);
-    if (count == countsTillCommit) {
+
+    if (commit)
       theTestingUniaxialMaterial->commitState();
-      count = 1;
-    } else
-      count++;
   }
   return TCL_OK;
+}
+
+int TclUniaxialMaterialTester_commitState(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  UniaxialMaterial* theTestingUniaxialMaterial;
+  if ((theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
+      theTestingUniaxialMaterial->commitState();
+  } else {
+    opserr << "WARNING no active UniaxialMaterial - use uniaxialTest command\n";
+    return TCL_ERROR;
+  }
 }
 
 int
@@ -236,7 +196,7 @@ TclUniaxialMaterialTester_getStressUniaxialMaterial(ClientData clientData,
 
   // delete the old testing material
   UniaxialMaterial* theTestingUniaxialMaterial;
-  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
+  if ((theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
     stress = theTestingUniaxialMaterial->getStress();
     char buffer[40];
     sprintf(buffer, "%.10e", stress);
@@ -255,10 +215,9 @@ TclUniaxialMaterialTester_getTangUniaxialMaterial(ClientData clientData,
                                                   TCL_Char **argv)
 {
   double tangent = 0.0;
-
   // delete the old testing material
   UniaxialMaterial* theTestingUniaxialMaterial;
-  if (!(theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
+  if ((theTestingUniaxialMaterial=getUniaxialMaterial(interp))) {
     tangent = theTestingUniaxialMaterial->getTangent();
     char buffer[40];
     sprintf(buffer, "%.10e", tangent);

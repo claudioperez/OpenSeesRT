@@ -15,13 +15,13 @@ public:
   getClassType(void) const {return "DegradingUniaxialWrapper";}
 
   int    setTrialStrain(double strain, double strainRate = 0.0);
-  int    setTrialStrain(double strain, double FiberTemperature, double strainRate);
+  int    setTrialStrain(double strain, double temperature, double strainRate);
   double getStrain(void);
   double getStrainRate(void);
   double getStress(void);
   double getTangent(void);
   double getDampTangent(void);
-  double getInitialTangent(void){return theMaterial->getInitialTangent();}
+  double getInitialTangent(void);
 
   int commitState(void);
   int revertToLastCommit(void);
@@ -33,11 +33,6 @@ public:
   int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
   void Print(OPS_Stream &s, int flag = 0);
-  bool
-  hasFailed(void)
-  {
-    return Cfailed;
-  }
 
   int setCoupling(double);
   int setParameter(const char **argv, int argc, Parameter &param);
@@ -58,7 +53,9 @@ private:
 
   double minStrain;
   double maxStrain;
-  double sig, e;
+  double m_stress,
+         m_tangent, 
+         m_rate_tol=1e-6;
 
   struct UniaxialState {
   /* This struct defines the interface between
@@ -70,9 +67,7 @@ private:
   UniaxialState past,pres;
   typedef std::function<int(void*, void*)> degrade_f;
   degrade_f degrade = NULL;
-
-  bool Tfailed;
-  bool Cfailed;
 };
 
 #endif // DegradingUniaxialWrapper_H
+

@@ -32,7 +32,7 @@
 // What: "@(#) myCommands.C, revA"
 #include <g3_api.h>
 #include <Domain.h>
-#include "TclBasicBuilder.h"
+// #include "TclBasicBuilder.h"
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
 #include "modelbuilder/safe/TclSafeBuilder.h"
@@ -93,13 +93,13 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check argv[1] for type of ModelBuilder and create the object
   if ((strcmp(argv[1], "basic") == 0)        ||
-      (strcmp(argv[1], "BasicBuilder") == 0) ||
       (strcmp(argv[1], "Basic") == 0)        ||
       (strcmp(argv[1], "safe") == 0)         ||
+      (strcmp(argv[1], "BasicBuilder") == 0) ||
       (strcmp(argv[1], "basicBuilder") == 0)) {
     int ndm = 0;
     int ndf = 0;
-    bool safe_builder = false;
+    bool safe_builder = true;
 
     if (strcmp(argv[1], "safe") == 0) {
       safe_builder = true;
@@ -180,12 +180,8 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
     // create the model builder
-    if (!safe_builder) {
-      theNewBuilder = new TclBasicBuilder(*theNewDomain, interp, ndm, ndf);
-      // set global variables
-    } else {
-      theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
-    }
+    theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
+
     if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating BasicBuilder model\n";
       return TCL_ERROR;

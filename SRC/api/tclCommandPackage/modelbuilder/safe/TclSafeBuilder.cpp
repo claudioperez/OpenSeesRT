@@ -4,7 +4,7 @@
 // A TclSafeBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
 // framework.
-#include "TclCommands.h"
+#include <modeling/commands.h>
 #include <g3_api.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2744,13 +2744,17 @@ for ndm=2\n"; return TCL_ERROR;
   // if get here we have sucessfully created the load and added it to the domain
   return TCL_OK;
 }
-
+*/
 
 
 int
 TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
+    G3_Runtime *rt = G3_getRuntime(interp);
+    TclBuilder *theTclBuilder = G3_getModelBuilder(rt);
+    Domain     *theTclDomain = G3_getDomain(rt);
+
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
     opserr << "WARNING builder has been destroyed - load \n";
@@ -2762,8 +2766,9 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain type of system
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: mass nodeId " << ndf << " mass
-values\n"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: mass nodeId " << ndf << " mass values\n"; 
+    printCommand(argc, argv); 
+    return TCL_ERROR;
   }
 
   // get the id of the node
@@ -2797,7 +2802,7 @@ values\n"; printCommand(argc, argv); return TCL_ERROR;
   return TCL_OK;
 }
 
-*/
+
 
 int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -3226,13 +3231,17 @@ gMotionID\n"; printCommand(argc, argv); return TCL_ERROR;
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
+*/
 
 
-
-int
+static int
 TclCommand_addEqualDOF_MP (ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
+    G3_Runtime *rt = G3_getRuntime(interp);
+    TclBuilder *theTclBuilder = G3_getModelBuilder(rt);
+    Domain     *theTclDomain = G3_getDomain(rt);
+
         // Ensure the destructor has not been called
         if (theTclBuilder == 0) {
           opserr << "WARNING builder has been destroyed - equalDOF \n";
@@ -3241,8 +3250,9 @@ TclCommand_addEqualDOF_MP (ClientData clientData, Tcl_Interp *interp,
 
         // Check number of arguments
         if (argc < 4) {
-          opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID?
-DOF1? DOF2? ..."; printCommand (argc, argv); return TCL_ERROR;
+          opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+          printCommand (argc, argv);
+          return TCL_ERROR;
         }
 
         // Read in the node IDs and the DOF
@@ -3274,7 +3284,7 @@ DOF1? DOF2? ..."; printCommand (argc, argv); return TCL_ERROR;
         for (i = 3, j = 0; i < argc; i++, j++) {
           if (Tcl_GetInt (interp, argv[i], &dofID) != TCL_OK) {
             opserr << "WARNING invalid dofID: " << argv[3]
-                 << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+                   << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
             return TCL_ERROR;
           }
 
@@ -3289,9 +3299,11 @@ DOF1? DOF2? ..."; printCommand (argc, argv); return TCL_ERROR;
         }
 
         // Create the multi-point constraint
-        MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, rcDOF,
-rcDOF); if (theMP == 0) { opserr << "WARNING ran out of memory for equalDOF
-MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
+        MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
+        if (theMP == 0) {
+          opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
+          printCommand (argc, argv); 
+          return TCL_ERROR;
         }
 
         // Add the multi-point constraint to the domain
@@ -3309,7 +3321,7 @@ MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
         return TCL_OK;
 }
 
-
+/*
 int
 TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
@@ -3405,37 +3417,6 @@ MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
 }
 
 
-int
-TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
-TCL_Char **argv)
-{
-  if (argc < 4) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode?\n";
-      return TCL_ERROR;
-  }
-
-  int rNode, cNode;
-  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read
-rNode \n"; return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[3], &cNode) != TCL_OK) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read
-CNode \n"; return TCL_ERROR;
-  }
-
-  // construct a rigid rod or beam depending on 1st arg
-  if ((strcmp(argv[1],"-bar") == 0) || (strcmp(argv[1],"bar") == 0)) {
-    RigidRod theLink(*theTclDomain, rNode, cNode);
-  } else if ((strcmp(argv[1],"-beam") == 0) || (strcmp(argv[1],"beam") == 0)) {
-    RigidBeam theLink(*theTclDomain, rNode, cNode);
-  } else {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - unrecognised link
-type (-bar, -beam) \n"; return TCL_ERROR;
-  }
-
-  return TCL_OK;
-}
 
 int
 TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -3934,16 +3915,6 @@ strlen(eleType));
 }
 
 
-
-
-int
-TclCommand_addRemoPatch(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv)
-{
-  return TclCommand_addPatch(clientData, interp, argc,argv,
-                                    theTclBuilder);
-}
-
 int
 TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv)
@@ -3968,15 +3939,6 @@ TclCommand_addRemoLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                                        theTclBuilder);
 }
 
-
-int
-TclCommand_addRemoGeomTransf(ClientData clientData, Tcl_Interp *interp, int
-argc, TCL_Char **argv)
-{
-  return TclCommand_addGeomTransf(clientData, interp, argc,argv,
-                                       theTclDomain,
-                                       theTclBuilder);
-}
 
 extern int
 TclSafeBuilderStiffnessDegradationCommand(ClientData clientData,
@@ -4329,5 +4291,48 @@ TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
          << "         with tag '" << name.c_str() << "' to model.\n";
 */
   return 1;
+}
+
+//
+// CrdTransf Operations
+//
+
+// Retrieve a CrdTransf instance from the model
+// runtime
+CrdTransf*
+TclSafeBuilder::getCrdTransf(const std::string &name)
+{
+  CrdTransf *instance = m_CrdTransfMap.at(name);
+  if (instance) {
+    return instance;
+  } else {
+    return nullptr;
+  }
+}
+
+CrdTransf*
+TclSafeBuilder::getCrdTransf(int tag)
+{
+  const std::string &name = std::to_string(tag);
+  return this->getCrdTransf(name);
+}
+
+// Add a new CrdTransf to the model runtime
+int
+TclSafeBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
+{
+  // m_CrdTransfMap[name] = instance;
+  m_CrdTransfMap.insert({name, instance});
+  return 1;
+}
+
+// Add a new CrdTransf to the model runtime
+int
+TclSafeBuilder::addCrdTransf(CrdTransf *instance)
+{
+  const key_t name = std::to_string(instance->getTag());
+  // m_CrdTransfMap[name]std::stringnstance;
+  // m_CrdTransfMap.insert(std::make_pair<key_t,CrdTransf*>(std::move(name), instance);
+  return this->addCrdTransf(name, instance);
 }
 

@@ -41,6 +41,7 @@
 
 static MapOfTaggedObjects theCrdTransfObjects;
 
+#if !defined(OPS_USE_RUNTIME)
 bool 
 OPS_addCrdTransf(CrdTransf *newComponent) {
   return theCrdTransfObjects.addComponent(newComponent);
@@ -68,6 +69,7 @@ OPS_getCrdTransf(int tag) {
 
   return theSeries;
 }
+#endif // OPS_USE_RUNTIME
 
 void
 OPS_ADD_RUNTIME_VXV(OPS_clearAllCrdTransf)
