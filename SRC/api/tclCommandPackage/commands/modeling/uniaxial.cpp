@@ -269,9 +269,6 @@ int TclSafeBuilderUniaxialCommand(ClientData clientData, Tcl_Interp *interp,
 
     }
 
-
-    
-
     else if (strcmp(argv[1], "BarSlip") == 0) {
       if (argc != 17 && argc != 15) {
         opserr << "WARNING insufficient arguments\n";

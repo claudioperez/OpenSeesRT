@@ -32,7 +32,7 @@ TclUniaxialTestCommand TclUniaxialMaterialTester_getStressUniaxialMaterial;
 TclUniaxialTestCommand TclUniaxialMaterialTester_getTangUniaxialMaterial;
 
 const struct {const char*name; const TclUniaxialTestCommand*func;} command_table[] = {
-  {"using",    TclUniaxialMaterialTester_setUniaxialMaterial       },
+  {"with",     TclUniaxialMaterialTester_setUniaxialMaterial       },
   {"strain",   TclUniaxialMaterialTester_setStrainUniaxialMaterial },
   {"commit",   TclUniaxialMaterialTester_commitState               },
   {"stress",   TclUniaxialMaterialTester_getStressUniaxialMaterial },
@@ -42,7 +42,6 @@ const struct {const char*name; const TclUniaxialTestCommand*func;} command_table
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
-
 
 // constructor: the constructor will add certain commands to the interpreter
 TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
@@ -78,10 +77,10 @@ getUniaxialMaterial(Tcl_Interp *interp)
 {
     return (UniaxialMaterial*)Tcl_GetAssocData(interp, "OPS::the_uniaxial_material", NULL);
 }
+
 //
 // THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
-
 int
 TclUniaxialMaterialTester_setUniaxialMaterial(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
