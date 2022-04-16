@@ -11,9 +11,9 @@ cmake_minimum_required(VERSION 3.16)
 find_package(TclStub)
 find_package(TCL)
 
-add_library(OpenSeesCommandPackage SHARED)
+add_library(OpenSeesRT SHARED)
 
-target_sources(OpenSeesCommandPackage PRIVATE
+target_sources(OpenSeesRT PRIVATE
 #
 # GENERAL COMMANDS
 #
@@ -36,7 +36,7 @@ target_sources(OpenSeesCommandPackage PRIVATE
     "commands/analysis/integrator.cpp"
     "commands/analysis/analysis.cpp"
     "commands/analysis/solver.cpp"
-    OpenSeesCommandPackage.cpp
+    OpenSeesRT.cpp
     TclPackageClassBroker.cpp
 
 # Database
@@ -152,19 +152,19 @@ target_sources(OpenSeesCommandPackage PRIVATE
 
 add_subdirectory(libraries/uniaxial)
 
-target_compile_definitions(OpenSeesCommandPackage PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
+target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 
 target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)
 target_compile_options(OPS_ElementFortran             PRIVATE -fPIC)
 target_compile_options(OPS_Material_Uniaxial_Drain_f  PRIVATE -fPIC)
-target_compile_options(OpenSeesCommandPackage         PUBLIC  -fPIC)
+target_compile_options(OpenSeesRT         PUBLIC  -fPIC)
 
 
 if (${TCL_INCLUDE_PATH})
-  target_include_directories(OpenSeesCommandPackage PUBLIC ${TCL_INCLUDE_PATH})
+  target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-target_link_libraries(OpenSeesCommandPackage PRIVATE
+target_link_libraries(OpenSeesRT PRIVATE
   #${OPS_Extension_List}
   ${OPS_Element_List}
   ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
@@ -173,8 +173,8 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   OPS_ModelBuilder
   OPS_Uniaxial_Fedeas
   #OPS_Uniaxial_Fedeas_f
-  #/home/claudio/packages/FEDEAS/build/src/uniaxial/libfedeas_uniaxial.a
-  /home/claudio/pkgs/FEDEAS/bin/src/uniaxial/libfedeas_uniaxial.a
+  /home/claudio/packages/FEDEAS/build/src/uniaxial/libfedeas_uniaxial.a
+  #/home/claudio/pkgs/FEDEAS/bin/src/uniaxial/libfedeas_uniaxial.a
   G3_ObjectBroker
   #g3_uniaxial_io
   G3
