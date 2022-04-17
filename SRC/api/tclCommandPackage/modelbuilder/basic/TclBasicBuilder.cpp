@@ -146,6 +146,18 @@ static int eleLoadTag = 0;
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
+// REMO
+extern int TclCommand_addPatch(ClientData, Tcl_Interp*,
+                               int argc, TCL_Char **);
+
+extern int TclCommand_addFiber(ClientData, Tcl_Interp*,
+                               int argc, TCL_Char **);
+                               // TclBuilder *theTclBuilder);
+extern int TclCommand_addReinfLayer(ClientData, Tcl_Interp*,
+                                   int argc, TCL_Char **);
+
+
+
 
 static int TclCommand_addParameter(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char **);
@@ -176,7 +188,7 @@ static int TclCommand_addBeamIntegration(ClientData,
 static int TclCommand_addLimitCurve(ClientData, Tcl_Interp*,
                                     int argc, TCL_Char **);
 
-static int TclCommand_addNDMaterial(ClientData, Tcl_Interp*,
+extern int TclCommand_addNDMaterial(ClientData, Tcl_Interp*,
                                     int argc, TCL_Char **);
 
 
@@ -282,9 +294,6 @@ static int TclCommand_doBlock3D(ClientData, Tcl_Interp*,
 static int TclCommand_addRemoPatch(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char **);
 
-static int TclCommand_addRemoLayer(ClientData, Tcl_Interp*,
-                                   int argc, TCL_Char **);
-
 static int TclCommand_addRemoFiber(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char **);
 
@@ -334,22 +343,15 @@ static int TclCommand_addElementRayleigh(ClientData,
                                          TCL_Char **);
 ///////////////////////////////////////////////////////////////
 
-// REMO
-extern int TclCommand_addPatch(ClientData, Tcl_Interp*,
-                               int argc, TCL_Char **);
-
-extern int TclCommand_addFiber(ClientData, Tcl_Interp*,
-                               int argc, TCL_Char **,
-                               TclBuilder *theTclBuilder);
 
 extern int TclCommand_addHFiber(ClientData, Tcl_Interp*,
                                 int argc, TCL_Char **,
                                 TclBasicBuilder *theTclBuilder);
-
+/*
 extern int TclCommand_addReinfLayer(ClientData, Tcl_Interp*,
                                     int argc, TCL_Char **,
                                     TclBasicBuilder *theTclBuilder);
-
+*/
 extern int TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 static int TclCommand_Package(ClientData, Tcl_Interp*,
@@ -509,10 +511,10 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   Tcl_CreateCommand(interp, "patch", TclCommand_addPatch, (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "layer", TclCommand_addRemoLayer, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "layer", TclCommand_addReinfLayer, (ClientData)NULL,
                     NULL);
 
-  Tcl_CreateCommand(interp, "fiber", TclCommand_addRemoFiber, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "fiber", TclCommand_addFiber, (ClientData)NULL,
                     NULL);
 
   // Added by LEO
@@ -1406,7 +1408,7 @@ TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   return Tcl_AddLimitCurveCommand(clientData, interp, argc, argv, theTclDomain);
 }
-
+/*
 extern int TclBasicBuilderNDMaterialCommand(ClientData clienData,
                                             Tcl_Interp *interp, int argc,
                                             TCL_Char **argv,
@@ -1420,7 +1422,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp, int argc,
   return TclBasicBuilderNDMaterialCommand(clientData, interp, argc, argv,
                                           theTclBuilder);
 }
-
+*/
 extern int
 TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv,
@@ -4553,7 +4555,6 @@ TclCommand_addRemoPatch(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   return TclCommand_addPatch(clientData, interp, argc, argv, theTclBuilder);
 }
-*/
 
 int
 TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -4561,6 +4562,7 @@ TclCommand_addRemoFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   return TclCommand_addFiber(clientData, interp, argc, argv, theTclBuilder);
 }
+*/
 
 int
 TclBasicBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
@@ -4568,7 +4570,7 @@ TclBasicBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
 {
   return TclCommand_addHFiber(clientData, interp, argc, argv, theTclBuilder);
 }
-
+/*
 int
 TclCommand_addRemoLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
@@ -4576,6 +4578,7 @@ TclCommand_addRemoLayer(ClientData clientData, Tcl_Interp *interp, int argc,
   return TclCommand_addReinfLayer(clientData, interp, argc, argv,
                                   theTclBuilder);
 }
+*/
 
 
 extern int TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,

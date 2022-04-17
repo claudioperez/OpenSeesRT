@@ -19,7 +19,7 @@ extern "C" {
  * Called when Tcl loads the extension.
  */
 int DLLEXPORT
-Openseescommandpackage_Init(Tcl_Interp *interp)
+Openseesrt_Init(Tcl_Interp *interp)
 {
   if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL) {
     return TCL_ERROR;

@@ -1611,10 +1611,10 @@ TclCommand_addPatch(ClientData clientData,
 // add patch to fiber section
 int
 TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv, TclBuilder *theTclBasicBuilder)
+                    TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  theTclBasicBuilder = G3_getModelBuilder(rt);
+  TclBuilder *theTclBasicBuilder = G3_getModelBuilder(rt);
 
   // check if a section is being processed
   if (theTclBasicBuilder->currentSectionTag == 0) {
@@ -1638,7 +1638,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if (sectionRepres->getType() != SEC_TAG_FiberSection) {
-    opserr << "WARNING section invalid: patch can only be added to fiber "
+    opserr << "WARNING section invalid: fiber can only be added to fiber "
               "sections\n";
     return TCL_ERROR;
   }
@@ -1670,7 +1670,6 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // creates 2d section
   if (NDM == 2) {
-
     if (currentSectionIsND) {
       NDMaterial *material = OPS_getNDMaterial(matTag);
       if (material == 0) {
@@ -1694,7 +1693,6 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (NDM == 3) {
-
     static Vector fiberPosition(2);
     fiberPosition(0) = yLoc;
     fiberPosition(1) = zLoc;
@@ -1847,10 +1845,11 @@ TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
+                         TCL_Char **argv) //, TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
+  TclBasicBuilder *theTclBasicBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
   // opserr << "\nreading layer:\n";
 
   // check if a section is being processed

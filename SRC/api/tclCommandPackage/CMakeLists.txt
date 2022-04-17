@@ -37,7 +37,7 @@ target_sources(OpenSeesRT PRIVATE
     "commands/analysis/analysis.cpp"
     "commands/analysis/solver.cpp"
     OpenSeesRT.cpp
-    TclPackageClassBroker.cpp
+    misc/TclPackageClassBroker.cpp
 
 # Database
     "commands/database/TclDatabaseCommands.cpp"
@@ -58,36 +58,6 @@ target_sources(OpenSeesRT PRIVATE
 # ELEMENTS
 #
     "commands/modeling/element.cpp"
-    "element/beamWithHinges.cpp"
-    "element/gradientInelasticBeamColumn.cpp"
-    "element/UP-ucsd/TclFourNodeQuadUPCommand.cpp"
-    #"element/UWelements/Tcl_generateInterfacePoints.cpp"
-    "element/adapter/TclActuatorCommand.cpp"
-    "element/adapter/TclActuatorCorotCommand.cpp"
-    "element/adapter/TclAdapterCommand.cpp"
-    "element/brick/TclBrickCommand.cpp"
-    "element/brick/TclTwenty_Node_BrickCommand.cpp"
-    "element/dispBeamColumnInt/TclDispBeamColumnIntCommand.cpp"
-    "element/elasticBeamColumn/TclElasticBeamCommand.cpp"
-    "element/elastomericBearing/TclElastomericBearingBoucWenCommand.cpp"
-    "element/elastomericBearing/TclElastomericBearingPlasticityCommand.cpp"
-    "element/elastomericBearing/TclElastomericBearingUFRPCommand.cpp"
-    "element/forceBeamColumn/TclForceBeamColumnCommand.cpp"
-    "element/fourNodeQuad/TclFourNodeQuadCommand.cpp"
-    "element/frictionBearing/TclFlatSliderCommand.cpp"
-    "element/frictionBearing/TclRJWatsonEQSCommand.cpp"
-    "element/frictionBearing/TclSingleFPCommand.cpp"
-    "element/frictionBearing/frictionModel/TclModelBuilderFrictionModelCommand.cpp"
-    "element/generic/TclGenericClientCommand.cpp"
-    "element/generic/TclGenericCopyCommand.cpp"
-    "element/joint/TclBeamColumnJointCommand.cpp"
-    "element/joint/TclJoint2dCommand.cpp"
-    "element/joint/TclJoint3dCommand.cpp"
-    "element/twoNodeLink/TclTwoNodeLinkCommand.cpp"
-    "element/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
-    "element/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
-    "element/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
-    "element/zeroLength/TclZeroLength.cpp"
     #"element/feap/TclFeapElementCommand.cpp"
     #"element/PFEMElement/TclModelBuilder_addPFEMElement.cpp"
     #"element/PFEMElement/TclPFEMCommands.cpp"
@@ -131,12 +101,12 @@ target_sources(OpenSeesRT PRIVATE
 #
 # Reliability & Optimization 
 #
-    #"optimization/tcl/TclOptimizationBuilder.cpp"
+    #"contrib/optimization/TclOptimizationBuilder.cpp"
 
-    #"reliability/analysis/gFunction/TclGFunEvaluator.cpp"
-    #"reliability/analysis/gFunction/TclMatlabGFunEvaluator.cpp"
-    #"reliability/domain/functionEvaluator/TclEvaluator.cpp"
-    #"reliability/tcl/TclReliabilityBuilder.cpp"
+    #"contrib/reliability/analysis/gFunction/TclGFunEvaluator.cpp"
+    #"contrib/reliability/analysis/gFunction/TclMatlabGFunEvaluator.cpp"
+    #"contrib/reliability/domain/functionEvaluator/TclEvaluator.cpp"
+    #"contrib/reliability/tcl/TclReliabilityBuilder.cpp"
 #
 # OTHER
 #
@@ -145,12 +115,13 @@ target_sources(OpenSeesRT PRIVATE
     #"${OPS_SRC_DIR}/interpreter/OpenSeesMiscCommands.cpp"
 
     "elementAPI_PYG3.cpp"
-    "packages/tcl_packages.cpp"
+    "misc/tcl_packages.cpp"
     "misc/TclFeViewer.cpp"
     "utilities/tclutils.cpp"
 )
 
-add_subdirectory(libraries/uniaxial)
+# add_subdirectory(libraries/uniaxial)
+add_subdirectory(contrib/)
 
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 

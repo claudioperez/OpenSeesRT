@@ -16,6 +16,9 @@ extern TclCharFn  TclCommand_addElement;
 extern TclCharFn  TclCommand_addUniaxialMaterial;
 extern TclCharFn  TclCommand_addSection;
 extern TclCharFn  TclCommand_addPatch;
+extern TclCharFn  TclCommand_addReinfLayer;
+// extern TclCharFn  TclCommand_addRemoFiber;
+extern TclCharFn  TclCommand_addFiber;
 // Constraints
 extern TclCharFn  TclCommand_addHomogeneousBC;
 static TclCharFn  TclCommand_addEqualDOF_MP;
@@ -68,11 +71,11 @@ struct char_cmd {
   {"equalDOF",         TclCommand_addEqualDOF_MP},
   {"rigidLink",            &TclCommand_RigidLink},
 
-/*
-  {"layer",            TclCommand_addRemoLayer},
-  {"fiber",            TclCommand_addRemoFiber},
-  {"beamIntegration",  TclCommand_addBeamIntegration},
+  {"fiber",            TclCommand_addFiber},
+  {"layer",            TclCommand_addReinfLayer},
   {"nDMaterial",       TclCommand_addNDMaterial},
+/*
+  {"beamIntegration",  TclCommand_addBeamIntegration},
   {"eleLoad",          TclCommand_addElementalLoad},
 */
 
@@ -153,8 +156,6 @@ TclCharFn TclSafeBuilder_doShallowFoundationGen;
 // End PRC
 TclCharFn TclCommand_doBlock2D;
 TclCharFn TclCommand_doBlock3D;
-TclCharFn TclCommand_addRemoLayer;
-TclCharFn TclCommand_addRemoFiber;
 //Leo
 TclCharFn TclSafeBuilder_addRemoHFiber;
 TclCharFn TclCommand_addFrictionModel;
