@@ -21,7 +21,7 @@ extern TclCharFn  TclCommand_addReinfLayer;
 extern TclCharFn  TclCommand_addFiber;
 // Constraints
 extern TclCharFn  TclCommand_addHomogeneousBC;
-static TclCharFn  TclCommand_addEqualDOF_MP;
+extern TclCharFn  TclCommand_addEqualDOF_MP;
 // Loads
 extern TclCharFn  TclCommand_addNodalLoad;
 
@@ -58,8 +58,12 @@ struct char_cmd {
 
 // Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},
+  {"nDMaterial",       TclCommand_addNDMaterial},
+
   {"section",          TclCommand_addSection},
   {"patch",            TclCommand_addPatch},
+  {"fiber",            TclCommand_addFiber},
+  {"layer",            TclCommand_addReinfLayer},
 
   {"geomTransf",       TclCommand_addGeomTransf},
 
@@ -68,12 +72,13 @@ struct char_cmd {
   {"timeSeries",       TclCommand_addTimeSeries},
 
   {"fix",              TclCommand_addHomogeneousBC},
+  {"fixX",             TclCommand_addHomogeneousBC_X},
+  {"fixY",             TclCommand_addHomogeneousBC_Y},
+  {"fixZ",             TclCommand_addHomogeneousBC_Z},
   {"equalDOF",         TclCommand_addEqualDOF_MP},
   {"rigidLink",            &TclCommand_RigidLink},
 
-  {"fiber",            TclCommand_addFiber},
-  {"layer",            TclCommand_addReinfLayer},
-  {"nDMaterial",       TclCommand_addNDMaterial},
+
 /*
   {"beamIntegration",  TclCommand_addBeamIntegration},
   {"eleLoad",          TclCommand_addElementalLoad},
@@ -83,9 +88,6 @@ struct char_cmd {
   {"block2D",              TclCommand_doBlock2D},
   {"block3D",              TclCommand_doBlock3D},
 
-  {"fixX",                 TclCommand_addHomogeneousBC_X},
-  {"fixY",                 TclCommand_addHomogeneousBC_Y},
-  {"fixZ",                 TclCommand_addHomogeneousBC_Z},
   {"sp",                   TclCommand_addSP},
   {"mp",                   TclCommand_addMP},
   {"imposedMotion",        TclCommand_addImposedMotionSP},
@@ -96,7 +98,7 @@ struct char_cmd {
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
   {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
-  {"Hfiber",             TclSafeBuilder_addRemoHFiber},
+  {"Hfiber",               TclSafeBuilder_addRemoHFiber},
 
 #if defined(OPSDEF_Element_PFEM)
   {"mesh",             TclCommand_mesh},
