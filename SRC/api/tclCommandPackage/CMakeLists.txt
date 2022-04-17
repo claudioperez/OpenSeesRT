@@ -29,8 +29,7 @@ target_sources(OpenSeesRT PRIVATE
 
 # Other Commands
     "commands/commands.cpp"
-    "commands/myCommands.cpp"
-
+    "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
     "commands/analysis/algorithm.cpp"
     "commands/analysis/integrator.cpp"

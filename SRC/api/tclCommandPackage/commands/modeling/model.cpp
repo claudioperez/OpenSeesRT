@@ -1,35 +1,12 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.11 $
-// $Date: 2010-02-04 00:27:53 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/myCommands.cpp,v $
-
-// Written: fmk
-// Created: 04/98
-//
 // Description: This file contains the function myCommands().
 // myCommands() is called in g3AppInit() - all new user commands
 // are to be placed in here.
 //
-// What: "@(#) myCommands.C, revA"
 #include <g3_api.h>
 #include <Domain.h>
 // #include "TclBasicBuilder.h"
