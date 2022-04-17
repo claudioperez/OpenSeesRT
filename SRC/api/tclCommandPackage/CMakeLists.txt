@@ -31,6 +31,7 @@ target_sources(OpenSeesRT PRIVATE
     "commands/commands.cpp"
     "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
+    "commands/modeling/constraint.cpp"
     "commands/analysis/algorithm.cpp"
     "commands/analysis/integrator.cpp"
     "commands/analysis/analysis.cpp"
