@@ -14,6 +14,8 @@ public:
   AnalysisModel  *m_analysis_model     = nullptr;
   AnalysisModel **m_analysis_model_ptr = &m_analysis_model;
   bool model_is_built=false;
+
+  LinearSOE      *m_sys_of_eqn = nullptr;
 };
 
 class G3_ParallelRuntime : public G3_Runtime {

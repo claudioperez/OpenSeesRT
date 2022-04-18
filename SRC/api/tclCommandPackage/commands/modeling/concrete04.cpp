@@ -1,6 +1,14 @@
+#include <tcl.h>
 
-else if (strcmp(argv[1], "Concrete04") == 0) {
-      //        opserr << argc << endln;
+#include <Concrete04.h>
+#include <Concrete06.h>
+#include <Concrete07.h>
+
+int TclCommand_addUniaxialConcrete04(ClientData cd, Tcl_Interp *interp, int argc, char **const argv)
+/* if (strcmp(argv[1], "Concrete04") == 0) */{
+      int tag;
+      double fpc, epsc0, ft, epscu, Ec0, etu, beta;
+
       if (argc != 10 && argc != 9 && argc != 7) {
         opserr << "WARNING insufficient arguments\n";
         printCommand(argc, argv);
@@ -10,7 +18,6 @@ else if (strcmp(argv[1], "Concrete04") == 0) {
         return TCL_ERROR;
       }
 
-      int tag;
 
       if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
         opserr << "WARNING invalid uniaxialMaterial Concrete04 tag" << endln;
@@ -18,7 +25,6 @@ else if (strcmp(argv[1], "Concrete04") == 0) {
       }
 
       // Read required Concrete04 material parameters
-      double fpc, epsc0, ft, epscu, Ec0, etu, beta;
 
       if (Tcl_GetDouble(interp, argv[3], &fpc) != TCL_OK) {
         opserr << "WARNING invalid fpc\n";
@@ -74,7 +80,8 @@ else if (strcmp(argv[1], "Concrete04") == 0) {
       }
 }
 
-else if (strcmp(argv[1], "Concrete06") == 0) {
+int TclCommand_addUniaxialConcrete06(ClientData cd, Tcl_Interp *interp, int argc, char **const argv)
+/* else if (strcmp(argv[1], "Concrete06") == 0) */ {
       if (argc < 12) {
         opserr << "WARNING insufficient arguments\n";
         printCommand(argc, argv);
@@ -154,7 +161,8 @@ else if (strcmp(argv[1], "Concrete06") == 0) {
           new Concrete06(tag, fc, eo, r, k, alphaC, fcr, ecr, b, alphaT);
     }
 
-    else if (strcmp(argv[1], "Concrete07") == 0) {
+int TclCommand_addUniaxialConcrete07(ClientData cd, Tcl_Interp *interp, int argc, char **const argv)
+/* else if (strcmp(argv[1], "Concrete07") == 0) */ {
       // Check to see if there are enough arquements
       if (argc < 11) {
         opserr << "WARNING: Insufficient arguments\n";
@@ -223,15 +231,8 @@ else if (strcmp(argv[1], "Concrete06") == 0) {
         opserr << "uniaxialMaterial Concrete07: " << tag << endln;
       }
 
-      //		opserr << "fpc: " << fpc << endln << "epsc0: " << epsc0
-      //<< endln <<
-      //"Ec: " << Ec << endln; 		opserr << "fpt: " << fpt << endln <<
-      //"epst0: " <<
-      // epst0 << endln << "xcrp: " << xcrp << endln; 		opserr << "xcrn:
-      // " << xcrn << endln << "r: " << r << endln;
-
       // Parsing was successful, allocate the material
-
       theMaterial =
           new Concrete07(tag, fpc, epsc0, Ec, fpt, epst0, xcrp, xcrn, r);
-    }   }
+}   
+

@@ -89,11 +89,8 @@
 #  endif
 #endif
 
-#ifdef _PETSC
-#  include <PetscSOE.h>
-#  include <PetscSolver.h>
-#  include <SparseGenRowLinSOE.h>
-#  include <PetscSparseSeqSolver.h>
+#if 1 || defined(_PETSC)
+LinearSOE *TclCommand_newPetscSOE(int, TCL_Char**);
 #endif
 
 #ifdef _CUDA

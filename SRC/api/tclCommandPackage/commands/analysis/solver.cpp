@@ -54,12 +54,6 @@
 #endif
 #endif
 
-#ifdef _PETSC
-#include <PetscSOE.h>
-#include <PetscSolver.h>
-#include <SparseGenRowLinSOE.h>
-#include <PetscSparseSeqSolver.h>
-#endif
 
 #include <SparseGenRowLinSOE.h>
 #include <SymSparseLinSOE.h>
@@ -107,14 +101,17 @@ int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "WARNING need to specify a model type \n";
     return TCL_ERROR;
   }
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   
   auto ctor = soe_table.find(std::string(argv[1]));
   if (ctor != soe_table.end()) {
     theSOE = ctor->second.ss();
   }
+#if 0
+  else if (strcmp(argv[1], "petsc")==0 ||
+           strcmp(argv[1], "Petsc")==0) {
+    theSOE = TclCommand_newPetscSOE(argc, argv);
+  }
+#endif
 
   // Diagonal SOE & SOLVER
   else if (strcmp(argv[1], "MPIDiagonal") == 0) {
@@ -139,24 +136,10 @@ int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 #endif
 
-  // if the analysis exists - we want to change the SOE
   if (theSOE != 0) {
-    if (the_static_analysis != 0)
-      the_static_analysis->setLinearSOE(*theSOE);
-    if (theTransientAnalysis != 0)
-      theTransientAnalysis->setLinearSOE(*theSOE);
-
-#ifdef _PARALLEL_PROCESSING
-    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
-      SubdomainIter &theSubdomains = theDomain.getSubdomains();
-      Subdomain *theSub;
-      while ((theSub = theSubdomains()) != 0) {
-        theSub->setAnalysisLinearSOE(*theSOE);
-      }
-    }
-#endif
+    G3_Runtime *rt = G3_getRuntime(interp);
+    G3_setLinearSoe(rt, theSOE);
     return TCL_OK;
-
   } else {
     opserr << "WARNING system " << argv[1] << " is unknown or not installed\n";
     return TCL_ERROR;
@@ -459,142 +442,7 @@ else if ((strcmp(argv[1], "CulaSparse") == 0)) {
 //  }
 #endif // _ITPACK
 
-#if defined(OPSDEF_USE_PETSC)
-  else if (strcmp(argv[1], "Petsc") == 0) {
-    // now must determine the type of solver to create from rest of args
-    KSPType method = KSPCG;           // KSPCG KSPGMRES
-    PCType preconditioner = PCJACOBI; // PCJACOBI PCILU PCBJACOBI
-    int matType = 0;
 
-    double rTol = 1.0e-5;
-    double aTol = 1.0e-50;
-    double dTol = 1.0e5;
-    int maxIts = 100000;
-    int count = 2;
-    while (count < argc - 1) {
-      if (strcmp(argv[count], "-matrixType") == 0 ||
-          strcmp(argv[count], "-matrix")) {
-        if (strcmp(argv[count + 1], "sparse") == 0)
-          matType = 1;
-      } else if (strcmp(argv[count], "-rTol") == 0 ||
-                 strcmp(argv[count], "-relTol")    ||
-                 strcmp(argv[count], "-relativeTolerance")) {
-        if (Tcl_GetDouble(interp, argv[count + 1], &rTol) != TCL_OK)
-          return nullptr;
-      } else if (strcmp(argv[count], "-aTol") == 0 ||
-                 strcmp(argv[count], "-absTol") ||
-                 strcmp(argv[count], "-absoluteTolerance")) {
-        if (Tcl_GetDouble(interp, argv[count + 1], &aTol) != TCL_OK)
-          return nullptr;
-      } else if (strcmp(argv[count], "-dTol") == 0 ||
-                 strcmp(argv[count], "-divTol") ||
-                 strcmp(argv[count], "-divergenceTolerance")) {
-        if (Tcl_GetDouble(interp, argv[count + 1], &dTol) != TCL_OK)
-          return nullptr;
-      } else if (strcmp(argv[count], "-mIts") == 0 ||
-                 strcmp(argv[count], "-maxIts") ||
-                 strcmp(argv[count], "-maxIterations")) {
-        if (Tcl_GetInt(interp, argv[count + 1], &maxIts) != TCL_OK)
-          return nullptr;
-      } else if (strcmp(argv[count], "-KSP") == 0 ||
-                 strcmp(argv[count], "-KSPType")) {
-        if (strcmp(argv[count + 1], "KSPCG") == 0)
-          method = KSPCG;
-        else if (strcmp(argv[count + 1], "KSPBICG") == 0)
-          method = KSPBICG;
-        else if (strcmp(argv[count + 1], "KSPRICHARDSON") == 0)
-          method = KSPRICHARDSON;
-        else if (strcmp(argv[count + 1], "KSPCHEBYSHEV") == 0)
-          method = KSPCHEBYSHEV;
-        else if (strcmp(argv[count + 1], "KSPGMRES") == 0)
-          method = KSPGMRES;
-      } else if (strcmp(argv[count], "-PC") == 0 ||
-                 strcmp(argv[count], "-PCType")) {
-        if ((strcmp(argv[count + 1], "PCJACOBI") == 0) ||
-            (strcmp(argv[count + 1], "JACOBI") == 0))
-          preconditioner = PCJACOBI;
-        else if ((strcmp(argv[count + 1], "PCILU") == 0) ||
-                 (strcmp(argv[count + 1], "ILU") == 0))
-          preconditioner = PCILU;
-        else if ((strcmp(argv[count + 1], "PCICC") == 0) ||
-                 (strcmp(argv[count + 1], "ICC") == 0))
-          preconditioner = PCICC;
-        else if ((strcmp(argv[count + 1], "PCBJACOBI") == 0) ||
-                 (strcmp(argv[count + 1], "BIJACOBI") == 0))
-          preconditioner = PCBJACOBI;
-        else if ((strcmp(argv[count + 1], "PCNONE") == 0) ||
-                 (strcmp(argv[count + 1], "NONE") == 0))
-          preconditioner = PCNONE;
-      }
-      count += 2;
-    }
-
-    if (matType == 0) {
-      // PetscSolver *theSolver = new PetscSolver(method, preconditioner, rTol,
-      // aTol, dTol, maxIts);
-      PetscSolver *theSolver =
-          new PetscSolver(method, preconditioner, rTol, aTol, dTol, maxIts);
-      theSOE = new PetscSOE(*theSolver);
-    } else {
-      // PetscSparseSeqSolver *theSolver = new PetscSparseSeqSolver(method,
-      // preconditioner, rTol, aTol, dTol, maxIts);
-      PetscSparseSeqSolver *theSolver = 0;
-      theSOE = new SparseGenRowLinSOE(*theSolver);
-    }
-  }
-#endif
-
-#ifdef _MUMPS
-  else if (strcmp(argv[1], "Mumps") == 0) {
-
-    int icntl14 = 20;
-    int icntl7 = 7;
-    int matType = 0; // 0: unsymmetric, 1: symmetric positive definite, 2:
-                     // symmetric general
-
-    int currentArg = 2;
-    while (currentArg < argc) {
-      if (argc > 2) {
-        if (strcmp(argv[currentArg], "-ICNTL14") == 0) {
-          if (Tcl_GetInt(interp, argv[currentArg + 1], &icntl14) != TCL_OK)
-            ;
-          currentArg += 2;
-        } else if (strcmp(argv[currentArg], "-ICNTL7") == 0) {
-          if (Tcl_GetInt(interp, argv[currentArg + 1], &icntl7) != TCL_OK)
-          ;
-          currentArg += 2;
-        } else if (strcmp(argv[currentArg], "-matrixType") == 0) {
-          if (Tcl_GetInt(interp, argv[currentArg + 1], &matType) != TCL_OK)
-            opserr << "Mumps Warning: failed to get -matrixType. Unsymmetric "
-                      "matrix assumed\n";
-          if (matType < 0 || matType > 2) {
-            opserr << "Mumps Warning: wrong -matrixType value (" << matType
-                   << "). Unsymmetric matrix assumed\n";
-            matType = 0;
-          }
-          currentArg += 2;
-        } else
-          currentArg++;
-      }
-    }
-
-#  ifdef _PARALLEL_PROCESSING
-    MumpsParallelSolver *theSolver = new MumpsParallelSolver(icntl7, icntl14);
-    theSOE = new MumpsParallelSOE(*theSolver);
-#  elif _PARALLEL_INTERPRETERS
-    MumpsParallelSolver *theSolver = new MumpsParallelSolver(icntl7, icntl14);
-    MumpsParallelSOE *theParallelSOE =
-        new MumpsParallelSOE(*theSolver, matType);
-    theParallelSOE->setProcessID(OPS_rank);
-    theParallelSOE->setChannels(numChannels, theChannels);
-    theSOE = theParallelSOE;
-#  else
-    MumpsSolver *theSolver = new MumpsSolver(icntl7, icntl14);
-    theSOE = new MumpsSOE(*theSolver, matType);
-#  endif
-  }
-
-#endif
 
 
 

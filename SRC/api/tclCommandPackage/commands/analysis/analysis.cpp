@@ -1,4 +1,3 @@
-
 #include <g3_api.h>
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
@@ -84,34 +83,18 @@
 
 #include <ConjugateGradientSolver.h>
 
-#ifdef _ITPACK
-// #include <ItpackLinSOE.h>
-// #include <ItpackLinSolver.h>
-#endif
-
-#include <FullGenLinSOE.h>
-#include <FullGenLinLapackSolver.h>
-
-#include <ProfileSPDLinSOE.h>
-#include <ProfileSPDLinDirectSolver.h>
-#include <DiagonalSOE.h>
-#include <DiagonalDirectSolver.h>
-
-#include <SProfileSPDLinSolver.h>
-#include <SProfileSPDLinSOE.h>
-
-
-
 extern EquiSolnAlgo *theAlgorithm ;
 extern ConstraintHandler *theHandler ;
 extern DOF_Numberer *theNumberer ;
-extern LinearSOE *theSOE ;
+// extern LinearSOE *theSOE ;
 extern EigenSOE *theEigenSOE ;
 extern TransientIntegrator *theTransientIntegrator;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis
            *theVariableTimeStepTransientAnalysis;
 extern ConvergenceTest *theTest;
+
+LinearSOE *G3_getDefaultLinearSoe(G3_Runtime* rt, int flags);
 
 //
 // command invoked to allow the Analysis object to be built
@@ -125,6 +108,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
   AnalysisModel* the_analysis_model = nullptr;
+  LinearSOE *theSOE = G3_getDefaultLinearSoe(rt, 0);
 
   // make sure at least one other argument to contain type of system
 
@@ -141,7 +125,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   if (((strcmp(argv[1], "VariableTimeStepTransient") == 0) ||
        (strcmp(argv[1], "TransientWithVariableTimeStep") == 0) ||
        (strcmp(argv[1], "VariableTransient") == 0)) &&
-      (theVariableTimeStepTransientAnalysis != 0))
+       (theVariableTimeStepTransientAnalysis != 0))
     return TCL_OK;
 
   if ((strcmp(argv[1], "Transient") == 0) && (theTransientAnalysis != 0))
@@ -201,17 +185,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << " StaticIntegrator default will be used\n";
       the_static_integrator = new LoadControl(1, 1, 1, 1);
       G3_setStaticIntegrator(rt, the_static_integrator);
-    }
-    if (theSOE == 0) {
-      opserr << "WARNING analysis Static - no LinearSOE specified, \n";
-      opserr << " ProfileSPDLinSOE default will be used\n";
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-      theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-      theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
     }
 
     the_static_analysis = new StaticAnalysis(
@@ -325,14 +298,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << " Newmark(.5,.25) default will be used\n";
       theTransientIntegrator = new Newmark(0.5, 0.25);
     }
-    if (theSOE == 0) {
-      opserr << "WARNING analysis Transient dt tFinal - no LinearSOE "
-                "specified, \n";
-      opserr << " ProfileSPDLinSOE default will be used\n";
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-    }
-
     int count = 2;
     int numSubLevels = 0;
     int numSubSteps = 10;
@@ -410,7 +375,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << " Newmark(.5,.25) default will be used\n";
       theTransientIntegrator = new Newmark(0.5, 0.25);
     }
-
+/* cmp
+ * changed so that G3_setLinearSoe creates default
     if (theSOE == 0) {
       opserr << "WARNING analysis Transient dt tFinal - no LinearSOE "
                 "specified, \n";
@@ -418,6 +384,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       ProfileSPDLinSolver *theSolver;
       theSolver = new ProfileSPDLinDirectSolver();
     }
+*/
 
     theVariableTimeStepTransientAnalysis =
         new VariableTimeStepDirectIntegrationAnalysis(

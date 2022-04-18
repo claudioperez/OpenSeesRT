@@ -3,39 +3,43 @@
 #ifndef G3_API_H_
 #define G3_API_H_
 
-#define G3_MAX_NUM_DOFS 1000000000000
-#define G3_NUM_DOF_BUFFER 20
-#include <tcl.h>
+#  define G3_MAX_NUM_DOFS 1000000000000
+#  define G3_NUM_DOF_BUFFER 20
+#  include <tcl.h>
 // #include <g3_io.h>
 
-#ifndef OPS_Export
-# define OPS_Export
-#endif
+#  ifndef OPS_Export
+#    define OPS_Export
+#  endif
 
 //
-// RUNTIME
+// ANALYSIS RUNTIME
 //
-#define OPS_GetDomain()        G3_getDomain(rt)
-#define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)
+#  undef  OPS_GetDomain
+#  define OPS_GetDomain()        G3_getDomain(rt)
+#  undef  OPS_GetAnalysisModel
+#  define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)
 
 //
 // MODELBUILDER
 //
 // Materials
-#define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+#  undef  OPS_GetUniaxialMaterial
+#  define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 // Time series
-#define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
-#define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))
-#define OPS_removeTimeSeries(tag) G3_removeTimeSeries(rt, (tag))
+#  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
+#  define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))
+#  define OPS_removeTimeSeries(tag) G3_removeTimeSeries(rt, (tag))
 // Coordinate Transforms
-#define OPS_getCrdTransf(tag) G3_getCrdTransf(rt, (tag))
-#define OPS_GetCrdTransf(tag) G3_getCrdTransf(rt, (tag))
+#  undef  OPS_getCrdTransf
+#  define OPS_getCrdTransf(tag) G3_getCrdTransf(rt, (tag))
+#  undef  OPS_GetCrdTransf
+#  define OPS_GetCrdTransf(tag) G3_getCrdTransf(rt, (tag))
+
+
 
 typedef int G3_Tag;
-// typedef Tcl_Interp G3_Runtime;
-// #define G3_Runtime Tcl_Interp
-
-#define G3_getDouble Tcl_GetDoubleFromObj
+#  define G3_getDouble Tcl_GetDoubleFromObj
 class G3_Runtime;
 class ModelBuilder;
 class TclBuilder;
@@ -71,13 +75,14 @@ typedef int (G3_TclElementCommand)(ClientData, Tcl_Interp*, int, const char**, D
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+//
 // Runtime
+//
 G3_Runtime *G3_getRuntime(Tcl_Interp *);
 Tcl_Interp *G3_getInterpreter(G3_Runtime*);
 
 // Domain
-int G3_setDomain(G3_Runtime*, Domain*);
+int     G3_setDomain(G3_Runtime*, Domain*);
 Domain *G3_getDomain(G3_Runtime *);
 
 TclSafeBuilder *G3_getSafeBuilder(G3_Runtime *);
@@ -97,8 +102,17 @@ int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 // Coordinate Transforms
 CrdTransf *G3_getCrdTransf(G3_Runtime *, G3_Tag);
 
+//
+// Systems and Solvers
+//
+LinearSOE **G3_getLinearSoePtr(G3_Runtime*);
+#undef  OPS_GetLinearSOE
+#define OPS_GetLinearSOE() G3_getLinearSoePtr(rt)
+int G3_setLinearSoe(G3_Runtime*, LinearSOE*);
 
+//
 // Analysis
+//
 AnalysisModel *G3_getAnalysisModel(G3_Runtime *);
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
 int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
@@ -111,6 +125,7 @@ int G3_setTransientAnalysis(G3_Runtime *, DirectIntegrationAnalysis *);
 
 StaticIntegrator *G3_getStaticIntegrator(G3_Runtime *);
 int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
+
 
 #ifdef __cplusplus
 }
