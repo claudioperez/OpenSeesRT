@@ -13,11 +13,6 @@
 // system of eqn and solvers
 #include <ConjugateGradientSolver.h>
 
-#if defined(OPSDEF_USE_ITPACK)
-#include <ItpackLinSOE.h>
-#include <ItpackLinSolver.h>
-#endif
-
 #include <SProfileSPDLinSolver.h>
 #include <SProfileSPDLinSOE.h>
 
@@ -40,20 +35,6 @@
 #ifdef _CULAS5
 #include <CulaSparseSolverS5.h>
 #endif
-
-#ifdef _MUMPS
-#ifdef _PARALLEL_PROCESSING
-#include <MumpsParallelSOE.h>
-#include <MumpsParallelSolver.h>
-#elif _PARALLEL_INTERPRETERS
-#include <MumpsParallelSOE.h>
-#include <MumpsParallelSolver.h>
-#else
-#include <MumpsSOE.h>
-#include <MumpsSolver.h>
-#endif
-#endif
-
 
 #include <SparseGenRowLinSOE.h>
 #include <SymSparseLinSOE.h>
@@ -94,18 +75,25 @@
 #  include <DistributedProfileSPDLinSOE.h>
 #endif
 
+// TODO: remove
+extern DirectIntegrationAnalysis *theTransientAnalysis;
+extern LinearSOE *theSOE;
+
 int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char **argv) {
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << "WARNING need to specify a model type \n";
+    opserr << "WARNING need to specify a system type \n";
     return TCL_ERROR;
   }
-  
+
+  G3_Runtime* rt = G3_getRuntime(interp); 
+
   auto ctor = soe_table.find(std::string(argv[1]));
   if (ctor != soe_table.end()) {
-    theSOE = ctor->second.ss();
+    theSOE = ctor->second.ss(rt, argc, argv);
   }
+
 #if 0
   else if (strcmp(argv[1], "petsc")==0 ||
            strcmp(argv[1], "Petsc")==0) {
@@ -147,8 +135,8 @@ int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-static LinearSOE*
-specify_SparseSPD(G3_Runtime *rt, int argc, const char **argv)
+LinearSOE*
+specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
 {
   if ((strcmp(argv[1], "SparseSPD") == 0) ||
            (strcmp(argv[1], "SparseSYM") == 0)) {
@@ -226,9 +214,6 @@ else if ((_stricmp(argv[1], "CuSP") == 0)) {
 #endif // _CUSP
 
 /* *********** Some misc solvers i play with ******************
-else if (strcmp(argv[2],"Normal") == 0) {
-  theSolver = new ProfileSPDLinDirectSolver();
-}
 
 else if (strcmp(argv[2],"Block") == 0) {
   int blockSize = 4;
@@ -236,8 +221,7 @@ else if (strcmp(argv[2],"Block") == 0) {
     if (Tcl_GetInt(interp, argv[3], &blockSize) != TCL_OK)
       return TCL_ERROR;
   }
-  theSolver = theSolver = new
-ProfileSPDLinDirectBlockSolver(1.0e-12,blockSize);
+  theSolver = theSolver = new ProfileSPDLinDirectBlockSolver(1.0e-12,blockSize);
 }
 
 
@@ -249,16 +233,20 @@ ProfileSPDLinDirectBlockSolver(1.0e-12,blockSize);
     if (Tcl_GetInt(interp, argv[4], &numThreads) != TCL_OK)
       return TCL_ERROR;
   }
-  theSolver = new
-ProfileSPDLinDirectThreadSolver(numThreads,blockSize,1.0e-12); } else if
-(strcmp(argv[2],"Thread") == 0) { int blockSize = 4; int numThreads = 1; if
-(argc == 5) { if (Tcl_GetInt(interp, argv[3], &blockSize) != TCL_OK) return
-TCL_ERROR; if (Tcl_GetInt(interp, argv[4], &numThreads) != TCL_OK) return
-TCL_ERROR;
+  theSolver = new ProfileSPDLinDirectThreadSolver(numThreads,blockSize,1.0e-12); 
+
+  } else if (strcmp(argv[2],"Thread") == 0) { 
+    int blockSize = 4; 
+    int numThreads = 1; 
+    if (argc == 5) { 
+      if (Tcl_GetInt(interp, argv[3], &blockSize) != TCL_OK) 
+        return TCL_ERROR;
+      if (Tcl_GetInt(interp, argv[4], &numThreads) != TCL_OK)
+        return TCL_ERROR;
   }
-  theSolver = new
-ProfileSPDLinDirectThreadSolver(numThreads,blockSize,1.0e-12);
+  theSolver = new ProfileSPDLinDirectThreadSolver(numThreads,blockSize,1.0e-12);
 }
+
 else if (strcmp(argv[2],"Skypack") == 0) {
   if (argc == 5) {
     int mCols, mRows;
@@ -395,59 +383,9 @@ else if ((strcmp(argv[1], "CulaSparse") == 0)) {
   }
 #endif // OPSDEF_PFEM
 
-#if defined(OPSDEF_USE_UMFPACK)
-  } else if ((strcmp(argv[1], "UmfPack") == 0) ||
-             (strcmp(argv[1], "Umfpack") == 0)) {
 
-    // now must determine the type of solver to create from rest of args
-    int factLVALUE = 10;
-    int factorOnce = 0;
-    int printTime = 0;
-    int count = 2;
-
-    while (count < argc) {
-      if ((strcmp(argv[count], "-lValueFact") == 0) ||
-          (strcmp(argv[count], "-lvalueFact") == 0) ||
-          (strcmp(argv[count], "-LVALUE") == 0)) {
-        if (Tcl_GetInt(interp, argv[count + 1], &factLVALUE) != TCL_OK)
-          return nullptr;
-        count++;
-      } else if ((strcmp(argv[count], "-factorOnce") == 0) ||
-                 (strcmp(argv[count], "-FactorOnce") == 0)) {
-        factorOnce = 1;
-      } else if ((strcmp(argv[count], "-printTime") == 0) ||
-                 (strcmp(argv[count], "-time") == 0)) {
-        printTime = 1;
-      }
-      count++;
-    }
-    UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver();
-    // theSOE = new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce,
-    // printTime);
-    theSOE = new UmfpackGenLinSOE(*theSolver);
-  }
-#endif
-
-#if defined(OPSDEF_USE_ITPACK)
-//  else if (strcmp(argv[1],"Itpack") == 0) {
-//
-//    // now must determine the type of solver to create from rest of args
-//    int method = 1;
-//    if (argc == 3) {
-//      if (Tcl_GetInt(interp, argv[2], &method) != TCL_OK)
-//	return TCL_ERROR;
-//    }
-//    ItpackLinSolver *theSolver = new ItpackLinSolver(method);
-//    theSOE = new ItpackLinSOE(*theSolver);
-//  }
-#endif // _ITPACK
-
-
-
-
-
-static LinearSOE*
-specifySparseGen(G3_Runtime* rt, int argc, const char **argv) {
+LinearSOE*
+specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv) {
   // SPARSE GENERAL SOE * SOLVER
   if ((strcmp(argv[1], "SparseGeneral") == 0) ||
            (strcmp(argv[1], "SuperLU") == 0) ||

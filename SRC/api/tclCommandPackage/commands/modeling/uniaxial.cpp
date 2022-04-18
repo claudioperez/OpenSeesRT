@@ -8,7 +8,6 @@
 #include <elementAPI.h>
 #include <g3_api.h>
 #include <iostream>
-#include <unordered_map> // std::unordered_map
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);

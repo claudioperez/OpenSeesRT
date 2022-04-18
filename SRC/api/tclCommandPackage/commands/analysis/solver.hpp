@@ -40,10 +40,10 @@
 #include <SparseGenColLinSOE.h>
 
 #include <SparseGenRowLinSOE.h>
-#include <SymSparseLinSOE.h>
-#include <SymSparseLinSolver.h>
-#include <UmfpackGenLinSOE.h>
-#include <UmfpackGenLinSolver.h>
+// #include <SymSparseLinSOE.h>
+// #include <SymSparseLinSolver.h>
+// #include <UmfpackGenLinSOE.h>
+// #include <UmfpackGenLinSolver.h>
 #include <EigenSOE.h>
 #include <EigenSolver.h>
 #include <ArpackSOE.h>
@@ -56,11 +56,6 @@
 #include <SymBandEigenSolver.h>
 #include <FullGenEigenSOE.h>
 #include <FullGenEigenSolver.h>
-
-#if defined(OPSDEF_USE_ITPACK)
-#  include <ItpackLinSOE.h>
-#  include <ItpackLinSolver.h>
-#endif
 
 #ifdef _THREADS
 #  include <ThreadedSuperLU.h>
@@ -115,59 +110,82 @@ LinearSOE *TclCommand_newPetscSOE(int, TCL_Char**);
 #  include <DistributedProfileSPDLinSOE.h>
 #endif
 
-typedef LinearSOE*(*fn)(void);
+typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
+typedef LinearSOE*(*fn)(G3_Runtime*, int, G3_Char**);
 
-extern DirectIntegrationAnalysis *theTransientAnalysis;
-extern LinearSOE *theSOE;
+// Specifiers defined in solver.cpp
+G3_SysOfEqnSpecifier specify_SparseSPD;
+G3_SysOfEqnSpecifier specifySparseGen;
 
-// enum ComputeModel {CM_Serial, CM_Threads, CM_MultInterp, CM_SingInterp};
-
+// Helpers to automatically create constructors for systems/solvers 
+// that do not take arguments when they are constructed.
 template <typename Solver, typename SOE>
-LinearSOE *simple_soe(void) {return new SOE(*(new Solver()));}
-
+LinearSOE *simple_soe(G3_Runtime*, int, G3_Char**) {return new SOE(*(new Solver()));}
 #define G3_SOE(Solver, SOE) simple_soe<Solver, SOE>
 #define SP_SOE(Solver, SOE) nullptr
 #define MP_SOE(Solver, SOE) nullptr
+
 struct soefps {fn ss, sp, mp;};
 
-// All of these systems/solvers do not take arguments when 
-// they are constructed.
 std::unordered_map<std::string, struct soefps> soe_table = {
   {"BandSPD", {
      G3_SOE(BandSPDLinLapackSolver,      BandSPDLinSOE),
      SP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE),
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
+
   {"BandGeneral", { // BandGen, BandGEN
      G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
      SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
+
   {"BandSPD", {
      G3_SOE(BandSPDLinLapackSolver,      BandSPDLinSOE),
      SP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE),
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
+
+  {"SparseGen", {
+     specifySparseGen, 
+     nullptr, 
+     nullptr}},
+  {"SuperLU", {
+     specifySparseGen, 
+     nullptr, 
+     nullptr}},
+
+  {"SparseSPD", {
+     specify_SparseSPD, 
+     nullptr, 
+     nullptr}},
+
   {"Diagonal", {
      G3_SOE(DiagonalDirectSolver,        DiagonalSOE),
      SP_SOE(DistributedDiagonalSolver,   DistributedDiagonalSOE),
      MP_SOE(DistributedDiagonalSolver,   DistributedDiagonalSOE)}},
+
   {"MPIDiagonal", {
      G3_SOE(DiagonalDirectSolver,        DiagonalSOE),
      SP_SOE(MPIDiagonalSolver,           MPIDiagonalSOE),
      MP_SOE(MPIDiagonalSolver,           MPIDiagonalSOE)}},
+
   {"SProfileSPD", {
      G3_SOE(SProfileSPDLinSolver,        SProfileSPDLinSOE),
      SP_SOE(SProfileSPDLinSolver,        SProfileSPDLinSOE),
      MP_SOE(SProfileSPDLinSolver,        SProfileSPDLinSOE)}},
+
   {"ProfileSPD", {
      G3_SOE(ProfileSPDLinDirectSolver,   ProfileSPDLinSOE),
      SP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE),
      MP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE)}},
+
   {"ParallelProfileSPD", {
      nullptr, nullptr,
      MP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE)}},
+
   {"FullGeneral", {
      G3_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
      SP_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
      MP_SOE(FullGenLinLapackSolver,      FullGenLinSOE)}},
+
 #ifdef _CUDA
   {"BandGeneral_Single", {  // "BandGEN_Single", "BandGen_Single"
      G3_SOE(BandGenLinLapackSolver_Single,    BandGenLinSOE_Single),

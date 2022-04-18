@@ -2,7 +2,6 @@
 
 #ifndef G3_API_H_
 #define G3_API_H_
-
 #  define G3_MAX_NUM_DOFS 1000000000000
 #  define G3_NUM_DOF_BUFFER 20
 #  include <tcl.h>
@@ -39,6 +38,7 @@
 
 
 typedef int G3_Tag;
+#  define G3_Char TCL_Char
 #  define G3_getDouble Tcl_GetDoubleFromObj
 class G3_Runtime;
 class ModelBuilder;

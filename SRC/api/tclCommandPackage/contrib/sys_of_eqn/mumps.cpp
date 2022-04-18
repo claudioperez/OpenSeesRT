@@ -1,6 +1,21 @@
 
-#ifdef _MUMPS
-  else if (strcmp(argv[1], "Mumps") == 0) {
+#ifdef _PARALLEL_PROCESSING
+#include <MumpsParallelSOE.h>
+#include <MumpsParallelSolver.h>
+#elif _PARALLEL_INTERPRETERS
+#include <MumpsParallelSOE.h>
+#include <MumpsParallelSolver.h>
+#else
+#include <MumpsSOE.h>
+#include <MumpsSolver.h>
+#endif
+
+struct MumpsOptions {int icntl14, icntl7;};
+
+struct MumpsOptions
+parseLinearSOE_mumps(G3_Runtime* rt, int argc, G3_Char** argv)
+{
+  if (strcmp(argv[1], "Mumps") == 0) {
 
     int icntl14 = 20;
     int icntl7 = 7;
@@ -34,19 +49,19 @@
     }
 
 #  ifdef _PARALLEL_PROCESSING
-    MumpsParallelSolver *theSolver = new MumpsParallelSolver(icntl7, icntl14);
-    theSOE = new MumpsParallelSOE(*theSolver);
+      MumpsParallelSolver *theSolver = new MumpsParallelSolver(icntl7, icntl14);
+      theSOE = new MumpsParallelSOE(*theSolver);
 #  elif _PARALLEL_INTERPRETERS
-    MumpsParallelSolver *theSolver = new MumpsParallelSolver(icntl7, icntl14);
-    MumpsParallelSOE *theParallelSOE =
-        new MumpsParallelSOE(*theSolver, matType);
-    theParallelSOE->setProcessID(OPS_rank);
-    theParallelSOE->setChannels(numChannels, theChannels);
-    theSOE = theParallelSOE;
+    if (G3_
+      MumpsParallelSolver *theSolver = new MumpsParallelSolver(icntl7, icntl14);
+      MumpsParallelSOE *theParallelSOE =
+          new MumpsParallelSOE(*theSolver, matType);
+      theParallelSOE->setProcessID(OPS_rank);
+      theParallelSOE->setChannels(numChannels, theChannels);
+      theSOE = theParallelSOE;
 #  else
     MumpsSolver *theSolver = new MumpsSolver(icntl7, icntl14);
     theSOE = new MumpsSOE(*theSolver, matType);
 #  endif
   }
-
-#endif
+}
