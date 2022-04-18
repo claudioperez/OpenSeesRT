@@ -111,38 +111,45 @@ typedef void* (G3_RuntimeUniaxialCommand)(G3_Runtime*);
 
 const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_table 
 {
-
+// Standard
     {"Elastic",                OPS_ElasticMaterial           },
 
     {"Steel01",                OPS_Steel01                   },
 
     {"Steel02",                OPS_Steel02                   },
 
+    {"Concrete01",             OPS_Concrete01                },
+    {"Concrete02",             OPS_Concrete02                },
+
+// Composites
+    {"MinMaxMaterial",         OPS_MinMaxMaterial            },
+    {"MinMax",                 OPS_MinMaxMaterial            },
+
     {"Parallel",               OPS_ParallelMaterial          },
 
     {"Series",                 OPS_SeriesMaterial            },
 
+// Steels
+    {"SteelBRB",               OPS_SteelBRB                  },
+
     {"SteelFractureDI",        OPS_SteelFractureDI           },
 
     {"Steel02Fatigue",         OPS_Steel02Fatigue            },
-    {"Steel4",                 OPS_Steel4                    },
-    {"UVCuniaxial",            OPS_UVCuniaxial               },
-    {"GNG",                    OPS_GNGMaterial               },
-    {"PySimple3",              OPS_PySimple3                 },
-    {"Concrete01",             OPS_Concrete01                },
-    {"Concrete02",             OPS_Concrete02                },
-    {"Concrete02IS",           OPS_Concrete02IS              },
 
+    {"Steel4",                 OPS_Steel4                    },
+
+// Piles
+    {"PySimple3",              OPS_PySimple3                 },
+
+// Other
     {"ElasticBilin",           OPS_ElasticBilin              },
     {"ElasticBilinear",        OPS_ElasticBilin              },
 
     {"ImpactMaterial",         OPS_ImpactMaterial            },
     {"Impact",                 OPS_ImpactMaterial            },
 
-    {"SteelBRB",               OPS_SteelBRB                  },
-
-    {"MinMaxMaterial",         OPS_MinMaxMaterial            },
-    {"MinMax",                 OPS_MinMaxMaterial            },
+    {"UVCuniaxial",            OPS_UVCuniaxial               },
+    {"GNG",                    OPS_GNGMaterial               },
 
     {"SimpleFractureMaterial", OPS_SimpleFractureMaterial    },
     {"SimpleFracture",         OPS_SimpleFractureMaterial    },
@@ -153,6 +160,12 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"ViscousDamper",          OPS_ViscousDamper             },
 
     {"DamperMaterial",         OPS_DamperMaterial            },
+
+// Concretes
+    {"Concrete02IS",           OPS_Concrete02IS              },
+    {"ConcreteCM",             OPS_ConcreteCM                },
+    {"ConfinedConcrete01",     OPS_ConfinedConcrete01Material},
+    {"ConfinedConcrete",       OPS_ConfinedConcrete01Material},
 
     {"BilinearOilDamper",      OPS_BilinearOilDamper         },
 
@@ -237,19 +250,16 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"Concrete02Thermal",      OPS_Concrete02Thermal         },
 
-
-
 #if 0
     {"ConcretewBeta",          OPS_ConcretewBeta             },
 #endif
+
     {"ConcreteD",              OPS_ConcreteD                 },
 
     {"ConcreteSakaiKawashima", OPS_ConcreteSakaiKawashima    },
 
 
     {"SteelMPF",               OPS_SteelMPF                  },
-
-    {"ConcreteCM",             OPS_ConcreteCM                },
 
     {"ResilienceLow",          OPS_ResilienceLow             },
 
@@ -271,12 +281,16 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"ElasticPP",              OPS_ElasticPPMaterial         },
 
-    {"ElasticPPGap",           OPS_EPPGapMaterial            },
-
     {"Hardening",              OPS_HardeningMaterial         },
     {"Hardening2",             OPS_HardeningMaterial         },
 
+    {"BilinMaterial",          OPS_Bilin                     },
+    {"Bilin",                  OPS_Bilin                     },
+    
     {"Hysteretic",             OPS_HystereticMaterial        },
+
+    {"ElasticPPGap",           OPS_EPPGapMaterial            },
+
 
     {"OOHysteretic",           OPS_OOHystereticMaterial      },
 
@@ -284,9 +298,6 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"SAWSMaterial",           OPS_SAWSMaterial              },
     {"SAWS",                   OPS_SAWSMaterial              },
-
-    {"BilinMaterial",          OPS_Bilin                     },
-    {"Bilin",                  OPS_Bilin                     },
 
     {"ConcreteZ01Material",    OPS_ConcreteZ01Material       },
     {"ConcreteZ01",            OPS_ConcreteZ01Material       },
@@ -299,9 +310,6 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"TendonL01Material",      OPS_TendonL01Material         },
     {"TendonL01",              OPS_TendonL01Material         },
-
-    {"ConfinedConcrete01",     OPS_ConfinedConcrete01Material},
-    {"ConfinedConcrete",       OPS_ConfinedConcrete01Material},
 
     {"Cable",                  OPS_CableMaterial             },
 

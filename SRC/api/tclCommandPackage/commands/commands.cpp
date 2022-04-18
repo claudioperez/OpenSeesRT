@@ -36,7 +36,7 @@ extern "C" {
    OPS_Stream *opserrPtr = &sserr;
 #endif
 
-// #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
@@ -553,12 +553,18 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
   }
 
   if (chanObjPtr == NULL) {
-    if (newline == 0)
-      // fprintf(G3_getRuntime(interp)->stdout, "%s", Tcl_GetString(string));
-      opserr << Tcl_GetString(string);
-    else
-      opserr << Tcl_GetString(string) << endln;
-      // fprintf(G3_getRuntime(interp)->stdout, "%s\n", Tcl_GetString(string));
+    G3_Runtime* rt;
+    if ((rt = G3_getRuntime(interp))) {
+      if (newline == 0)
+        fprintf(rt->streams[1], "%s", Tcl_GetString(string));
+      else
+        fprintf(rt->streams[1], "%s\n", Tcl_GetString(string));
+    } else {
+      if (newline == 0)
+        opserr << Tcl_GetString(string);
+      else
+        opserr << Tcl_GetString(string) << endln;
+    }
     return TCL_OK;
   } else {
     if (Tcl_putsCommand != 0) {

@@ -25,6 +25,9 @@
 // Materials
 #  undef  OPS_GetUniaxialMaterial
 #  define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+// #  undef  OPS_getUniaxialMaterial
+// #  define OPS_getUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+
 // Time series
 #  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
 #  define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))

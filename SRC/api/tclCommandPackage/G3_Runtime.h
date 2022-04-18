@@ -21,8 +21,7 @@ public:
   LinearSOE      *m_sys_of_eqn = nullptr;
 
 // IO
-  FILE* stdout = stdout;
-  FILE* stderr = stderr;
+  FILE* streams[3] = {stdin,stdout,stderr};
 };
 
 class G3_ParallelRuntime : public G3_Runtime {
