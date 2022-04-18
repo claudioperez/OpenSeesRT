@@ -4,6 +4,8 @@
 // the interpreter when the appropriate command name is specified.
 
 #include <g3_api.h>
+#include <G3_Runtime.h>
+
 #include <classTags.h>
 #include <DOF_Group.h>
 
@@ -34,7 +36,7 @@ extern "C" {
    OPS_Stream *opserrPtr = &sserr;
 #endif
 
-#include <stdio.h>
+// #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
@@ -552,9 +554,11 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
 
   if (chanObjPtr == NULL) {
     if (newline == 0)
+      // fprintf(G3_getRuntime(interp)->stdout, "%s", Tcl_GetString(string));
       opserr << Tcl_GetString(string);
     else
       opserr << Tcl_GetString(string) << endln;
+      // fprintf(G3_getRuntime(interp)->stdout, "%s\n", Tcl_GetString(string));
     return TCL_OK;
   } else {
     if (Tcl_putsCommand != 0) {
