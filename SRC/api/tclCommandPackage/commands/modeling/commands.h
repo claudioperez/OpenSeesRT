@@ -13,6 +13,8 @@ static TclCharFn  TclCommand_addNodalMass;
 extern TclCharFn  TclCommand_addGeomTransf;
 
 extern TclCharFn  TclCommand_addElement;
+extern TclCharFn  TclCommand_doBlock2D;
+extern TclCharFn  TclCommand_doBlock3D;
 extern TclCharFn  TclCommand_addUniaxialMaterial;
 extern TclCharFn  TclCommand_addSection;
 extern TclCharFn  TclCommand_addPatch;
@@ -156,8 +158,6 @@ TclCharFn TclCommand_doTzSimple1Gen;
 // Added by Prishati Raychowdhury (UCSD)
 TclCharFn TclSafeBuilder_doShallowFoundationGen;
 // End PRC
-TclCharFn TclCommand_doBlock2D;
-TclCharFn TclCommand_doBlock3D;
 //Leo
 TclCharFn TclSafeBuilder_addRemoHFiber;
 TclCharFn TclCommand_addFrictionModel;
@@ -177,6 +177,4 @@ TclCharFn TclCommand_addElementRayleigh;
 
 // Added by Alborz Ghofrani - U.Washington
 TclCharFn TclCommand_GenerateInterfacePoints;
-
-
 

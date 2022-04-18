@@ -1285,31 +1285,35 @@ OPS_GetSOE(void)
 
 LinearSOE **
 G3_getLinearSoePtr(G3_Runtime* rt) {
-  LinearSOE** theSOE =  &rt->m_sys_of_eqn;
-  return theSOE;
+  LinearSOE** soe =  &rt->m_sys_of_eqn;
+  opserr << "DEBUG G3_getLinearSoe(" << (void*)rt << ") -> " << (void*)(*soe) << "\n";
+  return soe;
 }
 
 int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
 {
+  opserr << "DEBUG G3_setLinearSoe(" << (void*)rt << (void*)soe << ")\n";
   rt->m_sys_of_eqn = soe;
   // if the analysis exists - we want to change the SOE
-  StaticAnalysis* static_analysis = G3_getStaticAnalysis(rt);
-  if (static_analysis != 0)
-    static_analysis->setLinearSOE(*soe);
-  
-  DirectIntegrationAnalysis *direct_trans_analysis = G3_getTransientAnalysis(rt);
-  if (direct_trans_analysis != 0)
-    direct_trans_analysis->setLinearSOE(*soe);
+  if (soe != nullptr) {
+    StaticAnalysis* static_analysis = G3_getStaticAnalysis(rt);
+    if (static_analysis != 0)
+      static_analysis->setLinearSOE(*soe);
+    
+    DirectIntegrationAnalysis *direct_trans_analysis = G3_getTransientAnalysis(rt);
+    if (direct_trans_analysis != 0)
+      direct_trans_analysis->setLinearSOE(*soe);
 
 #ifdef _PARALLEL_PROCESSING
-    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
-      SubdomainIter &theSubdomains = theDomain.getSubdomains();
-      Subdomain *theSub;
-      while ((theSub = theSubdomains()) != 0) {
-        theSub->setAnalysisLinearSOE(*theSOE);
+      if (static_analysis != 0 || direct_trans_analysis != 0) {
+        SubdomainIter &theSubdomains = theDomain.getSubdomains();
+        Subdomain *theSub;
+        while ((theSub = theSubdomains()) != 0) {
+          theSub->setAnalysisLinearSOE(*theSOE);
+        }
       }
-    }
 #endif
+  }
   return 0;
 }
 
@@ -1319,11 +1323,10 @@ G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
   // for ensuring properties about the SOE, like
   // forcing fullGen.
   LinearSOE* theSOE = *G3_getLinearSoePtr(rt);
+  opserr << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
   if (theSOE == NULL) {
-    /*
     opserr << "WARNING no LinearSOE specified, \n";
     opserr << " ProfileSPDLinSOE default will be used\n";
-    */
     ProfileSPDLinSolver *theSolver;
     theSolver = new ProfileSPDLinDirectSolver();
 #ifdef _PARALLEL_PROCESSING

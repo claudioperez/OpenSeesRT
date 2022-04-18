@@ -1163,7 +1163,8 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   theHandler = 0;
   theNumberer = 0;
   G3_setAnalysisModel(rt,nullptr);
-  theSOE = 0;
+  // theSOE = 0;
+  G3_setLinearSoe(rt, nullptr);
   G3_setStaticIntegrator(rt,nullptr);
   theTransientIntegrator = 0;
   G3_setStaticAnalysis(rt,nullptr);
@@ -1186,36 +1187,39 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+  DirectIntegrationAnalysis* dia = G3_getTransientAnalysis(rt);
 
   if (the_static_analysis != 0) {
     the_static_analysis->clearAll();
     G3_delStaticAnalysis(rt);
   }
 
-  if (theTransientAnalysis != 0) {
-    theTransientAnalysis->clearAll();
-    delete theTransientAnalysis;
+  if (dia != 0) {
+    dia->clearAll();
+    delete dia;
   }
 
   // NOTE : DON'T do the above on theVariableTimeStepAnalysis
   // as it and theTansientAnalysis are one in the same
 
   theAlgorithm = 0;
-  theHandler = 0;
-  theNumberer = 0;
+  theHandler   = 0;
+  theNumberer  = 0;
   G3_setAnalysisModel(rt,nullptr);
-  theSOE = 0;
+  // theSOE = 0;
+  G3_setLinearSoe(rt, nullptr);
   theEigenSOE = 0;
   G3_setStaticIntegrator(rt,nullptr);
   theTransientIntegrator = 0;
   G3_setStaticAnalysis(rt,nullptr);
+
   theTransientAnalysis = 0;
+  G3_setTransientAnalysis(rt, nullptr);
   theVariableTimeStepTransientAnalysis = 0;
 #ifdef OPS_USE_PFEM
   thePFEMAnalysis = 0;
@@ -1926,6 +1930,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   FileStream outputFile;
   OPS_Stream *output = &opserr;
+  LinearSOE *theSOE = *G3_getLinearSoePtr(G3_getRuntime(interp));
 
   bool ret = false;
   int currentArg = 1;
@@ -2513,6 +2518,8 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *domain = G3_getDomain(rt);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
   AnalysisModel* the_analysis_model = G3_getAnalysisModel(rt);
+  DirectIntegrationAnalysis *directIntAnalysis = G3_getTransientAnalysis(rt);
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eigen <type> numModes?\n";
@@ -2576,8 +2583,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   // create a transient analysis if no analysis exists
   //
 
-  if (the_static_analysis == 0 && theTransientAnalysis == 0) {
-
+  if (the_static_analysis == 0 && directIntAnalysis == 0) {
     if (the_analysis_model == 0)
       the_analysis_model = new AnalysisModel();
     if (theTest == 0)
@@ -2595,17 +2601,8 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theTransientIntegrator == 0) {
       theTransientIntegrator = new Newmark(0.5, 0.25);
     }
-    if (theSOE == 0) {
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-      theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-      theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
-    }
-
-    theTransientAnalysis = new DirectIntegrationAnalysis(
+    LinearSOE *theSOE = G3_getDefaultLinearSoe(rt, 0);
+    directIntAnalysis = new DirectIntegrationAnalysis(
         *domain, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
         *theSOE, *theTransientIntegrator, theTest);
   }
@@ -2624,7 +2621,6 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if (theEigenSOE == 0) {
-
     if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
       SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver();
       theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *the_analysis_model);
@@ -2645,8 +2641,8 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (the_static_analysis != 0) {
       the_static_analysis->setEigenSOE(*theEigenSOE);
-    } else if (theTransientAnalysis != 0) {
-      theTransientAnalysis->setEigenSOE(*theEigenSOE);
+    } else if (directIntAnalysis != 0) {
+      directIntAnalysis->setEigenSOE(*theEigenSOE);
     }
 
 #ifdef _PARALLEL_PROCESSING
@@ -2660,7 +2656,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
+    if (the_static_analysis != 0 || directIntAnalysis != 0) {
       SubdomainIter &theSubdomains = domain->getSubdomains();
       Subdomain *theSub;
       while ((theSub = theSubdomains()) != 0) {
@@ -2687,9 +2683,9 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (the_static_analysis != 0) {
     result = the_static_analysis->eigen(numEigen, generalizedAlgo, findSmallest);
-  } else if (theTransientAnalysis != 0) {
+  } else if (directIntAnalysis != 0) {
     result =
-        theTransientAnalysis->eigen(numEigen, generalizedAlgo, findSmallest);
+        directIntAnalysis->eigen(numEigen, generalizedAlgo, findSmallest);
   }
 
   if (result == 0) {
