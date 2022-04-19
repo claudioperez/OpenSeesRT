@@ -4,9 +4,17 @@
 #include <ID.h>
 #include <Domain.h>
 #include <g3_api.h>
+#include <TclBuilder.h>
+
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
+
+#include <LoadPattern.h>
+
+#include <ImposedMotionSP.h>
+#include <ImposedMotionSP1.h>
+#include <MultiSupportPattern.h>
 
 static void
 printCommand(int argc, TCL_Char **argv)
@@ -22,7 +30,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+  TclBuilder *theTclBuilder = (TclBuilder*)(G3_getSafeBuilder(rt));
   Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called
   if (theTclBuilder == 0) {
@@ -255,21 +263,20 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
 }
 
 
-/*
+
 int
 TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+  TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
+  LoadPattern *theTclLoadPattern = theTclBuilder->getCurrentLoadPattern();
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
     opserr << "WARNING builder has been destroyed - sp \n";
     return TCL_ERROR;
   }
-
-  //int ndf = theTclBuilder->getNDF();
 
   // check number of arguments
   if (argc < 4) {
@@ -351,7 +358,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
-*/
 
 int
 TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
@@ -361,6 +367,90 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     TclBuilder *theTclBuilder = G3_getModelBuilder(rt);
     Domain     *theTclDomain = G3_getDomain(rt);
 
+    // Ensure the destructor has not been called
+    if (theTclBuilder == 0) {
+      opserr << "WARNING builder has been destroyed - equalDOF \n";
+      return TCL_ERROR;
+    }
+
+    // Check number of arguments
+    if (argc < 4) {
+      opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+      printCommand (argc, argv);
+      return TCL_ERROR;
+    }
+
+    // Read in the node IDs and the DOF
+    int RnodeID, CnodeID, dofID;
+
+    if (Tcl_GetInt (interp, argv[1], &RnodeID) != TCL_OK) {
+      opserr << "WARNING invalid RnodeID: " << argv[1]
+           << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+      return TCL_ERROR;
+    }
+    if (Tcl_GetInt (interp, argv[2], &CnodeID) != TCL_OK) {
+      opserr << "WARNING invalid CnodeID: " << argv[2]
+           << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+      return TCL_ERROR;
+    }
+
+    // The number of DOF to be coupled
+    int numDOF = argc - 3;
+
+    // The constraint matrix ... U_c = C_cr * U_r
+    Matrix Ccr (numDOF, numDOF);
+    Ccr.Zero();
+
+    // The vector containing the retained and constrained DOFs
+    ID rcDOF (numDOF);
+
+    int i, j;
+    // Read the degrees of freedom which are to be coupled
+    for (i = 3, j = 0; i < argc; i++, j++) {
+      if (Tcl_GetInt (interp, argv[i], &dofID) != TCL_OK) {
+        opserr << "WARNING invalid dofID: " << argv[3]
+               << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+        return TCL_ERROR;
+      }
+
+      dofID -= 1; // Decrement for C++ indexing
+      if (dofID < 0) {
+        opserr << "WARNING invalid dofID: " << argv[i]
+               << " must be >= 1";
+        return TCL_ERROR;
+      }
+      rcDOF (j) = dofID;
+      Ccr (j,j) = 1.0;
+    }
+
+    // Create the multi-point constraint
+    MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
+    if (theMP == 0) {
+      opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
+      printCommand (argc, argv); 
+      return TCL_ERROR;
+    }
+
+    // Add the multi-point constraint to the domain
+    if (theTclDomain->addMP_Constraint (theMP) == false) {
+      opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
+      printCommand(argc, argv);
+      delete theMP;
+      return TCL_ERROR;
+    }
+
+    char buffer[80];
+    sprintf(buffer, "%d", theMP->getTag());
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+    return TCL_OK;
+}
+
+/*
+int
+TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
+                                int argc, TCL_Char **argv)
+{
         // Ensure the destructor has not been called
         if (theTclBuilder == 0) {
           opserr << "WARNING builder has been destroyed - equalDOF \n";
@@ -369,60 +459,68 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
 
         // Check number of arguments
         if (argc < 4) {
-          opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
-          printCommand (argc, argv);
-          return TCL_ERROR;
+          opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ... ..."; printCommand (argc, argv); return TCL_ERROR;
         }
 
         // Read in the node IDs and the DOF
-        int RnodeID, CnodeID, dofID;
+        int RnodeID, CnodeID, dofIDR, dofIDC, numDOF;
 
         if (Tcl_GetInt (interp, argv[1], &RnodeID) != TCL_OK) {
           opserr << "WARNING invalid RnodeID: " << argv[1]
-               << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+               << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
         }
         if (Tcl_GetInt (interp, argv[2], &CnodeID) != TCL_OK) {
           opserr << "WARNING invalid CnodeID: " << argv[2]
-               << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+               << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
+          return TCL_ERROR;
+        }
+
+        if (Tcl_GetInt (interp, argv[3], &numDOF) != TCL_OK) {
+          opserr << "WARNING invalid numDOF: " << argv[2]
+               << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
         }
 
         // The number of DOF to be coupled
-        int numDOF = argc - 3;
+        //        int numDOF = argc - 3;
 
         // The constraint matrix ... U_c = C_cr * U_r
         Matrix Ccr (numDOF, numDOF);
         Ccr.Zero();
 
         // The vector containing the retained and constrained DOFs
-        ID rcDOF (numDOF);
+        ID rDOF (numDOF);
+        ID cDOF (numDOF);
 
-        int i, j;
+        int i, j, k;
         // Read the degrees of freedom which are to be coupled
-        for (i = 3, j = 0; i < argc; i++, j++) {
-          if (Tcl_GetInt (interp, argv[i], &dofID) != TCL_OK) {
+        for (i = 4, j = 5, k = 0; k < numDOF; i+=2, j+=2, k++) {
+          if (Tcl_GetInt (interp, argv[i], &dofIDR) != TCL_OK) {
             opserr << "WARNING invalid dofID: " << argv[3]
-                   << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+                 << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
+            return TCL_ERROR;
+          }
+          if (Tcl_GetInt(interp, argv[j], &dofIDC) != TCL_OK) {
+            opserr << "WARNING invalid dofID: " << argv[3]
+                 << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
             return TCL_ERROR;
           }
 
-          dofID -= 1; // Decrement for C++ indexing
-          if (dofID < 0) {
+          dofIDR -= 1; // Decrement for C++ indexing
+          dofIDC -= 1;
+          if (dofIDC < 0 || dofIDR < 0) {
             opserr << "WARNING invalid dofID: " << argv[i]
                    << " must be >= 1";
             return TCL_ERROR;
           }
-          rcDOF (j) = dofID;
-          Ccr (j,j) = 1.0;
+          rDOF(k) = dofIDR;
+          cDOF(k) = dofIDC;
+          Ccr(k,k) = 1.0;
         }
 
         // Create the multi-point constraint
-        MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
-        if (theMP == 0) {
-          opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-          printCommand (argc, argv); 
-          return TCL_ERROR;
+        MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, cDOF, rDOF); if (theMP == 0) { opserr << "WARNING ran out of memory for equalDOF MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
         }
 
         // Add the multi-point constraint to the domain
@@ -439,3 +537,129 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
 
         return TCL_OK;
 }
+
+
+
+int
+TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  if (argc < 3) {
+      opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
+      return TCL_ERROR;
+  }
+
+  int rNode, perpDirn;
+  if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
+      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n"; return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
+      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n"; return TCL_ERROR;
+  }
+
+  // read in the constrained Nodes
+  int numConstrainedNodes = argc - 3;
+  ID constrainedNodes(numConstrainedNodes);
+  for (int i=0; i<numConstrainedNodes; i++) {
+      int cNode;
+      if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
+          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n"; return TCL_ERROR;
+      }
+      constrainedNodes(i) = cNode;
+  }
+
+  RigidDiaphragm theLink(*theTclDomain, rNode, constrainedNodes, perpDirn-1);
+
+
+  return TCL_OK;
+}
+
+int
+TclCommand_addImposedMotionSP(ClientData clientData,
+                                   Tcl_Interp *interp,
+                                   int argc,
+                                   TCL_Char **argv)
+{
+  // ensure the destructor has not been called -
+  if (theTclBuilder == 0) {
+    opserr << "WARNING builder has been destroyed - sp \n";
+    return TCL_ERROR;
+  }
+
+  //  int ndf = theTclBuilder->getNDF();
+
+  // check number of arguments
+  if (argc < 4) {
+    opserr << "WARNING bad command - want: imposedMotion nodeId dofID gMotionID\n"; printCommand(argc, argv); return TCL_ERROR;
+  }
+
+  // get the nodeID, dofId and value of the constraint
+  int nodeId, dofId, gMotionID;
+
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
+    opserr << "WARNING invalid nodeId: " << argv[1];
+    opserr << " - imposedMotion nodeId dofID gMotionID\n";
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[2], &dofId) != TCL_OK) {
+    opserr << "WARNING invalid dofId: " << argv[2] << " -  imposedMotion ";
+    opserr << nodeId << " dofID gMotionID\n";
+      return TCL_ERROR;
+  }
+  dofId--; // DECREMENT THE DOF VALUE BY 1 TO GO TO OUR C++ INDEXING
+
+  if (Tcl_GetInt(interp, argv[3], &gMotionID) != TCL_OK) {
+    opserr << "WARNING invalid gMotionID: " << argv[3] << " -  imposedMotion ";
+    opserr << nodeId << " dofID gMotionID\n";
+    return TCL_ERROR;
+  }
+
+  bool alt = false;
+  if (argc == 5) {
+    if (strcmp(argv[4],"-other") == 0)
+      alt = true;
+  }
+
+  //
+  // check valid node & dof
+  //
+
+  Node *theNode = theTclDomain->getNode(nodeId);
+  if (theNode == 0) {
+    opserr << "WARNING invalid node " << argv[2] << " node not found\n ";
+    return -1;
+  }
+  int nDof = theNode->getNumberDOF();
+  if (dofId < 0 || dofId >= nDof) {
+    opserr << "WARNING invalid dofId: " << argv[2] << " dof specified cannot be <= 0 or greater than num dof at nod\n "; return -2;
+  }
+
+
+  MultiSupportPattern *thePattern = theTclMultiSupportPattern;
+  int loadPatternTag = thePattern->getTag();
+
+  // create a new ImposedMotionSP
+  SP_Constraint *theSP;
+  if (alt == true) {
+    theSP = new ImposedMotionSP1(nodeId, dofId, loadPatternTag, gMotionID);
+  }
+  else {
+    theSP = new ImposedMotionSP(nodeId, dofId, loadPatternTag, gMotionID);
+  }
+
+  if (theSP == 0) {
+    opserr << "WARNING ran out of memory for ImposedMotionSP ";
+    opserr << " -  imposedMotion ";
+    opserr << nodeId << " " << dofId++ << " " << gMotionID << endln;
+    return TCL_ERROR;
+  }
+  if (thePattern->addSP_Constraint(theSP) == false) {
+    opserr << "WARNING could not add SP_Constraint to pattern ";
+    printCommand(argc, argv);
+    delete theSP;
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+*/

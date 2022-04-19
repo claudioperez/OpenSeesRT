@@ -5,8 +5,7 @@
 #include <elementAPI.h>
 
 int
-TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
-TCL_Char **argv)
+TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theTclDomain = G3_getDomain(rt);
@@ -35,7 +34,6 @@ TCL_Char **argv)
       opserr << "WARNING rigidLink linkType? rNode? cNode? - unrecognised link type (-bar, -beam) \n"; 
       return TCL_ERROR;
   }
-
   return TCL_OK;
 }
 

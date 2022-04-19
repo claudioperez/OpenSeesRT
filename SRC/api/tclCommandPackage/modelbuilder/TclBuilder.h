@@ -34,6 +34,7 @@
 #include <tcl.h>
 #include <g3_api.h>
 
+class LoadPattern;
 class SectionForceDeformation;
 class SectionRepres;
 class NDMaterial;
@@ -59,6 +60,7 @@ public:
   int buildFE_Model(void);
   int getNDM(void) const;
   int getNDF(void) const;
+  LoadPattern *getCurrentLoadPattern(void);
 
   // Section models
   virtual int addSection(SectionForceDeformation &theSection)=0;
@@ -80,6 +82,7 @@ public:
   virtual PlasticHardeningMaterial *getPlasticMaterial(int tag)=0;
   virtual int addCyclicModel(CyclicModel &theModel); //!!
   virtual CyclicModel *getCyclicModel(int tag);      //!!
+
   // Damage models
   virtual int addDamageModel(DamageModel &theModel); //!!
   virtual DamageModel *getDamageModel(int tag);      //!!
@@ -90,6 +93,8 @@ public:
 private:
   int ndm; // space dimension of the mesh
   int ndf; // number of degrees of freedom per node
+
+  LoadPattern* m_current_load_pattern = nullptr;
 
 protected:
   Tcl_Interp *theInterp;

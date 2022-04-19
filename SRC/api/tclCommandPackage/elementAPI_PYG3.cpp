@@ -1,26 +1,10 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 
 /*
 ** Written: cmp
-*/
+**/
 
 #include <elementAPI.h>
 #include <stdlib.h>
@@ -424,6 +408,10 @@ theModelBuilder->getUniaxialMaterial(*matTag);
   theRes = 0;
 }
 */
+
+// 
+// END INTERPRETER STUFF
+//
 
 extern "C" eleObj *
 OPS_GetElement(int *eleTag)
@@ -1081,20 +1069,20 @@ G3_setDomain(G3_Runtime *rt, Domain* domain){
 Domain *
 G3_getDomain(G3_Runtime *rt)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
   return rt->m_domain;
 }
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *builder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return builder->addTimeSeries(series);
 }
 
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder *builder = G3_getSafeBuilder(rt);
   if (builder)
     // TODO
@@ -1106,12 +1094,12 @@ int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
 
   TimeSeries *series;
-  TclSafeBuilder *builder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  // TclSafeBuilder *builder =
+  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   if (builder) {
      series = builder->getTimeSeries(std::to_string(tag));
   } else {
@@ -1168,19 +1156,19 @@ G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
   TclSafeBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
+    // TODO
     return OPS_getUniaxialMaterial(tag);
   }
 
   UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
-
+  // TODO
   return mat ? mat : OPS_getUniaxialMaterial(tag);
 }
 
 int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
-  // G3_Runtime *rt = G3_getRuntime(interp);
   TclSafeBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
-    opserr << "#WARNING Failed to find safe model builder\n";
+    opserr << "WARNING Failed to find safe model builder\n";
     return 0;
   }
   int stat = builder->addUniaxialMaterial(mat);
@@ -1286,13 +1274,13 @@ OPS_GetSOE(void)
 LinearSOE **
 G3_getLinearSoePtr(G3_Runtime* rt) {
   LinearSOE** soe =  &rt->m_sys_of_eqn;
-  opserr << "DEBUG G3_getLinearSoe(" << (void*)rt << ") -> " << (void*)(*soe) << "\n";
+  // opserr << "DEBUG G3_getLinearSoe(" << (void*)rt << ") -> " << (void*)(*soe) << "\n";
   return soe;
 }
 
 int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
 {
-  opserr << "DEBUG G3_setLinearSoe(" << (void*)rt << (void*)soe << ")\n";
+  // opserr << "DEBUG G3_setLinearSoe(" << (void*)rt << (void*)soe << ")\n";
   rt->m_sys_of_eqn = soe;
   // if the analysis exists - we want to change the SOE
   if (soe != nullptr) {
@@ -1323,7 +1311,7 @@ G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
   // for ensuring properties about the SOE, like
   // forcing fullGen.
   LinearSOE* theSOE = *G3_getLinearSoePtr(rt);
-  opserr << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
+  // opserr << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
   if (theSOE == NULL) {
     opserr << "WARNING no LinearSOE specified, \n";
     opserr << " ProfileSPDLinSOE default will be used\n";
@@ -1392,6 +1380,7 @@ G3_delStaticAnalysis(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   StaticAnalysis* ana;
+  // TODO
   if (ana=G3_getStaticAnalysis(rt))
     ;// delete ana;
   Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", NULL, (ClientData)NULL);
@@ -1426,6 +1415,7 @@ OPS_GetTransientAnalysis(void)
 DirectIntegrationAnalysis *
 G3_getTransientAnalysis(G3_Runtime *rt)
 {
+  // TODO
   /*
   Tcl_Interp *interp = G3_getInterpreter(rt);
   DirectIntegrationAnalysis *analysis =
