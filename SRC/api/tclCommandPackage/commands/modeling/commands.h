@@ -26,16 +26,23 @@ extern TclCharFn  TclCommand_addHomogeneousBC;
 extern TclCharFn  TclCommand_addEqualDOF_MP;
 // Loads
 extern TclCharFn  TclCommand_addNodalLoad;
+TclCharFn TclCommand_addElementalLoad;
+
+// Damping
+TclCharFn modalDamping;
+TclCharFn modalDampingQ;
 
 TclCharFn TclCommand_addParameter;
 TclCharFn TclCommand_mesh;
 TclCharFn TclCommand_remesh;
 TclCharFn TclCommand_backgroundMesh; 
 TclCharFn TclCommand_addBeamIntegration;
+
 TclCharFn TclCommand_addLimitCurve;
 TclCharFn TclCommand_addNDMaterial;
 TclCharFn TclCommand_addSeries;
-TclCharFn TclCommand_addElementalLoad;
+
+// Constraints
 TclCharFn TclCommand_addHomogeneousBC_X;
 TclCharFn TclCommand_addHomogeneousBC_Y; 
 TclCharFn TclCommand_addHomogeneousBC_Z;
@@ -79,6 +86,9 @@ struct char_cmd {
   {"fixZ",             TclCommand_addHomogeneousBC_Z},
   {"equalDOF",         TclCommand_addEqualDOF_MP},
   {"rigidLink",            &TclCommand_RigidLink},
+
+  {"modalDamping",     modalDamping},
+  {"modalDampingQ",    modalDampingQ},
 
 
 /*

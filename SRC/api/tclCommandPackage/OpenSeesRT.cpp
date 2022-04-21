@@ -8,8 +8,10 @@ extern int OpenSeesAppInit(Tcl_Interp *interp);
 extern int init_g3_tcl_utils(Tcl_Interp*);
 
 // Error streams
+#include "streams/G3_Logging.h"
 #include <handler/OPS_Stream.h>
 #include <StandardStream.h>
+#include <unistd.h>
 // Create global error stream
 
 
@@ -34,6 +36,8 @@ Openseesrt_Init(Tcl_Interp *interp)
   OpenSeesAppInit(interp);
   myCommands(interp);
   init_g3_tcl_utils(interp);
+  if (isatty(STDERR_FILENO))
+    G3_setStreamColor(nullptr, G3_Warn, 1);
   return TCL_OK;
 }
 

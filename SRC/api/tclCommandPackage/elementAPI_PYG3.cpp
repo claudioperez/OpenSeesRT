@@ -14,6 +14,8 @@
 #include <Node.h>
 #include <g3_api.h>
 #include <G3_Runtime.h>
+#include <G3_Logging.h>
+extern OPS_Stream* opswrnPtr;
 
 #include <TclBasicBuilder.h>
 #include <TclSafeBuilder.h>
@@ -1311,10 +1313,11 @@ G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
   // for ensuring properties about the SOE, like
   // forcing fullGen.
   LinearSOE* theSOE = *G3_getLinearSoePtr(rt);
-  // opserr << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
+
+  opsdbg << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
+
   if (theSOE == NULL) {
-    opserr << "WARNING no LinearSOE specified, \n";
-    opserr << " ProfileSPDLinSOE default will be used\n";
+    opswrn << "no LinearSOE specified, default ProfileSPDLinSOE will be used\n";
     ProfileSPDLinSolver *theSolver;
     theSolver = new ProfileSPDLinDirectSolver();
 #ifdef _PARALLEL_PROCESSING

@@ -5,6 +5,7 @@
 
 #include <g3_api.h>
 #include <G3_Runtime.h>
+#include <G3_Logging.h>
 
 #include <classTags.h>
 #include <DOF_Group.h>
@@ -19,7 +20,6 @@ extern "C" {
 #include <iostream>
 #include <set>
 #include <algorithm>
-
 // the following is a little kludgy but it works!
 #ifdef _USING_STL_STREAMS
 #  include <iomanip>
@@ -32,8 +32,11 @@ extern "C" {
 #  include <DummyStream.h>
    bool OPS_suppressOpenSeesOutput = false;
    bool OPS_showHeader = true;
+/*
+ * moved to streams/logging.cpp
    StandardStream sserr;
    OPS_Stream *opserrPtr = &sserr;
+*/
 #endif
 
 #include <stdio.h>
@@ -45,7 +48,6 @@ extern "C" {
 #include <g3_api.h>
 
 #include <packages.h>
-
 #include <TclPackageClassBroker.h>
 
 #include <Timer.h>
@@ -270,17 +272,6 @@ extern "C" {
 
 #include <FE_Datastore.h>
 
-#ifdef _RELIABILITY
-// AddingSensitivity:BEGIN /////////////////////////////////////////////////
-#  include <ReliabilityDomain.h>
-#  include <SensitivityAlgorithm.h>
-// AddingSensitivity:END /////////////////////////////////////////////////
-#  include <TclReliabilityBuilder.h>
-   int reliability(ClientData, Tcl_Interp *, int, TCL_Char **);
-   int wipeReliability(ClientData, Tcl_Interp *, int, TCL_Char **);
-   int optimization(ClientData, Tcl_Interp *, int, TCL_Char **); // Quan  (2)
-#endif
-
 const char *getInterpPWD(Tcl_Interp *interp);
 
 #include <XmlFileStream.h>
@@ -367,10 +358,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-// for response spectrum analysis
-extern void OPS_DomainModalProperties(G3_Runtime*);
-extern void OPS_ResponseSpectrumAnalysis(G3_Runtime*);
-
 typedef struct parameterValues {
   char *value;
   struct parameterValues *next;
@@ -414,19 +401,6 @@ int numEigen = 0;
 
 #ifdef OPS_USE_PFEM
    static PFEMAnalysis *thePFEMAnalysis = 0;
-#endif
-
-#ifdef _RELIABILITY
-// AddingSensitivity:BEGIN /////////////////////////////////////////////
-static TclReliabilityBuilder *theReliabilityBuilder = 0;
-
-Integrator *theSensitivityAlgorithm = 0;
-Integrator *theSensitivityIntegrator = 0;
-#include <TclOptimizationBuilder.h>
-static TclOptimizationBuilder *theOptimizationBuilder =
-    0; // Quan March 2010 (3)
-
-// AddingSensitivity:END ///////////////////////////////////////////////
 #endif
 
 StaticIntegrator *theStaticIntegrator = 0;
@@ -570,7 +544,8 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
     if (Tcl_putsCommand != 0) {
       return Tcl_putsCommand(dummy, interp, objc, objv);
     } else {
-      std::cerr
+      // std::cerr
+      opsmrd
           << "MEARD!  commands.cpp .. old puts command not found or set!\n";
       return TCL_ERROR;
     }
@@ -813,10 +788,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "rayleigh", &rayleighDamping, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "modalDamping", &modalDamping, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "modalDampingQ", &modalDampingQ, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+  // Tcl_CreateCommand(interp, "modalDamping", &modalDamping, (ClientData)NULL,
+  //                   (Tcl_CmdDeleteProc *)NULL);
+  // Tcl_CreateCommand(interp, "modalDampingQ", &modalDampingQ, (ClientData)NULL,
+  //                   (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "setElementRayleighDampingFactors",
                     &setElementRayleighDampingFactors, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
@@ -943,45 +918,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "setMaxOpenFiles", &maxOpenFiles, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-#ifdef _RELIABILITY
-  Tcl_CreateCommand(interp, "wipeReliability", wipeReliability,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "reliability", reliability, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  theReliabilityBuilder = 0;
-  // AddingSensitivity:BEGIN //////////////////////////////////
-  Tcl_CreateCommand(interp, "computeGradients", &computeGradients,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensitivityAlgorithm", &sensitivityAlgorithm,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensitivityIntegrator", &sensitivityIntegrator,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensNodeDisp", &sensNodeDisp, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensLambda", &sensLambda, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL); // Abbas
-  Tcl_CreateCommand(interp, "sensNodeVel", &sensNodeVel, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensNodeAccel", &sensNodeAccel, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensSectionForce", &sensSectionForce,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensNodePressure", &sensNodePressure,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-  theSensitivityAlgorithm = 0;
-  theSensitivityIntegrator = 0;
-  // FMK RELIABILITY theReliabilityStaticAnalysis =0;
-  // FMK RELIABILITY theReliabilityTransientAnalysis =0;
-  // AddingSensitivity:END //////////////////////////////////
-
-  theOptimizationBuilder = 0;
-
-  // --- Quan March 2010  (4)
-  Tcl_CreateCommand(interp, "optimization", &optimization, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-#endif
-
   theAlgorithm = 0;
   theHandler = 0;
   theNumberer = 0;
@@ -1070,49 +1006,6 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
   return Tcl_FSEvalFileEx(interp, fileName, encodingName);
 #endif
 }
-
-#ifdef _RELIABILITY
-
-// -- optimization Quan March 2010  (5)
-int
-optimization(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-
-  if (theOptimizationBuilder == 0) {
-
-    theOptimizationBuilder = new TclOptimizationBuilder(theDomain, interp);
-
-    return TCL_OK;
-  } else
-    return TCL_ERROR;
-}
-
-int
-reliability(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv)
-{
-  if (theReliabilityBuilder == 0) {
-
-    theReliabilityBuilder = new TclReliabilityBuilder(theDomain, interp);
-    return TCL_OK;
-  } else
-    return TCL_ERROR;
-}
-
-int
-wipeReliability(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
-{
-  if (theReliabilityBuilder != 0) {
-    delete theReliabilityBuilder;
-    theReliabilityBuilder = 0;
-  }
-  return TCL_OK;
-}
-// AddingSensitivity:END /////////////////////////////////////////////////
-
-#endif
 
 int
 wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -2515,220 +2408,6 @@ groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 }
 */
-
-int
-eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  AnalysisModel* the_analysis_model = G3_getAnalysisModel(rt);
-  DirectIntegrationAnalysis *directIntAnalysis = G3_getTransientAnalysis(rt);
-
-  // make sure at least one other argument to contain type of system
-  if (argc < 2) {
-    opserr << "WARNING want - eigen <type> numModes?\n";
-    return TCL_ERROR;
-  }
-
-  bool generalizedAlgo =
-      true; // 0 - frequency/generalized (default),1 - standard, 2 - buckling
-  int typeSolver = EigenSOE_TAGS_ArpackSOE;
-  int loc = 1;
-  double shift = 0.0;
-  bool findSmallest = true;
-
-  // Check type of eigenvalue analysis
-  while (loc < (argc - 1)) {
-    if ((strcmp(argv[loc], "frequency") == 0) ||
-        (strcmp(argv[loc], "-frequency") == 0) ||
-        (strcmp(argv[loc], "generalized") == 0) ||
-        (strcmp(argv[loc], "-generalized") == 0))
-      generalizedAlgo = true;
-
-    else if ((strcmp(argv[loc], "standard") == 0) ||
-             (strcmp(argv[loc], "-standard") == 0))
-      generalizedAlgo = false;
-
-    else if ((strcmp(argv[loc], "-findLargest") == 0))
-      findSmallest = false;
-
-    else if ((strcmp(argv[loc], "genBandArpack") == 0) ||
-             (strcmp(argv[loc], "-genBandArpack") == 0) ||
-             (strcmp(argv[loc], "genBandArpackEigen") == 0) ||
-             (strcmp(argv[loc], "-genBandArpackEigen") == 0))
-      typeSolver = EigenSOE_TAGS_ArpackSOE;
-
-    else if ((strcmp(argv[loc], "symmBandLapack") == 0) ||
-             (strcmp(argv[loc], "-symmBandLapack") == 0) ||
-             (strcmp(argv[loc], "symmBandLapackEigen") == 0) ||
-             (strcmp(argv[loc], "-symmBandLapackEigen") == 0))
-      typeSolver = EigenSOE_TAGS_SymBandEigenSOE;
-
-    else if ((strcmp(argv[loc], "fullGenLapack") == 0) ||
-             (strcmp(argv[loc], "-fullGenLapack") == 0) ||
-             (strcmp(argv[loc], "fullGenLapackEigen") == 0) ||
-             (strcmp(argv[loc], "-fullGenLapackEigen") == 0))
-      typeSolver = EigenSOE_TAGS_FullGenEigenSOE;
-
-    else {
-      opserr << "eigen - unknown option specified " << argv[loc] << endln;
-    }
-
-    loc++;
-  }
-
-  // check argv[loc] for number of modes
-  if ((Tcl_GetInt(interp, argv[loc], &numEigen) != TCL_OK) || numEigen < 0) {
-    opserr << "WARNING eigen numModes?  - illegal numModes\n";
-    return TCL_ERROR;
-  }
-
-  //
-  // create a transient analysis if no analysis exists
-  //
-
-  if (the_static_analysis == 0 && directIntAnalysis == 0) {
-    if (the_analysis_model == 0)
-      the_analysis_model = new AnalysisModel();
-    if (theTest == 0)
-      theTest = new CTestNormUnbalance(1.0e-6, 25, 0);
-    if (theAlgorithm == 0) {
-      theAlgorithm = new NewtonRaphson(*theTest);
-    }
-    if (theHandler == 0) {
-      theHandler = new TransformationConstraintHandler();
-    }
-    if (theNumberer == 0) {
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM);
-    }
-    if (theTransientIntegrator == 0) {
-      theTransientIntegrator = new Newmark(0.5, 0.25);
-    }
-    LinearSOE *theSOE = G3_getDefaultLinearSoe(rt, 0);
-    directIntAnalysis = new DirectIntegrationAnalysis(
-        *domain, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
-        *theSOE, *theTransientIntegrator, theTest);
-  }
-
-  //
-  // create a new eigen system and solver
-  //
-
-  bool setEigen = false;
-  if (theEigenSOE != 0) {
-    if (theEigenSOE->getClassTag() != typeSolver) {
-      //	delete theEigenSOE;
-      theEigenSOE = 0;
-      setEigen = true;
-    }
-  }
-
-  if (theEigenSOE == 0) {
-    if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
-      SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver();
-      theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *the_analysis_model);
-
-    } else if (typeSolver == EigenSOE_TAGS_FullGenEigenSOE) {
-
-      FullGenEigenSolver *theEigenSolver = new FullGenEigenSolver();
-      theEigenSOE = new FullGenEigenSOE(*theEigenSolver, *the_analysis_model);
-
-    } else {
-
-      theEigenSOE = new ArpackSOE(shift);
-    }
-
-    //
-    // set the eigen soe in the system
-    //
-
-    if (the_static_analysis != 0) {
-      the_static_analysis->setEigenSOE(*theEigenSOE);
-    } else if (directIntAnalysis != 0) {
-      directIntAnalysis->setEigenSOE(*theEigenSOE);
-    }
-
-#ifdef _PARALLEL_PROCESSING
-
-    if (OPS_PARTITIONED == false && OPS_NUM_SUBDOMAINS > 1) {
-      if (partitionModel(0) < 0) {
-        opserr
-            << "WARNING before analysis; partition failed - too few elements\n";
-        OpenSeesExit(clientData, interp, argc, argv);
-        return TCL_ERROR;
-      }
-    }
-
-    if (the_static_analysis != 0 || directIntAnalysis != 0) {
-      SubdomainIter &theSubdomains = domain->getSubdomains();
-      Subdomain *theSub;
-      while ((theSub = theSubdomains()) != 0) {
-        theSub->setAnalysisEigenSOE(*theEigenSOE);
-      }
-    }
-#endif
-
-  } // theEigenSOE != 0
-
-  int requiredDataSize = 40 * numEigen;
-  if (requiredDataSize > resDataSize) {
-    if (resDataPtr != 0) {
-      delete[] resDataPtr;
-    }
-    resDataPtr = new char[requiredDataSize];
-    resDataSize = requiredDataSize;
-  }
-
-  for (int i = 0; i < requiredDataSize; i++)
-    resDataPtr[i] = '\n';
-
-  int result = 0;
-
-  if (the_static_analysis != 0) {
-    result = the_static_analysis->eigen(numEigen, generalizedAlgo, findSmallest);
-  } else if (directIntAnalysis != 0) {
-    result =
-        directIntAnalysis->eigen(numEigen, generalizedAlgo, findSmallest);
-  }
-
-  if (result == 0) {
-    //      char *eigenvalueS = new char[15 * numEigen];
-    const Vector &eigenvalues = domain->getEigenvalues();
-    int cnt = 0;
-    for (int i = 0; i < numEigen; i++) {
-      cnt += sprintf(&resDataPtr[cnt], "%35.20f  ", eigenvalues[i]);
-    }
-
-    Tcl_SetResult(interp, resDataPtr, TCL_STATIC);
-  }
-
-  return TCL_OK;
-}
-
-int
-modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
-  OPS_DomainModalProperties(rt);
-  return TCL_OK;
-}
-
-int
-responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
-  OPS_ResponseSpectrumAnalysis(rt);
-  return TCL_OK;
-}
 
 int
 videoPlayer(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -5583,125 +5262,6 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
   the_domain->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
 
-  return TCL_OK;
-}
-
-int
-modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  if (argc < 2) {
-    opserr
-        << "WARNING modalDamping ?factor - not enough arguments to command\n";
-    return TCL_ERROR;
-  }
-
-  if (numEigen == 0 || theEigenSOE == 0) {
-    opserr << "WARNING - modalDmping - eigen command needs to be called first "
-              "- NO MODAL DAMPING APPLIED\n ";
-  }
-
-  int numModes = argc - 1;
-  double factor;
-  Vector modalDampingValues(numEigen);
-
-  if (numModes != 1 && numModes != numEigen) {
-    opserr << "WARNING modalDmping - same #damping factors as modes must be "
-              "specified\n";
-    opserr
-        << "                    - same damping ratio will be applied to all\n";
-  }
-
-  //
-  // read in values and set factors
-  //
-
-  if (numModes == numEigen) {
-
-    for (int i = 0; i < numEigen; i++) {
-      if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << "WARNING modalDamping - could not read factor for model "
-               << i + 1 << endln;
-        return TCL_ERROR;
-      }
-      modalDampingValues[i] = factor;
-    }
-
-  } else {
-
-    if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
-      opserr << "WARNING modalDamping - could not read factor for all modes \n";
-      return TCL_ERROR;
-    }
-
-    for (int i = 0; i < numEigen; i++)
-      modalDampingValues[i] = factor;
-  }
-
-  // set factors in domain
-  theDomain.setModalDampingFactors(&modalDampingValues, true);
-
-  // opserr << "modalDamping Factors: " << modalDampingValues;
-
-  return TCL_OK;
-}
-
-int
-modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
-{
-  if (argc < 2) {
-    opserr
-        << "WARNING modalDamping ?factor - not enough arguments to command\n";
-    return TCL_ERROR;
-  }
-
-  if (numEigen == 0 || theEigenSOE == 0) {
-    opserr << "WARINING - modalDmping - eigen command needs to be called first "
-              "- NO MODAL DAMPING APPLIED\n ";
-  }
-
-  int numModes = argc - 1;
-  double factor = 0;
-  Vector modalDampingValues(numEigen);
-
-  if (numModes != 1 && numModes != numEigen) {
-    opserr << "WARNING modalDmping - same #damping factors as modes must be "
-              "specified\n";
-    opserr << "                    - same damping ratio will be applied to all";
-  }
-
-  //
-  // read in values and set factors
-  //
-
-  if (numModes == numEigen) {
-
-    // read in all factors one at a time
-    for (int i = 0; i < numEigen; i++) {
-      if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-                  "read betaK? \n";
-        return TCL_ERROR;
-      }
-      modalDampingValues[i] = factor;
-    }
-
-  } else {
-
-    //  read in one & set all factors to that value
-    if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
-      opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-                "read betaK? \n";
-      return TCL_ERROR;
-    }
-
-    for (int i = 0; i < numEigen; i++)
-      modalDampingValues[i] = factor;
-  }
-
-  // set factors in domain
-  theDomain.setModalDampingFactors(&modalDampingValues, false);
   return TCL_OK;
 }
 

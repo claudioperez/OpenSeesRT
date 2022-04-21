@@ -28,6 +28,7 @@ target_sources(OpenSeesRT PRIVATE
     "commands/modeling/rigidLink.cpp"
 
 # Other Commands
+    "streams/logging.cpp"
     "commands/commands.cpp"
     "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
