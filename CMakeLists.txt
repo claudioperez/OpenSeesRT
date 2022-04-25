@@ -33,13 +33,13 @@ set(OPS_BUNDLED_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
 set(OPS_SRC_DIR "${PROJECT_SOURCE_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
 include(OpenSeesFunctions)
-include(conan)
 enable_testing()
 
 add_definitions(-DOPS_USE_RUNTIME)
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  include(conan)
   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   conan_basic_setup(TARGETS)
 endif()
