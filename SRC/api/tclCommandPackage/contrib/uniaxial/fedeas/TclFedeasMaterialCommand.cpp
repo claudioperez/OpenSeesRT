@@ -1,29 +1,3 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-
-// $Revision: 1.8 $
-// $Date: 2007-02-15 23:03:18 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/uniaxial/fedeas/TclFedeasMaterialCommand.cpp,v
-// $
-
 // Written: MHS
 // Created: Aug 2001
 //
@@ -72,7 +46,7 @@ TclBasicBuilder_addFedeasMaterial(ClientData clientData, Tcl_Interp *interp,
     return 0;
   }
 
-  UniaxialMaterial *theMaterial = 0;
+  UniaxialMaterial *theMaterial = nullptr;
 
   if (strcmp(argv[1], "Hardening1") == 0 ||
       strcmp(argv[1], "Hardening01") == 0) {

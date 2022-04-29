@@ -16,7 +16,6 @@
    OPS_Stream *opserrPtr = &sserr;
    OPS_Stream *opsdbgPtr = &ssnul;
    OPS_Stream *opswrnPtr = &sserr;
-
    OPS_Stream *opsmrdPtr = &sserr;
 
 #endif
