@@ -1,27 +1,3 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
 // Written: MHS
 // Created: August 2000
 //
@@ -73,8 +49,7 @@ TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
   // Make sure there is a minimum number of arguments
   if (argc < 2) {
     opserr << "WARNING insufficient number of strengthDegradation arguments\n";
-    opserr << "Want: strengthDegradation type? tag? <specific "
-              "strengthDegradation args>"
+    opserr << "Want: strengthDegradation type? tag? <specific strengthDegradation args>"
            << endln;
     return TCL_ERROR;
   }

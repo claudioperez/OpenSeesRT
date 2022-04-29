@@ -82,17 +82,21 @@ target_sources(OpenSeesRT PRIVATE
     "contrib/uniaxial/TclAxialSp.cpp"
     "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-    "contrib/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
+    "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "contrib/uniaxial/limitState/TclLimitState.cpp"
     "contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
-    "contrib/uniaxial/stiffness/TclModelBuilderStiffnessDegradationCommand.cpp"
-    "contrib/uniaxial/strength/TclModelBuilderStrengthDegradationCommand.cpp"
-    "contrib/uniaxial/unloading/TclModelBuilderUnloadingRuleCommand.cpp"
     "contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
-    "contrib/yieldSurface/evolution/TclModelBuilderYS_EvolutionCommand.cpp"
-    "contrib/yieldSurface/plasticHardeningMaterial/TclModelBuilderYSPlasticMaterialCommand.cpp"
-    "contrib/yieldSurface/yieldSurfaceBC/TclModelBuilderYieldSurfaceBCCommand.cpp"
+    # YieldSurface
+    "contrib/yieldSurface/TclModelBuilderYS_EvolutionCommand.cpp"
+    "contrib/yieldSurface/TclModelBuilderYSPlasticMaterialCommand.cpp"
+    "contrib/yieldSurface/TclModelBuilderYieldSurfaceBCCommand.cpp"
+    # OO_Hysteretic
+    "contrib/uniaxial/OO_Hysteretic/StiffnessDegradationCommand.cpp"
+    "contrib/uniaxial/OO_Hysteretic/StrengthDegradationCommand.cpp"
+    "contrib/uniaxial/OO_Hysteretic/UnloadingRuleCommand.cpp"
+    "commands/modeling/backbone.cpp"
     #"material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
+    # Other
     #"material/uniaxial/TclNewUniaxialMaterial.cpp"
     #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
 
@@ -154,4 +158,10 @@ target_link_libraries(OpenSeesRT PRIVATE
   ${TCL_STUB_LIBRARY}
 )
 
+# PYTHON
+target_include_directories(OpenSeesRT PRIVATE ${Python_INCLUDE_DIRS})
+target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
+target_sources(OpenSeesRT PUBLIC
+    "python/PythonBackbone.cpp"
+)
 

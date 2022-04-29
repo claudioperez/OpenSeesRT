@@ -13,7 +13,8 @@ public:
 // MODEL BUILDING
   TclBuilder     *m_builder = nullptr;
   Domain         *m_domain  = nullptr;
-  bool model_is_built=false;
+
+  bool            model_is_built=false;
 // ANALYSIS
   AnalysisModel  *m_analysis_model     = nullptr;
   AnalysisModel **m_analysis_model_ptr = &m_analysis_model;

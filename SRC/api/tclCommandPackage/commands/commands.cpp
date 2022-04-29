@@ -544,7 +544,6 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
     if (Tcl_putsCommand != 0) {
       return Tcl_putsCommand(dummy, interp, objc, objv);
     } else {
-      // std::cerr
       opsmrd
           << "MEARD!  commands.cpp .. old puts command not found or set!\n";
       return TCL_ERROR;

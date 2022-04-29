@@ -16,6 +16,7 @@ extern TclCharFn  TclCommand_addElement;
 extern TclCharFn  TclCommand_doBlock2D;
 extern TclCharFn  TclCommand_doBlock3D;
 extern TclCharFn  TclCommand_addUniaxialMaterial;
+extern TclCharFn  TclCommand_addHystereticBackbone;
 extern TclCharFn  TclCommand_addSection;
 extern TclCharFn  TclCommand_addPatch;
 extern TclCharFn  TclCommand_addReinfLayer;
@@ -120,11 +121,12 @@ struct char_cmd {
 
 */
 // OTHER OBJECT TYPES
+//{"hystereticBackbone",   TclCommand_addHystereticBackbone},
+  {          "backbone",   TclCommand_addHystereticBackbone},
 /*
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
   {"plasticMaterial",      TclCommand_addYS_PlasticMaterial},
-  {"hystereticBackbone",   TclCommand_addHystereticBackbone},
   {"cyclicModel",          TclCommand_addCyclicModel},
   {"limitCurve",           TclCommand_addLimitCurve},
   {"damageModel",          TclCommand_addDamageModel},
@@ -174,7 +176,6 @@ TclCharFn TclCommand_addFrictionModel;
 TclCharFn TclCommand_addStiffnessDegradation;
 TclCharFn TclCommand_addUnloadingRule;
 TclCharFn TclCommand_addStrengthDegradation;
-TclCharFn TclCommand_addHystereticBackbone;
 TclCharFn TclCommand_addGroundMotion;
 /// added by ZHY
 TclCharFn TclCommand_UpdateMaterialStage;

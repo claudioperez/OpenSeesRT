@@ -14,7 +14,8 @@
 //
 // ANALYSIS RUNTIME
 //
-#  undef  OPS_GetDomain
+// #  undef  OPS_GetDomain
+// #  define ops_getdomain_
 #  define OPS_GetDomain()        G3_getDomain(rt)
 #  undef  OPS_GetAnalysisModel
 #  define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)

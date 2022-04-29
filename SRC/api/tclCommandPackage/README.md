@@ -1,5 +1,11 @@
 # OpenSeesRT
 
+## Feature
+
+- Idempotent
+- Verbosity control
+- Promotes stability of OpenSees core.
+
 ## User Changes
 
 When `OpenSeesRT` is loaded as a Tcl library, there are a few minor
