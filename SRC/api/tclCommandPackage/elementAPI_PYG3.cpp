@@ -1027,7 +1027,12 @@ G3_raise(G3_Runtime *rt, const char *msg, ...){
 
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
-{return (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", NULL);}
+{
+  G3_Runtime *rt = (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", NULL);
+  if (!rt)
+    opserr << G3_WARN_PROMPT << " No runtime\n";;
+  return rt;
+}
 
 Tcl_Interp *
 G3_getInterpreter(G3_Runtime* rt)
@@ -1047,10 +1052,13 @@ G3_setModelBuilder(G3_Runtime *rt, TclBuilder* builder)
 TclSafeBuilder *
 G3_getSafeBuilder(G3_Runtime *rt)
 {
+  return (TclSafeBuilder*)G3_getModelBuilder(rt);
+  /*
   Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder *theTclBuilder =
       (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return theTclBuilder;
+  */
 }
 
 int
