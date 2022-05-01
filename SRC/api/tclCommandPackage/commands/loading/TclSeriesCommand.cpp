@@ -1,35 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
 // Written: fmk
 // Created: 11/00
 // Revision: A
 //
 // Description: This file contains the function invoked when the user invokes
 // the Pattern command in the interpreter. It is invoked by the
-// TclBasicBuilder_addPattern function in the TclBasicBuilder.C file. Current
-// valid Pattern types are:
+// TclBasicBuilder_addPattern function in the TclBasicBuilder.C file.
 
 #include <g3_api.h>
 #include <Domain.h>
@@ -52,13 +27,12 @@
 #include <RandomNumberGenerator.h>
 #include <ReliabilityDomain.h>
 //#include <NewDiscretizedRandomProcessSeries.h>
-
 extern ReliabilityDomain *theReliabilityDomain;
 extern RandomNumberGenerator *theRandomNumberGenerator;
 #endif
 
-#include <SimulationInformation.h>
-extern SimulationInformation simulationInfo;
+// #include <SimulationInformation.h>
+// extern SimulationInformation simulationInfo;
 // extern const char * getInterpPWD(Tcl_Interp *interp);  // commands.cpp
 
 // little function to free memory after invoke Tcl_SplitList

@@ -8,8 +8,8 @@ cmake_minimum_required(VERSION 3.16)
 #
 # Dependencies
 # 
-find_package(TclStub)
-find_package(TCL)
+#find_package(TclStub)
+#find_package(TCL)
 
 add_library(OpenSeesRT SHARED)
 
@@ -133,12 +133,17 @@ target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)
 target_compile_options(OPS_ElementFortran             PRIVATE -fPIC)
 target_compile_options(OPS_Material_Uniaxial_Drain_f  PRIVATE -fPIC)
-target_compile_options(OpenSeesRT         PUBLIC  -fPIC)
+target_compile_options(OpenSeesRT                     PUBLIC  -fPIC)
 
 
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
 endif()
+
+target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
+
+# PYTHON
+add_subdirectory(python)
 
 target_link_libraries(OpenSeesRT PRIVATE
   #${OPS_Extension_List}
@@ -154,14 +159,9 @@ target_link_libraries(OpenSeesRT PRIVATE
   G3_ObjectBroker
   #g3_uniaxial_io
   G3
+  OpenSeesPyRT
   ${MYSQL_LIBRARIES}
-  ${TCL_STUB_LIBRARY}
-)
-
-# PYTHON
-target_include_directories(OpenSeesRT PRIVATE ${Python_INCLUDE_DIRS})
-target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
-target_sources(OpenSeesRT PUBLIC
-    "python/PythonBackbone.cpp"
+  #${TCL_STUB_LIBRARY}
+  ${TCL_LIBRARIES}
 )
 

@@ -2,6 +2,7 @@
 #include <g3_api.h>
 #undef G3_Runtime
 #include "G3_Runtime.h"
+#include <stdio.h>
 
 extern int myCommands(Tcl_Interp *interp);
 extern int OpenSeesAppInit(Tcl_Interp *interp);
@@ -13,7 +14,6 @@ extern int init_g3_tcl_utils(Tcl_Interp*);
 #include <StandardStream.h>
 #include <unistd.h>
 // Create global error stream
-
 
 extern "C" {
 
@@ -27,11 +27,17 @@ Openseesrt_Init(Tcl_Interp *interp)
     return TCL_ERROR;
   }
 
-  if (Tcl_PkgProvide(interp, "OpenSeesCommandPackage", "0.0.1") == TCL_ERROR) {
+  if (Tcl_PkgProvide(interp, "OpenSeesRT", "0.0.1") == TCL_ERROR) {
     return TCL_ERROR;
   }
 
-  Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)(new G3_Runtime{interp}));
+  //Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)(new G3_Runtime{interp}));
+  G3_Runtime *rt = new G3_Runtime{interp};
+
+  printf("rt: %p, interp: %p\n", rt, interp);
+
+  Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
+
 
   OpenSeesAppInit(interp);
   myCommands(interp);
