@@ -534,7 +534,6 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // create a new eigen system and solver
   //
-
   bool setEigen = false;
   if (theEigenSOE != 0) {
     if (theEigenSOE->getClassTag() != typeSolver) {
@@ -542,9 +541,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       theEigenSOE = 0;
       setEigen = true;
     }
-  }
-
-  if (theEigenSOE == 0) {
+  } else {
     if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
       SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver();
       theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *the_analysis_model);

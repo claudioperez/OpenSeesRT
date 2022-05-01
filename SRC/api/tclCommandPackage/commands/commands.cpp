@@ -7031,10 +7031,10 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
       outputFile << tag << "\t\t";
       for (int ii = 0; ii < l_tmp; ii++) {
         outputFile << crds(ii) << "\t";
-      };
+      }
       for (int ii = l_tmp; ii < 3; ii++) {
         outputFile << 0.0 << "\t";
-      };
+      }
       outputFile << endln;
     }
     outputFile << "End coordinates" << endln << endln;
@@ -7087,10 +7087,10 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
       outputFile << tag << "\t\t";
       for (int ii = 0; ii < l_tmp; ii++) {
         outputFile << crds(ii) << "\t";
-      };
+      }
       for (int ii = l_tmp; ii < 3; ii++) {
         outputFile << 0.0 << "\t";
-      };
+      }
       outputFile << endln;
     }
     outputFile << "End coordinates" << endln << endln;
@@ -7144,10 +7144,10 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
       outputFile << tag << "\t\t";
       for (int ii = 0; ii < l_tmp; ii++) {
         outputFile << crds(ii) << "\t";
-      };
+      }
       for (int ii = l_tmp; ii < 3; ii++) {
         outputFile << 0.0 << "\t";
-      };
+      }
       outputFile << endln;
     }
     outputFile << "End coordinates" << endln << endln;
@@ -7201,10 +7201,10 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
       outputFile << tag << "\t\t";
       for (int ii = 0; ii < l_tmp; ii++) {
         outputFile << crds(ii) << "\t";
-      };
+      }
       for (int ii = l_tmp; ii < 3; ii++) {
         outputFile << 0.0 << "\t";
-      };
+      }
       outputFile << endln;
     }
     outputFile << "End coordinates" << endln << endln;
@@ -7259,10 +7259,10 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
       outputFile << tag << "\t\t";
       for (int ii = 0; ii < l_tmp; ii++) {
         outputFile << crds(ii) << "\t";
-      };
+      }
       for (int ii = l_tmp; ii < 3; ii++) {
         outputFile << 0.0 << "\t";
-      };
+      }
       outputFile << endln;
     }
     outputFile << "End coordinates" << endln << endln;

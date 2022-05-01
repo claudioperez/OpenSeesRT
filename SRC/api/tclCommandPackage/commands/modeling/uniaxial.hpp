@@ -344,7 +344,7 @@ G3_TclUniaxialCommand TclCommand_AxialSp;
 G3_TclUniaxialCommand TclCommand_AxialSpHD;
 
 std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
-    {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper  },
+//  {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper  },
     {"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR       },
     {"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB       },
     {"AxialSp",             TclCommand_AxialSp               },
@@ -364,7 +364,7 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
   {"snap",               TclBasicBuilder_addSnapMaterial  },
 
 // #if defined(_STEEL2) || defined(OPSDEF_UNIAXIAL_FEDEAS)
-  {"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
+//{"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
 // #endif
 
 };
