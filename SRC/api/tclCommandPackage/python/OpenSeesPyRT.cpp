@@ -34,8 +34,8 @@ public:
         PYBIND11_OVERRIDE_PURE(
             double,                 /* Return type */
             HystereticBackbone,     /* Parent class */
-            getStress,    /* Name of function in C++ (must match Python name) */
-            strain       /* Argument(s) */
+            getStress,              /* Name of function in C++ (must match Python name) */
+            strain                  /* Argument(s) */
         );
     }
 };
@@ -96,11 +96,7 @@ init_obj_module(py::module &m)
              }
              if (info.shape[0] != assert_size)
                  throw std::runtime_error("Incompatible buffer dimension.");
-             return Vector(
-                 static_cast<double*>(info.ptr), 
-                 // static_cast<int>(info.itemsize)
-                 static_cast<int>(info.shape[0])
-             );
+             return Vector(static_cast<double*>(info.ptr), static_cast<int>(info.shape[0]));
         }))
     ;
     py::class_<Matrix, std::unique_ptr<Matrix, py::nodelete>>(m, "Matrix", py::buffer_protocol())
@@ -126,8 +122,7 @@ init_obj_module(py::module &m)
                  static_cast<int>(info.shape[1])
              );
         }))
-    ;
-    
+    ; 
     py::class_<Node,    std::unique_ptr<Node,py::nodelete>>(m, "_Node")
     ;
     py::class_<Element, std::unique_ptr<Element,py::nodelete>>(m, "_Element")
@@ -155,19 +150,13 @@ init_obj_module(py::module &m)
     py::class_<HystereticBackbone, PyHystereticBackbone>(m, "HystereticBackbone")
       .def("getStress", &HystereticBackbone::getStress);
     ;
-
     py::class_<ManderBackbone, HystereticBackbone>(m, "PopovicsBackbone")
       .def(py::init<int, double, double, double>(),
            py::arg("tag"), py::arg("f"), py::arg("e"), py::arg("E")
       )
       .def("getStress", &ManderBackbone::getStress)
     ;
-
-
-
-
-    py::class_<TclSafeBuilder, std::unique_ptr<TclSafeBuilder, py::nodelete> >(m, "TclTclSafeBuilder")  // 
-                                                                                                        //
+    py::class_<TclSafeBuilder, std::unique_ptr<TclSafeBuilder, py::nodelete> >(m, "TclTclSafeBuilder")
       .def (py::init([](py::object interpaddr)->std::unique_ptr<TclSafeBuilder, py::nodelete>{
             void *interp_addr;
             interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
@@ -181,29 +170,12 @@ init_obj_module(py::module &m)
       .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str id){
           return builder.getUniaxialMaterial(id);
       })
-      //.def ("getUniaxialMaterial", &TclSafeBuilder::getUniaxialMaterial)
-        //.def ("getDomain", &TclSafeBuilder::getDomainPtr);
     ;
 
-    m.def ("get_builder", &get_builder
-    );
+    m.def ("get_builder", &get_builder);
 
-    /*
-    m.def ("builder_addr", [](py::object rtaddr)->std::unique_ptr<TclSafeBuilder, py::nodelete>{
-        void *rt_addr;
-        rt_addr = (void*)PyLong_AsVoidPtr(rtaddr.ptr());
-        void *builder_addr = G3_getSafeBuilder((G3_Runtime*)rt_addr);
-        return std::unique_ptr<TclSafeBuilder, py::nodelete>((TclSafeBuilder*)builder_addr);
-      }
-    );
-    */
 }
-/*
-void
-init_builder_module(py::module &m)
-{
-}
-*/
+
 PYBIND11_MODULE(libOpenSeesRT, m) {
   init_obj_module(m);
 }
