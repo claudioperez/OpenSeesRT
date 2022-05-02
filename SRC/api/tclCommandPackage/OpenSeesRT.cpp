@@ -34,10 +34,7 @@ Openseesrt_Init(Tcl_Interp *interp)
   //Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)(new G3_Runtime{interp}));
   G3_Runtime *rt = new G3_Runtime{interp};
 
-  printf("rt: %p, interp: %p\n", rt, interp);
-
   Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
-
 
   OpenSeesAppInit(interp);
   myCommands(interp);
