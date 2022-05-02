@@ -144,6 +144,11 @@ init_obj_module(py::module &m)
           }
       )
       .def ("getStress",             &UniaxialMaterial::getStress)
+      .def ("getStress",            [](UniaxialMaterial &material, double strain, bool commit=false){
+          material.setTrialStrain(strain);
+          if (commit)  material.commitState();
+          return material.getStress();
+      }, py::arg("strain"), py::arg("commit"))
       .def ("getTangent",            &UniaxialMaterial::getTangent)
       .def ("getDampTangent",        &UniaxialMaterial::getDampTangent)
       .def ("getStrainRate",         &UniaxialMaterial::getStrainRate)
