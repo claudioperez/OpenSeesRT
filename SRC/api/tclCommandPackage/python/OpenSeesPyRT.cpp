@@ -139,6 +139,10 @@ init_obj_module(py::module &m)
       .def ("revertToLastCommit",    &SectionForceDeformation::revertToLastCommit)
     ;
     py::class_<UniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial")
+      .def ("setTrialStrain",        [](UniaxialMaterial &material, double strain) {
+            return material.setTrialStrain(strain);
+          }
+      )
       .def ("getStress",             &UniaxialMaterial::getStress)
       .def ("getTangent",            &UniaxialMaterial::getTangent)
       .def ("getDampTangent",        &UniaxialMaterial::getDampTangent)
@@ -167,8 +171,11 @@ init_obj_module(py::module &m)
       .def ("getSection", [](TclSafeBuilder& builder, py::str id){
           return builder.getSection(id);
       })
-      .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str id){
-          return builder.getUniaxialMaterial(id);
+      .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str tag){
+          return builder.getUniaxialMaterial(tag);
+      })
+      .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, int tag){
+          return builder.getUniaxialMaterial(tag);
       })
     ;
 
