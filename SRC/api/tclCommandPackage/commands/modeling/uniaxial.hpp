@@ -342,13 +342,19 @@ G3_TclUniaxialCommand TclCommand_KikuchiAikenHDR;
 G3_TclUniaxialCommand TclCommand_KikuchiAikenLRB;
 G3_TclUniaxialCommand TclCommand_AxialSp;
 G3_TclUniaxialCommand TclCommand_AxialSpHD;
+G3_TclUniaxialCommand TclCommand_addUniaxialConcrete04;
+G3_TclUniaxialCommand TclCommand_addUniaxialConcrete06;
+G3_TclUniaxialCommand TclCommand_addUniaxialConcrete07;
 
 std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
 //  {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper  },
     {"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR       },
     {"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB       },
     {"AxialSp",             TclCommand_AxialSp               },
-    {"AxialSpHD",           TclCommand_AxialSpHD             }
+    {"AxialSpHD",           TclCommand_AxialSpHD             },
+    {"Concrete04",          TclCommand_addUniaxialConcrete04 },
+    {"Concrete06",          TclCommand_addUniaxialConcrete06 },
+    {"Concrete07",          TclCommand_addUniaxialConcrete07 }
 };
 
 

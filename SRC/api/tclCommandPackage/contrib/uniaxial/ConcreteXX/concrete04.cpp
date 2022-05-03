@@ -1,87 +1,101 @@
 #include <tcl.h>
+#include <g3_api.h>
 
 #include <Concrete04.h>
 #include <Concrete06.h>
 #include <Concrete07.h>
 
-int TclCommand_addUniaxialConcrete04(ClientData cd, Tcl_Interp *interp, int argc, char **const argv)
-/* if (strcmp(argv[1], "Concrete04") == 0) */{
-      int tag;
-      double fpc, epsc0, ft, epscu, Ec0, etu, beta;
-
-      if (argc != 10 && argc != 9 && argc != 7) {
-        opserr << "WARNING insufficient arguments\n";
-        printCommand(argc, argv);
-        opserr << "Want: uniaxialMaterial Concrete04 tag? fpc? epsc0? epscu? "
-                  "Ec0? <ft? etu? <beta?> >"
-               << endln;
-        return TCL_ERROR;
-      }
-
-
-      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-        opserr << "WARNING invalid uniaxialMaterial Concrete04 tag" << endln;
-        return TCL_ERROR;
-      }
-
-      // Read required Concrete04 material parameters
-
-      if (Tcl_GetDouble(interp, argv[3], &fpc) != TCL_OK) {
-        opserr << "WARNING invalid fpc\n";
-        opserr << "Concrete04 material: " << tag << endln;
-        return TCL_ERROR;
-      }
-
-      if (Tcl_GetDouble(interp, argv[4], &epsc0) != TCL_OK) {
-        opserr << "WARNING invalid epsc0\n";
-        opserr << "Concrete04 material: " << tag << endln;
-        return TCL_ERROR;
-      }
-
-      if (Tcl_GetDouble(interp, argv[5], &epscu) != TCL_OK) {
-        opserr << "WARNING invalid epscu\n";
-        opserr << "Concrete04 material: " << tag << endln;
-        return TCL_ERROR;
-      }
-
-      if (Tcl_GetDouble(interp, argv[6], &Ec0) != TCL_OK) {
-        opserr << "WARNING invalid Ec0\n";
-        opserr << "Concrete04 material: " << tag << endln;
-        return TCL_ERROR;
-      }
-      if (argc == 9 || argc == 10) {
-        if (Tcl_GetDouble(interp, argv[7], &ft) != TCL_OK) {
-          opserr << "WARNING invalid ft\n";
-          opserr << "Concrete04 material: " << tag << endln;
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[8], &etu) != TCL_OK) {
-          opserr << "WARNING invalid etu\n";
-          opserr << "Concrete04 material: " << tag << endln;
-          return TCL_ERROR;
-        }
-      }
-      if (argc == 10) {
-        if (Tcl_GetDouble(interp, argv[9], &beta) != TCL_OK) {
-          opserr << "WARNING invalid beta\n";
-          opserr << "Concrete04 material: " << tag << endln;
-          return TCL_ERROR;
-        }
-      }
-
-      // Parsing was successful, allocate the material
-      if (argc == 10) {
-        theMaterial =
-            new Concrete04(tag, fpc, epsc0, epscu, Ec0, ft, etu, beta);
-      } else if (argc == 9) {
-        theMaterial = new Concrete04(tag, fpc, epsc0, epscu, Ec0, ft, etu);
-      } else if (argc == 7) {
-        theMaterial = new Concrete04(tag, fpc, epsc0, epscu, Ec0);
-      }
+static void printCommand(int argc, TCL_Char **argv) {
+  opserr << "Input command: ";
+  for (int i = 0; i < argc; i++)
+    opserr << argv[i] << " ";
+  opserr << endln;
 }
 
-int TclCommand_addUniaxialConcrete06(ClientData cd, Tcl_Interp *interp, int argc, char **const argv)
-/* else if (strcmp(argv[1], "Concrete06") == 0) */ {
+
+int TclCommand_addUniaxialConcrete04(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char** argv)
+/* if (strcmp(argv[1], "Concrete04") == 0) */
+{
+    UniaxialMaterial *theMaterial = 0;
+    int tag;
+    double fpc, epsc0, ft, epscu, Ec0, etu, beta;
+
+    if (argc != 10 && argc != 9 && argc != 7) {
+      opserr << "WARNING insufficient arguments\n";
+      printCommand(argc, argv);
+      opserr << "Want: uniaxialMaterial Concrete04 tag? fpc? epsc0? epscu? "
+                "Ec0? <ft? etu? <beta?> >"
+             << endln;
+      return TCL_ERROR;
+    }
+
+
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+      opserr << "WARNING invalid uniaxialMaterial Concrete04 tag" << endln;
+      return TCL_ERROR;
+    }
+
+    // Read required Concrete04 material parameters
+
+    if (Tcl_GetDouble(interp, argv[3], &fpc) != TCL_OK) {
+      opserr << "WARNING invalid fpc\n";
+      opserr << "Concrete04 material: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[4], &epsc0) != TCL_OK) {
+      opserr << "WARNING invalid epsc0\n";
+      opserr << "Concrete04 material: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[5], &epscu) != TCL_OK) {
+      opserr << "WARNING invalid epscu\n";
+      opserr << "Concrete04 material: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[6], &Ec0) != TCL_OK) {
+      opserr << "WARNING invalid Ec0\n";
+      opserr << "Concrete04 material: " << tag << endln;
+      return TCL_ERROR;
+    }
+    if (argc == 9 || argc == 10) {
+      if (Tcl_GetDouble(interp, argv[7], &ft) != TCL_OK) {
+        opserr << "WARNING invalid ft\n";
+        opserr << "Concrete04 material: " << tag << endln;
+        return TCL_ERROR;
+      }
+      if (Tcl_GetDouble(interp, argv[8], &etu) != TCL_OK) {
+        opserr << "WARNING invalid etu\n";
+        opserr << "Concrete04 material: " << tag << endln;
+        return TCL_ERROR;
+      }
+    }
+    if (argc == 10) {
+      if (Tcl_GetDouble(interp, argv[9], &beta) != TCL_OK) {
+        opserr << "WARNING invalid beta\n";
+        opserr << "Concrete04 material: " << tag << endln;
+        return TCL_ERROR;
+      }
+    }
+
+    // Parsing was successful, allocate the material
+    if (argc == 10) {
+      theMaterial =
+          new Concrete04(tag, fpc, epsc0, epscu, Ec0, ft, etu, beta);
+    } else if (argc == 9) {
+      theMaterial = new Concrete04(tag, fpc, epsc0, epscu, Ec0, ft, etu);
+    } else if (argc == 7) {
+      theMaterial = new Concrete04(tag, fpc, epsc0, epscu, Ec0);
+    }
+    return G3_addUniaxialMaterial(G3_getRuntime(interp), theMaterial);
+}
+
+int TclCommand_addUniaxialConcrete06(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char** argv)
+/* else if (strcmp(argv[1], "Concrete06") == 0) */ 
+{
+  UniaxialMaterial *theMaterial = 0;
       if (argc < 12) {
         opserr << "WARNING insufficient arguments\n";
         printCommand(argc, argv);
@@ -159,10 +173,14 @@ int TclCommand_addUniaxialConcrete06(ClientData cd, Tcl_Interp *interp, int argc
       // Parsing was successful, allocate the material
       theMaterial =
           new Concrete06(tag, fc, eo, r, k, alphaC, fcr, ecr, b, alphaT);
-    }
 
-int TclCommand_addUniaxialConcrete07(ClientData cd, Tcl_Interp *interp, int argc, char **const argv)
-/* else if (strcmp(argv[1], "Concrete07") == 0) */ {
+    return G3_addUniaxialMaterial(G3_getRuntime(interp), theMaterial);
+}
+
+int TclCommand_addUniaxialConcrete07(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char** argv)
+/* else if (strcmp(argv[1], "Concrete07") == 0) */ 
+{
+    UniaxialMaterial *theMaterial = 0;
       // Check to see if there are enough arquements
       if (argc < 11) {
         opserr << "WARNING: Insufficient arguments\n";
@@ -234,5 +252,7 @@ int TclCommand_addUniaxialConcrete07(ClientData cd, Tcl_Interp *interp, int argc
       // Parsing was successful, allocate the material
       theMaterial =
           new Concrete07(tag, fpc, epsc0, Ec, fpt, epst0, xcrp, xcrn, r);
+
+    return G3_addUniaxialMaterial(G3_getRuntime(interp), theMaterial);
 }   
 
