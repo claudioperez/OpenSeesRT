@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
+#include <G3_Runtime.h>
 #include <elementAPI.h> // G3_getRuntime/SafeBuilder
 #include "TclSafeBuilder.h"
 
@@ -14,6 +15,21 @@ namespace py = pybind11;
 #include <HystereticBackbone.h>
 
 #include <ManderBackbone.h>
+
+
+// 
+// ANALYSIS
+//
+#include <TransientAnalysis.h>
+#include <StaticAnalysis.h>
+
+
+std::unique_ptr<G3_Runtime, py::nodelete> 
+getRuntime(py::object interpaddr) {
+      void *interp_addr;
+      interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
+      return std::unique_ptr<G3_Runtime, py::nodelete>(G3_getRuntime((Tcl_Interp*)interp_addr));
+} // , py::return_value_policy::reference
 
 std::unique_ptr<TclSafeBuilder, py::nodelete> 
 get_builder(py::object interpaddr) {
@@ -184,11 +200,13 @@ init_obj_module(py::module &m)
       })
     ;
 
+    py::class_<TransientAnalysis, std::unique_ptr<TransientAnalysis, py::nodelete>>(m, "_TransientAnalysis")
+      .def ("analyze", &TransientAnalysis::analyze)
+    ;
+
     m.def ("get_builder", &get_builder);
-
+    m.def ("getRuntime",  &getRuntime);
 }
 
-PYBIND11_MODULE(libOpenSeesRT, m) {
-  init_obj_module(m);
-}
+PYBIND11_MODULE(libOpenSeesRT, m) {init_obj_module(m);}
 
