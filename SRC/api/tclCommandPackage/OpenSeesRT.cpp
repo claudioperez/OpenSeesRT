@@ -11,14 +11,13 @@ extern int init_g3_tcl_utils(Tcl_Interp*);
 // Error streams
 #include "streams/G3_Logging.h"
 #include <handler/OPS_Stream.h>
-#include <StandardStream.h>
-#include <unistd.h>
-// Create global error stream
+#include <StandardStream.h>      
+#include <unistd.h>               
 
 extern "C" {
 
 /*
- * Called when Tcl loads the extension.
+ * Called when loaded as a Tcl extension.
  */
 int DLLEXPORT
 Openseesrt_Init(Tcl_Interp *interp)
@@ -31,9 +30,7 @@ Openseesrt_Init(Tcl_Interp *interp)
     return TCL_ERROR;
   }
 
-  //Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)(new G3_Runtime{interp}));
   G3_Runtime *rt = new G3_Runtime{interp};
-
   Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
 
   OpenSeesAppInit(interp);

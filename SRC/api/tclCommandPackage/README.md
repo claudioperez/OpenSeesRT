@@ -48,4 +48,4 @@ Remove dependence on
 Remove TimeSeriesIntegrators from C++; handle in pre-processing?
 
 
-
+  CC="clang" CXX="clang++" cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=include-what-you-use ..

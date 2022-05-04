@@ -535,7 +535,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     delete[] theMats;
   }
 
-  else if (strcmp(argv[1], "Fiber") == 0 || strcmp(argv[1], "fiberSec") == 0 ||
+  else if (strcmp(argv[1], "Fiber") == 0 || 
+           strcmp(argv[1], "fiberSec") == 0 ||
+           strcmp(argv[1], "FiberSection") == 0 ||
            strcmp(argv[1], "NDFiberWarping") == 0 ||
            strcmp(argv[1], "NDFiber") == 0)
 
@@ -1866,7 +1868,8 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // check argv[1] for type of layer and create the object
-  if (strcmp(argv[1], "straight") == 0) {
+  if (strcmp(argv[1], "straight") == 0 ||
+      strcmp(argv[1], "line")     == 0) {
     if (argc < 9) {
       opserr << "WARNING invalid number of parameters: layer straight matTag "
                 "numReinfBars reinfBarArea yStartPt zStartPt yEndPt zEndPt\n";
