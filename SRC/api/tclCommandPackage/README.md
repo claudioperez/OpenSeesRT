@@ -1,11 +1,15 @@
 # OpenSeesRT
 
-## Feature
+## Features
 
 - Idempotent
-- Verbosity control
+- Direct access to components (`material.getStress(0.002, commit=False)`)
+  - UniaxialMaterial
+  - FiberSection
+
 - Promotes stability of OpenSees core.
 - Supports more python versions (3.6+)
+- Verbosity control
 
 ## User Changes
 
@@ -21,15 +25,13 @@ changes from the classic `OpenSees` interpreter:
 ### Misc
 - new `with` command
 
-
 ## Developer Changes
 
-- No more `OPS_GetInt`; use your host's API
+- No more `OPS_GetInt(void)`; use your host's API
 
 - `ModelBuilder` namespacing functionality
   - Eliminates random code in important places like `Domain::Print`
 
-- ``
 
 ## Codebase changes
 
