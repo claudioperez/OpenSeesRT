@@ -72,17 +72,19 @@ target_sources(OpenSeesRT PRIVATE
     "commands/modeling/uniaxialMaterial.cpp"
     "commands/modeling/uniaxial.cpp"
     "commands/modeling/hystereticBackbone.cpp"
+    "commands/modeling/backbone.cpp"
 
 # Multi-Dimensional Materials
     "contrib/nDMaterial/soil/TclUpdateMaterialStageCommand.cpp"
     #"contrib/nD/feap/TclFeapMaterialCommand.cpp"
 
 # Uniaxial
-    "contrib/uniaxial/TclKikuchiAiken.cpp"
+    "contrib/uniaxial/KikuchiAiken/TclKikuchiAiken.cpp"
     "contrib/uniaxial/ConcreteXX/concrete04.cpp"
     "contrib/uniaxial/TclAxialSp.cpp"
     "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+
     "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "contrib/uniaxial/limitState/TclLimitState.cpp"
     "contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
@@ -95,7 +97,7 @@ target_sources(OpenSeesRT PRIVATE
     "contrib/uniaxial/OO_Hysteretic/StiffnessDegradationCommand.cpp"
     "contrib/uniaxial/OO_Hysteretic/StrengthDegradationCommand.cpp"
     "contrib/uniaxial/OO_Hysteretic/UnloadingRuleCommand.cpp"
-    "commands/modeling/backbone.cpp"
+
     #"material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
     # Other
     #"material/uniaxial/TclNewUniaxialMaterial.cpp"

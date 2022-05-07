@@ -66,12 +66,33 @@ copy_vector(Vector vector)
   return array;
 }
 
+Vector *
+new_vector(py::array_t<double> array)
+{
+  py::buffer_info info = array.request();
+  return new Vector(static_cast<double*>(info.ptr),(int)info.shape[0]);
+}
+
+py::array_t<double>
+copy_matrix(Matrix matrix)
+{
+  int nr = matrix.noRows();
+  int nc = matrix.noCols();
+  py::array_t<double> array({nr,nc},{nr*nc*sizeof(double), nc*sizeof(double)});
+  double *ptr = static_cast<double*>(array.request().ptr);
+
+  for (int i=0; i<matrix.noRows(); i++)
+    for (int j=0; j<matrix.noCols(); j++)
+      ptr[i*nc+j] = matrix(i,j);
+  return array;
+}
+
 
 void
 init_obj_module(py::module &m)
 {
-    py::class_<Vector, std::unique_ptr<Vector, py::nodelete>>(m, "Vector", py::buffer_protocol())
-        .def (py::init([](
+    py::class_<Vector, std::unique_ptr<Vector, py::nodelete>> PyVector(m, "Vector", py::buffer_protocol());
+    PyVector.def (py::init([](
              py::array_t<double, py::array::c_style|py::array::forcecast> array
         )->Vector{
              bool verbose = true;
@@ -147,9 +168,35 @@ init_obj_module(py::module &m)
       .def ("revertToLastCommit",    &Element::revertToLastCommit)
     ;
     py::class_<SectionForceDeformation, std::unique_ptr<SectionForceDeformation, py::nodelete> > (m, "_SectionForceDeformation")
-      //.def ("setTrialSectionDeformation", &SectionForceDeformation::setTrialSectionDeformation)
+      .def ("getSectionTangent",          [](SectionForceDeformation& section) {
+          return copy_matrix(section.getSectionTangent());
+      })
+      .def ("getInitialTangent",          [](SectionForceDeformation& section) {
+          return copy_matrix(section.getInitialTangent());
+      })
+      .def ("getSectionFlexibility",      [](SectionForceDeformation& section) {
+          return copy_matrix(section.getSectionFlexibility());
+      })
+      .def ("getInitialFlexibility",      [](SectionForceDeformation& section) {
+          return copy_matrix(section.getInitialFlexibility());
+      })
+      .def ("setTrialSectionDeformation", [](SectionForceDeformation& section,  
+             py::array_t<double, py::array::c_style|py::array::forcecast> deformation) {
+        return section.setTrialSectionDeformation(*new_vector(deformation));
+      }) 
+      .def ("setTrialSectionDeformation", [](SectionForceDeformation& section, Vector &deformation) {
+        return section.setTrialSectionDeformation(deformation);
+      }) 
       .def ("getSectionDeformation", &SectionForceDeformation::getSectionDeformation)
-      .def ("getStressResultant",    &SectionForceDeformation::getStressResultant)
+
+      .def ("getStressResultant",    [](SectionForceDeformation &section, py::array_t<double> deformation, bool commit=false) {
+          section.setTrialSectionDeformation(*new_vector(deformation));
+          if (commit) section.commitState();
+          return copy_vector(section.getStressResultant());
+      })
+      .def ("getStressResultant",    [](SectionForceDeformation &section) {
+          return copy_vector(section.getStressResultant());
+      })
       .def ("commitState",           &SectionForceDeformation::commitState)
       .def ("revertToStart",         &SectionForceDeformation::revertToStart)
       .def ("revertToLastCommit",    &SectionForceDeformation::revertToLastCommit)

@@ -15,11 +15,11 @@ extern "C" {
 }
 
 #include <OPS_Globals.h>
-#include <TclBasicBuilder.h>
 #include <Matrix.h>
 #include <iostream>
 #include <set>
 #include <algorithm>
+
 // the following is a little kludgy but it works!
 #ifdef _USING_STL_STREAMS
 #  include <iomanip>
@@ -475,7 +475,12 @@ static Tcl_ObjCmdProc *Tcl_putsCommand = 0;
 //
 // revised puts command to send to cerr!
 //
-
+/*
+int TclObjCommand_getRuntimeAddr(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+  Tcl_SetObjResult(interp, rt_str);
+}
+*/
 int
 OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
                      Tcl_Obj *const objv[])
