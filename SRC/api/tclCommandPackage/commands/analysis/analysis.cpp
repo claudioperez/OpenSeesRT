@@ -88,7 +88,7 @@ static int numEigen = 0;
 // constraint handlers
 #include <PlainHandler.h>
 #include <PenaltyConstraintHandler.h>
-//#include <PenaltyHandlerNoHomoSPMultipliers.h>
+//  #include <PenaltyHandlerNoHomoSPMultipliers.h>
 #include <LagrangeConstraintHandler.h>
 #include <TransformationConstraintHandler.h>
 
