@@ -50,13 +50,15 @@ StaticIntegrator*
 G3Parse_newMinUnbalDispNormIntegrator(G3_Runtime*, int, G3_Char **);
 StaticIntegrator*
 G3Parse_newDisplacementControlIntegrator(G3_Builder *, int, G3_Char**);
+StaticIntegrator*
+G3Parse_newStaticIntegrator(G3_Builder *, int, TCL_Char **);
 
 TransientIntegrator*
 G3Parse_newNewmark1Integrator(G3_Builder *, int, TCL_Char **);
 TransientIntegrator*
+G3Parse_newNewmarkIntegrator(G3_Runtime*, int, G3_Char**);
+TransientIntegrator*
 G3Parse_newTransientIntegrator(G3_Builder *, int, TCL_Char **);
-StaticIntegrator*
-G3Parse_newStaticIntegrator(G3_Builder *, int, TCL_Char **);
 //
 // command invoked to allow the Integrator object to be built
 //
@@ -149,6 +151,7 @@ G3Parse_newStaticIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
 TransientIntegrator*
 G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
 {
+  printCommand(argc, argv);
   // G3_Builder *rt = G3_getRuntime(interp);
   if ((strcmp(argv[1], "TRBDF2") == 0) ||
            (strcmp(argv[1], "Bathe") == 0)) {
@@ -181,7 +184,8 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
   }
 
   else if (strcmp(argv[1], "Newmark") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt);
+    // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt);
+    theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {

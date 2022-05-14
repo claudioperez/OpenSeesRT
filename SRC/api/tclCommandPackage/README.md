@@ -2,14 +2,23 @@
 
 ## Features
 
-- Idempotent
-- Direct access to components (`material.getStress(0.002, commit=False)`)
+- **Idempotent**
+- **Direct access to components** Developing OpenSees components
+  is made easier by providing a direct interface to core object
+  types, allowing calls constructs like `material.getStress(0.002, commit=False)`
   - UniaxialMaterial
   - FiberSection
 
+- **Structured problem representation**
+  - Allows introspective add-ons ([Torsion]())
+  - Better visualization tools, independent of core source code.
+
 - Promotes stability of OpenSees core.
 - Supports more python versions (3.6+)
+
+Additional minor features:
 - Verbosity control
+- new `with` Tcl command and Python constructs
 
 ## User Changes
 
@@ -22,8 +31,6 @@ changes from the classic `OpenSees` interpreter:
 
 - new `redirect` command
 
-### Misc
-- new `with` command
 
 ## Developer Changes
 
@@ -44,10 +51,12 @@ Files that are superseded
 
 Remove dependence on
 
-- utility/SimulationInformation.*
-- utility/StringContainer.*
+- utility/SimulationInformation.\*
+- utility/StringContainer.\*
 
 Remove TimeSeriesIntegrators from C++; handle in pre-processing?
 
 
   CC="clang" CXX="clang++" cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=include-what-you-use ..
+
+

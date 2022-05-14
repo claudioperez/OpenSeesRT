@@ -6228,12 +6228,9 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // mpi clean up
   //
-
   if (theMachineBroker != 0) {
     theMachineBroker->shutdown();
     fprintf(stderr, "Process Terminating\n");
-    //    delete theMachineBroker;
-    //    theMachineBroker = 0;
   }
   MPI_Finalize();
 #endif
@@ -6242,12 +6239,9 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // mpi clean up
   //
-
   if (theMachineBroker != 0) {
     theMachineBroker->shutdown();
     fprintf(stderr, "Process Terminating\n");
-    //    delete theMachineBroker;
-    //    theMachineBroker = 0;
   }
   MPI_Finalize();
 #endif
@@ -6264,9 +6258,8 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int returnCode = 0;
   if (argc > 1) {
-    if (Tcl_GetInt(interp, argv[1], &returnCode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &returnCode) != TCL_OK)
       opserr << "WARNING: OpenSeesExit - failed to read return code\n";
-    }
   }
   Tcl_Exit(returnCode);
 

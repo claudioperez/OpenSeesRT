@@ -1,19 +1,21 @@
+#include <G3Parse.h>
 
 #ifdef _PARALLEL_PROCESSING
-#include <MumpsParallelSOE.h>
-#include <MumpsParallelSolver.h>
+#  include <MumpsParallelSOE.h>
+#  include <MumpsParallelSolver.h>
 #elif _PARALLEL_INTERPRETERS
-#include <MumpsParallelSOE.h>
-#include <MumpsParallelSolver.h>
+#  include <MumpsParallelSOE.h>
+#  include <MumpsParallelSolver.h>
 #else
-#include <MumpsSOE.h>
-#include <MumpsSolver.h>
+#  include <MumpsSOE.h>
+#  include <MumpsSolver.h>
 #endif
 
 struct MumpsOptions {int icntl14, icntl7;};
 
-struct MumpsOptions
-parseLinearSOE_mumps(G3_Runtime* rt, int argc, G3_Char** argv)
+//struct MumpsOptions
+LinearSOE*
+G3Parse_newMumpsLinearSOE(G3_Runtime* rt, int argc, G3_Char** argv)
 {
   if (strcmp(argv[1], "Mumps") == 0) {
 

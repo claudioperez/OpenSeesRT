@@ -51,6 +51,7 @@
 #include <UniaxialMaterial.h>
 #include <LimitCurve.h>
 #include <NDMaterial.h>
+// #include <HystereticBackbone.h>
 #include <TclSafeBuilder.h>
 #include <MultiSupportPattern.h>
 
@@ -1204,6 +1205,27 @@ TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
 */
   return 1;
 }
+
+HystereticBackbone*
+TclSafeBuilder::getHystereticBackbone(const std::string &name)
+{
+  HystereticBackbone *instance = m_HystereticBackboneMap.at(name);
+  if (instance) {
+    return instance;
+  } else {
+    return nullptr;
+  }
+}
+
+// Add a new HystereticBackbone to the model runtime
+int
+TclSafeBuilder::addHystereticBackbone(const std::string &name, HystereticBackbone &instance)
+{
+  m_HystereticBackboneMap[name] = &instance;
+  return 1;
+}
+
+
 
 //
 // CrdTransf Operations

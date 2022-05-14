@@ -1,5 +1,10 @@
+#include <G3Parse.h>
+#include <UmfpackGenLinSOE.h>
+#include <UmfpackGenLinSolver.h>
 
-TclCommand_addUmfpack(int argc, TCL_Char argv)
+
+LinearSOE*
+G3Parse_newUmfpackLinearSOE(G3_Runtime* rt, int argc, G3_Char argv)
 {
   /*
   } else if ((strcmp(argv[1], "UmfPack") == 0) ||
@@ -17,7 +22,7 @@ TclCommand_addUmfpack(int argc, TCL_Char argv)
       if ((strcmp(argv[count], "-lValueFact") == 0) ||
           (strcmp(argv[count], "-lvalueFact") == 0) ||
           (strcmp(argv[count], "-LVALUE") == 0)) {
-        if (Tcl_GetInt(interp, argv[count + 1], &factLVALUE) != TCL_OK)
+        if (G3Parse_getInt(rt, argv[count + 1], &factLVALUE) != TCL_OK)
           return nullptr;
         count++;
       } else if ((strcmp(argv[count], "-factorOnce") == 0) ||
@@ -32,6 +37,6 @@ TclCommand_addUmfpack(int argc, TCL_Char argv)
     UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver();
     // theSOE = new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce,
     // printTime);
-    theSOE = new UmfpackGenLinSOE(*theSolver);
-  }
+    return new UmfpackGenLinSOE(*theSolver);
 }
+

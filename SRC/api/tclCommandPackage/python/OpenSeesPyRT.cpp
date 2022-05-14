@@ -21,8 +21,9 @@ namespace py = pybind11;
 // 
 // ANALYSIS
 //
-#include <AnalysisRuntime.h>
+// #include <AnalysisRuntime.h>
 #include <TransientAnalysis.h>
+#include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
 #include <LoadPattern.h>
@@ -242,6 +243,7 @@ init_obj_module(py::module &m)
     .def ("revertToStart",         &Element::revertToStart)
     .def ("revertToLastCommit",    &Element::revertToLastCommit)
   ;
+
   py::class_<SectionForceDeformation, std::unique_ptr<SectionForceDeformation, py::nodelete> > (m, "_SectionForceDeformation")
     .def ("getSectionTangent",          [](SectionForceDeformation& section) {
       return copy_matrix(section.getSectionTangent());
@@ -276,6 +278,7 @@ init_obj_module(py::module &m)
     .def ("revertToStart",         &SectionForceDeformation::revertToStart)
     .def ("revertToLastCommit",    &SectionForceDeformation::revertToLastCommit)
   ;
+
   py::class_<UniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial")
     .def ("setTrialStrain",        [](UniaxialMaterial &material, double strain) {
         return material.setTrialStrain(strain);
@@ -294,52 +297,20 @@ init_obj_module(py::module &m)
     .def ("revertToStart",         &UniaxialMaterial::revertToStart)
     .def ("revertToLastCommit",    &UniaxialMaterial::revertToLastCommit)
   ;
+
   py::class_<HystereticBackbone, PyHystereticBackbone>(m, "HystereticBackbone")
     .def("getStress", &HystereticBackbone::getStress);
   ;
+
   py::class_<ManderBackbone, HystereticBackbone>(m, "PopovicsBackbone")
     .def(py::init<int, double, double, double>(),
          py::arg("tag"), py::arg("f"), py::arg("e"), py::arg("E")
     )
     .def("getStress", &ManderBackbone::getStress)
   ;
-  py::class_<TclSafeBuilder, std::unique_ptr<TclSafeBuilder, py::nodelete> >(m, "TclTclSafeBuilder")
-    .def (py::init([](py::object interpaddr)->std::unique_ptr<TclSafeBuilder, py::nodelete>{
-        void *interp_addr;
-        interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
-        void *builder_addr = Tcl_GetAssocData((Tcl_Interp*)interp_addr, "OPS::theTclSafeBuilder", NULL);
-        return std::unique_ptr<TclSafeBuilder, py::nodelete>((TclSafeBuilder*)builder_addr);
-      }) // , py::return_value_policy::reference
-    )
-    .def ("getSection", [](TclSafeBuilder& builder, py::str id){
-        return builder.getSection(id);
-    })
-    .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str tag){
-        return builder.getUniaxialMaterial(tag);
-    })
-    .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, int tag){
-        return builder.getUniaxialMaterial(tag);
-    })
-  ;
 
-  py::class_<G3_Runtime>(m, "_Runtime")
-  ;
 
-  py::class_<StaticAnalysis>(m, "_StaticAnalysis")
-    .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
-      return *((StaticAnalysis*)runtime->newStaticAnalysis(conf));
-    }))
-    .def ("analyze", &StaticAnalysis::analyze)
-  ;
 
-  py::class_<TransientAnalysis>(m, "TransientAnalysis");
-  // py::class_<TransientAnalysis>(m, "_TransientAnalysis") // , std::unique_ptr<TransientAnalysis, py::nodelete>>(m, "_TransientAnalysis")
-  py::class_<DirectIntegrationAnalysis, TransientAnalysis>(m, "_DirectIntegrationAnalysis")
-    .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
-      return *((DirectIntegrationAnalysis*)runtime->newTransientAnalysis(conf));
-    }))
-    .def ("analyze", &TransientAnalysis::analyze)
-  ;
 
     py::class_<TimeSeries, std::unique_ptr<TimeSeries, py::nodelete> >(m, "TimeSeries");
     py::class_<PathTimeSeries>(m, "PathTimeSeries");
@@ -386,8 +357,27 @@ init_obj_module(py::module &m)
         )
     ;
 
-  m.def ("get_builder", &get_builder);
-  m.def ("getRuntime",  &getRuntime);
+  py::class_<TclSafeBuilder, std::unique_ptr<TclSafeBuilder, py::nodelete> >(m, "TclTclSafeBuilder")
+    .def (py::init([](py::object interpaddr)->std::unique_ptr<TclSafeBuilder, py::nodelete>{
+        void *interp_addr;
+        interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
+        void *builder_addr = Tcl_GetAssocData((Tcl_Interp*)interp_addr, "OPS::theTclSafeBuilder", NULL);
+        return std::unique_ptr<TclSafeBuilder, py::nodelete>((TclSafeBuilder*)builder_addr);
+      }) // , py::return_value_policy::reference
+    )
+    .def ("getSection", [](TclSafeBuilder& builder, py::str id){
+        return builder.getSection(id);
+    })
+    .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str tag){
+        return builder.getUniaxialMaterial(tag);
+    })
+    .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, int tag){
+        return builder.getUniaxialMaterial(tag);
+    })
+    .def ("getHystereticBackbone", [](TclSafeBuilder& builder, std::string tag){
+        return std::unique_ptr<HystereticBackbone, py::nodelete>(builder.getHystereticBackbone(tag));
+    })
+  ;
 
   py::class_<Domain>(m, "_Domain")
     .def ("getNodeResponse", [](Domain&domain, int node, std::string type) {
@@ -397,10 +387,31 @@ init_obj_module(py::module &m)
         if (type == "veloc") typ = Vel;
         if (type == "react") typ = Reaction;
       return copy_vector(*domain.getNodeResponse(node, typ));
-    }
-    )
+    })
+    .def ("getTime", &Domain::getCurrentTime)
   ;
   
+  py::class_<G3_Runtime>(m, "_Runtime")
+  ;
+
+  py::class_<StaticAnalysis>(m, "_StaticAnalysis")
+    .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
+      return *((StaticAnalysis*)runtime->newStaticAnalysis(conf));
+    }))
+    .def ("analyze", &StaticAnalysis::analyze)
+  ;
+
+  py::class_<TransientAnalysis>(m, "TransientAnalysis");
+  // py::class_<TransientAnalysis>(m, "_TransientAnalysis") // , std::unique_ptr<TransientAnalysis, py::nodelete>>(m, "_TransientAnalysis")
+  py::class_<DirectIntegrationAnalysis, TransientAnalysis>(m, "_DirectIntegrationAnalysis")
+    .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
+      return *((DirectIntegrationAnalysis*)runtime->newTransientAnalysis(conf));
+    }))
+    .def ("analyze", &TransientAnalysis::analyze)
+  ;
+
+  m.def ("get_builder", &get_builder);
+  m.def ("getRuntime",  &getRuntime);
   m.def ("get_domain", [](G3_Runtime *rt)->std::unique_ptr<Domain, py::nodelete>{
       Domain *domain_addr = rt->m_domain;
       return std::unique_ptr<Domain, py::nodelete>((Domain*)domain_addr);

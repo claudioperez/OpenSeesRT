@@ -1,4 +1,4 @@
-
+// #include <stdio.h>
 
 #include <unordered_map>
 #include <string>
@@ -39,21 +39,25 @@ template <typename T>
 using G3_Parse = T* (*)(G3_Runtime*, int, const char **);
 
 
-template<typename T, T* (*fn)(G3_Runtime*, int, const char **)>
+// Wrap a function with signature
+//  T* G3Parse_newT(G3_Runtime*, int argc, G3_Char** argv)
+// so that it works with a std::vector<std::string>
+// written: cmp
+template<typename T, T* (*fn)(G3_Runtime*, int, G3_Char **)>
 T* G3Object_newParsed(G3_Runtime *rt, std::vector<std::string> args) {
-    std::vector<const char *> cstrs;
+    std::vector<G3_Char *> cstrs;
     cstrs.reserve(args.size());
     for (auto &s : args) cstrs.push_back(const_cast<char *>(s.c_str()));
-    return (*fn)(rt, cstrs.size(), cstrs.data()-1);
+    return (*fn)(rt, cstrs.size()+1, cstrs.data()-1);
 }
 
 G3_Parse<ConvergenceTest>     G3Parse_newConvergenceTest;
-G3_Parse<LinearSOE>           G3Parse_newLinearSOE;
 // G3_Parse<TransientIntegrator> G3Parse_newTransientIntegrator;
 // G3_Parse<StaticIntegrator>    G3Parse_newStaticIntegrator;
 EquiSolnAlgo* G3Parse_newEquiSolnAlgo(G3_Runtime*, int, const char **);
 TransientIntegrator* G3Parse_newTransientIntegrator(G3_Runtime*, int, const char**);
 StaticIntegrator* G3Parse_newStaticIntegrator(G3_Runtime*, int, const char**);
+LinearSOE* G3Parse_newLinearSOE(G3_Runtime*, int, const char**);
 
 
 
@@ -64,7 +68,7 @@ StaticIntegrator* G3Parse_newStaticIntegrator(G3_Runtime*, int, const char**);
 void *
 G3_Runtime::newStaticAnalysis(G3_Config conf)
 {
-  StaticIntegrator* sintegrator;
+  StaticIntegrator* sintegrator = nullptr;
 
   // INTEGRATOR
   if (G3Config_keyExists(conf, "integrator"))
@@ -107,13 +111,18 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
   // CONSTRAINT HANDLER
   ConstraintHandler *the_handler = new TransformationConstraintHandler();
 
+
   // LINEAR SYSTEM
   LinearSOE* the_soe = nullptr;
-  if (the_soe == nullptr) {
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-      the_soe = new ProfileSPDLinSOE(*theSolver);
-  }
+  if (G3Config_keyExists(conf, "system"))
+    the_soe = 
+      G3Object_newParsed<LinearSOE, G3Parse_newLinearSOE>(this, conf["system"]);
+  else
+    the_soe = this->m_global_strategy.m_linear_soe;
+
+  if (the_soe == nullptr) 
+      the_soe = new ProfileSPDLinSOE(*new ProfileSPDLinDirectSolver());
+
   
   if (m_analysis_model == nullptr)
     m_analysis_model = new AnalysisModel();
@@ -145,11 +154,8 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
     the_numberer = new DOF_Numberer(*theRCM);
   }
 
-
-
   // CONSTRAINT HANDLER
   ConstraintHandler *the_handler = new TransformationConstraintHandler();
-
 
   // CONVERGENCE TEST
   ConvergenceTest *test = new CTestNormUnbalance(1.0e-6,25,0);
@@ -169,11 +175,14 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
 
   // LINEAR SYSTEM
   LinearSOE* the_soe = nullptr;
-  if (the_soe == nullptr) {
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-      the_soe = new ProfileSPDLinSOE(*theSolver);
-  }
+  if (G3Config_keyExists(conf, "system"))
+    the_soe = 
+      G3Object_newParsed<LinearSOE, G3Parse_newLinearSOE>(this, conf["system"]);
+  else
+    the_soe = this->m_global_strategy.m_linear_soe;
+
+  if (the_soe == nullptr) 
+      the_soe = new ProfileSPDLinSOE(*new ProfileSPDLinDirectSolver());
 
 
   // ANALYSIS MODEL

@@ -54,6 +54,7 @@ public:
     EigenSOE          *m_eigen_sys  = nullptr;
     ConstraintHandler *m_handler    = nullptr;
     DOF_Numberer      *m_numberer   = nullptr;
+    LinearSOE         *m_linear_soe = nullptr;
   } m_global_strategy;
 
 

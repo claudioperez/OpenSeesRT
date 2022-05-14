@@ -520,7 +520,11 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         }
 
         // Create the multi-point constraint
-        MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, cDOF, rDOF); if (theMP == 0) { opserr << "WARNING ran out of memory for equalDOF MP_Constraint "; printCommand (argc, argv); return TCL_ERROR;
+        MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, cDOF, rDOF); 
+        if (theMP == 0) { 
+          opserr << "WARNING ran out of memory for equalDOF MP_Constraint "; 
+          printCommand (argc, argv);
+          return TCL_ERROR;
         }
 
         // Add the multi-point constraint to the domain

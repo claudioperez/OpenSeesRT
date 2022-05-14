@@ -18,6 +18,7 @@ target_sources(OpenSeesRT PRIVATE
 # GENERAL COMMANDS
 #
 # Model Commands & Builders
+    "G3_Runtime.cpp"
     "modelbuilder/TclBuilder.cpp"
     "modelbuilder/basic/TclBasicBuilder.cpp"
     #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
@@ -30,6 +31,7 @@ target_sources(OpenSeesRT PRIVATE
 # Other Commands
     "streams/logging.cpp"
     "commands/commands.cpp"
+    "commands/runtime.cpp"
     "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
     "commands/modeling/constraint.cpp"
@@ -48,6 +50,7 @@ target_sources(OpenSeesRT PRIVATE
     "commands/recorder.cpp"
     "commands/modeling/TclParameterCommands.cpp"
     "commands/modeling/TclUpdateMaterialCommand.cpp"
+
 # LOADS & PATTERNS
     "commands/loading/groundMotion.cpp"
     "commands/loading/TclPatternCommand.cpp"
@@ -84,6 +87,7 @@ target_sources(OpenSeesRT PRIVATE
     "contrib/uniaxial/TclAxialSp.cpp"
     "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    "contrib/uniaxial/ReinforcingSteel/TclReinforcingSteel.cpp"
 
     "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "contrib/uniaxial/limitState/TclLimitState.cpp"

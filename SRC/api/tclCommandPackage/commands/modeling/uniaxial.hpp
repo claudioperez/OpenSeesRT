@@ -192,7 +192,7 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"RambergOsgood",          OPS_RambergOsgoodSteel        },
     {"RambergOsgoodSteel",     OPS_RambergOsgoodSteel        },
 
-    {"ReinforcingSteel",       OPS_ReinforcingSteel          },
+//  {"ReinforcingSteel",       OPS_ReinforcingSteel          },
 
     {"Steel2",                 OPS_Steel2                    },
 
@@ -345,6 +345,14 @@ G3_TclUniaxialCommand TclCommand_AxialSpHD;
 G3_TclUniaxialCommand TclCommand_addUniaxialConcrete04;
 G3_TclUniaxialCommand TclCommand_addUniaxialConcrete06;
 G3_TclUniaxialCommand TclCommand_addUniaxialConcrete07;
+G3_TclUniaxialCommand TclCommand_ReinforcingSteel;
+
+template <void*(*fn)(G3_Runtime*)> static void*
+G3_(G3_Runtime* rt, int argc, G3_Char**)
+{
+  return fn(rt);
+}
+
 
 std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
     {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper  },
@@ -352,9 +360,18 @@ std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
     {"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB       },
     {"AxialSp",             TclCommand_AxialSp               },
     {"AxialSpHD",           TclCommand_AxialSpHD             },
+
     {"Concrete04",          TclCommand_addUniaxialConcrete04 },
     {"Concrete06",          TclCommand_addUniaxialConcrete06 },
-    {"Concrete07",          TclCommand_addUniaxialConcrete07 }
+    {"Concrete07",          TclCommand_addUniaxialConcrete07 },
+    {"ReinforcingSteel",    TclCommand_ReinforcingSteel      }, 
+/*
+    {"Elastic",             G3_<OPS_ElasticMaterial>         },
+
+    {"Steel01",             G3_<OPS_Steel01>                 },
+
+    {"Steel02",             G3_<OPS_Steel02>                 }
+*/
 };
 
 
@@ -372,6 +389,5 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
 // #if defined(_STEEL2) || defined(OPSDEF_UNIAXIAL_FEDEAS)
   {"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
 // #endif
-
 };
 

@@ -2,7 +2,6 @@
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
 #include <OPS_Globals.h>
-#include <packages.h>
 #include "solver.hpp"
 
 // analysis
@@ -11,7 +10,7 @@
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
 // system of eqn and solvers
-#include <ConjugateGradientSolver.h>
+// #include <ConjugateGradientSolver.h>
 
 #include <SProfileSPDLinSolver.h>
 #include <SProfileSPDLinSOE.h>
@@ -19,39 +18,39 @@
 #include <SparseGenColLinSOE.h>
 
 #ifdef _THREADS
-#include <ThreadedSuperLU.h>
+#  include <ThreadedSuperLU.h>
 #else
-#include <SuperLU.h>
+#  include <SuperLU.h>
 #endif
 
 #ifdef _CUSP
-#include <CuSPSolver.h>
+#  include <CuSPSolver.h>
 #endif
 
 #ifdef _CULAS4
-#include <CulaSparseSolverS4.h>
+#  include <CulaSparseSolverS4.h>
 #endif
 
 #ifdef _CULAS5
-#include <CulaSparseSolverS5.h>
+#  include <CulaSparseSolverS5.h>
 #endif
 
 #include <SparseGenRowLinSOE.h>
 #include <SymSparseLinSOE.h>
 #include <SymSparseLinSolver.h>
-#include <UmfpackGenLinSOE.h>
-#include <UmfpackGenLinSolver.h>
-#include <EigenSOE.h>
-#include <EigenSolver.h>
-#include <ArpackSOE.h>
-#include <ArpackSolver.h>
-#include <SymArpackSOE.h>
-#include <SymArpackSolver.h>
+// #include <UmfpackGenLinSOE.h>
+// #include <UmfpackGenLinSolver.h>
+// #include <EigenSOE.h>
+// #include <EigenSolver.h>
+// #include <ArpackSOE.h>
+// #include <ArpackSolver.h>
+// #include <SymArpackSOE.h>
+// #include <SymArpackSolver.h>
 
-#include <SymBandEigenSOE.h>
-#include <SymBandEigenSolver.h>
-#include <FullGenEigenSOE.h>
-#include <FullGenEigenSolver.h>
+// #include <SymBandEigenSOE.h>
+// #include <SymBandEigenSolver.h>
+// #include <FullGenEigenSOE.h>
+// #include <FullGenEigenSolver.h>
 
 #ifdef _CUDA
 #  include <BandGenLinSOE_Single.h>
@@ -79,8 +78,12 @@
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern LinearSOE *theSOE;
 
-int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char **argv) {
+LinearSOE*
+G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
+
+int
+specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
+               G3_Char **argv) {
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING need to specify a system type \n";
@@ -88,8 +91,25 @@ int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   G3_Runtime* rt = G3_getRuntime(interp); 
+  
+  theSOE = G3Parse_newLinearSOE(rt, argc, argv);
 
+  if (theSOE != 0) {
+    G3_Runtime *rt = G3_getRuntime(interp);
+    G3_setLinearSoe(rt, theSOE);
+    return TCL_OK;
+  } else {
+    opserr << "WARNING system " << argv[1] << " is unknown or not installed\n";
+    return TCL_ERROR;
+  }
+}
+
+LinearSOE*
+G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
+{
+  LinearSOE *theSOE = nullptr;
   auto ctor = soe_table.find(std::string(argv[1]));
+
   if (ctor != soe_table.end()) {
     theSOE = ctor->second.ss(rt, argc, argv);
   }
@@ -102,17 +122,6 @@ int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif
 
   // Diagonal SOE & SOLVER
-  else if (strcmp(argv[1], "MPIDiagonal") == 0) {
-#ifdef _PARALLEL_INTERPRETERS
-    MPIDiagonalSolver *theSolver = new MPIDiagonalSolver();
-    theSOE = new MPIDiagonalSOE(*theSolver);
-    setMPIDSOEFlag = true;
-#else
-    DiagonalSolver *theSolver = new DiagonalDirectSolver();
-    theSOE = new DiagonalSOE(*theSolver);
-#endif
-  }
-
 #ifdef _PARALLEL_INTERPRETERS
   else if (strcmp(argv[1], "ParallelProfileSPD") == 0) {
     ProfileSPDLinSolver *theSolver = new ProfileSPDLinDirectSolver();
@@ -124,14 +133,14 @@ int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 #endif
 
-  if (theSOE != 0) {
-    G3_Runtime *rt = G3_getRuntime(interp);
-    G3_setLinearSoe(rt, theSOE);
-    return TCL_OK;
-  } else {
-    opserr << "WARNING system " << argv[1] << " is unknown or not installed\n";
-    return TCL_ERROR;
+
+#ifdef _PARALLEL_INTERPRETERS
+  if (strcmp(argv[1], "MPIDiagonal") == 0) {
+    setMPIDSOEFlag = true;
   }
+#endif
+
+  return theSOE;
 }
 
 

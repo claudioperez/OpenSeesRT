@@ -1,3 +1,4 @@
+#ifndef G3PARSE_H
 #include <G3_Runtime.h>
 #include <tcl.h>
 
@@ -11,3 +12,10 @@
 // #define G3Parse_AppendResult(interp, 
 
 
+static void printCommand(int argc, TCL_Char **argv) {
+  opserr << "Input command: ";
+  for (int i = 0; i < argc; i++)
+    opserr << argv[i] << " ";
+  opserr << endln;
+}
+#endif // G3PARSE_H
