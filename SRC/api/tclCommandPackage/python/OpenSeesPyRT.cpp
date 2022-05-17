@@ -380,6 +380,7 @@ init_obj_module(py::module &m)
   ;
 
   py::class_<Domain>(m, "_Domain")
+    // .def ("getElementResponse", &Domain::getElementResponse)
     .def ("getNodeResponse", [](Domain&domain, int node, std::string type) {
         NodeResponseType typ;
         if (type == "displ") typ = Disp;

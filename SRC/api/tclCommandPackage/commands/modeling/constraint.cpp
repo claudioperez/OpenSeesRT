@@ -2,6 +2,7 @@
 
 #include <Matrix.h>
 #include <ID.h>
+#include <Node.h>
 #include <Domain.h>
 #include <g3_api.h>
 #include <TclBuilder.h>
@@ -577,6 +578,8 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
 
   return TCL_OK;
 }
+*/
+
 
 int
 TclCommand_addImposedMotionSP(ClientData clientData,
@@ -584,17 +587,30 @@ TclCommand_addImposedMotionSP(ClientData clientData,
                                    int argc,
                                    TCL_Char **argv)
 {
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - sp \n";
-    return TCL_ERROR;
-  }
+  G3_Runtime* rt = G3_getRuntime(interp);
+/*
+}
+ImposedMotion*
+G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
+{
+*/
+  Domain *domain = G3_getDomain(rt);
+
+
+  // TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
+  // // ensure the destructor has not been called -
+  // if (theTclBuilder == 0) {
+  //   opserr << "WARNING builder has been destroyed - sp \n";
+  //   return TCL_ERROR;
+  // }
 
   //  int ndf = theTclBuilder->getNDF();
 
   // check number of arguments
   if (argc < 4) {
-    opserr << "WARNING bad command - want: imposedMotion nodeId dofID gMotionID\n"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: imposedMotion nodeId dofID gMotionID\n";
+    printCommand(argc, argv);
+    return TCL_ERROR;
   }
 
   // get the nodeID, dofId and value of the constraint
@@ -629,18 +645,25 @@ TclCommand_addImposedMotionSP(ClientData clientData,
   // check valid node & dof
   //
 
-  Node *theNode = theTclDomain->getNode(nodeId);
+  Node *theNode = domain->getNode(nodeId);
   if (theNode == 0) {
     opserr << "WARNING invalid node " << argv[2] << " node not found\n ";
     return -1;
   }
+
   int nDof = theNode->getNumberDOF();
   if (dofId < 0 || dofId >= nDof) {
-    opserr << "WARNING invalid dofId: " << argv[2] << " dof specified cannot be <= 0 or greater than num dof at nod\n "; return -2;
+    opserr << "WARNING invalid dofId: " << argv[2] << " dof specified cannot be <= 0 or greater than num dof at nod\n "; 
+    return -2;
   }
 
 
-  MultiSupportPattern *thePattern = theTclMultiSupportPattern;
+  MultiSupportPattern *thePattern = 
+    (MultiSupportPattern*)Tcl_GetAssocData(interp, "theTclMultiSupportPattern", NULL);
+  if (thePattern == 0) {
+    opserr << "ERROR no multi-support pattern found\n";
+    return TCL_ERROR;
+  }
   int loadPatternTag = thePattern->getTag();
 
   // create a new ImposedMotionSP
@@ -666,4 +689,4 @@ TclCommand_addImposedMotionSP(ClientData clientData,
   }
   return TCL_OK;
 }
-*/
+

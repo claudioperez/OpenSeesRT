@@ -53,7 +53,7 @@ extern SimulationInformation simulationInfo;
 // extern const char * getInterpPWD(Tcl_Interp *interp);  // commands.cpp
 
 LoadPattern *theTclLoadPattern = 0;
-MultiSupportPattern *theTclMultiSupportPattern = 0;
+// MultiSupportPattern *theTclMultiSupportPattern = 0;
 
 extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
                                                         Tcl_Interp *interp,
@@ -420,7 +420,8 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // create the UniformExcitation Pattern
     thePattern = new UniformExcitation(*theMotion, dir, patternID);
-    theTclMultiSupportPattern = 0;
+    // theTclMultiSupportPattern = 0;
+    Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
 
     if (thePattern == 0) {
       opserr << "WARNING ran out of memory creating load pattern - pattern "
@@ -439,7 +440,8 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
            (strcmp(argv[1], "MultipleSupport") == 0) ||
            (strcmp(argv[1], "MultiSupport") == 0)) {
 
-    theTclMultiSupportPattern = new MultiSupportPattern(patternID);
+    MultiSupportPattern *theTclMultiSupportPattern = new MultiSupportPattern(patternID);
+    Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)theTclMultiSupportPattern);
     thePattern = theTclMultiSupportPattern;
 
     if (thePattern == 0) {
@@ -538,6 +540,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       ptr->setMaps();
       thePattern = ptr;
       theTclMultiSupportPattern = 0;
+      Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
     } else {
 
       //     TCL_Char * ifp = 0;
@@ -804,7 +807,8 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       thePattern = new DRMLoadPatternWrapper(patternID, factor, files, nf, dt,
                                              num_steps, f_d, 15, n1, n2,
                                              drm_box_crds, ele_d, steps_cached);
-      theTclMultiSupportPattern = 0;
+      // theTclMultiSupportPattern = 0;
+      Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
       commandEndMarker = c_arg;
     }
 
@@ -876,6 +880,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   //  theTclMultiSupportPattern = 0;
+  Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
 
   return TCL_OK;
 }

@@ -123,7 +123,7 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   theTclBuilder = this;
   theTclDomain = &theDomain;
   tclEnclosingPattern = 0;
-  theTclMultiSupportPattern = 0;
+  // theTclMultiSupportPattern = 0;
 
   nodeLoadTag = 0;
   eleArgStart = 0;
@@ -164,7 +164,7 @@ TclSafeBuilder::~TclSafeBuilder()
   theTclDomain = 0;
   theTclBuilder = 0;
   tclEnclosingPattern = 0;
-  theTclMultiSupportPattern = 0;
+  // theTclMultiSupportPattern = 0;
   /* TCL_OPS_setModelBuilder(0); */
 
   // may possibly invoke Tcl_DeleteCommand() later
@@ -823,27 +823,6 @@ TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   return TCL_ERROR;
 }
-
-/*
-
-extern int
-TclGroundMotionCommand(ClientData clientData,
-                       Tcl_Interp *interp,
-                       int argc,
-                       TCL_Char **argv,
-                       MultiSupportPattern *thePattern);
-
-int
-TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
-                           int argc, TCL_Char **argv)
-
-{
-  return TclGroundMotionCommand(clientData, interp, argc, argv,
-                                theTclMultiSupportPattern);
-}
-
-*/
-
 
 int
 TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,

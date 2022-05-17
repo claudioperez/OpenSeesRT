@@ -53,9 +53,33 @@ extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
                                                         TCL_Char *arg);
 
 int
-TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
+G3Parse_newGroundMotion(G3_Runtime* rt,
+                       int argc,
+                       TCL_Char **argv,
+                       MultiSupportPattern *thePattern);
+
+int
+TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
+                           int argc, TCL_Char **argv)
+
+{
+  G3_Runtime *rt = G3_getRuntime(interp);
+  MultiSupportPattern* pattern = 
+    (MultiSupportPattern *)Tcl_GetAssocData(interp,"theTclMultiSupportPattern", NULL);
+  if (pattern == 0) {
+    opserr << "ERROR no multi-support pattern\n";
+    return TCL_ERROR;
+  }
+  return G3Parse_newGroundMotion(rt, argc, argv, pattern);
+}
+
+
+int
+G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
                        TCL_Char **argv, MultiSupportPattern *thePattern)
 {
+  Tcl_Interp *interp = G3_getInterpreter(rt);
+
   GroundMotion *theMotion = 0;
   int gMotionTag;
 
@@ -89,7 +113,7 @@ TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           (strcmp(argv[currentArg], "-acceleration") == 0)) {
 
         currentArg++;
-        accelSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
+        accelSeries = TclSeriesCommand((ClientData)0, interp, argv[currentArg]);
 
         if (accelSeries == 0) {
           opserr << "WARNING invalid accel series: " << argv[currentArg];
@@ -102,7 +126,7 @@ TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                  (strcmp(argv[currentArg], "-velocity") == 0)) {
 
         currentArg++;
-        velSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
+        velSeries = TclSeriesCommand((ClientData)0, interp, argv[currentArg]);
 
         if (velSeries == 0) {
           opserr << "WARNING invalid vel series: " << argv[currentArg];
@@ -115,7 +139,7 @@ TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                  (strcmp(argv[currentArg], "-displacement") == 0)) {
 
         currentArg++;
-        dispSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
+        dispSeries = TclSeriesCommand((ClientData)0, interp, argv[currentArg]);
 
         if (dispSeries == 0) {
           opserr << "WARNING invalid disp series: " << argv[currentArg];
@@ -129,7 +153,7 @@ TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand(clientData, interp, argv[currentArg]);
+            TclSeriesIntegratorCommand((ClientData)0, interp, argv[currentArg]);
         if (seriesIntegrator == 0) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - groundMotion tag Series -int {Series Integrator}\n";
