@@ -176,6 +176,7 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
         currentArg++;
 
       } else if ((strcmp(argv[currentArg], "-fact") == 0) ||
+                 (strcmp(argv[currentArg], "-scale") == 0) ||
                  (strcmp(argv[currentArg], "-factor") == 0)) {
 
         currentArg++;
@@ -210,7 +211,9 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
     }
     int numMotions = endMotionIDs - startArg - 1;
     GroundMotion **theMotions;
+
     if (numMotions != 0) {
+      // LEAKED?
       theMotions = new GroundMotion *[numMotions];
       ID motionIDs(numMotions);
       for (int i = 3; i < endMotionIDs; i++) {

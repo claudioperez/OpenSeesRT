@@ -82,12 +82,12 @@ target_sources(OpenSeesRT PRIVATE
     #"contrib/nD/feap/TclFeapMaterialCommand.cpp"
 
 # Uniaxial
-    "contrib/uniaxial/KikuchiAiken/TclKikuchiAiken.cpp"
-    "contrib/uniaxial/ConcreteXX/concrete04.cpp"
-    "contrib/uniaxial/TclAxialSp.cpp"
-    "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    "contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
+    # "contrib/uniaxial/TclAxialSp.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-    "contrib/uniaxial/ReinforcingSteel/TclReinforcingSteel.cpp"
+    # "contrib/uniaxial/ConcreteXX/concrete04.cpp"
+    # "contrib/uniaxial/ReinforcingSteel/TclReinforcingSteel.cpp"
 
     "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "contrib/uniaxial/limitState/TclLimitState.cpp"

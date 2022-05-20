@@ -15,7 +15,7 @@ extern void *OPS_TDConcreteMC10NL(G3_Runtime *); // ntosic
 extern void *OPS_ElasticMaterial(G3_Runtime *);
 extern void *OPS_ElasticPPMaterial(G3_Runtime *);
 extern void *OPS_EPPGapMaterial(G3_Runtime *);
-extern void *OPS_ParallelMaterial(G3_Runtime *);
+// extern void *OPS_ParallelMaterial(G3_Runtime *);
 extern void *OPS_SeriesMaterial(G3_Runtime *);
 extern void *OPS_HardeningMaterial(G3_Runtime *);
 extern void *OPS_HystereticMaterial(G3_Runtime *);
@@ -125,7 +125,7 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"MinMaxMaterial",         OPS_MinMaxMaterial            },
     {"MinMax",                 OPS_MinMaxMaterial            },
 
-    {"Parallel",               OPS_ParallelMaterial          },
+    // {"Parallel",               OPS_ParallelMaterial          },
 
     {"Series",                 OPS_SeriesMaterial            },
 
@@ -336,16 +336,17 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
 */
 
-typedef int(G3_TclUniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char **);
-G3_TclUniaxialCommand TclSafeBuilder_addFedeasWrapper;
+typedef UniaxialMaterial* (G3_TclUniaxialCommand)(G3_Runtime*, int, TCL_Char **);
 G3_TclUniaxialCommand TclCommand_KikuchiAikenHDR;
 G3_TclUniaxialCommand TclCommand_KikuchiAikenLRB;
-G3_TclUniaxialCommand TclCommand_AxialSp;
-G3_TclUniaxialCommand TclCommand_AxialSpHD;
-G3_TclUniaxialCommand TclCommand_addUniaxialConcrete04;
-G3_TclUniaxialCommand TclCommand_addUniaxialConcrete06;
-G3_TclUniaxialCommand TclCommand_addUniaxialConcrete07;
+G3_TclUniaxialCommand G3Parse_newFedeasUniaxialDamage;
+G3_TclUniaxialCommand G3Parse_newUniaxialConcrete04;
+G3_TclUniaxialCommand G3Parse_newUniaxialConcrete06;
+G3_TclUniaxialCommand G3Parse_newUniaxialConcrete07;
 G3_TclUniaxialCommand TclCommand_ReinforcingSteel;
+G3_TclUniaxialCommand G3Parse_newParallelMaterial;
+// G3_TclUniaxialCommand TclCommand_AxialSp;
+// G3_TclUniaxialCommand TclCommand_AxialSpHD;
 
 template <void*(*fn)(G3_Runtime*)> static void*
 G3_(G3_Runtime* rt, int argc, G3_Char**)
@@ -355,16 +356,18 @@ G3_(G3_Runtime* rt, int argc, G3_Char**)
 
 
 std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
-    {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper  },
+    {"FedeasDamageWrapper", G3Parse_newFedeasUniaxialDamage  },
     {"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR       },
     {"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB       },
+    /*
     {"AxialSp",             TclCommand_AxialSp               },
     {"AxialSpHD",           TclCommand_AxialSpHD             },
-
-    {"Concrete04",          TclCommand_addUniaxialConcrete04 },
-    {"Concrete06",          TclCommand_addUniaxialConcrete06 },
-    {"Concrete07",          TclCommand_addUniaxialConcrete07 },
+    */
+    {"Concrete04",          G3Parse_newUniaxialConcrete04 },
+    {"Concrete06",          G3Parse_newUniaxialConcrete06 },
+    {"Concrete07",          G3Parse_newUniaxialConcrete07 },
     {"ReinforcingSteel",    TclCommand_ReinforcingSteel      }, 
+    {"Parallel",            G3Parse_newParallelMaterial      },
 /*
     {"Elastic",             G3_<OPS_ElasticMaterial>         },
 

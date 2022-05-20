@@ -1,3 +1,6 @@
+
+#add_subdirectory(system_of_eqn)
+add_subdirectory(uniaxial)
 target_sources(OpenSeesRT PRIVATE
     "integrator/Newmark/G3Parse_Newmark.cpp"
 
@@ -34,5 +37,4 @@ target_sources(OpenSeesRT PRIVATE
     #"sys_of_eqn/petsc.cpp"
 )
 
-#add_subdirectory(system_of_eqn)
 
