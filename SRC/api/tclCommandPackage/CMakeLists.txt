@@ -85,7 +85,7 @@ target_sources(OpenSeesRT PRIVATE
     "contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
     # "contrib/uniaxial/TclAxialSp.cpp"
     # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
-    "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     # "contrib/uniaxial/ConcreteXX/concrete04.cpp"
     # "contrib/uniaxial/ReinforcingSteel/TclReinforcingSteel.cpp"
 
