@@ -733,8 +733,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "database", &addDatabase, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+  
+ //  Tcl_CreateCommand(interp, "database", &addDatabase, (ClientData)NULL,
+ //                    (Tcl_CmdDeleteProc *)NULL);
+
   Tcl_CreateCommand(interp, "eigen", &eigenAnalysis, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "modalProperties", &modalProperties,
@@ -2281,6 +2283,7 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     return 0;
 }
 
+/*
 extern int TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv, Domain &theDomain,
                           FEM_ObjectBroker &theBroker);
@@ -2292,7 +2295,6 @@ addDatabase(ClientData clientData, Tcl_Interp *interp, int argc,
   return TclAddDatabase(clientData, interp, argc, argv, theDomain, theBroker);
 }
 
-/*
 int
 groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)

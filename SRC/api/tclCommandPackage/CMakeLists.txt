@@ -43,8 +43,8 @@ target_sources(OpenSeesRT PRIVATE
     misc/TclPackageClassBroker.cpp
 
 # Database
-    "commands/database/TclDatabaseCommands.cpp"
-    "commands/database/TclMySQL.cpp"
+# "commands/database/TclDatabaseCommands.cpp"
+# "commands/database/TclMySQL.cpp"
     #"commands/database/TclBerkeleyDB.cpp"
 
     "commands/recorder.cpp"
@@ -167,7 +167,7 @@ target_link_libraries(OpenSeesRT PRIVATE
   #g3_uniaxial_io
   G3
   OpenSeesPyRT
-  ${MYSQL_LIBRARIES}
+  # ${MYSQL_LIBRARIES}
   #${TCL_STUB_LIBRARY}
   ${TCL_LIBRARIES}
 )
