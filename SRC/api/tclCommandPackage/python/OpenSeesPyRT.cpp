@@ -64,6 +64,76 @@ get_builder(py::object interpaddr) {
       return std::unique_ptr<TclSafeBuilder, py::nodelete>((TclSafeBuilder*)builder_addr);
 } // , py::return_value_policy::reference
 
+class Channel;
+class FEM_ObjectBroker;
+class PyUniaxialMaterial : public UniaxialMaterial {
+public:
+  PyUniaxialMaterial(int tag) : 
+    // m_object(obj), 
+    UniaxialMaterial(tag,10)
+  { 
+  }
+  void Print(OPS_Stream &s, int flag =0) {
+    // TODO:
+    s << "" << "\n";
+  }
+  /* Trampoline (need one for each virtual function) */
+  double getStress(void) override {
+      PYBIND11_OVERRIDE_PURE(
+          double, 
+          UniaxialMaterial, 
+          getStress,
+      );
+  }
+  int sendSelf(int commitTag, Channel &theChannel) override {
+    return 0;
+  }
+  int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker& broker) override {
+    return 0;
+  }
+  double getStrain(void) override {
+      PYBIND11_OVERRIDE_PURE(double, UniaxialMaterial, getStrain);
+  }
+  double getTangent(void) override {
+      PYBIND11_OVERRIDE_PURE(double,UniaxialMaterial, getTangent);
+  }
+  double getInitialTangent(void) override {
+      PYBIND11_OVERRIDE_PURE(double, UniaxialMaterial, getInitialTangent);
+  }
+  int commitState (void) override {
+      PYBIND11_OVERRIDE_PURE(
+          int,                      /* Return type */
+          UniaxialMaterial,         /* Parent class */
+          commitState               /* Name of function in C++ (must match Python name) */
+      );
+  }
+  int revertToLastCommit (void) override {
+      PYBIND11_OVERRIDE_PURE(
+          int,                      /* Return type */
+          UniaxialMaterial,         /* Parent class */
+          revertToLastCommit        /* Name of function in C++ (must match Python name) */
+      );
+  }
+  int revertToStart (void) override {
+      PYBIND11_OVERRIDE_PURE(int, UniaxialMaterial, revertToStart);
+  }
+  UniaxialMaterial *getCopy (void) override {
+    return this;
+      // PYBIND11_OVERRIDE_PURE(UniaxialMaterial*, UniaxialMaterial, getCopy);
+  }
+    
+  int setTrialStrain(double strain, double strainRate=0) override {
+      PYBIND11_OVERRIDE_PURE(
+          double,                 /* Return type */
+          UniaxialMaterial,       /* Parent class */
+          setTrialStrain,         /* Name of function in C++ (must match Python name) */
+          strain,                  /* Argument(s) */
+          strainRate
+      );
+  }
+private:
+  py::object m_object;
+};
 
 class PyHystereticBackbone : public HystereticBackbone {
 public:
@@ -279,7 +349,13 @@ init_obj_module(py::module &m)
     .def ("revertToLastCommit",    &SectionForceDeformation::revertToLastCommit)
   ;
 
-  py::class_<UniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial")
+  py::class_<UniaxialMaterial, PyUniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial", py::multiple_inheritance())
+    .def (py::init<int>())
+    // .def("__init__",
+    //     [](UniaxialMaterial &instance) {
+    //         new (&instance) Example(arg);
+    //     }
+    // )
     .def ("setTrialStrain",        [](UniaxialMaterial &material, double strain) {
         return material.setTrialStrain(strain);
       }
@@ -301,6 +377,10 @@ init_obj_module(py::module &m)
   py::class_<HystereticBackbone, PyHystereticBackbone>(m, "HystereticBackbone")
     .def("getStress", &HystereticBackbone::getStress);
   ;
+
+  // py::class_<UniaxialMaterial, PyUniaxialMaterial>(m, "UniaxialMaterial")
+  //   .def("getStress", &UniaxialMaterial::getStress);
+  // ;
 
   py::class_<ManderBackbone, HystereticBackbone>(m, "PopovicsBackbone")
     .def(py::init<int, double, double, double>(),
@@ -373,6 +453,9 @@ init_obj_module(py::module &m)
     })
     .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, int tag){
         return builder.getUniaxialMaterial(tag);
+    })
+    .def ("addPythonObject", [](TclSafeBuilder& builder, py::str tag, PyUniaxialMaterial& material){
+        return builder.addUniaxialMaterial(tag, material);
     })
     .def ("getHystereticBackbone", [](TclSafeBuilder& builder, std::string tag){
         return std::unique_ptr<HystereticBackbone, py::nodelete>(builder.getHystereticBackbone(tag));

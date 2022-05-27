@@ -20,6 +20,10 @@ Additional minor features:
 - Verbosity control
 - new `with` Tcl command and Python constructs
 
+## Paradigm
+
+- no more "interpreters"; An analysis 
+
 ## User Changes
 
 When `OpenSeesRT` is loaded as a Tcl library, there are a few minor

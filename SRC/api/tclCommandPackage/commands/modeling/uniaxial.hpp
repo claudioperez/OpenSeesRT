@@ -356,9 +356,9 @@ G3_(G3_Runtime* rt, int argc, G3_Char**)
 
 
 std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
-    {"FedeasDamageWrapper", G3Parse_newFedeasUniaxialDamage  },
-    {"KikuchiAikenHDR",     TclCommand_KikuchiAikenHDR       },
-    {"KikuchiAikenLRB",     TclCommand_KikuchiAikenLRB       },
+    {"FedeasUniaxialDamage", G3Parse_newFedeasUniaxialDamage  },
+    {"KikuchiAikenHDR",      TclCommand_KikuchiAikenHDR       },
+    {"KikuchiAikenLRB",      TclCommand_KikuchiAikenLRB       },
     /*
     {"AxialSp",             TclCommand_AxialSp               },
     {"AxialSpHD",           TclCommand_AxialSpHD             },

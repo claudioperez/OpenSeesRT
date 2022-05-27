@@ -2,13 +2,12 @@
 #include <G3Parse.h>
 #include <DegradingUniaxialWrapper.hh>
 
-#define WRAPPER_CMD "FedeasDegradingWrapper"
+#define WRAPPER_CMD "FedeasUniaxialDamage"
 // #define WRAPPER_CMD "FedeasDamage"
 
 UniaxialMaterial*
 G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
 {
-  // G3_Runtime *rt = G3_getRuntime(interp);
   // Pointer to a uniaxial material that will be returned
   DegradingUniaxialWrapper *theMaterial = 0;
   UniaxialMaterial *theWrappedMaterial = 0;
@@ -18,7 +17,7 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
 
   if (argc < 2) {
     opserr << "WARNING invalid uniaxialMaterial " WRAPPER_CMD " $tag "
-              "$wrapTag <-min $minStrain> <-max $maxStrain>"
+              "$wrapTag <-damage $damageTag>"
            << endln;
     return nullptr;
   }
@@ -77,10 +76,11 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
     return nullptr;
   }
   theMaterial->setCoupling(Ccd);
-  // if (dmgtag){
-  //   if (theMaterial->setDamageWrapper(interp, dmgtag) > 0)
-  //     opserr << "#Set damage wrapper '" << dmgtag << "'\n";
-  // }
+
+  if (dmgtag){
+    if (theMaterial->setDamageWrapper(G3_getInterpreter(rt), dmgtag) > 0)
+      opserr << "#Set damage wrapper '" << dmgtag << "'\n";
+  }
 
   // return G3_addUniaxialMaterial(rt, theMaterial);
   return theMaterial;
