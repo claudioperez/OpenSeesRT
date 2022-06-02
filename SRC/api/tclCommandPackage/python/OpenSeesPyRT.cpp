@@ -119,7 +119,7 @@ public:
   }
   UniaxialMaterial *getCopy (void) override {
     return this;
-      // PYBIND11_OVERRIDE_PURE(UniaxialMaterial*, UniaxialMaterial, getCopy);
+    // PYBIND11_OVERRIDE_PURE(PyUniaxialMaterial*, UniaxialMaterial, getCopy);
   }
     
   int setTrialStrain(double strain, double strainRate=0) override {

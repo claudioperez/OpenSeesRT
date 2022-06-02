@@ -345,6 +345,7 @@ G3_TclUniaxialCommand G3Parse_newUniaxialConcrete06;
 G3_TclUniaxialCommand G3Parse_newUniaxialConcrete07;
 G3_TclUniaxialCommand TclCommand_ReinforcingSteel;
 G3_TclUniaxialCommand G3Parse_newParallelMaterial;
+G3_TclUniaxialCommand G3Parse_newUniaxialBoucWen;
 // G3_TclUniaxialCommand TclCommand_AxialSp;
 // G3_TclUniaxialCommand TclCommand_AxialSpHD;
 
@@ -368,6 +369,7 @@ std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
     {"Concrete07",          G3Parse_newUniaxialConcrete07 },
     {"ReinforcingSteel",    TclCommand_ReinforcingSteel      }, 
     {"Parallel",            G3Parse_newParallelMaterial      },
+    {"BoucWen",             G3Parse_newUniaxialBoucWen       },
 /*
     {"Elastic",             G3_<OPS_ElasticMaterial>         },
 
