@@ -68,10 +68,21 @@ class Channel;
 class FEM_ObjectBroker;
 class PyUniaxialMaterial : public UniaxialMaterial {
 public:
-  PyUniaxialMaterial(int tag) : 
-    // m_object(obj), 
+  ~PyUniaxialMaterial()
+  {
+
+  }
+  PyUniaxialMaterial(const UniaxialMaterial& m) : 
+    m_object(py::cast(this)),
+    UniaxialMaterial(m.getTag(), 11) 
+  {
+
+  }
+  PyUniaxialMaterial(const py::object &obj, int tag) : 
+    m_object(obj), 
     UniaxialMaterial(tag,10)
   { 
+
   }
   void Print(OPS_Stream &s, int flag =0) {
     // TODO:
@@ -118,9 +129,32 @@ public:
       PYBIND11_OVERRIDE_PURE(int, UniaxialMaterial, revertToStart);
   }
   UniaxialMaterial *getCopy (void) override {
-    return this;
-    // PYBIND11_OVERRIDE_PURE(PyUniaxialMaterial*, UniaxialMaterial, getCopy);
+    py::gil_scoped_acquire acquire;
+    auto self = py::cast(this);
+    // py::print(py::str(self.attr("__dict__")));
+    auto cloned = self.attr("getCopy")();
+    // py::print(py::str(m_object.attr("__dict__")));
+    // py::print(m_object);
+    // py::print("cloned: ", cloned);
+    // return nullptr;
+    // auto cloned = m_object.attr("getCopy")();
+
+    auto keep_python_state_alive = std::make_shared<py::object>(cloned);
+    // auto ptr = cloned.cast<UniaxialMaterial*>();
+    auto ptr = py::cast<PyUniaxialMaterial*>(cloned.release());
+
+    py::gil_scoped_release release;
+    return ptr;
+    // aliasing shared_ptr: points to `A_trampoline* ptr` but refcounts the Python object
+    // return std::shared_ptr<UniaxialMaterial>(keep_python_state_alive, ptr);
+    // return this;
+    // PYBIND11_OVERRIDE_PURE(UniaxialMaterial*, UniaxialMaterial, getCopy);
+    // return this->clone();
   }
+
+  // std::shared_ptr<UniaxialMaterial> clone() const {
+  // UniaxialMaterial* clone() {
+  // }
     
   int setTrialStrain(double strain, double strainRate=0) override {
       PYBIND11_OVERRIDE_PURE(
@@ -132,7 +166,7 @@ public:
       );
   }
 private:
-  py::object m_object;
+  const py::object &m_object;
 };
 
 class PyHystereticBackbone : public HystereticBackbone {
@@ -349,13 +383,12 @@ init_obj_module(py::module &m)
     .def ("revertToLastCommit",    &SectionForceDeformation::revertToLastCommit)
   ;
 
-  py::class_<UniaxialMaterial, PyUniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial", py::multiple_inheritance())
-    .def (py::init<int>())
-    // .def("__init__",
-    //     [](UniaxialMaterial &instance) {
-    //         new (&instance) Example(arg);
-    //     }
-    // )
+  // py::class_<UniaxialMaterial, PyUniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial", py::multiple_inheritance())
+  py::class_<UniaxialMaterial, PyUniaxialMaterial, std::shared_ptr<UniaxialMaterial>>(m, "_UniaxialMaterial", py::multiple_inheritance())
+    .def (py::init<py::object &, int>())
+    .def (py::init<const UniaxialMaterial &>())
+    .def (py::init_alias<const UniaxialMaterial &>())
+    // .def ("getCopy", [](PyUniaxialMaterial &m) { return m.getCopy();})
     .def ("setTrialStrain",        [](UniaxialMaterial &material, double strain) {
         return material.setTrialStrain(strain);
       }
