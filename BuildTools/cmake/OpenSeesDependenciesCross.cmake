@@ -27,44 +27,43 @@
 #
 #----------------------------------------------------------------
 #opensees_load(TCL CONAN tcl/8.6.10)
-#opensees_load(TCL                                            FIND)
-#set(TCL_LIBRARIES ${TCL_LIBRARY})
-set(TCL_LIBRARIES /home/claudio/miniconda3/envs/elle/lib/libtclstub8.6.a)
-set(TCL_INCLUDE_PATH /home/claudio/miniconda3/envs/elle/include/)
+opensees_load(TCL                                            FIND)
+#opensees_load(TclStub                                        FIND)
+set(TCL_LIBRARIES /usr/lib/libtclstub8.5.a)
+set(TCL_STUB_LIBRARIES /user/lib/libtclstub8.5.a)
+set(TCL_INCLUDE_PATH "/usr/include/")
 
 opensees_load(BLAS                                           #FIND)
-  #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
   LIBRARY /usr/lib/libblas.so.3
 )
 
 opensees_load(LAPACK                                         #FIND)
-  #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
   LIBRARY /usr/lib/liblapack.so.3
 )
 
 opensees_load(SUPERLU
   #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/libSUPERLU.a"
+  LIBRARY "${OPS_BUNDLED_DIR}/bin_cross/SuperLU_5.1.1/libSUPERLU.a"
 )
 
 opensees_load(ARPACK
   #BUNDLED "${OPS_BUNDLED_DIR}/ARPACK/"
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/ARPACK/libARPACK.a"
+  LIBRARY "${OPS_BUNDLED_DIR}/bin_cross/ARPACK/libARPACK.a"
 )
 
 opensees_load(UMFPACK
   #BUNDLED "${OPS_BUNDLED_DIR}/UMFPACK/" 
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/UMFPACK/libUMFPACK.a" 
+  LIBRARY "${OPS_BUNDLED_DIR}/bin_cross/UMFPACK/libUMFPACK.a" 
 )
 
 opensees_load(CSPARSE
   #BUNDLED "${OPS_BUNDLED_DIR}/CSPARSE/"
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/CSPARSE/libCSPARSE.a"
+  LIBRARY "${OPS_BUNDLED_DIR}/bin_cross/CSPARSE/libCSPARSE.a"
 )
 
 opensees_load(AMD
   #BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
+  LIBRARY "${OPS_BUNDLED_DIR}/bin_cross/AMD/libAMD.a"
 )
 
 opensees_load(METIS                                          FIND)

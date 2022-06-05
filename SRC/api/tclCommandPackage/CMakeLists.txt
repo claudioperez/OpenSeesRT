@@ -8,8 +8,6 @@ cmake_minimum_required(VERSION 3.16)
 #
 # Dependencies
 # 
-#find_package(TclStub)
-#find_package(TCL)
 
 add_library(OpenSeesRT SHARED)
 

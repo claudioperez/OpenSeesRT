@@ -23,12 +23,13 @@ set(CONDA_DIR "C:/Users/claud/miniconda3")
 set(CONDA_ENV "C:/Users/claud/miniconda3/envs/sim")
 set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
-opensees_load(TCL CONAN tcl/8.6.10)
+#opensees_load(TCL CONAN tcl/8.6.10)
 
-set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
-set(TCL_LIBRARIES ${TCL_LIBRARY})
+#set(TCL_INCLUDE_PATH ${TCL_INCLUDE})
+#set(TCL_LIBRARIES ${TCL_LIBRARY})
 
-message("TCL: ${TCL_INCLUDE_PATH}")
+message("-TCL: ${TCL_INCLUDE_PATH}")
+message("-TCL: ${TCL_INCLUDE_DIRS}")
 
 opensees_load(BLAS
   LIBRARY "${BUNDLE_LIBS}/blas.lib"
