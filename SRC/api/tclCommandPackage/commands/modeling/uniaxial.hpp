@@ -357,6 +357,7 @@ G3_(G3_Runtime* rt, int argc, G3_Char**)
 
 
 std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
+
     {"FedeasUniaxialDamage", G3Parse_newFedeasUniaxialDamage  },
     {"KikuchiAikenHDR",      TclCommand_KikuchiAikenHDR       },
     {"KikuchiAikenLRB",      TclCommand_KikuchiAikenLRB       },
@@ -392,7 +393,7 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
   {"snap",               TclBasicBuilder_addSnapMaterial  },
 
 // #if defined(_STEEL2) || defined(OPSDEF_UNIAXIAL_FEDEAS)
-  {"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
+//{"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
 // #endif
 };
 

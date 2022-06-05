@@ -27,10 +27,16 @@
 #
 #----------------------------------------------------------------
 #opensees_load(TCL CONAN tcl/8.6.10)
+
 #opensees_load(TCL                                            FIND)
 #set(TCL_LIBRARIES ${TCL_LIBRARY})
 set(TCL_LIBRARIES /home/claudio/miniconda3/envs/elle/lib/libtclstub8.6.a)
 set(TCL_INCLUDE_PATH /home/claudio/miniconda3/envs/elle/include/)
+
+# set(OPS_BUNDLED_DIR "/home/claudio/opensees/G3_NumericLibs/")
+# 
+# opensees_load(TCL                                            FIND)
+# set(TCL_LIBRARIES ${TCL_LIBRARY})
 
 opensees_load(BLAS                                           #FIND)
   #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
