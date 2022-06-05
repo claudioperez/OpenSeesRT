@@ -29,6 +29,7 @@ class TaggedObjectStorage;
 class TimeSeries;
 class G3_Runtime;
 class CrdTrasnf;
+class HystereticBackbone;
 /*
 class YieldSurface_BC;
 class YS_Evolution;
@@ -84,6 +85,12 @@ public:  int  addUniaxialMaterial(UniaxialMaterial &theMaterial);
          UniaxialMaterial *getUniaxialMaterial(int tag);
          UniaxialMaterial *getUniaxialMaterial(const std::string &);
 
+// Multi-dimensional materials
+private: map_t<HystereticBackbone*> m_HystereticBackboneMap;
+public:  int addHystereticBackbone(HystereticBackbone &theMaterial);
+         int addHystereticBackbone(const std::string&, HystereticBackbone &);
+         // HystereticBackbone *getHystereticBackbone(int tag);
+         HystereticBackbone *getHystereticBackbone(const std::string &);
 
 // Multi-dimensional materials
 private: map_t<NDMaterial*> m_NDMaterialMap;

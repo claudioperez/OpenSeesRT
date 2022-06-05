@@ -138,7 +138,7 @@ static Domain *theTclDomain = 0;
 static TclBasicBuilder *theTclBuilder = 0;
 
 extern LoadPattern *theTclLoadPattern;
-extern MultiSupportPattern *theTclMultiSupportPattern;
+// extern MultiSupportPattern *theTclMultiSupportPattern;
 static int eleArgStart = 0;
 static int nodeLoadTag = 0;
 static int eleLoadTag = 0;
@@ -323,7 +323,7 @@ static int TclCommand_addHystereticBackbone(ClientData,
                                             Tcl_Interp*, int argc,
                                             TCL_Char **);
 
-static int TclCommand_addGroundMotion(ClientData, Tcl_Interp*,
+extern int TclCommand_addGroundMotion(ClientData, Tcl_Interp*,
                                       int argc, TCL_Char **);
 
 /// added by ZHY
@@ -568,7 +568,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   theTclBuilder = this;
   theTclDomain = &theDomain;
   theTclLoadPattern = 0;
-  theTclMultiSupportPattern = 0;
+  // theTclMultiSupportPattern = 0;
 
   TCL_OPS_setModelBuilder(this);
 
@@ -614,7 +614,7 @@ TclBasicBuilder::~TclBasicBuilder()
   theTclDomain = 0;
   theTclBuilder = 0;
   theTclLoadPattern = 0;
-  theTclMultiSupportPattern = 0;
+  // theTclMultiSupportPattern = 0;
   TCL_OPS_setModelBuilder(0);
 
   // may possibly invoke Tcl_DeleteCommand() later
@@ -1527,14 +1527,14 @@ extern int TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv,
                                   MultiSupportPattern *thePattern);
 
-int
-TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv)
-
-{
-  return TclGroundMotionCommand(clientData, interp, argc, argv,
-                                theTclMultiSupportPattern);
-}
+// int
+// TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp, int argc,
+//                            TCL_Char **argv)
+// 
+// {
+//   return TclGroundMotionCommand(clientData, interp, argc, argv,
+//                                 theTclMultiSupportPattern);
+// }
 
 int
 TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -3754,7 +3754,7 @@ TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
     return -2;
   }
 
-  MultiSupportPattern *thePattern = theTclMultiSupportPattern;
+  MultiSupportPattern *thePattern = (MultiSupportPattern *)Tcl_GetAssocData(interp, "theTclMultiSupportPattern", NULL);
   int loadPatternTag = thePattern->getTag();
 
   // create a new ImposedMotionSP

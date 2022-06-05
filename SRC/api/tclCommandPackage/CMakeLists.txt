@@ -8,8 +8,6 @@ cmake_minimum_required(VERSION 3.16)
 #
 # Dependencies
 # 
-#find_package(TclStub)
-#find_package(TCL)
 
 add_library(OpenSeesRT SHARED)
 
@@ -18,6 +16,7 @@ target_sources(OpenSeesRT PRIVATE
 # GENERAL COMMANDS
 #
 # Model Commands & Builders
+    "G3_Runtime.cpp"
     "modelbuilder/TclBuilder.cpp"
     "modelbuilder/basic/TclBasicBuilder.cpp"
     #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
@@ -30,6 +29,7 @@ target_sources(OpenSeesRT PRIVATE
 # Other Commands
     "streams/logging.cpp"
     "commands/commands.cpp"
+    "commands/runtime.cpp"
     "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
     "commands/modeling/constraint.cpp"
@@ -41,13 +41,14 @@ target_sources(OpenSeesRT PRIVATE
     misc/TclPackageClassBroker.cpp
 
 # Database
-    "commands/database/TclDatabaseCommands.cpp"
-    "commands/database/TclMySQL.cpp"
+# "commands/database/TclDatabaseCommands.cpp"
+# "commands/database/TclMySQL.cpp"
     #"commands/database/TclBerkeleyDB.cpp"
 
     "commands/recorder.cpp"
     "commands/modeling/TclParameterCommands.cpp"
     "commands/modeling/TclUpdateMaterialCommand.cpp"
+
 # LOADS & PATTERNS
     "commands/loading/groundMotion.cpp"
     "commands/loading/TclPatternCommand.cpp"
@@ -79,11 +80,12 @@ target_sources(OpenSeesRT PRIVATE
     #"contrib/nD/feap/TclFeapMaterialCommand.cpp"
 
 # Uniaxial
-    "contrib/uniaxial/KikuchiAiken/TclKikuchiAiken.cpp"
-    "contrib/uniaxial/ConcreteXX/concrete04.cpp"
-    "contrib/uniaxial/TclAxialSp.cpp"
-    "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
-    "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    "contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
+    # "contrib/uniaxial/TclAxialSp.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    # "contrib/uniaxial/ConcreteXX/concrete04.cpp"
+    # "contrib/uniaxial/ReinforcingSteel/TclReinforcingSteel.cpp"
 
     "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "contrib/uniaxial/limitState/TclLimitState.cpp"
@@ -163,7 +165,7 @@ target_link_libraries(OpenSeesRT PRIVATE
   #g3_uniaxial_io
   G3
   OpenSeesPyRT
-  ${MYSQL_LIBRARIES}
+  # ${MYSQL_LIBRARIES}
   #${TCL_STUB_LIBRARY}
   ${TCL_LIBRARIES}
 )

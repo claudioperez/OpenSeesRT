@@ -141,8 +141,9 @@ int TclSafeBuilderUniaxialCommand(ClientData clientData, Tcl_Interp *interp,
 
   auto tcl_cmd = uniaxial_tcl_table.find(std::string(argv[1]));
   if (tcl_cmd != uniaxial_tcl_table.end()) {
-    int stat = (*tcl_cmd->second)(clientData, interp, argc, &argv[0]);
-    return stat;
+    theMaterial = (*tcl_cmd->second)(rt, argc, &argv[0]);
+    if (theMaterial == nullptr)
+      return TCL_ERROR;
 
   } else {
     auto rt_cmd = uniaxial_rt_table.find(std::string(argv[1]));

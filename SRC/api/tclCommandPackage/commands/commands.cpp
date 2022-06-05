@@ -458,6 +458,14 @@ int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
 
 extern int myCommands(Tcl_Interp *interp);
 
+int
+TclCommand_setLoadConst(ClientData, Tcl_Interp *, int, TCL_Char **);
+int
+TclCommand_getTime(ClientData, Tcl_Interp *, int, TCL_Char **);
+int
+TclCommand_setTime(ClientData, Tcl_Interp *, int, TCL_Char **);
+int
+TclCommand_setCreep(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 int convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv);
@@ -667,14 +675,14 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   Tcl_CreateCommand(interp, "initialize", &initializeAnalysis, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "loadConst", &setLoadConst, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "loadConst", &TclCommand_setLoadConst, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "setCreep", &setCreep, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setTime", &setTime, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getTime", &getTime, (ClientData)NULL,
+  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "getLoadFactor", &getLoadFactor, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
@@ -725,8 +733,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "database", &addDatabase, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+  
+ //  Tcl_CreateCommand(interp, "database", &addDatabase, (ClientData)NULL,
+ //                    (Tcl_CmdDeleteProc *)NULL);
+
   Tcl_CreateCommand(interp, "eigen", &eigenAnalysis, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "modalProperties", &modalProperties,
@@ -1232,86 +1242,7 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
-setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
-  
-  domain->setLoadConstant();
-  if (argc == 3) {
-    if (strcmp(argv[1], "-time") == 0) {
-      double newTime;
-      if (Tcl_GetDouble(interp, argv[2], &newTime) != TCL_OK) {
-        opserr << "WARNING readingvalue - loadConst -time value \n";
-        return TCL_ERROR;
-      } else {
-        domain->setCurrentTime(newTime);
-        domain->setCommittedTime(newTime);
-      }
-    }
-  }
-  return TCL_OK;
-}
 
-int
-setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  if (argc < 2) {
-    opserr << "WARNING illegal command - setCreep value? \n";
-    return TCL_ERROR;
-  }
-  int newFlag;
-  if (Tcl_GetInt(interp, argv[1], &newFlag) != TCL_OK) {
-    opserr << "WARNING reading creep value - setCreep newFlag? \n";
-    return TCL_ERROR;
-  } else {
-    G3_getDomain(G3_getRuntime(interp))->setCreep(newFlag);
-  }
-  return TCL_OK;
-}
-
-int
-setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
-  if (argc < 2) {
-    opserr << "WARNING illegal command - time pseudoTime? \n";
-    return TCL_ERROR;
-  }
-  double newTime;
-  if (Tcl_GetDouble(interp, argv[1], &newTime) != TCL_OK) {
-    opserr << "WARNING reading time value - time pseudoTime? \n";
-    return TCL_ERROR;
-  } else {
-    domain->setCurrentTime(newTime);
-    domain->setCommittedTime(newTime);
-  }
-  return TCL_OK;
-}
-
-int
-getTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  double time = domain->getCurrentTime();
-
-  // get the display format
-  char format[80];
-  if (argc == 1) {
-    sprintf(format, "%f", time);
-  } else if (argc == 2) {
-    sprintf(format, argv[1], time);
-  }
-
-  // now we copy the value to the tcl string that is returned
-  //  sprintf(interp->result,format,time);
-  Tcl_SetResult(interp, format, TCL_VOLATILE);
-  return TCL_OK;
-}
 
 int
 getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -2352,6 +2283,7 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     return 0;
 }
 
+/*
 extern int TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv, Domain &theDomain,
                           FEM_ObjectBroker &theBroker);
@@ -2363,7 +2295,6 @@ addDatabase(ClientData clientData, Tcl_Interp *interp, int argc,
   return TclAddDatabase(clientData, interp, argc, argv, theDomain, theBroker);
 }
 
-/*
 int
 groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
@@ -6299,12 +6230,9 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // mpi clean up
   //
-
   if (theMachineBroker != 0) {
     theMachineBroker->shutdown();
     fprintf(stderr, "Process Terminating\n");
-    //    delete theMachineBroker;
-    //    theMachineBroker = 0;
   }
   MPI_Finalize();
 #endif
@@ -6313,12 +6241,9 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // mpi clean up
   //
-
   if (theMachineBroker != 0) {
     theMachineBroker->shutdown();
     fprintf(stderr, "Process Terminating\n");
-    //    delete theMachineBroker;
-    //    theMachineBroker = 0;
   }
   MPI_Finalize();
 #endif
@@ -6335,9 +6260,8 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int returnCode = 0;
   if (argc > 1) {
-    if (Tcl_GetInt(interp, argv[1], &returnCode) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &returnCode) != TCL_OK)
       opserr << "WARNING: OpenSeesExit - failed to read return code\n";
-    }
   }
   Tcl_Exit(returnCode);
 

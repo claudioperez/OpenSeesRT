@@ -52,6 +52,7 @@ TclCharFn TclCommand_addMP;
 TclCharFn TclCommand_addSP;
 TclCharFn TclCommand_RigidLink;
 TclCharFn TclCommand_addImposedMotionSP;
+TclCharFn TclCommand_addGroundMotion;
 TclCharFn TclCommand_RigidDiaphragm;
 
 
@@ -81,12 +82,18 @@ struct char_cmd {
   {"pattern",          TclCommand_addPattern},
   {"timeSeries",       TclCommand_addTimeSeries},
 
-  {"fix",              TclCommand_addHomogeneousBC},
-  {"fixX",             TclCommand_addHomogeneousBC_X},
-  {"fixY",             TclCommand_addHomogeneousBC_Y},
-  {"fixZ",             TclCommand_addHomogeneousBC_Z},
-  {"equalDOF",         TclCommand_addEqualDOF_MP},
+  {"fix",                  TclCommand_addHomogeneousBC},
+  {"fixX",                 TclCommand_addHomogeneousBC_X},
+  {"fixY",                 TclCommand_addHomogeneousBC_Y},
+  {"fixZ",                 TclCommand_addHomogeneousBC_Z},
+  {"equalDOF",             TclCommand_addEqualDOF_MP},
   {"rigidLink",            &TclCommand_RigidLink},
+
+  {"sp",                   TclCommand_addSP},
+  {"groundMotion",         TclCommand_addGroundMotion},
+  {"imposedMotion",        TclCommand_addImposedMotionSP},
+  {"imposedSupportMotion", TclCommand_addImposedMotionSP},
+
 
   {"modalDamping",     modalDamping},
   {"modalDampingQ",    modalDampingQ},
@@ -98,14 +105,11 @@ struct char_cmd {
 */
 
 /*
+  {"mp",                   TclCommand_addMP},
+
   {"block2D",              TclCommand_doBlock2D},
   {"block3D",              TclCommand_doBlock3D},
 
-  {"sp",                   TclCommand_addSP},
-  {"mp",                   TclCommand_addMP},
-  {"imposedMotion",        TclCommand_addImposedMotionSP},
-  {"imposedSupportMotion", TclCommand_addImposedMotionSP},
-  {"groundMotion",         TclCommand_addGroundMotion},
   {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
@@ -118,11 +122,12 @@ struct char_cmd {
   {"remesh",           TclCommand_remesh},
   {"background",      &TclCommand_backgroundMesh},
 #endif // OPSDEF_Element_PFEM
-
 */
+
 // OTHER OBJECT TYPES
-//{"hystereticBackbone",   TclCommand_addHystereticBackbone},
+  {"hystereticBackbone",   TclCommand_addHystereticBackbone},
   {          "backbone",   TclCommand_addHystereticBackbone},
+
 /*
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
@@ -176,7 +181,6 @@ TclCharFn TclCommand_addFrictionModel;
 TclCharFn TclCommand_addStiffnessDegradation;
 TclCharFn TclCommand_addUnloadingRule;
 TclCharFn TclCommand_addStrengthDegradation;
-TclCharFn TclCommand_addGroundMotion;
 /// added by ZHY
 TclCharFn TclCommand_UpdateMaterialStage;
 TclCharFn TclCommand_UpdateMaterials;

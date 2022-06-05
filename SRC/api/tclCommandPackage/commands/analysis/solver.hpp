@@ -42,8 +42,6 @@
 #include <SparseGenRowLinSOE.h>
 // #include <SymSparseLinSOE.h>
 // #include <SymSparseLinSolver.h>
-// #include <UmfpackGenLinSOE.h>
-// #include <UmfpackGenLinSolver.h>
 #include <EigenSOE.h>
 #include <EigenSolver.h>
 #include <ArpackSOE.h>

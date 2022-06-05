@@ -11,7 +11,9 @@
 // TCL hystereticBackbone command.
 
 #include <OPS_Globals.h>
+#include <G3Parse.h>
 #include <UniaxialMaterial.h>
+#include <TclSafeBuilder.h>
 
 #include <g3_api.h>
 #include <elementAPI.h>
@@ -30,17 +32,18 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <ReeseSandBackbone.h>
 #include <ManderBackbone.h>
 #include <RaynorBackbone.h>
-
 #include <string.h>
 
 extern void *OPS_ArctangentBackbone(G3_Runtime*);
-extern void *OPS_ManderBackbone(G3_Runtime*);
+// extern void *OPS_ManderBackbone(G3_Runtime*);
 extern void *OPS_TrilinearBackbone(G3_Runtime*);
+HystereticBackbone*
+G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char** argv);
 extern void *OPS_BilinearBackbone(G3_Runtime*);
 extern void *OPS_MultilinearBackbone(G3_Runtime*);
 
-#include <packages.h>
-
+// #include <packages.h>
+/*
 static void
 printCommand(int argc, TCL_Char **argv)
 {
@@ -49,6 +52,7 @@ printCommand(int argc, TCL_Char **argv)
     opserr << argv[i] << " ";
   opserr << endln;
 }
+*/
 
 int
 TclCommand_addHystereticBackbone(ClientData clientData,
@@ -64,8 +68,9 @@ TclCommand_addHystereticBackbone(ClientData clientData,
 
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
+  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
 
-  OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
+  // OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
 
   // Pointer to a hysteretic backbone that will be added to the model builder
   HystereticBackbone *theBackbone = 0;
@@ -223,7 +228,9 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Mander") == 0) {
-    void *theBB = OPS_ManderBackbone(rt);
+    // void *theBB = OPS_ManderBackbone(rt);
+    void *theBB = G3Parse_newManderBackbone(rt, argc, argv);
+
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -440,7 +447,14 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   // Now add the material to the modelBuilder
-  if (OPS_addHystereticBackbone(theBackbone) == false) {
+  // if (OPS_addHystereticBackbone(theBackbone) == false) {
+  //   opserr << "WARNING could not add hystereticBackbone to the domain\n";
+  //   opserr << *theBackbone << endln;
+  //   delete theBackbone; // invoke the material objects destructor, otherwise mem
+  //                       // leak
+  //   return TCL_ERROR;
+  // }
+  if (!builder->addHystereticBackbone(std::string(argv[2]), *theBackbone)) {
     opserr << "WARNING could not add hystereticBackbone to the domain\n";
     opserr << *theBackbone << endln;
     delete theBackbone; // invoke the material objects destructor, otherwise mem
@@ -448,5 +462,43 @@ TclCommand_addHystereticBackbone(ClientData clientData,
     return TCL_ERROR;
   }
 
+
   return TCL_OK;
 }
+
+HystereticBackbone*
+G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char** argv)
+{
+  if (argc < 6) {
+    opserr << "WARNING insufficient arguments\n";
+    printCommand(argc,argv);
+    opserr << "Want: hystereticBackbone Mander tag? fc? epsc? Ec?" << endln;
+    return nullptr;
+  }
+  
+  int tag;
+  double fc, epsc, Ec;
+  
+  if (G3Parse_getInt(rt, argv[2], &tag) != TCL_OK) {
+    opserr << "WARNING invalid hystereticBackbone Mander tag" << endln;
+    return nullptr;
+  }
+  
+  if (G3Parse_getDouble(rt, argv[3], &fc) != TCL_OK) {
+    opserr << "WARNING invalid hystereticBackbone Mander fc" << endln;
+    return nullptr;
+  }
+  
+  if (G3Parse_getDouble(rt, argv[4], &epsc) != TCL_OK) {
+    opserr << "WARNING invalid hystereticBackbone Mander epsc" << endln;
+    return nullptr;
+  }
+  
+  if (G3Parse_getDouble(rt, argv[5], &Ec) != TCL_OK) {
+    opserr << "WARNING invalid hystereticBackbone Mander Ec" << endln;
+    return nullptr;
+  }
+  
+  return new ManderBackbone (tag, fc, epsc, Ec);
+}
+

@@ -1,3 +1,2 @@
-target_sources(OpenSeesRT, PRIVATE
-  petsc.cpp
-)
+add_subdirectory(PetSc)
+

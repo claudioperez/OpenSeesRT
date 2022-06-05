@@ -1,4 +1,9 @@
+
+#add_subdirectory(system_of_eqn)
+add_subdirectory(uniaxial)
 target_sources(OpenSeesRT PRIVATE
+    "integrator/Newmark/G3Parse_Newmark.cpp"
+
     "element/beamWithHinges.cpp"
     "element/gradientInelasticBeamColumn.cpp"
     "element/UP-ucsd/TclFourNodeQuadUPCommand.cpp"
@@ -29,8 +34,7 @@ target_sources(OpenSeesRT PRIVATE
     "element/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
     "element/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
     "element/zeroLength/TclZeroLength.cpp"
-
     #"sys_of_eqn/petsc.cpp"
 )
 
-#add_subdirectory(system_of_eqn)
+

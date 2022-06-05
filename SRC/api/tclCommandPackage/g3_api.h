@@ -99,16 +99,10 @@ int     G3_getNDF(G3_Runtime *);
 // Materials
 UniaxialMaterial *G3_getUniaxialMaterialInstance(G3_Runtime *, G3_Tag);
 int G3_addUniaxialMaterial(G3_Runtime *, UniaxialMaterial *);
-// Time Series
-int G3_addTimeSeries(G3_Runtime *, TimeSeries *);
-TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
-int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 // Coordinate Transforms
 CrdTransf *G3_getCrdTransf(G3_Runtime *, G3_Tag);
 
-//
 // Systems and Solvers
-//
 LinearSOE **G3_getLinearSoePtr(G3_Runtime* );
 LinearSOE  *G3_getDefaultLinearSoe(G3_Runtime *, int flags);
 #undef  OPS_GetLinearSOE
@@ -116,8 +110,13 @@ LinearSOE  *G3_getDefaultLinearSoe(G3_Runtime *, int flags);
 int G3_setLinearSoe(G3_Runtime*, LinearSOE*);
 
 //
-// Analysis
+// RUNTIME
 //
+// Time Series
+int G3_addTimeSeries(G3_Runtime *, TimeSeries *);
+TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
+int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
+// Analysis
 AnalysisModel *G3_getAnalysisModel(G3_Runtime *);
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
 int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
