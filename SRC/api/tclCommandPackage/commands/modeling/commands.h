@@ -13,24 +13,37 @@ static TclCharFn  TclCommand_addNodalMass;
 extern TclCharFn  TclCommand_addGeomTransf;
 
 extern TclCharFn  TclCommand_addElement;
+extern TclCharFn  TclCommand_doBlock2D;
+extern TclCharFn  TclCommand_doBlock3D;
 extern TclCharFn  TclCommand_addUniaxialMaterial;
+extern TclCharFn  TclCommand_addHystereticBackbone;
 extern TclCharFn  TclCommand_addSection;
 extern TclCharFn  TclCommand_addPatch;
+extern TclCharFn  TclCommand_addReinfLayer;
+// extern TclCharFn  TclCommand_addRemoFiber;
+extern TclCharFn  TclCommand_addFiber;
 // Constraints
 extern TclCharFn  TclCommand_addHomogeneousBC;
-static TclCharFn  TclCommand_addEqualDOF_MP;
+extern TclCharFn  TclCommand_addEqualDOF_MP;
 // Loads
 extern TclCharFn  TclCommand_addNodalLoad;
+TclCharFn TclCommand_addElementalLoad;
+
+// Damping
+TclCharFn modalDamping;
+TclCharFn modalDampingQ;
 
 TclCharFn TclCommand_addParameter;
 TclCharFn TclCommand_mesh;
 TclCharFn TclCommand_remesh;
 TclCharFn TclCommand_backgroundMesh; 
 TclCharFn TclCommand_addBeamIntegration;
+
 TclCharFn TclCommand_addLimitCurve;
 TclCharFn TclCommand_addNDMaterial;
 TclCharFn TclCommand_addSeries;
-TclCharFn TclCommand_addElementalLoad;
+
+// Constraints
 TclCharFn TclCommand_addHomogeneousBC_X;
 TclCharFn TclCommand_addHomogeneousBC_Y; 
 TclCharFn TclCommand_addHomogeneousBC_Z;
@@ -39,6 +52,7 @@ TclCharFn TclCommand_addMP;
 TclCharFn TclCommand_addSP;
 TclCharFn TclCommand_RigidLink;
 TclCharFn TclCommand_addImposedMotionSP;
+TclCharFn TclCommand_addGroundMotion;
 TclCharFn TclCommand_RigidDiaphragm;
 
 
@@ -55,8 +69,12 @@ struct char_cmd {
 
 // Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},
+  {"nDMaterial",       TclCommand_addNDMaterial},
+
   {"section",          TclCommand_addSection},
   {"patch",            TclCommand_addPatch},
+  {"fiber",            TclCommand_addFiber},
+  {"layer",            TclCommand_addReinfLayer},
 
   {"geomTransf",       TclCommand_addGeomTransf},
 
@@ -64,50 +82,56 @@ struct char_cmd {
   {"pattern",          TclCommand_addPattern},
   {"timeSeries",       TclCommand_addTimeSeries},
 
-  {"fix",              TclCommand_addHomogeneousBC},
-  {"equalDOF",         TclCommand_addEqualDOF_MP},
+  {"fix",                  TclCommand_addHomogeneousBC},
+  {"fixX",                 TclCommand_addHomogeneousBC_X},
+  {"fixY",                 TclCommand_addHomogeneousBC_Y},
+  {"fixZ",                 TclCommand_addHomogeneousBC_Z},
+  {"equalDOF",             TclCommand_addEqualDOF_MP},
   {"rigidLink",            &TclCommand_RigidLink},
 
+  {"sp",                   TclCommand_addSP},
+  {"groundMotion",         TclCommand_addGroundMotion},
+  {"imposedMotion",        TclCommand_addImposedMotionSP},
+  {"imposedSupportMotion", TclCommand_addImposedMotionSP},
+
+
+  {"modalDamping",     modalDamping},
+  {"modalDampingQ",    modalDampingQ},
+
+
 /*
-  {"layer",            TclCommand_addRemoLayer},
-  {"fiber",            TclCommand_addRemoFiber},
   {"beamIntegration",  TclCommand_addBeamIntegration},
-  {"nDMaterial",       TclCommand_addNDMaterial},
   {"eleLoad",          TclCommand_addElementalLoad},
 */
 
 /*
+  {"mp",                   TclCommand_addMP},
+
   {"block2D",              TclCommand_doBlock2D},
   {"block3D",              TclCommand_doBlock3D},
 
-  {"fixX",                 TclCommand_addHomogeneousBC_X},
-  {"fixY",                 TclCommand_addHomogeneousBC_Y},
-  {"fixZ",                 TclCommand_addHomogeneousBC_Z},
-  {"sp",                   TclCommand_addSP},
-  {"mp",                   TclCommand_addMP},
-  {"imposedMotion",        TclCommand_addImposedMotionSP},
-  {"imposedSupportMotion", TclCommand_addImposedMotionSP},
-  {"groundMotion",         TclCommand_addGroundMotion},
   {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
   {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
-  {"Hfiber",             TclSafeBuilder_addRemoHFiber},
+  {"Hfiber",               TclSafeBuilder_addRemoHFiber},
 
 #if defined(OPSDEF_Element_PFEM)
   {"mesh",             TclCommand_mesh},
   {"remesh",           TclCommand_remesh},
   {"background",      &TclCommand_backgroundMesh},
 #endif // OPSDEF_Element_PFEM
-
 */
+
 // OTHER OBJECT TYPES
+  {"hystereticBackbone",   TclCommand_addHystereticBackbone},
+  {          "backbone",   TclCommand_addHystereticBackbone},
+
 /*
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
   {"plasticMaterial",      TclCommand_addYS_PlasticMaterial},
-  {"hystereticBackbone",   TclCommand_addHystereticBackbone},
   {"cyclicModel",          TclCommand_addCyclicModel},
   {"limitCurve",           TclCommand_addLimitCurve},
   {"damageModel",          TclCommand_addDamageModel},
@@ -151,18 +175,12 @@ TclCharFn TclCommand_doTzSimple1Gen;
 // Added by Prishati Raychowdhury (UCSD)
 TclCharFn TclSafeBuilder_doShallowFoundationGen;
 // End PRC
-TclCharFn TclCommand_doBlock2D;
-TclCharFn TclCommand_doBlock3D;
-TclCharFn TclCommand_addRemoLayer;
-TclCharFn TclCommand_addRemoFiber;
 //Leo
 TclCharFn TclSafeBuilder_addRemoHFiber;
 TclCharFn TclCommand_addFrictionModel;
 TclCharFn TclCommand_addStiffnessDegradation;
 TclCharFn TclCommand_addUnloadingRule;
 TclCharFn TclCommand_addStrengthDegradation;
-TclCharFn TclCommand_addHystereticBackbone;
-TclCharFn TclCommand_addGroundMotion;
 /// added by ZHY
 TclCharFn TclCommand_UpdateMaterialStage;
 TclCharFn TclCommand_UpdateMaterials;
@@ -174,6 +192,4 @@ TclCharFn TclCommand_addElementRayleigh;
 
 // Added by Alborz Ghofrani - U.Washington
 TclCharFn TclCommand_GenerateInterfacePoints;
-
-
 

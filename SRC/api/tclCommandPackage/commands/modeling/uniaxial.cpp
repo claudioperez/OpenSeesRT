@@ -8,7 +8,6 @@
 #include <elementAPI.h>
 #include <g3_api.h>
 #include <iostream>
-#include <unordered_map> // std::unordered_map
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
@@ -18,10 +17,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <Bond_SP01.h>          // JZ
 #include <BoucWenMaterial.h>    // Terje
 #include <Concrete01WithSITC.h> // Won Lee
-#include <Concrete04.h>
-#include <Concrete05.h>
-#include <Concrete06.h>              // LMS
-#include <Concrete07.h>              // JDW
+// #include <Concrete04.h>
+// #include <Concrete05.h>
+// #include <Concrete06.h>              // LMS
+// #include <Concrete07.h>              // JDW
 #include <ECC01.h>                   // Won Lee
 #include <ENTMaterial.h>             // MHS
 #include <EPPGapMaterial.h>          // Mackie
@@ -142,8 +141,10 @@ int TclSafeBuilderUniaxialCommand(ClientData clientData, Tcl_Interp *interp,
 
   auto tcl_cmd = uniaxial_tcl_table.find(std::string(argv[1]));
   if (tcl_cmd != uniaxial_tcl_table.end()) {
-    int stat = (*tcl_cmd->second)(clientData, interp, argc, &argv[0]);
-    return stat;
+    theMaterial = (*tcl_cmd->second)(rt, argc, &argv[0]);
+    if (theMaterial == nullptr)
+      return TCL_ERROR;
+
   } else {
     auto rt_cmd = uniaxial_rt_table.find(std::string(argv[1]));
     if (rt_cmd != uniaxial_rt_table.end()) {

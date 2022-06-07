@@ -1,26 +1,10 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 
 /*
 ** Written: cmp
-*/
+**/
 
 #include <elementAPI.h>
 #include <stdlib.h>
@@ -30,6 +14,8 @@
 #include <Node.h>
 #include <g3_api.h>
 #include <G3_Runtime.h>
+#include <G3_Logging.h>
+extern OPS_Stream* opswrnPtr;
 
 #include <TclBasicBuilder.h>
 #include <TclSafeBuilder.h>
@@ -45,6 +31,13 @@
 #include <WrapperNDMaterial.h>
 #include <LimitCurve.h>
 #include <WrapperLimitCurve.h>
+
+#include <DirectIntegrationAnalysis.h>
+#include <StaticAnalysis.h>
+
+// use ProfileSPD for default SOE constructor
+#include <ProfileSPDLinSOE.h>
+#include <ProfileSPDLinDirectSolver.h>
 
 #include <OPS_Globals.h>
 
@@ -417,6 +410,10 @@ theModelBuilder->getUniaxialMaterial(*matTag);
   theRes = 0;
 }
 */
+
+// 
+// END INTERPRETER STUFF
+//
 
 extern "C" eleObj *
 OPS_GetElement(int *eleTag)
@@ -1030,7 +1027,12 @@ G3_raise(G3_Runtime *rt, const char *msg, ...){
 
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
-{return (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", NULL);}
+{
+  G3_Runtime *rt = (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", NULL);
+  if (!rt)
+    opserr << G3_WARN_PROMPT << " No runtime\n";;
+  return rt;
+}
 
 Tcl_Interp *
 G3_getInterpreter(G3_Runtime* rt)
@@ -1050,10 +1052,13 @@ G3_setModelBuilder(G3_Runtime *rt, TclBuilder* builder)
 TclSafeBuilder *
 G3_getSafeBuilder(G3_Runtime *rt)
 {
+  return (TclSafeBuilder*)G3_getModelBuilder(rt);
+  /*
   Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder *theTclBuilder =
       (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return theTclBuilder;
+  */
 }
 
 int
@@ -1074,20 +1079,20 @@ G3_setDomain(G3_Runtime *rt, Domain* domain){
 Domain *
 G3_getDomain(G3_Runtime *rt)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
   return rt->m_domain;
 }
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *builder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return builder->addTimeSeries(series);
 }
 
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder *builder = G3_getSafeBuilder(rt);
   if (builder)
     // TODO
@@ -1099,12 +1104,12 @@ int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
 
   TimeSeries *series;
-  TclSafeBuilder *builder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  // TclSafeBuilder *builder =
+  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   if (builder) {
      series = builder->getTimeSeries(std::to_string(tag));
   } else {
@@ -1161,19 +1166,19 @@ G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
   TclSafeBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
+    // TODO
     return OPS_getUniaxialMaterial(tag);
   }
 
   UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
-
+  // TODO
   return mat ? mat : OPS_getUniaxialMaterial(tag);
 }
 
 int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
-  // G3_Runtime *rt = G3_getRuntime(interp);
   TclSafeBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
-    opserr << "#WARNING Failed to find safe model builder\n";
+    opserr << "WARNING Failed to find safe model builder\n";
     return 0;
   }
   int stat = builder->addUniaxialMaterial(mat);
@@ -1276,6 +1281,65 @@ OPS_GetSOE(void)
   return &theSOE;
 }
 
+LinearSOE **
+G3_getLinearSoePtr(G3_Runtime* rt) {
+  LinearSOE** soe =  &rt->m_sys_of_eqn;
+  // opserr << "DEBUG G3_getLinearSoe(" << (void*)rt << ") -> " << (void*)(*soe) << "\n";
+  return soe;
+}
+
+int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
+{
+  // opserr << "DEBUG G3_setLinearSoe(" << (void*)rt << (void*)soe << ")\n";
+  rt->m_sys_of_eqn = soe;
+  // if the analysis exists - we want to change the SOE
+  if (soe != nullptr) {
+    StaticAnalysis* static_analysis = G3_getStaticAnalysis(rt);
+    if (static_analysis != 0)
+      static_analysis->setLinearSOE(*soe);
+    
+    DirectIntegrationAnalysis *direct_trans_analysis = G3_getTransientAnalysis(rt);
+    if (direct_trans_analysis != 0)
+      direct_trans_analysis->setLinearSOE(*soe);
+
+#ifdef _PARALLEL_PROCESSING
+      if (static_analysis != 0 || direct_trans_analysis != 0) {
+        SubdomainIter &theSubdomains = theDomain.getSubdomains();
+        Subdomain *theSub;
+        while ((theSub = theSubdomains()) != 0) {
+          theSub->setAnalysisLinearSOE(*theSOE);
+        }
+      }
+#endif
+  }
+  return 0;
+}
+
+LinearSOE *
+G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
+  // `flags` is unused right now but could be useful
+  // for ensuring properties about the SOE, like
+  // forcing fullGen.
+  LinearSOE* theSOE = *G3_getLinearSoePtr(rt);
+
+  opsdbg << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
+
+  if (theSOE == NULL) {
+    opswrn << "no LinearSOE specified, default ProfileSPDLinSOE will be used\n";
+    ProfileSPDLinSolver *theSolver;
+    theSolver = new ProfileSPDLinDirectSolver();
+#ifdef _PARALLEL_PROCESSING
+    theSOE = new DistributedProfileSPDLinSOE(*theSolver);
+#else
+    theSOE = new ProfileSPDLinSOE(*theSolver);
+#endif
+    G3_setLinearSoe(rt, theSOE);
+  }
+  return theSOE;
+}
+
+
+
 EigenSOE **
 OPS_GetEigenSOE(void)
 {
@@ -1327,6 +1391,7 @@ G3_delStaticAnalysis(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   StaticAnalysis* ana;
+  // TODO
   if (ana=G3_getStaticAnalysis(rt))
     ;// delete ana;
   Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", NULL, (ClientData)NULL);
@@ -1361,11 +1426,14 @@ OPS_GetTransientAnalysis(void)
 DirectIntegrationAnalysis *
 G3_getTransientAnalysis(G3_Runtime *rt)
 {
+  // TODO
+  /*
   Tcl_Interp *interp = G3_getInterpreter(rt);
   DirectIntegrationAnalysis *analysis =
       (DirectIntegrationAnalysis *)Tcl_GetAssocData(interp, "OPS::theTransientAnalysis", NULL);
+  */
+  return theTransientAnalysis;
 
-  return analysis;
 }
 
 int
@@ -1373,6 +1441,7 @@ G3_setTransientAnalysis(G3_Runtime *rt, DirectIntegrationAnalysis *the_analysis)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   Tcl_SetAssocData(interp, "OPS::theTransientAnalysis", NULL, (ClientData)the_analysis);
+  theTransientAnalysis = the_analysis;
   return 1;
 }
 

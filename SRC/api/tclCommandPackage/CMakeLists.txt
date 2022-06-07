@@ -5,19 +5,18 @@
 #
 #=====================================================================
 cmake_minimum_required(VERSION 3.16)
-
+#
 # Dependencies
-find_package(TclStub)
-find_package(TCL)
+# 
 
-add_library(OpenSeesCommandPackage SHARED)
+add_library(OpenSeesRT SHARED)
 
-target_sources(OpenSeesCommandPackage PRIVATE
+target_sources(OpenSeesRT PRIVATE
 #
 # GENERAL COMMANDS
 #
-
 # Model Commands & Builders
+    "G3_Runtime.cpp"
     "modelbuilder/TclBuilder.cpp"
     "modelbuilder/basic/TclBasicBuilder.cpp"
     #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
@@ -28,66 +27,39 @@ target_sources(OpenSeesCommandPackage PRIVATE
     "commands/modeling/rigidLink.cpp"
 
 # Other Commands
+    "streams/logging.cpp"
     "commands/commands.cpp"
-    "commands/myCommands.cpp"
-
+    "commands/runtime.cpp"
+    "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
+    "commands/modeling/constraint.cpp"
     "commands/analysis/algorithm.cpp"
     "commands/analysis/integrator.cpp"
     "commands/analysis/analysis.cpp"
     "commands/analysis/solver.cpp"
-    OpenSeesCommandPackage.cpp
-    TclPackageClassBroker.cpp
+    OpenSeesRT.cpp
+    misc/TclPackageClassBroker.cpp
 
 # Database
-    "database/TclDatabaseCommands.cpp"
-    "database/TclMySQL.cpp"
-    #"database/TclBerkeleyDB.cpp"
+# "commands/database/TclDatabaseCommands.cpp"
+# "commands/database/TclMySQL.cpp"
+    #"commands/database/TclBerkeleyDB.cpp"
 
-    "recorder/TclRecorderCommands.cpp"
-    "domain/component/TclParameterCommands.cpp"
-    "domain/component/TclUpdateMaterialCommand.cpp"
+    "commands/recorder.cpp"
+    "commands/modeling/TclParameterCommands.cpp"
+    "commands/modeling/TclUpdateMaterialCommand.cpp"
+
 # LOADS & PATTERNS
-    "domain/groundMotion/TclGroundMotionCommand.cpp"
-    "domain/pattern/TclPatternCommand.cpp"
-    "domain/pattern/TclSeriesCommand.cpp"
-    "domain/pattern/TclSeriesIntegratorCommand.cpp"
+    "commands/loading/groundMotion.cpp"
+    "commands/loading/TclPatternCommand.cpp"
+    "commands/loading/TclSeriesCommand.cpp"
+    "commands/loading/TclSeriesIntegratorCommand.cpp"
     #"domain/pattern/drm/TclPatternCommand.cpp"
-    "domain/region/TclRegionCommands.cpp"
+    "commands/modeling/region.cpp"
 #
 # ELEMENTS
 #
     "commands/modeling/element.cpp"
-    "element/beamWithHinges.cpp"
-    "element/gradientInelasticBeamColumn.cpp"
-    "element/UP-ucsd/TclFourNodeQuadUPCommand.cpp"
-    #"element/UWelements/Tcl_generateInterfacePoints.cpp"
-    "element/adapter/TclActuatorCommand.cpp"
-    "element/adapter/TclActuatorCorotCommand.cpp"
-    "element/adapter/TclAdapterCommand.cpp"
-    "element/brick/TclBrickCommand.cpp"
-    "element/brick/TclTwenty_Node_BrickCommand.cpp"
-    "element/dispBeamColumnInt/TclDispBeamColumnIntCommand.cpp"
-    "element/elasticBeamColumn/TclElasticBeamCommand.cpp"
-    "element/elastomericBearing/TclElastomericBearingBoucWenCommand.cpp"
-    "element/elastomericBearing/TclElastomericBearingPlasticityCommand.cpp"
-    "element/elastomericBearing/TclElastomericBearingUFRPCommand.cpp"
-    "element/forceBeamColumn/TclForceBeamColumnCommand.cpp"
-    "element/fourNodeQuad/TclFourNodeQuadCommand.cpp"
-    "element/frictionBearing/TclFlatSliderCommand.cpp"
-    "element/frictionBearing/TclRJWatsonEQSCommand.cpp"
-    "element/frictionBearing/TclSingleFPCommand.cpp"
-    "element/frictionBearing/frictionModel/TclModelBuilderFrictionModelCommand.cpp"
-    "element/generic/TclGenericClientCommand.cpp"
-    "element/generic/TclGenericCopyCommand.cpp"
-    "element/joint/TclBeamColumnJointCommand.cpp"
-    "element/joint/TclJoint2dCommand.cpp"
-    "element/joint/TclJoint3dCommand.cpp"
-    "element/twoNodeLink/TclTwoNodeLinkCommand.cpp"
-    "element/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
-    "element/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
-    "element/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
-    "element/zeroLength/TclZeroLength.cpp"
     #"element/feap/TclFeapElementCommand.cpp"
     #"element/PFEMElement/TclModelBuilder_addPFEMElement.cpp"
     #"element/PFEMElement/TclPFEMCommands.cpp"
@@ -101,70 +73,84 @@ target_sources(OpenSeesCommandPackage PRIVATE
     "commands/modeling/uniaxialMaterial.cpp"
     "commands/modeling/uniaxial.cpp"
     "commands/modeling/hystereticBackbone.cpp"
+    "commands/modeling/backbone.cpp"
 
 # Multi-Dimensional Materials
-    "material/nD/soil/TclUpdateMaterialStageCommand.cpp"
-    #"material/nD/feap/TclFeapMaterialCommand.cpp"
+    "contrib/nDMaterial/soil/TclUpdateMaterialStageCommand.cpp"
+    #"contrib/nD/feap/TclFeapMaterialCommand.cpp"
 
 # Uniaxial
-    "contrib/uniaxial/TclKikuchiAiken.cpp"
-    "contrib/uniaxial/TclAxialSp.cpp"
-    "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
-    "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-    "material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp"
-    "material/uniaxial/limitState/TclLimitState.cpp"
-    "material/uniaxial/snap/TclSnapMaterialCommand.cpp"
-    "material/uniaxial/stiffness/TclModelBuilderStiffnessDegradationCommand.cpp"
-    "material/uniaxial/strength/TclModelBuilderStrengthDegradationCommand.cpp"
-    "material/uniaxial/unloading/TclModelBuilderUnloadingRuleCommand.cpp"
-    "material/uniaxial/drain/TclDrainMaterialCommand.cpp"
-    "material/yieldSurface/evolution/TclModelBuilderYS_EvolutionCommand.cpp"
-    "material/yieldSurface/plasticHardeningMaterial/TclModelBuilderYSPlasticMaterialCommand.cpp"
-    "material/yieldSurface/yieldSurfaceBC/TclModelBuilderYieldSurfaceBCCommand.cpp"
+    "contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
+    # "contrib/uniaxial/TclAxialSp.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    # "contrib/uniaxial/ConcreteXX/concrete04.cpp"
+    # "contrib/uniaxial/ReinforcingSteel/TclReinforcingSteel.cpp"
+
+    "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
+    "contrib/uniaxial/limitState/TclLimitState.cpp"
+    "contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
+    "contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
+    # YieldSurface
+    "contrib/yieldSurface/TclModelBuilderYS_EvolutionCommand.cpp"
+    "contrib/yieldSurface/TclModelBuilderYSPlasticMaterialCommand.cpp"
+    "contrib/yieldSurface/TclModelBuilderYieldSurfaceBCCommand.cpp"
+    # OO_Hysteretic
+    "contrib/uniaxial/OO_Hysteretic/StiffnessDegradationCommand.cpp"
+    "contrib/uniaxial/OO_Hysteretic/StrengthDegradationCommand.cpp"
+    "contrib/uniaxial/OO_Hysteretic/UnloadingRuleCommand.cpp"
+
     #"material/uniaxial/backbone/TclModelBuilderBackboneCommand.cpp"
+    # Other
     #"material/uniaxial/TclNewUniaxialMaterial.cpp"
     #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
 
 # Section
-    "material/section/yieldSurface/TclModelBuilderYS_SectionCommand.cpp"
+    "contrib/yieldSurface/TclModelBuilderYS_SectionCommand.cpp"
 
 #
 # Reliability & Optimization 
 #
-    #"optimization/tcl/TclOptimizationBuilder.cpp"
+    #"contrib/optimization/TclOptimizationBuilder.cpp"
 
-    #"reliability/analysis/gFunction/TclGFunEvaluator.cpp"
-    #"reliability/analysis/gFunction/TclMatlabGFunEvaluator.cpp"
-    #"reliability/domain/functionEvaluator/TclEvaluator.cpp"
-    #"reliability/tcl/TclReliabilityBuilder.cpp"
+    #"contrib/reliability/analysis/gFunction/TclGFunEvaluator.cpp"
+    #"contrib/reliability/analysis/gFunction/TclMatlabGFunEvaluator.cpp"
+    #"contrib/reliability/domain/functionEvaluator/TclEvaluator.cpp"
+    #"contrib/reliability/tcl/TclReliabilityBuilder.cpp"
 #
 # OTHER
 #
-    #"system_of_eqn/linearSOE/petsc/TclPetsc.cpp"
+    #"contrib/system_of_eqn/TclPetsc.cpp"
     
     #"${OPS_SRC_DIR}/interpreter/OpenSeesMiscCommands.cpp"
 
     "elementAPI_PYG3.cpp"
-    "packages/tcl_packages.cpp"
+    "misc/tcl_packages.cpp"
     "misc/TclFeViewer.cpp"
     "utilities/tclutils.cpp"
 )
 
-add_subdirectory(libraries/uniaxial)
+# add_subdirectory(libraries/uniaxial)
+add_subdirectory(contrib/)
 
-target_compile_definitions(OpenSeesCommandPackage PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
+target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 
 target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)
 target_compile_options(OPS_ElementFortran             PRIVATE -fPIC)
 target_compile_options(OPS_Material_Uniaxial_Drain_f  PRIVATE -fPIC)
-target_compile_options(OpenSeesCommandPackage         PUBLIC  -fPIC)
+target_compile_options(OpenSeesRT                     PUBLIC  -fPIC)
 
 
 if (${TCL_INCLUDE_PATH})
-target_include_directories(OpenSeesCommandPackage PUBLIC ${TCL_INCLUDE_PATH})
+  target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-target_link_libraries(OpenSeesCommandPackage PRIVATE
+target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
+
+# PYTHON
+add_subdirectory(python)
+
+target_link_libraries(OpenSeesRT PRIVATE
   #${OPS_Extension_List}
   ${OPS_Element_List}
   ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
@@ -178,8 +164,9 @@ target_link_libraries(OpenSeesCommandPackage PRIVATE
   G3_ObjectBroker
   #g3_uniaxial_io
   G3
-  ${MYSQL_LIBRARIES}
-  ${TCL_STUB_LIBRARY}
+  OpenSeesPyRT
+  # ${MYSQL_LIBRARIES}
+  #${TCL_STUB_LIBRARY}
+  ${TCL_LIBRARIES}
 )
-
 

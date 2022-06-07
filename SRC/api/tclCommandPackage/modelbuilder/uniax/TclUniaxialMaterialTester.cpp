@@ -32,11 +32,11 @@ TclUniaxialTestCommand TclUniaxialMaterialTester_getStressUniaxialMaterial;
 TclUniaxialTestCommand TclUniaxialMaterialTester_getTangUniaxialMaterial;
 
 const struct {const char*name; const TclUniaxialTestCommand*func;} command_table[] = {
-  {"with",     TclUniaxialMaterialTester_setUniaxialMaterial       },
-  {"strain",   TclUniaxialMaterialTester_setStrainUniaxialMaterial },
-  {"commit",   TclUniaxialMaterialTester_commitState               },
-  {"stress",   TclUniaxialMaterialTester_getStressUniaxialMaterial },
-  {"tangent",  TclUniaxialMaterialTester_getTangUniaxialMaterial   }
+  {"using",     TclUniaxialMaterialTester_setUniaxialMaterial       },
+  {"strain",    TclUniaxialMaterialTester_setStrainUniaxialMaterial },
+  {"commit",    TclUniaxialMaterialTester_commitState               },
+  {"stress",    TclUniaxialMaterialTester_getStressUniaxialMaterial },
+  {"tangent",   TclUniaxialMaterialTester_getTangUniaxialMaterial   }
 };
 
 //

@@ -33,15 +33,16 @@ set(OPS_BUNDLED_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
 set(OPS_SRC_DIR "${PROJECT_SOURCE_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
 include(OpenSeesFunctions)
-include(conan)
 enable_testing()
 
 add_definitions(-DOPS_USE_RUNTIME)
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  set(USE_CONAN TRUE)
+  include(conan)
   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  conan_basic_setup(TARGETS)
+  conan_basic_setup()
 endif()
 
 # pseudo target modeling all exteral packages
@@ -61,20 +62,26 @@ set_property(CACHE OPS_FINAL_TARGET PROPERTY STRINGS
 add_library(OPS_OS_Specific_libs INTERFACE)
 
 if (UNIX)
+  if (DEFINED Dependencies)
+    include("OpenSeesDependencies${Dependencies}")
+  else ()
     include(OpenSeesDependenciesUnix)
-    if(APPLE)
-     message(STATUS ">>> MacOS")
-     add_compile_definitions(_LINUX _UNIX _TCL85)
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-    else()
-       message(STATUS ">>> LINUX")
-       add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
-       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
-    endif()
+  endif ()
+
+  if(APPLE)
+   message(STATUS ">>> MacOS")
+   add_compile_definitions(_LINUX _UNIX _TCL85)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  else()
+     message(STATUS ">>> LINUX")
+     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
+  endif()
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
-    include(OpenSeesDependenciesWin)
+  # include(OpenSeesDependenciesWin)
+    include(OpenSeesDependenciesDockCrossWin)
     target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
     add_compile_definitions(_WIN32)
     message(STATUS ">>> WIN32")
@@ -87,8 +94,11 @@ message("OPS >>> SUPERLU: ${SUPERLU_LIBRARIES}")
 message("OPS >>> ARPACK:  ${ARPACK_LIBRARIES}")
 message("OPS >>> UMFPACK: ${UMFPACK_LIBRARIES}")
 message("OPS >>> CSPARSE: ${CSPARSE_LIBRARIES}")
-message("OPS >>> TCL:     ${TCL_LIBRARY}")
-set(TCL_LIBRARIES ${TCL_LIBRARY})
+#set(TCL_LIBRARIES         ${TCL_LIBRARY})
+message("OPS >>> TCL:     ${TCL_LIBRARIES}")
+message("                 ${TCL_LIBRARY}  ")
+message("                $ENV{TCL_LIBRARY}")
+
 message("OPS >>> AMD:     ${AMD_LIBRARIES}")
 
 
@@ -186,7 +196,7 @@ include_directories(
 )
 
 include_directories(${TCL_INCLUDE_PATH})
-include_directories(${MYSQL_INCLUDE_DIR})
+#include_directories(${MYSQL_INCLUDE_DIR})
 
 # TODO: Temporary fix; include all directories with .h files through glob
 file(GLOB_RECURSE ops_include_files CONFIGURE_DEPENDS 
@@ -350,7 +360,7 @@ target_link_libraries(OpenSees
     OPS_OS_Specific_libs
     OPS_ObjectBroker
     G3
-    ${MYSQL_LIBRARIES}
+    # ${MYSQL_LIBRARIES}
 )
 
 
@@ -526,5 +536,5 @@ if (OPS_Use_Dev_Directories)
 endif()
 
 # Include test suite
-add_subdirectory(EXAMPLES/)
+#add_subdirectory(EXAMPLES/)
 

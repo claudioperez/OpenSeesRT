@@ -108,17 +108,12 @@ extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
 static Domain *theTclDomain = 0;
 static TclBuilder *theTclBuilder = 0;
 
-extern LoadPattern *theTclLoadPattern;
 extern MultiSupportPattern *theTclMultiSupportPattern;
 static int eleArgStart = 0;
 static int nodeLoadTag = 0;
 static int eleLoadTag = 0;
 
-//
-// CLASS CONSTRUCTOR & DESTRUCTOR
-//
 
-// constructor: the constructor will add certain commands to the interpreter
 TclBuilder::TclBuilder(Domain &theDomain, int NDM, int NDF)
     : ModelBuilder(theDomain), ndm(NDM), ndf(NDF)
 {}
@@ -133,4 +128,7 @@ TclBuilder::getNDM(void) const {return ndm;}
 
 int
 TclBuilder::getNDF(void) const {return ndf;}
+
+LoadPattern*
+TclBuilder::getCurrentLoadPattern(void) {return m_current_load_pattern;}
 

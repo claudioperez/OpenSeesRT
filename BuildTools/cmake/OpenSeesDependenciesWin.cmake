@@ -26,7 +26,7 @@ set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 opensees_load(TCL CONAN tcl/8.6.10)
 
 set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
-set(TCL_LIBRARY ${TCL_LIBRARIES})
+set(TCL_LIBRARIES ${TCL_LIBRARY})
 
 message("TCL: ${TCL_INCLUDE_PATH}")
 
@@ -77,6 +77,6 @@ opensees_load(MySQL CONAN mysql-connector-c/6.1.11
     #INCLUDE ${CONDA_ENV}/Library/include/mysql
 )
 
-set(MYSQL_INCLUDE_DIR "${CONDA_ENV}/Library/include/mysql/")
+# set(MYSQL_INCLUDE_DIR "${CONDA_ENV}/Library/include/mysql/")
 
 

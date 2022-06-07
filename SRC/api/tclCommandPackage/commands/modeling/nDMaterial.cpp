@@ -174,11 +174,12 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 int
-TclBasicBuilderNDMaterialCommand(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv,
-                                 TclBasicBuilder *theTclBuilder)
+TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
+                                 int argc, TCL_Char **argv)
+                                 //TclBasicBuilder *theTclBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
+  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {

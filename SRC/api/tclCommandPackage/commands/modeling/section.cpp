@@ -1,28 +1,3 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-
-// $Revision: 1.31 $
-// $Date: 2009-12-17 20:10:53 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/section/TclBasicBuilderSectionCommand.cpp,v
-// $
 
 // Written: rms, MHS
 // Created: 07/99
@@ -32,6 +7,7 @@
 //
 // What: "@(#) TclBasicBuilderMaterialCommands.C, revA"
 
+#include <G3Parse.h>
 #include <TclBasicBuilder.h>
 
 #include <g3_api.h>
@@ -42,7 +18,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char **argv, Domain *domain);
 
 #include <ElasticMaterial.h>
-
 #include <ElasticSection2d.h>
 #include <ElasticSection3d.h>
 #include <ElasticShearSection2d.h>
@@ -209,71 +184,6 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
   }
 
-  else if (strcmp(argv[1], "GenericND") == 0 ||
-           strcmp(argv[1], "GenericNd") == 0) {
-    opserr << "section GenericND is no longer available" << endln;
-    return TCL_ERROR;
-
-    /*
-      if (argc < 5) {
-          opserr << "WARNING insufficient arguments\n";
-          opserr << "Want: section GenericNd tag? NDTag? code?" << endln;
-          return TCL_ERROR;
-      }
-
-      int tag, NDTag;
-
-      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-          opserr << "WARNING invalid section GenericNd tag" << endln;
-          return TCL_ERROR;
-      }
-
-      if (Tcl_GetInt(interp, argv[3], &NDTag) != TCL_OK) {
-          opserr << "WARNING invalid NDTag" << endln;
-          opserr << "GenericNd section: " << tag << endln;
-          return TCL_ERROR;
-      }
-
-      ID code(argc-4);
-
-      int i,j;
-
-      // Read in the code
-      for (i = 4, j = 0; i < argc; i++, j++) {
-          if (strcmp(argv[i],"Mz") == 0)
-              code(j) = SECTION_RESPONSE_MZ;
-          else if (strcmp(argv[i],"P") == 0)
-              code(j) = SECTION_RESPONSE_P;
-          else if (strcmp(argv[i],"Vy") == 0)
-              code(j) = SECTION_RESPONSE_VY;
-          else if (strcmp(argv[i],"My") == 0)
-              code(j) = SECTION_RESPONSE_MY;
-          else if (strcmp(argv[i],"Vz") == 0)
-              code(j) = SECTION_RESPONSE_VZ;
-          else if (strcmp(argv[i],"T") == 0)
-              code(j) = SECTION_RESPONSE_T;
-          else {
-              opserr << "WARNING invalid GenericND code" << endln;
-              opserr << "\nGenericND section: " << tag << endln;
-              return TCL_ERROR;
-          }
-      }
-
-      // Retrieve the uniaxial material from the model builder
-      NDMaterial *theMat = theTclBuilder->getNDMaterial(NDTag);
-
-      if (theMat == 0) {
-          opserr << "WARNING nD material does not exist\n";
-          opserr << "nD material: " << NDTag;
-          opserr << "\nGenericNd section: " << tag << endln;
-          return TCL_ERROR;
-      }
-
-      // Parsing was successful, allocate the section
-      theSection = new GenericSectionNd (tag, *theMat, code);
-      */
-  }
-
   else if (strcmp(argv[1], "WFSection2d") == 0 ||
            strcmp(argv[1], "WSection2d") == 0) {
     void *theMat = OPS_WFSection2d(rt);
@@ -283,109 +193,6 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
   }
 
-  else if (strcmp(argv[1], "Tube") == 0) {
-    if (argc < 8) {
-      opserr << "WARNING insufficient arguments\n";
-      opserr << "Want: section Tube tag? matTag? D? t? nfw? nfr?" << endln;
-      return TCL_ERROR;
-    }
-
-    int tag, matTag;
-    double D, t;
-    int nfw, nfr;
-
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid section Tube tag" << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
-      opserr << "WARNING invalid section Tube matTag" << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[4], &D) != TCL_OK) {
-      opserr << "WARNING invalid D" << endln;
-      opserr << "Tube section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[5], &t) != TCL_OK) {
-      opserr << "WARNING invalid t" << endln;
-      opserr << "Tube section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[6], &nfw) != TCL_OK) {
-      opserr << "WARNING invalid nfw" << endln;
-      opserr << "Tube section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[7], &nfr) != TCL_OK) {
-      opserr << "WARNING invalid nfr" << endln;
-      opserr << "Tube  section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    TubeSectionIntegration tubesect(D, t, nfw, nfr);
-
-    int numFibers = tubesect.getNumFibers();
-
-    if (argc > 8) {
-
-      double shape = 1.0;
-      if (argc > 9) {
-        if (Tcl_GetDouble(interp, argv[9], &shape) != TCL_OK) {
-          opserr << "WARNING invalid shape" << endln;
-          opserr << "WFSection2d section: " << tag << endln;
-          return TCL_ERROR;
-        }
-      }
-
-      NDMaterial *theSteel = OPS_getNDMaterial(matTag);
-
-      if (theSteel == 0) {
-        opserr << "WARNING ND material does not exist\n";
-        opserr << "material: " << matTag;
-        opserr << "\nTube section: " << tag << endln;
-        return TCL_ERROR;
-      }
-
-      NDMaterial **theMats = new NDMaterial *[numFibers];
-
-      tubesect.arrangeFibers(theMats, theSteel);
-
-      // Parsing was successful, allocate the section
-      theSection = 0;
-      if (strcmp(argv[8], "-nd") == 0)
-        theSection =
-            new NDFiberSection3d(tag, numFibers, theMats, tubesect, shape);
-      if (strcmp(argv[8], "-ndWarping") == 0)
-        theSection = new NDFiberSectionWarping2d(tag, numFibers, theMats,
-                                                 tubesect, shape);
-
-      delete[] theMats;
-    } else {
-      UniaxialMaterial *theSteel = G3_getUniaxialMaterialInstance(rt,matTag);
-
-      if (theSteel == 0) {
-        opserr << "WARNING uniaxial material does not exist\n";
-        opserr << "material: " << matTag;
-        opserr << "\nTube section: " << tag << endln;
-        return TCL_ERROR;
-      }
-
-      UniaxialMaterial **theMats = new UniaxialMaterial *[numFibers];
-
-      tubesect.arrangeFibers(theMats, theSteel);
-
-      // Parsing was successful, allocate the section
-      theSection = new FiberSection2d(tag, numFibers, theMats, tubesect);
-
-      delete[] theMats;
-    }
-  }
 
   else if (strcmp(argv[1], "RCSection2d") == 0) {
     void *theMat = OPS_RCSection2d(rt);
@@ -535,7 +342,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     delete[] theMats;
   }
 
-  else if (strcmp(argv[1], "Fiber") == 0 || strcmp(argv[1], "fiberSec") == 0 ||
+  else if (strcmp(argv[1], "Fiber") == 0 || 
+           strcmp(argv[1], "fiberSec") == 0 ||
+           strcmp(argv[1], "FiberSection") == 0 ||
            strcmp(argv[1], "NDFiberWarping") == 0 ||
            strcmp(argv[1], "NDFiber") == 0)
 
@@ -1611,10 +1420,10 @@ TclCommand_addPatch(ClientData clientData,
 // add patch to fiber section
 int
 TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv, TclBuilder *theTclBasicBuilder)
+                    TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  theTclBasicBuilder = G3_getModelBuilder(rt);
+  TclBuilder *theTclBasicBuilder = G3_getModelBuilder(rt);
 
   // check if a section is being processed
   if (theTclBasicBuilder->currentSectionTag == 0) {
@@ -1638,7 +1447,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if (sectionRepres->getType() != SEC_TAG_FiberSection) {
-    opserr << "WARNING section invalid: patch can only be added to fiber "
+    opserr << "WARNING section invalid: fiber can only be added to fiber "
               "sections\n";
     return TCL_ERROR;
   }
@@ -1670,7 +1479,6 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // creates 2d section
   if (NDM == 2) {
-
     if (currentSectionIsND) {
       NDMaterial *material = OPS_getNDMaterial(matTag);
       if (material == 0) {
@@ -1694,7 +1502,6 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (NDM == 3) {
-
     static Vector fiberPosition(2);
     fiberPosition(0) = yLoc;
     fiberPosition(1) = zLoc;
@@ -1847,10 +1654,11 @@ TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
+                         TCL_Char **argv) //, TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
+  TclBasicBuilder *theTclBasicBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
   // opserr << "\nreading layer:\n";
 
   // check if a section is being processed
@@ -1867,7 +1675,8 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // check argv[1] for type of layer and create the object
-  if (strcmp(argv[1], "straight") == 0) {
+  if (strcmp(argv[1], "straight") == 0 ||
+      strcmp(argv[1], "line")     == 0) {
     if (argc < 9) {
       opserr << "WARNING invalid number of parameters: layer straight matTag "
                 "numReinfBars reinfBarArea yStartPt zStartPt yEndPt zEndPt\n";
@@ -3107,8 +2916,7 @@ TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
   }
 
   // build the fiber section (for analysis)
-  if (buildSectionAsym(interp, theTclBasicBuilder, secTag, isTorsion, GJ, Ys,
-                       Zs) != TCL_OK) { // Xinlong
+  if (buildSectionAsym(interp, theTclBasicBuilder, secTag, isTorsion, GJ, Ys, Zs) != TCL_OK) { // Xinlong
     opserr << "WARNING - error constructing the section\n";
     return TCL_ERROR;
   }
@@ -3383,4 +3191,113 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
   }
 
   return TCL_OK;
+}
+
+SectionForceDeformation*
+G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
+{
+  SectionForceDeformation *theSection = nullptr;
+  if (strcmp(argv[1], "Tube") == 0) {
+    if (argc < 8) {
+      opserr << "WARNING insufficient arguments\n";
+      opserr << "Want: section Tube tag? matTag? D? t? nfw? nfr?" << endln;
+      return nullptr;
+    }
+
+    int tag, matTag;
+    double D, t;
+    int nfw, nfr;
+
+    if (G3Parse_getInt(rt, argv[2], &tag) != TCL_OK) {
+      opserr << "WARNING invalid section Tube tag" << endln;
+      return nullptr;
+    }
+
+    if (G3Parse_getInt(rt, argv[3], &matTag) != TCL_OK) {
+      opserr << "WARNING invalid section Tube matTag" << endln;
+      return nullptr;
+    }
+
+    if (G3Parse_getDouble(rt, argv[4], &D) != TCL_OK) {
+      opserr << "WARNING invalid D" << endln;
+      opserr << "Tube section: " << tag << endln;
+      return nullptr;
+    }
+
+    if (G3Parse_getDouble(rt, argv[5], &t) != TCL_OK) {
+      opserr << "WARNING invalid t" << endln;
+      opserr << "Tube section: " << tag << endln;
+      return nullptr;
+    }
+
+    if (G3Parse_getInt(rt, argv[6], &nfw) != TCL_OK) {
+      opserr << "WARNING invalid nfw" << endln;
+      opserr << "Tube section: " << tag << endln;
+      return nullptr;
+    }
+
+    if (G3Parse_getInt(rt, argv[7], &nfr) != TCL_OK) {
+      opserr << "WARNING invalid nfr" << endln;
+      opserr << "Tube  section: " << tag << endln;
+      return nullptr;
+    }
+
+    TubeSectionIntegration tubesect(D, t, nfw, nfr);
+
+    int numFibers = tubesect.getNumFibers();
+
+    if (argc > 8) {
+
+      double shape = 1.0;
+      if (argc > 9) {
+        if (G3Parse_getDouble(rt, argv[9], &shape) != TCL_OK) {
+          opserr << "WARNING invalid shape" << endln;
+          opserr << "WFSection2d section: " << tag << endln;
+          return nullptr;
+        }
+      }
+
+      NDMaterial *theSteel = OPS_getNDMaterial(matTag);
+
+      if (theSteel == 0) {
+        opserr << "WARNING ND material does not exist\n";
+        opserr << "material: " << matTag;
+        opserr << "\nTube section: " << tag << endln;
+        return nullptr;
+      }
+
+      NDMaterial **theMats = new NDMaterial *[numFibers];
+
+      tubesect.arrangeFibers(theMats, theSteel);
+
+      // Parsing was successful, allocate the section
+      theSection = 0;
+      if (strcmp(argv[8], "-nd") == 0)
+        theSection =
+            new NDFiberSection3d(tag, numFibers, theMats, tubesect, shape);
+      if (strcmp(argv[8], "-ndWarping") == 0)
+        theSection = new NDFiberSectionWarping2d(tag, numFibers, theMats,
+                                                 tubesect, shape);
+
+      delete[] theMats;
+    } else {
+      UniaxialMaterial *theSteel = G3_getUniaxialMaterialInstance(rt,matTag);
+
+      if (theSteel == 0) {
+        opserr << "WARNING uniaxial material does not exist\n";
+        opserr << "material: " << matTag;
+        opserr << "\nTube section: " << tag << endln;
+        return nullptr;
+      }
+
+      UniaxialMaterial **theMats = new UniaxialMaterial *[numFibers];
+
+      tubesect.arrangeFibers(theMats, theSteel);
+
+      // Parsing was successful, allocate the section
+      theSection = new FiberSection2d(tag, numFibers, theMats, tubesect);
+
+      delete[] theMats;
+    }
+  }
 }

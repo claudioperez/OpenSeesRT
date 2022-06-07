@@ -1,6 +1,7 @@
 #include <g3_api.h>
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
+#include <G3Parse.h>
 
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
@@ -44,6 +45,13 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char **argv, Domain *domain);
 
 
+EquiSolnAlgo*
+G3Parse_newEquiSolnAlgo(G3_Builder* rt, int argc, G3_Char** argv);
+EquiSolnAlgo*
+G3Parse_newSecantNewtonAlgorithm(G3_Builder*, int, G3_Char **);
+EquiSolnAlgo*
+G3Parse_newLinearAlgorithm(G3_Builder*, int, G3_Char **);
+
 //
 // command invoked to allow the SolnAlgorithm object to be built
 //
@@ -63,58 +71,66 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   EquiSolnAlgo *theNewAlgo = 0;
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
 
+  theNewAlgo = G3Parse_newEquiSolnAlgo(rt, argc, argv);
+  if (theNewAlgo == nullptr) {
+    return TCL_ERROR;
+
+  } else {
+    if (theTest != 0)
+      theNewAlgo->setConvergenceTest(theTest);
+    theAlgorithm = theNewAlgo;
+
+    // if the analysis exists - we want to change the SOE
+    if (the_static_analysis != 0)
+      the_static_analysis->setAlgorithm(*theAlgorithm);
+    else if (theTransientAnalysis != 0)
+      theTransientAnalysis->setAlgorithm(*theAlgorithm);
+
+#ifdef _PARALLEL_PROCESSING
+    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
+      SubdomainIter &theSubdomains = theDomain.getSubdomains();
+      Subdomain *theSub;
+      while ((theSub = theSubdomains()) != 0) {
+        theSub->setAnalysisAlgorithm(*theAlgorithm);
+      }
+    }
+#endif
+  }
+
+  return TCL_OK;
+}
+
+EquiSolnAlgo*
+G3Parse_newEquiSolnAlgo(G3_Builder* rt, int argc, G3_Char** argv)
+{
+  EquiSolnAlgo *theNewAlgo = nullptr;
+
   // check argv[1] for type of Algorithm and create the object
   if (strcmp(argv[1], "Linear") == 0) {
-    int formTangent = CURRENT_TANGENT;
-    int factorOnce = 0;
-    int count = 2;
-    while (count < argc) {
-      if ((strcmp(argv[count], "-secant") == 0) ||
-          (strcmp(argv[count], "-Secant") == 0)) {
-        formTangent = CURRENT_SECANT;
-      } else if ((strcmp(argv[count], "-initial") == 0) ||
-                 (strcmp(argv[count], "-Initial") == 0)) {
-        formTangent = INITIAL_TANGENT;
-      } else if ((strcmp(argv[count], "-factorOnce") == 0) ||
-                 (strcmp(argv[count], "-FactorOnce") == 0)) {
-        factorOnce = 1;
-      }
-      count++;
-    }
-    theNewAlgo = new Linear(formTangent, factorOnce);
+    theNewAlgo = G3Parse_newLinearAlgorithm(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "Newton") == 0) {
     void *theNewtonAlgo = OPS_NewtonRaphsonAlgorithm(rt);
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
   }
 
   else if ((strcmp(argv[1], "NewtonHallM") == 0) ||
            (strcmp(argv[1], "NewtonHall") == 0)) {
     void *theNewtonAlgo = OPS_NewtonHallM(rt);
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
   }
 
   else if (strcmp(argv[1], "ModifiedNewton") == 0) {
     void *theNewtonAlgo = OPS_ModifiedNewton(rt);
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
   }
 
+  else if (strcmp(argv[1], "SecantNewton") == 0) {
+    theNewAlgo = G3Parse_newSecantNewtonAlgorithm(rt, argc, argv);
+  }
+
+/*
   else if (strcmp(argv[1], "KrylovNewton") == 0) {
     int incrementTangent = CURRENT_TANGENT;
     int iterateTangent = CURRENT_TANGENT;
@@ -141,10 +157,9 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
         maxDim = atoi(argv[i]);
       }
     }
-
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
 
     Accelerator *theAccel;
@@ -178,7 +193,7 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
 
     Accelerator *theAccel;
@@ -217,49 +232,11 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
 
     Accelerator *theAccel = 0;
     // theAccel = new MillerAccelerator(maxDim, 0.01, iterateTangent);
-
-    theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  }
-
-  else if (strcmp(argv[1], "SecantNewton") == 0) {
-    int incrementTangent = CURRENT_TANGENT;
-    int iterateTangent = CURRENT_TANGENT;
-    int maxDim = 3;
-    for (int i = 2; i < argc; i++) {
-      if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          iterateTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          iterateTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          iterateTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
-        i++;
-        if (strcmp(argv[i], "current") == 0)
-          incrementTangent = CURRENT_TANGENT;
-        if (strcmp(argv[i], "initial") == 0)
-          incrementTangent = INITIAL_TANGENT;
-        if (strcmp(argv[i], "noTangent") == 0)
-          incrementTangent = NO_TANGENT;
-      } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
-        i++;
-        maxDim = atoi(argv[i]);
-      }
-    }
-
-    if (theTest == 0) {
-      opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
-    }
-
-    Accelerator *theAccel;
-    theAccel = new SecantAccelerator2(maxDim, iterateTangent);
 
     theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
   }
@@ -293,7 +270,7 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
 
     Accelerator *theAccel;
@@ -308,7 +285,7 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
     for (int i = 2; i < argc; i++) {
       if (strcmp(argv[i], "-secant") == 0) {
@@ -341,7 +318,7 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
 
     if (count == -1)
@@ -353,7 +330,7 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (strcmp(argv[1], "NewtonLineSearch") == 0) {
     if (theTest == 0) {
       opserr << "ERROR: No ConvergenceTest yet specified\n";
-      return TCL_ERROR;
+      return nullptr;
     }
 
     int count = 2;
@@ -370,27 +347,27 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[count], "-tol") == 0) {
         count++;
         if (Tcl_GetDouble(interp, argv[count], &tol) != TCL_OK)
-          return TCL_ERROR;
+          return nullptr;
         count++;
       } else if (strcmp(argv[count], "-maxIter") == 0) {
         count++;
-        if (Tcl_GetInt(interp, argv[count], &maxIter) != TCL_OK)
-          return TCL_ERROR;
+        if (G3Parse_getInt(rt, argv[count], &maxIter) != TCL_OK)
+          return nullptr;
         count++;
       } else if (strcmp(argv[count], "-pFlag") == 0) {
         count++;
-        if (Tcl_GetInt(interp, argv[count], &pFlag) != TCL_OK)
-          return TCL_ERROR;
+        if (G3Parse_getInt(rt, argv[count], &pFlag) != TCL_OK)
+          return nullptr;
         count++;
       } else if (strcmp(argv[count], "-minEta") == 0) {
         count++;
         if (Tcl_GetDouble(interp, argv[count], &minEta) != TCL_OK)
-          return TCL_ERROR;
+          return nullptr;
         count++;
       } else if (strcmp(argv[count], "-maxEta") == 0) {
         count++;
         if (Tcl_GetDouble(interp, argv[count], &maxEta) != TCL_OK)
-          return TCL_ERROR;
+          return nullptr;
         count++;
       } else if (strcmp(argv[count], "-type") == 0) {
         count++;
@@ -425,43 +402,19 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
     theNewAlgo = new NewtonLineSearch(*theTest, theLineSearch);
   }
+*/
 
   else if (strcmp(argv[1], "ExpressNewton") == 0) {
     void *theNewtonAlgo = OPS_ExpressNewton(rt);
-    if (theNewtonAlgo == 0)
-      return TCL_ERROR;
-
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
-    if (theTest != 0)
-      theNewAlgo->setConvergenceTest(theTest);
   }
 
   else {
     opserr << "WARNING No EquiSolnAlgo type " << argv[1] << " exists\n";
-    return TCL_ERROR;
+    return nullptr;
   }
 
-  if (theNewAlgo != 0) {
-    theAlgorithm = theNewAlgo;
-
-    // if the analysis exists - we want to change the SOE
-    if (the_static_analysis != 0)
-      the_static_analysis->setAlgorithm(*theAlgorithm);
-    else if (theTransientAnalysis != 0)
-      theTransientAnalysis->setAlgorithm(*theAlgorithm);
-
-#ifdef _PARALLEL_PROCESSING
-    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
-      SubdomainIter &theSubdomains = theDomain.getSubdomains();
-      Subdomain *theSub;
-      while ((theSub = theSubdomains()) != 0) {
-        theSub->setAnalysisAlgorithm(*theAlgorithm);
-      }
-    }
-#endif
-  }
-
-  return TCL_OK;
+  return theNewAlgo;
 }
 
 int
@@ -470,4 +423,67 @@ sensitivityIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   // Does nothing, but keeping command for backward compatibility
   return TCL_OK;
+}
+
+EquiSolnAlgo*
+G3Parse_newLinearAlgorithm(G3_Builder* builder, int argc, G3_Char **argv)
+{
+    int formTangent = CURRENT_TANGENT;
+    int factorOnce = 0;
+    int count = 2;
+    while (count < argc) {
+      if ((strcmp(argv[count], "-secant") == 0) ||
+          (strcmp(argv[count], "-Secant") == 0)) {
+        formTangent = CURRENT_SECANT;
+      } else if ((strcmp(argv[count], "-initial") == 0) ||
+                 (strcmp(argv[count], "-Initial") == 0)) {
+        formTangent = INITIAL_TANGENT;
+      } else if ((strcmp(argv[count], "-factorOnce") == 0) ||
+                 (strcmp(argv[count], "-FactorOnce") == 0)) {
+        factorOnce = 1;
+      }
+      count++;
+    }
+    return new Linear(formTangent, factorOnce);
+}
+
+EquiSolnAlgo*
+G3Parse_newSecantNewtonAlgorithm(G3_Builder* builder, int argc, G3_Char **argv)
+{
+
+  ConvergenceTest* theTest = builder->m_global_strategy.m_convergence_test;
+  int incrementTangent = CURRENT_TANGENT;
+  int iterateTangent = CURRENT_TANGENT;
+  int maxDim = 3;
+  for (int i = 2; i < argc; i++) {
+    if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
+      i++;
+      if (strcmp(argv[i], "current") == 0)
+        iterateTangent = CURRENT_TANGENT;
+      if (strcmp(argv[i], "initial") == 0)
+        iterateTangent = INITIAL_TANGENT;
+      if (strcmp(argv[i], "noTangent") == 0)
+        iterateTangent = NO_TANGENT;
+    } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
+      i++;
+      if (strcmp(argv[i], "current") == 0)
+        incrementTangent = CURRENT_TANGENT;
+      if (strcmp(argv[i], "initial") == 0)
+        incrementTangent = INITIAL_TANGENT;
+      if (strcmp(argv[i], "noTangent") == 0)
+        incrementTangent = NO_TANGENT;
+    } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
+      i++;
+      maxDim = atoi(argv[i]);
+    }
+  }
+
+  if (theTest == 0) {
+    opserr << "ERROR: No ConvergenceTest yet specified\n";
+    return nullptr;
+  }
+
+  Accelerator *theAccel;
+  theAccel = new SecantAccelerator2(maxDim, iterateTangent);
+  return new AcceleratedNewton(*theTest, theAccel, incrementTangent);
 }
