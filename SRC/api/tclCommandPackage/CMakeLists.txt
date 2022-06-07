@@ -5,9 +5,6 @@
 #
 #=====================================================================
 cmake_minimum_required(VERSION 3.16)
-#
-# Dependencies
-# 
 
 add_library(OpenSeesRT SHARED)
 
@@ -166,7 +163,7 @@ target_link_libraries(OpenSeesRT PRIVATE
   G3
   OpenSeesPyRT
   # ${MYSQL_LIBRARIES}
-  #${TCL_STUB_LIBRARY}
-  ${TCL_LIBRARIES}
+  ${TCL_STUB_LIBRARY}
+  #${TCL_LIBRARIES}
 )
 
