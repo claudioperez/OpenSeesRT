@@ -32,6 +32,7 @@
 #set(TCL_LIBRARIES ${TCL_LIBRARY})
 set(TCL_LIBRARIES /home/claudio/miniconda3/envs/elle/lib/libtclstub8.6.a)
 set(TCL_INCLUDE_PATH /home/claudio/miniconda3/envs/elle/include/)
+set(TCL_STUB_LIBRARY ${TCL_LIBRARIES})
 
 # set(OPS_BUNDLED_DIR "/home/claudio/opensees/G3_NumericLibs/")
 # 

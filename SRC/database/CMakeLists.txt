@@ -12,7 +12,7 @@ target_sources(OPS_Database
         FE_Datastore.cpp
         FileDatastore.cpp
     #main.cpp
-        MySqlDatastore.cpp
+    #MySqlDatastore.cpp
     #NEESData.cpp
     #NeesDataTest.cpp
         OracleDatastore.cpp
@@ -21,7 +21,7 @@ target_sources(OPS_Database
         #BerkeleyDbDatastore.h
         FE_Datastore.h
         FileDatastore.h
-        MySqlDatastore.h
+        #MySqlDatastore.h
     #NEESData.h
         OracleDatastore.h
 )

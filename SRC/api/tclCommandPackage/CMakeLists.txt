@@ -5,9 +5,6 @@
 #
 #=====================================================================
 cmake_minimum_required(VERSION 3.16)
-#
-# Dependencies
-# 
 
 add_library(OpenSeesRT SHARED)
 
@@ -147,8 +144,26 @@ endif()
 
 target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
 
-# PYTHON
-add_subdirectory(python)
+
+#
+# FEDEAS uniaxial materials
+#
+set(fedeas_uniaxial "/home/claudio/packages/FEDEAS/build/src/uniaxial/libfedeas_uniaxial.a")
+if (EXISTS "${fedeas_uniaxial}")
+  target_link_libraries(OpenSeesRT PRIVATE
+    OPS_Uniaxial_Fedeas
+    ${fedeas_uniaxial}
+  )
+endif()
+
+#
+# Python
+#
+if (NOT DEFINED NoOpenSeesPyRT)
+  add_subdirectory(python)
+  target_link_libraries(OpenSeesRT PRIVATE OpenSeesPyRT)
+endif()
+
 
 target_link_libraries(OpenSeesRT PRIVATE
   #${OPS_Extension_List}
@@ -157,16 +172,11 @@ target_link_libraries(OpenSeesRT PRIVATE
   OPS_Damage
   #OPS_Paraview
   OPS_ModelBuilder
-  OPS_Uniaxial_Fedeas
-  #OPS_Uniaxial_Fedeas_f
-  /home/claudio/packages/FEDEAS/build/src/uniaxial/libfedeas_uniaxial.a
-  #/home/claudio/pkgs/FEDEAS/bin/src/uniaxial/libfedeas_uniaxial.a
   G3_ObjectBroker
-  #g3_uniaxial_io
   G3
-  OpenSeesPyRT
+  # OpenSeesPyRT
   # ${MYSQL_LIBRARIES}
-  #${TCL_STUB_LIBRARY}
-  ${TCL_LIBRARIES}
+  ${TCL_STUB_LIBRARY}
+  #${TCL_LIBRARIES}
 )
 
