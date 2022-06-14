@@ -74,6 +74,7 @@ int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char
 int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
+// from commands/analysis/ctest.cpp
 int specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);

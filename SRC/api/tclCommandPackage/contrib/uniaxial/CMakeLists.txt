@@ -5,5 +5,6 @@ add_subdirectory(Concrete06)
 add_subdirectory(Concrete07)
 add_subdirectory(fedeas)
 add_subdirectory(FedeasUniaxialDamage)
+add_subdirectory(AlgebraicHysteresis)
 
 add_subdirectory(BoucWen)

@@ -1,22 +1,3 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
 
 // $Revision: 1.52 $
 // $Date: 2010-05-12 20:17:50 $
@@ -117,7 +98,7 @@ extern const char *getInterpPWD(Tcl_Interp *interp); // L.Jiang [SIF]
 #include <StiffnessDegradation.h>
 #include <UnloadingRule.h>
 #include <StrengthDegradation.h>
-#include <HystereticBackbone.h>
+// #include <HystereticBackbone.h>
 #include <BeamIntegration.h>
 
 ////////////////////// gnp adding damping
@@ -318,10 +299,11 @@ static int TclCommand_addUnloadingRule(ClientData,
 static int TclCommand_addStrengthDegradation(ClientData,
                                              Tcl_Interp*, int argc,
                                              TCL_Char **);
-
+/*
 static int TclCommand_addHystereticBackbone(ClientData,
                                             Tcl_Interp*, int argc,
                                             TCL_Char **);
+*/
 
 extern int TclCommand_addGroundMotion(ClientData, Tcl_Interp*,
                                       int argc, TCL_Char **);
@@ -535,9 +517,9 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   Tcl_CreateCommand(interp, "strengthDegradation",
                     TclCommand_addStrengthDegradation, (ClientData)NULL, NULL);
-
-  Tcl_CreateCommand(interp, "hystereticBackbone",
-                    TclCommand_addHystereticBackbone, (ClientData)NULL, NULL);
+//
+//  Tcl_CreateCommand(interp, "hystereticBackbone",
+//                    TclCommand_addHystereticBackbone, (ClientData)NULL, NULL);
 
   // new command for elast2plast in Multi-yield plasticity, by ZHY
   Tcl_CreateCommand(interp, "updateMaterialStage",
@@ -4620,6 +4602,7 @@ TclCommand_addStrengthDegradation(ClientData clientData, Tcl_Interp *interp,
                                                    argv, theTclDomain);
 }
 
+/*
 extern int TclBasicBuilderHystereticBackboneCommand(ClientData clientData,
                                                     Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv,
@@ -4632,6 +4615,7 @@ TclCommand_addHystereticBackbone(ClientData clientData, Tcl_Interp *interp,
   return TclBasicBuilderHystereticBackboneCommand(clientData, interp, argc,
                                                   argv, theTclDomain);
 }
+*/
 
 /// added by ZHY
 extern int TclBasicBuilderUpdateMaterialStageCommand(

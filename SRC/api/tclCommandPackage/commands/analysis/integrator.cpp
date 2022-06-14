@@ -151,10 +151,10 @@ G3Parse_newStaticIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
 TransientIntegrator*
 G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
 {
-  printCommand(argc, argv);
+  // printCommand(argc, argv);
   // G3_Builder *rt = G3_getRuntime(interp);
   if ((strcmp(argv[1], "TRBDF2") == 0) ||
-           (strcmp(argv[1], "Bathe") == 0)) {
+      (strcmp(argv[1], "Bathe") == 0)) {
     theTransientIntegrator = new TRBDF2();
   }
 
