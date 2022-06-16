@@ -1,9 +1,6 @@
-
-
 #include <g3_api.h>
-
-
 #include <SRC/material/uniaxial/limitState/LimitStateMaterial.h>
+
 void *OPS_LimiStateMaterial(G3_Runtime *rt)
 {
   UniaxialMaterial *mat = 0;
@@ -123,3 +120,4 @@ void *OPS_LimiStateMaterial(G3_Runtime *rt)
   }
   return mat;
 }
+

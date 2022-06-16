@@ -1,6 +1,6 @@
 
-#add_subdirectory(system_of_eqn)
 add_subdirectory(uniaxial)
+#add_subdirectory(system_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 
 target_sources(OpenSeesRT PRIVATE
@@ -36,7 +36,6 @@ target_sources(OpenSeesRT PRIVATE
     "element/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
     "element/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
     "element/zeroLength/TclZeroLength.cpp"
-    #"sys_of_eqn/petsc.cpp"
 )
 
 

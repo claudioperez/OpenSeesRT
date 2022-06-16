@@ -954,8 +954,7 @@ int TclSafeBuilderUniaxialCommand(ClientData clientData, Tcl_Interp *interp,
 
     if (matObject != 0) {
 
-      theMaterial = Tcl_addWrapperUniaxialMaterial(matObject, clientData,
-                                                   interp, argc, argv);
+      theMaterial = Tcl_addWrapperUniaxialMaterial(matObject, clientData, interp, argc, argv);
 
       if (theMaterial == 0)
         delete matObject;

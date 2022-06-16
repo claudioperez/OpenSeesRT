@@ -114,6 +114,7 @@ target_sources(OpenSeesRT PRIVATE
     #"contrib/system_of_eqn/TclPetsc.cpp"
 
     "elementAPI_PYG3.cpp"
+    "api/C_Wrapper.cpp"
     "misc/tcl_packages.cpp"
     "misc/TclFeViewer.cpp"
     "utilities/tclutils.cpp"
