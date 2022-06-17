@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+// framework
 #include <g3_api.h>
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
@@ -109,11 +110,11 @@ LinearSOE *TclCommand_newPetscSOE(int, TCL_Char**);
 #endif
 
 typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
-typedef LinearSOE*(*fn)(G3_Runtime*, int, G3_Char**);
 
 // Specifiers defined in solver.cpp
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
+G3_SysOfEqnSpecifier G3Parse_newMumpsLinearSOE;
 
 // Helpers to automatically create constructors for systems/solvers 
 // that do not take arguments when they are constructed.
@@ -123,6 +124,7 @@ LinearSOE *simple_soe(G3_Runtime*, int, G3_Char**) {return new SOE(*(new Solver(
 #define SP_SOE(Solver, SOE) nullptr
 #define MP_SOE(Solver, SOE) nullptr
 
+typedef LinearSOE*(*fn)(G3_Runtime*, int, G3_Char**);
 struct soefps {fn ss, sp, mp;};
 
 std::unordered_map<std::string, struct soefps> soe_table = {

@@ -1,9 +1,8 @@
 
 
 #include <g3_api.h>
-
-
 #include <SRC/material/uniaxial/ParallelMaterial.h>
+
 void *OPS_ParallelMaterial(void)
 {
   // Pointer to a uniaxial material that will be returned

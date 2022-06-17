@@ -9,7 +9,6 @@
 //
 #include <g3_api.h>
 #include <Domain.h>
-// #include "TclBasicBuilder.h"
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
 #include "modelbuilder/safe/TclSafeBuilder.h"
@@ -24,30 +23,26 @@
 extern ModelBuilder *theBuilder;
 
 #ifdef _PARALLEL_PROCESSING
-#include <PartitionedDomain.h>
-extern PartitionedDomain theDomain;
+#  include <PartitionedDomain.h>
+   extern PartitionedDomain theDomain;
 #else
-extern Domain theDomain;
+  extern Domain theDomain;
 #endif
 
-int specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv);
+int specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
-extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **,
-    Domain *, TclBuilder *);
+extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **, Domain *, TclBuilder *);
 
 int
 myCommands(Tcl_Interp *interp)
 {
-  Tcl_CreateCommand(interp, "model", specifyModelBuilder, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "model", specifyModelBuilder, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_Eval(interp, "rename load import;");
   return 0;
 }
 
 int
-specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
+specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   /* int cArg = 0; */
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -200,12 +195,13 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
     theNewBuilder = new TclPlaneStressMaterialTester(theDomain, interp, count);
     if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating "
-                "TclUniaxialMAterialTester model\n";
+                "TclUniaxialMaterialTester model\n";
       return TCL_ERROR;
     }
   }
 
 */
+
   else if ((strcmp(argv[1], "sectionTest") == 0) ||
            (strcmp(argv[1], "TestSection") == 0) ||
            (strcmp(argv[1], "testSection") == 0) ||
@@ -233,3 +229,4 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
+
