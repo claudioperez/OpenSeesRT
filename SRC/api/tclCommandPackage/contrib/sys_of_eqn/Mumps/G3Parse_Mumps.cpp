@@ -1,9 +1,6 @@
 #include <G3Parse.h>
 
-#ifdef _PARALLEL_PROCESSING
-#  include <MumpsParallelSOE.h>
-#  include <MumpsParallelSolver.h>
-#elif _PARALLEL_INTERPRETERS
+#if defined(_PARALLEL_PROCESSING) || defined(_PARALLEL_INTERPRETERS)
 #  include <MumpsParallelSOE.h>
 #  include <MumpsParallelSolver.h>
 #else
@@ -66,4 +63,5 @@ G3Parse_newMumpsLinearSOE(G3_Runtime* rt, int argc, G3_Char** argv)
     theSOE = new MumpsSOE(*theSolver, matType);
 #  endif
   }
+  return theSOE;
 }

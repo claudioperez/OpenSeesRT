@@ -1,3 +1,5 @@
+// written: cmp
+
 // #include <stdio.h>
 
 #include <unordered_map>
@@ -40,9 +42,8 @@ using G3_Parse = T* (*)(G3_Runtime*, int, const char **);
 
 
 // Wrap a function with signature
-//  T* G3Parse_newT(G3_Runtime*, int argc, G3_Char** argv)
+//     T* G3Parse_newT(G3_Runtime*, int argc, G3_Char** argv)
 // so that it works with a std::vector<std::string>
-// written: cmp
 template<typename T, T* (*fn)(G3_Runtime*, int, G3_Char **)>
 T* G3Object_newParsed(G3_Runtime *rt, std::vector<std::string> args) {
     std::vector<G3_Char *> cstrs;
@@ -51,17 +52,11 @@ T* G3Object_newParsed(G3_Runtime *rt, std::vector<std::string> args) {
     return (*fn)(rt, cstrs.size()+1, cstrs.data()-1);
 }
 
-G3_Parse<ConvergenceTest>     G3Parse_newConvergenceTest;
-// G3_Parse<TransientIntegrator> G3Parse_newTransientIntegrator;
-// G3_Parse<StaticIntegrator>    G3Parse_newStaticIntegrator;
-EquiSolnAlgo* G3Parse_newEquiSolnAlgo(G3_Runtime*, int, const char **);
+EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, const char **);
 TransientIntegrator* G3Parse_newTransientIntegrator(G3_Runtime*, int, const char**);
-StaticIntegrator* G3Parse_newStaticIntegrator(G3_Runtime*, int, const char**);
-LinearSOE* G3Parse_newLinearSOE(G3_Runtime*, int, const char**);
-
-
-
-// template<typename T, std::string conf_key>
+StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, const char**);
+LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, const char**);
+ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
 
@@ -78,7 +73,12 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
     sintegrator = new LoadControl(1, 1, 1, 1);
 
   // CONVERGENCE TEST
-  ConvergenceTest *test = new CTestNormUnbalance(1.0e-6,25,0);
+  ConvergenceTest *test = nullptr;
+  if (G3Config_keyExists(conf, "test"))
+    test = 
+      G3Object_newParsed<ConvergenceTest, RT_newConvergenceTest>(this, conf["test"]);
+  else
+    test = new CTestNormUnbalance(1.0e-6,25,0);
 
   // ALGORITHM
   EquiSolnAlgo* the_algorithm;

@@ -3,8 +3,9 @@
 ** ****************************************************************** */
 
 /*
-** Written: cmp
-**/
+ * Written: cmp
+ *
+ */
 
 #include <elementAPI.h>
 #include <stdlib.h>
@@ -378,15 +379,15 @@ OPS_GetMaterial(int *matTag, int *matType)
 extern "C"
 void OPS_GetMaterialPtr(int *matTag, matObj *theRes)
 {
-  UniaxialMaterial *theUniaxialMaterial =
-theModelBuilder->getUniaxialMaterial(*matTag);
+  UniaxialMaterial *theUniaxialMaterial = theModelBuilder->getUniaxialMaterial(*matTag);
 
   if (theUniaxialMaterial != 0) {
 
     UniaxialMaterial *theCopy = theUniaxialMaterial->getCopy();
     if (theCopy  == 0) {
-      fprintf(stderr,"OPS_GetMaterialPtr() failed - no material of type %d \n",
-*matTag); theRes = 0; return;
+      fprintf(stderr,"OPS_GetMaterialPtr() failed - no material of type %d \n", *matTag); 
+      theRes = 0; 
+      return;
     }
 
     uniaxialMaterialObjectCount++;
@@ -416,10 +417,7 @@ theModelBuilder->getUniaxialMaterial(*matTag);
 //
 
 extern "C" eleObj *
-OPS_GetElement(int *eleTag)
-{
-  return 0;
-}
+OPS_GetElement(int *eleTag) {return 0;}
 
 extern "C" eleObj *
 OPS_GetElementType(char *type, int sizeType)
@@ -829,42 +827,7 @@ Tcl_addWrapperElement(eleObj *theEle, ClientData clientData, Tcl_Interp *interp,
   return 0;
 }
 
-UniaxialMaterial *
-Tcl_addWrapperUniaxialMaterial(matObj *theMat, ClientData clientData,
-                               Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  theInterp = interp;
 
-  currentArgv = argv;
-  currentArg = 2;
-  maxArg = argc;
-
-  // get the current load factor
-  static modelState theModelState;
-  if (theDomain != 0) {
-    double time = theDomain->getCurrentTime();
-    double dt = theDomain->getCurrentTime() - time;
-    theModelState.time = time;
-    theModelState.dt = dt;
-  }
-
-  // invoke the mat function with isw = 0
-  int isw = ISW_INIT;
-  int result = 0;
-  theMat->matFunctPtr(theMat, &theModelState, 0, 0, 0, &isw, &result);
-  int matType = theMat->matType; // GR added to support material
-
-  if (result != 0 || matType != OPS_UNIAXIAL_MATERIAL_TYPE) {
-    opserr << "Tcl_addWrapperUniaxialMaterial - failed in element function "
-           << result << endln;
-    return 0;
-  }
-
-  WrapperUniaxialMaterial *theMaterial =
-      new WrapperUniaxialMaterial(argv[1], theMat);
-
-  return theMaterial;
-}
 
 NDMaterial *
 Tcl_addWrapperNDMaterial(matObj *theMat, ClientData clientData,
@@ -1251,35 +1214,17 @@ OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
 void
 TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder) {theModelBuilder = theNewBuilder;}
 
-LimitCurve *
-OPS_GetLimitCurve(int LimCrvTag)
-{
-  return OPS_getLimitCurve(LimCrvTag);
-}
-
 EquiSolnAlgo **
-OPS_GetAlgorithm(void)
-{
-  return &theAlgorithm;
-}
+OPS_GetAlgorithm(void) {return &theAlgorithm;}
 
 ConstraintHandler **
-OPS_GetHandler(void)
-{
-  return &theHandler;
-}
+OPS_GetHandler(void) {return &theHandler;}
 
 DOF_Numberer **
-OPS_GetNumberer(void)
-{
-  return &theNumberer;
-}
+OPS_GetNumberer(void) {return &theNumberer;}
 
 LinearSOE **
-OPS_GetSOE(void)
-{
-  return &theSOE;
-}
+OPS_GetSOE(void) {return &theSOE;}
 
 LinearSOE **
 G3_getLinearSoePtr(G3_Runtime* rt) {
@@ -1341,16 +1286,10 @@ G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
 
 
 EigenSOE **
-OPS_GetEigenSOE(void)
-{
-  return &theEigenSOE;
-}
+OPS_GetEigenSOE(void) {return &theEigenSOE;}
 
 StaticAnalysis **
-OPS_GetStaticAnalysis(void)
-{
-  return &theStaticAnalysis;
-}
+OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
 
 int
 G3_setAnalysisModel(G3_Runtime *rt, AnalysisModel *the_analysis)
@@ -1418,10 +1357,7 @@ G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
 
 
 DirectIntegrationAnalysis **
-OPS_GetTransientAnalysis(void)
-{
-  return &theTransientAnalysis;
-}
+OPS_GetTransientAnalysis(void) {return &theTransientAnalysis;}
 
 DirectIntegrationAnalysis *
 G3_getTransientAnalysis(G3_Runtime *rt)
@@ -1453,37 +1389,28 @@ OPS_GetVariableTimeStepTransientAnalysis(void)
 }
 
 int *
-OPS_GetNumEigen(void)
-{
-  return &numEigen;
-}
+OPS_GetNumEigen(void) {return &numEigen;}
 
 StaticIntegrator **
-OPS_GetStaticIntegrator(void)
-{
-  return &theStaticIntegrator;
-}
+OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}
 
 TransientIntegrator **
-OPS_GetTransientIntegrator(void)
-{
-  return &theTransientIntegrator;
-}
+OPS_GetTransientIntegrator(void) {return &theTransientIntegrator;}
 
 ConvergenceTest **
-OPS_GetTest(void)
-{
-  return &theTest;
-}
+OPS_GetTest(void) {return &theTest;}
 
 bool *
-OPS_builtModel(void)
-{
-  return &builtModel;
-}
+OPS_builtModel(void) {return &builtModel;}
 
 int
-OPS_numIter()
-{
-  return 0;
-}
+OPS_numIter() {return 0;}
+
+
+// TODO: CMP REMOVE SPECIALTY
+/*
+LimitCurve *
+OPS_GetLimitCurve(int LimCrvTag) {return OPS_getLimitCurve(LimCrvTag);}
+*/
+
+

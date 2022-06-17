@@ -67,8 +67,8 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <RCTBeamSectionIntegration.h>
 #include <RCCircularSectionIntegration.h>
 #include <RCTunnelSectionIntegration.h>
-//#include <RCTBeamSectionIntegrationUniMat.h>
-#include <TubeSectionIntegration.h>
+// #include <RCTBeamSectionIntegrationUniMat.h>
+// #include <TubeSectionIntegration.h>
 
 //#include <McftSection2dfiber.h>
 
@@ -84,13 +84,13 @@ using std::ios;
 extern void *OPS_ElasticSection(G3_Runtime*);
 extern void *OPS_ElasticWarpingShearSection2d(G3_Runtime*);
 extern void *OPS_ElasticTubeSection3d(G3_Runtime*);
-extern void *OPS_WFSection2d(G3_Runtime*);
-extern void *OPS_RCCircularSection(G3_Runtime*);
-extern void *OPS_RCSection2d(G3_Runtime*);
-extern void *OPS_RCTBeamSection2d(G3_Runtime*);
-extern void *OPS_RCTunnelSection(G3_Runtime*);
+// extern void *OPS_WFSection2d(G3_Runtime*);
+// extern void *OPS_RCCircularSection(G3_Runtime*);
+// extern void *OPS_RCSection2d(G3_Runtime*);
+// extern void *OPS_RCTBeamSection2d(G3_Runtime*);
+// extern void *OPS_RCTunnelSection(G3_Runtime*);
+// extern void *OPS_TubeSection(G3_Runtime*);
 extern void *OPS_UniaxialSection(G3_Runtime*);
-extern void *OPS_TubeSection(G3_Runtime*);
 extern void *OPS_ParallelSection(G3_Runtime*);
 extern void *OPS_Bidirectional(G3_Runtime*);
 extern void *OPS_Elliptical2(G3_Runtime*);
@@ -114,21 +114,14 @@ int TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
 #include <MembranePlateFiberSectionThermal.h> //Added by Liming, [SIF] 2017
 #include <LayeredShellFiberSectionThermal.h>  //Added by Liming, [SIF] 2017
 
-int TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
-                                      TclBasicBuilder *theBuilder);
-int buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
-                        int secTag, UniaxialMaterial &theTorsion);
+int TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theBuilder);
+int buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder, int secTag, UniaxialMaterial &theTorsion);
 //--- Adding Thermo-mechanical Sections: [END]   by UoE OpenSees Group ---//
 
-int TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv,
-                                 TclBasicBuilder *theBuilder);
+int TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theBuilder);
 
 SectionForceDeformation *
-TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv,
-                                 TclBasicBuilder *theTclBuilder);
+TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theTclBuilder);
 
 int
 TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
@@ -150,7 +143,39 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
   SectionForceDeformation *theSection = 0;
 
   // Check argv[1] for section type
-  if (strcmp(argv[1], "Elastic") == 0) {
+
+  if (strcmp(argv[1], "Fiber") == 0 || 
+           strcmp(argv[1], "fiberSec") == 0 ||
+           strcmp(argv[1], "FiberSection") == 0 ||
+           strcmp(argv[1], "NDFiberWarping") == 0 ||
+           strcmp(argv[1], "NDFiber") == 0)
+
+    return TclCommand_addFiberSection(clientData, interp, argc, argv, theTclBuilder);
+
+  else if (strcmp(argv[1], "FiberAsym") == 0 ||
+           strcmp(argv[1], "fiberSecAsym") == 0)
+    return TclCommand_addFiberSectionAsym(clientData, interp, argc, argv, theTclBuilder); // Xinlong
+
+  //--- Adding Thermo-mechanical Sections:[BEGIN]   by UoE OpenSees Group ---//
+  else if (strcmp(argv[1], "FiberThermal") == 0 ||
+           strcmp(argv[1], "fiberSecThermal") == 0)
+    return TclCommand_addFiberSectionThermal(clientData, interp, argc, argv, theTclBuilder);
+
+  else if (strcmp(argv[1], "FiberInt") == 0)
+    return TclCommand_addFiberIntSection(clientData, interp, argc, argv, theTclBuilder);
+
+  else if (strcmp(argv[1], "UCFiber") == 0)
+    return TclCommand_addUCFiberSection(clientData, interp, argc, argv, theTclBuilder);
+
+  else if (strcmp(argv[1], "Parallel") == 0) {
+    void *theMat = OPS_ParallelSection(rt);
+    if (theMat != 0)
+      theSection = (SectionForceDeformation *)theMat;
+    else
+      return TCL_ERROR;
+  }
+
+  else if (strcmp(argv[1], "Elastic") == 0) {
     void *theMat = OPS_ElasticSection(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
@@ -160,14 +185,6 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "ElasticWarpingShear") == 0) {
     void *theMat = OPS_ElasticWarpingShearSection2d(rt);
-    if (theMat != 0)
-      theSection = (SectionForceDeformation *)theMat;
-    else
-      return TCL_ERROR;
-  }
-
-  else if (strcmp(argv[1], "ElasticTube") == 0) {
-    void *theMat = OPS_ElasticTubeSection3d(rt);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
@@ -184,6 +201,34 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
   }
 
+
+  // created by Yuli Huang & Xinzheng Lu ----
+  else if (strcmp(argv[1], "Bidirectional") == 0) {
+    void *theMat = OPS_Bidirectional(rt);
+    if (theMat != 0)
+      theSection = (SectionForceDeformation *)theMat;
+    else
+      return TCL_ERROR;
+  }
+
+  else if (strcmp(argv[1], "Elliptical") == 0 ||
+           strcmp(argv[1], "Elliptical2") == 0) {
+    void *theMat = OPS_Elliptical2(rt);
+    if (theMat != 0)
+      theSection = (SectionForceDeformation *)theMat;
+    else
+      return TCL_ERROR;
+  }
+
+/*
+ * TODO: Keep names, but add removal message
+  else if (strcmp(argv[1], "ElasticTube") == 0) {
+    void *theMat = OPS_ElasticTubeSection3d(rt);
+    if (theMat != 0)
+      theSection = (SectionForceDeformation *)theMat;
+    else
+      return TCL_ERROR;
+  }
   else if (strcmp(argv[1], "WFSection2d") == 0 ||
            strcmp(argv[1], "WSection2d") == 0) {
     void *theMat = OPS_WFSection2d(rt);
@@ -226,14 +271,8 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     else
       return TCL_ERROR;
   }
+*/
 
-  else if (strcmp(argv[1], "Parallel") == 0) {
-    void *theMat = OPS_ParallelSection(rt);
-    if (theMat != 0)
-      theSection = (SectionForceDeformation *)theMat;
-    else
-      return TCL_ERROR;
-  }
 
   else if (strcmp(argv[1], "AddDeformation") == 0 ||
            strcmp(argv[1], "Aggregator") == 0) {
@@ -342,35 +381,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     delete[] theMats;
   }
 
-  else if (strcmp(argv[1], "Fiber") == 0 || 
-           strcmp(argv[1], "fiberSec") == 0 ||
-           strcmp(argv[1], "FiberSection") == 0 ||
-           strcmp(argv[1], "NDFiberWarping") == 0 ||
-           strcmp(argv[1], "NDFiber") == 0)
-
-    return TclCommand_addFiberSection(clientData, interp, argc, argv,
-                                      theTclBuilder);
-
-  else if (strcmp(argv[1], "FiberAsym") == 0 ||
-           strcmp(argv[1], "fiberSecAsym") == 0)
-    return TclCommand_addFiberSectionAsym(clientData, interp, argc, argv,
-                                          theTclBuilder); // Xinlong
-
-  //--- Adding Thermo-mechanical Sections:[BEGIN]   by UoE OpenSees Group ---//
-  else if (strcmp(argv[1], "FiberThermal") == 0 ||
-           strcmp(argv[1], "fiberSecThermal") == 0)
-    return TclCommand_addFiberSectionThermal(clientData, interp, argc, argv,
-                                             theTclBuilder);
-
-  else if (strcmp(argv[1], "FiberInt") == 0)
-    return TclCommand_addFiberIntSection(clientData, interp, argc, argv,
-                                         theTclBuilder);
-
-  else if (strcmp(argv[1], "UCFiber") == 0)
-    return TclCommand_addUCFiberSection(clientData, interp, argc, argv,
-                                        theTclBuilder);
 
   else if (strcmp(argv[1], "ElasticPlateSection") == 0) {
+
     if (argc < 5) {
       opserr << "WARNING insufficient arguments\n";
       opserr << "Want: section ElasticPlateSection tag? E? nu? h? " << endln;
@@ -683,25 +696,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       delete[] theMats;
   }
   // end L.Jiang [SIF] added based on LayeredShellFiberSectionThermal section
-  // created by Yuli Huang & Xinzheng Lu ----
-
-  else if (strcmp(argv[1], "Bidirectional") == 0) {
-    void *theMat = OPS_Bidirectional(rt);
-    if (theMat != 0)
-      theSection = (SectionForceDeformation *)theMat;
-    else
-      return TCL_ERROR;
-  }
-
-  else if (strcmp(argv[1], "Elliptical") == 0 ||
-           strcmp(argv[1], "Elliptical2") == 0) {
-    void *theMat = OPS_Elliptical2(rt);
-    if (theMat != 0)
-      theSection = (SectionForceDeformation *)theMat;
-    else
-      return TCL_ERROR;
-  }
-
+  //
   else if (strcmp(argv[1], "Iso2spring") == 0) {
     if (argc < 10) {
       opserr << "WARNING insufficient arguments\n";
@@ -3192,7 +3187,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
   return TCL_OK;
 }
-
+/*
 SectionForceDeformation*
 G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
 {
@@ -3301,3 +3296,5 @@ G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
     }
   }
 }
+*/
+

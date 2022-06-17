@@ -35,6 +35,14 @@ changes from the classic `OpenSees` interpreter:
 
 - new `redirect` command
 
+- Dropped:
+
+    // extern void *OPS_WFSection2d(G3_Runtime*);
+    // extern void *OPS_RCCircularSection(G3_Runtime*);
+    // extern void *OPS_RCSection2d(G3_Runtime*);
+    // extern void *OPS_RCTBeamSection2d(G3_Runtime*);
+    // extern void *OPS_RCTunnelSection(G3_Runtime*);
+    // extern void *OPS_TubeSection(G3_Runtime*);
 
 ## Developer Changes
 
