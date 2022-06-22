@@ -1,7 +1,7 @@
 add_library(OpenSeesPyRT SHARED)
 # add_library(OpenSeesPyRT OBJECT)
 
-find_package(Python)
+find_package(PythonExtensions REQUIRED)
 find_package(pybind11 CONFIG)
 target_include_directories(OpenSeesPyRT 
   PRIVATE ${Python_INCLUDE_DIRS}
