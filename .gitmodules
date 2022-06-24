@@ -1,0 +1,6 @@
+[submodule "OTHER/lapack-release"]
+	path = OTHER/lapack-release
+	url = https://github.com/Reference-LAPACK/lapack-release
+[submodule "SRC/api/tclCommandPackage/contrib/element/EmbeddedInterfaceElement"]
+	path = SRC/api/tclCommandPackage/contrib/packages/EmbeddedInterfaceElement
+	url = https://github.com/alborzgh/EmbeddedInterfaceElement

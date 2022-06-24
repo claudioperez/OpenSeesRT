@@ -146,7 +146,7 @@ static int TclCommand_addParameter(ClientData, Tcl_Interp*,
 static int TclCommand_addNode(ClientData, Tcl_Interp*,
                               int argc, TCL_Char **);
 
-static int TclCommand_addElement(ClientData, Tcl_Interp*,
+extern int TclCommand_addElement(ClientData, Tcl_Interp*,
                                  int argc, TCL_Char **);
 
 static int TclCommand_mesh(ClientData, Tcl_Interp*, int argc,
@@ -1157,18 +1157,6 @@ TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc,
                                          theTclDomain, theTclBuilder);
 }
 
-extern int TclBasicBuilderElementCommand(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv, Domain *theDomain,
-                                         TclBasicBuilder *theTclBuilder);
-int
-TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
-
-{
-  return TclBasicBuilderElementCommand(clientData, interp, argc, argv,
-                                       theTclDomain, theTclBuilder);
-}
 
 // extern int OPS_LineMesh(Domain& domain, int ndm);
 // extern int OPS_TriMesh(Domain& domain);
