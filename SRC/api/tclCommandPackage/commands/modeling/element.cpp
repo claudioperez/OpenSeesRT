@@ -2,7 +2,6 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
 // Written: fmk
 // Created: 07/99
 // Revision: A
@@ -210,8 +209,6 @@ G3_TclElementCommand TclBasicBuilder_addZeroLength;
 
 // add by Gang Wang for Contact Element
 G3_TclElementCommand TclBasicBuilder_addZeroLengthContact2D;
-
-// add by Gang Wang for Contact Element
 G3_TclElementCommand TclBasicBuilder_addZeroLengthContact3D;
 
 // KRM added for rocking element
@@ -278,11 +275,11 @@ extern int TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *inter
 G3_TclElementCommand TclBasicBuilder_addGradientInelasticBeamColumn;
 
 int
-TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                              TCL_Char **argv, Domain *theTclDomain,
-                              TclBasicBuilder *theTclBuilder)
+TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
+  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getSafeBuilder(rt);
+  Domain *theTclDomain = G3_getDomain(rt);
 
   // ensure the destructor has not been called -
   if (theTclBuilder == 0) {
@@ -451,7 +448,8 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
              << argv[1] << endln;
       return TCL_ERROR;
     }
-    /* } else if (strcmp(argv[1], "gradientInelasticBeamColumn") == 0) {
+/* 
+  } else if (strcmp(argv[1], "gradientInelasticBeamColumn") == 0) {
 
       Element *theEle = 0;
       if (G3_getNDM(rt) == 2)
@@ -463,9 +461,11 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
         theElement = theEle;
       else {
         opserr << "TclElementCommand -- unable to create element of type : " <<
-    argv[1] << endln; return TCL_ERROR;
+                  argv[1] << endln; 
+        return TCL_ERROR;
       }
-    }*/
+    }
+*/
 
 #if defined(_HAVE_LHNMYS) || defined(OPSDEF_ELEMENT_LHNMYS)
   } else if (strcmp(argv[1], "beamColumn2DwLHNMYS") == 0) {
@@ -1531,8 +1531,8 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
         clientData, interp, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
     return result;
   } else if (strcmp(argv[1], "zeroLength") == 0) {
-    int result = TclBasicBuilder_addZeroLength(clientData, interp, argc, argv,
-                                               theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addZeroLength(
+        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "zeroLengthSection") == 0) {
     int result = TclBasicBuilder_addZeroLengthSection(
@@ -1550,6 +1550,7 @@ TclBasicBuilderElementCommand(ClientData clientData, Tcl_Interp *interp, int arg
     int result = TclBasicBuilder_addZeroLengthContact3D(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
     return result;
+
   } else if (strcmp(argv[1], "zeroLengthND") == 0) {
     int result = TclBasicBuilder_addZeroLengthND(clientData, interp, argc, argv,
                                                  theTclDomain, theTclBuilder);

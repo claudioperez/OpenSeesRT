@@ -57,6 +57,7 @@
 
 #include <TimeSeries.h>
 #include <PathTimeSeriesThermal.h> //L.Jiang [SIF]
+                                   //
 /*
 #include <SimulationInformation.h>				//L.Jiang [SIF]
 extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
@@ -65,9 +66,6 @@ extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
 /*--------------------------------------------------------------------
 
-// Added by Prishati Raychowdhury  (PRC)
-#include <ShallowFoundationGen.h>
-//end PRC
 
 #include <YieldSurface_BC.h>
 #include <YS_Evolution.h>
@@ -156,10 +154,10 @@ TclSafeBuilder::~TclSafeBuilder()
 /*
   theSections->clearAll();
   theSectionRepresents->clearAll();
-  // free up memory allocated in the constructor
   delete theSections;
   delete theSectionRepresents;
 */
+
   // set the pointers to 0
   theTclDomain = 0;
   theTclBuilder = 0;
@@ -739,38 +737,7 @@ theTclBuilder);
 }
 
 */
-class TclBasicBuilder;
-extern int TclBasicBuilderElementCommand(ClientData clientData,
-                                         Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv, Domain *theDomain,
-                                         TclBasicBuilder *theTclBuilder);
 
-int
-TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
-
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
-  return TclBasicBuilderElementCommand(clientData, interp, argc, argv,
-                                       theTclDomain,
-                                       (TclBasicBuilder *)theTclBuilder);
-}
-
-extern int TclBasicBuilderUniaxialMaterialCommand(ClientData, Tcl_Interp *, int,
-                                                  TCL_Char **, Domain *);
-
-extern int TclSafeBuilderUniaxialCommand(ClientData, Tcl_Interp *, int,
-                                         TCL_Char **, Domain *);
-int
-TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv)
-{
-  int stat = TclSafeBuilderUniaxialCommand(clientData, interp, argc, argv,
-                                       G3_getDomain(G3_getRuntime(interp)));
-  return stat;
-}
 
 /*
 extern int
@@ -891,44 +858,6 @@ TclCommand_addMP(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-
-
-// Added by Prishati Raychowdhury (UCSD)
-int
-TclSafeBuilder_doShallowFoundationGen(ClientData clientData, Tcl_Interp
-*interp, int argc, TCL_Char **argv)
-{
-        if(argc != 5){
-                opserr << "WARNING ShallowFoundationGen FoundationID? ConnectingNode? InputDataFile? FoundationMatType?"; opserr << "Must have 4 arguments." << endln;
-        }
-
-        ShallowFoundationGen *theShallowFoundationGen;
-        theShallowFoundationGen = new ShallowFoundationGen;
-
-
-      // Checking for error
-        int FoundationID; int ConnectingNode; int FoundationMatType;
-
-        if (Tcl_GetInt(interp, argv[1], &FoundationID) != TCL_OK) {
-          opserr << "WARNING invalid FoundationID: " << argv[1]
-               << ". ShallowFoundationGen FoundationID? ConnectingNode? InputDataFile? FoundationMatType? ";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetInt(interp, argv[2], &ConnectingNode) != TCL_OK) {
-          opserr << "WARNING invalid ConnectingNode: " << argv[2]
-               << ". ShallowFoundationGen FoundationID? ConnectingNode? InputDataFile? FoundationMatType? ";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetInt(interp, argv[4], &FoundationMatType) != TCL_OK) {
-          opserr << "WARNING invalid FoundationMatType: " << argv[4]
-               << ". ShallowFoundationGen FoundationID? ConnectingNode? InputDataFile? FoundationMatType? "; return TCL_ERROR;
-        }
-
-        theShallowFoundationGen->GetShallowFoundation(argv[1], argv[2], argv[3], argv[4]); delete theShallowFoundationGen;
-
-        return TCL_OK;
-}
-// End PRC
 */
 
 
