@@ -74,3 +74,4 @@ void *OPS_ElasticForceBeamColumn3d()
   delete[] sections;
   return theEle;
 }
+
