@@ -33,6 +33,7 @@ target_sources(OpenSeesRT PRIVATE
     "modelbuilder/sect/TclSectionTestBuilder.cpp"
     "commands/modeling/geomTransf.cpp"
     "commands/modeling/rigidLink.cpp"
+    "commands/domain.cpp"
 
 # Other Commands
     "streams/logging.cpp"
