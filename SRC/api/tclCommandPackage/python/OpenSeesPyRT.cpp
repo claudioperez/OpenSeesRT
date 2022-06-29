@@ -537,5 +537,5 @@ init_obj_module(py::module &m)
 
 }
 
-PYBIND11_MODULE(libOpenSeesRT, m) {init_obj_module(m);}
+PYBIND11_MODULE(OpenSeesPyRT, m) {init_obj_module(m);}
 

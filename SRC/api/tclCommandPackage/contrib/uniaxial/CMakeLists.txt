@@ -8,6 +8,6 @@ add_subdirectory(AlgebraicHysteresis)
 
 add_subdirectory(BoucWen)
 
-add_subdirectory(fedeas)
+#add_subdirectory(fedeas)
 add_subdirectory(FedeasUniaxialDamage)
 
