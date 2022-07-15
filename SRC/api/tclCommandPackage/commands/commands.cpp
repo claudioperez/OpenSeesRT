@@ -106,13 +106,6 @@ extern "C" {
 #include <LagrangeConstraintHandler.h>
 #include <TransformationConstraintHandler.h>
 
-// numberers
-#include <PlainNumberer.h>
-#include <DOF_Numberer.h>
-// graph
-#include <RCM.h>
-#include <AMDNumberer.h>
-
 
 #ifdef OPS_USE_PFEM
 #include <PFEMIntegrator.h>
@@ -270,7 +263,6 @@ ModelBuilder *theBuilder = 0;
 // parallel analysis
 #  include <StaticDomainDecompositionAnalysis.h>
 #  include <TransientDomainDecompositionAnalysis.h>
-#  include <ParallelNumberer.h>
 
 //  parallel soe & solvers
 #  include <DistributedBandSPDLinSOE.h>
@@ -304,7 +296,6 @@ ModelBuilder *theBuilder = 0;
   bool setMPIDSOEFlag = false;
   
   // parallel analysis
-  #include <ParallelNumberer.h>
   #include <DistributedDisplacementControl.h>
   
   //  parallel soe & solvers
@@ -682,13 +673,19 @@ OpenSeesAppInit(Tcl_Interp *interp)
                     (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "fault", 
-      [](ClientData,Tcl_Interp*,int,const char **)->int{throw 20; return 0;}, 
-        (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+      [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, 
+        nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "system", &specifySysOfEqnTable, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "numberer", &specifyNumberer, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+
+  // Tcl_CreateCommand(interp, "numberer", &specifyNumberer, (ClientData)NULL,
+  //                   (Tcl_CmdDeleteProc *)NULL);
+
+  Tcl_CreateCommand(interp, "numberer", [](ClientData, Tcl_Interp *i, int ac, G3_Char** av)->int{
+        return (theNumberer = G3Parse_newNumberer(G3_getRuntime(i), ac, av))? TCL_OK : TCL_ERROR;
+  }, nullptr, nullptr);
+
   Tcl_CreateCommand(interp, "constraints", &specifyConstraintHandler, nullptr, nullptr);
   Tcl_CreateCommand(interp, "algorithm", &specifyAlgorithm, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "test", &specifyCTest, (ClientData)NULL,
@@ -1551,69 +1548,6 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 
-//
-// command invoked to allow the Numberer objects to be built
-//
-int
-specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
-{
-  // make sure at least one other argument to contain numberer
-  if (argc < 2) {
-    opserr << "WARNING need to specify a Numberer type \n";
-    return TCL_ERROR;
-  }
-
-#ifdef _PARALLEL_PROCESSING
-  // check argv[1] for type of Numberer and create the object
-  if (strcmp(argv[1], "Plain") == 0) {
-    theNumberer = new ParallelNumberer();
-  } else if (strcmp(argv[1], "RCM") == 0) {
-    RCM *theRCM = new RCM(false);
-    theNumberer = new ParallelNumberer(*theRCM);
-  } else {
-    opserr << "WARNING No Numberer type exists (Plain, RCM only) \n";
-    return TCL_ERROR;
-  }
-#else
-
-  // check argv[1] for type of Numberer and create the object
-  if (strcmp(argv[1], "Plain") == 0) {
-    theNumberer = new PlainNumberer();
-  } else if (strcmp(argv[1], "RCM") == 0) {
-    RCM *theRCM = new RCM(false);
-    theNumberer = new DOF_Numberer(*theRCM);
-  } else if (strcmp(argv[1], "AMD") == 0) {
-    AMD *theAMD = new AMD();
-    theNumberer = new DOF_Numberer(*theAMD);
-  }
-
-#  ifdef _PARALLEL_INTERPRETERS
-
-  else if ((strcmp(argv[1], "ParallelPlain") == 0) ||
-           (strcmp(argv[1], "Parallel") == 0)) {
-    ParallelNumberer *theParallelNumberer = new ParallelNumberer;
-    theNumberer = theParallelNumberer;
-    theParallelNumberer->setProcessID(OPS_rank);
-    theParallelNumberer->setChannels(numChannels, theChannels);
-  } else if (strcmp(argv[1], "ParallelRCM") == 0) {
-    RCM *theRCM = new RCM(false);
-    ParallelNumberer *theParallelNumberer = new ParallelNumberer(*theRCM);
-    theNumberer = theParallelNumberer;
-    theParallelNumberer->setProcessID(OPS_rank);
-    theParallelNumberer->setChannels(numChannels, theChannels);
-  }
-
-#  endif
-
-  else {
-    opserr << "WARNING No Numberer type exists (Plain, RCM only) \n";
-    return TCL_ERROR;
-  }
-#endif
-
-  return TCL_OK;
-}
 
 //
 // command invoked to allow the ConstraintHandler object to be built

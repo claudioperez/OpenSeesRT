@@ -38,15 +38,6 @@ public:
 
   LinearSOE      *m_sys_of_eqn = nullptr;
 
-
-  /*
-  G3_Config m_global_strategy = {
-    {"numberer",   {"RCM"}},
-    {"system",     {"ProfileSPD"}},
-    {"test",       {""}},
-  };
-  */
-
   struct G3_Strategy {
     EquiSolnAlgo      *m_algorithm  = nullptr;
     ConvergenceTest   *m_convergence_test = nullptr;

@@ -519,7 +519,6 @@ init_obj_module(py::module &m)
   ;
 
   py::class_<TransientAnalysis>(m, "TransientAnalysis");
-  // py::class_<TransientAnalysis>(m, "_TransientAnalysis") // , std::unique_ptr<TransientAnalysis, py::nodelete>>(m, "_TransientAnalysis")
   py::class_<DirectIntegrationAnalysis, TransientAnalysis>(m, "_DirectIntegrationAnalysis")
     .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
       return *((DirectIntegrationAnalysis*)runtime->newTransientAnalysis(conf));
