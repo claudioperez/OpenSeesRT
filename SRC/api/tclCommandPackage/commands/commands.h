@@ -1,8 +1,7 @@
-//
+
 // Description: This file contains the functions that will be called by
-// the interpreter when the appropriate command name is specified,
-// see tkAppInit.C for command names.
-//
+// the interpreter when the appropriate command name is specified.
+
 
 #include <OPS_Globals.h>
 
@@ -50,7 +49,8 @@ int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char
 int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
-int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
+// int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 

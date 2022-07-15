@@ -17,10 +17,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <Bond_SP01.h>          // JZ
 #include <BoucWenMaterial.h>    // Terje
 #include <Concrete01WithSITC.h> // Won Lee
-// #include <Concrete04.h>
-// #include <Concrete05.h>
-// #include <Concrete06.h>              // LMS
-// #include <Concrete07.h>              // JDW
 #include <ECC01.h>                   // Won Lee
 #include <ENTMaterial.h>             // MHS
 #include <EPPGapMaterial.h>          // Mackie
