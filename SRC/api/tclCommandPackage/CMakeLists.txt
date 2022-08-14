@@ -145,13 +145,13 @@ target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
 #
 if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
-  target_link_libraries(OpenSeesRT PRIVATE OpenSeesPyRT)
+  # target_link_libraries(OpenSeesRT PUBLIC OpenSeesPyRT)
 endif()
 
 
 target_link_libraries(OpenSeesRT PRIVATE
   ${OPS_Element_List}
-  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
+  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES} ${AMD_LIBRARIES}
   OPS_Damage
   OPS_ModelBuilder
   G3_ObjectBroker
