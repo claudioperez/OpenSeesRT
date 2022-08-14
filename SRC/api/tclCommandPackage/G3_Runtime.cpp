@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 #include "G3_Runtime.h"
-// #include "G3Parse.h"
 
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
@@ -52,10 +51,11 @@ T* G3Object_newParsed(G3_Runtime *rt, std::vector<std::string> args) {
     return (*fn)(rt, cstrs.size()+1, cstrs.data()-1);
 }
 
-EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, const char **);
-TransientIntegrator* G3Parse_newTransientIntegrator(G3_Runtime*, int, const char**);
-StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, const char**);
-LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, const char**);
+DOF_Numberer*        G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
+EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **);
+TransientIntegrator* G3Parse_newTransientIntegrator(G3_Runtime*, int, G3_Char**);
+StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**);
+LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
 ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
@@ -95,22 +95,20 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
 
   // NUMBERER
   DOF_Numberer* the_numberer = nullptr;
-  /*
   if (G3Config_keyExists(conf, "numberer"))
     the_numberer = 
-      G3Object_newParsed<DOF_Numeberer, G3Parse_newNumberer>(this, conf["numberer"]);
+      G3Object_newParsed<DOF_Numberer, G3Parse_newNumberer>(this, conf["numberer"]);
   else
     the_numberer = this->m_global_strategy.m_numberer;
-  */
+
   if (the_numberer == nullptr)  {
-    RCM *theRCM  = new RCM(false);
-    the_numberer = new DOF_Numberer(*theRCM);
+    RCM *rcm  = new RCM(false);
+    if (rcm)
+      the_numberer = new DOF_Numberer(*rcm);
   }
-  
-  
+    
   // CONSTRAINT HANDLER
   ConstraintHandler *the_handler = new TransformationConstraintHandler();
-
 
   // LINEAR SYSTEM
   LinearSOE* the_soe = nullptr;
@@ -123,7 +121,7 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
   if (the_soe == nullptr) 
       the_soe = new ProfileSPDLinSOE(*new ProfileSPDLinDirectSolver());
 
-  
+
   if (m_analysis_model == nullptr)
     m_analysis_model = new AnalysisModel();
 
@@ -142,23 +140,28 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
 {
   // NUMBERER
   DOF_Numberer* the_numberer = nullptr;
-  /*
   if (G3Config_keyExists(conf, "numberer"))
     the_numberer = 
-      G3Object_newParsed<DOF_Numeberer, G3Parse_newNumberer>(this, conf["numberer"]);
+      G3Object_newParsed<DOF_Numberer, G3Parse_newNumberer>(this, conf["numberer"]);
   else
     the_numberer = this->m_global_strategy.m_numberer;
-  */
+
   if (the_numberer == nullptr)  {
-    RCM *theRCM  = new RCM(false);
-    the_numberer = new DOF_Numberer(*theRCM);
+    RCM *rcm  = new RCM(false);
+    if (rcm)
+      the_numberer = new DOF_Numberer(*rcm);
   }
 
   // CONSTRAINT HANDLER
   ConstraintHandler *the_handler = new TransformationConstraintHandler();
 
   // CONVERGENCE TEST
-  ConvergenceTest *test = new CTestNormUnbalance(1.0e-6,25,0);
+  ConvergenceTest *test = nullptr;
+  if (G3Config_keyExists(conf, "test"))
+    test = 
+      G3Object_newParsed<ConvergenceTest, RT_newConvergenceTest>(this, conf["test"]);
+  else
+    test = new CTestNormUnbalance(1.0e-6,25,0);
 
   // ALGORITHM
   EquiSolnAlgo* the_algorithm;

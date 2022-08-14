@@ -45,6 +45,7 @@ target_sources(OpenSeesRT PRIVATE
     "commands/analysis/algorithm.cpp"
     "commands/analysis/integrator.cpp"
     "commands/analysis/analysis.cpp"
+    "commands/analysis/numberer.cpp"
     "commands/analysis/ctest.cpp"
 
     OpenSeesRT.cpp

@@ -6,6 +6,7 @@ add_subdirectory(Concrete06)
 add_subdirectory(Concrete07)
 add_subdirectory(AlgebraicHysteresis)
 
+add_subdirectory(SelfCentering)
 add_subdirectory(BoucWen)
 
 #add_subdirectory(fedeas)

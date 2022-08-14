@@ -114,10 +114,6 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 // Standard
     {"Elastic",                OPS_ElasticMaterial           },
 
-    {"Steel01",                OPS_Steel01                   },
-
-    {"Steel02",                OPS_Steel02                   },
-
     {"Concrete01",             OPS_Concrete01                },
     {"Concrete02",             OPS_Concrete02                },
 
@@ -130,6 +126,11 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"Series",                 OPS_SeriesMaterial            },
 
 // Steels
+
+    {"Steel01",                OPS_Steel01                   },
+
+    {"Steel02",                OPS_Steel02                   },
+
     {"SteelBRB",               OPS_SteelBRB                  },
 
     {"SteelFractureDI",        OPS_SteelFractureDI           },
@@ -137,6 +138,15 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
     {"Steel02Fatigue",         OPS_Steel02Fatigue            },
 
     {"Steel4",                 OPS_Steel4                    },
+
+    {"Dodd_Restrepo",          OPS_Dodd_Restrepo             },
+    {"DoddRestrepo" ,          OPS_Dodd_Restrepo             },
+    {"Restrepo",               OPS_Dodd_Restrepo             },
+
+#if !defined(_NO_NEW_RESTREPO)
+    {"DoddRestr",              OPS_DoddRestr                 },
+#endif
+
 
 // Piles
     {"PySimple3",              OPS_PySimple3                 },
@@ -171,14 +181,6 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
     {"Cast",                   OPS_Cast                      },
     {"CastFuse",               OPS_Cast                      },
-
-    {"Dodd_Restrepo",          OPS_Dodd_Restrepo             },
-    {"DoddRestrepo" ,          OPS_Dodd_Restrepo             },
-    {"Restrepo",               OPS_Dodd_Restrepo             },
-
-#if !defined(_NO_NEW_RESTREPO)
-    {"DoddRestr",              OPS_DoddRestr                 },
-#endif
 
     {"ElasticMultiLinear",     OPS_ElasticMultiLinear        },
     {"ElasticPowerFunc",       OPS_ElasticPowerFunc          },
