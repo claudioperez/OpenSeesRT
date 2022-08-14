@@ -98,10 +98,10 @@ struct char_cmd {
   {"modalDamping",     modalDamping},
   {"modalDampingQ",    modalDampingQ},
 
+  {"eleLoad",          TclCommand_addElementalLoad},
 
 /*
   {"beamIntegration",  TclCommand_addBeamIntegration},
-  {"eleLoad",          TclCommand_addElementalLoad},
 */
 
 /*

@@ -26,24 +26,6 @@
 
 #include <CrdTransf.h>
 
-#include <NodalLoad.h>
-#include <Beam2dPointLoad.h>
-#include <Beam2dUniformLoad.h>
-#include <Beam2dPartialUniformLoad.h>
-#include <Beam2dTempLoad.h>
-#include <Beam2dThermalAction.h>  //L.Jiang [SIF]
-#include <Beam3dThermalAction.h>  //L.Jiang [SIF]
-#include <ShellThermalAction.h>   //L.Jiang [SIF]
-#include <ThermalActionWrapper.h> //L.Jiang [SIF]
-#include <NodalThermalAction.h>   //L.Jiang [SIF]
-
-#include <Beam3dPointLoad.h>
-#include <Beam3dUniformLoad.h>
-#include <Beam3dPartialUniformLoad.h>
-#include <BrickSelfWeight.h>
-#include <SurfaceLoader.h>
-#include <SelfWeight.h>
-#include <LoadPattern.h>
 
 #include <SectionForceDeformation.h>
 #include <SectionRepres.h>
@@ -54,6 +36,9 @@
 // #include <HystereticBackbone.h>
 #include <TclSafeBuilder.h>
 #include <MultiSupportPattern.h>
+
+#include <NodalThermalAction.h>   //L.Jiang [SIF]
+#include <NodalLoad.h>
 
 #include <TimeSeries.h>
 #include <PathTimeSeriesThermal.h> //L.Jiang [SIF]

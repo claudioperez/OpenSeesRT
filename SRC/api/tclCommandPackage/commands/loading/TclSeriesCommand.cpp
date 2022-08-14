@@ -7,6 +7,8 @@
 // TclBasicBuilder_addPattern function in the TclBasicBuilder.C file.
 
 #include <g3_api.h>
+#include <G3_Logging.h>
+
 #include <Domain.h>
 #include <LinearSeries.h>
 #include <ConstantSeries.h>
@@ -426,7 +428,10 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           double dT = thePeerMotion->getDt();
           char string[30];
           sprintf(string, "set %s %.18e", variableName, dT);
-          Tcl_Eval(interp, string);
+          if (Tcl_Eval(interp, string) != TCL_OK) {
+            opserr << G3_WARN_PROMPT << Tcl_GetStringResult(interp);
+            Tcl_Exit(TCL_ERROR);
+          }
           argCount += 2;
         } else if ((strcmp(argv[argCount], "-nPts") == 0) ||
                    (strcmp(argv[argCount], "-NPTS") == 0)) {
@@ -434,7 +439,10 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           int nPts = thePeerMotion->getNPts();
           char string[30];
           sprintf(string, "set %s %d", variableName, nPts);
-          Tcl_Eval(interp, string);
+          if (Tcl_Eval(interp, string) != TCL_OK) {
+            opserr << G3_WARN_PROMPT << Tcl_GetStringResult(interp);
+            Tcl_Exit(TCL_ERROR);
+          }
           argCount += 2;
         } else
           argCount++;
@@ -462,7 +470,10 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           double dT = thePeerMotion->getDt();
           char string[30];
           sprintf(string, "set %s %.18e", variableName, dT);
-          Tcl_Eval(interp, string);
+          if (Tcl_Eval(interp, string) != TCL_OK) {
+            opserr << G3_WARN_PROMPT << Tcl_GetStringResult(interp);
+            Tcl_Exit(TCL_ERROR);
+          }
           argCount += 2;
 
         } else if ((strcmp(argv[argCount], "-nPts") == 0) ||
@@ -471,8 +482,10 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           int nPts = thePeerMotion->getNPts();
           char string[30];
           sprintf(string, "set %s %d", variableName, nPts);
-          Tcl_Eval(interp, string);
-
+          if (Tcl_Eval(interp, string) != TCL_OK) {
+            opserr << G3_WARN_PROMPT << Tcl_GetStringResult(interp);
+            Tcl_Exit(TCL_ERROR);
+          }
           argCount += 2;
         } else
           argCount++;

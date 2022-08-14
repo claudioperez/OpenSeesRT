@@ -1098,9 +1098,9 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
   G3_setLinearSoe(rt, nullptr);
   theEigenSOE = 0;
   G3_setStaticIntegrator(rt,nullptr);
-  theTransientIntegrator = 0;
+  theTransientIntegrator = nullptr;
   G3_setStaticAnalysis(rt,nullptr);
-
+  theStaticAnalysis = 0;
   theTransientAnalysis = 0;
   G3_setTransientAnalysis(rt, nullptr);
   theVariableTimeStepTransientAnalysis = 0;
@@ -2590,6 +2590,8 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain* the_domain = G3_getDomain(rt);
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeCoord nodeTag? <dim?>\n";
@@ -2616,14 +2618,15 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
              strcmp(argv[2], "3") == 0)
       dim = 2;
     else {
-      opserr << "WARNING nodeCoord nodeTag? dim? - could not read dim? \n";
+      opserr << G3_WARN_PROMPT << "nodeCoord nodeTag? dim? - could not read dim? \n";
       return TCL_ERROR;
     }
   }
 
-  Node *theNode = theDomain.getNode(tag);
+  Node *theNode = the_domain->getNode(tag);
 
-  if (theNode == 0) {
+  if (theNode == nullptr) {
+    opserr << G3_WARN_PROMPT << "Unable to retrieve node with tag '" << tag << "'\n";
     return TCL_ERROR;
   }
 
