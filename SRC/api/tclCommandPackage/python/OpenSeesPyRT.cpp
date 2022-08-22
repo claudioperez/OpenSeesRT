@@ -35,17 +35,8 @@ namespace py = pybind11;
 #include <PathSeries.h>
 #include <LinearSeries.h>
 #include <GroundMotion.h>
+
 #define ARRAY_FLAGS py::array::c_style|py::array::forcecast
-/*
-GroundMotion*
-quake2sees_motion(
-    pybind11::array_t<double,pybind11::array::c_style|pybind11::array::forcecast>, 
-    double time_step,
-    double time_start = 0.0,
-    double cfactor = 1.0,
-    int tag = 0
-);
-*/
 
 
 
@@ -72,13 +63,13 @@ public:
   {
 
   }
-  PyUniaxialMaterial(const UniaxialMaterial& m) : 
+  PyUniaxialMaterial(const UniaxialMaterial& m) :
     m_object(py::cast(this)),
     UniaxialMaterial(m.getTag(), 11) 
   {
 
   }
-  PyUniaxialMaterial(const py::object &obj, int tag) : 
+  PyUniaxialMaterial(const py::object &obj, int tag) :
     m_object(obj), 
     UniaxialMaterial(tag,10)
   { 
@@ -130,13 +121,9 @@ public:
   }
   UniaxialMaterial *getCopy (void) override {
     py::gil_scoped_acquire acquire;
+
     auto self = py::cast(this);
-    // py::print(py::str(self.attr("__dict__")));
     auto cloned = self.attr("getCopy")();
-    // py::print(py::str(m_object.attr("__dict__")));
-    // py::print(m_object);
-    // py::print("cloned: ", cloned);
-    // return nullptr;
     // auto cloned = m_object.attr("getCopy")();
 
     auto keep_python_state_alive = std::make_shared<py::object>(cloned);
@@ -145,16 +132,10 @@ public:
 
     py::gil_scoped_release release;
     return ptr;
-    // aliasing shared_ptr: points to `A_trampoline* ptr` but refcounts the Python object
     // return std::shared_ptr<UniaxialMaterial>(keep_python_state_alive, ptr);
-    // return this;
     // PYBIND11_OVERRIDE_PURE(UniaxialMaterial*, UniaxialMaterial, getCopy);
     // return this->clone();
   }
-
-  // std::shared_ptr<UniaxialMaterial> clone() const {
-  // UniaxialMaterial* clone() {
-  // }
     
   int setTrialStrain(double strain, double strainRate=0) override {
       PYBIND11_OVERRIDE_PURE(
@@ -165,6 +146,7 @@ public:
           strainRate
       );
   }
+
 private:
   const py::object &m_object;
 };
@@ -184,6 +166,7 @@ public:
         );
     }
 };
+
 
 py::array_t<double>
 copy_vector(Vector vector)
@@ -303,14 +286,6 @@ init_obj_module(py::module &m)
       ) -> Vector {
         bool verbose = true;
         py::buffer_info info = array.request();
-        if (verbose){
-          py::print("ptr\t",info.ptr);
-          py::print("itemsize\t", info.itemsize);
-          py::print("format\t", info.format);
-          py::print("ndim\t", info.ndim);
-          py::print("shape\t", py::cast(info.shape));
-          py::print("strides\t", py::cast(info.strides));
-        }
         if (info.shape[0] != assert_size)
           throw std::runtime_error("Incompatible buffer dimension.");
         return Vector(static_cast<double*>(info.ptr), static_cast<int>(info.shape[0]));
@@ -383,12 +358,10 @@ init_obj_module(py::module &m)
     .def ("revertToLastCommit",    &SectionForceDeformation::revertToLastCommit)
   ;
 
-  // py::class_<UniaxialMaterial, PyUniaxialMaterial, std::unique_ptr<UniaxialMaterial, py::nodelete>>(m, "_UniaxialMaterial", py::multiple_inheritance())
   py::class_<UniaxialMaterial, PyUniaxialMaterial, std::shared_ptr<UniaxialMaterial>>(m, "_UniaxialMaterial", py::multiple_inheritance())
     .def (py::init<py::object &, int>())
     .def (py::init<const UniaxialMaterial &>())
     .def (py::init_alias<const UniaxialMaterial &>())
-    // .def ("getCopy", [](PyUniaxialMaterial &m) { return m.getCopy();})
     .def ("setTrialStrain",        [](UniaxialMaterial &material, double strain) {
         return material.setTrialStrain(strain);
       }
@@ -411,18 +384,12 @@ init_obj_module(py::module &m)
     .def("getStress", &HystereticBackbone::getStress);
   ;
 
-  // py::class_<UniaxialMaterial, PyUniaxialMaterial>(m, "UniaxialMaterial")
-  //   .def("getStress", &UniaxialMaterial::getStress);
-  // ;
-
   py::class_<ManderBackbone, HystereticBackbone>(m, "PopovicsBackbone")
     .def(py::init<int, double, double, double>(),
          py::arg("tag"), py::arg("f"), py::arg("e"), py::arg("E")
     )
     .def("getStress", &ManderBackbone::getStress)
   ;
-
-
 
 
     py::class_<TimeSeries, std::unique_ptr<TimeSeries, py::nodelete> >(m, "TimeSeries");
