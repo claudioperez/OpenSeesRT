@@ -1,6 +1,6 @@
-
 #include <g3_api.h>
 #include <G3Parse.h>
+#include <G3_Logging.h>
 // #include <G3_Runtime.h>
 // #include <SRC/analysis/integrator/Newmark.h>
 #include <Newmark.h>
@@ -8,11 +8,14 @@
 TransientIntegrator*
 G3Parse_newNewmarkIntegrator(G3_Runtime*rt, int argc, G3_Char** argv)
 {
+  for (int i=0; i<argc; i++) opserr << argv[i] << ",";
+  opserr << "\n";
+
   // Pointer to a uniaxial material that will be returned
   TransientIntegrator *theIntegrator = nullptr;
 
   if (argc != 2 && argc != 4) {
-    opserr << "WARNING - incorrect number of args want Newmark $gamma $beta "
+    opserr << G3_WARN_PROMPT << "incorrect number of args want Newmark $gamma $beta "
               "<-form $typeUnknown>\n";
     opserr << "        got ";
     for (int i=0; i<argc; i++) opserr << argv[i] << ",";
@@ -20,14 +23,17 @@ G3Parse_newNewmarkIntegrator(G3_Runtime*rt, int argc, G3_Char** argv)
     return 0;
   }
 
-  int argi = 1;
+  int argi = 2;
   int dispFlag = 1;
   double dData[2];
   int numData = 2;
   for (; argi < 3; argi++)
-    if (G3Parse_getDouble(rt, argv[argi], &dData[argi-1]) != TCL_OK) {
-      opserr << "WARNING - invalid args want Newmark $gamma $beta <-form "
+    if (G3Parse_getDouble(rt, argv[argi], &dData[argi-2]) != TCL_OK) {
+      opserr << G3_WARN_PROMPT << "invalid args want Newmark $gamma $beta <-form "
                 "$typeUnknown>\n";
+      opserr << "        got ";
+      for (int i=0; i<argc; i++) opserr << argv[i] << ",";
+      opserr << "\n";
       return nullptr;
     }
 
