@@ -130,8 +130,10 @@ target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 
 target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)
 target_compile_options(OPS_ElementFortran             PRIVATE -fPIC)
+target_compile_options(OPS_Element                    PRIVATE -fPIC)
 target_compile_options(OPS_Material_Uniaxial_Drain_f  PRIVATE -fPIC)
-target_compile_options(OpenSeesRT                     PUBLIC  -fPIC)
+set_property(TARGET G3         PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 
 if (${TCL_INCLUDE_PATH})
