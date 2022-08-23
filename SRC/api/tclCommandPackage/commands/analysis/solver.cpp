@@ -1,4 +1,5 @@
 #include <g3_api.h>
+#include <G3_Logging.h>
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
 #include <OPS_Globals.h>
@@ -69,7 +70,7 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
                G3_Char **argv) {
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << "WARNING need to specify a system type \n";
+    opserr << G3_WARN_PROMPT << " need to specify a system type \n";
     return TCL_ERROR;
   }
 

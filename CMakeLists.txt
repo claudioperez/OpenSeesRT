@@ -3,32 +3,13 @@
 #        OpenSees -- Open System For Earthquake Engineering Simulation
 #                Pacific Earthquake Engineering Research Center
 #
-#     (c) Copyright 1999-2021 The Regents of the University of California
-#                             All Rights Reserved
-# (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
-#
-#------------------------------------------------------------------------------
-#
-# Major sections:
-# - General Setup
-#   Project wide includes, properties, libraries, etc
-#
-# - Target definitions
-#   Declarations/definitions of component libraries
-#
-# - Target Configuration
-#   Specify target-specific compiler options, linking, etc
-#
-# - Option Application
-#
 #==============================================================================
 cmake_minimum_required(VERSION 3.16)
 project(OpenSees C CXX Fortran)
 
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(OPS_EXTERN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
-set(OPS_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
-
+set(OPS_EXTERNALS_DIR     "${PROJECT_SOURCE_DIR}/OTHER/")
 set(OPS_BUNDLED_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
 set(OPS_SRC_DIR "${PROJECT_SOURCE_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
@@ -67,15 +48,15 @@ if (UNIX)
   else ()
     include(OpenSeesDependenciesUnix)
   endif ()
+  add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fPIC")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
 
   if(APPLE)
    message(STATUS ">>> MacOS")
-   add_compile_definitions(_LINUX _UNIX _TCL85)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
   else()
      message(STATUS ">>> LINUX")
-     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
   endif()
 endif()
 
@@ -109,6 +90,7 @@ message("OPS >>> AMD:     ${AMD_LIBRARIES}")
 #----------------------------------------------------------------
 # Compilers
 #---------------------------------------------------------------- 
+add_compile_options(-fPIC)
 
 # Fortran
 #--------------------------------------
@@ -121,12 +103,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 add_compile_options(-ggdb)
-
-# Warnings
-opensees_add_cxx_flag(
-    GNU  -Wall
-    MSVC /W0
-)
 
 # Floating-point
 opensees_add_cxx_flag(
@@ -251,7 +227,6 @@ add_library(OPS_Material           OBJECT)
 add_library(OPS_MaterialFortran    OBJECT)
 add_library(OPS_Damage             OBJECT)
 add_library(OPS_Database           OBJECT)
-#add_library(OPS_Interp_Tcl         STATIC)
 
 # Optional Extensions
 #add_library(OPS_DRM                OBJECT EXCLUDE_FROM_ALL)
@@ -275,28 +250,16 @@ add_library(G3)
 add_library(G3_API           EXCLUDE_FROM_ALL) 
 add_library(OpenSees         EXCLUDE_FROM_ALL)
 
-# Executables and final targets
-#------------------------------------------------------------------------------
-# Adding EXCLUDE_FROM_ALL prevents these from being made by default.
-add_executable(OpenSeesTcl   EXCLUDE_FROM_ALL 
+add_executable(OpenSeesSP    EXCLUDE_FROM_ALL
   ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
   ${OPS_SRC_DIR}/tcl/tclMain.cpp
 )
 
-add_executable(OpenSeesSP    EXCLUDE_FROM_ALL 
+add_executable(OpenSeesMP    EXCLUDE_FROM_ALL
   ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
   ${OPS_SRC_DIR}/tcl/tclMain.cpp
 )
 
-add_executable(OpenSeesMP    EXCLUDE_FROM_ALL 
-  ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-  ${OPS_SRC_DIR}/tcl/tclMain.cpp
-)
-
-add_library(OpenSeesPy    SHARED EXCLUDE_FROM_ALL)
-
-# Set selected executable to be built by default
-set_target_properties(${OPS_FINAL_TARGET} PROPERTIES EXCLUDE_FROM_ALL OFF)
 
 # Add sources to targets
 add_subdirectory(${OPS_SRC_DIR})
@@ -371,42 +334,8 @@ target_link_libraries(OpenSees
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   target_include_directories(OpenSees PUBLIC ${TCL_INCLUDE_PATH})
-  #target_include_directories(OPS_Interp_Tcl PUBLIC ${TCL_INCLUDE_PATH})
-  #target_link_libraries(OPS_Interp_Tcl PRIVATE ${TCL_LIBRARIES})
 endif()
 
-#target_compile_definitions(OPS_Interp_Tcl PUBLIC _TCL85)
-
-#opensees_add_cxx_flag(TARGETS OPS_Interp_Tcl
-#  GNU -fpermissive -fvisibility=hidden
-#)
-
-#----------------------------
-# OpenSeesTcl
-#----------------------------
-#target_link_libraries(OpenSeesTcl
-#	OPS_Interp_Tcl #${OPS_Element_List}
-#   OpenSees ${CMAKE_DL_LIBS}
-#)
-
-#----------------------------
-# OpenSeesPy
-#----------------------------
-add_compile_options(-fPIC)
-set_property(TARGET OpenSeesPy PROPERTY POSITION_INDEPENDENT_CODE 1)
-target_include_directories(OpenSeesPy PRIVATE ${Python_INCLUDE_DIRS})
-
-target_link_libraries(OpenSeesPy
-  OPS_InterpreterModule_Python OPS_Thermal 
-  #-Wl,--whole-archive 
-  OpenSees 
-  #-Wl,--no-whole-archive 
-  ${CMAKE_DL_LIBS}
-)
-
-opensees_add_cxx_flag(TARGETS OpenSeesPy
-    GNU  -fPIC
-)
 
 
 #----------------------------
@@ -424,6 +353,7 @@ target_link_libraries(OpenSeesMP OpenSees)
 target_compile_definitions(OpenSeesSP 
     PUBLIC _PARALLEL_INTERPRETERS
 )
+
 target_link_libraries(OpenSeesSP OpenSees)
 
 #==============================================================================
@@ -458,40 +388,8 @@ foreach(extension IN LISTS OPS_Exclude_List)
     add_compile_definitions(${ext_flag})
 endforeach()
 
-# PFEM
-#----------------------------
-if (OPS_Use_PFEM)
-  #add_subdirectory("${OPS_EXTERNALS_DIR}/Tetgen")
-  message("Using PFEM extensions")
-  target_link_libraries(${OPS_FINAL_TARGET}
-    # OPS_Element_PFEMElement
-    OPS_PFEM  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
-  )
-  else()
-    add_compile_definitions(OPS_EXCLUDE_PFEMELEMENT)
-endif()
-
-# Renderer
-#----------------------------
-if (${OPS_Use_Graphics_Option} STREQUAL "Base")
-  target_link_libraries(${OPS_FINAL_TARGET} OPS_Graphics_Default OPS_Graphics)
-
-elseif (${OPS_Use_Graphics_Option} STREQUAL "OpenGL")
-  message("OPS >>> Including OpenGL graphics option")
-  set_source_files_properties(
-    "${OPS_SRC_DIR}/recorder/AlgorithmIncrements.cpp"
-    "${OPS_SRC_DIR}/recorder/FilePlotter.cpp"
-    "${OPS_SRC_DIR}/renderer/main.cpp"
-    "${OPS_SRC_DIR}/renderer/OpenGlDevice.cpp"
-    "${OPS_SRC_DIR}/renderer/OpenGlRenderer.cpp"
-    "${OPS_SRC_DIR}/tcl/TclFeViewer.cpp"
-    "${OPS_SRC_DIR}/tcl/TclVideoPlayer.cpp"
-    PROPERTIES COMPILE_DEFINITIONS _AGL
-  )
-  target_link_libraries(${OPS_FINAL_TARGET} OPS_Graphics_GL OPS_Graphics)
-else()
-  add_compile_definitions(_NOGRAPHICS)
-endif()
+add_compile_definitions(OPS_EXCLUDE_PFEMELEMENT)
+add_compile_definitions(_NOGRAPHICS)
 
 
 # Reliability
@@ -517,24 +415,7 @@ if(OPS_Use_HDF5)
     endif()
 endif()
 
-
-#----------------------------
-# DRM
-#----------------------------
-#if (OPS_Use_DRM)
-#    message("OPS >>> Including OPS_DRM option")
-#    target_sources(OPS_Interp_Tcl 
-#      PRIVATE
-#	      ${OPS_SRC_DIR}/domain/pattern/drm/TclPatternCommand.cpp
-#    )
-#    target_link_libraries(${OPS_FINAL_TARGET} OPS_DRM)
-#endif()
-
-
 if (OPS_Use_Dev_Directories)
   add_subdirectory("${PROJECT_SOURCE_DIR}/DEVELOPER/")
 endif()
-
-# Include test suite
-#add_subdirectory(EXAMPLES/)
 

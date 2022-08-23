@@ -184,7 +184,6 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
   }
 
   else if (strcmp(argv[1], "Newmark") == 0) {
-    // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt);
     theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(rt, argc, argv);
   }
 

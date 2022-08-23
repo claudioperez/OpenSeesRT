@@ -41,24 +41,24 @@
 
 #opensees_load(TCL                                            FIND)
 #set(TCL_LIBRARIES ${TCL_LIBRARY})
-set(TCL_LIBRARIES /home/claudio/miniconda3/envs/elle/lib/libtclstub8.6.a)
-set(TCL_INCLUDE_PATH /home/claudio/miniconda3/envs/elle/include/)
-set(TCL_STUB_LIBRARY ${TCL_LIBRARIES})
+#set(TCL_LIBRARIES /home/claudio/miniconda3/envs/elle/lib/libtclstub8.6.a)
+#set(TCL_INCLUDE_PATH /home/claudio/miniconda3/envs/elle/include/)
+#set(TCL_STUB_LIBRARY ${TCL_LIBRARIES})
 
 # set(OPS_BUNDLED_DIR "/home/claudio/opensees/G3_NumericLibs/")
 # 
 # opensees_load(TCL                                            FIND)
 # set(TCL_LIBRARIES ${TCL_LIBRARY})
 
-opensees_load(BLAS                                           #FIND)
+opensees_load(BLAS                                           FIND)
   #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
-  LIBRARY /usr/lib/libblas.so.3
-)
+  #LIBRARY /usr/lib/libblas.so.3
+  #)
 
-opensees_load(LAPACK                                         #FIND)
-  #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
-  LIBRARY /usr/lib/liblapack.so.3
-)
+opensees_load(LAPACK                                         FIND)
+  # LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
+  # LIBRARY /usr/lib/liblapack.so.3
+  #)
 
 opensees_load(SUPERLU
   #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
@@ -91,7 +91,7 @@ opensees_load(HDF5                                           FIND)
 
 opensees_load(MySQL                                          FIND)
 
-find_package(Python COMPONENTS Development)
+#find_package(Python COMPONENTS Development)
 
 # Integrated exteral libraries
 opensees_load(FEDEAS_Uniaxial

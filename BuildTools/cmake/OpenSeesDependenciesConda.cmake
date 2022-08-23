@@ -64,7 +64,7 @@ opensees_load(BLAS                                         FIND
 # )
 
 opensees_load(LAPACK                                       FIND
-  LIBRARY ${CONDA_PREFIX}/lib/liblapack.so
+  #LIBRARY ${CONDA_PREFIX}/lib/liblapack.so
   #LIBRARY ${CONDA_ENV}/Library/lib/lapack.lib
 )
 

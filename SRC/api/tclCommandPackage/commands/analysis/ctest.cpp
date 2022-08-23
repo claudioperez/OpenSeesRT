@@ -26,8 +26,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
 int
-specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
@@ -36,17 +35,19 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   G3_Runtime *rt = G3_getRuntime(interp);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+  DirectIntegrationAnalysis* dia = G3_getTransientAnalysis(rt);
 
   ConvergenceTest* theNewTest = RT_newConvergenceTest(rt, argc, argv);
+
   if (theNewTest != 0) {
     theTest = theNewTest;
 
     // if the analysis exists - we want to change the Test
-    if (the_static_analysis != 0)
+    if (the_static_analysis != nullptr)
       the_static_analysis->setConvergenceTest(*theTest);
 
-    else if (theTransientAnalysis != 0)
-      theTransientAnalysis->setConvergenceTest(*theTest);
+    else if (dia != nullptr)
+      dia->setConvergenceTest(*theTest);
 
 #ifdef _PARALLEL_PROCESSING
     if (the_static_analysis != 0 || theTransientAnalysis != 0) {

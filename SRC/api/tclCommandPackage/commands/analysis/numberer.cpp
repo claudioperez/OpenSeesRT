@@ -1,4 +1,3 @@
-
 // numberers
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
@@ -11,6 +10,9 @@
 #if defined(_PARALLEL_PROCESSING) || defined(_PARALLEL_INTERPRETERS)
 #  include <ParallelNumberer.h>
 #endif
+
+#include <G3_Logging.h>
+
 
 //
 // command invoked to allow the Numberer objects to be built
@@ -36,7 +38,8 @@ G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char **argv)
     RCM *theRCM = new RCM(false);
     theNumberer = new ParallelNumberer(*theRCM);
   } else {
-    opserr << "WARNING No Numberer type exists (Plain, RCM only) \n";
+    opserr << G3_WARN_PROMPT << " No Numberer type exists ('Plain', 'RCM' only) \n";
+    opserr << "\tgot '" << argv[1] << "\n";
     return nullptr;
   }
 #else
@@ -70,7 +73,8 @@ G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char **argv)
 #  endif
 
   else {
-    opserr << "WARNING No Numberer type exists (Plain, RCM only) \n";
+    opserr << G3_WARN_PROMPT << " No Numberer type exists ('Plain', 'RCM' only) \n";
+    opserr << "\tgot '" << argv[1] << "\n";
     return nullptr;
   }
 #endif

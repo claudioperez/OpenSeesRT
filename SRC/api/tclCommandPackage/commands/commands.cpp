@@ -231,11 +231,6 @@ extern "C" {
 #include <ErrorHandler.h>
 #include <ConsoleErrorHandler.h>
 
-#ifdef _NOGRAPHICS
-// Do nothing
-#else
-#  include <TclVideoPlayer.h>
-#endif
 
 #include <FE_Datastore.h>
 
@@ -386,17 +381,6 @@ char *simulationInfoOutputFilename = 0;
 
 FE_Datastore *theDatabase = 0;
 TclPackageClassBroker theBroker;
-
-
-#ifdef _NOGRAPHICS
-
-#else
-   TclVideoPlayer *theTclVideoPlayer = 0;
-#endif
-
-// g3AppInit() is the method called by tkAppInit() when the
-// interpreter is being set up .. this is where all the
-// commands defined in this file are registered with the interpreter.
 
 int printModelGID(ClientData, Tcl_Interp *, int, TCL_Char **);
 int printA(ClientData, Tcl_Interp *, int, TCL_Char **);
@@ -679,17 +663,16 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "system", &specifySysOfEqnTable, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
 
-  // Tcl_CreateCommand(interp, "numberer", &specifyNumberer, (ClientData)NULL,
-  //                   (Tcl_CmdDeleteProc *)NULL);
-
   Tcl_CreateCommand(interp, "numberer", [](ClientData, Tcl_Interp *i, int ac, G3_Char** av)->int{
         return (theNumberer = G3Parse_newNumberer(G3_getRuntime(i), ac, av))? TCL_OK : TCL_ERROR;
   }, nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "constraints", &specifyConstraintHandler, nullptr, nullptr);
+
   Tcl_CreateCommand(interp, "algorithm", &specifyAlgorithm, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "test", &specifyCTest, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+
+  Tcl_CreateCommand(interp, "test", &specifyCTest, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+
   Tcl_CreateCommand(interp, "testNorms", &getCTestNorms, (ClientData)NULL,
                     (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "testIter", &getCTestIter, nullptr, nullptr);
@@ -1168,7 +1151,6 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
   Recorder *theRecorder = domain->getRecorder(tag);
   double res = theRecorder->getRecordedValue(dof, rowOffset, reset);
   // now we copy the value to the tcl string that is returned
-  // sprintf(interp->result, "%35.8f ", res);
   char buffer[40];
   sprintf(buffer, "%35.8f", res);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -1369,9 +1351,6 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   char buffer[10];
   sprintf(buffer, "%d", result);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  //  sprintf(interp->result,"%d",result);
-
   return TCL_OK;
 }
 
@@ -1747,20 +1726,6 @@ videoPlayer(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-#ifdef _NOGRAPHICS
-
-#else
-  if (wTitle != 0 && fName != 0) {
-    // delete the old video player if one exists
-    if (theTclVideoPlayer != 0)
-      delete theTclVideoPlayer;
-
-    // create a new player
-    theTclVideoPlayer =
-        new TclVideoPlayer(wTitle, fName, imageName, interp, offsetName);
-  } else
-    return TCL_ERROR;
-#endif
   return TCL_OK;
 }
 
@@ -2097,7 +2062,6 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //  sprintf(interp->result,"%35.20f ",value);
   } else {
     char buffer[40];
     for (int i = 0; i < size; i++) {
@@ -2159,7 +2123,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //      sprintf(interp->result,"%35.20f ",value);
+
   } else {
     char buffer[40];
     for (int i = 0; i < size; i++) {
@@ -2218,8 +2182,6 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
     double value = (*nodalResponse)(dof);
 
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f ",value);
-
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -2290,7 +2252,6 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
 
     double value = theEigenvectors(dof, eigenvector);
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f ",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -2360,7 +2321,6 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       double value = (*force)(dof);
 
       // now we copy the value to the tcl string that is returned
-      //	sprintf(interp->result,"%35.20f",value);
 
       char buffer[40];
       sprintf(buffer, "%35.20f", value);
@@ -2424,8 +2384,6 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       double value = (*force)(dof);
 
       // now we copy the value to the tcl string that is returned
-      //	sprintf(interp->result,"%35.20f",value);
-
       char buffer[40];
       sprintf(buffer, "%35.20f", value);
       Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -2483,7 +2441,6 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
     double value = force(dof);
 
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -2642,7 +2599,6 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     return TCL_OK;
   } else if (dim < size) {
     double value = coords(dim); // -1 for OpenSees vs C indexing
-    //    sprintf(interp->result,"%35.20f",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -3336,7 +3292,6 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     double value = (*nodalResponse)(dof);
 
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
