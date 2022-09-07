@@ -1,4 +1,4 @@
-#include <G3Parse.h>
+#include <InputAPI.h>
 
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
@@ -14,9 +14,6 @@
 #include <CTestFixedNumIter.h>
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
-#ifdef OPS_USE_PFEM
-#  include <CTestPFEM.h>
-#endif
 
 extern ConvergenceTest *theTest;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
@@ -64,7 +61,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
 ConvergenceTest*
 RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
 {
-  Domain *domain = G3_getDomain(rt);
+  // Domain *domain = G3_getDomain(rt);
 
   // get the tolerence first
   double tol = 0.0;
@@ -124,37 +121,6 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
         return nullptr;
     }
 
-#ifdef OPS_USE_PFEM
-  } else if (strcmp(argv[1], "PFEM") == 0) {
-    if (argc > 8) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
-        return nullptr;
-      if (G3Parse_getDouble(rt, argv[3], &tolp) != TCL_OK)
-        return nullptr;
-      if (G3Parse_getDouble(rt, argv[4], &tol2) != TCL_OK)
-        return nullptr;
-      if (G3Parse_getDouble(rt, argv[5], &tolp2) != TCL_OK)
-        return nullptr;
-      if (G3Parse_getDouble(rt, argv[6], &tolrel) != TCL_OK)
-        return nullptr;
-      if (G3Parse_getDouble(rt, argv[7], &tolprel) != TCL_OK)
-        return nullptr;
-      if (G3Parse_getInt(rt, argv[8], &numIter) != TCL_OK)
-        return nullptr;
-    }
-    if (argc > 9) {
-      if (G3Parse_getInt(rt, argv[9], &maxIncr) != TCL_OK)
-        return nullptr;
-    }
-    if (argc > 10) {
-      if (G3Parse_getInt(rt, argv[10], &printIt) != TCL_OK)
-        return nullptr;
-    }
-    if (argc > 11) {
-      if (G3Parse_getInt(rt, argv[11], &normType) != TCL_OK)
-        return nullptr;
-    }
-#endif
   } else if (strcmp(argv[1], "FixedNumIter") == 0) {
 
     if (argc == 3) {
@@ -258,11 +224,6 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
     else if (strcmp(argv[1], "RelativeTotalNormDispIncr") == 0)
       theNewTest =
           new CTestRelativeTotalNormDispIncr(tol, numIter, printIt, normType);
-#ifdef OPS_USE_PFEM
-    else if (strcmp(argv[1], "PFEM") == 0)
-      theNewTest = new CTestPFEM(tol, tolp, tol2, tolp2, tolrel, tolprel,
-                                 numIter, maxIncr, printIt, normType);
-#endif
     else {
       opserr << "WARNING No ConvergenceTest type (NormUnbalance, NormDispIncr, "
                 "EnergyIncr, \n";
@@ -272,7 +233,6 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
       return nullptr;
     }
   }
-
   return theNewTest;
 }
 

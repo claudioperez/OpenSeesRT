@@ -1,5 +1,10 @@
 #ifndef G3PARSE_H
+#define G3PARSE_H
+#ifndef G3_RUNTIME_H
 #include <G3_Runtime.h>
+#define G3_RUNTIME_H
+#endif
+
 #include <tcl.h>
 
 #define G3_Char TCL_Char

@@ -59,7 +59,6 @@ LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
 ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
-
 void *
 G3_Runtime::newStaticAnalysis(G3_Config conf)
 {

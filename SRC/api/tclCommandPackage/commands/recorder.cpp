@@ -51,9 +51,6 @@
 #include <NormElementRecorder.h>
 #include <NormEnvelopeElementRecorder.h>
 
-#ifdef OPS_USE_PFEM
-#include <PVDRecorder.h>
-#endif
 
 // #include <MPCORecorder.h>
 
@@ -2079,9 +2076,11 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
-               Domain &theDomain)
+TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain& theDomain = *G3_getDomain(rt);
+
   Recorder *theRecorder = 0;
 
   TclCreateRecorder(clientData, interp, argc, argv, theDomain, &theRecorder);

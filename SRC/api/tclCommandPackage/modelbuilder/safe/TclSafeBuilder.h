@@ -85,7 +85,7 @@ public:  int  addUniaxialMaterial(UniaxialMaterial &theMaterial);
          UniaxialMaterial *getUniaxialMaterial(int tag);
          UniaxialMaterial *getUniaxialMaterial(const std::string &);
 
-// Multi-dimensional materials
+// Backbone materials
 private: map_t<HystereticBackbone*> m_HystereticBackboneMap;
 public:  int addHystereticBackbone(HystereticBackbone &theMaterial);
          int addHystereticBackbone(const std::string&, HystereticBackbone &);
@@ -142,12 +142,12 @@ private:
   int ndf; // number of degrees of freedom per node
 
 // TODO: change to std::map<>
-  TaggedObjectStorage *theNDMaterials;
-  TaggedObjectStorage *theSectionRepresents;
-  TaggedObjectStorage *theYieldSurface_BCs;
-  TaggedObjectStorage *thePlasticMaterials;
-  TaggedObjectStorage *theYS_EvolutionModels;
-  TaggedObjectStorage *theCycModels; //!!
+  // TaggedObjectStorage *theNDMaterials;
+  // TaggedObjectStorage *theSectionRepresents;
+  // TaggedObjectStorage *theYieldSurface_BCs;
+  // TaggedObjectStorage *thePlasticMaterials;
+  // TaggedObjectStorage *theYS_EvolutionModels;
+  // TaggedObjectStorage *theCycModels; //!!
 
   G3_Runtime *m_runtime = nullptr;
   Domain *theTclDomain = 0;

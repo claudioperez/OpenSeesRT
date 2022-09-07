@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+
 typedef std::unordered_map<std::string, std::vector<std::string>> G3_Config;
 
 class Domain;
@@ -52,7 +53,6 @@ public:
   void *newStaticAnalysis(G3_Config);
   void *newTransientAnalysis(G3_Config);
 
-
 // IO
   FILE* streams[3] = {stdin,stdout,stderr};
 };
@@ -65,3 +65,5 @@ class G3_ParallelRuntime : public G3_Runtime {
   int num_subdomains = 0;
   bool flag_MPID_SOE = false;
 };
+
+

@@ -13,6 +13,7 @@ namespace py = pybind11;
 #include <Element.h>
 #include <SectionForceDeformation.h>
 #include <UniaxialMaterial.h>
+#include <NDMaterial.h>
 #include <HystereticBackbone.h>
 
 #include <ManderBackbone.h>
@@ -447,6 +448,12 @@ init_obj_module(py::module &m)
     )
     .def ("getSection", [](TclSafeBuilder& builder, py::str id){
         return builder.getSection(id);
+    })
+    .def ("getNDMaterial", [](TclSafeBuilder& builder, py::str tag){
+        return builder.getNDMaterial(tag);
+    })
+    .def ("getNDMaterial", [](TclSafeBuilder& builder, int tag){
+        return builder.getNDMaterial(tag);
     })
     .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str tag){
         return builder.getUniaxialMaterial(tag);

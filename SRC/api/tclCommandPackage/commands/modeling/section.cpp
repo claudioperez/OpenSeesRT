@@ -7,7 +7,7 @@
 //
 // What: "@(#) TclBasicBuilderMaterialCommands.C, revA"
 
-#include <G3Parse.h>
+#include <InputAPI.h>
 #include <TclBasicBuilder.h>
 
 #include <g3_api.h>

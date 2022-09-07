@@ -1,5 +1,3 @@
-
-// numberers
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
 // graph

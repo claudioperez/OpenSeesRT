@@ -2,15 +2,10 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-// Written: fmk
-// Created: 07/99
-// Revision: A
-//
 // Description: This file contains the implementation of the TclElementCommands.
 // The file contains the routine TclElementCommands which is invoked by the
 // TclBasicBuilder.
 //
-// What: "@(#) TclBasicBuilder.C, revA"
 
 #include <Element.h>
 #include <stdlib.h>
@@ -30,6 +25,7 @@
 #include <YamamotoBiaxialHDR.h>
 #include <WheelRail.h>
 
+/*
 extern
 #ifdef _WIN32
     int __cdecl
@@ -38,6 +34,7 @@ extern
 #endif
     httpGET_File(char const *URL, char const *page, unsigned int port,
                  const char *filename);
+*/
 
 //
 // SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
@@ -124,19 +121,13 @@ extern void *OPS_MVLEM_3D(G3_Runtime*);     // Kristijan Kolozvari
 extern void *OPS_SFI_MVLEM_3D(G3_Runtime*); // Kristijan Kolozvari
 extern void *OPS_AxEqDispBeamColumn2d(G3_Runtime*);
 extern void *OPS_ElastomericBearingBoucWenMod3d(G3_Runtime*);
-#ifdef OPS_USE_PFEM
-extern void *OPS_PFEMElement2DBubble(const ID &info);
-extern void *OPS_PFEMElement2Dmini(const ID &info);
-extern void *OPS_PFEMElement2D(G3_Runtime*);
-#endif
-extern void *
-OPS_InertiaTrussElement(G3_Runtime*); // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
+extern void *OPS_InertiaTrussElement(G3_Runtime*); // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
 
 #if defined(_HAVE_LHNMYS) || defined(OPSDEF_ELEMENT_LHNMYS)
-extern void *OPS_BeamColumn2DwLHNMYS(G3_Runtime*);
-extern void *OPS_Beam2dDamage(G3_Runtime*);
-extern void *OPS_BeamColumn2DwLHNMYS_Damage(G3_Runtime*);
-extern void *OPS_BeamColumn3DwLHNMYS(G3_Runtime*);
+  extern void *OPS_BeamColumn2DwLHNMYS(G3_Runtime*);
+  extern void *OPS_Beam2dDamage(G3_Runtime*);
+  extern void *OPS_BeamColumn2DwLHNMYS_Damage(G3_Runtime*);
+  extern void *OPS_BeamColumn3DwLHNMYS(G3_Runtime*);
 #endif
 extern void *OPS_ShellMITC4Thermal(G3_Runtime*);  // Added by L.Jiang [SIF]
 extern void *OPS_ShellNLDKGQThermal(G3_Runtime*); // Added by L.Jiang [SIF]
@@ -192,87 +183,69 @@ extern int TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char **argv, Domain *,
                                     TclBasicBuilder *, int argStart);
 
-G3_TclElementCommand TclBasicBuilder_addConstantPressureVolumeQuad;
 
 extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
                                       TCL_Char **, Domain *);
 
+G3_TclElementCommand TclBasicBuilder_addConstantPressureVolumeQuad;
 G3_TclElementCommand TclBasicBuilder_addJoint3D;
 G3_TclElementCommand TclBasicBuilder_addEnhancedQuad;
 G3_TclElementCommand TclBasicBuilder_addNineNodeMixedQuad;
 G3_TclElementCommand TclBasicBuilder_addNineNodeQuad;
 G3_TclElementCommand TclBasicBuilder_addEightNodeQuad;
 G3_TclElementCommand TclBasicBuilder_addSixNodeTri;
-
 // GLF
 G3_TclElementCommand TclBasicBuilder_addZeroLength;
-
 // add by Gang Wang for Contact Element
 G3_TclElementCommand TclBasicBuilder_addZeroLengthContact2D;
 G3_TclElementCommand TclBasicBuilder_addZeroLengthContact3D;
-
 // KRM added for rocking element
 G3_TclElementCommand TclBasicBuilder_addZeroLengthRocking;
-
 // MHS
 G3_TclElementCommand TclBasicBuilder_addZeroLengthSection;
-
 // MHS
 G3_TclElementCommand TclBasicBuilder_addZeroLengthND;
-
 // MHS
 G3_TclElementCommand TclBasicBuilder_addBeamWithHinges;
 // Quan
 G3_TclElementCommand TclBasicBuilder_addFourNodeQuadWithSensitivity;
-
 G3_TclElementCommand TclBasicBuilder_addFourNodeQuad;
 G3_TclElementCommand TclBasicBuilder_addDispBeamColumnInt;
 G3_TclElementCommand TclBasicBuilder_addForceBeamColumn;
 G3_TclElementCommand TclBasicBuilder_addMasonPan12;
 G3_TclElementCommand TclBasicBuilder_addMasonPan3D;
 G3_TclElementCommand TclBasicBuilder_addBeamGT;
-
-// NM
-extern int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int,
-                                              TCL_Char **, Domain *, int);
-
 // Rohit Kraul
 G3_TclElementCommand TclBasicBuilder_addElastic2dGNL;
 G3_TclElementCommand TclBasicBuilder_addElement2dYS;
-
 // Zhaohui Yang
 G3_TclElementCommand TclBasicBuilder_addFourNodeQuadUP;
-
 // Zhaohui Yang
 G3_TclElementCommand TclBasicBuilder_addBrickUP;
-
 // Zhaohui Yang
 G3_TclElementCommand TclBasicBuilder_addNineFourNodeQuadUP;
-
 // Zhaohui Yang
 G3_TclElementCommand TclBasicBuilder_addBBarFourNodeQuadUP;
-
 // Zhaohui Yang
 G3_TclElementCommand TclBasicBuilder_addBBarBrickUP;
-
 // Jinchi Lu
 G3_TclElementCommand TclBasicBuilder_addTwentyEightNodeBrickUP;
 // Jinchi Lu
 G3_TclElementCommand TclBasicBuilder_addTwentyNodeBrick;
-
 // Kikuchi
 G3_TclElementCommand TclBasicBuilder_addMultipleShearSpring;
 G3_TclElementCommand TclBasicBuilder_addMultipleNormalSpring;
 G3_TclElementCommand TclBasicBuilder_addKikuchiBearing;
 G3_TclElementCommand TclBasicBuilder_addYamamotoBiaxialHDR;
-
-// Added by Quan Gu and Yongdou Liu, et al. on 2018/10/31 (Xiamen University)
-extern int TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp,
-                                        int argc, TCL_Char **argv, Domain *,
-                                        TclBasicBuilder *, int argStart);
-
 // MSN
 G3_TclElementCommand TclBasicBuilder_addGradientInelasticBeamColumn;
+
+// NM
+int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int, TCL_Char **, Domain *, int);
+// Added by Quan Gu and Yongdou Liu, et al. on 2018/10/31 (Xiamen University)
+int TclBasicBuilder_addWheelRail(ClientData, Tcl_Interp *, int, TCL_Char **, Domain *, TclBasicBuilder *, int);
+
+
 
 int
 TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -1020,42 +993,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       return TCL_ERROR;
     }
   }
-#ifdef OPS_USE_PFEM
-  else if (strcmp(argv[1], "PFEMElement2DBuble") == 0) {
-    ID info;
-    void *theEle = OPS_PFEMElement2DBubble(info);
-    if (theEle != 0) {
-      theElement = (Element *)theEle;
-    } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
-      return TCL_ERROR;
-    }
-  }
-
-  else if (strcmp(argv[1], "PFEMElement2DMini") == 0) {
-    ID info;
-    void *theEle = OPS_PFEMElement2Dmini(info);
-    if (theEle != 0) {
-      theElement = (Element *)theEle;
-    } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
-      return TCL_ERROR;
-    }
-  }
-
-  else if (strcmp(argv[1], "PFEMElement2D") == 0) {
-    void *theEle = OPS_PFEMElement2D(rt);
-    if (theEle != 0) {
-      theElement = (Element *)theEle;
-    } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
-      return TCL_ERROR;
-    }
-  }
-#endif
 
   else if (strcmp(argv[1], "CatenaryCable") == 0) {
     void *theEle = OPS_CatenaryCableElement(rt);

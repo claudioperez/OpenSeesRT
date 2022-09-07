@@ -285,43 +285,6 @@ else if ((strcmp(argv[1], "CulaSparse") == 0)) {
 #endif
 
 
-#if defined(OPSDEF_PFEM)
-  else if (strcmp(argv[1], "PFEM") == 0) {
-    if (argc <= 2) {
-      PFEMSolver *theSolver = new PFEMSolver();
-      theSOE = new PFEMLinSOE(*theSolver);
-    } else if (strcmp(argv[2], "-quasi") == 0) {
-      PFEMCompressibleSolver *theSolver = new PFEMCompressibleSolver();
-      theSOE = new PFEMCompressibleLinSOE(*theSolver);
-    } else if (strcmp(argv[2], "-mumps") == 0) {
-#  ifdef _PARALLEL_INTERPRETERS
-      int relax = 20;
-      if (argc > 3) {
-        if (Tcl_GetInt(interp, argv[3], &relax) != TCL_OK) {
-          opserr << "WARNING: failed to read relax\n";
-          return nullptr;
-        }
-      }
-      PFEMSolver_Mumps *theSolver = new PFEMSolver_Mumps(relax, 0, 0, 0);
-      theSOE = new PFEMLinSOE(*theSolver);
-#  endif // _PARALLEL_INTERPRETERS
-    } else if (strcmp(argv[2], "-quasi-mumps") == 0) {
-#  ifdef _PARALLEL_INTERPRETERS
-      int relax = 20;
-      if (argc > 3) {
-        if (Tcl_GetInt(interp, argv[3], &relax) != TCL_OK) {
-          opserr << "WARNING: failed to read relax\n";
-          return nullptr;
-        }
-      }
-      PFEMCompressibleSolver_Mumps *theSolver =
-          new PFEMCompressibleSolver_Mumps(relax, 0, 0);
-      theSOE = new PFEMCompressibleLinSOE(*theSolver);
-#  endif // _PARALLEL_INTERPRETERS
-    }
-  }
-#endif // OPSDEF_PFEM
-
 
 LinearSOE*
 specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv) {

@@ -94,15 +94,12 @@ struct char_cmd {
   {"imposedMotion",        TclCommand_addImposedMotionSP},
   {"imposedSupportMotion", TclCommand_addImposedMotionSP},
 
-
   {"modalDamping",     modalDamping},
   {"modalDampingQ",    modalDampingQ},
 
   {"eleLoad",          TclCommand_addElementalLoad},
 
-/*
-  {"beamIntegration",  TclCommand_addBeamIntegration},
-*/
+//{"beamIntegration",  TclCommand_addBeamIntegration},
 
 /*
   {"mp",                   TclCommand_addMP},
@@ -116,12 +113,6 @@ struct char_cmd {
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
   {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
   {"Hfiber",               TclSafeBuilder_addRemoHFiber},
-
-#if defined(OPSDEF_Element_PFEM)
-  {"mesh",             TclCommand_mesh},
-  {"remesh",           TclCommand_remesh},
-  {"background",      &TclCommand_backgroundMesh},
-#endif // OPSDEF_Element_PFEM
 */
 
 // OTHER OBJECT TYPES

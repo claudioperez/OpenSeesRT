@@ -147,11 +147,6 @@ extern void *OPS_MVLEM_3D(G3_Runtime*);     // Kristijan Kolozvari
 extern void *OPS_SFI_MVLEM_3D(G3_Runtime*); // Kristijan Kolozvari
 extern void *OPS_AxEqDispBeamColumn2d(G3_Runtime*);
 extern void *OPS_ElastomericBearingBoucWenMod3d(G3_Runtime*);
-#ifdef OPS_USE_PFEM
-extern void *OPS_PFEMElement2DBubble(const ID &info);
-extern void *OPS_PFEMElement2Dmini(const ID &info);
-extern void *OPS_PFEMElement2D(G3_Runtime*);
-#endif
 extern void *
 OPS_InertiaTrussElement(G3_Runtime*); // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
 

@@ -29,13 +29,14 @@
 #include <SymBandEigenSolver.h>
 #include <FullGenEigenSOE.h>
 #include <FullGenEigenSolver.h>
+
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
 extern void OPS_ResponseSpectrumAnalysis(G3_Runtime*);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
-static int numEigen = 0;
+int numEigen = 0;
 
 
 // integrators
@@ -108,6 +109,12 @@ static int numEigen = 0;
 
 #include <ConjugateGradientSolver.h>
 
+enum CurrentAnalysis {
+  CURRENT_EMPTY_ANALYSIS    =0,
+  CURRENT_STATIC_ANALYSIS   =1, 
+  CURRENT_TRANSIENT_ANALYSIS=2
+} CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
+
 extern EquiSolnAlgo *theAlgorithm ;
 extern ConstraintHandler *theHandler ;
 extern DOF_Numberer *theNumberer ;
@@ -123,6 +130,7 @@ LinearSOE *G3_getDefaultLinearSoe(G3_Runtime* rt, int flags);
 
 //
 // command invoked to allow the Analysis object to be built
+//
 int
 specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
@@ -134,6 +142,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
   AnalysisModel* the_analysis_model = nullptr;
   LinearSOE *theSOE = G3_getDefaultLinearSoe(rt, 0);
+
 
   // make sure at least one other argument to contain type of system
 
@@ -227,67 +236,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 #endif
     // AddingSensitivity:END /////////////////////////////////
-#ifdef OPS_USE_PFEM
-  } else if (strcmp(argv[1], "PFEM") == 0) {
-
-    if (argc < 5) {
-      opserr << "WARNING: wrong no of args -- analysis PFEM dtmax dtmin "
-                "gravity <ratio>\n";
-      return TCL_ERROR;
-    }
-    double dtmax, dtmin, gravity, ratio = 0.5;
-    if (Tcl_GetDouble(interp, argv[2], &dtmax) != TCL_OK) {
-      opserr << "WARNING: invalid dtmax " << argv[2] << "\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &dtmin) != TCL_OK) {
-      opserr << "WARNING: invalid dtmin " << argv[3] << "\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[4], &gravity) != TCL_OK) {
-      opserr << "WARNING: invalid gravity " << argv[4] << "\n";
-      return TCL_ERROR;
-    }
-    if (argc > 5) {
-      if (Tcl_GetDouble(interp, argv[5], &ratio) != TCL_OK) {
-        opserr << "WARNING: invalid ratio " << argv[5] << "\n";
-        return TCL_ERROR;
-      }
-    }
-
-    if (the_analysis_model == 0) {
-      the_analysis_model = new AnalysisModel();
-      G3_setAnalysisModel(rt, the_analysis_model);
-    }
-    if (theTest == 0) {
-      // theTest = new CTestNormUnbalance(1e-2,10000,1,2,3);
-      theTest =
-          new CTestPFEM(1e-2, 1e-2, 1e-2, 1e-2, 1e-4, 1e-3, 10000, 100, 1, 2);
-    }
-    if (theAlgorithm == 0) {
-      theAlgorithm = new NewtonRaphson(*theTest);
-    }
-    if (theHandler == 0) {
-      theHandler = new TransformationConstraintHandler();
-    }
-    if (theNumberer == 0) {
-      RCM *theRCM = new RCM(false);
-      theNumberer = new DOF_Numberer(*theRCM);
-    }
-    if (theTransientIntegrator == 0) {
-      theTransientIntegrator = new PFEMIntegrator();
-    }
-    if (theSOE == 0) {
-      PFEMSolver *theSolver = new PFEMSolver();
-      theSOE = new PFEMLinSOE(*theSolver);
-    }
-    thePFEMAnalysis = new PFEMAnalysis(theDomain, *theHandler, *theNumberer,
-                                       *the_analysis_model, *theAlgorithm,
-                                       *theSOE, *theTransientIntegrator,
-                                       theTest, dtmax, dtmin, gravity, ratio);
-
-    theTransientAnalysis = thePFEMAnalysis;
-#endif
+    //
   } else if (strcmp(argv[1], "Transient") == 0) {
     // make sure all the components have been built,
     // otherwise print a warning and use some defaults

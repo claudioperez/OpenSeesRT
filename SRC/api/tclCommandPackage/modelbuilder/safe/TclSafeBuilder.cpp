@@ -26,7 +26,6 @@
 
 #include <CrdTransf.h>
 
-
 #include <SectionForceDeformation.h>
 #include <SectionRepres.h>
 
@@ -62,18 +61,6 @@ extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 //////// gnp adding damping ////////////////
 #include <Element.h>
 ////////////////////////////////////////////
-
-/*
-extern void TCL_OPS_setModelBuilder(TclSafeBuilder *theNewBuilder);
-extern int OPS_ResetInput(ClientData clientData,
-                          Tcl_Interp *interp,
-                          int cArg,
-                          int mArg,
-                          TCL_Char **argv,
-                          Domain *domain,
-                          TclBuilder *builder);
-#include <packages.h>
-*/
 
 
 //
