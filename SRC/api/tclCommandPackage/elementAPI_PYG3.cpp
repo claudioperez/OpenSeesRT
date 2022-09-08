@@ -4,7 +4,6 @@
 
 /*
  * Written: cmp
- *
  */
 
 #include <elementAPI.h>
@@ -28,10 +27,8 @@ extern OPS_Stream* opswrnPtr;
 #include <SectionForceDeformation.h>
 #include <CrdTransf.h>
 #include <FrictionModel.h>
-#include <WrapperUniaxialMaterial.h>
-#include <WrapperNDMaterial.h>
-#include <LimitCurve.h>
-#include <WrapperLimitCurve.h>
+// #include <WrapperUniaxialMaterial.h>
+// #include <WrapperNDMaterial.h>
 
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
@@ -54,12 +51,6 @@ typedef struct materialFunction {
   struct materialFunction *next;
 } MaterialFunction;
 
-typedef struct limitCurveFunction {
-  char *funcName;
-  limCrvFunct theFunct;
-  struct limitCurveFunction *next;
-} LimitCurveFunction;
-
 extern AnalysisModel *theAnalysisModel;
 extern EquiSolnAlgo *theAlgorithm;
 extern ConstraintHandler *theHandler;
@@ -68,29 +59,27 @@ extern LinearSOE *theSOE;
 extern EigenSOE *theEigenSOE;
 extern StaticAnalysis *theStaticAnalysis;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
-extern VariableTimeStepDirectIntegrationAnalysis
-    *theVariableTimeStepTransientAnalysis;
+extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 extern int numEigen;
 extern StaticIntegrator *theStaticIntegrator;
 extern TransientIntegrator *theTransientIntegrator;
 extern ConvergenceTest *theTest;
 extern bool builtModel;
+extern FE_Datastore *theDatabase;
 
-static ElementFunction *theElementFunctions = NULL;
+static ElementFunction  *theElementFunctions = NULL;
 static MaterialFunction *theMaterialFunctions = NULL;
-static LimitCurveFunction *theLimitCurveFunctions = NULL;
 
 static Tcl_Interp *theInterp = 0;
-static Domain *theDomain = 0;
-
+static Domain     *theDomain = 0;
 static TclBuilder *theModelBuilder = 0;
 
 static TCL_Char **currentArgv = 0;
 static int currentArg = 0;
 static int maxArg = 0;
 
+
 extern const char *getInterpPWD(Tcl_Interp *interp);
-extern FE_Datastore *theDatabase;
 
 // static int uniaxialMaterialObjectCount = 0;
 
@@ -471,6 +460,7 @@ OPS_GetElementType(char *type, int sizeType)
   return 0;
 }
 
+// 
 extern "C" matObj *
 OPS_GetMaterialType(char *type, int sizeType)
 {
@@ -519,77 +509,6 @@ OPS_GetMaterialType(char *type, int sizeType)
     //    fprintf(stderr,"getMaterial Address %p\n",theMatObject);
 
     return theMatObject;
-  }
-
-  return 0;
-}
-
-extern "C" limCrvObj *
-OPS_GetLimitCurveType(char *type, int sizeType)
-{
-
-  // try existing loaded routines
-  LimitCurveFunction *limCrvFunction = theLimitCurveFunctions;
-  bool found = false;
-  while (limCrvFunction != NULL && found == false) {
-    if (strcmp(type, limCrvFunction->funcName) == 0) {
-
-      // create a new eleObject, set the function ptr &  return it
-
-      limCrvObj *theLimCrvObject = new limCrvObj;
-      theLimCrvObject->limCrvFunctPtr = limCrvFunction->theFunct;
-      /* opserr << "limCrvObj *OPS_GetLimitCurveType() - FOUND " << endln;  */
-      return theLimCrvObject;
-    } else
-      limCrvFunction = limCrvFunction->next;
-  }
-
-  // try to load new routine from dynamic library in load path
-  limCrvFunct limCrvFunctPtr;
-  void *libHandle;
-  int res =
-      getLibraryFunction(type, type, &libHandle, (void **)&limCrvFunctPtr);
-
-  if (res == 0) {
-    // add the routine to the list of possible elements
-    char *funcName = new char[strlen(type) + 1];
-    strcpy(funcName, type);
-    limCrvFunction = new LimitCurveFunction;
-    limCrvFunction->theFunct = limCrvFunctPtr;
-    limCrvFunction->funcName = funcName;
-    limCrvFunction->next = theLimitCurveFunctions;
-    theLimitCurveFunctions = limCrvFunction;
-
-    // create a new eleObject, set the function ptr &  return it
-    limCrvObj *theLimCrvObject = new limCrvObj;
-    theLimCrvObject->limCrvFunctPtr = limCrvFunction->theFunct;
-    return theLimCrvObject;
-  }
-
-  return 0;
-}
-
-extern "C" int
-OPS_AllocateLimitCurve(limCrvObject *theLimCrv)
-{
-
-  /*fprintf(stderr,"allocateLimitCurve Address %p\n",theLimCrv);*/
-
-  if (theLimCrv->nParam > 0)
-    theLimCrv->theParam = new double[theLimCrv->nParam];
-
-  int nState = theLimCrv->nState;
-
-  if (nState > 0) {
-    theLimCrv->cState = new double[nState];
-    theLimCrv->tState = new double[nState];
-    for (int i = 0; i < nState; i++) {
-      theLimCrv->cState[i] = 0;
-      theLimCrv->tState[i] = 0;
-    }
-  } else {
-    theLimCrv->cState = 0;
-    theLimCrv->tState = 0;
   }
 
   return 0;
@@ -829,82 +748,6 @@ Tcl_addWrapperElement(eleObj *theEle, ClientData clientData, Tcl_Interp *interp,
 
 
 
-NDMaterial *
-Tcl_addWrapperNDMaterial(matObj *theMat, ClientData clientData,
-                         Tcl_Interp *interp, int argc, TCL_Char **argv,
-                         TclBasicBuilder *theModelbuilder)
-{
-  theInterp = interp;
-
-  // theModelBuilder = builder;
-  currentArgv = argv;
-  currentArg = 2;
-  maxArg = argc;
-
-  // get the current load factor
-  static modelState theModelState;
-  if (theDomain != 0) {
-    double time = theDomain->getCurrentTime();
-    double dt = theDomain->getCurrentTime() - time;
-    theModelState.time = time;
-    theModelState.dt = dt;
-  }
-
-  // invoke the mat function with isw = 0
-  int isw = ISW_INIT;
-  int result = 0;
-  theMat->matFunctPtr(theMat, &theModelState, 0, 0, 0, &isw, &result);
-  int matType = theMat->matType; // GR added to support material
-
-  if (result != 0 ||
-      (matType != OPS_PLANESTRESS_TYPE && matType != OPS_PLANESTRAIN_TYPE &&
-       matType != OPS_THREEDIMENSIONAL_TYPE)) {
-    opserr << "Tcl_addWrapperNDMaterial - failed in element function " << result
-           << endln;
-    return 0;
-  }
-
-  WrapperNDMaterial *theMaterial =
-      new WrapperNDMaterial(argv[1], theMat, theMat->matType);
-
-  return theMaterial;
-}
-
-LimitCurve *
-Tcl_addWrapperLimitCurve(limCrvObj *theLimCrv, ClientData clientData,
-                         Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  theInterp = interp;
-
-  //  theModelBuilder = builder;
-  currentArgv = argv;
-  currentArg = 2;
-  maxArg = argc;
-
-  // get the current load factor
-  static modelState theModelState;
-  if (theDomain != 0) {
-    double time = theDomain->getCurrentTime();
-    double dt = theDomain->getCurrentTime() - time;
-    theModelState.time = time;
-    theModelState.dt = dt;
-  }
-
-  // invoke the limit curve function with isw = 0
-  int isw = ISW_INIT;
-  int result;
-  theLimCrv->limCrvFunctPtr(theLimCrv, &theModelState, 0, 0, 0, &isw, &result);
-
-  if (result != 0) {
-    opserr << "Tcl_addWrapperLimitCurve - failed in limit curve function "
-           << result << endln;
-    return 0;
-  }
-
-  WrapperLimitCurve *theLimitCurve = new WrapperLimitCurve(argv[1], theLimCrv);
-
-  return theLimitCurve;
-}
 
 extern "C" int
 OPS_InvokeMaterial(eleObject *theEle, int *mat, modelState *model,
@@ -1243,7 +1086,7 @@ int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
     if (static_analysis != 0)
       static_analysis->setLinearSOE(*soe);
     
-    DirectIntegrationAnalysis *direct_trans_analysis = G3_getTransientAnalysis(rt);
+    DirectIntegrationAnalysis *direct_trans_analysis = theTransientAnalysis; // G3_getTransientAnalysis(rt);
     if (direct_trans_analysis != 0)
       direct_trans_analysis->setLinearSOE(*soe);
 
@@ -1356,6 +1199,7 @@ G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
 }
 
 
+/*
 DirectIntegrationAnalysis **
 OPS_GetTransientAnalysis(void) {return &theTransientAnalysis;}
 
@@ -1363,11 +1207,11 @@ DirectIntegrationAnalysis *
 G3_getTransientAnalysis(G3_Runtime *rt)
 {
   // TODO
-  /*
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  DirectIntegrationAnalysis *analysis =
-      (DirectIntegrationAnalysis *)Tcl_GetAssocData(interp, "OPS::theTransientAnalysis", NULL);
-  */
+  
+  // Tcl_Interp *interp = G3_getInterpreter(rt);
+  // DirectIntegrationAnalysis *analysis =
+  //     (DirectIntegrationAnalysis *)Tcl_GetAssocData(interp, "OPS::theTransientAnalysis", NULL);
+  // 
   return theTransientAnalysis;
 
 }
@@ -1377,16 +1221,18 @@ G3_setTransientAnalysis(G3_Runtime *rt, DirectIntegrationAnalysis *the_analysis)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   Tcl_SetAssocData(interp, "OPS::theTransientAnalysis", NULL, (ClientData)the_analysis);
-  theTransientAnalysis = the_analysis;
+  // theTransientAnalysis = the_analysis;
   return 1;
 }
+*/
 
-
+/*
 VariableTimeStepDirectIntegrationAnalysis **
 OPS_GetVariableTimeStepTransientAnalysis(void)
 {
   return &theVariableTimeStepTransientAnalysis;
 }
+*/
 
 int *
 OPS_GetNumEigen(void) {return &numEigen;}
@@ -1403,8 +1249,10 @@ OPS_GetTest(void) {return &theTest;}
 bool *
 OPS_builtModel(void) {return &builtModel;}
 
+/*
 int
 OPS_numIter() {return 0;}
+*/
 
 
 // TODO: CMP REMOVE SPECIALTY

@@ -72,6 +72,7 @@ struct matObject {
 
 typedef struct matObject matObj;
 
+/*
 typedef void (*limCrvFunct)(struct limCrvObject*, modelState*, double* strain, double* tang, double* stress, int* isw, int* error);
 
 struct limCrvObject {
@@ -86,6 +87,7 @@ struct limCrvObject {
 };
 
 typedef struct limCrvObject limCrvObj;
+*/
 
 typedef void (*eleFunct)(struct eleObject*, modelState*, double* tang, double* resid, int* isw, int* error);
 
@@ -148,8 +150,6 @@ class ConvergenceTest;
 #define OPS_GetNDF ops_getndf_
 #define OPS_GetFEDatastore ops_getfedatastore_
 #define OPS_GetInterpPWD ops_getinterppwd_
-#define OPS_AllocateLimitCurve ops_allocatelimitcurve_
-#define OPS_GetLimitCurveType ops_getlimitcurvetype_
 
 #define OPS_GetAnalysisModel ops_getanalysismodel_
 #define OPS_GetAlgorithm ops_getalgorithm_
@@ -188,33 +188,13 @@ extern "C" const char* OPS_GetStringFromAll(char* buffer, int len); // does a st
 extern "C" int         OPS_SetString(const char* str);
 //extern "C" int       OPS_GetString(char *cArray, int sizeArray); // does a strcpy
 extern "C" int         OPS_GetStringCopy(char** cArray); // returns a new copy
-extern "C" matObj*     OPS_GetMaterial(int* matTag, int* matType);
-//extern "C" void      OPS_GetMaterialPtr(int *matTag, matObj *theRes);
-extern "C" eleObj*     OPS_GetElement(int* eleTag);
-extern "C" matObj*     OPS_GetMaterialType(char* type, int sizeType);
-extern "C" eleObj*     OPS_GetElementType(char* type, int sizeType);
-extern "C" int         OPS_AllocateElement(eleObject * theEle, int* matTags, int* matType);
-extern "C" int         OPS_AllocateMaterial(matObject * theMat);
-extern "C" limCrvObj*  OPS_GetLimitCurveType(char* type, int sizeType);
-extern "C" int         OPS_AllocateLimitCurve(limCrvObject * theLimCrv);
-
-extern "C" int         OPS_InvokeMaterial(eleObject*, int*, modelState*, double*, double*, double*, int*);
-extern "C" int         OPS_InvokeMaterialDirectly(matObject**, modelState*, double*, double*, double*, int*);
-extern "C" int         OPS_InvokeMaterialDirectly2(matObject*, modelState*, double*, double*, double*, int*);
-
-extern "C" int         OPS_GetNodeCrd(int* nodeTag, int* sizeData, double* data);
-extern "C" int         OPS_GetNodeDisp(int* nodeTag, int* sizeData, double* data);
-extern "C" int         OPS_GetNodeVel(int* nodeTag, int* sizeData, double* data);
-extern "C" int         OPS_GetNodeAccel(int* nodeTag, int* sizeData, double* data);
-extern "C" int         OPS_GetNodeIncrDisp(int* nodeTag, int* sizeData, double* data);
-extern "C" int         OPS_GetNodeIncrDeltaDisp(int* nodeTag, int* sizeData, double* data);
 
 class UniaxialMaterial;
 class NDMaterial;
 class SectionForceDeformation;
 class CrdTransf;
 class FrictionModel;
-class LimitCurve;
+// class LimitCurve;
 class Domain;
 class FE_Datastore;
 #if !defined(OPS_USE_RUNTIME)
@@ -226,7 +206,7 @@ extern NDMaterial* OPS_GetNDMaterial(int matTag);
 extern SectionForceDeformation* OPS_GetSectionForceDeformation(int secTag);
 extern CrdTransf* OPS_GetCrdTransf(int crdTag);
 extern FrictionModel* OPS_GetFrictionModel(int frnTag);
-extern LimitCurve* OPS_GetLimitCurve(int LimCrvTag);
+// extern LimitCurve* OPS_GetLimitCurve(int LimCrvTag);
 
 extern FE_Datastore* OPS_GetFEDatastore();
 extern "C" const char* OPS_GetInterpPWD();
@@ -235,14 +215,14 @@ extern "C" AnalysisModel * *OPS_GetAnalysisModel(void);
 extern "C" EquiSolnAlgo * *OPS_GetAlgorithm(void);
 extern "C" ConstraintHandler * *OPS_GetHandler(void);
 extern "C" DOF_Numberer * *OPS_GetNumberer(void);
-extern "C" LinearSOE * *OPS_GetSOE(void);
-extern "C" EigenSOE * *OPS_GetEigenSOE(void);
-extern "C" StaticAnalysis * *OPS_GetStaticAnalysis(void);
-extern "C" DirectIntegrationAnalysis * *OPS_GetTransientAnalysis(void);
-extern "C" VariableTimeStepDirectIntegrationAnalysis * *OPS_GetVariableTimeStepTransientAnalysis(void);
+// extern "C" LinearSOE * *OPS_GetSOE(void);
+// extern "C" EigenSOE * *OPS_GetEigenSOE(void);
+// extern "C" StaticAnalysis * *OPS_GetStaticAnalysis(void);
+// extern "C" DirectIntegrationAnalysis * *OPS_GetTransientAnalysis(void);
+// extern "C" VariableTimeStepDirectIntegrationAnalysis * *OPS_GetVariableTimeStepTransientAnalysis(void);
 extern "C" int* OPS_GetNumEigen(void);
-extern "C" StaticIntegrator * *OPS_GetStaticIntegrator(void);
-extern "C" TransientIntegrator * *OPS_GetTransientIntegrator(void);
+// extern "C" StaticIntegrator * *OPS_GetStaticIntegrator(void);
+// extern "C" TransientIntegrator * *OPS_GetTransientIntegrator(void);
 extern "C" ConvergenceTest * *OPS_GetTest(void);
 extern "C" bool* OPS_builtModel(void);
 
@@ -259,40 +239,18 @@ int     OPS_GetDoubleInput(int* numData, double* data);
 int     OPS_GetString(char* cArray, int sizeArray);
 
 
-matObj* OPS_GetMaterial(int* matTag, int* matType);
-void    OPS_GetMaterialPtr(int*, matObj*);
-eleObj* OPS_GetElement(int*);
-matObj* OPS_GetMaterialType(char* type, int sizeType);
-eleObj* OPS_GetElementType(char*, int);
-int     OPS_AllocateElement(eleObj*, int* matTags, int* maType);
-int     OPS_AllocateMaterial(matObj*);
-
-limCrv* OPS_GetLimitCurveType(char* type, int sizeType);//**MRL
-int     OPS_AllocateLimitCurve(limCrvObj*);//**MRL
-
-int    OPS_InvokeMaterial(struct eleObj*, int*, modelState*, double*, double*, double*, int*);
-int    OPS_InvokeMaterialDirectly(matObj**, modelState*, double*, double*, double*, int*);
-int    OPS_InvokeMaterialDirectly2(matObj*, modelState*, double*, double*, double*, int*);
-
-int    OPS_GetNodeCrd(int* nodeTag, int* sizeData, double* data);
-int    OPS_GetNodeDisp(int* nodeTag, int* sizeData, double* data);
-int    OPS_GetNodeVel(int* nodeTag, int* sizeData, double* data);
-int    OPS_GetNodeAcc(int* nodeTag, int* sizeData, double* data);
-int    OPS_GetNodeIncrDisp(int* nodeTag, int* sizeData, double* data);
-int    OPS_GetNodeIncrDeltaDisp(int* nodeTag, int* sizeData, double* data);
-
-EquiSolnAlgo** OPS_GetAlgorithm(void);
+// EquiSolnAlgo** OPS_GetAlgorithm(void);
 ConstraintHandler** OPS_GetHandler(void);
-DOF_Numberer** OPS_GetNumberer(void);
-LinearSOE** OPS_GetSOE(void);
+// DOF_Numberer** OPS_GetNumberer(void);
+// LinearSOE** OPS_GetSOE(void);
 EigenSOE** OPS_GetEigenSOE(void);
-StaticAnalysis** OPS_GetStaticAnalysis(void);
-DirectIntegrationAnalysis** OPS_GetTransientAnalysis(void);
-VariableTimeStepDirectIntegrationAnalysis** OPS_GetVariableTimeStepTransientAnalysis(void);
+// StaticAnalysis** OPS_GetStaticAnalysis(void);
+// DirectIntegrationAnalysis** OPS_GetTransientAnalysis(void);
+// VariableTimeStepDirectIntegrationAnalysis** OPS_GetVariableTimeStepTransientAnalysis(void);
 int* OPS_GetNumEigen(void);
-StaticIntegrator** OPS_GetStaticIntegrator(void);
-TransientIntegrator** OPS_GetTransientIntegrator(void);
-ConvergenceTest** OPS_GetTest(void);
+// StaticIntegrator** OPS_GetStaticIntegrator(void);
+// TransientIntegrator** OPS_GetTransientIntegrator(void);
+// ConvergenceTest** OPS_GetTest(void);
 bool* OPS_builtModel(void);
 
 

@@ -29,10 +29,6 @@ int wipeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **arg
 
 int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
-int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
 int setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
 int setCreep(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
@@ -44,7 +40,6 @@ int buildModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **ar
 int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
 int printModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
 int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
@@ -64,12 +59,6 @@ int playbackRecorders(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Ch
 int playbackAlgorithmRecorders(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 int groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
 int removeObject(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
