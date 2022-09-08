@@ -30,9 +30,7 @@
 #include <SectionRepres.h>
 
 #include <UniaxialMaterial.h>
-#include <LimitCurve.h>
 #include <NDMaterial.h>
-// #include <HystereticBackbone.h>
 #include <TclSafeBuilder.h>
 #include <MultiSupportPattern.h>
 
@@ -50,7 +48,6 @@ extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
 /*--------------------------------------------------------------------
 
-
 #include <YieldSurface_BC.h>
 #include <YS_Evolution.h>
 
@@ -58,10 +55,7 @@ extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 #include <BeamIntegration.h>
 */
 
-//////// gnp adding damping ////////////////
 #include <Element.h>
-////////////////////////////////////////////
-
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
@@ -71,17 +65,6 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
     : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
 {
-  /*
-  theSections = new ArrayOfTaggedObjects(32);
-  theUniaxialMaterials = new MapOfTaggedObjects();
-  theSectionRepresents = new ArrayOfTaggedObjects(32);
-  */
-
-  // theYieldSurface_BCs = new ArrayOfTaggedObjects(32);
-  // theCycModels = new ArrayOfTaggedObjects(32); //!!
-  // theYS_EvolutionModels = new ArrayOfTaggedObjects(32);
-  // thePlasticMaterials = new ArrayOfTaggedObjects(32);
-
   static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
 
   for (int i = 0; i < ncmd; i++)
@@ -150,14 +133,10 @@ TclSafeBuilder::~TclSafeBuilder()
 
 //
 // CLASS METHODS
-/*
-int TclSafeBuilder::getNDM(void) const {return ndm;}
-int TclSafeBuilder::getNDF(void) const {return ndf;}
-int TclSafeBuilder::buildFE_Model(void) {return 0;}
-*/
+//
 int TclSafeBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
 int TclSafeBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
-int TclSafeBuilder::getNodalLoadTag(void) const {return   nodeLoadTag;};
+int TclSafeBuilder::getNodalLoadTag(void) {return   nodeLoadTag;};
 
 LoadPattern *
 TclSafeBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
@@ -232,9 +211,8 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-
-  int ndm = G3_getNDM(rt);
-  int ndf = G3_getNDF(rt);
+  int ndm = theTclBuilder->getNDM();
+  int ndf = theTclBuilder->getNDF();
 
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {
@@ -268,12 +246,12 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (ndm == 2) {
     // create a node in 2d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid XCoordinate\n";
+      opserr << "WARNING invalid 1st coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
-      opserr << "WARNING invalid YCoordinate\n";
+      opserr << "WARNING invalid 2nd coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
@@ -282,17 +260,17 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (ndm == 3) {
     // create a node in 3d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid XCoordinate\n";
+      opserr << "WARNING invalid 1st coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
-      opserr << "WARNING invalid YCoordinate\n";
+      opserr << "WARNING invalid 2nd coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4], &zLoc) != TCL_OK) {
-      opserr << "WARNING invalid ZCoordinate\n";
+      opserr << "WARNING invalid 3rd coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
@@ -316,7 +294,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // create the node
   //
-
   if (ndm == 1)
     theNode = new Node(nodeId, ndf, xLoc);
   else if (ndm == 2)
@@ -327,7 +304,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // add the node to the domain
   //
-
   if (theTclDomain->addNode(theNode) == false) {
     opserr << "WARNING failed to add node to the domain\n";
     opserr << "node: " << nodeId << endln;
@@ -418,7 +394,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       currentArg++;
   }
 
-  // if get here we have sucessfully created the node and added it to the domain
+  // if we get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
 
@@ -430,7 +406,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   Domain *theTclDomain = G3_getDomain(rt);
   int nodeLoadTag = theTclBuilder->getNodalLoadTag();
   LoadPattern *theTclLoadPattern = theTclBuilder->getEnclosingPattern();
-  // ensure the destructor has not been called -
+  // ensure the destructor has not been called
   if (theTclBuilder == 0) {
     opserr << "WARNING builder has been destroyed - load \n";
     return TCL_ERROR;
@@ -699,13 +675,10 @@ TclSafeBuilderParameterCommand(ClientData clientData,
                                 TclSafeBuilder *theTclBuilder);
 
 int
-TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc,
-TCL_Char **argv)
-
+TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   return TclSafeBuilderParameterCommand(clientData, interp,
-                                         argc, argv, theTclDomain,
-theTclBuilder);
+                                         argc, argv, theTclDomain, theTclBuilder);
 }
 
 */
@@ -713,8 +686,8 @@ theTclBuilder);
 
 /*
 extern int
-TclSafeBuilderNDMaterialCommand (ClientData clienData, Tcl_Interp
-*interp, int argc, TCL_Char **argv, TclSafeBuilder *theTclBuilder);
+TclSafeBuilderNDMaterialCommand(ClientData clienData, Tcl_Interp *interp, int argc, 
+                                TCL_Char **argv, TclSafeBuilder *theTclBuilder);
 
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
@@ -751,8 +724,7 @@ TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
       interp,"OPS::theTclSafeBuilder", NULL);
   Domain *theTclDomain = theTclBuilder->getDomain();
 
-  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc - 1,
-                                               &argv[1], theTclDomain);
+  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc - 1, &argv[1], theTclDomain);
 
   if (theSeries != 0) {
     if (theTclBuilder->addTimeSeries(argv[2], theSeries))

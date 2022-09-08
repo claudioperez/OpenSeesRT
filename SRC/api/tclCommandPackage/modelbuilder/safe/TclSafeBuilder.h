@@ -68,7 +68,7 @@ public:
   int setEnclosingPattern(LoadPattern*);
   int incrNodalLoadTag(void);
   int decrNodalLoadTag(void);
-  int getNodalLoadTag(void) const;
+  int getNodalLoadTag(void);
 
 // Coordinate Transformations
 private: map_t<CrdTransf*> m_CrdTransfMap;

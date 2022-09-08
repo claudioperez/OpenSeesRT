@@ -2928,8 +2928,8 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
                                                     argv, theDomain);
 
   // LimitState
-  if (theMaterial == 0)
-    theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
+  // if (theMaterial == 0)
+  //   theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
 
 #if defined(OPSDEF_DAMAGE_FEDEAS)
   if (theMaterial == 0)
@@ -2938,7 +2938,6 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
 #endif
 
   if (theMaterial == 0) {
-
     //
     // maybe element in a class package already loaded
     //  loop through linked list of loaded functions comparing names & if find
@@ -2963,7 +2962,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
   //   package yet to be loaded
   //
   if (theMaterial == 0) {
-
+#if 0
     // maybe material in a routine
     //
     char *matType = new char[strlen(argv[1]) + 1];
@@ -2980,6 +2979,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       if (theMaterial == 0)
         delete matObject;
     }
+#endif
   }
 
   //
