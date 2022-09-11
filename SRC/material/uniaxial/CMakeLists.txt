@@ -311,7 +311,7 @@ target_sources(OPS_Material
 
 
 add_library(OPS_Material_f)
-
+target_compile_options(OPS_Material_f PRIVATE -fPIC)
 target_sources(OPS_Material_f PRIVATE
       DoddRestrepo.f
       STEELDR.f
