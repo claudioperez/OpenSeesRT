@@ -171,7 +171,7 @@ include_directories(
   ${OPS_SRC_DIR}/api/tclCommandPackage/api
   ${OPS_SRC_DIR}/api/tclCommandPackage/commands
   ${OPS_SRC_DIR}/api/tclCommandPackage/commands/modeling
-  ${OPS_SRC_DIR}/api/tclCommandPackage/config
+  # ${OPS_SRC_DIR}/api/tclCommandPackage/config
   ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/element/BeamTypeIII
   ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/element/FeapFrames
   ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/packages/UCSD_CompGeoMech/nDarray
