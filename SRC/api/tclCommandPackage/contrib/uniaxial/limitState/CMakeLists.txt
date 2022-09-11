@@ -7,6 +7,7 @@
 
 target_sources(OPS_Material
     PRIVATE
+        LimitCurveAPI.cpp
         LimitStateMaterial.cpp
         PinchingLimitStateMaterial.cpp
     PUBLIC

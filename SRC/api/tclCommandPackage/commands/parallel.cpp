@@ -42,7 +42,7 @@
   // parallel analysis
   #include <DistributedDisplacementControl.h>
   
-  Domain theDomain;
+// Domain theDomain;
 #endif
 
 int getPID(ClientData,  Tcl_Interp *, int, TCL_Char **argv);
@@ -52,7 +52,8 @@ int opsSend(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int opsRecv(ClientData, Tcl_Interp *, int,TCL_Char **argv);
 int opsPartition(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 
-void Init_Parallel() {
+void Init_Parallel(Tcl_Interp* interp)
+{
   Tcl_CreateCommand(interp, "getNP",     &getNP, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "getPID",    &getPID, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "barrier",   &opsBarrier, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
@@ -107,7 +108,6 @@ getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 
-#ifdef _PARALLEL_PROCESSING
 int
 partitionModel(int eleTag)
 {
@@ -174,7 +174,6 @@ partitionModel(int eleTag)
   return result;
 }
 
-#endif
 
 int
 opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -189,7 +188,6 @@ opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-#ifdef _PARALLEL_INTERPRETERS
   if (argc < 2)
     return TCL_OK;
 
@@ -229,9 +227,6 @@ opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       return TCL_ERROR;
     }
   }
-
-#endif
-
   return TCL_OK;
 }
 
@@ -336,3 +331,4 @@ opsPartition(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif
   return TCL_OK;
 }
+

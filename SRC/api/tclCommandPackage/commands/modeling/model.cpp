@@ -200,8 +200,6 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
     }
   }
 
-*/
-
   else if ((strcmp(argv[1], "sectionTest") == 0) ||
            (strcmp(argv[1], "TestSection") == 0) ||
            (strcmp(argv[1], "testSection") == 0) ||
@@ -221,6 +219,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
       G3_setModelBuilder(rt, theNewBuilder);
     }
   }
+  */
   else {
     opserr << "WARNING unknown model builder type\n";
     opserr << "WARNING model builder type " << argv[1] << " not supported\n";

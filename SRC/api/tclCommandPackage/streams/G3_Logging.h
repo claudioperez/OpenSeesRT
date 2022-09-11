@@ -6,6 +6,7 @@
 extern OPS_Stream *opswrnPtr;
 extern OPS_Stream *opsdbgPtr;
 extern const char *G3_WARN_PROMPT;
+extern const char *G3_ERROR_PROMPT;
 
 enum G3_Stream {
   G3_StdOut, G3_StdIn, G3_StdErr, G3_Null

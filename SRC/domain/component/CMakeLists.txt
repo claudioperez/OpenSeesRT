@@ -32,15 +32,15 @@ target_sources(OPS_Domain
     InitialStateParameter.h
 )
         
-#target_sources(OPS_Reliability
-target_sources(OPS_Domain
-  PRIVATE
-    RVParameter.cpp
-    DVParameter.cpp
-  PUBLIC
-    RVParameter.h
-    DVParameter.h
-)
+# target_sources(OPS_Reliability
+# #target_sources(OPS_Domain
+#   PRIVATE
+#     RVParameter.cpp
+#     DVParameter.cpp
+#   PUBLIC
+#     RVParameter.h
+#     DVParameter.h
+# )
 
 
 target_include_directories(OPS_Domain PUBLIC ${CMAKE_CURRENT_LIST_DIR})

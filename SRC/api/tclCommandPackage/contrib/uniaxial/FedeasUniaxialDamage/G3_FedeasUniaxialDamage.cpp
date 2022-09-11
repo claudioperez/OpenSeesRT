@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <G3Parse.h>
+#include <InputAPI.h>
 #include <DegradingUniaxialWrapper.hh>
 
 #define WRAPPER_CMD "FedeasUniaxialDamage"

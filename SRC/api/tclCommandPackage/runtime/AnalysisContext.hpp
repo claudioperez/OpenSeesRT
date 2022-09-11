@@ -20,8 +20,20 @@ class ConfigurationObject {
 
 
 class AnalysisContext {
-  int update(char*, int, char **);
-  int update(std::unordered_map<std::string, std::vector<std::string>> conf);
+    int update(char*, int, char **);
+    int update(std::unordered_map<std::string, std::vector<std::string>> conf);
+
+    LinearSOE*           getLinearSOE();
+    TransientIntegrator* getTransientIntegrator();
+
+    StaticIntegrator     *getStaticIntegrator();
+    SuccessFlag setStaticIntegrator(StaticIntegrator*);
+
+    ConvergenceTest     *getConvergenceTest();
+    SuccessFlag setConvergenceTest(ConvergenceTest*);
+
+    EquiSolnAlgo     *getEquiSolnAlgo();
+    SuccessFlag setEquiSolnAlgo(EquiSolnAlgo*); 
 
   private:
     DOF_Numberer* m_numberer;

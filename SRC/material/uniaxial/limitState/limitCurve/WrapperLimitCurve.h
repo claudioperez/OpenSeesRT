@@ -31,6 +31,7 @@
 #include <Matrix.h>
 
 #include <elementAPI.h>
+#include <LimitCurveAPI.h>
 
 class WrapperLimitCurve : public LimitCurve
 {
