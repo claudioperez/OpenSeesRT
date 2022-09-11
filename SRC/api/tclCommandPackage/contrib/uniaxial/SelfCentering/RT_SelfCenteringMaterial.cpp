@@ -1,5 +1,5 @@
 #include "SelfCenteringMaterial.h"
-#include <G3Parse.h>
+#include <InputAPI.h>
 
 UniaxialMaterial*
 G3Parse_newSelfCenteringMaterial(ClientData* cd, Tcl_Interp* interp, int argc, G3_Char** argv)
