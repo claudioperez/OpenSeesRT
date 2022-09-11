@@ -12,12 +12,12 @@
 #include <Domain.h>
 #include <LinearSeries.h>
 #include <ConstantSeries.h>
-#include <RectangularSeries.h>
-#include <TrigSeries.h>
-#include <PulseSeries.h>
-#include <TriangleSeries.h>
 #include <PathTimeSeries.h>
 #include <PathSeries.h>
+// #include <RectangularSeries.h>
+// #include <TrigSeries.h>
+// #include <PulseSeries.h>
+// #include <TriangleSeries.h>
 #include <PeerMotion.h>
 #include <PeerNGAMotion.h>
 #include <string.h>
@@ -48,9 +48,9 @@ cleanup(TCL_Char **argv)
 
 extern void *OPS_ConstantSeries(G3_Runtime*);
 extern void *OPS_LinearSeries(G3_Runtime*);
-extern void *OPS_TriangleSeries(G3_Runtime*);
-extern void *OPS_TrigSeries(G3_Runtime*);
-extern void *OPS_RectangularSeries(G3_Runtime*);
+// extern void *OPS_TriangleSeries(G3_Runtime*);
+// extern void *OPS_TrigSeries(G3_Runtime*);
+// extern void *OPS_RectangularSeries(G3_Runtime*);
 extern void *OPS_PulseSeries(G3_Runtime*);
 extern void *OPS_PeerMotion(G3_Runtime*);
 extern void *OPS_PeerNGAMotion(G3_Runtime*);
@@ -133,8 +133,9 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     void *theResult = OPS_ConstantSeries(rt);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
-
-  } else if ((strcmp(argv[0], "Trig") == 0) ||
+  }
+#if 0
+   else if ((strcmp(argv[0], "Trig") == 0) ||
              (strcmp(argv[0], "TrigSeries") == 0) ||
              (strcmp(argv[0], "Sine") == 0) ||
              (strcmp(argv[0], "SineSeries") == 0)) {
@@ -144,6 +145,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       theSeries = (TimeSeries *)theResult;
 
   }
+#endif
 
   else if ((strcmp(argv[0], "Linear") == 0) ||
            (strcmp(argv[0], "LinearSeries") == 0)) {
@@ -157,6 +159,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
   }
 
+#if 0
   else if (strcmp(argv[0], "Rectangular") == 0) {
 
     void *theResult = OPS_RectangularSeries(rt);
@@ -182,6 +185,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       theSeries = (TimeSeries *)theResult;
 
   }
+#endif
 
   else if ((strcmp(argv[0], "Series") == 0) || (strcmp(argv[0], "Path") == 0)) {
 
@@ -408,6 +412,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
   }
 
+#if 0
   else if ((strcmp(argv[0], "PeerDatabase") == 0) ||
            (strcmp(argv[0], "PeerMotion") == 0)) {
 
@@ -449,7 +454,10 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
   }
+#endif
 
+
+#if 0
   else if ((strcmp(argv[0], "PeerNGADatabase") == 0) ||
            (strcmp(argv[0], "PeerNGAMotion") == 0)) {
 
@@ -492,6 +500,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
   }
+#endif
 
 #ifdef _RELIABILITY
 
@@ -543,56 +552,6 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                                                    mean, maxStdv);
   }
 
-  ///// added by K Fujimura /////
-  /*FMK RELIABILITY
- else if (strcmp(argv[0],"NewDiscretizedRandomProcess") == 0) {
-
-   double mean, maxStdv;
-   ModulatingFunction *theModFunc;
-
-   if (Tcl_GetDouble(interp, argv[1], &mean) != TCL_OK) {
-     opserr << "WARNING invalid input: random process mean \n";
-     return 0;
-   }
-
-   if (Tcl_GetDouble(interp, argv[2], &maxStdv) != TCL_OK) {
-     opserr << "WARNING invalid input: random process max stdv \n";
-     return 0;
-   }
-
-   // Number of modulating functions
-   int argsBeforeModList = 3;
-   int numModFuncs = argc-argsBeforeModList;
-
-   // Create an array to hold pointers to modulating functions
-   ModulatingFunction **theModFUNCS = new ModulatingFunction *[numModFuncs];
-
-   // For each modulating function, get the tag and ensure it exists
-   int tagI;
-   for (int i=0; i<numModFuncs; i++) {
-     if (Tcl_GetInt(interp, argv[i+argsBeforeModList], &tagI) != TCL_OK) {
-       opserr << "WARNING invalid modulating function tag. " << endln;
-       return 0;
-     }
-
-     theModFunc = 0;
-     theModFunc = theReliabilityDomain->getModulatingFunction(tagI);
-
-     if (theModFunc == 0) {
-       opserr << "WARNING modulating function number "<<
- argv[i+argsBeforeModList] << "does not exist...\n"; delete [] theModFUNCS;
-       return 0;
-     }
-     else {
-       theModFUNCS[i] = theModFunc;
-     }
-   }
-
-   // Parsing was successful, create the random process series object
- theSeries = new
- NewDiscretizedRandomProcessSeries(numModFuncs,theModFUNCS,mean,maxStdv);
- }
- */
   else if (strcmp(argv[0], "SimulatedRandomProcess") == 0) {
 
     int spectrumTag, numFreqIntervals;

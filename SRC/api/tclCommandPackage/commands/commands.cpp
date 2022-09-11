@@ -124,21 +124,21 @@ extern "C" {
 // Global variables
 //
 Domain theDomain;
-ModelBuilder *theBuilder = 0;
+ModelBuilder        *theBuilder = 0;
 
-EquiSolnAlgo      *theAlgorithm = 0;
-ConstraintHandler *theHandler = 0;
-DOF_Numberer      *theNumberer = 0;
-LinearSOE         *theSOE = 0;
-EigenSOE          *theEigenSOE = 0;
+EquiSolnAlgo        *theAlgorithm = 0;
+ConstraintHandler   *theHandler = 0;
+DOF_Numberer        *theNumberer = 0;
+LinearSOE           *theSOE = 0;
+EigenSOE            *theEigenSOE = 0;
+StaticIntegrator    *theStaticIntegrator = 0;
+TransientIntegrator *theTransientIntegrator = 0;
 
-AnalysisModel     *theAnalysisModel = 0;
-StaticAnalysis    *theStaticAnalysis = 0;
+AnalysisModel       *theAnalysisModel = 0;
+StaticAnalysis      *theStaticAnalysis = 0;
 DirectIntegrationAnalysis *theTransientAnalysis = 0;
 VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis = 0;
 
-StaticIntegrator *theStaticIntegrator = 0;
-TransientIntegrator *theTransientIntegrator = 0;
 ConvergenceTest *theTest = 0;
 bool builtModel = false;
 
@@ -158,14 +158,12 @@ TclPackageClassBroker theBroker;
 
 
 
+extern int G3_AddTclAnalysisAPI(Tcl_Interp *interp);
 const char *getInterpPWD(Tcl_Interp *interp);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
-
 int printModelGID(ClientData, Tcl_Interp *, int, TCL_Char **);
-int printA(ClientData, Tcl_Interp *, int, TCL_Char **);
-int printB(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 int setPrecision(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int logFile(ClientData, Tcl_Interp *, int, TCL_Char **argv);
@@ -307,15 +305,12 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "getNDF", &getNDF, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "wipe", &wipeModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "wipeAnalysis", &wipeAnalysis, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "reset", &resetModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "start", &startTimer, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "stop", &stopTimer, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "initialize", &initializeAnalysis, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "loadConst", &TclCommand_setLoadConst, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
@@ -327,14 +322,11 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "analyze", &analyzeModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "print", &printModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "printModel", &printModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "printA", &printA, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "printB", &printB, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 // TODO: cmp -- reimplement
 //   // Talledo Start
 //   Tcl_CreateCommand(interp, "printGID", &printModelGID, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 //   // Talledo End
-  Tcl_CreateCommand(interp, "analysis", &specifyAnalysis, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "fault", 
       [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
@@ -357,9 +349,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   
 
-  Tcl_CreateCommand(interp, "eigen",             &eigenAnalysis, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "modalProperties",   &modalProperties, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "responseSpectrum",  &responseSpectrum, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "remove",            &removeObject, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
@@ -422,10 +411,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "retainedNodes",    &retainedNodes, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "retainedDOFs",     &retainedDOFs, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "getNumElements",   &getNumElements, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleClassTags",  &getEleClassTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleLoadTags",   &getEleLoadTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleLoadData",   &getEleLoadData, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "getNumElements",      &getNumElements, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "getEleClassTags",     &getEleClassTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "getEleLoadTags",      &getEleLoadTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "getEleLoadData",      &getEleLoadData, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "getEleLoadClassTags", &getEleLoadClassTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 
@@ -461,18 +450,20 @@ OpenSeesAppInit(Tcl_Interp *interp)
   // Tcl_CreateCommand(interp, "database", &addDatabase, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 
-  theAlgorithm = 0;
-  theHandler = 0;
-  theNumberer = 0;
-  theAnalysisModel = 0;
-  theSOE = 0;
-  theStaticIntegrator = 0;
-  theTransientIntegrator = 0;
-  theStaticAnalysis = 0;
-  theTransientAnalysis = 0;
-  theVariableTimeStepTransientAnalysis = 0;
-  theTest = 0;
+  // theAlgorithm = 0;
+  // theHandler = 0;
+  // theNumberer = 0;
+  // theAnalysisModel = 0;
+  // theSOE = 0;
+  // theStaticIntegrator = 0;
+  // theTransientIntegrator = 0;
+  // theStaticAnalysis = 0;
+  // theTransientAnalysis = 0;
+  // theVariableTimeStepTransientAnalysis = 0;
+  // theTest = 0;
 
+  wipeAnalysis(0, interp, 0, 0);
+  G3_AddTclAnalysisAPI(interp);
   return myCommands(interp);
 }
 
@@ -599,19 +590,19 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   OPS_PARTITIONED = false;
 #endif
 
-  theAlgorithm = 0;
-  theHandler = 0;
-  theNumberer = 0;
-  G3_setAnalysisModel(rt,nullptr);
+  // theAlgorithm = 0;
+  // theHandler = 0;
+  // theNumberer = nullptr;
+  // G3_setAnalysisModel(rt,nullptr);
   // theSOE = 0;
-  G3_setLinearSoe(rt, nullptr);
-  G3_setStaticIntegrator(rt,nullptr);
-  theTransientIntegrator = 0;
-  G3_setStaticAnalysis(rt,nullptr);
-  theTransientAnalysis = 0;
-  theVariableTimeStepTransientAnalysis = 0;
+  // G3_setLinearSoe(rt, nullptr);
+  // G3_setStaticIntegrator(rt,nullptr);
+  // theTransientIntegrator = 0;
+  // G3_setStaticAnalysis(rt,nullptr);
+  // theTransientAnalysis = nullptr;
+  // theVariableTimeStepTransientAnalysis = nullptr;
 
-  theTest = 0;
+  // theTest = nullptr;
   theDatabase = 0;
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
@@ -623,52 +614,6 @@ wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   // the domain deletes the record objects,
   // just have to delete the private array
-  return TCL_OK;
-}
-
-int
-wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  DirectIntegrationAnalysis* dia = G3_getTransientAnalysis(rt);
-
-  if (the_static_analysis != 0) {
-    the_static_analysis->clearAll();
-    G3_delStaticAnalysis(rt);
-  }
-
-  if (dia != 0) {
-    dia->clearAll();
-    delete dia;
-  }
-
-  // NOTE : DON'T do the above on theVariableTimeStepAnalysis
-  // as it and theTansientAnalysis are one in the same
-
-  theAlgorithm = 0;
-  theHandler   = 0;
-  theNumberer  = 0;
-  G3_setAnalysisModel(rt,nullptr);
-  // theSOE = 0;
-  G3_setLinearSoe(rt, nullptr);
-  theEigenSOE = 0;
-  G3_setStaticIntegrator(rt,nullptr);
-  theTransientIntegrator = nullptr;
-  G3_setStaticAnalysis(rt,nullptr);
-  theStaticAnalysis = 0;
-  theTransientAnalysis = 0;
-  G3_setTransientAnalysis(rt, nullptr);
-  theVariableTimeStepTransientAnalysis = 0;
-  theTest = 0;
-
-#ifdef _RELIABILITY
-  // AddingSensitivity:BEGIN /////////////////////////////////////////////////
-  theSensitivityAlgorithm = 0;
-  theSensitivityIntegrator = 0;
-  // AddingSensitivity:END /////////////////////////////////////////////////
-#endif
   return TCL_OK;
 }
 
@@ -729,43 +674,6 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
-
-int
-resetModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
-  domain->revertToStart();
-
-  if (theTransientIntegrator != 0) {
-    theTransientIntegrator->revertToStart();
-  }
-  return TCL_OK;
-}
-
-int
-initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  
-  if (theTransientAnalysis != 0) {
-    DirectIntegrationAnalysis* ana;
-    if (ana=G3_getTransientAnalysis(rt))
-      ana->initialize();
-    else
-      theTransientAnalysis->initialize();
-  } else if (the_static_analysis != 0) {
-    the_static_analysis->initialize();
-  }
-
-  domain->initialize();
-
-  return TCL_OK;
-}
-
 
 
 int
@@ -829,86 +737,6 @@ buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 
-//
-// command invoked to build the model, i.e. to invoke analyze()
-// on the Analysis object
-//
-int
-analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  int result = 0;
-  G3_Runtime *rt = G3_getRuntime(interp);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-
-  if (the_static_analysis != 0) {
-    int numIncr;
-    if (argc < 2) {
-      opserr << "WARNING static analysis: analysis numIncr?\n";
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
-      return TCL_ERROR;
-
-    result = the_static_analysis->analyze(numIncr);
-  } else if (theTransientAnalysis != 0) {
-    double dT;
-    int numIncr;
-    if (argc < 3) {
-      opserr << "WARNING transient analysis: analysis numIncr? deltaT?\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[2], &dT) != TCL_OK)
-      return TCL_ERROR;
-
-    // Set global timestep variable
-    ops_Dt = dT;
-
-    if (argc == 6) {
-      int Jd;
-      double dtMin, dtMax;
-      if (Tcl_GetDouble(interp, argv[3], &dtMin) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[4], &dtMax) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetInt(interp, argv[5], &Jd) != TCL_OK)
-        return TCL_ERROR;
-
-      if (theVariableTimeStepTransientAnalysis != 0)
-        result = theVariableTimeStepTransientAnalysis->analyze(
-            numIncr, dT, dtMin, dtMax, Jd);
-      else {
-        opserr << "WARNING analyze - no variable time step transient analysis "
-                  "object constructed\n";
-        return TCL_ERROR;
-      }
-
-    } else {
-      result = theTransientAnalysis->analyze(numIncr, dT);
-    }
-
-  } else {
-    opserr << "WARNING No Analysis type has been specified \n";
-    return TCL_ERROR;
-  }
-
-  if (result < 0) {
-    opserr << "OpenSees > analyze failed, returned: " << result
-           << " error flag\n";
-  }
-
-  char buffer[10];
-  sprintf(buffer, "%d", result);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  //  sprintf(interp->result,"%d",result);
-
-  return TCL_OK;
-}
-
 
 int
 printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -934,154 +762,6 @@ printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   theAlgorithm->Print(output, flag);
   return TCL_OK;
 }
-
-int
-printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv, OPS_Stream &output)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
-  int eleArg = 0;
-  if (the_static_integrator == 0 && theTransientIntegrator == 0)
-    return TCL_OK;
-
-  IncrementalIntegrator *theIntegrator;
-  if (the_static_integrator != 0)
-    theIntegrator = the_static_integrator;
-  else
-    theIntegrator = theTransientIntegrator;
-
-  // if just 'print <filename> algorithm'- no flag
-  if (argc == 0) {
-    theIntegrator->Print(output);
-    return TCL_OK;
-  }
-
-  // if 'print <filename> Algorithm flag' get the flag
-  int flag;
-  if (Tcl_GetInt(interp, argv[eleArg], &flag) != TCL_OK) {
-    opserr << "WARNING print algorithm failed to get integer flag: \n";
-    opserr << argv[eleArg] << endln;
-    return TCL_ERROR;
-  }
-  theIntegrator->Print(output, flag);
-  return TCL_OK;
-}
-
-int
-printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  int res = 0;
-
-  FileStream outputFile;
-  OPS_Stream *output = &opserr;
-  LinearSOE *theSOE = *G3_getLinearSoePtr(G3_getRuntime(interp));
-
-  bool ret = false;
-  int currentArg = 1;
-  while (currentArg < argc) {
-    if ((strcmp(argv[currentArg], "file") == 0) ||
-        (strcmp(argv[currentArg], "-file") == 0)) {
-      currentArg++;
-
-      if (outputFile.setFile(argv[currentArg]) != 0) {
-        opserr << "print <filename> .. - failed to open file: "
-               << argv[currentArg] << endln;
-        return TCL_ERROR;
-      }
-      output = &outputFile;
-    } else if ((strcmp(argv[currentArg], "ret") == 0) ||
-               (strcmp(argv[currentArg], "-ret") == 0)) {
-      ret = true;
-    }
-    currentArg++;
-  }
-  if (theSOE != 0) {
-    if (theStaticIntegrator != 0)
-      theStaticIntegrator->formTangent();
-    else if (theTransientIntegrator != 0)
-      theTransientIntegrator->formTangent(0);
-
-    const Matrix *A = theSOE->getA();
-    if (A != 0) {
-      if (ret) {
-        int n = A->noRows();
-        int m = A->noCols();
-        if (n * m > 0) {
-          for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-              char buffer[40];
-              sprintf(buffer, "%.10e ", (*A)(i, j));
-              Tcl_AppendResult(interp, buffer, NULL);
-            }
-          }
-        }
-      } else {
-        *output << *A;
-        // close the output file
-        outputFile.close();
-      }
-    }
-  }
-
-  return res;
-}
-
-int
-printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  int res = 0;
-
-  FileStream outputFile;
-  OPS_Stream *output = &opserr;
-  //  bool done = false;
-
-  bool ret = false;
-  int currentArg = 1;
-  while (currentArg < argc) {
-    if ((strcmp(argv[currentArg], "file") == 0) ||
-        (strcmp(argv[currentArg], "-file") == 0)) {
-      currentArg++;
-
-      if (outputFile.setFile(argv[currentArg]) != 0) {
-        opserr << "print <filename> .. - failed to open file: "
-               << argv[currentArg] << endln;
-        return TCL_ERROR;
-      }
-      output = &outputFile;
-    } else if ((strcmp(argv[currentArg], "ret") == 0) ||
-               (strcmp(argv[currentArg], "-ret") == 0)) {
-      ret = true;
-    }
-    currentArg++;
-  }
-  if (theSOE != 0) {
-    if (theStaticIntegrator != 0)
-      theStaticIntegrator->formUnbalance();
-    else if (theTransientIntegrator != 0)
-      theTransientIntegrator->formUnbalance();
-
-    const Vector &b = theSOE->getB();
-    if (ret) {
-      int n = b.Size();
-      if (n > 0) {
-        for (int i = 0; i < n; i++) {
-          char buffer[40];
-          sprintf(buffer, "%.10e ", b(i));
-          Tcl_AppendResult(interp, buffer, NULL);
-        }
-      }
-    } else {
-      *output << b;
-      // close the output file
-      outputFile.close();
-    }
-  }
-
-  return res;
-}
-
-
 
 //
 // command invoked to allow the ConstraintHandler object to be built

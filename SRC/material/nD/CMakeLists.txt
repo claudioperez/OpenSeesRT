@@ -51,7 +51,7 @@ target_sources(OPS_Material
     CycLiqCPSP.cpp
     CycLiqCPSP3D.cpp
     CycLiqCPSPPlaneStrain.cpp
-    WrapperNDMaterial.cpp
+    # WrapperNDMaterial.cpp
     InitStressNDMaterial.cpp
     IncrementalElasticIsotropicThreeDimensional.cpp
     ConcreteMcftNonLinear5.cpp
@@ -119,7 +119,7 @@ target_sources(OPS_Material
     CycLiqCPSP.h
     CycLiqCPSP3D.h
     CycLiqCPSPPlaneStrain.h
-    WrapperNDMaterial.h
+    # WrapperNDMaterial.h
     InitStressNDMaterial.h
     IncrementalElasticIsotropicThreeDimensional.h
     ConcreteMcftNonLinear5.h

@@ -16,6 +16,12 @@
 #define G3Parse_getDouble(bld, arg, adr) Tcl_GetDouble((bld)->m_interp, (arg), (adr))
 // #define G3Parse_AppendResult(interp, 
 
+enum SuccessFlag {
+  G3_OK    = TCL_OK, 
+  G3_ERROR = TCL_ERROR
+};
+
+typedef enum SuccessFlag SuccessFlag;
 
 static void printCommand(int argc, TCL_Char **argv) {
   opserr << "Input command: ";

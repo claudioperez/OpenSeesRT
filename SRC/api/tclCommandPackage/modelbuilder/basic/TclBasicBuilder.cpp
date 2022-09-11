@@ -57,7 +57,7 @@
 #include <SectionRepres.h>
 
 #include <UniaxialMaterial.h>
-#include <LimitCurve.h>
+// #include <LimitCurve.h>
 #include <NDMaterial.h>
 #include <TclBasicBuilder.h>
 #include <ImposedMotionSP.h>
@@ -392,8 +392,8 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   Tcl_CreateCommand(interp, "beamIntegration", TclCommand_addBeamIntegration,
                     (ClientData)NULL, NULL);
 
-  Tcl_CreateCommand(interp, "limitCurve", TclCommand_addLimitCurve,
-                    (ClientData)NULL, NULL);
+//   Tcl_CreateCommand(interp, "limitCurve", TclCommand_addLimitCurve,
+//                  (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "nDMaterial", TclCommand_addNDMaterial,
                     (ClientData)NULL, NULL);
@@ -1368,16 +1368,17 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                                 theTclDomain);
 }
 
-extern int Tcl_AddLimitCurveCommand(ClientData clienData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv,
-                                    Domain *theDomain);
-
-int
-TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
-{
-  return Tcl_AddLimitCurveCommand(clientData, interp, argc, argv, theTclDomain);
-}
+// extern int Tcl_AddLimitCurveCommand(ClientData clienData, Tcl_Interp *interp,
+//                                     int argc, TCL_Char **argv,
+//                                     Domain *theDomain);
+// 
+// int
+// TclCommand_addLimitCurve(ClientData clientData, Tcl_Interp *interp, int argc,
+//                          TCL_Char **argv)
+// {
+//   return Tcl_AddLimitCurveCommand(clientData, interp, argc, argv, theTclDomain);
+// }
+//
 /*
 extern int TclBasicBuilderNDMaterialCommand(ClientData clienData,
                                             Tcl_Interp *interp, int argc,

@@ -124,9 +124,6 @@ int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
 StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
 int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
 int G3_delStaticAnalysis(G3_Runtime *);
-DirectIntegrationAnalysis *G3_getTransientAnalysis(G3_Runtime *);
-int G3_setTransientAnalysis(G3_Runtime *, DirectIntegrationAnalysis *);
-
 StaticIntegrator *G3_getStaticIntegrator(G3_Runtime *);
 int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
 
@@ -134,5 +131,5 @@ int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
 #ifdef __cplusplus
 }
 #endif
-#include <elementAPI.h>
+#include <api/elementAPI.h>
 #endif // G3_API_H_

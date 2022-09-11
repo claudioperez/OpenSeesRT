@@ -102,7 +102,7 @@ target_sources(OpenSeesRT PRIVATE
     # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
 
     "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
-    "contrib/uniaxial/limitState/TclLimitState.cpp"
+    #"contrib/uniaxial/limitState/TclLimitState.cpp"
     "contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
     "contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
 
@@ -117,9 +117,9 @@ target_sources(OpenSeesRT PRIVATE
     #"contrib/system_of_eqn/TclPetsc.cpp"
 
     "elementAPI_PYG3.cpp"
-    "ffi/C_Wrapper.cpp"
+    # "ffi/C_Wrapper.cpp"
     "misc/tcl_packages.cpp"
-    "misc/TclFeViewer.cpp"
+    #"misc/TclFeViewer.cpp"
     "utilities/tclutils.cpp"
 
 

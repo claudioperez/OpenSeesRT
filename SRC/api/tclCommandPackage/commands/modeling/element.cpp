@@ -1600,7 +1600,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       } else
         eleCommands = eleCommands->next;
     }
-
+#if 0
     //
     // maybe element in a routine, check existing ones or try loading new ones
     //
@@ -1621,7 +1621,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       else
         return result;
     }
-
+#endif
     //
     // try loading new dynamic library containing a c+= class
     //

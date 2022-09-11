@@ -2220,7 +2220,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   //   package yet to be loaded
   //
   if (theMaterial == 0) {
-
+#if 0
     // maybe material in a routine
     //
 
@@ -2238,6 +2238,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       if (theMaterial == 0)
         delete matObject;
     }
+#endif
   }
 
   //

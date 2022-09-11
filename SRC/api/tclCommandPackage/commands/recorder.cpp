@@ -114,7 +114,7 @@ enum outputMode {
 };
 
 #include <EquiSolnAlgo.h>
-#include <TclFeViewer.h>
+// #include <TclFeViewer.h>
 
 #ifdef _NOGRAPHICS
 
@@ -1656,7 +1656,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                                     theDomain, *theOutputStream, echoTimeFlag);
 
   }
-
+#if 0
   // a recorder for the graphical display of the domain
   else if (strcmp(argv[1], "display") == 0) {
 
@@ -1827,6 +1827,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     thePlotter->setCol(cols);
 #endif
   }
+#endif
 
   else if (strcmp(argv[1], "increments") == 0) {
 

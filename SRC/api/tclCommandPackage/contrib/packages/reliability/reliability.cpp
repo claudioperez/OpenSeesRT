@@ -26,30 +26,19 @@ static TclOptimizationBuilder *theOptimizationBuilder =
 
 
 #ifdef _RELIABILITY
-  Tcl_CreateCommand(interp, "wipeReliability", wipeReliability,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "reliability", reliability, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "wipeReliability", wipeReliability, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "reliability", reliability, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   theReliabilityBuilder = 0;
   // AddingSensitivity:BEGIN //////////////////////////////////
-  Tcl_CreateCommand(interp, "computeGradients", &computeGradients,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensitivityAlgorithm", &sensitivityAlgorithm,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensitivityIntegrator", &sensitivityIntegrator,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensNodeDisp", &sensNodeDisp, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensLambda", &sensLambda, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL); // Abbas
-  Tcl_CreateCommand(interp, "sensNodeVel", &sensNodeVel, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensNodeAccel", &sensNodeAccel, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensSectionForce", &sensSectionForce,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sensNodePressure", &sensNodePressure,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "computeGradients", &computeGradients, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensitivityAlgorithm", &sensitivityAlgorithm, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensitivityIntegrator", &sensitivityIntegrator, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensNodeDisp", &sensNodeDisp, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensLambda", &sensLambda, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL); // Abbas
+  Tcl_CreateCommand(interp, "sensNodeVel", &sensNodeVel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensNodeAccel", &sensNodeAccel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensSectionForce", &sensSectionForce, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensNodePressure", &sensNodePressure, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   theSensitivityAlgorithm = 0;
   theSensitivityIntegrator = 0;
@@ -60,8 +49,7 @@ static TclOptimizationBuilder *theOptimizationBuilder =
   theOptimizationBuilder = 0;
 
   // --- Quan March 2010  (4)
-  Tcl_CreateCommand(interp, "optimization", &optimization, (ClientData)NULL,
-                    (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "optimization", &optimization, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 #endif
 
 #ifdef _RELIABILITY
@@ -107,4 +95,16 @@ wipeReliability(ClientData clientData, Tcl_Interp *interp, int argc,
 
 #endif
 
+
+int
+computeGradients(ClientData clientData, Tcl_Interp *interp, int argc,
+                 TCL_Char **argv)
+{
+#ifdef _RELIABILITY
+  if (theSensitivityAlgorithm != 0)
+    theSensitivityAlgorithm->computeSensitivities();
+#endif
+  return TCL_OK;
+}
+// AddingSensitivity:END //////////////////////////////////////
 

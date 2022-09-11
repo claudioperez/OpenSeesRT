@@ -74,9 +74,9 @@ extern void *OPS_UVCuniaxial(G3_Runtime *);
 // *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder
 // *theTclBuilder);
 
-extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
-                                                   Tcl_Interp *interp, int argc,
-                                                   TCL_Char **arg);
+// extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
+//                                                    Tcl_Interp *interp, int argc,
+//                                                    TCL_Char **arg);
 
 extern UniaxialMaterial *
 Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData,
@@ -829,9 +829,9 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   if (theMaterial == 0)
     theMaterial = TclBasicBuilder_addPyTzQzMaterial(clientData, interp, argc, argv, theDomain);
 
-  // LimitState
-  if (theMaterial == 0)
-    theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
+  // // LimitState
+  // if (theMaterial == 0)
+  //   theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
 
   if (theMaterial == 0) {
     //
@@ -858,6 +858,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   //   package yet to be loaded
   //
   if (theMaterial == 0) {
+#if 0
     //
     // maybe material in a routine
     //
@@ -874,6 +875,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
       if (theMaterial == 0)
         delete matObject;
     }
+#endif
   }
 
   //

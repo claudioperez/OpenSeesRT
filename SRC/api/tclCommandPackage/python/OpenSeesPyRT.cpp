@@ -1,3 +1,7 @@
+//
+// Author: cmp
+//
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
@@ -17,7 +21,6 @@ namespace py = pybind11;
 #include <HystereticBackbone.h>
 
 #include <ManderBackbone.h>
-
 
 // 
 // ANALYSIS
@@ -213,18 +216,18 @@ quake2sees_motion(
     Vector *accel;
     TimeSeries *accelSeries;
     GroundMotion *groundMotion;
-    /* quake -> {Vector} */
+    // quake -> {Vector}
     py::buffer_info info = quake_array.request();
     double* accel_array = static_cast<double*>(info.ptr);
     int array_size = static_cast<int>(info.shape[0]);
     accel = new Vector(accel_array,array_size);
 
-    /* {Vector} -> {TimeSeries:PathTimeSeries} */
+    // {Vector} -> {TimeSeries:PathTimeSeries}
     accelSeries = new PathSeries(tag, *accel, time_step, cfactor, false, time_start);
 
     groundMotion = new GroundMotion(0, 0, accelSeries, 0);
     return groundMotion;
-    /* TimeSeries -> Pattern:UniformExcitation */
+    // TimeSeries -> Pattern:UniformExcitation
 
 }
 
@@ -260,17 +263,17 @@ init_obj_module(py::module &m)
   PyVector.def (py::init([](
         py::array_t<double, py::array::c_style|py::array::forcecast> array
       ) -> Vector {
-        bool verbose = false;
+        const bool verbose = false;
         py::buffer_info info = array.request();
         if (verbose){
-          py::print("ptr\t", info.ptr);
+          py::print("ptr\t",      info.ptr);
           py::print("itemsize\t", info.itemsize);
-          py::print("format\t", info.format);
-          py::print("ndim\t", info.ndim);
-          py::print("shape\t", py::cast(info.shape));
-          py::print("strides\t", py::cast(info.strides));
-          py::print("array\t", array);
-          printf("%lf\n", *((double*)info.ptr));
+          py::print("format\t",   info.format);
+          py::print("ndim\t",     info.ndim);
+          py::print("shape\t",    py::cast(info.shape));
+          py::print("strides\t",  py::cast(info.strides));
+          py::print("array\t",    array);
+          printf("%lf\n",         *((double*)info.ptr));
         }
         return Vector(static_cast<double*>(info.ptr),(int)info.shape[0]);
       }))
@@ -280,7 +283,6 @@ init_obj_module(py::module &m)
       //       );
       // })
 
-      /* pyg3.Vector(array:Seq, assert_size:int) */
       .def (py::init([](
         py::array_t<double, py::array::c_style|py::array::forcecast> array,
         int assert_size
@@ -293,28 +295,28 @@ init_obj_module(py::module &m)
       }))
   ;
   py::class_<Matrix, std::unique_ptr<Matrix, py::nodelete>>(m, "Matrix", py::buffer_protocol())
-      .def (py::init([](
-          py::array_t<double, py::array::c_style|py::array::forcecast> array,
-          int assert_size
-      ) -> Matrix {
-        bool verbose = true;
-        py::buffer_info info = array.request();
-        if (verbose){
-          py::print("ptr\t",info.ptr);
-          py::print("itemsize\t", info.itemsize);
-          py::print("format\t", info.format);
-          py::print("ndim\t", info.ndim);
-          py::print("shape\t", py::cast(info.shape));
-          py::print("strides\t", py::cast(info.strides));
-        }
-        if (info.shape[0] != assert_size)
-          throw std::runtime_error("Incompatible buffer dimension.");
-        return Matrix(
-          static_cast<double*>(info.ptr), 
-          static_cast<int>(info.shape[0]),
-          static_cast<int>(info.shape[1])
-        );
-      }))
+    .def (py::init([](
+        py::array_t<double, py::array::c_style|py::array::forcecast> array,
+        int assert_size
+    ) -> Matrix {
+      bool verbose = true;
+      py::buffer_info info = array.request();
+      if (verbose){
+        py::print("ptr\t",info.ptr);
+        py::print("itemsize\t", info.itemsize);
+        py::print("format\t", info.format);
+        py::print("ndim\t", info.ndim);
+        py::print("shape\t", py::cast(info.shape));
+        py::print("strides\t", py::cast(info.strides));
+      }
+      if (info.shape[0] != assert_size)
+        throw std::runtime_error("Incompatible buffer dimension.");
+      return Matrix(
+        static_cast<double*>(info.ptr), 
+        static_cast<int>(info.shape[0]),
+        static_cast<int>(info.shape[1])
+      );
+    }))
   ; 
   py::class_<Node,    std::unique_ptr<Node,py::nodelete>>(m, "_Node")
   ;
@@ -342,14 +344,14 @@ init_obj_module(py::module &m)
       return section.setTrialSectionDeformation(*new_vector(deformation));
     }) 
     .def ("setTrialSectionDeformation", [](SectionForceDeformation& section, Vector &deformation) {
-      return section.setTrialSectionDeformation(deformation);
+        return section.setTrialSectionDeformation(deformation);
     }) 
     .def ("getSectionDeformation", &SectionForceDeformation::getSectionDeformation)
 
     .def ("getStressResultant",    [](SectionForceDeformation &section, py::array_t<double> deformation, bool commit=false) {
-      section.setTrialSectionDeformation(*new_vector(deformation));
-      if (commit) section.commitState();
-      return copy_vector(section.getStressResultant());
+        section.setTrialSectionDeformation(*new_vector(deformation));
+        if (commit) section.commitState();
+        return copy_vector(section.getStressResultant());
     })
     .def ("getStressResultant",    [](SectionForceDeformation &section) {
         return copy_vector(section.getStressResultant());
@@ -370,9 +372,12 @@ init_obj_module(py::module &m)
     .def ("getStress",             &UniaxialMaterial::getStress)
     .def ("getStress",            [](UniaxialMaterial &material, double strain, bool commit=false){
         material.setTrialStrain(strain);
-        if (commit)  material.commitState();
+        if (commit)
+          material.commitState();
         return material.getStress();
-    }, py::arg("strain"), py::arg("commit"))
+      }, 
+      py::arg("strain"), py::arg("commit")
+    )
     .def ("getTangent",            &UniaxialMaterial::getTangent)
     .def ("getDampTangent",        &UniaxialMaterial::getDampTangent)
     .def ("getStrainRate",         &UniaxialMaterial::getStrainRate)
@@ -381,7 +386,7 @@ init_obj_module(py::module &m)
     .def ("revertToLastCommit",    &UniaxialMaterial::revertToLastCommit)
   ;
 
-  py::class_<HystereticBackbone, PyHystereticBackbone>(m, "HystereticBackbone")
+  py::class_<HystereticBackbone,   PyHystereticBackbone>(m, "HystereticBackbone")
     .def("getStress", &HystereticBackbone::getStress);
   ;
 
@@ -392,51 +397,55 @@ init_obj_module(py::module &m)
     .def("getStress", &ManderBackbone::getStress)
   ;
 
+  //
+  // Loading
+  //
 
-    py::class_<TimeSeries, std::unique_ptr<TimeSeries, py::nodelete> >(m, "TimeSeries");
-    py::class_<PathTimeSeries>(m, "PathTimeSeries");
-    py::class_<LinearSeries, TimeSeries, std::unique_ptr<LinearSeries, py::nodelete> >(m, "LinearSeries")
-        .def (py::init())
-        .def ("getFactor",     &LinearSeries::getFactor)
-    ;
-    py::class_<LoadPattern, std::unique_ptr<LoadPattern, py::nodelete> >(m, "LoadPattern",
-         "The `LoadPattern` class is a concrete base class. A `LoadPattern "
-         "is a container class for `Load` and `SP_Constraint objects."
-         )
-        .def (py::init<int>())
-        .def ("setTimeSeries", &LoadPattern::setTimeSeries)
-    ;
-    py::class_<EarthquakePattern, LoadPattern>(m, "EarthquakePattern");
+  py::class_<TimeSeries, std::unique_ptr<TimeSeries, py::nodelete> >(m, "TimeSeries");
+  py::class_<PathTimeSeries>(m, "PathTimeSeries");
+  py::class_<LinearSeries, TimeSeries, std::unique_ptr<LinearSeries, py::nodelete> >(m, "LinearSeries")
+    .def (py::init())
+    .def ("getFactor",     &LinearSeries::getFactor)
+  ;
 
-    py::class_<UniformExcitation, EarthquakePattern>(m, "UniformExcitation")
-        .def (py::init< \
-                GroundMotion&,
-                int,
-                int,
-                double,
-                double>(),
-              py::arg("motion"),
-              py::arg("dof"),
-              py::arg("tag"),
-              py::arg("vel") = 0.0,
-              py::arg("factor") = 1.0
-        )
-        .def (py::init([](
-             int tag,
-             int dof,
-             py::array_t<double,py::array::c_style|py::array::forcecast> motion,
-             double time_step,
-             double vel=0.0,
-             double factor=1.0
-        ) -> UniformExcitation {
-             printf("called\n\n\n");
-             GroundMotion *ground_motion = quake2sees_motion(motion, time_step);
-             return UniformExcitation(*ground_motion, dof, tag, vel, factor);
-        }), 
-             py::arg("tag"), py::arg("dof"), py::arg("accel"), py::arg("time_step"),
-             py::arg("init_veloc")=0.0, py::arg("factor")=1.0
-        )
-    ;
+  py::class_<LoadPattern, std::unique_ptr<LoadPattern, py::nodelete> >(m, "LoadPattern",
+     "The `LoadPattern` class is a concrete base class. A `LoadPattern "
+     "is a container class for `Load` and `SP_Constraint objects."
+     )
+    .def (py::init<int>())
+    .def ("setTimeSeries", &LoadPattern::setTimeSeries)
+  ;
+
+  py::class_<EarthquakePattern, LoadPattern>(m, "EarthquakePattern");
+  py::class_<UniformExcitation, EarthquakePattern>(m, "UniformExcitation")
+    .def (py::init< \
+            GroundMotion&,
+            int,
+            int,
+            double,
+            double>(),
+          py::arg("motion"),
+          py::arg("dof"),
+          py::arg("tag"),
+          py::arg("vel") = 0.0,
+          py::arg("factor") = 1.0
+    )
+    .def (py::init([](
+         int tag,
+         int dof,
+         py::array_t<double,py::array::c_style|py::array::forcecast> motion,
+         double time_step,
+         double vel=0.0,
+         double factor=1.0
+    ) -> UniformExcitation {
+         printf("called\n\n\n");
+         GroundMotion *ground_motion = quake2sees_motion(motion, time_step);
+         return UniformExcitation(*ground_motion, dof, tag, vel, factor);
+    }), 
+         py::arg("tag"), py::arg("dof"), py::arg("accel"), py::arg("time_step"),
+         py::arg("init_veloc")=0.0, py::arg("factor")=1.0
+    )
+  ;
 
   py::class_<TclSafeBuilder, std::unique_ptr<TclSafeBuilder, py::nodelete> >(m, "TclTclSafeBuilder")
     .def (py::init([](py::object interpaddr)->std::unique_ptr<TclSafeBuilder, py::nodelete>{
@@ -471,7 +480,7 @@ init_obj_module(py::module &m)
 
   py::class_<Domain>(m, "_Domain")
     // .def ("getElementResponse", &Domain::getElementResponse)
-    .def ("getNodeResponse", [](Domain&domain, int node, std::string type) {
+    .def ("getNodeResponse", [](Domain& domain, int node, std::string type) {
         NodeResponseType typ;
         if (type == "displ") typ = Disp;
         if (type == "accel") typ = Accel;
@@ -500,6 +509,9 @@ init_obj_module(py::module &m)
     .def ("analyze", &TransientAnalysis::analyze)
   ;
 
+  //
+  // Module-Level Functions
+  //
   m.def ("get_builder", &get_builder);
   m.def ("getRuntime",  &getRuntime);
   m.def ("get_domain", [](G3_Runtime *rt)->std::unique_ptr<Domain, py::nodelete>{
@@ -510,5 +522,7 @@ init_obj_module(py::module &m)
 
 }
 
-PYBIND11_MODULE(OpenSeesPyRT, m) {init_obj_module(m);}
+PYBIND11_MODULE(OpenSeesPyRT, m) {
+  init_obj_module(m);
+}
 

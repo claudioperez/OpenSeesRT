@@ -23,27 +23,27 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
 int
-specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  // make sure at least one other argument to contain numberer
-  if (argc < 2) {
-    opserr << "WARNING need to specify a ConvergenceTest Type type \n";
-    return TCL_ERROR;
-  }
   G3_Runtime *rt = G3_getRuntime(interp);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
 
   ConvergenceTest* theNewTest = RT_newConvergenceTest(rt, argc, argv);
-  if (theNewTest != 0) {
+
+  if (theNewTest == nullptr) {
+    opserr << "ERROR Failed to get convergence test\n";
+    return TCL_ERROR;
+
+  } else {
     theTest = theNewTest;
 
     // if the analysis exists - we want to change the Test
-    if (the_static_analysis != 0)
+    if (the_static_analysis != nullptr) {
       the_static_analysis->setConvergenceTest(*theTest);
 
-    else if (theTransientAnalysis != 0)
+    } else if (theTransientAnalysis != nullptr) {
       theTransientAnalysis->setConvergenceTest(*theTest);
+    }
 
 #ifdef _PARALLEL_PROCESSING
     if (the_static_analysis != 0 || theTransientAnalysis != 0) {
@@ -76,6 +76,14 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
   int printIt = 0;
   int normType = 2;
   int maxIncr = -1;
+
+
+  // make sure at least one other argument to contain numberer
+  if (argc < 2) {
+    opserr << "WARNING need to specify a ConvergenceTest Type type \n";
+    return nullptr;
+  }
+
 
   if ((strcmp(argv[1], "NormDispAndUnbalance") == 0) ||
       (strcmp(argv[1], "NormDispOrUnbalance") == 0)) {
