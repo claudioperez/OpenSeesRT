@@ -129,6 +129,7 @@ target_sources(OpenSeesRT PRIVATE
 # add_subdirectory(libraries/uniaxial)
 add_subdirectory(contrib/)
 
+set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 
 target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)

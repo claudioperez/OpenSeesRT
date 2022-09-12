@@ -22,6 +22,7 @@ target_sources(OPS_SysOfEqn
 )
 
 add_library(OPS_SysOfEqn_f STATIC)
+target_compile_options(OPS_SysOfEqn_f PRIVATE -fPIC)
 target_sources(OPS_SysOfEqn_f PRIVATE genmmd.f)
 target_link_libraries(OPS_SysOfEqn PUBLIC OPS_SysOfEqn_f)
 

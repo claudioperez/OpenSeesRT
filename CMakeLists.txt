@@ -67,6 +67,7 @@ if (UNIX)
   else ()
     include(OpenSeesDependenciesUnix)
   endif ()
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
   if(APPLE)
    message(STATUS ">>> MacOS")
@@ -409,6 +410,10 @@ opensees_library(OPS_PFEM
 add_library(G3) 
 add_library(G3_API           EXCLUDE_FROM_ALL) 
 add_library(OpenSees         EXCLUDE_FROM_ALL)
+
+set_property(TARGET G3 PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET OPS_SysOfEqn PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET OPS_Element PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Executables and final targets
 #------------------------------------------------------------------------------
