@@ -27,6 +27,7 @@
 //
 // What: "@(#) TclBrickCommand.cpp, revA"
 
+#include <InputAPI.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
@@ -39,21 +40,13 @@
 #include <FLBrick.h>
 #endif
 
-#include <TclBasicBuilder.h>
 
 extern void printCommand(int argc, TCL_Char **argv);
 
 int
 TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv, Domain *theTclDomain,
-                         TclBasicBuilder *theTclBuilder, int eleArgStart)
+                         TCL_Char **argv, Domain *theTclDomain, int eleArgStart)
 {
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
-
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 11) {
     opserr << "WARNING insufficient arguments\n";

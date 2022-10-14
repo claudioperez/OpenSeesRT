@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <InputAPI.h>
-#include <DegradingUniaxialWrapper.hh>
+#include "DegradingUniaxialWrapper.hh"
 
 #define WRAPPER_CMD "FedeasUniaxialDamage"
 // #define WRAPPER_CMD "FedeasDamage"
@@ -11,8 +11,6 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
   // Pointer to a uniaxial material that will be returned
   DegradingUniaxialWrapper *theMaterial = 0;
   UniaxialMaterial *theWrappedMaterial = 0;
-  double minStrain = -1.0e16;
-  double maxStrain =  1.0e16;
   int tags[2];
 
   if (argc < 2) {
@@ -59,28 +57,38 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
       Ccd = std::stod(argv[++argn]);
       // opserr << "WARNING invalid baseTag uniaxialMaterial " WRAPPER_CMD ;
     } else {
-      opserr << "WARNING invalid option: " << param
-             << " in uniaxialMaterial '" WRAPPER_CMD "' with tag: '" 
-             << tags[0] << "'"
-             << endln;
-      return nullptr;
+      break;
+      // opserr << "WARNING invalid option: " << param
+      //        << " in uniaxialMaterial '" WRAPPER_CMD "' with tag: '" 
+      //        << tags[0] << "'"
+      //        << endln;
+      // return nullptr;
     }
     argn++;
   }
 
+  MaterialRoutine *damage = new MaterialRoutine;
+  damage->argv = &argv[argn];
+  damage->argc-argn;
+
+  *damage =
+    *(MaterialRoutine*)Tcl_GetAssocData(G3_getInterpreter(rt), "elle::libdmg::UniaxialDamage", NULL);
+  
+  damage->routine(ISW_CREATE, 0, damage, 0);
+
+
   // Parsing was successful, allocate the material
-  theMaterial = new DegradingUniaxialWrapper(tags[0], *theWrappedMaterial,
-                                              minStrain, maxStrain);
+  theMaterial = new DegradingUniaxialWrapper(tags[0], *theWrappedMaterial, damage);
   if (theMaterial == 0) {
     opserr << "WARNING could not create uniaxialMaterial of type " WRAPPER_CMD << endln;
     return nullptr;
   }
   theMaterial->setCoupling(Ccd);
 
-  if (dmgtag){
-    if (theMaterial->setDamageWrapper(G3_getInterpreter(rt), dmgtag) > 0)
-      opserr << "#Set damage wrapper '" << dmgtag << "'\n";
-  }
+  // if (dmgtag){
+  //   if (theMaterial->setDamageWrapper(G3_getInterpreter(rt), dmgtag) > 0)
+  //     opserr << "#Set damage wrapper '" << dmgtag << "'\n";
+  // }
 
   // return G3_addUniaxialMaterial(rt, theMaterial);
   return theMaterial;
