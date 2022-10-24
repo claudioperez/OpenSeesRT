@@ -44,13 +44,20 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
   int argn = 4;
   const char *dmgtag = 0;
   double Ccd = 0.5;
+  StateOperator *damage = new StateOperator;
   while (argn < argc) {
     const char *param = argv[argn];
 
     if ((strcmp(param, "-damage") == 0) || 
         (strcmp(param, "-dmg") == 0)    ||
         (strcmp(param, "-DMG") == 0))   {
-      dmgtag = argv[++argn];
+      *damage =
+        *(StateOperator*)Tcl_GetAssocData(G3_getInterpreter(rt), "fedeas::damage::UniaxialDamage", NULL);
+      damage->runtime = (void*)G3_getInterpreter(rt);
+      
+      damage->routine(damage, ISW_CREATE, argc-argn, &argv[++argn], 0, 0, 0, 0, 0);
+      damage->routine(damage, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
+
     } else if ((strcmp(param, "-couple") == 0) || 
                (strcmp(param, "-ccd") == 0)    ||
                (strcmp(param, "-Ccd") == 0))   {
@@ -66,16 +73,6 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
     }
     argn++;
   }
-
-  MaterialRoutine *damage = new MaterialRoutine;
-  damage->argv = &argv[argn];
-  damage->argc-argn;
-
-  *damage =
-    *(MaterialRoutine*)Tcl_GetAssocData(G3_getInterpreter(rt), "elle::libdmg::UniaxialDamage", NULL);
-  
-  damage->routine(ISW_CREATE, 0, damage, 0);
-
 
   // Parsing was successful, allocate the material
   theMaterial = new DegradingUniaxialWrapper(tags[0], *theWrappedMaterial, damage);

@@ -5,12 +5,18 @@
 extern "C" {
 #endif
 
+#ifdef ISW_COMMIT
+#undef ISW_COMMIT
+#endif
+#ifdef ISW_DELETE
+#undef ISW_DELETE
+#endif
 
 enum ISW_Task {
   ISW_COMMIT = 1<<0,
-  ISW_UPDATE = 1<<1,
-  ISW_MALLOC = 1<<2,
-  ISW_DELETE = 1<<3,
+  ISW_DELETE = 1<<1,
+  ISW_UPDATE = 1<<2,
+  ISW_MALLOC = 1<<3,
   ISW_CREATE = 1<<4,
 
   ISW_RETURN_RESIDUAL = 1<<5,
@@ -29,6 +35,7 @@ const int ISW_ACTION = ISW_COMMIT
 
 const int ISW_MODIFY = ISW_UPDATE_InitialTangent
                | ISW_UPDATE_CurrentTangent;
+
 
 
 typedef int StateRoutine(
@@ -53,7 +60,7 @@ typedef int StateObjectRoutine(
 
 struct StateOperator {
   StateRoutine* routine;
-  StateObjectRoutine* obj_routine;
+  StateObjectRoutine* object_routine;
 
   void   *runtime;
 

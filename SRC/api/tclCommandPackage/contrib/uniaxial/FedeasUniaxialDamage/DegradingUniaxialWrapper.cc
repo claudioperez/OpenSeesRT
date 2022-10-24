@@ -1,8 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
-#include <unordered_map>
-#include <functional>
-#include <tcl.h>
+#include <functional> // std::hash
+#include <string>
 
 #include <ID.h>
 #include <Channel.h>
@@ -10,17 +7,106 @@
 
 #include <OPS_Globals.h>
 
-#include <elementAPI.h>
+#include <InputAPI.h>
 #include "DegradingUniaxialWrapper.hh"
-#include "MaterialFFI.h"
+#include "StateOperator.h"
 
-// TODO
-#define MAT_TAG_FedeasDeg 90909090
+#define WRAPPER_CMD "FedeasUniaxialDamage"
+static const std::hash<std::string> hasher;
+static const int MatTag = hasher(WRAPPER_CMD);
+
+UniaxialMaterial*
+DegradingUniaxialWrapper::parseNew(G3_Runtime* rt, void* cd, int argc, TCL_Char **argv)
+{
+  // Pointer to a uniaxial material that will be returned
+  DegradingUniaxialWrapper *theMaterial = 0;
+  UniaxialMaterial *theWrappedMaterial = 0;
+  int tags[2];
+
+  if (argc < 2) {
+    opserr << "WARNING invalid uniaxialMaterial " WRAPPER_CMD " $tag "
+              "$wrapTag <-damage $damageTag>"
+           << endln;
+    return nullptr;
+  }
+
+  // Get wrapper tag
+  if (G3Parse_getInt(rt, argv[2], &tags[0]) != TCL_OK) {
+    opserr << "WARNING invalid uniaxialMaterial tag\n";
+    // printCommand(argc, argv);
+    return nullptr;
+  }
+
+  // Get base tag
+  if (G3Parse_getInt(rt, argv[3], &tags[1]) != TCL_OK) {
+    opserr << "WARNING invalid uniaxialMaterial tag\n";
+    // printCommand(argc, argv);
+    return nullptr;
+  }
+
+  // Get base material
+  theWrappedMaterial = G3_getUniaxialMaterialInstance(rt, tags[1]);
+  if (theWrappedMaterial == 0) {
+    opserr << "WARNING unable to retrieve uniaxialMaterial with tag" WRAPPER_CMD " tag: "
+           << tags[1] << endln;
+    return nullptr;
+  }
+
+  int argn = 4;
+  const char *dmgtag = 0;
+  double Ccd = 0.5;
+  StateOperator *damage = new StateOperator;
+  while (argn < argc) {
+    const char *param = argv[argn];
+
+    if ((strcmp(param, "-damage") == 0) || 
+        (strcmp(param, "-dmg") == 0)    ||
+        (strcmp(param, "-DMG") == 0))   {
+      *damage =
+        *(StateOperator*)Tcl_GetAssocData(G3_getInterpreter(rt), "fedeas::damage::UniaxialDamage", NULL);
+      damage->runtime = (void*)G3_getInterpreter(rt);
+      
+      damage->routine(damage, ISW_CREATE, argc-argn, &argv[++argn], 0, 0, 0, 0, 0);
+      damage->routine(damage, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
+
+    } else if ((strcmp(param, "-couple") == 0) || 
+               (strcmp(param, "-ccd") == 0)    ||
+               (strcmp(param, "-Ccd") == 0))   {
+      Ccd = std::stod(argv[++argn]);
+      // opserr << "WARNING invalid baseTag uniaxialMaterial " WRAPPER_CMD ;
+    } else {
+      break;
+      // opserr << "WARNING invalid option: " << param
+      //        << " in uniaxialMaterial '" WRAPPER_CMD "' with tag: '" 
+      //        << tags[0] << "'"
+      //        << endln;
+      // return nullptr;
+    }
+    argn++;
+  }
+
+  // Parsing was successful, allocate the material
+  theMaterial = new DegradingUniaxialWrapper(tags[0], *theWrappedMaterial, damage);
+  if (theMaterial == 0) {
+    opserr << "WARNING could not create uniaxialMaterial of type " WRAPPER_CMD << endln;
+    return nullptr;
+  }
+  theMaterial->setCoupling(Ccd);
+
+  // if (dmgtag){
+  //   if (theMaterial->setDamageWrapper(G3_getInterpreter(rt), dmgtag) > 0)
+  //     opserr << "#Set damage wrapper '" << dmgtag << "'\n";
+  // }
+
+  // return G3_addUniaxialMaterial(rt, theMaterial);
+  return theMaterial;
+}
+
 
 DegradingUniaxialWrapper::DegradingUniaxialWrapper(int tag,
                                                    UniaxialMaterial &material,
-                                                   MaterialRoutine  *damage)
-    : UniaxialMaterial(tag, MAT_TAG_FedeasDeg), theMaterial(0), m_stress(0.0)
+                                                   StateOperator  *damage)
+    : UniaxialMaterial(tag, MatTag), theMaterial(0), m_stress(0.0)
 {
   theMaterial = material.getCopy();
   m_tangent = theMaterial->getInitialTangent();
@@ -33,7 +119,7 @@ DegradingUniaxialWrapper::DegradingUniaxialWrapper(int tag,
 }
 
 DegradingUniaxialWrapper::DegradingUniaxialWrapper()
-    : UniaxialMaterial(0, MAT_TAG_FedeasDeg), theMaterial(0)
+    : UniaxialMaterial(0, MatTag), theMaterial(0)
 {
 }
 
@@ -59,20 +145,18 @@ DegradingUniaxialWrapper::setTrialStrain(double strain, double temp, double stra
 
     if (degrade) {//  && abs(strain_incr) > m_rate_tol){
 
-      //   .e   = pastStrain,
-      double variables[] = {
+      double inputs[] = {
+        strain,
         theMaterial->getStress(),
         theMaterial->getTangent(),
-        // .ke  = theMaterial->getInitialTangent()
       };
+      double outputs[2];
 
-      struct MaterialResponse response;
-      degrade->variable = variables;
 
-      this->degrade->routine(ISW_UPDATE, nullptr, degrade, &response);
+      this->degrade->routine(degrade, ISW_UPDATE, 0, 0, 3, inputs, 2, outputs, 0);
 
-      this->m_stress   = response.response[0];
-      this->m_tangent  = response.response[1];
+      this->m_stress   = outputs[0];
+      this->m_tangent  = outputs[1];
 
     } else {
       this->m_stress   = theMaterial->getStress();
@@ -84,40 +168,12 @@ DegradingUniaxialWrapper::setTrialStrain(double strain, double temp, double stra
 int
 DegradingUniaxialWrapper::setTrialStrain(double trialStrain, double strainRate)
 {
-
   return this->setTrialStrain(trialStrain, 0.0, strainRate);
-  /*
-    double pastStrain = theMaterial->getStrain();
-    theMaterial->setTrialStrain(trialStrain, strainRate);
-    // double trialStrain = theMaterial->getStrain();
-    if (degrade){
-      // double currStrain = BaseMaterial::getStrain();
-      // opserr << "#Degrading\n";
-
-      UniaxialState pres, past = {
-        .e   = pastStrain,
-        .ep  = trialStrain,
-        .De  = trialStrain - pastStrain,
-        .se  = theMaterial->getStress(),
-        .kt  = theMaterial->getTangent(),
-        .ke  = theMaterial->getInitialTangent()
-      };
-
-      degrade((void*)&past, (void*)&pres);
-
-      this->m_stress  = pres.se;
-      this->m_tangent = pres.kt;
-    } else {
-      // opserr << "#Not Degrading\n";
-    }
-    return 0;
-*/
 }
 
 double
 DegradingUniaxialWrapper::getTangent(void)
 {
-  // return theMaterial->getTangent();
   
   if (degrade)
     return this->m_tangent;
@@ -151,7 +207,10 @@ DegradingUniaxialWrapper::getStrainRate(void)
 
 int
 DegradingUniaxialWrapper::commitState(void)
-{return theMaterial->commitState();}
+{
+  this->degrade->routine(degrade, ISW_COMMIT, 0, 0, 0, 0, 0, 0, 0);
+  return theMaterial->commitState();
+}
 
 int
 DegradingUniaxialWrapper::revertToLastCommit(void)
@@ -223,7 +282,6 @@ DegradingUniaxialWrapper::recvSelf(int cTag, Channel &theChannel,
   }
   this->setTag(int(dataID(0)));
 
-  // as no way to change material, don't have to check classTag of the material
   if (theMaterial == 0) {
     int matClassTag = int(dataID(1));
     theMaterial = theBroker.getNewUniaxialMaterial(matClassTag);
@@ -242,11 +300,6 @@ DegradingUniaxialWrapper::recvSelf(int cTag, Channel &theChannel,
         << "DegradingUniaxialWrapper::recvSelf() - failed to get the Vector\n";
     return -3;
   }
-
-  // minStrain = dataVec(0);
-  // maxStrain = dataVec(1);
-
-
 
   if (theMaterial->recvSelf(cTag, theChannel, theBroker) < 0) {
     opserr << "DegradingUniaxialWrapper::recvSelf() - failed to get the "
@@ -276,9 +329,6 @@ int
 DegradingUniaxialWrapper::setParameter(const char **argv, int argc,
                                        Parameter &param)
 {
-  //
-  // I suppose epsMin and epsMax could be parameters, but not for now -- MHS
-  //
   return theMaterial->setParameter(argv, argc, param);
 }
 

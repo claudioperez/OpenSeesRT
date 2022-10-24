@@ -4,13 +4,15 @@
 #include <functional> // std::function
 #include <tcl.h>
 #include <UniaxialMaterial.h>
-#include "MaterialFFI.h"
+#include "StateOperator.h"
 
 class DegradingUniaxialWrapper : public UniaxialMaterial {
 public:
-  DegradingUniaxialWrapper(int tag, UniaxialMaterial &material, MaterialRoutine* damage);
+  DegradingUniaxialWrapper(int tag, UniaxialMaterial &material, StateOperator* damage);
   DegradingUniaxialWrapper();
   ~DegradingUniaxialWrapper();
+
+  static UniaxialMaterial* parseNew(G3_Runtime*, void*, int, TCL_Char **);
 
   const char *
   getClassType(void) const {return "DegradingUniaxialWrapper";}
@@ -65,7 +67,7 @@ private:
 
   UniaxialState past,pres;
   // typedef std::function<int(void*, void*)> degrade_f;
-  MaterialRoutine* degrade = NULL;
+  StateOperator* degrade = NULL;
 };
 
 #endif // DegradingUniaxialWrapper_H
