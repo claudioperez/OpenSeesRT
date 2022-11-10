@@ -1,23 +1,27 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 //
 // Description: This file contains the function invoked when the user invokes
 // the "pattern" command in the interpreter. 
 //
 // The command takes the form:
 //
-// pattern <type> <tag> {
-//  <load-like>...
-// };
+//     pattern <type> <tag> {
+//      <load-like>...
+//     };
 // 
 // SIDE EFFECTS:
 // - Create an instance of class <type> with tag <tag>.
 // - Add this instance to the domain
 //
-//
-//
-//
+
+
 // Written: fmk
 // Created: 07/99
-//
+
 // Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
 // procedure
 #include <assert.h>

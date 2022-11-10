@@ -27,7 +27,7 @@
 #  undef  OPS_GetUniaxialMaterial
 #  define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 // #  undef  OPS_getUniaxialMaterial
-// #  define OPS_getUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+#  define OPS_getUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 
 // Time series
 #  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
@@ -105,7 +105,6 @@ CrdTransf *G3_getCrdTransf(G3_Runtime *, G3_Tag);
 
 // Systems and Solvers
 LinearSOE **G3_getLinearSoePtr(G3_Runtime* );
-LinearSOE  *G3_getDefaultLinearSoe(G3_Runtime *, int flags);
 #undef  OPS_GetLinearSOE
 #define OPS_GetLinearSOE() G3_getLinearSoePtr(rt)
 int G3_setLinearSoe(G3_Runtime*, LinearSOE*);
