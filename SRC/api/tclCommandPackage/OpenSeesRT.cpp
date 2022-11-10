@@ -43,6 +43,7 @@ Openseesrt_Init(Tcl_Interp *interp)
   OpenSeesAppInit(interp);
   G3_InitTclSequentialAPI(interp);
   init_g3_tcl_utils(interp);
+
   if (isatty(STDERR_FILENO))
     G3_setStreamColor(nullptr, G3_Warn, 1);
   return TCL_OK;

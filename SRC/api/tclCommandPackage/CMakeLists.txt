@@ -29,8 +29,13 @@ target_sources(OpenSeesRT PRIVATE
     "modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
     "modelbuilder/safe/TclSafeBuilder.cpp"
     "modelbuilder/sect/TclSectionTestBuilder.cpp"
+
+    "commands/modeling/model.cpp"
+    "commands/modeling/nodes.cpp"
+    "commands/modeling/constraint.cpp"
     "commands/modeling/geomTransf.cpp"
     "commands/modeling/rigidLink.cpp"
+    "commands/modeling/element.cpp"
     "commands/domain.cpp"
 
 # Other Commands
@@ -38,9 +43,6 @@ target_sources(OpenSeesRT PRIVATE
     "commands/commands.cpp"
     "commands/sequential.cpp"
     "commands/runtime.cpp"
-    "commands/modeling/model.cpp"
-    "commands/modeling/nodes.cpp"
-    "commands/modeling/constraint.cpp"
     "commands/analysis/algorithm.cpp"
     "commands/analysis/integrator.cpp"
     "commands/analysis/analysis.cpp"
@@ -68,7 +70,6 @@ target_sources(OpenSeesRT PRIVATE
 #
 # ELEMENTS
 #
-    "commands/modeling/element.cpp"
     #"element/feap/TclFeapElementCommand.cpp"
     #"element/PFEMElement/TclModelBuilder_addPFEMElement.cpp"
     #"element/PFEMElement/TclPFEMCommands.cpp"

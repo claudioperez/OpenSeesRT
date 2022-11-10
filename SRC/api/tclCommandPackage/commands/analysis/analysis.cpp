@@ -1,3 +1,8 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 #include <g3_api.h>
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
@@ -167,7 +172,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
   // G3_Runtime *rt = G3_getRuntime(interp);
-  // Domain *domain = G3_getDomain(rt);
   // StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
 
   // StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
@@ -334,10 +338,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
-  // AnalysisModel* the_analysis_model = G3_getAnalysisModel(rt);
 
-  // StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
-  // DirectIntegrationAnalysis *directIntAnalysis = theTransientAnalysis;
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
@@ -452,8 +453,8 @@ modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
+  // Domain *the_domain = G3_getDomain(rt);
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
   OPS_DomainModalProperties(rt);
   return TCL_OK;
 }
@@ -463,12 +464,14 @@ responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
+  // Domain *the_domain = G3_getDomain(rt);
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
   OPS_ResponseSpectrumAnalysis(rt);
   return TCL_OK;
 }
 
+// TODO: Move this to commands/modeling/damping.cpp? ...but it uses and
+// AnalysisBuilder
 extern int
 modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)

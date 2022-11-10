@@ -1,6 +1,7 @@
 #include <math.h>
+#include <assert.h>
 
-#include <g3_api.h>
+// #include <g3_api.h>
 #include <tcl.h>
 #include <OPS_Globals.h>
 
@@ -17,8 +18,9 @@ int
 setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+
+  Domain *the_domain = (Domain*)clientData; 
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -76,9 +78,9 @@ setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
 
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  Domain *the_domain = (Domain*)clientData; 
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
@@ -135,8 +137,9 @@ int
 nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+
+  Domain *the_domain = (Domain*)clientData; 
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -182,8 +185,9 @@ int
 calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+
+  Domain *the_domain = (Domain*)clientData; 
 
   // make sure at least one other argument to contain type of system
   int incInertia = 0;

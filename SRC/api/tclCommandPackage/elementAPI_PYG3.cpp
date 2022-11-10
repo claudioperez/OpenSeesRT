@@ -169,10 +169,10 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
 //  G3_setDomain(rt, domain);
-  G3_setModelBuilder(rt, builder);
+//  G3_setModelBuilder(rt, builder);
 // theInterp = interp;
 // theDomain = domain;
-  theModelBuilder = builder;
+// theModelBuilder = builder;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;

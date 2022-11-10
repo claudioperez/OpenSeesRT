@@ -132,7 +132,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
 
   assert(clientData != nullptr);
   TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
-  Domain *theDomain = builer->getDomain();
+  Domain *theDomain = builder->getDomain();
   G3_Runtime *rt = G3_getRuntime(interp);
 
   // Make sure there is a minimum number of arguments
