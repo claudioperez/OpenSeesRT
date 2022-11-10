@@ -7,7 +7,7 @@
 
 // Description: This file contains the functions that will be called by
 // the interpreter when the appropriate command name is specified.
-
+#include <assert.h>
 #include <g3_api.h>
 #include <G3_Runtime.h>
 #include <G3_Logging.h>
@@ -328,12 +328,12 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "getLoadFactor", &getLoadFactor, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "build", &buildModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "print", &printModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "printModel", &printModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "findNodeWithID", &findID, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+
+  Tcl_CreateCommand(interp, "findNodeWithID", &findID, domain, nullptr);
 
 // TODO: cmp -- reimplement
 //   // Talledo Start
@@ -344,7 +344,7 @@ OpenSeesAppInit(Tcl_Interp *interp)
       [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
 
 
-  Tcl_CreateCommand(interp, "remove",            &removeObject, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "remove",            &removeObject, domain, nullptr);
 
 
   Tcl_CreateCommand(interp, "reactions", &calculateNodalReactions, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
@@ -360,10 +360,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "region",         &addRegion, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 
-
-  Tcl_CreateCommand(interp, "localForce",        &localForce,    domain, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleType",           &eleType,       domain, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleNodes",          &eleNodes,      domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "getLoadFactor",     &getLoadFactor, domain, nullptr);
+  Tcl_CreateCommand(interp, "localForce",        &localForce,    domain, nullptr);
+  Tcl_CreateCommand(interp, "eleType",           &eleType,       domain, nullptr);
+  Tcl_CreateCommand(interp, "eleNodes",          &eleNodes,      domain, nullptr);
 
   Tcl_CreateCommand(interp, "loadConst", &TclCommand_setLoadConst, domain, nullptr);
 
@@ -382,22 +382,22 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "nodeUnbalance",   &nodeUnbalance,   domain, nullptr);
   Tcl_CreateCommand(interp, "nodeEigenvector", &nodeEigenvector, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "setNodeVel",      &setNodeVel,   domain, nullptr);
-  Tcl_CreateCommand(interp, "setNodeDisp",     &setNodeDisp,  domain, nullptr);
-  Tcl_CreateCommand(interp, "setNodeAccel",    &setNodeAccel, domain, nullptr);
-  Tcl_CreateCommand(interp, "setNodeCoord",    &setNodeCoord, domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeVel",      &setNodeVel,      domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeDisp",     &setNodeDisp,     domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeAccel",    &setNodeAccel,    domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeCoord",    &setNodeCoord,    domain, nullptr);
 
-  Tcl_CreateCommand(interp, "getEleTags",       &getEleTags,    domain, nullptr);
-  Tcl_CreateCommand(interp, "getNodeTags",      &getNodeTags,   domain, nullptr);
-  Tcl_CreateCommand(interp, "getParamTags",     &getParamTags,  domain, nullptr);
-  Tcl_CreateCommand(interp, "getParamValue",    &getParamValue, domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleTags",       &getEleTags,     domain, nullptr);
+  Tcl_CreateCommand(interp, "getNodeTags",      &getNodeTags,    domain, nullptr);
+  Tcl_CreateCommand(interp, "getParamTags",     &getParamTags,   domain, nullptr);
+  Tcl_CreateCommand(interp, "getParamValue",    &getParamValue,  domain, nullptr);
 
-  Tcl_CreateCommand(interp, "fixedNodes",       &fixedNodes,       domain, nullptr);
-  Tcl_CreateCommand(interp, "fixedDOFs",        &fixedDOFs,        domain, nullptr);
-  Tcl_CreateCommand(interp, "constrainedNodes", &constrainedNodes, domain, nullptr);
-  Tcl_CreateCommand(interp, "constrainedDOFs",  &constrainedDOFs,  domain, nullptr);
-  Tcl_CreateCommand(interp, "retainedNodes",    &retainedNodes,    domain, nullptr);
-  Tcl_CreateCommand(interp, "retainedDOFs",     &retainedDOFs,     domain, nullptr);
+  Tcl_CreateCommand(interp, "fixedNodes",       &fixedNodes,         domain, nullptr);
+  Tcl_CreateCommand(interp, "fixedDOFs",        &fixedDOFs,          domain, nullptr);
+  Tcl_CreateCommand(interp, "constrainedNodes", &constrainedNodes,   domain, nullptr);
+  Tcl_CreateCommand(interp, "constrainedDOFs",  &constrainedDOFs,    domain, nullptr);
+  Tcl_CreateCommand(interp, "retainedNodes",    &retainedNodes,      domain, nullptr);
+  Tcl_CreateCommand(interp, "retainedDOFs",     &retainedDOFs,       domain, nullptr);
 
   Tcl_CreateCommand(interp, "getNumElements",      &getNumElements,  domain, nullptr);
   Tcl_CreateCommand(interp, "getEleClassTags",     &getEleClassTags, domain, nullptr);
@@ -577,8 +577,8 @@ int
 getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain* domain = (Domain*)clientData; 
 
   if (argc < 2) {
     opserr << "WARNING no load pattern supplied -- getLoadFactor\n";
@@ -675,7 +675,6 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   if (theAlgorithm != 0)
     return TclAddAlgorithmRecorder(clientData, interp, argc, argv, *domain,
                                    theAlgorithm);
-
   else
     return 0;
 }
@@ -734,8 +733,8 @@ int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain * the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain * the_domain = (Domain*)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
@@ -1004,8 +1003,9 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeDisp nodeTag? <dof?>\n";
@@ -1066,8 +1066,9 @@ int
 nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeReaction nodeTag? <dof?>\n";
@@ -1128,8 +1129,9 @@ int
 nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeUnbalance nodeTag? <dof?>\n";
@@ -1191,8 +1193,11 @@ int
 nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  // Domain* domain = G3_getDomain(rt);
+  //
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - nodeEigenVector nodeTag? eigenVector? <dof?>\n";
@@ -1263,8 +1268,9 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eleForce eleTag? <dof?>\n";
@@ -1336,6 +1342,9 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - localForce eleTag? <dof?>\n";
@@ -1365,7 +1374,7 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   strcpy(myArgv0, "localForces");
   myArgv[0] = myArgv0;
 
-  const Vector *force = theDomain.getElementResponse(tag, &myArgv[0], 1);
+  const Vector *force = theDomain->getElementResponse(tag, &myArgv[0], 1);
   if (force != 0) {
     int size = force->Size();
 
@@ -1399,6 +1408,9 @@ int
 eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eleForce eleTag? <dof?>\n";
@@ -1421,7 +1433,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   dof--;
-  Element *theEle = theDomain.getElement(tag);
+  Element *theEle = theDomain->getElement(tag);
   if (theEle == 0)
     return TCL_ERROR;
 
@@ -1506,6 +1518,9 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - findNodesWithID ?id\n";
@@ -1519,7 +1534,7 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     return TCL_ERROR;
   }
 
-  NodeIter &theNodes = theDomain.getNodes();
+  NodeIter &theNodes = theDomain->getNodes();
   Node *theNode;
   char buffer[20] = {0};
 
@@ -1543,8 +1558,9 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeCoord nodeTag? <dim?>\n";

@@ -30,6 +30,7 @@
 // for the RJWatsonEqsBearing element.
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -52,7 +53,9 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
                                       int eleArgStart)
 {
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - RJWatsonEqsBearing\n";
     return TCL_ERROR;
   }
@@ -132,7 +135,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[0] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[0] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -149,7 +152,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[1] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[1] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -166,7 +169,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[2] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[2] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[2] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -366,7 +369,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[0] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[0] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -383,7 +386,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[1] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[1] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -400,7 +403,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[2] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[2] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[2] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -417,7 +420,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[3] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[3] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[3] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -434,7 +437,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[4] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[4] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[4] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -451,7 +454,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
           opserr << "RJWatsonEqsBearing element: " << tag << endln;
           return TCL_ERROR;
         }
-        theMaterials[5] = OPS_getUniaxialMaterial(matTag);
+        theMaterials[5] = builder->getUniaxialMaterial(matTag);
         if (theMaterials[5] == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;

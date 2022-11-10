@@ -47,5 +47,5 @@ target_link_libraries(OPS_Uniaxial_Fedeas PUBLIC
   #${BUNDLE_LIBS}/fedeas.lib
 )
 #target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_sources(OPS_Material PRIVATE DegradingUniaxialWrapper.cc)
+#target_sources(OPS_Material PRIVATE damage/DegradingUniaxialWrapper.cc)
 

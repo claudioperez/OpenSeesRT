@@ -30,6 +30,7 @@
 // for the GenericCopy element.
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -45,7 +46,9 @@ TclBasicBuilder_addGenericCopy(ClientData clientData, Tcl_Interp *interp, int ar
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - expElement genericCopy\n";
     return TCL_ERROR;
   }

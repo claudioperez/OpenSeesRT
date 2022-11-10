@@ -54,7 +54,7 @@ T* G3Object_newParsed(G3_Runtime *rt, G3_Char* command, std::vector<std::string>
 
 DOF_Numberer*        G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
 EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **);
-TransientIntegrator* G3Parse_newTransientIntegrator(G3_Runtime*, int, G3_Char**);
+TransientIntegrator* G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
 StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**);
 LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
 ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
@@ -67,10 +67,10 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
   StaticIntegrator* sintegrator = nullptr;
 
   // INTEGRATOR
-  if (G3Config_keyExists(conf, "integrator"))
-    sintegrator = 
-      G3Object_newParsed<StaticIntegrator, G3Parse_newStaticIntegrator>(this, "integrator", conf["integrator"]);
-  else
+  // if (G3Config_keyExists(conf, "integrator"))
+  //   sintegrator = 
+  //     G3Object_newParsed<StaticIntegrator, G3Parse_newStaticIntegrator>(this, "integrator", conf["integrator"]);
+  // else
     sintegrator = new LoadControl(1, 1, 1, 1);
 
   // CONVERGENCE TEST
@@ -83,11 +83,13 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
 
   // ALGORITHM
   EquiSolnAlgo* the_algorithm;
+  /* TODO
   if (G3Config_keyExists(conf, "algorithm"))
     the_algorithm = 
       G3Object_newParsed<EquiSolnAlgo, G3Parse_newEquiSolnAlgo>(this, "algorithm", conf["algorithm"]);
   else
     the_algorithm = this->m_global_strategy.m_algorithm;
+  */
   if (the_algorithm == nullptr)
     the_algorithm = new NewtonRaphson(*test);
   else
@@ -166,11 +168,13 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
 
   // ALGORITHM
   EquiSolnAlgo* the_algorithm;
+  /* TODO
   if (G3Config_keyExists(conf, "algorithm"))
     the_algorithm = 
       G3Object_newParsed<EquiSolnAlgo, G3Parse_newEquiSolnAlgo>(this, "algorithm", conf["algorithm"]);
   else
     the_algorithm = this->m_global_strategy.m_algorithm;
+  */
   if (the_algorithm == nullptr)
     the_algorithm = new NewtonRaphson(*test);
   else
@@ -195,10 +199,10 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
  
 
   TransientIntegrator* tintegrator;
-  if (G3Config_keyExists(conf, "integrator"))
-    tintegrator = 
-      G3Object_newParsed<TransientIntegrator, G3Parse_newTransientIntegrator>(this, "integrator", conf["integrator"]);
-  else
+//   if (G3Config_keyExists(conf, "integrator"))
+//     tintegrator = 
+//       G3Object_newParsed<TransientIntegrator, G3Parse_newTransientIntegrator>(this, "integrator", conf["integrator"]);
+//   else
       tintegrator = new Newmark(0.5, 0.25);
 
 

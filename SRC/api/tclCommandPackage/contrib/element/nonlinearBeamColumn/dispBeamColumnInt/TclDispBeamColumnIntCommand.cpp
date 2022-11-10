@@ -11,6 +11,7 @@
 
 #include "DispBeamColumn2dInt.h"
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 extern void printCommand(int argc, TCL_Char **argv);
 
@@ -22,7 +23,9 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }

@@ -1,3 +1,8 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
@@ -16,11 +21,11 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-#include <BackboneMaterial.h>   // MHS
-#include <BarSlipMaterial.h>    // NM
-#include <Bond_SP01.h>          // JZ
-#include <BoucWenMaterial.h>    // Terje
-#include <Concrete01WithSITC.h> // Won Lee
+#include <BackboneMaterial.h>        // MHS
+#include <BarSlipMaterial.h>         // NM
+#include <Bond_SP01.h>               // JZ
+#include <BoucWenMaterial.h>         // Terje
+#include <Concrete01WithSITC.h>      // Won Lee
 #include <ECC01.h>                   // Won Lee
 #include <ENTMaterial.h>             // MHS
 #include <EPPGapMaterial.h>          // Mackie
@@ -43,6 +48,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <Vector.h>
 #include <string.h>
+#include <assert.h>
 
 #include <UniaxialJ2Plasticity.h> // Quan
 
@@ -103,9 +109,9 @@ static void printCommand(int argc, TCL_Char **argv) {
   opserr << endln;
 }
 
+//
 // external functions
-
-
+//
 UniaxialMaterial *TclBasicBuilder_addPyTzQzMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv,
@@ -124,9 +130,10 @@ int
 TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv) {
 
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
   TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  Domain *theDomain = builer->getDomain();
+  G3_Runtime *rt = G3_getRuntime(interp);
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {

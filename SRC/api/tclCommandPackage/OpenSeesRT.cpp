@@ -1,12 +1,15 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
+
 /* Claudio Perez */
+
 #include <g3_api.h>
 #undef G3_Runtime
 #include "G3_Runtime.h"
 #include <stdio.h>
-
-extern int myCommands(Tcl_Interp *interp);
-extern int OpenSeesAppInit(Tcl_Interp *interp);
-extern int init_g3_tcl_utils(Tcl_Interp*);
 
 // Error streams
 #include "streams/G3_Logging.h"
@@ -14,11 +17,15 @@ extern int init_g3_tcl_utils(Tcl_Interp*);
 #include <StandardStream.h>      
 #include <unistd.h>               
 
+extern int OpenSeesAppInit(Tcl_Interp *interp);
+extern void G3_InitTclSequentialAPI(Tcl_Interp* interp);
+extern int init_g3_tcl_utils(Tcl_Interp*);
+
 extern "C" {
 
-/*
- * Called when loaded as a Tcl extension.
- */
+//
+// Called when loaded as a Tcl extension.
+//
 int DLLEXPORT
 Openseesrt_Init(Tcl_Interp *interp)
 {
@@ -34,7 +41,7 @@ Openseesrt_Init(Tcl_Interp *interp)
   Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
 
   OpenSeesAppInit(interp);
-  myCommands(interp);
+  G3_InitTclSequentialAPI(interp);
   init_g3_tcl_utils(interp);
   if (isatty(STDERR_FILENO))
     G3_setStreamColor(nullptr, G3_Warn, 1);

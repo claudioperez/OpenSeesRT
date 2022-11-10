@@ -29,6 +29,7 @@
 #include <Domain.h>
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <Parameter.h>
 #include <ElementParameter.h>
@@ -52,7 +53,9 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }

@@ -131,7 +131,7 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
     theNewAlgo = G3_newNewtonLineSearch(clientData, interp, argc, argv);
 
   else {
-    opserr << "WARNING No EquiSolnAlgo type " << argv[1] << " exists\n";
+    opserr << G3_ERROR_PROMPT << "No EquiSolnAlgo type " << argv[1] << " exists\n";
     return nullptr;
   }
 

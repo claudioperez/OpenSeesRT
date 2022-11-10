@@ -10,6 +10,7 @@
 // A TclSafeBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
 // framework.
+#include <assert.h>
 #include <modeling/commands.h>
 #include <g3_api.h>
 #include <stdlib.h>
@@ -209,13 +210,15 @@ static int
 TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+
+  Domain *theTclDomain = theTclBuilder->getDomain();
+
+  // TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
 
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
-
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed" << endln;
     return TCL_ERROR;
@@ -481,12 +484,11 @@ int
 TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
-    G3_Runtime *rt = G3_getRuntime(interp);
-    TclBuilder *theTclBuilder = G3_getModelBuilder(rt);
-    Domain     *theTclDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
 
-  // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+
+  Domain *theTclDomain = theTclBuilder->getDomain();
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - load \n";

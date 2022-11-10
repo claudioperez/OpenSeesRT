@@ -30,6 +30,7 @@
 // for the TwoNodeLink element.
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -48,7 +49,9 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int ar
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - twoNodeLink\n";
     return TCL_ERROR;
   }
@@ -118,7 +121,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int ar
       opserr << "twoNodeLink element: " << tag << endln;
       return TCL_ERROR;
     }
-    theMaterials[i] = OPS_getUniaxialMaterial(matTag);
+    theMaterials[i] = builder->getUniaxialMaterial(matTag);
     if (theMaterials[i] == 0) {
       opserr << "WARNING material model not found\n";
       opserr << "uniaxialMaterial " << matTag << endln;

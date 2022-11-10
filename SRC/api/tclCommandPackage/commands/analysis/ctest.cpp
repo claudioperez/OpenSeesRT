@@ -30,7 +30,8 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
   ConvergenceTest* theNewTest = RT_newConvergenceTest(rt, argc, argv);
 
   if (theNewTest == nullptr) {
-    opserr << G3_ERROR_PROMPT << "Failed to create convergence test\n";
+    // Parse routine is expected to have reported an error
+    // opserr << G3_ERROR_PROMPT << "Failed to create convergence test\n";
     return TCL_ERROR;
 
   } else {
@@ -64,7 +65,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
 
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
-    opserr << "WARNING need to specify a ConvergenceTest Type type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a ConvergenceTest Type type \n";
     return nullptr;
   }
 
@@ -217,7 +218,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
       theNewTest =
           new CTestRelativeTotalNormDispIncr(tol, numIter, printIt, normType);
     else {
-      opserr << "WARNING No ConvergenceTest type (NormUnbalance, NormDispIncr, "
+      opserr << G3_ERROR_PROMPT << "No ConvergenceTest type (NormUnbalance, NormDispIncr, "
                 "EnergyIncr, \n";
       opserr << "RelativeNormUnbalance, RelativeNormDispIncr, "
                 "RelativeEnergyIncr, \n";
@@ -249,7 +250,7 @@ getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
   }
 
-  opserr << G3_ERROR_PROMPT << "testNorms - no convergence test.\n";
+  opserr << G3_ERROR_PROMPT << "testNorms - no convergence test has been constructed.\n";
   return TCL_ERROR;
 }
 

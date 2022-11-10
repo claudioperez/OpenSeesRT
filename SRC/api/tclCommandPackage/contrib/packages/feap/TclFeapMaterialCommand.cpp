@@ -28,6 +28,7 @@
 #include <FeapMaterial03.h>
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 #include <Vector.h>
 #include <string.h>
 

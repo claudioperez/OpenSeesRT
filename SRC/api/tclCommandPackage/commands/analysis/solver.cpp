@@ -68,7 +68,7 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << "WARNING need to specify a system type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a system type \n";
     return TCL_ERROR;
   }
 

@@ -28,8 +28,12 @@ const char * G3_WarnPromptNoColor = "WARNING ";
 const char * G3_ErrorPromptColor   = BRED "ERROR " COLOR_RESET;
 const char * G3_ErrorPromptNoColor = "ERROR ";
 
-const char * G3_WARN_PROMPT = G3_WarnPromptNoColor;
+const char * G3_DebugPromptColor   = GRN "DEBUG " COLOR_RESET;
+const char * G3_DebugPromptNoColor = "DEBUG ";
+
+const char * G3_WARN_PROMPT  = G3_WarnPromptNoColor;
 const char * G3_ERROR_PROMPT = G3_ErrorPromptNoColor;
+const char * G3_DEBUG_PROMPT = G3_DebugPromptNoColor;
 
 int
 G3_setStreamLevel(G3_Runtime* rt, int stream, int level)
@@ -53,9 +57,11 @@ int G3_setStreamColor(G3_Runtime* rt, int strm, int flag)
   if (flag == 1) {
     G3_WARN_PROMPT = G3_WarnPromptColor;
     G3_ERROR_PROMPT = G3_ErrorPromptColor;
+    G3_DEBUG_PROMPT = G3_DebugPromptColor;
   } else if (flag == 0) {
     G3_WARN_PROMPT = G3_WarnPromptNoColor;
     G3_ERROR_PROMPT = G3_ErrorPromptNoColor;
+    G3_DEBUG_PROMPT = G3_DebugPromptNoColor;
   }
 
   return 0;

@@ -40,6 +40,7 @@
 #include <g3_api.h>
 #include <DamageModel.h>
 #include <UniaxialMaterial.h>
+#include <TclSafeBuilder.h>
 
 extern void printCommand(int argc, char **argv);
 
@@ -47,6 +48,7 @@ int
 TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char **argv, Domain *theTclDomain)
 {
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
   // check the number of arguments is correct
   int argStart = 2;
 
@@ -143,7 +145,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         LargeDisp = 0;
       }
 
-      PanelMaterial = OPS_getUniaxialMaterial(PanelMatId);
+      PanelMaterial = builder->getUniaxialMaterial(PanelMatId);
 
       if (PanelMaterial == 0) {
         opserr << "WARNING material not found\n";
@@ -163,7 +165,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       if (MatIid != 0) {
-        MatI = OPS_getUniaxialMaterial(MatIid);
+        MatI = builder->getUniaxialMaterial(MatIid);
 
         if (MatI == NULL) {
           opserr << "WARNING material not found\n";
@@ -182,7 +184,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       if (MatJid != 0) {
-        MatJ = OPS_getUniaxialMaterial(MatJid);
+        MatJ = builder->getUniaxialMaterial(MatJid);
 
         if (MatJ == NULL) {
           opserr << "WARNING material not found\n";
@@ -201,7 +203,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
       if (MatKid != 0) {
-        MatK = OPS_getUniaxialMaterial(MatKid);
+        MatK = builder->getUniaxialMaterial(MatKid);
 
         if (MatK == NULL) {
           opserr << "WARNING material not found\n";
@@ -219,7 +221,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
       if (MatLid != 0) {
-        MatL = OPS_getUniaxialMaterial(MatLid);
+        MatL = builder->getUniaxialMaterial(MatLid);
 
         if (MatL == NULL) {
           opserr << "WARNING material not found\n";
@@ -236,7 +238,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
       }
-      PanelMaterial = OPS_getUniaxialMaterial(PanelMatId);
+      PanelMaterial = builder->getUniaxialMaterial(PanelMatId);
 
       if (PanelMaterial == 0) {
         opserr << "WARNING material not found\n";
@@ -295,7 +297,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         LargeDisp = 0;
       }
 
-      PanelMaterial = OPS_getUniaxialMaterial(PanelMatId);
+      PanelMaterial = builder->getUniaxialMaterial(PanelMatId);
 
       if (PanelMaterial == 0) {
         opserr << "WARNING material not found\n";
@@ -339,7 +341,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       if (MatIid != 0) {
-        MatI = OPS_getUniaxialMaterial(MatIid);
+        MatI = builder->getUniaxialMaterial(MatIid);
 
         if (MatI == NULL) {
           opserr << "WARNING material not found\n";
@@ -358,7 +360,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       if (MatJid != 0) {
-        MatJ = OPS_getUniaxialMaterial(MatJid);
+        MatJ = builder->getUniaxialMaterial(MatJid);
 
         if (MatJ == NULL) {
           opserr << "WARNING material not found\n";
@@ -377,7 +379,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
       if (MatKid != 0) {
-        MatK = OPS_getUniaxialMaterial(MatKid);
+        MatK = builder->getUniaxialMaterial(MatKid);
 
         if (MatK == NULL) {
           opserr << "WARNING material not found\n";
@@ -395,7 +397,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
       if (MatLid != 0) {
-        MatL = OPS_getUniaxialMaterial(MatLid);
+        MatL = builder->getUniaxialMaterial(MatLid);
 
         if (MatL == NULL) {
           opserr << "WARNING material not found\n";
@@ -412,7 +414,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << "Joint2D element: " << Joint2DId << endln;
         return TCL_ERROR;
       }
-      PanelMaterial = OPS_getUniaxialMaterial(PanelMatId);
+      PanelMaterial = builder->getUniaxialMaterial(PanelMatId);
 
       if (PanelMaterial == 0) {
         opserr << "WARNING material not found\n";

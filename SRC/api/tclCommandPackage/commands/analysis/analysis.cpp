@@ -176,7 +176,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING need to specify an analysis type (Static, Transient)\n";
+    opserr << G3_ERROR_PROMPT << "need to specify an analysis type (Static, Transient)\n";
     return TCL_ERROR;
   }
 
@@ -237,7 +237,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   if (the_static_analysis != 0) {
     int numIncr;
     if (argc < 2) {
-      opserr << "WARNING static analysis: analysis numIncr?\n";
+      opserr << G3_ERROR_PROMPT << "static analysis: analysis numIncr?\n";
       return TCL_ERROR;
     }
 
@@ -250,7 +250,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
     double dT;
     int numIncr;
     if (argc < 3) {
-      opserr << "WARNING transient analysis: analysis numIncr? deltaT?\n";
+      opserr << G3_ERROR_PROMPT << "transient analysis: analysis numIncr? deltaT?\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
@@ -275,7 +275,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
         result = theVariableTimeStepTransientAnalysis->analyze(
             numIncr, dT, dtMin, dtMax, Jd);
       else {
-        opserr << "WARNING analyze - no variable time step transient analysis "
+        opserr << G3_ERROR_PROMPT << "analyze - no variable time step transient analysis "
                   "object constructed\n";
         return TCL_ERROR;
       }
@@ -285,7 +285,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
   } else {
-    opserr << "WARNING No Analysis type has been specified \n";
+    opserr << G3_ERROR_PROMPT << "No Analysis type has been specified \n";
     return TCL_ERROR;
   }
 
@@ -341,7 +341,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << "WARNING want - eigen <type> numModes?\n";
+    opserr << G3_ERROR_PROMPT << "want - eigen <type> numModes?\n";
     return TCL_ERROR;
   }
 
@@ -397,7 +397,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check argv[loc] for number of modes
   if ((Tcl_GetInt(interp, argv[loc], &numEigen) != TCL_OK) || numEigen < 0) {
-    opserr << "WARNING eigen numModes?  - illegal numModes\n";
+    opserr << G3_ERROR_PROMPT << "eigen numModes?  - illegal numModes\n";
     return TCL_ERROR;
   }
 
@@ -479,12 +479,12 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (argc < 2) {
     opserr
-        << "WARNING modalDamping ?factor - not enough arguments to command\n";
+        << G3_ERROR_PROMPT << "modalDamping ?factor - not enough arguments to command\n";
     return TCL_ERROR;
   }
 
   if (numEigen == 0 || theEigenSOE == 0) {
-    opserr << "WARNING - modalDmping - eigen command needs to be called first "
+    opserr << G3_ERROR_PROMPT << "- modalDmping - eigen command needs to be called first "
               "- NO MODAL DAMPING APPLIED\n ";
   }
 
@@ -493,7 +493,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   Vector modalDampingValues(numEigen);
 
   if (numModes != 1 && numModes != numEigen) {
-    opserr << "WARNING modalDmping - same # damping factors as modes must be "
+    opserr << G3_ERROR_PROMPT << "modalDmping - same # damping factors as modes must be "
               "specified\n";
     opserr << "                    - same damping ratio will be applied to all\n";
   }
@@ -506,7 +506,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
     for (int i = 0; i < numEigen; i++) {
       if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << "WARNING modalDamping - could not read factor for model "
+        opserr << G3_ERROR_PROMPT << "modalDamping - could not read factor for model "
                << i + 1 << endln;
         return TCL_ERROR;
       }
@@ -516,7 +516,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   } else {
 
     if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
-      opserr << "WARNING modalDamping - could not read factor for all modes \n";
+      opserr << G3_ERROR_PROMPT << "modalDamping - could not read factor for all modes \n";
       return TCL_ERROR;
     }
 
@@ -543,7 +543,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (argc < 2) {
     opserr
-        << "WARNING modalDamping ?factor - not enough arguments to command\n";
+        << G3_ERROR_PROMPT << "modalDamping ?factor - not enough arguments to command\n";
     return TCL_ERROR;
   }
 
@@ -557,7 +557,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
   Vector modalDampingValues(numEigen);
 
   if (numModes != 1 && numModes != numEigen) {
-    opserr << "WARNING modalDmping - same #damping factors as modes must be "
+    opserr << G3_ERROR_PROMPT << "modalDmping - same #damping factors as modes must be "
               "specified\n";
     opserr << "                    - same damping ratio will be applied to all";
   }
@@ -571,7 +571,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
     // read in all factors one at a time
     for (int i = 0; i < numEigen; i++) {
       if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+        opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
                   "read betaK? \n";
         return TCL_ERROR;
       }
@@ -582,7 +582,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 
     //  read in one & set all factors to that value
     if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
-      opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+      opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
                 "read betaK? \n";
       return TCL_ERROR;
     }
@@ -636,7 +636,7 @@ printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
   // if 'print <filename> Algorithm flag' get the flag
   int flag;
   if (Tcl_GetInt(interp, argv[eleArg], &flag) != TCL_OK) {
-    opserr << "WARNING print algorithm failed to get integer flag: \n";
+    opserr << G3_ERROR_PROMPT << "print algorithm failed to get integer flag: \n";
     opserr << argv[eleArg] << endln;
     return TCL_ERROR;
   }
@@ -824,7 +824,7 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
-    opserr << "WARNING need to specify a Nemberer type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a Nemberer type \n";
     return TCL_ERROR;
   }
 
@@ -876,7 +876,7 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else {
-    opserr << "WARNING ConstraintHandler type '" << argv[1]
+    opserr << G3_ERROR_PROMPT << "ConstraintHandler type '" << argv[1]
       << "' does not exists \n\t(Plain, Penalty, Lagrange, Transformation) only\n";
     return TCL_ERROR;
   }

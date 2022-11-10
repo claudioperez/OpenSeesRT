@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <TclSafeBuilder.h>
 #include <BeamColumnJoint2d.h>
 #include <BeamColumnJoint3d.h>
 #include <Information.h>
@@ -57,11 +58,12 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
                                    Domain *theTclDomain, int eleArgStart)
 {
   theTclBasicBuilderDomain = theTclDomain;
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
 
   int NDM, NDF;
 
-  NDM = OPS_GetNDM(); // dimension of the structure (1d, 2d, or 3d)
-  NDF = OPS_GetNDF(); // number of degrees of freedom per node
+  NDM = builder->getNDM(); // dimension of the structure (1d, 2d, or 3d)
+  NDF = builder->getNDF(); // number of degrees of freedom per node
 
   if ((NDM == 2 && NDF == 3) || (NDM == 3 && NDF == 6)) {
 
@@ -201,7 +203,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
     }
 
     if (matId1 != 0) {
-      theMaterial1 = OPS_getUniaxialMaterial(matId1);
+      theMaterial1 = builder->getUniaxialMaterial(matId1);
 
       if (theMaterial1 == 0) {
         opserr << "WARNING material not found\n";
@@ -213,7 +215,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial1 = 0;
 
     if (matId2 != 0) {
-      theMaterial2 = OPS_getUniaxialMaterial(matId2);
+      theMaterial2 = builder->getUniaxialMaterial(matId2);
 
       if (theMaterial2 == 0) {
         opserr << "WARNING material not found\n";
@@ -225,7 +227,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial2 = 0;
 
     if (matId3 != 0) {
-      theMaterial3 = OPS_getUniaxialMaterial(matId3);
+      theMaterial3 = builder->getUniaxialMaterial(matId3);
 
       if (theMaterial3 == 0) {
         opserr << "WARNING material not found\n";
@@ -237,7 +239,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial3 = 0;
 
     if (matId4 != 0) {
-      theMaterial4 = OPS_getUniaxialMaterial(matId4);
+      theMaterial4 = builder->getUniaxialMaterial(matId4);
 
       if (theMaterial4 == 0) {
         opserr << "WARNING material not found\n";
@@ -249,7 +251,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial4 = 0;
 
     if (matId5 != 0) {
-      theMaterial5 = OPS_getUniaxialMaterial(matId5);
+      theMaterial5 = builder->getUniaxialMaterial(matId5);
 
       if (theMaterial5 == 0) {
         opserr << "WARNING material not found\n";
@@ -261,7 +263,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial5 = 0;
 
     if (matId6 != 0) {
-      theMaterial6 = OPS_getUniaxialMaterial(matId6);
+      theMaterial6 = builder->getUniaxialMaterial(matId6);
 
       if (theMaterial6 == 0) {
         opserr << "WARNING material not found\n";
@@ -273,7 +275,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial6 = 0;
 
     if (matId7 != 0) {
-      theMaterial7 = OPS_getUniaxialMaterial(matId7);
+      theMaterial7 = builder->getUniaxialMaterial(matId7);
 
       if (theMaterial7 == 0) {
         opserr << "WARNING material not found\n";
@@ -285,7 +287,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial7 = 0;
 
     if (matId8 != 0) {
-      theMaterial8 = OPS_getUniaxialMaterial(matId8);
+      theMaterial8 = builder->getUniaxialMaterial(matId8);
 
       if (theMaterial8 == 0) {
         opserr << "WARNING material not found\n";
@@ -297,7 +299,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial8 = 0;
 
     if (matId9 != 0) {
-      theMaterial9 = OPS_getUniaxialMaterial(matId9);
+      theMaterial9 = builder->getUniaxialMaterial(matId9);
 
       if (theMaterial9 == 0) {
         opserr << "WARNING material not found\n";
@@ -309,7 +311,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial9 = 0;
 
     if (matId10 != 0) {
-      theMaterial10 = OPS_getUniaxialMaterial(matId10);
+      theMaterial10 = builder->getUniaxialMaterial(matId10);
 
       if (theMaterial10 == 0) {
         opserr << "WARNING material not found\n";
@@ -321,7 +323,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial10 = 0;
 
     if (matId11 != 0) {
-      theMaterial11 = OPS_getUniaxialMaterial(matId11);
+      theMaterial11 = builder->getUniaxialMaterial(matId11);
 
       if (theMaterial11 == 0) {
         opserr << "WARNING material not found\n";
@@ -333,7 +335,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial11 = 0;
 
     if (matId12 != 0) {
-      theMaterial12 = OPS_getUniaxialMaterial(matId12);
+      theMaterial12 = builder->getUniaxialMaterial(matId12);
 
       if (theMaterial12 == 0) {
         opserr << "WARNING material not found\n";
@@ -345,7 +347,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       theMaterial12 = 0;
 
     if (matId13 != 0) {
-      theMaterial13 = OPS_getUniaxialMaterial(matId13);
+      theMaterial13 = builder->getUniaxialMaterial(matId13);
 
       if (theMaterial13 == 0) {
         opserr << "WARNING material not found\n";

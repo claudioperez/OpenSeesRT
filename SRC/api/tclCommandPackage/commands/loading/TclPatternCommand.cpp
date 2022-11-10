@@ -20,7 +20,7 @@
 //
 // Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
 // procedure
-
+#include <assert.h>
 #include <TclSafeBuilder.h>
 #include <g3_api.h>
 
@@ -82,9 +82,10 @@ int
 TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv, Domain *theDomain)
 {
-  LoadPattern *thePattern = 0;
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  TclSafeBuilder *builder = (TclSafeBuilder *)clientData;
+  Domain* domain = builder->getDomain();
+  LoadPattern *thePattern = nullptr;
 
   // make sure at least one other argument to contain integrator
   if (argc < 4) {
@@ -812,9 +813,8 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   theTclLoadPattern = thePattern;
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
-  if (builder)
-    builder->setEnclosingPattern(thePattern);
+
+  builder->setEnclosingPattern(thePattern);
   Tcl_CreateCommand(interp, "sp", TclCommand_addSP, (ClientData)thePattern, NULL);
   Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
 
