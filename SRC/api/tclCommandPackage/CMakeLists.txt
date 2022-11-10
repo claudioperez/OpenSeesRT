@@ -8,14 +8,12 @@ cmake_minimum_required(VERSION 3.16)
 
 add_library(OpenSeesRT SHARED)
 
-# add_library(OpenSeesRT_Integrator   OBJECT)
-# target_sources(OpenSeesRT_Integrator PRIVATE
-#     "commands/analysis/integrator.cpp"
-# )
-
 add_library(OpenSeesRT_LinearSystem OBJECT)
-target_sources(OpenSeesRT_LinearSystem PRIVATE
+
+target_sources(OpenSeesRT_LinearSystem 
+  PRIVATE
     "commands/analysis/solver.cpp"
+  PUBLIC
     "commands/analysis/solver.hpp"
 )
 
@@ -52,11 +50,6 @@ target_sources(OpenSeesRT PRIVATE
     misc/TclPackageClassBroker.cpp
     "commands/recorder.cpp"
     "contrib/packages/optimization/TclParameterCommands.cpp"
-
-# Database
-    # "commands/database/TclDatabaseCommands.cpp"
-    # "commands/database/TclMySQL.cpp"
-    #"commands/database/TclBerkeleyDB.cpp"
 
 # Multi-Dimensional Materials
     #"contrib/nD/feap/TclFeapMaterialCommand.cpp"
@@ -114,19 +107,15 @@ target_sources(OpenSeesRT PRIVATE
 #
 # OTHER
 #
-    #"contrib/system_of_eqn/TclPetsc.cpp"
-
     "elementAPI_PYG3.cpp"
     # "ffi/C_Wrapper.cpp"
     "misc/tcl_packages.cpp"
-    #"misc/TclFeViewer.cpp"
     "utilities/tclutils.cpp"
 
 
     "runtime/AnalysisContext.cpp"
 )
 
-# add_subdirectory(libraries/uniaxial)
 add_subdirectory(contrib/)
 
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
@@ -150,7 +139,6 @@ target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
 #
 if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
-  # target_link_libraries(OpenSeesRT PUBLIC OpenSeesPyRT)
 endif()
 
 

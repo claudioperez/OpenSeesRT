@@ -1,7 +1,7 @@
 target_sources(OpenSeesRT
   PRIVATE
     G3_FedeasUniaxialDamage.cpp
-    DegradingUniaxialWrapper.cc
+    DegradingUniaxialWrapper.cpp
   PUBLIC
-    DegradingUniaxialWrapper.hh
+    DegradingUniaxialWrapper.h
 )

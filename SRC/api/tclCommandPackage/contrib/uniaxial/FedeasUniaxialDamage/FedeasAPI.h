@@ -1,5 +1,6 @@
 #pragma once
 // #include "ArgumentFFI.h"
+#include <tcl.h>
 
 #ifdef __cplusplus
   extern "C" {
@@ -18,24 +19,25 @@ enum ISW_Task {
   ISW_UPDATE = 1<<2,
   ISW_MALLOC = 1<<3,
   ISW_CREATE = 1<<4,
+  ISW_COPY   = 1<<5,
 
-  ISW_RETURN_RESIDUAL = 1<<5,
-  ISW_RETURN_TANGENT  = 1<<6,
-  ISW_RETURN_OTHER    = 1<<7,
+  ISW_RETURN_RESIDUAL = 1<<6,
+  ISW_RETURN_TANGENT  = 1<<7,
+  ISW_RETURN_OTHER    = 1<<8,
   
-  ISW_UPDATE_InitialTangent = 1<<8,
-  ISW_UPDATE_CurrentTangent = 1<<9
+  ISW_UPDATE_InitialTangent = 1<<9,
+  ISW_UPDATE_CurrentTangent = 1<<10
 };
 
 const int ISW_ACTION = ISW_COMMIT 
                      | ISW_UPDATE 
                      | ISW_MALLOC 
                      | ISW_DELETE 
-                     | ISW_CREATE;
+                     | ISW_CREATE
+                     | ISW_COPY;
 
 const int ISW_MODIFY = ISW_UPDATE_InitialTangent
                      | ISW_UPDATE_CurrentTangent;
-
 
 typedef int StateRoutine(
     struct StateOperator* routine,
@@ -50,6 +52,7 @@ typedef int StateRoutine(
 
 typedef int StateObjectRoutine(
     struct StateOperator* routine,
+    Tcl_Interp* interp,
     const int action,
     const int argc, Tcl_Obj* const* argv,
     /* Double input data */

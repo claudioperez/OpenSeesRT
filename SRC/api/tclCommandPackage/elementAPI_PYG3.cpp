@@ -302,7 +302,7 @@ OPS_GetStringCopy(char **arrayData)
 
   return 0;
 }
-
+/*
 extern "C" matObj *
 OPS_GetMaterial(int *matTag, int *matType)
 {
@@ -363,6 +363,7 @@ OPS_GetMaterial(int *matTag, int *matType)
   fprintf(stderr, "getMaterial - unknown material type\n");
   return 0;
 }
+*/
 
 /*
 extern "C"
@@ -513,12 +514,10 @@ OPS_GetMaterialType(char *type, int sizeType)
 
   return 0;
 }
-
+/*
 extern "C" int
 OPS_AllocateMaterial(matObject *theMat)
 {
-
-  /*fprintf(stderr,"allocateMaterial Address %p\n",theMat);*/
 
   if (theMat->nParam > 0)
     theMat->theParam = new double[theMat->nParam];
@@ -559,7 +558,6 @@ OPS_AllocateElement(eleObject *theEle, int *matTags, int *matType)
     theEle->mats = new matObject *[numMat];
 
   for (int i = 0; i < numMat; i++) {
-    /*  opserr << "AllocateElement - matTag " << matTags[i] << "\n"; */
 
     matObject *theMat = OPS_GetMaterial(&(matTags[i]), matType);
     //    matObject *theMat = OPS_GetMaterial(&(matTags[i]));
@@ -569,6 +567,7 @@ OPS_AllocateElement(eleObject *theEle, int *matTags, int *matType)
 
   return 0;
 }
+*/
 
 extern "C" int
 OPS_GetNodeCrd(int *nodeTag, int *sizeCrd, double *data)
@@ -896,7 +895,7 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
       // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return builder->addTimeSeries(series);
 }
-
+/*
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
   // Tcl_Interp *interp = G3_getInterpreter(rt);
   TclSafeBuilder *builder = G3_getSafeBuilder(rt);
@@ -906,7 +905,7 @@ int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
   else
     return false;
 }
-
+*/
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {

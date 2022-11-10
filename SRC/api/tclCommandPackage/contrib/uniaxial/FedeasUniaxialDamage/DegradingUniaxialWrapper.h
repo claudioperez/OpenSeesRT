@@ -4,7 +4,7 @@
 #include <functional> // std::function
 #include <tcl.h>
 #include <UniaxialMaterial.h>
-#include "StateOperator.h"
+#include "FedeasAPI.h"
 
 class DegradingUniaxialWrapper : public UniaxialMaterial {
 public:
@@ -12,7 +12,7 @@ public:
   DegradingUniaxialWrapper();
   ~DegradingUniaxialWrapper();
 
-  static UniaxialMaterial* parseNew(G3_Runtime*, void*, int, TCL_Char **);
+  static UniaxialMaterial* parseNew(Tcl_Interp*, void*, int, TCL_Char **);
 
   const char *
   getClassType(void) const {return "DegradingUniaxialWrapper";}

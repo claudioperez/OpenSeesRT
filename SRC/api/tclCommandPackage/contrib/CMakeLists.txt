@@ -36,6 +36,7 @@ target_sources(OpenSeesRT PRIVATE
     "element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
     "element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
     "element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
+
     "element/nonlinearBeamColumn/forceBeamColumn/TclForceBeamColumnCommand.cpp"
     "element/nonlinearBeamColumn/dispBeamColumnInt/TclDispBeamColumnIntCommand.cpp"
     "element/nonlinearBeamColumn/beamWithHinges.cpp"

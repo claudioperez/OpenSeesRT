@@ -32,7 +32,8 @@
 // Time series
 #  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
 #  define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))
-#  define OPS_removeTimeSeries(tag) G3_removeTimeSeries(rt, (tag))
+// #  define OPS_removeTimeSeries(tag) G3_removeTimeSeries(rt, (tag))
+
 // Coordinate Transforms
 #  undef  OPS_getCrdTransf
 #  define OPS_getCrdTransf(tag) G3_getCrdTransf(rt, (tag))

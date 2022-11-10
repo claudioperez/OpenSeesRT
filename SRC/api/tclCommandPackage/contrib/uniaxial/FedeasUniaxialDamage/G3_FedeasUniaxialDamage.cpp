@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <InputAPI.h>
-#include "DegradingUniaxialWrapper.hh"
+#include "DegradingUniaxialWrapper.h"
 
 #define WRAPPER_CMD "FedeasUniaxialDamage"
 // #define WRAPPER_CMD "FedeasDamage"
@@ -51,25 +51,19 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
     if ((strcmp(param, "-damage") == 0) || 
         (strcmp(param, "-dmg") == 0)    ||
         (strcmp(param, "-DMG") == 0))   {
-      *damage =
-        *(StateOperator*)Tcl_GetAssocData(G3_getInterpreter(rt), "fedeas::damage::UniaxialDamage", NULL);
-      damage->runtime = (void*)G3_getInterpreter(rt);
+      *damage = *(StateOperator*)Tcl_GetAssocData(G3_getInterpreter(rt), 
+                                                  "fedeas::damage::UniaxialDamage", NULL);
+      Tcl_Interp* interp = G3_getInterpreter(rt);
       
-      damage->routine(damage, ISW_CREATE, argc-argn, &argv[++argn], 0, 0, 0, 0, 0);
-      damage->routine(damage, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
+      damage->call(damage, interp, ISW_CREATE, argc - argn, &argv[++argn], 0, 0, 0, 0, 0);
+      damage->call(damage, interp, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
 
     } else if ((strcmp(param, "-couple") == 0) || 
                (strcmp(param, "-ccd") == 0)    ||
                (strcmp(param, "-Ccd") == 0))   {
       Ccd = std::stod(argv[++argn]);
-      // opserr << "WARNING invalid baseTag uniaxialMaterial " WRAPPER_CMD ;
     } else {
       break;
-      // opserr << "WARNING invalid option: " << param
-      //        << " in uniaxialMaterial '" WRAPPER_CMD "' with tag: '" 
-      //        << tags[0] << "'"
-      //        << endln;
-      // return nullptr;
     }
     argn++;
   }

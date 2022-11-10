@@ -419,7 +419,8 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   bool userSpecifiedPattern = false;
   int loadPatternTag = 0;
   // The above definition are moved forward for the use in both cases
-
+  if (0) {
+#if 0
   //-------------Adding Proc for NodalThermalAction, By Liming Jiang, [SIF] 2017
   if ((strcmp(argv[2], "-NodalThermal") == 0) ||
       (strcmp(argv[2], "-nodalThermal") == 0)) {
@@ -577,6 +578,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
       } else
         loadPatternTag = theTclLoadPattern->getTag();
     }
+#endif
   }
   // end of adding NodalThermalAction -------------end--------- Liming,[SIF]2017
 
