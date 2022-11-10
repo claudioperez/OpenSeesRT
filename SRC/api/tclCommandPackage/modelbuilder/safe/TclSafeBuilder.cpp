@@ -1,3 +1,9 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
+
 // Written: cmp
 //
 // Description: This file contains the class definition for TclSafeBuilder.
@@ -34,12 +40,9 @@
 #include <TclSafeBuilder.h>
 #include <MultiSupportPattern.h>
 
-#include <NodalThermalAction.h>   //L.Jiang [SIF]
-#include <NodalLoad.h>
-
 #include <TimeSeries.h>
 #include <PathTimeSeriesThermal.h> //L.Jiang [SIF]
-                                   //
+
 /*
 #include <SimulationInformation.h>				//L.Jiang [SIF]
 extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
@@ -71,7 +74,7 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
     Tcl_CreateCommand(interp, 
         tcl_char_cmds[i].name, 
         tcl_char_cmds[i].func, 
-        (ClientData)NULL, NULL);
+        (ClientData) this, nullptr);
  
   theTclBuilder = this;
   theTclDomain = &theDomain;
@@ -121,22 +124,34 @@ TclSafeBuilder::~TclSafeBuilder()
   /* TCL_OPS_setModelBuilder(0); */
 
   // may possibly invoke Tcl_DeleteCommand() later
-  Tcl_DeleteCommand(theInterp, "node");
-  Tcl_DeleteCommand(theInterp, "element");
-  Tcl_DeleteCommand(theInterp, "uniaxialMaterial");
-  Tcl_DeleteCommand(theInterp, "nDMaterial");
-  Tcl_DeleteCommand(theInterp, "section");
-  Tcl_DeleteCommand(theInterp, "pattern");
-  Tcl_DeleteCommand(theInterp, "timeSeries");
-  Tcl_DeleteCommand(theInterp, "load");
+  // Tcl_DeleteCommand(theInterp, "node");
+  // Tcl_DeleteCommand(theInterp, "element");
+  // Tcl_DeleteCommand(theInterp, "uniaxialMaterial");
+  // Tcl_DeleteCommand(theInterp, "nDMaterial");
+  // Tcl_DeleteCommand(theInterp, "section");
+  // Tcl_DeleteCommand(theInterp, "pattern");
+  // Tcl_DeleteCommand(theInterp, "timeSeries");
+  // Tcl_DeleteCommand(theInterp, "load");
 }
 
 //
 // CLASS METHODS
 //
+void
+TclSafeBuilder::letClobber(bool let_clobber) {no_clobber = !let_clobber;};
+
+bool
+TclSafeBuilder::canClobber() {return !no_clobber;};
+
 int TclSafeBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
 int TclSafeBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
 int TclSafeBuilder::getNodalLoadTag(void) {return   nodeLoadTag;};
+
+int
+TclSafeBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fixityCodes, double tol)
+{
+  return theTclDomain->addSP_Constraint(axisDirn, axisValue, fixityCodes, tol);
+}
 
 LoadPattern *
 TclSafeBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
@@ -152,12 +167,6 @@ TclSafeBuilder::getDomain(void) const {return theTclDomain;}
 
 TclSafeBuilder *
 TclSafeBuilder::getBuilder(void) const {return theTclBuilder;}
-
-int
-TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
-{
-  return this->addUniaxialMaterial(*mat);
-}
 
 TimeSeries *
 TclSafeBuilder::getTimeSeries(const std::string &name)
@@ -187,7 +196,6 @@ TclSafeBuilder::addTimeSeries(TimeSeries *series)
 //
 // THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
-
 static void
 printCommand(int argc, TCL_Char **argv)
 {
@@ -206,7 +214,9 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *theTclDomain = G3_getDomain(rt);
 
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed" << endln;
     return TCL_ERROR;
   }
@@ -398,276 +408,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
-TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
-  int nodeLoadTag = theTclBuilder->getNodalLoadTag();
-  LoadPattern *theTclLoadPattern = theTclBuilder->getEnclosingPattern();
-  // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - load \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-  NodalLoad *theLoad = 0;
-
-  bool isLoadConst = false;
-  bool userSpecifiedPattern = false;
-  int loadPatternTag = 0;
-  // The above definition are moved forward for the use in both cases
-  if (0) {
-#if 0
-  //-------------Adding Proc for NodalThermalAction, By Liming Jiang, [SIF] 2017
-  if ((strcmp(argv[2], "-NodalThermal") == 0) ||
-      (strcmp(argv[2], "-nodalThermal") == 0)) {
-
-    int nodeId;
-    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-      opserr << "WARNING invalid nodeId: " << argv[1] << endln;
-      return TCL_ERROR;
-    }
-
-    Vector *thecrds = new Vector();
-    Node *theNode = theTclDomain->getNode(nodeId);
-    if (theNode == 0) {
-      opserr << "WARNING invalid nodeID: " << argv[1] << endln;
-      return TCL_ERROR;
-    }
-    (*thecrds) = theNode->getCrds();
-
-    int count = 3;
-    if (strcmp(argv[count], "-source") == 0) {
-      count++;
-      const char *pwd = getInterpPWD(interp);
-      // simulationInfo.addInputFile(argv[count], pwd);
-      TimeSeries *theSeries;
-      // default num of temperature input for nodal ThermalAction;
-      int dataLen = 9; 
-
-      if (argc - count == 5) {
-        // which indicates the nodal thermal action is applied to 3D I section
-        // Beam;
-        dataLen = 15;
-        theSeries = new PathTimeSeriesThermal(nodeId, argv[count], dataLen);
-        count++;
-        double RcvLoc1, RcvLoc2, RcvLoc3, RcvLoc4;
-        if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
-          opserr << "WARNING NodalLoad - invalid loc1  " << argv[count]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[count + 1], &RcvLoc2) != TCL_OK) {
-          opserr << "WARNING NodalLoad - invalid loc2  " << argv[count + 1]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[count + 2], &RcvLoc3) != TCL_OK) {
-          opserr << "WARNING NodalLoad - invalid loc3  " << argv[count + 2]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[count + 3], &RcvLoc4) != TCL_OK) {
-          opserr << "WARNING NodalLoad - invalid loc4  " << argv[count + 3]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        // end of recieving data;
-        theLoad = new NodalThermalAction(nodeLoadTag, nodeId, RcvLoc1, RcvLoc2,
-                                         RcvLoc3, RcvLoc4, theSeries, thecrds);
-      }
-      // end of for 15 data input;
-      else if (argc - count == 3 || argc - count == 10) {
-
-        theSeries = new PathTimeSeriesThermal(nodeId, argv[count]);
-        count++;
-        Vector locy;
-        if (argc - count == 2) {
-          double RcvLoc1, RcvLoc2;
-          if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
-            opserr << "WARNING NodalLoad - invalid loc1  " << argv[count]
-                   << " for NodalThermalAction\n";
-            return TCL_ERROR;
-          }
-          if (Tcl_GetDouble(interp, argv[count + 1], &RcvLoc2) != TCL_OK) {
-            opserr << "WARNING NodalLoad - invalid loc2  " << argv[count + 1]
-                   << " for NodalThermalAction\n";
-            return TCL_ERROR;
-          }
-          locy = Vector(9);
-          locy(0) = RcvLoc1;
-          locy(1) = (7 * RcvLoc1 + 1 * RcvLoc2) / 8;
-          locy(2) = (6 * RcvLoc1 + 2 * RcvLoc2) / 8;
-          locy(3) = (5 * RcvLoc1 + 3 * RcvLoc2) / 8;
-          locy(4) = (4 * RcvLoc1 + 4 * RcvLoc2) / 8;
-          locy(5) = (3 * RcvLoc1 + 5 * RcvLoc2) / 8;
-          locy(6) = (2 * RcvLoc1 + 6 * RcvLoc2) / 8;
-          locy(7) = (1 * RcvLoc1 + 7 * RcvLoc2) / 8;
-          locy(8) = RcvLoc2;
-
-        } // end of if only recieving one loc data;
-        else if (argc - count == 9) {
-          double indata[9];
-          double BufferData;
-
-          for (int i = 0; i < 9; i++) {
-            if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
-              opserr << "WARNING eleLoad - invalid data " << argv[count]
-                     << " for -beamThermal 3D\n";
-              return TCL_ERROR;
-            }
-            indata[i] = BufferData;
-            count++;
-          }
-          locy = Vector(indata, 9);
-          // temp1,loc1,temp2,loc2...temp9,loc9
-        } // end of if only recieving 9 loc data;
-        theLoad = new NodalThermalAction(nodeLoadTag, nodeId, locy, theSeries,
-                                         thecrds);
-        delete thecrds;
-      }
-      // end of recieving 9 temp data in external file;
-      else {
-        opserr << "WARNING NodalThermalAction - invalid dataLen\n";
-      }
-      // end of definition for different data input length(9or15)
-    }
-    // end for detecting source
-    else {
-      if (argc - count == 4) {
-        double t1, t2, locY1, locY2;
-        if (Tcl_GetDouble(interp, argv[count], &t1) != TCL_OK) {
-          opserr << "WARNING eleLoad - invalid T1 " << argv[count]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[count + 1], &locY1) != TCL_OK) {
-          opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[count + 2], &t2) != TCL_OK) {
-          opserr << "WARNING eleLoad - invalid T1 " << argv[count]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        if (Tcl_GetDouble(interp, argv[count + 3], &locY2) != TCL_OK) {
-          opserr << "WARNING eleLoad - invalid LocY1 " << argv[count + 1]
-                 << " for NodalThermalAction\n";
-          return TCL_ERROR;
-        }
-        theLoad = new NodalThermalAction(nodeLoadTag, nodeId, t1, locY1, t2,
-                                         locY2, thecrds);
-      }
-      // for defining a uniform gradient thermal action
-    }
-    // end for source or no source
-    if (theLoad == 0) {
-      opserr << "WARNING NodalLoad - out of memory creating load " << argv[1];
-      return TCL_ERROR;
-    }
-    // get the current pattern tag if no tag given in i/p
-    if (userSpecifiedPattern == false) {
-      if (theTclLoadPattern == 0) {
-        opserr << "WARNING no current load pattern -NodalThermalAction "
-               << nodeId;
-        return TCL_ERROR;
-      } else
-        loadPatternTag = theTclLoadPattern->getTag();
-    }
-#endif
-  }
-  // end of adding NodalThermalAction -------------end--------- Liming,[SIF]2017
-
-      // start of else block, Liming [SIF]
-      else
-  {
-
-    // make sure at least one other argument to contain type of system
-    if (argc < (2 + ndf)) {
-      opserr << "WARNING bad command - want: load nodeId " << ndf << "forces\n";
-      printCommand(argc, argv);
-      return TCL_ERROR;
-    }
-
-    // get the id of the node
-    int nodeId;
-    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-      opserr << "WARNING invalid nodeId: " << argv[1];
-      opserr << " - load nodeId " << ndf << " forces\n";
-      return TCL_ERROR;
-    }
-
-    // get the load vector
-    Vector forces(ndf);
-    for (int i = 0; i < ndf; i++) {
-      double theForce;
-      if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
-        opserr << "WARNING invalid force " << i + 1 << " - load" << nodeId;
-        opserr << " " << ndf << " forces\n";
-        return TCL_ERROR;
-      } else
-        forces(i) = theForce;
-    }
-
-    // allow some additional options at end of command
-    int endMarker = 2 + ndf;
-    while (endMarker != argc) {
-      if (strcmp(argv[endMarker], "-const") == 0) {
-        // allow user to specify const load
-        isLoadConst = true;
-      } else if (strcmp(argv[endMarker], "-pattern") == 0) {
-        // allow user to specify load pattern other than current
-        endMarker++;
-        userSpecifiedPattern = true;
-        if (endMarker == argc ||
-            Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
-
-          opserr << "WARNING invalid patternTag - load " << nodeId << " ";
-          opserr << ndf << " forces pattern patterntag\n";
-          return TCL_ERROR;
-        }
-      }
-      endMarker++;
-    }
-
-    // get the current pattern tag if no tag given in i/p
-    if (userSpecifiedPattern == false) {
-      if (theTclLoadPattern == 0) {
-        opserr << "WARNING no current load pattern - load " << nodeId;
-        opserr << " " << ndf << " forces\n";
-        return TCL_ERROR;
-      } else
-        loadPatternTag = theTclLoadPattern->getTag();
-    }
-
-    // create the load
-    theLoad = new NodalLoad(nodeLoadTag, nodeId, forces, isLoadConst);
-    if (theLoad == 0) {
-      opserr << "WARNING ran out of memory for load  - load " << nodeId;
-      opserr << " " << ndf << " forces\n";
-      return TCL_ERROR;
-    }
-
-  } // end of Liming change for nodal thermal action , putting the above block
-    // into else{ }
-
-  // add the load to the domain
-  if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
-    opserr << "WARNING TclSafeBuilder - could not add load to domain\n";
-    printCommand(argc, argv);
-    delete theLoad;
-    return TCL_ERROR;
-  }
-  theTclBuilder->incrNodalLoadTag();
-
-  // if get here we have sucessfully created the load and added it to the domain
-  return TCL_OK;
-}
-
 /*
 extern int
 TclSafeBuilderParameterCommand(ClientData clientData,
@@ -746,7 +486,9 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
     Domain     *theTclDomain = G3_getDomain(rt);
 
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - load \n";
     return TCL_ERROR;
   }
@@ -1039,12 +781,10 @@ TclSafeBuilder::getUniaxialMaterial(int tag)
   return this->getUniaxialMaterial(name);
 }
 
-// Add a new UniaxialMaterial to the model runtime
 int
-TclSafeBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
+TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
 {
-  m_UniaxialMaterialMap[name] = &instance;
-  return 1;
+  return this->addUniaxialMaterial(*mat);
 }
 
 // Add a new UniaxialMaterial to the model runtime
@@ -1052,13 +792,22 @@ int
 TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
-  m_UniaxialMaterialMap[name] = &instance;
-/*
-  opserr << "WARNING (ModelBuilder) Failed to add UniaxialMaterial \n"
-         << "         with tag '" << name.c_str() << "' to model.\n";
-*/
-  return 1;
+  return this->addUniaxialMaterial(name, instance);
+  // m_UniaxialMaterialMap[name] = &instance;
+  // return 1;
 }
+
+// Add a new UniaxialMaterial to the model runtime
+int
+TclSafeBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
+{
+  if (!canClobber() && (m_UniaxialMaterialMap.find(name) != m_UniaxialMaterialMap.end())) {
+    return -1;
+  }
+  m_UniaxialMaterialMap[name] = &instance;
+  return TCL_OK;
+}
+
 
 HystereticBackbone*
 TclSafeBuilder::getHystereticBackbone(const std::string &name)

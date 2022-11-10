@@ -36,12 +36,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
                                                                         
 // Written: Minjie Zhu
 
+#include <tcl.h>
 
 #include "BasicAnalysisBuilder.h"
 #include <elementAPI.h>
 #include <Domain.h>
 #include <FileStream.h>
 #include <string>
+#include <assert.h>
 #include <ID.h>
 #include <Element.h>
 #include <ElementIter.h>
@@ -60,12 +62,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ConvergenceTest.h>
 #include <AnalysisModel.h>
 #include <NewtonRaphson.h>
-#include <PlainHandler.h>
 #include <RCM.h>
 #include <LoadControl.h>
 #include <ProfileSPDLinSolver.h>
 #include <CTestNormUnbalance.h>
 #include <ProfileSPDLinDirectSolver.h>
+#include <PlainHandler.h>
 #include <TransformationConstraintHandler.h>
 #include <UniaxialMaterial.h>
 // #include <SectionForceDeformation.h>
@@ -109,17 +111,19 @@ BasicAnalysisBuilder::~BasicAnalysisBuilder()
 
 void BasicAnalysisBuilder::wipe()
 {
-    if (theStaticAnalysis != 0) {
-        theStaticAnalysis->clearAll();
+    if (theStaticAnalysis != nullptr) {
+        // theStaticAnalysis->clearAll();
         delete theStaticAnalysis;
-        theStaticAnalysis = 0;
+        theStaticAnalysis = nullptr;
+        resetStatic();
     }
-    if (theTransientAnalysis != 0) {
-        theTransientAnalysis->clearAll();
+    if (theTransientAnalysis != nullptr) {
+        // theTransientAnalysis->clearAll();
         delete theTransientAnalysis;
-        theTransientAnalysis = 0;
+        theTransientAnalysis = nullptr;
+        resetTransient();
     }
-    theVariableTimeStepTransientAnalysis = 0;
+    theVariableTimeStepTransientAnalysis = nullptr;
 }
 
 void BasicAnalysisBuilder::resetStatic()
@@ -157,7 +161,9 @@ void BasicAnalysisBuilder::resetAll()
     theEigenSOE = 0;
 }
 
+
 void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
+
     if (obj == 0) return;
     if (theHandler != 0) {
         opserr<<"The handler can only be set once\n";
@@ -167,11 +173,14 @@ void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
 }
 
 void BasicAnalysisBuilder::set(DOF_Numberer* obj) {
-    if (obj == 0) return;
+    if (obj == 0)
+      return;
+
     if (theNumberer != 0) {
         opserr<<"The numberer can only be set once for one analysis\n";
         return;
     }
+
     theNumberer = obj;
     if (theStaticAnalysis != 0) theStaticAnalysis->setNumberer(*obj);
     if (theTransientAnalysis != 0) theTransientAnalysis->setNumberer(*obj);
@@ -189,11 +198,11 @@ void BasicAnalysisBuilder::set(EquiSolnAlgo* obj) {
 }
 
 void BasicAnalysisBuilder::set(LinearSOE* obj) {
-    if (obj == 0)
+    if (obj == nullptr)
       return;
 
-    if (theSOE != 0) {
-        opserr<<"The SOE can only be set once for one analysis\n";
+    if (theSOE != nullptr) {
+        opserr << "The SOE can only be set once for one analysis\n";
         return;
     }
 
@@ -237,7 +246,9 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
     }
 }
 
+
 void BasicAnalysisBuilder::set(ConvergenceTest* obj) {
+
     if (obj == 0) return;
     if (theTest != 0) {
         opserr<<"The test can only be set once for one analysis\n";
@@ -248,9 +259,26 @@ void BasicAnalysisBuilder::set(ConvergenceTest* obj) {
     if (theTransientAnalysis != 0) theTransientAnalysis->setConvergenceTest(*obj);
 }
 
+int
+BasicAnalysisBuilder::setStaticAnalysis()
+{
+  if (theStaticAnalysis == nullptr)
+    this->newStaticAnalysis();
+
+  this->CurrentAnalysisFlag = CURRENT_STATIC_ANALYSIS;
+
+  return TCL_OK;
+}
+
 void BasicAnalysisBuilder::newStaticAnalysis()
 {
-    this->wipe();
+    // this->wipe();
+    assert(theDomain != nullptr);
+
+    if (theStaticAnalysis != nullptr) {
+      delete theStaticAnalysis;
+      theStaticAnalysis = nullptr;
+    }
     
     if (theAnalysisModel == 0) {
         theAnalysisModel = new AnalysisModel();
@@ -298,12 +326,30 @@ void BasicAnalysisBuilder::newStaticAnalysis()
         theStaticAnalysis->setEigenSOE(*theEigenSOE);
     }
 
-    this->resetStatic();
+    // this->resetStatic();
 }
 
-void BasicAnalysisBuilder::newTransientAnalysis()
+int
+BasicAnalysisBuilder::setTransientAnalysis()
 {
-    this->wipe();
+  if (theTransientAnalysis == nullptr)
+    this->newTransientAnalysis();
+
+  this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
+
+  return TCL_OK;
+}
+
+int
+BasicAnalysisBuilder::newTransientAnalysis()
+{
+    // this->wipe();
+    assert(theDomain != nullptr);
+
+    if (theTransientAnalysis != nullptr) {
+      delete theTransientAnalysis;
+      theTransientAnalysis = nullptr;
+    }
     
     if (theAnalysisModel == 0) {
         theAnalysisModel = new AnalysisModel();
@@ -314,7 +360,7 @@ void BasicAnalysisBuilder::newTransientAnalysis()
     if (theAlgorithm == 0) {
         opserr << "WARNING analysis Transient - no Algorithm yet specified, \n";
         opserr << " NewtonRaphson default will be used\n";            
-            
+
         theAlgorithm = new NewtonRaphson(*theTest); 
     }
     if (theHandler == 0) {
@@ -354,12 +400,19 @@ void BasicAnalysisBuilder::newTransientAnalysis()
         }
     }
 
-    this->resetTransient();
+    // this->resetTransient();
+
+    return TCL_OK;
 }
 
 
 void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
 {
+
+    if (theHandler == 0) {
+      theHandler = new TransformationConstraintHandler();
+    }
+
     // create a new eigen system and solver
     if (theEigenSOE != 0) {
         if (theEigenSOE->getClassTag() != typeSolver) {
@@ -389,7 +442,8 @@ void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
 
         if (theStaticAnalysis != 0) {
             theStaticAnalysis->setEigenSOE(*theEigenSOE);
-        } else if (theTransientAnalysis != 0) {
+        } 
+        if (theTransientAnalysis != 0) {
             theTransientAnalysis->setEigenSOE(*theEigenSOE);
         }
     } // theEigenSOE != 0
@@ -424,11 +478,12 @@ ConvergenceTest* BasicAnalysisBuilder::getConvergenceTest()
 {
     if (theStaticAnalysis != 0) {
         return theStaticAnalysis->getConvergenceTest();
+
     } else if (theTransientAnalysis != 0) {
         return theTransientAnalysis->getConvergenceTest();
     }
 
-    return 0;
+    return theTest;
 }
 
 #if 0

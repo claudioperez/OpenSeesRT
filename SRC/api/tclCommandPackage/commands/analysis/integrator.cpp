@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <g3_api.h>
 #include <InputAPI.h>
 #include <runtimeAPI.h>
@@ -7,10 +8,12 @@
 #include <Domain.h>
 #include <Node.h>
 
+#include "runtime/BasicAnalysisBuilder.h"
+
 // analysis
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
+// #include <StaticAnalysis.h>
+// #include <DirectIntegrationAnalysis.h>
+// #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
 // integrators
 #include <LoadControl.h>
@@ -37,63 +40,63 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char **argv, Domain *domain);
 
 StaticIntegrator*
-G3Parse_newHSIntegrator(G3_Builder *, int, const char **);
+G3Parse_newHSIntegrator(ClientData, Tcl_Interp*, int, const char **);
 StaticIntegrator*
-G3Parse_newLoadControl(G3_Builder *, int argc, const char *argv[]);
+G3Parse_newLoadControl(ClientData, Tcl_Interp*, int argc, const char *argv[]);
 StaticIntegrator*
-G3Parse_newEQPathIntegrator(G3_Builder *, int argc, const char *argv[]);
+G3Parse_newEQPathIntegrator(ClientData, Tcl_Interp*, int argc, const char *argv[]);
 StaticIntegrator*
-G3Parse_newArcLengthIntegrator(G3_Builder *, int argc, const char *argv[]);
+G3Parse_newArcLengthIntegrator(ClientData, Tcl_Interp*, int argc, const char *argv[]);
 StaticIntegrator*
-G3Parse_newStagedLoadControlIntegrator(G3_Builder*, int, TCL_Char **);
+G3Parse_newStagedLoadControlIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
 StaticIntegrator*
-G3Parse_newMinUnbalDispNormIntegrator(G3_Runtime*, int, G3_Char **);
+G3Parse_newMinUnbalDispNormIntegrator(ClientData, Tcl_Interp*, int, G3_Char **);
 StaticIntegrator*
-G3Parse_newDisplacementControlIntegrator(G3_Builder *, int, G3_Char**);
+G3Parse_newDisplacementControlIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
 StaticIntegrator*
-G3Parse_newStaticIntegrator(G3_Builder *, int, TCL_Char **);
+G3Parse_newStaticIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
 
 TransientIntegrator*
-G3Parse_newNewmark1Integrator(G3_Builder *, int, TCL_Char **);
+G3Parse_newNewmark1Integrator(ClientData, Tcl_Interp*, int, TCL_Char **);
 TransientIntegrator*
-G3Parse_newNewmarkIntegrator(G3_Runtime*, int, G3_Char**);
+G3Parse_newNewmarkIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
 TransientIntegrator*
-G3Parse_newTransientIntegrator(G3_Builder *, int, TCL_Char **);
+G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
+
 //
 // command invoked to allow the Integrator object to be built
 //
-
 int
-specifyIntegrator(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
+specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  bool assign_to_static_analysis = false;
-  G3_Builder *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  StaticIntegrator* the_static_integrator = G3_getStaticIntegrator(rt);
-  OPS_ResetInputNoBuilder(cd, interp, 2, argc, argv, domain);
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  assert(clientData != nullptr);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
-  // make sure at least one other argument to contain integrator
+  // make sure at least one other argument to select integrator
   if (argc < 2) {
     opserr << "WARNING need to specify an Integrator type \n";
     return TCL_ERROR;
   }
 
-  the_static_integrator = G3Parse_newStaticIntegrator(rt, argc, argv);
-  if (the_static_analysis != 0) {
-    G3_setStaticIntegrator(rt, the_static_integrator);
-    the_static_analysis->setIntegrator(*the_static_integrator);
-  }
+  StaticIntegrator* static_integrator = 
+    G3Parse_newStaticIntegrator(clientData, interp, argc, argv);
 
-  theTransientIntegrator = G3Parse_newTransientIntegrator(rt, argc, argv);
-  if (theTransientAnalysis != 0)
-    theTransientAnalysis->setIntegrator(*theTransientIntegrator);
+  TransientIntegrator* transient_integrator = 
+    G3Parse_newTransientIntegrator(clientData, interp, argc, argv);
+
+  if (static_integrator != 0) {
+    builder->set(static_integrator, true);
+
+  } else if (transient_integrator != 0)
+    builder->set(transient_integrator, false);
 
   return TCL_OK;
 }
 
 StaticIntegrator*
-G3Parse_newStaticIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
+G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
   StaticIntegrator* the_static_integrator = nullptr;
@@ -101,26 +104,26 @@ G3Parse_newStaticIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
   // check argv[1] for type of Numberer and create the object
 
   if (strcmp(argv[1], "LoadControl") == 0) {
-    the_static_integrator = G3Parse_newLoadControl(rt, argc, argv);
+    the_static_integrator = G3Parse_newLoadControl(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "StagedLoadControl") == 0) {
-    the_static_integrator = G3Parse_newStagedLoadControlIntegrator(rt, argc, argv);
+    the_static_integrator = G3Parse_newStagedLoadControlIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "EQPath") == 0) {
-    the_static_integrator = G3Parse_newEQPathIntegrator(rt, argc, argv);
+    the_static_integrator = G3Parse_newEQPathIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "ArcLength") == 0) {
-    the_static_integrator = G3Parse_newArcLengthIntegrator(rt, argc, argv);
+    the_static_integrator = G3Parse_newArcLengthIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "MinUnbalDispNorm") == 0) {
-    the_static_integrator = G3Parse_newMinUnbalDispNormIntegrator(rt, argc, argv);
+    the_static_integrator = G3Parse_newMinUnbalDispNormIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "DisplacementControl") == 0) {
-    the_static_integrator = G3Parse_newDisplacementControlIntegrator(rt, argc, argv);
+    the_static_integrator = G3Parse_newDisplacementControlIntegrator(clientData, interp, argc, argv);
   }
 
 
@@ -131,28 +134,26 @@ G3Parse_newStaticIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
       opserr << "WARNING integrator ArcLength1 arcLength alpha \n";
       return nullptr;
     }
-    if (G3Parse_getDouble(rt, argv[2], &arcLength) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
       return nullptr;
-    if (G3Parse_getDouble(rt, argv[3], &alpha) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[3], &alpha) != TCL_OK)
       return nullptr;
     the_static_integrator = new ArcLength1(arcLength, alpha);
   }
 
-/*
-  else if (strcmp(argv[1], "HSConstraint") == 0) {
-    the_static_integrator = G3Parse_newHSIntegrator(rt, argc, argv);
-  }
-*/
 
+//else if (strcmp(argv[1], "HSConstraint") == 0) {
+//  the_static_integrator = G3Parse_newHSIntegrator(clientData, interp, argc, argv);
+//}
 
   return the_static_integrator;
 }
 
 TransientIntegrator*
-G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
+G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  // printCommand(argc, argv);
-  // G3_Builder *rt = G3_getRuntime(interp);
+  G3_Runtime* rt = G3_getRuntime(interp);
+
   if ((strcmp(argv[1], "TRBDF2") == 0) ||
       (strcmp(argv[1], "Bathe") == 0)) {
     theTransientIntegrator = new TRBDF2();
@@ -174,7 +175,7 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
   else if (strcmp(argv[1], "BackwardEuler") == 0) {
     int optn = 0;
     if (argc == 3) {
-      if (G3Parse_getInt(rt, argv[2], &optn) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[2], &optn) != TCL_OK) {
         opserr << "WARNING integrator BackwardEuler <option> - undefined "
                   "option specified\n";
         return nullptr;
@@ -185,7 +186,7 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
 
   else if (strcmp(argv[1], "Newmark") == 0) {
     // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt);
-    theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(rt, argc, argv);
+    theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {
@@ -313,7 +314,7 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
   }
 
   else if (strcmp(argv[1], "Newmark1") == 0) {
-    theTransientIntegrator = G3Parse_newNewmark1Integrator(rt, argc, argv);
+    theTransientIntegrator = G3Parse_newNewmark1Integrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "WilsonTheta") == 0) {
@@ -334,7 +335,6 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
 
   else if (strcmp(argv[1], "CentralDifferenceNoDamping") == 0) {
     theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifferenceNoDamping(rt);
-
   }
 
   return theTransientIntegrator;
@@ -342,7 +342,7 @@ G3Parse_newTransientIntegrator(G3_Builder *rt, int argc, TCL_Char **argv)
 
 #include <HSConstraint.h>
 StaticIntegrator*
-G3Parse_newHSIntegrator(G3_Builder* rt, int argc, const char *argv[])
+G3Parse_newHSIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
     // Tcl_Interp  *interp = G3_getInterpreter(rt);
     double arcLength, psi_u, psi_f, u_ref;
@@ -352,13 +352,13 @@ G3Parse_newHSIntegrator(G3_Builder* rt, int argc, const char *argv[])
                 "<u_ref> \n";
       return nullptr;
     }
-    if (argc >= 3 && G3Parse_getDouble(rt, argv[2], &arcLength) != TCL_OK)
+    if (argc >= 3 && Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
       return nullptr;
-    if (argc >= 4 && G3Parse_getDouble(rt, argv[3], &psi_u) != TCL_OK)
+    if (argc >= 4 && Tcl_GetDouble(interp, argv[3], &psi_u) != TCL_OK)
       return nullptr;
-    if (argc >= 5 && G3Parse_getDouble(rt, argv[4], &psi_f) != TCL_OK)
+    if (argc >= 5 && Tcl_GetDouble(interp, argv[4], &psi_f) != TCL_OK)
       return nullptr;
-    if (argc == 6 && G3Parse_getDouble(rt, argv[5], &u_ref) != TCL_OK)
+    if (argc == 6 && Tcl_GetDouble(interp, argv[5], &u_ref) != TCL_OK)
       return nullptr;
 
     switch (argc) {
@@ -374,7 +374,7 @@ G3Parse_newHSIntegrator(G3_Builder* rt, int argc, const char *argv[])
 }
 
 StaticIntegrator*
-G3Parse_newLoadControl(G3_Builder* rt, int argc, const char *argv[])
+G3Parse_newLoadControl(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
     double dLambda;
     double minIncr, maxIncr;
@@ -384,14 +384,14 @@ G3Parse_newLoadControl(G3_Builder* rt, int argc, const char *argv[])
                 "dlamMin dlamMax>\n";
       return nullptr;
     }
-    if (G3Parse_getDouble(rt, argv[2], &dLambda) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[2], &dLambda) != TCL_OK)
       return nullptr;
     if (argc > 5) {
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[4], &minIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[4], &minIncr) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[5], &maxIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[5], &maxIncr) != TCL_OK)
         return nullptr;
     } else {
       minIncr = dLambda;
@@ -403,10 +403,8 @@ G3Parse_newLoadControl(G3_Builder* rt, int argc, const char *argv[])
 
 #include <EQPath.h>
 StaticIntegrator*
-G3Parse_newEQPathIntegrator(G3_Builder* rt, int argc, const char *argv[])
+G3Parse_newEQPathIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
-  // else if (strcmp(argv[1], "EQPath") == 0) {
-    // Tcl_Interp  *interp = G3_getInterpreter(rt);
     double arcLength;
     int type;
     int numIter;
@@ -418,14 +416,14 @@ G3Parse_newEQPathIntegrator(G3_Builder* rt, int argc, const char *argv[])
       return nullptr;
     }
 
-    if (G3Parse_getDouble(rt, argv[2], &arcLength) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
       opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
       opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
       return nullptr;
     }
 
-    if (G3Parse_getInt(rt, argv[3], &type) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &type) != TCL_OK) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
       opserr << "$type = 1 Minimum Residual Displacement \n";
       opserr << "$type = 2 Normal Plain \n";
@@ -439,19 +437,18 @@ G3Parse_newEQPathIntegrator(G3_Builder* rt, int argc, const char *argv[])
 
 #include <ArcLength.h>
 StaticIntegrator *
-G3Parse_newArcLengthIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
+G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  // Tcl_Interp *interp = G3_getInterpreter(rt);
   double arcLength;
   double alpha;
   if (argc != 4) {
     opserr << "WARNING integrator ArcLength arcLength alpha \n";
     return nullptr;
   }
-  if (G3Parse_getDouble(rt, argv[2], &arcLength) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
     return nullptr;
 
-  if (G3Parse_getDouble(rt, argv[3], &alpha) != TCL_OK)
+  if (Tcl_GetDouble(interp, argv[3], &alpha) != TCL_OK)
     return nullptr;
 
   return new ArcLength(arcLength, alpha);
@@ -459,7 +456,7 @@ G3Parse_newArcLengthIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
 
 #include <MinUnbalDispNorm.h>
 StaticIntegrator*
-G3Parse_newMinUnbalDispNormIntegrator(G3_Runtime* rt, int argc, G3_Char **argv)
+G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv)
 {
     double lambda11, minlambda, maxlambda;
     int numIter;
@@ -468,14 +465,14 @@ G3Parse_newMinUnbalDispNormIntegrator(G3_Runtime* rt, int argc, G3_Char **argv)
                 "maxLambda1j>\n";
       return nullptr;
     }
-    if (G3Parse_getDouble(rt, argv[2], &lambda11) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[2], &lambda11) != TCL_OK)
       return nullptr;
     if (argc > 5) {
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[4], &minlambda) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[4], &minlambda) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[5], &maxlambda) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[5], &maxlambda) != TCL_OK)
         return nullptr;
     } else {
       minlambda = lambda11;
@@ -495,10 +492,11 @@ G3Parse_newMinUnbalDispNormIntegrator(G3_Runtime* rt, int argc, G3_Char **argv)
 }
 
 StaticIntegrator*
-G3Parse_newDisplacementControlIntegrator(G3_Builder *rt, int argc, G3_Char** argv)
+G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char** argv)
 {
-    // G3_Builder *rt = G3_getRuntime(interp);
+    G3_Runtime* rt = G3_getRuntime(interp);
     Domain *domain = G3_getDomain(rt);
+
     int node, dof, numIter;
     double increment, minIncr, maxIncr;
 
@@ -509,11 +507,11 @@ G3Parse_newDisplacementControlIntegrator(G3_Builder *rt, int argc, G3_Char** arg
     }
     int tangFlag = 0;
 
-    if (G3Parse_getInt(rt, argv[2], &node) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK)
       return nullptr;
-    if (G3Parse_getInt(rt, argv[3], &dof) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK)
       return nullptr;
-    if (G3Parse_getDouble(rt, argv[4], &increment) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
       return nullptr;
 
     if (argc == 6 || argc == 9)
@@ -524,11 +522,11 @@ G3Parse_newDisplacementControlIntegrator(G3_Builder *rt, int argc, G3_Char** arg
         tangFlag = 1;
 
     if (argc > 6) {
-      if (G3Parse_getInt(rt, argv[5], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[6], &minIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[7], &maxIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK)
         return nullptr;
     } else {
       minIncr = increment;
@@ -562,7 +560,7 @@ G3Parse_newDisplacementControlIntegrator(G3_Builder *rt, int argc, G3_Char** arg
 }
 
 StaticIntegrator*
-G3Parse_newStagedLoadControlIntegrator(G3_Builder* rt, int argc, TCL_Char **argv)
+G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
     double dLambda;
     double minIncr, maxIncr;
@@ -572,14 +570,14 @@ G3Parse_newStagedLoadControlIntegrator(G3_Builder* rt, int argc, TCL_Char **argv
                 "<Jd dlamMin dlamMax>\n";
       return nullptr;
     }
-    if (G3Parse_getDouble(rt, argv[2], &dLambda) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[2], &dLambda) != TCL_OK)
       return nullptr;
     if (argc > 5) {
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[4], &minIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[4], &minIncr) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[5], &maxIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[5], &maxIncr) != TCL_OK)
         return nullptr;
     } else {
       minIncr = dLambda;
@@ -591,7 +589,7 @@ G3Parse_newStagedLoadControlIntegrator(G3_Builder* rt, int argc, TCL_Char **argv
 
 #include <Newmark1.h>
 TransientIntegrator*
-G3Parse_newNewmark1Integrator(G3_Builder* rt, int argc, TCL_Char **argv)
+G3Parse_newNewmark1Integrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
     double gamma;
     double beta;
@@ -601,32 +599,32 @@ G3Parse_newNewmark1Integrator(G3_Builder* rt, int argc, TCL_Char **argv)
                 "<betaKcurrent> <betaKi> <betaKlastCommitted>\n";
       return nullptr;
     }
-    if (G3Parse_getDouble(rt, argv[2], &gamma) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[2], &gamma) != TCL_OK) {
       opserr << "WARNING integrator Newmark1 gamma beta - undefined gamma\n";
       return nullptr;
     }
-    if (G3Parse_getDouble(rt, argv[3], &beta) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[3], &beta) != TCL_OK) {
       opserr << "WARNING integrator Newmark1 gamma beta - undefined beta\n";
       return nullptr;
     }
 
     if (argc == 8 || argc == 7) {
-      if (G3Parse_getDouble(rt, argv[4], &alphaM) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
         opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
                   "betaKc - alphaM\n";
         return nullptr;
       }
-      if (G3Parse_getDouble(rt, argv[5], &betaK) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
         opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
                   "betaKc - betaK\n";
         return nullptr;
       }
-      if (G3Parse_getDouble(rt, argv[6], &betaKi) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
         opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
                   "betaKc - betaKi\n";
         return nullptr;
       }
-      if (G3Parse_getDouble(rt, argv[7], &betaKc) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
         opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
                   "betaKc - betaKc\n";
         return nullptr;
@@ -650,18 +648,18 @@ G3Parse_newNewmark1Integrator(G3_Builder* rt, int argc, TCL_Char **argv)
       opserr << "<Jd minIncrement maxIncrement>\n";
       return nullptr;
     }
-    if (G3Parse_getInt(rt, argv[2], &node) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK)
       return nullptr;
-    if (G3Parse_getInt(rt, argv[3], &dof) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK)
       return nullptr;
-    if (G3Parse_getDouble(rt, argv[4], &increment) != TCL_OK)
+    if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
       return nullptr;
     if (argc > 7) {
-      if (G3Parse_getInt(rt, argv[5], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[6], &minIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[7], &maxIncr) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK)
         return nullptr;
     } else {
       minIncr = increment;

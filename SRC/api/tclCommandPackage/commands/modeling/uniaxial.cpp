@@ -7,7 +7,11 @@
 
 #include <elementAPI.h>
 #include <g3_api.h>
+#include <G3_Logging.h>
+
 #include <iostream>
+#include <TclSafeBuilder.h>
+
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
@@ -122,6 +126,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
 
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -919,16 +924,15 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   //
 
   if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
+    opserr << G3_ERROR_PROMPT << "Could not create uniaxialMaterial " << argv[1] << endln;
     return TCL_ERROR;
   }
 
 
 
   // Now add the material to the modelBuilder
-  if (G3_addUniaxialMaterial(rt, theMaterial) == TCL_ERROR) {
-    opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
-    opserr << *theMaterial << endln;
+  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
     delete theMaterial; // invoke the material objects destructor, otherwise mem
                         // leak
     return TCL_ERROR;

@@ -6,6 +6,7 @@
 #include <Domain.h>
 #include <g3_api.h>
 #include <TclBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
@@ -31,10 +32,12 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBuilder *theTclBuilder = (TclBuilder*)(G3_getSafeBuilder(rt));
+  TclBuilder *theTclBuilder = (TclBuilder*)clientData;
   Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
@@ -99,10 +102,12 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
   Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
     return TCL_ERROR;
   }
@@ -144,7 +149,7 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  theTclDomain->addSP_Constraint(0, xLoc, fixity, tol);
+  theTclBuilder->addSP_Constraint(0, xLoc, fixity, tol);
 
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
@@ -154,11 +159,13 @@ int
 TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  // Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
     return TCL_ERROR;
   }
@@ -201,7 +208,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
   }
 
 
-  theTclDomain->addSP_Constraint(1, yLoc, fixity, tol);
+  theTclBuilder->addSP_Constraint(1, yLoc, fixity, tol);
 
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
@@ -211,11 +218,13 @@ int
 TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
+
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
     return TCL_ERROR;
   }
@@ -257,7 +266,7 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  theTclDomain->addSP_Constraint(2, zLoc, fixity, tol);
+  theTclBuilder->addSP_Constraint(2, zLoc, fixity, tol);
 
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
@@ -272,9 +281,11 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
-  LoadPattern *theTclLoadPattern = theTclBuilder->getCurrentLoadPattern();
+  LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - sp \n";
     return TCL_ERROR;
   }
@@ -335,8 +346,9 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << "WARNING no current pattern - sp " 
              << nodeId << " dofID value\n"; 
       return TCL_ERROR;
-    } else 
+    } else {
       loadPatternTag = theTclLoadPattern->getTag();
+    }
   }
 
   LoadPattern *thePattern = theTclDomain->getLoadPattern(loadPatternTag);
@@ -369,7 +381,9 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     Domain     *theTclDomain = G3_getDomain(rt);
 
     // Ensure the destructor has not been called
-    if (theTclBuilder == 0) {
+    TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+    if (theTclBuilder == 0 || clientData == 0) {
       opserr << "WARNING builder has been destroyed - equalDOF \n";
       return TCL_ERROR;
     }
@@ -453,7 +467,9 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
         // Ensure the destructor has not been called
-        if (theTclBuilder == 0) {
+        TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+        if (theTclBuilder == 0 || clientData == 0) {
           opserr << "WARNING builder has been destroyed - equalDOF \n";
           return TCL_ERROR;
         }
@@ -599,7 +615,9 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
 
   // TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
   // // ensure the destructor has not been called -
-  // if (theTclBuilder == 0) {
+  // TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  //if (theTclBuilder == 0 || clientData == 0) {
   //   opserr << "WARNING builder has been destroyed - sp \n";
   //   return TCL_ERROR;
   // }

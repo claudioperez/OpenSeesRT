@@ -1,17 +1,26 @@
+//
+// Description: This file contains the function invoked when the user invokes
+// the "pattern" command in the interpreter. 
+//
+// The command takes the form:
+//
+// pattern <type> <tag> {
+//  <load-like>...
+// };
+// 
+// SIDE EFFECTS:
+// - Create an instance of class <type> with tag <tag>.
+// - Add this instance to the domain
+//
+//
+//
+//
 // Written: fmk
 // Created: 07/99
 //
 // Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
-// procedure Revision: B
-////
-// Description: This file contains the function invoked when the user invokes
-// the Pattern command in the interpreter. It is invoked by the
-// TclBasicBuilder_addPattern function in the TclBasicBuilder.C file. Current
-// valid Pattern types are:
+// procedure
 
-// What: "@(#) TclPatternCommand.C, revA"
-
-#include <TclBasicBuilder.h>
 #include <TclSafeBuilder.h>
 #include <g3_api.h>
 
@@ -21,41 +30,37 @@
 #include <Domain.h>
 #include <LoadPattern.h>
 
-#include <FireLoadPattern.h> //Added by UoE openSees Group
-
-#include <LinearSeries.h>
-#include <ConstantSeries.h>
-#include <RectangularSeries.h>
-#include <TrigSeries.h>
-#include <PathTimeSeries.h>
-#include <PathSeries.h>
 #include <UniformExcitation.h>
 #include <MultiSupportPattern.h>
 #include <GroundMotion.h>
 #include <GroundMotionRecord.h>
 #include <TimeSeriesIntegrator.h>
 
-#include <FireLoadPattern.h> //Added by UoE openSees Group
-
 #ifdef OPSDEF_DRM
-#include <DRMLoadPattern.h>
-#include <DRMInputHandler.h>
-#include <PlaneDRMInputHandler.h>
-#include <DRMLoadPatternWrapper.h>
+#  include <DRMLoadPattern.h>
+#  include <DRMInputHandler.h>
+#  include <PlaneDRMInputHandler.h>
+#  include <DRMLoadPatternWrapper.h>
 #endif
 
 #ifdef _H5DRM
-#include <H5DRM.h>
+#  include <H5DRM.h>
 #endif
+
+#include <NodalThermalAction.h>   //L.Jiang [SIF]
+#include <NodalLoad.h>
 
 #include <string.h>
 
 #include <SimulationInformation.h>
+
 extern SimulationInformation simulationInfo;
-// extern const char * getInterpPWD(Tcl_Interp *interp);  // commands.cpp
 
 LoadPattern *theTclLoadPattern = 0;
 // MultiSupportPattern *theTclMultiSupportPattern = 0;
+
+Tcl_CmdProc TclCommand_addSP;
+Tcl_CmdProc TclCommand_addNodalLoad;
 
 extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
                                                         Tcl_Interp *interp,
@@ -63,6 +68,15 @@ extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
 
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
+
+static void
+printCommand(int argc, TCL_Char **argv)
+{
+  opserr << "Input command: ";
+  for (int i = 0; i < argc; i++)
+    opserr << argv[i] << " ";
+  opserr << endln;
+}
 
 int
 TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -124,73 +138,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     thePattern->setTimeSeries(theSeries);
-
   }
-
-  //--Adding FireLoadPattern:[BEGIN] by UoE OpenSees Group--//
-  else if (strcmp(argv[1], "Fire") == 0) {
-    FireLoadPattern *theFirePattern = new FireLoadPattern(patternID);
-    thePattern = theFirePattern;
-    TimeSeries *theSeries1 = TclSeriesCommand(clientData, interp, argv[3]);
-    TimeSeries *theSeries2 = TclSeriesCommand(clientData, interp, argv[4]);
-    TimeSeries *theSeries3 = TclSeriesCommand(clientData, interp, argv[5]);
-    TimeSeries *theSeries4 = TclSeriesCommand(clientData, interp, argv[6]);
-    TimeSeries *theSeries5 = TclSeriesCommand(clientData, interp, argv[7]);
-    TimeSeries *theSeries6 = TclSeriesCommand(clientData, interp, argv[8]);
-    TimeSeries *theSeries7 = TclSeriesCommand(clientData, interp, argv[9]);
-    TimeSeries *theSeries8 = TclSeriesCommand(clientData, interp, argv[10]);
-    TimeSeries *theSeries9 = TclSeriesCommand(clientData, interp, argv[11]);
-
-    // opserr << "series1 ";
-    //*theSeries1->Print;
-    // if (thePattern == 0 || theSeries == 0) {
-
-    if (thePattern == 0) {
-      opserr << "WARNING - out of memory creating LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries1 == 0) {
-      opserr << "WARNING - problem creating TimeSeries1 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries2 == 0) {
-      opserr << "WARNING - problem creating TimeSeries2 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries3 == 0) {
-      opserr << "WARNING - problem creating TimeSeries3 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries4 == 0) {
-      opserr << "WARNING - problem creating TimeSeries4 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries5 == 0) {
-      opserr << "WARNING - problem creating TimeSeries5 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries6 == 0) {
-      opserr << "WARNING - problem creating TimeSeries6 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries7 == 0) {
-      opserr << "WARNING - problem creating TimeSeries7 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries8 == 0) {
-      opserr << "WARNING - problem creating TimeSeries8 for LoadPattern ";
-      opserr << patternID << endln;
-    } else if (theSeries9 == 0) {
-      opserr << "WARNING - problem creating TimeSeries9 for LoadPattern ";
-      opserr << patternID << endln;
-    }
-
-    // clean up the memory and return an error
-    // if (thePattern != 0)
-    //   delete thePattern;
-    // if (theSeries != 0)
-    //   delete theSeries;
-    // return TCL_ERROR;
-    // }
-
-    theFirePattern->setFireTimeSeries(theSeries1, theSeries2, theSeries3,
-                                      theSeries4, theSeries5, theSeries6,
-                                      theSeries7, theSeries8, theSeries9);
-
-  }
-  //--Adding FireLoadPattern:[END] by UoE OpenSees Group--//
 
   else if (strcmp(argv[1], "UniformExcitation") == 0) {
 
@@ -202,7 +150,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    dir--; // subtract 1 for c indexing
+    dir--; // subtract 1 for C indexing
 
     TimeSeries *accelSeries = 0;
     TimeSeries *velSeries = 0;
@@ -417,12 +365,8 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    //    const char *pwd = getInterpPWD(interp);
-    //    simulationInfo.addInputFile(accelFileName, pwd);
-
     // create the UniformExcitation Pattern
     thePattern = new UniformExcitation(*theMotion, dir, patternID);
-    // theTclMultiSupportPattern = 0;
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
 
     if (thePattern == 0) {
@@ -871,6 +815,8 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   TclSafeBuilder *builder = G3_getSafeBuilder(rt);
   if (builder)
     builder->setEnclosingPattern(thePattern);
+  Tcl_CreateCommand(interp, "sp", TclCommand_addSP, (ClientData)thePattern, NULL);
+  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
@@ -884,8 +830,115 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  //  theTclMultiSupportPattern = 0;
   Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
+  Tcl_DeleteCommand(interp, "sp");
+  Tcl_DeleteCommand(interp, "load");
 
   return TCL_OK;
 }
+
+int
+TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  G3_Runtime *rt = G3_getRuntime(interp);
+  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+  Domain *theTclDomain = G3_getDomain(rt);
+  int nodeLoadTag = theTclBuilder->getNodalLoadTag();
+  LoadPattern *theTclLoadPattern = (LoadPattern*)clientData;
+
+  // ensure the destructor has not been called
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
+    opserr << "WARNING builder has been destroyed - load \n";
+    return TCL_ERROR;
+  }
+
+  int ndf = argc - 2;
+  NodalLoad *theLoad = 0;
+
+  bool isLoadConst = false;
+  bool userSpecifiedPattern = false;
+  int loadPatternTag = 0;
+
+  if (1) {
+    // make sure at least one other argument to contain type of system
+    if (argc < (2 + ndf)) {
+      opserr << "WARNING bad command - want: load nodeId " << ndf << "forces\n";
+      printCommand(argc, argv);
+      return TCL_ERROR;
+    }
+
+    // get the id of the node
+    int nodeId;
+    if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
+      opserr << "WARNING invalid nodeId: " << argv[1];
+      opserr << " - load nodeId " << ndf << " forces\n";
+      return TCL_ERROR;
+    }
+
+    // get the load vector
+    Vector forces(ndf);
+    for (int i = 0; i < ndf; i++) {
+      double theForce;
+      if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
+        opserr << "WARNING invalid force " << i + 1 << " - load" << nodeId;
+        opserr << " " << ndf << " forces\n";
+        return TCL_ERROR;
+      } else
+        forces(i) = theForce;
+    }
+
+    // allow some additional options at end of command
+    int endMarker = 2 + ndf;
+    while (endMarker != argc) {
+      if (strcmp(argv[endMarker], "-const") == 0) {
+        // allow user to specify const load
+        isLoadConst = true;
+      } else if (strcmp(argv[endMarker], "-pattern") == 0) {
+        // allow user to specify load pattern other than current
+        endMarker++;
+        userSpecifiedPattern = true;
+        if (endMarker == argc ||
+            Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
+
+          opserr << "WARNING invalid patternTag - load " << nodeId << " ";
+          opserr << ndf << " forces pattern patterntag\n";
+          return TCL_ERROR;
+        }
+      }
+      endMarker++;
+    }
+
+    // get the current pattern tag if no tag given in i/p
+    if (userSpecifiedPattern == false) {
+      if (theTclLoadPattern == 0) {
+        opserr << "WARNING no current load pattern - load " << nodeId;
+        opserr << " " << ndf << " forces\n";
+        return TCL_ERROR;
+      } else
+        loadPatternTag = theTclLoadPattern->getTag();
+    }
+
+    // create the load
+    theLoad = new NodalLoad(nodeLoadTag, nodeId, forces, isLoadConst);
+    if (theLoad == 0) {
+      opserr << "WARNING ran out of memory for load  - load " << nodeId;
+      opserr << " " << ndf << " forces\n";
+      return TCL_ERROR;
+    }
+  }
+
+  // add the load to the domain
+  if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
+    opserr << "WARNING TclSafeBuilder - could not add load to domain\n";
+    printCommand(argc, argv);
+    delete theLoad;
+    return TCL_ERROR;
+  }
+  theTclBuilder->incrNodalLoadTag();
+
+  // if get here we have sucessfully created the load and added it to the domain
+  return TCL_OK;
+}
+

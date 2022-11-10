@@ -152,10 +152,11 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      nullptr, 
      nullptr}},
 
+  {"SparseSYM", {
+     specify_SparseSPD, nullptr, nullptr}},
   {"SparseSPD", {
-     specify_SparseSPD, 
-     nullptr, 
-     nullptr}},
+     // Legacy specifier
+     specify_SparseSPD, nullptr, nullptr}},
 
   {"Diagonal", {
      G3_SOE(DiagonalDirectSolver,        DiagonalSOE),

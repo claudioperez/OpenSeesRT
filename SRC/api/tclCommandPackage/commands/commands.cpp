@@ -1,3 +1,8 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 // Written: cmp
 
 // Description: This file contains the functions that will be called by
@@ -33,11 +38,13 @@ extern "C" {
 #  include <DummyStream.h>
    bool OPS_suppressOpenSeesOutput = false;
    bool OPS_showHeader = true;
-/*
- * moved to streams/logging.cpp
-   StandardStream sserr;
-   OPS_Stream *opserrPtr = &sserr;
-*/
+
+//
+// moved to streams/logging.cpp
+//
+// StandardStream sserr;
+// OPS_Stream *opserrPtr = &sserr;
+//
 #endif
 
 #include <stdio.h>
@@ -101,11 +108,6 @@ extern "C" {
 #include <ArpackSolver.h>
 
 #include <LinearSOE.h>
-// constraint handlers
-#include <PlainHandler.h>
-#include <PenaltyConstraintHandler.h>
-#include <LagrangeConstraintHandler.h>
-#include <TransformationConstraintHandler.h>
 
 
 //  recorders
@@ -114,7 +116,6 @@ extern "C" {
 #include <ErrorHandler.h>
 #include <ConsoleErrorHandler.h>
 
-#include <FE_Datastore.h>
 
 
 #include <XmlFileStream.h>
@@ -153,12 +154,11 @@ SimulationInformation *theSimulationInfoPtr = 0;
 
 char *simulationInfoOutputFilename = 0;
 
-FE_Datastore *theDatabase = 0;
 TclPackageClassBroker theBroker;
 
 
 
-extern int G3_AddTclAnalysisAPI(Tcl_Interp *interp);
+// extern int G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain);
 const char *getInterpPWD(Tcl_Interp *interp);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -178,19 +178,18 @@ int stripOpenSeesXML(ClientData, Tcl_Interp *, int, TCL_Char **);
 // extern
 int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
-extern int myCommands(Tcl_Interp *interp);
-
-int TclCommand_setLoadConst(ClientData, Tcl_Interp *, int, TCL_Char **);
-int TclCommand_getTime(ClientData, Tcl_Interp *, int, TCL_Char **);
-int TclCommand_setTime(ClientData, Tcl_Interp *, int, TCL_Char **);
-int TclCommand_setCreep(ClientData, Tcl_Interp *, int, TCL_Char **);
+Tcl_CmdProc TclCommand_setLoadConst;
+Tcl_CmdProc TclCommand_getTime;
+Tcl_CmdProc TclCommand_setTime;
+Tcl_CmdProc TclCommand_setCreep;
 
 int convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int convertTextToBinary(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 int maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 
-static Tcl_ObjCmdProc *Tcl_putsCommand = 0;
+static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
+
 //
 // revised puts command to send to cerr!
 //
@@ -245,7 +244,7 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
   }
 
   if (chanObjPtr == NULL) {
-    G3_Runtime* rt;
+    G3_Runtime *rt;
     if ((rt = G3_getRuntime(interp))) {
       if (newline == 0)
         fprintf(rt->streams[1], "%s", Tcl_GetString(string));
@@ -275,6 +274,8 @@ OpenSeesAppInit(Tcl_Interp *interp)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *the_domain = G3_getDomain(rt);
+  ClientData domain = (ClientData)the_domain;
+
   ops_TheActiveDomain = the_domain;
 
   // redo puts command so we can capture puts into std:cerr
@@ -296,32 +297,43 @@ OpenSeesAppInit(Tcl_Interp *interp)
   opserr.setFloatField(FIXEDD);
 #endif
 
+  Tcl_CreateCommand(interp, "logFile",        &logFile,      nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "setPrecision",   &setPrecision, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "exit",           &OpenSeesExit, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "quit",           &OpenSeesExit, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "version",        &version,      nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "stripXML",            &stripOpenSeesXML, nullptr, NULL);
+  Tcl_CreateCommand(interp, "convertBinaryToText", &convertBinaryToText, nullptr, NULL);
+  Tcl_CreateCommand(interp, "convertTextToBinary", &convertTextToBinary, nullptr, NULL);
+  Tcl_CreateCommand(interp, "setMaxOpenFiles", &maxOpenFiles, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateObjCommand(interp, "source", &OPS_SourceCmd, nullptr, (Tcl_CmdDeleteProc *)NULL);
+
+
+  Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  (ClientData)the_domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateObjCommand(interp, "pset", &OPS_SetObjCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateObjCommand(interp, "source", &OPS_SourceCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "getNDM", &getNDM, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "getNDF", &getNDF, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "wipe", &wipeModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "wipe",   &TclCommand_wipeModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "start", &startTimer, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "start",  &startTimer, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "stop", &stopTimer, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "loadConst", &TclCommand_setLoadConst, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
 
   Tcl_CreateCommand(interp, "getLoadFactor", &getLoadFactor, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "build", &buildModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "analyze", &analyzeModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "print", &printModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "printModel", &printModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "findNodeWithID", &findID, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 // TODO: cmp -- reimplement
 //   // Talledo Start
@@ -331,54 +343,14 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "fault", 
       [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
 
-  Tcl_CreateCommand(interp, "system", &specifySysOfEqnTable, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-  // Tcl_CreateCommand(interp, "numberer", &specifyNumberer, (ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
-
-  Tcl_CreateCommand(interp, "numberer", [](ClientData, Tcl_Interp *i, int ac, G3_Char** av)->int{
-        return (theNumberer = G3Parse_newNumberer(G3_getRuntime(i), ac, av))? TCL_OK : TCL_ERROR;
-  }, nullptr, nullptr);
-
-  Tcl_CreateCommand(interp, "constraints",       &specifyConstraintHandler, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "algorithm",         &specifyAlgorithm, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "test",              &specifyCTest, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "testNorms",         &getCTestNorms, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "testIter",          &getCTestIter, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "integrator",        &specifyIntegrator, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  
-
 
   Tcl_CreateCommand(interp, "remove",            &removeObject, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "localForce",        &localForce, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleType",           &eleType, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleNodes",          &eleNodes, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleForce",          &eleForce, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleResponse",       &eleResponse, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "eleDynamicalForce", &eleDynamicalForce, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-  Tcl_CreateCommand(interp, "nodeDOFs", &nodeDOFs, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeCoord", &nodeCoord, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeMass", &nodeMass, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeVel", &nodeVel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeDisp", &nodeDisp, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeAccel", &nodeAccel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeResponse", &nodeResponse, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeReaction", &nodeReaction, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeUnbalance", &nodeUnbalance, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeEigenvector", &nodeEigenvector, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-  Tcl_CreateCommand(interp, "setNodeVel", &setNodeVel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setNodeDisp", &setNodeDisp, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setNodeAccel", &setNodeAccel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setNodeCoord", &setNodeCoord, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "reactions", &calculateNodalReactions, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "nodePressure", &nodePressure, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeBounds", &nodeBounds, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "nodeBounds",   &nodeBounds, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   // DAMPING
   Tcl_CreateCommand(interp, "rayleigh", &rayleighDamping, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
@@ -387,59 +359,73 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   Tcl_CreateCommand(interp, "region",         &addRegion, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "logFile",        &logFile, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setPrecision",   &setPrecision, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "exit",           &OpenSeesExit, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "quit",           &OpenSeesExit, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "findNodeWithID", &findID, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 
+  Tcl_CreateCommand(interp, "localForce",        &localForce,    domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "eleType",           &eleType,       domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "eleNodes",          &eleNodes,      domain, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "stripXML",            &stripOpenSeesXML, (ClientData)NULL, NULL);
-  Tcl_CreateCommand(interp, "convertBinaryToText", &convertBinaryToText, (ClientData)NULL, NULL);
-  Tcl_CreateCommand(interp, "convertTextToBinary", &convertTextToBinary, (ClientData)NULL, NULL);
+  Tcl_CreateCommand(interp, "loadConst", &TclCommand_setLoadConst, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "getEleTags",       &getEleTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getNodeTags",      &getNodeTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getParamTags",     &getParamTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getParamValue",    &getParamValue, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "eleForce",          &eleForce,    domain, nullptr);
+  Tcl_CreateCommand(interp, "eleResponse",       &eleResponse, domain, nullptr);
+  Tcl_CreateCommand(interp, "eleDynamicalForce", &eleDynamicalForce,   domain, nullptr);
 
-  Tcl_CreateCommand(interp, "fixedNodes",       &fixedNodes, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "fixedDOFs",        &fixedDOFs, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "constrainedNodes", &constrainedNodes, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "constrainedDOFs",  &constrainedDOFs, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "retainedNodes",    &retainedNodes, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "retainedDOFs",     &retainedDOFs, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "nodeDOFs",        &nodeDOFs,        domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeCoord",       &nodeCoord,       domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeMass",        &nodeMass,        domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeVel",         &nodeVel,         domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeDisp",        &nodeDisp,        domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeAccel",       &nodeAccel,       domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeResponse",    &nodeResponse,    domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeReaction",    &nodeReaction,    domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeUnbalance",   &nodeUnbalance,   domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeEigenvector", &nodeEigenvector, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "getNumElements",      &getNumElements, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleClassTags",     &getEleClassTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleLoadTags",      &getEleLoadTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleLoadData",      &getEleLoadData, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getEleLoadClassTags", &getEleLoadClassTags, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "setNodeVel",      &setNodeVel,   domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeDisp",     &setNodeDisp,  domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeAccel",    &setNodeAccel, domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeCoord",    &setNodeCoord, domain, nullptr);
+
+  Tcl_CreateCommand(interp, "getEleTags",       &getEleTags,    domain, nullptr);
+  Tcl_CreateCommand(interp, "getNodeTags",      &getNodeTags,   domain, nullptr);
+  Tcl_CreateCommand(interp, "getParamTags",     &getParamTags,  domain, nullptr);
+  Tcl_CreateCommand(interp, "getParamValue",    &getParamValue, domain, nullptr);
+
+  Tcl_CreateCommand(interp, "fixedNodes",       &fixedNodes,       domain, nullptr);
+  Tcl_CreateCommand(interp, "fixedDOFs",        &fixedDOFs,        domain, nullptr);
+  Tcl_CreateCommand(interp, "constrainedNodes", &constrainedNodes, domain, nullptr);
+  Tcl_CreateCommand(interp, "constrainedDOFs",  &constrainedDOFs,  domain, nullptr);
+  Tcl_CreateCommand(interp, "retainedNodes",    &retainedNodes,    domain, nullptr);
+  Tcl_CreateCommand(interp, "retainedDOFs",     &retainedDOFs,     domain, nullptr);
+
+  Tcl_CreateCommand(interp, "getNumElements",      &getNumElements,  domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleClassTags",     &getEleClassTags, domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleLoadTags",      &getEleLoadTags,  domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleLoadData",      &getEleLoadData,  domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleLoadClassTags", &getEleLoadClassTags, domain, nullptr);
 
 
-  Tcl_CreateCommand(interp, "sectionForce",       &sectionForce, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sectionDeformation", &sectionDeformation, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sectionStiffness",   &sectionStiffness, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sectionFlexibility", &sectionFlexibility, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sectionLocation",    &sectionLocation, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "sectionWeight",      &sectionWeight, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "basicDeformation",   &basicDeformation, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "basicForce",         &basicForce, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "basicStiffness",     &basicStiffness, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sectionForce",       &sectionForce,       domain, nullptr);
+  Tcl_CreateCommand(interp, "sectionDeformation", &sectionDeformation, domain, nullptr);
+  Tcl_CreateCommand(interp, "sectionStiffness",   &sectionStiffness,   domain, nullptr);
+  Tcl_CreateCommand(interp, "sectionFlexibility", &sectionFlexibility, domain, nullptr);
+  Tcl_CreateCommand(interp, "sectionLocation",    &sectionLocation,    domain, nullptr);
+  Tcl_CreateCommand(interp, "sectionWeight",      &sectionWeight,      domain, nullptr);
+  Tcl_CreateCommand(interp, "basicDeformation",   &basicDeformation,   domain, nullptr);
+  Tcl_CreateCommand(interp, "basicForce",         &basicForce,         domain, nullptr);
+  Tcl_CreateCommand(interp, "basicStiffness",     &basicStiffness,     domain, nullptr);
 
-  Tcl_CreateCommand(interp, "recorderValue", &OPS_recorderValue, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL); // by SAJalali
+  Tcl_CreateCommand(interp, "recorderValue", &OPS_recorderValue, domain, (Tcl_CmdDeleteProc *)NULL); // by SAJalali
 
   // command added for initial state analysis for nDMaterials. Chris McGann, U.Washington
   Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
-  Tcl_CreateCommand(interp, "version", &version, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-  Tcl_CreateCommand(interp, "setMaxOpenFiles", &maxOpenFiles, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
 //   TODO: cmp, moved definition to packages/optimization; need to link in optionally
 //   Tcl_CreateCommand(interp, "setParameter", &setParameter, (ClientData)NULL,
 //                     (Tcl_CmdDeleteProc *)NULL);
+
   // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, (ClientData)NULL, NULL);
   // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
@@ -449,22 +435,11 @@ OpenSeesAppInit(Tcl_Interp *interp)
   // Tcl_CreateCommand(interp, "video", &videoPlayer, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   // Tcl_CreateCommand(interp, "database", &addDatabase, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
+  Tcl_CreateCommand(interp, "model", TclCommand_specifyModel, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_Eval(interp, "rename load import;");
 
-  // theAlgorithm = 0;
-  // theHandler = 0;
-  // theNumberer = 0;
-  // theAnalysisModel = 0;
-  // theSOE = 0;
-  // theStaticIntegrator = 0;
-  // theTransientIntegrator = 0;
-  // theStaticAnalysis = 0;
-  // theTransientAnalysis = 0;
-  // theVariableTimeStepTransientAnalysis = 0;
-  // theTest = 0;
-
-  wipeAnalysis(0, interp, 0, 0);
-  G3_AddTclAnalysisAPI(interp);
-  return myCommands(interp);
+  // wipeAnalysis(0, interp, 0, 0);
+  return TCL_OK;
 }
 
 int
@@ -537,84 +512,6 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
 #else
   return Tcl_FSEvalFileEx(interp, fileName, encodingName);
 #endif
-}
-
-int
-wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  wipeAnalysis(clientData, interp, argc, argv);
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  // TclSafeBuilder *builder = G3_getSafeBuilder(rt);
-
-  /*
-  // to build the model make sure the ModelBuilder has been constructed
-  // and that the model has not already been constructed
-  if (theBuilder != 0) {
-    delete theBuilder;
-    builtModel = false;
-    theBuilder = 0;
-  }
-
-  if (the_static_analysis != 0) {
-      the_static_analysis->clearAll();
-      delete the_static_analysis;
-  }
-
-  if (theTransientAnalysis != 0) {
-      theTransientAnalysis->clearAll();
-      delete theTransientAnalysis;
-  }
-  */
-
-  // NOTE : DON'T do the above on theVariableTimeStepAnalysis
-  // as it and theTansientAnalysis are one in the same
-  if (theDatabase != 0)
-    delete theDatabase;
-
-  if (domain) {
-    domain->clearAll();
-  }
-
-  // builder->clearAllUniaxialMaterial();
-  // builder->clearAllNDMaterial();
-  // builder->clearAllSectionForceDeformation();
-  // OPS_clearAllHystereticBackbone(rt);
-  // OPS_clearAllStiffnessDegradation(rt);
-  // OPS_clearAllStrengthDegradation(rt);
-  // OPS_clearAllUnloadingRule(rt);
-
-  ops_Dt = 0.0;
-
-#ifdef _PARALLEL_PROCESSING
-  OPS_PARTITIONED = false;
-#endif
-
-  // theAlgorithm = 0;
-  // theHandler = 0;
-  // theNumberer = nullptr;
-  // G3_setAnalysisModel(rt,nullptr);
-  // theSOE = 0;
-  // G3_setLinearSoe(rt, nullptr);
-  // G3_setStaticIntegrator(rt,nullptr);
-  // theTransientIntegrator = 0;
-  // G3_setStaticAnalysis(rt,nullptr);
-  // theTransientAnalysis = nullptr;
-  // theVariableTimeStepTransientAnalysis = nullptr;
-
-  // theTest = nullptr;
-  theDatabase = 0;
-
-// AddingSensitivity:BEGIN /////////////////////////////////////////////////
-#ifdef _RELIABILITY
-  // theSensitivityAlgorithm =0;
-  theSensitivityIntegrator = 0;
-#endif
-  // AddingSensitivity:END /////////////////////////////////////////////////
-
-  // the domain deletes the record objects,
-  // just have to delete the private array
-  return TCL_OK;
 }
 
 // by SAJalali
@@ -763,74 +660,6 @@ printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-//
-// command invoked to allow the ConstraintHandler object to be built
-//
-int
-specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
-{
-  // make sure at least one other argument to contain numberer
-  if (argc < 2) {
-    opserr << "WARNING need to specify a Nemberer type \n";
-    return TCL_ERROR;
-  }
-
-  // check argv[1] for type of Numberer and create the object
-  if (strcmp(argv[1], "Plain") == 0)
-    theHandler = new PlainHandler();
-
-  else if (strcmp(argv[1], "Penalty") == 0) {
-    if (argc < 4) {
-      opserr << "WARNING: need to specify alpha: handler Penalty alpha \n";
-      return TCL_ERROR;
-    }
-    double alpha1, alpha2;
-    if (Tcl_GetDouble(interp, argv[2], &alpha1) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[3], &alpha2) != TCL_OK)
-      return TCL_ERROR;
-    theHandler = new PenaltyConstraintHandler(alpha1, alpha2);
-  }
-
-  /****** adding later
-  else if (strcmp(argv[1],"PenaltyNoHomoSPMultipliers") == 0) {
-    if (argc < 4) {
-      opserr << "WARNING: need to specify alpha: handler Penalty alpha \n";
-      return TCL_ERROR;
-    }
-    double alpha1, alpha2;
-    if (Tcl_GetDouble(interp, argv[2], &alpha1) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[3], &alpha2) != TCL_OK)
-      return TCL_ERROR;
-    theHandler = new PenaltyHandlerNoHomoSPMultipliers(alpha1, alpha2);
-  }
-  ***********************/
-  else if (strcmp(argv[1], "Lagrange") == 0) {
-    double alpha1 = 1.0;
-    double alpha2 = 1.0;
-    if (argc == 4) {
-      if (Tcl_GetDouble(interp, argv[2], &alpha1) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[3], &alpha2) != TCL_OK)
-        return TCL_ERROR;
-    }
-    theHandler = new LagrangeConstraintHandler(alpha1, alpha2);
-  }
-
-  else if (strcmp(argv[1], "Transformation") == 0) {
-    theHandler = new TransformationConstraintHandler();
-  }
-
-  else {
-    opserr << "WARNING No ConstraintHandler type exists (Plain, Penalty,\n";
-    opserr << " Lagrange, Transformation) only\n";
-    return TCL_ERROR;
-  }
-  return TCL_OK;
-}
-
 
 
 extern int TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp,
@@ -856,7 +685,7 @@ int
 groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
-  G3_Runtime *rt =  G3_getRuntime(interp);
+  G3_Runtime *rt = G3_getRuntime(interp);
   Domain* the_domain = G3_getDomain(rt);
 
   // make sure at least one other argument to contain integrator
@@ -901,7 +730,6 @@ groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 */
 
-
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
@@ -929,6 +757,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     Element *theEle = the_domain->removeElement(tag);
     if (theEle != 0) {
+#if 0
       // we also have to remove any elemental loads from the domain
       LoadPatternIter &theLoadPatterns = the_domain->getLoadPatterns();
       LoadPattern *thePattern;
@@ -953,7 +782,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
           *********************/
         }
       }
-
+#endif
       // finally invoke the destructor on the element
       delete theEle;
     }
@@ -975,7 +804,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       delete thePattern;
     }
   }
-
+#if 0
   else if ((strcmp(argv[1], "TimeSeries") == 0) ||
            (strcmp(argv[1], "timeSeries") == 0)) {
     if (argc < 3) {
@@ -993,7 +822,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     else
       return TCL_ERROR;
   }
-
+#endif
   else if (strcmp(argv[1], "parameter") == 0) {
     if (argc < 3) {
       opserr << "WARNING want - remove parameter paramTag?\n";
@@ -1048,19 +877,6 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     return the_domain->removeRecorder(tag);
   }
 
-  else if ((strcmp(argv[1], "timeSeries") == 0)) {
-    if (argc < 3) {
-      opserr << "WARNING want - remove timeSeries $tag\n";
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING remove timeSeries tag? failed to read tag: " << argv[2]
-             << endln;
-      return TCL_ERROR;
-    }
-    return OPS_removeTimeSeries(tag);
-  }
 
   else if ((strcmp(argv[1], "SPconstraint") == 0) ||
            (strcmp(argv[1], "sp") == 0)) {
@@ -2139,7 +1955,7 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
   // Need to "setDomain" to make the change take effect.
-  G3_Runtime* rt = G3_getRuntime(interp);
+  G3_Runtime *rt = G3_getRuntime(interp);
   Domain *the_domain = G3_getDomain(rt);
 
   ElementIter &theElements = the_domain->getElements();
@@ -3701,7 +3517,7 @@ int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
-  G3_Runtime *rt  = G3_getRuntime(interp);
+  G3_Runtime *rt = G3_getRuntime(interp);
   Domain *the_domain = G3_getDomain(rt);
   Node *node;
   if (the_domain==nullptr)

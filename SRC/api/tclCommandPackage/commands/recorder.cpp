@@ -2072,7 +2072,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  // operation successfull
   return TCL_OK;
 }
 
@@ -2082,15 +2081,13 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain& theDomain = *G3_getDomain(rt);
 
-  Recorder *theRecorder = 0;
+  Recorder *theRecorder = nullptr;
 
   TclCreateRecorder(clientData, interp, argc, argv, theDomain, &theRecorder);
 
-  if (theRecorder == 0) {
-
+  if (theRecorder == nullptr) {
     char buffer[] = "-1";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    // sprintf(interp->result,"-1");
     return TCL_ERROR;
   }
 
@@ -2099,7 +2096,6 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
     delete theRecorder;
     char buffer[] = "-1";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //    sprintf(interp->result,"-1");
     return TCL_ERROR;
   }
 
@@ -2107,8 +2103,6 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
   char buffer[30];
   sprintf(buffer, "%d", recorderTag);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-  //  sprintf(interp->result,"%d",recorderTag);
-
   return TCL_OK;
 }
 

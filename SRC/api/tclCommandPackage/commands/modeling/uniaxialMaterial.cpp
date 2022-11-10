@@ -32,7 +32,7 @@
 //
 // What: "@(#) TclBasicBuilderUniaxialMaterialCommand.C, revA"
 
-//#include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 #include <unordered_map> // std::unordered_map
 #include <g3_api.h>
 #include <elementAPI.h>
@@ -266,6 +266,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
 {
 
   G3_Runtime *rt = G3_getRuntime(interp);
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -1452,7 +1453,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *material = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *material = builder->getUniaxialMaterial(matTag);
 
     if (material == 0) {
       opserr << "WARNING material does not exist\n";
@@ -1567,7 +1568,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       j++;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
 
     if (theMat == 0) {
       opserr << "WARNING component material does not exist\n";

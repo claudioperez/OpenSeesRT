@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-                                                                        
+//
 // Written: Minjie Zhu
 //
 
@@ -71,7 +71,9 @@ public:
     void set(ConvergenceTest* obj);
     
     void newStaticAnalysis();
-    void newTransientAnalysis();
+    int  setStaticAnalysis();
+    int  newTransientAnalysis();
+    int  setTransientAnalysis();
     void newEigenAnalysis(int typeSolver, double shift);
     int  getNumEigen() {return numEigen;};
 
@@ -89,8 +91,15 @@ public:
     void resetStatic();
     void resetTransient();
     void resetAll();
+
+    enum CurrentAnalysis {
+      CURRENT_EMPTY_ANALYSIS    =0,
+      CURRENT_STATIC_ANALYSIS   =1, 
+      CURRENT_TRANSIENT_ANALYSIS=2
+    };
     
 private:
+    enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
     Domain                    *theDomain;
     ConstraintHandler 	      *theHandler;
     DOF_Numberer 	            *theNumberer;

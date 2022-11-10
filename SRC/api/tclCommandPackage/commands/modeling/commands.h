@@ -3,65 +3,65 @@
 //
 #include <tcl.h>
 
-typedef int (TclCharFn)(ClientData, Tcl_Interp*, int, const char**);
-// typedef int (TclObjFn)(ClientData,  Tcl_Interp*, int, Tcl_Obj**);
+static Tcl_CmdProc  TclCommand_wipeModel;
 
-static TclCharFn  TclCommand_addNode;
-static TclCharFn  TclCommand_addPattern;
-static TclCharFn  TclCommand_addTimeSeries;
-static TclCharFn  TclCommand_addNodalMass;
-extern TclCharFn  TclCommand_addGeomTransf;
+static Tcl_CmdProc  TclCommand_addNode;
+static Tcl_CmdProc  TclCommand_addPattern;
+static Tcl_CmdProc  TclCommand_addTimeSeries;
+static Tcl_CmdProc  TclCommand_addNodalMass;
+extern Tcl_CmdProc  TclCommand_addGeomTransf;
 
-extern TclCharFn  TclCommand_addElement;
-extern TclCharFn  TclCommand_doBlock2D;
-extern TclCharFn  TclCommand_doBlock3D;
-extern TclCharFn  TclCommand_addUniaxialMaterial;
-extern TclCharFn  TclCommand_addHystereticBackbone;
-extern TclCharFn  TclCommand_addSection;
-extern TclCharFn  TclCommand_addPatch;
-extern TclCharFn  TclCommand_addReinfLayer;
-// extern TclCharFn  TclCommand_addRemoFiber;
-extern TclCharFn  TclCommand_addFiber;
+extern Tcl_CmdProc  TclCommand_addElement;
+extern Tcl_CmdProc  TclCommand_doBlock2D;
+extern Tcl_CmdProc  TclCommand_doBlock3D;
+extern Tcl_CmdProc  TclCommand_addUniaxialMaterial;
+extern Tcl_CmdProc  TclCommand_addHystereticBackbone;
+extern Tcl_CmdProc  TclCommand_addSection;
+extern Tcl_CmdProc  TclCommand_addPatch;
+extern Tcl_CmdProc  TclCommand_addReinfLayer;
+// extern Tcl_CmdProc  TclCommand_addRemoFiber;
+extern Tcl_CmdProc  TclCommand_addFiber;
 // Constraints
-extern TclCharFn  TclCommand_addHomogeneousBC;
-extern TclCharFn  TclCommand_addEqualDOF_MP;
+extern Tcl_CmdProc  TclCommand_addHomogeneousBC;
+extern Tcl_CmdProc  TclCommand_addEqualDOF_MP;
 // Loads
-extern TclCharFn  TclCommand_addNodalLoad;
-TclCharFn TclCommand_addElementalLoad;
+// extern Tcl_CmdProc  TclCommand_addNodalLoad;
+Tcl_CmdProc TclCommand_addElementalLoad;
 
 // Damping
-TclCharFn modalDamping;
-TclCharFn modalDampingQ;
+Tcl_CmdProc modalDamping;
+Tcl_CmdProc modalDampingQ;
 
-TclCharFn TclCommand_addParameter;
-TclCharFn TclCommand_mesh;
-TclCharFn TclCommand_remesh;
-TclCharFn TclCommand_backgroundMesh; 
-TclCharFn TclCommand_addBeamIntegration;
+Tcl_CmdProc TclCommand_addParameter;
+Tcl_CmdProc TclCommand_mesh;
+Tcl_CmdProc TclCommand_remesh;
+Tcl_CmdProc TclCommand_backgroundMesh; 
+Tcl_CmdProc TclCommand_addBeamIntegration;
 
-TclCharFn TclCommand_addLimitCurve;
-TclCharFn TclCommand_addNDMaterial;
-TclCharFn TclCommand_addSeries;
+Tcl_CmdProc TclCommand_addLimitCurve;
+Tcl_CmdProc TclCommand_addNDMaterial;
+Tcl_CmdProc TclCommand_addSeries;
 
 // Constraints
-TclCharFn TclCommand_addHomogeneousBC_X;
-TclCharFn TclCommand_addHomogeneousBC_Y; 
-TclCharFn TclCommand_addHomogeneousBC_Z;
-TclCharFn TclCommand_addEqualDOF_MP_Mixed;
-TclCharFn TclCommand_addMP;
-TclCharFn TclCommand_addSP;
-TclCharFn TclCommand_RigidLink;
-TclCharFn TclCommand_addImposedMotionSP;
-TclCharFn TclCommand_addGroundMotion;
-TclCharFn TclCommand_RigidDiaphragm;
+Tcl_CmdProc TclCommand_addHomogeneousBC_X;
+Tcl_CmdProc TclCommand_addHomogeneousBC_Y; 
+Tcl_CmdProc TclCommand_addHomogeneousBC_Z;
+Tcl_CmdProc TclCommand_addEqualDOF_MP_Mixed;
+Tcl_CmdProc TclCommand_addMP;
+Tcl_CmdProc TclCommand_addSP;
+Tcl_CmdProc TclCommand_RigidLink;
+Tcl_CmdProc TclCommand_addImposedMotionSP;
+Tcl_CmdProc TclCommand_addGroundMotion;
+Tcl_CmdProc TclCommand_RigidDiaphragm;
 
 
 struct char_cmd {
   const char* name;
-  TclCharFn*  func;
+  Tcl_CmdProc*  func;
   bool was_added = false;
 
 }  const tcl_char_cmds[] =  {
+  {"wipe",             TclCommand_wipeModel},
 
   {"node",             TclCommand_addNode},
   {"mass",             TclCommand_addNodalMass},
@@ -78,7 +78,7 @@ struct char_cmd {
 
   {"geomTransf",       TclCommand_addGeomTransf},
 
-  {"load",             TclCommand_addNodalLoad},
+//   {"load",             TclCommand_addNodalLoad},
   {"pattern",          TclCommand_addPattern},
   {"timeSeries",       TclCommand_addTimeSeries},
 
@@ -88,7 +88,7 @@ struct char_cmd {
   {"fixZ",                 TclCommand_addHomogeneousBC_Z},
   {"equalDOF",             TclCommand_addEqualDOF_MP},
   {"rigidLink",            &TclCommand_RigidLink},
-
+  
   {"sp",                   TclCommand_addSP},
   {"groundMotion",         TclCommand_addGroundMotion},
   {"imposedMotion",        TclCommand_addImposedMotionSP},
@@ -156,31 +156,31 @@ struct char_cmd {
 
 
 
-TclCharFn TclCommand_Package;
+Tcl_CmdProc TclCommand_Package;
 
 // Added by Scott J. Brandenberg
-TclCharFn TclCommand_doPySimple1Gen;
-TclCharFn TclCommand_doTzSimple1Gen;
+Tcl_CmdProc TclCommand_doPySimple1Gen;
+Tcl_CmdProc TclCommand_doTzSimple1Gen;
 
 // End added by SJB
 // Added by Prishati Raychowdhury (UCSD)
-TclCharFn TclSafeBuilder_doShallowFoundationGen;
+Tcl_CmdProc TclSafeBuilder_doShallowFoundationGen;
 // End PRC
 //Leo
-TclCharFn TclSafeBuilder_addRemoHFiber;
-TclCharFn TclCommand_addFrictionModel;
-TclCharFn TclCommand_addStiffnessDegradation;
-TclCharFn TclCommand_addUnloadingRule;
-TclCharFn TclCommand_addStrengthDegradation;
+Tcl_CmdProc TclSafeBuilder_addRemoHFiber;
+Tcl_CmdProc TclCommand_addFrictionModel;
+Tcl_CmdProc TclCommand_addStiffnessDegradation;
+Tcl_CmdProc TclCommand_addUnloadingRule;
+Tcl_CmdProc TclCommand_addStrengthDegradation;
 /// added by ZHY
-TclCharFn TclCommand_UpdateMaterialStage;
-TclCharFn TclCommand_UpdateMaterials;
+Tcl_CmdProc TclCommand_UpdateMaterialStage;
+Tcl_CmdProc TclCommand_UpdateMaterials;
 /// added by ZHY
-TclCharFn TclCommand_UpdateParameter;
+Tcl_CmdProc TclCommand_UpdateParameter;
 ////////////////gnp adding rayleigh /////////////////////
-TclCharFn TclCommand_addElementRayleigh;
+Tcl_CmdProc TclCommand_addElementRayleigh;
 /////////////////////////////////////////////////////////
 
 // Added by Alborz Ghofrani - U.Washington
-TclCharFn TclCommand_GenerateInterfacePoints;
+Tcl_CmdProc TclCommand_GenerateInterfacePoints;
 

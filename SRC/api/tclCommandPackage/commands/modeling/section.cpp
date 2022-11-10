@@ -9,6 +9,7 @@
 
 #include <InputAPI.h>
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 #include <g3_api.h>
 #include <elementAPI.h>
@@ -129,7 +130,8 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
-  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
+  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)clientData; //G3_getModelBuilder(rt);
+
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of section arguments\n";
@@ -905,6 +907,9 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
+
+  // Tcl_CreateCommand(interp, "patch", &TclCommand_addPatch, (ClientData)fiberSectionRepr, nullptr);
+
   // parse the information inside the braces (patches and reinforcing layers)
   if (Tcl_Eval(interp, argv[brace]) != TCL_OK) {
     opserr << "WARNING - error reading information in { } \n";
@@ -1059,7 +1064,9 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
+//
 // add patch to fiber section
+//
 int
 TclCommand_addPatch(ClientData clientData, 
                     Tcl_Interp *interp, 
@@ -1070,7 +1077,7 @@ TclCommand_addPatch(ClientData clientData,
   TclBuilder *theTclBasicBuilder = G3_getModelBuilder(rt);
 
   // check if a section is being processed
-  if (theTclBasicBuilder->currentSectionTag == -1) {
+  if ((theTclBasicBuilder->currentSectionTag == -1) && (clientData==NULL)) {
     opserr << "WARNING subcommand 'patch' is only valid inside a 'section' "
               "command\n";
     return TCL_ERROR;
@@ -1167,8 +1174,6 @@ TclCommand_addPatch(ClientData clientData,
       opserr << "WARNING cannot allocate patch\n";
       return TCL_ERROR;
     }
-
-    // opserr << "\n\tpatch: " << *patch;
 
     // add patch to section representation
 

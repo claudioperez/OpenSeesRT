@@ -37,6 +37,7 @@
 // What: "@(#) TclBasicBuilderNDMaterialCommand.C, revA"
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 #include <elementAPI.h>
 #include <packages.h>
 
@@ -180,6 +181,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -250,7 +252,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "J2BeamFiber") == 0) {
     void *theMat = 0;
-    if (theTclBuilder->getNDM() == 2)
+    if (builder->getNDM() == 2)
       theMat = OPS_J2BeamFiber2dMaterial(rt);
     else
       theMat = OPS_J2BeamFiber3dMaterial(rt);
@@ -1701,7 +1703,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
     if (theMat == 0) {
       opserr << "WARNING uniaxialmaterial does not exist\n";
       opserr << "UniaxialMaterial: " << matTag;
@@ -2066,7 +2068,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
     if (theMat == 0) {
       opserr << "WARNING uniaxialmaterial does not exist\n";
       opserr << "UniaxialMaterial: " << matTag;

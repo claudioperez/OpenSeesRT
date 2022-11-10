@@ -1,5 +1,6 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 
 /*
@@ -19,23 +20,18 @@ extern OPS_Stream* opswrnPtr;
 
 #include <TclBasicBuilder.h>
 #include <TclSafeBuilder.h>
+#include <TclSafeBuilder.h>
 #include <WrapperElement.h>
 
-#include <map>
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <SectionForceDeformation.h>
 #include <CrdTransf.h>
 #include <FrictionModel.h>
-// #include <WrapperUniaxialMaterial.h>
-// #include <WrapperNDMaterial.h>
 
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
-// use ProfileSPD for default SOE constructor
-#include <ProfileSPDLinSOE.h>
-#include <ProfileSPDLinDirectSolver.h>
 
 #include <OPS_Globals.h>
 
@@ -60,7 +56,7 @@ extern EigenSOE *theEigenSOE;
 extern StaticAnalysis *theStaticAnalysis;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
-extern int numEigen;
+// extern int numEigen;
 extern StaticIntegrator *theStaticIntegrator;
 extern TransientIntegrator *theTransientIntegrator;
 extern ConvergenceTest *theTest;
@@ -172,10 +168,10 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
                TCL_Char **argv, Domain *domain, TclBuilder *builder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  G3_setDomain(rt, domain);
+//  G3_setDomain(rt, domain);
   G3_setModelBuilder(rt, builder);
-  theInterp = interp;
-  // theDomain = domain;
+// theInterp = interp;
+// theDomain = domain;
   theModelBuilder = builder;
   currentArgv = argv;
   currentArg = cArg;
@@ -190,9 +186,8 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                         int mArg, TCL_Char **argv, Domain *domain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  G3_setDomain(rt, domain);
-  theInterp = interp;
-  // theDomain = domain;
+//  G3_setDomain(rt, domain);
+//  theInterp = interp;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
@@ -451,7 +446,6 @@ OPS_GetElementType(char *type, int sizeType)
     // create a new eleObject, set the function ptr &  return it
 
     eleObj *theEleObject = new eleObj;
-    // eleObj *theEleObject = (eleObj *)malloc(sizeof( eleObj));;
 
     theEleObject->eleFunctPtr = eleFunction->theFunct;
 
@@ -514,276 +508,11 @@ OPS_GetMaterialType(char *type, int sizeType)
 
   return 0;
 }
-/*
-extern "C" int
-OPS_AllocateMaterial(matObject *theMat)
-{
 
-  if (theMat->nParam > 0)
-    theMat->theParam = new double[theMat->nParam];
-
-  int nState = theMat->nState;
-
-  if (nState > 0) {
-    theMat->cState = new double[nState];
-    theMat->tState = new double[nState];
-    for (int i = 0; i < nState; i++) {
-      theMat->cState[i] = 0;
-      theMat->tState[i] = 0;
-    }
-  } else {
-    theMat->cState = 0;
-    theMat->tState = 0;
-  }
-
-  return 0;
-}
-
-extern "C" int
-OPS_AllocateElement(eleObject *theEle, int *matTags, int *matType)
-{
-  if (theEle->nNode > 0)
-    theEle->node = new int[theEle->nNode];
-
-  if (theEle->nParam > 0)
-    theEle->param = new double[theEle->nParam];
-
-  if (theEle->nState > 0) {
-    theEle->cState = new double[theEle->nState];
-    theEle->tState = new double[theEle->nState];
-  }
-
-  int numMat = theEle->nMat;
-  if (numMat > 0)
-    theEle->mats = new matObject *[numMat];
-
-  for (int i = 0; i < numMat; i++) {
-
-    matObject *theMat = OPS_GetMaterial(&(matTags[i]), matType);
-    //    matObject *theMat = OPS_GetMaterial(&(matTags[i]));
-
-    theEle->mats[i] = theMat;
-  }
-
-  return 0;
-}
-*/
-
-extern "C" int
-OPS_GetNodeCrd(int *nodeTag, int *sizeCrd, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeCrd - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeCrd;
-  const Vector &crd = theNode->getCrds();
-  if (crd.Size() != size) {
-    opserr << "OPS_GetNodeCrd - crd size mismatch\n";
-    opserr << "Actual crd size is: " << crd.Size()
-           << endln; // MRL Add Error Detection
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = crd(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeDisp(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeDisp - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &disp = theNode->getTrialDisp();
-
-  if (disp.Size() != size) {
-    opserr << "OPS_GetNodeDisp - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = disp(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeVel(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeVel - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &vel = theNode->getTrialVel();
-
-  if (vel.Size() != size) {
-    opserr << "OPS_GetNodeVel - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = vel(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeAccel(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeAccel - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &accel = theNode->getTrialAccel();
-
-  if (accel.Size() != size) {
-    opserr << "OPS_GetNodeAccel - accel size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = accel(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeIncrDisp(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeIncrDisp - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &disp = theNode->getIncrDisp();
-
-  if (disp.Size() != size) {
-    opserr << "OPS_GetNodeIncrDis - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = disp(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeIncrDeltaDisp(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeIncrDeltaDisp - no node with tag " << *nodeTag
-           << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &disp = theNode->getIncrDeltaDisp();
-
-  if (disp.Size() != size) {
-    opserr << "OPS_GetNodeIncrDis - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = disp(i);
-
-  return 0;
-}
 
 int
-Tcl_addWrapperElement(eleObj *theEle, ClientData clientData, Tcl_Interp *interp,
-                      int argc, TCL_Char **argv, Domain *theDomain,
-                      TclBuilder *theModelBuilder)
+G3_raise(G3_Runtime *rt, const char *msg, ...)
 {
-  theInterp = interp;
-  // theDomain = domain;
-  // theModelBuilder = builder;
-  currentArgv = argv;
-  currentArg = 2;
-  maxArg = argc;
-
-  // get the current load factor
-  double time = theDomain->getCurrentTime();
-  double dt = theDomain->getCurrentTime() - time;
-
-  static modelState theModelState;
-  theModelState.time = time;
-  theModelState.dt = dt;
-
-  // invoke the ele function with isw = 0
-  int isw = ISW_INIT;
-  int result = 0;
-  theEle->eleFunctPtr(theEle, &theModelState, 0, 0, &isw, &result);
-
-  if (result != 0) {
-    opserr << "Tcl_addWrapperElement - failed in element function " << result
-           << endln;
-    return TCL_ERROR;
-  }
-
-  WrapperElement *theElement = new WrapperElement(argv[1], theEle);
-
-  if (theDomain->addElement(theElement) == false) {
-    opserr << "WARNING could not add element of type: " << argv[1]
-           << " to the domain\n";
-    delete theElement;
-    return TCL_ERROR;
-  }
-
-  return 0;
-}
-
-
-
-
-extern "C" int
-OPS_InvokeMaterial(eleObject *theEle, int *mat, modelState *model,
-                   double *strain, double *stress, double *tang, int *isw)
-{
-  int error = 0;
-
-  matObject *theMat = theEle->mats[*mat];
-  /* fprintf(stderr,"invokeMaterial Address %d %d %d\n",*mat, theMat,
-   * sizeof(int)); */
-
-  if (theMat != 0)
-    theMat->matFunctPtr(theMat, model, strain, tang, stress, isw, &error);
-  else
-    error = -1;
-
-  return error;
-}
-
-extern "C" int
-OPS_InvokeMaterialDirectly(matObject **theMat, modelState *model,
-                           double *strain, double *stress, double *tang,
-                           int *isw)
-{
-  int error = 0;
-  //  fprintf(stderr,"invokeMaterialDirectly Address %d %d %d\n",theMat,
-  //  sizeof(int), *theMat);
-  if (*theMat != 0)
-    (*theMat)->matFunctPtr(*theMat, model, strain, tang, stress, isw, &error);
-  else
-    error = -1;
-
-  return error;
-}
-
-int
-G3_raise(G3_Runtime *rt, const char *msg, ...){
   va_list ap;
 
   va_start(ap, msg);
@@ -826,8 +555,8 @@ G3_raise(G3_Runtime *rt, const char *msg, ...){
     Tcl_DecrRefCount(top_interpInfoName) ;
     Tcl_DecrRefCount(top_interpInfo);
     */
-    // throw 20;
-    return 0;
+
+    return TCL_ERROR;
 }
 
 G3_Runtime *
@@ -895,6 +624,7 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
       // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
   return builder->addTimeSeries(series);
 }
+
 /*
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
   // Tcl_Interp *interp = G3_getInterpreter(rt);
@@ -986,8 +716,7 @@ int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
     opserr << "WARNING Failed to find safe model builder\n";
     return 0;
   }
-  int stat = builder->addUniaxialMaterial(mat);
-  return stat ? TCL_OK : TCL_ERROR;
+  return builder->addUniaxialMaterial(mat);
 }
 
 
@@ -1102,30 +831,6 @@ int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
   return 0;
 }
 
-LinearSOE *
-G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
-  // `flags` is unused right now but could be useful
-  // for ensuring properties about the SOE, like
-  // forcing fullGen.
-  LinearSOE* theSOE = *G3_getLinearSoePtr(rt);
-
-  opsdbg << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
-
-  if (theSOE == NULL) {
-    opswrn << "no LinearSOE specified, default ProfileSPDLinSOE will be used\n";
-    ProfileSPDLinSolver *theSolver;
-    theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-    theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-    theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
-    G3_setLinearSoe(rt, theSOE);
-  }
-  return theSOE;
-}
-
-
 
 EigenSOE **
 OPS_GetEigenSOE(void) {return &theEigenSOE;}
@@ -1233,8 +938,8 @@ OPS_GetVariableTimeStepTransientAnalysis(void)
 }
 */
 
-int *
-OPS_GetNumEigen(void) {return &numEigen;}
+// int *
+// OPS_GetNumEigen(void) {return &numEigen;}
 
 StaticIntegrator **
 OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}

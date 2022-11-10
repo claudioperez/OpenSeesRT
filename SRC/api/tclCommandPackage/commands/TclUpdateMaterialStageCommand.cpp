@@ -7,6 +7,8 @@
 // Written: ZHY
 
 #include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
+#include <TclSafeBuilder.h>
 #include <PressureIndependMultiYield.h>
 #include <PressureDependMultiYield.h>
 #include <FluidSolidPorousMaterial.h>
@@ -29,6 +31,8 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           TclBasicBuilder *theTclBuilder,
                                           Domain *theDomain)
 {
+
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
   if (argc < 5) {
     opserr << "WARNING insufficient number of UpdateMaterialStage arguments\n";
     opserr << "Want: UpdateMaterialStage material matTag? stage value?"
@@ -95,9 +99,11 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
 
 int
 TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
-                                      TclBasicBuilder *theTclBuilder)
+                                      int argc, TCL_Char **argv)
 {
+
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+
   if (argc < 5) {
     opserr << "WARNING insufficient number of updateParameter arguments\n";
     opserr << "Want: updateParameter -material matNum? -param? newValue?"
@@ -125,7 +131,7 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
   if (a == 0) {
     // opserr << "WARNING UpdateParameter: couldn't get NDmaterial tagged: " <<
     // tag << endln; return TCL_ERROR;
-    UniaxialMaterial *a = OPS_getUniaxialMaterial(tag);
+    UniaxialMaterial *a = builder->getUniaxialMaterial(tag);
     if (a == 0) {
       opserr
           << "WARNING UpdateParameter: couldn't get Uniaxialmaterial tagged: "

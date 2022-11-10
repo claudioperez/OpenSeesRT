@@ -3,16 +3,13 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 
-// Description: This file contains the function myCommands().
-// myCommands() is called in g3AppInit() - all new user commands
-// are to be placed in here.
-//
 #include <g3_api.h>
 #include <Domain.h>
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
 #include "modelbuilder/safe/TclSafeBuilder.h"
 #include "modelbuilder/sect/TclSectionTestBuilder.h"
+#include <FE_Datastore.h>
 
 #include <g3_api.h>
 
@@ -22,6 +19,8 @@
 
 extern ModelBuilder *theBuilder;
 
+FE_Datastore *theDatabase = 0;
+
 #ifdef _PARALLEL_PROCESSING
 #  include <PartitionedDomain.h>
    extern PartitionedDomain theDomain;
@@ -29,26 +28,20 @@ extern ModelBuilder *theBuilder;
   extern Domain theDomain;
 #endif
 
-int specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+extern int G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain);
+
+// Tcl_CmdProc TclCommand_specifyModel;
 
 extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **, Domain *, TclBuilder *);
 
 int
-myCommands(Tcl_Interp *interp)
+TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  Tcl_CreateCommand(interp, "model", specifyModelBuilder, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_Eval(interp, "rename load import;");
-  return 0;
-}
-
-int
-specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  /* int cArg = 0; */
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
-  G3_setDomain(rt,theNewDomain);
+  G3_setDomain(rt, theNewDomain);
+  G3_AddTclAnalysisAPI(interp, theNewDomain);
 
   // make sure at least one other argument to contain model builder type given
   if (argc < 2) {
@@ -98,6 +91,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
         }
         argPos++;
         posArg++;
+
       } else if (strcmp(argv[argPos], "-ndf") == 0 ||
                  strcmp(argv[argPos], "-NDF") == 0) {
         argPos++;
@@ -109,6 +103,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
           }
         argPos++;
         posArg++;
+
       } else if (posArg == 1) {
           if (Tcl_GetInt(interp, argv[argPos], &ndm) != TCL_OK) {
             opserr << "WARNING error reading ndm: " << argv[argPos];
@@ -117,6 +112,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
           }
         argPos++;
         posArg++;
+
       } else if (posArg == 2) {
           if (Tcl_GetInt(interp, argv[argPos], &ndf) != TCL_OK) {
             opserr << "WARNING error reading ndf: " << argv[argPos];
@@ -125,6 +121,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
           }
         argPos++;
         posArg++;
+
       } else {// Advance to next input argument if there are no matches -- MHS
         argPos++;
       }
@@ -151,6 +148,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
         return TCL_ERROR;
       }
     }
+
     // create the model builder
     theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
 
@@ -162,6 +160,7 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
       G3_setModelBuilder(rt, theNewBuilder);
     }
   }
+
   else if ((strcmp(argv[1], "test") == 0) ||
            (strcmp(argv[1], "uniaxial") == 0) ||
            (strcmp(argv[1], "TestUniaxial") == 0) ||
@@ -182,8 +181,10 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
       G3_setModelBuilder(rt, theNewBuilder);
     }
   }
+
 /*
   else if ((strcmp(argv[1], "testPlaneStress") == 0) ||
+           (strcmp(argv[1], "StressPatch") == 0)     ||
            (strcmp(argv[1], "PlaneStressMaterialTest") == 0)) {
     int count = 1;
     if (argc == 3) {
@@ -226,6 +227,63 @@ specifyModelBuilder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
     return TCL_ERROR;
   }
 
+  return TCL_OK;
+}
+
+int
+TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  // wipeAnalysis(clientData, interp, argc, argv);
+  Tcl_Eval(interp, "wipeAnalysis");
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+#if 0 // TODO - implement ModelBuilder.clearAll();
+  // to build the model make sure the ModelBuilder has been constructed
+  // and that the model has not already been constructed
+  if (theBuilder != 0) {
+    delete theBuilder;
+    builtModel = false;
+    theBuilder = 0;
+  }
+#endif
+
+  // NOTE : DON'T do the above on theVariableTimeStepAnalysis
+  // as it and theTansientAnalysis are one in the same
+  if (theDatabase != 0)
+    delete theDatabase;
+
+  if (domain) {
+    domain->clearAll();
+  }
+
+  // builder->clearAllUniaxialMaterial();
+  // builder->clearAllNDMaterial();
+  // builder->clearAllSectionForceDeformation();
+  // OPS_clearAllHystereticBackbone(rt);
+  // OPS_clearAllStiffnessDegradation(rt);
+  // OPS_clearAllStrengthDegradation(rt);
+  // OPS_clearAllUnloadingRule(rt);
+
+  ops_Dt = 0.0;
+
+#ifdef _PARALLEL_PROCESSING
+  OPS_PARTITIONED = false;
+#endif
+
+  // theTest = nullptr;
+  theDatabase = 0;
+
+// AddingSensitivity:BEGIN /////////////////////////////////////////////////
+#ifdef _RELIABILITY
+  // theSensitivityAlgorithm =0;
+  theSensitivityIntegrator = 0;
+#endif
+  // AddingSensitivity:END /////////////////////////////////////////////////
+
+  // the domain deletes the record objects,
+  // just have to delete the private array
   return TCL_OK;
 }
 

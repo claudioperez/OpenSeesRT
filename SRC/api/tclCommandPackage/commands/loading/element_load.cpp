@@ -34,7 +34,9 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   static int eleLoadTag = 0;
 
   // ensure the destructor has not been called - 
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING current builder has been destroyed - eleLoad\n";    
     return TCL_ERROR;
   }

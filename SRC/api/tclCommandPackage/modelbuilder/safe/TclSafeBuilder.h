@@ -1,21 +1,21 @@
-/**********************************************************************
- *    Opensees - Open System for Earthquake Engineering Simulation    *
- *          Pacific Earthquake Engineering Research Center            *
- *                                                                    *
- **********************************************************************/
-
-// Written: cmp
-// Created: 10/21
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 
 // Description: This file contains the class definition for
 // TclSafeBuilder. A TclSafeBuilder aims to be a threadsafe
 // alternative to the TclBasicBuilder class. This class adds the commands to
 // create the model for the standard models that can be generated using the
 // elements released with the g3 framework.
+//
+// Written: cmp
+// Created: 10/21
 
 #ifndef TCLSAFEBUILDER_H
 #define TCLSAFEBUILDER_H
 
+#include <tcl.h>
 #include <unordered_map>
 #include <string>
 #include <TclBuilder.h>
@@ -30,17 +30,7 @@ class TimeSeries;
 class G3_Runtime;
 class CrdTrasnf;
 class HystereticBackbone;
-/*
-class YieldSurface_BC;
-class YS_Evolution;
-class PlasticHardeningMaterial;
-class CyclicModel; //!!
-class LimitCurve;
-class DamageModel;
-class FrictionModel;
-*/
 
-#include <tcl.h>
 
 class TclSafeBuilder : public TclBuilder {
 //
@@ -53,6 +43,10 @@ public:
   typedef std::string key_t;
   template <typename ObjectType> class map_t
   : public std::unordered_map<key_t, ObjectType> {};
+
+// Options
+  void letClobber(bool option);
+  bool canClobber();
 
 //
 // OBJECT CONTAINERS
@@ -69,6 +63,11 @@ public:
   int incrNodalLoadTag(void);
   int decrNodalLoadTag(void);
   int getNodalLoadTag(void);
+
+  int addSP_Constraint(int axisDirn, 
+         double axisValue, 
+         const ID &fixityCodes, 
+         double tol=1e-10);
 
 // Coordinate Transformations
 private: map_t<CrdTransf*> m_CrdTransfMap;
@@ -141,14 +140,6 @@ private:
   int ndm; // space dimension of the mesh
   int ndf; // number of degrees of freedom per node
 
-// TODO: change to std::map<>
-  // TaggedObjectStorage *theNDMaterials;
-  // TaggedObjectStorage *theSectionRepresents;
-  // TaggedObjectStorage *theYieldSurface_BCs;
-  // TaggedObjectStorage *thePlasticMaterials;
-  // TaggedObjectStorage *theYS_EvolutionModels;
-  // TaggedObjectStorage *theCycModels; //!!
-
   G3_Runtime *m_runtime = nullptr;
   Domain *theTclDomain = 0;
   TclSafeBuilder *theTclBuilder = 0;
@@ -156,9 +147,11 @@ private:
   int nodeLoadTag = 0;
   int eleLoadTag = 0;
 
+  // Options
+  bool no_clobber = true;
+
 // previously extern variables
   LoadPattern *tclEnclosingPattern = 0;
-
   MultiSupportPattern *theTclMultiSupportPattern = 0;
 
 protected:

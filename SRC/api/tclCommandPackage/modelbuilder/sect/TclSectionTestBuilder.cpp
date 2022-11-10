@@ -123,7 +123,9 @@ TclSectionTestBuilder_setSection(ClientData clientData, Tcl_Interp *interp, int 
 {
   count = 1;
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
@@ -166,7 +168,9 @@ TclSectionTestBuilder_setStrainSection(ClientData clientData, Tcl_Interp *interp
                                   int argc, TCL_Char **argv)
 {
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }

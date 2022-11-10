@@ -35,7 +35,7 @@
 
 // What: "@(#) TclGroundMotionCommand.C, revA"
 
-#include <TclBasicBuilder.h>
+// #include <TclBasicBuilder.h>
 
 #include <g3_api.h>
 #include <GroundMotionRecord.h>

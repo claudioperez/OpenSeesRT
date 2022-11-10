@@ -36,6 +36,7 @@ target_sources(OpenSeesRT PRIVATE
 # Other Commands
     "streams/logging.cpp"
     "commands/commands.cpp"
+    "commands/sequential.cpp"
     "commands/runtime.cpp"
     "commands/modeling/model.cpp"
     "commands/modeling/nodes.cpp"
@@ -113,7 +114,7 @@ target_sources(OpenSeesRT PRIVATE
     "utilities/tclutils.cpp"
 
 
-    "runtime/AnalysisContext.cpp"
+    "runtime/BasicAnalysisBuilder.cpp"
 )
 
 add_subdirectory(contrib/)
