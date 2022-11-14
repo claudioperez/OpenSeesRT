@@ -8,6 +8,7 @@
 
 #include <g3_api.h>
 #include <G3_Logging.h>
+#include <TclSafeBuilder.h>
 
 #include <Domain.h>
 #include <LinearSeries.h>
@@ -61,14 +62,13 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
                                        int cArg, int mArg, TCL_Char **argv,
                                        Domain *domain);
 
-// #include <TclBasicBuilder.h>
 
-void *
-G3_newLinearSeries(G3_Runtime *rt, int argc, TCL_Char **argv)
+static void *
+TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char **argv)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
+
   // Pointer to a uniaxial material that will be returned
-  TimeSeries *theSeries = 0;
+  TimeSeries *theSeries = nullptr;
 
   int numRemainingArgs = argc;
 
@@ -115,15 +115,14 @@ G3_newLinearSeries(G3_Runtime *rt, int argc, TCL_Char **argv)
   return theSeries;
 }
 
-TimeSeries *
-TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv, Domain *_dom)
+static TimeSeries *
+TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
 
   // note the 1 instead of usual 2
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, theDomain);
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
 
   TimeSeries *theSeries = 0;
 
@@ -151,7 +150,7 @@ TclTimeSeriesCommand(ClientData clientData, Tcl_Interp *interp, int argc,
            (strcmp(argv[0], "LinearSeries") == 0)) {
 
     // void *theResult = OPS_LinearSeries(rt);
-    void *theResult = G3_newLinearSeries(rt, argc - 1, &argv[1]);
+    void *theResult = TclDispatch_newLinearSeries(clientData, interp, argc - 1, &argv[1]);
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
     else
@@ -621,6 +620,7 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
   TCL_Char **argv;
   TimeSeries *series;
   int timeSeriesTag = 0;
+
   if (Tcl_GetInt(interp, arg, &timeSeriesTag) == TCL_OK) {
     G3_Runtime *rt = G3_getRuntime(interp);
     if (series = G3_getTimeSeries(rt, timeSeriesTag))
@@ -635,9 +635,28 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
     return 0;
   }
 
-  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc, argv, 0);
+  TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc, argv);
 
   // clean up after ourselves and return the series
   cleanup(argv);
   return theSeries;
 }
+
+int
+TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
+                         TCL_Char **argv)
+{
+
+  TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc - 1, &argv[1]);
+
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder *)clientData;
+
+  if (theSeries != 0) {
+    if (theTclBuilder->addTimeSeries(argv[2], theSeries))
+      return TCL_OK;
+    else
+      return TCL_ERROR;
+  }
+  return TCL_ERROR;
+}
+

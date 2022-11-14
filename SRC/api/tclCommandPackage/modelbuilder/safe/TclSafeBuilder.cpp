@@ -11,21 +11,17 @@
 // models that can be generated using the elements released with the g3
 // framework.
 #include <assert.h>
-#include <modeling/commands.h>
-#include <g3_api.h>
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <g3_api.h>
+#include <modeling/commands.h>
 
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <ArrayOfTaggedObjects.h>
-#include <MapOfTaggedObjects.h>
 
 #include <Domain.h>
-#include <Node.h>
-#include <NodeIter.h>
 
 #include <RigidRod.h>
 #include <RigidBeam.h>
@@ -42,13 +38,13 @@
 #include <MultiSupportPattern.h>
 
 #include <TimeSeries.h>
-#include <PathTimeSeriesThermal.h> //L.Jiang [SIF]
+// #include <PathTimeSeriesThermal.h> //L.Jiang [SIF]
 
 /*
 #include <SimulationInformation.h>				//L.Jiang [SIF]
 extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
 */
-extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
+// extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
 /*--------------------------------------------------------------------
 
@@ -94,13 +90,13 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
 TclSafeBuilder::~TclSafeBuilder()
 {
-  /*
-  OPS_clearAllTimeSeries();
-  OPS_clearAllUniaxialMaterial();
-  OPS_clearAllNDMaterial();
-  OPS_clearAllSectionForceDeformation();
-  OPS_clearAllCrdTransf();
-  */
+
+  // OPS_clearAllTimeSeries();
+  // OPS_clearAllUniaxialMaterial();
+  // OPS_clearAllNDMaterial();
+  // OPS_clearAllSectionForceDeformation();
+  // OPS_clearAllCrdTransf();
+
   // OPS_clearAllHystereticBackbone();
   // OPS_clearAllFrictionModel();
   // OPS_clearAllLimitCurve();
@@ -118,11 +114,12 @@ TclSafeBuilder::~TclSafeBuilder()
 */
 
   // set the pointers to 0
-  theTclDomain = 0;
-  theTclBuilder = 0;
-  tclEnclosingPattern = 0;
+  theTclDomain = nullptr;
+  theTclBuilder = nullptr;
+  tclEnclosingPattern = nullptr;
+
   // theTclMultiSupportPattern = 0;
-  /* TCL_OPS_setModelBuilder(0); */
+  // TCL_OPS_setModelBuilder(0);
 
   // may possibly invoke Tcl_DeleteCommand() later
   // Tcl_DeleteCommand(theInterp, "node");
@@ -194,430 +191,6 @@ TclSafeBuilder::addTimeSeries(TimeSeries *series)
   return 1;
 }
 
-//
-// THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
-static void
-printCommand(int argc, TCL_Char **argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
-
-static int
-TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
-
-  Domain *theTclDomain = theTclBuilder->getDomain();
-
-  // TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
-
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
-
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
-
-  // make sure corect number of arguments on command line
-  if (argc < 2 + ndm) {
-    opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
-    opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
-    return TCL_ERROR;
-  }
-
-  Node *theNode = 0;
-
-  // get the nodal id
-  int nodeId;
-  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeTag\n";
-    opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
-    return TCL_ERROR;
-  }
-
-  // read in the coordinates and create the node
-  double xLoc, yLoc, zLoc;
-  if (ndm == 1) {
-    // create a node in 1d space
-    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid XCoordinate\n";
-      opserr << "node: " << nodeId << endln;
-      return TCL_ERROR;
-    }
-  }
-
-  else if (ndm == 2) {
-    // create a node in 2d space
-    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid 1st coordinate\n";
-      opserr << "node: " << nodeId << endln;
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
-      opserr << "WARNING invalid 2nd coordinate\n";
-      opserr << "node: " << nodeId << endln;
-      return TCL_ERROR;
-    }
-  }
-
-  else if (ndm == 3) {
-    // create a node in 3d space
-    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid 1st coordinate\n";
-      opserr << "node: " << nodeId << endln;
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
-      opserr << "WARNING invalid 2nd coordinate\n";
-      opserr << "node: " << nodeId << endln;
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[4], &zLoc) != TCL_OK) {
-      opserr << "WARNING invalid 3rd coordinate\n";
-      opserr << "node: " << nodeId << endln;
-      return TCL_ERROR;
-    }
-  } else {
-    opserr << "WARNING invalid ndm\n";
-    opserr << "node: " << nodeId << endln;
-    ;
-    return TCL_ERROR;
-  }
-
-  // check for -ndf override option
-  int currentArg = 2 + ndm;
-  if (currentArg < argc && strcmp(argv[currentArg], "-ndf") == 0) {
-    if (Tcl_GetInt(interp, argv[currentArg + 1], &ndf) != TCL_OK) {
-      opserr << "WARNING invalid nodal ndf given for node " << nodeId << endln;
-      return TCL_ERROR;
-    }
-    currentArg += 2;
-  }
-
-  //
-  // create the node
-  //
-  if (ndm == 1)
-    theNode = new Node(nodeId, ndf, xLoc);
-  else if (ndm == 2)
-    theNode = new Node(nodeId, ndf, xLoc, yLoc);
-  else
-    theNode = new Node(nodeId, ndf, xLoc, yLoc, zLoc);
-
-  //
-  // add the node to the domain
-  //
-  if (theTclDomain->addNode(theNode) == false) {
-    opserr << "WARNING failed to add node to the domain\n";
-    opserr << "node: " << nodeId << endln;
-    delete theNode; // otherwise memory leak
-    return TCL_ERROR;
-  }
-
-  while (currentArg < argc) {
-    if (strcmp(argv[currentArg], "-mass") == 0) {
-      currentArg++;
-      if (argc < currentArg + ndf) {
-        opserr << "WARNING incorrect number of nodal mass terms\n";
-        opserr << "node: " << nodeId << endln;
-        return TCL_ERROR;
-      }
-      Matrix mass(ndf, ndf);
-      double theMass;
-      for (int i = 0; i < ndf; i++) {
-        if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
-          opserr << "WARNING invalid nodal mass term\n";
-          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
-          return TCL_ERROR;
-        }
-        mass(i, i) = theMass;
-      }
-      theNode->setMass(mass);
-    } else if (strcmp(argv[currentArg], "-dispLoc") == 0) {
-      currentArg++;
-      if (argc < currentArg + ndm) {
-        opserr << "WARNING incorrect number of nodal display location terms, "
-                  "need ndm\n";
-        opserr << "node: " << nodeId << endln;
-        return TCL_ERROR;
-      }
-      Vector displayLoc(ndm);
-      double theCrd;
-      for (int i = 0; i < ndm; i++) {
-        if (Tcl_GetDouble(interp, argv[currentArg++], &theCrd) != TCL_OK) {
-          opserr << "WARNING invalid nodal mass term\n";
-          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
-          return TCL_ERROR;
-        }
-        displayLoc(i) = theCrd;
-      }
-      theNode->setDisplayCrds(displayLoc);
-
-    } else if (strcmp(argv[currentArg], "-disp") == 0) {
-      currentArg++;
-      if (argc < currentArg + ndf) {
-        opserr << "WARNING incorrect number of nodal disp terms\n";
-        opserr << "node: " << nodeId << endln;
-        return TCL_ERROR;
-      }
-      Vector disp(ndf);
-      double theDisp;
-      for (int i = 0; i < ndf; i++) {
-        if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
-          opserr << "WARNING invalid nodal disp term\n";
-          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
-          return TCL_ERROR;
-        }
-        disp(i) = theDisp;
-      }
-      theNode->setTrialDisp(disp);
-      theNode->commitState();
-
-    } else if (strcmp(argv[currentArg], "-vel") == 0) {
-      currentArg++;
-      if (argc < currentArg + ndf) {
-        opserr << "WARNING incorrect number of nodal vel terms\n";
-        opserr << "node: " << nodeId << endln;
-        return TCL_ERROR;
-      }
-      Vector disp(ndf);
-      double theDisp;
-      for (int i = 0; i < ndf; i++) {
-        if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
-          opserr << "WARNING invalid nodal vel term\n";
-          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
-          return TCL_ERROR;
-        }
-        disp(i) = theDisp;
-      }
-      theNode->setTrialVel(disp);
-      theNode->commitState();
-
-    } else
-      currentArg++;
-  }
-
-  // if we get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-/*
-extern int
-TclSafeBuilderParameterCommand(ClientData clientData,
-                                Tcl_Interp *interp, int argc,
-                                TCL_Char **argv,
-                                Domain *theDomain,
-                                TclSafeBuilder *theTclBuilder);
-
-int
-TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  return TclSafeBuilderParameterCommand(clientData, interp,
-                                         argc, argv, theTclDomain, theTclBuilder);
-}
-
-*/
-
-
-/*
-extern int
-TclSafeBuilderNDMaterialCommand(ClientData clienData, Tcl_Interp *interp, int argc, 
-                                TCL_Char **argv, TclSafeBuilder *theTclBuilder);
-
-int
-TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
-                            int argc,    TCL_Char **argv)
-
-{
-  return TclSafeBuilderNDMaterialCommand(clientData, interp,
-                                          argc, argv, theTclBuilder);
-}
-*/
-
-extern int TclPatternCommand(ClientData clientData, Tcl_Interp *interp,
-                             int argc, TCL_Char **argv, Domain *theDomain);
-
-static int
-TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
-{
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
-  Domain *theTclDomain = theTclBuilder->getDomain();
-  return TclPatternCommand(clientData, interp, argc, argv, theTclDomain);
-}
-
-extern TimeSeries *TclTimeSeriesCommand(ClientData clientData,
-                                        Tcl_Interp *interp, int argc,
-                                        TCL_Char **argv, Domain *theDomain);
-
-static int
-TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
-{
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder *)Tcl_GetAssocData(
-      interp,"OPS::theTclSafeBuilder", NULL);
-  Domain *theTclDomain = theTclBuilder->getDomain();
-
-  TimeSeries *theSeries = TclTimeSeriesCommand(clientData, interp, argc - 1, &argv[1], theTclDomain);
-
-  if (theSeries != 0) {
-    if (theTclBuilder->addTimeSeries(argv[2], theSeries))
-      return TCL_OK;
-    else
-      return TCL_ERROR;
-  }
-  return TCL_ERROR;
-}
-
-int
-TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
-
-  Domain *theTclDomain = theTclBuilder->getDomain();
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - load \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-
-  // make sure at least one other argument to contain type of system
-  if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: mass nodeId " << ndf << " mass values\n"; 
-    printCommand(argc, argv); 
-    return TCL_ERROR;
-  }
-
-  // get the id of the node
-  int nodeId;
-  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeId: " << argv[1];
-    opserr << " - mass nodeId " << ndf << " forces\n";
-    return TCL_ERROR;
-  }
-
-  // check for mass terms
-  Matrix mass(ndf,ndf);
-  double theMass;
-  for (int i=0; i<ndf; i++)
-  {
-     if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK)
-     {
-          opserr << "WARNING invalid nodal mass term\n";
-          opserr << "node: " << nodeId << ", dof: " << i+1 << endln;
-          return TCL_ERROR;
-      }
-      mass(i,i) = theMass;
-  }
-
-  if (theTclDomain->setMass(mass, nodeId) != 0) {
-    opserr << "WARNING failed to set mass at node " << nodeId << endln;
-    return TCL_ERROR;
-  }
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-
-
-
-/*
-
-int
-TclCommand_addMP(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv)
-{
-  opserr << "WARNING - TclCommand_addMP() not yet implemented\n";
-  return TCL_OK;
-}
-
-*/
-
-
-
-/*
-int
-TclSafeBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
-int argc, TCL_Char **argv)
-{
-  return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
-}
-
-
-/// added by ZHY
-extern int
-TclSafeBuilderUpdateMaterialStageCommand(ClientData clientData,
-                                          Tcl_Interp *interp,
-                                          int argc,
-                                          TCL_Char **argv,
-                                          TclSafeBuilder *theTclBuilder,
-                                          Domain *theDomain);
-int
-TclCommand_UpdateMaterialStage(ClientData clientData,
-                                    Tcl_Interp *interp,
-                                    int argc,
-                                    TCL_Char **argv)
-{
-  return TclSafeBuilderUpdateMaterialStageCommand(clientData, interp,
-                                                   argc, argv, theTclBuilder,
-theTclDomain);
-}
-
-/// added by ZHY
-extern int
-TclCommand_UpdateMaterialsCommand(ClientData clientData,
-                                  Tcl_Interp *interp,
-                                  int argc,
-                                  TCL_Char **argv,
-                                  TclSafeBuilder *theTclBuilder,
-                                  Domain *theDomain);
-static int
-TclCommand_UpdateMaterials(ClientData clientData,
-                           Tcl_Interp *interp,
-                           int argc,
-                           TCL_Char **argv)
-{
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
-  return TclCommand_UpdateMaterialsCommand(clientData, interp,
-                                           argc, argv, theTclBuilder, theTclDomain);
-}
-
-/// added by ZHY
-extern int
-TclSafeBuilderUpdateParameterCommand(ClientData clientData,
-                                          Tcl_Interp *interp,
-                                          int argc,
-                                          TCL_Char **argv,
-                                          TclSafeBuilder *theTclBuilder); 
-int TclCommand_UpdateParameter(ClientData clientData,
-                                    Tcl_Interp *interp,
-                                    int argc,
-                                    TCL_Char **argv)
-{
-  return TclSafeBuilderUpdateParameterCommand(clientData, interp,
-                                       argc, argv, theTclBuilder);
-}
-
-
-*/
 
 
 //
@@ -874,4 +447,95 @@ TclSafeBuilder::addCrdTransf(CrdTransf *instance)
   // m_CrdTransfMap.insert(std::make_pair<key_t,CrdTransf*>(std::move(name), instance);
   return this->addCrdTransf(name, instance);
 }
+
+//
+// TODO MOVE EVERYTHING BELOW OUT OF FILE
+//
+
+//
+// THE FUNCTIONS INVOKED BY THE INTERPRETER
+//
+
+#if 0
+extern int
+TclSafeBuilderParameterCommand(ClientData clientData,
+                                Tcl_Interp *interp, int argc,
+                                TCL_Char **argv,
+                                Domain *theDomain,
+                                TclSafeBuilder *theTclBuilder);
+
+int
+TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  return TclSafeBuilderParameterCommand(clientData, interp,
+                                         argc, argv, theTclDomain, theTclBuilder);
+}
+#endif
+
+
+
+#if 0
+int
+TclSafeBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
+int argc, TCL_Char **argv)
+{
+  return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
+}
+
+
+/// added by ZHY
+extern int
+TclSafeBuilderUpdateMaterialStageCommand(ClientData clientData,
+                                          Tcl_Interp *interp,
+                                          int argc,
+                                          TCL_Char **argv,
+                                          TclSafeBuilder *theTclBuilder,
+                                          Domain *theDomain);
+int
+TclCommand_UpdateMaterialStage(ClientData clientData,
+                                    Tcl_Interp *interp,
+                                    int argc,
+                                    TCL_Char **argv)
+{
+  return TclSafeBuilderUpdateMaterialStageCommand(clientData, interp,
+                                                   argc, argv, theTclBuilder,
+theTclDomain);
+}
+
+/// added by ZHY
+extern int
+TclCommand_UpdateMaterialsCommand(ClientData clientData,
+                                  Tcl_Interp *interp,
+                                  int argc,
+                                  TCL_Char **argv,
+                                  TclSafeBuilder *theTclBuilder,
+                                  Domain *theDomain);
+static int
+TclCommand_UpdateMaterials(ClientData clientData,
+                           Tcl_Interp *interp,
+                           int argc,
+                           TCL_Char **argv)
+{
+  TclSafeBuilder *theTclBuilder =
+      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
+  return TclCommand_UpdateMaterialsCommand(clientData, interp,
+                                           argc, argv, theTclBuilder, theTclDomain);
+}
+
+/// added by ZHY
+extern int
+TclSafeBuilderUpdateParameterCommand(ClientData clientData,
+                                          Tcl_Interp *interp,
+                                          int argc,
+                                          TCL_Char **argv,
+                                          TclSafeBuilder *theTclBuilder); 
+int TclCommand_UpdateParameter(ClientData clientData,
+                                    Tcl_Interp *interp,
+                                    int argc,
+                                    TCL_Char **argv)
+{
+  return TclSafeBuilderUpdateParameterCommand(clientData, interp,
+                                       argc, argv, theTclBuilder);
+}
+#endif
 

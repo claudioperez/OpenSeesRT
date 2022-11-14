@@ -281,9 +281,12 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
+
+  // TODO!! 
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
-  // ensure the destructor has not been called -
   TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+
+  // ensure the destructor has not been called -
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - sp \n";

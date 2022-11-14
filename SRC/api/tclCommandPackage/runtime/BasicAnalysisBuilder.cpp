@@ -351,7 +351,7 @@ BasicAnalysisBuilder::newTransientAnalysis()
       theTransientAnalysis = nullptr;
     }
     
-    if (theAnalysisModel == 0) {
+    if (theAnalysisModel == nullptr) {
         theAnalysisModel = new AnalysisModel();
     }
     if (theTest == 0) {
@@ -363,18 +363,18 @@ BasicAnalysisBuilder::newTransientAnalysis()
 
         theAlgorithm = new NewtonRaphson(*theTest); 
     }
-    if (theHandler == 0) {
+    if (theHandler == nullptr) {
         opserr << "WARNING analysis Transient dt tFinal - no ConstraintHandler\n";
         opserr << " yet specified, PlainHandler default will be used\n";
         theHandler = new PlainHandler();       
     }
-    if (theNumberer == 0) {
+    if (theNumberer == nullptr) {
         opserr << "WARNING analysis Transient dt tFinal - no Numberer specified, \n";
         opserr << " RCM default will be used\n";
         RCM *theRCM = new RCM(false);        
         theNumberer = new DOF_Numberer(*theRCM);            
     }
-    if (theTransientIntegrator == 0) {
+    if (theTransientIntegrator == nullptr) {
         opserr << "WARNING analysis Transient dt tFinal - no Integrator specified, \n";
         opserr << " Newmark(.5,.25) default will be used\n";
         theTransientIntegrator = new Newmark(0.5,0.25);       

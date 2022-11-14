@@ -3,12 +3,17 @@
 //
 #include <tcl.h>
 
-static Tcl_CmdProc  TclCommand_wipeModel;
+extern Tcl_CmdProc  TclCommand_wipeModel;
 
-static Tcl_CmdProc  TclCommand_addNode;
-static Tcl_CmdProc  TclCommand_addPattern;
-static Tcl_CmdProc  TclCommand_addTimeSeries;
-static Tcl_CmdProc  TclCommand_addNodalMass;
+// modeling/nodes.cpp
+extern Tcl_CmdProc  TclCommand_getNDM;
+extern Tcl_CmdProc  TclCommand_getNDF;
+extern Tcl_CmdProc  TclCommand_addNode;
+extern Tcl_CmdProc  TclCommand_addNodalMass;
+
+// 
+extern Tcl_CmdProc  TclCommand_addPattern;
+extern Tcl_CmdProc  TclCommand_addTimeSeries;
 extern Tcl_CmdProc  TclCommand_addGeomTransf;
 
 extern Tcl_CmdProc  TclCommand_addElement;
@@ -63,8 +68,11 @@ struct char_cmd {
 }  const tcl_char_cmds[] =  {
   {"wipe",             TclCommand_wipeModel},
 
+  {"getNDM",           TclCommand_getNDM},
+  {"getNDF",           TclCommand_getNDF},
   {"node",             TclCommand_addNode},
   {"mass",             TclCommand_addNodalMass},
+
   {"element",          TclCommand_addElement},
 
 // Materials & sections

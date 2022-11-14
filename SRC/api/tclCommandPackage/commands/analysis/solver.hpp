@@ -6,8 +6,8 @@
 
 // framework
 #include <g3_api.h>
-#include <runtimeAPI.h>
-#include <analysisAPI.h>
+// #include <runtimeAPI.h>
+// #include <analysisAPI.h>
 #include <OPS_Globals.h>
 #include <packages.h>
 

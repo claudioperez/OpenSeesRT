@@ -83,8 +83,8 @@ printCommand(int argc, TCL_Char **argv)
 }
 
 int
-TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv, Domain *theDomain)
+TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
+                      TCL_Char **argv)
 {
   assert(clientData != nullptr);
   TclSafeBuilder *builder = (TclSafeBuilder *)clientData;
@@ -100,7 +100,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  TimeSeries *theSeries = 0;
+  TimeSeries *theSeries = nullptr;
   int patternID = 0;
 
   if (Tcl_GetInt(interp, argv[2], &patternID) != TCL_OK) {
@@ -524,7 +524,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &dt) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -534,7 +534,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &num_steps) != TCL_OK) {
             opserr << " Error reading number of steps for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -544,7 +544,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &steps_cached) != TCL_OK) {
             opserr << " Error reading number of steps for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -554,17 +554,17 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &ele_d[0]) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &ele_d[1]) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &ele_d[2]) != TCL_OK) {
             opserr << " Error reading deltaT for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -573,12 +573,12 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[1]) != TCL_OK) {
             opserr << " Error reading grid data f1 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[2]) != TCL_OK) {
             opserr << " Error reading grid data f1 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           f_d[0] = (f_d[1] + 1) * (f_d[2] + 1);
@@ -588,12 +588,12 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[4]) != TCL_OK) {
             opserr << " Error reading grid data f2 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[5]) != TCL_OK) {
             opserr << " Error reading grid data f2 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           f_d[3] = (f_d[4] + 1) * (f_d[5] + 1);
@@ -603,12 +603,12 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[7]) != TCL_OK) {
             opserr << " Error reading grid data f3 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[8]) != TCL_OK) {
             opserr << " Error reading grid data f3 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           f_d[6] = (f_d[7] + 1) * (f_d[8] + 1);
@@ -618,12 +618,12 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[10]) != TCL_OK) {
             opserr << " Error reading grid data f4 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[11]) != TCL_OK) {
             opserr << " Error reading grid data f4 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           f_d[9] = (f_d[10] + 1) * (f_d[11] + 1);
@@ -633,12 +633,12 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[13]) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &f_d[14]) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           f_d[12] = (f_d[13] + 1) * (f_d[14] + 1);
@@ -696,7 +696,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &n1) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -705,7 +705,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetInt(interp, argv[c_arg], &n2) != TCL_OK) {
             opserr << " Error reading grid data f5 for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -715,7 +715,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &factor) != TCL_OK) {
             opserr << " Error reading number of steps for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }
@@ -724,32 +724,32 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[0]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, xmin for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[1]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, xmax for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[2]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, ymin for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[3]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, ymax for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[4]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, zmin for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
           if (Tcl_GetDouble(interp, argv[c_arg], &drm_box_crds[5]) != TCL_OK) {
             opserr << " Error reading DRM box Crds, zmax for DRMLoadPattern \n";
-            exit(-1);
+            return TCL_ERROR;
           }
           c_arg++;
         }

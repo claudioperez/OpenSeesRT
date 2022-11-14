@@ -527,8 +527,9 @@ G3_getModelBuilder(G3_Runtime *rt)
 {return rt->m_builder;}
 
 int
-G3_setModelBuilder(G3_Runtime *rt, TclBuilder* builder)
+G3_setModelBuilder(G3_Runtime *rt, TclSafeBuilder* builder)
 {
+  theModelBuilder = builder;
   rt->m_builder = builder;
   return 1;
 }
@@ -694,8 +695,8 @@ G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
 int
 G3_getNDM(G3_Runtime *rt)
 {
-  TclBuilder *builder;
-  if (builder = G3_getModelBuilder(rt))
+  TclSafeBuilder *builder;
+  if (builder = G3_getSafeBuilder(rt))
     return builder->getNDM();
   else
     return -1;
@@ -704,8 +705,8 @@ G3_getNDM(G3_Runtime *rt)
 int
 G3_getNDF(G3_Runtime *rt)
 {
-  TclBuilder *builder;
-  if (builder = G3_getModelBuilder(rt))
+  TclSafeBuilder *builder;
+  if (builder = G3_getSafeBuilder(rt))
     return builder->getNDF();
   else
     return -1;

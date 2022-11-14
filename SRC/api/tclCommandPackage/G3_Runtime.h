@@ -9,7 +9,7 @@
 typedef std::unordered_map<std::string, std::vector<std::string>> G3_Config;
 
 class Domain;
-class ModelBuilder;
+class TclSafeBuilder;
 
 class AnalysisModel;
 class ConstraintHandler;
@@ -28,7 +28,7 @@ public:
 
   Tcl_Interp     *m_interp;
 // MODEL BUILDING
-  TclBuilder     *m_builder = nullptr;
+  TclSafeBuilder *m_builder = nullptr;
 
   Domain         *m_domain  = nullptr;
 

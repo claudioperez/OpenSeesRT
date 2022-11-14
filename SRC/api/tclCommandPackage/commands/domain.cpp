@@ -1,4 +1,3 @@
-
 #include <g3_api.h>
 #include <FileStream.h>
 #include <SimulationInformation.h>

@@ -29,13 +29,10 @@
 // Revision: A
 //
 // Description: This file contains the function invoked when the user invokes
-// the GroundMotion command in the interpreter. It is invoked by the
-// TclBasicBuilder_addGroundMotion function in the TclBasicBuilder.C file.
-// Current valid GroundMotion types are:
+// the GroundMotion command in the interpreter. 
 
-// What: "@(#) TclGroundMotionCommand.C, revA"
 
-// #include <TclBasicBuilder.h>
+
 
 #include <g3_api.h>
 #include <GroundMotionRecord.h>

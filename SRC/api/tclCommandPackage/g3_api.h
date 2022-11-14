@@ -92,7 +92,7 @@ Domain *G3_getDomain(G3_Runtime *);
 
 TclSafeBuilder *G3_getSafeBuilder(G3_Runtime *);
 TclBuilder     *G3_getModelBuilder(G3_Runtime *);
-int             G3_setModelBuilder(G3_Runtime *, TclBuilder*);
+int             G3_setModelBuilder(G3_Runtime *, TclSafeBuilder*);
 bool    G3_modelIsBuilt(G3_Runtime *);
 int     G3_getNDM(G3_Runtime *);
 int     G3_getNDF(G3_Runtime *);

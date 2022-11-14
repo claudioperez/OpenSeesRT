@@ -31,7 +31,6 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
 
   if (theNewTest == nullptr) {
     // Parse routine is expected to have reported an error
-    // opserr << G3_ERROR_PROMPT << "Failed to create convergence test\n";
     return TCL_ERROR;
 
   } else {

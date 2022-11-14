@@ -1,212 +1,353 @@
-#include <math.h>
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 #include <assert.h>
-
-// #include <g3_api.h>
 #include <tcl.h>
-#include <OPS_Globals.h>
-
-#include <Vector.h>
-#include <Domain.h>
 #include <Node.h>
+#include <Matrix.h>
+#include <Domain.h>
+#include <TclSafeBuilder.h>
 
-# include <StandardStream.h>
-# include <FileStream.h>
-# include <DummyStream.h>
-#include <iostream>
-
-int
-setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+static inline void
+printCommand(int argc, TCL_Char **argv)
 {
-  assert(clientData != nullptr);
-
-  Domain *the_domain = (Domain*)clientData; 
-
-  // make sure at least one other argument to contain type of system
-  if (argc < 4) {
-    opserr << "WARNING want - setNodeAccel nodeTag? dof? value? <-commit>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-  double value = 0.0;
-  bool commit = false;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING setNodeAccel nodeTag? dof? value?- could not read "
-              "nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  Node *theNode = the_domain->getNode(tag);
-  if (theNode == 0) {
-    opserr << "WARNING setNodeAccel -- node with tag " << tag << " not found"
-           << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr
-        << "WARNING setNodeDisp nodeTag? dof? value?- could not read dof? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
-    opserr << "WARNING setNodeAccel nodeTag? dof? value?- could not read "
-              "value? \n";
-    return TCL_ERROR;
-  }
-  if (argc > 4 && strcmp(argv[4], "-commit") == 0)
-    commit = true;
-
-  dof--;
-
-  int numDOF = theNode->getNumberDOF();
-
-  if (dof >= 0 && dof < numDOF) {
-    Vector vel(numDOF);
-    vel = theNode->getAccel();
-    vel(dof) = value;
-    theNode->setTrialAccel(vel);
-  }
-  if (commit)
-    theNode->commitState();
-
-  return TCL_OK;
+  opserr << "Input command: ";
+  for (int i = 0; i < argc; i++)
+    opserr << argv[i] << " ";
+  opserr << endln;
 }
 
+
 int
-nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
+                   TCL_Char **argv)
 {
   assert(clientData != nullptr);
 
-  Domain *the_domain = (Domain*)clientData; 
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
 
-  // make sure at least one other argument to contain type of system
-  if (argc < 2) {
-    opserr << "WARNING want - nodeAccel nodeTag? dof?\n";
+  Domain *theTclDomain = theTclBuilder->getDomain();
+
+  // ensure the destructor has not been called -
+  if (theTclBuilder == 0 || clientData == 0) {
+    opserr << "WARNING builder has been destroyed" << endln;
     return TCL_ERROR;
   }
 
-  int tag;
-  int dof = -1;
+  int ndm = theTclBuilder->getNDM();
+  int ndf = theTclBuilder->getNDF();
 
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeAccel nodeTag? dof? - could not read nodeTag? \n";
+  // make sure corect number of arguments on command line
+  if (argc < 2 + ndm) {
+    opserr << "WARNING insufficient arguments\n";
+    printCommand(argc, argv);
+    opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
   }
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING nodeAccel nodeTag? dof? - could not read dof? \n";
+
+  Node *theNode = 0;
+
+  // get the nodal id
+  int nodeId;
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
+    opserr << "WARNING invalid nodeTag\n";
+    opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
+    return TCL_ERROR;
+  }
+
+  // read in the coordinates and create the node
+  double xLoc, yLoc, zLoc;
+  if (ndm == 1) {
+    // create a node in 1d space
+    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
+      opserr << "WARNING invalid XCoordinate\n";
+      opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
   }
 
-  dof--;
-
-  const Vector *nodalResponse = the_domain->getNodeResponse(tag, Accel);
-  if (nodalResponse == 0)
-    return TCL_ERROR;
-
-  int size = nodalResponse->Size();
-
-  if (dof >= 0) {
-    if (size < dof)
+  else if (ndm == 2) {
+    // create a node in 2d space
+    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
+      opserr << "WARNING invalid 1st coordinate\n";
+      opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
+    }
+    if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
+      opserr << "WARNING invalid 2nd coordinate\n";
+      opserr << "node: " << nodeId << endln;
+      return TCL_ERROR;
+    }
+  }
 
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-    // sprintf(interp->result,"%35.20f",value);
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
+  else if (ndm == 3) {
+    // create a node in 3d space
+    if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
+      opserr << "WARNING invalid 1st coordinate\n";
+      opserr << "node: " << nodeId << endln;
+      return TCL_ERROR;
+    }
+    if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
+      opserr << "WARNING invalid 2nd coordinate\n";
+      opserr << "node: " << nodeId << endln;
+      return TCL_ERROR;
+    }
+    if (Tcl_GetDouble(interp, argv[4], &zLoc) != TCL_OK) {
+      opserr << "WARNING invalid 3rd coordinate\n";
+      opserr << "node: " << nodeId << endln;
+      return TCL_ERROR;
+    }
   } else {
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
+    opserr << "WARNING invalid ndm\n";
+    opserr << "node: " << nodeId << endln;
+    ;
+    return TCL_ERROR;
+  }
+
+  // check for -ndf override option
+  int currentArg = 2 + ndm;
+  if (currentArg < argc && strcmp(argv[currentArg], "-ndf") == 0) {
+    if (Tcl_GetInt(interp, argv[currentArg + 1], &ndf) != TCL_OK) {
+      opserr << "WARNING invalid nodal ndf given for node " << nodeId << endln;
+      return TCL_ERROR;
     }
+    currentArg += 2;
   }
 
+  //
+  // create the node
+  //
+  if (ndm == 1)
+    theNode = new Node(nodeId, ndf, xLoc);
+  else if (ndm == 2)
+    theNode = new Node(nodeId, ndf, xLoc, yLoc);
+  else
+    theNode = new Node(nodeId, ndf, xLoc, yLoc, zLoc);
+
+  //
+  // add the node to the domain
+  //
+  if (theTclDomain->addNode(theNode) == false) {
+    opserr << "WARNING failed to add node to the domain\n";
+    opserr << "node: " << nodeId << endln;
+    delete theNode; // otherwise memory leak
+    return TCL_ERROR;
+  }
+
+  while (currentArg < argc) {
+    if (strcmp(argv[currentArg], "-mass") == 0) {
+      currentArg++;
+      if (argc < currentArg + ndf) {
+        opserr << "WARNING incorrect number of nodal mass terms\n";
+        opserr << "node: " << nodeId << endln;
+        return TCL_ERROR;
+      }
+      Matrix mass(ndf, ndf);
+      double theMass;
+      for (int i = 0; i < ndf; i++) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
+          opserr << "WARNING invalid nodal mass term\n";
+          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
+          return TCL_ERROR;
+        }
+        mass(i, i) = theMass;
+      }
+      theNode->setMass(mass);
+    } else if (strcmp(argv[currentArg], "-dispLoc") == 0) {
+      currentArg++;
+      if (argc < currentArg + ndm) {
+        opserr << "WARNING incorrect number of nodal display location terms, "
+                  "need ndm\n";
+        opserr << "node: " << nodeId << endln;
+        return TCL_ERROR;
+      }
+      Vector displayLoc(ndm);
+      double theCrd;
+      for (int i = 0; i < ndm; i++) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theCrd) != TCL_OK) {
+          opserr << "WARNING invalid nodal mass term\n";
+          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
+          return TCL_ERROR;
+        }
+        displayLoc(i) = theCrd;
+      }
+      theNode->setDisplayCrds(displayLoc);
+
+    } else if (strcmp(argv[currentArg], "-disp") == 0) {
+      currentArg++;
+      if (argc < currentArg + ndf) {
+        opserr << "WARNING incorrect number of nodal disp terms\n";
+        opserr << "node: " << nodeId << endln;
+        return TCL_ERROR;
+      }
+      Vector disp(ndf);
+      double theDisp;
+      for (int i = 0; i < ndf; i++) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
+          opserr << "WARNING invalid nodal disp term\n";
+          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
+          return TCL_ERROR;
+        }
+        disp(i) = theDisp;
+      }
+      theNode->setTrialDisp(disp);
+      theNode->commitState();
+
+    } else if (strcmp(argv[currentArg], "-vel") == 0) {
+      currentArg++;
+      if (argc < currentArg + ndf) {
+        opserr << "WARNING incorrect number of nodal vel terms\n";
+        opserr << "node: " << nodeId << endln;
+        return TCL_ERROR;
+      }
+      Vector disp(ndf);
+      double theDisp;
+      for (int i = 0; i < ndf; i++) {
+        if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
+          opserr << "WARNING invalid nodal vel term\n";
+          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
+          return TCL_ERROR;
+        }
+        disp(i) = theDisp;
+      }
+      theNode->setTrialVel(disp);
+      theNode->commitState();
+
+    } else
+      currentArg++;
+  }
+
+  // if we get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
 
 int
-nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-
-  Domain *the_domain = (Domain*)clientData; 
-
-  // make sure at least one other argument to contain type of system
-  if (argc < 4) {
-    opserr << "WARNING want - nodeResponse nodeTag? dof? responseID?\n";
-    return TCL_ERROR;
-  }
-
-  int tag, dof, responseID;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? - could not read dof? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[3], &responseID) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? responseID? - could not read "
-              "responseID? \n";
-    return TCL_ERROR;
-  }
-
-  dof--;
-
-  const Vector *nodalResponse =
-      the_domain->getNodeResponse(tag, (NodeResponseType)responseID);
-  if (nodalResponse == 0 || nodalResponse->Size() < dof || dof < 0)
-    return TCL_ERROR;
-
-  double value = (*nodalResponse)(dof);
-
-  // now we copy the value to the tcl string that is returned
-  //    sprintf(interp->result,"%35.20f",value);
-  char buffer[40];
-  sprintf(buffer, "%35.20f", value);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
-
-int
-calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char **argv)
 {
   assert(clientData != nullptr);
 
-  Domain *the_domain = (Domain*)clientData; 
+  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
 
-  // make sure at least one other argument to contain type of system
-  int incInertia = 0;
+  Domain *theTclDomain = theTclBuilder->getDomain();
 
-  if (argc == 2) {
-    if ((strcmp(argv[1], "-incInertia") == 0) ||
-        (strcmp(argv[1], "-dynamical") == 0) ||
-        (strcmp(argv[1], "-Dynamic") == 0) ||
-        (strcmp(argv[1], "-dynamic") == 0))
-
-      incInertia = 1;
-
-    else if ((strcmp(argv[1], "-rayleigh") == 0))
-
-      incInertia = 2;
+  if (theTclBuilder == 0 || clientData == 0) {
+    opserr << "WARNING builder has been destroyed - load \n";
+    return TCL_ERROR;
   }
 
-  the_domain->calculateNodalReactions(incInertia);
+  int ndf = argc - 2;
+
+  // make sure at least one other argument to contain type of system
+  if (argc < (2 + ndf)) {
+    opserr << "WARNING bad command - want: mass nodeId " << ndf << " mass values\n"; 
+    printCommand(argc, argv); 
+    return TCL_ERROR;
+  }
+
+  // get the id of the node
+  int nodeId;
+  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
+    opserr << "WARNING invalid nodeId: " << argv[1];
+    opserr << " - mass nodeId " << ndf << " forces\n";
+    return TCL_ERROR;
+  }
+
+  // check for mass terms
+  Matrix mass(ndf,ndf);
+  double theMass;
+  for (int i=0; i<ndf; i++)
+  {
+     if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK)
+     {
+          opserr << "WARNING invalid nodal mass term\n";
+          opserr << "node: " << nodeId << ", dof: " << i+1 << endln;
+          return TCL_ERROR;
+      }
+      mass(i,i) = theMass;
+  }
+
+  if (theTclDomain->setMass(mass, nodeId) != 0) {
+    opserr << "WARNING failed to set mass at node " << nodeId << endln;
+    return TCL_ERROR;
+  }
+
+  // if get here we have sucessfully created the node and added it to the domain
+  return TCL_OK;
+}
+
+
+
+int
+TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  Domain *the_domain = builder->getDomain();
+
+  int ndm;
+
+  if (argc > 1) {
+    int tag;
+    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+      opserr << "WARNING ndm nodeTag? \n";
+      return TCL_ERROR;
+    }
+    Node *theNode = the_domain->getNode(tag);
+    if (theNode == 0) {
+      opserr << "WARNING nodeTag " << tag << " does not exist \n";
+      return TCL_ERROR;
+    }
+    const Vector &coords = theNode->getCrds();
+    ndm = coords.Size();
+
+  } else {
+      ndm = builder->getNDM();
+  }
+
+  char buffer[20];
+  sprintf(buffer, "%d", ndm);
+  Tcl_AppendResult(interp, buffer, NULL);
 
   return TCL_OK;
 }
 
+int
+TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  Domain *the_domain = builder->getDomain();
+  int ndf;
+
+  if (argc > 1) {
+    int tag;
+    if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+      opserr << "WARNING ndf nodeTag? \n";
+      return TCL_ERROR;
+    }
+    Node *theNode = the_domain->getNode(tag);
+    if (theNode == 0) {
+      opserr << "WARNING nodeTag " << tag << " does not exist \n";
+      return TCL_ERROR;
+    }
+    ndf = theNode->getNumberDOF();
+
+  } else {
+      ndf = builder->getNDF();
+  }
+
+  char buffer[G3_NUM_DOF_BUFFER];
+  if (abs(ndf) <  G3_MAX_NUM_DOFS){
+    sprintf(buffer, "%d", ndf);
+  } else {
+    opserr << "ERROR -- Invalid DOF count encountered; got '" << ndf << "'.\n";
+    return TCL_ERROR;
+  }
+
+  Tcl_AppendResult(interp, buffer, NULL);
+
+  return TCL_OK;
+}

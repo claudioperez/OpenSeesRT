@@ -3,17 +3,11 @@
 #include <InputAPI.h>
 #include <runtimeAPI.h>
 #include <analysisAPI.h>
-#include <tcl_packages.h>
 
 #include <Domain.h>
 #include <Node.h>
 
 #include "runtime/BasicAnalysisBuilder.h"
-
-// analysis
-// #include <StaticAnalysis.h>
-// #include <DirectIntegrationAnalysis.h>
-// #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
 // integrators
 #include <LoadControl.h>

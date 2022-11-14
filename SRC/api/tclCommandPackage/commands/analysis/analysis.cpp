@@ -3,18 +3,17 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 
+#include <tcl.h>
 #include <g3_api.h>
-#include <runtimeAPI.h>
-#include <analysisAPI.h>
 #include <OPS_Globals.h>
 #include <G3_Logging.h>
-
 #include <StandardStream.h>
 #include <FileStream.h>
 #include <DummyStream.h>
 
 #include <Matrix.h>
 #include <Domain.h> // for modal damping
+#include <AnalysisModel.h>
 
 #include "runtime/BasicAnalysisBuilder.h"
 
@@ -22,42 +21,14 @@
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
-#include <AnalysisModel.h>
 #include <LoadControl.h>
 #include <EquiSolnAlgo.h>
 
-// Eigenvalue analysis
+#include <LinearSOE.h>
 #include <EigenSOE.h>
-#include <EigenSolver.h>
-#include <ArpackSOE.h>
-#include <ArpackSolver.h>
-#include <SymArpackSOE.h>
-#include <SymArpackSolver.h>
-#include <BandArpackSOE.h>
-#include <BandArpackSolver.h>
-#include <SymBandEigenSOE.h>
-#include <SymBandEigenSolver.h>
-#include <FullGenEigenSOE.h>
-#include <FullGenEigenSolver.h>
 
-// integrators
-#include <Newmark.h>
-#include <ParkLMS3.h>
-
-#include <LoadControl.h>
-#include <StagedLoadControl.h>
-#include <HSConstraint.h>
-#include <MinUnbalDispNorm.h>
-#include <DisplacementControl.h>
-#include <EQPath.h>
-
-// convergence tests
-#include <CTestNormUnbalance.h>
-
-// soln algorithms
-#include <EquiSolnAlgo.h>
-#include <Linear.h>
-#include <NewtonRaphson.h>
+#include <TransientIntegrator.h>
+#include <StaticIntegrator.h>
 
 // constraint handlers
 #include <PlainHandler.h>
@@ -68,18 +39,7 @@
 // numberers
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
-// graph
-#include <RCM.h>
-// #include <AMDNumberer.h>
 
-// system of eqn and solvers
-#include <BandSPDLinSOE.h>
-#include <BandSPDLinLapackSolver.h>
-
-#include <BandGenLinSOE.h>
-#include <BandGenLinLapackSolver.h>
-
-#include <ConjugateGradientSolver.h>
 
 extern StaticIntegrator *theStaticIntegrator;
 extern TransientIntegrator *theTransientIntegrator;
@@ -112,19 +72,26 @@ static int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int arg
 static int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 static int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
+extern int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+static int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+
 extern int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 extern int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
-static int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
-extern int specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-extern int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+//
+// algorithm.cpp
+//
+extern Tcl_CmdProc TclCommand_specifyAlgorithm;
+extern Tcl_CmdProc TclCommand_numIter;
+extern Tcl_CmdProc TclCommand_totalCPU;
+extern Tcl_CmdProc TclCommand_solveCPU;
 
 //
 // from commands/analysis/ctest.cpp
 //
-extern int specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-extern int getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-extern int getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+extern Tcl_CmdProc specifyCTest;
+extern Tcl_CmdProc getCTestNorms;
+extern Tcl_CmdProc getCTestIter;
 
 
 DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
@@ -143,7 +110,6 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
       return TCL_OK;
   }, builder, nullptr);
 
-  Tcl_CreateCommand(interp, "algorithm",         &specifyAlgorithm,  builder, nullptr);
   Tcl_CreateCommand(interp, "test",              &specifyCTest,      builder, nullptr);
   Tcl_CreateCommand(interp, "testIter",          &getCTestIter,      builder, nullptr);
   Tcl_CreateCommand(interp, "testNorms",         &getCTestNorms,     builder, nullptr);
@@ -161,6 +127,11 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "printA",            &printA,          builder, nullptr);
   Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);
   Tcl_CreateCommand(interp, "reset",             &resetModel,      builder, nullptr);
+
+  Tcl_CreateCommand(interp, "algorithm", &TclCommand_specifyAlgorithm,  builder, nullptr);
+  Tcl_CreateCommand(interp, "numIter",   &TclCommand_numIter,           builder, nullptr);
+  Tcl_CreateCommand(interp, "totalCPU",  &TclCommand_totalCPU,          builder, nullptr);
+  Tcl_CreateCommand(interp, "solveCPU",  &TclCommand_solveCPU,          builder, nullptr);
   return TCL_OK;
 }
 

@@ -137,6 +137,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv, Domain &theDomain, Recorder **theRecorder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
+  Domain* domain = (Domain*)clientData;
 
   // make sure at least one other argument to contain integrator
   if (argc < 2) {
@@ -274,7 +275,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
-        MeshRegion *theRegion = theDomain.getRegion(tag);
+        MeshRegion *theRegion = domain->getRegion(tag);
         if (theRegion == 0) {
           opserr << "WARNING recorder Element -region " << tag
                  << " - region does not exist" << endln;
@@ -484,25 +485,25 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     if (strcmp(argv[1], "Element") == 0) {
 
       (*theRecorder) =
-          new ElementRecorder(eleIDs, data, argc - eleData, echoTime, theDomain,
+          new ElementRecorder(eleIDs, data, argc - eleData, echoTime, *domain,
                               *theOutputStream, dT, specificIndices);
 
     } else if (strcmp(argv[1], "EnvelopeElement") == 0) {
 
       (*theRecorder) = new EnvelopeElementRecorder(
-          eleIDs, data, argc - eleData, theDomain, *theOutputStream, dT,
+          eleIDs, data, argc - eleData, *domain, *theOutputStream, dT,
           echoTime, specificIndices);
 
     } else if (strcmp(argv[1], "NormElement") == 0) {
 
       (*theRecorder) = new NormElementRecorder(
-          eleIDs, data, argc - eleData, echoTime, theDomain, *theOutputStream,
+          eleIDs, data, argc - eleData, echoTime, *domain, *theOutputStream,
           dT, specificIndices);
 
     } else {
 
       (*theRecorder) = new NormEnvelopeElementRecorder(
-          eleIDs, data, argc - eleData, theDomain, *theOutputStream, dT,
+          eleIDs, data, argc - eleData, *domain, *theOutputStream, dT,
           echoTime, specificIndices);
     }
 
@@ -623,7 +624,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     OPS_Stream *theOutput = new DataFileStream(fileName);
 
     // now construct the recorder
-    (*theRecorder) = new DamageRecorder(eleID, secIDs, dofID, dmgPTR, theDomain,
+    (*theRecorder) = new DamageRecorder(eleID, secIDs, dofID, dmgPTR, *domain,
                                         echoTime, dT, *theOutput);
 
   }
@@ -699,7 +700,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        Node *theNode = theDomain.getNode(nodeTag);
+        Node *theNode = domain->getNode(nodeTag);
         if (theNode == 0) {
           opserr << "WARNING recorder Collapse -node - invalid node "
                  << argv[loc + 1] << endln;
@@ -784,7 +785,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         //	    }
 
         if (strcmp(argv[loc], "all") == 0) {
-          ElementIter &theEleIter = theDomain.getElements();
+          ElementIter &theEleIter = domain->getElements();
           Element *theEle;
           while ((theEle = theEleIter()) != 0)
             eleIDs[numEle++] = theEle->getTag();
@@ -849,7 +850,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                  << argv[loc + 1] << endln;
           return TCL_ERROR;
         }
-        MeshRegion *theRegion = theDomain.getRegion(tag);
+        MeshRegion *theRegion = domain->getRegion(tag);
         if (theRegion == 0) {
           opserr << "WARNING recorder Element -region " << tag
                  << " - region does not exist" << endln;
@@ -1048,7 +1049,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // if user has specified no element tags lets assume he wants them all
     if (numEle == 0) {
-      ElementIter &theEleIter = theDomain.getElements();
+      ElementIter &theEleIter = domain->getElements();
       Element *theEle;
       while ((theEle = theEleIter()) != 0)
         eleIDs[numEle++] = theEle->getTag();
@@ -1058,7 +1059,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // now construct the recorder
     (*theRecorder) = new RemoveRecorder(
-        nodeTag, eleIDs, secIDs, secondaryEleIDs, remCriteria, theDomain,
+        nodeTag, eleIDs, secIDs, secondaryEleIDs, remCriteria, *domain,
         *theOutputStream, echoTime, dT, fileName, eleMass, gAcc, gDir, gPat,
         nTagbotn, nTagmidn, nTagtopn, globgrav, fileNameinf);
     //
@@ -1329,7 +1330,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                  << argv[pos + 1] << endln;
           return TCL_ERROR;
         }
-        MeshRegion *theRegion = theDomain.getRegion(tag);
+        MeshRegion *theRegion = domain->getRegion(tag);
         if (theRegion == 0) {
           opserr << "WARNING recorder Node -region " << tag
                  << " - region does not exist" << endln;
@@ -1366,7 +1367,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         pos++;
 
         // Now get gradIndex from parameter tag
-        Parameter *theParameter = theDomain.getParameter(paramTag);
+        Parameter *theParameter = domain->getParameter(paramTag);
         if (theParameter == 0) {
           opserr << "NodeRecorder: parameter " << paramTag << " not found"
                  << endln;
@@ -1427,13 +1428,13 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     if (strcmp(argv[1], "Node") == 0) {
 
       (*theRecorder) =
-          new NodeRecorder(theDofs, theNodes, gradIndex, responseID, theDomain,
+          new NodeRecorder(theDofs, theNodes, gradIndex, responseID, *domain,
                            *theOutputStream, dT, echoTimeFlag, theTimeSeries);
 
     } else {
 
       (*theRecorder) = new EnvelopeNodeRecorder(theDofs, theNodes, responseID,
-                                                theDomain, *theOutputStream, dT,
+                                                *domain, *theOutputStream, dT,
                                                 echoTimeFlag, theTimeSeries);
     }
 
@@ -1463,7 +1464,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
 
     (*theRecorder) =
-        new PatternRecorder(patternTag, theDomain, argv[2], 0.0, flag);
+        new PatternRecorder(patternTag, *domain, argv[2], 0.0, flag);
   }
 
   // Create a recorder to write nodal drifts to a file
@@ -1648,12 +1649,12 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     // Subtract one from dof and perpDirn for C indexing
     if (strcmp(argv[1], "Drift") == 0)
       (*theRecorder) =
-          new DriftRecorder(iNodes, jNodes, dof - 1, perpDirn - 1, theDomain,
+          new DriftRecorder(iNodes, jNodes, dof - 1, perpDirn - 1, *domain,
                             *theOutputStream, echoTimeFlag, dT);
     else
       (*theRecorder) =
           new EnvelopeDriftRecorder(iNodes, jNodes, dof - 1, perpDirn - 1,
-                                    theDomain, *theOutputStream, echoTimeFlag);
+                                    *domain, *theOutputStream, echoTimeFlag);
 
   }
 #if 0
@@ -1705,7 +1706,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                                        theDomain, wipeFlag, interp, dT);
     else
       (*theRecorder) = new TclFeViewer(argv[2], xLoc, yLoc, width, height,
-                                       fileName, theDomain, interp, dT);
+                                       fileName, *domain, interp, dT);
 
   }
 
@@ -1881,20 +1882,20 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif // _NOGRAPHICS
 #ifdef OPS_USE_PFEM
   } else if (strcmp(argv[1], "pvd") == 0 || strcmp(argv[1], "PVD") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_PVDRecorder(rt);
 #endif
   }
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_VTK_Recorder(rt);
 
   } else if (strcmp(argv[1], "ElementRMS") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS(rt);
 
   } else if (strcmp(argv[1], "NodeRMS") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS(rt);
 
   }
@@ -1908,7 +1909,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   */
   else if (strcmp(argv[1], "gmsh") == 0 || strcmp(argv[1], "GMSH") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_GmshRecorder(rt);
   }
   // else if (strcmp(argv[1],"gmshparallel") == 0 ||
@@ -2008,7 +2009,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     while (recorderCommands != NULL && found == false) {
       if (strcmp(argv[1], recorderCommands->funcName) == 0) {
 
-        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
         void *theRes = (*(recorderCommands->funcPtr))();
         if (theRes != 0) {
           *theRecorder = (Recorder *)theRes;
@@ -2047,7 +2048,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         theRecorderCommand->next = theExternalRecorderCommands;
         theExternalRecorderCommands = theRecorderCommand;
 
-        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
+        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
 
         void *theRes = (*funcPtr)();
         if (theRes != 0) {
@@ -2079,11 +2080,13 @@ int
 TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain& theDomain = *G3_getDomain(rt);
+  // Domain& theDomain = *G3_getDomain(rt);
+
+  Domain* domain = (Domain*)clientData;
 
   Recorder *theRecorder = nullptr;
 
-  TclCreateRecorder(clientData, interp, argc, argv, theDomain, &theRecorder);
+  TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder);
 
   if (theRecorder == nullptr) {
     char buffer[] = "-1";
@@ -2091,7 +2094,7 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
     return TCL_ERROR;
   }
 
-  if ((theDomain.addRecorder(*theRecorder)) < 0) {
+  if ((domain->addRecorder(*theRecorder)) < 0) {
     opserr << "WARNING could not add to domain - recorder " << argv[1] << endln;
     delete theRecorder;
     char buffer[] = "-1";
@@ -2108,13 +2111,14 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
 
 int
 TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, Domain &theDomain,
-                        EquiSolnAlgo *theAlgo)
+                        TCL_Char **argv, EquiSolnAlgo *theAlgo)
 {
-  Recorder *theRecorder = 0;
+  Recorder *theRecorder = nullptr;
+  Domain* domain = (Domain*)clientData;
+
   theAlgorithm = theAlgo;
 
-  TclCreateRecorder(clientData, interp, argc, argv, theDomain, &theRecorder);
+  TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder);
 
   if (theRecorder == 0) {
     char buffer[] = "-1";

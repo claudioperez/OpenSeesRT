@@ -17,73 +17,32 @@ target_sources(OpenSeesRT_LinearSystem
     "commands/analysis/solver.hpp"
 )
 
+add_subdirectory(commands/)
+
 target_sources(OpenSeesRT PRIVATE
 #
 # GENERAL COMMANDS
 #
-# Model Commands & Builders
+# Model Builders
+    "OpenSeesRT.cpp"
     "G3_Runtime.cpp"
+    "streams/logging.cpp"
     "modelbuilder/TclBuilder.cpp"
     "modelbuilder/basic/TclBasicBuilder.cpp"
-    #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
     "modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
     "modelbuilder/safe/TclSafeBuilder.cpp"
     "modelbuilder/sect/TclSectionTestBuilder.cpp"
+    "runtime/BasicAnalysisBuilder.cpp"
+    #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
 
-    "commands/modeling/model.cpp"
-    "commands/modeling/nodes.cpp"
-    "commands/modeling/constraint.cpp"
-    "commands/modeling/geomTransf.cpp"
-    "commands/modeling/rigidLink.cpp"
-    "commands/modeling/element.cpp"
-    "commands/domain.cpp"
 
-# Other Commands
-    "streams/logging.cpp"
-    "commands/commands.cpp"
-    "commands/sequential.cpp"
-    "commands/runtime.cpp"
-    "commands/analysis/algorithm.cpp"
-    "commands/analysis/integrator.cpp"
-    "commands/analysis/analysis.cpp"
-    "commands/analysis/numberer.cpp"
-    "commands/analysis/ctest.cpp"
-
-    OpenSeesRT.cpp
-    misc/TclPackageClassBroker.cpp
-    "commands/recorder.cpp"
+# Other
+    "misc/TclPackageClassBroker.cpp"
     "contrib/packages/optimization/TclParameterCommands.cpp"
-
-# Multi-Dimensional Materials
-    #"contrib/nD/feap/TclFeapMaterialCommand.cpp"
-    "commands/modeling/TclUpdateMaterialCommand.cpp"
-    "commands/TclUpdateMaterialStageCommand.cpp"
-
-# LOADS & PATTERNS
-    "commands/loading/groundMotion.cpp"
-    "commands/loading/element_load.cpp"
-    "commands/loading/TclPatternCommand.cpp"
-    "commands/loading/TclSeriesCommand.cpp"
-    "commands/loading/TclSeriesIntegratorCommand.cpp"
-    #"domain/pattern/drm/TclPatternCommand.cpp"
-    "commands/modeling/region.cpp"
-#
-# ELEMENTS
-#
-    #"element/feap/TclFeapElementCommand.cpp"
-    #"element/PFEMElement/TclModelBuilder_addPFEMElement.cpp"
-    #"element/PFEMElement/TclPFEMCommands.cpp"
 
 #
 # SUB-ELEMENT MODELS
 #
-# Commands
-    "commands/modeling/nDMaterial.cpp"
-    "commands/modeling/section.cpp"
-    "commands/modeling/uniaxialMaterial.cpp"
-    "commands/modeling/uniaxial.cpp"
-
-
     # YIELD SURFACE
     "contrib/packages/YieldSurface/TclModelBuilderYS_EvolutionCommand.cpp"
     "contrib/packages/YieldSurface/TclModelBuilderYSPlasticMaterialCommand.cpp"
@@ -102,7 +61,6 @@ target_sources(OpenSeesRT PRIVATE
     "contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
 
     # Other
-    #"material/uniaxial/TclNewUniaxialMaterial.cpp"
     #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
 
 
@@ -114,8 +72,6 @@ target_sources(OpenSeesRT PRIVATE
     "misc/tcl_packages.cpp"
     "utilities/tclutils.cpp"
 
-
-    "runtime/BasicAnalysisBuilder.cpp"
 )
 
 add_subdirectory(contrib/)

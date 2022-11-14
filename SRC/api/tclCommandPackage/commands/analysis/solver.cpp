@@ -62,6 +62,27 @@ extern LinearSOE *theSOE;
 LinearSOE*
 G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
 
+#if 0 // TODO: implement AnalysisBuilder->getLinearSOE();
+int
+TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  LinearSOE *theSOE = ((BasicAnalysisBuilder *)clientData)->getLinearSOE();
+
+  char buffer[20];
+
+  if (theSOE == 0) {
+    sprintf(buffer, "NO SYSTEM SET");
+    return TCL_OK;
+  }
+
+  sprintf(buffer, "%d", theSOE->getNumEqn());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+#endif
+
 int
 specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
                G3_Char **argv) {

@@ -25,10 +25,12 @@ FE_Datastore *theDatabase = 0;
 #  include <PartitionedDomain.h>
    extern PartitionedDomain theDomain;
 #else
-  extern Domain theDomain;
+  // extern Domain theDomain;
+  // extern Domain *theGlobalDomainPtr;
 #endif
 
-extern int G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain);
+extern int G3_AddTclAnalysisAPI(Tcl_Interp *, Domain*);
+extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);
 
 // Tcl_CmdProc TclCommand_specifyModel;
 
@@ -38,10 +40,12 @@ int
 TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBuilder *theNewBuilder = 0;
+  TclSafeBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
   G3_setDomain(rt, theNewDomain);
   G3_AddTclAnalysisAPI(interp, theNewDomain);
+  G3_AddTclDomainCommands(interp, theNewDomain);
+  // theGlobalDomainPtr = theNewDomain; // TODO: remove
 
   // make sure at least one other argument to contain model builder type given
   if (argc < 2) {
@@ -160,7 +164,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
       G3_setModelBuilder(rt, theNewBuilder);
     }
   }
-
+/*
   else if ((strcmp(argv[1], "test") == 0) ||
            (strcmp(argv[1], "uniaxial") == 0) ||
            (strcmp(argv[1], "TestUniaxial") == 0) ||
@@ -172,7 +176,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
         return TCL_ERROR;
       }
     }
-    theNewBuilder = new TclUniaxialMaterialTester(theDomain, interp, count);
+    theNewBuilder = new TclUniaxialMaterialTester(*theNewDomain, interp, count);
     if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating "
                 "TclUniaxialMaterialTester model\n";
@@ -182,7 +186,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     }
   }
 
-/*
+
   else if ((strcmp(argv[1], "testPlaneStress") == 0) ||
            (strcmp(argv[1], "StressPatch") == 0)     ||
            (strcmp(argv[1], "PlaneStressMaterialTest") == 0)) {

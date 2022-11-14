@@ -43,10 +43,8 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 
 {
-  G3_Runtime * rt = G3_getRuntime(interp);
-//  TclSafeBuilder * theTclBasicBuilder = G3_getSafeBuilder(rt);
+
   TclSafeBuilder *theTclBasicBuilder = (TclSafeBuilder*)clientData;
-//  Domain * theTclBasicBuilerDomain = G3_getDomain(rt);
 
   // Make sure there is a minimum number of arguments
   if (argc < 2) {

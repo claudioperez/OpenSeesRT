@@ -7,8 +7,9 @@
 #include <assert.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
-#include <runtimeAPI.h>
+// #include <runtimeAPI.h>
 #include <analysisAPI.h>
+#include <tcl.h>
 #include <InputAPI.h>
 #include "runtime/BasicAnalysisBuilder.h"
 
@@ -48,7 +49,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 typedef EquiSolnAlgo *(TclEquiSolnAlgo)(ClientData, Tcl_Interp *, int,
                                         G3_Char **);
-
 TclEquiSolnAlgo G3Parse_newEquiSolnAlgo;
 TclEquiSolnAlgo G3Parse_newSecantNewtonAlgorithm;
 TclEquiSolnAlgo G3Parse_newLinearAlgorithm;
@@ -58,9 +58,12 @@ TclEquiSolnAlgo G3_newNewtonLineSearch;
 // command invoked to allow the SolnAlgorithm object to be built
 //
 int
-specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
                  G3_Char **argv)
 {
+
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
+  assert(builder != nullptr);
 
   // Make sure at least one other argument to contain numberer
   if (argc < 2) {
@@ -69,9 +72,6 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   OPS_ResetInputNoBuilder(nullptr, interp, 2, argc, argv, nullptr);
-
-  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
-  assert(builder != nullptr);
 
   G3_Runtime *rt = G3_getRuntime(interp);
   EquiSolnAlgo *theNewAlgo = 0;
@@ -85,6 +85,58 @@ specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   } else {
     builder->set(theNewAlgo);
   }
+  return TCL_OK;
+}
+
+int
+TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
+
+  char buffer[20];
+
+  if (algo == 0)
+    return TCL_ERROR;
+
+  sprintf(buffer, "%f", algo->getTotalTimeCPU());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+
+int
+TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
+
+  char buffer[20];
+
+  if (algo == 0)
+    return TCL_ERROR;
+
+  sprintf(buffer, "%f", algo->getSolveTimeCPU());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+
+
+int
+TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
+
+
+  if (algo == nullptr)
+    return TCL_ERROR;
+
+  char buffer[20];
+  sprintf(buffer, "%d", algo->getNumIterations());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
   return TCL_OK;
 }
 
