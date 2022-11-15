@@ -109,12 +109,16 @@ LinearSOE *TclCommand_newPetscSOE(int, TCL_Char**);
 #  include <DistributedProfileSPDLinSOE.h>
 #endif
 
+template <typename T>
+using TclDispatch = T(*)(ClientData, Tcl_Interp*, int, const char**);
+
 typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
 
 // Specifiers defined in solver.cpp
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
 G3_SysOfEqnSpecifier G3Parse_newMumpsLinearSOE;
+TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
 
 // Helpers to automatically create constructors for systems/solvers 
 // that do not take arguments when they are constructed.

@@ -1462,15 +1462,17 @@ TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 #endif // OPSDEF_DAMAGE
 
+#if 0
 extern int TclPatternCommand(ClientData clientData, Tcl_Interp *interp,
                              int argc, TCL_Char **argv, Domain *theDomain);
 
-int
+static int
 TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   return TclPatternCommand(clientData, interp, argc, argv, theTclDomain);
 }
+#endif
 
 #if 0
 extern TimeSeries *TclTimeSeriesCommand(ClientData clientData,

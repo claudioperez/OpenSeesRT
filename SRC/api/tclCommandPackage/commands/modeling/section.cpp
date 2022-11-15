@@ -1,3 +1,7 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 
 // Written: rms, MHS
 // Created: 07/99
@@ -5,14 +9,12 @@
 // Description: This file contains the function invoked when the user invokes
 // the section command in the interpreter.
 //
-// What: "@(#) TclBasicBuilderMaterialCommands.C, revA"
 
-#include <InputAPI.h>
-#include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-
+#include <tcl.h>
 #include <g3_api.h>
 #include <elementAPI.h>
+#include <TclBasicBuilder.h>
+#include <TclSafeBuilder.h>
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -116,7 +118,7 @@ int TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
 #include <LayeredShellFiberSectionThermal.h>  //Added by Liming, [SIF] 2017
 
 int TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theBuilder);
-int buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder, int secTag, UniaxialMaterial &theTorsion);
+static int buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder, int secTag, UniaxialMaterial &theTorsion);
 //--- Adding Thermo-mechanical Sections: [END]   by UoE OpenSees Group ---//
 
 int TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theBuilder);
@@ -130,7 +132,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
-  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)clientData; //G3_getModelBuilder(rt);
+  // TODO
+  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)clientData;
+  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -304,7 +308,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
           return TCL_ERROR;
         }
 
-        theSec = theTclBuilder->getSection(secTag);
+        theSec = builder->getSection(secTag);
 
         if (theSec == 0) {
           opserr << "WARNING section does not exist\n";
@@ -781,7 +785,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
   }
 
   // Now add the material to the modelBuilder
-  if (theTclBuilder->addSection(*theSection) < 0) {
+  if (builder->addSection(*theSection) < 0) {
   // if (OPS_addSectionForceDeformation(theSection) != true) {
     opserr << "WARNING could not add section to the domain\n";
     opserr << *theSection << endln;
@@ -798,10 +802,10 @@ static bool currentSectionIsND = false;
 static bool currentSectionIsWarping = false;
 static bool currentSectionComputeCentroid = true;
 
-int buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+static int buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                  int secTag, UniaxialMaterial &theTorsion);
 
-int buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+static int buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                      int secTag, bool isTorsion, double GJ, double Ys,
                      double Zs); // Xinlong
 
@@ -815,6 +819,8 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
+  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+
   int secTag;
   int maxNumPatches = 30;
   int maxNumReinfLayers = 30;
@@ -829,7 +835,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  theTclBasicBuilder->currentSectionTag = secTag;
+  builder->currentSectionTag = secTag;
   currentSectionIsND = false;
   currentSectionIsWarping = false;
   currentSectionComputeCentroid = true;
@@ -850,7 +856,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  if (theTclBasicBuilder->addSectionRepres(*fiberSectionRepr) < 0) {
+  if (builder->addSectionRepres(*fiberSectionRepr) < 0) {
     opserr << "WARNING - cannot add section representation\n";
     return TCL_ERROR;
   }
@@ -1921,7 +1927,7 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 // build the section
-int
+static int
 buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
              int secTag, UniaxialMaterial &theTorsion)
 {
@@ -2637,7 +2643,7 @@ TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp,
 
 ///--Adding function for building FiberSectionThermal:[BEGIN] by UoE OpenSees
 ///Group --///
-int
+static int
 buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                     int secTag, UniaxialMaterial &theTorsion)
 {
@@ -2926,7 +2932,7 @@ TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
-int
+static int
 buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                  int secTag, bool isTorsion, double GJ, double Ys,
                  double Zs) // Xinlong
@@ -3192,6 +3198,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
   return TCL_OK;
 }
+
 /*
 SectionForceDeformation*
 G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
@@ -3208,35 +3215,35 @@ G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
     double D, t;
     int nfw, nfr;
 
-    if (G3Parse_getInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid section Tube tag" << endln;
       return nullptr;
     }
 
-    if (G3Parse_getInt(rt, argv[3], &matTag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
       opserr << "WARNING invalid section Tube matTag" << endln;
       return nullptr;
     }
 
-    if (G3Parse_getDouble(rt, argv[4], &D) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[4], &D) != TCL_OK) {
       opserr << "WARNING invalid D" << endln;
       opserr << "Tube section: " << tag << endln;
       return nullptr;
     }
 
-    if (G3Parse_getDouble(rt, argv[5], &t) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[5], &t) != TCL_OK) {
       opserr << "WARNING invalid t" << endln;
       opserr << "Tube section: " << tag << endln;
       return nullptr;
     }
 
-    if (G3Parse_getInt(rt, argv[6], &nfw) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[6], &nfw) != TCL_OK) {
       opserr << "WARNING invalid nfw" << endln;
       opserr << "Tube section: " << tag << endln;
       return nullptr;
     }
 
-    if (G3Parse_getInt(rt, argv[7], &nfr) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[7], &nfr) != TCL_OK) {
       opserr << "WARNING invalid nfr" << endln;
       opserr << "Tube  section: " << tag << endln;
       return nullptr;
@@ -3250,7 +3257,7 @@ G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
 
       double shape = 1.0;
       if (argc > 9) {
-        if (G3Parse_getDouble(rt, argv[9], &shape) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[9], &shape) != TCL_OK) {
           opserr << "WARNING invalid shape" << endln;
           opserr << "WFSection2d section: " << tag << endln;
           return nullptr;

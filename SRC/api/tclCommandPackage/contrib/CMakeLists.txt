@@ -1,6 +1,6 @@
 
 add_subdirectory(uniaxial)
-#add_subdirectory(system_of_eqn)
+add_subdirectory(sys_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 
 target_sources(OpenSeesRT PRIVATE
