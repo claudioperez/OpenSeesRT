@@ -150,6 +150,7 @@ include_directories(
   ${OPS_SRC_DIR}/actor/message
   ${OPS_SRC_DIR}/actor/objectBroker
   ${OPS_SRC_DIR}/actor/shadow
+
   ${OPS_SRC_DIR}/analysis/algorithm
   ${OPS_SRC_DIR}/analysis/algorithm/domainDecompAlgo
   ${OPS_SRC_DIR}/analysis/algorithm/eigenAlgo
@@ -168,53 +169,7 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/numberer
   ${OPS_SRC_DIR}/api
   ${OPS_SRC_DIR}/api/tclCommandPackage
-  ${OPS_SRC_DIR}/api/tclCommandPackage/api
-  ${OPS_SRC_DIR}/api/tclCommandPackage/commands
-  ${OPS_SRC_DIR}/api/tclCommandPackage/commands/modeling
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/config
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/element/BeamTypeIII
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/element/FeapFrames
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/packages/UCSD_CompGeoMech/nDarray
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/packages/UCSD_CompGeoMech/NewTemplate3Dep
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/packages/UCSD_CompGeoMech/Template3Dep
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/sys_of_eqn/ArpackPP
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/sys_of_eqn/BJsolvers
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/AlgebraicHysteresis
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/AlgebraicHysteresis/backbone
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/AlgebraicHysteresis/backbone/Hognestad
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/AlgebraicHysteresis/backbone/Popovics
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/BilinearOilDamper
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/BoucWen
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete01
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete01A
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete02
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete02IS
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete04
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete06
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Concrete07
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/DoddRestrepo
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/HyperbolicGapMaterial
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/KikuchiAiken
-  ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/limitState
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Parallel
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/PathIndependent
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/RambergOsgoodSteel
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/ReinforcingSteel
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/SelfCentering
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Standard
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Steel01
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Steel02
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/Steel4
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/SteelMP
-  # ${OPS_SRC_DIR}/api/tclCommandPackage/contrib/uniaxial/UVCuniaxial
-
-  ${OPS_SRC_DIR}/api/tclCommandPackage/misc
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/basic
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/safe
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/uniax
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/sect
-  ${OPS_SRC_DIR}/api/tclCommandPackage/streams
+# ${OPS_SRC_DIR}/api/tclCommandPackage/api
   ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/coordTransformation
   ${OPS_SRC_DIR}/damage
@@ -234,42 +189,6 @@ include_directories(
   ${OPS_SRC_DIR}/domain/region
   ${OPS_SRC_DIR}/domain/subdomain
   ${OPS_SRC_DIR}/element
-  ${OPS_SRC_DIR}/element/absorbentBoundaries
-  ${OPS_SRC_DIR}/element/adapter
-  ${OPS_SRC_DIR}/element/beam2d
-  ${OPS_SRC_DIR}/element/beam3d
-  ${OPS_SRC_DIR}/element/brick
-  ${OPS_SRC_DIR}/element/catenaryCable
-  ${OPS_SRC_DIR}/element/CEqElement
-  ${OPS_SRC_DIR}/element/componentElement
-  ${OPS_SRC_DIR}/element/dispBeamColumn
-  ${OPS_SRC_DIR}/element/dispBeamColumnInt
-  ${OPS_SRC_DIR}/element/elasticBeamColumn
-  ${OPS_SRC_DIR}/element/elastomericBearing
-  ${OPS_SRC_DIR}/element/feap
-  ${OPS_SRC_DIR}/element/forceBeamColumn
-  ${OPS_SRC_DIR}/element/fourNodeQuad
-  ${OPS_SRC_DIR}/element/frictionBearing
-  ${OPS_SRC_DIR}/element/frictionBearing/frictionModel
-  ${OPS_SRC_DIR}/element/generic
-  ${OPS_SRC_DIR}/element/gradientInelasticBeamColumn
-  ${OPS_SRC_DIR}/element/HUelements
-  ${OPS_SRC_DIR}/element/joint
-  ${OPS_SRC_DIR}/element/LHMYS
-  ${OPS_SRC_DIR}/element/masonry
-  ${OPS_SRC_DIR}/element/mixedBeamColumn
-  ${OPS_SRC_DIR}/element/mvlem
-  ${OPS_SRC_DIR}/element/nonlinearBeamColumn/matrixutil
-  ${OPS_SRC_DIR}/element/PML
-  ${OPS_SRC_DIR}/element/pyMacro
-  ${OPS_SRC_DIR}/element/RockingBC
-  ${OPS_SRC_DIR}/element/shell
-  ${OPS_SRC_DIR}/element/surfaceLoad
-  ${OPS_SRC_DIR}/element/tetrahedron
-  ${OPS_SRC_DIR}/element/triangle
-  ${OPS_SRC_DIR}/element/truss
-  ${OPS_SRC_DIR}/element/twoNodeLink
-  ${OPS_SRC_DIR}/element/updatedLagrangianBeamColumn
   ${OPS_SRC_DIR}/element/UP-ucsd
   ${OPS_SRC_DIR}/element/UWelements
   ${OPS_SRC_DIR}/element/XMUelements
@@ -278,71 +197,33 @@ include_directories(
   ${OPS_SRC_DIR}/graph/numberer
   ${OPS_SRC_DIR}/graph/partitioner
   ${OPS_SRC_DIR}/handler
-  # ${OPS_SRC_DIR}/java
   ${OPS_SRC_DIR}/material
   ${OPS_SRC_DIR}/material/nD
-  ${OPS_SRC_DIR}/material/nD/cyclicSoil
-  ${OPS_SRC_DIR}/material/nD/feap
-  ${OPS_SRC_DIR}/material/nD/matCMM
-  ${OPS_SRC_DIR}/material/nD/reinforcedConcretePlaneStress
-  ${OPS_SRC_DIR}/material/nD/soil
-  ${OPS_SRC_DIR}/material/nD/stressDensityModel
-  ${OPS_SRC_DIR}/material/nD/UANDESmaterials
-  ${OPS_SRC_DIR}/material/nD/UWmaterials
   ${OPS_SRC_DIR}/material/section
   ${OPS_SRC_DIR}/material/section/fiber
-  ${OPS_SRC_DIR}/material/section/integration
-  ${OPS_SRC_DIR}/material/section/repres/cell
-  ${OPS_SRC_DIR}/material/section/repres/patch
-  ${OPS_SRC_DIR}/material/section/repres/reinfBar
-  ${OPS_SRC_DIR}/material/section/repres/reinfLayer
-  ${OPS_SRC_DIR}/material/section/repres/section
   ${OPS_SRC_DIR}/material/section/yieldSurface
   ${OPS_SRC_DIR}/material/uniaxial
-  ${OPS_SRC_DIR}/material/uniaxial/backbone
-  ${OPS_SRC_DIR}/material/uniaxial/drain
-  ${OPS_SRC_DIR}/material/uniaxial/fedeas
-  ${OPS_SRC_DIR}/material/uniaxial/limitState
-  ${OPS_SRC_DIR}/material/uniaxial/limitState/limitCurve
-  ${OPS_SRC_DIR}/material/uniaxial/PY
-  ${OPS_SRC_DIR}/material/uniaxial/snap
-  ${OPS_SRC_DIR}/material/uniaxial/stiffness
-  ${OPS_SRC_DIR}/material/uniaxial/strength
-  ${OPS_SRC_DIR}/material/uniaxial/unloading
-  ${OPS_SRC_DIR}/material/yieldSurface/evolution
-  ${OPS_SRC_DIR}/material/yieldSurface/plasticHardeningMaterial
-  ${OPS_SRC_DIR}/material/yieldSurface/yieldSurfaceBC
   ${OPS_SRC_DIR}/matrix
+  ${OPS_SRC_DIR}/element/nonlinearBeamColumn/matrixutil
   ${OPS_SRC_DIR}/modelbuilder
   ${OPS_SRC_DIR}/modelbuilder/tcl
-  ${OPS_SRC_DIR}/optimization/domain
-  ${OPS_SRC_DIR}/optimization/domain/component
-  ${OPS_SRC_DIR}/optimization/SNOPT
-  ${OPS_SRC_DIR}/optimization/tcl
   ${OPS_SRC_DIR}/recorder
   ${OPS_SRC_DIR}/recorder/response
   ${OPS_SRC_DIR}/renderer
   ${OPS_SRC_DIR}/system_of_eqn
-  ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/bandGEN
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/bandSPD
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/cg
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/diagonal
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/fullGEN
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/itpack
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/mumps
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/pardiso
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/petsc
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/profileSPD
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/sparseGEN
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/sparseSYM
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/umfGEN
+  ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
   ${OPS_SRC_DIR}/tagged
   ${OPS_SRC_DIR}/tagged/storage
   ${OPS_SRC_DIR}/utility
   ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/SRC/
+
+# ${OPS_SRC_DIR}/optimization/domain
+# ${OPS_SRC_DIR}/optimization/domain/component
+# ${OPS_SRC_DIR}/optimization/SNOPT
+# ${OPS_SRC_DIR}/optimization/tcl
 )
+
 
 include_directories(${TCL_INCLUDE_PATH})
 #include_directories(${MYSQL_INCLUDE_DIR})
@@ -445,6 +326,7 @@ message("Numlibs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
 #target_link_libraries(OPS_Interp_Tcl   PRIVATE ${OPS_Element_List})
+
 
 #----------------------------
 # G3
@@ -593,18 +475,6 @@ foreach(extension IN LISTS OPS_Exclude_List)
     add_compile_definitions(${ext_flag})
 endforeach()
 
-# PFEM
-#----------------------------
-if (OPS_Use_PFEM)
-  #add_subdirectory("${OPS_EXTERNALS_DIR}/Tetgen")
-  message("Using PFEM extensions")
-  target_link_libraries(${OPS_FINAL_TARGET}
-    # OPS_Element_PFEMElement
-    OPS_PFEM  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES}
-  )
-  else()
-    add_compile_definitions(OPS_EXCLUDE_PFEMELEMENT)
-endif()
 
 # Renderer
 #----------------------------
@@ -652,18 +522,6 @@ if(OPS_Use_HDF5)
     endif()
 endif()
 
-
-#----------------------------
-# DRM
-#----------------------------
-#if (OPS_Use_DRM)
-#    message("OPS >>> Including OPS_DRM option")
-#    target_sources(OPS_Interp_Tcl 
-#      PRIVATE
-#	      ${OPS_SRC_DIR}/domain/pattern/drm/TclPatternCommand.cpp
-#    )
-#    target_link_libraries(${OPS_FINAL_TARGET} OPS_DRM)
-#endif()
 
 
 if (OPS_Use_Dev_Directories)

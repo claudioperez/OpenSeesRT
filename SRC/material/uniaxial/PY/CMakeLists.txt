@@ -4,6 +4,11 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+target_include_directories(OPS_Material PUBLIC 
+  ${CMAKE_CURRENT_LIST_DIR}
+  ${OPS_SRC_DIR}/element/fourNodeQuad/
+)
+
 target_sources(OPS_Material
   PRIVATE
     PyLiq1.cpp
@@ -63,4 +68,3 @@ target_sources(OPS_Material
 #	TzSimple2.h
 )
 
-target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})

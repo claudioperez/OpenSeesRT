@@ -16,4 +16,5 @@ target_sources(OPS_SysOfEqn_UMF
 )
 
 target_include_directories(OPS_SysOfEqn PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_SysOfEqn_UMF PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
