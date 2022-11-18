@@ -17,7 +17,8 @@
 #include <g3_api.h>
 #include <ArrayOfTaggedObjects.h>
 #include <UniaxialMaterial.h>
-#include <TclUniaxialMaterialTester.h>
+#include <runtime/BasicModelBuilder.h>
+#include <modelbuilder/uniax/TclUniaxialMaterialTester.h>
 
 
 //
@@ -48,7 +49,7 @@ const struct {const char*name; const TclUniaxialTestCommand*func;} command_table
 TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
                                                      Tcl_Interp *interp,
                                                      int cTC)
-    : TclSafeBuilder(theDomain, interp, 1, 1), theInterp(interp)
+    : BasicModelBuilder(theDomain, interp, 1, 1), theInterp(interp)
 {
   const int ncmd = sizeof(command_table)/sizeof(command_table[0]);
   for (int i=0; i<ncmd; i++)

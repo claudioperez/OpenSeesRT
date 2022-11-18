@@ -9,7 +9,7 @@
 #include <Elastic2DGNL.h>
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #define tcl_debug 1
 

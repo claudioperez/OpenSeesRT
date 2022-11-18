@@ -5,11 +5,9 @@
 
 #include <tcl.h>
 #include <g3_api.h>
-#include <OPS_Globals.h>
 #include <G3_Logging.h>
 #include <StandardStream.h>
 #include <FileStream.h>
-#include <DummyStream.h>
 
 #include <Matrix.h>
 #include <Domain.h> // for modal damping
@@ -52,7 +50,7 @@ extern LinearSOE         *theSOE;
 extern EigenSOE          *theEigenSOE;
 extern EquiSolnAlgo      *theAlgorithm ;
 extern ConstraintHandler *theHandler ;
-extern DOF_Numberer      *theNumberer ;
+extern DOF_Numberer      *theGlobalNumberer ;
 
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
@@ -761,7 +759,7 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
     theAlgorithm = 0;
     theHandler   = 0;
-    theNumberer  = 0;
+    theGlobalNumberer  = 0;
     G3_setAnalysisModel(rt,nullptr);
     // theSOE = 0;
     G3_setLinearSoe(rt, nullptr);

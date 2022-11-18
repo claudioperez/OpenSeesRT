@@ -1,5 +1,8 @@
+add_library(OpenSeesCommunity OBJECT)
+#target_link_libraries(OpenSeesRT PRIVATE OpenSeesCommunity)
 
-add_subdirectory(uniaxial)
+
+add_subdirectory(uniaxial/)
 add_subdirectory(sys_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 

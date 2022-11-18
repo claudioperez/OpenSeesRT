@@ -35,8 +35,7 @@ TclDispatch_newUmfpackLinearSOE(ClientData clientData, Tcl_Interp* interp, int a
       count++;
     }
     UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver();
-    // theSOE = new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce,
-    // printTime);
+    // theSOE = new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce, printTime);
     return new UmfpackGenLinSOE(*theSolver);
 }
 

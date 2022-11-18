@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <g3_api.h>
-#include <InputAPI.h>
+#include <api/InputAPI.h>
 #include <runtimeAPI.h>
-#include <analysisAPI.h>
+#include "analysis.h"
 
 #include <Domain.h>
 #include <Node.h>

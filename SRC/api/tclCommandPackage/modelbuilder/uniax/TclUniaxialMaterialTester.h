@@ -36,7 +36,8 @@
 #ifndef TclUniaxialMaterialTester_h
 #define TclUniaxialMaterialTester_h
 
-#include <TclSafeBuilder.h>
+#include <tcl.h>
+#include <runtime/BasicModelBuilder.h>
 
 class SectionForceDeformation;
 class SectionRepres;
@@ -47,9 +48,8 @@ class TaggedObjectStorage;
 class CrdTransf2d;
 class CrdTransf3d;
 
-#include <tcl.h>
 
-class TclUniaxialMaterialTester : public TclSafeBuilder
+class TclUniaxialMaterialTester : public BasicModelBuilder
 {
   public:
     TclUniaxialMaterialTester(Domain &theDomain,Tcl_Interp *interp, int count=1);

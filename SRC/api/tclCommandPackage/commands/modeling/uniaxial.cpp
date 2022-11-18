@@ -15,7 +15,7 @@
 #include <G3_Logging.h>
 
 #include <iostream>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -131,7 +131,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv) {
 
   assert(clientData != nullptr);
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   Domain *theDomain = builder->getDomain();
   G3_Runtime *rt = G3_getRuntime(interp);
 

@@ -30,8 +30,8 @@
 // for the elastomericBearingUFRP element.
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +57,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
     return TCL_ERROR;
   }
 
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   Element *theElement = 0;
   int ndm = theTclBuilder->getNDM();

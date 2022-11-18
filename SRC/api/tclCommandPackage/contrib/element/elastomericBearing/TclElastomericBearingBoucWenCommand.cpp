@@ -32,8 +32,8 @@
 // for the elastomericBearingBoucWen element.
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -53,7 +53,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     Domain *theTclDomain, TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
 
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // ensure the destructor has not been called
   if (theTclBuilder == 0 || clientData == 0) {

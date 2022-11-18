@@ -8,7 +8,7 @@
 #include <Node.h>
 #include <Matrix.h>
 #include <Domain.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 static inline void
 printCommand(int argc, TCL_Char **argv)
@@ -26,7 +26,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
 
   Domain *theTclDomain = theTclBuilder->getDomain();
 
@@ -229,7 +229,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
 
   Domain *theTclDomain = theTclBuilder->getDomain();
 
@@ -284,7 +284,7 @@ int
 TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain *the_domain = builder->getDomain();
 
   int ndm;
@@ -318,7 +318,7 @@ int
 TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain *the_domain = builder->getDomain();
   int ndf;
 

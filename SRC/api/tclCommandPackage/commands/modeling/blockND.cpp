@@ -1,13 +1,20 @@
 #include <Block2D.h>
 #include <Block3D.h>
+#include <Matrix.h>
+#include <Node.h>
+#include <ID.h>
+#include <runtime/BasicModelBuilder.h>
 
 int
 TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 { 
-  G3_Runtime* rt = G3_getRuntime(interp);
-  Domain *theTclDomain = G3_getDomain(rt);
-  int ndm = G3_getNDM(rt);
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain *theTclDomain = builder->getDomain();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
+
   if (ndm < 2) {
     opserr << "WARNING block2D numX? numY? startNode? startEle? eleType? eleArgs?";
     opserr << " : model dimension (ndm) must be at leat 2 " << endln;
@@ -78,7 +85,6 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Tcl_SplitList(interp, argv[nodalInfo], &argcNodes, &argvNodes);
 
-  int ndf = G3_getNDF(rt);
 
   int count = 0;
   while (count < argcNodes) {
@@ -196,9 +202,11 @@ int
 TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char **argv)
 {
-  G3_Runtime* rt = G3_getRuntime(interp);
-  int ndm = G3_getNDM(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain *theTclDomain = builder->getDomain();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   if (ndm < 3) {
     opserr << "WARNING block3D numX? numY? startNode? startEle? eleType? eleArgs?";
@@ -244,7 +252,6 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Tcl_SplitList(interp, nodalInfo, &argcNodes, &argvNodes);
 
-  int ndf = G3_getNDF(rt);
 
   int count = 0;
   while (count < argcNodes) {
@@ -322,7 +329,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
   const ID &nodeTags = theBlock.getElementNodes(0,0,0);
   int numNodes = nodeTags.Size();
 
-  // assumes 15 is largest string for individual nodeTags
+  // TODO: assumes 15 is largest string for individual nodeTags
   count = int(10 + strlen(eleType) + strlen(additionalEleArgs) + 15 * (numNodes+1));
   char *eleCommand = new char[count];
   int initialCount = int(8 + strlen(eleType));

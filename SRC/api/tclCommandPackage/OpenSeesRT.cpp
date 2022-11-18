@@ -9,12 +9,13 @@
 #include <g3_api.h>
 #undef G3_Runtime
 #include "G3_Runtime.h"
-#include <stdio.h>
 
 // Error streams
-#include "streams/G3_Logging.h"
+#include "Logging/G3_Logging.h"
 #include <handler/OPS_Stream.h>
 #include <StandardStream.h>      
+
+#include <stdio.h>
 #include <unistd.h>               
 
 extern int OpenSeesAppInit(Tcl_Interp *interp);

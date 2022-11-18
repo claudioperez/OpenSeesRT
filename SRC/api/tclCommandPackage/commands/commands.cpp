@@ -87,7 +87,7 @@ extern "C" {
 #include <StaticIntegrator.h>
 #include <Newmark.h>
 
-#include <analysisAPI.h>
+#include "analysis/analysis.h"
 
 // analysis
 #include <StaticAnalysis.h>
@@ -121,7 +121,7 @@ ModelBuilder        *theBuilder = 0;
 
 EquiSolnAlgo        *theAlgorithm = 0;
 ConstraintHandler   *theHandler = 0;
-DOF_Numberer        *theNumberer = 0;
+DOF_Numberer        *theGlobalNumberer = nullptr;
 LinearSOE           *theSOE = 0;
 EigenSOE            *theEigenSOE = 0;
 StaticIntegrator    *theStaticIntegrator = 0;
@@ -175,9 +175,9 @@ Tcl_CmdProc TclCommand_getTime;
 Tcl_CmdProc TclCommand_setTime;
 Tcl_CmdProc TclCommand_setCreep;
 
-int convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
-int convertTextToBinary(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
-int maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+Tcl_CmdProc convertBinaryToText;
+Tcl_CmdProc convertTextToBinary;
+Tcl_CmdProc maxOpenFiles;
 
 
 static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
@@ -264,13 +264,11 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
 int
 OpenSeesAppInit(Tcl_Interp *interp)
 {
+  // TODO: remove ops_TheActiveDomain
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *the_domain = G3_getDomain(rt);
-
-  // ClientData domain = (ClientData)the_domain;
-  // ClientData domain = (ClientData)theGlobalDomainPtr;
-
   ops_TheActiveDomain = the_domain;
+  // end TODO
 
   // redo puts command so we can capture puts into std:cerr
   Tcl_CmdInfo putsCommandInfo;
@@ -304,12 +302,14 @@ OpenSeesAppInit(Tcl_Interp *interp)
   // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, (Tcl_CmdDeleteProc *)NULL);
   // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
 
-  Tcl_CreateCommand(interp, "model",   TclCommand_specifyModel, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "model",           TclCommand_specifyModel, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "opensees::model", TclCommand_specifyModel, nullptr, nullptr);
   Tcl_CreateCommand(interp, "wipe",   &TclCommand_wipeModel,    nullptr, nullptr);
 
   Tcl_CreateObjCommand(interp, "pset",     &OPS_SetObjCmd, nullptr, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateObjCommand(interp, "source",   &OPS_SourceCmd, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_Eval(interp, "rename load import;");
+  Tcl_Eval(interp, "rename load opensees::import;");
+  Tcl_Eval(interp, "interp alias {} import {} opensees::import");
 
   return TCL_OK;
 }

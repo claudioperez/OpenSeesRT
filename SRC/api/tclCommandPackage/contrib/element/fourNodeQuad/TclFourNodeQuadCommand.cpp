@@ -49,7 +49,7 @@
 #include <SixNodeTri.h>
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 extern void printCommand(int argc, TCL_Char **argv);
 
@@ -66,7 +66,7 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -209,7 +209,7 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
                                               TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -329,7 +329,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -444,7 +444,7 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
                                      TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -581,7 +581,7 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
                                                TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -726,7 +726,7 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -895,7 +895,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
                                  TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -1057,7 +1057,7 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
                               TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";

@@ -28,6 +28,8 @@ target_sources(OpenSeesRT PRIVATE
     "analysis/analysis.cpp"
     "analysis/numberer.cpp"
     "analysis/ctest.cpp"
+    "analysis/solver.cpp"
+    "analysis/solver.hpp"
 
     "modeling/TclUpdateMaterialCommand.cpp"
     "TclUpdateMaterialStageCommand.cpp"

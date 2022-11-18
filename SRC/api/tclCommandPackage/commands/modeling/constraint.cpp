@@ -6,7 +6,7 @@
 #include <Domain.h>
 #include <g3_api.h>
 #include <TclBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
@@ -35,7 +35,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
   TclBuilder *theTclBuilder = (TclBuilder*)clientData;
   Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -102,10 +102,10 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
   Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
@@ -160,10 +160,10 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
   // G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
   // Domain *theTclDomain = G3_getDomain(rt);
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
@@ -219,10 +219,10 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
 
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
 
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
@@ -284,7 +284,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // TODO!! 
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // ensure the destructor has not been called -
 
@@ -384,7 +384,7 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     Domain     *theTclDomain = G3_getDomain(rt);
 
     // Ensure the destructor has not been called
-    TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+    BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
     if (theTclBuilder == 0 || clientData == 0) {
       opserr << "WARNING builder has been destroyed - equalDOF \n";
@@ -470,7 +470,7 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
         // Ensure the destructor has not been called
-        TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+        BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
         if (theTclBuilder == 0 || clientData == 0) {
           opserr << "WARNING builder has been destroyed - equalDOF \n";
@@ -616,9 +616,9 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   Domain *domain = G3_getDomain(rt);
 
 
-  // TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
+  // BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
   // // ensure the destructor has not been called -
-  // TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   //if (theTclBuilder == 0 || clientData == 0) {
   //   opserr << "WARNING builder has been destroyed - sp \n";

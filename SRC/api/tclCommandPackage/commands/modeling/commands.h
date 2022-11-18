@@ -119,8 +119,8 @@ struct char_cmd {
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
-  {"ShallowFoundationGen", TclSafeBuilder_doShallowFoundationGen},
-  {"Hfiber",               TclSafeBuilder_addRemoHFiber},
+  {"ShallowFoundationGen", BasicModelBuilder_doShallowFoundationGen},
+  {"Hfiber",               BasicModelBuilder_addRemoHFiber},
 */
 
 // OTHER OBJECT TYPES
@@ -172,10 +172,10 @@ Tcl_CmdProc TclCommand_doTzSimple1Gen;
 
 // End added by SJB
 // Added by Prishati Raychowdhury (UCSD)
-Tcl_CmdProc TclSafeBuilder_doShallowFoundationGen;
+Tcl_CmdProc BasicModelBuilder_doShallowFoundationGen;
 // End PRC
 //Leo
-Tcl_CmdProc TclSafeBuilder_addRemoHFiber;
+Tcl_CmdProc BasicModelBuilder_addRemoHFiber;
 Tcl_CmdProc TclCommand_addFrictionModel;
 Tcl_CmdProc TclCommand_addStiffnessDegradation;
 Tcl_CmdProc TclCommand_addUnloadingRule;

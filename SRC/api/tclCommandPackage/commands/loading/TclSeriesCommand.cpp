@@ -8,7 +8,7 @@
 
 #include <g3_api.h>
 #include <G3_Logging.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <Domain.h>
 #include <LinearSeries.h>
@@ -649,7 +649,7 @@ TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
 
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc - 1, &argv[1]);
 
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder *)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder *)clientData;
 
   if (theSeries != 0) {
     if (theTclBuilder->addTimeSeries(argv[2], theSeries))

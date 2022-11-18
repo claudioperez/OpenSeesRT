@@ -123,7 +123,7 @@ TclPlaneStressMaterialTester_setPlaneStressMaterial(ClientData clientData,
 {
   count = 1;
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -169,7 +169,7 @@ TclPlaneStressMaterialTester_setStrainPlaneStressMaterial(ClientData clientData,
                                                           TCL_Char **argv)
 {
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";

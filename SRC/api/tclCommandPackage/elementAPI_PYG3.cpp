@@ -19,8 +19,8 @@
 extern OPS_Stream* opswrnPtr;
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <WrapperElement.h>
 
 #include <UniaxialMaterial.h>
@@ -47,16 +47,15 @@ typedef struct materialFunction {
   struct materialFunction *next;
 } MaterialFunction;
 
-extern AnalysisModel *theAnalysisModel;
-extern EquiSolnAlgo *theAlgorithm;
-extern ConstraintHandler *theHandler;
-extern DOF_Numberer *theNumberer;
-extern LinearSOE *theSOE;
-extern EigenSOE *theEigenSOE;
-extern StaticAnalysis *theStaticAnalysis;
+extern AnalysisModel            *theAnalysisModel;
+extern EquiSolnAlgo             *theAlgorithm;
+extern ConstraintHandler        *theHandler;
+extern DOF_Numberer             *theGlobalNumberer;
+extern LinearSOE                *theSOE;
+extern EigenSOE                 *theEigenSOE;
+extern StaticAnalysis           *theStaticAnalysis;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
-// extern int numEigen;
 extern StaticIntegrator *theStaticIntegrator;
 extern TransientIntegrator *theTransientIntegrator;
 extern ConvergenceTest *theTest;
@@ -527,21 +526,21 @@ G3_getModelBuilder(G3_Runtime *rt)
 {return rt->m_builder;}
 
 int
-G3_setModelBuilder(G3_Runtime *rt, TclSafeBuilder* builder)
+G3_setModelBuilder(G3_Runtime *rt, BasicModelBuilder* builder)
 {
   theModelBuilder = builder;
   rt->m_builder = builder;
   return 1;
 }
 
-TclSafeBuilder *
+BasicModelBuilder *
 G3_getSafeBuilder(G3_Runtime *rt)
 {
-  return (TclSafeBuilder*)G3_getModelBuilder(rt);
+  return (BasicModelBuilder*)G3_getModelBuilder(rt);
   /*
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  BasicModelBuilder *theTclBuilder =
+      (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   return theTclBuilder;
   */
 }
@@ -571,15 +570,15 @@ G3_getDomain(G3_Runtime *rt)
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
-      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
+      // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   return builder->addTimeSeries(series);
 }
 
 /*
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
   // Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
   if (builder)
     // TODO
     return true;
@@ -593,9 +592,9 @@ TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
   // Tcl_Interp *interp = G3_getInterpreter(rt);
 
   TimeSeries *series;
-  // TclSafeBuilder *builder =
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
-      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  // BasicModelBuilder *builder =
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
+      // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   if (builder) {
      series = builder->getTimeSeries(std::to_string(tag));
   } else {
@@ -640,7 +639,7 @@ OPS_GetUniaxialMaterial(int matTag)
 CrdTransf *
 G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
 {
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     return nullptr;
   }
@@ -650,7 +649,7 @@ G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
 UniaxialMaterial *
 G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     // TODO
     return OPS_getUniaxialMaterial(tag);
@@ -662,7 +661,7 @@ G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 }
 
 int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     opserr << "WARNING Failed to find safe model builder\n";
     return 0;
@@ -695,22 +694,24 @@ G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
 int
 G3_getNDM(G3_Runtime *rt)
 {
-  TclSafeBuilder *builder;
+  BasicModelBuilder *builder;
   if (builder = G3_getSafeBuilder(rt))
     return builder->getNDM();
   else
     return -1;
 }
 
+/*
 int
 G3_getNDF(G3_Runtime *rt)
 {
-  TclSafeBuilder *builder;
+  BasicModelBuilder *builder;
   if (builder = G3_getSafeBuilder(rt))
     return builder->getNDF();
   else
     return -1;
 }
+*/
 
 int
 OPS_GetNDM(void) {return theModelBuilder->getNDM();}
@@ -743,7 +744,7 @@ ConstraintHandler **
 OPS_GetHandler(void) {return &theHandler;}
 
 DOF_Numberer **
-OPS_GetNumberer(void) {return &theNumberer;}
+OPS_GetNumberer(void) {return &theGlobalNumberer;}
 
 LinearSOE **
 OPS_GetSOE(void) {return &theSOE;}

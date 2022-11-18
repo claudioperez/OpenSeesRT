@@ -1,6 +1,6 @@
 #include "YieldSurface_BC.h"
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
 

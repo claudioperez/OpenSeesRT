@@ -9,7 +9,7 @@ namespace py = pybind11;
 
 #include <G3_Runtime.h>
 #include <elementAPI.h> // G3_getRuntime/SafeBuilder
-#include "TclSafeBuilder.h"
+#include "runtime/BasicModelBuilder.h"
 
 #include <Domain.h>
 #include <Vector.h>
@@ -51,12 +51,12 @@ getRuntime(py::object interpaddr) {
       return std::unique_ptr<G3_Runtime, py::nodelete>(G3_getRuntime((Tcl_Interp*)interp_addr));
 } // , py::return_value_policy::reference
 
-std::unique_ptr<TclSafeBuilder, py::nodelete> 
+std::unique_ptr<BasicModelBuilder, py::nodelete> 
 get_builder(py::object interpaddr) {
       void *interp_addr;
       interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
       void *builder_addr = G3_getSafeBuilder(G3_getRuntime((Tcl_Interp*)interp_addr));
-      return std::unique_ptr<TclSafeBuilder, py::nodelete>((TclSafeBuilder*)builder_addr);
+      return std::unique_ptr<BasicModelBuilder, py::nodelete>((BasicModelBuilder*)builder_addr);
 } // , py::return_value_policy::reference
 
 class Channel;
@@ -447,33 +447,33 @@ init_obj_module(py::module &m)
     )
   ;
 
-  py::class_<TclSafeBuilder, std::unique_ptr<TclSafeBuilder, py::nodelete> >(m, "TclTclSafeBuilder")
-    .def (py::init([](py::object interpaddr)->std::unique_ptr<TclSafeBuilder, py::nodelete>{
+  py::class_<BasicModelBuilder, std::unique_ptr<BasicModelBuilder, py::nodelete> >(m, "TclBasicModelBuilder")
+    .def (py::init([](py::object interpaddr)->std::unique_ptr<BasicModelBuilder, py::nodelete>{
         void *interp_addr;
         interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
-        void *builder_addr = Tcl_GetAssocData((Tcl_Interp*)interp_addr, "OPS::theTclSafeBuilder", NULL);
-        return std::unique_ptr<TclSafeBuilder, py::nodelete>((TclSafeBuilder*)builder_addr);
+        void *builder_addr = Tcl_GetAssocData((Tcl_Interp*)interp_addr, "OPS::theBasicModelBuilder", NULL);
+        return std::unique_ptr<BasicModelBuilder, py::nodelete>((BasicModelBuilder*)builder_addr);
       }) // , py::return_value_policy::reference
     )
-    .def ("getSection", [](TclSafeBuilder& builder, py::str id){
+    .def ("getSection", [](BasicModelBuilder& builder, py::str id){
         return builder.getSection(id);
     })
-    .def ("getNDMaterial", [](TclSafeBuilder& builder, py::str tag){
+    .def ("getNDMaterial", [](BasicModelBuilder& builder, py::str tag){
         return builder.getNDMaterial(tag);
     })
-    .def ("getNDMaterial", [](TclSafeBuilder& builder, int tag){
+    .def ("getNDMaterial", [](BasicModelBuilder& builder, int tag){
         return builder.getNDMaterial(tag);
     })
-    .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, py::str tag){
+    .def ("getUniaxialMaterial", [](BasicModelBuilder& builder, py::str tag){
         return builder.getUniaxialMaterial(tag);
     })
-    .def ("getUniaxialMaterial", [](TclSafeBuilder& builder, int tag){
+    .def ("getUniaxialMaterial", [](BasicModelBuilder& builder, int tag){
         return builder.getUniaxialMaterial(tag);
     })
-    .def ("addPythonObject", [](TclSafeBuilder& builder, py::str tag, PyUniaxialMaterial& material){
+    .def ("addPythonObject", [](BasicModelBuilder& builder, py::str tag, PyUniaxialMaterial& material){
         return builder.addUniaxialMaterial(tag, material);
     })
-    .def ("getHystereticBackbone", [](TclSafeBuilder& builder, std::string tag){
+    .def ("getHystereticBackbone", [](BasicModelBuilder& builder, std::string tag){
         return std::unique_ptr<HystereticBackbone, py::nodelete>(builder.getHystereticBackbone(tag));
     })
   ;

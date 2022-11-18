@@ -11,7 +11,7 @@
 #include <BilinearCyclic.h>
 #include <QuadraticCyclic.h>
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 int
 TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int argc,

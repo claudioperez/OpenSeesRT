@@ -7,6 +7,7 @@
 // TclBasicBuilder.
 //
 
+#include <assert.h>
 #include <Element.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,8 +17,8 @@
 #include <CrdTransf.h>
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <packages.h>
 #include <elementAPI.h>
 
@@ -259,13 +260,9 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
 
-  // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  int ndm = builder->getNDM();
 
   OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain, theTclBuilder);
 
@@ -403,7 +400,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
              (strcmp(argv[1], "elasticBeam")) == 0) {
     Element *theEle = 0;
     ID info;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_ElasticBeam2d(rt, info);
     else
       theEle = (Element *)OPS_ElasticBeam3d(rt);
@@ -417,7 +414,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   } else if ((strcmp(argv[1], "PML") == 0) || (strcmp(argv[1], "pml")) == 0) {
     Element *theEle = 0;
     ID info;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_PML2D(rt);
     else
       theEle = (Element *)OPS_PML3D(rt);
@@ -432,7 +429,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   } else if (strcmp(argv[1], "gradientInelasticBeamColumn") == 0) {
 
       Element *theEle = 0;
-      if (G3_getNDM(rt) == 2)
+      if (ndm == 2)
         theEle = (Element *)OPS_GradientInelasticBeamColumn2d(rt);
       else
         theEle = (Element *)OPS_GradientInelasticBeamColumn3d(rt);
@@ -513,7 +510,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   } else if ((strcmp(argv[1], "ElasticTimoshenkoBeam") == 0) ||
              (strcmp(argv[1], "elasticTimoshenkoBeam")) == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_ElasticTimoshenkoBeam2d(rt);
     else
       theEle = (Element *)OPS_ElasticTimoshenkoBeam3d(rt);
@@ -1181,7 +1178,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if (strcmp(argv[1], "elastomericBearing") == 0 ||
            (strcmp(argv[1], "elastomericBearingPlasticity")) == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_ElastomericBearingPlasticity2d(rt);
     else
       theEle = (Element *)OPS_ElastomericBearingPlasticity3d(rt);
@@ -1197,7 +1194,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if (strcmp(argv[1], "elastomericBearingBoucWen") == 0 ||
            (strcmp(argv[1], "elastomericBearingBW")) == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_ElastomericBearingBoucWen2d(rt);
     else
       theEle = (Element *)OPS_ElastomericBearingBoucWen3d(rt);
@@ -1212,7 +1209,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   else if (strcmp(argv[1], "elastomericBearingUFRP") == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_ElastomericBearingUFRP2d(rt);
     else
       // theEle = (Element *)OPS_ElastomericBearingUFRP3d(rt);
@@ -1227,7 +1224,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   else if (strcmp(argv[1], "flatSliderBearing") == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_FlatSliderSimple2d(rt);
     else
       theEle = (Element *)OPS_FlatSliderSimple3d(rt);
@@ -1245,7 +1242,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
            (strcmp(argv[1], "singlePFBearing")) == 0 ||
            (strcmp(argv[1], "SPFBearing")) == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_SingleFPSimple2d(rt);
     else
       theEle = (Element *)OPS_SingleFPSimple3d(rt);
@@ -1262,7 +1259,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
            strcmp(argv[1], "RJWatsonBearing") == 0 ||
            strcmp(argv[1], "EQSBearing") == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 2)
+    if (ndm == 2)
       theEle = (Element *)OPS_RJWatsonEQS2d(rt);
     else
       theEle = (Element *)OPS_RJWatsonEQS3d(rt);
@@ -1290,7 +1287,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if ((strcmp(argv[1], "dispBeamColumnAsym") == 0) ||
            (strcmp(argv[1], "dispBeamAsym")) == 0) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 3)
+    if (ndm == 3)
       theEle = (Element *)OPS_DispBeamColumnAsym3dTcl(rt);
     if (theEle != 0)
       theElement = theEle;
@@ -1305,7 +1302,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if ((strcmp(argv[1], "mixedBeamColumnAsym") == 0) ||
            (strcmp(argv[1], "mixedBeamAsym") == 0)) {
     Element *theEle = 0;
-    if (G3_getNDM(rt) == 3)
+    if (ndm == 3)
       theEle = (Element *)OPS_MixedBeamColumnAsym3dTcl(rt);
     if (theEle != 0)
       theElement = theEle;
@@ -1680,11 +1677,11 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
                                        int argc, TCL_Char **argv,
                                        Domain *theTclDomain, TclBasicBuilder* unused)
 {
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
-  G3_Runtime *rt = G3_getRuntime(interp);
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  // G3_Runtime *rt = G3_getRuntime(interp);
 
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - multipleShearSpring\n";
@@ -1946,7 +1943,7 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *inter
 {
 
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - multipleNormalSpring\n";
@@ -2232,11 +2229,11 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv,
                                   Domain *theTclDomain, TclBasicBuilder* unused)
 {
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
 
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - KikuchiBearing\n";
@@ -2738,11 +2735,11 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv,
                                       Domain *theTclDomain, TclBasicBuilder *unused)
 {
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
 
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - YamamotoBiaxialHDR\n";
@@ -2973,7 +2970,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   // ensure the destructor has not been called -
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeamColumn \n";

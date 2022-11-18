@@ -14,7 +14,7 @@
 #include <g3_api.h>
 #include <elementAPI.h>
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -134,7 +134,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
   Domain *theDomain = G3_getDomain(rt);
   // TODO
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)clientData;
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -819,7 +819,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   int secTag;
   int maxNumPatches = 30;

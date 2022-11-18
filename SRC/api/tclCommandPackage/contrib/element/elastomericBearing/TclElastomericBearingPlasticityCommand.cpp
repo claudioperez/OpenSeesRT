@@ -30,8 +30,8 @@
 // for the elastomericBearing element.
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -52,7 +52,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
 {
 
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elastomericBearing\n";

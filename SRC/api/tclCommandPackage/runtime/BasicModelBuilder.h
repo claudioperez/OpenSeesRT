@@ -4,7 +4,7 @@
 ** ****************************************************************** */
 
 // Description: This file contains the class definition for
-// TclSafeBuilder. A TclSafeBuilder aims to be a threadsafe
+// BasicModelBuilder. A BasicModelBuilder aims to be a threadsafe
 // alternative to the TclBasicBuilder class. This class adds the commands to
 // create the model for the standard models that can be generated using the
 // elements released with the g3 framework.
@@ -32,13 +32,13 @@ class CrdTrasnf;
 class HystereticBackbone;
 
 
-class TclSafeBuilder : public TclBuilder {
+class BasicModelBuilder : public TclBuilder {
 //
 // CONSTRUCTORS / DESTRUCTORS
 //
 public:
-  TclSafeBuilder(Domain &domain, Tcl_Interp *interp, int ndm, int ndf);
-  ~TclSafeBuilder();
+  BasicModelBuilder(Domain &domain, Tcl_Interp *interp, int ndm, int ndf);
+  ~BasicModelBuilder();
   using TclBuilder::buildFE_Model;
   typedef std::string key_t;
   template <typename ObjectType> class map_t
@@ -134,7 +134,7 @@ public:  int addSection(SectionForceDeformation &theSection);
 // OTHER METHODS
 //
   Domain *getDomain(void) const;
-  TclSafeBuilder *getBuilder(void) const;
+  BasicModelBuilder *getBuilder(void) const;
 
 private:
   int ndm; // space dimension of the mesh
@@ -142,7 +142,7 @@ private:
 
   G3_Runtime *m_runtime = nullptr;
   Domain *theTclDomain = 0;
-  TclSafeBuilder *theTclBuilder = 0;
+  BasicModelBuilder *theTclBuilder = 0;
   int eleArgStart = 0;
   int nodeLoadTag = 0;
   int eleLoadTag = 0;

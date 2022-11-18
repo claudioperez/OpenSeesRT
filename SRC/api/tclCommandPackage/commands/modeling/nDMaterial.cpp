@@ -37,7 +37,7 @@
 // What: "@(#) TclBasicBuilderNDMaterialCommand.C, revA"
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <elementAPI.h>
 #include <packages.h>
 
@@ -181,7 +181,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {

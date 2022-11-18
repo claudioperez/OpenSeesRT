@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <InputAPI.h>
+#include <api/InputAPI.h>
 #include <G3_Logging.h>
 
 #include "runtime/BasicAnalysisBuilder.h"

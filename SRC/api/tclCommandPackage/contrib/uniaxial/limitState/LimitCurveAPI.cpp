@@ -1,11 +1,12 @@
-#include <LimitCurve.h>
 #include <tcl.h>
+#include <LimitCurve.h>
 #include <elementAPI.h>
 #include <LimitCurveAPI.h>
-
+#include <misc/tcl_packages.h>
 
 static LimitCurveFunction *theLimitCurveFunctions = NULL;
 
+#if 0
 LimitCurve *
 Tcl_addWrapperLimitCurve(limCrvObj *theLimCrv, ClientData clientData,
                          Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -41,13 +42,15 @@ Tcl_addWrapperLimitCurve(limCrvObj *theLimCrv, ClientData clientData,
 
   return theLimitCurve;
 }
+#endif
 
-
+/*
 typedef struct limitCurveFunction {
   char *funcName;
   limCrvFunct theFunct;
   struct limitCurveFunction *next;
 } LimitCurveFunction;
+*/
 
 extern "C" limCrvObj *
 OPS_GetLimitCurveType(char *type, int sizeType)

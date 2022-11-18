@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <BeamColumnJoint2d.h>
 #include <BeamColumnJoint3d.h>
 #include <Information.h>
@@ -58,7 +58,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
                                    Domain *theTclDomain, int eleArgStart)
 {
   theTclBasicBuilderDomain = theTclDomain;
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   int NDM, NDF;
 

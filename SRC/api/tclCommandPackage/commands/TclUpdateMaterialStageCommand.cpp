@@ -7,8 +7,8 @@
 // Written: ZHY
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <PressureIndependMultiYield.h>
 #include <PressureDependMultiYield.h>
 #include <FluidSolidPorousMaterial.h>
@@ -32,7 +32,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           Domain *theDomain)
 {
 
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   if (argc < 5) {
     opserr << "WARNING insufficient number of UpdateMaterialStage arguments\n";
     opserr << "Want: UpdateMaterialStage material matTag? stage value?"
@@ -102,7 +102,7 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char **argv)
 {
 
-  TclSafeBuilder* builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   if (argc < 5) {
     opserr << "WARNING insufficient number of updateParameter arguments\n";

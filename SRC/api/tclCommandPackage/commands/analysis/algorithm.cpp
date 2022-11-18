@@ -8,9 +8,9 @@
 #include <g3_api.h>
 #include <G3_Logging.h>
 // #include <runtimeAPI.h>
-#include <analysisAPI.h>
+#include "analysis.h"
 #include <tcl.h>
-#include <InputAPI.h>
+#include <api/InputAPI.h>
 #include "runtime/BasicAnalysisBuilder.h"
 
 // soln algorithms

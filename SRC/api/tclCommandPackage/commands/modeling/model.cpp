@@ -7,7 +7,7 @@
 #include <Domain.h>
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
-#include "modelbuilder/safe/TclSafeBuilder.h"
+#include "runtime/BasicModelBuilder.h"
 #include "modelbuilder/sect/TclSectionTestBuilder.h"
 #include <FE_Datastore.h>
 
@@ -40,7 +40,7 @@ int
 TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theNewBuilder = 0;
+  BasicModelBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
   G3_setDomain(rt, theNewDomain);
   G3_AddTclAnalysisAPI(interp, theNewDomain);
@@ -154,7 +154,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     }
 
     // create the model builder
-    theNewBuilder = new TclSafeBuilder(*theNewDomain, interp, ndm, ndf);
+    theNewBuilder = new BasicModelBuilder(*theNewDomain, interp, ndm, ndf);
 
     if (theNewBuilder == 0) {
       opserr << "WARNING ran out of memory in creating BasicBuilder model\n";
@@ -241,7 +241,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   Tcl_Eval(interp, "wipeAnalysis");
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
 #if 0 // TODO - implement ModelBuilder.clearAll();
   // to build the model make sure the ModelBuilder has been constructed

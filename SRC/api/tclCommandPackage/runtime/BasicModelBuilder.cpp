@@ -6,8 +6,8 @@
 
 // Written: cmp
 //
-// Description: This file contains the class definition for TclSafeBuilder.
-// A TclSafeBuilder adds the commands to create the model for the standard
+// Description: This file contains the class definition for BasicModelBuilder.
+// A BasicModelBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
 // framework.
 #include <assert.h>
@@ -34,7 +34,7 @@
 
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <MultiSupportPattern.h>
 
 #include <TimeSeries.h>
@@ -61,7 +61,7 @@ extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
 // constructor: the constructor will add certain commands to the interpreter
-TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
+BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
     : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
 {
@@ -83,12 +83,12 @@ TclSafeBuilder::TclSafeBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   m_runtime = G3_getRuntime(interp);
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
-  Tcl_SetAssocData(interp, "OPS::theTclSafeBuilder", NULL, (ClientData)this);
+  Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
   G3_setDomain(m_runtime, &theDomain);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
-TclSafeBuilder::~TclSafeBuilder()
+BasicModelBuilder::~BasicModelBuilder()
 {
 
   // OPS_clearAllTimeSeries();
@@ -136,38 +136,38 @@ TclSafeBuilder::~TclSafeBuilder()
 // CLASS METHODS
 //
 void
-TclSafeBuilder::letClobber(bool let_clobber) {no_clobber = !let_clobber;};
+BasicModelBuilder::letClobber(bool let_clobber) {no_clobber = !let_clobber;};
 
 bool
-TclSafeBuilder::canClobber() {return !no_clobber;};
+BasicModelBuilder::canClobber() {return !no_clobber;};
 
-int TclSafeBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
-int TclSafeBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
-int TclSafeBuilder::getNodalLoadTag(void) {return   nodeLoadTag;};
+int BasicModelBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
+int BasicModelBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
+int BasicModelBuilder::getNodalLoadTag(void) {return   nodeLoadTag;};
 
 int
-TclSafeBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fixityCodes, double tol)
+BasicModelBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fixityCodes, double tol)
 {
   return theTclDomain->addSP_Constraint(axisDirn, axisValue, fixityCodes, tol);
 }
 
 LoadPattern *
-TclSafeBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
+BasicModelBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
 
 int
-TclSafeBuilder::setEnclosingPattern(LoadPattern* pat){
+BasicModelBuilder::setEnclosingPattern(LoadPattern* pat){
   tclEnclosingPattern = pat;
   return 1;
 };
 
 Domain *
-TclSafeBuilder::getDomain(void) const {return theTclDomain;}
+BasicModelBuilder::getDomain(void) const {return theTclDomain;}
 
-TclSafeBuilder *
-TclSafeBuilder::getBuilder(void) const {return theTclBuilder;}
+BasicModelBuilder *
+BasicModelBuilder::getBuilder(void) const {return theTclBuilder;}
 
 TimeSeries *
-TclSafeBuilder::getTimeSeries(const std::string &name)
+BasicModelBuilder::getTimeSeries(const std::string &name)
 {
   TimeSeries *series = m_TimeSeriesMap.at(name);
   if (series)
@@ -177,14 +177,14 @@ TclSafeBuilder::getTimeSeries(const std::string &name)
 }
 
 int
-TclSafeBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
+BasicModelBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
 {
   m_TimeSeriesMap[name] = series;
   return 1;
 }
 
 int
-TclSafeBuilder::addTimeSeries(TimeSeries *series)
+BasicModelBuilder::addTimeSeries(TimeSeries *series)
 {
   const std::string &name = std::to_string(series->getTag());
   m_TimeSeriesMap[name] = series;
@@ -204,7 +204,7 @@ TclSafeBuilder::addTimeSeries(TimeSeries *series)
 // Retrieve a SectionForceDeformation instance from the model
 // runtime
 SectionForceDeformation*
-TclSafeBuilder::getSection(const std::string &name)
+BasicModelBuilder::getSection(const std::string &name)
 {
   SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
   if (instance) {
@@ -215,7 +215,7 @@ TclSafeBuilder::getSection(const std::string &name)
 }
 
 SectionForceDeformation*
-TclSafeBuilder::getSection(int tag)
+BasicModelBuilder::getSection(int tag)
 {
   const std::string &name = std::to_string(tag);
   return this->getSection(name);
@@ -223,7 +223,7 @@ TclSafeBuilder::getSection(int tag)
 
 // Add a new SectionForceDeformation to the model runtime
 int
-TclSafeBuilder::addSection(const std::string &name, SectionForceDeformation &instance)
+BasicModelBuilder::addSection(const std::string &name, SectionForceDeformation &instance)
 {
   m_SectionForceDeformationMap[name] = &instance;
   return 1;
@@ -231,7 +231,7 @@ TclSafeBuilder::addSection(const std::string &name, SectionForceDeformation &ins
 
 // Add a new SectionForceDeformation to the model runtime
 int
-TclSafeBuilder::addSection(SectionForceDeformation &instance)
+BasicModelBuilder::addSection(SectionForceDeformation &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   m_SectionForceDeformationMap[name] = &instance;
@@ -249,7 +249,7 @@ TclSafeBuilder::addSection(SectionForceDeformation &instance)
 // Retrieve a SectionRepres instance from the model
 // runtime
 SectionRepres*
-TclSafeBuilder::getSectionRepres(const std::string &name)
+BasicModelBuilder::getSectionRepres(const std::string &name)
 {
   SectionRepres *instance = m_SectionRepresMap.at(name);
   if (instance) {
@@ -260,7 +260,7 @@ TclSafeBuilder::getSectionRepres(const std::string &name)
 }
 
 SectionRepres*
-TclSafeBuilder::getSectionRepres(int tag)
+BasicModelBuilder::getSectionRepres(int tag)
 {
   const std::string &name = std::to_string(tag);
   return this->getSectionRepres(name);
@@ -268,7 +268,7 @@ TclSafeBuilder::getSectionRepres(int tag)
 
 // Add a new SectionRepres to the model runtime
 int
-TclSafeBuilder::addSectionRepres(const std::string &name, SectionRepres &instance)
+BasicModelBuilder::addSectionRepres(const std::string &name, SectionRepres &instance)
 {
   m_SectionRepresMap[name] = &instance;
   return 1;
@@ -276,7 +276,7 @@ TclSafeBuilder::addSectionRepres(const std::string &name, SectionRepres &instanc
 
 // Add a new SectionRepres to the model runtime
 int
-TclSafeBuilder::addSectionRepres(SectionRepres &instance)
+BasicModelBuilder::addSectionRepres(SectionRepres &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   m_SectionRepresMap[name] = &instance;
@@ -294,7 +294,7 @@ TclSafeBuilder::addSectionRepres(SectionRepres &instance)
 // Retrieve a NDMaterial instance from the model
 // runtime
 NDMaterial*
-TclSafeBuilder::getNDMaterial(const std::string &name)
+BasicModelBuilder::getNDMaterial(const std::string &name)
 {
   NDMaterial *instance = m_NDMaterialMap.at(name);
   if (instance) {
@@ -305,7 +305,7 @@ TclSafeBuilder::getNDMaterial(const std::string &name)
 }
 
 NDMaterial*
-TclSafeBuilder::getNDMaterial(int tag)
+BasicModelBuilder::getNDMaterial(int tag)
 {
   const std::string &name = std::to_string(tag);
   return this->getNDMaterial(name);
@@ -313,7 +313,7 @@ TclSafeBuilder::getNDMaterial(int tag)
 
 // Add a new NDMaterial to the model runtime
 int
-TclSafeBuilder::addNDMaterial(const std::string &name, NDMaterial &instance)
+BasicModelBuilder::addNDMaterial(const std::string &name, NDMaterial &instance)
 {
   m_NDMaterialMap[name] = &instance;
   return 1;
@@ -321,7 +321,7 @@ TclSafeBuilder::addNDMaterial(const std::string &name, NDMaterial &instance)
 
 // Add a new NDMaterial to the model runtime
 int
-TclSafeBuilder::addNDMaterial(NDMaterial &instance)
+BasicModelBuilder::addNDMaterial(NDMaterial &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   m_NDMaterialMap[name] = &instance;
@@ -339,7 +339,7 @@ TclSafeBuilder::addNDMaterial(NDMaterial &instance)
 // Retrieve a UniaxialMaterial instance from the model
 // runtime
 UniaxialMaterial*
-TclSafeBuilder::getUniaxialMaterial(const std::string &name)
+BasicModelBuilder::getUniaxialMaterial(const std::string &name)
 {
   UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
   if (instance) {
@@ -350,21 +350,21 @@ TclSafeBuilder::getUniaxialMaterial(const std::string &name)
 }
 
 UniaxialMaterial*
-TclSafeBuilder::getUniaxialMaterial(int tag)
+BasicModelBuilder::getUniaxialMaterial(int tag)
 {
   const std::string &name = std::to_string(tag);
   return this->getUniaxialMaterial(name);
 }
 
 int
-TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
+BasicModelBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
 {
   return this->addUniaxialMaterial(*mat);
 }
 
 // Add a new UniaxialMaterial to the model runtime
 int
-TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
+BasicModelBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   return this->addUniaxialMaterial(name, instance);
@@ -374,7 +374,7 @@ TclSafeBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
 
 // Add a new UniaxialMaterial to the model runtime
 int
-TclSafeBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
+BasicModelBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
 {
   if (!canClobber() && (m_UniaxialMaterialMap.find(name) != m_UniaxialMaterialMap.end())) {
     return -1;
@@ -385,7 +385,7 @@ TclSafeBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &i
 
 
 HystereticBackbone*
-TclSafeBuilder::getHystereticBackbone(const std::string &name)
+BasicModelBuilder::getHystereticBackbone(const std::string &name)
 {
   HystereticBackbone *instance = m_HystereticBackboneMap.at(name);
   if (instance) {
@@ -397,7 +397,7 @@ TclSafeBuilder::getHystereticBackbone(const std::string &name)
 
 // Add a new HystereticBackbone to the model runtime
 int
-TclSafeBuilder::addHystereticBackbone(const std::string &name, HystereticBackbone &instance)
+BasicModelBuilder::addHystereticBackbone(const std::string &name, HystereticBackbone &instance)
 {
   m_HystereticBackboneMap[name] = &instance;
   return 1;
@@ -412,7 +412,7 @@ TclSafeBuilder::addHystereticBackbone(const std::string &name, HystereticBackbon
 // Retrieve a CrdTransf instance from the model
 // runtime
 CrdTransf*
-TclSafeBuilder::getCrdTransf(const std::string &name)
+BasicModelBuilder::getCrdTransf(const std::string &name)
 {
   CrdTransf *instance = m_CrdTransfMap.at(name);
   if (instance) {
@@ -423,7 +423,7 @@ TclSafeBuilder::getCrdTransf(const std::string &name)
 }
 
 CrdTransf*
-TclSafeBuilder::getCrdTransf(int tag)
+BasicModelBuilder::getCrdTransf(int tag)
 {
   const std::string &name = std::to_string(tag);
   return this->getCrdTransf(name);
@@ -431,7 +431,7 @@ TclSafeBuilder::getCrdTransf(int tag)
 
 // Add a new CrdTransf to the model runtime
 int
-TclSafeBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
+BasicModelBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
 {
   // m_CrdTransfMap[name] = instance;
   m_CrdTransfMap.insert({name, instance});
@@ -440,7 +440,7 @@ TclSafeBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
 
 // Add a new CrdTransf to the model runtime
 int
-TclSafeBuilder::addCrdTransf(CrdTransf *instance)
+BasicModelBuilder::addCrdTransf(CrdTransf *instance)
 {
   const key_t name = std::to_string(instance->getTag());
   // m_CrdTransfMap[name]std::stringnstance;
@@ -458,16 +458,16 @@ TclSafeBuilder::addCrdTransf(CrdTransf *instance)
 
 #if 0
 extern int
-TclSafeBuilderParameterCommand(ClientData clientData,
+BasicModelBuilderParameterCommand(ClientData clientData,
                                 Tcl_Interp *interp, int argc,
                                 TCL_Char **argv,
                                 Domain *theDomain,
-                                TclSafeBuilder *theTclBuilder);
+                                BasicModelBuilder *theTclBuilder);
 
 int
 TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  return TclSafeBuilderParameterCommand(clientData, interp,
+  return BasicModelBuilderParameterCommand(clientData, interp,
                                          argc, argv, theTclDomain, theTclBuilder);
 }
 #endif
@@ -476,7 +476,7 @@ TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
 #if 0
 int
-TclSafeBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
+BasicModelBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
 int argc, TCL_Char **argv)
 {
   return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
@@ -485,11 +485,11 @@ int argc, TCL_Char **argv)
 
 /// added by ZHY
 extern int
-TclSafeBuilderUpdateMaterialStageCommand(ClientData clientData,
+BasicModelBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           Tcl_Interp *interp,
                                           int argc,
                                           TCL_Char **argv,
-                                          TclSafeBuilder *theTclBuilder,
+                                          BasicModelBuilder *theTclBuilder,
                                           Domain *theDomain);
 int
 TclCommand_UpdateMaterialStage(ClientData clientData,
@@ -497,7 +497,7 @@ TclCommand_UpdateMaterialStage(ClientData clientData,
                                     int argc,
                                     TCL_Char **argv)
 {
-  return TclSafeBuilderUpdateMaterialStageCommand(clientData, interp,
+  return BasicModelBuilderUpdateMaterialStageCommand(clientData, interp,
                                                    argc, argv, theTclBuilder,
 theTclDomain);
 }
@@ -508,7 +508,7 @@ TclCommand_UpdateMaterialsCommand(ClientData clientData,
                                   Tcl_Interp *interp,
                                   int argc,
                                   TCL_Char **argv,
-                                  TclSafeBuilder *theTclBuilder,
+                                  BasicModelBuilder *theTclBuilder,
                                   Domain *theDomain);
 static int
 TclCommand_UpdateMaterials(ClientData clientData,
@@ -516,25 +516,25 @@ TclCommand_UpdateMaterials(ClientData clientData,
                            int argc,
                            TCL_Char **argv)
 {
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
+  BasicModelBuilder *theTclBuilder =
+      (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
   return TclCommand_UpdateMaterialsCommand(clientData, interp,
                                            argc, argv, theTclBuilder, theTclDomain);
 }
 
 /// added by ZHY
 extern int
-TclSafeBuilderUpdateParameterCommand(ClientData clientData,
+BasicModelBuilderUpdateParameterCommand(ClientData clientData,
                                           Tcl_Interp *interp,
                                           int argc,
                                           TCL_Char **argv,
-                                          TclSafeBuilder *theTclBuilder); 
+                                          BasicModelBuilder *theTclBuilder); 
 int TclCommand_UpdateParameter(ClientData clientData,
                                     Tcl_Interp *interp,
                                     int argc,
                                     TCL_Char **argv)
 {
-  return TclSafeBuilderUpdateParameterCommand(clientData, interp,
+  return BasicModelBuilderUpdateParameterCommand(clientData, interp,
                                        argc, argv, theTclBuilder);
 }
 #endif

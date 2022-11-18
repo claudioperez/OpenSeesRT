@@ -25,7 +25,7 @@
 // Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
 // procedure
 #include <assert.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <g3_api.h>
 
 #include <g3_api.h>
@@ -87,7 +87,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  TclSafeBuilder *builder = (TclSafeBuilder *)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
   Domain* domain = builder->getDomain();
   LoadPattern *thePattern = nullptr;
 
@@ -845,13 +845,13 @@ int
 TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+  BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
   int nodeLoadTag = theTclBuilder->getNodalLoadTag();
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData;
 
   // ensure the destructor has not been called
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - load \n";
@@ -935,7 +935,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
   // add the load to the domain
   if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
-    opserr << "WARNING TclSafeBuilder - could not add load to domain\n";
+    opserr << "WARNING BasicModelBuilder - could not add load to domain\n";
     printCommand(argc, argv);
     delete theLoad;
     return TCL_ERROR;

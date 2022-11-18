@@ -1,6 +1,6 @@
 #include <G3_Runtime.h>
 #include <G3_Logging.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
 
 #include <ElementalLoad.h>
@@ -28,13 +28,13 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = (TclSafeBuilder*)G3_getSafeBuilder(rt);
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)G3_getSafeBuilder(rt);
   LoadPattern *theTclLoadPattern = theTclBuilder->getEnclosingPattern();
   Domain *theTclDomain = G3_getDomain(rt);
   static int eleLoadTag = 0;
 
   // ensure the destructor has not been called - 
-  TclSafeBuilder *builder = (TclSafeBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING current builder has been destroyed - eleLoad\n";    

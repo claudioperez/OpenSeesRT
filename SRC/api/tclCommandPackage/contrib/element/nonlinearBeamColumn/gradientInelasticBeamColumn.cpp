@@ -29,6 +29,7 @@
 #include <Domain.h>
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include "GradientInelasticBeamColumn2d.h"
 #include "GradientInelasticBeamColumn3d.h"
@@ -51,7 +52,9 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
   G3_Runtime *rt = G3_getRuntime(interp);
 
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr
         << "WARNING builder has been destroyed - gradientInelasticBeamColumn\n";
     return TCL_ERROR;
