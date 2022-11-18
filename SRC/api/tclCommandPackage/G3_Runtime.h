@@ -9,7 +9,7 @@
 typedef std::unordered_map<std::string, std::vector<std::string>> G3_Config;
 
 class Domain;
-class ModelBuilder;
+class BasicModelBuilder;
 
 class AnalysisModel;
 class ConstraintHandler;
@@ -17,17 +17,18 @@ class LinearSOE;
 class EigenSOE;
 class DOF_Numberer;
 class ConvergenceTest;
+class StaticIntegrator;
+class TransientIntegrator;
 
 class G3_Interpreter;
 #define G3_Builder G3_Runtime
 
 class G3_Runtime {
 public:
-  // newStaticAnalysis()
 
   Tcl_Interp     *m_interp;
 // MODEL BUILDING
-  TclBuilder     *m_builder = nullptr;
+  BasicModelBuilder *m_builder = nullptr;
 
   Domain         *m_domain  = nullptr;
 
@@ -56,8 +57,6 @@ public:
 // IO
   FILE* streams[3] = {stdin,stdout,stderr};
 };
-
-
 
 
 class G3_ParallelRuntime : public G3_Runtime {

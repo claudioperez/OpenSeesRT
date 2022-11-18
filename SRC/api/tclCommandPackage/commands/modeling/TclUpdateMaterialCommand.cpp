@@ -6,6 +6,7 @@
 // fmk
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
 #include <MatParameter.h>
 

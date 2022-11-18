@@ -1,7 +1,8 @@
-#include <InputAPI.h>
+#include <assert.h>
+#include <api/InputAPI.h>
+#include <G3_Logging.h>
 
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
+#include "runtime/BasicAnalysisBuilder.h"
 
 // convergence tests
 #include <CTestNormUnbalance.h>
@@ -15,8 +16,6 @@
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
 
-extern ConvergenceTest *theTest;
-extern DirectIntegrationAnalysis *theTransientAnalysis;
 
 ConvergenceTest*
 RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
@@ -31,30 +30,15 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
   ConvergenceTest* theNewTest = RT_newConvergenceTest(rt, argc, argv);
 
   if (theNewTest == nullptr) {
-    opserr << "ERROR Failed to get convergence test\n";
+    // Parse routine is expected to have reported an error
     return TCL_ERROR;
 
   } else {
-    theTest = theNewTest;
+    BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
 
-    // if the analysis exists - we want to change the Test
-    if (the_static_analysis != nullptr) {
-      the_static_analysis->setConvergenceTest(*theTest);
+    assert(builder != nullptr);
 
-    } else if (theTransientAnalysis != nullptr) {
-      theTransientAnalysis->setConvergenceTest(*theTest);
-    }
-
-#ifdef _PARALLEL_PROCESSING
-    if (the_static_analysis != 0 || theTransientAnalysis != 0) {
-      SubdomainIter &theSubdomains = theDomain.getSubdomains();
-      Subdomain *theSub;
-      while ((theSub = theSubdomains()) != 0) {
-        theSub->setAnalysisConvergenceTest(*theTest);
-        ;
-      }
-    }
-#endif
+    builder->set(theNewTest);
   }
 }
 
@@ -80,7 +64,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
 
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
-    opserr << "WARNING need to specify a ConvergenceTest Type type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a ConvergenceTest Type type \n";
     return nullptr;
   }
 
@@ -196,7 +180,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
   ConvergenceTest *theNewTest = 0;
 
   if (numIter == 0) {
-    opserr << "ERROR: no numIter specified in test command\n";
+    opserr << G3_ERROR_PROMPT << "no numIter specified in test command\n";
     return nullptr;
   }
 
@@ -204,7 +188,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
     theNewTest = new CTestFixedNumIter(numIter, printIt, normType);
   else {
     if (tol == 0.0) {
-      opserr << "ERROR: no tolerance specified in test command\n";
+      opserr << G3_ERROR_PROMPT << "no tolerance specified in test command\n";
       return nullptr;
     }
     if (strcmp(argv[1], "NormUnbalance") == 0)
@@ -233,7 +217,7 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
       theNewTest =
           new CTestRelativeTotalNormDispIncr(tol, numIter, printIt, normType);
     else {
-      opserr << "WARNING No ConvergenceTest type (NormUnbalance, NormDispIncr, "
+      opserr << G3_ERROR_PROMPT << "No ConvergenceTest type (NormUnbalance, NormDispIncr, "
                 "EnergyIncr, \n";
       opserr << "RelativeNormUnbalance, RelativeNormDispIncr, "
                 "RelativeEnergyIncr, \n";
@@ -248,7 +232,11 @@ int
 getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
-  if (theTest != 0) {
+  assert(clientData != nullptr);
+  ConvergenceTest *theTest =
+      ((BasicAnalysisBuilder *)clientData)->getConvergenceTest();
+
+  if (theTest != nullptr) {
     const Vector &data = theTest->getNorms();
 
     char buffer[40];
@@ -261,14 +249,18 @@ getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
   }
 
-  opserr << "ERROR testNorms - no convergence test!\n";
+  opserr << G3_ERROR_PROMPT << "testNorms - no convergence test has been constructed.\n";
   return TCL_ERROR;
 }
 
 int
 getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  if (theTest != 0) {
+  assert(clientData != nullptr);
+  ConvergenceTest *theTest =
+      ((BasicAnalysisBuilder *)clientData)->getConvergenceTest();
+
+  if (theTest != nullptr) {
     int res = theTest->getNumTests();
 
     char buffer[10];
@@ -278,7 +270,7 @@ getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
     return TCL_OK;
   }
 
-  opserr << "ERROR testIter - no convergence test!\n";
+  opserr << G3_ERROR_PROMPT << "testIter - no convergence test.\n";
   return TCL_ERROR;
 }
 

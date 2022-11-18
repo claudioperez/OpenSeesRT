@@ -37,6 +37,7 @@
 
 #include <Joint3D.h>
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <UniaxialMaterial.h>
 
 // extern void printCommand(int argc, TCL_Char **argv);
@@ -47,7 +48,9 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
                            TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
@@ -141,7 +144,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  MatX = OPS_getUniaxialMaterial(MatXid);
+  MatX = builder->getUniaxialMaterial(MatXid);
   if (MatX == NULL) {
     opserr << "WARNING material not found\n";
     opserr << "Material: " << MatXid;
@@ -157,7 +160,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  MatY = OPS_getUniaxialMaterial(MatYid);
+  MatY = builder->getUniaxialMaterial(MatYid);
   if (MatY == NULL) {
     opserr << "WARNING material not found\n";
     opserr << "Material: " << MatYid;
@@ -173,7 +176,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  MatZ = OPS_getUniaxialMaterial(MatZid);
+  MatZ = builder->getUniaxialMaterial(MatZid);
   if (MatZ == NULL) {
     opserr << "WARNING material not found\n";
     opserr << "Material: " << MatZid;

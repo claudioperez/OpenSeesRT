@@ -5,6 +5,8 @@
 #
 #==============================================================================
 add_library(OPS_Uniaxial_Fedeas)
+target_link_libraries(OPS_Uniaxial_Fedeas PRIVATE OPS_Material)
+
 target_sources(OPS_Uniaxial_Fedeas
     PRIVATE
         ../FedeasMaterial.cpp
@@ -46,6 +48,6 @@ target_link_libraries(OPS_Uniaxial_Fedeas PUBLIC
   ${FEDEAS_Uniaxial_LIBRARIES}
   #${BUNDLE_LIBS}/fedeas.lib
 )
-#target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_sources(OPS_Material PRIVATE DegradingUniaxialWrapper.cc)
+target_include_directories(OPS_Uniaxial_Fedeas PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+#target_sources(OPS_Material PRIVATE damage/DegradingUniaxialWrapper.cc)
 

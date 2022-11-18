@@ -1,5 +1,6 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 
 /*
@@ -18,24 +19,19 @@
 extern OPS_Stream* opswrnPtr;
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <WrapperElement.h>
 
-#include <map>
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <SectionForceDeformation.h>
 #include <CrdTransf.h>
 #include <FrictionModel.h>
-// #include <WrapperUniaxialMaterial.h>
-// #include <WrapperNDMaterial.h>
 
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
-// use ProfileSPD for default SOE constructor
-#include <ProfileSPDLinSOE.h>
-#include <ProfileSPDLinDirectSolver.h>
 
 #include <OPS_Globals.h>
 
@@ -51,16 +47,15 @@ typedef struct materialFunction {
   struct materialFunction *next;
 } MaterialFunction;
 
-extern AnalysisModel *theAnalysisModel;
-extern EquiSolnAlgo *theAlgorithm;
-extern ConstraintHandler *theHandler;
-extern DOF_Numberer *theNumberer;
-extern LinearSOE *theSOE;
-extern EigenSOE *theEigenSOE;
-extern StaticAnalysis *theStaticAnalysis;
+extern AnalysisModel            *theAnalysisModel;
+extern EquiSolnAlgo             *theAlgorithm;
+extern ConstraintHandler        *theHandler;
+extern DOF_Numberer             *theGlobalNumberer;
+extern LinearSOE                *theSOE;
+extern EigenSOE                 *theEigenSOE;
+extern StaticAnalysis           *theStaticAnalysis;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
-extern int numEigen;
 extern StaticIntegrator *theStaticIntegrator;
 extern TransientIntegrator *theTransientIntegrator;
 extern ConvergenceTest *theTest;
@@ -172,11 +167,11 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
                TCL_Char **argv, Domain *domain, TclBuilder *builder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  G3_setDomain(rt, domain);
-  G3_setModelBuilder(rt, builder);
-  theInterp = interp;
-  // theDomain = domain;
-  theModelBuilder = builder;
+//  G3_setDomain(rt, domain);
+//  G3_setModelBuilder(rt, builder);
+// theInterp = interp;
+// theDomain = domain;
+// theModelBuilder = builder;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
@@ -190,9 +185,8 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                         int mArg, TCL_Char **argv, Domain *domain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  G3_setDomain(rt, domain);
-  theInterp = interp;
-  // theDomain = domain;
+//  G3_setDomain(rt, domain);
+//  theInterp = interp;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
@@ -302,7 +296,7 @@ OPS_GetStringCopy(char **arrayData)
 
   return 0;
 }
-
+/*
 extern "C" matObj *
 OPS_GetMaterial(int *matTag, int *matType)
 {
@@ -363,6 +357,7 @@ OPS_GetMaterial(int *matTag, int *matType)
   fprintf(stderr, "getMaterial - unknown material type\n");
   return 0;
 }
+*/
 
 /*
 extern "C"
@@ -450,7 +445,6 @@ OPS_GetElementType(char *type, int sizeType)
     // create a new eleObject, set the function ptr &  return it
 
     eleObj *theEleObject = new eleObj;
-    // eleObj *theEleObject = (eleObj *)malloc(sizeof( eleObj));;
 
     theEleObject->eleFunctPtr = eleFunction->theFunct;
 
@@ -514,323 +508,6 @@ OPS_GetMaterialType(char *type, int sizeType)
   return 0;
 }
 
-extern "C" int
-OPS_AllocateMaterial(matObject *theMat)
-{
-
-  /*fprintf(stderr,"allocateMaterial Address %p\n",theMat);*/
-
-  if (theMat->nParam > 0)
-    theMat->theParam = new double[theMat->nParam];
-
-  int nState = theMat->nState;
-
-  if (nState > 0) {
-    theMat->cState = new double[nState];
-    theMat->tState = new double[nState];
-    for (int i = 0; i < nState; i++) {
-      theMat->cState[i] = 0;
-      theMat->tState[i] = 0;
-    }
-  } else {
-    theMat->cState = 0;
-    theMat->tState = 0;
-  }
-
-  return 0;
-}
-
-extern "C" int
-OPS_AllocateElement(eleObject *theEle, int *matTags, int *matType)
-{
-  if (theEle->nNode > 0)
-    theEle->node = new int[theEle->nNode];
-
-  if (theEle->nParam > 0)
-    theEle->param = new double[theEle->nParam];
-
-  if (theEle->nState > 0) {
-    theEle->cState = new double[theEle->nState];
-    theEle->tState = new double[theEle->nState];
-  }
-
-  int numMat = theEle->nMat;
-  if (numMat > 0)
-    theEle->mats = new matObject *[numMat];
-
-  for (int i = 0; i < numMat; i++) {
-    /*  opserr << "AllocateElement - matTag " << matTags[i] << "\n"; */
-
-    matObject *theMat = OPS_GetMaterial(&(matTags[i]), matType);
-    //    matObject *theMat = OPS_GetMaterial(&(matTags[i]));
-
-    theEle->mats[i] = theMat;
-  }
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeCrd(int *nodeTag, int *sizeCrd, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeCrd - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeCrd;
-  const Vector &crd = theNode->getCrds();
-  if (crd.Size() != size) {
-    opserr << "OPS_GetNodeCrd - crd size mismatch\n";
-    opserr << "Actual crd size is: " << crd.Size()
-           << endln; // MRL Add Error Detection
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = crd(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeDisp(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeDisp - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &disp = theNode->getTrialDisp();
-
-  if (disp.Size() != size) {
-    opserr << "OPS_GetNodeDisp - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = disp(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeVel(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeVel - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &vel = theNode->getTrialVel();
-
-  if (vel.Size() != size) {
-    opserr << "OPS_GetNodeVel - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = vel(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeAccel(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeAccel - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &accel = theNode->getTrialAccel();
-
-  if (accel.Size() != size) {
-    opserr << "OPS_GetNodeAccel - accel size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = accel(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeIncrDisp(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeIncrDisp - no node with tag " << *nodeTag << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &disp = theNode->getIncrDisp();
-
-  if (disp.Size() != size) {
-    opserr << "OPS_GetNodeIncrDis - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = disp(i);
-
-  return 0;
-}
-
-extern "C" int
-OPS_GetNodeIncrDeltaDisp(int *nodeTag, int *sizeData, double *data)
-{
-  Node *theNode = theDomain->getNode(*nodeTag);
-
-  if (theNode == 0) {
-    opserr << "OPS_GetNodeIncrDeltaDisp - no node with tag " << *nodeTag
-           << endln;
-    return -1;
-  }
-  int size = *sizeData;
-  const Vector &disp = theNode->getIncrDeltaDisp();
-
-  if (disp.Size() != size) {
-    opserr << "OPS_GetNodeIncrDis - crd size mismatch\n";
-    return -1;
-  }
-  for (int i = 0; i < size; i++)
-    data[i] = disp(i);
-
-  return 0;
-}
-
-int
-Tcl_addWrapperElement(eleObj *theEle, ClientData clientData, Tcl_Interp *interp,
-                      int argc, TCL_Char **argv, Domain *theDomain,
-                      TclBuilder *theModelBuilder)
-{
-  theInterp = interp;
-  // theDomain = domain;
-  // theModelBuilder = builder;
-  currentArgv = argv;
-  currentArg = 2;
-  maxArg = argc;
-
-  // get the current load factor
-  double time = theDomain->getCurrentTime();
-  double dt = theDomain->getCurrentTime() - time;
-
-  static modelState theModelState;
-  theModelState.time = time;
-  theModelState.dt = dt;
-
-  // invoke the ele function with isw = 0
-  int isw = ISW_INIT;
-  int result = 0;
-  theEle->eleFunctPtr(theEle, &theModelState, 0, 0, &isw, &result);
-
-  if (result != 0) {
-    opserr << "Tcl_addWrapperElement - failed in element function " << result
-           << endln;
-    return TCL_ERROR;
-  }
-
-  WrapperElement *theElement = new WrapperElement(argv[1], theEle);
-
-  if (theDomain->addElement(theElement) == false) {
-    opserr << "WARNING could not add element of type: " << argv[1]
-           << " to the domain\n";
-    delete theElement;
-    return TCL_ERROR;
-  }
-
-  return 0;
-}
-
-
-
-
-extern "C" int
-OPS_InvokeMaterial(eleObject *theEle, int *mat, modelState *model,
-                   double *strain, double *stress, double *tang, int *isw)
-{
-  int error = 0;
-
-  matObject *theMat = theEle->mats[*mat];
-  /* fprintf(stderr,"invokeMaterial Address %d %d %d\n",*mat, theMat,
-   * sizeof(int)); */
-
-  if (theMat != 0)
-    theMat->matFunctPtr(theMat, model, strain, tang, stress, isw, &error);
-  else
-    error = -1;
-
-  return error;
-}
-
-extern "C" int
-OPS_InvokeMaterialDirectly(matObject **theMat, modelState *model,
-                           double *strain, double *stress, double *tang,
-                           int *isw)
-{
-  int error = 0;
-  //  fprintf(stderr,"invokeMaterialDirectly Address %d %d %d\n",theMat,
-  //  sizeof(int), *theMat);
-  if (*theMat != 0)
-    (*theMat)->matFunctPtr(*theMat, model, strain, tang, stress, isw, &error);
-  else
-    error = -1;
-
-  return error;
-}
-
-int
-G3_raise(G3_Runtime *rt, const char *msg, ...){
-  va_list ap;
-
-  va_start(ap, msg);
-  int n = vsnprintf(NULL, 0, msg, ap);
-  va_end(ap);
-
-  if (n < 0)
-    return -1;
-
-  size_t size = (size_t)n + 1 + 8;
-  char *new_str = (char*)malloc(size);
-  if (new_str == NULL)
-    return -1;
-
-  strcpy(new_str, "error {");
-  va_start(ap, msg);
-  n = vsnprintf(new_str+7, size, msg, ap);
-  va_end(ap);
-  strcpy(new_str+7+n, "}\n");
-
-
-  Tcl_Interp *tcl_interp = G3_getInterpreter(rt);
-  Tcl_Eval(tcl_interp, new_str);
-  Tcl_Obj *infoObj = Tcl_GetVar2Ex(tcl_interp, "errorInfo", NULL, TCL_GLOBAL_ONLY);
-  const char * error_str = Tcl_GetString(infoObj);
-  opserr << error_str;
-
-  /*
-  Tcl_Obj *top_interpInfoName ;
-  Tcl_Obj *top_interpInfo ;
-    top_interpInfoName = Tcl_NewStringObj("errorInfo", -1) ;
-    Tcl_IncrRefCount(top_interpInfoName) ;
-    top_interpInfo =  Tcl_ObjGetVar2(tcl_interp,
-                                     top_interpInfoName,
-                                     NULL,
-                                     TCL_LEAVE_ERR_MSG) ;
-    Tcl_IncrRefCount(top_interpInfo) ;
-    const char *error_str = Tcl_GetString(top_interpInfo);
-    opserr << "ERROR -- " << msg << "\n\n" << error_str;
-    Tcl_DecrRefCount(top_interpInfoName) ;
-    Tcl_DecrRefCount(top_interpInfo);
-    */
-    // throw 20;
-    return 0;
-}
-
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
 {
@@ -849,20 +526,21 @@ G3_getModelBuilder(G3_Runtime *rt)
 {return rt->m_builder;}
 
 int
-G3_setModelBuilder(G3_Runtime *rt, TclBuilder* builder)
+G3_setModelBuilder(G3_Runtime *rt, BasicModelBuilder* builder)
 {
+  theModelBuilder = builder;
   rt->m_builder = builder;
   return 1;
 }
 
-TclSafeBuilder *
+BasicModelBuilder *
 G3_getSafeBuilder(G3_Runtime *rt)
 {
-  return (TclSafeBuilder*)G3_getModelBuilder(rt);
+  return (BasicModelBuilder*)G3_getModelBuilder(rt);
   /*
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *theTclBuilder =
-      (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  BasicModelBuilder *theTclBuilder =
+      (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   return theTclBuilder;
   */
 }
@@ -892,30 +570,31 @@ G3_getDomain(G3_Runtime *rt)
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
-      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
+      // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   return builder->addTimeSeries(series);
 }
 
+/*
 int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
   // Tcl_Interp *interp = G3_getInterpreter(rt);
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
   if (builder)
     // TODO
     return true;
   else
     return false;
 }
-
+*/
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
   // Tcl_Interp *interp = G3_getInterpreter(rt);
 
   TimeSeries *series;
-  // TclSafeBuilder *builder =
-  TclSafeBuilder *builder = G3_getSafeBuilder(rt);
-      // (TclSafeBuilder *)Tcl_GetAssocData(interp, "OPS::theTclSafeBuilder", NULL);
+  // BasicModelBuilder *builder =
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
+      // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   if (builder) {
      series = builder->getTimeSeries(std::to_string(tag));
   } else {
@@ -960,7 +639,7 @@ OPS_GetUniaxialMaterial(int matTag)
 CrdTransf *
 G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
 {
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     return nullptr;
   }
@@ -970,7 +649,7 @@ G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
 UniaxialMaterial *
 G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     // TODO
     return OPS_getUniaxialMaterial(tag);
@@ -982,13 +661,12 @@ G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 }
 
 int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   if (!builder) {
     opserr << "WARNING Failed to find safe model builder\n";
     return 0;
   }
-  int stat = builder->addUniaxialMaterial(mat);
-  return stat ? TCL_OK : TCL_ERROR;
+  return builder->addUniaxialMaterial(mat);
 }
 
 
@@ -1016,22 +694,24 @@ G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
 int
 G3_getNDM(G3_Runtime *rt)
 {
-  TclBuilder *builder;
-  if (builder = G3_getModelBuilder(rt))
+  BasicModelBuilder *builder;
+  if (builder = G3_getSafeBuilder(rt))
     return builder->getNDM();
   else
     return -1;
 }
 
+/*
 int
 G3_getNDF(G3_Runtime *rt)
 {
-  TclBuilder *builder;
-  if (builder = G3_getModelBuilder(rt))
+  BasicModelBuilder *builder;
+  if (builder = G3_getSafeBuilder(rt))
     return builder->getNDF();
   else
     return -1;
 }
+*/
 
 int
 OPS_GetNDM(void) {return theModelBuilder->getNDM();}
@@ -1064,7 +744,7 @@ ConstraintHandler **
 OPS_GetHandler(void) {return &theHandler;}
 
 DOF_Numberer **
-OPS_GetNumberer(void) {return &theNumberer;}
+OPS_GetNumberer(void) {return &theGlobalNumberer;}
 
 LinearSOE **
 OPS_GetSOE(void) {return &theSOE;}
@@ -1102,30 +782,6 @@ int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
   }
   return 0;
 }
-
-LinearSOE *
-G3_getDefaultLinearSoe(G3_Runtime* rt, int flags) {
-  // `flags` is unused right now but could be useful
-  // for ensuring properties about the SOE, like
-  // forcing fullGen.
-  LinearSOE* theSOE = *G3_getLinearSoePtr(rt);
-
-  opsdbg << "DEBUG G3_getDefaultLinearSoe(" << (long int)rt << ", " << flags << ")-> " << (long int)theSOE << "\n";
-
-  if (theSOE == NULL) {
-    opswrn << "no LinearSOE specified, default ProfileSPDLinSOE will be used\n";
-    ProfileSPDLinSolver *theSolver;
-    theSolver = new ProfileSPDLinDirectSolver();
-#ifdef _PARALLEL_PROCESSING
-    theSOE = new DistributedProfileSPDLinSOE(*theSolver);
-#else
-    theSOE = new ProfileSPDLinSOE(*theSolver);
-#endif
-    G3_setLinearSoe(rt, theSOE);
-  }
-  return theSOE;
-}
-
 
 
 EigenSOE **
@@ -1234,8 +890,8 @@ OPS_GetVariableTimeStepTransientAnalysis(void)
 }
 */
 
-int *
-OPS_GetNumEigen(void) {return &numEigen;}
+// int *
+// OPS_GetNumEigen(void) {return &numEigen;}
 
 StaticIntegrator **
 OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}

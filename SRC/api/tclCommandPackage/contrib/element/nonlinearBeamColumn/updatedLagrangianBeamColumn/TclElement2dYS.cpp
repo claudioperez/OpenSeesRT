@@ -15,6 +15,7 @@
 
 #include <YieldSurface_BC.h>
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #define tcl_debug 0
 

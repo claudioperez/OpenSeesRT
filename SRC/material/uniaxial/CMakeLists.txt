@@ -5,6 +5,8 @@
 #
 #==============================================================================
 
+target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
 target_sources(OPS_Material
     PRIVATE
       AxialSp.cpp
@@ -319,7 +321,6 @@ target_sources(OPS_Material_f PRIVATE
 )
 
 target_link_libraries(OPS_Material PUBLIC OPS_Material_f)
-target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(backbone)
 add_subdirectory(stiffness)

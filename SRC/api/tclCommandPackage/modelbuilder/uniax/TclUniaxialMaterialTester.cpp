@@ -17,7 +17,8 @@
 #include <g3_api.h>
 #include <ArrayOfTaggedObjects.h>
 #include <UniaxialMaterial.h>
-#include <TclUniaxialMaterialTester.h>
+#include <runtime/BasicModelBuilder.h>
+#include <modelbuilder/uniax/TclUniaxialMaterialTester.h>
 
 
 //
@@ -33,6 +34,7 @@ TclUniaxialTestCommand TclUniaxialMaterialTester_getTangUniaxialMaterial;
 
 const struct {const char*name; const TclUniaxialTestCommand*func;} command_table[] = {
   {"using",     TclUniaxialMaterialTester_setUniaxialMaterial       },
+  {"with",      TclUniaxialMaterialTester_setUniaxialMaterial       },
   {"strain",    TclUniaxialMaterialTester_setStrainUniaxialMaterial },
   {"commit",    TclUniaxialMaterialTester_commitState               },
   {"stress",    TclUniaxialMaterialTester_getStressUniaxialMaterial },
@@ -47,7 +49,7 @@ const struct {const char*name; const TclUniaxialTestCommand*func;} command_table
 TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
                                                      Tcl_Interp *interp,
                                                      int cTC)
-    : TclSafeBuilder(theDomain, interp, 1, 1), theInterp(interp)
+    : BasicModelBuilder(theDomain, interp, 1, 1), theInterp(interp)
 {
   const int ncmd = sizeof(command_table)/sizeof(command_table[0]);
   for (int i=0; i<ncmd; i++)
@@ -60,7 +62,6 @@ TclUniaxialMaterialTester::TclUniaxialMaterialTester(Domain &theDomain,
 
 TclUniaxialMaterialTester::~TclUniaxialMaterialTester()
 {
-
 
   Tcl_DeleteCommand(theInterp, "uniaxialTest");
 
@@ -201,8 +202,8 @@ TclUniaxialMaterialTester_getStressUniaxialMaterial(ClientData clientData,
     char buffer[40];
     sprintf(buffer, "%.10e", stress);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //    sprintf(interp->result,"%.10e",stress);
     return TCL_OK;
+
   } else {
     opserr << "WARNING no active UniaxialMaterial - use uniaxialTest command\n";
     return TCL_ERROR;
@@ -222,8 +223,8 @@ TclUniaxialMaterialTester_getTangUniaxialMaterial(ClientData clientData,
     char buffer[40];
     sprintf(buffer, "%.10e", tangent);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //    sprintf(interp->result,"%.10e",tangent);
     return TCL_OK;
+
   } else {
     opserr << "WARNING no active UniaxialMaterial - use uniaxialTest command\n";
     return TCL_ERROR;

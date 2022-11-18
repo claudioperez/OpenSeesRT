@@ -26,7 +26,7 @@ void *OPS_SeriesMaterial(void)
   }
 
   for (int i = 1; i < numArgs; i++) {
-    UniaxialMaterial *theMat = OPS_GetUniaxialMaterial(iData[i]);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(iData[i]);
     if (theMat == 0) {
       opserr << "WARNING no existing material with tag " << iData[i]
              << " for uniaxialMaterial Series" << iData[0] << endln;

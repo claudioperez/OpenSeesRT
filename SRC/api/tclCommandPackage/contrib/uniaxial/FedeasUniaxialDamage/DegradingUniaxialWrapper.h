@@ -4,12 +4,15 @@
 #include <functional> // std::function
 #include <tcl.h>
 #include <UniaxialMaterial.h>
+#include "FedeasAPI.h"
 
 class DegradingUniaxialWrapper : public UniaxialMaterial {
 public:
-  DegradingUniaxialWrapper(int tag, UniaxialMaterial &material, double min, double max);
+  DegradingUniaxialWrapper(int tag, UniaxialMaterial &material, StateOperator* damage);
   DegradingUniaxialWrapper();
   ~DegradingUniaxialWrapper();
+
+  static UniaxialMaterial* parseNew(Tcl_Interp*, void*, int, TCL_Char **);
 
   const char *
   getClassType(void) const {return "DegradingUniaxialWrapper";}
@@ -45,14 +48,12 @@ public:
   double getRhoSensitivity(int gradIndex);
   int commitSensitivity(double strainGradient, int gradIndex, int numGrads);
   
-  int setDamageWrapper(Tcl_Interp*, std::string);
+//  int setDamageWrapper(Tcl_Interp*, std::string);
 
 protected:
 private:
   UniaxialMaterial *theMaterial;
 
-  double minStrain;
-  double maxStrain;
   double m_stress,
          m_tangent, 
          m_rate_tol=1e-6;
@@ -65,8 +66,8 @@ private:
   };
 
   UniaxialState past,pres;
-  typedef std::function<int(void*, void*)> degrade_f;
-  degrade_f degrade = NULL;
+  // typedef std::function<int(void*, void*)> degrade_f;
+  StateOperator* degrade = NULL;
 };
 
 #endif // DegradingUniaxialWrapper_H

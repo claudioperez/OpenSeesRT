@@ -48,6 +48,7 @@
 
 #include <GaussLobattoQuadRule1d01.h>
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 //
 // some static variables used in the functions

@@ -6,8 +6,8 @@
 
 // framework
 #include <g3_api.h>
-#include <runtimeAPI.h>
-#include <analysisAPI.h>
+// #include <runtimeAPI.h>
+// #include "analysis.h"
 #include <OPS_Globals.h>
 #include <packages.h>
 
@@ -109,12 +109,16 @@ LinearSOE *TclCommand_newPetscSOE(int, TCL_Char**);
 #  include <DistributedProfileSPDLinSOE.h>
 #endif
 
+template <typename T>
+using TclDispatch = T(*)(ClientData, Tcl_Interp*, int, const char**);
+
 typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
 
 // Specifiers defined in solver.cpp
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
 G3_SysOfEqnSpecifier G3Parse_newMumpsLinearSOE;
+TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
 
 // Helpers to automatically create constructors for systems/solvers 
 // that do not take arguments when they are constructed.
@@ -152,10 +156,11 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      nullptr, 
      nullptr}},
 
+  {"SparseSYM", {
+     specify_SparseSPD, nullptr, nullptr}},
   {"SparseSPD", {
-     specify_SparseSPD, 
-     nullptr, 
-     nullptr}},
+     // Legacy specifier
+     specify_SparseSPD, nullptr, nullptr}},
 
   {"Diagonal", {
      G3_SOE(DiagonalDirectSolver,        DiagonalSOE),

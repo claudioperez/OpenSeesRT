@@ -32,7 +32,7 @@
 //
 // What: "@(#) TclBasicBuilderUniaxialMaterialCommand.C, revA"
 
-//#include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <unordered_map> // std::unordered_map
 #include <g3_api.h>
 #include <elementAPI.h>
@@ -189,10 +189,10 @@ extern void *OPS_Masonryt(G3_Runtime*);
 
 // typedef  UniaxialMaterial *(*G3_UniaxialCommand)(ClientData, Tcl_Interp *, int, TCL_Char**);
 // G3_UniaxialCommand TclBasicBuilder_addFedeasMaterial;
-// G3_UniaxialCommand TclSafeBuilder_addFedeasWrapper;
+// G3_UniaxialCommand BasicModelBuilder_addFedeasWrapper;
 // const std::unordered_map<std::string, G3_UniaxialCommand> compiled_material_map {
 // {"fedeas", TclBasicBuilder_addFedeasMaterial}
-//    {"FedeasDamageWrapper", TclSafeBuilder_addFedeasWrapper}
+//    {"FedeasDamageWrapper", BasicModelBuilder_addFedeasWrapper}
 // };
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
@@ -266,6 +266,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
 {
 
   G3_Runtime *rt = G3_getRuntime(interp);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -1452,7 +1453,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *material = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *material = builder->getUniaxialMaterial(matTag);
 
     if (material == 0) {
       opserr << "WARNING material does not exist\n";
@@ -1567,7 +1568,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
       j++;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
 
     if (theMat == 0) {
       opserr << "WARNING component material does not exist\n";

@@ -30,6 +30,7 @@
 // for the genericClient element.
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +48,9 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
                                  int eleArgStart)
 {
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - genericClient\n";
     return TCL_ERROR;
   }

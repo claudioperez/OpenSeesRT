@@ -2,6 +2,7 @@
 // @ ggd@stanford.edu
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
 

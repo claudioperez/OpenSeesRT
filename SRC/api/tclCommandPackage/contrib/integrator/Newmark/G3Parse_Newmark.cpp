@@ -1,4 +1,4 @@
-
+#include <tcl.h>
 #include <g3_api.h>
 #include <InputAPI.h>
 #include <G3_Logging.h>
@@ -7,7 +7,7 @@
 #include <Newmark.h>
 
 TransientIntegrator*
-G3Parse_newNewmarkIntegrator(G3_Runtime*rt, int argc, G3_Char** argv)
+G3Parse_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
 {
   // Pointer to a uniaxial material that will be returned
   TransientIntegrator *theIntegrator = nullptr;
@@ -26,7 +26,7 @@ G3Parse_newNewmarkIntegrator(G3_Runtime*rt, int argc, G3_Char** argv)
   double dData[2];
   int numData = 2;
   for (; argi < 4; argi++)
-    if (G3Parse_getDouble(rt, argv[argi], &dData[argi-2]) != TCL_OK) {
+    if (Tcl_GetDouble(interp, argv[argi], &dData[argi-2]) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid arg at position '" << argi << "'. Expected:\n";
       opserr << "\tintegrator Newmark $gamma $beta <-form $typeUnknown>\n";
       opserr << "  but got '" << argv[argi] << "'.\n";

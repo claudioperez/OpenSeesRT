@@ -30,6 +30,7 @@
 // for the actuator element.
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -45,7 +46,9 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
                             TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - actuator\n";
     return TCL_ERROR;
   }

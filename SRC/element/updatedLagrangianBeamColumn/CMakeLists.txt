@@ -5,6 +5,13 @@
 #
 #==============================================================================
 #add_library(OPS_Element_updatedLagrangianBeamColumn OBJECT)
+target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
+target_link_libraries(OPS_Element PRIVATE 
+  OPS_Material_YieldSurface 
+  OPS_Section_YieldSurface
+)
+
 
 target_sources(OPS_Element
     PRIVATE
@@ -33,5 +40,4 @@ target_sources(OPS_Element
         QuadraticCyclic.h
         UpdatedLagrangianBeam2D.h
 )
-target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

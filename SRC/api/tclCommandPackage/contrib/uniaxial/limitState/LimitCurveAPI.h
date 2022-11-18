@@ -1,3 +1,5 @@
+#ifndef LIMIT_CURVE_API_H
+#define LIMIT_CURVE_API_H
 #include <LimitCurve.h>
 #include <tcl.h>
 #include <elementAPI.h>
@@ -5,6 +7,12 @@
 struct limCrvObject;
 
 typedef void (*limCrvFunct)(struct limCrvObject*, modelState*, double* strain, double* tang, double* stress, int* isw, int* error);
+
+typedef struct limitCurveFunction {
+    char* funcName;
+    limCrvFunct theFunct;
+    struct limitCurveFunction* next;
+} LimitCurveFunction;
 
 struct limCrvObject {
     int tag;
@@ -31,5 +39,4 @@ extern "C" limCrvObj*  OPS_GetLimitCurveType(char* type, int sizeType);
 extern "C" int         OPS_AllocateLimitCurve(limCrvObject * theLimCrv);
 #endif
 
-
-
+#endif // LIMIT_CURVE_API_H

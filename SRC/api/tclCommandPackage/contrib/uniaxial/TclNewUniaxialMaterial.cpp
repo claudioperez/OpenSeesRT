@@ -31,6 +31,7 @@
 #include <NewUniaxialMaterial.h>
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <string.h>
 
 int

@@ -6,6 +6,9 @@
 #==============================================================================
 add_library(OPS_Section_YieldSurface OBJECT)
 
+target_link_libraries(OPS_Section_YieldSurface PRIVATE OPS_Material_YieldSurface)
+target_include_directories(OPS_Section_YieldSurface PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
 target_sources(OPS_Section_YieldSurface
     PRIVATE
         SoilFootingSection2d.cpp
@@ -18,5 +21,4 @@ target_sources(OPS_Section_YieldSurface
         YS_Section2D01.h
         YS_Section2D02.h
 )
-target_include_directories(OPS_Section_YieldSurface PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

@@ -5,6 +5,44 @@
 #
 #==============================================================================
 #add_library(OPS_Element OBJECT)
+target_include_directories(OPS_Element PUBLIC
+  ${OPS_SRC_DIR}/element/absorbentBoundaries
+  ${OPS_SRC_DIR}/element/adapter
+  ${OPS_SRC_DIR}/element/beam2d
+  ${OPS_SRC_DIR}/element/beam3d
+  ${OPS_SRC_DIR}/element/brick
+  ${OPS_SRC_DIR}/element/catenaryCable
+  ${OPS_SRC_DIR}/element/CEqElement
+  ${OPS_SRC_DIR}/element/componentElement
+  ${OPS_SRC_DIR}/element/dispBeamColumn
+  ${OPS_SRC_DIR}/element/dispBeamColumnInt
+  ${OPS_SRC_DIR}/element/elasticBeamColumn
+  ${OPS_SRC_DIR}/element/elastomericBearing
+  ${OPS_SRC_DIR}/element/feap
+  ${OPS_SRC_DIR}/element/forceBeamColumn
+  ${OPS_SRC_DIR}/element/fourNodeQuad
+  ${OPS_SRC_DIR}/element/frictionBearing
+  ${OPS_SRC_DIR}/element/frictionBearing/frictionModel
+  ${OPS_SRC_DIR}/element/generic
+  ${OPS_SRC_DIR}/element/gradientInelasticBeamColumn
+  ${OPS_SRC_DIR}/element/HUelements
+  ${OPS_SRC_DIR}/element/joint
+  ${OPS_SRC_DIR}/element/LHMYS
+  ${OPS_SRC_DIR}/element/masonry
+  ${OPS_SRC_DIR}/element/mixedBeamColumn
+  ${OPS_SRC_DIR}/element/mvlem
+  ${OPS_SRC_DIR}/element/nonlinearBeamColumn/matrixutil
+  ${OPS_SRC_DIR}/element/PML
+  ${OPS_SRC_DIR}/element/pyMacro
+  ${OPS_SRC_DIR}/element/RockingBC
+  ${OPS_SRC_DIR}/element/shell
+  ${OPS_SRC_DIR}/element/surfaceLoad
+  ${OPS_SRC_DIR}/element/tetrahedron
+  ${OPS_SRC_DIR}/element/triangle
+  ${OPS_SRC_DIR}/element/truss
+  ${OPS_SRC_DIR}/element/twoNodeLink
+  ${OPS_SRC_DIR}/element/updatedLagrangianBeamColumn
+)
 
 target_sources(OPS_Element
     PRIVATE
