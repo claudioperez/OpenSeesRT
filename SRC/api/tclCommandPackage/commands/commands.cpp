@@ -7,6 +7,7 @@
 
 // Description: This file contains the functions that will be called by
 // the interpreter when the appropriate command name is specified.
+
 #include <assert.h>
 #include <g3_api.h>
 #include <G3_Runtime.h>
@@ -558,7 +559,6 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
   Recorder *theRecorder = domain->getRecorder(tag);
   double res = theRecorder->getRecordedValue(dof, rowOffset, reset);
   // now we copy the value to the tcl string that is returned
-  // sprintf(interp->result, "%35.8f ", res);
   char buffer[40];
   sprintf(buffer, "%35.8f", res);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -1040,7 +1040,6 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //  sprintf(interp->result,"%35.20f ",value);
   } else {
     char buffer[40];
     for (int i = 0; i < size; i++) {
@@ -1103,7 +1102,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //      sprintf(interp->result,"%35.20f ",value);
+
   } else {
     char buffer[40];
     for (int i = 0; i < size; i++) {
@@ -1163,7 +1162,6 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
     double value = (*nodalResponse)(dof);
 
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f ",value);
 
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
@@ -1185,9 +1183,7 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
-  // G3_Runtime *rt = G3_getRuntime(interp);
-  // Domain* domain = G3_getDomain(rt);
-  //
+
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - nodeEigenVector nodeTag? eigenVector? <dof?>\n";
@@ -1237,8 +1233,8 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     double value = theEigenvectors(dof, eigenvector);
-    // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f ",value);
+
+    // now we copy the value to the Tcl string that is returned
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -1309,7 +1305,6 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       double value = (*force)(dof);
 
       // now we copy the value to the tcl string that is returned
-      //	sprintf(interp->result,"%35.20f",value);
 
       char buffer[40];
       sprintf(buffer, "%35.20f", value);
@@ -1436,7 +1431,6 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
     double value = force(dof);
 
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -1591,9 +1585,9 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   opserr << "..." << coords;
 
+  char buffer[40];
   int size = coords.Size();
   if (dim == -1) {
-    char buffer[40];
     for (int i = 0; i < size; i++) {
       sprintf(buffer, "%35.20f", coords(i));
       Tcl_AppendResult(interp, buffer, NULL);
@@ -1602,8 +1596,6 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   } else if (dim < size) {
     double value = coords(dim); // -1 for OpenSees vs C indexing
-    //    sprintf(interp->result,"%35.20f",value);
-    char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
@@ -1620,14 +1612,14 @@ fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   SP_ConstraintIter &spIter = theDomain.getDomainAndLoadPatternSPs();
 
   // get unique constrained nodes with set
-  set<int> tags;
+  std::set<int> tags;
   int tag;
   while ((theSP = spIter()) != 0) {
     tag = theSP->getNodeTag();
     tags.insert(tag);
   }
   // assign set to vector and sort
-  vector<int> tagv;
+  std::vector<int> tagv;
   tagv.assign(tags.begin(), tags.end());
   sort(tagv.begin(), tagv.end());
   // loop through unique, sorted tags, adding to output
@@ -1695,7 +1687,7 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   MP_ConstraintIter &mpIter = theDomain.getMPs();
 
   // get unique constrained nodes with set
-  set<int> tags;
+  std::set<int> tags;
   int tag;
   while ((theMP = mpIter()) != 0) {
     tag = theMP->getNodeConstrained();
@@ -1704,7 +1696,7 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
   // assign set to vector and sort
-  vector<int> tagv;
+  std::vector<int> tagv;
   tagv.assign(tags.begin(), tags.end());
   sort(tagv.begin(), tagv.end());
   // loop through unique, sorted tags, adding to output
@@ -1812,7 +1804,7 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   MP_ConstraintIter &mpIter = theDomain.getMPs();
 
   // get unique constrained nodes with set
-  set<int> tags;
+  std::set<int> tags;
   int tag;
   while ((theMP = mpIter()) != 0) {
     tag = theMP->getNodeRetained();
@@ -1821,7 +1813,7 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
   // assign set to vector and sort
-  vector<int> tagv;
+  std::vector<int> tagv;
   tagv.assign(tags.begin(), tags.end());
   sort(tagv.begin(), tagv.end());
   // loop through unique, sorted tags, adding to output
@@ -2049,6 +2041,8 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  char buffer[40];
+
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *the_domain = G3_getDomain(rt);
 
@@ -2064,7 +2058,6 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     return TCL_ERROR;
   }
 
-  char buffer[40];
 
   Node *theNode = the_domain->getNode(tag);
   if (theNode == 0) {
@@ -2159,7 +2152,7 @@ nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  int requiredDataSize = 20 * 6;
+  const int requiredDataSize = 20 * 6;
   if (requiredDataSize > resDataSize) {
     if (resDataPtr != 0) {
       delete[] resDataPtr;
@@ -2222,7 +2215,6 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     double value = (*nodalResponse)(dof);
 
     // now we copy the value to the tcl string that is returned
-    //      sprintf(interp->result,"%35.20f",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
