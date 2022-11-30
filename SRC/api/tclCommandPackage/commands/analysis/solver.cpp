@@ -159,8 +159,7 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
            (strcmp(argv[1], "SparseSYM") == 0)) {
     Tcl_Interp *interp = G3_getInterpreter(rt);
 
-    // now must determine the type of solver to create from rest of args
-    // now determine ordering scheme
+    // determine ordering scheme
     //   1 -- MMD
     //   2 -- ND
     //   3 -- RCM
@@ -178,7 +177,8 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
 }
 
 LinearSOE*
-specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv) {
+specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
+{
   // SPARSE GENERAL SOE * SOLVER
   if ((strcmp(argv[1], "SparseGeneral") == 0) ||
            (strcmp(argv[1], "SuperLU") == 0) ||
@@ -236,7 +236,6 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv) {
 
     if (npRow != 0 && npCol != 0) {
       theSolver = new DistributedSuperLU(npRow, npCol);
-      // opserr << "commands.cpp: DistributedSuperLU\n";
     }
 #else
     char symmetric = 'N';
@@ -252,7 +251,6 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv) {
 #endif
 
 #ifdef _PARALLEL_PROCESSING
-    // opserr << "commands.cpp: DistributedSparseGenColLinSOE\n";
     return new DistributedSparseGenColLinSOE(*theSolver);
 #else
     return new SparseGenColLinSOE(*theSolver);

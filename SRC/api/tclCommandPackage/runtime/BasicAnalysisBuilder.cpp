@@ -128,56 +128,58 @@ void BasicAnalysisBuilder::wipe()
 
 void BasicAnalysisBuilder::resetStatic()
 {
-    theAlgorithm = 0;
-    theStaticIntegrator = 0;
-    theSOE = 0;
-    theNumberer = 0;
-    theHandler = 0;
-    theTest = 0;
-    theAnalysisModel = 0;
+    theAlgorithm = nullptr;
+    theStaticIntegrator = nullptr;
+    theSOE = nullptr;
+    theNumberer = nullptr;
+    theHandler = nullptr;
+    theTest = nullptr;
+    theAnalysisModel = nullptr;
 }
 
 void BasicAnalysisBuilder::resetTransient()
 {
-    theAlgorithm = 0;
-    theTransientIntegrator = 0;
-    theSOE = 0;
-    theNumberer = 0;
-    theHandler = 0;
-    theTest = 0;
-    theAnalysisModel = 0;
+    theAlgorithm = nullptr;
+    theTransientIntegrator = nullptr;
+    theSOE = nullptr;
+    theNumberer = nullptr;
+    theHandler = nullptr;
+    theTest = nullptr;
+    theAnalysisModel = nullptr;
 }
 
 void BasicAnalysisBuilder::resetAll()
 {
-    theAlgorithm = 0;
-    theStaticIntegrator = 0;
-    theTransientIntegrator = 0;
-    theSOE = 0;
-    theNumberer = 0;
-    theHandler = 0;
-    theTest = 0;
-    theAnalysisModel = 0;
-    theEigenSOE = 0;
+    theAlgorithm = nullptr;
+    theStaticIntegrator = nullptr;
+    theTransientIntegrator = nullptr;
+    theSOE = nullptr;
+    theNumberer = nullptr;
+    theHandler = nullptr;
+    theTest = nullptr;
+    theAnalysisModel = nullptr;
+    theEigenSOE = nullptr;
 }
 
 
 void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
 
     if (obj == 0) return;
-    if (theHandler != 0) {
-        opserr<<"The handler can only be set once\n";
+
+    if (theHandler != nullptr) {
+        // TODO: this needs to return a failure code.
+        opserr << "The handler can only be set once\n";
         return;
     }
+
     theHandler = obj;
 }
 
 void BasicAnalysisBuilder::set(DOF_Numberer* obj) {
-    if (obj == 0)
-      return;
+    if (obj == 0) return;
 
     if (theNumberer != 0) {
-        opserr<<"The numberer can only be set once for one analysis\n";
+        opserr << "The numberer can only be set once for one analysis\n";
         return;
     }
 
@@ -189,7 +191,7 @@ void BasicAnalysisBuilder::set(DOF_Numberer* obj) {
 void BasicAnalysisBuilder::set(EquiSolnAlgo* obj) {
     if (obj == 0) return;
     if (theAlgorithm != 0) {
-        opserr<<"The algorithm can only be set once for one analysis\n";
+        opserr << "The algorithm can only be set once for one analysis\n";
         return;
     }
     theAlgorithm = obj;
@@ -220,7 +222,7 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
 
     if (isstatic == 1) {
         if (theStaticIntegrator != 0) {
-            opserr<<"The static integrator can only be set once for one analysis\n";
+            opserr << "The static integrator can only be set once for one analysis\n";
             return;
         }
         theStaticIntegrator = dynamic_cast<StaticIntegrator*>(obj);
@@ -233,7 +235,7 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
     }
     if (isstatic == 2) {
         if (theTransientIntegrator != 0) {
-            opserr<<"The transient integrator can only be set once for one analysis\n";
+            opserr << "The transient integrator can only be set once for one analysis\n";
             return;
         }
         theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
@@ -251,7 +253,7 @@ void BasicAnalysisBuilder::set(ConvergenceTest* obj) {
 
     if (obj == 0) return;
     if (theTest != 0) {
-        opserr<<"The test can only be set once for one analysis\n";
+        opserr << "The test can only be set once for one analysis\n";
         return;
     }
     theTest = obj;

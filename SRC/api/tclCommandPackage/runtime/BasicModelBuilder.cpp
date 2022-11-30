@@ -10,6 +10,7 @@
 // A BasicModelBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
 // framework.
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +23,7 @@
 #include <ID.h>
 
 #include <Domain.h>
+// #include <Element.h>
 
 #include <RigidRod.h>
 #include <RigidBeam.h>
@@ -38,7 +40,6 @@
 #include <MultiSupportPattern.h>
 
 #include <TimeSeries.h>
-// #include <PathTimeSeriesThermal.h> //L.Jiang [SIF]
 
 /*
 #include <SimulationInformation.h>				//L.Jiang [SIF]
@@ -46,16 +47,9 @@ extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
 */
 // extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
-/*--------------------------------------------------------------------
+// #include <BeamIntegration.h>
 
-#include <YieldSurface_BC.h>
-#include <YS_Evolution.h>
 
-#include <HystereticBackbone.h>
-#include <BeamIntegration.h>
-*/
-
-#include <Element.h>
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
@@ -201,8 +195,7 @@ BasicModelBuilder::addTimeSeries(TimeSeries *series)
 // SectionForceDeformation Operations
 //
 
-// Retrieve a SectionForceDeformation instance from the model
-// runtime
+// Retrieve a SectionForceDeformation instance from the model runtime
 SectionForceDeformation*
 BasicModelBuilder::getSection(const std::string &name)
 {
@@ -235,10 +228,6 @@ BasicModelBuilder::addSection(SectionForceDeformation &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   m_SectionForceDeformationMap[name] = &instance;
-/*
-  opserr << "WARNING (ModelBuilder) Failed to add SectionForceDeformation \n"
-         << "         with tag '" << name.c_str() << "' to model.\n";
-*/
   return 1;
 }
 
@@ -246,8 +235,7 @@ BasicModelBuilder::addSection(SectionForceDeformation &instance)
 // SectionRepres Operations
 //
 
-// Retrieve a SectionRepres instance from the model
-// runtime
+// Retrieve a SectionRepres instance from the model runtime
 SectionRepres*
 BasicModelBuilder::getSectionRepres(const std::string &name)
 {
@@ -280,10 +268,6 @@ BasicModelBuilder::addSectionRepres(SectionRepres &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   m_SectionRepresMap[name] = &instance;
-/*
-  opserr << "WARNING (ModelBuilder) Failed to add SectionRepres \n"
-         << "         with tag '" << name.c_str() << "' to model.\n";
-*/
   return 1;
 }
 
@@ -325,10 +309,6 @@ BasicModelBuilder::addNDMaterial(NDMaterial &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   m_NDMaterialMap[name] = &instance;
-/*
-  opserr << "WARNING (ModelBuilder) Failed to add NDMaterial \n"
-         << "         with tag '" << name.c_str() << "' to model.\n";
-*/
   return 1;
 }
 
@@ -336,8 +316,7 @@ BasicModelBuilder::addNDMaterial(NDMaterial &instance)
 // UniaxialMaterial Operations
 //
 
-// Retrieve a UniaxialMaterial instance from the model
-// runtime
+// Retrieve a UniaxialMaterial instance from the model runtime
 UniaxialMaterial*
 BasicModelBuilder::getUniaxialMaterial(const std::string &name)
 {
@@ -368,8 +347,6 @@ BasicModelBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   return this->addUniaxialMaterial(name, instance);
-  // m_UniaxialMaterialMap[name] = &instance;
-  // return 1;
 }
 
 // Add a new UniaxialMaterial to the model runtime
@@ -402,8 +379,6 @@ BasicModelBuilder::addHystereticBackbone(const std::string &name, HystereticBack
   m_HystereticBackboneMap[name] = &instance;
   return 1;
 }
-
-
 
 //
 // CrdTransf Operations
@@ -443,8 +418,6 @@ int
 BasicModelBuilder::addCrdTransf(CrdTransf *instance)
 {
   const key_t name = std::to_string(instance->getTag());
-  // m_CrdTransfMap[name]std::stringnstance;
-  // m_CrdTransfMap.insert(std::make_pair<key_t,CrdTransf*>(std::move(name), instance);
   return this->addCrdTransf(name, instance);
 }
 

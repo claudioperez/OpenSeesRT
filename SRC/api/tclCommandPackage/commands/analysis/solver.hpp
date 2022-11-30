@@ -6,8 +6,6 @@
 
 // framework
 #include <g3_api.h>
-// #include <runtimeAPI.h>
-// #include "analysis.h"
 #include <OPS_Globals.h>
 #include <packages.h>
 
@@ -74,15 +72,6 @@
 #include <CulaSparseSolverS5.h>
 #endif
 
-#ifdef _MUMPS
-#  include <MumpsSOE.h>
-#  include <MumpsSolver.h>
-#  if defined(_PARALLEL_PROCESSING) || defined(_PARALLEL_INTERPRETERS)
-#    include <MumpsParallelSOE.h>
-#    include <MumpsParallelSolver.h>
-#  endif
-#endif
-
 #if 1 || defined(_PETSC)
 LinearSOE *TclCommand_newPetscSOE(int, TCL_Char**);
 #endif
@@ -117,8 +106,9 @@ typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
 // Specifiers defined in solver.cpp
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
-G3_SysOfEqnSpecifier G3Parse_newMumpsLinearSOE;
+TclDispatch<LinearSOE*> TclDispatch_newMumpsLinearSOE;
 TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
+TclDispatch<LinearSOE*> TclDispatch_newItpackLinearSOE;
 
 // Helpers to automatically create constructors for systems/solvers 
 // that do not take arguments when they are constructed.

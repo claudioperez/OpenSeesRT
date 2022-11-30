@@ -73,12 +73,12 @@ static TCL_Char **currentArgv = 0;
 static int currentArg = 0;
 static int maxArg = 0;
 
+modelState theModelState;
 
 extern const char *getInterpPWD(Tcl_Interp *interp);
 
 // static int uniaxialMaterialObjectCount = 0;
 
-modelState theModelState;
 
 struct cmp_str {
   bool
@@ -272,7 +272,7 @@ OPS_GetString(void)
 extern "C" const char *
 OPS_GetStringFromAll(char *buffer, int len)
 {
-  return OPS_GetString(); // Everything's a string in Tcl
+  return OPS_GetString();
 }
 
 extern "C" int

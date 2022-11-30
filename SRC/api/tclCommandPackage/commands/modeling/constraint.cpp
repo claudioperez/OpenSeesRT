@@ -1,5 +1,5 @@
 #include <tcl.h>
-
+#include <assert.h>
 #include <Matrix.h>
 #include <ID.h>
 #include <Node.h>
@@ -31,9 +31,11 @@ int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
+  assert(clientData != nullptr);
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBuilder *theTclBuilder = (TclBuilder*)clientData;
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
   Domain *theTclDomain = G3_getDomain(rt);
+
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -61,6 +63,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
 
   char buffer[80];
   strcpy(buffer, "");
+
   // get the fixity condition and add the constraint if fixed
   for (int i = 0; i < ndf; i++) {
     int theFixity;

@@ -4,6 +4,10 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+
+target_include_directories(OPS_Domain PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(OPS_Domain PRIVATE OPS_Actor)
+
 target_sources(OPS_Domain
   PRIVATE
     DomainComponent.cpp
@@ -41,7 +45,4 @@ target_sources(OPS_Domain
 #     RVParameter.h
 #     DVParameter.h
 # )
-
-
-target_include_directories(OPS_Domain PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

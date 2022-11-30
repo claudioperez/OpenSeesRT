@@ -4,6 +4,10 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+# The objectBroker recipe uses its own target, so OPS_Actor
+# won't see its directory
+target_include_directories(OPS_Actor PUBLIC objectBroker)
+
 add_subdirectory(address)
 add_subdirectory(channel)
 add_subdirectory(machineBroker)

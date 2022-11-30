@@ -68,6 +68,7 @@ Remove dependence on
 
 Remove TimeSeriesIntegrators from C++; handle in pre-processing?
 
+cmake -S /home/claudio/packages/opensees-pypi -B /home/claudio/packages/opensees-pypi/build/temp.linux-x86_64-cpython-39_rt -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/claudio/packages/opensees-pypi/build/lib.linux-x86_64-cpython-39/opensees -G "Unix Makefiles" -DDependencies=Conda -DCMAKE_BUILD_TYPE=DEBUG -DPYTHON_EXECUTABLE:FILEPATH=/home/claudio/mambaforge/envs/py39/bin/python
 
   CC="clang" CXX="clang++" cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=include-what-you-use ..
 

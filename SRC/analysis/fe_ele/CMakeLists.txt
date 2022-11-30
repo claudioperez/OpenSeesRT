@@ -11,7 +11,12 @@ target_sources(OPS_Analysis
       FE_Element.h
 )
 
-#target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Analysis PUBLIC
+  ${CMAKE_CURRENT_LIST_DIR}
+  ${CMAKE_CURRENT_LIST_DIR}/lagrange
+  ${CMAKE_CURRENT_LIST_DIR}/penalty
+  ${CMAKE_CURRENT_LIST_DIR}/transformation
+)
 
 add_subdirectory(penalty)
 add_subdirectory(lagrange)

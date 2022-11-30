@@ -5,6 +5,7 @@
 #
 #==============================================================================
 
+target_link_libraries(OPS_Recorder PRIVATE OPS_Actor)
 target_sources(OPS_Recorder
     PRIVATE
       DamageRecorder.cpp

@@ -10,13 +10,6 @@ add_library(OpenSeesRT SHARED)
 
 add_library(OpenSeesRT_LinearSystem OBJECT)
 
-# target_sources(OpenSeesRT_LinearSystem 
-# #  PRIVATE
-# #   "commands/analysis/solver.cpp"
-#   PUBLIC
-# #   "commands/analysis/solver.hpp"
-# )
-
 target_include_directories(OpenSeesRT PUBLIC 
   ./api/
   ${OPS_SRC_DIR}/api/tclCommandPackage/commands
@@ -120,7 +113,6 @@ target_link_libraries(OpenSeesRT PRIVATE
   G3_ObjectBroker
   OpenSeesRT_LinearSystem
   G3
-  # ${MYSQL_LIBRARIES}
   ${TCL_STUB_LIBRARY}
 )
 
