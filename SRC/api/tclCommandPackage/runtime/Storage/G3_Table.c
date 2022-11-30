@@ -1,5 +1,9 @@
-#include <stdlib.h>
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 
+#include <stdlib.h>
 #include "G3_Table.h"
 #include "G3_IntMap.h"
 #include "G3_StringMap.h"

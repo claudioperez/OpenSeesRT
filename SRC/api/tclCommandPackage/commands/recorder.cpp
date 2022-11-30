@@ -18,27 +18,30 @@
  **                                                                    **
  ** ****************************************************************** */
 
-// $Revision: 1.58 $
-// $Date: 2010-05-27 17:51:54 $
-// $URL: $
-
 // Written: fmk
 // Created: 04/98
-// Revision: AA
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the comand 'record' is invoked by the
 // user.
 //
-// What: "@(#) commands.C, revA"
-
-#include <g3_api.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <g3_api.h>
 #include <Domain.h>
 #include <EquiSolnAlgo.h>
+#include <NodeIter.h>
+#include <ElementIter.h>
+#include <Node.h>
+#include <Element.h>
+#include <Parameter.h>
+#include <DamageModel.h>
+#include <EquiSolnAlgo.h>
+#include <packages.h>
+#include <elementAPI.h>
+
 
 // recorders
 #include <NodeRecorder.h>
@@ -51,26 +54,10 @@
 #include <NormElementRecorder.h>
 #include <NormEnvelopeElementRecorder.h>
 
-
-// #include <MPCORecorder.h>
-
-// #include <GmshRecorder.h>
-// #include <VTK_Recorder.h>
-
-#include <recorderAPI.h>
-
-#include <NodeIter.h>
-#include <ElementIter.h>
-#include <Node.h>
-#include <Element.h>
-#include <Parameter.h>
-#include <DamageModel.h>
 #include <DamageRecorder.h>
 #include <MeshRegion.h>
 //#include <GSA_Recorder.h>
 #include <RemoveRecorder.h>
-
-//#include <TclBasicBuilder.h>
 
 #include <StandardStream.h>
 #include <DataFileStream.h>
@@ -81,8 +68,13 @@
 #include <DummyStream.h>
 #include <TCP_Stream.h>
 
-#include <packages.h>
-#include <elementAPI.h>
+void *OPS_PVDRecorder(G3_Runtime*);
+void *OPS_GmshRecorder(G3_Runtime*);
+void *OPS_MPCORecorder(G3_Runtime*);
+void *OPS_VTK_Recorder(G3_Runtime*);
+void *OPS_ElementRecorderRMS(G3_Runtime*);
+void *OPS_NodeRecorderRMS(G3_Runtime*);
+
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                                        int cArg, int mArg, TCL_Char **argv,
                                        Domain *domain);
@@ -113,17 +105,6 @@ enum outputMode {
   DATA_STREAM_ADD
 };
 
-#include <EquiSolnAlgo.h>
-// #include <TclFeViewer.h>
-
-#ifdef _NOGRAPHICS
-
-#else
-
-#include <FilePlotter.h>
-#include <AlgorithmIncrements.h>
-
-#endif
 
 #include <SimulationInformation.h>
 extern SimulationInformation simulationInfo;
@@ -1760,14 +1741,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         loc++;
     }
 
-#ifdef _NOGRAPHICS
     return TCL_OK;
-#else
-    FilePlotter *thePlotter =
-        new FilePlotter(argv[2], argv[3], xLoc, yLoc, width, height, dT);
-    (*theRecorder) = thePlotter;
-    thePlotter->setCol(cols);
-#endif
   }
 
   else if (strcmp(argv[1], "plotDifferent") == 0) {
@@ -1819,14 +1793,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         loc++;
     }
 
-#ifdef _NOGRAPHICS
     return TCL_OK;
-#else
-    FilePlotter *thePlotter = new FilePlotter(argv[2], argv[3], argv[4], xLoc,
-                                              yLoc, width, height, dT);
-    (*theRecorder) = thePlotter;
-    thePlotter->setCol(cols);
-#endif
   }
 #endif
 
@@ -1872,20 +1839,9 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         loc++;
     }
 
-#ifdef _NOGRAPHICS
     return TCL_OK;
-#else
-    AlgorithmIncrements *thePlotter =
-        new AlgorithmIncrements(theAlgorithm, argv[2], xLoc, yLoc, width,
-                                height, displayRecord, fileName);
-    (*theRecorder) = thePlotter;
-#endif // _NOGRAPHICS
-#ifdef OPS_USE_PFEM
-  } else if (strcmp(argv[1], "pvd") == 0 || strcmp(argv[1], "PVD") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
-    (*theRecorder) = (Recorder *)OPS_PVDRecorder(rt);
-#endif
   }
+
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_VTK_Recorder(rt);
@@ -1922,8 +1878,8 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (strcmp(argv[1],"GSA") == 0) {
       if (argc < 3) {
         opserr << argc;
-        opserr << "WARNING recorder GSA -file fileName? -dT deltaT? - not enough
-  arguments\n"; return TCL_ERROR;
+        opserr << "WARNING recorder GSA -file fileName? -dT deltaT? - not enough arguments\n"; 
+        return TCL_ERROR;
       }
       TCL_Char *fileName = 0;
       TCL_Char *title1 =0;
@@ -1995,7 +1951,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       GSA_Recorder *theR = new GSA_Recorder(theDomain, fileName, title1, title2,
-  title3, jobno, initials, spec, currency, length, force, temp, dT);
+              title3, jobno, initials, spec, currency, length, force, temp, dT);
       (*theRecorder) = theR;
   }
   ************************************************* */

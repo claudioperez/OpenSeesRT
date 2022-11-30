@@ -1,3 +1,8 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 //
 // Author: cmp
 //
@@ -19,7 +24,6 @@ namespace py = pybind11;
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <HystereticBackbone.h>
-
 #include <ManderBackbone.h>
 
 // 

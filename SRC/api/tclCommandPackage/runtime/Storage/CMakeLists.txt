@@ -1,3 +1,10 @@
+#=====================================================================
+# 
+#   OpenSees -- Open System For Earthquake Engineering Simulation
+#           Pacific Earthquake Engineering Research Center
+#
+#=====================================================================
+
 add_library(G3_Table)
 
 target_sources(G3_Table

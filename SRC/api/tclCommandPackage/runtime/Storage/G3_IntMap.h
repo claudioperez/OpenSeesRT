@@ -1,3 +1,8 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 // Simple hash table implemented in C.
 
 #ifndef G3_INTMAP_H

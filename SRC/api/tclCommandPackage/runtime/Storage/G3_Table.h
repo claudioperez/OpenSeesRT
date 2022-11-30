@@ -6,7 +6,6 @@
 // G3_Table is a nested data structure which allows integer-tagged void
 // pointers to be organized into string-labeled bins, or "namespaces".
 
-
 /* Claudio Perez */
 
 #ifndef G3_TABLE_H

@@ -287,27 +287,27 @@ OpenSeesAppInit(Tcl_Interp *interp)
   opserr.setFloatField(FIXEDD);
 #endif
 
-  Tcl_CreateCommand(interp, "logFile",             &logFile,      nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setPrecision",        &setPrecision, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "exit",                &OpenSeesExit, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "quit",                &OpenSeesExit, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "version",             &version,      nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "logFile",             &logFile,      nullptr, nullptr);
+  Tcl_CreateCommand(interp, "setPrecision",        &setPrecision, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "exit",                &OpenSeesExit, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "quit",                &OpenSeesExit, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "version",             &version,      nullptr, nullptr);
   Tcl_CreateCommand(interp, "stripXML",            &stripOpenSeesXML, nullptr, NULL);
   Tcl_CreateCommand(interp, "convertBinaryToText", &convertBinaryToText, nullptr, NULL);
   Tcl_CreateCommand(interp, "convertTextToBinary", &convertTextToBinary, nullptr, NULL);
-  Tcl_CreateCommand(interp, "setMaxOpenFiles",     &maxOpenFiles, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "setMaxOpenFiles",     &maxOpenFiles, nullptr, nullptr);
   Tcl_CreateCommand(interp, "fault", 
-      [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
+    [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
 
-  // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
 
   Tcl_CreateCommand(interp, "model",           TclCommand_specifyModel, nullptr, nullptr);
   Tcl_CreateCommand(interp, "opensees::model", TclCommand_specifyModel, nullptr, nullptr);
   Tcl_CreateCommand(interp, "wipe",   &TclCommand_wipeModel,    nullptr, nullptr);
 
-  Tcl_CreateObjCommand(interp, "pset",     &OPS_SetObjCmd, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateObjCommand(interp, "source",   &OPS_SourceCmd, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateObjCommand(interp, "pset",     &OPS_SetObjCmd, nullptr, nullptr);
+  Tcl_CreateObjCommand(interp, "source",   &OPS_SourceCmd, nullptr, nullptr);
   Tcl_Eval(interp, "rename load opensees::import;");
   Tcl_Eval(interp, "interp alias {} import {} opensees::import");
 
@@ -320,43 +320,43 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   ClientData domain = (ClientData)the_domain;
 
-  Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "start",  &startTimer, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "stop", &stopTimer, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, nullptr, (Tcl_CmdDeleteProc *)NULL);
-
-
-  Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "start",   &startTimer, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "stop",    &stopTimer, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, nullptr, nullptr);
 
 
-  Tcl_CreateCommand(interp, "build", &buildModel, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "print", &printModel, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "printModel", &printModel, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, nullptr, nullptr);
 
-  Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, (Tcl_CmdDeleteProc *)NULL);
+
+  Tcl_CreateCommand(interp, "build", &buildModel, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "print", &printModel, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "printModel", &printModel, nullptr, nullptr);
+
+  Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "remove",            &removeObject,    domain, nullptr);
 
   Tcl_CreateCommand(interp, "findNodeWithID", &findID, domain, nullptr);
 
 // TODO: cmp -- reimplement
 //   // Talledo Start
-//   Tcl_CreateCommand(interp, "printGID", &printModelGID, nullptr, (Tcl_CmdDeleteProc *)NULL);
+//   Tcl_CreateCommand(interp, "printGID", &printModelGID, nullptr, nullptr);
 //   // Talledo End
 
 
-  Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "reactions",    &calculateNodalReactions, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodePressure", &nodePressure, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "nodeBounds",   &nodeBounds, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "reactions",    &calculateNodalReactions, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "nodePressure", &nodePressure, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "nodeBounds",   &nodeBounds, nullptr, nullptr);
 
   // DAMPING
-  Tcl_CreateCommand(interp, "rayleigh", &rayleighDamping, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "rayleigh", &rayleighDamping, nullptr, nullptr);
   Tcl_CreateCommand(interp, "setElementRayleighDampingFactors",
-                    &setElementRayleighDampingFactors, nullptr, (Tcl_CmdDeleteProc *)NULL);
+                    &setElementRayleighDampingFactors, nullptr, nullptr);
 
-  Tcl_CreateCommand(interp, "region",         &addRegion, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "region",         &addRegion, nullptr, nullptr);
 
 
   Tcl_CreateCommand(interp, "getLoadFactor",     &getLoadFactor, domain, nullptr);
@@ -415,21 +415,21 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "basicForce",         &basicForce,         domain, nullptr);
   Tcl_CreateCommand(interp, "basicStiffness",     &basicStiffness,     domain, nullptr);
 
-  Tcl_CreateCommand(interp, "recorderValue", &OPS_recorderValue, domain, (Tcl_CmdDeleteProc *)NULL); // by SAJalali
+  Tcl_CreateCommand(interp, "recorderValue", &OPS_recorderValue, domain, nullptr); // by SAJalali
 
   // command added for initial state analysis for nDMaterials. Chris McGann, U.Washington
-  Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, nullptr);
 
 
 //   TODO: cmp, moved definition to packages/optimization; need to link in optionally
 //   Tcl_CreateCommand(interp, "setParameter", &setParameter, nullptr,
-//                     (Tcl_CmdDeleteProc *)NULL);
-  // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, (Tcl_CmdDeleteProc *)NULL);
+//                     nullptr);
+  // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, nullptr);
   //
   // Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, NULL);
   // Tcl_CreateCommand(interp, "record", &record, nullptr, NULL);
-  // Tcl_CreateCommand(interp, "video", &videoPlayer, nullptr, (Tcl_CmdDeleteProc *)NULL);
-  // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, (Tcl_CmdDeleteProc *)NULL);
+  // Tcl_CreateCommand(interp, "video", &videoPlayer, nullptr, nullptr);
+  // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, nullptr);
 
 
   // wipeAnalysis(0, interp, 0, 0);

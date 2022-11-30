@@ -19,11 +19,11 @@
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
+#include <EigenSOE.h>
+#include <LinearSOE.h>
+
 #include <LoadControl.h>
 #include <EquiSolnAlgo.h>
-
-#include <LinearSOE.h>
-#include <EigenSOE.h>
 
 #include <TransientIntegrator.h>
 #include <StaticIntegrator.h>

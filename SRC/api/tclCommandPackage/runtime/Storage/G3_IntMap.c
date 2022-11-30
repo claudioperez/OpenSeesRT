@@ -1,4 +1,7 @@
-#include "G3_IntMap.h"
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 
 #include <limits.h>
 #include <assert.h>
@@ -6,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "G3_IntMap.h"
 
 // Hash table entry (slot may be filled or empty).
 typedef struct {

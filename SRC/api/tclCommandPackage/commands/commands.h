@@ -17,9 +17,7 @@ int OpenSeesAppInit(Tcl_Interp *interp);
 
 
 Tcl_CmdProc getNDM;
-
 Tcl_CmdProc getNDF;
-
 Tcl_CmdProc TclCommand_wipeModel;
 Tcl_CmdProc TclCommand_specifyModel;
 
@@ -38,6 +36,7 @@ Tcl_CmdProc printModel;
 
 // Tcl_CmdProc addRecorder;
 Tcl_CmdProc TclAddRecorder;
+
 Tcl_CmdProc addAlgoRecorder;
 
 Tcl_CmdProc addDatabase;
@@ -135,11 +134,8 @@ Tcl_CmdProc sensitivityAlgorithm;
 Tcl_CmdProc getNumElements;
 
 Tcl_CmdProc getEleClassTags;
-
 Tcl_CmdProc getEleLoadClassTags;
-
 Tcl_CmdProc getEleLoadTags;
-
 Tcl_CmdProc getEleLoadData;
 
 Tcl_CmdProc startTimer;

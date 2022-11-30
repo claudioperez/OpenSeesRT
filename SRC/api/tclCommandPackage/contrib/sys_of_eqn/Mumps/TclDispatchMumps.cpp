@@ -1,4 +1,5 @@
-#include <InputAPI.h>
+#include <tcl.h>
+// #include <InputAPI.h>
 
 #if defined(_PARALLEL_PROCESSING) || defined(_PARALLEL_INTERPRETERS)
 #  include <MumpsParallelSOE.h>
@@ -12,14 +13,15 @@ struct MumpsOptions {int icntl14, icntl7;};
 
 //struct MumpsOptions
 LinearSOE*
-G3Parse_newMumpsLinearSOE(G3_Runtime* rt, int argc, G3_Char** argv)
+TclDispatch_newMumpsLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
 {
   if (strcmp(argv[1], "Mumps") == 0) {
 
     int icntl14 = 20;
     int icntl7 = 7;
-    int matType = 0; // 0: unsymmetric, 1: symmetric positive definite, 2:
-                     // symmetric general
+    int matType = 0; // 0: unsymmetric, 
+                     // 1: symmetric positive definite, 
+                     // 2: symmetric general
 
     int currentArg = 2;
     while (currentArg < argc) {
