@@ -11,7 +11,7 @@
 // TCL hystereticBackbone command.
 
 #include <OPS_Globals.h>
-#include <InputAPI.h>
+#include <api/InputAPI.h>
 #include <UniaxialMaterial.h>
 #include <runtime/BasicModelBuilder.h>
 
