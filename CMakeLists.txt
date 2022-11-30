@@ -7,20 +7,6 @@
 #                             All Rights Reserved
 # (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
 #
-#------------------------------------------------------------------------------
-#
-# Major sections:
-# - General Setup
-#   Project wide includes, properties, libraries, etc
-#
-# - Target definitions
-#   Declarations/definitions of component libraries
-#
-# - Target Configuration
-#   Specify target-specific compiler options, linking, etc
-#
-# - Option Application
-#
 #==============================================================================
 cmake_minimum_required(VERSION 3.16)
 project(OpenSees C CXX Fortran)
@@ -143,13 +129,11 @@ opensees_add_cxx_flag(
 
 include_directories(
   ${OPS_SRC_DIR}
+
   ${OPS_SRC_DIR}/actor/actor
-  ${OPS_SRC_DIR}/actor/address
-  ${OPS_SRC_DIR}/actor/channel
-  ${OPS_SRC_DIR}/actor/machineBroker
-  ${OPS_SRC_DIR}/actor/message
   ${OPS_SRC_DIR}/actor/objectBroker
-  ${OPS_SRC_DIR}/actor/shadow
+  ${OPS_SRC_DIR}/actor/channel
+  ${OPS_SRC_DIR}/actor/message
 
   ${OPS_SRC_DIR}/analysis/algorithm
   ${OPS_SRC_DIR}/analysis/algorithm/domainDecompAlgo
@@ -159,9 +143,6 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/analysis
   ${OPS_SRC_DIR}/analysis/dof_grp
   ${OPS_SRC_DIR}/analysis/fe_ele
-  ${OPS_SRC_DIR}/analysis/fe_ele/lagrange
-  ${OPS_SRC_DIR}/analysis/fe_ele/penalty
-  ${OPS_SRC_DIR}/analysis/fe_ele/transformation
   ${OPS_SRC_DIR}/analysis/handler
   ${OPS_SRC_DIR}/analysis/integrator
   ${OPS_SRC_DIR}/analysis/model
