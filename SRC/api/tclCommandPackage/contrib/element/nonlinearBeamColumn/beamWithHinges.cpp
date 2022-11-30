@@ -57,7 +57,7 @@
 #include <CrdTransf.h>
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 static void
 printCommand(int argc, TCL_Char **argv)
