@@ -49,11 +49,6 @@ target_sources(OpenSeesRT PRIVATE
 #
 # SUB-ELEMENT MODELS
 #
-    # YIELD SURFACE
-    "contrib/packages/YieldSurface/TclModelBuilderYS_EvolutionCommand.cpp"
-    "contrib/packages/YieldSurface/TclModelBuilderYSPlasticMaterialCommand.cpp"
-    "contrib/packages/YieldSurface/TclModelBuilderYieldSurfaceBCCommand.cpp"
-    "contrib/packages/YieldSurface/TclModelBuilderYS_SectionCommand.cpp"
 
 # Uniaxial
     "contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"

@@ -12,9 +12,13 @@
 # add_subdirectory(./plasticHardeningMaterial/)
 # add_subdirectory(./yieldSurfaceBC/)
 
-# target_link_libraries(OpenSeesRT PRIVATE OPS_Material_YieldSurface)
+target_link_libraries(OpenSeesRT PRIVATE OPS_Material_YieldSurface)
 
-target_sources(OpenSeesRT PUBLIC
+target_sources(OpenSeesRT PRIVATE
+    "TclModelBuilderYS_EvolutionCommand.cpp"
+    "TclModelBuilderYSPlasticMaterialCommand.cpp"
+    "TclModelBuilderYieldSurfaceBCCommand.cpp"
+    "TclModelBuilderYS_SectionCommand.cpp"
 )
 
 
