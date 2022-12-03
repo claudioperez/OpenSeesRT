@@ -254,10 +254,12 @@ add_library(OPS_Database           OBJECT)
 #add_library(OPS_DRM                OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
-add_library(OPS_Renderer           OBJECT EXCLUDE_FROM_ALL)
-add_library(OPS_Graphics           OBJECT EXCLUDE_FROM_ALL)
-add_library(OPS_Graphics_Default   OBJECT EXCLUDE_FROM_ALL)
-add_library(OPS_Graphics_GL        OBJECT EXCLUDE_FROM_ALL)
+
+# add_library(OPS_Renderer           OBJECT EXCLUDE_FROM_ALL)
+# add_library(OPS_Graphics           OBJECT EXCLUDE_FROM_ALL)
+# add_library(OPS_Graphics_Default   OBJECT EXCLUDE_FROM_ALL)
+# add_library(OPS_Graphics_GL        OBJECT EXCLUDE_FROM_ALL)
+
 #add_library(OPS_Reliability        OBJECT EXCLUDE_FROM_ALL)
 
 opensees_library(OPS_SysOfEqn_UMF
@@ -322,7 +324,7 @@ target_link_libraries(G3
     OPS_ConvergenceTest
     OPS_Element
     OPS_ElementFortran
-    OPS_Renderer
+#   OPS_Renderer
     OPS_Material
     OPS_MaterialFortran
     OPS_Material_YieldSurface
@@ -369,11 +371,8 @@ target_link_libraries(OpenSees
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   target_include_directories(OpenSees PUBLIC ${TCL_INCLUDE_PATH})
-  #target_include_directories(OPS_Interp_Tcl PUBLIC ${TCL_INCLUDE_PATH})
-  #target_link_libraries(OPS_Interp_Tcl PRIVATE ${TCL_LIBRARIES})
 endif()
 
-#target_compile_definitions(OPS_Interp_Tcl PUBLIC _TCL85)
 
 #opensees_add_cxx_flag(TARGETS OPS_Interp_Tcl
 #  GNU -fpermissive -fvisibility=hidden
@@ -457,27 +456,7 @@ foreach(extension IN LISTS OPS_Exclude_List)
 endforeach()
 
 
-# Renderer
-#----------------------------
-if (${OPS_Use_Graphics_Option} STREQUAL "Base")
-  target_link_libraries(${OPS_FINAL_TARGET} OPS_Graphics_Default OPS_Graphics)
-
-elseif (${OPS_Use_Graphics_Option} STREQUAL "OpenGL")
-  message("OPS >>> Including OpenGL graphics option")
-  set_source_files_properties(
-    "${OPS_SRC_DIR}/recorder/AlgorithmIncrements.cpp"
-    "${OPS_SRC_DIR}/recorder/FilePlotter.cpp"
-    "${OPS_SRC_DIR}/renderer/main.cpp"
-    "${OPS_SRC_DIR}/renderer/OpenGlDevice.cpp"
-    "${OPS_SRC_DIR}/renderer/OpenGlRenderer.cpp"
-    "${OPS_SRC_DIR}/tcl/TclFeViewer.cpp"
-    "${OPS_SRC_DIR}/tcl/TclVideoPlayer.cpp"
-    PROPERTIES COMPILE_DEFINITIONS _AGL
-  )
-  target_link_libraries(${OPS_FINAL_TARGET} OPS_Graphics_GL OPS_Graphics)
-else()
-  add_compile_definitions(_NOGRAPHICS)
-endif()
+add_compile_definitions(_NOGRAPHICS)
 
 
 # Reliability

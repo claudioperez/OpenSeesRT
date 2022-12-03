@@ -38,7 +38,7 @@
 #ifndef VrmlViewer_h
 #define VrmlViewer_h
 
-#include <Renderer.h>
+#include "Renderer.h"
 #include <fstream>
 using std::fstream;
 

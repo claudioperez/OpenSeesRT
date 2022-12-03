@@ -78,7 +78,6 @@ TclCommand_getTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
   }
 
   // now we copy the value to the tcl string that is returned
-  //  sprintf(interp->result,format,time);
   Tcl_SetResult(interp, format, TCL_VOLATILE);
   return TCL_OK;
 }

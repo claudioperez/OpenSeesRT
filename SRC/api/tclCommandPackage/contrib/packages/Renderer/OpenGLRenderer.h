@@ -36,7 +36,7 @@
 #ifndef OpenGLRenderer_h
 #define OpenGLRenderer_h
 
-#include <Renderer.h>
+#include "Renderer.h"
 #include <fstream>
 using std::ofstream;
 

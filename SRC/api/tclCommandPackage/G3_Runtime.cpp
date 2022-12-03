@@ -56,7 +56,7 @@ DOF_Numberer*        G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
 EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **);
 TransientIntegrator* G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
 StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**);
-LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
+// LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
 ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
@@ -115,10 +115,10 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
 
   // LINEAR SYSTEM
   LinearSOE* the_soe = nullptr;
-  if (G3Config_keyExists(conf, "system"))
-    the_soe = 
-      G3Object_newParsed<LinearSOE, G3Parse_newLinearSOE>(this, "system", conf["system"]);
-  else
+//  if (G3Config_keyExists(conf, "system"))
+//    the_soe = 
+//      G3Object_newParsed<LinearSOE, G3Parse_newLinearSOE>(this, "system", conf["system"]);
+//  else
     the_soe = this->m_global_strategy.m_linear_soe;
 
   if (the_soe == nullptr) 
@@ -183,10 +183,10 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
 
   // LINEAR SYSTEM
   LinearSOE* the_soe = nullptr;
-  if (G3Config_keyExists(conf, "system"))
-    the_soe = 
-      G3Object_newParsed<LinearSOE, G3Parse_newLinearSOE>(this, "system", conf["system"]);
-  else
+//  if (G3Config_keyExists(conf, "system"))
+//    the_soe = 
+//      G3Object_newParsed<LinearSOE, G3Parse_newLinearSOE>(this, "system", conf["system"]);
+//  else
     the_soe = this->m_global_strategy.m_linear_soe;
 
   if (the_soe == nullptr) 

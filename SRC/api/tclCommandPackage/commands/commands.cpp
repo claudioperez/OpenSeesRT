@@ -309,6 +309,7 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   Tcl_CreateObjCommand(interp, "pset",     &OPS_SetObjCmd, nullptr, nullptr);
   Tcl_CreateObjCommand(interp, "source",   &OPS_SourceCmd, nullptr, nullptr);
+  Tcl_CreateObjCommand(interp, "pragma",   &TclObjCommand_pragma, nullptr, nullptr);
   Tcl_Eval(interp, "rename load opensees::import;");
   Tcl_Eval(interp, "interp alias {} import {} opensees::import");
 

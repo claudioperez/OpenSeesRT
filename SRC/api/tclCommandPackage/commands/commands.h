@@ -180,3 +180,7 @@ Tcl_CmdProc elementDeactivate;
 // by SAJalali
 Tcl_CmdProc OPS_recorderValue;
 
+int
+TclObjCommand_pragma([[maybe_unused]] ClientData clientData, 
+                     Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
+

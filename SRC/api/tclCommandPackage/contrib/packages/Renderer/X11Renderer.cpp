@@ -35,7 +35,7 @@
 // What: "@(#) X11Renderer.h, revA"
 
 #include <X11Renderer.h>
-#include <ColorMap.h>
+#include "ColorMap.h"
 #include <string.h>
 
 #include <db.H>

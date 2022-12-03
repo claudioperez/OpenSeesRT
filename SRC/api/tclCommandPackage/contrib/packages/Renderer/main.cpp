@@ -39,7 +39,7 @@ Domain       *ops_TheActiveDomain = 0;
 Element      *ops_TheActiveElement = 0;
 
 #include <OpenGLRenderer.h>
-#include <PlainMap.h>
+#include "PlainMap.h"
 
 #ifdef _AGL
 

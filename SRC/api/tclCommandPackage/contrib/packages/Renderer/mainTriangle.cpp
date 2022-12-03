@@ -33,7 +33,7 @@
 // 
 //
 
-#include <X11Renderer.h>
+#include "X11Renderer.h"
 #include <DofColorMap.h>
 
 #define numP 8
@@ -42,7 +42,8 @@
 // #define PETSC_EXISTS 1
 
 #include <stdlib.h>
-#include <iOPS_Stream.h>
+// #include <iOPS_Stream.h>
+#include <OPS_Stream.h>
 
 #include <Timer.h>
 #include <TrianglePlaneStress.h>
@@ -77,17 +78,17 @@
 #include <ProfileSPDLinDirectBlockSolver.h>
 
 #ifdef BLAS_EXISTS
-#include <BandSPDLinSOE.h>
-#include <BandSPDLinLapackSolver.h>
-#include <BandGenLinSOE.h>
-#include <BandGenLinLapackSolver.h>
-#include <FullGenLinSOE.h>
-#include <FullGenLinLapackSolver.h>
-#include <ProfileSPDLinDirectThreadSolver.h>
-#include <ProfileSPDLinDirectSkypackSolver.h>
-#include <SparseGenLinSOE.h>
-#include <SparseGenSuperLuSolver.h>
-#include <SparseGenSuperLuThreadSolver.h>
+# include <BandSPDLinSOE.h>
+# include <BandSPDLinLapackSolver.h>
+# include <BandGenLinSOE.h>
+# include <BandGenLinLapackSolver.h>
+# include <FullGenLinSOE.h>
+# include <FullGenLinLapackSolver.h>
+# include <ProfileSPDLinDirectThreadSolver.h>
+# include <ProfileSPDLinDirectSkypackSolver.h>
+# include <SparseGenLinSOE.h>
+# include <SparseGenSuperLuSolver.h>
+# include <SparseGenSuperLuThreadSolver.h>
 #endif
 
 #ifdef PETSC_EXISTS

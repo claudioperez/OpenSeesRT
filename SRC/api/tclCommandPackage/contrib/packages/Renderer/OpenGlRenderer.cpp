@@ -32,7 +32,7 @@
 // What: "@(#) OpenGLRenderer.h, revA"
 
 #include <OpenGLRenderer.h>
-#include <ColorMap.h>
+#include "ColorMap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <Matrix.h>

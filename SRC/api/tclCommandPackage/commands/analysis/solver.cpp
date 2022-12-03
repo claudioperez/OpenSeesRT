@@ -59,8 +59,11 @@
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern LinearSOE *theSOE;
 
+// LinearSOE*
+// G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
 LinearSOE*
-G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
+// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
+G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv);
 
 #if 0 // TODO: implement AnalysisBuilder->getLinearSOE();
 int
@@ -95,9 +98,8 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
 
   BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
 
-  G3_Runtime* rt = G3_getRuntime(interp); 
   
-  theSOE = G3Parse_newLinearSOE(rt, argc, argv);
+  theSOE = G3Parse_newLinearSOE(clientData, interp, argc, argv);
 
 
   if (theSOE == nullptr) {
@@ -105,21 +107,26 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  // G3_Runtime *rt = G3_getRuntime(interp);
-  // G3_setLinearSoe(rt, theSOE);
   builder->set(theSOE);
   return TCL_OK;
 
 }
 
 LinearSOE*
-G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
+// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
+G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv)
 {
+  G3_Runtime* rt = G3_getRuntime(interp); 
+
   LinearSOE *theSOE = nullptr;
   auto ctor = soe_table.find(std::string(argv[1]));
 
   if (ctor != soe_table.end()) {
     theSOE = ctor->second.ss(rt, argc, argv);
+
+  } else if (strcmp(argv[1], "Umfpack")==0) {
+    // theSOE = TclDispatch_newUmfpackSOE(clientData, interp, argc, argv);
+    // theSOE = soe_table["SparseGen"].ss(rt, argc, argv);
   }
 
 #if 0

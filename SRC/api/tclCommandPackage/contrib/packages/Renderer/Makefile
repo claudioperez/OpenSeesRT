@@ -1,4 +1,4 @@
-include ../../Makefile.def
+include Makefile.def
 
 
 ifeq ($(GRAPHIC_FLAG), -D_AGL)

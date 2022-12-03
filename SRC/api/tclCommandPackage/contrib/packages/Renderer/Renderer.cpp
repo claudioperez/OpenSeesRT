@@ -33,8 +33,8 @@
 //
 // What: "@(#) Renderer.h, revA"
 
-#include <Renderer.h>
-#include <ColorMap.h>
+#include "Renderer.h"
+#include "ColorMap.h"
 #include <Domain.h>
 #include <string.h>
 

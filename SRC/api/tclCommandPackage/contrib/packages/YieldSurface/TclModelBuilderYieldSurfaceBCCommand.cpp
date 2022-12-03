@@ -105,7 +105,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
 
     YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
     if (theModel == 0) {
-      opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exixts with tag: "
+      opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << endln;
       return TCL_ERROR;
     }
@@ -167,7 +167,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
 
     YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
     if (theModel == 0) {
-      opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exixts with tag: "
+      opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
              << modelID << endln;
       return TCL_ERROR;
     }
@@ -241,7 +241,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
 
     YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
     if (theModel == 0) {
-      opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exixts with tag: "
+      opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
              << modelID << endln;
       return TCL_ERROR;
     }
@@ -306,7 +306,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
 
     YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
     if (theModel == 0) {
-      opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exixts with tag: "
+      opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << endln;
       return TCL_ERROR;
     }
@@ -391,7 +391,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
 
     YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
     if (theModel == 0) {
-      opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exixts with tag: "
+      opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << endln;
       return TCL_ERROR;
     }

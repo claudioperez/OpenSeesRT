@@ -31,7 +31,7 @@
 //
 // What: "@(#) PlainMap.h, revA"
 
-#include <PlainMap.h>
+#include "PlainMap.h"
 #include <OPS_Stream.h>
 #include <stdlib.h>
 #include <math.h>

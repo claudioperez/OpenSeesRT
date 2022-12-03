@@ -2079,7 +2079,6 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   if (theRecorder == 0) {
     char buffer[] = "-1";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    //    sprintf(interp->result,"-1");
     return TCL_ERROR;
   }
 

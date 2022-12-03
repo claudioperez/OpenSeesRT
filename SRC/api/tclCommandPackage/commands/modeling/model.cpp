@@ -4,6 +4,7 @@
 ** ****************************************************************** */
 
 #include <g3_api.h>
+#include <G3_Logging.h>
 #include <Domain.h>
 #include "TclUniaxialMaterialTester.h"
 #include "TclPlaneStressMaterialTester.h"
@@ -24,15 +25,11 @@ FE_Datastore *theDatabase = 0;
 #ifdef _PARALLEL_PROCESSING
 #  include <PartitionedDomain.h>
    extern PartitionedDomain theDomain;
-#else
-  // extern Domain theDomain;
-  // extern Domain *theGlobalDomainPtr;
 #endif
 
 extern int G3_AddTclAnalysisAPI(Tcl_Interp *, Domain*);
 extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);
 
-// Tcl_CmdProc TclCommand_specifyModel;
 
 extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **, Domain *, TclBuilder *);
 
@@ -43,9 +40,13 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   BasicModelBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
   G3_setDomain(rt, theNewDomain);
-  G3_AddTclAnalysisAPI(interp, theNewDomain);
   G3_AddTclDomainCommands(interp, theNewDomain);
-  // theGlobalDomainPtr = theNewDomain; // TODO: remove
+
+  const char* analysis_option;
+  if (!(analysis_option = Tcl_GetVar(interp,"opensees::pragma::analysis",TCL_GLOBAL_ONLY)) ||
+      (strcmp(analysis_option,"off") != 0)) {
+    G3_AddTclAnalysisAPI(interp, theNewDomain);
+  }
 
   // make sure at least one other argument to contain model builder type given
   if (argc < 2) {
@@ -68,15 +69,10 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
       (strcmp(argv[1], "basicBuilder") == 0)) {
     int ndm = 0;
     int ndf = 0;
-    bool safe_builder = true;
-
-    if (strcmp(argv[1], "safe") == 0) {
-      safe_builder = true;
-    }
 
     if (argc < 4) {
-      opserr << "WARNING incorrect number of command arguments\n";
-      opserr << "model modelBuilderType -ndm ndm? <-ndf ndf?> \n";
+      opserr << G3_ERROR_PROMPT << "incorrect number of command arguments\n";
+      opserr << "\tmodel modelBuilderType -ndm ndm? <-ndf ndf?> \n";
       return TCL_ERROR;
     }
 

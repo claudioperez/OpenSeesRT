@@ -117,7 +117,6 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     double value = (*nodalResponse)(dof);
 
     // now we copy the value to the tcl string that is returned
-    // sprintf(interp->result,"%35.20f",value);
     char buffer[40];
     sprintf(buffer, "%35.20f", value);
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
@@ -173,7 +172,6 @@ nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   double value = (*nodalResponse)(dof);
 
   // now we copy the value to the tcl string that is returned
-  //    sprintf(interp->result,"%35.20f",value);
   char buffer[40];
   sprintf(buffer, "%35.20f", value);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);

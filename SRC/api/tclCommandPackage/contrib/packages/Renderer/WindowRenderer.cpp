@@ -35,7 +35,7 @@
 // What: "@(#) WindowRenderer.h, revA"
 
 #include <WindowRenderer.h>
-#include <ColorMap.h>
+#include "ColorMap.h"
 
 #include <db.H>
 

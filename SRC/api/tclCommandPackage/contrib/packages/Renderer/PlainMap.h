@@ -38,7 +38,7 @@
 #ifndef PlainMap_h
 #define PlainMap_h
 
-#include <ColorMap.h>
+#include "ColorMap.h"
 
 class PlainMap: public ColorMap
 {

@@ -107,7 +107,7 @@ typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
 TclDispatch<LinearSOE*> TclDispatch_newMumpsLinearSOE;
-TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
+// TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
 TclDispatch<LinearSOE*> TclDispatch_newItpackLinearSOE;
 
 // Helpers to automatically create constructors for systems/solvers 

@@ -7,6 +7,7 @@ target_sources(OpenSeesRT PRIVATE
     "nodes.cpp"
     "domain.cpp"
     "recorder.cpp"
+    "pragma.cpp"
 
 # Modeling
     "modeling/model.cpp"

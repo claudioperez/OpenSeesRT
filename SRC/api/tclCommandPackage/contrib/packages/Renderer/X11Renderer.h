@@ -38,7 +38,7 @@
 #ifndef X11Renderer_h
 #define X11Renderer_h
 
-#include <Renderer.h>
+#include "Renderer.h"
 
 class View;
 class Projection;

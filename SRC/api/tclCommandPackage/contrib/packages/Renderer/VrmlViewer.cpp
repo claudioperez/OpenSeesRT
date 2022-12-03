@@ -35,7 +35,7 @@
 // What: "@(#) VrmlViewer.h, revA"
 
 #include <VrmlViewer.h>
-#include <ColorMap.h>
+#include "ColorMap.h"
 
 #include <OPS_Globals.h>
 #include <iomanip>

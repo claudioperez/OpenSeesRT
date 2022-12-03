@@ -38,7 +38,7 @@
 #ifndef DofColorMap_h
 #define DofColorMap_h
 
-#include <ColorMap.h>
+#include "ColorMap.h"
 
 class DofColorMap: public ColorMap
 {
