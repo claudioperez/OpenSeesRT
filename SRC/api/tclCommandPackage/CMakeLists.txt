@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.16)
 add_library(OpenSeesRT SHARED)
 
 add_library(OpenSeesRT_LinearSystem OBJECT)
+target_compile_definitions(OpenSeesRT_LinearSystem PUBLIC USE_TCL_STUBS)
 
 target_include_directories(OpenSeesRT PUBLIC 
   ./api/
@@ -49,7 +50,6 @@ target_sources(OpenSeesRT PRIVATE
 #
 # SUB-ELEMENT MODELS
 #
-
 # Uniaxial
     "contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
     # "contrib/uniaxial/TclAxialSp.cpp"
@@ -85,6 +85,7 @@ set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
+  target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
 target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)

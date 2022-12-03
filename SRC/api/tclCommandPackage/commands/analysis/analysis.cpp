@@ -4,6 +4,7 @@
 ** ****************************************************************** */
 
 #include <tcl.h>
+#include <assert.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
 #include <StandardStream.h>
@@ -140,12 +141,7 @@ int
 specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
-  // G3_Runtime *rt = G3_getRuntime(interp);
-  // StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-
-  // StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
-  // AnalysisModel* the_analysis_model = nullptr;
-
+  assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   if (argc < 2) {
@@ -195,12 +191,10 @@ int
 analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-
+  assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   int result = 0;
-  // G3_Runtime *rt = G3_getRuntime(interp);
-  // StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
 
   StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
