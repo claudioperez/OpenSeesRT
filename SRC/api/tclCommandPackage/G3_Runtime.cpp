@@ -57,7 +57,7 @@ EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **);
 TransientIntegrator* G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
 StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**);
 // LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
-ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
+// ConvergenceTest*     RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
 
@@ -75,10 +75,10 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
 
   // CONVERGENCE TEST
   ConvergenceTest *test = nullptr;
-  if (G3Config_keyExists(conf, "test"))
-    test = 
-      G3Object_newParsed<ConvergenceTest, RT_newConvergenceTest>(this, "test", conf["test"]);
-  else
+//   if (G3Config_keyExists(conf, "test"))
+//     test = 
+//       G3Object_newParsed<ConvergenceTest, RT_newConvergenceTest>(this, "test", conf["test"]);
+//   else
     test = new CTestNormUnbalance(1.0e-6,25,0);
 
   // ALGORITHM
@@ -160,10 +160,10 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
 
   // CONVERGENCE TEST
   ConvergenceTest *test = nullptr;
-  if (G3Config_keyExists(conf, "test"))
-    test = 
-      G3Object_newParsed<ConvergenceTest, RT_newConvergenceTest>(this, "test", conf["test"]);
-  else
+//  if (G3Config_keyExists(conf, "test"))
+//    test = 
+//      G3Object_newParsed<ConvergenceTest, RT_newConvergenceTest>(this, "test", conf["test"]);
+//  else
     test = new CTestNormUnbalance(1.0e-6,25,0);
 
   // ALGORITHM

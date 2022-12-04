@@ -124,7 +124,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
     typedef int(_cdecl * OPS_GetStringCopyType)(char **);
     typedef int(_cdecl * OPS_AllocateElementPtrType)(eleObj *, int *, int *);
     typedef int(_cdecl * OPS_AllocateMaterialPtrType)(matObj *);
-    typedef UniaxialMaterial *(*OPS_GetUniaxialMaterialPtrType)(int);
+    typedef UniaxialMaterial *(*builder->getUniaxialMaterialPtrType)(int);
     typedef NDMaterial *(*OPS_GetNDMaterialPtrType)(int);
     typedef SectionForceDeformation *(*OPS_GetSectionForceDeformationPtrType)(
         int);
@@ -159,7 +159,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
         OPS_Stream *, Domain *, SimulationInformation *, OPS_ErrorPtrType,
         OPS_GetIntInputPtrType, OPS_GetDoubleInputPtrType,
         OPS_AllocateElementPtrType, OPS_AllocateMaterialPtrType,
-        OPS_GetUniaxialMaterialPtrType, OPS_GetNDMaterialPtrType,
+        builder->getUniaxialMaterialPtrType, OPS_GetNDMaterialPtrType,
         OPS_GetSectionForceDeformationPtrType, OPS_GetCrdTransfPtrType,
         OPS_GetFrictionModelPtrType, OPS_InvokeMaterialDirectlyPtrType,
         OPS_GetNodeInfoPtrType, OPS_GetNodeInfoPtrType, OPS_GetNodeInfoPtrType,
@@ -186,11 +186,12 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
       FreeLibrary((HMODULE)hLib);
       return -2;
     }
+#if 0 // TODO: cmp
 
     // invoke pointer function
     (funcPtr)(opserrPtr, ops_TheActiveDomain, theSimulationInfoPtr, OPS_Error,
               OPS_GetIntInput, OPS_GetDoubleInput, OPS_AllocateElement,
-              OPS_AllocateMaterial, OPS_GetUniaxialMaterial, OPS_GetNDMaterial,
+              OPS_AllocateMaterial, builder->getUniaxialMaterial, OPS_GetNDMaterial,
               OPS_GetSectionForceDeformation, OPS_GetCrdTransf,
               OPS_GetFrictionModel, OPS_InvokeMaterialDirectly, OPS_GetNodeCrd,
               OPS_GetNodeDisp, OPS_GetNodeVel, OPS_GetNodeAccel,
@@ -205,7 +206,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
               OPS_GetVariableTimeStepTransientAnalysis, OPS_GetNumEigen,
               OPS_GetStaticIntegrator, OPS_GetTransientIntegrator, OPS_GetTest,
               OPS_builtModel, OPS_GetDomain);
-
+#endif
     LocalInitPtrType initPtr;
     initPtr = (LocalInitPtrType)GetProcAddress((HMODULE)hLib, "localInit");
     if (initPtr != 0) {

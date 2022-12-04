@@ -688,9 +688,6 @@ OPS_GetFrictionModel(int frnTag) {return OPS_getFrictionModel(frnTag);}
 int
 OPS_GetNDF() {return theModelBuilder->getNDF();}
 
-bool
-G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
-
 int
 G3_getNDM(G3_Runtime *rt)
 {
@@ -700,18 +697,6 @@ G3_getNDM(G3_Runtime *rt)
   else
     return -1;
 }
-
-/*
-int
-G3_getNDF(G3_Runtime *rt)
-{
-  BasicModelBuilder *builder;
-  if (builder = G3_getSafeBuilder(rt))
-    return builder->getNDF();
-  else
-    return -1;
-}
-*/
 
 int
 OPS_GetNDM(void) {return theModelBuilder->getNDM();}
@@ -740,11 +725,6 @@ TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder) {theModelBuilder = theNe
 EquiSolnAlgo **
 OPS_GetAlgorithm(void) {return &theAlgorithm;}
 
-ConstraintHandler **
-OPS_GetHandler(void) {return &theHandler;}
-
-DOF_Numberer **
-OPS_GetNumberer(void) {return &theGlobalNumberer;}
 
 LinearSOE **
 OPS_GetSOE(void) {return &theSOE;}
@@ -752,35 +732,7 @@ OPS_GetSOE(void) {return &theSOE;}
 LinearSOE **
 G3_getLinearSoePtr(G3_Runtime* rt) {
   LinearSOE** soe =  &rt->m_sys_of_eqn;
-  // opserr << "DEBUG G3_getLinearSoe(" << (void*)rt << ") -> " << (void*)(*soe) << "\n";
   return soe;
-}
-
-int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
-{
-  // opserr << "DEBUG G3_setLinearSoe(" << (void*)rt << (void*)soe << ")\n";
-  rt->m_sys_of_eqn = soe;
-  // if the analysis exists - we want to change the SOE
-  if (soe != nullptr) {
-    StaticAnalysis* static_analysis = G3_getStaticAnalysis(rt);
-    if (static_analysis != 0)
-      static_analysis->setLinearSOE(*soe);
-    
-    DirectIntegrationAnalysis *direct_trans_analysis = theTransientAnalysis; // G3_getTransientAnalysis(rt);
-    if (direct_trans_analysis != 0)
-      direct_trans_analysis->setLinearSOE(*soe);
-
-#ifdef _PARALLEL_PROCESSING
-      if (static_analysis != 0 || direct_trans_analysis != 0) {
-        SubdomainIter &theSubdomains = theDomain.getSubdomains();
-        Subdomain *theSub;
-        while ((theSub = theSubdomains()) != 0) {
-          theSub->setAnalysisLinearSOE(*theSOE);
-        }
-      }
-#endif
-  }
-  return 0;
 }
 
 
@@ -871,27 +823,7 @@ G3_getTransientAnalysis(G3_Runtime *rt)
   return theTransientAnalysis;
 
 }
-
-int
-G3_setTransientAnalysis(G3_Runtime *rt, DirectIntegrationAnalysis *the_analysis)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  Tcl_SetAssocData(interp, "OPS::theTransientAnalysis", NULL, (ClientData)the_analysis);
-  // theTransientAnalysis = the_analysis;
-  return 1;
-}
 */
-
-/*
-VariableTimeStepDirectIntegrationAnalysis **
-OPS_GetVariableTimeStepTransientAnalysis(void)
-{
-  return &theVariableTimeStepTransientAnalysis;
-}
-*/
-
-// int *
-// OPS_GetNumEigen(void) {return &numEigen;}
 
 StaticIntegrator **
 OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}
@@ -899,22 +831,50 @@ OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}
 TransientIntegrator **
 OPS_GetTransientIntegrator(void) {return &theTransientIntegrator;}
 
+/*
 ConvergenceTest **
 OPS_GetTest(void) {return &theTest;}
 
+ConstraintHandler **
+OPS_GetHandler(void) {return &theHandler;}
+
+DOF_Numberer **
+OPS_GetNumberer(void) {return &theGlobalNumberer;}
+
+int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
+{
+  rt->m_sys_of_eqn = soe;
+  // if the analysis exists - we want to change the SOE
+  if (soe != nullptr) {
+    StaticAnalysis* static_analysis = G3_getStaticAnalysis(rt);
+    if (static_analysis != 0)
+      static_analysis->setLinearSOE(*soe);
+    
+    DirectIntegrationAnalysis *direct_trans_analysis = theTransientAnalysis; // G3_getTransientAnalysis(rt);
+    if (direct_trans_analysis != 0)
+      direct_trans_analysis->setLinearSOE(*soe);
+
+#ifdef _PARALLEL_PROCESSING
+      if (static_analysis != 0 || direct_trans_analysis != 0) {
+        SubdomainIter &theSubdomains = theDomain.getSubdomains();
+        Subdomain *theSub;
+        while ((theSub = theSubdomains()) != 0) {
+          theSub->setAnalysisLinearSOE(*theSOE);
+        }
+      }
+#endif
+  }
+  return 0;
+}
+
+bool
+G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
+
+
+*/
+
+
 bool *
 OPS_builtModel(void) {return &builtModel;}
-
-/*
-int
-OPS_numIter() {return 0;}
-*/
-
-
-// TODO: CMP REMOVE SPECIALTY
-/*
-LimitCurve *
-OPS_GetLimitCurve(int LimCrvTag) {return OPS_getLimitCurve(LimCrvTag);}
-*/
 
 

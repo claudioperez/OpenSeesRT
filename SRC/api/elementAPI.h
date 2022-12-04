@@ -220,10 +220,10 @@ extern "C" DOF_Numberer * *OPS_GetNumberer(void);
 // extern "C" StaticAnalysis * *OPS_GetStaticAnalysis(void);
 // extern "C" DirectIntegrationAnalysis * *OPS_GetTransientAnalysis(void);
 // extern "C" VariableTimeStepDirectIntegrationAnalysis * *OPS_GetVariableTimeStepTransientAnalysis(void);
-extern "C" int* OPS_GetNumEigen(void);
+// extern "C" int* OPS_GetNumEigen(void);
 // extern "C" StaticIntegrator * *OPS_GetStaticIntegrator(void);
 // extern "C" TransientIntegrator * *OPS_GetTransientIntegrator(void);
-extern "C" ConvergenceTest * *OPS_GetTest(void);
+// extern "C" ConvergenceTest * *OPS_GetTest(void);
 extern "C" bool* OPS_builtModel(void);
 
 int OPS_numIter();

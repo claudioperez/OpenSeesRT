@@ -35,13 +35,7 @@ extern
 #else
     int
 #endif
-    httpGET_File(char const *URL, char const *page, unsigned int port,
-                 const char *filename);
 */
-
-//
-// SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
 
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
@@ -125,7 +119,6 @@ extern void *OPS_SFI_MVLEM_3D(G3_Runtime*); // Kristijan Kolozvari
 extern void *OPS_AxEqDispBeamColumn2d(G3_Runtime*);
 extern void *OPS_ElastomericBearingBoucWenMod3d(G3_Runtime*);
 extern void *OPS_InertiaTrussElement(G3_Runtime*); // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
-
 #if defined(_HAVE_LHNMYS) || defined(OPSDEF_ELEMENT_LHNMYS)
   extern void *OPS_BeamColumn2DwLHNMYS(G3_Runtime*);
   extern void *OPS_Beam2dDamage(G3_Runtime*);
@@ -288,8 +281,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       theElement = (Element *)theEle;
 
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -300,8 +291,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -318,8 +307,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -330,8 +317,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -340,8 +325,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -350,8 +333,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -360,8 +341,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -371,8 +350,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : " <<
-  argv[1] << endln; return TCL_ERROR;
+      return TCL_ERROR;
     }
     */
   } else if (strcmp(argv[1], "zeroLengthImpact3D") == 0) {
@@ -380,8 +358,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -391,8 +367,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -407,8 +381,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   } else if ((strcmp(argv[1], "PML") == 0) || (strcmp(argv[1], "pml")) == 0) {
@@ -421,8 +393,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 /* 
@@ -437,8 +407,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       if (theEle != 0)
         theElement = theEle;
       else {
-        opserr << "TclElementCommand -- unable to create element of type : " <<
-                  argv[1] << endln; 
+        
         return TCL_ERROR;
       }
     }
@@ -452,8 +421,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -464,8 +431,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -476,8 +441,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -488,8 +451,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -517,8 +478,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -529,8 +488,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -540,8 +497,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -554,8 +509,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -565,8 +518,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -576,8 +527,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -587,8 +536,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -598,8 +545,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -609,8 +554,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -620,8 +563,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -631,8 +572,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -642,8 +581,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -653,8 +590,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -664,8 +599,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -677,8 +610,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   } else if ((strcmp(argv[1], "MasonPan3D") == 0)) {
@@ -688,8 +619,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -700,8 +629,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -712,8 +639,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -726,8 +651,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -739,8 +662,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -752,8 +673,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
     // end of adding thermo-mechanical shell elements by L.Jiang [SIF]
@@ -767,8 +686,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -779,8 +696,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -792,8 +707,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -804,8 +717,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -816,8 +727,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -827,8 +736,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -839,8 +746,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -853,8 +758,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -865,8 +768,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   } else if ((strcmp(argv[1], "TriSurfaceLoad") == 0)) {
@@ -875,8 +776,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   } else if ((strcmp(argv[1], "TPB1D") == 0)) {
@@ -885,8 +784,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -897,8 +794,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -909,8 +804,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -921,8 +814,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   } else if ((strcmp(argv[1], "CorotTruss2") ==
@@ -932,8 +823,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -944,8 +833,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -956,8 +843,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -969,8 +854,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -980,8 +863,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -992,8 +873,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1003,8 +882,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1014,8 +891,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1025,8 +900,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1036,8 +909,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1047,8 +918,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1058,8 +927,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1069,8 +936,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -1081,8 +946,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1092,8 +955,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1103,8 +964,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1114,8 +973,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1125,8 +982,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1136,8 +991,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1147,8 +1000,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1158,8 +1009,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1169,8 +1018,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0) {
       theElement = (Element *)theEle;
     } else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1185,8 +1032,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1201,8 +1046,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1216,8 +1059,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       if (theEle != 0)
         theElement = theEle;
       else {
-        opserr << "TclElementCommand -- unable to create element of type : "
-               << argv[1] << endln;
+        
         return TCL_ERROR;
       }
   }
@@ -1231,8 +1073,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1249,8 +1089,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1266,8 +1104,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1277,8 +1113,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1292,8 +1126,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -1307,8 +1139,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
 
@@ -1321,8 +1151,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "tclelementcommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }
@@ -1332,8 +1160,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     if (theEle != 0)
       theElement = (Element *)theEle;
     else {
-      opserr << "TclElementCommand -- unable to create element of type : "
-             << argv[1] << endln;
       return TCL_ERROR;
     }
   }

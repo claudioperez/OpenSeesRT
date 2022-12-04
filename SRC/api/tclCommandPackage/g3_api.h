@@ -94,7 +94,6 @@ Domain *G3_getDomain(G3_Runtime *);
 BasicModelBuilder *G3_getSafeBuilder(G3_Runtime *);
 TclBuilder     *G3_getModelBuilder(G3_Runtime *);
 int             G3_setModelBuilder(G3_Runtime *, BasicModelBuilder*);
-bool    G3_modelIsBuilt(G3_Runtime *);
 int     G3_getNDM(G3_Runtime *);
 
 // Materials
@@ -105,9 +104,9 @@ CrdTransf *G3_getCrdTransf(G3_Runtime *, G3_Tag);
 
 // Systems and Solvers
 LinearSOE **G3_getLinearSoePtr(G3_Runtime* );
-#undef  OPS_GetLinearSOE
-#define OPS_GetLinearSOE() G3_getLinearSoePtr(rt)
-int G3_setLinearSoe(G3_Runtime*, LinearSOE*);
+// #undef  OPS_GetLinearSOE
+// #define OPS_GetLinearSOE() G3_getLinearSoePtr(rt)
+// int G3_setLinearSoe(G3_Runtime*, LinearSOE*);
 
 //
 // RUNTIME
