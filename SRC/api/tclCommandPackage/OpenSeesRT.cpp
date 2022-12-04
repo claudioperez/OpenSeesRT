@@ -25,7 +25,7 @@ extern int init_g3_tcl_utils(Tcl_Interp*);
 extern "C" {
 
 //
-// Called when loaded as a Tcl extension.
+// Called when the library is loaded as a Tcl extension.
 //
 int DLLEXPORT
 Openseesrt_Init(Tcl_Interp *interp)

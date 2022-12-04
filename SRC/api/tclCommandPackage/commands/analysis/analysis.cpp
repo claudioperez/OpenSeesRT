@@ -96,6 +96,9 @@ extern Tcl_CmdProc getCTestIter;
 DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
 // int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
+//
+// Add commands to the interpreter that take the AnalysisBuilder as clientData.
+//
 int
 G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
 {
@@ -103,7 +106,6 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   BasicAnalysisBuilder *builder = new BasicAnalysisBuilder(domain);
 
   Tcl_CreateCommand(interp, "system",            &specifySysOfEqnTable, builder, nullptr);
-//Tcl_CreateCommand(interp, "numberer",    &specifyNumberer,      builder, nullptr);
   Tcl_CreateCommand(interp, "numberer", [](ClientData builder, Tcl_Interp *i, int ac, G3_Char** av)->int{
       ((BasicAnalysisBuilder*)builder)->set(G3Parse_newNumberer(G3_getRuntime(i), ac, av));
       return TCL_OK;
@@ -367,8 +369,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   //
   // create a transient analysis if no analysis exists
-  //
-  
+  // 
   builder->newEigenAnalysis(typeSolver,shift);
   StaticAnalysis* theStaticAnalysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
@@ -439,6 +440,7 @@ extern int
 modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  assert(clientData != nullptr);
 
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
   int numEigen = builder->getNumEigen();
@@ -494,8 +496,6 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *theDomain = G3_getDomain(G3_getRuntime(interp));
   theDomain->setModalDampingFactors(&modalDampingValues, true);
 
-  // opserr << "modalDamping Factors: " << modalDampingValues;
-
   return TCL_OK;
 }
 
@@ -531,7 +531,6 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // read in values and set factors
   //
-
   if (numModes == numEigen) {
 
     // read in all factors one at a time
@@ -732,16 +731,7 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
     builder->wipe();
 
   } else {
-    G3_Runtime *rt = G3_getRuntime(interp);
-    Domain *domain = G3_getDomain(rt);
-    StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-    // DirectIntegrationAnalysis* dia = G3_getTransientAnalysis(rt);
-
-    if (the_static_analysis != 0) {
-      the_static_analysis->clearAll();
-      G3_delStaticAnalysis(rt);
-    }
-
+#if 0
     if (theTransientAnalysis != nullptr) {
       theTransientAnalysis->clearAll();
       delete theTransientAnalysis;
@@ -751,27 +741,15 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
     // NOTE : DON'T do the above on theVariableTimeStepAnalysis
     // as it and theTansientAnalysis are one in the same
 
-    theAlgorithm = 0;
-    theHandler   = 0;
-    theGlobalNumberer  = 0;
-    G3_setAnalysisModel(rt,nullptr);
-    // theSOE = 0;
-    G3_setLinearSoe(rt, nullptr);
-    theEigenSOE = 0;
+    theAlgorithm = nullptr;
+    theHandler   = nullptr;
+    theGlobalNumberer  = nullptr;
+    theEigenSOE = nullptr;
     G3_setStaticIntegrator(rt,nullptr);
     theTransientIntegrator = nullptr;
     G3_setStaticAnalysis(rt,nullptr);
-    // theStaticAnalysis = nullptr;
-    // theTransientAnalysis = nullptr;
-    // G3_setTransientAnalysis(rt, nullptr);
-    theVariableTimeStepTransientAnalysis = 0;
+    theVariableTimeStepTransientAnalysis = nullptr;
     theTest = nullptr;
-
-#ifdef _RELIABILITY
-    // AddingSensitivity:BEGIN /////////////////////////////////////////////////
-    theSensitivityAlgorithm = 0;
-    theSensitivityIntegrator = 0;
-    // AddingSensitivity:END /////////////////////////////////////////////////
 #endif
   }
   return TCL_OK;

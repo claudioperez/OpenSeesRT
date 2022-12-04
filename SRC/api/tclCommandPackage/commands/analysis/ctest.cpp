@@ -18,16 +18,17 @@
 
 
 ConvergenceTest*
-RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
+RT_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv);
 
 
 int
 specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+  assert(clientData != nullptr);
 
-  ConvergenceTest* theNewTest = RT_newConvergenceTest(rt, argc, argv);
+  G3_Runtime *rt = G3_getRuntime(interp);
+
+  ConvergenceTest* theNewTest = RT_newConvergenceTest(clientData, interp, argc, argv);
 
   if (theNewTest == nullptr) {
     // Parse routine is expected to have reported an error
@@ -43,7 +44,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
 }
 
 ConvergenceTest*
-RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
+RT_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
 {
   // Domain *domain = G3_getDomain(rt);
 
@@ -72,107 +73,107 @@ RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv)
   if ((strcmp(argv[1], "NormDispAndUnbalance") == 0) ||
       (strcmp(argv[1], "NormDispOrUnbalance") == 0)) {
     if (argc == 5) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[3], &tol2) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[3], &tol2) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &numIter) != TCL_OK)
         return nullptr;
     } else if (argc == 6) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[3], &tol2) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[3], &tol2) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[5], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &printIt) != TCL_OK)
         return nullptr;
     } else if (argc == 7) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[3], &tol2) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[3], &tol2) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[5], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &printIt) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[6], &normType) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[6], &normType) != TCL_OK)
         return nullptr;
     } else if (argc == 8) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[3], &tol2) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[3], &tol2) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[5], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &printIt) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[6], &normType) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[6], &normType) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[7], &maxIncr) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[7], &maxIncr) != TCL_OK)
         return nullptr;
     }
 
   } else if (strcmp(argv[1], "FixedNumIter") == 0) {
 
     if (argc == 3) {
-      if (G3Parse_getInt(rt, argv[2], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[2], &numIter) != TCL_OK)
         return nullptr;
     } else if (argc == 4) {
-      if (G3Parse_getInt(rt, argv[2], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[2], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &printIt) != TCL_OK)
         return nullptr;
     } else if (argc == 5) {
-      if (G3Parse_getInt(rt, argv[2], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[2], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &printIt) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &normType) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &normType) != TCL_OK)
         return nullptr;
     } else if (argc == 6) {
-      if (G3Parse_getInt(rt, argv[2], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[2], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &printIt) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &normType) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &normType) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[5], &maxTol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[5], &maxTol) != TCL_OK)
         return nullptr;
     }
 
   } else {
     if (argc == 4) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
     } else if (argc == 5) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &printIt) != TCL_OK)
         return nullptr;
     } else if (argc == 6) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &printIt) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[5], &normType) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &normType) != TCL_OK)
         return nullptr;
     } else if (argc == 7) {
-      if (G3Parse_getDouble(rt, argv[2], &tol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[3], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[4], &printIt) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[4], &printIt) != TCL_OK)
         return nullptr;
-      if (G3Parse_getInt(rt, argv[5], &normType) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &normType) != TCL_OK)
         return nullptr;
-      if (G3Parse_getDouble(rt, argv[6], &maxTol) != TCL_OK)
+      if (Tcl_GetDouble(interp, argv[6], &maxTol) != TCL_OK)
         return nullptr;
     }
   }
