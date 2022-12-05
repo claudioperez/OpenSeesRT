@@ -17,39 +17,25 @@
 **                                                                    **
 ** ****************************************************************** */
 
-/*
-** $Revision: 1.13 $
-** $Date: 2009-10-02 22:20:35 $
-** $Source: /usr/local/cvs/OpenSees/SRC/api/packages.cpp,v $
+// $Revision: 1.13 $
+// $Date: 2009-10-02 22:20:35 $
 
-** Written: fmk
-*/
+// Written: fmk
+
 
 #include <stdlib.h>
 #include <string.h>
 #include <OPS_Globals.h>
 #include <g3_api.h>
-// #include <TclBasicBuilder.h>
 #include <sys/stat.h>
 #include <SimulationInformation.h>
 
-extern
 #ifdef _WIN32
-    int __cdecl
-#else
-    int
-#endif
-    httpGET_File(char const *URL, char const *page, unsigned int port,
-                 const char *filename);
-
-#ifdef _WIN32
-
-#include <windows.h>
-#include <elementAPI.h>
+#  include <windows.h>
+#  include <elementAPI.h>
 extern SimulationInformation *theSimulationInfoPtr;
-
 #else
-#include <dlfcn.h>
+#  include <dlfcn.h>
 #endif
 
 int
@@ -62,16 +48,10 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
   *libHandle = NULL;
   *funcHandle = NULL;
 
-  // struct stat stFileInfo;
-  // bool blnReturn;
-  // int intStat;
-
 #ifdef _WIN32
-
   //
   // first try and open dll
   //
-
   int libNameLength = (int)strlen(libName);
   char *localLibName = new char[libNameLength + 5];
   strcpy(localLibName, libName);
@@ -126,8 +106,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
     typedef int(_cdecl * OPS_AllocateMaterialPtrType)(matObj *);
     typedef UniaxialMaterial *(*builder->getUniaxialMaterialPtrType)(int);
     typedef NDMaterial *(*OPS_GetNDMaterialPtrType)(int);
-    typedef SectionForceDeformation *(*OPS_GetSectionForceDeformationPtrType)(
-        int);
+    typedef SectionForceDeformation *(*OPS_GetSectionForceDeformationPtrType)(int);
     typedef CrdTransf *(*OPS_GetCrdTransfPtrType)(int);
     typedef FrictionModel *(*OPS_GetFrictionModelPtrType)(int);
     typedef int(_cdecl * OPS_GetNodeInfoPtrType)(int *, int *, double *);
@@ -186,7 +165,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
       FreeLibrary((HMODULE)hLib);
       return -2;
     }
-#if 0 // TODO: cmp
+#if 0 // TODO: cmp, commented out to remove use of symbol 'OPS_GetStaticAnalysis'
 
     // invoke pointer function
     (funcPtr)(opserrPtr, ops_TheActiveDomain, theSimulationInfoPtr, OPS_Error,

@@ -10,7 +10,6 @@ extern Tcl_CmdProc  TclCommand_getNDM;
 extern Tcl_CmdProc  TclCommand_getNDF;
 extern Tcl_CmdProc  TclCommand_addNode;
 extern Tcl_CmdProc  TclCommand_addNodalMass;
-
 // 
 extern Tcl_CmdProc  TclCommand_addPattern;
 extern Tcl_CmdProc  TclCommand_addTimeSeries;
@@ -37,16 +36,6 @@ Tcl_CmdProc TclCommand_addElementalLoad;
 Tcl_CmdProc modalDamping;
 Tcl_CmdProc modalDampingQ;
 
-Tcl_CmdProc TclCommand_addParameter;
-Tcl_CmdProc TclCommand_mesh;
-Tcl_CmdProc TclCommand_remesh;
-Tcl_CmdProc TclCommand_backgroundMesh; 
-Tcl_CmdProc TclCommand_addBeamIntegration;
-
-Tcl_CmdProc TclCommand_addLimitCurve;
-Tcl_CmdProc TclCommand_addNDMaterial;
-Tcl_CmdProc TclCommand_addSeries;
-
 // Constraints
 Tcl_CmdProc TclCommand_addHomogeneousBC_X;
 Tcl_CmdProc TclCommand_addHomogeneousBC_Y; 
@@ -58,6 +47,17 @@ Tcl_CmdProc TclCommand_RigidLink;
 Tcl_CmdProc TclCommand_addImposedMotionSP;
 Tcl_CmdProc TclCommand_addGroundMotion;
 Tcl_CmdProc TclCommand_RigidDiaphragm;
+
+// Other
+Tcl_CmdProc TclCommand_addParameter;
+Tcl_CmdProc TclCommand_mesh;
+Tcl_CmdProc TclCommand_remesh;
+Tcl_CmdProc TclCommand_backgroundMesh; 
+Tcl_CmdProc TclCommand_addBeamIntegration;
+
+Tcl_CmdProc TclCommand_addLimitCurve;
+Tcl_CmdProc TclCommand_addNDMaterial;
+Tcl_CmdProc TclCommand_addSeries;
 
 
 struct char_cmd {
@@ -127,7 +127,7 @@ struct char_cmd {
   {"hystereticBackbone",   TclCommand_addHystereticBackbone},
   {          "backbone",   TclCommand_addHystereticBackbone},
 
-/*
+#if 0
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
   {"plasticMaterial",      TclCommand_addYS_PlasticMaterial},
@@ -139,26 +139,24 @@ struct char_cmd {
   {"unloadingRule",        TclCommand_addUnloadingRule},
   {"strengthDegradation",  TclCommand_addStrengthDegradation},
   {"loadPackage",          TclCommand_Package},
-*/
+#endif
 
-/*
+#if 0
   {"parameter",            TclCommand_addParameter},
   {"addToParameter",       TclCommand_addParameter},
   {"updateParameter",      TclCommand_addParameter},
-*/
+#endif
 
-/*
-// new command for elast2plast in Multi-yield
-// plasticity, by ZHY
+#if 0
+// command for elast2plast in Multi-yield plasticity, by ZHY
   {"updateMaterialStage", TclCommand_UpdateMaterialStage},
   {"updateMaterials",     TclCommand_UpdateMaterials},
-*/
+#endif
 
-/*
-// new command for updating properties of
-// soil materials, by ZHY
+#if 0
+// command for updating properties of soil materials, by ZHY
    {"updateParameter", TclCommand_UpdateParameter},
-*/
+#endif
 
 };
 

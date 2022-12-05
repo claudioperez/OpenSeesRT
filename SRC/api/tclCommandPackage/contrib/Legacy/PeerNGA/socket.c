@@ -1,3 +1,8 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
