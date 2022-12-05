@@ -7,7 +7,7 @@
 target_sources(OPS_Actor
     PRIVATE
       Channel.cpp
-      HTTP.cpp
+#     HTTP.cpp
       Socket.cpp
       TCP_Socket.cpp
       UDP_Socket.cpp      
@@ -32,7 +32,5 @@ target_sources(OpenSeesSP
     PUBLIC
       MPI_Channel.h
 )
-
-
 
 target_include_directories(OPS_Actor PUBLIC ${CMAKE_CURRENT_LIST_DIR})
