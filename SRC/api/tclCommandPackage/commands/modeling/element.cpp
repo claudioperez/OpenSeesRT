@@ -36,8 +36,7 @@ extern
     int
 #endif
 */
-
-extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
+int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
                           TclBuilder *builder);
 

@@ -5,14 +5,14 @@
 #
 #==============================================================================
 target_sources(OPS_Utilities
-    PRIVATE
+  PRIVATE
     Timer.cpp 
     FileIter.cpp 
     File.cpp 
     SimulationInformation.cpp 
     StringContainer.cpp
-    PeerNGA.cpp
-    PUBLIC
+#   PeerNGA.cpp
+  PUBLIC
     Timer.h 
     FileIter.h 
     File.h 

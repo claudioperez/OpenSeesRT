@@ -308,7 +308,6 @@ target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
 message("Numlibs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
-#target_link_libraries(OPS_Interp_Tcl   PRIVATE ${OPS_Element_List})
 
 
 #----------------------------
@@ -324,7 +323,6 @@ target_link_libraries(G3
     OPS_ConvergenceTest
     OPS_Element
     OPS_ElementFortran
-#   OPS_Renderer
     OPS_Material
     OPS_MaterialFortran
     OPS_Material_YieldSurface

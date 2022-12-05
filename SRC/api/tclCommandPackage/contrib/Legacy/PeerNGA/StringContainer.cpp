@@ -24,8 +24,6 @@
 //
 // Description: This file contains the class definition for StringContainer.
 // SimulationInformation is a stopwatch.
-//
-// What: "@(#) SimulationContainer.h, revA"
 
 
 
