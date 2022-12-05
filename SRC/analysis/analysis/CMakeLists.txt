@@ -32,12 +32,5 @@ target_sources(OPS_Analysis
       TransientDomainDecompositionAnalysis.h 
       VariableTimeStepDirectIntegrationAnalysis.h
 )
-target_sources(OPS_PFEM
-    PRIVATE
-        PFEMAnalysis.cpp 
-    PUBLIC
-        PFEMAnalysis.h 
-)
-#target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 #add_subdirectory(analysis)

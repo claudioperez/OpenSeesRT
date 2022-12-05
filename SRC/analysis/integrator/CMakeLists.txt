@@ -131,12 +131,12 @@ target_sources(OPS_Analysis
        GimmeMCK.h
 )
 
-target_sources(OPS_PFEM
-    PRIVATE
-       PFEMIntegrator.cpp
-    PUBLIC
-       PFEMIntegrator.h  # Uses ops_Dt
-)
+# target_sources(OPS_PFEM
+#     PRIVATE
+#        PFEMIntegrator.cpp
+#     PUBLIC
+#        PFEMIntegrator.h  # Uses ops_Dt
+# )
 
 target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

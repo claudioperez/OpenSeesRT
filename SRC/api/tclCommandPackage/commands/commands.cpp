@@ -163,7 +163,7 @@ int logFile(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int version(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 // int domainChange(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 // int record(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-// int peerNGA(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+
 // TODO: reimplement  int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 int stripOpenSeesXML(ClientData, Tcl_Interp *, int, TCL_Char **);
 // int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
