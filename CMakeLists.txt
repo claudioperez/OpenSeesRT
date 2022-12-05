@@ -39,7 +39,7 @@ include(${PROJECT_SOURCE_DIR}/Conf.cmake)
 
 # define user-selectable options for end target
 set_property(CACHE OPS_FINAL_TARGET PROPERTY STRINGS 
-    G3 OpenSeesTcl OpenSeesMP OpenSeesSP OpenSeesPy)
+    G3 OpenSeesTcl OpenSeesMP OpenSeesSP)
 
 #==============================================================================
 #                            OS Configuration
@@ -102,23 +102,10 @@ enable_language(Fortran)
 
 # C++
 #--------------------------------------
-#add_link_options(-rdynamic)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 add_compile_options(-ggdb)
-
-# Warnings
-opensees_add_cxx_flag(
-    GNU  -Wall
-    MSVC /W0
-)
-
-# Floating-point
-opensees_add_cxx_flag(
-    GNU  -ffloat-store
-    MSVC /fp:precise
-)
 
 #----------------------------------------------------------------
 # Global Includes
@@ -198,16 +185,10 @@ include_directories(
   ${OPS_SRC_DIR}/tagged/storage
   ${OPS_SRC_DIR}/utility
   ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/SRC/
-
-# ${OPS_SRC_DIR}/optimization/domain
-# ${OPS_SRC_DIR}/optimization/domain/component
-# ${OPS_SRC_DIR}/optimization/SNOPT
-# ${OPS_SRC_DIR}/optimization/tcl
 )
 
 
 include_directories(${TCL_INCLUDE_PATH})
-#include_directories(${MYSQL_INCLUDE_DIR})
 
 
 #==============================================================================
@@ -222,6 +203,7 @@ target_link_libraries(OPS_Numerics INTERFACE
   ${LAPACK_LIBRARIES}
   ${BLAS_LIBRARIES} 
 )
+
 # Core OpenSees
 add_library(OPS_Matrix             OBJECT)
 add_library(OPS_Actor              OBJECT)
@@ -255,23 +237,14 @@ add_library(OPS_Database           OBJECT)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 
-# add_library(OPS_Renderer           OBJECT EXCLUDE_FROM_ALL)
-# add_library(OPS_Graphics           OBJECT EXCLUDE_FROM_ALL)
-# add_library(OPS_Graphics_Default   OBJECT EXCLUDE_FROM_ALL)
-# add_library(OPS_Graphics_GL        OBJECT EXCLUDE_FROM_ALL)
-
 #add_library(OPS_Reliability        OBJECT EXCLUDE_FROM_ALL)
 
 opensees_library(OPS_SysOfEqn_UMF
   LINK ${UMFPACK_LIBRARIES} ${AMD_LIBRARIES})
 
-opensees_library(OPS_PFEM
-  LINK ${CSPARSE_LIBRARIES} ${UMFPACK_LIBRARIES} ${AMD_LIBRARIES})
-
-
 # Packaged libraries
 add_library(G3) 
-add_library(G3_API           EXCLUDE_FROM_ALL) 
+# add_library(G3_API           EXCLUDE_FROM_ALL) 
 add_library(OpenSees         EXCLUDE_FROM_ALL)
 
 # Executables and final targets
@@ -292,7 +265,6 @@ add_executable(OpenSeesMP    EXCLUDE_FROM_ALL
   ${OPS_SRC_DIR}/tcl/tclMain.cpp
 )
 
-add_library(OpenSeesPy    SHARED EXCLUDE_FROM_ALL)
 
 # Set selected executable to be built by default
 set_target_properties(${OPS_FINAL_TARGET} PROPERTIES EXCLUDE_FROM_ALL OFF)
@@ -388,21 +360,8 @@ endif()
 # OpenSeesPy
 #----------------------------
 add_compile_options(-fPIC)
-set_property(TARGET OpenSeesPy PROPERTY POSITION_INDEPENDENT_CODE 1)
-target_include_directories(OpenSeesPy PRIVATE ${Python_INCLUDE_DIRS})
-
-target_link_libraries(OpenSeesPy
-  OPS_InterpreterModule_Python OPS_Thermal 
-  #-Wl,--whole-archive 
-  OpenSees 
-  #-Wl,--no-whole-archive 
-  ${CMAKE_DL_LIBS}
-)
-
-opensees_add_cxx_flag(TARGETS OpenSeesPy
-    GNU  -fPIC
-)
-
+# target_include_directories(OpenSeesPy PRIVATE ${Python_INCLUDE_DIRS})
+# target_link_libraries(OpenSeesPy ${CMAKE_DL_LIBS})
 
 #----------------------------
 # OpenSeesMP

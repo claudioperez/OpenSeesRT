@@ -107,16 +107,16 @@ add_subdirectory(surfaceLoad)
 
 add_subdirectory(feap)
 
-add_subdirectory(PFEMElement)
 
 add_subdirectory(mvlem)
 add_subdirectory(pyMacro)
 add_subdirectory(UP-ucsd)
-#add_subdirectory(UWelements)
 add_subdirectory(HUelements)
 add_subdirectory(XMUelements)
 add_subdirectory(masonry)
-#add_subdirectory(dmglib)
 add_subdirectory(CEqElement)
+#add_subdirectory(dmglib)
+#add_subdirectory(UWelements)
+# add_subdirectory(PFEMElement)
 
 
