@@ -33,11 +33,6 @@ target_sources(OPS_ConvergenceTest
     NormDispOrUnbalance.h
 )
 
-target_sources(OPS_PFEM
-  PRIVATE
-    CTestPFEM.cpp
-  PUBLIC
-    CTestPFEM.h
-)
+
 target_include_directories(OPS_ConvergenceTest PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
