@@ -21,23 +21,23 @@ typedef unsigned long int G3_Tag;
 typedef struct G3_IntMap G3_IntMap;
 
 // Create hash table and return pointer to it, or NULL if out of memory.
-G3_IntMap* G3_NewIntMap(void);
+G3_IntMap *G3_NewIntMap(void);
 
 // Free memory allocated for hash table, including allocated keys.
-void G3_DeleteIntMap(G3_IntMap* );
+void G3_DeleteIntMap(G3_IntMap *);
 
 // Get item with given key (NUL-terminated) from hash table. Return
 // value (which was set with G3_SetIntMapEntry), or NULL if key not found.
-void* G3_GetIntMapEntry(G3_IntMap*, G3_Tag);
+void *G3_GetIntMapEntry(G3_IntMap *, G3_Tag);
 
 // Set item with given key (NUL-terminated) to value (which must not
 // be NULL). If not already present in table, key is copied to newly
 // allocated memory (keys are freed automatically when G3_DeleteIntMap is
 // called). Return address of copied key, or NULL if out of memory.
-const char* G3_SetIntMapEntry(G3_IntMap* table, G3_Tag tag, void* value);
+const char *G3_SetIntMapEntry(G3_IntMap *table, G3_Tag tag, void *value);
 
 // Return number of items in hash table.
-size_t G3_GetIntMapLength(G3_IntMap* table);
+size_t G3_GetIntMapLength(G3_IntMap *table);
 
 /*
 // Hash table iterator: create with ht_iterator, iterate with ht_next.
@@ -58,7 +58,6 @@ hti ht_iterator(G3_IntMap* table);
 // items, return false. Don't call G3_SetIntMapEntry during iteration.
 bool ht_next(hti* it);
 */
-
 
 #ifdef __cplusplus
 }

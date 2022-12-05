@@ -13,10 +13,11 @@
 typedef unsigned long int G3_Tag;
 
 struct G3_Table {
-  G3_StringMap* partitions;
+  G3_StringMap *partitions;
 };
 
-G3_Table* G3_NewTable(void)
+G3_Table *
+G3_NewTable(void)
 {
   G3_Table *table = malloc(sizeof(G3_Table));
   if (table == NULL)
@@ -29,37 +30,38 @@ G3_Table* G3_NewTable(void)
 }
 
 void
-G3_DeleteTable(G3_Table* table)
+G3_DeleteTable(G3_Table *table)
 {
   // TODO
 }
 
 const char *
-G3_SetTableEntry(G3_Table* table, const char* partition, int tag, void* value)
+G3_SetTableEntry(G3_Table *table, const char *partition, int tag, void *value)
 {
   // TODO
 }
 
 int
-G3_AddTableEntry(G3_Table* table, const char* partition, int tag, void* value)
+G3_AddTableEntry(G3_Table *table, const char *partition, int tag, void *value)
 {
-  G3_IntMap* imap = (G3_IntMap*)G3_GetStringMapEntry(table->partitions, partition);
+  G3_IntMap *imap =
+      (G3_IntMap *)G3_GetStringMapEntry(table->partitions, partition);
   if ((imap == NULL) && !(imap = G3_NewIntMap())) {
     return 0;
   }
-  if (!G3_SetStringMapEntry(table->partitions, partition, (void*)imap)) {
+  if (!G3_SetStringMapEntry(table->partitions, partition, (void *)imap)) {
     G3_DeleteIntMap(imap);
     return 0;
   }
 
-  G3_SetIntMapEntry(imap, tag, (void*)value);
+  G3_SetIntMapEntry(imap, tag, (void *)value);
 
   // TODO; send a meaningful return
   return 1;
 }
 
 void *
-G3_GetTableEntry(G3_Table* table, const char* partition, G3_Tag tag)
+G3_GetTableEntry(G3_Table *table, const char *partition, G3_Tag tag)
 {
   G3_IntMap *imap;
   if ((imap = G3_GetStringMapEntry(table->partitions, partition)) == NULL) {
@@ -72,4 +74,3 @@ G3_GetTableEntry(G3_Table* table, const char* partition, G3_Tag tag)
   }
   return value;
 }
-
