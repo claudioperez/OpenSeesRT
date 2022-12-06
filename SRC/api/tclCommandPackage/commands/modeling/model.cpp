@@ -40,6 +40,9 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   BasicModelBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
   G3_setDomain(rt, theNewDomain);
+  // TODO: remove ops_TheActiveDomain
+  ops_TheActiveDomain = theNewDomain;
+  // end TODO
   G3_AddTclDomainCommands(interp, theNewDomain);
 
   const char* analysis_option;

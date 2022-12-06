@@ -1,13 +1,17 @@
 
 target_sources(OpenSeesRT PRIVATE
 # Runtime
+
+    "formats.cpp"
+    "interpreter.cpp"
+    "pragma.cpp"
     "sequential.cpp"
+
     "runtime.cpp"
     "commands.cpp"
     "nodes.cpp"
     "domain.cpp"
     "recorder.cpp"
-    "pragma.cpp"
 
 # Modeling
     "modeling/model.cpp"

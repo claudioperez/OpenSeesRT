@@ -6,22 +6,7 @@
 // Description: This file contains the functions that will be called by
 // the interpreter when the appropriate command name is specified.
 
-#include <tcl.h>
-#include <OPS_Globals.h>
 
-int OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const *argv);
-
-int OPS_SourceCmd(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const *argv);
-
-int OpenSeesAppInit(Tcl_Interp *interp);
-
-
-Tcl_CmdProc getNDM;
-Tcl_CmdProc getNDF;
-Tcl_CmdProc TclCommand_wipeModel;
-Tcl_CmdProc TclCommand_specifyModel;
-
-// Tcl_CmdProc wipeAnalysis;
 
 Tcl_CmdProc setLoadConst;
 
@@ -138,10 +123,10 @@ Tcl_CmdProc getEleLoadClassTags;
 Tcl_CmdProc getEleLoadTags;
 Tcl_CmdProc getEleLoadData;
 
-Tcl_CmdProc startTimer;
-Tcl_CmdProc stopTimer;
-Tcl_CmdProc setTime;
-Tcl_CmdProc getTime;
+// Tcl_CmdProc startTimer;
+// Tcl_CmdProc stopTimer;
+// Tcl_CmdProc setTime;
+// Tcl_CmdProc getTime;
 
 Tcl_CmdProc rayleighDamping;
 
@@ -180,7 +165,4 @@ Tcl_CmdProc elementDeactivate;
 // by SAJalali
 Tcl_CmdProc OPS_recorderValue;
 
-int
-TclObjCommand_pragma([[maybe_unused]] ClientData clientData, 
-                     Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 

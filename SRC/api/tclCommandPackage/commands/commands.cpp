@@ -10,7 +10,6 @@
 
 #include <assert.h>
 #include <g3_api.h>
-#include <G3_Runtime.h>
 #include <G3_Logging.h>
 
 #include <classTags.h>
@@ -22,20 +21,13 @@ extern "C" {
 
 #include <OPS_Globals.h>
 #include <Matrix.h>
-#include <iostream>
 #include <set>
 #include <vector>
 #include <algorithm>
 
-// the following is a little kludgy but it works!
 #ifdef _USING_STL_STREAMS
 #  include <iomanip>
-   using std::ios;
-#  include <iostream>
-   using std::ofstream;
 #else
-#  include <StandardStream.h>
-#  include <FileStream.h>
 #  include <DummyStream.h>
 #endif
 
@@ -50,7 +42,6 @@ extern "C" {
 #include <packages.h>
 #include <TclPackageClassBroker.h>
 
-#include <Timer.h>
 #include <ModelBuilder.h>
 #include "commands.h"
 
@@ -108,8 +99,6 @@ extern "C" {
 #include <ErrorHandler.h>
 #include <ConsoleErrorHandler.h>
 
-
-#include <XmlFileStream.h>
 #include <Response.h>
 
 //
@@ -138,14 +127,8 @@ bool builtModel = false;
 
 static char *resDataPtr = nullptr;
 static int resDataSize = 0;
-static Timer *theTimer = nullptr;
 
 #include <FileStream.h>
-#include <SimulationInformation.h>
-SimulationInformation simulationInfo;
-SimulationInformation *theSimulationInfoPtr = nullptr;
-
-char *simulationInfoOutputFilename = nullptr;
 
 TclPackageClassBroker theBroker;
 
@@ -158,163 +141,25 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char **argv, Domain *domain);
 int printModelGID(ClientData, Tcl_Interp *, int, TCL_Char **);
 
-int setPrecision(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-int logFile(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-int version(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-// int domainChange(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-// int record(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+Tcl_CmdProc TclCommand_record;
+Tcl_CmdProc maxOpenFiles;
+Tcl_CmdProc setPrecision;
+Tcl_CmdProc logFile;
+Tcl_CmdProc version;
+
 
 // TODO: reimplement  int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-int stripOpenSeesXML(ClientData, Tcl_Interp *, int, TCL_Char **);
 // int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 // extern
 int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 Tcl_CmdProc TclCommand_setLoadConst;
-Tcl_CmdProc TclCommand_getTime;
-Tcl_CmdProc TclCommand_setTime;
 Tcl_CmdProc TclCommand_setCreep;
 
-Tcl_CmdProc convertBinaryToText;
-Tcl_CmdProc convertTextToBinary;
-Tcl_CmdProc maxOpenFiles;
+// domain.cpp
+Tcl_CmdProc domainChange;
 
-
-static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
-
-//
-// revised puts command to send to cerr!
-//
-int
-OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
-                     Tcl_Obj *const objv[])
-{
-  Tcl_Channel chan;           /* The channel to puts on. */
-  Tcl_Obj *string;            /* String to write. */
-  Tcl_Obj *chanObjPtr = NULL; /* channel object. */
-  int newline;                /* Add a newline at end? */
-
-  switch (objc) {
-  case 2: /* [puts $x] */
-    string = objv[1];
-    newline = 1;
-    break;
-
-  case 3: /* [puts -nonewline $x] or [puts $chan $x] */
-    if (strcmp(Tcl_GetString(objv[1]), "-nonewline") == 0) {
-      newline = 0;
-    } else {
-      newline = 1;
-      chanObjPtr = objv[1];
-    }
-    string = objv[2];
-    break;
-
-  case 4: /* [puts -nonewline $chan $x] or [puts $chan $x nonewline] */
-    newline = 0;
-    if (strcmp(Tcl_GetString(objv[1]), "-nonewline") == 0) {
-      chanObjPtr = objv[2];
-      string = objv[3];
-      break;
-    } else if (strcmp(Tcl_GetString(objv[3]), "nonewline") == 0) {
-      /*
-       * The code below provides backwards compatibility with an old
-       * form of the command that is no longer recommended or
-       * documented. See also [Bug #3151675]. Will be removed in Tcl 9,
-       * maybe even earlier.
-       */
-
-      chanObjPtr = objv[1];
-      string = objv[2];
-      break;
-    }
-    /* Fall through */
-  default:
-    /* [puts] or [puts some bad number of arguments...] */
-    Tcl_WrongNumArgs(interp, 1, objv, "?-nonewline? ?channelId? string");
-    return TCL_ERROR;
-  }
-
-  if (chanObjPtr == NULL) {
-    G3_Runtime *rt;
-    if ((rt = G3_getRuntime(interp))) {
-      if (newline == 0)
-        fprintf(rt->streams[1], "%s", Tcl_GetString(string));
-      else
-        fprintf(rt->streams[1], "%s\n", Tcl_GetString(string));
-    } else {
-      if (newline == 0)
-        opserr << Tcl_GetString(string);
-      else
-        opserr << Tcl_GetString(string) << endln;
-    }
-    return TCL_OK;
-  } else {
-    if (Tcl_putsCommand != 0) {
-      return Tcl_putsCommand(dummy, interp, objc, objv);
-    } else {
-      opsmrd
-          << "MEARD!  commands.cpp .. old puts command not found or set!\n";
-      return TCL_ERROR;
-    }
-    return TCL_OK;
-  }
-}
-
-int
-OpenSeesAppInit(Tcl_Interp *interp)
-{
-  // TODO: remove ops_TheActiveDomain
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
-  ops_TheActiveDomain = the_domain;
-  // end TODO
-
-  // redo puts command so we can capture puts into std:cerr
-  Tcl_CmdInfo putsCommandInfo;
-  Tcl_GetCommandInfo(interp, "puts", &putsCommandInfo);
-  Tcl_putsCommand = putsCommandInfo.objProc;
-  // if handle, use ouur procedure as opposed to theirs
-  if (Tcl_putsCommand != nullptr) {
-    Tcl_CreateObjCommand(interp, "oldputs", Tcl_putsCommand, NULL, NULL);
-    Tcl_CreateObjCommand(interp, "puts",    OpenSees_putsCommand, NULL, NULL);
-  }
-
-  theSimulationInfoPtr = &simulationInfo;
-
-#ifndef _LINUX
-  opserr.setFloatField(SCIENTIFIC);
-  opserr.setFloatField(FIXEDD);
-#endif
-
-  Tcl_CreateCommand(interp, "logFile",             &logFile,      nullptr, nullptr);
-  Tcl_CreateCommand(interp, "setPrecision",        &setPrecision, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "exit",                &OpenSeesExit, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "quit",                &OpenSeesExit, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "version",             &version,      nullptr, nullptr);
-  Tcl_CreateCommand(interp, "stripXML",            &stripOpenSeesXML, nullptr, NULL);
-  Tcl_CreateCommand(interp, "convertBinaryToText", &convertBinaryToText, nullptr, NULL);
-  Tcl_CreateCommand(interp, "convertTextToBinary", &convertTextToBinary, nullptr, NULL);
-  Tcl_CreateCommand(interp, "setMaxOpenFiles",     &maxOpenFiles, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "fault", 
-    [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
-
-  // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, nullptr);
-  // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
-
-  Tcl_CreateCommand(interp, "model",           TclCommand_specifyModel, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "opensees::model", TclCommand_specifyModel, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "wipe",   &TclCommand_wipeModel,    nullptr, nullptr);
-
-  Tcl_CreateObjCommand(interp, "pset",     &OPS_SetObjCmd, nullptr, nullptr);
-  Tcl_CreateObjCommand(interp, "source",   &OPS_SourceCmd, nullptr, nullptr);
-  Tcl_CreateObjCommand(interp, "pragma",   &TclObjCommand_pragma, nullptr, nullptr);
-  Tcl_Eval(interp, "rename load opensees::import;");
-  Tcl_Eval(interp, "interp alias {} import {} opensees::import");
-
-  return TCL_OK;
-}
 
 int
 G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
@@ -324,10 +169,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "start",   &startTimer, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "stop",    &stopTimer, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, nullptr, nullptr);
 
 
   Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, nullptr, nullptr);
@@ -346,7 +187,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 //   // Talledo Start
 //   Tcl_CreateCommand(interp, "printGID", &printModelGID, nullptr, nullptr);
 //   // Talledo End
-
 
   Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
   Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, nullptr, nullptr);
@@ -428,8 +268,8 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 //                     nullptr);
   // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, nullptr);
   //
-  // Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, NULL);
-  // Tcl_CreateCommand(interp, "record", &record, nullptr, NULL);
+  Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "record",       &TclCommand_record, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "video", &videoPlayer, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, nullptr);
 
@@ -438,77 +278,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   return TCL_OK;
 }
 
-int
-OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
-              Tcl_Obj *const objv[])
-{
-
-  if (objc > 2)
-    simulationInfo.addParameter(Tcl_GetString(objv[1]), Tcl_GetString(objv[2]));
-
-  Tcl_Obj *varValueObj;
-
-  if (objc == 2) {
-    varValueObj = Tcl_ObjGetVar2(interp, objv[1], NULL, TCL_LEAVE_ERR_MSG);
-    if (varValueObj == NULL) {
-      return TCL_ERROR;
-    }
-    Tcl_SetObjResult(interp, varValueObj);
-    return TCL_OK;
-  } else if (objc == 3) {
-    varValueObj =
-        Tcl_ObjSetVar2(interp, objv[1], NULL, objv[2], TCL_LEAVE_ERR_MSG);
-    if (varValueObj == NULL) {
-      return TCL_ERROR;
-    }
-    Tcl_SetObjResult(interp, varValueObj);
-    return TCL_OK;
-  } else {
-    Tcl_WrongNumArgs(interp, 1, objv, "varName ?newValue?");
-    return TCL_ERROR;
-  }
-
-  return 0;
-}
-
-int
-OPS_SourceCmd(ClientData dummy,      /* Not used. */
-              Tcl_Interp *interp,    /* Current interpreter. */
-              int objc,              /* Number of arguments. */
-              Tcl_Obj *CONST objv[]) /* Argument objects. */
-{
-  CONST char *encodingName = NULL;
-  Tcl_Obj *fileName;
-
-  if (objc != 2 && objc != 4) {
-    Tcl_WrongNumArgs(interp, 1, objv, "?-encoding name? fileName");
-    return TCL_ERROR;
-  }
-
-  fileName = objv[objc - 1];
-
-  if (objc == 4) {
-    static CONST char *options[] = {"-encoding", NULL};
-    int index;
-
-    if (TCL_ERROR == Tcl_GetIndexFromObj(interp, objv[1], options, "option",
-                                         TCL_EXACT, &index)) {
-      return TCL_ERROR;
-    }
-    encodingName = Tcl_GetString(objv[2]);
-  }
-
-  const char *pwd = getInterpPWD(interp);
-  const char *fileN = Tcl_GetString(fileName);
-
-  simulationInfo.addInputFile(fileN, pwd);
-
-#ifndef _TCL85
-  return Tcl_EvalFile(interp, fileN);
-#else
-  return Tcl_FSEvalFileEx(interp, fileName, encodingName);
-#endif
-}
 
 // by SAJalali
 int
@@ -1341,6 +1110,8 @@ int
 retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
   bool all = 1;
   int cNode;
   if (argc > 1) {
@@ -1352,7 +1123,7 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   MP_Constraint *theMP;
-  MP_ConstraintIter &mpIter = theDomain.getMPs();
+  MP_ConstraintIter &mpIter = domain->getMPs();
 
   // get unique constrained nodes with set
   std::set<int> tags;
@@ -1381,6 +1152,8 @@ int
 retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
 
   if (argc < 2) {
     opserr << "WARNING want - retainedDOFs rNode? <cNode?> <cDOF?>\n";
@@ -1418,7 +1191,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   MP_Constraint *theMP;
-  MP_ConstraintIter &mpIter = theDomain.getMPs();
+  MP_ConstraintIter &mpIter = domain->getMPs();
 
   int tag;
   int i;
@@ -1459,6 +1232,9 @@ int
 setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeCoord nodeTag? dim? value?\n";
@@ -1487,7 +1263,7 @@ setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Node *theNode = theDomain.getNode(tag);
+  Node *theNode = domain->getNode(tag);
 
   if (theNode == 0) {
     return TCL_ERROR;
@@ -1505,13 +1281,13 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
   // Need to "setDomain" to make the change take effect.
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
 
-  ElementIter &theElements = the_domain->getElements();
+  ElementIter &theElements = domain->getElements();
   Element *theElement;
   while ((theElement = theElements()) != 0) {
-    theElement->setDomain(the_domain);
+    theElement->setDomain(domain);
   }
   return 0;
 }
@@ -1520,8 +1296,8 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
     opserr << "WARNING want - eleType eleTag?\n";
@@ -1551,8 +1327,8 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
     opserr << "WARNING want - eleNodes eleTag?\n";
@@ -1593,9 +1369,8 @@ int
 nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   char buffer[40];
-
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
     opserr << "WARNING want - nodeDOFs nodeTag?\n";
@@ -1634,8 +1409,8 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeMass(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc < 3) {
     opserr << "WARNING want - nodeMass nodeTag? nodeDOF?\n";
@@ -1677,8 +1452,9 @@ int
 nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   if (argc < 2) {
     opserr << "WARNING: want - nodePressure nodeTag?\n";
     return TCL_ERROR;
@@ -1703,6 +1479,9 @@ nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   const int requiredDataSize = 20 * 6;
   if (requiredDataSize > resDataSize) {
     if (resDataPtr != 0) {
@@ -1715,7 +1494,7 @@ nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   for (int i = 0; i < requiredDataSize; i++)
     resDataPtr[i] = '\n';
 
-  const Vector &bounds = theDomain.getPhysicalBounds();
+  const Vector &bounds = the_domain->getPhysicalBounds();
 
   int cnt = 0;
   for (int j = 0; j < 6; j++) {
@@ -1730,6 +1509,9 @@ nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeVel nodeTag? <dof?>\n";
@@ -1785,6 +1567,9 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 int
 setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeVel nodeTag? dof? value? <-commit>\n";
@@ -1841,6 +1626,9 @@ int
 setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeDisp nodeTag? dof? value? <-commit>\n";
@@ -1901,6 +1689,9 @@ int
 sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionForce eleTag? <secNum?> dof? \n";
@@ -1980,6 +1771,9 @@ int
 sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - sectionDeformation eleTag? secNum? dof? \n";
@@ -2054,6 +1848,9 @@ int
 sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionLocation eleTag? secNum? \n";
@@ -2118,6 +1915,9 @@ int
 sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionWeight eleTag? secNum? \n";
@@ -2182,16 +1982,14 @@ int
 sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionStiffness eleTag? secNum? \n";
     return TCL_ERROR;
   }
-
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
 
   int tag, secNum;
 
@@ -2255,6 +2053,9 @@ int
 sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionFlexibility eleTag? secNum? \n";
@@ -2328,19 +2129,16 @@ int
 basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - basicDeformation eleTag? \n";
     return TCL_ERROR;
   }
 
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
-
   int tag;
-
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << "WARNING basicDeformation eleTag? dofNum? - could not read "
               "eleTag? \n";
@@ -2394,6 +2192,9 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - basicForce eleTag? \n";
@@ -2460,6 +2261,9 @@ int
 basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - basicStiffness eleTag? \n";
@@ -2529,6 +2333,9 @@ int
 InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   if (argc < 2) {
     opserr << "WARNING: Incorrect number of arguments for InitialStateAnalysis "
               "command"
@@ -2571,27 +2378,6 @@ InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
     return TCL_ERROR;
   }
-}
-
-int
-startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  if (theTimer == 0)
-    theTimer = new Timer();
-
-  theTimer->start();
-  return TCL_OK;
-}
-
-int
-stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  if (theTimer == 0)
-    return TCL_OK;
-
-  theTimer->pause();
-  opserr << *theTimer;
-  return TCL_OK;
 }
 
 int
@@ -2686,63 +2472,7 @@ addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
 }
 
-int
-logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
 
-  if (argc < 2) {
-    opserr << "WARNING logFile fileName? - no filename supplied\n";
-    return TCL_ERROR;
-  }
-  openMode mode = OVERWRITE;
-  bool echo = true;
-
-  int cArg = 2;
-  while (cArg < argc) {
-    if (strcmp(argv[cArg], "-append") == 0)
-      mode = APPEND;
-    if (strcmp(argv[cArg], "-noEcho") == 0)
-      echo = false;
-    cArg++;
-  }
-
-  if (opserr.setFile(argv[1], mode, echo) < 0)
-    opserr << "WARNING logFile " << argv[1] << " failed to set the file\n";
-
-  const char *pwd = getInterpPWD(interp);
-  simulationInfo.addOutputFile(argv[1], pwd);
-
-  return TCL_OK;
-}
-
-int
-setPrecision(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-
-  if (argc < 2) {
-    opserr << "WARNING setPrecision precision? - no precision value supplied\n";
-    return TCL_ERROR;
-  }
-  int precision;
-  if (Tcl_GetInt(interp, argv[1], &precision) != TCL_OK) {
-    opserr << "WARNING setPrecision precision? - error reading precision value "
-              "supplied\n";
-    return TCL_ERROR;
-  }
-  opserr.setPrecision(precision);
-
-  return TCL_OK;
-}
-
-/*
-int
-exit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  Tcl_Finalize();
-  return TCL_OK;
-}
-*/
 
 
 int
@@ -3052,207 +2782,13 @@ getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-
-const char *
-getInterpPWD(Tcl_Interp *interp)
-{
-  static char *pwd = 0;
-
-  if (pwd != 0)
-    delete[] pwd;
-
-#ifdef _TCL84
-  Tcl_Obj *cwd = Tcl_FSGetCwd(interp);
-  if (cwd != NULL) {
-    int length;
-    const char *objPWD = Tcl_GetStringFromObj(cwd, &length);
-    pwd = new char[length + 1];
-    strcpy(pwd, objPWD);
-    Tcl_DecrRefCount(cwd);
-  }
-#else
-
-  Tcl_DString buf;
-  const char *objPWD = Tcl_GetCwd(interp, &buf);
-
-  pwd = new char[strlen(objPWD) + 1];
-  strcpy(pwd, objPWD);
-
-  Tcl_DStringFree(&buf);
-
-#endif
-  return pwd;
-}
-
 int
-OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  theDomain.clearAll();
-
-#ifdef _PARALLEL_PROCESSING
-  // mpi clean up
-  if (theMachineBroker != 0) {
-    theMachineBroker->shutdown();
-    fprintf(stderr, "Process Terminating\n");
-  }
-  MPI_Finalize();
-#endif
-
-#ifdef _PARALLEL_INTERPRETERS
-  // mpi clean up
-  if (theMachineBroker != 0) {
-    theMachineBroker->shutdown();
-    fprintf(stderr, "Process Terminating\n");
-  }
-  MPI_Finalize();
-#endif
-
-  if (simulationInfoOutputFilename != 0) {
-    simulationInfo.end();
-    XmlFileStream simulationInfoOutputFile;
-    simulationInfoOutputFile.setFile(simulationInfoOutputFilename);
-    simulationInfoOutputFile.open();
-    simulationInfoOutputFile << simulationInfo;
-    simulationInfoOutputFile.close();
-    simulationInfoOutputFilename = 0;
-  }
-
-  int returnCode = 0;
-  if (argc > 1) {
-    if (Tcl_GetInt(interp, argv[1], &returnCode) != TCL_OK)
-      opserr << "WARNING: OpenSeesExit - failed to read return code\n";
-  }
-  Tcl_Exit(returnCode);
-
-  return 0;
-}
-
-int
-stripOpenSeesXML(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
-{
-
-  if (argc < 3) {
-    opserr << "ERROR incorrect # args - stripXML input.xml output.dat "
-              "<output.xml>\n";
-    return -1;
-  }
-
-  const char *inputFile = argv[1];
-  const char *outputDataFile = argv[2];
-  const char *outputDescriptiveFile = 0;
-
-  if (argc == 4)
-    outputDescriptiveFile = argv[3];
-
-  // open files
-  ifstream theInputFile;
-  theInputFile.open(inputFile, ios::in);
-  if (theInputFile.bad()) {
-    opserr << "stripXML - error opening input file: " << inputFile << endln;
-    return -1;
-  }
-
-  ofstream theOutputDataFile;
-  theOutputDataFile.open(outputDataFile, ios::out);
-  if (theOutputDataFile.bad()) {
-    opserr << "stripXML - error opening input file: " << outputDataFile
-           << endln;
-    return -1;
-  }
-
-  ofstream theOutputDescriptiveFile;
-  if (outputDescriptiveFile != 0) {
-    theOutputDescriptiveFile.open(outputDescriptiveFile, ios::out);
-    if (theOutputDescriptiveFile.bad()) {
-      opserr << "stripXML - error opening input file: " << outputDescriptiveFile
-             << endln;
-      return -1;
-    }
-  }
-
-  string line;
-  bool spitData = false;
-  while (!theInputFile.eof()) {
-    getline(theInputFile, line);
-    const char *inputLine = line.c_str();
-
-    if (spitData == true) {
-      if (strstr(inputLine, "</Data>") != 0)
-        spitData = false;
-      else
-        ; //	theOutputDataFile << line << endln;
-    } else {
-      const char *inputLine = line.c_str();
-      if (strstr(inputLine, "<Data>") != 0)
-        spitData = true;
-      else if (outputDescriptiveFile != 0)
-        ; // theOutputDescriptiveFile << line << endln;
-    }
-  }
-
-  theInputFile.close();
-  theOutputDataFile.close();
-
-  if (outputDescriptiveFile != 0)
-    theOutputDescriptiveFile.close();
-
-  return 0;
-}
-
-extern int binaryToText(const char *inputFilename, const char *outputFilename);
-extern int textToBinary(const char *inputFilename, const char *outputFilename);
-
-int
-convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
-{
-  if (argc < 3) {
-    opserr << "ERROR incorrect # args - convertBinaryToText inputFile "
-              "outputFile\n";
-    return -1;
-  }
-
-  const char *inputFile = argv[1];
-  const char *outputFile = argv[2];
-
-  return binaryToText(inputFile, outputFile);
-}
-
-int
-convertTextToBinary(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
-{
-  if (argc < 3) {
-    opserr << "ERROR incorrect # args - convertTextToBinary inputFile "
-              "outputFile\n";
-    return -1;
-  }
-
-  const char *inputFile = argv[1];
-  const char *outputFile = argv[2];
-
-  return textToBinary(inputFile, outputFile);
-}
-
-/*
-int
-domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  theDomain.domainChange();
+  assert(clientData != nullptr);
+  ((Domain*)clientData)->record(false);
   return TCL_OK;
 }
-
-
-int
-record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  theDomain.record(false);
-  return TCL_OK;
-}
-*/
 
 int
 elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -3291,43 +2827,3 @@ elementDeactivate(ClientData clientData, Tcl_Interp *interp, int argc,
   theDomain.deactivateElements(deactivate_us);
   return TCL_OK;
 }
-
-int
-version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  char buffer[20];
-
-  sprintf(buffer, "%s", OPS_VERSION);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
-
-
-int
-maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  int maxOpenFiles;
-
-  if (Tcl_GetInt(interp, argv[1], &maxOpenFiles) != TCL_OK) {
-    return TCL_ERROR;
-  }
-
-#ifdef _WIN32
-  int newMax = _setmaxstdio(maxOpenFiles);
-  if (maxOpenFiles > 2048) {
-    opserr << "setMaxOpenFiles: too many files specified (2048 max)\n";
-  } else {
-    if (newMax != maxOpenFiles) {
-      opserr << "setMaxOpenFiles FAILED: max allowed files: " << newMax;
-      return TCL_ERROR;
-    }
-  }
-  return TCL_OK;
-#endif
-
-  opserr << "setMaxOpenFiles FAILED: - command not available on this machine\n";
-  return TCL_OK;
-}
-

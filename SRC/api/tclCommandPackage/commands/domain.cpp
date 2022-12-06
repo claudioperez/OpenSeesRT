@@ -268,6 +268,16 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
 }
 
 int
+domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
+             TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  ((Domain*)clientData)->domainChange();
+  return TCL_OK;
+}
+
+
+int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
