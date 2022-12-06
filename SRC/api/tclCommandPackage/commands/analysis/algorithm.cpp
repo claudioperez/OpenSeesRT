@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
-// #include <runtimeAPI.h>
 #include "analysis.h"
 #include <tcl.h>
 #include <api/InputAPI.h>

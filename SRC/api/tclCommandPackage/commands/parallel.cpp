@@ -1,4 +1,7 @@
-
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 #ifdef _PARALLEL_PROCESSING
 #  include <DistributedDisplacementControl.h>
 #  include <ShadowSubdomain.h>

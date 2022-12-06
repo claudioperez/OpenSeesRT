@@ -1,12 +1,15 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 #include <tcl.h>
 #include <string>
 #include <iomanip>
 #include <fstream>
-
 #include <OPS_Globals.h>
 
-extern int binaryToText(const char *inputFilename, const char *outputFilename);
-extern int textToBinary(const char *inputFilename, const char *outputFilename);
+extern int binaryToText(const char *inputFile, const char *outputFile);
+extern int textToBinary(const char *inputFile, const char *outputFile);
 
 int
 convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -94,7 +97,7 @@ stripOpenSeesXML(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strstr(inputLine, "</Data>") != 0)
         spitData = false;
       else
-        ; //	theOutputDataFile << line << endln;
+        ; // theOutputDataFile << line << endln;
     } else {
       const char *inputLine = line.c_str();
       if (strstr(inputLine, "<Data>") != 0)
@@ -112,4 +115,3 @@ stripOpenSeesXML(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return 0;
 }
-

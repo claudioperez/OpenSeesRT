@@ -1,3 +1,7 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 #include <tcl.h>
 #define TCL_Char const char
 

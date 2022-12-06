@@ -41,7 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "BasicAnalysisBuilder.h"
 #include <elementAPI.h>
 #include <Domain.h>
-#include <FileStream.h>
+// #include <FileStream.h>
 #include <string>
 #include <assert.h>
 #include <ID.h>
@@ -77,6 +77,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <LoadPattern.h>
 #include <CrdTransf.h>
 // #include <BeamIntegration.h>
+
+// Defaults
 #include <Newmark.h>
 #include <EigenSOE.h>
 #include <SymBandEigenSolver.h>
@@ -488,17 +490,11 @@ ConvergenceTest* BasicAnalysisBuilder::getConvergenceTest()
     return theTest;
 }
 
-#if 0
-static BasicAnalysisBuilder anaBuilder;
-
- 
-extern "C" void OPS_ResetCommandLine(int nArgs, int cArg, PyObject *args);
+#if 0 
 extern LinearSOE* OPS_ParseSOECommand(const char *type);
 extern DOF_Numberer* OPS_ParseNumbererCommand(const char *type);
-extern ConstraintHandler* OPS_ParseConstraintHandlerCommand(const char *type);
 extern EquiSolnAlgo* OPS_ParseAlgorithmCommand(const char *type);
 extern Integrator* OPS_ParseIntegratorCommand(const char *type, int& isstatic);
-extern ConvergenceTest* OPS_ParseCTestCommand(const char *type);
 
 // static int ops_printEle(OPS_Stream &output, PyObject *args);
 // static int ops_printNode(OPS_Stream &output, PyObject *args);

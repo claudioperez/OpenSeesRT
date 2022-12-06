@@ -2,8 +2,6 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-
 #include <tcl.h>
 #include <assert.h>
 #include <g3_api.h>
@@ -13,8 +11,6 @@
 #include <SimulationInformation.h>
 // #include <XmlFileStream.h>
 
-Tcl_CmdProc getNDM;
-Tcl_CmdProc getNDF;
 Tcl_CmdProc TclCommand_wipeModel;
 Tcl_CmdProc TclCommand_specifyModel;
 
@@ -40,7 +36,7 @@ static Timer *theTimer = nullptr;
 //
 // Return the current OpenSees version
 //
-int
+static int
 version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   char buffer[20];
@@ -52,7 +48,7 @@ version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 
-int
+static int
 startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   if (theTimer == 0)
@@ -62,7 +58,7 @@ startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
-int
+static int
 stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   if (theTimer == 0)
@@ -149,7 +145,7 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
 }
 
 
-int
+static int
 OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
               Tcl_Obj *const objv[])
 {
@@ -183,7 +179,7 @@ OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
 }
 
 
-int
+static int
 logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
@@ -374,10 +370,11 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CmdInfo putsCommandInfo;
   Tcl_GetCommandInfo(interp, "puts", &putsCommandInfo);
   Tcl_putsCommand = putsCommandInfo.objProc;
-  // if handle, use ouur procedure as opposed to theirs
+
+  // if handle, use our procedure as opposed to theirs
   if (Tcl_putsCommand != nullptr) {
-    Tcl_CreateObjCommand(interp, "oldputs", Tcl_putsCommand, NULL, NULL);
-    Tcl_CreateObjCommand(interp, "puts",    OpenSees_putsCommand, NULL, NULL);
+    Tcl_CreateObjCommand(interp, "oldputs", Tcl_putsCommand,      nullptr, nullptr);
+    Tcl_CreateObjCommand(interp, "puts",    OpenSees_putsCommand, nullptr, nullptr);
   }
 
   theSimulationInfoPtr = &simulationInfo;
@@ -386,36 +383,43 @@ OpenSeesAppInit(Tcl_Interp *interp)
   opserr.setFloatField(SCIENTIFIC);
   opserr.setFloatField(FIXEDD);
 #endif
+  Tcl_Eval(interp, "rename load opensees::import;");
+  Tcl_Eval(interp, "interp alias {} import {} opensees::import");
+
+
+  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, nullptr, nullptr);
+
 
   Tcl_CreateCommand(interp, "logFile",             logFile,      nullptr, nullptr);
   Tcl_CreateCommand(interp, "setPrecision",        setPrecision, nullptr, nullptr);
   Tcl_CreateCommand(interp, "exit",                OpenSeesExit, nullptr, nullptr);
   Tcl_CreateCommand(interp, "quit",                OpenSeesExit, nullptr, nullptr);
   Tcl_CreateCommand(interp, "version",             version,      nullptr, nullptr);
-  Tcl_CreateCommand(interp, "start",   &startTimer, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "stop",    &stopTimer, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, nullptr, nullptr);
-  // Utilities
-  Tcl_CreateCommand(interp, "stripXML",            stripOpenSeesXML, nullptr, NULL);
-  Tcl_CreateCommand(interp, "convertBinaryToText", convertBinaryToText, nullptr, NULL);
-  Tcl_CreateCommand(interp, "convertTextToBinary", convertTextToBinary, nullptr, NULL);
-  Tcl_CreateCommand(interp, "setMaxOpenFiles",     maxOpenFiles, nullptr, nullptr);
   Tcl_CreateCommand(interp, "fault", 
     [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
 
-  // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, nullptr);
-  // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
+  // Timer
+  Tcl_CreateCommand(interp, "start",               startTimer,   nullptr, nullptr);
+  Tcl_CreateCommand(interp, "stop",                stopTimer,    nullptr, nullptr);
 
+  // File utilities
+  Tcl_CreateCommand(interp, "stripXML",            stripOpenSeesXML,    nullptr, NULL);
+  Tcl_CreateCommand(interp, "convertBinaryToText", convertBinaryToText, nullptr, NULL);
+  Tcl_CreateCommand(interp, "convertTextToBinary", convertTextToBinary, nullptr, NULL);
+  Tcl_CreateCommand(interp, "setMaxOpenFiles",     maxOpenFiles,        nullptr, nullptr);
+
+  // Some entry points
   Tcl_CreateCommand(interp, "model",               TclCommand_specifyModel, nullptr, nullptr);
   Tcl_CreateCommand(interp, "opensees::model",     TclCommand_specifyModel, nullptr, nullptr);
   Tcl_CreateCommand(interp, "wipe",                TclCommand_wipeModel,    nullptr, nullptr);
 
-  Tcl_CreateObjCommand(interp, "pset",     &OPS_SetObjCmd, nullptr, nullptr);
-  Tcl_CreateObjCommand(interp, "source",   &OPS_SourceCmd, nullptr, nullptr);
-  Tcl_CreateObjCommand(interp, "pragma",   &TclObjCommand_pragma, nullptr, nullptr);
-  Tcl_Eval(interp, "rename load opensees::import;");
-  Tcl_Eval(interp, "interp alias {} import {} opensees::import");
+  Tcl_CreateObjCommand(interp, "pset",             OPS_SetObjCmd, nullptr, nullptr);
+  Tcl_CreateObjCommand(interp, "source",           OPS_SourceCmd, nullptr, nullptr);
+  Tcl_CreateObjCommand(interp, "pragma",           TclObjCommand_pragma, nullptr, nullptr);
+
+  // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, nullptr);
+  // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
 
   return TCL_OK;
 }

@@ -1,18 +1,14 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 #include <math.h>
 #include <assert.h>
-
-// #include <g3_api.h>
 #include <tcl.h>
 #include <OPS_Globals.h>
-
 #include <Vector.h>
 #include <Domain.h>
 #include <Node.h>
-
-# include <StandardStream.h>
-# include <FileStream.h>
-# include <DummyStream.h>
-#include <iostream>
 
 int
 setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -20,7 +16,7 @@ setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  Domain *the_domain = (Domain*)clientData; 
+  Domain *the_domain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -80,7 +76,7 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
 
-  Domain *the_domain = (Domain*)clientData; 
+  Domain *the_domain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
@@ -138,7 +134,7 @@ nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  Domain *the_domain = (Domain*)clientData; 
+  Domain *the_domain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -185,7 +181,7 @@ calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  Domain *the_domain = (Domain*)clientData; 
+  Domain *the_domain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   int incInertia = 0;
@@ -207,4 +203,3 @@ calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
-
