@@ -18,9 +18,7 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.3 $
 // $Date: 2009-04-30 23:23:04 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/BinaryFileStream.cpp,v $
 
 #include <BinaryFileStream.h>
 #include <Vector.h>

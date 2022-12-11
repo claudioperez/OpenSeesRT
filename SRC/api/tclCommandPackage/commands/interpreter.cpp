@@ -2,6 +2,11 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+//
+// Description: This file contains basic commands that enhance the
+// experience of the interpreter. This file should not require see
+// any analysis or modeling classes.
+//
 #include <tcl.h>
 #include <assert.h>
 #include <g3_api.h>
@@ -10,6 +15,11 @@
 #include <Timer.h>
 #include <SimulationInformation.h>
 // #include <XmlFileStream.h>
+
+SimulationInformation simulationInfo;
+SimulationInformation *theSimulationInfoPtr = nullptr;
+static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
+static Timer *theTimer = nullptr;
 
 Tcl_CmdProc TclCommand_wipeModel;
 Tcl_CmdProc TclCommand_specifyModel;
@@ -23,14 +33,6 @@ int TclObjCommand_pragma([[maybe_unused]] ClientData clientData,
 Tcl_CmdProc convertBinaryToText;
 Tcl_CmdProc convertTextToBinary;
 Tcl_CmdProc stripOpenSeesXML;
-//
-Tcl_CmdProc TclCommand_getTime;
-Tcl_CmdProc TclCommand_setTime;
-
-SimulationInformation simulationInfo;
-SimulationInformation *theSimulationInfoPtr = nullptr;
-static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
-static Timer *theTimer = nullptr;
 
 
 //
@@ -51,7 +53,7 @@ version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 static int
 startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  if (theTimer == 0)
+  if (theTimer == nullptr)
     theTimer = new Timer();
 
   theTimer->start();
@@ -61,7 +63,7 @@ startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 static int
 stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  if (theTimer == 0)
+  if (theTimer == nullptr)
     return TCL_OK;
 
   theTimer->pause();
@@ -69,10 +71,23 @@ stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
+static int
+timer(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** argv)
+{
+  if ((argc == 1) || (strcmp(argv[1], "start")==0)) {
+    stopTimer(clientData, interp, argc, argv);
+    return startTimer(clientData, interp, argc, argv);
+  } else if (strcmp(argv[1], "stop")==0) {
+    return stopTimer(clientData, interp, argc, argv);
+  }
+  opserr << "Unknown argument '" << argv[1] << "'\n";
+  return TCL_ERROR;
+}
+
 //
 // revised puts command to send to stderr
 //
-int
+static int
 OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
                      Tcl_Obj *const objv[])
 {
@@ -208,7 +223,7 @@ logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
-int
+static int
 setPrecision(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
@@ -291,7 +306,7 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
   return Tcl_EvalFile(interp, fileN);
 }
 
-int
+static int
 OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
@@ -335,7 +350,7 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
   return 0;
 }
 
-int
+static int
 maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
@@ -387,10 +402,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_Eval(interp, "interp alias {} import {} opensees::import");
 
 
-  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, nullptr, nullptr);
-
-
   Tcl_CreateCommand(interp, "logFile",             logFile,      nullptr, nullptr);
   Tcl_CreateCommand(interp, "setPrecision",        setPrecision, nullptr, nullptr);
   Tcl_CreateCommand(interp, "exit",                OpenSeesExit, nullptr, nullptr);
@@ -402,6 +413,7 @@ OpenSeesAppInit(Tcl_Interp *interp)
   // Timer
   Tcl_CreateCommand(interp, "start",               startTimer,   nullptr, nullptr);
   Tcl_CreateCommand(interp, "stop",                stopTimer,    nullptr, nullptr);
+  Tcl_CreateCommand(interp, "timer",               timer,        nullptr, nullptr);
 
   // File utilities
   Tcl_CreateCommand(interp, "stripXML",            stripOpenSeesXML,    nullptr, NULL);

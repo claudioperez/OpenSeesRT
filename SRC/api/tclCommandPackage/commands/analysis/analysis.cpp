@@ -2,7 +2,8 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
+//
+//
 #include <tcl.h>
 #include <assert.h>
 #include <g3_api.h>
@@ -279,6 +280,12 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = G3_getDomain(rt);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
+
+  // assert(clientData != nullptr);
+  // BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+
+  // builder->initialize();
+
   
   if (theTransientAnalysis != 0) {
       theTransientAnalysis->initialize();
@@ -417,7 +424,6 @@ modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  // Domain *the_domain = G3_getDomain(rt);
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
   OPS_DomainModalProperties(rt);
   return TCL_OK;
@@ -427,9 +433,8 @@ static int
 responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  // Domain *the_domain = G3_getDomain(rt);
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
+  G3_Runtime *rt = G3_getRuntime(interp);
   OPS_ResponseSpectrumAnalysis(rt);
   return TCL_OK;
 }
@@ -747,7 +752,6 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
     theEigenSOE = nullptr;
     G3_setStaticIntegrator(rt,nullptr);
     theTransientIntegrator = nullptr;
-    G3_setStaticAnalysis(rt,nullptr);
     theVariableTimeStepTransientAnalysis = nullptr;
     theTest = nullptr;
 #endif

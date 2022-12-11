@@ -17,14 +17,13 @@
  **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
  **                                                                    **
  ** ****************************************************************** */
-
-// Written: fmk
-// Created: 04/98
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the comand 'record' is invoked by the
 // user.
 //
+// Written: fmk
+// Created: 04/98
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +41,15 @@
 #include <packages.h>
 #include <elementAPI.h>
 
+#include <StandardStream.h>
+#include <DataFileStream.h>
+#include <DataFileStreamAdd.h>
+#include <XmlFileStream.h>
+#include <BinaryFileStream.h>
+#include <DatabaseStream.h>
+#include <DummyStream.h>
+#include <TCP_Stream.h>
+
 
 // recorders
 #include <NodeRecorder.h>
@@ -53,20 +61,18 @@
 #include <EnvelopeElementRecorder.h>
 #include <NormElementRecorder.h>
 #include <NormEnvelopeElementRecorder.h>
-
 #include <DamageRecorder.h>
 #include <MeshRegion.h>
 //#include <GSA_Recorder.h>
 #include <RemoveRecorder.h>
 
-#include <StandardStream.h>
-#include <DataFileStream.h>
-#include <DataFileStreamAdd.h>
-#include <XmlFileStream.h>
-#include <BinaryFileStream.h>
-#include <DatabaseStream.h>
-#include <DummyStream.h>
-#include <TCP_Stream.h>
+#include <SimulationInformation.h>
+extern SimulationInformation simulationInfo;
+
+static EquiSolnAlgo *theAlgorithm = nullptr;
+extern FE_Datastore *theDatabase;
+extern FEM_ObjectBroker theBroker;
+
 
 void *OPS_PVDRecorder(G3_Runtime*);
 void *OPS_GmshRecorder(G3_Runtime*);
@@ -94,7 +100,7 @@ typedef struct externalRecorderCommand {
 
 static ExternalRecorderCommand *theExternalRecorderCommands = NULL;
 
-enum outputMode {
+enum OutputMode {
   STANDARD_STREAM,
   DATA_STREAM,
   XML_STREAM,
@@ -105,13 +111,6 @@ enum outputMode {
   DATA_STREAM_ADD
 };
 
-
-#include <SimulationInformation.h>
-extern SimulationInformation simulationInfo;
-
-static EquiSolnAlgo *theAlgorithm = 0;
-extern FE_Datastore *theDatabase;
-extern FEM_ObjectBroker theBroker;
 
 int
 TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -149,7 +148,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     int loc = endEleIDs;
     int flags = 0;
     int eleData = 0;
-    outputMode eMode = STANDARD_STREAM;
+    OutputMode eMode = STANDARD_STREAM;
     ID *eleIDs = 0;
     int precision = 6;
     const char *inetAddr = 0;
@@ -382,9 +381,16 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         loc += 2;
       }
 
+      else if ((strcmp(argv[loc], "-binary") == 0)) {
+        fileName = argv[loc + 1];
+        const char *pwd = getInterpPWD(interp);
+        simulationInfo.addOutputFile(fileName, pwd);
+        eMode = BINARY_STREAM;
+        loc += 2;
+      }
+
       else if ((strcmp(argv[loc], "-nees") == 0) ||
                (strcmp(argv[loc], "-xml") == 0)) {
-        // allow user to specify load pattern other than current
         fileName = argv[loc + 1];
         const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
@@ -393,7 +399,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       else if (strcmp(argv[loc], "-fileAdd") == 0) {
-        // allow user to specify load pattern other than current
         fileName = argv[loc + 1];
         const char *pwd = getInterpPWD(interp);
         simulationInfo.addOutputFile(fileName, pwd);
@@ -409,15 +414,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         }
         eMode = TCP_STREAM;
         loc += 3;
-      }
-
-      else if ((strcmp(argv[loc], "-binary") == 0)) {
-        // allow user to specify load pattern other than current
-        fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
-        eMode = BINARY_STREAM;
-        loc += 2;
       }
 
       else {
@@ -600,7 +596,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    //	const char **data = new const char *[argc-eleData];
 
     OPS_Stream *theOutput = new DataFileStream(fileName);
 
@@ -609,8 +604,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                                         echoTime, dT, *theOutput);
 
   }
-  //////////////////////End of ElementDamage
-  /// recorder////////////////////////////
+  ////////////////End of ElementDamage recorder////////////////////////
 
   else if ((strcmp(argv[1], "Remove") == 0) ||
            (strcmp(argv[1], "ElementRemoval") == 0) ||
@@ -759,11 +753,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         }
 
         Tcl_ResetResult(interp);
-
-        //	    if (loc == argc) {
-        //	      opserr << "ERROR: No response type specified for element
-        // recorder. " << endln; 	      return TCL_ERROR;
-        //	    }
 
         if (strcmp(argv[loc], "all") == 0) {
           ElementIter &theEleIter = domain->getElements();
@@ -1069,7 +1058,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     TCL_Char *responseID = 0;
 
-    outputMode eMode = STANDARD_STREAM;
+    OutputMode eMode = STANDARD_STREAM;
 
     int pos = 2;
 
@@ -1452,7 +1441,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[1], "Drift") == 0) ||
            (strcmp(argv[1], "EnvelopeDrift") == 0)) {
 
-    outputMode eMode = STANDARD_STREAM; // enum found in DataOutputFileHandler.h
+    OutputMode eMode = STANDARD_STREAM;
 
     bool echoTimeFlag = false;
     ID iNodes(0, 16);
@@ -2084,7 +2073,6 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // add the recorder to the domain,
   // NOTE: will not be called with theALgo == 0
-  // see ~/g3/SRC/tcl/commands.C file
   if (theAlgorithm != 0) {
     if ((theAlgorithm->addRecorder(*theRecorder)) < 0) {
       opserr << "WARNING could not add to domain - recorder " << argv[1]
@@ -2101,3 +2089,60 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
+
+// by SAJalali
+int
+OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
+                  TCL_Char **argv)
+{
+  G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = G3_getDomain(rt);
+
+  // clmnID starts from 1
+  if (argc < 3) {
+    opserr << "WARNING want - recorderValue recorderTag clmnID <rowOffset> "
+              "<-reset>\n";
+    return TCL_ERROR;
+  }
+
+  int tag, rowOffset;
+  int dof = -1;
+
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING recorderValue recorderTag? clmnID <rowOffset> <-reset> "
+              "could not read recorderTag\n";
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
+    opserr << "WARNING recorderValue recorderTag? clmnID - could not read "
+              "clmnID \n";
+    return TCL_ERROR;
+  }
+  dof--;
+  rowOffset = 0;
+  int curArg = 3;
+  if (argc > curArg) {
+    if (Tcl_GetInt(interp, argv[curArg], &rowOffset) != TCL_OK) {
+      opserr << "WARNING recorderValue recorderTag? clmnID <rowOffset> "
+                "<-reset> could not read rowOffset \n";
+      return TCL_ERROR;
+    }
+    curArg++;
+  }
+  bool reset = false;
+  if (argc > curArg) {
+    if (strcmp(argv[curArg], "-reset") == 0)
+      reset = true;
+    curArg++;
+  }
+  Recorder *theRecorder = domain->getRecorder(tag);
+  double res = theRecorder->getRecordedValue(dof, rowOffset, reset);
+  // now we copy the value to the tcl string that is returned
+  char buffer[40];
+  sprintf(buffer, "%35.8f", res);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+

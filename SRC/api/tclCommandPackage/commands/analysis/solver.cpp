@@ -126,7 +126,8 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
 
   } else if (strcmp(argv[1], "Umfpack")==0) {
     // theSOE = TclDispatch_newUmfpackSOE(clientData, interp, argc, argv);
-    // theSOE = soe_table["SparseGen"].ss(rt, argc, argv);
+    theSOE = soe_table["SparseGen"].ss(rt, argc, argv);
+    opserr << "WARNING - Umfpack not installed\n";
   }
 
 #if 0

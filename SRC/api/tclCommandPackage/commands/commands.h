@@ -2,12 +2,8 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-// Description: This file contains the functions that will be called by
-// the interpreter when the appropriate command name is specified.
-
-
-
+//
+//
 Tcl_CmdProc setLoadConst;
 
 Tcl_CmdProc setCreep;
@@ -125,8 +121,8 @@ Tcl_CmdProc getEleLoadData;
 
 // Tcl_CmdProc startTimer;
 // Tcl_CmdProc stopTimer;
-// Tcl_CmdProc setTime;
-// Tcl_CmdProc getTime;
+Tcl_CmdProc TclCommand_getTime;
+Tcl_CmdProc TclCommand_setTime;
 
 Tcl_CmdProc rayleighDamping;
 
@@ -162,7 +158,7 @@ Tcl_CmdProc InitialStateAnalysis;
 Tcl_CmdProc elementActivate;
 Tcl_CmdProc elementDeactivate;
 
-// by SAJalali
+// domain/recorder.cpp
 Tcl_CmdProc OPS_recorderValue;
 
 

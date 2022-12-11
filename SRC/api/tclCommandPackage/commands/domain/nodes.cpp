@@ -2,6 +2,10 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+//
+// Description: This file implements commands for interacting with nodes
+// in the domain.
+//
 #include <math.h>
 #include <assert.h>
 #include <tcl.h>
@@ -18,7 +22,6 @@ setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Domain *the_domain = (Domain *)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeAccel nodeTag? dof? value? <-commit>\n";
     return TCL_ERROR;
@@ -78,7 +81,6 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   Domain *the_domain = (Domain *)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeAccel nodeTag? dof?\n";
     return TCL_ERROR;
@@ -136,7 +138,6 @@ nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Domain *the_domain = (Domain *)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - nodeResponse nodeTag? dof? responseID?\n";
     return TCL_ERROR;
@@ -183,7 +184,6 @@ calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Domain *the_domain = (Domain *)clientData;
 
-  // make sure at least one other argument to contain type of system
   int incInertia = 0;
 
   if (argc == 2) {

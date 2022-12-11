@@ -17,14 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.9 $
-// $Date: 2009-04-17 22:58:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/TclBasicBuilder.h,v $
-
-// Written: fmk
-// Created: 07/99
-// Revision: A
 //
 // Description: This file contains the class definition for TclBasicBuilder.
 // A TclBasicBuilder adds the commands to create the model for the standard
@@ -34,8 +26,9 @@
 //	2) non-linear material truss
 //	3) non-linear 2 and 3d fiber-beam-column elements
 //
-// What: "@(#) TclBasicBuilder.h, revA"
-
+// Written: fmk
+// Created: 07/99
+// Revision: A
 #ifndef TclBasicBuilder_h
 #define TclBasicBuilder_h
 

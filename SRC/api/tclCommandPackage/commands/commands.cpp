@@ -2,12 +2,10 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-// Written: cmp
-
+//
 // Description: This file contains the functions that will be called by
 // the interpreter when the appropriate command name is specified.
-
+//
 #include <assert.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
@@ -15,9 +13,9 @@
 #include <classTags.h>
 #include <DOF_Group.h>
 
-extern "C" {
-#include <g3_api.h>
-}
+// extern "C" {
+// #include <g3_api.h>
+// }
 
 #include <OPS_Globals.h>
 #include <Matrix.h>
@@ -25,11 +23,7 @@ extern "C" {
 #include <vector>
 #include <algorithm>
 
-#ifdef _USING_STL_STREAMS
-#  include <iomanip>
-#else
-#  include <DummyStream.h>
-#endif
+#include <DummyStream.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,11 +80,10 @@ extern "C" {
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
+#include <LinearSOE.h>
 #include <EigenSOE.h>
 #include <ArpackSOE.h>
 #include <ArpackSolver.h>
-
-#include <LinearSOE.h>
 
 
 //  recorders
@@ -174,9 +167,11 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, nullptr, nullptr);
 
 
-  Tcl_CreateCommand(interp, "build", &buildModel, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "print", &printModel, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "printModel", &printModel, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "build",      &buildModel, nullptr, nullptr);
+
+  Tcl_CreateCommand(interp, "print",      &printModel, domain, nullptr);
+  Tcl_CreateCommand(interp, "printModel", &printModel, domain, nullptr);
+
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "remove",            &removeObject,    domain, nullptr);
@@ -188,17 +183,20 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 //   Tcl_CreateCommand(interp, "printGID", &printModelGID, nullptr, nullptr);
 //   // Talledo End
 
+  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, domain, nullptr);
+  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, domain, nullptr);
+
   Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
   Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, nullptr, nullptr);
   Tcl_CreateCommand(interp, "nodePressure",        &nodePressure, nullptr, nullptr);
   Tcl_CreateCommand(interp, "nodeBounds",          &nodeBounds, nullptr, nullptr);
 
   // DAMPING
-  Tcl_CreateCommand(interp, "rayleigh",            &rayleighDamping, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "rayleigh",            &rayleighDamping, domain, nullptr);
   Tcl_CreateCommand(interp, "setElementRayleighDampingFactors",
                     &setElementRayleighDampingFactors, nullptr, nullptr);
 
-  Tcl_CreateCommand(interp, "region",              &addRegion, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "region",              &addRegion,     domain, nullptr);
 
 
   Tcl_CreateCommand(interp, "getLoadFactor",       &getLoadFactor, domain, nullptr);
@@ -257,7 +255,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "basicForce",          &basicForce,          domain, nullptr);
   Tcl_CreateCommand(interp, "basicStiffness",      &basicStiffness,      domain, nullptr);
 
-  Tcl_CreateCommand(interp, "recorderValue", &OPS_recorderValue, domain, nullptr); // by SAJalali
+  Tcl_CreateCommand(interp, "recorderValue",       &OPS_recorderValue, domain, nullptr); // by SAJalali
 
   // command added for initial state analysis for nDMaterials. Chris McGann, U.Washington
   Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, nullptr);
@@ -278,63 +276,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   return TCL_OK;
 }
 
-
-// by SAJalali
-int
-OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
-  // make sure at least one other argument to contain type of system
-
-  // clmnID starts from 1
-  if (argc < 3) {
-    opserr << "WARNING want - recorderValue recorderTag clmnID <rowOffset> "
-              "<-reset>\n";
-    return TCL_ERROR;
-  }
-
-  int tag, rowOffset;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING recorderValue recorderTag? clmnID <rowOffset> <-reset> "
-              "could not read recorderTag \n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr << "WARNING recorderValue recorderTag? clmnID - could not read "
-              "clmnID \n";
-    return TCL_ERROR;
-  }
-  dof--;
-  rowOffset = 0;
-  int curArg = 3;
-  if (argc > curArg) {
-    if (Tcl_GetInt(interp, argv[curArg], &rowOffset) != TCL_OK) {
-      opserr << "WARNING recorderValue recorderTag? clmnID <rowOffset> "
-                "<-reset> could not read rowOffset \n";
-      return TCL_ERROR;
-    }
-    curArg++;
-  }
-  bool reset = false;
-  if (argc > curArg) {
-    if (strcmp(argv[curArg], "-reset") == 0)
-      reset = true;
-    curArg++;
-  }
-  Recorder *theRecorder = domain->getRecorder(tag);
-  double res = theRecorder->getRecordedValue(dof, rowOffset, reset);
-  // now we copy the value to the tcl string that is returned
-  char buffer[40];
-  sprintf(buffer, "%35.8f", res);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
 
 
 int
@@ -374,7 +315,6 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // command invoked to build the model, i.e. to invoke buildFE_Model()
 // on the ModelBuilder
-
 int
 buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
@@ -395,33 +335,6 @@ buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     opserr << "WARNING No ModelBuilder type has been specified \n";
     return TCL_ERROR;
   }
-}
-
-
-
-int
-printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char **argv, OPS_Stream &output)
-{
-  int eleArg = 0;
-  if (theAlgorithm == 0)
-    return TCL_OK;
-
-  // if just 'print <filename> algorithm'- no flag
-  if (argc == 0) {
-    theAlgorithm->Print(output);
-    return TCL_OK;
-  }
-
-  // if 'print <filename> Algorithm flag' get the flag
-  int flag;
-  if (Tcl_GetInt(interp, argv[eleArg], &flag) != TCL_OK) {
-    opserr << "WARNING print algorithm failed to get integer flag: \n";
-    opserr << argv[eleArg] << endln;
-    return TCL_ERROR;
-  }
-  theAlgorithm->Print(output, flag);
-  return TCL_OK;
 }
 
 
@@ -496,7 +409,6 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeDisp nodeTag? <dof?>\n";
     return TCL_ERROR;
@@ -558,7 +470,6 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeReaction nodeTag? <dof?>\n";
     return TCL_ERROR;
@@ -621,7 +532,6 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeUnbalance nodeTag? <dof?>\n";
     return TCL_ERROR;
@@ -684,7 +594,6 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - nodeEigenVector nodeTag? eigenVector? <dof?>\n";
     return TCL_ERROR;
@@ -757,7 +666,6 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eleForce eleTag? <dof?>\n";
     return TCL_ERROR;
@@ -830,7 +738,6 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - localForce eleTag? <dof?>\n";
     return TCL_ERROR;
@@ -894,7 +801,6 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - eleForce eleTag? <dof?>\n";
     return TCL_ERROR;
@@ -950,9 +856,8 @@ int
 eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* the_domain = G3_getDomain(rt);
-  // make sure at least one other argument to contain type of system
+  Domain* the_domain = (Domain*)clientData; 
+
   if (argc < 2) {
     opserr << "WARNING want - eleResponse eleTag? eleArgs...\n";
     return TCL_ERROR;
@@ -1003,7 +908,6 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - findNodesWithID ?id\n";
     return TCL_ERROR;
@@ -1043,7 +947,6 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeCoord nodeTag? <dim?>\n";
     return TCL_ERROR;
@@ -1235,7 +1138,6 @@ setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeCoord nodeTag? dim? value?\n";
     return TCL_ERROR;
@@ -1512,7 +1414,6 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - nodeVel nodeTag? <dof?>\n";
     return TCL_ERROR;
@@ -1570,7 +1471,6 @@ setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeVel nodeTag? dof? value? <-commit>\n";
     return TCL_ERROR;
@@ -1629,7 +1529,6 @@ setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - setNodeDisp nodeTag? dof? value? <-commit>\n";
     return TCL_ERROR;
@@ -1692,7 +1591,6 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionForce eleTag? <secNum?> dof? \n";
     return TCL_ERROR;
@@ -1774,7 +1672,6 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr << "WARNING want - sectionDeformation eleTag? secNum? dof? \n";
     return TCL_ERROR;
@@ -1851,7 +1748,6 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionLocation eleTag? secNum? \n";
     return TCL_ERROR;
@@ -1918,16 +1814,10 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionWeight eleTag? secNum? \n";
     return TCL_ERROR;
   }
-
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
 
   int tag, secNum;
 
@@ -1985,7 +1875,6 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionStiffness eleTag? secNum? \n";
     return TCL_ERROR;
@@ -2056,7 +1945,6 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 3) {
     opserr << "WARNING want - sectionFlexibility eleTag? secNum? \n";
     return TCL_ERROR;
@@ -2132,7 +2020,6 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - basicDeformation eleTag? \n";
     return TCL_ERROR;
@@ -2195,16 +2082,10 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - basicForce eleTag? \n";
     return TCL_ERROR;
   }
-
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
 
   int tag;
 
@@ -2264,16 +2145,10 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << "WARNING want - basicStiffness eleTag? \n";
     return TCL_ERROR;
   }
-
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
 
   int tag;
 
@@ -2411,9 +2286,9 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
   the_domain->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
-
   return TCL_OK;
 }
 
@@ -2467,7 +2342,8 @@ extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  Domain *the_domain = G3_getDomain(G3_getRuntime(interp));
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
   return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
 }
@@ -2720,8 +2596,9 @@ int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *the_domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   Node *node;
   if (the_domain==nullptr)
     return TCL_ERROR;

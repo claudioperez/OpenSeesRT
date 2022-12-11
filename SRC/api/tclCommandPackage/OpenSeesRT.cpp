@@ -2,15 +2,11 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-
-/* Claudio Perez */
-
+//
+//
 #include <g3_api.h>
 #undef G3_Runtime
 #include "G3_Runtime.h"
-
-// Error streams
 #include "Logging/G3_Logging.h"
 #include <handler/OPS_Stream.h>
 #include <StandardStream.h>      

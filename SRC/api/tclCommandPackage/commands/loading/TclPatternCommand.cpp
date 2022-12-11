@@ -812,7 +812,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
   if (domain->addLoadPattern(thePattern) == false) {
     opserr << "WARNING could not add load pattern to the domain "
            << *thePattern;
-    delete thePattern; // free up the memory, pattern destroys the time series
+    delete thePattern;
     return TCL_ERROR;
   }
 
@@ -820,7 +820,9 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
   builder->setEnclosingPattern(thePattern);
   Tcl_CreateCommand(interp, "sp", TclCommand_addSP, (ClientData)thePattern, NULL);
-  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
+  Tcl_CreateCommand(interp, "nodalLoad", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
+  Tcl_Eval(interp, "rename load opensees::import;");
+  Tcl_Eval(interp, "rename nodalLoad load;");
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
@@ -836,6 +838,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
   Tcl_DeleteCommand(interp, "sp");
+  Tcl_Eval(interp, "rename load opensees::import;");
   Tcl_DeleteCommand(interp, "load");
 
   return TCL_OK;
@@ -848,10 +851,11 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
   int nodeLoadTag = theTclBuilder->getNodalLoadTag();
+  
+  // TODO!!!
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData;
-
-  // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  // ensure the destructor has not been called
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - load \n";

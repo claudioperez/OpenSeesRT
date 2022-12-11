@@ -1,6 +1,11 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
-// graph
 #include <RCM.h>
 #include <AMDNumberer.h>
 
@@ -20,6 +25,7 @@ DOF_Numberer*
 G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char **argv)
 {
   DOF_Numberer *theNumberer = nullptr;
+
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
     opserr << "WARNING need to specify a Numberer type \n";
@@ -64,7 +70,6 @@ G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char **argv)
     theParallelNumberer->setProcessID(OPS_rank);
     theParallelNumberer->setChannels(numChannels, theChannels);
   }
-
 #  endif
 
   else {

@@ -88,7 +88,7 @@ G3_Runtime *G3_getRuntime(Tcl_Interp *);
 Tcl_Interp *G3_getInterpreter(G3_Runtime*);
 
 // Domain
-int     G3_setDomain(G3_Runtime*, Domain*);
+// int     G3_setDomain(G3_Runtime*, Domain*);
 Domain *G3_getDomain(G3_Runtime *);
 
 BasicModelBuilder *G3_getSafeBuilder(G3_Runtime *);
@@ -104,9 +104,6 @@ CrdTransf *G3_getCrdTransf(G3_Runtime *, G3_Tag);
 
 // Systems and Solvers
 LinearSOE **G3_getLinearSoePtr(G3_Runtime* );
-// #undef  OPS_GetLinearSOE
-// #define OPS_GetLinearSOE() G3_getLinearSoePtr(rt)
-// int G3_setLinearSoe(G3_Runtime*, LinearSOE*);
 
 //
 // RUNTIME
@@ -125,7 +122,6 @@ int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
 int G3_delStaticAnalysis(G3_Runtime *);
 StaticIntegrator *G3_getStaticIntegrator(G3_Runtime *);
 int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
-
 
 #ifdef __cplusplus
 }

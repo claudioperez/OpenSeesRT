@@ -39,7 +39,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *theNewBuilder = 0;
   Domain *theNewDomain = new Domain();
-  G3_setDomain(rt, theNewDomain);
+  // G3_setDomain(rt, theNewDomain);
   // TODO: remove ops_TheActiveDomain
   ops_TheActiveDomain = theNewDomain;
   // end TODO

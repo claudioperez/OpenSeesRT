@@ -2,7 +2,12 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
+//
+// Description: This file implements commands that allow for construction
+// and interaction with Algorithm objects. Any command which requires
+// access to specific Algorithm types (from the standard library) should
+// be implemented here.
+//
 #include <stdio.h>
 #include <assert.h>
 #include <g3_api.h>
@@ -41,6 +46,7 @@
 
 // extern StaticAnalysis *theStaticAnalysis;
 // extern ConvergenceTest *theTest;
+extern EquiSolnAlgo *theAlgorithm;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -598,3 +604,29 @@ G3_newBroyden(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return theNewAlgo;
 }
+
+int
+printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
+               TCL_Char **argv, OPS_Stream &output)
+{
+  int eleArg = 0;
+  if (theAlgorithm == 0)
+    return TCL_OK;
+
+  // if just 'print <filename> algorithm'- no flag
+  if (argc == 0) {
+    theAlgorithm->Print(output);
+    return TCL_OK;
+  }
+
+  // if 'print <filename> Algorithm flag' get the flag
+  int flag;
+  if (Tcl_GetInt(interp, argv[eleArg], &flag) != TCL_OK) {
+    opserr << "WARNING print algorithm failed to get integer flag: \n";
+    opserr << argv[eleArg] << endln;
+    return TCL_ERROR;
+  }
+  theAlgorithm->Print(output, flag);
+  return TCL_OK;
+}
+

@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define BasicAnalysisBulider_h
 
 class Domain;
+class G3_Table;
 class ConstraintHandler;
 class DOF_Numberer;
 class AnalysisModel;
@@ -62,6 +63,10 @@ public:
     BasicAnalysisBuilder();
     BasicAnalysisBuilder(Domain* domain);
     ~BasicAnalysisBuilder();
+
+    int   tag_object(const char* type, int tag, void* obj);
+    void* get_object(const char* type, int tag);
+    void* pop_object(const char* type, int tag);
 
     void set(ConstraintHandler* obj);
     void set(DOF_Numberer* obj);
@@ -99,6 +104,7 @@ public:
     };
     
 private:
+    G3_Table* registry;
     enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
     Domain                    *theDomain;
     ConstraintHandler 	      *theHandler;

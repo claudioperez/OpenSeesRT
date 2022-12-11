@@ -54,7 +54,6 @@ extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
-// constructor: the constructor will add certain commands to the interpreter
 BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
     : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
@@ -78,7 +77,7 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
-  G3_setDomain(m_runtime, &theDomain);
+  // G3_setDomain(m_runtime, &theDomain);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 
@@ -113,7 +112,6 @@ BasicModelBuilder::~BasicModelBuilder()
   tclEnclosingPattern = nullptr;
 
   // theTclMultiSupportPattern = 0;
-  // TCL_OPS_setModelBuilder(0);
 
   // may possibly invoke Tcl_DeleteCommand() later
   // Tcl_DeleteCommand(theInterp, "node");

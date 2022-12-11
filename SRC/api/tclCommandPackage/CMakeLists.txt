@@ -16,10 +16,10 @@ target_include_directories(OpenSeesRT PUBLIC
   ${OPS_SRC_DIR}/api/tclCommandPackage/commands
   ${OPS_SRC_DIR}/api/tclCommandPackage/commands/modeling
   ${OPS_SRC_DIR}/api/tclCommandPackage/misc
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/basic
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/uniax
-  ${OPS_SRC_DIR}/api/tclCommandPackage/modelbuilder/sect
+  ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder
+  ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder/basic
+  ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder/uniax
+  ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder/sect
   ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/
   ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/Logging/
 )
@@ -28,20 +28,10 @@ add_subdirectory(commands/)
 add_subdirectory(runtime/)
 
 target_sources(OpenSeesRT PRIVATE
-#
-# GENERAL
-#
+# General
     "OpenSeesRT.cpp"
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"
-
-# Model Builders
-    "modelbuilder/TclBuilder.cpp"
-    "modelbuilder/basic/TclBasicBuilder.cpp"
-    "modelbuilder/uniax/TclUniaxialMaterialTester.cpp"
-    "modelbuilder/sect/TclSectionTestBuilder.cpp"
-    #"modelbuilder/plane/TclPlaneStressMaterialTester.cpp"
-
 
 # Other
     "misc/TclPackageClassBroker.cpp"
@@ -91,7 +81,6 @@ endif()
 target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
 
 
-
 #
 # Python
 #
@@ -102,7 +91,6 @@ endif()
 
 target_link_libraries(OpenSeesRT PRIVATE
   ${OPS_Element_List}
-  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES} ${AMD_LIBRARIES}
   OPS_Material
   OPS_Damage
   OPS_ModelBuilder
@@ -110,5 +98,6 @@ target_link_libraries(OpenSeesRT PRIVATE
   OpenSeesRT_LinearSystem
   G3
   ${TCL_STUB_LIBRARY}
+  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES} ${AMD_LIBRARIES}
 )
 

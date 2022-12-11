@@ -2,6 +2,10 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+//
+// Description: This file provides basic file format handling commands,
+// such as naive XML processing and binary conversion.
+//
 #include <tcl.h>
 #include <string>
 #include <iomanip>

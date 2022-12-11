@@ -280,9 +280,6 @@ Tcl_addWrapperElement(eleObj *theEle, ClientData clientData, Tcl_Interp *interp,
   return 0;
 }
 
-
-
-
 extern "C" int
 OPS_InvokeMaterial(eleObject *theEle, int *mat, modelState *model,
                    double *strain, double *stress, double *tang, int *isw)
@@ -290,8 +287,6 @@ OPS_InvokeMaterial(eleObject *theEle, int *mat, modelState *model,
   int error = 0;
 
   matObject *theMat = theEle->mats[*mat];
-  /* fprintf(stderr,"invokeMaterial Address %d %d %d\n",*mat, theMat,
-   * sizeof(int)); */
 
   if (theMat != 0)
     theMat->matFunctPtr(theMat, model, strain, tang, stress, isw, &error);
@@ -307,8 +302,6 @@ OPS_InvokeMaterialDirectly(matObject **theMat, modelState *model,
                            int *isw)
 {
   int error = 0;
-  //  fprintf(stderr,"invokeMaterialDirectly Address %d %d %d\n",theMat,
-  //  sizeof(int), *theMat);
   if (*theMat != 0)
     (*theMat)->matFunctPtr(*theMat, model, strain, tang, stress, isw, &error);
   else
@@ -316,4 +309,103 @@ OPS_InvokeMaterialDirectly(matObject **theMat, modelState *model,
 
   return error;
 }
+
+/*
+extern "C" matObj *
+OPS_GetMaterial(int *matTag, int *matType)
+{
+  if (*matType == OPS_UNIAXIAL_MATERIAL_TYPE) {
+    UniaxialMaterial *theUniaxialMaterial = OPS_getUniaxialMaterial(*matTag);
+
+    if (theUniaxialMaterial != 0) {
+
+      UniaxialMaterial *theCopy = theUniaxialMaterial->getCopy();
+      //  uniaxialMaterialObjectCount++;
+      // theUniaxialMaterials[uniaxialMaterialObjectCount] = theCopy;
+
+      matObject *theMatObject = new matObject;
+      theMatObject->tag = *matTag;
+      theMatObject->nParam = 1;
+      theMatObject->nState = 0;
+
+      theMatObject->theParam = new double[1];
+      //  theMatObject->theParam[0] = uniaxialMaterialObjectCount;
+      theMatObject->theParam[0] = 1; // code for uniaxial material
+
+      theMatObject->tState = 0;
+      theMatObject->cState = 0;
+      theMatObject->matFunctPtr = OPS_InvokeMaterialObject;
+
+      theMatObject->matObjectPtr = theCopy;
+
+      return theMatObject;
+    }
+
+    fprintf(stderr, "getMaterial - no uniaxial material exists with tag %d\n",
+            *matTag);
+    return 0;
+
+  } else if (*matType == OPS_SECTION_TYPE) {
+    fprintf(stderr, "getMaterial - not yet implemented for Section\n");
+    return 0;
+  } else {
+
+    //    NDMaterial *theNDMaterial = theModelBuilder->getNDMaterial(*matTag);
+
+    //    if (theNDMaterial != 0)
+    //      theNDMaterial = theNDMaterial->getCopy(matType);
+    //    else {
+    //      fprintf(stderr,"getMaterial - no nd material exists with tag %d\n",
+    //      *matTag); return 0;
+    //    }
+
+    //    if (theNDMaterial == 0) {
+    //      fprintf(stderr,"getMaterial - material with tag %d cannot deal with
+    //      %d\n", *matTag, matType); return 0;
+    //    }
+
+    fprintf(stderr, "getMaterial - not yet implemented for nDMaterial\n");
+    return 0;
+  }
+
+  fprintf(stderr, "getMaterial - unknown material type\n");
+  return 0;
+}
+
+extern "C"
+void OPS_GetMaterialPtr(int *matTag, matObj *theRes)
+{
+  UniaxialMaterial *theUniaxialMaterial = theModelBuilder->getUniaxialMaterial(*matTag);
+
+  if (theUniaxialMaterial != 0) {
+
+    UniaxialMaterial *theCopy = theUniaxialMaterial->getCopy();
+    if (theCopy  == 0) {
+      fprintf(stderr,"OPS_GetMaterialPtr() failed - no material of type %d \n", *matTag); 
+      theRes = 0; 
+      return;
+    }
+
+    uniaxialMaterialObjectCount++;
+    theUniaxialMaterials[uniaxialMaterialObjectCount] = theCopy;
+
+    matObject *theMatObject = new matObject;
+    theMatObject->tag = *matTag;
+    theMatObject->nParam = 1;
+    theMatObject->nState = 0;
+
+    theMatObject->theParam = new double[1];
+    theMatObject->theParam[0] = uniaxialMaterialObjectCount;
+
+    theMatObject->tState = 0;
+    theMatObject->cState = 0;
+    theMatObject->matFunctPtr = OPS_UniaxialMaterialFunction;
+
+    theRes = theMatObject;
+  }
+
+  theRes = 0;
+}
+*/
+
 

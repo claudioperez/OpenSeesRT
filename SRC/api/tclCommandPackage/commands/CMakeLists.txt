@@ -5,18 +5,21 @@
 #
 #=====================================================================
 target_sources(OpenSeesRT PRIVATE
-# Runtime
-
+# Interpreter
     "formats.cpp"
     "interpreter.cpp"
     "pragma.cpp"
     "sequential.cpp"
 
-    "runtime.cpp"
+# Domain
     "commands.cpp"
-    "nodes.cpp"
-    "domain.cpp"
-    "recorder.cpp"
+
+    "domain/domain.cpp"
+    "domain/nodes.cpp"
+    "domain/runtime.cpp"
+    "domain/printing.cpp"
+    "domain/recorder.cpp"
+    "domain/TclUpdateMaterialStageCommand.cpp"
 
 # Modeling
     "modeling/model.cpp"
@@ -26,7 +29,6 @@ target_sources(OpenSeesRT PRIVATE
     "modeling/rigidLink.cpp"
     "modeling/element.cpp"
     "modeling/region.cpp"
-    # sub-element modeling
     "modeling/nDMaterial.cpp"
     "modeling/section.cpp"
     "modeling/uniaxialMaterial.cpp"
@@ -42,7 +44,6 @@ target_sources(OpenSeesRT PRIVATE
     "analysis/solver.hpp"
 
     "modeling/TclUpdateMaterialCommand.cpp"
-    "TclUpdateMaterialStageCommand.cpp"
 
 # LOADS & PATTERNS
     "loading/groundMotion.cpp"

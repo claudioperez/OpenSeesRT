@@ -1,3 +1,9 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+class G3_Runtime;
+
 void *OPS_NewtonRaphsonAlgorithm(G3_Runtime*);
 void *OPS_ExpressNewton(G3_Runtime*);
 void *OPS_ModifiedNewton(G3_Runtime*);

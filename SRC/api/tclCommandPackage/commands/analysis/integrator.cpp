@@ -1,12 +1,16 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
+#include "analysis.h"
 #include <assert.h>
 #include <g3_api.h>
 #include <api/InputAPI.h>
 #include <runtimeAPI.h>
-#include "analysis.h"
-
 #include <Domain.h>
 #include <Node.h>
-
 #include "runtime/BasicAnalysisBuilder.h"
 
 // integrators

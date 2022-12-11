@@ -39,7 +39,7 @@
 // What: "@(#) TclPatternCommand.C, revA"
 
 #include <TclBasicBuilder.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <g3_api.h>
 #include <Domain.h>

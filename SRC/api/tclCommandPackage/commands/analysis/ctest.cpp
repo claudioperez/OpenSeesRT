@@ -1,3 +1,7 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 #include <assert.h>
 #include <api/InputAPI.h>
 #include <G3_Logging.h>

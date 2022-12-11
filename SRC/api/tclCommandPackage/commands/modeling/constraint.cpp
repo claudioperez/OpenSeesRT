@@ -49,7 +49,6 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fix nodeId " << ndf
            << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -122,13 +121,15 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixX xLoc " << ndf << " [0,1] conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fixX xLoc " << ndf << " [0,1] conditions";
+    printCommand(argc, argv); return TCL_ERROR;
   }
 
   // get the xCrd of nodes to be constrained
   double xLoc;
   if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid xCrd - fixX xLoc " << ndf << " [0,1] conditions\n"; return TCL_ERROR;
+      opserr << "WARNING invalid xCrd - fixX xLoc " << ndf << " [0,1] conditions\n";
+      return TCL_ERROR;
   }
 
   // read in the fixities
@@ -180,7 +181,9 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixY yLoc " << ndf << " [0,1] conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fixY yLoc " << ndf << " [0,1] conditions";
+    printCommand(argc, argv);
+    return TCL_ERROR;
   }
 
   // get the yCrd of nodes to be constrained
@@ -239,7 +242,9 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixZ zLoc " << ndf << " [0,1] conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fixZ zLoc " << ndf << " [0,1] conditions";
+    printCommand(argc, argv);
+    return TCL_ERROR;
   }
 
   // get the yCrd of nodes to be constrained
@@ -282,12 +287,12 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
 
   // TODO!! 
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
 
   // ensure the destructor has not been called -
 
@@ -482,7 +487,9 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
 
         // Check number of arguments
         if (argc < 4) {
-          opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ... ..."; printCommand (argc, argv); return TCL_ERROR;
+          opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ... ...";
+          printCommand (argc, argv);
+          return TCL_ERROR;
         }
 
         // Read in the node IDs and the DOF
@@ -577,11 +584,13 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
 
   int rNode, perpDirn;
   if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n"; return TCL_ERROR;
+      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n";
+      return TCL_ERROR;
   }
 
   if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n"; return TCL_ERROR;
+      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n";
+      return TCL_ERROR;
   }
 
   // read in the constrained Nodes
@@ -590,7 +599,8 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
   for (int i=0; i<numConstrainedNodes; i++) {
       int cNode;
       if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
-          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n"; return TCL_ERROR;
+          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n";
+          return TCL_ERROR;
       }
       constrainedNodes(i) = cNode;
   }
@@ -633,7 +643,6 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   // check number of arguments
   if (argc < 4) {
     opserr << "WARNING bad command - want: imposedMotion nodeId dofID gMotionID\n";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 

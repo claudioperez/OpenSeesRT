@@ -2,23 +2,14 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
+//
+//
 #include <assert.h>
 #include <tcl.h>
 #include <Node.h>
 #include <Matrix.h>
 #include <Domain.h>
 #include <runtime/BasicModelBuilder.h>
-
-static inline void
-printCommand(int argc, TCL_Char **argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
-
 
 int
 TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -42,8 +33,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
-    opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
+    opserr << "        Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
   }
 
@@ -243,7 +233,6 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
   // make sure at least one other argument to contain type of system
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: mass nodeId " << ndf << " mass values\n"; 
-    printCommand(argc, argv); 
     return TCL_ERROR;
   }
 

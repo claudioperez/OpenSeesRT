@@ -92,10 +92,9 @@ extern const char *getInterpPWD(Tcl_Interp *interp); // L.Jiang [SIF]
 #include <BeamIntegration.h>
 
 ////////////////////// gnp adding damping
-#include <Element.h>
+// #include <Element.h>
 ////////////////////////////////////////////
 
-extern void TCL_OPS_setModelBuilder(TclBuilder *theNewBuilder);
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
                           TclBuilder *builder);

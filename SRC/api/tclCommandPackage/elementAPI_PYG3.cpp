@@ -2,11 +2,8 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-/*
- * Written: cmp
- */
-
+//
+//
 #include <elementAPI.h>
 #include <stdlib.h>
 #include <packages.h>
@@ -18,7 +15,6 @@
 #include <G3_Logging.h>
 extern OPS_Stream* opswrnPtr;
 
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <WrapperElement.h>
@@ -31,7 +27,6 @@ extern OPS_Stream* opswrnPtr;
 
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
-
 
 #include <OPS_Globals.h>
 
@@ -167,11 +162,6 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
                TCL_Char **argv, Domain *domain, TclBuilder *builder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-//  G3_setDomain(rt, domain);
-//  G3_setModelBuilder(rt, builder);
-// theInterp = interp;
-// theDomain = domain;
-// theModelBuilder = builder;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
@@ -296,105 +286,6 @@ OPS_GetStringCopy(char **arrayData)
 
   return 0;
 }
-/*
-extern "C" matObj *
-OPS_GetMaterial(int *matTag, int *matType)
-{
-  if (*matType == OPS_UNIAXIAL_MATERIAL_TYPE) {
-    UniaxialMaterial *theUniaxialMaterial = OPS_getUniaxialMaterial(*matTag);
-
-    if (theUniaxialMaterial != 0) {
-
-      UniaxialMaterial *theCopy = theUniaxialMaterial->getCopy();
-      //  uniaxialMaterialObjectCount++;
-      // theUniaxialMaterials[uniaxialMaterialObjectCount] = theCopy;
-
-      matObject *theMatObject = new matObject;
-      theMatObject->tag = *matTag;
-      theMatObject->nParam = 1;
-      theMatObject->nState = 0;
-
-      theMatObject->theParam = new double[1];
-      //  theMatObject->theParam[0] = uniaxialMaterialObjectCount;
-      theMatObject->theParam[0] = 1; // code for uniaxial material
-
-      theMatObject->tState = 0;
-      theMatObject->cState = 0;
-      theMatObject->matFunctPtr = OPS_InvokeMaterialObject;
-
-      theMatObject->matObjectPtr = theCopy;
-
-      return theMatObject;
-    }
-
-    fprintf(stderr, "getMaterial - no uniaxial material exists with tag %d\n",
-            *matTag);
-    return 0;
-
-  } else if (*matType == OPS_SECTION_TYPE) {
-    fprintf(stderr, "getMaterial - not yet implemented for Section\n");
-    return 0;
-  } else {
-
-    //    NDMaterial *theNDMaterial = theModelBuilder->getNDMaterial(*matTag);
-
-    //    if (theNDMaterial != 0)
-    //      theNDMaterial = theNDMaterial->getCopy(matType);
-    //    else {
-    //      fprintf(stderr,"getMaterial - no nd material exists with tag %d\n",
-    //      *matTag); return 0;
-    //    }
-
-    //    if (theNDMaterial == 0) {
-    //      fprintf(stderr,"getMaterial - material with tag %d cannot deal with
-    //      %d\n", *matTag, matType); return 0;
-    //    }
-
-    fprintf(stderr, "getMaterial - not yet implemented for nDMaterial\n");
-    return 0;
-  }
-
-  fprintf(stderr, "getMaterial - unknown material type\n");
-  return 0;
-}
-*/
-
-/*
-extern "C"
-void OPS_GetMaterialPtr(int *matTag, matObj *theRes)
-{
-  UniaxialMaterial *theUniaxialMaterial = theModelBuilder->getUniaxialMaterial(*matTag);
-
-  if (theUniaxialMaterial != 0) {
-
-    UniaxialMaterial *theCopy = theUniaxialMaterial->getCopy();
-    if (theCopy  == 0) {
-      fprintf(stderr,"OPS_GetMaterialPtr() failed - no material of type %d \n", *matTag); 
-      theRes = 0; 
-      return;
-    }
-
-    uniaxialMaterialObjectCount++;
-    theUniaxialMaterials[uniaxialMaterialObjectCount] = theCopy;
-
-    matObject *theMatObject = new matObject;
-    theMatObject->tag = *matTag;
-    theMatObject->nParam = 1;
-    theMatObject->nState = 0;
-
-    theMatObject->theParam = new double[1];
-    theMatObject->theParam[0] = uniaxialMaterialObjectCount;
-
-    theMatObject->tState = 0;
-    theMatObject->cState = 0;
-    theMatObject->matFunctPtr = OPS_UniaxialMaterialFunction;
-
-    theRes = theMatObject;
-  }
-
-  theRes = 0;
-}
-*/
 
 // 
 // END INTERPRETER STUFF
@@ -549,13 +440,7 @@ int
 G3_setDomain(G3_Runtime *rt, Domain* domain){
   int exists = rt->m_domain ? 1 : 0;
   Domain *old = rt->m_domain;
-  /*
-  if (old && old != domain)
-    throw 20;
-  printf("SETTING: %p->%p\n", rt, rt->m_domain);
-  */
   rt->m_domain = domain;
-  // opserr << "Domain set from '" << (long int)old << "' to '" << (long int)domain << "'\n";
   return exists;
 }
 
@@ -563,7 +448,6 @@ G3_setDomain(G3_Runtime *rt, Domain* domain){
 Domain *
 G3_getDomain(G3_Runtime *rt)
 {
-  // Tcl_Interp *interp = G3_getInterpreter(rt);
   return rt->m_domain;
 }
 
@@ -589,10 +473,8 @@ int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
-  // Tcl_Interp *interp = G3_getInterpreter(rt);
 
   TimeSeries *series;
-  // BasicModelBuilder *builder =
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
       // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   if (builder) {
@@ -618,9 +500,7 @@ OPS_InvokeMaterialDirectly2(matObject *theMat, modelState *model,
                             int *isw)
 {
   int error = 0;
-  //  fprintf(stderr,"invokeMaterialDirectly Address %d %d\n",theMat,
-  //  sizeof(int));
-  if (theMat != 0)
+  if (theMat != nullptr)
     theMat->matFunctPtr(theMat, model, strain, tang, stress, isw, &error);
   else
     error = -1;
@@ -718,9 +598,6 @@ OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
   OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
 
 #endif
-
-void
-TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder) {theModelBuilder = theNewBuilder;}
 
 EquiSolnAlgo **
 OPS_GetAlgorithm(void) {return &theAlgorithm;}
@@ -866,10 +743,6 @@ int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
   }
   return 0;
 }
-
-bool
-G3_modelIsBuilt(G3_Runtime* rt) {return rt->model_is_built;}
-
 
 */
 

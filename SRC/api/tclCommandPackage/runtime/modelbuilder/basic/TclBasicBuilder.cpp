@@ -105,7 +105,6 @@ extern const char *getInterpPWD(Tcl_Interp *interp); // L.Jiang [SIF]
 #include <Element.h>
 ////////////////////////////////////////////
 
-extern void TCL_OPS_setModelBuilder(TclBasicBuilder *theNewBuilder);
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char **argv, Domain *domain,
                           TclBuilder *builder);
@@ -551,8 +550,6 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   theTclLoadPattern = 0;
   // theTclMultiSupportPattern = 0;
 
-  TCL_OPS_setModelBuilder(this);
-
   nodeLoadTag = 0;
   eleArgStart = 0;
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
@@ -596,7 +593,6 @@ TclBasicBuilder::~TclBasicBuilder()
   theTclBuilder = 0;
   theTclLoadPattern = 0;
   // theTclMultiSupportPattern = 0;
-  TCL_OPS_setModelBuilder(0);
 
   // may possibly invoke Tcl_DeleteCommand() later
   Tcl_DeleteCommand(theInterp, "parameter");
