@@ -10,7 +10,6 @@ Tcl_CmdProc setCreep;
 
 Tcl_CmdProc getLoadFactor;
 
-Tcl_CmdProc buildModel;
 
 
 Tcl_CmdProc printModel;

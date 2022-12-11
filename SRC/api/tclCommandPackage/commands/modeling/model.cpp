@@ -19,6 +19,7 @@
 #include <string.h>
 
 extern ModelBuilder *theBuilder;
+bool builtModel = false;
 
 FE_Datastore *theDatabase = 0;
 
@@ -278,15 +279,33 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   // theTest = nullptr;
   theDatabase = 0;
 
-// AddingSensitivity:BEGIN /////////////////////////////////////////////////
-#ifdef _RELIABILITY
-  // theSensitivityAlgorithm =0;
-  theSensitivityIntegrator = 0;
-#endif
-  // AddingSensitivity:END /////////////////////////////////////////////////
-
   // the domain deletes the record objects,
   // just have to delete the private array
   return TCL_OK;
+}
+
+// command invoked to build the model, i.e. to invoke buildFE_Model()
+// on the ModelBuilder
+int
+buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  G3_Runtime *rt = G3_getRuntime(interp);
+  ModelBuilder* builder = (ModelBuilder*)G3_getModelBuilder(rt);
+  if (!builder)
+    builder = theBuilder;
+
+  // TODO: Remove `builtModel` var.
+  // to build the model make sure the ModelBuilder has been constructed
+  // and that the model has not already been constructed
+  if (builder != 0 && builtModel == false) {
+    builtModel = true;
+    return builder->buildFE_Model();
+  } else if (builder != 0 && builtModel == true) {
+    opserr << "WARNING Model has already been built - not built again \n";
+    return TCL_ERROR;
+  } else {
+    opserr << "WARNING No ModelBuilder type has been specified \n";
+    return TCL_ERROR;
+  }
 }
 

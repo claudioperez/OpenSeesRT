@@ -9,15 +9,11 @@
 #include <assert.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
+#include <OPS_Globals.h>
 
 #include <classTags.h>
 #include <DOF_Group.h>
 
-// extern "C" {
-// #include <g3_api.h>
-// }
-
-#include <OPS_Globals.h>
 #include <Matrix.h>
 #include <set>
 #include <vector>
@@ -116,7 +112,6 @@ DirectIntegrationAnalysis *theTransientAnalysis = nullptr;
 VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis = nullptr;
 
 ConvergenceTest *theTest = nullptr;
-bool builtModel = false;
 
 static char *resDataPtr = nullptr;
 static int resDataSize = 0;
@@ -162,12 +157,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
-
-
   Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, nullptr, nullptr);
-
-
-  Tcl_CreateCommand(interp, "build",      &buildModel, nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "print",      &printModel, domain, nullptr);
   Tcl_CreateCommand(interp, "printModel", &printModel, domain, nullptr);
@@ -183,8 +173,8 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 //   Tcl_CreateCommand(interp, "printGID", &printModelGID, nullptr, nullptr);
 //   // Talledo End
 
-  Tcl_CreateCommand(interp, "setTime", &TclCommand_setTime, domain, nullptr);
-  Tcl_CreateCommand(interp, "getTime", &TclCommand_getTime, domain, nullptr);
+  Tcl_CreateCommand(interp, "setTime",             &TclCommand_setTime, domain, nullptr);
+  Tcl_CreateCommand(interp, "getTime",             &TclCommand_getTime, domain, nullptr);
 
   Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
   Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, nullptr, nullptr);
@@ -265,7 +255,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 //   Tcl_CreateCommand(interp, "setParameter", &setParameter, nullptr,
 //                     nullptr);
   // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, nullptr);
-  //
+
   Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, nullptr);
   Tcl_CreateCommand(interp, "record",       &TclCommand_record, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "video", &videoPlayer, nullptr, nullptr);
@@ -311,32 +301,6 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
-
-
-// command invoked to build the model, i.e. to invoke buildFE_Model()
-// on the ModelBuilder
-int
-buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  ModelBuilder* builder = (ModelBuilder*)G3_getModelBuilder(rt);
-  if (!builder)
-    builder = theBuilder;
-  // TODO: Remove `builtModel` var.
-  // to build the model make sure the ModelBuilder has been constructed
-  // and that the model has not already been constructed
-  if (builder != 0 && builtModel == false) {
-    builtModel = true;
-    return builder->buildFE_Model();
-  } else if (builder != 0 && builtModel == true) {
-    opserr << "WARNING Model has already been built - not built again \n";
-    return TCL_ERROR;
-  } else {
-    opserr << "WARNING No ModelBuilder type has been specified \n";
-    return TCL_ERROR;
-  }
-}
-
 
 
 // TODO: consolidate

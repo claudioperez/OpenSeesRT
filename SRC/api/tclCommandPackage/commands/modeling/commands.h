@@ -3,7 +3,9 @@
 //
 #include <tcl.h>
 
+// modeling/model.cpp
 extern Tcl_CmdProc  TclCommand_wipeModel;
+extern Tcl_CmdProc  buildModel;
 
 // modeling/nodes.cpp
 extern Tcl_CmdProc  TclCommand_getNDM;
@@ -67,6 +69,7 @@ struct char_cmd {
 
 }  const tcl_char_cmds[] =  {
   {"wipe",             TclCommand_wipeModel},
+  {"build",            buildModel},
 
   {"getNDM",           TclCommand_getNDM},
   {"getNDF",           TclCommand_getNDF},
