@@ -42,29 +42,29 @@ typedef struct materialFunction {
   struct materialFunction *next;
 } MaterialFunction;
 
-extern AnalysisModel            *theAnalysisModel;
-extern EquiSolnAlgo             *theAlgorithm;
-extern ConstraintHandler        *theHandler;
-extern DOF_Numberer             *theGlobalNumberer;
-extern LinearSOE                *theSOE;
-extern EigenSOE                 *theEigenSOE;
-extern StaticAnalysis           *theStaticAnalysis;
+extern AnalysisModel             *theAnalysisModel;
+extern EquiSolnAlgo              *theAlgorithm;
+extern ConstraintHandler         *theHandler;
+extern DOF_Numberer              *theGlobalNumberer;
+extern LinearSOE                 *theSOE;
+extern EigenSOE                  *theEigenSOE;
+extern StaticAnalysis            *theStaticAnalysis;
+extern StaticIntegrator          *theStaticIntegrator;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
+extern TransientIntegrator       *theTransientIntegrator;
 extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
-extern StaticIntegrator *theStaticIntegrator;
-extern TransientIntegrator *theTransientIntegrator;
 extern ConvergenceTest *theTest;
 extern bool builtModel;
 extern FE_Datastore *theDatabase;
 
-static ElementFunction  *theElementFunctions = NULL;
-static MaterialFunction *theMaterialFunctions = NULL;
+static ElementFunction  *theElementFunctions  = nullptr;
+static MaterialFunction *theMaterialFunctions = nullptr;
 
-static Tcl_Interp *theInterp = 0;
-static Domain     *theDomain = 0;
-static TclBuilder *theModelBuilder = 0;
+static Tcl_Interp *theInterp       = nullptr;
+static Domain     *theDomain       = nullptr;
+static TclBuilder *theModelBuilder = nullptr;
 
-static TCL_Char **currentArgv = 0;
+static TCL_Char **currentArgv      = nullptr;
 static int currentArg = 0;
 static int maxArg = 0;
 
@@ -175,8 +175,6 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                         int mArg, TCL_Char **argv, Domain *domain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-//  G3_setDomain(rt, domain);
-//  theInterp = interp;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
@@ -207,7 +205,7 @@ OPS_SetIntOutput(int *numData, int *data, bool scalar)
   char buffer[40];
   for (int i = 0; i < numArgs; i++) {
     sprintf(buffer, "%d ", data[i]);
-    Tcl_AppendResult(theInterp, buffer, NULL);
+    Tcl_AppendResult(theInterp, buffer, nullptr);
   }
 
   return 0;
@@ -238,7 +236,7 @@ OPS_SetDoubleOutput(int *numData, double *data, bool scalar)
   char buffer[40];
   for (int i = 0; i < numArgs; i++) {
     sprintf(buffer, "%35.20f ", data[i]);
-    Tcl_AppendResult(theInterp, buffer, NULL);
+    Tcl_AppendResult(theInterp, buffer, nullptr);
   }
 
   return 0;
@@ -302,7 +300,7 @@ OPS_GetElementType(char *type, int sizeType)
 
   ElementFunction *eleFunction = theElementFunctions;
   bool found = false;
-  while (eleFunction != NULL && found == false) {
+  while (eleFunction != nullptr && found == false) {
     if (strcmp(type, eleFunction->funcName) == 0) {
 
       // create a new eleObject, set the function ptr &  return it
@@ -314,7 +312,7 @@ OPS_GetElementType(char *type, int sizeType)
       eleFunction = eleFunction->next;
   }
 
-  // ty to load new routine from dynamic library in load path
+  // try to load new routine from dynamic library in load path
 
   eleFunct eleFunctPtr;
   void *libHandle;
@@ -353,7 +351,7 @@ OPS_GetMaterialType(char *type, int sizeType)
   // try existing loaded routines
   MaterialFunction *matFunction = theMaterialFunctions;
   bool found = false;
-  while (matFunction != NULL && found == false) {
+  while (matFunction != nullptr && found == false) {
     if (strcmp(type, matFunction->funcName) == 0) {
 
       // create a new eleObject, set the function ptr &  return it
@@ -366,7 +364,7 @@ OPS_GetMaterialType(char *type, int sizeType)
       matFunction = matFunction->next;
   }
 
-  // ty to load new routine from dynamic library in load path
+  // try to load new routine from dynamic library in load path
   matFunct matFunctPtr;
   void *libHandle;
 
@@ -402,7 +400,7 @@ OPS_GetMaterialType(char *type, int sizeType)
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
 {
-  G3_Runtime *rt = (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", NULL);
+  G3_Runtime *rt = (G3_Runtime*)Tcl_GetAssocData(interp, "G3_Runtime", nullptr);
   if (!rt)
     opserr << G3_WARN_PROMPT << " No runtime\n";;
   return rt;
@@ -428,12 +426,6 @@ BasicModelBuilder *
 G3_getSafeBuilder(G3_Runtime *rt)
 {
   return (BasicModelBuilder*)G3_getModelBuilder(rt);
-  /*
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  BasicModelBuilder *theTclBuilder =
-      (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
-  return theTclBuilder;
-  */
 }
 
 int
@@ -459,39 +451,20 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
   return builder->addTimeSeries(series);
 }
 
-/*
-int G3_removeTimeSeries(G3_Runtime *rt, int tag) {
-  // Tcl_Interp *interp = G3_getInterpreter(rt);
-  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
-  if (builder)
-    // TODO
-    return true;
-  else
-    return false;
-}
-*/
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
 
   TimeSeries *series;
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
-      // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   if (builder) {
      series = builder->getTimeSeries(std::to_string(tag));
   } else {
-    // opserr << "WARNING: Unable to find safe model builder\n";
     series = nullptr;
   }
 
   return series;
 }
-
-/*
-void G3_clearAllTimeSeries(void) {
-  theTimeSeriesObjects.clearAll();
-}
-*/   
 
 
 extern "C" int
@@ -624,7 +597,7 @@ G3_setAnalysisModel(G3_Runtime *rt, AnalysisModel *the_analysis)
 {
   rt->m_analysis_model = the_analysis;
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  Tcl_SetAssocData(interp, "OPS::theAnalysisModel", NULL, (ClientData)the_analysis);
+  Tcl_SetAssocData(interp, "OPS::theAnalysisModel", nullptr, (ClientData)the_analysis);
   return 1;
 }
 
@@ -640,7 +613,7 @@ G3_getStaticAnalysis(G3_Runtime *rt)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   StaticAnalysis *analysis =
-      (StaticAnalysis *)Tcl_GetAssocData(interp, "OPS::theStaticAnalysis", NULL);
+      (StaticAnalysis *)Tcl_GetAssocData(interp, "OPS::theStaticAnalysis", nullptr);
   return analysis;
 }
 
@@ -649,7 +622,7 @@ int
 G3_setStaticAnalysis(G3_Runtime *rt, StaticAnalysis *the_analysis)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
-  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", NULL, (ClientData)the_analysis);
+  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", nullptr, (ClientData)the_analysis);
   return 1;
 }
 
@@ -661,7 +634,7 @@ G3_delStaticAnalysis(G3_Runtime *rt)
   // TODO
   if (ana=G3_getStaticAnalysis(rt))
     ;// delete ana;
-  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", NULL, (ClientData)NULL);
+  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", nullptr, nullptr);
   return 1;
 }
 
@@ -684,31 +657,16 @@ G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
 }
 
 
-/*
-DirectIntegrationAnalysis **
-OPS_GetTransientAnalysis(void) {return &theTransientAnalysis;}
-
-DirectIntegrationAnalysis *
-G3_getTransientAnalysis(G3_Runtime *rt)
-{
-  // TODO
-  
-  // Tcl_Interp *interp = G3_getInterpreter(rt);
-  // DirectIntegrationAnalysis *analysis =
-  //     (DirectIntegrationAnalysis *)Tcl_GetAssocData(interp, "OPS::theTransientAnalysis", NULL);
-  // 
-  return theTransientAnalysis;
-
-}
-*/
-
+#if 0
 StaticIntegrator **
 OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}
 
 TransientIntegrator **
 OPS_GetTransientIntegrator(void) {return &theTransientIntegrator;}
 
-/*
+DirectIntegrationAnalysis **
+OPS_GetTransientAnalysis(void) {return &theTransientAnalysis;}
+
 ConvergenceTest **
 OPS_GetTest(void) {return &theTest;}
 
@@ -717,34 +675,7 @@ OPS_GetHandler(void) {return &theHandler;}
 
 DOF_Numberer **
 OPS_GetNumberer(void) {return &theGlobalNumberer;}
-
-int G3_setLinearSoe(G3_Runtime* rt, LinearSOE* soe)
-{
-  rt->m_sys_of_eqn = soe;
-  // if the analysis exists - we want to change the SOE
-  if (soe != nullptr) {
-    StaticAnalysis* static_analysis = G3_getStaticAnalysis(rt);
-    if (static_analysis != 0)
-      static_analysis->setLinearSOE(*soe);
-    
-    DirectIntegrationAnalysis *direct_trans_analysis = theTransientAnalysis; // G3_getTransientAnalysis(rt);
-    if (direct_trans_analysis != 0)
-      direct_trans_analysis->setLinearSOE(*soe);
-
-#ifdef _PARALLEL_PROCESSING
-      if (static_analysis != 0 || direct_trans_analysis != 0) {
-        SubdomainIter &theSubdomains = theDomain.getSubdomains();
-        Subdomain *theSub;
-        while ((theSub = theSubdomains()) != 0) {
-          theSub->setAnalysisLinearSOE(*theSOE);
-        }
-      }
 #endif
-  }
-  return 0;
-}
-
-*/
 
 
 bool *

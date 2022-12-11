@@ -1,3 +1,9 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 #include <tcl.h>
 #include <math.h>
 #include <stdio.h>
@@ -5,7 +11,10 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
-#define opserr std::cerr
+
+#ifndef TclPackage
+#  define opserr std::cerr
+#endif
 
 #ifdef _WIN32
 const char *STDIN_FILE_NAME = "CON";
@@ -16,12 +25,24 @@ const char *STDIN_FILE_NAME = "/dev/stdin";
 //
 // https://portwooddigital.com/2021/02/14/how-many-clicks-does-it-take/
 //
+
 const char *Usage =
-  "usage: sdof <m> <zeta> <k> <fy> <alpha> <dtF> <dt>\n";
+  "usage: sdof <m> <zeta> <k> <fy> <alpha> <dtF> <dt>\n\n"
+  "   m                      \n"
+  "   zeta                   \n"
+  "   k                      \n"
+  "   Fy                     \n"
+  "   alpha                  \n"
+  "   dtF                    \n"
+  "   dt                     \n"
+  "   uresidual              \n"
+  "   max_prev_displ         \n";
+
 
 struct SDOF_Response {
     double max_displ, u, up, max_accel, time_max_accel;
 };
+
 
 int
 sdof_response(
@@ -43,19 +64,19 @@ sdof_response(
 
     std::ifstream infile(filename);
     
-    double gamma = 0.5;
-    double beta = 0.25;
-    double tol = 1.0e-8;
-    const int maxIter = 10;
+    const double gamma = 0.5;
+    const double beta  = 0.25;
+    const double tol   = 1.0e-8;
+    const int maxIter  = 10;
  
     double c = zeta*2*sqrt(k*m);
     double Hkin = alpha/(1.0-alpha)*k;
 
-    double p0 = 0.0;
-    double u0 = uresidual;
-    double v0 = 0.0;
+    double p0  = 0.0;
+    double u0  = uresidual;
+    double v0  = 0.0;
     double fs0 = 0.0;
-    double a0 = (p0-c*v0-fs0)/m;
+    double a0  = (p0-c*v0-fs0)/m;
 
     double a1 = m/(beta*dt*dt) + (gamma/(beta*dt))*c;
     double a2 = m/(beta*dt) + (gamma/beta-1.0)*c;
@@ -78,7 +99,7 @@ sdof_response(
     double up0 = up;
 
     int i = 0;
-    double ft, u=0, du, v, a, fs, zs, ftrial, kT, kTeff, dg, phat, R, R0, accel;
+    double ft, u=0, du, v, a, fs, zs, ftrial, kT, kTeff, dg, phat, R, R0;
 
     while (infile >> ft) {
 	i++;
@@ -149,9 +170,9 @@ sdof_response(
   
     infile.close();
 
-    double output[] = {max_displ, u, up, max_accel, time_max_accel};
-  
-    return 0;
+    *result = (SDOF_Response){max_displ, u, up, max_accel, time_max_accel};
+
+    return TCL_OK;
 }
 
 int
@@ -177,7 +198,6 @@ sdfResponse(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
     opserr << "Insufficient arguments to sdfResponse\n";
     return TCL_ERROR;
   }
-
   if (Tcl_GetDouble(interp, argv[1], &m) != TCL_OK) {
     opserr << "WARNING sdfResponse -- could not read mass \n";
     return TCL_ERROR;
@@ -220,7 +240,6 @@ sdfResponse(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
     }
   }
 
-
   struct SDOF_Response res;
   sdof_response(m, zeta, k, Fy, alpha, dtF, dt, uresidual, max_prev_displ, filename, &res);
 
@@ -231,7 +250,6 @@ sdfResponse(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
 
   return TCL_OK;
 }
-
 
 int
 main(int argc, char** argv)
@@ -246,7 +264,8 @@ main(int argc, char** argv)
 
   Tcl_Interp *interp = Tcl_CreateInterp();
   sdfResponse(nullptr, interp, argc, argv);
+
+  fprintf(stdout, "max_displ   u    up    max_accel     time_max_accel\n");
   fprintf(stdout, "%s\n", Tcl_GetStringResult(interp));
 }
-
 

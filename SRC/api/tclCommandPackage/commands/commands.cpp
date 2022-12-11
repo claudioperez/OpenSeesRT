@@ -6,45 +6,30 @@
 // Description: This file contains the functions that will be called by
 // the interpreter when the appropriate command name is specified.
 //
-#include <assert.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
 #include <OPS_Globals.h>
+#include <elementAPI.h>
 
 #include <classTags.h>
-#include <DOF_Group.h>
-
-#include <Matrix.h>
-#include <set>
-#include <vector>
-#include <algorithm>
-
-#include <DummyStream.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tgmath.h>
-
-#include <elementAPI.h>
-#include <g3_api.h>
-
-#include <packages.h>
-#include <TclPackageClassBroker.h>
+#include <assert.h>
+#include <set>
+#include <vector>
+#include <algorithm>
 
 #include <ModelBuilder.h>
 #include "commands.h"
 
-// domain
-#ifdef _PARALLEL_PROCESSING
-#  include <PartitionedDomain.h>
-#else
-#  include <Domain.h>
-#endif
-
-#include <Information.h>
-#include <Element.h>
+// Domain
+#include <Domain.h>
+#include <DOF_Group.h>
+#include <Matrix.h>
 #include <Node.h>
+#include <Element.h>
 #include <ElementIter.h>
 #include <NodeIter.h>
 #include <LoadPattern.h>
@@ -62,33 +47,27 @@
 #include <ElementStateParameter.h>
 #include <Pressure_Constraint.h>
 
-// analysis
+// Analysis
+#include "analysis/analysis.h"
+#include <StaticAnalysis.h>
+#include <DirectIntegrationAnalysis.h>
+#include <VariableTimeStepDirectIntegrationAnalysis.h>
 #include <AnalysisModel.h>
 #include <EquiSolnAlgo.h>
 #include <Integrator.h>
 #include <StaticIntegrator.h>
-#include <Newmark.h>
-
-#include "analysis/analysis.h"
-
-// analysis
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
-
 #include <LinearSOE.h>
 #include <EigenSOE.h>
-#include <ArpackSOE.h>
-#include <ArpackSolver.h>
 
-
-//  recorders
+// Other
 #include <Recorder.h>
-
+#include <DummyStream.h>
 #include <ErrorHandler.h>
 #include <ConsoleErrorHandler.h>
-
+#include <Information.h>
 #include <Response.h>
+#include <packages.h>
+#include <TclPackageClassBroker.h>
 
 //
 // Global variables
@@ -127,6 +106,7 @@ const char *getInterpPWD(Tcl_Interp *interp);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
+
 int printModelGID(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 Tcl_CmdProc TclCommand_record;
@@ -287,7 +267,7 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   LoadPattern *the_pattern = domain->getLoadPattern(pattern);
-  if (the_pattern == 0) {
+  if (the_pattern == nullptr) {
     opserr << "ERROR load pattern with tag " << pattern
            << " not found in domain -- getLoadFactor\n";
     return TCL_ERROR;
@@ -367,262 +347,7 @@ groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 */
 
-int
-nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *domain = (Domain*)clientData;
 
-  if (argc < 2) {
-    opserr << "WARNING want - nodeDisp nodeTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeDisp nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING nodeDisp nodeTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-  const Vector *nodalResponse = domain->getNodeResponse(tag, Disp);
-
-  if (nodalResponse == 0)
-    return TCL_ERROR;
-
-  int size = nodalResponse->Size();
-
-  if (dof >= 0) {
-
-    if (dof >= size) {
-      opserr << "WARNING nodeDisp nodeTag? dof? - dofTag? too large\n";
-      return TCL_ERROR;
-    }
-
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-  } else {
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << "WARNING want - nodeReaction nodeTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeReaction nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING nodeReaction nodeTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-  const Vector *nodalResponse = domain->getNodeResponse(tag, Reaction);
-
-  if (nodalResponse == 0)
-    return TCL_ERROR;
-
-  int size = nodalResponse->Size();
-
-  if (dof >= 0) {
-
-    if (dof >= size) {
-      opserr << "WARNING nodeReaction nodeTag? dof? - dofTag? too large\n";
-      return TCL_ERROR;
-    }
-
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  } else {
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << "WARNING want - nodeUnbalance nodeTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr
-        << "WARNING nodeUnbalance nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING nodeUnbalance nodeTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-  const Vector *nodalResponse = domain->getNodeResponse(tag, Unbalance);
-
-  if (nodalResponse == 0)
-    return TCL_ERROR;
-
-  int size = nodalResponse->Size();
-
-  if (dof >= 0) {
-
-    if (dof >= size) {
-      opserr << "WARNING nodeUnbalance nodeTag? dof? - dofTag? too large\n";
-      return TCL_ERROR;
-    }
-
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-  } else {
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *domain = (Domain*)clientData;
-
-  if (argc < 3) {
-    opserr << "WARNING want - nodeEigenVector nodeTag? eigenVector? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int eigenvector = 0;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr
-        << "WARNING nodeEigenvector nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &eigenvector) != TCL_OK) {
-    opserr << "WARNING nodeEigenvector nodeTag? dof? - could not read dof? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 3) {
-    if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK) {
-      opserr
-          << "WARNING nodeEigenvector nodeTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-  eigenvector--;
-  Node *theNode = domain->getNode(tag);
-  const Matrix &theEigenvectors = theNode->getEigenvectors();
-
-  int size = theEigenvectors.noRows();
-  int numEigen = theEigenvectors.noCols();
-
-  if (eigenvector < 0 || eigenvector >= numEigen) {
-    opserr << "WARNING nodeEigenvector nodeTag? dof? - eigenvecor too large\n";
-    return TCL_ERROR;
-  }
-
-  if (dof >= 0) {
-    if (dof >= size) {
-      opserr << "WARNING nodeEigenvector nodeTag? dof? - dofTag? too large\n";
-      return TCL_ERROR;
-    }
-
-    double value = theEigenvectors(dof, eigenvector);
-
-    // now we copy the value to the Tcl string that is returned
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-  } else {
-
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      double value = theEigenvectors(i, eigenvector);
-      sprintf(buffer, "%35.20f", value);
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
 
 int
 eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -724,7 +449,6 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   dof--;
 
-
   const char *myArgv[1];
   char myArgv0[80];
   strcpy(myArgv0, "localForces");
@@ -787,7 +511,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
 
   dof--;
   Element *theEle = theDomain->getElement(tag);
-  if (theEle == 0)
+  if (theEle == nullptr)
     return TCL_ERROR;
 
   const Vector &force = theEle->getResistingForceIncInertia();
@@ -867,45 +591,6 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *theDomain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << "WARNING want - findNodesWithID ?id\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING eleForce eleTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  NodeIter &theNodes = theDomain->getNodes();
-  Node *theNode;
-  char buffer[20] = {0};
-
-  while ((theNode = theNodes()) != 0) {
-    DOF_Group *theGroup = theNode->getDOF_GroupPtr();
-    if (theGroup != 0) {
-      const ID &nodeID = theGroup->getID();
-      for (int i = 0; i < nodeID.Size(); i++) {
-        if (nodeID(i) == tag) {
-          sprintf(buffer, "%d ", theNode->getTag());
-          Tcl_AppendResult(interp, buffer, NULL);
-          break;
-        }
-      }
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
 nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
@@ -936,7 +621,8 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
              strcmp(argv[2], "3") == 0)
       dim = 2;
     else {
-      opserr << G3_WARN_PROMPT << "nodeCoord nodeTag? dim? - could not read dim? \n";
+      // opserr << G3_ERROR_PROMPT << "nodeCoord nodeTag? dim? - could not read dim? \n";
+      opserr << "ERROR " << "nodeCoord nodeTag? dim? - could not read dim? \n";
       return TCL_ERROR;
     }
   }
@@ -944,7 +630,7 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Node *theNode = the_domain->getNode(tag);
 
   if (theNode == nullptr) {
-    opserr << G3_WARN_PROMPT << "Unable to retrieve node with tag '" << tag << "'\n";
+    opserr << G3_ERROR_PROMPT << "Unable to retrieve node with tag '" << tag << "'\n";
     return TCL_ERROR;
   }
 
@@ -971,7 +657,6 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   return TCL_ERROR;
 }
-
 
 int
 retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -1001,10 +686,12 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
       tags.insert(tag);
     }
   }
+
   // assign set to vector and sort
   std::vector<int> tagv;
   tagv.assign(tags.begin(), tags.end());
-  sort(tagv.begin(), tagv.end());
+  std::sort(tagv.begin(), tagv.end());
+
   // loop through unique, sorted tags, adding to output
   char buffer[20];
   for (int tag : tagv) {
@@ -1095,52 +782,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
-setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *domain = (Domain*)clientData;
 
-  if (argc < 4) {
-    opserr << "WARNING want - setNodeCoord nodeTag? dim? value?\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING setNodeCoord nodeTag? dim? value? - could not read "
-              "nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  int dim;
-  double value;
-
-  if (Tcl_GetInt(interp, argv[2], &dim) != TCL_OK) {
-    opserr
-        << "WARNING setNodeCoord nodeTag? dim? value? - could not read dim? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
-    opserr << "WARNING setNodeCoord nodeTag? dim? value? - could not read "
-              "value? \n";
-    return TCL_ERROR;
-  }
-
-  Node *theNode = domain->getNode(tag);
-
-  if (theNode == 0) {
-    return TCL_ERROR;
-  }
-
-  Vector coords(theNode->getCrds());
-  coords(dim - 1) = value;
-  theNode->setCrds(coords);
-
-  return TCL_OK;
-}
 
 int
 updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -1179,7 +821,7 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   char buffer[80];
   Element *theElement = the_domain->getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING eleType ele " << tag << " not found" << endln;
     return TCL_ERROR;
   }
@@ -1217,7 +859,7 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   // const Vector *tags = the_domain->getElementResponse(tag, &myArgv[0], 1);
   Element *theElement = the_domain->getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING eleNodes ele " << tag << " not found" << endln;
     return TCL_ERROR;
   }
@@ -1252,14 +894,14 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 
   Node *theNode = the_domain->getNode(tag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING nodeDOFs node " << tag << " not found" << endln;
     return TCL_ERROR;
   }
   int numDOF = theNode->getNumberDOF();
 
   DOF_Group *theDOFgroup = theNode->getDOF_GroupPtr();
-  if (theDOFgroup == 0) {
+  if (theDOFgroup == nullptr) {
     opserr << "WARNING nodeDOFs DOF group null" << endln;
     return -1;
   }
@@ -1297,7 +939,7 @@ nodeMass(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   char buffer[40];
 
   Node *theNode = the_domain->getNode(tag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING nodeMass node " << tag << " not found" << endln;
     return TCL_ERROR;
   }
@@ -1401,7 +1043,7 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   const Vector *nodalResponse = theDomain.getNodeResponse(tag, Vel);
 
-  if (nodalResponse == 0)
+  if (nodalResponse == nullptr)
     return TCL_ERROR;
 
   int size = nodalResponse->Size();
@@ -1452,7 +1094,7 @@ setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
 
   Node *theNode = theDomain.getNode(tag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING setNodeVel -- node with tag " << tag << " not found"
            << endln;
     return TCL_ERROR;
@@ -1510,7 +1152,7 @@ setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Node *theNode = theDomain.getNode(tag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING setNodeDisp -- node with tag " << tag << " not found"
            << endln;
     return TCL_ERROR;
@@ -1585,7 +1227,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING sectionForce element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -1608,7 +1250,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -1665,7 +1307,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING sectionDeformation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -1684,7 +1326,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -1736,7 +1378,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING sectionLocation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -1750,7 +1392,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -1797,7 +1439,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING sectionWeight element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -1811,7 +1453,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -1858,7 +1500,7 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING sectionStiffness element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -1877,7 +1519,7 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -1933,7 +1575,7 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING sectionFlexibility element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -1952,7 +1594,7 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -2003,7 +1645,7 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   */
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING basicDeformation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -2017,7 +1659,7 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -2065,7 +1707,7 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   */
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING basicDeformation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -2079,7 +1721,7 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -2128,7 +1770,7 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   */
 
   Element *theElement = theDomain.getElement(tag);
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING basicStiffness element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
@@ -2142,7 +1784,7 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   DummyStream dummy;
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
-  if (theResponse == 0) {
+  if (theResponse == nullptr) {
     char buffer[] = "0.0";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_OK;
@@ -2299,20 +1941,6 @@ setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
   theEle->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
   return TCL_OK;
 }
-
-extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char **argv, Domain &theDomain);
-
-int
-addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
-  return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
-}
-
-
 
 
 int
@@ -2556,26 +2184,12 @@ getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
+
 int
-getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv)
+TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  Node *node;
-  if (the_domain==nullptr)
-    return TCL_ERROR;
-
-  NodeIter &nodeIter = the_domain->getNodes();
-
-  char buffer[20];
-
-  while ((node = nodeIter()) != 0) {
-    sprintf(buffer, "%d ", node->getTag());
-    Tcl_AppendResult(interp, buffer, NULL);
-  }
-
+  ((Domain*)clientData)->record(false);
   return TCL_OK;
 }
 
@@ -2583,8 +2197,11 @@ int
 getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain* the_domain = (Domain*)clientData; 
+
   Parameter *theEle;
-  ParameterIter &eleIter = theDomain.getParameters();
+  ParameterIter &eleIter = the_domain->getParameters();
 
   char buffer[20];
 
@@ -2600,6 +2217,9 @@ int
 getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain* the_domain = (Domain*)clientData; 
+
   if (argc < 2) {
     opserr << "Insufficient arguments to getParamValue" << endln;
     return TCL_ERROR;
@@ -2612,7 +2232,7 @@ getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Parameter *theEle = theDomain.getParameter(paramTag);
+  Parameter *theEle = the_domain->getParameter(paramTag);
 
   char buffer[40];
 
@@ -2623,48 +2243,15 @@ getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
+extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
+                            TCL_Char **argv, Domain &theDomain);
+
 int
-TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  ((Domain*)clientData)->record(false);
-  return TCL_OK;
+  Domain *the_domain = (Domain*)clientData;
+  OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
+  return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
 }
 
-int
-elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
-{
-  int eleTag;
-  int argLoc = 1;
-  int Nelements = argc;
-  ID activate_us(0, Nelements);
-
-  while (argLoc < argc && Tcl_GetInt(interp, argv[argLoc], &eleTag) == TCL_OK) {
-    activate_us.insert(eleTag);
-    ++argLoc;
-  }
-
-  theDomain.activateElements(activate_us);
-
-  return TCL_OK;
-}
-
-int
-elementDeactivate(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
-{
-
-  int eleTag;
-  int argLoc = 1;
-  int Nelements = argc;
-  ID deactivate_us(0, Nelements);
-
-  while (argLoc < argc && Tcl_GetInt(interp, argv[argLoc], &eleTag) == TCL_OK) {
-    deactivate_us.insert(eleTag);
-    ++argLoc;
-  }
-
-  theDomain.deactivateElements(deactivate_us);
-  return TCL_OK;
-}

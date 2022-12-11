@@ -154,9 +154,6 @@ Tcl_CmdProc basicStiffness;
 // added: Chris McGann, U.Washington for initial state analysis of nDMaterials
 Tcl_CmdProc InitialStateAnalysis;
 
-Tcl_CmdProc elementActivate;
-Tcl_CmdProc elementDeactivate;
-
 // domain/recorder.cpp
 Tcl_CmdProc OPS_recorderValue;
 
