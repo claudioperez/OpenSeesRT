@@ -3,6 +3,29 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+//  =============   ====================================================
+//  m               mass
+//  zeta            damping ratio
+//  k               stiffness
+//  Fy              yielding strength
+//  alpha           strain-hardening ratio
+//  dtF             time step for input data
+//  filename        input data file, one force per line
+//  dt              time step for analysis
+//  uresidual       residual displacement at the end of previous analysis
+//                             (optional, default=0)
+//  umaxprev        previous displacement (optional, default=0)
+//  =============   ====================================================
+
+// The command returns a list of five response quantities.
+
+// =============   =====================================================
+// umax            maximum displacement during analysis
+// u               displacement at end of analysis
+// up              permanent residual displacement at end of analysis
+// amax            maximum acceleration during analysis
+// tamax           time when maximum accleration occurred
+// =============   =====================================================
 //
 #include <tcl.h>
 #include <math.h>
@@ -28,15 +51,27 @@ const char *STDIN_FILE_NAME = "/dev/stdin";
 
 const char *Usage =
   "usage: sdof <m> <zeta> <k> <fy> <alpha> <dtF> <dt>\n\n"
-  "   m                      \n"
-  "   zeta                   \n"
-  "   k                      \n"
-  "   Fy                     \n"
-  "   alpha                  \n"
-  "   dtF                    \n"
-  "   dt                     \n"
-  "   uresidual              \n"
-  "   max_prev_displ         \n";
+  "   m               mass\n"
+  "   zeta            damping ratio\n"
+  "   k               stiffness\n"
+  "   Fy              yielding strength\n"
+  "   alpha           strain-hardening ratio\n"
+  "   dtF             time step for input data\n"
+  "   filename        input data file, one force per line\n"
+  "   dt              time step for analysis\n"
+  "   uresidual       residual displacement at the end of previous analysis\n"
+  "                              (optional, default=0)\n"
+  "   umaxprev        previous displacement (optional, default=0)\n";
+
+//"   m                      \n"
+//"   zeta                   \n"
+//"   k                      \n"
+//"   Fy                     \n"
+//"   alpha                  \n"
+//"   dtF                    \n"
+//"   dt                     \n"
+//"   uresidual              \n"
+//"   max_prev_displ         \n";
 
 
 struct SDOF_Response {
@@ -102,70 +137,70 @@ sdof_response(
     double ft, u=0, du, v, a, fs, zs, ftrial, kT, kTeff, dg, phat, R, R0;
 
     while (infile >> ft) {
-	i++;
+        i++;
     
-	u = u0;
+        u = u0;
       
-	fs = fs0;
-	kT = kT0;
-	up = up0;
+        fs = fs0;
+        kT = kT0;
+        up = up0;
       
-	phat = ft + a1*u0 + a2*v0 + a3*a0;
+        phat = ft + a1*u0 + a2*v0 + a3*a0;
       
-	R = phat - fs - a1*u;
-	R0 = R;
-	if (R0 == 0.0) {
-	    R0 = 1.0;
-	}
+        R = phat - fs - a1*u;
+        R0 = R;
+        if (R0 == 0.0) {
+            R0 = 1.0;
+        }
     
-	int iter = 0;
+        int iter = 0;
 
-	while (iter < maxIter && fabs(R/R0) > tol) {
-	    iter++;
+        while (iter < maxIter && fabs(R/R0) > tol) {
+            iter++;
 
-	    kTeff = kT + a1;
+            kTeff = kT + a1;
 
-	    du = R/kTeff;
+            du = R/kTeff;
 
-	    u = u + du;
+            u = u + du;
 
-	    fs = k*(u-up0);
-	    zs = fs-Hkin*up0;
-	    ftrial = fabs(zs)-Fy;
-	    if (ftrial > 0) {
-		dg = ftrial/(k+Hkin);
-		if (fs < 0) {
-		    fs = fs + dg*k;
-		    up = up0 - dg;
-		} else {
-		    fs = fs - dg*k;
-		    up = up0 + dg;
-		}
-		kT = k*Hkin/(k+Hkin);
-	    } else {
-		kT = k;
-	    }
+            fs = k*(u-up0);
+            zs = fs-Hkin*up0;
+            ftrial = fabs(zs)-Fy;
+            if (ftrial > 0) {
+                dg = ftrial/(k+Hkin);
+                if (fs < 0) {
+                    fs = fs + dg*k;
+                    up = up0 - dg;
+                } else {
+                    fs = fs - dg*k;
+                    up = up0 + dg;
+                }
+                kT = k*Hkin/(k+Hkin);
+            } else {
+                kT = k;
+            }
       
-	    R = phat - fs - a1*u;
-	}
+            R = phat - fs - a1*u;
+        }
 
-	v = vu*(u-u0) + vv*v0 + va*a0;
-	a = au*(u-u0) - av*v0 - aa*a0;
+        v = vu*(u-u0) + vv*v0 + va*a0;
+        a = au*(u-u0) - av*v0 - aa*a0;
 
-	u0 = u;
-	v0 = v;
-	a0 = a;
-	fs0 = fs;
-	kT0 = kT;
-	up0 = up;
+        u0 = u;
+        v0 = v;
+        a0 = a;
+        fs0 = fs;
+        kT0 = kT;
+        up0 = up;
 
-	if (fabs(u) > max_displ) {
-	    max_displ = fabs(u);
-	}
-	if (fabs(a) > max_accel) {
-	    max_accel = fabs(a);
-	    time_max_accel = i*dt;
-	}
+        if (fabs(u) > max_displ) {
+            max_displ = fabs(u);
+        }
+        if (fabs(a) > max_accel) {
+            max_accel = fabs(a);
+            time_max_accel = i*dt;
+        }
     }
   
     infile.close();

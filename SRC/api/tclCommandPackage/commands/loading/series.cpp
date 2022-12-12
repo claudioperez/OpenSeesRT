@@ -1,14 +1,21 @@
-// Written: fmk
-// Created: 11/00
-// Revision: A
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 //
 // Description: This file contains the function invoked when the user invokes
 // the Pattern command in the interpreter. It is invoked by the
 // TclBasicBuilder_addPattern function in the TclBasicBuilder.C file.
-
+//
+// Written: fmk
+// Created: 11/00
+// Revision: A
+//
+#include <string.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
 #include <runtime/BasicModelBuilder.h>
+#include <elementAPI.h>
 
 #include <Domain.h>
 #include <LinearSeries.h>
@@ -19,9 +26,8 @@
 // #include <TrigSeries.h>
 // #include <PulseSeries.h>
 // #include <TriangleSeries.h>
-#include <PeerMotion.h>
-#include <PeerNGAMotion.h>
-#include <string.h>
+// #include <PeerMotion.h>
+// #include <PeerNGAMotion.h>
 
 #ifdef _RELIABILITY
 #include <DiscretizedRandomProcessSeries.h>
@@ -56,8 +62,6 @@ extern void *OPS_PulseSeries(G3_Runtime*);
 extern void *OPS_PeerMotion(G3_Runtime*);
 extern void *OPS_PeerNGAMotion(G3_Runtime*);
 
-#include <elementAPI.h>
-#include <g3_api.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                                        int cArg, int mArg, TCL_Char **argv,
                                        Domain *domain);
@@ -205,8 +209,8 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     int fileName = 0;
     int fileTimeName = 0;
     int filePathName = 0;
-    Vector *dataPath = 0;
-    Vector *dataTime = 0;
+    Vector *dataPath = nullptr;
+    Vector *dataTime = nullptr;
     bool useLast = false;
     bool prependZero = false;
     double startTime = 0.0;

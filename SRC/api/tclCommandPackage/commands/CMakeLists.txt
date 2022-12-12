@@ -48,8 +48,8 @@ target_sources(OpenSeesRT PRIVATE
 # LOADS & PATTERNS
     "loading/groundMotion.cpp"
     "loading/element_load.cpp"
-    "loading/TclPatternCommand.cpp"
-    "loading/TclSeriesCommand.cpp"
+    "loading/pattern.cpp"
+    "loading/series.cpp"
     "loading/TclSeriesIntegratorCommand.cpp"
     #"domain/pattern/drm/TclPatternCommand.cpp"
 )
