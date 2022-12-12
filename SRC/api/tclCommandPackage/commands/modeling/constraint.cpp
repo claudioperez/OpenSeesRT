@@ -1,3 +1,9 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 #include <tcl.h>
 #include <assert.h>
 #include <Matrix.h>
@@ -18,14 +24,6 @@
 #include <ImposedMotionSP1.h>
 #include <MultiSupportPattern.h>
 
-static void
-printCommand(int argc, TCL_Char **argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
 
 int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -122,7 +120,7 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
   // check number of arguments
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fixX xLoc " << ndf << " [0,1] conditions";
-    printCommand(argc, argv); return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   // get the xCrd of nodes to be constrained
@@ -182,7 +180,6 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
   // check number of arguments
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fixY yLoc " << ndf << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -243,7 +240,6 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
   // check number of arguments
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fixZ zLoc " << ndf << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -304,7 +300,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   // check number of arguments
   if (argc < 4) {
     opserr << "WARNING bad command - want: sp nodeId dofID value";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -374,7 +369,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   if (theTclDomain->addSP_Constraint(theSP, loadPatternTag) == false) {
     opserr << "WARNING could not add SP_Constraint to domain ";
-    printCommand(argc, argv);
     delete theSP;
     return TCL_ERROR;
   }
@@ -402,7 +396,6 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     // Check number of arguments
     if (argc < 4) {
       opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
-      printCommand (argc, argv);
       return TCL_ERROR;
     }
 
@@ -453,14 +446,12 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
     if (theMP == 0) {
       opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-      printCommand (argc, argv); 
       return TCL_ERROR;
     }
 
     // Add the multi-point constraint to the domain
     if (theTclDomain->addMP_Constraint (theMP) == false) {
       opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
-      printCommand(argc, argv);
       delete theMP;
       return TCL_ERROR;
     }
@@ -488,7 +479,6 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         // Check number of arguments
         if (argc < 4) {
           opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ... ...";
-          printCommand (argc, argv);
           return TCL_ERROR;
         }
 
@@ -553,14 +543,12 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, cDOF, rDOF); 
         if (theMP == 0) { 
           opserr << "WARNING ran out of memory for equalDOF MP_Constraint "; 
-          printCommand (argc, argv);
           return TCL_ERROR;
         }
 
         // Add the multi-point constraint to the domain
         if (theTclDomain->addMP_Constraint (theMP) == false) {
           opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
-          printCommand(argc, argv);
           delete theMP;
           return TCL_ERROR;
         }
@@ -619,15 +607,9 @@ TclCommand_addImposedMotionSP(ClientData clientData,
                                    int argc,
                                    TCL_Char **argv)
 {
+  // TODO: Cleanup
   G3_Runtime* rt = G3_getRuntime(interp);
-/*
-}
-ImposedMotion*
-G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
-{
-*/
   Domain *domain = G3_getDomain(rt);
-
 
   // BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
   // // ensure the destructor has not been called -
@@ -679,7 +661,7 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   //
 
   Node *theNode = domain->getNode(nodeId);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING invalid node " << argv[2] << " node not found\n ";
     return -1;
   }
@@ -708,7 +690,7 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
     theSP = new ImposedMotionSP(nodeId, dofId, loadPatternTag, gMotionID);
   }
 
-  if (theSP == 0) {
+  if (theSP == nullptr) {
     opserr << "WARNING ran out of memory for ImposedMotionSP ";
     opserr << " -  imposedMotion ";
     opserr << nodeId << " " << dofId++ << " " << gMotionID << endln;
@@ -716,7 +698,6 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   }
   if (thePattern->addSP_Constraint(theSP) == false) {
     opserr << "WARNING could not add SP_Constraint to pattern ";
-    printCommand(argc, argv);
     delete theSP;
     return TCL_ERROR;
   }

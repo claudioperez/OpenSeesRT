@@ -10,8 +10,8 @@
 #include <G3_Logging.h>
 #include <OPS_Globals.h>
 #include <elementAPI.h>
-
 #include <classTags.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,8 +21,8 @@
 #include <vector>
 #include <algorithm>
 
-#include <ModelBuilder.h>
 #include "commands.h"
+#include <ModelBuilder.h>
 
 // Domain
 #include <Domain.h>
@@ -63,7 +63,7 @@
 #include <Recorder.h>
 #include <DummyStream.h>
 #include <ErrorHandler.h>
-#include <ConsoleErrorHandler.h>
+// #include <ConsoleErrorHandler.h>
 #include <Information.h>
 #include <Response.h>
 #include <packages.h>
@@ -72,61 +72,46 @@
 //
 // Global variables
 //
-Domain theDomain;
-// Domain *theGlobalDomainPtr;
+Domain                 theDomain;
+TclPackageClassBroker  theBroker;
+ModelBuilder          *theBuilder = nullptr;
+EquiSolnAlgo          *theAlgorithm = nullptr;
+ConstraintHandler     *theHandler = nullptr;
+DOF_Numberer          *theGlobalNumberer = nullptr;
+LinearSOE             *theSOE = nullptr;
+EigenSOE              *theEigenSOE = nullptr;
+StaticIntegrator      *theStaticIntegrator = nullptr;
+TransientIntegrator   *theTransientIntegrator = nullptr;
+ConvergenceTest       *theTest = nullptr;
 
-ModelBuilder        *theBuilder = nullptr;
-
-EquiSolnAlgo        *theAlgorithm = nullptr;
-ConstraintHandler   *theHandler = nullptr;
-DOF_Numberer        *theGlobalNumberer = nullptr;
-LinearSOE           *theSOE = nullptr;
-EigenSOE            *theEigenSOE = nullptr;
-StaticIntegrator    *theStaticIntegrator = nullptr;
-TransientIntegrator *theTransientIntegrator = nullptr;
-
-AnalysisModel       *theAnalysisModel = nullptr;
-StaticAnalysis      *theStaticAnalysis = nullptr;
+AnalysisModel         *theAnalysisModel = nullptr;
+StaticAnalysis        *theStaticAnalysis = nullptr;
 DirectIntegrationAnalysis *theTransientAnalysis = nullptr;
 VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis = nullptr;
 
-ConvergenceTest *theTest = nullptr;
-
-static char *resDataPtr = nullptr;
-static int resDataSize = 0;
-
-#include <FileStream.h>
-
-TclPackageClassBroker theBroker;
-
-
-
-// extern int G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain);
+//
+// Forward declarations
+//
 const char *getInterpPWD(Tcl_Interp *interp);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-int printModelGID(ClientData, Tcl_Interp *, int, TCL_Char **);
+Tcl_CmdProc printModelGID;
 
 Tcl_CmdProc TclCommand_record;
 Tcl_CmdProc maxOpenFiles;
 Tcl_CmdProc setPrecision;
 Tcl_CmdProc logFile;
-Tcl_CmdProc version;
-
-
-// TODO: reimplement  int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-// int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
-
-// extern
-int OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
-
 Tcl_CmdProc TclCommand_setLoadConst;
 Tcl_CmdProc TclCommand_setCreep;
 
 // domain.cpp
 Tcl_CmdProc domainChange;
+
+
+// TODO: reimplement  int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+// int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 
 int
@@ -137,7 +122,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "setCreep", &TclCommand_setCreep, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "setCreep",   &TclCommand_setCreep, nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "print",      &printModel, domain, nullptr);
   Tcl_CreateCommand(interp, "printModel", &printModel, domain, nullptr);
@@ -296,56 +281,6 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   else
     return TCL_ERROR;
 }
-
-/*
-int
-groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* the_domain = G3_getDomain(rt);
-
-  // make sure at least one other argument to contain integrator
-  if (argc < 2) {
-      opserr << "WARNING need to specify the commitTag \n";
-      return TCL_ERROR;
-  }
-
-  if (strcmp(argv[1],"Single") == 0) {
-      if (argc < 4) {
-        opserr << "WARNING quake single dof motion\n";
-        return TCL_ERROR;
-      }
-
-      int dof;
-      if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK)
-          return TCL_ERROR;
-
-      // read in the ground motion
-      GroundMotion *theMotion;
-      if (strcmp(argv[3],"ElCentro") == 0) {
-          double fact = 1.0;
-          if (argc == 5) {
-              if (Tcl_GetDouble(interp, argv[4], &fact) != TCL_OK)
-                  return TCL_ERROR;
-          }
-          theMotion = new ElCentroGroundMotion(fact);
-      } else {
-          opserr << "WARNING quake Single motion - no motion type exists \n";
-          return TCL_ERROR;
-      }
-
-      Load *theLoad = new SingleExcitation(*theMotion, dof, nextTag++);
-      the_domain->addOtherLoad(theLoad);
-      return TCL_OK;
-  }
-
-  else {
-    opserr << "WARNING No quake type exists \n";
-    return TCL_ERROR;
-  }
-}
-*/
 
 
 
@@ -915,282 +850,6 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-nodeMass(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 3) {
-    opserr << "WARNING want - nodeMass nodeTag? nodeDOF?\n";
-    return TCL_ERROR;
-  }
-
-  int tag, dof;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeMass nodeTag? nodeDOF? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr << "WARNING nodeMass nodeTag? nodeDOF? \n";
-    return TCL_ERROR;
-  }
-
-  char buffer[40];
-
-  Node *theNode = the_domain->getNode(tag);
-  if (theNode == nullptr) {
-    opserr << "WARNING nodeMass node " << tag << " not found" << endln;
-    return TCL_ERROR;
-  }
-  int numDOF = theNode->getNumberDOF();
-  if (dof < 1 || dof > numDOF) {
-    opserr << "WARNING nodeMass dof " << dof << " not in range" << endln;
-    return TCL_ERROR;
-  } else {
-    const Matrix &mass = theNode->getMass();
-    sprintf(buffer, "%35.20f", mass(dof - 1, dof - 1));
-    Tcl_AppendResult(interp, buffer, NULL);
-  }
-
-  return TCL_OK;
-}
-
-int
-nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << "WARNING: want - nodePressure nodeTag?\n";
-    return TCL_ERROR;
-  }
-  int tag;
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING: nodePressure " << argv[1] << "\n";
-    return TCL_ERROR;
-  }
-  double pressure = 0.0;
-  Pressure_Constraint *thePC = theDomain.getPressure_Constraint(tag);
-  if (thePC != 0) {
-    pressure = thePC->getPressure();
-  }
-  char buffer[80];
-  sprintf(buffer, "%35.20f", pressure);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
-
-int
-nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  const int requiredDataSize = 20 * 6;
-  if (requiredDataSize > resDataSize) {
-    if (resDataPtr != 0) {
-      delete[] resDataPtr;
-    }
-    resDataPtr = new char[requiredDataSize];
-    resDataSize = requiredDataSize;
-  }
-
-  for (int i = 0; i < requiredDataSize; i++)
-    resDataPtr[i] = '\n';
-
-  const Vector &bounds = the_domain->getPhysicalBounds();
-
-  int cnt = 0;
-  for (int j = 0; j < 6; j++) {
-    cnt += sprintf(&resDataPtr[cnt], "%.6e  ", bounds(j));
-  }
-
-  Tcl_SetResult(interp, resDataPtr, TCL_STATIC);
-
-  return TCL_OK;
-}
-
-int
-nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << "WARNING want - nodeVel nodeTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeVel nodeTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING nodeVel nodeTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-  const Vector *nodalResponse = theDomain.getNodeResponse(tag, Vel);
-
-  if (nodalResponse == nullptr)
-    return TCL_ERROR;
-
-  int size = nodalResponse->Size();
-
-  if (dof >= 0) {
-    if (size < dof)
-      return TCL_ERROR;
-
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  } else {
-
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 4) {
-    opserr << "WARNING want - setNodeVel nodeTag? dof? value? <-commit>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-  double value = 0.0;
-  bool commit = false;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING setNodeVel nodeTag? dof? value?- could not read "
-              "nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  Node *theNode = theDomain.getNode(tag);
-  if (theNode == nullptr) {
-    opserr << "WARNING setNodeVel -- node with tag " << tag << " not found"
-           << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr << "WARNING setNodeVel nodeTag? dof? value?- could not read dof? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
-    opserr
-        << "WARNING setNodeVel nodeTag? dof? value?- could not read value? \n";
-    return TCL_ERROR;
-  }
-  if (argc > 4 && strcmp(argv[4], "-commit") == 0)
-    commit = true;
-
-  dof--;
-
-  int numDOF = theNode->getNumberDOF();
-
-  if (dof >= 0 && dof < numDOF) {
-    Vector vel(numDOF);
-    vel = theNode->getVel();
-    vel(dof) = value;
-    theNode->setTrialVel(vel);
-  }
-  if (commit)
-    theNode->commitState();
-
-  return TCL_OK;
-}
-
-int
-setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 4) {
-    opserr << "WARNING want - setNodeDisp nodeTag? dof? value? <-commit>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-  double value = 0.0;
-  bool commit = false;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING setNodeDisp nodeTag? dof? value?- could not read "
-              "nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  Node *theNode = theDomain.getNode(tag);
-  if (theNode == nullptr) {
-    opserr << "WARNING setNodeDisp -- node with tag " << tag << " not found"
-           << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-    opserr
-        << "WARNING setNodeDisp nodeTag? dof? value?- could not read dof? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
-    opserr
-        << "WARNING setNodeDisp nodeTag? dof? value?- could not read value? \n";
-    return TCL_ERROR;
-  }
-  if (argc > 4 && strcmp(argv[4], "-commit") == 0)
-    commit = true;
-
-  dof--;
-
-  int numDOF = theNode->getNumberDOF();
-
-  if (dof >= 0 && dof < numDOF) {
-    Vector vel(numDOF);
-    vel = theNode->getDisp();
-    vel(dof) = value;
-    theNode->setTrialDisp(vel);
-  }
-  if (commit)
-    theNode->commitState();
-
-  return TCL_OK;
-}
-
-
-
-
-int
 sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
@@ -1226,7 +885,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING sectionForce element with tag " << tag
            << " not found in domain \n";
@@ -1306,7 +965,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING sectionDeformation element with tag " << tag
            << " not found in domain \n";
@@ -1377,7 +1036,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING sectionLocation element with tag " << tag
            << " not found in domain \n";
@@ -1438,7 +1097,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING sectionWeight element with tag " << tag
            << " not found in domain \n";
@@ -1499,7 +1158,7 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING sectionStiffness element with tag " << tag
            << " not found in domain \n";
@@ -1556,11 +1215,6 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
-
   int tag, secNum;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
@@ -1574,7 +1228,7 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING sectionFlexibility element with tag " << tag
            << " not found in domain \n";
@@ -1644,7 +1298,7 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   */
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING basicDeformation element with tag " << tag
            << " not found in domain \n";
@@ -1706,7 +1360,7 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
   */
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING basicDeformation element with tag " << tag
            << " not found in domain \n";
@@ -1769,7 +1423,7 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   */
 
-  Element *theElement = theDomain.getElement(tag);
+  Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING basicStiffness element with tag " << tag
            << " not found in domain \n";
@@ -1832,7 +1486,7 @@ InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     // ops_InitialStateAnalysis = true;
 
     Parameter *theP = new InitialStateParameter(true);
-    theDomain.addParameter(theP);
+    the_domain->addParameter(theP);
     delete theP;
 
     return TCL_OK;
@@ -1841,13 +1495,13 @@ InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "InitialStateAnalysis OFF" << endln;
 
     // call revert to start to zero the displacements
-    theDomain.revertToStart();
+    the_domain->revertToStart();
 
     // set global variable to false
     // FMK changes for parallel
     // ops_InitialStateAnalysis = false;
     Parameter *theP = new InitialStateParameter(false);
-    theDomain.addParameter(theP);
+    the_domain->addParameter(theP);
     delete theP;
 
     return TCL_OK;
@@ -1902,6 +1556,9 @@ int
 setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   if (argc < 6) {
     opserr << "WARNING setElementRayleighDampingFactors eleTag? alphaM? betaK? "
               "betaK0? betaKc? - not enough arguments to command\n";
@@ -1937,7 +1594,7 @@ setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  Element *theEle = theDomain.getElement(eleTag);
+  Element *theEle = the_domain->getElement(eleTag);
   theEle->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
   return TCL_OK;
 }
@@ -1947,9 +1604,12 @@ int
 getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   char buffer[20];
 
-  sprintf(buffer, "%d ", theDomain.getNumElements());
+  sprintf(buffer, "%d ", the_domain->getNumElements());
   Tcl_AppendResult(interp, buffer, NULL);
 
   return TCL_OK;
@@ -1959,10 +1619,12 @@ int
 getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc == 1) {
     Element *theEle;
-    ElementIter &eleIter = theDomain.getElements();
+    ElementIter &eleIter = the_domain->getElements();
 
     char buffer[20];
 
@@ -1978,7 +1640,7 @@ getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    Element *theEle = theDomain.getElement(eleTag);
+    Element *theEle = the_domain->getElement(eleTag);
 
     char buffer[20];
 
@@ -1997,10 +1659,12 @@ int
 getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc == 1) {
     LoadPattern *thePattern;
-    LoadPatternIter &thePatterns = theDomain.getLoadPatterns();
+    LoadPatternIter &thePatterns = the_domain->getLoadPatterns();
 
     char buffer[20];
 
@@ -2022,7 +1686,7 @@ getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    LoadPattern *thePattern = theDomain.getLoadPattern(patternTag);
+    LoadPattern *thePattern = the_domain->getLoadPattern(patternTag);
     if (thePattern == nullptr) {
       opserr << "ERROR load pattern with tag " << patternTag
              << " not found in domain -- getEleLoadClassTags\n";
@@ -2051,10 +1715,12 @@ int
 getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc == 1) {
     LoadPattern *thePattern;
-    LoadPatternIter &thePatterns = theDomain.getLoadPatterns();
+    LoadPatternIter &thePatterns = the_domain->getLoadPatterns();
 
     char buffer[20];
 
@@ -2076,7 +1742,7 @@ getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    LoadPattern *thePattern = theDomain.getLoadPattern(patternTag);
+    LoadPattern *thePattern = the_domain->getLoadPattern(patternTag);
     if (thePattern == nullptr) {
       opserr << "ERROR load pattern with tag " << patternTag
              << " not found in domain -- getEleLoadTags\n";
@@ -2105,10 +1771,12 @@ int
 getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
 
   if (argc == 1) {
     LoadPattern *thePattern;
-    LoadPatternIter &thePatterns = theDomain.getLoadPatterns();
+    LoadPatternIter &thePatterns = the_domain->getLoadPatterns();
 
     char buffer[40];
     int typeEL;
@@ -2137,7 +1805,7 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    LoadPattern *thePattern = theDomain.getLoadPattern(patternTag);
+    LoadPattern *thePattern = the_domain->getLoadPattern(patternTag);
     if (thePattern == nullptr) {
       opserr << "ERROR load pattern with tag " << patternTag
              << " not found in domain -- getEleLoadData\n";
@@ -2171,8 +1839,11 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   Element *theEle;
-  ElementIter &eleIter = theDomain.getElements();
+  ElementIter &eleIter = the_domain->getElements();
 
   char buffer[20];
 

@@ -2,31 +2,31 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-#include <g3_api.h>
-#include <G3_Logging.h>
-#include <Domain.h>
-#include "TclUniaxialMaterialTester.h"
-#include "TclPlaneStressMaterialTester.h"
-#include "runtime/BasicModelBuilder.h"
-#include "modelbuilder/sect/TclSectionTestBuilder.h"
-#include <FE_Datastore.h>
-
-#include <g3_api.h>
-
+//
+//
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-extern ModelBuilder *theBuilder;
-bool builtModel = false;
+#include <g3_api.h>
+#include <G3_Logging.h>
+#include <Domain.h>
+#include <FE_Datastore.h>
 
-FE_Datastore *theDatabase = nullptr;
+#include "TclUniaxialMaterialTester.h"
+#include "TclPlaneStressMaterialTester.h"
+#include "runtime/BasicModelBuilder.h"
+#include "modelbuilder/sect/TclSectionTestBuilder.h"
 
 #ifdef _PARALLEL_PROCESSING
 #  include <PartitionedDomain.h>
    extern PartitionedDomain theDomain;
 #endif
+
+extern ModelBuilder *theBuilder;
+bool builtModel = false;
+
+FE_Datastore *theDatabase = nullptr;
 
 extern int G3_AddTclAnalysisAPI(Tcl_Interp *, Domain*);
 extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);

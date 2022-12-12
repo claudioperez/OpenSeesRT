@@ -1,4 +1,9 @@
-
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 // standard library
 #include <array>
 #include <string>

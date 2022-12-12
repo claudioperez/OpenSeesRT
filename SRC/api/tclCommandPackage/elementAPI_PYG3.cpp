@@ -382,14 +382,11 @@ OPS_GetMaterialType(char *type, int sizeType)
     matFunction->next = theMaterialFunctions;
     theMaterialFunctions = matFunction;
 
-    // create a new eleObject, set the function ptr &  return it
+    // create a new matObject, set the function ptr &  return it
 
     matObj *theMatObject = new matObj;
-    // eleObj *theEleObject = (eleObj *)malloc(sizeof( eleObj));;
 
     theMatObject->matFunctPtr = matFunction->theFunct;
-
-    //    fprintf(stderr,"getMaterial Address %p\n",theMatObject);
 
     return theMatObject;
   }
@@ -592,6 +589,10 @@ OPS_GetEigenSOE(void) {return &theEigenSOE;}
 StaticAnalysis **
 OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
 
+bool *
+OPS_builtModel(void) {return &builtModel;}
+
+#if 0
 int
 G3_setAnalysisModel(G3_Runtime *rt, AnalysisModel *the_analysis)
 {
@@ -603,6 +604,7 @@ G3_setAnalysisModel(G3_Runtime *rt, AnalysisModel *the_analysis)
 
 AnalysisModel *
 G3_getAnalysisModel(G3_Runtime *rt){return rt->m_analysis_model;}
+#endif
 
 AnalysisModel **
 G3_getAnalysisModelPtr(G3_Runtime *rt){return rt->m_analysis_model_ptr;}
@@ -677,8 +679,5 @@ DOF_Numberer **
 OPS_GetNumberer(void) {return &theGlobalNumberer;}
 #endif
 
-
-bool *
-OPS_builtModel(void) {return &builtModel;}
 
 

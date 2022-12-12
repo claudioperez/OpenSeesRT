@@ -113,9 +113,9 @@ int G3_addTimeSeries(G3_Runtime *, TimeSeries *);
 TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
 int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 // Analysis
-AnalysisModel *G3_getAnalysisModel(G3_Runtime *);
+// AnalysisModel *G3_getAnalysisModel(G3_Runtime *);
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
-int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
+// int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
 
 StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
 int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);

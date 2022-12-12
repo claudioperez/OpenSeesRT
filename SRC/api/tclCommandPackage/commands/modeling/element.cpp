@@ -2,25 +2,26 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+//
 // Description: This file contains the implementation of the TclElementCommands.
 // The file contains the routine TclElementCommands which is invoked by the
 // TclBasicBuilder.
 //
-
 #include <assert.h>
-#include <Element.h>
 #include <stdlib.h>
 #include <string.h>
-#include <OPS_Stream.h>
-#include <Domain.h>
 
+#include <OPS_Stream.h>
+#include <packages.h>
+#include <elementAPI.h>
+#include <Domain.h>
+#include <Element.h>
+
+#include <runtime/BasicModelBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <CrdTransf.h>
 
 #include <TclBasicBuilder.h>
-#include <runtime/BasicModelBuilder.h>
-#include <runtime/BasicModelBuilder.h>
-#include <packages.h>
-#include <elementAPI.h>
 
 #include <UniaxialMaterial.h>
 #include <MultipleShearSpring.h>
@@ -53,7 +54,6 @@ extern void printCommand(int argc, TCL_Char **argv);
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
-
 void *OPS_ComponentElement2d(G3_Runtime*);
 // extern  void *OPS_ComponentElementDamp2d(G3_Runtime*);
 void *OPS_TrussElement(G3_Runtime*);
@@ -2756,8 +2756,6 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
 
   // if error detected
   if (!ifNoError) {
-    // input:
-    printCommand(argc, argv);
     // want:
     opserr << "Want: element YamamotoBiaxialHDR eleTag? iNode? jNode? Tp? DDo? "
               "DDi? Hr?  <-coRS cr? cs?> <-orient <x1? x2? x3?> y1? y2? y3?> "
@@ -2985,7 +2983,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
     }
 
   } //--------------End of a 2D wheel-rail element(By Quan Gu, Yongdou Liu, et
-    // al.) on 2018/10/29 */
+    // al.) on 2018/10/29
   else if (ndm == 3) {
 
     opserr << "Have not developed yet." << endln;

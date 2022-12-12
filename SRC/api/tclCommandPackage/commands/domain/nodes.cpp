@@ -17,7 +17,11 @@
 #include <DOF_Group.h>
 #include <Node.h>
 #include <NodeIter.h>
+#include <Pressure_Constraint.h>
 
+// TODO: Remove global var - CMP
+static char *resDataPtr = nullptr;
+static int resDataSize = 0;
 
 int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -187,6 +191,281 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   return TCL_OK;
 }
+
+int
+nodeMass(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 3) {
+    opserr << "WARNING want - nodeMass nodeTag? nodeDOF?\n";
+    return TCL_ERROR;
+  }
+
+  int tag, dof;
+
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING nodeMass nodeTag? nodeDOF? \n";
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
+    opserr << "WARNING nodeMass nodeTag? nodeDOF? \n";
+    return TCL_ERROR;
+  }
+
+  char buffer[40];
+
+  Node *theNode = the_domain->getNode(tag);
+  if (theNode == nullptr) {
+    opserr << "WARNING nodeMass node " << tag << " not found" << endln;
+    return TCL_ERROR;
+  }
+  int numDOF = theNode->getNumberDOF();
+  if (dof < 1 || dof > numDOF) {
+    opserr << "WARNING nodeMass dof " << dof << " not in range" << endln;
+    return TCL_ERROR;
+  } else {
+    const Matrix &mass = theNode->getMass();
+    sprintf(buffer, "%35.20f", mass(dof - 1, dof - 1));
+    Tcl_AppendResult(interp, buffer, NULL);
+  }
+
+  return TCL_OK;
+}
+
+int
+nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
+             TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 2) {
+    opserr << "WARNING: want - nodePressure nodeTag?\n";
+    return TCL_ERROR;
+  }
+  int tag;
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING: nodePressure " << argv[1] << "\n";
+    return TCL_ERROR;
+  }
+  double pressure = 0.0;
+  Pressure_Constraint *thePC = the_domain->getPressure_Constraint(tag);
+  if (thePC != 0) {
+    pressure = thePC->getPressure();
+  }
+  char buffer[80];
+  sprintf(buffer, "%35.20f", pressure);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+
+int
+nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  const int requiredDataSize = 20 * 6;
+  if (requiredDataSize > resDataSize) {
+    if (resDataPtr != 0) {
+      delete[] resDataPtr;
+    }
+    resDataPtr = new char[requiredDataSize];
+    resDataSize = requiredDataSize;
+  }
+
+  for (int i = 0; i < requiredDataSize; i++)
+    resDataPtr[i] = '\n';
+
+  const Vector &bounds = the_domain->getPhysicalBounds();
+
+  int cnt = 0;
+  for (int j = 0; j < 6; j++) {
+    cnt += sprintf(&resDataPtr[cnt], "%.6e  ", bounds(j));
+  }
+
+  Tcl_SetResult(interp, resDataPtr, TCL_STATIC);
+
+  return TCL_OK;
+}
+
+int
+nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 2) {
+    opserr << "WARNING want - nodeVel nodeTag? <dof?>\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+  int dof = -1;
+
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING nodeVel nodeTag? dof? - could not read nodeTag? \n";
+    return TCL_ERROR;
+  }
+  if (argc > 2) {
+    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
+      opserr << "WARNING nodeVel nodeTag? dof? - could not read dof? \n";
+      return TCL_ERROR;
+    }
+  }
+
+  dof--;
+
+  const Vector *nodalResponse = the_domain->getNodeResponse(tag, Vel);
+
+  if (nodalResponse == nullptr)
+    return TCL_ERROR;
+
+  int size = nodalResponse->Size();
+
+  if (dof >= 0) {
+    if (size < dof)
+      return TCL_ERROR;
+
+    double value = (*nodalResponse)(dof);
+
+    // now we copy the value to the tcl string that is returned
+    char buffer[40];
+    sprintf(buffer, "%35.20f", value);
+    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  } else {
+
+    char buffer[40];
+    for (int i = 0; i < size; i++) {
+      sprintf(buffer, "%35.20f", (*nodalResponse)(i));
+      Tcl_AppendResult(interp, buffer, NULL);
+    }
+  }
+
+  return TCL_OK;
+}
+
+int
+setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 4) {
+    opserr << "WARNING want - setNodeVel nodeTag? dof? value? <-commit>\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+  int dof = -1;
+  double value = 0.0;
+  bool commit = false;
+
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING setNodeVel nodeTag? dof? value?- could not read "
+              "nodeTag? \n";
+    return TCL_ERROR;
+  }
+
+  Node *theNode = the_domain->getNode(tag);
+  if (theNode == nullptr) {
+    opserr << "WARNING setNodeVel -- node with tag " << tag << " not found"
+           << endln;
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
+    opserr << "WARNING setNodeVel nodeTag? dof? value?- could not read dof? \n";
+    return TCL_ERROR;
+  }
+  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
+    opserr
+        << "WARNING setNodeVel nodeTag? dof? value?- could not read value? \n";
+    return TCL_ERROR;
+  }
+  if (argc > 4 && strcmp(argv[4], "-commit") == 0)
+    commit = true;
+
+  dof--;
+
+  int numDOF = theNode->getNumberDOF();
+
+  if (dof >= 0 && dof < numDOF) {
+    Vector vel(numDOF);
+    vel = theNode->getVel();
+    vel(dof) = value;
+    theNode->setTrialVel(vel);
+  }
+  if (commit)
+    theNode->commitState();
+
+  return TCL_OK;
+}
+
+int
+setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
+            TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 4) {
+    opserr << "WARNING want - setNodeDisp nodeTag? dof? value? <-commit>\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+  int dof = -1;
+  double value = 0.0;
+  bool commit = false;
+
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING setNodeDisp nodeTag? dof? value?- could not read "
+              "nodeTag? \n";
+    return TCL_ERROR;
+  }
+
+  Node *theNode = the_domain->getNode(tag);
+  if (theNode == nullptr) {
+    opserr << "WARNING setNodeDisp -- node with tag " << tag << " not found"
+           << endln;
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
+    opserr
+        << "WARNING setNodeDisp nodeTag? dof? value?- could not read dof? \n";
+    return TCL_ERROR;
+  }
+  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
+    opserr
+        << "WARNING setNodeDisp nodeTag? dof? value?- could not read value? \n";
+    return TCL_ERROR;
+  }
+  if (argc > 4 && strcmp(argv[4], "-commit") == 0)
+    commit = true;
+
+  dof--;
+
+  int numDOF = theNode->getNumberDOF();
+
+  if (dof >= 0 && dof < numDOF) {
+    Vector vel(numDOF);
+    vel = theNode->getDisp();
+    vel(dof) = value;
+    theNode->setTrialDisp(vel);
+  }
+  if (commit)
+    theNode->commitState();
+
+  return TCL_OK;
+}
+
+
 
 int
 setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,

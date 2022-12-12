@@ -1,3 +1,9 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 #include <Block2D.h>
 #include <Block3D.h>
 #include <Matrix.h>

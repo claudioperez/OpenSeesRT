@@ -2,12 +2,12 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-// Written: rms, MHS
-// Created: 07/99
 //
 // Description: This file contains the function invoked when the user invokes
 // the section command in the interpreter.
+//
+// Written: rms, MHS
+// Created: 07/99
 //
 
 #include <tcl.h>

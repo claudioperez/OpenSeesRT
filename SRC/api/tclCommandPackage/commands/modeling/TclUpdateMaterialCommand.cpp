@@ -1,16 +1,19 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
 // $Revision: 1.2 $
 // $Date: 2007-10-16 00:11:55 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/domain/component/TclUpdateMaterialCommand.cpp,v $
-
+//
 // fmk
-
+//
+#include <string.h>
 #include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
 #include <MatParameter.h>
 
-#include <string.h>
 
 int
 TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,

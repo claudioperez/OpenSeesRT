@@ -2,6 +2,8 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+//
+//
 #include <g3_api.h>
 #include <Domain.h>
 #include <tcl.h>

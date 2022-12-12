@@ -21,19 +21,12 @@
 **   Zaohui Yang      (zhyang@ucdavis.edu)                            **
 **   Zhao Cheng       (zcheng@ucdavis.edu)                            **
 **                                                                    **
-**                                                                    **
-**                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.44 $
-// $Date: 2010-02-05 00:08:35 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/nD/TclBasicBuilderNDMaterialCommand.cpp,v
-// $
-
+//
 // Description: This file contains the function invoked when the user invokes
 // the nDMaterial command in the interpreter.
 //
+// $Date: 2010-02-05 00:08:35 $
 // What: "@(#) TclBasicBuilderNDMaterialCommand.C, revA"
 
 #include <TclBasicBuilder.h>
@@ -1141,9 +1134,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     param[numParam + 7] = 0.02;
     param[numParam + 8] = 0.7;
     param[numParam + 9] = 101.;
-    param[numParam + 10] = 0.1;
-    param[numParam + 11] = 0.;
-    param[numParam + 12] = 1.;
+    param[numParam +10] = 0.1;
+    param[numParam +11] = 0.;
+    param[numParam +12] = 1.;
 
     const char *arg[] = {"nd",
                          "rho",
@@ -1174,24 +1167,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
       printCommand(argc, argv);
-      opserr << "Want: nDMaterial PressureDependMultiYield02 tag? " << arg[0];
-      opserr << "? "
-             << "\n";
-      opserr << arg[1] << "? " << arg[2] << "? " << arg[3] << "? "
-             << "\n";
-      opserr << arg[4] << "? " << arg[5] << "? " << arg[6] << "? "
-             << "\n";
-      opserr << arg[7] << "? " << arg[8] << "? " << arg[9] << "? "
-             << "\n";
-      opserr << arg[10] << "? " << arg[11] << "? " << arg[12] << "? "
-             << "\n";
-      opserr << arg[13] << "? " << arg[14] << "? " << arg[15] << "? "
-             << "\n";
-      opserr << arg[16] << "? " << arg[17] << "? " << arg[18] << "? "
-             << "\n";
-      opserr << arg[19] << "? " << arg[20] << "? " << arg[21] << "? "
-             << "\n";
-      opserr << arg[22] << "? " << arg[23] << "? " << endln;
       return TCL_ERROR;
     }
 
