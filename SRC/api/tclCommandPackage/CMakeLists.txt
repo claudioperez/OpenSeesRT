@@ -28,7 +28,7 @@ add_subdirectory(commands/)
 add_subdirectory(runtime/)
 
 target_sources(OpenSeesRT PRIVATE
-# General
+# Genera
     "OpenSeesRT.cpp"
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"
@@ -47,7 +47,6 @@ target_sources(OpenSeesRT PRIVATE
     # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
 
     "contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
-    #"contrib/uniaxial/limitState/TclLimitState.cpp"
     "contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
     "contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
 

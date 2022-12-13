@@ -23,7 +23,7 @@
 
 
 ConvergenceTest*
-RT_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv);
+TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv);
 
 
 int
@@ -33,7 +33,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
 
   G3_Runtime *rt = G3_getRuntime(interp);
 
-  ConvergenceTest* theNewTest = RT_newConvergenceTest(clientData, interp, argc, argv);
+  ConvergenceTest* theNewTest = TclDispatch_newConvergenceTest(clientData, interp, argc, argv);
 
   if (theNewTest == nullptr) {
     // Parse routine is expected to have reported an error
@@ -49,7 +49,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
 }
 
 ConvergenceTest*
-RT_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
+TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
 {
   // Domain *domain = G3_getDomain(rt);
 

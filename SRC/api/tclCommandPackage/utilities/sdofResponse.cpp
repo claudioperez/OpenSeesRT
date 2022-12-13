@@ -27,6 +27,9 @@
 // tamax           time when maximum accleration occurred
 // =============   =====================================================
 //
+// https://portwooddigital.com/2021/02/14/how-many-clicks-does-it-take/
+//
+//
 #include <tcl.h>
 #include <math.h>
 #include <stdio.h>
@@ -45,10 +48,6 @@ const char *STDIN_FILE_NAME = "CON";
 const char *STDIN_FILE_NAME = "/dev/stdin";
 #endif
 
-//
-// https://portwooddigital.com/2021/02/14/how-many-clicks-does-it-take/
-//
-
 const char *Usage =
   "usage: sdof <m> <zeta> <k> <fy> <alpha> <dtF> <dt>\n\n"
   "   m               mass\n"
@@ -62,16 +61,6 @@ const char *Usage =
   "   uresidual       residual displacement at the end of previous analysis\n"
   "                              (optional, default=0)\n"
   "   umaxprev        previous displacement (optional, default=0)\n";
-
-//"   m                      \n"
-//"   zeta                   \n"
-//"   k                      \n"
-//"   Fy                     \n"
-//"   alpha                  \n"
-//"   dtF                    \n"
-//"   dt                     \n"
-//"   uresidual              \n"
-//"   max_prev_displ         \n";
 
 
 struct SDOF_Response {
@@ -139,7 +128,7 @@ sdof_response(
     while (infile >> ft) {
         i++;
     
-        u = u0;
+        u  = u0;
       
         fs = fs0;
         kT = kT0;
@@ -211,7 +200,7 @@ sdof_response(
 }
 
 int
-sdfResponse(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
+plastic_sdof(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
 {
   const char* positional_arguments[] = {
     "m",
@@ -298,7 +287,8 @@ main(int argc, char** argv)
   }
 
   Tcl_Interp *interp = Tcl_CreateInterp();
-  sdfResponse(nullptr, interp, argc, argv);
+
+  plastic_sdof(nullptr, interp, argc, argv);
 
   fprintf(stdout, "max_displ   u    up    max_accel     time_max_accel\n");
   fprintf(stdout, "%s\n", Tcl_GetStringResult(interp));

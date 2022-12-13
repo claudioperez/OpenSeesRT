@@ -44,9 +44,6 @@
 #include <SecantAccelerator3.h>
 #include <MillerAccelerator.h>
 
-// extern StaticAnalysis *theStaticAnalysis;
-// extern ConvergenceTest *theTest;
-extern EquiSolnAlgo *theAlgorithm;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -609,8 +606,12 @@ int
 printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char **argv, OPS_Stream &output)
 {
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
+  EquiSolnAlgo* theAlgorithm = builder->getAlgorithm();
+
   int eleArg = 0;
-  if (theAlgorithm == 0)
+  if (theAlgorithm == nullptr)
     return TCL_OK;
 
   // if just 'print <filename> algorithm'- no flag
@@ -627,6 +628,41 @@ printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
   theAlgorithm->Print(output, flag);
+  return TCL_OK;
+}
+
+int
+TclCommand_accelCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
+  EquiSolnAlgo* theAlgorithm = builder->getAlgorithm();
+
+  char buffer[20];
+  if (theAlgorithm == nullptr)
+    return TCL_ERROR;
+
+  sprintf(buffer, "%f", theAlgorithm->getAccelTimeCPU());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+
+int
+TclCommand_numFact(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
+  EquiSolnAlgo* theAlgorithm = builder->getAlgorithm();
+
+  char buffer[20];
+
+  if (theAlgorithm == nullptr)
+    return TCL_ERROR;
+
+  sprintf(buffer, "%d", theAlgorithm->getNumFactorizations());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
   return TCL_OK;
 }
 

@@ -50,7 +50,6 @@ extern VariableTimeStepDirectIntegrationAnalysis
 extern ConvergenceTest   *theTest;
 extern LinearSOE         *theSOE;
 extern EigenSOE          *theEigenSOE;
-extern EquiSolnAlgo      *theAlgorithm ;
 extern ConstraintHandler *theHandler ;
 extern DOF_Numberer      *theGlobalNumberer ;
 
@@ -61,7 +60,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-extern int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 static int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 static int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 static int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
@@ -78,17 +77,14 @@ static int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, i
 extern int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 extern int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
 
-//
-// algorithm.cpp
-//
+// commands/analysis/algorithm.cpp
 extern Tcl_CmdProc TclCommand_specifyAlgorithm;
 extern Tcl_CmdProc TclCommand_numIter;
+extern Tcl_CmdProc TclCommand_accelCPU;
 extern Tcl_CmdProc TclCommand_totalCPU;
 extern Tcl_CmdProc TclCommand_solveCPU;
-
-//
+extern Tcl_CmdProc TclCommand_numFact;
 // from commands/analysis/ctest.cpp
-//
 extern Tcl_CmdProc specifyCTest;
 extern Tcl_CmdProc getCTestNorms;
 extern Tcl_CmdProc getCTestIter;
@@ -130,8 +126,11 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);
   Tcl_CreateCommand(interp, "reset",             &resetModel,      builder, nullptr);
 
+  // algorithm.cpp
   Tcl_CreateCommand(interp, "algorithm", &TclCommand_specifyAlgorithm,  builder, nullptr);
   Tcl_CreateCommand(interp, "numIter",   &TclCommand_numIter,           builder, nullptr);
+  Tcl_CreateCommand(interp, "numFact",   &TclCommand_numFact,           builder, nullptr);
+  Tcl_CreateCommand(interp, "accelCPU",  &TclCommand_accelCPU,          builder, nullptr);
   Tcl_CreateCommand(interp, "totalCPU",  &TclCommand_totalCPU,          builder, nullptr);
   Tcl_CreateCommand(interp, "solveCPU",  &TclCommand_solveCPU,          builder, nullptr);
   return TCL_OK;
