@@ -44,7 +44,6 @@ set_property(CACHE OPS_FINAL_TARGET PROPERTY STRINGS
 
 #==============================================================================
 #                            OS Configuration
-#
 #==============================================================================
 add_library(OPS_OS_Specific_libs INTERFACE)
 
@@ -55,7 +54,7 @@ if (UNIX)
     include(OpenSeesDependenciesUnix)
   endif ()
 
-  if(APPLE)
+  if (APPLE)
    message(STATUS ">>> MacOS")
    add_compile_definitions(_LINUX _UNIX _TCL85)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -111,9 +110,8 @@ add_compile_options(-ggdb)
 #----------------------------------------------------------------
 # Global Includes
 #----------------------------------------------------------------
-# include paths to main abstract classes
  
-# NOTE BeamIntegration and MatrixUtil need to be removed from element/forceBEamColumn
+# NOTE BeamIntegration and MatrixUtil need to be removed from element/forceBeamColumn
 
 include_directories(
   ${OPS_SRC_DIR}
@@ -267,8 +265,8 @@ add_executable(OpenSeesMP    EXCLUDE_FROM_ALL
 )
 
 
-# Set selected executable to be built by default
-set_target_properties(${OPS_FINAL_TARGET} PROPERTIES EXCLUDE_FROM_ALL OFF)
+# # Set selected executable to be built by default
+# set_target_properties(${OPS_FINAL_TARGET} PROPERTIES EXCLUDE_FROM_ALL OFF)
 
 # Add sources to targets
 add_subdirectory(${OPS_SRC_DIR})
@@ -278,7 +276,7 @@ add_subdirectory(${OPS_SRC_DIR})
 #
 #==============================================================================
 target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
-message("Numlibs: ${OPS_Numlib_List}")
+message(">>> Numeric libs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
 
@@ -344,19 +342,6 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   target_include_directories(OpenSees PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-
-#opensees_add_cxx_flag(TARGETS OPS_Interp_Tcl
-#  GNU -fpermissive -fvisibility=hidden
-#)
-
-#----------------------------
-# OpenSeesTcl
-#----------------------------
-#target_link_libraries(OpenSeesTcl
-#	OPS_Interp_Tcl #${OPS_Element_List}
-#   OpenSees ${CMAKE_DL_LIBS}
-#)
-
 #----------------------------
 # OpenSeesPy
 #----------------------------
@@ -367,18 +352,14 @@ add_compile_options(-fPIC)
 #----------------------------
 # OpenSeesMP
 #----------------------------
-target_compile_definitions(OpenSeesMP
-    PUBLIC _PARALLEL_PROCESSING 
-)
+target_compile_definitions(OpenSeesMP PUBLIC _PARALLEL_PROCESSING)
 target_link_libraries(OpenSeesMP OpenSees)
 
 
 #----------------------------
 # OpenSeesSP
 #----------------------------
-target_compile_definitions(OpenSeesSP 
-    PUBLIC _PARALLEL_INTERPRETERS
-)
+target_compile_definitions(OpenSeesSP PUBLIC _PARALLEL_INTERPRETERS)
 target_link_libraries(OpenSeesSP OpenSees)
 
 #==============================================================================
