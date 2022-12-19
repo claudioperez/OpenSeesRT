@@ -23,8 +23,9 @@ set(CONDA_DIR "C:/Users/claud/miniconda3")
 set(CONDA_ENV "C:/Users/claud/miniconda3/envs/sim")
 set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
-opensees_load(TCL CONAN tcl/8.6.11)
-find_package(TCL)
+# opensees_load(TCL CONAN tcl/8.6.11)
+conan_cmake_configure(REQUIRES tcl/8.6.11)
+find_package(tcl)
 
 set(TCL_INCLUDE_PATH "${TCL_LIBRARY}\\include")
 set(TCL_LIBRARIES "${TCL_LIBRARY}")
