@@ -24,12 +24,13 @@ enable_testing()
 add_definitions(-DOPS_USE_RUNTIME)
 
 # add Conan stuff for external dependencies
-if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  set(USE_CONAN TRUE)
-  include(conan)
-  include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  conan_basic_setup()
-endif()
+# if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+#    message(">>> Using Conan")
+  #   set(USE_CONAN TRUE)
+  #   include(conan)
+  #   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  #   conan_basic_setup()
+  # endif()
 
 # pseudo target modeling all exteral packages
 add_library(OPS_External_packages INTERFACE)
@@ -66,8 +67,8 @@ if (UNIX)
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
-  # include(OpenSeesDependenciesWin)
-    include(OpenSeesDependenciesDockCrossWin)
+    include(OpenSeesDependenciesWin)
+  # include(OpenSeesDependenciesDockCrossWin)
     target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
     add_compile_definitions(_WIN32)
     message(STATUS ">>> WIN32")
