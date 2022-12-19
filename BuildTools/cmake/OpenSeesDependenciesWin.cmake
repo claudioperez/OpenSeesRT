@@ -25,7 +25,7 @@ set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
 opensees_load(TCL CONAN tcl/8.6.11)
 
-set(TCL_INCLUDE_PATH "$ENV{TCL_LIBRARY}\include")
+set(TCL_INCLUDE_PATH "$ENV{TCL_LIBRARY}\\include")
 set(TCL_LIBRARIES "$ENV{TCL_LIBRARY}")
 
 message("TCL: ${TCL_INCLUDE_PATH}")
