@@ -13,11 +13,10 @@
 #include <g3_api.h>
 #include <G3_Runtime.h>
 #include <G3_Logging.h>
-extern OPS_Stream* opswrnPtr;
+// extern OPS_Stream* opswrnPtr;
 
 #include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
-#include <WrapperElement.h>
 
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
@@ -30,17 +29,6 @@ extern OPS_Stream* opswrnPtr;
 
 #include <OPS_Globals.h>
 
-typedef struct elementFunction {
-  char *funcName;
-  eleFunct theFunct;
-  struct elementFunction *next;
-} ElementFunction;
-
-typedef struct materialFunction {
-  char *funcName;
-  matFunct theFunct;
-  struct materialFunction *next;
-} MaterialFunction;
 
 extern AnalysisModel             *theAnalysisModel;
 extern EquiSolnAlgo              *theAlgorithm;
@@ -56,9 +44,6 @@ extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAn
 extern ConvergenceTest *theTest;
 extern bool builtModel;
 extern FE_Datastore *theDatabase;
-
-static ElementFunction  *theElementFunctions  = nullptr;
-static MaterialFunction *theMaterialFunctions = nullptr;
 
 static Tcl_Interp *theInterp       = nullptr;
 static Domain     *theDomain       = nullptr;
@@ -289,111 +274,6 @@ OPS_GetStringCopy(char **arrayData)
 // END INTERPRETER STUFF
 //
 
-extern "C" eleObj *
-OPS_GetElement(int *eleTag) {return 0;}
-
-extern "C" eleObj *
-OPS_GetElementType(char *type, int sizeType)
-{
-
-  // try existing loaded routines
-
-  ElementFunction *eleFunction = theElementFunctions;
-  bool found = false;
-  while (eleFunction != nullptr && found == false) {
-    if (strcmp(type, eleFunction->funcName) == 0) {
-
-      // create a new eleObject, set the function ptr &  return it
-
-      eleObj *theEleObject = new eleObj;
-      theEleObject->eleFunctPtr = eleFunction->theFunct;
-      return theEleObject;
-    } else
-      eleFunction = eleFunction->next;
-  }
-
-  // try to load new routine from dynamic library in load path
-
-  eleFunct eleFunctPtr;
-  void *libHandle;
-
-  int res = getLibraryFunction(type, type, &libHandle, (void **)&eleFunctPtr);
-
-  if (res == 0) {
-
-    // add the routine to the list of possible elements
-
-    char *funcName = new char[strlen(type) + 1];
-    strcpy(funcName, type);
-    eleFunction = new ElementFunction;
-    eleFunction->theFunct = eleFunctPtr;
-    eleFunction->funcName = funcName;
-    eleFunction->next = theElementFunctions;
-    theElementFunctions = eleFunction;
-
-    // create a new eleObject, set the function ptr &  return it
-
-    eleObj *theEleObject = new eleObj;
-
-    theEleObject->eleFunctPtr = eleFunction->theFunct;
-
-    return theEleObject;
-  }
-
-  return 0;
-}
-
-// 
-extern "C" matObj *
-OPS_GetMaterialType(char *type, int sizeType)
-{
-
-  // try existing loaded routines
-  MaterialFunction *matFunction = theMaterialFunctions;
-  bool found = false;
-  while (matFunction != nullptr && found == false) {
-    if (strcmp(type, matFunction->funcName) == 0) {
-
-      // create a new eleObject, set the function ptr &  return it
-
-      matObj *theMatObject = new matObj;
-      theMatObject->matFunctPtr = matFunction->theFunct;
-      /* opserr << "matObj *OPS_GetMaterialType() - FOUND " << endln;  */
-      return theMatObject;
-    } else
-      matFunction = matFunction->next;
-  }
-
-  // try to load new routine from dynamic library in load path
-  matFunct matFunctPtr;
-  void *libHandle;
-
-  int res = getLibraryFunction(type, type, &libHandle, (void **)&matFunctPtr);
-
-  if (res == 0) {
-
-    // add the routine to the list of possible elements
-
-    char *funcName = new char[strlen(type) + 1];
-    strcpy(funcName, type);
-    matFunction = new MaterialFunction;
-    matFunction->theFunct = matFunctPtr;
-    matFunction->funcName = funcName;
-    matFunction->next = theMaterialFunctions;
-    theMaterialFunctions = matFunction;
-
-    // create a new matObject, set the function ptr &  return it
-
-    matObj *theMatObject = new matObj;
-
-    theMatObject->matFunctPtr = matFunction->theFunct;
-
-    return theMatObject;
-  }
-
-  return 0;
-}
-
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
 {
@@ -404,12 +284,10 @@ G3_getRuntime(Tcl_Interp *interp)
 }
 
 Tcl_Interp *
-G3_getInterpreter(G3_Runtime* rt)
-{return rt->m_interp;}
+G3_getInterpreter(G3_Runtime* rt) {return rt->m_interp;}
 
 TclBuilder *
-G3_getModelBuilder(G3_Runtime *rt)
-{return rt->m_builder;}
+G3_getModelBuilder(G3_Runtime *rt) {return rt->m_builder;}
 
 int
 G3_setModelBuilder(G3_Runtime *rt, BasicModelBuilder* builder)
@@ -444,7 +322,6 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
-      // (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theBasicModelBuilder", NULL);
   return builder->addTimeSeries(series);
 }
 
@@ -551,30 +428,8 @@ G3_getNDM(G3_Runtime *rt)
 int
 OPS_GetNDM(void) {return theModelBuilder->getNDM();}
 
-FE_Datastore *
-OPS_GetFEDatastore() {return theDatabase;}
-
-const char *
-OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
-
-#if !defined(OPS_USE_RUNTIME)
-  Domain *
-  OPS_GetDomain(void) {return theDomain;}
-
-  AnalysisModel **
-  OPS_GetAnalysisModel(void){return &theAnalysisModel;}
-
-  CrdTransf *
-  OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
-
-#endif
-
-EquiSolnAlgo **
-OPS_GetAlgorithm(void) {return &theAlgorithm;}
-
-
-LinearSOE **
-OPS_GetSOE(void) {return &theSOE;}
+bool *
+OPS_builtModel(void) {return &builtModel;}
 
 LinearSOE **
 G3_getLinearSoePtr(G3_Runtime* rt) {
@@ -582,29 +437,6 @@ G3_getLinearSoePtr(G3_Runtime* rt) {
   return soe;
 }
 
-
-EigenSOE **
-OPS_GetEigenSOE(void) {return &theEigenSOE;}
-
-StaticAnalysis **
-OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
-
-bool *
-OPS_builtModel(void) {return &builtModel;}
-
-#if 0
-int
-G3_setAnalysisModel(G3_Runtime *rt, AnalysisModel *the_analysis)
-{
-  rt->m_analysis_model = the_analysis;
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  Tcl_SetAssocData(interp, "OPS::theAnalysisModel", nullptr, (ClientData)the_analysis);
-  return 1;
-}
-
-AnalysisModel *
-G3_getAnalysisModel(G3_Runtime *rt){return rt->m_analysis_model;}
-#endif
 
 AnalysisModel **
 G3_getAnalysisModelPtr(G3_Runtime *rt){return rt->m_analysis_model_ptr;}
@@ -658,8 +490,34 @@ G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
   return 1;
 }
 
+FE_Datastore *
+OPS_GetFEDatastore() {return theDatabase;}
 
-#if 0
+const char *
+OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
+
+EquiSolnAlgo **
+OPS_GetAlgorithm(void) {return &theAlgorithm;}
+
+LinearSOE **
+OPS_GetSOE(void) {return &theSOE;}
+
+EigenSOE **
+OPS_GetEigenSOE(void) {return &theEigenSOE;}
+
+StaticAnalysis **
+OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
+
+#if 0 && !defined(OPS_USE_RUNTIME)
+Domain *
+OPS_GetDomain(void) {return theDomain;}
+
+AnalysisModel **
+OPS_GetAnalysisModel(void){return &theAnalysisModel;}
+
+CrdTransf *
+OPS_GetCrdTransf(int crdTag) {return OPS_getCrdTransf(crdTag);}
+
 StaticIntegrator **
 OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}
 
@@ -678,6 +536,4 @@ OPS_GetHandler(void) {return &theHandler;}
 DOF_Numberer **
 OPS_GetNumberer(void) {return &theGlobalNumberer;}
 #endif
-
-
 

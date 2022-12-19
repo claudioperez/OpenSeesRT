@@ -1,3 +1,10 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+// written: cmp
+//
 #include <tcl.h>
 #include <g3_api.h>
 #include <stdio.h>

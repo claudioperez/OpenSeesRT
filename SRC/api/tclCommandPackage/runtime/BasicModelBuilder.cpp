@@ -2,15 +2,14 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
-
-// Written: cmp
 //
 // Description: This file contains the class definition for BasicModelBuilder.
 // A BasicModelBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
 // framework.
-
+//
+// Written: cmp
+//
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +22,6 @@
 #include <ID.h>
 
 #include <Domain.h>
-// #include <Element.h>
 
 #include <RigidRod.h>
 #include <RigidBeam.h>
@@ -40,14 +38,13 @@
 #include <MultiSupportPattern.h>
 
 #include <TimeSeries.h>
+// #include <BeamIntegration.h>
 
 /*
-#include <SimulationInformation.h>				//L.Jiang [SIF]
-extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
+#include <SimulationInformation.h>			// L.Jiang [SIF]
+extern SimulationInformation simulationInfo;		// L.Jiang [SIF]
 */
-// extern const char * getInterpPWD(Tcl_Interp *interp);  //L.Jiang [SIF]
 
-// #include <BeamIntegration.h>
 
 
 
@@ -183,12 +180,6 @@ BasicModelBuilder::addTimeSeries(TimeSeries *series)
   m_TimeSeriesMap[name] = series;
   return 1;
 }
-
-
-
-//
-// BEGIN AUTGEN
-//
 
 //
 // SectionForceDeformation Operations
@@ -423,11 +414,6 @@ BasicModelBuilder::addCrdTransf(CrdTransf *instance)
 //
 // TODO MOVE EVERYTHING BELOW OUT OF FILE
 //
-
-//
-// THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
-
 #if 0
 extern int
 BasicModelBuilderParameterCommand(ClientData clientData,

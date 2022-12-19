@@ -32,7 +32,7 @@
 //
 // What: "@(#) commands.C, revA"
 
-#include <g3_api.h>
+#include <tcl.h>
 
 #include <OPS_Globals.h>
 #include <stdio.h>

@@ -25,7 +25,7 @@
 // Created: 11/00
 // Revision: A
 //
-#include <g3_api.h>
+#include <tcl.h>
 #include <string.h>
 
 #include <TrapezoidalTimeSeriesIntegrator.h>
@@ -45,7 +45,7 @@ TclDispatch_newSeriesIntegrator(ClientData clientData, Tcl_Interp *interp, TCL_C
 {
   int argc;
   TCL_Char **argv;
-  G3_Runtime *rt = G3_getRuntime(interp);
+//  G3_Runtime *rt = G3_getRuntime(interp);
 
   // split the list
   if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {

@@ -6,7 +6,7 @@
 //
 #include "analysis.h"
 #include <assert.h>
-#include <g3_api.h>
+#include <tcl.h>
 #include <api/InputAPI.h>
 #include <runtimeAPI.h>
 #include <Domain.h>
@@ -67,7 +67,6 @@ G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
 int
 specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  // G3_Runtime *rt = G3_getRuntime(interp);
   assert(clientData != nullptr);
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -99,7 +98,7 @@ G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
   StaticIntegrator* the_static_integrator = nullptr;
 
-  // check argv[1] for type of Numberer and create the object
+  // check argv[1] for type of integrator and create the object
 
   if (strcmp(argv[1], "LoadControl") == 0) {
     the_static_integrator = G3Parse_newLoadControl(clientData, interp, argc, argv);

@@ -276,6 +276,7 @@ static int
 initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)
 {
+  // TODO
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = G3_getDomain(rt);
   StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);

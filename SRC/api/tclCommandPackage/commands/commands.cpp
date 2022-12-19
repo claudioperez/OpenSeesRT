@@ -6,7 +6,7 @@
 // Description: This file contains the functions that will be called by
 // the interpreter when the appropriate command name is specified.
 //
-#include <g3_api.h>
+#include <tcl.h>
 #include <G3_Logging.h>
 #include <OPS_Globals.h>
 #include <elementAPI.h>

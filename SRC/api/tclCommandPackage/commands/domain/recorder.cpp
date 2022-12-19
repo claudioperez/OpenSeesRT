@@ -2024,7 +2024,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
+  // G3_Runtime *rt = G3_getRuntime(interp);
   // Domain& theDomain = *G3_getDomain(rt);
 
   Domain* domain = (Domain*)clientData;
@@ -2095,8 +2095,8 @@ int
 OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  Domain *domain = (Domain*)clientData;
 
   // clmnID starts from 1
   if (argc < 3) {

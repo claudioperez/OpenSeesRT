@@ -4,16 +4,17 @@
 ** ****************************************************************** */
 //
 //
+#include <tcl.h>
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
 #include <RCM.h>
 #include <AMDNumberer.h>
 
-#include <g3_api.h>
-
 #if defined(_PARALLEL_PROCESSING) || defined(_PARALLEL_INTERPRETERS)
 #  include <ParallelNumberer.h>
 #endif
+
+class G3_Runtime;
 
 //
 // command invoked to allow the Numberer objects to be built

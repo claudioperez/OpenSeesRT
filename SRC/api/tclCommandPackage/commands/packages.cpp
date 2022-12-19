@@ -16,13 +16,9 @@
 **   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.13 $
-// $Date: 2009-10-02 22:20:35 $
-
+//
 // Written: fmk
-
-
+//
 #include <stdlib.h>
 #include <string.h>
 #include <OPS_Globals.h>
@@ -34,7 +30,7 @@
 #  define byte win_byte_override
 #  include <windows.h>
 #  include <elementAPI.h>
-extern SimulationInformation *theSimulationInfoPtr;
+   extern SimulationInformation *theSimulationInfoPtr;
 #else
 #  include <dlfcn.h>
 #endif

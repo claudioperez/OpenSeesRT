@@ -16,10 +16,8 @@
 
 #include <iostream>
 #include <runtime/BasicModelBuilder.h>
-
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+#include "uniaxial.hpp"
+#include <packages.h>
 
 #include <BackboneMaterial.h>        // MHS
 #include <BarSlipMaterial.h>         // NM
@@ -52,8 +50,14 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <UniaxialJ2Plasticity.h> // Quan
 
-extern void *OPS_Bond_SP01(G3_Runtime *);  // K Kolozvari
+class G3_Runtime;
 
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
+                                       Tcl_Interp *interp, int cArg, int mArg,
+                                       TCL_Char **argv, Domain *domain);
+
+
+extern void *OPS_Bond_SP01(G3_Runtime *);  // K Kolozvari
 extern void *OPS_Bilin02(G3_Runtime *);
 extern void *OPS_FRPConfinedConcrete02(G3_Runtime *);
 extern void *OPS_SteelFractureDI(G3_Runtime *); // galvisf
@@ -78,7 +82,6 @@ extern void *OPS_OOHystereticMaterial(G3_Runtime *);
 extern void *OPS_UVCuniaxial(G3_Runtime *);
 
 
-#include "uniaxial.hpp"
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
 // *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder
@@ -91,8 +94,6 @@ extern void *OPS_UVCuniaxial(G3_Runtime *);
 extern UniaxialMaterial *
 Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData,
                                Tcl_Interp *interp, int argc, TCL_Char **argv);
-
-#include <packages.h>
 
 typedef struct uniaxialPackageCommand {
   char *funcName;

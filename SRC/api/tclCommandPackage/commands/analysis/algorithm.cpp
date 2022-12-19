@@ -10,7 +10,6 @@
 //
 #include <stdio.h>
 #include <assert.h>
-#include <g3_api.h>
 #include <G3_Logging.h>
 #include "analysis.h"
 #include <tcl.h>
@@ -47,10 +46,10 @@
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       G3_Char **argv, Domain *domain);
+                                       TCL_Char **argv, Domain *domain);
 
 typedef EquiSolnAlgo *(TclEquiSolnAlgo)(ClientData, Tcl_Interp *, int,
-                                        G3_Char **);
+                                        TCL_Char **);
 TclEquiSolnAlgo G3Parse_newEquiSolnAlgo;
 TclEquiSolnAlgo G3Parse_newSecantNewtonAlgorithm;
 TclEquiSolnAlgo G3Parse_newLinearAlgorithm;
@@ -61,7 +60,7 @@ TclEquiSolnAlgo G3_newNewtonLineSearch;
 //
 int
 TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                 G3_Char **argv)
+                 TCL_Char **argv)
 {
 
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
@@ -75,8 +74,8 @@ TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
   OPS_ResetInputNoBuilder(nullptr, interp, 2, argc, argv, nullptr);
 
-  G3_Runtime *rt = G3_getRuntime(interp);
-  EquiSolnAlgo *theNewAlgo = 0;
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  EquiSolnAlgo *theNewAlgo = nullptr;
   theNewAlgo = G3Parse_newEquiSolnAlgo(clientData, interp, argc, argv);
 
   if (theNewAlgo == nullptr) {
@@ -144,7 +143,7 @@ TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 
 EquiSolnAlgo *
 G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
-                        G3_Char **argv)
+                        TCL_Char **argv)
 {
   EquiSolnAlgo *theNewAlgo = nullptr;
 
@@ -194,7 +193,7 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3Parse_newLinearAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                           G3_Char **argv)
+                           TCL_Char **argv)
 {
   int formTangent = CURRENT_TANGENT;
   int factorOnce = 0;
@@ -217,7 +216,7 @@ G3Parse_newLinearAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, G3_Char **argv)
+                                 int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -261,7 +260,7 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
 }
 
 EquiSolnAlgo *
-G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char **argv)
+G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
   assert(clientData != nullptr);
@@ -298,7 +297,7 @@ G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char **argv)
 
 EquiSolnAlgo *
 G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
-                       G3_Char **argv)
+                       TCL_Char **argv)
 {
 
   assert(clientData != nullptr);
@@ -385,7 +384,7 @@ G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                   G3_Char **argv)
+                   TCL_Char **argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -432,7 +431,7 @@ G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newRaphsonNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                    G3_Char **argv)
+                    TCL_Char **argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -475,7 +474,7 @@ G3_newRaphsonNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newMillerNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                   G3_Char **argv)
+                   TCL_Char **argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -523,7 +522,7 @@ G3_newMillerNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newPeriodicNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                     G3_Char **argv)
+                     TCL_Char **argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -570,7 +569,7 @@ G3_newPeriodicNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newBroyden(ClientData clientData, Tcl_Interp *interp, int argc,
-              G3_Char **argv)
+              TCL_Char **argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
