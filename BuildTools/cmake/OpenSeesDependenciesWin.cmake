@@ -46,9 +46,10 @@ opensees_load(CBLAS
   LIBRARY "${BUNDLE_LIBS}/cblas.lib"
 )
 
-opensees_load(LAPACK
-  LIBRARY "${BUNDLE_LIBS}/lapack.lib"
-)
+find_package(LAPACK)
+# opensees_load(LAPACK
+#   LIBRARY "${BUNDLE_LIBS}/lapack.lib"
+# )
 
 # find_package(BLAS)
 
