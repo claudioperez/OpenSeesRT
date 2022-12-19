@@ -105,7 +105,8 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
     typedef int(_cdecl * OPS_GetStringCopyType)(char **);
     typedef int(_cdecl * OPS_AllocateElementPtrType)(eleObj *, int *, int *);
     typedef int(_cdecl * OPS_AllocateMaterialPtrType)(matObj *);
-    typedef UniaxialMaterial *(*builder->getUniaxialMaterialPtrType)(int);
+    // typedef UniaxialMaterial *(*builder->getUniaxialMaterialPtrType)(int);
+    typedef UniaxialMaterial* (*OPS_GetUniaxialMaterialPtrType)(int);
     typedef NDMaterial *(*OPS_GetNDMaterialPtrType)(int);
     typedef SectionForceDeformation *(*OPS_GetSectionForceDeformationPtrType)(int);
     typedef CrdTransf *(*OPS_GetCrdTransfPtrType)(int);
