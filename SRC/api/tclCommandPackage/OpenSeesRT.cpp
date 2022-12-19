@@ -12,7 +12,12 @@
 #include <StandardStream.h>      
 
 #include <stdio.h>
-#include <unistd.h>               
+#ifdef _WIN32
+#  include <io.h>
+#  define isatty _isatty
+#else
+#  include <unistd.h>               
+#endif
 
 extern int OpenSeesAppInit(Tcl_Interp *interp);
 extern void G3_InitTclSequentialAPI(Tcl_Interp* interp);
