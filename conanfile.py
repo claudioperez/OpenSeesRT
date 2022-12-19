@@ -7,13 +7,12 @@ class OpenSeesDependencies(ConanFile):
     description = "rovides Software Packages needed to build OpenSees"
     license = "BSD 3-Clause"
     author = "fmk fmckenna@berkeley.edu"
-    settings = {"os": None, "build_type": None, "compiler": None, "arch": ["x86_64"]}
+    # settings = {"os": None, "build_type": None, "compiler": None, "arch": ["x86_64"]}
     options = {"shared": [True, False]}
     default_options = {"mkl-static:threaded": False, "ipp-static:simcenter_backend": True}    
     generators = "cmake"
     build_policy = "missing"
-    requires = "libmysqlclient/8.0.25", \
-        "tcl/8.6.10"
+    requires = "tcl/8.6.11",
     # Custom attributes for Bincrafters recipe conventions
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"

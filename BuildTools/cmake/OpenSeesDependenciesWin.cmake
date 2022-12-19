@@ -19,19 +19,32 @@
 # - BUNDLED:  Provide specific paths for library.
 #
 #==============================================================================
-set(CONDA_DIR "C:/Users/claud/miniconda3")
-set(CONDA_ENV "C:/Users/claud/miniconda3/envs/sim")
 set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
 # opensees_load(TCL CONAN tcl/8.6.11)
-conan_cmake_configure(REQUIRES tcl/8.6.11)
-find_package(tcl)
+conan_cmake_configure(REQUIRES tcl/8.6.11 GENERATORS cmake_find_package)
+conan_cmake_autodetect(settings)
+conan_cmake_install(PATH_OR_REFERENCE .
+	BUILD missing
+	REMOTE conancenter
+	SETTINGS ${settings}
+	)
 
-set(TCL_INCLUDE_PATH "${TCL_LIBRARY}\\include")
-set(TCL_LIBRARIES "${TCL_LIBRARY}")
+set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/src/libg3" "${CMAKE_MODULE_PATH}")
+message(">>> ${CMAKE_MODULE_PATH}")
 
+# include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+# conan_basic_setup(TARGETS)
+find_package(TCL)
+
+# set(TCL_INCLUDE_PATH "${TCL_LIBRARY}\\include")
+# set(TCL_LIBRARIES "${TCL_LIBRARY}")
+
+message("TCL: ${TCL_LIBRARY}")
+message("TCL: ${tcl_LIBRARY}")
 message("TCL: ${TCL_INCLUDE_PATH}")
-message("TCL: ${TCL_INCLUDE_PATH}")
+message("TCL: ${TCL_LIBRARIES}")
+message("TCL: ${TCL_ROOT}")
 
 # opensees_load(MySQL CONAN mysql-connector-c/6.1.11
 #     #LIBRARY ${CONDA_ENV}/Library/lib/libmysql.lib
@@ -73,10 +86,12 @@ opensees_load(LAPACK
 #   LIBRARY ${OPS_BUNDLED_DIR}/bin/ARPACK/Debug/ARPACK.lib
 # )
 # 
-# opensees_load(AMD
-#   #BUNDLED ${OPS_BUNDLED_DIR}/AMD/
-#   LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
-# )
+opensees_load(AMD
+  #BUNDLED ${OPS_BUNDLED_DIR}/AMD/
+  LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
+)
+include_directories(${OPS_BUNDLED_DIR}/AMD)
+
 
 opensees_load(METIS                                        SEARCH)
 
