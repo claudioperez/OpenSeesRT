@@ -80,15 +80,15 @@ class BJtensor : public nDarray
   friend class straintensor;
 //  private:
   public:
-    char *indices1;   //  character array of indices
-    char *indices2;    //  they should be checked for matching and
+    const char *indices1;   //  character array of indices
+    const char *indices2;    //  they should be checked for matching and
                        //  then operator will be identified
   public: // just send appropriate arguments to the base constructor
     BJtensor(int rank_of_BJtensor=1, double initval=0); // default constructor
     BJtensor(int rank_of_BJtensor, const int *pdim, double *values);
     BJtensor(int rank_of_BJtensor, const int *pdim, double initvalue);
-    BJtensor(char *flag, int rank_of_BJtensor, const int *pdim);  // create a unit nDarray
-    BJtensor(char *flag);   //this one used to send "NO" message
+    BJtensor(const char *flag, int rank_of_BJtensor, const int *pdim);  // create a unit nDarray
+    BJtensor(const char *flag);   //this one used to send "NO" message
     BJtensor(const BJtensor & x);  // instead of: "BJtensor(nDarray & x):"   :-)
     BJtensor(const nDarray & x);
 
@@ -136,18 +136,18 @@ class BJtensor : public nDarray
     BJtensor inverse_2( )     const;    // inverse of a BJtensor   <--|
                                // I_ikjl scheme
 
-    BJtensor & operator()(char *indices_from_user);
+    BJtensor & operator()(const char *indices_from_user);
 
     void null_indices( );
 //K    char *BJtensor::f_indices1( ) const;
-    char *f_indices1( ) const;
+    const char *f_indices1( ) const;
 //K    char *BJtensor::f_indices2( ) const;
-    char *f_indices2( ) const;
+    const char *f_indices2( ) const;
 
   private:
 //K    int BJtensor::contracted_ind(char *, char *, int *, int *, int , int );
 //K    int BJtensor::uncontracted_ind(int *, int *, int);
-    int contracted_ind(char *, char *, int *, int *, int , int );
+    int contracted_ind(const char *, const char *, int *, int *, int , int );
     int uncontracted_ind(int *, int *, int);
 
 

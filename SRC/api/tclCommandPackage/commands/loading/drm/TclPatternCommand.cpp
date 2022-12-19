@@ -69,7 +69,7 @@ extern const char *getInterpPWD(Tcl_Interp *interp); // commands.cpp
 LoadPattern *theTclLoadPattern = 0;
 MultiSupportPattern *theTclMultiSupportPattern = 0;
 
-extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
+extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         TCL_Char *arg);
 
@@ -209,7 +209,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand(clientData, interp, argv[currentArg]);
+            TclDispatch_newSeriesIntegrator(clientData, interp, argv[currentArg]);
         if (seriesIntegrator == 0) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - pattern UniformExcitation -int {Series Integrator}\n";

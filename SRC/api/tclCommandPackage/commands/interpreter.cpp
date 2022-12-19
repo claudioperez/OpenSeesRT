@@ -49,7 +49,10 @@ version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
-
+//
+// Consider reimplmenting to use Tcl built-ins; see
+// https://wiki.tcl-lang.org/page/timers
+//
 static int
 startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {

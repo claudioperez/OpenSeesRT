@@ -4,15 +4,15 @@
 ** ****************************************************************** */
 //
 //
-#include <g3_api.h>
+#include <assert.h>
 #include <Domain.h>
 #include <tcl.h>
 
 int
 TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain* domain = (Domain*)clientData;
   
   domain->setLoadConstant();
   if (argc == 3) {
@@ -33,6 +33,9 @@ TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 int
 TclCommand_setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain* the_domain = (Domain*)clientData;
+
   if (argc < 2) {
     opserr << "WARNING illegal command - setCreep value? \n";
     return TCL_ERROR;
@@ -42,7 +45,7 @@ TclCommand_setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
     opserr << "WARNING reading creep value - setCreep newFlag? \n";
     return TCL_ERROR;
   } else {
-    G3_getDomain(G3_getRuntime(interp))->setCreep(newFlag);
+    the_domain->setCreep(newFlag);
   }
   return TCL_OK;
 }
@@ -50,8 +53,9 @@ TclCommand_setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
 int
 TclCommand_setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain* domain = (Domain*)clientData;
+
   if (argc < 2) {
     opserr << "WARNING illegal command - time pseudoTime? \n";
     return TCL_ERROR;
@@ -70,8 +74,9 @@ TclCommand_setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 int
 TclCommand_getTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain* domain = (Domain*)clientData;
+
   double time = domain->getCurrentTime();
 
   // get the display format

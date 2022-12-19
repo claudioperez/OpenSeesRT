@@ -31,6 +31,7 @@
 #define STRAINTENSOR_CC
 
 #include "straint.h"
+#include <OPS_Stream.h>
 
 //##############################################################################
 straintensor::straintensor (int rank_of_tensor, double initval):
@@ -312,7 +313,7 @@ double straintensor::equivalent( ) const	  //Zhaohui added 09-02-2000
     tensor temp  = pstrain("ij") * pstrain("ij");
     double tempd = temp.trace();
     double e_eq  = pow( 2.0 * tempd / 3.0, 0.5 );
-    //cout << "e_eq = " << e_eq << endlnn;
+    //cout << "e_eq = " << e_eq << "\n"n;
     return e_eq;
 
 }
@@ -641,9 +642,9 @@ void straintensor::reportshort(char * msg) const
 OPS_Stream& operator<< (OPS_Stream& os, const straintensor & rhs)
 {
   os << "straintensor: I1 = " << rhs.Iinvariant1() << ", I2 = " << rhs.Iinvariant2() << ", I3 = " << 
-    rhs.Iinvariant3() << endln;
+    rhs.Iinvariant3() << "\n";
 
-  os << "st_trace = " << rhs.trace() << ", mean pressure p = " << rhs.trace()/3.0 << endln;
+  os << "st_trace = " << rhs.trace() << ", mean pressure p = " << rhs.trace()/3.0 << "\n";
 
   /*
     tensor I2("I", 2, def_dim_2);

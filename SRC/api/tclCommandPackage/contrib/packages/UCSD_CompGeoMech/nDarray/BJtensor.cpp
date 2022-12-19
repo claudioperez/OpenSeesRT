@@ -1,32 +1,4 @@
-//############################################################################
-//#                                                                          #
-//#             /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/~~\              #
-//#            |                                          |____|             #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#            |                 B A S E                  |                  #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#            |              C L A S S E S               |                  #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#            |          C + +     S O U R C E           |                  #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#            |                                          |                  #
-//#         /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/   |                  #
-//#        |                                         |    |                  #
-//#         \_________________________________________\__/                   #
-//#                                                                          #
-//#                                                                          #
-//############################################################################
-//
-//   "C makes it easy to shoot yourself in the foot, C++ makes it harder,
-//   but when you do, it blows away your whole leg" -- Bjarne Stroustrup
-//
-///*
+/*
 //################################################################################
 //# COPY-YES  (C):     :-))                                                      #
 //# PROJECT:           Object Oriented Finite Element Program                    #
@@ -63,7 +35,7 @@
 //#                                                                              #
 //#                                                                              #
 //################################################################################
-//*/
+*/
 //
 #ifndef TENSOR_CC
 #define TENSOR_CC
@@ -84,8 +56,8 @@ BJtensor::BJtensor(int rank_of_BJtensor, double initval):
 BJtensor::BJtensor(int rank_of_BJtensor, const int *pdim, double *values):
   nDarray(rank_of_BJtensor, pdim, values)
     {
-      indices1 = (char *) NULL; //since NULL is (void *)  02june98 
-      indices2 = (char *) NULL; //since NULL is (void *)  02june98 
+      indices1 = (const char *) NULL; //since NULL is (void *)  02june98 
+      indices2 = (const char *) NULL; //since NULL is (void *)  02june98 
     }
 
 
@@ -99,7 +71,7 @@ BJtensor::BJtensor(int rank_of_BJtensor, const int *pdim, double initvalue):
 
 
 //##############################################################################
-BJtensor::BJtensor(char *flag, int rank_of_BJtensor, const int *pdim):
+BJtensor::BJtensor(const char *flag, int rank_of_BJtensor, const int *pdim):
   nDarray( flag, rank_of_BJtensor, pdim) // create a unit nDarray
     {
       indices1 = (char *) NULL; //since NULL is (void *)  02june98 
@@ -108,8 +80,9 @@ BJtensor::BJtensor(char *flag, int rank_of_BJtensor, const int *pdim):
 
 
 //##############################################################################
-BJtensor::BJtensor(char *flag):
-  nDarray(flag) { } //this one used to send "NO" message
+// this one used to send "NO" message
+BJtensor::BJtensor(const char *flag):
+  nDarray(flag) { }
 
 
 
@@ -202,7 +175,7 @@ BJtensor& BJtensor::operator=( const BJtensor & rval)
 // Since only two BJtensors can be multiplied at the time ( binary operation )
 // only indices1 and indices2 are needed #
 // WATCH OUT THIS IS NOT STANDRAD AS YOU CANNOT QUARANTY THE ORDER OF EXECUTION!!!!
-BJtensor & BJtensor::operator()(char *indices_from_user)
+BJtensor & BJtensor::operator()(const char *indices_from_user)
   {
     if ( this->indices1 == NULL )
       {
@@ -811,8 +784,8 @@ BJtensor BJtensor::operator*( BJtensor & arg)
 //
 // WATCH OUT THIS IS NOT STANDRAD AS YOU CANNOT QUARANTY THE ORDER OF EXECUTION!!!!
 
-   char * this_indices = this->indices1;
-   char * arg_indices  = arg.indices1;
+   const char * this_indices = this->indices1;
+   const char * arg_indices  = arg.indices1;
 
 //fprintf(stdout,"\n\n\n\n  this->indices1 = %s   ; this->indices2 = %s\n", this->indices1,this->indices2);
 // if the BJtensors are same then split indices :-)
@@ -1592,12 +1565,12 @@ arg.rank());
 
 //##############################################################################
 // counter for contracted indices
-int BJtensor::contracted_ind(char  * argleft_indices,
-                           char  * argright_indices,
-                           int   * argleft_contr,
-                           int   * argright_contr,
-                           int     argleft_ind_numb,
-                           int     argright_ind_numb)
+int BJtensor::contracted_ind(const char  * argleft_indices,
+                             const char  * argright_indices,
+                             int   * argleft_contr,
+                             int   * argright_contr,
+                             int     argleft_ind_numb,
+                             int     argright_ind_numb)
   {
     int contr_counter = 0;
     int argleft_i_count = 0;
@@ -2516,12 +2489,12 @@ BJtensor BJtensor::inverse()  const // invert BJtensor of even rank by
 
 
 //##############################################################################
-char * BJtensor::f_indices1( void ) const
+const char * BJtensor::f_indices1( void ) const
   {
     return( this->indices1 );
   }
 //##############################################################################
-char * BJtensor::f_indices2( void ) const
+const char * BJtensor::f_indices2( void ) const
   {
     return( this->indices2 );
   }

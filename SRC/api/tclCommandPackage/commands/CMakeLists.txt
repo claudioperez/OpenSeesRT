@@ -10,6 +10,7 @@ target_sources(OpenSeesRT PRIVATE
     "interpreter.cpp"
     "pragma.cpp"
     "sequential.cpp"
+    "packages.cpp"
 
 # Domain
     "commands.cpp"

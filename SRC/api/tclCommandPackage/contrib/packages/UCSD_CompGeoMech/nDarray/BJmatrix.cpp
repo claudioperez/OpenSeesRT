@@ -1,12 +1,4 @@
-                                                                        
-// $Revision: 1.2 $                                                              
-// $Date: 2003-02-14 23:01:48 $                                                                  
-// $Source: /usr/local/cvs/OpenSees/SRC/nDarray/BJmatrix.cpp,v $                                                                
-
-                                                                        
-                                                                        
-///*
-//################################################################################
+/* ###############################################################################
 //# COPY-YES  (C):     :-))                                                      #
 //# PROJECT:           Object Oriented Finite Element Program                    #
 //# PURPOSE:                                                                     #
@@ -36,15 +28,19 @@
 //#                                                                              #
 //#                                                                              #
 //#                                                                              #
-//################################################################################
-//*/
+//############################################################################## */
+//
+// $Revision: 1.2 $                                                              
+// $Date: 2003-02-14 23:01:48 $                                                                  
+// $Source: /usr/local/cvs/OpenSees/SRC/nDarray/BJmatrix.cpp,v $                                                                
+
 #ifndef MATRIX_CC
 #define MATRIX_CC
 //  #include "basics.h"
 //  #include "nDarray.h"
 #include "BJmatrix.h"
 //#include "BJvector.h"
-#include <OPS_Stream.h>
+// #include <OPS_Stream.h>
 
 #define TINY  1e-20
 void BJmatrix::error(char * msg1, char * msg2)

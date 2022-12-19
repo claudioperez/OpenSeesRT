@@ -30,9 +30,10 @@
 #ifndef STRESSTENSOR_H
 #define STRESSTENSOR_H
 
-#include <OPS_Globals.h>
+// #include <OPS_Globals.h>
 #include "BJtensor.h"
 class Material_Model;
+class OPS_Stream;
 
 
 class stresstensor : public BJtensor

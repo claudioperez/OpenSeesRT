@@ -307,8 +307,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   /* static */ int resDataSize = 0;
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+  Domain *domain = builder->getDomain();
 
 
   // make sure at least one other argument to contain type of system
@@ -379,14 +378,14 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   builder->newEigenAnalysis(typeSolver,shift);
   StaticAnalysis* theStaticAnalysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
-  if(theStaticAnalysis == 0 && theTransientAnalysis == 0) {
+  if(theStaticAnalysis == nullptr && theTransientAnalysis == nullptr) {
       builder->newTransientAnalysis();
       theTransientAnalysis = builder->getTransientAnalysis();
   }
 
   int requiredDataSize = 40 * numEigen;
   if (requiredDataSize > resDataSize) {
-    if (resDataPtr != 0) {
+    if (resDataPtr != nullptr) {
       delete[] resDataPtr;
     }
     resDataPtr = new char[requiredDataSize];
@@ -445,7 +444,6 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char **argv)
 {
   assert(clientData != nullptr);
-
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
   int numEigen = builder->getNumEigen();
 
@@ -497,7 +495,8 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // set factors in domain
-  Domain *theDomain = G3_getDomain(G3_getRuntime(interp));
+  Domain *theDomain = builder->getDomain();
+  assert(theDomain != nullptr);
   theDomain->setModalDampingFactors(&modalDampingValues, true);
 
   return TCL_OK;
@@ -561,7 +560,8 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // set factors in domain
-  Domain *theDomain = G3_getDomain(G3_getRuntime(interp));
+  Domain *theDomain = builder->getDomain();
+  assert(theDomain != nullptr);
   theDomain->setModalDampingFactors(&modalDampingValues, false);
   return TCL_OK;
 }
@@ -569,11 +569,15 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 static int
 resetModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+
+  Domain* domain = builder->getDomain();
+  assert(domain != nullptr);
   domain->revertToStart();
 
-  if (theTransientIntegrator != 0) {
+  TransientIntegrator *theTransientIntegrator =  builder->getTransientIntegrator();
+  if (theTransientIntegrator != nullptr) {
     theTransientIntegrator->revertToStart();
   }
   return TCL_OK;
@@ -584,10 +588,14 @@ int
 printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv, OPS_Stream &output)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  StaticIntegrator *the_static_integrator = G3_getStaticIntegrator(rt);
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+
+  TransientIntegrator *theTransientIntegrator =  builder->getTransientIntegrator();
+  StaticIntegrator *the_static_integrator = builder->getStaticIntegrator();
+
   int eleArg = 0;
-  if (the_static_integrator == 0 && theTransientIntegrator == 0)
+  if (the_static_integrator == nullptr && theTransientIntegrator == nullptr)
     return TCL_OK;
 
   IncrementalIntegrator *theIntegrator;
@@ -679,7 +687,6 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   FileStream outputFile;
   OPS_Stream *output = &opserr;
-  //  bool done = false;
 
   bool ret = false;
   int currentArg = 1;

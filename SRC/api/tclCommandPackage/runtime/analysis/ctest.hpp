@@ -6,22 +6,22 @@
 class ConvergenceTest;
 
 ConvergenceTest*
-RT_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
+TclDispatch_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 std::unordered_map<std::string, ConvergenceTest* (*)(G3_Runtime*, int, G3_Char**)> 
 ConvergenceTestLibrary = {
-  {"LoadControl",                RT_newConvergenceTest},
-  {"NormDispAndUnbalance",       RT_newConvergenceTest},
-  {"NormDispOrUnbalance",        RT_newConvergenceTest},
-  {"FixedNumIter",               RT_newConvergenceTest},
-  {"FixedNumIter",               RT_newConvergenceTest},
-  {"NormUnbalance",              RT_newConvergenceTest},
-  {"NormDispIncr",               RT_newConvergenceTest},
-  {"NormDispAndUnbalance",       RT_newConvergenceTest},
-  {"NormDispOrUnbalance",        RT_newConvergenceTest},
-  {"EnergyIncr",                 RT_newConvergenceTest},
-  {"RelativeNormUnbalance",      RT_newConvergenceTest},
-  {"RelativeNormDispIncr",       RT_newConvergenceTest},
-  {"RelativeEnergyIncr",         RT_newConvergenceTest},
-  {"RelativeTotalNormDispIncr",  RT_newConvergenceTest},
+  {"LoadControl",                TclDispatch_newConvergenceTest},
+  {"NormDispAndUnbalance",       TclDispatch_newConvergenceTest},
+  {"NormDispOrUnbalance",        TclDispatch_newConvergenceTest},
+  {"FixedNumIter",               TclDispatch_newConvergenceTest},
+  {"FixedNumIter",               TclDispatch_newConvergenceTest},
+  {"NormUnbalance",              TclDispatch_newConvergenceTest},
+  {"NormDispIncr",               TclDispatch_newConvergenceTest},
+  {"NormDispAndUnbalance",       TclDispatch_newConvergenceTest},
+  {"NormDispOrUnbalance",        TclDispatch_newConvergenceTest},
+  {"EnergyIncr",                 TclDispatch_newConvergenceTest},
+  {"RelativeNormUnbalance",      TclDispatch_newConvergenceTest},
+  {"RelativeNormDispIncr",       TclDispatch_newConvergenceTest},
+  {"RelativeEnergyIncr",         TclDispatch_newConvergenceTest},
+  {"RelativeTotalNormDispIncr",  TclDispatch_newConvergenceTest},
 };

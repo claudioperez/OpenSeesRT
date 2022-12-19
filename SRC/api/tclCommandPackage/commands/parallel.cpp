@@ -2,6 +2,8 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+//
+//
 #ifdef _PARALLEL_PROCESSING
 #  include <DistributedDisplacementControl.h>
 #  include <ShadowSubdomain.h>
@@ -15,7 +17,6 @@
 #  include <MachineBroker.h>
 #  include <MPIDiagonalSOE.h>
 #  include <MPIDiagonalSolver.h>
-// parallel analysis
 #  include <StaticDomainDecompositionAnalysis.h>
 #  include <TransientDomainDecompositionAnalysis.h>
 
@@ -31,12 +32,12 @@
    bool setMPIDSOEFlag = false;
    int  OPS_MAIN_DOMAIN_PARTITION_ID = 0;
    PartitionedDomain     theDomain;
-   DomainPartitioner     *OPS_DOMAIN_PARTITIONER = 0;
-   GraphPartitioner      *OPS_GRAPH_PARTITIONER = 0;
-   LoadBalancer          *OPS_BALANCER = 0;
-   TclPackageClassBroker *OPS_OBJECT_BROKER = 0;
-   MachineBroker         *OPS_MACHINE = 0;
-   Channel               **OPS_theChannels = 0;  
+   DomainPartitioner     *OPS_DOMAIN_PARTITIONER = nullptr;
+   GraphPartitioner      *OPS_GRAPH_PARTITIONER  = nullptr;
+   LoadBalancer          *OPS_BALANCER           = nullptr;
+   TclPackageClassBroker *OPS_OBJECT_BROKER      = nullptr;
+   MachineBroker         *OPS_MACHINE            = nullptr;
+   Channel               **OPS_theChannels       = nullptr;  
 
 #  elif defined(_PARALLEL_INTERPRETERS)
 
@@ -71,12 +72,12 @@ getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   int pid = 0;
 #ifdef _PARALLEL_INTERPRETERS
-  if (theMachineBroker != 0)
+  if (theMachineBroker != nullptr)
     pid = theMachineBroker->getPID();
 #endif
 
 #ifdef _PARALLEL_PROCESSING
-  if (theMachineBroker != 0)
+  if (theMachineBroker != nullptr)
     pid = theMachineBroker->getPID();
 #endif
 
@@ -93,12 +94,12 @@ getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   int np = 1;
 #ifdef _PARALLEL_INTERPRETERS
-  if (theMachineBroker != 0)
+  if (theMachineBroker != nullptr)
     np = theMachineBroker->getNP();
 #endif
 
 #ifdef _PARALLEL_PROCESSING
-  if (theMachineBroker != 0)
+  if (theMachineBroker != nullptr)
     np = theMachineBroker->getNP();
 #endif
 

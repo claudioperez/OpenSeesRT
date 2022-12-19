@@ -29,10 +29,10 @@ int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
-  assert(clientData != nullptr);
   G3_Runtime *rt = G3_getRuntime(interp);
+  assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
-  Domain *theTclDomain = G3_getDomain(rt);
+  Domain *theTclDomain = theTclBuilder->getDomain();
 
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -101,9 +101,10 @@ int
 TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
-  Domain *theTclDomain = G3_getDomain(rt);
+  Domain *theTclDomain = theTclBuilder->getDomain();
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -161,16 +162,11 @@ int
 TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
   // G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   // Domain *theTclDomain = G3_getDomain(rt);
-  // ensure the destructor has not been called -
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
 
   //  int ndf = theTclBuilder->getNDF();
   int ndf = argc - 2;
@@ -222,17 +218,11 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
 
+  assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
 
-  // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
-
-  //int ndf = theTclBuilder->getNDF();
   int ndf = argc - 2;
   if (strcmp(argv[argc-2],"-tol") == 0)
     ndf -= 2;

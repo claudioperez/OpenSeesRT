@@ -54,6 +54,7 @@ extern SimulationInformation simulationInfo;		//L.Jiang [SIF]
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
+int G3_setDomain(G3_Runtime*, Domain*);
 BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
     : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
@@ -77,7 +78,7 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
-  // G3_setDomain(m_runtime, &theDomain);
+  G3_setDomain(m_runtime, &theDomain);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
 }
 

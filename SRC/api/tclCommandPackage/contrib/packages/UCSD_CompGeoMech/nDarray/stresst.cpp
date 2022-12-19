@@ -1,30 +1,4 @@
 //##########################################################################
-//#                                                                        #
-//#                                                                        #
-//#             /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/~~\            #
-//#            |                                          |____|           #
-//#            |                                          |                #
-//#            |                                          |                #
-//#            |                                          |                #
-//#            |           P L A S T I C I T Y            |                #
-//#            |                                          |                #
-//#            |                                          |                #
-//#            |              C L A S S E S               |                #
-//#            |                                          |                #
-//#            |                                          |                #
-//#            |          C + +     S O U R C E           |                #
-//#            |                                          |                #
-//#            |                                          |                #
-//#            |                                          |                #
-//#            |                                          |                #
-//#         /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/   |                #
-//#         \_________________________________________\__/                 #
-//#                                                                        #
-//#                                                                        #
-//##########################################################################
-//##########################################################################
-//##########################################################################
-//##########################################################################
 //                         PAZI 'VAMO:
 //
 //
@@ -38,14 +12,9 @@
 //     ( I2_ij, I4_ijkl . . .  ) pa neka to budu GLOBALNE konstante
 //     jer ih svaki cas pravis i unistavas . . .
 //
-//
-//
-//
-//#############################################################################
-//#############################################################################
 //#############################################################################
 
-///*
+/*
 //################################################################################
 //# COPY-YES  (C):     :-))                                                      #
 //# PROJECT:           Object Oriented Finite Element Program                    #
@@ -74,14 +43,14 @@
 //#                                                                              #
 //#                                                                              #
 //################################################################################
-//*/
+*/
 
 
 #ifndef STRESSTENSOR_CPP
 #define STRESSTENSOR_CPP
 
 #include "stresst.h"
-
+#include <OPS_Stream.h>
 #include <iomanip>
 using std::ios;
 
@@ -104,9 +73,9 @@ stresstensor::stresstensor( const stresstensor & x ):
   BJtensor("NO")
     {
       x.pc_nDarray_rep->n++;  // tell the rval it has another reference
-//      x.reference_count(+1);              // we're adding another reference.
+      //  x.reference_count(+1);            // we're adding another reference.
       pc_nDarray_rep = x.pc_nDarray_rep;  // point to the new tensor_rep.
-// add the indices
+      // add the indices
       indices1 = x.indices1;
       indices2 = x.indices2;
     }
@@ -1086,23 +1055,23 @@ OPS_Stream& operator<< (OPS_Stream& os, const stresstensor & rhs)
         os.precision(4);
         os.width(10);
 
-        //os << endlnn;
+        //os << "\n"n;
     	//os << rhs.cval(1,1) << "  ";
     	//os.width(10);
     	//os << rhs.cval(1,2) << "  ";
     	//os.width(10);
-    	//os << rhs.cval(1,3) << endlnn;
+    	//os << rhs.cval(1,3) << "\n"n;
         //os << rhs.cval(2,1) << "  ";
     	//os.width(10);
     	//os << rhs.cval(2,2) << "  ";
     	//os.width(10);
-    	//os << rhs.cval(2,3) << endlnn;
+    	//os << rhs.cval(2,3) << "\n"n;
     	//
         //os << rhs.cval(3,1) << "  ";
     	//os.width(10);
     	//os << rhs.cval(3,2) << "  ";
     	//os.width(10);
-    	//os << rhs.cval(3,3) << endlnn;
+    	//os << rhs.cval(3,3) << "\n"n;
         
     	os.width(10);
     	//os << "p = " << rhs.p_hydrostatic();

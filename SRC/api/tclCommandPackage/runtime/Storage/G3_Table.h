@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-typedef unsigned long int G3_Tag;
+// typedef unsigned long int G3_Tag;
 typedef struct G3_Table G3_Table;
 
 G3_Table *G3_NewTable(void);
@@ -27,7 +27,7 @@ const char *G3_SetTableEntry(G3_Table *, const char *partition, int tag,
 
 int G3_AddTableEntry(G3_Table *, const char *partition, int tag, void *value);
 
-void *G3_GetTableEntry(G3_Table *, const char *partition, G3_Tag);
+void *G3_GetTableEntry(G3_Table *, const char *partition, unsigned long int tag);
 
 #ifdef __cplusplus
 }

@@ -75,6 +75,7 @@ public:
     void set(Integrator* obj, int isstatic);
     void set(ConvergenceTest* obj);
     
+    Domain* getDomain(void);
     void newStaticAnalysis();
     int  setStaticAnalysis();
     int  newTransientAnalysis();

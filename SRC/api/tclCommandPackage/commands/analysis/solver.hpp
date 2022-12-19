@@ -152,14 +152,10 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
 
 
-  {"SparseGen", {
-     specifySparseGen, 
-     nullptr, 
-     nullptr}},
-  {"SuperLU", {
-     specifySparseGen, 
-     nullptr, 
-     nullptr}},
+  {"SparseGen",     {specifySparseGen, nullptr, nullptr}},
+  {"SparseGEN",     {specifySparseGen, nullptr, nullptr}},
+  {"SparseGeneral", {specifySparseGen, nullptr, nullptr}},
+  {"SuperLU",       {specifySparseGen, nullptr, nullptr}},
 
   {"SparseSYM", {
      specify_SparseSPD, nullptr, nullptr}},

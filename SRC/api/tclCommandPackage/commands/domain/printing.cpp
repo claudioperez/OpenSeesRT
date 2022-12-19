@@ -206,8 +206,9 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
 {
   int flag = 0; // default flag sent to a nodes Print() method
   int nodeArg = 0;
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
+
+  assert(clientData != nullptr);
+  Domain* domain = (Domain*)clientData; 
 
   // if just 'print <filename> node' print all the nodes - no flag
   if (argc == 0) {

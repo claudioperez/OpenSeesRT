@@ -3,9 +3,6 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
-// $Revision: 1.2 $
-// $Date: 2007-10-16 00:11:55 $
-//
 // fmk
 //
 #include <string.h>

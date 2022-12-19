@@ -416,6 +416,11 @@ void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
     } // theEigenSOE != 0
 }
 
+Domain* BasicAnalysisBuilder::getDomain()
+{
+  return theDomain;
+}
+
 EquiSolnAlgo* BasicAnalysisBuilder::getAlgorithm()
 {
     if (theStaticAnalysis != 0) {

@@ -95,6 +95,7 @@
 #include <Channel.h>
 #include <ID.h>
 
+nDarray::nDarray(const char*) {}
 
 //##############################################################################
 nDarray::nDarray(int rank_of_nDarray, double initval)
@@ -1639,7 +1640,7 @@ int nDarray::operator==( nDarray & rval)  // returns 1 if they are same
 
 //##############################################################################
 // nDarray print function
-void nDarray::print(char *name , char *msg) const
+void nDarray::print(const char *name , const char *msg) const
   {
     if (*msg) ::printf("%s\n",msg);
 
@@ -1712,7 +1713,7 @@ void nDarray::print(char *name , char *msg) const
 
 //##############################################################################
 // nDarray print function
-void nDarray::printshort(char *msg) const
+void nDarray::printshort(const char *msg) const
   {
     if (*msg) ::printf("%s\n",msg);
 

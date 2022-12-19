@@ -2,7 +2,7 @@
 #include <LimitCurve.h>
 #include <elementAPI.h>
 #include <LimitCurveAPI.h>
-#include <misc/tcl_packages.h>
+#include <packages.h>
 
 static LimitCurveFunction *theLimitCurveFunctions = NULL;
 

@@ -45,7 +45,7 @@
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
 
-extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
+extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         TCL_Char *arg);
 
@@ -150,7 +150,7 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand((ClientData)0, interp, argv[currentArg]);
+            TclDispatch_newSeriesIntegrator((ClientData)0, interp, argv[currentArg]);
         if (seriesIntegrator == 0) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - groundMotion tag Series -int {Series Integrator}\n";

@@ -10,6 +10,8 @@ target_sources(OpenSeesRT
       BasicAnalysisBuilder.cpp
       BasicModelBuilder.cpp
 
+      TclPackageClassBroker.cpp
+
       # Model Builders
       modelbuilder/TclBuilder.cpp
       modelbuilder/basic/TclBasicBuilder.cpp
@@ -19,8 +21,10 @@ target_sources(OpenSeesRT
 
 
     PUBLIC
-        BasicAnalysisBuilder.h
-        BasicModelBuilder.h
+      BasicAnalysisBuilder.h
+      BasicModelBuilder.h
+
+      TclPackageClassBroker.h
 )
 
 add_subdirectory(Logging)

@@ -163,8 +163,9 @@ class nDarray
     nDarray(int rank_of_nDarray, int rows, int cols, double *values);
     nDarray(int rank_of_nDarray, int rows, int cols, double initvalue);
 
-// special case when I don't want any initialization at all##
+// special case when I don't want any initialization at all
     nDarray(char *){};
+    nDarray(const char*);
 
     nDarray(const char *flag, int rank_of_nDarray, const int *pdim); // create a unit nDarray
     nDarray(const nDarray & x);  // copy-initializer
@@ -285,8 +286,8 @@ class nDarray
       nDarray nDsqrt(void);
 
 
-    void print(char *name = "t", char *msg = "Hi there#") const;
-    void printshort(char *msg = "Hi there#") const;
+    void print(const char *name = "t", const char *msg = "Hi there#") const;
+    void printshort(const char *msg = "Hi there#") const;
     void mathprint(void) const;
      // print nDarray with a "name" and the "message"
 

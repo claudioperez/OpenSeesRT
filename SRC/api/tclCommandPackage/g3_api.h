@@ -88,7 +88,6 @@ G3_Runtime *G3_getRuntime(Tcl_Interp *);
 Tcl_Interp *G3_getInterpreter(G3_Runtime*);
 
 // Domain
-// int     G3_setDomain(G3_Runtime*, Domain*);
 Domain *G3_getDomain(G3_Runtime *);
 
 BasicModelBuilder *G3_getSafeBuilder(G3_Runtime *);

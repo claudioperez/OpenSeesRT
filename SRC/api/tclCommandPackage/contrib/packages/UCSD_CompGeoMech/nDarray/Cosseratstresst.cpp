@@ -1033,23 +1033,23 @@ OPS_Stream& operator<< (OPS_Stream& os, const Cosseratstresstensor & rhs)
         os.precision(4);
         os.width(10);
 
-        //os << endlnn;
+        //os << "\n"n;
     	//os << rhs.cval(1,1) << "  ";
     	//os.width(10);
     	//os << rhs.cval(1,2) << "  ";
     	//os.width(10);
-    	//os << rhs.cval(1,3) << endlnn;
+    	//os << rhs.cval(1,3) << "\n"n;
         //os << rhs.cval(2,1) << "  ";
     	//os.width(10);
     	//os << rhs.cval(2,2) << "  ";
     	//os.width(10);
-    	//os << rhs.cval(2,3) << endlnn;
+    	//os << rhs.cval(2,3) << "\n"n;
     	//
         //os << rhs.cval(3,1) << "  ";
     	//os.width(10);
     	//os << rhs.cval(3,2) << "  ";
     	//os.width(10);
-    	//os << rhs.cval(3,3) << endlnn;
+    	//os << rhs.cval(3,3) << "\n"n;
         
     	os.width(10);
     	//os << "p = " << rhs.p_hydrostatic();

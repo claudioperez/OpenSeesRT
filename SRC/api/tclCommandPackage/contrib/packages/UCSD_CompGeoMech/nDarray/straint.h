@@ -30,8 +30,9 @@
 #ifndef STRAINTENSOR_HH
 #define STRAINTENSOR_HH
 
-#include <OPS_Globals.h>
+// #include <OPS_Globals.h>
 #include "BJtensor.h"
+class OPS_Stream;
 
 
 class straintensor : public tensor

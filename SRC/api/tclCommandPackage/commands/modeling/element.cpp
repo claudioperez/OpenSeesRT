@@ -250,10 +250,10 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
 
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain *theTclDomain = builder->getDomain();
   int ndm = builder->getNDM();
 
   OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain, theTclBuilder);

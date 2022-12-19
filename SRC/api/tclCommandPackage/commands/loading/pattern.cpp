@@ -17,13 +17,12 @@
 // - Create an instance of class <type> with tag <tag>.
 // - Add this instance to the domain
 //
-
-
 // Written: fmk
 // Created: 07/99
-
+//
 // Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
 // procedure
+//
 #include <assert.h>
 #include <runtime/BasicModelBuilder.h>
 #include <g3_api.h>
@@ -66,7 +65,7 @@ LoadPattern *theTclLoadPattern = 0;
 Tcl_CmdProc TclCommand_addSP;
 Tcl_CmdProc TclCommand_addNodalLoad;
 
-extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
+extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         TCL_Char *arg);
 
@@ -126,7 +125,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (thePattern == 0 || theSeries == 0) {
 
-      if (thePattern == 0) {
+      if (thePattern == nullptr) {
         opserr << "WARNING - out of memory creating LoadPattern ";
         opserr << patternID << endln;
       } else {
@@ -157,10 +156,10 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
     dir--; // subtract 1 for C indexing
 
-    TimeSeries *accelSeries = 0;
-    TimeSeries *velSeries = 0;
-    TimeSeries *dispSeries = 0;
-    TimeSeriesIntegrator *seriesIntegrator = 0;
+    TimeSeries *accelSeries = nullptr;
+    TimeSeries *velSeries   = nullptr;
+    TimeSeries *dispSeries  = nullptr;
+    TimeSeriesIntegrator *seriesIntegrator = nullptr;
     double vel0 = 0.0;
     double fact = 1.0;
 
@@ -238,8 +237,8 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand(clientData, interp, argv[currentArg]);
-        if (seriesIntegrator == 0) {
+            TclDispatch_newSeriesIntegrator(clientData, interp, argv[currentArg]);
+        if (seriesIntegrator == nullptr) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - pattern UniformExcitation -int {Series Integrator}\n";
           return TCL_ERROR;

@@ -34,7 +34,7 @@ target_sources(OpenSeesRT PRIVATE
     "elementAPI_PYG3.cpp"
 
 # Other
-    "misc/TclPackageClassBroker.cpp"
+#   "misc/TclPackageClassBroker.cpp"
     "contrib/packages/optimization/TclParameterCommands.cpp"
 
 #
@@ -57,7 +57,6 @@ target_sources(OpenSeesRT PRIVATE
 # OTHER
 #
     # "ffi/C_Wrapper.cpp"
-    "misc/tcl_packages.cpp"
     "utilities/tclutils.cpp"
 
 )

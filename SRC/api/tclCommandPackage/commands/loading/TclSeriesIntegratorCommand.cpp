@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
+// Description: This file contains the function invoked when the user invokes
+// the groundMotion command in the interpreter.
+//
 // Written: fmk
 // Created: 11/00
 // Revision: A
 //
-// Description: This file contains the function invoked when the user invokes
-// the groundMotion command in the interpreter.
-
 #include <g3_api.h>
 #include <string.h>
 
@@ -45,7 +41,7 @@ cleanup(TCL_Char **argv)
 }
 
 TimeSeriesIntegrator *
-TclSeriesIntegratorCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
+TclDispatch_newSeriesIntegrator(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
 {
   int argc;
   TCL_Char **argv;
