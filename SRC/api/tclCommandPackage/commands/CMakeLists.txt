@@ -21,6 +21,7 @@ target_sources(OpenSeesRT PRIVATE
     "domain/printing.cpp"
     "domain/recorder.cpp"
     "domain/TclUpdateMaterialStageCommand.cpp"
+    "domain/TclUpdateMaterialCommand.cpp"
 
 # Modeling
     "modeling/model.cpp"
@@ -43,8 +44,6 @@ target_sources(OpenSeesRT PRIVATE
     "analysis/ctest.cpp"
     "analysis/solver.cpp"
     "analysis/solver.hpp"
-
-    "modeling/TclUpdateMaterialCommand.cpp"
 
 # LOADS & PATTERNS
     "loading/groundMotion.cpp"

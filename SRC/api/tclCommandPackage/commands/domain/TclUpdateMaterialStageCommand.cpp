@@ -1,11 +1,24 @@
+//
+// Description: This command is used to update a PressureDependMultiYield,
+// PressureDependMultiYield02, PressureIndependMultiYield, or FluidSolidPorous
+// material. To conduct a seismic analysis, two stages should be followed.
+// First, during the application of gravity load (and static loads if any), set
+// material stage to 0, and material behavior is linear elastic (with Gr and Br
+// as elastic moduli). A FluidSolidPorous material does not contribute to the
+// material response if its stage is set to 0. After the application of gravity
+// load, set material stage to 1 or 2. In case of stage 2, all the elastic
+// material properties are then internally determined at the current effective
+// confinement, and remain constant thereafter. In the subsequent dynamic
+// (fast) loading phase(s), the deviatoric stress-strain response is
+// elastic-plastic (stage 1) or linear-elastic (stage 2), and the volumetric
+// response remains linear-elastic. Please visit
+// http://cyclic.ucsd.edu/opensees for examples.
+//
+// Written: ZHY
+//
 // $Revision: 1.16 $
 // $Date: 2007-10-16 00:15:07 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/nD/soil/TclUpdateMaterialStageCommand.cpp,v
-// $
-
-// Written: ZHY
-
+//
 #include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>

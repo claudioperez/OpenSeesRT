@@ -2,6 +2,11 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+// 
+// Description: This command is used to update the parameters of
+// PressureDependMultiYield or PressureIndependMultiYield material. Currently,
+// two material parameters, reference low-strain shear modulus Gr and reference
+// bulk modulus Br, can be modified during an analysis.
 //
 // fmk
 //
