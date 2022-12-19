@@ -31,6 +31,7 @@
 #include <SimulationInformation.h>
 
 #ifdef _WIN32
+#  define byte win_byte_override
 #  include <windows.h>
 #  include <elementAPI.h>
 extern SimulationInformation *theSimulationInfoPtr;
