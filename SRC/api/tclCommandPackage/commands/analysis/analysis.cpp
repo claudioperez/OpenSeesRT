@@ -260,7 +260,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
   if (result < 0) {
-    opserr << "OpenSees > analyze failed, returned: " << result
+    opserr << G3_ERROR_PROMPT << "analyze failed, returned: " << result
            << " error flag\n";
   }
 

@@ -11,6 +11,9 @@
 #include <Domain.h>
 #include <runtime/BasicModelBuilder.h>
 
+#define G3_MAX_NUM_DOFS 1000000000000
+#define G3_NUM_DOF_BUFFER 20
+
 int
 TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv)

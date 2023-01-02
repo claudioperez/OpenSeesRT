@@ -97,9 +97,12 @@ public:
   }
 
   // main update function
-  inline void update();
+  inline int update(std::string);
 
 private:
+  int msg_width = 0;
+  int bar_width = 50;
+
   int progress;
   int n_cycles;
   int last_perc;
@@ -146,17 +149,22 @@ ProgressBar::set_niter(int niter)
   return;
 }
 
-inline void
-ProgressBar::update()
+inline int
+ProgressBar::update(std::string message = "")
 {
 
-  if (n_cycles == 0)
-    throw std::runtime_error("ProgressBar::update: number of cycles not set");
+  if (n_cycles == 0) {
+    std::cerr <<  "ProgressBar::update: number of cycles not set";
+    return -1;
+  }
+
+  for (int _ = 0; _ < msg_width; _++)
+    output << '\b';
 
   if (!update_is_called) {
     if (do_show_bar == true) {
       output << opening_char;
-      for (int _ = 0; _ < 50; _++)
+      for (int _ = 0; _ < bar_width; _++)
         output << todo_char;
       output << closing_char << " 0%";
     } else
@@ -169,7 +177,7 @@ ProgressBar::update()
   // compute percentage, if did not change, do nothing and return
   perc = progress * 100. / (n_cycles - 1);
   if (perc < last_perc)
-    return;
+    return 1;
 
   // update percentage each unit
   if (perc == last_perc + 1) {
@@ -195,7 +203,7 @@ ProgressBar::update()
         output << "\b\b\b\b\b";
 
       // erase 'todo_char'
-      for (int j = 0; j < 50 - (perc - 1) / 2; ++j) {
+      for (int j = 0; j < bar_width - (perc - 1) / 2; ++j) {
         output << std::string(todo_char.size(), '\b');
       }
 
@@ -206,18 +214,28 @@ ProgressBar::update()
         output << done_char;
 
       // refill with 'todo_char'
-      for (int j = 0; j < 50 - (perc - 1) / 2 - 1; ++j)
+      for (int j = 0; j < bar_width - (perc - 1) / 2 - 1; ++j)
         output << todo_char;
 
       // readd trailing percentage characters
       output << closing_char << ' ' << perc << '%';
+      
     }
   }
   last_perc = perc;
   ++progress;
+
+  msg_width = message.length();
+
+  if (msg_width > 0) {
+    output << " -- " << message;
+    // correct for " -- " chars
+    msg_width += 4;
+  }
+
   output << std::flush;
 
-  return;
+  return 1;
 }
 
 #endif

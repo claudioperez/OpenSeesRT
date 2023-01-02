@@ -11,7 +11,6 @@ Tcl_CmdProc setCreep;
 Tcl_CmdProc getLoadFactor;
 
 
-
 Tcl_CmdProc printModel;
 
 // Tcl_CmdProc addRecorder;
@@ -156,5 +155,4 @@ Tcl_CmdProc InitialStateAnalysis;
 
 // domain/recorder.cpp
 Tcl_CmdProc OPS_recorderValue;
-
 

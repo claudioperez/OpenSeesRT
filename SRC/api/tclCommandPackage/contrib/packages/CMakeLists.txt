@@ -6,4 +6,7 @@
 #==============================================================================
 
 add_subdirectory(YieldSurface)
-# add_subdirectory(UCSD_CompGeoMech)
+
+if (EXISTS UCSD_CompGeoMech)
+  add_subdirectory(UCSD_CompGeoMech)
+endif ()

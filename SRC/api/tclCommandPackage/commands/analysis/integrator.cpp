@@ -7,7 +7,6 @@
 #include "analysis.h"
 #include <assert.h>
 #include <tcl.h>
-#include <api/InputAPI.h>
 #include <runtimeAPI.h>
 #include <Domain.h>
 #include <Node.h>
@@ -404,7 +403,6 @@ G3Parse_newEQPathIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 {
     double arcLength;
     int type;
-    int numIter;
     if (argc != 4) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
       opserr << "REFS : \n";
@@ -511,12 +509,13 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
     if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
       return nullptr;
 
-    if (argc == 6 || argc == 9)
+    if (argc == 6 || argc == 9) {
       if (argc == 6) {
         if (strcmp(argv[5], "-initial") == 0)
           tangFlag = 1;
       } else if (strcmp(argv[8], "-initial") == 0)
         tangFlag = 1;
+    }
 
     if (argc > 6) {
       if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)

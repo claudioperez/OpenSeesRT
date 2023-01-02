@@ -13,7 +13,6 @@
 #include <g3_api.h>
 #include <G3_Runtime.h>
 #include <G3_Logging.h>
-// extern OPS_Stream* opswrnPtr;
 
 #include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
@@ -26,9 +25,6 @@
 
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
-
-#include <OPS_Globals.h>
-
 
 extern AnalysisModel             *theAnalysisModel;
 extern EquiSolnAlgo              *theAlgorithm;

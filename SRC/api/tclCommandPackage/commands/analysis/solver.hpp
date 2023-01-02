@@ -3,46 +3,42 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
-//
 // standard library
 #include <array>
 #include <string>
 #include <unordered_map>
-
 // framework
 #include <g3_api.h>
 #include <OPS_Globals.h>
 #include <packages.h>
-
 // analysis
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
-
 // system of eqn and solvers
 #include <BandSPDLinSOE.h>
 #include <BandSPDLinLapackSolver.h>
-
+//
 #include <BandGenLinSOE.h>
 #include <BandGenLinLapackSolver.h>
-
+//
 #include <ConjugateGradientSolver.h>
-
+//
 #include <FullGenLinSOE.h>
 #include <FullGenLinLapackSolver.h>
-
+//
 #include <ProfileSPDLinSOE.h>
 #include <ProfileSPDLinDirectSolver.h>
 #include <DistributedProfileSPDLinSOE.h>
-
+//
 #include <DiagonalSOE.h>
 #include <DiagonalDirectSolver.h>
-
+//
 #include <SProfileSPDLinSolver.h>
 #include <SProfileSPDLinSOE.h>
-
+//
 #include <SparseGenColLinSOE.h>
-
+//
 #include <SparseGenRowLinSOE.h>
 // #include <SymSparseLinSOE.h>
 // #include <SymSparseLinSolver.h>
@@ -58,13 +54,13 @@
 #include <SymBandEigenSolver.h>
 #include <FullGenEigenSOE.h>
 #include <FullGenEigenSolver.h>
-
+//
 #ifdef _THREADS
 #  include <ThreadedSuperLU.h>
 #else
 #  include <SuperLU.h>
 #endif
-
+//
 #ifdef _CUSP
 #  include <CuSPSolver.h>
 #endif

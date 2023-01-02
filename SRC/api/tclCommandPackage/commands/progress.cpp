@@ -11,6 +11,8 @@
 #include <string.h>
 #include <tcl.h>
 #include <runtime/ProgressBar.hpp>
+#include <string>
+
 
 ProgressBar* progress_bar_ptr;
 
@@ -21,7 +23,13 @@ TclObjCommand_progress(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_
     if (clientData == nullptr || *(ProgressBar**)clientData == nullptr) {
       return TCL_ERROR;
     }
-    (*(ProgressBar**)clientData)->update();
+
+    std::string message = "";
+    if (argc > 2)
+      message = Tcl_GetString(objv[2]);
+
+      
+    (*(ProgressBar**)clientData)->update(message);
     return TCL_OK;
 
   } else if (strcmp(Tcl_GetString(objv[1]), "create") == 0) {

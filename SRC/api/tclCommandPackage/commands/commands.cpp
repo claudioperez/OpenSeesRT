@@ -36,8 +36,8 @@
 #include <ElementalLoad.h>
 #include <ElementalLoadIter.h>
 #include <ParameterIter.h>
-#include <SP_Constraint.h>     //Joey UC Davis
-#include <SP_ConstraintIter.h> //Joey UC Davis
+#include <SP_Constraint.h>
+#include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
 #include <MP_ConstraintIter.h>
 #include <Parameter.h>
@@ -96,7 +96,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 Tcl_CmdProc printModelGID;
 
 Tcl_CmdProc TclCommand_record;
-// Tcl_CmdProc setPrecision;
 Tcl_CmdProc TclCommand_setLoadConst;
 Tcl_CmdProc TclCommand_setCreep;
 

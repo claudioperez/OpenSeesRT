@@ -630,7 +630,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     int numEle = endEleIDs - 2;
     int loc = endEleIDs;
     int flags = 0;
-    int eleData = 0;
+    // int eleData = 0;
     int nodeTag = 0;
     //  new
     int nTagbotn = 0;
@@ -1012,7 +1012,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else {
         // first unknown string then is assumed to start
         // element response request starts
-        eleData = loc;
+        // eleData = loc;
         flags = 1;
       }
     }

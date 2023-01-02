@@ -74,7 +74,6 @@ TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
   OPS_ResetInputNoBuilder(nullptr, interp, 2, argc, argv, nullptr);
 
-  // G3_Runtime *rt = G3_getRuntime(interp);
   EquiSolnAlgo *theNewAlgo = nullptr;
   theNewAlgo = G3Parse_newEquiSolnAlgo(clientData, interp, argc, argv);
 

@@ -5,7 +5,7 @@
 //
 //
 #include <assert.h>
-#include <api/InputAPI.h>
+#include <tcl.h>
 #include <G3_Logging.h>
 #include "runtime/BasicAnalysisBuilder.h"
 
@@ -21,6 +21,9 @@
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
 
+#ifndef G3_Char
+#define G3_Char const char
+#endif
 
 ConvergenceTest*
 TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv);
@@ -30,9 +33,6 @@ int
 specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-
-  G3_Runtime *rt = G3_getRuntime(interp);
-
   ConvergenceTest* theNewTest = TclDispatch_newConvergenceTest(clientData, interp, argc, argv);
 
   if (theNewTest == nullptr) {
@@ -46,6 +46,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
 
     builder->set(theNewTest);
   }
+  return TCL_OK;
 }
 
 ConvergenceTest*

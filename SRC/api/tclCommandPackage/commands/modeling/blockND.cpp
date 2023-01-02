@@ -4,6 +4,7 @@
 ** ****************************************************************** */
 //
 //
+#include <assert.h>
 #include <Block2D.h>
 #include <Block3D.h>
 #include <Matrix.h>

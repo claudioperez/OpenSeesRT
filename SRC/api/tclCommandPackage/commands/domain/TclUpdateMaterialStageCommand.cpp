@@ -1,4 +1,8 @@
-//
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+// 
 // Description: This command is used to update a PressureDependMultiYield,
 // PressureDependMultiYield02, PressureIndependMultiYield, or FluidSolidPorous
 // material. To conduct a seismic analysis, two stages should be followed.
@@ -45,7 +49,8 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           Domain *theDomain)
 {
 
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  // BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+
   if (argc < 5) {
     opserr << "WARNING insufficient number of UpdateMaterialStage arguments\n";
     opserr << "Want: UpdateMaterialStage material matTag? stage value?"
