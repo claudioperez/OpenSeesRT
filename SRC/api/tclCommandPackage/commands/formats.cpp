@@ -100,14 +100,16 @@ stripOpenSeesXML(ClientData clientData, Tcl_Interp *interp, int argc,
     if (spitData == true) {
       if (strstr(inputLine, "</Data>") != 0)
         spitData = false;
-      else
+      else {
         ; // theOutputDataFile << line << endln;
+      }
     } else {
       const char *inputLine = line.c_str();
       if (strstr(inputLine, "<Data>") != 0)
         spitData = true;
-      else if (outputDescriptiveFile != nullptr)
+      else if (outputDescriptiveFile != nullptr) {
         ; // theOutputDescriptiveFile << line << endln;
+      }
     }
   }
 

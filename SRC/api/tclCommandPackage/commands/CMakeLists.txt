@@ -1,9 +1,7 @@
-#=====================================================================
-# 
-#   OpenSees -- Open System For Earthquake Engineering Simulation
-#           Pacific Earthquake Engineering Research Center
-#
-#=====================================================================
+#* ****************************************************************** *#
+#*    OpenSees - Open System for Earthquake Engineering Simulation    *#
+#*          Pacific Earthquake Engineering Research Center            *#
+#* ****************************************************************** *#
 target_sources(OpenSeesRT PRIVATE
 # Interpreter
     "formats.cpp"
@@ -11,6 +9,7 @@ target_sources(OpenSeesRT PRIVATE
     "pragma.cpp"
     "sequential.cpp"
     "packages.cpp"
+    "progress.cpp"
 
 # Domain
     "commands.cpp"

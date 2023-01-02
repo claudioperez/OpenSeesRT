@@ -18,17 +18,17 @@
 //#                                                                              #
 //################################################################################
 //*/
-#include "time.h"
-#include "limits.h"
-#include "math.h"
-#include "float.h"
+#include <time.h>
+#include <limits.h>
+#include <math.h>
+#include <float.h>
 // nDarray tools
 #include "BJtensor.h"
 #include "stresst.h"
 #include "straint.h"
 #include "BJvector.h"
 #include "BJmatrix.h"
-#include "iostream.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -427,9 +427,9 @@ res2.print("r2","\n result");
   tensor t2( 2, def_dim_2, t2values);
   t2.print("t2","\ntensor t2 (2nd-order with values assignement)");
 
-  cerr << "rank of t2: " << t2.rank() << endl;
+  std::cerr << "rank of t2: " << t2.rank() << "\n";
   for (int ii=1; ii<=t2.rank(); ii++) {
-    cerr << "dimension of t2 in " << ii << " is " << t2.dim(ii) << endl;
+    std::cerr << "dimension of t2 in " << ii << " is " << t2.dim(ii) << "\n";
   }
 
 

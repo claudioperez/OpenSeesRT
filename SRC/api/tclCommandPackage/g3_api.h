@@ -1,17 +1,18 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
 // Written: cmp
-
+//
 #ifndef G3_API_H_
 #define G3_API_H_
-#  define G3_MAX_NUM_DOFS 1000000000000
-#  define G3_NUM_DOF_BUFFER 20
 #  include <tcl.h>
 #  include <api/elementAPI.h>
-// #include <g3_io.h>
-
+//
 #  ifndef OPS_Export
 #    define OPS_Export
 #  endif
-
 //
 // ANALYSIS RUNTIME
 //
@@ -20,7 +21,6 @@
 #  define OPS_GetDomain()        G3_getDomain(rt)
 #  undef  OPS_GetAnalysisModel
 #  define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)
-
 //
 // MODELBUILDER
 //
@@ -29,7 +29,6 @@
 #  define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 // #  undef  OPS_getUniaxialMaterial
 #  define OPS_getUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
-
 // Time series
 #  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
 #  define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))
@@ -40,7 +39,6 @@
 #  define OPS_getCrdTransf(tag) G3_getCrdTransf(rt, (tag))
 #  undef  OPS_GetCrdTransf
 #  define OPS_GetCrdTransf(tag) G3_getCrdTransf(rt, (tag))
-
 
 
 typedef int G3_Tag;
@@ -112,10 +110,7 @@ int G3_addTimeSeries(G3_Runtime *, TimeSeries *);
 TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
 int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 // Analysis
-// AnalysisModel *G3_getAnalysisModel(G3_Runtime *);
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
-// int G3_setAnalysisModel(G3_Runtime *, AnalysisModel *);
-
 StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
 int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
 int G3_delStaticAnalysis(G3_Runtime *);

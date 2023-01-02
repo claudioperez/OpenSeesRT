@@ -11,7 +11,7 @@
 #include <OPS_Globals.h>
 #include <elementAPI.h>
 #include <classTags.h>
-
+//
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,10 +20,9 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-
+//
 #include "commands.h"
 #include <ModelBuilder.h>
-
 // Domain
 #include <Domain.h>
 #include <DOF_Group.h>
@@ -46,7 +45,6 @@
 #include <InitialStateParameter.h>
 #include <ElementStateParameter.h>
 #include <Pressure_Constraint.h>
-
 // Analysis
 #include "analysis/analysis.h"
 #include <StaticAnalysis.h>
@@ -58,7 +56,6 @@
 #include <StaticIntegrator.h>
 #include <LinearSOE.h>
 #include <EigenSOE.h>
-
 // Other
 #include <Recorder.h>
 #include <DummyStream.h>
@@ -68,7 +65,6 @@
 #include <Response.h>
 #include <packages.h>
 #include <TclPackageClassBroker.h>
-
 //
 // Global variables
 //
@@ -87,8 +83,8 @@ ConvergenceTest       *theTest = nullptr;
 AnalysisModel         *theAnalysisModel = nullptr;
 StaticAnalysis        *theStaticAnalysis = nullptr;
 DirectIntegrationAnalysis *theTransientAnalysis = nullptr;
-VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis = nullptr;
-
+VariableTimeStepDirectIntegrationAnalysis
+                      *theVariableTimeStepTransientAnalysis = nullptr;
 //
 // Forward declarations
 //
@@ -100,9 +96,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 Tcl_CmdProc printModelGID;
 
 Tcl_CmdProc TclCommand_record;
-Tcl_CmdProc maxOpenFiles;
-Tcl_CmdProc setPrecision;
-Tcl_CmdProc logFile;
+// Tcl_CmdProc setPrecision;
 Tcl_CmdProc TclCommand_setLoadConst;
 Tcl_CmdProc TclCommand_setCreep;
 
@@ -787,12 +781,6 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   char buffer[20];
 
-  const char *myArgv[1];
-  char myArgv0[80];
-  strcpy(myArgv0, "nodeTags");
-  myArgv[0] = myArgv0;
-
-  // const Vector *tags = the_domain->getElementResponse(tag, &myArgv[0], 1);
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << "WARNING eleNodes ele " << tag << " not found" << endln;

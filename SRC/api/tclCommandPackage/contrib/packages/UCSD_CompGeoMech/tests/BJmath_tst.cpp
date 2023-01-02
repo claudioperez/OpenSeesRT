@@ -27,11 +27,11 @@
 #include "math.h"
 #include "float.h"
 // nDarray tools
-#include "BJtensor.hh"
-#include "stresst.hh"
-#include "straint.hh"
-#include "BJvector.hh"
-#include "BJmatrix.hh"
+#include "BJtensor.h"
+#include "stresst.h"
+#include "straint.h"
+#include "BJvector.h"
+#include "BJmatrix.h"
 
 
 int main(int argc, char *argv[])

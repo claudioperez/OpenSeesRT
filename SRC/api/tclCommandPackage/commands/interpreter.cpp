@@ -24,6 +24,11 @@ static Timer *theTimer = nullptr;
 Tcl_CmdProc TclCommand_wipeModel;
 Tcl_CmdProc TclCommand_specifyModel;
 
+class ProgressBar;
+Tcl_ObjCmdProc TclObjCommand_progress;
+extern ProgressBar* progress_bar_ptr;
+// #include "progress.cpp"
+
 const char *getInterpPWD(Tcl_Interp *interp);
 
 int TclObjCommand_pragma([[maybe_unused]] ClientData clientData, 
@@ -94,7 +99,7 @@ static int
 OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
                      Tcl_Obj *const objv[])
 {
-  Tcl_Channel chan;           /* The channel to puts on. */
+  // Tcl_Channel chan;           // The channel to puts on.
   Tcl_Obj *string;            /* String to write. */
   Tcl_Obj *chanObjPtr = NULL; /* channel object. */
   int newline;                /* Add a newline at end? */
@@ -281,7 +286,6 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
               int objc,              /* Number of arguments. */
               Tcl_Obj *CONST objv[]) /* Argument objects. */
 {
-  CONST char *encodingName = NULL;
   Tcl_Obj *fileName;
 
   if (objc != 2 && objc != 4) {
@@ -299,7 +303,6 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
                                          TCL_EXACT, &index)) {
       return TCL_ERROR;
     }
-    encodingName = Tcl_GetString(objv[2]);
   }
 
   const char *pwd = getInterpPWD(interp);
@@ -432,6 +435,7 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateObjCommand(interp, "pset",             OPS_SetObjCmd, nullptr, nullptr);
   Tcl_CreateObjCommand(interp, "source",           OPS_SourceCmd, nullptr, nullptr);
   Tcl_CreateObjCommand(interp, "pragma",           TclObjCommand_pragma, nullptr, nullptr);
+  Tcl_CreateObjCommand(interp, "progress",         TclObjCommand_progress, (ClientData)&progress_bar_ptr, nullptr);
 
   // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
