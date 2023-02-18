@@ -51,20 +51,22 @@ message("TCL: ${TCL_ROOT}")
 #     #INCLUDE ${CONDA_ENV}/Library/include/mysql
 # )
 
-opensees_load(BLAS
-  LIBRARY "${BUNDLE_LIBS}/blas.lib"
-)
+# opensees_load(BLAS
+#  LIBRARY "${BUNDLE_LIBS}/blas.lib"
+# )
 
 opensees_load(CBLAS
   LIBRARY "${BUNDLE_LIBS}/cblas.lib"
 )
-
+set(USE_STATIC_MKL FALSE)
+set(BLA_STATIC ON)
+find_package(MKL)
+find_package(BLAS)
 find_package(LAPACK)
 # opensees_load(LAPACK
 #   LIBRARY "${BUNDLE_LIBS}/lapack.lib"
 # )
 
-# find_package(BLAS)
 
 # opensees_load(UMFPACK
 #   #LIBRARY "${BUNDLE_LIBS}/umfpackC.lib"
