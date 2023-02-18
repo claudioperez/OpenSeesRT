@@ -55,12 +55,6 @@
 #include <FullGenEigenSOE.h>
 #include <FullGenEigenSolver.h>
 //
-#ifdef _THREADS
-#  include <ThreadedSuperLU.h>
-#else
-#  include <SuperLU.h>
-#endif
-//
 #ifdef _CUSP
 #  include <CuSPSolver.h>
 #endif

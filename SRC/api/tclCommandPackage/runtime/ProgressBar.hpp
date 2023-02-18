@@ -233,6 +233,9 @@ ProgressBar::update(std::string message = "")
     msg_width += 4;
   }
 
+  if (perc == 100)
+    output << "\n";
+
   output << std::flush;
 
   return 1;

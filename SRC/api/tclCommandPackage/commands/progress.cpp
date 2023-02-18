@@ -39,15 +39,19 @@ TclObjCommand_progress(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_
       // Failed to read number of steps
     }
 
-    if (*(ProgressBar**)clientData == nullptr) {
-      ProgressBar *bar = new ProgressBar(steps);
-      bar->set_todo_char(" ");
-      bar->set_done_char("█");
-      bar->set_opening_char("|");
-      bar->set_closing_char("|");
-
-      *(ProgressBar**)clientData = bar;
+    if (*(ProgressBar**)clientData != nullptr) {
+      delete *(ProgressBar**)clientData;
+      *(ProgressBar**)clientData = nullptr; 
     }
+
+    ProgressBar *bar = new ProgressBar(steps);
+    bar->set_todo_char(" ");
+    bar->set_done_char("█");
+    bar->set_opening_char("|");
+    bar->set_closing_char("|");
+
+    *(ProgressBar**)clientData = bar;
+
 
 
     return TCL_OK;

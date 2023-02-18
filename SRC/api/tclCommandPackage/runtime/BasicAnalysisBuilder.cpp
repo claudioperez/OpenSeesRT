@@ -1,19 +1,23 @@
-
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
 // Written: Minjie Zhu
-
-#include <tcl.h>
-
+//
 #include "BasicAnalysisBuilder.h"
 #include <elementAPI.h>
 #include <Domain.h>
-// #include <FileStream.h>
 #include <string>
 #include <assert.h>
+// #include <iostream>
 #include <ID.h>
 #include <Element.h>
 #include <ElementIter.h>
 #include <Node.h>
 #include <NodeIter.h>
+#include <UniaxialMaterial.h>
+#include <NDMaterial.h>
 
 #include <EquiSolnAlgo.h>
 #include <StaticIntegrator.h>
@@ -26,20 +30,8 @@
 #include <ConstraintHandler.h>
 #include <ConvergenceTest.h>
 #include <AnalysisModel.h>
-#include <NewtonRaphson.h>
-#include <RCM.h>
-#include <LoadControl.h>
-#include <ProfileSPDLinSolver.h>
-#include <CTestNormUnbalance.h>
-#include <ProfileSPDLinDirectSolver.h>
-#include <PlainHandler.h>
-#include <TransformationConstraintHandler.h>
-#include <UniaxialMaterial.h>
 #include <TimeSeries.h>
-#include <NDMaterial.h>
 #include <LoadPattern.h>
-// #include <CrdTransf.h>
-// #include <BeamIntegration.h>
 
 // Defaults
 #include <Newmark.h>
@@ -49,8 +41,16 @@
 #include <FullGenEigenSolver.h>
 #include <FullGenEigenSOE.h>
 #include <ArpackSOE.h>
-#include <iostream>
 #include <ProfileSPDLinSOE.h>
+#include <NewtonRaphson.h>
+#include <RCM.h>
+#include <LoadControl.h>
+#include <ProfileSPDLinSolver.h>
+#include <CTestNormUnbalance.h>
+#include <ProfileSPDLinDirectSolver.h>
+#include <PlainHandler.h>
+#include <TransformationConstraintHandler.h>
+
 
 BasicAnalysisBuilder::BasicAnalysisBuilder()
 :theHandler(0),theNumberer(0),theAnalysisModel(0),theAlgorithm(0),
@@ -126,8 +126,9 @@ void BasicAnalysisBuilder::resetAll()
     theEigenSOE = nullptr;
 }
 
-
+#include <stdio.h>
 void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
+    // printf("set %p on %p (constraint)\n", (void*)obj, (void*)this);
 
     if (obj == 0) return;
 
@@ -141,6 +142,8 @@ void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
 }
 
 void BasicAnalysisBuilder::set(DOF_Numberer* obj) {
+    // printf("set %p on %p (numberer)\n", (void*)obj, (void*)this);
+
     if (obj == 0) return;
 
     if (theNumberer != 0) {
@@ -154,7 +157,10 @@ void BasicAnalysisBuilder::set(DOF_Numberer* obj) {
 }
 
 void BasicAnalysisBuilder::set(EquiSolnAlgo* obj) {
+    // printf("set %p on %p (algorithm)\n", (void*)obj, (void*)this);
+
     if (obj == 0) return;
+
     if (theAlgorithm != 0) {
         opserr << "The algorithm can only be set once for one analysis\n";
         return;
@@ -182,11 +188,13 @@ void BasicAnalysisBuilder::set(LinearSOE* obj) {
 }
 
 void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
+    // printf("set %p on %p (integrator) (%d)\n", (void*)obj, (void*)this, isstatic);
+
     if (obj == 0)
       return;
 
     if (isstatic == 1) {
-        if (theStaticIntegrator != 0) {
+        if (theStaticIntegrator != nullptr) {
             opserr << "The static integrator can only be set once for one analysis\n";
             return;
         }
@@ -198,7 +206,8 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
             }
         }
     }
-    if (isstatic == 2) {
+    // if (isstatic == 2) {
+    else {
         if (theTransientIntegrator != 0) {
             opserr << "The transient integrator can only be set once for one analysis\n";
             return;
@@ -255,19 +264,19 @@ void BasicAnalysisBuilder::newStaticAnalysis()
         theTest = new CTestNormUnbalance(1.0e-6,25,0);
     }
         
-    if (theAlgorithm == 0) {
-        opserr << "WARNING analysis Static - no Algorithm yet specified, \n";
-        opserr << " NewtonRaphson default will be used\n";            
+    if (theAlgorithm == nullptr) {
+        // opserr << "WARNING analysis Static - no Algorithm yet specified, \n";
+        // opserr << " NewtonRaphson default will be used\n";            
         theAlgorithm = new NewtonRaphson(*theTest); 
     }
-    if (theHandler == 0) {
+    if (theHandler == nullptr) {
         opserr << "WARNING analysis Static - no ConstraintHandler yet specified, \n";
         opserr << " PlainHandler default will be used\n";
         theHandler = new PlainHandler();       
     }
     if (theNumberer == 0) {
-        opserr << "WARNING analysis Static - no Numberer specified, \n";
-        opserr << " RCM default will be used\n";
+        // opserr << "WARNING analysis Static - no Numberer specified, \n";
+        // opserr << " RCM default will be used\n";
         RCM *theRCM = new RCM(false);        
         theNumberer = new DOF_Numberer(*theRCM);            
     }
@@ -277,8 +286,11 @@ void BasicAnalysisBuilder::newStaticAnalysis()
         theStaticIntegrator = new LoadControl(1, 1, 1, 1);       
     }
     if (theSOE == 0) {
+      // TODO: CHANGE TO MORE GENERAL SOE
+#if 0
         opserr << "WARNING analysis Static - no LinearSOE specified, \n";
         opserr << " ProfileSPDLinSOE default will be used\n";
+#endif
         ProfileSPDLinSolver *theSolver;
         theSolver = new ProfileSPDLinDirectSolver();
         theSOE = new ProfileSPDLinSOE(*theSolver);      
@@ -321,10 +333,10 @@ BasicAnalysisBuilder::newTransientAnalysis()
     if (theAnalysisModel == nullptr) {
         theAnalysisModel = new AnalysisModel();
     }
-    if (theTest == 0) {
+    if (theTest == nullptr) {
         theTest = new CTestNormUnbalance(1.0e-6,25,0);
     }
-    if (theAlgorithm == 0) {
+    if (theAlgorithm == nullptr) {
         opserr << "WARNING analysis Transient - no Algorithm yet specified, \n";
         opserr << " NewtonRaphson default will be used\n";            
 
@@ -354,14 +366,13 @@ BasicAnalysisBuilder::newTransientAnalysis()
         theSOE = new ProfileSPDLinSOE(*theSolver);      
     }
 
-    // Domain* theDomain = OPS_GetDomain();
     theTransientAnalysis=new DirectIntegrationAnalysis(*theDomain,*theHandler,*theNumberer,
                                                        *theAnalysisModel,*theAlgorithm,
                                                        *theSOE,*theTransientIntegrator,
                                                        theTest);
 
     // set eigen SOE
-    if (theEigenSOE != 0) {
+    if (theEigenSOE != nullptr) {
         if (theTransientAnalysis != 0) {
           theTransientAnalysis->setEigenSOE(*theEigenSOE);
         }
@@ -376,19 +387,19 @@ BasicAnalysisBuilder::newTransientAnalysis()
 void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
 {
 
-    if (theHandler == 0) {
+    if (theHandler == nullptr) {
       theHandler = new TransformationConstraintHandler();
     }
 
     // create a new eigen system and solver
-    if (theEigenSOE != 0) {
+    if (theEigenSOE != nullptr) {
         if (theEigenSOE->getClassTag() != typeSolver) {
             //        delete theEigenSOE;
-            theEigenSOE = 0;
+            theEigenSOE = nullptr;
         }
     }
 
-    if (theEigenSOE == 0) {
+    if (theEigenSOE == nullptr) {
                        
         if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
             SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver(); 
@@ -406,13 +417,27 @@ void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
         //
         // set the eigen soe in the system
         //
+        if(theStaticAnalysis == nullptr && theTransientAnalysis == nullptr) {
+          // TODO: these are only created to initialize a StaticAnalysis
+          // object, but is not required
+          this->set(new CTestNormUnbalance(1.0e-6,25,0));
+          this->set(new LoadControl(1, 1, 1, 1), true);
 
-        if (theStaticAnalysis != 0) {
+          this->newStaticAnalysis();
+          // theStaticAnalysis->setEigenSOE(*theEigenSOE);
+        }
+
+        if (theStaticAnalysis != nullptr) {
             theStaticAnalysis->setEigenSOE(*theEigenSOE);
-        } 
-        if (theTransientAnalysis != 0) {
+
+        } /* else if (theTransientAnalysis == nullptr){
+          this->newTransientAnalysis();
+        }*/
+
+        if (theTransientAnalysis != nullptr) {
             theTransientAnalysis->setEigenSOE(*theEigenSOE);
         }
+
     } // theEigenSOE != 0
 }
 

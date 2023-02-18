@@ -25,7 +25,7 @@ add_subdirectory(commands/)
 add_subdirectory(runtime/)
 
 target_sources(OpenSeesRT PRIVATE
-# Genera
+# General
     "OpenSeesRT.cpp"
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"

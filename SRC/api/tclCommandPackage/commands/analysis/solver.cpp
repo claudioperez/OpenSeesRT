@@ -25,12 +25,6 @@
 #include <SymSparseLinSOE.h>
 #include <SymSparseLinSolver.h>
 
-#ifdef _THREADS
-#  include <ThreadedSuperLU.h>
-#else
-#  include <SuperLU.h>
-#endif
-
 #ifdef _CUDA
 #  include <BandGenLinSOE_Single.h>
 #  include <BandGenLinLapackSolver_Single.h>
@@ -70,6 +64,9 @@ extern LinearSOE *theSOE;
 LinearSOE*
 // G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
 G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv);
+
+LinearSOE*
+TclDispatch_newPetscSOE(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char **);
 
 #if 0 // TODO: implement AnalysisBuilder->getLinearSOE();
 int
@@ -119,7 +116,6 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 LinearSOE*
-// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
 G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv)
 {
   G3_Runtime* rt = G3_getRuntime(interp); 
@@ -136,10 +132,10 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
     opserr << "WARNING - Umfpack not installed\n";
   }
 
-#if 0
+#if defined(OPS_PETSC)
   else if (strcmp(argv[1], "petsc")==0 ||
            strcmp(argv[1], "Petsc")==0) {
-    theSOE = TclCommand_newPetscSOE(argc, argv);
+    theSOE = TclDispatch_newPetscSOE(clientData, interp, argc, argv);
   }
 #endif
 
@@ -190,6 +186,13 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
   }
 }
 
+
+// #include <SuperLU.h>
+#ifdef _THREADS
+#  include "contrib/sys_of_eqn/ThreadedSuperLU/ThreadedSuperLU.h"
+#endif
+// TODO: CMP
+
 LinearSOE*
 specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
 {
@@ -199,7 +202,7 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
            (strcmp(argv[1], "SparseGEN") == 0)) {
     Tcl_Interp *interp = G3_getInterpreter(rt);
 
-    SparseGenColLinSolver *theSolver = 0;
+    SparseGenColLinSolver *theSolver = nullptr;
     int count = 2;
     double thresh = 0.0;
     int npRow = 1;
@@ -261,7 +264,8 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
       }
       count++;
     }
-    theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
+    // TODO : CMP
+    // theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
 #endif
 
 #ifdef _PARALLEL_PROCESSING

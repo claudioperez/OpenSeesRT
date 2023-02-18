@@ -379,9 +379,10 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   builder->newEigenAnalysis(typeSolver,shift);
   StaticAnalysis* theStaticAnalysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
+
   if(theStaticAnalysis == nullptr && theTransientAnalysis == nullptr) {
-      builder->newTransientAnalysis();
-      theTransientAnalysis = builder->getTransientAnalysis();
+      builder->newStaticAnalysis();
+      theStaticAnalysis = builder->getStaticAnalysis();
   }
 
   int requiredDataSize = 40 * numEigen;
@@ -398,10 +399,10 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int result = 0;
 
-  if (theStaticAnalysis != 0) {
+  if (theStaticAnalysis != nullptr) {
       result = theStaticAnalysis->eigen(numEigen,generalizedAlgo,findSmallest);
 
-  } else if (theTransientAnalysis != 0) {
+  } else if (theTransientAnalysis != nullptr) {
       result = theTransientAnalysis->eigen(numEigen,generalizedAlgo,findSmallest);
   }
 
