@@ -32,7 +32,7 @@
 #include <OPS_Globals.h>
 #include <stdlib.h>
 #include <string.h>
-#include <g3_api.h>
+#include <tcl.h>
 
 #include <MySqlDatastore.h>
 

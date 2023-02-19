@@ -526,7 +526,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ASDAbsorbingBoundary3D)
         numData = 1;
         int tsTag = 0;
         // util: get x
-        auto get_fx = [=,&numData, &tsTag, &fx, descr]() -> bool {
+        auto get_fx = [=,&numData, &tsTag, &fx]() -> bool {
             if (OPS_GetInt(&numData, &tsTag) != 0) {
                 opserr << "ASDAbsorbingBoundary3D ERROR: Invalid integer for -fx optional time series.\n" << descr;
                 return false;
@@ -539,7 +539,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ASDAbsorbingBoundary3D)
             return true;
         };
         // util: get y
-        auto get_fy = [=,&numData, &tsTag, &fy, descr]() -> bool {
+        auto get_fy = [=,&numData, &tsTag, &fy]() -> bool {
             if (OPS_GetInt(&numData, &tsTag) != 0) {
                 opserr << "ASDAbsorbingBoundary3D ERROR: Invalid integer for -fy optional time series.\n" << descr;
                 return false;
@@ -552,7 +552,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ASDAbsorbingBoundary3D)
             return true;
         };
         // util: get z
-        auto get_fz = [=,&numData, &tsTag, &fz, descr]() -> bool {
+        auto get_fz = [=,&numData, &tsTag, &fz]() -> bool {
             if (OPS_GetInt(&numData, &tsTag) != 0) {
                 opserr << "ASDAbsorbingBoundary3D ERROR: Invalid integer for -fz optional time series.\n" << descr;
                 return false;

@@ -1,43 +1,19 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.7 $
-// $Date: 2007-06-26 20:13:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/region/TclRegionCommands.cpp,v $
-
-// Written: fmk
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the command 'region' is invoked by the
 // user.
 //
-// What: "@(#) Region.h, revA"
-
-#include <g3_api.h>
-
+// Written: fmk
+//
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <tcl.h>
 #include <Domain.h>
-
 #include <MeshRegion.h>
 #include <ID.h>
 
@@ -48,7 +24,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
   int loc = 1;
   int tag;
   double alphaM = 0.0;
-  double betaK = 0.0;
+  double betaK  = 0.0;
   double betaK0 = 0.0;
   double betaKc = 0.0;
 

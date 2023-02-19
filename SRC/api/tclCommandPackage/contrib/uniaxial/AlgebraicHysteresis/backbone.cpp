@@ -11,9 +11,9 @@
 // TCL hystereticBackbone command.
 
 #include <OPS_Globals.h>
-#include <G3Parse.h>
+#include <api/InputAPI.h>
 #include <UniaxialMaterial.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <g3_api.h>
 #include <elementAPI.h>
@@ -68,7 +68,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
 
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
-  TclSafeBuilder* builder = G3_getSafeBuilder(rt);
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
 
   // OPS_ResetInputNoBuilder(clientData, rt, 2, argc, argv, theDomain);
 
@@ -418,7 +418,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *material = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *material = builder->getUniaxialMaterial(matTag);
 
     if (material == 0) {
       opserr << "WARNING material does not exist\n";

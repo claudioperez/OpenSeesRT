@@ -1,6 +1,6 @@
 #include <ParallelMaterial.h>
-// #include <TclSafeBuilder.h>
-#include <G3Parse.h>
+// #include <runtime/BasicModelBuilder.h>
+#include <InputAPI.h>
 
 UniaxialMaterial*
 G3Parse_newParallelMaterial(G3_Runtime* rt, int argc, G3_Char** argv)

@@ -1,22 +1,29 @@
-// Written: fmk, MHS, cmp
-// Created: 07/99
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 //
 // Description: This file contains the function invoked when the user invokes
 // the uniaxialMaterial command in the interpreter.
 //
+// Written: fmk, MHS, cmp
+// Created: 07/99
+//
 
 #include <elementAPI.h>
 #include <g3_api.h>
-#include <iostream>
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+#include <G3_Logging.h>
 
-#include <BackboneMaterial.h>   // MHS
-#include <BarSlipMaterial.h>    // NM
-#include <Bond_SP01.h>          // JZ
-#include <BoucWenMaterial.h>    // Terje
-#include <Concrete01WithSITC.h> // Won Lee
+#include <iostream>
+#include <runtime/BasicModelBuilder.h>
+#include "uniaxial.hpp"
+#include <packages.h>
+
+#include <BackboneMaterial.h>        // MHS
+#include <BarSlipMaterial.h>         // NM
+#include <Bond_SP01.h>               // JZ
+#include <BoucWenMaterial.h>         // Terje
+#include <Concrete01WithSITC.h>      // Won Lee
 #include <ECC01.h>                   // Won Lee
 #include <ENTMaterial.h>             // MHS
 #include <EPPGapMaterial.h>          // Mackie
@@ -39,11 +46,18 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <Vector.h>
 #include <string.h>
+#include <assert.h>
 
 #include <UniaxialJ2Plasticity.h> // Quan
 
-extern void *OPS_Bond_SP01(G3_Runtime *);  // K Kolozvari
+class G3_Runtime;
 
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
+                                       Tcl_Interp *interp, int cArg, int mArg,
+                                       TCL_Char **argv, Domain *domain);
+
+
+extern void *OPS_Bond_SP01(G3_Runtime *);  // K Kolozvari
 extern void *OPS_Bilin02(G3_Runtime *);
 extern void *OPS_FRPConfinedConcrete02(G3_Runtime *);
 extern void *OPS_SteelFractureDI(G3_Runtime *); // galvisf
@@ -68,21 +82,18 @@ extern void *OPS_OOHystereticMaterial(G3_Runtime *);
 extern void *OPS_UVCuniaxial(G3_Runtime *);
 
 
-#include "uniaxial.hpp"
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
 // *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder
 // *theTclBuilder);
 
-extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
-                                                   Tcl_Interp *interp, int argc,
-                                                   TCL_Char **arg);
+// extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
+//                                                    Tcl_Interp *interp, int argc,
+//                                                    TCL_Char **arg);
 
 extern UniaxialMaterial *
 Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData,
                                Tcl_Interp *interp, int argc, TCL_Char **argv);
-
-#include <packages.h>
 
 typedef struct uniaxialPackageCommand {
   char *funcName;
@@ -99,9 +110,9 @@ static void printCommand(int argc, TCL_Char **argv) {
   opserr << endln;
 }
 
+//
 // external functions
-
-
+//
 UniaxialMaterial *TclBasicBuilder_addPyTzQzMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
                                                     int argc, TCL_Char **argv,
@@ -120,8 +131,10 @@ int
 TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char **argv) {
 
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain *theDomain = builder->getDomain();
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -829,9 +842,9 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   if (theMaterial == 0)
     theMaterial = TclBasicBuilder_addPyTzQzMaterial(clientData, interp, argc, argv, theDomain);
 
-  // LimitState
-  if (theMaterial == 0)
-    theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
+  // // LimitState
+  // if (theMaterial == 0)
+  //   theMaterial = Tcl_AddLimitStateMaterial(clientData, interp, argc, argv);
 
   if (theMaterial == 0) {
     //
@@ -858,6 +871,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   //   package yet to be loaded
   //
   if (theMaterial == 0) {
+#if 0
     //
     // maybe material in a routine
     //
@@ -874,6 +888,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
       if (theMaterial == 0)
         delete matObject;
     }
+#endif
   }
 
   //
@@ -917,14 +932,15 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   //
 
   if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
+    opserr << G3_ERROR_PROMPT << "Could not create uniaxialMaterial " << argv[1] << endln;
     return TCL_ERROR;
   }
 
+
+
   // Now add the material to the modelBuilder
-  if (G3_addUniaxialMaterial(rt, theMaterial) == TCL_ERROR) {
-    opserr << "WARNING could not add uniaxialMaterial to the modelbuilder\n";
-    opserr << *theMaterial << endln;
+  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
     delete theMaterial; // invoke the material objects destructor, otherwise mem
                         // leak
     return TCL_ERROR;

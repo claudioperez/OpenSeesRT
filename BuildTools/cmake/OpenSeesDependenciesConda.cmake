@@ -3,25 +3,29 @@
 #        OpenSees -- Open System For Earthquake Engineering Simulation
 #                Pacific Earthquake Engineering Research Center
 #
-#     (c) Copyright 1999-2021 The Regents of the University of California
-#                             All Rights Reserved
-# (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
-#
 #==============================================================================
 #                             External Libraries
 #
-# - BLAS_LIBRARIES
-# - BLAS_INCLUDE_DIRS
-#
-# - LAPACK_LIBRARIES
-# - LAPACK_INCLUDE_DIRS
-#
-# - ARPACK_LIBRARIES
-#
-# - SUPERLU_LIBRARIES
-# - SUPERLU_INCLUDE_DIRS
-#
 #==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Synopsis
 # - opensees_load(<PACKAGE> [BUILD|FIND|SEARCH|PATHS] [<PATHS>])
 #
@@ -60,8 +64,8 @@ opensees_load(BLAS                                         FIND
 # )
 
 opensees_load(LAPACK                                       FIND
+  LIBRARY ${CONDA_PREFIX}/lib/liblapack.so
   #LIBRARY ${CONDA_ENV}/Library/lib/lapack.lib
-  #INCLUDE ${CONDA_ENV}/Library/include/
 )
 
 set(ENV{SUPERLU_DIR})
@@ -71,6 +75,11 @@ opensees_load(SUPERLU                                       #SEARCH
 
 opensees_load(ARPACK                                       SEARCH
     BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
+)
+
+opensees_load(AMD
+  BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
+  #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
 )
 
 opensees_load(METIS                                        SEARCH)

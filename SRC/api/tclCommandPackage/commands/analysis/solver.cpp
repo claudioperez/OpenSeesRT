@@ -1,8 +1,16 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 #include <g3_api.h>
+#include <G3_Logging.h>
 #include <runtimeAPI.h>
-#include <analysisAPI.h>
+#include "analysis.h"
 #include <OPS_Globals.h>
 #include "solver.hpp"
+#include "runtime/BasicAnalysisBuilder.h"
 
 // analysis
 #include <StaticAnalysis.h>
@@ -10,19 +18,9 @@
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 
 // system of eqn and solvers
-// #include <ConjugateGradientSolver.h>
-
 #include <SProfileSPDLinSolver.h>
 #include <SProfileSPDLinSOE.h>
-
 #include <SparseGenColLinSOE.h>
-
-#ifdef _THREADS
-#  include <ThreadedSuperLU.h>
-#else
-#  include <SuperLU.h>
-#endif
-
 #include <SparseGenRowLinSOE.h>
 #include <SymSparseLinSOE.h>
 #include <SymSparseLinSolver.h>
@@ -61,46 +59,83 @@
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern LinearSOE *theSOE;
 
+// LinearSOE*
+// G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
 LinearSOE*
-G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
+// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
+G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv);
+
+LinearSOE*
+TclDispatch_newPetscSOE(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char **);
+
+#if 0 // TODO: implement AnalysisBuilder->getLinearSOE();
+int
+TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  LinearSOE *theSOE = ((BasicAnalysisBuilder *)clientData)->getLinearSOE();
+
+  char buffer[20];
+
+  if (theSOE == 0) {
+    sprintf(buffer, "NO SYSTEM SET");
+    return TCL_OK;
+  }
+
+  sprintf(buffer, "%d", theSOE->getNumEqn());
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+#endif
 
 int
 specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
                G3_Char **argv) {
+
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << "WARNING need to specify a system type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a system type \n";
     return TCL_ERROR;
   }
 
-  G3_Runtime* rt = G3_getRuntime(interp); 
+  BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
+
   
-  theSOE = G3Parse_newLinearSOE(rt, argc, argv);
+  theSOE = G3Parse_newLinearSOE(clientData, interp, argc, argv);
 
-  if (theSOE != 0) {
-    G3_Runtime *rt = G3_getRuntime(interp);
-    G3_setLinearSoe(rt, theSOE);
-    return TCL_OK;
-  } else {
-    opserr << "WARNING system " << argv[1] << " is unknown or not installed\n";
+
+  if (theSOE == nullptr) {
+    opserr << G3_ERROR_PROMPT << " system '" << argv[1] << "' is unknown or not installed\n";
     return TCL_ERROR;
   }
+
+  builder->set(theSOE);
+  return TCL_OK;
+
 }
 
 LinearSOE*
-G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
+G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv)
 {
+  G3_Runtime* rt = G3_getRuntime(interp); 
+
   LinearSOE *theSOE = nullptr;
   auto ctor = soe_table.find(std::string(argv[1]));
 
   if (ctor != soe_table.end()) {
     theSOE = ctor->second.ss(rt, argc, argv);
+
+  } else if (strcmp(argv[1], "Umfpack")==0) {
+    // theSOE = TclDispatch_newUmfpackSOE(clientData, interp, argc, argv);
+    theSOE = soe_table["SparseGen"].ss(rt, argc, argv);
+    opserr << "WARNING - Umfpack not installed\n";
   }
 
-#if 0
+#if defined(OPS_PETSC)
   else if (strcmp(argv[1], "petsc")==0 ||
            strcmp(argv[1], "Petsc")==0) {
-    theSOE = TclCommand_newPetscSOE(argc, argv);
+    theSOE = TclDispatch_newPetscSOE(clientData, interp, argc, argv);
   }
 #endif
 
@@ -134,11 +169,11 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
            (strcmp(argv[1], "SparseSYM") == 0)) {
     Tcl_Interp *interp = G3_getInterpreter(rt);
 
-    // now must determine the type of solver to create from rest of args
-    // now determine ordering scheme
+    // determine ordering scheme
     //   1 -- MMD
     //   2 -- ND
     //   3 -- RCM
+
     int lSparse = 1;
     if (argc == 3) {
       if (Tcl_GetInt(interp, argv[2], &lSparse) != TCL_OK)
@@ -152,7 +187,100 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
 }
 
 
-/* *********** Some misc solvers i play with ******************
+// #include <SuperLU.h>
+#ifdef _THREADS
+#  include "contrib/sys_of_eqn/ThreadedSuperLU/ThreadedSuperLU.h"
+#endif
+// TODO: CMP
+
+LinearSOE*
+specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
+{
+  // SPARSE GENERAL SOE * SOLVER
+  if ((strcmp(argv[1], "SparseGeneral") == 0) ||
+           (strcmp(argv[1], "SuperLU") == 0) ||
+           (strcmp(argv[1], "SparseGEN") == 0)) {
+    Tcl_Interp *interp = G3_getInterpreter(rt);
+
+    SparseGenColLinSolver *theSolver = nullptr;
+    int count = 2;
+    double thresh = 0.0;
+    int npRow = 1;
+    int npCol = 1;
+    int np = 1;
+
+    // defaults for threaded SuperLU
+    while (count < argc) {
+      if ((strcmp(argv[count], "p")    == 0) ||
+          (strcmp(argv[count], "piv")  == 0) ||
+          (strcmp(argv[count], "-piv") == 0)) {
+        thresh = 1.0;
+      } else if ((strcmp(argv[count], "-np") == 0) ||
+                 (strcmp(argv[count], "np")  == 0)) {
+        count++;
+        if (count < argc)
+          if (Tcl_GetInt(interp, argv[count], &np) != TCL_OK)
+            return nullptr;
+      } else if ((strcmp(argv[count], "npRow")  == 0) ||
+                 (strcmp(argv[count], "-npRow") == 0)) {
+        count++;
+        if (count < argc)
+          if (Tcl_GetInt(interp, argv[count], &npRow) != TCL_OK)
+            return nullptr;
+      } else if ((strcmp(argv[count], "npCol")  == 0) ||
+                 (strcmp(argv[count], "-npCol") == 0)) {
+        count++;
+        if (count < argc)
+          if (Tcl_GetInt(interp, argv[count], &npCol) != TCL_OK)
+            return nullptr;
+      }
+      count++;
+    }
+
+    int permSpec = 0;
+    int panelSize = 6;
+    int relax = 6;
+
+#ifdef _THREADS
+    if (np != 0)
+      theSolver = new ThreadedSuperLU(np, permSpec, panelSize, relax, thresh);
+#endif
+
+#ifdef _PARALLEL_PROCESSING
+    if (theSolver != 0)
+      delete theSolver;
+    theSolver = 0;
+
+    if (npRow != 0 && npCol != 0) {
+      theSolver = new DistributedSuperLU(npRow, npCol);
+    }
+#else
+    char symmetric = 'N';
+    double drop_tol = 0.0;
+    while (count < argc) {
+      if (strcmp(argv[count], "s") == 0 || strcmp(argv[count], "symmetric") ||
+          strcmp(argv[count], "-symm")) {
+        symmetric = 'Y';
+      }
+      count++;
+    }
+    // TODO : CMP
+    // theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
+#endif
+
+#ifdef _PARALLEL_PROCESSING
+    return new DistributedSparseGenColLinSOE(*theSolver);
+#else
+    return new SparseGenColLinSOE(*theSolver);
+#endif
+
+  } else {
+    return nullptr;
+  }
+}
+
+
+#if 0 // Some misc solvers i play with
 
 else if (strcmp(argv[2],"Block") == 0) {
   int blockSize = 4;
@@ -199,7 +327,8 @@ else if (strcmp(argv[2],"Skypack") == 0) {
 }
 else
   theSolver = new ProfileSPDLinDirectSolver();
-***************************************************************  */
+
+#endif // misc solvers
 
 
 #if defined(_CULAS4) || defined(_CULAS5)
@@ -283,129 +412,3 @@ else if ((strcmp(argv[1], "CulaSparse") == 0)) {
   theSOE = new SparseGenRowLinSOE(*theSolver);
 }
 #endif
-
-
-#if defined(OPSDEF_PFEM)
-  else if (strcmp(argv[1], "PFEM") == 0) {
-    if (argc <= 2) {
-      PFEMSolver *theSolver = new PFEMSolver();
-      theSOE = new PFEMLinSOE(*theSolver);
-    } else if (strcmp(argv[2], "-quasi") == 0) {
-      PFEMCompressibleSolver *theSolver = new PFEMCompressibleSolver();
-      theSOE = new PFEMCompressibleLinSOE(*theSolver);
-    } else if (strcmp(argv[2], "-mumps") == 0) {
-#  ifdef _PARALLEL_INTERPRETERS
-      int relax = 20;
-      if (argc > 3) {
-        if (Tcl_GetInt(interp, argv[3], &relax) != TCL_OK) {
-          opserr << "WARNING: failed to read relax\n";
-          return nullptr;
-        }
-      }
-      PFEMSolver_Mumps *theSolver = new PFEMSolver_Mumps(relax, 0, 0, 0);
-      theSOE = new PFEMLinSOE(*theSolver);
-#  endif // _PARALLEL_INTERPRETERS
-    } else if (strcmp(argv[2], "-quasi-mumps") == 0) {
-#  ifdef _PARALLEL_INTERPRETERS
-      int relax = 20;
-      if (argc > 3) {
-        if (Tcl_GetInt(interp, argv[3], &relax) != TCL_OK) {
-          opserr << "WARNING: failed to read relax\n";
-          return nullptr;
-        }
-      }
-      PFEMCompressibleSolver_Mumps *theSolver =
-          new PFEMCompressibleSolver_Mumps(relax, 0, 0);
-      theSOE = new PFEMCompressibleLinSOE(*theSolver);
-#  endif // _PARALLEL_INTERPRETERS
-    }
-  }
-#endif // OPSDEF_PFEM
-
-
-LinearSOE*
-specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv) {
-  // SPARSE GENERAL SOE * SOLVER
-  if ((strcmp(argv[1], "SparseGeneral") == 0) ||
-           (strcmp(argv[1], "SuperLU") == 0) ||
-           (strcmp(argv[1], "SparseGEN") == 0)) {
-    Tcl_Interp *interp = G3_getInterpreter(rt);
-
-    SparseGenColLinSolver *theSolver = 0;
-    int count = 2;
-    double thresh = 0.0;
-    int npRow = 1;
-    int npCol = 1;
-    int np = 1;
-
-    // defaults for threaded SuperLU
-    while (count < argc) {
-      if ((strcmp(argv[count], "p")    == 0) ||
-          (strcmp(argv[count], "piv")  == 0) ||
-          (strcmp(argv[count], "-piv") == 0)) {
-        thresh = 1.0;
-      } else if ((strcmp(argv[count], "-np") == 0) ||
-                 (strcmp(argv[count], "np")  == 0)) {
-        count++;
-        if (count < argc)
-          if (Tcl_GetInt(interp, argv[count], &np) != TCL_OK)
-            return nullptr;
-      } else if ((strcmp(argv[count], "npRow")  == 0) ||
-                 (strcmp(argv[count], "-npRow") == 0)) {
-        count++;
-        if (count < argc)
-          if (Tcl_GetInt(interp, argv[count], &npRow) != TCL_OK)
-            return nullptr;
-      } else if ((strcmp(argv[count], "npCol")  == 0) ||
-                 (strcmp(argv[count], "-npCol") == 0)) {
-        count++;
-        if (count < argc)
-          if (Tcl_GetInt(interp, argv[count], &npCol) != TCL_OK)
-            return nullptr;
-      }
-      count++;
-    }
-
-    int permSpec = 0;
-    int panelSize = 6;
-    int relax = 6;
-
-#ifdef _THREADS
-    if (np != 0)
-      theSolver = new ThreadedSuperLU(np, permSpec, panelSize, relax, thresh);
-#endif
-
-#ifdef _PARALLEL_PROCESSING
-    if (theSolver != 0)
-      delete theSolver;
-    theSolver = 0;
-
-    if (npRow != 0 && npCol != 0) {
-      theSolver = new DistributedSuperLU(npRow, npCol);
-      // opserr << "commands.cpp: DistributedSuperLU\n";
-    }
-#else
-    char symmetric = 'N';
-    double drop_tol = 0.0;
-    while (count < argc) {
-      if (strcmp(argv[count], "s") == 0 || strcmp(argv[count], "symmetric") ||
-          strcmp(argv[count], "-symm")) {
-        symmetric = 'Y';
-      }
-      count++;
-    }
-    theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
-#endif
-
-#ifdef _PARALLEL_PROCESSING
-    // opserr << "commands.cpp: DistributedSparseGenColLinSOE\n";
-    return new DistributedSparseGenColLinSOE(*theSolver);
-#else
-    return new SparseGenColLinSOE(*theSolver);
-#endif
-
-  } else {
-    return nullptr;
-  }
-}
-

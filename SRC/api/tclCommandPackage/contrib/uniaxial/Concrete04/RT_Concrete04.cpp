@@ -1,4 +1,4 @@
-#include <G3Parse.h>
+#include <InputAPI.h>
 #include <Concrete04.h>
 
 UniaxialMaterial* G3Parse_newUniaxialConcrete04(G3_Runtime* rt, int argc, G3_Char** argv)

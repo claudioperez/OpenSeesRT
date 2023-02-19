@@ -1,10 +1,10 @@
-#include <G3Parse.h>
+#include <tcl.h>
 #include <UmfpackGenLinSOE.h>
 #include <UmfpackGenLinSolver.h>
 
 
 LinearSOE*
-G3Parse_newUmfpackLinearSOE(G3_Runtime* rt, int argc, G3_Char argv)
+TclDispatch_newUmfpackLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, const char** argv)
 {
   /*
   } else if ((strcmp(argv[1], "UmfPack") == 0) ||
@@ -22,7 +22,7 @@ G3Parse_newUmfpackLinearSOE(G3_Runtime* rt, int argc, G3_Char argv)
       if ((strcmp(argv[count], "-lValueFact") == 0) ||
           (strcmp(argv[count], "-lvalueFact") == 0) ||
           (strcmp(argv[count], "-LVALUE") == 0)) {
-        if (G3Parse_getInt(rt, argv[count + 1], &factLVALUE) != TCL_OK)
+        if (Tcl_GetInt(interp, argv[count + 1], &factLVALUE) != TCL_OK)
           return nullptr;
         count++;
       } else if ((strcmp(argv[count], "-factorOnce") == 0) ||
@@ -35,8 +35,7 @@ G3Parse_newUmfpackLinearSOE(G3_Runtime* rt, int argc, G3_Char argv)
       count++;
     }
     UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver();
-    // theSOE = new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce,
-    // printTime);
+    // theSOE = new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce, printTime);
     return new UmfpackGenLinSOE(*theSolver);
 }
 

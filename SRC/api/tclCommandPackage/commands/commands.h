@@ -1,236 +1,158 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
+Tcl_CmdProc setLoadConst;
 
-// Description: This file contains the functions that will be called by
-// the interpreter when the appropriate command name is specified.
+Tcl_CmdProc setCreep;
 
+Tcl_CmdProc getLoadFactor;
 
-#include <OPS_Globals.h>
 
-int OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int argc,
-                  Tcl_Obj *const *argv);
+Tcl_CmdProc printModel;
 
-int OPS_SourceCmd(ClientData clientData, Tcl_Interp *interp, int argc,
-                  Tcl_Obj *const *argv);
+// Tcl_CmdProc addRecorder;
+Tcl_CmdProc TclAddRecorder;
 
-int OpenSeesAppInit(Tcl_Interp *interp);
+Tcl_CmdProc addAlgoRecorder;
 
+Tcl_CmdProc addDatabase;
 
-// by SAJalali
-int OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc playbackRecorders;
 
-int getNDM(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc playbackAlgorithmRecorders;
 
-int getNDF(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc groundExcitation;
 
-int wipeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc removeObject;
 
-int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc eleForce;
 
-int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc localForce;
 
-int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc eleDynamicalForce;
 
-int setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc eleResponse;
 
-int setCreep(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc findID;
 
-int setTime(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeDisp;
 
-int getTime(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeReaction;
 
-int getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeUnbalance;
 
-int buildModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeEigenvector;
 
-int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeCoord;
 
-int printModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc setNodeCoord;
 
-int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc updateElementDomain;
 
-DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
-// int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
-int specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc eleType;
 
-// from commands/analysis/ctest.cpp
-int specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc eleNodes;
 
-int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int addRecorder(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeBounds;
 
-int addDatabase(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeVel;
 
-int playbackRecorders(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc setNodeVel;
 
-int playbackAlgorithmRecorders(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+Tcl_CmdProc setNodeDisp;
 
-int groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc setNodeAccel;
 
-int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeAccel;
 
-int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeResponse;
 
-int responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc calculateNodalReactions;
 
-int videoPlayer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc getNodeTags;
 
-int removeObject(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc getEleTags;
 
-int eleForce(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc fixedNodes;
 
-int localForce(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc fixedDOFs;
 
-int eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc constrainedNodes;
 
-int eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc constrainedDOFs;
 
-int findID(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc retainedNodes;
 
-int nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc retainedDOFs;
 
-int nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeDOFs;
 
-int nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodeMass;
 
-int nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc nodePressure;
 
-int nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc getParamTags;
 
-int setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int eleType(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int eleNodes(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodeVel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int setNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int getEleTags(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodeMass(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sdfResponse(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc getParamValue;
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
-
-int computeGradients(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensLambda(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv); // Abbas
-
-int sensNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensNodePressure(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensSectionForce(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sensitivityIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc computeGradients;
+Tcl_CmdProc sensNodeDisp;
+Tcl_CmdProc sensLambda; // Abbas
+Tcl_CmdProc sensNodeVel;
+Tcl_CmdProc sensNodeAccel;
+Tcl_CmdProc sensNodePressure;
+Tcl_CmdProc sensSectionForce;
+Tcl_CmdProc sensitivityAlgorithm;
+// Tcl_CmdProc sensitivityIntegrator;
 // AddingSensitivity:END ///////////////////////////////////////////////////
 
-int getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc getNumElements;
 
-int getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc getEleClassTags;
+Tcl_CmdProc getEleLoadClassTags;
+Tcl_CmdProc getEleLoadTags;
+Tcl_CmdProc getEleLoadData;
 
-int getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+// Tcl_CmdProc startTimer;
+// Tcl_CmdProc stopTimer;
+Tcl_CmdProc TclCommand_getTime;
+Tcl_CmdProc TclCommand_setTime;
 
-int getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc rayleighDamping;
 
-int getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc modalDamping;
 
-int startTimer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc modalDampingQ;
 
-int stopTimer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc setElementRayleighDampingFactors;
 
-int rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc addRegion;
 
-int modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc sectionForce;
 
-int modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc sectionDeformation;
 
-int setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+Tcl_CmdProc sectionStiffness;
 
-int addRegion(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc sectionFlexibility;
 
-int sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc sectionLocation;
 
-int sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc sectionWeight;
 
-int sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc basicDeformation;
 
-int sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc basicForce;
 
-int sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int basicForce(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc basicStiffness;
 
 // added: Chris McGann, U.Washington for initial state analysis of nDMaterials
-int InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+Tcl_CmdProc InitialStateAnalysis;
 
-int totalCPU(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int solveCPU(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int accelCPU(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int numFact(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int numIter(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int systemSize(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-
-int elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-int elementDeactivate(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+// domain/recorder.cpp
+Tcl_CmdProc OPS_recorderValue;
 

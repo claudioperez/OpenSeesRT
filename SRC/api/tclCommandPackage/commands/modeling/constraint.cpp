@@ -1,11 +1,18 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
+//
+//
 #include <tcl.h>
-
+#include <assert.h>
 #include <Matrix.h>
 #include <ID.h>
 #include <Node.h>
 #include <Domain.h>
 #include <g3_api.h>
 #include <TclBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
@@ -17,24 +24,20 @@
 #include <ImposedMotionSP1.h>
 #include <MultiSupportPattern.h>
 
-static void
-printCommand(int argc, TCL_Char **argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
 
 int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBuilder *theTclBuilder = (TclBuilder*)(G3_getSafeBuilder(rt));
-  Domain *theTclDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  Domain *theTclDomain = theTclBuilder->getDomain();
+
   // ensure the destructor has not been called
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
@@ -44,7 +47,6 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fix nodeId " << ndf
            << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -58,6 +60,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
 
   char buffer[80];
   strcpy(buffer, "");
+
   // get the fixity condition and add the constraint if fixed
   for (int i = 0; i < ndf; i++) {
     int theFixity;
@@ -98,11 +101,14 @@ int
 TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  assert(clientData != nullptr);
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  Domain *theTclDomain = theTclBuilder->getDomain();
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
     return TCL_ERROR;
   }
@@ -114,13 +120,15 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixX xLoc " << ndf << " [0,1] conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fixX xLoc " << ndf << " [0,1] conditions";
+    return TCL_ERROR;
   }
 
   // get the xCrd of nodes to be constrained
   double xLoc;
   if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid xCrd - fixX xLoc " << ndf << " [0,1] conditions\n"; return TCL_ERROR;
+      opserr << "WARNING invalid xCrd - fixX xLoc " << ndf << " [0,1] conditions\n";
+      return TCL_ERROR;
   }
 
   // read in the fixities
@@ -144,7 +152,7 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  theTclDomain->addSP_Constraint(0, xLoc, fixity, tol);
+  theTclBuilder->addSP_Constraint(0, xLoc, fixity, tol);
 
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
@@ -154,14 +162,11 @@ int
 TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
+  assert(clientData != nullptr);
+  // G3_Runtime *rt = G3_getRuntime(interp);
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  // Domain *theTclDomain = G3_getDomain(rt);
 
   //  int ndf = theTclBuilder->getNDF();
   int ndf = argc - 2;
@@ -170,7 +175,8 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixY yLoc " << ndf << " [0,1] conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fixY yLoc " << ndf << " [0,1] conditions";
+    return TCL_ERROR;
   }
 
   // get the yCrd of nodes to be constrained
@@ -201,7 +207,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
   }
 
 
-  theTclDomain->addSP_Constraint(1, yLoc, fixity, tol);
+  theTclBuilder->addSP_Constraint(1, yLoc, fixity, tol);
 
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
@@ -211,23 +217,20 @@ int
 TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
 
-  //int ndf = theTclBuilder->getNDF();
+  assert(clientData != nullptr);
+  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
   int ndf = argc - 2;
   if (strcmp(argv[argc-2],"-tol") == 0)
     ndf -= 2;
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixZ zLoc " << ndf << " [0,1] conditions"; printCommand(argc, argv); return TCL_ERROR;
+    opserr << "WARNING bad command - want: fixZ zLoc " << ndf << " [0,1] conditions";
+    return TCL_ERROR;
   }
 
   // get the yCrd of nodes to be constrained
@@ -257,7 +260,7 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  theTclDomain->addSP_Constraint(2, zLoc, fixity, tol);
+  theTclBuilder->addSP_Constraint(2, zLoc, fixity, tol);
 
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
@@ -270,11 +273,16 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
   Domain *theTclDomain = G3_getDomain(rt);
-  LoadPattern *theTclLoadPattern = theTclBuilder->getCurrentLoadPattern();
+
+  // TODO!! 
+  LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
+
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - sp \n";
     return TCL_ERROR;
   }
@@ -282,7 +290,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   // check number of arguments
   if (argc < 4) {
     opserr << "WARNING bad command - want: sp nodeId dofID value";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -335,8 +342,9 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << "WARNING no current pattern - sp " 
              << nodeId << " dofID value\n"; 
       return TCL_ERROR;
-    } else 
+    } else {
       loadPatternTag = theTclLoadPattern->getTag();
+    }
   }
 
   LoadPattern *thePattern = theTclDomain->getLoadPattern(loadPatternTag);
@@ -351,7 +359,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   if (theTclDomain->addSP_Constraint(theSP, loadPatternTag) == false) {
     opserr << "WARNING could not add SP_Constraint to domain ";
-    printCommand(argc, argv);
     delete theSP;
     return TCL_ERROR;
   }
@@ -369,7 +376,9 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     Domain     *theTclDomain = G3_getDomain(rt);
 
     // Ensure the destructor has not been called
-    if (theTclBuilder == 0) {
+    BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+    if (theTclBuilder == 0 || clientData == 0) {
       opserr << "WARNING builder has been destroyed - equalDOF \n";
       return TCL_ERROR;
     }
@@ -377,7 +386,6 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     // Check number of arguments
     if (argc < 4) {
       opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
-      printCommand (argc, argv);
       return TCL_ERROR;
     }
 
@@ -428,14 +436,12 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
     if (theMP == 0) {
       opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-      printCommand (argc, argv); 
       return TCL_ERROR;
     }
 
     // Add the multi-point constraint to the domain
     if (theTclDomain->addMP_Constraint (theMP) == false) {
       opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
-      printCommand(argc, argv);
       delete theMP;
       return TCL_ERROR;
     }
@@ -453,14 +459,17 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **argv)
 {
         // Ensure the destructor has not been called
-        if (theTclBuilder == 0) {
+        BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+        if (theTclBuilder == 0 || clientData == 0) {
           opserr << "WARNING builder has been destroyed - equalDOF \n";
           return TCL_ERROR;
         }
 
         // Check number of arguments
         if (argc < 4) {
-          opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ... ..."; printCommand (argc, argv); return TCL_ERROR;
+          opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ... ...";
+          return TCL_ERROR;
         }
 
         // Read in the node IDs and the DOF
@@ -524,14 +533,12 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         MP_Constraint *theMP = new MP_Constraint (RnodeID, CnodeID, Ccr, cDOF, rDOF); 
         if (theMP == 0) { 
           opserr << "WARNING ran out of memory for equalDOF MP_Constraint "; 
-          printCommand (argc, argv);
           return TCL_ERROR;
         }
 
         // Add the multi-point constraint to the domain
         if (theTclDomain->addMP_Constraint (theMP) == false) {
           opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
-          printCommand(argc, argv);
           delete theMP;
           return TCL_ERROR;
         }
@@ -555,11 +562,13 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
 
   int rNode, perpDirn;
   if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n"; return TCL_ERROR;
+      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n";
+      return TCL_ERROR;
   }
 
   if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n"; return TCL_ERROR;
+      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n";
+      return TCL_ERROR;
   }
 
   // read in the constrained Nodes
@@ -568,7 +577,8 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
   for (int i=0; i<numConstrainedNodes; i++) {
       int cNode;
       if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
-          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n"; return TCL_ERROR;
+          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n";
+          return TCL_ERROR;
       }
       constrainedNodes(i) = cNode;
   }
@@ -587,19 +597,15 @@ TclCommand_addImposedMotionSP(ClientData clientData,
                                    int argc,
                                    TCL_Char **argv)
 {
+  // TODO: Cleanup
   G3_Runtime* rt = G3_getRuntime(interp);
-/*
-}
-ImposedMotion*
-G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
-{
-*/
   Domain *domain = G3_getDomain(rt);
 
-
-  // TclSafeBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
+  // BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
   // // ensure the destructor has not been called -
-  // if (theTclBuilder == 0) {
+  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  //if (theTclBuilder == 0 || clientData == 0) {
   //   opserr << "WARNING builder has been destroyed - sp \n";
   //   return TCL_ERROR;
   // }
@@ -609,7 +615,6 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   // check number of arguments
   if (argc < 4) {
     opserr << "WARNING bad command - want: imposedMotion nodeId dofID gMotionID\n";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -646,7 +651,7 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   //
 
   Node *theNode = domain->getNode(nodeId);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING invalid node " << argv[2] << " node not found\n ";
     return -1;
   }
@@ -675,7 +680,7 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
     theSP = new ImposedMotionSP(nodeId, dofId, loadPatternTag, gMotionID);
   }
 
-  if (theSP == 0) {
+  if (theSP == nullptr) {
     opserr << "WARNING ran out of memory for ImposedMotionSP ";
     opserr << " -  imposedMotion ";
     opserr << nodeId << " " << dofId++ << " " << gMotionID << endln;
@@ -683,7 +688,6 @@ G3Parse_newImposedMotion(G3_Runtime*rt, int argc, G3_Char** argv)
   }
   if (thePattern->addSP_Constraint(theSP) == false) {
     opserr << "WARNING could not add SP_Constraint to pattern ";
-    printCommand(argc, argv);
     delete theSP;
     return TCL_ERROR;
   }

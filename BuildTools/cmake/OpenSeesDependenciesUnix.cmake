@@ -5,6 +5,17 @@
 #
 #==============================================================================
 #                            External Libraries
+# - BLAS_LIBRARIES
+# - BLAS_INCLUDE_DIRS
+#
+# - LAPACK_LIBRARIES
+# - LAPACK_INCLUDE_DIRS
+#
+# - ARPACK_LIBRARIES
+#
+# - SUPERLU_LIBRARIES
+# - SUPERLU_INCLUDE_DIRS
+#
 #
 #==============================================================================
 # Synopsis

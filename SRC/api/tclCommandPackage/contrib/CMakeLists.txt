@@ -1,6 +1,10 @@
+add_library(OpenSeesCommunity OBJECT)
+#target_link_libraries(OpenSeesRT PRIVATE OpenSeesCommunity)
 
-add_subdirectory(uniaxial)
-#add_subdirectory(system_of_eqn)
+
+add_subdirectory(packages/)
+add_subdirectory(uniaxial/)
+add_subdirectory(sys_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 
 target_sources(OpenSeesRT PRIVATE
@@ -36,6 +40,7 @@ target_sources(OpenSeesRT PRIVATE
     "element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
     "element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
     "element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
+
     "element/nonlinearBeamColumn/forceBeamColumn/TclForceBeamColumnCommand.cpp"
     "element/nonlinearBeamColumn/dispBeamColumnInt/TclDispBeamColumnIntCommand.cpp"
     "element/nonlinearBeamColumn/beamWithHinges.cpp"

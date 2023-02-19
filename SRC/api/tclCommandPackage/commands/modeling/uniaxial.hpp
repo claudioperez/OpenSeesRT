@@ -1,12 +1,17 @@
-
-// Written: fmk, MHS, cmp
-// Created: 07/99
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+** ****************************************************************** */
 //
 // Description: This file contains the function invoked when the user invokes
 // the uniaxialMaterial command in the interpreter.
 //
+// Written: fmk, MHS, cmp
+// Created: 07/99
+//
 #include <string>
 #include <unordered_map>
+
 extern void *OPS_SPSW02(G3_Runtime *);           // SAJalali
 extern void *OPS_TDConcreteEXP(G3_Runtime *);    // ntosic
 extern void *OPS_TDConcrete(G3_Runtime *);       // ntosic

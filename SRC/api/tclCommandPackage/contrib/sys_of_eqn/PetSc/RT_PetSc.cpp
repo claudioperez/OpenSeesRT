@@ -17,21 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
+//
+// Description: This file contains the function invoked when the user invokes
+// the Petsc command in the interpreter.
+//
 // $Date: 2005-08-04 00:18:03 $
 // $Source:
 // /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/petsc/TclPetsc.cpp,v $
-
+//
 // Written: fmk
-
-// Description: This file contains the function invoked when the user invokes
-// the Petsc command in the interpreter.
-
+//
 // #include <OPS_Globals.h>
 #include <stdlib.h>
 #include <string.h>
-#include <g3_api.h>
+#include <tcl.h>
 
 #include <PetscSOE.h>
 #include <PetscSolver.h>
@@ -44,11 +43,10 @@
 #else
 #define DllExport
 #endif
-
 LinearSOE*
-TclCommand_newPetscSOE(int argc, TCL_Char **argv) //, LinearSOE **theSOE)
+TclDispatch_newPetscSOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
-  LinearSOE** theSOE;
+  LinearSOE* theSOE;
 
   // now must determine the type of solver to create from rest of args
   KSPType method = KSPCG;           // KSPCG KSPGMRES
@@ -93,8 +91,9 @@ TclCommand_newPetscSOE(int argc, TCL_Char **argv) //, LinearSOE **theSOE)
         method = KSPBICG;
       else if (strcmp(argv[count + 1], "KSPRICHARDSON") == 0)
         method = KSPRICHARDSON;
-      else if (strcmp(argv[count + 1], "KSPCHEBYCHEV") == 0)
-        method = KSPCHEBYCHEV;
+      else if ((strcmp(argv[count + 1], "KSPCHEBYCHEV") == 0) ||
+               (strcmp(argv[count + 1], "KSPCHEBYSHEV") == 0))
+        method = KSPCHEBYSHEV;
       else if (strcmp(argv[count + 1], "KSPGMRES") == 0)
         method = KSPGMRES;
     } else if (strcmp(argv[count], "-PC") == 0 ||
@@ -121,19 +120,19 @@ TclCommand_newPetscSOE(int argc, TCL_Char **argv) //, LinearSOE **theSOE)
   if (matType == 0) {
     PetscSolver *theSolver =
         new PetscSolver(method, preconditioner, rTol, aTol, dTol, maxIts);
-    (*theSOE) = new PetscSOE(*theSolver);
+    theSOE = new PetscSOE(*theSolver);
   } else {
     PetscSparseSeqSolver *theSolver = new PetscSparseSeqSolver(
         method, preconditioner, rTol, aTol, dTol, maxIts);
-    (*theSOE) = new SparseGenRowLinSOE(*theSolver);
+    theSOE = new SparseGenRowLinSOE(*theSolver);
   }
 
-  if (*theSOE == 0) {
+  if (theSOE == nullptr) {
     opserr << "WARNING system Petsc - out of memory\n";
     return nullptr;
   }
 
-  return *theSOE;
+  return theSOE;
 }
 
 #if defined(OPSDEF_USE_PETSC)

@@ -60,6 +60,7 @@ bool OPS_removeUniaxialMaterial(int tag)
     return false;
 }
 
+#if 0
 UniaxialMaterial *OPS_getUniaxialMaterial(int tag) {
 
   TaggedObject *theResult = theUniaxialMaterialObjects.getComponentPtr(tag);
@@ -71,6 +72,7 @@ UniaxialMaterial *OPS_getUniaxialMaterial(int tag) {
 
   return theMat;
 }
+#endif
 
 void
 OPS_ADD_RUNTIME_VXV(OPS_clearAllUniaxialMaterial)

@@ -29,15 +29,17 @@
 #include <Domain.h>
 
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <Parameter.h>
 #include <ElementParameter.h>
 
-#include <RVParameter.h>
 #include <NodeResponseParameter.h>
 #include <LoadFactorParameter.h>
 
 #ifdef _RELIABILITY
+#include <RandomVariable.h>
+#include <RVParameter.h>
 
 #include <ReliabilityDomain.h>
 
@@ -51,7 +53,9 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
@@ -152,11 +156,12 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_OK;
   }
 
-  RandomVariable *theRV = 0;
 
   // Now handle the parameter according to which command is invoked
   if (strcmp(argv[0], "parameter") == 0 ||
       strcmp(argv[0], "addToParameter") == 0) {
+    // RandomVariable *theRV = 0;
+    void *theRV = 0;
 
     DomainComponent *theObject;
 
@@ -272,9 +277,13 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
         newParameter = new Parameter(paramTag, 0, 0, 0);
 
       if (theRV != 0) {
+#ifdef _RELIABILITY
         RVParameter *newRVParameter =
             new RVParameter(paramTag, theRV, newParameter);
         theTclDomain->addParameter(newRVParameter);
+#else
+        opserr << "ERROR: Reliability not compiled in\n";
+#endif
       } else {
         theTclDomain->addParameter(newParameter);
       }

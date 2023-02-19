@@ -1,51 +1,32 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** With a lot of additions by                                         **
-**   Boris Jeremic    (jeremic@ucdavis.edu)                           **
-**   Zaohui Yang      (zhyang@ucdavis.edu)                            **
-**   Zhao Cheng       (zcheng@ucdavis.edu)                            **
-**                                                                    **
-**                                                                    **
-**                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.44 $
-// $Date: 2010-02-05 00:08:35 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/nD/TclBasicBuilderNDMaterialCommand.cpp,v
-// $
-
-// Description: This file contains the function invoked when the user invokes
-// the nDMaterial command in the interpreter.
 //
-// What: "@(#) TclBasicBuilderNDMaterialCommand.C, revA"
-
+// Description: This file contains the function invoked when the user 
+// invokes the nDMaterial command in the interpreter.
+//
+// Developed by:
+//   Frank McKenna (fmckenna@ce.berkeley.edu)
+//   Gregory L. Fenves (fenves@ce.berkeley.edu)
+//   Filip C. Filippou (filippou@ce.berkeley.edu)
+//
+// With a lot of additions by
+//   Boris Jeremic    (jeremic@ucdavis.edu)
+//   Zaohui Yang      (zhyang@ucdavis.edu)
+//   Zhao Cheng       (zcheng@ucdavis.edu)
+//
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <elementAPI.h>
 #include <packages.h>
 
 #include <PressureDependentElastic3D.h>
 #include <J2Plasticity.h>
-#include <MultiaxialCyclicPlasticity.h> //Gang Wang
+#include <MultiaxialCyclicPlasticity.h> // Gang Wang
 
 #include <PlaneStressMaterial.h>
-#include <PlaneStrainMaterial.h> // Antonios Vytiniotis:
+#include <PlaneStrainMaterial.h>        // Antonios Vytiniotis:
 #include <PlateFiberMaterial.h>
 #include <UniaxialFiber2d.h>
 #include <UniaxialFiber3d.h>
@@ -71,10 +52,10 @@
 #include <PressureDependMultiYield03.h>
 #include <FluidSolidPorousMaterial.h>
 
-#include <J2PlasticityThermal.h>                 //added by L.Jiang [SIF]
-#include <PlateFiberMaterialThermal.h>           //L.Jiang [SIF]
-#include <PlateFromPlaneStressMaterialThermal.h> //Liming Jiang [SIF]
-#include <PlateRebarMaterialThermal.h>           //Liming Jiang [SIF]
+#include <J2PlasticityThermal.h>                 // added by L.Jiang [SIF]
+#include <PlateFiberMaterialThermal.h>           // L.Jiang [SIF]
+#include <PlateFromPlaneStressMaterialThermal.h> // Liming Jiang [SIF]
+#include <PlateRebarMaterialThermal.h>           // Liming Jiang [SIF]
 
 #include <MultiYieldSurfaceClay.h>
 #include <string.h>
@@ -180,6 +161,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
@@ -250,7 +232,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "J2BeamFiber") == 0) {
     void *theMat = 0;
-    if (theTclBuilder->getNDM() == 2)
+    if (builder->getNDM() == 2)
       theMat = OPS_J2BeamFiber2dMaterial(rt);
     else
       theMat = OPS_J2BeamFiber3dMaterial(rt);
@@ -1139,9 +1121,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     param[numParam + 7] = 0.02;
     param[numParam + 8] = 0.7;
     param[numParam + 9] = 101.;
-    param[numParam + 10] = 0.1;
-    param[numParam + 11] = 0.;
-    param[numParam + 12] = 1.;
+    param[numParam +10] = 0.1;
+    param[numParam +11] = 0.;
+    param[numParam +12] = 1.;
 
     const char *arg[] = {"nd",
                          "rho",
@@ -1172,24 +1154,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
       printCommand(argc, argv);
-      opserr << "Want: nDMaterial PressureDependMultiYield02 tag? " << arg[0];
-      opserr << "? "
-             << "\n";
-      opserr << arg[1] << "? " << arg[2] << "? " << arg[3] << "? "
-             << "\n";
-      opserr << arg[4] << "? " << arg[5] << "? " << arg[6] << "? "
-             << "\n";
-      opserr << arg[7] << "? " << arg[8] << "? " << arg[9] << "? "
-             << "\n";
-      opserr << arg[10] << "? " << arg[11] << "? " << arg[12] << "? "
-             << "\n";
-      opserr << arg[13] << "? " << arg[14] << "? " << arg[15] << "? "
-             << "\n";
-      opserr << arg[16] << "? " << arg[17] << "? " << arg[18] << "? "
-             << "\n";
-      opserr << arg[19] << "? " << arg[20] << "? " << arg[21] << "? "
-             << "\n";
-      opserr << arg[22] << "? " << arg[23] << "? " << endln;
       return TCL_ERROR;
     }
 
@@ -1701,7 +1665,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
     if (theMat == 0) {
       opserr << "WARNING uniaxialmaterial does not exist\n";
       opserr << "UniaxialMaterial: " << matTag;
@@ -2066,7 +2030,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *theMat = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
     if (theMat == 0) {
       opserr << "WARNING uniaxialmaterial does not exist\n";
       opserr << "UniaxialMaterial: " << matTag;
@@ -2220,7 +2184,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   //   package yet to be loaded
   //
   if (theMaterial == 0) {
-
+#if 0
     // maybe material in a routine
     //
 
@@ -2238,6 +2202,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       if (theMaterial == 0)
         delete matObject;
     }
+#endif
   }
 
   //
@@ -2259,11 +2224,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     delete[] tclFuncName;
 
     if (res == 0) {
-
       //
       // add loaded function to list of functions
       //
-
       char *matName = new char[matNameLength + 1];
       strcpy(matName, argv[1]);
       NDMaterialPackageCommand *theMatCommand = new NDMaterialPackageCommand;
@@ -2276,7 +2239,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  if (theMaterial == 0) {
+  if (theMaterial == nullptr) {
     opserr << "WARNING could not create nDMaterial: " << argv[1];
     return TCL_ERROR;
   }

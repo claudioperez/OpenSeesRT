@@ -19,5 +19,5 @@ target_sources(OPS_ModelBuilder_PlaneFrame PRIVATE PlaneFrame.cpp)
 target_link_libraries(OPS_ModelBuilder_PlaneFrame PRIVATE OPS_ModelBuilder)
 
 
-add_subdirectory(tcl)
+#add_subdirectory(tcl)
 

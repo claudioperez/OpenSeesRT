@@ -23,7 +23,7 @@
 // $Source:
 // /usr/local/cvs/OpenSees/SRC/coordTransformation/TclGeomTransfCommand.cpp,v $
 #include <string.h>
-#include <TclSafeBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 
 #include <LinearCrdTransf2d.h>
 #include <LinearCrdTransf2dInt.h>
@@ -43,9 +43,8 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 
 {
-  G3_Runtime * rt = G3_getRuntime(interp);
-  TclSafeBuilder * theTclBasicBuilder = G3_getSafeBuilder(rt);
-  Domain * theTclBasicBuilerDomain = G3_getDomain(rt);
+
+  BasicModelBuilder *theTclBasicBuilder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 2) {
@@ -271,7 +270,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
   //  Tcl_Free ((char *)argv);
 
   // if get here we have sucessfully created the element and added it to the
-  // domain
+  // builder
 
   return TCL_OK;
 }

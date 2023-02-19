@@ -5,6 +5,7 @@
 #
 #==============================================================================
 
+target_link_libraries(OPS_Recorder PRIVATE OPS_Actor)
 target_sources(OPS_Recorder
     PRIVATE
       DamageRecorder.cpp
@@ -62,14 +63,14 @@ target_sources(OPS_ASDEA
 )
 
 
-target_sources(OPS_Graphics
-    PRIVATE
-      AlgorithmIncrements.cpp
-      FilePlotter.cpp
-    PUBLIC
-      AlgorithmIncrements.h
-      FilePlotter.h
-)
+# target_sources(OPS_Graphics
+#     PRIVATE
+#       AlgorithmIncrements.cpp
+#       FilePlotter.cpp
+#     PUBLIC
+#       AlgorithmIncrements.h
+#       FilePlotter.h
+# )
 
 add_subdirectory(response)
 

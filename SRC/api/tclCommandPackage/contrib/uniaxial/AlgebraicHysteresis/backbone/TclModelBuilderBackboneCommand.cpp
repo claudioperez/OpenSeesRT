@@ -421,7 +421,7 @@ TclModelBuilderHystereticBackboneCommand(ClientData clientData,
       return TCL_ERROR;
     }
     
-    UniaxialMaterial *material = OPS_getUniaxialMaterial(matTag);
+    UniaxialMaterial *material = builder->getUniaxialMaterial(matTag);
     
     if (material == 0) {
       opserr << "WARNING material does not exist\n";

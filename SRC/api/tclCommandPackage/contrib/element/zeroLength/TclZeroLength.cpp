@@ -38,6 +38,7 @@
 #include <ZeroLengthRocking.h>
 #include <ZeroLengthContact3D.h>
 #include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
 #include <ID.h>
 #include <Vector.h>
 #include <Domain.h>

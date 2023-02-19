@@ -29,13 +29,10 @@
 // Revision: A
 //
 // Description: This file contains the function invoked when the user invokes
-// the GroundMotion command in the interpreter. It is invoked by the
-// TclBasicBuilder_addGroundMotion function in the TclBasicBuilder.C file.
-// Current valid GroundMotion types are:
+// the GroundMotion command in the interpreter. 
 
-// What: "@(#) TclGroundMotionCommand.C, revA"
 
-#include <TclBasicBuilder.h>
+
 
 #include <g3_api.h>
 #include <GroundMotionRecord.h>
@@ -48,7 +45,7 @@
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
 
-extern TimeSeriesIntegrator *TclSeriesIntegratorCommand(ClientData clientData,
+extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         TCL_Char *arg);
 
@@ -153,7 +150,7 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
 
         currentArg++;
         seriesIntegrator =
-            TclSeriesIntegratorCommand((ClientData)0, interp, argv[currentArg]);
+            TclDispatch_newSeriesIntegrator((ClientData)0, interp, argv[currentArg]);
         if (seriesIntegrator == 0) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - groundMotion tag Series -int {Series Integrator}\n";

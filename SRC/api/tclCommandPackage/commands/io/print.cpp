@@ -1,4 +1,7 @@
 #include <OPS_Stream.h>
+#include <Domain.h>
+#include <assert.h>
+#include <FileStream.h>
 
 void OPS_printCrdTransf(OPS_Stream &s, int flag) {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
@@ -81,15 +84,18 @@ int
 printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
   // This function print's a file with node and elements in a format useful for
   // GID
   int res = 0;
-  bool hasLinear = 0;
-  bool hasTri3 = 0;
-  bool hasQuad4 = 0;
-  bool hasQuad8 = 0;
-  bool hasQuad9 = 0;
-  bool hasBrick = 0;
+  bool hasLinear = false;
+  bool hasTri3  = false;
+  bool hasQuad4 = false;
+  bool hasQuad8 = false;
+  bool hasQuad9 = false;
+  bool hasBrick = false;
   int startEle = 1;
   int endEle = 1;
   int eleRange = 0;
@@ -131,7 +137,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // Cycle over Elements to understand what type of elements are there
-  ElementIter &theElements = theDomain.getElements();
+  ElementIter &theElements = the_domain->getElements();
   Element *theElement;
   while ((theElement = theElements()) != 0) {
 
@@ -164,7 +170,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print node coordinates
     outputFile << "Coordinates" << endln;
-    NodeIter &theNodes = theDomain.getNodes();
+    NodeIter &theNodes = the_domain->getNodes();
     Node *theNode;
     while ((theNode = theNodes()) != 0) {
       int tag = theNode->getTag();
@@ -185,7 +191,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print elements connectivity
     outputFile << "Elements" << endln;
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0) {
       int tag = theElement->getTag();
@@ -220,7 +226,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print node coordinates
     outputFile << "Coordinates" << endln;
-    NodeIter &theNodes = theDomain.getNodes();
+    NodeIter &theNodes = the_domain->getNodes();
     Node *theNode;
     while ((theNode = theNodes()) != 0) {
       int tag = theNode->getTag();
@@ -241,7 +247,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print elements connectivity
     outputFile << "Elements" << endln;
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0) {
       int tag = theElement->getTag();
@@ -277,7 +283,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print node coordinates
     outputFile << "Coordinates" << endln;
-    NodeIter &theNodes = theDomain.getNodes();
+    NodeIter &theNodes = the_domain->getNodes();
     Node *theNode;
     while ((theNode = theNodes()) != 0) {
       int tag = theNode->getTag();
@@ -298,7 +304,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print elements connectivity
     outputFile << "Elements" << endln;
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0) {
       int tag = theElement->getTag();
@@ -334,7 +340,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print node coordinates
     outputFile << "Coordinates" << endln;
-    NodeIter &theNodes = theDomain.getNodes();
+    NodeIter &theNodes = the_domain->getNodes();
     Node *theNode;
     while ((theNode = theNodes()) != 0) {
       int tag = theNode->getTag();
@@ -355,7 +361,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print elements connectivity
     outputFile << "Elements" << endln;
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0) {
       int tag = theElement->getTag();
@@ -391,8 +397,8 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print node coordinates
     outputFile << "Coordinates" << endln;
-    NodeIter &theNodes = theDomain.getNodes();
-    MeshRegion *myRegion = theDomain.getRegion(0);
+    NodeIter &theNodes = the_domain->getNodes();
+    MeshRegion *myRegion = the_domain->getRegion(0);
     Node *theNode;
     while ((theNode = theNodes()) != 0) {
       int tag = theNode->getTag();
@@ -413,7 +419,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Print elements connectivity
     outputFile << "Elements" << endln;
-    ElementIter &theElements = theDomain.getElements();
+    ElementIter &theElements = the_domain->getElements();
     Element *theElement;
     while ((theElement = theElements()) != 0) {
       int tag = theElement->getTag();
