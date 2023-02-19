@@ -20,7 +20,7 @@ target_sources(OPS_Handler
         TCP_Stream.cpp
         ChannelStream.cpp
     PUBLIC
-    OPS_Stream.h
+        OPS_Stream.h
         StandardStream.h
         FileStream.h
         XmlFileStream.h
