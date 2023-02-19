@@ -36,7 +36,7 @@
 #define CTestRelativeTotalNormDispIncr_h
 
 #include <ConvergenceTest.h>
-#include <bool.h>
+#include <stdbool.h>
 class EquiSolnAlgo;
 class LinearSOE;
 

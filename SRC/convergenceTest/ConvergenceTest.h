@@ -38,7 +38,7 @@
 
 #include <MovableObject.h>
 #include <Vector.h>
-#include <bool.h>
+#include <stdbool.h>
 
 class EquiSolnAlgo;
 
