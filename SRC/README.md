@@ -30,21 +30,21 @@ Truss.h and Truss.C files are in a subdirectory truss.
 <dt><a href="./analysis"><code>analysis</code></a></dt>
 <dd>contains the classes for the analysis. again the classes in subdirectories:
 
-      - analysis - the Analysis, StaticAnalysis, and some others
-      - algorithm - SolutionAlgorithm class and 2 subdirectories:
-                equiSolnAlgo - Linear, NewtonRaphson and ModifiedNewton
-                domainDecompAlgo - DomainDecompAlgo
-      - dof_grp - DOF_Group
-      - fe_ele - FE_Element class and subdirectory penalty containing
-                PenaltySP_FE and PenaltyMP_FE
-      - penalty - ConstraintHandler, PenaltyConstraintHandler and
-                PlainHandler
-      - integrator - Integrator, IncrementalIntegrator, LoadControl,
-                ArcLength, StaticIntegrator, TransientIntegrator and
-                Newmark
-      - model - AnalysisModel and its iters.
-      - numberer - DOF_Numberer
-                
+ - analysis - the Analysis, StaticAnalysis, and some others
+ - algorithm - SolutionAlgorithm class and 2 subdirectories:
+           equiSolnAlgo - Linear, NewtonRaphson and ModifiedNewton
+           domainDecompAlgo - DomainDecompAlgo
+ - dof_grp - DOF_Group
+ - fe_ele - FE_Element class and subdirectory penalty containing
+           PenaltySP_FE and PenaltyMP_FE
+ - penalty - ConstraintHandler, PenaltyConstraintHandler and
+           PlainHandler
+ - integrator - Integrator, IncrementalIntegrator, LoadControl,
+           ArcLength, StaticIntegrator, TransientIntegrator and
+           Newmark
+ - model - AnalysisModel and its iters.
+ - numberer - DOF_Numberer
+           
 <dt><a href="./graph"><code>graph</code></a></dt>
 <dd>contains the graph classes, again in subdirectories
         graph - Graph, Vertex, and others
