@@ -1,12 +1,12 @@
 
 # Newmark Integrators - Linear & Nonlinear Examples
 
-#REFERENCES: 
+# REFERENCES: 
 # 1) Chopra, A.K. "Dynamics of Structures: Theory and Applications"
-# Prentice Hall, 4th Edition, 2012.
-#   - Sections 5:
-#        Linear: Examples 5.3 and 5.4
-#        Nonlinear: Examples 5.5 and 5.6
+#    Prentice Hall, 4th Edition, 2012.
+#    - Sections 5:
+#         Linear: Examples 5.3 and 5.4
+#         Nonlinear: Examples 5.5 and 5.6
 
 
 puts "Newmark.tcl: Verification of Newmark Integrators (Chopra)"
@@ -21,7 +21,10 @@ set m 0.2533
 set k 10.0
 set dampRatio 0.05
 
-set integratorCmds {"Newmark Average Acceleration" "integrator Newmark 0.5 0.25" "Newmark Linear Acceleration" "integrator Newmark 0.5 [expr 1.0/6.0]"}
+set integratorCmds {
+  "Newmark Average Acceleration" "integrator Newmark 0.5 0.25" 
+  "Newmark Linear Acceleration" "integrator Newmark 0.5 [expr 1.0/6.0]"
+}
 
 # procedure to build a linear model
 #   input args: K - desired stiffness
@@ -40,9 +43,9 @@ proc buildModel {k m dampRatio yieldDisp} {
     node  2  0. -mass $m
 
     if {$yieldDisp == 0.} {
-	uniaxialMaterial Elastic 1 $k
+        uniaxialMaterial Elastic 1 $k
     } else {
-	uniaxialMaterial ElasticPP 1 $k $yieldDisp
+        uniaxialMaterial ElasticPP 1 $k $yieldDisp
     }
     element zeroLength 1 1 2 -mat 1 -dir 1
     
@@ -103,7 +106,7 @@ foreach {integratorName integratorCmd} $integratorCmds {
     timeSeries Trig 1 0.0 0.6 1.2 -factor 10.0
     #    timeSeries Trig 1 -dt 0.1 -path {0.0 5.0}
     pattern Plain 1 1 {
-	load 2 1.0 
+        load 2 1.0 
     }
 
     # build analysis
@@ -111,23 +114,23 @@ foreach {integratorName integratorCmd} $integratorCmds {
 
     # perform analysis, checking at every step
     for {set i 0} {$i< 10} {incr i 1} {
-	analyze 1 0.1
-	set tCurrent [getTime]
-	set uOpenSees [nodeDisp 2 0]
-	set uComputed [lindex $resultD $i]
-	set vOpenSees [nodeVel 2 0]
-	set vComputed [lindex $resultV $i]
-	set aOpenSees [nodeAccel 2 0]
-	set aComputed [lindex $resultA $i]
-	if {[expr abs($uComputed-$uOpenSees)] > $tol} {
-	    set testOK -1;
-	    puts [format $formatString $uOpenSees $uComputed]
-	    puts "failed  abs($uOpenSees - $uComputed) = [expr abs($uComputed-$uOpenSees)]> $tol"
-	    set i 11
-	} else {
+        analyze 1 0.1
+        set tCurrent [getTime]
+        set uOpenSees [nodeDisp 2 0]
+        set uComputed [lindex $resultD $i]
+        set vOpenSees [nodeVel 2 0]
+        set vComputed [lindex $resultV $i]
+        set aOpenSees [nodeAccel 2 0]
+        set aComputed [lindex $resultA $i]
+        if {[expr abs($uComputed-$uOpenSees)] > $tol} {
+            set testOK -1;
+            puts [format $formatString $uOpenSees $uComputed]
+            puts "failed  abs($uOpenSees - $uComputed) = [expr abs($uComputed-$uOpenSees)]> $tol"
+            set i 11
+        } else {
 #
-	    puts [format $formatString $uOpenSees $uComputed $vOpenSees $vComputed $aOpenSees $aComputed]
-	}
+            puts [format $formatString $uOpenSees $uComputed $vOpenSees $vComputed $aOpenSees $aComputed]
+        }
     }
     incr count
 }
@@ -173,7 +176,7 @@ foreach {algoName algoCmd} $algorithmCmds {
     timeSeries Trig 1 0.0 0.6 1.2 -factor 10.0
     #    timeSeries Trig 1 -dt 0.1 -path {0.0 5.0}
     pattern Plain 1 1 {
-	load 2 1.0 
+        load 2 1.0 
     }
 
     # build analysis
@@ -181,22 +184,22 @@ foreach {algoName algoCmd} $algorithmCmds {
 
     # perform analysis, checking at every step
     for {set i 0} {$i< 9} {incr i 1} {
-	analyze 1 0.1
-	set tCurrent [getTime]
-	set uOpenSees [nodeDisp 2 0]
-	set uComputed [lindex $resultD $i]
-	set vOpenSees [nodeVel 2 0]
-	set vComputed [lindex $resultV $i]
-	set aOpenSees [nodeAccel 2 0]
-	set aComputed [lindex $resultA $i]
-	if {[expr abs($uComputed-$uOpenSees)] > $tol} {
-	    set testOK -1;
-	    puts [format $formatString $uOpenSees $uComputed]
-	    puts "failed  abs($uOpenSees - $uComputed) = [expr abs($uComputed-$uOpenSees)]> $tol"
-	    set i 11
-	} else {
-	    puts [ format $formatString $uOpenSees $uComputed $vOpenSees $vComputed $aOpenSees $aComputed]
-	}
+        analyze 1 0.1
+        set tCurrent [getTime]
+        set uOpenSees [nodeDisp 2 0]
+        set uComputed [lindex $resultD $i]
+        set vOpenSees [nodeVel 2 0]
+        set vComputed [lindex $resultV $i]
+        set aOpenSees [nodeAccel 2 0]
+        set aComputed [lindex $resultA $i]
+        if {[expr abs($uComputed-$uOpenSees)] > $tol} {
+            set testOK -1;
+            puts [format $formatString $uOpenSees $uComputed]
+            puts "failed  abs($uOpenSees - $uComputed) = [expr abs($uComputed-$uOpenSees)]> $tol"
+            set i 11
+        } else {
+            puts [ format $formatString $uOpenSees $uComputed $vOpenSees $vComputed $aOpenSees $aComputed]
+        }
     }
     incr count
 }

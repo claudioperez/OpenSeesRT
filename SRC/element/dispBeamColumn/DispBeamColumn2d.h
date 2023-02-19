@@ -40,10 +40,10 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <BeamIntegration.h>
 
 class Node;
 class SectionForceDeformation;
+class BeamIntegration;
 class CrdTransf;
 class Response;
 

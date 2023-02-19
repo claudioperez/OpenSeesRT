@@ -1,18 +1,18 @@
 # Bathe & Wilson eigenvalue problem
-#   Results presented by Bathe & wilson in 1972
-#   and again by Peterson in 1981
+#   Results presented by Bathe & wilson in 1972 and again by Peterson in 1981
 
-#REFERENCES: 
+# REFERENCES: 
 # 1) Bathe, K.J and Wilson, E.L.Large Eigenvalue Problems in Synamic Analysis, ASCE,
-# Journal of Eng. Mech.. Division, 98(6), 1471-1485, 
+#    Journal of Eng. Mech.. Division, 98(6), 1471-1485, 
 # 2) Peterson, F.E. EASE2, Elastic Analysis for Structural Engineering, Example Problem Manual, 
-# Engineering Analysis Corporation, Berkeley, CA 1981.
+#    Engineering Analysis Corporation, Berkeley, CA 1981.
 
 # used in verification by SAP2000:
-# SAP2000 Integrated Finite Element Analysis and Design of Structures, Verification Manual, 
-# Computers and Structures, 1997. Example 2.
+#   SAP2000 Integrated Finite Element Analysis and Design of Structures, Verification Manual, 
+#   Computers and Structures, 1997. Example 2.
+#
 # and seismo-struct (Example 10)
-# SeismoStruct, Verification Report For Version 6, 2012. Example 10.
+#   SeismoStruct, Verification Report For Version 6, 2012. Example 10.
 
 
 puts "EigenFrame.tcl: Verification 2d Bathe & Wilson original Elastic Frame"
@@ -30,8 +30,8 @@ set storyHeight 10.0;
 
 set numBay 10
 set numFloor 9
-set A 3.0;         #area = 3ft^2    
-set E 432000.0;   #youngs mod = 432000 k/ft^2  
+set A 3.0;         # area = 3ft^2    
+set E 432000.0;    # youngs mod = 432000 k/ft^2  
 set I 1.0;         #second moment of area I=1ft^4       
 set M 3.0;      #mas/length = 4 kip sec^2/ft^2       
 set coordTransf "Linear";  # Linear, PDelta, Corotational
@@ -45,9 +45,9 @@ set yLoc 0.
 for {set j 0} {$j <= $numFloor} {incr j 1} {
     set xLoc 0.
     for {set i 0} {$i <=$numBay} {incr i 1} {
-	node $nodeTag $xLoc $yLoc
-	set xLoc [expr $xLoc + $bayWidth]
-	incr nodeTag 1
+        node $nodeTag $xLoc $yLoc
+        set xLoc [expr $xLoc + $bayWidth]
+        incr nodeTag 1
     }
     set yLoc [expr $yLoc + $storyHeight]
 }
@@ -64,10 +64,10 @@ for {set i 0} {$i <=$numBay} {incr i 1} {
     set end1 [expr $i+1]
     set end2 [expr $end1 + $numBay +1]
     for {set j 0} {$j<$numFloor} {incr j 1} {
-	element elasticBeamColumn $eleTag $end1 $end2 $A $E $I 1 -mass $M $massType
-	set end1 $end2
-	set end2 [expr $end1 + $numBay +1]
-	incr eleTag 1
+        element elasticBeamColumn $eleTag $end1 $end2 $A $E $I 1 -mass $M $massType
+        set end1 $end2
+        set end2 [expr $end1 + $numBay +1]
+        incr eleTag 1
     }
 }
 
@@ -78,7 +78,7 @@ for {set j 1} {$j<=$numFloor} {incr j 1} {
     for {set i 0} {$i <$numBay} {incr i 1} {
         element elasticBeamColumn $eleTag $end1 $end2 $A $E $I 1 -mass $M $massType
         set end1 $end2
-	set end2 [expr $end1 + 1]
+        set end2 [expr $end1 + 1]
         incr eleTag 1
     }
 }
@@ -106,8 +106,8 @@ for {set i 0} {$i<$numEigen} {incr i 1} {
     set resultOther [lindex [lindex $comparisonResults 2] $i]
     set tol [lindex $tolerances $i]
     if {[expr abs($lambda-$resultOther)] > $tol} {
-	set testOK -1;
-	puts "failed-> [expr abs($lambda-$resultOther)] $tol"
+        set testOK -1;
+        puts "failed-> [expr abs($lambda-$resultOther)] $tol"
     }
 }
 

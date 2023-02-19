@@ -5,14 +5,20 @@
 set results [open results.out w]
 close $results
 
+cd Basic
 source sdofTransient.tcl
+source SmallEigen.tcl
+source NewmarkIntegrator.tcl
+cd ..
 source PlanarTruss.tcl
-source PlanarTruss.Extra.tcl
+# source PlanarTruss.Extra.tcl
 source PortalFrame2d.tcl
 source EigenFrame.tcl
 source EigenFrame.Extra.tcl
 source AISC25.tcl
-source PlanarShearWall.tcl
-source PinchedCylinder.tcl
+
+# Shells
+# source PlanarShearWall.tcl
+# source PinchedCylinder.tcl
 
 exit
