@@ -268,8 +268,6 @@ void BasicAnalysisBuilder::newStaticAnalysis()
     }
         
     if (theAlgorithm == nullptr) {
-        // opserr << "WARNING analysis Static - no Algorithm yet specified, \n";
-        // opserr << " NewtonRaphson default will be used\n";            
         theAlgorithm = new NewtonRaphson(*theTest); 
     }
     if (theHandler == nullptr) {
@@ -277,13 +275,13 @@ void BasicAnalysisBuilder::newStaticAnalysis()
         opserr << " PlainHandler default will be used\n";
         theHandler = new PlainHandler();       
     }
-    if (theNumberer == 0) {
+    if (theNumberer == nullptr) {
         // opserr << "WARNING analysis Static - no Numberer specified, \n";
         // opserr << " RCM default will be used\n";
         RCM *theRCM = new RCM(false);        
         theNumberer = new DOF_Numberer(*theRCM);            
     }
-    if (theStaticIntegrator == 0) {
+    if (theStaticIntegrator == nullptr) {
         opserr << "WARNING analysis Static - no Integrator specified, \n";
         opserr << " StaticIntegrator default will be used\n";
         theStaticIntegrator = new LoadControl(1, 1, 1, 1);       

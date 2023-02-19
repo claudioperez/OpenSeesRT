@@ -53,7 +53,6 @@ target_sources(OpenSeesRT PRIVATE
 #
 # OTHER
 #
-    # "ffi/C_Wrapper.cpp"
     "utilities/tclutils.cpp"
 
 )
