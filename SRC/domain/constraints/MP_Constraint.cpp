@@ -33,7 +33,7 @@
 //
 
 #include <MP_Constraint.h>
-
+#include <string.h>
 #include <stdlib.h>
 #include <Matrix.h>
 #include <ID.h>

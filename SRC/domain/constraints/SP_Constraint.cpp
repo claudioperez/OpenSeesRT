@@ -27,7 +27,7 @@
 // Revision: A
 //
 // Purpose: This file contains the implementation of class SP_Constraint.
-
+#include <string.h>
 #include <SP_Constraint.h>
 #include <classTags.h>
 #include <Vector.h>
