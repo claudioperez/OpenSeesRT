@@ -4,15 +4,6 @@ be 3 files, a class.h, a class.C and a latex class.tex file. all files
 are in the following subdirectories:
 
 <dl>
-<dt><a href="./doc"><code>doc</code></a></dt>
-<dd>contains some files concerning documentation, model.tex a latex
-file and model.ps the postscript (every class does not yet have an upto
-date class file .. prof. fenves is deciding on the format the
-documentation will have .. the .ps file is around 200 pages if you want
-to look at it and give your own comments) there is a latex2html
-version of this file at:
-http://eig.stanford.edu/~g3
-</dd>
 
 <dt><a href="./element"><code>element</code></a></dt>
 <dd>contains the element classes, all in subdirectories, i.e. the
@@ -30,7 +21,7 @@ Truss.h and Truss.C files are in a subdirectory truss.
         subdomain - the Subdomain, ActorSubdomain and ShadowSubdomain
                 classes.
         pattern - the abstact classes LoadPattern and TimeSeries and some
-		concrete classes.
+                concrete classes.
         partitioner - the DomainPartitioner class.
         loadBalancer - the LoadBalancer class and some concrete
                 subclasses.
@@ -54,13 +45,16 @@ Truss.h and Truss.C files are in a subdirectory truss.
         model - AnalysisModel and its iters.
         numberer - DOF_Numberer
                 
-graph: - contains the graph classes, again in subdirectories
+<dt><a href="./graph"><code>graph</code></a></dt>
+<dd>contains the graph classes, again in subdirectories
         graph - Graph, Vertex, and others
         partitioner - GraphPartitioner and Metis, also in metis-2.0
                 contains the code downloaded to build metis.
         numberer - GraphNumberer, RCM and some others
+</dd>
 
-system_of_eqn: - contains the SystemofEqn class and linearSOE subclass:
+<dt><a href="./system_of_eqn"><code>system_of_eqn</code></a></dt>
+<dd>contains the SystemofEqn class and linearSOE subclass:
         linearSOE: contains LinearSOE, LinearSolver and DomainSolver
         classes and a bunch of subdirectories for each soe and solver:
         
@@ -88,17 +82,23 @@ system_of_eqn: - contains the SystemofEqn class and linearSOE subclass:
 <dd>contains ModelBuilder class and some others. the
         subdirectory triangle contains TrianglePlaneStress class and the
         subdirectory Triangle contains J. Shewchucks triangle code.
-	
-	subdircetory tcl containts the TclModelBuilder.
         
-tcl: - contains the stuff for the interpreter (tkAppInit.C, tkConfig.h
+        subdircetory tcl containts the TclModelBuilder.
+        
+</dd>
+
+<dt><a href="./tcl"><code>tcl</code></a></dt>
+<dd>contains the stuff for the interpreter (tkAppInit.C, tkConfig.h
         tkMain.C, commands.C)
 </dd>
 
 <dt><a href="./utility"><code>utility</code></a></dt>
 <dd>contains the Timer class.
  
-material: - Material, UniaxialMaterial and some concrete classes need by
+</dd>
+
+<dt><a href="./material"><code>material</code></a></dt>
+<dd>Material, UniaxialMaterial and some concrete classes need by
         my Truss ele and Filip's element.
         
 actor: the classes for my parallel stuff, again in subdirectories:
