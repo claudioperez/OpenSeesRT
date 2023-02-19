@@ -1,0 +1,322 @@
+
+
+         OpenSees -- Open System For Earthquake Engineering Simulation
+                 Pacific Earthquake Engineering Research Center
+                        Version 3.4.0 64-Bit
+
+      (c) Copyright 1999-2016 The Regents of the University of California
+                              All Rights Reserved
+  (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
+
+
+sdofTransient.tcl: Verification of Elastic SDOF systems (Chopra)
+   - Undamped System Harmonic Exciatation (Section 3.1)
+
+  for 1000 time steps computing solution and checking against exact solution
+
+  example results for last step at 11.255040 (sec):
+           OpenSees:        0.95746    Exact:        0.95746
+
+
+   - Damped System Harmonic Excitation (Section 3.2)
+
+Displacement Comparison at 11.255040 (sec):
+           OpenSees:        1.02565    Exact:        1.02564
+
+
+   - Earthquake Response (Section 6.4)
+
+         Period      dampRatio       OpenSees          Exact
+           0.50           0.02           2.69           2.67
+           1.00           0.02           5.96           5.97
+           2.00           0.02           7.48           7.47
+           2.00           0.00           9.92           9.91
+           2.00           0.02           7.48           7.47
+           2.00           0.05           5.38           5.37
+
+PASSED Verification Test sdofTransient.tcl 
+
+
+Planar Truss.tcl: Verification 2d Linear and Nonlinear Truss Example by Popov
+  - Linear (Example 2.14)
+
+Element Force Comparison:
+   Element       OpenSees          Popov
+         1        65.2447        65.2447
+         2        86.9929        86.9929
+         3        65.2447        65.2447
+
+Displacement Comparison:
+ OpenSees:    -0.57995269    Exact:    -0.57995269
+
+
+  - NonLinear (Example2.23)
+
+Displacement Comparison:
+elastic limit state:
+ OpenSees:    -4.00000000    Exact:    -4.00000000
+collapse limit state:
+ OpenSees:    -5.33333333    Exact:    -5.33333333
+
+PASSED Verification Test PlanarTruss.tcl 
+
+
+PortalFrame2d.tcl: Verification 2d Elastic Frame
+  - eigenvalue and static pushover analysis
+WARNING: analysis .. TransientAnalysis already exists => wipeAnalysis not invoked, problems may arise
+
+
+Period Comparisons:
+    Period       OpenSees        SAP2000   SeismoStruct
+         1        1.27321         1.2732         1.2732
+         2        0.43128         0.4313         0.4313
+         3        0.24204         0.2420         0.2420
+         4        0.16018         0.1602         0.1602
+         5        0.11899         0.1190         0.1190
+         6        0.09506         0.0951         0.0951
+         7        0.07951         0.0795         0.0795
+
+
+Satic Analysis Result Comparisons:
+                     Parameter       OpenSees        SAP2000   SeismoStruct
+                      Disp Top          1.451           1.45           1.45
+       Axial Force Bottom Left         69.987          69.99          70.01
+            Moment Bottom Left       2324.677        2324.68        2324.71
+PASSED Verification Test PortalFrame2d.tcl 
+
+
+EigenFrame.tcl: Verification 2d Bathe & Wilson original Elastic Frame
+  - eigenvalue 
+
+
+Eigenvalue Comparisons:
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.tcl 
+
+
+EigenFrame.Extra.tcl: Verification 2d Bathe & Wilson original Elastic Frame - with other options
+  - eigenvalue 
+
+
+Eigenvalue Comparisons for eleType: elasticBeam
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl elasticBeam  
+
+
+
+
+Eigenvalue Comparisons for eleType: forceBeamElasticSection
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl forceBeamElasticSection  
+
+
+
+
+Eigenvalue Comparisons for eleType: dispBeamElasticSection
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl dispBeamElasticSection  
+
+
+
+
+Eigenvalue Comparisons for eleType: forceBeamFiberSectionElasticMaterial
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52695         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl forceBeamFiberSectionElasticMaterial  
+
+
+
+
+Eigenvalue Comparisons for eleType: dispBeamFiberSectionElasticMaterial
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52695         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl dispBeamFiberSectionElasticMaterial  
+
+
+
+
+Eigenvalue Comparisons for solverType: -genBandArpack
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl elasticBeam  
+
+
+
+
+Eigenvalue Comparisons for solverType: -fullGenLapack
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl elasticBeam  
+
+
+eigen - unknown option specified -UmfPack
+
+
+Eigenvalue Comparisons for solverType: -UmfPack
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl elasticBeam  
+
+
+eigen - unknown option specified -SuperLU
+
+
+Eigenvalue Comparisons for solverType: -SuperLU
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl elasticBeam  
+
+
+eigen - unknown option specified -ProfileSPD
+
+
+Eigenvalue Comparisons for solverType: -ProfileSPD
+       OpenSees   Bathe&Wilson       Peterson        SAP2000   SeismoStruct
+        0.58954         0.5895         0.5895         0.5895          0.590
+        5.52696         5.5270         5.5270         5.5270          5.527
+       16.58787        16.5878        16.5879        16.5879         16.588
+PASSED Verification Test EigenFrame.Extra.tcl elasticBeam  
+
+
+AISC - Design Guide 25 - Frame Design Using Web-Tapered Members
+Prismatic Beam Benchmark Problems
+
+    - Case 1 (Single Curvature)     - elasticBeamColumn
+------+--------+-------------------------+-------------------------
+      |        |     Tip Displacement    |      Base Moment        
+------+--------+--------+---------+------+---------+--------+------
+numEle|   alpha|   Exact| OpenSees|%Error|    Exact|OpenSees|%Error
+------+--------+--------+---------+------+---------+--------+------
+     1|    0.00|  0.3957|   0.3957|  -0.0|  1960.00| 1960.00|  -0.0
+     1|    0.10|  0.4391|   0.4312|   1.8|  2138.88| 2135.65|   0.2
+     1|    0.20|  0.4933|   0.4736|   4.2|  2361.94| 2345.88|   0.7
+     1|    0.30|  0.5630|   0.5253|   7.2|  2648.09| 2602.02|   1.8
+     1|    0.40|  0.6560|   0.5897|  11.2|  3028.86| 2920.96|   3.7
+     1|    0.50|  0.7860|   0.6721|  16.9|  3560.98| 3328.99|   7.0
+     1|    0.60|  0.9811|   0.7813|  25.6|  4357.95| 3869.54|  12.6
+     1|    0.67|  1.1879|   0.8814|  34.8|  5202.31| 4365.77|  19.2
+------+--------+--------+---------+------+---------+--------+------
+     2|    0.00|  0.3957|   0.3957|  -0.0|  1960.00| 1960.00|   0.0
+     2|    0.10|  0.4391|   0.4367|   0.5|  2138.88| 2137.91|   0.0
+     2|    0.20|  0.4933|   0.4874|   1.2|  2361.94| 2357.08|   0.2
+     2|    0.30|  0.5630|   0.5514|   2.1|  2648.09| 2633.93|   0.5
+     2|    0.40|  0.6560|   0.6352|   3.3|  3028.86| 2994.98|   1.1
+     2|    0.50|  0.7860|   0.7492|   4.9|  3560.98| 3485.93|   2.2
+     2|    0.60|  0.9811|   0.9136|   7.4|  4357.95| 4192.92|   3.9
+     2|    0.67|  1.1879|   1.0798|  10.0|  5202.31| 4907.09|   6.0
+------+--------+--------+---------+------+---------+--------+------
+     4|    0.00|  0.3957|   0.3957|  -0.0|  1960.00| 1960.00|   0.0
+     4|    0.10|  0.4391|   0.4385|   0.1|  2138.88| 2138.63|   0.0
+     4|    0.20|  0.4933|   0.4918|   0.3|  2361.94| 2360.67|   0.1
+     4|    0.30|  0.5630|   0.5600|   0.5|  2648.09| 2644.37|   0.1
+     4|    0.40|  0.6560|   0.6505|   0.8|  3028.86| 3019.90|   0.3
+     4|    0.50|  0.7860|   0.7762|   1.3|  3560.98| 3540.94|   0.6
+     4|    0.60|  0.9811|   0.9628|   1.9|  4357.95| 4313.17|   1.0
+     4|    0.67|  1.1879|   1.1581|   2.6|  5202.31| 5120.85|   1.6
+------+--------+--------+---------+------+---------+--------+------
+    10|    0.00|  0.3957|   0.3957|   0.0|  1960.00| 1960.00|   0.0
+    10|    0.10|  0.4391|   0.4390|   0.0|  2138.88| 2138.84|   0.0
+    10|    0.20|  0.4933|   0.4931|   0.1|  2361.94| 2361.73|   0.0
+    10|    0.30|  0.5630|   0.5625|   0.1|  2648.09| 2647.48|   0.0
+    10|    0.40|  0.6560|   0.6551|   0.1|  3028.86| 3027.40|   0.0
+    10|    0.50|  0.7860|   0.7844|   0.2|  3560.98| 3557.71|   0.1
+    10|    0.60|  0.9811|   0.9781|   0.3|  4357.95| 4350.61|   0.2
+    10|    0.67|  1.1879|   1.1830|   0.4|  5202.31| 5188.90|   0.3
+------+--------+--------+---------+------+---------+--------+------
+Prismatic Beam Benchmark Problems
+
+    - Case 1 (Single Curvature) - forceBeamColumnCBDI element
+------+--------+-------------------------+-------------------------
+      |        |     Tip Displacement    |      Base Moment        
+------+--------+--------+---------+------+---------+--------+------
+numEle|   alpha|   Exact| OpenSees|%Error|    Exact|OpenSees|%Error
+------+--------+--------+---------+------+---------+--------+------
+     1|    0.00|  0.3957|   0.3957|  -0.0|  1960.00| 1960.00|  -0.0
+     1|    0.10|  0.4391|   0.4391|  -0.0|  2138.88| 2138.88|  -0.0
+     1|    0.20|  0.4933|   0.4933|  -0.0|  2361.94| 2361.94|  -0.0
+     1|    0.30|  0.5630|   0.5630|  -0.0|  2648.09| 2648.09|  -0.0
+     1|    0.40|  0.6560|   0.6560|  -0.0|  3028.86| 3028.86|  -0.0
+     1|    0.50|  0.7860|   0.7860|  -0.0|  3560.98| 3560.98|  -0.0
+     1|    0.60|  0.9811|   0.9811|  -0.0|  4357.95| 4357.95|  -0.0
+     1|    0.67|  1.1879|   1.1879|  -0.0|  5202.31| 5202.31|  -0.0
+------+--------+--------+---------+------+---------+--------+------
+
+
+    - Case 2 (Double Curvature)  - elasticBeamColumn
+------+--------+-------------------------+-------------------------
+      |        |     Tip Displacement    |      Base Moment        
+------+--------+--------+---------+------+---------+--------+------
+numEle|   alpha|   Exact| OpenSees|%Error|    Exact|OpenSees|%Error
+------+--------+--------+---------+------+---------+--------+------
+     1|    0.00|  0.0989|   0.0989|  -0.0|   980.00|  980.00|   0.0
+     1|    0.10|  0.1014|   0.1010|   0.4|  1000.66| 1000.57|   0.0
+     1|    0.20|  0.1041|   0.1032|   0.9|  1022.39| 1022.03|   0.0
+     1|    0.30|  0.1068|   0.1054|   1.3|  1045.29| 1044.43|   0.1
+     1|    0.40|  0.1098|   0.1078|   1.8|  1069.44| 1067.83|   0.2
+     1|    0.50|  0.1129|   0.1103|   2.4|  1094.96| 1092.30|   0.2
+     1|    0.60|  0.1162|   0.1129|   2.9|  1121.96| 1117.92|   0.4
+     1|    0.67|  0.1186|   0.1147|   3.3|  1141.81| 1136.58|   0.5
+------+--------+--------+---------+------+---------+--------+------
+     2|    0.00|  0.0989|   0.0989|  -0.0|   980.00|  980.00|  -0.0
+     2|    0.10|  0.1014|   0.1010|   0.4|  1000.66| 1000.57|   0.0
+     2|    0.20|  0.1041|   0.1032|   0.9|  1022.39| 1022.03|   0.0
+     2|    0.30|  0.1068|   0.1054|   1.3|  1045.29| 1044.43|   0.1
+     2|    0.40|  0.1098|   0.1078|   1.8|  1069.44| 1067.83|   0.2
+     2|    0.50|  0.1129|   0.1103|   2.4|  1094.96| 1092.30|   0.2
+     2|    0.60|  0.1162|   0.1129|   2.9|  1121.96| 1117.92|   0.4
+     2|    0.67|  0.1186|   0.1147|   3.3|  1141.81| 1136.58|   0.5
+------+--------+--------+---------+------+---------+--------+------
+    10|    0.00|  0.0989|   0.0989|   0.0|   980.00|  980.00|  -0.0
+    10|    0.10|  0.1014|   0.1014|   0.0|  1000.66| 1000.66|   0.0
+    10|    0.20|  0.1041|   0.1040|   0.0|  1022.39| 1022.38|   0.0
+    10|    0.30|  0.1068|   0.1068|   0.1|  1045.29| 1045.25|   0.0
+    10|    0.40|  0.1098|   0.1097|   0.1|  1069.44| 1069.36|   0.0
+    10|    0.50|  0.1129|   0.1127|   0.1|  1094.96| 1094.82|   0.0
+    10|    0.60|  0.1162|   0.1160|   0.1|  1121.96| 1121.75|   0.0
+    10|    0.67|  0.1186|   0.1184|   0.2|  1141.81| 1141.55|   0.0
+------+--------+--------+---------+------+---------+--------+------
+PASSED Verification Test AISC25.tcl 
+
+
+PinchedCantiliver: Validation of Shell Elements with Elastic Sections
+
+  Displacement Under Applied Load:
+
+        Element Type    mesh         OpenSees          Exact         %Error
+          ShellMITC4    4 x  4   -6.38579e-06   -1.82489e-05          65.01
+          ShellMITC4   16 x 16   -1.68814e-05   -1.82489e-05           7.49
+          ShellMITC4   32 x 32   -1.80250e-05   -1.82489e-05           1.23
+           ShellDKGQ    4 x  4   -1.16624e-05   -1.82489e-05          36.09
+           ShellDKGQ   16 x 16   -1.85314e-05   -1.82489e-05           1.55
+           ShellDKGQ   32 x 32   -1.84395e-05   -1.82489e-05           1.04
+         ShellNLDKGQ    4 x  4   -1.16624e-05   -1.82489e-05          36.09
+         ShellNLDKGQ   16 x 16   -1.85314e-05   -1.82489e-05           1.55
+         ShellNLDKGQ   32 x 32   -1.84395e-05   -1.82489e-05           1.04
+
+PASSED Validation Test PinchedCylinder.tcl 
+
+

@@ -57,26 +57,16 @@ pattern Plain 1 Linear {
 #                       init   Jd  min   max
 integrator LoadControl  1.0  1   1.0   10.0
 
-# Convergence test
 #                  tolerance maxIter displayCode
 test EnergyIncr  1.0e-12    10         0
-
-# Solution algorithm
 algorithm Newton
-
-# DOF numberer
 numberer RCM
-
-# Cosntraint handler
 constraints Plain 
-
-# System of equations solver
 system ProfileSPD
 
-# Analysis for gravity load
-analysis Static
 
 # Perform the analysis
+analysis Static
 analyze   10     
 
 # --------------------------

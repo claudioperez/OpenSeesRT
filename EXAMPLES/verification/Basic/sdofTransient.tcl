@@ -89,7 +89,6 @@ buildLinearAnalysis "integrator Newmark 0.5 [expr 1.0/6.0]"
 # perform analysis, checking at every step
 set dt [expr $periodStruct/1.0e4]; # something small for accuracy
 set tCurrent 0.
-puts "\n  for 1000 time steps computing solution and checking against exact solution"
 set count 0
 
 while {$tCurrent < $tFinal} {

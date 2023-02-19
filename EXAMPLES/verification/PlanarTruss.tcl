@@ -98,7 +98,7 @@ if {[expr abs($osDisp-$disp)] > $tol} {
 }
 
 
-puts "\n\n  - NonLinear (Example2.23)"
+puts "\n\n  - NonLinear (Example 2.23)"
 
 #EXACT
 # Exact per Popov
@@ -183,5 +183,4 @@ if {$testOK == 0} {
     puts $results "FAILED : PlanarTruss.tcl"
 }
 close $results
-
 
