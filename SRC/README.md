@@ -28,22 +28,22 @@ Truss.h and Truss.C files are in a subdirectory truss.
 </dd>
 
 <dt><a href="./analysis"><code>analysis</code></a></dt>
-<dd>contains the classes for the analysis. again the classes in
-        subdirectories:
-        analysis - the Analysis, StaticAnalysis, and some others
-        algorithm - SolutionAlgorithm class and 2 subdirectories:
+<dd>contains the classes for the analysis. again the classes in subdirectories:
+
+      - analysis - the Analysis, StaticAnalysis, and some others
+      - algorithm - SolutionAlgorithm class and 2 subdirectories:
                 equiSolnAlgo - Linear, NewtonRaphson and ModifiedNewton
                 domainDecompAlgo - DomainDecompAlgo
-        dof_grp - DOF_Group
-        fe_ele - FE_Element class and subdirectory penalty containing
+      - dof_grp - DOF_Group
+      - fe_ele - FE_Element class and subdirectory penalty containing
                 PenaltySP_FE and PenaltyMP_FE
-        penalty - ConstraintHandler, PenaltyConstraintHandler and
+      - penalty - ConstraintHandler, PenaltyConstraintHandler and
                 PlainHandler
-        integrator - Integrator, IncrementalIntegrator, LoadControl,
+      - integrator - Integrator, IncrementalIntegrator, LoadControl,
                 ArcLength, StaticIntegrator, TransientIntegrator and
                 Newmark
-        model - AnalysisModel and its iters.
-        numberer - DOF_Numberer
+      - model - AnalysisModel and its iters.
+      - numberer - DOF_Numberer
                 
 <dt><a href="./graph"><code>graph</code></a></dt>
 <dd>contains the graph classes, again in subdirectories
@@ -66,9 +66,7 @@ Truss.h and Truss.C files are in a subdirectory truss.
         petsc - for the petsc solver
         sparseGEN - for superLU and thraeded superLU.
         symSparse - for Kincho Law's symmetric sparse solver
-
-        slowMatrix - to be removed.
-        eleByEle - to be filled in at some stage.
+        eleByEle  - to be filled in at some stage.
 </dd>
 
 <dt><a href="./tagged"><code>tagged</code></a></dt>
@@ -79,11 +77,7 @@ Truss.h and Truss.C files are in a subdirectory truss.
 </dd>
 
 <dt><a href="./modelbuilder"><code>modelbuilder</code></a></dt>
-<dd>contains ModelBuilder class and some others. the
-        subdirectory triangle contains TrianglePlaneStress class and the
-        subdirectory Triangle contains J. Shewchucks triangle code.
-        
-        subdircetory tcl containts the TclModelBuilder.
+<dd>contains ModelBuilder class and some others. Subdircetory `tcl` containts the TclModelBuilder.
         
 </dd>
 
