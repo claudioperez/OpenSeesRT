@@ -78,33 +78,31 @@ Truss.h and Truss.C files are in a subdirectory truss.
 </dd>
 
 <dt><a href="./modelbuilder"><code>modelbuilder</code></a></dt>
-<dd>contains ModelBuilder class and some others. Subdircetory `tcl` containts the TclModelBuilder.
+<dd>contains ModelBuilder class and some others. Subdircetory `tcl/` containts the TclModelBuilder.
         
 </dd>
 
 <dt><a href="./tcl"><code>tcl</code></a></dt>
-<dd>contains the stuff for the interpreter (tkAppInit.C, tkConfig.h
-        tkMain.C, commands.C)
+<dd>contains the stuff for the interpreter (`tkAppInit.C`, `tkConfig.h`, `tkMain.C`, `commands.C`)
 </dd>
 
 <dt><a href="./utility"><code>utility</code></a></dt>
-<dd>contains the Timer class.
- 
-</dd>
+<dd>contains the `Timer` class.</dd>
 
 <dt><a href="./material"><code>material</code></a></dt>
 <dd>Material, UniaxialMaterial and some concrete classes need by
         my Truss ele and Filip's element.
         
-actor: the classes for my parallel stuff, again in subdirectories:
-        shadow - the Shadow class.  
-        actor - the Actor class
-        channel - the Channel, TCP_Socket and MPI_Channel classes
-        machineBroker - the MachineBroker and some classes for the
-                machiines over here.
-        objectBroker - the FEM_ObjectBroker class.
-        message - the Message class
-        address - the Address class.
+<dt><a href="./actor"><code>actor</code></a></dt>
+<dd>the classes for my parallel stuff, again in subdirectories:
+
+ - shadow - the Shadow class.  
+ - actor - the Actor class
+ - channel - the Channel, TCP_Socket and MPI_Channel classes
+ - machineBroker - the MachineBroker and some classes for the machines over here.
+ - objectBroker - the FEM_ObjectBroker class.
+ - message - the `Message` class
+ - address - the `Address` class.
 
 <dt><a href="./matrix"><code>matrix</code></a><dd>contains the Matrix, Vector and ID classes.</dd>
 
