@@ -23,7 +23,7 @@
 // we specify what header files we need
 #include "MasonPan12.h"
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <Information.h>
 #include <Domain.h>

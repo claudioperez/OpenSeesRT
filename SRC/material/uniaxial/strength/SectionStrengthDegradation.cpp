@@ -32,7 +32,7 @@
 
 #include <SectionStrengthDegradation.h>
 #include <SectionForceDeformation.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <Vector.h>
 #include <Channel.h>
 #include <float.h>

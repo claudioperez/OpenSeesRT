@@ -95,7 +95,7 @@ target_sources(OPS_Interp_Tcl PRIVATE
     "${OPS_SRC_DIR}/damage/TclModelBuilderDamageModelCommand.cpp"
 
     #"${OPS_SRC_DIR}/api/elementAPI_TCL.cpp"
-    "${OPS_SRC_DIR}/tcl/commands.cpp"
+#   "${OPS_SRC_DIR}/tcl/commands.cpp"
     "${OPS_SRC_DIR}/tcl/TclFeViewer.cpp"
     
     #"${OPS_SRC_DIR}/interpreter/TclInterpreter.cpp"

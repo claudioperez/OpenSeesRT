@@ -40,7 +40,7 @@
 #include <Renderer.h>
 #include <ElementResponse.h>
 
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <math.h>
 #include <stdlib.h>

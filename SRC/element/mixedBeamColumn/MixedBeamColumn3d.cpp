@@ -24,7 +24,7 @@
 
 #include <MixedBeamColumn3d.h>
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -46,6 +46,8 @@
 #include <Node.h>
 #include <Message.h>
 
+#include <SectionForceDeformation.h>
+#include <BeamIntegration.h>
 #include <LobattoBeamIntegration.h>
 #include <LegendreBeamIntegration.h>
 #include <RadauBeamIntegration.h>

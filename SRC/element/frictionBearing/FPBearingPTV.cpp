@@ -48,7 +48,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <Message.h>
 using namespace std;
 #include <iostream>

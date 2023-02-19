@@ -27,7 +27,7 @@
 
 #include "TripleFrictionPendulum.h"
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <Domain.h>
 #include <Node.h>

@@ -31,7 +31,7 @@
 // degradation is a function of beam section axial strain.
 
 #include <PetrangeliStrengthDegradation.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <Vector.h>
 #include <Channel.h>
 

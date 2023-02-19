@@ -23,8 +23,10 @@
 // $Source: /scratch/slocal/chroot/cvsroot/openseescomp/CompositePackages/mixedBeamColumn/MixedBeamColumn2d.cpp,v $
 
 #include <MixedBeamColumn2d.h>
+#include <BeamIntegration.h>
+#include <SectionForceDeformation.h>
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <math.h>
 #include <stdlib.h>

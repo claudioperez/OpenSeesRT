@@ -519,7 +519,7 @@ FeapMaterial::invokeSubroutine(int isw)
   this->fillDArray();
 
   // Fill in the common blocks
-  double dt = ops_Dt;  // From G3Globals.h
+  double dt = ops_Dt;  // From OPS_Globals.h
   int niter = 1;    // Need to count the number of global iterations!
   feapcommon_(&dt, &niter);
 

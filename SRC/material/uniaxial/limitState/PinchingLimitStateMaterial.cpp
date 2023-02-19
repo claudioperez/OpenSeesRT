@@ -44,7 +44,7 @@
 #include <Element.h>
 #include <ElementResponse.h>
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <Parameter.h>
 
 static int numPinchingLimitStateMaterial = 0;

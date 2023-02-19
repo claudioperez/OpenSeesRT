@@ -26,7 +26,7 @@
 #include "TFP_Bearing.h"
 #include "TFP_Bearing2d.h"
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <math.h>
 #include <float.h>
 

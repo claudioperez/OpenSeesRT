@@ -43,7 +43,7 @@
 #include <Vector.h>
 #include <ID.h>
 
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <classTags.h>
 
 #include <string.h>

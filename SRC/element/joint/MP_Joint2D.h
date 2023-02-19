@@ -36,7 +36,7 @@
 //
 
 #include <DomainComponent.h>
-#include <bool.h>
+#include <stdbool.h>
 #include <MP_Constraint.h>
 #include <Node.h>
 #include <Domain.h>

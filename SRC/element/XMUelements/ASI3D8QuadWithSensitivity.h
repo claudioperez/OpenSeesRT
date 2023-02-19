@@ -8,7 +8,7 @@
 #define ASI3D8QuadWithSensitivity_H
 
 #ifndef _bool_h
-#include "bool.h"
+#include <stdbool.h>
 #endif
 
 #include <Element.h>

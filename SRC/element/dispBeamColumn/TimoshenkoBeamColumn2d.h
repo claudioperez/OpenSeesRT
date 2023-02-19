@@ -33,7 +33,7 @@
 #define TimoshenkoBeamColumn2d_h
 
 #ifndef _bool_h
-#include "bool.h"
+#include <stdbool.h>
 #endif
 
 #include <Element.h>

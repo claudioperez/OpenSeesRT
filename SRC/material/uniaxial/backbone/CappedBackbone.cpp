@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 CappedBackbone::CappedBackbone (int tag, HystereticBackbone &backbone,
 				HystereticBackbone &cap):

@@ -27,7 +27,7 @@
 // Constant Presssure/Volume Four Node Quadrilateral
 // Plane Strain (NOT PLANE STRESS)
 
-
+#include <string.h>
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 

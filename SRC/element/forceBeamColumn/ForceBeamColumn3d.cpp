@@ -66,6 +66,8 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Information.h>
 #include <Parameter.h>
 #include <ForceBeamColumn3d.h>
+#include <BeamIntegration.h>
+#include <SectionForceDeformation.h>
 #include <MatrixUtil.h>
 #include <Domain.h>
 #include <Channel.h>

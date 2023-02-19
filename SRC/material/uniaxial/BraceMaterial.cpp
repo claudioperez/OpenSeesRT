@@ -22,7 +22,7 @@
 // Basic Source Written By: Chuang-Sheng Yang (Walter)
 
 #include <BraceMaterial.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <OPS_Globals.h>
 #include <stdlib.h>
 #include <math.h>

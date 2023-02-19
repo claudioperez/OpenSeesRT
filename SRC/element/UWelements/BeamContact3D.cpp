@@ -41,7 +41,7 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <Renderer.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <ErrorHandler.h>
 #include <Parameter.h>
 #include <ContactMaterial3D.h>

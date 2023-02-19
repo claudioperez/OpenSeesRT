@@ -32,7 +32,7 @@
 // we specify what header files we need
 #include "ElasticTubularJoint.h"
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <Information.h>
 #include <Domain.h>

@@ -58,7 +58,7 @@
 #include <Renderer.h>
 
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <Node.h>
 #include <Message.h>

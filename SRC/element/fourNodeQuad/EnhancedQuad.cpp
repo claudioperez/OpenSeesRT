@@ -23,6 +23,7 @@
 // $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/EnhancedQuad.cpp,v $
 
 #include <stdio.h> 
+#include <string.h>
 #include <stdlib.h> 
 #include <math.h> 
 

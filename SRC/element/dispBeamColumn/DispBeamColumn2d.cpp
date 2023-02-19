@@ -30,6 +30,7 @@
 #include <DispBeamColumn2d.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
+#include <BeamIntegration.h>
 #include <CrdTransf.h>
 #include <Matrix.h>
 #include <Vector.h>

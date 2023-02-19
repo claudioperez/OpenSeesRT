@@ -30,8 +30,10 @@
 // for thin-walled members. Thin-Walled Structures, 164, 107817. 
 
 #include "MixedBeamColumnAsym3d.h"
+#include <BeamIntegration.h>
+#include <SectionForceDeformation.h>
 #include <elementAPI.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 
 #include <math.h>
 #include <stdlib.h>

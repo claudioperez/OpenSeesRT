@@ -33,7 +33,7 @@
 #ifndef Joint3D_h
 #define Joint3D_h
 
-#include <bool.h>
+#include <stdbool.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <Element.h>

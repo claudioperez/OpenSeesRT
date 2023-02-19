@@ -66,12 +66,12 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Matrix.h>
 #include <Vector.h>
 #include <Channel.h>
-#include <BeamIntegration.h>
-#include <SectionForceDeformation.h>
 #include <CrdTransf.h>
 
 class Response;
 class ElementalLoad;
+class BeamIntegration;
+class SectionForceDeformation;
 
 class ForceBeamColumn3d: public Element
 {

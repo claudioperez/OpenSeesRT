@@ -69,7 +69,7 @@ These documents all mirror published works in indexed journals.
 
 
 #ifndef _bool_h
-#include "bool.h"
+#include <stdbool.h>
 #endif
 
 #include <Information.h>

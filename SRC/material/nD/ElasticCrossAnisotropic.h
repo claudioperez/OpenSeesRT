@@ -30,7 +30,7 @@
 
 //#include <Channel.h>
 //#include <string.h>
-//#include <G3Globals.h>
+//#include <OPS_Globals.h>
 
 #include <Matrix.h>
 #include <Vector.h>

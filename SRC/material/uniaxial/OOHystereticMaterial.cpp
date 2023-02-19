@@ -38,7 +38,7 @@
 #include <UnloadingRule.h>
 #include <StrengthDegradation.h>
 #include <SectionForceDeformation.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <math.h>
 #include <float.h>
 #include <string.h>

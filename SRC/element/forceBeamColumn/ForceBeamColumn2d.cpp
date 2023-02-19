@@ -66,6 +66,7 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Information.h>
 #include <Parameter.h>
 #include <ForceBeamColumn2d.h>
+#include <SectionForceDeformation.h>
 #include <MatrixUtil.h>
 #include <Domain.h>
 #include <Channel.h>
@@ -75,6 +76,7 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <elementAPI.h>
 #include <string>
 #include <ElementResponse.h>
+#include <BeamIntegration.h>
 #include <CompositeResponse.h>
 #include <ElementalLoad.h>
 #include <ElementIter.h>

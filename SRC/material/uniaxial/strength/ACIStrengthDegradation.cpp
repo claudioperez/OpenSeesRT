@@ -30,7 +30,7 @@
 // degradation as a function of beam section curvature ductility.
 
 #include <ACIStrengthDegradation.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <Vector.h>
 #include <Channel.h>
 

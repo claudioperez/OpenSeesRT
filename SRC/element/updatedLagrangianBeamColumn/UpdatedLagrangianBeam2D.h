@@ -34,7 +34,7 @@
 #define UpdatedLagrangianElement2D
 
 
-#include <bool.h>
+#include <stdbool.h>
 #include <Node.h>
 #include <Matrix.h>
 #include <Vector.h>

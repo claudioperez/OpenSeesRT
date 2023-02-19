@@ -31,7 +31,7 @@
 //
 // Rev: 1.0
 
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <UniaxialMaterial.h>
 
 #include <math.h>

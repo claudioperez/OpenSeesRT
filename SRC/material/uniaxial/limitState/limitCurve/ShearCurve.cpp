@@ -28,7 +28,7 @@
 
 #define PI (3.141592653589793)
 #include <ShearCurve.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <math.h>
 #include <ElementResponse.h>
 #include <Element.h>

@@ -34,7 +34,7 @@
 #define Joint2D_h
 
 #include <vector>
-#include <bool.h>
+#include <stdbool.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <Element.h>

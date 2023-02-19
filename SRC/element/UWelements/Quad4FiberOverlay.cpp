@@ -37,7 +37,7 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <Channel.h>
-#include <G3Globals.h>
+#include <OPS_Globals.h>
 #include <ErrorHandler.h>
 
 #include <math.h>

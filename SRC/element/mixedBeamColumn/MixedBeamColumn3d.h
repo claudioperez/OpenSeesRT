@@ -36,8 +36,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 
-#include <BeamIntegration.h>
-#include <SectionForceDeformation.h>
 #include <CrdTransf.h>
 
 class Node;
