@@ -1,4 +1,5 @@
 CONTENTS:
+
 As to the organisation: For every class i provide there will eventually
 be 3 files, a class.h, a class.C and a latex class.tex file. all files
 are in the following subdirectories:
@@ -108,14 +109,6 @@ actor: the classes for my parallel stuff, again in subdirectories:
 <dt><a href="./matrix"><code>matrix</code></a><dd>contains the Matrix, Vector and ID classes.</dd>
 
 </dl>
-
-in this directory there is the Makefile, Makefile.incl for the current
-include paths needed for the files in the framework, classTags.h
-(contains class tags), and bool.h (some compilers define bool, some don't)
-        
-there is a bit of fluff in what i have given you and it needs to be
-cleaned out. NEXT TIME.
-
 
 
 NOTES FOR MYSELF:

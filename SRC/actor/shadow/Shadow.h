@@ -35,7 +35,7 @@
 #ifndef Shadow_h
 #define Shadow_h
 
-#include <bool.h>
+#include <stdbool.h>
 
 class MachineBroker;
 class Message;

@@ -27,7 +27,7 @@
 #ifndef FileChannel_h
 #define FileChannel_h
 
-#include <bool.h>
+#include <stdbool.h>
 #include <Channel.h>
 #include <stdio.h>
 #include <MovableObject.h>

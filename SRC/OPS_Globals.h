@@ -1,6 +1,3 @@
-#ifndef _OPS_Globals_h
-#define _OPS_Globals_h
-
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
@@ -20,6 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
+#ifndef _OPS_Globals_h
+#define _OPS_Globals_h
                                                                         
 // Written: fmk
 // Created: 11/99
@@ -27,29 +26,27 @@
 // Description: This file contains global variables used in OpenSees files.
 // if you change some of the variables, you must recompile ALL the code.
 
-#define OPS_VERSION "3.3.0"
-
-#ifdef _WIN32
-#ifndef _WIN64
-#define WIN_ARCH "32-Bit"
-#else
-#define WIN_ARCH "64-Bit"
-#endif
-#else
-#define WIN_ARCH "64-Bit"
-#endif
+#define OPS_VERSION "4.0.0"
 
 #define _USING_OpenSees_STREAMS
 #include <OPS_Stream.h>
-//extern OPS_Stream &opserr;
 extern OPS_Stream *opserrPtr;
 #define opserr (*opserrPtr)
 #define endln "\n"
 
 #include <string.h>
-#include <stdlib.h>
+// #include <stdlib.h>
 
-enum NodeResponseType { Disp = 1, Vel = 2, Accel =3, IncrDisp =4, IncrDeltaDisp =5, Reaction =6, Unbalance =7, RayleighForces =8};
+enum NodeResponseType {
+  Disp = 1, 
+  Vel = 2, 
+  Accel =3, 
+  IncrDisp =4, 
+  IncrDeltaDisp =5, 
+  Reaction =6, 
+  Unbalance =7, 
+  RayleighForces =8
+};
 
 #ifdef _TCL85
 #define TCL_Char const char
@@ -74,11 +71,6 @@ extern Element *ops_TheActiveElement;  // current element undergoing an update
 // added: Chris McGann, University of Washington
 extern bool  ops_InitialStateAnalysis;
 
-#define OPS_DISPLAYMODE_MATERIAL_TAG 2
-#define OPS_DISPLAYMODE_ELEMENT_CLASS 3
-#define OPS_DISPLAYMODE_STRESS 5
-#define OPS_DISPLAYMODE_STRAIN 7
-#define OPS_DISPLAYMODE_AXIAL 11
 #define OPS_PRINT_CURRENTSTATE 0
 #define OPS_PRINT_PRINTMODEL_SECTION  1
 #define OPS_PRINT_PRINTMODEL_MATERIAL 2

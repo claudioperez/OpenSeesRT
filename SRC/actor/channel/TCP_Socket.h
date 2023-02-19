@@ -34,7 +34,7 @@
 #ifndef TCP_Socket_h
 #define TCP_Socket_h
 
-#include <bool.h>
+#include <stdbool.h>
 #include <Socket.h>
 #include <Channel.h>
 
