@@ -32,7 +32,7 @@ G3Parse_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int argc
       opserr << "  but got '" << argv[argi] << "'.\n";
       return nullptr;
     }
-  opserr << "Newmark(" << dData[0] << ", " << dData[1] << ")\n";
+  // opserr << "Newmark(" << dData[0] << ", " << dData[1] << ")\n";
 
   if (argc == 4)
     return new Newmark(dData[0], dData[1]);

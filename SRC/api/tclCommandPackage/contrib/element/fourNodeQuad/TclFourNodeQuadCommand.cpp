@@ -17,24 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
+//
+// Description: This file contains the implementation of the
+// TclBasicBuilder_addFourNodeQuad() command.
+//
 // $Revision: 1.8 $
 // $Date: 2009-08-07 20:01:54 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/TclFourNodeQuadCommand.cpp,v
-// $
-
 // File: ~/element/TclFourNodeQuadCommand.C
 //
 // Written: fmk
 // Created: 07/99
 // Revision: A
 //
-// Description: This file contains the implementation of the
-// TclBasicBuilder_addFourNodeQuad() command.
-//
-// What: "@(#) TclBasicBuilder.C, revA"
-
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
@@ -725,15 +719,16 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
                                 TCL_Char **argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
-  // ensure the destructor has not been called -
+  // TODO: assertions, clean up
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  // Domain* theTclDomain = builder->getDomain();
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -886,8 +881,9 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
   return TCL_OK;
 }
 
+//
 // Regular eight node quad
-
+//
 int
 TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv,
@@ -897,7 +893,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (theTclBuilder == 0 || clientData == nullptr) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }

@@ -180,11 +180,16 @@ void BasicAnalysisBuilder::set(LinearSOE* obj) {
     }
 
     theSOE = obj;
-    if (theStaticAnalysis != 0)
+    if (theStaticAnalysis != nullptr)
       theStaticAnalysis->setLinearSOE(*obj);
 
-    if (theTransientAnalysis != 0)
+    if (theTransientAnalysis != nullptr)
       theTransientAnalysis->setLinearSOE(*obj);
+}
+
+LinearSOE*
+BasicAnalysisBuilder::getLinearSOE(int flag) {
+  return theSOE;
 }
 
 void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
@@ -194,27 +199,25 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
       return;
 
     if (isstatic == 1) {
-        if (theStaticIntegrator != nullptr) {
-            opserr << "The static integrator can only be set once for one analysis\n";
-            return;
-        }
+        if (theStaticAnalysis != nullptr && theStaticIntegrator != nullptr)
+              opserr << "WARNING - unexpected state.\n";
+
         theStaticIntegrator = dynamic_cast<StaticIntegrator*>(obj);
-        if (theStaticIntegrator != 0) {
-            if (theStaticAnalysis != 0) {
+        if (theStaticIntegrator != nullptr) {
+            if (theStaticAnalysis != nullptr) {
                 theStaticAnalysis->setIntegrator(*theStaticIntegrator);
                 return;
             }
         }
     }
-    // if (isstatic == 2) {
+
     else {
-        if (theTransientIntegrator != 0) {
-            opserr << "The transient integrator can only be set once for one analysis\n";
-            return;
-        }
+        if (theTransientIntegrator != nullptr)
+            opserr << "WARNING - unexpected state\n";
+
         theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
-        if (theTransientIntegrator!=0) {
-            if (theTransientAnalysis != 0) {
+        if (theTransientIntegrator != nullptr) {
+            if (theTransientAnalysis != nullptr) {
                 theTransientAnalysis->setIntegrator(*theTransientIntegrator);
                 return;
             }
@@ -754,78 +757,6 @@ PyObject *ops_wipeModel(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-PyObject *ops_specifySOE(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    const char *type = OPS_GetString();
-    LinearSOE* theSOE = OPS_ParseSOECommand(type);
-
-    if (theSOE != 0) {
-        anaBuilder.set(theSOE);
-    } else {
-        PyErr_SetString(PyExc_RuntimeError,"failed to create SOE ");
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject *ops_specifyNumberer(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    const char *type = OPS_GetString();
-    DOF_Numberer* theNumberer = OPS_ParseNumbererCommand(type);
-
-    if (theNumberer == 0) {
-        PyErr_SetString(PyExc_RuntimeError,"failed to create Numberer ");
-        return NULL;
-    }
-
-    anaBuilder.set(theNumberer);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject *ops_specifyConstraintHandler(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    const char *type = OPS_GetString();
-    ConstraintHandler* theHandler = OPS_ParseConstraintHandlerCommand(type);
-
-    if (theHandler == 0) {
-        PyErr_SetString(PyExc_RuntimeError,"failed to create ConstraintHandler ");
-        return NULL;
-    }
-
-    anaBuilder.set(theHandler);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject *ops_specifyAlgorithm(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    const char *type = OPS_GetString();
-    EquiSolnAlgo* theAlgorithm = OPS_ParseAlgorithmCommand(type);
-
-    if (theAlgorithm == 0) {
-        PyErr_SetString(PyExc_RuntimeError,"failed to create Algorithm ");
-        return NULL;
-    }
-
-    anaBuilder.set(theAlgorithm);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 PyObject *ops_specifyIntegrator(PyObject *self, PyObject *args)
 {
     OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
@@ -864,24 +795,6 @@ PyObject *ops_specifyAnalysis(PyObject *self, PyObject *args)
         anaBuilder.newTransientAnalysis();
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject *ops_specifyCTest(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    const char *type = OPS_GetString();
-    ConvergenceTest* theTest = OPS_ParseCTestCommand(type);
-
-    if (theTest == 0) {
-        PyErr_SetString(PyExc_RuntimeError,"failed to create ConvergenceTest ");
-        return NULL;
-    }
-
-    anaBuilder.set(theTest);
-    
     Py_INCREF(Py_None);
     return Py_None;
 }

@@ -626,11 +626,14 @@ printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+
   int res = 0;
 
   FileStream outputFile;
   OPS_Stream *output = &opserr;
-  LinearSOE *theSOE = *G3_getLinearSoePtr(G3_getRuntime(interp));
+  LinearSOE *theSOE = builder->getLinearSOE(0);
 
   bool ret = false;
   int currentArg = 1;
@@ -651,7 +654,8 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     }
     currentArg++;
   }
-  if (theSOE != 0) {
+
+  if (theSOE != nullptr) {
     if (theStaticIntegrator != 0)
       theStaticIntegrator->formTangent();
     else if (theTransientIntegrator != 0)

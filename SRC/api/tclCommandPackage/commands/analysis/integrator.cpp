@@ -185,7 +185,7 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
     theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(clientData, interp, argc, argv);
   }
 
-  else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {
+  else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "MCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {
     theTransientIntegrator = (TransientIntegrator *)OPS_GimmeMCK(rt);
   } 
 

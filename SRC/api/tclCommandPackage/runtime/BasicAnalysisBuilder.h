@@ -74,6 +74,8 @@ public:
     void set(LinearSOE* obj);
     void set(Integrator* obj, int isstatic);
     void set(ConvergenceTest* obj);
+
+    LinearSOE* getLinearSOE(int flag);
     
     Domain* getDomain(void);
     void newStaticAnalysis();
