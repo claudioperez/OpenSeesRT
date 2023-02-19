@@ -13,19 +13,21 @@ Truss.h and Truss.C files are in a subdirectory truss.
 
 <dt><a href="./domain"><code>domain</code></a></dt>
 <dd>contains the classes for the domain. all in subdirectores:
-        domain - the Domain class and abstract Iters for the objects of
-                the Domain, two subdirectories single- contains iters  
-                for Domain, partitioned contains the PartitionedDomain
-                class and the iters for this class.
-        node - the Node and NodalLoad classes.
-        constraints - the SP_Constraint and MP_Constraint classes.
-        subdomain - the Subdomain, ActorSubdomain and ShadowSubdomain
-                classes.
-        pattern - the abstact classes LoadPattern and TimeSeries and some
-                concrete classes.
-        partitioner - the DomainPartitioner class.
-        loadBalancer - the LoadBalancer class and some concrete
-                subclasses.
+
+- domain - the Domain class and abstract Iters for the objects of
+           the Domain, two subdirectories single- contains iters  
+           for Domain, partitioned contains the PartitionedDomain
+           class and the iters for this class.
+- node - the Node and NodalLoad classes.
+- constraints - the SP_Constraint and MP_Constraint classes.
+- subdomain - the Subdomain, ActorSubdomain and ShadowSubdomain
+          classes.
+- pattern - the abstact classes LoadPattern and TimeSeries and some
+          concrete classes.
+- partitioner - the DomainPartitioner class.
+- loadBalancer - the LoadBalancer class and some concrete
+          subclasses.
+
 </dd>
 
 <dt><a href="./analysis"><code>analysis</code></a></dt>
