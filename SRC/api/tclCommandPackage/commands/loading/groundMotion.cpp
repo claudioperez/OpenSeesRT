@@ -17,23 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2005-04-01 20:34:49 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/domain/groundMotion/TclGroundMotionCommand.cpp,v
-// $
-
-// Written: fmk
-// Created: 11/00
-// Revision: A
 //
 // Description: This file contains the function invoked when the user invokes
 // the GroundMotion command in the interpreter. 
-
-
-
-
+//
+// $Source: /usr/local/cvs/OpenSees/SRC/domain/groundMotion/TclGroundMotionCommand.cpp$
+//
+// Written: fmk
+// Created: 11/00
+//
 #include <g3_api.h>
 #include <GroundMotionRecord.h>
 
