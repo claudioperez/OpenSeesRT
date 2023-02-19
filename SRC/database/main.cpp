@@ -46,7 +46,7 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <FEM_ObjectBroker.h>
-#include <bool.h>
+#include <stdbool.h>
 
 double ops_Dt;
 Domain * ops_TheActiveDomain;
