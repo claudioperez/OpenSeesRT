@@ -1,14 +1,11 @@
-CONTENTS:
 
-As to the organisation: For every class i provide there will eventually
-be 3 files, a class.h, a class.C and a latex class.tex file. all files
-are in the following subdirectories:
+All files are in the following subdirectories:
 
 <dl>
 
 <dt><a href="./element"><code>element</code></a></dt>
 <dd>contains the element classes, all in subdirectories, i.e. the
-Truss.h and Truss.C files are in a subdirectory truss.
+`Truss.h` and `Truss.C` files are in a subdirectory `truss/`.
 </dd>
 
 <dt><a href="./domain"><code>domain</code></a></dt>
@@ -18,15 +15,12 @@ Truss.h and Truss.C files are in a subdirectory truss.
            the Domain, two subdirectories single- contains iters  
            for Domain, partitioned contains the PartitionedDomain
            class and the iters for this class.
-- node - the Node and NodalLoad classes.
-- constraints - the SP_Constraint and MP_Constraint classes.
-- subdomain - the Subdomain, ActorSubdomain and ShadowSubdomain
-          classes.
-- pattern - the abstact classes LoadPattern and TimeSeries and some
-          concrete classes.
+- node - the `Node` and `NodalLoad` classes.
+- constraints - the `SP_Constraint` and `MP_Constraint` classes.
+- subdomain - the `Subdomain`, `ActorSubdomain` and `ShadowSubdoma` in classes.
+- pattern - the abstact classes `LoadPattern` and `TimeSeries` and some concrete classes.
 - partitioner - the DomainPartitioner class.
-- loadBalancer - the LoadBalancer class and some concrete
-          subclasses.
+- loadBalancer - the LoadBalancer class and some concrete subclasses.
 
 </dd>
 
