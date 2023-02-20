@@ -126,7 +126,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);
   Tcl_CreateCommand(interp, "reset",             &resetModel,      builder, nullptr);
 
-  // algorithm.cpp
+  // From algorithm.cpp
   Tcl_CreateCommand(interp, "algorithm", &TclCommand_specifyAlgorithm,  builder, nullptr);
   Tcl_CreateCommand(interp, "numIter",   &TclCommand_numIter,           builder, nullptr);
   Tcl_CreateCommand(interp, "numFact",   &TclCommand_numFact,           builder, nullptr);
@@ -656,9 +656,10 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
 
   if (theSOE != nullptr) {
-    if (theStaticIntegrator != 0)
+    if (theStaticIntegrator != nullptr)
       theStaticIntegrator->formTangent();
-    else if (theTransientIntegrator != 0)
+
+    else if (theTransientIntegrator != nullptr)
       theTransientIntegrator->formTangent(0);
 
     const Matrix *A = theSOE->getA();
