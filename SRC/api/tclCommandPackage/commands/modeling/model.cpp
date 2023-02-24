@@ -38,7 +38,7 @@ int
 TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  BasicModelBuilder *theNewBuilder = 0;
+  BasicModelBuilder *theNewBuilder = nullptr;
   Domain *theNewDomain = new Domain();
 
   // TODO: remove ops_TheActiveDomain
@@ -54,15 +54,15 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
   // make sure at least one other argument to contain model builder type given
   if (argc < 2) {
-    opserr << "WARNING need to specify a model type, valid types:\n";
+    opserr << G3_ERROR_PROMPT << "need to specify a model type, valid types:\n";
     opserr << "\tBasicBuilder\n";
     return TCL_ERROR;
   }
 
   // invoke the descructor on the old builder
-  if (theBuilder != 0) {
+  if (theBuilder != nullptr) {
     delete theBuilder;
-    theBuilder = 0;
+    theBuilder = nullptr;
   }
 
   // check argv[1] for type of ModelBuilder and create the object

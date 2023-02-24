@@ -3,13 +3,13 @@
 ## Features
 
 - **Idempotent**
+
 - **Direct access to components** Developing OpenSees components
   is made easier by providing a direct interface to core object
   types, allowing calls constructs like `material.getStress(0.002, commit=False)`
-  - UniaxialMaterial
-  - FiberSection
 
 - **Structured problem representation**
+
   - Allows introspective add-ons ([Torsion]())
   - Better visualization tools, independent of core source code.
 
@@ -20,9 +20,6 @@ Additional minor features:
 - Verbosity control
 - new `with` Tcl command and Python constructs
 
-## Paradigm
-
-- no more "interpreters"; An analysis 
 
 ## User Changes
 
@@ -30,25 +27,27 @@ When `OpenSeesRT` is loaded as a Tcl library, there are a few minor
 changes from the classic `OpenSees` interpreter:
 
 ### Streams
+
 - `puts` command prints to `stdout` by default, whereas classic OpenSees
-  writes to `stderr`.
+  writes only to `stderr`.
 
 - new `redirect` command
 
 - Dropped:
 
-    // extern void *OPS_WFSection2d(G3_Runtime*);
-    // extern void *OPS_RCCircularSection(G3_Runtime*);
-    // extern void *OPS_RCSection2d(G3_Runtime*);
-    // extern void *OPS_RCTBeamSection2d(G3_Runtime*);
-    // extern void *OPS_RCTunnelSection(G3_Runtime*);
-    // extern void *OPS_TubeSection(G3_Runtime*);
+      // extern void *OPS_WFSection2d(G3_Runtime*);
+      // extern void *OPS_RCCircularSection(G3_Runtime*);
+      // extern void *OPS_RCSection2d(G3_Runtime*);
+      // extern void *OPS_RCTBeamSection2d(G3_Runtime*);
+      // extern void *OPS_RCTunnelSection(G3_Runtime*);
+      // extern void *OPS_TubeSection(G3_Runtime*);
 
 ## Developer Changes
 
 - No more `OPS_GetInt(void)`; use your host's API
 
 - `ModelBuilder` namespacing functionality
+
   - Eliminates random code in important places like `Domain::Print`
 
 
@@ -66,9 +65,10 @@ Remove dependence on
 - utility/SimulationInformation.\*
 - utility/StringContainer.\*
 
-Remove TimeSeriesIntegrators from C++; handle in pre-processing?
+- Remove TimeSeriesIntegrators from C++; handle in pre-processing?
 
-cmake -S /home/claudio/packages/opensees-pypi -B /home/claudio/packages/opensees-pypi/build/temp.linux-x86_64-cpython-39_rt -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/claudio/packages/opensees-pypi/build/lib.linux-x86_64-cpython-39/opensees -G "Unix Makefiles" -DDependencies=Conda -DCMAKE_BUILD_TYPE=DEBUG -DPYTHON_EXECUTABLE:FILEPATH=/home/claudio/mambaforge/envs/py39/bin/python
+  
+  cmake -S /home/claudio/packages/opensees-pypi -B /home/claudio/packages/opensees-pypi/build/temp.linux-x86_64-cpython-39_rt -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/claudio/packages/opensees-pypi/build/lib.linux-x86_64-cpython-39/opensees -G "Unix Makefiles" -DDependencies=Conda -DCMAKE_BUILD_TYPE=DEBUG -DPYTHON_EXECUTABLE:FILEPATH=/home/claudio/mambaforge/envs/py39/bin/python
 
   CC="clang" CXX="clang++" cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=include-what-you-use ..
 

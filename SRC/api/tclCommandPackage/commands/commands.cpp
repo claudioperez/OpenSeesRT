@@ -1506,28 +1506,34 @@ int
 rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char **argv)
 {
-  if (argc < 5) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - not enough "
+
+  if (argc < 3) {
+    opserr << G3_ERROR_PROMPT
+           << "rayleigh alphaM? betaK? betaK0? betaKc? - not enough "
               "arguments to command\n";
     return TCL_ERROR;
   }
-  double alphaM, betaK, betaK0, betaKc;
+
+  double alphaM, betaK, betaK0=0.0, betaKc=0.0;
   if (Tcl_GetDouble(interp, argv[1], &alphaM) != TCL_OK) {
     opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read alphaM? \n";
     return TCL_ERROR;
   }
+
   if (Tcl_GetDouble(interp, argv[2], &betaK) != TCL_OK) {
     opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaK? \n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(interp, argv[3], &betaK0) != TCL_OK) {
+
+  if (argc > 3 && Tcl_GetDouble(interp, argv[3], &betaK0) != TCL_OK) {
     opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaK0? \n";
     return TCL_ERROR;
   }
-  if (Tcl_GetDouble(interp, argv[4], &betaKc) != TCL_OK) {
+
+  if (argc > 4 && Tcl_GetDouble(interp, argv[4], &betaKc) != TCL_OK) {
     opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaKc? \n";
     return TCL_ERROR;
@@ -1551,6 +1557,7 @@ setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
               "betaK0? betaKc? - not enough arguments to command\n";
     return TCL_ERROR;
   }
+
   int eleTag;
   double alphaM, betaK, betaK0, betaKc;
 
