@@ -1627,10 +1627,12 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                                     *domain, *theOutputStream, echoTimeFlag);
 
   }
-#if 0
   // a recorder for the graphical display of the domain
   else if (strcmp(argv[1], "display") == 0) {
 
+#if 1
+    return TCL_OK;
+#else
     int xLoc, yLoc, width, height;
     int pos = 7;
     int wipeFlag = 0;
@@ -1678,10 +1680,11 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       (*theRecorder) = new TclFeViewer(argv[2], xLoc, yLoc, width, height,
                                        fileName, *domain, interp, dT);
 
+#endif
   }
 
+#if 0
   else if (strcmp(argv[1], "plot") == 0) {
-
     int xLoc, yLoc, width, height;
     if (argc < 9) {
       opserr << "WARNING recorder plot fileName? windowTitle? xLoc yLoc "
@@ -1702,58 +1705,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     double dT = 0.0;
     loc = 8;
-    ID cols(0, 16);
-    int numCols = 0;
-    while (loc < argc) {
-      if ((strcmp(argv[loc], "-columns") == 0) ||
-          (strcmp(argv[loc], "-cols") == 0) ||
-          (strcmp(argv[loc], "-col") == 0)) {
-        if (argc < loc + 2)
-          return TCL_ERROR;
-
-        int colX, colY;
-        if (Tcl_GetInt(interp, argv[loc + 1], &colX) != TCL_OK)
-          return TCL_ERROR;
-
-        if (Tcl_GetInt(interp, argv[loc + 2], &colY) != TCL_OK)
-          return TCL_ERROR;
-
-        cols[numCols++] = colX;
-        cols[numCols++] = colY;
-        loc += 3;
-      } else if (strcmp(argv[loc], "-dT") == 0) {
-
-        if (Tcl_GetDouble(interp, argv[loc + 1], &dT) != TCL_OK)
-          return TCL_ERROR;
-        loc += 2;
-      } else
-        loc++;
-    }
-
-    return TCL_OK;
-  }
-
-  else if (strcmp(argv[1], "plotDifferent") == 0) {
-
-    int xLoc, yLoc, width, height;
-    if (argc < 10) {
-      opserr << "WARNING recorder display fileName? windowTitle? xLoc yLoc "
-                "pixelsX pixelsY -columns colX1 colY1 -columns colX2 ...";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[5], &xLoc) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetInt(interp, argv[6], &yLoc) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetInt(interp, argv[7], &width) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetInt(interp, argv[8], &height) != TCL_OK)
-      return TCL_ERROR;
-
-    int loc = 9;
-
-    double dT = 0.0;
-    loc = 0;
     ID cols(0, 16);
     int numCols = 0;
     while (loc < argc) {
@@ -2004,7 +1955,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    if (*theRecorder == 0) {
+    if (*theRecorder == nullptr) {
       opserr << "WARNING No recorder type exists ";
       opserr << "for recorder of type:" << argv[1];
 
