@@ -3,7 +3,7 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
-// Written: Minjie Zhu
+// Written: Minjie Zhu, Claudio Perez
 //
 #include "BasicAnalysisBuilder.h"
 #include <elementAPI.h>
@@ -755,25 +755,6 @@ PyObject *ops_wipeModel(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-PyObject *ops_specifyIntegrator(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    const char *type = OPS_GetString();
-    int isstatic = -1;
-    Integrator* integ = OPS_ParseIntegratorCommand(type,isstatic);
-
-    if (integ == 0) {
-        PyErr_SetString(PyExc_RuntimeError,"failed to create Integrator ");
-        return NULL;
-    }
-
-    anaBuilder.set(integ,isstatic);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 PyObject *ops_specifyAnalysis(PyObject *self, PyObject *args)
 {
     OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
@@ -856,8 +837,7 @@ PyObject *ops_analyzeModel(PyObject *self, PyObject *args)
                 result = theVariableTimeStepTransientAnalysis
                     ->analyze(numData, dT, dtm[0], dtm[1], Jd);
             } else {
-                PyErr_SetString(PyExc_RuntimeError,"no variable time step transient \
-analysis object constructed");
+                PyErr_SetString(PyExc_RuntimeError,"no variable time step transient analysis object constructed");
                 return NULL;
             }
         } else {
@@ -979,29 +959,6 @@ PyObject *ops_setLoadConst(PyObject *self, PyObject *args)
         theDomain->setCurrentTime(newTime);
         theDomain->setCommittedTime(newTime);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-
-PyObject *ops_rayleighDamping(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    // check inputs
-    if (OPS_GetNumRemainingInputArgs() < 4) {
-        PyErr_SetString(PyExc_RuntimeError,"ERROR rayleigh(alphaM,betaK,betaK0,betaKc)");
-        return NULL;
-    }
-
-    // get parameters
-    double data[4];
-    int numData = 4;
-    if (OPS_GetDoubleInput(&numData,&data[0]) < 0) return 0;
-
-    // Domain* theDomain = OPS_GetDomain();
-    theDomain->setRayleighDampingFactors(data[0],data[1],data[2],data[3]);
-    
     Py_INCREF(Py_None);
     return Py_None;
 }
