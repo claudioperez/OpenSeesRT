@@ -7,7 +7,9 @@
 //
 #ifndef G3_API_H_
 #define G3_API_H_
-#  include <tcl.h>
+// #  include <tcl.h>
+   struct Tcl_Interp;
+   typedef void* ClientData;
 #  include <api/elementAPI.h>
 //
 #  ifndef OPS_Export

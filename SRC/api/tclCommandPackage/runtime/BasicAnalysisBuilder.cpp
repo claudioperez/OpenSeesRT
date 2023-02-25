@@ -382,7 +382,7 @@ BasicAnalysisBuilder::newTransientAnalysis()
 
     // this->resetTransient();
 
-    return TCL_OK;
+    return 1;
 }
 
 

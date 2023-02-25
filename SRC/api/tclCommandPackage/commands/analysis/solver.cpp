@@ -4,7 +4,8 @@
 ** ****************************************************************** */
 //
 //
-#include <g3_api.h>
+// #include <g3_api.h>
+#include <tcl.h>
 #include <G3_Logging.h>
 #include <runtimeAPI.h>
 #include "analysis.h"
@@ -187,9 +188,10 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
 }
 
 
-// #include <SuperLU.h>
 #ifdef _THREADS
 #  include "contrib/sys_of_eqn/ThreadedSuperLU/ThreadedSuperLU.h"
+#else
+#  include <SuperLU.h>
 #endif
 // TODO: CMP
 
@@ -244,16 +246,18 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
 #ifdef _THREADS
     if (np != 0)
       theSolver = new ThreadedSuperLU(np, permSpec, panelSize, relax, thresh);
-#endif
-
-#ifdef _PARALLEL_PROCESSING
-    if (theSolver != 0)
-      delete theSolver;
-    theSolver = 0;
-
-    if (npRow != 0 && npCol != 0) {
-      theSolver = new DistributedSuperLU(npRow, npCol);
-    }
+    else
+      return nullptr;
+// #endif
+// 
+// #ifdef _PARALLEL_PROCESSING
+//     if (theSolver != 0)
+//       delete theSolver;
+//     theSolver = 0;
+// 
+//     if (npRow != 0 && npCol != 0) {
+//       theSolver = new DistributedSuperLU(npRow, npCol);
+//     }
 #else
     char symmetric = 'N';
     double drop_tol = 0.0;
