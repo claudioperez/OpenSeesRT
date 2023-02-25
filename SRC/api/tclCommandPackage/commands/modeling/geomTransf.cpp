@@ -23,6 +23,7 @@
 // $Source:
 // /usr/local/cvs/OpenSees/SRC/coordTransformation/TclGeomTransfCommand.cpp,v $
 #include <string.h>
+#include <assert.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <LinearCrdTransf2d.h>
@@ -43,6 +44,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char **argv)
 
 {
+  assert(clientData != nullptr);
 
   BasicModelBuilder *theTclBasicBuilder = (BasicModelBuilder*)clientData;
 
@@ -249,7 +251,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    if (crdTransf3d == 0) {
+    if (crdTransf3d == nullptr) {
       opserr << "WARNING TclElmtBuilder - addGeomTransf - ran out of memory to "
                 "create geometric transformation object\n";
       return TCL_ERROR;

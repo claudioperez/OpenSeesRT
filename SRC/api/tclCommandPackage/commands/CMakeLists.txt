@@ -18,7 +18,6 @@ target_sources(OpenSeesRT PRIVATE
     "domain/domain.cpp"
     "domain/nodes.cpp"
     "domain/runtime.cpp"
-    "domain/printing.cpp"
     "domain/recorder.cpp"
     "domain/TclUpdateMaterialStageCommand.cpp"
     "domain/TclUpdateMaterialCommand.cpp"
@@ -35,6 +34,7 @@ target_sources(OpenSeesRT PRIVATE
     "modeling/section.cpp"
     "modeling/uniaxialMaterial.cpp"
     "modeling/uniaxial.cpp"
+    "modeling/printing.cpp"
 
 # Analysis
     "analysis/algorithm.cpp"

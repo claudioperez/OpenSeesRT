@@ -24,12 +24,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Domain *theTclDomain = theTclBuilder->getDomain();
 
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
-
   int ndm = theTclBuilder->getNDM();
   int ndf = theTclBuilder->getNDF();
 
@@ -42,11 +36,11 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Node *theNode = 0;
 
-  // get the nodal id
+  // read the node id
   int nodeId;
   if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
     opserr << "WARNING invalid nodeTag\n";
-    opserr << "Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
+    opserr << "        Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
   }
 
@@ -124,7 +118,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   if (theTclDomain->addNode(theNode) == false) {
     opserr << "WARNING failed to add node to the domain\n";
-    opserr << "node: " << nodeId << endln;
     delete theNode; // otherwise memory leak
     return TCL_ERROR;
   }
@@ -212,7 +205,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       currentArg++;
   }
 
-  // if we get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
 
@@ -321,18 +313,18 @@ TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
       return TCL_ERROR;
     }
     Node *theNode = the_domain->getNode(tag);
-    if (theNode == 0) {
+    if (theNode == nullptr) {
       opserr << "WARNING nodeTag " << tag << " does not exist \n";
       return TCL_ERROR;
     }
     ndf = theNode->getNumberDOF();
 
   } else {
-      ndf = builder->getNDF();
+    ndf = builder->getNDF();
   }
 
   char buffer[G3_NUM_DOF_BUFFER];
-  if (abs(ndf) <  G3_MAX_NUM_DOFS){
+  if (abs(ndf) <  G3_MAX_NUM_DOFS) {
     sprintf(buffer, "%d", ndf);
   } else {
     opserr << "ERROR -- Invalid DOF count encountered; got '" << ndf << "'.\n";

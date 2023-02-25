@@ -38,6 +38,8 @@
 #include <MultiSupportPattern.h>
 
 #include <TimeSeries.h>
+
+#include "Storage/G3_Table.h"
 // #include <BeamIntegration.h>
 
 /*
@@ -72,6 +74,7 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
   nodeLoadTag = 0;
   eleArgStart = 0;
   m_runtime = G3_getRuntime(interp);
+  registry  = G3_NewTable();
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
@@ -108,6 +111,9 @@ BasicModelBuilder::~BasicModelBuilder()
   theTclDomain = nullptr;
   theTclBuilder = nullptr;
   tclEnclosingPattern = nullptr;
+  
+  // TODO
+  // G3_DelTable(registry);
 
   // theTclMultiSupportPattern = 0;
 
@@ -155,6 +161,12 @@ BasicModelBuilder::getDomain(void) const {return theTclDomain;}
 
 BasicModelBuilder *
 BasicModelBuilder::getBuilder(void) const {return theTclBuilder;}
+
+G3_TableIterator
+BasicModelBuilder::iterate(const char* partition)
+{
+  return G3_IteratePartition(registry, partition);
+}
 
 TimeSeries *
 BasicModelBuilder::getTimeSeries(const std::string &name)
@@ -346,7 +358,9 @@ BasicModelBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial
   if (!canClobber() && (m_UniaxialMaterialMap.find(name) != m_UniaxialMaterialMap.end())) {
     return -1;
   }
+
   m_UniaxialMaterialMap[name] = &instance;
+  G3_AddTableEntry(registry, "UniaxialMaterial", std::stoi(name), (void*)&instance);
   return TCL_OK;
 }
 
@@ -400,6 +414,7 @@ BasicModelBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
 {
   // m_CrdTransfMap[name] = instance;
   m_CrdTransfMap.insert({name, instance});
+  G3_AddTableEntry(registry, "CoordinateTransform", std::stoi(name), (void*)instance);
   return 1;
 }
 

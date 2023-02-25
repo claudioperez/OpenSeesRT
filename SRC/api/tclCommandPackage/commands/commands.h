@@ -11,7 +11,7 @@ Tcl_CmdProc setCreep;
 Tcl_CmdProc getLoadFactor;
 
 
-Tcl_CmdProc printModel;
+// Tcl_CmdProc printModel;
 
 // Tcl_CmdProc addRecorder;
 Tcl_CmdProc TclAddRecorder;

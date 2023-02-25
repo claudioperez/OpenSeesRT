@@ -16,5 +16,6 @@ target_sources(G3_Table
         G3_IntMap.h
         G3_StringMap.h
         G3_Table.h
+        G3_TableIterator.h
 )
 

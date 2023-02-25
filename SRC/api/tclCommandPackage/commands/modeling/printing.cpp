@@ -9,6 +9,9 @@
 #include <FileStream.h>
 #include <SimulationInformation.h>
 
+#include <BasicModelBuilder.h>
+#include <Storage/G3_TableIterator.h>
+
 #include <Domain.h>
 #include <LoadPattern.h>
 #include <Parameter.h>
@@ -38,11 +41,122 @@ int printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 int printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char **argv, OPS_Stream &output);
 
+
+static int
+printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *output)
+{
+  G3_TableIterator iter = builder->iterate(type);
+
+  while (G3_NextTableEntry(&iter)) {
+    ((TaggedObject*)iter.value)->Print(*output, flag);
+    (*output) << ",\n";
+  }
+  
+  return TCL_OK;
+}
+
+static void
+printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag) 
+{
+
+  Domain* theDomain = builder->getDomain();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+
+    s << "\t\"properties\": {\n";
+
+#if 0
+    OPS_printNDMaterial(s, flag);
+    s << ",\n";
+    OPS_printSectionForceDeformation(s, flag);
+    s << ",\n";   
+    OPS_printCrdTransf(s, flag);      
+    s << ",\n";
+#endif
+    //
+    s << "\t\t\"uniaxialMaterials\": [\n";        
+    printRegistry(builder, "UniaxialMaterial", flag, &s);
+    s << "\n\t\t]";
+    s << ",\n";
+    //
+    s << "\t\t\"crdTransformations\": [\n";        
+    printRegistry(builder, "CoordinateTransform", flag, &s);
+    s << "\n\t\t]";
+    //
+
+    s << "\n\t},\n";
+    s << "\t\"geometry\": {\n";
+
+    int numToPrint = theDomain->getNumNodes();
+    NodeIter &theNodess = theDomain->getNodes();
+    Node *theNode;
+    int numPrinted = 0;
+    s << "\t\t\"nodes\": [\n";
+    while ((theNode = theNodess()) != 0) {    
+      theNode->Print(s, flag);
+      numPrinted += 1;
+      if (numPrinted < numToPrint)
+        s << ",\n";
+      else
+        s << "\n\t\t],\n";
+    }
+
+
+    Element *theEle;
+    ElementIter &theElementss = theDomain->getElements();
+    numToPrint = theDomain->getNumElements();
+    numPrinted = 0;
+    s << "\t\t\"elements\": [\n";
+    while ((theEle = theElementss()) != 0) {
+      theEle->Print(s, flag);
+      numPrinted += 1;
+      if (numPrinted < numToPrint)
+        s << ",\n";
+      else
+        s << "\n\t\t]\n";
+      }
+
+      s << "\t}\n";
+      s << "}\n";
+      s << "}\n";
+
+      return;
+  }
+      
+#if 0 
+  s << "Current Domain Information\n";
+  s << "\tCurrent Time: " << theDomain->getCurrentTime();
+  // s << "\ntCommitted Time: " << committedTime << endln;    
+  s << "NODE DATA: NumNodes: " << theDomain->getNumNodes() << "\n";  
+  theNodes->Print(s, flag);
+  
+  s << "ELEMENT DATA: NumEle: " << theElements->getNumComponents() << "\n";
+  theElements->Print(s, flag);
+  
+  s << "\nSP_Constraints: numConstraints: " << theSPs->getNumComponents() << "\n";
+  theSPs->Print(s, flag);
+  
+  s << "\nPressure_Constraints: numConstraints: " << thePCs->getNumComponents() << "\n";
+  thePCs->Print(s, flag);
+  
+  s << "\nMP_Constraints: numConstraints: " << theMPs->getNumComponents() << "\n";
+  theMPs->Print(s, flag);
+  
+  s << "\nLOAD PATTERNS: numPatterns: " << theLoadPatterns->getNumComponents() << "\n\n";
+  theLoadPatterns->Print(s, flag);
+  
+  s << "\nPARAMETERS: numParameters: " << theParameters->getNumComponents() << "\n\n";
+  theParameters->Print(s, flag);
+#endif
+}
+
 int
 printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  Domain * domain = (Domain*)clientData;
+
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain * domain = builder->getDomain();
 
   int currentArg = 1;
   int res = 0;
@@ -64,15 +178,21 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     if ((strcmp(argv[currentArg], "-ele") == 0) ||
         (strcmp(argv[currentArg], "ele") == 0)) {
       currentArg++;
-      res = printElement(clientData, interp, argc - currentArg, argv + currentArg, *output);
+      res = printElement((ClientData)domain, interp, argc - currentArg, argv + currentArg, *output);
       done = true;
     }
     // if 'print node i j k ..' print out some nodes
     else if ((strcmp(argv[currentArg], "-node") == 0) ||
              (strcmp(argv[currentArg], "node") == 0)) {
       currentArg++;
-      res = printNode(clientData, interp, argc - currentArg, argv + currentArg,
+      res = printNode((ClientData)domain, interp, argc - currentArg, argv + currentArg,
                       *output);
+      done = true;
+    }
+
+    else if ((strcmp(argv[currentArg], "-registry") == 0)) {
+      currentArg++;
+      res = printRegistry((BasicModelBuilder*)clientData, argv[currentArg++], flag, output);
       done = true;
     }
 
@@ -80,7 +200,7 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     else if ((strcmp(argv[currentArg], "integrator") == 0) ||
              (strcmp(argv[currentArg], "-integrator") == 0)) {
       currentArg++;
-      res = printIntegrator(clientData, interp, argc - currentArg,
+      res = printIntegrator((ClientData)domain, interp, argc - currentArg,
                             argv + currentArg, *output);
       done = true;
     }
@@ -89,7 +209,7 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     else if ((strcmp(argv[currentArg], "algorithm") == 0) ||
              (strcmp(argv[currentArg], "-algorithm") == 0)) {
       currentArg++;
-      res = printAlgorithm(clientData, interp, argc - currentArg,
+      res = printAlgorithm((ClientData)domain, interp, argc - currentArg,
                            argv + currentArg, *output);
       done = true;
     }
@@ -118,7 +238,8 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
         if (flag == OPS_PRINT_PRINTMODEL_JSON)
           simulationInfo.Print(outputFile, flag);
 
-        domain->Print(outputFile, flag);
+        // domain->Print(outputFile, flag);
+        printDomain(outputFile, builder, flag);
         return TCL_OK;
       }
 
@@ -172,6 +293,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
     while ((theElement = theElements()) != 0)
       theElement->Print(output, flag);
     return TCL_OK;
+
   } else {
 
     // otherwise print out the specified nodes i j k .. with flag
@@ -180,7 +302,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
     for (int i = 0; i < numEle; i++) {
       int eleTag;
       if (Tcl_GetInt(interp, argv[i + eleArg], &eleTag) != TCL_OK) {
-        opserr << "WARNING print ele failed to get integer: " << argv[i]
+        opserr << "WARNING print -ele failed to get integer: " << argv[i]
                << endln;
         return TCL_ERROR;
       }
@@ -214,7 +336,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
   if (argc == 0) {
     NodeIter &theNodes = domain->getNodes();
     Node *theNode;
-    while ((theNode = theNodes()) != 0)
+    while ((theNode = theNodes()) != nullptr)
       theNode->Print(output);
     return TCL_OK;
   }
@@ -241,7 +363,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
   if (nodeArg == argc) {
     NodeIter &theNodes = domain->getNodes();
     Node *theNode;
-    while ((theNode = theNodes()) != 0)
+    while ((theNode = theNodes()) != nullptr)
       theNode->Print(output, flag);
     return TCL_OK;
   } else {

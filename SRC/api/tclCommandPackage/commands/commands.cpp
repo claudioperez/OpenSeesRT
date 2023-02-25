@@ -117,9 +117,9 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "setCreep",   &TclCommand_setCreep, nullptr, nullptr);
 
-  Tcl_CreateCommand(interp, "print",      &printModel, domain, nullptr);
-  Tcl_CreateCommand(interp, "printModel", &printModel, domain, nullptr);
 
+  // Tcl_CreateCommand(interp, "print",      &printModel, domain, nullptr);
+  // Tcl_CreateCommand(interp, "printModel", &printModel, domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "remove",            &removeObject,    domain, nullptr);

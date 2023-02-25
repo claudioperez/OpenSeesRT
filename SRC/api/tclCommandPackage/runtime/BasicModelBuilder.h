@@ -20,6 +20,7 @@
 #include <string>
 #include <TclBuilder.h>
 #include <MultiSupportPattern.h>
+#include "Storage/G3_TableIterator.h"
 
 class SectionForceDeformation;
 class SectionRepres;
@@ -30,6 +31,7 @@ class TimeSeries;
 class G3_Runtime;
 class CrdTrasnf;
 class HystereticBackbone;
+class G3_Table;
 
 
 class BasicModelBuilder : public TclBuilder {
@@ -48,11 +50,14 @@ public:
   void letClobber(bool option);
   bool canClobber();
 
+  G3_TableIterator iterate(const char* partition);
+
 //
 // OBJECT CONTAINERS
 // 
 // Time series
 private:
+  G3_Table* registry = nullptr;
   map_t<TimeSeries*> m_TimeSeriesMap;
 public:
   int addTimeSeries(const std::string&, TimeSeries*);
@@ -111,24 +116,6 @@ public:  int addSection(SectionForceDeformation &theSection);
          SectionRepres *getSectionRepres(const std::string&);
 
 // Other objects
-/*
-  map_t<LimitCurve*> theLimitCurves; // MRL
-    int addYieldSurface_BC(YieldSurface_BC &theYS);
-    YieldSurface_BC *getYieldSurface_BC(int tag);
-    int addYS_EvolutionModel(YS_Evolution &theModel);
-    YS_Evolution *getYS_EvolutionModel(int tag);
-    int addPlasticMaterial(PlasticHardeningMaterial &theMaterial);
-    PlasticHardeningMaterial *getPlasticMaterial(int tag);
-
-    int addCyclicModel(CyclicModel &theModel); //!!
-    CyclicModel *getCyclicModel(int tag); //!!
-    int addDamageModel(DamageModel &theModel); //!!
-    DamageModel *getDamageModel(int tag); //!!
-
-    // methods needed for the friction models
-    int addFrictionModel(FrictionModel &theFrnMdl);
-    FrictionModel *getFrictionModel(int tag);
-*/
 
 //
 // OTHER METHODS

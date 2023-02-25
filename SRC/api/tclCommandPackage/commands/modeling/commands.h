@@ -65,6 +65,7 @@ Tcl_CmdProc TclCommand_addLimitCurve;
 Tcl_CmdProc TclCommand_addNDMaterial;
 Tcl_CmdProc TclCommand_addSeries;
 
+Tcl_CmdProc printModel;
 
 struct char_cmd {
   const char* name;
@@ -81,6 +82,9 @@ struct char_cmd {
   {"mass",             TclCommand_addNodalMass},
 
   {"element",          TclCommand_addElement},
+
+  {"print",            &printModel},
+  {"printModel",       &printModel},
 
 // Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},
