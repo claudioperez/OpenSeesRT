@@ -22,6 +22,12 @@ if (ARGMISMATCH)
     target_compile_options(ARPACK PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-fallow-argument-mismatch>)
 endif()
 
+# TODO: These are problems that should be fixed
+target_compile_options(ARPACK PRIVATE 
+  -Wno-compare-reals 
+  -Wno-unused-variable
+)
+
 target_sources(ARPACK PUBLIC
   dgetv0.f
   dlaqrb.f
