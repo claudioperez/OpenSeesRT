@@ -36,7 +36,7 @@
 
 #include<Timer.h>
 
-#include <bool.h>
+#include <stdbool.h>
 
 #ifndef TIMER_USE_MPIWTIME
 
