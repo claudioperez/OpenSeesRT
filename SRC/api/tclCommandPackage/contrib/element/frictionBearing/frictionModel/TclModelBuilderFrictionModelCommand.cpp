@@ -30,7 +30,7 @@
 // the frictionModel command in the interpreter.
 
 #include <FrictionModel.h>
-#include <g3_api.h>
+#include <tcl.h>
 #include <elementAPI.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                                        int cArg, int mArg, TCL_Char **argv,

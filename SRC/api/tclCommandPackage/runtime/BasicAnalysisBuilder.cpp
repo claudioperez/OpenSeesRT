@@ -10,6 +10,7 @@
 #include <Domain.h>
 #include <string>
 #include <assert.h>
+
 // #include <iostream>
 #include <ID.h>
 #include <Element.h>
@@ -246,7 +247,7 @@ BasicAnalysisBuilder::setStaticAnalysis()
 
   this->CurrentAnalysisFlag = CURRENT_STATIC_ANALYSIS;
 
-  return TCL_OK;
+  return 0;
 }
 
 void BasicAnalysisBuilder::newStaticAnalysis()
@@ -259,7 +260,7 @@ void BasicAnalysisBuilder::newStaticAnalysis()
       theStaticAnalysis = nullptr;
     }
     
-    if (theAnalysisModel == 0) {
+    if (theAnalysisModel == nullptr) {
         theAnalysisModel = new AnalysisModel();
     }
 
@@ -317,7 +318,7 @@ BasicAnalysisBuilder::setTransientAnalysis()
 
   this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
 
-  return TCL_OK;
+  return 1;
 }
 
 int

@@ -37,7 +37,7 @@
 #include <Domain.h>
 
 #include <Joint2D.h>
-#include <g3_api.h>
+#include <tcl.h>
 #include <DamageModel.h>
 #include <UniaxialMaterial.h>
 #include <runtime/BasicModelBuilder.h>

@@ -46,7 +46,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Renderer.h>
 #include <UniaxialMaterial.h>
-#include <g3_api.h>
+#include <tcl.h>
 #include <elementAPI.h>
 
 extern void printCommand(int argc, TCL_Char **argv);
