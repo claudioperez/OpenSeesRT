@@ -44,7 +44,7 @@
 #include <Vertex.h>
 
 /* stuff needed to get the program working on the clump & NOW machines*/
-#include <bool.h>
+#include <stdbool.h>
 #ifdef NOW
 #include <GKlib.h>
 int IsWeighted;
