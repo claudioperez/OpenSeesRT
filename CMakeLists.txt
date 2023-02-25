@@ -21,7 +21,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/c
 include(OpenSeesFunctions)
 enable_testing()
 
-add_definitions(-DOPS_USE_RUNTIME)
+add_definitions(-DOPS_USE_RUNTIME -D_THREADS)
 
 # add Conan stuff for external dependencies
 # if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -63,6 +63,13 @@ if (UNIX)
      add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
   endif()
+
+  add_compile_options(
+    $<$<CONFIG:DEBUG>:-ggdb>
+    $<$<CONFIG:DEBUG>:-g3>
+    $<$<CONFIG:DEBUG>:-Og>
+    $<$<CONFIG:RELEASE>:-O3>
+  )
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
@@ -105,8 +112,17 @@ enable_language(Fortran)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
-add_compile_options(-ggdb)
-
+add_compile_options(
+  "$<$<CXX_COMPILER_ID:MSVC>:/W4>"
+  "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>"
+  "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>"
+  "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-Wno-reorder>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-reorder>"
+  # "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wpedantic>"
+  # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wsign-conversion>
+  # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wconversion>
+)
 #----------------------------------------------------------------
 # Global Includes
 #----------------------------------------------------------------
@@ -197,7 +213,7 @@ include_directories(${TCL_INCLUDE_PATH})
 add_library(OPS_Numerics           INTERFACE)
 target_link_libraries(OPS_Numerics INTERFACE
   ${ARPACK_LIBRARIES} 
-  ${SUPERLU_LIBRARIES}
+# ${SUPERLU_LIBRARIES}
   ${AMD_LIBRARIES}
   ${LAPACK_LIBRARIES}
   ${BLAS_LIBRARIES} 
@@ -249,19 +265,19 @@ add_library(OpenSees         EXCLUDE_FROM_ALL)
 # Executables and final targets
 #------------------------------------------------------------------------------
 # Adding EXCLUDE_FROM_ALL prevents these from being made by default.
-add_executable(OpenSeesTcl   EXCLUDE_FROM_ALL 
-  ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-  ${OPS_SRC_DIR}/tcl/tclMain.cpp
-)
+# add_executable(OpenSeesTcl   EXCLUDE_FROM_ALL 
+#   ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
+#   ${OPS_SRC_DIR}/tcl/tclMain.cpp
+# )
 
 add_executable(OpenSeesSP    EXCLUDE_FROM_ALL 
-  ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-  ${OPS_SRC_DIR}/tcl/tclMain.cpp
+  # ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
+  # ${OPS_SRC_DIR}/tcl/tclMain.cpp
 )
 
 add_executable(OpenSeesMP    EXCLUDE_FROM_ALL 
-  ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-  ${OPS_SRC_DIR}/tcl/tclMain.cpp
+  # ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
+  # ${OPS_SRC_DIR}/tcl/tclMain.cpp
 )
 
 
@@ -352,15 +368,15 @@ add_compile_options(-fPIC)
 #----------------------------
 # OpenSeesMP
 #----------------------------
-target_compile_definitions(OpenSeesMP PUBLIC _PARALLEL_PROCESSING)
-target_link_libraries(OpenSeesMP OpenSees)
+# target_compile_definitions(OpenSeesMP PUBLIC _PARALLEL_PROCESSING)
+# target_link_libraries(OpenSeesMP OpenSees)
 
 
 #----------------------------
 # OpenSeesSP
 #----------------------------
-target_compile_definitions(OpenSeesSP PUBLIC _PARALLEL_INTERPRETERS)
-target_link_libraries(OpenSeesSP OpenSees)
+# target_compile_definitions(OpenSeesSP PUBLIC _PARALLEL_INTERPRETERS)
+# target_link_libraries(OpenSeesSP OpenSees)
 
 #==============================================================================
 #                            Apply Options

@@ -10,7 +10,7 @@
 
 #define INITIAL_CAPACITY 4
 
-typedef unsigned long int G3_Tag;
+typedef unsigned long int G3_MapTag;
 
 struct G3_Table {
   G3_StringMap *partitions;
@@ -41,6 +41,7 @@ G3_SetTableEntry(G3_Table *table, const char *partition, int tag, void *value)
   // TODO
 }
 
+
 int
 G3_AddTableEntry(G3_Table *table, const char *partition, int tag, void *value)
 {
@@ -61,7 +62,7 @@ G3_AddTableEntry(G3_Table *table, const char *partition, int tag, void *value)
 }
 
 void *
-G3_GetTableEntry(G3_Table *table, const char *partition, G3_Tag tag)
+G3_GetTableEntry(G3_Table *table, const char *partition, G3_MapTag tag)
 {
   G3_IntMap *imap;
   if ((imap = G3_GetStringMapEntry(table->partitions, partition)) == NULL) {
@@ -74,3 +75,20 @@ G3_GetTableEntry(G3_Table *table, const char *partition, G3_Tag tag)
   }
   return value;
 }
+
+G3_TableIterator G3_IteratePartition(G3_Table* table, const char* partition)
+{
+  G3_IntMap *imap;
+  G3_TableIterator iter;
+
+  if ((imap = G3_GetStringMapEntry(table->partitions, partition)) == NULL)
+    iter._table = NULL;
+  else
+    iter._table = imap;
+
+  iter._key_type = 'i';
+  iter._index = 0;
+  
+  return iter;
+}
+

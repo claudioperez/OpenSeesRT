@@ -76,10 +76,10 @@ hash_key(const char *key)
 }
 
 void *
-G3_GetIntMapEntry(G3_IntMap *table, G3_Tag tag)
+G3_GetIntMapEntry(G3_IntMap *table, G3_MapTag tag)
 {
 
-  char key[((CHAR_BIT * sizeof(G3_Tag) - 1) / 3 + 2)];
+  char key[((CHAR_BIT * sizeof(G3_MapTag) - 1) / 3 + 2)];
   snprintf(key, sizeof(key) / sizeof(char), G3_FMT_TAG, tag);
 
   // AND hash with capacity-1 to ensure it's within entries array.
@@ -170,10 +170,10 @@ ht_expand(G3_IntMap *table)
 }
 
 const char *
-G3_SetIntMapEntry(G3_IntMap *table, G3_Tag tag, void *value)
+G3_SetIntMapEntry(G3_IntMap *table, G3_MapTag tag, void *value)
 {
 
-  char key[((CHAR_BIT * sizeof(G3_Tag) - 1) / 3 + 2)];
+  char key[((CHAR_BIT * sizeof(G3_MapTag) - 1) / 3 + 2)];
   snprintf(key, sizeof(key) / sizeof(char), G3_FMT_TAG, tag);
 
   assert(value != NULL);
@@ -224,3 +224,26 @@ bool ht_next(hti* it) {
     return false;
 }
 */
+#include "G3_TableIterator.h"
+
+bool G3_NextTableEntry(G3_TableIterator* iter) {
+    // Loop till we've hit end of entries array.
+    G3_IntMap *table = (G3_IntMap*)iter->_table;
+
+    if (table == NULL)
+      return false;
+
+    while (iter->_index < table->capacity) {
+        size_t i = iter->_index;
+        iter->_index++;
+        if (table->entries[i].key != NULL) {
+            // Found next non-empty item, update iterator key and value.
+            ht_entry entry = table->entries[i];
+            iter->tag = entry.key;
+            iter->value = entry.value;
+            return true;
+        }
+    }
+    return false;
+}
+

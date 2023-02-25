@@ -12,12 +12,14 @@
 #define G3_TABLE_H
 
 #include <stddef.h>
+#include <stdbool.h>
+#include "G3_TableIterator.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// typedef unsigned long int G3_Tag;
+// typedef unsigned long int G3_MapTag;
 typedef struct G3_Table G3_Table;
 
 G3_Table *G3_NewTable(void);
@@ -28,6 +30,13 @@ const char *G3_SetTableEntry(G3_Table *, const char *partition, int tag,
 int G3_AddTableEntry(G3_Table *, const char *partition, int tag, void *value);
 
 void *G3_GetTableEntry(G3_Table *, const char *partition, unsigned long int tag);
+
+//
+// Iterator
+//
+
+// Return new hash table iterator (for use with ht_next).
+G3_TableIterator G3_IteratePartition(G3_Table* table, const char* partition);
 
 #ifdef __cplusplus
 }
