@@ -36,6 +36,7 @@
 #include <Channel.h>
 #include <classTags.h>
 
+#include <string.h>
 #include <math.h>
 
 #include <elementAPI.h>

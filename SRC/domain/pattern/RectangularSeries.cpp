@@ -31,7 +31,7 @@
 //
 // What: "@(#) RectangularSeries.C, revA"
 
-
+#include <string.h>
 #include <RectangularSeries.h>
 #include <Vector.h>
 #include <Channel.h>

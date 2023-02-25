@@ -37,6 +37,7 @@
 #include <classTags.h>
 
 #include <math.h>
+#include <string.h>
 
 #include <elementAPI.h>
 

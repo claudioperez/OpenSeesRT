@@ -31,6 +31,7 @@
 //
 // What: "@(#) DomainModalProperties.h, revA"
 
+#include <string.h>
 #include <stdlib.h>
 //#include <math.h>
 #include <cmath>

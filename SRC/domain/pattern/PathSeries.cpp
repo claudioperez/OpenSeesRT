@@ -35,6 +35,7 @@
 #include <Vector.h>
 #include <Channel.h>
 #include <math.h>
+#include <string.h>
 
 #include <fstream>
 using std::ifstream;
