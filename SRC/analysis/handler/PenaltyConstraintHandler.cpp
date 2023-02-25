@@ -95,7 +95,7 @@ PenaltyConstraintHandler::handle(const ID *nodesLast)
     }
 
     
-    // get number ofelements and nodes in the domain 
+    // get number of elements and nodes in the domain 
     // and init the theFEs and theDOFs arrays
     int numSPs = 0;
     SP_ConstraintIter &theSPs = theDomain->getDomainAndLoadPatternSPs();
