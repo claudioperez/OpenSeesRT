@@ -26,7 +26,8 @@
 // Written: fmk
 // Created: 11/00
 //
-#include <g3_api.h>
+// #include <g3_api.h>
+#include <tcl.h>
 #include <GroundMotionRecord.h>
 
 #include <string.h>
