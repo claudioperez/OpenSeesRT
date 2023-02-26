@@ -1,8 +1,9 @@
 # written: fmk
 # units: kip & in
+#
+# select number of stories <---
+set frame 20Story
 
-
-set plotCounter 1
 set pDampSecondary 0.00
 set scaleFactor 7.0
 set nFactorElem 10.
@@ -12,29 +13,24 @@ set massTheta 1.0e-5;
 set massSmall 1.0e-5
 set massSmallTheta 1.0e-5
 
-set numSubLevels 17
-set numSubSteps 10
-
-set testType EnergyIncr
-set Tol 1.0e-12;
 set numStep 20;
-set testPrint 0
-
-set dataDir RES_7.0_C_12
-
-# set sinFactor .01
-# set sinPeriod 3.797
-set dtSin 0.01
-set nPtSin 2000
-set sinPeriod 3.0
-set sinFactor 0.5
-set periodStruct 3.797
 
 # constants
 set PI 3.14159
 set in 1.0;
-set g 386.4;        
+set g 386.4;
 
+
+set n 50.0
+set pDamp 0.02; # damping ratio
+
+# material properties
+set Fyb 50.0;#36.0, 49.2
+set Fyc 50.0;#50.0;
+set E 29000.
+set Ry 1.1;
+set b 0.03
+set g 386.4
 
 set colType  ComponentElement
 set beamType ComponentElement
@@ -49,45 +45,45 @@ proc ElasticBeamWSection2d {eleTag iNode jNode sectType E transfTag args} {
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  set Orient "YY"
+    set Orient "YY"
   }
 
   if {[lsearch $args "-release1"] != -1} {
-  set hingeEnd1 1
-  node $eleTag$hingeEnd1 [nodeCoord $iNode 1] [nodeCoord $iNode 2]
-  equalDOF $iNode $eleTag$hingeEnd1 1 2
-  set iNode $eleTag$hingeEnd1
+    set hingeEnd1 1
+    node $eleTag$hingeEnd1 [nodeCoord $iNode 1] [nodeCoord $iNode 2]
+    equalDOF $iNode $eleTag$hingeEnd1 1 2
+    set iNode $eleTag$hingeEnd1
   }
 
   if {[lsearch $args "-release2"] != -1} {
-  set hingeEnd2 2
-  node $eleTag$hingeEnd2 [nodeCoord $jNode 1] [nodeCoord $jNode 2]
-  equalDOF $jNode $eleTag$hingeEnd2 1 2
-  set jNode $eleTag$hingeEnd2
+    set hingeEnd2 2
+    node $eleTag$hingeEnd2 [nodeCoord $jNode 1] [nodeCoord $jNode 2]
+    equalDOF $jNode $eleTag$hingeEnd2 1 2
+    set jNode $eleTag$hingeEnd2
   }
   set factI 1.0
   if {[lsearch $args "-factI"] != -1} {
-  set loc [lsearch $args "-factI"]
-  set factI [lindex $args [expr $loc+1]]
+    set loc [lsearch $args "-factI"]
+    set factI [lindex $args [expr $loc+1]]
   }
 
 
   foreach {section prop} [array get WSection $sectType] {
-  set propList [split $prop]
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-  set A [expr [lindex $propList 0]*$in*$in]
-  set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in*$factI]
-  set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in*$factI]
-  if {$Orient == "YY" } {
-    element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iyy $transfTag
-  } else {
-    element elasticBeamColumn $eleTag $iNode $jNode $A $E $Ixx $transfTag
-  }
-  set found 1
+    set propList [split $prop]
+    # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+    set A [expr [lindex $propList 0]*$in*$in]
+    set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in*$factI]
+    set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in*$factI]
+    if {$Orient == "YY" } {
+      element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iyy $transfTag
+    } else {
+      element elasticBeamColumn $eleTag $iNode $jNode $A $E $Ixx $transfTag
+    }
+    set found 1
   }
 
   if {$found == 0} {
-  puts "ElasticBeamWSection2d sectType: $sectType not found for ee: $eleTag"
+    puts stderr "ElasticBeamWSection2d sectType: $sectType not found for ee: $eleTag"
   }
 }
 
@@ -95,33 +91,33 @@ proc ElasticBeamHSSection2d {eleTag iNode jNode sectType E transfTag args} {
   global HSSection
   global in
   set found 0
-  
+
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
   set Orient "YY"
   }
-  
+
   if {[lsearch $args "-release1"] != -1} {
   set hingeEnd1 1
   node $eleTag$hingeEnd1 [nodeCoord $iNode 1] [nodeCoord $iNode 2]
   equalDOF $iNode $eleTag$hingeEnd1 1 2
   set iNode $eleTag$hingeEnd1
   }
-  
+
   if {[lsearch $args "-release2"] != -1} {
   set hingeEnd2 2
   node $eleTag$hingeEnd2 [nodeCoord $jNode 1] [nodeCoord $jNode 2]
   equalDOF $jNode $eleTag$hingeEnd2 1 2
   set jNode $eleTag$hingeEnd2
   }
-  
+
   foreach {section prop} [array get HSSection $sectType] {
   set propList [split $prop]
 
   set A [expr [lindex $propList 1]*$in*$in]
   set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
   set Iyy [expr [lindex $propList 9]*$in*$in*$in*$in]
-  
+
   if {$Orient == "YY" } {
     element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iyy $transfTag
   } else {
@@ -129,9 +125,9 @@ proc ElasticBeamHSSection2d {eleTag iNode jNode sectType E transfTag args} {
   }
   set found 1
   }
-  
+
   if {$found == 0} {
-  puts "ElasticBeamHSSection2d sectType: $sectType not found for ee: $eleTag"
+  puts stderr "ElasticBeamHSSection2d sectType: $sectType not found for ee: $eleTag"
   }
 }
 
@@ -144,10 +140,91 @@ proc ForceBeamWSection2d {eleTag iNode jNode sectType matTag transfTag args} {
   global in
 
   set Orient "XX"
+  set nFlange 10
+  set nWeb  5
+  set nip 4
+  set capIt "NO"
+
+  if {[lsearch $args "YY"] != -1} {
+    set Orient "YY"
+  }
+
+  if {[lsearch $args "-nFlange"] != -1} {
+    set loc [lsearch $args "-nFlange"]
+    set nFlange [lindex $args [expr $loc+1]]
+  }
+
+  if {[lsearch $args "-nWeb"] != -1} {
+    set loc [lsearch $args "-nWeb"]
+    set nWeb [lindex $args [expr $loc+1]]
+  }
+
+  if {[lsearch $args "-nip"] != -1} {
+    set loc [lsearch $args "-nip"]
+    set nip [lindex $args [expr $loc+1]]
+  }
+
+  if {[lsearch $args "-release1"] != -1} {
+    set hingeEnd1 1
+    node $eleTag$hingeEnd1 [nodeCoord $iNode 1] [nodeCoord $iNode 2]
+    equalDOF $iNode $eleTag$hingeEnd1 1 2
+    set iNode $eleTag$hingeEnd1
+  }
+
+  if {[lsearch $args "-release2"] != -1} {
+    set hingeEnd2 2
+    node $eleTag$hingeEnd2 [nodeCoord $jNode 1] [nodeCoord $jNode 2]
+    equalDOF $jNode $eleTag$hingeEnd2 1 2
+    set jNode $eleTag$hingeEnd2
+  }
+
+  if {[lsearch $args "-capIt"] != -1} {
+    set capIt "YES"
+    set loc [lsearch $args "-capIt"]
+    set dampRatio [lindex $args [expr $loc+1]]
+    set Fy [lindex $args [expr $loc+2]]
+  }
+
+  if {[lsearch $args "-elasticSection"] != -1} {
+    set loc [lsearch $args "-elasticSection"]
+    set E [lindex $args [expr $loc+1]]
+    ElasticSteelWSection2d $eleTag $sectType $E  $Orient
+  } else {
+    FiberSteelWSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
+  }
+  if {$capIt == "NO"} {
+    element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
+  } else {
+    set found 0
+    puts stderr "SECT: $sectType"
+    foreach {section prop} [array get WSection $sectType] {
+      set propList [split $prop]
+      # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+      set A [expr [lindex $propList 0]*$in*$in]
+      set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
+      set Zx [expr [lindex $propList 7]*$in*$in*$in*$in]
+      set found 1
+    }
+    set maxC [expr 2.0*$dampRatio*$Fy*$Zx]
+    element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag -maxC $maxC
+  }
+}
+
+proc ForceBeamHSS2d {eleTag iNode jNode sectType matTag transfTag args} {
+
+# slightly modified from the ForceBeamWSection2d procedure to build the HSS column elements
+
+  global FiberHSSection2d
+  global ElasticHSSection2d
+  global HSSection
+  global in
+  set found 0
+
+  set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
   set Orient "YY"
   }
-   
+
   set nFlange 10
   if {[lsearch $args "-nFlange"] != -1} {
   set loc [lsearch $args "-nFlange"]
@@ -181,116 +258,37 @@ proc ForceBeamWSection2d {eleTag iNode jNode sectType matTag transfTag args} {
   }
 
   set capIt "NO"
+
   if {[lsearch $args "-capIt"] != -1} {
-  set capIt "YES"
-  set loc [lsearch $args "-capIt"]
-  set dampRatio [lindex $args [expr $loc+1]]
-  set Fy [lindex $args [expr $loc+2]]
+    set capIt "YES"
+    set loc [lsearch $args "-capIt"]
+    set dampRatio [lindex $args [expr $loc+1]]
+    set Fy [lindex $args [expr $loc+2]]
   }
 
   if {[lsearch $args "-elasticSection"] != -1} {
-  set loc [lsearch $args "-elasticSection"] 
-  set E [lindex $args [expr $loc+1]]
-  ElasticSteelWSection2d $eleTag $sectType $E  $Orient
+    set loc [lsearch $args "-elasticSection"]
+    set E [lindex $args [expr $loc+1]]
+    ElasticHSSection2d $eleTag $sectType $E  $Orient
   } else {
-  FiberSteelWSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
+    FiberHSSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
   }
   if {$capIt == "NO"} {
-  element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
+
+    element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
+
   } else {
-  set found 0
-  puts "SECT: $sectType"
-  foreach {section prop} [array get WSection $sectType] {
-    set propList [split $prop]
-    #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-    set A [expr [lindex $propList 0]*$in*$in]
-    set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
-    set Zx [expr [lindex $propList 7]*$in*$in*$in*$in]
-    set found 1
-  }
-  set maxC [expr 2.0*$dampRatio*$Fy*$Zx]
-  element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag -maxC $maxC
-  }
-}
-
-proc ForceBeamHSS2d {eleTag iNode jNode sectType matTag transfTag args} {
-
-# slightly modified from the ForceBeamWSection2d procedure to build the HSS column elements
-
-  global FiberHSSection2d
-  global ElasticHSSection2d
-  global HSSection
-  global in
-  set found 0
-
-  set Orient "XX"
-  if {[lsearch $args "YY"] != -1} {
-  set Orient "YY"
-  }
-   
-  set nFlange 10
-  if {[lsearch $args "-nFlange"] != -1} {
-  set loc [lsearch $args "-nFlange"]
-  set nFlange [lindex $args [expr $loc+1]]
-  }
-
-  set nWeb  5
-  if {[lsearch $args "-nWeb"] != -1} {
-  set loc [lsearch $args "-nWeb"]
-  set nWeb [lindex $args [expr $loc+1]]
-  }
-
-  set nip 4 
-  if {[lsearch $args "-nip"] != -1} {
-  set loc [lsearch $args "-nip"]
-  set nip [lindex $args [expr $loc+1]]
-  }
-
-  if {[lsearch $args "-release1"] != -1} {
-  set hingeEnd1 1
-  node $eleTag$hingeEnd1 [nodeCoord $iNode 1] [nodeCoord $iNode 2]
-  equalDOF $iNode $eleTag$hingeEnd1 1 2
-  set iNode $eleTag$hingeEnd1
-  }
-
-  if {[lsearch $args "-release2"] != -1} {
-  set hingeEnd2 2
-  node $eleTag$hingeEnd2 [nodeCoord $jNode 1] [nodeCoord $jNode 2]
-  equalDOF $jNode $eleTag$hingeEnd2 1 2
-  set jNode $eleTag$hingeEnd2
-  }
-
-  set capIt "NO"
-  if {[lsearch $args "-capIt"] != -1} {
-  set capIt "YES"
-  set loc [lsearch $args "-capIt"]
-  set dampRatio [lindex $args [expr $loc+1]]
-  set Fy [lindex $args [expr $loc+2]]
-  }
-
-  if {[lsearch $args "-elasticSection"] != -1} {
-  set loc [lsearch $args "-elasticSection"] 
-  set E [lindex $args [expr $loc+1]]
-  ElasticHSSection2d $eleTag $sectType $E  $Orient
-  } else {
-  FiberHSSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
-  }
-  if {$capIt == "NO"} {
-  
-  element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
-  
-  } else {
-  puts "SECT: $sectType"
-  foreach {section prop} [array get HSSection $sectType] {
-    set propList [split $prop]
-        # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
-    set A [expr [lindex $propList 1]*$in*$in]
-    set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
-    set Zx [expr [lindex $propList 6]*$in*$in*$in*$in]
-    set found 1
-  }
-  set maxC [expr 2.0*$dampRatio*$Fy*$Zx]
-  element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag -maxC $maxC
+    puts stderr "SECT: $sectType"
+    foreach {section prop} [array get HSSection $sectType] {
+      set propList [split $prop]
+          # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
+      set A [expr [lindex $propList 1]*$in*$in]
+      set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
+      set Zx [expr [lindex $propList 6]*$in*$in*$in*$in]
+      set found 1
+    }
+    set maxC [expr 2.0*$dampRatio*$Fy*$Zx]
+    element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag -maxC $maxC
   }
 }
 
@@ -327,7 +325,7 @@ proc DispBeamWSection2d {eleTag iNode jNode sectType matTag transfTag args} {
   if {[lsearch $args "-int"] != -1} {
   set loc [lsearch $args "-int"]
   set intType [lindex $args [expr $loc+1]]
-  }    
+  }
 
   if {[lsearch $args "-release1"] != -1} {
   set hingeEnd1 1
@@ -346,7 +344,7 @@ proc DispBeamWSection2d {eleTag iNode jNode sectType matTag transfTag args} {
   set eleType dispBeamColumn
 
   if {[lsearch $args "-elasticSection"] != -1} {
-  set loc [lsearch $args "-elasticSection"] 
+  set loc [lsearch $args "-elasticSection"]
   set E [lindex $args [expr $loc+1]]
   ElasticSteelWSection2d $eleTag $sectType $E  $Orient
   } else {
@@ -405,7 +403,7 @@ proc BeamWithHingesWSection2d {eleTag iNode jNode sectType matTag transfTag args
   if {[lsearch $args "-hingeLength"] != -1} {
   set loc [lsearch $args "-hingeLength"]
   set hingeLength [lindex $args [expr $loc+1]]
-  } 
+  }
 
   FiberSteelWSection2d $eleTag $sectType $matTag $nFlange $nWeb
   element forceBeamColumn $eleTag $iNode $jNode $transfTag "HingeRadau $eleTag $Lp $eleTag $Lp $eleTag"
@@ -450,18 +448,18 @@ proc BeamWithSteel01HingesWSection2d {eleTag iNode jNode sectType E Fy b transfT
   set d 0
 
   foreach {section prop} [array get WSection $sectType] {
-  set propList [split $prop]
+    set propList [split $prop]
 
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-  set A [expr [lindex $propList 0]*$in*$in]
-  set  d [expr [lindex $propList 1]*$in]
-  set  bf [expr [lindex $propList 2]*$in]
-  set  tw [expr [lindex $propList 3]*$in]
-  set  tf [expr [lindex $propList 4]*$in]
-  set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
-  set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in]
-  set Zx [expr [lindex $propList 7]*$in*$in*$in]
-  set found 1
+    # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+    set A [expr [lindex $propList 0]*$in*$in]
+    set  d [expr [lindex $propList 1]*$in]
+    set  bf [expr [lindex $propList 2]*$in]
+    set  tw [expr [lindex $propList 3]*$in]
+    set  tf [expr [lindex $propList 4]*$in]
+    set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
+    set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in]
+    set Zx [expr [lindex $propList 7]*$in*$in*$in]
+    set found 1
   }
 
   set dX [expr [nodeCoord $jNode 1] - [nodeCoord $iNode 1]]
@@ -490,7 +488,7 @@ proc BeamWithSteel01HingesWSection2d {eleTag iNode jNode sectType E Fy b transfT
   #    set iNodeCrds [nodeCoord $iNode]; set x1 [lindex $iNodeCrds 0]; set y1 [lindex $iNodeCrds 1]
   #    set jNodeCrds [nodeCoord $jNode]; set x2 [lindex $jNodeCrds 0]; set y2 [lindex $jNodeCrds 1]
   #    set L [expr sqrt(($x2-$x1)*($x2-$x1)+($y2-$y1)*($y2-$y1))]
-  
+
   # create a material for the hinge
   set Ehinge [expr $nFactor*6.0*$Ixx*$E/$L]
   set bhinge [expr $b/$nFactor]
@@ -501,10 +499,10 @@ proc BeamWithSteel01HingesWSection2d {eleTag iNode jNode sectType E Fy b transfT
 
   # add two zero length rotational hinges (if not released)
   if {[lsearch $args "-release1"] == -1} {
-  element zeroLength $eleTag$hingeEnd1 $iNode $eleTag$hingeEnd1 -mat $eleTag -dir 6 -doRayleigh $doRayleigh
+    element zeroLength $eleTag$hingeEnd1 $iNode $eleTag$hingeEnd1 -mat $eleTag -dir 6 -doRayleigh $doRayleigh
   }
   if {[lsearch $args "-release2"] == -1} {
-  element zeroLength $eleTag$hingeEnd2 $eleTag$hingeEnd2 $jNode -mat $eleTag -dir 6 -doRayleigh $doRayleigh
+    element zeroLength $eleTag$hingeEnd2 $eleTag$hingeEnd2 $jNode -mat $eleTag -dir 6 -doRayleigh $doRayleigh
   }
 
   # add an elastic element in between
@@ -512,39 +510,39 @@ proc BeamWithSteel01HingesWSection2d {eleTag iNode jNode sectType E Fy b transfT
 }
 
 
-proc BeamWithPlasticHingesWSection2d {eleTag iNode jNode sectType E Fy H Lb Com_Type Comp_Action Lp transfTag args} {   
+proc BeamWithPlasticHingesWSection2d {eleTag iNode jNode sectType E Fy H Lb Com_Type Comp_Action Lp transfTag args} {
  #########################################################################################################
- #                                                                                                    
- # Creates a Finite-Length Plastic-Hinge (FLPH) element with two discrete hinges at both ends and a   
- #   linear elastic segment in between                                                                 
- #                                                                                                    
- # Flexural behavior of plastic hinge sections is defined using the Bilin02 model using procedure     
- #   SteelWSectionMChi02 (see below)                                                                  
- #                                                                                                    
- # Based on paper "DETERIORATION MODELING OF STEEL MOMENT RESISTING FRAMES USING FINITE-LENGTH                                      
- #                 PLASTIC HINGE FORCE-BASED BEAM-COLUMN ELEMENTS"                                       
- #  by:  F.L.A. Ribeiro, A.R. Barbosa, M.H. Scott, L.C. Neves                                         
- #  URL: http://web.engr.oregonstate.edu/~barbosa/products/ribeiro_barbosa_scott_neves.pdf 
  #
- # Procedure written by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015                                
- # Contact: f.ribeiro@fct.unl.pt; andre.barbosa@oregonstate.edu           
+ # Creates a Finite-Length Plastic-Hinge (FLPH) element with two discrete hinges at both ends and a
+ #   linear elastic segment in between
+ #
+ # Flexural behavior of plastic hinge sections is defined using the Bilin02 model using procedure
+ #   SteelWSectionMChi02 (see below)
+ #
+ # Based on paper "DETERIORATION MODELING OF STEEL MOMENT RESISTING FRAMES USING FINITE-LENGTH
+ #                 PLASTIC HINGE FORCE-BASED BEAM-COLUMN ELEMENTS"
+ #  by:  F.L.A. Ribeiro, A.R. Barbosa, M.H. Scott, L.C. Neves
+ #  URL: http://web.engr.oregonstate.edu/~barbosa/products/ribeiro_barbosa_scott_neves.pdf
+ #
+ # Procedure written by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015
+ # Contact: f.ribeiro@fct.unl.pt; andre.barbosa@oregonstate.edu
  #
  # eleTag      - Element ID
  # iNode       - First node
  # jNode       - Second node
  # sectType    - Wsection used (see list below)
- # E           - Young's modulus (in MPa or ksi)               
- # Fy          - Yield stress (in MPa or ksi)                  
- # H           - Member Length without considering the panel zones (in mm or in)               
- # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)   
- # Com_Type    - Type of component (Use: "other-than-RBS" for this procedure)                               
- # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )                                              
- # Lp          - Plastic Hinge length (assumed to be the same for both ends)                                   
- # transfTag   - geometric transformation                                                                
- # args        - <YY> <-metric> <-release1> <-release2>                                                  
- #             -metric - activate this option if  in and ksi are used                                    
- #                   -release1 and/or release2 - activate this option if beam ends are hinged (no bending moment) 
- #                                                                                                          
+ # E           - Young's modulus (in MPa or ksi)
+ # Fy          - Yield stress (in MPa or ksi)
+ # H           - Member Length without considering the panel zones (in mm or in)
+ # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)
+ # Com_Type    - Type of component (Use: "other-than-RBS" for this procedure)
+ # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )
+ # Lp          - Plastic Hinge length (assumed to be the same for both ends)
+ # transfTag   - geometric transformation
+ # args        - <YY> <-metric> <-release1> <-release2>
+ #             -metric - activate this option if  in and ksi are used
+ #                   -release1 and/or release2 - activate this option if beam ends are hinged (no bending moment)
+ #
  #########################################################################################################
   global SteelWSectionMChi02
   global in
@@ -552,9 +550,9 @@ proc BeamWithPlasticHingesWSection2d {eleTag iNode jNode sectType E Fy H Lb Com_
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  puts "YY orientation not handled - uses XX!"
+  puts stderr "YY orientation not handled - uses XX!"
   }
-   
+
   if {[lsearch $args "-release1"] != -1} {
   set hingeEnd1 1
   node $eleTag$hingeEnd1 [nodeCoord $iNode 1] [nodeCoord $iNode 2]
@@ -575,43 +573,43 @@ proc BeamWithPlasticHingesWSection2d {eleTag iNode jNode sectType E Fy H Lb Com_
   set L [expr sqrt(($x2-$x1)*($x2-$x1)+($y2-$y1)*($y2-$y1))]
   set beta1 [expr -6.0*(3*$L*$L*$Lp - 24*$L*$Lp*$Lp +32*$Lp*$Lp*$Lp)/($L*($L-8.0*$Lp)*($L-8.0*$Lp))]
   set beta2 [expr 3.0*(3*$L*$L*$L - 48*$L*$L*$Lp + 224*$L*$Lp*$Lp - 256*$Lp*$Lp*$Lp)/($L*(3*$L-16.0*$Lp)*(3*$L-16.0*$Lp))]
-  
+
   set secTag  $eleTag
   set countExtra 2
   set secTag2 $eleTag$countExtra;
   incr countExtra 3
   set secTag3 $eleTag$countExtra;
-  
+
   set found 0
   foreach {section prop} [array get WSection $sectType] {
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-  set propList [split $prop]
-  set A [expr [lindex $propList 0]*$in*$in]
-  set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
-  set Iy [expr [lindex $propList 6]*$in*$in*$in*$in]
-  set found 1
+      # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+      set propList [split $prop]
+      set A [expr [lindex $propList 0]*$in*$in]
+      set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
+      set Iy [expr [lindex $propList 6]*$in*$in*$in*$in]
+      set found 1
   }
-  
+
   section Elastic $secTag2 $E $A [expr $beta1*$Ix]
   section Elastic $secTag3 $E $A [expr $beta2*$Ix]
-  
+
   if {[lsearch $args "-metric"] != -1} {
-  SteelWSectionMChi02 $secTag $E $Fy $H $L $Lb $sectType $Com_Type $Comp_Action $Lp  -metric
+    SteelWSectionMChi02 $secTag $E $Fy $H $L $Lb $sectType $Com_Type $Comp_Action $Lp  -metric
   } else {
-  SteelWSectionMChi02 $secTag $E $Fy $H $L $Lb $sectType $Com_Type $Comp_Action $Lp
+    SteelWSectionMChi02 $secTag $E $Fy $H $L $Lb $sectType $Com_Type $Comp_Action $Lp
   }
-  
+
   uniaxialMaterial Elastic [expr $secTag*100] [expr $E*$A];
   section Aggregator $secTag [expr $secTag*100] P $secTag Mz;
-  
+
   set Locations "0 [expr (8.0/3.0*$Lp)/$L] [expr (4.0*$Lp+($L-8*$Lp)/2*(1-1/sqrt(3)))/$L] [expr (4.0*$Lp+($L-8*$Lp)/2*(1+1/sqrt(3)))/$L] [expr ($L-8.0/3.0*$Lp)/$L] 1.0";
-  set weights "[expr $Lp/$L] [expr 3.0*$Lp/$L] [expr (($L-8.0*$Lp)/2)/$L] [expr (($L-8.0*$Lp)/2)/$L] [expr 3.0*$Lp/$L] [expr $Lp/$L]"; 
+  set weights "[expr $Lp/$L] [expr 3.0*$Lp/$L] [expr (($L-8.0*$Lp)/2)/$L] [expr (($L-8.0*$Lp)/2)/$L] [expr 3.0*$Lp/$L] [expr $Lp/$L]";
   set secTags "$secTag $secTag2 $secTag3 $secTag3 $secTag2 $secTag";
   set integration "LowOrder 6 $secTags $Locations $weights";
-  element forceBeamColumn $eleTag $iNode $jNode $transfTag $integration 
+  element forceBeamColumn $eleTag $iNode $jNode $transfTag $integration
 }
 
-proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args} {  
+proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args} {
   global SteelWSectionMR02
   global SteelWSectionMR
   global in
@@ -619,7 +617,7 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  puts "YY orientation not handled - uses XX!"
+  puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -637,14 +635,14 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
   }
 
   set Comp_Action 0
-  
+
   if {[lsearch $args "-nFactor"] != -1} {
   set loc [lsearch $args "-nFactor"]
   set nFactor [lindex $args [expr $loc+1]]
   } else {
   set nFactor 10.
   }
-  
+
   set Com_Type "RBS"; #<---
   if {[lsearch $args "-Com_Type"] != -1} {
   set loc [lsearch $args "-Com_Type"]
@@ -659,7 +657,7 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
 
   set node1Crds [nodeCoord $iNode]; set x1 [lindex $node1Crds 0]; set y1 [lindex $node1Crds 1]
   set node2Crds [nodeCoord $jNode]; set x2 [lindex $node2Crds 0]; set y2 [lindex $node2Crds 1]
-  
+
   set L [expr sqrt(($x2-$x1)*($x2-$x1)+($y2-$y1)*($y2-$y1))]
 
   set H $L
@@ -675,17 +673,17 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
   }
 
   set Lcanti [expr $Lb/2]
-  
+
   if {[lsearch $args "-metric"] != -1} {
   SteelWSectionMR $eleTag $E $Fy $Ry $H $Lcanti $Lb $sectType $Com_Type $Comp_Action -metric -nFactor $nFactor -matType $matType
   } else {
   SteelWSectionMR $eleTag $E $Fy $Ry $H $Lcanti $Lb $sectType $Com_Type $Comp_Action -nFactor $nFactor -matType $matType
   }
-  
+
   set found 0
   foreach {section prop} [array get WSection $sectType] {
   set propList [split $prop]
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
   set A [expr [lindex $propList 0]*$in*$in]
   set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
   set found 1
@@ -694,7 +692,7 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
   element componentElement2d $eleTag $iNode $jNode $A $E $Ix $transfTag $eleTag $eleTag
 }
 
-proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag args} {  
+proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag args} {
   global SteelWSectionMR02
   global SteelWSectionMR
   global SteelWSectionColMR
@@ -703,7 +701,7 @@ proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag 
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  puts "YY orientation not handled - uses XX!"
+    puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -719,14 +717,14 @@ proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag 
   equalDOF $jNode $eleTag$hingeEnd2 1 2
   set jNode $eleTag$hingeEnd2
   }
-  
+
   if {[lsearch $args "-nFactor"] != -1} {
   set loc [lsearch $args "-nFactor"]
   set nFactor [lindex $args [expr $loc+1]]
   } else {
   set nFactor 10.
   }
-  
+
 
   set matType "Bilin"
   if {[lsearch $args "-matType"] != -1} {
@@ -736,7 +734,7 @@ proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag 
 
   set node1Crds [nodeCoord $iNode]; set x1 [lindex $node1Crds 0]; set y1 [lindex $node1Crds 1]
   set node2Crds [nodeCoord $jNode]; set x2 [lindex $node2Crds 0]; set y2 [lindex $node2Crds 1]
-  
+
   set L [expr sqrt(($x2-$x1)*($x2-$x1)+($y2-$y1)*($y2-$y1))]
 
   set H $L
@@ -747,23 +745,23 @@ proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag 
 
   set Lb $L
   if {[lsearch $args "-Lb"] != -1} {
-  set loc [lsearch $args "-Lb"]
-  set Lb [lindex $args [expr $loc+1]]
+      set loc [lsearch $args "-Lb"]
+      set Lb [lindex $args [expr $loc+1]]
   }
 
   set Lcanti [expr $Lb/2]
-  
+
   if {[lsearch $args "-metric"] != -1} {
   # SteelWSectionColMR matTag E Fy Ry H Lcanti Lb PgPy sectType args
   SteelWSectionColMR $eleTag $E $Fy $Ry $H $Lcanti $Lb $PgPy $sectType -metric -nFactor $nFactor -matType $matType
   } else {
   SteelWSectionColMR $eleTag $E $Fy $Ry $H $Lcanti $Lb $PgPy $sectType -nFactor $nFactor -matType $matType
   }
-  
+
   set found 0
   foreach {section prop} [array get WSection $sectType] {
   set propList [split $prop]
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
   set A [expr [lindex $propList 0]*$in*$in]
   set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
   set found 1
@@ -774,14 +772,14 @@ proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag 
 
 
 
-proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args} {  
+proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args} {
   global SteelSquareHSSMR02
   global in
   global HSSection
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  puts "YY orientation not handled - uses XX!"
+    puts stderr "YY orientation not handled - uses XX!"
   }
 
 
@@ -795,7 +793,7 @@ proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args
 
   set node1Crds [nodeCoord $iNode]; set x1 [lindex $node1Crds 0]; set y1 [lindex $node1Crds 1]
   set node2Crds [nodeCoord $jNode]; set x2 [lindex $node2Crds 0]; set y2 [lindex $node2Crds 1]
-  
+
   set L [expr sqrt(($x2-$x1)*($x2-$x1)+($y2-$y1)*($y2-$y1))]
 
   set H $L
@@ -815,14 +813,14 @@ proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args
   } else {
   SteelSquareHSSMR02 $eleTag $E $Fy $H $N $sectType -nFactor $nFactor -matType $matType
   }
-  
+
   set found 0.
   foreach {section prop} [array get HSSection $sectType] {
-  set propList [split $prop]      
+  set propList [split $prop]
   # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
   set  A [expr [lindex $propList 1]*$in*$in]
   set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
-  set found 1.        
+  set found 1.
   }
 
   element componentElement2d $eleTag $iNode $jNode $A $E $Ix $transfTag $eleTag $eleTag
@@ -830,7 +828,7 @@ proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args
 
 
 proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
-  
+
   # This procedure develops a 2D brace element in a 2D/3D system (Z coordinates were set to 0).
   # Corotational Transformation is used by defualt
   #
@@ -839,8 +837,8 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
   #
   # Uses a displacement based element
   # Last Modified: 06/08/2014
-  
-  # args: 
+
+  # args:
   #  eleTag - element number (neeeded to provide node and ele tags for each beam segment and nodes
   #  iNode
   #  jNode
@@ -849,10 +847,10 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
   #  Im - offset
   #  numInt - numIntegration points in beams
   #  transfTag - transformation tag
-  
+
   global FiberHSSection2d
   global ElasticSteelHSSection2d
-  
+
   set nip 3
   if {[lsearch $args "-nip"] != -1} {
   set loc [lsearch $args "-nip"]
@@ -867,7 +865,7 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
   set nFlange 4
   set nWeb 5
   if {[lsearch $args "-elasticSection"] != -1} {
-  set loc [lsearch $args "-elasticSection"] 
+  set loc [lsearch $args "-elasticSection"]
   set E [lindex $args [expr $loc+1]]
   ElasticHSSSection2d $eleTag $sectType $E  $Orient
   } else {
@@ -902,20 +900,20 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
   # Get the sin and cos of the inclined angle
   set Cos [expr ($X2-$X1)/$L]
   set Sin [expr ($Y2-$Y1)/$L]
-  
+
   for {set i 1} {$i <= [expr $numSeg-1]} {incr i 1} {
   # get the coordinates of each intermediate node in local system
   set nodeid [expr $eleTag$i]
   set xLocal [expr $L/$numSeg*$i]
   set yLocal [expr sin($PI*$i/$numSeg)*$Im*$L]
-  
+
   set xRotX [expr $xLocal]
   set yRotX [expr $yLocal*0.707]
-  
+
   set xRotZ [expr $xRotX*$Cos-$yRotX*$Sin]
   set yRotZ [expr $xRotX*$Sin+$yRotX*$Cos]
-  
-  # Use transformation matrix to convert the coordinate from local system to global system 
+
+  # Use transformation matrix to convert the coordinate from local system to global system
   set xGlobal [expr $X1+$xRotZ]
   set yGlobal [expr $Y1+$yRotZ]
 
@@ -928,7 +926,7 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
 
   # Define first element
   element dispBeamColumn $ElementID $iNode [expr $nodeID+1] $nip $eleTag $transfTag
-  
+
   # Define internal elements #
   for {set i 1} {$i <[expr $numSeg-1]} {incr i 1} {
   set ElementID $eleTag$i
@@ -960,7 +958,7 @@ proc ElasticSteelWSection2d {sectTag sectType E args} {
   set found 0
   foreach {section prop} [array get WSection $sectType] {
   set propList [split $prop]
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
   set A [expr [lindex $propList 0]*$in*$in]
   set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
   set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in]
@@ -974,7 +972,7 @@ proc ElasticSteelWSection2d {sectTag sectType E args} {
   }
 
   if {$found == 0} {
-  puts "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
+    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -984,23 +982,23 @@ proc FiberSteelWSection2d {sectTag sectType matTag nFlange nWeb args} {
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  set Orient "YY"
+    set Orient "YY"
   }
 
   set found 0
   foreach {section prop} [array get WSection $sectType] {
-  set propList [split $prop]
+      set propList [split $prop]
 
-  set  d [expr [lindex $propList 1]*$in]
-  set bf [expr [lindex $propList 2]*$in]
-  set tw [expr [lindex $propList 3]*$in]
-  set tf [expr [lindex $propList 4]*$in]
+      set  d [expr [lindex $propList 1]*$in]
+      set bf [expr [lindex $propList 2]*$in]
+      set tw [expr [lindex $propList 3]*$in]
+      set tf [expr [lindex $propList 4]*$in]
 
-  Wsection $sectTag $matTag $d $bf $tf $tw $nFlange 1 1 $nWeb $Orient
-  set found 1
+      Wsection $sectTag $matTag $d $bf $tf $tw $nFlange 1 1 $nWeb $Orient
+      set found 1
   }
   if {$found == 0} {
-  puts "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
+    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -1015,12 +1013,12 @@ proc Wsection {secID matID d bf tf tw nfdw nftw nfbf nftf {Orient XX}} {
   # modified: 08/99  (according to the new general modelbuilder)
   # input parameters
   # secID - section ID number
-  # matID - material ID number 
+  # matID - material ID number
   # d  = nominal depth
   # tw = web thickness
   # bf = flange width
   # tf = flange thickness
-  # nfdw = number of fibers along web depth 
+  # nfdw = number of fibers along web depth
   # nftw = number of fibers along web thickness
   # nfbf = number of fibers along flange width
   # nftf = number of fibers along flange thickness
@@ -1030,7 +1028,7 @@ proc Wsection {secID matID d bf tf tw nfdw nftw nfbf nftf {Orient XX}} {
   set y2 [expr -$dw/2.0]
   set y3 [expr  $dw/2.0]
   set y4 [expr  $d/2.0]
-  
+
   set z1 [expr -$bf/2.0]
   set z2 [expr -$tw/2.0]
   set z3 [expr  $tw/2.0]
@@ -1047,13 +1045,13 @@ proc Wsection {secID matID d bf tf tw nfdw nftw nfbf nftf {Orient XX}} {
   set y2 [expr  $tw/2.0]
   set y3 [expr -$tw/2.0]
   set y4 [expr -$bf/2.0]
-  
+
   section fiberSec  $secID  {
     patch quadr  $matID  $nfbf $nftf   $y1 $z3   $y1 $z4   $y4 $z4   $y4 $z3
     patch quadr  $matID  $nftw $nfdw   $y2 $z3   $y3 $z3   $y3 $z2   $y2 $z2
     patch quadr  $matID  $nfbf $nftf   $y1 $z1   $y1 $z2   $y4 $z2   $y4 $z1
   }
-  
+
   } else {
   set dw [expr $d - 2 * $tf]
   set y1 [expr -$d/2.0]
@@ -1065,7 +1063,7 @@ proc Wsection {secID matID d bf tf tw nfdw nftw nfbf nftf {Orient XX}} {
   set z2 [expr -$tw/2.0]
   set z3 [expr  $tw/2.0]
   set z4 [expr  $bf/2.0]
-  
+
   section fiberSec  $secID  {
     #                     nfIJ  nfJK    yI  zI    yJ  zJ    yK  zK    yL  zL
     patch quadr  $matID  $nfbf $nftf   $y1 $z4   $y1 $z1   $y2 $z1   $y2 $z4
@@ -1087,9 +1085,9 @@ proc ElasticHSSection2d {sectTag sectType E args} {
   set found 0
   foreach {section prop} [array get HSSection $sectType] {
   set propList [split $prop]
-  
+
   # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
-  
+
   set A [expr [lindex $propList 1]*$in*$in]
   set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
   set Iy [expr [lindex $propList 9]*$in*$in*$in*$in]
@@ -1103,7 +1101,7 @@ proc ElasticHSSection2d {sectTag sectType E args} {
   }
 
   if {$found == 0} {
-  puts "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
+    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -1126,14 +1124,14 @@ proc FiberHSSection2d {sectTag sectType matTag nFlange nWeb args} {
   set  t [expr [lindex $propList 4]*$in]
 
   if {$Orient == "XX"} {
-    HSSectionD $sectTag $matTag $d $b $t $nFlange $nWeb 
+    HSSectionD $sectTag $matTag $d $b $t $nFlange $nWeb
   } else {
-    HSSectionD $sectTag $matTag $b $d $t $nFlange $nWeb 
+    HSSectionD $sectTag $matTag $b $d $t $nFlange $nWeb
   }
   set found 1
   }
   if {$found == 0} {
-  puts "FiberHSSSection2d sectType: $sectType not found for sectTag: $sectTag"
+    puts stderr "FiberHSSSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -1146,341 +1144,304 @@ proc HSSectionD {secID matID d b t nfdw nftw} {
 
   # FMK: NOTE TO SELF THIS ONLY WORKS FOR SQUARE HSS's SEND LIGNOS AN EMAIL!
   # ANOTHER NOTE TO SELF - A LOT OF WASTED FIBER FOR 2D CASE - REWRITE
-  
-  set D $d; 
+
+  set D $d;
   set tf $t;
-  
-  section  fiberSec    $secID  { 
-  # PatchAISC :    matTag    NSIJ  NSJK                  Iy                   Iz                   Jy             Jz             Ky             Kz             Ly             Lz 
-  patch  quadr     $matID   $nfdw $nftw  +[expr $D/2. - $tf]        +[expr $D/2.]  +[expr $D/2. - $tf]        -[expr $D/2.]        +[expr $D/2.]        -[expr $D/2.]        +[expr $D/2.]        +[expr $D/2.] 
-  patch  quadr     $matID   $nftw $nfdw  -[expr $D/2. - $tf]        +[expr $D/2.]  -[expr $D/2. - $tf]  +[expr $D/2. - $tf]  +[expr $D/2. - $tf]  +[expr $D/2. - $tf]  +[expr $D/2. - $tf]        +[expr $D/2.] 
-  patch  quadr     $matID   $nftw $nfdw  -[expr $D/2. - $tf]  -[expr $D/2. - $tf]  -[expr $D/2. - $tf]        -[expr $D/2.]  +[expr $D/2. - $tf]        -[expr $D/2.]  +[expr $D/2. - $tf]  -[expr $D/2. - $tf] 
+
+  section  fiberSec    $secID  {
+  # PatchAISC :    matTag    NSIJ  NSJK                  Iy                   Iz                   Jy             Jz             Ky             Kz             Ly             Lz
+  patch  quadr     $matID   $nfdw $nftw  +[expr $D/2. - $tf]        +[expr $D/2.]  +[expr $D/2. - $tf]        -[expr $D/2.]        +[expr $D/2.]        -[expr $D/2.]        +[expr $D/2.]        +[expr $D/2.]
+  patch  quadr     $matID   $nftw $nfdw  -[expr $D/2. - $tf]        +[expr $D/2.]  -[expr $D/2. - $tf]  +[expr $D/2. - $tf]  +[expr $D/2. - $tf]  +[expr $D/2. - $tf]  +[expr $D/2. - $tf]        +[expr $D/2.]
+  patch  quadr     $matID   $nftw $nfdw  -[expr $D/2. - $tf]  -[expr $D/2. - $tf]  -[expr $D/2. - $tf]        -[expr $D/2.]  +[expr $D/2. - $tf]        -[expr $D/2.]  +[expr $D/2. - $tf]  -[expr $D/2. - $tf]
   patch  quadr     $matID   $nfdw $nftw        -[expr $D/2.]        +[expr $D/2.]        -[expr $D/2.]        -[expr $D/2.]  -[expr $D/2. - $tf]        -[expr $D/2.]  -[expr $D/2. - $tf]        +[expr $D/2.]
-  } 
+  }
 }
 
 
 proc SteelWSectionMR {matTag E Fy Ry H Lcanti Lb sectType Com_Type Comp_Action args} {
- ##############################################################################################                                         
+ ##############################################################################################
  # Procedure to Construct a Moment-Rotation Curve Using the Bilin02 Model (for steel)
- #        
- # Written by: D. Lignos, Ph.D.                                                     
- # Adapted by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015                        
- #                                   
+ #
+ # Written by: D. Lignos, Ph.D.
+ # Adapted by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015
+ #
  # Modified by: X.Qian, 2022, based on MATLAB function file from Ligno's student
- # The implementation of this model follows papers:                                                                   
- #  
- # 1. Ribeiro, F., Neves, L., and Barbosa, A.(2015). "Implementation and calibration of finite-length 
- #    plastic hinge elements for use in seismic structural collapse analysis." Submitted to Journal of Earthquake                      
- #    Engineering         
- #        
- # The input parameters for bare steel components (beams, columns) are based on the following papers:            
- #        
- # 1. Lignos, D.G., Krawinkler, H. (2011). “Deterioration Modeling of Steel Components in Support of 
- #    Collapse Prediction of Steel Moment Frames under Earthquake Loading",                          
- #    ASCE, Journal of Structural Engineering, Vol. 137 (11), 1291-1302.                             
- # 
+ # The implementation of this model follows papers:
+ #
+ # 1. Ribeiro, F., Neves, L., and Barbosa, A.(2015). "Implementation and calibration of finite-length
+ #    plastic hinge elements for use in seismic structural collapse analysis." Submitted to Journal of Earthquake
+ #    Engineering
+ #
+ # The input parameters for bare steel components (beams, columns) are based on the following papers:
+ #
+ # 1. Lignos, D.G., Krawinkler, H. (2011). “Deterioration Modeling of Steel Components in Support of
+ #    Collapse Prediction of Steel Moment Frames under Earthquake Loading",
+ #    ASCE, Journal of Structural Engineering, Vol. 137 (11), 1291-1302.
+ #
  # 2. Lignos, D.G., Krawinkler, H. (2013). “Development and Utilization of Structural
- #    Component Databases for Performance-Based Earthquake Engineering”,             
- #    ASCE, Journal of Structural Engineering, Vol. 139 (NEES 2), 1382-1394.         
- # 
- # The input parameters for composite steel beams are based on the following paper: 
- # 
+ #    Component Databases for Performance-Based Earthquake Engineering”,
+ #    ASCE, Journal of Structural Engineering, Vol. 139 (NEES 2), 1382-1394.
+ #
+ # The input parameters for composite steel beams are based on the following paper:
+ #
  # 1. Elkady, A., Lignos, D.G. (2014). “Modeling of the Composite Action in Fully Restrained
  #    Beam-to-Column Connections: Implications in the Seismic Design and Collapse Capacity of Steel
  #    Special Moment Frames", Earthquake Engineering and Structural Dynamics, doi: 10.1002/eqe.2430.
  #
- # Input Variables for Procedure 
- # 
- # matTag      - Deterioration model ID     
- # E           - Young's modulus (in MPa or ksi)  
- # Fy          - Yield stress (in MPa or ksi)    
- # H           - Member Length without considering the panel zones (in mm or in) 
- # L           - Shear Span (in mm or in)                            
- # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)   
- # Com_Type    - Type of component (Use: 'RBS' or 'other-than-RBS')   
- # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )      
- # args        - <-nFactor $x> <-metric>                                                        
- #                                -nFactor - elastic stiffness amplification factor   
+ # Input Variables for Procedure
+ #
+ # matTag      - Deterioration model ID
+ # E           - Young's modulus (in MPa or ksi)
+ # Fy          - Yield stress (in MPa or ksi)
+ # H           - Member Length without considering the panel zones (in mm or in)
+ # L           - Shear Span (in mm or in)
+ # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)
+ # Com_Type    - Type of component (Use: 'RBS' or 'other-than-RBS')
+ # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )
+ # args        - <-nFactor $x> <-metric>
+ #                                -nFactor - elastic stiffness amplification factor
  #                                -metric - activate this option if  in and ksi are used
  ###############################################################################################
-  
+
   global in
   global WSection
-  
+
   # parameters c1, c2 for unit conversion if Imperial Units are used else these variables should be set equal to 1.0
   set c1 1.0
   set c2 1.0
 
   set matType "Bilin"
   if {[lsearch $args "-matType"] != -1} {
-  set loc [lsearch $args "-matType"]
-  set matType [lindex $args [expr $loc+1]]
+    set loc [lsearch $args "-matType"]
+    set matType [lindex $args [expr $loc+1]]
   }
 
   if {[lsearch $args "-metric"] != -1} {
-  set c1 1.0;
-  set c2 1.0;
+    set c1 1.0;
+    set c2 1.0;
   } else {
-  set c1 25.4; 
-  set c2 6.895;
+    set c1 25.4;
+    set c2 6.895;
   }
 
-  # set c1 25.4; 
+  # set c1 25.4;
   # set c2 6.895;
 
-#puts "$sectType query section properties"
   set found 0.
   foreach {section prop} [array get WSection $sectType] {
-  set propList [split $prop]                              
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-  set A [expr [lindex $propList 0]*$in*$in]
-  set d [expr [lindex $propList 1]*$in]
-  set bf [expr [lindex $propList 2]*$in]
-  set tw [expr [lindex $propList 3]*$in]
-  set tf [expr [lindex $propList 4]*$in]
-  set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
-  set Iy [expr [lindex $propList 6]*$in*$in*$in*$in]
-  set Sx [expr [lindex $propList 8]*$in*$in*$in]
-  set Zx [expr [lindex $propList 7]*$in*$in*$in]
-  set rx [expr [lindex $propList 9]*$in]
-  set Sy [expr [lindex $propList 11]*$in*$in*$in]
-  set ry [expr [lindex $propList 12]*$in]             
-  
-  set found 1.        
+      set propList [split $prop]
+      # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+      set A [expr [lindex $propList 0]*$in*$in]
+      set d [expr [lindex $propList 1]*$in]
+      set bf [expr [lindex $propList 2]*$in]
+      set tw [expr [lindex $propList 3]*$in]
+      set tf [expr [lindex $propList 4]*$in]
+      set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
+      set Iy [expr [lindex $propList 6]*$in*$in*$in*$in]
+      set Sx [expr [lindex $propList 8]*$in*$in*$in]
+      set Zx [expr [lindex $propList 7]*$in*$in*$in]
+      set rx [expr [lindex $propList 9]*$in]
+      set Sy [expr [lindex $propList 11]*$in*$in*$in]
+      set ry [expr [lindex $propList 12]*$in]
+
+      set found 1.
   }
 
   if {[lsearch $args "-nFactor"] != -1} {
-  set loc [lsearch $args "-nFactor"]
-  set nFactor [lindex $args [expr $loc+1]]
+    set loc [lsearch $args "-nFactor"]
+    set nFactor [lindex $args [expr $loc+1]]
   } else {
-  set nFactor 10.
+    set nFactor 10.
   }
-  
-  set Ixx $Ix    
 
-  
-  
+  set Ixx $Ix
+
+
+
   if {$Com_Type == "other-than-RBS"} {
-  
-        # Length modification factor for RBS
-        set Lfactor_rbs 1.0 
-  
-        # Element flexural stiffness assuming that the element is in double curvature 
-        set K [expr 3.*$E* $Ixx / $Lcanti]; 
-        
-        if {$d > 20.9843} {
-        # Pre-capping plastic rotation
-        set theta_p   [expr 0.318 * pow(($d/$tw),-0.55)  * pow(($bf/(2.*$tf)),-0.345) *  pow(($Lb/$ry),-0.023) *pow(($Lcanti/$d),0.09) * pow(($c1 * $d/533.),-0.33) * pow(($c2 * $Ry * $Fy/355.),-0.130)];
-  
-        # Post-capping plastic rotation
-        set theta_pc  [expr 7.5 * pow(($d/$tw),-0.61)  * pow(($bf/2./$tf),-0.710) *  pow(($Lb/$ry),-0.11) *  pow(($c1 * $d/533.),-0.161)  * pow(($c2 * $Ry * $Fy/355.),-0.320)];
-        
-        # Reference Cumulative Energy
-        set Lmda      [expr 536.0 * pow(($d/$tw),-1.260)  * pow(($bf/2./$tf),-0.525) * pow(($Lb/$ry),-0.13) * pow(($c2 * $Fy * $Ry * 1000 /355.0),-0.291)];
-        set Lmda      [expr min($Lmda, 3.0)];
-        
-        } else {
-        # Pre-capping plastic rotation
-        set theta_p   [expr 0.0865 * pow(($d/$tw),-0.365)  * pow(($bf/(2.*$tf)),-0.140) *  pow(($Lcanti/$d),0.340) * pow(($c1 * $d/533.),-0.721) * pow(($c2 * $Ry * $Fy/355.),-0.230)];
-  
-        # Post-capping plastic rotation
-        set theta_pc  [expr 5.63 * pow(($d/$tw),-0.565)  * pow(($bf/2./$tf),-0.800) *  pow(($c1 * $d/533.),-0.280)  * pow(($c2 * $Ry * $Fy/355.),-0.430)];
-        
-        # Reference Cumulative Energy
-        set Lmda      [expr 495.0 * pow(($d/$tw),-1.340)  * pow(($bf/2./$tf),-0.595) *  pow(($c2 * $Fy * $Ry * 1000 / 355.),-0.360)];
-        set Lmda      [expr min($Lmda, 3.0)];
-        
-        }
-  
-  # Effective Yield Moment for Positive and Negative Loading Direction 
-  # Consider only symmetric behavior
-  # set My_P [expr   1.1 * $Zx * $Ry * $Fy]; 
-  # set My_N [expr  -1.1 * $Sx * $Ry * $Fy];
-  set My [expr   1.1 * $Zx * $Ry * $Fy];
-  
-  # Ultimate Chord Rotation
-  set theta_ult_mem 0.2;
-  
-  
+
+    # Length modification factor for RBS
+    set Lfactor_rbs 1.0
+
+    # Element flexural stiffness assuming that the element is in double curvature
+    set K [expr 3.*$E* $Ixx / $Lcanti];
+
+    if {$d > 20.9843} {
+      # Pre-capping plastic rotation
+      set theta_p   [expr 0.318 * pow(($d/$tw),-0.55)  * pow(($bf/(2.*$tf)),-0.345) *  pow(($Lb/$ry),-0.023) *pow(($Lcanti/$d),0.09) * pow(($c1 * $d/533.),-0.33) * pow(($c2 * $Ry * $Fy/355.),-0.130)];
+
+      # Post-capping plastic rotation
+      set theta_pc  [expr 7.5 * pow(($d/$tw),-0.61)  * pow(($bf/2./$tf),-0.710) *  pow(($Lb/$ry),-0.11) *  pow(($c1 * $d/533.),-0.161)  * pow(($c2 * $Ry * $Fy/355.),-0.320)];
+
+      # Reference Cumulative Energy
+      set Lmda      [expr 536.0 * pow(($d/$tw),-1.260)  * pow(($bf/2./$tf),-0.525) * pow(($Lb/$ry),-0.13) * pow(($c2 * $Fy * $Ry * 1000 /355.0),-0.291)];
+      set Lmda      [expr min($Lmda, 3.0)];
+
+    } else {
+      # Pre-capping plastic rotation
+      set theta_p   [expr 0.0865 * pow(($d/$tw),-0.365)  * pow(($bf/(2.*$tf)),-0.140) *  pow(($Lcanti/$d),0.340) * pow(($c1 * $d/533.),-0.721) * pow(($c2 * $Ry * $Fy/355.),-0.230)];
+
+      # Post-capping plastic rotation
+      set theta_pc  [expr 5.63 * pow(($d/$tw),-0.565)  * pow(($bf/2./$tf),-0.800) *  pow(($c1 * $d/533.),-0.280)  * pow(($c2 * $Ry * $Fy/355.),-0.430)];
+
+      # Reference Cumulative Energy
+      set Lmda      [expr 495.0 * pow(($d/$tw),-1.340)  * pow(($bf/2./$tf),-0.595) *  pow(($c2 * $Fy * $Ry * 1000 / 355.),-0.360)];
+      set Lmda      [expr min($Lmda, 3.0)];
+
+    }
+
+    # Effective Yield Moment for Positive and Negative Loading Direction
+    # Consider only symmetric behavior
+    set My [expr   1.1 * $Zx * $Ry * $Fy];
+
+    # Ultimate Chord Rotation
+    set theta_ult_mem 0.2;
   }
-  
-  # RBS 
+
+  # RBS
   if {$Com_Type == "RBS"} {
-  
-  set a_rbs [expr 0.625*$bf];
-  set b_rbs [expr 0.75*$d];
-  set c_rbs [expr 0.25*$bf];
-  set L_rbs [expr $a_rbs + 0.5*$b_rbs];
-  set A_rbs [expr $A - 2*(2*$c_rbs*$tf)];
-  set I_rbs [expr $Ix - 2*2*$c_rbs*$tf*pow(($d/2),2)];
-  set Z_rbs [expr $Zx - 2*$c_rbs*$tf*($d-$tf)];
-  set My [expr 1.1*$Z_rbs*$Fy*$Ry*($Lcanti)/($Lcanti-$L_rbs)];
-  
-  # Length modification factor for RBS
-  set Lfactor_rbs [expr $Lcanti/($Lcanti-$L_rbs)];
-  
-  
-  # Element flexural stiffness assuming that the element is in double curvature 
-  set C_rbs 0.81; # stiffness modifier due to RBS, https://ascelibrary.org/doi/full/10.1061/%28ASCE%290733-9445%282007%29133%3A2%28176%29
-  set K [expr 3.* $C_rbs * $E* $Ixx / $Lcanti]; 
-  
-  # Pre-capping plastic rotation 
-  set theta_p   [expr 0.19 * pow(($d/$tw),-0.314) * pow(($bf/2./$tf),-0.100) *  pow(($Lb/$ry),-0.185) * pow((($Lcanti-$L_rbs)/$d),0.113) * pow(($c1 * $d/533.),-0.760) * pow(($c2 * $Fy * $Ry/355.),-0.070)];
-  
-  # Post-capping plastic rotation
-  set theta_pc  [expr 9.52 * pow(($d/$tw),-0.513) * pow(($bf/2./$tf),-0.863) *  pow(($Lb/$ry),-0.108) * pow(($c2 * $Fy * $Ry/355.),-0.360)];
-  
-  # Ultimate Chord Rotation
-  set theta_ult_mem 0.25;
-  
-  
-  # Reference Cumulative Energy
-  set Lmda      [expr 585. * pow(($d/$tw),-1.140) * pow(($bf/2./$tf),-0.632) *  pow(($Lb/$ry),-0.205) * pow(($c2 * $Fy/355),-0.391)];
-  set Lmda      [expr min($Lmda, 3.0)];
-  # set Lmda 1.0; #<---
-  # Effective Yield Moment for Positive and Negative Loading Direction
+
+    set a_rbs [expr 0.625*$bf];
+    set b_rbs [expr 0.75*$d];
+    set c_rbs [expr 0.25*$bf];
+    set L_rbs [expr $a_rbs + 0.5*$b_rbs];
+    set A_rbs [expr $A - 2*(2*$c_rbs*$tf)];
+    set I_rbs [expr $Ix - 2*2*$c_rbs*$tf*pow(($d/2),2)];
+    set Z_rbs [expr $Zx - 2*$c_rbs*$tf*($d-$tf)];
+    set My [expr 1.1*$Z_rbs*$Fy*$Ry*($Lcanti)/($Lcanti-$L_rbs)];
+
+    # Length modification factor for RBS
+    set Lfactor_rbs [expr $Lcanti/($Lcanti-$L_rbs)];
+
+
+    # Element flexural stiffness assuming that the element is in double curvature
+    set C_rbs 0.81; # stiffness modifier due to RBS, https://ascelibrary.org/doi/full/10.1061/%28ASCE%290733-9445%282007%29133%3A2%28176%29
+    set K [expr 3.* $C_rbs * $E* $Ixx / $Lcanti];
+
+    # Pre-capping plastic rotation
+    set theta_p   [expr 0.19 * pow(($d/$tw),-0.314) * pow(($bf/2./$tf),-0.100) *  pow(($Lb/$ry),-0.185) * pow((($Lcanti-$L_rbs)/$d),0.113) * pow(($c1 * $d/533.),-0.760) * pow(($c2 * $Fy * $Ry/355.),-0.070)];
+
+    # Post-capping plastic rotation
+    set theta_pc  [expr 9.52 * pow(($d/$tw),-0.513) * pow(($bf/2./$tf),-0.863) *  pow(($Lb/$ry),-0.108) * pow(($c2 * $Fy * $Ry/355.),-0.360)];
+
+    # Ultimate Chord Rotation
+    set theta_ult_mem 0.25;
+
+
+    # Reference Cumulative Energy
+    set Lmda      [expr 585. * pow(($d/$tw),-1.140) * pow(($bf/2./$tf),-0.632) *  pow(($Lb/$ry),-0.205) * pow(($c2 * $Fy/355),-0.391)];
+    set Lmda      [expr min($Lmda, 3.0)];
+    # set Lmda 1.0; #<---
+    # Effective Yield Moment for Positive and Negative Loading Direction
 
   }
-  
-  
-  
-  
+
   # Residual Strength Factor
   set Res 0.4;
-  
-  
-  
-  set c_S 1.0; set c_C 1.0; set c_A 1.0; set c_K 1.0;
-  
-  # # Check for Composite Action for Beam Springs: If yes adjust the spring parameters based on the ones proposed by Elkady and Lignos (2014)
-  # if {$Comp_Action == 1} { 
-  # set theta_p_P   [expr 1.80*$theta_p];
-  # set theta_p_N   [expr 0.95*$theta_p];
-  # set theta_pc_P  [expr 1.35*$theta_pc];
-  # set theta_pc_N  [expr 0.95*$theta_pc];
-  # set D_P 1.15; set D_N 1.00;
-  
-  # # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
-  # set McMyP 1.30; set McMyN 1.05;
-  
-  # # Effective Yield Moment for Positive and Negative Loading Direction after Slab Adjustment
-  # set My_P      [expr  1.35 * $My_P]; 
-  # set My_N      [expr  1.25 * $My_N];
-  
-  # # If No composite Action is considered (Columns and Bare Beam cases)
-  # } else {
-  # set theta_p_P   $theta_p;
-  # set theta_p_N   $theta_p;
-  # set theta_pc_P  $theta_pc;
-  # set theta_pc_N  $theta_pc;
-  # set D_P 1.0; set D_N 1.0;
-  
-  # # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
-  # set McMyP 1.1; set McMyN 1.1;      #<==========
 
-  # }
-  
+
+  set c_S 1.0; set c_C 1.0; set c_A 1.0; set c_K 1.0;
+
   # Simplified for non-composite action and symmetric behavior
   set McMy 1.1;
   set theta_y_mem [expr $My / $K];
 
-  
+
   # Strain hardening ratios for Positive and Negative Loading Directions
   set as_mem [expr   ($McMy-1.)*$My/($theta_p * $K) * $Lfactor_rbs];
   set aspc_mem [expr (0. - $McMy)*$My/($theta_pc * $K) * $Lfactor_rbs];
-  
+
   # Beam-Column properties
   set K_bc [expr (1. + (pow((1./$Lfactor_rbs),2))/$nFactor) * $K];
-  
+
   # Spring properties
   set Res_s $Res;
   set My_s [expr $My/$Lfactor_rbs];
   set Mc_s [expr $McMy * $My_s];
   set Mres_s [expr $Res_s * $My_s];
-  
+
   set as_s [expr $as_mem / ($nFactor * (1 - $as_mem) + 1.* pow((1./$Lfactor_rbs),2)) * pow((1./$Lfactor_rbs),2)];
   set K_s [expr ($nFactor + 1. * pow((1./$Lfactor_rbs),2)) * $K];
   set theta_p_s [expr ($Mc_s - $My_s) / ($as_s * $K_s)];
   set aspc_s [expr $aspc_mem / ($nFactor * (1. - $aspc_mem) + 1.* pow((1./$Lfactor_rbs),2)) * pow((1./$Lfactor_rbs),2)];
   set theta_pc_s [expr (0. - $Mc_s) / ($aspc_s * $K_s)];
-  
+
   if { [expr $Mc_s + ($theta_ult_mem - ($theta_p + $theta_y_mem)) * ($aspc_mem * $K) > $Mres_s * $Lfactor_rbs] } {
         set theta_ult_s [expr ($theta_p_s + $My_s / $K_s) + ($theta_ult_mem - ( $theta_y_mem + $theta_p        )) *  ($aspc_mem * $K) / ($aspc_s * $K_s) / $Lfactor_rbs];
   } else {
         set theta_ult_s [expr $theta_ult_mem - $Mres_s * $Lfactor_rbs / $K_bc * $Lfactor_rbs];
   };
-  
-  
+
+
   # Define Uniaxial Material Modified Ibarra-Medina-Krawinkler (IMK) Model with Bilinear Hysteretic response
   set bilinType Bilin
   if {$matType == "Bilin"} {
-  uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor
-#    puts "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
-  
-  
+    uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor
+    #  puts stderr "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
+
+
   } elseif {$matType == "MultiLinear"} {
-  puts "not defined"
+    puts stderr "not defined"
 
   } elseif {$matType == "Elastic"} {
-  set K [expr $K*$nFactor]
+    set K [expr $K*$nFactor]
 
-  uniaxialMaterial Elastic $matTag $K
+    uniaxialMaterial Elastic $matTag $K
   }
 }
 
 proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
- ##############################################################################################                                         
+ ##############################################################################################
  # Procedure to Construct a Moment-Rotation Curve Using the Bilin02 Model (for steel)
- #        
- # Written by: D. Lignos, Ph.D.                                                     
- # Adapted by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015                        
- #                                   
+ #
+ # Written by: D. Lignos, Ph.D.
+ # Adapted by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015
+ #
  # Modified by: X.Qian, 2022, based on MATLAB function file from Ligno's student
- 
- # The implementation of this model follows papers:                                                                   
- #  
- # 2. Lignos, et al. (2019) Proposed updates to the ASCE 41 nonlinear modeling parameters for wide-flange steel columns 
- # in support of performanced-based seismic engineering, Vol 145(9)      
- #        
- # The input parameters for bare steel components (beams, columns) are based on the following papers:            
- #        
- # 1. Lignos, D.G., Krawinkler, H. (2011). “Deterioration Modeling of Steel Components in Support of 
- #    Collapse Prediction of Steel Moment Frames under Earthquake Loading",                          
- #    ASCE, Journal of Structural Engineering, Vol. 137 (11), 1291-1302.                             
- # 
+
+ # The implementation of this model follows papers:
+ #
+ # 2. Lignos, et al. (2019) Proposed updates to the ASCE 41 nonlinear modeling parameters for wide-flange steel columns
+ # in support of performanced-based seismic engineering, Vol 145(9)
+ #
+ # The input parameters for bare steel components (beams, columns) are based on the following papers:
+ #
+ # 1. Lignos, D.G., Krawinkler, H. (2011). “Deterioration Modeling of Steel Components in Support of
+ #    Collapse Prediction of Steel Moment Frames under Earthquake Loading",
+ #    ASCE, Journal of Structural Engineering, Vol. 137 (11), 1291-1302.
+ #
  # 2. Lignos, D.G., Krawinkler, H. (2013). “Development and Utilization of Structural
- #    Component Databases for Performance-Based Earthquake Engineering”,             
- #    ASCE, Journal of Structural Engineering, Vol. 139 (NEES 2), 1382-1394.         
- # 
- # The input parameters for composite steel beams are based on the following paper: 
- # 
+ #    Component Databases for Performance-Based Earthquake Engineering”,
+ #    ASCE, Journal of Structural Engineering, Vol. 139 (NEES 2), 1382-1394.
+ #
+ # The input parameters for composite steel beams are based on the following paper:
+ #
  # 1. Elkady, A., Lignos, D.G. (2014). “Modeling of the Composite Action in Fully Restrained
  #    Beam-to-Column Connections: Implications in the Seismic Design and Collapse Capacity of Steel
  #    Special Moment Frames", Earthquake Engineering and Structural Dynamics, doi: 10.1002/eqe.2430.
- # 
  #
  #
- # Input Variables for Procedure 
- # 
- # matTag      - Deterioration model ID     
- # E           - Young's modulus (in MPa or ksi)  
- # Fy          - Yield stress (in MPa or ksi)    
- # H           - Member Length without considering the panel zones (in mm or in) 
- # L           - Shear Span (in mm or in)                            
- # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)   
- # Com_Type    - Type of component (Use: 'RBS' or 'other-than-RBS')   
- # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )  
- # PgPy        - Gravity axial force to yield axial strength ratio  
- # args        - <-nFactor $x> <-metric>                                                        
- #                                -nFactor - elastic stiffness amplification factor   
+ #
+ # Input Variables for Procedure
+ #
+ # matTag      - Deterioration model ID
+ # E           - Young's modulus (in MPa or ksi)
+ # Fy          - Yield stress (in MPa or ksi)
+ # H           - Member Length without considering the panel zones (in mm or in)
+ # L           - Shear Span (in mm or in)
+ # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)
+ # Com_Type    - Type of component (Use: 'RBS' or 'other-than-RBS')
+ # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )
+ # PgPy        - Gravity axial force to yield axial strength ratio
+ # args        - <-nFactor $x> <-metric>
+ #                                -nFactor - elastic stiffness amplification factor
  #                                -metric - activate this option if  in and ksi are used
  ###############################################################################################
 
 
   global in
   global WSection
-  
+
   # parameters c1, c2 for unit conversion if Imperial Units are used else these variables should be set equal to 1.0
   set c1 1.0
   set c2 1.0
@@ -1495,19 +1456,19 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
   set c1 1.0;
   set c2 1.0;
   } else {
-  set c1 25.4; 
+  set c1 25.4;
   set c2 6.895;
   }
 
-  # set c1 25.4; 
+  # set c1 25.4;
   # set c2 6.895;
 
-#   puts "$sectType query section properties"
-  
+#   puts stderr "$sectType query section properties"
+
   set found 0.
   foreach {section prop} [array get WSection $sectType] {
-  set propList [split $prop]                              
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+  set propList [split $prop]
+  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
   set A [expr [lindex $propList 0]*$in*$in]
   set d [expr [lindex $propList 1]*$in]
   set bf [expr [lindex $propList 2]*$in]
@@ -1519,9 +1480,9 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
   set Zx [expr [lindex $propList 7]*$in*$in*$in]
   set rx [expr [lindex $propList 9]*$in]
   set Sy [expr [lindex $propList 11]*$in*$in*$in]
-  set ry [expr [lindex $propList 12]*$in]             
-  
-  set found 1.        
+  set ry [expr [lindex $propList 12]*$in]
+
+  set found 1.
   }
 
   if {[lsearch $args "-nFactor"] != -1} {
@@ -1529,30 +1490,30 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
   set nFactor [lindex $args [expr $loc+1]]
   } else {
   set nFactor 10.
-  }        
-  
-  set Ixx $Ix    
+  }
 
-  # Element flexural stiffness assuming that the element is in double curvature 
-  set K [expr 3.*$E* $Ixx / $Lcanti]; 
-  
-  # Effective Yield Moment for Positive and Negative Loading Direction 
+  set Ixx $Ix
+
+  # Element flexural stiffness assuming that the element is in double curvature
+  set K [expr 3.*$E* $Ixx / $Lcanti];
+
+  # Effective Yield Moment for Positive and Negative Loading Direction
   # Consider only symmetric behavior
   if {$PgPy <= 0.2} {
   set My [expr   1.15 * $Zx * $Ry * $Fy * (1-$PgPy/2.)];
   } else {
   set My [expr   1.15 * $Zx * $Ry * $Fy * 9/8 * (1-$PgPy)];
   }
-  
+
 
   # Pre-capping plastic rotation
         set theta_p   [expr 294 * pow(($d/$tw),-1.7) * pow(($Lb/$ry),-0.7) * pow((1-$PgPy),1.6) ];
         set theta_p   [expr min($theta_p, 0.2)];
-  
+
   # Post-capping plastic rotation
         set theta_pc  [expr 90 * pow(($d/$tw),-0.8)  *  pow(($Lb/$ry),-0.8) *  pow((1-$PgPy),2.5)];
         set theta_pc   [expr min($theta_pc, 0.3)];
-        
+
   # Reference Cumulative Energy
         if {$PgPy <= 0.35} {
         set Lmda      [expr 25500 * pow(($d/$tw),-2.14)  * pow(($Lb/$ry),-0.53) * pow((1-$PgPy),4.92)];
@@ -1561,74 +1522,74 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
         set Lmda      [expr 268000 * pow(($d/$tw),-2.3)  * pow(($Lb/$ry),-1.3) * pow((1-$PgPy),1.19)];
         set Lmda      [expr min($Lmda, 3.0)];
         }
-  
-  
+
+
     set Lmda_c    [expr $Lmda*0.9]
         set Lmda_k    [expr $Lmda*0.9]
-        
-        
+
+
         # set Lmda      1.0;
         # set Lmda_c    1.0;
         # set Lmda_k    1.0;
-        
-  # Residual moment 
+
+  # Residual moment
         set Mres_mem [expr (0.5-0.4*$PgPy) * $My]
-        
+
   # Residual Strength Factor
         set Res [expr (0.5-0.4*$PgPy)];
 
-  
+
   # Ultimate Chord Rotation
   set theta_ult_mem 0.15;
-  
-  
+
+
   # Strain hardening ratio
   set a_mem [expr 12.5 * pow(($d/$tw),-0.2)  *  pow(($Lb/$ry),-0.4) *  pow((1-$PgPy),0.4)];
   set a_mem [expr min(max($a_mem, 1.0001),1.3)];
-  
+
   set c_S 1.0; set c_C 1.0; set c_A 1.0; set c_K 1.0;
-  
-  
+
+
   # Simplified for non-composite action and symmetric behavior
   set McMy $a_mem; # Mc_mem = a_mem * My
   set theta_y_mem [expr $My / $K];
 
-  
+
   # Strain hardening ratios for Positive and Negative Loading Directions
   set as_mem [expr   ($McMy - 1.) * $My / ($theta_p * $K)];
   set aspc_mem [expr (0. - $McMy) * $My / ($theta_pc * $K)];
-  
+
   # Beam-Column properties
   set K_bc [expr (1. + $nFactor)/$nFactor * $K];
-  
+
   # Spring properties
   set Res_s $Res;
   set My_s [expr $My];
   set Mc_s [expr $McMy * $My_s];
   set Mres_s [expr $Res_s * $My_s];
-  
+
   set as_s [expr $as_mem / ($nFactor * (1 - $as_mem) + 1.)];
   set K_s [expr ($nFactor + 1.) * $K];
   set theta_p_s [expr ($Mc_s - $My_s) / ($as_s * $K_s)];
   set aspc_s [expr $aspc_mem / ($nFactor * (1. - $aspc_mem) + 1.)];
   set theta_pc_s [expr (0. - $Mc_s) / ($aspc_s * $K_s)];
-  
+
   if { [expr $Mc_s + ($theta_ult_mem - ($theta_p + $theta_y_mem)) * ($aspc_mem * $K) > $Mres_s] } {
         set theta_ult_s [expr ($theta_p_s + $My_s / $K_s) + ($theta_ult_mem - ( $theta_y_mem + $theta_p        )) *  ($aspc_mem * $K) / ($aspc_s * $K_s) ];
   } else {
         set theta_ult_s [expr $theta_ult_mem - $Mres_s  / $K_bc ];
   };
-  
-  
+
+
   # Define Uniaxial Material Modified Ibarra-Medina-Krawinkler (IMK) Model with Bilinear Hysteretic response
   if {$matType == "Bilin"} {
   set bilinType Bilin
   uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor
-  puts "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
-  
-  
+  puts stderr "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
+
+
   } elseif {$matType == "MultiLinear"} {
-  puts "not defined"
+  puts stderr "not defined"
 
   } elseif {$matType == "Elastic"} {
   set K [expr $K*$nFactor]
@@ -1638,38 +1599,38 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
 }
 
 proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
- ##############################################################################################                                         
+ ##############################################################################################
  # Procedure to Construct a Moment-Rotation Curve Using the Bilin02 Model (for steel)
  # tubular hollow sections. The code is modified from SteelWSectionMR02 to include the parameters
- # for box colums in the following paper. 
- # Note: only valid for square HSS sections!!! 
- # 
- # Written by: X.Qian, Ph.D.  
- # 
- # The input parameters for bare steel components (beams, columns) are based on the following papers:            
+ # for box colums in the following paper.
+ # Note: only valid for square HSS sections!!!
+ #
+ # Written by: X.Qian, Ph.D.
+ #
+ # The input parameters for bare steel components (beams, columns) are based on the following papers:
  # 1. Lignos, D.G., Krawinkler, H. (2010) "A steel database for component deterioration of tubular hollow
  #    square steel columns under varying axial load for collapse assessment of steel structures under earthquakes",
- #    Joint Conf. Proc. 7th International conference on urban earthquake engineering (7CUEE) & 5th International 
+ #    Joint Conf. Proc. 7th International conference on urban earthquake engineering (7CUEE) & 5th International
  #    conference on earthquake engineering (5ICEE), March 3-5, 2010, Tokyo, Japan
- #          
- # Input Variables for Procedure 
- # 
- # matTag      - Deterioration model ID     
- # E           - Young's modulus (in MPa or ksi)  
- # Fy          - Yield stress (in MPa or ksi)    
+ #
+ # Input Variables for Procedure
+ #
+ # matTag      - Deterioration model ID
+ # E           - Young's modulus (in MPa or ksi)
+ # Fy          - Yield stress (in MPa or ksi)
  # H           - Member Length without considering the panel zones (in mm or in)
- # N           - axial force due to gravity loads 
- # args        - <-nFactor $x> <-metric>                                                        
- #                                -nFactor - elastic stiffness amplification factor   
+ # N           - axial force due to gravity loads
+ # args        - <-nFactor $x> <-metric>
+ #                                -nFactor - elastic stiffness amplification factor
  #                                -metric - activate this option if in and ksi are used
  ###############################################################################################
-  
+
   global in
   global HSSection
-  
+
   # parameters c for unit conversion if Imperial Units are used else these variables should be set equal to 1.0
   set c 1.0
-  
+
 
   set matType "Bilin02"
   if {[lsearch $args "-matType"] != -1} {
@@ -1678,13 +1639,13 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
   }
 
   if {[lsearch $args "-metric"] != -1} {
-  set c 6.895; 
+  set c 6.895;
   }
 
 
   set found 0.
   foreach {section prop} [array get HSSection $sectType] {
-  set propList [split $prop]      
+  set propList [split $prop]
   # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
   set  A [expr [lindex $propList 1]*$in*$in]
   set  D [expr [lindex $propList 2]*$in]
@@ -1697,16 +1658,16 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
   set Iy [expr [lindex $propList 9]*$in*$in*$in*$in]
   set Zy [expr [lindex $propList 10]*$in*$in*$in]
   set Sy [expr [lindex $propList 11]*$in*$in*$in]
-  set ry [expr [lindex $propList 12]*$in]             
-  set found 1.        
+  set ry [expr [lindex $propList 12]*$in]
+  set found 1.
   }
-  
+
   set Ny [expr $A*$Fy]
   set NNy [expr $N/$Ny]
-  puts "NNy = $NNy"
-  
+  puts stderr "NNy = $NNy"
+
   if {$D != $b} {
-  puts "HSS not square, not applicable!"}
+  puts stderr "HSS not square, not applicable!"}
 
   if {[lsearch $args "-nFactor"] != -1} {
   set loc [lsearch $args "-nFactor"]
@@ -1716,74 +1677,74 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
   } else {
   set nFactor 0.
   set Ixx $Ix
-  }                
-  set Ixx $Ix    
+  }
+  set Ixx $Ix
 
-  # Element flexural stiffness assuming that the element is in double curvature 
-  set K [expr 6.*$E* $Ixx / $H]; 
-  
-  
+  # Element flexural stiffness assuming that the element is in double curvature
+  set K [expr 6.*$E* $Ixx / $H];
+
+
   # Pre-capping plastic rotation
   set theta_p   [expr 0.614 * pow(($D/$t),-1.05) * pow((1-$NNy),1.18) * pow(($c*$Fy/380),-0.11)] ;
-  
+
   # Post-capping plastic rotation
   set theta_pc  [expr 13.82 * pow(($D/$t),-1.22) * pow((1-$NNy),3.04) * pow(($c*$Fy/380),-0.15)] ;
-  
+
   # Reference Cumulative Energy
   set Lmda      [expr 3012.0 * pow(($D/$t),-2.49) * pow((1-$NNy),3.51) * pow(($c*$Fy/380),-0.2)] ;
-   
-  
 
-  
+
+
+
   # Ultimate Chord Rotation
   set theta_u 0.4;
-  
+
   # Residual Strength Factor
   set Res 0.25;
-  
+
   # Effective Yield Moment for Positive and Negative Loading Direction
-  set My_P [expr  1.1 * $Sx * $Fy]; 
+  set My_P [expr  1.1 * $Sx * $Fy];
   set My_N [expr  -1.1 * $Sx * $Fy];
-  
+
   set c_S 1.0; set c_C 1.0; set c_A 1.0; set c_K 1.0;
-  
-  # Define positive and negative plastic rotations 
+
+  # Define positive and negative plastic rotations
   set theta_p_P   $theta_p;
   set theta_p_N   $theta_p;
   set theta_pc_P  $theta_pc;
   set theta_pc_N  $theta_pc;
   set D_P 1.0; set D_N 1.0;
-  
+
   # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
   set McMyP 1.05; set McMyN 1.05;
-  
-  
+
+
   # Strain hardening ratios for Positive and Negative Loading Directions
   set as_mem_p [expr   ($McMyP-1.)*$My_P/($theta_p_P * $K)];
   set as_mem_n [expr  -($McMyN-1.)*$My_N/($theta_p_N * $K)];
-  
+
   # Define Uniaxial Material Modified Ibarra-Medina-Krawinkler (IMK) Model with Bilinear Hysteretic response
   if {$matType == "Bilin02"} {
   uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor
-  puts "        uniaxialMaterial Bilin02 $matTag $c $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor"
-  
+  puts stderr "        uniaxialMaterial Bilin02 $matTag $c $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor"
+
   } elseif {$matType == "MultiLinear"} {
-  # Define multilinear model 
-  set s1p $My_P; 
+  # Define multilinear model
+  set s1p $My_P;
   set e1p [expr $s1p/$K]
-  set s2p [expr $My_P + $as_mem_p*$K*$theta_p_P]; 
+  set s2p [expr $My_P + $as_mem_p*$K*$theta_p_P];
   set e2p [expr $e1p + $theta_p_P];
   set s3p 0.0
   set e3p [expr $e2p+$theta_pc_P];
 
-  puts "ORIGINAL:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        "
+  puts stderr "ORIGINAL:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        "
 
   # Modifications based on Barbosa & Ribera
   set Ke [expr $K*(1+$nFactor)]; # eqn B.3
   set e1p [expr $s1p/$Ke]
 
   set asPos $as_mem_p
-  
+
   set alphaPos [expr $asPos/(1+$nFactor*(1.0-$asPos))]; #eqn 7 Riberra & Barbosa DOES YIELD RESULT IN Ibarra and Krawinkle!!
 
   set ekhardPos [expr $Ke*$asPos/(1+$nFactor*(1-$asPos))]
@@ -1792,14 +1753,14 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
   set capSlope [expr $capSlopeMember/(1+$nFactor*(1-$capSlopeMember))]
 
   set e2p [expr ($s2p-$s1p)/($alphaPos*$Ke) + $e1p]
-  set e3p [expr ($s3p-$s2p)/($capSlope*$Ke) + $e2p]        
+  set e3p [expr ($s3p-$s2p)/($capSlope*$Ke) + $e2p]
 
 #        set alphaCap [expr $Kcapping/$Ke]; # section B, discussion post-capping stiffness coefficient
 #        set alphaCap [expr (($nFactor+1)*$alphaCap)/($nFactor+1-$nFactor*$alphaCap)]; #eqn B.5 Ibarra & K (DOES NOT YEILD STATED RESULT!)
 #        set alphaCap [expr $alphaCap/(1+$nFactor*(1.0-$alphaCap))]; #eqn 7 Riberra & Barbosa DOES YIELD RESULT IN Ibarra and Krawinkle!!
 #        set Kcapping [expr $Ke*$alphaCap]
 
-  puts "MODIFIED:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        E1: [expr $s1p/$e1p] E2 [expr ($s2p-$s1p)/($e2p-$e1p)] b [expr ($s2p-$s1p)/($e2p-$e1p)/($s1p/$e1p)]"
+  puts stderr "MODIFIED:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        E1: [expr $s1p/$e1p] E2 [expr ($s2p-$s1p)/($e2p-$e1p)] b [expr ($s2p-$s1p)/($e2p-$e1p)/($s1p/$e1p)]"
 
   uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.
 
@@ -1815,19 +1776,19 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
 
 
 proc SteelWSectionATC41 {matTag E Fy L sectType args} {
- ##############################################################################################                                         
- # Input Variables for Procedure 
- # 
- # matTag      - Deterioration model ID     
- # E           - Young's modulus (in MPa or ksi)  
- # Fy          - Yield stress (in MPa or ksi)    
- # L           - Shear Span (in mm or in)                            
- # args        - <-nFactor $x> 
+ ##############################################################################################
+ # Input Variables for Procedure
+ #
+ # matTag      - Deterioration model ID
+ # E           - Young's modulus (in MPa or ksi)
+ # Fy          - Yield stress (in MPa or ksi)
+ # L           - Shear Span (in mm or in)
+ # args        - <-nFactor $x>
  ###############################################################################################
-  
+
   global in
   global WSection
-  
+
   set matType "Bilin02"
   if {[lsearch $args "-matType"] != -1} {
   set loc [lsearch $args "-matType"]
@@ -1836,8 +1797,8 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
 
   set found 0.
   foreach {section prop} [array get WSection $sectType] {
-  set propList [split $prop]                              
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+  set propList [split $prop]
+  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
   set A [expr [lindex $propList 0]*$in*$in]
   set d [expr [lindex $propList 1]*$in]
   set bf [expr [lindex $propList 2]*$in]
@@ -1848,9 +1809,9 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
   set Sx [expr [lindex $propList 8]*$in*$in*$in]
   set rx [expr [lindex $propList 9]*$in]
   set Sy [expr [lindex $propList 11]*$in*$in*$in]
-  set ry [expr [lindex $propList 12]*$in]             
-  
-  set found 1.        
+  set ry [expr [lindex $propList 12]*$in]
+
+  set found 1.
   }
 
   set nFactor 1
@@ -1861,10 +1822,10 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
 
   } else {
   set Ixx $Ix
-  }                
-  
-  # Element flexural stiffness assuming that the element is in double curvature 
-  set K [expr 6.*$E* $Ixx / $L]; 
+  }
+
+  # Element flexural stiffness assuming that the element is in double curvature
+  set K [expr 6.*$E* $Ixx / $L];
   set MY [expr $Z*$Fy]
   set thetaY [expr $MY/$K]
 
@@ -1877,57 +1838,57 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
   set b [expr 6.0*$thetaY]
   set Mr [0.2*$My]
   }
-  
+
   if {$Com_Type == "other-than-RBS"} {
   # Pre-capping plastic rotation
   set theta_p   [expr 0.0865 * pow(($d/$tw),-0.365)  * pow(($bf/(2.*$tf)),-0.140) *  pow(($L/$d),0.340) * pow(($c1 * $d/533.),-0.721) * pow(($c2 * $Fy/355.),-0.230)];
-  
+
 
   # Post-capping plastic rotation
   set theta_pc  [expr 5.63 * pow(($d/$tw),-0.565)  * pow(($bf/2./$tf),-0.800) *  pow(($c1 * $d/533.),-0.280)  * pow(($c2 * $Fy/355.),-0.430)];
-  
+
   # Reference Cumulative Energy
   set Lmda      [expr 495.0 * pow(($d/$tw),-1.340)  * pow(($bf/2./$tf),-0.595) *  pow(($c2 * $Fy/355.),-0.360)];
   }
-  
+
   if {$Com_Type == "RBS"} {
-  # Pre-capping plastic rotation 
+  # Pre-capping plastic rotation
   set theta_p   [expr 0.19 * pow(($d/$tw),-0.314) * pow(($bf/2./$tf),-0.100) *  pow(($Lb/$ry),-0.185) * pow(($L/$d),0.113) * pow(($c1 * $d/533.),-0.760) * pow(($c2 * $Fy/355.),-0.070)];
-  
+
   # Post-capping plastic rotation
   set theta_pc  [expr 9.52 * pow(($d/$tw),-0.513) * pow(($bf/2./$tf),-0.863) *  pow(($Lb/$ry),-0.108) * pow(($c2 * $Fy/355.),-0.360)];
-  
+
   # Reference Cumulative Energy
   set Lmda      [expr 585. * pow(($d/$tw),-1.140) * pow(($bf/2./$tf),-0.632) *  pow(($Lb/$ry),-0.205) * pow(($c2 * $Fy/355),-0.391)];
   }
-  
+
   # Ultimate Chord Rotation
   set theta_u 0.4;
-  
+
   # Residual Strength Factor
   set Res 0.4;
-  
+
   # Effective Yield Moment for Positive and Negative Loading Direction
-  set My_P [expr  1.1 * $Sx * $Fy]; 
+  set My_P [expr  1.1 * $Sx * $Fy];
   set My_N [expr  -1.1 * $Sx * $Fy];
-  
+
   set c_S 1.0; set c_C 1.0; set c_A 1.0; set c_K 1.0;
-  
+
   # Check for Composite Action for Beam Springs: If yes adjust the spring parameters based on the ones proposed by Elkady and Lignos (2014)
-  if {$Com_Type == 1} { 
+  if {$Com_Type == 1} {
   set theta_p_P   [expr 1.80*$theta_p];
   set theta_p_N   [expr 0.95*$theta_p];
   set theta_pc_P  [expr 1.35*$theta_pc];
   set theta_pc_N  [expr 0.95*$theta_pc];
   set D_P 1.15; set D_N 1.00;
-  
+
   # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
   set McMyP 1.30; set McMyN 1.05;
-  
+
   # Effective Yield Moment for Positive and Negative Loading Direction after Slab Adjustment
-  set My_P      [expr  1.35 * $My_P]; 
+  set My_P      [expr  1.35 * $My_P];
   set My_N      [expr  1.25 * $My_N];
-  
+
   # If No composite Action is considered (Columns and Bare Beam cases)
   } else {
   set theta_p_P   $theta_p;
@@ -1935,35 +1896,35 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
   set theta_pc_P  $theta_pc;
   set theta_pc_N  $theta_pc;
   set D_P 1.0; set D_N 1.0;
-  
+
   # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
   set McMyP 1.05; set McMyN 1.05;
   }
-  
+
   # Strain hardening ratios for Positive and Negative Loading Directions
   set as_mem_p [expr   ($McMyP-1.)*$My_P/($theta_p_P * $K)];
   set as_mem_n [expr  -($McMyN-1.)*$My_N/($theta_p_N * $K)];
-  
+
   # Define Uniaxial Material Modified Ibarra-Medina-Krawinkler (IMK) Model with Bilinear Hysteretic response
   if {$matType == "Bilin02"} {
   uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor
-  # Define according to ATC41 curve 
+  # Define according to ATC41 curve
   } elseif {$matType == "MultiLinear"} {
   set K [expr $K]
 
-  set s1p $My_P; 
+  set s1p $My_P;
   set e1p [expr $s1p/$K]
-  set s2p [expr $My_P + $as_mem_p*$K*$theta_p_P]; 
+  set s2p [expr $My_P + $as_mem_p*$K*$theta_p_P];
   set e2p [expr $theta_pc_P];
 
 #        uniaxialMaterial MultiLinear 1$matTag $e1p $s1p $e2p $s2p
-#        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        
+#        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.
 #        uniaxialMaterial MinMax $matTag 1$matTag -min -$theta_pc_P -max $theta_pc_P
 
   # divide strains by nFactor
-  set s1p $My_P; 
+  set s1p $My_P;
   set e1p [expr $s1p/$K]
-  set s2p [expr $My_P + $as_mem_p*$K*$theta_p_P]; 
+  set s2p [expr $My_P + $as_mem_p*$K*$theta_p_P];
   set e2p [expr $e1p + $theta_p_P];
   set s3p 0.
   set e3p [expr $theta_pc_P];
@@ -1972,9 +1933,9 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
 #        set e2p [expr $e2p/$nFactor]
 
   # create multilinear that has 0 stress beyond e3p
-#        puts "uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor"
-#        puts "uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        "
-  uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        
+#        puts stderr "uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor"
+#        puts stderr "uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        "
+  uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.
   }
 }
 
@@ -1983,65 +1944,65 @@ proc SteelWSectionATC41 {matTag E Fy L sectType args} {
 
 proc SteelWSectionMChi02 {matTag E Fy H L Lb sectType Com_Type Comp_Action Lp args} {
   ################################################################################################
-  # Procedure to Construct a Moment-Curvature Curve Using the Bilin02 Model (for steel)  
-  #        
-  # Written by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015                                
-  #         
-  # The implementation of this model follows papers:   
-  # 
-  # 1. Ribeiro, F., Neves, L., and Barbosa, A.(2015). “Implementation and calibration of finite-length  
+  # Procedure to Construct a Moment-Curvature Curve Using the Bilin02 Model (for steel)
+  #
+  # Written by: F.L.A. Ribeiro and Andre Barbosa, FEB-12-2015
+  #
+  # The implementation of this model follows papers:
+  #
+  # 1. Ribeiro, F., Neves, L., and Barbosa, A.(2015). “Implementation and calibration of finite-length
   #    plastic hinge elements for use in seismic structural collapse analysis.” Submitted to Journal of Earthquake
   #    Engineering
-  #        
-  # The input parameters for bare steel components (beams, columns) are based on the following papers: 
-  #        
-  # 1. Lignos, D.G., Krawinkler, H. (2011). “Deterioration Modeling of Steel Components in Support of  
-  #    Collapse Prediction of Steel Moment Frames under Earthquake Loading",                           
-  #    ASCE, Journal of Structural Engineering, Vol. 137 (11), 1291-1302.                              
-  # 
-  # 2. Lignos, D.G., Krawinkler, H. (2013). “Development and Utilization of Structural    
-  #    Component Databases for Performance-Based Earthquake Engineering”,     
-  #    ASCE, Journal of Structural Engineering, Vol. 139 (NEES 2), 1382-1394. 
-  # 
-  # The input parameters for composite steel beams are based on the following paper: 
-  # 
-  # 1. Elkady, A., Lignos, D.G. (2014). “Modeling of the Composite Action in Fully Restrained 
-  #    Beam-to-Column Connections: Implications in the Seismic Design and Collapse Capacity of Steel  
-  #    Special Moment Frames", Earthquake Engineering and Structural Dynamics, doi: 10.1002/eqe.2430. 
-  # 
-  # Input Variables for Procedure        
-  # 
-  # matTag      - Deterioration model ID               
-  # E           - Young's modulus (in MPa or ksi)      
-  # Fy          - Yield stress (in MPa or ksi)         
-  # H           - Member Length without considering the panel zones (in mm or in) 
-  # L           - Shear Span (in mm or in)                                        
-  # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in) 
-  # Com_Type    - Type of component (Use: 'RBS' or 'other-than-RBS')    
-  # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )         
-  # Lp          - Plastic hinge length                                                                        
-  # args        - <-metric>                                                                                
-  #                                metric - activate this option if  in and ksi are used 
+  #
+  # The input parameters for bare steel components (beams, columns) are based on the following papers:
+  #
+  # 1. Lignos, D.G., Krawinkler, H. (2011). “Deterioration Modeling of Steel Components in Support of
+  #    Collapse Prediction of Steel Moment Frames under Earthquake Loading",
+  #    ASCE, Journal of Structural Engineering, Vol. 137 (11), 1291-1302.
+  #
+  # 2. Lignos, D.G., Krawinkler, H. (2013). “Development and Utilization of Structural
+  #    Component Databases for Performance-Based Earthquake Engineering”,
+  #    ASCE, Journal of Structural Engineering, Vol. 139 (NEES 2), 1382-1394.
+  #
+  # The input parameters for composite steel beams are based on the following paper:
+  #
+  # 1. Elkady, A., Lignos, D.G. (2014). “Modeling of the Composite Action in Fully Restrained
+  #    Beam-to-Column Connections: Implications in the Seismic Design and Collapse Capacity of Steel
+  #    Special Moment Frames", Earthquake Engineering and Structural Dynamics, doi: 10.1002/eqe.2430.
+  #
+  # Input Variables for Procedure
+  #
+  # matTag      - Deterioration model ID
+  # E           - Young's modulus (in MPa or ksi)
+  # Fy          - Yield stress (in MPa or ksi)
+  # H           - Member Length without considering the panel zones (in mm or in)
+  # L           - Shear Span (in mm or in)
+  # Lb          - Unbraced length from point of plastic hinge location to point of zero moment (in mm or in)
+  # Com_Type    - Type of component (Use: 'RBS' or 'other-than-RBS')
+  # Comp_Action - Composite Action flag (Use: 1 (yes), 0 (No) )
+  # Lp          - Plastic hinge length
+  # args        - <-metric>
+  #                                metric - activate this option if  in and ksi are used
   ###############################################################################################
-  
+
   global in
   global WSection
-  
+
   # parameters c1, c2 for unit conversion if Imperial Units are used else these variables should be set equal to 1.0
   set c1 1.0
   set c2 1.0
-  
+
   if {[lsearch $args "-metric"] != -1} {
-  set c1 25.4; 
+  set c1 25.4;
   set c2 6.895;
   }
-  
-  set found 0.                                                                      
-  foreach {section prop} [array get WSection $sectType] {       
 
-  set propList [split $prop]                                                    
-  
-  #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+  set found 0.
+  foreach {section prop} [array get WSection $sectType] {
+
+  set propList [split $prop]
+
+  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
   set A [expr [lindex $propList 0]*$in*$in]
   set d [expr [lindex $propList 1]*$in]
   set bf [expr [lindex $propList 2]*$in]
@@ -2052,63 +2013,63 @@ proc SteelWSectionMChi02 {matTag E Fy H L Lb sectType Com_Type Comp_Action Lp ar
   set Sx [expr [lindex $propList 8]*$in*$in*$in]
   set rx [expr [lindex $propList 9]*$in]
   set Sy [expr [lindex $propList 11]*$in*$in*$in]
-  set ry [expr [lindex $propList 12]*$in]             
+  set ry [expr [lindex $propList 12]*$in]
 
-  set found 1.                                                                      
+  set found 1.
   }
-  
-  # Element flexural stiffness assuming that the element is in double curvature 
-  set K [expr 6.*$E* $Ix / $H * $Lp]; 
-  
+
+  # Element flexural stiffness assuming that the element is in double curvature
+  set K [expr 6.*$E* $Ix / $H * $Lp];
+
   if {$Com_Type == "other-than-RBS"} {
   # Pre-capping plastic rotation
   set theta_p   [expr 1./$Lp * 0.0865 * pow(($d/$tw),-0.365)  * pow(($bf/2./$tf),-0.140) *  pow(($L/$d),0.340) * pow(($c1 * $d/533.),-0.721) * pow(($c2 * $Fy/355.),-0.230)];
-  
+
   # Post-capping plastic rotation
   set theta_pc  [expr 1./$Lp * 5.63 * pow(($d/$tw),-0.565)  * pow(($bf/2./$tf),-0.800) *  pow(($c1 * $d/533.),-0.280)  * pow(($c2 * $Fy/355.),-0.430)];
-  
+
   # Reference Cumulative Energy
   set Lmda      [expr 1./$Lp * 495.0 * pow(($d/$tw),-1.340)  * pow(($bf/2./$tf),-0.595) *  pow(($c2 * $Fy/355.),-0.360)];
   }
-  
+
   if {$Com_Type == "RBS"} {
-  # Pre-capping plastic rotation 
+  # Pre-capping plastic rotation
   set theta_p   [expr 1./$Lp * 0.19 * pow(($d/$tw),-0.314) * pow(($bf/2./$tf),-0.100) *  pow(($Lb/$ry),-0.185) * pow(($L/$d),0.113) * pow(($c1 * $d/533.),-0.760) * pow(($c2 * $Fy/355.),-0.070)];
-  
+
   # Post-capping plastic rotation
   set theta_pc  [expr 1./$Lp * 9.52 * pow(($d/$tw),-0.513) * pow(($bf/2./$tf),-0.863) *  pow(($Lb/$ry),-0.108) * pow(($c2 * $Fy/355.),-0.360)];
-  
+
   # Reference Cumulative Energy
   set Lmda      [expr 1./$Lp * 585. * pow(($d/$tw),-1.140) * pow(($bf/2./$tf),-0.632) *  pow(($Lb/$ry),-0.205) * pow(($c2 * $Fy/355),-0.391)]
   }
-  
+
   # Ultimate Chord Rotation
   set theta_u [expr 1./$Lp * 0.4];
-  
+
   # Residual Strength Factor
   set Res 0.4;
-  
+
   # Effective Yield Moment for Positive and Negative Loading Direction
-  set My_P [expr  1.1 * $Sx * $Fy]; 
+  set My_P [expr  1.1 * $Sx * $Fy];
   set My_N [expr  -1.1 * $Sx * $Fy];
-  
+
   set c_S 1.0; set c_C 1.0; set c_A 1.0; set c_K 1.0;
-  
+
   # Check for Composite Action for Beam Springs: If yes adjust the spring parameters based on the ones proposed by Elkady and Lignos (2014)
-  if {$Com_Type == 1} { 
+  if {$Com_Type == 1} {
   set theta_p_P   [expr 1.80*$theta_p];
   set theta_p_N   [expr 0.95*$theta_p];
   set theta_pc_P  [expr 1.35*$theta_pc];
   set theta_pc_N  [expr 0.95*$theta_pc];
   set D_P 1.15; set D_N 1.00;
-  
+
   # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
   set McMyP 1.30; set McMyN 1.05;
-  
+
   # Effective Yield Moment for Positive and Negative Loading Direction after Slab Adjustment
-  set My_P      [expr  1.35 * $My_P]; 
+  set My_P      [expr  1.35 * $My_P];
   set My_N      [expr  1.25 * $My_N];
-  
+
   # If No composite Action is considered (Columns and Bare Beam cases)
   } else {
   set theta_p_P   $theta_p;
@@ -2116,15 +2077,15 @@ proc SteelWSectionMChi02 {matTag E Fy H L Lb sectType Com_Type Comp_Action Lp ar
   set theta_pc_P  $theta_pc;
   set theta_pc_N  $theta_pc;
   set D_P 1.0; set D_N 1.0;
-  
+
   # Capping-to-Yield Flexural Strength for Positive and Negative Loading Directions
   set McMyP 1.05; set McMyN 1.05;
   }
-  
+
   # Strain hardening ratios for Positive and Negative Loading Directions
   set as_mem_p [expr  ($McMyP-1.)*$My_P/($theta_p_P * 6.*$E * $Ix/$H * $Lp)];
   set as_mem_n [expr -($McMyN-1.)*$My_N/($theta_p_N * 6.*$E * $Ix/$H * $Lp)];
-  
+
   # Define Uniaxial Material Modified Ibarra-Medina-Krawinkler (IMK) Model with Bilinear Hysteretic response
   uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N
 puts   "uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N"
@@ -2134,7 +2095,7 @@ puts   "uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmd
  ########################################################################################################
 # elemPanelZone2D.tcl
 # Procedure that creates panel zone elements
-# 
+#
 # The process is based on Gupta 1999
 # Reference:  Gupta, A., and Krawinkler, H. (1999). "Seismic Demands for Performance Evaluation of Steel Moment Resisting Frame Structures,"
 #            Technical Report 132, The John A. Blume Earthquake Engineering Research Center, Department of Civil Engineering, Stanford University, Stanford, CA.
@@ -2199,7 +2160,7 @@ proc elemPanelZone2D {eleID nodeR E A_PZ I_PZ transfTag} {
  ###########################################################################################################
 # rotPanelZone2D.tcl
 # Procedure that creates a rotational spring and constrains the corner nodes of a panel zone
-# 
+#
 # The equations and process are based on: Krawinkler Model for Panel Zones
 # Reference:  Gupta, A., and Krawinkler, H. (1999). "Seismic Demands for Performance Evaluation of Steel Moment Resisting Frame Structures,"
 #            Technical Report 132, The John A. Blume Earthquake Engineering Research Center, Department of Civil Engineering, Stanford University, Stanford, CA.
@@ -2208,7 +2169,7 @@ proc elemPanelZone2D {eleID nodeR E A_PZ I_PZ transfTag} {
 # Written by: Dimitrios Lignos
 # Date: 11/09/2008
 #
-# Formal arguments 
+# Formal arguments
 #       eleID   - unique element ID for this zero length rotational spring
 #       nodeR   - node ID which will be retained by the multi-point constraint
 #       nodeC   - node ID which will be constrained by the multi-point constraint
@@ -2242,8 +2203,8 @@ proc rotPanelZone2D {eleID nodeR nodeC E Fy dc bf_c tf_c tp db Ry as} {
   set gamma2_y [expr 4.0 * $gamma1_y]; set M2y [expr $M1y + ($Kp * $db) * ($gamma2_y - $gamma1_y)];
 # Third Point for Trilinear Spring at 100 * gamma1_y
   set gamma3_y [expr 100.0 * $gamma1_y]; set M3y [expr $M2y + ($as * $Ke * $db) * ($gamma3_y - $gamma2_y)];
-  
-  
+
+
 # Hysteretic Material without pinching and damage (same mat ID as Ele ID)
 
 #   uniaxialMaterial Hysteretic $matTag $s1p $e1p $s2p $e2p <$s3p $e3p> $s1n $e1n $s2n $e2n <$s3n $e3n> $pinchX $pinchY $damage1 $damage2 <$beta>
@@ -2251,7 +2212,7 @@ proc rotPanelZone2D {eleID nodeR nodeC E Fy dc bf_c tf_c tp db Ry as} {
 #   Lignos model uses 0.25 0.75 as the pinch factor        <---
 
   #        uniaxialMaterial Hysteretic $eleID $M1y $gamma1_y  $M2y $gamma2_y $M3y $gamma3_y [expr -$M1y] [expr -$gamma1_y] [expr -$M2y] [expr -$gamma2_y] [expr -$M3y] [expr -$gamma3_y] 0.25 0.75 0.0 0.0 0.0
-  
+
 
   uniaxialMaterial Elastic $eleID [expr $M1y/$gamma1_y]
   element zeroLength $eleID $nodeR $nodeC -mat $eleID -dir 6 -doRayleigh 0;
@@ -2267,7 +2228,7 @@ proc rotPanelZone2D {eleID nodeR nodeC E Fy dc bf_c tf_c tp db Ry as} {
   # Left Bottom Corner of PZ
   set nodeL_8 [expr $nodeR + 5];
   set nodeL_9 [expr $nodeL_8 + 1];
-  #          retained constrained DOF_1 DOF_2 
+  #          retained constrained DOF_1 DOF_2
   equalDOF    $nodeR_1     $nodeR_2    1     2
   equalDOF    $nodeR_6     $nodeR_7    1     2
   equalDOF    $nodeL_8     $nodeL_9    1     2
@@ -2277,7 +2238,7 @@ proc rotPanelZone2D {eleID nodeR nodeC E Fy dc bf_c tf_c tp db Ry as} {
 # 5. AISC W Section Table
 #
 
-#AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+# AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
 array set WSection {
 W44X335 "98.5 44.0 15.9 1.03 1.77 31100 1200 1620 1410 17.8 236 150 3.49 74.7"
 W44X290 "85.4 43.6 15.8 0.865 1.58 27000 1040 1410 1240 17.8 205 132 3.49 50.9"
@@ -3128,42 +3089,6 @@ set       20214b 0.01642; #  Column at STORY-20 and AXIS-4 (Bottom)
 set       20214t 0.01642; #  Column at STORY-20 and AXIS-4 (Top)
 
 
-# select number of stories <---
-set frame 20Story
-# set testType EnergyIncr
-# set Tol 1.0e-2;    
-
-# NormUnbalance 
-# NormDispIncr 
-# EnergyIncr 
-# RelativeNormUnbalance 
-# RelativeNormDispIncr 
-# RelativeTotalNormDispIncr 
-# RelativeEnergyIncr 
-
-#set testType RelativeNormDispIncr
-#set Tol 1.0e-4;    
-#set numStep 50;
-
-
-
-
-# set testType NormDispIncr
-# set Tol 1.0e-12;    
-set n 50.0
-
-set pDamp 0.02; # damping ratio <---
-
-# material properties
-set Fyb 50.0;#36.0, 49.2
-set Fyc 50.0;#50.0;
-set E 29000.
-set Ry 1.1;
-#set b 0.01
-set b 0.03
-set g 386.4
-
-
 
 if {$frame == "20Story" } {
 
@@ -3174,12 +3099,12 @@ if {$frame == "20Story" } {
 
   # set equiFloorDamper NO
   # roof: 90DL, 20LL, 25cladding; floor: 90DL, 50LL, 25cladding
-  
+
   set firstfloorWeight [expr 0.05396940*2204.6226/$g*6/4]; # nodal mass from Lignos model, assign to each panel zone, not ea end of beam
   set roofWeight       [expr 0.05066770*2204.6226/$g*6/4];
   set floorWeight      [expr 0.05364600*2204.6226/$g*6/4];
-  puts "roof: $roofWeight floor: $floorWeight 1stfloor: $firstfloorWeight"
-  
+  puts stderr "roof: $roofWeight floor: $floorWeight 1stfloor: $firstfloorWeight"
+
   set forceColfirstExt [expr 190.7000*0.2248];
   set forceColfirstInt [expr 127.1300*0.2248];
   set forceColtypExt   [expr 188.9800*0.2248];
@@ -3188,17 +3113,17 @@ if {$frame == "20Story" } {
   set forceColroofInt  [expr 103.9700*0.2248];
 
   set numMode 20
-  
+
   # frame: dimensions and element properties
   set floorOffsets {180.    156.    156.    156.    156.    156.    156.    156.   156.    156.    156.    156.     156.    156.    156.   156.    156.    156.    156.    156.}
-  set colOffsets   {240. 240. 240. } 
+  set colOffsets   {240. 240. 240. }
   #                   1       2       3       4       5       6       7       8       9      10      11      12       13      14      15     16      17      18      19      20
   set colSizes     {W36X529 W36X529 W36X487 W36X487 W36X441 W36X441 W36X395 W36X395 W36X361 W36X361 W36X330 W36X330 W36X262 W36X262 W36X232 W36X232 W27X194 W27X194 W27X129 W27X129};
   # set colExtSizes  $colSizes
   set colExtSizes  {W14X500 W14X500 W14X455 W14X455 W14X455 W14X455 W14X370 W14X370 W14X370 W14X370 W14X311 W14X311 W14X283 W14X283 W14X233 W14X233 W14X193 W14X193 W14X132 W14X132}
   set beamSizes    {W33X130 W33X130 W33X141 W33X141 W33X141 W33X141 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X130 W33X130 W33X130 W33X130 W24X68 W24X68};
   set beamExtSizes $beamSizes
-  
+
   set BeamDepth   {33.1 33.1 33.3 33.3 33.3 33.3 33.5 33.5 33.5 33.5 33.5 33.5 33.5 33.5 33.1 33.1 33.1 33.1 23.7 23.7};
   set ColDepth    {39.8 39.8 39.3 39.3 38.9 38.9 38.4 38.4 38.  38.  37.7 37.7 36.9 36.9 37.1 37.1 28.1 28.1 27.6 27.6};
   set ExtColDepth {19.6 19.6 19.  19.  19.  19.  17.9 17.9 17.9 17.9 17.1 17.1 16.7 16.7 16.0 16.0 15.5 15.5 14.7 14.7};
@@ -3207,14 +3132,9 @@ if {$frame == "20Story" } {
 
   #                     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
   set colSpliceCounter {0 0 1 0 0 0 1 0 0  0  1  0  1  0 1  0  1  0  1  0}
-  # set colSpliceCounter {0 0 0 0 0 0 0 0 0  0  0  0  0  0 0  0  0  0  0  0}
   set spliceLength 54.;
 
-  # set colSizesPD     {W14X550 W14X550 W14X550 W14X550 W14X455 W14X455 W14X455 W14X370 W14X370 W14X370 W14X311 W14X311 W14X311 W14X257 W14X257 W14X257 W14X176 W14X176 W14X176 W14X108 W14X108 W14X108};
-  # set colExtSizesPD $colSizesPD
-  # set beamSizesPD    {W14X22 W14X22  W14X22  W14X22 W14X22 W14X22 W14X22 W14X22 W14X22 W14X22 W14X22 W14X22  W14X22  W14X22  W14X22  W14X22 W14X22  W14X22  W14X22  W12X14};
-  # set beamExtSizesPD $beamSizesPD;
-  
+
   set pDelta YES; #FMK
   set areaPDelta 288000.0; #20ft x 20ft x 5
   set forcepDeltafirst [expr 2692.4940*0.2248];
@@ -3236,142 +3156,136 @@ set numCline [expr [llength $colOffsets]+1]
 
 
 for {set i 0; set width 0;} {$i < [expr $numCline-1]} {incr i 1} {set width [expr $width + [lindex $colOffsets $i]]}
-# set massAtFloorNode [expr $floorWeight/($g*$numFrameResisting*$numCline*1.0)]
-# set massAtRoofNode  [expr $roofWeight/($g*$numFrameResisting*$numCline*1.0)]
+
 set uniformRoofLoad  [expr $roofWeight*$percentLoadFrame/$width]
 set uniformFloorLoad [expr $floorWeight*$percentLoadFrame/$width]
 
 # check of list dimensions for errors
-#FMK if {[llength $colSizes] != [expr $numFloor-1]} {puts "ERROR: colSizes"; quit}
-if {$numCline >= 10} {puts "ERROR: too many column lines, reprogram"; quit}
+if {$numCline >= 10} {puts stderr "ERROR: too many column lines, reprogram"; quit}
 
 set tStart [clock clicks -milliseconds]
 
-  set totalMass 0.0
+set totalMass 0.0
 
-  model BasicBuilder -ndm 2 -ndf 3;  # Define the model builder, ndm = #dimension, ndf = #dofs
+model BasicBuilder -ndm 2 -ndf 3;  # Define the model builder, ndm = #dimension, ndf = #dofs
 
-  set tStart1 [clock clicks -milliseconds]
+set tStart1 [clock clicks -milliseconds]
 
-  set nodeListMass {};
-  set nodeListMassPZ {};
-  set nodeListMassValues {};
-  set nodeListReaction {};
+set nodeListMass {};
+set nodeListMassPZ {};
+set nodeListMassValues {};
+set nodeListReaction {};
+
 #===# Build the Nodes===#
-  for {set floor 1; set floorLoc 0} {$floor <= $numFloor} {incr floor 1} {
+for {set floor 1; set floorLoc 0} {$floor <= $numFloor} {incr floor 1} {
   if {$floor == $numFloor} {
       set massX $roofWeight
-      # set massY [expr $massX*$percentLoadFrame]; # gravity cols take vertical
   } elseif {$floor == 2} {
       set massX $firstfloorWeight
-      } else {
+  } else {
       set massX $floorWeight
-      # set massY [expr $massX*$percentLoadFrame]; 
   }
-      
+
   for {set colLine 1; set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
-      # node $colLine$floor $colLoc $floorLoc -mass $massX $massY $massTheta
-      
-      # add nodes for panel zone 
-      set p01 01; set p02 02; set p03 03; set p04 04; set p05 05; set p06 06; set p07 07; set p08 08; set p09 09; set p10 10;
+
+      # add nodes for panel zone
+      set p01 01; set p02 02; set p03 03; set p04 04; set p05 05; 
+      set p06 06; set p07 07; set p08 08; set p09 09; set p10 10;
       set p6 61; set p7 71; set p1 11; set p4 41;
-      
+
       if {$floor == 1} {
           node $colLine$floor$p7 $colLoc $floorLoc -mass 0.0 0.0 0.0;
           # mass $colLine$floor$p05 0.0 0.0 0.0
           lappend nodeListReaction $colLine$floor$p7
           fix $colLine$floor$p7 1 1 1
       }  else {
-          # add panel zone nodes 
-              set aaa [lindex $BeamDepth [expr $floor -2]]; puts "$floor $aaa"
-              set pzvert [expr $aaa*0.5];
-              set bbb [lindex $ColDepth [expr $floor -2]];
-              set pzlat [expr $bbb/2.0];
-              set ccc [lindex $ExtColDepth [expr $floor -2]];
-              set pzextlat [expr 0.5*$ccc];
-              
-              if {$colLine == 1 || $colLine == $numCline} {
-              node $colLine$floor$p01 [expr $colLoc - $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta
-              node $colLine$floor$p02 [expr $colLoc - $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p03 [expr $colLoc + $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p04 [expr $colLoc + $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p05 [expr $colLoc + $pzextlat] [expr $floorLoc]  -mass $massX $massY $massTheta;
-              node $colLine$floor$p06 [expr $colLoc + $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta; 
-              node $colLine$floor$p07 [expr $colLoc + $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p08 [expr $colLoc - $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p09 [expr $colLoc - $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p10 [expr $colLoc - $pzextlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p6 [expr $colLoc ] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              node $colLine$floor$p7 [expr $colLoc ] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              
-              } else {
-                 node $colLine$floor$p01 [expr $colLoc - $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p02 [expr $colLoc - $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p03 [expr $colLoc + $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p04 [expr $colLoc + $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p05 [expr $colLoc + $pzlat] [expr $floorLoc]  -mass $massX $massY $massTheta;
-                 node $colLine$floor$p06 [expr $colLoc + $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta; 
-                 node $colLine$floor$p07 [expr $colLoc + $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p08 [expr $colLoc - $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p09 [expr $colLoc - $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p10 [expr $colLoc - $pzlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p6 [expr $colLoc ] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-                 node $colLine$floor$p7 [expr $colLoc ] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
-              }
-              
-              # add cover plate/RBS offset nodes 
-              # RBS parameter a=0.625bf, b=0.75db, c=0.25bf
-              
-              if {$colLine == 1} {
-                      set theSection [lindex $beamExtSizes [expr $floor -1]]
-                      
-                      set found 0
-                      foreach {section prop} [array get WSection $theSection] {
-                      set propList [split $prop]
-                      #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-                      set db [expr [lindex $propList 2]*$in]
-                      set bf [expr [lindex $propList 3]*$in]
-                      set found 1
-                      }
-                      set phlat [expr 0.625*$bf+0.5*0.75*$db]                        
-                      node $colLine$floor$p1 [expr $colLoc + $pzextlat + $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
-              
-              } elseif {$colLine == $numCline} {
-                      set theSection [lindex $beamExtSizes [expr $floor -1]]
-                      set found 0
-                      foreach {section prop} [array get WSection $theSection] {
-                      set propList [split $prop]
-                      #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-                      set db [expr [lindex $propList 2]*$in]
-                      set bf [expr [lindex $propList 3]*$in]
-                      set found 1
-                      }
-                      set phlat [expr 0.625*$bf+0.5*0.75*$db]
-                      node $colLine$floor$p4 [expr $colLoc - $pzextlat - $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;                        
-              } else {
-                      set theSection [lindex $beamSizes [expr $floor -2]]
-                      set found 0
-                      foreach {section prop} [array get WSection $theSection] {
-                      set propList [split $prop]
-                      #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-                      set db [expr [lindex $propList 2]*$in]
-                      set bf [expr [lindex $propList 3]*$in]
-                      set found 1
-                      }
-                      set phlat [expr 0.625*$bf+0.5*0.75*$db]
-                      node $colLine$floor$p1 [expr $colLoc + $pzlat + $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
-                      node $colLine$floor$p4 [expr $colLoc - $pzlat - $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
-              }
-              
-  
+          # add panel zone nodes
+          set aaa [lindex $BeamDepth [expr $floor -2]]; puts stderr "$floor $aaa"
+          set pzvert [expr $aaa*0.5];
+          set bbb [lindex $ColDepth [expr $floor -2]];
+          set pzlat [expr $bbb/2.0];
+          set ccc [lindex $ExtColDepth [expr $floor -2]];
+          set pzextlat [expr 0.5*$ccc];
+
+          if {$colLine == 1 || $colLine == $numCline} {
+          node $colLine$floor$p01 [expr $colLoc - $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta
+          node $colLine$floor$p02 [expr $colLoc - $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p03 [expr $colLoc + $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p04 [expr $colLoc + $pzextlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p05 [expr $colLoc + $pzextlat] [expr $floorLoc]  -mass $massX $massY $massTheta;
+          node $colLine$floor$p06 [expr $colLoc + $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p07 [expr $colLoc + $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p08 [expr $colLoc - $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p09 [expr $colLoc - $pzextlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p10 [expr $colLoc - $pzextlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p6 [expr $colLoc ] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          node $colLine$floor$p7 [expr $colLoc ] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+
+          } else {
+             node $colLine$floor$p01 [expr $colLoc - $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p02 [expr $colLoc - $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p03 [expr $colLoc + $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p04 [expr $colLoc + $pzlat] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p05 [expr $colLoc + $pzlat] [expr $floorLoc]  -mass $massX $massY $massTheta;
+             node $colLine$floor$p06 [expr $colLoc + $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p07 [expr $colLoc + $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p08 [expr $colLoc - $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p09 [expr $colLoc - $pzlat] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p10 [expr $colLoc - $pzlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p6 [expr $colLoc ] [expr $floorLoc - $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+             node $colLine$floor$p7 [expr $colLoc ] [expr $floorLoc + $pzvert] -mass $massSmall $massSmall $massSmallTheta;
+          }
+
+          # add cover plate/RBS offset nodes
+          # RBS parameter a=0.625bf, b=0.75db, c=0.25bf
+
+          if {$colLine == 1} {
+                set theSection [lindex $beamExtSizes [expr $floor -1]]
+
+                set found 0
+                foreach {section prop} [array get WSection $theSection] {
+                  set propList [split $prop]
+                  # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+                  set db [expr [lindex $propList 2]*$in]
+                  set bf [expr [lindex $propList 3]*$in]
+                  set found 1
+                }
+                set phlat [expr 0.625*$bf+0.5*0.75*$db]
+                node $colLine$floor$p1 [expr $colLoc + $pzextlat + $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
+
+          } elseif {$colLine == $numCline} {
+                set theSection [lindex $beamExtSizes [expr $floor -1]]
+                set found 0
+                foreach {section prop} [array get WSection $theSection] {
+                    set propList [split $prop]
+                    # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+                    set db [expr [lindex $propList 2]*$in]
+                    set bf [expr [lindex $propList 3]*$in]
+                    set found 1
+                }
+                set phlat [expr 0.625*$bf+0.5*0.75*$db]
+                node $colLine$floor$p4 [expr $colLoc - $pzextlat - $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
+          } else {
+                set theSection [lindex $beamSizes [expr $floor -2]]
+                set found 0
+                foreach {section prop} [array get WSection $theSection] {
+                    set propList [split $prop]
+                    # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+                    set db [expr [lindex $propList 2]*$in]
+                    set bf [expr [lindex $propList 3]*$in]
+                    set found 1
+                }
+                set phlat [expr 0.625*$bf+0.5*0.75*$db]
+                node $colLine$floor$p1 [expr $colLoc + $pzlat + $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
+                node $colLine$floor$p4 [expr $colLoc - $pzlat - $phlat] [expr $floorLoc] -mass $massSmall $massSmall $massSmallTheta;
+          }
+
           set totalMass [expr $totalMass+$massX]
           lappend nodeListMass $colLine$floor$p05
-              lappend nodeListMassPZ $colLine$floor$p01 $colLine$floor$p02 $colLine$floor$p03 $colLine$floor$p04 $colLine$floor$p05 $colLine$floor$p06 $colLine$floor$p07 $colLine$floor$p08 $colLine$floor$p09 $colLine$floor$p10 $colLine$floor$p6 $colLine$floor$p7
+          lappend nodeListMassPZ $colLine$floor$p01 $colLine$floor$p02 $colLine$floor$p03 $colLine$floor$p04 $colLine$floor$p05 $colLine$floor$p06 $colLine$floor$p07 $colLine$floor$p08 $colLine$floor$p09 $colLine$floor$p10 $colLine$floor$p6 $colLine$floor$p7
           lappend nodeListMassValues $massX
           if {$colLine != 1} {
-              equalDOF 1$floor$p05 $colLine$floor$p05 1;  # equalDOF applied to floor nodes <====== 
-              # equalDOF 1$floor $colLine$floor 1 2
-#                        puts "FMK - removed EQUAL DOF"
+              equalDOF 1$floor$p05 $colLine$floor$p05 1;
           }
 
       }
@@ -3383,129 +3297,113 @@ set tStart [clock clicks -milliseconds]
   if {$floor < $numFloor} {
       set floorLoc [expr $floorLoc + [lindex $floorOffsets [expr $floor-1]]]
   }
-  }
+}
 
-  puts "---> nodal masses:"
-  puts $nodeListMass;
-  puts $nodeListMassValues;
 
-  # define material 
-#        uniaxialMaterial Steel02 1 $Fy $E $b 20 0.925 0.15
-  uniaxialMaterial Steel01 1 $Fyc $E $b;  # material for column ForceBeamCol
-  uniaxialMaterial Steel01 2 $Fyb $E $b;  # material for beam ForceBeamCol
+# define material
+uniaxialMaterial Steel01 1 $Fyc $E $b;  # material for column ForceBeamCol
+uniaxialMaterial Steel01 2 $Fyb $E $b;  # material for beam ForceBeamCol
 
 #===# build the columns
-  geomTransf PDelta 1 ; #<====####
-  set eleListHinge []
-  set eleListComponent []
-  set one 1
-  set two 2
+#
+geomTransf PDelta 1 ; #<====####
+set eleListHinge []
+set eleListComponent []
+set one 1
+set two 2
 
-  set eleColListHinge []
+set eleColListHinge []
 
-  for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
-    for {set floor1 1; set floor2 2; set floorLoc 0;} {$floor1 < $numFloor} {incr floor1 1; incr floor2 1} {
-          
-      set colSpliceOn [lindex $colSpliceCounter [expr $floor1 -1]]
-              
-  #------- external columns
-      if {$colLine == 1 || $colLine == $numCline} {
-          set theSection    [lindex $colExtSizes [expr $floor1 -1]]
-          set theSectionlow [lindex $colExtSizes [expr $floor1 -2]]
+for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
+  for {set floor1 1; set floor2 2; set floorLoc 0;} {$floor1 < $numFloor} {incr floor1 1; incr floor2 1} {
 
-          if {$colType == "Force"} {
-              ForceBeamHSS2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 ;#-elasticSection $E
-                  
-          }
-          if {$colType == "ForceCap"} {
-              ForceBeamHSS2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 -capIt $pDamp $Fyc
-          }
+    set colSpliceOn [lindex $colSpliceCounter [expr $floor1 -1]]
 
-          # if {$colType == "ForceWithHinges"} {
-              # BeamWithHingesWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1 $colLine$floor2 $theSection 1 1 -nip 5
-          # }
-          if {$colType == "Elastic"} {
-          # ElasticBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1 $colLine$floor2 $theSection $E 1 
-            ElasticBeamHSSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E 1 
-          }
-      
-          if {$colType == "ComponentElement"} { 
-              set location $floor1$floor2$colLine
-              
-              if {$colSpliceOn == 1} {
-              # add node at column splice
-                  node 909$colLine$floor1 [expr $colLoc ] [expr $floorLoc + $pzvert + $spliceLength]
-          
-                  set PgPyb [string cat $location b]
-                  set PgPyt [string cat $location t]
-                  ComponentColWSection2d $colLine$floor1$colLine$floor2                  $colLine$floor1$p7 909$colLine$floor1 $theSectionlow $E $Fyc $Ry [set $PgPyb] 1 -matType Bilin -nFactor $nFactorElem
-                  ComponentColWSection2d 909$colLine$floor1$colLine$floor2 909$colLine$floor1 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPyt] 1 -matType Bilin -nFactor $nFactorElem
-                  lappend eleColListHinge $colLine$floor1$colLine$floor2
-              } else {             
-                  set PgPy [string cat $location b]
-                  puts "$colLine$floor1$colLine$floor2"
-                  ComponentColWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPy] 1 -matType Bilin -nFactor $nFactorElem
-                  # ComponentBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry 1 -matType Bilin -Com_Type other-than-RBS
-                  lappend eleColListHinge $colLine$floor1$colLine$floor2
-              }
-          }
-              
-  #------- internal columns 
-      } else {
-          set theSection [lindex $colSizes [expr $floor1 -1]]
-          set theSectionlow [lindex $colSizes [expr $floor1 -2]]
-              
-          if {$colType == "Displacement"} {                
-              DispBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 
-          }
-          if {$colType == "Force"} {
-              ForceBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5
-          }
-          if {$colType == "ForceCap"} {
-              ForceBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 -capIt $pDamp $Fyc
-          }
-          if {$colType == "ForceWithHinges"} {
-              BeamWithHingesWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5
-          }
-          if {$colType == "Elastic"} {
-              ElasticBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E 1 
-          }
-          if {$colType == "Hinge"} {
-              BeamWithSteel01HingesWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $b 1 -nFactor $nFactorElem -doRayleigh $doRayleigh
-          }    
-          if {$colType == "ComponentElement"} {
-          
-              set location $floor1$floor2$colLine
-              
-              if {$colSpliceOn == 1} {
-              # add node at column splice
-                  node 909$colLine$floor1 [expr $colLoc ] [expr $floorLoc + $pzvert + $spliceLength]
-                  # ComponentBeamWSection2d $colLine$floor1$colLine$floor2                  $colLine$floor1$p7 909$colLine$floor1 $theSectionlow $E $Fyc $Ry 1 -matType Bilin -metric -Com_Type other-than-RBS
-                  # ComponentBeamWSection2d 909$colLine$floor1$colLine$floor2 909$colLine$floor1 $colLine$floor2$p6 $theSection $E $Fyc $Ry 1 -matType Bilin -metric -Com_Type other-than-RBS
-                  
-                  # ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag args}
-                  set PgPyb [string cat $location b]
-                  set PgPyt [string cat $location t]
-                  ComponentColWSection2d $colLine$floor1$colLine$floor2                  $colLine$floor1$p7 909$colLine$floor1 $theSectionlow $E $Fyc $Ry [set $PgPyb] 1 -matType Bilin -nFactor $nFactorElem
-                  ComponentColWSection2d 909$colLine$floor1$colLine$floor2 909$colLine$floor1 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPyt] 1 -matType Bilin -nFactor $nFactorElem
-                  lappend eleColListHinge $colLine$floor1$colLine$floor2
-                  
-                  puts "floor=$floor1 col=$colLine section=$theSectionlow $theSection"
-                      
-              } else {
-                  # ComponentBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry 1 -matType Bilin -metric -Com_Type other-than-RBS
-          
-                  set PgPy [string cat $location b]
-                  ComponentColWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPy] 1 -matType Bilin -nFactor $nFactorElem
-                  lappend eleColListHinge $colLine$floor1$colLine$floor2
-              }
-          }
-              
-      }
-                      
-      if {$floor1 < $numFloor} {
-              set floorLoc [expr $floorLoc + [lindex $floorOffsets [expr $floor1-1]]]
-      }                
+    #------- external columns
+    if {$colLine == 1 || $colLine == $numCline} {
+        set theSection    [lindex $colExtSizes [expr $floor1 -1]]
+        set theSectionlow [lindex $colExtSizes [expr $floor1 -2]]
+
+        if {$colType == "Force"} {
+            ForceBeamHSS2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 ;#-elasticSection $E
+        }
+        if {$colType == "ForceCap"} {
+            ForceBeamHSS2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 -capIt $pDamp $Fyc
+        }
+        if {$colType == "Elastic"} {
+          ElasticBeamHSSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E 1
+        }
+
+        if {$colType == "ComponentElement"} {
+            set location $floor1$floor2$colLine
+
+            if {$colSpliceOn == 1} {
+                # add node at column splice
+                node 909$colLine$floor1 [expr $colLoc ] [expr $floorLoc + $pzvert + $spliceLength]
+
+                set PgPyb [string cat $location b]
+                set PgPyt [string cat $location t]
+                ComponentColWSection2d $colLine$floor1$colLine$floor2    $colLine$floor1$p7 909$colLine$floor1 $theSectionlow $E $Fyc $Ry [set $PgPyb] 1 -matType Bilin -nFactor $nFactorElem
+                ComponentColWSection2d 909$colLine$floor1$colLine$floor2 909$colLine$floor1 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPyt] 1 -matType Bilin -nFactor $nFactorElem
+                lappend eleColListHinge $colLine$floor1$colLine$floor2
+            } else {
+                set PgPy [string cat $location b]
+                puts stderr "$colLine$floor1$colLine$floor2"
+                ComponentColWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPy] 1 -matType Bilin -nFactor $nFactorElem
+                lappend eleColListHinge $colLine$floor1$colLine$floor2
+            }
+        }
+
+    #------- internal columns
+    } else {
+        set theSection [lindex $colSizes [expr $floor1 -1]]
+        set theSectionlow [lindex $colSizes [expr $floor1 -2]]
+
+        if {$colType == "Displacement"} {
+            DispBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5
+        }
+        if {$colType == "Force"} {
+            ForceBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5
+        }
+        if {$colType == "ForceCap"} {
+            ForceBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 -capIt $pDamp $Fyc
+        }
+        if {$colType == "ForceWithHinges"} {
+            BeamWithHingesWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5
+        }
+        if {$colType == "Elastic"} {
+            ElasticBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E 1
+        }
+        if {$colType == "Hinge"} {
+            BeamWithSteel01HingesWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $b 1 -nFactor $nFactorElem -doRayleigh $doRayleigh
+        }
+        if {$colType == "ComponentElement"} {
+
+            set location $floor1$floor2$colLine
+
+            if {$colSpliceOn == 1} {
+                # add node at column splice
+                node 909$colLine$floor1 [expr $colLoc ] [expr $floorLoc + $pzvert + $spliceLength]
+                set PgPyb [string cat $location b]
+                set PgPyt [string cat $location t]
+                ComponentColWSection2d $colLine$floor1$colLine$floor2    $colLine$floor1$p7 909$colLine$floor1 $theSectionlow $E $Fyc $Ry [set $PgPyb] 1 -matType Bilin -nFactor $nFactorElem
+                ComponentColWSection2d 909$colLine$floor1$colLine$floor2 909$colLine$floor1 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPyt] 1 -matType Bilin -nFactor $nFactorElem
+                lappend eleColListHinge $colLine$floor1$colLine$floor2
+
+                puts stderr "floor=$floor1 col=$colLine section=$theSectionlow $theSection"
+
+            } else {
+                set PgPy [string cat $location b]
+                ComponentColWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPy] 1 -matType Bilin -nFactor $nFactorElem
+                lappend eleColListHinge $colLine$floor1$colLine$floor2
+            }
+        }
+
+    }
+
+    if {$floor1 < $numFloor} {
+            set floorLoc [expr $floorLoc + [lindex $floorOffsets [expr $floor1-1]]]
+    }
 
   }
 
@@ -3514,8 +3412,7 @@ set tStart [clock clicks -milliseconds]
   }
 }
 
-set nodeListInternal []        
-puts "colHinge $eleColListHinge"
+set nodeListInternal []
 
 #====# build the beams
 geomTransf Linear 2
@@ -3528,18 +3425,18 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
       } else {
           set theSection [lindex $beamSizes [expr $floor -2]]
       }
-      
-              
-# # ------ # ----- other cases                
-      
+
+
+      # # ------ # ----- other cases
+
       if {$beamType == "ComponentElement"} {
               ComponentBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb $Ry 2 -matType Bilin -Com_Type RBS -nFactor $nFactorElem
               # ComponentBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -matType MultiLinear -metric
               lappend eleListHinge $colLine1$floor$colLine2$floor
       }
-      
+
       if {$beamType == "Displacement"} {
-              DispBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2 
+              DispBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2
               lappend eleListHinge $colLine1$floor$colLine2$floor
       }
       if {$beamType == "Force"} {
@@ -3550,15 +3447,15 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
               ForceBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2
               lappend eleListHinge $colLine1$floor$colLine2$floor -capIt $pDamp $Fyb
       }
-  
+
       if {$beamType == "ForceWithHinge"} {
               BeamWithHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2
       }
       if {$beamType == "Elastic"} {
               ElasticBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E 2
-      } 
-      if {$beamType == "HingeMultiLinear1"  || $beamType == "HingeMultiLinear10"  || 
-          $beamType == "HingeMultiLinear50" || $beamType == "HingeMultiLinear100" || 
+      }
+      if {$beamType == "HingeMultiLinear1"  || $beamType == "HingeMultiLinear10"  ||
+          $beamType == "HingeMultiLinear50" || $beamType == "HingeMultiLinear100" ||
           $beamType == "HingeML1000" || $beamType == "HingeML1000NoR"} {
 
           set doRayleigh 1
@@ -3575,27 +3472,24 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
 
 
       if {$beamType == "HingeBilin"} {
-              BeamWithConcentratedHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -nFactor $nFactorElem -doRayleigh $doRayleigh -matType Bilin02 -metric
-              lappend eleListHinge $colLine1$floor$colLine2$floor$one
-              lappend eleListHinge $colLine1$floor$colLine2$floor$two
+           BeamWithConcentratedHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -nFactor $nFactorElem -doRayleigh $doRayleigh -matType Bilin02 -metric
+           lappend eleListHinge $colLine1$floor$colLine2$floor$one
+           lappend eleListHinge $colLine1$floor$colLine2$floor$two
       }
       if {$beamType == "HingeMultiLinear"} {
-              BeamWithConcentratedHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -nFactor $nFactorElem -doRayleigh $doRayleigh -matType MultiLinear -metric
-              lappend eleListHinge $colLine1$floor$colLine2$floor$one
-              lappend eleListHinge $colLine1$floor$colLine2$floor$two
+           BeamWithConcentratedHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -nFactor $nFactorElem -doRayleigh $doRayleigh -matType MultiLinear -metric
+           lappend eleListHinge $colLine1$floor$colLine2$floor$one
+           lappend eleListHinge $colLine1$floor$colLine2$floor$two
       }
-    }
   }
-#}
+}
 
 
-
-
-puts "build PZ..."
-#====#====# add panel zone elements 
+puts stderr "build PZ..."
+#====#====# add panel zone elements
 set Apz 1000.0;
-set Ipz 1.0e5; 
-#                2   3   4   5    6  7   8   9   10    11     12   13   14   15    16      17    18   19  20     21    
+set Ipz 1.0e5;
+#                2   3   4   5    6  7   8   9   10    11     12   13   14   15    16      17    18   19  20     21
 set tdpExtList {0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.125 0.125 0.25  0.25 0.375 0.375 0.3125 0.8125 1.0 1.0  0.0    0.0};
 set tdpIntList {0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0   0.0   0.0   0.0   0.0  0.0   0.125 0.625   1.0 1.0  0.0625 0.0625};
 set aa 1;
@@ -3603,17 +3497,16 @@ set PZspringList [];
 set PZrigidList [];
 for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
   for {set colLine 1} {$colLine <= $numCline} {incr colLine 1} {
-  
+
       if {$colLine == 1 || $colLine == $numCline} {
           set theSection [lindex $colExtSizes [expr $floor -1]]
           set tdpExt [lindex $tdpExtList [expr $floor -1]];
-              # puts "$theSection"
           set found 0
 
           foreach {section prop} [array get WSection $theSection] {
               set propList [split $prop]
 
-              #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+              # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
               set A [expr [lindex $propList 1]*$in*$in]
               set dc [expr [lindex $propList 2]*$in]
               set bf_c [expr [lindex $propList 3]*$in]
@@ -3621,23 +3514,21 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
               set tf_c [expr [lindex $propList 4]*$in]
               set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
 
-              set found 1        
+              set found 1
               set tp [expr $tw+$tdpExt];
-              # puts "$dc $bf_c $tf_c $tp"
           }
-                              
+
       } else {
- 
+
           set tdpInt [lindex $tdpIntList [expr $floor -1]];
-              
+
           set theSection [lindex $colSizes [expr $floor -1]];
-          # puts "$theSection"
           set found 0
 
           foreach {section prop} [array get WSection $theSection] {
             set propList [split $prop]
 
-            #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+            # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
             set A [expr [lindex $propList 0]*$in*$in]
             set dc [expr [lindex $propList 1]*$in]
             set bf_c [expr [lindex $propList 2]*$in]
@@ -3645,54 +3536,51 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
             set tf_c [expr [lindex $propList 4]*$in]
             set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
 
-            set found 1        
+            set found 1
             set tp [expr $tw + $tdpInt];
-            # puts "$dc $bf_c $tf_c $tp"
           }
-                  
+
       }
- 
-      #--- rigid element 
+
+      #--- rigid element
       # elemPanelZone2D {eleID nodeR E A_PZ I_PZ transfTag}
       elemPanelZone2D 500$colLine$floor$aa $colLine$floor$p01 $E $Apz $Ipz 1;
       lappend PZrigidList [expr 500$colLine$floor$aa+2] [expr 500$colLine$floor$aa+7] [expr 500$colLine$floor$aa+3] [expr 500$colLine$floor$aa+6]
 
-      #--- panel zone spring 
+      #--- panel zone spring
       set Ry 1.2;
-      set as_PZ 0.1; # J.Hall used 10% strain hardening for panel zone 
+      set as_PZ 0.1; # J.Hall used 10% strain hardening for panel zone
       set pzspring 00;
-      
+
       set thebeamSection [lindex $beamSizes [expr $floor -1]];
-      # puts "$thebeamSection"
       set found 0
-      
+
       foreach {section prop} [array get WSection $thebeamSection] {
           set propList [split $prop]
-          
-          #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+
+          # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
           set db [expr [lindex $propList 1]*$in]
-          
-          set found 1        
-      }        
-      
-    
+
+          set found 1
+      }
+
+
       rotPanelZone2D 5$colLine$floor$pzspring $colLine$floor$p03 $colLine$floor$p04 $E $Fyc $dc $bf_c $tf_c $tp $db $Ry $as_PZ;
-      
+
       lappend PZspringList 5$colLine$floor$pzspring
-  
+
   }
 }
 
-puts "$PZspringList"
 
-puts "build elastic section btn col and RBS..."
-#====#====# add cover plate/RBS offset element 
-set K44_two 2.0625; #K44 = 6*(1+n)/(2+3*n)
-set K11_two 3.9375; #K11 = K33 = (1+2*n)*K44/(1+n)
-set K33_two 3.9375; 
-set K44_one 1.9355; #K44 = 6*n/(1+3*n )
-set K11_one 3.9375; #K11 = (1+2*n)*K44/(1+n)
-set K33_one 3.8710; #K33 = 2*K44 for one end spring
+puts stderr "build elastic section btn col and RBS..."
+#====#====# add cover plate/RBS offset element
+set K44_two 2.0625; # K44 = 6*(1+n)/(2+3*n)
+set K11_two 3.9375; # K11 = K33 = (1+2*n)*K44/(1+n)
+set K33_two 3.9375;
+set K44_one 1.9355; # K44 = 6*n/(1+3*n )
+set K11_one 3.9375; # K11 = (1+2*n)*K44/(1+n)
+set K33_one 3.8710; # K33 = 2*K44 for one end spring
 
 for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
   for {set colLine1  1; set colLine2 2} {$colLine1 < $numCline} {incr colLine1 1; incr colLine2 1} {
@@ -3702,13 +3590,13 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
       } else {
           set theSection [lindex $beamSizes [expr $floor -2]]
       }
-      
+
       set found 0
 
       foreach {section prop} [array get WSection $theSection] {
         set propList [split $prop]
 
-        #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+        # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
         set A [expr [lindex $propList 0]*$in*$in]
         set d [expr [lindex $propList 1]*$in]
         set bf [expr [lindex $propList 2]*$in]
@@ -3716,25 +3604,12 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
 
         set found 1
       }
-      # build elastic element         
+      # build elastic element
       element elasticBeamColumn 201$colLine1$floor $colLine1$floor$p05 $colLine1$floor$p1 [expr 1.0*$A] $E [expr 1.0*$Ixx] 2;
       element elasticBeamColumn 202$colLine1$floor $colLine2$floor$p4 $colLine2$floor$p10 [expr 1.0*$A] $E [expr 1.0*$Ixx] 2;
-  
+
   }
 }
-
-puts "BEFORE"
-#constraints Plain
-#numberer RCM
-#system ProfileSPD; #UmfPack;  # <---- 
-#test $testType $Tol $numStep
-#algorithm Newton
-#integrator Newmark 0.5 0.25
-#analysis Transient        ; #Transient 
-#set lambda [eigen $numMode]
-#puts " Period T1: [expr 2*$PI/sqrt([lindex $lambda 0])] sec [lindex $lambda 0]"    
-#puts " Period T2: [expr 2*$PI/sqrt([lindex $lambda 1])] sec [lindex $lambda 1]"    
-#puts " Period T3: [expr 2*$PI/sqrt([lindex $lambda 2])] sec [lindex $lambda 2]" 
 
 
 #====# === add pDelta columns
@@ -3745,52 +3620,49 @@ if {$pDelta == "YES"} {
       set ptRoofLoad  $forcepDeltaroof;
       set ptFloorLoad $forcepDeltatyp;
       set ptfirstFloorLoad $forcepDeltafirst;
-      
+
       # add nodes for PDelta
       set colLine [expr $numCline+1]
       set colLoc [expr $colLoc+50.]
       for {set floor 1; set floorLoc 0} {$floor <= $numFloor} {incr floor 1} {
-          
-          node $colLine$floor $colLoc $floorLoc 
+
+          node $colLine$floor $colLoc $floorLoc
           if {$floor == 1} {
               fix $colLine$floor 1 1 0
               lappend nodeListReaction $colLine$floor
-          }  else {
+          } else {
               equalDOF 1$floor$p05 $colLine$floor 1;# <=====
-              # equalDOF 1$floor $colLine$floor 1 2
           }
           if {$floor < $numFloor} {
               set floorLoc [expr $floorLoc + [lindex $floorOffsets [expr $floor-1]]]
           }
       }
-      
+
       # add Pdelta elements
       geomTransf PDelta 3; #<===== ###
-      
-      
+
       for {set floor1 1; set floor2 2} {$floor1 < $numFloor} {incr floor1 1; incr floor2 1} {
           element elasticBeamColumn $colLine$floor1$colLine$floor2 $colLine$floor1 $colLine$floor2 $areaPDelta $E 1.0e-1 3
       }
+
       # add the gravity loads
       pattern Plain 110 Linear {
           for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
-                      if {$floor == $numFloor} {
-                              load $colLine$floor 0. -$ptRoofLoad 0.
-                      } elseif {$floor == 2} {
-                              load $colLine$floor 0. -$ptfirstFloorLoad 0.
-                      } else {
-                              load $colLine$floor 0. -$ptFloorLoad 0.
-                      }
+               if {$floor == $numFloor} {
+                   load $colLine$floor 0. -$ptRoofLoad 0.
+               } elseif {$floor == 2} {
+                   load $colLine$floor 0. -$ptfirstFloorLoad 0.
+               } else {
+                   load $colLine$floor 0. -$ptFloorLoad 0.
+               }
           }
       }
-  } else { #NEW PDETA
-
-      puts "HI"
+  } else {
       set pFrame 12;
       set ptRoofLoad  $forcepDeltaroof;
       set ptFloorLoad $forcepDeltatyp;
       set ptfirstFloorLoad $forcepDeltafirst;
-      
+
       pattern Plain 110 Linear {
           # loads added after this will be added to this load pattern
       }
@@ -3798,14 +3670,14 @@ if {$pDelta == "YES"} {
       for {set floor 1; set floorLoc 0} {$floor <= $numFloor} {incr floor 1} {
           for {set colLine 1; set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
               set p05 05;
-              
+
               if {$floor == 1} {
-                  node $colLine$floor$pFrame $colLoc $floorLoc 
+                  node $colLine$floor$pFrame $colLoc $floorLoc
                   lappend nodeListReaction $colLine$floor$p7
                   fix $colLine$floor$pFrame 1 1 1
               }  else {
                   node $colLine$floor$pFrame $colLoc $floorLoc
-                  equalDOF 1$floor$p05 $colLine$floor$pFrame 1;  
+                  equalDOF 1$floor$p05 $colLine$floor$pFrame 1;
 
                   # add pDelta load
                   if {$floor == $numFloor} {
@@ -3816,9 +3688,9 @@ if {$pDelta == "YES"} {
                       load $colLine$floor$pFrame 0. -$ptFloorLoad 0.
                   }
               }
-              
+
               lappend nodeListCLine1Grav 1$floor$pFrame
-              
+
               if {$colLine < $numCline} {
                   set colLoc [expr $colLoc + [lindex $colOffsets [expr $colLine-1]]]
               }
@@ -3830,27 +3702,27 @@ if {$pDelta == "YES"} {
       # add gravity frame columns
       for {set colLine 1} {$colLine <= $numCline} {incr colLine 1} {
           for {set floor1 1; set floor2 2} {$floor1 < $numFloor} {incr floor1 1; incr floor2 1} {
-              
+
               #------- external columns
               if {$colLine == 1 || $colLine == $numCline} {
                   set theSection [lindex $colExtSizesPD [expr $floor1 -1]]
               } else {
                   set theSection [lindex $colSizesPD [expr $floor1 -1]]
               }
-              
-              ElasticBeamWSection2d $colLine$floor1$colLine$floor2$pFrame $colLine$floor1$pFrame $colLine$floor2$pFrame $theSection $E 1 -factI $factI                        
+
+              ElasticBeamWSection2d $colLine$floor1$colLine$floor2$pFrame $colLine$floor1$pFrame $colLine$floor2$pFrame $theSection $E 1 -factI $factI
           }
       }
       # add gravity frame beams
       for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
           for {set colLine1  1; set colLine2 2} {$colLine1 < $numCline} {incr colLine1 1; incr colLine2 1} {
-              
+
               if {$colLine1 == 1 || $colLine2 == $numCline} {
                   set theSection [lindex $beamExtSizesPD [expr $floor -2]]
               } else {
                   set theSection [lindex $beamSizesPD [expr $floor -2]]
               }
-              
+
               ElasticBeamWSection2d $colLine1$floor$colLine2$floor$pFrame $colLine1$floor$pFrame $colLine2$floor$pFrame $theSection $E 2 -factI $factI
           }
       }
@@ -3858,60 +3730,47 @@ if {$pDelta == "YES"} {
 }
 
 #===# add column axial loads
- puts "---> gravity loads"
+puts stderr "---> gravity loads"
 pattern Plain 102 Linear {
-    for {set floor2 2} {$floor2 <= $numFloor} {incr floor2 1} {
-      for {set colLine  1} {$colLine1 < $numCline} {incr colLine 1} {
-        if {$colLine == 1 || $colLine == $numCline} {
-              if {$floor == $numFloor} {
-                      load $colLine$floor2$p6 0. -$forceColroofExt 0.
-              } elseif {$floor == 2} {
-                      load $colLine$floor2$p6 0. -$forceColfirstExt 0.
-              } else {
-                      load $colLine$floor2$p6 0. -$forceColtypExt 0.
-              }
-        } else {
-            if {$floor == $numFloor} {
-                  load $colLine$floor2$p6 0. -$forceColroofInt 0.
-            } elseif {$floor == 2} {
-                  load $colLine$floor2$p6 0. -$forceColfirstInt 0.
-            } else {
-                  load $colLine$floor2$p6 0. -$forceColtypInt 0.
-            }
-        }
+  for {set floor2 2} {$floor2 <= $numFloor} {incr floor2 1} {
+    for {set colLine  1} {$colLine1 < $numCline} {incr colLine 1} {
+      if {$colLine == 1 || $colLine == $numCline} {
+          if {$floor == $numFloor} {
+              load $colLine$floor2$p6 0. -$forceColroofExt 0.
+          } elseif {$floor == 2} {
+              load $colLine$floor2$p6 0. -$forceColfirstExt 0.
+          } else {
+              load $colLine$floor2$p6 0. -$forceColtypExt 0.
+          }
+      } else {
+          if {$floor == $numFloor} {
+              load $colLine$floor2$p6 0. -$forceColroofInt 0.
+          } elseif {$floor == 2} {
+              load $colLine$floor2$p6 0. -$forceColfirstInt 0.
+          } else {
+              load $colLine$floor2$p6 0. -$forceColtypInt 0.
+          }
       }
     }
+  }
 }
-# puts "---> gravity loads"
-# puts "roof:$uniformRoofLoad...floor:$uniformFloorLoad...ptRoofLoad:$ptRoofLoad ...ptFloorLoad:$ptFloorLoad"
-  
-puts "AFTER PDELTA"
-    # constraints Plain
-    # numberer RCM
-    # system ProfileSPD; #UmfPack ProfileSPD;  # <---- 
-    # system SuperLU
-    # test $testType $Tol $numStep
-    # algorithm Newton
-    # integrator Newmark 0.5 0.25
-    # analysis Transient        ; #Transient 
-#set lambda [eigen $numMode]
-#puts " Period T1: [expr 2*$PI/sqrt([lindex $lambda 0])] sec [lindex $lambda 0]"    
-#puts " Period T2: [expr 2*$PI/sqrt([lindex $lambda 1])] sec [lindex $lambda 1]"    
-#puts " Period T3: [expr 2*$PI/sqrt([lindex $lambda 2])] sec [lindex $lambda 2]" 
+# puts stderr "---> gravity loads"
+# puts stderr "roof:$uniformRoofLoad...floor:$uniformFloorLoad...ptRoofLoad:$ptRoofLoad ...ptFloorLoad:$ptFloorLoad"
+
+puts stderr "AFTER PDELTA"
 
 # =========== analysis settings ============ #
 # Gravity-analysis: load-controlled static analysis
-constraints Plain;        
-numberer RCM;                
-system Umfpack;        
+constraints Plain;
+numberer RCM;
+system Umfpack;
 test NormUnbalance 1.0e-6 10 1;
-algorithm NewtonLineSearch;                
+algorithm NewtonLineSearch;
 integrator LoadControl 0.1;
-analysis Static;                
+analysis Static;
 set ok [analyze 10]
 if {$ok != 0} {
-  puts "Gravity FAILED"
-  return
+  puts stderr "Gravity FAILED"
 }
 
 loadConst -time 0.0
@@ -3919,5 +3778,4 @@ wipeAnalysis
 
 
 
-print -JSON -file /dev/stdout
 
