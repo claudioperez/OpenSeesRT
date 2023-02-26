@@ -39,7 +39,7 @@
 #include <Bilinear.h>
 #include <DamageModel.h>
 
-#include <g3_api.h>
+#include <tcl.h>
 #include <Vector.h>
 #include <string.h>
 #include <stdlib.h>

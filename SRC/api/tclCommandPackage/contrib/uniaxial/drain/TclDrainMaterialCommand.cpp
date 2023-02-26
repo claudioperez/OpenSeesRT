@@ -39,6 +39,7 @@
 #include <Vector.h>
 #include <string.h>
 #include <g3_api.h>
+#include <tcl.h>
 
 static void
 printCommand(int argc, TCL_Char **argv)
