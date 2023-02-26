@@ -5,13 +5,14 @@
 //
 //
 #include <assert.h>
-#include <g3_api.h>
+#include <tcl.h>
 #include <FileStream.h>
 #include <SimulationInformation.h>
 
 #include <BasicModelBuilder.h>
 #include <Storage/G3_TableIterator.h>
 
+#include <ID.h>
 #include <Domain.h>
 #include <LoadPattern.h>
 #include <Parameter.h>
@@ -163,7 +164,7 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain * domain = builder->getDomain();
 
   int currentArg = 1;
-  int res = 0;
+  int res = TCL_OK;
 
   int flag = OPS_PRINT_CURRENTSTATE;
 
@@ -171,13 +172,13 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   OPS_Stream *output = &opserr;
   bool done = false;
 
-  // if just 'print' then print out the entire domain
-  if (argc == currentArg) {
-    opserr << domain;
-    return TCL_OK;
-  }
+  // // if just 'print' then print out the entire domain
+  // if (argc == currentArg) {
+  //   opserr << domain;
+  //   return TCL_OK;
+  // }
 
-  while (done == false) {
+  while (currentArg < argc) {
     // if 'print ele i j k..' print out some elements
     if ((strcmp(argv[currentArg], "-ele") == 0) ||
         (strcmp(argv[currentArg], "ele") == 0)) {
@@ -217,7 +218,9 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
                            argv + currentArg, *output);
       done = true;
     }
-    else if ((strcmp(argv[currentArg], "-JSON") == 0)) {
+
+    else if ((strcmp(argv[currentArg], "-JSON") == 0) ||
+             (strcmp(argv[currentArg], "-json") == 0)) {
       currentArg++;
       flag = OPS_PRINT_PRINTMODEL_JSON;
     }
@@ -230,29 +233,40 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       openMode mode = APPEND;
       if (flag == OPS_PRINT_PRINTMODEL_JSON)
         mode = OVERWRITE;
-      if (outputFile.setFile(argv[currentArg], mode) != 0) {
-        opserr << "print <filename> .. - failed to open file: "
-               << argv[currentArg] << endln;
-        return TCL_ERROR;
+
+      if (currentArg < argc) {
+        if (outputFile.setFile(argv[currentArg], mode) != 0) {
+          opserr << "print <filename> .. - failed to open file: "
+                 << argv[currentArg] << "\n";
+          return TCL_ERROR;
+        } else {
+          output = &outputFile;
+        }
       }
+
       currentArg++;
-
-      // if just 'print <filename>' then print out the entire domain to eof
-      if (argc == currentArg) {
-        if (flag == OPS_PRINT_PRINTMODEL_JSON)
-          simulationInfo.Print(outputFile, flag);
-
-        // domain->Print(outputFile, flag);
-        printDomain(outputFile, builder, flag);
-        return TCL_OK;
-      }
-
-      output = &outputFile;
     }
   }
 
-  // close the output file
-  outputFile.close();
+    // if just 'print <filename>' then print out the entire domain to eof
+  if (!done) {
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      simulationInfo.Print(*output, flag);
+      printDomain(*output, builder, flag);
+    } else {
+      domain->Print(*output, flag);
+      // Domain doesnt leave a new line
+      *output << "\n";
+    }
+
+    res = TCL_OK;
+    done = true;
+  }
+
+  // close the output file if one has been opened
+  if (output != &outputFile)
+    outputFile.close();
+
   return res;
 }
 
@@ -300,7 +314,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
 
-    // otherwise print out the specified nodes i j k .. with flag
+    // otherwise print out the specified elements i j k .. with flag
     int numEle = argc - eleArg;
     ID *theEle = new ID(numEle);
     for (int i = 0; i < numEle; i++) {
@@ -378,7 +392,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
       int nodeTag;
       if (Tcl_GetInt(interp, argv[nodeArg], &nodeTag) != TCL_OK) {
         opserr << "WARNING print node failed to get integer: " << argv[nodeArg]
-               << endln;
+               << "\n";
         return TCL_ERROR;
       }
       (*theNodes)(i) = nodeTag;
@@ -392,3 +406,395 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
   return TCL_OK;
 }
 
+// Talledo Start
+int
+printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
+              TCL_Char **argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  enum ObjectTypes {
+    Linear = 1<<0,
+    Tri3   = 1<<1,
+    Quad4  = 1<<2,
+    Quad8  = 1<<3,
+    Quad9  = 1<<4,
+    Brick  = 1<<5
+  };
+  int object_types = 0;
+
+  // This function print's a file with node and elements in a format useful for
+  // GID
+  int res = 0;
+  bool hasLinear = false;
+  bool hasTri3  = false;
+  bool hasQuad4 = false;
+  bool hasQuad8 = false;
+  bool hasQuad9 = false;
+  bool hasBrick = false;
+  int startEle = 1;
+  int endEle = 1;
+  int eleRange = 0;
+  int i = 2;
+
+  FileStream outputFile;
+
+  if (argc < 2) {
+    opserr << "WARNING printGID fileName? - no filename supplied\n";
+    return TCL_ERROR;
+  }
+  openMode mode = OVERWRITE;
+  if (argc >= 3) {
+    if (strcmp(argv[i], "-append") == 0) {
+      mode = APPEND;
+      i++;
+    }
+    if (strcmp(argv[i], "-eleRange") == 0) {
+
+      eleRange = 1;
+      if (Tcl_GetInt(interp, argv[i + 1], &startEle) != TCL_OK) {
+        opserr << "WARNING print node failed to get integer: " << argv[i + 1]
+               << "\n";
+        return TCL_ERROR;
+      }
+      if (Tcl_GetInt(interp, argv[i + 2], &endEle) != TCL_OK) {
+        opserr << "WARNING print node failed to get integer: " << argv[i + 2]
+               << "\n";
+        return TCL_ERROR;
+      }
+
+    }
+  }
+
+  if (outputFile.setFile(argv[1], mode) < 0) {
+    opserr << "WARNING printGID " << argv[1] << " failed to set the file\n";
+    return TCL_ERROR;
+  }
+
+  // Cycle over Elements to understand what type of elements are there
+  ElementIter &theElements = the_domain->getElements();
+  Element *theElement;
+  while ((theElement = theElements()) != 0) {
+
+    // Check type of Element with Number of Nodes
+    // if 2 Nodes print the Element
+    switch (theElement->getNumExternalNodes()) {
+    case (2):
+      hasLinear = true;
+      break;
+    case (4):
+      hasQuad4 = true;
+      break;
+    case (3):
+      hasTri3 = true;
+      break;
+    case (9):
+      hasQuad9 = true;
+      break;
+    case (8):
+      if (strcmp(theElement->getClassType(), "Brick") == 0) {
+        hasBrick = true;
+      } else {
+        hasQuad8 = true;
+      }
+    }
+  }
+
+  //
+  // **** Linear Elements - 2 Nodes
+  //
+  if (hasLinear == 1) {
+    // Print HEADER
+    outputFile << "MESH \"2NMESH\" dimension 3 ElemType Linear Nnode 2"
+               << "\n";
+    outputFile << "#color 0 0 255" << "\n\n";
+
+    // Print node coordinates
+    outputFile << "Coordinates" << "\n";
+    NodeIter &theNodes = the_domain->getNodes();
+    Node *theNode;
+    while ((theNode = theNodes()) != 0) {
+      int tag = theNode->getTag();
+      const Vector &crds = theNode->getCrds();
+      int l_tmp = crds.Size();
+      outputFile << tag << "\t\t";
+      for (int ii = 0; ii < l_tmp; ii++) {
+        outputFile << crds(ii) << "\t";
+      }
+      for (int ii = l_tmp; ii < 3; ii++) {
+        outputFile << 0.0 << "\t";
+      }
+      outputFile << endln;
+    }
+    outputFile << "End coordinates" << endln << endln;
+
+    // Print elements connectivity
+    outputFile << "Elements" << endln;
+    ElementIter &theElements = the_domain->getElements();
+    Element *theElement;
+    while ((theElement = theElements()) != 0) {
+      int tag = theElement->getTag();
+      // Check if element tag is inside theRange
+      if (((tag <= endEle) & (tag >= startEle)) || (eleRange == 0)) {
+        // Check type of Element with Number of Nodes
+        // if 2 Nodes print the Element
+        int nNode = theElement->getNumExternalNodes();
+        if (nNode == 2) {
+          Node **NodePtrs;
+          NodePtrs = theElement->getNodePtrs();
+          ID tagNodes(nNode);
+          for (int i = 0; i < nNode; i++) {
+            tagNodes(i) = NodePtrs[i]->getTag();
+          }
+          outputFile << tag << "\t\t";
+          for (int i = 0; i < nNode; i++) {
+            outputFile << tagNodes(i) << "\t";
+          }
+          outputFile << endln;
+        }
+      }
+    }
+    outputFile << "End elements" << endln;
+  }
+  //
+  // **** Quadrilateral Elements - 4 Nodes
+  //
+  if (hasQuad4 == 1) {
+    // Print HEADER
+    outputFile << "MESH \"4NMESH\" dimension 3 ElemType Quadrilateral Nnode 4"
+               << endln;
+    outputFile << "#color 0 255 0" << endln << endln;
+
+    // Print node coordinates
+    outputFile << "Coordinates" << endln;
+    NodeIter &theNodes = the_domain->getNodes();
+    Node *theNode;
+    while ((theNode = theNodes()) != 0) {
+      int tag = theNode->getTag();
+      const Vector &crds = theNode->getCrds();
+      // outputFile << tag << "\t\t" << crds(0) << "\t" << crds(1) << "\t" <<
+      // crds(2) << endln;
+      int l_tmp = crds.Size();
+      outputFile << tag << "\t\t";
+      for (int ii = 0; ii < l_tmp; ii++) {
+        outputFile << crds(ii) << "\t";
+      }
+      for (int ii = l_tmp; ii < 3; ii++) {
+        outputFile << 0.0 << "\t";
+      }
+      outputFile << endln;
+    }
+    outputFile << "End coordinates" << endln << endln;
+
+    // Print elements connectivity
+    outputFile << "Elements" << endln;
+    ElementIter &theElements = the_domain->getElements();
+    Element *theElement;
+    while ((theElement = theElements()) != 0) {
+      int tag = theElement->getTag();
+      // Check if element tag is inside theRange
+      if (((tag <= endEle) & (tag >= startEle)) || (eleRange == 0)) {
+
+        // Check type of Element with Number of Nodes
+        // if 2 Nodes print the Element
+        int nNode = theElement->getNumExternalNodes();
+        if (nNode == 4) {
+          Node **NodePtrs;
+          NodePtrs = theElement->getNodePtrs();
+          ID tagNodes(nNode);
+          for (int i = 0; i < nNode; i++) {
+            tagNodes(i) = NodePtrs[i]->getTag();
+          }
+          outputFile << tag << "\t\t";
+          for (int i = 0; i < nNode; i++) {
+            outputFile << tagNodes(i) << "\t";
+          }
+          outputFile << endln;
+        }
+      }
+    }
+    outputFile << "End elements" << endln;
+  }
+  //
+  // **** Triangular Elements - 3 Nodes
+  //
+  if (hasTri3 == 1) {
+    // Print HEADER
+    outputFile << "MESH \"3NMESH\" dimension 3 ElemType Triangle Nnode 3"
+               << endln;
+    outputFile << "#color 0 255 0" << endln << endln;
+
+    // Print node coordinates
+    outputFile << "Coordinates" << endln;
+    NodeIter &theNodes = the_domain->getNodes();
+    Node *theNode;
+    while ((theNode = theNodes()) != 0) {
+      int tag = theNode->getTag();
+      const Vector &crds = theNode->getCrds();
+      // outputFile << tag << "\t\t" << crds(0) << "\t" << crds(1) << "\t" <<
+      // crds(2) << endln;
+      int l_tmp = crds.Size();
+      outputFile << tag << "\t\t";
+      for (int ii = 0; ii < l_tmp; ii++) {
+        outputFile << crds(ii) << "\t";
+      }
+      for (int ii = l_tmp; ii < 3; ii++) {
+        outputFile << 0.0 << "\t";
+      }
+      outputFile << endln;
+    }
+    outputFile << "End coordinates" << endln << endln;
+
+    // Print elements connectivity
+    outputFile << "Elements" << endln;
+    ElementIter &theElements = the_domain->getElements();
+    Element *theElement;
+    while ((theElement = theElements()) != 0) {
+      int tag = theElement->getTag();
+      // Check if element tag is inside theRange
+      if (((tag <= endEle) & (tag >= startEle)) || (eleRange == 0)) {
+
+        // Check type of Element with Number of Nodes
+        // if 3 Nodes print the Element
+        int nNode = theElement->getNumExternalNodes();
+        if (nNode == 3) {
+          Node **NodePtrs;
+          NodePtrs = theElement->getNodePtrs();
+          ID tagNodes(nNode);
+          for (int i = 0; i < nNode; i++) {
+            tagNodes(i) = NodePtrs[i]->getTag();
+          }
+          outputFile << tag << "\t\t";
+          for (int i = 0; i < nNode; i++) {
+            outputFile << tagNodes(i) << "\t";
+          }
+          outputFile << endln;
+        }
+      }
+    }
+    outputFile << "End elements" << endln;
+  }
+  //
+  // **** Quadrilateral Elements - 9 Nodes
+  //
+  if (hasQuad9 == 1) {
+    // Print HEADER
+    outputFile << "MESH \"9NMESH\" dimension 3 ElemType Linear Nnode 9"
+               << endln;
+    outputFile << "#color 0 255 0" << endln << endln;
+
+    // Print node coordinates
+    outputFile << "Coordinates" << endln;
+    NodeIter &theNodes = the_domain->getNodes();
+    Node *theNode;
+    while ((theNode = theNodes()) != 0) {
+      int tag = theNode->getTag();
+      const Vector &crds = theNode->getCrds();
+
+      int l_tmp = crds.Size();
+      outputFile << tag << "\t\t";
+      for (int ii = 0; ii < l_tmp; ii++) {
+        outputFile << crds(ii) << "\t";
+      }
+      for (int ii = l_tmp; ii < 3; ii++) {
+        outputFile << 0.0 << "\t";
+      }
+      outputFile << endln;
+    }
+    outputFile << "End coordinates" << endln << endln;
+
+    // Print elements connectivity
+    outputFile << "Elements" << endln;
+    ElementIter &theElements = the_domain->getElements();
+    Element *theElement;
+    while ((theElement = theElements()) != 0) {
+      int tag = theElement->getTag();
+      // Check if element tag is inside theRange
+      if (((tag <= endEle) & (tag >= startEle)) || (eleRange == 0)) {
+
+        // Check type of Element with Number of Nodes
+        // if 2 Nodes print the Element
+        int nNode = theElement->getNumExternalNodes();
+        if (nNode == 9) {
+          Node **NodePtrs;
+          NodePtrs = theElement->getNodePtrs();
+          ID tagNodes(nNode);
+          for (int i = 0; i < nNode; i++) {
+            tagNodes(i) = NodePtrs[i]->getTag();
+          }
+          outputFile << tag << "\t\t";
+          for (int i = 0; i < nNode; i++) {
+            outputFile << tagNodes(i) << "\t";
+          }
+          outputFile << endln;
+        }
+      }
+    }
+    outputFile << "End elements" << endln;
+  }
+  //
+  // **** Hexahedra Elements - 8 Nodes
+  //
+  if (hasBrick == 1) {
+    // Print HEADER
+    outputFile << "MESH \"8NMESH\" dimension 3 ElemType Hexahedra Nnode 8"
+               << endln;
+    outputFile << "#color 255 0 0" << endln << endln;
+
+    // Print node coordinates
+    outputFile << "Coordinates" << endln;
+    NodeIter &theNodes = the_domain->getNodes();
+
+    Node *theNode;
+    while ((theNode = theNodes()) != 0) {
+      int tag = theNode->getTag();
+      const Vector &crds = theNode->getCrds();
+      // outputFile << tag << "\t\t" << crds(0) << "\t" << crds(1) << "\t" <<
+      // crds(2) << endln;
+      int l_tmp = crds.Size();
+      outputFile << tag << "\t\t";
+      for (int ii = 0; ii < l_tmp; ii++) {
+        outputFile << crds(ii) << "\t";
+      }
+      for (int ii = l_tmp; ii < 3; ii++) {
+        outputFile << 0.0 << "\t";
+      }
+      outputFile << endln;
+    }
+    outputFile << "End coordinates" << endln << endln;
+
+    // Print elements connectivity
+    outputFile << "Elements" << endln;
+    ElementIter &theElements = the_domain->getElements();
+    Element *theElement;
+    while ((theElement = theElements()) != 0) {
+      int tag = theElement->getTag();
+      // Check if element tag is inside theRange
+      if (((tag <= endEle) & (tag >= startEle)) || (eleRange == 0)) {
+
+        // Check type of Element with Number of Nodes
+        // if 2 Nodes print the Element
+        int nNode = theElement->getNumExternalNodes();
+        if (nNode == 8) {
+          Node **NodePtrs;
+          NodePtrs = theElement->getNodePtrs();
+          ID tagNodes(nNode);
+          for (int i = 0; i < nNode; i++) {
+            tagNodes(i) = NodePtrs[i]->getTag();
+          }
+          outputFile << tag << "\t\t";
+          for (int i = 0; i < nNode; i++) {
+            outputFile << tagNodes(i) << "\t";
+          }
+          outputFile << endln;
+        }
+      }
+    }
+    outputFile << "End elements" << endln;
+  }
+
+  outputFile.close();
+  return res;
+}
+// Talledo End
