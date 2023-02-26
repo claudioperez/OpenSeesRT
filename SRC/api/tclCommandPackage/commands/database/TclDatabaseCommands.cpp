@@ -108,7 +108,7 @@ TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
 
     theDatabase = new FileDatastore(argv[2], theDomain, theBroker);
     // check we instantiated a database .. if not ran out of memory
-    if (theDatabase == 0) {
+    if (theDatabase == nullptr) {
       opserr << "WARNING ran out of memory - database File " << argv[2]
              << endln;
       return TCL_ERROR;
@@ -172,7 +172,7 @@ int
 save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
-  if (theDatabase == 0) {
+  if (theDatabase == nullptr) {
     opserr << "WARNING: save - no database has been constructed\n";
     return TCL_OK;
   }

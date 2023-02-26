@@ -31,7 +31,6 @@ target_sources(OpenSeesRT PRIVATE
     "elementAPI_PYG3.cpp"
 
 # Other
-#   "misc/TclPackageClassBroker.cpp"
     "contrib/packages/optimization/TclParameterCommands.cpp"
 
 #
@@ -60,10 +59,6 @@ target_sources(OpenSeesRT PRIVATE
 add_subdirectory(contrib/)
 
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
-
-# target_compile_options(OPS_MaterialFortran            PRIVATE -fPIC)
-# target_compile_options(OPS_ElementFortran             PRIVATE -fPIC)
-# target_compile_options(OPS_Material_Uniaxial_Drain_f  PRIVATE -fPIC)
 
 set_property(TARGET OPS_MaterialFortran            PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_ElementFortran             PROPERTY POSITION_INDEPENDENT_CODE 1)

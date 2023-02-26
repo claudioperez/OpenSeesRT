@@ -93,7 +93,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char **argv, Domain *domain);
 
-Tcl_CmdProc printModelGID;
 
 Tcl_CmdProc TclCommand_record;
 Tcl_CmdProc TclCommand_setLoadConst;
@@ -103,7 +102,8 @@ Tcl_CmdProc TclCommand_setCreep;
 Tcl_CmdProc domainChange;
 
 
-// TODO: reimplement  int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+// TODO: reimplement
+// int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char **argv);
 // int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 
@@ -113,26 +113,21 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   ClientData domain = (ClientData)the_domain;
 
+
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
-
-  Tcl_CreateCommand(interp, "setCreep",   &TclCommand_setCreep, nullptr, nullptr);
-
-
-  // Tcl_CreateCommand(interp, "print",      &printModel, domain, nullptr);
-  // Tcl_CreateCommand(interp, "printModel", &printModel, domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "remove",            &removeObject,    domain, nullptr);
 
   Tcl_CreateCommand(interp, "findNodeWithID", &findID, domain, nullptr);
 
-// TODO: cmp -- reimplement
-//   // Talledo Start
-//   Tcl_CreateCommand(interp, "printGID", &printModelGID, nullptr, nullptr);
-//   // Talledo End
+
+  Tcl_CreateCommand(interp, "printGID",            &printModelGID, domain, nullptr);
 
   Tcl_CreateCommand(interp, "setTime",             &TclCommand_setTime, domain, nullptr);
   Tcl_CreateCommand(interp, "getTime",             &TclCommand_getTime, domain, nullptr);
+
+  Tcl_CreateCommand(interp, "setCreep",   &TclCommand_setCreep, nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
   Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, nullptr, nullptr);
@@ -216,7 +211,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, nullptr);
   Tcl_CreateCommand(interp, "record",       &TclCommand_record, nullptr, nullptr);
-  // Tcl_CreateCommand(interp, "video", &videoPlayer, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, nullptr);
 
 

@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <g3_api.h>
 #include <tcl.h>
 #include <Domain.h>
 #include <EquiSolnAlgo.h>
@@ -91,7 +90,6 @@ extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
 
 extern const char *getInterpPWD(Tcl_Interp *interp); // commands.cpp
 
-// extern TclBasicBuilder *theDamageTclBasicBuilder;
 
 typedef struct externalRecorderCommand {
   char *funcName;

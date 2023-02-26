@@ -120,7 +120,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
       } else if (posArg == 2) {
           if (Tcl_GetInt(interp, argv[argPos], &ndf) != TCL_OK) {
-            opserr << "WARNING error reading ndf: " << argv[argPos];
+            opserr << G3_ERROR_PROMPT << "error reading ndf: " << argv[argPos];
             opserr << "\nmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
             return TCL_ERROR;
           }
@@ -135,7 +135,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
     // check that ndm was specified
     if (ndm == 0) {
-      opserr << "WARNING need to specify ndm\n";
+      opserr << G3_ERROR_PROMPT << "need to specify ndm\n";
       opserr << "        model modelBuilderType -ndm ndm? <-ndf ndf?>\n";
       return TCL_ERROR;
     }
@@ -149,7 +149,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
       else if (ndm == 3)
         ndf = 6;
       else {
-        opserr << "WARNING specified ndm, " << ndm << ", will not work\n";
+        opserr << G3_ERROR_PROMPT << "specified ndm, " << ndm << ", will not work\n";
         opserr << "        with any elements in BasicBuilder\n";
         return TCL_ERROR;
       }
@@ -159,7 +159,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     theNewBuilder = new BasicModelBuilder(*theNewDomain, interp, ndm, ndf);
 
     if (theNewBuilder == 0) {
-      opserr << "WARNING ran out of memory in creating BasicBuilder model\n";
+      opserr << G3_ERROR_PROMPT << "ran out of memory in creating BasicBuilder model\n";
       return TCL_ERROR;
     } else {
       theBuilder = theNewBuilder;
@@ -181,7 +181,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     }
     theNewBuilder = new TclUniaxialMaterialTester(*theNewDomain, interp, count);
     if (theNewBuilder == 0) {
-      opserr << "WARNING ran out of memory in creating "
+      opserr << G3_ERROR_PROMPT << "ran out of memory in creating "
                 "TclUniaxialMaterialTester model\n";
       return TCL_ERROR;
     } else {
@@ -202,7 +202,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
     theNewBuilder = new TclPlaneStressMaterialTester(theDomain, interp, count);
     if (theNewBuilder == 0) {
-      opserr << "WARNING ran out of memory in creating "
+      opserr << G3_ERROR_PROMPT << "ran out of memory in creating "
                 "TclUniaxialMaterialTester model\n";
       return TCL_ERROR;
     }
@@ -220,7 +220,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     }
     theNewBuilder = new TclSectionTestBuilder(theDomain, interp, count);
     if (theNewBuilder == 0) {
-      opserr << "WARNING ran out of memory in creating "
+      opserr << G3_ERROR_PROMPT << "ran out of memory in creating "
                 "TclUniaxialMAterialTester model\n";
       return TCL_ERROR;
     } 
@@ -228,7 +228,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 #endif
 
   else {
-    opserr << "WARNING unknown model builder type '" << argv[1] << "' not supported\n";
+    opserr << G3_ERROR_PROMPT << "unknown model builder type '" << argv[1] << "' not supported\n";
     return TCL_ERROR;
   }
 
@@ -244,7 +244,8 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   Domain *domain = G3_getDomain(rt);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-#if 0 // TODO - implement ModelBuilder.clearAll();
+  // TODO - implement ModelBuilder.clearAll();
+#if 0
   // to build the model make sure the ModelBuilder has been constructed
   // and that the model has not already been constructed
   if (theBuilder != 0) {
@@ -256,7 +257,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
 
   // NOTE : DON'T do the above on theVariableTimeStepAnalysis
   // as it and theTansientAnalysis are one in the same
-  if (theDatabase != 0)
+  if (theDatabase != nullptr)
     delete theDatabase;
 
   if (domain) {
@@ -277,8 +278,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   OPS_PARTITIONED = false;
 #endif
 
-  // theTest = nullptr;
-  theDatabase = 0;
+  theDatabase = nullptr;
 
   // the domain deletes the record objects,
   // just have to delete the private array
@@ -302,10 +302,10 @@ buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     builtModel = true;
     return builder->buildFE_Model();
   } else if (builder != 0 && builtModel == true) {
-    opserr << "WARNING Model has already been built - not built again \n";
+    opserr << G3_ERROR_PROMPT << "Model has already been built - not built again \n";
     return TCL_ERROR;
   } else {
-    opserr << "WARNING No ModelBuilder type has been specified \n";
+    opserr << G3_ERROR_PROMPT << "No ModelBuilder type has been specified \n";
     return TCL_ERROR;
   }
 }

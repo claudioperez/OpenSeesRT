@@ -3,9 +3,11 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+// Description: Functions used to print out the domain
 //
 #include <assert.h>
 #include <tcl.h>
+#include <G3_Logging.h>
 #include <FileStream.h>
 #include <SimulationInformation.h>
 
@@ -293,11 +295,11 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
   if ((strcmp(argv[0], "flag") == 0) ||
       (strcmp(argv[0], "-flag")) == 0) { // get the specified flag
     if (argc < 2) {
-      opserr << "WARNING print <filename> ele <flag int> no int specified \n";
+      opserr << G3_ERROR_PROMPT << "print <filename> ele <flag int> no int specified \n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[1], &flag) != TCL_OK) {
-      opserr << "WARNING print ele failed to get integer flag: \n";
+      opserr << G3_ERROR_PROMPT << "print ele failed to get integer flag: \n";
       opserr << argv[eleArg] << endln;
       return TCL_ERROR;
     }
@@ -320,7 +322,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
     for (int i = 0; i < numEle; i++) {
       int eleTag;
       if (Tcl_GetInt(interp, argv[i + eleArg], &eleTag) != TCL_OK) {
-        opserr << "WARNING print -ele failed to get integer: " << argv[i]
+        opserr << G3_ERROR_PROMPT << "print -ele failed to get integer: " << argv[i]
                << endln;
         return TCL_ERROR;
       }
@@ -363,11 +365,11 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
   if ((strcmp(argv[0], "flag") == 0) || (strcmp(argv[0], "-flag") == 0)) {
     // get the specified flag
     if (argc <= nodeArg) {
-      opserr << "WARNING print <filename> node <flag int> no int specified \n";
+      opserr << G3_ERROR_PROMPT << "print <filename> node <flag int> no int specified \n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[1], &flag) != TCL_OK) {
-      opserr << "WARNING print node failed to get integer flag: \n";
+      opserr << G3_ERROR_PROMPT << "print node failed to get integer flag: \n";
       opserr << argv[nodeArg] << endln;
       return TCL_ERROR;
     }
@@ -391,7 +393,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
     for (int i = 0; i < numNodes; i++) {
       int nodeTag;
       if (Tcl_GetInt(interp, argv[nodeArg], &nodeTag) != TCL_OK) {
-        opserr << "WARNING print node failed to get integer: " << argv[nodeArg]
+        opserr << G3_ERROR_PROMPT << "print node failed to get integer: " << argv[nodeArg]
                << "\n";
         return TCL_ERROR;
       }
@@ -406,7 +408,8 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
   return TCL_OK;
 }
 
-// Talledo Start
+// Print domain in GiD format
+// Author: Talledo
 int
 printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char **argv)
@@ -441,7 +444,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
   FileStream outputFile;
 
   if (argc < 2) {
-    opserr << "WARNING printGID fileName? - no filename supplied\n";
+    opserr << G3_ERROR_PROMPT << "printGID fileName? - no filename supplied\n";
     return TCL_ERROR;
   }
   openMode mode = OVERWRITE;
@@ -454,12 +457,12 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
 
       eleRange = 1;
       if (Tcl_GetInt(interp, argv[i + 1], &startEle) != TCL_OK) {
-        opserr << "WARNING print node failed to get integer: " << argv[i + 1]
+        opserr << G3_ERROR_PROMPT << "print node failed to get integer: " << argv[i + 1]
                << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetInt(interp, argv[i + 2], &endEle) != TCL_OK) {
-        opserr << "WARNING print node failed to get integer: " << argv[i + 2]
+        opserr << G3_ERROR_PROMPT << "print node failed to get integer: " << argv[i + 2]
                << "\n";
         return TCL_ERROR;
       }
@@ -468,7 +471,7 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if (outputFile.setFile(argv[1], mode) < 0) {
-    opserr << "WARNING printGID " << argv[1] << " failed to set the file\n";
+    opserr << G3_ERROR_PROMPT << "printGID " << argv[1] << " failed to set the file\n";
     return TCL_ERROR;
   }
 
@@ -797,4 +800,3 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
   outputFile.close();
   return res;
 }
-// Talledo End
