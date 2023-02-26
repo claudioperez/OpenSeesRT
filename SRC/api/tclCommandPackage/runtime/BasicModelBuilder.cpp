@@ -182,6 +182,7 @@ int
 BasicModelBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
 {
   m_TimeSeriesMap[name] = series;
+  G3_AddTableEntry(registry, "TimeSeries", std::stoi(name), (void*)series);
   return 1;
 }
 
@@ -221,6 +222,7 @@ int
 BasicModelBuilder::addSection(const std::string &name, SectionForceDeformation &instance)
 {
   m_SectionForceDeformationMap[name] = &instance;
+  G3_AddTableEntry(registry, "CrossSection", std::stoi(name), (void*)&instance);
   return 1;
 }
 
@@ -381,6 +383,7 @@ int
 BasicModelBuilder::addHystereticBackbone(const std::string &name, HystereticBackbone &instance)
 {
   m_HystereticBackboneMap[name] = &instance;
+  G3_AddTableEntry(registry, "HystereticBackbone", std::stoi(name), (void*)&instance);
   return 1;
 }
 
