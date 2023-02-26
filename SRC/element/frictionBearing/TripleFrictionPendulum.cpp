@@ -437,8 +437,8 @@ int TripleFrictionPendulum::revertToStart()
 int TripleFrictionPendulum::update()
 {
     // get current time
-    Domain *theDomain = this->getDomain();
-    double time = theDomain->getCurrentTime();
+    // Domain *theDomain = this->getDomain();
+    // double time = theDomain->getCurrentTime();
     
     const Vector &duNd1 = theNodes[0]->getIncrDisp();
     const Vector &duNd2 = theNodes[1]->getIncrDisp();

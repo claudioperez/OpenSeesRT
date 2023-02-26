@@ -828,7 +828,7 @@ Response* Adapter::setResponse(const char **argv, int argc,
     Response *theResponse = 0;
     
     int i;
-    char outputData[10];
+    char outputData[13];
     
     output.tag("ElementOutput");
     output.attr("eleType","Adapter");

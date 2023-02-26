@@ -109,7 +109,7 @@ WrapperElement::setDomain(Domain *theDomain)
 {
   // check Domain is not null - invoked when object removed from a domain
   if (theDomain == 0) {
-    if (theNodes != 0) {
+    if (theNodes != nullptr) {
       delete [] theNodes;
       theNodes = 0;
     }
@@ -170,7 +170,7 @@ int
 WrapperElement::revertToLastCommit()
 {
   // get the current load factor
-  Domain *theDomain=this->getDomain();
+  // Domain *theDomain=this->getDomain();
   
   theModelState.time = committedTime;
   theModelState.dt = committedDt;
