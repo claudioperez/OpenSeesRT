@@ -8,6 +8,7 @@ target_sources(OPS_Analysis
     PRIVATE
       Accelerator.cpp
       MillerAccelerator.cpp 
+      naccel.c
       RaphsonAccelerator.cpp 
       PeriodicAccelerator.cpp 
       KrylovAccelerator.cpp 
@@ -32,7 +33,7 @@ target_sources(OPS_Analysis
 )
 # Build files are not properly generated for Windows
 # when libraries contain both C++ and Fortran files
-add_library(OPS_Analysis_Naccel OBJECT naccel.f)
-target_link_libraries(OPS_Analysis OPS_Analysis_Naccel)
+# add_library(OPS_Analysis_Naccel OBJECT naccel.f)
+# target_link_libraries(OPS_Analysis OPS_Analysis_Naccel)
 
 target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
