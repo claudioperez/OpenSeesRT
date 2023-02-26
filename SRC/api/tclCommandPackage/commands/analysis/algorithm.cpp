@@ -218,7 +218,6 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
-  EquiSolnAlgo *theNewAlgo = nullptr;
   ConvergenceTest *theTest =
       ((BasicAnalysisBuilder *)clientData)->getConvergenceTest();
 
@@ -512,8 +511,8 @@ G3_newMillerNewton(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  Accelerator *theAccel = 0;
-  // theAccel = new MillerAccelerator(maxDim, 0.01, iterateTangent);
+  Accelerator *theAccel = nullptr;
+  theAccel = new MillerAccelerator(maxDim, 0.01, iterateTangent);
 
   theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
   return theNewAlgo;
