@@ -7,23 +7,18 @@
 
 target_sources(OpenSeesRT
     PRIVATE
-      BasicAnalysisBuilder.cpp
-      BasicModelBuilder.cpp
-
       TclPackageClassBroker.cpp
 
       # Model Builders
+      BasicAnalysisBuilder.cpp
+      BasicModelBuilder.cpp
       modelbuilder/TclBuilder.cpp
       modelbuilder/basic/TclBasicBuilder.cpp
-      modelbuilder/uniax/TclUniaxialMaterialTester.cpp
-      modelbuilder/sect/TclSectionTestBuilder.cpp
-      #modelbuilder/plane/TclPlaneStressMaterialTester.cpp
 
 
     PUBLIC
       BasicAnalysisBuilder.h
       BasicModelBuilder.h
-
       TclPackageClassBroker.h
 )
 

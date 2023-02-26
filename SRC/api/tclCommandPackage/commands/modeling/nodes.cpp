@@ -6,6 +6,7 @@
 //
 #include <assert.h>
 #include <tcl.h>
+#include <G3_Logging.h>
 #include <Node.h>
 #include <Matrix.h>
 #include <Domain.h>
@@ -29,7 +30,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {
-    opserr << "WARNING insufficient arguments\n";
+    opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
     opserr << "        Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
   }
@@ -39,7 +40,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   // read the node id
   int nodeId;
   if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeTag\n";
+    opserr << G3_ERROR_PROMPT << "invalid nodeTag\n";
     opserr << "        Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
   }
@@ -49,7 +50,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   if (ndm == 1) {
     // create a node in 1d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid XCoordinate\n";
+      opserr << G3_ERROR_PROMPT << "invalid XCoordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
@@ -58,12 +59,12 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (ndm == 2) {
     // create a node in 2d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid 1st coordinate\n";
+      opserr << G3_ERROR_PROMPT << "invalid 1st coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
-      opserr << "WARNING invalid 2nd coordinate\n";
+      opserr << G3_ERROR_PROMPT << "invalid 2nd coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
@@ -72,22 +73,22 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (ndm == 3) {
     // create a node in 3d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << "WARNING invalid 1st coordinate\n";
+      opserr << G3_ERROR_PROMPT << "invalid 1st coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
-      opserr << "WARNING invalid 2nd coordinate\n";
+      opserr << G3_ERROR_PROMPT << "invalid 2nd coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4], &zLoc) != TCL_OK) {
-      opserr << "WARNING invalid 3rd coordinate\n";
+      opserr << G3_ERROR_PROMPT << "invalid 3rd coordinate\n";
       opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
   } else {
-    opserr << "WARNING invalid ndm\n";
+    opserr << G3_ERROR_PROMPT << "invalid ndm\n";
     opserr << "node: " << nodeId << endln;
     ;
     return TCL_ERROR;
@@ -97,7 +98,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   int currentArg = 2 + ndm;
   if (currentArg < argc && strcmp(argv[currentArg], "-ndf") == 0) {
     if (Tcl_GetInt(interp, argv[currentArg + 1], &ndf) != TCL_OK) {
-      opserr << "WARNING invalid nodal ndf given for node " << nodeId << endln;
+      opserr << G3_ERROR_PROMPT << "invalid nodal ndf given for node " << nodeId << endln;
       return TCL_ERROR;
     }
     currentArg += 2;
@@ -117,7 +118,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   // add the node to the domain
   //
   if (theTclDomain->addNode(theNode) == false) {
-    opserr << "WARNING failed to add node to the domain\n";
+    opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
     delete theNode; // otherwise memory leak
     return TCL_ERROR;
   }
@@ -126,7 +127,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     if (strcmp(argv[currentArg], "-mass") == 0) {
       currentArg++;
       if (argc < currentArg + ndf) {
-        opserr << "WARNING incorrect number of nodal mass terms\n";
+        opserr << G3_ERROR_PROMPT << "incorrect number of nodal mass terms\n";
         opserr << "node: " << nodeId << endln;
         return TCL_ERROR;
       }
@@ -134,7 +135,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       double theMass;
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
-          opserr << "WARNING invalid nodal mass term\n";
+          opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
         }
@@ -144,7 +145,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[currentArg], "-dispLoc") == 0) {
       currentArg++;
       if (argc < currentArg + ndm) {
-        opserr << "WARNING incorrect number of nodal display location terms, "
+        opserr << G3_ERROR_PROMPT << "incorrect number of nodal display location terms, "
                   "need ndm\n";
         opserr << "node: " << nodeId << endln;
         return TCL_ERROR;
@@ -153,7 +154,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       double theCrd;
       for (int i = 0; i < ndm; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theCrd) != TCL_OK) {
-          opserr << "WARNING invalid nodal mass term\n";
+          opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
         }
@@ -164,7 +165,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[currentArg], "-disp") == 0) {
       currentArg++;
       if (argc < currentArg + ndf) {
-        opserr << "WARNING incorrect number of nodal disp terms\n";
+        opserr << G3_ERROR_PROMPT << "incorrect number of nodal disp terms\n";
         opserr << "node: " << nodeId << endln;
         return TCL_ERROR;
       }
@@ -172,7 +173,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       double theDisp;
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
-          opserr << "WARNING invalid nodal disp term\n";
+          opserr << G3_ERROR_PROMPT << "invalid nodal disp term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
         }
@@ -184,7 +185,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[currentArg], "-vel") == 0) {
       currentArg++;
       if (argc < currentArg + ndf) {
-        opserr << "WARNING incorrect number of nodal vel terms\n";
+        opserr << G3_ERROR_PROMPT << "incorrect number of nodal vel terms\n";
         opserr << "node: " << nodeId << endln;
         return TCL_ERROR;
       }
@@ -192,7 +193,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       double theDisp;
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
-          opserr << "WARNING invalid nodal vel term\n";
+          opserr << G3_ERROR_PROMPT << "invalid nodal vel term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
           return TCL_ERROR;
         }
@@ -219,7 +220,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *theTclDomain = theTclBuilder->getDomain();
 
   if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - load \n";
+    opserr << G3_ERROR_PROMPT << "builder has been destroyed - load \n";
     return TCL_ERROR;
   }
 
@@ -227,14 +228,14 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain type of system
   if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: mass nodeId " << ndf << " mass values\n"; 
+    opserr << G3_ERROR_PROMPT << "bad command - want: mass nodeId " << ndf << " mass values\n"; 
     return TCL_ERROR;
   }
 
   // get the id of the node
   int nodeId;
   if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeId: " << argv[1];
+    opserr << G3_ERROR_PROMPT << "invalid nodeId: " << argv[1];
     opserr << " - mass nodeId " << ndf << " forces\n";
     return TCL_ERROR;
   }
@@ -246,7 +247,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
   {
      if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK)
      {
-          opserr << "WARNING invalid nodal mass term\n";
+          opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i+1 << endln;
           return TCL_ERROR;
       }
@@ -254,7 +255,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if (theTclDomain->setMass(mass, nodeId) != 0) {
-    opserr << "WARNING failed to set mass at node " << nodeId << endln;
+    opserr << G3_ERROR_PROMPT << "failed to set mass at node " << nodeId << endln;
     return TCL_ERROR;
   }
 
@@ -276,12 +277,12 @@ TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
   if (argc > 1) {
     int tag;
     if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-      opserr << "WARNING ndm nodeTag? \n";
+      opserr << G3_ERROR_PROMPT << "ndm nodeTag? \n";
       return TCL_ERROR;
     }
     Node *theNode = the_domain->getNode(tag);
     if (theNode == 0) {
-      opserr << "WARNING nodeTag " << tag << " does not exist \n";
+      opserr << G3_ERROR_PROMPT << "nodeTag " << tag << " does not exist \n";
       return TCL_ERROR;
     }
     const Vector &coords = theNode->getCrds();
@@ -309,12 +310,12 @@ TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
   if (argc > 1) {
     int tag;
     if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-      opserr << "WARNING ndf nodeTag? \n";
+      opserr << G3_ERROR_PROMPT << "ndf nodeTag? \n";
       return TCL_ERROR;
     }
     Node *theNode = the_domain->getNode(tag);
     if (theNode == nullptr) {
-      opserr << "WARNING nodeTag " << tag << " does not exist \n";
+      opserr << G3_ERROR_PROMPT << "nodeTag " << tag << " does not exist \n";
       return TCL_ERROR;
     }
     ndf = theNode->getNumberDOF();
@@ -324,12 +325,7 @@ TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
   }
 
   char buffer[G3_NUM_DOF_BUFFER];
-  if (abs(ndf) <  G3_MAX_NUM_DOFS) {
-    sprintf(buffer, "%d", ndf);
-  } else {
-    opserr << "ERROR -- Invalid DOF count encountered; got '" << ndf << "'.\n";
-    return TCL_ERROR;
-  }
+  sprintf(buffer, "%d", ndf);
 
   Tcl_AppendResult(interp, buffer, NULL);
 

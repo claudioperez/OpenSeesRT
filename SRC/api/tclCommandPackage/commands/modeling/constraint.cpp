@@ -29,18 +29,10 @@ int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
   assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
   Domain *theTclDomain = theTclBuilder->getDomain();
 
-  // ensure the destructor has not been called
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
   int ndf = argc - 2;
 
   // check number of arguments
@@ -101,12 +93,8 @@ int
 TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **argv)
 {
-  // G3_Runtime *rt = G3_getRuntime(interp);
   assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
-  Domain *theTclDomain = theTclBuilder->getDomain();
-  // ensure the destructor has not been called -
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - elasticBeam \n";
@@ -221,8 +209,6 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
   assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
 
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
   int ndf = argc - 2;
   if (strcmp(argv[argc-2],"-tol") == 0)
     ndf -= 2;
@@ -277,7 +263,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // TODO!! 
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   TclBuilder *theTclBuilder = (TclBuilder*)G3_getSafeBuilder(rt);
 
   // ensure the destructor has not been called -
@@ -347,7 +333,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  LoadPattern *thePattern = theTclDomain->getLoadPattern(loadPatternTag);
+  // LoadPattern *thePattern = theTclDomain->getLoadPattern(loadPatternTag);
 
   // create a homogeneous constraint
   SP_Constraint *theSP = new SP_Constraint(nodeId, dofId, value, isSpConst);
@@ -373,11 +359,11 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
 {
     G3_Runtime *rt = G3_getRuntime(interp);
     TclBuilder *theTclBuilder = G3_getModelBuilder(rt);
+    // TODO
+    BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
     Domain     *theTclDomain = G3_getDomain(rt);
 
     // Ensure the destructor has not been called
-    BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
     if (theTclBuilder == 0 || clientData == 0) {
       opserr << "WARNING builder has been destroyed - equalDOF \n";
       return TCL_ERROR;

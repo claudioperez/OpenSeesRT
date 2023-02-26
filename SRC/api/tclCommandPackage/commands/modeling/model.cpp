@@ -13,10 +13,7 @@
 #include <Domain.h>
 #include <FE_Datastore.h>
 
-#include "TclUniaxialMaterialTester.h"
-#include "TclPlaneStressMaterialTester.h"
 #include "runtime/BasicModelBuilder.h"
-#include "modelbuilder/sect/TclSectionTestBuilder.h"
 
 #ifdef _PARALLEL_PROCESSING
 #  include <PartitionedDomain.h>
@@ -32,6 +29,7 @@ extern int G3_AddTclAnalysisAPI(Tcl_Interp *, Domain*);
 extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);
 
 
+
 extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **, Domain *, TclBuilder *);
 
 int
@@ -43,12 +41,12 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
   // TODO: remove ops_TheActiveDomain
   ops_TheActiveDomain = theNewDomain;
-  // end TODO
+
   G3_AddTclDomainCommands(interp, theNewDomain);
 
   const char* analysis_option;
   if (!(analysis_option = Tcl_GetVar(interp,"opensees::pragma::analysis",TCL_GLOBAL_ONLY)) ||
-      (strcmp(analysis_option,"off") != 0)) {
+      (strcmp(analysis_option, "off") != 0)) {
     G3_AddTclAnalysisAPI(interp, theNewDomain);
   }
 
@@ -158,7 +156,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     // create the model builder
     theNewBuilder = new BasicModelBuilder(*theNewDomain, interp, ndm, ndf);
 
-    if (theNewBuilder == 0) {
+    if (theNewBuilder == nullptr) {
       opserr << G3_ERROR_PROMPT << "ran out of memory in creating BasicBuilder model\n";
       return TCL_ERROR;
     } else {

@@ -228,19 +228,19 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain* domain = (Domain*)clientData; 
 
   if (argc < 2) {
-    opserr << "WARNING no load pattern supplied -- getLoadFactor\n";
+    opserr << G3_ERROR_PROMPT << "no load pattern supplied -- getLoadFactor\n";
     return TCL_ERROR;
   }
 
   int pattern;
   if (Tcl_GetInt(interp, argv[1], &pattern) != TCL_OK) {
-    opserr << "ERROR reading load pattern tag -- getLoadFactor\n";
+    opserr << G3_ERROR_PROMPT << "reading load pattern tag -- getLoadFactor\n";
     return TCL_ERROR;
   }
 
   LoadPattern *the_pattern = domain->getLoadPattern(pattern);
   if (the_pattern == nullptr) {
-    opserr << "ERROR load pattern with tag " << pattern
+    opserr << G3_ERROR_PROMPT << "load pattern with tag " << pattern
            << " not found in domain -- getLoadFactor\n";
     return TCL_ERROR;
   }
@@ -278,7 +278,7 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - eleForce eleTag? <dof?>\n";
+    opserr << G3_ERROR_PROMPT << "want - eleForce eleTag? <dof?>\n";
     return TCL_ERROR;
   }
 
@@ -286,13 +286,13 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   int dof = -1;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING eleForce eleTag? dof? - could not read nodeTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
     return TCL_ERROR;
   }
 
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING eleForce eleTag? dof? - could not read dof? \n";
+      opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read dof? \n";
       return TCL_ERROR;
     }
   }
@@ -337,7 +337,7 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
       }
     }
   } else {
-    opserr << "WARNING - failed to retrieve element force.\n";
+    opserr << G3_ERROR_PROMPT << "- failed to retrieve element force.\n";
     return TCL_ERROR;
   }
   return TCL_OK;
@@ -350,7 +350,7 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *theDomain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - localForce eleTag? <dof?>\n";
+    opserr << G3_ERROR_PROMPT << "want - localForce eleTag? <dof?>\n";
     return TCL_ERROR;
   }
 
@@ -358,13 +358,13 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   int dof = -1;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING localForce eleTag? dof? - could not read eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "localForce eleTag? dof? - could not read eleTag? \n";
     return TCL_ERROR;
   }
 
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING localForce eleTag? dof? - could not read dof? \n";
+      opserr << G3_ERROR_PROMPT << "localForce eleTag? dof? - could not read dof? \n";
       return TCL_ERROR;
     }
   }
@@ -412,7 +412,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *theDomain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - eleForce eleTag? <dof?>\n";
+    opserr << G3_ERROR_PROMPT << "want - eleForce eleTag? <dof?>\n";
     return TCL_ERROR;
   }
 
@@ -420,13 +420,13 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
   int dof = -1;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING eleForce eleTag? dof? - could not read nodeTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
     return TCL_ERROR;
   }
 
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << "WARNING eleForce eleTag? dof? - could not read dof? \n";
+      opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read dof? \n";
       return TCL_ERROR;
     }
   }
@@ -469,37 +469,18 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain* the_domain = (Domain*)clientData; 
 
   if (argc < 2) {
-    opserr << "WARNING want - eleResponse eleTag? eleArgs...\n";
+    opserr << G3_ERROR_PROMPT << "want - eleResponse eleTag? eleArgs...\n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING eleForce eleTag? dof? - could not read nodeTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
     return TCL_ERROR;
   }
 
-  /*
-  Element *theEle = the_domain->getElement(tag);
-  if (theEle == 0)
-    return TCL_ERROR;
-
-  DummyStream dummy;
-  Response *theResponse = theEle->setResponse(argv+2, argc-2, dummy);
-  if (theResponse == 0) {
-    return TCL_ERROR;
-  }
-
-  if (theResponse->getResponse() < 0) {
-    delete theResponse;
-    return TCL_ERROR;
-  }
-
-  Information &eleInfo = theResponse->getInformation();
-  const Vector &data = eleInfo.getData();
-  */
-
+  // TODO: Create element response function, remove from domain
   const Vector *data = the_domain->getElementResponse(tag, argv + 2, argc - 2);
   if (data != 0) {
     int size = data->Size();
@@ -519,14 +500,14 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - nodeCoord nodeTag? <dim?>\n";
+    opserr << G3_ERROR_PROMPT << "want - nodeCoord nodeTag? <dim?>\n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeCoord nodeTag? dim? - could not read nodeTag? \n";
+    opserr << G3_ERROR_PROMPT << "nodeCoord nodeTag? dim? - could not read nodeTag? \n";
     return TCL_ERROR;
   }
 
@@ -543,8 +524,7 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
              strcmp(argv[2], "3") == 0)
       dim = 2;
     else {
-      // opserr << G3_ERROR_PROMPT << "nodeCoord nodeTag? dim? - could not read dim? \n";
-      opserr << "ERROR " << "nodeCoord nodeTag? dim? - could not read dim? \n";
+      opserr << G3_ERROR_PROMPT << "" << "nodeCoord nodeTag? dim? - could not read dim? \n";
       return TCL_ERROR;
     }
   }
@@ -590,7 +570,7 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   int cNode;
   if (argc > 1) {
     if (Tcl_GetInt(interp, argv[1], &cNode) != TCL_OK) {
-      opserr << "WARNING retainedNodes <cNode?> - could not read cNode? \n";
+      opserr << G3_ERROR_PROMPT << "retainedNodes <cNode?> - could not read cNode? \n";
       return TCL_ERROR;
     }
     all = 0;
@@ -632,13 +612,13 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - retainedDOFs rNode? <cNode?> <cDOF?>\n";
+    opserr << G3_ERROR_PROMPT << "want - retainedDOFs rNode? <cNode?> <cDOF?>\n";
     return TCL_ERROR;
   }
 
   int rNode;
   if (Tcl_GetInt(interp, argv[1], &rNode) != TCL_OK) {
-    opserr << "WARNING retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
+    opserr << G3_ERROR_PROMPT << "retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
               "rNode? \n";
     return TCL_ERROR;
   }
@@ -647,7 +627,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   bool allNodes = 1;
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &cNode) != TCL_OK) {
-      opserr << "WARNING retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
+      opserr << G3_ERROR_PROMPT << "retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
                 "cNode? \n";
       return TCL_ERROR;
     }
@@ -658,7 +638,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   bool allDOFs = 1;
   if (argc > 3) {
     if (Tcl_GetInt(interp, argv[3], &cDOF) != TCL_OK) {
-      opserr << "WARNING retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
+      opserr << G3_ERROR_PROMPT << "retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
                 "cDOF? \n";
       return TCL_ERROR;
     }
@@ -730,21 +710,21 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - eleType eleTag?\n";
+    opserr << G3_ERROR_PROMPT << "want - eleType eleTag?\n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING eleType eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleType eleTag? \n";
     return TCL_ERROR;
   }
 
   char buffer[80];
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING eleType ele " << tag << " not found" << endln;
+    opserr << G3_ERROR_PROMPT << "eleType ele " << tag << " not found" << endln;
     return TCL_ERROR;
   }
   const char *type = theElement->getClassType();
@@ -761,14 +741,14 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - eleNodes eleTag?\n";
+    opserr << G3_ERROR_PROMPT << "want - eleNodes eleTag?\n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING eleNodes eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleNodes eleTag? \n";
     return TCL_ERROR;
   }
 
@@ -776,7 +756,7 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING eleNodes ele " << tag << " not found" << endln;
+    opserr << G3_ERROR_PROMPT << "eleNodes ele " << tag << " not found" << endln;
     return TCL_ERROR;
   }
   int numTags = theElement->getNumExternalNodes();
@@ -797,28 +777,28 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - nodeDOFs nodeTag?\n";
+    opserr << G3_ERROR_PROMPT << "want - nodeDOFs nodeTag?\n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING nodeMass nodeTag? nodeDOF? \n";
+    opserr << G3_ERROR_PROMPT << "nodeMass nodeTag? nodeDOF? \n";
     return TCL_ERROR;
   }
 
 
   Node *theNode = the_domain->getNode(tag);
   if (theNode == nullptr) {
-    opserr << "WARNING nodeDOFs node " << tag << " not found" << endln;
+    opserr << G3_ERROR_PROMPT << "nodeDOFs node " << tag << " not found" << endln;
     return TCL_ERROR;
   }
   int numDOF = theNode->getNumberDOF();
 
   DOF_Group *theDOFgroup = theNode->getDOF_GroupPtr();
   if (theDOFgroup == nullptr) {
-    opserr << "WARNING nodeDOFs DOF group null" << endln;
+    opserr << G3_ERROR_PROMPT << "nodeDOFs DOF group null" << endln;
     return -1;
   }
   const ID &eqnNumbers = theDOFgroup->getID();
@@ -838,7 +818,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 3) {
-    opserr << "WARNING want - sectionForce eleTag? <secNum?> dof? \n";
+    opserr << G3_ERROR_PROMPT << "want - sectionForce eleTag? <secNum?> dof? \n";
     return TCL_ERROR;
   }
 
@@ -846,7 +826,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   int secNum = 0;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING sectionForce eleTag? secNum? dof? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionForce eleTag? secNum? dof? - could not read "
               "eleTag? \n";
     return TCL_ERROR;
   }
@@ -855,20 +835,20 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   int currentArg = 2;
   if (argc > 3) {
     if (Tcl_GetInt(interp, argv[currentArg++], &secNum) != TCL_OK) {
-      opserr << "WARNING sectionForce eleTag? secNum? dof? - could not read "
+      opserr << G3_ERROR_PROMPT << "sectionForce eleTag? secNum? dof? - could not read "
                 "secNum? \n";
       return TCL_ERROR;
     }
   }
   if (Tcl_GetInt(interp, argv[currentArg++], &dof) != TCL_OK) {
     opserr
-        << "WARNING sectionForce eleTag? secNum? dof? - could not read dof? \n";
+        << G3_ERROR_PROMPT << "sectionForce eleTag? secNum? dof? - could not read dof? \n";
     return TCL_ERROR;
   }
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING sectionForce element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "sectionForce element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -919,7 +899,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 4) {
-    opserr << "WARNING want - sectionDeformation eleTag? secNum? dof? \n";
+    opserr << G3_ERROR_PROMPT << "want - sectionDeformation eleTag? secNum? dof? \n";
     return TCL_ERROR;
   }
 
@@ -931,24 +911,24 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   int tag, secNum, dof;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING sectionDeformation eleTag? secNum? dof? - could not "
+    opserr << G3_ERROR_PROMPT << "sectionDeformation eleTag? secNum? dof? - could not "
               "read eleTag? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING sectionDeformation eleTag? secNum? dof? - could not "
+    opserr << G3_ERROR_PROMPT << "sectionDeformation eleTag? secNum? dof? - could not "
               "read secNum? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK) {
-    opserr << "WARNING sectionDeformation eleTag? secNum? dof? - could not "
+    opserr << G3_ERROR_PROMPT << "sectionDeformation eleTag? secNum? dof? - could not "
               "read dof? \n";
     return TCL_ERROR;
   }
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING sectionDeformation element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "sectionDeformation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -995,7 +975,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 3) {
-    opserr << "WARNING want - sectionLocation eleTag? secNum? \n";
+    opserr << G3_ERROR_PROMPT << "want - sectionLocation eleTag? secNum? \n";
     return TCL_ERROR;
   }
 
@@ -1007,19 +987,19 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
   int tag, secNum;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING sectionLocation eleTag? secNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionLocation eleTag? secNum? - could not read "
               "eleTag? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING sectionLocation eleTag? secNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionLocation eleTag? secNum? - could not read "
               "secNum? \n";
     return TCL_ERROR;
   }
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING sectionLocation element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "sectionLocation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1061,7 +1041,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 3) {
-    opserr << "WARNING want - sectionWeight eleTag? secNum? \n";
+    opserr << G3_ERROR_PROMPT << "want - sectionWeight eleTag? secNum? \n";
     return TCL_ERROR;
   }
 
@@ -1069,18 +1049,18 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr
-        << "WARNING sectionWeight eleTag? secNum? - could not read eleTag? \n";
+        << G3_ERROR_PROMPT << "sectionWeight eleTag? secNum? - could not read eleTag? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
     opserr
-        << "WARNING sectionWeight eleTag? secNum? - could not read secNum? \n";
+        << G3_ERROR_PROMPT << "sectionWeight eleTag? secNum? - could not read secNum? \n";
     return TCL_ERROR;
   }
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING sectionWeight element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "sectionWeight element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1122,26 +1102,26 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 3) {
-    opserr << "WARNING want - sectionStiffness eleTag? secNum? \n";
+    opserr << G3_ERROR_PROMPT << "want - sectionStiffness eleTag? secNum? \n";
     return TCL_ERROR;
   }
 
   int tag, secNum;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING sectionStiffness eleTag? secNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionStiffness eleTag? secNum? - could not read "
               "eleTag? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING sectionStiffness eleTag? secNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionStiffness eleTag? secNum? - could not read "
               "secNum? \n";
     return TCL_ERROR;
   }
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING sectionStiffness element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "sectionStiffness element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1192,26 +1172,26 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 3) {
-    opserr << "WARNING want - sectionFlexibility eleTag? secNum? \n";
+    opserr << G3_ERROR_PROMPT << "want - sectionFlexibility eleTag? secNum? \n";
     return TCL_ERROR;
   }
 
   int tag, secNum;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING sectionFlexibility eleTag? secNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionFlexibility eleTag? secNum? - could not read "
               "eleTag? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING sectionFlexibility eleTag? secNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "sectionFlexibility eleTag? secNum? - could not read "
               "secNum? \n";
     return TCL_ERROR;
   }
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING sectionFlexibility element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "sectionFlexibility element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1262,26 +1242,26 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - basicDeformation eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "want - basicDeformation eleTag? \n";
     return TCL_ERROR;
   }
 
   int tag;
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING basicDeformation eleTag? dofNum? - could not read "
+    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read "
               "eleTag? \n";
     return TCL_ERROR;
   }
   /*
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING basicDeformation eleTag? dofNum? - could not read dofNum?
+    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum?
   \n"; return TCL_ERROR;
   }
   */
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING basicDeformation element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "basicDeformation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1324,26 +1304,26 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - basicForce eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "want - basicForce eleTag? \n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING basicForce eleTag? dofNum? - could not read eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "basicForce eleTag? dofNum? - could not read eleTag? \n";
     return TCL_ERROR;
   }
   /*
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING basicDeformation eleTag? dofNum? - could not read dofNum?
+    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum?
   \n"; return TCL_ERROR;
   }
   */
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING basicDeformation element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "basicDeformation element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1387,26 +1367,26 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING want - basicStiffness eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "want - basicStiffness eleTag? \n";
     return TCL_ERROR;
   }
 
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << "WARNING basicStiffness eleTag? - could not read eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "basicStiffness eleTag? - could not read eleTag? \n";
     return TCL_ERROR;
   }
   /*
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << "WARNING basicDeformation eleTag? dofNum? - could not read dofNum?
+    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum?
   \n"; return TCL_ERROR;
   }
   */
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << "WARNING basicStiffness element with tag " << tag
+    opserr << G3_ERROR_PROMPT << "basicStiffness element with tag " << tag
            << " not found in domain \n";
     return TCL_ERROR;
   }
@@ -1510,25 +1490,25 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   double alphaM, betaK, betaK0=0.0, betaKc=0.0;
   if (Tcl_GetDouble(interp, argv[1], &alphaM) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read alphaM? \n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetDouble(interp, argv[2], &betaK) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaK? \n";
     return TCL_ERROR;
   }
 
   if (argc > 3 && Tcl_GetDouble(interp, argv[3], &betaK0) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaK0? \n";
     return TCL_ERROR;
   }
 
   if (argc > 4 && Tcl_GetDouble(interp, argv[4], &betaKc) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaKc? \n";
     return TCL_ERROR;
   }
@@ -1547,7 +1527,7 @@ setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
   Domain *the_domain = (Domain*)clientData;
 
   if (argc < 6) {
-    opserr << "WARNING setElementRayleighDampingFactors eleTag? alphaM? betaK? "
+    opserr << G3_ERROR_PROMPT << "setElementRayleighDampingFactors eleTag? alphaM? betaK? "
               "betaK0? betaKc? - not enough arguments to command\n";
     return TCL_ERROR;
   }
@@ -1556,28 +1536,28 @@ setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
   double alphaM, betaK, betaK0, betaKc;
 
   if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read eleTag? \n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetDouble(interp, argv[2], &alphaM) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read alphaM? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[3], &betaK) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaK? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[4], &betaK0) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaK0? \n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[5], &betaKc) != TCL_OK) {
-    opserr << "WARNING rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
               "read betaKc? \n";
     return TCL_ERROR;
   }
@@ -1624,7 +1604,7 @@ getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
     int eleTag;
 
     if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
-      opserr << "WARNING getParamValue -- could not read paramTag \n";
+      opserr << G3_ERROR_PROMPT << "getParamValue -- could not read paramTag \n";
       return TCL_ERROR;
     }
 
@@ -1636,7 +1616,7 @@ getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
     Tcl_AppendResult(interp, buffer, NULL);
 
   } else {
-    opserr << "WARNING want - getEleClassTags <eleTag?>\n" << endln;
+    opserr << G3_ERROR_PROMPT << "want - getEleClassTags <eleTag?>\n" << endln;
     return TCL_ERROR;
   }
 
@@ -1670,13 +1650,13 @@ getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
     int patternTag;
 
     if (Tcl_GetInt(interp, argv[1], &patternTag) != TCL_OK) {
-      opserr << "WARNING getEleLoadClassTags -- could not read patternTag\n";
+      opserr << G3_ERROR_PROMPT << "getEleLoadClassTags -- could not read patternTag\n";
       return TCL_ERROR;
     }
 
     LoadPattern *thePattern = the_domain->getLoadPattern(patternTag);
     if (thePattern == nullptr) {
-      opserr << "ERROR load pattern with tag " << patternTag
+      opserr << G3_ERROR_PROMPT << "load pattern with tag " << patternTag
              << " not found in domain -- getEleLoadClassTags\n";
       return TCL_ERROR;
     }
@@ -1692,7 +1672,7 @@ getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
   } else {
-    opserr << "WARNING want - getEleLoadClassTags <patternTag?>\n" << endln;
+    opserr << G3_ERROR_PROMPT << "want - getEleLoadClassTags <patternTag?>\n" << endln;
     return TCL_ERROR;
   }
 
@@ -1726,13 +1706,13 @@ getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
     int patternTag;
 
     if (Tcl_GetInt(interp, argv[1], &patternTag) != TCL_OK) {
-      opserr << "WARNING getEleLoadTags -- could not read patternTag \n";
+      opserr << G3_ERROR_PROMPT << "getEleLoadTags -- could not read patternTag \n";
       return TCL_ERROR;
     }
 
     LoadPattern *thePattern = the_domain->getLoadPattern(patternTag);
     if (thePattern == nullptr) {
-      opserr << "ERROR load pattern with tag " << patternTag
+      opserr << G3_ERROR_PROMPT << "load pattern with tag " << patternTag
              << " not found in domain -- getEleLoadTags\n";
       return TCL_ERROR;
     }
@@ -1748,7 +1728,7 @@ getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
   } else {
-    opserr << "WARNING want - getEleLoadTags <patternTag?>\n" << endln;
+    opserr << G3_ERROR_PROMPT << "want - getEleLoadTags <patternTag?>\n" << endln;
     return TCL_ERROR;
   }
 
@@ -1789,13 +1769,13 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
     int patternTag;
 
     if (Tcl_GetInt(interp, argv[1], &patternTag) != TCL_OK) {
-      opserr << "WARNING getEleLoadData -- could not read patternTag \n";
+      opserr << G3_ERROR_PROMPT << "getEleLoadData -- could not read patternTag \n";
       return TCL_ERROR;
     }
 
     LoadPattern *thePattern = the_domain->getLoadPattern(patternTag);
     if (thePattern == nullptr) {
-      opserr << "ERROR load pattern with tag " << patternTag
+      opserr << G3_ERROR_PROMPT << "load pattern with tag " << patternTag
              << " not found in domain -- getEleLoadData\n";
       return TCL_ERROR;
     }
@@ -1817,7 +1797,7 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
   } else {
-    opserr << "WARNING want - getEleLoadTags <patternTag?>\n" << endln;
+    opserr << G3_ERROR_PROMPT << "want - getEleLoadTags <patternTag?>\n" << endln;
     return TCL_ERROR;
   }
 
@@ -1887,7 +1867,7 @@ getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
   int paramTag;
 
   if (Tcl_GetInt(interp, argv[1], &paramTag) != TCL_OK) {
-    opserr << "WARNING getParamValue -- could not read paramTag \n";
+    opserr << G3_ERROR_PROMPT << "getParamValue -- could not read paramTag \n";
     return TCL_ERROR;
   }
 
