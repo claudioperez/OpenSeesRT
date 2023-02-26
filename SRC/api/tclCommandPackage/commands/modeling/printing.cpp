@@ -70,9 +70,13 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << ",\n";
     OPS_printSectionForceDeformation(s, flag);
     s << ",\n";   
-    OPS_printCrdTransf(s, flag);      
-    s << ",\n";
 #endif
+
+    //
+    s << "\t\t\"CrossSections\": [\n";        
+    printRegistry(builder, "CrossSection", flag, &s);
+    s << "\n\t\t]";
+    s << ",\n";
     //
     s << "\t\t\"uniaxialMaterials\": [\n";        
     printRegistry(builder, "UniaxialMaterial", flag, &s);
