@@ -157,7 +157,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (strcmp(argv[1], "Transient") == 0) {
-    return builder->setTransientAnalysis();
+    builder->setTransientAnalysis();
+    return TCL_OK;
   }
 
   else if (((strcmp(argv[1], "VariableTimeStepTransient") == 0) ||
