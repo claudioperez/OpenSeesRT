@@ -110,7 +110,7 @@ enable_language(Fortran)
 # C++
 #--------------------------------------
 set(CMAKE_CXX_STANDARD 17)
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 add_compile_options(
   "$<$<CXX_COMPILER_ID:MSVC>:/W4>"
@@ -259,7 +259,7 @@ opensees_library(OPS_SysOfEqn_UMF
 
 # Packaged libraries
 add_library(G3) 
-# add_library(G3_API           EXCLUDE_FROM_ALL) 
+set_property(TARGET G3 PROPERTY POSITION_INDEPENDENT_CODE 1)
 add_library(OpenSees         EXCLUDE_FROM_ALL)
 
 # Executables and final targets
@@ -361,7 +361,7 @@ endif()
 #----------------------------
 # OpenSeesPy
 #----------------------------
-add_compile_options(-fPIC)
+# add_compile_options(-fPIC)
 # target_include_directories(OpenSeesPy PRIVATE ${Python_INCLUDE_DIRS})
 # target_link_libraries(OpenSeesPy ${CMAKE_DL_LIBS})
 
