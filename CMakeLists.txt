@@ -21,7 +21,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/c
 include(OpenSeesFunctions)
 enable_testing()
 
-add_definitions(-DOPS_USE_RUNTIME -D_THREADS)
+add_definitions(-DOPS_USE_RUNTIME) # -D_THREADS)
 
 # add Conan stuff for external dependencies
 # if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
