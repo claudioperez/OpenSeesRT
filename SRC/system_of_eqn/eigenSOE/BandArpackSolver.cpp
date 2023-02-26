@@ -18,6 +18,7 @@
 // The version of f2c.h supplied with OpenSees
 // must be included after math.h
 #include <f2c.h> 
+#include <cstdlib> 
 
 BandArpackSolver::BandArpackSolver(int numE)
 :EigenSolver(EigenSOLVER_TAGS_BandArpackSolver),
@@ -249,7 +250,7 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 
 	  if (ierr != 0) {
 	      opserr << "BandArpackSolver::Error with dgbtrs_ 1" <<endln;
-	      exit(0);
+	      std::exit(0);
 	  }
 	  continue;
       } else if (ido == 1) {
@@ -271,7 +272,7 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 
 	  if (ierr != 0) {
 	      opserr << "BandArpackSolver::Error with dgbtrs_ 2" <<endln;
-	      exit(0);
+	      std::exit(0);
 	  }
 	  continue;
       } else if (ido == 2) {     

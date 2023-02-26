@@ -23,21 +23,21 @@
 // Revision: A
 
 //refs
-//Structural Engineeringand Mechanics   Volume 48, Number 6, December25 2013, pages 849 - 878
-//DOI: https://doi.org/10.12989/sem.2013.48.6.849	
+//  Structural Engineeringand Mechanics   Volume 48, Number 6, December25 2013, pages 849 - 878
+//  DOI: https://doi.org/10.12989/sem.2013.48.6.849	
+//  
+//  Comprehensive evaluation of structural geometrical nonlinear solution techniques Part I : Formulation and characteristics of the methods
+//  M.Rezaiee - Pajand, M.Ghalishooyan and M.Salehi - Ahmadabad
+//  FULLTEXT : https://www.researchgate.net/publication/264146397_Comprehensive_evaluation_of_structural_geometrical_nonlinear_solution_techniques_Part_I_Formulation_and_characteristics_of_the_methods
+
+
+//  Structural Engineeringand Mechanics   Volume 48, Number 6, December25 2013, pages 879 - 914
+//  DOI: https://doi.org/10.12989/sem.2013.48.6.879	
 //
-//Comprehensive evaluation of structural geometrical nonlinear solution techniques Part I : Formulation and characteristics of the methods
-//M.Rezaiee - Pajand, M.Ghalishooyan and M.Salehi - Ahmadabad
-//FULLTEXT : https://www.researchgate.net/publication/264146397_Comprehensive_evaluation_of_structural_geometrical_nonlinear_solution_techniques_Part_I_Formulation_and_characteristics_of_the_methods
-
-
-//Structural Engineeringand Mechanics   Volume 48, Number 6, December25 2013, pages 879 - 914
-//DOI: https://doi.org/10.12989/sem.2013.48.6.879	
-//
-//Comprehensive evaluation of structural geometrical nonlinear solution techniques Part II : Comparing efficiencies of the methods
-//M.Rezaiee - Pajand, M.Ghalishooyan and M.Salehi - Ahmadabad
-//FULLTEXT : https://www.researchgate.net/publication/263361974_Comprehensive_evaluation_of_structural_geometrical_nonlinear_solution_techniques_Part_II_Comparing_efficiencies_of_the_methods
-
+//  Comprehensive evaluation of structural geometrical nonlinear solution techniques Part II : Comparing efficiencies of the methods
+//  M.Rezaiee - Pajand, M.Ghalishooyan and M.Salehi - Ahmadabad
+//  FULLTEXT : https://www.researchgate.net/publication/263361974_Comprehensive_evaluation_of_structural_geometrical_nonlinear_solution_techniques_Part_II_Comparing_efficiencies_of_the_methods
+#include <cstdlib>
 #include <EQPath.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -417,7 +417,7 @@ EQPath::domainChanged(void)
 	if (uq == 0 || uq->Size() != size) { // check got it
 	    opserr << "FATAL EQPath::domainChanged() - ran out of memory for";
 	    opserr << " uq Vector of size " << size << endln;
-	    exit(-1);
+	    std::exit(-1);
 	}
     }
 
@@ -428,7 +428,7 @@ EQPath::domainChanged(void)
 	if (du == 0 || du->Size() != size) { // check got it
 	    opserr << "FATAL EQPath::domainChanged() - ran out of memory for";
 	    opserr << " du Vector of size " << size << endln;
-	    exit(-1);
+	    std::exit(-1);
 	}
     }
 
@@ -440,7 +440,7 @@ EQPath::domainChanged(void)
 	if (ur == 0 || ur->Size() != size) { // check got it
 	    opserr << "FATAL EQPath::domainChanged() - ran out of memory for";
 	    opserr << " deltaU Vector of size " << size << endln;
-	    exit(-1);
+	    std::exit(-1);
 	}
     }
 
@@ -451,7 +451,7 @@ EQPath::domainChanged(void)
 	if (q == 0 || q->Size() != size) { 
 	    opserr << "FATAL EQPath::domainChanged() - ran out of memory for";
 	    opserr << " q Vector of size " << size << endln;
-	    exit(-1);
+	    std::exit(-1);
 	}
     }
 

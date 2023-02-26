@@ -9,7 +9,7 @@
 //
 //              http://www.netlib.org/f2c/libf2c.zip
 
-#include <tgmath.h>
+#include <math.h>
 // #include "f2c.h"
 
 // Subroutine
@@ -92,20 +92,18 @@ int naccel_(int *n, int *itr, int *mvec,
 //      Compute w_1.
 //     ==================================================================
     i__1 = *n;
-    for (j = 1; j <= i__1; ++j) {
-// L100:
+    for (j = 1; j <= i__1; ++j) 
         u[j + ((head << 1) + 2) * u_dim1] -= f[j];
-    }
+
     t = 0.;
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
-// L101:
-// Computing 2nd power
+        // Computing 2nd power
         d__1 = u[j + ((head << 1) + 2) * u_dim1];
         t += d__1 * d__1;
     }
     t = 1. / sqrt(t);
-//     Normalize w_1 and apply same factor to z_1.
+//  Normalize w_1 and apply same factor to z_1.
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
         u[j + ((head << 1) + 1) * u_dim1] = t * u[j + ((head << 1) + 1) * 
@@ -121,16 +119,14 @@ int naccel_(int *n, int *itr, int *mvec,
         h__[k * 11 - 11] = 0.;
         i__2 = *n;
         for (j = 1; j <= i__2; ++j) {
-// L121:
-            h__[k * 11 - 11] += u[j + ((head << 1) + 2) * u_dim1] * u[j + ((
-                    kptr << 1) + 2) * u_dim1];
+            h__[k * 11 - 11] += u[j + ((head << 1) + 2) * u_dim1] * u[j + ((kptr << 1) + 2) * u_dim1];
         }
         kptr = link[kptr - 1];
-// L120:
+
     }
-//     ==================================================================
-//      Compute the Choleski factorization of H.
-//     ==================================================================
+//  ==================================================================
+//   Compute the Choleski factorization of H.
+//  ==================================================================
     k = 2;
     h__[0] = 1.;
 L200:
@@ -142,9 +138,7 @@ L200:
         h__[k + j * 11 - 12] = h__[j + k * 11 - 12];
         i__2 = j - 1;
         for (i__ = 1; i__ <= i__2; ++i__) {
-// L211:
-            h__[k + j * 11 - 12] -= h__[k + i__ * 11 - 12] * h__[j + i__ * 11 
-                    - 12];
+            h__[k + j * 11 - 12] -= h__[k + i__ * 11 - 12] * h__[j + i__ * 11 - 12];
         }
         h__[k + j * 11 - 12] /= h__[j + j * 11 - 12];
 // L210:
@@ -152,12 +146,11 @@ L200:
     h__[k + k * 11 - 12] = 1.;
     i__1 = k - 1;
     for (j = 1; j <= i__1; ++j) {
-// L220:
-// Computing 2nd power
+        // Computing 2nd power
         d__1 = h__[k + j * 11 - 12];
         h__[k + k * 11 - 12] -= d__1 * d__1;
     }
-// Computing 2nd power
+    // Computing 2nd power
     d__1 = *tol;
     if (h__[k + k * 11 - 12] < d__1 * d__1) {
 //       -----------------------------------------------
@@ -166,10 +159,9 @@ L200:
 //       Remove w_k from linked list.
         km1ptr = head;
         i__1 = k - 1;
-        for (j = 2; j <= i__1; ++j) {
-// L230:
+        for (j = 2; j <= i__1; ++j)
             km1ptr = link[km1ptr - 1];
-        }
+
         kptr = link[km1ptr - 1];
         link[km1ptr - 1] = link[kptr - 1];
         --nvec;
@@ -178,19 +170,16 @@ L200:
         next = kptr;
 //       Update H.
         i__1 = nvec;
-        for (j = k; j <= i__1; ++j) {
+        for (int j = k; j <= i__1; ++j) {
             i__2 = k - 1;
-            for (i__ = 1; i__ <= i__2; ++i__) {
-// L241:
-                h__[i__ + j * 11 - 12] = h__[i__ + (j + 1) * 11 - 12];
-            }
+            for (int i = 1; i <= i__2; ++i__)
+                h__[i + j * 11 - 12] = h__[i + (j + 1) * 11 - 12];
+
             i__2 = j - 1;
-            for (i__ = k; i__ <= i__2; ++i__) {
-// L242:
-                h__[i__ + j * 11 - 12] = h__[i__ + 1 + (j + 1) * 11 - 12];
-            }
-// L240:
+            for (int i = k; i <= i__2; ++i__) 
+                h__[i + j * 11 - 12] = h__[i + 1 + (j + 1) * 11 - 12];
         }
+
         goto L200;
     } else {
         h__[k + k * 11 - 12] = sqrt(h__[k + k * 11 - 12]);
@@ -205,19 +194,17 @@ L250:
 //       truncate the linked list.
         last = head;
         i__1 = *mvec;
-        for (j = 2; j <= i__1; ++j) {
-// L260:
+        for (j = 2; j <= i__1; ++j)
             last = link[last - 1];
-        }
+
         tmp = link[last - 1];
         link[last - 1] = 0;
         last = tmp;
 //       Update free storage list.
         i__1 = nvec;
-        for (j = *mvec + 2; j <= i__1; ++j) {
-// L270:
+        for (j = *mvec + 2; j <= i__1; ++j)
             last = link[last - 1];
-        }
+
         link[last - 1] = next;
         next = tmp;
         nvec = *mvec;

@@ -15,6 +15,7 @@
 #include "SymArpackSOE.h"
 #include "SymArpackSolver.h"
 #include <math.h>
+#include <cstdlib>
 #include <string.h>
 #include <f2c.h>
 #include <Channel.h>
@@ -383,7 +384,7 @@ SymArpackSolver::getEigenvector(int mode)
     
     if (mode <= 0 || mode > theNev) {
         opserr << "BandArpackSOE::mode is out of range(1 - nev)";
-	exit (0);
+	std::exit(0);
     }
     int size = theSOE->size;
 
@@ -401,7 +402,7 @@ SymArpackSolver::getEigenvalue(int mode)
 {
     if (mode <= 0 || mode > theNev) {
         opserr << "BandArpackSOE::mode is out of range(1 - nev)";
-	exit (0);
+	std::exit(0);
     }
     return value[mode - 1];
 }
