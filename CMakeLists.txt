@@ -113,7 +113,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 add_compile_options(
-  "$<$<CXX_COMPILER_ID:MSVC>:/W4>"
+  # "$<$<CXX_COMPILER_ID:MSVC>:/W4>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
