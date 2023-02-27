@@ -19,7 +19,7 @@
 #ifdef _WIN32
 #  include <io.h>
 #  define isatty _isatty
-#  define STDERR_FILENO _fileno(stdout)
+#  define STDERR_FILENO _fileno(stderr)
 #else
 #  include <unistd.h>               
 #endif

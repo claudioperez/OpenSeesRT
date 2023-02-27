@@ -5,6 +5,13 @@
 //
 // Description: Functions used to print out the domain
 //
+#ifdef _WIN32
+#  include <io.h>
+#  define isatty _isatty
+#  define STDOUT_FILENO _fileno(stdout)
+#else
+#  include <unistd.h>               
+#endif
 #include <assert.h>
 #include <tcl.h>
 #include <G3_Logging.h>
@@ -49,10 +56,15 @@ static int
 printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *output)
 {
   G3_TableIterator iter = builder->iterate(type);
-
+  
+  bool newline = false;
   while (G3_NextTableEntry(&iter)) {
+    if (newline)
+      (*output) << ",\n";
+    else
+      newline = true;
+
     ((TaggedObject*)iter.value)->Print(*output, flag);
-    (*output) << ",\n";
   }
   
   return TCL_OK;
@@ -64,70 +76,69 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
 
   Domain* theDomain = builder->getDomain();
 
+  const char* tab = "    ";
+
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
 
-    s << "\t\"properties\": {\n";
+    s << tab << "\"properties\": {\n";
 
 #if 0
     OPS_printNDMaterial(s, flag);
     s << ",\n";
-    OPS_printSectionForceDeformation(s, flag);
-    s << ",\n";   
 #endif
 
     //
-    s << "\t\t\"CrossSections\": [\n";        
+    s << tab << tab << "\"sections\": [\n";        
     printRegistry(builder, "CrossSection", flag, &s);
-    s << "\n\t\t]";
+    s << "\n" << tab << tab << "]";
     s << ",\n";
     //
-    s << "\t\t\"uniaxialMaterials\": [\n";        
+    s << tab << tab << "\"uniaxialMaterials\": [\n";        
     printRegistry(builder, "UniaxialMaterial", flag, &s);
-    s << "\n\t\t]";
+    s << "\n" << tab << tab << "]";
     s << ",\n";
     //
-    s << "\t\t\"crdTransformations\": [\n";        
+    s << tab << tab << "\"crdTransformations\": [\n";        
     printRegistry(builder, "CoordinateTransform", flag, &s);
-    s << "\n\t\t]";
+    s << "\n" << tab << tab << "]";
     //
 
-    s << "\n\t},\n";
-    s << "\t\"geometry\": {\n";
+    s << "\n" << tab << "},\n";
+    s << tab << "\"geometry\": {\n";
 
     int numToPrint = theDomain->getNumNodes();
     NodeIter &theNodess = theDomain->getNodes();
     Node *theNode;
     int numPrinted = 0;
-    s << "\t\t\"nodes\": [\n";
-    while ((theNode = theNodess()) != 0) {    
+    s << tab << tab << "\"nodes\": [\n";
+    while ((theNode = theNodess()) != 0) {
       theNode->Print(s, flag);
       numPrinted += 1;
       if (numPrinted < numToPrint)
         s << ",\n";
-      else
-        s << "\n\t\t],\n";
     }
+    s << "\n" << tab << tab << "],\n";
 
 
     Element *theEle;
     ElementIter &theElementss = theDomain->getElements();
     numToPrint = theDomain->getNumElements();
     numPrinted = 0;
-    s << "\t\t\"elements\": [\n";
+    s << tab << tab << "\"elements\": [\n";
     while ((theEle = theElementss()) != 0) {
       theEle->Print(s, flag);
       numPrinted += 1;
       if (numPrinted < numToPrint)
         s << ",\n";
-      else
-        s << "\n\t\t]\n";
-      }
+    }
+    s << "\n" << tab << tab << "]\n";
 
-      s << "\t}\n";
-      s << "}\n";
-      s << "}\n";
 
-      return;
+    s << tab << "}\n";
+    s << "}\n";
+    s << "}\n";
+
+    return;
   }
       
 #if 0 
@@ -158,7 +169,7 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
 }
 
 int
-printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
   assert(clientData != nullptr);
 
@@ -171,23 +182,34 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   int flag = OPS_PRINT_CURRENTSTATE;
 
   FileStream outputFile;
-  OPS_Stream *output = &opserr;
+  OPS_Stream *output = nullptr;
+  bool close_file = false;
+
+  // if called interactively, print to console
+  if (isatty(STDOUT_FILENO)) {
+    output = &opserr;
+  } else {
+#ifdef _WIN32
+    outputFile.setFile("CON", APPEND);
+#else
+    outputFile.setFile("/dev/stdout", APPEND);
+#endif
+    output = &outputFile;
+  }
+
   bool done = false;
 
-  // // if just 'print' then print out the entire domain
-  // if (argc == currentArg) {
-  //   opserr << domain;
-  //   return TCL_OK;
-  // }
-
   while (currentArg < argc) {
+
     // if 'print ele i j k..' print out some elements
     if ((strcmp(argv[currentArg], "-ele") == 0) ||
+        (strcmp(argv[currentArg], "-element") == 0)  ||
         (strcmp(argv[currentArg], "ele") == 0)) {
       currentArg++;
       res = printElement((ClientData)domain, interp, argc - currentArg, argv + currentArg, *output);
       done = true;
     }
+
     // if 'print node i j k ..' print out some nodes
     else if ((strcmp(argv[currentArg], "-node") == 0) ||
              (strcmp(argv[currentArg], "node") == 0)) {
@@ -242,6 +264,7 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
                  << argv[currentArg] << "\n";
           return TCL_ERROR;
         } else {
+          close_file = true;
           output = &outputFile;
         }
       }
@@ -250,7 +273,7 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
     }
   }
 
-    // if just 'print <filename>' then print out the entire domain to eof
+  // if just 'print <filename>' then print out the entire domain to eof
   if (!done) {
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
       simulationInfo.Print(*output, flag);
@@ -266,7 +289,7 @@ printModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   }
 
   // close the output file if one has been opened
-  if (output != &outputFile)
+  if (close_file)
     outputFile.close();
 
   return res;
