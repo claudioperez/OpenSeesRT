@@ -198,13 +198,14 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   int result = 0;
+  Analysis* theAnalysis = nullptr;
 
   StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
   VariableTimeStepDirectIntegrationAnalysis* theVariableTimeStepTransientAnalysis =
       builder->getVariableTimeStepDirectIntegrationAnalysis();
 
-  if (the_static_analysis != 0) {
+  if (the_static_analysis != nullptr) {
     int numIncr;
     if (argc < 2) {
       opserr << G3_ERROR_PROMPT << "static analysis: analysis numIncr?\n";

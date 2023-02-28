@@ -15,8 +15,6 @@ target_include_directories(OpenSeesRT PUBLIC
   ${OPS_SRC_DIR}/api/tclCommandPackage/commands/modeling
   ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder
   ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder/basic
-  ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder/uniax
-  ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/modelbuilder/sect
   ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/
   ${OPS_SRC_DIR}/api/tclCommandPackage/runtime/Logging/
 )

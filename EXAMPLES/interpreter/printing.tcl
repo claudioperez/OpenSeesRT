@@ -2,10 +2,10 @@ pragma analysis off
 
 source 20Stories.tcl
 
-print -JSON
+# print -JSON
 
-printGID a.txt
+# printGID a.txt
 
 
 print -registry CoordinateTransform
-print -registry UniaxialMaterial
+print -json -registry UniaxialMaterial

@@ -65,6 +65,8 @@ Tcl_CmdProc TclCommand_addLimitCurve;
 Tcl_CmdProc TclCommand_addNDMaterial;
 Tcl_CmdProc TclCommand_addSeries;
 
+Tcl_CmdProc TclCommand_invoke;
+
 
 Tcl_CmdProc TclCommand_print;
 
@@ -77,6 +79,8 @@ struct char_cmd {
   {"wipe",             TclCommand_wipeModel},
   {"build",            buildModel},
 
+  {"with",             TclCommand_invoke},
+
   {"getNDM",           TclCommand_getNDM},
   {"getNDF",           TclCommand_getNDF},
   {"node",             TclCommand_addNode},
@@ -84,8 +88,8 @@ struct char_cmd {
 
   {"element",          TclCommand_addElement},
 
-  {"print",            &TclCommand_print},
-  {"printModel",       &TclCommand_print},
+  {"print",            TclCommand_print},
+  {"printModel",       TclCommand_print},
 
 // Materials & sections
   {"uniaxialMaterial", TclCommand_addUniaxialMaterial},

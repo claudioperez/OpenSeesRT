@@ -147,7 +147,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a uniaxial material that will be added to the model builder
-  UniaxialMaterial *theMaterial = 0;
+  UniaxialMaterial *theMaterial = nullptr;
 
   auto tcl_cmd = uniaxial_tcl_table.find(std::string(argv[1]));
   if (tcl_cmd != uniaxial_tcl_table.end()) {

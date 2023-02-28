@@ -11,6 +11,8 @@
 #include <string>
 #include <assert.h>
 
+#include <G3_Logging.h>
+
 // #include <iostream>
 #include <ID.h>
 #include <Element.h>
@@ -129,13 +131,13 @@ void BasicAnalysisBuilder::resetAll()
 
 #include <stdio.h>
 void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
-    // printf("set %p on %p (constraint)\n", (void*)obj, (void*)this);
 
-    if (obj == 0) return;
+    if (obj == nullptr)
+      return;
 
     if (theHandler != nullptr) {
         // TODO: this needs to return a failure code.
-        opserr << "The handler can only be set once\n";
+        opserr << G3_WARN_PROMPT << "The handler can only be set once\n";
         return;
     }
 
@@ -143,49 +145,62 @@ void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
 }
 
 void BasicAnalysisBuilder::set(DOF_Numberer* obj) {
-    // printf("set %p on %p (numberer)\n", (void*)obj, (void*)this);
 
-    if (obj == 0) return;
+    if (obj == nullptr)
+      return;
 
-    if (theNumberer != 0) {
-        opserr << "The numberer can only be set once for one analysis\n";
-        return;
-    }
+    // if (theNumberer != nullptr) {
+    //     opserr << "The numberer can only be set once for one analysis\n";
+    //     return;
+    // }
 
     theNumberer = obj;
-    if (theStaticAnalysis != 0) theStaticAnalysis->setNumberer(*obj);
-    if (theTransientAnalysis != 0) theTransientAnalysis->setNumberer(*obj);
+    if (theStaticAnalysis != nullptr)
+        theStaticAnalysis->setNumberer(*obj);
+    if (theTransientAnalysis != nullptr)
+        theTransientAnalysis->setNumberer(*obj);
 }
 
 void BasicAnalysisBuilder::set(EquiSolnAlgo* obj) {
-    // printf("set %p on %p (algorithm)\n", (void*)obj, (void*)this);
 
-    if (obj == 0) return;
+    if (obj == nullptr)
+      return;
 
-    if (theAlgorithm != 0) {
-        opserr << "The algorithm can only be set once for one analysis\n";
-        return;
-    }
+    // if (theAlgorithm != nullptr) {
+    //     opserr << "The algorithm can only be set once for one analysis\n";
+    //     return;
+    // }
+
     theAlgorithm = obj;
-    if (theStaticAnalysis != 0) theStaticAnalysis->setAlgorithm(*obj);
-    if (theTransientAnalysis != 0) theTransientAnalysis->setAlgorithm(*obj);
+    if (theStaticAnalysis != nullptr)
+        theStaticAnalysis->setAlgorithm(*obj);
+    if (theTransientAnalysis != nullptr)
+        theTransientAnalysis->setAlgorithm(*obj);
 }
 
 void BasicAnalysisBuilder::set(LinearSOE* obj) {
     if (obj == nullptr)
       return;
 
-    if (theSOE != nullptr) {
-        opserr << "The SOE can only be set once for one analysis\n";
-        return;
-    }
-
     theSOE = obj;
+    // NOTE: `setLinearSOE` will free any pre-existing LinearSOE.
+    // maybe change this
     if (theStaticAnalysis != nullptr)
       theStaticAnalysis->setLinearSOE(*obj);
 
     if (theTransientAnalysis != nullptr)
       theTransientAnalysis->setLinearSOE(*obj);
+
+#ifdef _PARALLEL_PROCESSING
+    if (theStaticAnalysis != 0 || theTransientAnalysis != 0) {
+      SubdomainIter &theSubdomains = theDomain.getSubdomains();
+      Subdomain *theSub;
+      while ((theSub = theSubdomains()) != 0) {
+	theSub->setAnalysisLinearSOE(*theSOE);
+      }
+    }
+#endif
+
 }
 
 LinearSOE*
@@ -194,14 +209,13 @@ BasicAnalysisBuilder::getLinearSOE(int flag) {
 }
 
 void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
-    // printf("set %p on %p (integrator) (%d)\n", (void*)obj, (void*)this, isstatic);
 
-    if (obj == 0)
+    if (obj == nullptr)
       return;
 
     if (isstatic == 1) {
-        if (theStaticAnalysis != nullptr && theStaticIntegrator != nullptr)
-              opserr << "WARNING - unexpected state.\n";
+        // if (theStaticAnalysis != nullptr && theStaticIntegrator != nullptr)
+        //       opserr << "WARNING - unexpected state.\n";
 
         theStaticIntegrator = dynamic_cast<StaticIntegrator*>(obj);
         if (theStaticIntegrator != nullptr) {
@@ -213,8 +227,8 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
     }
 
     else {
-        if (theTransientIntegrator != nullptr)
-            opserr << "WARNING - unexpected state\n";
+        // if (theTransientIntegrator != nullptr)
+        //     opserr << "WARNING - unexpected state\n";
 
         theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
         if (theTransientIntegrator != nullptr) {

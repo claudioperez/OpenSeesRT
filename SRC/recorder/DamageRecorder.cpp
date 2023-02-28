@@ -39,7 +39,7 @@
 #include <string.h>
 #include <Response.h>
 #include <FE_Datastore.h>
-#include <DamageModel.h>
+#include <damage/DamageModel.h>
 #include <stdlib.h>
 
 #include <OPS_Globals.h>

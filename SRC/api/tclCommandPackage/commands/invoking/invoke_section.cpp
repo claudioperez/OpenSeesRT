@@ -28,29 +28,29 @@ static int count;
 static int countsTillCommit;
 
 int
-SectionTest_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** argv)
+TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** argv)
 {
 
   assert(clientData != nullptr);
   SectionForceDeformation *theSection = ((BasicModelBuilder*)clientData)->getSection(argv[2]);
 
   if (theSection == nullptr) {
-    opserr << G3_ERROR_PROMPT << "no material found with sectionID\n";
+    opserr << G3_ERROR_PROMPT << "no section found with tag '" << argv[2] << "'\n";
     return TCL_ERROR;
   } else {
-    // theSection = theOrigMaterial->getCopy();
+    // theSection = theSection->getCopy();
   }
 
   //
   //
   //
-  Tcl_CreateCommand(interp, "strainSectionTest",
+  Tcl_CreateCommand(interp, "update",
                     SectionTest_setStrainSection, (ClientData)theSection, NULL);
 
-  Tcl_CreateCommand(interp, "stressSectionTest",
+  Tcl_CreateCommand(interp, "stress",
                     SectionTest_getStressSection, (ClientData)theSection, NULL);
 
-  Tcl_CreateCommand(interp, "tangSectionTest", SectionTest_getTangSection,
+  Tcl_CreateCommand(interp, "tangent", SectionTest_getTangSection,
                     (ClientData)theSection, NULL);
 
   Tcl_CreateCommand(interp, "responseSectionTest",
@@ -64,10 +64,9 @@ SectionTest_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   //
 
-  Tcl_DeleteCommand(interp, "sectionTest");
-  Tcl_DeleteCommand(interp, "strainSectionTest");
-  Tcl_DeleteCommand(interp, "stressSectionTest");
-  Tcl_DeleteCommand(interp, "tangSectionTest");
+  Tcl_DeleteCommand(interp, "strain");
+  Tcl_DeleteCommand(interp, "stress");
+  Tcl_DeleteCommand(interp, "tangent");
   Tcl_DeleteCommand(interp, "responseSectionTest");
 
   return TCL_OK;
@@ -101,6 +100,7 @@ SectionTest_setStrainSection(ClientData clientData, Tcl_Interp *interp,
   }
 
   theSection->setTrialSectionDeformation(data);
+
   if (count == countsTillCommit) {
     theSection->commitState();
     count = 1;
