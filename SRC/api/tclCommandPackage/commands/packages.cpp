@@ -24,13 +24,11 @@
 #include <OPS_Globals.h>
 #include <tcl.h>
 #include <sys/stat.h>
-#include <SimulationInformation.h>
 
 #ifdef _WIN32
 #  define byte win_byte_override
 #  include <windows.h>
 #  include <elementAPI.h>
-   extern SimulationInformation *theSimulationInfoPtr;
 #else
 #  include <dlfcn.h>
 #endif
@@ -188,7 +186,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
         // invoke pointer function
         (funcPtr)(opserrPtr,
             ops_TheActiveDomain,
-            theSimulationInfoPtr,
+            nullptr, // theSimulationInfoPtr,
             OPS_Error,
             OPS_GetIntInput,
             OPS_GetDoubleInput,

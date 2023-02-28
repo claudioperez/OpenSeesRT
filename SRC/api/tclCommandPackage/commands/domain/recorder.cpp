@@ -63,11 +63,7 @@
 #include <NormEnvelopeElementRecorder.h>
 #include <DamageRecorder.h>
 #include <MeshRegion.h>
-//#include <GSA_Recorder.h>
 #include <RemoveRecorder.h>
-
-#include <SimulationInformation.h>
-extern SimulationInformation simulationInfo;
 
 static EquiSolnAlgo *theAlgorithm = nullptr;
 extern FE_Datastore *theDatabase;
@@ -329,9 +325,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else if (strcmp(argv[loc], "-file") == 0) {
         fileName = argv[loc + 1];
         eMode = DATA_STREAM;
-        const char *pwd = getInterpPWD(interp);
-
-        simulationInfo.addOutputFile(fileName, pwd);
         loc += 2;
         if (strcmp(argv[loc], "-xml") == 0) {
           eMode = XML_STREAM;
@@ -361,8 +354,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                (strcmp(argv[loc], "-csv") == 0)) {
         fileName = argv[loc + 1];
         eMode = DATA_STREAM_CSV;
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         loc += 2;
       }
 
@@ -382,8 +373,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
       else if ((strcmp(argv[loc], "-binary") == 0)) {
         fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = BINARY_STREAM;
         loc += 2;
       }
@@ -391,16 +380,12 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else if ((strcmp(argv[loc], "-nees") == 0) ||
                (strcmp(argv[loc], "-xml") == 0)) {
         fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = XML_STREAM;
         loc += 2;
       }
 
       else if (strcmp(argv[loc], "-fileAdd") == 0) {
         fileName = argv[loc + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM_ADD;
         loc += 2;
       }
@@ -853,7 +838,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
       else if (strcmp(argv[loc], "-file") == 0) {
         fileName = argv[loc + 1];
-        //	    simulationInfo.addWriteFile(fileName);
         loc += 2;
       }
 
@@ -1102,16 +1086,12 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
       else if (strcmp(argv[pos], "-file") == 0) {
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM;
         pos += 2;
       }
 
       else if (strcmp(argv[pos], "-fileAdd") == 0) {
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM_ADD;
         pos += 2;
       }
@@ -1131,8 +1111,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
       else if (strcmp(argv[pos], "-fileCSV") == 0) {
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = DATA_STREAM_CSV;
         pos += 2;
       }
@@ -1165,8 +1143,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                (strcmp(argv[pos], "-xml") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = XML_STREAM;
         pos += 2;
       }
@@ -1174,8 +1150,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else if ((strcmp(argv[pos], "-binary") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = BINARY_STREAM;
         pos += 2;
       }
@@ -1458,8 +1432,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[pos], "-file") == 0) {
         fileName = argv[pos + 1];
         eMode = DATA_STREAM;
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         pos += 2;
         if (strcmp(argv[pos], "-xml") == 0) {
           eMode = XML_STREAM;
@@ -1473,8 +1445,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else if (strcmp(argv[pos], "-fileCSV") == 0) {
         fileName = argv[pos + 1];
         eMode = DATA_STREAM_CSV;
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         pos += 2;
       }
 
@@ -1495,8 +1465,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else if ((strcmp(argv[pos], "-binary") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = BINARY_STREAM;
         pos += 2;
       }
@@ -1505,8 +1473,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                (strcmp(argv[pos], "-xml") == 0)) {
         // allow user to specify load pattern other than current
         fileName = argv[pos + 1];
-        const char *pwd = getInterpPWD(interp);
-        simulationInfo.addOutputFile(fileName, pwd);
         eMode = XML_STREAM;
         pos += 2;
       }

@@ -158,18 +158,19 @@ class ConvergenceTest;
 #define OPS_GetSOE ops_getsoe_
 #define OPS_GetEigenSOE ops_geteigensoe_
 #define OPS_GetStaticAnalysis ops_getstaticanalysis_
-#define OPS_GetTransientAnalysis ops_gettransientanalysis_
 #define OPS_GetVariableTimeStepTransientAnalysis ops_getvariabletimesteptransientanalysis_
 #define OPS_GetNumEigen ops_getnumeigen_
 #define OPS_GetStaticIntegrator ops_getstaticintegrator_
-#define OPS_GetTransientIntegrator ops_gettransientintegrator_
 #define OPS_GetTest ops_gettest_
 #define OPS_builtModel ops_builtmodel_
 #define OPS_GetDomain ops_getdomain_
 
 #include <OPS_Globals.h>
-// #include <tcl.h>
-//#include "TclModelBuilder.h"
+
+#if 0
+#define OPS_GetTransientAnalysis ops_gettransientanalysis_
+#define OPS_GetTransientIntegrator ops_gettransientintegrator_
+#endif
 
 #ifdef __cplusplus
 extern "C" int         OPS_GetNDM();
@@ -177,8 +178,6 @@ extern "C" int         OPS_GetNDF();
 extern "C" int         OPS_Error(char* errorMessage, int length);
 extern "C" int         OPS_GetNumRemainingInputArgs();
 extern "C" int         OPS_ResetCurrentInputArg(int cArg);
-//extern "C" int       OPS_ResetInput(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain, TclModelBuilder * builder);
-// extern "C" int         OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain);
 extern "C" int         OPS_GetIntInput(int* numData, int* data);
 extern "C" int         OPS_SetIntOutput(int* numData, int* data, bool scalar);
 extern "C" int         OPS_GetDoubleInput(int* numData, double* data);
@@ -186,6 +185,8 @@ extern "C" int         OPS_SetDoubleOutput(int* numData, double* data, bool scal
 extern "C" const char* OPS_GetString(); // does a strcpy
 extern "C" const char* OPS_GetStringFromAll(char* buffer, int len); // does a strcpy
 extern "C" int         OPS_SetString(const char* str);
+//extern "C" int       OPS_ResetInput(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain, TclModelBuilder * builder);
+// extern "C" int         OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain);
 //extern "C" int       OPS_GetString(char *cArray, int sizeArray); // does a strcpy
 extern "C" int         OPS_GetStringCopy(char** cArray); // returns a new copy
 
@@ -206,7 +207,6 @@ extern NDMaterial* OPS_GetNDMaterial(int matTag);
 extern SectionForceDeformation* OPS_GetSectionForceDeformation(int secTag);
 extern CrdTransf* OPS_GetCrdTransf(int crdTag);
 extern FrictionModel* OPS_GetFrictionModel(int frnTag);
-// extern LimitCurve* OPS_GetLimitCurve(int LimCrvTag);
 
 extern FE_Datastore* OPS_GetFEDatastore();
 extern "C" const char* OPS_GetInterpPWD();
@@ -215,6 +215,10 @@ extern "C" AnalysisModel * *OPS_GetAnalysisModel(void);
 extern "C" EquiSolnAlgo * *OPS_GetAlgorithm(void);
 extern "C" ConstraintHandler * *OPS_GetHandler(void);
 extern "C" DOF_Numberer * *OPS_GetNumberer(void);
+extern "C" bool* OPS_builtModel(void);
+int OPS_numIter();
+
+// extern LimitCurve* OPS_GetLimitCurve(int LimCrvTag);
 // extern "C" LinearSOE * *OPS_GetSOE(void);
 // extern "C" EigenSOE * *OPS_GetEigenSOE(void);
 // extern "C" StaticAnalysis * *OPS_GetStaticAnalysis(void);
@@ -224,9 +228,7 @@ extern "C" DOF_Numberer * *OPS_GetNumberer(void);
 // extern "C" StaticIntegrator * *OPS_GetStaticIntegrator(void);
 // extern "C" TransientIntegrator * *OPS_GetTransientIntegrator(void);
 // extern "C" ConvergenceTest * *OPS_GetTest(void);
-extern "C" bool* OPS_builtModel(void);
 
-int OPS_numIter();
 
 #else // __cplusplus
 
@@ -237,21 +239,20 @@ int     OPS_Error(char*, int length);
 int     OPS_GetIntInput(int* numData, int* data);
 int     OPS_GetDoubleInput(int* numData, double* data);
 int     OPS_GetString(char* cArray, int sizeArray);
-
+ConstraintHandler** OPS_GetHandler(void);
+EigenSOE** OPS_GetEigenSOE(void);
+int* OPS_GetNumEigen(void);
+bool* OPS_builtModel(void);
 
 // EquiSolnAlgo** OPS_GetAlgorithm(void);
-ConstraintHandler** OPS_GetHandler(void);
 // DOF_Numberer** OPS_GetNumberer(void);
 // LinearSOE** OPS_GetSOE(void);
-EigenSOE** OPS_GetEigenSOE(void);
 // StaticAnalysis** OPS_GetStaticAnalysis(void);
 // DirectIntegrationAnalysis** OPS_GetTransientAnalysis(void);
 // VariableTimeStepDirectIntegrationAnalysis** OPS_GetVariableTimeStepTransientAnalysis(void);
-int* OPS_GetNumEigen(void);
 // StaticIntegrator** OPS_GetStaticIntegrator(void);
 // TransientIntegrator** OPS_GetTransientIntegrator(void);
 // ConvergenceTest** OPS_GetTest(void);
-bool* OPS_builtModel(void);
 
 
 

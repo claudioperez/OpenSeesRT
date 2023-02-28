@@ -8,9 +8,7 @@ add_library(OPS_Api OBJECT)
 
 target_sources(OPS_Api
     PUBLIC
-        #elementAPI_Dummy.cpp
         packages.cpp
-        #win32Functions.cpp
     PUBLIC
         elementAPI.h
         packages.h

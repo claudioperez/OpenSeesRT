@@ -68,9 +68,6 @@
 #include <PathTimeSeriesThermal.h>                   //L.Jiang [SIF]
 #include <vector>                                    //L.Jiang [SIF]
 using std::vector;                                   // L.Jiang [SIF]
-#include <SimulationInformation.h>                   //L.Jiang [SIF]
-extern SimulationInformation simulationInfo;         // L.Jiang [SIF]
-extern const char *getInterpPWD(Tcl_Interp *interp); // L.Jiang [SIF]
 
 #ifdef OPSDEF_ELEMENT_BLOCKND
 #include <Block2D.h>
@@ -2420,8 +2417,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         // end of <if(strcmp(argv[count+1],"-node") != 0)>
         else {
           count++;
-          const char *pwd = getInterpPWD(interp);
-          simulationInfo.addInputFile(argv[count], pwd);
           TimeSeries *theSeries =
               new PathTimeSeriesThermal(eleLoadTag, argv[count]);
 
@@ -2656,8 +2651,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return 0;
         } // end for defing thermal action with nodal input
         else {
-          const char *pwd = getInterpPWD(interp);
-          simulationInfo.addInputFile(argv[count], pwd);
           count++;
           bool using2Ddata = false;
 

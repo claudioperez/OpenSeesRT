@@ -40,9 +40,6 @@ extern ReliabilityDomain *theReliabilityDomain;
 extern RandomNumberGenerator *theRandomNumberGenerator;
 #endif
 
-// #include <SimulationInformation.h>
-// extern SimulationInformation simulationInfo;
-// extern const char * getInterpPWD(Tcl_Interp *interp);  // commands.cpp
 
 // little function to free memory after invoke Tcl_SplitList
 //   note Tcl_Split list stores the array of pointers and the strings in
@@ -440,21 +437,14 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     }
 
     if (filePathName != 0 && fileTimeName == 0 && timeIncr != 0.0) {
-      //      const char *pwd = getInterpPWD(interp);
-      //      simulationInfo.addInputFile(argv[filePathName], pwd);
       theSeries = new PathSeries(tag, argv[filePathName], timeIncr, cFactor,
                                  useLast, prependZero, startTime);
     }
 
     else if (fileName != 0) {
-      // const char *pwd = getInterpPWD(interp);
-      //      simulationInfo.addInputFile(argv[fileName], pwd);
       theSeries = new PathTimeSeries(tag, argv[fileName], cFactor, useLast);
 
     } else if (filePathName != 0 && fileTimeName != 0) {
-      //      const char *pwd = getInterpPWD(interp);
-      //      simulationInfo.addInputFile(argv[filePathName], pwd);
-      //      simulationInfo.addInputFile(argv[fileTimeName], pwd);
       theSeries = new PathTimeSeries(tag, argv[filePathName],
                                      argv[fileTimeName], cFactor, useLast);
 

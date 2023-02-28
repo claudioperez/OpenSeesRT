@@ -16,7 +16,6 @@
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <FileStream.h>
-#include <SimulationInformation.h>
 
 #include <BasicModelBuilder.h>
 #include <Storage/G3_TableIterator.h>
@@ -37,7 +36,6 @@
 #include <Node.h>
 #include <NodeIter.h>
 
-extern  SimulationInformation simulationInfo;
 
 int printElement(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char **argv, OPS_Stream &output);
@@ -79,6 +77,8 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
   const char* tab = "    ";
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "{\n";
+    s << "\"StructuralAnalysisModel\": {\n";
 
     s << tab << "\"properties\": {\n";
 
@@ -276,7 +276,7 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
   // if just 'print <filename>' then print out the entire domain to eof
   if (!done) {
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      simulationInfo.Print(*output, flag);
+      // simulationInfo.Print(*output, flag);
       printDomain(*output, builder, flag);
     } else {
       domain->Print(*output, flag);
