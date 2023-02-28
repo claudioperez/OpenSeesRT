@@ -1,10 +1,12 @@
 #include "color.h"
 #include <OPS_Stream.h>
+#define opserr (*opserrPtr)
 #define opsdbg (*opsdbgPtr)
 #define opswrn ((*opswrnPtr) << G3_WARN_PROMPT)
 #define opsmrd opserr
 
 class G3_Runtime;
+extern OPS_Stream *opserrPtr;
 extern OPS_Stream *opswrnPtr;
 extern OPS_Stream *opsdbgPtr;
 extern const char *G3_WARN_PROMPT;
