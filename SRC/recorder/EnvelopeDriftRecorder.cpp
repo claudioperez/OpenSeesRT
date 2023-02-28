@@ -169,14 +169,14 @@ EnvelopeDriftRecorder::record(int commitTag, double timeStamp)
   int sizeData = currentData->Size();
   if (echoTimeFlag == false) {
 
-    bool writeIt = false;
+    // bool writeIt = false;
     if (first == true) {
       for (int i=0; i<sizeData; i++) {
 	(*data)(0,i) = (*currentData)(i);
 	(*data)(1,i) = (*currentData)(i);
 	(*data)(2,i) = fabs((*currentData)(i));
 	first = false;
-	writeIt = true;
+	// writeIt = true;
       } 
     } else {
       for (int i=0; i<sizeData; i++) {
@@ -186,19 +186,19 @@ EnvelopeDriftRecorder::record(int commitTag, double timeStamp)
 	  double absValue = fabs(value);
 	  if ((*data)(2,i) < absValue) 
 	    (*data)(2,i) = absValue;
-	  writeIt = true;
+	  // writeIt = true;
 	} else if ((*data)(1,i) < value) {
 	  (*data)(1,i) = value;
 	  double absValue = fabs(value);
 	  if ((*data)(2,i) < absValue) 
 	    (*data)(2,i) = absValue;
-	  writeIt = true;
+	  // writeIt = true;
 	}
       }
     }
   } else {
     sizeData /= 2;
-    bool writeIt = false;
+    // bool writeIt = false;
     if (first == true) {
       for (int i=0; i<sizeData; i++) {
 
@@ -209,7 +209,7 @@ EnvelopeDriftRecorder::record(int commitTag, double timeStamp)
 	(*data)(1,i*2+1) = (*currentData)(i);
 	(*data)(2,i*2+1) = fabs((*currentData)(i));
 	first = false;
-	writeIt = true;
+	// writeIt = true;
       } 
     } else {
       for (int i=0; i<sizeData; i++) {
@@ -222,7 +222,7 @@ EnvelopeDriftRecorder::record(int commitTag, double timeStamp)
 	    (*data)(2,i*2+1) = absValue;
 	    (*data)(2,i*2) = timeStamp;
 	  }
-	  writeIt = true;
+	  // writeIt = true;
 	} else if ((*data)(1,i*2+1) < value) {
 	  (*data)(1,i*2) = timeStamp;
 	  (*data)(1,i*2+1) = value;
@@ -231,7 +231,7 @@ EnvelopeDriftRecorder::record(int commitTag, double timeStamp)
 	    (*data)(2,i*2) = timeStamp;
 	    (*data)(2,i*2+1) = absValue;
 	  }
-	  writeIt = true;
+	  // writeIt = true;
 	}
       }
     }

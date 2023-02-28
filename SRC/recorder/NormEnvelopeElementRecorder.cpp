@@ -222,31 +222,31 @@ NormEnvelopeElementRecorder::record(int commitTag, double timeStamp)
     int sizeData = currentData->Size();
     if (echoTimeFlag == false) {
 
-      bool writeIt = false;
+      // bool writeIt = false;
       if (first == true) {
 	for (int i=0; i<sizeData; i++) {
 	  (*data)(0,i) = (*currentData)(i);
 	  first = false;
-	  writeIt = true;
+	  // writeIt = true;
 	} 
       } else {
 	for (int i=0; i<sizeData; i++) {
 	  double value = (*currentData)(i);
 	  if ((*data)(0,i) > value) {
 	    (*data)(0,i) = value;
-	    writeIt = true;
+	    // writeIt = true;
 	  }
 	}
       }
     } else {
       sizeData /= 2;
-      bool writeIt = false;
+      // bool writeIt = false;
       if (first == true) {
 	for (int i=0; i<sizeData; i++) {
 	  (*data)(0,i*2) = timeStamp;
 	  (*data)(0,i*2+1) = (*currentData)(i);
 	  first = false;
-	  writeIt = true;
+	  // writeIt = true;
 	} 
       } else {
 	for (int i=0; i<sizeData; i++) {
@@ -254,7 +254,7 @@ NormEnvelopeElementRecorder::record(int commitTag, double timeStamp)
 	  if ((*data)(0,2*i+1) > value) {
 	    (*data)(0,i*2) = timeStamp;
 	    (*data)(0,i*2+1) = value;
-	    writeIt = true;
+	    // writeIt = true;
 	  }
 	}
       }
@@ -623,7 +623,7 @@ NormEnvelopeElementRecorder::initialize(void)
 	  // from the response type determine no of cols for each      
 	  Information &eleInfo = theResponses[ii]->getInformation();
 	  const Vector &eleData = eleInfo.getData();
-	  int dataSize = eleData.Size();
+	  // int dataSize = eleData.Size();
 	  //	  numDbColumns += dataSize;
 	  numDbColumns += 1;
 	

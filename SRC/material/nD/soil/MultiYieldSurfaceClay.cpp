@@ -73,10 +73,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MultiYieldSurfaceClay)
 
     int argc = OPS_GetNumRemainingInputArgs() + 2;
 
-    char * arg[] = {"nd", "rho", "refShearModul", "refBulkModul",
-		    "cohesi", "peakShearStra",
-		    "frictionAng (=0)", "refPress (=100)", "pressDependCoe (=0.0)",
-		    "numberOfYieldSurf (=20)"};
+    const char * arg[] = {"nd", "rho", "refShearModul", "refBulkModul",
+		          "cohesi", "peakShearStra",
+		          "frictionAng (=0)", "refPress (=100)", "pressDependCoe (=0.0)",
+		          "numberOfYieldSurf (=20)"};
     if (argc < (3+numParam)) {
 	opserr << "WARNING insufficient arguments\n";
 	opserr << "Want: nDMaterial MultiYieldSurfaceClay tag? " << arg[0];

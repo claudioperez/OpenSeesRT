@@ -76,16 +76,16 @@ void * OPS_ADD_RUNTIME_VPV(OPS_PressureDependMultiYield)
     param[23] = 1.;
 
     int argc = OPS_GetNumRemainingInputArgs() + 2;
-    char * arg[] = {"nd", "rho", "refShearModul",
-		    "refBulkModul", "frictionAng",
-		    "peakShearStra", "refPress", "pressDependCoe",
-		    "phaseTransformAngle", "contractionParam1",
-		    "dilationParam1", "dilationParam2",
-		    "liquefactionParam1", "liquefactionParam2",
-		    "liquefactionParam4", "numberOfYieldSurf (=20)",
-		    "e (=0.6)", "volLimit1 (=0.9)", "volLimit2 (=0.02)",
-		    "volLimit3 (=0.7)", "Atmospheric pressure (=101)", "cohesi (=.5)",
-		    "Hv (=0)", "Pv (=1.)" };
+    const char * arg[] = {"nd", "rho", "refShearModul",
+		          "refBulkModul", "frictionAng",
+		          "peakShearStra", "refPress", "pressDependCoe",
+		          "phaseTransformAngle", "contractionParam1",
+		          "dilationParam1", "dilationParam2",
+		          "liquefactionParam1", "liquefactionParam2",
+		          "liquefactionParam4", "numberOfYieldSurf (=20)",
+		          "e (=0.6)", "volLimit1 (=0.9)", "volLimit2 (=0.02)",
+		          "volLimit3 (=0.7)", "Atmospheric pressure (=101)", "cohesi (=.5)",
+		          "Hv (=0)", "Pv (=1.)" };
     if (argc < (3+numParam)) {
 	opserr << "WARNING insufficient arguments\n";
 	opserr << "Want: nDMaterial PressureDependMultiYield tag? "<< arg[0];

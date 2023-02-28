@@ -25,7 +25,6 @@
 
                                                                        
 
-#include <TclModelBuilder.h>
 #include <ReinforcingSteel.h>   // Jon Mohle
 
 #include <Vector.h>

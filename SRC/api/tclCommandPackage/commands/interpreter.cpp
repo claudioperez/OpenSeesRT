@@ -41,20 +41,6 @@ Tcl_CmdProc stripOpenSeesXML;
 
 
 //
-// Return the current OpenSees version
-//
-static int
-version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  char buffer[20];
-
-  sprintf(buffer, "%s", OPS_VERSION);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
-
-//
 // Consider reimplmenting to use Tcl built-ins; see
 // https://wiki.tcl-lang.org/page/timers
 //
@@ -412,7 +398,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "setPrecision",        setPrecision, nullptr, nullptr);
   Tcl_CreateCommand(interp, "exit",                OpenSeesExit, nullptr, nullptr);
   Tcl_CreateCommand(interp, "quit",                OpenSeesExit, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "version",             version,      nullptr, nullptr);
   Tcl_CreateCommand(interp, "fault", 
     [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
 

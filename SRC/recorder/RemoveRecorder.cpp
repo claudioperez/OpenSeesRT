@@ -833,7 +833,6 @@ RemoveRecorder::record(int commitTag, double timeStamp)
     
     
     if (fileName != 0) {
-      //		theFile << " \n";
       theFile.flush();
     }
   }

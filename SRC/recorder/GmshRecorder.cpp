@@ -808,12 +808,12 @@ GmshRecorder::write_element_data()
 int
 GmshRecorder::write_element_graph()
 {
-    static bool do_only_once = true;
 
-    int rank = 0; 
-    int nproc = 1; 
 
 #ifdef _PARALLEL_PROCESSING
+    int rank = 0; 
+    int nproc = 1; 
+    static bool do_only_once = true;
     rank = theMachineBroker->getPID();  
     nproc = theMachineBroker->getNP();  
 
