@@ -27,13 +27,15 @@ enable_testing()
 add_definitions(-DOPS_USE_RUNTIME) # -D_THREADS)
 
 # add Conan stuff for external dependencies
-# if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-#    message(">>> Using Conan")
-  #   set(USE_CONAN TRUE)
-  #   include(conan)
-  #   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  #   conan_basic_setup()
-  # endif()
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+   message(">>> Using Conan")
+   set(USE_CONAN TRUE)
+   # include(conan)
+   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+   conan_basic_setup(TARGETS)
+   set(TCL_LIBRARIES "CONAN_PKG::tcl")
+   set(TCL_LIBRARY "CONAN_PKG::tcl")
+endif()
 
 # pseudo target modeling all exteral packages
 add_library(OPS_External_packages INTERFACE)
@@ -60,11 +62,11 @@ if (UNIX)
   if (APPLE)
    message(STATUS ">>> MacOS")
    add_compile_definitions(_LINUX _UNIX _TCL85)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
   else()
      message(STATUS ">>> LINUX")
      add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
   endif()
 
   add_compile_options(
@@ -76,9 +78,9 @@ if (UNIX)
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
-    include(OpenSeesDependenciesWin)
+  # include(OpenSeesDependenciesWin)
   # include(OpenSeesDependenciesDockCrossWin)
-    target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
+    # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
     add_compile_definitions(_WIN32)
     message(STATUS ">>> WIN32")
 endif()
@@ -283,6 +285,8 @@ target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
 message(">>> Numeric libs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
+
+target_link_libraries(OPS_Material PRIVATE ${TCL_LIBRARY})
 
 
 #----------------------------
