@@ -57,8 +57,8 @@ message("OpDepWin:TCL_ROOT:       ${TCL_ROOT}")
 opensees_load(CBLAS
   LIBRARY "${BUNDLE_LIBS}/cblas.lib"
 )
-set(USE_STATIC_MKL FALSE)
-set(BLA_STATIC ON)
+# set(USE_STATIC_MKL FALSE)
+# set(BLA_STATIC ON)
 find_package(MKL)
 find_package(BLAS)
 find_package(LAPACK)
@@ -83,14 +83,14 @@ find_package(LAPACK)
 #   LIBRARY ${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/Debug/SUPERLU.lib
 # )
 # 
-# opensees_load(ARPACK                                       SEARCH
-#   #BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
-#   LIBRARY ${OPS_BUNDLED_DIR}/bin/ARPACK/Debug/ARPACK.lib
-# )
+ opensees_load(ARPACK                                       #SEARCH
+   BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
+   # LIBRARY ${OPS_BUNDLED_DIR}/bin/ARPACK/Debug/ARPACK.lib
+ )
 # 
 opensees_load(AMD
-  #BUNDLED ${OPS_BUNDLED_DIR}/AMD/
-  LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
+  BUNDLED ${OPS_BUNDLED_DIR}/AMD/
+  # LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
 )
 include_directories(${OPS_BUNDLED_DIR}/AMD)
 
