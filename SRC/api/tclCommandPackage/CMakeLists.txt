@@ -67,10 +67,9 @@ set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
+  target_link_libraries(OpenSeesRT_LinearSystem PUBLIC ${TCL_LIBRARY})
   target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
 endif()
-
-target_compile_options(OpenSeesRT PRIVATE -fmax-errors=1)
 
 
 #
@@ -80,6 +79,8 @@ if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()
 
+
+target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
 
 target_link_libraries(OpenSeesRT PRIVATE
   ${OPS_Element_List}

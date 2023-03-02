@@ -22,29 +22,28 @@
 set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
 # opensees_load(TCL CONAN tcl/8.6.11)
-conan_cmake_configure(REQUIRES tcl/8.6.11 GENERATORS cmake_find_package)
-conan_cmake_autodetect(settings)
-conan_cmake_install(PATH_OR_REFERENCE .
-	BUILD missing
-	REMOTE conancenter
-	SETTINGS ${settings}
-	)
+# conan_cmake_configure(REQUIRES tcl/8.6.11 GENERATORS cmake_find_package)
+# conan_cmake_autodetect(settings)
+# conan_cmake_install(PATH_OR_REFERENCE .
+#     BUILD missing
+#     REMOTE conancenter
+#     SETTINGS ${settings}
+# )
 
-set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/src/libg3" "${CMAKE_MODULE_PATH}")
-message(">>> ${CMAKE_MODULE_PATH}")
+# set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/src/libg3" "${CMAKE_MODULE_PATH}")
+# message(">>> ${CMAKE_MODULE_PATH}")
 
 # include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 # conan_basic_setup(TARGETS)
-find_package(TCL)
+# find_package(TCL)
 
 # set(TCL_INCLUDE_PATH "${TCL_LIBRARY}\\include")
 # set(TCL_LIBRARIES "${TCL_LIBRARY}")
 
-message("TCL: ${TCL_LIBRARY}")
-message("TCL: ${tcl_LIBRARY}")
-message("TCL: ${TCL_INCLUDE_PATH}")
-message("TCL: ${TCL_LIBRARIES}")
-message("TCL: ${TCL_ROOT}")
+message("OpDepWin:TCL_LIBRARY:    ${TCL_LIBRARY}")
+message("OpDepWin:TCL_INCL_PATH:  ${TCL_INCLUDE_PATH}")
+message("OpDepWin:TCL:            ${TCL_LIBRARIES}")
+message("OpDepWin:TCL_ROOT:       ${TCL_ROOT}")
 
 # opensees_load(MySQL CONAN mysql-connector-c/6.1.11
 #     #LIBRARY ${CONDA_ENV}/Library/lib/libmysql.lib
