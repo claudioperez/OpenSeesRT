@@ -126,7 +126,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
         typedef TransientIntegrator** (*OPS_GetTransientIntegratorPtrType)();
         typedef ConvergenceTest** (*OPS_GetTestPtrType)();
         typedef bool* (*OPS_builtModelPtrType)();
-
+#if 0
         typedef void(_cdecl* setGlobalPointersFunction)(
             OPS_Stream*,
             Domain*,
@@ -175,13 +175,13 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
             OPS_GetDomainPointerType);
 
         setGlobalPointersFunction funcPtr;
-
         // look for pointer function
         funcPtr = (setGlobalPointersFunction)GetProcAddress((HMODULE)hLib, "setGlobalPointers");
         if (funcPtr == 0) {
             FreeLibrary((HMODULE)hLib);
             return -2;
         }
+#endif
 #if 0
         // invoke pointer function
         (funcPtr)(opserrPtr,

@@ -72,9 +72,9 @@ set_property(TARGET OPS_Material_Uniaxial_Drain_f  PROPERTY POSITION_INDEPENDENT
 set_property(TARGET G3         PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 
+target_link_libraries(OpenSeesRT_LinearSystem PUBLIC ${TCL_LIBRARY})
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
-  target_link_libraries(OpenSeesRT_LinearSystem PUBLIC ${TCL_LIBRARY})
   target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
