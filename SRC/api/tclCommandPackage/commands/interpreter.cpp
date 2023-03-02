@@ -13,11 +13,7 @@
 #include <G3_Runtime.h>
 #include <OPS_Globals.h>
 #include <Timer.h>
-#include <SimulationInformation.h>
-// #include <XmlFileStream.h>
 
-SimulationInformation simulationInfo;
-SimulationInformation *theSimulationInfoPtr = nullptr;
 static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
 static Timer *theTimer = nullptr;
 
@@ -39,20 +35,6 @@ Tcl_CmdProc convertBinaryToText;
 Tcl_CmdProc convertTextToBinary;
 Tcl_CmdProc stripOpenSeesXML;
 
-
-//
-// Return the current OpenSees version
-//
-static int
-version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  char buffer[20];
-
-  sprintf(buffer, "%s", OPS_VERSION);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
 
 //
 // Consider reimplmenting to use Tcl built-ins; see
@@ -173,8 +155,6 @@ OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
               Tcl_Obj *const objv[])
 {
 
-  if (objc > 2)
-    simulationInfo.addParameter(Tcl_GetString(objv[1]), Tcl_GetString(objv[2]));
 
   Tcl_Obj *varValueObj;
 
@@ -225,8 +205,6 @@ logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   if (opserr.setFile(argv[1], mode, echo) < 0)
     opserr << "WARNING logFile " << argv[1] << " failed to set the file\n";
 
-  const char *pwd = getInterpPWD(interp);
-  simulationInfo.addOutputFile(argv[1], pwd);
 
   return TCL_OK;
 }
@@ -305,9 +283,7 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
     }
   }
 
-  const char *pwd = getInterpPWD(interp);
   const char *fileN = Tcl_GetString(fileName);
-  simulationInfo.addInputFile(fileN, pwd);
 
   return Tcl_EvalFile(interp, fileN);
 }
@@ -335,16 +311,6 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   MPI_Finalize();
 #endif
-
-  //  if (simulationInfoOutputFilename != 0) {
-  //    simulationInfo.end();
-  //    XmlFileStream simulationInfoOutputFile;
-  //    simulationInfoOutputFile.setFile(simulationInfoOutputFilename);
-  //    simulationInfoOutputFile.open();
-  //    simulationInfoOutputFile << simulationInfo;
-  //    simulationInfoOutputFile.close();
-  //    simulationInfoOutputFilename = 0;
-  //  }
 
   int returnCode = 0;
   if (argc > 1) {
@@ -398,7 +364,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
     Tcl_CreateObjCommand(interp, "puts",    OpenSees_putsCommand, nullptr, nullptr);
   }
 
-  theSimulationInfoPtr = &simulationInfo;
 
 #ifndef _LINUX
   opserr.setFloatField(SCIENTIFIC);
@@ -412,7 +377,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "setPrecision",        setPrecision, nullptr, nullptr);
   Tcl_CreateCommand(interp, "exit",                OpenSeesExit, nullptr, nullptr);
   Tcl_CreateCommand(interp, "quit",                OpenSeesExit, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "version",             version,      nullptr, nullptr);
   Tcl_CreateCommand(interp, "fault", 
     [](ClientData, Tcl_Interp*, int, G3_Char**)->int{throw 20; return 0;}, nullptr, nullptr);
 

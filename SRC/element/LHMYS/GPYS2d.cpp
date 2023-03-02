@@ -17,10 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2006-11-08 20:06:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/utility/StringContainer.cpp,v $
 //
 // Written: Jade Cohen
 // Created: 19/05
@@ -29,7 +25,6 @@
 // GPYS2d is used to build general polynomial yield surface for 2d
 // frame elements.
 //
-
 #include "GPYS2d.h"
 #include <Matrix.h>
 #include <Vector.h>

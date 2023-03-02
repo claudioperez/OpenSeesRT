@@ -30,7 +30,7 @@
 #include <Node.h>
 #include <Element.h>
 #include <ElementIter.h>
-#include <NodeIter.h>
+// #include <NodeIter.h>
 #include <LoadPattern.h>
 #include <LoadPatternIter.h>
 #include <ElementalLoad.h>
@@ -59,8 +59,7 @@
 // Other
 #include <Recorder.h>
 #include <DummyStream.h>
-#include <ErrorHandler.h>
-// #include <ConsoleErrorHandler.h>
+// #include <ErrorHandler.h>
 #include <Information.h>
 #include <Response.h>
 #include <packages.h>

@@ -34,7 +34,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <CloughDamage.h>
-#include <DamageModel.h>
+#include <damage/DamageModel.h>
 #include <stdlib.h>
 #include <Channel.h>
 #include <math.h>

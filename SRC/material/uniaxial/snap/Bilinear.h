@@ -43,7 +43,7 @@
 #include <UniaxialMaterial.h>
 #include <Vector.h>
 #include <stdio.h>
-#include <DamageModel.h>
+#include <damage/DamageModel.h>
 #include <MaterialResponse.h>
 
 class Bilinear : public UniaxialMaterial  

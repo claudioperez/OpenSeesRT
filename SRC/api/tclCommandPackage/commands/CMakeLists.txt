@@ -36,6 +36,7 @@ target_sources(OpenSeesRT PRIVATE
     "modeling/uniaxial.cpp"
     "modeling/printing.cpp"
 
+    "invoking/invoke.cpp"
     "invoking/invoke_uniaxial.cpp"
     "invoking/invoke_section.cpp"
     "invoking/invoke_stress.cpp"

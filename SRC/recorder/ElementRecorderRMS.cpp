@@ -70,7 +70,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorderRMS)
     const int STANDARD_STREAM = 0;
     const int DATA_STREAM = 1;
     const int XML_STREAM = 2;
-    const int DATABASE_STREAM = 3;
+    // const int DATABASE_STREAM = 3;
     const int BINARY_STREAM = 4;
     const int DATA_STREAM_CSV = 5;
     const int TCP_STREAM = 6;
@@ -78,7 +78,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorderRMS)
 
     int eMode = STANDARD_STREAM;
 
-    bool echoTimeFlag = false;
+    // bool echoTimeFlag = false;
     double dT = 0.0;
     bool doScientific = false;
 
@@ -97,10 +97,12 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorderRMS)
         const char* option = OPS_GetString();
 
         if (strcmp(option, "-time") == 0) {
-            echoTimeFlag = true;
+            // TODO: print deprecation?
+            // echoTimeFlag = true;
         }
         else if (strcmp(option, "-load") == 0) {
-            echoTimeFlag = true;
+            // TODO: print deprecation?
+            // echoTimeFlag = true;
         }
         else if (strcmp(option, "-scientific") == 0) {
             doScientific = true;

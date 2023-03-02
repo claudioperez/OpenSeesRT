@@ -3654,7 +3654,6 @@ Domain::getRecorder(int tag)
 
 int Domain::activateElements(const ID& elementList)
 {
-    ElementIter& iter = getElements();
     Element* theElement;
     for (int i = 0; i < elementList.Size(); ++i)
     {
@@ -3672,7 +3671,6 @@ int Domain::activateElements(const ID& elementList)
 
 int Domain::deactivateElements(const ID& elementList)
 {
-    // ElementIter& iter = getElements();
     Element* theElement;
     for (int i = 0; i < elementList.Size(); ++i)
     {

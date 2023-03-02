@@ -40,14 +40,6 @@
 #include <TimeSeries.h>
 
 #include "Storage/G3_Table.h"
-// #include <BeamIntegration.h>
-
-/*
-#include <SimulationInformation.h>			// L.Jiang [SIF]
-extern SimulationInformation simulationInfo;		// L.Jiang [SIF]
-*/
-
-
 
 
 //

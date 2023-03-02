@@ -650,8 +650,8 @@ NormElementRecorder::initialize(void)
 	theResponses[numResponse] = theResponse;
 
 	// from the response type determine no of cols for each
-	Information &eleInfo = theResponses[numResponse]->getInformation();
-	const Vector &eleData = eleInfo.getData();
+	// Information &eleInfo = theResponses[numResponse]->getInformation();
+	// const Vector &eleData = eleInfo.getData();
 	numDbColumns += 1;
 
 	numResponse++;

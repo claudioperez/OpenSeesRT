@@ -34,7 +34,8 @@
 #include <Vector.h>
 #include <ID.h>
 #include <Matrix.h>
-#include <FE_Datastore.h>
+#include <Channel.h>
+// #include <FE_Datastore.h>
 #include <FEM_ObjectBroker.h>
 #include <MeshRegion.h>
 #include <TimeSeries.h>
@@ -44,7 +45,7 @@
 #include <DataFileStreamAdd.h>
 #include <XmlFileStream.h>
 #include <BinaryFileStream.h>
-#include <DatabaseStream.h>
+// #include <DatabaseStream.h>
 #include <TCP_Stream.h>
 
 #include <elementAPI.h>
@@ -69,7 +70,7 @@ OPS_ADD_RUNTIME_VPV(OPS_NodeRecorderRMS)
     const int STANDARD_STREAM = 0;
     const int DATA_STREAM = 1;
     const int XML_STREAM = 2;
-    const int DATABASE_STREAM = 3;
+    // const int DATABASE_STREAM = 3;
     const int BINARY_STREAM = 4;
     const int DATA_STREAM_CSV = 5;
     const int TCP_STREAM = 6;
@@ -985,7 +986,7 @@ NodeRecorderRMS::initialize(void)
   //
 
   char outputData[32];
-  char dataType[10];
+  char dataType[15];
 
   if (dataFlag == 0) {
     strcpy(dataType,"D");

@@ -8,6 +8,9 @@
 # (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
 #
 #==============================================================================
+# Claudio Perez
+#==============================================================================
+
 cmake_minimum_required(VERSION 3.16)
 project(OpenSees C CXX Fortran)
 
@@ -24,13 +27,15 @@ enable_testing()
 add_definitions(-DOPS_USE_RUNTIME) # -D_THREADS)
 
 # add Conan stuff for external dependencies
-# if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-#    message(">>> Using Conan")
-  #   set(USE_CONAN TRUE)
-  #   include(conan)
-  #   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  #   conan_basic_setup()
-  # endif()
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+   message(">>> Using Conan")
+   set(USE_CONAN TRUE)
+   # include(conan)
+   include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+   conan_basic_setup(TARGETS)
+   set(TCL_LIBRARIES "CONAN_PKG::tcl")
+   set(TCL_LIBRARY "CONAN_PKG::tcl")
+endif()
 
 # pseudo target modeling all exteral packages
 add_library(OPS_External_packages INTERFACE)
@@ -57,11 +62,11 @@ if (UNIX)
   if (APPLE)
    message(STATUS ">>> MacOS")
    add_compile_definitions(_LINUX _UNIX _TCL85)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
   else()
      message(STATUS ">>> LINUX")
      add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ffloat-store")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
   endif()
 
   add_compile_options(
@@ -73,9 +78,9 @@ if (UNIX)
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
-    include(OpenSeesDependenciesWin)
+  # include(OpenSeesDependenciesWin)
   # include(OpenSeesDependenciesDockCrossWin)
-    target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
+    # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
     add_compile_definitions(_WIN32)
     message(STATUS ">>> WIN32")
 endif()
@@ -150,12 +155,12 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/model
   ${OPS_SRC_DIR}/analysis/model/simple
   ${OPS_SRC_DIR}/analysis/numberer
+
   ${OPS_SRC_DIR}/api
   ${OPS_SRC_DIR}/api/tclCommandPackage
-# ${OPS_SRC_DIR}/api/tclCommandPackage/api
   ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/coordTransformation
-  ${OPS_SRC_DIR}/damage
+# ${OPS_SRC_DIR}/damage
   ${OPS_SRC_DIR}/database
   ${OPS_SRC_DIR}/domain/component
   ${OPS_SRC_DIR}/domain/constraints
@@ -175,7 +180,6 @@ include_directories(
   ${OPS_SRC_DIR}/element/UP-ucsd
   ${OPS_SRC_DIR}/element/UWelements
   ${OPS_SRC_DIR}/element/XMUelements
-  ${OPS_SRC_DIR}/element/zeroLength
   ${OPS_SRC_DIR}/graph/graph
   ${OPS_SRC_DIR}/graph/numberer
   ${OPS_SRC_DIR}/graph/partitioner
@@ -265,24 +269,10 @@ add_library(OpenSees         EXCLUDE_FROM_ALL)
 # Executables and final targets
 #------------------------------------------------------------------------------
 # Adding EXCLUDE_FROM_ALL prevents these from being made by default.
-# add_executable(OpenSeesTcl   EXCLUDE_FROM_ALL 
-#   ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-#   ${OPS_SRC_DIR}/tcl/tclMain.cpp
-# )
 
-add_executable(OpenSeesSP    EXCLUDE_FROM_ALL 
-  # ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-  # ${OPS_SRC_DIR}/tcl/tclMain.cpp
-)
+add_executable(OpenSeesSP    EXCLUDE_FROM_ALL )
+add_executable(OpenSeesMP    EXCLUDE_FROM_ALL )
 
-add_executable(OpenSeesMP    EXCLUDE_FROM_ALL 
-  # ${OPS_SRC_DIR}/tcl/tclAppInit.cpp
-  # ${OPS_SRC_DIR}/tcl/tclMain.cpp
-)
-
-
-# # Set selected executable to be built by default
-# set_target_properties(${OPS_FINAL_TARGET} PROPERTIES EXCLUDE_FROM_ALL OFF)
 
 # Add sources to targets
 add_subdirectory(${OPS_SRC_DIR})
@@ -295,6 +285,8 @@ target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
 message(">>> Numeric libs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
+
+target_link_libraries(OPS_Material PRIVATE ${TCL_LIBRARY})
 
 
 #----------------------------
@@ -323,8 +315,6 @@ target_link_libraries(G3
     OPS_Utilities
     graph
     coordTransformation
-    #OPS_Actor 
-    #OPS_ObjectBroker
     G3_ObjectBroker
     OPS_Numerics 
 )
@@ -358,41 +348,10 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   target_include_directories(OpenSees PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-#----------------------------
-# OpenSeesPy
-#----------------------------
-# add_compile_options(-fPIC)
-# target_include_directories(OpenSeesPy PRIVATE ${Python_INCLUDE_DIRS})
-# target_link_libraries(OpenSeesPy ${CMAKE_DL_LIBS})
-
-#----------------------------
-# OpenSeesMP
-#----------------------------
-# target_compile_definitions(OpenSeesMP PUBLIC _PARALLEL_PROCESSING)
-# target_link_libraries(OpenSeesMP OpenSees)
-
-
-#----------------------------
-# OpenSeesSP
-#----------------------------
-# target_compile_definitions(OpenSeesSP PUBLIC _PARALLEL_INTERPRETERS)
-# target_link_libraries(OpenSeesSP OpenSees)
-
 #==============================================================================
 #                            Apply Options
 #
 #==============================================================================
-#----------------------------
-# FMK
-#----------------------------
-if(FMK)
-    add_compile_definitions(
-        _HAVE_Damage2p    
-        _HAVE_PSUMAT
-        _HAVE_PML
-        _FILIP_LHNMYS
-    )    
-endif()
 
 #----------------------------
 # Extensions
@@ -438,11 +397,21 @@ if(OPS_Use_HDF5)
 endif()
 
 
-
-if (OPS_Use_Dev_Directories)
-  add_subdirectory("${PROJECT_SOURCE_DIR}/DEVELOPER/")
-endif()
-
 # Include test suite
 #add_subdirectory(EXAMPLES/)
+
+
+get_target_property(OPS_Material_COMPILE_OPTIONS OPS_Material COMPILE_OPTIONS)
+if(OPS_Material_COMPILE_OPTIONS)
+  string(REPLACE "-Wall" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
+  string(REPLACE "-Wextra" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
+  set_target_properties(OPS_Material PROPERTIES COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
+endif()
+
+get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
+if(OPS_Element_COMPILE_OPTIONS)
+  string(REPLACE "-Wall" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
+  string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
+  set_target_properties(OPS_Element PROPERTIES COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
+endif()
 

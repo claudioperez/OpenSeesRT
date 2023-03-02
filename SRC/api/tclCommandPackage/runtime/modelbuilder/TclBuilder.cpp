@@ -56,10 +56,6 @@
 
 #include <TimeSeries.h>
 #include <PathTimeSeriesThermal.h>                   //L.Jiang [SIF]
-#include <vector>                                    //L.Jiang [SIF]
-using std::vector;                                   // L.Jiang [SIF]
-#include <SimulationInformation.h>                   //L.Jiang [SIF]
-extern SimulationInformation simulationInfo;         // L.Jiang [SIF]
 extern const char *getInterpPWD(Tcl_Interp *interp); // L.Jiang [SIF]
 
 #ifdef OPSDEF_ELEMENT_BLOCKND

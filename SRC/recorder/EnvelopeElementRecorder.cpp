@@ -33,7 +33,8 @@
 #include <ID.h>
 #include <Matrix.h>
 #include <Response.h>
-#include <FE_Datastore.h>
+#include <Channel.h>
+// #include <FE_Datastore.h>
 #include <Information.h>
 #include <Message.h>
 #include <FEM_ObjectBroker.h>
@@ -44,7 +45,7 @@
 #include <DataFileStreamAdd.h>
 #include <XmlFileStream.h>
 #include <BinaryFileStream.h>
-#include <DatabaseStream.h>
+// #include <DatabaseStream.h>
 #include <TCP_Stream.h>
 
 #include <elementAPI.h>
@@ -70,7 +71,7 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeElementRecorder)
     const int STANDARD_STREAM = 0;
     const int DATA_STREAM = 1;
     const int XML_STREAM = 2;
-    const int DATABASE_STREAM = 3;
+    // const int DATABASE_STREAM = 3;
     const int BINARY_STREAM = 4;
     const int DATA_STREAM_CSV = 5;
     const int TCP_STREAM = 6;
@@ -456,14 +457,14 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
     int sizeData = currentData->Size();
     if (echoTimeFlag == false) {
 
-      bool writeIt = false;
+      // bool writeIt = false;
       if (first == true) {
 	for (int i=0; i<sizeData; i++) {
 	  (*data)(0,i) = (*currentData)(i);
 	  (*data)(1,i) = (*currentData)(i);
 	  (*data)(2,i) = fabs((*currentData)(i));
 	  first = false;
-	  writeIt = true;
+	  // writeIt = true;
 	} 
       } else {
 	for (int i=0; i<sizeData; i++) {
@@ -473,19 +474,19 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
 	    double absValue = fabs(value);
 	    if ((*data)(2,i) < absValue) 
 	      (*data)(2,i) = absValue;
-	    writeIt = true;
+	    // writeIt = true;
 	  } else if ((*data)(1,i) < value) {
 	    (*data)(1,i) = value;
 	    double absValue = fabs(value);
 	    if ((*data)(2,i) < absValue) 
 	      (*data)(2,i) = absValue;
-	    writeIt = true;
+	    // writeIt = true;
 	  }
 	}
       }
     } else {
       sizeData /= 2;
-      bool writeIt = false;
+      // bool writeIt = false;
       if (first == true) {
 	for (int i=0; i<sizeData; i++) {
 	  
@@ -496,7 +497,7 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
 	  (*data)(1,i*2+1) = (*currentData)(i);
 	  (*data)(2,i*2+1) = fabs((*currentData)(i));
 	  first = false;
-	  writeIt = true;
+	  // writeIt = true;
 	} 
       } else {
 	for (int i=0; i<sizeData; i++) {
@@ -509,7 +510,7 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
 	      (*data)(2,i*2+1) = absValue;
 	      (*data)(2,i*2) = timeStamp;
 	    }
-	    writeIt = true;
+	    // writeIt = true;
 	  } else if ((*data)(1,i*2+1) < value) {
 	    (*data)(1,i*2) = timeStamp;
 	    (*data)(1,i*2+1) = value;
@@ -518,7 +519,7 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
 	      (*data)(2,i*2) = timeStamp;
 	      (*data)(2,i*2+1) = absValue;
 	    }
-	    writeIt = true;
+	    // writeIt = true;
 	  }
 	}
       }

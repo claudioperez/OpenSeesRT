@@ -203,7 +203,7 @@ Information::Print(OPS_Stream &s, int flag)
     for (int i=0; i<theMatrix->noRows(); i++) {
       for (int j=0; j<theMatrix->noCols(); j++)
 	s <<  (*theMatrix)(i,j) << " ";
-	s << endln;
+      s << endln;
     }
   }
 
@@ -228,7 +228,7 @@ Information::Print(ofstream &s, int flag)
     for (int i=0; i<theMatrix->noRows(); i++) {
       for (int j=0; j<theMatrix->noCols(); j++)
 	s <<  (*theMatrix)(i,j) << " ";
-	s << endln;
+      s << endln;
     }
   }
   

@@ -27,6 +27,21 @@
 extern int OpenSeesAppInit(Tcl_Interp *interp);
 extern void G3_InitTclSequentialAPI(Tcl_Interp* interp);
 extern int init_g3_tcl_utils(Tcl_Interp*);
+
+//
+// Return the current OpenSees version
+//
+static int
+version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+  char buffer[20];
+
+  sprintf(buffer, "%s", OPENSEESRT_VERSION);
+  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+
+  return TCL_OK;
+}
+
 //
 extern "C" {
 //
@@ -58,6 +73,7 @@ Openseesrt_Init(Tcl_Interp *interp)
   Tcl_SetVar(interp, "opensees::copyright", copyright,      TCL_LEAVE_ERR_MSG);
   Tcl_SetVar(interp, "opensees::license",   license,        TCL_LEAVE_ERR_MSG);
   Tcl_SetVar(interp, "opensees::banner",    unicode_banner, TCL_LEAVE_ERR_MSG);
+  Tcl_CreateCommand(interp, "version",      version,      nullptr, nullptr);
   return TCL_OK;
 }
 

@@ -42,7 +42,6 @@ extern bool builtModel;
 extern FE_Datastore *theDatabase;
 
 static Tcl_Interp *theInterp       = nullptr;
-static Domain     *theDomain       = nullptr;
 static TclBuilder *theModelBuilder = nullptr;
 
 static TCL_Char **currentArgv      = nullptr;

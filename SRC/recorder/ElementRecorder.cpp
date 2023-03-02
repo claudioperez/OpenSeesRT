@@ -37,7 +37,8 @@
 #include <ID.h>
 #include <Matrix.h>
 #include <Response.h>
-#include <FE_Datastore.h>
+#include <Channel.h>
+// #include <FE_Datastore.h>
 #include <OPS_Globals.h>
 #include <Message.h>
 #include <Channel.h>
@@ -49,7 +50,7 @@
 #include <DataFileStreamAdd.h>
 #include <XmlFileStream.h>
 #include <BinaryFileStream.h>
-#include <DatabaseStream.h>
+// #include <DatabaseStream.h>
 #include <TCP_Stream.h>
 
 #include <elementAPI.h>
@@ -73,7 +74,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorder)
     const int STANDARD_STREAM = 0;
     const int DATA_STREAM = 1;
     const int XML_STREAM = 2;
-    const int DATABASE_STREAM = 3;
+    // const int DATABASE_STREAM = 3;
     const int BINARY_STREAM = 4;
     const int DATA_STREAM_CSV = 5;
     const int TCP_STREAM = 6;
@@ -94,9 +95,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorder)
 
     ID elements(0, 6);
     ID dofs(0, 6);
-
-    char **argv = 0;
-    
+ 
     while (OPS_GetNumRemainingInputArgs() > 0) {
 
         const char* option = OPS_GetString();
@@ -249,8 +248,8 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorder)
             nargrem = 1 + OPS_GetNumRemainingInputArgs();
             data = new const char *[nargrem];
             data[0] = option;
-	    //argv = new char*[nargrem];
-	    char buffer[128];
+
+	    // char buffer[128];
             for (int i = 1; i < nargrem; i++) {
 	      data[i] = new char[128];
 

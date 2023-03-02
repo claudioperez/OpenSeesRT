@@ -54,9 +54,7 @@
 
 #include <string.h>
 
-#include <SimulationInformation.h>
 
-extern SimulationInformation simulationInfo;
 
 LoadPattern *theTclLoadPattern = 0;
 // MultiSupportPattern *theTclMultiSupportPattern = 0;

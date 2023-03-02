@@ -44,7 +44,7 @@
 #include <ElementResponse.h>
 #include <UniaxialMaterial.h>
 #include <Joint2D.h>
-#include <DamageModel.h>
+#include <damage/DamageModel.h>
 #include <elementAPI.h>
 
 Matrix Joint2D::K(16, 16);

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2006-11-08 20:06:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/utility/StringContainer.h,v $
-                                                                        
+//
 // Written: Jade Cohen
 // Created: 19/05
 //

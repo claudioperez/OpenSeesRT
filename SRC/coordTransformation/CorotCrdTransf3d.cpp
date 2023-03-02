@@ -167,10 +167,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
         Tp(4, 5) = -1;
         Tp(5, 0) = -1;
         Tp(5, 3) =  1;
-    }
-    
-    //opserr << "Tp: " << Tp;
-    
+    } 
 }  
 
 
@@ -207,9 +204,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
         Tp(4, 5) = -1;
         Tp(5, 0) = -1;
 	Tp(5, 3) =  1;
-    }
-    
-    //opserr << "Tp: " << Tp;
+    }    
 }
 
 
@@ -351,7 +346,8 @@ CorotCrdTransf3d::update(void)
 {       
     int i, j, k;
     
-    /********* OLD REMO - REPLACED BELOW TO FIX BUG ***************
+    /********* OLD REMO - REPLACED BELOW TO FIX BUG ***************/
+#if 0
     // determine global displacement increments from last iteration
     const Vector &dispIncrI = nodeIPtr->getIncrDeltaDisp();
     const Vector &dispIncrJ = nodeJPtr->getIncrDeltaDisp();
@@ -368,7 +364,8 @@ CorotCrdTransf3d::update(void)
         dAlphaI(k) = dispIncrI(k+3);
         dAlphaJ(k) = dispIncrJ(k+3);
         }   
-    **************************************************************/
+#endif
+    /**************************************************************/
     
     // determine global displacement increments from last iteration
     static Vector dispI(6);
@@ -427,129 +424,129 @@ CorotCrdTransf3d::update(void)
             for (k = 0; k < 3; k++) 
                 dRgamma(i,j) += RJ(i,k) * RI(j,k);
             
-            gammaq = this->getQuaternionFromRotMatrix(dRgamma);    // pseudo-vector for node J
-            gammaw = this->getTangScaledPseudoVectorFromQuaternion(gammaq);
-            
-            // opserr << "dRgamma: " << dRgamma;
-            // opserr << "gammaq: " << gammaq << endln;
-            // opserr << "gammaw: " << gammaw << endln;
-            
-            dRgamma = this->getRotMatrixFromTangScaledPseudoVector(gammaw/2);
-            
-            Rbar.addMatrixProduct(0.0, dRgamma, RI, 1.0);
-            
-            // compute the base vectors e1, e2, e3
-            static Vector e1(3);
-            static Vector e2(3);
-            static Vector e3(3);
-            
-            // relative translation displacements
-            static Vector dJI(3);    
-            for (int kk = 0; kk < 3; kk++)
-                dJI(kk) = dispJ(kk) - dispI(kk);
-            
-            // element projection
-            static Vector xJI(3);
-            xJI = nodeJPtr->getCrds() - nodeIPtr->getCrds();
-            
-            if (nodeIInitialDisp != 0) {
-                xJI(0) -= nodeIInitialDisp[0];
-                xJI(1) -= nodeIInitialDisp[1];
-                xJI(2) -= nodeIInitialDisp[2];
-            }
-            
-            if (nodeJInitialDisp != 0) {
-                xJI(0) += nodeJInitialDisp[0];
-                xJI(1) += nodeJInitialDisp[1];
-                xJI(2) += nodeJInitialDisp[2];
-            }
-            
-            static Vector dx(3);
-            // dx = xJI + dJI;  
-            dx = xJI;
-            dx.addVector (1.0, dJI, 1.0);
-            
-            // calculate the deformed element length
-            Ln = dx.Norm();
-            
-            
-            if (Ln == 0.0) 
-            {
-                opserr << "\nCorotCrdTransf3d::update: 0 deformed length\n";
-                return -2;  
-            }
-            
-            // compute the base vector e1
-            e1 = dx/Ln;
-            
-            // 'rotate' the mean rotation matrix Rbar on to e1 to 
-            // obtain e2 and e3 (using the 'mid-point' procedure)
-            static Vector r1(3);
-            static Vector r2(3);
-            static Vector r3(3);
-            
-            for (k = 0; k < 3; k ++)
-            {
-                r1(k) = Rbar(k,0);
-                r2(k) = Rbar(k,1);
-                r3(k) = Rbar(k,2);
-            }
-            
-            //    e2 = r2 - (e1 + r1)*((r2^ e1)*0.5);
-            // e3 = r3 - (e1 + r1)*((r3^ e1)*0.5);
-            
-            static Vector tmp(3);
-            tmp = e1;
-            tmp += r1;
-            
-            e2=tmp;
-            e3=tmp;
-            
-            e2 *= (r2^e1)*0.5;
-            e2.addVector(-1.0,  r2, 1.0);
-            
-            // e2 = r2 - (e1 + r1)*((r2^ e1)*0.5);
-            
-            e3 *= (r3^e1)*0.5;
-            e3.addVector(-1.0,  r3, 1.0);
-            
-            // compute the basic rotations
-            static Vector rI1(3), rI2(3), rI3(3);
-            static Vector rJ1(3), rJ2(3), rJ3(3);
-            
-            for (k = 0; k < 3; k ++)
-            {
-                e(k,0) = e1(k);
-                e(k,1) = e2(k);
-                e(k,2) = e3(k);
-                
-                rI1(k) = RI(k,0);
-                rI2(k) = RI(k,1);
-                rI3(k) = RI(k,2);
-                
-                rJ1(k) = RJ(k,0);
-                rJ2(k) = RJ(k,1);
-                rJ3(k) = RJ(k,2);
-            }
-            
-            // compute the basic displacements
-            ulpr = ul;
-            ul(0) = asin (((rI2^ e3) - (rI3^ e2))*0.5);
-            ul(1) = asin (((rI1^ e2) - (rI2^ e1))*0.5);
-            ul(2) = asin (((rI1^ e3) - (rI3^ e1))*0.5);
-            ul(3) = asin (((rJ2^ e3) - (rJ3^ e2))*0.5);
-            ul(4) = asin (((rJ1^ e2) - (rJ2^ e1))*0.5);
-            ul(5) = asin (((rJ1^ e3) - (rJ3^ e1))*0.5);		   
-            
-            // ul = Ln - L;
-            // ul(6) = 2 * ((xJI + dJI/2)^ dJI) / (Ln + L);  //mid-point formula   
-            xJI.addVector(1.0, dJI, 0.5);
-            ul(6) = 2 * (xJI ^ dJI) / (Ln + L);  //mid-point formula   
-            
-            // compute the transformation matrix
-            this->compTransfMatrixBasicGlobal();
-            
-            return 0;
+    gammaq = this->getQuaternionFromRotMatrix(dRgamma);    // pseudo-vector for node J
+    gammaw = this->getTangScaledPseudoVectorFromQuaternion(gammaq);
+    
+    // opserr << "dRgamma: " << dRgamma;
+    // opserr << "gammaq: " << gammaq << endln;
+    // opserr << "gammaw: " << gammaw << endln;
+    
+    dRgamma = this->getRotMatrixFromTangScaledPseudoVector(gammaw/2);
+    
+    Rbar.addMatrixProduct(0.0, dRgamma, RI, 1.0);
+    
+    // compute the base vectors e1, e2, e3
+    static Vector e1(3);
+    static Vector e2(3);
+    static Vector e3(3);
+    
+    // relative translation displacements
+    static Vector dJI(3);    
+    for (int kk = 0; kk < 3; kk++)
+        dJI(kk) = dispJ(kk) - dispI(kk);
+    
+    // element projection
+    static Vector xJI(3);
+    xJI = nodeJPtr->getCrds() - nodeIPtr->getCrds();
+    
+    if (nodeIInitialDisp != 0) {
+        xJI(0) -= nodeIInitialDisp[0];
+        xJI(1) -= nodeIInitialDisp[1];
+        xJI(2) -= nodeIInitialDisp[2];
+    }
+    
+    if (nodeJInitialDisp != 0) {
+        xJI(0) += nodeJInitialDisp[0];
+        xJI(1) += nodeJInitialDisp[1];
+        xJI(2) += nodeJInitialDisp[2];
+    }
+    
+    static Vector dx(3);
+    // dx = xJI + dJI;  
+    dx = xJI;
+    dx.addVector (1.0, dJI, 1.0);
+    
+    // calculate the deformed element length
+    Ln = dx.Norm();
+    
+    
+    if (Ln == 0.0) 
+    {
+        opserr << "\nCorotCrdTransf3d::update: 0 deformed length\n";
+        return -2;  
+    }
+    
+    // compute the base vector e1
+    e1 = dx/Ln;
+    
+    // 'rotate' the mean rotation matrix Rbar on to e1 to 
+    // obtain e2 and e3 (using the 'mid-point' procedure)
+    static Vector r1(3);
+    static Vector r2(3);
+    static Vector r3(3);
+    
+    for (k = 0; k < 3; k ++)
+    {
+        r1(k) = Rbar(k,0);
+        r2(k) = Rbar(k,1);
+        r3(k) = Rbar(k,2);
+    }
+    
+    //    e2 = r2 - (e1 + r1)*((r2^ e1)*0.5);
+    // e3 = r3 - (e1 + r1)*((r3^ e1)*0.5);
+    
+    static Vector tmp(3);
+    tmp = e1;
+    tmp += r1;
+    
+    e2=tmp;
+    e3=tmp;
+    
+    e2 *= (r2^e1)*0.5;
+    e2.addVector(-1.0,  r2, 1.0);
+    
+    // e2 = r2 - (e1 + r1)*((r2^ e1)*0.5);
+    
+    e3 *= (r3^e1)*0.5;
+    e3.addVector(-1.0,  r3, 1.0);
+    
+    // compute the basic rotations
+    static Vector rI1(3), rI2(3), rI3(3);
+    static Vector rJ1(3), rJ2(3), rJ3(3);
+    
+    for (k = 0; k < 3; k ++)
+    {
+        e(k,0) = e1(k);
+        e(k,1) = e2(k);
+        e(k,2) = e3(k);
+        
+        rI1(k) = RI(k,0);
+        rI2(k) = RI(k,1);
+        rI3(k) = RI(k,2);
+        
+        rJ1(k) = RJ(k,0);
+        rJ2(k) = RJ(k,1);
+        rJ3(k) = RJ(k,2);
+    }
+    
+    // compute the basic displacements
+    ulpr = ul;
+    ul(0) = asin (((rI2^ e3) - (rI3^ e2))*0.5);
+    ul(1) = asin (((rI1^ e2) - (rI2^ e1))*0.5);
+    ul(2) = asin (((rI1^ e3) - (rI3^ e1))*0.5);
+    ul(3) = asin (((rJ2^ e3) - (rJ3^ e2))*0.5);
+    ul(4) = asin (((rJ1^ e2) - (rJ2^ e1))*0.5);
+    ul(5) = asin (((rJ1^ e3) - (rJ3^ e1))*0.5);		   
+    
+    // ul = Ln - L;
+    // ul(6) = 2 * ((xJI + dJI/2)^ dJI) / (Ln + L);  //mid-point formula   
+    xJI.addVector(1.0, dJI, 0.5);
+    ul(6) = 2 * (xJI ^ dJI) / (Ln + L);  //mid-point formula   
+    
+    // compute the transformation matrix
+    this->compTransfMatrixBasicGlobal();
+    
+    return 0;
 }
 
 
@@ -596,160 +593,160 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
         for (j = 0; j < 3; j++)
             A(i,j) = (I(i,j) - e1(i)*e1(j))/Ln;
         
-        Lr2 = this->getLMatrix (r2);
-        Lr3 = this->getLMatrix (r3);
+    Lr2 = this->getLMatrix (r2);
+    Lr3 = this->getLMatrix (r3);
+    
+    static Matrix Sr1(3,3), Sr2(3,3), Sr3(3,3);
+    static Vector Se(3), At(3);
         
-        static Matrix Sr1(3,3), Sr2(3,3), Sr3(3,3);
-        static Vector Se(3), At(3);
+    //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
+    //   T2 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
+    //   T3 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
+    //  
+    //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
+    //   T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
+    //   T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
+    
+    T.Zero();
+    
+    Sr1 = this->getSkewSymMatrix(rI1);
+    Sr2 = this->getSkewSymMatrix(rI2);
+    Sr3 = this->getSkewSymMatrix(rI3);
+    
+    //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
+    
+    Se.addMatrixVector(0.0, Sr3, e2, -1.0);     // (-S(rI3)*e2 + S(rI2)*e3)
+    Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
+    
+    for (i = 0; i < 3; i++)
+        T(0,i+3) =  Se(i);
+    
+    //   T2 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
+    
+    At.addMatrixVector(0.0, A, rI2, 1.0);   
+    
+    Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rI2)*e1 + S(rI1)*e2)'
+    Se.addMatrixVector(1.0, Sr1, e2,  1.0);
+    
+    for (i = 0; i < 3; i++)
+    {
+        T(1,i  ) =  At(i);  
+        T(1,i+3) =  Se(i);
+        T(1,i+6) = -At(i);
+    }
+    
+    //   T3 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
+    
+    At.addMatrixVector(0.0, A, rI3, 1.0);   
+    
+    Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rI3)*e1 + S(rI1)*e3)
+    Se.addMatrixVector(1.0, Sr1, e3,  1.0);
+    
+    for (i = 0; i < 3; i++)
+    {
+        T(2,i  ) =  At(i);  
+        T(2,i+3) =  Se(i);
+        T(2,i+6) = -At(i);
+    }
+    
+    Sr1 = this->getSkewSymMatrix(rJ1);
+    Sr2 = this->getSkewSymMatrix(rJ2);
+    Sr3 = this->getSkewSymMatrix(rJ3);
+    
+    //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
+    
+    Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
+    Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
+    
+    for (i = 0; i < 3; i++)
+        T(3,i+9) =  Se(i);
+    
+    //   T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
+    
+    At.addMatrixVector(0.0, A, rJ2, 1.0);   
+    
+    Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rJ2)*e1 + S(rJ1)*e2)
+    Se.addMatrixVector(1.0, Sr1, e2,  1.0);
+    
+    for (i = 0; i < 3; i++)
+    {
+        T(4,i  ) =  At(i);  
+        T(4,i+6) = -At(i);
+        T(4,i+9) =  Se(i);
+    }
+    
+    //   T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
+    
+    At.addMatrixVector(0.0, A, rJ3, 1.0);   
+    
+    Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rJ3)*e1 + S(rJ1)*e3)
+    Se.addMatrixVector(1.0, Sr1, e3,  1.0);
+    
+    for (i = 0; i < 3; i++)
+    {
+        T(5,i  ) =  At(i);  
+        T(5,i+6) = -At(i);
+        T(5,i+9) =  Se(i);
+    }
+    
+    // setup tranformation matrix
+    static Vector Lr(12);
+    
+    // T(:,1) += Lr3*rI2 - Lr2*rI3;
+    // T(:,2) +=           Lr2*rI1;
+    // T(:,3) += Lr3*rI1          ;
+    
+    // T(:,4) += Lr3*rJ2 - Lr2*rJ3;
+    // T(:,5) += Lr2*rJ1          ;      // ?????? check sign
+    // T(:,6) += Lr3*rJ1          ;      // ?????? check sign
+    
+    Lr.addMatrixVector(0.0, Lr3, rI2,  1.0);  //  T(:,1) += Lr3*rI2 - Lr2*rI3 
+    Lr.addMatrixVector(1.0, Lr2, rI3, -1.0);
+    
+    for (i = 0; i < 12; i++)
+        T(0,i) += Lr(i);
+    
+    Lr.addMatrixVector(0.0, Lr2, rI1,  1.0);  //  T(:,2) +=           Lr2*rI1
+    
+    for (i = 0; i < 12; i++)
+        T(1,i) += Lr(i);
+    
+    Lr.addMatrixVector(0.0, Lr3, rI1,  1.0);  //  T(:,3) += Lr3*rI1 
+    
+    for (i = 0; i < 12; i++)
+        T(2,i) += Lr(i);
+    
+    Lr.addMatrixVector(0.0, Lr3, rJ2,  1.0);  //  T(:,4) += Lr3*rJ2 - Lr2*rJ3;
+    Lr.addMatrixVector(1.0, Lr2, rJ3, -1.0);
+    
+    for (i = 0; i < 12; i++)
+        T(3,i) += Lr(i);
+    
+    Lr.addMatrixVector(0.0, Lr2, rJ1,  1.0);  //  T(:,5) += Lr2*rJ1   
+    
+    for (i = 0; i < 12; i++)
+        T(4,i) += Lr(i);
+    
+    Lr.addMatrixVector(0.0, Lr3, rJ1,  1.0);  //   T(:,6) += Lr3*rJ1
+    
+    for (i = 0; i < 12; i++)
+        T(5,i) += Lr(i);
+    
+    double c;
+    for (j = 0; j < 6; j++)
+    {
+        c = 2 * cos(ul(j));
         
-        //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
-        //   T2 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
-        //   T3 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
-        //  
-        //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
-        //   T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
-        //   T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
-        
-        T.Zero();
-        
-        Sr1 = this->getSkewSymMatrix(rI1);
-        Sr2 = this->getSkewSymMatrix(rI2);
-        Sr3 = this->getSkewSymMatrix(rI3);
-        
-        //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
-        
-        Se.addMatrixVector(0.0, Sr3, e2, -1.0);     // (-S(rI3)*e2 + S(rI2)*e3)
-        Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
-        
-        for (i = 0; i < 3; i++)
-            T(0,i+3) =  Se(i);
-        
-        //   T2 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
-        
-        At.addMatrixVector(0.0, A, rI2, 1.0);   
-        
-        Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rI2)*e1 + S(rI1)*e2)'
-        Se.addMatrixVector(1.0, Sr1, e2,  1.0);
-        
-        for (i = 0; i < 3; i++)
-        {
-            T(1,i  ) =  At(i);  
-            T(1,i+3) =  Se(i);
-            T(1,i+6) = -At(i);
-        }
-        
-        //   T3 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
-        
-        At.addMatrixVector(0.0, A, rI3, 1.0);   
-        
-        Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rI3)*e1 + S(rI1)*e3)
-        Se.addMatrixVector(1.0, Sr1, e3,  1.0);
-        
-        for (i = 0; i < 3; i++)
-        {
-            T(2,i  ) =  At(i);  
-            T(2,i+3) =  Se(i);
-            T(2,i+6) = -At(i);
-        }
-        
-        Sr1 = this->getSkewSymMatrix(rJ1);
-        Sr2 = this->getSkewSymMatrix(rJ2);
-        Sr3 = this->getSkewSymMatrix(rJ3);
-        
-        //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
-        
-        Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
-        Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
-        
-        for (i = 0; i < 3; i++)
-            T(3,i+9) =  Se(i);
-        
-        //   T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
-        
-        At.addMatrixVector(0.0, A, rJ2, 1.0);   
-        
-        Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rJ2)*e1 + S(rJ1)*e2)
-        Se.addMatrixVector(1.0, Sr1, e2,  1.0);
-        
-        for (i = 0; i < 3; i++)
-        {
-            T(4,i  ) =  At(i);  
-            T(4,i+6) = -At(i);
-            T(4,i+9) =  Se(i);
-        }
-        
-        //   T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
-        
-        At.addMatrixVector(0.0, A, rJ3, 1.0);   
-        
-        Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rJ3)*e1 + S(rJ1)*e3)
-        Se.addMatrixVector(1.0, Sr1, e3,  1.0);
-        
-        for (i = 0; i < 3; i++)
-        {
-            T(5,i  ) =  At(i);  
-            T(5,i+6) = -At(i);
-            T(5,i+9) =  Se(i);
-        }
-        
-        // setup tranformation matrix
-        static Vector Lr(12);
-        
-        // T(:,1) += Lr3*rI2 - Lr2*rI3;
-        // T(:,2) +=           Lr2*rI1;
-        // T(:,3) += Lr3*rI1          ;
-        
-        // T(:,4) += Lr3*rJ2 - Lr2*rJ3;
-        // T(:,5) += Lr2*rJ1          ;      // ?????? check sign
-        // T(:,6) += Lr3*rJ1          ;      // ?????? check sign
-        
-        Lr.addMatrixVector(0.0, Lr3, rI2,  1.0);  //  T(:,1) += Lr3*rI2 - Lr2*rI3 
-        Lr.addMatrixVector(1.0, Lr2, rI3, -1.0);
-        
-        for (i = 0; i < 12; i++)
-            T(0,i) += Lr(i);
-        
-        Lr.addMatrixVector(0.0, Lr2, rI1,  1.0);  //  T(:,2) +=           Lr2*rI1
-        
-        for (i = 0; i < 12; i++)
-            T(1,i) += Lr(i);
-        
-        Lr.addMatrixVector(0.0, Lr3, rI1,  1.0);  //  T(:,3) += Lr3*rI1 
-        
-        for (i = 0; i < 12; i++)
-            T(2,i) += Lr(i);
-        
-        Lr.addMatrixVector(0.0, Lr3, rJ2,  1.0);  //  T(:,4) += Lr3*rJ2 - Lr2*rJ3;
-        Lr.addMatrixVector(1.0, Lr2, rJ3, -1.0);
-        
-        for (i = 0; i < 12; i++)
-            T(3,i) += Lr(i);
-        
-        Lr.addMatrixVector(0.0, Lr2, rJ1,  1.0);  //  T(:,5) += Lr2*rJ1   
-        
-        for (i = 0; i < 12; i++)
-            T(4,i) += Lr(i);
-        
-        Lr.addMatrixVector(0.0, Lr3, rJ1,  1.0);  //   T(:,6) += Lr3*rJ1
-        
-        for (i = 0; i < 12; i++)
-            T(5,i) += Lr(i);
-        
-        double c;
-        for (j = 0; j < 6; j++)
-        {
-            c = 2 * cos(ul(j));
-            
-            for (i = 0; i < 12; i++) 
-                T(j,i) /= c;
-        }
-        
-        // T(:,7) = [-e1' O' e1' O']';
-        for (i = 0; i < 3; i++)
-        {
-            T(6,i  ) = -e1(i);
-            T(6,i+6) =  e1(i);
-        }      
+        for (i = 0; i < 12; i++) 
+            T(j,i) /= c;
+    }
+    
+    // T(:,7) = [-e1' O' e1' O']';
+    for (i = 0; i < 3; i++)
+    {
+        T(6,i  ) = -e1(i);
+        T(6,i+6) =  e1(i);
+    }      
 }
 
 
@@ -797,207 +794,188 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
             A(i,j) = (I(i,j) - e1(i)*e1(j))/Ln;
         
         
-            /*
-            opserr << "r1: " << r1;
-            opserr << "r2: " << r2;
-            opserr << "r3: " << r3;
-            opserr << "e1: " << e1;
-            opserr << "e2: " << e2;
-            opserr << "e3: " << e3;
-            opserr << "rI1: " << rI1;
-            opserr << "rI2: " << rI2;
-            opserr << "rI3: " << rI3;
-            opserr << "rJ1: " << rJ1;
-            opserr << "rJ2: " << rJ2;
-            opserr << "rJ3: " << rJ3;
-            opserr << "A: " << A;
-        */
-        
-        Lr2 = this->getLMatrix (r2);
-        Lr3 = this->getLMatrix (r3);
-        
-        // opserr << "Lr2: " << Lr2;
-        // opserr << "Lr3: " << Lr3;
-        
-        static Matrix Sr1(3,3), Sr2(3,3), Sr3(3,3);
-        static Vector Se(3), At(3);
-        
-        
-        // O = zeros(3,1);
-        // hI1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
-        // hI2 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
-        // hI3 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
-        // hJ1 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
-        // hJ2 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
-        // hJ3 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
-        
-        static Vector hI1(12);
-        static Vector hI2(12);
-        static Vector hI3(12);
-        static Vector hJ1(12);
-        static Vector hJ2(12);
-        static Vector hJ3(12);
-        
-        Sr1 = this->getSkewSymMatrix(rI1);
-        Sr2 = this->getSkewSymMatrix(rI2);
-        Sr3 = this->getSkewSymMatrix(rI3);
-        
-        // hI1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
-        Se.addMatrixVector(0.0, Sr3, e2, -1.0);     // (-S(rI3)*e2 + S(rI2)*e3)
-        Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
-        for (i=0; i<3; i++)
-            hI1(i+3) = Se(i);
-        
-        // hI2 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
-        At.addMatrixVector(0.0, A, rI3, 1.0);   
-        Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rI3)*e1 + S(rI1)*e3)
-        Se.addMatrixVector(1.0, Sr1, e3,  1.0);
-        
-        for (i = 0; i < 3; i++) {
-            hI2(i  ) =  At(i);  
-            hI2(i+3) =  Se(i);
-            hI2(i+6) = -At(i);
-        }
-        
-        // hI3 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
-        At.addMatrixVector(0.0, A, rI2, 1.0);   
-        Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rI2)*e1 + S(rI1)*e2)'
-        Se.addMatrixVector(1.0, Sr1, e2,  1.0);
-        
-        for (i = 0; i < 3; i++) {
-            hI3(i  ) =  At(i);  
-            hI3(i+3) =  Se(i);
-            hI3(i+6) = -At(i);
-        }
-        
-        Sr1 = this->getSkewSymMatrix(rJ1);
-        Sr2 = this->getSkewSymMatrix(rJ2);
-        Sr3 = this->getSkewSymMatrix(rJ3);
-        
-        // hJ1 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';  
-        Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
-        Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
-        for (i = 0; i < 3; i++)
-            hJ1(i+9) =  Se(i);
-        
-        
-        // hJ2 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
-        At.addMatrixVector(0.0, A, rJ3, 1.0);   
-        Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rJ3)*e1 + S(rJ1)*e3)
-        Se.addMatrixVector(1.0, Sr1, e3,  1.0);
-        
-        for (i = 0; i < 3; i++) {
-            hJ2(i  ) =  At(i);  
-            hJ2(i+6) = -At(i);
-            hJ2(i+9) =  Se(i);
-        }
-        
-        // hJ3 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';   
-        At.addMatrixVector(0.0, A, rJ2, 1.0);   
-        Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rJ2)*e1 + S(rJ1)*e2)
-        Se.addMatrixVector(1.0, Sr1, e2,  1.0);
-        
-        for (i = 0; i < 3; i++) {
-            hJ3(i  ) =  At(i);  
-            hJ3(i+6) = -At(i);
-            hJ3(i+9) =  Se(i);
-        }
-        
-        /*
-        opserr << "hI1: " << hI1;
-        opserr << "hI2: " << hI2;
-        opserr << "hI3: " << hI3;
-        opserr << "hj1: " << hJ1;
-        opserr << "hj2: " << hJ2;
-        opserr << "hj3: " << hJ3;
-        */
-        
-        // f1 =  [-e1' O' e1' O'];
-        // f2  = ( Lr2*rI1 + hI3)'./(2*(cos(thetalI(3))));
-        // f3  = ( Lr2*rJ1 + hJ3)'./(2*(cos(thetalJ(3))));
-        // f4  = (-Lr3*rI1 - hI2)'./(2*(cos(thetalI(2))));
-        // f5  = (-Lr3*rJ1 - hJ2)'./(2*(cos(thetalJ(2))));
-        // f6I = ( Lr3*rI2 - Lr2*rI3 + hI1)'./(2*(cos(thetalI(1))));
-        // f6J = ( Lr3*rJ2 - Lr2*rJ3 + hJ1)'./(2*(cos(thetalJ(1))));
-        
-        // F = [f1;
-        //     f2;
-        //     f3;
-        //     f4;
-        //     f5;
-        //     f6J-f6I];      
-        
-        // T = F'
-        T.Zero();
-        static Vector Lr(12);
-        
-        // f1 =  [-e1' O' e1' O'];
-        for (i=0; i<3; i++) {
-            T(i  ,0) = -e1(i);
-            T(i+3,0) = e1(i);
-        }
-        
-        static Vector thetaI(3);
-        static Vector thetaJ(3);
-        
-        
-        thetaI(0) = ul(0);
-        thetaI(1) = -ul(2);
-        thetaI(2) = ul(1);
-        
-        thetaJ(0) = ul(3);
-        thetaJ(1) = -ul(5);
-        thetaJ(2) = ul(4);
-        
-        
-        opserr << "thetaI: " << thetaI;
-        opserr << "thetaJ: " << thetaJ;
-        
-        double c;
-        
-        // f2  = ( Lr2*rI1 + hI3)'./(2*(cos(thetalI(3))));
-        Lr.addMatrixVector(0.0, Lr2, rI1,  1.0);  
-        Lr += hI3;
-        c = 1.0/(2.0*cos(thetaI(2)));
-        for (i=0; i<12; i++)
-            T(1,i) = Lr(i)*c;
-        
-        // f3  = ( Lr2*rJ1 + hJ3)'./(2*(cos(thetalJ(3))));
-        Lr.addMatrixVector(0.0, Lr2, rJ1,  1.0);  
-        Lr += hJ3;
-        c = 1.0/(2.0*cos(thetaJ(2)));   
-        for (i=0; i<12; i++)
-            T(2,i) = Lr(i)*c;
-        
-        // f4  = (-Lr3*rI1 - hI2)'./(2*(cos(thetalI(2))));
-        Lr.addMatrixVector(0.0, Lr3, rI1,  -1.0);  
-        Lr -= hI2;
-        c = 1.0/(2.0*cos(thetaI(1)));   
-        for (i=0; i<12; i++)
-            T(3,i) = Lr(i)*c;
-        
-        // f5  = (-Lr3*rJ1 - hJ2)'./(2*(cos(thetalJ(2))));
-        Lr.addMatrixVector(0.0, Lr3, rJ1,  -1.0);  
-        Lr -= hJ2;
-        c = 1.0/(2.0*cos(thetaJ(1)));   
-        for (i=0; i<12; i++)
-            T(4,i) = Lr(i)*c;
-        
-        // f6I = ( Lr3*rI2 - Lr2*rI3 + hI1)'./(2*(cos(thetalI(1))));
-        Lr.addMatrixVector(0.0, Lr3, rI2,  1.0);
-        Lr.addMatrixVector(1.0, Lr2, rI3, -1.0);
-        Lr += hI1;
-        c = 1.0/(2.0*cos(thetaI(0)));   
-        for (i=0; i<12; i++)
-            T(5,i) = Lr(i)*c;
-        
-        // f6J = ( Lr3*rJ2 - Lr2*rJ3 + hJ1)'./(2*(cos(thetalJ(1))));
-        Lr.addMatrixVector(0.0, Lr3, rJ2,  1.0);
-        Lr.addMatrixVector(1.0, Lr2, rJ3, -1.0);
-        Lr += hJ1;
-        c = 1.0/(2.0*cos(thetaI(0)));   
-        for (i=0; i<12; i++)
-            T(6,i) -= Lr(i)*c;
+    
+    Lr2 = this->getLMatrix (r2);
+    Lr3 = this->getLMatrix (r3);
+     
+    static Matrix Sr1(3,3), Sr2(3,3), Sr3(3,3);
+    static Vector Se(3), At(3); 
+    
+    // O = zeros(3,1);
+    // hI1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
+    // hI2 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
+    // hI3 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
+    // hJ1 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
+    // hJ2 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
+    // hJ3 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
+    
+    static Vector hI1(12);
+    static Vector hI2(12);
+    static Vector hI3(12);
+    static Vector hJ1(12);
+    static Vector hJ2(12);
+    static Vector hJ3(12);
+    
+    Sr1 = this->getSkewSymMatrix(rI1);
+    Sr2 = this->getSkewSymMatrix(rI2);
+    Sr3 = this->getSkewSymMatrix(rI3);
+    
+    // hI1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
+    Se.addMatrixVector(0.0, Sr3, e2, -1.0);     // (-S(rI3)*e2 + S(rI2)*e3)
+    Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
+    for (i=0; i<3; i++)
+        hI1(i+3) = Se(i);
+    
+    // hI2 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
+    At.addMatrixVector(0.0, A, rI3, 1.0);   
+    Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rI3)*e1 + S(rI1)*e3)
+    Se.addMatrixVector(1.0, Sr1, e3,  1.0);
+    
+    for (i = 0; i < 3; i++) {
+        hI2(i  ) =  At(i);  
+        hI2(i+3) =  Se(i);
+        hI2(i+6) = -At(i);
+    }
+    
+    // hI3 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
+    At.addMatrixVector(0.0, A, rI2, 1.0);   
+    Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rI2)*e1 + S(rI1)*e2)'
+    Se.addMatrixVector(1.0, Sr1, e2,  1.0);
+    
+    for (i = 0; i < 3; i++) {
+        hI3(i  ) =  At(i);  
+        hI3(i+3) =  Se(i);
+        hI3(i+6) = -At(i);
+    }
+    
+    Sr1 = this->getSkewSymMatrix(rJ1);
+    Sr2 = this->getSkewSymMatrix(rJ2);
+    Sr3 = this->getSkewSymMatrix(rJ3);
+    
+    // hJ1 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';  
+    Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
+    Se.addMatrixVector(1.0, Sr2, e3,  1.0);    
+    for (i = 0; i < 3; i++)
+        hJ1(i+9) =  Se(i);
+    
+    
+    // hJ2 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
+    At.addMatrixVector(0.0, A, rJ3, 1.0);   
+    Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rJ3)*e1 + S(rJ1)*e3)
+    Se.addMatrixVector(1.0, Sr1, e3,  1.0);
+    
+    for (i = 0; i < 3; i++) {
+        hJ2(i  ) =  At(i);  
+        hJ2(i+6) = -At(i);
+        hJ2(i+9) =  Se(i);
+    }
+    
+    // hJ3 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';   
+    At.addMatrixVector(0.0, A, rJ2, 1.0);   
+    Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rJ2)*e1 + S(rJ1)*e2)
+    Se.addMatrixVector(1.0, Sr1, e2,  1.0);
+    
+    for (i = 0; i < 3; i++) {
+        hJ3(i  ) =  At(i);  
+        hJ3(i+6) = -At(i);
+        hJ3(i+9) =  Se(i);
+    }
+    
+    /*
+    opserr << "hI1: " << hI1;
+    opserr << "hI2: " << hI2;
+    opserr << "hI3: " << hI3;
+    opserr << "hj1: " << hJ1;
+    opserr << "hj2: " << hJ2;
+    opserr << "hj3: " << hJ3;
+    */
+    
+    // f1 =  [-e1' O' e1' O'];
+    // f2  = ( Lr2*rI1 + hI3)'./(2*(cos(thetalI(3))));
+    // f3  = ( Lr2*rJ1 + hJ3)'./(2*(cos(thetalJ(3))));
+    // f4  = (-Lr3*rI1 - hI2)'./(2*(cos(thetalI(2))));
+    // f5  = (-Lr3*rJ1 - hJ2)'./(2*(cos(thetalJ(2))));
+    // f6I = ( Lr3*rI2 - Lr2*rI3 + hI1)'./(2*(cos(thetalI(1))));
+    // f6J = ( Lr3*rJ2 - Lr2*rJ3 + hJ1)'./(2*(cos(thetalJ(1))));
+    
+    // F = [f1;
+    //     f2;
+    //     f3;
+    //     f4;
+    //     f5;
+    //     f6J-f6I];      
+    
+    // T = F'
+    T.Zero();
+    static Vector Lr(12);
+    
+    // f1 =  [-e1' O' e1' O'];
+    for (i=0; i<3; i++) {
+        T(i  ,0) = -e1(i);
+        T(i+3,0) = e1(i);
+    }
+    
+    static Vector thetaI(3);
+    static Vector thetaJ(3);
+    
+    
+    thetaI(0) = ul(0);
+    thetaI(1) = -ul(2);
+    thetaI(2) = ul(1);
+    
+    thetaJ(0) = ul(3);
+    thetaJ(1) = -ul(5);
+    thetaJ(2) = ul(4);
+    
+    
+    opserr << "thetaI: " << thetaI;
+    opserr << "thetaJ: " << thetaJ;
+    
+    double c;
+    
+    // f2  = ( Lr2*rI1 + hI3)'./(2*(cos(thetalI(3))));
+    Lr.addMatrixVector(0.0, Lr2, rI1,  1.0);  
+    Lr += hI3;
+    c = 1.0/(2.0*cos(thetaI(2)));
+    for (i=0; i<12; i++)
+        T(1,i) = Lr(i)*c;
+    
+    // f3  = ( Lr2*rJ1 + hJ3)'./(2*(cos(thetalJ(3))));
+    Lr.addMatrixVector(0.0, Lr2, rJ1,  1.0);  
+    Lr += hJ3;
+    c = 1.0/(2.0*cos(thetaJ(2)));   
+    for (i=0; i<12; i++)
+        T(2,i) = Lr(i)*c;
+    
+    // f4  = (-Lr3*rI1 - hI2)'./(2*(cos(thetalI(2))));
+    Lr.addMatrixVector(0.0, Lr3, rI1,  -1.0);  
+    Lr -= hI2;
+    c = 1.0/(2.0*cos(thetaI(1)));   
+    for (i=0; i<12; i++)
+        T(3,i) = Lr(i)*c;
+    
+    // f5  = (-Lr3*rJ1 - hJ2)'./(2*(cos(thetalJ(2))));
+    Lr.addMatrixVector(0.0, Lr3, rJ1,  -1.0);  
+    Lr -= hJ2;
+    c = 1.0/(2.0*cos(thetaJ(1)));   
+    for (i=0; i<12; i++)
+        T(4,i) = Lr(i)*c;
+    
+    // f6I = ( Lr3*rI2 - Lr2*rI3 + hI1)'./(2*(cos(thetalI(1))));
+    Lr.addMatrixVector(0.0, Lr3, rI2,  1.0);
+    Lr.addMatrixVector(1.0, Lr2, rI3, -1.0);
+    Lr += hI1;
+    c = 1.0/(2.0*cos(thetaI(0)));   
+    for (i=0; i<12; i++)
+        T(5,i) = Lr(i)*c;
+    
+    // f6J = ( Lr3*rJ2 - Lr2*rJ3 + hJ1)'./(2*(cos(thetalJ(1))));
+    Lr.addMatrixVector(0.0, Lr3, rJ2,  1.0);
+    Lr.addMatrixVector(1.0, Lr2, rJ3, -1.0);
+    Lr += hJ1;
+    c = 1.0/(2.0*cos(thetaI(0)));   
+    for (i=0; i<12; i++)
+        T(6,i) -= Lr(i)*c;
 }
 
 
@@ -1127,9 +1105,10 @@ CorotCrdTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 
     // if there are element loads present
     else {
+#if 0
         // SLOWER!!!! THIS IS SAME APPROACH AS 2D CASE
         // ===========================================
-        /* transform resisting forces from the basic system to local coordinates
+        // transform resisting forces from the basic system to local coordinates
         this->compTransfMatrixBasicLocal(Tbl);
         static Vector pl(12);
         pl.addMatrixTransposeVector(0.0, Tbl, pb, 1.0);    // pl = Tbl ^ pb;
@@ -1143,8 +1122,8 @@ CorotCrdTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
         pl(8) += p0(4);
 
         // transform resisting forces from local to global coordinates
-        pg.addMatrixTransposeVector(0.0, Tlg, pl, 1.0);   // pg = Tlg ^ pl;*/
-
+        pg.addMatrixTransposeVector(0.0, Tlg, pl, 1.0);   // pg = Tlg ^ pl;
+#endif
         // FASTER!!!! TRANSFORM REACTIONS AND ADD AT END
         // =============================================
         // transform resisting forces from the basic system to local coordinates
@@ -1373,79 +1352,69 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
         for (j = 0; j < 3; j++)
             m33(i,j) = v(i)*e1(j);
         
-        ks33.addMatrixProduct (1.0, A, m33, 1.0);
+    ks33.addMatrixProduct (1.0, A, m33, 1.0);
+    
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+            m33(i,j) = e1(i)*v(j);
         
-        for (i = 0; i < 3; i++)
-            for (j = 0; j < 3; j++)
-                m33(i,j) = e1(i)*v(j);
-            
-            ks33.addMatrixProduct (1.0, m33, A, 1.0);
-            
-            kg.Assemble(ks33, 0, 0,  1.0);
-            kg.Assemble(ks33, 0, 6, -1.0);
-            kg.Assemble(ks33, 6, 0, -1.0);
-            kg.Assemble(ks33, 6, 6,  1.0);
-            
-            //Ks5_12 = -(m(2)*A*S(rI2) + m(3)*A*S(rI3));
-            
-            ks33.addMatrixProduct(0.0, A, SrI2, -m(1));
-            ks33.addMatrixProduct(1.0, A, SrI3, -m(2));
-            
-            kg.Assemble(ks33, 0, 3,  1.0);
-            kg.Assemble(ks33, 6, 3, -1.0);
-            
-            kg.AssembleTranspose(ks33, 3, 0,  1.0);
-            kg.AssembleTranspose(ks33, 3, 6, -1.0);
-            
-            //  Ks5_14 = -(m(5)*A*S(rJ2) + m(6)*A*S(rJ3));
-            
-            ks33.addMatrixProduct(0.0, A, SrJ2, -m(4));
-            ks33.addMatrixProduct(1.0, A, SrJ3, -m(5));
-            
-            kg.Assemble(ks33, 0, 9,  1.0);
-            kg.Assemble(ks33, 6, 9, -1.0);
-            
-            kg.AssembleTranspose(ks33, 9, 0,  1.0);
-            kg.AssembleTranspose(ks33, 9, 6, -1.0);
-            
-            //opserr << "kg += ksigma5: " << kg;
-            
-            // Ksigma -------------------------------
-            static Vector rm(3);
-            
-            rm = rI3;
-            rm.addVector (1.0, rJ3, -1.0); 
-            //opserr << "ks2(r2,rI3-rJ3):\n "; 
-            kg.addMatrix (1.0, this->getKs2Matrix(r2, rm), m(3));
-            
-            rm = rJ2;
-            rm.addVector (1.0, rI2, -1.0); 
-            //opserr << "ks2(r3,rJ2-rI2):\n "; 
-            kg.addMatrix (1.0, this->getKs2Matrix(r3, rm), m(3));
-            //opserr << "ks2(r2,rI1):\n "; 
-            kg.addMatrix (1.0, this->getKs2Matrix(r2, rI1), m(1));
-            //opserr << "ks2(r3,rI1):\n "; 
-            kg.addMatrix (1.0, this->getKs2Matrix(r3, rI1), m(2));
-            //opserr << "ks2(r2,rJ1):\n "; 
-            kg.addMatrix (1.0, this->getKs2Matrix(r2, rJ1), m(4));
-            //opserr << "ks2(r3,rJ1):\n "; 
-            kg.addMatrix (1.0, this->getKs2Matrix(r3, rJ1), m(5));
-            
-            //opserr << "kg += ksigma2: " << kg;
-            
-            //  T * diag (M .* tan(thetal))*T' 
-            
-            for (k = 0; k < 6; k++)
-            {
-                factor = pl(k) * tan(ul(k));
-                for (i = 0; i < 12; i++)
-                    for (j = 0; j < 12; j++)
-                        kg(i,j) += T(k,i) * factor * T(k,j);
-            }
-            
-	    //            opserr << "COROATIONAL 3d: kg final: " << kg;
-            
-            return kg;
+    ks33.addMatrixProduct (1.0, m33, A, 1.0);
+    
+    kg.Assemble(ks33, 0, 0,  1.0);
+    kg.Assemble(ks33, 0, 6, -1.0);
+    kg.Assemble(ks33, 6, 0, -1.0);
+    kg.Assemble(ks33, 6, 6,  1.0);
+    
+    //Ks5_12 = -(m(2)*A*S(rI2) + m(3)*A*S(rI3));
+    
+    ks33.addMatrixProduct(0.0, A, SrI2, -m(1));
+    ks33.addMatrixProduct(1.0, A, SrI3, -m(2));
+    
+    kg.Assemble(ks33, 0, 3,  1.0);
+    kg.Assemble(ks33, 6, 3, -1.0);
+    
+    kg.AssembleTranspose(ks33, 3, 0,  1.0);
+    kg.AssembleTranspose(ks33, 3, 6, -1.0);
+    
+    //  Ks5_14 = -(m(5)*A*S(rJ2) + m(6)*A*S(rJ3));
+    
+    ks33.addMatrixProduct(0.0, A, SrJ2, -m(4));
+    ks33.addMatrixProduct(1.0, A, SrJ3, -m(5));
+    
+    kg.Assemble(ks33, 0, 9,  1.0);
+    kg.Assemble(ks33, 6, 9, -1.0);
+    
+    kg.AssembleTranspose(ks33, 9, 0,  1.0);
+    kg.AssembleTranspose(ks33, 9, 6, -1.0);
+    
+    //opserr << "kg += ksigma5: " << kg;
+    
+    // Ksigma -------------------------------
+    static Vector rm(3);
+    
+    rm = rI3;
+    rm.addVector (1.0, rJ3, -1.0); 
+    kg.addMatrix (1.0, this->getKs2Matrix(r2, rm), m(3));
+    
+    rm = rJ2;
+    rm.addVector(1.0, rI2, -1.0); 
+    kg.addMatrix(1.0, this->getKs2Matrix(r3, rm), m(3));
+    kg.addMatrix(1.0, this->getKs2Matrix(r2, rI1), m(1));
+    kg.addMatrix(1.0, this->getKs2Matrix(r3, rI1), m(2));
+    kg.addMatrix(1.0, this->getKs2Matrix(r2, rJ1), m(4));
+    kg.addMatrix(1.0, this->getKs2Matrix(r3, rJ1), m(5));
+
+    //  T * diag (M .* tan(thetal))*T' 
+    
+    for (k = 0; k < 6; k++)
+    {
+        factor = pl(k) * tan(ul(k));
+        for (i = 0; i < 12; i++)
+            for (j = 0; j < 12; j++)
+                kg(i,j) += T(k,i) * factor * T(k,j);
+    }
+
+    return kg;
 }
 
 
@@ -1569,33 +1538,33 @@ CorotCrdTransf3d::getQuaternionFromRotMatrix(const Matrix &R) const
         if (R(i,i) > a)
             a = R(i,i);
         
-        if (a == trR)
+    if (a == trR)
+    {
+        q(3) = sqrt(1+a)*0.5;
+        
+        for (i = 0; i < 3; i++)
         {
-            q(3) = sqrt(1+a)*0.5;
-            
-            for (i = 0; i < 3; i++)
+            j = (i+1)%3;
+            k = (i+2)%3;
+            q(i) = (R(k,j) - R(j,k))/(4*q(3));
+        }
+    }  
+    else
+    {
+        for (i = 0; i < 3; i++)
+            if (a == R(i,i))
             {
                 j = (i+1)%3;
                 k = (i+2)%3;
-                q(i) = (R(k,j) - R(j,k))/(4*q(3));
+                
+                q(i) = sqrt(a*0.5 + (1 - trR)/4.0);
+                q(3)   = (R(k,j) - R(j,k))/(4*q(i));
+                q(j) = (R(j,i) + R(i,j))/(4*q(i));
+                q(k) = (R(k,i) + R(i,k))/(4*q(i));
             }
-        }  
-        else
-        {
-            for (i = 0; i < 3; i++)
-                if (a == R(i,i))
-                {
-                    j = (i+1)%3;
-                    k = (i+2)%3;
-                    
-                    q(i) = sqrt(a*0.5 + (1 - trR)/4.0);
-                    q(3)   = (R(k,j) - R(j,k))/(4*q(i));
-                    q(j) = (R(j,i) + R(i,j))/(4*q(i));
-                    q(k) = (R(k,i) + R(i,k))/(4*q(i));
-                }
-        }
-        
-        return q;
+    }
+    
+    return q;
 }
 
 
@@ -1670,18 +1639,18 @@ CorotCrdTransf3d::getRotationMatrixFromQuaternion(const Vector &q) const
         for (j = 0; j < 3; j++)
             qqT(i,j) = q(i) * q(j);
         
-        // get skew symmetric matrix	     
-        S = this->getSkewSymMatrix (q);
-        
-        R.Zero();
-        
-        for (i = 0; i < 3; i++)
-            R(i,i) = factor;
-        
-        R.addMatrix (1.0, qqT, 2.0);
-        R.addMatrix (1.0, S, 2.0*q(3));
-        
-        return R;
+    // get skew symmetric matrix	     
+    S = this->getSkewSymMatrix (q);
+    
+    R.Zero();
+    
+    for (i = 0; i < 3; i++)
+        R(i,i) = factor;
+    
+    R.addMatrix(1.0, qqT, 2.0);
+    R.addMatrix(1.0, S, 2.0*q(3));
+    
+    return R;
 }
 
 
@@ -1747,9 +1716,6 @@ CorotCrdTransf3d::getSkewSymMatrix(const Vector &theta) const
     S(2,1) =  theta(0);
     S(2,2) =  0.0;
     
-    //opserr << "getSkew  theta: " << theta;
-    //opserr << "getSkew  S: " << S;
-    
     return S;
 }   
 
@@ -1775,9 +1741,7 @@ CorotCrdTransf3d::getLMatrix(const Vector &ri) const
     }  
     
     rie1 = ri^ e1;
-    
-    //opserr << "rie1: " << rie1 << endln;
-    
+     
     for (k = 0; k < 3; k++)
     {
         e1r1k = (e1(k) + r1(k));
@@ -1819,9 +1783,7 @@ CorotCrdTransf3d::getLMatrix(const Vector &ri) const
     L.Assemble(L2, 3, 0,  1.0);
     L.Assemble(L1, 6, 0, -1.0);
     L.Assemble(L2, 9, 0,  1.0);
-    
-    //opserr << "L: " << L;
-    
+     
     return L;
 }
 
@@ -1831,12 +1793,7 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
 {
     static Matrix ks2(12,12);
     static Vector e1(3), r1(3);
-    
-    //opserr << "\ngetKs2Matrix:\n";
-    //opserr << "ri: " << ri;
-    
-    //opserr << "z: " << z;
-    
+     
     //  Ksigma2 = [ K11   K12 -K11   K12;
     //              K12t  K22 -K12t  K22;
     //             -K11  -K12  K11  -K12;
@@ -1874,106 +1831,106 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
             rie1t(i,j) = ri(i)*e1(j);
         }
         
-        static Matrix U(3,3);
-        //opserr << " rite1: "<< rite1;
-        //opserr << " zte1: "<< zte1;
-        //opserr << " ztr1: "<< ztr1;
-        
-        //opserr << " A: "<< A;
-        //opserr << " zrit: "<< zrit;
-        //opserr << " ze1t: "<< ze1t;
-        //opserr << " rie1t: "<< rie1t;
-        
-        //opserr << " Ln: "<< Ln;
-        
-        U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
-        
-        //opserr << "U: A*zrit*zrit " << U;
-        U.addMatrixProduct (1.0, A, ze1t,   rite1/(2*Ln));
-        //opserr << "U: A*ze1t*rite1/(2*Ln) " << U;
-        U.addMatrixProduct (1.0, A, rie1t, (zte1 + ztr1)/(2*Ln));
-        
-        //opserr << "U: " << U;
-        static Matrix ks(3,3);
-        
-        //K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
-        
-        ks.addMatrix (0.0, U, 1.0);
-        
-        // add matrix U transpose
-        for (i = 0; i < 3; i++)
-            for (j = 0; j < 3; j++)
-                ks(i,j) += U(j,i);
-            
-            ks.addMatrix(1.0, A, rite1*(2*zte1 + ztr1)/(2*Ln));
-            
-            //opserr << "Ks211: " << ks;
-            
-            ks2.Zero();
-            
-            ks2.Assemble(ks, 0, 0,  1.0);
-            ks2.Assemble(ks, 0, 6, -1.0);
-            ks2.Assemble(ks, 6, 0, -1.0);
-            ks2.Assemble(ks, 6, 6,  1.0);
-            
-            static Matrix Sri(3,3), Sr1(3,3), Sz(3,3), Se1(3,3);
-            
-            Sri = this->getSkewSymMatrix(ri);  
-            Sr1 = this->getSkewSymMatrix(r1);
-            Sz  = this->getSkewSymMatrix(z); 
-            Se1 = this->getSkewSymMatrix(e1); 
-            
-            //K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
-            
-            static Matrix m1(3,3);
-            
-            m1.addMatrixProduct(0.0, A, ze1t, -1.0);
-            ks.addMatrixProduct(0.0, m1, Sri, 0.25);
-            
-            m1.addMatrixProduct(0.0, A, rizt, -1.0);
-            ks.addMatrixProduct(1.0, m1, Sr1, 0.25);
-            
-            ks.addMatrixProduct(1.0, A, Sri, -0.25*(zte1+ztr1));
-            
-            //opserr << "Ks2_12: " << ks;
-            
-            ks2.Assemble(ks, 0, 3,  1.0);
-            ks2.Assemble(ks, 0, 9,  1.0);
-            ks2.Assemble(ks, 6, 3, -1.0);
-            ks2.Assemble(ks, 6, 9, -1.0);
-            
-            ks2.AssembleTranspose(ks, 3, 0,  1.0);
-            ks2.AssembleTranspose(ks, 3, 6, -1.0);
-            ks2.AssembleTranspose(ks, 9, 0,  1.0);
-            ks2.AssembleTranspose(ks, 9, 6, -1.0);
-            
-            //K22 = (1/8)*((-ri'*e1)*Sz*Sr1 + Sr1*z*e1'*Sri + ...
-            //      Sri*e1*z'*Sr1 - (e1+r1)'*z*S(e1)*Sri + 2*Sz*Sri);
-            
-            ks.addMatrixProduct (0.0, Sz, Sr1, -0.125*(rite1));
-            
-            m1.addMatrixProduct (0.0, Sr1, ze1t, 1.0);
-            ks.addMatrixProduct (1.0, m1, Sri, 0.125);
-            
-            m1.addMatrixProduct (0.0, Sri, e1zt, 1.0);
-            ks.addMatrixProduct (1.0, m1, Sr1, 0.125);
-            
-            ks.addMatrixProduct (1.0, Se1, Sri, -0.125*(zte1 + ztr1));
-            ks.addMatrixProduct (1.0, Sz, Sri, 0.25);
-            
-            //opserr << "Ks2_22: " << ks;
-            
-            //  Ksigma2 = [ K11   K12 -K11   K12;
-            //              K12t  K22 -K12t  K22;
-            //             -K11  -K12  K11  -K12;
-            //              K12t  K22 -K12t  K22];
-            
-            ks2.Assemble(ks, 3, 3, 1.0);
-            ks2.Assemble(ks, 3, 9, 1.0);
-            ks2.Assemble(ks, 9, 3, 1.0);
-            ks2.Assemble(ks, 9, 9, 1.0);
-            
-            return ks2;
+    static Matrix U(3,3);
+    //opserr << " rite1: "<< rite1;
+    //opserr << " zte1: "<< zte1;
+    //opserr << " ztr1: "<< ztr1;
+    
+    //opserr << " A: "<< A;
+    //opserr << " zrit: "<< zrit;
+    //opserr << " ze1t: "<< ze1t;
+    //opserr << " rie1t: "<< rie1t;
+    
+    //opserr << " Ln: "<< Ln;
+    
+    U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
+    
+    //opserr << "U: A*zrit*zrit " << U;
+    U.addMatrixProduct (1.0, A, ze1t,   rite1/(2*Ln));
+    //opserr << "U: A*ze1t*rite1/(2*Ln) " << U;
+    U.addMatrixProduct (1.0, A, rie1t, (zte1 + ztr1)/(2*Ln));
+    
+    //opserr << "U: " << U;
+    static Matrix ks(3,3);
+    
+    //K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
+    
+    ks.addMatrix (0.0, U, 1.0);
+    
+    // add matrix U transpose
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+            ks(i,j) += U(j,i);
+          
+    ks.addMatrix(1.0, A, rite1*(2*zte1 + ztr1)/(2*Ln));
+    
+    //opserr << "Ks211: " << ks;
+    
+    ks2.Zero();
+    
+    ks2.Assemble(ks, 0, 0,  1.0);
+    ks2.Assemble(ks, 0, 6, -1.0);
+    ks2.Assemble(ks, 6, 0, -1.0);
+    ks2.Assemble(ks, 6, 6,  1.0);
+    
+    static Matrix Sri(3,3), Sr1(3,3), Sz(3,3), Se1(3,3);
+    
+    Sri = this->getSkewSymMatrix(ri);  
+    Sr1 = this->getSkewSymMatrix(r1);
+    Sz  = this->getSkewSymMatrix(z); 
+    Se1 = this->getSkewSymMatrix(e1); 
+    
+    //K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
+    
+    static Matrix m1(3,3);
+    
+    m1.addMatrixProduct(0.0, A, ze1t, -1.0);
+    ks.addMatrixProduct(0.0, m1, Sri, 0.25);
+    
+    m1.addMatrixProduct(0.0, A, rizt, -1.0);
+    ks.addMatrixProduct(1.0, m1, Sr1, 0.25);
+    
+    ks.addMatrixProduct(1.0, A, Sri, -0.25*(zte1+ztr1));
+    
+    //opserr << "Ks2_12: " << ks;
+    
+    ks2.Assemble(ks, 0, 3,  1.0);
+    ks2.Assemble(ks, 0, 9,  1.0);
+    ks2.Assemble(ks, 6, 3, -1.0);
+    ks2.Assemble(ks, 6, 9, -1.0);
+    
+    ks2.AssembleTranspose(ks, 3, 0,  1.0);
+    ks2.AssembleTranspose(ks, 3, 6, -1.0);
+    ks2.AssembleTranspose(ks, 9, 0,  1.0);
+    ks2.AssembleTranspose(ks, 9, 6, -1.0);
+    
+    //K22 = (1/8)*((-ri'*e1)*Sz*Sr1 + Sr1*z*e1'*Sri + ...
+    //      Sri*e1*z'*Sr1 - (e1+r1)'*z*S(e1)*Sri + 2*Sz*Sri);
+    
+    ks.addMatrixProduct (0.0, Sz, Sr1, -0.125*(rite1));
+    
+    m1.addMatrixProduct (0.0, Sr1, ze1t, 1.0);
+    ks.addMatrixProduct (1.0, m1, Sri, 0.125);
+    
+    m1.addMatrixProduct (0.0, Sri, e1zt, 1.0);
+    ks.addMatrixProduct (1.0, m1, Sr1, 0.125);
+    
+    ks.addMatrixProduct (1.0, Se1, Sri, -0.125*(zte1 + ztr1));
+    ks.addMatrixProduct (1.0, Sz, Sri, 0.25);
+    
+    //opserr << "Ks2_22: " << ks;
+    
+    //  Ksigma2 = [ K11   K12 -K11   K12;
+    //              K12t  K22 -K12t  K22;
+    //             -K11  -K12  K11  -K12;
+    //              K12t  K22 -K12t  K22];
+    
+    ks2.Assemble(ks, 3, 3, 1.0);
+    ks2.Assemble(ks, 3, 9, 1.0);
+    ks2.Assemble(ks, 9, 3, 1.0);
+    ks2.Assemble(ks, 9, 9, 1.0);
+    
+    return ks2;
 }
 
 

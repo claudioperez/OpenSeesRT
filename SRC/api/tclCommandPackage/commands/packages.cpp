@@ -24,13 +24,11 @@
 #include <OPS_Globals.h>
 #include <tcl.h>
 #include <sys/stat.h>
-#include <SimulationInformation.h>
 
 #ifdef _WIN32
 #  define byte win_byte_override
 #  include <windows.h>
 #  include <elementAPI.h>
-   extern SimulationInformation *theSimulationInfoPtr;
 #else
 #  include <dlfcn.h>
 #endif
@@ -42,8 +40,8 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
 
   int result = 0;
 
-  *libHandle = NULL;
-  *funcHandle = NULL;
+  *libHandle = nullptr;
+  *funcHandle = nullptr;
 
 #ifdef _WIN32
 
@@ -60,7 +58,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
 
     delete[] localLibName;
 
-    if (hLib != NULL) {
+    if (hLib != nullptr) {
 
         char mod[124];
         GetModuleFileName((HMODULE)hLib, (LPTSTR)mod, 124);
@@ -71,7 +69,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
 
         (*funcHandle) = (void*)GetProcAddress((HMODULE)hLib, funcName);
 
-        if (*funcHandle == NULL) {
+        if (*funcHandle == nullptr) {
             char* underscoreFunctionName = new char[strlen(funcName) + 2];
             strcpy(underscoreFunctionName, funcName);
             strcpy(&underscoreFunctionName[strlen(funcName)], "_");
@@ -80,7 +78,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
         }
 
 
-        if (*funcHandle == NULL) {
+        if (*funcHandle == nullptr) {
             FreeLibrary((HMODULE)hLib);
             return -2;
         }
@@ -188,7 +186,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
         // invoke pointer function
         (funcPtr)(opserrPtr,
             ops_TheActiveDomain,
-            theSimulationInfoPtr,
+            nullptr, // theSimulationInfoPtr,
             OPS_Error,
             OPS_GetIntInput,
             OPS_GetDoubleInput,
@@ -273,24 +271,21 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
     }
   }
   */
-  char *error;
 
   *libHandle = dlopen(localLibName, RTLD_NOW);
 
-  if (*libHandle == NULL) {
+  if (*libHandle == nullptr) {
     delete[] localLibName;
     return -1; // no lib exists
   }
 
   void *funcPtr = dlsym(*libHandle, funcName);
 
-  error = dlerror();
-
   //
   // look for fortran procedure, trailing underscore
   //
 
-  if (funcPtr == NULL) {
+  if (funcPtr == nullptr) {
     int funcNameLength = strlen(funcName);
     char *underscoreFunctionName = new char[funcNameLength + 2];
     strcpy(underscoreFunctionName, funcName);
@@ -300,7 +295,7 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
     delete[] underscoreFunctionName;
   }
 
-  if (funcPtr == NULL) {
+  if (funcPtr == nullptr) {
     dlclose(*libHandle);
     delete[] localLibName;
     return -1;
@@ -312,12 +307,12 @@ getLibraryFunction(const char *libName, const char *funcName, void **libHandle,
   localInitPtrType initFunct;
   funcPtr = dlsym(*libHandle, "localInit");
 
-  if (funcPtr != NULL) {
+  if (funcPtr != nullptr) {
     initFunct = (localInitPtrType)funcPtr;
     initFunct();
   } else {
     funcPtr = dlsym(*libHandle, "localinit_");
-    if (funcPtr != NULL) {
+    if (funcPtr != nullptr) {
       initFunct = (localInitPtrType)funcPtr;
       initFunct();
     }

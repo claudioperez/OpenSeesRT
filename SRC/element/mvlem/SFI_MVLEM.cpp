@@ -47,7 +47,7 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
-#include <TclModelBuilder.h> // for creating/adding internal nodes (theNodesX) to the domain 
+// #include <TclModelBuilder.h> // for creating/adding internal nodes (theNodesX) to the domain 
 
 
 #include <elementAPI.h>

@@ -20,19 +20,12 @@
 #include <runtime/BasicModelBuilder.h>
 
 
-//
-// THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
-
-static Tcl_CmdProc TclCommand_useUniaxialMaterial;
 static Tcl_CmdProc TclCommand_setStrainUniaxialMaterial;
 static Tcl_CmdProc TclCommand_commitState;
 static Tcl_CmdProc TclCommand_getStressUniaxialMaterial;
 static Tcl_CmdProc TclCommand_getTangUniaxialMaterial;
 
 const struct {const char*name; const Tcl_CmdProc*func;} command_table[] = {
-  {"using",     TclCommand_useUniaxialMaterial       },
-  {"with",      TclCommand_useUniaxialMaterial       },
   {"strain",    TclCommand_setStrainUniaxialMaterial },
   {"commit",    TclCommand_commitState               },
   {"stress",    TclCommand_getStressUniaxialMaterial },
@@ -45,16 +38,11 @@ const struct {const char*name; const Tcl_CmdProc*func;} command_table[] = {
 //
 int
 TclCommand_useUniaxialMaterial(ClientData clientData,
-                                              Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv)
+                                          Tcl_Interp *interp, int argc,
+                                          TCL_Char **argv)
 {
-  // check number of arguments in command line
-  if (argc < 4) {
-    opserr << G3_ERROR_PROMPT << "bad arguments - want: using <obj-type> <obj-tag> {<operations>...}";
-    return TCL_ERROR;
-  }
 
-  // get the tag form command line
+  // Get the tag from command line
   int tag;
   if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "could not read obj-tag: using <obj-tag>?";
@@ -62,10 +50,9 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
   }
 
   UniaxialMaterial *theMaterial = ((BasicModelBuilder*)clientData)->getUniaxialMaterial(argv[2]);
-  // get the material from the modelbuilder with tag
-  // and set the testing material to point to a copy of it
+
   if (theMaterial == nullptr) {
-    opserr << G3_ERROR_PROMPT << "no material found with tag '" << argv[2] << "'.\n";
+    opserr << G3_ERROR_PROMPT << "no material found with tag '" << argv[2] << "'\n";
     return TCL_ERROR;
 
   } else {
