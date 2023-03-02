@@ -56,6 +56,13 @@ target_sources(OpenSeesRT PRIVATE
 
 )
 
+if (DEFINED OPENSEESRT_VERSION)
+  set_property(
+      SOURCE OpenSeesRT.cpp
+      APPEND PROPERTY COMPILE_DEFINITIONS "OPENSEESRT_VERSION=\"${OPENSEESRT_VERSION}\""
+  )
+endif()
+
 add_subdirectory(contrib/)
 
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
