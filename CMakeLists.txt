@@ -30,7 +30,6 @@ add_definitions(-DOPS_USE_RUNTIME) # -D_THREADS)
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    message(">>> Using Conan")
    set(USE_CONAN TRUE)
-   # include(conan)
    include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    conan_basic_setup(TARGETS)
    set(TCL_LIBRARIES "CONAN_PKG::tcl")
@@ -78,8 +77,7 @@ if (UNIX)
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
-  # include(OpenSeesDependenciesWin)
-  # include(OpenSeesDependenciesDockCrossWin)
+    include(OpenSeesDependenciesWin)
     # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
     add_compile_definitions(_WIN32)
     message(STATUS ">>> WIN32")
@@ -92,7 +90,6 @@ message("OPS >>> SUPERLU: ${SUPERLU_LIBRARIES}")
 message("OPS >>> ARPACK:  ${ARPACK_LIBRARIES}")
 message("OPS >>> UMFPACK: ${UMFPACK_LIBRARIES}")
 message("OPS >>> CSPARSE: ${CSPARSE_LIBRARIES}")
-#set(TCL_LIBRARIES         ${TCL_LIBRARY})
 message("OPS >>> TCL:     ${TCL_LIBRARIES}")
 message("                 ${TCL_LIBRARY}  ")
 message("                $ENV{TCL_LIBRARY}")
@@ -132,7 +129,7 @@ add_compile_options(
 # Global Includes
 #----------------------------------------------------------------
  
-# NOTE BeamIntegration and MatrixUtil need to be removed from element/forceBeamColumn
+# TODO BeamIntegration and MatrixUtil need to be removed from element/forceBeamColumn
 
 include_directories(
   ${OPS_SRC_DIR}
@@ -160,7 +157,6 @@ include_directories(
   ${OPS_SRC_DIR}/api/tclCommandPackage
   ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/coordTransformation
-# ${OPS_SRC_DIR}/damage
   ${OPS_SRC_DIR}/database
   ${OPS_SRC_DIR}/domain/component
   ${OPS_SRC_DIR}/domain/constraints
@@ -235,28 +231,21 @@ add_library(OPS_Utilities          OBJECT)
 add_library(OPS_ModelBuilder       OBJECT)
 add_library(OPS_Domain             OBJECT)
 add_library(OPS_SysOfEqn           OBJECT)
-#add_library(OPS_SysOfEqn_MP        OBJECT)
-#add_library(OPS_SysOfEqn_SP        OBJECT)
 
 add_library(OPS_Analysis           OBJECT)
 add_library(OPS_ConvergenceTest    OBJECT)
 add_library(OPS_Thermal            OBJECT)
 add_library(OPS_Element            OBJECT)
 add_library(OPS_ElementFortran     OBJECT)
-#add_library(OPS_Element_MP         OBJECT)
-#add_library(OPS_Element_SP         OBJECT)
 add_library(OPS_Material           OBJECT)
 add_library(OPS_MaterialFortran    OBJECT)
 add_library(OPS_Damage             OBJECT)
 add_library(OPS_Database           OBJECT)
-#add_library(OPS_Interp_Tcl         STATIC)
 
 # Optional Extensions
-#add_library(OPS_DRM                OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 
-#add_library(OPS_Reliability        OBJECT EXCLUDE_FROM_ALL)
 
 opensees_library(OPS_SysOfEqn_UMF
   LINK ${UMFPACK_LIBRARIES} ${AMD_LIBRARIES})
@@ -335,7 +324,6 @@ target_link_libraries(OpenSees
     OPS_OS_Specific_libs
     OPS_ObjectBroker
     G3
-    # ${MYSQL_LIBRARIES}
 )
 
 
@@ -362,6 +350,7 @@ foreach(extension IN LISTS OPS_SysOfEqn_List OPS_Element_List OPS_Extension_List
     string(REGEX REPLACE "^OPS_" "OPSDEF_" ext_flag "${ext_flag}")
     add_compile_definitions(${ext_flag})
 endforeach()
+
 foreach(extension IN LISTS OPS_Exclude_List)
     string(TOUPPER "${extension}" ext_flag) 
     string(REGEX REPLACE "^OPS_" "OPS_EXCLUDE_" ext_flag "${ext_flag}")
