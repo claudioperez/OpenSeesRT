@@ -25,6 +25,7 @@
 #include <elementAPI.h>
 #include <Trilinwpd.h>
 
+#include <cstdlib>
 #include <Vector.h>
 #include <Channel.h>
 #include <math.h>
@@ -121,9 +122,10 @@ mom1n(m1n), rot1n(r1n), mom2n(m2n), rot2n(r2n), mom3n(m3n), rot3n(r3n),pt(ptn), 
 		error = true;
 	
 	if (error) {
+          // TODO: check in parser; should not exit()
 	  opserr << "trilinwpd::trilinwpd -- input backbone is not unique (one-to-one)\n";
-	 exit(-1);
-	 }		
+	  std::exit(-1);
+	}		
 	mom1pi=mom1p;
 	mom2pi=mom2p;
 	mom3pi=mom3p;

@@ -24,7 +24,7 @@
                                                                         
 #include <elementAPI.h>
 #include <Trilinwp.h>
-
+#include <cstdlib>
 #include <Vector.h>
 #include <Channel.h>
 #include <math.h>
@@ -128,8 +128,9 @@ Trilinwp::Trilinwp(int tag,
 		error = true;
 	
 	if (error) {
+          // TODO: check in parser; should not exit()
 	  opserr << "Trilinwp::Trilinwp -- input backbone is not unique (one-to-one)\n";
-	  exit(-1);
+	  std::exit(-1);
 	}		
 	mom1pi=mom1p;
 	mom2pi=mom2p;
