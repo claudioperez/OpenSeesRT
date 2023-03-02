@@ -3,10 +3,6 @@
 #        OpenSees -- Open System For Earthquake Engineering Simulation
 #                Pacific Earthquake Engineering Research Center
 #
-#     (c) Copyright 1999-2021 The Regents of the University of California
-#                             All Rights Reserved
-# (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
-#
 #==============================================================================
 # Claudio Perez
 #==============================================================================
@@ -133,7 +129,6 @@ add_compile_options(
 
 include_directories(
   ${OPS_SRC_DIR}
-
   ${OPS_SRC_DIR}/actor/actor
   ${OPS_SRC_DIR}/actor/objectBroker
   ${OPS_SRC_DIR}/actor/channel

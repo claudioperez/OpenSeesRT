@@ -3,10 +3,6 @@
 #        OpenSees -- Open System For Earthquake Engineering Simulation
 #                Pacific Earthquake Engineering Research Center
 #
-#     (c) Copyright 1999-2021 The Regents of the University of California
-#                             All Rights Reserved
-# (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)
-#
 #==============================================================================
 #                           Select Executable
 #
@@ -19,17 +15,11 @@ set(OPS_FINAL_TARGET "G3" CACHE STRING "OpenSees final target")
 
 # Optional Extensions
 #--------------------------------------
-option(OPS_Use_Dev_Directories
-  "Include files in DEVELOPER directory"                   OFF)
-
 option(OPS_Use_DRM
   "DRM lib"                                                ON )
 
 option(OPS_Use_HDF5
   "HDF5 Dependent Code"                                    OFF)
-
-option(OPS_Use_PFEM
-  "                   "                                    OFF)
 
 option(FMK
   "Special FMK Code"                                       OFF)

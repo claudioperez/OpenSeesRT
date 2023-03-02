@@ -30,7 +30,6 @@ target_sources(OpenSeesRT PRIVATE
 
 # Other
     "contrib/packages/optimization/TclParameterCommands.cpp"
-
 #
 # SUB-ELEMENT MODELS
 #
