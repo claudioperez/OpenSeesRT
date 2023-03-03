@@ -80,7 +80,7 @@ static int
 PlaneStress_setStrainPlaneStressMaterial(ClientData clientData,
                                                           Tcl_Interp *interp,
                                                           int argc,
-                                                          TCL_Char **argv)
+                                                          TCL_Char ** const argv)
 {
   NDMaterial* theMaterial = (NDMaterial*)clientData;
 
@@ -119,7 +119,7 @@ static int
 PlaneStress_getStressPlaneStressMaterial(ClientData clientData,
                                                           Tcl_Interp *interp,
                                                           int argc,
-                                                          TCL_Char **argv)
+                                                          TCL_Char ** const argv)
 {
   NDMaterial* theMaterial = (NDMaterial*)clientData;
   static Vector stress(3);
@@ -136,7 +136,7 @@ static int
 PlaneStress_getTangPlaneStressMaterial(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         int argc,
-                                                        TCL_Char **argv)
+                                                        TCL_Char ** const argv)
 {
   static Matrix tangent(3, 3);
   NDMaterial* theMaterial = (NDMaterial*)clientData;

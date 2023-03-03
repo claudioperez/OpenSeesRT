@@ -39,7 +39,7 @@ const struct {const char*name; const Tcl_CmdProc*func;} command_table[] = {
 int
 TclCommand_useUniaxialMaterial(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv)
+                                          TCL_Char ** const argv)
 {
 
   // Get the tag from command line
@@ -91,7 +91,7 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
 static int
 TclCommand_setStrainUniaxialMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv)
+                                                    int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   UniaxialMaterial* theMaterial = (UniaxialMaterial*)clientData;
@@ -136,7 +136,7 @@ TclCommand_setStrainUniaxialMaterial(ClientData clientData,
   return TCL_OK;
 }
 
-int TclCommand_commitState(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+int TclCommand_commitState(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   UniaxialMaterial* theMaterial = (UniaxialMaterial*)clientData;
@@ -147,7 +147,7 @@ int TclCommand_commitState(ClientData clientData, Tcl_Interp *interp, int argc, 
 static int
 TclCommand_getStressUniaxialMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv)
+                                                    int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   UniaxialMaterial* theMaterial = (UniaxialMaterial*)clientData;
@@ -163,7 +163,7 @@ TclCommand_getStressUniaxialMaterial(ClientData clientData,
 static int
 TclCommand_getTangUniaxialMaterial(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv)
+                                                  TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   UniaxialMaterial* theMaterial = (UniaxialMaterial*)clientData;

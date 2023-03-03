@@ -74,7 +74,7 @@ TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, 
 
 static int
 SectionTest_setStrainSection(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv)
+                                  int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   SectionForceDeformation *theSection = (SectionForceDeformation*)clientData;
@@ -112,7 +112,7 @@ SectionTest_setStrainSection(ClientData clientData, Tcl_Interp *interp,
 
 static int
 SectionTest_getStressSection(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv)
+                                  int argc, TCL_Char ** const argv)
 {
   SectionForceDeformation *theSection = (SectionForceDeformation*)clientData;
   const Vector &stress = theSection->getStressResultant();
@@ -126,7 +126,7 @@ SectionTest_getStressSection(ClientData clientData, Tcl_Interp *interp,
 
 static int
 SectionTest_getTangSection(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv)
+                                int argc, TCL_Char ** const argv)
 {
   SectionForceDeformation *theSection = (SectionForceDeformation*)clientData;
 
@@ -142,7 +142,7 @@ SectionTest_getTangSection(ClientData clientData, Tcl_Interp *interp,
 
 static int
 SectionTest_getResponseSection(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv)
+                                    int argc, TCL_Char ** const argv)
 {
   SectionForceDeformation *theSection = (SectionForceDeformation*)clientData;
   DummyStream dummy;

@@ -33,7 +33,7 @@ extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);
 extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **, Domain *, TclBuilder *);
 
 int
-TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[])
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *theNewBuilder = nullptr;
@@ -234,7 +234,7 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 }
 
 int
-TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[])
 {
   // wipeAnalysis(clientData, interp, argc, argv);
   Tcl_Eval(interp, "wipeAnalysis");
@@ -286,7 +286,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
 // command invoked to build the model, i.e. to invoke buildFE_Model()
 // on the ModelBuilder
 int
-buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[])
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   ModelBuilder* builder = (ModelBuilder*)G3_getModelBuilder(rt);
