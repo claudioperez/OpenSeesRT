@@ -17,7 +17,7 @@ extern int textToBinary(const char *inputFile, const char *outputFile);
 
 int
 convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
+                    TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "ERROR incorrect # args - convertBinaryToText inputFile "
@@ -33,7 +33,7 @@ convertBinaryToText(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 convertTextToBinary(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
+                    TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "ERROR incorrect # args - convertTextToBinary inputFile "
@@ -49,7 +49,7 @@ convertTextToBinary(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 stripOpenSeesXML(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
+                 TCL_Char ** const argv)
 {
 
   if (argc < 3) {

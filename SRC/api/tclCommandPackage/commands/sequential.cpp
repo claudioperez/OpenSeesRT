@@ -7,7 +7,7 @@
 // for use in non-parallel interpreters
 //
 #include <tcl.h>
-#define TCL_Char const char
+#define TCL_Char CONST84 char
 
 Tcl_CmdProc getPIDSequential;
 Tcl_CmdProc getNPSequential;
@@ -28,7 +28,7 @@ void G3_InitTclSequentialAPI(Tcl_Interp* interp)
 
 
 int
-getPIDSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+getPIDSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int pid = 0;
   char buffer[30];
@@ -39,7 +39,7 @@ getPIDSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
 }
 
 int
-getNPSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+getNPSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int np = 1;
   char buffer[30];
@@ -50,20 +50,20 @@ getNPSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **
 
 int
 opsPartitionSequential(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   return TCL_OK;
 }
 
 
 int
-opsBarrierSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+opsBarrierSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   return TCL_OK;
 }
 
 int
-opsRecvSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+opsRecvSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   return TCL_OK;
@@ -72,7 +72,7 @@ opsRecvSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
 
 #if 0
 int
-opsSendSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+opsSendSequential(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   if (argc < 2)
     return TCL_OK;

@@ -41,7 +41,7 @@ Tcl_CmdProc stripOpenSeesXML;
 // https://wiki.tcl-lang.org/page/timers
 //
 static int
-startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   if (theTimer == nullptr)
     theTimer = new Timer();
@@ -51,7 +51,7 @@ startTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 static int
-stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   if (theTimer == nullptr)
     return TCL_OK;
@@ -62,7 +62,7 @@ stopTimer(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 static int
-timer(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** argv)
+timer(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
 {
   if ((argc == 1) || (strcmp(argv[1], "start")==0)) {
     stopTimer(clientData, interp, argc, argv);
@@ -183,7 +183,7 @@ OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
 
 
 static int
-logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   if (argc < 2) {
@@ -211,7 +211,7 @@ logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 static int
 setPrecision(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
 
   if (argc < 2) {
@@ -290,7 +290,7 @@ OPS_SourceCmd(ClientData dummy,      /* Not used. */
 
 static int
 OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   //  theDomain.clearAll();
 
@@ -324,7 +324,7 @@ OpenSeesExit(ClientData clientData, Tcl_Interp *interp, int argc,
 
 static int
 maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   int maxOpenFiles;
 

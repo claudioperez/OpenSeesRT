@@ -49,12 +49,12 @@
 // Domain theDomain;
 #endif
 
-int getPID(ClientData,  Tcl_Interp *, int, TCL_Char **argv);
-int getNP( ClientData,  Tcl_Interp *, int, TCL_Char **argv);
-int opsBarrier(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-int opsSend(ClientData, Tcl_Interp *, int, TCL_Char **argv);
-int opsRecv(ClientData, Tcl_Interp *, int,TCL_Char **argv);
-int opsPartition(ClientData, Tcl_Interp *, int, TCL_Char **argv);
+int getPID(ClientData,  Tcl_Interp *, int, TCL_Char ** const argv);
+int getNP( ClientData,  Tcl_Interp *, int, TCL_Char ** const argv);
+int opsBarrier(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
+int opsSend(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
+int opsRecv(ClientData, Tcl_Interp *, int,TCL_Char ** const argv);
+int opsPartition(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
 
 void Init_Parallel(Tcl_Interp* interp)
 {
@@ -68,7 +68,7 @@ void Init_Parallel(Tcl_Interp* interp)
 
 
 int
-getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int pid = 0;
 #ifdef _PARALLEL_INTERPRETERS
@@ -90,7 +90,7 @@ getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int np = 1;
 #ifdef _PARALLEL_INTERPRETERS
@@ -180,7 +180,7 @@ partitionModel(int eleTag)
 
 
 int
-opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 #ifdef _PARALLEL_INTERPRETERS
   return MPI_Barrier(MPI_COMM_WORLD);
@@ -190,7 +190,7 @@ opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   if (argc < 2)
     return TCL_OK;
@@ -235,7 +235,7 @@ opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-opsRecv(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+opsRecv(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 #ifdef _PARALLEL_INTERPRETERS
   if (argc < 2)
@@ -322,7 +322,7 @@ opsRecv(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 int
 opsPartition(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
 #ifdef _PARALLEL_PROCESSING
   int eleTag;
