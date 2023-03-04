@@ -8,13 +8,11 @@
 target_sources(OpenSeesRT
     PRIVATE
       TclPackageClassBroker.cpp
-
       # Model Builders
       BasicAnalysisBuilder.cpp
       BasicModelBuilder.cpp
       modelbuilder/TclBuilder.cpp
       modelbuilder/basic/TclBasicBuilder.cpp
-
 
     PUBLIC
       BasicAnalysisBuilder.h

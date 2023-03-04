@@ -425,23 +425,6 @@ BasicModelBuilder::addCrdTransf(CrdTransf *instance)
 //
 // TODO MOVE EVERYTHING BELOW OUT OF FILE
 //
-#if 0
-extern int
-BasicModelBuilderParameterCommand(ClientData clientData,
-                                Tcl_Interp *interp, int argc,
-                                TCL_Char **argv,
-                                Domain *theDomain,
-                                BasicModelBuilder *theTclBuilder);
-
-int
-TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
-{
-  return BasicModelBuilderParameterCommand(clientData, interp,
-                                         argc, argv, theTclDomain, theTclBuilder);
-}
-#endif
-
-
 
 #if 0
 int
