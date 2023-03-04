@@ -28,7 +28,7 @@ static int count;
 static int countsTillCommit;
 
 int
-TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** argv)
+TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   assert(clientData != nullptr);

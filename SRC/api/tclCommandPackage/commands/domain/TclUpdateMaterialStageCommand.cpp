@@ -44,7 +44,7 @@
 int
 TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv,
+                                          TCL_Char ** const argv,
                                           TclBasicBuilder *theTclBuilder,
                                           Domain *theDomain)
 {
@@ -117,7 +117,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
 
 int
 TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv)
+                                      int argc, TCL_Char ** const argv)
 {
 
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;

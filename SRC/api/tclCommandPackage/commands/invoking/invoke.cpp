@@ -24,7 +24,7 @@ const std::unordered_map<std::string, Tcl_CmdProc*> invoke_commands
 };
 
 int
-TclCommand_invoke(ClientData clientData, Tcl_Interp* interp, int argc, char const** argv)
+TclCommand_invoke(ClientData clientData, Tcl_Interp* interp, int argc, char const** const argv)
 {
   // check number of arguments in command line
   if (argc < 4) {

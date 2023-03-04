@@ -23,7 +23,7 @@ static int count;
 static int countsTillCommit;
 
 // constructor: the constructor will add certain commands to the interpreter
-int TclCommand_usePlaneStress(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** argv)
+int TclCommand_usePlaneStress(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 

@@ -1,7 +1,7 @@
 
 int
 elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
+                TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* the_domain = (Domain*)clientData; 
@@ -23,7 +23,7 @@ elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 elementDeactivate(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
+                  TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* the_domain = (Domain*)clientData; 

@@ -78,7 +78,7 @@ void *OPS_ElementRecorderRMS(G3_Runtime*);
 void *OPS_NodeRecorderRMS(G3_Runtime*);
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
-                                       int cArg, int mArg, TCL_Char **argv,
+                                       int cArg, int mArg, TCL_Char ** const argv,
                                        Domain *domain);
 
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
@@ -109,7 +109,7 @@ enum OutputMode {
 
 int
 TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv, Domain &theDomain, Recorder **theRecorder)
+                  TCL_Char ** const argv, Domain &theDomain, Recorder **theRecorder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = (Domain*)clientData;
@@ -1938,7 +1938,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   // G3_Runtime *rt = G3_getRuntime(interp);
   // Domain& theDomain = *G3_getDomain(rt);
@@ -1972,7 +1972,7 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
 
 int
 TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, EquiSolnAlgo *theAlgo)
+                        TCL_Char ** const argv, EquiSolnAlgo *theAlgo)
 {
   Recorder *theRecorder = nullptr;
   Domain* domain = (Domain*)clientData;
@@ -2009,7 +2009,7 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 // by SAJalali
 int
 OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
+                  TCL_Char ** const argv)
 {
   // G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = (Domain*)clientData;

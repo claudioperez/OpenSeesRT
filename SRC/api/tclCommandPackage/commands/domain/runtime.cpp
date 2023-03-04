@@ -9,7 +9,7 @@
 #include <tcl.h>
 
 int
-TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* domain = (Domain*)clientData;
@@ -31,7 +31,7 @@ TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 }
 
 int
-TclCommand_setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* the_domain = (Domain*)clientData;
@@ -51,7 +51,7 @@ TclCommand_setCreep(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
 }
 
 int
-TclCommand_setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* domain = (Domain*)clientData;
@@ -72,7 +72,7 @@ TclCommand_setTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 }
 
 int
-TclCommand_getTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_getTime(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* domain = (Domain*)clientData;

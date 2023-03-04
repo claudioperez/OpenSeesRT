@@ -19,7 +19,7 @@
 
 int
 TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theTclBuilder,
                                   Domain *theDomain)
 {
