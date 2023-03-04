@@ -44,7 +44,7 @@
 
 extern "C" DllExport int
 TclCommand_BerkeleyDB(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv, Domain *theDomain,
+                      TCL_Char ** const argv, Domain *theDomain,
                       FEM_ObjectBroker *theBroker, FE_Datastore **theDatabase)
 {
 

@@ -36,21 +36,21 @@
 #include <TimeSeriesIntegrator.h>
 
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
-                                    TCL_Char *arg);
+                                    TCL_Char * const arg);
 
 extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientData,
                                                         Tcl_Interp *interp,
-                                                        TCL_Char *arg);
+                                                        TCL_Char * const arg);
 
 int
 G3Parse_newGroundMotion(G3_Runtime* rt,
                        int argc,
-                       TCL_Char **argv,
+                       TCL_Char ** const argv,
                        MultiSupportPattern *thePattern);
 
 int
 TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
-                           int argc, TCL_Char **argv)
+                           int argc, TCL_Char ** const argv)
 
 {
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -66,11 +66,11 @@ TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
 
 int
 G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
-                       TCL_Char **argv, MultiSupportPattern *thePattern)
+                       TCL_Char ** const argv, MultiSupportPattern *thePattern)
 {
   Tcl_Interp *interp = G3_getInterpreter(rt);
 
-  GroundMotion *theMotion = 0;
+  GroundMotion *theMotion = nullptr;
   int gMotionTag;
 
   // make sure at least one other argument to contain integrator
@@ -84,6 +84,7 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
     opserr << "WARNING invalid tag: groundMotion tag  type <args>\n";
     return TCL_ERROR;
   }
+
   int startArg = 2;
 
   if ((strcmp(argv[startArg], "Series") == 0) ||

@@ -53,7 +53,7 @@
 typedef struct databasePackageCommand {
   char *funcName;
   int (*funcPtr)(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv, Domain *, FEM_ObjectBroker *,
+                 TCL_Char ** const argv, Domain *, FEM_ObjectBroker *,
                  FE_Datastore **);
   struct databasePackageCommand *next;
 } DatabasePackageCommand;
@@ -62,14 +62,14 @@ typedef struct databasePackageCommand {
 static DatabasePackageCommand *theDatabasePackageCommands = NULL;
 static bool createdDatabaseCommands = false;
 
-int save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+int save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
-int restore(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+int restore(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
 extern FE_Datastore *theDatabase;
 
 int
-TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
+TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
                Domain &theDomain, FEM_ObjectBroker &theBroker)
 {
   if (createdDatabaseCommands == false) {
@@ -138,7 +138,7 @@ TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
 
     void *libHandle;
     int (*funcPtr)(ClientData, Tcl_Interp *, int ,
-                   TCL_Char **argv, Domain *, FEM_ObjectBroker *,
+                   TCL_Char ** const argv, Domain *, FEM_ObjectBroker *,
                    FE_Datastore **);
     int databaseNameLength = strlen(argv[1]);
     char *tclFuncName = new char[databaseNameLength + 12];
@@ -169,7 +169,7 @@ TclAddDatabase(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **a
 }
 
 int
-save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   if (theDatabase == nullptr) {
@@ -199,7 +199,7 @@ save(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-restore(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+restore(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   if (theDatabase == 0) {

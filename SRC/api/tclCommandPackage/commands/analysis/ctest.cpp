@@ -26,11 +26,11 @@
 #endif
 
 ConvergenceTest*
-TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv);
+TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv);
 
 
 int
-specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest* theNewTest = TclDispatch_newConvergenceTest(clientData, interp, argc, argv);
@@ -50,7 +50,7 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg
 }
 
 ConvergenceTest*
-TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
+TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
   // Domain *domain = G3_getDomain(rt);
 
@@ -237,7 +237,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
 
 int
 getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
+              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest *theTest =
@@ -261,7 +261,7 @@ getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest *theTest =

@@ -20,10 +20,10 @@ class G3_Runtime;
 // command invoked to allow the Numberer objects to be built
 //
 // int
-// specifyNumberer(G3_Runtime* rt, int argc, TCL_Char **argv);
+// specifyNumberer(G3_Runtime* rt, int argc, TCL_Char ** const argv);
 
 DOF_Numberer*
-G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char **argv)
+G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
   DOF_Numberer *theNumberer = nullptr;
 

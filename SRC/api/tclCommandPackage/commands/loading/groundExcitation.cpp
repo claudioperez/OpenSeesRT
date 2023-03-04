@@ -7,7 +7,7 @@
 #if 0
 int
 groundExcitation(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char **argv)
+                  TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* the_domain = G3_getDomain(rt);

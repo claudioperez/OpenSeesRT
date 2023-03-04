@@ -64,13 +64,13 @@ Tcl_CmdProc TclCommand_addNodalLoad;
 
 extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientData,
                                                         Tcl_Interp *interp,
-                                                        TCL_Char *arg);
+                                                        TCL_Char * const arg);
 
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
-                                    TCL_Char *arg);
+                                    TCL_Char * const arg);
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -80,7 +80,7 @@ printCommand(int argc, TCL_Char **argv)
 
 int
 TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
+                      TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
@@ -287,7 +287,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // First search for file name and time step
     int numInputs = argc;
-    TCL_Char *accelFileName = 0;
+    TCL_Char *accelFileName = nullptr;
     double dt = 0.0;
     for (int i = 5; i < argc; i++) {
       if (strcmp(argv[i], "-accel") == 0 && i + 2 < argc) {
@@ -435,7 +435,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 #ifdef OPSDEF_DRM
   //////// //////// ///////// ////////// /////  // DRMLoadPattern add BEGIN
   else if (strcmp(argv[1], "DRMLoadPattern") == 0) {
-    TCL_Char *InputDataFileName = 0;
+    TCL_Char *InputDataFileName = nullptr;
 
     if ((strcmp(argv[2], "-inputdata") == 0) ||
         (strcmp(argv[2], "-InputData") == 0)) {
@@ -841,7 +841,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);

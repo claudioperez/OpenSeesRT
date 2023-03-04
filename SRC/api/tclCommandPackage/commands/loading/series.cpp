@@ -22,50 +22,40 @@
 #include <ConstantSeries.h>
 #include <PathTimeSeries.h>
 #include <PathSeries.h>
-// #include <RectangularSeries.h>
 #include <TrigSeries.h>
+// #include <RectangularSeries.h>
 // #include <PulseSeries.h>
 // #include <TriangleSeries.h>
 // #include <PeerMotion.h>
 // #include <PeerNGAMotion.h>
 
-#ifdef _RELIABILITY
-#include <DiscretizedRandomProcessSeries.h>
-#include <SimulatedRandomProcessSeries.h>
-#include <Spectrum.h>
-#include <RandomNumberGenerator.h>
-#include <ReliabilityDomain.h>
-//#include <NewDiscretizedRandomProcessSeries.h>
-extern ReliabilityDomain *theReliabilityDomain;
-extern RandomNumberGenerator *theRandomNumberGenerator;
-#endif
 
 
 // little function to free memory after invoke Tcl_SplitList
 //   note Tcl_Split list stores the array of pointers and the strings in
 //   one array, which is why Tcl_Free needs only be called on the array.
 static void
-cleanup(TCL_Char **argv)
+cleanup(TCL_Char ** const argv)
 {
   Tcl_Free((char *)argv);
 }
 
 extern void *OPS_ConstantSeries(G3_Runtime*);
 extern void *OPS_LinearSeries(G3_Runtime*);
-// extern void *OPS_TriangleSeries(G3_Runtime*);
 extern void *OPS_TrigSeries(G3_Runtime*);
-// extern void *OPS_RectangularSeries(G3_Runtime*);
 extern void *OPS_PulseSeries(G3_Runtime*);
-extern void *OPS_PeerMotion(G3_Runtime*);
-extern void *OPS_PeerNGAMotion(G3_Runtime*);
+// extern void *OPS_PeerMotion(G3_Runtime*);
+// extern void *OPS_PeerNGAMotion(G3_Runtime*);
+// extern void *OPS_TriangleSeries(G3_Runtime*);
+// extern void *OPS_RectangularSeries(G3_Runtime*);
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
-                                       int cArg, int mArg, TCL_Char **argv,
+                                       int cArg, int mArg, TCL_Char ** const argv,
                                        Domain *domain);
 
 
 static void *
-TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char **argv)
+TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
 
   // Pointer to a uniaxial material that will be returned
@@ -117,7 +107,7 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
 }
 
 static TimeSeries *
-TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -676,10 +666,10 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
 }
 
 TimeSeries *
-TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
+TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char * const arg)
 {
   int argc;
-  TCL_Char **argv;
+  TCL_Char ** argv;
   TimeSeries *series;
   int timeSeriesTag = 0;
 
@@ -706,14 +696,14 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
 
 int
 TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
+                         TCL_Char ** const argv)
 {
 
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc - 1, &argv[1]);
 
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder *)clientData;
 
-  if (theSeries != 0) {
+  if (theSeries != nullptr) {
     if (theTclBuilder->addTimeSeries(argv[2], theSeries))
       return TCL_OK;
     else

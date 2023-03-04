@@ -35,16 +35,16 @@
 //   note Tcl_Split list stores the array of pointers and the strings in
 //   one array, which is why Tcl_Free needs only be called on the array.
 static void
-cleanup(TCL_Char **argv)
+cleanup(TCL_Char ** argv)
 {
   Tcl_Free((char *)argv);
 }
 
 TimeSeriesIntegrator *
-TclDispatch_newSeriesIntegrator(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg)
+TclDispatch_newSeriesIntegrator(ClientData clientData, Tcl_Interp* interp, TCL_Char * const arg)
 {
   int argc;
-  TCL_Char **argv;
+  TCL_Char ** argv;
 //  G3_Runtime *rt = G3_getRuntime(interp);
 
   // split the list
@@ -53,7 +53,7 @@ TclDispatch_newSeriesIntegrator(ClientData clientData, Tcl_Interp *interp, TCL_C
     return 0;
   }
 
-  TimeSeriesIntegrator *theSeriesIntegrator = 0;
+  TimeSeriesIntegrator *theSeriesIntegrator = nullptr;
 
   if (strcmp(argv[0], "Trapezoidal") == 0) {
     theSeriesIntegrator = new TrapezoidalTimeSeriesIntegrator();

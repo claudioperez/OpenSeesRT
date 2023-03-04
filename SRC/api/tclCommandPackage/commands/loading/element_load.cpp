@@ -31,7 +31,7 @@ extern const char *getInterpPWD(Tcl_Interp *interp);
 
 int
 TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
+                         TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)G3_getSafeBuilder(rt);

@@ -34,37 +34,37 @@ extern VariableTimeStepDirectIntegrationAnalysis
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 StaticIntegrator*
-G3Parse_newHSIntegrator(ClientData, Tcl_Interp*, int, const char **);
+G3Parse_newHSIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 StaticIntegrator*
-G3Parse_newLoadControl(ClientData, Tcl_Interp*, int argc, const char *argv[]);
+G3Parse_newLoadControl(ClientData, Tcl_Interp*, int argc, TCL_Char *argv[]);
 StaticIntegrator*
-G3Parse_newEQPathIntegrator(ClientData, Tcl_Interp*, int argc, const char *argv[]);
+G3Parse_newEQPathIntegrator(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
 StaticIntegrator*
-G3Parse_newArcLengthIntegrator(ClientData, Tcl_Interp*, int argc, const char *argv[]);
+G3Parse_newArcLengthIntegrator(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
 StaticIntegrator*
-G3Parse_newStagedLoadControlIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
+G3Parse_newStagedLoadControlIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 StaticIntegrator*
-G3Parse_newMinUnbalDispNormIntegrator(ClientData, Tcl_Interp*, int, G3_Char **);
+G3Parse_newMinUnbalDispNormIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 StaticIntegrator*
-G3Parse_newDisplacementControlIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
+G3Parse_newDisplacementControlIntegrator(ClientData, Tcl_Interp*, int, TCL_Char** const);
 StaticIntegrator*
-G3Parse_newStaticIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
+G3Parse_newStaticIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 
 TransientIntegrator*
-G3Parse_newNewmark1Integrator(ClientData, Tcl_Interp*, int, TCL_Char **);
+G3Parse_newNewmark1Integrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 TransientIntegrator*
-G3Parse_newNewmarkIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
+G3Parse_newNewmarkIntegrator(ClientData, Tcl_Interp*, int, TCL_Char** const);
 TransientIntegrator*
-G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, TCL_Char **);
+G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 
 //
 // command invoked to allow the Integrator object to be built
 //
 int
-specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
@@ -92,7 +92,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
 }
 
 StaticIntegrator*
-G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   StaticIntegrator* the_static_integrator = nullptr;
@@ -146,7 +146,7 @@ G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 TransientIntegrator*
-G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime* rt = G3_getRuntime(interp);
 
@@ -432,7 +432,7 @@ G3Parse_newEQPathIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
 #include <ArcLength.h>
 StaticIntegrator *
-G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   double arcLength;
   double alpha;
@@ -451,7 +451,7 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 
 #include <MinUnbalDispNorm.h>
 StaticIntegrator*
-G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv)
+G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
     double lambda11, minlambda, maxlambda;
     int numIter;
@@ -487,7 +487,7 @@ G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp,
 }
 
 StaticIntegrator*
-G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char** argv)
+G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
     G3_Runtime* rt = G3_getRuntime(interp);
     Domain *domain = G3_getDomain(rt);
@@ -556,7 +556,7 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
 }
 
 StaticIntegrator*
-G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
     double dLambda;
     double minIncr, maxIncr;
@@ -585,7 +585,7 @@ G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp
 
 #include <Newmark1.h>
 TransientIntegrator*
-G3Parse_newNewmark1Integrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3Parse_newNewmark1Integrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
     double gamma;
     double beta;

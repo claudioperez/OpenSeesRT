@@ -46,7 +46,7 @@
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 typedef EquiSolnAlgo *(TclEquiSolnAlgo)(ClientData, Tcl_Interp *, int,
                                         TCL_Char **);
@@ -60,7 +60,7 @@ TclEquiSolnAlgo G3_newNewtonLineSearch;
 //
 int
 TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
+                 TCL_Char ** const argv)
 {
 
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
@@ -89,7 +89,7 @@ TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
@@ -106,7 +106,7 @@ TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
 }
 
 int
-TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
@@ -124,7 +124,7 @@ TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
 
 
 int
-TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
@@ -142,7 +142,7 @@ TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 
 EquiSolnAlgo *
 G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv)
+                        TCL_Char ** const argv)
 {
   EquiSolnAlgo *theNewAlgo = nullptr;
 
@@ -192,7 +192,7 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3Parse_newLinearAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv)
+                           TCL_Char ** const argv)
 {
   int formTangent = CURRENT_TANGENT;
   int factorOnce = 0;
@@ -215,7 +215,7 @@ G3Parse_newLinearAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv)
+                                 int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest *theTest =
@@ -258,7 +258,7 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
 }
 
 EquiSolnAlgo *
-G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   assert(clientData != nullptr);
@@ -295,7 +295,7 @@ G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 EquiSolnAlgo *
 G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
-                       TCL_Char **argv)
+                       TCL_Char ** const argv)
 {
 
   assert(clientData != nullptr);
@@ -382,7 +382,7 @@ G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
+                   TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -429,7 +429,7 @@ G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newRaphsonNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
+                    TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -472,7 +472,7 @@ G3_newRaphsonNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newMillerNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
+                   TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -520,7 +520,7 @@ G3_newMillerNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newPeriodicNewton(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv)
+                     TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -567,7 +567,7 @@ G3_newPeriodicNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
 EquiSolnAlgo *
 G3_newBroyden(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
+              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -601,7 +601,7 @@ G3_newBroyden(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char **argv, OPS_Stream &output)
+               TCL_Char ** const argv, OPS_Stream &output)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
@@ -629,7 +629,7 @@ printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclCommand_accelCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_accelCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
@@ -646,7 +646,7 @@ TclCommand_accelCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
 }
 
 int
-TclCommand_numFact(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_numFact(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;

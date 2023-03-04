@@ -58,24 +58,24 @@ extern void OPS_DomainModalProperties(G3_Runtime*);
 extern void OPS_ResponseSpectrumAnalysis(G3_Runtime*);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
-int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 static int printA(ClientData, Tcl_Interp *, int, TCL_Char **);
 static int printB(ClientData, Tcl_Interp *, int, TCL_Char **);
-static int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+static int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
-extern int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-static int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+extern int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
-extern int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
-extern int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+extern int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+extern int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
 // commands/analysis/algorithm.cpp
 extern Tcl_CmdProc TclCommand_specifyAlgorithm;
@@ -90,8 +90,8 @@ extern Tcl_CmdProc getCTestNorms;
 extern Tcl_CmdProc getCTestIter;
 
 
-DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
-// int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char **argv);
+DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**const);
+// int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
 //
 // Add commands to the interpreter that take the AnalysisBuilder as clientData.
@@ -103,7 +103,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   BasicAnalysisBuilder *builder = new BasicAnalysisBuilder(domain);
 
   Tcl_CreateCommand(interp, "system",            &specifySysOfEqnTable, builder, nullptr);
-  Tcl_CreateCommand(interp, "numberer", [](ClientData builder, Tcl_Interp *i, int ac, G3_Char** av)->int{
+  Tcl_CreateCommand(interp, "numberer", [](ClientData builder, Tcl_Interp *i, int ac, G3_Char** const av)->int{
       ((BasicAnalysisBuilder*)builder)->set(G3Parse_newNumberer(G3_getRuntime(i), ac, av));
       return TCL_OK;
   }, builder, nullptr);
@@ -141,7 +141,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
 //
 int
 specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
+                TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -192,7 +192,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 //
 int
 analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -276,7 +276,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
 
 static int
 initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
+                   TCL_Char ** const argv)
 {
   // TODO
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -304,7 +304,7 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
 static int
 eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
+              TCL_Char ** const argv)
 {
   /* static */ char *resDataPtr = 0;
   /* static */ int resDataSize = 0;
@@ -423,7 +423,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
 static int
 modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
+                TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
@@ -433,7 +433,7 @@ modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,
 
 static int
 responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
+                 TCL_Char ** const argv)
 {
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -445,7 +445,7 @@ responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
 // AnalysisBuilder
 extern int
 modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -508,7 +508,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
 extern int
 modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
+              TCL_Char ** const argv)
 {
 
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -571,7 +571,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 static int
-resetModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+resetModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -590,7 +590,7 @@ resetModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 int
 printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv, OPS_Stream &output)
+                TCL_Char ** const argv, OPS_Stream &output)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -626,7 +626,7 @@ printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
@@ -690,7 +690,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 int
-printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int res = 0;
 
@@ -744,7 +744,7 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 
 int
-wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
+wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   if (cd != nullptr) {
     BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)cd;
@@ -780,7 +780,7 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char **argv)
 //
 static int
 specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
+                         TCL_Char ** const argv)
 {
   
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;

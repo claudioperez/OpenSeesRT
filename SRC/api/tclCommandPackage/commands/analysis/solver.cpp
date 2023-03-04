@@ -63,15 +63,15 @@ extern LinearSOE *theSOE;
 // LinearSOE*
 // G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
 LinearSOE*
-// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char **argv)
-G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv);
+// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char ** const argv)
+G3Parse_newLinearSOE(ClientData, Tcl_Interp* interp, int, G3_Char **const);
 
 LinearSOE*
-TclDispatch_newPetscSOE(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char **);
+TclDispatch_newPetscSOE(ClientData, Tcl_Interp *interp, int, G3_Char **const);
 
 #if 0 // TODO: implement AnalysisBuilder->getLinearSOE();
 int
-TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   LinearSOE *theSOE = ((BasicAnalysisBuilder *)clientData)->getLinearSOE();
@@ -91,8 +91,8 @@ TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 #endif
 
 int
-specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
-               G3_Char **argv) {
+specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char ** const argv)
+{
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
@@ -117,7 +117,7 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 LinearSOE*
-G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char **argv)
+G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
   G3_Runtime* rt = G3_getRuntime(interp); 
 
@@ -164,7 +164,7 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
 
 
 LinearSOE*
-specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
+specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char ** const argv)
 {
   if ((strcmp(argv[1], "SparseSPD") == 0) ||
            (strcmp(argv[1], "SparseSYM") == 0)) {
@@ -196,7 +196,7 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char **argv)
 // TODO: CMP
 
 LinearSOE*
-specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
+specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
   // SPARSE GENERAL SOE * SOLVER
   if ((strcmp(argv[1], "SparseGeneral") == 0) ||
