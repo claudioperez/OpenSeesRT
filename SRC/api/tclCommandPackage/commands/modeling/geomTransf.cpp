@@ -41,7 +41,7 @@
 //
 int
 TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv)
+                         TCL_Char ** const argv)
 
 {
   assert(clientData != nullptr);

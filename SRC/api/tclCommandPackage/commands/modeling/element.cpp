@@ -39,7 +39,7 @@ extern
 #endif
 */
 int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char **argv, Domain *domain,
+                          int mArg, TCL_Char ** const argv, Domain *domain,
                           TclBuilder *builder);
 
 typedef struct elementPackageCommand {
@@ -50,7 +50,7 @@ typedef struct elementPackageCommand {
 
 static ElementPackageCommand *theElementPackageCommands = NULL;
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
@@ -170,10 +170,10 @@ void *OPS_ZeroLengthContactASDimplex(G3_Runtime *rt);
 /*
  * cmp - commented out to eliminate use of TclBasicBuilder
 extern int TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp,
-                                        int argc, TCL_Char **argv, Domain *,
+                                        int argc, TCL_Char ** const argv, Domain *,
                                         TclBasicBuilder *, int argStart);
 extern int Tcl_addWrapperElement(eleObj *, ClientData clientData,
-                                 Tcl_Interp *interp, int argc, TCL_Char **argv,
+                                 Tcl_Interp *interp, int argc, TCL_Char ** const argv,
                                  Domain *, TclBuilder *);
 
 // Added by Quan Gu and Yongdou Liu, et al. on 2018/10/31 (Xiamen University)
@@ -181,12 +181,12 @@ int TclBasicBuilder_addWheelRail(ClientData, Tcl_Interp *, int, TCL_Char **, Dom
 
 */
 extern int TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv, Domain *, int argStart);
+                                    int argc, TCL_Char ** const argv, Domain *, int argStart);
 
 
 
 extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
-                                      TCL_Char **, Domain *);
+                                      TCL_Char **const, Domain *);
 
 G3_TclElementCommand TclBasicBuilder_addConstantPressureVolumeQuad;
 G3_TclElementCommand TclBasicBuilder_addJoint3D;
@@ -242,12 +242,12 @@ G3_TclElementCommand TclBasicBuilder_addYamamotoBiaxialHDR;
 G3_TclElementCommand TclBasicBuilder_addGradientInelasticBeamColumn;
 
 // NM
-int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int, TCL_Char **, Domain *, int);
+int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *, int);
 
 
 
 int
-TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getSafeBuilder(rt);
@@ -1080,7 +1080,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
 int
 TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp,
-                                       int argc, TCL_Char **argv,
+                                       int argc, TCL_Char ** const argv,
                                        Domain *theTclDomain, 
                                        [[maybe_unused]] TclBasicBuilder* unused)
 {
@@ -1344,7 +1344,7 @@ errDetected(bool ifNoError, const char *msg)
 
 int
 TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *interp,
-                                        int argc, TCL_Char **argv,
+                                        int argc, TCL_Char ** const argv,
                                         Domain *theTclDomain, TclBasicBuilder *theTclBuilder)
 {
 
@@ -1632,7 +1632,7 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *inter
 
 int
 TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   Domain *theTclDomain, TclBasicBuilder* unused)
 {
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
@@ -2136,7 +2136,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
+                                      int argc, TCL_Char ** const argv,
                                       [[maybe_unused]] Domain *theTclDomain_, 
                                       [[maybe_unused]] TclBasicBuilder *unused)
 {
@@ -2368,7 +2368,7 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc,
-                             TCL_Char **argv, Domain *theTclDomain,
+                             TCL_Char ** const argv, Domain *theTclDomain,
                              TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
   G3_Runtime *rt = G3_getRuntime(interp);

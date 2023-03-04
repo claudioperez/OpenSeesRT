@@ -19,7 +19,7 @@
 
 int
 TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv, Domain &theDomain)
+                 TCL_Char ** const argv, Domain &theDomain)
 {
   int loc = 1;
   int tag;

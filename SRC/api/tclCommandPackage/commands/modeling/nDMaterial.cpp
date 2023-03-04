@@ -129,12 +129,12 @@ extern void *OPS_Damage2p(G3_Runtime*);
 #if defined(OPSDEF_Material_FEAP)
 NDMaterial *TclBasicBuilder_addFeapMaterial(ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv,
+                                            TCL_Char ** const argv,
                                             TclBasicBuilder *theTclBuilder);
 #endif // _OPS_Material_FEAP
 
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char **argv, Domain *domain,
+                          int mArg, TCL_Char ** const argv, Domain *domain,
                           TclBuilder *builder);
 
 typedef struct ndMaterialPackageCommand {
@@ -146,7 +146,7 @@ typedef struct ndMaterialPackageCommand {
 static NDMaterialPackageCommand *theNDMaterialPackageCommands = NULL;
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -156,7 +156,7 @@ printCommand(int argc, TCL_Char **argv)
 
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv)
+                                 int argc, TCL_Char ** const argv)
                                  //TclBasicBuilder *theTclBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);

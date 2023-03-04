@@ -14,7 +14,7 @@
 
 int
 TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv)
+                          TCL_Char ** const argv)
 { 
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
@@ -87,7 +87,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   if (numNodes == 4)
     nodalInfo = 7;
 
-  TCL_Char **argvNodes;
+  TCL_Char ** const argvNodes;
   int  argcNodes;
 
   Tcl_SplitList(interp, argv[nodalInfo], &argcNodes, &argvNodes);
@@ -207,7 +207,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv)
+                          TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
@@ -254,7 +254,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
   for (int k=0; k<27; k++) haveNode(k) = -1;
 
   TCL_Char *nodalInfo = argv[8];
-  TCL_Char **argvNodes;
+  TCL_Char ** const argvNodes;
   int  argcNodes;
 
   Tcl_SplitList(interp, nodalInfo, &argcNodes, &argvNodes);

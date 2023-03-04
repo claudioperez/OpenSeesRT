@@ -18,7 +18,7 @@
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <ElasticMaterial.h>
 #include <ElasticSection2d.h>
@@ -99,15 +99,15 @@ extern void *OPS_Bidirectional(G3_Runtime*);
 extern void *OPS_Elliptical2(G3_Runtime*);
 
 int TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv,
+                               int argc, TCL_Char ** const argv,
                                TclBasicBuilder *theBuilder);
 
 int TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv,
+                                   int argc, TCL_Char ** const argv,
                                    TclBasicBuilder *theBuilder);
 
 int TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theBuilder);
 
 //--- Adding Thermo-mechanical Sections:[BEGIN]   by UoE OpenSees Group ---//
@@ -117,18 +117,18 @@ int TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
 #include <MembranePlateFiberSectionThermal.h> //Added by Liming, [SIF] 2017
 #include <LayeredShellFiberSectionThermal.h>  //Added by Liming, [SIF] 2017
 
-int TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theBuilder);
+int TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, TclBasicBuilder *theBuilder);
 static int buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder, int secTag, UniaxialMaterial &theTorsion);
 //--- Adding Thermo-mechanical Sections: [END]   by UoE OpenSees Group ---//
 
-int TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theBuilder);
+int TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, TclBasicBuilder *theBuilder);
 
 SectionForceDeformation *
-TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv, TclBasicBuilder *theTclBuilder);
+TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, TclBasicBuilder *theTclBuilder);
 
 int
 TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char **argv)
+                              int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -815,7 +815,7 @@ int buildSectionInt(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
 int
 TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
+                           TCL_Char ** const argv, TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -938,7 +938,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char **argv,
+                              int argc, TCL_Char ** const argv,
                               TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -1077,7 +1077,7 @@ int
 TclCommand_addPatch(ClientData clientData, 
                     Tcl_Interp *interp, 
                     int argc,
-                    TCL_Char **argv)
+                    TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBuilder *theTclBasicBuilder = G3_getModelBuilder(rt);
@@ -1426,7 +1426,7 @@ TclCommand_addPatch(ClientData clientData,
 // add patch to fiber section
 int
 TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv)
+                    TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBuilder *theTclBasicBuilder = G3_getModelBuilder(rt);
@@ -1553,7 +1553,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 // add Hfiber to fiber section
 int
 TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv, TclBasicBuilder *theTclBasicBuilder)
+                     TCL_Char ** const argv, TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   // check if a section is being processed
@@ -1660,7 +1660,7 @@ TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv) //, TclBasicBuilder *theTclBasicBuilder)
+                         TCL_Char ** const argv) //, TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -2428,7 +2428,7 @@ buildSectionInt(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
 int
 TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
-                             int argc, TCL_Char **argv,
+                             int argc, TCL_Char ** const argv,
                              TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -2550,7 +2550,7 @@ TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
 ///--///
 int
 TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -2847,7 +2847,7 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
 int
 TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv,
+                               int argc, TCL_Char ** const argv,
                                TclBasicBuilder *theTclBasicBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -3201,7 +3201,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
 /*
 SectionForceDeformation*
-G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char**argv)
+G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
   SectionForceDeformation *theSection = nullptr;
   if (strcmp(argv[1], "Tube") == 0) {

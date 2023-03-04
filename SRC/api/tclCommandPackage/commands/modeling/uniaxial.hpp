@@ -343,7 +343,7 @@ const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_ta
 
 */
 
-typedef UniaxialMaterial* (G3_TclUniaxialCommand)(G3_Runtime*, int, TCL_Char **);
+typedef UniaxialMaterial* (G3_TclUniaxialCommand)(G3_Runtime*, int, TCL_Char ** const);
 G3_TclUniaxialCommand TclCommand_KikuchiAikenHDR;
 G3_TclUniaxialCommand TclCommand_KikuchiAikenLRB;
 G3_TclUniaxialCommand G3Parse_newFedeasUniaxialDamage;
@@ -357,7 +357,7 @@ G3_TclUniaxialCommand G3Parse_newUniaxialBoucWen;
 // G3_TclUniaxialCommand TclCommand_AxialSpHD;
 
 template <void*(*fn)(G3_Runtime*)> static void*
-G3_(G3_Runtime* rt, int argc, G3_Char**)
+G3_(G3_Runtime* rt, int argc, G3_Char** const)
 {
   return fn(rt);
 }
@@ -388,7 +388,7 @@ std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
 };
 
 
-typedef UniaxialMaterial*(G3_TclUniaxialPackage)(ClientData, Tcl_Interp *, int, TCL_Char **);
+typedef UniaxialMaterial*(G3_TclUniaxialPackage)(ClientData, Tcl_Interp *, int, TCL_Char ** const);
 G3_TclUniaxialPackage TclBasicBuilder_addFedeasMaterial;
 G3_TclUniaxialPackage TclBasicBuilder_addSnapMaterial;
 G3_TclUniaxialPackage TclBasicBuilder_addDrainMaterial;

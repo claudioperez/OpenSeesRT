@@ -10,7 +10,7 @@
 #include <elementAPI.h>
 
 int
-TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theTclDomain = G3_getDomain(rt);

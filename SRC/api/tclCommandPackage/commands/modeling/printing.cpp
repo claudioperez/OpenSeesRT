@@ -38,16 +38,16 @@
 
 
 int printElement(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv, OPS_Stream &output);
+                 TCL_Char ** const argv, OPS_Stream &output);
 
 int printNode(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv, OPS_Stream &output);
+              TCL_Char ** const argv, OPS_Stream &output);
 
 int printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char **argv, OPS_Stream &output);
+                    TCL_Char ** const argv, OPS_Stream &output);
 
 int printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv, OPS_Stream &output);
+                   TCL_Char ** const argv, OPS_Stream &output);
 
 
 static int
@@ -169,7 +169,7 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
 }
 
 int
-TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
 
@@ -297,7 +297,7 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
 
 int
 printElement(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv, OPS_Stream &output)
+             TCL_Char ** const argv, OPS_Stream &output)
 {
   assert(clientData != nullptr);
   Domain * the_domain = (Domain*)clientData;
@@ -366,7 +366,7 @@ printElement(ClientData clientData, Tcl_Interp *interp, int argc,
 //   output:  output stream to which the results are sent
 //
 int
-printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
+printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
           OPS_Stream &output)
 {
   int flag = 0; // default flag sent to a nodes Print() method
@@ -435,7 +435,7 @@ printNode(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
 // Author: Talledo
 int
 printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
+              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;

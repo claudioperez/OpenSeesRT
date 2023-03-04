@@ -38,7 +38,7 @@
 #include <elementAPI.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <Elastic2Material.h>   // ZHY
 #include <HardeningMaterial.h>  // MHS
@@ -196,7 +196,7 @@ extern void *OPS_Masonryt(G3_Runtime*);
 // };
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
-// *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder *theTclBuilder);
+// *interp, int argc, 					 TCL_Char ** const argv, TclBasicBuilder *theTclBuilder);
 
 extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
                                                    Tcl_Interp *interp, int argc,
@@ -204,7 +204,7 @@ extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
 
 extern UniaxialMaterial *
 Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData,
-                               Tcl_Interp *interp, int argc, TCL_Char **argv);
+                               Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
 #include <packages.h>
 
@@ -217,7 +217,7 @@ typedef struct uniaxialPackageCommand {
 static UniaxialPackageCommand *theUniaxialPackageCommands = NULL;
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -228,32 +228,32 @@ printCommand(int argc, TCL_Char **argv)
 // external functions
 
 int TclCommand_KikuchiAikenHDR(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv);
+                               int argc, TCL_Char ** const argv);
 
 int TclCommand_KikuchiAikenLRB(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char **argv);
+                               int argc, TCL_Char ** const argv);
 
 
 // UniaxialMaterial *TclBasicBuilder_addFedeasMaterial(ClientData clientData,
 //                                                     Tcl_Interp *interp,
-//                                                     int argc, TCL_Char **argv);
+//                                                     int argc, TCL_Char ** const argv);
 
 UniaxialMaterial *TclBasicBuilder_addDrainMaterial(ClientData clientData,
                                                    Tcl_Interp *interp, int argc,
-                                                   TCL_Char **argv);
+                                                   TCL_Char ** const argv);
 
 UniaxialMaterial *TclBasicBuilder_addSnapMaterial(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv);
+                                                  TCL_Char ** const argv);
 
 UniaxialMaterial *TclBasicBuilder_addPyTzQzMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv,
+                                                    int argc, TCL_Char ** const argv,
                                                     Domain *theDomain);
 
 UniaxialMaterial *TclBasicBuilder_FRPCnfinedConcrete(ClientData clientData,
                                                      Tcl_Interp *interp,
-                                                     int argc, TCL_Char **argv,
+                                                     int argc, TCL_Char ** const argv,
                                                      Domain *theDomain);
 
 UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
@@ -262,7 +262,7 @@ UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
 int
 TclBasicBuilderUniaxialMaterialCommand(ClientData clientData,
                                        Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv, Domain *theDomain)
+                                       TCL_Char ** const argv, Domain *theDomain)
 {
 
   G3_Runtime *rt = G3_getRuntime(interp);

@@ -27,7 +27,7 @@
 
 int
 TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char **argv)
+                            TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
@@ -91,7 +91,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv)
+                                   int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
@@ -148,7 +148,7 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv)
+                                   int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   // G3_Runtime *rt = G3_getRuntime(interp);
@@ -203,7 +203,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv)
+                                   int argc, TCL_Char ** const argv)
 {
 
   assert(clientData != nullptr);
@@ -256,7 +256,7 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv)
+                      TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theTclDomain = G3_getDomain(rt);
@@ -355,7 +355,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv)
+                                int argc, TCL_Char ** const argv)
 {
     G3_Runtime *rt = G3_getRuntime(interp);
     TclBuilder *theTclBuilder = G3_getModelBuilder(rt);
@@ -442,7 +442,7 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
 /*
 int
 TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
-                                int argc, TCL_Char **argv)
+                                int argc, TCL_Char ** const argv)
 {
         // Ensure the destructor has not been called
         BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -539,7 +539,7 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
 
 
 int
-TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   if (argc < 3) {
       opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
@@ -581,7 +581,7 @@ int
 TclCommand_addImposedMotionSP(ClientData clientData,
                                    Tcl_Interp *interp,
                                    int argc,
-                                   TCL_Char **argv)
+                                   TCL_Char ** const argv)
 {
   // TODO: Cleanup
   G3_Runtime* rt = G3_getRuntime(interp);

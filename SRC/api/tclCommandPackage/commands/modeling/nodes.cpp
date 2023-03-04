@@ -17,7 +17,7 @@
 
 int
 TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
+                   TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
 
@@ -211,7 +211,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv)
+                        TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
 
@@ -266,7 +266,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
 int
-TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
@@ -300,7 +300,7 @@ TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
 }
 
 int
-TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclCommand_getNDF(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
