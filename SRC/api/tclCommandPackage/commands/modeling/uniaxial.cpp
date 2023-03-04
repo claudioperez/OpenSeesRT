@@ -54,7 +54,7 @@ class G3_Runtime;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 
 extern void *OPS_Bond_SP01(G3_Runtime *);  // K Kolozvari
@@ -84,7 +84,7 @@ extern void *OPS_UVCuniaxial(G3_Runtime *);
 
 
 // extern int TclCommand_ConfinedConcrete02(ClientData clientData, Tcl_Interp
-// *interp, int argc, 					 TCL_Char **argv, TclBasicBuilder
+// *interp, int argc, 					 TCL_Char ** const argv, TclBasicBuilder
 // *theTclBuilder);
 
 // extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData,
@@ -93,7 +93,7 @@ extern void *OPS_UVCuniaxial(G3_Runtime *);
 
 extern UniaxialMaterial *
 Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData,
-                               Tcl_Interp *interp, int argc, TCL_Char **argv);
+                               Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
 typedef struct uniaxialPackageCommand {
   char *funcName;
@@ -103,7 +103,7 @@ typedef struct uniaxialPackageCommand {
 
 static UniaxialPackageCommand *theUniaxialPackageCommands = NULL;
 
-static void printCommand(int argc, TCL_Char **argv) {
+static void printCommand(int argc, TCL_Char ** const argv) {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
     opserr << argv[i] << " ";
@@ -115,12 +115,12 @@ static void printCommand(int argc, TCL_Char **argv) {
 //
 UniaxialMaterial *TclBasicBuilder_addPyTzQzMaterial(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv,
+                                                    int argc, TCL_Char ** const argv,
                                                     Domain *theDomain);
 
 UniaxialMaterial *TclBasicBuilder_FRPCnfinedConcrete(ClientData clientData,
                                                      Tcl_Interp *interp,
-                                                     int argc, TCL_Char **argv,
+                                                     int argc, TCL_Char ** const argv,
                                                      Domain *theDomain);
 
 UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
@@ -129,7 +129,7 @@ UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
 
 int
 TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv) {
+                                  int argc, TCL_Char ** const argv) {
 
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
