@@ -17,12 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
+//
 // $Revision: 1.1.1.1 $
 // $Date: 2000-09-15 08:23:15 $
 // $Source: /usr/local/cvs/OpenSees/SRC/remote.h,v $
-                                                                        
-                                                                        
+//
 #define REMOTE "/home/tomorrow/f/millennium/fmckenna/OOP/remote/remote "
 
 #define  remoteShadowSubdomain "/home/tomorrow/f/millennium/fmckenna/bin/ShadowSubdomainActor "
