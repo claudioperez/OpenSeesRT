@@ -17,15 +17,17 @@ target_include_directories(OPS_Element PUBLIC
 
 # ${OPS_SRC_DIR}/element/beam2d
 # ${OPS_SRC_DIR}/element/beam3d
+# ${OPS_SRC_DIR}/element/dispBeamColumn
+# ${OPS_SRC_DIR}/element/elasticBeamColumn
+# ${OPS_SRC_DIR}/element/mixedBeamColumn
+  ${OPS_SRC_DIR}/element/Frame/UpdatedLagrange
+  ${OPS_SRC_DIR}/element/Frame/GradientInelastic
+  ${OPS_SRC_DIR}/element/Frame/ForceInterp
+  ${OPS_SRC_DIR}/element/Frame/MixedInterp
+  ${OPS_SRC_DIR}/element/Frame/DisplInterp
   ${OPS_SRC_DIR}/element/componentElement
-  ${OPS_SRC_DIR}/element/dispBeamColumn
   ${OPS_SRC_DIR}/element/dispBeamColumnInt
-  ${OPS_SRC_DIR}/element/elasticBeamColumn
-  ${OPS_SRC_DIR}/element/mixedBeamColumn
-  ${OPS_SRC_DIR}/element/nonlinearBeamColumn/matrixutil
-  ${OPS_SRC_DIR}/element/updatedLagrangianBeamColumn
-  ${OPS_SRC_DIR}/element/gradientInelasticBeamColumn
-  ${OPS_SRC_DIR}/element/forceBeamColumn
+# ${OPS_SRC_DIR}/element/nonlinearBeamColumn/matrixutil
 
   ${OPS_SRC_DIR}/element/bearing/elastomeric
   ${OPS_SRC_DIR}/element/bearing/elastomeric
@@ -84,14 +86,15 @@ add_subdirectory(zeroLength)
 add_subdirectory(truss)
 add_subdirectory(catenaryCable)
 
-add_subdirectory(elasticBeamColumn)
-add_subdirectory(dispBeamColumn)
+add_subdirectory(Frame)
+# add_subdirectory(elasticBeamColumn)
+# add_subdirectory(dispBeamColumn)
+# add_subdirectory(forceBeamColumn)
+# add_subdirectory(mixedBeamColumn)
+# add_subdirectory(gradientInelasticBeamColumn)
+# add_subdirectory(updatedLagrangianBeamColumn)
+
 add_subdirectory(dispBeamColumnInt)
-add_subdirectory(forceBeamColumn)
-add_subdirectory(mixedBeamColumn)
-add_subdirectory(gradientInelasticBeamColumn)
-add_subdirectory(updatedLagrangianBeamColumn)
-add_subdirectory(nonlinearBeamColumn)
 add_subdirectory(LHMYS)
 add_subdirectory(componentElement)
 
@@ -121,4 +124,6 @@ add_subdirectory(community/XMUelements)
 #add_subdirectory(community/UWelements)
 # add_subdirectory(PFEMElement)
 
+# TODO: Move out
+add_subdirectory(matrixutil)
 
