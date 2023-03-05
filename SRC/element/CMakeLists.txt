@@ -15,8 +15,8 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/community
   ${OPS_SRC_DIR}/element/community/HUelements
 
-  ${OPS_SRC_DIR}/element/beam2d
-  ${OPS_SRC_DIR}/element/beam3d
+# ${OPS_SRC_DIR}/element/beam2d
+# ${OPS_SRC_DIR}/element/beam3d
   ${OPS_SRC_DIR}/element/componentElement
   ${OPS_SRC_DIR}/element/dispBeamColumn
   ${OPS_SRC_DIR}/element/dispBeamColumnInt
@@ -56,12 +56,10 @@ target_sources(OPS_Element
       Element.cpp
       ElementalLoad.cpp
       WrapperElement.cpp
-      #Information.cpp
     PUBLIC
       Element.h
       ElementalLoad.h
       WrapperElement.h
-      #Information.h
 )
 
 target_sources(OPS_Utilities
@@ -84,26 +82,23 @@ add_subdirectory(brick)
 add_subdirectory(zeroLength)
 
 add_subdirectory(truss)
-add_subdirectory(beam2d)
-add_subdirectory(beam3d)
-#add_subdirectory(beamWithHinges)
+add_subdirectory(catenaryCable)
 
+add_subdirectory(elasticBeamColumn)
 add_subdirectory(dispBeamColumn)
 add_subdirectory(dispBeamColumnInt)
 add_subdirectory(forceBeamColumn)
 add_subdirectory(mixedBeamColumn)
-add_subdirectory(elasticBeamColumn)
 add_subdirectory(gradientInelasticBeamColumn)
 add_subdirectory(updatedLagrangianBeamColumn)
 add_subdirectory(nonlinearBeamColumn)
-
-add_subdirectory(catenaryCable)
 add_subdirectory(LHMYS)
+add_subdirectory(componentElement)
+
 add_subdirectory(PML)
 add_subdirectory(RockingBC)
 add_subdirectory(absorbentBoundaries)
 add_subdirectory(adapter)
-add_subdirectory(componentElement)
 
 add_subdirectory(bearing/friction)
 add_subdirectory(bearing/elastomeric)
@@ -116,10 +111,11 @@ add_subdirectory(feap)
 
 add_subdirectory(mvlem)
 add_subdirectory(pyMacro)
-add_subdirectory(UP-ucsd)
 add_subdirectory(masonry)
 add_subdirectory(CEqElement)
+
 #add_subdirectory(dmglib)
+add_subdirectory(UP-ucsd)
 add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)
 #add_subdirectory(community/UWelements)
