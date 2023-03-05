@@ -48,7 +48,8 @@ typedef struct elementPackageCommand {
   struct elementPackageCommand *next;
 } ElementPackageCommand;
 
-static ElementPackageCommand *theElementPackageCommands = NULL;
+static ElementPackageCommand *theElementPackageCommands = nullptr;
+
 
 extern void printCommand(int argc, TCL_Char ** const argv);
 
@@ -187,6 +188,8 @@ extern int TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp,
 
 extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
                                       TCL_Char **const, Domain *);
+
+typedef int (G3_TclElementCommand)(ClientData, Tcl_Interp*, int, const char** const, Domain*, TclBasicBuilder*);
 
 G3_TclElementCommand TclBasicBuilder_addConstantPressureVolumeQuad;
 G3_TclElementCommand TclBasicBuilder_addJoint3D;

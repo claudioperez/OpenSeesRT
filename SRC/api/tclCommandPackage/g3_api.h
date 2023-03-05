@@ -76,7 +76,6 @@ class LimitCurve;
 class Domain;
 class FE_Datastore;
 
-typedef int (G3_TclElementCommand)(ClientData, Tcl_Interp*, int, const char**, Domain*, TclBasicBuilder*);
 
 #ifdef __cplusplus
 extern "C" {

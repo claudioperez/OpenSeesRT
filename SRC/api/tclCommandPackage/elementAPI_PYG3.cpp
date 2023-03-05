@@ -139,7 +139,7 @@ OPS_ResetCurrentInputArg(int cArg)
 // extern "C"
 int
 OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
-               TCL_Char **argv, Domain *domain, TclBuilder *builder)
+               TCL_Char ** const argv, Domain *domain, TclBuilder *builder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   currentArgv = argv;
@@ -152,7 +152,7 @@ OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
 
 extern "C" int
 OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
-                        int mArg, TCL_Char **argv, Domain *domain)
+                        int mArg, TCL_Char ** const argv, Domain *domain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   currentArgv = argv;

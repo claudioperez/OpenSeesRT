@@ -90,7 +90,7 @@ VariableTimeStepDirectIntegrationAnalysis
 const char *getInterpPWD(Tcl_Interp *interp);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char* argv[], Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 
 Tcl_CmdProc TclCommand_record;
@@ -102,7 +102,7 @@ Tcl_CmdProc domainChange;
 
 
 // TODO: reimplement
-// int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char* argv[]);
+// int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
 // int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 
@@ -256,7 +256,7 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // TODO: consolidate
 extern int TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char* argv[], EquiSolnAlgo *theAlgorithm);
+                                   int argc, TCL_Char ** const argv, EquiSolnAlgo *theAlgorithm);
 
 int
 addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -271,7 +271,7 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
 int
-eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* const argv[])
+eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const argv)
 {
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
@@ -343,7 +343,7 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* const ar
 }
 
 int
-localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const argv)
 {
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
@@ -405,7 +405,7 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[]
 
 int
 eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char* argv[])
+                  TCL_Char** const argv)
 {
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
@@ -463,7 +463,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char* argv[])
+            TCL_Char** const argv)
 {
   Domain* the_domain = (Domain*)clientData; 
 
@@ -493,7 +493,7 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -561,7 +561,7 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
 
 int
 retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char* argv[])
+              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
@@ -605,7 +605,7 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char* argv[])
+             TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *domain = (Domain*)clientData;
@@ -687,7 +687,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char* argv[])
+                    TCL_Char ** const argv)
 {
   // Need to "setDomain" to make the change take effect.
   assert(clientData != nullptr);
@@ -703,7 +703,7 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
 int
-eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -734,7 +734,7 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
 }
 
 int
-eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -769,7 +769,7 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
 }
 
 int
-nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   char buffer[40];
   assert(clientData != nullptr);
@@ -811,7 +811,7 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
 
 int
 sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char* argv[])
+             TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -892,7 +892,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char* argv[])
+                   TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -968,7 +968,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char* argv[])
+                TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1034,7 +1034,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char* argv[])
+              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1095,7 +1095,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char* argv[])
+                 TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1165,7 +1165,7 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char* argv[])
+                   TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1235,7 +1235,7 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char* argv[])
+                 TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1297,7 +1297,7 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1360,7 +1360,7 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[]
 
 int
 basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char* argv[])
+               TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1426,7 +1426,7 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
 // added by C.McGann, U.Washington
 int
 InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char* argv[])
+                     TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1477,7 +1477,7 @@ InitialStateAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char* argv[])
+                TCL_Char ** const argv)
 {
 
   if (argc < 3) {
@@ -1520,7 +1520,7 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char* argv[])
+                                 int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1569,7 +1569,7 @@ setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
 
 int
 getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char* argv[])
+               TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1584,7 +1584,7 @@ getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char* argv[])
+                TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1624,7 +1624,7 @@ getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
-                    TCL_Char* argv[])
+                    TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1680,7 +1680,7 @@ getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char* argv[])
+               TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1736,7 +1736,7 @@ getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
-               TCL_Char* argv[])
+               TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1804,7 +1804,7 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
@@ -1824,7 +1824,7 @@ getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[]
 
 
 int
-TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   ((Domain*)clientData)->record(false);
@@ -1833,7 +1833,7 @@ TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char*
 
 int
 getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char* argv[])
+             TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* the_domain = (Domain*)clientData; 
@@ -1853,7 +1853,7 @@ getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char* argv[])
+              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain* the_domain = (Domain*)clientData; 
@@ -1882,10 +1882,10 @@ getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
 extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char* argv[], Domain &theDomain);
+                            TCL_Char ** const argv, Domain &theDomain);
 
 int
-addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char* argv[])
+addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
