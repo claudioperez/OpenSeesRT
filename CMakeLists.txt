@@ -148,8 +148,8 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/model/simple
   ${OPS_SRC_DIR}/analysis/numberer
 
+  ${OPS_SRC_DIR}/interpreter
   ${OPS_SRC_DIR}/api
-  ${OPS_SRC_DIR}/api/tclCommandPackage
   ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/coordTransformation
   ${OPS_SRC_DIR}/database
@@ -187,7 +187,6 @@ include_directories(
   ${OPS_SRC_DIR}/modelbuilder/tcl
   ${OPS_SRC_DIR}/recorder
   ${OPS_SRC_DIR}/recorder/response
-  ${OPS_SRC_DIR}/renderer
   ${OPS_SRC_DIR}/system_of_eqn
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE
   ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
