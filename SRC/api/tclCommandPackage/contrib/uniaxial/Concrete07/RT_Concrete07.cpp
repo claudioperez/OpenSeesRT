@@ -2,7 +2,7 @@
 #include <Concrete07.h>
 
 UniaxialMaterial*
-G3Parse_newUniaxialConcrete07(G3_Runtime* rt, int argc, G3_Char** argv)
+G3Parse_newUniaxialConcrete07(G3_Runtime* rt, int argc, G3_Char ** const argv)
 /* else if (strcmp(argv[1], "Concrete07") == 0) */ 
 {
     UniaxialMaterial *theMaterial = 0;

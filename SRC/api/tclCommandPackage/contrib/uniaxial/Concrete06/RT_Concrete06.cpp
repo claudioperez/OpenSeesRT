@@ -3,7 +3,7 @@
 #include <Concrete06.h>
 
 /*
-static void printCommand(int argc, G3_Char **argv) {
+static void printCommand(int argc, G3_Char ** const argv) {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
     opserr << argv[i] << " ";
@@ -11,7 +11,7 @@ static void printCommand(int argc, G3_Char **argv) {
 }
 */
 
-UniaxialMaterial* G3Parse_newUniaxialConcrete06(G3_Runtime* rt, int argc, G3_Char** argv)
+UniaxialMaterial* G3Parse_newUniaxialConcrete06(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
   UniaxialMaterial *theMaterial = 0;
       if (argc < 12) {

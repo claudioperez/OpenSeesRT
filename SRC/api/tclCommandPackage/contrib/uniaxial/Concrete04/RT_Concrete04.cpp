@@ -1,7 +1,7 @@
 #include <InputAPI.h>
 #include <Concrete04.h>
 
-UniaxialMaterial* G3Parse_newUniaxialConcrete04(G3_Runtime* rt, int argc, G3_Char** argv)
+UniaxialMaterial* G3Parse_newUniaxialConcrete04(G3_Runtime* rt, int argc, G3_Char ** const argv)
 /* if (strcmp(argv[1], "Concrete04") == 0) */
 {
     UniaxialMaterial *theMaterial = 0;
