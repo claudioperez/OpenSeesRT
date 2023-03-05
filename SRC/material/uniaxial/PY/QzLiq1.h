@@ -25,14 +25,15 @@
 
 #include <UniaxialMaterial.h>
 #include <Domain.h>
-#include <FourNodeQuad.h>
+// #include <FourNodeQuad.h>
 #include <FluidSolidPorousMaterial.h>
 #include <QzSimple1.h>
 #include <iostream>
-#include <FourNodeQuadUP.h>
+// #include <FourNodeQuadUP.h>
 #include <Nine_Four_Node_QuadUP.h>
 #include <TimeSeries.h>
 
+class FourNodeQuad;
 
 class QzLiq1 : public QzSimple1
 {

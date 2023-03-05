@@ -34,6 +34,8 @@
 #include <SSPquadUP.h>
 #include <SSPquad.h>
 #include <elementAPI.h>
+#include <quadrilateral/FourNodeQuad.h>
+#include <element/UP-ucsd/FourNodeQuadUP.h>
 
 // Control on internal iteration between spring components
 const int QZmaxIterations = 20;
