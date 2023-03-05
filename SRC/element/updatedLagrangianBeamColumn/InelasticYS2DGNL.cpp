@@ -18,8 +18,8 @@
 
 #include "InelasticYS2DGNL.h"
 #include <Renderer.h>
-//#include <WindowManager.h>
-#include <PlainMap.h>
+// #include <WindowManager.h>
+// #include <PlainMap.h>
 #include <Information.h>
 #include <ElementResponse.h>
 #include <string.h>
@@ -1661,35 +1661,6 @@ pView->doneImage();
 
 }
 
-
-
-/*
-void InelasticYS2DGNL::createView(char *title, WindowManager *theWM, char displaytype)
-{
-	displayType = displaytype;
-	theMap = new PlainMap();
-	pView =	theWM->getRenderer(title, *theMap);
-	//pView = new OpenGLRenderer(title, *theMap);
-	if(!pView)
-		opserr << "WARNING: InelasticYS2DGNL::createView - Renderer not available\n";
-	//theWM->setRenderer(*pView);	
-		
-	if(pView)
-	{
-    	pView->setViewWindow(-3.5, 3.5, -3.5, 3.5);
-
-        pView->clearImage();
-    	pView->startImage();
-
-    	ys1->setView(pView);
-		ys2->setView(pView);
-
-    	ys1->displaySelf(*pView, 1, 1);
-    	ys2->displaySelf(*pView, 1, 1);
-    	pView->doneImage();
-	}
-}
-*/
 
 void InelasticYS2DGNL::Print(OPS_Stream &s, int flag)
 {

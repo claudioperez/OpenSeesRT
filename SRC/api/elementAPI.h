@@ -175,7 +175,7 @@ class ConvergenceTest;
 #ifdef __cplusplus
 extern "C" int         OPS_GetNDM();
 extern "C" int         OPS_GetNDF();
-extern "C" int         OPS_Error(char* errorMessage, int length);
+extern "C" int         OPS_Error(const char* errorMessage, int length);
 extern "C" int         OPS_GetNumRemainingInputArgs();
 extern "C" int         OPS_ResetCurrentInputArg(int cArg);
 extern "C" int         OPS_GetIntInput(int* numData, int* data);
@@ -235,7 +235,7 @@ int OPS_numIter();
 int     OPS_GetNDF();
 int     OPS_GetNDM();
 
-int     OPS_Error(char*, int length);
+int     OPS_Error(const char*, int length);
 int     OPS_GetIntInput(int* numData, int* data);
 int     OPS_GetDoubleInput(int* numData, double* data);
 int     OPS_GetString(char* cArray, int sizeArray);

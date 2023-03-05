@@ -45,7 +45,6 @@ class Element;
 class Vector;
 class Matrix;
 class Channel;
-class Renderer;
 
 class DOF_Group;
 class NodalThermalAction; //L.Jiang [ SIF ]
@@ -129,7 +128,6 @@ class Node : public DomainComponent
     virtual int recvSelf(int commitTag, Channel &theChannel, 
 			 FEM_ObjectBroker &theBroker);
     virtual void Print(OPS_Stream &s, int flag = 0);
-    virtual int displaySelf(Renderer &theRenderer, int theEleMode, int theNodeMode, float fact);
 
     // AddingSensitivity:BEGIN /////////////////////////////////////////
     int addInertiaLoadSensitivityToUnbalance(const Vector &accel, 

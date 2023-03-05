@@ -43,7 +43,7 @@ class UDP_Socket : public Channel
   public:
     UDP_Socket();
     UDP_Socket(unsigned int port, bool checkEndianness = false);   
-    UDP_Socket(unsigned int other_Port, char *other_InetAddr,
+    UDP_Socket(unsigned int other_Port, const char *other_InetAddr,
         bool checkEndianness = false);  
     ~UDP_Socket();
     

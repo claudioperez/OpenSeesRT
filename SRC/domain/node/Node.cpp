@@ -40,7 +40,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <DOF_Group.h>
-#include <Renderer.h>
 #include <string.h>
 #include <Information.h>
 #include <Parameter.h>
@@ -1726,34 +1725,6 @@ Node::Print(OPS_Stream &s, int flag)
         }
         s << "}";
     }
-}
-  
-int
-Node::displaySelf(Renderer &theRenderer, int theEleMode, int theNodeMode, float fact)
-{
-
-  if (theNodeMode == 0)
-    return 0;
-
-//  const Vector &theDisp = this->getDisp();
-  static Vector position(3);
-
-// display coordinates should be based on eleMode, not on nodeMode - ambaker1
-  this->getDisplayCrds(position, fact, theEleMode);
-  
-  if (theNodeMode == -1) {
-    // draw a text string containing tag
-    static char theText[20];
-    sprintf(theText,"%d",this->getTag());
-    return theRenderer.drawText(position, theText, (int) strlen(theText));
-
-  } else if (theNodeMode > 0) {
-    // draw a point - pixel size equals displayMode tag
-    return theRenderer.drawPoint(position, 0.0, this->getTag(), 0, theNodeMode);
-  }
-
-
-  return 0;
 }
 
 

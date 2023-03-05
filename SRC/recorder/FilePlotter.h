@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2005-03-18 22:10:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/FilePlotter.h,v $
-                                                                        
+//
 // Written: fmk 
 // Created: 11/99
 // Revision: A
 //
 // Description: This file contains the class definition for FilePlotter.
 // A FilePlotter will create a line graph using xy points found in a file.
-
 //
-// What: "@(#) ModelBuilder.h, revA"
-
 #ifndef FilePlotter_h
 #define FilePlotter_h
 

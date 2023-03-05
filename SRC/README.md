@@ -74,12 +74,12 @@ All files are in the following subdirectories:
 </dd>
 
 <dt><a href="./modelbuilder"><code>modelbuilder</code></a></dt>
-<dd>contains ModelBuilder class and some others. Subdircetory `tcl/` containts the TclModelBuilder.
+<dd>contains ModelBuilder class and some others.
         
 </dd>
 
-<dt><a href="./tcl"><code>tcl</code></a></dt>
-<dd>contains the stuff for the interpreter (`tkAppInit.C`, `tkConfig.h`, `tkMain.C`, `commands.C`)
+<dt><a href="./interpreter"><code>interpreter</code></a></dt>
+<dd>contains the stuff for the interpreter.
 </dd>
 
 <dt><a href="./utility"><code>utility</code></a></dt>
