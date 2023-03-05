@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:47 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/PlaneFrame.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/modelbuilder/PlaneFrame.h
 // 
 // Written: fmk 
@@ -31,10 +26,7 @@
 //
 // Description: This file contains the class definition for PlaneFrame.
 // A PlaneFrame creates the plane frame models.
-
 //
-// What: "@(#) ModelBuilder.h, revA"
-
 #ifndef PlaneFrame_h
 #define PlaneFrame_h
 
