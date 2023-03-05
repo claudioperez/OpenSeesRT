@@ -235,8 +235,8 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
-      external   dcopy , dgetv0 , dnaitr , dnconv , dneigh , dngets , dnapps ,
-     &           dvout , ivout, second
+      external   dcopy , dgetv0 , dnaitr , dnconv , dneigh , dngets , 
+     &           dnapps, dvout  , ivout  , second
 c
 c     %--------------------%
 c     | External Functions |

@@ -75,7 +75,7 @@ endif()
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
     include(OpenSeesDependenciesWin)
     # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
-    add_compile_definitions(_WIN32)
+    add_compile_definitions(_WIN32 _TCL85)
     message(STATUS ">>> WIN32")
 endif()
 
