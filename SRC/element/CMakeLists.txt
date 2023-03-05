@@ -12,6 +12,9 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/catenaryCable
   ${OPS_SRC_DIR}/element/CEqElement
 
+  ${OPS_SRC_DIR}/element/community
+  ${OPS_SRC_DIR}/element/community/HUelements
+
   ${OPS_SRC_DIR}/element/beam2d
   ${OPS_SRC_DIR}/element/beam3d
   ${OPS_SRC_DIR}/element/componentElement
@@ -32,7 +35,6 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/feap
   ${OPS_SRC_DIR}/element/quadrilateral
   ${OPS_SRC_DIR}/element/generic
-  ${OPS_SRC_DIR}/element/HUelements
   ${OPS_SRC_DIR}/element/joint
   ${OPS_SRC_DIR}/element/LHMYS
   ${OPS_SRC_DIR}/element/masonry
@@ -115,12 +117,12 @@ add_subdirectory(feap)
 add_subdirectory(mvlem)
 add_subdirectory(pyMacro)
 add_subdirectory(UP-ucsd)
-add_subdirectory(HUelements)
-add_subdirectory(XMUelements)
 add_subdirectory(masonry)
 add_subdirectory(CEqElement)
 #add_subdirectory(dmglib)
-#add_subdirectory(UWelements)
+add_subdirectory(community/HUelements)
+add_subdirectory(community/XMUelements)
+#add_subdirectory(community/UWelements)
 # add_subdirectory(PFEMElement)
 
 
