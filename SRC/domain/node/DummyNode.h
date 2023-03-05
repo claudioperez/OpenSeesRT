@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:00:58 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/node/DummyNode.h,v $
-                                                                        
-                                                                        
-// File: ~/domain/node/DummyNode.h
 //
 // Written: fmk 
 // Created: Fri Sep 20 15:34:47: 1996
@@ -34,11 +27,8 @@
 // exterior nodes. They reference a real node and most methods invoked on
 // them are in turn invoked by the dummy node on the real node. The calls
 // asking the real node to change its current state are ignored. The
-// calls involving DOF\_Group are handled by the dummy node. \\
+// calls involving DOF_Group are handled by the dummy node.
 //
-// 
-// What: "@(#) DummyNode.h, revA"
-
 #ifndef DummyNode_h
 #define DummyNode_h
 
