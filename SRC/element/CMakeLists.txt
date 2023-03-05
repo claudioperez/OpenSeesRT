@@ -44,7 +44,7 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/PML
   ${OPS_SRC_DIR}/element/pyMacro
   ${OPS_SRC_DIR}/element/RockingBC
-  ${OPS_SRC_DIR}/element/shell
+  ${OPS_SRC_DIR}/element/Shell
   ${OPS_SRC_DIR}/element/surfaceLoad
   ${OPS_SRC_DIR}/element/twoNodeLink
 
@@ -77,8 +77,8 @@ add_subdirectory(quadrilateral)
 add_subdirectory(twoNodeLink)
 add_subdirectory(tetrahedron)
 add_subdirectory(triangle)
-add_subdirectory(shell)
-add_subdirectory(brick)
+add_subdirectory(Shell)
+add_subdirectory(Brick)
 
 
 add_subdirectory(zeroLength)
