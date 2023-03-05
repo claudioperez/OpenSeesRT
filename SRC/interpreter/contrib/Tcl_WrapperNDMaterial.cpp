@@ -1,7 +1,7 @@
 
 NDMaterial *
 Tcl_addWrapperNDMaterial(matObj *theMat, ClientData clientData,
-                         Tcl_Interp *interp, int argc, TCL_Char **argv,
+                         Tcl_Interp *interp, int argc, TCL_Char ** const argv,
                          TclBasicBuilder *theModelbuilder)
 {
   theInterp = interp;

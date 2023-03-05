@@ -57,7 +57,7 @@ extern void *OPS_MultilinearBackbone(void);
 
 #include <packages.h>
 
-static void printCommand(int argc, TCL_Char **argv)
+static void printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i=0; i<argc; i++)
@@ -68,7 +68,7 @@ static void printCommand(int argc, TCL_Char **argv)
 int
 TclModelBuilderHystereticBackboneCommand(ClientData clientData,
 					 Tcl_Interp *interp,
-					 int argc, TCL_Char **argv, Domain *theDomain)
+					 int argc, TCL_Char ** const argv, Domain *theDomain)
 {
   if (argc < 3) {
     opserr << "WARNING insufficient number of hystereticBackbone arguments\n";

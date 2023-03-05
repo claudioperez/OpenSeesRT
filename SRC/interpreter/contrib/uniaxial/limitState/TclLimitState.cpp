@@ -40,7 +40,7 @@
 #include <elementAPI.h> //MRL
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <packages.h>   //MRL
 #include <LimitCurve.h> //**MRL
@@ -48,7 +48,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 extern void *OPS_RotationShearCurve(G3_Runtime*);
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -59,11 +59,11 @@ printCommand(int argc, TCL_Char **argv)
 // Package Commands
 extern LimitCurve *Tcl_addWrapperLimitCurve(limCrvObj *, ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv);
+                                            TCL_Char ** const argv);
 
 typedef struct limitCurvePackageCommand {
   char *funcName;
-  void *(*funcPtr)(int argc, TCL_Char **argv);
+  void *(*funcPtr)(int argc, TCL_Char ** const argv);
   struct limitCurvePackageCommand *next;
 } LimitCurvePackageCommand;
 
@@ -75,7 +75,7 @@ static LimitCurvePackageCommand *theLimitCurvePackageCommands = NULL;
 //////////////////////////////////////////////////////////////////////
 int
 Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv, Domain *theDomain)
+                         TCL_Char ** const argv, Domain *theDomain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
 
@@ -487,7 +487,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     // maybe limit curve class exists in a package yet to be loaded
     if (theCurve == 0) {
       void *libHandle;
-      void *(*funcPtr)(int argc, TCL_Char **argv);
+      void *(*funcPtr)(int argc, TCL_Char ** const argv);
 
       int limCrvNameLength = strlen(argv[1]);
       char *tclFuncName = new char[limCrvNameLength + 12];
@@ -555,7 +555,7 @@ Tcl_AddLimitCurveCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
 UniaxialMaterial *
 Tcl_AddLimitStateMaterial(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char **argv)
+                          TCL_Char ** const argv)
 {
   if (strcmp(argv[1], "LimitState") != 0)
     return 0;

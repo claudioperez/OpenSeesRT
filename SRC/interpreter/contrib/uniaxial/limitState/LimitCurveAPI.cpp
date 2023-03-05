@@ -9,7 +9,7 @@ static LimitCurveFunction *theLimitCurveFunctions = NULL;
 #if 0
 LimitCurve *
 Tcl_addWrapperLimitCurve(limCrvObj *theLimCrv, ClientData clientData,
-                         Tcl_Interp *interp, int argc, TCL_Char **argv)
+                         Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   theInterp = interp;
 

@@ -12,7 +12,7 @@
 #include "ElTawil2DUnSym.h"
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -22,7 +22,7 @@ printCommand(int argc, TCL_Char **argv)
 
 int
 TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
+                                      int argc, TCL_Char ** const argv,
                                       TclBasicBuilder *theBuilder)
 {
   // Make sure there is a minimum number of arguments

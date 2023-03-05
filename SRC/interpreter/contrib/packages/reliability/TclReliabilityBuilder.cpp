@@ -272,162 +272,162 @@ static RandomVibrationAnalysis *theRandomVibrationAnalysis = 0;
 //
 int TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv);
+                                                 TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv);
+                                            TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addCutset(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+                                         TCL_Char ** const argv);
 int TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv);
+                                              TCL_Char ** const argv);
 int TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv);
+                                                    int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addLimitState(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+                                             TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv);
+                                                 TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
                                                      Tcl_Interp *interp,
-                                                     int argc, TCL_Char **argv);
+                                                     int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addFilter(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+                                         TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv);
+                                           TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addProbabilityTransformation(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+                                             TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv);
+                                              TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addRandomNumberGenerator(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         int argc,
-                                                        TCL_Char **argv);
+                                                        TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv);
+                                                  TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
                                                    Tcl_Interp *interp, int argc,
-                                                   TCL_Char **argv);
+                                                   TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
                                                      Tcl_Interp *interp,
-                                                     int argc, TCL_Char **argv);
+                                                     int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addReliabilityConvergenceCheck(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv);
+                                               TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addFunctionEvaluator(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv);
+                                                    int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv);
+                                                    int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addFindDesignPointAlgorithm(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_addFindCurvatures(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv);
+                                                 TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv);
+                                               TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv);
+                                               TCL_Char ** const argv);
 // int TclReliabilityModelBuilder_runParametricReliabilityAnalysis(ClientData
-// clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+// clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runGFunVisualizationAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
                                                       Tcl_Interp *interp,
                                                       int argc,
-                                                      TCL_Char **argv);
+                                                      TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runSORMAnalysis(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv);
+                                               TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runSystemAnalysis(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv);
+                                                 TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runImportanceSamplingAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_printReliability(ClientData clientData,
                                                 Tcl_Interp *interp, int argc,
-                                                TCL_Char **argv);
+                                                TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getMean(ClientData clientData,
                                        Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv);
+                                       TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getStdv(ClientData clientData,
                                        Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv);
+                                       TCL_Char ** const argv);
 // int TclReliabilityModelBuilder_rvReduction(ClientData clientData, Tcl_Interp
-// *interp, int argc, TCL_Char **argv);
+// *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv);
+                                           TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv);
+                                            TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv);
+                                            TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getPDF(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv);
+                                      int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv);
+                                               TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getCDF(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv);
+                                      int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv);
+                                               TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+                                             TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
                                                       Tcl_Interp *interp,
                                                       int argc,
-                                                      TCL_Char **argv);
+                                                      TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getRVTags(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv);
+                                         TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getLSFTags(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv);
+                                          TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+                                             TCL_Char ** const argv);
 int TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
                                                    Tcl_Interp *interp, int argc,
-                                                   TCL_Char **argv);
+                                                   TCL_Char ** const argv);
 /////////////////////////////////////////////////////////
 /// S added by K Fujimura for Random Vibration Analysis ///
 /////////////////////////////////////////////////////////
 /*
 int TclReliabilityModelBuilder_addAnalyzer(ClientData clientData, Tcl_Interp
-*interp, int argc, TCL_Char **argv); int
+*interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_addInitialStaticAnalysis(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_addInitialPointBuilder(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_addCrossingRateAnalyzer(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_addFOSeriesSimulation(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_addFirstPassageAnalyzer(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_addRandomVibrationSimulation(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv); int
+Tcl_Interp *interp, int argc, TCL_Char ** const argv); int
 TclReliabilityModelBuilder_runRandomVibrationAnalysis(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv);
+Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 /////////////////////////////////////////////////////////
 ///E added by K Fujimura for Random Vibration Analysis ///
 /////////////////////////////////////////////////////////
@@ -435,28 +435,28 @@ Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 //--Quan --
 int TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_updateParameterValue(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv);
+                                                    int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_computeHessian(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv);
+                                              TCL_Char ** const argv);
 int TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
                                                      Tcl_Interp *interp,
-                                                     int argc, TCL_Char **argv);
+                                                     int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+                                             TCL_Char ** const argv);
 int TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv);
+                                             TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
@@ -980,7 +980,7 @@ return TCL_ERROR;
 int
 TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv)
+                                             TCL_Char ** const argv)
 {
   RandomVariable *theRandomVariable = 0;
   int tag;
@@ -1361,7 +1361,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_getMean(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv)
+                                   int argc, TCL_Char ** const argv)
 {
   int tag;
   RandomVariable *rv;
@@ -1387,7 +1387,7 @@ TclReliabilityModelBuilder_getMean(ClientData clientData, Tcl_Interp *interp,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_getStdv(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv)
+                                   int argc, TCL_Char ** const argv)
 {
   int tag;
   RandomVariable *rv;
@@ -1414,7 +1414,7 @@ TclReliabilityModelBuilder_getStdv(ClientData clientData, Tcl_Interp *interp,
 int
 TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
                                         Tcl_Interp *interp, int argc,
-                                        TCL_Char **argv)
+                                        TCL_Char ** const argv)
 {
   if (argc != 4) {
     opserr << "ERROR: Wrong number of arguments to correlate command." << endln;
@@ -1471,7 +1471,7 @@ TclReliabilityModelBuilder_addCorrelate(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addCutset(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv)
+                                     int argc, TCL_Char ** const argv)
 {
   Cutset *theCutset = 0;
   int tag, set;
@@ -1523,7 +1523,7 @@ TclReliabilityModelBuilder_addCutset(ClientData clientData, Tcl_Interp *interp,
 int
 TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv)
+                                          TCL_Char ** const argv)
 {
   int firstRV, lastRV;
   double correlationValue;
@@ -1563,7 +1563,7 @@ TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
 int
 TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
                                                 Tcl_Interp *interp, int argc,
-                                                TCL_Char **argv)
+                                                TCL_Char ** const argv)
 {
   int firstRV, lastRV, i;
   double theta, correlationValue;
@@ -1696,7 +1696,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
 int
 TclReliabilityModelBuilder_addLimitState(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv)
+                                         TCL_Char ** const argv)
 {
   LimitStateFunction *theLimitStateFunction = 0;
   int tag;
@@ -1751,7 +1751,7 @@ TclReliabilityModelBuilder_addLimitState(ClientData clientData,
 int
 TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv)
+                                             TCL_Char ** const argv)
 {
   LimitStateFunction *theLimitStateFunction = 0;
   int lsfTag, rvTag;
@@ -1797,7 +1797,7 @@ TclReliabilityModelBuilder_addGradLimitState(ClientData clientData,
 int
 TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv)
+                                                 TCL_Char ** const argv)
 {
   ModulatingFunction *theModulatingFunction = 0;
 
@@ -2063,7 +2063,7 @@ TclReliabilityModelBuilder_addModulatingFunction(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addFilter(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv)
+                                     int argc, TCL_Char ** const argv)
 {
   Filter *theFilter = 0;
   int tag;
@@ -2169,7 +2169,7 @@ TclReliabilityModelBuilder_addFilter(ClientData clientData, Tcl_Interp *interp,
 /*
 int
 TclReliabilityModelBuilder_addFilter(ClientData clientData, Tcl_Interp *interp,
-int argc, TCL_Char **argv)
+int argc, TCL_Char ** const argv)
 {
         Filter *theFilter = 0;
 
@@ -2267,7 +2267,7 @@ StandardLinearOscillatorAccelerationFilter(tag,period_Tn,damping);
 int
 TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
                                        Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv)
+                                       TCL_Char ** const argv)
 {
   Spectrum *theSpectrum = 0;
 
@@ -2446,7 +2446,7 @@ TclReliabilityModelBuilder_addSpectrum(ClientData clientData,
 int
 TclReliabilityModelBuilder_addRandomNumberGenerator(ClientData clientData,
                                                     Tcl_Interp *interp,
-                                                    int argc, TCL_Char **argv)
+                                                    int argc, TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theRandomNumberGenerator != 0) {
@@ -2474,7 +2474,7 @@ int
 TclReliabilityModelBuilder_addProbabilityTransformation(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         int argc,
-                                                        TCL_Char **argv)
+                                                        TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theProbabilityTransformation != 0) {
@@ -2543,7 +2543,7 @@ TclReliabilityModelBuilder_addProbabilityTransformation(ClientData clientData,
 int
 TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv)
+                                              TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theSearchDirection != 0) {
@@ -2704,7 +2704,7 @@ TclReliabilityModelBuilder_addSearchDirection(ClientData clientData,
 int
 TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv)
+                                               TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theHessianEvaluator != 0) {
@@ -2807,7 +2807,7 @@ TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
 int
 TclReliabilityModelBuilder_addMeritFunctionCheck(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv)
+                                                 TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theMeritFunctionCheck != 0) {
@@ -2946,7 +2946,7 @@ int
 TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
                                                           Tcl_Interp *interp,
                                                           int argc,
-                                                          TCL_Char **argv)
+                                                          TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theReliabilityConvergenceCheck != 0) {
@@ -3085,7 +3085,7 @@ TclReliabilityModelBuilder_addReliabilityConvergenceCheck(ClientData clientData,
 int
 TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv)
+                                           TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theStepSizeRule != 0) {
@@ -3253,7 +3253,7 @@ TclReliabilityModelBuilder_addStepSizeRule(ClientData clientData,
 int
 TclReliabilityModelBuilder_addFunctionEvaluator(ClientData clientData,
                                                 Tcl_Interp *interp, int argc,
-                                                TCL_Char **argv)
+                                                TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theFunctionEvaluator != 0) {
@@ -3345,7 +3345,7 @@ TclReliabilityModelBuilder_addFunctionEvaluator(ClientData clientData,
 int
 TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
                                                 Tcl_Interp *interp, int argc,
-                                                TCL_Char **argv)
+                                                TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theGradientEvaluator != 0) {
@@ -3492,7 +3492,7 @@ TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
 int
 TclReliabilityModelBuilder_addFindCurvatures(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv)
+                                             TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theFindCurvatures != 0) {
@@ -3570,7 +3570,7 @@ int
 TclReliabilityModelBuilder_addFindDesignPointAlgorithm(ClientData clientData,
                                                        Tcl_Interp *interp,
                                                        int argc,
-                                                       TCL_Char **argv)
+                                                       TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theFindDesignPointAlgorithm != 0) {
@@ -3829,7 +3829,7 @@ TclReliabilityModelBuilder_addFindDesignPointAlgorithm(ClientData clientData,
 int
 TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv)
+                                         TCL_Char ** const argv)
 {
 
   // Check that there are enough arguments
@@ -3909,7 +3909,7 @@ TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
 int
 TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv)
+                                          TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theRootFindingAlgorithm != 0) {
@@ -4003,7 +4003,7 @@ TclReliabilityModelBuilder_addRootFinding(ClientData clientData,
 int
 TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv)
+                                           TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theFORMAnalysis != 0) {
@@ -4075,7 +4075,7 @@ TclReliabilityModelBuilder_runFORMAnalysis(ClientData clientData,
 int
 TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv)
+                                           TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theFOSMAnalysis != 0) {
@@ -4124,7 +4124,7 @@ TclReliabilityModelBuilder_runFOSMAnalysis(ClientData clientData,
 //////////////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_runParametricReliabilityAnalysis(ClientData
-clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         // In case this is a replacement
         if (theParametricReliabilityAnalysis != 0) {
@@ -4240,7 +4240,7 @@ theParametricReliabilityAnalysis \n"; return TCL_ERROR;
 int
 TclReliabilityModelBuilder_runSORMAnalysis(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv)
+                                           TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theSORMAnalysis != 0) {
@@ -4289,7 +4289,7 @@ TclReliabilityModelBuilder_runSORMAnalysis(ClientData clientData,
 int
 TclReliabilityModelBuilder_runSystemAnalysis(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv)
+                                             TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theSystemAnalysis != 0) {
@@ -4396,7 +4396,7 @@ int
 TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
                                                          Tcl_Interp *interp,
                                                          int argc,
-                                                         TCL_Char **argv)
+                                                         TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theImportanceSamplingAnalysis != 0) {
@@ -4564,7 +4564,7 @@ TclReliabilityModelBuilder_runImportanceSamplingAnalysis(ClientData clientData,
 int
 TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv)
+                                                  TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theOutCrossingAnalysis != 0) {
@@ -4708,7 +4708,7 @@ TclReliabilityModelBuilder_runOutCrossingAnalysis(ClientData clientData,
 // ????????????????????????????????????????????????????????????????????????????
 int
 TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theSamplingAnalysis != 0) {
@@ -4917,7 +4917,7 @@ int
 TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         int argc,
-                                                        TCL_Char **argv)
+                                                        TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theGFunVisualizationAnalysis != 0) {
@@ -5415,7 +5415,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
 int
 TclReliabilityModelBuilder_printReliability(ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char **argv)
+                                            TCL_Char ** const argv)
 {
   if (argc > 1)
     theReliabilityDomain->Print(opserr, 1);
@@ -5433,7 +5433,7 @@ int
 TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
                                                          Tcl_Interp *interp,
                                                          int argc,
-                                                         TCL_Char **argv)
+                                                         TCL_Char ** const argv)
 {
   // In case this is a replacement
   if (theMonteCarloResponseAnalysis != 0) {
@@ -5567,7 +5567,7 @@ TclReliabilityModelBuilder_runMonteCarloResponseAnalysis(ClientData clientData,
 int
 TclReliabilityModelBuilder_updateParameterValue(ClientData clientData,
                                                 Tcl_Interp *interp, int argc,
-                                                TCL_Char **argv)
+                                                TCL_Char ** const argv)
 {
   /*
         // Do input check
@@ -5680,7 +5680,7 @@ theRandomVariablePositioner->getRvNumber(); value =
 int
 TclReliabilityModelBuilder_computeHessian(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv)
+                                          TCL_Char ** const argv)
 {
   char fileName[20] = "HessianByFDM.out";
   char designPointFile[20] = "theDesignPoint.out";
@@ -5787,7 +5787,7 @@ TclReliabilityModelBuilder_computeHessian(ClientData clientData,
 int
 TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv)
+                                                 TCL_Char ** const argv)
 {
   int argvCounter = 1;
   int type = 1;
@@ -5964,7 +5964,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
 int
 TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv)
+                                         TCL_Char ** const argv)
 {
   if (theProbabilityTransformation == 0) {
     opserr << "Fatal: theProbabilityTransformation does not exist!" << endln;
@@ -6077,7 +6077,7 @@ TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
 int
 TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv)
+                                         TCL_Char ** const argv)
 {
   if (theProbabilityTransformation == 0) {
     opserr << "Fatal: theProbabilityTransformation does not exist!" << endln;
@@ -6201,7 +6201,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   if ((theRandomNumberGenerator == 0) || (theFunctionEvaluator == 0) ||
@@ -6414,7 +6414,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
 int
 TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
 
   if ((theRandomNumberGenerator == 0) || (theFunctionEvaluator == 0) ||
@@ -6661,7 +6661,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 int
 TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
                                        Tcl_Interp *interp, int argc,
-                                       TCL_Char **argv)
+                                       TCL_Char ** const argv)
 {
   if (argc < 2) {
     opserr << "ERROR: Invalid number of arguments to getBetaFORM command."
@@ -6693,7 +6693,7 @@ TclReliabilityModelBuilder_getBetaFORM(ClientData clientData,
 int
 TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
                                         Tcl_Interp *interp, int argc,
-                                        TCL_Char **argv)
+                                        TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "ERROR: Invalid number of arguments to getGammaFORM command."
@@ -6741,7 +6741,7 @@ TclReliabilityModelBuilder_getGammaFORM(ClientData clientData,
 int
 TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
                                         Tcl_Interp *interp, int argc,
-                                        TCL_Char **argv)
+                                        TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "ERROR: Invalid number of arguments to getAlphaFORM command."
@@ -6788,7 +6788,7 @@ TclReliabilityModelBuilder_getAlphaFORM(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_getPDF(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv)
+                                  int argc, TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "WARNING getPDF tag? x? -- insufficient number of arguments\n";
@@ -6825,7 +6825,7 @@ TclReliabilityModelBuilder_getPDF(ClientData clientData, Tcl_Interp *interp,
 int
 TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv)
+                                           TCL_Char ** const argv)
 {
   if (argc < 2) {
     opserr
@@ -6852,7 +6852,7 @@ TclReliabilityModelBuilder_getStdNormalPDF(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_getCDF(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv)
+                                  int argc, TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "WARNING getCDF tag? x? -- insufficient number of arguments\n";
@@ -6889,7 +6889,7 @@ TclReliabilityModelBuilder_getCDF(ClientData clientData, Tcl_Interp *interp,
 int
 TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv)
+                                           TCL_Char ** const argv)
 {
   if (argc < 2) {
     opserr
@@ -6917,7 +6917,7 @@ TclReliabilityModelBuilder_getStdNormalCDF(ClientData clientData,
 int
 TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv)
+                                         TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "WARNING getInverseCDF tag? p? -- insufficient number of "
@@ -6955,7 +6955,7 @@ TclReliabilityModelBuilder_getInverseCDF(ClientData clientData,
 int
 TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv)
+                                                  TCL_Char ** const argv)
 {
   if (argc < 2) {
     opserr << "WARNING getStdNormalInverseCDF p? -- insufficient number of "
@@ -6982,7 +6982,7 @@ TclReliabilityModelBuilder_getStdNormalInverseCDF(ClientData clientData,
 
 int
 TclReliabilityModelBuilder_getRVTags(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv)
+                                     int argc, TCL_Char ** const argv)
 {
   RandomVariable *theEle;
   RandomVariableIter &eleIter = theReliabilityDomain->getRandomVariables();
@@ -6999,7 +6999,7 @@ TclReliabilityModelBuilder_getRVTags(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclReliabilityModelBuilder_getLSFTags(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv)
+                                      int argc, TCL_Char ** const argv)
 {
   LimitStateFunction *theEle;
   LimitStateFunctionIter &eleIter =
@@ -7018,7 +7018,7 @@ TclReliabilityModelBuilder_getLSFTags(ClientData clientData, Tcl_Interp *interp,
 int
 TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
                                          Tcl_Interp *interp, int argc,
-                                         TCL_Char **argv)
+                                         TCL_Char ** const argv)
 {
   Cutset *theEle;
   CutsetIter &eleIter = theReliabilityDomain->getCutsets();
@@ -7036,7 +7036,7 @@ TclReliabilityModelBuilder_getCutsetTags(ClientData clientData,
 int
 TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv)
+                                               TCL_Char ** const argv)
 {
   if (argc < 2) {
     opserr << "WARNING getCutsetComponents tag? -- insufficient number of "
@@ -7075,7 +7075,7 @@ TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
 /***
 int
 TclReliabilityModelBuilder_addAnalyzer(ClientData clientData, Tcl_Interp
-*interp, int argc, TCL_Char **argv)
+*interp, int argc, TCL_Char ** const argv)
 {
         int argvCounter;
         int nstep;
@@ -7196,7 +7196,7 @@ created" << endln;
 
 int
 TclReliabilityModelBuilder_addInitialStaticAnalysis(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         int* StaticLoadPatterns=0;
         int* temploads=0;
@@ -7323,7 +7323,7 @@ Analysis. " << endln; return TCL_ERROR;
 /////////////////////////////////////////////////////////
 int
 TclReliabilityModelBuilder_addInitialPointBuilder(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         bool print=false;
         double eps=0.01;
@@ -7476,7 +7476,7 @@ endln; opserr << argv[1]<< endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addCrossingRateAnalyzer(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         if (theCrossingRateAnalyzer != 0) {
                 delete theCrossingRateAnalyzer;
@@ -7552,7 +7552,7 @@ CrossingRateAnalyzer can be created" << endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addFOSeriesSimulation(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         if (theFOSeriesSimulation != 0) {
                 delete theFOSeriesSimulation;
@@ -7637,7 +7637,7 @@ endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addFirstPassageAnalyzer(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         if (theFirstPassageAnalyzer != 0) {
                 delete theFirstPassageAnalyzer;
@@ -7746,7 +7746,7 @@ can be created" << endln; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_addRandomVibrationSimulation(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         // In case this is a replacement
         if (theRandomVibrationSimulation != 0) {
@@ -8036,7 +8036,7 @@ theRandomVibrationSimulation\n"; return TCL_ERROR;
 
 int
 TclReliabilityModelBuilder_runRandomVibrationAnalysis(ClientData clientData,
-Tcl_Interp *interp, int argc, TCL_Char **argv)
+Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
         // In case this is a replacement
         if (theRandomVibrationAnalysis != 0) {

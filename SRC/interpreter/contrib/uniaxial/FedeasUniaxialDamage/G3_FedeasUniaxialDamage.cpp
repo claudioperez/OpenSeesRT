@@ -6,7 +6,7 @@
 // #define WRAPPER_CMD "FedeasDamage"
 
 UniaxialMaterial*
-G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char **argv)
+G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
   // Pointer to a uniaxial material that will be returned
   DegradingUniaxialWrapper *theMaterial = 0;

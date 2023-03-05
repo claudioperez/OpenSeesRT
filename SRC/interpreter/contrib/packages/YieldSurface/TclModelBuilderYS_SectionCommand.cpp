@@ -15,7 +15,7 @@
 // Added by S.Gajan <sgajan@ucdavis.edu>
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -25,7 +25,7 @@ printCommand(int argc, TCL_Char **argv)
 
 SectionForceDeformation *
 TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv,
+                                 int argc, TCL_Char ** const argv,
                                  TclBasicBuilder *theBuilder)
 {
   if (argc < 3) {

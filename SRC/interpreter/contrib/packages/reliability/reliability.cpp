@@ -57,7 +57,7 @@ static TclOptimizationBuilder *theOptimizationBuilder =
 // -- optimization Quan March 2010  (5)
 int
 optimization(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
 
   if (theOptimizationBuilder == 0) {
@@ -71,7 +71,7 @@ optimization(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 reliability(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv)
+            TCL_Char ** const argv)
 {
   if (theReliabilityBuilder == 0) {
 
@@ -83,7 +83,7 @@ reliability(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 wipeReliability(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char **argv)
+                TCL_Char ** const argv)
 {
   if (theReliabilityBuilder != 0) {
     delete theReliabilityBuilder;
@@ -98,7 +98,7 @@ wipeReliability(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 computeGradients(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
+                 TCL_Char ** const argv)
 {
 #ifdef _RELIABILITY
   if (theSensitivityAlgorithm != 0)

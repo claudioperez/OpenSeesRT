@@ -87,7 +87,7 @@ getTclYieldSurface_BC(Tcl_Interp *interp, TCL_Char *arg,
 
 int
 TclNullEvolutionCommand(ClientData clienData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
@@ -133,7 +133,7 @@ TclNullEvolutionCommand(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclKinematic2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
@@ -167,7 +167,7 @@ TclKinematic2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclIsotropic2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
 
@@ -198,7 +198,7 @@ TclIsotropic2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclPeakOriented2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv, TclBasicBuilder *theBuilder)
+                           TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
@@ -228,7 +228,7 @@ TclPeakOriented2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclCombinedIsoKin2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                             TCL_Char **argv, TclBasicBuilder *theBuilder)
+                             TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
 
@@ -291,7 +291,7 @@ TclCombinedIsoKin2D01Command(ClientData clienData, Tcl_Interp *interp, int argc,
 ////////////////////////////////////////////////////////////////////////////////////////
 int
 TclKinematic2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag;
@@ -341,7 +341,7 @@ TclKinematic2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclPeakOriented2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv, TclBasicBuilder *theBuilder)
+                           TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
 
@@ -390,7 +390,7 @@ TclPeakOriented2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclCombinedIsoKin2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
-                             TCL_Char **argv, TclBasicBuilder *theBuilder)
+                             TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   YS_Evolution *theModel = 0;
   int tag, deformable;
@@ -474,7 +474,7 @@ TclCombinedIsoKin2D02Command(ClientData clienData, Tcl_Interp *interp, int argc,
 int
 TclBasicBuilderYS_EvolutionModelCommand(ClientData clientData,
                                         Tcl_Interp *interp, int argc,
-                                        TCL_Char **argv,
+                                        TCL_Char ** const argv,
                                         TclBasicBuilder *theBuilder)
 {
   if (strcmp(argv[1], "null") == 0) {

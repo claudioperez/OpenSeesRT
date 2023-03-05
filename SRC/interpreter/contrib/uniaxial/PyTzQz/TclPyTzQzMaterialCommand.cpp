@@ -58,7 +58,7 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg);
 int seriesTag;
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -68,7 +68,7 @@ printCommand(int argc, TCL_Char **argv)
 
 UniaxialMaterial *
 TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv, Domain *theDomain)
+                                  int argc, TCL_Char ** const argv, Domain *theDomain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TimeSeries *theSeries = 0;

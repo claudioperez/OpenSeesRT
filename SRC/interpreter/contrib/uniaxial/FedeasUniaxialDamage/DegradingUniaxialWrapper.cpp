@@ -19,7 +19,7 @@ static const int MatTag = hasher(WRAPPER_CMD);
 
 UniaxialMaterial *
 DegradingUniaxialWrapper::parseNew(Tcl_Interp* interp, void *cd, int argc,
-            TCL_Char **argv)
+            TCL_Char ** const argv)
 {
   // Pointer to the uniaxial material that will be returned
   DegradingUniaxialWrapper *theMaterial = nullptr;

@@ -2,7 +2,7 @@
 #include <BoucWenMaterial.h>
 
 UniaxialMaterial*
-G3Parse_newUniaxialBoucWen(G3_Builder* rt, int argc, G3_Char** argv)
+G3Parse_newUniaxialBoucWen(G3_Builder* rt, int argc, G3_Char ** const argv)
 {
     if (argc < 12) {
       opserr << "WARNING insufficient arguments\n";

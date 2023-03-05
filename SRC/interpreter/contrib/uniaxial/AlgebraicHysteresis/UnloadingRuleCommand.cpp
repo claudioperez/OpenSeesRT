@@ -21,13 +21,13 @@ extern void *OPS_KarsanUnloadingRule(G3_Runtime*);
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <packages.h>
 
 int
 TclBasicBuilderUnloadingRuleCommand(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv,
+                                    int argc, TCL_Char ** const argv,
                                     Domain *theDomain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);

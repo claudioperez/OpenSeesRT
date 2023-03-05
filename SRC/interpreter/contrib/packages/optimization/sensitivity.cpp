@@ -9,7 +9,7 @@
 // AddingSensitivity:BEGIN ////////////////////////////////////
 int
 sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -62,7 +62,7 @@ sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sensNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char **argv)
+            TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -117,7 +117,7 @@ sensNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sensNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char **argv)
+              TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -172,7 +172,7 @@ sensNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sensNodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
+                 TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
@@ -226,7 +226,7 @@ sensNodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 sensSectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char **argv)
+                 TCL_Char ** const argv)
 {
 #ifdef _RELIABILITY
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -330,7 +330,7 @@ sensSectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
 ///////////////////////Abbas//////////////////////////////
 
 int
-sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = G3_getDomain(rt);
@@ -389,7 +389,7 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 
 int
 setParameter(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char **argv)
+             TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);

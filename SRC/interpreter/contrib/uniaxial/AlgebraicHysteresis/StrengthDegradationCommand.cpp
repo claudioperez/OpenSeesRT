@@ -11,7 +11,7 @@
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <SectionStrengthDegradation.h>
 #include <EnergyStrengthDegradation.h>
@@ -32,7 +32,7 @@ extern void *OPS_PetrangeliStrengthDegradation(G3_Runtime*);
 #include <packages.h>
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -43,7 +43,7 @@ printCommand(int argc, TCL_Char **argv)
 int
 TclBasicBuilderStrengthDegradationCommand(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
-                                          TCL_Char **argv, Domain *theDomain)
+                                          TCL_Char ** const argv, Domain *theDomain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
 

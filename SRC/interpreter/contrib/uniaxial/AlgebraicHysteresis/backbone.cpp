@@ -19,7 +19,7 @@
 #include <elementAPI.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        G3_Runtime *rt, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <TrilinearBackbone.h>
 #include <MultilinearBackbone.h>
@@ -38,16 +38,14 @@ extern void *OPS_ArctangentBackbone(G3_Runtime*);
 // extern void *OPS_ManderBackbone(G3_Runtime*);
 extern void *OPS_TrilinearBackbone(G3_Runtime*);
 HystereticBackbone*
-G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char** argv);
+G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char ** const argv);
 extern void *OPS_BilinearBackbone(G3_Runtime*);
 extern void *OPS_MultilinearBackbone(G3_Runtime*);
-
-
 
 int
 TclCommand_addHystereticBackbone(ClientData clientData,
                                  Tcl_Interp *interp, int argc,
-                                 TCL_Char **argv)
+                                 TCL_Char ** const argv)
 {
   if (argc < 3) {
     opserr << "WARNING insufficient number of hystereticBackbone arguments\n";
@@ -450,7 +448,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
 }
 
 HystereticBackbone*
-G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char** argv)
+G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
   if (argc < 6) {
     opserr << "WARNING insufficient arguments\n";

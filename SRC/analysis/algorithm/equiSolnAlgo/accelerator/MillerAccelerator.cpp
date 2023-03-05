@@ -91,7 +91,7 @@ MillerAccelerator::newStep(LinearSOE &theSOE)
   return 0;
 }
 
-#ifdef _WIN32
+#if 0 && defined(_WIN32)
 
 extern "C" int NACCEL(int *n, int *itr, int *mvec,
 			       double *tol, double *u, double *f);

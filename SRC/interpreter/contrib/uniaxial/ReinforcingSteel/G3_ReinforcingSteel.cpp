@@ -32,7 +32,7 @@
 #include <InputAPI.h>
 
 UniaxialMaterial*
-TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char **argv)
+TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
   UniaxialMaterial *theMaterial = nullptr;
 

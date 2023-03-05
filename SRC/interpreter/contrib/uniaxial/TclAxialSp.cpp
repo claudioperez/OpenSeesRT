@@ -5,7 +5,7 @@
 
 int
 TclCommand_AxialSp(ClientData clientData, Tcl_Interp *interp, int argc,
-                   TCL_Char **argv)
+                   TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   // arguments (necessary)
@@ -128,7 +128,7 @@ TclCommand_AxialSp(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCommand_AxialSpHD(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char **argv)
+                     TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   // arguments (necessary)

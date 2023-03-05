@@ -66,19 +66,19 @@ OptimizationDomain *theOptimizationDomain = 0;
 
 int TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv);
+                                                  TCL_Char ** const argv);
 int TclOptimizationModelBuilder_addDesignVariablePositioner(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 int TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
                                                      Tcl_Interp *interp,
-                                                     int argc, TCL_Char **argv);
+                                                     int argc, TCL_Char ** const argv);
 int TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
                                                       Tcl_Interp *interp,
                                                       int argc,
-                                                      TCL_Char **argv);
+                                                      TCL_Char ** const argv);
 int TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv);
+                                                 TCL_Char ** const argv);
 
 // constructor: the constructor will add certain commands to the interpreter
 
@@ -147,7 +147,7 @@ TclOptimizationBuilder::getOptimizationDomain()
 int
 TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv)
+                                              TCL_Char ** const argv)
 {
 
   DesignVariable *theDesignVariable = 0;
@@ -268,7 +268,7 @@ int
 TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
                                                         Tcl_Interp *interp,
                                                         int argc,
-                                                        TCL_Char **argv)
+                                                        TCL_Char ** const argv)
 {
 
   DesignVariablePositioner *theDesignVariablePositioner = 0;
@@ -404,7 +404,7 @@ TclOptimizationModelBuilder_addDesignVariablePositioner(ClientData clientData,
 int
 TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
                                                  Tcl_Interp *interp, int argc,
-                                                 TCL_Char **argv)
+                                                 TCL_Char ** const argv)
 {
 
   ObjectiveFunction *theObjectiveFunction = 0;
@@ -592,7 +592,7 @@ TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
 int
 TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
                                                   Tcl_Interp *interp, int argc,
-                                                  TCL_Char **argv)
+                                                  TCL_Char ** const argv)
 {
 
   ConstraintFunction *theConstraintFunction = 0;
@@ -938,7 +938,7 @@ TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
 int
 TclOptimizationModelBuilder_runSNOPTAnalysis(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
-                                             TCL_Char **argv)
+                                             TCL_Char ** const argv)
 {
 
   int maxNumberOfIterations = 100;

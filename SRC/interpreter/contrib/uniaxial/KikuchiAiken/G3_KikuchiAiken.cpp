@@ -4,7 +4,7 @@
 #include <KikuchiAikenLRB.h>
 
 UniaxialMaterial*
-TclCommand_KikuchiAikenHDR(G3_Runtime* rt, int argc, TCL_Char **argv)
+TclCommand_KikuchiAikenHDR(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
   // arguments (necessary)
   int tag;
@@ -166,7 +166,7 @@ TclCommand_KikuchiAikenHDR(G3_Runtime* rt, int argc, TCL_Char **argv)
 }
 
 UniaxialMaterial*
-TclCommand_KikuchiAikenLRB(G3_Runtime* rt, int argc, TCL_Char **argv)
+TclCommand_KikuchiAikenLRB(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
   // G3_Runtime *rt = G3_getRuntime(interp);
 

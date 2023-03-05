@@ -8,7 +8,7 @@
 
 int
 TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
-                      TCL_Char **argv, TclBasicBuilder *theTclBuilder)
+                      TCL_Char ** const argv, TclBasicBuilder *theTclBuilder)
 {
   // Pointer to a uniaxial material that will be added to the model builder
   PlasticHardeningMaterial *theMaterial = 0;
@@ -123,7 +123,7 @@ material objects destructor, otherwise mem leak return TCL_ERROR;
 
 int
 TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
-                        TCL_Char **argv, TclBasicBuilder *theTclBuilder)
+                        TCL_Char ** const argv, TclBasicBuilder *theTclBuilder)
 {
   if (argc < 5) {
     opserr << "TclExponReducingCommand - argc != 5 \n";
@@ -177,7 +177,7 @@ TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
 
 int
 TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
-                              int argc, TCL_Char **argv,
+                              int argc, TCL_Char ** const argv,
                               TclBasicBuilder *theTclBuilder)
 {
   PlasticHardeningMaterial *theMaterial = 0;
@@ -205,7 +205,7 @@ TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
 
 int
 TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
+                                      int argc, TCL_Char ** const argv,
                                       TclBasicBuilder *theTclBuilder)
 {
 

@@ -39,7 +39,7 @@
 #include <MovableObject.h>
 #include <SocketAddress.h>
 
-static int GetHostAddr(char *host, const char *IntAddr);
+static int GetHostAddr(const char *host, char *IntAddr);
 static void inttoa(unsigned int no, char *string, int *cnt);
 
 #ifndef _WIN32
@@ -850,7 +850,7 @@ UDP_Socket::addToProgram()
 
 
 static int
-GetHostAddr(char *host, char *IntAddr)
+GetHostAddr(const char *host, char *IntAddr)
 {
   //    register struct hostent *hostptr;
   struct hostent *hostptr;

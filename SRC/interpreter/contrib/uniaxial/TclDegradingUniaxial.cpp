@@ -34,7 +34,7 @@
 #endif
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -45,7 +45,7 @@ printCommand(int argc, TCL_Char **argv)
 // UniaxialMaterial *
 Damage1D<Steel02> *
 TclBasicBuilder_addDegradingMaterial(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv)
+                                     int argc, TCL_Char ** const argv)
 {
 
   UniaxialMaterial *theMaterial = nullptr;

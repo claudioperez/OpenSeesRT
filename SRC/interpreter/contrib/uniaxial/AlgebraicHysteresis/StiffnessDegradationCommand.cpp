@@ -10,7 +10,7 @@
 #include <runtime/BasicModelBuilder.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char **argv, Domain *domain);
+                                       TCL_Char ** const argv, Domain *domain);
 
 #include <DuctilityStiffnessDegradation.h>
 #include <EnergyStiffnessDegradation.h>
@@ -29,7 +29,7 @@ extern void *OPS_PincheiraStiffnessDegradation(G3_Runtime*);
 int
 TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
                                            Tcl_Interp *interp, int argc,
-                                           TCL_Char **argv, Domain *theDomain)
+                                           TCL_Char ** const argv, Domain *theDomain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   // Make sure there is a minimum number of arguments

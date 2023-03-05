@@ -3,7 +3,7 @@
 #include <InputAPI.h>
 
 UniaxialMaterial*
-G3Parse_newParallelMaterial(G3_Runtime* rt, int argc, G3_Char** argv)
+G3Parse_newParallelMaterial(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
     if (argc < 4) {
         opserr << "WARNING insufficient arguments\n";

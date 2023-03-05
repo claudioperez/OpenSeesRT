@@ -2,7 +2,7 @@
 #include <InputAPI.h>
 
 UniaxialMaterial*
-G3Parse_newSelfCenteringMaterial(ClientData* cd, Tcl_Interp* interp, int argc, G3_Char** argv)
+G3Parse_newSelfCenteringMaterial(ClientData* cd, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
   UniaxialMaterial* theMaterial;
      //if (strcmp(argv[1], "SelfCentering") == 0) {
