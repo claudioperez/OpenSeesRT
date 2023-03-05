@@ -6,8 +6,6 @@ cmake_minimum_required(VERSION 3.16)
 
 add_library(OpenSeesRT SHARED)
 
-add_library(OpenSeesRT_LinearSystem OBJECT)
-target_compile_definitions(OpenSeesRT_LinearSystem PUBLIC USE_TCL_STUBS)
 
 target_include_directories(OpenSeesRT PUBLIC 
   ./api/
@@ -71,7 +69,6 @@ set_property(TARGET OPS_Material_Uniaxial_Drain_f  PROPERTY POSITION_INDEPENDENT
 set_property(TARGET G3         PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-target_link_libraries(OpenSeesRT_LinearSystem PUBLIC ${TCL_LIBRARY})
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
@@ -94,7 +91,7 @@ target_link_libraries(OpenSeesRT PRIVATE
   OPS_Damage
   OPS_ModelBuilder
   G3_ObjectBroker
-  OpenSeesRT_LinearSystem
+# OpenSeesRT_LinearSystem
   G3
   ${TCL_STUB_LIBRARY}
   ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES} ${AMD_LIBRARIES}
