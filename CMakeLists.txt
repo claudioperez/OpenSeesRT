@@ -169,8 +169,6 @@ include_directories(
   ${OPS_SRC_DIR}/domain/subdomain
   ${OPS_SRC_DIR}/element
   ${OPS_SRC_DIR}/element/UP-ucsd
-  ${OPS_SRC_DIR}/element/UWelements
-  ${OPS_SRC_DIR}/element/XMUelements
   ${OPS_SRC_DIR}/graph/graph
   ${OPS_SRC_DIR}/graph/numberer
   ${OPS_SRC_DIR}/graph/partitioner
@@ -182,7 +180,7 @@ include_directories(
   ${OPS_SRC_DIR}/material/section/yieldSurface
   ${OPS_SRC_DIR}/material/uniaxial
   ${OPS_SRC_DIR}/matrix
-  ${OPS_SRC_DIR}/element/nonlinearBeamColumn/matrixutil
+  ${OPS_SRC_DIR}/element/matrixutil
   ${OPS_SRC_DIR}/modelbuilder
   ${OPS_SRC_DIR}/modelbuilder/tcl
   ${OPS_SRC_DIR}/recorder
