@@ -60,7 +60,7 @@
 #include <runtime/BasicModelBuilder.h>
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -70,7 +70,7 @@ printCommand(int argc, TCL_Char **argv)
 
 int
 TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv, Domain *theDomain,
+                                  int argc, TCL_Char ** const argv, Domain *theDomain,
                                   TclBasicBuilder *theBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);

@@ -10,7 +10,7 @@
 
 int
 TclBasicBuilder_addPFEMElement2D(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv, Domain *theDomain,
+                                 int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
   // define PFEM elements
@@ -159,7 +159,7 @@ TclBasicBuilder_addPFEMElement2D(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addPFEMElement3D(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv, Domain *theDomain,
+                                 int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
   // define PFEM elements

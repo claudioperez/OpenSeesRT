@@ -45,11 +45,11 @@
 #include <ElastomericBearingBoucWen3d.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addElastomericBearingBoucWen(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv,
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
     Domain *theTclDomain, TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
 

@@ -40,11 +40,11 @@
 #include <runtime/BasicModelBuilder.h>
 #include <UniaxialMaterial.h>
 
-// extern void printCommand(int argc, TCL_Char **argv);
+// extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv, Domain *theTclDomain,
+                           TCL_Char ** const argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called

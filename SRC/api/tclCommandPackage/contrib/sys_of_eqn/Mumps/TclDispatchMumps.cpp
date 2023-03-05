@@ -13,7 +13,7 @@ struct MumpsOptions {int icntl14, icntl7;};
 
 //struct MumpsOptions
 LinearSOE*
-TclDispatch_newMumpsLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
+TclDispatch_newMumpsLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
   if (strcmp(argv[1], "Mumps") == 0) {
 

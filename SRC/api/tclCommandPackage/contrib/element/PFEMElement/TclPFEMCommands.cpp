@@ -47,7 +47,7 @@ static PFEMMesher3D theMesher3D;
 
 int
 TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                             TCL_Char **argv, Domain *theDomain)
+                             TCL_Char ** const argv, Domain *theDomain)
 {
 
   if (argc < 2) {
@@ -2657,7 +2657,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
 
 int
 TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                             TCL_Char **argv, Domain *theDomain)
+                             TCL_Char ** const argv, Domain *theDomain)
 {
 
   if (argc < 2) {

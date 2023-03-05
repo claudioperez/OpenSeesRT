@@ -8,7 +8,7 @@
 // #include <SuperLU.h>
 
 LinearSOE*
-specifySparseGen(G3_Runtime* rt, int argc, G3_Char **argv)
+specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
   // SPARSE GENERAL SOE * SOLVER
   if ((strcmp(argv[1], "SparseGeneral") == 0) ||

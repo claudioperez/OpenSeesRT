@@ -46,7 +46,7 @@ extern void printCommand(int argc, char **argv);
 
 int
 TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv, Domain *theTclDomain)
+                           TCL_Char ** const argv, Domain *theTclDomain)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   // check the number of arguments is correct

@@ -18,7 +18,7 @@
 
 int
 TclBasicBuilder_addElastic2dGNL(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char **argv, Domain *theDomain,
+                                TCL_Char ** const argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
   // cerr << "Press key to continue...\n";

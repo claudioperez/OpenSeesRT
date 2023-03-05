@@ -94,7 +94,7 @@ TclBasicBuilder_addFrameElement(ClientData clientData, Tcl_Interp *interp,
   }
 
   int argc;
-  TCL_Char **argv;
+  TCL_Char ** const argv;
 
   if (Tcl_SplitList(interp, List, &argc, &argv) != TCL_OK) {
     opserr << "WARNING - TclBasicBuilder_addFrameElement - problem splitting "

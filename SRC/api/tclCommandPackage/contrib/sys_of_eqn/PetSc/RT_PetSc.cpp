@@ -44,7 +44,7 @@
 #define DllExport
 #endif
 LinearSOE*
-TclDispatch_newPetscSOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclDispatch_newPetscSOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   LinearSOE* theSOE;
 

@@ -15,7 +15,7 @@
 
 int
 TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int argc,
-                               TCL_Char **argv, TclBasicBuilder *theBuilder)
+                               TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
   int tag;
 
@@ -41,7 +41,7 @@ TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int ar
 
 int
 TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theBuilder)
 {
   int tag;
@@ -69,7 +69,7 @@ TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv,
+                                   int argc, TCL_Char ** const argv,
                                    TclBasicBuilder *theBuilder)
 {
   int tag;
@@ -101,7 +101,7 @@ TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
 /*******************************************************************************************/
 int
 TclBasicBuilderCyclicModelCommand(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theTclBuilder)
 {
 

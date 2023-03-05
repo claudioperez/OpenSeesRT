@@ -7,7 +7,7 @@
 #include <Newmark.h>
 
 TransientIntegrator*
-G3Parse_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** argv)
+G3Parse_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
   // Pointer to a uniaxial material that will be returned
   TransientIntegrator *theIntegrator = nullptr;

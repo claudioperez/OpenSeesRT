@@ -13,11 +13,11 @@
 #include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv,
+                                     int argc, TCL_Char ** const argv,
                                      Domain *theTclDomain,
                                      TclBasicBuilder *theTclBuilder)
 {
