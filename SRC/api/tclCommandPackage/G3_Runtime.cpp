@@ -38,9 +38,8 @@ class StaticIntegrator;
 
 #define G3Config_keyExists(conf, key) ((conf).find((key)) != (conf).end())
 
-// typedef void*(G3_Parse)(Tcl_Interp*, int, const char **);
 template <typename T>
-using G3_Parse = T* (*)(G3_Runtime*, int, const char **);
+using G3_Parse = T* (*)(G3_Runtime*, int, const char **const);
 
 
 // Wrap a function with signature
@@ -55,10 +54,10 @@ T* G3Object_newParsed(G3_Runtime *rt, G3_Char* command, std::vector<std::string>
     return (*fn)(rt, cstrs.size(), cstrs.data());
 }
 
-DOF_Numberer*        G3Parse_newNumberer(G3_Runtime*, int, G3_Char**);
-EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **);
-TransientIntegrator* G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, G3_Char**);
-StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**);
+DOF_Numberer*        G3Parse_newNumberer(G3_Runtime*, int, G3_Char**const);
+EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **const);
+TransientIntegrator* G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, G3_Char**const);
+StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**const);
 // LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
 // ConvergenceTest*     TclDispatch_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
