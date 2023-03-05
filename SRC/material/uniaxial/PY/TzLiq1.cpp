@@ -30,8 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <InitialStateAnalysisWrapper.h>
-#include <UWelements/SSPquadUP.h>
-#include <UWelements/SSPquad.h>
+#include <community/UWelements/SSPquadUP.h>
+#include <community/UWelements/SSPquad.h>
 #include <elementAPI.h>
 #include <FluidSolidPorousMaterial.h>
 #include <TzSimple1.h>

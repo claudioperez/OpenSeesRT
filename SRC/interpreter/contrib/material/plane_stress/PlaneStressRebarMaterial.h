@@ -17,61 +17,64 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-//
-// Written: fmk 
-// Created: 01/01
-//
-// Description: This file contains the class definition for AlgorithmIncrements.
-// A AlgorithmIncrements will display the X and B in the SOE associated with the
-// algorithm on a record.
-//
-#ifndef AlgorithmIncrements_h
-#define AlgorithmIncrements_h
-
-#include <Recorder.h>
-
-#include <fstream>
-using std::ofstream;
-
-class EquiSolnAlgo;
-class Renderer;
-class ColorMap;
-class ID;
-class Vector;
-
-class AlgorithmIncrements : public Recorder
-{
-  public:
-    AlgorithmIncrements(EquiSolnAlgo *theAlgo,
-			const char *windowTitle, 
-			int xLoc, int yLoc, int width, int height,
-			bool displayRecord = false,
-			const char *fileName = 0);
-    
-    ~AlgorithmIncrements();    
-
-    int plotData(const Vector &X, const Vector &B);
-
-    int record(int commitTag, double timeStamp);
-    int playback(int commitTag);
-    int restart(void);    
-
-  protected:
-
-  private:
-    ColorMap *theMap;
-    Renderer *theRenderer;
-    EquiSolnAlgo *theAlgo;
-
-    int numRecord;
-    bool displayRecord;
-    char *fileName;
-    ofstream theFile;     
-};
-
-#endif
 
 
+// written: fmk derived from code in PlateRebarMaterial from
+// Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
+
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <math.h> 
+
+#include <Vector.h>
+#include <Matrix.h>
+#include <ID.h> 
+#include <UniaxialMaterial.h>
+#include <NDMaterial.h>
+
+class PlaneStressRebarMaterial: public NDMaterial{
+  public : 
+    PlaneStressRebarMaterial();
+    PlaneStressRebarMaterial(int tag,
+		       UniaxialMaterial &uniMat,
+		       double ang );
+
+    virtual ~PlaneStressRebarMaterial( );
+
+    //make a clone of this material
+    NDMaterial *getCopy( );
+    NDMaterial *getCopy( const char *type );
+
+    int getOrder( ) const ;
+    const char *getType( ) const ;
+
+    int commitState( ); 
+    int revertToLastCommit( );
+    int revertToStart( );
+
+    int setTrialStrain( const Vector &strainFromElement );
+
+    const Vector& getStrain( );
+    const Vector& getStress( );
+    const Matrix& getTangent( );
+    const Matrix& getInitialTangent( );
+
+    double getRho( );
+
+    void Print( OPS_Stream &s, int flag );
+    int sendSelf(int commitTag, Channel &theChannel);
+    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+
+private :
+    UniaxialMaterial *theMat ;
+    double angle, c, s;
+
+    Vector strain ;
+    static Vector stress ;
+    static Matrix tangent ;
+
+} ;
 
 
 

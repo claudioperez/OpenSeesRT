@@ -201,13 +201,6 @@
 #include "fiber/UniaxialFiber2d.h"
 #include "fiber/UniaxialFiber3d.h"
 
-// friction models
-#include "frictionBearing/frictionModel/Coulomb.h"
-#include "frictionBearing/frictionModel/VelDependent.h"
-#include "frictionBearing/frictionModel/VelPressureDep.h"
-#include "frictionBearing/frictionModel/VelDepMultiLinear.h"
-#include "frictionBearing/frictionModel/VelNormalFrcDep.h"
-
 // element header files
 #include "Element.h"
 #include "truss/Truss.h"
@@ -225,12 +218,12 @@
 #include "zeroLength/ZeroLengthContactASDimplex.h"
 //#include "ZeroLengthND.h"
 
-#include "fourNodeQuad/FourNodeQuad.h"
-#include "fourNodeQuad/EnhancedQuad.h"
-#include "fourNodeQuad/NineNodeMixedQuad.h"
-#include "fourNodeQuad/NineNodeQuad.h"
-#include "fourNodeQuad/EightNodeQuad.h"
-#include "fourNodeQuad/ConstantPressureVolumeQuad.h"
+#include "quadrilateral/FourNodeQuad.h"
+#include "quadrilateral/EnhancedQuad.h"
+#include "quadrilateral/NineNodeMixedQuad.h"
+#include "quadrilateral/NineNodeQuad.h"
+#include "quadrilateral/EightNodeQuad.h"
+#include "quadrilateral/ConstantPressureVolumeQuad.h"
 #include "elasticBeamColumn/ElasticBeam2d.h"
 #include "elasticBeamColumn/ElasticBeam3d.h"
 #include "elasticBeamColumn/ModElasticBeam2d.h" //SAJalali
@@ -278,31 +271,37 @@
 #include "twoNodeLink/LinearElasticSpring.h"
 #include "twoNodeLink/Inerter.h"
 
+// Bearings
+#include "bearing/elastomeric/ElastomericBearingBoucWen2d.h"
+#include "bearing/elastomeric/ElastomericBearingBoucWen3d.h"
+#include "bearing/elastomeric/ElastomericBearingPlasticity2d.h"
+#include "bearing/elastomeric/ElastomericBearingPlasticity3d.h"
+#include "bearing/elastomeric/ElastomericBearingUFRP2d.h"
+#include "bearing/elastomeric/ElastomericX.h"
+#include "bearing/elastomeric/HDR.h"
+#include "bearing/elastomeric/LeadRubberX.h"
+
+#include "bearing/friction/FlatSliderSimple2d.h"
+#include "bearing/friction/FlatSliderSimple3d.h"
+#include "bearing/friction/FPBearingPTV.h"
+#include "bearing/friction/RJWatsonEQS2d.h"
+#include "bearing/friction/RJWatsonEQS3d.h"
+#include "bearing/friction/SingleFPSimple2d.h"
+#include "bearing/friction/SingleFPSimple3d.h"
+#include "bearing/friction/TripleFrictionPendulum.h"
+// friction models
+#include "bearing/friction/frictionModel/Coulomb.h"
+#include "bearing/friction/frictionModel/VelDependent.h"
+#include "bearing/friction/frictionModel/VelPressureDep.h"
+#include "bearing/friction/frictionModel/VelDepMultiLinear.h"
+#include "bearing/friction/frictionModel/VelNormalFrcDep.h"
+
+
 #include "mvlem/MVLEM.h"        // Kristijan Kolozvari
 #include "mvlem/SFI_MVLEM.h"    // Kristijan Kolozvari
 #include "mvlem/MVLEM_3D.h"     // Kristijan Kolozvari
 #include "mvlem/SFI_MVLEM_3D.h" // Kristijan Kolozvari
 
-#include "elastomericBearing/ElastomericBearingBoucWen2d.h"
-#include "elastomericBearing/ElastomericBearingBoucWen3d.h"
-#include "elastomericBearing/ElastomericBearingPlasticity2d.h"
-#include "elastomericBearing/ElastomericBearingPlasticity3d.h"
-#include "elastomericBearing/ElastomericBearingUFRP2d.h"
-#include "elastomericBearing/ElastomericX.h"
-#include "elastomericBearing/HDR.h"
-#include "elastomericBearing/LeadRubberX.h"
-
-#include "frictionBearing/FlatSliderSimple2d.h"
-#include "frictionBearing/FlatSliderSimple3d.h"
-#include "frictionBearing/FPBearingPTV.h"
-#include "frictionBearing/RJWatsonEQS2d.h"
-#include "frictionBearing/RJWatsonEQS3d.h"
-#include "frictionBearing/SingleFPSimple2d.h"
-#include "frictionBearing/SingleFPSimple3d.h"
-#include "frictionBearing/TripleFrictionPendulum.h"
-#if 0
-#include "PFEMElement/PFEMElement2D.h"
-#endif
 #include "RockingBC/RockingBC.h"
 
 #include "CEqElement/ASDEmbeddedNodeElement.h"

@@ -31,8 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <InitialStateAnalysisWrapper.h>
-#include <SSPquadUP.h>
-#include <SSPquad.h>
+#include <community/UWelements/SSPquadUP.h>
+#include <community/UWelements/SSPquad.h>
 #include <elementAPI.h>
 #include <quadrilateral/FourNodeQuad.h>
 #include <element/UP-ucsd/FourNodeQuadUP.h>

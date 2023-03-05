@@ -17,63 +17,53 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
+
+// $Revision: 1.1 $
+// $Date: 2005-08-19 19:40:55 $
+// $Source:
+// /usr/local/cvs/OpenSees/SRC/material/uniaxial/TclNewUniaxialMaterial.cpp,v $
+
+// Written: fmk
+// Created: Aug 2005
 //
-// Written: fmk 
-// Created: 01/01
-//
-// Description: This file contains the class definition for AlgorithmIncrements.
-// A AlgorithmIncrements will display the X and B in the SOE associated with the
-// algorithm on a record.
-//
-#ifndef AlgorithmIncrements_h
-#define AlgorithmIncrements_h
+// Description: This file contains the implementation of the
 
-#include <Recorder.h>
+#include <NewUniaxialMaterial.h>
 
-#include <fstream>
-using std::ofstream;
+#include <TclBasicBuilder.h>
+#include <runtime/BasicModelBuilder.h>
+#include <string.h>
 
-class EquiSolnAlgo;
-class Renderer;
-class ColorMap;
-class ID;
-class Vector;
-
-class AlgorithmIncrements : public Recorder
+int
+TclCommand_NewUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
+                               int argc, TCL_Char **argv,
+                               TclBasicBuilder *theTclBuilder)
 {
-  public:
-    AlgorithmIncrements(EquiSolnAlgo *theAlgo,
-			const char *windowTitle, 
-			int xLoc, int yLoc, int width, int height,
-			bool displayRecord = false,
-			const char *fileName = 0);
-    
-    ~AlgorithmIncrements();    
 
-    int plotData(const Vector &X, const Vector &B);
+  int tag;
+  UniaxialMaterial *theMaterial = 0;
 
-    int record(int commitTag, double timeStamp);
-    int playback(int commitTag);
-    int restart(void);    
+  if (argc < 3) {
+    opserr << "WARNING insufficient number of arguments\n";
+    return 0;
+  }
 
-  protected:
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    opserr << "WARNING invalid uniaxialMaterial tag\n";
+    return 0;
+  }
 
-  private:
-    ColorMap *theMap;
-    Renderer *theRenderer;
-    EquiSolnAlgo *theAlgo;
+  /*
+  if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
+    opserr << "WARNING invalid E\n";
+    return 0;
+  }
+  */
 
-    int numRecord;
-    bool displayRecord;
-    char *fileName;
-    ofstream theFile;     
-};
+  theMaterial = new NewUniaxialMaterial(tag);
 
-#endif
-
-
-
-
-
-
-
+  if (theMaterial != 0)
+    return theTclBuilder->addUniaxialMaterial(*theMaterial);
+  else
+    return -1;
+}
