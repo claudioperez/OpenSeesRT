@@ -41,11 +41,11 @@
 #endif
 
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **argv, Domain *theTclDomain, int eleArgStart)
+                         TCL_Char ** const argv, Domain *theTclDomain, int eleArgStart)
 {
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 11) {

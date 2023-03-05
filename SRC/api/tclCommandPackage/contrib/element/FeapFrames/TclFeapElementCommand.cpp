@@ -42,11 +42,11 @@
 #include <fElmt02.h>
 #include <TclModelBuilder.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclModelBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc, 
-			     TCL_Char **argv, Domain *theTclDomain, TclModelBuilder *theTclBuilder,
+			     TCL_Char ** const argv, Domain *theTclDomain, TclModelBuilder *theTclBuilder,
 			     int eleArgStart)
 {
   // ensure the destructor has not been called - 

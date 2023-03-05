@@ -25,7 +25,7 @@
 
 //#endif
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 /*  *****************************************************************************
 
@@ -44,7 +44,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, Tcl_Interp *interp,
 
                                    int argc,
 
-                                   TCL_Char **argv,
+                                   TCL_Char ** const argv,
 
                                    Domain *theTclDomain,
 

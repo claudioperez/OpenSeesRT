@@ -24,7 +24,7 @@
 
 int
 TclBasicBuilder_addElement2dYS01(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv, Domain *theDomain,
+                                 int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
   // cerr << "Press key to continue...\n";
@@ -151,7 +151,7 @@ TclBasicBuilder_addElement2dYS01(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addElement2dYS02(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv, Domain *theDomain,
+                                 int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
   // cerr << "Press key to continue...\n";
@@ -314,7 +314,7 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addElement2dYS03(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv, Domain *theDomain,
+                                 int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
   // cerr << "Press key to continue...\n";
@@ -736,7 +736,7 @@ TCL_ERROR;
 /*******************************************************************************************/
 int
 TclBasicBuilder_addElement2dYS(ClientData clientData, Tcl_Interp *interp, int argc,
-                               TCL_Char **argv, Domain *theTclDomain,
+                               TCL_Char ** const argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder)
 {
 

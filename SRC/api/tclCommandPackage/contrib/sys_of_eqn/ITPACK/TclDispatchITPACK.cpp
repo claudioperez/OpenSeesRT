@@ -3,7 +3,7 @@
 #include <ItpackLinSolver.h>
 
 LinearSOE*
-TclDispatch_newItpackLinearSOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+TclDispatch_newItpackLinearSOE(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
     // now must determine the type of solver to create 
     // from rest of args

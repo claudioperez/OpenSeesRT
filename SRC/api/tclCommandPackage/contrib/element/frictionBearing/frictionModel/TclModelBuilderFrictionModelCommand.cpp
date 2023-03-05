@@ -33,7 +33,7 @@
 #include <tcl.h>
 #include <elementAPI.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
-                                       int cArg, int mArg, TCL_Char **argv,
+                                       int cArg, int mArg, TCL_Char ** const argv,
                                        Domain *domain);
 
 extern void *OPS_Coulomb(G3_Runtime*);
@@ -43,7 +43,7 @@ extern void *OPS_VelNormalFrcDep(G3_Runtime*);
 extern void *OPS_VelPressureDep(G3_Runtime*);
 
 static void
-printCommand(int argc, TCL_Char **argv)
+printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
@@ -53,7 +53,7 @@ printCommand(int argc, TCL_Char **argv)
 
 int
 TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char **argv,
+                                    int argc, TCL_Char ** const argv,
                                     Domain *theDomain)
 {
   G3_Runtime *rt = G3_getRuntime(interp);

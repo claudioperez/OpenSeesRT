@@ -49,12 +49,12 @@
 #include <tcl.h>
 #include <elementAPI.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 static Domain *theTclBasicBuilderDomain = 0;
 
 int
 TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char **argv,
+                                   int argc, TCL_Char ** const argv,
                                    Domain *theTclDomain, int eleArgStart)
 {
   theTclBasicBuilderDomain = theTclDomain;

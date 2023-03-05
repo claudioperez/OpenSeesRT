@@ -27,7 +27,7 @@
 //#define TCL_Char const char
 //#endif
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 /*  *****************************************************************************
 
@@ -38,7 +38,7 @@ extern void printCommand(int argc, TCL_Char **argv);
 
 int
 TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char **argv,
+                                  int argc, TCL_Char ** const argv,
                                   Domain *theTclDomain,
                                   TclBasicBuilder *theTclBuilder)
 {
@@ -202,7 +202,7 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char **argv, Domain *theTclDomain,
+                           TCL_Char ** const argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -347,7 +347,7 @@ TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
+                                      int argc, TCL_Char ** const argv,
                                       Domain *theTclDomain,
                                       TclBasicBuilder *theTclBuilder)
 {
@@ -487,7 +487,7 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData, Tcl_Interp *interp,
-                                          int argc, TCL_Char **argv,
+                                          int argc, TCL_Char ** const argv,
                                           Domain *theTclDomain,
                                           TclBasicBuilder *theTclBuilder)
 {
@@ -637,7 +637,7 @@ TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData, Tcl_Interp *int
 
 int
 TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char **argv,
+                                      int argc, TCL_Char ** const argv,
                                       Domain *theTclDomain,
                                       TclBasicBuilder *theTclBuilder)
 {
@@ -801,7 +801,7 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addBBarBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
-                               TCL_Char **argv, Domain *theTclDomain,
+                               TCL_Char ** const argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -

@@ -40,12 +40,12 @@
 #include <LobattoBeamIntegration.h>
 #include <LegendreBeamIntegration.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv,
+                                               TCL_Char ** const argv,
                                                Domain *theTclDomain,
                                                TclBasicBuilder *theTclBuilder)
 {

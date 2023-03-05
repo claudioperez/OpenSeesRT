@@ -45,7 +45,7 @@
 #include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 /*  *****************************************************************************
 
@@ -56,7 +56,7 @@ extern void printCommand(int argc, TCL_Char **argv);
 
 int
 TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char **argv, Domain *theTclDomain,
+                                TCL_Char ** const argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -198,7 +198,7 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 int
 TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
                                               Tcl_Interp *interp, int argc,
-                                              TCL_Char **argv,
+                                              TCL_Char ** const argv,
                                               Domain *theTclDomain,
                                               TclBasicBuilder *theTclBuilder)
 {
@@ -319,7 +319,7 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
  */
 int
 TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char **argv, Domain *theTclDomain,
+                                TCL_Char ** const argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -
@@ -433,7 +433,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
 
 int
 TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv,
+                                     int argc, TCL_Char ** const argv,
                                      Domain *theTclDomain,
                                      TclBasicBuilder *theTclBuilder)
 {
@@ -570,7 +570,7 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
 int
 TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char **argv,
+                                               TCL_Char ** const argv,
                                                Domain *theTclDomain,
                                                TclBasicBuilder *theTclBuilder)
 {
@@ -716,7 +716,7 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
 
 int
 TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char **argv, Domain *theTclDomain,
+                                TCL_Char ** const argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
   // TODO: assertions, clean up
@@ -886,7 +886,7 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 //
 int
 TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char **argv,
+                                 int argc, TCL_Char ** const argv,
                                  Domain *theTclDomain,
                                  TclBasicBuilder *theTclBuilder)
 {
@@ -1049,7 +1049,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int argc,
-                              TCL_Char **argv, Domain *theTclDomain,
+                              TCL_Char ** const argv, Domain *theTclDomain,
                               TclBasicBuilder *theTclBuilder)
 {
   // ensure the destructor has not been called -

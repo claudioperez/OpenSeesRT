@@ -47,7 +47,7 @@
 
 int
 TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int argc,
-                              TCL_Char **argv, Domain *theDomain,
+                              TCL_Char ** const argv, Domain *theDomain,
                               TclBasicBuilder *theBuilder)
 {
 
@@ -357,7 +357,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
 
 int
 TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv,
+                                     int argc, TCL_Char ** const argv,
                                      Domain *theDomain,
                                      TclBasicBuilder *theBuilder)
 {
@@ -519,7 +519,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp,
-                                       int argc, TCL_Char **argv,
+                                       int argc, TCL_Char ** const argv,
                                        Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
 {
@@ -638,7 +638,7 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp
 
 int
 TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp,
-                                       int argc, TCL_Char **argv,
+                                       int argc, TCL_Char ** const argv,
                                        Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
 {
@@ -752,7 +752,7 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp
 
 int
 TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char **argv, Domain *theDomain,
+                                TCL_Char ** const argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp); 
@@ -917,7 +917,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int a
 
 int
 TclBasicBuilder_addZeroLengthRocking(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char **argv,
+                                     int argc, TCL_Char ** const argv,
                                      Domain *theDomain,
                                      TclBasicBuilder *theBuilder)
 {

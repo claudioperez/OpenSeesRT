@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: MHS
 // Created: Feb 2001
 //
@@ -81,11 +77,11 @@
 #include <ElasticSection2d.h>
 #include <ElasticSection3d.h>
 
-extern void printCommand(int argc, TCL_Char **argv);
+extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
-                                   int inArgc, TCL_Char **inArgv,
+                                   int inArgc, TCL_Char **const inArgv,
                                    Domain *theTclDomain,
                                    TclBasicBuilder *theTclBuilder)
 {
@@ -99,8 +95,8 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   int ok = 0;
   if ((ndm == 2 && ndf == 3) || (ndm == 2 && ndf == 4))
@@ -131,7 +127,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   }
 
   int argc;
-  TCL_Char **argv;
+  TCL_Char ** argv;
 
   if (Tcl_SplitList(interp, List, &argc, &argv) != TCL_OK) {
     opserr << "WARNING - TclBasicBuilder_addForceBeamColumn - problem "
