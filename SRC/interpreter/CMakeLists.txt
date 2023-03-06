@@ -25,7 +25,6 @@ target_sources(OpenSeesRT PRIVATE
     "OpenSeesRT.cpp"
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"
-
 # Other
     "${CMAKE_CURRENT_LIST_DIR}/contrib/packages/optimization/TclParameterCommands.cpp"
 #
