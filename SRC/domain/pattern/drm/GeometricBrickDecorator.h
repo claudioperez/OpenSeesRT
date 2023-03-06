@@ -14,20 +14,17 @@
 #include <Domain.h>
 #include <Node.h>
 #include <Element.h>
-#include <zeroLength/ZeroLength.h>
+#include <Point/ZeroLength.h>
 
 #include <ElasticMaterial.h>
 #include <ElasticIsotropicThreeDimensional.h>
 
 #include <SP_Constraint.h>
-
 #include <SingleDomAllSP_Iter.h>
 #include <NodeIter.h>
-
 #include <Vertex.h>
 #include <VertexIter.h>
 #include <Graph.h>
-
 #include <Vector.h>
 #include <Matrix.h>
 

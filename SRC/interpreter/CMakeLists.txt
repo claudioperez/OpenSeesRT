@@ -25,24 +25,18 @@ target_sources(OpenSeesRT PRIVATE
     "OpenSeesRT.cpp"
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"
-# Other
     "${CMAKE_CURRENT_LIST_DIR}/contrib/packages/optimization/TclParameterCommands.cpp"
 #
 # SUB-ELEMENT MODELS
 #
-# Uniaxial
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
-    # "contrib/uniaxial/TclAxialSp.cpp"
-    # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
-    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
-
-    # Other
+    # "contrib/uniaxial/TclAxialSp.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-
 #
 # OTHER
 #

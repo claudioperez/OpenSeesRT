@@ -18,7 +18,7 @@
 #include <ActorSubdomain.h>
 #include <Node.h>
 #include <Element.h>
-#include <zeroLength/ZeroLength.h>
+#include <Point/ZeroLength.h>
 #include <ElasticMaterial.h>
 #include <ElasticIsotropicThreeDimensional.h>
 

@@ -10,10 +10,12 @@ target_sources(OPS_Matrix
     PRIVATE
       Matrix.cpp
       Vector.cpp
+      R3vectors.cpp
       ID.cpp
     PUBLIC
       Matrix.h
       Vector.h
+      R3vectors.h
       ID.h
 )
 

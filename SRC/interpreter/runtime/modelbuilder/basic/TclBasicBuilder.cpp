@@ -262,17 +262,19 @@ static int TclCommand_doBlock3D(ClientData, Tcl_Interp*,
                                 int argc, TCL_Char ** const);
 
 #endif // OPSDEF_ELEMENT_BLOCKND
+
+#if 0
 static int TclCommand_addRemoPatch(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char ** const);
 
 static int TclCommand_addRemoFiber(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char ** const);
+#endif
 
 // Leo
 static int TclBasicBuilder_addRemoHFiber(ClientData,
                                          Tcl_Interp*, int argc,
                                          TCL_Char ** const);
-
 
 static int TclCommand_addFrictionModel(ClientData,
                                        Tcl_Interp*, int argc,

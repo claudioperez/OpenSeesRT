@@ -8,7 +8,7 @@
 target_sources(OPS_Element
     PRIVATE
         ASDShellQ4.cpp
-        R3vectors.cpp
+        # R3vectors.cpp
         ShellANDeS.cpp
         ShellDKGQ.cpp
         ShellDKGT.cpp
@@ -20,12 +20,12 @@ target_sources(OPS_Element
         ShellNLDKGT.cpp
     PUBLIC
         ASDEICR.h
-        ASDMath.h
+        # ASDMath.h
         ASDShellQ4CorotationalTransformation.h
         ASDShellQ4.h
         ASDShellQ4LocalCoordinateSystem.h
         ASDShellQ4Transformation.h
-        R3vectors.h
+        # R3vectors.h
         ShellANDeS.h
         ShellDKGQ.h
         ShellDKGT.h
