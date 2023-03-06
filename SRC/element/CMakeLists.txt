@@ -6,10 +6,10 @@
 #==============================================================================
 #add_library(OPS_Element OBJECT)
 target_include_directories(OPS_Element PUBLIC
+  ${OPS_SRC_DIR}/element/Boundary
   ${OPS_SRC_DIR}/element/absorbentBoundaries
-  ${OPS_SRC_DIR}/element/quadrilateral
+  ${OPS_SRC_DIR}/element/Plane
   ${OPS_SRC_DIR}/element/tetrahedron
-  ${OPS_SRC_DIR}/element/triangle
   ${OPS_SRC_DIR}/element/adapter
   ${OPS_SRC_DIR}/element/Brick
   ${OPS_SRC_DIR}/element/Joint
@@ -30,18 +30,17 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/community
   ${OPS_SRC_DIR}/element/community/HUelements
 
-  ${OPS_SRC_DIR}/element/bearing/elastomeric
-  ${OPS_SRC_DIR}/element/bearing/elastomeric
-  ${OPS_SRC_DIR}/element/bearing/friction
-  ${OPS_SRC_DIR}/element/bearing/friction/frictionModel
+  ${OPS_SRC_DIR}/element/Bearing/elastomeric
+  ${OPS_SRC_DIR}/element/Bearing/elastomeric
+  ${OPS_SRC_DIR}/element/Bearing/friction
+  ${OPS_SRC_DIR}/element/Bearing/friction/frictionModel
 
   ${OPS_SRC_DIR}/element/feap
   ${OPS_SRC_DIR}/element/masonry
   ${OPS_SRC_DIR}/element/mvlem
   ${OPS_SRC_DIR}/element/Other/PML
   ${OPS_SRC_DIR}/element/Other/generic
-  ${OPS_SRC_DIR}/element/pyMacro
-  ${OPS_SRC_DIR}/element/Boundary
+  ${OPS_SRC_DIR}/element/Other/pyMacro
   ${OPS_SRC_DIR}/element/surfaceLoad
   ${OPS_SRC_DIR}/element/twoNodeLink
 
@@ -67,42 +66,36 @@ target_sources(OPS_Utilities
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-add_subdirectory(quadrilateral)
 add_subdirectory(twoNodeLink)
 add_subdirectory(tetrahedron)
-add_subdirectory(triangle)
+add_subdirectory(Plane)
 add_subdirectory(Shell)
 add_subdirectory(Brick)
 add_subdirectory(Truss)
 add_subdirectory(Cable)
 add_subdirectory(Joint)
-
-
-add_subdirectory(zeroLength)
-
+add_subdirectory(Point)
 add_subdirectory(Frame)
 add_subdirectory(Frame/LHMYS)
-add_subdirectory(dispBeamColumnInt)
 add_subdirectory(componentElement)
 
-add_subdirectory(Boundary)
 add_subdirectory(absorbentBoundaries)
 add_subdirectory(adapter)
+add_subdirectory(Boundary)
+add_subdirectory(Bearing/friction)
+add_subdirectory(Bearing/elastomeric)
+add_subdirectory(ASDEA/CEqElement)
 
-add_subdirectory(bearing/friction)
-add_subdirectory(bearing/elastomeric)
+add_subdirectory(Other/PML)
+add_subdirectory(Other/generic)
+add_subdirectory(Other/pyMacro)
 
 add_subdirectory(surfaceLoad)
 
 add_subdirectory(feap)
 
 add_subdirectory(mvlem)
-add_subdirectory(pyMacro)
 add_subdirectory(masonry)
-add_subdirectory(ASDEA/CEqElement)
-
-add_subdirectory(Other/PML)
-add_subdirectory(Other/generic)
 # add_subdirectory(UP-ucsd)
 add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)

@@ -30,7 +30,7 @@
 #include <QzSimple1.h>
 #include <iostream>
 // #include <FourNodeQuadUP.h>
-#include <Nine_Four_Node_QuadUP.h>
+#include <Plane/Nine_Four_Node_QuadUP.h>
 #include <TimeSeries.h>
 
 class FourNodeQuad;

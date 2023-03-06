@@ -104,24 +104,3 @@ All files are in the following subdirectories:
 
 </dl>
 
-
-NOTES FOR MYSELF:
-notes for alpha cluster:
-  1) change 'ssh' in ~/remote/remote.c to 'rsh'
-  2) remove the threaded profile solver
-
-notes for holden:
-  1) create a HoldenMachineBroker which starts processes on the
-     alpha cluster.
-
-notes for millenium machines:
-  1) not yet working for CC compiler, need to bcopy() struct addr to
-     addr_in
-  2) the parallel domain decomposition is using ssh to start the
-     remote processes, has to be set up so don't need to supply password -
-     this can be done from mill.cs - but not from any other millenium machine!
-     they must have some problem with ssh. talk to eric again.
-     rsh would be nice! see if eric will allow rsh until fix ssh?
-
-
-

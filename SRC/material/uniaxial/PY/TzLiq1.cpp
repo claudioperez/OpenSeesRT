@@ -36,9 +36,9 @@
 #include <FluidSolidPorousMaterial.h>
 #include <TzSimple1.h>
 #include <iostream>
-#include <quadrilateral/FourNodeQuad.h>
-#include <UP-ucsd/FourNodeQuadUP.h>
-#include <UP-ucsd/Nine_Four_Node_QuadUP.h>
+#include <Plane/FourNodeQuad.h>
+#include <Plane/FourNodeQuadUP.h>
+#include <Plane/Nine_Four_Node_QuadUP.h>
 #include <TimeSeries.h>
 
 // Control on internal iteration between spring components
