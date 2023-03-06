@@ -34,11 +34,11 @@ target_include_directories(OPS_Element PUBLIC
 
   ${OPS_SRC_DIR}/element/feap
   ${OPS_SRC_DIR}/element/quadrilateral
-  ${OPS_SRC_DIR}/element/generic
   ${OPS_SRC_DIR}/element/LHMYS
   ${OPS_SRC_DIR}/element/masonry
   ${OPS_SRC_DIR}/element/mvlem
   ${OPS_SRC_DIR}/element/Other/PML
+  ${OPS_SRC_DIR}/element/Other/generic
   ${OPS_SRC_DIR}/element/pyMacro
   ${OPS_SRC_DIR}/element/Boundary
   ${OPS_SRC_DIR}/element/surfaceLoad
@@ -53,11 +53,11 @@ target_sources(OPS_Element
     PRIVATE
       Element.cpp
       ElementalLoad.cpp
-      WrapperElement.cpp
+      Other/WrapperElement.cpp
     PUBLIC
       Element.h
       ElementalLoad.h
-      WrapperElement.h
+      Other/WrapperElement.h
 )
 
 target_sources(OPS_Utilities
@@ -101,7 +101,6 @@ add_subdirectory(adapter)
 add_subdirectory(bearing/friction)
 add_subdirectory(bearing/elastomeric)
 
-add_subdirectory(generic)
 add_subdirectory(surfaceLoad)
 
 add_subdirectory(feap)
@@ -113,6 +112,7 @@ add_subdirectory(ASDEA/CEqElement)
 
 #add_subdirectory(dmglib)
 add_subdirectory(Other/PML)
+add_subdirectory(Other/generic)
 add_subdirectory(UP-ucsd)
 add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)
