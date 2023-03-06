@@ -5,18 +5,26 @@
 #
 #==============================================================================
 target_sources(OPS_Element
-    PRIVATE
+  PRIVATE
     Brick.cpp
     Twenty_Node_Brick.cpp
     shp3d.cpp
+    shp3dv.cpp
+    BrickUP.cpp
     BbarBrick.cpp
+    BBarBrickUP.cpp
     BbarBrickWithSensitivity.cpp
-    PUBLIC
+    Twenty_Eight_Node_BrickUP.cpp
+  PUBLIC
     Brick.h
     Twenty_Node_Brick.h
     shp3d.h
+    shp3dv.h
+    BrickUP.h
     BbarBrick.h
+    BBarBrickUP.h
     BbarBrickWithSensitivity.h
+    Twenty_Eight_Node_BrickUP.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})

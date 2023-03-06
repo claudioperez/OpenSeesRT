@@ -104,7 +104,7 @@ add_subdirectory(ASDEA/CEqElement)
 
 add_subdirectory(Other/PML)
 add_subdirectory(Other/generic)
-add_subdirectory(UP-ucsd)
+# add_subdirectory(UP-ucsd)
 add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)
 #add_subdirectory(community/UWelements)

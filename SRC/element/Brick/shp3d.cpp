@@ -1,8 +1,5 @@
 
-// $Revision: 1.1 $
-// $Date: 2001-07-11 21:54:41 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/brick/shp3d.cpp,v $
-
+//
 // Ed "C++" Love
 //
 // 3-d isoparametric 8-node element shape function
@@ -24,7 +21,6 @@
                      shp[2][i] = dN_i/dzc
                      shp[3][i] =  N_i
 */
-
 void  shp3d( const double ss[3],
 	     double &xsj,
 	     double shp[4][8],

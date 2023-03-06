@@ -15,6 +15,9 @@ target_sources(OPS_Element
     NineNodeMixedQuad.cpp
     NineNodeQuad.cpp
     SixNodeTri.cpp
+    BBarFourNodeQuadUP.cpp
+    FourNodeQuadUP.cpp
+    Nine_Four_Node_QuadUP.cpp
     PUBLIC
     ConstantPressureVolumeQuad.h
     EnhancedQuad.h
@@ -25,6 +28,9 @@ target_sources(OPS_Element
     NineNodeMixedQuad.h
     NineNodeQuad.h
     SixNodeTri.h
+    BBarFourNodeQuadUP.h
+    FourNodeQuadUP.h
+    Nine_Four_Node_QuadUP.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})

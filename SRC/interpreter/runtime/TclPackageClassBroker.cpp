@@ -226,6 +226,10 @@
 #include "quadrilateral/NineNodeQuad.h"
 #include "quadrilateral/EightNodeQuad.h"
 #include "quadrilateral/ConstantPressureVolumeQuad.h"
+#include "quadrilateral/Nine_Four_Node_QuadUP.h"
+#include "quadrilateral/BBarFourNodeQuadUP.h"
+#include "quadrilateral/FourNodeQuadUP.h"
+
 #include "Frame/Elastic/ElasticBeam2d.h"
 #include "Frame/Elastic/ElasticBeam3d.h"
 #include "Frame/Elastic/ModElasticBeam2d.h" //SAJalali
@@ -247,15 +251,8 @@
 #include "UWelements/BeamEndContact3Dp.h"
 #include "UWelements/QuadBeamEmbedContact.h"
 
-#include "PML/PML2D.h"
-#include "PML/PML3D.h"
-
-#include "UP-ucsd/Nine_Four_Node_QuadUP.h"
-#include "UP-ucsd/BrickUP.h"
-#include "UP-ucsd/BBarBrickUP.h"
-#include "UP-ucsd/BBarFourNodeQuadUP.h"
-#include "UP-ucsd/Twenty_Eight_Node_BrickUP.h"
-#include "UP-ucsd/FourNodeQuadUP.h"
+#include "Other/PML/PML2D.h"
+#include "Other/PML/PML3D.h"
 
 #include "Frame/DisplInterp/DispBeamColumn2d.h"
 #include "Frame/DisplInterp/DispBeamColumn3d.h"
@@ -268,6 +265,9 @@
 #include "Shell/ASDShellQ4.h"  // Massimo Petracca
 #include "Brick/Brick.h"
 #include "Brick/BbarBrick.h"
+#include "Brick/BrickUP.h"
+#include "Brick/BBarBrickUP.h"
+#include "Brick/Twenty_Eight_Node_BrickUP.h"
 #include "Joint/Joint2D.h" // Arash
 #include "twoNodeLink/TwoNodeLink.h"
 #include "twoNodeLink/LinearElasticSpring.h"
@@ -303,9 +303,9 @@
 #include "mvlem/MVLEM_3D.h"     // Kristijan Kolozvari
 #include "mvlem/SFI_MVLEM_3D.h" // Kristijan Kolozvari
 
-#include "RockingBC/RockingBC.h"
+#include "Boundary/RockingBC.h"
 
-#include "CEqElement/ASDEmbeddedNodeElement.h"
+#include "ASDEA/CEqElement/ASDEmbeddedNodeElement.h"
 
 #include "absorbentBoundaries/ASDAbsorbingBoundary2D.h"
 #include "absorbentBoundaries/ASDAbsorbingBoundary3D.h"
