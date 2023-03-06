@@ -5,7 +5,7 @@
 #
 #==============================================================================
 target_sources(OPS_Element
-    PRIVATE
+  PRIVATE
     ConstantPressureVolumeQuad.cpp
     EnhancedQuad.cpp
     FourNodeQuad.cpp
@@ -18,7 +18,8 @@ target_sources(OPS_Element
     BBarFourNodeQuadUP.cpp
     FourNodeQuadUP.cpp
     Nine_Four_Node_QuadUP.cpp
-    PUBLIC
+    Tri31.cpp
+  PUBLIC
     ConstantPressureVolumeQuad.h
     EnhancedQuad.h
     FourNodeQuad.h
@@ -31,6 +32,7 @@ target_sources(OPS_Element
     BBarFourNodeQuadUP.h
     FourNodeQuadUP.h
     Nine_Four_Node_QuadUP.h
+    Tri31.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
