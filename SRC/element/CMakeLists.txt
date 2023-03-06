@@ -24,7 +24,6 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/Frame/DisplInterp
   ${OPS_SRC_DIR}/element/Frame/LHMYS
   ${OPS_SRC_DIR}/element/componentElement
-  ${OPS_SRC_DIR}/element/dispBeamColumnInt
 
   ${OPS_SRC_DIR}/element/ASDEA/CEqElement
 
