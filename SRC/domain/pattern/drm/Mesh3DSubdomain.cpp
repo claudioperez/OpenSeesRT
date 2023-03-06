@@ -42,7 +42,7 @@ using namespace std;
 #include <RigidBeam.h>
 #include <ElementIter.h>
 #include <LinearCrdTransf3d.h>
-#include <elasticBeamColumn/ElasticBeam3d.h>
+#include <Frame/Elastic/ElasticBeam3d.h>
 #include <MP_Constraint.h>
 #include <classTags.h>
 //general constructor

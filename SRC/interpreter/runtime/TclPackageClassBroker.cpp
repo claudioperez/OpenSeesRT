@@ -17,7 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
+//
 // Written: cmp
 //
 // Purpose: This file contains the class definition for TclPackageClassBroker.
@@ -25,15 +25,16 @@
 // a threadsafe replacement for the BrokerAllClasses class.
 // All methods are virtual to allow for subclasses; which can be
 // used by programmers when introducing new subclasses of the main objects.
-
+//
 #ifdef _PARALLEL_PROCESSING
-#include <mpi.h>
+#  include <mpi.h>
 #endif
 
 #ifdef _PARALLEL_INTERPRETERS
-#include <mpi.h>
+#  include <mpi.h>
 #endif
 
+#include "packages.h"
 #include <TclPackageClassBroker.h>
 
 // ActorTypes
@@ -200,15 +201,16 @@
 // Fibers
 #include "fiber/UniaxialFiber2d.h"
 #include "fiber/UniaxialFiber3d.h"
-
+//
 // element header files
+//
 #include "Element.h"
-#include "truss/Truss.h"
-#include "truss/Truss2.h"
-#include "truss/TrussSection.h"
-#include "truss/CorotTruss.h"
-#include "truss/CorotTrussSection.h"
-#include "truss/InertiaTruss.h"
+#include "Truss/Truss.h"
+#include "Truss/Truss2.h"
+#include "Truss/TrussSection.h"
+#include "Truss/CorotTruss.h"
+#include "Truss/CorotTrussSection.h"
+#include "Truss/InertiaTruss.h"
 #include "zeroLength/ZeroLength.h"
 #include "zeroLength/ZeroLengthSection.h"
 #include "zeroLength/ZeroLengthContact2D.h"
@@ -224,13 +226,13 @@
 #include "quadrilateral/NineNodeQuad.h"
 #include "quadrilateral/EightNodeQuad.h"
 #include "quadrilateral/ConstantPressureVolumeQuad.h"
-#include "elasticBeamColumn/ElasticBeam2d.h"
-#include "elasticBeamColumn/ElasticBeam3d.h"
-#include "elasticBeamColumn/ModElasticBeam2d.h" //SAJalali
-#include "elasticBeamColumn/ElasticTimoshenkoBeam2d.h"
-#include "elasticBeamColumn/ElasticTimoshenkoBeam3d.h"
-#include "forceBeamColumn/ForceBeamColumn2d.h"
-#include "forceBeamColumn/ForceBeamColumn3d.h"
+#include "Frame/Elastic/ElasticBeam2d.h"
+#include "Frame/Elastic/ElasticBeam3d.h"
+#include "Frame/Elastic/ModElasticBeam2d.h" //SAJalali
+#include "Frame/Elastic/ElasticTimoshenkoBeam2d.h"
+#include "Frame/Elastic/ElasticTimoshenkoBeam3d.h"
+#include "Frame/ForceInterp/ForceBeamColumn2d.h"
+#include "Frame/ForceInterp/ForceBeamColumn3d.h"
 #include "triangle/Tri31.h"
 
 #include "UWelements/SSPquad.h"
@@ -255,18 +257,18 @@
 #include "UP-ucsd/Twenty_Eight_Node_BrickUP.h"
 #include "UP-ucsd/FourNodeQuadUP.h"
 
-#include "dispBeamColumn/DispBeamColumn2d.h"
-#include "dispBeamColumn/DispBeamColumn3d.h"
-#include "dispBeamColumn/DispBeamColumnAsym3d.h"   //Xinlong Du
-#include "mixedBeamColumn/MixedBeamColumnAsym3d.h" //Xinlong Du
-#include "shell/ShellMITC4.h"
-#include "shell/ShellMITC9.h"
-#include "shell/ShellDKGQ.h" //Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
-#include "shell/ShellNLDKGQ.h" //Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
-#include "shell/ASDShellQ4.h" // Massimo Petracca
-#include "brick/Brick.h"
-#include "brick/BbarBrick.h"
-#include "joint/Joint2D.h" // Arash
+#include "Frame/DisplInterp/DispBeamColumn2d.h"
+#include "Frame/DisplInterp/DispBeamColumn3d.h"
+#include "Frame/DisplInterp/DispBeamColumnAsym3d.h"   // Xinlong Du
+#include "Frame/MixedInterp/MixedBeamColumnAsym3d.h"  // Xinlong Du
+#include "Shell/ShellMITC4.h"
+#include "Shell/ShellMITC9.h"
+#include "Shell/ShellDKGQ.h"   // Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
+#include "Shell/ShellNLDKGQ.h" // Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
+#include "Shell/ASDShellQ4.h"  // Massimo Petracca
+#include "Brick/Brick.h"
+#include "Brick/BbarBrick.h"
+#include "Joint/Joint2D.h" // Arash
 #include "twoNodeLink/TwoNodeLink.h"
 #include "twoNodeLink/LinearElasticSpring.h"
 #include "twoNodeLink/Inerter.h"
@@ -280,7 +282,6 @@
 #include "bearing/elastomeric/ElastomericX.h"
 #include "bearing/elastomeric/HDR.h"
 #include "bearing/elastomeric/LeadRubberX.h"
-
 #include "bearing/friction/FlatSliderSimple2d.h"
 #include "bearing/friction/FlatSliderSimple3d.h"
 #include "bearing/friction/FPBearingPTV.h"
@@ -358,7 +359,7 @@
 
 // mp_constraint header files
 #include "MP_Constraint.h"
-#include "joint/MP_Joint2D.h"
+#include "Joint/MP_Joint2D.h"
 
 // sp_constraint header files
 #include "SP_Constraint.h"
@@ -468,9 +469,6 @@
 #include "NewmarkHSFixedNumIter.h"
 #include "NewmarkHSIncrLimit.h"
 #include "NewmarkHSIncrReduct.h"
-#if 0
-#include "PFEMIntegrator.h"
-#endif
 #include "TRBDF2.h"
 #include "TRBDF3.h"
 #include "WilsonTheta.h"
@@ -493,11 +491,11 @@
 #include "GroundMotion.h"
 #include "InterpolatedGroundMotion.h"
 #ifdef OPSDEF_DRM
-#include "drm/DRMLoadPatternWrapper.h"
+#  include "drm/DRMLoadPatternWrapper.h"
 #endif // OPSDEF_DRM
 
 #ifdef _H5DRM
-#include "drm/H5DRM.h"
+#  include "drm/H5DRM.h"
 #endif
 
 #include "Parameter.h"
@@ -522,34 +520,31 @@
 #include "eigenSOE/ArpackSOE.h"
 
 #ifdef _PETSC
-#include "PetscSOE.h"
-#include "PetscSolver.h"
-#include "SparseGenColLinSOE.h"
+#  include "PetscSOE.h"
+#  include "PetscSolver.h"
+#  include "SparseGenColLinSOE.h"
 #endif
 
 #ifdef _MUMPS
-#include "MumpsSOE.h"
+#  include "MumpsSOE.h"
+#  ifdef _PARALLEL_PROCESSING
+#  include "MumpsParallelSOE.h"
+#  endif
+#endif
+
 #ifdef _PARALLEL_PROCESSING
-#include "MumpsParallelSOE.h"
-#endif
-#endif
-
-#ifdef _PARALLEL_PROCESSING
-#include "DistributedBandSPDLinSOE.h"
-#include "DistributedProfileSPDLinSOE.h"
-#include "DistributedSparseGenColLinSOE.h"
-#include "DistributedSparseGenRowLinSOE.h"
-#include "DistributedBandGenLinSOE.h"
-#include "DistributedSuperLU.h"
-#include "ParallelNumberer.h"
-#include "StaticDomainDecompositionAnalysis.h"
-#include "TransientDomainDecompositionAnalysis.h"
-#include "DistributedDiagonalSOE.h"
+#  include "DistributedBandSPDLinSOE.h"
+#  include "DistributedProfileSPDLinSOE.h"
+#  include "DistributedSparseGenColLinSOE.h"
+#  include "DistributedSparseGenRowLinSOE.h"
+#  include "DistributedBandGenLinSOE.h"
+#  include "DistributedSuperLU.h"
+#  include "ParallelNumberer.h"
+#  include "StaticDomainDecompositionAnalysis.h"
+#  include "TransientDomainDecompositionAnalysis.h"
+#  include "DistributedDiagonalSOE.h"
 #endif
 
-//#include "TclFeViewer.h"
-
-#include "packages.h"
 
 typedef struct uniaxialPackage {
   int classTag;
