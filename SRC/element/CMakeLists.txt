@@ -42,7 +42,7 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/Other/generic
   ${OPS_SRC_DIR}/element/Other/pyMacro
   ${OPS_SRC_DIR}/element/surfaceLoad
-  ${OPS_SRC_DIR}/element/twoNodeLink
+  ${OPS_SRC_DIR}/element/Link
 
 )
 
@@ -66,7 +66,7 @@ target_sources(OPS_Utilities
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-add_subdirectory(twoNodeLink)
+add_subdirectory(Link)
 add_subdirectory(tetrahedron)
 add_subdirectory(Plane)
 add_subdirectory(Shell)
