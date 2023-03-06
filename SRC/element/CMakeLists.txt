@@ -18,7 +18,7 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/Frame/DisplInterp
   ${OPS_SRC_DIR}/element/Shell
 
-  ${OPS_SRC_DIR}/element/CEqElement
+  ${OPS_SRC_DIR}/element/ASDEA/CEqElement
 
   ${OPS_SRC_DIR}/element/community
   ${OPS_SRC_DIR}/element/community/HUelements
@@ -38,9 +38,9 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/LHMYS
   ${OPS_SRC_DIR}/element/masonry
   ${OPS_SRC_DIR}/element/mvlem
-  ${OPS_SRC_DIR}/element/PML
+  ${OPS_SRC_DIR}/element/Other/PML
   ${OPS_SRC_DIR}/element/pyMacro
-  ${OPS_SRC_DIR}/element/RockingBC
+  ${OPS_SRC_DIR}/element/Boundary
   ${OPS_SRC_DIR}/element/surfaceLoad
   ${OPS_SRC_DIR}/element/twoNodeLink
 
@@ -94,8 +94,7 @@ add_subdirectory(dispBeamColumnInt)
 add_subdirectory(LHMYS)
 add_subdirectory(componentElement)
 
-add_subdirectory(PML)
-add_subdirectory(RockingBC)
+add_subdirectory(Boundary)
 add_subdirectory(absorbentBoundaries)
 add_subdirectory(adapter)
 
@@ -110,9 +109,10 @@ add_subdirectory(feap)
 add_subdirectory(mvlem)
 add_subdirectory(pyMacro)
 add_subdirectory(masonry)
-add_subdirectory(CEqElement)
+add_subdirectory(ASDEA/CEqElement)
 
 #add_subdirectory(dmglib)
+add_subdirectory(Other/PML)
 add_subdirectory(UP-ucsd)
 add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)
