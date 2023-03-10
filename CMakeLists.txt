@@ -175,6 +175,7 @@ include_directories(
   ${OPS_SRC_DIR}/handler
   ${OPS_SRC_DIR}/material
   ${OPS_SRC_DIR}/material/nD
+  ${OPS_SRC_DIR}/material/Solid
   ${OPS_SRC_DIR}/material/section
   ${OPS_SRC_DIR}/material/section/fiber
   ${OPS_SRC_DIR}/material/section/yieldSurface

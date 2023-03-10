@@ -4,6 +4,15 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+target_include_directories(OPS_Material PRIVATE
+  ./integration
+  ./repres/cell
+  ./repres/patch
+  ./repres/reinfBar
+  ./repres/reinfLayer
+  ./repres/section
+)
+
 target_sources(OPS_Material
     PRIVATE
     BiaxialHysteretic.cpp

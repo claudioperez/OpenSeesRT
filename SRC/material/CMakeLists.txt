@@ -26,12 +26,6 @@ target_include_directories(OPS_Material PRIVATE
   ${OPS_SRC_DIR}/material/Yield/evolution
   ${OPS_SRC_DIR}/material/Yield/plasticHardeningMaterial
   ${OPS_SRC_DIR}/material/Yield/yieldSurfaceBC
-  ${OPS_SRC_DIR}/material/section/integration
-  ${OPS_SRC_DIR}/material/section/repres/cell
-  ${OPS_SRC_DIR}/material/section/repres/patch
-  ${OPS_SRC_DIR}/material/section/repres/reinfBar
-  ${OPS_SRC_DIR}/material/section/repres/reinfLayer
-  ${OPS_SRC_DIR}/material/section/repres/section
   ${OPS_SRC_DIR}/material/uniaxial/backbone
   ${OPS_SRC_DIR}/material/uniaxial/drain
   ${OPS_SRC_DIR}/material/uniaxial/fedeas
