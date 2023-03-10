@@ -19,13 +19,6 @@ target_sources(OPS_Material
     J2AxiSymm.cpp
     J2Plasticity.cpp
 
-    ElasticIsotropicBeamFiber2d.cpp
-    ElasticIsotropicBeamFiber.cpp
-    J2BeamFiber2d.cpp
-    J2BeamFiber3d.cpp
-    BeamFiberMaterial.cpp
-    BeamFiberMaterial2d.cpp
-    BeamFiberMaterial2dPS.cpp
 
     J2PlateFiber.cpp
     J2PlateFibre.cpp
@@ -60,16 +53,13 @@ target_sources(OPS_Material
     PlateRebarMaterialThermal.cpp
   PUBLIC
     NDMaterial.h
-    BeamFiberMaterial.h
-    BeamFiberMaterial2d.h
-    BeamFiberMaterial2dPS.h
     PlasticDamageConcrete3d.h
     LinearCap.h
     FSAM.h
     AcousticMedium.h
     ElasticIsotropicAxiSymm.h
-    ElasticIsotropicBeamFiber2d.h
-    ElasticIsotropicBeamFiber.h
+
+
     ElasticIsotropicMaterial.h
     ElasticIsotropicPlateFiber.h
     ElasticOrthotropicMaterial.h
@@ -79,8 +69,6 @@ target_sources(OPS_Material
     J2Plasticity.h
     J2PlateFiber.h
     J2PlateFibre.h
-    J2BeamFiber2d.h
-    J2BeamFiber3d.h
     PlateFiberMaterial.h
     PlateRebarMaterial.h
     CycLiqCP.h

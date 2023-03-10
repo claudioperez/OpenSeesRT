@@ -46,11 +46,10 @@ target_include_directories(OPS_Material PRIVATE
   ${OPS_SRC_DIR}/material/nD/UANDESmaterials
   ${OPS_SRC_DIR}/material/nD/UWmaterials
 )
-
+add_subdirectory(Frame)
 add_subdirectory(uniaxial)
-add_subdirectory(nD)
 add_subdirectory(section)
 add_subdirectory(Shell)
 add_subdirectory(Plane)
 add_subdirectory(Yield)
-
+add_subdirectory(nD)
