@@ -16,10 +16,10 @@ target_sources(OPS_Material
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_include_directories(OPS_Material PRIVATE
+  ${OPS_SRC_DIR}/material/Solid
   ${OPS_SRC_DIR}/material/nD/cyclicSoil
   ${OPS_SRC_DIR}/material/nD/feap
   ${OPS_SRC_DIR}/material/nD/matCMM
-  ${OPS_SRC_DIR}/material/nD/reinforcedConcretePlaneStress
   ${OPS_SRC_DIR}/material/nD/soil
   ${OPS_SRC_DIR}/material/nD/stressDensityModel
   ${OPS_SRC_DIR}/material/nD/UANDESmaterials
@@ -50,5 +50,7 @@ target_include_directories(OPS_Material PRIVATE
 add_subdirectory(uniaxial)
 add_subdirectory(nD)
 add_subdirectory(section)
+add_subdirectory(Shell)
+add_subdirectory(Plane)
 add_subdirectory(yieldSurface)
 

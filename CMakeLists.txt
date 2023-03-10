@@ -121,10 +121,10 @@ add_compile_options(
   # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wsign-conversion>
   # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wconversion>
 )
+
 #----------------------------------------------------------------
 # Global Includes
-#----------------------------------------------------------------
- 
+#---------------------------------------------------------------- 
 # TODO BeamIntegration and MatrixUtil need to be removed from element/forceBeamColumn
 
 include_directories(
@@ -245,7 +245,6 @@ opensees_library(OPS_SysOfEqn_UMF
 # Packaged libraries
 add_library(G3) 
 set_property(TARGET G3 PROPERTY POSITION_INDEPENDENT_CODE 1)
-add_library(OpenSees         EXCLUDE_FROM_ALL)
 
 # Executables and final targets
 #------------------------------------------------------------------------------
@@ -270,7 +269,6 @@ target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
 target_link_libraries(OPS_Material PRIVATE ${TCL_LIBRARY})
 
 
-#----------------------------
 # G3
 #----------------------------
 target_link_libraries(G3 
@@ -300,40 +298,12 @@ target_link_libraries(G3
     OPS_Numerics 
 )
 
-#----------------------------
-# OpenSees
-#----------------------------
-target_link_libraries(OpenSees
-    OPS_ModelBuilder
-    ${OPS_Extension_List}
-    OPS_Material_YieldSurface
-    OPS_Section_Repres
-    OPS_Section_YieldSurface
-    OPS_Damage
-    OPS_Analysis
-    OPS_Domain
-    OPS_Api
-    OPS_OS_Specific_libs
-    OPS_ObjectBroker
-    G3
-)
-
-
-#----------------------------
-# OPS_Interp_Tcl
-#----------------------------
-# Add sources to OPS_Interp_Tcl target
-
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  target_include_directories(OpenSees PUBLIC ${TCL_INCLUDE_PATH})
-endif()
 
 #==============================================================================
 #                            Apply Options
 #
 #==============================================================================
 
-#----------------------------
 # Extensions
 #----------------------------
 message("OPS >>> Configuring OpenSees extensions")
@@ -362,8 +332,6 @@ if ("OPS_Reliability" IN_LIST OPS_Extension_List)
 endif()
 
 
-
-#----------------------------
 # HDF5
 #----------------------------
 if(OPS_Use_HDF5)

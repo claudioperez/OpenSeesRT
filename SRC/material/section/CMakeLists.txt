@@ -8,10 +8,7 @@ target_sources(OPS_Material
     PRIVATE
     BiaxialHysteretic.cpp
     Bidirectional.cpp
-    DoubleMembranePlateFiberSection.cpp
     ElasticBDShearSection2d.cpp
-    ElasticMembranePlateSection.cpp
-    ElasticPlateSection.cpp
     ElasticSection2d.cpp
     ElasticSection3d.cpp
     ElasticShearSection2d.cpp 
@@ -30,10 +27,6 @@ target_sources(OPS_Material
     FiberSectionGJThermal.cpp    
     GenericSection1d.cpp
     Isolator2spring.cpp
-    LayeredShellFiberSection.cpp
-    LayeredShellFiberSectionThermal.cpp
-    MembranePlateFiberSection.cpp
-    MembranePlateFiberSectionThermal.cpp
     NDFiberSection2d.cpp
     NDFiberSection3d.cpp
     NDFiberSectionWarping2d.cpp
@@ -44,10 +37,7 @@ target_sources(OPS_Material
     PUBLIC
     BiaxialHysteretic.h
     Bidirectional.h
-    DoubleMembranePlateFiberSection.h
     ElasticBDShearSection2d.h
-    ElasticMembranePlateSection.h
-    ElasticPlateSection.h
     ElasticSection2d.h 
     ElasticSection3d.h
     ElasticShearSection2d.h 
@@ -66,10 +56,6 @@ target_sources(OPS_Material
     FiberSectionGJThermal.h
     GenericSection1d.h
     Isolator2spring.h
-    LayeredShellFiberSection.h
-    LayeredShellFiberSectionThermal.h
-    MembranePlateFiberSection.h
-    MembranePlateFiberSectionThermal.h
     NDFiberSection2d.h
     NDFiberSection3d.h
     NDFiberSectionWarping2d.h

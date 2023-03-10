@@ -18,18 +18,14 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.0 $
-// $Date: 2012-05-21 23:49:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/LayeredShellFiberSectionThermal.h,v $
+// $Revision: 1.7 $
+// $Date: 2006/08/03 23:49:46 $
+// $Source: /usr/local/cvs/OpenSees/SRC/material/section/MembranePlateFiberSectionThermal.h,v $
 
-// Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
+// Ed "C++" Love
 //
-// Layered Shell Section
+// Generic Plate Section with membrane
 //
-/* Ref: Lu X, Lu XZ, Guan H, Ye LP, Collapse simulation of reinforced 
-concrete high-rise building induced by extreme earthquakes, 
-Earthquake Engineering & Structural Dynamics, 2013, 42(5): 705-723*/
-// Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io] 
 
 
 #include <stdio.h> 
@@ -44,25 +40,25 @@ Earthquake Engineering & Structural Dynamics, 2013, 42(5): 705-723*/
 #include <SectionForceDeformation.h>
 
 
-class LayeredShellFiberSectionThermal : public SectionForceDeformation{
+class MembranePlateFiberSectionThermal : public SectionForceDeformation{
 
 //-------------------Declarations-------------------------------
 
   public : 
 
     //null constructor
-    LayeredShellFiberSectionThermal( ) ;
+    MembranePlateFiberSectionThermal( ) ;
 
     //full constructor
-    LayeredShellFiberSectionThermal(   int tag, 
-                                int iLayers, 
-                                double *thickness, 
-                                NDMaterial **fibers );
+    MembranePlateFiberSectionThermal(   int    tag, 
+                                 double thickness, 
+                                 NDMaterial &Afiber ) ;
 
-    const char *getClassType(void) const {return "LayeredShellFiberSectionThermal";};
+
+    const char *getClassType(void) const {return "MembranePlateFiberSectionThermal";};
 
     //destructor
-    virtual ~LayeredShellFiberSectionThermal( ) ;
+    virtual ~MembranePlateFiberSectionThermal( ) ;
 
     //make a clone of this material
     SectionForceDeformation *getCopy( ) ;
@@ -72,9 +68,6 @@ class LayeredShellFiberSectionThermal : public SectionForceDeformation{
 
     //send back order of strain in vector form
     int getOrder( ) const ;
-
-    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
-    int getResponse(int responseID, Information &info);
 
     //send back order of strain in vector form
     const ID& getType( ) ;
@@ -90,6 +83,8 @@ class LayeredShellFiberSectionThermal : public SectionForceDeformation{
 
     //get the strain and integrate plasticity equations
     int setTrialSectionDeformation( const Vector &strain_from_element ) ;
+
+	const Vector &getTemperatureStress(const Vector&); //J.Jiang add to get Ft=EA*Elongation//
 
     //send back the strain
     const Vector& getSectionDeformation( ) ;
@@ -109,38 +104,37 @@ class LayeredShellFiberSectionThermal : public SectionForceDeformation{
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-	const Vector &getTemperatureStress(const Vector&); //Added by LMJ
-	double determineFiberTemperature(const Vector& DataMixed, double fiberLoc) ; //Added by LMJ
-
+	  Response *setResponse(const char **argv, int argc, OPS_Stream &s);
+    int getResponse(int responseID, Information &info);
 
 
   private :
 
-    int nLayers;
     //quadrature data
-    double *sg;
-    double *wg;
+    static const double sg[5] ;
+    static const double wg[5] ;
 
     double h ; //plate thickness
 
-    NDMaterial **theFibers;  //pointers to the materials (fibers)
+    NDMaterial *theFibers[5] ;  //pointers to five materials (fibers)
+
+    static const double root56 ; // =sqrt(5/6) 
 
     Vector strainResultant ;
 
     static Vector stressResultant ;
 
     static Matrix tangent ;
-	static const double root56 ; // =sqrt(5/6) 
 
-    static ID array ;  
+    static ID array ; 
 
+	double   sTData[2];   //Data for section resisting force due to thermal load 
 	Vector  *sT;  //  Pointer to sTData
-	double  *ThermalElongation; // thermal elongation
+	double  ThermalElongation[5]; // Temperature dependent elasticity modulus
 	int countnGauss;
-	double AverageThermalForceP ;
-	double AverageThermalMomentP;
+	double ThermalGradientShink;
 
-} ; //end of LayeredShellFiberSectionThermal declarations
+} ; //end of MembranePlateFiberSectionThermal declarations
 
 
 

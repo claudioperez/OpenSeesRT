@@ -8,11 +8,13 @@
 
 target_sources(OPS_Matrix
     PRIVATE
+      eig3.cpp
       Matrix.cpp
       Vector.cpp
       R3vectors.cpp
       ID.cpp
     PUBLIC
+      eig3.h
       Matrix.h
       Vector.h
       R3vectors.h
