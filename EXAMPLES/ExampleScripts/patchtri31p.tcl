@@ -2,7 +2,7 @@
 # Start of model generation
 # ----------------------------
 wipe 
-file mkdir Output;
+file mkdir out;
 
 # Create ModelBuilder with 3 dimensions and 6 DOF/node
 model basic -ndm 2 -ndf 2
@@ -34,7 +34,7 @@ element tri31 6 5 8 7 1 PlaneStrain 1
 element tri31 7 5 6 8 1 PlaneStrain 1 
 element tri31 8 6 9 8 1 PlaneStrain 1 
 
-eval "recorder Node -file Output/disp.out -node 1 2 3 4 5 6 7 8 9 -dof 1 2 disp"
+eval "recorder Node -file out/disp.out -node 1 2 3 4 5 6 7 8 9 -dof 1 2 disp"
 
 fix 1 1 1 
 fix 3 0 1   
@@ -79,8 +79,8 @@ analysis Static
 # Perform the analysis
 analyze   1 
 
-# print ele
-# print node
+print ele
+print node
 
 # --------------------------
 # End of static analysis
@@ -92,12 +92,5 @@ analyze   1
 
 # recorder Node -file Node.out -time -node 4 -dof 2 disp
 # recorder plot Node.out CenterNodeDisp 625 10 625 450 -columns 1 2
-
-# create the display
-recorder display g3 10 10 800 200 -wipe
-prp 20 5.0 100.0
-vup 0 1 0
-viewWindow -2 2 -2 2
-display 1 4 5
 
 

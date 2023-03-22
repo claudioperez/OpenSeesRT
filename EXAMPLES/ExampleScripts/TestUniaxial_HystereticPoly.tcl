@@ -1,8 +1,4 @@
-set Time1 [clock seconds]
-wipe
-model basic -ndm 2 -ndf 2 
-
-
+model basic -ndm 2 -ndf 2
 
 # NODES 
 node 1 0.0 0.0 
@@ -22,11 +18,11 @@ element truss 1  1 2 1.0  1
 fix 1 1 1 
 fix 2 0 1 
 
-recorder Node -file SdofU.out -closeOnWrite -node 2 -dof 1 disp;
-recorder Node -file SdofF.out -closeOnWrite -node 1 -dof 1 reaction;
-recorder Element -file StressElement.out -closeOnWrite -ele 1 material stress
-recorder Element -file StrainElement.out -closeOnWrite -ele 1 material strain
-recorder Element -file TangentElement.out -closeOnWrite -ele 1 material tangent
+recorder Node    -file out/SdofU.out -closeOnWrite -node 2 -dof 1 disp;
+recorder Node    -file out/SdofF.out -closeOnWrite -node 1 -dof 1 reaction;
+recorder Element -file out/StressElement.out -closeOnWrite -ele 1 material stress
+recorder Element -file out/StrainElement.out -closeOnWrite -ele 1 material strain
+recorder Element -file out/TangentElement.out -closeOnWrite -ele 1 material tangent
 
 #timeSeries Path 1 -dt 0.01 -filePath EmiliaAccelerogram.th
 
@@ -51,3 +47,4 @@ analyze 200
 
 integrator DisplacementControl 2 1  0.01
 analyze 200
+
