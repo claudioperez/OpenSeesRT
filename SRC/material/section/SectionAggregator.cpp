@@ -37,7 +37,6 @@
 #include <FEM_ObjectBroker.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <MatrixUtil.h>
 #include <classTags.h>
 #include <SectionAggregator.h>
 #include <MaterialResponse.h>

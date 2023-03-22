@@ -32,7 +32,6 @@
 #include <Channel.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <MatrixUtil.h>
 #include <Fiber.h>
 #include <classTags.h>
 #include <FiberSectionGJThermal.h>

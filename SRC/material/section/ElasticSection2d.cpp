@@ -27,7 +27,6 @@
 #include <Vector.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <MatrixUtil.h>
 #include <stdlib.h>
 #include <Information.h>
 #include <Parameter.h>
