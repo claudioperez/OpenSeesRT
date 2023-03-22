@@ -44,10 +44,10 @@ All files are in the following subdirectories:
            
 <dt><a href="./graph"><code>graph</code></a></dt>
 <dd>contains the graph classes, again in subdirectories
-        graph - Graph, Vertex, and others
-        partitioner - GraphPartitioner and Metis, also in metis-2.0
-                contains the code downloaded to build metis.
-        numberer - GraphNumberer, RCM and some others
+- `graph/` Graph, Vertex, and others
+- `partitioner/` GraphPartitioner and Metis, also in metis-2.0
+          contains the code downloaded to build metis.
+- `numberer/` GraphNumberer, RCM and some others
 </dd>
 
 <dt><a href="./system_of_eqn"><code>system_of_eqn</code></a></dt>
@@ -55,15 +55,15 @@ All files are in the following subdirectories:
         linearSOE: contains LinearSOE, LinearSolver and DomainSolver
         classes and a bunch of subdirectories for each soe and solver:
         
-        fullGEN - for a full general solver
-        bandGEN - for a banded general solver
-        profileSPD - for my profile solver and a solver using skypack,
-                developed by O.Marques, now working with Jim Demmel
-                (the code for skypack in a subdirectory)
-        petsc - for the petsc solver
-        sparseGEN - for superLU and thraeded superLU.
-        symSparse - for Kincho Law's symmetric sparse solver
-        eleByEle  - to be filled in at some stage.
+- `fullGEN/` for a full general solver
+- `bandGEN/` for a banded general solver
+- `profileSPD/` for my profile solver and a solver using skypack,
+           developed by O.Marques, now working with Jim Demmel
+           (the code for skypack in a subdirectory)
+- `petsc/` for the petsc solver
+- `sparseGEN/` for superLU and thraeded superLU.
+- `symSparse/` for Kincho Law's symmetric sparse solver
+
 </dd>
 
 <dt><a href="./tagged"><code>tagged</code></a></dt>
