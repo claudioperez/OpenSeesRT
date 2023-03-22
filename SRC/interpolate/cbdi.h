@@ -28,7 +28,6 @@
 
 #include <Matrix.h>
 
-// double invert2by2Matrix(const Matrix &a, Matrix &b);
 void   invertMatrix(int n, const Matrix &a, Matrix &b);
 void   getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matrix &ls);
 void   getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls);
