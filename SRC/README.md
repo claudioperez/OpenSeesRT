@@ -11,36 +11,36 @@ All files are in the following subdirectories:
 <dt><a href="./domain"><code>domain</code></a></dt>
 <dd>contains the classes for the domain. all in subdirectores:
 
-- domain - the Domain class and abstract Iters for the objects of
+- `domain/` the Domain class and abstract Iters for the objects of
            the Domain, two subdirectories single- contains iters  
            for Domain, partitioned contains the PartitionedDomain
            class and the iters for this class.
-- node - the `Node` and `NodalLoad` classes.
-- constraints - the `SP_Constraint` and `MP_Constraint` classes.
-- subdomain - the `Subdomain`, `ActorSubdomain` and `ShadowSubdoma` in classes.
-- pattern - the abstact classes `LoadPattern` and `TimeSeries` and some concrete classes.
-- partitioner - the DomainPartitioner class.
-- loadBalancer - the LoadBalancer class and some concrete subclasses.
+- `node/` the `Node` and `NodalLoad` classes.
+- `constraints/` the `SP_Constraint` and `MP_Constraint` classes.
+- `subdomain/` the `Subdomain`, `ActorSubdomain` and `ShadowSubdoma` in classes.
+- `pattern/` the abstact classes `LoadPattern` and `TimeSeries` and some concrete classes.
+- `partitioner/` the DomainPartitioner class.
+- `loadBalancer/` the LoadBalancer class and some concrete subclasses.
 
 </dd>
 
 <dt><a href="./analysis"><code>analysis</code></a></dt>
 <dd>contains the classes for the analysis. again the classes in subdirectories:
 
- - analysis - the Analysis, StaticAnalysis, and some others
- - algorithm - SolutionAlgorithm class and 2 subdirectories:
+ - `analysis/` the Analysis, StaticAnalysis, and some others
+ - `algorithm/` SolutionAlgorithm class and 2 subdirectories:
            equiSolnAlgo - Linear, NewtonRaphson and ModifiedNewton
            domainDecompAlgo - DomainDecompAlgo
- - dof_grp - DOF_Group
- - fe_ele - FE_Element class and subdirectory penalty containing
-           PenaltySP_FE and PenaltyMP_FE
- - penalty - ConstraintHandler, PenaltyConstraintHandler and
+ - `dof_grp/` DOF_Group
+ - `fe_ele/` `FE_Element` class and subdirectory penalty containing
+           `PenaltySP_FE` and PenaltyMP_FE
+ - `penalty/` ConstraintHandler, PenaltyConstraintHandler and
            PlainHandler
- - integrator - Integrator, IncrementalIntegrator, LoadControl,
+ - `integrator/` Integrator, IncrementalIntegrator, LoadControl,
            ArcLength, StaticIntegrator, TransientIntegrator and
            Newmark
- - model - AnalysisModel and its iters.
- - numberer - DOF_Numberer
+ - `model/` AnalysisModel and its iters.
+ - `numberer/` DOF_Numberer
            
 <dt><a href="./graph"><code>graph</code></a></dt>
 <dd>contains the graph classes, again in subdirectories
@@ -92,13 +92,13 @@ All files are in the following subdirectories:
 <dt><a href="./actor"><code>actor</code></a></dt>
 <dd>the classes for my parallel stuff, again in subdirectories:
 
- - shadow - the Shadow class.  
- - actor - the Actor class
- - channel - the Channel, TCP_Socket and MPI_Channel classes
- - machineBroker - the MachineBroker and some classes for the machines over here.
- - objectBroker - the FEM_ObjectBroker class.
- - message - the `Message` class
- - address - the `Address` class.
+ - `shadow/` the Shadow class.  
+ - `actor/` the Actor class
+ - `channel/` the `Channel`, `TCP_Socket` and `MPI_Channel` classes
+ - `machineBroker/` the `MachineBroker` and some classes for the machines over here.
+ - `objectBroker/` the `FEM_ObjectBroker` class.
+ - `message/` the `Message` class
+ - `address/` the `Address` class.
 
 <dt><a href="./matrix"><code>matrix</code></a><dd>contains the Matrix, Vector and ID classes.</dd>
 
