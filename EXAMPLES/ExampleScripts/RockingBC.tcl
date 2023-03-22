@@ -4,35 +4,36 @@
 #
 # Author: Evangelos Avgenakis
 
-# ##### INITIALIZATION
+#
+# INITIALIZATION
+#
 
-# Model properties 
+# Model properties
+set B 1.0;             # Member width
+set w 1.0;             # Member thickness
+set rho 2.5;           # Density
+set mu 0;              # Friction coefficient (set 0 for infinite friction when a compressive axial force is applied)
+set g 9.81;            # Gravity acceleration
 
-set B 1.0; 				# Member width
-set w 1.0; 				# Member thickness
-set rho 2.5; 			# Density
-set mu 0; 				# Friction coefficient (set 0 for infinite friction when a compressive axial force is applied)
-set g 9.81; 			# Gravity acceleration
+set nu 0.0;            # Poisson ratio (practically of negligible importance)
+set Nw 15;             # Rocking interface control points
 
-set nu 0.0; 			# Poisson ratio (practically of negligible importance)
-set Nw 15; 				# Rocking interface control points
-
-set a 0.2; 				# Rocking member angle (tana=B/H)
-set zeta 0.05; 			# Damping ratio
+set a 0.2;             # Rocking member angle (tana=B/H)
+set zeta 0.05;         # Damping ratio
 
 # The following parameters are defined in: Avgenakis E. and Psycharis I.N. (2020) “An integrated macroelement formulation for the dynamic response of inelastic deformable rocking bodies.” Earthquake Engineering and Structural Dynamics.
 
-set e0 5.0e-6; 						# Initial strain at the rocking interface (e0=rho*g*H/E)
-set sr 5.0e-3; 						# Initial to yield stress ratio (sy=-rho*g*h/sy)
+set e0 5.0e-6;                         # Initial strain at the rocking interface (e0=rho*g*H/E)
+set sr 5.0e-3;                         # Initial to yield stress ratio (sy=-rho*g*h/sy)
 
-set H [expr $B/tan($a)]; 			# Member height
-set E [expr $rho*$g*$H/$e0]; 		# Modulus of elasticity
-set sy [expr -$rho*$g*$H/$sr]; 		# Yield stress
+set H [expr $B/tan($a)];               # Member height
+set E [expr $rho*$g*$H/$e0];           # Modulus of elasticity
+set sy [expr -$rho*$g*$H/$sr];         # Yield stress
 
-set R [expr sqrt($H*$H+$B*$B)/2.]; 							# Diagonal half length
-set p [expr sqrt(3.0*$g/4.0/$R)]; 							# Characteristic rocking frequency parameter
-set total_mass [expr $H*$B*$w*$rho]; 						# Total mass
-set rot_inertia [expr 1./12.*$total_mass*($B*$B+$H*$H)]; 	# Rotational inertia with respect to the center of mass
+set R [expr sqrt($H*$H+$B*$B)/2.];                           # Diagonal half length
+set p [expr sqrt(3.0*$g/4.0/$R)];                            # Characteristic rocking frequency parameter
+set total_mass [expr $H*$B*$w*$rho];                         # Total mass
+set rot_inertia [expr 1./12.*$total_mass*($B*$B+$H*$H)];     # Rotational inertia with respect to the center of mass
 
 # RockingBC element parameters, as explained in the macroelement wiki page
 
@@ -55,9 +56,9 @@ set errorifNexceeds 1 ;# A non-default value is used here, together with a times
 
 # Analysis Parameters
 
-set Tol 1.0e-10; 	# Tolerance value for tests
-set NumIter 100; 	# Maximum number of iterations
-set nEigen 1; 		# Eigenmode, which the damping ratio is applied to
+set Tol 1.0e-10;     # Tolerance value for tests
+set NumIter 100;     # Maximum number of iterations
+set nEigen 1;         # Eigenmode, which the damping ratio is applied to
 
 # Analysis cases
 
@@ -65,27 +66,27 @@ set THcase "Free" ; # Options: Free, Sinepulse, EQ
 
 set pi [expr acos(-1.0)]
 if {$THcase=="Free"} {
-	set ur 0.5; 			# Initial rotation over angle a
-	set THousnerratio 3.0;	# Controls analysis duration
-	set th0 [expr $ur*$a];	# Initial rotation
-	set ang [expr 1.0/(1.0-$th0/$a)]
-	set Thousner [expr 4.0/$p*log($ang+sqrt($ang*$ang-1))]; # Theoretical rocking period at the beginning of the analysis
-	puts "Thousner = $Thousner"
-	set TmaxAnalysis [expr $THousnerratio*$Thousner]
+    set ur 0.5;             # Initial rotation over angle a
+    set THousnerratio 3.0;    # Controls analysis duration
+    set th0 [expr $ur*$a];    # Initial rotation
+    set ang [expr 1.0/(1.0-$th0/$a)]
+    set Thousner [expr 4.0/$p*log($ang+sqrt($ang*$ang-1))]; # Theoretical rocking period at the beginning of the analysis
+    puts "Thousner = $Thousner"
+    set TmaxAnalysis [expr $THousnerratio*$Thousner]
 } elseif {$THcase=="Sinepulse"} {
-	set wpratio 6.0;		# Controls sine pulse frequency
-	set apratio 2.0;		# Controls sine pulse amplitude
-	set Tpratio 18.0;		# Controls analysis duration
-	set wp [expr $wpratio*$p]
-	set ap [expr $apratio*$a*$g]
-	set Tp [expr 2.0*$pi/$wp]
-	set TmaxAnalysis [expr $Tpratio*$Tp]	
+    set wpratio 6.0;        # Controls sine pulse frequency
+    set apratio 2.0;        # Controls sine pulse amplitude
+    set Tpratio 18.0;        # Controls analysis duration
+    set wp [expr $wpratio*$p]
+    set ap [expr $apratio*$a*$g]
+    set Tp [expr 2.0*$pi/$wp]
+    set TmaxAnalysis [expr $Tpratio*$Tp]
 } elseif {$THcase=="EQ"} {
-	set EQfile "Northridge.dat";	# Earthquake acceleration file
-	set skiprows 5;					# Rows to skip from file
-	set accmult 9.81;				# Acceleration multiplier
+    set EQfile "Data/Northridge.dat";    # Earthquake acceleration file
+    set skiprows 5;                    # Rows to skip from file
+    set accmult 9.81;                # Acceleration multiplier
 } else {
-	error "Error: No such timehistory case"
+    error "Error: No such timehistory case"
 }
 
 set name "$THcase"
@@ -98,8 +99,8 @@ wipe
 model basic -ndm 2 -ndf 3
 
 node 1   0.0  0.0
-node 2	 0.0  [expr 0.5*$H]
-node 3	 0.0 $H
+node 2     0.0  [expr 0.5*$H]
+node 3     0.0 $H
 
 element RockingBC 1 2 1 $Nw $E $nu $sy $B $w $mu -convlim $convlim -useshear $useshear -blevery $blevery -useUelNM $useUelNM -usecomstiff $usecomstiff -af $af -aflim $aflim -convlimmult $convlimmult -maxtries $maxtries -NlimN $NlimN -NlimT $NlimT -Dtlim $DtMin -errorifNexceeds $errorifNexceeds
 
@@ -147,10 +148,10 @@ set zetab $zeta
 set betaKcurr [expr 2.*$zeta/$omegaI]
 
 set T1 [expr 2.*$pi/$omegaI]
-puts "T1 = $T1"   
+puts "T1 = $T1"
 
 # Writing file with info
-set infofile [open $name\\info.txt w+]   
+set infofile [open $name\\info.txt w+]
 puts $infofile "H $H"
 puts $infofile "B $B"
 puts $infofile "w $w"
@@ -184,18 +185,18 @@ puts $infofile "NlimN $NlimN"
 puts $infofile "NlimT $NlimT"
 puts $infofile ""
 if {$THcase=="Free"} {
-	puts $infofile "th0 $th0"
-	puts $infofile "ur $ur"
-	puts $infofile "Thousner $Thousner"
-	puts $infofile "TmaxAnalysis $TmaxAnalysis"
+    puts $infofile "th0 $th0"
+    puts $infofile "ur $ur"
+    puts $infofile "Thousner $Thousner"
+    puts $infofile "TmaxAnalysis $TmaxAnalysis"
 } elseif {$THcase=="Sinepulse"} {
-	puts $infofile "wp $wp"
-	puts $infofile "ap $ap"
+    puts $infofile "wp $wp"
+    puts $infofile "ap $ap"
 } elseif {$THcase=="EQ"} {
-	puts $infofile "EQfile $EQfile"
-	puts $infofile "accmult $accmult"
+    puts $infofile "EQfile $EQfile"
+    puts $infofile "accmult $accmult"
 } else {
-	error "Error: No such timehistory case"
+    error "Error: No such timehistory case"
 }
 
 close $infofile
@@ -204,58 +205,58 @@ close $infofile
 
 if {$THcase=="Free"} {
 
-	pattern Plain 2 Linear {
-		load 2 1.0 0.0 0.0
-		}
+    pattern Plain 2 Linear {
+        load 2 1.0 0.0 0.0
+        }
 
-	set ctrlNode 2
-	set ctrlDOF 3
-	set Dmax [expr -$th0]
-	set Dincr [expr 0.005*$Dmax]
+    set ctrlNode 2
+    set ctrlDOF 3
+    set Dmax [expr -$th0]
+    set Dincr [expr 0.005*$Dmax]
 
-	constraints Transformation
-	numberer RCM
-	system UmfPack
-	test EnergyIncr $Tol $NumIter
-	algorithm Newton
-	analysis Static
+    constraints Transformation
+    numberer RCM
+    system UmfPack
+    test EnergyIncr $Tol $NumIter
+    algorithm Newton
+    analysis Static
 
-	set Dstep 0.0
-	set ok 0
-	set Nk 100
-	
-	while {$Dstep < 1.0 && $ok == 0} {
+    set Dstep 0.0
+    set ok 0
+    set Nk 100
 
-		set controlDisp [lindex [nodeDisp $ctrlNode $ctrlDOF] 0]
-		set Dstep [expr $controlDisp/$Dmax]
-		if {$Dmax>0} {
-			set Dincrcur [expr min(abs($Dincr),abs($Dmax-$controlDisp))]
-		} else {
-			set Dincrcur [expr -1.0*min(abs($Dincr),abs($Dmax-$controlDisp))]
-		}
-		
-		integrator DisplacementControl $ctrlNode $ctrlDOF $Dincrcur		
-		set ok [analyze 1]
+    while {$Dstep < 1.0 && $ok == 0} {
 
-		if {$ok != 0} {
-			incr ierrors
-			set DincrReduced [expr $Dincrcur/$Nk];
-			integrator DisplacementControl $ctrlNode $ctrlDOF $DincrReduced
-			for {set ik 1} {$ik <=$Nk} {incr ik 1} {
-				set ok [analyze 1]
-			}
-		}
-	}
+        set controlDisp [lindex [nodeDisp $ctrlNode $ctrlDOF] 0]
+        set Dstep [expr $controlDisp/$Dmax]
+        if {$Dmax>0} {
+            set Dincrcur [expr min(abs($Dincr),abs($Dmax-$controlDisp))]
+        } else {
+            set Dincrcur [expr -1.0*min(abs($Dincr),abs($Dmax-$controlDisp))]
+        }
 
-	set infofile [open $name\\success.txt w+]   
-	puts $infofile "pushover success $ok"
-	close $infofile
-	
-	puts "Pushover complete"
+        integrator DisplacementControl $ctrlNode $ctrlDOF $Dincrcur
+        set ok [analyze 1]
+
+        if {$ok != 0} {
+            incr ierrors
+            set DincrReduced [expr $Dincrcur/$Nk];
+            integrator DisplacementControl $ctrlNode $ctrlDOF $DincrReduced
+            for {set ik 1} {$ik <=$Nk} {incr ik 1} {
+                set ok [analyze 1]
+            }
+        }
+    }
+
+    set infofile [open $name\\success.txt w+]
+    puts $infofile "pushover success $ok"
+    close $infofile
+
+    puts "Pushover complete"
 } else {
-	set infofile [open $name\\success.txt w+]   
-	puts $infofile "nopushover success 0"
-	close $infofile
+    set infofile [open $name\\success.txt w+]
+    puts $infofile "nopushover success 0"
+    close $infofile
 }
 
 # ##### DYNAMIC ANALYSIS
@@ -269,46 +270,46 @@ set SS [list]
 set pi [expr acos(-1.0)]
 
 if {$THcase=="Free"} {
-	remove loadPattern 2 
+    remove loadPattern 2
 
-	set Nsteps [expr int($TmaxAnalysis/$DtMax)]
-	for {set i 0} {$i < $Nsteps} {incr i} {
-		lappend TS [expr $i*$DtMax]
-		lappend SS [expr 0.0]
-	}
-	
+    set Nsteps [expr int($TmaxAnalysis/$DtMax)]
+    for {set i 0} {$i < $Nsteps} {incr i} {
+        lappend TS [expr $i*$DtMax]
+        lappend SS [expr 0.0]
+    }
+
 } elseif {$THcase=="Sinepulse"} {
 
-	set Nstepspulse [expr int($Tp/$DtMax)]
-	set Dtpulse [expr $Tp/$Nstepspulse]
-	
-	for {set i 0} {$i < $Nstepspulse} {incr i} {
-		lappend TS [expr $i*$Dtpulse]
-		lappend SS [expr $ap*sin($wp*$i*$Dtpulse)]
-	}	
-	while {[lindex TS end]<$TmaxAnalysis} {
-		lappend TS [expr [lindex TS end]+$DtMax]
-		lappend SS [expr 0.0]
-	}
+    set Nstepspulse [expr int($Tp/$DtMax)]
+    set Dtpulse [expr $Tp/$Nstepspulse]
+
+    for {set i 0} {$i < $Nstepspulse} {incr i} {
+        lappend TS [expr $i*$Dtpulse]
+        lappend SS [expr $ap*sin($wp*$i*$Dtpulse)]
+    }
+    while {[lindex TS end]<$TmaxAnalysis} {
+        lappend TS [expr [lindex TS end]+$DtMax]
+        lappend SS [expr 0.0]
+    }
 
 } else {
 
-	set fp [open $EQfile r]
-	set file_data [read $fp]
-	close $fp
-	set data [split $file_data "\n"]
+    set fp [open $EQfile r]
+    set file_data [read $fp]
+    close $fp
+    set data [split $file_data "\n"]
 
-	set ifd 0
-	foreach line $data {
-		if {$ifd<$skiprows} {
-			set ifd [expr $ifd+1]
-		} else {
-			set lsp [split $line]
-			lappend TS [lindex $lsp 0]
-			lappend SS [expr $accmult*[lindex $lsp 1]]
-		}
-	}
-	set TmaxAnalysis [lindex $TS end]
+    set ifd 0
+    foreach line $data {
+        if {$ifd<$skiprows} {
+            set ifd [expr $ifd+1]
+        } else {
+            set lsp [split $line]
+            lappend TS [lindex $lsp 0]
+            lappend SS [expr $accmult*[lindex $lsp 1]]
+        }
+    }
+    set TmaxAnalysis [lindex $TS end]
 
 }
 
@@ -337,29 +338,29 @@ set Nlimratio 0.9
 
 # Algorithm taking into account changes in analysis parameters during impacts, also see the macroelement wiki page for the strategy employed during impacts
 while {$curTime < $TmaxAnalysis && $ok == 0} {
-	
-	set ok [analyze 1 $Dtcur]
-	
-	if {$ok != 0 && $Dtcur==$DtMin} { # Since the element does not throw an error due to large axial force changes when $Dtcur==$DtMin, the problem lies elsewhere and the analysis is stopped prematurely
-		break
-	} elseif {$ok!=0} {
-		set Dtcur [expr max($DtMin,$DtfacL*$Dtcur)]; # If an error is detected, possibly due to a large axial force change inside the RockingBC element, $Dt is lowered until the minimum value
-		set ok 0
-		set igood 0
-	} else {
-		incr igood
-		if {$igood>=$incrafter} { # Check that some successful iterations have been performed
-			if {[lindex [eleResponse 1 forceratioNmax] 0]<$Nlimratio*$NlimN && [lindex [eleResponse 1 forceratioTmax] 0]<$Nlimratio*$NlimT} { # Check that the maximum axial force ratios are somewhat lower than the respective limits
-				set Dtcur [expr min($DtMax,$DtfacU*$Dtcur)] ;# The timestep may be gradually increased again until the maximum value
-			}
-		}
-	}
-	
-	set curTime [getTime]
-	
+
+    set ok [analyze 1 $Dtcur]
+
+    if {$ok != 0 && $Dtcur==$DtMin} { # Since the element does not throw an error due to large axial force changes when $Dtcur==$DtMin, the problem lies elsewhere and the analysis is stopped prematurely
+        break
+    } elseif {$ok!=0} {
+        set Dtcur [expr max($DtMin,$DtfacL*$Dtcur)]; # If an error is detected, possibly due to a large axial force change inside the RockingBC element, $Dt is lowered until the minimum value
+        set ok 0
+        set igood 0
+    } else {
+        incr igood
+        if {$igood>=$incrafter} { # Check that some successful iterations have been performed
+            if {[lindex [eleResponse 1 forceratioNmax] 0]<$Nlimratio*$NlimN && [lindex [eleResponse 1 forceratioTmax] 0]<$Nlimratio*$NlimT} { # Check that the maximum axial force ratios are somewhat lower than the respective limits
+                set Dtcur [expr min($DtMax,$DtfacU*$Dtcur)] ;# The timestep may be gradually increased again until the maximum value
+            }
+        }
+    }
+
+    set curTime [getTime]
+
 }
 
-set infofile [open $name\\success.txt a+]  
+set infofile [open $name\\success.txt a+]
 puts $infofile "timehistory success $ok"
 close $infofile
 

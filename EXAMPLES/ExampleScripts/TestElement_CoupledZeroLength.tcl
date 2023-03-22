@@ -1,4 +1,4 @@
-#create the ModelBuilder object
+# create the ModelBuilder object
 model basic -ndm 3 -ndf 6
 
 # add nodes - command: node nodeId xCrd yCrd
@@ -30,7 +30,7 @@ numberer RCM
 analysis Static 
 
 # create a Recorder object for the nodal displacements at node 4
-recorder Node -file Example.out -load -nodes 4 -dof 1 2 disp
+recorder Node -file out/Example.out -load -nodes 4 -dof 1 2 disp
 
 timeSeries Path 1 -dt 1.0 -values {0.0 1.0 0.0 -1.0 0.0}
 pattern Plain 1 1 {

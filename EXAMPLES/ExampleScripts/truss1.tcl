@@ -11,14 +11,9 @@
 #      ^       ^       0
 #     ===      |      ===
 #              P
-#
-#
-# $Revision: 1.4 $
-# $Date: 2002-12-19 01:23:31 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExampleScripts/truss1.tcl,v $
 
-set DISPLAY ON
-# set DISPLAY OFF
+# set DISPLAY ON
+set DISPLAY OFF
 
 #some variables
 set p 10
@@ -91,8 +86,8 @@ pattern Plain 2 Linear {
 }
 
 #create the recorder
-recorder Node -load -node 3 -dof 2 -file Node.out disp
-recorder Element -load -ele 1 2 3 -file Element.out axialForce
+recorder Node -load -node 3 -dof 2 -file out/Node.out disp
+recorder Element -load -ele 1 2 3 -file out/Element.out axialForce
 
 if {$DISPLAY == "ON"} {
     recorder plot Node.out Node2Disp 50 350 200 200 -columns 2 1
