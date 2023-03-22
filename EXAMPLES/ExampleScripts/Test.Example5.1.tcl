@@ -205,8 +205,8 @@ pattern Plain 1 Constant {
 # Define earthquake excitation
 # ----------------------------
 # Set up the acceleration records for Tabas fault normal and fault parallel
-set tabasFN "Path -filePath Test.tabasFN.txt -dt 0.02 -factor $g"
-set tabasFP "Path -filePath Test.tabasFP.txt -dt 0.02 -factor $g"
+set tabasFN "Path -filePath Data/tabasFN.txt -dt 0.02 -factor $g"
+set tabasFP "Path -filePath Data/tabasFP.txt -dt 0.02 -factor $g"
 
 # Define the excitation using the Tabas ground motion records
 #                         tag dir         accel series args

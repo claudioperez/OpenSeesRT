@@ -96,11 +96,11 @@ integrator HSConstraint $deltal  $psi_u   $psi_f   $u_ref
 # remove recorders
 
 # Create a recorder to monitor nodal displacements
-recorder Node -file node32.out -time -node 3 4 -dof 1 2 3 disp
+recorder Node -file out/node32.out -time -node 3 4 -dof 1 2 3 disp
 #recorder plot node32.out hi 10 10 300 300 -columns 2 1
 
 # Create a recorder to monitor element forces in columns
-#recorder Element -file ele32.out -time -ele 1 2 localForce
+#recorder Element -file out/ele32.out -time -ele 1 2 localForce
 
 # --------------------------------
 # End of recorder generation

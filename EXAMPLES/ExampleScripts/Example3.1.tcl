@@ -101,7 +101,6 @@ section Fiber 1 {
 
 # Geometry of column elements
 #                tag 
-puts "HI 4"
 geomTransf Corotational 1  
 
 # Number of integration points along length of element

@@ -22,7 +22,7 @@
 # Start of model generation
 # ------------------------------
 
-foreach eleType {truss corotTruss} {
+foreach eleType {truss CorotTruss} {
     
     # Create ModelBuilder (with two-dimensions and 2 DOF/node)
     wipe

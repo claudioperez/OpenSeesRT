@@ -201,8 +201,8 @@ rayleigh 0.0 0.0 0.0 0.0018
 # Define earthquake excitation
 # ----------------------------
 # Set up the acceleration records for Tabas fault normal and fault parallel
-set tabasFN "Path -filePath tabasFN.txt -dt 0.02 -factor $g"
-set tabasFP "Path -filePath tabasFP.txt -dt 0.02 -factor $g"
+set tabasFN "Path -filePath Data/tabasFN.txt -dt 0.02 -factor $g"
+set tabasFP "Path -filePath Data/tabasFP.txt -dt 0.02 -factor $g"
 
 # Define the excitation using the Tabas ground motion records
 #                         tag dir         accel series args

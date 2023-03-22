@@ -113,9 +113,9 @@ set P 180;                # 10% of axial capacity of columns
 pattern Plain 1 "Linear" {
 
         # Create nodal loads at nodes 3 & 4
-	#    nd    FX          FY  MZ 
-	load  3   0.0  [expr -$P] 0.0
-	load  4   0.0  [expr -$P] 0.0
+    #    nd    FX          FY  MZ 
+    load  3   0.0  [expr -$P] 0.0
+    load  4   0.0  [expr -$P] 0.0
 }
 
 # ------------------------------
@@ -125,23 +125,23 @@ pattern Plain 1 "Linear" {
 # Create the system of equation, a sparse solver with partial pivoting
 system ProfileSPD
 
-# Create the constraint handler, the transformation method
+# Define the constraint handler, the transformation method
 constraints Transformation
 
-# Create the DOF numberer, the reverse Cuthill-McKee algorithm
+# Define the DOF numberer, use reverse Cuthill-McKee algorithm
 numberer RCM
 
-# Create the convergence test, the norm of the residual with a tolerance of 
+# Define the convergence test, the norm of the residual with a tolerance of 
 # 1e-12 and a max number of iterations of 10
 test NormDispIncr 1.0e-12  10 3
 
-# Create the solution algorithm, a Newton-Raphson algorithm
+# Define the solution algorithm, a Newton-Raphson algorithm
 algorithm Newton
 
-# Create the integration scheme, the LoadControl scheme using steps of 0.1 
+# Define the integration scheme, the LoadControl scheme using steps of 0.1 
 integrator LoadControl 0.1
 
-# Create the analysis object
+# Define the analysis type
 analysis Static
 
 # ------------------------------

@@ -18,8 +18,6 @@
 # Written: GLF/MHS/fmk
 # Date: January 2001
 
-#logFile Example3.1.log
-
 # ------------------------------
 # Start of model generation
 # ------------------------------

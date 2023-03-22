@@ -54,14 +54,14 @@ mass  4    $m   $m    0
 # --------------------
 
 # Set some parameters
-set outFile ARL360.g3
+set outFile "out/ARL360.in"
 
 # Source in TCL proc to read PEER SMD record
-source ReadSMDFile.tcl
+source "Library/ReadSMDFile.tcl"
 
 # Permform the conversion from SMD record to OpenSees record
 #              inFile     outFile dt
-ReadSMDFile elCentro.AT2 $outFile dt
+ReadSMDFile "Data/elCentro.AT2" $outFile dt
 
 # Set time series to be passed to uniform excitation
 timeSeries Path 1 -filePath $outFile -dt $dt -factor $g
@@ -118,13 +118,13 @@ analysis Transient
 # ------------------------------
 
 # Create a recorder to monitor nodal displacements
-recorder EnvelopeNode -time -file disp.out -node 3 4 -dof 1 disp
-recorder EnvelopeNode -time -file accel.out -timeSeries 1 -node 3 4 -dof 1 accel
+recorder EnvelopeNode -time -file out/disp.out -node 3 4 -dof 1 disp
+recorder EnvelopeNode -time -file out/accel.out -timeSeries 1 -node 3 4 -dof 1 accel
 
 # Create recorders to monitor section forces and deformations
 # at the base of the left column
-recorder Element -time -file ele1secForce.out -ele 1 section 1 force
-recorder Element -time -file ele1secDef.out   -ele 1 section 1 deformation
+recorder Element -time -file out/ele1secForce.out -ele 1 section 1 force
+recorder Element -time -file out/ele1secDef.out   -ele 1 section 1 deformation
 
 # --------------------------------
 # End of recorder generation

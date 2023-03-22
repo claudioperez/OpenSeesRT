@@ -242,14 +242,14 @@ mass  4    $m   $m    0
 # --------------------
 
 # Set some parameters
-set outFile ARL360.g3
+set outFile out/ARL360.in
 
 # Source in TCL proc to read PEER SMD record
-source Test.ReadSMDFile.ops
+source Library/ReadSMDFile.tcl
 
 # Permform the conversion from SMD record to OpenSees record
 #              inFile     outFile dt
-ReadSMDFile ARL360.at2 $outFile dt
+ReadSMDFile Data/ARL360.at2 $outFile dt
 
 # Set time series to be passed to uniform excitation
 set accelSeries "Path -filePath $outFile -dt $dt -factor $g"

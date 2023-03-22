@@ -154,7 +154,7 @@ if {$analysis == "LINEAR"} {
 }
 
 
-set Series "Path -filePath tabasFN.txt -dt 0.02 -factor $g"
+set Series "Path -filePath Data/tabasFN.txt -dt 0.02 -factor $g"
 
 #                         tag dir        accel series
 pattern UniformExcitation  1   1  -accel   $Series

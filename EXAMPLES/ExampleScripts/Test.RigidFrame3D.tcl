@@ -200,7 +200,7 @@ pattern Plain 1 Linear {
    load 18  0.0 0.0 $p 0.0 0.0 0.0 -const
 }
 
-set accelSeries "Path -filePath Test.tabasFN.txt -dt 0.02 -factor $g"
+set accelSeries "Path -filePath Data/tabasFN.txt -dt 0.02 -factor $g"
 
 # Define the ground motion excitation using Tabas fault parallel and fault normal records
 #                         tag dir         accel series args
