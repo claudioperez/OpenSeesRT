@@ -42,7 +42,7 @@
 #include <iomanip>
 
 #include <Information.h>
-#include <MatrixUtil.h>
+#include <interpolate/cbdi.h>
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>

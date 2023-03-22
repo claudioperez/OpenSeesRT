@@ -68,7 +68,7 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Information.h>
 #include <Parameter.h>
 #include <ForceBeamColumn2dThermal.h>
-#include <MatrixUtil.h>
+#include <interpolate/cbdi.h>
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>

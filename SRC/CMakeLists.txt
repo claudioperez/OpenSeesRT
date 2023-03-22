@@ -26,3 +26,4 @@ add_subdirectory(api)
 add_subdirectory(database)
 
 add_subdirectory(interpreter)
+add_subdirectory(interpolate)

@@ -31,7 +31,7 @@
 #include <Node.h>
 #include <SectionForceDeformation.h>
 #include <CrdTransf.h>
-#include <MatrixUtil.h>
+#include <interpolate/cbdi.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
