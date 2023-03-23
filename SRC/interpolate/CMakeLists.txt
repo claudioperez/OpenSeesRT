@@ -7,8 +7,12 @@
 target_sources(OPS_Matrix
   PRIVATE
     cbdi.cpp
+    shp3d.cpp
+    shp3dv.cpp
   PUBLIC
     cbdi.h
+    shp3d.h
+    shp3dv.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})

@@ -28,25 +28,6 @@
 #include <Vector.h>
 #include "cbdi.h"
 
-#if 0
-double invert2by2Matrix(const Matrix &a, Matrix &b)
-{
-  return a.Invert(b);
-
-  /*
-    double det = a(0,0)*a(1,1)-a(0,1)*a(1,0);
-    
-    if (det != 0.0) {
-    b(0,0) =  a(1,1)/det;
-    b(1,1) =  a(0,0)/det;
-    b(1,0) = -a(0,1)/det;
-    b(0,1) = -a(1,0)/det;
-    }
-    return det;
-  */
-}
-#endif
-
 void invertMatrix(int n, const Matrix &a, Matrix &b)
 {
   a.Invert(b);
