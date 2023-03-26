@@ -391,6 +391,12 @@ int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
   return builder->addUniaxialMaterial(mat);
 }
 
+NDMaterial *
+G3_GetNDMaterial(G3_Runtime* rt, int matTag)
+{
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
+  return builder->getNDMaterial(matTag);
+}
 
 NDMaterial *
 OPS_GetNDMaterial(int matTag)

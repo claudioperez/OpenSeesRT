@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.8 $
-// $Date: 2009-08-07 00:18:20 $
+//
 // $Source: /usr/local/cvs/OpenSees/SRC/element/brick/TclBrickCommand.cpp,v $
-
+//
 // Written: fmk
 // Created: 03/01
 //
-// What: "@(#) TclBrickCommand.cpp, revA"
-
 #include <InputAPI.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,8 +37,6 @@
 #endif
 
 
-extern void printCommand(int argc, TCL_Char ** const argv);
-
 int
 TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char ** const argv, Domain *theTclDomain, int eleArgStart)
@@ -50,7 +44,6 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element Brick eleTag? Node1? Node2? Node3? Node4? Node5? "
               "Node6? Node7? Node 8? matTag?\n";
     return TCL_ERROR;

@@ -19,7 +19,6 @@ target_sources(OpenSeesRT PRIVATE
 
     "${CMAKE_CURRENT_LIST_DIR}/element/brick/TclBrickCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/brick/TclTwenty_Node_BrickCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/elasticBeamColumn/TclElasticBeamCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingBoucWenCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingPlasticityCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingUFRPCommand.cpp"
@@ -29,21 +28,11 @@ target_sources(OpenSeesRT PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/TclSingleFPCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/frictionModel/TclModelBuilderFrictionModelCommand.cpp"
 
-    "${CMAKE_CURRENT_LIST_DIR}/element/generic/TclGenericClientCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/generic/TclGenericCopyCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/joint/TclBeamColumnJointCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/joint/TclJoint2dCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/joint/TclJoint3dCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/twoNodeLink/TclTwoNodeLinkCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/zeroLength/TclZeroLength.cpp"
-
-    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
-
-    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/TclDispBeamColumnIntCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/beamWithHinges.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/gradientInelasticBeamColumn.cpp"
 )
 
 

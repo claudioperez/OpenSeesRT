@@ -17,18 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+// Description: This file contains the function to parse the TCL input
+//              for the elasticBeamColumn element.
+//
 // Written: fmk
 // Created: 07/99
-// Revision: A
 //
-// Description: This file contains the function to parse the TCL input
-// for the elasticBeamColumn element.
-
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
@@ -38,19 +32,16 @@
 #include <SectionForceDeformation.h>
 
 #include <CrdTransf.h>
-#include <CrdTransf.h>
 
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
+class TclBasicBuilder;
 
 int
 TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char ** const argv, Domain *theTclDomain,
                                TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
 
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -60,8 +51,8 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
     return TCL_ERROR;
   }
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   Element *theBeam = 0;
 
@@ -77,7 +68,6 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
     if ((argc - eleArgStart) < 8) {
       opserr << "WARNING bad command - want: elasticBeamColumn beamId iNode "
                 "jNode A E I <alpha> <d> transTag <-mass m> <-cMass>\n";
-      printCommand(argc, argv);
       return TCL_ERROR;
     }
 
@@ -153,7 +143,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       argi = 8;
     }
 
-    CrdTransf *theTrans = OPS_getCrdTransf(transTag);
+    CrdTransf *theTrans = builder->getCrdTransf(transTag);
 
     if (theTrans == 0) {
       opserr << "WARNING transformation object not found - elasticBeamColumn "
@@ -210,7 +200,6 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       opserr
           << "WARNING bad command - want: elasticBeamColumn beamId iNode jNode";
       opserr << " A E G Jx Iy Iz transTag <-mass m> <-cMass>" << endln;
-      printCommand(argc, argv);
       return TCL_ERROR;
     }
 
@@ -241,7 +230,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      SectionForceDeformation *theSection = theTclBuilder->getSection(section);
+      SectionForceDeformation *theSection = builder->getSection(section);
 
       if (Tcl_GetInt(interp, argv[5 + eleArgStart], &transTag) != TCL_OK) {
         opserr << "WARNING invalid transTag - elasticBeamColumn " << beamId;
@@ -249,7 +238,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      CrdTransf *theTrans = OPS_getCrdTransf(transTag);
+      CrdTransf *theTrans = builder->getCrdTransf(transTag);
 
       if (theTrans == 0) {
         opserr << "WARNING transformation object not found - elasticBeamColumn "
@@ -328,7 +317,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      CrdTransf *theTrans = OPS_getCrdTransf(transTag);
+      CrdTransf *theTrans = builder->getCrdTransf(transTag);
 
       if (theTrans == 0) {
         opserr << "WARNING transformation object not found - elasticBeamColumn "

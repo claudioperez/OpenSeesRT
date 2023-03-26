@@ -4,15 +4,14 @@
 ** ****************************************************************** */
 //
 // Description: This file contains the implementation of the
-// TclBasicBuilder_addFourNodeQuad() command.
-//
-// File: ~/element/TclFourNodeQuadCommand.C
+//              TclBasicBuilder_addFourNodeQuad() command.
 //
 // Written: fmk
 // Created: 07/99
 //
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <Domain.h>
 
 #include <FourNodeQuad.h>
@@ -26,13 +25,6 @@
 
 #include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
-
-/*  *****************************************************************************
-
-    R E G U L A R    Q U A D
-
-    *****************************************************************************
- */
 
 int
 TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -162,17 +154,9 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  // if get here we have successfully created the element and added it to the
-  // domain
   return TCL_OK;
 }
 
-/*  *****************************************************************************
-
-    C O N S T A N T    P R E S S U R E    V O L U M E    Q U A D
-
-    *****************************************************************************
- */
 
 int
 TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
@@ -181,13 +165,8 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
                                               Domain *theTclDomain,
                                               TclBasicBuilder *theTclBuilder)
 {
-  // ensure the destructor has not been called -
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
 
   if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
@@ -289,24 +268,13 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
   return TCL_OK;
 }
 
-/*  *****************************************************************************
-
-    E N H A N C E D    Q U A D
-
-    *****************************************************************************
- */
 int
 TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int argc,
                                 TCL_Char ** const argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
-  // ensure the destructor has not been called -
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
 
   if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "

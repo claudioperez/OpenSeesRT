@@ -24,8 +24,6 @@
 #include <Domain.h>
 
 #include <RigidRod.h>
-#include <RigidBeam.h>
-#include <RigidDiaphragm.h>
 
 #include <CrdTransf.h>
 

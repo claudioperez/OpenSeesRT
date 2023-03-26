@@ -1,5 +1,4 @@
 
-
 // written: cmp
 //
 // Description: This file contains the class definition for TclBuilder.
@@ -18,9 +17,9 @@
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
 
-#include <RigidRod.h>
-#include <RigidBeam.h>
-#include <RigidDiaphragm.h>
+// #include <RigidRod.h>
+// #include <RigidBeam.h>
+// #include <RigidDiaphragm.h>
 
 #include <CrdTransf.h>
 

@@ -30,7 +30,6 @@
 
 #include <RigidRod.h>
 #include <RigidBeam.h>
-#include <RigidDiaphragm.h>
 
 #include <CrdTransf.h>
 
@@ -218,9 +217,6 @@ static int TclCommand_addEqualDOF_MP_Mixed(ClientData,
 
 static int TclCommand_RigidLink(ClientData, Tcl_Interp*,
                                 int argc, TCL_Char ** const);
-
-static int TclCommand_RigidDiaphragm(ClientData, Tcl_Interp*,
-                                     int argc, TCL_Char ** const);
 
 static int TclCommand_addMP(ClientData, Tcl_Interp*, int argc,
                             TCL_Char ** const);
@@ -454,9 +450,6 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                     (ClientData)NULL, NULL);
 
   Tcl_CreateCommand(interp, "rigidLink", &TclCommand_RigidLink,
-                    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-
-  Tcl_CreateCommand(interp, "rigidDiaphragm", &TclCommand_RigidDiaphragm,
                     (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
   Tcl_CreateCommand(interp, "mp", TclCommand_addMP, (ClientData)NULL, NULL);
@@ -957,8 +950,6 @@ TclCommand_mesh(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  int ndm = theTclBuilder->getNDM();
-
   // make sure corect number of arguments on command line
   if (argc < 2) {
     opserr << "WARNING insufficient arguments\n";
@@ -992,12 +983,11 @@ TclCommand_remesh(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char ** const argv)
 {
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
+  if (theTclBuilder == nullptr) {
     opserr << "WARNING builder has been destroyed" << endln;
     return TCL_ERROR;
   }
 
-  int ndf = theTclBuilder->getNDF();
 
   // make sure corect number of arguments on command line
   if (argc < 2) {
@@ -3754,46 +3744,6 @@ TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
               "type (-bar, -beam) \n";
     return TCL_ERROR;
   }
-
-  return TCL_OK;
-}
-
-int
-TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char ** const argv)
-{
-  if (argc < 3) {
-    opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
-    return TCL_ERROR;
-  }
-
-  int rNode, perpDirn;
-  if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
-    opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read "
-              "perpDirn? \n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-    opserr
-        << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n";
-    return TCL_ERROR;
-  }
-
-  // read in the constrained Nodes
-  int numConstrainedNodes = argc - 3;
-  ID constrainedNodes(numConstrainedNodes);
-  for (int i = 0; i < numConstrainedNodes; i++) {
-    int cNode;
-    if (Tcl_GetInt(interp, argv[3 + i], &cNode) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a "
-                "cNode\n";
-      return TCL_ERROR;
-    }
-    constrainedNodes(i) = cNode;
-  }
-
-  RigidDiaphragm theLink(*theTclDomain, rNode, constrainedNodes, perpDirn - 1);
 
   return TCL_OK;
 }

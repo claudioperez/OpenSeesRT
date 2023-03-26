@@ -1,6 +1,6 @@
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/element/dispBeamColumnInt/TclDispBeamColumnIntCommand.cpp,v
-// $ Created: 07/04 Modified by: LMS Description: This file contains the class
+// Created: 07/04 
+// Modified by: LMS 
+// Description: This file contains the class
 // implementation of TclBasicBuilder_addDispBeamColumnInt(). Based on
 // TclBasicBuilder_addDispBeamColumn().
 
@@ -30,8 +30,8 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   int ok = 0;
   if (ndm == 2 && ndf == 3)
@@ -176,7 +176,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
     delete[] sections;
   }
 
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING ran out of memory creating element\n";
     opserr << "dispBeamColumn element: " << eleTag << endln;
     return TCL_ERROR;
