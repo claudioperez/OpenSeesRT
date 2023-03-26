@@ -96,11 +96,9 @@ add_subdirectory(feap)
 
 add_subdirectory(mvlem)
 add_subdirectory(masonry)
+
 # add_subdirectory(UP-ucsd)
 add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)
 #add_subdirectory(community/UWelements)
-
-# TODO: Move out
-add_subdirectory(matrixutil)
 
