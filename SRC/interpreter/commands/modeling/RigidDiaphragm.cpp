@@ -17,20 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2010-04-23 22:50:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/constraints/RigidDiaphragm.cpp,v $
-                                                                        
-                                                                        
+//
+// Purpose: This file contains the class implementation for RigidDiaphragm.
+//
 // File: ~/model/constraints/RigidDiaphragm.C
 //
 // Written: fmk 1/99
 // Revised:
 //
-// Purpose: This file contains the class implementation for RigidDiaphragm.
-
-#include <OPS_Globals.h>
 #include <stdlib.h>
 #include <Domain.h>
 #include <Node.h>
@@ -38,36 +32,10 @@
 #include <Matrix.h>
 #include <ID.h>
 #include <RigidDiaphragm.h>
-#include <elementAPI.h>
-
-int OPS_RigidDiaphragm(Domain* theDomain)
-{
-    if (theDomain==0) {
-	opserr<<"WARNING: domain is not defined\n";
-	return -1;
-    }
-    int num = OPS_GetNumRemainingInputArgs();
-    if(num < 2) {
-	opserr<<"WARNING: invalid # of args: rigidDiaphragm perpDirn rNode cNode1 ...\n";
-	return -1;
-    }
-
-    // all data
-    ID data(num);
-    if(OPS_GetIntInput(&num, &data(0)) < 0) return -1;
-
-    // constrained ndoes
-    ID cNodes(num-2);
-    for(int i=0; i<cNodes.Size(); i++) {
-	cNodes(i) = data(i+2);
-    }
-
-    RigidDiaphragm theLink(*theDomain,data(1),cNodes,data(0)-1);
-    return 0;
-}
 
 RigidDiaphragm::RigidDiaphragm(Domain &theDomain, int nR, ID &nC, 
-			       int perpPlaneConstrained) {
+			       int perpPlaneConstrained)
+{
 
     // check plane is valid, i.e. perpPlaneConstrained must be 0, 1 or 2
     if (perpPlaneConstrained < 0 || perpPlaneConstrained > 2) {
@@ -215,15 +183,7 @@ RigidDiaphragm::RigidDiaphragm(Domain &theDomain, int nR, ID &nC,
     } // for each node in constrained nodes
 }
 
-
-
-	
-	
-    
 RigidDiaphragm::~RigidDiaphragm()
 {
     // does nothing
 }
-
- 
-

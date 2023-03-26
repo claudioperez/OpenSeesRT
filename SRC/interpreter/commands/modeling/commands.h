@@ -125,11 +125,12 @@ struct char_cmd {
 
 //{"beamIntegration",  TclCommand_addBeamIntegration},
 
-/*
-  {"mp",                   TclCommand_addMP},
-
   {"block2D",              TclCommand_doBlock2D},
   {"block3D",              TclCommand_doBlock3D},
+
+
+/*
+  {"mp",                   TclCommand_addMP},
 
   {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},

@@ -41,7 +41,6 @@
 
 
 RigidRod::RigidRod(Domain &theDomain, int nR, int nC) {
-
     
     // get a pointer to the retained node and constrained nodes - ensure these exist
     Node *nodeR = theDomain.getNode(nR);

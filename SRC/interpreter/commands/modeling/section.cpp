@@ -9,7 +9,7 @@
 // Written: rms, MHS
 // Created: 07/99
 //
-
+#include <assert.h>
 #include <tcl.h>
 #include <g3_api.h>
 #include <elementAPI.h>
@@ -27,8 +27,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <ElasticShearSection3d.h>
 #include <ElasticWarpingShearSection2d.h>
 #include <ElasticTubeSection3d.h>
-//#include <GenericSection1d.h>
-//#include <GenericSectionNd.h>
 #include <SectionAggregator.h>
 #include <ParallelSection.h>
 //#include <FiberSection.h>
@@ -118,7 +116,7 @@ int TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
 #include <LayeredShellFiberSectionThermal.h>  //Added by Liming, [SIF] 2017
 
 int TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, TclBasicBuilder *theBuilder);
-static int buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder, int secTag, UniaxialMaterial &theTorsion);
+static int buildSectionThermal(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder, int secTag, UniaxialMaterial &theTorsion);
 //--- Adding Thermo-mechanical Sections: [END]   by UoE OpenSees Group ---//
 
 int TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, TclBasicBuilder *theBuilder);
@@ -132,8 +130,8 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
-  // TODO
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)clientData;
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
@@ -505,7 +503,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *theMaterial = OPS_getNDMaterial(matTag);
+    NDMaterial *theMaterial = builder->getNDMaterial(matTag);
     if (theMaterial == 0) {
       opserr << "WARNING nD material does not exist\n";
       opserr << "nD material: " << matTag;
@@ -557,7 +555,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
         return TCL_ERROR;
       }
 
-      theMats[iLayer] = OPS_getNDMaterial(matTag);
+      theMats[iLayer] = builder->getNDMaterial(matTag);
       if (theMats[iLayer] == 0) {
         opserr << "WARNING nD material does not exist" << endln;
         ;
@@ -617,7 +615,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *theMaterial = OPS_getNDMaterial(matTag);
+    NDMaterial *theMaterial = builder->getNDMaterial(matTag);
     if (theMaterial == 0) {
       opserr << "WARNING nD material does not exist\n";
       opserr << "nD material: " << matTag;
@@ -670,7 +668,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
         return TCL_ERROR;
       }
 
-      theMats[iLayer] = OPS_getNDMaterial(matTag);
+      theMats[iLayer] = builder->getNDMaterial(matTag);
       if (theMats[iLayer] == 0) {
         opserr << "WARNING nD material does not exist" << endln;
         ;
@@ -802,14 +800,14 @@ static bool currentSectionIsND = false;
 static bool currentSectionIsWarping = false;
 static bool currentSectionComputeCentroid = true;
 
-static int buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+static int buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                  int secTag, UniaxialMaterial &theTorsion);
 
-static int buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+static int buildSectionAsym(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                      int secTag, bool isTorsion, double GJ, double Ys,
                      double Zs); // Xinlong
 
-int buildSectionInt(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+int buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                     int secTag, UniaxialMaterial &theTorsion, int NStrip1,
                     double t1, int NStrip2, double t2, int NStrip3, double t3);
 
@@ -923,7 +921,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // build the fiber section (for analysis)
-  if (buildSection(interp, theTclBasicBuilder, secTag, *torsion) != TCL_OK) {
+  if (buildSection(clientData, interp, theTclBasicBuilder, secTag, *torsion) != TCL_OK) {
     opserr << "WARNING - error constructing the section\n";
     return TCL_ERROR;
   }
@@ -1056,7 +1054,7 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
   }
 
   // build the fiber section (for analysis)
-  if (buildSectionInt(interp, theTclBasicBuilder, secTag, *torsion, NStrip1, t1,
+  if (buildSectionInt(clientData, interp, theTclBasicBuilder, secTag, *torsion, NStrip1, t1,
                       NStrip2, t2, NStrip3, t3) != TCL_OK) {
     opserr << "WARNING - error constructing the section\n";
     return TCL_ERROR;
@@ -1117,7 +1115,6 @@ TclCommand_addPatch(ClientData clientData,
                 "zVertL\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tmatTag: " << matTag;
 
     if (Tcl_GetInt(interp, argv[argi++], &numSubdivIJ) != TCL_OK) {
       opserr << "WARNING invalid numSubdivIJ: patch quad matTag numSubdivIJ "
@@ -1125,7 +1122,6 @@ TclCommand_addPatch(ClientData clientData,
                 "zVertL\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tnumSubdivIJ: " << numSubdivIJ;
 
     if (Tcl_GetInt(interp, argv[argi++], &numSubdivJK) != TCL_OK) {
       opserr << "WARNING invalid numSubdivJK: patch quad matTag numSubdivIJ "
@@ -1133,23 +1129,19 @@ TclCommand_addPatch(ClientData clientData,
                 "zVertL\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tnumSubdivJK: " << numSubdivJK;
 
     for (j = 0; j < 4; j++) {
-      // opserr << "\n\tVertexCoord: " << j;
       if (Tcl_GetDouble(interp, argv[argi++], &vertexCoordY) != TCL_OK) {
         opserr << "WARNING invalid Coordinate y: ...yVertI zVertI yVertJ "
                   "zVertJ yVertK zVertK yVertL zVertL\n";
         return TCL_ERROR;
       }
-      // opserr << "\n\t\tvertexCoordY: " << vertexCoordY;
 
       if (Tcl_GetDouble(interp, argv[argi++], &vertexCoordZ) != TCL_OK) {
         opserr << "WARNING invalid Coordinate z: ...yVertI zVertI yVertJ "
                   "zVertJ yVertK zVertK yVertL zVertL\n";
         return TCL_ERROR;
       }
-      // opserr << "\n\t\tvertexCoordZ: " << vertexCoordZ;
 
       vertexCoords(j, 0) = vertexCoordY;
       vertexCoords(j, 1) = vertexCoordZ;
@@ -1278,7 +1270,6 @@ TclCommand_addPatch(ClientData clientData,
       return TCL_ERROR;
     }
 
-    // opserr << "\n\tpatch: " << *patch;
 
     // add patch to section representation
 
@@ -1313,7 +1304,6 @@ TclCommand_addPatch(ClientData clientData,
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tmatTag: " << matTag;
 
     if (Tcl_GetInt(interp, argv[argi++], &numSubdivCirc) != TCL_OK) {
       opserr
@@ -1321,56 +1311,48 @@ TclCommand_addPatch(ClientData clientData,
              "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tnumSubdivCirc: " << numSubdivCirc;
 
     if (Tcl_GetInt(interp, argv[argi++], &numSubdivRad) != TCL_OK) {
       opserr << "WARNING invalid numSubdivRad: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tnumSubdivRad: " << numSubdivRad;
 
     if (Tcl_GetDouble(interp, argv[argi++], &yCenter) != TCL_OK) {
       opserr << "WARNING invalid yCenter: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tyCenter: " << yCenter;
 
     if (Tcl_GetDouble(interp, argv[argi++], &zCenter) != TCL_OK) {
       opserr << "WARNING invalid zCenter: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tzCenter: " << zCenter;
 
     if (Tcl_GetDouble(interp, argv[argi++], &intRad) != TCL_OK) {
       opserr << "WARNING invalid intRad: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tintRad: " << intRad;
 
     if (Tcl_GetDouble(interp, argv[argi++], &extRad) != TCL_OK) {
       opserr << "WARNING invalid extRad: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\textRad: " << extRad;
 
     if (Tcl_GetDouble(interp, argv[argi++], &startAng) != TCL_OK) {
       opserr << "WARNING invalid startAng: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tstartAngle: " << startAng;
 
     if (Tcl_GetDouble(interp, argv[argi++], &endAng) != TCL_OK) {
       opserr << "WARNING invalid endAng: patch circ matTag numSubdivCirc "
                 "numSubdivRad yCenter zCenter intRad extRad startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tendAng: " << endAng;
 
     // get section
     secTag = theTclBasicBuilder->currentSectionTag;
@@ -1402,7 +1384,6 @@ TclCommand_addPatch(ClientData clientData,
       return TCL_ERROR;
     }
 
-    // opserr << "\n\tpatch: " << *patch;
 
     // add patch to section
 
@@ -1430,6 +1411,8 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBuilder *theTclBasicBuilder = G3_getModelBuilder(rt);
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   // check if a section is being processed
   if (theTclBasicBuilder->currentSectionTag == 0) {
@@ -1447,7 +1430,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   SectionRepres *sectionRepres =
       theTclBasicBuilder->getSectionRepres(theTclBasicBuilder->currentSectionTag);
 
-  if (sectionRepres == 0) {
+  if (sectionRepres == nullptr) {
     opserr << "WARNING cannot retrieve section\n";
     return TCL_ERROR;
   }
@@ -1486,7 +1469,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   // creates 2d section
   if (NDM == 2) {
     if (currentSectionIsND) {
-      NDMaterial *material = OPS_getNDMaterial(matTag);
+      NDMaterial *material = builder->getNDMaterial(matTag);
       if (material == 0) {
         opserr << "WARNING invalid NDMaterial ID for patch\n";
         return TCL_ERROR;
@@ -1513,7 +1496,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
     fiberPosition(1) = zLoc;
 
     if (currentSectionIsND) {
-      NDMaterial *material = OPS_getNDMaterial(matTag);
+      NDMaterial *material = builder->getNDMaterial(matTag);
       if (material == 0) {
         opserr << "WARNING invalid NDMaterial ID for patch\n";
         return TCL_ERROR;
@@ -1555,6 +1538,8 @@ int
 TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char ** const argv, TclBasicBuilder *theTclBasicBuilder)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
   // check if a section is being processed
   if (theTclBasicBuilder->currentSectionTag == 0) {
@@ -1662,10 +1647,11 @@ int
 TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char ** const argv) //, TclBasicBuilder *theTclBasicBuilder)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theDomain = G3_getDomain(rt);
   TclBasicBuilder *theTclBasicBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
-  // opserr << "\nreading layer:\n";
 
   // check if a section is being processed
   if (theTclBasicBuilder->currentSectionTag == 0) {
@@ -1702,42 +1688,36 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                 "reinfBarArea  yStartPt zStartPt yEndPt zEndPt\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tmatTag: " << matTag;
 
     if (Tcl_GetInt(interp, argv[argi++], &numReinfBars) != TCL_OK) {
       opserr << "WARNING invalid numReinfBars: layer straight matTag "
                 "numReinfBars reinfBarArea  yStartPt zStartPt yEndPt zEndPt\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tnumReinfBars: " << numReinfBars;
 
     if (Tcl_GetDouble(interp, argv[argi++], &reinfBarArea) != TCL_OK) {
       opserr << "WARNING invalid reinfBarArea: layer straight matTag "
                 "numReinfBars reinfBarArea  yStartPt zStartPt yEndPt zEndPt\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\treinfBarArea: " << reinfBarArea;
 
     if (Tcl_GetDouble(interp, argv[argi++], &yStartPt) != TCL_OK) {
       opserr << "WARNING invalid yStartPt: layer straight matTag numReinfBars "
                 "reinfBarArea  yStartPt zStartPt yEndPt zEndPt\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tyStartPt: " << yStartPt;
 
     if (Tcl_GetDouble(interp, argv[argi++], &zStartPt) != TCL_OK) {
       opserr << "WARNING invalid zStartPt: layer straight matTag numReinfBars "
                 "reinfBarArea  yStartPt zStartPt yEndPt zEndPt\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tzStartPt: " << zStartPt;
 
     if (Tcl_GetDouble(interp, argv[argi++], &yEndPt) != TCL_OK) {
       opserr << "WARNING invalid yEndPt: layer straight matTag numReinfBars "
                 "reinfBarArea  yStartPt zStartPt yEndPt zEndPt\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tyEndPt: " << yEndPt;
 
     if (Tcl_GetDouble(interp, argv[argi++], &zEndPt) != TCL_OK) {
       opserr << "WARNING invalid zEndPt: layer straight matTag numReinfBars "
@@ -1745,7 +1725,6 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    // opserr << "\n\tzEndPt: " << zEndPt;
 
     // get section
     secTag = theTclBasicBuilder->currentSectionTag;
@@ -1780,7 +1759,6 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << "WARNING cannot allocate reinfLayer\n";
       return TCL_ERROR;
     }
-    // opserr << "\nStraigthReinfLayer: " << *reinfLayer;
 
     // add reinfLayer to section
     int error = fiberSectionRepr->addReinfLayer(*reinfLayer);
@@ -1812,42 +1790,36 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                 "reinfBarArea yCenter zCenter radius startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tmatTag: " << matTag;
 
     if (Tcl_GetInt(interp, argv[argi++], &numReinfBars) != TCL_OK) {
       opserr << "WARNING invalid numReinfBars: layer circ matTag numReinfBars "
                 "reinfBarArea yCenter zCenter radius startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tnumReinfBars: " << numReinfBars;
 
     if (Tcl_GetDouble(interp, argv[argi++], &reinfBarArea) != TCL_OK) {
       opserr << "WARNING invalid reinfBarArea: layer circ matTag numReinfBars "
                 "reinfBarArea yCenter zCenter radius startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\treinfBarArea: " << reinfBarArea;
 
     if (Tcl_GetDouble(interp, argv[argi++], &yCenter) != TCL_OK) {
       opserr << "WARNING invalid yCenter: layer circ matTag numReinfBars "
                 "reinfBarArea yCenter zCenter radius startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tyCenter: " << yCenter;
 
     if (Tcl_GetDouble(interp, argv[argi++], &zCenter) != TCL_OK) {
       opserr << "WARNING invalid zCenter: layer circ matTag numReinfBars "
                 "reinfBarArea yCenter zCenter radius startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tzCenter: " << zCenter;
 
     if (Tcl_GetDouble(interp, argv[argi++], &radius) != TCL_OK) {
       opserr << "WARNING invalid radius: layer circ matTag numReinfBars "
                 "reinfBarArea yCenter zCenter radius startAng endAng\n";
       return TCL_ERROR;
     }
-    // opserr << "\n\tradius: " << radius;
 
     bool anglesSpecified = false;
 
@@ -1857,14 +1829,12 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                   "reinfBarArea yCenter zCenter radius startAng endAng\n";
         return TCL_ERROR;
       }
-      // opserr << "\n\tstartAng: " << startAng;
 
       if (Tcl_GetDouble(interp, argv[argi++], &endAng) != TCL_OK) {
         opserr << "WARNING invalid endAng: layer circ matTag numReinfBars "
                   "reinfBarArea yCenter zCenter radius startAng endAng\n";
         return TCL_ERROR;
       }
-      // opserr << "\n\tendAng: " << endAng;
 
       anglesSpecified = true;
     }
@@ -1907,7 +1877,6 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << "WARNING cannot allocate reinfLayer\n";
       return TCL_ERROR;
     }
-    // opserr << "\nCircReinfLayer: " << *reinfLayer;
 
     // add reinfLayer to section
     int error = fiberSectionRepr->addReinfLayer(*reinfLayer);
@@ -1928,20 +1897,21 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // build the section
 static int
-buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
              int secTag, UniaxialMaterial &theTorsion)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
 
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
-  if (sectionRepres == 0) {
+  if (sectionRepres == nullptr) {
     opserr << "WARNING cannot retrieve section\n";
     return TCL_ERROR;
   }
 
   if (sectionRepres->getType() == SEC_TAG_FiberSection) {
     // build the section
-
     FiberSectionRepr *fiberSectionRepr = (FiberSectionRepr *)sectionRepres;
 
     int i, j, k;
@@ -1968,7 +1938,6 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
     for (i = 0; i < numReinfLayers; i++)
       numFibers += reinfLayer[i]->getNumReinfBars();
 
-    // opserr << "\nnumFibers: " << numFibers;
 
     static Vector fiberPosition(2);
     int matTag;
@@ -1982,12 +1951,10 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
     k = 0;
     for (i = 0; i < numPatches; i++) {
-      // opserr << "\nPatch :" << i;
 
       numCells = patch[i]->getNumCells();
       matTag = patch[i]->getMaterialID();
 
-      // opserr << "\nmatTag: " << matTag(k);
 
       cell = patch[i]->getCells();
 
@@ -1996,7 +1963,6 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         return TCL_ERROR;
       }
 
-      // opserr << "\n\tnumCells :" << numCells;
 
       for (j = 0; j < numCells; j++) {
         fibersMaterial(k) = matTag;
@@ -2058,8 +2024,8 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
       k = 0;
       for (i = numSectionRepresFibers; i < numFibers; i++) {
         if (currentSectionIsND) {
-          ndmaterial = OPS_getNDMaterial(fibersMaterial(k));
-          if (ndmaterial == 0) {
+          ndmaterial = builder->getNDMaterial(fibersMaterial(k));
+          if (ndmaterial == nullptr) {
             opserr << "WARNING invalid NDmaterial ID for patch\n";
             return TCL_ERROR;
           }
@@ -2079,7 +2045,6 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
           return TCL_ERROR;
         }
 
-        // opserr << *fiber[k];
         k++;
       }
 
@@ -2094,14 +2059,11 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         section = new FiberSection2d(secTag, numFibers, fiber,
                                      currentSectionComputeCentroid);
 
-      // SectionForceDeformation *section = new FiberSection(secTag, numFibers,
-      // fiber);
-
       // Delete fibers
       for (i = 0; i < numFibers; i++)
         delete fiber[i];
 
-      if (section == 0) {
+      if (section == nullptr) {
         opserr << "WARNING - cannot construct section\n";
         return TCL_ERROR;
       }
@@ -2112,7 +2074,6 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         return TCL_ERROR;
       }
 
-      // opserr << "section: " << *section;
 
     } else if (NDM == 3) {
 
@@ -2122,7 +2083,7 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         fiberPosition(0) = fibersPosition(0, k);
         fiberPosition(1) = fibersPosition(1, k);
         if (currentSectionIsND) {
-          ndmaterial = OPS_getNDMaterial(fibersMaterial(k));
+          ndmaterial = builder->getNDMaterial(fibersMaterial(k));
           if (ndmaterial == 0) {
             opserr << "WARNING invalid NDmaterial ID for patch\n";
             return TCL_ERROR;
@@ -2143,12 +2104,11 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
           return TCL_ERROR;
         }
         k++;
-        // opserr << *fiber[k];
       }
 
       // SectionForceDeformation *section = new FiberSection(secTag, numFibers,
       // fiber);
-      SectionForceDeformation *section = 0;
+      SectionForceDeformation *section = nullptr;
       if (currentSectionIsND)
         section = new NDFiberSection3d(secTag, numFibers, fiber,
                                        currentSectionComputeCentroid);
@@ -2165,13 +2125,12 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         return TCL_ERROR;
       }
 
-      if (theTclBasicBuilder->addSection (*section) < 0) {
+      if (theTclBasicBuilder->addSection(*section) < 0) {
       // if (OPS_addSectionForceDeformation(section) != true) {
         opserr << "WARNING - cannot add section\n";
         return TCL_ERROR;
       }
 
-      // opserr << "section: " << *section;
 
     } else {
       opserr << "WARNING NDM = " << NDM
@@ -2192,12 +2151,13 @@ buildSection(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
 // build the section Interaction
 int
-buildSectionInt(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                 int secTag, UniaxialMaterial &theTorsion, int NStrip1,
                 double t1, int NStrip2, double t2, int NStrip3, double t3)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
   if (sectionRepres == 0) {
     opserr << "WARNING cannot retrieve section\n";
@@ -2298,10 +2258,10 @@ buildSectionInt(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
     UniaxialMaterial *material;
 
-    int NDM = theTclBasicBuilder->getNDM();
+    int NDM = builder->getNDM();
 
     Fiber **fiber = new Fiber *[numFibers];
-    if (fiber == 0) {
+    if (fiber == nullptr) {
       opserr << "WARNING unable to allocate fibers \n";
       return TCL_ERROR;
     }
@@ -2311,7 +2271,7 @@ buildSectionInt(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
       fiber[i] = sectionRepresFibers[i];
 
     Fiber **Hfiber = new Fiber *[numHFibers];
-    if (Hfiber == 0) {
+    if (Hfiber == nullptr) {
       opserr << "WARNING unable to allocate Hfibers \n";
       return TCL_ERROR;
     }
@@ -2431,8 +2391,9 @@ TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
                              int argc, TCL_Char ** const argv,
                              TclBasicBuilder *theTclBasicBuilder)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
   int secTag;
 
   if (argc < 4)
@@ -2446,8 +2407,7 @@ TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
   theTclBasicBuilder->currentSectionTag = secTag;
 
   // first create an empty FiberSection
-  int NDM = theTclBasicBuilder
-                ->getNDM(); // dimension of the structure (1d, 2d, or 3d)
+  int NDM = builder->getNDM();
 
   SectionForceDeformation *section = 0;
   FiberSection2d *section2d = 0;
@@ -2553,12 +2513,14 @@ TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theTclBasicBuilder)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  Domain *theDomain = builder->getDomain();
   int secTag;
   int maxNumPatches = 30;
   int maxNumReinfLayers = 30;
-  int NDM = theTclBasicBuilder->getNDM();
+  int NDM = builder->getNDM();
 
   if (argc < 4)
     return TCL_ERROR;
@@ -2628,7 +2590,7 @@ TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp,
   }
 
   // build the fiber section (for analysis)
-  if (buildSectionThermal(interp, theTclBasicBuilder, secTag, *torsion) !=
+  if (buildSectionThermal(clientData, interp, theTclBasicBuilder, secTag, *torsion) !=
       TCL_OK) {
     opserr << "WARNING - error constructing the section\n";
     return TCL_ERROR;
@@ -2644,14 +2606,15 @@ TclCommand_addFiberSectionThermal(ClientData clientData, Tcl_Interp *interp,
 ///--Adding function for building FiberSectionThermal:[BEGIN] by UoE OpenSees
 ///Group --///
 static int
-buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+buildSectionThermal(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                     int secTag, UniaxialMaterial &theTorsion)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
 
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
-  if (sectionRepres == 0) {
+  if (sectionRepres == nullptr) {
     opserr << "WARNING cannot retrieve section\n";
     return TCL_ERROR;
   }
@@ -2681,7 +2644,6 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
     for (i = 0; i < numReinfLayers; i++)
       numFibers += reinfLayer[i]->getNumReinfBars();
-    // opserr << "\nnumFibers: " << numFibers;
 
     static Vector fiberPosition(2);
     int matTag;
@@ -2695,16 +2657,13 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
     k = 0;
     for (i = 0; i < numPatches; i++) {
-      // opserr << "\nPatch :" << i;
       numCells = patch[i]->getNumCells();
       matTag = patch[i]->getMaterialID();
-      // opserr << "\nmatTag: " << matTag(k);
       cell = patch[i]->getCells();
       if (cell == 0) {
         opserr << "WARNING out of run to create fibers\n";
         return TCL_ERROR;
       }
-      // opserr << "\n\tnumCells :" << numCells;
       for (j = 0; j < numCells; j++) {
         fibersMaterial(k) = matTag;
         fibersArea(k) = cell[j]->getArea();
@@ -2737,10 +2696,9 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
     }
     UniaxialMaterial *material;
 
-    int NDM = theTclBasicBuilder
-                  ->getNDM(); // dimension of the structure (1d, 2d, or 3d)
+    int NDM = builder->getNDM(); 
     Fiber **fiber = new Fiber *[numFibers];
-    if (fiber == 0) {
+    if (fiber == nullptr) {
       opserr << "WARNING unable to allocate fibers \n";
       return TCL_ERROR;
     }
@@ -2763,7 +2721,6 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
           opserr << "WARNING unable to allocate fiber \n";
           return TCL_ERROR;
         }
-        // opserr << *fiber[k];
         k++;
       }
 
@@ -2783,7 +2740,6 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         opserr << "WARNING - cannot add section\n";
         return TCL_ERROR;
       }
-      // opserr << "section: " << *section;
     } else if (NDM == 3) {
       static Vector fiberPosition(2);
       k = 0;
@@ -2806,7 +2762,6 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
           return TCL_ERROR;
         }
         k++;
-        // opserr << *fiber[k];
       }
       // SectionForceDeformation *section = new FiberSection(secTag, numFibers,
       // fiber);
@@ -2827,7 +2782,6 @@ buildSectionThermal(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         opserr << "WARNING - cannot add section\n";
         return TCL_ERROR;
       }
-      // opserr << "section: " << *section;
     } else {
       opserr << "WARNING NDM = " << NDM
              << " is imcompatible with available frame elements\n";
@@ -2850,9 +2804,6 @@ TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
                                int argc, TCL_Char ** const argv,
                                TclBasicBuilder *theTclBasicBuilder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
-
   int secTag;
   int maxNumPatches = 30;
   int maxNumReinfLayers = 30;
@@ -2922,7 +2873,7 @@ TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
   }
 
   // build the fiber section (for analysis)
-  if (buildSectionAsym(interp, theTclBasicBuilder, secTag, isTorsion, GJ, Ys, Zs) != TCL_OK) { // Xinlong
+  if (buildSectionAsym(clientData, interp, theTclBasicBuilder, secTag, isTorsion, GJ, Ys, Zs) != TCL_OK) {
     opserr << "WARNING - error constructing the section\n";
     return TCL_ERROR;
   }
@@ -2933,10 +2884,12 @@ TclCommand_addFiberSectionAsym(ClientData clientData, Tcl_Interp *interp,
 }
 
 static int
-buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
+buildSectionAsym(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                  int secTag, bool isTorsion, double GJ, double Ys,
                  double Zs) // Xinlong
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
   if (sectionRepres == 0) {
@@ -2973,7 +2926,6 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
     for (i = 0; i < numReinfLayers; i++)
       numFibers += reinfLayer[i]->getNumReinfBars();
 
-    // opserr << "\nnumFibers: " << numFibers;
 
     static Vector fiberPosition(2);
     int matTag;
@@ -2987,12 +2939,10 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
 
     k = 0;
     for (i = 0; i < numPatches; i++) {
-      // opserr << "\nPatch :" << i;
 
       numCells = patch[i]->getNumCells();
       matTag = patch[i]->getMaterialID();
 
-      // opserr << "\nmatTag: " << matTag(k);
 
       cell = patch[i]->getCells();
 
@@ -3000,8 +2950,6 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         opserr << "WARNING out of run to create fibers\n";
         return TCL_ERROR;
       }
-
-      // opserr << "\n\tnumCells :" << numCells;
 
       for (j = 0; j < numCells; j++) {
         fibersMaterial(k) = matTag;
@@ -3063,8 +3011,8 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
       k = 0;
       for (i = numSectionRepresFibers; i < numFibers; i++) {
         if (currentSectionIsND) {
-          ndmaterial = OPS_getNDMaterial(fibersMaterial(k));
-          if (ndmaterial == 0) {
+          ndmaterial = builder->getNDMaterial(fibersMaterial(k));
+          if (ndmaterial == nullptr) {
             opserr << "WARNING invalid NDmaterial ID for patch\n";
             return TCL_ERROR;
           }
@@ -3072,7 +3020,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                                    fibersPosition(0, k));
         } else {
           material = G3_getUniaxialMaterialInstance(rt,fibersMaterial(k));
-          if (material == 0) {
+          if (material == nullptr) {
             opserr << "WARNING invalid UniaxialMaterial ID for patch\n";
             return TCL_ERROR;
           }
@@ -3083,8 +3031,6 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
           opserr << "WARNING unable to allocate fiber \n";
           return TCL_ERROR;
         }
-
-        // opserr << *fiber[k];
         k++;
       }
 
@@ -3115,7 +3061,6 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         return TCL_ERROR;
       }
 
-      // opserr << "section: " << *section;
 
     } else if (NDM == 3) {
 
@@ -3125,7 +3070,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         fiberPosition(0) = fibersPosition(0, k);
         fiberPosition(1) = fibersPosition(1, k);
         if (currentSectionIsND) {
-          ndmaterial = OPS_getNDMaterial(fibersMaterial(k));
+          ndmaterial = builder->getNDMaterial(fibersMaterial(k));
           if (ndmaterial == 0) {
             opserr << "WARNING invalid NDmaterial ID for patch\n";
             return TCL_ERROR;
@@ -3134,36 +3079,28 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
                                    fiberPosition(0), fiberPosition(1));
         } else {
           material = G3_getUniaxialMaterialInstance(rt,fibersMaterial(k));
-          if (material == 0) {
+          if (material == nullptr) {
             opserr << "WARNING invalid UniaxialMaterial ID for patch\n";
             return TCL_ERROR;
           }
           fiber[i] =
               new UniaxialFiber3d(k, *material, fibersArea(k), fiberPosition);
         }
-        if (fiber[k] == 0) {
+        if (fiber[k] == nullptr) {
           opserr << "WARNING unable to allocate fiber \n";
           return TCL_ERROR;
         }
         k++;
-        // opserr << *fiber[k];
       }
 
-      // SectionForceDeformation *section = new FiberSection(secTag, numFibers,
-      // fiber);
-      SectionForceDeformation *section = 0;
+      SectionForceDeformation *section = nullptr;
       if (currentSectionIsND)
         section = new NDFiberSection3d(secTag, numFibers, fiber);
       else if (isTorsion) {
         ElasticMaterial theGJ(0, GJ);
-        // FiberSection3d theFS(0, numFibers, fiber);
-        // section = new SectionAggregator(secTag, theFS, theGJ,
-        // SECTION_RESPONSE_T);
-        section = new FiberSectionAsym3d(secTag, numFibers, fiber, &theGJ, Ys,
-                                         Zs); // Xinlong
+        section = new FiberSectionAsym3d(secTag, numFibers, fiber, &theGJ, Ys, Zs);
       } else
-        section = new FiberSectionAsym3d(secTag, numFibers, fiber, 0, Ys,
-                                         Zs); // Xinlong
+        section = new FiberSectionAsym3d(secTag, numFibers, fiber, 0, Ys, Zs);
 
       // Delete fibers
       for (i = 0; i < numFibers; i++)
@@ -3179,8 +3116,6 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
         opserr << "WARNING - cannot add section\n";
         return TCL_ERROR;
       }
-
-      // opserr << "section: " << *section;
 
     } else {
       opserr << "WARNING NDM = " << NDM
@@ -3199,7 +3134,7 @@ buildSectionAsym(Tcl_Interp *interp, TclBasicBuilder *theTclBasicBuilder,
   return TCL_OK;
 }
 
-/*
+#if 0
 SectionForceDeformation*
 G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
@@ -3264,7 +3199,7 @@ G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char ** const argv)
         }
       }
 
-      NDMaterial *theSteel = OPS_getNDMaterial(matTag);
+      NDMaterial *theSteel = builder->getNDMaterial(matTag);
 
       if (theSteel == 0) {
         opserr << "WARNING ND material does not exist\n";
@@ -3308,5 +3243,5 @@ G3Parse_newTubeSection(G3_Runtime* rt, int argc, G3_Char ** const argv)
     }
   }
 }
-*/
+#endif
 

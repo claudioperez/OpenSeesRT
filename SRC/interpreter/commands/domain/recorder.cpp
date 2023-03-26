@@ -84,9 +84,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
 
-extern const char *getInterpPWD(Tcl_Interp *interp); // commands.cpp
-
-
 typedef struct externalRecorderCommand {
   char *funcName;
   void *(*funcPtr)();
@@ -1648,8 +1645,8 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif
   }
 
-#if 0
   else if (strcmp(argv[1], "plot") == 0) {
+#if 0
     int xLoc, yLoc, width, height;
     if (argc < 9) {
       opserr << "WARNING recorder plot fileName? windowTitle? xLoc yLoc "
@@ -1698,9 +1695,9 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         loc++;
     }
 
+#endif
     return TCL_OK;
   }
-#endif
 
   else if (strcmp(argv[1], "increments") == 0) {
 
@@ -1899,7 +1896,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       delete[] tclFuncName;
 
       if (res == 0) {
-        opserr << "commands.cpp - : " << argv[1] << " FOUND & LOADED\n";
+        opserr << "recorder.cpp - : " << argv[1] << " FOUND & LOADED\n";
         char *recorderName = new char[recorderNameLength + 1];
         strcpy(recorderName, argv[1]);
         ExternalRecorderCommand *theRecorderCommand =
@@ -1916,7 +1913,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           *theRecorder = (Recorder *)theRes;
         }
       } else {
-        opserr << "commands.cpp - : " << argv[1] << " NOT FOUND\n";
+        opserr << "recorder.cpp - : " << argv[1] << " NOT FOUND\n";
       }
     }
 

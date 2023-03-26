@@ -35,6 +35,12 @@ target_sources(OpenSeesRT PRIVATE
     "modeling/uniaxialMaterial.cpp"
     "modeling/uniaxial.cpp"
     "modeling/printing.cpp"
+    "modeling/blockND.cpp"
+    "modeling/Block2D.cpp"
+    "modeling/Block3D.cpp"
+    "modeling/RigidDiaphragm.cpp"
+    "modeling/RigidBeam.cpp"
+    "modeling/RigidRod.cpp"
 
     "invoking/invoke.cpp"
     "invoking/invoke_uniaxial.cpp"

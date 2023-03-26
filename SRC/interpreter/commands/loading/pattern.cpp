@@ -826,7 +826,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     if (Tcl_Eval(interp, argv[argc - 1]) != TCL_OK) {
       // opserr << "WARNING - error reading load pattern information in { }";
       opserr << G3_WARN_PROMPT << Tcl_GetStringResult(interp);
-      Tcl_Eval(interp, "puts {STACK TRACE:}; puts $errorInfo; flush stdout;");
+      Tcl_Eval(interp, "puts $errorInfo; flush stdout;");
       Tcl_Exit(TCL_ERROR);
       return TCL_ERROR;
     }

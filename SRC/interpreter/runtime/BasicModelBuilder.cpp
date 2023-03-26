@@ -278,7 +278,7 @@ BasicModelBuilder::getNDMaterial(const std::string &name)
 {
   NDMaterial *instance = m_NDMaterialMap.at(name);
   if (instance) {
-    return instance->getCopy();
+    return instance;
   } else {
     return nullptr;
   }
@@ -297,7 +297,7 @@ BasicModelBuilder::addNDMaterial(const std::string &name, NDMaterial &instance)
 {
   m_NDMaterialMap[name] = &instance;
   G3_AddTableEntry(registry, "NDMaterial", std::stoi(name), (void*)&instance);
-  return 1;
+  return TCL_OK;
 }
 
 // Add a new NDMaterial to the model runtime
@@ -305,8 +305,7 @@ int
 BasicModelBuilder::addNDMaterial(NDMaterial &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
-  this->addNDMaterial(name, instance);
-  return 1;
+  return this->addNDMaterial(name, instance);
 }
 
 //

@@ -1,3 +1,6 @@
+#ifndef Block3D_h
+#define Block3D_h
+
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
@@ -18,37 +21,68 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.3 $
-// $Date: 2010-04-23 22:50:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/constraints/RigidDiaphragm.h,v $
+// $Revision: 1.2 $
+// $Date: 2003-02-14 23:01:47 $
+// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/Block3D.h,v $
                                                                         
-                                                                        
-// File: ~/model/constraints/RigidDiaphragm.h
+// Written: Ed Love
+// Created: 07/01
 //
-// Written: fmk 1/99
-// Revised:
+// Description: This file contains the implementation of Block3D.
 //
-// Purpose: This file contains the class definition for RigidDiaphragm.
-// RigidDiaphragm is a class which constructs MP_Constraint objects
-// for a 3d Frame with a rigid diaphragm .. suitable for small
-// displacement problems only.
+// What: "@(#) Block3D.h, revA"
 
-#ifndef RigidDiaphragm_h
-#define RigidDiaphragm_h
+#include <math.h>
+#include <Vector.h>
+#include <Matrix.h>
+#include <ID.h> 
 
-class Domain;
-class ID;
+class Block3D {
 
-class RigidDiaphragm
-{
-  public:
-    RigidDiaphragm(Domain &theDomain, int nodeR, ID &nodeC, 
-		   int perpDirnToPlaneConstrained);
-    virtual ~RigidDiaphragm();
-    
-  protected:
-    
-  private:
+ public:
+
+  //constructor
+  Block3D(int numx, int numy, int numz,
+	  const ID& nodeID, 
+	  const Matrix& coorArray);
+
+  //destructor
+  virtual ~Block3D();
+
+  //generate node 
+  const Vector &getNodalCoords(int i, int j, int k);
+
+  //generate element
+  const ID &getElementNodes(int i, int j, int k);
+
+ protected:
+
+ private:
+
+  int nx; //number of elements x-direction
+
+  int ny; //number of elements y-direction
+
+  int nz; //number of elements z-direction
+
+  double xl[3][27]; //block coordinates 
+
+  Vector coor; //coordinates of a node
+
+  ID element; //ID-array of an element
+
+  //set up xl array
+  void setUpXl(const ID &nodeID, const Matrix &coorArray);
+  
+  //transform to real coordiantes
+  void transformNodalCoordinates();
+
+  //shape functions
+  void shape3d(double x1, 
+	       double x2, 
+	       double x3,
+	       double shape[27]);
+
 };
 
 #endif

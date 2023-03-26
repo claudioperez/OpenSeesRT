@@ -4,7 +4,16 @@
 ** ****************************************************************** */
 //
 //
+#ifdef _TCL85
+#define TCL_Char const char
+#elif _TCL84
+#define TCL_Char const char
+#else
+#define TCL_Char char
+#endif
+
 #include <assert.h>
+#include <Domain.h>
 #include <Block2D.h>
 #include <Block3D.h>
 #include <Matrix.h>
@@ -87,7 +96,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   if (numNodes == 4)
     nodalInfo = 7;
 
-  TCL_Char ** const argvNodes;
+  TCL_Char ** argvNodes;
   int  argcNodes;
 
   Tcl_SplitList(interp, argv[nodalInfo], &argcNodes, &argvNodes);
@@ -146,7 +155,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       } else if (ndm == 3) {
         theNode = new Node(nodeID,ndf,xLoc, yLoc, zLoc);
       }
-      if (theNode == 0) {
+      if (theNode == nullptr) {
         opserr << "WARNING ran out of memory creating node\n";
         opserr << "node: " << nodeID << endln;
         return TCL_ERROR;
@@ -170,7 +179,8 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // assumes 15 is largest string for individual nodeTags
   count = int(10 + strlen(eleType) + strlen(additionalEleArgs) + 15 *(numNodes+1));
-  char *eleCommand = new char[count]; int initialCount = int(8 + strlen(eleType));
+  char *eleCommand = new char[count];
+  int initialCount = int(8 + strlen(eleType));
 
   int  eleID = startEleNum;
   if (numNodes == 9) {
@@ -178,7 +188,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
     numY /= 2;
   }
 
-  for (jj=0; jj<numY; jj++) {
+  for (int jj=0; jj<numY; jj++) {
     for (int ii=0; ii<numX; ii++) {
       count = initialCount;
       const ID &nodeTags = theBlock.getElementNodes(ii,jj);
@@ -192,7 +202,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       strcat(eleCommand, additionalEleArgs);
 
-      // now to create the element we get the string eveluated
+      // now to create the element we get the string evaluated
       if (Tcl_Eval(interp, eleCommand) != TCL_OK) {
           delete [] eleCommand;
         return TCL_ERROR;
@@ -254,7 +264,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
   for (int k=0; k<27; k++) haveNode(k) = -1;
 
   TCL_Char *nodalInfo = argv[8];
-  TCL_Char ** const argvNodes;
+  TCL_Char ** argvNodes;
   int  argcNodes;
 
   Tcl_SplitList(interp, nodalInfo, &argcNodes, &argvNodes);
@@ -312,7 +322,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
         Node *theNode = 0;
         theNode = new Node(nodeID,ndf,xLoc, yLoc, zLoc);
 
-        if (theNode == 0) {
+        if (theNode == nullptr) {
           opserr << "WARNING ran out of memory creating node\n";
           opserr << "node: " << nodeID << endln;
           return TCL_ERROR;
@@ -359,9 +369,9 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
         }
         strcat(eleCommand, additionalEleArgs);
 
-        // now to create the element we get the string eveluated
+        // now to create the element we get the string evaluated
         if (Tcl_Eval(interp, eleCommand) != TCL_OK) {
-        delete [] eleCommand;
+          delete [] eleCommand;
           return TCL_ERROR;
         }
         eleID++;

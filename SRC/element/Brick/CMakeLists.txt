@@ -8,8 +8,6 @@ target_sources(OPS_Element
   PRIVATE
     Brick.cpp
     Twenty_Node_Brick.cpp
-    shp3d.cpp
-    shp3dv.cpp
     BrickUP.cpp
     BbarBrick.cpp
     BBarBrickUP.cpp
@@ -18,8 +16,6 @@ target_sources(OPS_Element
   PUBLIC
     Brick.h
     Twenty_Node_Brick.h
-    shp3d.h
-    shp3dv.h
     BrickUP.h
     BbarBrick.h
     BBarBrickUP.h

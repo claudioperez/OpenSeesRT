@@ -1,33 +1,15 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the implementation of the
 // TclBasicBuilder_addFourNodeQuad() command.
 //
-// $Revision: 1.8 $
-// $Date: 2009-08-07 20:01:54 $
 // File: ~/element/TclFourNodeQuadCommand.C
 //
 // Written: fmk
 // Created: 07/99
-// Revision: A
 //
 #include <stdlib.h>
 #include <string.h>
@@ -44,8 +26,6 @@
 
 #include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
-
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 /*  *****************************************************************************
 
@@ -67,7 +47,7 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -78,7 +58,6 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 
   if ((argc - argStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? "
               "thk? type? matTag? <pressure? rho? b1? b2?>\n";
     return TCL_ERROR;
@@ -157,9 +136,9 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
-  if (theMaterial == 0) {
+  if (theMaterial == nullptr) {
     opserr << "WARNING material not found\n";
     opserr << "Material: " << matID;
     opserr << "\nFourNodeQuad element: " << FourNodeQuadId << endln;
@@ -170,7 +149,7 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
   FourNodeQuad *theFourNodeQuad =
       new FourNodeQuad(FourNodeQuadId, iNode, jNode, kNode, lNode, *theMaterial,
                        type, thickness, p, rho, b1, b2);
-  if (theFourNodeQuad == 0) {
+  if (theFourNodeQuad == nullptr) {
     opserr << "WARNING ran out of memory creating element\n";
     opserr << "FourNodeQuad element: " << FourNodeQuadId << endln;
     return TCL_ERROR;
@@ -210,7 +189,7 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -221,7 +200,6 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
 
   if ((argc - argStart) < 7) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element ConstantPressureVolumeQuad eleTag? iNode? jNode? "
               "kNode? lNode? thk? matTag?\n";
     return TCL_ERROR;
@@ -277,7 +255,7 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -330,7 +308,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -341,7 +319,6 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
 
   if ((argc - argStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element EnhancedQuad eleTag? iNode? jNode? kNode? lNode? "
               "thk? type? matTag? \n";
     return TCL_ERROR;
@@ -393,7 +370,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -456,7 +433,6 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
 
   if ((argc - argStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element NineNodeMixedQuad  eleTag?"
            << " iNode? jNode? kNode? lNode? mNode, nNode, pNode, qNode, "
               "centerNode "
@@ -535,7 +511,7 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -593,7 +569,6 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
 
   if ((argc - argStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? "
               "thk? type? matTag? <pressure? rho? b1? b2?>\n";
     return TCL_ERROR;
@@ -678,7 +653,7 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -739,7 +714,6 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 
   if ((argc - argStart) < 13) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element NineNodeQuad eleTag? iNode? jNode? kNode? lNode? "
               "nNode? mNode? pNode? qNode? cNode? thk? type? matTag? "
               "<pressure? rho? b1? b2?>\n";
@@ -850,7 +824,7 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -909,7 +883,6 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
 
   if ((argc - argStart) < 12) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element EightNodeQuad eleTag? iNode? jNode? kNode? lNode? "
               "nNode? mNode? pNode? qNode? thk? type? matTag? <pressure? rho? "
               "b1? b2?>\n";
@@ -1014,7 +987,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -1071,7 +1044,6 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
 
   if ((argc - argStart) < 10) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element SixNodeTri eleTag? iNode? jNode? kNode? lNode? "
               "nNode? mNode? pNode? qNode? thk? type? matTag? <pressure? rho? "
               "b1? b2?>\n";
@@ -1164,7 +1136,7 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -1177,7 +1149,7 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
   SixNodeTri *theSixNodeTri =
       new SixNodeTri(SixNodeTriId, iNode, jNode, kNode, lNode, nNode, mNode,
                      *theMaterial, type, thickness, p, rho, b1, b2);
-  if (theSixNodeTri == 0) {
+  if (theSixNodeTri == nullptr) {
     opserr << "WARNING ran out of memory creating element\n";
     opserr << "SixNodeTri element: " << SixNodeTriId << endln;
     return TCL_ERROR;

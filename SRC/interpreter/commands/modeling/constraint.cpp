@@ -19,6 +19,7 @@
 #include <MP_Constraint.h>
 
 #include <LoadPattern.h>
+#include "RigidDiaphragm.h"
 
 #include <ImposedMotionSP.h>
 #include <ImposedMotionSP1.h>
@@ -439,7 +440,7 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     return TCL_OK;
 }
 
-/*
+#if 0
 int
 TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char ** const argv)
@@ -535,12 +536,17 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
 
         return TCL_OK;
 }
+#endif
 
 
 
 int
 TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain* theTclDomain = builder->getDomain();
+
   if (argc < 3) {
       opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
       return TCL_ERROR;
@@ -574,7 +580,8 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
 
   return TCL_OK;
 }
-*/
+
+
 
 
 int

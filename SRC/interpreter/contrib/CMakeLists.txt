@@ -4,6 +4,7 @@ add_library(OpenSeesCommunity OBJECT)
 
 add_subdirectory(packages/)
 add_subdirectory(uniaxial/)
+add_subdirectory(element/)
 # add_subdirectory(sys_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 
@@ -22,7 +23,6 @@ target_sources(OpenSeesRT PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingBoucWenCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingPlasticityCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingUFRPCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/fourNodeQuad/TclFourNodeQuadCommand.cpp"
 
     "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/TclFlatSliderCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/TclRJWatsonEQSCommand.cpp"
@@ -37,14 +37,13 @@ target_sources(OpenSeesRT PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/element/twoNodeLink/TclTwoNodeLinkCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/zeroLength/TclZeroLength.cpp"
 
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/updatedLagrangianBeamColumn/TclElement2dGNL.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/updatedLagrangianBeamColumn/TclElement2dYS.cpp"
 
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/forceBeamColumn/TclForceBeamColumnCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/dispBeamColumnInt/TclDispBeamColumnIntCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/beamWithHinges.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/nonlinearBeamColumn/gradientInelasticBeamColumn.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/TclDispBeamColumnIntCommand.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/beamWithHinges.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/element/Frame/gradientInelasticBeamColumn.cpp"
 )
 
 

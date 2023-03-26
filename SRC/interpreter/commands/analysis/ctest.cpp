@@ -63,7 +63,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
   double tolprel = 0.0;
   double maxTol = OPS_MAXTOL;
 
-  int numIter = 0;
+  int numIter = 10;
   int printIt = 0;
   int normType = 2;
   int maxIncr = -1;
@@ -184,7 +184,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
     }
   }
 
-  ConvergenceTest *theNewTest = 0;
+  ConvergenceTest *theNewTest = nullptr;
 
   if (numIter == 0) {
     opserr << G3_ERROR_PROMPT << "no numIter specified in test command\n";

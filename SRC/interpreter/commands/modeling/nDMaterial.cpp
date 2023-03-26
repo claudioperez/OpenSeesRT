@@ -157,7 +157,6 @@ printCommand(int argc, TCL_Char ** const argv)
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv)
-                                 //TclBasicBuilder *theTclBuilder)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
@@ -1371,7 +1370,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
         return TCL_ERROR;
       }
 
-    NDMaterial *soil = OPS_getNDMaterial(param[1]);
+    NDMaterial *soil = builder->getNDMaterial(param[1]);
     if (soil == 0) {
       opserr << "WARNING FluidSolidPorous: couldn't get soil material ";
       opserr << "tagged: " << param[1] << "\n";
@@ -1413,7 +1412,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *threeDMaterial = OPS_getNDMaterial(matTag);
+    NDMaterial *threeDMaterial = builder->getNDMaterial(matTag);
     if (threeDMaterial == 0) {
       opserr << "WARNING nD material does not exist\n";
       opserr << "nD material: " << matTag;
@@ -1447,7 +1446,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *threeDMaterial = OPS_getNDMaterial(matTag);
+    NDMaterial *threeDMaterial = builder->getNDMaterial(matTag);
     if (threeDMaterial == 0) {
       opserr << "WARNING nD material does not exist\n";
       opserr << "nD material: " << matTag;
@@ -1666,7 +1665,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
-    if (theMat == 0) {
+    if (theMat == nullptr) {
       opserr << "WARNING uniaxialmaterial does not exist\n";
       opserr << "UniaxialMaterial: " << matTag;
       opserr << "\nPlateRebar nDMaterial: " << tag << endln;
@@ -1707,7 +1706,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *theMat = OPS_getNDMaterial(matTag);
+    NDMaterial *theMat = builder->getNDMaterial(matTag);
     if (theMat == 0) {
       opserr << "WARNING ndMaterial does not exist\n";
       opserr << "ndMaterial: " << matTag;
@@ -1992,7 +1991,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *theMat = OPS_getNDMaterial(matTag);
+    NDMaterial *theMat = builder->getNDMaterial(matTag);
     if (theMat == 0) {
       opserr << "WARNING ndMaterial does not exist\n";
       opserr << "ndMaterial: " << matTag;
@@ -2129,8 +2128,8 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *threeDMaterial = OPS_getNDMaterial(matTag);
-    if (threeDMaterial == 0) {
+    NDMaterial *threeDMaterial = builder->getNDMaterial(matTag);
+    if (threeDMaterial == nullptr) {
       opserr << "WARNING nD material does not exist\n";
       opserr << "nD material: " << matTag;
       opserr << "\nPlateFiberThermal nDMaterial: " << tag << endln;
@@ -2245,7 +2244,8 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   }
 
   // Now add the material to the modelBuilder
-  if (OPS_addNDMaterial(theMaterial) == false) {
+  if (builder->addNDMaterial(*theMaterial) != TCL_OK ) /* &&
+       OPS_addNDMaterial(theMaterial) == false) */ {
     opserr << "WARNING could not add material to the domain\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
