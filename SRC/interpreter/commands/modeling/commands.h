@@ -127,13 +127,12 @@ struct char_cmd {
 
   {"block2D",              TclCommand_doBlock2D},
   {"block3D",              TclCommand_doBlock3D},
-
+  {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
 
 /*
   {"mp",                   TclCommand_addMP},
 
   {"equalDOF_Mixed",       TclCommand_addEqualDOF_MP_Mixed},
-  {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
   {"ShallowFoundationGen", BasicModelBuilder_doShallowFoundationGen},
