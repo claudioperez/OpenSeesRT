@@ -54,6 +54,8 @@ TclEquiSolnAlgo G3Parse_newEquiSolnAlgo;
 TclEquiSolnAlgo G3Parse_newSecantNewtonAlgorithm;
 TclEquiSolnAlgo G3Parse_newLinearAlgorithm;
 TclEquiSolnAlgo G3_newNewtonLineSearch;
+static TclEquiSolnAlgo G3_newKrylovNewton;
+
 
 //
 // command invoked to allow the SolnAlgorithm object to be built
@@ -182,8 +184,11 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (strcmp(argv[1], "NewtonLineSearch") == 0)
     theNewAlgo = G3_newNewtonLineSearch(clientData, interp, argc, argv);
 
+  else if (strcmp(argv[1], "KrylovNewton") == 0)
+    theNewAlgo = G3_newKrylovNewton(clientData, interp, argc, argv);
+
   else {
-    opserr << G3_ERROR_PROMPT << "No EquiSolnAlgo type " << argv[1] << " exists\n";
+    opserr << G3_ERROR_PROMPT << "No EquiSolnAlgo of type '" << argv[1] << "' exists\n";
     return nullptr;
   }
 
@@ -380,7 +385,7 @@ G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
   return theNewAlgo;
 }
 
-EquiSolnAlgo *
+static EquiSolnAlgo *
 G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char ** const argv)
 {
