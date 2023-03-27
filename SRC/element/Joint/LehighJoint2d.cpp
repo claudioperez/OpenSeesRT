@@ -32,7 +32,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <Renderer.h>
-#include <MatrixUtil.h>
 #include <math.h>
 
 #include <UniaxialMaterial.h>
