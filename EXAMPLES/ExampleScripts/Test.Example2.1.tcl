@@ -66,7 +66,7 @@ set mu 15;		# Target ductility for analysis
 set numIncr 10;	# Number of analysis increments
 
 # Call the section analysis procedure
-source Library/MomentCurvature.ops
+source Library/MomentCurvature.tcl
 MomentCurvature 1 $P [expr $Ky*$mu] $numIncr
 
 wipe

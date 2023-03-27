@@ -1,4 +1,4 @@
-# RCFrame4.ops: R/C two story, two bay frame subject to sinusoidal pulse GMotion
+# RCFrame4.tcl: R/C two story, two bay frame subject to sinusoidal pulse GMotion
 # Units: kip, in
 # MHS, Sept 1999
 #   email: mhscott@ce.berkeley.edu
@@ -190,7 +190,7 @@ if {$patternType == "UniformExcitation"} {
 # Source in some g3 commands to display the model
 if {$displayMode == "displayON"} {
     # a window to show the displayed shape
-    source RCFrameDisplay.ops 
+    source RCFrameDisplay.tcl 
 }
 
 #                   gamma beta

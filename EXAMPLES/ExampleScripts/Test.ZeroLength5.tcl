@@ -37,7 +37,7 @@ geomTransf Linear 1
 element elasticBeamColumn 3 2 3 100 1000 1000 1
 element elasticBeamColumn 4 4 5 100 1000 1000 1
 
-source Test.rotSpring2D.ops
+source Test.rotSpring2D.tcl
 
 #           eleID nodeR nodeC matID
 rotSpring2D   1     1     2     1
