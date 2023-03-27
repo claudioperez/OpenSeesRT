@@ -29,7 +29,7 @@
 // Description: This file contains the function to parse the TCL input
 // for the TwoNodeLink element.
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -57,8 +57,8 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {

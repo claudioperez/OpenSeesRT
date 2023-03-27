@@ -28,7 +28,7 @@
 #include <OPS_Stream.h>
 #include <Domain.h>
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <Parameter.h>
@@ -54,6 +54,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
 {
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain *domain = builder->getDomain();
 
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
@@ -74,7 +75,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  Parameter *theParameter = theTclDomain->getParameter(paramTag);
+  Parameter *theParameter = domain->getParameter(paramTag);
   int eleTag = -1;
   bool isele = false;
 
@@ -82,7 +83,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
   if (argc == 2 && strcmp(argv[0], "parameter") == 0) {
     Parameter *newParameter = new Parameter(paramTag, 0, 0, 0);
 
-    theTclDomain->addParameter(newParameter);
+    domain->addParameter(newParameter);
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
@@ -101,7 +102,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
 
     newParameter->setValue(value);
 
-    theTclDomain->addParameter(newParameter);
+    domain->addParameter(newParameter);
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
@@ -117,7 +118,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     if (Tcl_GetInt(interp, argv[3], &nodeTag) != TCL_OK) {
       return TCL_ERROR;
     }
-    Node *theNode = theTclDomain->getNode(nodeTag);
+    Node *theNode = domain->getNode(nodeTag);
 
     int dof;
     if (Tcl_GetInt(interp, argv[5], &dof) != TCL_OK) {
@@ -127,7 +128,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     Parameter *newParameter =
         new NodeResponseParameter(paramTag, theNode, Disp, dof);
 
-    theTclDomain->addParameter(newParameter);
+    domain->addParameter(newParameter);
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
@@ -143,11 +144,11 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     if (Tcl_GetInt(interp, argv[3], &patternTag) != TCL_OK) {
       return TCL_ERROR;
     }
-    LoadPattern *thePattern = theTclDomain->getLoadPattern(patternTag);
+    LoadPattern *thePattern = domain->getLoadPattern(patternTag);
 
     Parameter *newParameter = new LoadFactorParameter(paramTag, thePattern);
 
-    theTclDomain->addParameter(newParameter);
+    domain->addParameter(newParameter);
 
     char buffer[40];
     sprintf(buffer, "%d", paramTag);
@@ -206,7 +207,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
 
       // Retrieve element from domain
       //  FMK theObject = (DomainComponent *) theTclDomain->getElement(eleTag);
-      theObject = (DomainComponent *)theTclDomain->getElement(eleTag);
+      theObject = (DomainComponent *)domain->getElement(eleTag);
 
       argStart = (theRV) ? 6 : 4;
     } else if (argc > argStart && strstr(argv[argStart], "node") != 0) {
@@ -224,7 +225,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
       }
 
       // Retrieve element from domain
-      theObject = (DomainComponent *)theTclDomain->getNode(nodeTag);
+      theObject = (DomainComponent *)domain->getNode(nodeTag);
 
       argStart = (theRV) ? 6 : 4;
     } else if (argc > argStart && strstr(argv[argStart], "loadPattern") != 0) {
@@ -242,7 +243,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
       }
 
       // Retrieve element from domain
-      theObject = (DomainComponent *)theTclDomain->getLoadPattern(loadTag);
+      theObject = (DomainComponent *)domain->getLoadPattern(loadTag);
 
       argStart = (theRV) ? 6 : 4;
     } else if (argc > argStart) {
@@ -280,12 +281,12 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
 #ifdef _RELIABILITY
         RVParameter *newRVParameter =
             new RVParameter(paramTag, theRV, newParameter);
-        theTclDomain->addParameter(newRVParameter);
+        domain->addParameter(newRVParameter);
 #else
         opserr << "ERROR: Reliability not compiled in\n";
 #endif
       } else {
-        theTclDomain->addParameter(newParameter);
+        domain->addParameter(newParameter);
       }
 
       char buffer[40];
@@ -304,7 +305,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
           theParameter->addComponent(theObject, (const char **)&argv[argStart],
                                      argc - argStart);
         else {
-          theObject = (DomainComponent *)theTclDomain->getElement(eleTag);
+          theObject = (DomainComponent *)domain->getElement(eleTag);
           theParameter->addComponent(theObject, (const char **)&argv[argStart],
                                      argc - argStart);
           // Sorry, Frank, had to change this -- MHS
@@ -333,7 +334,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     }
 
     //    theParameter->update(newValue);
-    theTclDomain->updateParameter(paramTag, newValue);
+    domain->updateParameter(paramTag, newValue);
   }
 
   return TCL_OK;

@@ -33,16 +33,14 @@ int
 TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)G3_getSafeBuilder(rt);
-  LoadPattern *theTclLoadPattern = theTclBuilder->getEnclosingPattern();
-  Domain *theTclDomain = G3_getDomain(rt);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  LoadPattern *theTclLoadPattern = builder->getEnclosingPattern();
+  Domain *theTclDomain = builder->getDomain();
   static int eleLoadTag = 0;
 
   // ensure the destructor has not been called - 
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING current builder has been destroyed - eleLoad\n";    
     return TCL_ERROR;
   }
@@ -52,7 +50,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  int ndm = theTclBuilder->getNDM();
+  int ndm = builder->getNDM();
   ElementalLoad *theLoad = 0;
 
   ID theEleTags(0,16);
@@ -95,7 +93,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       count++;
       for (int i=eleStart; i<=eleEnd; i++)
-	theEleTags[eleCount++] = i;	
+	theEleTags[eleCount++] = i;
     } else
       doneEle = 1;
   }

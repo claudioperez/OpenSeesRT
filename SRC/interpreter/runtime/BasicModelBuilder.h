@@ -60,6 +60,9 @@ private:
   G3_Table* registry = nullptr;
   map_t<TimeSeries*> m_TimeSeriesMap;
 public:
+  int   addRegistryObject(const char*, int tag, void* obj); 
+  void* getRegistryObject(const char*, int tag); 
+
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);
   TimeSeries* getTimeSeries(const key_t&);

@@ -16,7 +16,6 @@
 //   Zaohui Yang      (zhyang@ucdavis.edu)
 //   Zhao Cheng       (zcheng@ucdavis.edu)
 //
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <elementAPI.h>
 #include <packages.h>
@@ -60,9 +59,9 @@
 #include <MultiYieldSurfaceClay.h>
 #include <string.h>
 
+class TclBasicBuilder;
 extern NDMaterial *Tcl_addWrapperNDMaterial(matObj *, ClientData, Tcl_Interp *,
-                                            int, TCL_Char **,
-                                            TclBasicBuilder *);
+                                            int, TCL_Char **, TclBasicBuilder *);
 
 extern void *OPS_ReinforcedConcretePlaneStressMaterial(G3_Runtime*);
 extern void *OPS_FAReinforcedConcretePlaneStressMaterial(G3_Runtime*);
@@ -133,9 +132,9 @@ NDMaterial *TclBasicBuilder_addFeapMaterial(ClientData clientData,
                                             TclBasicBuilder *theTclBuilder);
 #endif // _OPS_Material_FEAP
 
-extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char ** const argv, Domain *domain,
-                          TclBuilder *builder);
+
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
+                          int mArg, TCL_Char ** const argv, Domain *domain);
 
 typedef struct ndMaterialPackageCommand {
   char *funcName;
@@ -145,21 +144,12 @@ typedef struct ndMaterialPackageCommand {
 
 static NDMaterialPackageCommand *theNDMaterialPackageCommands = NULL;
 
-static void
-printCommand(int argc, TCL_Char ** const argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
-
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
+  // TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
@@ -169,7 +159,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-    OPS_ResetInput(clientData, interp, 2, argc, argv, 0, theTclBuilder);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, 0);
 
   // Pointer to an ND material that will be added to the model builder
   NDMaterial *theMaterial = 0;
@@ -569,7 +559,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "PressureDependentElastic3D") == 0) {
     if (argc < 6) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PressureDependentElastic3D tag? E? v? rho?"
              << endln;
       return TCL_ERROR;
@@ -695,7 +684,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   else if ((strcmp(argv[1], "PlaneStressSimplifiedJ2") == 0)) {
     if (argc < 8) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDmaterial Simplified3DJ2  $matTag  $G  $K  $sig0  "
                 "$H_kin  $H_iso"
              << endln;
@@ -762,7 +750,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            (strcmp(argv[1], "MCP") == 0)) {
     if (argc < 12) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial MultiaxialCyclicPlasticity tag? rho? K? G? "
                 "Su? Ho? h? m? beta? KCoeff? <eta?>"
              << endln;
@@ -864,7 +851,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                          "numberOfYieldSurf (=20)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PressureIndependMultiYield tag? " << arg[0];
       opserr << "? "
              << "\n";
@@ -935,7 +921,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                          "numberOfYieldSurf (=20)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial MultiYieldSurfaceClay tag? " << arg[0];
       opserr << "? "
              << "\n";
@@ -1026,7 +1011,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                          "Pv (=1.)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PressureDependMultiYield tag? " << arg[0];
       opserr << "? "
              << "\n";
@@ -1152,7 +1136,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                          "Pv (=1.)"};
     if (argc < (3 + numParam)) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       return TCL_ERROR;
     }
 
@@ -1260,7 +1243,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     if (argc < (3 + numParam)) { // 3 refers to "nDMaterial
                                  // PressureDependMultiYield03  $tag"
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PressureDependMultiYield03 tag? " << arg[0];
       opserr << "? "
              << "\n";
@@ -1350,7 +1332,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                    "Atmospheric pressure"};
     if (argc < 6) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial FluidSolidPorous tag? " << arg[0];
       opserr << "? "
              << "\n";
@@ -1394,7 +1375,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            strcmp(argv[1], "PlaneStress") == 0) {
     if (argc < 4) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlaneStress tag? matTag?" << endln;
       return TCL_ERROR;
     }
@@ -1428,7 +1408,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            strcmp(argv[1], "PlaneStrain") == 0) {
     if (argc < 4) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlaneStrain tag? matTag?" << endln;
       return TCL_ERROR;
     }
@@ -1593,7 +1572,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            (strcmp(argv[1], "3DJ2") == 0)) {
     if (argc < 8) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDmaterial Simplified3DJ2  $matTag  $G  $K  $sig0  "
                 "$H_kin  $H_iso"
              << endln;
@@ -1645,7 +1623,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            strcmp(argv[1], "PlateRebar") == 0) {
     if (argc < 5) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlateRebar tag? matTag? angle?" << endln;
       return TCL_ERROR;
     }
@@ -1686,7 +1663,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            strcmp(argv[1], "PlateFromPlaneStress") == 0) {
     if (argc < 5) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlateFromPlaneStress tag? matTag? gmod?"
              << endln;
       return TCL_ERROR;
@@ -1727,7 +1703,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "ConcreteS") == 0) {
     if (argc < 8) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial ConcreteS tag? E? nu? fc? ft? Es?" << endln;
       return TCL_ERROR;
     }
@@ -1778,7 +1753,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "PlaneStressUserMaterial") == 0) {
     if (argc < 6) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlaneStressUserMaterial tag? nstatevs? "
                 "nprops? prop1? ... propn?"
              << endln;
@@ -1862,7 +1836,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
            strcmp(argv[1], "ConcreteMcftNonLinear5") == 0) {
     if (argc < 11) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial ConcreteMcftNonlinear7 tag? fcu? ecu? Ec? "
                 "fcr? Esv? fyv? alphaV? RoV?"
              << endln;
@@ -1971,7 +1944,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "PlateFromPlaneStressThermal") == 0) {
     if (argc < 5) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlateFromPlaneStress tag? matTag? gmod?"
              << endln;
       return TCL_ERROR;
@@ -2010,7 +1982,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
              strcmp(argv[1], "PlateRebarThermal") == 0) {
     if (argc < 5) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlateRebar tag? matTag? angle?" << endln;
       return TCL_ERROR;
     }
@@ -2048,7 +2019,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
              (strcmp(argv[1], "J2Thermal") == 0)) {
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial J2PlasticityThermal tag? K? G? sig0? sigInf? "
                 "delta? H? <eta?>"
              << endln;
@@ -2110,7 +2080,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
              strcmp(argv[1], "PlateFiberThermal") == 0) {
     if (argc < 4) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: nDMaterial PlateFiberThermal tag? matTag?" << endln;
       return TCL_ERROR;
     }

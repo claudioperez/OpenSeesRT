@@ -33,7 +33,6 @@
 #include <AxialCurve.h>      // KJE
 #include <ThreePointCurve.h> // KJE
 #include <ShearCurve.h>      // KJE
-#include <TclBasicBuilder.h> //MRL
 
 #include <string.h>
 #include <g3_api.h>

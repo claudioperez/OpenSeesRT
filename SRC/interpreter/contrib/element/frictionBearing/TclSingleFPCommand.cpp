@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
+// Description: This file contains the function to parse the TCL input
+// for the singleFPBearing element.
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 02/06
 // Revision: A
 //
-// Description: This file contains the function to parse the TCL input
-// for the singleFPBearing element.
-
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -62,8 +58,8 @@ TclBasicBuilder_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
   int tag;
 
   if (ndm == 2) {

@@ -701,10 +701,10 @@ TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
 
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc - 1, &argv[1]);
 
-  BasicModelBuilder *theTclBuilder = (BasicModelBuilder *)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
 
   if (theSeries != nullptr) {
-    if (theTclBuilder->addTimeSeries(argv[2], theSeries))
+    if (builder->addTimeSeries(argv[2], theSeries))
       return TCL_OK;
     else
       return TCL_ERROR;

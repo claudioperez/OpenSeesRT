@@ -47,7 +47,7 @@
 // #include <LargeDispBeamColumn3d.h>
 
 #include <GaussLobattoQuadRule1d01.h>
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 //

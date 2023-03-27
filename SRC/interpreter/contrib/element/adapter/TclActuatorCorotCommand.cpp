@@ -29,7 +29,7 @@
 // Description: This file contains the function to parse the TCL input
 // for the corotational actuator element.
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -65,7 +65,7 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
+  int ndm = builder->getNDM();
 
   // get the id and end nodes
   int tag, iNode, jNode;

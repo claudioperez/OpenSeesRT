@@ -29,7 +29,7 @@
 // Description: This file contains the function to parse the TCL input
 // for the adapter element.
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -63,7 +63,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
+  int ndm = builder->getNDM();
 
   // get the id and end nodes
   int tag, node, dof, ipPort, argi, i, j, k;

@@ -36,9 +36,6 @@
 // TclBasicBuilder_addPattern function in the TclBasicBuilder.C file. Current
 // valid Pattern types are:
 
-// What: "@(#) TclPatternCommand.C, revA"
-
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <g3_api.h>
@@ -80,7 +77,7 @@ int
 TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char **argv, Domain *theDomain)
 {
-  LoadPattern *thePattern = 0;
+  LoadPattern *thePattern = nullptr;
 
   // make sure at least one other argument to contain integrator
   if (argc < 4) {
@@ -91,7 +88,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  TimeSeries *theSeries = 0;
+  TimeSeries *theSeries = nullptr;
   int patternID = 0;
 
   if (Tcl_GetInt(interp, argv[2], &patternID) != TCL_OK) {

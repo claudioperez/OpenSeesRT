@@ -28,7 +28,7 @@
 #include <string.h>
 #include <Domain.h>
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <ForceBeamColumn2d.h>
@@ -214,7 +214,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       } else
         argi++;
 
-      SectionForceDeformation *theSection = theTclBuilder->getSection(secTag);
+      SectionForceDeformation *theSection = builder->getSection(secTag);
       if (theSection == 0) {
         opserr << "WARNING section not found\n";
         opserr << "Section: " << secTag;
@@ -244,7 +244,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         } else
           argi++;
 
-        SectionForceDeformation *theSection = theTclBuilder->getSection(secTag);
+        SectionForceDeformation *theSection = builder->getSection(secTag);
         if (theSection == 0) {
           opserr << "WARNING section not found\n";
           opserr << "Section: " << secTag;
@@ -518,7 +518,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *theSection = theTclBuilder->getSection(secTag);
+    SectionForceDeformation *theSection = builder->getSection(secTag);
     if (theSection == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTag;
@@ -575,7 +575,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *theSection = theTclBuilder->getSection(secTag);
+    SectionForceDeformation *theSection = builder->getSection(secTag);
     if (theSection == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTag;
@@ -637,7 +637,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = theTclBuilder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getSection(secs(i));
       if (theSection == 0) {
         opserr << "WARNING section not found\n";
         opserr << "Section: " << secs(i);
@@ -693,14 +693,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionI = theTclBuilder->getSection(secTagI);
+    SectionForceDeformation *sectionI = builder->getSection(secTagI);
     if (sectionI == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagI;
       opserr << "\n" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    SectionForceDeformation *sectionJ = theTclBuilder->getSection(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
     if (sectionJ == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagJ;
@@ -708,7 +708,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionE = theTclBuilder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getSection(secTagE);
     if (sectionJ == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagE;
@@ -845,7 +845,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     sections = new SectionForceDeformation *[numSections + 2];
 
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = theTclBuilder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getSection(secs(i));
       if (theSection == 0) {
         opserr << "WARNING section not found\n";
         opserr << "Section: " << secs(i);
@@ -855,7 +855,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       sections[i] = theSection;
     }
 
-    SectionForceDeformation *sectionE = theTclBuilder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getSection(secTagE);
     if (sectionE == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagE;
@@ -936,14 +936,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionI = theTclBuilder->getSection(secTagI);
+    SectionForceDeformation *sectionI = builder->getSection(secTagI);
     if (sectionI == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagI;
       opserr << "\n" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    SectionForceDeformation *sectionJ = theTclBuilder->getSection(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
     if (sectionJ == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagJ;
@@ -951,7 +951,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionE = theTclBuilder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getSection(secTagE);
     if (sectionJ == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagE;
@@ -1052,14 +1052,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionI = theTclBuilder->getSection(secTagI);
+    SectionForceDeformation *sectionI = builder->getSection(secTagI);
     if (sectionI == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagI;
       opserr << "\n" << argv[1] << " element: " << eleTag << endln;
       return TCL_ERROR;
     }
-    SectionForceDeformation *sectionJ = theTclBuilder->getSection(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
     if (sectionJ == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagJ;
@@ -1067,7 +1067,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionE = theTclBuilder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getSection(secTagE);
     if (sectionJ == 0) {
       opserr << "WARNING section not found\n";
       opserr << "Section: " << secTagE;
@@ -1136,7 +1136,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = theTclBuilder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getSection(secs(i));
       if (theSection == 0) {
         opserr << "WARNING section not found\n";
         opserr << "Section: " << secs(i);
@@ -1203,7 +1203,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = theTclBuilder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getSection(secs(i));
       if (theSection == 0) {
         opserr << "WARNING section not found\n";
         opserr << "Section: " << secs(i);
@@ -1257,7 +1257,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = theTclBuilder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getSection(secs(i));
       if (theSection == 0) {
         opserr << "WARNING section not found\n";
         opserr << "Section: " << secs(i);

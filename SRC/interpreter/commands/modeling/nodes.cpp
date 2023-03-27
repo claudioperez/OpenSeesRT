@@ -21,12 +21,12 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  Domain *theTclDomain = theTclBuilder->getDomain();
+  Domain *theTclDomain = builder->getDomain();
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {
@@ -215,11 +215,11 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   assert(clientData != nullptr);
 
-  BasicModelBuilder *theTclBuilder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  Domain *theTclDomain = theTclBuilder->getDomain();
+  Domain *theTclDomain = builder->getDomain();
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << G3_ERROR_PROMPT << "builder has been destroyed - load \n";
     return TCL_ERROR;
   }

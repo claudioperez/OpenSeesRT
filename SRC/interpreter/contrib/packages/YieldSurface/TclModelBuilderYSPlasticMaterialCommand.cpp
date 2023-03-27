@@ -1,20 +1,23 @@
-#include <TclBasicBuilder.h>
 #include <string.h>
 #include <Vector.h>
 
 #include "MultiLinearKp.h"
 #include "ExponReducing.h"
 #include "NullPlasticMaterial.h"
+#include <BasicModelBuilder.h>
+
+class TclBasicBuilder;
 
 int
-TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
+TclMultiLinearCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char ** const argv, TclBasicBuilder *theTclBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   // Pointer to a uniaxial material that will be added to the model builder
   PlasticHardeningMaterial *theMaterial = 0;
 
+  int tag;
   if (strcmp(argv[1], "multiLinearKp") == 0) {
-    int tag;
     int numPoints = (argc - 3) / 2;
 
     if (numPoints < 2) {
@@ -71,7 +74,7 @@ TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
   }
 
   // Now add the material to the modelBuilder
-  if (theTclBuilder->addPlasticMaterial(*theMaterial) < 0) {
+  if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0) {
     opserr << "WARNING could not add uniaxialMaterial to the domain\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -83,7 +86,7 @@ TclMultiLinearCommand(ClientData clienData, Tcl_Interp *interp, int argc,
 }
 
 // QuadrReducing(int tag, double kp0, double kp_half);
-/*int TclQuadrReducingCommand(ClientData clienData, Tcl_Interp *interp, int
+/*int TclQuadrReducingCommand(ClientData clientData, Tcl_Interp *interp, int
 argc, char **argv, TclBasicBuilder *theTclBuilder)
 {
     // Pointer to a uniaxial material that will be added to the model builder
@@ -110,7 +113,7 @@ kp_half" << endln; return TCL_ERROR;
         }
 
         theMaterial = new QuadrReducing(tag, kp_0, kp_half);
-    if (theTclBuilder->addPlasticMaterial(*theMaterial) < 0)
+    if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0)
         {
                 opserr << "WARNING could not add uniaxialMaterial to the
 domain\n"; opserr << *theMaterial << endln; delete theMaterial; // invoke the
@@ -122,9 +125,11 @@ material objects destructor, otherwise mem leak return TCL_ERROR;
 */
 
 int
-TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
+TclExponReducingCommand(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char ** const argv, TclBasicBuilder *theTclBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+
   if (argc < 5) {
     opserr << "TclExponReducingCommand - argc != 5 \n";
     return TCL_ERROR;
@@ -164,7 +169,7 @@ TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
   } else
     theMaterial = new ExponReducing(tag, arg1, arg2);
 
-  if (theTclBuilder->addPlasticMaterial(*theMaterial) < 0) {
+  if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0) {
     opserr << "WARNING could not add uniaxialMaterial to the domain\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -176,10 +181,11 @@ TclExponReducingCommand(ClientData clienData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
+TclNullPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char ** const argv,
                               TclBasicBuilder *theTclBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   PlasticHardeningMaterial *theMaterial = 0;
 
   int tag;
@@ -190,7 +196,7 @@ TclNullPlasticMaterialCommand(ClientData clienData, Tcl_Interp *interp,
   }
 
   theMaterial = new NullPlasticMaterial(tag);
-  if (theTclBuilder->addPlasticMaterial(*theMaterial) < 0) {
+  if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0) {
     opserr << "WARNING could not add uniaxialMaterial to the domain\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -212,17 +218,16 @@ TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   if (strcmp(argv[1], "multiLinearKp") == 0) {
     return TclMultiLinearCommand(clientData, interp, argc, argv, theTclBuilder);
   }
-  /*else if(strcmp(argv[1],"quadrReducing") == 0)
-  {
-          return TclQuadrReducingCommand(clientData, interp, argc, argv,
-  theTclBuilder);
-  }*/
+#if 0
+  else if (strcmp(argv[1],"quadrReducing") == 0) {
+          return TclQuadrReducingCommand(clientData, interp, argc, argv, theTclBuilder);
+  }
+#endif
   else if (strcmp(argv[1], "exponReducing") == 0) {
-    return TclExponReducingCommand(clientData, interp, argc, argv,
-                                   theTclBuilder);
+    return TclExponReducingCommand(clientData, interp, argc, argv, theTclBuilder);
+
   } else if (strcmp(argv[1], "null") == 0) {
-    return TclNullPlasticMaterialCommand(clientData, interp, argc, argv,
-                                         theTclBuilder);
+    return TclNullPlasticMaterialCommand(clientData, interp, argc, argv, theTclBuilder);
   } else {
     opserr << "Unknown PlasticMaterial: \nValid types: null, multiLinearKp, "
            << "quadrReducing, exponReducing \n";

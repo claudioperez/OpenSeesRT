@@ -28,7 +28,7 @@
 #include <string.h>
 #include <Domain.h>
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include "Frame/GradientInelastic/GradientInelasticBeamColumn2d.h"
@@ -40,7 +40,6 @@
 #include <LobattoBeamIntegration.h>
 #include <LegendreBeamIntegration.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
@@ -61,8 +60,8 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
   int tag;
   int eleArgStart = 1;
 
@@ -77,7 +76,6 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 10) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: gradientInelasticBeamColumn eleTag? iNode? jNode? "
                 "numIntgrPts? endSecTag1? intSecTag? endSecTag2? secLR1? "
                 "secLR2? lc? transfTag? <-constH> <-integration integrType?> "
@@ -138,7 +136,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     SectionForceDeformation *endSection1 =
-        theTclBuilder->getSection(endSecTag1);
+        builder->getSection(endSecTag1);
 
     if (!endSection1) {
       opserr << "WARNING end section not found";
@@ -147,7 +145,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *intSection = theTclBuilder->getSection(intSecTag);
+    SectionForceDeformation *intSection = builder->getSection(intSecTag);
 
     if (!intSection) {
       opserr << "WARNING intermediate section not found";
@@ -157,7 +155,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     SectionForceDeformation *endSection2 =
-        theTclBuilder->getSection(endSecTag2);
+        builder->getSection(endSecTag2);
 
     if (!endSection2) {
       opserr << "WARNING end section not found";
@@ -190,8 +188,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    CrdTransf *theTransf2d = OPS_getCrdTransf(
-        transfTag); // was: theTclBuilder->getCrdTransf(transfTag);
+    CrdTransf *theTransf2d = builder->getCrdTransf(transfTag);
 
     if (!theTransf2d) {
       opserr << "WARNING transformation not found";
@@ -330,7 +327,6 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 10) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: gradientInelasticBeamColumn eleTag? iNode? jNode? "
                 "numIntgrPts? endSecTag1? intSecTag? endSecTag2? secLR1? "
                 "secLR2? lc? transfTag?  <-constH> <-integration integrType?> "
@@ -390,8 +386,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *endSection1 =
-        theTclBuilder->getSection(endSecTag1);
+    SectionForceDeformation *endSection1 = builder->getSection(endSecTag1);
 
     if (!endSection1) {
       opserr << "WARNING end section not found";
@@ -400,7 +395,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *intSection = theTclBuilder->getSection(intSecTag);
+    SectionForceDeformation *intSection = builder->getSection(intSecTag);
 
     if (!intSection) {
       opserr << "WARNING intermediate section not found";
@@ -410,7 +405,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     SectionForceDeformation *endSection2 =
-        theTclBuilder->getSection(endSecTag2);
+        builder->getSection(endSecTag2);
 
     if (!endSection2) {
       opserr << "WARNING end section not found";
@@ -443,8 +438,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    CrdTransf *theTransf3d = OPS_getCrdTransf(
-        transfTag); // was: theTclBuilder->getCrdTransf3d(transfTag);
+    CrdTransf *theTransf3d = builder->getCrdTransf(transfTag);
 
     if (!theTransf3d) {
       opserr << "WARNING transformation not found";

@@ -29,7 +29,6 @@
 // Description: This file contains the function to parse the TCL input
 // for the flatSliderBearing element.
 
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -43,7 +42,7 @@
 #include <FrictionModel.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
+class TclBasicBuilder;
 
 int
 TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
@@ -61,8 +60,8 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
   int tag;
 
   if (ndm == 2) {
@@ -76,7 +75,6 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 10) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: flatSliderBearing eleTag iNode jNode frnMdlTag kInit -P "
                 "matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> <-shearDist "
                 "sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol>\n";
@@ -283,7 +281,6 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 14) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: flatSliderBearing eleTag iNode jNode frnMdlTag kInit -P "
                 "matTag -T matTag -My matTag -Mz matTag <-orient <x1 x2 x3> y1 "
                 "y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter "

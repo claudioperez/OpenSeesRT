@@ -11,10 +11,11 @@
 // fmk
 //
 #include <string.h>
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
 #include <MatParameter.h>
+
+class TclBasicBuilder;
 
 
 int

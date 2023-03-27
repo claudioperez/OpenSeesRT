@@ -18,10 +18,9 @@
 #include <Element.h>
 
 #include <runtime/BasicModelBuilder.h>
-#include <runtime/BasicModelBuilder.h>
 #include <CrdTransf.h>
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 
 #include <UniaxialMaterial.h>
 #include <MultipleShearSpring.h>
@@ -40,9 +39,12 @@ typedef struct elementPackageCommand {
 static ElementPackageCommand *theElementPackageCommands = nullptr;
 
 
-int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char ** const argv, Domain *domain,
-                          TclBuilder *builder);
+// int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
+//                           int mArg, TCL_Char ** const argv, Domain *domain,
+//                           TclBuilder *builder);
+
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
+                          int mArg, TCL_Char ** const argv, Domain *domain);
 
 
 //
@@ -241,7 +243,8 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   Domain *theTclDomain = builder->getDomain();
   int ndm = builder->getNDM();
 
-  OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain, theTclBuilder);
+  // OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain, theTclBuilder);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theTclDomain);
 
   // check at least two arguments so don't segemnt fault on strcmp
   if (argc < 2) {
@@ -971,8 +974,9 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     while (eleCommands != NULL && found == false) {
       if (strcmp(argv[1], eleCommands->funcName) == 0) {
 
-        OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
-                       theTclBuilder);
+        // OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
+        //                theTclBuilder);
+        OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theTclDomain);
         void *theRes = (*(eleCommands->funcPtr))();
         if (theRes != 0) {
           Element *theEle = (Element *)theRes;
@@ -1038,9 +1042,10 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       theEleCommand->next = theElementPackageCommands;
       theElementPackageCommands = theEleCommand;
 
-      OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
-                     theTclBuilder);
+      // OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
+      //                theTclBuilder);
 
+      OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theTclDomain);
       void *theRes = (*funcPtr)();
 
       if (theRes != 0) {
@@ -1328,8 +1333,8 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *inter
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // 3-dim, 6-dof
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   if (ndm != 3 || ndf != 6) {
     opserr << "ndm=" << ndm << ", ndf=" << ndf << endln;

@@ -29,7 +29,7 @@
 // Description: This file contains the function to parse the TCL input
 // for the elastomericBearing element.
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
@@ -60,8 +60,8 @@ TclBasicBuilder_addElastomericBearingPlasticity(
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
   int tag;
 
   if (ndm == 2) {

@@ -40,7 +40,7 @@
 #include <Domain.h>
 
 #include <fElmt02.h>
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 extern void printCommand(int argc, TCL_Char ** const argv);
@@ -58,8 +58,8 @@ TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc
     return TCL_ERROR;
   }
 
-  int ndm = theTclBuilder->getNDM();
-  int ndf = theTclBuilder->getNDF();
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF();
 
   if (ndm != 2 && ndf != 2) {
     opserr

@@ -158,6 +158,19 @@ BasicModelBuilder::iterate(const char* partition)
   return G3_IteratePartition(registry, partition);
 }
 
+void* 
+BasicModelBuilder::getRegistryObject(const char* partition, int tag)
+{
+  return G3_GetTableEntry(registry, partition, tag);
+}
+
+int
+BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
+{
+  G3_AddTableEntry(registry, partition, tag, obj);
+  return 1;
+}
+
 TimeSeries *
 BasicModelBuilder::getTimeSeries(const std::string &name)
 {

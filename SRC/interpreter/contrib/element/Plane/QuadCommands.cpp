@@ -23,7 +23,7 @@
 #include <EightNodeQuad.h>
 #include <SixNodeTri.h>
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 int
@@ -390,7 +390,7 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -521,12 +521,12 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -840,7 +840,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -1001,7 +1001,7 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;

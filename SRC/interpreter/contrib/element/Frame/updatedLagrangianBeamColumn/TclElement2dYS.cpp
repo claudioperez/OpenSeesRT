@@ -14,8 +14,8 @@
 //#include <Inelastic2DYS05.h>
 
 #include <YieldSurface_BC.h>
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
+class TclBasicBuilder;
 
 #define tcl_debug 0
 
@@ -27,8 +27,7 @@ TclBasicBuilder_addElement2dYS01(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
-  // cerr << "Press key to continue...\n";
-  // cin.get();
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   if (tcl_debug)
     opserr << " TclBasicBuilder_addElement2dGNL \n";
@@ -102,14 +101,14 @@ TclBasicBuilder_addElement2dYS01(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  YieldSurface_BC *theYS1 = theBuilder->getYieldSurface_BC(ysID1);
+  YieldSurface_BC *theYS1 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID1);
   if (theYS1 == 0) {
     opserr << "WARNING element2dYS: " << tag << "\n";
     opserr << " no yield surface exists with tag: " << ysID1 << endln;
     return TCL_ERROR;
   }
 
-  YieldSurface_BC *theYS2 = theBuilder->getYieldSurface_BC(ysID2);
+  YieldSurface_BC *theYS2 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID2);
   if (theYS2 == 0) {
     opserr << "WARNING element2dYS: " << tag << "\n";
     opserr << " no yield surface exists with tag: " << ysID2 << endln;
@@ -154,8 +153,7 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
-  // cerr << "Press key to continue...\n";
-  // cin.get();
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   if (tcl_debug)
     opserr << " TclBasicBuilder_addElement2dGNL \n";
@@ -258,14 +256,14 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  YieldSurface_BC *theYS1 = theBuilder->getYieldSurface_BC(ysID1);
+  YieldSurface_BC *theYS1 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID1);
   if (theYS1 == 0) {
     opserr << "WARNING element2dYS: " << tag << "\n";
     opserr << " no yield surface exists with tag: " << ysID1 << endln;
     return TCL_ERROR;
   }
 
-  YieldSurface_BC *theYS2 = theBuilder->getYieldSurface_BC(ysID2);
+  YieldSurface_BC *theYS2 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID2);
   if (theYS2 == 0) {
     opserr << "WARNING element2dYS: " << tag << "\n";
     opserr << " no yield surface exists with tag: " << ysID2 << endln;
@@ -276,7 +274,7 @@ TclBasicBuilder_addElement2dYS02(ClientData clientData, Tcl_Interp *interp,
   //				YieldSurface_BC *ysEnd1,  YieldSurface_BC
   //*ysEnd2, 				int rf_algo, bool islinear, double rho)
 
-  CyclicModel *theModel = theBuilder->getCyclicModel(cyc_type);
+  CyclicModel *theModel = (CyclicModel*)builder->getRegistryObject("CyclicModel", cyc_type);
   // Element *theElement = new Inelastic2DYS02(tag, A, E, I, ndI, ndJ, theYS1,
   // theYS2, cyc_type, wt, delpmax, alfa, beta, rf_algo);
   Element *theElement =
@@ -317,6 +315,7 @@ TclBasicBuilder_addElement2dYS03(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv, Domain *theDomain,
                                  TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   // cerr << "Press key to continue...\n";
   // cin.get();
 
@@ -405,14 +404,14 @@ TclBasicBuilder_addElement2dYS03(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  YieldSurface_BC *theYS1 = theBuilder->getYieldSurface_BC(ysID1);
+  YieldSurface_BC *theYS1 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID1);
   if (theYS1 == 0) {
     opserr << "WARNING element2dYS: " << tag << "\n";
     opserr << " no yield surface exists with tag: " << ysID1 << endln;
     return TCL_ERROR;
   }
 
-  YieldSurface_BC *theYS2 = theBuilder->getYieldSurface_BC(ysID2);
+  YieldSurface_BC *theYS2 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID2);
   if (theYS2 == 0) {
     opserr << "WARNING element2dYS: " << tag << "\n";
     opserr << " no yield surface exists with tag: " << ysID2 << endln;
@@ -457,21 +456,18 @@ TclBasicBuilder_addElement2dYS03(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
-/*
+#if 0
 int
 TclBasicBuilder_addElement2dYS04 (ClientData clientData, Tcl_Interp *interp,
                                                                    int argc,
-char **argv, Domain *theDomain, TclBasicBuilder *theBuilder)
+                                  char **argv, Domain *theDomain, TclBasicBuilder *theBuilder)
 {
-        //cerr << "Press key to continue...\n";
-        //cin.get();
+    BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
         if (argc < 11)
         {
                 opserr << "WARNING insufficient arguments\n";
-                opserr << "element element2dYS04 tag? Nd1? Nd2? A? E? Iz? ysID1?
-ysID2? algo?";
-
+                opserr << "element element2dYS04 tag? Nd1? Nd2? A? E? Iz? ysID1? ysID2? algo?";
                 return TCL_ERROR;
         }
 
@@ -545,7 +541,7 @@ ysID2? algo?";
                 return TCL_ERROR;
         }
 
-                YieldSurface_BC *theYS1 = theBuilder->getYieldSurface_BC(ysID1);
+                YieldSurface_BC *theYS1 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID1);
         if(theYS1 == 0)
         {
                 opserr << "WARNING element2dYS: " << tag << "\n";
@@ -553,27 +549,26 @@ ysID2? algo?";
 endln; return TCL_ERROR;
         }
 
-        YieldSurface_BC *theYS2 = theBuilder->getYieldSurface_BC(ysID2);
+        YieldSurface_BC *theYS2 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID2);
         if(theYS2 == 0)
         {
                 opserr << "WARNING element2dYS: " << tag << "\n";
-                opserr <<  " no yield surface exists with tag: " << ysID2 <<
-endln; return TCL_ERROR;
+                opserr <<  " no yield surface exists with tag: " << ysID2 << endln; 
+                return TCL_ERROR;
         }
 
-// 		Inelastic2DYS(	int tag, double A, double E, double I, int Nd1,
-int Nd2,
-// 						YieldSurface_BC *ysEnd1,
-YieldSurface_BC *ysEnd2,
-// 						int rf_algo = -1, // updated
+//	Inelastic2DYS(	int tag, double A, double E, double I, int Nd1, int Nd2,
+//					YieldSurface_BC *ysEnd1, YieldSurface_BC *ysEnd2,
+//					int rf_algo = -1, // updated
 
-        Element *theElement = new Inelastic2DYS04(tag, A, E, I, ndI, ndJ,
-theYS1, theYS2, rf_algo);
+        Element *theElement = new Inelastic2DYS04(tag, A, E, I, ndI, ndJ, theYS1, theYS2, rf_algo);
 
-        if(tcl_debug) opserr << "\tElement created\n";
+        if(tcl_debug) 
+          opserr << "\tElement created\n";
 
-        // Ensure we have created the element, out of memory if got here and no
-element if (theElement == 0)
+        // Ensure we have created the element, out of memory if got here and no element 
+
+        if (theElement == 0)
         {
                 opserr << "WARNING ran out of memory creating element\n";
                 opserr << "element2dYS04: " << tag << endln;
@@ -583,19 +578,19 @@ element if (theElement == 0)
 
         if (theDomain->addElement(theElement) == false)
         {
-                opserr << "WARNING TclElmtBuilder - addelement2dYS - could not
-add element to domain "; opserr << tag << endln; opserr << "\a"; return
-TCL_ERROR;
+                opserr << "WARNING TclElmtBuilder - addelement2dYS - could not add element to domain ";
+                opserr << tag << endln; 
+                opserr << "\a";
+                return TCL_ERROR;
         }
 
-        if(tcl_debug) opserr << "\tElement number " << tag << " added to domain
-- returning\n";
-
+        if(tcl_debug)
+          opserr << "\tElement number " << tag << " added to domain - returning\n";
         return TCL_OK;
 }
-*/
+#endif
 
-/*
+#if 0
 int
 TclBasicBuilder_addElement2dYS05 (ClientData clientData, Tcl_Interp *interp,
                                                                    int argc,
@@ -607,9 +602,7 @@ char **argv, Domain *theDomain, TclBasicBuilder *theBuilder)
         if (argc < 11)
         {
                 opserr << "WARNING insufficient arguments\n";
-                opserr << "element element2dYS04 tag? Nd1? Nd2? A? E? Iz? ysID1?
-ysID2? algo?";
-
+                opserr << "element element2dYS04 tag? Nd1? Nd2? A? E? Iz? ysID1? ysID2? algo?";
                 return TCL_ERROR;
         }
 
@@ -624,9 +617,10 @@ ysID2? algo?";
                 opserr << "WARNING invalid element2dYS05 tag" << endln;
                 return TCL_ERROR;
         }
-    if(tcl_debug) opserr << "\tElement tag = " << tag << "\n";
 
-    if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK)
+        if(tcl_debug) opserr << "\tElement tag = " << tag << "\n";
+
+        if (Tcl_GetInt(interp, argv[3], &ndI) != TCL_OK)
         {
                 opserr << "WARNING invalid node I\n";
                 opserr << "element2dYS05: " << tag << endln;
@@ -683,35 +677,31 @@ ysID2? algo?";
                 return TCL_ERROR;
         }
 
-        YieldSurface_BC *theYS1 = theBuilder->getYieldSurface_BC(ysID1);
+        YieldSurface_BC *theYS1 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID1);
+
         if(theYS1 == 0)
         {
                 opserr << "WARNING element2dYS05: " << tag << "\n";
-                opserr <<  " no yield surface exists with tag: " << ysID1 <<
-endln; return TCL_ERROR;
+                opserr <<  " no yield surface exists with tag: " << ysID1 << endln; 
+                return TCL_ERROR;
         }
 
-        YieldSurface_BC *theYS2 = theBuilder->getYieldSurface_BC(ysID2);
+        YieldSurface_BC *theYS2 = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysID2);
+
         if(theYS2 == 0)
         {
                 opserr << "WARNING element2dYS05: " << tag << "\n";
-                opserr <<  " no yield surface exists with tag: " << ysID2 <<
-endln; return TCL_ERROR;
+                opserr <<  " no yield surface exists with tag: " << ysID2 << endln; 
+                return TCL_ERROR;
         }
 
-// 		Inelastic2DYS(	int tag, double A, double E, double I, int Nd1,
-int Nd2,
-// 						YieldSurface_BC *ysEnd1,
-YieldSurface_BC *ysEnd2,
-// 						int rf_algo = -1, // updated
 
-        Element *theElement = new Inelastic2DYS05(tag, A, E, I, ndI, ndJ,
-theYS1, theYS2, rf_algo);
+        Element *theElement = new Inelastic2DYS05(tag, A, E, I, ndI, ndJ, theYS1, theYS2, rf_algo);
 
         if(tcl_debug) opserr << "\tElement created\n";
 
-        // Ensure we have created the element, out of memory if got here and no
-element if (theElement == 0)
+        // Ensure we have created the element, out of memory if got here and no element 
+        if (theElement == 0)
         {
                 opserr << "WARNING ran out of memory creating element\n";
                 opserr << "element2dYS05: " << tag << endln;
@@ -721,17 +711,17 @@ element if (theElement == 0)
 
         if (theDomain->addElement(theElement) == false)
         {
-                opserr << "WARNING TclElmtBuilder - addelement2dYS - could not
-add element to domain "; opserr << tag << endln; opserr << "\a"; return
-TCL_ERROR;
+              opserr << "WARNING TclElmtBuilder - addelement2dYS - could not add element to domain "; 
+              opserr << tag << endln; opserr << "\a"; 
+              return TCL_ERROR;
         }
 
-        if(tcl_debug) opserr << "\tElement number " << tag << " added to domain
-- returning\n";
+        if(tcl_debug) 
+          opserr << "\tElement number " << tag << " added to domain - returning\n";
 
         return TCL_OK;
 }
-*/
+#endif
 
 /*******************************************************************************************/
 int

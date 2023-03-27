@@ -37,7 +37,6 @@
 #include <ZeroLengthContact2D.h>
 #include <ZeroLengthRocking.h>
 #include <ZeroLengthContact3D.h>
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <ID.h>
 #include <Vector.h>
@@ -45,14 +44,17 @@
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 
+class TclBasicBuilder;
+
 int
 TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int argc,
                               TCL_Char ** const argv, Domain *theDomain,
                               TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
 
-  G3_Runtime *rt = G3_getRuntime(interp);
-  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
+  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -168,7 +170,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
 
       // get a pointer to the material from the modelbuilder
       argi++;
-      UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt, matID);
+      UniaxialMaterial *theMat = builder->getUniaxialMaterial(matID);
       if (theMat == 0) {
         opserr << "WARNING no material " << matID
                << " exists - element ZeroLength eleTag? iNode? jNode? "
@@ -305,7 +307,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
           delete[] theMats;
           return TCL_ERROR;
         } else {
-          UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt, matID);
+          UniaxialMaterial *theMat = builder->getUniaxialMaterial(matID);
           if (theMat == 0) {
             opserr << "WARNING no material " << matID
                    << " exists - element ZeroLength eleTag? iNode? jNode? "
@@ -344,7 +346,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
     return TCL_ERROR;
   }
 
-  if (theDomain->addElement(theEle) == false) {
+  if (domain->addElement(theEle) == false) {
     delete[] theMats;
     return TCL_ERROR;
   }
@@ -362,8 +364,9 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
                                      TclBasicBuilder *theBuilder)
 {
 
-  G3_Runtime *rt = G3_getRuntime(interp);
-  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
+  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -487,7 +490,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
   // now we create the element and add it to the domain
   //
 
-  SectionForceDeformation *theSection = theBuilder->getSection(secTag);
+  SectionForceDeformation *theSection = builder->getSection(secTag);
 
   if (theSection == 0) {
     opserr << "zeroLengthSection -- no section with tag " << secTag
@@ -501,7 +504,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
   if (theEle == 0)
     return TCL_ERROR;
 
-  if (theDomain->addElement(theEle) == false)
+  if (domain->addElement(theEle) == false)
     return TCL_ERROR;
 
   return TCL_OK;
@@ -523,9 +526,11 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp
                                        Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
 
   // need to write here.
-  int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, SecondaryNode, PrimaryNode,
@@ -618,7 +623,7 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp
     return TCL_ERROR;
   }
 
-  if (theDomain->addElement(theEle) == false) {
+  if (domain->addElement(theEle) == false) {
     return TCL_ERROR;
   }
 
@@ -642,8 +647,10 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp
                                        Domain *theDomain,
                                        TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
 
-  int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, SecondaryNode, PrimaryNode,
@@ -742,7 +749,7 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp
     return TCL_ERROR;
   }
 
-  if (theDomain->addElement(theEle) == false) {
+  if (domain->addElement(theEle) == false) {
     return TCL_ERROR;
   }
 
@@ -755,8 +762,9 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int a
                                 TCL_Char ** const argv, Domain *theDomain,
                                 TclBasicBuilder *theBuilder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp); 
-  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
+  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -825,9 +833,9 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int a
       return TCL_ERROR;
     }
 
-    the1DMat = G3_getUniaxialMaterialInstance(rt, uniTag);
+    the1DMat = builder->getUniaxialMaterial(uniTag);
 
-    if (the1DMat == 0)
+    if (the1DMat == nullptr)
       opserr << "WARNING UniaxialMaterial " << uniTag
              << " not found in model, proceeding without\n";
 
@@ -909,7 +917,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int a
   if (theEle == 0)
     return TCL_ERROR;
 
-  if (theDomain->addElement(theEle) == false)
+  if (domain->addElement(theEle) == false)
     return TCL_ERROR;
 
   return TCL_OK;
@@ -921,8 +929,9 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, Tcl_Interp *interp,
                                      Domain *theDomain,
                                      TclBasicBuilder *theBuilder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  int ndm = G3_getNDM(rt); // the spatial dimension of the problem
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
+  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, and the
@@ -1112,7 +1121,7 @@ TclBasicBuilder_addZeroLengthRocking(ClientData clientData, Tcl_Interp *interp,
   if (theEle == 0)
     return TCL_ERROR;
 
-  if (theDomain->addElement(theEle) == false)
+  if (domain->addElement(theEle) == false)
     return TCL_ERROR;
 
   return TCL_OK;

@@ -23,8 +23,6 @@
 // $Revision: 1.16 $
 // $Date: 2007-10-16 00:15:07 $
 //
-#include <TclBasicBuilder.h>
-#include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <PressureIndependMultiYield.h>
 #include <PressureDependMultiYield.h>
@@ -39,7 +37,7 @@
 
 #include <string.h>
 
-// by ZHY
+class TclBasicBuilder;
 
 int
 TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
@@ -48,6 +46,9 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
                                           TclBasicBuilder *theTclBuilder,
                                           Domain *theDomain)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
+
 
   // BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
@@ -72,7 +73,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-  int parTag = theDomain->getNumParameters();
+  int parTag = domain->getNumParameters();
   parTag++;
 
   if (argc > 6) {
@@ -87,7 +88,7 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
 
   MaterialStageParameter *theParameter =
       new MaterialStageParameter(parTag, materialTag);
-  if (theDomain->addParameter(theParameter) == false) {
+  if (domain->addParameter(theParameter) == false) {
     opserr << "WARNING could not add updateMaterialStage - "
               "MaterialStageParameter to domain"
            << endln;
@@ -106,9 +107,9 @@ TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-  theDomain->updateParameter(parTag, value);
+  domain->updateParameter(parTag, value);
 
-  theDomain->removeParameter(parTag);
+  domain->removeParameter(parTag);
 
   delete theParameter;
 

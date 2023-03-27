@@ -1,7 +1,7 @@
 // @ rkaul@stanford.edu
 // @ ggd@stanford.edu
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
@@ -24,10 +24,12 @@ printCommand(int argc, TCL_Char ** const argv)
 }
 
 SectionForceDeformation *
-TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
+TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv,
                                  TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*) clientData;
+
   if (argc < 3) {
     opserr << "WARNING insufficient number of arguments\n";
     printCommand(argc, argv);
@@ -41,7 +43,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
     return 0;
   }
 
-  SectionForceDeformation *theModel = 0;
+  SectionForceDeformation *theModel = nullptr;
 
   if (strcmp(argv[1], "YS_Section2D01") == 0 ||
       strcmp(argv[1], "YS_Section2d01") == 0) {
@@ -82,7 +84,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
       return 0;
     }
 
-    YieldSurface_BC *ys = theBuilder->getYieldSurface_BC(ysTag);
+    YieldSurface_BC *ys = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysTag);
 
     if (ys == 0) {
       opserr << "WARNING yield surface does not exist\n";
@@ -151,7 +153,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clienData, Tcl_Interp *interp,
       return 0;
     }
 
-    YieldSurface_BC *ys = theBuilder->getYieldSurface_BC(ysTag);
+    YieldSurface_BC *ys = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysTag);
 
     if (ys == 0) {
       opserr << "WARNING yield surface does not exist\n";

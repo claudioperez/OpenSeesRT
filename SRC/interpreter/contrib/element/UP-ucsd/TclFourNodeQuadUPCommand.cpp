@@ -20,14 +20,9 @@
 #include <BBarFourNodeQuadUP.h>
 #include <BBarBrickUP.h>
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
-//#ifdef _DEBUG
-//#define TCL_Char const char
-//#endif
-
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 /*  *****************************************************************************
 
@@ -45,12 +40,12 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 3) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 3) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with QuadUP element\n";
     return TCL_ERROR;
@@ -61,7 +56,6 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
   if ((argc - argStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element FourNodeQuadUP eleTag? iNode? jNode? kNode? "
               "lNode? thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? "
               "pressure? dM? dK?>\n";
@@ -208,12 +202,12 @@ TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 3 || theTclBuilder->getNDF() != 4) {
+  if (builder->getNDM() != 3 || builder->getNDF() != 4) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with QuadUP element\n";
     return TCL_ERROR;
@@ -224,7 +218,6 @@ TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if ((argc - argStart) < 15) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element brickUP eleTag? N1? N2? N3? N4? N5? N6? N7? N8? "
               "matTag? bulk? rhof? perm_x? perm_y? perm_z? <b1? b2? b3?>\n";
     return TCL_ERROR;
@@ -354,12 +347,12 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2) {
+  if (builder->getNDM() != 2) {
     opserr << "WARNING -- model dimensions not compatible with 9-4-NodeQuadUP "
               "element\n";
     return TCL_ERROR;
@@ -370,7 +363,6 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
   if ((argc - argStart) < 16) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr
         << "Want: element FourNodeQuadUP eleTag? Node1? ... Node9? thk? type? "
            "matTag? bulk? rho? perm_x? perm_y? <b1? b2? pressure? dM? dK?>\n";
@@ -494,12 +486,12 @@ TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData, Tcl_Interp *int
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 3) {
+  if (builder->getNDM() != 3) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with 20_8_BrickUP element\n";
     return TCL_ERROR;
@@ -510,7 +502,6 @@ TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData, Tcl_Interp *int
 
   if ((argc - argStart) < 27) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element 20_8_BrickUP eleTag? N1? N2? N3? N4? N5? N6? N7? "
               "N8? N9? N10? N11? N12? N13? N14? N15? N16? N17? N18? N19? N20? "
               "matTag? bulk? rhof? perm_x? perm_y? perm_z? <b1? b2? b3?>\n";
@@ -644,12 +635,12 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 2 || theTclBuilder->getNDF() != 3) {
+  if (builder->getNDM() != 2 || builder->getNDF() != 3) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with QuadUP element\n";
     return TCL_ERROR;
@@ -660,7 +651,6 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
 
   if ((argc - argStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element bbarQuadUP eleTag? iNode? jNode? kNode? lNode? "
               "thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? "
               "pressure? dM? dK?>\n";
@@ -807,12 +797,12 @@ TclBasicBuilder_addBBarBrickUP(ClientData clientData, Tcl_Interp *interp, int ar
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 3 || theTclBuilder->getNDF() != 4) {
+  if (builder->getNDM() != 3 || builder->getNDF() != 4) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with QuadUP element\n";
     return TCL_ERROR;
@@ -823,7 +813,6 @@ TclBasicBuilder_addBBarBrickUP(ClientData clientData, Tcl_Interp *interp, int ar
 
   if ((argc - argStart) < 15) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element BBarBrickUP eleTag? N1? N2? N3? N4? N5? N6? N7? "
               "N8? matTag? bulk? rhof? perm_x? perm_y? perm_z? <b1? b2? b3?>\n";
     return TCL_ERROR;

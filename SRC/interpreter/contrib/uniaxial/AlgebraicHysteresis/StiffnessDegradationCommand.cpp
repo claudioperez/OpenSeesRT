@@ -5,9 +5,8 @@
 // TCL stiffnessDegradation command.
 
 #include <OPS_Globals.h>
-
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
+
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
@@ -41,7 +40,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
     return TCL_ERROR;
   }
 
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a stiffnessDegradation that will be added to the model builder
   StiffnessDegradation *theState = 0;

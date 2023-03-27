@@ -10,7 +10,7 @@
 #include <CrdTransf.h>
 
 #include "DispBeamColumn2dInt.h"
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 extern void printCommand(int argc, TCL_Char ** const argv);
@@ -143,7 +143,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
   }
 
   for (int j = 0; j < nIP; j++) {
-    SectionForceDeformation *theSection = theTclBuilder->getSection(secTag[j]);
+    SectionForceDeformation *theSection = builder->getSection(secTag[j]);
 
     if (theSection == 0) {
       opserr << "WARNING TclElmtBuilder - frameElement - no Section found with "

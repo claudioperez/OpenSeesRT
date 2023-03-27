@@ -17,16 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.5 $
-// $Date: 2003/10/07 20:57:39 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/uniaxial/PY/TclPyTzQzMaterialCommand.cpp,v
-// $
-
+//
 // PY Springs: RWBoulanger and BJeremic
+//
 #include <Domain.h> // RWB for PyLiq1
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 #include <PySimple1.h> // RWB
 #include <TzSimple1.h> // RWB
@@ -51,20 +45,7 @@ using std::ifstream;
 #include <iomanip>
 using std::ios;
 
-/*
-extern TimeSeries *
-TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char *arg);
-*/
 int seriesTag;
-
-static void
-printCommand(int argc, TCL_Char ** const argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
 
 UniaxialMaterial *
 TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
@@ -75,18 +56,16 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
 
   if (argc < 3) {
     opserr << "WARNING insufficient number of arguments\n";
-    printCommand(argc, argv);
     return 0;
   }
 
   int tag;
   if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
-    printCommand(argc, argv);
     return 0;
   }
 
-  UniaxialMaterial *theMaterial = 0;
+  UniaxialMaterial *theMaterial = nullptr;
 
   //  INSERTING THE EXTRA LINES FOR PySimple1 //////////////////////////
 
@@ -95,7 +74,6 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
       (strcmp(argv[1], "PySimple2") == 0)) {
     if (argc < 7) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial PySimple1 tag? soilType? pult? y50? "
                 "drag? dashpot? "
              << endln;
@@ -161,7 +139,6 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "PyLiq1") == 0) {
     if (argc < 11) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial PyLiq1 tag? soilType? pult? y50? drag? "
                 "dashpot? pRes? solidElem1? solidElem2?"
              << endln;
@@ -256,7 +233,6 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 6) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial QzSimple1 tag? QzType? Qult? z50? "
                 "suction? dashpot? "
              << endln;
@@ -320,7 +296,6 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "QzLiq1") == 0) {
     if (argc < 11) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial QzLiq1 tag? qzType? qult? z50? "
                 "suction? dashpot? alpha solidElem1? solidElem2?"
              << endln;
@@ -412,7 +387,6 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
            (strcmp(argv[1], "TzSimple2") == 0)) {
     if (argc < 6) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial TzSimple1 tag? tzType? tult? z50? "
                 "dashpot? "
              << endln;
@@ -471,7 +445,6 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
   else if (strcmp(argv[1], "TzLiq1") == 0) {
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial TzLiq1 tag? tzType? tult? z50? "
                 "dashpot? solidElem1? solidElem2?"
              << endln;

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 11/06
 // Revision: A
@@ -29,7 +25,7 @@
 // Description: This file contains the function to parse the TCL input
 // for the GenericCopy element.
 
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -62,7 +58,7 @@ TclBasicBuilder_addGenericCopy(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   Element *theElement = 0;
-  int ndm = theTclBuilder->getNDM();
+  int ndm = builder->getNDM();
 
   // get the id and end nodes
   int tag, node, srcTag, argi, i;

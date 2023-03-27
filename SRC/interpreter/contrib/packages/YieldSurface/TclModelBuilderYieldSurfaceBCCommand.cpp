@@ -1,5 +1,5 @@
 #include "YieldSurface_BC.h"
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
@@ -21,10 +21,13 @@ printCommand(int argc, TCL_Char ** const argv)
 }
 
 int
-TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
+TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
                                       int argc, TCL_Char ** const argv,
                                       TclBasicBuilder *theBuilder)
 {
+  int tag;
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of uniaxial material arguments\n";
@@ -43,7 +46,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       opserr << "Want: yieldSurfaceBC null tag? dimensions?" << endln;
       return TCL_ERROR;
     }
-    int tag, dim;
+    int dim;
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
       opserr << "WARNING invalid yieldSurfaceBC null tag" << endln;
       return TCL_ERROR;
@@ -74,7 +77,6 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    int tag;
     double xCap, yCap;
     // int matID1, matID2;
     int modelID;
@@ -103,7 +105,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
+    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << endln;
@@ -124,7 +126,6 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    int tag;
     double xBal, yBal;
     double yPos, yNeg;
 
@@ -165,7 +166,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
+    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
              << modelID << endln;
@@ -186,7 +187,6 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    int tag;
     double xPosBal, yPosBal;
     double xNegBal, yNegBal;
     double yPos, yNeg;
@@ -239,7 +239,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
+    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
              << modelID << endln;
@@ -266,7 +266,6 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    int tag;
     double xCap, yCap;
     // int matID1, matID2;
     int modelID;
@@ -304,7 +303,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
+    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << endln;
@@ -342,7 +341,6 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    int tag;
     // int matID1, matID2;
     int modelID;
     //		double isoRatio;
@@ -389,7 +387,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = theBuilder->getYS_EvolutionModel(modelID);
+    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << endln;
@@ -409,7 +407,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
   // Now add the ys to the modelBuilder
   ///////////////////////////////////////////////////////////////
 
-  if (theBuilder->addYieldSurface_BC(*theYS) < 0) {
+  if (builder->addRegistryObject("YieldSurface_BC", tag, (void*)theYS) < 0) {
     opserr << "WARNING could not add YieldSurfaceBC to the domain\n";
     opserr << *theYS << endln;
     delete theYS; // invoke the material objects destructor, otherwise mem leak

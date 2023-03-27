@@ -29,14 +29,12 @@
 // Description: This file contains the implementation of the
 // TclBasicBuilder_addJoint3D() command.
 //
-// What: "@(#) TclBasicBuilder.C, revA"
-
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
 
 #include <Joint3D.h>
-#include <TclBasicBuilder.h>
+class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <UniaxialMaterial.h>
 
@@ -50,12 +48,12 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed\n";
     return TCL_ERROR;
   }
 
-  if (theTclBuilder->getNDM() != 3 || theTclBuilder->getNDF() != 6) {
+  if (builder->getNDM() != 3 || builder->getNDF() != 6) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with Joint3D element\n";
     return TCL_ERROR;

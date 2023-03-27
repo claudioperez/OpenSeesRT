@@ -10,13 +10,14 @@
 #include <LinearCyclic.h>
 #include <BilinearCyclic.h>
 #include <QuadraticCyclic.h>
-#include <TclBasicBuilder.h>
 #include <runtime/BasicModelBuilder.h>
+class TclBasicBuilder;
 
 int
 TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char ** const argv, TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   int tag;
 
   if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
@@ -29,7 +30,7 @@ TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int ar
     opserr << "TclBasicBuilder_addLinearCycylic - could not allocate memory\n";
     return TCL_ERROR;
   }
-  if (theBuilder->addCyclicModel(*cModel) < 0) {
+  if (builder->addRegistryObject("CyclicModel", tag, (void*)cModel) < 0) {
     opserr << "WARNING TclElmtBuilder - could not add cycModel to domain ";
     opserr << tag << endln;
     opserr << "\a";
@@ -44,6 +45,7 @@ TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv,
                                   TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   int tag;
   double wt;
 
@@ -57,7 +59,7 @@ TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
   }
 
   CyclicModel *cModel = new BilinearCyclic(tag, wt);
-  if (theBuilder->addCyclicModel(*cModel) < 0) {
+  if (builder->addRegistryObject("CyclicModel", tag, (void*)cModel) < 0) {
     opserr << "WARNING TclElmtBuilder - could not add cycModel to domain ";
     opserr << tag << endln;
     opserr << "\a";
@@ -72,6 +74,7 @@ TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char ** const argv,
                                    TclBasicBuilder *theBuilder)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   int tag;
   double wt, qy;
 
@@ -89,7 +92,7 @@ TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
   }
 
   CyclicModel *cModel = new QuadraticCyclic(tag, wt, qy);
-  if (theBuilder->addCyclicModel(*cModel) < 0) {
+  if (builder->addRegistryObject("CyclicModel", tag, (void*)cModel) < 0) {
     opserr << "WARNING TclElmtBuilder - could not add cycModel to domain ";
     opserr << tag << endln;
     opserr << "\a";
