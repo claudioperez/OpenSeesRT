@@ -159,9 +159,6 @@ extern int Tcl_addWrapperElement(eleObj *, ClientData clientData, Tcl_Interp *in
 int TclBasicBuilder_addWheelRail(ClientData, Tcl_Interp *, int, TCL_Char **, Domain *, TclBasicBuilder *, int);
 #endif
 
-extern int TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char ** const argv, Domain *, int argStart);
-
 
 
 extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
@@ -195,10 +192,12 @@ G3_TclElementCommand TclBasicBuilder_addConstantPressureVolumeQuad;
 G3_TclElementCommand TclBasicBuilder_addSixNodeTri;
 
 // Brick
-G3_TclElementCommand TclBasicBuilder_addBrickUP;
-G3_TclElementCommand TclBasicBuilder_addBBarBrickUP;
-G3_TclElementCommand TclBasicBuilder_addTwentyEightNodeBrickUP;
-G3_TclElementCommand TclBasicBuilder_addTwentyNodeBrick;
+int TclBasicBuilder_addBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);
+int TclBasicBuilder_addBBarBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);
+int TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);
+int TclBasicBuilder_addTwentyNodeBrick(ClientData, Tcl_Interp *, int , TCL_Char ** const);
+int TclBasicBuilder_addBrick(ClientData, Tcl_Interp *, int , TCL_Char ** const);
+
 
 // Other
 G3_TclElementCommand TclBasicBuilder_addJoint3D;
@@ -826,46 +825,49 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     int result = TclBasicBuilder_addFourNodeQuadUP(clientData, interp, argc, argv,
                                                    theTclDomain, theTclBuilder);
     return result;
-  } else if (strcmp(argv[1], "brickUP") == 0) {
-    int result = TclBasicBuilder_addBrickUP(clientData, interp, argc, argv,
-                                            theTclDomain, theTclBuilder);
-    return result;
   } else if (strcmp(argv[1], "9_4_QuadUP") == 0) {
     int result = TclBasicBuilder_addNineFourNodeQuadUP(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
-  } else if (strcmp(argv[1], "20_8_BrickUP") == 0) {
-    int result = TclBasicBuilder_addTwentyEightNodeBrickUP(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
-  } else if (strcmp(argv[1], "20NodeBrick") == 0) {
-    int result = TclBasicBuilder_addTwentyNodeBrick(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
     return result;
   } else if (strcmp(argv[1], "bbarQuadUP") == 0) {
     int result = TclBasicBuilder_addBBarFourNodeQuadUP(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
     return result;
-  } else if (strcmp(argv[1], "bbarBrickUP") == 0) {
-    int result = TclBasicBuilder_addBBarBrickUP(clientData, interp, argc, argv,
-                                                theTclDomain, theTclBuilder);
+//
+// Brick
+//
+  } else if (strcmp(argv[1], "brickUP") == 0) {
+    int result = TclBasicBuilder_addBrickUP(clientData, interp, argc, argv);
     return result;
+  } else if (strcmp(argv[1], "20_8_BrickUP") == 0) {
+    int result = TclBasicBuilder_addTwentyEightNodeBrickUP(clientData, interp, argc, argv);
+    return result;
+  } else if (strcmp(argv[1], "20NodeBrick") == 0) {
+    int result = TclBasicBuilder_addTwentyNodeBrick(clientData, interp, argc, argv);
+    return result;
+  } else if (strcmp(argv[1], "bbarBrickUP") == 0) {
+    int result = TclBasicBuilder_addBBarBrickUP(clientData, interp, argc, argv);
+    return result;
+
   } else if (strcmp(argv[1], "stdBrick") == 0) {
     int eleArgStart = 1;
-    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv, theTclDomain, eleArgStart);
+    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "bbarBrick") == 0) {
     int eleArgStart = 1;
-    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv, theTclDomain, eleArgStart);
+    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "bbarBrickWithSensitivity") == 0) {
     int eleArgStart = 1;
-    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv, theTclDomain, eleArgStart);
+    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "flBrick") == 0) {
     int eleArgStart = 1;
-    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv, theTclDomain, eleArgStart);
+    int result = TclBasicBuilder_addBrick(clientData, interp, argc, argv);
     return result;
+//
+// Zero-Length
+//
   } else if (strcmp(argv[1], "zeroLength") == 0) {
     int result = TclBasicBuilder_addZeroLength(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);

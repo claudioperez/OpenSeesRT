@@ -41,20 +41,20 @@ void shap3dv(double *R, int *NP, double Q[27][4]){
                      N[27] = {3,3,3,3,1,1,1,1,3,3,3,3,1,1,1,1,2,2,2,2,2,2,1,2,2,3,2};
 
 
-    int i, j, LR, LS, LT;
+    int LR, LS, LT;
 
-    for( i = 0; i < 3; i++ ) {
-         G[0][i] = 0.5 + 0.5*R[i];
-         G[1][i] = 1.0 - R[i]*R[i];
-         G[2][i] = 0.5 - 0.5*R[i];
-         D[0][i] =  0.5    ;
+    for (int i = 0; i < 3; i++ ) {
+         G[0][i] =  0.5 + 0.5*R[i];
+         G[1][i] =  1.0 - R[i]*R[i];
+         G[2][i] =  0.5 - 0.5*R[i];
+         D[0][i] =  0.5;
          D[1][i] = -2.0*R[i];
          D[2][i] = -0.5;
 
     }
 
     // Construct basic three-dimensional quadratic shape functions 
-    for( i = 0; i < 27; i++ ) {
+    for (int i = 0; i < 27; i++ ) {
          LR = L[i]-1; 
          LS = M[i]-1;
          LT = N[i]-1;
@@ -66,15 +66,15 @@ void shap3dv(double *R, int *NP, double Q[27][4]){
 
     //   Modify basic shape functions to account for omitted nodes 
 
-    for(j = 0; j < 4; j++ ) {
+    for (int j = 0; j < 4; j++ ) {
 
-        if( NP[26] == 0 ) Q[26][j] = 0.;    
+        if ( NP[26] == 0 ) Q[26][j] = 0.;    
 
         C = -0.5*Q[26][j]; 
 
-        for( i = 20; i < 26; i++ ) {
+        for (int i = 20; i < 26; i++ ) {
             Q[i][j] +=  C ;
-            if( NP[i] == 0 ) Q[i][j] = 0.;
+            if ( NP[i] == 0 ) Q[i][j] = 0.;
         }
 
         C = 0.5*C; 
@@ -91,26 +91,26 @@ void shap3dv(double *R, int *NP, double Q[27][4]){
         Q[18][j] +=  - 0.5* (Q[20][j] + Q[21][j]) + C; 
         Q[19][j] +=  - 0.5* (Q[21][j] + Q[23][j]) + C; 
 
-        for( i = 8; i < 20; i++ ) {
-            if( NP[i] == 0 ) Q[i][j] = 0.;
+        for (int i = 8; i < 20; i++ ) {
+            if ( NP[i] == 0 ) Q[i][j] = 0.;
         }
 
  
 
         C = 0.5*C;
 
-        for( i = 0; i < 8; i++ ) {
+        for (int i = 0; i < 8; i++ ) {
             Q[i][j] += C;
         }
 
-         Q[0][j] +=  - 0.50* (Q[16][j] + Q[11][j] + Q[ 8][j]) - 0.25* (Q[23][j] + Q[24][j] + Q[25][j]); 
-         Q[1][j] +=  - 0.50* (Q[17][j] + Q[ 9][j] + Q[ 8][j]) - 0.25* (Q[20][j] + Q[24][j] + Q[25][j]); 
-         Q[2][j] +=  - 0.50* (Q[10][j] + Q[ 9][j] + Q[18][j]) - 0.25* (Q[25][j] + Q[20][j] + Q[21][j]); 
-         Q[3][j] +=  - 0.50* (Q[19][j] + Q[11][j] + Q[10][j]) - 0.25* (Q[25][j] + Q[21][j] + Q[23][j]); 
-         Q[4][j] +=  - 0.50* (Q[16][j] + Q[15][j] + Q[12][j]) - 0.25* (Q[22][j] + Q[23][j] + Q[24][j]); 
-         Q[5][j] +=  - 0.50* (Q[17][j] + Q[12][j] + Q[13][j]) - 0.25* (Q[24][j] + Q[20][j] + Q[22][j]); 
-         Q[6][j] +=  - 0.50* (Q[18][j] + Q[13][j] + Q[14][j]) - 0.25* (Q[20][j] + Q[21][j] + Q[22][j]); 
-         Q[7][j] +=  - 0.50* (Q[19][j] + Q[15][j] + Q[14][j]) - 0.25* (Q[21][j] + Q[22][j] + Q[23][j]); 
+         Q[0][j] +=  - 0.50*(Q[16][j] + Q[11][j] + Q[ 8][j]) - 0.25*(Q[23][j] + Q[24][j] + Q[25][j]); 
+         Q[1][j] +=  - 0.50*(Q[17][j] + Q[ 9][j] + Q[ 8][j]) - 0.25*(Q[20][j] + Q[24][j] + Q[25][j]); 
+         Q[2][j] +=  - 0.50*(Q[10][j] + Q[ 9][j] + Q[18][j]) - 0.25*(Q[25][j] + Q[20][j] + Q[21][j]); 
+         Q[3][j] +=  - 0.50*(Q[19][j] + Q[11][j] + Q[10][j]) - 0.25*(Q[25][j] + Q[21][j] + Q[23][j]); 
+         Q[4][j] +=  - 0.50*(Q[16][j] + Q[15][j] + Q[12][j]) - 0.25*(Q[22][j] + Q[23][j] + Q[24][j]); 
+         Q[5][j] +=  - 0.50*(Q[17][j] + Q[12][j] + Q[13][j]) - 0.25*(Q[24][j] + Q[20][j] + Q[22][j]); 
+         Q[6][j] +=  - 0.50*(Q[18][j] + Q[13][j] + Q[14][j]) - 0.25*(Q[20][j] + Q[21][j] + Q[22][j]); 
+         Q[7][j] +=  - 0.50*(Q[19][j] + Q[15][j] + Q[14][j]) - 0.25*(Q[21][j] + Q[22][j] + Q[23][j]); 
     }
 }
 
@@ -132,11 +132,8 @@ int brcshl(double shl[4][20][27], double w[27], int nint, int nen) {
         SHL(3,I,L) = LOCAL ("ZETA") DERIVATIVE OF SHAPE FUNCTION
 
         SHL(4,I,L) = LOCAL  SHAPE FUNCTION
-
               W(L) = INTEGRATION-RULE WEIGHT
-
                  I = LOCAL NODE NUMBER
-
                  L = INTEGRATION POINT NUMBER
 
               NINT = NUMBER OF INTEGRATION POINTS, EQ. 1, 8 OR 27
@@ -160,20 +157,19 @@ int brcshl(double shl[4][20][27], double w[27], int nint, int nen) {
                       0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.50, 0.00,
                       0.00,-0.50, 0.00};        
 
-    double five9 = 0.5555555555555556, eight9 = 0.8888888888888889;
+    const double five9 = 0.5555555555555556, 
+                eight9 = 0.8888888888888889;
 
     double G = 0., R[3], Q[27][4];
 
-    int i, j, L, NP[27];
+    int NP[27];
 
     w[0] = 8;
 
-    if( nint == 8) {
+    if ( nint == 8) {
 
         G = 2/sqrt(3.0);
-
-        for(i = 0; i < nint; i++ )
-
+        for (int i = 0; i < nint; i++ )
             w[i] = 1.;
 
     }
@@ -184,40 +180,40 @@ int brcshl(double shl[4][20][27], double w[27], int nint, int nen) {
 
         w[0] = five9 * five9 * five9;
 
-        for( i = 1; i < 8; i++ ) 
+        for (int i = 1; i < 8; i++ ) 
             w[i] = w[0];
 
         w[8] = five9 * five9 * eight9;
 
-        for( i = 9; i < 20; i++ )
+        for (int i = 9; i < 20; i++ )
             w[i] = w[8];
 
         w[20] = five9 * eight9 * eight9;
 
-        for( i = 21; i < 26; i++ ) 
+        for (int i = 21; i < 26; i++ ) 
             w[i] = w[20];
 
         w[26] = eight9 * eight9 * eight9;
-    }
-    else {
+
+    } else {
         return -1;
     }
 
 
 
-    for( i = 0; i < 27; i ++ )
+    for (int i = 0; i < 27; i ++ )
         NP[i] = 1;
 
-    if( nen < 27) {
-        for( i = nen; i < 27; i++ )
+    if ( nen < 27) {
+        for (int i = nen; i < 27; i++ )
             NP[i] = 0;
     }
 
-    else if( nen < 8 ) {
+    else if ( nen < 8 ) {
         return -1;
     }
 
-    for( L = 0; L < nint; L++ ) {
+    for (int L = 0; L < nint; L++ ) {
 
         R[0] = G * RA[L];
         R[1] = G * SA[L];
@@ -225,8 +221,8 @@ int brcshl(double shl[4][20][27], double w[27], int nint, int nen) {
 
         shap3dv(R, NP, Q);
 
-        for( j = 0; j < nen; j++) {
-            for( i = 0; i < 4; i++ ) {
+        for (int j = 0; j < nen; j++) {
+            for (int i = 0; i < 4; i++ ) {
                 shl[i][j][L] = Q[j][i];
             }
         }

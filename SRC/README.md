@@ -4,7 +4,7 @@ All files are in the following subdirectories:
 <dl>
 
 <dt><a href="./element"><code>element</code></a></dt>
-<dd>contains the element classes, all in subdirectories, i.e. the
+<dd>Contains the element classes, all in subdirectories, i.e. the
 `Truss.h` and `Truss.C` files are in a subdirectory `truss/`.
 </dd>
 
@@ -44,10 +44,10 @@ All files are in the following subdirectories:
            
 <dt><a href="./graph"><code>graph</code></a></dt>
 <dd>contains the graph classes, again in subdirectories
-- `graph/` Graph, Vertex, and others
-- `partitioner/` GraphPartitioner and Metis, also in metis-2.0
+- `graph/` - `Graph`, `Vertex`, and others
+- `partitioner/` - `GraphPartitioner` and `Metis`, also in metis-2.0
           contains the code downloaded to build metis.
-- `numberer/` GraphNumberer, RCM and some others
+- `numberer/` - `GraphNumberer`, `RCM` and some others
 </dd>
 
 <dt><a href="./system_of_eqn"><code>system_of_eqn</code></a></dt>
@@ -67,7 +67,7 @@ All files are in the following subdirectories:
 </dd>
 
 <dt><a href="./tagged"><code>tagged</code></a></dt>
-<dd>as not all c++ compilers do templates yet i use TagggedObject
+<dd>as not all C++ compilers do templates yet i use TagggedObject
         and the files in it's subdirectory storage (TaggedObjectStorage,
         ArrayOfTaggedObjects and their iters) for my containers to store
         the objects in Domain and AnalysisModel.

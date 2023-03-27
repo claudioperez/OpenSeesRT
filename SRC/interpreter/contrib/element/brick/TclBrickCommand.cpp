@@ -27,20 +27,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
+#include <BasicModelBuilder.h>
 
 #include <Brick.h>
 #include <BbarBrick.h>
 #include <BbarBrickWithSensitivity.h>
 
 #ifdef _FLBrick
-#include <FLBrick.h>
+#  include <FLBrick.h>
 #endif
-
 
 int
 TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char ** const argv, Domain *theTclDomain, int eleArgStart)
+                         TCL_Char **const argv) // Domain *theTclDomain,
 {
+  const int eleArgStart = 1;
+
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* theTclDomain = builder->getDomain();
+
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
@@ -106,14 +111,15 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "material tag: " << matID;
-    opserr << "\nBrick element: " << BrickId << endln;
+  if (theMaterial == nullptr) {
+    opserr << "WARNING material not found";
+    opserr << "\n    material tag: " << matID;
+    opserr << "\n    Brick element: " << BrickId << endln;
     return TCL_ERROR;
   }
+
 
   double b1 = 0.0;
   double b2 = 0.0;
@@ -147,6 +153,7 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcmp(argv[1], "stdBrick") == 0) {
     theBrick = new Brick(BrickId, Node1, Node2, Node3, Node4, Node5, Node6,
                          Node7, Node8, *theMaterial, b1, b2, b3);
+
   } else if (strcmp(argv[1], "bbarBrickWithSensitivity") == 0) {
     theBrick = new BbarBrickWithSensitivity(BrickId, Node1, Node2, Node3, Node4,
                                             Node5, Node6, Node7, Node8,
@@ -154,32 +161,33 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   } else if (strcmp(argv[1], "bbarBrick") == 0) {
     theBrick = new BbarBrick(BrickId, Node1, Node2, Node3, Node4, Node5, Node6,
                              Node7, Node8, *theMaterial, b1, b2, b3);
+  }
+
 #ifdef _FLBrick
-  } else if (strcmp(argv[1], "flBrick") == 0) {
+  else if (strcmp(argv[1], "flBrick") == 0) {
     theBrick = new FLBrick(BrickId, Node1, Node2, Node3, Node4, Node5, Node6,
                            Node7, Node8, *theMaterial, b1, b2, b3);
   }
 #endif
-}
-else
-{
-  opserr << "WARNING element " << argv[1] << " type not recognized\n";
-  return TCL_ERROR;
-}
 
-if (theBrick == 0) {
-  opserr << "WARNING ran out of memory creating element\n";
-  opserr << "Brick element: " << BrickId << endln;
-  return TCL_ERROR;
-}
+  else {
+    opserr << "WARNING element " << argv[1] << " type not recognized\n";
+    return TCL_ERROR;
+  }
 
-if (theTclDomain->addElement(theBrick) == false) {
-  opserr << "WARNING could not add element to the domain\n";
-  opserr << "Brick element: " << BrickId << endln;
-  delete theBrick;
-  return TCL_ERROR;
-}
+  if (theBrick == 0) {
+    opserr << "WARNING ran out of memory creating element\n";
+    opserr << "Brick element: " << BrickId << endln;
+    return TCL_ERROR;
+  }
 
-// if get here we have successfully created the node and added it to the domain
-return TCL_OK;
+  if (theTclDomain->addElement(theBrick) == false) {
+    opserr << "WARNING could not add element to the domain\n";
+    opserr << "Brick element: " << BrickId << endln;
+    delete theBrick;
+    return TCL_ERROR;
+  }
+
+  // if get here we have successfully created the node and added it to the domain
+  return TCL_OK;
 }

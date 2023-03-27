@@ -11,14 +11,11 @@ add_subdirectory(element/)
 target_sources(OpenSeesRT PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/integrator/Newmark/G3Parse_Newmark.cpp"
 
-    "${CMAKE_CURRENT_LIST_DIR}/element/UP-ucsd/TclFourNodeQuadUPCommand.cpp"
     #"element/UWelements/Tcl_generateInterfacePoints.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/adapter/TclActuatorCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/adapter/TclActuatorCorotCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/adapter/TclAdapterCommand.cpp"
 
-    "${CMAKE_CURRENT_LIST_DIR}/element/brick/TclBrickCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/brick/TclTwenty_Node_BrickCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingBoucWenCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingPlasticityCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/elastomericBearing/TclElastomericBearingUFRPCommand.cpp"
