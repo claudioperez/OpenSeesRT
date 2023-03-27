@@ -455,8 +455,8 @@ const Matrix&  Brick::getInitialStiff( )
 
 	count++ ;
 
-      } //end for k
-    } //end for j
+      } // end for k
+    } // end for j
   } // end for i 
   
 
@@ -509,7 +509,7 @@ const Matrix&  Brick::getInitialStiff( )
       jj += ndf ;
 
     } // end for j loop
-  } //end for i gauss loop 
+  } // end for i gauss loop 
 
   Ki = new Matrix(stiff);
 
@@ -617,7 +617,7 @@ Brick::addInertiaLoadToUnbalance(const Vector &accel)
 //get residual
 const Vector&  Brick::getResistingForce( ) 
 {
-  int tang_flag = 0 ; //don't get the tangent
+  int tang_flag = 0 ; // don't get the tangent
 
   formResidAndTangent( tang_flag ) ;
 
