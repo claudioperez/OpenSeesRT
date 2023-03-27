@@ -63,6 +63,8 @@ The example subdirectories include:
 
 
 
+### Example 1 a -  Nonlinear dynamic analysis using Portal Frame 
+
 ### Example 1.1 - Basic Truss 
 
 - 2d 3 Element Elastic Truss
@@ -71,7 +73,6 @@ The example subdirectories include:
 Objectives:
 - Simple Introduction to OpenSees
 
-from opensees import *
 
 ### Example 2.1 - Moment-Curvature 
 
@@ -81,20 +82,17 @@ from opensees import *
 Objectives:
 - Moment-Curvature Analysis in OpenSees
 
-from opensees import *
 
-#
 ### Example 3.1 - Portal Frame 
 
 - Reinforced concrete one-bay, one-story frame
 - Distributed vertical load on girder
--
-### Example Obj - ectives
 
+
+Objectives:
 - Nonlinear beam-column elements
 - Gravity load analysis and eigenvalue analysis
-#
-#
+
 
 
 ### Example 3.2 - Portal Frame 
@@ -103,7 +101,7 @@ from opensees import *
 - Distributed vertical load on girder
 - Lateral Load at top of frame
 
-Objectives:
+
 ### Example 3.1 -  Nonlinear pushover analysis using Portal Frame  as starting point
 
 
@@ -113,14 +111,12 @@ Objectives:
 - Distributed vertical load on girder
 - Uniform excitation acting at fixed nodes in horizontal direction
 
-Objectives:
-### Example 1 a -  Nonlinear dynamic analysis using Portal Frame s staring point
-- Using Tcl Procedures 
+
+
 
 ### Example 4.1 - 2 Story Multi Bay Frame 
 
-- Reinforced concrete multi-bay, two-story frame
-- Distributed vertical load on girder
+- Reinforced concrete multi-bay, two-story frame with distributed load on girder
 
 Objectives:
 - Nonlinear beam-column elements
@@ -130,8 +126,7 @@ Objectives:
 
 ### Example 5.1 - 3 Story One-by-One Bay Frame 
 
-- Reinforced concrete one-bay, three-story frame
-- Distributed vertical load on girder
+- Reinforced concrete one-bay, three-story frame with distributed load on girder
 
 Objectives:
 - 3D building with rigid diaphragms
@@ -139,10 +134,9 @@ Objectives:
 - Gravity load analysis followed by transient analysis
 
 
-### Example 6.1 - Simply Supported Beam 
+### Example 6.1 - Solid Simply Supported Beam 
 
-- Simply supported beam modeled with
-- two dimensional solid elements
+- Simply supported beam modeled with two dimensional solid elements
 
 Objectives:
 - test different quad elements
@@ -151,10 +145,10 @@ Objectives:
 
 ### Example 7.1 - 3D Shell Structure 
 
-- Shell roof modeled with three
-- dimensional linear shell elements
+- Shell roof modeled with three dimensional linear shell elements
 
 Objectives:
+
 - test linear-elastic shell element
 - free vibration analysis starting from static deflection
 
