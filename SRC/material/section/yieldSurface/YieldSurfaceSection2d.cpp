@@ -8,7 +8,7 @@
 #include <Vector.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <MatrixUtil.h>
+// #include <MatrixUtil.h>
 #include <stdlib.h>
 
 #include <classTags.h>
@@ -212,8 +212,8 @@ const Matrix &
 YieldSurfaceSection2d::getSectionFlexibility (void)
 {
   static Matrix fs(2,2);
-  invert2by2Matrix(ks, fs);
-  
+  // invert2by2Matrix(ks, fs);
+  ks.Invert(fs); 
   return fs;
 }
 

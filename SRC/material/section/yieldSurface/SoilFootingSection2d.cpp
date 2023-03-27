@@ -16,7 +16,7 @@
 #include <Vector.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
-#include <MatrixUtil.h>
+// #include <MatrixUtil.h>
 
 #include <classTags.h>
 
@@ -2030,7 +2030,7 @@ SoilFootingSection2d::getSectionFlexibility (void)
 {
   static Matrix fs(3,3);
 //  invert2by2Matrix(ks, fs);
-  
+  ks.Invert(fs); 
   return fs;
 }
 
