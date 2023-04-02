@@ -38,7 +38,7 @@ using namespace std;
 
 #include <Element.h>
 #include <Node.h>
-#include <DummyNode.h>
+//#include <DummyNode.h>
 #include <ElementIter.h>
 #include <LinearCrdTransf3d.h>
 #include <Frame/Elastic/ElasticBeam3d.h>
