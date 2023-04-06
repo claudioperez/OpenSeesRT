@@ -14,11 +14,20 @@
   - Better visualization tools, independent of core source code.
 
 - Promotes stability of OpenSees core.
-- Supports more python versions (3.6+)
+
+- Supports more Python versions (3.6+)
 
 Additional minor features:
+
 - Verbosity control
-- new `with` Tcl command and Python constructs
+- new `invoke` Tcl command and Python constructs
+- new `progress` command
+- new `export` command
+- new `=` command, fixes vexing operator precedence in `expr`
+- improved `print` command
+  - new `-registry` option
+  - more reliable JSON printing
+
 
 
 ## User Changes
@@ -31,7 +40,6 @@ changes from the classic `OpenSees` interpreter:
 - `puts` command prints to `stdout` by default, whereas classic OpenSees
   writes only to `stderr`.
 
-- new `redirect` command
 
 - Dropped:
 
