@@ -35,10 +35,8 @@ class TclBasicBuilder;
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
-
 #include <Adapter.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -56,7 +54,6 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element adapter eleTag -node Ndi Ndj ... -dof dofNdi -dof "
               "dofNdj ... -stif Kij ipPort <-doRayleigh> <-mass Mij>\n";
     return TCL_ERROR;

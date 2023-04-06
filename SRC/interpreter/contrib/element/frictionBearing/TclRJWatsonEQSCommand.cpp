@@ -43,7 +43,6 @@ class TclBasicBuilder;
 #include <FrictionModel.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
@@ -76,7 +75,6 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 12) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: RJWatsonEqsBearing eleTag iNode jNode frnMdlTag kInit "
                 "-P matTag -Vy matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> "
                 "<-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter "
@@ -311,7 +309,6 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 18) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: RJWatsonEqsBearing eleTag iNode jNode frnMdlTag kInit "
                 "-P matTag -Vy matTag -Vz matTag -T matTag -My matTag -Mz "
                 "matTag <-orient <x1 x2 x3> y1 y2 y3> <-shearDist sDratio> "

@@ -11,7 +11,6 @@
 #include <Node.h>
 #include <Domain.h>
 #include <g3_api.h>
-/// #include <TclBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <SP_Constraint.h>
@@ -19,7 +18,6 @@
 #include <MP_Constraint.h>
 
 #include <LoadPattern.h>
-#include "RigidDiaphragm.h"
 
 #include <ImposedMotionSP.h>
 #include <ImposedMotionSP1.h>
@@ -151,10 +149,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  // G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-  // Domain *theTclDomain = G3_getDomain(rt);
 
   int ndf = argc - 2;
   if (strcmp(argv[argc-2],"-tol") == 0)
@@ -196,7 +191,6 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
 
   builder->addSP_Constraint(1, yLoc, fixity, tol);
 
-  // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
 
@@ -239,15 +233,14 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
   double tol = 1.0e-10;
   if (argc >= (4 + ndf)) {
     if (strcmp(argv[2+ndf],"-tol") == 0)
-    if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
-      opserr << "WARNING invalid tol specified - fixZ " << zLoc << endln;
-      return TCL_ERROR;
-    }
+      if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
+        opserr << "WARNING invalid tol specified - fixZ " << zLoc << endln;
+        return TCL_ERROR;
+      }
   }
 
   builder->addSP_Constraint(2, zLoc, fixity, tol);
 
-  // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }
 
@@ -485,7 +478,7 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
             return TCL_ERROR;
           }
 
-          dofIDR -= 1; // Decrement for C++ indexing
+          dofIDR -= 1; // Decrement for 0-based indexing
           dofIDC -= 1;
           if (dofIDC < 0 || dofIDR < 0) {
             opserr << "WARNING invalid dofID: " << argv[i]
@@ -518,51 +511,6 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         return TCL_OK;
 }
 #endif
-
-
-
-int
-TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-  Domain* theTclDomain = builder->getDomain();
-
-  if (argc < 3) {
-      opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
-      return TCL_ERROR;
-  }
-
-  int rNode, perpDirn;
-  if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n";
-      return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n";
-      return TCL_ERROR;
-  }
-
-  // read in the constrained Nodes
-  int numConstrainedNodes = argc - 3;
-  ID constrainedNodes(numConstrainedNodes);
-  for (int i=0; i<numConstrainedNodes; i++) {
-      int cNode;
-      if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
-          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n";
-          return TCL_ERROR;
-      }
-      constrainedNodes(i) = cNode;
-  }
-
-  RigidDiaphragm theLink(*theTclDomain, rNode, constrainedNodes, perpDirn-1);
-
-
-  return TCL_OK;
-}
-
-
 
 
 int

@@ -17,14 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-/*
-** $Revision: 1.9 $
-** $Date: 2010-03-05 22:32:36 $
-** $Source: /usr/local/cvs/OpenSees/SRC/api/elementAPI.h,v $
-
-** Written: fmk
-*/
+//
+// Written: fmk
+// $Date: 2010-03-05 22:32:36 $
+// /usr/local/cvs/OpenSees/SRC/api/elementAPI.h
+//
 
 #ifndef _eleAPI
 #define _eleAPI

@@ -41,7 +41,6 @@ class TclBasicBuilder;
 
 #include <TwoNodeLink.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -63,7 +62,6 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int ar
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: twoNodeLink eleTag iNode jNode -mat matTags -dir dirs "
               "<-orient <x1 x2 x3> y1 y2 y3> <-pDelta Mratios> <-shearDist "
               "sDratios> <-doRayleigh> <-mass m>\n";

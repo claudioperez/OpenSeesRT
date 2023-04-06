@@ -38,7 +38,6 @@ class TclBasicBuilder;
 
 #include <ActuatorCorot.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
@@ -58,7 +57,6 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 6) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element corotActuator eleTag iNode jNode EA ipPort "
               "<-doRayleigh> <-rho rho>\n";
     return TCL_ERROR;

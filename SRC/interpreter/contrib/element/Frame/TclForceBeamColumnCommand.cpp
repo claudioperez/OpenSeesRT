@@ -77,7 +77,6 @@ class TclBasicBuilder;
 #include <ElasticSection2d.h>
 #include <ElasticSection3d.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
@@ -138,7 +137,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
   if (argc < 6) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element " << argv[1]
            << " eleTag? iNode? jNode? transfTag? ...\n";
     return TCL_ERROR;
@@ -501,7 +499,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? Lobatto secTag? nIP?\n";
       return TCL_ERROR;
@@ -547,16 +544,15 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
   }
-  /*
+#if 0
   else if (strcmp(argv[6],"GaussQ") == 0) {
 
     int type, secTag;
 
     if (argc < 10) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
-      opserr << "Want: element " << argv[1] << " eleTag? iNode? jNode?
-  transfTag? GaussQ type? secTag? nIP?\n"; return TCL_ERROR;
+      opserr << "Want: element " << argv[1] << " eleTag? iNode? jNode? transfTag? GaussQ type? secTag? nIP?\n";
+      return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[7], &type) != TCL_OK) {
@@ -589,12 +585,11 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     beamIntegr = new GaussQBeamIntegration(type);
   }
-  */
+#endif
   else if (strcmp(argv[6], "UserDefined") == 0) {
 
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? UserDefined nIP? secTag1? "
                 "... pt1? ... wt1? ...\n";
@@ -657,7 +652,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 12) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? type secTagI? lpI? secTagJ? "
                 "lpJ? secTagE?\n";
@@ -757,7 +751,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? UserHinge secTagE? npL? "
                 "secTagL1? ... ptL1? ... wtL1? ... npR? secTagR1? ... ptR1? "
@@ -876,7 +869,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 14) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? type distType nIP? secTagI? "
                 "lpI? secTagJ? lpJ? secTagE?\n";
@@ -981,7 +973,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 16) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? type distType nIP? secTagI? "
                 "lpI? zetaI? secTagJ? lpJ? zetaJ? secTagE?\n";
@@ -1099,7 +1090,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? FixedLocation nIP? secTag1? "
                 "... pt1? ... \n";
@@ -1153,7 +1143,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? LowOrder nIP? secTag1? ... "
                 "pt1? ... wt1? ...\n";
@@ -1220,7 +1209,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element " << argv[1]
              << " eleTag? iNode? jNode? transfTag? MidDistance nIP? secTag1? "
                 "... pt1? ... \n";

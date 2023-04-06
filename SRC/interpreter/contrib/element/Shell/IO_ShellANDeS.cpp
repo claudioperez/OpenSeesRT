@@ -1,7 +1,6 @@
 #include <assert.h>
 
 #include <tcl.h>
-#include <elementAPI.h>
 #include <BasicModelBuilder.h>
 #include <element/Shell/ShellANDeS.h>
 

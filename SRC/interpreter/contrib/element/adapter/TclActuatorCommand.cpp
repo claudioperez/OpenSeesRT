@@ -38,7 +38,6 @@ class TclBasicBuilder;
 
 #include <Actuator.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -56,7 +55,6 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 6) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element actuator eleTag iNode jNode EA ipPort "
               "<-doRayleigh> <-rho rho>\n";
     return TCL_ERROR;

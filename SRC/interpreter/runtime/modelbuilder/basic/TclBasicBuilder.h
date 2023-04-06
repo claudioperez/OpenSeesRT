@@ -74,14 +74,6 @@ public:
   SectionRepres *getSectionRepres(int tag);
 
   // methods needed for the yield surfaces
-  int addYieldSurface_BC(YieldSurface_BC &theYS);
-  YieldSurface_BC *getYieldSurface_BC(int tag);
-  int addYS_EvolutionModel(YS_Evolution &theModel);
-  YS_Evolution *getYS_EvolutionModel(int tag);
-  int addPlasticMaterial(PlasticHardeningMaterial &theMaterial);
-  PlasticHardeningMaterial *getPlasticMaterial(int tag);
-  int addCyclicModel(CyclicModel &theModel); //!!
-  CyclicModel *getCyclicModel(int tag);      //!!
   int addDamageModel(DamageModel &theModel); //!!
   DamageModel *getDamageModel(int tag);      //!!
 
@@ -94,16 +86,10 @@ private:
   int ndf; // number of degrees of freedom per node
 
   //    TaggedObjectStorage *theUniaxialMaterials;
-  TaggedObjectStorage *theNDMaterials;
   TaggedObjectStorage *theSections;
   TaggedObjectStorage *theSectionRepresents;
-  TaggedObjectStorage *theYieldSurface_BCs;
-  TaggedObjectStorage *thePlasticMaterials;
-  TaggedObjectStorage *theYS_EvolutionModels;
-  TaggedObjectStorage *theCycModels; //!!
   //    TaggedObjectStorage *theDamageModels; //!!
   //    TaggedObjectStorage *theFrictionModels;
-  TaggedObjectStorage *theLimitCurves; // MRL
 
 protected:
   Tcl_Interp *theInterp;

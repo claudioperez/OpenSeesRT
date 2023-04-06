@@ -28,6 +28,6 @@ target_sources(OpenSeesRT PRIVATE
     "Shell/IO_ShellNLDKGT.cpp"
 
 
+    "Tcl_UWElements.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/Other/TclGenericClientCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/Other/TclGenericCopyCommand.cpp"
 )

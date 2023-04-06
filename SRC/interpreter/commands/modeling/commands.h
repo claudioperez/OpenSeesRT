@@ -176,8 +176,6 @@ struct char_cmd {
 
 };
 
-
-
 Tcl_CmdProc TclCommand_Package;
 
 // Added by Scott J. Brandenberg

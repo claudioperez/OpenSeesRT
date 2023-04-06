@@ -13,7 +13,6 @@
 class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
@@ -45,7 +44,6 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
 
   if (argc < 9) { // 8
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element dispBeamColumn eleTag? iNode? jNode? nIP? secTag? "
               "transfTag? C1? t1? NStrip1? t2? NStrip2? t3? NStrip3?\n";
     return TCL_ERROR;

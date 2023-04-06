@@ -26,7 +26,6 @@
 // Created: April 2008
 //
 
-#include <TclModelBuilder.h>
 #include <HyperbolicGapMaterial.h>
 
 #include <Vector.h>

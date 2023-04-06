@@ -17,40 +17,32 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
-// Created: 11/06
-// Revision: A
 //
 // Description: This file contains the function to parse the TCL input
 // for the genericClient element.
-
-class TclBasicBuilder;
-#include <runtime/BasicModelBuilder.h>
-
+//
+// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
+// Created: 11/06
+//
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
 
+#include <runtime/BasicModelBuilder.h>
 #include <GenericClient.h>
-
-extern void printCommand(int argc, TCL_Char ** const argv);
+#include <GenericCopy.h>
 
 int
 TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char ** const argv,
-                                 Domain *theTclDomain,
-                                 TclBasicBuilder *theTclBuilder,
-                                 int eleArgStart)
+                                 int argc, TCL_Char ** const argv)
 {
+  const int eleArgStart = 1;
+
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain* theTclDomain = builder->getDomain();
 
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - genericClient\n";
     return TCL_ERROR;
   }
@@ -58,15 +50,13 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: element genericClient eleTag -node Ndi Ndj ... -dof "
               "dofNdi -dof dofNdj ... -server ipPort <ipAddr> <-ssl> <-udp> "
               "<-dataSize size> <-noRayleigh>\n";
     return TCL_ERROR;
   }
 
-  Element *theElement = 0;
-  int ndm = builder->getNDM();
+  Element *theElement = nullptr;
 
   // get the id and end nodes
   int tag, node, dof, ipPort, argi, i, j;
@@ -215,7 +205,91 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  // if get here we have successfully created the genericClient and added it to
-  // the domain
+  return TCL_OK;
+}
+
+int
+TclBasicBuilder_addGenericCopy(ClientData clientData, Tcl_Interp *interp, int argc,
+                               TCL_Char ** const argv)
+{
+  const int eleArgStart = 1;
+  // ensure the destructor has not been called
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain* theTclDomain = builder->getDomain();
+
+  // check the number of arguments is correct
+  if ((argc - eleArgStart) < 6) {
+    opserr << "WARNING insufficient arguments\n";
+    opserr << "Want: expElement genericCopy eleTag -node Ndi ... -src srcTag\n";
+    return TCL_ERROR;
+  }
+
+  Element *theElement = nullptr;
+
+  // get the id and end nodes
+  int tag, node, srcTag, argi, i;
+  int numNodes = 0;
+
+  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    opserr << "WARNING invalid genericCopy eleTag\n";
+    return TCL_ERROR;
+  }
+  // read the number of nodes
+  if (strcmp(argv[2 + eleArgStart], "-node") != 0) {
+    opserr << "WARNING expecting -node flag\n";
+    opserr << "genericCopy element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  argi = 3 + eleArgStart;
+  i = argi;
+  while (strcmp(argv[i], "-src") != 0 && i < argc) {
+    numNodes++;
+    i++;
+  }
+  if (numNodes == 0) {
+    opserr << "WARNING no nodes specified\n";
+    opserr << "genericCopy element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  // create and fill in the ID array to hold the nodes
+  ID nodes(numNodes);
+  for (i = 0; i < numNodes; i++) {
+    if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
+      opserr << "WARNING invalid node\n";
+      opserr << "genericCopy element: " << tag << endln;
+      return TCL_ERROR;
+    }
+    nodes(i) = node;
+    argi++;
+  }
+  if (strcmp(argv[argi], "-src") != 0) {
+    opserr << "WARNING expect -src\n";
+    opserr << "genericCopy element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  argi++;
+  if (Tcl_GetInt(interp, argv[argi], &srcTag) != TCL_OK) {
+    opserr << "WARNING invalid srcTag\n";
+    opserr << "genericCopy element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  // now create the GenericCopy
+  theElement = new GenericCopy(tag, nodes, srcTag);
+
+  if (theElement == 0) {
+    opserr << "WARNING ran out of memory creating element\n";
+    opserr << "genericCopy element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  // then add the GenericCopy to the domain
+  if (theTclDomain->addElement(theElement) == false) {
+    opserr << "WARNING could not add element to the domain\n";
+    opserr << "genericCopy element: " << tag << endln;
+    delete theElement;
+    return TCL_ERROR;
+  }
+
   return TCL_OK;
 }

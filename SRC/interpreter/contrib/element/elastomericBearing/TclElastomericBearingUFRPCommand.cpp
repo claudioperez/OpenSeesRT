@@ -42,7 +42,6 @@ class TclBasicBuilder;
 #include <ElastomericBearingUFRP2d.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *interp,
@@ -75,7 +74,6 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 19) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: elastomericBearingUFRP eleTag iNode jNode uy a1 a2 a3 "
                 "a4 a5 b c eta beta gamma -P matTag -Mz matTag <-orient x1 x2 "
                 "x3 y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> "
@@ -314,7 +312,8 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
     }
   }
 
-  /*else if (ndm == 3)  {
+#if 0
+    else if (ndm == 3)  {
       // check space frame problem has 6 dof per node
       if (ndf != 6)  {
           opserr << "WARNING invalid ndf: " << ndf;
@@ -325,10 +324,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       // check the number of arguments is correct
       if ((argc-eleArgStart) < 21)  {
           opserr << "WARNING insufficient arguments\n";
-          printCommand(argc, argv);
-          opserr << "Want: elastomericBearingUFRP eleTag iNode jNode uy a1 a2 a3
-  a4 a5 b c eta beta gamma -P matTag -T matTag -My matTag -Mz matTag <-orient
-  <x1 x2 x3> y1 y2 y3> <-shearDist sDratio> <-mass m> <-iter maxIter tol>\n";
+          opserr << "Want: elastomericBearingUFRP eleTag iNode jNode uy a1 a2 a3 a4 a5 b c eta beta gamma -P matTag -T matTag -My matTag -Mz matTag <-orient <x1 x2 x3> y1 y2 y3> <-shearDist sDratio> <-mass m> <-iter maxIter tol>\n";
           return TCL_ERROR;
       }
 
@@ -589,7 +585,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           a3, a4, a5, b, c, theMaterials, y, x, eta, beta, gamma, shearDistI,
           doRayleigh, mass, maxIter, tol);
 
-      if (theElement == 0)  {
+      if (theElement == nullptr)  {
           opserr << "WARNING ran out of memory creating element\n";
           opserr << "elastomericBearingUFRP element: " << tag << endln;
           return TCL_ERROR;
@@ -602,7 +598,8 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           delete theElement;
           return TCL_ERROR;
       }
-  }*/
+  }
+#endif
 
   else {
     opserr << "WARNING elastomericBearingUFRP command only works when ndm is "

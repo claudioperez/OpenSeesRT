@@ -55,7 +55,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
   // Domain *domain = G3_getDomain(rt);
 
   // get the tolerence first
-  double tol = 0.0;
+  double tol = 1e-12;
   double tol2 = 0.0;
   double tolp = 0.0;
   double tolp2 = 0.0;

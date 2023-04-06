@@ -49,15 +49,14 @@
 #include <tcl.h>
 #include <elementAPI.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
-static Domain *theTclBasicBuilderDomain = 0;
+// static Domain *theTclBasicBuilderDomain = 0;
 
 int
 TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char ** const argv,
                                    Domain *theTclDomain, int eleArgStart)
 {
-  theTclBasicBuilderDomain = theTclDomain;
+  // theTclBasicBuilderDomain = theTclDomain;
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   int NDM, NDF;
@@ -70,7 +69,6 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
     // check no of arguments
     if ((argc - eleArgStart) != 19 && (argc - eleArgStart) != 21) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: element beamColumnJoint eleTag? node1? node2? node3? "
                 "node4? matTag1? matTag2? matTag3?\n";
       opserr << "matTag4? matTag5? matTag6? matTag7? matTag8? matTag9? "

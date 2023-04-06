@@ -40,7 +40,6 @@ class TclBasicBuilder;
 #include <FrictionModel.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
@@ -73,7 +72,6 @@ TclBasicBuilder_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 11) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: singleFPBearing eleTag iNode jNode frnMdlTag Reff kInit "
                 "-P matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> <-shearDist "
                 "sDratio> <-doRayleigh> <-inclVertDisp> <-mass m> <-iter "
@@ -302,7 +300,6 @@ TclBasicBuilder_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 15) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: singleFPBearing eleTag iNode jNode frnMdlTag Reff kInit "
                 "-P matTag -T matTag -My matTag -Mz matTag <-orient <x1 x2 x3> "
                 "y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-inclVertDsip> "

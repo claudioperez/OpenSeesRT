@@ -43,7 +43,6 @@ class TclBasicBuilder;
 #include <ElastomericBearingPlasticity3d.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addElastomericBearingPlasticity(
@@ -75,7 +74,6 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 13) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: elastomericBearing eleTag iNode jNode kInit qd alpha1 "
                 "alpha2 mu -P matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> "
                 "<-shearDist sDratio> <-doRayleigh> <-mass m>\n";
@@ -275,7 +273,6 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 17) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: elastomericBearing eleTag iNode jNode kInit qd alpha1 "
                 "alpha2 mu -P matTag -T matTag -My matTag -Mz matTag <-orient "
                 "<x1 x2 x3> y1 y2 y3> <-shearDist sDratio> <-mass m>\n";

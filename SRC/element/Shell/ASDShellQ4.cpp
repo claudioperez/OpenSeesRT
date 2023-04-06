@@ -41,13 +41,13 @@
 #include <ElementalLoad.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 #include <Renderer.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_ASDShellQ4)
 {
     static bool first_done = false;
@@ -85,6 +85,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ASDShellQ4)
 
     return new ASDShellQ4(iData[0], iData[1], iData[2], iData[3], iData[4], section, corotational);
 }
+#endif
 
 // anonymous namespace for utilities
 namespace

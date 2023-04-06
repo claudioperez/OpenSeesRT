@@ -45,7 +45,6 @@ class TclBasicBuilder;
 #include <ElastomericBearingBoucWen3d.h>
 #include <UniaxialMaterial.h>
 
-extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addElastomericBearingBoucWen(
@@ -78,7 +77,6 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 16) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: elastomericBearingBoucWen eleTag iNode jNode kInit qd "
                 "alpha1 alpha2 mu eta beta gamma -P matTag -Mz matTag <-orient "
                 "x1 x2 x3 y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass "
@@ -313,7 +311,6 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     // check the number of arguments is correct
     if ((argc - eleArgStart) < 18) {
       opserr << "WARNING insufficient arguments\n";
-      printCommand(argc, argv);
       opserr << "Want: elastomericBearingBoucWen eleTag iNode jNode kInit qd "
                 "alpha1 alpha2 mu eta beta gamma -P matTag -T matTag -My "
                 "matTag -Mz matTag <-orient <x1 x2 x3> y1 y2 y3> <-shearDist "

@@ -22,7 +22,7 @@ add_subdirectory(utility)
 
 add_subdirectory(modelbuilder)
 add_subdirectory(system_of_eqn)
-add_subdirectory(api)
+# add_subdirectory(api)
 add_subdirectory(database)
 
 add_subdirectory(interpreter)

@@ -9,6 +9,7 @@ const int    CyclicModel::Crossover(3);
 const double CyclicModel::Tol(1e-10);
 const double CyclicModel::delK(0.85);
 
+
 static MapOfTaggedObjects theCyclicModelObjects;
 
 bool OPS_addCyclicModel(CyclicModel *newComponent)

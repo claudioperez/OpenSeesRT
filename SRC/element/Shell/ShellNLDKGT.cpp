@@ -46,48 +46,8 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
 #define min(a,b) ( (a)<(b) ? (a):(b) )
-
-static int numShellNLDKGT = 0;
-
-void * OPS_ADD_RUNTIME_VPV(OPS_ShellNLDKGT)          
-{
-  if (numShellNLDKGT == 0) {
-//    opserr << "Using ShellNLDKGT - Developed by:Shuhao Zhang & Xinzheng Lu";
-    numShellNLDKGT++;
-  }
-
-  Element *theElement = 0;
-  
-  int numArgs = OPS_GetNumRemainingInputArgs();
-  
-  if (numArgs < 5) {
-    opserr << "Want: element ShellNLDKGT $tag $iNode $jNoe $kNode $secTag";   
-    return 0;	
-  }
-  
-  int iData[5];
-  int numData = 5;
-  if (OPS_GetInt(&numData, iData) != 0) {
-    opserr << "WARNING invalid integer tag: element ShellNLDKGT \n";
-    return 0;
-  }
-
-  SectionForceDeformation *theSection = OPS_getSectionForceDeformation(iData[4]);
-
-  if (theSection == 0) {
-    opserr << "ERROR:  element ShellNLDKGT " << iData[0] << "section " << iData[4] << " not found\n";
-    return 0;
-  }
-  
-  theElement = new ShellNLDKGT(iData[0], iData[1], iData[2], iData[3],
-			       *theSection);
-
-  return theElement;
-}
-
 
 //static data
 Matrix  ShellNLDKGT::stiff(18,18) ;                    
@@ -96,8 +56,8 @@ Matrix  ShellNLDKGT::mass(18,18) ;
 
 //some data
 
-const double  ShellNLDKGT::one_over_three =1.0/3.0 ;
-const double  ShellNLDKGT::one_over_five = 1.0/5.0;
+const double ShellNLDKGT::one_over_three =1.0/3.0 ;
+const double ShellNLDKGT::one_over_five = 1.0/5.0;
 const double ShellNLDKGT:: three_over_five= 3.0/5.0  ;
 const double ShellNLDKGT:: wg1= -9.0/16.0;
 const double ShellNLDKGT:: wg2= 25.0/48.0;

@@ -1,4 +1,3 @@
-
 //
 // Written: fmk
 // Created: 07/99
@@ -50,7 +49,6 @@
 #include <SectionForceDeformation.h>
 #include <SectionRepres.h>
 
-#include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <TclBasicBuilder.h>
 #include <ImposedMotionSP.h>
@@ -74,7 +72,6 @@ using std::vector;                                   // L.Jiang [SIF]
 #include <YieldSurface_BC.h>
 #include <YS_Evolution.h>
 #include <PlasticHardeningMaterial.h>
-#include <CyclicModel.h> //!!
 
 #ifdef OPSDEF_DAMAGE
 #  include <DamageModel.h> //!!
@@ -138,9 +135,6 @@ static int TclCommand_mesh(ClientData, Tcl_Interp*, int argc,
 static int TclCommand_remesh(ClientData, Tcl_Interp*,
                              int argc, TCL_Char ** const);
 
-static int TclCommand_addUniaxialMaterial(ClientData,
-                                          Tcl_Interp*, int argc,
-                                          TCL_Char ** const);
 
 static int TclCommand_addBeamIntegration(ClientData,
                                          Tcl_Interp*, int argc,
@@ -317,47 +311,17 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 {
   theSections = new ArrayOfTaggedObjects(32);
   theSectionRepresents = new ArrayOfTaggedObjects(32);
-  theYieldSurface_BCs = new ArrayOfTaggedObjects(32);
-  theCycModels = new ArrayOfTaggedObjects(32); //!!
-  theYS_EvolutionModels = new ArrayOfTaggedObjects(32);
-  thePlasticMaterials = new ArrayOfTaggedObjects(32);
 
   // call Tcl_CreateCommand for class specific commands
   Tcl_CreateCommand(interp, "parameter", TclCommand_addParameter, NULL, NULL);
-
   Tcl_CreateCommand(interp, "addToParameter", TclCommand_addParameter, NULL, NULL);
-
   Tcl_CreateCommand(interp, "updateParameter", TclCommand_addParameter, NULL, NULL);
 
   Tcl_CreateCommand(interp, "mesh", TclCommand_mesh, NULL, NULL);
   Tcl_CreateCommand(interp, "remesh", TclCommand_remesh, NULL, NULL);
 
 
-  Tcl_CreateCommand(interp, "beamIntegration",  TclCommand_addBeamIntegration,  NULL, NULL);
-
-
-  Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "ysEvolutionModel", TclCommand_addYS_EvolutionModel, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "plasticMaterial", TclCommand_addYS_PlasticMaterial, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "cyclicModel", TclCommand_addCyclicModel, NULL, NULL);
-
   Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, NULL, NULL);
-
-
-  Tcl_CreateCommand(interp, "mass", TclCommand_addNodalMass, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "fix", TclCommand_addHomogeneousBC, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "fixX", TclCommand_addHomogeneousBC_X, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "fixY", TclCommand_addHomogeneousBC_Y, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "fixZ", TclCommand_addHomogeneousBC_Z, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "sp", TclCommand_addSP, NULL, NULL);
 
   Tcl_CreateCommand(interp, "imposedMotion", TclCommand_addImposedMotionSP, NULL, NULL);
 
@@ -366,53 +330,34 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   Tcl_CreateCommand(interp, "groundMotion", TclCommand_addGroundMotion, NULL, NULL);
 
-  Tcl_CreateCommand(interp, "equalDOF", TclCommand_addEqualDOF_MP, NULL, NULL);
-
+  Tcl_CreateCommand(interp, "equalDOF",       TclCommand_addEqualDOF_MP, NULL, NULL);
   Tcl_CreateCommand(interp, "equalDOF_Mixed", TclCommand_addEqualDOF_MP_Mixed, NULL, NULL);
+  Tcl_CreateCommand(interp, "rigidLink",      &TclCommand_RigidLink, NULL, NULL);
 
-  Tcl_CreateCommand(interp, "rigidLink", &TclCommand_RigidLink, NULL, (Tcl_CmdDeleteProc *)NULL);
-
+  Tcl_CreateCommand(interp, "sp", TclCommand_addSP, NULL, NULL);
   Tcl_CreateCommand(interp, "mp", TclCommand_addMP, NULL, NULL);
 
-  // Added by Scott J. Brandenberg
   Tcl_CreateCommand(interp, "PySimple1Gen", TclCommand_doPySimple1Gen, NULL, NULL);
   Tcl_CreateCommand(interp, "TzSimple1Gen", TclCommand_doTzSimple1Gen, NULL, NULL);
-  // End added by SJB
 
-  // Added by Prishati Raychowdhury (UCSD)
   Tcl_CreateCommand(interp, "ShallowFoundationGen",
-                    TclBasicBuilder_doShallowFoundationGen, NULL,
-                    NULL);
-  // End PRC
-
-  Tcl_CreateCommand(interp, "patch", TclCommand_addPatch, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "layer", TclCommand_addReinfLayer, NULL,
-                    NULL);
-
-  Tcl_CreateCommand(interp, "fiber", TclCommand_addFiber, NULL,
-                    NULL);
+                    TclBasicBuilder_doShallowFoundationGen, NULL, NULL);
 
   // Added by LEO
-  Tcl_CreateCommand(interp, "Hfiber", TclBasicBuilder_addRemoHFiber, NULL, NULL);
-
-  //Tcl_CreateCommand(interp, "geomTransf", TclCommand_addGeomTransf,
-  //                 NULL, NULL);
+  Tcl_CreateCommand(interp, "Hfiber",               TclBasicBuilder_addRemoHFiber, NULL, NULL);
 
   Tcl_CreateCommand(interp, "frictionModel",        TclCommand_addFrictionModel, NULL, NULL);
-
+  Tcl_CreateCommand(interp, "beamIntegration",  TclCommand_addBeamIntegration,  NULL, NULL);
+  Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC, NULL, NULL);
+  Tcl_CreateCommand(interp, "ysEvolutionModel", TclCommand_addYS_EvolutionModel, NULL, NULL);
+  Tcl_CreateCommand(interp, "plasticMaterial", TclCommand_addYS_PlasticMaterial, NULL, NULL);
+  Tcl_CreateCommand(interp, "cyclicModel", TclCommand_addCyclicModel, NULL, NULL);
   Tcl_CreateCommand(interp, "stiffnessDegradation", TclCommand_addStiffnessDegradation, NULL, NULL);
-
   Tcl_CreateCommand(interp, "unloadingRule",        TclCommand_addUnloadingRule, NULL, NULL);
-
   Tcl_CreateCommand(interp, "strengthDegradation",  TclCommand_addStrengthDegradation, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "updateMaterialStage",  TclCommand_UpdateMaterialStage, NULL, NULL);
-
-  Tcl_CreateCommand(interp, "updateMaterials",      TclCommand_UpdateMaterials, NULL, NULL);
-
+  // Tcl_CreateCommand(interp, "updateMaterialStage",  TclCommand_UpdateMaterialStage, NULL, NULL);
+  // Tcl_CreateCommand(interp, "updateMaterials",      TclCommand_UpdateMaterials, NULL, NULL);
   Tcl_CreateCommand(interp, "loadPackage",          TclCommand_Package, NULL, NULL);
-
   Tcl_CreateCommand(interp, "setElementRayleighFactors", TclCommand_addElementRayleigh, NULL, NULL);
 
 
@@ -432,74 +377,42 @@ TclBasicBuilder::~TclBasicBuilder()
 {
   theSections->clearAll();
   theSectionRepresents->clearAll();
-  theYieldSurface_BCs->clearAll();
-  theYS_EvolutionModels->clearAll();
-  thePlasticMaterials->clearAll();
-  theCycModels->clearAll(); //!!
-
-  // free up memory allocated in the constructor
   delete theSections;
   delete theSectionRepresents;
-  delete theYieldSurface_BCs;
-  delete theYS_EvolutionModels;
-  delete thePlasticMaterials;
-  delete theCycModels; //!!
 
   // set the pointers to 0
-  theTclDomain = 0;
-  theTclBuilder = 0;
-  theTclLoadPattern = 0;
+  theTclDomain = nullptr;
+  theTclBuilder = nullptr;
+  theTclLoadPattern = nullptr;
   // theTclMultiSupportPattern = 0;
 
   // may possibly invoke Tcl_DeleteCommand() later
   Tcl_DeleteCommand(theInterp, "parameter");
   Tcl_DeleteCommand(theInterp, "addToParameter");
   Tcl_DeleteCommand(theInterp, "updateParameter");
-  Tcl_DeleteCommand(theInterp, "node");
-  Tcl_DeleteCommand(theInterp, "element");
   Tcl_DeleteCommand(theInterp, "mesh");
   Tcl_DeleteCommand(theInterp, "remesh");
   Tcl_DeleteCommand(theInterp, "background");
   Tcl_DeleteCommand(theInterp, "uniaxialMaterial");
-  Tcl_DeleteCommand(theInterp, "nDMaterial");
-  Tcl_DeleteCommand(theInterp, "section");
-  Tcl_DeleteCommand(theInterp, "pattern");
-//Tcl_DeleteCommand(theInterp, "timeSeries");
-  Tcl_DeleteCommand(theInterp, "load");
-  Tcl_DeleteCommand(theInterp, "mass");
-  Tcl_DeleteCommand(theInterp, "fix");
-  Tcl_DeleteCommand(theInterp, "fixX");
-  Tcl_DeleteCommand(theInterp, "fixY");
-  Tcl_DeleteCommand(theInterp, "fixZ");
-  Tcl_DeleteCommand(theInterp, "sp");
   Tcl_DeleteCommand(theInterp, "imposedSupportMotion");
   Tcl_DeleteCommand(theInterp, "groundMotion");
   Tcl_DeleteCommand(theInterp, "equalDOF");
+  Tcl_DeleteCommand(theInterp, "sp");
   Tcl_DeleteCommand(theInterp, "mp");
   Tcl_DeleteCommand(theInterp, "PySimple1Gen"); // Added by Scott J. Brandenberg
   Tcl_DeleteCommand(theInterp, "TzSimple1Gen"); // Added by Scott J. Brandenberg
-  Tcl_DeleteCommand(theInterp, "block2D");
-  Tcl_DeleteCommand(theInterp, "block3D");
-  Tcl_DeleteCommand(theInterp, "patch");
-  Tcl_DeleteCommand(theInterp, "layer");
 
   Tcl_DeleteCommand(theInterp, "fiber");
   Tcl_DeleteCommand(theInterp, "Hfiber"); // LEO
-  Tcl_DeleteCommand(theInterp, "geomTransf");
   Tcl_DeleteCommand(theInterp, "updateMaterialStage");
   Tcl_DeleteCommand(theInterp, "updateMaterials");
 
   Tcl_DeleteCommand(theInterp, "frictionModel");
-
   Tcl_DeleteCommand(theInterp, "unloadingRule");
   Tcl_DeleteCommand(theInterp, "stiffnessDegradation");
   Tcl_DeleteCommand(theInterp, "strengthDegradation");
   Tcl_DeleteCommand(theInterp, "hystereticBackbone");
 
-  Tcl_DeleteCommand(theInterp, "yieldSurface_BC");
-  Tcl_DeleteCommand(theInterp, "ysEvolutionModel");
-  Tcl_DeleteCommand(theInterp, "plasticMaterial");
-  Tcl_DeleteCommand(theInterp, "cyclicModel");
   Tcl_DeleteCommand(theInterp, "damageModel");
 
   Tcl_DeleteCommand(theInterp, "loadPackage");
@@ -511,40 +424,6 @@ TclBasicBuilder::~TclBasicBuilder()
 //
 // CLASS METHODS
 //
-
-/*
-int TclBasicBuilder::buildFE_Model(void) {return 0;}
-int TclBasicBuilder::getNDM(void) const {return ndm;}
-int TclBasicBuilder::getNDF(void) const {return ndf;}
-*/
-
-
-/*
-int
-TclBasicBuilder::addNDMaterial(NDMaterial &theMaterial)
-{
-  bool result = theNDMaterials->addComponent(&theMaterial);
-  if (result == true)
-    return 0;
-  else {
-    opserr << "TclBasicBuilder::addNDMaterial() - failed to add material: " <<
-theMaterial; return -1;
-  }
-}
-
-
-NDMaterial *
-TclBasicBuilder::getNDMaterial(int tag)
-{
-  TaggedObject *mc = theNDMaterials->getComponentPtr(tag);
-  if (mc == 0)
-    return 0;
-
-  // otherweise we do a cast and return
-  NDMaterial *result = (NDMaterial *)mc;
-  return result;
-}
-*/
 
 int
 TclBasicBuilder::addSection(SectionForceDeformation &theSection)
@@ -564,121 +443,8 @@ SectionForceDeformation *
 TclBasicBuilder::getSection(int tag)
 {
   return OPS_getSectionForceDeformation(tag);
-  /*
-  TaggedObject *mc = theSections->getComponentPtr(tag);
-  if (mc == 0)
-    return 0;
-
-  // do a cast and return
-  SectionForceDeformation *result = (SectionForceDeformation *)mc;
-  return result;
-  */
 }
 
-int
-TclBasicBuilder::addYS_EvolutionModel(YS_Evolution &theModel)
-{
-  bool result = theYS_EvolutionModels->addComponent(&theModel);
-  if (result == true)
-    return 0;
-  else {
-    opserr << "TclBasicBuilder::addYS_EvolutionModel() - failed to add model "
-           << theModel;
-    return -1;
-  }
-}
-
-YS_Evolution *
-TclBasicBuilder::getYS_EvolutionModel(int tag)
-{
-  TaggedObject *mc = theYS_EvolutionModels->getComponentPtr(tag);
-  if (mc == 0)
-    return 0;
-
-  // otherweise we do a cast and return
-  YS_Evolution *result = (YS_Evolution *)mc;
-  return result;
-}
-
-int
-TclBasicBuilder::addYieldSurface_BC(YieldSurface_BC &theYS)
-{
-  //	TaggedObject *mc = &theYS;
-
-  bool result = theYieldSurface_BCs->addComponent(&theYS);
-  if (result == true)
-    return 0;
-  else {
-    opserr << "TclBasicBuilder::addYieldSurfaceBC() - failed to add YS: "
-           << theYS;
-    return -1;
-  }
-}
-
-int //!!
-TclBasicBuilder::addCyclicModel(CyclicModel &theCM)
-{
-  //	TaggedObject *mc = &theYS;
-
-  bool result = theCycModels->addComponent(&theCM);
-  if (result == true)
-    return 0;
-  else {
-    opserr << "TclBasicBuilder::addCyclicModel() - failed to add : " << theCM;
-    return -1;
-  }
-}
-
-YieldSurface_BC *
-TclBasicBuilder::getYieldSurface_BC(int tag)
-{
-  TaggedObject *mc = theYieldSurface_BCs->getComponentPtr(tag);
-  if (mc == 0)
-    return 0;
-
-  // otherweise we do a cast and return
-  YieldSurface_BC *result = (YieldSurface_BC *)mc;
-  return result;
-}
-
-CyclicModel * //!!
-TclBasicBuilder::getCyclicModel(int tag)
-{
-  TaggedObject *mc = theCycModels->getComponentPtr(tag);
-  if (mc == 0)
-    return 0;
-
-  // otherweise we do a cast and return
-  CyclicModel *result = (CyclicModel *)mc;
-  return result;
-}
-
-int
-TclBasicBuilder::addPlasticMaterial(PlasticHardeningMaterial &theMat)
-{
-  //	TaggedObject *mc = &theYS;
-
-  bool result = thePlasticMaterials->addComponent(&theMat);
-  if (result == true)
-    return 0;
-  else {
-    opserr << "TclBasicBuilder::addPlasticMaterial() - failed to add Material: "
-           << theMat;
-    return -1;
-  }
-}
-
-PlasticHardeningMaterial *
-TclBasicBuilder::getPlasticMaterial(int tag)
-{
-  TaggedObject *mc = thePlasticMaterials->getComponentPtr(tag);
-  if (mc == 0)
-    return 0;
-
-  // otherweise we do a cast and return
-  PlasticHardeningMaterial *result = (PlasticHardeningMaterial *)mc;
-  return result;
-}
 
 int
 TclBasicBuilder::addSectionRepres(SectionRepres &theSectionRepres)
@@ -708,18 +474,6 @@ TclBasicBuilder::getSectionRepres(int tag)
 // THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-void
-printCommand(int argc, TCL_Char ** const argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
-
-
-
-/////////////////////////////   gnp adding element damping
 int
 TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char ** const argv)
@@ -733,7 +487,6 @@ TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,
   // make sure corect number of arguments on command line
   if (argc < 6) {
     opserr << "WARNING insufficient arguments\n";
-    printCommand(argc, argv);
     opserr << "Want: setElementRayleighFactors elementTag?  alphaM? $betaK? "
               "$betaKinit? $betaKcomm? \n";
     return TCL_ERROR;
@@ -1002,19 +755,6 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
-extern int TclBasicBuilderUniaxialMaterialCommand(ClientData clienData,
-                                                  Tcl_Interp *interp, int argc,
-                                                  TCL_Char ** const argv,
-                                                  Domain *theDomain);
-
-int
-TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char ** const argv)
-{
-  return TclBasicBuilderUniaxialMaterialCommand(clientData, interp, argc, argv,
-                                                theTclDomain);
-}
-
 // extern int Tcl_AddLimitCurveCommand(ClientData clienData, Tcl_Interp *interp,
 //                                     int argc, TCL_Char ** const argv,
 //                                     Domain *theDomain);
@@ -1026,21 +766,6 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
 //   return Tcl_AddLimitCurveCommand(clientData, interp, argc, argv, theTclDomain);
 // }
 //
-/*
-extern int TclBasicBuilderNDMaterialCommand(ClientData clienData,
-                                            Tcl_Interp *interp, int argc,
-                                            TCL_Char ** const argv,
-                                            TclBasicBuilder *theTclBuilder);
-
-int
-TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char ** const argv)
-
-{
-  return TclBasicBuilderNDMaterialCommand(clientData, interp, argc, argv,
-                                          theTclBuilder);
-}
-*/
 extern int
 TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
                                       int argc, TCL_Char ** const argv,
@@ -1110,53 +835,6 @@ TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 #endif // OPSDEF_DAMAGE
 
-#if 0
-extern int TclPatternCommand(ClientData clientData, Tcl_Interp *interp,
-                             int argc, TCL_Char ** const argv, Domain *theDomain);
-
-static int
-TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char ** const argv)
-{
-  return TclPatternCommand(clientData, interp, argc, argv, theTclDomain);
-}
-#endif
-
-#if 0
-extern TimeSeries *TclTimeSeriesCommand(ClientData clientData,
-                                        Tcl_Interp *interp, int argc,
-                                        TCL_Char ** const argv, Domain *theDomain);
-
-int
-TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char ** const argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TimeSeries *theSeries =
-      TclTimeSeriesCommand(clientData, interp, argc - 1, &argv[1], 0);
-
-  if (theSeries != 0) {
-    if (OPS_addTimeSeries(theSeries) == true)
-      return TCL_OK;
-    else
-      return TCL_ERROR;
-  }
-  return TCL_ERROR;
-}
-
-extern int TclGroundMotionCommand(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv,
-                                  MultiSupportPattern *thePattern);
-
-// int
-// TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp, int argc,
-//                            TCL_Char ** const argv)
-// 
-// {
-//   return TclGroundMotionCommand(clientData, interp, argc, argv,
-//                                 theTclMultiSupportPattern);
-// }
-#endif
 
 int
 TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -1351,7 +1029,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     if (argc < (2 + ndf)) {
       opserr << "WARNING bad command - want: load nodeId " << ndf
              << " forces\n";
-      printCommand(argc, argv);
       return TCL_ERROR;
     }
 
@@ -1420,7 +1097,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   // add the load to the domain
   if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
     opserr << "WARNING TclBasicBuilder - could not add load to domain\n";
-    printCommand(argc, argv);
     delete theLoad;
     return TCL_ERROR;
   }
@@ -1447,7 +1123,6 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: mass nodeId " << ndf
            << " mass values\n";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1496,7 +1171,6 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fix nodeId " << ndf
            << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1564,7 +1238,6 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fixX xLoc " << ndf
            << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1621,7 +1294,6 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fixY yLoc " << ndf
            << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1678,7 +1350,6 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
   if (argc < (2 + ndf)) {
     opserr << "WARNING bad command - want: fixZ zLoc " << ndf
            << " [0,1] conditions";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1731,7 +1402,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   // check number of arguments
   if (argc < 4) {
     opserr << "WARNING bad command - want: sp nodeId dofID value";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1802,7 +1472,6 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   if (theTclDomain->addSP_Constraint(theSP, loadPatternTag) == false) {
     opserr << "WARNING could not add SP_Constraint to domain ";
-    printCommand(argc, argv);
     delete theSP;
     return TCL_ERROR;
   }
@@ -1826,7 +1495,6 @@ TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
   if (argc < 4) {
     opserr
         << "WARNING bad command - want: imposedMotion nodeId dofID gMotionID\n";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1893,7 +1561,6 @@ TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
   }
   if (thePattern->addSP_Constraint(theSP) == false) {
     opserr << "WARNING could not add SP_Constraint to pattern ";
-    printCommand(argc, argv);
     delete theSP;
     return TCL_ERROR;
   }
@@ -1916,7 +1583,6 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp, int argc,
   if (argc < 4) {
     opserr << "WARNING bad command - want: equalDOF RnodeID? CnodeID? DOF1? "
               "DOF2? ...";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -1966,14 +1632,12 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp, int argc,
   MP_Constraint *theMP = new MP_Constraint(RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
   if (theMP == 0) {
     opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
   // Add the multi-point constraint to the domain
   if (theTclDomain->addMP_Constraint(theMP) == false) {
     opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
-    printCommand(argc, argv);
     delete theMP;
     return TCL_ERROR;
   }
@@ -1999,7 +1663,6 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
   if (argc < 4) {
     opserr << "WARNING bad command - want: equalDOFmixed RnodeID? CnodeID? "
               "numDOF? RDOF1? CDOF1? ... ...";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
@@ -2063,14 +1726,12 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
   MP_Constraint *theMP = new MP_Constraint(RnodeID, CnodeID, Ccr, cDOF, rDOF);
   if (theMP == 0) {
     opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-    printCommand(argc, argv);
     return TCL_ERROR;
   }
 
   // Add the multi-point constraint to the domain
   if (theTclDomain->addMP_Constraint(theMP) == false) {
     opserr << "WARNING could not add equalDOF MP_Constraint to domain ";
-    printCommand(argc, argv);
     delete theMP;
     return TCL_ERROR;
   }
@@ -2082,6 +1743,7 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
+#if 0
 int
 TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char ** const argv)
@@ -2117,6 +1779,8 @@ TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
+#endif
+
 
 int
 TclCommand_addMP(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -2273,18 +1937,7 @@ TclCommand_addStrengthDegradation(ClientData clientData, Tcl_Interp *interp,
                                                    argv, theTclDomain);
 }
 
-/// added by ZHY
-extern int TclBasicBuilderUpdateMaterialStageCommand(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
-    TclBasicBuilder *theTclBuilder, Domain *theDomain);
-int
-TclCommand_UpdateMaterialStage(ClientData clientData, Tcl_Interp *interp,
-                               int argc, TCL_Char ** const argv)
-{
-  return TclBasicBuilderUpdateMaterialStageCommand(
-      clientData, interp, argc, argv, theTclBuilder, theTclDomain);
-}
-
+#if 0
 /// added by ZHY
 extern int TclCommand_UpdateMaterialsCommand(ClientData clientData,
                                              Tcl_Interp *interp, int argc,
@@ -2298,7 +1951,7 @@ TclCommand_UpdateMaterials(ClientData clientData, Tcl_Interp *interp, int argc,
   return TclCommand_UpdateMaterialsCommand(clientData, interp, argc, argv,
                                            theTclBuilder, theTclDomain);
 }
-
+#endif
 
 
 extern int TclBasicBuilderFrictionModelCommand(ClientData clienData,
