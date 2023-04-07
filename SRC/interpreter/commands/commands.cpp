@@ -67,20 +67,20 @@
 //
 // Global variables
 //
+// TclPackageClassBroker  theBroker;
+// ConvergenceTest       *theTest = nullptr;
+// AnalysisModel         *theAnalysisModel = nullptr;
+StaticAnalysis        *theStaticAnalysis = nullptr;
+ConstraintHandler     *theHandler = nullptr;
 Domain                 theDomain;
-TclPackageClassBroker  theBroker;
 ModelBuilder          *theBuilder = nullptr;
 EquiSolnAlgo          *theAlgorithm = nullptr;
-ConstraintHandler     *theHandler = nullptr;
 DOF_Numberer          *theGlobalNumberer = nullptr;
 LinearSOE             *theSOE = nullptr;
 EigenSOE              *theEigenSOE = nullptr;
 StaticIntegrator      *theStaticIntegrator = nullptr;
 TransientIntegrator   *theTransientIntegrator = nullptr;
-ConvergenceTest       *theTest = nullptr;
 
-AnalysisModel         *theAnalysisModel = nullptr;
-StaticAnalysis        *theStaticAnalysis = nullptr;
 DirectIntegrationAnalysis *theTransientAnalysis = nullptr;
 VariableTimeStepDirectIntegrationAnalysis
                       *theVariableTimeStepTransientAnalysis = nullptr;
@@ -197,9 +197,9 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "basicForce",          &basicForce,          domain, nullptr);
   Tcl_CreateCommand(interp, "basicStiffness",      &basicStiffness,      domain, nullptr);
 
-  Tcl_CreateCommand(interp, "recorderValue",       &OPS_recorderValue, domain, nullptr); // by SAJalali
+  Tcl_CreateCommand(interp, "recorderValue",       &OPS_recorderValue,   domain, nullptr);
+  Tcl_CreateCommand(interp, "record",              &TclCommand_record,   domain, nullptr);
 
-  // command added for initial state analysis for nDMaterials. Chris McGann, U.Washington
   Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, nullptr);
 
 
@@ -209,7 +209,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "record",       &TclCommand_record, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, nullptr);
 
 
@@ -1822,14 +1821,6 @@ getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
   return TCL_OK;
 }
 
-
-int
-TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  ((Domain*)clientData)->record(false);
-  return TCL_OK;
-}
 
 int
 getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
