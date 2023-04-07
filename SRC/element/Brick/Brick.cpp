@@ -47,8 +47,8 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_Brick)
 {
     if (OPS_GetNumRemainingInputArgs() < 10) {
@@ -86,6 +86,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Brick)
     return new Brick(idata[0],idata[1],idata[2],idata[3],idata[4],idata[5],idata[6],idata[7],
 		     idata[8],*mat,data[0],data[1],data[2]);
 }
+#endif
 
 //static data
 double  Brick::xl[3][8] ;

@@ -59,8 +59,8 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_BrickUP)
 {
     if (OPS_GetNDM() != 3 || OPS_GetNDF() != 4) {
@@ -114,6 +114,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BrickUP)
 		       *mat,data[0],data[1],data[2],data[3],data[4],
 		       opt[0],opt[1],opt[2]);
 }
+#endif
 
 //static data
 double  BrickUP::xl[4][8] ;
