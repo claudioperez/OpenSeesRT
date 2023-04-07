@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.35 $
-// $Date: 2009-10-13 21:14:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/FourNodeQuad.cpp,v $
-
+//
+// Description: This file contains the class definition for FourNodeQuad.
+// See https://portwooddigital.com/2022/09/11/unrolling-the-four-node-quad/
+//
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
-//
-// Description: This file contains the class definition for FourNodeQuad.
-
 #include <FourNodeQuad.h>
 #include <Node.h>
 #include <NDMaterial.h>
@@ -43,8 +39,8 @@
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad)
 {
     int ndm = OPS_GetNDM();
@@ -109,6 +105,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad)
     return new FourNodeQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
 			                *mat,type,thk,data[0],data[1],data[2],data[3]);
 }
+#endif
 
 
 double FourNodeQuad::matrixData[64];
@@ -945,7 +942,7 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
       s << "\t\t\t{";
       s << "\"name\": " << this->getTag() << ", ";
-      s << "\"type\": \"FourNodeQuad\", ";
+      s << "\"type\": \"" << this->class_name << "\", ";
       s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
       s << connectedExternalNodes(1) << ", ";
       s << connectedExternalNodes(2) << ", ";

@@ -45,8 +45,9 @@
 #include <ElementResponse.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_ConstantPressureVolumeQuad)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 2) {
@@ -93,6 +94,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ConstantPressureVolumeQuad)
     return new ConstantPressureVolumeQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
                                           *mat,thk);
 }
+#endif
 
 //static data
 double ConstantPressureVolumeQuad :: matrixData[64];

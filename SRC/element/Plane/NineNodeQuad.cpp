@@ -39,8 +39,8 @@
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_NineNodeQuad)
 {
     int ndm = OPS_GetNDM();
@@ -107,6 +107,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NineNodeQuad)
 							idata[5],idata[6],idata[7],idata[8],idata[9],
 			                *mat,type,thk,data[0],data[1],data[2],data[3]);
 }
+#endif
 
 
 double NineNodeQuad::matrixData[(nnodes*2)*(nnodes*2)];

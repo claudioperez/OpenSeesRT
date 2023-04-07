@@ -28,8 +28,8 @@
 #include <ElementalLoad.h>
 
 #include <math.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_NineFourNodeQuadUP)
 {
     if (OPS_GetNDM() != 2) {
@@ -95,6 +95,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NineFourNodeQuadUP)
 				  *mat,"PlaneStrain",thk,data[0],data[1],data[2],data[3],
 				  opt[0],opt[1]);
 }
+#endif
 
 
 Matrix NineFourNodeQuadUP::K(22,22);

@@ -44,7 +44,6 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
-#include <elementAPI.h>
 
 double FourNodeQuad3d::matrixData[144];
 Matrix FourNodeQuad3d::K(matrixData, 12, 12);
@@ -53,6 +52,7 @@ double FourNodeQuad3d::shp[3][4];
 double FourNodeQuad3d::pts[4][2];
 double FourNodeQuad3d::wts[4];
 
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad3d)
 {
 

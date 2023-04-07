@@ -40,8 +40,8 @@
 #include <ElementResponse.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_EnhancedQuad)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 2) {
@@ -89,6 +89,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_EnhancedQuad)
     return new EnhancedQuad(data[0],data[1],data[2],data[3],data[4],
                             *mat,type,thk);
 }
+#endif
 
 
 //static data

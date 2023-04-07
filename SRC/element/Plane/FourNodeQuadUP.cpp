@@ -28,8 +28,9 @@
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <elementAPI.h>
 
+
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuadUP)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 3) {
@@ -94,6 +95,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuadUP)
 			      *mat,"PlaneStrain",thk,data[0],data[1],data[2],data[3],
 			      opt[0],opt[1],opt[2]);
 }
+#endif
 
 Matrix FourNodeQuadUP::K(12,12);
 Vector FourNodeQuadUP::P(12);
