@@ -74,7 +74,7 @@ XmlFileStream::~XmlFileStream()
     this->close();
   }
 
-  /*
+#if 0
   if (theChannels != 0) {
     static ID lastMsg(1);
     if (sendSelfCount > 0) {
@@ -84,7 +84,7 @@ XmlFileStream::~XmlFileStream()
 	theChannels[0]->recvID(0, 0, lastMsg);
     delete [] theChannels;
   }
-  */
+#endif
 
   if (indentString != 0)
     delete [] indentString;
@@ -328,7 +328,9 @@ XmlFileStream::tag(const char *tagName)
     
     attributeMode = true;
 
-    /*  } else {
+#if 0  
+  } else {
+
     numIndent++;
     int nextXmlStringLength = xmlStringLength + numIndent*indentSize + strlen(tagName) + 5;
     char *nextXmlString = new char [nextXmlStringLength];
@@ -355,7 +357,7 @@ XmlFileStream::tag(const char *tagName)
     
     attributeMode = true;
   }
-    */
+#endif
   return 0;
 }
 
@@ -381,7 +383,8 @@ XmlFileStream::tag(const char *tagName, const char *value)
     (*xmlColumns)(numXMLTags) += 1;
     
     attributeMode = false;
-    /*  } else {
+#if 0
+  } else {
 
     numIndent++;
     int nextXmlStringLength = xmlStringLength + numIndent*indentSize + 2*strlen(tagName) + strlen(value) + 6;
@@ -415,14 +418,13 @@ XmlFileStream::tag(const char *tagName, const char *value)
 
     attributeMode = false;
   }
-    */
+#endif
   return 0;
 }
 
 int 
 XmlFileStream::endTag()
 {
-  //  if (sendSelfCount == 0) {
     if (numTag != 0) {
       if (attributeMode == true) {
 	theFile << "/>\n";
@@ -447,7 +449,8 @@ XmlFileStream::endTag()
       return 0;
     }
     
-    /*  } else {
+#if 0
+    } else {
   
     if (numTag != 0) {
       if (attributeMode == true) {
@@ -505,7 +508,7 @@ XmlFileStream::endTag()
       return 0;
     }
     }
-    */
+#endif
 
     return -1;
 }
@@ -520,7 +523,8 @@ XmlFileStream::attr(const char *name, int value)
 
       theFile << " " << name << "=\"" << value << "\"";
 
-      /*  } else {
+#if 0
+  } else {
 
     static char intRep[30];
     sprintf(intRep, "%d", value);
@@ -544,7 +548,7 @@ XmlFileStream::attr(const char *name, int value)
     strcat(xmlString, "\"");         
 
   }
-      */  
+#endif
   return 0;
 }
 
@@ -556,9 +560,10 @@ XmlFileStream::attr(const char *name, double value)
 
   //  if (sendSelfCount == 0) {
 
-    theFile << " " << name << "=\"" << value << "\"";
+  theFile << " " << name << "=\"" << value << "\"";
 
-    /*  } else {
+#if 0
+  } else {
 
     char intRep[30];
     sprintf(intRep, "%e", value);
@@ -581,7 +586,7 @@ XmlFileStream::attr(const char *name, double value)
     strcat(xmlString, intRep);         
     strcat(xmlString, "\"");         
   }
-    */
+#endif
   return 0;
 }
 
@@ -595,7 +600,8 @@ XmlFileStream::attr(const char *name, const char *value)
 
     theFile << " " << name << "=\"" << value << "\"";
 
-    /*  } else {
+#if 0
+  } else {
 
     int nextXmlStringLength = xmlStringLength + strlen(name) + strlen(value) + 5;
     char *nextXmlString = new char [nextXmlStringLength];
@@ -615,7 +621,7 @@ XmlFileStream::attr(const char *name, const char *value)
     strcat(xmlString, value);         
     strcat(xmlString, "\"");         
   }
-    */
+#endif
   return 0;
 }
 
@@ -912,12 +918,9 @@ XmlFileStream::operator<<(const void *p)
     attributeMode = false;
   }
 
-/*
-  if (fileOpen != 0)
-    theFile << p;
-*/
   return *this;
 }
+
 OPS_Stream& 
 XmlFileStream::operator<<(int n)
 {
@@ -934,6 +937,7 @@ XmlFileStream::operator<<(int n)
 
   return *this;
 }
+
 OPS_Stream& 
 XmlFileStream::operator<<(unsigned int n)
 {
@@ -950,6 +954,7 @@ XmlFileStream::operator<<(unsigned int n)
 
   return *this;
 }
+
 OPS_Stream& 
 XmlFileStream::operator<<(long n)
 {
@@ -961,12 +966,9 @@ XmlFileStream::operator<<(long n)
     attributeMode = false;
   }
 
-/*
-  if (fileOpen != 0)
-    theFile << n;
-*/
   return *this;
 }
+
 OPS_Stream& 
 XmlFileStream::operator<<(unsigned long n)
 {
@@ -978,12 +980,9 @@ XmlFileStream::operator<<(unsigned long n)
     attributeMode = false;
   }
 
-/*
-  if (fileOpen != 0)
-    theFile << n;
-*/
   return *this;
 }
+
 OPS_Stream& 
 XmlFileStream::operator<<(short n)
 {
@@ -995,12 +994,9 @@ XmlFileStream::operator<<(short n)
     attributeMode = false;
   }
 
-/*
-  if (fileOpen != 0)
-    theFile << n;
-*/
   return *this;
 }
+
 OPS_Stream& 
 XmlFileStream::operator<<(unsigned short n)
 {
@@ -1012,10 +1008,6 @@ XmlFileStream::operator<<(unsigned short n)
     attributeMode = false;
   }
 
-/*
-  if (fileOpen != 0)
-    theFile << n;
-*/
   return *this;
 }
 OPS_Stream& 
@@ -1029,10 +1021,6 @@ XmlFileStream::operator<<(bool b)
     attributeMode = false;
   }
 
-/*
-  if (fileOpen != 0)
-    theFile << b;
-*/
   return *this;
 }
 OPS_Stream& 
