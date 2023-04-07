@@ -15,7 +15,6 @@
 // What: "@(#) ElastomericBearingBoucWenMod.cpp, revA"
 
 #include "ElastomericBearingBoucWenMod3d.h"
-#include <elementAPI.h>
 #include <Domain.h>
 #include <Node.h>
 #include <Channel.h>
