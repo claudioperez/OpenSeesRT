@@ -142,7 +142,7 @@ NewtonRaphson::solveCurrentStep(void)
     }	
 
     if (theIntegrator->formUnbalance() < 0) {
-      opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+      opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
       opserr << "the Integrator failed in formUnbalance()\n";	
       return -2;
     }	    
@@ -150,7 +150,7 @@ NewtonRaphson::solveCurrentStep(void)
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
     if (theTest->start() < 0) {
-      opserr << "NewtonRaphson::solveCurrentStep() -";
+      opserr << "NewtonRaphson::solveCurrentStep() - ";
       opserr << "the ConvergenceTest object failed in start()\n";
       return -3;
     }
@@ -164,14 +164,14 @@ NewtonRaphson::solveCurrentStep(void)
 	if (numIterations == 0) {
 	  SOLUTION_ALGORITHM_tangentFlag = INITIAL_TANGENT;
 	  if (theIntegrator->formTangent(INITIAL_TANGENT) < 0){
-	    opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+	    opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
 	    opserr << "the Integrator failed in formTangent()\n";
 	    return -1;
 	  } 
 	} else {
 	  SOLUTION_ALGORITHM_tangentFlag = CURRENT_TANGENT;
 	  if (theIntegrator->formTangent(CURRENT_TANGENT) < 0){
-	    opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+	    opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
 	    opserr << "the Integrator failed in formTangent()\n";
 	    return -1;
 	  } 
@@ -180,24 +180,24 @@ NewtonRaphson::solveCurrentStep(void)
 	
 	SOLUTION_ALGORITHM_tangentFlag = tangent;
 	if (theIntegrator->formTangent(tangent, iFactor, cFactor) < 0){
-	    opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+	    opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
 	    opserr << "the Integrator failed in formTangent()\n";
 	    return -1;
 	}		    
       } 
       if (theSOE->solve() < 0) {
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+	opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
 	opserr << "the LinearSysOfEqn failed in solve()\n";	
 	return -3;
       }	    
 
       if (theIntegrator->update(theSOE->getX()) < 0) {
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+	opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
 	opserr << "the Integrator failed in update()\n";	
 	return -4;
       }	        
       if (theIntegrator->formUnbalance() < 0) {
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() -";
+	opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
 	opserr << "the Integrator failed in formUnbalance()\n";	
 	return -2;
       }	
@@ -209,14 +209,14 @@ NewtonRaphson::solveCurrentStep(void)
     } while (result == -1);
 
     if (result == -2) {
-      opserr << "NewtonRaphson::solveCurrentStep() -";
-      opserr << "the ConvergenceTest object failed in test()\n";
+      // opserr << "NewtonRaphson::solveCurrentStep() - ";
+      // opserr << "the convergence test failed in test()\n";
       return -3;
     }
-// note - if postive result we are returning what the convergence test returned
-    // which should be the number of iterations
-    
-        return result;
+
+    // if postive result, we are returning what the convergence test returned
+    // which should be the number of iterations  
+    return result;
 }
 
 

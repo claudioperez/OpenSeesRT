@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.13 $
-// $Date: 2007-04-13 22:27:55 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/KrylovNewton.cpp,v $
-
-// Written: MHS
-// Created: June 2001
 //
 // Description: This file contains the class definition for 
 // KrylovNewton.  KrylovNewton is a class which uses a Krylov
@@ -32,7 +25,10 @@
 // "Design and Application of a 1D GWMFE Code"
 // from SIAM Journal of Scientific Computing (Vol. 19, No. 3,
 // pp. 728-765, May 1998)
-
+//
+// Written: MHS
+// Created: June 2001
+//
 #include <KrylovNewton.h>
 #include <AnalysisModel.h>
 #include <StaticAnalysis.h>
@@ -143,7 +139,7 @@ KrylovNewton::solveCurrentStep(void)
 
   // Evaluate system residual R(y_0)
   if (theIntegrator->formUnbalance() < 0) {
-    opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+    opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
     opserr << "the Integrator failed in formUnbalance()\n";	
     return -2;
   }
@@ -152,7 +148,7 @@ KrylovNewton::solveCurrentStep(void)
   // set itself as the ConvergenceTest objects EquiSolnAlgo
   theTest->setEquiSolnAlgo(*this);
   if (theTest->start() < 0) {
-    opserr << "KrylovNewton::solveCurrentStep() -";
+    opserr << "KrylovNewton::solveCurrentStep() - ";
     opserr << "the ConvergenceTest object failed in start()\n";
     return -3;
   }
@@ -160,7 +156,7 @@ KrylovNewton::solveCurrentStep(void)
   
   // Evaluate system Jacobian J = R'(y)|y_0
   if (theIntegrator->formTangent(tangent) < 0){
-    opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+    opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
     opserr << "the Integrator failed in formTangent()\n";
     return -1;
   }    
@@ -179,7 +175,7 @@ KrylovNewton::solveCurrentStep(void)
     if (dim > maxDimension) {
       dim = 0;
       if (theIntegrator->formTangent(tangent) < 0){
-	opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+	opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
 	opserr << "the Integrator failed to produce new formTangent()\n";
 	return -1;
       }
@@ -187,28 +183,28 @@ KrylovNewton::solveCurrentStep(void)
 
     // Solve for residual f(y_k) = J^{-1} R(y_k)
     if (theSOE->solve() < 0) {
-      opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+      opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
       opserr << "the LinearSysOfEqn failed in solve()\n";	
       return -3;
     }
 
     // Solve least squares A w_{k+1} = r_k
     if (this->leastSquares(dim) < 0) {
-      opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+      opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
       opserr << "the Integrator failed in leastSquares()\n";
       return -1;
     }		    
 
     // Update system with v_k
     if (theIntegrator->update(*(v[dim])) < 0) {
-      opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+      opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
       opserr << "the Integrator failed in update()\n";	
       return -4;
     }	
 
     // Evaluate system residual R(y_k)
     if (theIntegrator->formUnbalance() < 0) {
-      opserr << "WARNING KrylovNewton::solveCurrentStep() -";
+      opserr << "WARNING KrylovNewton::solveCurrentStep() - ";
       opserr << "the Integrator failed in formUnbalance()\n";	
       return -2;
     }
@@ -222,12 +218,12 @@ KrylovNewton::solveCurrentStep(void)
   } while (result == -1);
   
   if (result == -2) {
-    opserr << "KrylovNewton::solveCurrentStep() -";
-    opserr << "the ConvergenceTest object failed in test()\n";
+    // opserr << "KrylovNewton::solveCurrentStep() - ";
+    // opserr << "the ConvergenceTest object failed in test()\n";
     return -3;
   }
   
-  // note - if positive result we are returning what the convergence
+  // if positive result, we are returning what the convergence
   // test returned which should be the number of iterations
   return result;
 }

@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-04-02 23:41:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/ModifiedNewton.cpp,v $
-                                                                        
-                                                                        
-// File: ~/OOP/analysis/algorithm/ModifiedNewton.C 
-// 
-// Written: fmk 
-// Created: 11/96 
-// Revision: A 
 //
 // Description: This file contains the class definition for 
 // ModifiedNewton. ModifiedNewton is a class which uses the
@@ -35,8 +24,9 @@
 // to solve the equations. No member functions are declared as virtual as 
 // it is not expected that this class will be subclassed.
 // 
-// What: "@(#)ModifiedNewton.C, revA"
-
+// Written: fmk 
+// Created: 11/96 
+//
 #include <ModifiedNewton.h>
 #include <AnalysisModel.h>
 #include <StaticAnalysis.h>
@@ -179,12 +169,9 @@ ModifiedNewton::solveCurrentStep(void)
 
     } while (result == -1);
 
-    //timer1.pause();
-    //opserr << "TIMER::solveCurrentStep - " << timer1;
-
     if (result == -2) {
-      opserr << "ModifiedNewton::solveCurrentStep() -";
-      opserr << "the ConvergenceTest object failed in test()\n";
+      // opserr << "ModifiedNewton::solveCurrentStep() -";
+      // opserr << "the ConvergenceTest object failed in test()\n";
       return -3;
     }
     return result;

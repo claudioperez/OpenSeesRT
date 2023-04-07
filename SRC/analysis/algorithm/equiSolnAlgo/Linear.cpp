@@ -17,26 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2006-09-05 23:02:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/Linear.cpp,v $
-                                                                        
-                                                                        
-// File: ~/OOP/analysis/algorithm/Linear.C 
-// 
-// Written: fmk 
-// Created: Sun Sept 15 15:06:47: 1996 
-// Revision: A 
-//
-
+//                                                                       
 // Description: This file contains the class definition for 
 // Linear. Linear is a class which performs a linear solution algorithm
 // to solve the equations. No member functions are declared as virtual as 
 // it is not expected that this class will be subclassed.
 // 
-// What: "@(#)Linear.C, revA"
-
+// File: ~/OOP/analysis/algorithm/Linear.C 
+// 
+// Written: fmk 
+// Created: Sun Sept 15 15:06:47: 1996 
+//
 #include <Linear.h>
 #include <AnalysisModel.h>
 #include <StaticAnalysis.h>
