@@ -26,7 +26,6 @@
 // Written: fmk
 // Created: 11/00
 //
-// #include <g3_api.h>
 #include <tcl.h>
 #include <GroundMotionRecord.h>
 
@@ -68,10 +67,10 @@ int
 G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
                        TCL_Char ** const argv, MultiSupportPattern *thePattern)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
 
-  GroundMotion *theMotion = nullptr;
   int gMotionTag;
+  GroundMotion *theMotion = nullptr;
+  Tcl_Interp *interp = G3_getInterpreter(rt);
 
   // make sure at least one other argument to contain integrator
   if (argc < 4) {

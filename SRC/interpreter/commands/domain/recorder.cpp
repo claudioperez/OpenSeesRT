@@ -24,8 +24,9 @@
 //
 // Written: fmk
 // Created: 04/98
-
+//
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tcl.h>
@@ -65,9 +66,9 @@
 #include <MeshRegion.h>
 #include <RemoveRecorder.h>
 
-static EquiSolnAlgo *theAlgorithm = nullptr;
-extern FE_Datastore *theDatabase;
+extern FE_Datastore    *theDatabase;
 extern FEM_ObjectBroker theBroker;
+static EquiSolnAlgo    *theAlgorithm = nullptr;
 
 
 void *OPS_PVDRecorder(G3_Runtime*);
@@ -1694,7 +1695,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       } else
         loc++;
     }
-
 #endif
     return TCL_OK;
   }
@@ -1964,6 +1964,14 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** 
   char buffer[30];
   sprintf(buffer, "%d", recorderTag);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  return TCL_OK;
+}
+
+int
+TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  ((Domain*)clientData)->record(false);
   return TCL_OK;
 }
 

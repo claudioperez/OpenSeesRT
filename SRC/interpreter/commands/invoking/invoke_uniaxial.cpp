@@ -9,7 +9,6 @@
 // Description: This file contains the implementaion of the
 // TclCommand class.
 //
-
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -70,13 +69,13 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
                       command_table[i].func,
                       (ClientData)theMaterial, 
                       nullptr);
-
-
+  //
+  // Evaluate script in argv[3]
+  //
   Tcl_Eval(interp, argv[3]);
 
-
   //
-  //
+  // Clean up
   //
   Tcl_DeleteCommand(interp, "uniaxialTest");
   Tcl_DeleteCommand(interp, "strainUniaxialTest");

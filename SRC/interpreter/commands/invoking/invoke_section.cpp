@@ -55,11 +55,10 @@ TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, 
 
   Tcl_CreateCommand(interp, "responseSectionTest",
                     SectionTest_getResponseSection, (ClientData)theSection, NULL);
-
-
-
-
-
+  //
+  //
+  //
+  Tcl_Eval(interp, argv[3]);
   //
   //
   //

@@ -264,7 +264,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
   if (result < 0) {
-    opserr << G3_ERROR_PROMPT << "analyze failed, returned: " << result
+    opserr << G3_WARN_PROMPT << "analyze failed, returned: " << result
            << " error flag\n";
   }
 
@@ -316,7 +316,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eigen <type> numModes?\n";
+    opserr << G3_ERROR_PROMPT << "eigen <type> numModes?\n";
     return TCL_ERROR;
   }
 
@@ -339,8 +339,10 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       generalizedAlgo = true;
 
     else if ((strcmp(argv[loc], "standard") == 0) ||
-             (strcmp(argv[loc], "-standard") == 0))
+             (strcmp(argv[loc], "-standard") == 0)) {
       generalizedAlgo = false;
+      typeSolver = EigenSOE_TAGS_SymBandEigenSOE;
+    }
 
     else if ((strcmp(argv[loc], "-findLargest") == 0))
       findSmallest = false;
@@ -364,7 +366,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
       typeSolver = EigenSOE_TAGS_FullGenEigenSOE;
 
     else {
-      opserr << "eigen - unknown option specified " << argv[loc] << endln;
+      opserr << "eigen - unknown option: " << argv[loc] << endln;
     }
 
     loc++;
@@ -379,7 +381,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // create a transient analysis if no analysis exists
   // 
-  builder->newEigenAnalysis(typeSolver,shift);
+  builder->newEigenAnalysis(typeSolver, shift);
   StaticAnalysis* theStaticAnalysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
 
