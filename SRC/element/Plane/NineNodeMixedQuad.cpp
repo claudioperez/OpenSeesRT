@@ -49,7 +49,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-#include <elementAPI.h>
 
 //static data
 Matrix  NineNodeMixedQuad :: stiff(18,18)   ;
@@ -61,7 +60,8 @@ double  NineNodeMixedQuad::xl[2][9];
 double   NineNodeMixedQuad::root06 = sqrt(0.6) ;
 double   NineNodeMixedQuad::sg[] = { -root06,   0.0,      root06  } ;
 double   NineNodeMixedQuad::wg[] = {  5.0/9.0,  8.0/9.0,  5.0/9.0 } ;
-  
+
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_NineNodeMixedQuad)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 2) {
@@ -107,6 +107,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NineNodeMixedQuad)
 
     return theNineNodeMixed;
 }
+#endif
 
 //null constructor
 NineNodeMixedQuad :: NineNodeMixedQuad( ) :
@@ -1435,10 +1436,10 @@ NineNodeMixedQuad::setResponse(const char **argv, int argc,
   } else if (strcmp(argv[0],"stresses") ==0) {
 
       for (int i=0; i<9; i++) {
-	output.tag("GaussPoint");
-	output.attr("number",i+1);
-	output.attr("eta",sg[i]);
-	output.attr("neta",sg[i]);
+	// output.tag("GaussPoint");
+	// output.attr("number",i+1);
+	// output.attr("eta",sg[i]);
+	// output.attr("neta",sg[i]);
 
 	output.tag("NdMaterialOutput");
 	output.attr("classType", materialPointers[i]->getClassTag());
