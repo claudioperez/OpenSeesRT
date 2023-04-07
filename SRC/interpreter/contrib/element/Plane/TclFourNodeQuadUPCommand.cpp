@@ -45,7 +45,7 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   if ((argc - argStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
     opserr << "Want: element FourNodeQuadUP eleTag? iNode? jNode? kNode? "
-              "lNode? thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? "
+              "lNode? thk? matTag? bulk? rho? perm_x? perm_y? <b1? b2? "
               "pressure? dM? dK?>\n";
     return TCL_ERROR;
   }
@@ -57,7 +57,7 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  TCL_Char *type;
+  // TCL_Char *type;
   if (Tcl_GetInt(interp, argv[argStart], &FourNodeQuadUPId) != TCL_OK) {
     opserr << "WARNING invalid FourNodeQuadUP eleTag" << endln;
     return TCL_ERROR;
@@ -209,7 +209,7 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   if ((argc - argStart) < 16) {
     opserr << "WARNING insufficient arguments\n";
     opserr
-        << "Want: element FourNodeQuadUP eleTag? Node1? ... Node9? thk? type? "
+        << "Want: element FourNodeQuadUP eleTag? Node1? ... Node9? thk? "
            "matTag? bulk? rho? perm_x? perm_y? <b1? b2? pressure? dM? dK?>\n";
     return TCL_ERROR;
   }
@@ -349,7 +349,7 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   if ((argc - argStart) < 11) {
     opserr << "WARNING insufficient arguments\n";
     opserr << "Want: element bbarQuadUP eleTag? iNode? jNode? kNode? lNode? "
-              "thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? "
+              "thk? matTag? bulk? rho? perm_x? perm_y? <b1? b2? "
               "pressure? dM? dK?>\n";
     return TCL_ERROR;
   }
@@ -361,7 +361,6 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
   double b1 = 0.0;
   double b2 = 0.0;
 
-  TCL_Char *type;
   if (Tcl_GetInt(interp, argv[argStart], &BBarFourNodeQuadUPId) != TCL_OK) {
     opserr << "WARNING invalid BBarFourNodeQuadUP eleTag" << endln;
     return TCL_ERROR;
