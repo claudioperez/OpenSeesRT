@@ -47,7 +47,6 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
 //static data
 double  BbarBrickWithSensitivity::xl[3][8] ;
@@ -70,6 +69,7 @@ const double  BbarBrickWithSensitivity::wg[] = { 1.0, 1.0, 1.0, 1.0,
 
 # define ELE_TAG_BbarBrickWithSensitivity 1984587234
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_BbarBrickWithSensitivity)
 {
     if (OPS_GetNumRemainingInputArgs() < 10) {
@@ -106,6 +106,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BbarBrickWithSensitivity)
 
     return new BbarBrickWithSensitivity(idata[0],idata[1],idata[2],idata[3],idata[4],idata[5],idata[6],idata[7],idata[8],*mat,data[0],data[1],data[2]);
 }
+#endif
 
 //null constructor
 BbarBrickWithSensitivity::BbarBrickWithSensitivity( ) :
