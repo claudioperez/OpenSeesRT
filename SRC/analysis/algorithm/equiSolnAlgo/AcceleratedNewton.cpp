@@ -133,14 +133,14 @@ AcceleratedNewton::solveCurrentStep(void)
 
   // Evaluate system residual R(y_0)
   if (theIntegrator->formUnbalance() < 0) {
-    opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+    opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
     opserr << "the Integrator failed in formUnbalance()\n";	
     return -2;
   }
 
   // Evaluate system Jacobian J = R'(y)|y_0
   if (theIntegrator->formTangent(tangent) < 0){
-    opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+    opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
     opserr << "the Integrator failed in formTangent()\n";
     return -1;
   }
@@ -151,7 +151,7 @@ AcceleratedNewton::solveCurrentStep(void)
   // set itself as the ConvergenceTest objects EquiSolnAlgo
   theTest->setEquiSolnAlgo(*this);
   if (theTest->start() < 0) {
-    opserr << "AcceleratedNewton::solveCurrentStep() -";
+    opserr << "AcceleratedNewton::solveCurrentStep() - ";
     opserr << "the ConvergenceTest object failed in start()\n";
     return -3;
   }
@@ -166,7 +166,7 @@ AcceleratedNewton::solveCurrentStep(void)
     //solveTimer.start();
     // Solve for displacement increment
     if (theSOE->solve() < 0) {
-      opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+      opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
       opserr << "the LinearSysOfEqn failed in solve()\n";	
       return -3;
     }
@@ -182,7 +182,7 @@ AcceleratedNewton::solveCurrentStep(void)
 
 //      accelTimer.start();
       if (theAccelerator->accelerate(*vAccel, *theSOE, *theIntegrator) < 0) {
-	opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+	opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
 	opserr << "the Accelerator failed in accelerate()\n";
 	return -1;
       }
@@ -193,14 +193,14 @@ AcceleratedNewton::solveCurrentStep(void)
 
     // Update system with accelerated displacement increment v_{k+1}
     if (theIntegrator->update(*vAccel) < 0) {
-      opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+      opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
       opserr << "the Integrator failed in update()\n";	
       return -4;
     }	
 
     // Evaluate residual
     if (theIntegrator->formUnbalance() < 0) {
-      opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+      opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
       opserr << "the Integrator failed in formUnbalance()\n";	
       return -2;
     }
@@ -215,7 +215,7 @@ AcceleratedNewton::solveCurrentStep(void)
       if (theAccelerator != 0) {
 	int ret = theAccelerator->updateTangent(*theIntegrator);
 	if (ret < 0) {
-	  opserr << "WARNING AcceleratedNewton::solveCurrentStep() -";
+	  opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
 	  opserr << "the Accelerator failed in updateTangent()\n";
 	  return -1;
 	}
@@ -223,18 +223,13 @@ AcceleratedNewton::solveCurrentStep(void)
 	  numFactorizations++;
       }
     }
-    //opserr << "ACCEL: " << numFactorizations << endln;
     this->record(k++);
 
   } while (result == -1);
-
-//  totalTimer.pause();
-//  totalTimeReal += totalTimer.getReal();
-//  totalTimeCPU  += totalTimer.getCPU();
-  
+ 
   if (result == -2) {
-    opserr << "AcceleratedNewton::solveCurrentStep() -";
-    opserr << "The ConvergenceTest object failed in test()\n";
+    // opserr << "AcceleratedNewton::solveCurrentStep() - ";
+    // opserr << "The ConvergenceTest object failed in test()\n";
     return -3;
   }
   
