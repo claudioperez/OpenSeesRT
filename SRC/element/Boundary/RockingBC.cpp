@@ -272,7 +272,7 @@ RockingBC::RockingBC(int tag, int Nd1, int Nd2, int nw,
   
   ey = sy / E;
 
-  for (size_t i = 0; i != Nw - 1; i++) {
+  for (int i = 0; i != Nw - 1; i++) {
 	  RBCVec vvv1{ Yw[i],Yw[i + 1] };
 	  RBCVec vvv2{ 0.0, 0.0 };
 	  Vecint vvv3{ 0 };
@@ -1073,7 +1073,7 @@ RockingBC::state_determination(void)
 		slidingmodes_try.clear();
 
 		bool ex2 = false;
-		for (int j = 0; j < slidingmodes.size(); j++) {
+		for (size_t j = 0; j < slidingmodes.size(); j++) {
 			if (slidingmodes[j] == 2) {
 				ex2 = true;
 			}
@@ -1098,7 +1098,7 @@ RockingBC::state_determination(void)
 			slidingmodes_try.push_back(1);
 		}
 
-		for (int j = 0; j < slidingmodes_try.size(); j++) {
+		for (size_t j = 0; j < slidingmodes_try.size(); j++) {
 			slidmode = slidingmodes_try[j];
 			//std::cout << "Trying sliding mode " << slidmode << std::endl;
 			NLsolvesuccess = NL_solve_dyn();
@@ -1515,22 +1515,22 @@ RockingBC::getResponse(int responseID, Information &eleInfo)
 			Up_com = interval_join(Upi_com);
 		}
 
-		for (size_t i = 0; i != Yup_com.Size(); i++) {
+		for (int i = 0; i != Yup_com.Size(); i++) {
 			Yup_file << Yup_com(i) * b << " ";
 		}
 		Yup_file << std::endl;
 
-		for (size_t i = 0; i != Up_com.Size(); i++) {
+		for (int i = 0; i != Up_com.Size(); i++) {
 			Up_file << Up_com(i) * b << " ";
 		}
 		Up_file << std::endl;
 
-		for (size_t i = 0; i != Ys_com.Size(); i++) {
+		for (int i = 0; i != Ys_com.Size(); i++) {
 			Ys_file << Ys_com(i) * b << " ";
 		}
 		Ys_file << std::endl;
 
-		for (size_t i = 0; i != S_com.Size(); i++) {
+		for (int i = 0; i != S_com.Size(); i++) {
 			S_file << S_com(i) << " ";
 		}
 		S_file << std::endl;
@@ -1573,7 +1573,7 @@ RockingBC::inverse3x3matrix(Matrix &A) const
 Vector RockingBC::find_in_dist(const Vector& X, const Vector& Y, const Vector& Xf) {
 	static std::vector<double> Yf{}; Yf.clear();
 	int ix = 0;
-	for (size_t i = 0; i != Xf.Size(); i++) {
+	for (int i = 0; i != Xf.Size(); i++) {
 		while (Xf[i] != X[ix]) {
 			ix += 1;
 		}
@@ -1596,13 +1596,13 @@ void RockingBC::simplify_dist_up(const Vector& X, const Vector& Y, const Vector&
 	
 	//(XwXd.data(), XwXd.data() + XwXd.rows() * XwXd.cols());
 	std::vector<double> Xw(XwXd.Size());
-	for (size_t i = 0; i != XwXd.Size(); i++) {
+	for (int i = 0; i != XwXd.Size(); i++) {
 		Xw[i] = XwXd(i);
 	}
 
 	Xnew.push_back(X[0]);
 	Ynew.push_back(Y[0]);
-	for (size_t i = 1; i!=X.Size() - 1; i++) {
+	for (int i = 1; i!=X.Size() - 1; i++) {
 		if (std::find(Xw.begin(), Xw.end(), X[i]) != Xw.end() && std::find(Xnew.begin(), Xnew.end(), X[i]) == Xnew.end()) {
 			Xnew.push_back(X[i]);
 			Ynew.push_back(Y[i]);
@@ -1646,7 +1646,7 @@ void RockingBC::W_to_ua_upl()
 	Upl[Nw-1] = Upi_com[Nw-2][(Upi_com[Nw - 2]).size() - 1];
 
 	dUa_dW.Zero();
-	for (size_t i = 0; i != W.Size(); i++)
+	for (int i = 0; i != W.Size(); i++)
 	{
 		if (W(i) > El[i])
 		{
@@ -1678,7 +1678,7 @@ void RockingBC::W_to_ua_upl_K()
 	El = Ec * DAMPC;
 
 	dUa_dW.Zero();
-	for (size_t i = 0; i != W.Size(); i++)
+	for (int i = 0; i != W.Size(); i++)
 	{
 		if (W(i) > El[i])
 		{
@@ -1742,7 +1742,7 @@ void RockingBC::Youter_calc()
 
 	Youter(0) = Ys(zl);
 	Youter(1) = Ys(zr);
-	for (size_t i = 0; i != W.Size(); i++) {
+	for (int i = 0; i != W.Size(); i++) {
 		dYouter_dW(0, i) = dYs_dW(zl, i);
 		dYouter_dW(1, i) = dYs_dW(zr, i);
 	}
@@ -1757,11 +1757,11 @@ void RockingBC::NM_calc()
 	dN_dW.Zero();
 	dM_dW.Zero();
 
-	for (size_t i = 0; i != Nints.Size(); i++)
+	for (int i = 0; i != Nints.Size(); i++)
 	{
 		N += Nints[i];
 		M += Mints[i];
-		for (size_t j = 0; j != W.Size(); j++) {
+		for (int j = 0; j != W.Size(); j++) {
 			dN_dW(j) += dNints_dW(i,j);
 			dM_dW(j) += dMints_dW(i,j);
 		}
@@ -1783,7 +1783,7 @@ void RockingBC::NM_calc_YS()
 	double s1{};
 	double s2{};
 
-	for (size_t i = 0; i != Ys.Size() - 1; i++)
+	for (int i = 0; i != Ys.Size() - 1; i++)
 	{
 		y1 = Ys(i);
 		y2 = Ys(i + 1);
@@ -1793,7 +1793,7 @@ void RockingBC::NM_calc_YS()
 		N += (y2 - y1) * (s1 + s2) / 2.;
 		M += (y2 - y1) * (2 * s1 * y1 + s1 * y2 + s2 * y1 + 2 * s2 * y2) / 6.;
 
-		for (size_t j = 0; j != W.Size(); j++) {
+		for (int j = 0; j != W.Size(); j++) {
 			dN_dW(j) += (-s1 / 2. - s2 / 2.) * dYs_dW(i,j) + (s1 / 2. + s2 / 2.) * dYs_dW(i + 1, j) + (y2 / 2. - y1 / 2.) * dS_dW(i, j) + (y2 / 2. - y1 / 2.) * dS_dW(i + 1, j);
 			dM_dW(j) += (-(s1 * y1) / 3. - (s1 * y2) / 6. - (s2 * y1) / 6. - (s2 * y2) / 3. - ((2 * s1 + s2) * (y1 - y2)) / 6.) * dYs_dW(i, j) +
 				((s1 * y1) / 3. + (s1 * y2) / 6. + (s2 * y1) / 6. + (s2 * y2) / 3. - ((s1 + 2 * s2) * (y1 - y2)) / 6.) * dYs_dW(i + 1, j) +
@@ -1824,7 +1824,7 @@ void RockingBC::NM_calc_Fncom()
 	double s1{};
 	double s2{};
 
-	for (size_t i = 0; i != Ydks.Size() - 1; i++)
+	for (int i = 0; i != Ydks.Size() - 1; i++)
 	{
 		y1 = Ydks(i);
 		y2 = Ydks(i + 1);
@@ -1834,7 +1834,7 @@ void RockingBC::NM_calc_Fncom()
 		N += (y2 - y1) * (s1 + s2) / 2.;
 		M += (y2 - y1) * (2 * s1 * y1 + s1 * y2 + s2 * y1 + 2 * s2 * y2) / 6.;
 
-		for (size_t j = 0; j != W.Size(); j++) {
+		for (int j = 0; j != W.Size(); j++) {
 			dN_dW(j) += (-s1 / 2. - s2 / 2.) * dYdks_dW(i, j) + (s1 / 2. + s2 / 2.) * dYdks_dW(i + 1, j) + (y2 / 2. - y1 / 2.) * dDS_dW(i, j) + (y2 / 2. - y1 / 2.) * dDS_dW(i + 1, j);
 			dM_dW(j) += (-(s1 * y1) / 3. - (s1 * y2) / 6. - (s2 * y1) / 6. - (s2 * y2) / 3. - ((2 * s1 + s2) * (y1 - y2)) / 6.) * dYdks_dW(i, j) +
 				((s1 * y1) / 3. + (s1 * y2) / 6. + (s2 * y1) / 6. + (s2 * y2) / 3. - ((s1 + 2 * s2) * (y1 - y2)) / 6.) * dYdks_dW(i + 1, j) +
@@ -1896,7 +1896,7 @@ void RockingBC::sL_Q_t_calc()
 
 	if (mu==0) {
 		notsliding = false;
-		for (int i = 0; i != Ys_cats_dist.size(); i++) {
+		for (size_t i = 0; i != Ys_cats_dist.size(); i++) {
 			if (Ys_cats_dist[i] > 0) {
 				notsliding = true;
 				break;
@@ -1950,7 +1950,7 @@ void RockingBC::sL_Q_t_calc()
 	t = Q / gQ;
 	dQ_dW = k1*(-1.0*dsL_dW) - k2*dM_dW;
 	dQ_due = k1*(dw1_due - dr_due - dsL_due);
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dgQ_dW(j) = 2. / 3. * (dYouter_dW(1, j) - dYouter_dW(0, j));
 	}
 	dt_dW = dQ_dW / gQ - Q / gQ / gQ * dgQ_dW;
@@ -1969,13 +1969,13 @@ void RockingBC::un_calc()
 	dues_due.Zero();
 	dues_due(0, 0) = dues_due(1, 1) = dues_due(2, 2) = dues_due(3, 3) = dues_due(4, 4) = dues_due(5, 5) = 1.0;
 	dues_due(3, 5) -= sL*L;
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		dues_due(3,j) -= dsL_due(j) * L * ueV(5);
 		dues_due(4,j) += dsL_due(j) * L;
 	}
 
 	dues_dW.Zero();
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dues_dW(3, j) -= dsL_dW(j) * L * ueV(5);
 		dues_dW(4, j) += dsL_dW(j) * L;
 	}
@@ -2048,26 +2048,26 @@ void RockingBC::ut_calc()
 void RockingBC::urf_calc()
 {
 	th2 = un(2);
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dth2_dW(j) = dun_dW(2,j);
 	}
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		dth2_due(j) = dun_due(2, j);
 	}
 
 	urth(0) = 0;
 	urth(1) = fr(1, 2) / fr(2, 2) * th2;
 
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		durth_dW(1, j) = fr(1, 2) / fr(2, 2) * dth2_dW(j);
 	}
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		durth_due(1, j) = fr(1, 2) / fr(2, 2) * dth2_due(j);
 	}
 
 	Fn2(0) = N;
 	Fn2(1) = M;
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dFn2_dW(0, j) = dN_dW(j);
 		dFn2_dW(1, j) = dM_dW(j);
 	}
@@ -2134,14 +2134,14 @@ void RockingBC::Uel_K_calc()
 	dUnf_dR = Matrix(Nw, rnotfound.size());
 	triangle_dispslope_disps_givenMat1(rnotfoundvec, Yw, Im1, Jm1, Unf, dUnf_dR);
 
-	for (int i = 0; i != ifound.size(); i++) {
+	for (size_t i = 0; i != ifound.size(); i++) {
 		UBnew_R[ifound[i]] = UB_R[rfoundi[i]];
 		for (int k = 0; k != Nw; k++) {
 			UBnew(k, ifound[i]) = UB(k, rfoundi[i]);
 			dUBnew_dR(k, ifound[i]) = dUB_dR(k, rfoundi[i]);
 		}
 	}
-	for (int i = 0; i != inotfound.size(); i++) {
+	for (size_t i = 0; i != inotfound.size(); i++) {
 		UBnew_R[inotfound[i]] = rnotfound[i];
 		for (int k = 0; k != Nw; k++) {
 			UBnew(k, inotfound[i]) = Unf(k, i);
@@ -2153,18 +2153,18 @@ void RockingBC::Uel_K_calc()
 	dDDKs_dW = Matrix(Ydks.Size(), Nw);
 	for (int i = 0; i != Dks.Size() - 1; i++) {
 		DDKs[i + 1] = Dks[i + 1] - Dks[i];
-		for (size_t j = 0; j != W.Size(); j++) {
+		for (int j = 0; j != W.Size(); j++) {
 			dDDKs_dW(i + 1,j) = dDks_dW(i + 1,j) - dDks_dW(i,j);
 		}
 	}
 
 	Uel = Uel_com * DAMPC + UBnew * DDKs;
 	dUel_dW = UBnew * dDDKs_dW;
-	for (size_t i = 0; i != Nw; i++)
+	for (int i = 0; i != Nw; i++)
 	{
-		for (size_t k = 0; k != Nw; k++)
+		for (int k = 0; k != Nw; k++)
 		{
-			for (size_t j = 0; j != DDKs.Size(); j++)
+			for (int j = 0; j != DDKs.Size(); j++)
 			{
 				dUel_dW(i, k) += dUBnew_dR(i, j) * dYdks_dW(j, k) * DDKs[j];
 			}
@@ -2178,10 +2178,10 @@ void RockingBC::disp_comb()
 {
 	utar(0) = un(0);
 	utar(1) = un(1);
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dutar_dW(0,j) = dun_dW(0,j); dutar_dW(1,j) = dun_dW(1,j);
 	}
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		dutar_due(0, j) = dun_due(0, j); dutar_due(1, j) = dun_due(1, j);
 	}
 
@@ -2207,12 +2207,12 @@ void RockingBC::disp_comb()
 void RockingBC::forces()
 {
 	Fn(0) = N; Fn(1) = M; Fn(2) = Q;
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dFn_dW(0, j) = dN_dW(j);
 		dFn_dW(1, j) = dM_dW(j);
 		dFn_dW(2, j) = dQ_dW(j);
 	}
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		dFn_due(2, j) = dQ_due(j);
 	}
 
@@ -2247,7 +2247,7 @@ void RockingBC::forces()
 	Fes(4) = (ues(4) - ues(1)) / L * Fnntot(0) - 1. / L * Fnntot(1) - 1. / L * Fnntot(2);
 	Fes(5) = Fnntot(1);
 
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dFes_dW(0,j) = -dFnntot_dW(0, j);
 		dFes_dW(1, j) = -(ues(4) - ues(1)) / L * dFnntot_dW(0, j) + 1. / L * dFnntot_dW(1, j) + 1. / L * dFnntot_dW(2, j)
 			- (dues_dW(4, j) - dues_dW(1, j)) / L * Fnntot(0);
@@ -2258,7 +2258,7 @@ void RockingBC::forces()
 		dFes_dW(5, j) = dFnntot_dW(1, j);
 	}
 
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		dFes_due(0,j) = -dFnntot_due(0, j);
 		dFes_due(1, j) = -(ues(4) - ues(1)) / L * dFnntot_due(0, j) + 1. / L * dFnntot_due(1, j) + 1. / L * dFnntot_due(2, j)
 			- (dues_due(4, j) - dues_due(1, j)) / L * Fnntot(0);
@@ -2274,12 +2274,12 @@ void RockingBC::forces()
 	FeV(5) -= Fes(4) * sL*L*ueV(5);
 
 	dFeV_dW = dFes_dW;
-	for (size_t j = 0; j != W.Size(); j++) {
+	for (int j = 0; j != W.Size(); j++) {
 		dFeV_dW(5,j) -= (dFes_dW(3,j) * sL * L + Fes(3) * dsL_dW(j) * L);
 		dFeV_dW(5,j) -= (dFes_dW(4,j) * sL * L * ueV(5) + Fes(4) * dsL_dW(j) * L * ueV(5));
 	}
 	dFeV_due = dFes_due;
-	for (size_t j = 0; j != ue.Size(); j++) {
+	for (int j = 0; j != ue.Size(); j++) {
 		dFeV_due(5,j) -= (dFes_due(3,j) * sL * L + Fes(3) * dsL_due(j) * L);
 		dFeV_due(5,j) -= (dFes_due(4,j) * sL * L * ueV(5) + Fes(4) * dsL_due(j) * L * ueV(5) + Fes(4) * sL * L * due5_due(j));
 	}
@@ -2292,22 +2292,22 @@ void RockingBC::forces()
 	//CHANGE FOR DLL CREATION
 		
 	//	Eigen::MatrixXd dUd_dW_2 = Eigen::MatrixXd(Ud.Size(), W.Size());
-	//	for (size_t i = 0; i != Ud.Size(); i++) {
-	//		for (size_t j = 0; j != W.Size(); j++) {
+	//	for (int i = 0; i != Ud.Size(); i++) {
+	//		for (int j = 0; j != W.Size(); j++) {
 	//			dUd_dW_2(i, j) = dUd_dW(i, j);
 	//		}
 	//	}
 	//	Eigen::MatrixXd dUd_due_2 = Eigen::MatrixXd(Ud.Size(), ue.Size());
-	//	for (size_t i = 0; i != Ud.Size(); i++) {
-	//		for (size_t j = 0; j != ue.Size(); j++) {
+	//	for (int i = 0; i != Ud.Size(); i++) {
+	//		for (int j = 0; j != ue.Size(); j++) {
 	//			dUd_due_2(i, j) = dUd_due(i, j);
 	//		}
 	//	}
 
 	//	Eigen::MatrixXd dW_due_2 = -dUd_dW_2.colPivHouseholderQr().solve(dUd_due_2);
 
-	//	for (size_t i = 0; i != W.Size(); i++) {
-	//		for (size_t j = 0; j != ue.Size(); j++) {
+	//	for (int i = 0; i != W.Size(); i++) {
+	//		for (int j = 0; j != ue.Size(); j++) {
 	//			dW_due(i, j) = dW_due_2(i, j);
 	//		}
 	//	}
@@ -2384,7 +2384,7 @@ int RockingBC::NL_solve_dyn()
 
 		//writedbgfile();
 		WZ_solve();
-		for (int i = 0; i < slidingmodes.size(); i++) {
+		for (size_t i = 0; i < slidingmodes.size(); i++) {
 			if (slidingmodes[i] != newslidmode) {
 				slidingmodes.push_back(newslidmode);
 			}
@@ -2403,19 +2403,19 @@ int RockingBC::NL_solve_dyn()
 		//CHANGE FOR DLL CREATION
 			
 		//	Eigen::MatrixXd dUd_dW_2 = Eigen::MatrixXd(Ud.Size(), W.Size());
-		//	for (size_t i = 0; i != Ud.Size(); i++) {
-		//		for (size_t j = 0; j != W.Size(); j++) {
+		//	for (int i = 0; i != Ud.Size(); i++) {
+		//		for (int j = 0; j != W.Size(); j++) {
 		//			dUd_dW_2(i, j) = dUd_dW(i, j);
 		//		}
 		//	}
 		//	Eigen::VectorXd Ud_2 = Eigen::VectorXd(Ud.Size());
-		//	for (size_t i = 0; i != Ud.Size(); i++) {
+		//	for (int i = 0; i != Ud.Size(); i++) {
 		//		Ud_2(i) = Ud(i);
 		//	}
 
 		//	Eigen::VectorXd DW_2 = -dUd_dW_2.colPivHouseholderQr().solve(Ud_2);
 
-		//	for (size_t i = 0; i != W.Size(); i++) {
+		//	for (int i = 0; i != W.Size(); i++) {
 		//		DW(i) = DW_2(i);
 		//	}
 		//}
@@ -2938,9 +2938,9 @@ double RockingBC::pImJ_calc(double y, double r)
 
 void RockingBC::Imat_calc(const Vector& Y, const Vector& R, Matrix& Imat)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
-		for (size_t j = 0; j != R.Size(); j++)
+		for (int j = 0; j != R.Size(); j++)
 		{
 			Imat(i,j) = I_calc(Y[i], R[j]);
 		}
@@ -2950,9 +2950,9 @@ void RockingBC::Imat_calc(const Vector& Y, const Vector& R, Matrix& Imat)
 
 void RockingBC::Jmat_calc(const Vector& Y, const Vector& R, Matrix& Jmat)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
-		for (size_t j = 0; j != R.Size(); j++)
+		for (int j = 0; j != R.Size(); j++)
 		{
 			Jmat(i,j) = J_calc(Y[i], R[j]);
 		}
@@ -2962,9 +2962,9 @@ void RockingBC::Jmat_calc(const Vector& Y, const Vector& R, Matrix& Jmat)
 
 void RockingBC::Imatb_calc(const Vector& Y, const Vector& R, Matrix& Imat)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
-		for (size_t j = 0; j != R.Size(); j++)
+		for (int j = 0; j != R.Size(); j++)
 		{
 			Imat(i, j) = Ib_calc(Y[i], R[j]);
 		}
@@ -2974,9 +2974,9 @@ void RockingBC::Imatb_calc(const Vector& Y, const Vector& R, Matrix& Imat)
 
 void RockingBC::Jmatb_calc(const Vector& Y, const Vector& R, Matrix& Jmat)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
-		for (size_t j = 0; j != R.Size(); j++)
+		for (int j = 0; j != R.Size(); j++)
 		{
 			Jmat(i, j) = Jb_calc(Y[i], R[j]);
 		}
@@ -2986,9 +2986,9 @@ void RockingBC::Jmatb_calc(const Vector& Y, const Vector& R, Matrix& Jmat)
 
 void RockingBC::pImJmat_calc(const Vector& Y, const Vector& R, Matrix& pImJmat)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
-		for (size_t j = 0; j != R.Size(); j++)
+		for (int j = 0; j != R.Size(); j++)
 		{
 			pImJmat(i, j) = pImJ_calc(Y[i], R[j]);
 		}
@@ -2998,7 +2998,7 @@ void RockingBC::pImJmat_calc(const Vector& Y, const Vector& R, Matrix& pImJmat)
 
 void RockingBC::Im1_calc(const Vector& Y, Vector& Im1)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
 		Im1(i) =I_calc(Y[i], -1.0);
 	}
@@ -3007,7 +3007,7 @@ void RockingBC::Im1_calc(const Vector& Y, Vector& Im1)
 
 void RockingBC::Jm1_calc(const Vector& Y, Vector& Jm1)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
 		Jm1(i) =J_calc(Y[i], -1.0);
 	}
@@ -3016,7 +3016,7 @@ void RockingBC::Jm1_calc(const Vector& Y, Vector& Jm1)
 
 void RockingBC::Im1b_calc(const Vector& Y, Vector& Im1)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
 		Im1(i) = Ib_calc(Y[i], -1.0);
 	}
@@ -3025,7 +3025,7 @@ void RockingBC::Im1b_calc(const Vector& Y, Vector& Im1)
 
 void RockingBC::Jm1b_calc(const Vector& Y, Vector& Jm1)
 {
-	for (size_t i = 0; i != Y.Size(); i++)
+	for (int i = 0; i != Y.Size(); i++)
 	{
 		Jm1(i) = Jb_calc(Y[i], -1.0);
 	}
@@ -3057,9 +3057,9 @@ void RockingBC::Usgm_trapz(const Vector& Yw, Matrix& Usgm)
 	Jm1_calc(Yw, Jm1);
 
 	Matrix Us(Yw.Size(), Yw.Size());
-	for (size_t i = 0; i != Yw.Size(); i++)
+	for (int i = 0; i != Yw.Size(); i++)
 	{
-		for (size_t k = 0; k != Yw.Size(); k++)
+		for (int k = 0; k != Yw.Size(); k++)
 		{
 			Us(k,i) = (Yw(i) * Imat(k,i) - Jmat(k,i)) - Im1(k) * Yw(i) + Jm1(k);
 		}
@@ -3081,9 +3081,9 @@ void RockingBC::triangle_dispslope_disps(const Vector& R, const Vector& Y, Matri
 	Im1_calc(Y, Im1);
 	Jm1_calc(Y, Jm1);
 
-	for (size_t i = 0; i != R.Size(); i++)
+	for (int i = 0; i != R.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k,i) = (R(i) * Imat(k,i) - Jmat(k,i)) - Im1(k) * R(i) + Jm1(k);
 			dU_dR(k,i) = Imat(k,i) - Im1(k);
@@ -3100,9 +3100,9 @@ void RockingBC::triangle_dispslope_disps_givenMat1(const Vector& R, const Vector
 	Imat_calc(Y, R, Imat);
 	Jmat_calc(Y, R, Jmat);
 
-	for (size_t i = 0; i != R.Size(); i++)
+	for (int i = 0; i != R.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k, i) = (R(i) * Imat(k, i) - Jmat(k, i)) - Im1(k) * R(i) + Jm1(k);
 			dU_dR(k, i) = Imat(k, i) - Im1(k);
@@ -3119,9 +3119,9 @@ void RockingBC::triangle_dispslope_disps_2(const Vector& R, const Vector& Y, con
 	pImJmat_calc(Y, R, pImJmat);
 	Imat_calc(Y, R, Imat);
 
-	for (size_t i = 0; i != R.Size(); i++)
+	for (int i = 0; i != R.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k, i) = pImJmat(k, i) - Im1(k) * R(i) + Jm1(k);
 			dU_dR(k, i) = Imat(k, i) - Im1(k);
@@ -3145,9 +3145,9 @@ void RockingBC::UNM_trapz(const Vector& R2, const Vector& R1, const Vector& Y, M
 	Im1_calc(Y, Im1);
 
 	U = Matrix(Y.Size(), R2.Size());
-	for (size_t i = 0; i != R2.Size(); i++)
+	for (int i = 0; i != R2.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k, i) = (R2(i) * Imatb(k, i) - Jmatb(k, i)) - (R1(i) * Imata(k, i) - Jmata(k, i)) - Im1(k) * (R2(i)-R1(i));
 		}
@@ -3164,9 +3164,9 @@ void RockingBC::UNM_rect(const Vector& R, const Vector& Y, Matrix& U)
 	Im1_calc(Y, Im1);
 
 	U = Matrix(Y.Size(), R.Size());
-	for (size_t i = 0; i != R.Size(); i++)
+	for (int i = 0; i != R.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k, i) = Imat(k, i) - Im1(k);
 		}
@@ -3206,9 +3206,9 @@ void RockingBC::UNM_calc(const Vector& Yw, Matrix& UN, Matrix& UM)
 
 	UN = Matrix(Yw.Size(), Yw.Size() - 1);
 	UM = Matrix(Yw.Size(), Yw.Size() - 1);
-	for (size_t i = 0; i != Yw.Size()-1; i++)
+	for (int i = 0; i != Yw.Size()-1; i++)
 	{
-		for (size_t k = 0; k != Yw.Size(); k++)
+		for (int k = 0; k != Yw.Size(); k++)
 		{
 			UN(k, i) = 6. * (Yw[i + 1] + Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Utr(k, i) - 2. * (2. * Yw[i + 1] + Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Ur1(k, i) - 2. * (Yw[i + 1] + 2. * Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Ur2(k, i);
 			UM(k, i) = -12. / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Utr(k, i) + 6. / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * (Ur1(k, i) + Ur2(k, i));
@@ -3231,9 +3231,9 @@ void RockingBC::UNMb_trapz(const Vector& R2, const Vector& R1, const Vector& Y, 
 	Im1b_calc(Y, Im1);
 
 	U = Matrix(Y.Size(), R2.Size());
-	for (size_t i = 0; i != R2.Size(); i++)
+	for (int i = 0; i != R2.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k, i) = (R2(i) * Imatb(k, i) - Jmatb(k, i)) - (R1(i) * Imata(k, i) - Jmata(k, i)) - Im1(k) * (R2(i) - R1(i));
 		}
@@ -3250,9 +3250,9 @@ void RockingBC::UNMb_rect(const Vector& R, const Vector& Y, Matrix& U)
 	Im1b_calc(Y, Im1);
 
 	U = Matrix(Y.Size(), R.Size());
-	for (size_t i = 0; i != R.Size(); i++)
+	for (int i = 0; i != R.Size(); i++)
 	{
-		for (size_t k = 0; k != Y.Size(); k++)
+		for (int k = 0; k != Y.Size(); k++)
 		{
 			U(k, i) = Imat(k, i) - Im1(k);
 		}
@@ -3294,9 +3294,9 @@ void RockingBC::UNMb_calc(const Vector& Yw, Matrix& UN, Matrix& UM)
 
 	UN = Matrix(Yw.Size(), Yw.Size() - 1);
 	UM = Matrix(Yw.Size(), Yw.Size() - 1);
-	for (size_t i = 0; i != Yw.Size() - 1; i++)
+	for (int i = 0; i != Yw.Size() - 1; i++)
 	{
-		for (size_t k = 0; k != Yw.Size(); k++)
+		for (int k = 0; k != Yw.Size(); k++)
 		{
 			UN(k, i) = 6. * (Yw[i + 1] + Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Utr(k, i) - 2. * (2. * Yw[i + 1] + Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Ur1(k, i) - 2. * (Yw[i + 1] + 2. * Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Ur2(k, i);
 			UM(k, i) = -12. / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * Utr(k, i) + 6. / (Yw[i + 1] - Yw[i]) / (Yw[i + 1] - Yw[i]) * (Ur1(k, i) + Ur2(k, i));
@@ -3456,7 +3456,7 @@ void RockingBC::Up_interval_split(const Vector& Yup, const Vector& Up, const Vec
 	static std::vector<int> Yind{};
 	Yind.clear();
 	int iy = 0;
-	for (size_t iw = 0; iw != Yw.Size(); iw++) {
+	for (int iw = 0; iw != Yw.Size(); iw++) {
 		while (true) {
 			if (Yup[iy] == Yw[iw]) {
 			//if (std::fabs(Yup[iy]-Yw[iw])<1.0e-12) {
@@ -3472,12 +3472,12 @@ void RockingBC::Up_interval_split(const Vector& Yup, const Vector& Up, const Vec
 	Up_ints.clear();
 	for (size_t i = 0; i != Yind.size() - 1; i++) {
 		RBCVec X1{};
-		for (size_t j = Yind[i]; j != Yind[i + 1] +1; j++) {
+		for (int j = Yind[i]; j != Yind[i + 1] +1; j++) {
 			X1.push_back(Up[j]);
 		}
 		Up_ints.push_back(X1);
 		RBCVec X2{};
-		for (size_t j = Yind[i]; j != Yind[i + 1] +1; j++) {
+		for (int j = Yind[i]; j != Yind[i + 1] +1; j++) {
 			X2.push_back(Yup[j]);
 		}
 		Yup_ints.push_back(X2);
@@ -3517,15 +3517,15 @@ Matrix RockingBC::interval_join(const VecMatOS& X_ints) {
 	static Matrix res;
 	res = Matrix(vecints[vecints.size() - 1] + 1, X_ints.at(0).noCols());
 	for (size_t i = 0; i != X_ints.size(); i++) {
-		for (size_t k = 0; k != X_ints.at(i).noRows()-1; k++) {
-			for (size_t l = 0; l != X_ints.at(i).noCols(); l++) {
+		for (int k = 0; k != X_ints.at(i).noRows()-1; k++) {
+			for (int l = 0; l != X_ints.at(i).noCols(); l++) {
 				res(vecints[i] + k, l) = X_ints[i](k, l);
 			}
 		}
 	}
 	
 	const Matrix& mm = X_ints[X_ints.size() - 1];
-	for (size_t l = 0; l != mm.noCols(); l++) {
+	for (int l = 0; l != mm.noCols(); l++) {
 		res(res.noRows() - 1, l) = mm(mm.noRows() - 1, l);
 	}
 	return res;
@@ -3553,8 +3553,8 @@ Matrix RockingBC::array_join(const VecMatOS& X_ints) {
 	}
 	Matrix res = Matrix(vecints[vecints.size() - 1], X_ints.at(0).noCols());
 	for (size_t i = 0; i != X_ints.size(); i++) {
-		for (size_t k = 0; k != X_ints.at(i).noRows(); k++) {
-			for (size_t l = 0; l != X_ints.at(i).noCols(); l++) {
+		for (int k = 0; k != X_ints.at(i).noRows(); k++) {
+			for (int l = 0; l != X_ints.at(i).noCols(); l++) {
 				res(vecints[i] + k, l) = X_ints[i](k, l);
 			}
 		}
@@ -3569,9 +3569,9 @@ void RockingBC::commony(const RBCVec& ya, const RBCVec& fa, const RBCVec& yb, co
 	FA.clear();
 	FB.clear();
 
-	int ia = 0;
-	int ib = 0;
-	while ((ia < ya.size() - 1) || (ib < yb.size() - 1))
+	long ia = 0;
+	long ib = 0;
+	while ((ia < (int)ya.size() - 1) || (ib < (int)yb.size() - 1))
 	{
 		if (ya[ia] == yb[ib]) {
 			Y.push_back(ya[ia]);
@@ -3947,7 +3947,7 @@ void RockingBC::interval_dists(const Vector& Yw, const Vector& W, const VecVec& 
 	VecVec dys_dwr_list( W.Size() - 1, std::vector<double>{} );
 	VecVec ds_dwr_list( W.Size() - 1, std::vector<double>{} );
 	
-	for (size_t i = 0; i != W.Size()-1; i++) {
+	for (int i = 0; i != W.Size()-1; i++) {
 
 		interval_interior(W[i], W[i + 1], ey, Yw[i + 1] - Yw[i], Upi_com[i], Yupi_com[i],Ysi_com[i], Si_com[i], beta_Dt,
 			Ysi[i], Si[i], Ys_cats[i], Yupi_new[i], Upi_new[i],
@@ -3957,13 +3957,13 @@ void RockingBC::interval_dists(const Vector& Yw, const Vector& W, const VecVec& 
 
 	static Vector dNdW{}, dMdW{};
 	
-	for (size_t i = 0; i != W.Size() - 1; i++) {
+	for (int i = 0; i != W.Size() - 1; i++) {
 		
 		RBCVec dwl_dW(W.Size()); dwl_dW[i] = 1.0;
 		RBCVec dwr_dW(W.Size()); dwr_dW[i+1] = 1.0;
 		Matrix dys_dW = Matrix(dys_dwl_list[i].size(), W.Size());
 		Matrix ds_dW = Matrix(ds_dwl_list[i].size(), W.Size());
-		for (size_t l = 0; l != W.Size(); l++) {
+		for (int l = 0; l != W.Size(); l++) {
 			for (size_t k = 0; k != dys_dwl_list[i].size(); k++) {
 				dys_dW(k, l) += dys_dwl_list[i][k] * dwl_dW[l];
 				dys_dW(k, l) += dys_dwr_list[i][k] * dwr_dW[l];
@@ -3974,7 +3974,7 @@ void RockingBC::interval_dists(const Vector& Yw, const Vector& W, const VecVec& 
 		dYsi_dW[i] = dys_dW;
 		dSi_dW[i] = ds_dW;
 		NM_calc_int(Ysi[i], dys_dW, Si[i], ds_dW, Nints[i], Mints[i], dNdW, dMdW);
-		for (size_t j = 0; j != W.Size(); j++) {
+		for (int j = 0; j != W.Size(); j++) {
 			dNints_dW(i,j) = dNdW(j);
 			dMints_dW(i,j) = dMdW(j);
 		}
@@ -3996,7 +3996,7 @@ void RockingBC::NM_calc_int(const RBCVec& Ys, const Matrix& dYs_dW, const RBCVec
 		N += (Ys[i + 1] - Ys[i])*(S[i] + S[i + 1]) / 2.;
 		M += (Ys[i + 1] - Ys[i])*(2 * S[i] * Ys[i] + S[i] * Ys[i + 1] + S[i + 1] * Ys[i] + 2 * S[i + 1] * Ys[i + 1]) / 6.;
 
-		for (size_t j= 0 ; j != dN_dW.Size(); j++) {
+		for (int j= 0 ; j != dN_dW.Size(); j++) {
 			dN_dW(j) += (-S[i] / 2. - S[i + 1] / 2.) * dYs_dW(i,j) + (S[i] / 2. + S[i + 1] / 2.) * dYs_dW(i + 1,j) + (Ys[i + 1] / 2. - Ys[i] / 2.) * dS_dW(i,j) + (Ys[i + 1] / 2. - Ys[i] / 2.) * dS_dW(i + 1,j);
 			dM_dW(j) += (-(S[i] * Ys[i]) / 3. - (S[i] * Ys[i + 1]) / 6. - (S[i + 1] * Ys[i]) / 6. - (S[i + 1] * Ys[i + 1]) / 3. - ((2. * S[i] + S[i + 1]) * (Ys[i] - Ys[i + 1])) / 6.) * dYs_dW(i,j) +
 				((S[i] * Ys[i]) / 3. + (S[i] * Ys[i + 1]) / 6. + (S[i + 1] * Ys[i]) / 6. + (S[i + 1] * Ys[i + 1]) / 3. - ((S[i] + 2. * S[i + 1]) * (Ys[i] - Ys[i + 1])) / 6.) * dYs_dW(i + 1,j) +
@@ -4011,7 +4011,7 @@ void RockingBC::critpoints(const RBCVec& y, const RBCVec& s, int rinit, int rend
 {
 	cp.clear();
 
-	for (size_t i = rinit + 1; i != rend; i++) {
+	for (int i = rinit + 1; i != rend; i++) {
 		// Slope change
 		if ((s[i] - s[i - 1])*(s[i + 1] - s[i]) <= 0 && (s[i] - s[i - 1] != 0 || s[i + 1] - s[i] != 0))
 		{
@@ -4199,9 +4199,9 @@ void RockingBC::int_bilin(const Vecint& ys_cats, const RBCVec& ys, const RBCVec&
 
 	ys_new.clear();
 	s_new.clear();
-	int ir = 0;
-	int i = 0;
-	while (i < ys.size()) {
+	size_t ir = 0;
+	long i = 0;
+	while (i < (long)ys.size()) {
 		if (ir < i_s_bl.size() && (i == i_s_bl[ir][0] || i == i_s_bl[ir][0] + 1)) {
 			if (i == i_s_bl[ir][0]) {
 				for (size_t k = 0; k != ys_bl[ir].size(); k++) {
@@ -4229,7 +4229,7 @@ void RockingBC::int_bilin(const Vecint& ys_cats, const RBCVec& ys, const RBCVec&
 	up_new.clear();
 	ir = 0;
 	i = 0;
-	while (i < yup.size()) {
+	while (i < (long)yup.size()) {
 		if (ir < i_up_bl.size() && (i == i_up_bl[ir][0] || i == i_up_bl[ir][0] + 1)) {
 			if (i == i_up_bl[ir][0]) {
 				for (size_t k = 0; k != yup_bl[ir].size(); k++) {
@@ -4261,7 +4261,7 @@ void RockingBC::Up_interval_split_K(const Vector& Yup, const Vector& Up, const V
 	Yind.clear();
 
 	int iy = 0;
-	for (size_t iw = 0; iw != Yw.Size(); iw++) {
+	for (int iw = 0; iw != Yw.Size(); iw++) {
 		while (true) {
 			if (Yup[iy] == Yw[iw]) {
 				//if (std::fabs(Yup[iy]-Yw[iw])<1.0e-15) {
@@ -4283,12 +4283,12 @@ void RockingBC::Up_interval_split_K(const Vector& Yup, const Vector& Up, const V
 
 		Vector upint(Yind[i + 1] - Yind[i] + 1);
 		Vector yupint(Yind[i + 1] - Yind[i] + 1);
-		for (size_t j = 0; j != Yind[i + 1] - Yind[i] + 1; j++) {
+		for (int j = 0; j != Yind[i + 1] - Yind[i] + 1; j++) {
 			upint(j) = Up(Yind[i] + j);
 			yupint(j) = Yup(Yind[i] + j);
 		}
 		Vector kupint(Yind[i + 1] - Yind[i]);
-		for (size_t j = 0; j != Yind[i + 1] - Yind[i]; j++) {
+		for (int j = 0; j != Yind[i + 1] - Yind[i]; j++) {
 			kupint(j) = Kup(Yind[i] + j);
 		}
 		Up_ints.push_back(upint);
@@ -4867,7 +4867,7 @@ void RockingBC::interval_dists_K(const Vector& Yw, const Vector& W, const Vector
 	VecVec dds_dwl_list(W.Size() - 1, std::vector<double>{});
 	VecVec dds_dwr_list(W.Size() - 1, std::vector<double>{});
 
-	for (size_t i = 0; i != W.Size() - 1; i++) {
+	for (int i = 0; i != W.Size() - 1; i++) {
 
 		interval_interior_K(W[i], W[i + 1], ey, Yw[i + 1] - Yw[i], Up_ints[i], Yup_ints[i], Kup_ints[i],
 			Ys_ints[i], S_ints[i], Ks_ints[i], beta_Dt,
@@ -4895,7 +4895,7 @@ void RockingBC::interval_dists_K(const Vector& Yw, const Vector& W, const Vector
 	static VecMatOS dDks_dW_list{}; dDks_dW_list.clear();
 	static VecMatOS dDS_dW_list{}; dDS_dW_list.clear();
 
-	for (size_t i = 0; i != W.Size() - 1; i++) {
+	for (int i = 0; i != W.Size() - 1; i++) {
 
 		RBCVec dwl_dW(W.Size()); dwl_dW[i] = 1.0;
 		RBCVec dwr_dW(W.Size()); dwr_dW[i + 1] = 1.0;
@@ -4905,7 +4905,7 @@ void RockingBC::interval_dists_K(const Vector& Yw, const Vector& W, const Vector
 		Matrix dydks_dW = Matrix(dydks_dwl_list[i].size(), W.Size());
 		Matrix ddks_dW = Matrix(ddks_dwl_list[i].size(), W.Size());
 		Matrix dds_dW = Matrix(dds_dwl_list[i].size(), W.Size());
-		for (size_t l = 0; l != W.Size(); l++) {
+		for (int l = 0; l != W.Size(); l++) {
 			for (size_t k = 0; k != dys_dwl_list[i].size(); k++) {
 				dys_dW(k, l) += dys_dwl_list[i][k] * dwl_dW[l];
 				dys_dW(k, l) += dys_dwr_list[i][k] * dwr_dW[l];
@@ -4972,9 +4972,9 @@ void RockingBC::commony_BL(const RBCVec& ya, const RBCVec& fa, const RBCVec& yb,
 	FA.clear();
 	FB.clear();
 
-	int ia = 0;
-	int ib = 0;
-	while ((ia < ya.size() - 1) || (ib < yb.size() - 1))
+	long ia = 0;
+	long ib = 0;
+	while ((ia < (long)ya.size() - 1) || (ib < (long)yb.size() - 1))
 	{
 		if (ya[ia] == yb[ib]) {
 			Y.push_back(ya[ia]);
