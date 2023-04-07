@@ -105,8 +105,8 @@ class IncrementalIntegrator : public Integrator
     virtual int getLastResponse(Vector &result, const ID &id);
     
   protected:
-    LinearSOE *getLinearSOE(void) const;
-    AnalysisModel *getAnalysisModel(void) const;
+    LinearSOE       *getLinearSOE(void) const;
+    AnalysisModel   *getAnalysisModel(void) const;
     ConvergenceTest *getConvergenceTest(void) const;
 
     virtual int  formNodalUnbalance(void);        
@@ -117,14 +117,14 @@ class IncrementalIntegrator : public Integrator
 
     //    Vector *modalDampingValues;
     EigenSOE *theEigenSOE;
-    double *eigenVectors;
-    Vector *eigenValues;
-    Vector *dampingForces;
-    bool isDiagonal;
-    double *diagMass;
-    Vector *mV;
-    Vector *tmpV1;
-    Vector *tmpV2;
+    double   *eigenVectors;
+    Vector   *eigenValues;
+    Vector   *dampingForces;
+    bool      isDiagonal;
+    double   *diagMass;
+    Vector   *mV;
+    Vector   *tmpV1;
+    Vector   *tmpV2;
     
   private:
     LinearSOE *theSOE;
