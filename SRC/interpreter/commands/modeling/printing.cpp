@@ -81,15 +81,14 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << "\"StructuralAnalysisModel\": {\n";
 
     s << tab << "\"properties\": {\n";
-
-#if 0
-    OPS_printNDMaterial(s, flag);
-    s << ",\n";
-#endif
-
     //
     s << tab << tab << "\"sections\": [\n";        
     printRegistry(builder, "CrossSection", flag, &s);
+    s << "\n" << tab << tab << "]";
+    s << ",\n";
+    //
+    s << tab << tab << "\"nDMaterials\": [\n";        
+    printRegistry(builder, "NDMaterial", flag, &s);
     s << "\n" << tab << tab << "]";
     s << ",\n";
     //

@@ -75,7 +75,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_PeerNGAMotion)
   int tag = 0;     // default tag = 0
   double factor = 0.0; 
   int numData = 0;
-  char *type = "-ACCEL";
+  const char *type = "-ACCEL";
 
   // get tag if provided
   if (numRemainingArgs == 3 || numRemainingArgs == 5 || numRemainingArgs == 7) {

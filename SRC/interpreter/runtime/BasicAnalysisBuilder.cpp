@@ -244,10 +244,13 @@ void BasicAnalysisBuilder::set(Integrator* obj, int isstatic) {
 void BasicAnalysisBuilder::set(ConvergenceTest* obj) {
 
     if (obj == 0) return;
-    if (theTest != 0) {
-        opserr << "The test can only be set once for one analysis\n";
-        return;
-    }
+
+    // if (theTest != 0) {
+    //     opserr << "The test can only be set once for one analysis\n";
+    //     return;
+    // } else {
+    //
+    // }
     theTest = obj;
     if (theStaticAnalysis != 0) theStaticAnalysis->setConvergenceTest(*obj);
     if (theTransientAnalysis != 0) theTransientAnalysis->setConvergenceTest(*obj);
@@ -278,18 +281,20 @@ void BasicAnalysisBuilder::newStaticAnalysis()
         theAnalysisModel = new AnalysisModel();
     }
 
-    if (theTest == 0) {
+    if (theTest == nullptr) {
         theTest = new CTestNormUnbalance(1.0e-6,25,0);
     }
         
     if (theAlgorithm == nullptr) {
         theAlgorithm = new NewtonRaphson(*theTest); 
     }
+
     if (theHandler == nullptr) {
         opserr << "WARNING analysis Static - no ConstraintHandler yet specified, \n";
         opserr << " PlainHandler default will be used\n";
         theHandler = new PlainHandler();       
     }
+
     if (theNumberer == nullptr) {
         // opserr << "WARNING analysis Static - no Numberer specified, \n";
         // opserr << " RCM default will be used\n";
@@ -301,7 +306,8 @@ void BasicAnalysisBuilder::newStaticAnalysis()
         opserr << " StaticIntegrator default will be used\n";
         theStaticIntegrator = new LoadControl(1, 1, 1, 1);       
     }
-    if (theSOE == 0) {
+
+    if (theSOE == nullptr) {
       // TODO: CHANGE TO MORE GENERAL SOE
 #if 0
         opserr << "WARNING analysis Static - no LinearSOE specified, \n";
@@ -374,7 +380,7 @@ BasicAnalysisBuilder::newTransientAnalysis()
         opserr << " Newmark(.5,.25) default will be used\n";
         theTransientIntegrator = new Newmark(0.5,0.25);       
     }
-    if (theSOE == 0) {
+    if (theSOE == nullptr) {
         opserr << "WARNING analysis Transient dt tFinal - no LinearSOE specified, \n";
         opserr << " ProfileSPDLinSOE default will be used\n";
         ProfileSPDLinSolver *theSolver;

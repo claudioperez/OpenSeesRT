@@ -20,7 +20,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/c
 include(OpenSeesFunctions)
 enable_testing()
 
-add_definitions(-DOPS_USE_RUNTIME) # -D_THREADS)
+add_definitions(-DOPS_USE_RUNTIME -D_THREADS)
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -168,7 +168,6 @@ include_directories(
   ${OPS_SRC_DIR}/domain/region
   ${OPS_SRC_DIR}/domain/subdomain
   ${OPS_SRC_DIR}/element
-  ${OPS_SRC_DIR}/element/UP-ucsd
   ${OPS_SRC_DIR}/graph/graph
   ${OPS_SRC_DIR}/graph/numberer
   ${OPS_SRC_DIR}/graph/partitioner
@@ -244,7 +243,11 @@ opensees_library(OPS_SysOfEqn_UMF
 
 # Packaged libraries
 add_library(G3) 
-set_property(TARGET G3 PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+set_property(TARGET OPS_MaterialFortran   PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET OPS_ElementFortran    PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET G3                    PROPERTY POSITION_INDEPENDENT_CODE 1)
+
 
 # Executables and final targets
 #------------------------------------------------------------------------------
@@ -351,16 +354,12 @@ endif()
 
 
 get_target_property(OPS_Material_COMPILE_OPTIONS OPS_Material COMPILE_OPTIONS)
-if(OPS_Material_COMPILE_OPTIONS)
   string(REPLACE "-Wall" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
   string(REPLACE "-Wextra" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
   set_target_properties(OPS_Material PROPERTIES COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
-endif()
 
 get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
-if(OPS_Element_COMPILE_OPTIONS)
   string(REPLACE "-Wall" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
-  string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
+# string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
   set_target_properties(OPS_Element PROPERTIES COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
-endif()
 

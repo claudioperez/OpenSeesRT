@@ -17,7 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
+//
+// Description: This file contains the implementation for the
+// CorotCrdTransf2d class. CorotCrdTransf2d is a Corot
+// transformation for a planar frame between the global
+// and basic coordinate systems.
+//
 // $Revision: 1.4 $
 // $Date: 2008-12-03 23:40:07 $
 // $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransf2d.cpp,v $
@@ -28,11 +33,6 @@
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
-// Purpose: This file contains the implementation for the
-// CorotCrdTransf2d class. CorotCrdTransf2d is a Corot
-// transformation for a planar frame between the global
-// and basic coordinate systems.
-
 /*
  * References
  *

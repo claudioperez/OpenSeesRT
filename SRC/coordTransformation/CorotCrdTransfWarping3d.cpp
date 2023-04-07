@@ -17,24 +17,21 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2007/08/07 16:52:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransfWarping3d.cpp,v $
-
+//
+// Description: This file contains the implementation for the
+// CorotCrdTransfWarping3d class. CorotCrdTransfWarping3d is a Corot
+// transformation for a spatial frame between the global
+// and basic coordinate systems.
+//
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 05/2000
 // Revision: rms 06/2000 (using Assemble, and AssembleTranspose)
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
-// Purpose: This file contains the implementation for the
-// CorotCrdTransfWarping3d class. CorotCrdTransfWarping3d is a Corot
-// transformation for a spatial frame between the global
-// and basic coordinate systems.
 // Modified by Xi Zhang from University of Sydney, Australia (include warping degrees of freedom). Refer to
 // Formulation and Implementation of Three-dimensional Doubly Symmetric Beam-Column Analyses with Warping Effects in OpenSees
 // Research Report R917, School of Civil Engineering, University of Sydney.
-
+//
 #include <math.h>
 #include <Vector.h>
 #include <Matrix.h>

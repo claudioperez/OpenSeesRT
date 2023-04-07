@@ -17,23 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.15 $
-// $Date: 2009-08-19 17:53:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/LinearCrdTransf3d.cpp,v $
-
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
-//
-// Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
 // Purpose: This file contains the implementation for the
 // LinearCrdTransf3d class. LinearCrdTransf3d is a linear
 // transformation for a planar frame between the global
 // and basic coordinate systems
 // Sensitivity: QGu UCSD 2009
-
+//
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+// Revision: A
+//
+// Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
+//
 #include <Vector.h>
 #include <Matrix.h>
 #include <Node.h>

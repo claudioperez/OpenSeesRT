@@ -17,25 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.7 $
-// $Date: 2005-12-15 00:30:38 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/PDeltaCrdTransf2d.h,v $
-
-
+//
+// Description: This file contains the class definition for
+// PDeltaCrdTransf2d.h. PDeltaCrdTransf2d provides the
+// abstraction of a linear transformation for a spatial frame
+// between the global and basic coordinate systems
+//
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 04/2000
 // Revision: A
 //
 // Modified: May 2001 
 //
-// Description: This file contains the class definition for
-// PDeltaCrdTransf2d.h. PDeltaCrdTransf2d provides the
-// abstraction of a linear transformation for a spatial frame
-// between the global and basic coordinate systems
-
-// What: "@(#) PDeltaCrdTransf2d.h, revA"
-
 #ifndef PDeltaCrdTransf2d_h
 #define PDeltaCrdTransf2d_h
 

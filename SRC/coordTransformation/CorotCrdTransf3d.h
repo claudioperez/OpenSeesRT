@@ -17,22 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $                                                              
-// $Date: 2006-01-13 01:07:48 $                                                                  
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransf3d.h,v $      
-
-
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
 //
 // Description: This file contains the class definition for
 // CorotCrdTransf3d.h. CorotCrdTransf3d provides the
 // abstraction of a corotation transformation for a spatial frame element
-
-// What: "@(#) CorotCrdTransf3d.h, revA"
-
+//
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+//
 #ifndef CorotCrdTransf3d_h
 #define CorotCrdTransf3d_h
 

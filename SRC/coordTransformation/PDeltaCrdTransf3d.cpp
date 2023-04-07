@@ -17,22 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.15 $
-// $Date: 2010-06-01 23:44:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/PDeltaCrdTransf3d.cpp,v $
-
+//
+// Description: This file contains the implementation for the
+// PDeltaCrdTransf3d class. PDeltaCrdTransf3d is a linear
+// transformation for a planar frame between the global
+// and basic coordinate systems
+//
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 04/2000
 // Revision: A
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
-// Purpose: This file contains the implementation for the
-// PDeltaCrdTransf3d class. PDeltaCrdTransf3d is a linear
-// transformation for a planar frame between the global
-// and basic coordinate systems
-
 #include <Vector.h>
 #include <Matrix.h>
 #include <Node.h>

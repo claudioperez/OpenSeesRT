@@ -9,8 +9,7 @@
 // LinearShearTransf2d class. LinearShearTransf2d is a linear
 // transformation for a planar frame between the global 
 // and basic coordinate systems
-
-
+//
 #include <ID.h>
 #include <Vector.h>
 #include <Matrix.h>

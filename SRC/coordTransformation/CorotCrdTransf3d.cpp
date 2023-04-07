@@ -17,22 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2007-08-07 16:52:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransf3d.cpp,v $
-
+//
+// Description: This file contains the implementation for the
+// CorotCrdTransf3d class. CorotCrdTransf3d is a Corot
+// transformation for a spatial frame between the global
+// and basic coordinate systems.
+//
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 05/2000
 // Revision: rms 06/2000 (using Assemble, and AssembleTranspose)
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
-// Purpose: This file contains the implementation for the
-// CorotCrdTransf3d class. CorotCrdTransf3d is a Corot
-// transformation for a spatial frame between the global
-// and basic coordinate systems.
-
 #include <math.h>
 #include <Vector.h>
 #include <Matrix.h>

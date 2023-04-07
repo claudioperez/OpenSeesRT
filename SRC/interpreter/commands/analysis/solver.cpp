@@ -269,7 +269,7 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
       count++;
     }
     // TODO : CMP
-    // theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
+    theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
 #endif
 
 #ifdef _PARALLEL_PROCESSING

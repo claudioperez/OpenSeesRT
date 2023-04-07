@@ -17,20 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.5 $
-// $Date: 2009-08-19 17:53:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CrdTransf.cpp,v $
-
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
 //
 // Description: This file contains the implementation for the CrdTransf class.
 // CrdTransf provides the abstraction of a frame 
 // coordinate transformation. It is an abstract base class and 
 // thus no objects of its type can be instatiated. 
-
+//
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+// Revision: A
+//
 #include <CrdTransf.h>
 #include <ID.h>
 #include <Vector.h>

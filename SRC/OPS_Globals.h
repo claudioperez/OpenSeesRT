@@ -17,14 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-#ifndef _OPS_Globals_h
-#define _OPS_Globals_h
-                                                                        
-// Written: fmk
-// Created: 11/99
 //
 // Description: This file contains global variables used in OpenSees files.
 // if you change some of the variables, you must recompile ALL the code.
+//
+// Written: fmk
+// Created: 11/99
+//
+#ifndef _OPS_Globals_h
+#define _OPS_Globals_h
 
 #define _USING_OpenSees_STREAMS
 #include <OPS_Stream.h>

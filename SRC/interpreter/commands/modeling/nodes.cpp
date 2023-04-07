@@ -30,8 +30,8 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure corect number of arguments on command line
   if (argc < 2 + ndm) {
-    opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
-    opserr << "        Want: node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
+    opserr << G3_ERROR_PROMPT << "insufficient arguments, expected:\n";
+    opserr << "      node nodeTag? [ndm coordinates?] <-mass [ndf values?]>\n";
     return TCL_ERROR;
   }
 
@@ -50,8 +50,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   if (ndm == 1) {
     // create a node in 1d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid XCoordinate\n";
-      opserr << "node: " << nodeId << endln;
+      opserr << G3_ERROR_PROMPT << "invalid coordinate\n";
       return TCL_ERROR;
     }
   }
@@ -74,23 +73,18 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     // create a node in 3d space
     if (Tcl_GetDouble(interp, argv[2], &xLoc) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid 1st coordinate\n";
-      opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[3], &yLoc) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid 2nd coordinate\n";
-      opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4], &zLoc) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid 3rd coordinate\n";
-      opserr << "node: " << nodeId << endln;
       return TCL_ERROR;
     }
   } else {
-    opserr << G3_ERROR_PROMPT << "invalid ndm\n";
-    opserr << "node: " << nodeId << endln;
-    ;
+    opserr << G3_ERROR_PROMPT << "unsupported model dimension\n";
     return TCL_ERROR;
   }
 
@@ -114,15 +108,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   else
     theNode = new Node(nodeId, ndf, xLoc, yLoc, zLoc);
 
-  //
-  // add the node to the domain
-  //
-  if (theTclDomain->addNode(theNode) == false) {
-    opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
-    delete theNode; // otherwise memory leak
-    return TCL_ERROR;
-  }
-
   while (currentArg < argc) {
     if (strcmp(argv[currentArg], "-mass") == 0) {
       currentArg++;
@@ -135,8 +120,8 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       double theMass;
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
-          opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
-          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
+          opserr << G3_ERROR_PROMPT << "invalid nodal mass term";
+          opserr << " at dof " << i + 1 << endln;
           return TCL_ERROR;
         }
         mass(i, i) = theMass;
@@ -147,7 +132,6 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       if (argc < currentArg + ndm) {
         opserr << G3_ERROR_PROMPT << "incorrect number of nodal display location terms, "
                   "need ndm\n";
-        opserr << "node: " << nodeId << endln;
         return TCL_ERROR;
       }
       Vector displayLoc(ndm);
@@ -185,16 +169,16 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[currentArg], "-vel") == 0) {
       currentArg++;
       if (argc < currentArg + ndf) {
-        opserr << G3_ERROR_PROMPT << "incorrect number of nodal vel terms\n";
-        opserr << "node: " << nodeId << endln;
+        opserr << G3_ERROR_PROMPT << "incorrect number of nodal vel terms, ";
+        opserr << "expected " << ndf << endln;
         return TCL_ERROR;
       }
       Vector disp(ndf);
       double theDisp;
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
-          opserr << G3_ERROR_PROMPT << "invalid nodal vel term\n";
-          opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
+          opserr << G3_ERROR_PROMPT << "invalid nodal vel term at ";
+          opserr << " dof " << i + 1 << endln;
           return TCL_ERROR;
         }
         disp(i) = theDisp;
@@ -206,6 +190,15 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       currentArg++;
   }
 
+  //
+  // add the node to the domain
+  //
+  if (theTclDomain->addNode(theNode) == false) {
+    opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
+    delete theNode;
+    return TCL_ERROR;
+  }
+
   return TCL_OK;
 }
 
@@ -214,21 +207,15 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
   Domain *theTclDomain = builder->getDomain();
-
-  if (builder == 0 || clientData == 0) {
-    opserr << G3_ERROR_PROMPT << "builder has been destroyed - load \n";
-    return TCL_ERROR;
-  }
 
   int ndf = argc - 2;
 
-  // make sure at least one other argument to contain type of system
-  if (argc < (2 + ndf)) {
-    opserr << G3_ERROR_PROMPT << "bad command - want: mass nodeId " << ndf << " mass values\n"; 
+  // make sure at least one other argument
+  if (argc < (1 + ndf)) {
+    opserr << G3_ERROR_PROMPT << "insufficient arguments, expected:\n"
+              "      mass nodeId <" << ndf << " mass values>\n"; 
     return TCL_ERROR;
   }
 
@@ -281,7 +268,7 @@ TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
       return TCL_ERROR;
     }
     Node *theNode = the_domain->getNode(tag);
-    if (theNode == 0) {
+    if (theNode == nullptr) {
       opserr << G3_ERROR_PROMPT << "nodeTag " << tag << " does not exist \n";
       return TCL_ERROR;
     }

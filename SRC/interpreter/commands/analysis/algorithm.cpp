@@ -613,8 +613,9 @@ printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   EquiSolnAlgo* theAlgorithm = builder->getAlgorithm();
 
   int eleArg = 0;
-  if (theAlgorithm == nullptr)
-    return TCL_OK;
+  if (theAlgorithm == nullptr) {
+    return TCL_ERROR;
+  }
 
   // if just 'print <filename> algorithm'- no flag
   if (argc == 0) {

@@ -27,7 +27,6 @@ TclObjCommand_progress(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_
     std::string message = "";
     if (argc > 2)
       message = Tcl_GetString(objv[2]);
-
       
     (*(ProgressBar**)clientData)->update(message);
     return TCL_OK;
@@ -51,8 +50,6 @@ TclObjCommand_progress(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_
     bar->set_closing_char("|");
 
     *(ProgressBar**)clientData = bar;
-
-
 
     return TCL_OK;
   }

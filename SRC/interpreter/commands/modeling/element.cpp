@@ -17,6 +17,7 @@
 #define strcmp strcasecmp
 
 #include <OPS_Stream.h>
+#include <G3_Logging.h>
 #include <packages.h>
 #include <elementAPI.h>
 #include <Domain.h>
@@ -96,9 +97,6 @@ extern void *OPS_Quad4FiberOverlay(G3_Runtime*);
 extern void *OPS_QuadBeamEmbedContact(G3_Runtime*);
 extern void *OPS_ASID8QuadWithSensitivity(G3_Runtime*);
 extern void *OPS_AV3D4QuadWithSensitivity(G3_Runtime*);
-extern void *OPS_SSPquad(G3_Runtime*);
-extern void *OPS_SSPquadUP(G3_Runtime*);
-extern void *OPS_SSPbrick(G3_Runtime*);
 
 
 extern void *OPS_Brick8FiberOverlay(G3_Runtime*);
@@ -241,9 +239,8 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   // check at least two arguments so don't segemnt fault on strcmp
   if (argc < 2) {
-    opserr << "WARNING need to specify an element type\n";
-    opserr << "Want: element eleType <specific element args> .. see manual for "
-              "valid eleTypes & arguments\n";
+    opserr << G3_ERROR_PROMPT << "insufficient arguments, expected:\n";
+    opserr << "      element eleType <specific element args> .. \n";
     return TCL_ERROR;
   }
 
@@ -493,7 +490,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     theEle = OPS_FourNodeQuad3d(rt);
   }
 
-
   else if (strcmp(argv[1], "AC3D8") == 0) {
     theEle = OPS_AC3D8HexWithSensitivity(rt);
   }
@@ -579,9 +575,8 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if (strcmp(argv[1], "ElastomericBearingUFRP") == 0) {
     if (ndm == 2)
       theEle = OPS_ElastomericBearingUFRP2d(rt);
-    else
+    else {;}
       // theEle = OPS_ElastomericBearingUFRP3d(rt);
-      ;
   }
 
   else if (strcmp(argv[1], "FlatSliderBearing") == 0) {
@@ -836,11 +831,17 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
              strcmp(argv[1], "flBrick") == 0) {
 
     return TclBasicBuilder_addBrick(clientData, interp, argc, argv);
-
+  
+  } else if ((strcasecmp(argv[1], "SSPquad")==0)   ||
+           (strcasecmp(argv[1], "SSPquadUP")==0) ||
+           (strcasecmp(argv[1], "SSPbrick")==0)) {
+    int TclCommand_SSP_Element(ClientData, Tcl_Interp*, int, TCL_Char** const);
+    return TclCommand_SSP_Element(clientData, interp, argc, argv);
+  }
 //
 // Zero-Length
 //
-  } else if (strcmp(argv[1], "zeroLength") == 0) {
+  else if (strcmp(argv[1], "zeroLength") == 0) {
     int result = TclBasicBuilder_addZeroLength(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
     return result;
@@ -2417,8 +2418,8 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
       int pathSize;
       TCL_Char **pathStrings;
 
-      int debug =
-          Tcl_SplitList(interp, argv[13 + eleArgStart], &pathSize, &pathStrings);
+      // int debug =
+      //     Tcl_SplitList(interp, argv[13 + eleArgStart], &pathSize, &pathStrings);
 
       if (Tcl_SplitList(interp, argv[13 + eleArgStart], &pathSize, &pathStrings) !=
           TCL_OK) {
@@ -2430,7 +2431,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
       pNodeList = new Vector(pathSize);
       for (int i = 0; i < pathSize; i++) {
         double value;
-        int debug = Tcl_GetDouble(interp, pathStrings[i], &value);
+        // int debug = Tcl_GetDouble(interp, pathStrings[i], &value);
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
                  << " - ";

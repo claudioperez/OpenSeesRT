@@ -17,21 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.11 $                                                              
-// $Date: 2008-12-03 23:40:07 $                                                                  
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransfWarping2d.h,v $ 
-                                        
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
 //
 // Description: This file contains the class definition for
 // CorotCrdTransfWarping2d.h. CorotCrdTransfWarping2d provides the
 // abstraction of a corotation transformation for a planar frame element
-
-// What: "@(#) CorotCrdTransfWarping2d.h, revA"
-
+//
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+// Revision: A
+//
 #ifndef CorotCrdTransfWarping2d_h
 #define CorotCrdTransfWarping2d_h
 

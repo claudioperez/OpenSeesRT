@@ -17,14 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2009-08-19 17:53:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CrdTransf.h,v $
-
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // CrdTransf.h. CrdTransf provides the abstraction of a frame 
@@ -32,8 +24,10 @@
 // thus no objects of  it's type can be instatiated. It has pure 
 // virtual functions which  must be implemented in its derived classes.
 //
-// What: "@(#) CrdTransf.h, revA"
-
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+// Revision: A
+//
 #ifndef CrdTransf_h
 #define CrdTransf_h
 

@@ -71,7 +71,7 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
 
     if (numRemainingArgs == 1 || numRemainingArgs == 3) {
       if (Tcl_GetInt(interp, argv[0], &tag) != 0) {
-        opserr << "WARNING invalid series tag in LinearSeries tag? <-factor "
+        opserr << G3_ERROR_PROMPT << "invalid series tag in LinearSeries tag? <-factor "
                   "factor?>"
                << endln;
         return 0;
@@ -82,13 +82,13 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
     if (numRemainingArgs > 1) {
       const char *argvS = argv[1];
       if (argvS == 0) {
-        opserr << "WARNING string error in LinearSeries with tag: " << tag
+        opserr << G3_ERROR_PROMPT << "string error in LinearSeries with tag: " << tag
                << endln;
         return 0;
       }
       numData = 1;
       if (Tcl_GetDouble(interp, argv[2], &cFactor) != 0) {
-        opserr << "WARNING invalid factor in LinearSeries with tag: " << tag
+        opserr << G3_ERROR_PROMPT << "invalid factor in LinearSeries with tag: " << tag
                << endln;
         return 0;
       }
@@ -98,7 +98,7 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
   theSeries = new LinearSeries(tag, cFactor);
 
   if (theSeries == 0) {
-    opserr << "WARNING ran out of memory creating ConstantTimeSeries with tag: "
+    opserr << G3_ERROR_PROMPT << "ran out of memory creating ConstantTimeSeries with tag: "
            << tag << "\n";
     return 0;
   }
@@ -208,9 +208,8 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
   else if ((strcmp(argv[0], "Linear") == 0) ||
            (strcmp(argv[0], "LinearSeries") == 0)) {
 
-    // void *theResult = OPS_LinearSeries(rt);
     void *theResult = TclDispatch_newLinearSeries(clientData, interp, argc - 1, &argv[1]);
-    if (theResult != 0)
+    if (theResult != nullptr)
       theSeries = (TimeSeries *)theResult;
     else
       opserr << "ERROR\n";
@@ -247,12 +246,10 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
 
   else if ((strcmp(argv[0], "Series") == 0) || (strcmp(argv[0], "Path") == 0)) {
 
-    // LoadPattern and PathSeries - read args and create RectangularSeries
-    // object
     double cFactor = 1.0;
 
     if (argc < 3) {
-      opserr << "WARNING not enough args - ";
+      opserr << G3_ERROR_PROMPT << "not enough args - ";
       opserr << " Series -dt timeIncr -values {list of points }\n";
       return 0;
     }
@@ -282,7 +279,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         if (endMarker == argc ||
             Tcl_GetDouble(interp, argv[endMarker], &timeIncr) != TCL_OK) {
 
-          opserr << "WARNING invalid dt " << argv[endMarker] << " - ";
+          opserr << G3_ERROR_PROMPT << "invalid dt " << argv[endMarker] << " - ";
           opserr << " Series -dt dt ... \n";
           return 0;
         }
@@ -294,7 +291,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         if (endMarker == argc ||
             Tcl_GetInt(interp, argv[endMarker], &tag) != TCL_OK) {
 
-          opserr << "WARNING invalid tag " << argv[endMarker] << " - ";
+          opserr << G3_ERROR_PROMPT << "invalid tag " << argv[endMarker] << " - ";
           return 0;
         }
       }
@@ -305,7 +302,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         if (endMarker == argc ||
             Tcl_GetDouble(interp, argv[endMarker], &cFactor) != TCL_OK) {
 
-          opserr << "WARNING invalid cFactor " << argv[endMarker] << " - ";
+          opserr << G3_ERROR_PROMPT << "invalid cFactor " << argv[endMarker] << " - ";
           opserr << " Series -factor ... \n";
           return 0;
         }
@@ -345,7 +342,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
           if (Tcl_SplitList(interp, argv[endMarker], &pathSize, &pathStrings) !=
               TCL_OK) {
 
-            opserr << "WARNING problem splitting path list " << argv[endMarker]
+            opserr << G3_ERROR_PROMPT << "problem splitting path list " << argv[endMarker]
                    << " - ";
             opserr << " Series -values {path} ... \n";
             return 0;
@@ -355,7 +352,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
           for (int i = 0; i < pathSize; i++) {
             double value;
             if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
-              opserr << "WARNING problem reading path data value "
+              opserr << G3_ERROR_PROMPT << "problem reading path data value "
                      << pathStrings[i] << " - ";
               opserr << " Series -values {path} ... \n";
               cleanup(pathStrings);
@@ -378,7 +375,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
           if (Tcl_SplitList(interp, argv[endMarker], &pathSize, &pathStrings) !=
               TCL_OK) {
 
-            opserr << "WARNING problem spltting time path " << argv[endMarker]
+            opserr << G3_ERROR_PROMPT << "problem spltting time path " << argv[endMarker]
                    << " - ";
             opserr << " Series -time {times} ... \n";
             return 0;
@@ -388,7 +385,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
           for (int i = 0; i < pathSize; i++) {
             double value;
             if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
-              opserr << "WARNING problem reading time path value "
+              opserr << G3_ERROR_PROMPT << "problem reading time path value "
                      << pathStrings[i] << " - ";
               opserr << " Series -values {path} ... \n";
 
@@ -417,7 +414,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         if (endMarker == argc ||
             Tcl_GetDouble(interp, argv[endMarker], &startTime) != TCL_OK) {
 
-          opserr << "WARNING invalid tStart " << argv[endMarker] << " - ";
+          opserr << G3_ERROR_PROMPT << "invalid tStart " << argv[endMarker] << " - ";
           opserr << " Series -startTime tStart ... \n";
           return 0;
         }
@@ -450,7 +447,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       delete dataTime;
 
     } else {
-      opserr << "WARNING choice of options for Path Series invalid - valid "
+      opserr << G3_ERROR_PROMPT << "choice of options for Path Series invalid - valid "
                 "options for ";
       opserr << " Path are\n";
       opserr << " \t -fileT fileTimeName -fileP filePathName \n";
@@ -561,12 +558,12 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     ModulatingFunction *theModFunc;
 
     if (Tcl_GetDouble(interp, argv[1], &mean) != TCL_OK) {
-      opserr << "WARNING invalid input: random process mean \n";
+      opserr << G3_ERROR_PROMPT << "invalid input: random process mean \n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[2], &maxStdv) != TCL_OK) {
-      opserr << "WARNING invalid input: random process max stdv \n";
+      opserr << G3_ERROR_PROMPT << "invalid input: random process max stdv \n";
       return 0;
     }
 
@@ -581,7 +578,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     int tagI;
     for (int i = 0; i < numModFuncs; i++) {
       if (Tcl_GetInt(interp, argv[i + argsBeforeModList], &tagI) != TCL_OK) {
-        opserr << "WARNING invalid modulating function tag. " << endln;
+        opserr << G3_ERROR_PROMPT << "invalid modulating function tag. " << endln;
         return 0;
       }
 
@@ -589,7 +586,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       theModFunc = theReliabilityDomain->getModulatingFunction(tagI);
 
       if (theModFunc == 0) {
-        opserr << "WARNING modulating function number "
+        opserr << G3_ERROR_PROMPT << "modulating function number "
                << argv[i + argsBeforeModList] << "does not exist...\n";
         delete[] theModFUNCS;
         return 0;

@@ -101,7 +101,7 @@ Tcl_CmdProc TclCommand_setCreep;
 Tcl_CmdProc domainChange;
 
 
-// TODO: reimplement
+// TODO: reimplement defaultUnits and setParameter
 // int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
 // int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
 

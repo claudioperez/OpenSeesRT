@@ -144,7 +144,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
 
   // Pointer to a section that will be added to the model builder
-  SectionForceDeformation *theSection = 0;
+  SectionForceDeformation *theSection = nullptr;
 
   // Check argv[1] for section type
 
@@ -158,22 +158,26 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "FiberAsym") == 0 ||
            strcmp(argv[1], "fiberSecAsym") == 0)
-    return TclCommand_addFiberSectionAsym(clientData, interp, argc, argv, theTclBuilder); // Xinlong
+
+    return TclCommand_addFiberSectionAsym(clientData, interp, argc, argv, theTclBuilder);
 
   //--- Adding Thermo-mechanical Sections:[BEGIN]   by UoE OpenSees Group ---//
   else if (strcmp(argv[1], "FiberThermal") == 0 ||
            strcmp(argv[1], "fiberSecThermal") == 0)
+
     return TclCommand_addFiberSectionThermal(clientData, interp, argc, argv, theTclBuilder);
 
   else if (strcmp(argv[1], "FiberInt") == 0)
+
     return TclCommand_addFiberIntSection(clientData, interp, argc, argv, theTclBuilder);
 
   else if (strcmp(argv[1], "UCFiber") == 0)
+
     return TclCommand_addUCFiberSection(clientData, interp, argc, argv, theTclBuilder);
 
   else if (strcmp(argv[1], "Parallel") == 0) {
     void *theMat = OPS_ParallelSection(rt);
-    if (theMat != 0)
+    if (theMat != nullptr)
       theSection = (SectionForceDeformation *)theMat;
     else
       return TCL_ERROR;
@@ -279,7 +283,8 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
 
   else if (strcmp(argv[1], "AddDeformation") == 0 ||
-           strcmp(argv[1], "Aggregator") == 0) {
+           strcmp(argv[1], "Aggregator") == 0  ||
+           strcmp(argv[1], "Aggregate") == 0) {
     if (argc < 5) {
       opserr << "WARNING insufficient arguments\n";
       opserr << "Want: section Aggregator tag? uniTag1? code1? ... <-section "
@@ -347,7 +352,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
         return TCL_ERROR;
       }
 
-      theMats[j] = G3_getUniaxialMaterialInstance(rt,tagI);
+      theMats[j] = builder->getUniaxialMaterial(tagI);
 
       if (theMats[j] == 0) {
         opserr << "WARNING uniaxial material does not exist\n";
@@ -2032,13 +2037,12 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
           fiber[i] = new NDFiber2d(k, *ndmaterial, fibersArea(k),
                                    fibersPosition(0, k));
         } else {
-          material = G3_getUniaxialMaterialInstance(rt,fibersMaterial(k));
+          material = builder->getUniaxialMaterial(fibersMaterial(k));
           if (material == 0) {
             opserr << "WARNING invalid UniaxialMaterial ID for patch\n";
             return TCL_ERROR;
           }
-          fiber[i] = new UniaxialFiber2d(k, *material, fibersArea(k),
-                                         fibersPosition(0, k));
+          fiber[i] = new UniaxialFiber2d(k, *material, fibersArea(k), fibersPosition(0, k));
         }
         if (fiber[i] == 0) {
           opserr << "WARNING unable to allocate fiber \n";
@@ -2068,7 +2072,7 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
         return TCL_ERROR;
       }
 
-      if (theTclBasicBuilder->addSection (*section) < 0) {
+      if (theTclBasicBuilder->addSection(*section) < 0) {
       // if (OPS_addSectionForceDeformation(section) != true) {
         opserr << "WARNING - cannot add section\n";
         return TCL_ERROR;
@@ -2091,8 +2095,8 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
           fiber[i] = new NDFiber3d(k, *ndmaterial, fibersArea(k),
                                    fiberPosition(0), fiberPosition(1));
         } else {
-          material = G3_getUniaxialMaterialInstance(rt,fibersMaterial(k));
-          if (material == 0) {
+          material = builder->getUniaxialMaterial(fibersMaterial(k));
+          if (material == nullptr) {
             opserr << "WARNING invalid UniaxialMaterial ID for patch\n";
             return TCL_ERROR;
           }
@@ -2892,6 +2896,7 @@ buildSectionAsym(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *the
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
+
   if (sectionRepres == 0) {
     opserr << "WARNING cannot retrieve section\n";
     return TCL_ERROR;

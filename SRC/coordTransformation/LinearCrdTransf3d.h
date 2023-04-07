@@ -17,22 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2009-08-19 17:53:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/LinearCrdTransf3d.h,v $
-
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
 //
 // Description: This file contains the class definition for
 // LinearCrdTransf3d.h. LinearCrdTransf3d provides the
 // abstraction of a linear transformation for a spatial frame
 // between the global and basic coordinate systems
-
-// What: "@(#) LinearCrdTransf3d.h, revA"
-
+//
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+//
 #ifndef LinearCrdTransf3d_h
 #define LinearCrdTransf3d_h
 

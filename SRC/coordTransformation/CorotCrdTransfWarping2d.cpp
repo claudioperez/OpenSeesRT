@@ -17,35 +17,26 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2008-12-03 23:40:07 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransfWarping2d.cpp,v $
-
+//
+// Description: This file contains the implementation for the
+// CorotCrdTransfWarping2d class. CorotCrdTransfWarping2d is a Corot
+// transformation for a planar frame between the global
+// and basic coordinate systems.
+//
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 05/2000
 // Revision: rms 06/2000 (using Assemble, and AssembleTranspose)
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
-// Purpose: This file contains the implementation for the
-// CorotCrdTransfWarping2d class. CorotCrdTransfWarping2d is a Corot
-// transformation for a planar frame between the global
-// and basic coordinate systems.
-
-/*
- * References
- *
-
-General Formulation and Analytical Response Sensitivity
----
-Scott, M. H. and F. C. Filippou (2007).
-"Response Gradients for Nonlinear Beam-Column Elements under Large Displacements."
-Journal of Structural Engineering, 133(2):155-165.
-
- *
- */
-
+// References
+//
+// General Formulation and Analytical Response Sensitivity
+// ---
+//   Scott, M. H. and F. C. Filippou (2007).
+//   "Response Gradients for Nonlinear Beam-Column Elements under Large Displacements."
+//   Journal of Structural Engineering, 133(2):155-165.
+//
 #include <math.h>
 #include <Vector.h>
 #include <Matrix.h>

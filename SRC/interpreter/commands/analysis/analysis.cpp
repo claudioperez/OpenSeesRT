@@ -47,11 +47,11 @@ extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis
            *theVariableTimeStepTransientAnalysis;
 
-extern ConvergenceTest   *theTest;
+// extern ConvergenceTest   *theTest;
+// extern DOF_Numberer      *theGlobalNumberer ;
 extern LinearSOE         *theSOE;
 extern EigenSOE          *theEigenSOE;
 extern ConstraintHandler *theHandler ;
-extern DOF_Numberer      *theGlobalNumberer ;
 
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
@@ -60,22 +60,24 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
 
-int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int modalProperties(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int printA(ClientData, Tcl_Interp *, int, TCL_Char **);
-static int printB(ClientData, Tcl_Interp *, int, TCL_Char **);
-static int initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int resetModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
-extern int specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static int specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
-extern int specifySOE(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-extern int specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+   int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+static Tcl_CmdProc specifyAnalysis;
+static Tcl_CmdProc eigenAnalysis;
+static Tcl_CmdProc modalProperties;
+static Tcl_CmdProc responseSpectrum;
+static Tcl_CmdProc printA;
+static Tcl_CmdProc printB;
+static Tcl_CmdProc initializeAnalysis;
+static Tcl_CmdProc resetModel;
+static Tcl_CmdProc analyzeModel;
+static Tcl_CmdProc specifyConstraintHandler;
+
+extern Tcl_CmdProc specifyIntegrator;
+
+extern Tcl_CmdProc specifySOE;
+extern Tcl_CmdProc specifySysOfEqnTable;
 
 // commands/analysis/algorithm.cpp
 extern Tcl_CmdProc TclCommand_specifyAlgorithm;
@@ -198,7 +200,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   int result = 0;
-  Analysis* theAnalysis = nullptr;
+
 
   StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
@@ -217,7 +219,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
 
     result = the_static_analysis->analyze(numIncr);
 
-  } else if (theTransientAnalysis != 0) {
+  } else if (theTransientAnalysis != nullptr) {
     double dT;
     int numIncr;
     if (argc < 3) {
@@ -229,7 +231,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
     if (Tcl_GetDouble(interp, argv[2], &dT) != TCL_OK)
       return TCL_ERROR;
 
-    // Set global timestep variable
+    // TODO: Set global timestep variable
     ops_Dt = dT;
 
     if (argc == 6) {
@@ -242,7 +244,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
       if (Tcl_GetInt(interp, argv[5], &Jd) != TCL_OK)
         return TCL_ERROR;
 
-      if (theVariableTimeStepTransientAnalysis != 0)
+      if (theVariableTimeStepTransientAnalysis != nullptr)
         result = theVariableTimeStepTransientAnalysis->analyze(
             numIncr, dT, dtMin, dtMax, Jd);
       else {
@@ -287,7 +289,6 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   // BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   // builder->initialize();
-
   
   if (theTransientAnalysis != 0) {
       theTransientAnalysis->initialize();
@@ -763,7 +764,6 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv
 
     theAlgorithm = nullptr;
     theHandler   = nullptr;
-    theGlobalNumberer  = nullptr;
     theEigenSOE = nullptr;
     G3_setStaticIntegrator(rt,nullptr);
     theTransientIntegrator = nullptr;
@@ -808,7 +808,8 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
     theHandler = new PenaltyConstraintHandler(alpha1, alpha2);
   }
 
-  /****** adding later
+#if 0
+  // ***** adding later
   else if (strcmp(argv[1],"PenaltyNoHomoSPMultipliers") == 0) {
     if (argc < 4) {
       opserr << "WARNING: need to specify alpha: handler Penalty alpha \n";
@@ -820,8 +821,8 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
     if (Tcl_GetDouble(interp, argv[3], &alpha2) != TCL_OK)
       return TCL_ERROR;
     theHandler = new PenaltyHandlerNoHomoSPMultipliers(alpha1, alpha2);
-  }
-  ***********************/
+  } // **********************
+#endif
   else if (strcmp(argv[1], "Lagrange") == 0) {
     double alpha1 = 1.0;
     double alpha2 = 1.0;

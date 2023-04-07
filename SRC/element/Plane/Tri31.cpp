@@ -44,7 +44,6 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 #include <ElementIter.h>
-#include <elementAPI.h>
 #include <map>
 
 double Tri31::matrixData[36];
@@ -54,7 +53,7 @@ double Tri31::shp[3][3];
 double Tri31::pts[1][2];
 double Tri31::wts[1];
 
-
+#if 0
 void *
 OPS_DECL_RUNTIME(OPS_Tri31, const ID &info)
 {
@@ -196,6 +195,7 @@ OPS_DECL_RUNTIME(OPS_Tri31, const ID &info)
     return theElement;
 }
 
+
 int OPS_Tri31(Domain& theDomain, const ID& elenodes, ID& eletags)
 {
     // get inputs
@@ -271,6 +271,7 @@ int OPS_Tri31(Domain& theDomain, const ID& elenodes, ID& eletags)
   
     return 0;
 }
+#endif
 
 Tri31::Tri31(int tag, int nd1, int nd2, int nd3,
 	     NDMaterial &m, const char *type, double t,

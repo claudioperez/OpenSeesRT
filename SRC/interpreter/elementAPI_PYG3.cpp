@@ -26,10 +26,11 @@
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
-extern AnalysisModel             *theAnalysisModel;
+// extern AnalysisModel             *theAnalysisModel;
+// extern ConstraintHandler         *theHandler;
+// extern DOF_Numberer              *theGlobalNumberer;
+// extern ConvergenceTest           *theTest;
 extern EquiSolnAlgo              *theAlgorithm;
-extern ConstraintHandler         *theHandler;
-extern DOF_Numberer              *theGlobalNumberer;
 extern LinearSOE                 *theSOE;
 extern EigenSOE                  *theEigenSOE;
 extern StaticAnalysis            *theStaticAnalysis;
@@ -37,7 +38,6 @@ extern StaticIntegrator          *theStaticIntegrator;
 extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern TransientIntegrator       *theTransientIntegrator;
 extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
-extern ConvergenceTest *theTest;
 extern bool builtModel;
 extern FE_Datastore *theDatabase;
 
