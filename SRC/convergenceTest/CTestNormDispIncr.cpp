@@ -184,10 +184,12 @@ int CTestNormDispIncr::test(void)
     
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || norm > maxTol) { // failes to converge
-        opserr << "WARNING: CTestNormDispIncr::test() - failed to converge \n";
-        opserr << "after: " << currentIter << " iterations ";	
-        opserr << " current Norm: " << norm << " (max: " << tol;
-        opserr << ", Norm deltaR: " << theSOE->getB().pNorm(nType) << ")\n";
+        if (printFlag != 0) {
+          opserr << "WARNING: CTestNormDispIncr::test() - failed to converge \n";
+          opserr << "after: " << currentIter << " iterations ";	
+          opserr << " current Norm: " << norm << " (max: " << tol;
+          opserr << ", Norm deltaR: " << theSOE->getB().pNorm(nType) << ")\n";
+        }
         currentIter++;    
         return -2;
     } 
