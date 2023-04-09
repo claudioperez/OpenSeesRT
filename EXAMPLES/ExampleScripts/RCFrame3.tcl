@@ -18,13 +18,6 @@
 #  ===          ===          ===
 #   |     24'    |     24'    |
 #
-# NOTE: to RUN this example, run the g3 interpreter and 
-#       type the command: source RCFrame3.tcl
-#
-# $Revision: 1.2 $
-# $Date: 2002-12-17 02:03:54 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExampleScripts/RCFrame3.tcl,v $
-
 
 model BasicBuilder -ndm 2 -ndf 3
 

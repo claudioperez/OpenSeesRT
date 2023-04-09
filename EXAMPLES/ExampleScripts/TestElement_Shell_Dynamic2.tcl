@@ -42,7 +42,7 @@ pattern UniformExcitation  2   1  -accel 1
 fixZ 0.0 1 1 1 1 1 1
 #fixZ 360. 1 1 1 0 1 1
 
-recorder Node -file node.out -time -node $top -dof 1 disp
+recorder Node -file out/node.out -time -node $top -dof 1 disp
 
 system BandGeneral
 constraints Plain

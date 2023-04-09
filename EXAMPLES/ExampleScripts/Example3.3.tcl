@@ -27,7 +27,7 @@
 
 # Do operations of Example3.1 by sourcing in the tcl file
 source Example3.1.tcl
-puts "Gravity load analysis completed"
+puts "... Gravity load analysis completed"
 
 # Set the gravity loads to be constant & reset the time in the domain
 loadConst -time 0.0
@@ -136,7 +136,7 @@ recorder Element -time -file out/ele1secDef.out   -ele 1 section 1 deformation
 # ------------------------------
 
 # Perform an eigenvalue analysis
-puts "eigen values at start of transient: [eigen 2]"
+puts "... eigen values at start of transient: [eigen 2]"
 
 
 # set some variables
@@ -151,11 +151,11 @@ while {$ok == 0 && $tCurrent < $tFinal} {
     
     # if the analysis fails try initial tangent iteration
     if {$ok != 0} {
-	puts "regular newton failed .. lets try an initail stiffness for this step"
+	puts "... Newton failed, trying initail stiffness"
 	test NormDispIncr 1.0e-12  100 0
 	algorithm ModifiedNewton -initial
 	set ok [analyze 1 .01]
-	if {$ok == 0} {puts "that worked .. back to regular newton"}
+	if {$ok == 0} {puts "... that worked, back to regular Newton"}
 	test NormDispIncr 1.0e-12  10 
 	algorithm Newton
     }
@@ -169,3 +169,11 @@ if {$ok == 0} {
 } else {
    puts "Transient analysis completed FAILED";    
 }
+# Perform an eigenvalue analysis
+puts "... eigen values at end of transient: [eigen 2]"
+
+# Print state of node 3
+print node 3
+
+wipe
+

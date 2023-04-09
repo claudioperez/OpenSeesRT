@@ -57,7 +57,7 @@ integrator LoadControl  1.0  1
 
 # Convergence test
 #                  tolerance maxIter displayCode
-test NormUnbalance     1.0e-10    20     0
+test NormUnbalance  1.0e-10    20        0
 
 # Solution algorithm
 algorithm Newton
@@ -86,15 +86,14 @@ analyze 5
 # Start of recorder generation
 # ----------------------------
 
-recorder Node -file Node.out -time -node $nn -dof 1 disp
-#recorder Element -file Elem.out -eleRange 1 10 strains
-recorder Element -file Elem.out -time -eleRange 1 10 material 1 strains
-recorder plot Node.out CenterNodeDisp 625 10 625 450 -columns 1 2
+recorder Node    -file out/Example8.1-Node.out -time -node $nn -dof 1 disp
+recorder Element -file out/Example8.1-Elem.out -time -eleRange 1 10 material 1 strains
+# recorder plot Node.out CenterNodeDisp 625 10 625 450 -columns 1 2
 
-recorder display ShakingBeam 100 40 500 500 -wipe
-prp -100 100 120.5
-vup 0 1 0 
-display 1 4 1 
+# recorder display ShakingBeam 100 40 500 500 -wipe
+# prp -100 100 120.5
+# vup 0 1 0 
+# display 1 4 1 
 
 # --------------------------
 # End of recorder generation
@@ -128,8 +127,6 @@ analysis Transient
 
 # Perform the transient analysis (20 sec)
 #       numSteps  dt
-analyze 1000 1.0
-
-
+analyze   1000   1.0 ; # -progress
 
 

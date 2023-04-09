@@ -19,9 +19,7 @@
 # Written: GLF/MHS/fmk
 # Date: January 2001
 
-
 set pid [getPID]
-
 
 # Parameter identifying the number of bays
 set numBay          3
@@ -136,19 +134,19 @@ for {set i 0} {$i <= $numBay} {incr i 1} {
     set jNode [expr $i*3 + 2]
 
     for {set j 1} {$j < 3} {incr j 1} {    
-	# add the column element (secId == 2 if external, 1 if internal column)
-	if {$i == 0} {
-	    element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   2      1
-	} elseif {$i == $numBay} {
-	    element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   2      1
-	} else {
-	    element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   1      1
-	}
+        # add the column element (secId == 2 if external, 1 if internal column)
+        if {$i == 0} {
+            element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   2      1
+        } elseif {$i == $numBay} {
+            element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   2      1
+        } else {
+            element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   1      1
+        }
 
-	# increment the parameters
-	incr iNode  1
-	incr jNode  1
-	incr beamID 1
+        # increment the parameters
+        incr iNode  1
+        incr jNode  1
+        incr beamID 1
     }
 
 }
@@ -171,12 +169,12 @@ for {set j 1} {$j < 3} {incr j 1} {
 
 
     for {set i 1} {$i <= $numBay} {incr i 1} {
-	element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   3      2
+        element nonlinearBeamColumn  $beamID   $iNode $jNode    $nP   3      2
 
-	# increment the parameters
-	incr iNode  3
-	incr jNode  3
-	incr beamID 1
+        # increment the parameters
+        incr iNode  3
+        incr jNode  3
+        incr beamID 1
     }
 }
 
@@ -192,20 +190,20 @@ pattern Plain 1 Linear {
     # Create nodal loads at nodes 
     for {set i 0} {$i <= $numBay} {incr i 1} {
 
-	# set some parameters
-	set node1 [expr $i*3 + 2]
-	set node2 [expr $node1 + 1]
+        # set some parameters
+        set node1 [expr $i*3 + 2]
+        set node2 [expr $node1 + 1]
 
-	if {$i == 0} {
-	    load $node1 0.0            $P  0.0 
-	    load $node2 0.0 [expr $P/2.0]  0.0 
-	} elseif {$i == $numBay} {
-	    load $node1 0.0            $P  0.0 
-	    load $node2 0.0 [expr $P/2.0]  0.0 
-	} else {
-	    load $node1 0.0 [expr 2.0*$P]  0.0 
-	    load $node2 0.0            $P  0.0 
-	}
+        if {$i == 0} {
+            load $node1 0.0            $P  0.0 
+            load $node2 0.0 [expr $P/2.0]  0.0 
+        } elseif {$i == $numBay} {
+            load $node1 0.0            $P  0.0 
+            load $node2 0.0 [expr $P/2.0]  0.0 
+        } else {
+            load $node1 0.0 [expr 2.0*$P]  0.0 
+            load $node2 0.0            $P  0.0 
+        }
     }
 }
 
@@ -283,7 +281,7 @@ pattern Plain 2 Linear {
 
 # Create a recorder which writes to Node.out and prints
 # the current load factor (pseudo-time) and dof 1 displacements at node 2 & 3
-recorder Node -file Node41.$pid.out -time -node 2 3 -dof 1 disp
+recorder Node -file out/Node41.$pid.out -time -node 2 3 -dof 1 disp
 
 # Source in some commands to display the model
 # comment out one of lines
@@ -313,7 +311,7 @@ eigen 2
 
 # Perform the pushover analysis
 # Set some parameters
-set maxU 10.0;	        # Max displacement
+set maxU 10.0;                # Max displacement
 set controlDisp 0.0;
 set ok 0;
 analyze 1
@@ -321,12 +319,15 @@ while {$controlDisp < $maxU && $ok == 0} {
     set ok [analyze 1]
     set controlDisp [nodeDisp 3 1]
     if {$ok != 0} {
-	puts "... trying an initial tangent iteration"
-	test NormDispIncr 1.0e-8  4000 0
- 	algorithm ModifiedNewton -initial
-	set ok [analyze 1]
-	test NormDispIncr 1.0e-8  10 0
-	algorithm Newton
+        puts "... trying an initial tangent iteration"
+        test NormDispIncr 1.0e-8  4000 0
+        algorithm ModifiedNewton -initial
+        set ok [analyze 1]
+        if {$ok == 0} {
+          puts "... that worked, back to normal"
+        }
+        test NormDispIncr 1.0e-8  10 0
+        algorithm Newton
     }
 }
 

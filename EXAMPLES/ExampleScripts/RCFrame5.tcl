@@ -18,16 +18,6 @@
 #  ===          ===          ===
 #   |     24'    |     24'    |
 #
-#
-# NOTE: to RUN this example, run the g3 interpreter and 
-#       type the command: source RCFrame5.tcl
-#
-# $Revision: 1.3 $
-# $Date: 2002-12-17 02:03:54 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExampleScripts/RCFrame5.tcl,v $
-
-model BasicBuilder -ndm 2 -ndf 3
-
 set analysis "LINEAR"
 #set analysis "NONLINEAR"
 
@@ -36,6 +26,9 @@ set patternType "UniformExcitation"
 
 #set displayMode "displayON"
 set displayMode "displayOFF"
+
+
+model BasicBuilder -ndm 2 -ndf 3
 
 set g 386.4
 set P 192
@@ -179,20 +172,19 @@ if {$patternType == "MultipleSupport"} {
 
   # Create a recorder which writes to Node.out and prints
   # the current time and all dof displacement at node 3 and 2
-  recorder Node -file MultiNodeDisp1.out -time -node 3 2 1 -dof 1 2 3 disp
+  recorder Node -file out/MultiNodeDisp1.out -time -node 3 2 1 -dof 1 2 3 disp
 }
-
 
 if {$patternType == "UniformExcitation"} {
   pattern UniformExcitation  1 1 -accel $accelSeries -vel0 $vel0
 
-  recorder Node -file UniformNodeDisp1.out -time -node 3 2 1 -dof 1 2 3 disp
+  recorder Node -file out/UniformNodeDisp1.out -time -node 3 2 1 -dof 1 2 3 disp
 }
 
 # Source in some g3 commands to display the model
 if {$displayMode == "displayON"} {
     # a window to show the displayed shape
-    source RCFrameDisplay.tcl 
+    source Library/RCFrameDisplay.tcl 
 }
 
 #                   gamma beta
@@ -215,7 +207,5 @@ analyze    1000    0.01
 
 # spit out the 1'st 4 eigen values
 eigen 4
-
-
 
 

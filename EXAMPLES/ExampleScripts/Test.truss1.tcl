@@ -11,14 +11,9 @@
 #      ^       ^       0
 #     ===      |      ===
 #              P
-#
-#
-# $Revision: 1.4 $
-# $Date: 2002-06-21 17:02:22 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExamplesForTesting/Test.truss1.ops,v $
 
-set DISPLAY ON
-# set DISPLAY OFF
+# set DISPLAY ON
+set DISPLAY OFF
 
 #some variables
 set p 10
@@ -91,12 +86,12 @@ pattern Plain 2 Linear {
 }
 
 #create the recorder
-recorder Node Node.out disp -load -node 3  -dof 2
-recorder Element 1 -time -file Element.out axialForce
+recorder Node -load -node 3 -dof 2 -file out/Node.out disp
+recorder Element -load -ele 1 2 3 -file out/Element.out axialForce
 
-# if {$DISPLAY == "ON"} {
-#     recorder plot Node.out Node2Disp 50 350 200 200 -columns 2 1
-# }
+if {$DISPLAY == "ON"} {
+    recorder plot Node.out Node2Disp 50 350 200 200 -columns 2 1
+}
 
 # create the SOE, ConstraintHandler, Integrator, Algorithm and Numberer
 system SparseGeneral
@@ -112,21 +107,14 @@ analysis Static
 
 if {$DISPLAY == "ON"} {
     # create the display
-#    recorder display g3 10 10 800 200
+    recorder display g3 10 10 800 200 -wipe
     prp 20 5.0 100.0
-    vrp 20 5.0 0
     vup 0 1 0
-    vpn 0 0 1
-    viewWindow -30 30 -10 10
-    plane 0 150
-    port -1 1 -1 1
-    projection 0
-    fill 1
-    display 1 0 5
+    viewWindow -30 30 -20 20
+    display 1 0 4
 }
 
 #analyze the structure
 analyze $numAnalysisSteps
 
 
-wipe

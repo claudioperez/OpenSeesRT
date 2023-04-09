@@ -4,7 +4,6 @@
 #   email: mhscott@ce.berkeley.edu
 #
 # Pushover analysis
-# Simple TCL procedure for analysis
 #
 #    _________________________   _
 #   |            |            |  
@@ -20,14 +19,7 @@
 #   |     24'    |     24'    |
 #
 #
-# NOTE: to RUN this example, run the g3 interpreter and 
-#       type the command: source RCFrame2.tcl
-#
-# $Revision: 1.3 $
-# $Date: 2002-12-17 02:03:54 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExampleScripts/RCFrame2.tcl,v $
 
-# comment out one of lines
 #set displayMode "displayON"
 set displayMode "displayOFF"
 
@@ -136,7 +128,7 @@ pattern Plain 1 Linear {
 
 # Create a recorder which writes to Node.out and prints
 # the current load factor (pseudo-time) and dof 1 displacements at node 2 & 3
-recorder Node -file Node.out -time -node 2 3 -dof 1 disp
+recorder Node -file out/Node.out -time -node 2 3 -dof 1 disp
 
 # This is not necessary, but is here to prevent warning message for
 # "no integrator" when analysis object is created ... will get overridden
@@ -182,7 +174,7 @@ if {$displayMode == "displayON"} {
     recorder plot Node.out Node3_Xdisp 10 340 300 300 -columns 3 1
 
     # a window to show the displayed shape
-    source RCFrameDisplay.tcl 
+    source Library/RCFrameDisplay.tcl 
 }
 
 

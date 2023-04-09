@@ -10,6 +10,9 @@
 #
 # Units: kip, in
 #
+# NOTE: to RUN this example, run the g3 interpreter and 
+#       type the command: source RigidFrame3D.tcl
+
 
 # Define the model builder
 model BasicBuilder -ndm 3 -ndf 6
@@ -146,7 +149,7 @@ source Library/RCsection.tcl
 
 # Call the procedure to generate a column section
 #          id  h  b cover core cover steel nBars barArea nfCoreY nfCoreZ nfCoverY nfCoverZ
-RCsection   1 18 15   2.5    1     2     3     3    0.79       8       8       10       10 1e3
+RCsection   1 18 15   2.5    1     2     3     3    0.79       8       8       10       10  $GJ
 
 # Linear elastic torion
 uniaxialMaterial Elastic 10 $GJ
@@ -205,10 +208,10 @@ pattern UniformExcitation  2   1  -accel    $accelSeries
 pattern UniformExcitation  3   2  -accel    $accelSeries
 
 # Record DOF 1 and 2 displacements at nodes 9, 14, and 19
-recorder Node -file out/RigidFrame3D.out -time -node 9 14 19 -dof 1 2 disp
+recorder Node -file out/RigidFrame3D.out disp -time -node 9 14 19 -dof 1 2
 
 # Source in commands to display the structure
-# source RigidFrame3Ddisplay.tcl
+#source RigidFrame3Ddisplay.tcl
 
 # Convergence test
 #                tol   maxIter  printFlag
@@ -218,6 +221,7 @@ test EnergyIncr 1.0e-8   20         1
 algorithm Newton
 
 # System of equations solver
+# TODO: cmp
 # system SparseGeneral -piv
 
 # Transient integrator
@@ -237,5 +241,11 @@ constraints Transformation
 analysis Transient
 
 # Perform the analysis
-analyze 1000 0.01
+analyze 5 0.01
+
+wipe
+
+
+
+
 

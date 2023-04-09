@@ -2,11 +2,6 @@
 # date: 02/99
 #
 # purpose: example1 in OpenSeesIntro.tex
-#
-# $Revision: 1.4 $
-# $Date: 2002-12-17 02:03:54 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExampleScripts/example1.tcl,v $
-
 
 #create the ModelBuilder object
 model BasicBuilder -ndm 2 -ndf 2
@@ -23,14 +18,14 @@ node 4  72.0 96.0
 uniaxialMaterial Elastic 1 3000
 
 # add truss elements - command: element truss trussID node1 node2 A matID
-#element truss 1 1 4 10.0 1
-#element truss 2 2 4 5.0 1
-#element truss 3 3 4 5.0 1
+element truss 1 1 4 10.0 1
+element truss 2 2 4 5.0 1
+element truss 3 3 4 5.0 1
 
 # add feap truss elements - command: element fTruss trussID node1 node2 A E
-element fTruss 1 1 4 10.0 3000
-element fTruss 2 2 4 5.0 3000
-element fTruss 3 3 4 5.0 3000
+# element fTruss 1 1 4 10.0 3000
+# element fTruss 2 2 4 5.0 3000
+# element fTruss 3 3 4 5.0 3000
 
 # set the boundary conditions - command: fix nodeID xResrnt? yRestrnt?
 fix 1 1 1 
@@ -62,5 +57,5 @@ analyze 1
 # print the results at node and at all elements
 print node 4
 print ele
-playback 1
+# playback 1
 

@@ -87,7 +87,7 @@ set GJ 1.0e10;
 set colSec 1
 
 # Source in a procedure for generating an RC fiber section
-source RCsection.tcl
+source Library/RCsection.tcl
 
 # Call the procedure to generate the column section
 #               id  h  b cover core cover steel nBars barArea nfCoreY nfCoreZ nfCoverY nfCoverZ GJ
@@ -248,8 +248,8 @@ analysis Transient
 # ----------------------------
 
 # Record DOF 1 and 2 displacements at nodes 9, 14, and 19
-recorder Node -file Node51.out -time -node 9 14 19 -dof 1 2 disp
-recorder plot Node51.out Node9_14_19_Xdisp 10 340 300 300 -columns 1 2 -columns 1 4 -columns 1 6  -dT 1.0
+recorder Node -file out/Node51.out -time -node 9 14 19 -dof 1 2 disp
+# recorder plot Node51.out Node9_14_19_Xdisp 10 340 300 300 -columns 1 2 -columns 1 4 -columns 1 6  -dT 1.0
 
 # --------------------------
 # End of recorder generation
@@ -261,7 +261,7 @@ recorder plot Node51.out Node9_14_19_Xdisp 10 340 300 300 -columns 1 2 -columns 
 # --------------------
 
 # record once at time 0
-record
+# record
 
 # Analysis duration of 20 seconds
 #       numSteps  dt

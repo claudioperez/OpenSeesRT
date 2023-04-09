@@ -1,6 +1,10 @@
 # RockingBC Examples: Solitary flexible rocking body under dynamic loading
 #
-# More information about the model can be found in: Avgenakis E. and Psycharis I.N. (2020) “An integrated macroelement formulation for the dynamic response of inelastic deformable rocking bodies.” Earthquake Engineering and Structural Dynamics, 49(11), 1072-1094.
+# More information about the model can be found in: 
+#
+#  Avgenakis E. and Psycharis I.N. (2020) "An integrated macroelement
+#  formulation for the dynamic response of inelastic deformable rocking
+#  bodies." Earthquake Engineering and Structural Dynamics, 49(11), 1072-1094.
 #
 # Author: Evangelos Avgenakis
 
@@ -21,7 +25,7 @@ set Nw 15;             # Rocking interface control points
 set a 0.2;             # Rocking member angle (tana=B/H)
 set zeta 0.05;         # Damping ratio
 
-# The following parameters are defined in: Avgenakis E. and Psycharis I.N. (2020) “An integrated macroelement formulation for the dynamic response of inelastic deformable rocking bodies.” Earthquake Engineering and Structural Dynamics.
+# The following parameters are defined in Avgenakis E. and Psycharis I.N. (2020)
 
 set e0 5.0e-6;                         # Initial strain at the rocking interface (e0=rho*g*H/E)
 set sr 5.0e-3;                         # Initial to yield stress ratio (sy=-rho*g*h/sy)
@@ -52,13 +56,17 @@ set NlimN 0.001
 set NlimT 1.0
 set DtMax 1.0e-5
 set DtMin 1.0e-8
-set errorifNexceeds 1 ;# A non-default value is used here, together with a timestep correction strategy at the end of the script for better accuracy during impacts
 
+# A non-default value is used here, together with a timestep correction
+# strategy at the end of the script for better accuracy during impacts
+set errorifNexceeds 1 ;
+
+#
 # Analysis Parameters
-
+#
 set Tol 1.0e-10;     # Tolerance value for tests
 set NumIter 100;     # Maximum number of iterations
-set nEigen 1;         # Eigenmode, which the damping ratio is applied to
+set nEigen 1;        # Eigenmode, which the damping ratio is applied to
 
 # Analysis cases
 
@@ -66,7 +74,7 @@ set THcase "Free" ; # Options: Free, Sinepulse, EQ
 
 set pi [expr acos(-1.0)]
 if {$THcase=="Free"} {
-    set ur 0.5;             # Initial rotation over angle a
+    set ur 0.5;               # Initial rotation over angle a
     set THousnerratio 3.0;    # Controls analysis duration
     set th0 [expr $ur*$a];    # Initial rotation
     set ang [expr 1.0/(1.0-$th0/$a)]
@@ -74,8 +82,8 @@ if {$THcase=="Free"} {
     puts "Thousner = $Thousner"
     set TmaxAnalysis [expr $THousnerratio*$Thousner]
 } elseif {$THcase=="Sinepulse"} {
-    set wpratio 6.0;        # Controls sine pulse frequency
-    set apratio 2.0;        # Controls sine pulse amplitude
+    set wpratio 6.0;         # Controls sine pulse frequency
+    set apratio 2.0;         # Controls sine pulse amplitude
     set Tpratio 18.0;        # Controls analysis duration
     set wp [expr $wpratio*$p]
     set ap [expr $apratio*$a*$g]
@@ -90,17 +98,18 @@ if {$THcase=="Free"} {
 }
 
 set name "$THcase"
-file mkdir $name
+file mkdir out/$name
 
-# ##### BUILD MODEL
-
+#
+# BUILD MODEL
+#
 wipe
 
 model basic -ndm 2 -ndf 3
 
 node 1   0.0  0.0
-node 2     0.0  [expr 0.5*$H]
-node 3     0.0 $H
+node 2   0.0  [expr 0.5*$H]
+node 3   0.0  $H
 
 element RockingBC 1 2 1 $Nw $E $nu $sy $B $w $mu -convlim $convlim -useshear $useshear -blevery $blevery -useUelNM $useUelNM -usecomstiff $usecomstiff -af $af -aflim $aflim -convlimmult $convlimmult -maxtries $maxtries -NlimN $NlimN -NlimT $NlimT -Dtlim $DtMin -errorifNexceeds $errorifNexceeds
 
@@ -116,14 +125,13 @@ pattern Plain 1 Linear {
 }
 
 # Recorders
-recorder Node -file $name\\topdisps.txt -time -nodes 3 -dof 1 2 3 disp
-recorder Node -file $name\\centdisps.txt -time -nodes 2 -dof 1 2 3 disp
-recorder Node -file $name\\centvel.txt -time -nodes 2 -dof 1 2 3 vel
-recorder Node -file $name\\reaction.txt -time -nodes 1 -dof 1 2 3 reaction
-recorder Element -file $name\\sL.txt -time -ele 1 sL ; # Sliding at the rocking end
-recorder Element -file $name\\Nforces.txt -time -ele 1 basicForce ; # Corotational system forces
-recorder Element -file $name\\forces.txt -time -ele 1 force ; # Global system forces
-# recorder Element -file $name\\dummy -time -ele 1 $name\\Dist ; # Uncomment to record Stress and Plastic displacement distributions each step inside the folder given at the end of the command (comment the same command at the end of the script)
+recorder Node -file out/$name/topdisps.txt -time -nodes 3 -dof 1 2 3 disp
+recorder Node -file out/$name/centdisps.txt -time -nodes 2 -dof 1 2 3 disp
+recorder Node -file out/$name/centvel.txt -time -nodes 2 -dof 1 2 3 vel
+recorder Node -file out/$name/reaction.txt -time -nodes 1 -dof 1 2 3 reaction
+recorder Element -file out/$name/sL.txt -time -ele 1 sL ; # Sliding at the rocking end
+recorder Element -file out/$name/Nforces.txt -time -ele 1 basicForce ; # Corotational system forces
+recorder Element -file out/$name/forces.txt -time -ele 1 force ; # Global system forces
 
 # Self weight application
 constraints Transformation
@@ -151,7 +159,7 @@ set T1 [expr 2.*$pi/$omegaI]
 puts "T1 = $T1"
 
 # Writing file with info
-set infofile [open $name\\info.txt w+]
+set infofile [open "out/$name/info.txt" w+]
 puts $infofile "H $H"
 puts $infofile "B $B"
 puts $infofile "w $w"
@@ -248,14 +256,13 @@ if {$THcase=="Free"} {
         }
     }
 
-    set infofile [open $name\\success.txt w+]
-    puts $infofile "pushover success $ok"
+    set   infofile [open "out/$name/success.txt" w+]
+    puts  $infofile "pushover success $ok"
     close $infofile
-
-    puts "Pushover complete"
+    puts  "Pushover complete"
 } else {
-    set infofile [open $name\\success.txt w+]
-    puts $infofile "nopushover success 0"
+    set   infofile [open "out/$name/success.txt" w+]
+    puts  $infofile "no pushover success 0"
     close $infofile
 }
 
@@ -341,17 +348,24 @@ while {$curTime < $TmaxAnalysis && $ok == 0} {
 
     set ok [analyze 1 $Dtcur]
 
-    if {$ok != 0 && $Dtcur==$DtMin} { # Since the element does not throw an error due to large axial force changes when $Dtcur==$DtMin, the problem lies elsewhere and the analysis is stopped prematurely
+    if {$ok != 0 && $Dtcur==$DtMin} { 
+        # Since the element does not throw an error due to large axial force changes when $Dtcur==$DtMin, the problem lies elsewhere and the analysis is stopped prematurely
         break
+
     } elseif {$ok!=0} {
-        set Dtcur [expr max($DtMin,$DtfacL*$Dtcur)]; # If an error is detected, possibly due to a large axial force change inside the RockingBC element, $Dt is lowered until the minimum value
+        set Dtcur [expr max($DtMin,$DtfacL*$Dtcur)];
+        # If an error is detected, possibly due to a large axial force change inside the RockingBC element, $Dt is lowered until the minimum value
         set ok 0
         set igood 0
+
     } else {
         incr igood
-        if {$igood>=$incrafter} { # Check that some successful iterations have been performed
-            if {[lindex [eleResponse 1 forceratioNmax] 0]<$Nlimratio*$NlimN && [lindex [eleResponse 1 forceratioTmax] 0]<$Nlimratio*$NlimT} { # Check that the maximum axial force ratios are somewhat lower than the respective limits
-                set Dtcur [expr min($DtMax,$DtfacU*$Dtcur)] ;# The timestep may be gradually increased again until the maximum value
+        if {$igood>=$incrafter} {
+            # Check that some successful iterations have been performed
+            if {[lindex [eleResponse 1 forceratioNmax] 0]<$Nlimratio*$NlimN && [lindex [eleResponse 1 forceratioTmax] 0]<$Nlimratio*$NlimT} { 
+              # Check that the maximum axial force ratios are somewhat lower than the respective limits
+              # The timestep may be gradually increased again until the maximum value
+                set Dtcur [expr min($DtMax,$DtfacU*$Dtcur)] ;
             }
         }
     }
@@ -360,13 +374,14 @@ while {$curTime < $TmaxAnalysis && $ok == 0} {
 
 }
 
-set infofile [open $name\\success.txt a+]
-puts $infofile "timehistory success $ok"
+set infofile [open "out/$name/success.txt" a+]
+puts $infofile "Response history success $ok"
 close $infofile
 
-puts "Timehistory complete"
+puts "Response history complete"
 
-recorder Element -file $name\\dummy -time -ele 1 $name\\Dist ; #Record Stress and Plastic displacement distributions at the last step inside the folder given at the end of the command
+# Record Stress and Plastic displacement distributions at the last step inside the folder given at the end of the command
+recorder Element -file "out/$name/dummy" -time -ele 1 $name/Dist ;  # Why two files ???
 record
 
 wipe

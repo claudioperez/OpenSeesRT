@@ -18,9 +18,6 @@
 # Written: GLF/MHS/fmk
 # Date: January 2001
 
-
-
-
 # ----------------------------------------------------
 # Start of Model Generation & Initial Gravity Analysis
 # ----------------------------------------------------

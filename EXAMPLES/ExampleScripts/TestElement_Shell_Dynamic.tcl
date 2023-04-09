@@ -43,7 +43,7 @@ fixZ 40.0 1 1 1 0 1 1
 
 system BandGeneral
 constraints Plain
-test NormUnbalance 1.0e-8  10 1
+test NormUnbalance 1.0e-8  10 0
 algorithm Newton
 numberer RCM
 integrator Newmark  0.5  0.25 
@@ -52,6 +52,8 @@ analysis Transient
 set tFinal [expr 20000 * $dt]
 set tCurrent [getTime]
 set ok 0
+
+progress create 40000
 
 # Perform the transient analysis
 while {$ok == 0 && $tCurrent < $tFinal} {
@@ -70,6 +72,7 @@ while {$ok == 0 && $tCurrent < $tFinal} {
     }
     
     set tCurrent [getTime]
+    progress update "$tCurrent / $tFinal"
 }
 
 # Print a message to indicate if analysis successful or not

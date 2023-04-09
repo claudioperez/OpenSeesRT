@@ -62,8 +62,8 @@ numberer RCM
 constraints Plain 
 
 # System of equations solver
-system SparseGeneral -piv
-#system ProfileSPD
+#system SparseGeneral -piv
+system ProfileSPD
 
 # Analysis for gravity load
 #analysis Transient 
@@ -81,13 +81,13 @@ analyze 5
 # Start of recorder generation
 # ----------------------------
 
-recorder Node -file Node.out -time -node $mid -dof 2 disp
-recorder plot Node.out CenterNodeDisp 625 10 625 450 -columns 1 2
+recorder Node -file out/Example7.1-Node.out -time -node $mid -dof 2 disp
 
-recorder display shellDynamics 10 10 600 600 -wipe
-prp -0 0 1000
-vup 0 1 0 
-display 2 4 100
+# recorder plot Node.out CenterNodeDisp 625 10 625 450 -columns 1 2
+# recorder display shellDynamics 10 10 600 600 -wipe
+# prp -0 0 1000
+# vup 0 1 0 
+# display 2 4 100
 
 # --------------------------
 # End of recorder generation
@@ -111,7 +111,7 @@ test EnergyIncr     1.0e-10    20    0
 algorithm Newton
 numberer RCM
 constraints Plain 
-system SparseGeneral -piv
+# system SparseGeneral -piv
 #integrator GeneralizedMidpoint 0.50
 integrator Newmark 0.50 0.25
 analysis Transient

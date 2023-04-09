@@ -13,23 +13,23 @@ proc printEigenvalues {E A Iz Iy G J L} {
     set exact "$e1 $e2 $e3 $e4 $e5 $e6"
     set exact [lsort -real $exact]
 
-    puts "Eigenvalues"
-    puts "Computed      Exact"
+    puts "  Eigenvalues"
+    puts "                    Computed                 Exact"
     for {set i 0} {$i < 6} {incr i} {
-	puts "[lindex $eigenValues [expr $i+6]]  [lindex $exact $i]"
+	puts "  $i          \t[lindex $eigenValues [expr $i+6]]\t\t[lindex $exact $i]"
     }
 }
 
 proc printDisplacements {E A Iz Iy G J L P H M} {
 
-    puts "Nodal Displacements"
-    puts "                  Computed                 Exact"
-    puts "dispX [nodeDisp 2 1]  [expr $P*$L/($E*$A)]"
-    puts "dispY [nodeDisp 2 2]  [expr $H*pow($L,3)/(3*$E*$Iz) + $M*pow($L,2)/(2*$E*$Iz)]"
-    puts "dispZ [nodeDisp 2 3]  [expr $H*pow($L,3)/(3*$E*$Iy) - $M*pow($L,2)/(2*$E*$Iy)]"
-    puts "rotX  [nodeDisp 2 4]  [expr $M*$L/($G*$J)]"
-    puts "rotY  [nodeDisp 2 5]  [expr -$H*pow($L,2)/(2*$E*$Iy) + $M*$L/($E*$Iy)]"
-    puts "rotZ  [nodeDisp 2 6]  [expr $H*pow($L,2)/(2*$E*$Iz) + $M*$L/($E*$Iz)]"
+    puts "  Nodal Displacements"
+    puts "                    Computed                 Exact"
+    puts "  dispX [nodeDisp 2 1]  [expr $P*$L/($E*$A)]"
+    puts "  dispY [nodeDisp 2 2]  [expr $H*pow($L,3)/(3*$E*$Iz) + $M*pow($L,2)/(2*$E*$Iz)]"
+    puts "  dispZ [nodeDisp 2 3]  [expr $H*pow($L,3)/(3*$E*$Iy) - $M*pow($L,2)/(2*$E*$Iy)]"
+    puts "  rotX  [nodeDisp 2 4]  [expr $M*$L/($G*$J)]"
+    puts "  rotY  [nodeDisp 2 5]  [expr -$H*pow($L,2)/(2*$E*$Iy) + $M*$L/($E*$Iy)]"
+    puts "  rotZ  [nodeDisp 2 6]  [expr $H*pow($L,2)/(2*$E*$Iz) + $M*$L/($E*$Iz)]"
     puts ""
 }
 
@@ -63,22 +63,22 @@ foreach element $elements {
 	
 	switch $section {
 	    1 {
-		puts "Section: Elastic"
+		puts "  Section: Elastic"
 		section Elastic 1 $E $A $Iz $Iy $G $J
 	    }
 	    2 {
-		puts "Section: Aggregator (fiber plus uniaxial)"
+		puts "  Section: Aggregator (fiber plus uniaxial)"
 		uniaxialMaterial Elastic 1 $E
-		section Fiber 2 {
+		uniaxialMaterial Elastic 2 [expr $G*$J]
+		# section Aggregator 1 2 T -section 2
+		section Fiber 2 -torsion 2 {
 		    set b2 [expr $b/2]
 		    set d2 [expr $d/2]
 		    patch rect 1 10 10 $d2 $b2 -$d2 -$b2
 		}
-		uniaxialMaterial Elastic 2 [expr $G*$J]
-		section Aggregator 1 2 T -section 2
 	    }
 	    3 {
-		puts "Section: Aggregator (four uniaxial)"
+		puts "  Section: Aggregator (four uniaxial)"
 		uniaxialMaterial Elastic 1 [expr $E*$A]
 		uniaxialMaterial Elastic 2 [expr $E*$Iz]
 		uniaxialMaterial Elastic 3 [expr $E*$Iy]
@@ -91,19 +91,19 @@ foreach element $elements {
 
 	switch $element {
 	    1 {
-		puts "Element: ElasticBeamColumn"
+		puts "  Element: ElasticBeamColumn"
 		element elasticBeamColumn 1 1 2 $A $E $G $J $Iy $Iz 1
 	    }
 	    2 {
-		puts "Element: DispBeamColumn"
+		puts "  Element: DispBeamColumn"
 		element dispBeamColumn 1 1 2 $nIP 1 1
 	    }
 	    3 {
-		puts "Element: NonlinearBeamColumn"
+		puts "  Element: NonlinearBeamColumn"
 		element nonlinearBeamColumn 1 1 2 $nIP 1 1
 	    }
 	    4 {
-		puts "Element: BeamWithHinges"
+		puts "  Element: BeamWithHinges"
 		element beamWithHinges 1 1 2 1 $lp 1 $lp $E $A $Iz $Iy $G $J 1
 	    }
 	}

@@ -18,14 +18,6 @@
 #  ===          ===          ===
 #   |     24'    |     24'    |
 #
-#
-# NOTE: to RUN this example, run the g3 interpreter and 
-#       type the command: source RCFrame4.tcl
-#
-# $Revision: 1.5 $
-# $Date: 2002-12-17 02:03:54 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExampleScripts/RCFrame4.tcl,v $
-
 
 model BasicBuilder -ndm 2 -ndf 3
 
@@ -161,12 +153,12 @@ pattern UniformExcitation  1   1  -accel   $Series
 
 # Create a recorder which writes to Node.out and prints
 # the current time and all dof displacement at node 3 and 2
-recorder Node -file Node.out -time -node 3 2 -dof 1 2 3 disp
+recorder Node -file out/Node.out -time -node 3 2 -dof 1 2 3 disp
 
 # Source in some g3 commands to display the model
 if {$displayMode == "displayON"} {
     # a window to show the displayed shape
-    source RCFrameDisplay.tcl 
+    source Library/RCFrameDisplay.tcl 
 }
 
 #                   gamma beta

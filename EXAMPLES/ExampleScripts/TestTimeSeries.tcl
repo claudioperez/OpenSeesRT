@@ -4,9 +4,9 @@ model basic -ndm 2 -ndf 2
 set PI [expr 2*asin(1.0)]
 set PIdiv2 [expr $PI/2.0]
 
-set filePath [open filePath w]
-set timePath [open fileTime w]
-set both [open fileBoth w]
+set filePath [open out/filePath w]
+set timePath [open out/fileTime w]
+set both [open out/fileBoth w]
 for {set i 0} {$i <= 11} {incr i 1} {
     puts $filePath $i
     puts $timePath [expr $i/2.0]
@@ -17,7 +17,7 @@ close $filePath
 close $timePath
 close $both
 
-set records [searchPeerNGA -fault San -magLo 6.5 -magHi 6.75]
+# set records [searchPeerNGA -fault San -magLo 6.5 -magHi 6.75]
     
 set seriesCommands [list]
 lappend seriesCommands "Linear 1 -factor 2.0"
@@ -29,11 +29,11 @@ lappend seriesCommands "Trig 1 1.0 9.0 8 -factor 2.0"
 lappend seriesCommands "Trig 1 1.0 9.0 8 -factor 2.0 -shift $PIdiv2"
 lappend seriesCommands "Trig 1 1.0 9.0 8 -factor 2.0"
 lappend seriesCommands "Trig 1 1.0 9.0 8 -factor 2.0 -shift $PIdiv2"
-lappend seriesCommands "Path 1 -dt 1.0 -filePath filePath"
-lappend seriesCommands "Path 1 -dt 1.0 -filePath filePath -factor 2.0"
-lappend seriesCommands "Path 1 -fileTime fileTime -filePath filePath -factor 2.0"
+lappend seriesCommands "Path 1 -dt 1.0 -filePath out/filePath"
+lappend seriesCommands "Path 1 -dt 1.0 -filePath out/filePath -factor 2.0"
+lappend seriesCommands "Path 1 -fileTime out/fileTime -filePath out/filePath -factor 2.0"
 lappend seriesCommands "Path 1 -dt 1.0 -values {0.0 1.0 2.0 3.0} -factor 2.0"
-lappend seriesCommands "PeerNGAMotion 1 [lindex $records 0] 1.0 -dT dt -NPTS nPts"
+# lappend seriesCommands "PeerNGAMotion 1 [lindex $records 0] 1.0 -dT dt -NPTS nPts"
 
 #foreach record $records {
 #    lappend seriesCommands "PeerNGAMotion $record 1.0 -dT dt -NPTS nPts"
@@ -79,9 +79,9 @@ foreach seriesCommand $seriesCommands {
     constraints Plain
     analysis Static
 
-    recorder Node -file D.out -timeSeries 1 -time -node 2 -dof 1 disp
-    recorder Node -file V.out -timeSeries 1 -time -node 2 -dof 1 vel
-    recorder Node -file A.out -timeSeries 1 -time -node 2 -dof 1 accel
+    recorder Node -file out/D.out -timeSeries 1 -time -node 2 -dof 1 disp
+    recorder Node -file out/V.out -timeSeries 1 -time -node 2 -dof 1 vel
+    recorder Node -file out/A.out -timeSeries 1 -time -node 2 -dof 1 accel
 
     puts "$seriesCommand"    
     for {set i 1} {$i <= 10} {incr i 1} {

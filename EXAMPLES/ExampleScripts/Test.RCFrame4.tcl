@@ -19,13 +19,6 @@
 #   |     24'    |     24'    |
 #
 #
-# NOTE: to RUN this example, run the g3 interpreter and 
-#       type the command: source RCFrame4.ops
-#
-# $Revision: 1.2 $
-# $Date: 2001-08-15 21:20:50 $
-# $Source: /usr/local/cvs/OpenSees/EXAMPLES/ExamplesForTesting/Test.RCFrame4.ops,v $
-
 
 model BasicBuilder -ndm 2 -ndf 3
 

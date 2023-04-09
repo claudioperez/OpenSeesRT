@@ -62,6 +62,6 @@ analyze 1
 # print the results at node and at all elements
 print node 4
 print ele
-playback 1
+# playback 1
 
 wipe

@@ -10,20 +10,20 @@ proc printEigenvalues {E A I L} {
     set exact "$e1 $e2 $e3"
     set exact [lsort -real $exact]
 
-    puts "Eigenvalues"
-    puts "Computed      Exact"
+    puts "  Eigenvalues"
+    puts "  Computed      Exact"
     for {set i 0} {$i < 3} {incr i} {
-	puts "[lindex $eigenValues [expr $i+3]]  [lindex $exact $i]"
+	puts "  [lindex $eigenValues [expr $i+3]]  [lindex $exact $i]"
     }
 }
 proc printDisplacements {E A I L P H M} {
 
-    puts "Nodal Displacements"
-    puts "Computed      Exact"
-    puts "[nodeDisp 2 1]  [expr $P*$L/($E*$A)]"
-    puts "[nodeDisp 2 2]  [expr $H*pow($L,3)/(3*$E*$I) + $M*pow($L,2)/(2*$E*$I)]"
-    puts "[nodeDisp 2 3]  [expr $H*pow($L,2)/(2*$E*$I) + $M*$L/($E*$I)]"
-    puts ""
+    puts "  Nodal Displacements"
+    puts "  Computed      Exact"
+    puts "  [nodeDisp 2 1]  [expr $P*$L/($E*$A)]"
+    puts "  [nodeDisp 2 2]  [expr $H*pow($L,3)/(3*$E*$I) + $M*pow($L,2)/(2*$E*$I)]"
+    puts "  [nodeDisp 2 3]  [expr $H*pow($L,2)/(2*$E*$I) + $M*$L/($E*$I)]"
+    puts "  "
 }
 
 set E 1.0
@@ -52,11 +52,11 @@ foreach element $elements {
 	
 	switch $section {
 	    1 {
-		puts "Section: Elastic"
+		puts "  Section: Elastic"
 		section Elastic 1 $E $A $I
 	    }
 	    2 {
-		puts "Section: Fiber"
+		puts "  Section: Fiber"
 		uniaxialMaterial Elastic 1 $E
 		section Fiber 1 {
 		    set b2 [expr $b/2]
@@ -65,32 +65,32 @@ foreach element $elements {
 		}
 	    }
 	    3 {
-		puts "Section: Aggregator (two uniaxial)"
+		puts "  Section: Aggregator (two uniaxial)"
 		uniaxialMaterial Elastic 1 [expr $E*$A]
 		uniaxialMaterial Elastic 2 [expr $E*$I]
 		section Aggregator 1 1 P 2 Mz
 	    }
 	    4 {
-		puts "Section: Aggregator (uniaxial plus section)"
+		puts "  Section: Aggregator (uniaxial plus section)"
 		uniaxialMaterial Elastic 1 [expr $E*$A]
 		uniaxialMaterial Elastic 2 [expr $E*$I]
 		section Uniaxial 2 1 P
 		section Aggregator 1 2 Mz -section 2
 	    }
             5 {
-                puts "Section: YieldSurface01 (Orbison)"
+                puts "  Section: YieldSurface01 (Orbison)"
                 ysEvolutionModel null 100 1.0 1.0
                 yieldSurface_BC Orbison2D 100 1.0e12 1.0e12 100
                 section YS_Section2D01 1 $E $A $I 100
             }
             6 {
-                puts "Section: YieldSurface01 (Attalla)"
+                puts "  Section: YieldSurface01 (Attalla)"
                 ysEvolutionModel null 100 1.0 1.0
                 yieldSurface_BC Attalla2D 100 1.0e12 1.0e12 100
                 section YS_Section2D01 1 $E $A $I 100
             }
             7 {
-                puts "Section: YieldSurface01 (ElTawil)"
+                puts "  Section: YieldSurface01 (ElTawil)"
                 ysEvolutionModel null 100 1.0 1.0
                 yieldSurface_BC ElTawil2D 100 1.0e12 0.0 1.0e12 -1.0e12 100
                 section YS_Section2D01 1 $E $A $I 100
@@ -101,19 +101,19 @@ foreach element $elements {
 
 	switch $element {
 	    1 {
-		puts "Element: ElasticBeamColumn"
+		puts "  Element: ElasticBeamColumn"
 		element elasticBeamColumn 1 1 2 $A $E $I 1
 	    }
 	    2 {
-		puts "Element: DispBeamColumn"
+		puts "  Element: DispBeamColumn"
 		element dispBeamColumn 1 1 2 $nIP 1 1
 	    }
 	    3 {
-		puts "Element: NonlinearBeamColumn"
+		puts "  Element: NonlinearBeamColumn"
 		element nonlinearBeamColumn 1 1 2 $nIP 1 1
 	    }
 	    4 {
-		puts "Element: BeamWithHinges"
+		puts "  Element: BeamWithHinges"
 		element beamWithHinges 1 1 2 1 $lp 1 $lp $E $A $I 1
 	    }
 	}

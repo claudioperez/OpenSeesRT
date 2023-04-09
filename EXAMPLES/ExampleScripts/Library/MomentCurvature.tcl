@@ -37,7 +37,8 @@ proc MomentCurvature {secTag axialLoad maxK {numIncr 100} } {
 
 	# Define analysis parameters
 	integrator LoadControl 0.0
-	system SparseGeneral -piv;	# Overkill, but may need the pivoting!
+        # TODO: Fix SparseGeneral
+	# system SparseGeneral -piv;	# Overkill, but may need the pivoting!
 	test NormUnbalance 1.0e-9 10
 	numberer Plain
 	constraints Plain

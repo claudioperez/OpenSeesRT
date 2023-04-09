@@ -100,15 +100,15 @@ analyze   10
 # Start of recorder generation
 # ----------------------------
 
-recorder Node -file Node.out -time -node $l1 -dof 2 disp
-recorder plot Node.out CenterNodeDisp 10 210 800 400 -columns 1 2
+recorder Node -file out/Node.out -time -node $l1 -dof 2 disp
+# recorder plot Node.out CenterNodeDisp 10 210 800 400 -columns 1 2
 
 # create the display
-recorder display OpenSees 10 10 800 200 -wipe
-prp 20 5.0 100.0
-vup 0 1 0
-viewWindow -30 30 -10 10
-display 1 4 5
+# recorder display OpenSees 10 10 800 200 -wipe
+# prp 20 5.0 100.0
+# vup 0 1 0
+# viewWindow -30 30 -10 10
+# display 1 4 5
 
 # --------------------------
 # End of recorder generation
@@ -136,7 +136,7 @@ system ProfileSPD
 #integrator GeneralizedMidpoint 0.50
 analysis Transient
 
-record
+# record
 
 # Perform the transient analysis (20 sec)
 #       numSteps  dt

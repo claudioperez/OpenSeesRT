@@ -20,7 +20,6 @@
 
 
 
-
 # ----------------------------------------------------
 # Start of Model Generation & Initial Gravity Analysis
 # ----------------------------------------------------
@@ -86,11 +85,11 @@ integrator DisplacementControl  3   1   $dU  1 $dU $dU
 # remove recorders
 
 # Create a recorder to monitor nodal displacements
-recorder Node -file node32.out -time -node 3 4 -dof 1 2 3 disp
+recorder Node -file out/node32.out -time -node 3 4 -dof 1 2 3 disp
 #recorder plot node32.out hi 10 10 300 300 -columns 2 1
 
 # Create a recorder to monitor element forces in columns
-recorder EnvelopeElement -file ele32.out -time -ele 1 2 localForce
+recorder EnvelopeElement -file out/ele32.out -time -ele 1 2 localForce
 
 # --------------------------------
 # End of recorder generation
@@ -119,11 +118,11 @@ if {$ok != 0} {
 
 	# if the analysis fails try initial tangent iteration
 	if {$ok != 0} {
-	    puts "regular newton failed .. lets try an initail stiffness for this step"
+	    puts "... Newton failed, trying an initail stiffness"
 	    test NormUnbalance 1.0  1000 5
 	    algorithm ModifiedNewton -initial
 	    set ok [analyze 1]
-	    if {$ok == 0} {puts "that worked .. back to regular newton"}
+	    if {$ok == 0} {puts "... that worked, back to regular newton"}
 	    test NormDispIncr 1.0e-12  10 
 	    algorithm Newton
 	}
@@ -134,13 +133,13 @@ if {$ok != 0} {
 
 puts "";
 if {$ok == 0} {
-#   puts "Pushover analysis completed SUCCESSFULLY";
+    puts "Pushover analysis completed SUCCESSFULLY";
 } else {
-#   puts "Pushover analysis FAILED";    
+    puts "Pushover analysis FAILED";    
 }
 
 # Print the state at node 3
-#print node 3
+print node 3
 
 
 

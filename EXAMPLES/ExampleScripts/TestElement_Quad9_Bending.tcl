@@ -38,9 +38,11 @@ analysis Static
 
 analyze 1
 
-print -json
+print -node 2 3
 
+puts {
 # verification:
-# tip vertical displacement (node 2 and 3) = 0.0075
-# bottom Gauss Point stress_xx = 46475.8
-# bottom extrem stress_xx (extrapolated) = 60000.0
+#   tip vertical displacement (node 2 and 3) = 0.0075
+#   bottom Gauss Point stress_xx = 46475.8
+#   bottom extrem stress_xx (extrapolated) = 60000.0
+}
