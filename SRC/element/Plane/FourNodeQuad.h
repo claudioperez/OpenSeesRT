@@ -56,6 +56,7 @@ class FourNodeQuad : public Element
     ~FourNodeQuad();
 
     const char *getClassType(void) const {return "FourNodeQuad";};
+    static constexpr const char* class_name = "FourNodeQuad";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);
@@ -87,7 +88,9 @@ class FourNodeQuad : public Element
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
 		  &theBroker);
 
+
     int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
+
     void Print(OPS_Stream &s, int flag =0);
 
     Response *setResponse(const char **argv, int argc, 
