@@ -68,6 +68,20 @@ Files that are superseded
 
 ## Cleaning & TODO
 
+- Rendering commands to retire:
+  ```
+     "prp"
+     "vrp"
+     "vup"
+     "vpn"
+     "viewWindow"
+     "plane"
+     "port"
+     "projection"
+     "fill"
+     "display"
+  ```
+
 Remove dependence on
 
 - utility/SimulationInformation.\*
