@@ -4,7 +4,6 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-#add_library(OPS_Element_masonry)
 
 target_sources(OPS_Element
   PUBLIC
@@ -17,3 +16,11 @@ target_sources(OPS_Element
     MasonPan3D.h
 )    
 
+if (UNIX)
+  set_source_files_properties(
+      BeamGT.cpp
+      MasonPan12.cpp
+      MasonPan3D.cpp
+      APPEND PROPERTY CMAKE_CXX_FLAGS -w
+  )
+endif()
