@@ -121,78 +121,29 @@ extern int TclCommand_addReinfLayer(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char **const);
 
 
-
-
 static int TclCommand_addParameter(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char ** const);
 
-extern int TclCommand_addElement(ClientData, Tcl_Interp*,
-                                 int argc, TCL_Char ** const);
 
+#if 0 // mesh commands
 static int TclCommand_mesh(ClientData, Tcl_Interp*, int argc,
                            TCL_Char ** const);
 
 static int TclCommand_remesh(ClientData, Tcl_Interp*,
                              int argc, TCL_Char ** const);
-
+#endif
 
 static int TclCommand_addBeamIntegration(ClientData,
                                          Tcl_Interp*, int argc,
                                          TCL_Char ** const);
 
-static int TclCommand_addLimitCurve(ClientData, Tcl_Interp*,
-                                    int argc, TCL_Char ** const);
-
-extern int TclCommand_addNDMaterial(ClientData, Tcl_Interp*,
-                                    int argc, TCL_Char ** const);
-
-
-extern int TclCommand_addSection(ClientData, Tcl_Interp*,
-                                 int argc, TCL_Char ** const);
-
-static int TclCommand_addYieldSurface_BC(ClientData,
-                                         Tcl_Interp*, int argc,
-                                         TCL_Char ** const);
-
-static int TclCommand_addYS_EvolutionModel(ClientData,
-                                           Tcl_Interp*, int argc,
-                                           TCL_Char ** const);
-
-static int TclCommand_addYS_PlasticMaterial(ClientData,
-                                            Tcl_Interp*, int argc,
-                                            TCL_Char ** const);
-
-int
-TclCommand_addCyclicModel(ClientData, Tcl_Interp*, int argc,
-                          TCL_Char ** const);
 
 #ifdef OPSDEF_DAMAGE
 int
 TclCommand_addDamageModel(ClientData, Tcl_Interp*, int argc,
                           TCL_Char ** const);
 #endif // OPSDEF_DAMAGE
-/*
-static int TclCommand_addTimeSeries(ClientData, Tcl_Interp*,
-                                    int argc, TCL_Char ** const);
 
-static int TclCommand_addPattern(ClientData, Tcl_Interp*,
-                                 int argc, TCL_Char ** const);
-
-static int TclCommand_addSeries(ClientData, Tcl_Interp*,
-                                int argc, TCL_Char ** const);
-*/
-static int TclCommand_addHomogeneousBC(ClientData,
-                                       Tcl_Interp*, int argc,
-                                       TCL_Char ** const);
-static int TclCommand_addHomogeneousBC_X(ClientData,
-                                         Tcl_Interp*, int argc,
-                                         TCL_Char ** const);
-static int TclCommand_addHomogeneousBC_Y(ClientData,
-                                         Tcl_Interp*, int argc,
-                                         TCL_Char ** const);
-static int TclCommand_addHomogeneousBC_Z(ClientData,
-                                         Tcl_Interp*, int argc,
-                                         TCL_Char ** const);
 static int TclCommand_addEqualDOF_MP(ClientData, Tcl_Interp*,
                                      int argc, TCL_Char ** const);
 
@@ -200,20 +151,10 @@ static int TclCommand_addEqualDOF_MP_Mixed(ClientData,
                                            Tcl_Interp*, int argc,
                                            TCL_Char ** const);
 
-static int TclCommand_RigidLink(ClientData, Tcl_Interp*,
-                                int argc, TCL_Char ** const);
-
-static int TclCommand_addMP(ClientData, Tcl_Interp*, int argc,
-                            TCL_Char ** const);
 
 static int TclCommand_addNodalLoad(ClientData, Tcl_Interp*,
                                    int argc, TCL_Char ** const);
 
-
-static int TclCommand_addNodalMass(ClientData, Tcl_Interp*,
-                                   int argc, TCL_Char ** const);
-static int TclCommand_addSP(ClientData, Tcl_Interp*, int argc,
-                            TCL_Char ** const);
 
 static int TclCommand_addImposedMotionSP(ClientData,
                                          Tcl_Interp*, int argc,
@@ -252,11 +193,6 @@ static int TclCommand_addUnloadingRule(ClientData,
 static int TclCommand_addStrengthDegradation(ClientData,
                                              Tcl_Interp*, int argc,
                                              TCL_Char ** const);
-/*
-static int TclCommand_addHystereticBackbone(ClientData,
-                                            Tcl_Interp*, int argc,
-                                            TCL_Char ** const);
-*/
 
 extern int TclCommand_addGroundMotion(ClientData, Tcl_Interp*,
                                       int argc, TCL_Char ** const);
@@ -317,9 +253,10 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   Tcl_CreateCommand(interp, "addToParameter", TclCommand_addParameter, NULL, NULL);
   Tcl_CreateCommand(interp, "updateParameter", TclCommand_addParameter, NULL, NULL);
 
+#if 0 // mesh commands
   Tcl_CreateCommand(interp, "mesh", TclCommand_mesh, NULL, NULL);
   Tcl_CreateCommand(interp, "remesh", TclCommand_remesh, NULL, NULL);
-
+#endif
 
   Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, NULL, NULL);
 
@@ -332,10 +269,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   Tcl_CreateCommand(interp, "equalDOF",       TclCommand_addEqualDOF_MP, NULL, NULL);
   Tcl_CreateCommand(interp, "equalDOF_Mixed", TclCommand_addEqualDOF_MP_Mixed, NULL, NULL);
-  Tcl_CreateCommand(interp, "rigidLink",      &TclCommand_RigidLink, NULL, NULL);
 
-  Tcl_CreateCommand(interp, "sp", TclCommand_addSP, NULL, NULL);
-  Tcl_CreateCommand(interp, "mp", TclCommand_addMP, NULL, NULL);
 
   Tcl_CreateCommand(interp, "PySimple1Gen", TclCommand_doPySimple1Gen, NULL, NULL);
   Tcl_CreateCommand(interp, "TzSimple1Gen", TclCommand_doTzSimple1Gen, NULL, NULL);
@@ -348,10 +282,12 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 
   Tcl_CreateCommand(interp, "frictionModel",        TclCommand_addFrictionModel, NULL, NULL);
   Tcl_CreateCommand(interp, "beamIntegration",  TclCommand_addBeamIntegration,  NULL, NULL);
+#if 0
   Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC, NULL, NULL);
   Tcl_CreateCommand(interp, "ysEvolutionModel", TclCommand_addYS_EvolutionModel, NULL, NULL);
   Tcl_CreateCommand(interp, "plasticMaterial", TclCommand_addYS_PlasticMaterial, NULL, NULL);
   Tcl_CreateCommand(interp, "cyclicModel", TclCommand_addCyclicModel, NULL, NULL);
+#endif
   Tcl_CreateCommand(interp, "stiffnessDegradation", TclCommand_addStiffnessDegradation, NULL, NULL);
   Tcl_CreateCommand(interp, "unloadingRule",        TclCommand_addUnloadingRule, NULL, NULL);
   Tcl_CreateCommand(interp, "strengthDegradation",  TclCommand_addStrengthDegradation, NULL, NULL);
@@ -390,19 +326,18 @@ TclBasicBuilder::~TclBasicBuilder()
   Tcl_DeleteCommand(theInterp, "parameter");
   Tcl_DeleteCommand(theInterp, "addToParameter");
   Tcl_DeleteCommand(theInterp, "updateParameter");
+#if 0 // mesh commands
   Tcl_DeleteCommand(theInterp, "mesh");
   Tcl_DeleteCommand(theInterp, "remesh");
+#endif
   Tcl_DeleteCommand(theInterp, "background");
   Tcl_DeleteCommand(theInterp, "uniaxialMaterial");
   Tcl_DeleteCommand(theInterp, "imposedSupportMotion");
   Tcl_DeleteCommand(theInterp, "groundMotion");
   Tcl_DeleteCommand(theInterp, "equalDOF");
-  Tcl_DeleteCommand(theInterp, "sp");
-  Tcl_DeleteCommand(theInterp, "mp");
   Tcl_DeleteCommand(theInterp, "PySimple1Gen"); // Added by Scott J. Brandenberg
   Tcl_DeleteCommand(theInterp, "TzSimple1Gen"); // Added by Scott J. Brandenberg
 
-  Tcl_DeleteCommand(theInterp, "fiber");
   Tcl_DeleteCommand(theInterp, "Hfiber"); // LEO
   Tcl_DeleteCommand(theInterp, "updateMaterialStage");
   Tcl_DeleteCommand(theInterp, "updateMaterials");
@@ -560,110 +495,6 @@ TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc,
                                          theTclDomain, theTclBuilder);
 }
 
-
-// extern int OPS_LineMesh(Domain& domain, int ndm);
-// extern int OPS_TriMesh(Domain& domain);
-// extern int OPS_TriReMesh(Domain& domain, int ndf);
-int
-TclCommand_mesh(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
-
-  // make sure corect number of arguments on command line
-  if (argc < 2) {
-    opserr << "WARNING insufficient arguments\n";
-    opserr << "Want: mesh type? ...>\n";
-    return TCL_ERROR;
-  }
-
-  OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
-                 theTclBuilder);
-
-  // mesh type
-  int res = 0;
-  // if (strcmp(argv[1], "line") == 0) {
-  // 	res = OPS_LineMesh(*theTclDomain,ndm);
-  // } else if (strcmp(argv[1], "tri") == 0) {
-  // 	res = OPS_TriMesh(*theTclDomain);
-  // } else {
-  // 	opserr<<"WARNING: mesh type "<<argv[1]<<" is unknown\n";
-  // 	return TCL_ERROR;
-  // }
-
-  if (res < 0) {
-    return TCL_ERROR;
-  }
-
-  return 0;
-}
-
-int
-TclCommand_remesh(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == nullptr) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
-
-
-  // make sure corect number of arguments on command line
-  if (argc < 2) {
-    opserr << "WARNING insufficient arguments\n";
-    opserr << "Want: mesh type? ...>\n";
-    return TCL_ERROR;
-  }
-
-  OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
-                 theTclBuilder);
-
-  // mesh type
-  int res = 0;
-  // if (strcmp(argv[1], "line") == 0) {
-  // 	//res = OPS_LineMesh(*theTclDomain,ndm);
-  // } else if (strcmp(argv[1], "tri") == 0) {
-  // 	res = OPS_TriReMesh(*theTclDomain,ndf);
-  // } else {
-  // 	opserr<<"WARNING: remesh type "<<argv[1]<<" is unknown\n";
-  // 	return TCL_ERROR;
-  // }
-
-  if (res < 0) {
-    return TCL_ERROR;
-  }
-
-  return 0;
-}
-
-#if defined(OPSDEF_Element_PFEM)
-extern int OPS_BgMesh();
-
-int
-TclCommand_backgroundMesh(ClientData clientData, Tcl_Interp *interp, int argc,
-                          TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
-
-  OPS_ResetInput(clientData, interp, 1, argc, argv, theTclDomain,
-                 theTclBuilder);
-
-  if (OPS_BgMesh() >= 0)
-    return TCL_OK;
-  else
-    return TCL_ERROR;
-  return TCL_OK;
-}
-#endif // _OPS_Element_PFEM
 
 extern void *OPS_LobattoBeamIntegration(int &integrationTag, ID &secTags);
 extern void *OPS_LegendreBeamIntegration(int &integrationTag, ID &secTags);
@@ -845,8 +676,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << "WARNING builder has been destroyed - load \n";
     return TCL_ERROR;
   }
-
-  //  int ndf = builder->getNDF();
 
   int ndf = argc - 2;
   NodalLoad *theLoad = 0;
@@ -1107,378 +936,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-int
-TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - load \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-
-  // make sure at least one other argument to contain type of system
-  if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: mass nodeId " << ndf
-           << " mass values\n";
-    return TCL_ERROR;
-  }
-
-  // get the id of the node
-  int nodeId;
-  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeId: " << argv[1];
-    opserr << " - mass nodeId " << ndf << " forces\n";
-    return TCL_ERROR;
-  }
-
-  // check for mass terms
-  Matrix mass(ndf, ndf);
-  double theMass;
-  for (int i = 0; i < ndf; i++) {
-    if (Tcl_GetDouble(interp, argv[i + 2], &theMass) != TCL_OK) {
-      opserr << "WARNING invalid nodal mass term\n";
-      opserr << "node: " << nodeId << ", dof: " << i + 1 << endln;
-      return TCL_ERROR;
-    }
-    mass(i, i) = theMass;
-  }
-
-  if (theTclDomain->setMass(mass, nodeId) != 0) {
-    opserr << "WARNING failed to set mass at node " << nodeId << endln;
-    return TCL_ERROR;
-  }
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-int
-TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-
-  // check number of arguments
-  if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fix nodeId " << ndf
-           << " [0,1] conditions";
-    return TCL_ERROR;
-  }
-
-  // get the id of the node
-  int nodeId;
-  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeId - fix nodeId " << ndf
-           << " [0,1] conditions\n";
-    return TCL_ERROR;
-  }
-
-  char buffer[80];
-  strcpy(buffer, "");
-  // get the fixity condition and add the constraint if fixed
-  for (int i = 0; i < ndf; i++) {
-    int theFixity;
-    if (Tcl_GetInt(interp, argv[2 + i], &theFixity) != TCL_OK) {
-      opserr << "WARNING invalid fixity " << i + 1 << " - load " << nodeId;
-      opserr << " " << ndf << " fixities\n";
-      return TCL_ERROR;
-    } else {
-      if (theFixity != 0) {
-
-        // create a homogeneous constraint
-        SP_Constraint *theSP = new SP_Constraint(nodeId, i, 0.0, true);
-        if (theSP == 0) {
-          opserr << "WARNING ran out of memory for SP_Constraint ";
-          opserr << "fix " << nodeId << " " << ndf << " [0,1] conditions\n";
-          return TCL_ERROR;
-        }
-
-        // add it to the domain
-        if (theTclDomain->addSP_Constraint(theSP) == false) {
-          opserr << "WARNING could not add SP_Constraint to domain using fix "
-                    "command - node may already be constrained\n";
-          sprintf(buffer, "%d ", 0);
-          delete theSP;
-        } else {
-          sprintf(buffer, "%d ", theSP->getTag());
-          Tcl_AppendResult(interp, buffer, NULL);
-        }
-      }
-    }
-  }
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-int
-TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-  if (strcmp(argv[argc - 2], "-tol") == 0)
-    ndf -= 2;
-
-  // check number of arguments
-  if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixX xLoc " << ndf
-           << " [0,1] conditions";
-    return TCL_ERROR;
-  }
-
-  // get the xCrd of nodes to be constrained
-  double xLoc;
-  if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
-    opserr << "WARNING invalid xCrd - fixX xLoc " << ndf
-           << " [0,1] conditions\n";
-    return TCL_ERROR;
-  }
-
-  // read in the fixities
-  ID fixity(ndf);
-  for (int i = 0; i < ndf; i++) {
-    if (Tcl_GetInt(interp, argv[2 + i], &fixity(i)) != TCL_OK) {
-      opserr << "WARNING invalid fixity " << i + 1 << " - fixX " << xLoc;
-      opserr << " " << ndf << " fixities\n";
-      return TCL_ERROR;
-    }
-  }
-
-  // set the tolerance, the allowable difference in nodal coordinate and
-  // what the value user specified to see if node is constrained or not
-  double tol = 1.0e-10;
-  if (argc >= (4 + ndf)) {
-    if (strcmp(argv[2 + ndf], "-tol") == 0)
-      if (Tcl_GetDouble(interp, argv[3 + ndf], &tol) != TCL_OK) {
-        opserr << "WARNING invalid tol specified - fixX " << xLoc << endln;
-        return TCL_ERROR;
-      }
-  }
-
-  theTclDomain->addSP_Constraint(0, xLoc, fixity, tol);
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-int
-TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-  if (strcmp(argv[argc - 2], "-tol") == 0)
-    ndf -= 2;
-
-  // check number of arguments
-  if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixY yLoc " << ndf
-           << " [0,1] conditions";
-    return TCL_ERROR;
-  }
-
-  // get the yCrd of nodes to be constrained
-  double yLoc;
-  if (Tcl_GetDouble(interp, argv[1], &yLoc) != TCL_OK) {
-    opserr << "WARNING invalid yCrd - fixY yLoc " << ndf
-           << " [0,1] conditions\n";
-    return TCL_ERROR;
-  }
-
-  // read in the fixities
-  ID fixity(ndf);
-  for (int i = 0; i < ndf; i++) {
-    if (Tcl_GetInt(interp, argv[2 + i], &fixity(i)) != TCL_OK) {
-      opserr << "WARNING invalid fixity " << i + 1 << " - fixY " << yLoc;
-      opserr << " " << ndf << " fixities\n";
-      return TCL_ERROR;
-    }
-  }
-
-  // set the tolerance, the allowable difference in nodal coordinate and
-  // what the value user specified to see if node is constrained or not
-  double tol = 1.0e-10;
-  if (argc >= (4 + ndf)) {
-    if (strcmp(argv[2 + ndf], "-tol") == 0)
-      if (Tcl_GetDouble(interp, argv[3 + ndf], &tol) != TCL_OK) {
-        opserr << "WARNING invalid tol specified - fixY " << yLoc << endln;
-        return TCL_ERROR;
-      }
-  }
-
-  theTclDomain->addSP_Constraint(1, yLoc, fixity, tol);
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-int
-TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeam \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = argc - 2;
-  if (strcmp(argv[argc - 2], "-tol") == 0)
-    ndf -= 2;
-
-  // check number of arguments
-  if (argc < (2 + ndf)) {
-    opserr << "WARNING bad command - want: fixZ zLoc " << ndf
-           << " [0,1] conditions";
-    return TCL_ERROR;
-  }
-
-  // get the yCrd of nodes to be constrained
-  double zLoc;
-  if (Tcl_GetDouble(interp, argv[1], &zLoc) != TCL_OK) {
-    opserr << "WARNING invalid zCrd - fixZ zLoc " << ndf
-           << " [0,1] conditions\n";
-    return TCL_ERROR;
-  }
-
-  // read in the fixities
-  ID fixity(ndf);
-  for (int i = 0; i < ndf; i++) {
-    if (Tcl_GetInt(interp, argv[2 + i], &fixity(i)) != TCL_OK) {
-      opserr << "WARNING invalid fixity " << i + 1 << " - fixZ " << zLoc;
-      opserr << " " << ndf << " fixities\n";
-      return TCL_ERROR;
-    }
-  }
-
-  // set the tolerance, the allowable difference in nodal coordinate and
-  // what the value user specified to see if node is constrained or not
-  double tol = 1.0e-10;
-  if (argc >= (4 + ndf)) {
-    if (strcmp(argv[2 + ndf], "-tol") == 0)
-      if (Tcl_GetDouble(interp, argv[3 + ndf], &tol) != TCL_OK) {
-        opserr << "WARNING invalid tol specified - fixZ " << zLoc << endln;
-        return TCL_ERROR;
-      }
-  }
-
-  theTclDomain->addSP_Constraint(2, zLoc, fixity, tol);
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
-
-int
-TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char ** const argv)
-{
-  // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed - sp \n";
-    return TCL_ERROR;
-  }
-
-
-  // check number of arguments
-  if (argc < 4) {
-    opserr << "WARNING bad command - want: sp nodeId dofID value";
-    return TCL_ERROR;
-  }
-
-  // get the nodeID, dofId and value of the constraint
-  int nodeId, dofId;
-  double value;
-
-  if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << "WARNING invalid nodeId: " << argv[1]
-           << " -  sp nodeId dofID value\n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[2], &dofId) != TCL_OK) {
-    opserr << "WARNING invalid dofId: " << argv[2] << " -  sp ";
-    opserr << nodeId << " dofID value\n";
-    return TCL_ERROR;
-  }
-  dofId--; // DECREMENT THE DOF VALUE BY 1 TO GO TO OUR C++ INDEXING
-
-  if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
-    opserr << "WARNING invalid value: " << argv[3] << " -  sp ";
-    opserr << nodeId << " dofID value\n";
-    return TCL_ERROR;
-  }
-
-  bool isSpConst = false;
-  bool userSpecifiedPattern = false;
-  int loadPatternTag = 0; // some pattern that will never be used!
-
-  int endMarker = 4;
-  while (endMarker != argc) {
-    if (strcmp(argv[endMarker], "-const") == 0) {
-      // allow user to specify const load
-      isSpConst = true;
-    } else if (strcmp(argv[endMarker], "-pattern") == 0) {
-      // allow user to specify load pattern other than current
-      endMarker++;
-      userSpecifiedPattern = true;
-      if (endMarker == argc ||
-          Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
-
-        opserr << "WARNING invalid patternTag - load " << nodeId << "\n";
-        return TCL_ERROR;
-      }
-    }
-    endMarker++;
-  }
-
-  // if load pattern tag has not changed - get the pattern tag from current one
-  if (userSpecifiedPattern == false) {
-    if (theTclLoadPattern == 0) {
-      opserr << "WARNING no current pattern - sp " << nodeId
-             << " dofID value\n";
-      return TCL_ERROR;
-    } else
-      loadPatternTag = theTclLoadPattern->getTag();
-  }
-
-  LoadPattern *thePattern = theTclDomain->getLoadPattern(loadPatternTag);
-
-  // create a homogeneous constraint
-  SP_Constraint *theSP = new SP_Constraint(nodeId, dofId, value, isSpConst);
-
-  if (theSP == 0) {
-    opserr << "WARNING ran out of memory for SP_Constraint ";
-    opserr << " - sp " << nodeId << " dofID value\n";
-    return TCL_ERROR;
-  }
-  if (theTclDomain->addSP_Constraint(theSP, loadPatternTag) == false) {
-    opserr << "WARNING could not add SP_Constraint to domain ";
-    delete theSP;
-    return TCL_ERROR;
-  }
-
-  // if get here we have sucessfully created the node and added it to the domain
-  return TCL_OK;
-}
 
 int
 TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
@@ -1743,52 +1200,6 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
-#if 0
-int
-TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc,
-                     TCL_Char ** const argv)
-{
-  if (argc < 4) {
-    opserr << "WARNING rigidLink linkType? rNode? cNode?\n";
-    return TCL_ERROR;
-  }
-
-  int rNode, cNode;
-  if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-    opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read "
-              "rNode \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[3], &cNode) != TCL_OK) {
-    opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read "
-              "CNode \n";
-    return TCL_ERROR;
-  }
-
-  // construct a rigid rod or beam depending on 1st arg
-  if ((strcmp(argv[1], "-bar") == 0) || (strcmp(argv[1], "bar") == 0)) {
-    RigidRod theLink(*theTclDomain, rNode, cNode);
-  } else if ((strcmp(argv[1], "-beam") == 0) ||
-             (strcmp(argv[1], "beam") == 0)) {
-    RigidBeam theLink(*theTclDomain, rNode, cNode);
-  } else {
-    opserr << "WARNING rigidLink linkType? rNode? cNode? - unrecognised link "
-              "type (-bar, -beam) \n";
-    return TCL_ERROR;
-  }
-
-  return TCL_OK;
-}
-#endif
-
-
-int
-TclCommand_addMP(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char ** const argv)
-{
-  opserr << "WARNING - TclCommand_addMP() not yet implemented\n";
-  return TCL_OK;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Added by Scott J. Brandenberg, UC Davis, sjbrandenberg@ucdavis.edu
