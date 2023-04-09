@@ -114,7 +114,7 @@ int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
 StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
 int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
-int G3_delStaticAnalysis(G3_Runtime *);
+// int G3_delStaticAnalysis(G3_Runtime *);
 StaticIntegrator *G3_getStaticIntegrator(G3_Runtime *);
 int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
 

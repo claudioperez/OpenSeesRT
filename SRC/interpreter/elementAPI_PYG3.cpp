@@ -141,11 +141,9 @@ int
 OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
                TCL_Char ** const argv, Domain *domain, TclBuilder *builder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
-
   return 0;
 }
 
@@ -154,7 +152,6 @@ extern "C" int
 OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                         int mArg, TCL_Char ** const argv, Domain *domain)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
@@ -461,17 +458,6 @@ G3_setStaticAnalysis(G3_Runtime *rt, StaticAnalysis *the_analysis)
   return 1;
 }
 
-int
-G3_delStaticAnalysis(G3_Runtime *rt)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  StaticAnalysis* ana;
-  // TODO
-  if (ana=G3_getStaticAnalysis(rt))
-    ;// delete ana;
-  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", nullptr, nullptr);
-  return 1;
-}
 
 StaticIntegrator *
 G3_getStaticIntegrator(G3_Runtime *rt)
