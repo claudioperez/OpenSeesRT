@@ -19,15 +19,12 @@
 | 0	| `Example6.1.tcl` |
 | 0	| `Example7.1.tcl` |
 | 0	| `Example8.1.tcl` |
-| 1	| `Frame.tcl` |
-| 1	| `Nodes.tcl` |
 | 1	| `Quad3d.tcl` |
 | 1	| `RCFrame1.tcl` |
 | 1	| `RCFrame2.tcl` |
 | 0	| `RCFrame3.tcl` |
 | 0	| `RCFrame4.tcl` |
 | 0	| `RCFrame5.tcl` |
-| 1	| `RigidFrame3Ddisplay.tcl` |
 | 0	| `RigidFrame3D.tcl` |
 | 0	| `Rigid.tcl` |
 | 1	| `Test.BeamLoad2D.tcl` |
