@@ -4,6 +4,8 @@
 ** ****************************************************************** */
 //
 //
+#include <string>
+#include <algorithm>
 // #include <g3_api.h>
 #include <tcl.h>
 #include <G3_Logging.h>
@@ -121,16 +123,20 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
 {
   G3_Runtime* rt = G3_getRuntime(interp); 
 
+  // argc is checked by calling function;
+
   LinearSOE *theSOE = nullptr;
-  auto ctor = soe_table.find(std::string(argv[1]));
+  std::string sys_name{argv[1]};
+  transform(sys_name.begin(), sys_name.end(), sys_name.begin(), ::tolower);
+  auto ctor = soe_table.find(sys_name);
 
   if (ctor != soe_table.end()) {
     theSOE = ctor->second.ss(rt, argc, argv);
 
   } else if (strcmp(argv[1], "Umfpack")==0) {
     // theSOE = TclDispatch_newUmfpackSOE(clientData, interp, argc, argv);
-    theSOE = soe_table["SparseGen"].ss(rt, argc, argv);
-    opserr << "WARNING - Umfpack not installed\n";
+    theSOE = soe_table["sparsegen"].ss(rt, argc, argv);
+    opserr << G3_WARN_PROMPT << "Umfpack is not installed\n";
   }
 
 #if defined(OPS_PETSC)

@@ -118,67 +118,67 @@ typedef LinearSOE*(*fn)(G3_Runtime*, int, G3_Char**);
 struct soefps {fn ss, sp, mp;};
 
 std::unordered_map<std::string, struct soefps> soe_table = {
-  {"BandSPD", {
+  {"bandspd", {
      G3_SOE(BandSPDLinLapackSolver,      BandSPDLinSOE),
      SP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE),
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
 
-  {"BandGeneral", { // BandGen, BandGEN
+  {"bandgeneral", { // BandGen, BandGEN
+     G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
+     SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
+     MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
+  {"bandgen", { // BandGen, BandGEN
      G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
      SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
 
-  {"BandSPD", {
+  {"bandspd", {
      G3_SOE(BandSPDLinLapackSolver,      BandSPDLinSOE),
      SP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE),
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
 
-  {"Umfpack", {
+  // TODO: Umfpack
+  {"umfpack", {
      G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
      SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
-  {"UmfPack", {
-     G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
-     SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
-     MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
 
 
-  {"SparseGen",     {specifySparseGen, nullptr, nullptr}},
-  {"SparseGEN",     {specifySparseGen, nullptr, nullptr}},
-  {"SparseGeneral", {specifySparseGen, nullptr, nullptr}},
-  {"SuperLU",       {specifySparseGen, nullptr, nullptr}},
+  {"sparsegen",     {specifySparseGen, nullptr, nullptr}},
+  {"sparsegeneral", {specifySparseGen, nullptr, nullptr}},
+  {"superlu",       {specifySparseGen, nullptr, nullptr}},
 
-  {"SparseSYM", {
+  {"sparsesym", {
      specify_SparseSPD, nullptr, nullptr}},
-  {"SparseSPD", {
+  {"sparsespd", {
      // Legacy specifier
      specify_SparseSPD, nullptr, nullptr}},
 
-  {"Diagonal", {
+  {"diagonal", {
      G3_SOE(DiagonalDirectSolver,        DiagonalSOE),
      SP_SOE(DistributedDiagonalSolver,   DistributedDiagonalSOE),
      MP_SOE(DistributedDiagonalSolver,   DistributedDiagonalSOE)}},
 
-  {"MPIDiagonal", {
+  {"mpidiagonal", {
      G3_SOE(DiagonalDirectSolver,        DiagonalSOE),
      SP_SOE(MPIDiagonalSolver,           MPIDiagonalSOE),
      MP_SOE(MPIDiagonalSolver,           MPIDiagonalSOE)}},
 
-  {"SProfileSPD", {
+  {"sprofilespd", {
      G3_SOE(SProfileSPDLinSolver,        SProfileSPDLinSOE),
      SP_SOE(SProfileSPDLinSolver,        SProfileSPDLinSOE),
      MP_SOE(SProfileSPDLinSolver,        SProfileSPDLinSOE)}},
 
-  {"ProfileSPD", {
+  {"profilespd", {
      G3_SOE(ProfileSPDLinDirectSolver,   ProfileSPDLinSOE),
      SP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE),
      MP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE)}},
 
-  {"ParallelProfileSPD", {
+  {"parallelprofilespd", {
      nullptr, nullptr,
      MP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE)}},
 
-  {"FullGeneral", {
+  {"fullgeneral", {
      G3_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
      SP_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
      MP_SOE(FullGenLinLapackSolver,      FullGenLinSOE)}},
