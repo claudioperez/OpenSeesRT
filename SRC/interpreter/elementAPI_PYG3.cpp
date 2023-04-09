@@ -298,7 +298,7 @@ G3_getSafeBuilder(G3_Runtime *rt)
 int
 G3_setDomain(G3_Runtime *rt, Domain* domain){
   int exists = rt->m_domain ? 1 : 0;
-  Domain *old = rt->m_domain;
+  // Domain *old = rt->m_domain;
   rt->m_domain = domain;
   return exists;
 }
@@ -312,7 +312,6 @@ G3_getDomain(G3_Runtime *rt)
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
-  Tcl_Interp *interp = G3_getInterpreter(rt);
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
   return builder->addTimeSeries(series);
 }
