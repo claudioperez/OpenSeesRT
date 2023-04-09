@@ -46,6 +46,7 @@ analysis Static
 
 # create a Recorder object for the nodal displacements at node 4
 recorder Node -file out/example2.out -load -nodes 4 -dof 1 2 disp
+# recorder Node example.out disp -load -nodes 4 -dof 1 2
 
 # perform the 10 steps
 analyze 10
