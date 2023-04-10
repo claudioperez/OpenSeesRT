@@ -22,8 +22,6 @@ close $both
 set seriesCommands [list]
 lappend seriesCommands "Linear 1 -factor 2.0"
 lappend seriesCommands "Constant 1 -factor 2.0"
-lappend seriesCommands "Rectangular 1 2.0 9.0"
-lappend seriesCommands "Rectangular 1 2.0 9.0 -factor 2.0"
 lappend seriesCommands "Trig 1 1.0 9.0 8"
 lappend seriesCommands "Trig 1 1.0 9.0 8 -factor 2.0"
 lappend seriesCommands "Trig 1 1.0 9.0 8 -factor 2.0 -shift $PIdiv2"
@@ -33,6 +31,8 @@ lappend seriesCommands "Path 1 -dt 1.0 -filePath out/filePath"
 lappend seriesCommands "Path 1 -dt 1.0 -filePath out/filePath -factor 2.0"
 lappend seriesCommands "Path 1 -fileTime out/fileTime -filePath out/filePath -factor 2.0"
 lappend seriesCommands "Path 1 -dt 1.0 -values {0.0 1.0 2.0 3.0} -factor 2.0"
+# lappend seriesCommands "Rectangular 1 2.0 9.0"
+# lappend seriesCommands "Rectangular 1 2.0 9.0 -factor 2.0"
 # lappend seriesCommands "PeerNGAMotion 1 [lindex $records 0] 1.0 -dT dt -NPTS nPts"
 
 #foreach record $records {
@@ -83,11 +83,11 @@ foreach seriesCommand $seriesCommands {
     recorder Node -file out/V.out -timeSeries 1 -time -node 2 -dof 1 vel
     recorder Node -file out/A.out -timeSeries 1 -time -node 2 -dof 1 accel
 
-    puts "$seriesCommand"    
+    puts "#   $seriesCommand"    
     for {set i 1} {$i <= 10} {incr i 1} {
 	analyze 1
 	set node2Disp [nodeDisp 2 1]	
-	puts "$i $node2Disp"
+	puts "    $i $node2Disp"
     }
 }
 
