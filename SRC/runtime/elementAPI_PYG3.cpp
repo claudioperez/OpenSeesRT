@@ -176,19 +176,6 @@ OPS_GetIntInput(int *numData, int *data)
 }
 
 extern "C" int
-OPS_SetIntOutput(int *numData, int *data, bool scalar)
-{
-  int numArgs = *numData;
-  char buffer[40];
-  for (int i = 0; i < numArgs; i++) {
-    sprintf(buffer, "%d ", data[i]);
-    Tcl_AppendResult(theInterp, buffer, nullptr);
-  }
-
-  return 0;
-}
-
-extern "C" int
 OPS_GetDoubleInput(int *numData, double *data)
 {
   int size = *numData;
@@ -201,19 +188,6 @@ OPS_GetDoubleInput(int *numData, double *data)
       return -1;
     } else
       currentArg++;
-  }
-
-  return 0;
-}
-
-extern "C" int
-OPS_SetDoubleOutput(int *numData, double *data, bool scalar)
-{
-  int numArgs = *numData;
-  char buffer[40];
-  for (int i = 0; i < numArgs; i++) {
-    sprintf(buffer, "%35.20f ", data[i]);
-    Tcl_AppendResult(theInterp, buffer, nullptr);
   }
 
   return 0;

@@ -120,9 +120,9 @@ class ConvergenceTest;
 
 #define OPS_Error ops_error_
 #define OPS_GetIntInput ops_getintinput_
-#define OPS_SetIntOutput ops_setintoutput_
+// #define OPS_SetIntOutput ops_setintoutput_
 #define OPS_GetDoubleInput ops_getdoubleinput_
-#define OPS_SetDoubleOutput ops_setdoubleoutput_
+// #define OPS_SetDoubleOutput ops_setdoubleoutput_
 #define OPS_AllocateMaterial ops_allocatematerial_
 #define OPS_AllocateElement ops_allocateelement_
 #define OPS_GetMaterialType ops_getmaterialtype_
@@ -176,16 +176,16 @@ extern "C" int         OPS_Error(const char* errorMessage, int length);
 extern "C" int         OPS_GetNumRemainingInputArgs();
 extern "C" int         OPS_ResetCurrentInputArg(int cArg);
 extern "C" int         OPS_GetIntInput(int* numData, int* data);
-extern "C" int         OPS_SetIntOutput(int* numData, int* data, bool scalar);
 extern "C" int         OPS_GetDoubleInput(int* numData, double* data);
-extern "C" int         OPS_SetDoubleOutput(int* numData, double* data, bool scalar);
 extern "C" const char* OPS_GetString(); // does a strcpy
 extern "C" const char* OPS_GetStringFromAll(char* buffer, int len); // does a strcpy
 extern "C" int         OPS_SetString(const char* str);
-//extern "C" int       OPS_ResetInput(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain, TclModelBuilder * builder);
-// extern "C" int         OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain);
-//extern "C" int       OPS_GetString(char *cArray, int sizeArray); // does a strcpy
 extern "C" int         OPS_GetStringCopy(char** cArray); // returns a new copy
+// extern "C" int       OPS_SetIntOutput(int* numData, int* data, bool scalar);
+// extern "C" int       OPS_SetDoubleOutput(int* numData, double* data, bool scalar);
+// extern "C" int       OPS_ResetInput(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain, TclModelBuilder * builder);
+// extern "C" int       OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain);
+// extern "C" int       OPS_GetString(char *cArray, int sizeArray); // does a strcpy
 
 class UniaxialMaterial;
 class NDMaterial;
