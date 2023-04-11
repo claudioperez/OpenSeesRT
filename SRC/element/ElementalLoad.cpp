@@ -63,7 +63,7 @@ ElementalLoad::~ElementalLoad()
 void
 ElementalLoad::setDomain(Domain *theDomain)
 {
-  this->DomainComponent::setDomain(theDomain);
+  this->Load::setDomain(theDomain);
 
   if (theDomain == 0) {
     theElement = 0;
