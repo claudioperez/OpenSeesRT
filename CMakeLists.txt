@@ -62,9 +62,13 @@ if (UNIX)
      message(STATUS ">>> LINUX")
      add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
+     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak")
+     endif()
   endif()
 
   add_compile_options(
+    # -pg # Profiling with gprof
     $<$<CONFIG:DEBUG>:-ggdb>
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
@@ -148,7 +152,7 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/model/simple
   ${OPS_SRC_DIR}/analysis/numberer
 
-  ${OPS_SRC_DIR}/interpreter
+  ${OPS_SRC_DIR}/runtime
   ${OPS_SRC_DIR}/api
   ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/coordTransformation
@@ -207,7 +211,7 @@ target_link_libraries(OPS_Numerics INTERFACE
 # ${SUPERLU_LIBRARIES}
   ${AMD_LIBRARIES}
   ${LAPACK_LIBRARIES}
-  ${BLAS_LIBRARIES} 
+  ${BLAS_LIBRARIES}
 )
 
 # Core OpenSees
@@ -307,6 +311,9 @@ target_link_libraries(G3
 #
 #==============================================================================
 
+
+add_compile_definitions(_NOGRAPHICS)
+
 # Extensions
 #----------------------------
 message("OPS >>> Configuring OpenSees extensions")
@@ -322,10 +329,6 @@ foreach(extension IN LISTS OPS_Exclude_List)
     message("    Adding macro definition '${ext_flag}'")
     add_compile_definitions(${ext_flag})
 endforeach()
-
-
-add_compile_definitions(_NOGRAPHICS)
-
 
 # Reliability
 #----------------------------
