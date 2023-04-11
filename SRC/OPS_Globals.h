@@ -36,16 +36,6 @@ extern OPS_Stream *opserrPtr;
 #include <string.h>
 // #include <stdlib.h>
 
-enum NodeResponseType {
-  Disp = 1, 
-  Vel = 2, 
-  Accel =3, 
-  IncrDisp =4, 
-  IncrDeltaDisp =5, 
-  Reaction =6, 
-  Unbalance =7, 
-  RayleighForces =8
-};
 
 #ifdef _TCL85
 #define TCL_Char const char
@@ -57,8 +47,6 @@ enum NodeResponseType {
 
 class Domain;
 class Element;
-
-#define MAX_FILENAMELENGTH 50
 
 extern double   ops_Dt;                // current delta T for current domain doing an update
 extern int ops_Creep;
@@ -73,5 +61,7 @@ extern bool  ops_InitialStateAnalysis;
 #define OPS_PRINT_PRINTMODEL_SECTION  1
 #define OPS_PRINT_PRINTMODEL_MATERIAL 2
 #define OPS_PRINT_PRINTMODEL_JSON   25000
+
+#define OPS_PRINT_JSON_ELEM_INDENT "      "
 
 #endif
