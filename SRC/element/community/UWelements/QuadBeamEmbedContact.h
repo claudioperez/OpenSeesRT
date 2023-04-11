@@ -50,6 +50,7 @@ class QuadBeamEmbedContact : public Element
     ~QuadBeamEmbedContact();
 
     const char *getClassType(void) const {return "QuadBeamEmbedContact";};
+    static constexpr const char* class_name = "QuadBeamEmbedContact";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

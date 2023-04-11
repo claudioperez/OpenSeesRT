@@ -8,7 +8,7 @@ cat - > $Results <<EOF
 |---------|--------------|
 EOF
 
-ls $@ | grep -v -e "Rocking" -e Brick27 | while read i; do
+ls $@ | grep -v -e "Rocking" -e "Brick27" -e Shell_Dynamic | while read i; do
   echo "FILE $i"; 
   python -m opensees $i; 
   printf "| $?\t|"' `'"$i"'` |\n' | tee -a $Results;
