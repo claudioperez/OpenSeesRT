@@ -33,6 +33,7 @@ class MovableObject;
 class Channel;
 class FEM_ObjectBroker;
 class Domain;
+enum NodeResponseType: int;
 
 class NodeResponseParameter : public Parameter
 {

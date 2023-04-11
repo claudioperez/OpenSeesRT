@@ -25,6 +25,7 @@
 #include <classTags.h>
 #include <NodeResponseParameter.h>
 #include <Node.h>
+#include <Vector.h>
 
 NodeResponseParameter::NodeResponseParameter(int passedTag, Node *theNode, 
 					     NodeResponseType theType,
