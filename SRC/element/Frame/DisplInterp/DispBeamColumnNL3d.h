@@ -58,6 +58,7 @@ class DispBeamColumnNL3d : public Element
     ~DispBeamColumnNL3d();
 
     const char *getClassType(void) const {return "DispBeamColumnNL3d";};
+    static constexpr const char* class_name = "DispBeamColumnNL3d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

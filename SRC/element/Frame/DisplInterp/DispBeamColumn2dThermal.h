@@ -62,6 +62,7 @@ class DispBeamColumn2dThermal : public Element
     ~DispBeamColumn2dThermal();
 
     const char *getClassType(void) const {return "DispBeamColumn2dThermal";};
+    static constexpr const char* class_name = "DispBeamColumn2dThermal";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

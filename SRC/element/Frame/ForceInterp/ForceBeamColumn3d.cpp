@@ -1127,7 +1127,7 @@ void
     if (converged == false) {
       opserr << "WARNING - ForceBeamColumn3d::update - failed to get compatible ";
       opserr << "element forces & deformations for element: ";
-      opserr << this->getTag() << "(dW: << " << dW << ", dW0: " << dW0 << ")\n";
+      opserr << this->getTag() << "\n"; // (dW: << " << dW << ", dW0: " << dW0 << ")\n";
 
       /*
       opserr << "Section Tangent Condition Numbers: ";

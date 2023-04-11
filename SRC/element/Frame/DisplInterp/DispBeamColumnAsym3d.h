@@ -66,6 +66,7 @@ class DispBeamColumnAsym3d : public Element
     ~DispBeamColumnAsym3d();
 
     const char *getClassType(void) const {return "DispBeamColumnAsym3d";};
+    static constexpr const char* class_name = "DispBeamColumnAsym3d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

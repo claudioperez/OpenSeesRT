@@ -54,6 +54,7 @@ public:
     ~DispBeamColumn3dID();
 
     const char *getClassType(void) const {return "DispBeamColumn3dID";};
+    static constexpr const char* class_name = "DispBeamColumn3dID";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

@@ -58,6 +58,7 @@ class DispBeamColumn2d : public Element
     ~DispBeamColumn2d();
 
     const char *getClassType(void) const {return "DispBeamColumn2d";};
+    static constexpr const char* class_name = "DispBeamColumn2d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

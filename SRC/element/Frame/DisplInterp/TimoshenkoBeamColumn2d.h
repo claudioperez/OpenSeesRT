@@ -58,6 +58,7 @@ class TimoshenkoBeamColumn2d : public Element
     ~TimoshenkoBeamColumn2d();
 
     const char *getClassType(void) const {return "TimoshenkoBeamColumn2d";};
+    static constexpr const char* class_name = "TimoshenkoBeamColumn2d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

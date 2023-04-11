@@ -62,6 +62,7 @@ class ElasticBeam2d : public Element
     ~ElasticBeam2d();
 
     const char *getClassType(void) const {return "ElasticBeam2d";};
+    static constexpr const char* class_name = "ElasticBeam2d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

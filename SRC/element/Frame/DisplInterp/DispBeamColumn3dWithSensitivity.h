@@ -59,6 +59,7 @@ class DispBeamColumn3dWithSensitivity : public Element
     DispBeamColumn3dWithSensitivity();
     virtual ~DispBeamColumn3dWithSensitivity();
     const char *getClassType(void) const {return "DispBeamColumn3d";};
+    static constexpr const char* class_name = "DispBeamColumn3d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

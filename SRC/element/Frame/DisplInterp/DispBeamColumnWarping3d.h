@@ -58,6 +58,7 @@ class DispBeamColumnWarping3d : public Element
     ~DispBeamColumnWarping3d();
 
     const char *getClassType(void) const {return "DispBeamColumnWarping3d";};
+    static constexpr const char* class_name = "DispBeamColumnWarping3d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

@@ -1086,7 +1086,7 @@ ForceBeamColumnWarping2d::update()
   if (converged == false) {
     opserr << "WARNING - ForceBeamColumnWarping2d::update - failed to get compatible ";
     opserr << "element forces & deformations for element: ";
-    opserr << this->getTag() << "(dW: << " << dW << ")\n";
+    opserr << this->getTag() << "\n"; // "(dW: << " << dW << ")\n";
     return -1;
   }
 
