@@ -3,8 +3,9 @@
 // function. This is useful for automatically generating unique
 // class tags at compile time.
 //
-// Inspired by the stackoverflow answer here: 
-// https://stackoverflow.com/a/23684632
+// Inspired by the stackoverflow answers here: 
+// - https://stackoverflow.com/a/23684632
+// - https://stackoverflow.com/q/48896142
 //
 // EXAMPLE:
 //

@@ -25,5 +25,5 @@ add_subdirectory(system_of_eqn)
 # add_subdirectory(api)
 add_subdirectory(database)
 
-add_subdirectory(interpreter)
+add_subdirectory(runtime)
 add_subdirectory(interpolate)

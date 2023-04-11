@@ -5,7 +5,8 @@
 #
 #==============================================================================
 
-target_sources(OPS_Element
+add_library(OPS_Element_Masonry OBJECT)
+target_sources(OPS_Element_Masonry
   PUBLIC
     BeamGT.cpp
     MasonPan12.cpp
@@ -17,10 +18,12 @@ target_sources(OPS_Element
 )    
 
 if (UNIX)
-  set_source_files_properties(
+  set_property(SOURCE
       BeamGT.cpp
       MasonPan12.cpp
       MasonPan3D.cpp
-      APPEND PROPERTY CMAKE_CXX_FLAGS -w
+      APPEND PROPERTY COMPILE_FLAGS "-w"
   )
 endif()
+
+target_link_libraries(OPS_Element PRIVATE OPS_Element_Masonry)
