@@ -39,6 +39,7 @@
 #include <OPS_Stream.h>
 #include <Vector.h>
 
+enum NodeResponseType: int;
 class Element;
 class Node;
 class SP_Constraint;
