@@ -134,17 +134,12 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
     }
     if (index == -1) {
       Matrix **nextMatrices = new Matrix *[numMatrices+1];
-      if (nextMatrices == 0) {
-	opserr << "Element::getTheMatrix - out of memory\n";
-      }
-	  int j;
-      for (j=0; j<numMatrices; j++)
+
+      for (int j=0; j<numMatrices; j++)
 	nextMatrices[j] = theMatrices[j];
+
       Matrix *theMatrix = new Matrix(numDOF, numDOF);
-      if (theMatrix == 0) {
-	opserr << "Element::getTheMatrix - out of memory\n";
-	exit(-1);
-      }
+
       nextMatrices[numMatrices] = theMatrix;
 
       Vector **nextVectors1 = new Vector *[numMatrices+1];
@@ -154,17 +149,13 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
 	exit(-1);
       }
 
-      for (j=0; j<numMatrices; j++) {
+      for (int j=0; j<numMatrices; j++) {
 	nextVectors1[j] = theVectors1[j];
 	nextVectors2[j] = theVectors2[j];
       }
 	
       Vector *theVector1 = new Vector(numDOF);
       Vector *theVector2 = new Vector(numDOF);
-      if (theVector1 == 0 || theVector2 == 0) {
-	opserr << "Element::getTheVector - out of memory\n";
-	exit(-1);
-      }
 
       nextVectors1[numMatrices] = theVector1;
       nextVectors2[numMatrices] = theVector2;
@@ -174,6 +165,7 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
 	delete [] theVectors1;
 	delete [] theVectors2;
       }
+
       index = numMatrices;
       numMatrices++;
       theMatrices = nextMatrices;
@@ -184,12 +176,8 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
 
   // if need storage for Kc go get it
   if (betaKc != 0.0) {  
-    if (Kc == 0) 
+    if (Kc == nullptr) 
       Kc = new Matrix(this->getTangentStiff());
-    if (Kc == 0) {
-      opserr << "WARNING - ELEMENT::setRayleighDampingFactors - out of memory\n";
-      betaKc = 0.0;
-    }
 
     // if don't need storage for Kc & have allocated some for it, free the memory
   } else if (Kc != 0) { 
@@ -222,8 +210,6 @@ Element::getDamp(void)
   // return the computed matrix
   return *theMatrix;
 }
-
-
 
 const Matrix &
 Element::getMass(void)

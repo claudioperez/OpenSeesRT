@@ -79,6 +79,7 @@ class BeamColumnJoint3d : public Element
   ~BeamColumnJoint3d();
 
     const char *getClassType(void) const {return "BeamColumnJoint3d";};
+    static constexpr const char* class_name = "BeamColumnJoint3d";
   
   ////////////// public methods to obtain information about dof & connectivity    
   bool	isSubdomain(void) { return false; } ;

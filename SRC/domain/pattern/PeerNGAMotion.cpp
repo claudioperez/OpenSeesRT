@@ -302,7 +302,7 @@ double
 PeerNGAMotion::getFactor(double pseudoTime)
 {
   // check for a quick return
-  if (pseudoTime < 0.0 || thePath == 0 || time == 0)
+  if (pseudoTime < 0.0 || thePath == 0) //  || time == 0)
     return 0.0;
 
   // determine indexes into the data array whose boundary holds the time

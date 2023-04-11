@@ -57,7 +57,7 @@ class Element : public DomainComponent
     virtual int getNumExternalNodes(void) const =0;
     virtual const ID &getExternalNodes(void)  =0;	
     virtual Node **getNodePtrs(void)  =0;	
-    virtual int getNumDOF(void) =0;
+    virtual int    getNumDOF(void) =0;
     virtual double getCharacteristicLength(void);
 
     // methods dealing with committed state and update
@@ -91,12 +91,12 @@ class Element : public DomainComponent
     virtual Response *setResponse(const char **argv, int argc, 
 				  OPS_Stream &theHandler);
     virtual int getResponse(int responseID, Information &eleInformation);
-    virtual int getResponseSensitivity(int responseID, int gradIndex,
-				       Information &eleInformation);
 
     virtual int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
 
 // AddingSensitivity:BEGIN //////////////////////////////////////////
+    virtual int getResponseSensitivity(int responseID, int gradIndex,
+				       Information &eleInformation);
     virtual int addInertiaLoadSensitivityToUnbalance(const Vector &accel, bool tag);
     virtual const Vector & getResistingForceSensitivity(int gradIndex);
     virtual const Matrix & getTangentStiffSensitivity(int gradIndex);
@@ -123,7 +123,7 @@ class Element : public DomainComponent
 
 
 protected:
-	const Vector& getRayleighDampingForces(void);
+    const Vector& getRayleighDampingForces(void);
 
     double alphaM, betaK, betaK0, betaKc;
     Matrix *Kc; // pointer to hold last committed matrix if needed for rayleigh damping
@@ -131,8 +131,9 @@ protected:
     Matrix **previousK;
     int numPreviousK;
 
-    int index, nodeIndex;
+  private:
 
+    int index, nodeIndex;
     static Matrix ** theMatrices; 
     static Vector ** theVectors1; 
     static Vector ** theVectors2; 
@@ -140,7 +141,6 @@ protected:
 
     bool is_this_element_active;
 
-  private:
 };
 
 

@@ -34,7 +34,6 @@
 //Modified by Panagistis Kotsoivnos,[University of Edinburgh]
 
 #include <LoadPattern.h>
-#include <DomainComponent.h>
 #include <Vector.h>
 
 class GroundMotion;

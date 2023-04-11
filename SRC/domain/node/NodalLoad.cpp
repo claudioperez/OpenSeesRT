@@ -95,7 +95,7 @@ NodalLoad::setDomain(Domain *newDomain)
     return;
 
   // invoke the ancestor class method
-  this->DomainComponent::setDomain(newDomain);    
+  this->Load::setDomain(newDomain);    
 
   /*
   if (newDomain != 0) {

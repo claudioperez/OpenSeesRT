@@ -108,7 +108,7 @@ OPS_ADD_RUNTIME_VPV(OPS_LoadPattern)
 }
 
 LoadPattern::LoadPattern(int tag, int clasTag, double fact)
-:DomainComponent(tag,clasTag),
+:TaggedObject(tag),MovableObject(clasTag),
  isConstant(1), loadFactor(0), scaleFactor(fact),
  theSeries(0), 
  currentGeoTag(0), lastGeoSendTag(-1),
@@ -141,7 +141,11 @@ LoadPattern::LoadPattern(int tag, int clasTag, double fact)
 
 
 LoadPattern::LoadPattern()
+#if 0
 :DomainComponent(0,PATTERN_TAG_LoadPattern),
+#else
+:TaggedObject(0),MovableObject(PATTERN_TAG_LoadPattern),
+#endif
  isConstant(1), loadFactor(0), scaleFactor(1.0),
  theSeries(0), 
  currentGeoTag(0), lastGeoSendTag(-1),
@@ -174,7 +178,11 @@ LoadPattern::LoadPattern()
 
 
 LoadPattern::LoadPattern(int tag, double fact)
+#if 0
 :DomainComponent(tag,PATTERN_TAG_LoadPattern),
+#else
+:TaggedObject(tag),MovableObject(PATTERN_TAG_LoadPattern),
+#endif
  isConstant(1), loadFactor(0.), scaleFactor(fact),
  theSeries(0), 
  currentGeoTag(0), lastGeoSendTag(-1),
@@ -274,7 +282,11 @@ LoadPattern::setDomain(Domain *theDomain)
     }
 
     // now we set this load patterns domain
+#if 0
     this->DomainComponent::setDomain(theDomain);
+#else
+    this->theDomain= theDomain;
+#endif
 }
 
 
