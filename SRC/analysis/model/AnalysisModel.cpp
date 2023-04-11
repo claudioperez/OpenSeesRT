@@ -17,15 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.16 $
-// $Date: 2009-08-26 00:00:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/model/AnalysisModel.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: Fri Sep 20 15:27:47: 1996
-// Revision: A
 //
 // Purpose: This file contains the class definition for AnalysisModel
 // AnalysisModel is a container class. The class is responsible for holding
@@ -33,8 +24,10 @@
 // and MP_Constraints. These objects are all added to the AnalysisModel by a 
 // ModelBuilder.
 //
-// What: "@(#) AnalysisModel.C, revA"
-
+// Written: fmk 
+// Created: Fri Sep 20 15:27:47: 1996
+// Revision: A
+//
 #include <stdlib.h>
 
 #include <ArrayOfTaggedObjects.h>
@@ -66,7 +59,7 @@ AnalysisModel::AnalysisModel(int theClassTag)
  numFE_Ele(0), numDOF_Grp(0), numEqn(0)
 {
     theFEs     = new ArrayOfTaggedObjects(1024);
-    theDOFs    =  new ArrayOfTaggedObjects(1024);
+    theDOFs    = new ArrayOfTaggedObjects(1024);
     theFEiter  = new FE_EleIter(theFEs);
     theDOFiter = new DOF_GrpIter(theDOFs);
 
@@ -130,7 +123,7 @@ AnalysisModel::~AnalysisModel()
 void
 AnalysisModel::setLinks(Domain &theDomain, ConstraintHandler &theHandler)
 {
-    myDomain = &theDomain;
+    myDomain  = &theDomain;
     myHandler = &theHandler;
 }
 
@@ -334,7 +327,7 @@ AnalysisModel::getDOFGraph(void)
     FE_EleIter &eleIter = this->getFEs();
     int cnt = 0;
     
-	myDOFGraph->startAddEdge();
+    myDOFGraph->startAddEdge();
     while((elePtr = eleIter()) != 0) {
       const ID &id = elePtr->getID();
       cnt++;
