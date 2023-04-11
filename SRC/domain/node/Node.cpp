@@ -208,7 +208,7 @@ OPS_ADD_RUNTIME_IXV(OPS_Node)
 
 // for FEM_Object Broker to use
 Node::Node(int theClassTag)
-:DomainComponent(0,theClassTag), 
+:TaggedObject(0),MovableObject(theClassTag), 
  numberDOF(0), theDOF_GroupPtr(0), 
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0), 
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0), 
@@ -231,7 +231,7 @@ Node::Node(int theClassTag)
 
 
 Node::Node(int tag, int theClassTag)
-:DomainComponent(tag,theClassTag), 
+:TaggedObject(tag), MovableObject(theClassTag), 
  numberDOF(0), theDOF_GroupPtr(0), 
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0), 
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
@@ -254,7 +254,7 @@ Node::Node(int tag, int theClassTag)
 }
 
 Node::Node(int tag, int ndof, double Crd1, Vector *dLoc)
-:DomainComponent(tag,NOD_TAG_Node), 
+:TaggedObject(tag),MovableObject(NOD_TAG_Node), 
  numberDOF(ndof), theDOF_GroupPtr(0),
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0), 
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
@@ -274,11 +274,11 @@ Node::Node(int tag, int ndof, double Crd1, Vector *dLoc)
   
   Crd = new Vector(1);
   (*Crd)(0) = Crd1;
-
+#if 0
   if (dLoc != 0) {
     displayLocation = new Vector(*dLoc);
   }
-  
+#endif 
   index = -1;
 }
 
@@ -286,7 +286,7 @@ Node::Node(int tag, int ndof, double Crd1, Vector *dLoc)
 //  Node(int tag, int ndof, double Crd1, double yCrd);
 //	constructor for 2d nodes
 Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
-:DomainComponent(tag,NOD_TAG_Node), 
+:TaggedObject(tag), MovableObject(NOD_TAG_Node), 
  numberDOF(ndof), theDOF_GroupPtr(0),
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0), 
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
@@ -307,11 +307,11 @@ Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
   Crd = new Vector(2);
   (*Crd)(0) = Crd1;
   (*Crd)(1) = Crd2;
-
+#if 0
   if (dLoc != 0) {
     displayLocation = new Vector(*dLoc);
   }
-  
+#endif 
   index = -1;
 }
 
@@ -320,7 +320,7 @@ Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
 //	constructor for 3d nodes
 
  Node::Node(int tag, int ndof, double Crd1, double Crd2, double Crd3, Vector *dLoc)
-:DomainComponent(tag,NOD_TAG_Node), 
+:TaggedObject(tag), MovableObject(NOD_TAG_Node), 
  numberDOF(ndof), theDOF_GroupPtr(0),
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0), 
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
@@ -342,11 +342,11 @@ Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
   (*Crd)(0) = Crd1;
   (*Crd)(1) = Crd2;
   (*Crd)(2) = Crd3;    
-
+#if 0
   if (dLoc != 0) {
     displayLocation = new Vector(*dLoc);
   }
-  
+#endif 
   index = -1;
 }
 
@@ -355,7 +355,7 @@ Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
 //  copy everything but the mass 
 //  we should really set the mass to 0.0
 Node::Node(const Node &otherNode, bool copyMass)
-  :DomainComponent(otherNode.getTag(),otherNode.getClassTag()), 
+  :TaggedObject(otherNode.getTag()),MovableObject(otherNode.getClassTag()), 
  numberDOF(otherNode.numberDOF), theDOF_GroupPtr(0),
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0), 
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
@@ -374,14 +374,12 @@ Node::Node(const Node &otherNode, bool copyMass)
   theNodalThermalActionPtr = 0;//Added by Liming for initializing NodalLoadPointer, [SIF]
 
   Crd = new Vector(otherNode.getCrds());
-  if (Crd == 0) {
-    opserr << " FATAL Node::Node(node *) - ran out of memory for Crd\n";
-    exit(-1);
-  }
 
+#if 0
   if (otherNode.displayLocation != 0) {
     displayLocation = new Vector(*(otherNode.displayLocation));
   }
+#endif
 
   if (otherNode.commitDisp != 0) {
     if (this->createDisp() < 0) {
@@ -509,10 +507,10 @@ Node::~Node()
     if (reaction != 0)
       delete reaction;
 
-
+#if 0
     if (displayLocation != 0)
       delete displayLocation;
-
+#endif
     if (theDOF_GroupPtr != 0)
       theDOF_GroupPtr->resetNodePtr();
 }
@@ -1351,18 +1349,16 @@ Node::setNumEigenvectors(int numVectorsToStore)
     if (theEigenvectors != 0)
       delete theEigenvectors;
 
-
     theEigenvectors = new Matrix(numberDOF, numVectorsToStore);
-    if (theEigenvectors == 0 || theEigenvectors->noCols() != numVectorsToStore) {
-      opserr << "Node::setNumEigenvectors() - out of memory\n";
-      return -2;
-    }
-  } else
+
+  } else {
     // zero the eigenvector matrix
     theEigenvectors->Zero();
+  }
   
-    return 0;
+  return 0;
 }
+
 int 
 Node::setEigenvector(int mode, const Vector &eigenVector)
 {
@@ -1381,14 +1377,16 @@ Node::setEigenvector(int mode, const Vector &eigenVector)
 
   return 0;
 }
+
 const Matrix &
 Node::getEigenvectors(void)
 {
   // check the eigen vectors have been set
-	if (theEigenvectors == 0) {
+  if (theEigenvectors == 0) {
     opserr << "Node::getEigenvectors() - eigenvectors have not been set\n";
-	exit(0);
-	}
+    // TODO: Handle this!
+    exit(-1);
+  }
   
   return *theEigenvectors;
 }
@@ -1524,14 +1522,8 @@ Node::recvSelf(int cTag, Channel &theChannel,
     
 
     // create a Vector to hold coordinates IF one needed
-    if (Crd == 0) {
+    if (Crd == nullptr) {
       Crd = new Vector(numberCrd);
-    }
-
-    // check we did not run out of memory
-    if (Crd == 0) {
-      opserr << "Node::recvSelf() - out of memory creating Coordinate vector\n";
-      return -1;
     }
 
     if (theChannel.recvVector(dataTag, cTag, *Crd) < 0) {
@@ -1597,10 +1589,6 @@ Node::recvSelf(int cTag, Channel &theChannel,
       // make some room and read in the vector
       if (mass == 0) {
 	mass = new Matrix(numberDOF,numberDOF);
-	if (mass == 0) {
-	  opserr << "Node::recvData -- ran out of memory\n";
-	  return -5;
-	}
       }
       if (theChannel.recvMatrix(dataTag, cTag, *mass) < 0) {
 	opserr << "Node::recvSelf() - failed to receive Mass data\n";
@@ -1613,10 +1601,6 @@ Node::recvSelf(int cTag, Channel &theChannel,
       int noCols = data(13);
       if (R == 0) {
 	R = new Matrix(numberDOF, noCols);
-	if (R == 0) {
-	  opserr << "Node::recvData -- ran out of memory\n";
-	  return -1;
-	}
       }
       // now recv the R matrix
       if (theChannel.recvMatrix(dataTag, cTag, *R) < 0) {
@@ -2245,6 +2229,9 @@ Node::getDisplayRots(Vector& res, double fact, int mode)
 int
 Node::getDisplayCrds(Vector &res, double fact, int mode) 
 {
+#if 1
+  return -1;
+#else
     // Get all DOFs
     int ndm = Crd->Size();
     int resSize = res.Size();
@@ -2287,11 +2274,15 @@ Node::getDisplayCrds(Vector &res, double fact, int mode)
         res(i) = 0;
 
     return 0;
+#endif
 }
 
 int
 Node::setDisplayCrds(const Vector &theCrds) 
 {
+#if 1
+  return -1;
+#else
   if (theCrds.Size() != Crd->Size()) {
     return -1;
   }
@@ -2302,6 +2293,7 @@ Node::setDisplayCrds(const Vector &theCrds)
     *displayLocation = theCrds;
   }
   return 0;
+#endif
 }
 
 
