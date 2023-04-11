@@ -39,7 +39,9 @@
 #include <math.h>
 #include <Information.h>
 
-
+#ifdef OPS_Export
+#  undef OPS_Export
+#endif
 #ifdef _USRDLL
 #define OPS_Export extern "C" _declspec(dllexport)
 #elif _MACOSX

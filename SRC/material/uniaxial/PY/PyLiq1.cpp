@@ -781,6 +781,28 @@ PyLiq1::recvSelf(int cTag, Channel &theChannel,
 void 
 PyLiq1::Print(OPS_Stream &s, int flag)
 {
+  // TODO: impolement JSON
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "          {\"name\": \"PyLiq1\"" << ", ";
+    s << "\"tag\":" << this->getTag() << ", ";
+    s << "\"soilType\": " << soilType << ", ";
+    s << "\"pult\": " << pult << ", ";
+    s << "\"y50\": " << y50 << ", ";
+    s << "\"drag\": " << drag << ", ";
+    s << "\"pResidual\": " << pRes << ", ";
+    s << "\"dashpot\": " << dashpot << "} ";
+    // if(PyConstructorType==1)
+    // {
+    //     s << "  \"solidElem1\": " << solidElem1 << ", ";
+    //     s << "  \"solidElem2\": " << solidElem2 << ", ";
+    // }
+    // if(PyConstructorType==2)
+    // {
+    //     s << "  \"Time Series Tag\": " << theSeries->getTag() << ", ";
+    // }
+    return;
+  }
+
     s << "PyLiq1, tag: " << this->getTag() << endln;
     s << "  soilType: " << soilType << endln;
     s << "  pult: " << pult << endln;
