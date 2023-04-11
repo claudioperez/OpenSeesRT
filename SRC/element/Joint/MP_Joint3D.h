@@ -35,7 +35,7 @@
 // point constraint.
 //
 
-#include <DomainComponent.h>
+// #include <DomainComponent.h>
 #include <stdbool.h>
 #include <MP_Constraint.h>
 #include <Node.h>

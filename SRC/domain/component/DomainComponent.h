@@ -52,7 +52,7 @@ class DomainComponent: public TaggedObject, public MovableObject
     virtual ~DomainComponent();
 
     virtual void setDomain(Domain *theDomain);
-    virtual Domain *getDomain(void) const;
+    virtual Domain *getDomain(void) const final;
 
     // Method for visualisation, default does nothing
     virtual int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
@@ -65,5 +65,4 @@ class DomainComponent: public TaggedObject, public MovableObject
 };
 
 #endif
-
 

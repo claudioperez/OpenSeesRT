@@ -192,18 +192,6 @@ int Newmark::newStep(double deltaT)
     }
     
     // set response at t to be that at t+deltaT of previous step
-    /*
-    if (converged == true) {
-      std::ofstream outfile;
-
-      outfile.open("Newmark.dat",std::ofstream::out | std::ofstream::app);
-      int size = U->Size();
-      for (int i=0; i<size; i++)
-	outfile << (*U)(i) << " ";
-      outfile << "\n";
-      outfile.close();
-    }
-    */
 
     converged = true;
 

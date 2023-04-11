@@ -17,28 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/load/Load.cpp,v $
-                                                                        
-                                                                        
+//
+// Purpose: This file contains the implementation for the Load class.
+//                                                                        
 // File: ~/domain/load/Load.C
 //
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
-// Purpose: This file contains the implementation for the Load class.
-//
-// What: "@(#) Load.C, revA"
-
-
 #include <Load.h>
 
 
 Load::Load(int tag, int clasTag)
-:DomainComponent(tag, clasTag), loadPatternTag(-1)
+:TaggedObject(tag), MovableObject(clasTag), loadPatternTag(-1)
 {
     // does nothing
 }
@@ -60,3 +52,26 @@ Load::getLoadPatternTag(void) const
 {
   return loadPatternTag;
 }
+
+void
+Load::setDomain(Domain *model)
+{
+    // sets the pointer 
+    theDomain = model;
+}
+
+
+Domain *
+Load::getDomain(void) const
+{
+    // returns the current pointer
+    return theDomain;
+}
+
+#if 0
+int 
+Load::displaySelf(Renderer &theViewer, int mode, float fact, const char **displayModes, int numModes)
+{
+  return 0;
+}
+#endif

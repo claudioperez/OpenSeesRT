@@ -38,7 +38,9 @@
 //
 // What: "@(#) LoadPattern.h, revA"
 
-#include <DomainComponent.h>
+// #include <DomainComponent.h>
+#include <TaggedObject.h>
+#include <MovableObject.h>
 #include <Vector.h>
 
 class NodalLoad;
@@ -52,7 +54,13 @@ class SP_ConstraintIter;
 class TaggedObjectStorage;
 class GroundMotion;
 
-class LoadPattern : public DomainComponent    
+class LoadPattern :
+#if 0
+ public DomainComponent    
+#else
+ public TaggedObject,
+ public MovableObject
+#endif
 {
   public:
     // constructors
@@ -66,6 +74,7 @@ class LoadPattern : public DomainComponent
     // method to set the associated TimeSeries and Domain
     virtual void setTimeSeries(TimeSeries *theSeries);
     virtual void setDomain(Domain *theDomain);
+    Domain* getDomain(void) {return theDomain;}
 
     // methods to add loads
     virtual bool addSP_Constraint(SP_Constraint *);
@@ -140,6 +149,8 @@ class LoadPattern : public DomainComponent
     // AddingSensitivity:END ////////////////////////////////////////
 
     int lastChannel; 
+
+    Domain* theDomain;
 };
 
 #endif

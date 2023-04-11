@@ -35,7 +35,7 @@
 // point constraint.
 //
 
-#include <DomainComponent.h>
+// #include <DomainComponent.h>
 #include <stdbool.h>
 #include <MP_Constraint.h>
 #include <Node.h>
@@ -72,7 +72,7 @@ class MP_Joint2D : public MP_Constraint
     int recvSelf(int commitTag, Channel &theChannel, 
 			 FEM_ObjectBroker &theBroker);
     
-	void Print(OPS_Stream &s, int flag =0);
+    void Print(OPS_Stream &s, int flag =0);
 
 
   protected:

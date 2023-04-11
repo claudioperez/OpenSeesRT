@@ -36,8 +36,8 @@
 #include <Subdomain.h>
 #include <stdlib.h>
 
-#include <DomainComponent.h>
 #include <Element.h>
+#include <TaggedObject.h>
 #include <Node.h>
 #include <SP_Constraint.h>
 #include <MP_Constraint.h>

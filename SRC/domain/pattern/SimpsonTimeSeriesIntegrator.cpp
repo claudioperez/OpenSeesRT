@@ -87,7 +87,6 @@ TimeSeries* SimpsonTimeSeriesIntegrator::integrate(TimeSeries *theSeries, double
         return 0;
     }
     
-    double t = 0.0;
     double fi, fj, fk;
     
     // set the first two integrated values (assume that f(0) = 0)
