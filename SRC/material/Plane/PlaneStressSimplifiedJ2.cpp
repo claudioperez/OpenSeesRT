@@ -18,10 +18,9 @@
 #include <MaterialResponse.h>
 #include <Parameter.h>
 
-
-
-
-# define ND_TAG_PlaneStress   34526557578673
+#include <Hash.h>
+using namespace OpenSees::Hash::literals;
+#define ND_TAG_PlaneStress   "PlaneStressSimplifiedJ2"_hash
 
 
 Matrix PlaneStressSimplifiedJ2::tmpMatrix(3,3);
@@ -87,7 +86,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_PlaneStressSimplifiedJ2) {
 PlaneStressSimplifiedJ2::PlaneStressSimplifiedJ2 (int pTag, 
 						   int nd, 
 						   NDMaterial &passed3DMaterial)
-  : NDMaterial(pTag,ND_TAG_PlaneStress), stress(3),
+  : NDMaterial(pTag, ND_TAG_PlaneStress), stress(3),
     strain(3), Cstress(3), Cstrain(3),theTangent(3,3)	
     
 {
