@@ -40,6 +40,7 @@
 // What: "@(#) AnalysisModel.h, revA"
 
 #include <MovableObject.h>
+#define VIRTUAL
 
 class TaggedObjectStorage;
 class Domain;
@@ -59,64 +60,65 @@ class AnalysisModel: public MovableObject
     AnalysisModel(int classTag);
     AnalysisModel(TaggedObjectStorage &theDofStorage,
 		  TaggedObjectStorage &theFeStorage);
-    virtual ~AnalysisModel();    
+
+    VIRTUAL ~AnalysisModel();    
 
     // methods to populate/depopulate the AnalysisModel
-    virtual bool addFE_Element(FE_Element *theFE_Ele);
-    virtual bool addDOF_Group(DOF_Group *theDOF_Grp);
-    virtual void clearAll(void);
-    virtual void clearDOFGraph(void);
-    virtual void clearDOFGroupGraph(void);
+    VIRTUAL bool addFE_Element(FE_Element *theFE_Ele);
+    VIRTUAL bool addDOF_Group(DOF_Group *theDOF_Grp);
+    VIRTUAL void clearAll(void);
+    VIRTUAL void clearDOFGraph(void);
+    VIRTUAL void clearDOFGroupGraph(void);
     
     // methods to access the FE_Elements and DOF_Groups and their numbers
-    virtual int getNumDOF_Groups(void) const;		
-    virtual DOF_Group *getDOF_GroupPtr(int tag);	
-    virtual FE_EleIter &getFEs();
-    virtual DOF_GrpIter &getDOFs();
+    VIRTUAL int getNumDOF_Groups(void) const;		
+    VIRTUAL DOF_Group *getDOF_GroupPtr(int tag);	
+    VIRTUAL FE_EleIter &getFEs();
+    VIRTUAL DOF_GrpIter &getDOFs();
 
     // method to access the connectivity for SysOfEqn to size itself
-    virtual void setNumEqn(int) ;	
-    virtual int getNumEqn(void) const ; 
-    virtual Graph &getDOFGraph(void);
-    virtual Graph &getDOFGroupGraph(void);
+    VIRTUAL void setNumEqn(int) ;	
+    VIRTUAL int getNumEqn(void) const ; 
+    VIRTUAL Graph &getDOFGraph(void);
+    VIRTUAL Graph &getDOFGroupGraph(void);
     
     // methods to update the response quantities at the DOF_Groups,
     // which in turn set the new nodal trial response quantities.
-    virtual void setResponse(const Vector &disp, 
+    VIRTUAL void setResponse(const Vector &disp, 
 			     const Vector &vel, 
 			     const Vector &accel);
-    virtual void setDisp(const Vector &disp);    
-    virtual void setVel(const Vector &vel);        
-    virtual void setAccel(const Vector &vel);            
+    VIRTUAL void setDisp(const Vector &disp);    
+    VIRTUAL void setVel(const Vector &vel);        
+    VIRTUAL void setAccel(const Vector &vel);            
 
-    virtual void incrDisp(const Vector &disp);    
-    virtual void incrVel(const Vector &vel);        
-    virtual void incrAccel(const Vector &vel);            
+    VIRTUAL void incrDisp(const Vector &disp);    
+    VIRTUAL void incrVel(const Vector &vel);        
+    VIRTUAL void incrAccel(const Vector &vel);            
 
     // methods added to store the eigenvalues and vectors in the domain
-    virtual void setNumEigenvectors(int numEigenvectors);
-    virtual void setEigenvector(int mode, const Vector &);
-    virtual void setEigenvalues(const Vector &);    
-    virtual const Vector &getEigenvalues(void);    
+    VIRTUAL void setNumEigenvectors(int numEigenvectors);
+    VIRTUAL void setEigenvector(int mode, const Vector &);
+    VIRTUAL void setEigenvalues(const Vector &);    
+    VIRTUAL const Vector &getEigenvalues(void);    
     const Vector *getModalDampingFactors(void);
     bool inclModalDampingMatrix(void);
     
     // methods which trigger operations in the Domain
-    virtual void setLinks(Domain &theDomain, ConstraintHandler &theHandler);
+    VIRTUAL void setLinks(Domain &theDomain, ConstraintHandler &theHandler);
 	
-    virtual void   applyLoadDomain(double newTime);
-    virtual int    updateDomain(void);
-    virtual int    updateDomain(double newTime, double dT);
-    virtual int    analysisStep(double dT =0.0);
-    virtual int    eigenAnalysis(int numMode, bool generalized, bool findSmallest);
-    virtual int    commitDomain(void);
-    virtual int    revertDomainToLastCommit(void);
-    virtual double getCurrentDomainTime(void);
-    virtual void   setCurrentDomainTime(double newTime);    
-    virtual void   setRayleighDampingFactors(double alphaM, double betaK, double betaKi, double betaKc);    
+    VIRTUAL void   applyLoadDomain(double newTime);
+    VIRTUAL int    updateDomain(void);
+    VIRTUAL int    updateDomain(double newTime, double dT);
+    VIRTUAL int    analysisStep(double dT =0.0);
+    VIRTUAL int    eigenAnalysis(int numMode, bool generalized, bool findSmallest);
+    VIRTUAL int    commitDomain(void);
+    VIRTUAL int    revertDomainToLastCommit(void);
+    VIRTUAL double getCurrentDomainTime(void);
+    VIRTUAL void   setCurrentDomainTime(double newTime);    
+    VIRTUAL void   setRayleighDampingFactors(double alphaM, double betaK, double betaKi, double betaKc);    
     
-    virtual int sendSelf(int commitTag, Channel &theChannel);
-    virtual int recvSelf(int commitTag, Channel &theChannel, 
+    VIRTUAL int sendSelf(int commitTag, Channel &theChannel);
+    VIRTUAL int recvSelf(int commitTag, Channel &theChannel, 
 			 FEM_ObjectBroker &theBroker);
 
     Domain *getDomainPtr(void) const;
