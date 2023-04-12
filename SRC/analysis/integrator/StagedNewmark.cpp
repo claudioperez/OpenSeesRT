@@ -130,7 +130,6 @@ int StagedNewmark::formTangent(int statFlag)
     // Now detect inactive nodes and add 1 to the tangent diagonal there
 
     AnalysisModel *theAnalysisModel = this->getAnalysisModel();
-    Domain *theDomain = theAnalysisModel->getDomainPtr();
     LinearSOE *theSOE = this->getLinearSOE();
     int numEqn = theSOE->getNumEqn();
 
