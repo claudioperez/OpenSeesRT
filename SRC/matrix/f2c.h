@@ -92,7 +92,7 @@ typedef struct
 
 /*close*/
 typedef struct
-{	flag opserr;
+{	flag cerr;
 	ftnint cunit;
 	char *csta;
 } cllist;
