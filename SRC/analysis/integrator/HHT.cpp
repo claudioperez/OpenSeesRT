@@ -17,17 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: fmk
-// Created: 11/98
-// Revision: A
 //
 // Description: This file contains the implementation of the HHT class.
-
+//
+// Written: fmk
+// Created: 11/98
+//
 #include <HHT.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
@@ -40,14 +35,12 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
-#define OPS_Export
 
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_HHT)
 {
     // pointer to an integrator that will be returned
-    TransientIntegrator *theIntegrator = 0;
     
     int argc = OPS_GetNumRemainingInputArgs();
     if (argc != 1 && argc != 3) {
@@ -62,14 +55,9 @@ OPS_ADD_RUNTIME_VPV(OPS_HHT)
     }
     
     if (argc == 1)
-        theIntegrator = new HHT(dData[0]);
+        return new HHT(dData[0]);
     else
-        theIntegrator = new HHT(dData[0], dData[1], dData[2]);
-    
-    if (theIntegrator == 0)
-        opserr << "WARNING - out of memory creating HHT integrator\n";
-    
-    return theIntegrator;
+        return new HHT(dData[0], dData[1], dData[2]); 
 }
 
 
