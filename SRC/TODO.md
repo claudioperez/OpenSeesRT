@@ -1,6 +1,12 @@
+# TODO
 
+Consolidating:
+
+- Put `RigidDiaphragm` and friends into one file,
+  change to functions.
 
 Organizing:
+
 - `material/damage/` <- `SRC/damage`
 - `transform` <- coordTransformation
 - `container` <- tagged/
