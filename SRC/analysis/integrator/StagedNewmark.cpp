@@ -39,17 +39,12 @@
 #include <elementAPI.h>
 #include <iostream>
 
-
-
-static bool converged = false;
-static int count = 0;
-
+// static bool converged = false;
+// static int count = 0;
 
 #ifdef _PARALLEL_PROCESSING
 #include <mpi.h>
 #endif
-
-
 
 
 void *
@@ -124,7 +119,7 @@ int StagedNewmark::formTangent(int statFlag)
     MPI_Comm_size(MPI_COMM_WORLD, &nproc);
     #endif
 
-    // Run a typocal LoadControl formTangent call
+    // Run a typical LoadControl formTangent call
     int errflag = this->IncrementalIntegrator::formTangent(statFlag);
 
     if (errflag < 0)
