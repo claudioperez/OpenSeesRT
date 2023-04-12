@@ -17,16 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2020/05/18 22:51:21 $
-
-// Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a Quaternion for compact and robust representation
 // of spatial rotations
 //
-
+// Original implementation: Massimo Petracca (ASDEA)
+//
+// $Revision: 1.10 $
+// $Date: 2020/05/18 22:51:21 $
+//
 #ifndef ASDMath_h
 #define ASDMath_h
 
