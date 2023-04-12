@@ -36,25 +36,24 @@ void invertMatrix(int n, const Matrix &a, Matrix &b)
 void getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
-   int i, j, i0, j0;
    double xi;
    Matrix G(nIntegrPts, nIntegrPts); 
    Matrix Ginv(nIntegrPts, nIntegrPts);
    Matrix l(nIntegrPts, nIntegrPts);
    Matrix I(nIntegrPts,nIntegrPts);      // an identity matrix for matrix inverse
 
-   for (i = 1; i <= nIntegrPts; i++)
-      for (j = 1; j <= nIntegrPts; j++)
+   for (int i = 1; i <= nIntegrPts; i++)
+      for (int j = 1; j <= nIntegrPts; j++)
       {
-         i0 = i - 1;
-         j0 = j - 1;
+         int i0 = i - 1;
+         int j0 = j - 1;
          xi = xi_pt(i0,0);
          G(i0,j0) =  pow(xi,j-1);
          l(i0,j0) = (pow(xi,j+1)-xi)/(j*(j+1));
       }
    
    I.Zero();
-   for (i=0; i<nIntegrPts; i++)
+   for (int i=0; i<nIntegrPts; i++)
      I(i,i) = 1.0;
 
    //invertMatrix(nIntegrPts, G, Ginv);
@@ -68,24 +67,23 @@ void getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matri
 void getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
-   int i, j, i0, j0;
    double xi;
    Matrix G(nIntegrPts, nIntegrPts); 
    Matrix Ginv(nIntegrPts, nIntegrPts);
    Matrix l(nIntegrPts, nIntegrPts);
    Matrix I(nIntegrPts,nIntegrPts);      // an identity matrix for matrix inverse
 
-   for (i = 0; i < nIntegrPts; i++) {
+   for (int i = 0; i < nIntegrPts; i++) {
      xi = pts[i];
-     for (j = 1; j <= nIntegrPts; j++) {
-       j0 = j - 1;
+     for (int j = 1; j <= nIntegrPts; j++) {
+       int j0 = j - 1;
        G(i,j0) =  pow(xi,j-1);
        l(i,j0) = (pow(xi,j+1)-xi)/(j*(j+1));
      }
    }
    
    I.Zero();
-   for (i=0; i<nIntegrPts; i++)
+   for (int i=0; i<nIntegrPts; i++)
      I(i,i) = 1.0;
 
    //invertMatrix(nIntegrPts, G, Ginv);
@@ -99,7 +97,6 @@ void getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls)
 void getCBDIinfluenceMatrix(int nPts, double *pts, int nIntegrPts, double *integrPts, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
-   int i, j, i0, j0;
    double xi;
    Matrix G(nIntegrPts, nIntegrPts); 
    Matrix Ginv(nIntegrPts, nIntegrPts);
@@ -107,20 +104,20 @@ void getCBDIinfluenceMatrix(int nPts, double *pts, int nIntegrPts, double *integ
    Matrix I(nIntegrPts,nIntegrPts);      // an identity matrix for matrix inverse
 
    // Loop over columns
-   for (j = 1; j <= nIntegrPts; j++) {
-     j0 = j - 1;
-     for (i = 0; i < nIntegrPts; i++) {
+   for (int j = 1; j <= nIntegrPts; j++) {
+     int j0 = j - 1;
+     for (int i = 0; i < nIntegrPts; i++) {
        xi = integrPts[i];
        G(i,j0) =  pow(xi,j-1);
      }
-     for (i = 0; i < nPts; i++) {
+     for (int i = 0; i < nPts; i++) {
        xi = pts[i];
        l(i,j0) = (pow(xi,j+1)-xi)/(j*(j+1));
      }
    }
    
    I.Zero();
-   for (i=0; i<nIntegrPts; i++)
+   for (int i=0; i<nIntegrPts; i++)
      I(i,i) = 1.0;
 
    //invertMatrix(nIntegrPts, G, Ginv);
