@@ -165,9 +165,9 @@ ParallelNumberer::numberDOF(int lastDOF)
 	const ID &theDOFID = dofPtr->getID();
 	int idSize = theDOFID.Size();
 	for (int j=0; j<idSize; j++)
-	  if (theDOFID(j) == -2 || theDOFID(j) == -3) dofPtr->setID(j, startID++);
+	  if (theDOFID(j) == -2 || theDOFID(j) == -3)
+            dofPtr->setID(j, startID++);
       }
-      const ID &theDOFID = dofPtr->getID();
     }
 
     theChannel->sendID(0, 0, theID);
