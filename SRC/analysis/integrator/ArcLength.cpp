@@ -324,142 +324,82 @@ ArcLength::domainChanged(void)
     }    
     int size = theModel->getNumEqn(); // ask model in case N+1 space
 
-    if (deltaUhat == 0 || deltaUhat->Size() != size) { // create new Vector
-	if (deltaUhat != 0)
+    if (deltaUhat == nullptr || deltaUhat->Size() != size) { // create new Vector
+	if (deltaUhat != nullptr)
 	    delete deltaUhat;   // delete the old
 	deltaUhat = new Vector(size);
-	if (deltaUhat == 0 || deltaUhat->Size() != size) { // check got it
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " deltaUhat Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
-    if (deltaUbar == 0 || deltaUbar->Size() != size) { // create new Vector
-	if (deltaUbar != 0)
+    if (deltaUbar == nullptr || deltaUbar->Size() != size) { // create new Vector
+	if (deltaUbar != nullptr)
 	    delete deltaUbar;   // delete the old
 	deltaUbar = new Vector(size);
-	if (deltaUbar == 0 || deltaUbar->Size() != size) { // check got it
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " deltaUbar Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
     
-    if (deltaU == 0 || deltaU->Size() != size) { // create new Vector
-	if (deltaU != 0)
+    if (deltaU == nullptr || deltaU->Size() != size) { // create new Vector
+	if (deltaU != nullptr)
 	    delete deltaU;   // delete the old
 	deltaU = new Vector(size);
-	if (deltaU == 0 || deltaU->Size() != size) { // check got it
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " deltaU Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
-    if (deltaUstep == 0 || deltaUstep->Size() != size) { 
-	if (deltaUstep != 0)
+    if (deltaUstep == nullptr || deltaUstep->Size() != size) { 
+	if (deltaUstep != nullptr)
 	    delete deltaUstep;  
 	deltaUstep = new Vector(size);
-	if (deltaUstep == 0 || deltaUstep->Size() != size) { 
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " deltaUstep Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
-if (deltaUstep2 == 0 || deltaUstep2->Size() != size) { 
-	if (deltaUstep2 != 0)
+if (deltaUstep2 == nullptr || deltaUstep2->Size() != size) { 
+	if (deltaUstep2 != nullptr)
 	    delete deltaUstep2;  
 	deltaUstep2 = new Vector(size);
-	if (deltaUstep2 == 0 || deltaUstep2->Size() != size) { 
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " deltaUstep2 Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
 
-    if (dDeltaUstepdh == 0 || dDeltaUstepdh->Size() != size) { 
-	if (dDeltaUstepdh != 0)
+    if (dDeltaUstepdh == nullptr || dDeltaUstepdh->Size() != size) { 
+	if (dDeltaUstepdh != nullptr)
 	    delete dDeltaUstepdh;  
 	dDeltaUstepdh = new Vector(size);
-	if (dDeltaUstepdh == 0 || dDeltaUstepdh->Size() != size) { 
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " dDeltaUstepdh Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
-    if (phat == 0 || phat->Size() != size) { 
-	if (phat != 0)
+    if (phat == nullptr || phat->Size() != size) { 
+	if (phat != nullptr)
 	    delete phat;  
 	phat = new Vector(size);
-	if (phat == 0 || phat->Size() != size) { 
-	    opserr << "FATAL ArcLength::domainChanged() - ran out of memory for";
-	    opserr << " phat Vector of size " << size << endln;
-	    exit(-1);
-	}
-    }    
+    }
  
-   if (dphatdh == 0 || dphatdh->Size() != size) { 
-      if (dphatdh != 0)
+   if (dphatdh == nullptr || dphatdh->Size() != size) { 
+      if (dphatdh != nullptr)
 	 delete dphatdh;  
       dphatdh = new Vector(size);
-      if (dphatdh == 0 || dphatdh->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " dphatdh Vector of size " << size << endln;
-	 exit(-1);
-      }
    }    
 
- if (dUhatdh == 0 || dUhatdh->Size() != size) { 
-      if (dUhatdh != 0)
+   if (dUhatdh == nullptr || dUhatdh->Size() != size) { 
+      if (dUhatdh != nullptr)
 	 delete dUhatdh;  
       dUhatdh = new Vector(size);
-      if (dUhatdh == 0 || dUhatdh->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " dUhatdh Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
-  if (dUIJdh == 0 || dUIJdh->Size() != size) { 
-      if (dUIJdh != 0)
+   if (dUIJdh == nullptr || dUIJdh->Size() != size) { 
+      if (dUIJdh != nullptr)
 	 delete dUIJdh;  
       dUIJdh = new Vector(size);
-      if (dUIJdh == 0 || dUIJdh->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " dUIJdh Vector of size " << size << endln;
-	 exit(-1);
-      }
    }
- if (Residual == 0 || Residual->Size() != size) { 
-      if (Residual != 0)
+   if (Residual == nullptr || Residual->Size() != size) { 
+      if (Residual != nullptr)
 	 delete Residual;  
       Residual = new Vector(size);
-      if (Residual == 0 || Residual->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " Residual Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
 
 
-   if (sensU == 0 || sensU->Size() != size) { 
-      if (sensU != 0)
+   if (sensU == nullptr || sensU->Size() != size) { 
+      if (sensU != nullptr)
 	 delete sensU;  
       sensU = new Vector(size);
-      if (sensU == 0 || sensU->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " sensU Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
 
 
 
- Domain *theDomain=theModel->getDomainPtr();
+   Domain *theDomain = theModel->getDomainPtr();
    int numGrads = theDomain->getNumParameters();
 
    if (dLAMBDAdh == 0 || dLAMBDAdh->Size() != (numGrads)) { 
@@ -569,65 +509,16 @@ ArcLength::formTangDispSensitivity(int gradNumber)
    AnalysisModel *theModel=this->getAnalysisModel();
    int size=theModel->getNumEqn();
    LinearSOE *theLinSOE = this->getLinearSOE(); 
-// To get the structural stiffness Matrix
-//...............................................................
-dphatdh->Zero();
-//static Matrix K(size,size);
-//K.Zero();
-//this->formTangent();
-//opserr<<" before getK"<<endln;
-//K=this->getK();
-//opserr<<"after getK"<<endln;
-
-/*
-opserr<<"the tangent printed from the DisplacementControl.cpp"<<endln;
-for(int i=0;i<size;i++)
-{
-for(int j=0;j<size;j++)
-{
-opserr<<K(i,j)<<"      ";
-
-}
-opserr<<endln;
-
-}
-*/
-// ................................................................
-
-
-//this->formTangentSensitivity(CURRENT_TANGENT);
-//static Matrix dKdh(size,size);
-//dKdh.Zero();
-//dKdh=this->getdKdh(gradNumber);
-// To print dKdh to the Screen 
-//................................................................
-
-//opserr<<"dKdh from the DisplacementControl.cpp"<<endln;
-//for(int i=0;i<size;i++)
-//{
-//for(int j=0;j<size;j++)
-//{
-//opserr<<dKdh(i,j)<<"      ";
-
-//}
-//opserr<<endln;
-//}
-
-//form dKdh*Uft
-//...............................................................
-
-//dphatdh->addMatrixVector(1.0,dKdh,*deltaUhat,-1.0);
-//call the tangent (K)
-this->formTangent();
-theLinSOE->setB(*dphatdh);
-if(theLinSOE->solve()<0) {
-opserr<<"SOE failed to obtained dUhatdh ";
-exit(-1);
-}
-(*dUhatdh)=theLinSOE->getX();
-//opserr<<"final dUhatdh is "<<*dUhatdh<<endln;
-
-  
+  // To get the structural stiffness Matrix
+  //...............................................................
+  dphatdh->Zero();
+  this->formTangent();
+  theLinSOE->setB(*dphatdh);
+  if(theLinSOE->solve()<0) {
+    opserr<<"SOE failed to obtained dUhatdh ";
+    exit(-1);
+  }
+  (*dUhatdh)=theLinSOE->getX();
   
 /*
    //call the tangent (K)
@@ -830,12 +721,11 @@ ArcLength::getLambdaSensitivity(int gradNumber)
  void
 ArcLength::formResidualDispSensitivity( int gradNumber)
 {
-AnalysisModel *theModel=this->getAnalysisModel();
-int size=theModel->getNumEqn();
-//static Matrix dKdh(size,size);
-//dKdh=this->getdKdh(gradNumber);
-//dUIJdh-> addMatrixVector(1.0,dKdh,*deltaUbar,-1.0);
-  
+  // AnalysisModel *theModel=this->getAnalysisModel();
+  // int size=theModel->getNumEqn();
+  // static Matrix dKdh(size,size);
+  // dKdh=this->getdKdh(gradNumber);
+  // dUIJdh-> addMatrixVector(1.0,dKdh,*deltaUbar,-1.0);  
 }
 
 
