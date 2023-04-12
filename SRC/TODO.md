@@ -12,7 +12,6 @@ Organizing:
 - `container` <- tagged/
 - `analysis/convergence` <- convergenceTest/
 - `builder`   <- modelbuilder/
-- `runtime`   <- interpreter/
 - `streams`   <- handler/
 
 - `analysis/algebra/` (<- SRC/system_of_eqn)
@@ -25,6 +24,7 @@ Organizing:
   - `euclid/`
   - `Vector.h`
   - `Matrix.h`
+
 
 Commands:
 
