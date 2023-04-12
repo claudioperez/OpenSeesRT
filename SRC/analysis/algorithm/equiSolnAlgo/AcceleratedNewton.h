@@ -17,28 +17,24 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2008-08-26 17:07:08 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/AcceleratedNewton.h,v $
-                                                                        
-#ifndef AcceleratedNewton_h
-#define AcceleratedNewton_h
-
-// Written: MHS
-// Created: Oct 2001
 //
 // Description: This file contains the class definition for 
 // AcceleratedNewton.  AcceleratedNewton is a class which uses a Krylov
 // subspace accelerator on the modified Newton method.
 // The accelerator is described by Carlson and Miller in
-// "Design and Application of a 1D GWMFE Code"
-// from SIAM Journal of Scientific Computing (Vol. 19, No. 3,
-// pp. 728-765, May 1998)
+//
+// - "Design and Application of a 1D GWMFE Code"
+//   from SIAM Journal of Scientific Computing (Vol. 19, No. 3,
+//   pp. 728-765, May 1998)
+//
+// Written: MHS
+// Created: Oct 2001
+//
+#ifndef AcceleratedNewton_h
+#define AcceleratedNewton_h
 
 #include <EquiSolnAlgo.h>
 #include <Vector.h>
-//#include <Timer.h>
 
 class Accelerator;
 
