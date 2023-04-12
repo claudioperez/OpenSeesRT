@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2005-08-31 17:39:34 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/EigenAnalysis.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/analysis/eigenAnalysis/EigenAnalysis.C
-//
-// Written: Jun Peng
-// Created: Wed Jan 27, 1999
-// Revision: A
 //
 // Description: This file contains the class definition of EigenAnalysis.
 // EigenAnalysis is a subclass of Analysis, it is used to perform the 
@@ -35,8 +24,11 @@
 //
 // This class is inheritanted from the base class of Analysis
 // which was created by fmk (Frank).
-
-
+//
+// Written: Jun Peng
+// Created: Wed Jan 27, 1999
+// File: ~/analysis/analysis/eigenAnalysis/EigenAnalysis.C
+//
 #include <EigenAnalysis.h>
 #include <EigenAlgorithm.h>
 #include <AnalysisModel.h>
@@ -45,7 +37,6 @@
 #include <ConstraintHandler.h>
 #include <EigenIntegrator.h>
 #include <Domain.h>
-//#include <Timer.h>
 #include <FE_Element.h>
 #include <DOF_Group.h>
 #include <FE_EleIter.h>

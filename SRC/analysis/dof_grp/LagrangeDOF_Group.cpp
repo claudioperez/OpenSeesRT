@@ -17,21 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2004-10-12 21:52:25 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/dof_grp/LagrangeDOF_Group.cpp,v $
-                                                                        
-// Written: fmk 
-// Created: 02/99
-// Revision: A
 //
-// Purpose: This file contains the code for implementing the methods
+// Description: This file contains the code for implementing the methods
 // of the LagrangeDOF_Group class interface.
 //
-// What: "@(#) LagrangeDOF_Group.C, revA"
-
-
+// Written: fmk 
+// Created: 02/99
+//
 #include <LagrangeDOF_Group.h>
 #include <stdlib.h>
 

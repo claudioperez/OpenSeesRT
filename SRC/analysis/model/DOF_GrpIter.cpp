@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2005-11-28 22:07:24 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/model/DOF_GrpIter.cpp,v $
-                                                                        
+//                                                                        
 // Written: fmk 
 // Created: 10/05
 // Revision: A
@@ -52,11 +48,6 @@ void
 DOF_GrpIter::reset(void)
 {
     myIter->reset();
-
-
-
-
-
 }    
 
 
@@ -74,5 +65,3 @@ DOF_GrpIter::operator()(void)
     }
 }
 
-    
-    

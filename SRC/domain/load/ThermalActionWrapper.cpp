@@ -335,21 +335,19 @@ ThermalActionWrapper::getData(int &type, double loadFactor)
 const Vector&
 ThermalActionWrapper::getIntData(const Vector& locs)
 {
- int NumNodalTA = NodalLocs.noRows();
+  int NumNodalTA = NodalLocs.noRows();
  
- int ndm = NodalLocs.noCols();
- //Vector IntData;
- IntData.Zero();
+  int ndm = NodalLocs.noCols();
+  //Vector IntData;
+  IntData.Zero();
   double ratio[6];
-  double r1, r2, r3, r4, r5;
+  double r1, r2, r3; //, r4, r5;
   double constStart=0;
   double constEnd =1.0;
-  
-#ifdef _DEBUG
-	 //opserr<<locs<<endln;
-#endif
 
-  double sQdistInt =0;double sQr=0 ;double sQr1=0; 
+  double sQdistInt = 0;
+  double sQr = 0 ;
+  // double sQr1=0; 
   for(int i=0;i<ndm;i++){
 		sQdistInt += (locs(i)- NodalLocs(0,i))*(locs(i)- NodalLocs(0,i));
 		sQr += (NodalLocs(NumNodalTA-1,i)-NodalLocs(0,i))*(NodalLocs(NumNodalTA-1,i)-NodalLocs(0,i));

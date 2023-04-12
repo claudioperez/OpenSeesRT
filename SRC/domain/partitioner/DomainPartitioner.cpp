@@ -58,8 +58,6 @@
 #include <LoadPatternIter.h>
 #include <LoadPattern.h>
  
-//#include <Timer.h>
-
 #include <MapOfTaggedObjects.h>
 
 #include <FileStream.h>
@@ -279,12 +277,6 @@ DomainPartitioner::partition(int numParts, bool usingMain, int mainPartitionTag,
   // and create a new NodeLocation for each node; adding it to the map object
 
   theNodeLocations = new MapOfTaggedObjects();
-  if (theNodeLocations == 0) {
-    opserr << "DomainPartitioner::partition(int numParts)";
-    opserr << " - ran out of memory creating MapOfTaggedObjectStorage for node locations\n";
-    numPartitions = 0;
-    return -1;
-  }
 
   opserr << "     + Nodes.\n";
   NodeIter &theNodes = myDomain->getNodes();
@@ -343,7 +335,7 @@ DomainPartitioner::partition(int numParts, bool usingMain, int mainPartitionTag,
     for (int j=0; j<size; j++) {
       int nodeTag = nodes(j);
       TaggedObject *theTaggedObject = theNodeLocations->getComponentPtr(nodeTag);
-      if (theTaggedObject == 0) {
+      if (theTaggedObject == nullptr) {
 	opserr << "DomainPartitioner::partition(int numParts)";
 	opserr << " - failed to find NodeLocation in Map for Node: " << nodePtr->getTag() << " -- A BUG!!\n";
 	numPartitions = 0;
@@ -388,11 +380,6 @@ DomainPartitioner::partition(int numParts, bool usingMain, int mainPartitionTag,
       // opserr << "Retained node " << retained << " (equaldof with " << constrained << " ) added to partition " << part << endln;
       theRetainedLocation->addPartition(part);
     }
-        // if(retained == 5)
-    // {
-      // opserr << "   + Retained: " << *theRetainedLocation;
-      // opserr << "   + Constrained: " << *theConstrainedLocation;
-    // }
   }
 
   opserr << "     + MP constraints (2nd pass).\n";

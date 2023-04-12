@@ -17,22 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2006-02-08 20:20:00 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/fe_ele/FE_Element.h,v $
-                                                                        
-                                                                        
-#ifndef FE_Element_h
-#define FE_Element_h
-
+//
+// Description: This file contains the class definition for FE_Element.
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
-// Description: This file contains the class definition for FE_Element.
-//
-// What: "@(#) FE_Element.h, revA"
+#ifndef FE_Element_h
+#define FE_Element_h
 
 #include <ID.h>
 #include <Matrix.h>
@@ -107,11 +100,10 @@ class FE_Element: public TaggedObject
     bool isActive();
 
   protected:
-    void  addLocalM_Force(const Vector &accel, double fact = 1.0);    
-    void  addLocalD_Force(const Vector &vel, double fact = 1.0);    
-    void  addLocalM_ForceSensitivity(int gradNumber, const Vector &accel, double fact = 1.0);    
-    void  addLocalD_ForceSensitivity(int gradNumber, const Vector &vel, double fact = 1.0);    
-
+    void  addLocalM_Force(const Vector &accel, double fact = 1.0);
+    void  addLocalD_Force(const Vector &vel, double fact = 1.0);
+    void  addLocalM_ForceSensitivity(int gradNumber, const Vector &accel, double fact = 1.0);
+    void  addLocalD_ForceSensitivity(int gradNumber, const Vector &vel, double fact = 1.0);
 
     // protected variables - a copy for each object of the class        
     ID myDOF_Groups;
@@ -132,10 +124,8 @@ class FE_Element: public TaggedObject
     static Matrix **theMatrices; // array of pointers to class wide matrices
     static Vector **theVectors;  // array of pointers to class widde vectors
     static int numFEs;           // number of objects
-    
 
 };
 
 #endif
-
 

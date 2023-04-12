@@ -62,10 +62,6 @@ LagrangeMP_FE::LagrangeMP_FE(int tag, Domain &theDomain, MP_Constraint &TheMP,
     
     tang = new Matrix(size,size);
     resid = new Vector(size);
-    if (tang == 0 || resid == 0 || tang->noCols() == 0 || resid->Size() == 0) {
-	opserr << "FATAL LagrangeMP_FE::LagrangeMP_FE() - out of memory\n";
-	exit(-1);
-    }
     tang->Zero();	
     resid->Zero();
 

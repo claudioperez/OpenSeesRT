@@ -144,7 +144,7 @@ PenaltySP_FE::getResidual(Integrator *theNewIntegrator)
 const Vector &
 PenaltySP_FE::getTangForce(const Vector &disp, double fact)
 {
-    double constraint = theSP->getValue();
+    // double constraint = theSP->getValue();
     int constrainedID = myID(0);
     if (constrainedID < 0 || constrainedID >= disp.Size()) {
 	opserr << "WARNING PenaltySP_FE::getTangForce() - ";	

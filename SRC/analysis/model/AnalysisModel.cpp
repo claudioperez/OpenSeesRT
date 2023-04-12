@@ -217,19 +217,19 @@ AnalysisModel::clearAll(void)
 void
 AnalysisModel::clearDOFGraph(void) 
 {
-  if (myDOFGraph != 0)
+  if (myDOFGraph != nullptr)
     delete myDOFGraph;
 
-    myDOFGraph = 0;
+  myDOFGraph = nullptr;
 }
 
 void
 AnalysisModel::clearDOFGroupGraph(void) 
 {
-  if (myGroupGraph != 0)
+  if (myGroupGraph != nullptr)
     delete myGroupGraph;    
   
-  myGroupGraph = 0;
+  myGroupGraph = nullptr;
 }
 
 
@@ -285,8 +285,7 @@ Graph &
 AnalysisModel::getDOFGraph(void)
 {
   if (myDOFGraph == 0) {
-    int numVertex = this->getNumDOF_Groups();
-
+    // int numVertex = this->getNumDOF_Groups();
     //    myDOFGraph = new Graph(numVertex);
     MapOfTaggedObjects *graphStorage = new MapOfTaggedObjects();
     myDOFGraph = new Graph(*graphStorage);

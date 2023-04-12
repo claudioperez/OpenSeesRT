@@ -17,28 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.13 $
-// $Date: 2007-02-14 18:44:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/dof_grp/DOF_Group.h,v $
-                                                                        
-                                                                        
-#ifndef DOF_Group_h
-#define DOF_Group_h
-
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for DOF_Group.
 // A DOF_Group object is instantiated by the ConstraintHandler for 
 // every unconstrained node in the domain. The constrained nodes require 
-// specialised types of DOF_Group; which deal with the constraints. DOF_Group
+// specialised types of DOF_Group, which deal with the constraints. DOF_Group
 // objects can handle 0 boundary constraints; if the eqn number of a DOF is 
 // less than START_EQN_NUM a value of 0.0 is set for disp, vel and accel when
 // a setNode*(Vector &) is invoked.
 //
-// What: "@(#) DOF_Group.h, revA"
+// Written: fmk 
+// Created: 11/96
+//
+#ifndef DOF_Group_h
+#define DOF_Group_h
 
 #include <ID.h>
 #include <TaggedObject.h>
@@ -128,6 +120,7 @@ class DOF_Group: public TaggedObject
     virtual int saveSensitivity(const Vector &v, const Vector &vdot,
 				const Vector &vdotdot, int gradNum, int numGrads);
 // AddingSensitivity:END //////////////////////////////////////
+
     virtual void  Print(OPS_Stream&, int = 0) {return;};
     virtual void resetNodePtr(void);
   
@@ -137,7 +130,7 @@ class DOF_Group: public TaggedObject
     // protected variables - a copy for each object of the class            
     Vector *unbalance;
     Matrix *tangent;
-    Node *myNode;
+    Node   *myNode;
     
   private:
     // private variables - a copy for each object of the class        
@@ -149,8 +142,7 @@ class DOF_Group: public TaggedObject
     static Vector errVect;
     static Matrix **theMatrices; // array of pointers to class wide matrices
     static Vector **theVectors;  // array of pointers to class widde vectors
-    static int numDOFs;           // number of objects    
+    static int numDOFs;          // number of objects    
 };
 
 #endif
-

@@ -17,24 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.18 $
-// $Date: 2007-09-26 23:18:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/dof_grp/DOF_Group.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/dof_grp/DOF_Group.C
-//
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Purpose: This file contains the code for implementing the methods
 // of the DOF_Group class interface.
 //
-// What: "@(#) DOF_Group.C, revA"
-
-
+// File: ~/analysis/dof_grp/DOF_Group.C
+//
+// Written: fmk 
+// Created: 11/96
+//
 #include <DOF_Group.h>
 #include <stdlib.h>
 
@@ -108,13 +99,7 @@ DOF_Group::DOF_Group(int tag, Node *node)
 	    theMatrices[numDOF] = new Matrix(numDOF,numDOF);
 	    unbalance = theVectors[numDOF];
 	    tangent = theMatrices[numDOF];
-	    if (unbalance == 0 || unbalance->Size() != numDOF ||	
-		tangent == 0 || tangent->noCols() != numDOF)	{  
-		opserr << "DOF_Group::DOF_Group(Node *) ";
-		opserr << " ran out of memory for vector/Matrix of size :";
-		opserr << numDOF << endln;
-		exit(-1);
-	    }
+
 	} else {
 	    unbalance = theVectors[numDOF];
 	    tangent = theMatrices[numDOF];
@@ -123,14 +108,6 @@ DOF_Group::DOF_Group(int tag, Node *node)
 	// create matrices and vectors for each object instance
 	unbalance = new Vector(numDOF);
 	tangent = new Matrix(numDOF, numDOF);
-	if (unbalance == 0 || unbalance->Size() ==0 ||
-	    tangent ==0 || tangent->noRows() ==0) {
-	    
-	    opserr << "DOF_Group::DOF_Group(Node *) ";
-	    opserr << " ran out of memory for vector/Matrix of size :";
-	    opserr << numDOF << endln;
-	    exit(-1);
-	}
     }
     
     numDOFs++;
@@ -1044,3 +1021,4 @@ DOF_Group::getDampingBetaForce(int mode, double beta)
   unbalance->addMatrixVector(0.0, mass, eigenvector, -beta);
   return *unbalance;
 }
+

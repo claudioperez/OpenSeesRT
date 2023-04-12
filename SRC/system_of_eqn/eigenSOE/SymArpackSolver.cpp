@@ -166,7 +166,7 @@ SymArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     int *iwork = new int[n];
 
     int lworkl = ncv*ncv + 8*ncv;
-    int maxitr, mode, nconv;
+    int maxitr, mode; // , nconv;
 
     double tol = 0.0;
     int info = 0;
@@ -183,10 +183,10 @@ SymArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     iparam[0] = 1;
     int ido = 0;
     int *ipntr = new int[11];
-    int ierr = 0;
-    unsigned int sizeWhich =2;
-    unsigned int sizeBmat =1;
-    unsigned int sizeHowmany =1;
+    // int ierr = 0;
+    // unsigned int sizeWhich =2;
+    // unsigned int sizeBmat =1;
+    // unsigned int sizeHowmany =1;
 
 
 
@@ -206,7 +206,7 @@ SymArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 	  pfsslv(n, diag, penv, nblks, xblk, &workd[ipntr[1] - 1], begblk);
 	  continue;
       } else if (ido == 1) {
-          double ratio = 1.0;
+          // double ratio = 1.0;
 	  myCopy(n, &workd[ipntr[2]-1], &workd[ipntr[1]-1]);
 
 	  pfsslv(n, diag, penv, nblks, xblk, &workd[ipntr[1] - 1], begblk);
@@ -352,7 +352,7 @@ SymArpackSolver::myMv(int n, double *v, double *result)
     }
 
     // loop over the DOF_Groups
-    Integrator *theIntegrator = 0;
+    // Integrator *theIntegrator = 0;
     DOF_Group *dofPtr;
     DOF_GrpIter &theDofs = theAnalysisModel->getDOFs();
     while ((dofPtr = theDofs()) != 0) {
