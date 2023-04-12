@@ -570,7 +570,9 @@ TCP_Socket::recvMatrix(int dbTag, int commitTag,
 int 
 TCP_Socket::sendMatrix(int dbTag, int commitTag,
     const Matrix &theMatrix, ChannelAddress *theAddress)
-{	
+{
+#if 0 // cmp - removed; value of theSocketAddress was unused?
+
     // first check address is the only address a TCP_socket can send to
     SocketAddress *theSocketAddress = 0;
     if (theAddress != 0) {
@@ -591,7 +593,7 @@ TCP_Socket::sendMatrix(int dbTag, int commitTag,
                 return -1;
         }
     }
-
+#endif
     // if o.k. get a pointer to the data in the Matrix and 
     // place the incoming data there
     int nwrite, nleft;    
