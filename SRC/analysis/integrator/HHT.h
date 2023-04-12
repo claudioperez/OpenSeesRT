@@ -17,21 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-#ifndef HHT_h
-#define HHT_h
-
-// Written: fmk
-// Created: 11/98
-// Revision: A
 //
 // Description: This file contains the class definition for HHT.
 // HHT is an algorithmic class for performing a transient analysis
 // using the HHT integration scheme.
+//
+// Written: fmk
+// Created: 11/98
+//
+#ifndef HHT_h
+#define HHT_h
 
 #include <TransientIntegrator.h>
 
