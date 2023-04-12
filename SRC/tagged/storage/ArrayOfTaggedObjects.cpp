@@ -208,10 +208,10 @@ ArrayOfTaggedObjects::removeComponent(int tag)
     TaggedObject *removed;
     
     // first check to see if object is located at pos given by tag
-    if ((tag >= 0) && (tag < sizeComponentArray))
+    if ((tag >= 0) && (tag < sizeComponentArray)) {
 	
 	// if all objects in nicely then has to be at location given by tag
-	if (fitFlag == true) { 
+	if (fitFlag == true) {
 	    removed = theComponents[tag];
 	    theComponents[tag] = 0;
 
@@ -245,6 +245,7 @@ ArrayOfTaggedObjects::removeComponent(int tag)
 		    numComponents--;		    
 		    return removed;
 		}
+    }
 
     // else we have to look through array until we find it or 
     // reach lastPosition used
@@ -283,7 +284,7 @@ ArrayOfTaggedObjects::getComponentPtr(int tag)
 {
 
     // first check it's not where we would like it
-    if ((tag >= 0) && (tag < sizeComponentArray))
+    if ((tag >= 0) && (tag < sizeComponentArray)) {
 	if (fitFlag == true) // either its at nice position or not entered
 	    return theComponents[tag];
 	else { 	           // it still may be at nice location
@@ -291,6 +292,7 @@ ArrayOfTaggedObjects::getComponentPtr(int tag)
 		if ((theComponents[tag]->getTag()) == tag)
 		    return theComponents[tag];
 	}
+    }
 
     // else we have to look through array until we find it or 
     // reach lastPosition used
