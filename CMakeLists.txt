@@ -160,11 +160,11 @@ include_directories(
   ${OPS_SRC_DIR}/domain/component
   ${OPS_SRC_DIR}/domain/constraints
   ${OPS_SRC_DIR}/domain/domain
-  ${OPS_SRC_DIR}/domain/domain/partitioned
+# ${OPS_SRC_DIR}/domain/domain/partitioned
   ${OPS_SRC_DIR}/domain/domain/single
   ${OPS_SRC_DIR}/domain/groundMotion
   ${OPS_SRC_DIR}/domain/load
-  ${OPS_SRC_DIR}/domain/loadBalancer
+# ${OPS_SRC_DIR}/domain/loadBalancer
   ${OPS_SRC_DIR}/domain/node
   ${OPS_SRC_DIR}/domain/partitioner
   ${OPS_SRC_DIR}/domain/pattern
@@ -212,6 +212,8 @@ target_link_libraries(OPS_Numerics INTERFACE
   ${AMD_LIBRARIES}
   ${LAPACK_LIBRARIES}
   ${BLAS_LIBRARIES}
+  ${UMFPACK_LIBRARIES}
+  ${CSPARSE_LIBRARIES} # ${AMD_LIBRARIES}
 )
 
 # Core OpenSees
@@ -238,6 +240,7 @@ add_library(OPS_Damage             OBJECT)
 add_library(OPS_Database           OBJECT)
 
 # Optional Extensions
+add_library(OPS_Parallel           OBJECT)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 
@@ -303,6 +306,11 @@ target_link_libraries(G3
     coordTransformation
     G3_ObjectBroker
     OPS_Numerics 
+    ${OPS_Element_List}
+    OPS_Material
+    OPS_Damage
+    OPS_ModelBuilder
+    G3_ObjectBroker
 )
 
 
@@ -363,6 +371,6 @@ get_target_property(OPS_Material_COMPILE_OPTIONS OPS_Material COMPILE_OPTIONS)
 
 get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
   string(REPLACE "-Wall" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
-# string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
+  string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
   set_target_properties(OPS_Element PROPERTIES COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
 
