@@ -1797,8 +1797,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     theMaterial = new PlaneStressUserMaterial(tag, nstatevs, nprops, props);
-    if (props != 0)
-      delete props;
+
+    if (props != nullptr)
+      delete [] props;
   }
   // end Yuli Huang & Xinzheng Lu PlaneStressUserMaterial
 
