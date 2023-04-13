@@ -68,10 +68,7 @@ OPS_ADD_RUNTIME_VPV(OPS_Collocation)
         theIntegrator = new Collocation(dData[0]);
     else
         theIntegrator = new Collocation(dData[0], dData[1], dData[2]);
-    
-    if (theIntegrator == 0)
-        opserr << "WARNING - out of memory creating Collocation integrator\n";
-    
+     
     return theIntegrator;
 }
 
