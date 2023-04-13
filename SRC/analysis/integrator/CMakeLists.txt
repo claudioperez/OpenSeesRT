@@ -40,18 +40,16 @@ target_sources(OPS_Analysis
        StagedLoadControl.h
        TransientIntegrator.h
 )
+
 target_sources(OPS_Analysis
     PRIVATE
+       Collocation.cpp                      # Andreas Schellenberg
        AlphaOS.cpp
        AlphaOS_TP.cpp
        AlphaOSGeneralized.cpp
        AlphaOSGeneralized_TP.cpp            # Andreas Schellenberg
        CentralDifferenceAlternative.cpp     # fmk
        CentralDifferenceNoDamping.cpp
-       Collocation.cpp                      # Andreas Schellenberg
-       CollocationHSFixedNumIter.cpp
-       CollocationHSIncrLimit.cpp
-       CollocationHSIncrReduct.cpp
        DisplacementControl.cpp
        DistributedDisplacementControl.cpp
        EigenIntegrator.cpp                  # Jun Peng
@@ -64,21 +62,11 @@ target_sources(OPS_Analysis
        HHTGeneralized.cpp
        HHTGeneralized_TP.cpp
        HHTGeneralizedExplicit.cpp
-       HHTGeneralizedExplicit_TP.cpp
-       HHTHSFixedNumIter.cpp
-       HHTHSFixedNumIter_TP.cpp
-       HHTHSIncrLimit.cpp
-       HHTHSIncrLimit_TP.cpp
-       HHTHSIncrReduct.cpp
-       HHTHSIncrReduct_TP.cpp
        Houbolt.cpp                      # krm
        HSConstraint.cpp
        KRAlphaExplicit.cpp
        KRAlphaExplicit_TP.cpp
        NewmarkExplicit.cpp              # Andreas Schellenberg
-       NewmarkHSFixedNumIter.cpp        # Andreas Schellenberg
-       NewmarkHSIncrLimit.cpp           # Andreas Schellenberg
-       NewmarkHSIncrReduct.cpp          # Andreas Schellenberg
        ParkLMS3.cpp
        TRBDF2.cpp
        TRBDF3.cpp
@@ -86,16 +74,13 @@ target_sources(OPS_Analysis
        StagedNewmark.cpp
        GimmeMCK.cpp                     # MHS
     PUBLIC
+       Collocation.h
        AlphaOS.h
        AlphaOS_TP.h
        AlphaOSGeneralized.h
        AlphaOSGeneralized_TP.h
        CentralDifferenceAlternative.h
        CentralDifferenceNoDamping.h
-       Collocation.h
-       CollocationHSFixedNumIter.h
-       CollocationHSIncrLimit.h
-       CollocationHSIncrReduct.h
        DisplacementControl.h
        DistributedDisplacementControl.h
        EigenIntegrator.h
@@ -108,21 +93,11 @@ target_sources(OPS_Analysis
        HHTGeneralized.h
        HHTGeneralized_TP.h
        HHTGeneralizedExplicit.h
-       HHTGeneralizedExplicit_TP.h
-       HHTHSFixedNumIter.h
-       HHTHSFixedNumIter_TP.h
-       HHTHSIncrLimit.h
-       HHTHSIncrLimit_TP.h
-       HHTHSIncrReduct.h
-       HHTHSIncrReduct_TP.h
        Houbolt.h
        HSConstraint.h
        KRAlphaExplicit.h
        KRAlphaExplicit_TP.h
        NewmarkExplicit.h
-       NewmarkHSFixedNumIter.h
-       NewmarkHSIncrLimit.h
-       NewmarkHSIncrReduct.h
        ParkLMS3.h
        TRBDF2.h
        TRBDF3.h
@@ -131,12 +106,36 @@ target_sources(OPS_Analysis
        GimmeMCK.h
 )
 
-# target_sources(OPS_PFEM
-#     PRIVATE
-#        PFEMIntegrator.cpp
-#     PUBLIC
-#        PFEMIntegrator.h  # Uses ops_Dt
-# )
+target_sources(OPS_Analysis
+    PRIVATE
+       CollocationHSFixedNumIter.cpp
+       CollocationHSIncrLimit.cpp
+       CollocationHSIncrReduct.cpp
+       HHTHSFixedNumIter.cpp
+       HHTHSFixedNumIter_TP.cpp
+       HHTHSIncrLimit.cpp
+       HHTHSIncrLimit_TP.cpp
+       HHTHSIncrReduct.cpp
+       HHTHSIncrReduct_TP.cpp
+       HHTGeneralizedExplicit_TP.cpp
+       NewmarkHSFixedNumIter.cpp        # Andreas Schellenberg
+       NewmarkHSIncrLimit.cpp           # Andreas Schellenberg
+       NewmarkHSIncrReduct.cpp          # Andreas Schellenberg
+    PUBLIC
+       CollocationHSFixedNumIter.h
+       CollocationHSIncrLimit.h
+       CollocationHSIncrReduct.h
+       HHTHSFixedNumIter.h
+       HHTHSFixedNumIter_TP.h
+       HHTHSIncrLimit.h
+       HHTHSIncrLimit_TP.h
+       HHTHSIncrReduct.h
+       HHTHSIncrReduct_TP.h
+       HHTGeneralizedExplicit_TP.h
+       NewmarkHSIncrLimit.h
+       NewmarkHSIncrReduct.h
+       NewmarkHSFixedNumIter.h
+)
 
 target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
