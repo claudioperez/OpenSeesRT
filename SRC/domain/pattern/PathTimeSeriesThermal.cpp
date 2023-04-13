@@ -258,9 +258,11 @@ PathTimeSeriesThermal::getTimeIncr (double pseudoTime)
 const Vector&
 PathTimeSeriesThermal::getFactors(double pseudoTime)
 {
+#if 0 // cmp
   // check for a quick return
   if (thePath == 0)
     return 0.0;
+#endif
 
   //opserr<<"PathTimeSeries Tag"<<this->getTag()<<endln;
   // determine indexes into the data array whose boundary holds the time
@@ -435,9 +437,10 @@ PathTimeSeriesThermal::recvSelf(int commitTag, Channel &theChannel,
     return result;
   }
   cFactor = data(0);
-  int size = data(1);
   lastSendCommitTag = data(4);
-/*
+
+#if 0 // cmp - was multiline comment
+  int size = data(1);
   // get the data cvector, only receive them once as they cannot change
   if (thePath == 0 && size > 0) {
     dbTag1 = data(2);
@@ -470,7 +473,7 @@ PathTimeSeriesThermal::recvSelf(int commitTag, Channel &theChannel,
       return result;  
     }
   }
-  */
+#endif
   return 0;    
 }
 

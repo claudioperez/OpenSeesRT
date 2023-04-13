@@ -36,7 +36,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <ConvergenceTest.h>
-//#include <Timer.h>
 #include <elementAPI.h>
 
 void *
@@ -68,7 +67,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ModifiedNewton)
 	}
       }
     }
-    
+
     return new ModifiedNewton(formTangent, iFactor, cFactor);
 
 }
@@ -110,11 +109,7 @@ ModifiedNewton::solveCurrentStep(void)
 	opserr << "WARNING ModifiedNewton::solveCurrentStep() - setLinks() has";
 	opserr << " not been called - or no ConvergenceTest has been set\n";
 	return -5;
-    }	
-
-    // we form the tangent
-    //    Timer timer1;
-    // timer1.start();
+    }
 
     if (theIncIntegratorr->formUnbalance() < 0) {
 	opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
@@ -141,15 +136,11 @@ ModifiedNewton::solveCurrentStep(void)
     int result = -1;
     numIterations = 0;
     do {
-      //Timer timer2;
-      //timer2.start();
 	if (theSOE->solve() < 0) {
 	    opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
 	    opserr << "the LinearSysOfEqn failed in solve()\n";	
 	    return -3;
 	}	    
-	//timer2.pause();
-	//opserr << "TIMER::SOLVE()- " << timer2;
 	
 	if (theIncIntegratorr->update(theSOE->getX()) < 0) {
 	    opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
@@ -170,8 +161,6 @@ ModifiedNewton::solveCurrentStep(void)
     } while (result == -1);
 
     if (result == -2) {
-      // opserr << "ModifiedNewton::solveCurrentStep() -";
-      // opserr << "the ConvergenceTest object failed in test()\n";
       return -3;
     }
     return result;

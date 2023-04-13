@@ -17,23 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2005/05/18 19:26:59 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/petsc/PetscSparseSeqSolver.cpp,v $
-
+//
 // Written: fmk
 // Created: 04/05
-
-// What: "@(#) PetscSparseSeqSolver.h, revA"
-
+//
 #include <PetscSparseSeqSolver.h>
 #include <SparseGenRowLinSOE.h>
 #include <f2c.h>
 #include <math.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Timer.h>
 
 PetscSparseSeqSolver::PetscSparseSeqSolver(KSPType meth, PCType pre)
     : SparseGenRowLinSolver(SOLVER_TAGS_PetscSparseSeqSolver),

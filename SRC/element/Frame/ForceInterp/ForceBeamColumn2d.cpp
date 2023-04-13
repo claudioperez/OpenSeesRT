@@ -1263,11 +1263,10 @@ ForceBeamColumn2d::update()
 
 
   // if fail to converge we return an error flag & print an error message
-
   if (converged == false) {
     opserr << "WARNING - ForceBeamColumn2d::update - failed to get compatible ";
     opserr << "element forces & deformations for element: ";
-    opserr << this->getTag() << "(dW: << " << dW << ")\n";
+    opserr << this->getTag() << "\n";
     return -1;
   }
 

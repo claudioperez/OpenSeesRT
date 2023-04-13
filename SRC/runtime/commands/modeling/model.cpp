@@ -20,6 +20,7 @@
    extern PartitionedDomain theDomain;
 #endif
 
+
 extern ModelBuilder *theBuilder;
 bool builtModel = false;
 
@@ -27,10 +28,6 @@ FE_Datastore *theDatabase = nullptr;
 
 extern int G3_AddTclAnalysisAPI(Tcl_Interp *, Domain*);
 extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);
-
-
-
-extern int OPS_ResetInput(ClientData, Tcl_Interp *, int, int, TCL_Char **, Domain *, TclBuilder *);
 
 int
 TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[])
@@ -242,8 +239,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   Domain *domain = G3_getDomain(rt);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  // TODO - implement ModelBuilder.clearAll();
-#if 0
+#if 0 // TODO - implement ModelBuilder.clearAll();
   // to build the model make sure the ModelBuilder has been constructed
   // and that the model has not already been constructed
   if (theBuilder != 0) {

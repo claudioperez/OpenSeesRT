@@ -17,17 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
-// Created: 10/05
-// Revision: A
 //
 // Description: This file contains the implementation of the HHTGeneralized class.
-
+//
+// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
+// Created: 10/05
+//
 #include <HHTGeneralized.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
@@ -40,14 +35,13 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
-#define OPS_Export 
 
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_HHTGeneralized)
 {
     // pointer to an integrator that will be returned
-    TransientIntegrator *theIntegrator = 0;
+    TransientIntegrator *theIntegrator = nullptr;
     
     int argc = OPS_GetNumRemainingInputArgs();
     if (argc != 1 && argc != 4) {

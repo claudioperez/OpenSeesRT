@@ -17,8 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-
+//
+//
 #include <OPS_Globals.h>
 #include <PetscSolver.h>
 #include <PetscSOE.h>
@@ -26,7 +26,6 @@
 #include <math.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Timer.h>
 #include <ID.h>
 #include <Vector.h>
 #include <string.h>

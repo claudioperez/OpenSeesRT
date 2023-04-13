@@ -43,7 +43,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-#include <Timer.h>
 
 ProfileSPDLinDirectSkypackSolver::ProfileSPDLinDirectSkypackSolver()
 :ProfileSPDLinSolver(SOLVER_TAGS_ProfileSPDLinDirectSkypackSolver),
@@ -163,7 +162,7 @@ ProfileSPDLinDirectSkypackSolver::solve(void)
     for (int ii=0; ii<theSize; ii++)
 	X[ii] = B[ii];
 
-    char *FILE = "INCORE";
+    const char *filename = "INCORE";
     
     if (theSOE->isAfactored == false)  {
       
@@ -208,7 +207,7 @@ ProfileSPDLinDirectSkypackSolver::solve(void)
     iDiagLoc = theSOE->iDiagLoc;
     
     skyss_(&LDX, &theSize, &NRHS, A, invD, X, iDiagLoc, BLOCK, &numBlock, 
-	   FILE,  &fileFD, &INFO);
+	   (char*)filename,  &fileFD, &INFO);
       
     // return
     if (INFO < 0) {

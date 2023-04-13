@@ -17,25 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/StagedLoadControl.cpp,v $
-
-
-//
-// Written: fmk
-// Created: 07/98
-// Revision: A
 //
 // Description: This file contains the class definition for StagedLoadControl.
 // StagedLoadControl is an algorithmic class for performing a static analysis
 // using a load control integration scheme.
 //
-// What: "@(#) StagedLoadControl.h, revA"
-
-
-
+// Written: fmk
+// Created: 07/98
+//
 #include <StagedLoadControl.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -104,6 +93,7 @@ OPS_ADD_RUNTIME_VPV(OPS_StagedLoadControlIntegrator)
 StagedLoadControl::StagedLoadControl()
     : LoadControl(0, 0, 0, 0, INTEGRATOR_TAGS_StagedLoadControl)
 {
+
 }
 
 
@@ -111,6 +101,7 @@ StagedLoadControl::StagedLoadControl()
 StagedLoadControl::StagedLoadControl(double dLambda, int numIncr, double min, double max)
     : LoadControl(dLambda, numIncr, min, max, INTEGRATOR_TAGS_StagedLoadControl)
 {
+
 }
 
 
@@ -135,7 +126,6 @@ int StagedLoadControl::formTangent(int statFlag)
     // Now detect inactive nodes and add 1 to the tangent diagonal there
 
     AnalysisModel *theAnalysisModel = this->getAnalysisModel();
-    Domain *theDomain = theAnalysisModel->getDomainPtr();
     LinearSOE *theSOE = this->getLinearSOE();
     int numEqn = theSOE->getNumEqn();
 
@@ -195,7 +185,6 @@ int StagedLoadControl::formTangent(int statFlag)
 
         if (is_lonely_dof)
         {
-            // opserr << "i = " << i << " nodedofs(i) = " << nodedofs[i] << endln;
             double uno = 1.0;
             static ID dofid(1);
             static Matrix one(1, 1);

@@ -17,7 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
+//
+// Eight node BBarBrickUP element
+//
 ///////////////////////////////////////////////////////////////////////////////
 // Description: This file contains the class declaration for BBarBrickUP,    //
 // an 8-node cubic element for solid-fluid fully coupled analysis.           //
@@ -27,19 +29,12 @@
 // Constant volume/pressure integration (BBar method) is used for integration//
 // of the volumetric component of solid phase and the fulid phase.           //
 //                                                                           //
-// Written by Zhaohui Yang	(September 2009)                                 //
+// Written by Zhaohui Yang	(September 2009)                             //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
-
-// $Revision: 1.2 $
-// $Date: 2009-11-02 21:22:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/UP-ucsd/BBarBrickUP.cpp,v $
-
+//
 // by Zhaohui Yang (Modified based on Ed "C++" Love's Brick element)
 //
-// Eight node BBarBrickUP element
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -61,8 +56,9 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+#if 0
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_BBarBrickUP)
 {
     if (OPS_GetNDM() != 3 || OPS_GetNDF() != 4) {
@@ -117,6 +113,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BBarBrickUP)
 			   *mat,data[0],data[1],data[2],data[3],data[4],
 			   opt[0],opt[1],opt[2]);
 }
+#endif
 
 //static data
 double  BBarBrickUP::xl[4][8] ;

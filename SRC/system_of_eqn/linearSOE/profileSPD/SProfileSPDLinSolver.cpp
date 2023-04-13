@@ -17,17 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// Written: fmk 
-// Created: 2012
-// Revision: A
 //
 // Description: This file contains the implementation for ProfileSPDLinSOESolver
 // Description: This file contains the class definition for 
 // ProfileSPDLinDirectSolver. ProfileSPDLinDirectSolver is a subclass 
 // of LinearSOESOlver. It solves a ProfileSPDLinSOE object using
 // the LDL^t factorization.
-
+//
+// Written: fmk 
+// Created: 2012
+// Revision: A
+//
 #include <SProfileSPDLinSolver.h>
 #include <SProfileSPDLinSOE.h>
 #include <math.h>
@@ -35,7 +35,6 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Timer.h>
 
 void* OPS_SProfileSPDLinSolver()
 {
@@ -114,8 +113,6 @@ SProfileSPDLinSolver::setSize(void)
 int 
 SProfileSPDLinSolver::solve(void)
 {
-  Timer timer;
-  timer.start();
     // check for quick returns
     if (theSOE == 0) {
 	opserr << "SProfileSPDLinSolver::solve(void): ";

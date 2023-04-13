@@ -17,22 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:02:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectBlockSolver.cpp,v $
-                                                                        
-// Written: fmk 
-// Created: Mar 1998
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // ProfileSPDLinDirectBlockSolver. ProfileSPDLinDirectBlockSolver is a subclass 
 // of LinearSOESOlver. It solves a ProfileSPDLinSOE object using
 // the LDL^t factorization and a block approach
-
-// What: "@(#) ProfileSPDLinDirectBlockSolver.C, revA"
-
+//
+// Written: fmk 
+// Created: Mar 1998
+// Revision: A
+//
 #include <ProfileSPDLinDirectBlockSolver.h>
 #include <ProfileSPDLinSOE.h>
 #include <math.h>
@@ -40,8 +34,6 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-
-#include <Timer.h>
 
 ProfileSPDLinDirectBlockSolver::ProfileSPDLinDirectBlockSolver(double tol, int blckSize)
 :ProfileSPDLinSolver(SOLVER_TAGS_ProfileSPDLinDirectBlockSolver),

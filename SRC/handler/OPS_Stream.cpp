@@ -34,13 +34,11 @@ OPS_Stream::~OPS_Stream()
 
 }
 
+OPS_Stream& 
+OPS_Stream::write(const char *s, int n) {return *this;}
 
- OPS_Stream& 
- OPS_Stream::write(const char *s, int n) {return *this;}
-
-
- OPS_Stream& 
- OPS_Stream::write(const unsigned char *s, int n) {return *this;}
+OPS_Stream& 
+OPS_Stream::write(const unsigned char *s, int n) {return *this;}
 
 OPS_Stream& 
 OPS_Stream::write(const signed char *s, int n) {return *this;}

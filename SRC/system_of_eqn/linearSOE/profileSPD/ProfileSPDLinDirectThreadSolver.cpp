@@ -46,9 +46,6 @@
 // #include <pthread.h>
 #include <thread.h>
 
-#include <Timer.h>
-
-
 // global data that will be needed by the threads
 struct thread_control_block {
   mutex_t start_mutex;

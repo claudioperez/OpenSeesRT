@@ -50,7 +50,6 @@ target_sources(OpenSeesRT PRIVATE
 # OTHER
 #
     "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
-
 )
 
 if (DEFINED OPENSEESRT_VERSION)
@@ -67,7 +66,6 @@ if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-
 #
 # Python
 #
@@ -79,14 +77,7 @@ endif()
 target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
 
 target_link_libraries(OpenSeesRT PRIVATE
-  ${OPS_Element_List}
-  OPS_Material
-  OPS_Damage
-  OPS_ModelBuilder
-  G3_ObjectBroker
   # OpenSeesRT_LinearSystem
-  G3
-  ${TCL_STUB_LIBRARY}
-  ${UMFPACK_LIBRARIES} ${CSPARSE_LIBRARIES} ${AMD_LIBRARIES}
+  G3 ${TCL_STUB_LIBRARY}
 )
 

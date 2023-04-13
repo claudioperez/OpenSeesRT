@@ -111,13 +111,12 @@ StagedNewmark::StagedNewmark(double _gamma, double _beta, bool dispFlag, bool af
 
 int StagedNewmark::formTangent(int statFlag)
 {
+#ifdef _PARALLEL_PROCESSING
     int rank = 0;
     int nproc = 1;
-
-    #ifdef _PARALLEL_PROCESSING
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nproc);
-    #endif
+#endif
 
     // Run a typical LoadControl formTangent call
     int errflag = this->IncrementalIntegrator::formTangent(statFlag);
@@ -163,7 +162,6 @@ int StagedNewmark::formTangent(int statFlag)
                 std::cout << "elenodedofs(i) = " << dof << std::endl;
                 exit(-1);
             }
-            // std::cout << "i = " << i << " numEqn = " << numEqn << " dof = " << dof << std::endl;
             if (dof >= 0 && elePtr->isActive())
             {
 

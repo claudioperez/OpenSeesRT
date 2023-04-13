@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-07-29 21:57:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/eigenAlgo/FrequencyAlgo.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/algorithm/eigenAlgo/FrequencyAlgo.C
-//
-// Written: Jun Peng
-// Created: Mon Feb. 8, 1999
-// Revision: A
 //
 // Description: This file contains the class definition of FrequencyAlgo.
 // FrequencyAlgo is a class which performs a eigen solution algorithm
@@ -36,8 +25,11 @@
 //
 // This class is inheritanted from the base class of SolutionAlgorithm
 // which was created by fmk (Frank).
-
-
+//
+// Written: Jun Peng
+// Created: Mon Feb. 8, 1999
+// Revision: A
+//
 #include <FrequencyAlgo.h>
 #include <AnalysisModel.h>
 #include <EigenAnalysis.h>
@@ -46,7 +38,6 @@
 #include <Vector.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Timer.h>
 
 FrequencyAlgo::FrequencyAlgo()
   :EigenAlgorithm(EigenALGORITHM_TAGS_Frequency)

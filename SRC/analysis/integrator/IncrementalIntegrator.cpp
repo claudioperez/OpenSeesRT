@@ -103,7 +103,7 @@ IncrementalIntegrator::formTangent(int statFlag)
     FE_Element *elePtr;
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
     while((elePtr = theEles2()) != 0)     
-	if (theSOE->addA(elePtr->getTangent(this),elePtr->getID()) < 0) {
+	if (theSOE->addA(elePtr->getTangent(this), elePtr->getID()) < 0) {
 	    opserr << "WARNING IncrementalIntegrator::formTangent -";
 	    opserr << " failed in addA for ID " << elePtr->getID();	    
 	    result = -3;

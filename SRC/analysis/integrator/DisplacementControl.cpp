@@ -361,139 +361,82 @@ int
 DisplacementControl::domainChanged(void)
 {
    // we first create the Vectors needed
-  //opserr<<" this is the domain change function"<<endln;//Abbas
    AnalysisModel *theModel = this->getAnalysisModel();
    LinearSOE *theLinSOE = this->getLinearSOE(); 
     if (theModel == 0 || theLinSOE == 0) {
-      opserr << "WARNING DisplacementControl::update() ";
+      opserr << "WARNING DisplacementControl::domainChanged ";
       opserr << "No AnalysisModel or LinearSOE has been set\n";
       return -1;
-   }    
+   }
+
    int size = theModel->getNumEqn(); // ask model in case N+1 space
 
-   if (deltaUhat == 0 || deltaUhat->Size() != size) { // create new Vector
+   if (deltaUhat == 0 || deltaUhat->Size() != size) {
       if (deltaUhat != 0)
 	 delete deltaUhat;   // delete the old
       deltaUhat = new Vector(size);
-      if (deltaUhat == 0 || deltaUhat->Size() != size) { // check got it
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " deltaUhat Vector of size " << size << endln;
-	 exit(-1);
-      }
    }
   
-
-   if (deltaUbar == 0 || deltaUbar->Size() != size) { // create new Vector
+   if (deltaUbar == 0 || deltaUbar->Size() != size) {
       if (deltaUbar != 0)
 	 delete deltaUbar;   // delete the old
       deltaUbar = new Vector(size);
-      if (deltaUbar == 0 || deltaUbar->Size() != size) { // check got it
-	opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	opserr << " deltaUbar Vector of size " << size << endln;
-	exit(-1);
-      }
    }
 
-   if (deltaU == 0 || deltaU->Size() != size) { // create new Vector
+   if (deltaU == 0 || deltaU->Size() != size) {
      if (deltaU != 0)
        delete deltaU;   // delete the old
      deltaU = new Vector(size);
-     if (deltaU == 0 || deltaU->Size() != size) { // check got it
-       opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-       opserr << " deltaU Vector of size " << size << endln;
-       exit(-1);
-      }
    }
 
    if (deltaUstep == 0 || deltaUstep->Size() != size) { 
       if (deltaUstep != 0)
 	delete deltaUstep;  
       deltaUstep = new Vector(size);
-      if (deltaUstep == 0 || deltaUstep->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " deltaUstep Vector of size " << size << endln;
-	 exit(-1);
-      }
    }
 
    if (phat == 0 || phat->Size() != size) { 
       if (phat != 0)
 	 delete phat;  
       phat = new Vector(size);
-      if (phat == 0 || phat->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " phat Vector of size " << size << endln;
-	 exit(-1);
-      }
-   }    
-
+   }
 
    if (dphatdh == 0 || dphatdh->Size() != size) { 
      if (dphatdh != 0)
        delete dphatdh;  
      dphatdh = new Vector(size);
-     if (dphatdh == 0 || dphatdh->Size() != size) { 
-       opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-       opserr << " dphatdh Vector of size " << size << endln;
-       exit(-1);
-     }
    }    
-
 
    if (dUhatdh == 0 || dUhatdh->Size() != size) { 
      if (dUhatdh != 0)
        delete dUhatdh;  
      dUhatdh = new Vector(size);
-     if (dUhatdh == 0 || dUhatdh->Size() != size) { 
-       opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-       opserr << " dUhatdh Vector of size " << size << endln;
-       exit(-1);
-     }
    } 
    
    if (dUIJdh == 0 || dUIJdh->Size() != size) { 
       if (dUIJdh != 0)
 	 delete dUIJdh;  
       dUIJdh = new Vector(size);
-      if (dUIJdh == 0 || dUIJdh->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " dUIJdh Vector of size " << size << endln;
-	 exit(-1);
-      }
    }
 
    if (Residual == 0 || Residual->Size() != size) { 
       if (Residual != 0)
 	 delete Residual;  
       Residual = new Vector(size);
-      if (Residual == 0 || Residual->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " Residual Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
    
    if (Residual2 == 0 || Residual2->Size() != size) { 
      if (Residual2 != 0)
        delete Residual2;  
      Residual2 = new Vector(size);
-     if (Residual2== 0 || Residual2->Size() != size) { 
-       opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-       opserr << " N Vector of size " << size << endln;
-       exit(-1);
-     }
    } 
 
    if (sensU == 0 || sensU->Size() != size) { 
       if (sensU != 0)
 	 delete sensU;  
       sensU = new Vector(size);
-      if (sensU == 0 || sensU->Size() != size) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " sensU Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
+
 
    Domain *theDomain=theModel->getDomainPtr();//Abbas
    int numGrads = theDomain->getNumParameters();
@@ -502,11 +445,6 @@ DisplacementControl::domainChanged(void)
      if (dLAMBDAdh != 0 )  
        delete dLAMBDAdh;
      dLAMBDAdh = new Vector(numGrads);
-     if (dLAMBDAdh== 0 || dLAMBDAdh->Size() != (numGrads)) { 
-       opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-       opserr << " dLAMBDAdh Vector of size " << numGrads << endln;
-       exit(-1);
-     }
    } 
    
    // now we have to determine phat
@@ -531,12 +469,12 @@ DisplacementControl::domainChanged(void)
       }
 
    if (haveLoad == 0) {
-      opserr << "WARNING DisplacementControl::domainChanged() - zero reference load";
+      opserr << "WARNING DisplacementControl::domainChanged - zero reference load";
       return -1;
    }
 
    // lastly we determine the id of the nodal dof
-   // EXTRA CODE TO DO SOME ERROR CHECKING REQUIRED
+   // TODO: EXTRA CODE TO DO SOME ERROR CHECKING REQUIRED
 
    Node *theNodePtr = theDomain->getNode(theNode);
    if (theNodePtr == 0) {
@@ -557,7 +495,7 @@ int
 DisplacementControl::sendSelf(int cTag,
       Channel &theChannel)
 {
-   // TO FINISH
+   // TODO: sendSelf
    return 0;
 }
 
@@ -566,17 +504,15 @@ int
 DisplacementControl::recvSelf(int cTag,
       Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
-   // TO FINISH
+   // TODO: recvSelf
    return 0;
 }
 
 void
 DisplacementControl::Print(OPS_Stream &s, int flag)
 {
-   // TO FINISH    
+   // TODO: Print
 }
-
-
 
 
 ///////////////////////////Sensitivity Begin///////////////////////////////////
@@ -585,7 +521,6 @@ DisplacementControl::Print(OPS_Stream &s, int flag)
    Vector *
 DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
 {
-  // opserr<<"DisplacementControl:; formTangDispsensitivity:::::::::::Start"<<endln;
    LinearSOE *theLinSOE = this->getLinearSOE(); 
    dUhatdh->Zero();
    dphatdh->Zero();
@@ -598,42 +533,6 @@ DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
  //   K.Zero();
   // K=this->ActivateSensitivity();
   // // to print K to the screen
-   //..........................
-  /* 
-      opserr<<"the tangent printed from the DisplacementControl.cpp"<<endln;
-      for(int i=0;i<size;i++)
-      {
-      for(int j=0;j<size;j++)
-      {
-      opserr<<K(i,j)<<"      ";
-
-      }
-      opserr<<endln;
-
-      }
-     */ 
-   // ................................................................
-
-   // form dKdh
-
- // Matrix dKdh(size,size);
- //  dKdh.Zero();
-//  dKdh=this->getdKdh();
-//
-   // To print dKdh to the Screen 
-   //................................................................
-   
-//  opserr<<"dKdh from the DisplacementControl.cpp"<<endln;
-//      for(int i=0;i<size;i++)
- //     {
- //     for(int j=0;j<size;j++)
- //     {
- //    opserr<<dKdh(i,j)<<"      ";
-
-  //    }
- //    opserr<<endln;
-  //    }
-      
    //...............................................................
 
 
@@ -649,13 +548,9 @@ DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
       exit(-1);
    }
    (*dUhatdh)=theLinSOE->getX();
- //  opserr<<"final dUhatdh is "<<*dUhatdh<<endln;
-
-
    
    // if the parameter is a load parameter.
-   ////////////////////////////////////////////////////////
- // Loop through the loadPatterns and add the dPext/dh contributions
+   // Loop through the loadPatterns and add the dPext/dh contributions
 
    static Vector oneDimVectorWithOne(1);
    oneDimVectorWithOne(0) = 1.0;
@@ -734,27 +629,6 @@ DisplacementControl::formdLambdaDh(int gradNumber)
     return 0.0;
   }
 }
-
-/*
- // The following function is needed if dKdh is considered in the derivation (dKdh #0)
-   Vector *
-DisplacementControl::formResidualDispSensitivity( Vector *dUIJdh,int gradNumber)
-{
-   // this is just the product of the dKdh*deltaUbar. The complete solution to the residual displacement  
-   // is inside the computeSensitivities function.
- 
- 
-   Matrix dKdh(size,size);
-   dKdh.Zero();
-   dKdh=this->getdKdh();
-   dUIJdh-> addMatrixVector(0.0,dKdh,*deltaUbar,-1.0);
-   opserr<<" the dKdh*deltaUbar=  "<<*dUIJdh<<endln;
-
-   return dUIJdh;
-
-}
-
-*/
 
  // dLambdadh of the subsequent iterations (J>1)
 double 

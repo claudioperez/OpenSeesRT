@@ -92,7 +92,7 @@ int ExplicitDifference::newStep(double _deltaT)
 	Utdot->addVector(1.0, *Utdotdot, deltaT);
 	Ut->addVector(1.0, *Utdot, deltaT);
 
-	int size = Utdotdot->Size();
+	// int size = Utdotdot->Size();
 
 	if (Ut == 0)  {
 		opserr << "ExplicitDifference::newStep() - domainChange() failed or hasn't been called\n";
@@ -296,7 +296,7 @@ int ExplicitDifference::update(const Vector &Udotdot)
 		return -4;
 	}
 
-	int size = Udotdot.Size();
+	// int size = Udotdot.Size();
 
 
 	// determine the response at t+deltaT

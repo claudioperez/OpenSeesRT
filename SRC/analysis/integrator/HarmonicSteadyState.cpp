@@ -417,11 +417,11 @@ HarmonicSteadyState::computeSensitivities(void)
 	theSOE->zeroB();
 
 
-	if (this == 0) {
-	  opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
-	  opserr << "the SensitivityIntegrator is NULL\n";
-	  return -1;
-	}
+	// if (this == 0) {
+	//   opserr << "ERROR SensitivityAlgorithm::computeSensitivities() -";
+	//   opserr << "the SensitivityIntegrator is NULL\n";
+	//   return -1;
+	// }
 
 	// Form the part of the RHS which are indepent of parameter
 	this->formIndependentSensitivityRHS();

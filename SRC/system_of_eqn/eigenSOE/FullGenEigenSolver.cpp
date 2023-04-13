@@ -108,10 +108,10 @@ int FullGenEigenSolver::solve(int nEigen, bool generalized, bool findSmallest)
         numEigen = n;
 
     // do not compute left eigenvalues and eigenvectors
-    char *jobvl = "N";
+    const char *jobvl = "N";
 
     // compute right eigenvalues and eigenvectors
-    char *jobvr = "V";
+    const char *jobvr = "V";
 
     // stiffness matrix data
     double *Kptr = theSOE->A;
@@ -165,10 +165,10 @@ int FullGenEigenSolver::solve(int nEigen, bool generalized, bool findSmallest)
 
     // call the LAPACK eigenvalue subroutine
 #ifdef _WIN32
-    DGGEV(jobvl, jobvr, &n, Kptr, &ldK, Mptr, &ldM, alphaR, alphaI, beta,
+    DGGEV((char*)jobvl, (char*)jobvr, &n, Kptr, &ldK, Mptr, &ldM, alphaR, alphaI, beta,
           vl, &ldvl, eigenvector, &ldvr, work, &lwork, &info);
 #else
-    dggev_(jobvl, jobvr, &n, Kptr, &ldK, Mptr, &ldM, alphaR, alphaI, beta,
+    dggev_((char*)jobvl, (char*)jobvr, &n, Kptr, &ldK, Mptr, &ldM, alphaR, alphaI, beta,
            vl, &ldvl, eigenvector, &ldvr, work, &lwork, &info);
 #endif
 

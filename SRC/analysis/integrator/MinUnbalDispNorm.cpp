@@ -158,61 +158,60 @@ MinUnbalDispNorm::~MinUnbalDispNorm()
 int
 MinUnbalDispNorm::newStep(void)
 {
-//opserr<<"   New Step................................"<<endln;    // get pointers to AnalysisModel and LinearSOE
-    AnalysisModel *theModel = this->getAnalysisModel();
-    LinearSOE *theLinSOE = this->getLinearSOE();    
-    if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING MinUnbalDispNorm::newStep() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
-    }
-
-    // get the current load factor
-    currentLambda = theModel->getCurrentDomainTime();
-
-//opserr<<" NewStep=      "<<*phat<<endln;
-    // determine dUhat
-    this->formTangent();
-    theLinSOE->setB(*phat);
-    if (theLinSOE->solve() < 0) {
-      opserr << "MinUnbalanceDispNorm::newStep(void) - failed in solver\n";
+  // get pointers to AnalysisModel and LinearSOE
+  AnalysisModel *theModel = this->getAnalysisModel();
+  LinearSOE *theLinSOE = this->getLinearSOE();    
+  if (theModel == 0 || theLinSOE == 0) {
+      opserr << "WARNING MinUnbalDispNorm::newStep() ";
+      opserr << "No AnalysisModel or LinearSOE has been set\n";
       return -1;
-    }
-    (*deltaUhat) = theLinSOE->getX();
-    Vector &dUhat = *deltaUhat;
+  }
 
-    // determine delta lambda(1) == dlambda
-    double factor = specNumIncrStep/numIncrLastStep;
-    double dLambda = dLambda1LastStep*factor;
+  // get the current load factor
+  currentLambda = theModel->getCurrentDomainTime();
 
-    // check aaint min and max values specified in constructor
-    if (dLambda < dLambda1min)
-      dLambda = dLambda1min;
-    else if (dLambda > dLambda1max)
-      dLambda = dLambda1max;
+  // determine dUhat
+  this->formTangent();
+  theLinSOE->setB(*phat);
+  if (theLinSOE->solve() < 0) {
+    opserr << "MinUnbalanceDispNorm::newStep(void) - failed in solver\n";
+    return -1;
+  }
+  (*deltaUhat) = theLinSOE->getX();
+  Vector &dUhat = *deltaUhat;
 
-    dLambda1LastStep = dLambda;
+  // determine delta lambda(1) == dlambda
+  double factor = specNumIncrStep/numIncrLastStep;
+  double dLambda = dLambda1LastStep*factor;
+
+  // check aaint min and max values specified in constructor
+  if (dLambda < dLambda1min)
+    dLambda = dLambda1min;
+  else if (dLambda > dLambda1max)
+    dLambda = dLambda1max;
+
+  dLambda1LastStep = dLambda;
 
 
-    if (signFirstStepMethod == SIGN_LAST_STEP) {
-      if (deltaLambdaStep < 0)
-	signLastDeltaLambdaStep = -1;
-      else
-	signLastDeltaLambdaStep = +1;
-      
-      dLambda *= signLastDeltaLambdaStep; // base sign of load change
-                                        // on what was happening last step
-    } else {
+  if (signFirstStepMethod == SIGN_LAST_STEP) {
+    if (deltaLambdaStep < 0)
+      signLastDeltaLambdaStep = -1;
+    else
+      signLastDeltaLambdaStep = +1;
     
-      double det = theLinSOE->getDeterminant();
-      int signDeterminant = 1;
-      if (det < 0)
-	signDeterminant = -1;
-    
-      dLambda *= signDeterminant * signLastDeterminant;
-    
-      signLastDeterminant = signDeterminant;
-    }
+    dLambda *= signLastDeltaLambdaStep; // base sign of load change
+                                      // on what was happening last step
+  } else {
+  
+    double det = theLinSOE->getDeterminant();
+    int signDeterminant = 1;
+    if (det < 0)
+      signDeterminant = -1;
+  
+    dLambda *= signDeterminant * signLastDeterminant;
+  
+    signLastDeterminant = signDeterminant;
+  }
 
     /*
     double work = (*phat)^(dUhat);
@@ -222,21 +221,19 @@ MinUnbalDispNorm::newStep(void)
     if (signCurrentWork != signLastDeltaStep)
     */
 
-    deltaLambdaStep = dLambda;
-    currentLambda += dLambda;
-    numIncrLastStep = 0;
+  deltaLambdaStep = dLambda;
+  currentLambda += dLambda;
+  numIncrLastStep = 0;
 
-    // determine delta U(1) == dU
-    (*deltaU) = dUhat;
-    (*deltaU) *= dLambda;
-    (*deltaUstep) = (*deltaU);
-
-//////////////////
+  // determine delta U(1) == dU
+  (*deltaU) = dUhat;
+  (*deltaU) *= dLambda;
+  (*deltaUstep) = (*deltaU);
 
 
-   ////////////////Abbas////////////////////////////
+  /////////////////Abbas////////////////////////////
 
-  if(this->activateSensitivity()==true) { 
+  if (this->activateSensitivity()==true) { 
     Domain *theDomain=theModel->getDomainPtr();
     ParameterIter &paramIter = theDomain->getParameters();
     Parameter *theParam;
@@ -244,7 +241,7 @@ MinUnbalDispNorm::newStep(void)
     // De-activate all parameters
      
     // Now, compute sensitivity wrt each parameter
-    int numGrads = theDomain->getNumParameters();
+    // int numGrads = theDomain->getNumParameters();
     
     while ((theParam = paramIter()) != 0)
       theParam->activate(false);
@@ -257,37 +254,25 @@ MinUnbalDispNorm::newStep(void)
       gradNumber = theParam->getGradIndex();
       
       this->formTangDispSensitivity(dUhatdh,gradNumber);
-//opserr<<"NewStep: dUhatdh=   "<<*dUhatdh<<endln;
-//opserr<<"NewStep: dLambda= "<< dLambda<<endln;
       this->formdLambdaDh(gradNumber);
 
       
            sensU->addVector(1.0, *dUhatdh ,dLambda);
- //opserr<<"NewStep:    dUfdh...= "<<*sensU<<endln;
 
       theParam->activate(false);
- //     opserr<<"NewStep:  Uft= "<<*deltaUhat<<endln;
     } 
   }
   ///////////////Abbas/////////////////////////////
 
+  // update model with delta lambda and delta U
+  theModel->incrDisp(*deltaU);    
+  theModel->applyLoadDomain(currentLambda);    
+  if (theModel->updateDomain() < 0) {
+    opserr << "MinUnbalDispNorm::newStep - model failed to update for new dU\n";
+    return -1;
+  }
 
-
-
-/////////////////    
-
-
-
-
-    // update model with delta lambda and delta U
-    theModel->incrDisp(*deltaU);    
-    theModel->applyLoadDomain(currentLambda);    
-    if (theModel->updateDomain() < 0) {
-      opserr << "MinUnbalDispNorm::newStep - model failed to update for new dU\n";
-      return -1;
-    }
-
-    return 0;
+  return 0;
 }
 
 int
@@ -320,8 +305,7 @@ MinUnbalDispNorm::update(const Vector &dU)
     }
 
     double dLambda = -a/b;
-    dLambdaj=dLambda;//Abbas
-   //opserr<<"update function.... "<< " dLambda= "<<dLambda<<" deltaUhat= "<<(*deltaUhat)<<" deltaUbar: "<<*deltaUbar<<endln; 
+    dLambdaj = dLambda;//Abbas
     // determine delta U(i)
     (*deltaU) = (*deltaUbar);    
     deltaU->addVector(1.0, *deltaUhat,dLambda);
@@ -330,8 +314,6 @@ MinUnbalDispNorm::update(const Vector &dU)
     (*deltaUstep) += *deltaU;
     deltaLambdaStep += dLambda;
     currentLambda += dLambda;
- //   opserr<<"dLambda= "<<dLambda<<endln;
-//opserr<<"CURRENTLAMBDA= ..................................................../////////......."<<currentLambda<<endln;
     // update the model
     theModel->incrDisp(*deltaU);    
     theModel->applyLoadDomain(currentLambda);    
@@ -345,9 +327,6 @@ MinUnbalDispNorm::update(const Vector &dU)
     theLinSOE->setX(*deltaU);
 
     numIncrLastStep++;
-
-// opserr<<" UpdateFunction.....Uft= "<<*deltaUhat<<endln;
-// opserr<<"UpdateFunction.... deltaUbar= "<<*deltaUbar<<endln;
 
     return 0;
 }
@@ -371,22 +350,12 @@ MinUnbalDispNorm::domainChanged(void)
 	if (deltaUhat != 0)
 	    delete deltaUhat;   // delete the old
 	deltaUhat = new Vector(size);
-	if (deltaUhat == 0 || deltaUhat->Size() != size) { // check got it
-	    opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	    opserr << " deltaUhat Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
     if (deltaUbar == 0 || deltaUbar->Size() != size) { // create new Vector
 	if (deltaUbar != 0)
 	    delete deltaUbar;   // delete the old
 	deltaUbar = new Vector(size);
-	if (deltaUbar == 0 || deltaUbar->Size() != size) { // check got it
-	    opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	    opserr << " deltaUbar Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
     
@@ -394,99 +363,54 @@ MinUnbalDispNorm::domainChanged(void)
 	if (deltaU != 0)
 	    delete deltaU;   // delete the old
 	deltaU = new Vector(size);
-	if (deltaU == 0 || deltaU->Size() != size) { // check got it
-	    opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	    opserr << " deltaU Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
     if (deltaUstep == 0 || deltaUstep->Size() != size) { 
 	if (deltaUstep != 0)
 	    delete deltaUstep;  
 	deltaUstep = new Vector(size);
-	if (deltaUstep == 0 || deltaUstep->Size() != size) { 
-	    opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	    opserr << " deltaUstep Vector of size " << size << endln;
-	    exit(-1);
-	}
     }
 
     if (phat == 0 || phat->Size() != size) { 
 	if (phat != 0)
 	    delete phat;  
 	phat = new Vector(size);
-	if (phat == 0 || phat->Size() != size) { 
-	    opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	    opserr << " phat Vector of size " << size << endln;
-	    exit(-1);
-	}
     }    
   if (dphatdh == 0 || dphatdh->Size() != size) { 
      if (dphatdh != 0)
        delete dphatdh;  
      dphatdh = new Vector(size);
-     if (dphatdh == 0 || dphatdh->Size() != size) { 
-       opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-       opserr << " dphatdh Vector of size " << size << endln;
-       exit(-1);
-     }
-   }    
+   }
 
 
    if (dUhatdh == 0 || dUhatdh->Size() != size) { 
      if (dUhatdh != 0)
        delete dUhatdh;  
      dUhatdh = new Vector(size);
-     if (dUhatdh == 0 || dUhatdh->Size() != size) { 
-       opserr << "FATAL MinUnbalDisporm::domainChanged() - ran out of memory for";
-       opserr << " dUhatdh Vector of size " << size << endln;
-       exit(-1);
-     }
    } 
    
    if (dUIJdh == 0 || dUIJdh->Size() != size) { 
       if (dUIJdh != 0)
 	 delete dUIJdh;  
       dUIJdh = new Vector(size);
-      if (dUIJdh == 0 || dUIJdh->Size() != size) { 
-	 opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	 opserr << " dUIJdh Vector of size " << size << endln;
-	 exit(-1);
-      }
    }
 
    if (Residual == 0 || Residual->Size() != size) { 
       if (Residual != 0)
 	 delete Residual;  
       Residual = new Vector(size);
-      if (Residual == 0 || Residual->Size() != size) { 
-	 opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	 opserr << " Residual Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
    
    if (Residual2 == 0 || Residual2->Size() != size) { 
      if (Residual2 != 0)
        delete Residual2;  
      Residual2 = new Vector(size);
-     if (Residual2== 0 || Residual2->Size() != size) { 
-       opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-       opserr << " N Vector of size " << size << endln;
-       exit(-1);
-     }
    } 
 
    if (sensU == 0 || sensU->Size() != size) { 
       if (sensU != 0)
 	 delete sensU;  
       sensU = new Vector(size);
-      if (sensU == 0 || sensU->Size() != size) { 
-	 opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-	 opserr << " sensU Vector of size " << size << endln;
-	 exit(-1);
-      }
    } 
 
    Domain *theDomain=theModel->getDomainPtr();//Abbas
@@ -496,11 +420,6 @@ MinUnbalDispNorm::domainChanged(void)
      if (dLAMBDAdh != 0 )  
        delete dLAMBDAdh;
      dLAMBDAdh = new Vector(numGrads);
-     if (dLAMBDAdh== 0 || dLAMBDAdh->Size() != (numGrads)) { 
-       opserr << "FATAL MinUnbalDispNorm::domainChanged() - ran out of memory for";
-       opserr << " dLAMBDAdh Vector of size " << numGrads << endln;
-       exit(-1);
-     }
    } 
   
     // now we have to determine phat
@@ -612,16 +531,15 @@ MinUnbalDispNorm::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
    theLinSOE->setB(*dphatdh);
    if(theLinSOE->solve()<0) {
       opserr<<"SOE failed to obtained dUhatdh ";
-      exit(-1);
+      exit(-1); // TODO: why exit?
    }
    (*dUhatdh)=theLinSOE->getX();
- //  opserr<<"final dUhatdh is "<<*dUhatdh<<endln;
 
 
    
    // if the parameter is a load parameter.
    ////////////////////////////////////////////////////////
- // Loop through the loadPatterns and add the dPext/dh contributions
+   // Loop through the loadPatterns and add the dPext/dh contributions
 
    static Vector oneDimVectorWithOne(1);
    oneDimVectorWithOne(0) = 1.0;

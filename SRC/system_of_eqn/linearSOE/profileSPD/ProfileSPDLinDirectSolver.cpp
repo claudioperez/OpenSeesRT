@@ -17,24 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2003-02-14 23:02:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectSolver.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: February 1997
-// Revision: A
 //
 // Description: This file contains the implementation for ProfileSPDLinSOESolver
 // Description: This file contains the class definition for 
 // ProfileSPDLinDirectSolver. ProfileSPDLinDirectSolver is a subclass 
 // of LinearSOESOlver. It solves a ProfileSPDLinSOE object using
 // the LDL^t factorization.
-
-// What: "@(#) ProfileSPDLinDirectSolver.C, revA"
-
+//
+// Written: fmk 
+// Created: February 1997
+// Revision: A
+//
 #include <ProfileSPDLinDirectSolver.h>
 #include <ProfileSPDLinSOE.h>
 #include <math.h>
@@ -42,7 +35,6 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-//#include <Timer.h>
 
 void* OPS_ProfileSPDLinDirectSolver()
 {
