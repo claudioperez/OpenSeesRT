@@ -46,8 +46,6 @@
 #include <Matrix.h>
 #include <ID.h>
 #include <Graph.h>
-//#include <Timer.h>
-#include <Integrator.h>//Abbas
 
 // Constructor
 //    sets theModel and theSysOFEqn to 0 and the Algorithm to the one supplied
@@ -94,6 +92,9 @@ StaticAnalysis::~StaticAnalysis()
 void
 StaticAnalysis::clearAll(void)
 {
+#if 0 // TODO: resolve with upstream. Commented out to give ownership to
+      // BasicAnalsisBuilder.
+
   // invoke the destructor on all the objects in the aggregation
   if (theAnalysisModel != 0)     
     delete theAnalysisModel;
@@ -111,6 +112,7 @@ StaticAnalysis::clearAll(void)
     delete theTest;
   if (theEigenSOE != 0)
     delete theEigenSOE;
+#endif
   
   theAnalysisModel =0;
   theConstraintHandler =0;
@@ -141,7 +143,7 @@ StaticAnalysis::analyze(int numSteps)
 	    return -2;
 	}
 
-	// check for change in Domain since last step. As a change can
+	// Check for change in Domain since last step. As a change can
 	// occur in a commit() in a domaindecomp with load balancing
 	// this must now be inside the loop
 
@@ -167,23 +169,20 @@ StaticAnalysis::analyze(int numSteps)
 	    opserr << the_Domain->getCurrentTime() << endln;
 	    the_Domain->revertToLastCommit();
 	    theIntegrator->revertToLastStep();
-
-	 
+ 
 	    return -2;
 	}
 
-           result = theAlgorithm->solveCurrentStep();
+        result = theAlgorithm->solveCurrentStep();
 	if (result < 0) {
-	    opserr << "StaticAnalysis::analyze() - the Algorithm failed";
-	    opserr << " at step: " << i << " with domain at load factor ";
-	    opserr << the_Domain->getCurrentTime() << endln;
+	    // opserr << "StaticAnalysis::analyze() - the Algorithm failed";
+	    // opserr << " at step: " << i << " with domain at load factor ";
+	    // opserr << the_Domain->getCurrentTime() << endln;
 	    the_Domain->revertToLastCommit();	    
 	    theIntegrator->revertToLastStep();
 
 	    return -3;
 	}    
-
-// AddingSensitivity:BEGIN ////////////////////////////////////
 
 #ifdef _RELIABILITY
 
@@ -200,9 +199,6 @@ StaticAnalysis::analyze(int numSteps)
 	    }    
 	}
 #endif
-
-
-// AddingSensitivity:END //////////////////////////////////////
 
 	result = theIntegrator->commit();
 	if (result < 0) {
@@ -572,10 +568,13 @@ StaticAnalysis::setEigenSOE(EigenSOE &theNewSOE)
 int 
 StaticAnalysis::setConvergenceTest(ConvergenceTest &theNewTest)
 {
+#if 0 // TODO: resolve with upstream. Commented out to give ownership to
+      // BasicAnalsisBuilder.
+
     // invoke the destructor on the old one
     if (theTest != 0)
 	delete theTest;
-
+#endif
     // set the links needed by the other objects in the aggregation
     theTest = &theNewTest;
 
