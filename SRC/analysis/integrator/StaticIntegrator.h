@@ -17,27 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/StaticIntegrator.h,v $
-                                                                        
-                                                                        
-#ifndef StaticIntegrator_h
-#define StaticIntegrator_h
-
-// File: ~/analysis/integrator/StaticIntegrator.h
 // 
-// Written: fmk 
-// Created: 11/96
-// Revision: A
-//
 // Description: This file contains the class definition for StaticIntegrator.
 // StaticIntegrator is an algorithmic class for setting up the finite element
 // equations for a static analysis and for Incrementing the nodal displacements
 // with the values in the soln vector to the LinearSOE object. 
 //
-// What: "@(#) StaticIntegrator.h, revA"
+// Written: fmk 
+// Created: 11/96
+// File: ~/analysis/integrator/StaticIntegrator.h
+//
+#ifndef StaticIntegrator_h
+#define StaticIntegrator_h
 
 #include <IncrementalIntegrator.h>
 
