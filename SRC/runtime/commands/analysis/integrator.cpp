@@ -181,132 +181,132 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   else if (strcmp(argv[1], "Newmark") == 0) {
-    // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt);
+    // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt, argc, argv);
     theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "MCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_GimmeMCK(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_GimmeMCK(rt, argc, argv);
   } 
 
   else if (strcmp(argv[1], "StagedNewmark") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_StagedNewmark(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_StagedNewmark(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "NewmarkExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkExplicit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkExplicit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "NewmarkHSIncrReduct") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSIncrReduct(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSIncrReduct(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "NewmarkHSIncrLimit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSIncrLimit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSIncrLimit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "NewmarkHSFixedNumIter") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSFixedNumIter(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkHSFixedNumIter(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHT") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHT(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHT(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHT_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHT_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHT_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTGeneralized") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralized(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralized(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTGeneralized_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralized_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralized_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTExplicit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTExplicit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTExplicit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTExplicit_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTExplicit_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTGeneralizedExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralizedExplicit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralizedExplicit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTGeneralizedExplicit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralizedExplicit_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTGeneralizedExplicit_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTHSIncrLimit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrLimit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrLimit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTHSIncrLimit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrLimit_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrLimit_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTHSIncrReduct") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrReduct(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrReduct(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTHSIncrReduct_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrReduct_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSIncrReduct_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTHSFixedNumIter") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSFixedNumIter(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSFixedNumIter(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "HHTHSFixedNumIter_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSFixedNumIter_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_HHTHSFixedNumIter_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "GeneralizedAlpha") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_GeneralizedAlpha(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_GeneralizedAlpha(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "KRAlphaExplicit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "KRAlphaExplicit_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_KRAlphaExplicit_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "AlphaOS") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOS(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOS(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "AlphaOS_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOS_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOS_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "AlphaOSGeneralized") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOSGeneralized(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOSGeneralized(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "AlphaOSGeneralized_TP") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOSGeneralized_TP(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_AlphaOSGeneralized_TP(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "Collocation") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_Collocation(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_Collocation(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "CollocationHSIncrReduct") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CollocationHSIncrReduct(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_CollocationHSIncrReduct(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "CollocationHSIncrLimit") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CollocationHSIncrLimit(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_CollocationHSIncrLimit(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "CollocationHSFixedNumIter") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CollocationHSFixedNumIter(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_CollocationHSFixedNumIter(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "Newmark1") == 0) {
@@ -314,23 +314,23 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   else if (strcmp(argv[1], "WilsonTheta") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_WilsonTheta(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_WilsonTheta(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "ExplicitDifference") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_ExplicitDifference(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_ExplicitDifference(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "CentralDifference") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifference(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifference(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "CentralDifferenceAlternative") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifferenceAlternative(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifferenceAlternative(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "CentralDifferenceNoDamping") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifferenceNoDamping(rt);
+    theTransientIntegrator = (TransientIntegrator *)OPS_CentralDifferenceNoDamping(rt, argc, argv);
   }
 
   return theTransientIntegrator;

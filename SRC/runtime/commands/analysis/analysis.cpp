@@ -281,12 +281,11 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char ** const argv)
 {
   // TODO
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-
-  // assert(clientData != nullptr);
-  // BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+  Domain* domain = builder->getDomain();
+  StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
+  DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
 
   // builder->initialize();
   

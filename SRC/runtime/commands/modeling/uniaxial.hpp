@@ -11,110 +11,109 @@
 //
 #include <string>
 #include <unordered_map>
+#include <runtimeAPI.h>
 
-extern void *OPS_SPSW02(G3_Runtime *);           // SAJalali
-extern void *OPS_TDConcreteEXP(G3_Runtime *);    // ntosic
-extern void *OPS_TDConcrete(G3_Runtime *);       // ntosic
-extern void *OPS_TDConcreteMC10(G3_Runtime *);   // ntosic
-extern void *OPS_TDConcreteMC10NL(G3_Runtime *); // ntosic
-extern void *OPS_ElasticMaterial(G3_Runtime *);
-extern void *OPS_ElasticPPMaterial(G3_Runtime *);
-extern void *OPS_EPPGapMaterial(G3_Runtime *);
+extern OPS_Routine OPS_SPSW02;           // SAJalali
+extern OPS_Routine OPS_TDConcreteEXP;    // ntosic
+extern OPS_Routine OPS_TDConcrete;       // ntosic
+extern OPS_Routine OPS_TDConcreteMC10;   // ntosic
+extern OPS_Routine OPS_TDConcreteMC10NL; // ntosic
+extern OPS_Routine OPS_ElasticMaterial;
+extern OPS_Routine OPS_ElasticPPMaterial;
+extern OPS_Routine OPS_EPPGapMaterial;
 // extern void *OPS_ParallelMaterial(G3_Runtime *);
-extern void *OPS_SeriesMaterial(G3_Runtime *);
-extern void *OPS_HardeningMaterial(G3_Runtime *);
-extern void *OPS_HystereticMaterial(G3_Runtime *);
-extern void *OPS_CableMaterial(G3_Runtime *);
-extern void *OPS_Bilin(G3_Runtime *);
-extern void *OPS_Bilin02(G3_Runtime *);
-extern void *OPS_Steel01(G3_Runtime *);
-extern void *OPS_FRPConfinedConcrete02(G3_Runtime *);
-extern void *OPS_Steel02(G3_Runtime *);
-extern void *OPS_SteelFractureDI(G3_Runtime *); // galvisf
-extern void *OPS_Steel02Fatigue(G3_Runtime *);
-extern void *OPS_RambergOsgoodSteel(G3_Runtime *);
-extern void *OPS_ReinforcingSteel(G3_Runtime *);
-extern void *OPS_Concrete01(G3_Runtime *);
-extern void *OPS_Concrete02(G3_Runtime *);
-extern void *OPS_Concrete02IS(G3_Runtime *);
-extern void *OPS_PinchingLimitStateMaterial(G3_Runtime *);
-extern void *OPS_SAWSMaterial(G3_Runtime *);
-extern void *OPS_ConcreteZ01Material(G3_Runtime *);
-extern void *OPS_ConcreteL01Material(G3_Runtime *);
-extern void *OPS_SteelZ01Material(G3_Runtime *);
-extern void *OPS_TendonL01Material(G3_Runtime *);
-extern void *OPS_ConfinedConcrete01Material(G3_Runtime *);
-extern void *OPS_ElasticBilin(G3_Runtime *);
-extern void *OPS_MinMaxMaterial(G3_Runtime *);
-extern void *OPS_SimpleFractureMaterial(G3_Runtime *);
-extern void *OPS_HoehlerStanton(G3_Runtime *);
-extern void *OPS_InitStrainMaterial(G3_Runtime *);
-extern void *OPS_InitStressMaterial(G3_Runtime *);
-extern void *OPS_pyUCLA(G3_Runtime *);
-extern void *OPS_Maxwell(G3_Runtime *);
-extern void *OPS_ViscousDamper(G3_Runtime *);
-extern void *OPS_DamperMaterial(G3_Runtime *);
-extern void *OPS_BilinearOilDamper(G3_Runtime *);
-extern void *OPS_Cast(G3_Runtime *);
-extern void *OPS_Dodd_Restrepo(G3_Runtime *);
-extern void *OPS_DoddRestr(G3_Runtime *);
-extern void *OPS_ElasticMultiLinear(G3_Runtime *);
-extern void *OPS_ImpactMaterial(G3_Runtime *);
-extern void *OPS_SteelBRB(G3_Runtime *);
-extern void *OPS_MultiLinear(G3_Runtime *);
-extern void *OPS_HookGap(G3_Runtime *);
-extern void *OPS_HyperbolicGapMaterial(G3_Runtime *);
-extern void *OPS_FRPConfinedConcrete(G3_Runtime *);
-extern void *OPS_FRPConfinedConcrete02(G3_Runtime *);
-extern void *OPS_UVCuniaxial(G3_Runtime *);
-extern void *OPS_Steel01Thermal(G3_Runtime *);
-extern void *OPS_Steel02Thermal(G3_Runtime *);
-extern void *OPS_Concrete02Thermal(G3_Runtime *);
-extern void *OPS_StainlessECThermal(G3_Runtime *);
-extern void *OPS_SteelECThermal(G3_Runtime *);
-extern void *OPS_ConcreteECThermal(G3_Runtime *);
-extern void *OPS_ElasticMaterialThermal(G3_Runtime *);
-extern void *OPS_ASD_SMA_3K(G3_Runtime *);
-extern void *OPS_BWBN(G3_Runtime *);
-extern void *OPS_IMKPeakOriented(G3_Runtime *);
-extern void *OPS_IMKBilin(G3_Runtime *);
-extern void *OPS_IMKPinching(G3_Runtime *);
-extern void *OPS_ModIMKPeakOriented(G3_Runtime *);
-extern void *OPS_ModIMKPeakOriented02(G3_Runtime *);
-extern void *OPS_ModIMKPinching(G3_Runtime *);
+extern OPS_Routine OPS_SeriesMaterial;
+extern OPS_Routine OPS_HardeningMaterial;
+extern OPS_Routine OPS_HystereticMaterial;
+extern OPS_Routine OPS_CableMaterial;
+extern OPS_Routine OPS_Bilin;
+extern OPS_Routine OPS_Bilin02;
+extern OPS_Routine OPS_Steel01;
+extern OPS_Routine OPS_FRPConfinedConcrete02;
+extern OPS_Routine OPS_Steel02;
+extern OPS_Routine OPS_SteelFractureDI; // galvisf
+extern OPS_Routine OPS_Steel02Fatigue;
+extern OPS_Routine OPS_RambergOsgoodSteel;
+extern OPS_Routine OPS_ReinforcingSteel;
+extern OPS_Routine OPS_Concrete01;
+extern OPS_Routine OPS_Concrete02;
+extern OPS_Routine OPS_Concrete02IS;
+extern OPS_Routine OPS_PinchingLimitStateMaterial;
+extern OPS_Routine OPS_SAWSMaterial;
+extern OPS_Routine OPS_ConcreteZ01Material;
+extern OPS_Routine OPS_ConcreteL01Material;
+extern OPS_Routine OPS_SteelZ01Material;
+extern OPS_Routine OPS_TendonL01Material;
+extern OPS_Routine OPS_ConfinedConcrete01Material;
+extern OPS_Routine OPS_ElasticBilin;
+extern OPS_Routine OPS_MinMaxMaterial;
+extern OPS_Routine OPS_SimpleFractureMaterial;
+extern OPS_Routine OPS_HoehlerStanton;
+extern OPS_Routine OPS_InitStrainMaterial;
+extern OPS_Routine OPS_InitStressMaterial;
+extern OPS_Routine OPS_pyUCLA;
+extern OPS_Routine OPS_Maxwell;
+extern OPS_Routine OPS_ViscousDamper;
+extern OPS_Routine OPS_DamperMaterial;
+extern OPS_Routine OPS_BilinearOilDamper;
+extern OPS_Routine OPS_Cast;
+extern OPS_Routine OPS_Dodd_Restrepo;
+extern OPS_Routine OPS_DoddRestr;
+extern OPS_Routine OPS_ElasticMultiLinear;
+extern OPS_Routine OPS_ImpactMaterial;
+extern OPS_Routine OPS_SteelBRB;
+extern OPS_Routine OPS_MultiLinear;
+extern OPS_Routine OPS_HookGap;
+extern OPS_Routine OPS_HyperbolicGapMaterial;
+extern OPS_Routine OPS_FRPConfinedConcrete;
+extern OPS_Routine OPS_FRPConfinedConcrete02;
+extern OPS_Routine OPS_UVCuniaxial;
+extern OPS_Routine OPS_Steel01Thermal;
+extern OPS_Routine OPS_Steel02Thermal;
+extern OPS_Routine OPS_Concrete02Thermal;
+extern OPS_Routine OPS_StainlessECThermal;
+extern OPS_Routine OPS_SteelECThermal;
+extern OPS_Routine OPS_ConcreteECThermal;
+extern OPS_Routine OPS_ElasticMaterialThermal;
+extern OPS_Routine OPS_ASD_SMA_3K;
+extern OPS_Routine OPS_BWBN;
+extern OPS_Routine OPS_IMKPeakOriented;
+extern OPS_Routine OPS_IMKBilin;
+extern OPS_Routine OPS_IMKPinching;
+extern OPS_Routine OPS_ModIMKPeakOriented;
+extern OPS_Routine OPS_ModIMKPeakOriented02;
+extern OPS_Routine OPS_ModIMKPinching;
 extern void *OPS_ConcretewBeta(void);
-extern void *OPS_ConcreteD(G3_Runtime *);
-extern void *OPS_PinchingLimitState(G3_Runtime *);
-extern void *OPS_OriginCentered(G3_Runtime *);
-extern void *OPS_Steel2(G3_Runtime *);
-extern void *OPS_ConcreteSakaiKawashima(G3_Runtime *);
-extern void *OPS_ResilienceMaterialHR(G3_Runtime *);
-extern void *OPS_CFSSSWP(G3_Runtime *);
-extern void *OPS_CFSWSWP(G3_Runtime *);
-extern void *OPS_ResilienceLow(G3_Runtime *);
-extern void *OPS_ViscousMaterial(G3_Runtime *);
-extern void *OPS_SteelMPF(G3_Runtime *);
-extern void *OPS_ConcreteCM(G3_Runtime *);
-extern void *OPS_Bond_SP01(G3_Runtime *);
-extern void *OPS_Steel4(G3_Runtime *);
-extern void *OPS_PySimple3(G3_Runtime *);
-extern void *OPS_BoucWenOriginal(G3_Runtime *);
-extern void *OPS_GNGMaterial(G3_Runtime *);
-extern void *OPS_OOHystereticMaterial(G3_Runtime *);
-extern void *OPS_ElasticPowerFunc(G3_Runtime *);
-extern void *OPS_UVCuniaxial(G3_Runtime *);
-extern void *OPS_DegradingPinchedBW(G3_Runtime *);
-extern void *OPS_SLModel(G3_Runtime *);
-extern void *OPS_SMAMaterial(G3_Runtime *);
-extern void *OPS_HystereticPoly(G3_Runtime *);
-extern void *OPS_Masonry(G3_Runtime *);
-extern void *OPS_Trilinwp(G3_Runtime *);
-extern void *OPS_Trilinwp2(G3_Runtime *);
-extern void *OPS_Masonryt(G3_Runtime *);
+extern OPS_Routine OPS_ConcreteD;
+extern OPS_Routine OPS_PinchingLimitState;
+extern OPS_Routine OPS_OriginCentered;
+extern OPS_Routine OPS_Steel2;
+extern OPS_Routine OPS_ConcreteSakaiKawashima;
+extern OPS_Routine OPS_ResilienceMaterialHR;
+extern OPS_Routine OPS_CFSSSWP;
+extern OPS_Routine OPS_CFSWSWP;
+extern OPS_Routine OPS_ResilienceLow;
+extern OPS_Routine OPS_ViscousMaterial;
+extern OPS_Routine OPS_SteelMPF;
+extern OPS_Routine OPS_ConcreteCM;
+extern OPS_Routine OPS_Bond_SP01;
+extern OPS_Routine OPS_Steel4;
+extern OPS_Routine OPS_PySimple3;
+extern OPS_Routine OPS_BoucWenOriginal;
+extern OPS_Routine OPS_GNGMaterial;
+extern OPS_Routine OPS_OOHystereticMaterial;
+extern OPS_Routine OPS_ElasticPowerFunc;
+extern OPS_Routine OPS_UVCuniaxial;
+extern OPS_Routine OPS_DegradingPinchedBW;
+extern OPS_Routine OPS_SLModel;
+extern OPS_Routine OPS_SMAMaterial;
+extern OPS_Routine OPS_HystereticPoly;
+extern OPS_Routine OPS_Masonry;
+extern OPS_Routine OPS_Trilinwp;
+extern OPS_Routine OPS_Trilinwp2;
+extern OPS_Routine OPS_Masonryt;
 
-typedef void* (G3_RuntimeUniaxialCommand)(G3_Runtime*);
-
-const std::unordered_map<std::string, G3_RuntimeUniaxialCommand*> uniaxial_rt_table 
+const std::unordered_map<std::string, OPS_Routine*> uniaxial_rt_table 
 {
 // Standard
     {"Elastic",                OPS_ElasticMaterial           },

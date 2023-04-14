@@ -156,18 +156,18 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (strcmp(argv[1], "Newton") == 0) {
-    void *theNewtonAlgo = OPS_NewtonRaphsonAlgorithm(rt);
+    void *theNewtonAlgo = OPS_NewtonRaphsonAlgorithm(rt, argc, argv);
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
   }
 
   else if ((strcmp(argv[1], "NewtonHallM") == 0) ||
            (strcmp(argv[1], "NewtonHall") == 0)) {
-    void *theNewtonAlgo = OPS_NewtonHallM(rt);
+    void *theNewtonAlgo = OPS_NewtonHallM(rt, argc, argv);
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
   }
 
   else if (strcmp(argv[1], "ModifiedNewton") == 0) {
-    void *theNewtonAlgo = OPS_ModifiedNewton(rt);
+    void *theNewtonAlgo = OPS_ModifiedNewton(rt, argc, argv);
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
   }
 
@@ -177,7 +177,7 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (strcmp(argv[1], "ExpressNewton") == 0) {
-    void *theNewtonAlgo = OPS_ExpressNewton(rt);
+    void *theNewtonAlgo = OPS_ExpressNewton(rt, argc, argv);
     theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
   }
 

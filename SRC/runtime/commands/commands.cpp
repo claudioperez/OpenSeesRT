@@ -59,7 +59,6 @@
 // Other
 #include <Recorder.h>
 #include <DummyStream.h>
-// #include <ErrorHandler.h>
 #include <Information.h>
 #include <Response.h>
 #include <packages.h>
@@ -112,13 +111,11 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   ClientData domain = (ClientData)the_domain;
 
-
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "remove",            &removeObject,    domain, nullptr);
-
-  Tcl_CreateCommand(interp, "findNodeWithID",    &findID, domain, nullptr);
+  Tcl_CreateCommand(interp, "region",              &addRegion,     domain, nullptr);
 
 
   Tcl_CreateCommand(interp, "printGID",            &printModelGID, domain, nullptr);
@@ -126,20 +123,16 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "setTime",             &TclCommand_setTime, domain, nullptr);
   Tcl_CreateCommand(interp, "getTime",             &TclCommand_getTime, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "setCreep",   &TclCommand_setCreep, nullptr, nullptr);
-
-  Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "setCreep",            &TclCommand_setCreep, nullptr, nullptr);
   Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, nullptr, nullptr);
   Tcl_CreateCommand(interp, "nodePressure",        &nodePressure, nullptr, nullptr);
   Tcl_CreateCommand(interp, "nodeBounds",          &nodeBounds, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "findNodeWithID",    &findID, domain, nullptr);
 
   // DAMPING
   Tcl_CreateCommand(interp, "rayleigh",            &rayleighDamping, domain, nullptr);
   Tcl_CreateCommand(interp, "setElementRayleighDampingFactors",
                     &setElementRayleighDampingFactors, nullptr, nullptr);
-
-  Tcl_CreateCommand(interp, "region",              &addRegion,     domain, nullptr);
-
 
   Tcl_CreateCommand(interp, "getLoadFactor",       &getLoadFactor, domain, nullptr);
   Tcl_CreateCommand(interp, "localForce",          &localForce,    domain, nullptr);
@@ -200,17 +193,18 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "recorderValue",       &OPS_recorderValue,   domain, nullptr);
   Tcl_CreateCommand(interp, "record",              &TclCommand_record,   domain, nullptr);
 
+  Tcl_CreateCommand(interp, "domainChange",        &domainChange, nullptr, nullptr);
+  Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
+
   Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, nullptr);
 
 
 //   TODO: cmp, moved definition to packages/optimization; need to link in optionally
-//   Tcl_CreateCommand(interp, "setParameter", &setParameter, nullptr,
-//                     nullptr);
+//   Tcl_CreateCommand(interp, "setParameter", &setParameter, nullptr, nullptr);
+
+
   // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, nullptr);
-
-  Tcl_CreateCommand(interp, "domainChange", &domainChange, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, nullptr);
-
 
   // wipeAnalysis(0, interp, 0, 0);
   return TCL_OK;
@@ -297,13 +291,13 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const a
 
   dof--;
 
-  /*
+#if 0
   Element *theEle = the_domain->getElement(tag);
   if (theEle == 0)
     return TCL_ERROR;
 
   const Vector &force = theEle->getResistingForce();
-  */
+#endif
 
   const char *myArgv[1];
   char myArgv0[8];
@@ -1883,4 +1877,3 @@ addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
   return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
 }
-

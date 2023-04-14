@@ -9,8 +9,6 @@
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
-
-#include <elementAPI.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
 
@@ -57,29 +55,29 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char ** const argv, Domain *domain);
 
 
-extern void *OPS_Bond_SP01(G3_Runtime *);  // K Kolozvari
-extern void *OPS_Bilin02(G3_Runtime *);
-extern void *OPS_FRPConfinedConcrete02(G3_Runtime *);
-extern void *OPS_SteelFractureDI(G3_Runtime *); // galvisf
-extern void *OPS_Steel02Fatigue(G3_Runtime *);
-extern void *OPS_Concrete01(G3_Runtime *);
-extern void *OPS_Concrete02(G3_Runtime *);
-extern void *OPS_Concrete02IS(G3_Runtime *);
+extern OPS_Routine OPS_Bond_SP01;  // K Kolozvari
+extern OPS_Routine OPS_Bilin02;
+extern OPS_Routine OPS_FRPConfinedConcrete02;
+extern OPS_Routine OPS_SteelFractureDI; // galvisf
+extern OPS_Routine OPS_Steel02Fatigue;
+extern OPS_Routine OPS_Concrete01;
+extern OPS_Routine OPS_Concrete02;
+extern OPS_Routine OPS_Concrete02IS;
 
-extern void *OPS_ElasticBilin(G3_Runtime *);
+extern OPS_Routine OPS_ElasticBilin;
 
 
 // extern void *OPS_PlateBearingConnectionThermal(G3_Runtime*);
-extern void *OPS_ModIMKPinching(G3_Runtime *);
-extern void *OPS_ModIMKPinching02(G3_Runtime *);
+extern OPS_Routine OPS_ModIMKPinching;
+extern OPS_Routine OPS_ModIMKPinching02;
 
 extern void *OPS_ConcretewBeta(void);
 
-extern void *OPS_PySimple3(G3_Runtime *);
-extern void *OPS_BoucWenOriginal(G3_Runtime *);
-extern void *OPS_GNGMaterial(G3_Runtime *);
-extern void *OPS_OOHystereticMaterial(G3_Runtime *);
-extern void *OPS_UVCuniaxial(G3_Runtime *);
+extern OPS_Routine OPS_PySimple3;
+extern OPS_Routine OPS_BoucWenOriginal;
+extern OPS_Routine OPS_GNGMaterial;
+extern OPS_Routine OPS_OOHystereticMaterial;
+extern OPS_Routine OPS_UVCuniaxial;
 
 
 
@@ -158,7 +156,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   } else {
     auto rt_cmd = uniaxial_rt_table.find(std::string(argv[1]));
     if (rt_cmd != uniaxial_rt_table.end()) {
-      void *mat = (*rt_cmd->second)(rt);
+      void *mat = (*rt_cmd->second)(rt, argc, argv);
       if (mat != nullptr)
         theMaterial = static_cast<UniaxialMaterial *>(mat);
       else
@@ -187,7 +185,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   if (theMaterial == 0) {
 
      if (strcmp(argv[1], "SteelFractureDI") == 0) {
-      void *theMat = OPS_SteelFractureDI(rt);
+      void *theMat = OPS_SteelFractureDI(rt, argc, argv);
       if (theMat != 0)
         theMaterial = (UniaxialMaterial *)theMat;
       else
@@ -195,21 +193,21 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
 
     } else if ((strcmp(argv[1], "Bond_SP01") == 0) ||
                (strcmp(argv[1], "Bond") == 0)) {
-      void *theMat = OPS_Bond_SP01(rt);
+      void *theMat = OPS_Bond_SP01(rt, argc, argv);
       if (theMat != 0)
         theMaterial = (UniaxialMaterial *)theMat;
       else
         return TCL_ERROR;
 
     } else if (strcmp(argv[1], "ModIMKPinching") == 0) {
-      void *theMat = OPS_ModIMKPinching(rt);
+      void *theMat = OPS_ModIMKPinching(rt, argc, argv);
       if (theMat != 0)
         theMaterial = (UniaxialMaterial *)theMat;
       else
         return TCL_ERROR;
 
     } else if (strcmp(argv[1], "ModIMKPinching02") == 0) {
-      void *theMat = OPS_ModIMKPinching02(rt);
+      void *theMat = OPS_ModIMKPinching02(rt, argc, argv);
       if (theMat != 0)
         theMaterial = (UniaxialMaterial *)theMat;
       else
