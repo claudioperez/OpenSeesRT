@@ -4,7 +4,7 @@
 |---------|--------------|
 | 0	| `ArcLength01.tcl` |
 | 0	| `ArcLength02.tcl` |
-| 139	| `ConcretePanel.tcl` |
+| 1	| `ConcretePanel.tcl` |
 | 1	| `CrossAnisotropicElastic.tcl` |
 | 1	| `Example1.1.tcl` |
 | 0	| `example1.tcl` |
@@ -27,6 +27,7 @@
 | 0	| `RCFrame5.tcl` |
 | 0	| `RigidFrame3D.tcl` |
 | 0	| `Rigid.tcl` |
+| 0	| `Test.BeamGeom.tcl` |
 | 1	| `Test.BeamLoad2D.tcl` |
 | 1	| `Test.BeamLoad3D.tcl` |
 | 1	| `Test.BeamsAndSections2D.tcl` |
@@ -41,7 +42,7 @@
 | 0	| `Test.Example4.1.tcl` |
 | 1	| `Test.ShearBeam2D.tcl` |
 | 1	| `Test.ShearBeam3D.tcl` |
-| 1	| `TestTimeSeries.tcl` |
+| 0	| `TestTimeSeries.tcl` |
 | 0	| `Test.truss1.tcl` |
 | 0	| `TestUniaxial_HystereticPoly.tcl` |
 | 1	| `Test.ZeroLength5.tcl` |
