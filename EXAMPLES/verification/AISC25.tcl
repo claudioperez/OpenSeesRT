@@ -1,4 +1,3 @@
-
 #  PDelta Effects 
 
 # REFERENCES:
@@ -239,10 +238,10 @@ if {[expr abs(100*($resU-$delta)/$delta)] > 0.5 || [expr abs(100*($resM-$moment)
 }
 
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$ok == 0} {
     puts "PASSED Verification Test AISC25.tcl \n\n"
-    puts $results "PASSED : AISC25.tcl"
+    puts $results "| PASSED |  AISC25.tcl"
 } else {
     puts "FAILED Verification Test AISC25.tcl \n\n"
     puts $results "FAILED : AISC25.tcl"

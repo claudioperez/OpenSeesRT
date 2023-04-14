@@ -152,10 +152,10 @@ foreach eleType $eleTypes {
 	}
     }
     
-    set results [open results.out a+]
+    set results [open README.md a+]
     if {$testOK == 0} {
 	puts "PASSED Verification Test EigenFrame.Extra.tcl $eleType  \n\n"
-	puts $results "PASSED : EigenFrame.Extra.tcl eleType: $eleType"
+	puts $results "| PASSED |  EigenFrame.Extra.tcl eleType: $eleType"
     } else {
 	puts "FAILED Verification Test EigenFrame.Extra.tcl $eleType  \n\n"
 	puts $results "FAILED : EigenFrame.Extra.tcl eleType: $eleType"
@@ -311,10 +311,10 @@ foreach solverType $solverTypes {
 	}
     }
     
-    set results [open results.out a+]
+    set results [open README.md a+]
     if {$testOK == 0} {
 	puts "PASSED Verification Test EigenFrame.Extra.tcl $eleType  \n\n"
-	puts $results "PASSED : EigenFrame.Extra.tcl solverType: $solverType"
+	puts $results "| PASSED |  EigenFrame.Extra.tcl solverType: $solverType"
     } else {
 	puts "FAILED Verification Test EigenFrame.Extra.tcl $eleType  \n\n"
 	puts $results "FAILED : EigenFrame.Extra.tcl solverType: $solverType"

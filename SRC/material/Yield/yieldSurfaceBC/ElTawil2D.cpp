@@ -182,8 +182,7 @@ void ElTawil2D::customizeInterpolate(double &xi, double &yi, double &xj, double 
 		xi = 0;
 		yi = 0;
 	}
-	else
-		; // values are okay
+	else {;} // values are okay
 
 
 }

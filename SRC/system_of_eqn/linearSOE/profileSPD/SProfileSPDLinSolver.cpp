@@ -295,13 +295,6 @@ SProfileSPDLinSolver::solve(void)
       doubleX[i] = X[i];
     }
 
-    /*
-      opserr << "BBBB " << theSOE->getB();
-      opserr << "XXXX " << theSOE->getX();
-    */
-
-  timer.pause();
-  timer.Print(opserr);
     return 0;
 }
 

@@ -291,8 +291,7 @@ void ElTawil2DUnSym::customizeInterpolate(double &xi, double &yi, double &xj, do
 		xi = 0;
 		yi = 0;
 	}
-	else
-		; // values are okay
+	else {;} // values are okay
 
 
 }

@@ -195,10 +195,10 @@ foreach sectType {Fiber Uniaxial} {
 }
 
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$testOK == 0} {
     puts "\nPASSED Verification Test PlanarTruss.Extra.tcl \n\n"
-    puts $results "PASSED : PlanarTruss.Extra.tcl"
+    puts $results "| PASSED |  PlanarTruss.Extra.tcl"
 } else {
     puts "\nFAILED Verification Test PlanarTruss.Extra.tcl \n\n"
     puts $results "FAILED : PlanarTruss.Extra.tcl"

@@ -72,26 +72,26 @@ set testOK 0
 #          
 
 eval "set comparisonResults {$F2 $F1 $F2}"
-puts "\nElement Force Comparison:"
+puts "\n    Element Force Comparison:"
 set tol 1.0e-6
 set formatString {%10s%15s%15s}
-puts [format $formatString Element OpenSees Popov]
+puts "        [format $formatString Element OpenSees Popov]"
 set formatString {%10d%15.4f%15.4f}
 
 for {set i 1} {$i<4} {incr i 1} {
     set exactResult [lindex $comparisonResults [expr $i-1]]
     set eleForce [eleResponse $i axialForce]
-    puts [format $formatString $i $eleForce $exactResult]
+    puts "        [format $formatString $i $eleForce $exactResult]"
     if {[expr abs($eleForce-$exactResult)] > $tol} {
 	set testOK -1;
-	puts "failed force-> [expr abs($eleForce-$exactResult)] $tol"
+	puts "failed force -> [expr abs($eleForce-$exactResult)] $tol"
     }
 }
 
-puts "\nDisplacement Comparison:"
+puts "\n    Displacement Comparison:"
 set formatString {%10s%15.8f%10s%15.8f}
 set osDisp [nodeDisp 4 2]
-puts [format $formatString OpenSees: $osDisp Exact: $disp]
+puts "        [format $formatString OpenSees: $osDisp Exact: $disp]"
 if {[expr abs($osDisp-$disp)] > $tol} {
     set testOK -1;
     puts "failed linear disp"
@@ -157,27 +157,27 @@ set osDispB [nodeDisp 4 2]
 # determine PASS/FAILURE of test
 set testOK 0
 
-puts "\nDisplacement Comparison:"
-puts "elastic limit state:"
+puts "\n    Displacement Comparison:"
+puts   "        elastic limit state:"
 set formatString {%10s%15.8f%10s%15.8f}
 set osDisp [nodeDisp 4 2]
-puts [format $formatString OpenSees: $osDispA Exact: $dispA]
+puts "          [format $formatString OpenSees: $osDispA Exact: $dispA]"
 if {[expr abs($osDispA-$dispA)] > $tol} {
     set testOK -1;
     puts "failed nonlineaer elastic limit disp"
 }
-puts "collapse limit state:"
-puts [format $formatString OpenSees: $osDispB Exact: $dispB]
+puts "        collapse limit state:"
+puts "          [format $formatString OpenSees: $osDispB Exact: $dispB]"
 if {[expr abs($osDispB-$dispB)] > $tol} {
     set testOK -1;
     puts "failed nonlineaer collapse limit disp"
 }
 
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$testOK == 0} {
     puts "\nPASSED Verification Test PlanarTruss.tcl \n\n"
-    puts $results "PASSED : PlanarTruss.tcl"
+    puts $results "| PASSED |  PlanarTruss.tcl"
 } else {
     puts "\nFAILED Verification Test PlanarTruss.tcl \n\n"
     puts $results "FAILED : PlanarTruss.tcl"

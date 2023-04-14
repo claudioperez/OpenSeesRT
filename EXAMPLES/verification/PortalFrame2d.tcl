@@ -216,10 +216,10 @@ for {set i 0} {$i<3} {incr i 1} {
     }
 }
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$ok == 0} {
     puts "PASSED Verification Test PortalFrame2d.tcl \n\n"
-    puts $results "PASSED : PortalFrame2d.tcl"
+    puts $results "| PASSED |  PortalFrame2d.tcl"
 } else {
     puts "FAILED Verification Test PortalFrame2d.tcl \n\n"
     puts $results "FAILED : PortalFrame2d.tcl"
