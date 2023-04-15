@@ -13,7 +13,7 @@ set Quad  bbarQuad
 set Quad  enhancedQuad
 
 if {$Quad == "enhancedQuad" } {
-    set eleArgs "PlaneStrain2D  1"
+    set eleArgs "1 PlaneStrain2D  1"
 } 
 
 if {$Quad == "quad" } {
