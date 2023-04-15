@@ -111,10 +111,10 @@ if {[expr abs(100*($uExact-$res)/$uExact)] > $tol} {
     set testOK 0
 }
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$testOK == 0} {
     puts "\nPASSED Validation Test PinchedCylinder.tcl \n\n"
-    puts $results "PASSED : PinchedCylinder.tcl"
+    puts $results "| PASSED |  PinchedCylinder.tcl"
 } else {
     puts "\nFAILED Validation Test PinchedCylinder.tcl \n\n"
     puts $results "FAILED : PinchedCylinder.tcl"

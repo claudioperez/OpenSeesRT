@@ -204,10 +204,10 @@ foreach {algoName algoCmd} $algorithmCmds {
     incr count
 }
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$testOK == 0} {
-    puts "\nPASSED Verification Test NewmarkIntegratir.tcl \n\n"
-    puts $results "PASSED : NewmarkIntegrator.tcl"
+    puts "\nPASSED Verification Test NewmarkIntegrator.tcl \n\n"
+    puts $results "| PASSED |  NewmarkIntegrator.tcl"
 } else {
     puts "\nFAILED Verification Test NewmarkIntegrator.tcl \n\n"
     puts $results "FAILED : NewmarkIntegrator.tcl"

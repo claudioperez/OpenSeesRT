@@ -56,7 +56,7 @@ numberer RCM
 analysis Static 
 
 # create a Recorder object for the nodal displacements at node 4
-recorder Node -file Node.out disp -load -nodes 4 -dof 1 2
+recorder Node -file out/Node.out disp -load -nodes 4 -dof 1 2
 # perform the 10 analysis steps
 
 analyze 10

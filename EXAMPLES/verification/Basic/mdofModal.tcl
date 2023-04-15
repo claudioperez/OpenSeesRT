@@ -170,7 +170,7 @@ set formatString {%20s%15.5f%15.5f%10s%15.5f}
 puts [format $formatString Harmonic: $rayleighRES1 $modalRES1 Diff: $error1]
 puts [format $formatString Earthquake: $rayleighRES2 $modalRES2 Diff: $error2]
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {[expr abs($rayleighRES1-$modalRES1)] > $myTol || [expr abs($rayleighRES2-$modalRES2)] > $myTol} {
     puts $results "FAILED : mdofModal.tcl"
     puts "FAILED : mdofModal.tcl"

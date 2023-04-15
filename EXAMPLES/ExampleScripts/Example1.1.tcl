@@ -86,41 +86,41 @@ foreach eleType {truss CorotTruss} {
     # Create the constraint handler, a Plain handler is used as homo constraints
     constraints Plain
 
-# Create the integration scheme, the LoadControl scheme using steps of 1.0
-integrator LoadControl 1.0
-
-# Create the solution algorithm, a Newton algorithm is created
-algorithm Newton
-
-# create the analysis object 
-analysis Static 
-
-
-# ------------------------------
-# End of analysis generation
-# ------------------------------
-
-
-# ------------------------------
-# Start of recorder generation
-# ------------------------------
-
-# create a Recorder object for the nodal displacements at node 4
-recorder Node -file example.out -time -node 4 -dof 1 2 disp
-
-# --------------------------------
-# End of recorder generation
-# ---------------------------------
-
-# ------------------------------
-# Finally perform the analysis
-# ------------------------------
-
-# Perform the analysis
-analyze 1
-
-# Print the current state at node 4 and at all elements
-print node 4
-print ele
+    # Create the integration scheme, the LoadControl scheme using steps of 1.0
+    integrator LoadControl 1.0
+    
+    # Create the solution algorithm, a Newton algorithm is created
+    algorithm Newton
+    
+    # create the analysis object 
+    analysis Static 
+    
+    
+    # ------------------------------
+    # End of analysis generation
+    # ------------------------------
+    
+    
+    # ------------------------------
+    # Start of recorder generation
+    # ------------------------------
+    
+    # create a Recorder object for the nodal displacements at node 4
+    recorder Node -file out/example.out -time -node 4 -dof 1 2 disp
+    
+    # --------------------------------
+    # End of recorder generation
+    # ---------------------------------
+    
+    # ------------------------------
+    # Finally perform the analysis
+    # ------------------------------
+    
+    # Perform the analysis
+    analyze 1
+    
+    # Print the current state at node 4 and at all elements
+    print node 4
+    print ele
 
 }

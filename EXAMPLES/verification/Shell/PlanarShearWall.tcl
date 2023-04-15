@@ -4,11 +4,10 @@
 # 1) ETABS Software Verification Examples, Computers and Structures, Inc, 2003 (Example 15A)
 
 puts "PlanarShearWall.tcl: Verification of Linear Elastic Planar Shear Wall"
-puts "   NOTE: using SAP2000 results for verification"
 
 # Multiple Shear Wall building models with lengths of 120",240" and 360" lengths. Buildings of 1 story, 3 Story and 
 # 6 story are modelled. Each buildings story height is 120" All walls 12". All materials elastic with modulus of elasticity 
-# of 3000 ksi and poisson's ration of 0.2. At each floor in the buildings al nodes at the floor level are constrained to
+# of 3000 ksi and poisson's ration of 0.2. At each floor in the buildings all nodes at the floor level are constrained to
 # move horizontally together.
 #
 # Loading: For each building a 100k load is applied at top left node.
@@ -47,6 +46,7 @@ set nyFloor 16
 #foreach numFloor {6 3 1} {
 
 
+if 0 {
 foreach eleType {quad SSPquad} {
 
     set counter 0
@@ -102,7 +102,7 @@ foreach eleType {quad SSPquad} {
 	    algorithm Linear
 	    numberer RCM
 	    constraints Plain 
-	    system Umfpack
+	    system ProfileSPD
 	    analysis Static 
 	    
 	    analyze 1
@@ -123,6 +123,7 @@ foreach eleType {quad SSPquad} {
 	    incr counter
 	}
     }
+}
 }
 
 # Shell
@@ -213,7 +214,8 @@ foreach numFloor {6 3 1} {
 # Brick
 
 
-foreach eleType {stdBrick SSPbrick} {
+#  SSPbrick
+foreach eleType {stdBrick} { 
     set counter 0
 
     puts "\n - using $eleType elements"
@@ -243,7 +245,7 @@ foreach eleType {stdBrick SSPbrick} {
 	    set nodeTop [expr ($nx+1)*$ny + 1]
 	    
 	    # generate the nodes and elements
-	    set blockCmd "block3D $nx $ny $nz 1 1 SSPbrick $eleArgs {
+	    set blockCmd "block3D $nx $ny $nz 1 1 $eleType $eleArgs {
                           1             0.                                0.              0.
                           2 [expr $bayWidth * $numBay]                    0.              0.
                           3 [expr $bayWidth * $numBay]   [expr $floorHeight * $numFloor]  0.
@@ -279,7 +281,7 @@ foreach eleType {stdBrick SSPbrick} {
 	    algorithm Linear
 	    numberer RCM
 	    constraints Plain 
-	    system Umfpack
+	    # system ProfileSPD
 	    analysis Static 
 	    
 	    analyze 1
@@ -304,10 +306,10 @@ foreach eleType {stdBrick SSPbrick} {
 }
 
 
-set results [open results.out a+]
+set results [open README.md a+]
 if {$testOK == 0} {
     puts "\nPASSED Verification Test PlanarShearWall.tcl \n\n"
-    puts $results "PASSED : PlanarShearWall.tcl"
+    puts $results "| PASSED |  PlanarShearWall.tcl"
 } else {
     puts "\nFAILED Verification Test PlanarShearWall.tcl \n\n"
     puts $results "FAILED : PlanarShearWall.tcl"

@@ -12,12 +12,13 @@ close $results
 # source NewmarkIntegrator.tcl
 # cd ..
 
-source PlanarTruss.tcl
-source PlanarTruss.Extra.tcl
-source PortalFrame2d.tcl
-source EigenFrame.tcl
-source EigenFrame.Extra.tcl
-source AISC25.tcl
+source Truss/PlanarTruss.tcl
+source Truss/PlanarTruss.Extra.tcl
+
+source Frame/PortalFrame2d.tcl
+source Frame/EigenFrame.tcl
+source Frame/EigenFrame.Extra.tcl
+source Frame/AISC25.tcl
 
 # Shells
 source Shell/PinchedCylinder.tcl

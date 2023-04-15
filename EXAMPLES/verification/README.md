@@ -1,5 +1,5 @@
 | Status | Notes |
-|-------|------------------------------|
+|--------|------------------------------|
 | PASSED |  PlanarTruss.tcl
 | PASSED |  PlanarTruss.Extra.tcl
 | PASSED |  PortalFrame2d.tcl
@@ -14,6 +14,5 @@
 | PASSED |  EigenFrame.Extra.tcl solverType: -UmfPack
 | PASSED |  EigenFrame.Extra.tcl solverType: -SuperLU
 | PASSED |  EigenFrame.Extra.tcl solverType: -ProfileSPD
-| PASSED |  AISC25.tcl
+| PASSED |  AISC25.tcl |
 | PASSED |  PinchedCylinder.tcl
-
