@@ -83,17 +83,17 @@ void * OPS_ADD_RUNTIME_VPV(OPS_PressureDependMultiYield02)
     param[numParam+12] = 1.;
 
     int argc = OPS_GetNumRemainingInputArgs() + 2;
-    char * arg[] = {"nd", "rho", "refShearModul",
-		    "refBulkModul", "frictionAng",
-		    "peakShearStra", "refPress", "pressDependCoe",
-		    "phaseTransformAngle", "contractionParam1",
-		    "contractionParam3","dilationParam1","dilationParam3",
-		    "numberOfYieldSurf (=20)",
-		    "contractionParam2=5.0", "dilationParam2=3.0",
-		    "liquefactionParam1=1.0", "liquefactionParam2=0.0",
-		    "e (=0.6)", "volLimit1 (=0.9)", "volLimit2 (=0.02)",
-		    "volLimit3 (=0.7)", "Atmospheric pressure (=101)", "cohesi (=.1)",
-		    "Hv (=0)", "Pv (=1.)" };
+    const char * arg[] = {"nd", "rho", "refShearModul",
+		          "refBulkModul", "frictionAng",
+		          "peakShearStra", "refPress", "pressDependCoe",
+		          "phaseTransformAngle", "contractionParam1",
+		          "contractionParam3","dilationParam1","dilationParam3",
+		          "numberOfYieldSurf (=20)",
+		          "contractionParam2=5.0", "dilationParam2=3.0",
+		          "liquefactionParam1=1.0", "liquefactionParam2=0.0",
+		          "e (=0.6)", "volLimit1 (=0.9)", "volLimit2 (=0.02)",
+		          "volLimit3 (=0.7)", "Atmospheric pressure (=101)", "cohesi (=.1)",
+		          "Hv (=0)", "Pv (=1.)" };
     if (argc < (3+numParam)) {
 	opserr << "WARNING insufficient arguments\n";
 	opserr << "Want: nDMaterial PressureDependMultiYield02 tag? "<< arg[0];
@@ -1576,6 +1576,11 @@ int PressureDependMultiYield02::getResponse (int responseID, Information &matInf
 
 void PressureDependMultiYield02::Print(OPS_Stream &s, int flag )
 {
+  // TODO: impolement JSON
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "          {\"type\": \"PressureDependMultiYield02\", \"name\": " << getTag() << "}";
+    return;
+  }
   s << "PressureDependMultiYield02" << endln;
 }
 
