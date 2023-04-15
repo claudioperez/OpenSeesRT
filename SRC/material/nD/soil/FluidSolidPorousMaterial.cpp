@@ -588,7 +588,9 @@ int FluidSolidPorousMaterial::getResponse (int responseID, Information &matInfo)
 
 void FluidSolidPorousMaterial::Print(OPS_Stream &s, int flag )
 {
-	s << "FluidSolidPorousMaterial" << endln;
+  // TODO: impolement JSON
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) return;
+  s << "FluidSolidPorousMaterial" << endln;
 }
 
 

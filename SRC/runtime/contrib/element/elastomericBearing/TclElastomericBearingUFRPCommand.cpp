@@ -510,8 +510,11 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                   for (j=0; j<3; j++)  {
                       if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
                           opserr << "WARNING invalid -orient value\n";
-                          opserr << "elastomericBearingUFRP element: " << tag <<
-  endln; return TCL_ERROR; } else  { argi++; y(j) = value;
+                          opserr << "elastomericBearingUFRP element: " << tag <<  endln; 
+                          return TCL_ERROR; 
+                      } else  { 
+                        argi++; 
+                        y(j) = value;
                       }
                   }
               }
@@ -523,23 +526,28 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                   for (j=0; j<3; j++)  {
                       if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
                           opserr << "WARNING invalid -orient value\n";
-                          opserr << "elastomericBearingUFRP element: " << tag <<
-  endln; return TCL_ERROR; } else  { argi++; x(j) = value;
+                          opserr << "elastomericBearingUFRP element: " << tag <<  endln; 
+                          return TCL_ERROR; 
+                      } else  { 
+                        argi++; 
+                        x(j) = value;
                       }
                   }
                   // read the y values
                   for (j=0; j<3; j++)  {
                       if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
                           opserr << "WARNING invalid -orient value\n";
-                          opserr << "elastomericBearingUFRP element: " << tag <<
-  endln; return TCL_ERROR; } else  { argi++; y(j) = value;
+                          opserr << "elastomericBearingUFRP element: " << tag << endln; 
+                          return TCL_ERROR; 
+                      } else  {
+                        argi++; 
+                        y(j) = value;
                       }
                   }
-              }
-              else  {
-                  opserr << "WARNING insufficient arguments after -orient
-  flag\n"; opserr << "elastomericBearingUFRP element: " << tag << endln; return
-  TCL_ERROR;
+              } else  {
+                  opserr << "WARNING insufficient arguments after -orientflag\n"; 
+                  opserr << "elastomericBearingUFRP element: " << tag << endln; 
+                  return  TCL_ERROR;
               }
           }
       }

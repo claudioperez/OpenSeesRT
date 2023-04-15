@@ -32,31 +32,25 @@
 #include <FrictionModel.h>
 #include <tcl.h>
 #include <elementAPI.h>
+#include <BasicModelBuilder.h>
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                                        int cArg, int mArg, TCL_Char ** const argv,
                                        Domain *domain);
 
-extern void *OPS_Coulomb(G3_Runtime*);
-extern void *OPS_VelDependent(G3_Runtime*);
-extern void *OPS_VelDepMultiLinear(G3_Runtime*);
-extern void *OPS_VelNormalFrcDep(G3_Runtime*);
-extern void *OPS_VelPressureDep(G3_Runtime*);
-
-static void
-printCommand(int argc, TCL_Char ** const argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
+extern OPS_Routine OPS_Coulomb;
+extern OPS_Routine OPS_VelDependent;
+extern OPS_Routine OPS_VelDepMultiLinear;
+extern OPS_Routine OPS_VelNormalFrcDep;
+extern OPS_Routine OPS_VelPressureDep;
 
 int
 TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
                                     int argc, TCL_Char ** const argv,
                                     Domain *theDomain)
 {
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
+
   // make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << "WARNING insufficient number of friction model arguments\n";
@@ -71,7 +65,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
 
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "Coulomb") == 0 || strcmp(argv[1], "Constant") == 0) {
-    void *theFrn = OPS_Coulomb(rt);
+    void *theFrn = OPS_Coulomb(rt, argc, argv);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -81,7 +75,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelDependent") == 0 ||
       strcmp(argv[1], "VDependent") == 0) {
-    void *theFrn = OPS_VelDependent(rt);
+    void *theFrn = OPS_VelDependent(rt, argc, argv);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -91,7 +85,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelDepMultiLinear") == 0 ||
       strcmp(argv[1], "VDependentMultiLinear") == 0) {
-    void *theFrn = OPS_VelDepMultiLinear(rt);
+    void *theFrn = OPS_VelDepMultiLinear(rt, argc, argv);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -101,7 +95,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelNormalFrcDep") == 0 ||
       strcmp(argv[1], "VNDependent") == 0) {
-    void *theFrn = OPS_VelNormalFrcDep(rt);
+    void *theFrn = OPS_VelNormalFrcDep(rt, argc, argv);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -111,7 +105,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   // ----------------------------------------------------------------------------
   if (strcmp(argv[1], "VelPressureDep") == 0 ||
       strcmp(argv[1], "VPDependent") == 0) {
-    void *theFrn = OPS_VelPressureDep(rt);
+    void *theFrn = OPS_VelPressureDep(rt, argc, argv);
     if (theFrn != 0)
       theFrnMdl = (FrictionModel *)theFrn;
     else
@@ -125,7 +119,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   // now add the friction model to the modelBuilder
-  if (OPS_addFrictionModel(theFrnMdl) == false) {
+  if (builder->addRegistryObject("FrictionModel", theFrnMdl->getTag(), (void*)theFrnMdl) == false) {
     opserr << "WARNING could not add friction model to the domain\n";
     opserr << *theFrnMdl << endln;
     delete theFrnMdl; // invoke the destructor, otherwise mem leak

@@ -1003,6 +1003,11 @@ void PressureIndependMultiYield::getBackbone (Matrix & bb)
 
 void PressureIndependMultiYield::Print(OPS_Stream &s, int flag )
 {
+  // TODO: impolement JSON
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "          {\"type\": \"PressureIndependMultiYield\", \"loadStage\": " <<  loadStagex[matN] << "}";
+    return;
+  }
   s << "PressureIndependMultiYield - loadStage: " <<  loadStagex[matN] << endln;
 }
 
