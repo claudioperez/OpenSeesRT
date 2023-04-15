@@ -35,13 +35,13 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <RaynorBackbone.h>
 #include <string.h>
 
-extern void *OPS_ArctangentBackbone(G3_Runtime*);
-// extern void *OPS_ManderBackbone(G3_Runtime*);
-extern void *OPS_TrilinearBackbone(G3_Runtime*);
+extern OPS_Routine OPS_ArctangentBackbone;
+// extern OPS_Routine OPS_ManderBackbone;
+extern OPS_Routine OPS_TrilinearBackbone;
 HystereticBackbone*
 G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char ** const argv);
-extern void *OPS_BilinearBackbone(G3_Runtime*);
-extern void *OPS_MultilinearBackbone(G3_Runtime*);
+extern OPS_Routine OPS_BilinearBackbone;
+extern OPS_Routine OPS_MultilinearBackbone;
 
 int
 TclCommand_addHystereticBackbone(ClientData clientData,
@@ -66,7 +66,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
 
   // Check argv[1] for backbone type
   if (strcmp(argv[1], "Bilinear") == 0) {
-    void *theBB = OPS_BilinearBackbone(rt);
+    void *theBB = OPS_BilinearBackbone(rt, argc, argv);
     if (theBB != nullptr)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -74,7 +74,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Trilinear") == 0) {
-    void *theBB = OPS_TrilinearBackbone(rt);
+    void *theBB = OPS_TrilinearBackbone(rt, argc, argv);
     if (theBB != nullptr)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -82,7 +82,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Multilinear") == 0) {
-    void *theBB = OPS_MultilinearBackbone(rt);
+    void *theBB = OPS_MultilinearBackbone(rt, argc, argv);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -90,7 +90,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Arctangent") == 0) {
-    void *theBB = OPS_ArctangentBackbone(rt);
+    void *theBB = OPS_ArctangentBackbone(rt, argc, argv);
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
     else
@@ -214,7 +214,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Mander") == 0) {
-    // void *theBB = OPS_ManderBackbone(rt);
+    // void *theBB = OPS_ManderBackbone(rt, argc, argv);
     void *theBB = G3Parse_newManderBackbone(rt, argc, argv);
 
     if (theBB != 0)

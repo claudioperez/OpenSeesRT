@@ -14,10 +14,10 @@
 #include <tcl.h>
 #include <string.h>
 
-extern void *OPS_TakedaUnloadingRule(G3_Runtime*);
-extern void *OPS_EnergyUnloadingRule(G3_Runtime*);
-extern void *OPS_ConstantUnloadingRule(G3_Runtime*);
-extern void *OPS_KarsanUnloadingRule(G3_Runtime*);
+extern OPS_Routine OPS_TakedaUnloadingRule;
+extern OPS_Routine OPS_EnergyUnloadingRule;
+extern OPS_Routine OPS_ConstantUnloadingRule;
+extern OPS_Routine OPS_KarsanUnloadingRule;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -47,7 +47,7 @@ TclBasicBuilderUnloadingRuleCommand(ClientData clientData, Tcl_Interp *interp,
 
   // Check argv[1] for unloadingRule type
   if (strcmp(argv[1], "Ductility") == 0 || strcmp(argv[1], "Takeda") == 0) {
-    void *theDegr = OPS_TakedaUnloadingRule(rt);
+    void *theDegr = OPS_TakedaUnloadingRule(rt, argc, argv);
     if (theDegr != 0)
       theState = (UnloadingRule *)theDegr;
     else
@@ -55,7 +55,7 @@ TclBasicBuilderUnloadingRuleCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "Energy") == 0) {
-    void *theDegr = OPS_EnergyUnloadingRule(rt);
+    void *theDegr = OPS_EnergyUnloadingRule(rt, argc, argv);
     if (theDegr != 0)
       theState = (UnloadingRule *)theDegr;
     else
@@ -63,7 +63,7 @@ TclBasicBuilderUnloadingRuleCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "Constant") == 0) {
-    void *theDegr = OPS_ConstantUnloadingRule(rt);
+    void *theDegr = OPS_ConstantUnloadingRule(rt, argc, argv);
     if (theDegr != 0)
       theState = (UnloadingRule *)theDegr;
     else
@@ -71,7 +71,7 @@ TclBasicBuilderUnloadingRuleCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   else if (strcmp(argv[1], "Karsan") == 0) {
-    void *theDegr = OPS_KarsanUnloadingRule(rt);
+    void *theDegr = OPS_KarsanUnloadingRule(rt, argc, argv);
     if (theDegr != 0)
       theState = (UnloadingRule *)theDegr;
     else

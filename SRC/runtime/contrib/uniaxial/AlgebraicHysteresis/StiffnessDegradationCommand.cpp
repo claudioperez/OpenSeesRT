@@ -17,10 +17,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 #include <string.h>
 
-extern void *OPS_DuctilityStiffnessDegradation(G3_Runtime*);
-extern void *OPS_EnergyStiffnessDegradation(G3_Runtime*);
-extern void *OPS_ConstantStiffnessDegradation(G3_Runtime*);
-extern void *OPS_PincheiraStiffnessDegradation(G3_Runtime*);
+extern OPS_Routine OPS_DuctilityStiffnessDegradation;
+extern OPS_Routine OPS_EnergyStiffnessDegradation;
+extern OPS_Routine OPS_ConstantStiffnessDegradation;
+extern OPS_Routine OPS_PincheiraStiffnessDegradation;
 
 #include <elementAPI.h>
 #include <packages.h>
@@ -47,7 +47,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
 
   // Check argv[1] for stiffnessDegradation type
   if (strcmp(argv[1], "Ductility") == 0) {
-    void *theDegr = OPS_DuctilityStiffnessDegradation(rt);
+    void *theDegr = OPS_DuctilityStiffnessDegradation(rt, argc, argv);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
@@ -55,7 +55,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Energy") == 0) {
-    void *theDegr = OPS_EnergyStiffnessDegradation(rt);
+    void *theDegr = OPS_EnergyStiffnessDegradation(rt, argc, argv);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
@@ -63,7 +63,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Constant") == 0) {
-    void *theDegr = OPS_ConstantStiffnessDegradation(rt);
+    void *theDegr = OPS_ConstantStiffnessDegradation(rt, argc, argv);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
@@ -71,7 +71,7 @@ TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
   }
 
   else if (strcmp(argv[1], "Pincheira") == 0) {
-    void *theDegr = OPS_PincheiraStiffnessDegradation(rt);
+    void *theDegr = OPS_PincheiraStiffnessDegradation(rt, argc, argv);
     if (theDegr != 0)
       theState = (StiffnessDegradation *)theDegr;
     else
