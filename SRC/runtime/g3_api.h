@@ -42,6 +42,13 @@
 #  undef  OPS_GetCrdTransf
 #  define OPS_GetCrdTransf(tag) G3_getCrdTransf(rt, (tag))
 
+// Section
+SectionForceDeformation *G3_getSectionForceDeformation(G3_Runtime *, int);
+#  undef  OPS_getSectionForceDeformation
+#  define OPS_getSectionForceDeformation(tag) G3_getSectionForceDeformation(rt, (tag))
+#  undef  OPS_GetSectionForceDeformation
+#  define OPS_GetSectionForceDeformation(tag) G3_getSectionForceDeformation(rt, (tag))
+
 
 typedef int G3_Tag;
 #  define G3_Char TCL_Char
@@ -100,6 +107,7 @@ int G3_addUniaxialMaterial(G3_Runtime *, UniaxialMaterial *);
 // Coordinate Transforms
 CrdTransf *G3_getCrdTransf(G3_Runtime *, G3_Tag);
 
+
 // Systems and Solvers
 LinearSOE **G3_getLinearSoePtr(G3_Runtime* );
 
@@ -112,8 +120,8 @@ TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
 int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
 // Analysis
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
-StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
-int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
+// StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
+// int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
 // int G3_delStaticAnalysis(G3_Runtime *);
 StaticIntegrator *G3_getStaticIntegrator(G3_Runtime *);
 int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);

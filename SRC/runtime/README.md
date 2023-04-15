@@ -66,6 +66,10 @@ changes from the classic `OpenSees` interpreter:
   - `utility/SimulationInformation.*`
   - `utility/StringContainer.*`
 
+## Proposed changes
+
+- remove `sdfResponse` command; see `sdof` python package.
+- remove `database` command.
 
 ## Codebase changes
 

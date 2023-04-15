@@ -2,8 +2,6 @@
 #include <g3_api.h>
 #include <InputAPI.h>
 #include <G3_Logging.h>
-// #include <G3_Runtime.h>
-// #include <SRC/analysis/integrator/Newmark.h>
 #include <Newmark.h>
 
 TransientIntegrator*

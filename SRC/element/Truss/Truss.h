@@ -58,6 +58,7 @@ class Truss : public Element
     ~Truss();
 
     const char *getClassType(void) const {return "Truss";};
+    static constexpr const char* class_name = "Truss";
 
     // public methods to obtain information about dof & connectivity    
     int getNumExternalNodes(void) const;

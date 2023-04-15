@@ -374,6 +374,8 @@ TclBasicBuilder::addSection(SectionForceDeformation &theSection)
   }
 }
 
+#undef OPS_getSectionForceDeformation
+extern SectionForceDeformation* OPS_getSectionForceDeformation(int);
 SectionForceDeformation *
 TclBasicBuilder::getSection(int tag)
 {

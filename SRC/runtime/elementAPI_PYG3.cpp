@@ -4,6 +4,7 @@
 ** ****************************************************************** */
 //
 //
+#include <assert.h>
 #include <elementAPI.h>
 #include <stdlib.h>
 #include <packages.h>
@@ -13,8 +14,6 @@
 #include <g3_api.h>
 #include <G3_Runtime.h>
 #include <G3_Logging.h>
-
-#include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <UniaxialMaterial.h>
@@ -158,6 +157,25 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
   return 0;
 }
 
+
+#if 0
+extern "C" int
+G3_GetIntInput(Tcl_Interp* interp, const char**const argv, int* argc, int *numData, int *data)
+{
+  int size = *numData;
+
+  for (int i = 0; i < size; i++) {
+    if ((currentArg >= maxArg) || (Tcl_GetInt(theInterp, argv[argc], &data[i]) != TCL_OK)) {
+      // opserr << "OPS_GetIntInput -- error reading " << currentArg << endln;
+      return -1;
+    } else
+      currentArg++;
+  }
+
+  return 0;
+}
+#endif
+
 extern "C" int
 OPS_GetIntInput(int *numData, int *data)
 {
@@ -272,7 +290,6 @@ G3_getSafeBuilder(G3_Runtime *rt)
 int
 G3_setDomain(G3_Runtime *rt, Domain* domain){
   int exists = rt->m_domain ? 1 : 0;
-  // Domain *old = rt->m_domain;
   rt->m_domain = domain;
   return exists;
 }
@@ -320,13 +337,6 @@ OPS_InvokeMaterialDirectly2(matObject *theMat, modelState *model,
   return error;
 }
 
-#if !defined(OPS_USE_RUNTIME)
-UniaxialMaterial *
-OPS_GetUniaxialMaterial(int matTag)
-{
-  return OPS_getUniaxialMaterial(matTag);
-}
-#endif
 
 CrdTransf *
 G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
@@ -336,6 +346,22 @@ G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
     return nullptr;
   }
   return builder->getCrdTransf(tag);
+}
+
+#if 0
+SectionForceDeformation *
+OPS_GetSectionForceDeformation(int secTag)
+{
+  return OPS_getSectionForceDeformation(secTag);
+}
+#endif
+
+SectionForceDeformation*
+G3_getSectionForceDeformation(G3_Runtime* rt, int tag)
+{
+  BasicModelBuilder* builder = G3_getSafeBuilder(rt);
+  assert(builder);
+  return builder->getSection(tag);
 }
 
 UniaxialMaterial *
@@ -374,11 +400,6 @@ OPS_GetNDMaterial(int matTag)
   return OPS_getNDMaterial(matTag);
 }
 
-SectionForceDeformation *
-OPS_GetSectionForceDeformation(int secTag)
-{
-  return OPS_getSectionForceDeformation(secTag);
-}
 
 FrictionModel *
 OPS_GetFrictionModel(int frnTag) {return OPS_getFrictionModel(frnTag);}
@@ -390,7 +411,7 @@ int
 G3_getNDM(G3_Runtime *rt)
 {
   BasicModelBuilder *builder;
-  if (builder = G3_getSafeBuilder(rt))
+  if ((builder = G3_getSafeBuilder(rt)))
     return builder->getNDM();
   else
     return -1;
@@ -411,26 +432,6 @@ G3_getLinearSoePtr(G3_Runtime* rt) {
 
 AnalysisModel **
 G3_getAnalysisModelPtr(G3_Runtime *rt){return rt->m_analysis_model_ptr;}
-
-
-StaticAnalysis *
-G3_getStaticAnalysis(G3_Runtime *rt)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  StaticAnalysis *analysis =
-      (StaticAnalysis *)Tcl_GetAssocData(interp, "OPS::theStaticAnalysis", nullptr);
-  return analysis;
-}
-
-
-int
-G3_setStaticAnalysis(G3_Runtime *rt, StaticAnalysis *the_analysis)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  Tcl_SetAssocData(interp, "OPS::theStaticAnalysis", nullptr, (ClientData)the_analysis);
-  return 1;
-}
-
 
 StaticIntegrator *
 G3_getStaticIntegrator(G3_Runtime *rt)
@@ -469,6 +470,12 @@ StaticAnalysis **
 OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
 
 #if 0 && !defined(OPS_USE_RUNTIME)
+UniaxialMaterial *
+OPS_GetUniaxialMaterial(int matTag)
+{
+  return OPS_getUniaxialMaterial(matTag);
+}
+
 Domain *
 OPS_GetDomain(void) {return theDomain;}
 

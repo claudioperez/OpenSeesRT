@@ -6,19 +6,15 @@
 // Written: Minjie Zhu, Claudio Perez
 //
 #include "BasicAnalysisBuilder.h"
-#include <elementAPI.h>
 #include <Domain.h>
 #include <string>
 #include <assert.h>
 
 #include <G3_Logging.h>
 
-// #include <iostream>
-#include <ID.h>
 #include <Element.h>
 #include <ElementIter.h>
 #include <Node.h>
-#include <NodeIter.h>
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 

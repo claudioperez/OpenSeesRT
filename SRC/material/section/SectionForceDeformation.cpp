@@ -60,9 +60,11 @@ bool OPS_removeSectionForceDeformation(int tag)
     return false;
 }
 
+#undef OPS_getSectionForceDeformation
 SectionForceDeformation *OPS_getSectionForceDeformation(int tag) {
 
   TaggedObject *theResult = theSectionForceDeformationObjects.getComponentPtr(tag);
+
   if (theResult == 0) {
     opserr << "SectionForceDeformation *getSectionForceDeformation(int tag) - none found with tag: " << tag << endln;
     return 0;
