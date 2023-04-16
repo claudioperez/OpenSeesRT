@@ -2,7 +2,7 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-
+//
 // Description: This file contains the class definition for
 // BasicModelBuilder. A BasicModelBuilder aims to be a threadsafe
 // alternative to the TclBasicBuilder class. This class adds the commands to
@@ -11,7 +11,7 @@
 //
 // Written: cmp
 // Created: 10/21
-
+//
 #ifndef TCLSAFEBUILDER_H
 #define TCLSAFEBUILDER_H
 

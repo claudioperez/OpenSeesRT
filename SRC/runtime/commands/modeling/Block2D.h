@@ -1,6 +1,3 @@
-#ifndef Block2D_h
-#define Block2D_h
-
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
@@ -20,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:01:47 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/Block2D.h,v $
-                                                                        
+//
+// Description: This file contains the implementation of Block2D.
 // Written: Ed Love
 // Created: 07/01
 //
-// Description: This file contains the implementation of Block2D.
-
-//
-// What: "@(#) Block2D.h, revA"
+#ifndef Block2D_h
+#define Block2D_h
 
 #include <math.h>
 #include <Vector.h>

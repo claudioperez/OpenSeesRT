@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.72 $
-// $Date: 2010-09-16 00:04:05 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/uniaxial/TclBasicBuilderUniaxialMaterialCommand.cpp,v
-// $
-
-// Written: fmk, MHS
-// Created: 07/99
 //
 // Description: This file contains the function invoked when the user invokes
 // the uniaxialMaterial command in the interpreter.
 //
-// What: "@(#) TclBasicBuilderUniaxialMaterialCommand.C, revA"
-
+// Written: fmk, MHS
+// Created: 07/99
+//
+//
 #include <runtime/BasicModelBuilder.h>
 #include <unordered_map> // std::unordered_map
 #include <g3_api.h>

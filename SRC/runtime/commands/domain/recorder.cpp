@@ -1947,23 +1947,19 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** 
   TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder);
 
   if (theRecorder == nullptr) {
-    char buffer[] = "-1";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(-1));
     return TCL_ERROR;
   }
 
   if ((domain->addRecorder(*theRecorder)) < 0) {
     opserr << "WARNING could not add to domain - recorder " << argv[1] << endln;
     delete theRecorder;
-    char buffer[] = "-1";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(-1));
     return TCL_ERROR;
   }
 
   int recorderTag = theRecorder->getTag();
-  char buffer[30];
-  sprintf(buffer, "%d", recorderTag);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(recorderTag));
   return TCL_OK;
 }
 
@@ -2004,10 +2000,7 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   int recorderTag = theRecorder->getTag();
-  char buffer[30];
-  sprintf(buffer, "%d", recorderTag);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(recorderTag));
   return TCL_OK;
 }
 
@@ -2016,7 +2009,6 @@ int
 OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char ** const argv)
 {
-  // G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = (Domain*)clientData;
 
   // clmnID starts from 1
@@ -2059,11 +2051,11 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   Recorder *theRecorder = domain->getRecorder(tag);
   double res = theRecorder->getRecordedValue(dof, rowOffset, reset);
+
   // now we copy the value to the tcl string that is returned
   char buffer[40];
   sprintf(buffer, "%35.8f", res);
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
   return TCL_OK;
 }
 

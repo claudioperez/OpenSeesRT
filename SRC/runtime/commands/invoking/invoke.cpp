@@ -39,9 +39,7 @@ TclCommand_invoke(ClientData clientData, Tcl_Interp* interp, int argc, char cons
     return (*tcl_cmd->second)(clientData, interp, argc, &argv[0]);
 
   } else {
-
     return TCL_ERROR;
-
   }
 
   return TCL_OK;

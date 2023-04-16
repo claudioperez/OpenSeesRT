@@ -238,10 +238,7 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   double factor = the_pattern->getLoadFactor();
-
-  char buffer[40];
-  sprintf(buffer, "%35.20f", factor);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(factor));
 
   return TCL_OK;
 }
@@ -260,7 +257,6 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   else
     return TCL_ERROR;
 }
-
 
 
 int
@@ -313,13 +309,7 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const a
       if (size < dof)
         return TCL_ERROR;
 
-      double value = (*force)(dof);
-
-      // now we copy the value to the tcl string that is returned
-
-      char buffer[40];
-      sprintf(buffer, "%35.20f", value);
-      Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+      Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*force)(dof)));
 
     } else {
       char buffer[40];
@@ -378,11 +368,7 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const
         return TCL_ERROR;
 
       double value = (*force)(dof);
-
-      // copy the value to the Tcl string that is returned
-      char buffer[40];
-      sprintf(buffer, "%35.20f", value);
-      Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+      Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
 
     } else {
       char buffer[40];
@@ -437,11 +423,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
 
     double value = force(dof);
-
-    // now we copy the value to the tcl string that is returned
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
 
   } else {
     char buffer[40];
@@ -542,10 +524,8 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
     return TCL_OK;
 
   } else if (dim < size) {
-    double value = coords(dim); // -1 for OpenSees vs C indexing
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
+    double value = coords(dim);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
     return TCL_OK;
   }
 
@@ -713,15 +693,16 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
     return TCL_ERROR;
   }
 
-  char buffer[80];
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
     opserr << G3_ERROR_PROMPT << "eleType ele " << tag << " not found" << endln;
     return TCL_ERROR;
   }
   const char *type = theElement->getClassType();
-  sprintf(buffer, "%s", type);
-  Tcl_AppendResult(interp, buffer, NULL);
+
+  // char buffer[80];
+  // sprintf(buffer, "%s", type);
+  Tcl_AppendResult(interp, type, NULL);
 
   return TCL_OK;
 }
@@ -764,7 +745,6 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
 int
 nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-  char buffer[40];
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
@@ -774,7 +754,6 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
   }
 
   int tag;
-
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "nodeMass nodeTag? nodeDOF? \n";
     return TCL_ERROR;
@@ -786,13 +765,15 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
     opserr << G3_ERROR_PROMPT << "nodeDOFs node " << tag << " not found" << endln;
     return TCL_ERROR;
   }
-  int numDOF = theNode->getNumberDOF();
 
+  int numDOF = theNode->getNumberDOF();
   DOF_Group *theDOFgroup = theNode->getDOF_GroupPtr();
   if (theDOFgroup == nullptr) {
     opserr << G3_ERROR_PROMPT << "nodeDOFs DOF group null" << endln;
     return -1;
   }
+
+  char buffer[40];
   const ID &eqnNumbers = theDOFgroup->getID();
   for (int i = 0; i < numDOF; i++) {
     sprintf(buffer, "%d ", eqnNumbers(i));
@@ -863,8 +844,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -872,11 +852,7 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   Information &info = theResponse->getInformation();
 
   const Vector &theVec = *(info.theVector);
-
-  char buffer[40];
-  sprintf(buffer, "%12.8g", theVec(dof - 1));
-
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(theVec(dof-1)));
 
   delete theResponse;
 
@@ -895,13 +871,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
-
   int tag, secNum, dof;
-
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "sectionDeformation eleTag? secNum? dof? - could not "
               "read eleTag? \n";
@@ -939,8 +909,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -949,10 +918,7 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
 
   const Vector &theVec = *(info.theVector);
 
-  char buffer[40];
-  sprintf(buffer, "%12.8g", theVec(dof - 1));
-
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(theVec(dof-1)));
 
   delete theResponse;
 
@@ -971,13 +937,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  // opserr << "sectionDeformation: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
-
   int tag, secNum;
-
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "sectionLocation eleTag? secNum? - could not read "
               "eleTag? \n";
@@ -1005,8 +965,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1066,8 +1025,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1078,7 +1036,6 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
 
   char buffer[40];
   sprintf(buffer, "%12.8g", theVec(secNum - 1));
-
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
 
   delete theResponse;
@@ -1132,8 +1089,7 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1202,8 +1158,7 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1267,8 +1222,7 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1308,8 +1262,8 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
   }
   /*
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum?
-  \n"; return TCL_ERROR;
+    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum \n";
+    return TCL_ERROR;
   }
   */
 
@@ -1329,8 +1283,7 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1371,8 +1324,8 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   /*
   if (Tcl_GetInt(interp, argv[2], &secNum) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum?
-  \n"; return TCL_ERROR;
+    opserr << G3_ERROR_PROMPT << "basicDeformation eleTag? dofNum? - could not read dofNum?\n";
+    return TCL_ERROR;
   }
   */
 
@@ -1392,8 +1345,7 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
 
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
-    char buffer[] = "0.0";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
     return TCL_OK;
   }
 
@@ -1567,10 +1519,11 @@ getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  char buffer[20];
-
-  sprintf(buffer, "%d ", the_domain->getNumElements());
-  Tcl_AppendResult(interp, buffer, NULL);
+  // char buffer[20];
+  // sprintf(buffer, "%d ", the_domain->getNumElements());
+  // Tcl_AppendResult(interp, buffer, NULL);
+  
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(the_domain->getNumElements()));
 
   return TCL_OK;
 }
@@ -1603,7 +1556,6 @@ getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
     Element *theEle = the_domain->getElement(eleTag);
 
     char buffer[20];
-
     sprintf(buffer, "%d ", theEle->getClassTag());
     Tcl_AppendResult(interp, buffer, NULL);
 

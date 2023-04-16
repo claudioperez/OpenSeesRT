@@ -17,19 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2004-06-07 23:36:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/Block3D.cpp,v $
-                                                                        
+//
 // Written: Ed Love
 // Created: 07/01
 //
 // Description: This file contains the implementation of Block3D.
-
 //
-// What: "@(#) Block3D.cpp, revA"
-
 #include <Block3D.h>
 
 

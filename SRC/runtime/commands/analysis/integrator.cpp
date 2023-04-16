@@ -340,7 +340,6 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 StaticIntegrator*
 G3Parse_newHSIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
-    // Tcl_Interp  *interp = G3_getInterpreter(rt);
     double arcLength, psi_u, psi_f, u_ref;
 
     if (argc < 3) {
@@ -489,8 +488,8 @@ G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp,
 StaticIntegrator*
 G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-    G3_Runtime* rt = G3_getRuntime(interp);
-    Domain *domain = G3_getDomain(rt);
+    BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+    Domain *domain = builder->getDomain();
 
     int node, dof, numIter;
     double increment, minIncr, maxIncr;
