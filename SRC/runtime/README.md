@@ -68,7 +68,7 @@ changes from the classic `OpenSees` interpreter:
 
 ## Proposed changes
 
-- remove `sdfResponse` command; see `sdof` python package.
+- remove `sdfResponse` command; see [`sdof`](https://pypi.org/project/sdof) python package.
 - remove `database` command.
 
 ## Codebase changes
