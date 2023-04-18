@@ -17,24 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-05-03 23:03:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/PlateFiberMaterial.cpp,v $
-
-//
-// Ed "C++" Love
 //
 // Generic Plate Fiber Material
 //
-
-
+// Ed "C++" Love
+// $Date: 2007-05-03 23:03:26 $
+//
 #include <PlateFiberMaterial.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
 
-//static vector and matrices
+// static vector and matrices
 Vector  PlateFiberMaterial::stress(5);
 Matrix  PlateFiberMaterial::tangent(5,5);
 
@@ -42,6 +36,7 @@ Matrix  PlateFiberMaterial::tangent(5,5);
 // ND: 11 22 33 12 23 31
 // PF: 11 22 12 23 31 33
 
+NDMaterial *G3_GetNDMaterial(G3_Runtime* rt, int matTag);
 void * OPS_ADD_RUNTIME_VPV(OPS_PlateFiberMaterial)
 {
     int numdata = OPS_GetNumRemainingInputArgs();
@@ -58,8 +53,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_PlateFiberMaterial)
 	return 0;
     }
 
-    NDMaterial *threeDMaterial = OPS_getNDMaterial(tag[1]);
-    if (threeDMaterial == 0) {
+    NDMaterial *threeDMaterial = G3_GetNDMaterial(rt, tag[1]);
+
+    if (threeDMaterial == nullptr) {
 	opserr << "WARNING nD material does not exist\n";
 	opserr << "nD material: " << tag[1];
 	opserr << "\nPlateFiber nDMaterial: " << tag[0] << endln;
@@ -68,7 +64,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_PlateFiberMaterial)
       
     NDMaterial* mat = new PlateFiberMaterial( tag[0], *threeDMaterial );
 
-    if (mat == 0) {
+    if (mat == nullptr) {
 	opserr << "WARNING: failed to create PlaneStrain material\n";
 	return 0;
     }
@@ -453,6 +449,14 @@ PlateFiberMaterial::getInitialTangent()
 void  
 PlateFiberMaterial::Print(OPS_Stream &s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << "\t\t\t{";
+      s << "\"name\": \"" << this->getTag() << "\", ";
+      s << "\"type\": \"PlateFiberMaterial\", ";
+      s << "\"material\": " << theMaterial->getTag();
+      s << "}";
+      return;
+  }
   s << "General Plate Fiber Material \n";
   s << " Tag: " << this->getTag() << "\n"; 
   s << "using the 3D material : \n";
