@@ -25,10 +25,6 @@
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
-// extern AnalysisModel             *theAnalysisModel;
-// extern ConstraintHandler         *theHandler;
-// extern DOF_Numberer              *theGlobalNumberer;
-// extern ConvergenceTest           *theTest;
 extern EquiSolnAlgo              *theAlgorithm;
 extern LinearSOE                 *theSOE;
 extern EigenSOE                  *theEigenSOE;
