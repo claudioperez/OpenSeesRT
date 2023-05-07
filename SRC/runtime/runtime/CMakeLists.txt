@@ -5,7 +5,7 @@
 #
 #=====================================================================
 
-target_sources(OpenSeesRT
+target_sources(OPS_Runtime
     PRIVATE
       TclPackageClassBroker.cpp
       # Model Builders
@@ -23,5 +23,5 @@ target_sources(OpenSeesRT
 add_subdirectory(Logging)
 add_subdirectory(Storage)
 
-target_link_libraries(OpenSeesRT PRIVATE G3_Table)
+target_link_libraries(OPS_Runtime PRIVATE G3_Table)
 

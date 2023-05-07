@@ -13,7 +13,7 @@ extern "C" {
 }
 
 
-int                    Tcl_AppInit _ANSI_ARGS_((Tcl_Interp *interp));
+int Tcl_AppInit _ANSI_ARGS_((Tcl_Interp *interp));
 
 # undef TCL_STORAGE_CLASS
 # define TCL_STORAGE_CLASS DLLEXPORT
@@ -113,10 +113,8 @@ char *TclGetStartupScriptFileName()
  *----------------------------------------------------------------------
  */
 
-bool OPS_suppressOpenSeesOutput = false;
-bool OPS_showHeader = true;
-
-// Tcl_AppInitProc * appInitProc;
+static bool OPS_suppressOpenSeesOutput = false;
+static bool OPS_showHeader = true;
 
 int
 main(int argc, char **argv)
@@ -141,7 +139,7 @@ main(int argc, char **argv)
         fprintf(stderr,"                 Pacific Earthquake Engineering Research Center\n");
         // fprintf(stderr,"                        Version %s %s\n\n", OPS_VERSION, WIN_ARCH);
         
-        fprintf(stderr,"      (c) Copyright 1999-2016 The Regents of the University of California\n");
+        fprintf(stderr,"      (c) Copyright 1999-2023 The Regents of the University of California\n");
         fprintf(stderr,"                              All Rights Reserved\n");
         fprintf(stderr,"  (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)\n\n\n");
     }
@@ -315,7 +313,7 @@ main(int argc, char **argv)
           //   gotPartial = 1;
           //   continue;
           // }
-          
+
           gotPartial = 0;
           code = Tcl_RecordAndEvalObj(interp, commandPtr, 0);
           inChannel = Tcl_GetStdChannel(TCL_STDIN);
@@ -347,26 +345,20 @@ main(int argc, char **argv)
       }
 
  done:
-    
+
     if (commandPtr != NULL) {
       Tcl_DecrRefCount(commandPtr);
     }
-    
-    
-#ifdef _PARALLEL_PROCESSING
+
+#if defined(_PARALLEL_PROCESSING) || defined( _PARALLEL_INTERPRETERS)
     return;
 #endif
-    
-#ifdef _PARALLEL_INTERPRETERS
-    return;
-#endif
-    
+
     /*
      * Rather than calling exit, invoke the "exit" command so that
      * users can replace "exit" with some other command to do additional
      * cleanup on exit.  The Tcl_Eval call should never return.
      */
-
     Tcl_Eval(interp, buffer);
 
     Tcl_Eval(interp, "quit"); 

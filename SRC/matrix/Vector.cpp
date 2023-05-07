@@ -117,7 +117,7 @@ Vector::Vector(const Vector &other)
 
 // Vector(const Vector&):
 //  Move constructor
-#ifdef USE_CXX11   
+#if !defined(NO_CXX11_MOVE)   
 Vector::Vector(Vector &&other)
 : sz(other.sz),theData(other.theData),fromFree(0)
 {
@@ -758,7 +758,7 @@ Vector::operator=(const Vector &V)
 }
 
 // Move assignment operator.  
-#ifdef USE_CXX11   
+#if !defined(NO_CXX11_MOVE)   
 Vector &
 Vector::operator=(Vector &&V) 
 {

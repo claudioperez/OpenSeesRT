@@ -6,17 +6,13 @@ cmake_minimum_required(VERSION 3.16)
 
 add_library(OpenSeesRT SHARED)
 
-add_executable(OpenSeesRT_Standalone tclMain.cpp)
-target_link_libraries(OpenSeesRT_Standalone PRIVATE OpenSeesRT )# ${TCL_LIBRARY})
-target_compile_definitions(OpenSeesRT_Standalone PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
-
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
 set_property(TARGET OpenSeesRT            PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET OPS_Runtime           PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_Material_Uniaxial_Drain_f  PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 
-
-target_include_directories(OpenSeesRT PUBLIC 
+target_include_directories(OPS_Runtime PUBLIC 
   ./api/
   ${OPS_SRC_DIR}/runtime/commands
   ${OPS_SRC_DIR}/runtime/commands/modeling
@@ -25,6 +21,7 @@ target_include_directories(OpenSeesRT PUBLIC
   ${OPS_SRC_DIR}/runtime/runtime/
   ${OPS_SRC_DIR}/runtime/runtime/Logging/
 )
+target_link_libraries(OPS_Runtime PRIVATE G3)
 
 add_subdirectory(commands/)
 add_subdirectory(runtime/)
@@ -32,6 +29,9 @@ add_subdirectory(runtime/)
 target_sources(OpenSeesRT PRIVATE
 # General
     "OpenSeesRT.cpp"
+)
+
+target_sources(OPS_Runtime PRIVATE
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/packages/optimization/TclParameterCommands.cpp"
@@ -62,7 +62,8 @@ endif()
 add_subdirectory(contrib/)
 
 if (${TCL_INCLUDE_PATH})
-  target_include_directories(OpenSeesRT PUBLIC ${TCL_INCLUDE_PATH})
+  target_include_directories(OpenSeesRT  PUBLIC ${TCL_INCLUDE_PATH})
+  target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
@@ -73,11 +74,10 @@ if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()
 
-
 target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
 
 target_link_libraries(OpenSeesRT PRIVATE
   # OpenSeesRT_LinearSystem
-  G3 ${TCL_STUB_LIBRARY}
+  OPS_Runtime ${TCL_STUB_LIBRARY}
 )
 

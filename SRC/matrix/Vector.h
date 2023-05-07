@@ -47,7 +47,7 @@ class Vector
     Vector();
     Vector(int);
     Vector(const Vector &);    
-#ifdef USE_CXX11   
+#if !defined(NO_CXX11_MOVE)   
     Vector(Vector &&);    
 #endif
 
@@ -75,7 +75,7 @@ class Vector
     double &operator[](int x);
     Vector operator()(const ID &rows) const;
     Vector &operator=(const Vector  &V);
-#ifdef USE_CXX11   
+#if !defined(NO_CXX11_MOVE)   
     Vector &operator=(Vector  &&V);
 #endif
     Vector &operator+=(double fact);

@@ -111,11 +111,11 @@ private:
     enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
     Domain                    *theDomain;
     ConstraintHandler 	      *theHandler;
-    DOF_Numberer 	            *theNumberer;
-    AnalysisModel 	          *theAnalysisModel;
-    EquiSolnAlgo 	            *theAlgorithm;
-    LinearSOE 		            *theSOE;
-    EigenSOE 		              *theEigenSOE;
+    DOF_Numberer 	      *theNumberer;
+    AnalysisModel 	      *theAnalysisModel;
+    EquiSolnAlgo 	      *theAlgorithm;
+    LinearSOE 		      *theSOE;
+    EigenSOE 		      *theEigenSOE;
     StaticIntegrator          *theStaticIntegrator;
     TransientIntegrator       *theTransientIntegrator;
     ConvergenceTest           *theTest;
@@ -124,7 +124,6 @@ private:
     VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 
     int numEigen;
-
 };
 
 #endif

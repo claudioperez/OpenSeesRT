@@ -53,7 +53,7 @@ class Matrix
     Matrix(int nrows, int ncols);
     Matrix(double *data, int nrows, int ncols);    
     Matrix(const Matrix &M);    
-#ifdef USE_CXX11
+#if !defined(NO_CXX11_MOVE)
     Matrix( Matrix &&M);    
 #endif
     ~Matrix();
@@ -87,7 +87,7 @@ class Matrix
     
     Matrix &operator=(const Matrix &M);
 
-#ifdef USE_CXX11
+#if !defined(NO_CXX11_MOVE)
     Matrix &operator=(Matrix &&M);
 #endif
     

@@ -180,7 +180,7 @@ Matrix::Matrix(const Matrix &other)
 }
 
 // Move ctor
-#ifdef USE_CXX11
+#if !defined(NO_CXX11_MOVE)
 Matrix::Matrix(Matrix &&other)
 :numRows(other.numRows), numCols(other.numCols), dataSize(other.dataSize), data(other.data), fromFree(other.fromFree)
 {
@@ -1205,7 +1205,7 @@ Matrix::operator=(const Matrix &other)
 
 // Move assignment
 //
-#ifdef USE_CXX11
+#if !defined(NO_CXX11_MOVE)
 Matrix &
 Matrix::operator=( Matrix &&other)
 {

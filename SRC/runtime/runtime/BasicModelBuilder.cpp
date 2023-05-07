@@ -8,6 +8,11 @@
 // models that can be generated using the elements released with the g3
 // framework.
 //
+// TODO:
+// - Remove all *Map.at
+//   - return from registry
+//   - handle find failures consistently
+//
 // Written: cmp
 //
 #include <assert.h>
@@ -23,13 +28,9 @@
 
 #include <Domain.h>
 
-#include <RigidRod.h>
-
 #include <CrdTransf.h>
-
 #include <SectionForceDeformation.h>
 #include <SectionRepres.h>
-
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <runtime/BasicModelBuilder.h>
@@ -66,6 +67,7 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
   m_runtime = G3_getRuntime(interp);
   registry  = G3_NewTable();
 
+
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
   G3_setDomain(m_runtime, &theDomain);
@@ -85,10 +87,6 @@ BasicModelBuilder::~BasicModelBuilder()
   // OPS_clearAllFrictionModel();
   // OPS_clearAllLimitCurve();
   // OPS_clearAllDamageModel();
-  // theYieldSurface_BCs->clearAll();
-  // theYS_EvolutionModels->clearAll();
-  // thePlasticMaterials->clearAll();
-  // theCycModels->clearAll(); //!!
 
 /*
   theSections->clearAll();
@@ -235,8 +233,6 @@ BasicModelBuilder::addSection(SectionForceDeformation &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
   return addSection(name, instance);
-  // m_SectionForceDeformationMap[name] = &instance;
-  // return 1;
 }
 
 //
@@ -283,8 +279,7 @@ BasicModelBuilder::addSectionRepres(SectionRepres &instance)
 // NDMaterial Operations
 //
 
-// Retrieve a NDMaterial instance from the model
-// runtime
+// Retrieve a NDMaterial instance from the model runtime
 NDMaterial*
 BasicModelBuilder::getNDMaterial(const std::string &name)
 {
@@ -433,9 +428,6 @@ BasicModelBuilder::addCrdTransf(CrdTransf *instance)
   return this->addCrdTransf(name, instance);
 }
 
-//
-// TODO MOVE EVERYTHING BELOW OUT OF FILE
-//
 
 #if 0
 int
@@ -463,42 +455,6 @@ TclCommand_UpdateMaterialStage(ClientData clientData,
   return BasicModelBuilderUpdateMaterialStageCommand(clientData, interp,
                                                    argc, argv, theTclBuilder,
 theTclDomain);
-}
-
-/// added by ZHY
-extern int
-TclCommand_UpdateMaterialsCommand(ClientData clientData,
-                                  Tcl_Interp *interp,
-                                  int argc,
-                                  TCL_Char **argv,
-                                  BasicModelBuilder *theTclBuilder,
-                                  Domain *theDomain);
-static int
-TclCommand_UpdateMaterials(ClientData clientData,
-                           Tcl_Interp *interp,
-                           int argc,
-                           TCL_Char **argv)
-{
-  BasicModelBuilder *theTclBuilder =
-      (BasicModelBuilder *)Tcl_GetAssocData(interp, "OPS::theTclBuilder", NULL);
-  return TclCommand_UpdateMaterialsCommand(clientData, interp,
-                                           argc, argv, theTclBuilder, theTclDomain);
-}
-
-/// added by ZHY
-extern int
-BasicModelBuilderUpdateParameterCommand(ClientData clientData,
-                                          Tcl_Interp *interp,
-                                          int argc,
-                                          TCL_Char **argv,
-                                          BasicModelBuilder *theTclBuilder); 
-int TclCommand_UpdateParameter(ClientData clientData,
-                                    Tcl_Interp *interp,
-                                    int argc,
-                                    TCL_Char **argv)
-{
-  return BasicModelBuilderUpdateParameterCommand(clientData, interp,
-                                       argc, argv, theTclBuilder);
 }
 #endif
 

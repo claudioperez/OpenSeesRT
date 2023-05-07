@@ -17,20 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 07/98
-// Revision: A
 //
 // Description: This file contains the implementation for the TrussSection class.
 //
 // What: "@(#) TrussSection.C, revA"
-
+//
+// Written: fmk 
+// Created: 07/98
+// Revision: A
+//
 #include <TrussSection.h>
 #include <Information.h>
 #include <Parameter.h>
@@ -67,7 +62,7 @@ Vector TrussSection::trussV12(12);
 
 OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_TrussSectionElement)
 {
-  Element *theElement = 0;
+  Element *theElement = nullptr;
 
   int numRemainingArgs = OPS_GetNumRemainingInputArgs();
 
@@ -80,7 +75,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_TrussSectionElement)
   double rho = 0.0;
   int ndm = OPS_GetNDM();
   int doRayleigh = 0; // by default rayleigh not done
-  int cMass = 0; // by default use lumped mass matrix
+  int cMass = 0;      // by default use lumped mass matrix
 
   int numData = 4;
   if (OPS_GetInt(&numData, iData) != 0) {

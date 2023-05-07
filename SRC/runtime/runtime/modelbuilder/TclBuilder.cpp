@@ -1,9 +1,8 @@
-
-// written: cmp
 //
 // Description: This file contains the class definition for TclBuilder.
-
-
+//
+// written: cmp
+//
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,10 +15,6 @@
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
-
-// #include <RigidRod.h>
-// #include <RigidBeam.h>
-// #include <RigidDiaphragm.h>
 
 #include <CrdTransf.h>
 
@@ -99,14 +94,7 @@ extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
 // SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-static Domain *theTclDomain = 0;
-static TclBuilder *theTclBuilder = 0;
-
 extern MultiSupportPattern *theTclMultiSupportPattern;
-static int eleArgStart = 0;
-static int nodeLoadTag = 0;
-static int eleLoadTag = 0;
-
 
 TclBuilder::TclBuilder(Domain &theDomain, int NDM, int NDF)
     : ModelBuilder(theDomain), ndm(NDM), ndf(NDF)

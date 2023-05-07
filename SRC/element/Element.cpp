@@ -17,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.26 $
-// $Date: 2010-05-08 00:16:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/Element.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 11/95
 //
 // Purpose: This file contains the class definition for Element.
 // Element is an abstract base class and thus no objects of it's type
 // can be instantiated. It has pure virtual functions which must be
 // implemented in it's derived classes. 
+//
+// Written: fmk 11/95
 //
 // The interface:
 //

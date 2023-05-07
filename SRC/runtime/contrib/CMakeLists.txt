@@ -8,7 +8,7 @@ add_subdirectory(element/)
 add_subdirectory(sys_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/integrator/Newmark/G3Parse_Newmark.cpp"
 
     #"element/UWelements/Tcl_generateInterfacePoints.cpp"

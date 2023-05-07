@@ -51,8 +51,6 @@ modelState theModelState;
 
 extern const char *getInterpPWD(Tcl_Interp *interp);
 
-// static int uniaxialMaterialObjectCount = 0;
-
 
 struct cmp_str {
   bool
@@ -69,44 +67,6 @@ struct cmp_str {
 
 // std::map<int, UniaxialMaterial *>theUniaxialMaterials;           // map for
 // UniaxialMaterial objects needed by user added ele functions'
-
-static void
-OPS_InvokeMaterialObject(struct matObject *theMat, modelState *theModel,
-                         double *strain, double *tang, double *stress, int *isw,
-                         int *result)
-{
-  int matType = (int)theMat->theParam[0];
-
-  if (matType == 1) {
-    //  UniaxialMaterial *theMaterial = theUniaxialMaterials[matCount];
-    UniaxialMaterial *theMaterial = (UniaxialMaterial *)theMat->matObjectPtr;
-    if (theMaterial == 0) {
-      *result = -1;
-      return;
-    }
-
-    if (*isw == ISW_COMMIT) {
-      *result = theMaterial->commitState();
-      return;
-    } else if (*isw == ISW_REVERT) {
-      *result = theMaterial->revertToLastCommit();
-      return;
-    } else if (*isw == ISW_REVERT_TO_START) {
-      *result = theMaterial->revertToStart();
-      return;
-    } else if (*isw == ISW_FORM_TANG_AND_RESID) {
-      double matStress = 0.0;
-      double matTangent = 0.0;
-      int res = theMaterial->setTrial(strain[0], matStress, matTangent);
-      stress[0] = matStress;
-      tang[0] = matTangent;
-      *result = res;
-      return;
-    }
-  }
-
-  return;
-}
 
 extern "C" int
 OPS_Error(const char *errorMessage, int length)
@@ -310,7 +270,6 @@ int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 
 TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 {
-
   TimeSeries *series;
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
   if (builder) {
@@ -323,21 +282,6 @@ TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
 }
 
 
-extern "C" int
-OPS_InvokeMaterialDirectly2(matObject *theMat, modelState *model,
-                            double *strain, double *stress, double *tang,
-                            int *isw)
-{
-  int error = 0;
-  if (theMat != nullptr)
-    theMat->matFunctPtr(theMat, model, strain, tang, stress, isw, &error);
-  else
-    error = -1;
-
-  return error;
-}
-
-
 CrdTransf *
 G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
 {
@@ -347,14 +291,6 @@ G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
   }
   return builder->getCrdTransf(tag);
 }
-
-#if 0
-SectionForceDeformation *
-OPS_GetSectionForceDeformation(int secTag)
-{
-  return OPS_getSectionForceDeformation(secTag);
-}
-#endif
 
 SectionForceDeformation*
 G3_getSectionForceDeformation(G3_Runtime* rt, int tag)
@@ -423,12 +359,6 @@ OPS_GetNDM(void) {return theModelBuilder->getNDM();}
 bool *
 OPS_builtModel(void) {return &builtModel;}
 
-LinearSOE **
-G3_getLinearSoePtr(G3_Runtime* rt) {
-  LinearSOE** soe =  &rt->m_sys_of_eqn;
-  return soe;
-}
-
 
 AnalysisModel **
 G3_getAnalysisModelPtr(G3_Runtime *rt){return rt->m_analysis_model_ptr;}
@@ -443,6 +373,7 @@ G3_getStaticIntegrator(G3_Runtime *rt)
   return tsi;
 }
 
+
 int
 G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
 {
@@ -450,6 +381,7 @@ G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
   Tcl_SetAssocData(interp, "OPS::theStaticIntegrator", NULL, (ClientData)the_analysis);
   return 1;
 }
+
 
 FE_Datastore *
 OPS_GetFEDatastore() {return theDatabase;}
@@ -502,5 +434,56 @@ OPS_GetHandler(void) {return &theHandler;}
 
 DOF_Numberer **
 OPS_GetNumberer(void) {return &theGlobalNumberer;}
-#endif
 
+extern "C" int
+OPS_InvokeMaterialDirectly2(matObject *theMat, modelState *model,
+                            double *strain, double *stress, double *tang,
+                            int *isw)
+{
+  int error = 0;
+  if (theMat != nullptr)
+    theMat->matFunctPtr(theMat, model, strain, tang, stress, isw, &error);
+  else
+    error = -1;
+
+  return error;
+}
+static void
+OPS_InvokeMaterialObject(struct matObject *theMat, modelState *theModel,
+                         double *strain, double *tang, double *stress, int *isw,
+                         int *result)
+{
+  int matType = (int)theMat->theParam[0];
+
+  if (matType == 1) {
+    //  UniaxialMaterial *theMaterial = theUniaxialMaterials[matCount];
+    UniaxialMaterial *theMaterial = (UniaxialMaterial *)theMat->matObjectPtr;
+    if (theMaterial == 0) {
+      *result = -1;
+      return;
+    }
+
+    if (*isw == ISW_COMMIT) {
+      *result = theMaterial->commitState();
+      return;
+    } else if (*isw == ISW_REVERT) {
+      *result = theMaterial->revertToLastCommit();
+      return;
+    } else if (*isw == ISW_REVERT_TO_START) {
+      *result = theMaterial->revertToStart();
+      return;
+    } else if (*isw == ISW_FORM_TANG_AND_RESID) {
+      double matStress = 0.0;
+      double matTangent = 0.0;
+      int res = theMaterial->setTrial(strain[0], matStress, matTangent);
+      stress[0] = matStress;
+      tang[0] = matTangent;
+      *result = res;
+      return;
+    }
+  }
+
+  return;
+}
+
+#endif

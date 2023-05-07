@@ -3,7 +3,7 @@
 #*          Pacific Earthquake Engineering Research Center            *#
 #* ****************************************************************** *#
 
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
 # Interpreter
     "formats.cpp"
     "interpreter.cpp"

@@ -16,8 +16,8 @@
 #define TCLSAFEBUILDER_H
 
 #include <tcl.h>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <TclBuilder.h>
 #include <MultiSupportPattern.h>
 #include "Storage/G3_TableIterator.h"
@@ -118,8 +118,6 @@ public:  int addSection(SectionForceDeformation &theSection);
          int addSectionRepres(const std::string &, SectionRepres &);
          SectionRepres *getSectionRepres(int tag);
          SectionRepres *getSectionRepres(const std::string&);
-
-// Other objects
 
 //
 // OTHER METHODS
