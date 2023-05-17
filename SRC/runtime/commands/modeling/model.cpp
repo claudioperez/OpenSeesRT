@@ -153,13 +153,9 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     // create the model builder
     theNewBuilder = new BasicModelBuilder(*theNewDomain, interp, ndm, ndf);
 
-    if (theNewBuilder == nullptr) {
-      opserr << G3_ERROR_PROMPT << "ran out of memory in creating BasicBuilder model\n";
-      return TCL_ERROR;
-    } else {
-      theBuilder = theNewBuilder;
-      G3_setModelBuilder(rt, theNewBuilder);
-    }
+    // TODO: remove this
+    theBuilder = theNewBuilder;
+    G3_setModelBuilder(rt, theNewBuilder);
   }
 
 #if 0

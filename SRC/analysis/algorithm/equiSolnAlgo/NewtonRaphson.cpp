@@ -203,7 +203,7 @@ NewtonRaphson::solveCurrentStep(void)
       }	
 
       result = theTest->test();
-       numIterations++;
+      numIterations++;
       this->record(numIterations);
 
     } while (result == -1);

@@ -17,19 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2005-11-29 22:04:40 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/handler/PlainHandler.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the implementation of PlainHandler.
 //
-// What: "@(#) PlainHandler.C, revA"
-
+// Written: fmk 
+// Revision: A
+//
 #include <PlainHandler.h>
 #include <stdlib.h>
 
@@ -51,13 +44,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <map>
-#include <elementAPI.h> // OPS_ADD_RUNTIME_VPV
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_PlainHandler)
-{
-    return new PlainHandler();
-}
 
 PlainHandler::PlainHandler()
 :ConstraintHandler(HANDLER_TAG_PlainHandler)
@@ -88,7 +74,7 @@ PlainHandler::handle(const ID *nodesLast)
     std::multimap<int,SP_Constraint*> allSPs;
     SP_ConstraintIter &theSPs = theDomain->getDomainAndLoadPatternSPs();
     SP_Constraint *theSP; 
-    while ((theSP = theSPs()) != 0) {
+    while ((theSP = theSPs()) != nullptr) {
 	if (theSP->isHomogeneous() == false) {
 	    opserr << "WARNING PlainHandler::handle() - ";
 	    opserr << " non-homogeneos constraint";
@@ -108,7 +94,7 @@ PlainHandler::handle(const ID *nodesLast)
     int numDOF = 0;
     int count3 = 0;
     int countDOF =0;
-    while ((nodPtr = theNod()) != 0) {
+    while ((nodPtr = theNod()) != nullptr) {
 	if ((dofPtr = new DOF_Group(numDOF++, nodPtr)) == 0) {
 	    opserr << "WARNING PlainHandler::handle() - ran out of memory";
 	    opserr << " creating DOF_Group " << numDOF << endln;	
@@ -144,7 +130,7 @@ PlainHandler::handle(const ID *nodesLast)
 	// with 1's on the diagonal
 	MP_ConstraintIter &theMPs = theDomain->getMPs();
 	MP_Constraint *mpPtr;
-	while ((mpPtr = theMPs()) != 0)
+	while ((mpPtr = theMPs()) != nullptr) {
 	    if (mpPtr->getNodeConstrained() == nodeID) {
 		if (mpPtr->isTimeVarying() == true) {
 		    opserr << "WARNING PlainHandler::handle() - ";
@@ -186,12 +172,12 @@ PlainHandler::handle(const ID *nodesLast)
 			opserr << "WARNING PlainHandler::handle() - ";
 			opserr << " constraint at dof " << dof << " already specified for constrained node";
 			opserr << " in MP_Constraint at node " << nodeID << endln;
-		      }
-		      
+		      }		      
 		    }
 		  }
 		}
-	}
+	    }
+        }
 
 	nodPtr->setDOF_GroupPtr(dofPtr);
 	theModel->addDOF_Group(dofPtr);
@@ -229,7 +215,7 @@ PlainHandler::handle(const ID *nodesLast)
 
     int numFe = 0;    
     FE_Element *fePtr;
-    while ((elePtr = theEle()) != 0) {
+    while ((elePtr = theEle()) != nullptr) {
 
       // only create an FE_Element for a subdomain element if it does not
       // do independent analysis .. then subdomain part of this analysis so create
@@ -248,17 +234,12 @@ PlainHandler::handle(const ID *nodesLast)
 	  theModel->addFE_Element(fePtr);
 	  theSub->setFE_ElementPtr(fePtr);
 
-	} //  if (theSub->doesIndependentAnalysis() == false) {
+	}
 
       } else {
 
 	// just a regular element .. create an FE_Element for it & add to AnalysisModel
-	if ((fePtr = new FE_Element(numFe++, elePtr)) == 0) {
-	  opserr << "WARNING PlainHandler::handle() - ran out of memory";
-	  opserr << " creating FE_Element " << elePtr->getTag() << endln; 
-	  return -5;
-	}
-
+        fePtr = new FE_Element(numFe++, elePtr);
 	theModel->addFE_Element(fePtr);
       }
     }
@@ -271,13 +252,13 @@ PlainHandler::clearAll(void)
 {
   // for the nodes reset the DOF_Group pointers to 0
   Domain *theDomain = this->getDomainPtr();
-  if (theDomain == 0)
+  if (theDomain == nullptr)
     return;
   
   NodeIter &theNod = theDomain->getNodes();
   Node *nodPtr;
-  while ((nodPtr = theNod()) != 0)
-    nodPtr->setDOF_GroupPtr(0);
+  while ((nodPtr = theNod()) != nullptr)
+    nodPtr->setDOF_GroupPtr(nullptr);
 }    
 
 int

@@ -113,25 +113,6 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
   return 0;
 }
 
-
-#if 0
-extern "C" int
-G3_GetIntInput(Tcl_Interp* interp, const char**const argv, int* argc, int *numData, int *data)
-{
-  int size = *numData;
-
-  for (int i = 0; i < size; i++) {
-    if ((currentArg >= maxArg) || (Tcl_GetInt(theInterp, argv[argc], &data[i]) != TCL_OK)) {
-      // opserr << "OPS_GetIntInput -- error reading " << currentArg << endln;
-      return -1;
-    } else
-      currentArg++;
-  }
-
-  return 0;
-}
-#endif
-
 extern "C" int
 OPS_GetIntInput(int *numData, int *data)
 {
@@ -300,22 +281,13 @@ UniaxialMaterial *
 G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
-  if (!builder) {
-    // TODO
-    return OPS_getUniaxialMaterial(tag);
-  }
-
-  UniaxialMaterial *mat = builder->getUniaxialMaterial(tag);
-  // TODO
-  return mat ? mat : OPS_getUniaxialMaterial(tag);
+  assert(builder != nullptr);
+  return builder->getUniaxialMaterial(tag);
 }
 
 int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
-  if (!builder) {
-    opserr << "WARNING Failed to find safe model builder\n";
-    return 0;
-  }
+  assert(builder != nullptr);
   return builder->addUniaxialMaterial(mat);
 }
 
@@ -323,6 +295,7 @@ NDMaterial *
 G3_GetNDMaterial(G3_Runtime* rt, int matTag)
 {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
+  assert(builder != nullptr);
   return builder->getNDMaterial(matTag);
 }
 
@@ -334,26 +307,36 @@ OPS_GetNDMaterial(int matTag)
 
 
 FrictionModel *
-OPS_GetFrictionModel(int frnTag) {return OPS_getFrictionModel(frnTag);}
+OPS_GetFrictionModel(int frnTag)
+{
+  return OPS_getFrictionModel(frnTag);
+}
 
 int
-OPS_GetNDF() {return theModelBuilder->getNDF();}
+OPS_GetNDF()
+{
+  return theModelBuilder->getNDF();
+}
 
 int
 G3_getNDM(G3_Runtime *rt)
 {
-  BasicModelBuilder *builder;
-  if ((builder = G3_getSafeBuilder(rt)))
-    return builder->getNDM();
-  else
-    return -1;
+  BasicModelBuilder *builder = G3_getSafeBuilder(rt);
+  assert(builder != nullptr);
+  return builder->getNDM();
 }
 
 int
-OPS_GetNDM(void) {return theModelBuilder->getNDM();}
+OPS_GetNDM(void)
+{
+  return theModelBuilder->getNDM();
+}
 
 bool *
-OPS_builtModel(void) {return &builtModel;}
+OPS_builtModel(void) 
+{
+  return &builtModel;
+}
 
 
 AnalysisModel **

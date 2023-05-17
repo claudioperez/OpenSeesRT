@@ -17,25 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2005-11-28 21:37:12 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/handler/PlainHandler.h,v $
-                                                                        
-                                                                        
-#ifndef PlainHandler_h
-#define PlainHandler_h
-
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for PlainHandler.
 // PlainHandler is a simple ConstraintHandler; simple in that it can only
 // handle 0 boundary constraints, i.e. no non-zero SP_Constraints and no 
 // MP_Constraints can be handled by this type of ConstraintHandler.
 //
-// What: "@(#) PlainHandler.h, revA"
+// Written: fmk 
+// Created: 11/96
+// Revision: A
+//
+#ifndef PlainHandler_h
+#define PlainHandler_h
 
 #include <ConstraintHandler.h>
 
@@ -48,7 +41,7 @@ class PlainHandler : public ConstraintHandler
     PlainHandler();
     ~PlainHandler();
 
-    int handle(const ID *nodesNumberedLast =0);
+    int handle(const ID *nodesNumberedLast =nullptr);
     void clearAll(void);    
 
     int sendSelf(int commitTag, Channel &theChannel);
@@ -62,7 +55,4 @@ class PlainHandler : public ConstraintHandler
 };
 
 #endif
-
-
-
 

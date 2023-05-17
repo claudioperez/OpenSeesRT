@@ -31,8 +31,6 @@ getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain *the_domain = (Domain*)clientData;
 
   Node *node;
-  if (the_domain == nullptr)
-    return TCL_ERROR;
 
   NodeIter &nodeIter = the_domain->getNodes();
 
@@ -122,6 +120,7 @@ setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
   Node *theNode = domain->getNode(tag);
 
   if (theNode == nullptr) {
+    // TODO: add error message
     return TCL_ERROR;
   }
 
@@ -163,6 +162,7 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
   const Vector *nodalResponse = domain->getNodeResponse(tag, Disp);
 
   if (nodalResponse == nullptr)
+    // TODO: add error message
     return TCL_ERROR;
 
   int size = nodalResponse->Size();
@@ -174,12 +174,7 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
       return TCL_ERROR;
     }
 
-    double value = (*nodalResponse)(dof);
-
-    // Now copy the value to the Tcl string that is returned
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*nodalResponse)(dof)));
 
   } else {
     char buffer[40];
@@ -252,13 +247,10 @@ nodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   double pressure = 0.0;
   Pressure_Constraint *thePC = the_domain->getPressure_Constraint(tag);
-  if (thePC != 0) {
+  if (thePC != nullptr) {
     pressure = thePC->getPressure();
   }
-  char buffer[80];
-  sprintf(buffer, "%35.20f", pressure);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(pressure));
   return TCL_OK;
 }
 
@@ -268,7 +260,7 @@ nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  const int requiredDataSize = 20 * 6;
+  const int requiredDataSize = 20*6;
   if (requiredDataSize > resDataSize) {
     if (resDataPtr != 0) {
       delete[] resDataPtr;
@@ -322,12 +314,14 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
   const Vector *nodalResponse = the_domain->getNodeResponse(tag, Vel);
 
   if (nodalResponse == nullptr)
+    // TODO: add error message
     return TCL_ERROR;
 
   int size = nodalResponse->Size();
 
   if (dof >= 0) {
     if (size < dof)
+    // TODO: add error message
       return TCL_ERROR;
 
     double value = (*nodalResponse)(dof);
@@ -492,7 +486,7 @@ setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Node *theNode = the_domain->getNode(tag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "WARNING setNodeAccel -- node with tag " << tag << " not found"
            << endln;
     return TCL_ERROR;
@@ -556,7 +550,8 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
   dof--;
 
   const Vector *nodalResponse = the_domain->getNodeResponse(tag, Accel);
-  if (nodalResponse == 0)
+  if (nodalResponse == nullptr)
+    // TODO: add error message
     return TCL_ERROR;
 
   int size = nodalResponse->Size();
@@ -565,12 +560,7 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
     if (size < dof)
       return TCL_ERROR;
 
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*nodalResponse)(dof)));
 
   } else {
     char buffer[40];
@@ -615,6 +605,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
   const Vector *nodalResponse = domain->getNodeResponse(tag, Reaction);
 
   if (nodalResponse == nullptr)
+    // TODO: add error message
     return TCL_ERROR;
 
   int size = nodalResponse->Size();
@@ -626,13 +617,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    double value = (*nodalResponse)(dof);
-
-    // now we copy the value to the tcl string that is returned
-
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*nodalResponse)(dof)));
 
   } else {
     char buffer[40];
@@ -678,6 +663,7 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
   const Vector *nodalResponse = domain->getNodeResponse(tag, Unbalance);
 
   if (nodalResponse == nullptr)
+    // TODO: add error message
     return TCL_ERROR;
 
   int size = nodalResponse->Size();
@@ -689,13 +675,8 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    double value = (*nodalResponse)(dof);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*nodalResponse)(dof)));
 
-    // now we copy the value to the tcl string that is returned
-
-    char buffer[40];
-    sprintf(buffer, "%35.20f", value);
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
   } else {
     char buffer[40];
     for (int i = 0; i < size; i++) {
@@ -707,14 +688,11 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-
-
 int
 nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-
   Domain *the_domain = (Domain *)clientData;
 
   if (argc < 4) {
@@ -742,15 +720,12 @@ nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
 
   const Vector *nodalResponse =
       the_domain->getNodeResponse(tag, (NodeResponseType)responseID);
+
   if (nodalResponse == 0 || nodalResponse->Size() < dof || dof < 0)
+    // TODO: add error message
     return TCL_ERROR;
 
-  double value = (*nodalResponse)(dof);
-
-  // now we copy the value to the tcl string that is returned
-  char buffer[40];
-  sprintf(buffer, "%35.20f", value);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*nodalResponse)(dof)));
 
   return TCL_OK;
 }

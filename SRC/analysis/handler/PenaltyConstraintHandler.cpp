@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2005-11-29 22:04:40 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/handler/PenaltyConstraintHandler.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: May 1998
 // Revision: A
 //
-// What: "@(#) PenaltyConstraintHandler.C, revA"
-
 #include <PenaltyConstraintHandler.h>
-#include <stdlib.h>
+// #include <stdlib.h>
 
 #include <AnalysisModel.h>
 #include <Domain.h>
@@ -100,7 +93,7 @@ PenaltyConstraintHandler::handle(const ID *nodesLast)
     int numSPs = 0;
     SP_ConstraintIter &theSPs = theDomain->getDomainAndLoadPatternSPs();
     SP_Constraint *spPtr;
-    while ((spPtr = theSPs()) != 0)
+    while ((spPtr = theSPs()) != nullptr)
       numSPs++;
     
     // initialise the DOF_Groups and add them to the AnalysisModel.
@@ -113,7 +106,7 @@ PenaltyConstraintHandler::handle(const ID *nodesLast)
     int numDofGrp = 0;
     int count3 = 0;
     int countDOF =0;
-    while ((nodPtr = theNod()) != 0) {
+    while ((nodPtr = theNod()) != nullptr) {
 	if ((dofPtr = new DOF_Group(numDofGrp++, nodPtr)) == 0) {
 	    opserr << "WARNING PenaltyConstraintHandler::handle() ";
 	    opserr << "- ran out of memory";
@@ -163,7 +156,7 @@ PenaltyConstraintHandler::handle(const ID *nodesLast)
 
     int numFeEle = 0;
     FE_Element *fePtr;
-    while ((elePtr = theEle()) != 0) {
+    while ((elePtr = theEle()) != nullptr) {
 
       // only create an FE_Element for a subdomain element if it does not
       // do independent analysis .. then subdomain part of this analysis so create
@@ -171,26 +164,14 @@ PenaltyConstraintHandler::handle(const ID *nodesLast)
       if (elePtr->isSubdomain() == true) {
 	Subdomain *theSub = (Subdomain *)elePtr;
 	if (theSub->doesIndependentAnalysis() == false) {
-	  if ((fePtr = new FE_Element(numFeEle++, elePtr)) == 0) {
-	    opserr << "WARNING PlainHandler::handle() - ran out of memory";
-	    opserr << " creating FE_Element " << elePtr->getTag() << endln; 
-	    return -5;
-	  }		
-
+          fePtr = new FE_Element(numFeEle++, elePtr);
 	  theModel->addFE_Element(fePtr);
 	  theSub->setFE_ElementPtr(fePtr);
-
-	} //  if (theSub->doesIndependentAnalysis() == false) {
-
-      } else {
-	
-	// just a regular element .. create an FE_Element for it & add to AnalysisModel
-	if ((fePtr = new FE_Element(numFeEle++, elePtr)) == 0) {
-	  opserr << "WARNING PlainHandler::handle() - ran out of memory";
-	  opserr << " creating FE_Element " << elePtr->getTag() << endln; 
-	  return -5;
 	}
-	
+
+      } else {	
+	// just a regular element .. create an FE_Element for it & add to AnalysisModel
+        fePtr = new FE_Element(numFeEle++, elePtr);	
 	theModel->addFE_Element(fePtr);
       }
     }
@@ -199,28 +180,17 @@ PenaltyConstraintHandler::handle(const ID *nodesLast)
     // create the PenaltySP_FE for the SP_Constraints and 
     // add to the AnalysisModel
     SP_ConstraintIter &theSPss = theDomain->getDomainAndLoadPatternSPs();
-    while ((spPtr = theSPss()) != 0) {
-	if ((fePtr = new PenaltySP_FE(numFeEle, *theDomain, *spPtr, alphaSP)) == 0) {
-	    opserr << "WARNING PenaltyConstraintHandler::handle()";
-	    opserr << " - ran out of memory";
-	    opserr << " creating PenaltySP_FE " << endln; 
-	    return -5;
-	}		
+    while ((spPtr = theSPss()) != nullptr) {
+        fePtr = new PenaltySP_FE(numFeEle, *theDomain, *spPtr, alphaSP);
 	theModel->addFE_Element(fePtr);
 	numFeEle++;
     }	    
 
     // create the PenaltyMP_FE for the MP_Constraints and 
-    // add to the AnalysisModel    
-
+    // add to the AnalysisModel
     MP_ConstraintIter &theMPs = theDomain->getMPs();
-    while ((mpPtr = theMPs()) != 0) {
-	if ((fePtr = new PenaltyMP_FE(numFeEle, *theDomain, *mpPtr, alphaMP)) == 0) {
-	    opserr << "WARNING PenaltyConstraintHandler::handle()";
-	    opserr << " - ran out of memory";
-	    opserr << " creating PenaltyMP_FE " << endln; 
-	    return -5;
-	}		
+    while ((mpPtr = theMPs()) != nullptr) {
+        fePtr = new PenaltyMP_FE(numFeEle, *theDomain, *mpPtr, alphaMP);
 	theModel->addFE_Element(fePtr);
 	numFeEle++;
     }	        
@@ -234,13 +204,13 @@ PenaltyConstraintHandler::clearAll(void)
 {
     // for the nodes reset the DOF_Group pointers to 0
     Domain *theDomain = this->getDomainPtr();
-    if (theDomain == 0)
+    if (theDomain == nullptr)
 	return;
 
     NodeIter &theNod = theDomain->getNodes();
     Node *nodPtr;
-    while ((nodPtr = theNod()) != 0)
-	nodPtr->setDOF_GroupPtr(0);
+    while ((nodPtr = theNod()) != nullptr)
+	nodPtr->setDOF_GroupPtr(nullptr);
 }    
 
 int

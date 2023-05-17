@@ -17,17 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
+
 // $Revision: 1.5 $
 // $Date: 2005-11-29 22:04:40 $
 // $Source: /usr/local/cvs/OpenSees/SRC/analysis/handler/LagrangeConstraintHandler.cpp,v $
-                                                                        
+
 // Written: fmk 
 // Created: May 1998
-// Revision: A
 //
-// What: "@(#) LagrangeConstraintHandler.C, revA"
-
 #include <LagrangeConstraintHandler.h>
 #include <stdlib.h>
 
@@ -99,7 +96,7 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
     int numConstraints = 0;
     SP_ConstraintIter &theSPss = theDomain->getDomainAndLoadPatternSPs();
     SP_Constraint *spPtr;
-    while ((spPtr = theSPss()) != 0)
+    while ((spPtr = theSPss()) != nullptr)
       numConstraints++;
 
     numConstraints += theDomain->getNumMPs();
@@ -114,13 +111,9 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
     int numDofGrp = 0;
     int count3 = 0;
     int countDOF =0;
-    while ((nodPtr = theNod()) != 0) {
-	if ((dofPtr = new DOF_Group(numDofGrp++, nodPtr)) == 0) {
-	    opserr << "WARNING LagrangeConstraintHandler::handle() ";
-	    opserr << "- ran out of memory";
-	    opserr << " creating DOF_Group " << numDofGrp++ << endln;	
-	    return -4;    		
-	}
+    while ((nodPtr = theNod()) != nullptr) {
+	dofPtr = new DOF_Group(numDofGrp++, nodPtr);
+
 	// initially set all the ID value to -2
 	
 	const ID &id = dofPtr->getID();
@@ -139,7 +132,7 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
 
     int numFeEle = 0;
     FE_Element *fePtr;
-    while ((elePtr = theEle()) != 0) {
+    while ((elePtr = theEle()) != nullptr) {
 
       // only create an FE_Element for a subdomain element if it does not
       // do independent analysis .. then subdomain part of this analysis so create
@@ -147,25 +140,15 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
       if (elePtr->isSubdomain() == true) {
 	Subdomain *theSub = (Subdomain *)elePtr;
 	if (theSub->doesIndependentAnalysis() == false) {
-	  if ((fePtr = new FE_Element(numFeEle++, elePtr)) == 0) {
-	    opserr << "WARNING PlainHandler::handle() - ran out of memory";
-	    opserr << " creating FE_Element " << elePtr->getTag() << endln; 
-	    return -5;
-	  }		
-
+          fePtr = new FE_Element(numFeEle++, elePtr);
 	  theModel->addFE_Element(fePtr);
 	  theSub->setFE_ElementPtr(fePtr);
-
-	} //  if (theSub->doesIndependentAnalysis() == false) {
+	}
 
       } else {
 
 	// just a regular element .. create an FE_Element for it & add to AnalysisModel
-	if ((fePtr = new FE_Element(numFeEle++, elePtr)) == 0) {
-	  opserr << "WARNING PlainHandler::handle() - ran out of memory";
-	  opserr << " creating FE_Element " << elePtr->getTag() << endln; 
-	  return -5;
-	}
+	fePtr = new FE_Element(numFeEle++, elePtr);
 	
 	theModel->addFE_Element(fePtr);
       }
@@ -173,30 +156,20 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
 
     // create the LagrangeSP_FE for the SP_Constraints and 
     // add to the AnalysisModel
-
     SP_ConstraintIter &theSPs = theDomain->getDomainAndLoadPatternSPs();
-    while ((spPtr = theSPs()) != 0) {
-	if ((dofPtr = new LagrangeDOF_Group(numDofGrp++, *spPtr)) == 0) {
-	    opserr << "WARNING LagrangeConstraintHandler::handle()";
-	    opserr << " - ran out of memory";
-	    opserr << " creating LagrangeDOFGroup " << endln; 
-	    return -5;
-	}		
+    while ((spPtr = theSPs()) != nullptr) {
+
+        dofPtr = new LagrangeDOF_Group(numDofGrp++, *spPtr);
 	const ID &id = dofPtr->getID();
 	for (int j=0; j < id.Size(); j++) {
 	    dofPtr->setID(j,-2);
 	    countDOF++;
 	}
-
+        // Add the DOF_Group to the model
 	theModel->addDOF_Group(dofPtr);    		
-	
-	if ((fePtr = new LagrangeSP_FE(numFeEle++, *theDomain, *spPtr, 
-				       *dofPtr, alphaSP)) == 0) {
-	    opserr << "WARNING LagrangeConstraintHandler::handle()";
-	    opserr << " - ran out of memory";
-	    opserr << " creating LagrangeSP_FE " << endln; 
-	    return -5;
-	}		
+
+	// Create the FE
+        fePtr = new LagrangeSP_FE(numFeEle++, *theDomain, *spPtr, *dofPtr, alphaSP);
 	theModel->addFE_Element(fePtr);
     }	    
 
@@ -204,13 +177,9 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
     // add to the AnalysisModel    
 
     MP_ConstraintIter &theMPs = theDomain->getMPs();
-    while ((mpPtr = theMPs()) != 0) {
-	if ((dofPtr = new LagrangeDOF_Group(numDofGrp++, *mpPtr)) == 0) {
-	    opserr << "WARNING LagrangeConstraintHandler::handle()";
-	    opserr << " - ran out of memory";
-	    opserr << " creating LagrangeDOFGroup " << endln; 
-	    return -5;
-	}		
+    while ((mpPtr = theMPs()) != nullptr) {
+        dofPtr = new LagrangeDOF_Group(numDofGrp++, *mpPtr);
+
 	const ID &id = dofPtr->getID();
 	for (int j=0; j < id.Size(); j++) {
 	    dofPtr->setID(j,-2);
@@ -219,14 +188,8 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
 
 	theModel->addDOF_Group(dofPtr);    	
 
-	if ((fePtr = new LagrangeMP_FE(numFeEle++, *theDomain, *mpPtr, 
-				       *dofPtr, alphaMP)) == 0) { 
-	    opserr << "WARNING LagrangeConstraintHandler::handle()";
-	    opserr << " - ran out of memory";
-	    opserr << " creating LagrangeMP_FE " << endln; 
-	    return -5;
-	}		
-	
+	fePtr = new LagrangeMP_FE(numFeEle++, *theDomain, *mpPtr, *dofPtr, alphaMP);
+
 	theModel->addFE_Element(fePtr);
     }	        
     
@@ -270,8 +233,8 @@ LagrangeConstraintHandler::clearAll(void)
 
     NodeIter &theNod = theDomain->getNodes();
     Node *nodPtr;
-    while ((nodPtr = theNod()) != 0)
-	nodPtr->setDOF_GroupPtr(0);
+    while ((nodPtr = theNod()) != nullptr)
+	nodPtr->setDOF_GroupPtr(nullptr);
 }    
 
 int
