@@ -1,5 +1,18 @@
 # TODO
 
+General
+
+- Warn on `0` tags
+- Why does `Node` call `exit()` on failure in `getEigenvector`?
+- Some methods are preemptively marked `virtual`; I've changed
+  some of these to use a macro, `VIRTUAL`, which is defined empty.
+
+
+Memory
+
+- Why do `Matrix` and `Vector` allocate with `nothrow`?
+  nothing else does this.
+
 Consolidating:
 
 - Put `RigidDiaphragm` and friends into one file,
