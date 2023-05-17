@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2001-05-19 06:00:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/R3vectors.h,v $
-
+//
 // Ed "C++" Love
-
-#include <Vector.h>
-#include <Matrix.h>
-#include <math.h>
+//
+class Matrix;
+class Vector;
 
 double  LovelyInnerProduct( const Vector &v, const Vector &w ) ;
 

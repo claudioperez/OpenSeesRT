@@ -17,13 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2002-12-05 22:20:44 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/R3vectors.cpp,v $
-
+//
 // Ed "C++" Love
-
+//
 #include <R3vectors.h>
 #include <Vector.h>
 #include <Matrix.h> 
