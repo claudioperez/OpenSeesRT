@@ -44,10 +44,12 @@ All files are in the following subdirectories:
            
 <dt><a href="./graph"><code>graph</code></a></dt>
 <dd>contains the graph classes, again in subdirectories
+
 - `graph/` - `Graph`, `Vertex`, and others
 - `partitioner/` - `GraphPartitioner` and `Metis`, also in metis-2.0
           contains the code downloaded to build metis.
 - `numberer/` - `GraphNumberer`, `RCM` and some others
+
 </dd>
 
 <dt><a href="./system_of_eqn"><code>system_of_eqn</code></a></dt>
