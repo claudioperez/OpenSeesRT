@@ -3,6 +3,7 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+// Description: This file implements selection of an integrator object.
 //
 #include "analysis.h"
 #include <assert.h>

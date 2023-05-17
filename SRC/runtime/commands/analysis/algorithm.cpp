@@ -96,13 +96,10 @@ TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
   assert(clientData != nullptr);
   EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
 
-  char buffer[20];
-
-  if (algo == 0)
+  if (algo == nullptr)
     return TCL_ERROR;
 
-  sprintf(buffer, "%f", algo->getTotalTimeCPU());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getTotalTimeCPU()));
 
   return TCL_OK;
 }
@@ -113,13 +110,11 @@ TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
   assert(clientData != nullptr);
   EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
 
-  char buffer[20];
 
-  if (algo == 0)
+  if (algo == nullptr)
     return TCL_ERROR;
 
-  sprintf(buffer, "%f", algo->getSolveTimeCPU());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getSolveTimeCPU()));
 
   return TCL_OK;
 }
@@ -131,13 +126,10 @@ TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
   assert(clientData != nullptr);
   EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
 
-
   if (algo == nullptr)
     return TCL_ERROR;
 
-  char buffer[20];
-  sprintf(buffer, "%d", algo->getNumIterations());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(algo->getNumIterations()));
 
   return TCL_OK;
 }
@@ -639,14 +631,12 @@ TclCommand_accelCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Cha
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
-  EquiSolnAlgo* theAlgorithm = builder->getAlgorithm();
+  EquiSolnAlgo* algo = builder->getAlgorithm();
 
-  char buffer[20];
-  if (theAlgorithm == nullptr)
+  if (algo == nullptr)
     return TCL_ERROR;
 
-  sprintf(buffer, "%f", theAlgorithm->getAccelTimeCPU());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getAccelTimeCPU()));
 
   return TCL_OK;
 }
@@ -656,15 +646,12 @@ TclCommand_numFact(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
-  EquiSolnAlgo* theAlgorithm = builder->getAlgorithm();
+  EquiSolnAlgo* algo = builder->getAlgorithm();
 
-  char buffer[20];
-
-  if (theAlgorithm == nullptr)
+  if (algo == nullptr)
     return TCL_ERROR;
 
-  sprintf(buffer, "%d", theAlgorithm->getNumFactorizations());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(algo->getNumFactorizations()));
 
   return TCL_OK;
 }

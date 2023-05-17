@@ -3,6 +3,8 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+// Description: This file implements commands that configure the linear
+// solver.
 //
 #include <string>
 #include <algorithm>

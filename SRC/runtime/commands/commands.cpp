@@ -22,7 +22,6 @@
 #include <algorithm>
 //
 #include "commands.h"
-#include <ModelBuilder.h>
 // Domain
 #include <Domain.h>
 #include <DOF_Group.h>
@@ -30,7 +29,6 @@
 #include <Node.h>
 #include <Element.h>
 #include <ElementIter.h>
-// #include <NodeIter.h>
 #include <LoadPattern.h>
 #include <LoadPatternIter.h>
 #include <ElementalLoad.h>
@@ -69,6 +67,7 @@
 // TclPackageClassBroker  theBroker;
 // ConvergenceTest       *theTest = nullptr;
 // AnalysisModel         *theAnalysisModel = nullptr;
+class ModelBuilder;
 StaticAnalysis        *theStaticAnalysis = nullptr;
 ConstraintHandler     *theHandler = nullptr;
 Domain                 theDomain;
