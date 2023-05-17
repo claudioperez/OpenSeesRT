@@ -17,40 +17,30 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2010-01-21 21:43:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/Information.h,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 10/99
-// Revision: A
 //
 // Description: This file contains the class definition for Information.
 // Information is a class in which all data members are public, i.e. basically
 // a struct.
 //
-// What: "@(#) Information.h, revA"
-
+// Written: fmk 
+// Created: 10/99
+// Revision: A
+//
 #ifndef Information_h
 #define Information_h
 
+#include <OPS_Globals.h>
+#include <fstream>
+
+using std::ofstream;
+class ID;
 class Matrix;
 class Vector;
 
-
-#include <OPS_Globals.h>
-class ID;
-class Vector;
-
-
-#include <fstream>
-using std::ofstream;
-
 enum InfoType {UnknownType, IntType, DoubleType, 
 	       IdType, VectorType, MatrixType};
-		   
+
+#define VIRTUAL
 class Information
 {
   public:
@@ -62,27 +52,27 @@ class Information
     Information(const Matrix &val);
     Information(const ID &val1, const Vector &val2);
     
-    virtual ~Information();
+    VIRTUAL ~Information();
     
-    virtual int setInt(int newInt);
-    virtual int setDouble(double newDouble);
-    virtual int setID(const ID &newID);
-    virtual int setVector(const Vector &newVector);
-    virtual int setMatrix(const Matrix &newMatrix);
-    virtual int setString(const char *theString);
+    VIRTUAL int setInt(int newInt);
+    VIRTUAL int setDouble(double newDouble);
+    VIRTUAL int setID(const ID &newID);
+    VIRTUAL int setVector(const Vector &newVector);
+    VIRTUAL int setMatrix(const Matrix &newMatrix);
+    VIRTUAL int setString(const char *theString);
     
-    virtual void Print(OPS_Stream &s, int flag = 0);
-    virtual void Print(ofstream &s, int flag = 0);
-    virtual const Vector &getData(void);
+    VIRTUAL void Print(OPS_Stream &s, int flag = 0);
+    VIRTUAL void Print(ofstream &s, int flag = 0);
+    VIRTUAL const Vector &getData(void);
 
     // data that is stored in the information object
-    InfoType	theType;   // information about data type
-    int		theInt;    // an integer value
-    double	theDouble; // a double value
-    ID		*theID;    // pointer to an ID object, created elsewhere
-    Vector 	*theVector;// pointer to a Vector object, created elsewhere
-    Matrix	*theMatrix;// pointer to a Matrix object, created elsewhere
-    char        *theString;// pointer to string
+    InfoType	theType;    // information about data type
+    int		theInt;     // an integer value
+    double	theDouble;  // a double value
+    ID		*theID;     // pointer to an ID object, created elsewhere
+    Vector 	*theVector; // pointer to a Vector object, created elsewhere
+    Matrix	*theMatrix; // pointer to a Matrix object, created elsewhere
+    char        *theString; // pointer to string
 
   protected:
     

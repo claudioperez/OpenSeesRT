@@ -1,4 +1,8 @@
 //
+// Ed "C++" Love
+//
+
+
 // 3D isoparametric 8-node element shape function
 //
 // 
@@ -17,17 +21,13 @@
 //                    shp[2][i] = dN_i/dzc
 //                    shp[3][i] =  N_i
 //
-//
-// Ed "C++" Love
-//
 void  shp3d( const double xn[3],
 	     double &xsj,
 	     double shp[4][8],
-	     const double xl[3][8]   )
+             const double xl[3][8])
 {
-    // int   i, j, k ;
 
-    double rxsj, ap1, am1, ap2, am2, ap3, am3, c1,c2,c3 ;
+    double rxsj, ap1, am1, ap2, am2, ap3, am3, c1, c2, c3;
 
     /* static */ double xs[3][3] ; 
     /* static */ double ad[3][3] ;
@@ -151,13 +151,9 @@ void  shp3d( const double xn[3],
 
       for (int k=0; k<8; k++) {
 
-	c1 = shp[0][k]*xs[0][0] + shp[1][k]*xs[1][0] + shp[2][k]*xs[2][0] ;
-        c2 = shp[0][k]*xs[0][1] + shp[1][k]*xs[1][1] + shp[2][k]*xs[2][1] ;
-        c3 = shp[0][k]*xs[0][2] + shp[1][k]*xs[1][2] + shp[2][k]*xs[2][2] ;
-
-        shp[0][k] = c1 ;
-        shp[1][k] = c2 ;
-        shp[2][k] = c3 ;
+        shp[0][k] = shp[0][k]*xs[0][0] + shp[1][k]*xs[1][0] + shp[2][k]*xs[2][0] ;
+        shp[1][k] = shp[0][k]*xs[0][1] + shp[1][k]*xs[1][1] + shp[2][k]*xs[2][1] ;
+        shp[2][k] = shp[0][k]*xs[0][2] + shp[1][k]*xs[1][2] + shp[2][k]*xs[2][2] ;
 
       }
 

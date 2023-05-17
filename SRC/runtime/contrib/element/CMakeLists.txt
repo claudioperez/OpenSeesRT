@@ -1,5 +1,5 @@
 
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
   PRIVATE
     "Plane/QuadCommands.cpp"
     "Plane/TclFourNodeQuadUPCommand.cpp"

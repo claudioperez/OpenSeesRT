@@ -17,17 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2010-01-21 21:43:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/Information.cpp,v $
-                                                                        
-                                                                        
+//
+// Purpose: This file contains the class implementation for Information.
+//
 // Written: fmk 10/99
 // Revised:
 //
-// Purpose: This file contains the class implementation for Information.
-
 #include <Information.h>
 #include <ID.h>
 #include <Vector.h>

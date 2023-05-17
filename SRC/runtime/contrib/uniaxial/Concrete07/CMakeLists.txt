@@ -1,5 +1,5 @@
 
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
   RT_Concrete07.cpp
 )
 

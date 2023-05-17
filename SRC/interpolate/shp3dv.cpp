@@ -4,7 +4,7 @@
 //
 // By Jinchi Lu, 04/15/2004
 // (Based on a Fortran code from R. Brockman 30 May 1986)
-
+//
 #include <stdio.h>
 #include <math.h>
 
@@ -50,7 +50,6 @@ void shap3dv(double *R, int *NP, double Q[27][4]){
          D[0][i] =  0.5;
          D[1][i] = -2.0*R[i];
          D[2][i] = -0.5;
-
     }
 
     // Construct basic three-dimensional quadratic shape functions 
@@ -94,8 +93,6 @@ void shap3dv(double *R, int *NP, double Q[27][4]){
         for (int i = 8; i < 20; i++ ) {
             if ( NP[i] == 0 ) Q[i][j] = 0.;
         }
-
- 
 
         C = 0.5*C;
 
@@ -167,11 +164,9 @@ int brcshl(double shl[4][20][27], double w[27], int nint, int nen) {
     w[0] = 8;
 
     if ( nint == 8) {
-
         G = 2/sqrt(3.0);
         for (int i = 0; i < nint; i++ )
             w[i] = 1.;
-
     }
 
     else if ( nint == 27 ) {

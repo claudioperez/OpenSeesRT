@@ -1,4 +1,4 @@
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
   RT_BoucWen.cpp 
 )
 
