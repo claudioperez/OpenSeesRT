@@ -231,7 +231,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   Domain *theTclDomain = builder->getDomain();
-  int ndm = builder->getNDM();
 
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theTclDomain);
 
@@ -244,6 +243,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   void* theEle = nullptr;
   Element *theElement = nullptr;
+  int ndm = builder->getNDM();
 
   if (strcasecmp(argv[1], "truss") == 0) {
 

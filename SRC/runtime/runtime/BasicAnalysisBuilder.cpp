@@ -52,19 +52,21 @@
 
 
 BasicAnalysisBuilder::BasicAnalysisBuilder()
-:theHandler(0),theNumberer(0),theAnalysisModel(0),theAlgorithm(0),
- theSOE(0),theEigenSOE(0),theStaticIntegrator(0),theTransientIntegrator(0),
- theTest(0),theStaticAnalysis(0),theTransientAnalysis(0),
- theVariableTimeStepTransientAnalysis(0)
+:theHandler(nullptr),theNumberer(nullptr),theAnalysisModel(nullptr),theAlgorithm(nullptr),
+ theSOE(nullptr),theEigenSOE(nullptr),theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
+ theTest(nullptr),theStaticAnalysis(nullptr),theTransientAnalysis(nullptr),
+ theVariableTimeStepTransientAnalysis(nullptr)
 {
+
 }
 
 BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
-:theHandler(0),theNumberer(0),theAnalysisModel(0),theAlgorithm(0),
- theSOE(0),theEigenSOE(0),theStaticIntegrator(0),theTransientIntegrator(0),
- theTest(0),theStaticAnalysis(0),theTransientAnalysis(0),
- theVariableTimeStepTransientAnalysis(0), theDomain(domain)
+:theHandler(nullptr),theNumberer(nullptr),theAnalysisModel(nullptr),theAlgorithm(nullptr),
+ theSOE(nullptr),theEigenSOE(nullptr),theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
+ theTest(nullptr),theStaticAnalysis(nullptr),theTransientAnalysis(nullptr),
+ theVariableTimeStepTransientAnalysis(nullptr), theDomain(domain)
 {
+
 }
 
 BasicAnalysisBuilder::~BasicAnalysisBuilder()
@@ -114,15 +116,15 @@ void BasicAnalysisBuilder::resetTransient()
 
 void BasicAnalysisBuilder::resetAll()
 {
-    theAlgorithm = nullptr;
-    theStaticIntegrator = nullptr;
+    theAlgorithm           = nullptr;
+    theStaticIntegrator    = nullptr;
     theTransientIntegrator = nullptr;
-    theSOE = nullptr;
-    theNumberer = nullptr;
-    theHandler = nullptr;
-    theTest = nullptr;
-    theAnalysisModel = nullptr;
-    theEigenSOE = nullptr;
+    theSOE                 = nullptr;
+    theNumberer            = nullptr;
+    theHandler             = nullptr;
+    theTest                = nullptr;
+    theAnalysisModel       = nullptr;
+    theEigenSOE            = nullptr;
 }
 
 #include <stdio.h>
@@ -130,6 +132,7 @@ void BasicAnalysisBuilder::set(ConstraintHandler* obj) {
 
     if (obj == nullptr)
       return;
+
 #if 0
     if (theHandler != nullptr) {
         // TODO: this needs to return a failure code.

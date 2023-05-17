@@ -22,10 +22,6 @@
 // $Date: 2000-09-15 08:23:30 $
 // $Source: /usr/local/cvs/OpenSees/SRC/tagged/storage/MapOfTaggedObjectsIter.h,v $
                                                                         
-                                                                        
-#ifndef MapOfTaggedObjectsIter_h
-#define MapOfTaggedObjectsIter_h
-
 // File: ~/tagged/storage/ArrayComponentIter
 //
 // Written: fmk 
@@ -36,11 +32,12 @@
 // MapOfTaggedObjectsIter. A MapOfTaggedObjectsIter is an iter for 
 // returning the TaggedObjects of a storage objects of type 
 // MapOfTaggedComponents.
+//
+#ifndef MapOfTaggedObjectsIter_h
+#define MapOfTaggedObjectsIter_h
 
 #include <TaggedObjectIter.h>
-
 #include <map>
-using namespace std;
 
 class MapOfTaggedObjects;
 
@@ -54,8 +51,8 @@ class MapOfTaggedObjectsIter: public TaggedObjectIter
     virtual TaggedObject *operator()(void);
     
   private:
-    map<int, TaggedObject *> *theMap;
-    map<int, TaggedObject *>::iterator currentComponent;
+    std::map<int, TaggedObject *> *theMap;
+    std::map<int, TaggedObject *>::iterator currentComponent;
 };
 
 #endif

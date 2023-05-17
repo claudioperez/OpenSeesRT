@@ -19,7 +19,6 @@
 #include <CorotCrdTransf3d.h>
 #include <CorotCrdTransfWarping2d.h>
 
-
 //
 // to create a coordinate transformation
 //
@@ -121,12 +120,6 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";
       opserr << argv[1] << endln;
-      return TCL_ERROR;
-    }
-
-    if (crdTransf2d == 0) {
-      opserr << G3_ERROR_PROMPT << "ran out of memory to "
-                "create geometric transformation object\n";
       return TCL_ERROR;
     }
 
@@ -270,9 +263,6 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   //  Tcl_Free ((char *)argv);
-
-  // if get here we have sucessfully created the element and added it to the
-  // builder
 
   return TCL_OK;
 }

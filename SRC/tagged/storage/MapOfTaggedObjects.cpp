@@ -17,32 +17,23 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:02:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/tagged/storage/MapOfTaggedObjects.cpp,v $
-                                                                        
-                                                                        
-// File: ~/tagged/storage/MapOfTaggedObjects.C
+//
+// Purpose: This file contains the implementation of the MapOfTaggedObjects
+// class.
 //
 // Written: fmk 
 // Created: 02/00
 // Revision: A
 //
-// Purpose: This file contains the implementation of the MapOfTaggedObjects
-// class.
-//
-// What: "@(#) MapOfTaggedObjects.C, revA"
-
+#include <map>
 #include <TaggedObject.h>
 #include <MapOfTaggedObjects.h>
-
 #include <OPS_Globals.h>
 
 // some typedefs that will be useful
-typedef map<int, TaggedObject *> MAP_TAGGED;
-typedef MAP_TAGGED::value_type   MAP_TAGGED_TYPE;
-typedef MAP_TAGGED::iterator     MAP_TAGGED_ITERATOR;
+typedef std::map<int, TaggedObject *> MAP_TAGGED;
+typedef MAP_TAGGED::value_type        MAP_TAGGED_TYPE;
+typedef MAP_TAGGED::iterator          MAP_TAGGED_ITERATOR;
 
 MapOfTaggedObjects::MapOfTaggedObjects()
 :myIter(*this)
@@ -52,7 +43,6 @@ MapOfTaggedObjects::MapOfTaggedObjects()
 
 MapOfTaggedObjects::~MapOfTaggedObjects()
 {
-    // does nothing
     this->clearAll();
 }
 
@@ -63,7 +53,7 @@ MapOfTaggedObjects::setSize(int newSize)
     // no setSize for map template .. can only check enough space available
     int maxSize = int(theMap.max_size());
     if (newSize > maxSize) {
-      opserr << "MapOfTaggedObjects::setSize - failed as map stl has a max size of " << maxSize << "\n";
+      opserr << "MapOfTaggedObjects::setSize - failed as map STL has a max size of " << maxSize << "\n";
       return -1;
     } 
    
@@ -142,13 +132,13 @@ MapOfTaggedObjects::getNumComponents(void) const
 TaggedObject *
 MapOfTaggedObjects::getComponentPtr(int tag)
 {
-    TaggedObject *removed =0;
+    TaggedObject *removed = nullptr;
     MAP_TAGGED_ITERATOR theEle;
     
     // return 0 if component does not exist, otherwise remove it
     theEle = theMap.find(tag);
     if (theEle == theMap.end()) 
-	return 0;
+	return nullptr;
     else 
 	removed = (*theEle).second;
     
@@ -176,9 +166,9 @@ MapOfTaggedObjects::getEmptyCopy(void)
 {
     MapOfTaggedObjects *theCopy = new MapOfTaggedObjects();
     
-    if (theCopy == 0) {
+    if (theCopy == nullptr) {
       opserr << "MapOfTaggedObjects::getEmptyCopy-out of memory\n";
-    }	
+    }
 
     return theCopy;
 }
@@ -203,7 +193,17 @@ MapOfTaggedObjects::clearAll(bool invokeDestructor)
 void
 MapOfTaggedObjects::Print(OPS_Stream &s, int flag)
 {
-    s << "\nnumComponents: " << this->getNumComponents();
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      MAP_TAGGED_ITERATOR p = theMap.begin();
+      while (p != theMap.end()) {
+          ((*p).second)->Print(s, flag);
+          p++;
+          s << ",\n";
+      }
+      return;
+    }
+
+    // s << "\nnumComponents: " << this->getNumComponents();
     // go through the array invoking Print on non-zero entries
     MAP_TAGGED_ITERATOR p = theMap.begin();
     while (p != theMap.end()) {
@@ -211,6 +211,5 @@ MapOfTaggedObjects::Print(OPS_Stream &s, int flag)
 	p++;
     }
 }
-
 
 

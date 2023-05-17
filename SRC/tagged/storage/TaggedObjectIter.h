@@ -17,24 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/tagged/storage/TaggedObjectIter.h,v $
-                                                                        
-                                                                        
-// File: ~/tagged/storage/TaggedObjectIter.h
-//
-// Written: fmk 
-// Created: Fri Sep 20 15:27:47: 1996
-// Revision: A
 //
 // Description: This file contains the class definition for TaggedObjectIter.
 // TaggedObjectIter is an abstract base class. An TaggedObjectIter is an 
-// iter for returning the Components of an object of class TaggedObjectStorage.
+// iterator for returning the Components of an object of class TaggedObjectStorage.
 // It must be written for each subclass of TaggedObjectStorage (this is done 
 // for efficiency reasons), hence the abstract base class.
-
+//
+// Written: fmk 
+// Created: Fri Sep 20 15:27:47: 1996
+// File: ~/tagged/storage/TaggedObjectIter.h
+// Revision: A
+//
 #ifndef TaggedObjectIter_h
 #define TaggedObjectIter_h
 
@@ -56,8 +50,4 @@ class TaggedObjectIter
 };
 
 #endif
-
-
-
-
 

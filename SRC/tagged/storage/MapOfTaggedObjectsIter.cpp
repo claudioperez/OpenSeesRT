@@ -17,25 +17,21 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
+//
+// Description: This file contains the implementation of MapOfTaggedObjects.
+//
 // $Date: 2000-09-15 08:23:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/tagged/storage/MapOfTaggedObjectsIter.cpp,v $
-                                                                        
-                                                                        
-// File: ~/OOP/tagged/storage/MapOfTaggedObjectsIter.C
 //
 // Written: fmk 
 // Created: Fri Sep 20 15:27:47: 1996
 // Revision: A
 //
-// Description: This file contains the implementation of MapOfTaggedObjects.
-
+#include <map>
 #include <MapOfTaggedObjectsIter.h>
 #include <MapOfTaggedObjects.h>
 
 // some typedefs that will be useful
-typedef map<int, TaggedObject *> MAP_TAGGED;
+typedef std::map<int, TaggedObject *> MAP_TAGGED;
 typedef MAP_TAGGED::value_type   MAP_TAGGED_TYPE;
 typedef MAP_TAGGED::iterator     MAP_TAGGED_ITERATOR;
 

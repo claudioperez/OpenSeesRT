@@ -17,12 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.61 $
-// $Date: 2010-09-16 00:07:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/domain/Domain.cpp,v $
-                                                                        
-// Written: fmk 
 //
 // Purpose: This file contains the class definition for Domain
 // Domain is a container class. The class is responsible for holding
@@ -30,11 +24,11 @@
 // and MP_Constraints. These objects are all added to the Domain by a 
 // ModelBuilder.
 //
-// What: "@(#) Domain.C, revA"
-
+// Written: fmk 
+//
 #include <stdlib.h>
 #include <math.h>
-
+#include <map>
 #include <OPS_Globals.h>
 #include <Domain.h>
 #include <DummyStream.h>
@@ -96,26 +90,26 @@ Domain::Domain()
  currentTime(0.0), committedTime(0.0), dT(0.0), currentGeoTag(0),
  hasDomainChangedFlag(false), theDbTag(0), lastGeoSendTag(-1),
  dbEle(0), dbNod(0), dbSPs(0), dbPCs(0), dbMPs(0), dbLPs(0), dbParam(0),
- eleGraphBuiltFlag(false),  nodeGraphBuiltFlag(false), theNodeGraph(0), 
- theElementGraph(0), 
- theRegions(0), numRegions(0), commitTag(0), initBounds(true), resetBounds(false),
- theBounds(6), theEigenvalues(0), theEigenvalueSetTime(0), 
- theModalProperties(0),
- theModalDampingFactors(0), inclModalMatrix(false),
+ eleGraphBuiltFlag(false),  nodeGraphBuiltFlag(false), theNodeGraph(nullptr), 
+ theElementGraph(nullptr), 
+ theRegions(0), numRegions(0), commitTag(0), 
+ initBounds(true), resetBounds(false), theBounds(6), 
+ theEigenvalues(0), theEigenvalueSetTime(0), 
+ theModalProperties(0), theModalDampingFactors(0), inclModalMatrix(false),
  lastChannel(0),
  paramIndex(0), paramSize(0), numParameters(0)
 {
   
-    // init the arrays for storing the domain components
-    theElements = new MapOfTaggedObjects();
-    theNodes    = new MapOfTaggedObjects();
-    theSPs      = new MapOfTaggedObjects();
-    thePCs      = new MapOfTaggedObjects();
-    theMPs      = new MapOfTaggedObjects();    
+    // initialize the arrays for storing the domain components
+    theElements     = new MapOfTaggedObjects();
+    theNodes        = new MapOfTaggedObjects();
+    theSPs          = new MapOfTaggedObjects();
+    thePCs          = new MapOfTaggedObjects();
+    theMPs          = new MapOfTaggedObjects();    
     theLoadPatterns = new MapOfTaggedObjects();
     theParameters   = new MapOfTaggedObjects();
 
-    // init the iters    
+    // initialize the iterators
     theEleIter = new SingleDomEleIter(theElements);    
     theNodIter = new SingleDomNodIter(theNodes);
     theSP_Iter = new SingleDomSP_Iter(theSPs);
@@ -124,25 +118,13 @@ Domain::Domain()
     theLoadPatternIter = new LoadPatternIter(theLoadPatterns);
     allSP_Iter = new SingleDomAllSP_Iter(*this);
     theParamIter = new SingleDomParamIter(theParameters);
-    
-    // check that there was space to create the data structures    
-    if (theElements ==0 || theNodes == 0 || 
-	theSPs == 0 || theMPs == 0 || thePCs == 0 ||
-	theEleIter == 0 || theNodIter == 0 || 
-	theMP_Iter == 0 || theSP_Iter == 0 || thePC_Iter == 0 ||
-	theLoadPatterns == 0 || theLoadPatternIter == 0 ||
-	theParameters == 0) {	
 
-      opserr << "Domain::Domain() - out of memory\n";
-      exit(-1);
-    }
-    
-    theBounds(0) = 0;
-    theBounds(1) = 0;
-    theBounds(2) = 0;
-    theBounds(3) = 0;
-    theBounds(4) = 0;    
-    theBounds(5) = 0;            
+    theBounds(0) = 0.0;
+    theBounds(1) = 0.0;
+    theBounds(2) = 0.0;
+    theBounds(3) = 0.0;
+    theBounds(4) = 0.0;
+    theBounds(5) = 0.0;
 }
 
 
@@ -152,8 +134,8 @@ Domain::Domain(int numNodes, int numElements, int numSPs, int numMPs,
  currentTime(0.0), committedTime(0.0), dT(0.0), currentGeoTag(0),
  hasDomainChangedFlag(false), theDbTag(0), lastGeoSendTag(-1),
  dbEle(0), dbNod(0), dbSPs(0), dbPCs(0), dbMPs(0), dbLPs(0), dbParam(0),
- eleGraphBuiltFlag(false), nodeGraphBuiltFlag(false), theNodeGraph(0), 
- theElementGraph(0),
+ eleGraphBuiltFlag(false), nodeGraphBuiltFlag(false), theNodeGraph(nullptr), 
+ theElementGraph(nullptr),
  theRegions(0), numRegions(0), commitTag(0), initBounds(true), resetBounds(false),
  theBounds(6), theEigenvalues(0), theEigenvalueSetTime(0), 
  theModalProperties(0),
@@ -161,34 +143,23 @@ Domain::Domain(int numNodes, int numElements, int numSPs, int numMPs,
  lastChannel(0), paramIndex(0), paramSize(0), numParameters(0)
 {
     // init the arrays for storing the domain components
-    theElements = new MapOfTaggedObjects();
-    theNodes    = new MapOfTaggedObjects();
-    theSPs      = new MapOfTaggedObjects();
-    thePCs      = new MapOfTaggedObjects();
-    theMPs      = new MapOfTaggedObjects();    
+    theElements     = new MapOfTaggedObjects();
+    theNodes        = new MapOfTaggedObjects();
+    theSPs          = new MapOfTaggedObjects();
+    thePCs          = new MapOfTaggedObjects();
+    theMPs          = new MapOfTaggedObjects();    
     theLoadPatterns = new MapOfTaggedObjects();
     theParameters   = new MapOfTaggedObjects();
     
     // init the iters
-    theEleIter = new SingleDomEleIter(theElements);    
-    theNodIter = new SingleDomNodIter(theNodes);
-    theSP_Iter = new SingleDomSP_Iter(theSPs);
-    thePC_Iter = new SingleDomPC_Iter(thePCs);
-    theMP_Iter = new SingleDomMP_Iter(theMPs);
+    theEleIter         = new SingleDomEleIter(theElements);    
+    theNodIter         = new SingleDomNodIter(theNodes);
+    theSP_Iter         = new SingleDomSP_Iter(theSPs);
+    thePC_Iter         = new SingleDomPC_Iter(thePCs);
+    theMP_Iter         = new SingleDomMP_Iter(theMPs);
     theLoadPatternIter = new LoadPatternIter(theLoadPatterns);
-    allSP_Iter = new SingleDomAllSP_Iter(*this);
-    theParamIter = new SingleDomParamIter(theParameters);
-    
-    // check that there was space to create the data structures    
-    if (theElements ==0 || theNodes == 0 || 
-	theSPs == 0 || theMPs == 0 || thePCs == 0 ||
-	theEleIter == 0 || theNodIter == 0 || 
-	theMP_Iter == 0 || theSP_Iter == 0 || thePC_Iter == 0 ||
-	theLoadPatterns == 0 || theLoadPatternIter == 0 ||
-	theParameters == 0) {	
-
-	opserr << ("Domain::Domain(int, int, ...) - out of memory\n");
-    }
+    allSP_Iter         = new SingleDomAllSP_Iter(*this);
+    theParamIter       = new SingleDomParamIter(theParameters); 
     
     theBounds(0) = 0;
     theBounds(1) = 0;
@@ -205,36 +176,23 @@ Domain::Domain(TaggedObjectStorage &theNodesStorage,
 	       TaggedObjectStorage &theSPsStorage,
 	       TaggedObjectStorage &theLoadPatternsStorage)
 :theRecorders(0), numRecorders(0),
- currentTime(0.0), committedTime(0.0), dT(0.0), currentGeoTag(0),
- hasDomainChangedFlag(false), theDbTag(0), lastGeoSendTag(-1),
+ currentTime(0.0), committedTime(0.0), dT(0.0), 
+ currentGeoTag(0), hasDomainChangedFlag(false), theDbTag(0), lastGeoSendTag(-1),
  dbEle(0), dbNod(0), dbSPs(0), dbPCs(0), dbMPs(0), dbLPs(0), dbParam(0),
- eleGraphBuiltFlag(false), nodeGraphBuiltFlag(false), theNodeGraph(0), 
- theElementGraph(0), 
+ eleGraphBuiltFlag(false), nodeGraphBuiltFlag(false), theNodeGraph(nullptr),
+ theElementGraph(nullptr), 
  theElements(&theElementsStorage),
  theNodes(&theNodesStorage),
  theSPs(&theSPsStorage),
  theMPs(&theMPsStorage), 
  theLoadPatterns(&theLoadPatternsStorage),
- theRegions(0), numRegions(0), commitTag(0), initBounds(true), resetBounds(false),
- theBounds(6), theEigenvalues(0), theEigenvalueSetTime(0), 
- theModalProperties(0),
- theModalDampingFactors(0), inclModalMatrix(false),
- lastChannel(0),paramIndex(0), paramSize(0), numParameters(0)
+ theRegions(nullptr), numRegions(0), commitTag(0),
+ initBounds(true), resetBounds(false),
+ theBounds(6), theEigenvalues(nullptr), theEigenvalueSetTime(0), 
+ theModalProperties(nullptr), theModalDampingFactors(nullptr), inclModalMatrix(false),
+ lastChannel(0),
+ paramIndex(0), paramSize(0), numParameters(0)
 {
-    // init the arrays for storing the domain components
-    thePCs      = new MapOfTaggedObjects();
-
-    // init the iters    
-    theEleIter = new SingleDomEleIter(theElements);    
-    theNodIter = new SingleDomNodIter(theNodes);
-    theSP_Iter = new SingleDomSP_Iter(theSPs);
-    thePC_Iter = new SingleDomPC_Iter(thePCs);
-    theMP_Iter = new SingleDomMP_Iter(theMPs);
-    theLoadPatternIter = new LoadPatternIter(theLoadPatterns);
-    allSP_Iter = new SingleDomAllSP_Iter(*this);
-    theParameters   = new MapOfTaggedObjects();    
-    theParamIter = new SingleDomParamIter(theParameters);
-
     // check that the containers are empty
     if (theElements->getNumComponents() != 0 ||
 	theNodes->getNumComponents() != 0 ||
@@ -243,80 +201,70 @@ Domain::Domain(TaggedObjectStorage &theNodesStorage,
 	theLoadPatterns->getNumComponents() != 0 ) {
 
 	opserr << ("Domain::Domain(&, & ...) - out of memory\n");	
-    }    	
-	
-    // check that there was space to create the data structures    
-    if (theElements ==0 || theNodes == 0 || 
-	theSPs == 0 || theMPs == 0 || thePCs == 0 ||
-	theEleIter == 0 || theNodIter == 0 ||
-	theMP_Iter == 0 || theSP_Iter == 0 || thePC_Iter == 0 ||
-	theLoadPatterns == 0 || theLoadPatternIter == 0) { 
-    
-	opserr << "FATAL Domain::Domain(TaggedObjectStorage, ...) - ";
-	opserr << "Ran out of memory\n";
-	exit(-1);
-    }    
-    
-    theBounds(0) = 0;
-    theBounds(1) = 0;
-    theBounds(2) = 0;
-    theBounds(3) = 0;
-    theBounds(4) = 0;    
-    theBounds(5) = 0;            
+    }
+
+    // init the arrays for storing the domain components
+    thePCs      = new MapOfTaggedObjects();
+
+    // init the iters    
+    theEleIter         = new SingleDomEleIter(theElements);    
+    theNodIter         = new SingleDomNodIter(theNodes);
+    theSP_Iter         = new SingleDomSP_Iter(theSPs);
+    thePC_Iter         = new SingleDomPC_Iter(thePCs);
+    theMP_Iter         = new SingleDomMP_Iter(theMPs);
+    theLoadPatternIter = new LoadPatternIter(theLoadPatterns);
+    allSP_Iter         = new SingleDomAllSP_Iter(*this);
+    theParameters      = new MapOfTaggedObjects();    
+    theParamIter       = new SingleDomParamIter(theParameters);	
+ 
+    theBounds(0) = 0.0;
+    theBounds(1) = 0.0;
+    theBounds(2) = 0.0;
+    theBounds(3) = 0.0;
+    theBounds(4) = 0.0;
+    theBounds(5) = 0.0;
 }    
-
-
 
 Domain::Domain(TaggedObjectStorage &theStorage)
 :theRecorders(0), numRecorders(0),
  currentTime(0.0), committedTime(0.0), dT(0.0), currentGeoTag(0),
  hasDomainChangedFlag(false), theDbTag(0), lastGeoSendTag(-1),
  dbEle(0), dbNod(0), dbSPs(0), dbPCs(0), dbMPs(0), dbLPs(0), dbParam(0),
- eleGraphBuiltFlag(false), nodeGraphBuiltFlag(false), theNodeGraph(0), 
- theElementGraph(0), 
+ eleGraphBuiltFlag(false), nodeGraphBuiltFlag(false), theNodeGraph(nullptr), 
+ theElementGraph(nullptr), 
  theRegions(0), numRegions(0), commitTag(0),initBounds(true), resetBounds(false),
  theBounds(6), theEigenvalues(0), theEigenvalueSetTime(0), 
  theModalProperties(0),
  theModalDampingFactors(0), inclModalMatrix(false),
- lastChannel(0),paramIndex(0), paramSize(0), numParameters(0)
+ lastChannel(0),
+ paramIndex(0), paramSize(0), numParameters(0)
 {
     // init the arrays for storing the domain components
     theStorage.clearAll(); // clear the storage just in case populated
-    theElements = &theStorage;
-    theNodes    = theStorage.getEmptyCopy();
-    theSPs      = theStorage.getEmptyCopy();
-    thePCs      = theStorage.getEmptyCopy();
-    theMPs      = theStorage.getEmptyCopy();
+    theElements     = &theStorage;
+    theNodes        = theStorage.getEmptyCopy();
+    theSPs          = theStorage.getEmptyCopy();
+    thePCs          = theStorage.getEmptyCopy();
+    theMPs          = theStorage.getEmptyCopy();
     theLoadPatterns = theStorage.getEmptyCopy();    
     theParameters   = theStorage.getEmptyCopy();    
 
     // init the iters    
-    theEleIter = new SingleDomEleIter(theElements);    
-    theNodIter = new SingleDomNodIter(theNodes);
-    theSP_Iter = new SingleDomSP_Iter(theSPs);
-    thePC_Iter = new SingleDomPC_Iter(thePCs);
-    theMP_Iter = new SingleDomMP_Iter(theMPs);
+    theEleIter         = new SingleDomEleIter(theElements);    
+    theNodIter         = new SingleDomNodIter(theNodes);
+    theSP_Iter         = new SingleDomSP_Iter(theSPs);
+    thePC_Iter         = new SingleDomPC_Iter(thePCs);
+    theMP_Iter         = new SingleDomMP_Iter(theMPs);
     theLoadPatternIter = new LoadPatternIter(theLoadPatterns);
-    allSP_Iter = new SingleDomAllSP_Iter(*this);
-    theParamIter = new SingleDomParamIter(theParameters);
+    allSP_Iter         = new SingleDomAllSP_Iter(*this);
+    theParamIter       = new SingleDomParamIter(theParameters);
 
-    // check that there was space to create the data structures    
-    if (theElements ==0 || theNodes == 0 || 
-	theSPs == 0 || theMPs == 0 || thePCs == 0 ||
-	theEleIter == 0 || theNodIter == 0 ||
-	theMP_Iter == 0 || theSP_Iter == 0 || thePC_Iter == 0 ||
-	theLoadPatterns == 0 || theLoadPatternIter == 0 ||
-	theParameters == 0) { 
-	
-	opserr << ("Domain::Domain(ObjectStorage &) - out of memory\n");	
-    }
-    
-    theBounds(0) = 0;
-    theBounds(1) = 0;
-    theBounds(2) = 0;
-    theBounds(3) = 0;
-    theBounds(4) = 0;    
-    theBounds(5) = 0;            
+    theBounds(0) = 0.0;
+    theBounds(1) = 0.0;
+    theBounds(2) = 0.0;
+    theBounds(3) = 0.0;
+    theBounds(4) = 0.0;
+    theBounds(5) = 0.0;
 
     dbEle =0; dbNod =0; dbSPs =0; dbPCs = 0; dbMPs =0; dbLPs = 0; dbParam = 0;
 }
@@ -337,88 +285,85 @@ Domain::~Domain()
   // delete all the storage objects
   // SEGMENT FAULT WILL OCCUR IF THESE OBJECTS WERE NOT CONSTRUCTED
   // USING NEW
-  
-  if (theElements != 0)
+
+  if (theElements != nullptr)
     delete theElements;    
   
-  if (theNodes != 0)
+  if (theNodes != nullptr)
     delete theNodes;
   
-  if (theSPs != 0)
+  if (theSPs != nullptr)
     delete theSPs;
 
-  if (thePCs != 0)
+  if (thePCs != nullptr)
     delete thePCs;
   
-  if (theMPs != 0)
+  if (theMPs != nullptr)
     delete theMPs;
   
-  if (theLoadPatterns != 0)
+  if (theLoadPatterns != nullptr)
     delete theLoadPatterns;
 
-  if (theParameters != 0)
+  if (theParameters != nullptr)
     delete theParameters;
   
-  if (theEleIter != 0)
+  if (theEleIter != nullptr)
     delete theEleIter;
   
-  if (theNodIter != 0)
+  if (theNodIter != nullptr)
     delete theNodIter;
   
-  if (theSP_Iter != 0)
+  if (theSP_Iter != nullptr)
     delete theSP_Iter;
 
-  if (thePC_Iter != 0)
+  if (thePC_Iter != nullptr)
     delete thePC_Iter;
   
-  if (theMP_Iter != 0)
+  if (theMP_Iter != nullptr)
     delete theMP_Iter;
   
-  if (allSP_Iter != 0)
+  if (allSP_Iter != nullptr)
     delete allSP_Iter;
   
-  if (theParamIter != 0)
+  if (theParamIter != nullptr)
     delete theParamIter;
 
-  if (theEigenvalues != 0)
+  if (theEigenvalues != nullptr)
     delete theEigenvalues;
 
-  if (theModalProperties != 0)
+  if (theModalProperties != nullptr)
     delete theModalProperties;
 
-  if (theLoadPatternIter != 0)
-      delete theLoadPatternIter;
+  if (theLoadPatternIter != nullptr)
+    delete theLoadPatternIter;
 
-  if (theModalDampingFactors != 0)
+  if (theModalDampingFactors != nullptr)
     delete theModalDampingFactors;
   
-  int i;
-  for (i=0; i<numRecorders; i++) 
-    if (theRecorders[i] != 0)
+  for (int i=0; i<numRecorders; i++) 
+    if (theRecorders[i] != nullptr)
       delete theRecorders[i];
   
-  if (theRecorders != 0) {
+  if (theRecorders != nullptr) {
     delete [] theRecorders;
-    theRecorders = 0;
+    theRecorders = nullptr;
   }
   
-  for (i=0; i<numRegions; i++)  
+  for (int i=0; i<numRegions; i++)
     delete theRegions[i];
   
-  if (theRegions != 0) {
+  if (theRegions != nullptr) {
     delete [] theRegions;
-    theRegions = 0;
+    theRegions = nullptr;
   }
   
-  theRecorders = 0;
+  theRecorders = nullptr;
   numRecorders = 0;
 }
 
 
 // void addElement(Element *);
 //	Method to add an element to the model.
-
-
 bool
 Domain::addElement(Element *element)
 {
@@ -431,7 +376,7 @@ Domain::addElement(Element *element)
   for (int i=0; i<nodes.Size(); i++) {
       int nodeTag = nodes(i);
       Node *nodePtr = this->getNode(nodeTag);
-      if (nodePtr == 0) {
+      if (nodePtr == nullptr) {
 	opserr << "WARNING Domain::addElement - In element " << eleTag;
 	  opserr << "\n no Node " << nodeTag << " exists in the domain\n";
 	  return false;
@@ -441,7 +386,7 @@ Domain::addElement(Element *element)
 
   // check if an Element with a similar tag already exists in the Domain
   TaggedObject *other = theElements->getComponentPtr(eleTag);
-  if (other != 0) {
+  if (other != nullptr) {
     opserr << "Domain::addElement - element with tag " << eleTag << "already exists in model\n"; 
     return false;
   }
@@ -451,6 +396,7 @@ Domain::addElement(Element *element)
   if (result == true) {
     element->setDomain(this);
     element->update();
+
     // finally check the ele has correct number of dof
 #ifdef _G3DEBUG
     if (numDOF != element->getNumDOF()) { 
@@ -459,7 +405,8 @@ Domain::addElement(Element *element)
       theElements->removeComponent(eleTag);
       return false;
     }
-#endif      
+#endif
+
     // mark the Domain as having been changed
     this->domainChange();
   } else 
@@ -472,14 +419,14 @@ Domain::addElement(Element *element)
 
 // void addNode(Node *);
 //	Method to add a Node to the model.
-
+//
 bool
 Domain::addNode(Node * node)
 {
   int nodTag = node->getTag();
 
   TaggedObject *other = theNodes->getComponentPtr(nodTag);
-  if (other != 0) {
+  if (other != nullptr) {
     opserr << "Domain::addNode - node with tag " << nodTag << "already exists in model\n"; 
     return false;
   }
@@ -540,7 +487,6 @@ Domain::addNode(Node * node)
 // void addSP_Constraint(SP_Constraint *);
 //	Method to add a constraint to the model.
 //
-
 bool
 Domain::addSP_Constraint(SP_Constraint *spConstraint)
 {
@@ -551,7 +497,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
 
     Node *nodePtr = this->getNode(nodeTag);
     if (nodePtr == 0) {
-      opserr << "Domain::addSP_Constraint - cannot add as node node with tag" <<
+      opserr << "Domain::addSP_Constraint - cannot add as node node with tag " <<
 	nodeTag << "does not exist in model\n";       	
       return false;
     }
@@ -559,7 +505,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
     // check that the DOF specified exists at the Node
     int numDOF = nodePtr->getNumberDOF();
     if (numDOF < dof) {
-	opserr << "Domain::addSP_Constraint - cannot add as node with tag" << 
+	opserr << "Domain::addSP_Constraint - cannot add as node with tag " << 
 	  nodeTag << "does not have associated constrained DOF\n"; 
 	return false;
     }      
@@ -596,7 +542,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
   
   bool result = theSPs->addComponent(spConstraint);
   if (result == false) {
-      opserr << "Domain::addSP_Constraint - cannot add constraint with tag" << 
+      opserr << "Domain::addSP_Constraint - cannot add constraint with tag " << 
 	tag << "to the container\n";             
       return false;
   } 
@@ -610,7 +556,6 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
 // void addPressure_Constraint(Pressure_Constraint *);
 //	Method to add a constraint to the model.
 //
-
 bool
 Domain::addPressure_Constraint(Pressure_Constraint *pConstraint)
 {
@@ -618,8 +563,8 @@ Domain::addPressure_Constraint(Pressure_Constraint *pConstraint)
     // check the Node exists in the Domain
     int nodeTag = pConstraint->getTag();
     Node *nodePtr = this->getNode(nodeTag);
-    if (nodePtr == 0) {
-        opserr << "Domain::addPressure_Constraint - cannot add as node with tag";
+    if (nodePtr == nullptr) {
+        opserr << "Domain::addPressure_Constraint - cannot add as node with tag ";
         opserr << nodeTag << "does not exist in model\n";
         return false;
     }
@@ -628,15 +573,15 @@ Domain::addPressure_Constraint(Pressure_Constraint *pConstraint)
     // check that no other object with similar tag exists in model
     int tag = pConstraint->getTag();
     TaggedObject *other = thePCs->getComponentPtr(tag);
-    if (other != 0) {
-        opserr << "Domain::addPressure_Constraint - cannot add as constraint with tag";
+    if (other != nullptr) {
+        opserr << "Domain::addPressure_Constraint - cannot add as constraint with tag ";
         opserr << tag << "already exists in model\n";             
         return false;
     }
   
     bool result = thePCs->addComponent(pConstraint);
     if (result == false) {
-        opserr << "Domain::addPressure_Constraint - cannot add constraint with tag";
+        opserr << "Domain::addPressure_Constraint - cannot add constraint with tag ";
         opserr << tag << "to the container\n";
         return false;
     } 
@@ -659,7 +604,7 @@ Domain::addSP_Constraint(int axisDirn, double axisValue,
   Node *theNode;
   int numAddedSPs = 0;
   // for each node in the domain
-  while ((theNode = theNodes()) != 0) {
+  while ((theNode = theNodes()) != nullptr) {
     const Vector &theCrds = theNode->getCrds();
     int sizeCrds = theCrds.Size();
     int numDOF = theNode->getNumberDOF();
@@ -715,7 +660,6 @@ Domain::addSP_Constraint(int axisDirn, double axisValue,
 // void addMP_Constraint(MP_Constraint *);
 //	Method to add a constraint to the model.
 //
-
 bool
 Domain::addMP_Constraint(MP_Constraint *mpConstraint)
 {
@@ -724,7 +668,7 @@ Domain::addMP_Constraint(MP_Constraint *mpConstraint)
     int nodeConstrained = mpConstraint->getNodeConstrained();
     Node *nodePtr = this->getNode(nodeConstrained);
     if (nodePtr == 0) {
-      opserr << "Domain::addMP_Constraint -cannot add as constrained node with tag" <<
+      opserr << "Domain::addMP_Constraint -cannot add as constrained node with tag " <<
 	nodeConstrained << "does not exist in model\n";       		
       return false;
     }
@@ -732,7 +676,7 @@ Domain::addMP_Constraint(MP_Constraint *mpConstraint)
     int nodeRetained = mpConstraint->getNodeRetained();      
     nodePtr = this->getNode(nodeRetained);
     if (nodePtr == 0) {
-      opserr << "Domain::addMP_Constraint - cannot add as retained node with tag" <<
+      opserr << "Domain::addMP_Constraint - cannot add as retained node with tag " <<
 	nodeRetained << "does not exist in model\n"; 	
       
       return false;
@@ -744,7 +688,7 @@ Domain::addMP_Constraint(MP_Constraint *mpConstraint)
   int tag = mpConstraint->getTag();
   TaggedObject *other = theMPs->getComponentPtr(tag);
   if (other != 0) {
-    opserr << "Domain::addMP_Constraint - cannot add as constraint with tag" <<
+    opserr << "Domain::addMP_Constraint - cannot add as constraint with tag " <<
       tag << "already exists in model";             
 			      
     return false;
@@ -755,8 +699,8 @@ Domain::addMP_Constraint(MP_Constraint *mpConstraint)
       mpConstraint->setDomain(this);
       this->domainChange();
   } else
-    opserr << "Domain::addMP_Constraint - cannot add constraint with tag" << 
-      tag << "to the container\n";                   
+    opserr << "Domain::addMP_Constraint - cannot add constraint with tag " << 
+           tag << "to the container\n";                   
   
   return result;
 }
@@ -768,7 +712,7 @@ Domain::addLoadPattern(LoadPattern *load)
     int tag = load->getTag();
     TaggedObject *other = theLoadPatterns->getComponentPtr(tag);
     if (other != 0) {
-      opserr << "Domain::addLoadPattern - cannot add as LoadPattern with tag" <<
+      opserr << "Domain::addLoadPattern - cannot add as LoadPattern with tag " <<
 	tag << "already exists in model\n";             
 				
       return false;
@@ -781,7 +725,7 @@ Domain::addLoadPattern(LoadPattern *load)
 	this->domainChange();
     }
     else 
-      opserr << "Domain::addLoadPattern - cannot add LoadPattern with tag" <<
+      opserr << "Domain::addLoadPattern - cannot add LoadPattern with tag " <<
 	tag << "to the container\n";                   	
 			      
     return result;
@@ -856,7 +800,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint, int pattern)
     int nodeTag = spConstraint->getNodeTag();
     Node *nodePtr = this->getNode(nodeTag);
     if (nodePtr == 0) {
-      opserr << "Domain::addSP_Constraint - cannot add as node with tag" <<
+      opserr << "Domain::addSP_Constraint - cannot add as node with tag " <<
 	nodeTag << "does not exist in model\n";
 	return false;
     }
@@ -864,7 +808,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint, int pattern)
     // check that the DOF specified exists at the Node
     int numDOF = nodePtr->getNumberDOF();
     if (numDOF < spConstraint->getDOF_Number()) {
-      opserr << "Domain::addSP_Constraint - cannot add as node with tag" <<
+      opserr << "Domain::addSP_Constraint - cannot add as node with tag " <<
 	nodeTag << "does not have associated constrained DOF\n"; 
 
 	return false;
@@ -874,15 +818,15 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint, int pattern)
   // now add it to the pattern
   TaggedObject *thePattern = theLoadPatterns->getComponentPtr(pattern);
   if (thePattern == 0) {
-      opserr << "Domain::addSP_Constraint - cannot add as pattern with tag" <<
-	pattern << "does not exist in domain\n"; 
-			      
+      opserr << "Domain::addSP_Constraint - cannot add as pattern with tag " <<
+	pattern << " does not exist in domain\n"; 
+
       return false;
   }
   LoadPattern *theLoadPattern = (LoadPattern *)thePattern;
   bool result = theLoadPattern->addSP_Constraint(spConstraint);
   if (result == false) {
-    opserr << "Domain::addSP_Constraint - " << pattern << "pattern could not add the SP_Constraint\n"; 
+    opserr << "Domain::addSP_Constraint - " << pattern << " pattern could not add the SP_Constraint\n"; 
 			      
     return false;
   }
@@ -909,7 +853,7 @@ Domain::addNodalLoad(NodalLoad *load, int pattern)
     if (thePattern == 0) {
       opserr << "Domain::addNodalLoad() - no pattern with tag " << 
 	pattern << " in the model, not adding the nodal load "  << *load << endln;
-      
+
 	return false;
     }
     LoadPattern *theLoadPattern = (LoadPattern *)thePattern;
@@ -917,7 +861,7 @@ Domain::addNodalLoad(NodalLoad *load, int pattern)
     if (result == false) {
       opserr << "Domain::addNodalLoad() - pattern with tag " << 
 	pattern << " could not add the load " << *load << endln;
-				
+
       return false;
     }
 
@@ -942,7 +886,7 @@ Domain::addElementalLoad(ElementalLoad *load, int pattern)
     LoadPattern *theLoadPattern = (LoadPattern *)thePattern;
     bool result = theLoadPattern->addElementalLoad(load);
     if (result == false) {
-      opserr << "Domain::addElementalLoad() - no pattern with tag" << 
+      opserr << "Domain::addElementalLoad() - no pattern with tag " << 
 	pattern << "in  the model, not adding the ele load" << *load << endln;
       return false;
     }
@@ -966,7 +910,7 @@ Domain::clearAll(void) {
   // clear the loads and constraints from any load pattern
   LoadPatternIter &thePatterns = this->getLoadPatterns();
   LoadPattern *thePattern;
-  while ((thePattern = thePatterns()) != 0)
+  while ((thePattern = thePatterns()) != nullptr)
     thePattern->clearAll();
 
   // clean out the containers
@@ -1087,7 +1031,6 @@ Domain::removeNode(int tag)
   // this container and return the result of the cast
   Node *result = (Node *)mc;
   // result->setDomain(0);
-  
 
   return result;
 }
@@ -1212,7 +1155,7 @@ Domain::removeMP_Constraints(int nodeTag)
   ID tagsToRemove(0); int sizeTags = 0;
   MP_Constraint *theMP = 0;
   MP_ConstraintIter &theMPIter = this->getMPs();
-  while ((theMP = theMPIter()) != 0) {
+  while ((theMP = theMPIter()) != nullptr) {
     int cNode = theMP->getNodeConstrained();
     if (cNode == nodeTag) {
       int mpTag = theMP->getTag();
@@ -1243,7 +1186,7 @@ Domain::removeParameter(int tag)
 {
   Parameter *theParam = (Parameter*) theParameters->getComponentPtr(tag);
 
-  if (theParam != 0) {
+  if (theParam != nullptr) {
 
     // Find where RV is located
     int index;
@@ -1308,20 +1251,20 @@ Domain::removeLoadPattern(int tag)
     
     NodalLoad *theNodalLoad;
     NodalLoadIter &theNodalLoads = result->getNodalLoads();
-    while ((theNodalLoad = theNodalLoads()) != 0) {
+    while ((theNodalLoad = theNodalLoads()) != nullptr) {
       // theNodalLoad->setDomain(0);
     }
 
     ElementalLoad *theElementalLoad;
     ElementalLoadIter &theElementalLoads = result->getElementalLoads();
-    while ((theElementalLoad = theElementalLoads()) != 0) {
+    while ((theElementalLoad = theElementalLoads()) != nullptr) {
       // theElementalLoad->setDomain(0);
     }
 
     int numSPs = 0;
     SP_Constraint *theSP_Constraint;
     SP_ConstraintIter &theSP_Constraints = result->getSPs();
-    while ((theSP_Constraint = theSP_Constraints()) != 0) {
+    while ((theSP_Constraint = theSP_Constraints()) != nullptr) {
 	numSPs++;
 	// theSP_Constraint->setDomain(0);
     }
@@ -1336,9 +1279,6 @@ Domain::removeLoadPattern(int tag)
 }    
 
 
-
-
-
 NodalLoad *
 Domain::removeNodalLoad(int tag, int loadPattern)
 {
@@ -1346,7 +1286,7 @@ Domain::removeNodalLoad(int tag, int loadPattern)
   LoadPattern *theLoadPattern = this->getLoadPattern(loadPattern);
     
   // if not there return 0    
-  if (theLoadPattern == 0)
+  if (theLoadPattern == nullptr)
     return 0;
     
   return theLoadPattern->removeNodalLoad(tag);
@@ -1657,7 +1597,7 @@ Domain::getPhysicalBounds(void)
                 theBounds(5) = z;
             }
             // adjust for other nodes
-            while ((nodePtr = theNodeIter()) != 0) {
+            while ((nodePtr = theNodeIter()) != nullptr) {
                 const Vector& crds = nodePtr->getCrds();
                 dim = crds.Size();
                 if (dim >= 1) {
@@ -1871,12 +1811,12 @@ Domain::applyLoad(double timeStep)
 
     Node *nodePtr;
     NodeIter &theNodeIter = this->getNodes();
-    while ((nodePtr = theNodeIter()) != 0)
+    while ((nodePtr = theNodeIter()) != nullptr)
 	nodePtr->zeroUnbalancedLoad();
 
     Element *elePtr;
     ElementIter &theElemIter = this->getElements();    
-    while ((elePtr = theElemIter()) != 0)
+    while ((elePtr = theElemIter()) != nullptr)
 	if (elePtr->isSubdomain() == false)
 	    elePtr->zeroLoad();    
 
@@ -1892,12 +1832,12 @@ Domain::applyLoad(double timeStep)
 
     MP_ConstraintIter &theMPs = this->getMPs();
     MP_Constraint *theMP;
-    while ((theMP = theMPs()) != 0)
+    while ((theMP = theMPs()) != nullptr)
       theMP->applyConstraint(timeStep);
     
     SP_ConstraintIter &theSPs = this->getSPs();
     SP_Constraint *theSP;
-    while ((theSP = theSPs()) != 0) {
+    while ((theSP = theSPs()) != nullptr) {
       theSP->applyConstraint(timeStep);
     }
 
@@ -1934,7 +1874,7 @@ Domain::initialize(void)
 {
   Element *elePtr;
   ElementIter &theElemIter = this->getElements();    
-  while ((elePtr = theElemIter()) != 0) 
+  while ((elePtr = theElemIter()) != nullptr) 
     // lvalue needed here for M$ VC++ compiler -- MHS
 	// and either the  VS2011 or intel compiler does not like it!
 #ifndef _VS2011
@@ -1955,12 +1895,12 @@ Domain::setRayleighDampingFactors(double alphaM, double betaK, double betaK0, do
   int result = 0;
   Element *elePtr;
   ElementIter &theElemIter = this->getElements();    
-  while ((elePtr = theElemIter()) != 0) 
+  while ((elePtr = theElemIter()) != nullptr) 
     result += elePtr->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
 
   Node *nodePtr;
   NodeIter &theNodeIter = this->getNodes();
-  while ((nodePtr = theNodeIter()) != 0) {
+  while ((nodePtr = theNodeIter()) != nullptr) {
     result += nodePtr->setRayleighDampingFactor(alphaM);
   }
 
@@ -1992,13 +1932,13 @@ Domain::commit(void)
     //
     Node *nodePtr;
     NodeIter &theNodeIter = this->getNodes();
-    while ((nodePtr = theNodeIter()) != 0) {
+    while ((nodePtr = theNodeIter()) != nullptr) {
       nodePtr->commitState();
     }
 
     Element *elePtr;
     ElementIter &theElemIter = this->getElements();    
-    while ((elePtr = theElemIter()) != 0) {
+    while ((elePtr = theElemIter()) != nullptr) {
       elePtr->commitState();
     }
 
@@ -2025,12 +1965,12 @@ Domain::revertToLastCommit(void)
     
     Node *nodePtr;
     NodeIter &theNodeIter = this->getNodes();
-    while ((nodePtr = theNodeIter()) != 0)
+    while ((nodePtr = theNodeIter()) != nullptr)
 	nodePtr->revertToLastCommit();
     
     Element *elePtr;
     ElementIter &theElemIter = this->getElements();    
-    while ((elePtr = theElemIter()) != 0) {
+    while ((elePtr = theElemIter()) != nullptr) {
 	elePtr->revertToLastCommit();
     }
 
@@ -2054,12 +1994,12 @@ Domain::revertToStart(void)
 
     Node *nodePtr;
     NodeIter &theNodeIter = this->getNodes();
-    while ((nodePtr = theNodeIter()) != 0) 
+    while ((nodePtr = theNodeIter()) != nullptr) 
 	nodePtr->revertToStart();
 
     Element *elePtr;
     ElementIter &theElements = this->getElements();    
-    while ((elePtr = theElements()) != 0) {
+    while ((elePtr = theElements()) != nullptr) {
 	elePtr->revertToStart();
     }
 
@@ -2093,7 +2033,7 @@ Domain::update(void)
   ElementIter &theEles = this->getElements();
   Element *theEle;
 
-  while ((theEle = theEles()) != 0) {
+  while ((theEle = theEles()) != nullptr) {
     ops_TheActiveElement = theEle;
     ok += theEle->update();
   }
@@ -2318,18 +2258,17 @@ Domain::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
 
+    /*
     s << "\t\"properties\": {\n";
-
     OPS_printUniaxialMaterial(s, flag);
     s << ",\n";   
     OPS_printNDMaterial(s, flag);
     s << ",\n";
     OPS_printSectionForceDeformation(s, flag);
     s << ",\n";   
-    OPS_printCrdTransf(s, flag);      
-
+    OPS_printCrdTransf(s, flag);
     s << "\n\t},\n";
-	s << "\t\"geometry\": {\n";
+    s << "\t\"geometry\": {\n";
 
     int numToPrint = theNodes->getNumComponents();
     NodeIter &theNodess = this->getNodes();
@@ -2363,8 +2302,11 @@ Domain::Print(OPS_Stream &s, int flag)
 	s << "\t}\n";
 	s << "}\n";
     s << "}\n";
+    */
 
-	return;
+    theMPs->Print(s, flag);
+
+    return;
   }
       
   
@@ -2534,11 +2476,11 @@ Domain::getRegionTags(ID& rtags) const
 
 }
 
-typedef map<int, int> MAP_INT;
+typedef std::map<int, int>    MAP_INT;
 typedef MAP_INT::value_type   MAP_INT_TYPE;
 typedef MAP_INT::iterator     MAP_INT_ITERATOR;
 
-typedef map<int, ID *> MAP_ID;
+typedef std::map<int, ID *>  MAP_ID;
 typedef MAP_ID::value_type   MAP_ID_TYPE;
 typedef MAP_ID::iterator     MAP_ID_ITERATOR;
 
@@ -2563,11 +2505,11 @@ Domain::buildEleGraph(Graph *theEleGraph)
     Element *theEle;
     ElementIter &theElements = this->getElements();
     int count = START_VERTEX_NUM;
-    while ((theEle = theElements()) != 0) {
+    while ((theEle = theElements()) != nullptr) {
       int eleTag = theEle->getTag();
       Vertex *vertexPtr = new Vertex(count, eleTag);
 
-      if (vertexPtr == 0) {
+      if (vertexPtr == nullptr) {
         opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
         return -1;
       }
@@ -2592,14 +2534,13 @@ Domain::buildEleGraph(Graph *theEleGraph)
     // We now need to determine which elements are associated with each node.
     // As this info is not in the Node interface we must build it;
     //
-    // again we will use an stl map, index will be nodeTag, object will be Vertex
+    // again we will use an STL map, index will be nodeTag, object will be Vertex
     // do using vertices for each node, when we addVertex at these nodes we
     // will not be adding vertices but element tags.
     //
 
     MAP_ID theNodeToVertexMap;
     MAP_ID_ITERATOR theNodeEle;
-
     Node *nodPtr;
 
     // now create the vertices with a reference equal to the node number.
@@ -2607,11 +2548,11 @@ Domain::buildEleGraph(Graph *theEleGraph)
     // theNodeTagVertices at a position equal to the node's tag.
 
     NodeIter &theNodes = this->getNodes();
-    while ((nodPtr = theNodes()) != 0) {
+    while ((nodPtr = theNodes()) != nullptr) {
       int nodeTag = nodPtr->getTag();
       ID *eleTags = new ID(0, 4);
 
-      if (eleTags == 0) {
+      if (eleTags == nullptr) {
         opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
         return -1;
       }
@@ -2633,7 +2574,7 @@ Domain::buildEleGraph(Graph *theEleGraph)
 
     ElementIter &eleIter3 = this->getElements();
 
-    while((theEle = eleIter3()) != 0) {
+    while((theEle = eleIter3()) != nullptr) {
       int eleTag = theEle->getTag();
       const ID &id = theEle->getExternalNodes();
 
@@ -2657,7 +2598,6 @@ Domain::buildEleGraph(Graph *theEleGraph)
     // this is done by looping over the Node vertices, getting their
     // Adjacenecy and adding edges between elements with common nodes
     //
-
     MAP_ID_ITERATOR currentComponent;
     currentComponent = theNodeToVertexMap.begin();
     while (currentComponent != theNodeToVertexMap.end()) {
@@ -2717,40 +2657,28 @@ Domain::buildNodeGraph(Graph *theNodeGraph)
     // now create the vertices with a reference equal to the node number.
     // and a tag which ranges from START_VERTEX_NUM through 
     // numNodes+START_VERTEX_NUM
-
     NodeIter &nodeIter2 = this->getNodes();
     int count = START_VERTEX_NUM;
-    while ((nodPtr = nodeIter2()) != 0) {
-	int nodeTag = nodPtr->getTag();
-	Vertex *vertexPtr = new Vertex(count,nodeTag);
-
-	if (vertexPtr == 0) {
-	    opserr << "WARNING Domain::buildNodeGraph";
-	    opserr << " - Not Enough Memory to create ";
-	    opserr << count << "th Vertex\n";
-	    return -1;
-	}
-
+    while ((nodPtr = nodeIter2()) != nullptr) {
 	// add the vertex to the graph
-	theNodeGraph->addVertex(vertexPtr);
+	int nodeTag = nodPtr->getTag();
+	theNodeGraph->addVertex(new Vertex(count,nodeTag));
 	theNodeTagVertices[nodeTag] = count++;
     }
 
     // now add the edges, by looping over the Elements, getting their
-    // IDs and adding edges between all elements who share a node.
-    
+    // IDs and adding edges between all elements who share a node. 
     Element *elePtr;
     ElementIter &eleIter = this->getElements();
 
-    while((elePtr = eleIter()) != 0) {
+    while((elePtr = eleIter()) != nullptr) {
 	const ID &id = elePtr->getExternalNodes();
-
 	int size = id.Size();
 	for (int i=0; i<size; i++) {
 	    int node1 = id(i);
 	    int vertexTag1 = theNodeTagVertices[node1];
 	    
-	    for (int j=0; j<size; j++) 
+	    for (int j=0; j<size; j++) {
 		if (i != j) {
 
 		    int node2 = id(j);
@@ -2760,6 +2688,7 @@ Domain::buildNodeGraph(Graph *theNodeGraph)
 		    if (vertexTag1 > vertexTag2) 
 			theNodeGraph->addEdge(vertexTag1,vertexTag2);
 		}
+            }
 	}
     }
     return 0;
@@ -2860,7 +2789,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
       int loc =0;
 
       // loop over nodes in domain adding their classTag and dbTag to the ID
-      while ((theNode = theNodes()) != 0) {
+      while ((theNode = theNodes()) != nullptr) {
 	nodeData(loc) = theNode->getClassTag();
 	int dbTag = theNode->getDbTag();
 	
@@ -2892,7 +2821,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
       ElementIter &theElements = this->getElements();
       int loc = 0;
     
-      while ((theEle = theElements()) != 0) {
+      while ((theEle = theElements()) != nullptr) {
 	elementData(loc) = theEle->getClassTag();
 	int dbTag = theEle->getDbTag();
 
@@ -2922,7 +2851,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
       SP_ConstraintIter &theSPs = this->getSPs();
       int loc = 0;
     
-      while ((theSP = theSPs()) != 0) {
+      while ((theSP = theSPs()) != nullptr) {
 	spData(loc) = theSP->getClassTag();
 	int dbTag = theSP->getDbTag();
 
@@ -2951,7 +2880,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
         Pressure_ConstraintIter &thePCs = this->getPCs();
         int loc = 0;
     
-        while ((thePC = thePCs()) != 0) {
+        while ((thePC = thePCs()) != nullptr) {
             pData(loc) = thePC->getClassTag();
             int dbTag = thePC->getDbTag();
 
@@ -2959,8 +2888,8 @@ Domain::sendSelf(int cTag, Channel &theChannel)
                 dbTag = theChannel.getDbTag();
                 if (dbTag != 0)
                     thePC->setDbTag(dbTag);
-            }
-	
+            }	
+
             pData(loc+1) = dbTag;
             loc+=2;
         }    
@@ -2980,7 +2909,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
       MP_ConstraintIter &theMPs = this->getMPs();
       int loc = 0;
     
-      while ((theMP = theMPs()) != 0) {
+      while ((theMP = theMPs()) != nullptr) {
 	mpData(loc) = theMP->getClassTag();
 	int dbTag = theMP->getDbTag();
 	
@@ -3003,14 +2932,13 @@ Domain::sendSelf(int cTag, Channel &theChannel)
     // we do the same for LoadPatterns as we did for Nodes above .. see comments
     // for nodes if you can't figure what's going on!    
 
-
     if (numLPs != 0) {
       ID lpData(numLPs*2);
       LoadPattern *theLP;
       LoadPatternIter &theLPs = this->getLoadPatterns();
       int loc = 0;
     
-      while ((theLP = theLPs()) != 0) {
+      while ((theLP = theLPs()) != nullptr) {
 	lpData(loc) = theLP->getClassTag();
 	int dbTag = theLP->getDbTag();
 
@@ -3036,7 +2964,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
       ParameterIter &theParameters = this->getParameters();
       int loc = 0;
     
-      while ((theP = theParameters()) != 0) {
+      while ((theP = theParameters()) != nullptr) {
 	paramData(loc) = theP->getClassTag();
 	int dbTag = theP->getDbTag();
 
@@ -3074,7 +3002,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the nodes
   Node *theNode;
   NodeIter &theNodes = this->getNodes();
-  while ((theNode = theNodes()) != 0) {
+  while ((theNode = theNodes()) != nullptr) {
     if (theNode->sendSelf(commitTag, theChannel) < 0) {
       opserr << "Domain::send - node with tag " << theNode->getTag() << " failed in sendSelf\n";
       return -7;
@@ -3084,7 +3012,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the elements
   Element *theEle;
   ElementIter &theElements = this->getElements();
-  while ((theEle = theElements()) != 0) {
+  while ((theEle = theElements()) != nullptr) {
     if (theEle->sendSelf(commitTag, theChannel) < 0) {
       opserr << "Domain::send - element with tag " << theEle->getTag() << " failed in sendSelf\n";
       return -8;
@@ -3094,7 +3022,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the single point constraints
   SP_Constraint *theSP;
   SP_ConstraintIter &theSPs = this->getSPs();
-  while ((theSP = theSPs()) != 0) {
+  while ((theSP = theSPs()) != nullptr) {
     if (theSP->sendSelf(commitTag, theChannel) < 0) {
       opserr << "Domain::send - SP_Constraint with tag " << theSP->getTag() << " failed in sendSelf\n";
       return -9;
@@ -3104,7 +3032,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the pressure constraints
   Pressure_Constraint *thePC;
   Pressure_ConstraintIter &thePCs = this->getPCs();
-  while ((thePC = thePCs()) != 0) {
+  while ((thePC = thePCs()) != nullptr) {
       if (thePC->sendSelf(commitTag, theChannel) < 0) {
           opserr << "Domain::send - Pressure_Constraint with tag " << thePC->getTag() << " failed in sendSelf\n";
           return -9;
@@ -3114,7 +3042,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the multi point constraints
   MP_Constraint *theMP;
   MP_ConstraintIter &theMPs = this->getMPs();
-  while ((theMP = theMPs()) != 0) {
+  while ((theMP = theMPs()) != nullptr) {
     if (theMP->sendSelf(commitTag, theChannel) < 0) {
       opserr << "Domain::send - MP_Constraint with tag " << theMP->getTag() << " failed in sendSelf\n";
       return -10;
@@ -3124,7 +3052,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the load patterns
   LoadPattern *theLP;
   LoadPatternIter &theLPs = this->getLoadPatterns();
-  while ((theLP = theLPs()) != 0) {
+  while ((theLP = theLPs()) != nullptr) {
     if (theLP->sendSelf(commitTag, theChannel) < 0) {
       opserr << "Domain::send - LoadPattern with tag " << theLP->getTag() << " failed in sendSelf\n";
       return -11;
@@ -3134,7 +3062,7 @@ Domain::sendSelf(int cTag, Channel &theChannel)
   // send the parameters
   Parameter *theParam;
   ParameterIter &theParams = this->getParameters();
-  while ((theParam = theParams()) != 0) {
+  while ((theParam = theParams()) != nullptr) {
     if (theParam->sendSelf(commitTag, theChannel) < 0) {
       opserr << "Domain::send - Parameter with tag " << theParam->getTag() << " failed in sendSelf\n";
       return -12;
@@ -3247,7 +3175,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 	  return -3;
 	}			
 
-	loc+=2;
+	loc += 2;
       }
     }
 
@@ -3508,7 +3436,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
     
     Node *theNode;
     NodeIter &theNodes = this->getNodes();
-    while ((theNode = theNodes()) != 0) {
+    while ((theNode = theNodes()) != nullptr) {
       if (theNode->recvSelf(commitTag, theChannel, theBroker) < 0) {
 	opserr << "Domain::recv - node with tag " << theNode->getTag() << " failed in recvSelf\n";
 	return -7;
@@ -3517,7 +3445,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     Element *theEle;
     ElementIter &theElements = this->getElements();
-    while ((theEle = theElements()) != 0) {
+    while ((theEle = theElements()) != nullptr) {
       if (theEle->recvSelf(commitTag, theChannel, theBroker) < 0) {
 	opserr << "Domain::recv - element with tag " << theEle->getTag() <<  " failed in recvSelf\n";
 	return -8;
@@ -3527,7 +3455,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     SP_Constraint *theSP;
     SP_ConstraintIter &theSPs = this->getSPs();
-    while ((theSP = theSPs()) != 0) {
+    while ((theSP = theSPs()) != nullptr) {
       if (theSP->recvSelf(commitTag, theChannel, theBroker) < 0) {
 	opserr << "Domain::recv - SP_Constraint with tag " << theSP->getTag() << " failed in recvSelf\n";
 	return -9;
@@ -3536,7 +3464,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     Pressure_Constraint *thePC;
     Pressure_ConstraintIter &thePCs = this->getPCs();
-    while ((thePC = thePCs()) != 0) {
+    while ((thePC = thePCs()) != nullptr) {
         if (thePC->recvSelf(commitTag, theChannel, theBroker) < 0) {
             opserr << "Domain::recv - Pressure_Constraint with tag " << thePC->getTag() << " failed in recvSelf\n";
             return -9;
@@ -3545,7 +3473,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
     
     MP_Constraint *theMP;
     MP_ConstraintIter &theMPs = this->getMPs();
-    while ((theMP = theMPs()) != 0) {
+    while ((theMP = theMPs()) != nullptr) {
       if (theMP->recvSelf(commitTag, theChannel, theBroker) < 0) {
 	opserr << "Domain::recv - MP_Constraint with tag " << theMP->getTag() << " failed in recvSelf\n";
 	return -10;
@@ -3554,18 +3482,18 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     LoadPattern *theLP;
     LoadPatternIter &theLPs = this->getLoadPatterns();
-    while ((theLP = theLPs()) != 0) {
+    while ((theLP = theLPs()) != nullptr) {
       if (theLP->recvSelf(commitTag, theChannel, theBroker) < 0) {
-	opserr << "Domain::recv - LoadPattern with tag" << theLP->getTag() << " failed in recvSelf";
+	opserr << "Domain::recv - LoadPattern with tag " << theLP->getTag() << " failed in recvSelf";
 	return -11;
       }
     }  
 
     Parameter *theParam;
     ParameterIter &theParams = this->getParameters();
-    while ((theParam = theParams()) != 0) {
+    while ((theParam = theParams()) != nullptr) {
       if (theParam->recvSelf(commitTag, theChannel, theBroker) < 0) {
-	opserr << "Domain::recv - Parameter with tag" << theParam->getTag() << " failed in recvSelf";
+	opserr << "Domain::recv - Parameter with tag " << theParam->getTag() << " failed in recvSelf";
 	return -12;
       }
     }  
@@ -3585,7 +3513,7 @@ Domain::getNodeDisp(int nodeTag, int dof, int &errorFlag)
   double result = 0.0;
   errorFlag = 0;
   Node *theNode = this->getNode(nodeTag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     errorFlag = -1;
     return 0.0;
   }
@@ -3601,9 +3529,8 @@ int
 Domain::setMass(const Matrix &mass, int nodeTag)
 {
   Node *theNode = this->getNode(nodeTag);
-  if (theNode == 0) {
+  if (theNode == nullptr)
     return -1;
-  }
   return theNode->setMass(mass);  
 }
 
@@ -3617,12 +3544,12 @@ Domain::calculateNodalReactions(int flag)
   Node *theNode;
   Element *theElement;
   NodeIter &theNodes = this->getNodes();
-  while ((theNode = theNodes()) != 0) {
+  while ((theNode = theNodes()) != nullptr) {
     theNode->resetReactionForce(flag);
   }
 
   ElementIter &theElements = this->getElements();
-  while ((theElement = theElements()) != 0)
+  while ((theElement = theElements()) != nullptr)
     if (theElement->isSubdomain() == false)
       theElement->addResistingForceToNodalReaction(flag);
   return 0;
@@ -3666,7 +3593,6 @@ int Domain::activateElements(const ID& elementList)
     }
     return 0;
 }
-
 
 
 int Domain::deactivateElements(const ID& elementList)

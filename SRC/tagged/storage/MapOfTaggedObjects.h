@@ -17,30 +17,26 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
+//
 // $Revision: 1.2 $
 // $Date: 2003-02-14 23:02:10 $
 // $Source: /usr/local/cvs/OpenSees/SRC/tagged/storage/MapOfTaggedObjects.h,v $
-                                                                        
-                                                                        
-#ifndef MapOfTaggedObjects_h
-#define MapOfTaggedObjects_h
-
 // File: ~/tagged/storage/MapOfTaggedObjects.h
 // 
-// Written: fmk 
-// Created: 02/00
-// Revision: A
-//
 // Description: This file contains the class definition for 
 // MapOfTaggedObjects. MapOfTaggedObjects is a storage class. The class 
 // is responsible for holding and providing access to objects of type 
 // TaggedObject. A map template of the standard template class is used to store
 // the pointers to these objects.
 //
-// What: "@(#) MapOfTaggedObjects.h, revA"
-
-
+// Written: fmk 
+// Created: 02/00
+// Revision: A
+//
+#ifndef MapOfTaggedObjects_h
+#define MapOfTaggedObjects_h
+//
+#include <map>
 #include <TaggedObjectStorage.h>
 #include <MapOfTaggedObjectsIter.h>
 
@@ -71,11 +67,9 @@ class MapOfTaggedObjects : public TaggedObjectStorage
   protected:    
     
   private:
-    map<int, TaggedObject *> theMap; // the map container for storing the pointers
+    std::map<int, TaggedObject *> theMap; // the map container for storing the pointers
     MapOfTaggedObjectsIter  myIter;  // the iter for this object
 };
 
 #endif
-
-
 

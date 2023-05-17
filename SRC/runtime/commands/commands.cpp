@@ -748,14 +748,14 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - nodeDOFs nodeTag?\n";
+  if (argc != 2) {
+    opserr << G3_ERROR_PROMPT << "expected - nodeDOFs nodeTag?\n";
     return TCL_ERROR;
   }
 
   int tag;
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "nodeMass nodeTag? nodeDOF? \n";
+    opserr << G3_ERROR_PROMPT << "nodeDOFs nodeTag?\n";
     return TCL_ERROR;
   }
 
@@ -841,7 +841,6 @@ sectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   DummyStream dummy;
-
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
     Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
@@ -906,7 +905,6 @@ sectionDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   argvv[2] = c;
 
   DummyStream dummy;
-
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
     Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
@@ -974,10 +972,7 @@ sectionLocation(ClientData clientData, Tcl_Interp *interp, int argc,
 
   const Vector &theVec = *(info.theVector);
 
-  char buffer[40];
-  sprintf(buffer, "%12.8g", theVec(secNum - 1));
-
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(theVec(secNum - 1)));
 
   delete theResponse;
 
@@ -1022,7 +1017,6 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
   argvv[0] = a;
 
   DummyStream dummy;
-
   Response *theResponse = theElement->setResponse(argvv, argcc, dummy);
   if (theResponse == nullptr) {
     Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
@@ -1034,9 +1028,7 @@ sectionWeight(ClientData clientData, Tcl_Interp *interp, int argc,
 
   const Vector &theVec = *(info.theVector);
 
-  char buffer[40];
-  sprintf(buffer, "%12.8g", theVec(secNum - 1));
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(theVec(secNum - 1)));
 
   delete theResponse;
 
@@ -1517,13 +1509,8 @@ getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
                TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
 
-  // char buffer[20];
-  // sprintf(buffer, "%d ", the_domain->getNumElements());
-  // Tcl_AppendResult(interp, buffer, NULL);
-  
-  Tcl_SetObjResult(interp, Tcl_NewIntObj(the_domain->getNumElements()));
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(((Domain*)clientData)->getNumElements()));
 
   return TCL_OK;
 }
@@ -1816,7 +1803,6 @@ getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
 
   return TCL_OK;
 }
-
 
 extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char ** const argv, Domain &theDomain);

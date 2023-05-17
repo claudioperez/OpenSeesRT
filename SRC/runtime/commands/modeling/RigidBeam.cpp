@@ -59,6 +59,7 @@ RigidBeam::RigidBeam(Domain &theDomain, int nR, int nC) {
       opserr << "RigidBeam::RigidBeam - retained Node" <<  nR <<  "not in domain\n";
       return;
     }
+
     Node *nodeC = theDomain.getNode(nC);
     if (nodeR == 0) {
       opserr << "RigidBeam::RigidBeam - constrained Node" <<  nC <<  "not in domain\n";
@@ -90,7 +91,6 @@ RigidBeam::RigidBeam(Domain &theDomain, int nR, int nC) {
 	nR << " and " <<  nC <<  "must be >= dimension of problem\n";
       return;
     }
-
     
     // create the ID to identify the constrained dof 
     ID id(numDOF);

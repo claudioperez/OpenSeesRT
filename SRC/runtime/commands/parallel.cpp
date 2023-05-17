@@ -71,15 +71,9 @@ int
 getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int pid = 0;
-#ifdef _PARALLEL_INTERPRETERS
-  if (theMachineBroker != nullptr)
-    pid = theMachineBroker->getPID();
-#endif
 
-#ifdef _PARALLEL_PROCESSING
   if (theMachineBroker != nullptr)
     pid = theMachineBroker->getPID();
-#endif
 
   // now we copy the value to the tcl string that is returned
   char buffer[30];
@@ -93,15 +87,8 @@ int
 getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int np = 1;
-#ifdef _PARALLEL_INTERPRETERS
   if (theMachineBroker != nullptr)
     np = theMachineBroker->getNP();
-#endif
-
-#ifdef _PARALLEL_PROCESSING
-  if (theMachineBroker != nullptr)
-    np = theMachineBroker->getNP();
-#endif
 
   // now we copy the value to the tcl string that is returned
   char buffer[30];
@@ -112,7 +99,7 @@ getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const arg
 }
 
 
-int
+static int
 partitionModel(int eleTag)
 {
   if (OPS_PARTITIONED == true)
@@ -295,7 +282,6 @@ opsRecv(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
       return TCL_ERROR;
     }
   } else {
-
     if (myPID != 0) {
       MPI_Bcast((void *)(&msgLength), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -313,7 +299,6 @@ opsRecv(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
       return TCL_ERROR;
     }
   }
-
 #endif
 
   return TCL_OK;

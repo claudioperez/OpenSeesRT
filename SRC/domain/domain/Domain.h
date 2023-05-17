@@ -17,22 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.31 $
-// $Date: 2010-09-16 00:07:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/domain/Domain.h,v $
-                                                                        
-// Written: fmk 
-// Created: Fri Sep 20 15:27:47: 1996
-// Revision: A
 //
 // Description: This file contains the class definition for Domain.
 // Domain is a container class. The class is responsible for holding
 // and providing access to the Elements, Nodes, SP_Constraints 
 // MP_Constraints, and LoadPatterns.
 //
-// What: "@(#) Domain.h, revA"
-
+// Written: fmk 
+// Created: Fri Sep 20 15:27:47: 1996
+// Revision: A
+//
 #ifndef Domain_h
 #define Domain_h
 

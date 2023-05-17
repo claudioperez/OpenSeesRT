@@ -16,8 +16,7 @@ int
 TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-  Domain* theTclDomain = builder->getDomain();
+  Domain *theTclDomain = ((BasicModelBuilder*)clientData)->getDomain();
 
   if (argc < 3) {
       opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
@@ -58,10 +57,7 @@ int
 TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
-  Domain *theTclDomain = builder->getDomain();
-  // G3_Runtime *rt = G3_getRuntime(interp);
-  // Domain *theTclDomain = G3_getDomain(rt);
+  Domain *theTclDomain = ((BasicModelBuilder*)clientData)->getDomain();
 
   if (argc < 4) {
       opserr << "WARNING rigidLink linkType? rNode? cNode?\n";
