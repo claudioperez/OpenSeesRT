@@ -71,7 +71,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
 
   // make sure at least one other argument to contain numberer
   if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "need to specify a ConvergenceTest Type type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a ConvergenceTest type \n";
     return nullptr;
   }
 
