@@ -161,10 +161,10 @@ include_directories(
   ${OPS_SRC_DIR}/domain/constraints
   ${OPS_SRC_DIR}/domain/domain
 # ${OPS_SRC_DIR}/domain/domain/partitioned
+# ${OPS_SRC_DIR}/domain/loadBalancer
   ${OPS_SRC_DIR}/domain/domain/single
   ${OPS_SRC_DIR}/domain/groundMotion
   ${OPS_SRC_DIR}/domain/load
-# ${OPS_SRC_DIR}/domain/loadBalancer
   ${OPS_SRC_DIR}/domain/node
   ${OPS_SRC_DIR}/domain/partitioner
   ${OPS_SRC_DIR}/domain/pattern
@@ -238,6 +238,7 @@ add_library(OPS_Material           OBJECT)
 add_library(OPS_MaterialFortran    OBJECT)
 add_library(OPS_Damage             OBJECT)
 add_library(OPS_Database           OBJECT)
+add_library(OPS_Runtime            OBJECT)
 
 # Optional Extensions
 add_library(OPS_Parallel           OBJECT)
