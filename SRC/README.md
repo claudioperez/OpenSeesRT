@@ -69,10 +69,10 @@ All files are in the following subdirectories:
 </dd>
 
 <dt><a href="./tagged"><code>tagged</code></a></dt>
-<dd>as not all C++ compilers do templates yet i use TagggedObject
-        and the files in it's subdirectory storage (TaggedObjectStorage,
-        ArrayOfTaggedObjects and their iters) for my containers to store
-        the objects in Domain and AnalysisModel.
+<dd>`TagggedObject` and it's container classes (in subdirectory `storage/`).
+    This includes the abstract `TaggedObjectStorage`, the implementation
+    `ArrayOfTaggedObjects` and their iterators
+    These store the objects in `Domain` and `AnalysisModel`.
 </dd>
 
 <dt><a href="./modelbuilder"><code>modelbuilder</code></a></dt>
