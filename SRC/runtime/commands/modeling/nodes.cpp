@@ -2,7 +2,11 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
+// 
+// Description: This file implements commands that configure Node objects
+// for an analysis.
 //
+// Author: cmp
 //
 #include <assert.h>
 #include <tcl.h>
