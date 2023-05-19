@@ -3,6 +3,8 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+// Description: This file contains functions that are responsible
+// for orchestrating an analysis.
 //
 #include <tcl.h>
 #include <assert.h>
