@@ -20,8 +20,8 @@
 #include <Pressure_Constraint.h>
 
 // TODO: Remove global var - CMP
-static char *resDataPtr = nullptr;
-static int resDataSize = 0;
+static char *resDataPtr  = nullptr;
+static int   resDataSize = 0;
 
 int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -30,13 +30,11 @@ getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
-  Node *node;
-
   NodeIter &nodeIter = the_domain->getNodes();
 
+  Node *node;
   char buffer[20];
-
-  while ((node = nodeIter()) != 0) {
+  while ((node = nodeIter()) != nullptr) {
     sprintf(buffer, "%d ", node->getTag());
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -66,7 +64,7 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   Node *theNode;
   char buffer[20] = {0};
 
-  while ((theNode = theNodes()) != 0) {
+  while ((theNode = theNodes()) != nullptr) {
     DOF_Group *theGroup = theNode->getDOF_GroupPtr();
     if (theGroup != nullptr) {
       const ID &nodeID = theGroup->getID();
@@ -809,7 +807,6 @@ calculateNodalReactions(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-
   Domain *the_domain = (Domain *)clientData;
 
   int incInertia = 0;
