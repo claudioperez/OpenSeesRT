@@ -27,7 +27,11 @@ Additional minor features:
 - improved `print` command
   - new `-registry` option
   - more reliable JSON printing
-
+  - includes `MP_Constraint` information
+- consolidated `rigidLink` command
+  - Fewer files
+  - Better error handling (errors dont happen in a constructor, so they can
+    be handled properly).
 
 
 ## User Changes
@@ -65,6 +69,7 @@ changes from the classic `OpenSees` interpreter:
 - Several stale classes removed:
   - `utility/SimulationInformation.*`
   - `utility/StringContainer.*`
+  - removed all use of ad-hoc `bool.h`
 
 ## Proposed changes
 
