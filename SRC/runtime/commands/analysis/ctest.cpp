@@ -2,7 +2,8 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-//
+// 
+// Description: This file implements the selection of a convergence test.
 //
 #include <assert.h>
 #include <tcl.h>
