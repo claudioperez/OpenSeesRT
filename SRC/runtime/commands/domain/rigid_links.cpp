@@ -368,7 +368,7 @@ createLinearRigidDiaphragm(Domain &theDomain, int ret_tag, ID &nC,
       } else  {
         opserr << G3_WARN_PROMPT 
                << "ignoring constrained node  " << ndC << ", not 3D node\n";
-        return CONSTAINT_OK;
+        return CONSTRAINT_OK;
       }
       
     } // for each node in constrained nodes
@@ -379,21 +379,22 @@ int
 TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
+  // TODO: Change RigidDiaphragm to take Domain as clientData
   Domain *theTclDomain = ((BasicModelBuilder*)clientData)->getDomain();
 
   if (argc < 3) {
-      opserr << "WARNING rigidLink perpDirn? rNode? <cNodes?>\n";
+      opserr << G3_ERROR_PROMPT << "rigidLink perpDirn? rNode? <cNodes?>\n";
       return TCL_ERROR;
   }
 
   int rNode, perpDirn;
   if (Tcl_GetInt(interp, argv[1], &perpDirn) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read perpDirn? \n";
+      opserr << G3_ERROR_PROMPT << "rigidLink perpDirn rNode cNodes - could not read perpDirn? \n";
       return TCL_ERROR;
   }
 
   if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read rNode \n";
+      opserr << G3_ERROR_PROMPT << "rigidLink perpDirn rNode cNodes - could not read rNode \n";
       return TCL_ERROR;
   }
 
@@ -403,7 +404,7 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
   for (int i=0; i<numConstrainedNodes; i++) {
       int cNode;
       if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
-          opserr << "WARNING rigidLink perpDirn rNode cNodes - could not read a cNode\n";
+          opserr << G3_ERROR_PROMPT << "rigidLink perpDirn rNode cNodes - could not read a cNode\n";
           return TCL_ERROR;
       }
       constrainedNodes(i) = cNode;
@@ -422,17 +423,17 @@ TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   Domain *theTclDomain = ((BasicModelBuilder*)clientData)->getDomain();
 
   if (argc < 4) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode?\n";
+      opserr << G3_ERROR_PROMPT << "rigidLink linkType? rNode? cNode?\n";
       return TCL_ERROR;
   }
 
   int rNode, cNode;
   if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read rNode \n"; 
+      opserr << G3_ERROR_PROMPT << "rigidLink linkType? rNode? cNode? - could not read rNode \n"; 
       return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3], &cNode) != TCL_OK) {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - could not read CNode \n"; 
+      opserr << G3_ERROR_PROMPT << "rigidLink linkType? rNode? cNode? - could not read CNode \n"; 
       return TCL_ERROR;
   }
 
@@ -446,7 +447,7 @@ TclCommand_RigidLink(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
     //RigidBeam theLink(*theTclDomain, rNode, cNode);
 
   } else {
-      opserr << "WARNING rigidLink linkType? rNode? cNode? - unrecognised link type (-bar, -beam) \n"; 
+      opserr << G3_ERROR_PROMPT << "rigidLink linkType? rNode? cNode? - unrecognised link type (-bar, -beam) \n"; 
       return TCL_ERROR;
   }
   return TCL_OK;
