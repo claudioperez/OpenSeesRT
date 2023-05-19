@@ -11,7 +11,7 @@
 //   Gregory L. Fenves (fenves@ce.berkeley.edu)
 //   Filip C. Filippou (filippou@ce.berkeley.edu)
 //
-// With a lot of additions by
+// With extensive contributions from
 //   Boris Jeremic    (jeremic@ucdavis.edu)
 //   Zaohui Yang      (zhyang@ucdavis.edu)
 //   Zhao Cheng       (zcheng@ucdavis.edu)
