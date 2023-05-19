@@ -11,10 +11,8 @@ Tcl_CmdProc setCreep;
 
 Tcl_CmdProc getLoadFactor;
 
-
 Tcl_CmdProc printModelGID;
 
-// Tcl_CmdProc addRecorder;
 Tcl_CmdProc TclAddRecorder;
 
 Tcl_CmdProc addAlgoRecorder;
