@@ -3,7 +3,9 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
-// Description: Functions used to print out the domain
+// Description: Commands that are used to print out the domain
+//
+// Author: cmp
 //
 #ifdef _WIN32
 #  include <io.h>
@@ -97,20 +99,28 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << "\n" << tab << tab << "]";
     s << ",\n";
     //
-    s << tab << tab << "\"crdTransformations\": [\n";        
+    s << tab << tab << "\"crdTransformations\": [\n";
     printRegistry(builder, "CoordinateTransform", flag, &s);
     s << "\n" << tab << tab << "]";
+    // s << ",\n";
+    // //
+    // s << tab << tab << "\"constraints\": [\n";
+    // theDomain->Print(s, flag);
+    // s << "\n" << tab << tab << "]";
+    s << "\n";
     //
+    s << tab << "},\n";
 
-    s << "\n" << tab << "},\n";
+    //
+    //
     s << tab << "\"geometry\": {\n";
 
+    int numPrinted = 0;
     int numToPrint = theDomain->getNumNodes();
     NodeIter &theNodess = theDomain->getNodes();
     Node *theNode;
-    int numPrinted = 0;
     s << tab << tab << "\"nodes\": [\n";
-    while ((theNode = theNodess()) != 0) {
+    while ((theNode = theNodess()) != nullptr) {
       theNode->Print(s, flag);
       numPrinted += 1;
       if (numPrinted < numToPrint)
@@ -124,7 +134,7 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     numToPrint = theDomain->getNumElements();
     numPrinted = 0;
     s << tab << tab << "\"elements\": [\n";
-    while ((theEle = theElementss()) != 0) {
+    while ((theEle = theElementss()) != nullptr) {
       theEle->Print(s, flag);
       numPrinted += 1;
       if (numPrinted < numToPrint)

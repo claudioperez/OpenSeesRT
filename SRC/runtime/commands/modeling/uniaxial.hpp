@@ -13,105 +13,103 @@
 #include <unordered_map>
 #include <runtimeAPI.h>
 
-extern OPS_Routine OPS_SPSW02;           // SAJalali
-extern OPS_Routine OPS_TDConcreteEXP;    // ntosic
-extern OPS_Routine OPS_TDConcrete;       // ntosic
-extern OPS_Routine OPS_TDConcreteMC10;   // ntosic
-extern OPS_Routine OPS_TDConcreteMC10NL; // ntosic
-extern OPS_Routine OPS_ElasticMaterial;
-extern OPS_Routine OPS_ElasticPPMaterial;
-extern OPS_Routine OPS_EPPGapMaterial;
-// extern void *OPS_ParallelMaterial(G3_Runtime *);
-extern OPS_Routine OPS_SeriesMaterial;
-extern OPS_Routine OPS_HardeningMaterial;
-extern OPS_Routine OPS_HystereticMaterial;
-extern OPS_Routine OPS_CableMaterial;
-extern OPS_Routine OPS_Bilin;
+extern OPS_Routine OPS_ASD_SMA_3K;
+extern OPS_Routine OPS_BWBN;
 extern OPS_Routine OPS_Bilin02;
-extern OPS_Routine OPS_Steel01;
-extern OPS_Routine OPS_FRPConfinedConcrete02;
-extern OPS_Routine OPS_Steel02;
-extern OPS_Routine OPS_SteelFractureDI; // galvisf
-extern OPS_Routine OPS_Steel02Fatigue;
-extern OPS_Routine OPS_RambergOsgoodSteel;
-extern OPS_Routine OPS_ReinforcingSteel;
+extern OPS_Routine OPS_Bilin;
+extern OPS_Routine OPS_BilinearOilDamper;
+extern OPS_Routine OPS_Bond_SP01;
+extern OPS_Routine OPS_BoucWenOriginal;
+extern OPS_Routine OPS_CFSSSWP;
+extern OPS_Routine OPS_CFSWSWP;
+extern OPS_Routine OPS_CableMaterial;
+extern OPS_Routine OPS_Cast;
 extern OPS_Routine OPS_Concrete01;
 extern OPS_Routine OPS_Concrete02;
 extern OPS_Routine OPS_Concrete02IS;
-extern OPS_Routine OPS_PinchingLimitStateMaterial;
-extern OPS_Routine OPS_SAWSMaterial;
-extern OPS_Routine OPS_ConcreteZ01Material;
+extern OPS_Routine OPS_Concrete02Thermal;
+extern OPS_Routine OPS_ConcreteCM;
+extern OPS_Routine OPS_ConcreteD;
+extern OPS_Routine OPS_ConcreteECThermal;
 extern OPS_Routine OPS_ConcreteL01Material;
-extern OPS_Routine OPS_SteelZ01Material;
-extern OPS_Routine OPS_TendonL01Material;
+extern OPS_Routine OPS_ConcreteSakaiKawashima;
+extern OPS_Routine OPS_ConcreteZ01Material;
 extern OPS_Routine OPS_ConfinedConcrete01Material;
-extern OPS_Routine OPS_ElasticBilin;
-extern OPS_Routine OPS_MinMaxMaterial;
-extern OPS_Routine OPS_SimpleFractureMaterial;
-extern OPS_Routine OPS_HoehlerStanton;
-extern OPS_Routine OPS_InitStrainMaterial;
-extern OPS_Routine OPS_InitStressMaterial;
-extern OPS_Routine OPS_pyUCLA;
-extern OPS_Routine OPS_Maxwell;
-extern OPS_Routine OPS_ViscousDamper;
 extern OPS_Routine OPS_DamperMaterial;
-extern OPS_Routine OPS_BilinearOilDamper;
-extern OPS_Routine OPS_Cast;
-extern OPS_Routine OPS_Dodd_Restrepo;
+extern OPS_Routine OPS_DegradingPinchedBW;
 extern OPS_Routine OPS_DoddRestr;
+extern OPS_Routine OPS_Dodd_Restrepo;
+extern OPS_Routine OPS_EPPGapMaterial;
+extern OPS_Routine OPS_ElasticBilin;
+extern OPS_Routine OPS_ElasticMaterial;
+extern OPS_Routine OPS_ElasticMaterialThermal;
 extern OPS_Routine OPS_ElasticMultiLinear;
-extern OPS_Routine OPS_ImpactMaterial;
-extern OPS_Routine OPS_SteelBRB;
-extern OPS_Routine OPS_MultiLinear;
+extern OPS_Routine OPS_ElasticPPMaterial;
+extern OPS_Routine OPS_ElasticPowerFunc;
+extern OPS_Routine OPS_FRPConfinedConcrete02;
+extern OPS_Routine OPS_FRPConfinedConcrete02;
+extern OPS_Routine OPS_FRPConfinedConcrete;
+extern OPS_Routine OPS_GNGMaterial;
+extern OPS_Routine OPS_HardeningMaterial;
+extern OPS_Routine OPS_HoehlerStanton;
 extern OPS_Routine OPS_HookGap;
 extern OPS_Routine OPS_HyperbolicGapMaterial;
-extern OPS_Routine OPS_FRPConfinedConcrete;
-extern OPS_Routine OPS_FRPConfinedConcrete02;
-extern OPS_Routine OPS_UVCuniaxial;
-extern OPS_Routine OPS_Steel01Thermal;
-extern OPS_Routine OPS_Steel02Thermal;
-extern OPS_Routine OPS_Concrete02Thermal;
-extern OPS_Routine OPS_StainlessECThermal;
-extern OPS_Routine OPS_SteelECThermal;
-extern OPS_Routine OPS_ConcreteECThermal;
-extern OPS_Routine OPS_ElasticMaterialThermal;
-extern OPS_Routine OPS_ASD_SMA_3K;
-extern OPS_Routine OPS_BWBN;
-extern OPS_Routine OPS_IMKPeakOriented;
+extern OPS_Routine OPS_HystereticMaterial;
+extern OPS_Routine OPS_HystereticPoly;
 extern OPS_Routine OPS_IMKBilin;
+extern OPS_Routine OPS_IMKPeakOriented;
 extern OPS_Routine OPS_IMKPinching;
-extern OPS_Routine OPS_ModIMKPeakOriented;
+extern OPS_Routine OPS_ImpactMaterial;
+extern OPS_Routine OPS_InitStrainMaterial;
+extern OPS_Routine OPS_InitStressMaterial;
+extern OPS_Routine OPS_Masonry;
+extern OPS_Routine OPS_Masonryt;
+extern OPS_Routine OPS_Maxwell;
+extern OPS_Routine OPS_MinMaxMaterial;
 extern OPS_Routine OPS_ModIMKPeakOriented02;
+extern OPS_Routine OPS_ModIMKPeakOriented;
 extern OPS_Routine OPS_ModIMKPinching;
-extern void *OPS_ConcretewBeta(void);
-extern OPS_Routine OPS_ConcreteD;
-extern OPS_Routine OPS_PinchingLimitState;
-extern OPS_Routine OPS_OriginCentered;
-extern OPS_Routine OPS_Steel2;
-extern OPS_Routine OPS_ConcreteSakaiKawashima;
-extern OPS_Routine OPS_ResilienceMaterialHR;
-extern OPS_Routine OPS_CFSSSWP;
-extern OPS_Routine OPS_CFSWSWP;
-extern OPS_Routine OPS_ResilienceLow;
-extern OPS_Routine OPS_ViscousMaterial;
-extern OPS_Routine OPS_SteelMPF;
-extern OPS_Routine OPS_ConcreteCM;
-extern OPS_Routine OPS_Bond_SP01;
-extern OPS_Routine OPS_Steel4;
-extern OPS_Routine OPS_PySimple3;
-extern OPS_Routine OPS_BoucWenOriginal;
-extern OPS_Routine OPS_GNGMaterial;
+extern OPS_Routine OPS_MultiLinear;
 extern OPS_Routine OPS_OOHystereticMaterial;
-extern OPS_Routine OPS_ElasticPowerFunc;
-extern OPS_Routine OPS_UVCuniaxial;
-extern OPS_Routine OPS_DegradingPinchedBW;
+extern OPS_Routine OPS_OriginCentered;
+extern OPS_Routine OPS_PinchingLimitState;
+extern OPS_Routine OPS_PinchingLimitStateMaterial;
+extern OPS_Routine OPS_PySimple3;
+extern OPS_Routine OPS_RambergOsgoodSteel;
+extern OPS_Routine OPS_ReinforcingSteel;
+extern OPS_Routine OPS_ResilienceLow;
+extern OPS_Routine OPS_ResilienceMaterialHR;
+extern OPS_Routine OPS_SAWSMaterial;
 extern OPS_Routine OPS_SLModel;
 extern OPS_Routine OPS_SMAMaterial;
-extern OPS_Routine OPS_HystereticPoly;
-extern OPS_Routine OPS_Masonry;
-extern OPS_Routine OPS_Trilinwp;
+extern OPS_Routine OPS_SPSW02;           // SAJalali
+extern OPS_Routine OPS_SeriesMaterial;
+extern OPS_Routine OPS_SimpleFractureMaterial;
+extern OPS_Routine OPS_StainlessECThermal;
+extern OPS_Routine OPS_Steel01;
+extern OPS_Routine OPS_Steel01Thermal;
+extern OPS_Routine OPS_Steel02;
+extern OPS_Routine OPS_Steel02Fatigue;
+extern OPS_Routine OPS_Steel02Thermal;
+extern OPS_Routine OPS_Steel2;
+extern OPS_Routine OPS_Steel4;
+extern OPS_Routine OPS_SteelBRB;
+extern OPS_Routine OPS_SteelECThermal;
+extern OPS_Routine OPS_SteelFractureDI; // galvisf
+extern OPS_Routine OPS_SteelMPF;
+extern OPS_Routine OPS_SteelZ01Material;
+extern OPS_Routine OPS_TDConcrete;       // ntosic
+extern OPS_Routine OPS_TDConcreteEXP;    // ntosic
+extern OPS_Routine OPS_TDConcreteMC10;   // ntosic
+extern OPS_Routine OPS_TDConcreteMC10NL; // ntosic
+extern OPS_Routine OPS_TendonL01Material;
 extern OPS_Routine OPS_Trilinwp2;
-extern OPS_Routine OPS_Masonryt;
+extern OPS_Routine OPS_Trilinwp;
+extern OPS_Routine OPS_UVCuniaxial;
+extern OPS_Routine OPS_ViscousDamper;
+extern OPS_Routine OPS_ViscousMaterial;
+extern OPS_Routine OPS_pyUCLA;
+extern void *OPS_ConcretewBeta(void);
 
 const std::unordered_map<std::string, OPS_Routine*> uniaxial_rt_table 
 {
@@ -125,8 +123,6 @@ const std::unordered_map<std::string, OPS_Routine*> uniaxial_rt_table
     {"MinMaxMaterial",         OPS_MinMaxMaterial            },
     {"MinMax",                 OPS_MinMaxMaterial            },
 
-    // {"Parallel",               OPS_ParallelMaterial          },
-
     {"Series",                 OPS_SeriesMaterial            },
 
 // Steels
@@ -135,13 +131,13 @@ const std::unordered_map<std::string, OPS_Routine*> uniaxial_rt_table
 
     {"Steel02",                OPS_Steel02                   },
 
+    {"Steel4",                 OPS_Steel4                    },
+
     {"SteelBRB",               OPS_SteelBRB                  },
 
     {"SteelFractureDI",        OPS_SteelFractureDI           },
 
     {"Steel02Fatigue",         OPS_Steel02Fatigue            },
-
-    {"Steel4",                 OPS_Steel4                    },
 
     {"Dodd_Restrepo",          OPS_Dodd_Restrepo             },
     {"DoddRestrepo" ,          OPS_Dodd_Restrepo             },
@@ -339,7 +335,6 @@ const std::unordered_map<std::string, OPS_Routine*> uniaxial_rt_table
 /*
   {"PlateBearingConnectionThermal",  OPS_PlateBearingConnectionThermal},
   {"PinchingLimitStateMaterial",     OPS_PinchingLimitState           },
-
 */
 
 typedef UniaxialMaterial* (G3_TclUniaxialCommand)(G3_Runtime*, int, TCL_Char ** const);

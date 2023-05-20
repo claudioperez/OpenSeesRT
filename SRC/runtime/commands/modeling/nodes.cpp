@@ -87,6 +87,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << G3_ERROR_PROMPT << "invalid 3rd coordinate\n";
       return TCL_ERROR;
     }
+
   } else {
     opserr << G3_ERROR_PROMPT << "unsupported model dimension\n";
     return TCL_ERROR;
@@ -107,8 +108,10 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   if (ndm == 1)
     theNode = new Node(nodeId, ndf, xLoc);
+
   else if (ndm == 2)
     theNode = new Node(nodeId, ndf, xLoc, yLoc);
+
   else
     theNode = new Node(nodeId, ndf, xLoc, yLoc, zLoc);
 
@@ -120,8 +123,9 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << "node: " << nodeId << endln;
         return TCL_ERROR;
       }
-      Matrix mass(ndf, ndf);
+
       double theMass;
+      Matrix mass(ndf, ndf);
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term";
@@ -131,6 +135,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
         mass(i, i) = theMass;
       }
       theNode->setMass(mass);
+
     } else if (strcmp(argv[currentArg], "-dispLoc") == 0) {
       currentArg++;
       if (argc < currentArg + ndm) {
@@ -177,8 +182,9 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << "expected " << ndf << endln;
         return TCL_ERROR;
       }
-      Vector disp(ndf);
+
       double theDisp;
+      Vector disp(ndf);
       for (int i = 0; i < ndf; i++) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal vel term at ";
@@ -233,13 +239,11 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check for mass terms
   Matrix mass(ndf,ndf);
-  double theMass;
-  for (int i=0; i<ndf; i++)
-  {
-     if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK)
-     {
+  for (int i=0; i<ndf; i++) {
+     double theMass;
+     if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
-          opserr << "node: " << nodeId << ", dof: " << i+1 << endln;
+          opserr << "node: " << nodeId << ", dof: " << i+1 << "\n";
           return TCL_ERROR;
       }
       mass(i,i) = theMass;
@@ -271,6 +275,7 @@ TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
       opserr << G3_ERROR_PROMPT << "ndm nodeTag? \n";
       return TCL_ERROR;
     }
+
     Node *theNode = the_domain->getNode(tag);
     if (theNode == nullptr) {
       opserr << G3_ERROR_PROMPT << "nodeTag " << tag << " does not exist \n";
@@ -283,10 +288,7 @@ TclCommand_getNDM(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
       ndm = builder->getNDM();
   }
 
-  char buffer[20];
-  sprintf(buffer, "%d", ndm);
-  Tcl_AppendResult(interp, buffer, NULL);
-
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(ndm));
   return TCL_OK;
 }
 

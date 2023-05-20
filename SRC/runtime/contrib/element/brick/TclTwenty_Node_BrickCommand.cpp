@@ -85,7 +85,7 @@ TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
   }
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
     opserr << "Material: " << matID;
@@ -222,7 +222,7 @@ TclBasicBuilder_addBrickUP(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -361,7 +361,7 @@ TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData clientData, Tcl_Interp *int
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -508,7 +508,7 @@ TclBasicBuilder_addBBarBrickUP(ClientData clientData, Tcl_Interp *interp, int ar
     }
   }
 
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";

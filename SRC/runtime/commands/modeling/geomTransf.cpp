@@ -3,7 +3,7 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
-// Geometric transformation command
+// Description: Geometric transformation command
 //
 #include <string.h>
 #include <assert.h>
@@ -20,7 +20,7 @@
 #include <CorotCrdTransfWarping2d.h>
 
 //
-// to create a coordinate transformation
+// Create a coordinate transformation
 //
 int
 TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -38,10 +38,8 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  int ndm, ndf;
-
-  ndm = theTclBasicBuilder->getNDM();
-  ndf = theTclBasicBuilder->getNDF(); // number of degrees of freedom per node
+  int ndm = theTclBasicBuilder->getNDM();
+  int ndf = theTclBasicBuilder->getNDF(); // number of degrees of freedom per node
 
   // create 2d coordinate transformation
   if ((ndm == 2 && ndf == 3) || (ndm == 2 && ndf == 4)) {
@@ -62,13 +60,12 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    // allow additional options at end of command
-    int i;
+    // Additional options at end of command
 
     while (argi != argc) {
       if (strcmp(argv[argi], "-jntOffset") == 0) {
         argi++;
-        for (i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n"
@@ -77,7 +74,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         }
 
-        for (i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n"
@@ -129,9 +126,8 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;
     }
-  }
 
-  else if (ndm == 3 && ndf == 6) {
+  } else if (ndm == 3 && ndf == 6) {
     int crdTransfTag;
     Vector vecxzPlane(3);                // vector that defines local xz plane
     Vector jntOffsetI(3), jntOffsetJ(3); // joint offsets in global coordinates
@@ -163,10 +159,12 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
              opserr << G3_ERROR_PROMPT << "Failed  to parse vectxz\n";
              return TCL_ERROR;
            }
+
         argi++;
         parsed_xz = true;
       }
     } 
+
     if (!parsed_xz) {
       if (Tcl_GetDouble(interp, argv[argi++], &vecxzPlane(0)) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid vecxzPlaneX\n    Expected: geomTransf type? tag? "
@@ -190,13 +188,12 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    // allow additional options at end of command
-    int i;
+    // additional keyword options at end of command
 
     while (argi != argc) {
       if (strcmp(argv[argi], "-jntOffset") == 0) {
         argi++;
-        for (i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n    Expected: geomTransf "
@@ -206,7 +203,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         }
 
-        for (i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n    Expected: geomTransf "
@@ -218,8 +215,8 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       } else {
         opserr << G3_ERROR_PROMPT << "bad command\n    Expected: geomTransf type? tag? "
                   "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? "
-                  "dYi? dZi? dXj? dYj? dZj? > ";
-        opserr << "invalid: " << argv[argi] << endln;
+                  "dYi? dZi? dXj? dYj? dZj? > \n";
+        opserr << "    invalid: " << argv[argi] << endln;
         return TCL_ERROR;
       }
     }
@@ -228,17 +225,14 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     CrdTransf *crdTransf3d;
 
     if (strcmp(argv[1], "Linear") == 0)
-      crdTransf3d = new LinearCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI,
-                                          jntOffsetJ);
+      crdTransf3d = new LinearCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "PDelta") == 0 ||
              strcmp(argv[1], "LinearWithPDelta") == 0)
-      crdTransf3d = new PDeltaCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI,
-                                          jntOffsetJ);
+      crdTransf3d = new PDeltaCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "Corotational") == 0)
-      crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI,
-                                         jntOffsetJ);
+      crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";
@@ -246,7 +240,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     if (crdTransf3d == nullptr) {
-      opserr << G3_ERROR_PROMPT << "Unknown transform\n";
+      opserr << G3_ERROR_PROMPT << "Failed to create transform\n";
       return TCL_ERROR;
     }
 
@@ -256,13 +250,12 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;
     }
+
   } else {
     opserr << G3_ERROR_PROMPT << "ndm = " << ndm << " and ndf = " << ndf
            << "is imcompatible with available frame elements\n";
     return TCL_ERROR;
   }
-
-  //  Tcl_Free ((char *)argv);
 
   return TCL_OK;
 }

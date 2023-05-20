@@ -38,6 +38,7 @@
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
 #include <MP_ConstraintIter.h>
+//
 #include <Parameter.h>
 #include <ParameterIter.h>
 #include <InitialStateParameter.h>
@@ -110,6 +111,8 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   ClientData domain = (ClientData)the_domain;
 
+  Tcl_CreateCommand(interp, "loadConst",           &TclCommand_setLoadConst, domain, nullptr);
+
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
@@ -119,26 +122,22 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "printGID",            &printModelGID, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "setTime",             &TclCommand_setTime, domain, nullptr);
-  Tcl_CreateCommand(interp, "getTime",             &TclCommand_getTime, domain, nullptr);
-
+  Tcl_CreateCommand(interp, "setTime",             &TclCommand_setTime,  domain, nullptr);
+  Tcl_CreateCommand(interp, "getTime",             &TclCommand_getTime,  domain, nullptr);
   Tcl_CreateCommand(interp, "setCreep",            &TclCommand_setCreep, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "nodePressure",        &nodePressure, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "nodeBounds",          &nodeBounds, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "findNodeWithID",    &findID, domain, nullptr);
 
   // DAMPING
   Tcl_CreateCommand(interp, "rayleigh",            &rayleighDamping, domain, nullptr);
-  Tcl_CreateCommand(interp, "setElementRayleighDampingFactors",
-                    &setElementRayleighDampingFactors, nullptr, nullptr);
 
+  Tcl_CreateCommand(interp, "setElementRayleighDampingFactors", &TclCommand_addElementRayleigh, domain, nullptr);
+  Tcl_CreateCommand(interp, "setElementRayleighFactors",        &TclCommand_addElementRayleigh, domain, nullptr);
   Tcl_CreateCommand(interp, "getLoadFactor",       &getLoadFactor, domain, nullptr);
   Tcl_CreateCommand(interp, "localForce",          &localForce,    domain, nullptr);
   Tcl_CreateCommand(interp, "eleType",             &eleType,       domain, nullptr);
   Tcl_CreateCommand(interp, "eleNodes",            &eleNodes,      domain, nullptr);
-
-  Tcl_CreateCommand(interp, "loadConst",           &TclCommand_setLoadConst, domain, nullptr);
+  Tcl_CreateCommand(interp, "basicDeformation",    &basicDeformation,    domain, nullptr);
+  Tcl_CreateCommand(interp, "basicForce",          &basicForce,          domain, nullptr);
+  Tcl_CreateCommand(interp, "basicStiffness",      &basicStiffness,      domain, nullptr);
 
   Tcl_CreateCommand(interp, "eleForce",            &eleForce,            domain, nullptr);
   Tcl_CreateCommand(interp, "eleResponse",         &eleResponse,         domain, nullptr);
@@ -151,9 +150,14 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "nodeDisp",            &nodeDisp,            domain, nullptr);
   Tcl_CreateCommand(interp, "nodeAccel",           &nodeAccel,           domain, nullptr);
   Tcl_CreateCommand(interp, "nodeResponse",        &nodeResponse,        domain, nullptr);
-  Tcl_CreateCommand(interp, "nodeReaction",        &nodeReaction,        domain, nullptr);
+  Tcl_CreateCommand(interp, "nodePressure",        &nodePressure,        domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeBounds",          &nodeBounds,          domain, nullptr);
+  Tcl_CreateCommand(interp, "findNodeWithID",      &findID,              domain, nullptr);
   Tcl_CreateCommand(interp, "nodeUnbalance",       &nodeUnbalance,       domain, nullptr);
   Tcl_CreateCommand(interp, "nodeEigenvector",     &nodeEigenvector,     domain, nullptr);
+
+  Tcl_CreateCommand(interp, "nodeReaction",        &nodeReaction,            domain, nullptr);
+  Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, domain, nullptr);
 
   Tcl_CreateCommand(interp, "setNodeVel",          &setNodeVel,          domain, nullptr);
   Tcl_CreateCommand(interp, "setNodeDisp",         &setNodeDisp,         domain, nullptr);
@@ -185,9 +189,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "sectionFlexibility",  &sectionFlexibility,  domain, nullptr);
   Tcl_CreateCommand(interp, "sectionLocation",     &sectionLocation,     domain, nullptr);
   Tcl_CreateCommand(interp, "sectionWeight",       &sectionWeight,       domain, nullptr);
-  Tcl_CreateCommand(interp, "basicDeformation",    &basicDeformation,    domain, nullptr);
-  Tcl_CreateCommand(interp, "basicForce",          &basicForce,          domain, nullptr);
-  Tcl_CreateCommand(interp, "basicStiffness",      &basicStiffness,      domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorderValue",       &OPS_recorderValue,   domain, nullptr);
   Tcl_CreateCommand(interp, "record",              &TclCommand_record,   domain, nullptr);
@@ -200,7 +201,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
 //   TODO: cmp, moved definition to packages/optimization; need to link in optionally
 //   Tcl_CreateCommand(interp, "setParameter", &setParameter, nullptr, nullptr);
-
 
   // Tcl_CreateCommand(interp, "sdfResponse",      &sdfResponse, nullptr, nullptr);
   // Tcl_CreateCommand(interp, "database", &addDatabase, nullptr, nullptr);
@@ -258,213 +258,6 @@ addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-int
-eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const argv)
-{
-  assert(clientData != nullptr);
-  Domain *domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eleForce eleTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-#if 0
-  Element *theEle = the_domain->getElement(tag);
-  if (theEle == 0)
-    return TCL_ERROR;
-
-  const Vector &force = theEle->getResistingForce();
-#endif
-
-  const char *myArgv[1];
-  char myArgv0[8];
-  strcpy(myArgv0, "forces");
-  myArgv[0] = myArgv0;
-
-  const Vector *force = domain->getElementResponse(tag, &myArgv[0], 1);
-  if (force != 0) {
-    int size = force->Size();
-
-    if (dof >= 0) {
-
-      if (size < dof)
-        return TCL_ERROR;
-
-      Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*force)(dof)));
-
-    } else {
-      char buffer[40];
-      for (int i = 0; i < size; i++) {
-        sprintf(buffer, "%35.20f", (*force)(i));
-        Tcl_AppendResult(interp, buffer, NULL);
-      }
-    }
-  } else {
-    opserr << G3_ERROR_PROMPT << "- failed to retrieve element force.\n";
-    return TCL_ERROR;
-  }
-  return TCL_OK;
-}
-
-int
-localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const argv)
-{
-  assert(clientData != nullptr);
-  Domain *theDomain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - localForce eleTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "localForce eleTag? dof? - could not read eleTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "localForce eleTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-
-  const char *myArgv[1];
-  char myArgv0[80];
-  strcpy(myArgv0, "localForces");
-  myArgv[0] = myArgv0;
-
-  const Vector *force = theDomain->getElementResponse(tag, &myArgv[0], 1);
-  if (force != 0) {
-    int size = force->Size();
-
-    if (dof >= 0) {
-
-      if (size < dof)
-        return TCL_ERROR;
-
-      double value = (*force)(dof);
-      Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
-
-    } else {
-      char buffer[40];
-      for (int i = 0; i < size; i++) {
-        sprintf(buffer, "%35.20f", (*force)(i));
-        Tcl_AppendResult(interp, buffer, NULL);
-      }
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
-                  TCL_Char** const argv)
-{
-  assert(clientData != nullptr);
-  Domain *theDomain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eleForce eleTag? <dof?>\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-  int dof = -1;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read dof? \n";
-      return TCL_ERROR;
-    }
-  }
-
-  dof--;
-  Element *theEle = theDomain->getElement(tag);
-  if (theEle == nullptr)
-    return TCL_ERROR;
-
-  const Vector &force = theEle->getResistingForceIncInertia();
-  int size = force.Size();
-
-  if (dof >= 0) {
-
-    if (size < dof)
-      return TCL_ERROR;
-
-    double value = force(dof);
-    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
-
-  } else {
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%35.20f", force(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-
-  return TCL_OK;
-}
-
-int
-eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
-            TCL_Char** const argv)
-{
-  Domain* the_domain = (Domain*)clientData; 
-
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eleResponse eleTag? eleArgs...\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
-    return TCL_ERROR;
-  }
-
-  // TODO: Create element response function, remove from domain
-  const Vector *data = the_domain->getElementResponse(tag, argv + 2, argc - 2);
-  if (data != 0) {
-    int size = data->Size();
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%f ", (*data)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
-  }
-  return TCL_OK;
-}
 
 int
 nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
@@ -511,8 +304,6 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
 
   const Vector &coords = theNode->getCrds();
 
-  opserr << "..." << coords;
-
   char buffer[40];
   int size = coords.Size();
   if (dim == -1) {
@@ -553,7 +344,7 @@ retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   // get unique constrained nodes with set
   std::set<int> tags;
   int tag;
-  while ((theMP = mpIter()) != 0) {
+  while ((theMP = mpIter()) != nullptr) {
     tag = theMP->getNodeRetained();
     if (all || cNode == theMP->getNodeConstrained()) {
       tags.insert(tag);
@@ -624,7 +415,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   int i;
   int n;
   Vector retained(6);
-  while ((theMP = mpIter()) != 0) {
+  while ((theMP = mpIter()) != nullptr) {
     tag = theMP->getNodeRetained();
     if (tag == rNode) {
       if (allNodes || cNode == theMP->getNodeConstrained()) {
@@ -667,79 +458,12 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
 
   ElementIter &theElements = domain->getElements();
   Element *theElement;
-  while ((theElement = theElements()) != 0) {
+  while ((theElement = theElements()) != nullptr) {
     theElement->setDomain(domain);
   }
   return 0;
 }
 
-
-int
-eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eleType eleTag?\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleType eleTag? \n";
-    return TCL_ERROR;
-  }
-
-  Element *theElement = the_domain->getElement(tag);
-  if (theElement == nullptr) {
-    opserr << G3_ERROR_PROMPT << "eleType ele " << tag << " not found" << endln;
-    return TCL_ERROR;
-  }
-  const char *type = theElement->getClassType();
-
-  // char buffer[80];
-  // sprintf(buffer, "%s", type);
-  Tcl_AppendResult(interp, type, NULL);
-
-  return TCL_OK;
-}
-
-int
-eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eleNodes eleTag?\n";
-    return TCL_ERROR;
-  }
-
-  int tag;
-
-  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleNodes eleTag? \n";
-    return TCL_ERROR;
-  }
-
-  char buffer[20];
-
-  Element *theElement = the_domain->getElement(tag);
-  if (theElement == nullptr) {
-    opserr << G3_ERROR_PROMPT << "eleNodes ele " << tag << " not found" << endln;
-    return TCL_ERROR;
-  }
-  int numTags = theElement->getNumExternalNodes();
-  const ID &tags = theElement->getExternalNodes();
-  for (int i = 0; i < numTags; i++) {
-    sprintf(buffer, "%d ", tags(i));
-    Tcl_AppendResult(interp, buffer, NULL);
-  }
-
-  return TCL_OK;
-}
 
 int
 nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
@@ -1454,54 +1178,6 @@ rayleighDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
-setElementRayleighDampingFactors(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  Domain *the_domain = (Domain*)clientData;
-
-  if (argc < 6) {
-    opserr << G3_ERROR_PROMPT << "setElementRayleighDampingFactors eleTag? alphaM? betaK? "
-              "betaK0? betaKc? - not enough arguments to command\n";
-    return TCL_ERROR;
-  }
-
-  int eleTag;
-  double alphaM, betaK, betaK0, betaKc;
-
-  if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-              "read eleTag? \n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetDouble(interp, argv[2], &alphaM) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-              "read alphaM? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[3], &betaK) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-              "read betaK? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[4], &betaK0) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-              "read betaK0? \n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetDouble(interp, argv[5], &betaKc) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-              "read betaKc? \n";
-    return TCL_ERROR;
-  }
-
-  Element *theEle = the_domain->getElement(eleTag);
-  theEle->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
-  return TCL_OK;
-}
-
 
 int
 getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -1527,7 +1203,7 @@ getEleClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[20];
 
-    while ((theEle = eleIter()) != 0) {
+    while ((theEle = eleIter()) != nullptr) {
       sprintf(buffer, "%d ", theEle->getClassTag());
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -1566,11 +1242,11 @@ getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[20];
 
-    while ((thePattern = thePatterns()) != 0) {
+    while ((thePattern = thePatterns()) != nullptr) {
       ElementalLoadIter theEleLoads = thePattern->getElementalLoads();
       ElementalLoad *theLoad;
 
-      while ((theLoad = theEleLoads()) != 0) {
+      while ((theLoad = theEleLoads()) != nullptr) {
         sprintf(buffer, "%d ", theLoad->getClassTag());
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -1596,7 +1272,7 @@ getEleLoadClassTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[20];
 
-    while ((theLoad = theEleLoads()) != 0) {
+    while ((theLoad = theEleLoads()) != nullptr) {
       sprintf(buffer, "%d ", theLoad->getClassTag());
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -1622,11 +1298,11 @@ getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[20];
 
-    while ((thePattern = thePatterns()) != 0) {
+    while ((thePattern = thePatterns()) != nullptr) {
       ElementalLoadIter theEleLoads = thePattern->getElementalLoads();
       ElementalLoad *theLoad;
 
-      while ((theLoad = theEleLoads()) != 0) {
+      while ((theLoad = theEleLoads()) != nullptr) {
         sprintf(buffer, "%d ", theLoad->getElementTag());
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -1652,7 +1328,7 @@ getEleLoadTags(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[20];
 
-    while ((theLoad = theEleLoads()) != 0) {
+    while ((theLoad = theEleLoads()) != nullptr) {
       sprintf(buffer, "%d ", theLoad->getElementTag());
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -1679,11 +1355,11 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
     char buffer[40];
     int typeEL;
 
-    while ((thePattern = thePatterns()) != 0) {
+    while ((thePattern = thePatterns()) != nullptr) {
       ElementalLoadIter &theEleLoads = thePattern->getElementalLoads();
       ElementalLoad *theLoad;
 
-      while ((theLoad = theEleLoads()) != 0) {
+      while ((theLoad = theEleLoads()) != nullptr) {
         const Vector &eleLoadData = theLoad->getData(typeEL, 1.0);
 
         int eleLoadDataSize = eleLoadData.Size();
@@ -1716,7 +1392,7 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
     int typeEL;
     char buffer[40];
 
-    while ((theLoad = theEleLoads()) != 0) {
+    while ((theLoad = theEleLoads()) != nullptr) {
       const Vector &eleLoadData = theLoad->getData(typeEL, 1.0);
 
       int eleLoadDataSize = eleLoadData.Size();
@@ -1737,6 +1413,8 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
+  // NOTE: Maybe this can use a base class of ElementIter so we only need
+  //       to work in terms of tagged object
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
 
@@ -1745,7 +1423,7 @@ getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 
   char buffer[20];
 
-  while ((theEle = eleIter()) != 0) {
+  while ((theEle = eleIter()) != nullptr) {
     sprintf(buffer, "%d ", theEle->getTag());
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -1761,13 +1439,13 @@ getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain* the_domain = (Domain*)clientData; 
 
-  Parameter *theEle;
-  ParameterIter &eleIter = the_domain->getParameters();
+  Parameter *theParam;
+  ParameterIter &paramIter = the_domain->getParameters();
 
   char buffer[20];
 
-  while ((theEle = eleIter()) != 0) {
-    sprintf(buffer, "%d ", theEle->getTag());
+  while ((theParam = paramIter()) != nullptr) {
+    sprintf(buffer, "%d ", theParam->getTag());
     Tcl_AppendResult(interp, buffer, NULL);
   }
 
@@ -1814,3 +1492,4 @@ addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
   return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
 }
+

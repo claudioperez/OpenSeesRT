@@ -3,6 +3,10 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+// Description: This file implements commands that configure a 
+// `ModelBuider`.
+//
+// Author: cmp
 //
 #include <stdio.h>
 #include <stdlib.h>
@@ -233,6 +237,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   Tcl_Eval(interp, "wipeAnalysis");
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *domain = G3_getDomain(rt);
+
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
 #if 0 // TODO - implement ModelBuilder.clearAll();
@@ -291,9 +296,11 @@ buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[]
   if (builder != 0 && builtModel == false) {
     builtModel = true;
     return builder->buildFE_Model();
+
   } else if (builder != 0 && builtModel == true) {
     opserr << G3_ERROR_PROMPT << "Model has already been built - not built again \n";
     return TCL_ERROR;
+
   } else {
     opserr << G3_ERROR_PROMPT << "No ModelBuilder type has been specified \n";
     return TCL_ERROR;

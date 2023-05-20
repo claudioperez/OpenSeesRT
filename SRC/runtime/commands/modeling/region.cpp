@@ -7,7 +7,7 @@
 // by the interpreter when the command 'region' is invoked by the
 // user.
 //
-// Written: fmk
+// Written: fmk, cmp
 //
 #include <stdio.h>
 #include <stdlib.h>
@@ -297,7 +297,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (theNodes != 0) {
     if (nodeOnly == false) {
-      if (theElements == 0)
+      if (theElements == nullptr)
         theRegion->setNodes(*theNodes);
       else
         opserr << "WARNING region - both elements & nodes set, ONLY set using "
@@ -307,14 +307,16 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
+
+  // TODO: Why in this command?
   // if damping has been specified set the damping factors
   if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
     theRegion->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
 
-  if (theElements != 0)
+  if (theElements != nullptr)
     delete theElements;
 
-  if (theNodes != 0)
+  if (theNodes != nullptr)
     delete theNodes;
 
   return TCL_OK;

@@ -5,6 +5,18 @@
 //
 //
 //
+
+// domain/element.cpp
+Tcl_CmdProc TclCommand_addElementRayleigh;
+//
+
+Tcl_CmdProc getNumElements;
+
+Tcl_CmdProc getEleClassTags;
+Tcl_CmdProc getEleLoadClassTags;
+Tcl_CmdProc getEleLoadTags;
+Tcl_CmdProc getEleLoadData;
+
 Tcl_CmdProc setLoadConst;
 
 Tcl_CmdProc setCreep;
@@ -55,6 +67,9 @@ Tcl_CmdProc eleType;
 
 Tcl_CmdProc eleNodes;
 
+Tcl_CmdProc getEleTags;
+
+//
 Tcl_CmdProc nodeBounds;
 
 Tcl_CmdProc nodeVel;
@@ -73,17 +88,15 @@ Tcl_CmdProc calculateNodalReactions;
 
 Tcl_CmdProc getNodeTags;
 
-Tcl_CmdProc getEleTags;
-
 Tcl_CmdProc fixedNodes;
-
-Tcl_CmdProc fixedDOFs;
 
 Tcl_CmdProc constrainedNodes;
 
-Tcl_CmdProc constrainedDOFs;
-
 Tcl_CmdProc retainedNodes;
+//
+Tcl_CmdProc fixedDOFs;
+
+Tcl_CmdProc constrainedDOFs;
 
 Tcl_CmdProc retainedDOFs;
 
@@ -109,13 +122,6 @@ Tcl_CmdProc sensitivityAlgorithm;
 // Tcl_CmdProc sensitivityIntegrator;
 // AddingSensitivity:END ///////////////////////////////////////////////////
 
-Tcl_CmdProc getNumElements;
-
-Tcl_CmdProc getEleClassTags;
-Tcl_CmdProc getEleLoadClassTags;
-Tcl_CmdProc getEleLoadTags;
-Tcl_CmdProc getEleLoadData;
-
 // Tcl_CmdProc startTimer;
 // Tcl_CmdProc stopTimer;
 Tcl_CmdProc TclCommand_getTime;
@@ -126,8 +132,6 @@ Tcl_CmdProc rayleighDamping;
 Tcl_CmdProc modalDamping;
 
 Tcl_CmdProc modalDampingQ;
-
-Tcl_CmdProc setElementRayleighDampingFactors;
 
 Tcl_CmdProc addRegion;
 

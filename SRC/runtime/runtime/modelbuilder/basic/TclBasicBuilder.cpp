@@ -5,7 +5,7 @@
 // Description: This file contains the class definition for TclBasicBuilder.
 // A TclBasicBuilder adds the commands to create the model for the standard
 // models that can be generated using the elements released with the g3
-// framework. currently these elements include:
+// framework.
 //
 #include <stdlib.h>
 #include <string.h>
@@ -21,9 +21,6 @@
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
-
-#include <RigidRod.h>
-#include <RigidBeam.h>
 
 #include <CrdTransf.h>
 
@@ -57,8 +54,6 @@
 
 #include <TimeSeries.h>
 #include <PathTimeSeriesThermal.h>                   //L.Jiang [SIF]
-#include <vector>                                    //L.Jiang [SIF]
-using std::vector;                                   // L.Jiang [SIF]
 
 // Added by Scott J. Brandenberg (sjbrandenberg@ucdavis.edu)
 #include <PySimple1Gen.h>
@@ -97,36 +92,26 @@ extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
 //
 // SOME STATIC POINTERS USED IN THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
-
-static Domain *theTclDomain = 0;
-static TclBasicBuilder *theTclBuilder = 0;
-
+static Domain *theTclDomain = nullptr;
+static TclBasicBuilder *theTclBuilder = nullptr;
 extern LoadPattern *theTclLoadPattern;
-// extern MultiSupportPattern *theTclMultiSupportPattern;
 static int nodeLoadTag = 0;
-// static int eleLoadTag = 0;
 
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 // REMO
-extern int TclCommand_addPatch(ClientData, Tcl_Interp*, int argc, TCL_Char **const);
-
-extern int TclCommand_addFiber(ClientData, Tcl_Interp*, int argc, TCL_Char **const);
-
-extern int TclCommand_addReinfLayer(ClientData, Tcl_Interp*, int argc, TCL_Char **const);
-
-
-static int TclCommand_addParameter(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+extern Tcl_CmdProc TclCommand_addPatch;
+extern Tcl_CmdProc TclCommand_addFiber;
+extern Tcl_CmdProc TclCommand_addReinfLayer;
+static Tcl_CmdProc TclCommand_addParameter;
 
 
 #if 0 // mesh commands
-static int TclCommand_mesh(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-static int TclCommand_remesh(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+static Tcl_CmdProc TclCommand_mesh;
+static Tcl_CmdProc TclCommand_remesh;
 #endif
 
-static int TclCommand_addBeamIntegration(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
 
 #ifdef OPSDEF_DAMAGE
 int
@@ -134,67 +119,36 @@ TclCommand_addDamageModel(ClientData, Tcl_Interp*, int argc,
                           TCL_Char ** const);
 #endif // OPSDEF_DAMAGE
 
-static int TclCommand_addEqualDOF_MP(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+static Tcl_CmdProc TclCommand_addBeamIntegration;
 
-static int TclCommand_addEqualDOF_MP_Mixed(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+static Tcl_CmdProc TclCommand_addEqualDOF_MP;
+static Tcl_CmdProc TclCommand_addEqualDOF_MP_Mixed;
 
-static int TclCommand_addNodalLoad(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+static Tcl_CmdProc TclCommand_addNodalLoad;
 
-static int TclCommand_addImposedMotionSP(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+static Tcl_CmdProc TclCommand_addImposedMotionSP;
 
 // Added by Scott J. Brandenberg
-static int TclCommand_doPySimple1Gen(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
+static Tcl_CmdProc TclCommand_doPySimple1Gen;
+static Tcl_CmdProc TclCommand_doTzSimple1Gen;
 
-static int TclCommand_doTzSimple1Gen(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-// End added by SJB
+static Tcl_CmdProc TclBasicBuilder_doShallowFoundationGen;
+static Tcl_CmdProc TclBasicBuilder_addRemoHFiber;
 
-// Added by Prishati Raychowdhury (UCSD)
-static int TclBasicBuilder_doShallowFoundationGen(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-// End PRC
-
-// Leo
-static int TclBasicBuilder_addRemoHFiber(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-static int TclCommand_addFrictionModel(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-static int TclCommand_addStiffnessDegradation(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-static int TclCommand_addUnloadingRule(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-static int TclCommand_addStrengthDegradation(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-extern int TclCommand_addGroundMotion(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-/// added by ZHY
+static Tcl_CmdProc TclCommand_addStiffnessDegradation;
+static Tcl_CmdProc TclCommand_addUnloadingRule;
+static Tcl_CmdProc TclCommand_addStrengthDegradation;
+extern Tcl_CmdProc TclCommand_addGroundMotion;
 // static int TclCommand_UpdateMaterialStage(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
 extern Tcl_CmdProc TclBasicBuilderUpdateParameterCommand;
-
-/// added by ZHY
-
-////////////////gnp adding rayleigh //////////////////////////
-static int TclCommand_addElementRayleigh(ClientData,
-                                         Tcl_Interp*, int argc,
-                                         TCL_Char ** const);
-///////////////////////////////////////////////////////////////
+static Tcl_CmdProc TclCommand_Package;
+extern Tcl_CmdProc TclCommand_GenerateInterfacePoints;
 
 
 extern int TclCommand_addHFiber(ClientData, Tcl_Interp*,
                                 int argc, TCL_Char **const,
                                 TclBasicBuilder *theTclBuilder);
-/*
-extern int TclCommand_addReinfLayer(ClientData, Tcl_Interp*,
-                                    int argc, TCL_Char **,
-                                    TclBasicBuilder *theTclBuilder);
-*/
-extern int TclCommand_addGeomTransf(ClientData, Tcl_Interp *, int, TCL_Char ** const);
 
-static int TclCommand_Package(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-
-
-// Added by Alborz Ghofrani - U.Washington
-extern int TclCommand_GenerateInterfacePoints(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-// End Added by Alborz
 
 
 //
@@ -214,7 +168,7 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   Tcl_CreateCommand(interp, "addToParameter", TclCommand_addParameter, NULL, NULL);
   Tcl_CreateCommand(interp, "updateParameter", TclCommand_addParameter, NULL, NULL);
 
-#if 0 // mesh commands
+#if 0
   Tcl_CreateCommand(interp, "mesh", TclCommand_mesh, NULL, NULL);
   Tcl_CreateCommand(interp, "remesh", TclCommand_remesh, NULL, NULL);
 #endif
@@ -241,9 +195,9 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   // Added by LEO
   Tcl_CreateCommand(interp, "Hfiber",               TclBasicBuilder_addRemoHFiber, NULL, NULL);
 
-  Tcl_CreateCommand(interp, "frictionModel",        TclCommand_addFrictionModel, NULL, NULL);
   Tcl_CreateCommand(interp, "beamIntegration",  TclCommand_addBeamIntegration,  NULL, NULL);
 #if 0
+  Tcl_CreateCommand(interp, "frictionModel",        TclCommand_addFrictionModel, NULL, NULL);
   Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC, NULL, NULL);
   Tcl_CreateCommand(interp, "ysEvolutionModel", TclCommand_addYS_EvolutionModel, NULL, NULL);
   Tcl_CreateCommand(interp, "plasticMaterial", TclCommand_addYS_PlasticMaterial, NULL, NULL);
@@ -255,7 +209,6 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   // Tcl_CreateCommand(interp, "updateMaterialStage",  TclCommand_UpdateMaterialStage, NULL, NULL);
   // Tcl_CreateCommand(interp, "updateMaterials",      TclCommand_UpdateMaterials, NULL, NULL);
   Tcl_CreateCommand(interp, "loadPackage",          TclCommand_Package, NULL, NULL);
-  Tcl_CreateCommand(interp, "setElementRayleighFactors", TclCommand_addElementRayleigh, NULL, NULL);
 
 
   // set the static pointers in this file
@@ -301,7 +254,9 @@ TclBasicBuilder::~TclBasicBuilder()
   Tcl_DeleteCommand(theInterp, "updateMaterialStage");
   Tcl_DeleteCommand(theInterp, "updateMaterials");
 
+#if 0
   Tcl_DeleteCommand(theInterp, "frictionModel");
+#endif
   Tcl_DeleteCommand(theInterp, "unloadingRule");
   Tcl_DeleteCommand(theInterp, "stiffnessDegradation");
   Tcl_DeleteCommand(theInterp, "strengthDegradation");
@@ -349,6 +304,7 @@ TclBasicBuilder::addSectionRepres(SectionRepres &theSectionRepres)
 
   if (result == true)
     return 0;
+
   else {
     opserr << "TclBasicBuilder::addSectionRepres() - failed to add "
               "SectionRepres\n";
@@ -370,73 +326,6 @@ TclBasicBuilder::getSectionRepres(int tag)
 // THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-int
-TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv)
-{
-
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
-
-  // make sure corect number of arguments on command line
-  if (argc < 6) {
-    opserr << "WARNING insufficient arguments\n";
-    opserr << "Want: setElementRayleighFactors elementTag?  alphaM? $betaK? "
-              "$betaKinit? $betaKcomm? \n";
-    return TCL_ERROR;
-  }
-
-  int eleTag = 0;
-
-  if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
-    opserr << "WARNING: setElementRayleighFactors invalid eleTag: " << argv[1];
-    opserr << " \n";
-    return TCL_ERROR;
-  }
-
-  double alphaM, betaK, betaKinit, betaKcomm;
-
-  if (Tcl_GetDouble(interp, argv[2], &alphaM) != TCL_OK) {
-    opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "alphaM: " << argv[2] << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetDouble(interp, argv[3], &betaK) != TCL_OK) {
-    opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "betaK: " << argv[3] << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetDouble(interp, argv[4], &betaKinit) != TCL_OK) {
-    opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "betaKinit: " << argv[4] << endln;
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetDouble(interp, argv[5], &betaKcomm) != TCL_OK) {
-    opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "betaKcomm: " << argv[5] << endln;
-    return TCL_ERROR;
-  }
-
-  Element *elePtr = theTclDomain->getElement(eleTag);
-
-  if (elePtr == 0)
-    opserr << "WARNING : setElementRayleighFactors invalid eleTag: " << eleTag
-           << " the element does not exist in the domain \n";
-
-  if (elePtr->setRayleighDampingFactors(alphaM, betaK, betaKinit, betaKcomm) !=
-      0) {
-    opserr << "ERROR : setElementRayleighFactors: FAILED to add damping "
-              "factors for element "
-           << eleTag << "\n";
-  }
-
-  return TCL_OK;
-}
 /////////////////////////////   gnp adding element damping
 
 // the function for creating ne material objects and patterns is in a seperate
@@ -1331,13 +1220,6 @@ extern int TclBasicBuilderFrictionModelCommand(ClientData clienData,
                                                TCL_Char ** const argv,
                                                Domain *theDomain);
 
-int
-TclCommand_addFrictionModel(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char ** const argv)
-{
-  return TclBasicBuilderFrictionModelCommand(clientData, interp, argc, argv,
-                                             theTclDomain);
-}
 
 int
 TclCommand_Package(ClientData clientData, Tcl_Interp *interp, int argc,
