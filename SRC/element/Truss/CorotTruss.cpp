@@ -79,7 +79,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_CorotTrussElement)
   double rho = 0.0;
   int matTag = 0;
   int doRayleigh = 0; // by default rayleigh not done
-  int cMass = 0; // by default use lumped mass matrix
+  int cMass = 0;      // by default use lumped mass matrix
   int ndm = OPS_GetNDM();
 
   int numData = 3;

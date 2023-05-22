@@ -29,19 +29,18 @@ numberer RCM
 # create the analysis object 
 analysis Static 
 
-# create a Recorder object for the nodal displacements at node 4
-recorder Node -file out/Example.out -load -nodes 4 -dof 1 2 disp
+# create a Recorder object for the nodal displacements at node 2
+recorder Node -file out/CoupledZeroLength.out -load -nodes 2 -dof 1 2 disp
 
 timeSeries Path 1 -dt 1.0 -values {0.0 1.0 0.0 -1.0 0.0}
 pattern Plain 1 1 {
     load 2 $P 0.0 0.0 0.0 0.0 0.0
 }
 
-analyze 300
+set ok [analyze 300]
 remove loadPattern 1
 
 loadConst -time 0.0
-print node 2
 print ele 1
 
 pattern Plain 1 1 {
@@ -49,19 +48,20 @@ pattern Plain 1 1 {
 }
 test NormDispIncr 1.0e-12 3 0
 
-analyze 300
+set ok [expr $ok || [analyze 300]]
 remove loadPattern 1
 loadConst -time 0.0
-print node 2
-print ele 1
+# print ele 1
 
 pattern Plain 1 1 {
     set val [expr sqrt($P*$P/2.0)]
     load 2 $val $val 0.0 0.0 0.0 0.0
 }
 
-analyze 300
+set ok [expr $ok || [analyze 300]]
 remove loadPattern 1
 loadConst -time 0.0
-print node 2
-print ele 1
+# print ele 1
+
+exit $ok;
+

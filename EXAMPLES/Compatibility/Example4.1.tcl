@@ -325,6 +325,8 @@ while {$controlDisp < $maxU && $ok == 0} {
         set ok [analyze 1]
         if {$ok == 0} {
           puts "... that worked, back to normal"
+        } else {
+          break
         }
         test NormDispIncr 1.0e-8  10 0
         algorithm Newton
@@ -336,11 +338,5 @@ if {$ok != 0} {
 } else {
     puts "Pushover analysis completed SUCCESSFULLY"
 }
-
-
-
-
-
-
-
+exit $ok;
 

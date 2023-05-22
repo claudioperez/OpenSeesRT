@@ -28,7 +28,7 @@ proc MomentCurvature {secTag axialLoad maxK {numIncr 100} } {
 	element zeroLengthSection  1   1   2  $secTag
 
 	# Create recorder
-	recorder Node -file section$secTag.out -time -node 2 -dof 3 disp
+	recorder Node -file out/section$secTag.out -time -node 2 -dof 3 disp
 
 	# Define constant axial load
 	pattern Plain 1 "Constant" {

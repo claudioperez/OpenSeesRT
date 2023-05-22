@@ -139,10 +139,8 @@ if {$ok == 0} {
 }
 
 # Print the state at node 3
-print node 3
+print -file out/Example3.2-Node_3.out node 3
 
+print -file out/Example3.2.out
 
-
-
-
-print -file out
+exit $ok

@@ -70,14 +70,14 @@ set dU 0.1
 # Change the integration scheme to be displacement control
 #                             node dof init Jd min max
 #integrator DisplacementControl  3   1   $dU  1 $dU $dU
-#integrator ArcLength 0.0075 1.0
+integrator ArcLength 0.0075 1.0
 set deltal  0.0075
 set psi_u   1.0
 set psi_f   0.0
 set u_ref   1.0
 
 
-integrator HSConstraint $deltal  $psi_u   $psi_f   $u_ref  
+# integrator HSConstraint $deltal  $psi_u   $psi_f   $u_ref  
 
 
 # ----------------------------------------------------
@@ -115,22 +115,27 @@ set numSteps [expr int($maxU/$dU)]
 # Perform the analysis
 set currentDisp [nodeDisp 3 1]
 set ok 0
+
 while {$ok == 0 && $currentDisp < $maxU} {
-    
+
     set ok [analyze 1]
 
-        # if the analysis fails try initial tangent iteration
-        if {$ok != 0} {
-            puts "regular newton failed .. lets try an initail stiffness for this step"
-            test NormDispIncr 1.0e-12  1000 0
-            algorithm ModifiedNewton -initial
-            set ok [analyze 1]
-            if {$ok == 0} {puts "that worked .. back to regular newton"}
-            test NormDispIncr 1.0e-12  10 
-            algorithm Newton
+    # if the analysis fails try initial tangent iteration
+    if {$ok != 0} {
+        puts "regular newton failed .. lets try an initail stiffness for this step"
+        test NormDispIncr 1.0e-12  1000 0
+        algorithm ModifiedNewton -initial
+        set ok [analyze 1]
+        if {$ok == 0} {
+          puts "that worked .. back to regular newton"
+        } else {
+          break
         }
+        test NormDispIncr 1.0e-12  10 
+        algorithm Newton
+    }
 
-        set currentDisp [nodeDisp 3 1]
+    set currentDisp [nodeDisp 3 1]
 }
 
 puts "";
@@ -143,19 +148,5 @@ if {$ok == 0} {
 # Print the state at node 3
 print node 3
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+exit $ok;
 

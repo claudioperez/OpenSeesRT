@@ -7,6 +7,10 @@
 # Uniaxial Material Viewer
 # ------------------------
 #
+# To run:
+#
+#    python -m opensees --enable-tk strain2.tcl
+#
 # Written: fmk/MHS
 # Date: March 2001
 
@@ -24,7 +28,7 @@ set interpreterWidth 60
 set interpreterHeight 8
 
 # absolute max values for strain & stress drawn
-set maxStress 100.0
+set maxStress 150.0
 set maxStrain  0.05
 
 # last point plotted on canvas
@@ -52,7 +56,7 @@ wm title . "Uniaxial Material"
 #     4)tangUniaxialTest
 # ##############################################################
 
-model test 1
+model basic -ndm 1
 
 # ##############################################################
 # Define menu frame at top of window 
@@ -177,9 +181,11 @@ proc doneUniaxialMaterial {matName count} {
     set fileOpen [open results.out w]
     close $fileOpen
     eval ${matCommand}
-    eval uniaxialTest $matID
-    SetValues
-    Reset
+    invoke UniaxialMaterial $matID {
+      # eval uniaxialTest $matID
+      SetValues
+      Reset
+    }
 
 }
 
@@ -189,8 +195,7 @@ proc doneUniaxialMaterial {matName count} {
 
 frame .figure 
 
-# Define the scale
-
+# Create the scale (slider)
 set theScale [ scale .figure.scale -from [expr -$maxStrain] -to $maxStrain \
 	-length $width -variable strain -orient horizontal \
 	-tickinterval [expr $maxStrain / 2] -resolution [expr $maxStrain / 100] \
@@ -198,9 +203,8 @@ set theScale [ scale .figure.scale -from [expr -$maxStrain] -to $maxStrain \
 
 #pack .figure .figure.scale
 
-# Define the canvas
-
-set theCanvas [canvas .figure.canvas -bg #0088cc -height $height -width $width]
+# Create the canvas
+set theCanvas [canvas .figure.canvas -bg "#ffffff" -height $height -width $width]
 
 $theCanvas create line 10 [expr $height/2.0] [expr $width-10] [expr $height/2.0]
 $theCanvas create line [expr $width/2.0] 10 [expr $width/2.0] [expr $height-10]
@@ -249,18 +253,18 @@ proc Settings { } {
 
 frame .values -borderwidth 1 -relief raised
 
-label .values.strain -text "Strain : " 
-label .values.stress -text "Stress : " 
-label .values.tangent   -text "Tangent: " 
+label .values.strain  -text "Strain : " 
+label .values.stress  -text "Stress : " 
+label .values.tangent -text "Tangent: " 
 label .values.dstrain -text " 0.0" 
 label .values.dstress -text " 0.0" 
 label .values.dtangent   -text " 0.0" 
 
-grid .values.strain -row 0 -column 0 -sticky e
-grid .values.dstrain -row 0 -column 1 -sticky ew
-grid .values.stress -row 1 -column 0 -sticky e
-grid .values.dstress -row 1 -column 1 -sticky ew
-grid .values.tangent -row 2 -column 0 -sticky e
+grid .values.strain   -row 0 -column 0 -sticky e
+grid .values.dstrain  -row 0 -column 1 -sticky ew
+grid .values.stress   -row 1 -column 0 -sticky e
+grid .values.dstress  -row 1 -column 1 -sticky ew
+grid .values.tangent  -row 2 -column 0 -sticky e
 grid .values.dtangent -row 2 -column 1 -sticky ew
 
 # Procedure Settings - used to set bottom frame to be the settings frame
@@ -344,13 +348,17 @@ proc SetStrain {strain} {
     global toggleFrame
     global pointTag
 
+
     if {$matID != 0} {
-	eval strainUniaxialTest $strain
-	set stress [stressUniaxialTest]
-	set tang [tangUniaxialTest]
+	invoke UniaxialMaterial $matID "strain $strain"
+	invoke UniaxialMaterial $matID "commit"
+	set stress  [invoke UniaxialMaterial $matID stress ]
+	set tangent [invoke UniaxialMaterial $matID tangent]
+
+        puts "$matID: $strain $stress $tangent"
 
 	set fileOpen [open results.out a]
-	puts $fileOpen "$strain $stress $tang"
+	puts $fileOpen "$strain $stress $tangent"
 	close $fileOpen
 	
 	set diffStrain [expr $width/(2*$maxStrain)]
@@ -366,7 +374,6 @@ proc SetStrain {strain} {
 	set yLast $y
 
 	if {$toggleFrame == ".values"} {
-	    set tangent [tangUniaxialTest]
 	    .values.dstrain  config -text [format "%6.4e" $strain]
 	    .values.dstress  config -text [format "%6.4e" $stress]
 	    .values.dtangent config -text [format "%6.4e" $tangent]
@@ -374,9 +381,4 @@ proc SetStrain {strain} {
     }
 }
 
-
-
-
-
-
-
+tkloop
