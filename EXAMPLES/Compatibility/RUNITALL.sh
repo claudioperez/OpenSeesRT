@@ -1,4 +1,5 @@
-
+#!/bin/bash
+#
 Results="README.md"
 
 cat - > $Results <<EOF
