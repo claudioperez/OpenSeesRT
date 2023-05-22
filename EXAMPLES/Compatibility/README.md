@@ -27,11 +27,7 @@
 | 0	| `RCFrame5.tcl` |
 | 0	| `RigidFrame3D.tcl` |
 | 0	| `Rigid.tcl` |
-| 0	| `Test.BeamGeom.tcl` |
-| 1	| `Test.BeamLoad2D.tcl` |
-| 1	| `Test.BeamLoad3D.tcl` |
-| 1	| `Test.BeamsAndSections2D.tcl` |
-| 134	| `Test.BeamsAndSections3D.tcl` |
+| 0	| `TestElement_Catenary.tcl` |
 | 0	| `TestElement_CoupledZeroLength.tcl` |
 | 0	| `TestElement_Quad9_Bending.tcl` |
 | 0	| `TestElement_Tri31_Patch.tcl` |
@@ -40,8 +36,6 @@
 | 0	| `Test.Example3.1.tcl` |
 | 0	| `Test.Example3.2.tcl` |
 | 0	| `Test.Example4.1.tcl` |
-| 1	| `Test.ShearBeam2D.tcl` |
-| 1	| `Test.ShearBeam3D.tcl` |
 | 0	| `TestTimeSeries.tcl` |
 | 0	| `Test.truss1.tcl` |
 | 0	| `TestUniaxial_HystereticPoly.tcl` |
