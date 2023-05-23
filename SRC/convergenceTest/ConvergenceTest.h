@@ -17,24 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2005-12-15 00:19:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/convergenceTest/ConvergenceTest.h,v $
-                                                                        
-                                                                        
+//
+// Purpose: This file contains the class definition for ConvergenceTest,
+// which is an abstract class. Objects of concrete subclasses can be used
+// to test the convergence of an algorithm.
+//
+// Written: fmk
+// Date: 09/98
+//
 #ifndef ConvergenceTest_h
 #define ConvergenceTest_h
 
 #define OPS_MAXTOL 1.7e307
-
-// Written: fmk 
-// Date: 09/98
-// Revised:
-//
-// Purpose: This file contains the class definition for ConvergenceTest,
-// which is an abstract class. Objects of concrete subclasses can be used 
-// to test the convergence of an algorithm. 
 
 #include <MovableObject.h>
 #include <Vector.h>
@@ -42,12 +36,27 @@
 
 class EquiSolnAlgo;
 
+#define LOG_TEST "Test - "
 
 class ConvergenceTest: public MovableObject
 {
   public:
+    enum Status {
+      Continue =-1,
+      Failure  =-2
+    };
+    enum Protocol {
+      Silent        = 1<<0, // 0 print nothing
+      PrintTest     = 1<<1, // 1 print information on norms on test()
+      PrintSuccess  = 1<<2, // 2 print information on norms and number of iterations at end of successful test
+      PrintFailure  = 1<<3, // . 
+      PrintTest02   = 1<<4, // 4 More verbose test() output
+      AlwaysSucceed = 1<<5, // 5 if it fails to converge at end of $numIter it will
+                            //   print an error message BUT RETURN A SUCEESSFULL test
+    };
+
     // constructors and destructor
-    ConvergenceTest(int classTag);	
+    ConvergenceTest(int classTag);
     virtual ~ConvergenceTest();
 
     virtual ConvergenceTest *getCopy( int iterations ) = 0 ;
@@ -55,13 +64,13 @@ class ConvergenceTest: public MovableObject
     virtual int setEquiSolnAlgo(EquiSolnAlgo &theAlgorithm) =0;
     virtual int start(void) =0;
     virtual int test(void) = 0;
-    
-    virtual int getNumTests(void) =0;    
-    virtual int getMaxNumTests(void) =0;        
-    virtual double getRatioNumToMax(void) =0;            
+
+    virtual int getNumTests(void) =0;
+    virtual int getMaxNumTests(void) =0;
+    virtual double getRatioNumToMax(void) =0;
     virtual const Vector &getNorms(void) =0;
-    
-    
+
+
   protected:
 
   private:

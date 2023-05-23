@@ -17,28 +17,21 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/convergenceTest/ConvergenceTest.cpp,v $
-                                                                        
-                                                                        
-// File: ~/convergenceTest/ConvergenceTest.C
 //
-// Written: fmk 
+// Purpose: This file contains the class definition for ConvergenceTest,
+// which is an abstract class. Objects of concrete subclasses can be used
+// to test the convergence of an algorithm.
+//
+// Written: fmk
 // Date: 09/98
 // Revised:
 //
-// Purpose: This file contains the class definition for ConvergenceTest,
-// which is an abstract class. Objects of concrete subclasses can be used 
-// to test the convergence of an algorithm. 
-
 #include <ConvergenceTest.h>
 
 ConvergenceTest::ConvergenceTest(int clasTag)
 :MovableObject(clasTag)
 {
-    
+
 }
 
 ConvergenceTest::~ConvergenceTest()
