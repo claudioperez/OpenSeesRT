@@ -17,26 +17,23 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2005-12-15 00:19:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/convergenceTest/CTestRelativeNormUnbalance.h,v $
-
-// Written: fmk 
+//
+// Purpose: This file contains the class definition for CTestRelativeNormUnbalance.
+// A CTestRelativeNormUnbalance object tests for convergence using the ratio of the
+// current norm to the initial norm (the norm when start is invoked) of the
+// right hand side vector of the LinearSOE object passed in the constructor
+// and a tolerance, set in the constructor ..
+//
+// Written: fmk
 // Date: 02/02
 // Modified: 05/05 ahs
 //
-// Purpose: This file contains the class definition for CTestRelativeNormUnbalance.
-// A CTestRelativeNormUnbalance object tests for convergence using the ratio of the 
-// current norm to the initial norm (the norm when start is invoked) of the 
-// right hand side vector of the LinearSOE object passed in the constructor
-// and a tolerance, set in the constructor ..
-
 #ifndef CTestRelativeNormUnbalance_h
 #define CTestRelativeNormUnbalance_h
 
 #include <ConvergenceTest.h>
 #include <stdbool.h>
+
 class EquiSolnAlgo;
 class LinearSOE;
 
@@ -45,39 +42,39 @@ class CTestRelativeNormUnbalance: public ConvergenceTest
 {
 public:
     // constructors
-    CTestRelativeNormUnbalance();	    	
+    CTestRelativeNormUnbalance();
     CTestRelativeNormUnbalance(double tol, int maxNumIter, int printFlag, int normType=2);
 
     // destructor
     ~CTestRelativeNormUnbalance();
-    
+
     ConvergenceTest *getCopy(int interations);
-    
+
     void setTolerance(double newTol);
     int setEquiSolnAlgo(EquiSolnAlgo &theAlgo);
-    
+
     int test(void);
     int start(void);
-    
+
     int getNumTests(void);
-    int getMaxNumTests(void);        
-    double getRatioNumToMax(void);                
-    const Vector &getNorms(void);    
-    
-    int sendSelf(int commitTag, Channel &theChannel);  
-    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);    
-    
+    int getMaxNumTests(void);
+    double getRatioNumToMax(void);
+    const Vector &getNorms(void);
+
+    int sendSelf(int commitTag, Channel &theChannel);
+    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+
 protected:
-    
+
 private:
     LinearSOE *theSOE;
     double tol;         // the tol on the norm used to test for convergence
-    
+
     int maxNumIter;     // max number of iterations
     int currentIter;    // number of times test() has been invokes since last start()
     int printFlag;      // a flag indicating if to print on test
     int nType;          // type of norm to use (1-norm, 2-norm, p-norm, max-norm)
-    
+
     Vector norms;       // vector to hold the norms
     double norm0;       // norm at first iteration of each step
 };
