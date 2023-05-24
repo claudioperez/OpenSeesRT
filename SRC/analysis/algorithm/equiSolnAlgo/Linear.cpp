@@ -63,45 +63,33 @@ Linear::solveCurrentStep(void)
 
     AnalysisModel *theAnalysisModel = this->getAnalysisModelPtr(); 
     LinearSOE  *theSOE = this->getLinearSOEptr();
-    IncrementalIntegrator  *theIncIntegrator = 
-	this->getIncrementalIntegratorPtr(); 
+    IncrementalIntegrator  *theIncIntegrator = this->getIncrementalIntegratorPtr(); 
 
     if ((theAnalysisModel == 0) || (theIncIntegrator ==0 ) || (theSOE == 0)){
-	opserr << "WARNING Linear::solveCurrentStep() -";
-	opserr << "setLinks() has not been called.\n";
-	return -5;
+        opserr << "WARNING Linear::solveCurrentStep() -";
+        opserr << "setLinks() has not been called.\n";
+        return SolutionAlgorithm::BadAlgorithm;
     }
 
-	if (factorOnce != 2) {
-		if (theIncIntegrator->formTangent(incrTangent) < 0) {
-		  opserr << "WARNING Linear::solveCurrentStep() -";
-		  opserr << "the Integrator failed in formTangent()\n";
-		  return -1;
-		}
-		if (factorOnce == 1)
-			factorOnce = 2;
+    if (factorOnce != 2) {
+       if (theIncIntegrator->formTangent(incrTangent) < 0)
+         return SolutionAlgorithm::BadFormTangent;
+
+       if (factorOnce == 1)
+           factorOnce = 2;
     }
 
     
-    if (theIncIntegrator->formUnbalance() < 0) {
-	opserr << "WARNING Linear::solveCurrentStep() -";
-	opserr << "the Integrator failed in formUnbalance()\n";	
-	return -2;
-    }
+    if (theIncIntegrator->formUnbalance() < 0)
+        return SolutionAlgorithm::BadFormResidual;
 
-    if (theSOE->solve() < 0) {
-	opserr << "WARNING Linear::solveCurrentStep() -";
-	opserr << "the LinearSOE failed in solve()\n";	
-	return -3;
-    }
 
-    const Vector &deltaU = theSOE->getX();
+    if (theSOE->solve() < 0)
+        return SolutionAlgorithm::BadLinearSolve;
 
-    if (theIncIntegrator->update(deltaU) < 0) {
-	opserr << "WARNING Linear::solveCurrentStep() -";
-	opserr << "the Integrator failed in update()\n";	
-	return -4;
-    }
+
+    if (theIncIntegrator->update(theSOE->getX()) < 0)
+        return SolutionAlgorithm::BadStepUpdate;
 
     return 0;
 }
