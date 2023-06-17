@@ -190,13 +190,13 @@ logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
     opserr << "WARNING logFile fileName? - no filename supplied\n";
     return TCL_ERROR;
   }
-  openMode mode = OVERWRITE;
+  openMode mode = openMode::OVERWRITE;
   bool echo = true;
 
   int cArg = 2;
   while (cArg < argc) {
     if (strcmp(argv[cArg], "-append") == 0)
-      mode = APPEND;
+      mode = openMode::APPEND;
     if (strcmp(argv[cArg], "-noEcho") == 0)
       echo = false;
     cArg++;
