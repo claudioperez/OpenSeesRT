@@ -93,7 +93,7 @@ int main(int argc, char **argv)
   
   DataOutputFileHandler *theHandler1  = new DataOutputFileHandler("UnitTest1");
   DataOutputFileHandler *theHandler2  = new DataOutputFileHandler("UnitTest2", DATA_FILE);
-  DataOutputFileHandler *theHandler3  = new DataOutputFileHandler("UnitTest3", XML_FILE, APPEND);
+  DataOutputFileHandler *theHandler3  = new DataOutputFileHandler("UnitTest3", XML_FILE, openMode::APPEND);
   DataOutputFileHandler *theHandler4  = new DataOutputFileHandler(0);
 
   if (theHandler1 != 0 && theHandler2 != 0 && theHandler3 != 0 && theHandler4 != 0) 

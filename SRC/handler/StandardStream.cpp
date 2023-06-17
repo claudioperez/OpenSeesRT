@@ -26,9 +26,8 @@
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>
-using std::cerr;
+#define OPS_CONSOLE std::cout
 using std::ios;
-using std::setiosflags;
 
 StandardStream::StandardStream(int indent, bool echo)
   :OPS_Stream(OPS_STREAM_TAGS_FileStream), 
@@ -54,14 +53,14 @@ StandardStream::setFile(const char *fileName, openMode mode, bool echo)
     fileOpen = 0;
   }
 
-  if (mode == OVERWRITE) 
+  if (mode == openMode::OVERWRITE) 
     theFile.open(fileName, ios::out);
   else
     theFile.open(fileName, ios::out| ios::app);
 
   if (theFile.bad()) {
-    std::cerr << "WARNING - StandardStream::setFile()";
-    std::cerr << " - could not open file " << fileName << std::endl;
+    OPS_CONSOLE << "WARNING - StandardStream::setFile()";
+    OPS_CONSOLE << " - could not open file " << fileName << std::endl;
 
     return -1;
   } else
@@ -76,9 +75,9 @@ StandardStream::setFile(const char *fileName, openMode mode, bool echo)
 int 
 StandardStream::setPrecision(int prec)
 {
-  cerr << std::setprecision(prec);
+  OPS_CONSOLE << std::setprecision(prec);
 
-  if (fileOpen != 0)
+  if (fileOpen != false)
     theFile << std::setprecision(prec);
 
   return 0;
@@ -89,14 +88,14 @@ StandardStream::setFloatField(floatField field)
 {
 #ifndef _WIN32
   if (field == FIXEDD) {
-	  cerr << setiosflags(ios::fixed);
-    if (fileOpen != 0)
-      theFile << setiosflags(ios::fixed);
+      OPS_CONSOLE << std::setiosflags(ios::fixed);
+    if (fileOpen != false)
+      theFile << std::setiosflags(ios::fixed);
   }
   else if (field == SCIENTIFIC) {
-    cerr << setiosflags(ios::scientific);
+    OPS_CONSOLE << std::setiosflags(ios::scientific);
     if (fileOpen != 0)
-      theFile << setiosflags(ios::scientific);
+      theFile << std::setiosflags(ios::scientific);
   }
 #endif
   return 0;
@@ -177,7 +176,7 @@ OPS_Stream&
 StandardStream::write(const char *s,int n)
 {
   if (echoApplication == true)
-    cerr.write(s, n);
+    OPS_CONSOLE.write(s, n);
 
   if (fileOpen != 0)
     theFile.write(s, n);
@@ -189,7 +188,7 @@ OPS_Stream&
 StandardStream::write(const unsigned char*s, int n)
 {
   if (echoApplication == true)
-    cerr.write((const char *) s, n);
+    OPS_CONSOLE.write((const char *) s, n);
 
   if (fileOpen != 0)
     theFile.write((const char *) s, n);
@@ -200,7 +199,7 @@ OPS_Stream&
 StandardStream::write(const signed char*s, int n)
 {
   if (echoApplication == true)
-    cerr.write((const char *)s, n);
+    OPS_CONSOLE.write((const char *)s, n);
 
   if (fileOpen != 0)
     theFile.write((const char *) s, n);
@@ -211,7 +210,7 @@ OPS_Stream&
 StandardStream::write(const void *s, int n)
 {
   if (echoApplication == true)
-    cerr.write((const char *)s, n);
+    OPS_CONSOLE.write((const char *)s, n);
 
   if (fileOpen != 0)
    theFile.write((const char *) s, n);
@@ -222,9 +221,9 @@ OPS_Stream&
 StandardStream::operator<<(char c)
 {
   if (echoApplication == true)
-    cerr << c;
+    OPS_CONSOLE << c;
 
-  if (fileOpen != 0)
+  if (fileOpen != false)
     theFile << c;
 
  return *this;
@@ -233,7 +232,7 @@ OPS_Stream&
 StandardStream::operator<<(unsigned char c)
 {
   if (echoApplication == true)
-    cerr << c;
+    OPS_CONSOLE << c;
 
   if (fileOpen != 0)
     theFile << c;
@@ -244,7 +243,7 @@ OPS_Stream&
 StandardStream::operator<<(signed char c)
 {
   if (echoApplication == true)
-    cerr << c;
+    OPS_CONSOLE << c;
 
   if (fileOpen != 0)
     theFile << c;
@@ -257,8 +256,8 @@ StandardStream::operator<<(const char *s)
   // note that we do the flush so that a "/n" before
   // a crash will cause a flush() - similar to what 
   if (echoApplication == true) {
-    cerr << s;
-    cerr.flush();
+    OPS_CONSOLE << s;
+    OPS_CONSOLE.flush();
   }
 
   if (fileOpen != 0) {
@@ -273,7 +272,7 @@ OPS_Stream&
 StandardStream::operator<<(const unsigned char *s)
 {
   if (echoApplication == true)
-    cerr << s;
+    OPS_CONSOLE << s;
 
   if (fileOpen != 0)
     theFile << s;
@@ -284,7 +283,7 @@ OPS_Stream&
 StandardStream::operator<<(const signed char *s)
 {
   if (echoApplication == true)
-    cerr << s;
+    OPS_CONSOLE << s;
 
   if (fileOpen != 0)
     theFile << s;
@@ -306,7 +305,7 @@ OPS_Stream&
 StandardStream::operator<<(int n)
 {
   if (echoApplication == true)
-    cerr <<  n;
+    OPS_CONSOLE <<  n;
 
   if (fileOpen != 0)
     theFile << n;
@@ -318,7 +317,7 @@ OPS_Stream&
 StandardStream::operator<<(unsigned int n)
 {
   if (echoApplication == true)
-    cerr << 1.0*n;
+    OPS_CONSOLE << 1.0*n;
 
   if (fileOpen != 0)
     theFile << 1.0*n;
@@ -329,7 +328,7 @@ OPS_Stream&
 StandardStream::operator<<(long n)
 {
 /*
-cerr << n;
+OPS_CONSOLE << n;
 
 if (fileOpen != 0)
   theFile << n;
@@ -340,7 +339,7 @@ OPS_Stream&
 StandardStream::operator<<(unsigned long n)
 {
 /*
-  cerr << n;
+  OPS_CONSOLE << n;
 
   if (fileOpen != 0)
     theFile << n;
@@ -351,7 +350,7 @@ OPS_Stream&
 StandardStream::operator<<(short n)
 {
 /*
-  cerr << n;
+  OPS_CONSOLE << n;
 
   if (fileOpen != 0)
     theFile << n;
@@ -362,7 +361,7 @@ OPS_Stream&
 StandardStream::operator<<(unsigned short n)
 {
 /*
-  cerr << n;
+  OPS_CONSOLE << n;
 
   if (fileOpen != 0)
     theFile << n;
@@ -374,7 +373,7 @@ OPS_Stream&
 StandardStream::operator<<(bool b)
 {
 /*
-  cerr << b;
+  OPS_CONSOLE << b;
 
   if (fileOpen != 0)
     theFile << b;
@@ -385,7 +384,7 @@ OPS_Stream&
 StandardStream::operator<<(double n)
 {
   if (echoApplication == true)
-    cerr << n;
+    OPS_CONSOLE << n;
 
   if (fileOpen != 0)
     theFile << n;
@@ -396,7 +395,7 @@ OPS_Stream&
 StandardStream::operator<<(float n)
 {
   if (echoApplication == true)
-    cerr << n;
+    OPS_CONSOLE << n;
 
   if (fileOpen != 0)
     theFile << n;
@@ -409,7 +408,7 @@ void
 StandardStream::indent(void)
 {
   for (int i=0; i<numIndent; i++) {
-    cerr << indentString;
+    OPS_CONSOLE << indentString;
     if (fileOpen != 0)
       theFile << indentString;
   }
@@ -423,7 +422,7 @@ StandardStream::sendSelf(int commitTag, Channel &theChannel)
 
 int 
 StandardStream::recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker)
+             FEM_ObjectBroker &theBroker)
 {
 
   return 0;

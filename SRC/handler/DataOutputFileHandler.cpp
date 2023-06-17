@@ -111,7 +111,7 @@ DataOutputFileHandler::open(char **dataDescription, int numData)
     strcat(xmlFileName,".xml");
     
     FileStream xmlFile;
-    if (xmlFile.setFile(xmlFileName, OVERWRITE) == 0) {
+    if (xmlFile.setFile(xmlFileName, openMode::OVERWRITE) == 0) {
       
       // write the xml data
       xmlFile << "<?xml version=\"1.0\"?>\n";
@@ -171,7 +171,7 @@ DataOutputFileHandler::sendSelf(int commitTag, Channel &theChannel)
 
   idData(0) = fileNameLength;
 
-  if (theOpenMode == OVERWRITE)
+  if (theOpenMode == openMode::OVERWRITE)
     idData(1) = 0;
   else
     idData(1) = 1;
@@ -211,9 +211,9 @@ DataOutputFileHandler::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBr
 
   int fileNameLength = idData(0);
   if (idData(1) == 0)
-    theOpenMode = OVERWRITE;
+    theOpenMode = openMode::OVERWRITE;
   else
-    theOpenMode = APPEND;
+    theOpenMode = openMode::APPEND;
 
 
   if (idData(2) == 0)

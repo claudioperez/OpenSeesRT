@@ -141,10 +141,10 @@ DataFileStreamAdd::setFile(const char *name, openMode mode)
     fileOpen = 0;
   }
 
-  if (mode == 0)
-    theOpenMode = OVERWRITE;
+  if (mode == openMode::OVERWRITE)
+    theOpenMode = openMode::OVERWRITE;
   else
-    theOpenMode = APPEND;
+    theOpenMode = openMode::APPEND;
 
   return 0;
 }
@@ -163,12 +163,12 @@ DataFileStreamAdd::open(void)
     return 0;
   }
 
-  if (theOpenMode == OVERWRITE) 
+  if (theOpenMode == openMode::OVERWRITE) 
     theFile.open(fileName, ios::out);
   else
     theFile.open(fileName, ios::out| ios::app);
 
-  theOpenMode = APPEND;
+  theOpenMode = openMode::APPEND;
 
   if (theFile.bad()) {
     std::cerr << "WARNING - DataFileStreamAdd::setFile()";
@@ -681,7 +681,7 @@ DataFileStreamAdd::sendSelf(int commitTag, Channel &theChannel)
 
   idData(0) = fileNameLength;
 
-  if (theOpenMode == OVERWRITE)
+  if (theOpenMode == openMode::OVERWRITE)
     idData(1) = 0;
   else
     idData(1) = 1;
@@ -720,9 +720,9 @@ DataFileStreamAdd::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
 
   int fileNameLength = idData(0);
   if (idData(1) == 0)
-    theOpenMode = OVERWRITE;
+    theOpenMode = openMode::OVERWRITE;
   else
-    theOpenMode = APPEND;
+    theOpenMode = openMode::APPEND;
 
   if (fileNameLength != 0) {
     if (fileName != 0)
