@@ -150,21 +150,18 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   int jj;
   for (jj=0; jj<=numY; jj++) {
     for (int ii=0; ii<=numX; ii++) {
+
       const Vector &nodeCoords = theBlock.getNodalCoords(ii,jj);
-      double xLoc = nodeCoords(0);
-      double yLoc = nodeCoords(1);
-      double zLoc = nodeCoords(2);
-      Node *theNode = 0;
+
+      Node *theNode = nullptr;
+
       if (ndm == 2) {
-        theNode = new Node(nodeID,ndf,xLoc, yLoc);
+        theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1));
+
       } else if (ndm == 3) {
-        theNode = new Node(nodeID,ndf,xLoc, yLoc, zLoc);
+        theNode = new Node(nodeID,ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
       }
-      if (theNode == nullptr) {
-        opserr << G3_ERROR_PROMPT << "ran out of memory creating node\n";
-        opserr << "node: " << nodeID << endln;
-        return TCL_ERROR;
-      }
+
       if (theTclDomain->addNode(theNode) == false) {
         opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
         opserr << "node: " << nodeID << endln;
@@ -197,6 +194,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
     for (int ii=0; ii<numX; ii++) {
       count = initialCount;
       const ID &nodeTags = theBlock.getElementNodes(ii,jj);
+
       // create the string to be evaluated
       strcpy(eleCommand, "element ");
       strcpy(&eleCommand[8], eleType);
@@ -320,23 +318,14 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
   for (kk=0; kk<=numZ; kk++) {
     for (int jj=0; jj<=numY; jj++) {
       for (int ii=0; ii<=numX; ii++) {
-        const Vector &nodeCoords = theBlock.getNodalCoords(ii,jj,kk);
-        double xLoc = nodeCoords(0);
-        double yLoc = nodeCoords(1);
-        double zLoc = nodeCoords(2);
-        Node *theNode = 0;
-        theNode = new Node(nodeID,ndf,xLoc, yLoc, zLoc);
 
-        if (theNode == nullptr) {
-          opserr << G3_ERROR_PROMPT << "ran out of memory creating node\n";
-          opserr << "node: " << nodeID << endln;
-          return TCL_ERROR;
-        }
+        const Vector &nodeCoords = theBlock.getNodalCoords(ii,jj,kk);
+        Node *theNode = new Node(nodeID,ndf,nodeCoords(0),nodeCoords(1),nodeCoords(2));
 
         if (theTclDomain->addNode(theNode) == false) {
           opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
           opserr << "node: " << nodeID << endln;
-          delete theNode; // otherwise memory leak
+          delete theNode;
           return TCL_ERROR;
         }
 
