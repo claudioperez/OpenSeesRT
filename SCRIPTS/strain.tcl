@@ -355,7 +355,7 @@ proc SetStrain {strain} {
 	set stress  [invoke UniaxialMaterial $matID stress ]
 	set tangent [invoke UniaxialMaterial $matID tangent]
 
-        puts "$matID: $strain $stress $tangent"
+        puts "$strain $stress $tangent"
 
 	set fileOpen [open results.out a]
 	puts $fileOpen "$strain $stress $tangent"
