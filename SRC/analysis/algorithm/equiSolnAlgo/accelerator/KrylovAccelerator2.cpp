@@ -80,14 +80,14 @@ KrylovAccelerator2::newStep(LinearSOE &theSOE)
   if (numEqns != newNumEqns) {
     if (v != 0) {
       for (int i = 0; i < maxDimension+1; i++)
-	delete v[i];
+        delete v[i];
       delete [] v;
       v = 0;
     }
     
     if (Av != 0) {
       for (int i = 0; i < maxDimension+1; i++)
-	delete Av[i];
+        delete Av[i];
       delete [] Av;
       Av = 0;
     }
@@ -151,20 +151,20 @@ KrylovAccelerator2::newStep(LinearSOE &theSOE)
 #ifdef _WIN32
 
 extern "C" int DGELS(char *T, unsigned int *SZ, int *M, int *N, int *NRHS,
-			      double *A, int *LDA, double *B, int *LDB,
-			      double *WORK, int *LWORK, int *INFO);
+                              double *A, int *LDA, double *B, int *LDB,
+                              double *WORK, int *LWORK, int *INFO);
 
 #else
 
 extern "C" int dgels_(char *T, int *M, int *N, int *NRHS,
-		      double *A, int *LDA, double *B, int *LDB,
-		      double *WORK, int *LWORK, int *INFO);
+                      double *A, int *LDA, double *B, int *LDB,
+                      double *WORK, int *LWORK, int *INFO);
 
 #endif
 
 int
 KrylovAccelerator2::accelerate(Vector &vStar, LinearSOE &theSOE, 
-			      IncrementalIntegrator &theIntegrator)
+                              IncrementalIntegrator &theIntegrator)
 {
   const Vector &R = theSOE.getB();
 
@@ -186,24 +186,24 @@ KrylovAccelerator2::accelerate(Vector &vStar, LinearSOE &theSOE,
     for (i = 0; i < k; i++) {
       Vector &Ai = *(Av[i]);
       for (j = 0; j < numEqns; j++)
-	A(j,i) = Ai(j);
+        A(j,i) = Ai(j);
     }
 
     for (i = 0; i < k; i++) {
       for (int j = i+1; j < k; j++) {
-	double sum = 0.0;
-	double sumi = 0.0;
-	double sumj = 0.0;
-	for (int ii = 0; ii < numEqns; ii++) {
-	  sum += A(ii,i)*A(ii,j);
-	  sumi += A(ii,i)*A(ii,i);
-	  sumj += A(ii,j)*A(ii,j);
-	}
-	sumi = sqrt(sumi);
-	sumj = sqrt(sumj);
-	sum = sum/(sumi*sumj);
-	//if (fabs(sum) > 0.99)
-	  //opserr << sum << ' ' << i << ' ' << j << "   ";
+        double sum = 0.0;
+        double sumi = 0.0;
+        double sumj = 0.0;
+        for (int ii = 0; ii < numEqns; ii++) {
+          sum += A(ii,i)*A(ii,j);
+          sumi += A(ii,i)*A(ii,i);
+          sumj += A(ii,j)*A(ii,j);
+        }
+        sumi = sqrt(sumi);
+        sumj = sqrt(sumj);
+        sum = sum/(sumi*sumj);
+        //if (fabs(sum) > 0.99)
+          //opserr << sum << ' ' << i << ' ' << j << "   ";
       }
     }
 
@@ -227,13 +227,13 @@ KrylovAccelerator2::accelerate(Vector &vStar, LinearSOE &theSOE,
 #ifdef _WIN32
     unsigned int sizeC = 1;
     DGELS(trans, &sizeC, &numEqns, &k, &nrhs, AvData, &numEqns,
-	  rData, &ldb, work, &lwork, &info);
+          rData, &ldb, work, &lwork, &info);
 #else
     //SUBROUTINE DGELS( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK,
-    //		      $                  INFO )
+    //                      $                  INFO )
 
     dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns,
-	   rData, &ldb, work, &lwork, &info);
+           rData, &ldb, work, &lwork, &info);
 #endif
     
     // Check for error returned by subroutine
@@ -319,7 +319,7 @@ KrylovAccelerator2::sendSelf(int commitTag, Channel &theChannel)
 
 int
 KrylovAccelerator2::recvSelf(int commitTag, Channel &theChannel, 
-			     FEM_ObjectBroker &theBroker)
+                             FEM_ObjectBroker &theBroker)
 {
   return -1;
 }

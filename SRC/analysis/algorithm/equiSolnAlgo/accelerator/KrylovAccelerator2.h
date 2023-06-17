@@ -42,7 +42,7 @@ class KrylovAccelerator2 : public Accelerator
   
   int newStep(LinearSOE &theSOE);
   int accelerate(Vector &v, LinearSOE &theSOE, 
-		 IncrementalIntegrator &theIntegrator);
+                 IncrementalIntegrator &theIntegrator);
   int updateTangent(IncrementalIntegrator &theIntegrator);
   bool updateTangent(void);
 
@@ -50,7 +50,7 @@ class KrylovAccelerator2 : public Accelerator
   
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel, 
-	       FEM_ObjectBroker &theBroker);
+               FEM_ObjectBroker &theBroker);
 
  protected:
   
