@@ -36,10 +36,10 @@ class DataFileStreamAdd : public OPS_Stream
 {
  public:
   DataFileStreamAdd(int indent=2);
-  DataFileStreamAdd(const char *fileName, openMode mode = OVERWRITE, int indent=2, int doCSV =0, bool closeOnWrite = false, int precision = 6, bool doScientific = false);
+  DataFileStreamAdd(const char *fileName, openMode mode = openMode::OVERWRITE, int indent=2, int doCSV =0, bool closeOnWrite = false, int precision = 6, bool doScientific = false);
   ~DataFileStreamAdd();
 
-  int setFile(const char *fileName, openMode mode = OVERWRITE);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
   int open(void);
   int close(void);
 

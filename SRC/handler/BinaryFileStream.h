@@ -40,10 +40,10 @@ class BinaryFileStream : public OPS_Stream
 {
  public:
   BinaryFileStream();
-  BinaryFileStream(const char *fileName, openMode mode = OVERWRITE);
+  BinaryFileStream(const char *fileName, openMode mode = openMode::OVERWRITE);
   ~BinaryFileStream();
 
-  int setFile(const char *fileName, openMode mode = OVERWRITE);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
   int open(void);
   int close(void);
 

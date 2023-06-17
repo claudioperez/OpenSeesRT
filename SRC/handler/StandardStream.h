@@ -36,7 +36,7 @@ class StandardStream : public OPS_Stream
   StandardStream(int indentSize=2, bool echo=true);
   ~StandardStream();
 
-  int setFile(const char *fileName, openMode mode = OVERWRITE, bool echoApplication = true);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echoApplication = true);
   int setPrecision(int precision);
   int setFloatField(floatField);
   int precision(int precision) {return 0;};
@@ -79,7 +79,7 @@ class StandardStream : public OPS_Stream
 
  private:
   ofstream theFile;
-  int fileOpen;
+  bool fileOpen;
   bool echoApplication;
 
   void indent(void);

@@ -35,7 +35,7 @@ class DataOutputFileHandler : public DataOutputHandler
  public:
   DataOutputFileHandler(const char *fileName =0, 
 			echoMode = NONE, 
-			openMode mode = OVERWRITE);
+			openMode mode = openMode::OVERWRITE);
   ~DataOutputFileHandler();
 
   int open(char **dataDescription, int numData);

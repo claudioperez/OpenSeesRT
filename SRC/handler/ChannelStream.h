@@ -37,7 +37,7 @@ class ChannelStream : public OPS_Stream
     ChannelStream(Channel *theChannel);        
     ~ChannelStream();
 
-    int setFile(const char *fileName, openMode mode = OVERWRITE);
+    int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
     int open(void);
     int close(void);
     

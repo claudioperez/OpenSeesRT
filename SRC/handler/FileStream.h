@@ -34,10 +34,10 @@ class FileStream : public OPS_Stream
 {
  public:
   FileStream(int indentSize=2);
-  FileStream(const char *fileName, openMode mode = OVERWRITE, int indent=2);
+  FileStream(const char *fileName, openMode mode = openMode::OVERWRITE, int indent=2);
   ~FileStream();
 
-  int setFile(const char *fileName, openMode mode = OVERWRITE);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
   int open(void);
   int close(void);
 

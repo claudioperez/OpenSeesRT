@@ -42,7 +42,7 @@ class TCP_Stream : public OPS_Stream
 
     ~TCP_Stream();
 
-    int setFile(const char *fileName, openMode mode = OVERWRITE);
+    int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
     int open(void);
     int close(void);
     
