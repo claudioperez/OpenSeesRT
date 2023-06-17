@@ -42,14 +42,14 @@ class DifferenceAccelerator : public Accelerator
   
   int newStep(LinearSOE &theSOE);
   int accelerate(Vector &v, LinearSOE &theSOE, 
-		 IncrementalIntegrator &theIntegrator);
+                 IncrementalIntegrator &theIntegrator);
   int updateTangent(IncrementalIntegrator &theIntegrator);
   
   void Print(OPS_Stream &s, int flag=0);
   
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel, 
-	       FEM_ObjectBroker &theBroker);
+               FEM_ObjectBroker &theBroker);
 
  protected:
   
