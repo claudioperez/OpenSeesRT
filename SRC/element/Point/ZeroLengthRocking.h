@@ -69,6 +69,7 @@ class ZeroLengthRocking : public Element
     ~ZeroLengthRocking();
 
     const char *getClassType(void) const {return "ZeroLengthRocking";};
+    static constexpr const char* class_name = "ZeroLengthRocking";
 
     // public methods to obtain information about dof & connectivity    
     int getNumExternalNodes(void) const;

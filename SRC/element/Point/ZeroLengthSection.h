@@ -60,6 +60,7 @@ class ZeroLengthSection : public Element
     ~ZeroLengthSection();
 
     const char *getClassType(void) const {return "ZeroLengthSection";};
+    static constexpr const char* class_name = "ZeroLengthSection";
 
     // public methods to obtain information about dof & connectivity    
     int getNumExternalNodes(void) const;

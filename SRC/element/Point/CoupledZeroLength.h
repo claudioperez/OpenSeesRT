@@ -58,6 +58,7 @@ class CoupledZeroLength : public Element {
     ~CoupledZeroLength();
     
     const char *getClassType(void) const {return "CoupledZeroLength";};
+    static constexpr const char* class_name = "CoupledZeroLength";
     
     // public methods to obtain information about dof & connectivity    
     int getNumExternalNodes(void) const;

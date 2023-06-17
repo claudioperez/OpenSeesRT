@@ -97,6 +97,7 @@ class ZeroLengthContactNTS2D: public Element
   ~ZeroLengthContactNTS2D();
 
   const char *getClassType(void) const {return "ZeroLengthContactNTS2D";};
+    static constexpr const char* class_name = "ZeroLengthContactNTS2D";
 
   // public methods to obtain information about dof & connectivity
   int getNumExternalNodes(void) const;

@@ -107,6 +107,7 @@ class ZeroLength : public Element
     ~ZeroLength();
 
     const char *getClassType(void) const {return "ZeroLength";};
+    static constexpr const char* class_name = "ZeroLength";
 
     // public methods to obtain information about dof & connectivity    
     int getNumExternalNodes(void) const;

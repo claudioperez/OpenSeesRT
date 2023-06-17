@@ -72,6 +72,7 @@ class ZeroLengthVG_HG : public Element
     ~ZeroLengthVG_HG();
 
     const char *getClassType(void) const {return "ZeroLengthVG_HG";};
+    static constexpr const char* class_name = "ZeroLengthVG_HG";
 
     // public methods to obtain information about dof & connectivity    
     int getNumExternalNodes(void) const;
