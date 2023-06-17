@@ -67,6 +67,7 @@ class Brick : public Element {
     virtual ~Brick( ) ;
 
     const char *getClassType(void) const {return "Brick";};
+    static constexpr const char* class_name = "Brick";
 
     //set domain
     void setDomain( Domain *theDomain ) ;

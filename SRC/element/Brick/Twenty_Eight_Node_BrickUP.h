@@ -73,6 +73,7 @@ public :
     //destructor
     virtual ~TwentyEightNodeBrickUP( ) ;
     const char *getClassType(void) const {return "TwentyEightNodeBrickUP";};
+    static constexpr const char* class_name = "TwentyEightNodeBrickUP";
     //set domain
     void setDomain( Domain *theDomain ) ;
 

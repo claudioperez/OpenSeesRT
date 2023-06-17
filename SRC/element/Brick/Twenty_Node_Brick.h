@@ -71,6 +71,7 @@ class Twenty_Node_Brick : public Element {
     virtual ~Twenty_Node_Brick( ) ;
 
     const char *getClassType(void) const {return "Twenty_Node_Brick";};
+    static constexpr const char* class_name = "Twenty_Node_Brick";
 
     //set domain
     void setDomain( Domain *theDomain ) ;
