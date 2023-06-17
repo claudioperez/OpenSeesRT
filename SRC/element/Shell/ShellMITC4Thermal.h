@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2011/03/10 22:51:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/ShellMITC4Thermal.h,v $
-
-// Written: Leopoldo Tesser, Diego A. Talledo, Véronique Le Corvec
 //
 // Bathe MITC 4 four node shell element with membrane and drill
 // Ref: Dvorkin,Bathe, A continuum mechanics based four node shell
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
-
+//
+// Written: Leopoldo Tesser, Diego A. Talledo, Véronique Le Corvec
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -172,9 +168,6 @@ class ShellMITC4Thermal : public Element {
     //compute Bbend matrix
     const Matrix& computeBbend( int node, const double shp[3][4] ) ;
   
-    //Matrix transpose
-    Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 
 		          const double x[2][4], 

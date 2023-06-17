@@ -17,17 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2014/07/01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shellDKGQ/shellDKGQ.h,v $
-
-// Written: Shuhao Zhang & Xinzheng Lu
 //
 // Three node flat shell element with membrane and drill DOF
+//
 // Ref: Plate Bending Part - DKT, thin plate element
 //      Membrane Part - GT9, a membrane element with drilling DOF
-
+//
+// Written: Shuhao Zhang & Xinzheng Lu
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 

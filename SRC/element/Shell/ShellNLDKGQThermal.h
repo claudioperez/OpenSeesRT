@@ -17,21 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2014/09/30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/ShellNLDKGQThermal/ShellNLDKGQThermal.h,v $
-
-//Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
 //
-//  four node flat shell element with membrane and drill DOF
+//  Four node flat shell element with membrane and drill DOF
 //  considering geometric nonlinear, form nonlinear shell element
 //  using updated Lagrangian formula
-// Ref: Plate Bending Part - DKQ, thin plate element
-//      Membrane Part - GQ12, a membrane element with drilling DOF
+//
+//  Ref: Plate Bending Part - DKQ, thin plate element
+//       Membrane Part - GQ12, a membrane element with drilling DOF
+//
 // Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io] 
-
-
+//
+// Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 

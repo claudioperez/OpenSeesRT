@@ -17,11 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// Written: Leopoldo Tesser, Diego Talledo
+//                                                                        
 // 9-node lagrandian shell element with membrane and drill
 //
-
+// Written: Leopoldo Tesser, Diego Talledo
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -167,9 +167,6 @@ class ShellMITC9 : public Element
     //compute standard Bshear matrix
     const Matrix&  computeBshear( int node, const double shp[3][9] ) ;
     
-    //Matrix transpose
-    Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 
 		  const double x[2][9], 
@@ -179,11 +176,5 @@ class ShellMITC9 : public Element
     // vector for applying loads
     Vector *load;
     Matrix *Ki;
-} ; 
-
-
-
-
-
-
+}; 
 

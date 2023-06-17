@@ -108,7 +108,6 @@ class ShellMITC4 : public Element {
     int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
 		           &theBroker );
 
-
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
     int getResponse( int responseID, Information &eleInfo );
       
@@ -180,9 +179,6 @@ class ShellMITC4 : public Element {
     //compute Bbend matrix
     const Matrix& computeBbend( int node, const double shp[3][4] ) ;
   
-    //Matrix transpose
-    Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 
 		          const double x[2][4], 
