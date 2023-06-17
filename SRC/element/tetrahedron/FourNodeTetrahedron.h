@@ -70,6 +70,7 @@ class FourNodeTetrahedron : public Element {
     virtual ~FourNodeTetrahedron( ) ;
 
     const char *getClassType(void) const {return "FourNodeTetrahedron";};
+    static constexpr const char* class_name = "FourNodeTetrahedron";
 
     //set domain
     void setDomain( Domain *theDomain ) ;
