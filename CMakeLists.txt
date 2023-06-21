@@ -41,7 +41,7 @@ include(${PROJECT_SOURCE_DIR}/Conf.cmake)
 
 # define user-selectable options for end target
 set_property(CACHE OPS_FINAL_TARGET PROPERTY STRINGS 
-    G3 OpenSeesTcl OpenSeesMP OpenSeesSP)
+    G3 OpenSeesMP OpenSeesSP)
 
 #==============================================================================
 #                            OS Configuration
@@ -186,15 +186,17 @@ include_directories(
 )
 
 
-include_directories(${TCL_INCLUDE_PATH})
 
 
 #==============================================================================
 #                            Define Targets
 #
 #==============================================================================
-find_package(MKL)
-find_package(MPI)
+# find_package(MKL)
+find_package(TCL)
+find_package(TclStub)
+set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
+include_directories(${TCL_INCLUDE_PATH})
 
 opensees_load(SUPERLU
   #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
@@ -221,7 +223,6 @@ opensees_load(AMD
 )
 
 message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
-message("OPS >>> CBLAS:   ${CBLAS_LIBRARY}\n")
 message("OPS >>> LAPACK:  ${LAPACK_LIBRARIES}")
 message("OPS >>> SUPERLU: ${SUPERLU_LIBRARIES}")
 message("OPS >>> ARPACK:  ${ARPACK_LIBRARIES}")
@@ -285,9 +286,6 @@ set_property(TARGET G3                    PROPERTY POSITION_INDEPENDENT_CODE 1)
 # Executables and final targets
 #------------------------------------------------------------------------------
 # Adding EXCLUDE_FROM_ALL prevents these from being made by default.
-
-add_executable(OpenSeesSP    EXCLUDE_FROM_ALL )
-add_executable(OpenSeesMP    EXCLUDE_FROM_ALL )
 
 
 # Add sources to targets
