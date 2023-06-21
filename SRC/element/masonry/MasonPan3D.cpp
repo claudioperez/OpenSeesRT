@@ -17,10 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
+//
 // Written by: Gonzalo Torrisi, Universidad Nacional de Cuyo
-
-// we specify what header files we need
+//
 #include "MasonPan3D.h"
 #include <elementAPI.h>
 #include <OPS_Globals.h>
@@ -43,10 +42,10 @@
 Matrix MasonPan3D::PanelK(72,72);
 Vector MasonPan3D::PanelR(72);
 
-static int numMyPanel = 0;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_MasonPan3D)
 {
+  static int numMyPanel = 0;
   // print out a message about who wrote this element & any copyright info wanted
   if (numMyPanel == 0) {
 	opserr << " \n";
@@ -121,7 +120,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MasonPan3D)
   if (thePanel == 0) {
     opserr << "WARNING ran out of memory creating element with tag " << eleTag << endln;
     delete theMaterial;
-	delete theMaterial2;
+    delete theMaterial2;
     return 0;
   }
 
