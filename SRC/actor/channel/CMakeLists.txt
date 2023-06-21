@@ -19,18 +19,12 @@ target_sources(OPS_Actor
 )
 
 
-target_sources(OpenSeesMP
+target_sources(OPS_Parallel
     PRIVATE
       MPI_Channel.cpp
     PUBLIC
       MPI_Channel.h
 )
 
-target_sources(OpenSeesSP
-    PRIVATE
-      MPI_Channel.cpp
-    PUBLIC
-      MPI_Channel.h
-)
-
-target_include_directories(OPS_Actor PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Actor    PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Parallel PUBLIC ${CMAKE_CURRENT_LIST_DIR})

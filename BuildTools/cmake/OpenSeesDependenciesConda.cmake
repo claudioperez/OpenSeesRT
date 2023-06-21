@@ -73,14 +73,6 @@ opensees_load(SUPERLU                                       #SEARCH
     BUNDLED ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/
 )
 
-opensees_load(ARPACK                                       SEARCH
-    BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
-)
-
-opensees_load(AMD
-  BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
-  #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
-)
 
 opensees_load(METIS                                        SEARCH)
 

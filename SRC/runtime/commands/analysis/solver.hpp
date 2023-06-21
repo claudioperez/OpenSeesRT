@@ -102,9 +102,9 @@ typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
 TclDispatch<LinearSOE*> TclDispatch_newMumpsLinearSOE;
-// TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
+TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
 
-// TclDispatch<LinearSOE*> TclDispatch_newItpackLinearSOE;
+TclDispatch<LinearSOE*> TclDispatch_newItpackLinearSOE;
 
 // Helpers to automatically create constructors for systems/solvers 
 // that do not take arguments when they are constructed.
@@ -138,10 +138,10 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
 
   // TODO: Umfpack
-  {"umfpack", {
-     G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
-     SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
-     MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
+//   {"umfpack", {
+//      G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
+//      SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
+//      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
 
 
   {"sparsegen",     {specifySparseGen, nullptr, nullptr}},
@@ -150,6 +150,7 @@ std::unordered_map<std::string, struct soefps> soe_table = {
 
   {"sparsesym", {
      specify_SparseSPD, nullptr, nullptr}},
+
   {"sparsespd", {
      // Legacy specifier
      specify_SparseSPD, nullptr, nullptr}},

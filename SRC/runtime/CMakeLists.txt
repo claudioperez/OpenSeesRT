@@ -26,10 +26,7 @@ target_link_libraries(OPS_Runtime PRIVATE G3)
 add_subdirectory(commands/)
 add_subdirectory(runtime/)
 
-target_sources(OpenSeesRT PRIVATE
-# General
-    "OpenSeesRT.cpp"
-)
+target_sources(OpenSeesRT PRIVATE "OpenSeesRT.cpp")
 
 target_sources(OPS_Runtime PRIVATE
     "G3_Runtime.cpp"
@@ -61,6 +58,9 @@ endif()
 
 add_subdirectory(contrib/)
 
+#
+# Tcl
+#
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT  PUBLIC ${TCL_INCLUDE_PATH})
   target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
@@ -74,10 +74,11 @@ if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()
 
-target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
+add_subdirectory(parallel)
+
+# target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
 
 target_link_libraries(OpenSeesRT PRIVATE
   # OpenSeesRT_LinearSystem
   OPS_Runtime ${TCL_STUB_LIBRARY}
 )
-

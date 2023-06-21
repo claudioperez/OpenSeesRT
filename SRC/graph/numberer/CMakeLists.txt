@@ -22,3 +22,5 @@ target_sources(graph
 
 
 target_include_directories(graph PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(graph PRIVATE ${AMD_LIBRARIES})
+

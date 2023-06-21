@@ -4,7 +4,15 @@
 ** ****************************************************************** */
 //
 //
-#ifdef _PARALLEL_PROCESSING
+#include <tcl.h>
+#include <OPS_Globals.h>
+#include <mpi.h>
+#include <MachineBroker.h>
+#include <MPI_MachineBroker.h>
+
+#define _PARALLEL_MP
+
+#ifdef _PARALLEL_SP
 #  include <DistributedDisplacementControl.h>
 #  include <ShadowSubdomain.h>
 #  include <Metis.h>
@@ -25,7 +33,7 @@
 #  include <DistributedProfileSPDLinSOE.h>
 
 // MachineBroker *theMachineBroker = 0;
-   int  OPS_PARALLEL_PROCESSING = 0;
+   int  OPS_PARALLEL_SP = 0;
    int  OPS_NUM_SUBDOMAINS = 0;
    bool OPS_PARTITIONED = false;
    bool OPS_USING_MAIN_DOMAIN = false;
@@ -39,7 +47,7 @@
    MachineBroker         *OPS_MACHINE            = nullptr;
    Channel               **OPS_theChannels       = nullptr;  
 
-#  elif defined(_PARALLEL_INTERPRETERS)
+#  elif defined(_PARALLEL_MP)
 
   bool setMPIDSOEFlag = false;
   
@@ -55,14 +63,16 @@ int opsBarrier(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
 int opsSend(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
 int opsRecv(ClientData, Tcl_Interp *, int,TCL_Char ** const argv);
 int opsPartition(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
+int wipePP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv);
 
 void Init_Parallel(Tcl_Interp* interp)
 {
-  Tcl_CreateCommand(interp, "getNP",     &getNP, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "getPID",    &getPID, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+  MachineBroker* theMachineBroker = new MPI_MachineBroker(nullptr, 0, nullptr);
+  Tcl_CreateCommand(interp, "getNP",     &getNP,   (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "getPID",    &getPID,  (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "send",      &opsSend, (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "recv",      &opsRecv, (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "barrier",   &opsBarrier, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "send",      &opsSend, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-  Tcl_CreateCommand(interp, "recv", i    &opsRecv, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "partition", &opsPartition, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 }
 
@@ -71,6 +81,8 @@ int
 getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int pid = 0;
+
+  MachineBroker* theMachineBroker = (MachineBroker*)clientData;
 
   if (theMachineBroker != nullptr)
     pid = theMachineBroker->getPID();
@@ -87,6 +99,8 @@ int
 getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   int np = 1;
+  MachineBroker* theMachineBroker = (MachineBroker*)clientData;
+
   if (theMachineBroker != nullptr)
     np = theMachineBroker->getNP();
 
@@ -99,6 +113,7 @@ getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const arg
 }
 
 
+#ifdef _PARALLEL_SP
 static int
 partitionModel(int eleTag)
 {
@@ -132,9 +147,6 @@ partitionModel(int eleTag)
     theDomain.setPartitioner(OPS_DOMAIN_PARTITIONER);
   }
 
-  // opserr << "commands.cpp - partition numPartitions: " << OPS_NUM_SUBDOMAINS
-  // << endln;
-
   result = theDomain.partition(OPS_NUM_SUBDOMAINS, OPS_USING_MAIN_DOMAIN,
                                OPS_MAIN_DOMAIN_PARTITION_ID, eleTag);
 
@@ -164,15 +176,15 @@ partitionModel(int eleTag)
 
   return result;
 }
+#endif
 
 
 int
 opsBarrier(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-#ifdef _PARALLEL_INTERPRETERS
+#ifdef _PARALLEL_MP
   return MPI_Barrier(MPI_COMM_WORLD);
 #endif
-
   return TCL_OK;
 }
 
@@ -183,6 +195,7 @@ opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
     return TCL_OK;
 
   int otherPID = -1;
+  MachineBroker* theMachineBroker = (MachineBroker*)clientData;
   int myPID = theMachineBroker->getPID();
   int np = theMachineBroker->getNP();
   const char *dataToSend = argv[argc - 1];
@@ -224,7 +237,8 @@ opsSend(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
 int
 opsRecv(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-#ifdef _PARALLEL_INTERPRETERS
+#ifdef _PARALLEL_MP
+  MachineBroker* theMachineBroker = (MachineBroker*)clientData;
   if (argc < 2)
     return TCL_OK;
 
@@ -309,7 +323,7 @@ int
 opsPartition(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
-#ifdef _PARALLEL_PROCESSING
+#ifdef _PARALLEL_SP
   int eleTag;
   if (argc == 2) {
     if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
@@ -319,5 +333,22 @@ opsPartition(ClientData clientData, Tcl_Interp *interp, int argc,
   partitionModel(eleTag);
 #endif
   return TCL_OK;
+}
+
+int 
+wipePP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
+{
+
+#ifdef _PARALLEL_SP
+  if (OPS_PARTITIONED == true && OPS_NUM_SUBDOMAINS > 1) {
+    SubdomainIter &theSubdomains = theDomain.getSubdomains();
+    Subdomain *theSub =0;
+    
+    // create the appropriate domain decomposition analysis
+    while ((theSub = theSubdomains()) != 0) 
+      theSub->wipeAnalysis();
+  }
+#endif
+  return TCL_OK;  
 }
 

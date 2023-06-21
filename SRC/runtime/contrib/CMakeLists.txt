@@ -5,7 +5,6 @@ add_library(OpenSeesCommunity OBJECT)
 add_subdirectory(packages/)
 add_subdirectory(uniaxial/)
 add_subdirectory(element/)
-add_subdirectory(sys_of_eqn)
 # add_subdirectory(packages/YieldSurface/)
 
 target_sources(OPS_Runtime PRIVATE

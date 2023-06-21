@@ -31,52 +31,14 @@ option(FMK
 # name of the lib converted to uppercase and prepended with "OPSDEF_"
 # (e.g. using OPS_Element_truss defines the macro OPSDEF_ELEMENT_TRUSS)
 #==============================================================================
-set(OPS_Numlib_List
-)
 
 set(OPS_SysOfEqn_List
-  OPS_SysOfEqn_UMF
+# OPS_SysOfEqn_UMF
   #OPS_SysOfEqn_ITPACK
 )
 
 set(OPS_Extension_List
   OPS_ASDEA
-)
-
-set(OPS_Element_List
-  #  OPS_Element_truss
-  #  OPS_Element_InertiaTruss
-  #  #OPS_Element_beam2d
-  #  OPS_Element_beam3d
-  #  OPS_Element_dispBeamColumnInt
-  #  OPS_Element_forceBeamColumn
-  #  OPS_Element_mixedBeamColumn
-  #  #OPS_Element_beamWithHinges
-  #  OPS_Element_LHMYS
-  #  #OPS_Element_Dmglib
-  #  OPS_Element_PML
-  #  OPS_Element_RockingBC
-  #  OPS_Element_UP_ucsd
-  #  OPS_Element_absorbentBoundaries
-  #  OPS_Element_adapter
-  #  OPS_Element_catenaryCable
-  #  OPS_Element_componentElement
-  #
-  #  OPS_Element_elastomericBearing
-  #  OPS_Element_frictionBearing
-  #
-  #  OPS_Element_generic
-  #  OPS_Element_gradientInelasticBeamColumn
-  #  OPS_Element_joint
-  #  OPS_Element_mvlem
-  #  OPS_Element_pyMacro
-  #  OPS_Element_shell
-  #  OPS_Element_surfaceLoad
-  #  OPS_Element_updatedLagrangianBeamColumn
-  #  OPS_Element_masonry
-  #  OPS_Element_PFEMElement
-  #  OPS_Element_CEq
-  #  OPS_Material_StressDensity
 )
 
 set(OPS_Exclude_List

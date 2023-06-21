@@ -11,6 +11,7 @@ TclDispatch_newUmfpackLinearSOE(ClientData clientData, Tcl_Interp* interp, int a
              (strcmp(argv[1], "Umfpack") == 0)) {
   */
 
+    Tcl_Eval(interp, "puts hi");
     // now must determine the type of solver to create 
     // from rest of args
     int factLVALUE = 10;

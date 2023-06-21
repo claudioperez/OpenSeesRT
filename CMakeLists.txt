@@ -18,9 +18,10 @@ set(OPS_BUNDLED_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
 set(OPS_SRC_DIR "${PROJECT_SOURCE_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
 include(OpenSeesFunctions)
+
 enable_testing()
 
-add_definitions(-DOPS_USE_RUNTIME -D_THREADS)
+add_definitions(-DOPS_USE_RUNTIME)#  -D_THREADS)
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -83,18 +84,6 @@ if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
     message(STATUS ">>> WIN32")
 endif()
 
-message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
-message("OPS >>> CBLAS:   ${CBLAS_LIBRARY}\n")
-message("OPS >>> LAPACK:  ${LAPACK_LIBRARIES}")
-message("OPS >>> SUPERLU: ${SUPERLU_LIBRARIES}")
-message("OPS >>> ARPACK:  ${ARPACK_LIBRARIES}")
-message("OPS >>> UMFPACK: ${UMFPACK_LIBRARIES}")
-message("OPS >>> CSPARSE: ${CSPARSE_LIBRARIES}")
-message("OPS >>> TCL:     ${TCL_LIBRARIES}")
-message("                 ${TCL_LIBRARY}  ")
-message("                $ENV{TCL_LIBRARY}")
-
-message("OPS >>> AMD:     ${AMD_LIBRARIES}")
 
 
 #==============================================================================
@@ -185,7 +174,6 @@ include_directories(
   ${OPS_SRC_DIR}/material/uniaxial
   ${OPS_SRC_DIR}/matrix
   ${OPS_SRC_DIR}/modelbuilder
-# ${OPS_SRC_DIR}/modelbuilder/tcl
   ${OPS_SRC_DIR}/recorder
   ${OPS_SRC_DIR}/recorder/response
   ${OPS_SRC_DIR}/system_of_eqn
@@ -194,7 +182,7 @@ include_directories(
   ${OPS_SRC_DIR}/tagged
   ${OPS_SRC_DIR}/tagged/storage
   ${OPS_SRC_DIR}/utility
-  ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/SRC/
+  ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/SRC/ # TODO
 )
 
 
@@ -205,21 +193,61 @@ include_directories(${TCL_INCLUDE_PATH})
 #                            Define Targets
 #
 #==============================================================================
+find_package(MKL)
+find_package(MPI)
+
+opensees_load(SUPERLU
+  #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
+  LIBRARY "${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/libSUPERLU.a"
+)
+
+opensees_load(UMFPACK
+  #BUNDLED "${OPS_BUNDLED_DIR}/UMFPACK/" 
+  LIBRARY "${OPS_BUNDLED_DIR}/bin/UMFPACK/libUMFPACK.a" 
+)
+
+opensees_load(CSPARSE
+  #BUNDLED "${OPS_BUNDLED_DIR}/CSPARSE/"
+  LIBRARY "${OPS_BUNDLED_DIR}/bin/CSPARSE/libCSPARSE.a"
+)
+
+opensees_load(ARPACK
+  BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
+)
+
+opensees_load(AMD
+  BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
+  #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
+)
+
+message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
+message("OPS >>> CBLAS:   ${CBLAS_LIBRARY}\n")
+message("OPS >>> LAPACK:  ${LAPACK_LIBRARIES}")
+message("OPS >>> SUPERLU: ${SUPERLU_LIBRARIES}")
+message("OPS >>> ARPACK:  ${ARPACK_LIBRARIES}")
+message("OPS >>> UMFPACK: ${UMFPACK_LIBRARIES}")
+message("OPS >>> CSPARSE: ${CSPARSE_LIBRARIES}")
+message("OPS >>> TCL:     ${TCL_LIBRARIES}")
+message("                 ${TCL_LIBRARY}  ")
+message("                $ENV{TCL_LIBRARY}")
+
+message("OPS >>> AMD:     ${AMD_LIBRARIES}")
+
+
 add_library(OPS_Numerics           INTERFACE)
 target_link_libraries(OPS_Numerics INTERFACE
   ${ARPACK_LIBRARIES} 
-# ${SUPERLU_LIBRARIES}
-  ${AMD_LIBRARIES}
+  ${SUPERLU_LIBRARIES}
   ${LAPACK_LIBRARIES}
   ${BLAS_LIBRARIES}
-  ${UMFPACK_LIBRARIES}
-  ${CSPARSE_LIBRARIES} # ${AMD_LIBRARIES}
+# ${UMFPACK_LIBRARIES}
+# ${CSPARSE_LIBRARIES}
 )
+
 
 # Core OpenSees
 add_library(OPS_Matrix             OBJECT)
 add_library(OPS_Actor              OBJECT)
-# add_library(OPS_ObjectBroker       OBJECT)
 add_library(G3_ObjectBroker        OBJECT)
 add_library(OPS_Handler            OBJECT)
 add_library(OPS_Recorder           OBJECT)
@@ -237,17 +265,14 @@ add_library(OPS_ElementFortran     OBJECT)
 add_library(OPS_Material           OBJECT)
 add_library(OPS_MaterialFortran    OBJECT)
 add_library(OPS_Damage             OBJECT)
-add_library(OPS_Database           OBJECT)
 add_library(OPS_Runtime            OBJECT)
+add_library(OPS_Database           OBJECT EXCLUDE_FROM_ALL)
 
 # Optional Extensions
-add_library(OPS_Parallel           OBJECT)
+add_library(OPS_Parallel           OBJECT EXCLUDE_FROM_ALL)
+add_library(OPS_Parallel_SP        OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
-
-
-opensees_library(OPS_SysOfEqn_UMF
-  LINK ${UMFPACK_LIBRARIES} ${AMD_LIBRARIES})
 
 # Packaged libraries
 add_library(G3) 
@@ -272,12 +297,8 @@ add_subdirectory(${OPS_SRC_DIR})
 #                            Configure targets
 #
 #==============================================================================
-target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
-message(">>> Numeric libs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
-# target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
-
-target_link_libraries(OPS_Material PRIVATE ${TCL_LIBRARY})
+target_link_libraries(OPS_Material     PRIVATE ${TCL_STUB_LIBRARY})
 
 
 # G3
@@ -300,7 +321,6 @@ target_link_libraries(G3
     OPS_Recorder
     OPS_Handler
     OPS_SysOfEqn
-    ${OPS_SysOfEqn_List}
     OPS_Tagged
     OPS_Utilities
     graph
@@ -326,7 +346,7 @@ add_compile_definitions(_NOGRAPHICS)
 # Extensions
 #----------------------------
 message("OPS >>> Configuring OpenSees extensions")
-foreach(extension IN LISTS OPS_SysOfEqn_List OPS_Element_List OPS_Extension_List)
+foreach(extension IN LISTS OPS_Element_List OPS_Extension_List)
     string(TOUPPER "${extension}" ext_flag) 
     string(REGEX REPLACE "^OPS_" "OPSDEF_" ext_flag "${ext_flag}")
     add_compile_definitions(${ext_flag})

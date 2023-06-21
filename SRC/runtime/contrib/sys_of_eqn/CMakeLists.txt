@@ -8,5 +8,5 @@
 # add_subdirectory(Mumps)
 # add_subdirectory(PetSc)
 # add_subdirectory(ITPACK)
-add_subdirectory(ThreadedSuperLU)
+#add_subdirectory(ThreadedSuperLU)
 
