@@ -57,10 +57,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
 static void *
 TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
-
-  // Pointer to a uniaxial material that will be returned
-  TimeSeries *theSeries = nullptr;
-
   int numRemainingArgs = argc;
 
   int tag = 0;
@@ -74,7 +70,7 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
         opserr << G3_ERROR_PROMPT << "invalid series tag in LinearSeries tag? <-factor "
                   "factor?>"
                << endln;
-        return 0;
+        return nullptr;
       }
       numRemainingArgs--;
     }
@@ -84,26 +80,18 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
       if (argvS == 0) {
         opserr << G3_ERROR_PROMPT << "string error in LinearSeries with tag: " << tag
                << endln;
-        return 0;
+        return nullptr;
       }
       numData = 1;
       if (Tcl_GetDouble(interp, argv[2], &cFactor) != 0) {
         opserr << G3_ERROR_PROMPT << "invalid factor in LinearSeries with tag: " << tag
                << endln;
-        return 0;
+        return nullptr;
       }
     }
   }
 
-  theSeries = new LinearSeries(tag, cFactor);
-
-  if (theSeries == 0) {
-    opserr << G3_ERROR_PROMPT << "ran out of memory creating ConstantTimeSeries with tag: "
-           << tag << "\n";
-    return 0;
-  }
-
-  return theSeries;
+  return new LinearSeries(tag, cFactor);
 }
 
 static TimeSeries *
@@ -115,7 +103,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
   // note the 1 instead of usual 2
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
 
-  TimeSeries *theSeries = 0;
+  TimeSeries *theSeries = nullptr;
 
   if ((strcmp(argv[0], "Constant") == 0) ||
       (strcmp(argv[0], "ConstantSeries") == 0)) {
@@ -681,7 +669,7 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char * const arg
   // split the list
   if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {
     opserr << "WARNING could not split series list " << arg << endln;
-    return 0;
+    return nullptr;
   }
 
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc, argv);
