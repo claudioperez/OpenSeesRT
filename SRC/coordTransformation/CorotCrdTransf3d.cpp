@@ -129,9 +129,6 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
     else
         nodeJOffset = rigJntOffsetJ;
 
-    //opserr << "nodeIOffset:" << nodeIOffset;
-    //opserr << "nodeJOffset:" << nodeJOffset;
-
     // temporary
     if (nodeIOffset.Norm() != 0 || nodeJOffset.Norm() != 0)
     {
@@ -207,9 +204,10 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 // destructor:
 CorotCrdTransf3d::~CorotCrdTransf3d()
 {
-    if (nodeIInitialDisp != 0)
+    if (nodeIInitialDisp != nullptr)
         delete [] nodeIInitialDisp;
-    if (nodeJInitialDisp != 0)
+
+    if (nodeJInitialDisp != nullptr)
         delete [] nodeJInitialDisp;
 }
 
@@ -318,18 +316,8 @@ CorotCrdTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return error;
 
     // compute initial pseudo-vectors for nodal triads
-    //opserr << setiosflags(ios::scientific);
-    //opserr << setiosflags(ios::showpos);
-    //opserr << setprecision(16);
-
-    //opserr << "L: " << L;
-    //opserr << "R0: " << R0;
-
     alphaIq = this->getQuaternionFromRotMatrix(R0);    // pseudo-vector for node I
     alphaJq = this->getQuaternionFromRotMatrix(R0);    // pseudo-vector for node J
-
-    //opserr << "alphaIq: " << alphaIq;
-    //opserr << "alphaJq: " << alphaJq;
 
     this->commitState();
 
@@ -484,7 +472,7 @@ CorotCrdTransf3d::update(void)
         r3(k) = Rbar(k,2);
     }
 
-    //    e2 = r2 - (e1 + r1)*((r2^ e1)*0.5);
+    // e2 = r2 - (e1 + r1)*((r2^ e1)*0.5);
     // e3 = r3 - (e1 + r1)*((r3^ e1)*0.5);
 
     static Vector tmp(3);
@@ -548,7 +536,6 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     // extract columns of rotation matrices
     int i, j, k;
 
-    //opserr << "comprTransfMatrixBasicGlobal: *****************************\n";
     static Vector r1(3), r2(3), r3(3);
     static Vector e1(3), e2(3), e3(3);
     static Vector rI1(3), rI2(3), rI3(3);
@@ -620,7 +607,7 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rI2)*e1 + S(rI1)*e2)'
     Se.addMatrixVector(1.0, Sr1, e2,  1.0);
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         T(1,i  ) =  At(i);
         T(1,i+3) =  Se(i);
@@ -634,7 +621,7 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     Se.addMatrixVector(0.0, Sr3, e1, -1.0);     // (-S(rI3)*e1 + S(rI1)*e3)
     Se.addMatrixVector(1.0, Sr1, e3,  1.0);
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         T(2,i  ) =  At(i);
         T(2,i+3) =  Se(i);
@@ -650,7 +637,7 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
     Se.addMatrixVector(1.0, Sr2, e3,  1.0);
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
         T(3,i+9) =  Se(i);
 
     //   T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
@@ -660,7 +647,7 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     Se.addMatrixVector(0.0, Sr2, e1, -1.0);     // (-S(rJ2)*e1 + S(rJ1)*e2)
     Se.addMatrixVector(1.0, Sr1, e2,  1.0);
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         T(4,i  ) =  At(i);
         T(4,i+6) = -At(i);
@@ -729,12 +716,12 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     {
         c = 2 * cos(ul(j));
 
-        for (i = 0; i < 12; i++)
+        for (int i = 0; i < 12; i++)
             T(j,i) /= c;
     }
 
     // T(:,7) = [-e1' O' e1' O']';
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         T(6,i  ) = -e1(i);
         T(6,i+6) =  e1(i);
@@ -746,15 +733,14 @@ void
 CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
 {
     // extract columns of rotation matrices
-    int i, j, k;
+    int i;
 
-    //opserr << "comprTransfMatrixBasicGlobal: *****************************\n";
     static Vector r1(3), r2(3), r3(3);
     static Vector e1(3), e2(3), e3(3);
     static Vector rI1(3), rI2(3), rI3(3);
     static Vector rJ1(3), rJ2(3), rJ3(3);
 
-    for (k = 0; k < 3; k ++)
+    for (int k = 0; k < 3; k ++)
     {
         r1(k) = Rbar(k,0);
         r2(k) = Rbar(k,1);
@@ -778,13 +764,12 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
     static Matrix I(3,3);
 
     //   A = (1/Ln)*(I - e1*e1');
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
         I(i,i) = 1;
 
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
             A(i,j) = (I(i,j) - e1(i)*e1(j))/Ln;
-
 
 
     Lr2 = this->getLMatrix (r2);
@@ -872,15 +857,6 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
         hJ3(i+6) = -At(i);
         hJ3(i+9) =  Se(i);
     }
-
-    /*
-    opserr << "hI1: " << hI1;
-    opserr << "hI2: " << hI2;
-    opserr << "hI3: " << hI3;
-    opserr << "hj1: " << hJ1;
-    opserr << "hj2: " << hJ2;
-    opserr << "hj3: " << hJ3;
-    */
 
     // f1 =  [-e1' O' e1' O'];
     // f2  = ( Lr2*rI1 + hI3)'./(2*(cos(thetalI(3))));
@@ -1001,7 +977,6 @@ CorotCrdTransf3d::compTransfMatrixBasicLocal(Matrix &Tbl)
 
     // get inverse of transformation matrix from local to global
     this->compTransfMatrixLocalGlobal(Tlg);
-    // Tlg.Invert(TlgInv);
     TlgInv.addMatrixTranspose(0.0, Tlg, 1.0);  // for square rot-matrix: Tlg^-1 = Tlg'
 
     // finally get transformation matrix from basic to local
