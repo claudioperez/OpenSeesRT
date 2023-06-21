@@ -126,9 +126,9 @@ BinaryFileStream::setFile(const char *name, openMode mode)
   }
 
   if (mode == 0)
-    theOpenMode = OVERWRITE;
+    theOpenMode = openMode::OVERWRITE;
   else
-    theOpenMode = APPEND;
+    theOpenMode = openMode::APPEND;
 
   return 0;
 }
@@ -147,12 +147,12 @@ BinaryFileStream::open(void)
     return 0;
   }
 
-  if (theOpenMode == OVERWRITE) 
+  if (theOpenMode == openMode::OVERWRITE) 
     theFile.open(fileName, ios::out | ios::binary);
   else
     theFile.open(fileName, ios::out | ios::app | ios::binary);
 
-  theOpenMode = APPEND;
+  theOpenMode = openMode::APPEND;
 
   if (theFile.bad()) {
     std::cerr << "WARNING - BinaryFileStream::setFile()";
@@ -508,7 +508,7 @@ BinaryFileStream::sendSelf(int commitTag, Channel &theChannel)
 
   idData(0) = fileNameLength;
 
-  if (theOpenMode == OVERWRITE)
+  if (theOpenMode == openMode::OVERWRITE)
     idData(1) = 0;
   else
     idData(1) = 1;
@@ -547,9 +547,9 @@ BinaryFileStream::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
 
   int fileNameLength = idData(0);
   if (idData(1) == 0)
-    theOpenMode = OVERWRITE;
+    theOpenMode = openMode::OVERWRITE;
   else
-    theOpenMode = APPEND;
+    theOpenMode = openMode::APPEND;
 
   if (fileNameLength != 0) {
     if (fileName != 0)
