@@ -78,6 +78,10 @@ printCommand(int argc, TCL_Char ** const argv)
   opserr << endln;
 }
 
+// This command creates a scope where the following commands
+// behave differently:
+// - load
+// - sp
 int
 TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char ** const argv)
@@ -112,6 +116,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     double fact = 1.0;
     if (argc == 7 && ((strcmp(argv[4], "-fact") == 0) ||
                       (strcmp(argv[4], "-factor") == 0))) {
+
       if (Tcl_GetDouble(interp, argv[5], &fact) != TCL_OK) {
         opserr << "WARNING invalid fact: pattern type Plain\n";
         return TCL_ERROR;
@@ -120,7 +125,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     thePattern = new LoadPattern(patternID, fact);
     theSeries = TclSeriesCommand(clientData, interp, argv[3]);
 
-    if (thePattern == 0 || theSeries == 0) {
+    if (thePattern == nullptr || theSeries == nullptr) {
 
       if (thePattern == nullptr) {
         opserr << "WARNING - out of memory creating LoadPattern ";
@@ -131,9 +136,9 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       // clean up the memory and return an error
-      if (thePattern != 0)
+      if (thePattern != nullptr)
         delete thePattern;
-      if (theSeries != 0)
+      if (theSeries != nullptr)
         delete theSeries;
       return TCL_ERROR;
     }
@@ -256,28 +261,8 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     GroundMotion *theMotion =
         new GroundMotion(dispSeries, velSeries, accelSeries, seriesIntegrator);
 
-    if (theMotion == 0) {
-      opserr << "WARNING ran out of memory creating ground motion - pattern "
-                "UniformExcitation ";
-      opserr << patternID << endln;
-
-      return TCL_ERROR;
-    }
-
     // create the UniformExcitation Pattern
     thePattern = new UniformExcitation(*theMotion, dir, patternID, vel0, fact);
-
-    if (thePattern == 0) {
-      opserr << "WARNING ran out of memory creating load pattern - pattern "
-                "UniformExcitation ";
-      opserr << patternID << endln;
-
-      // clean up memory allocated up to this point and return an error
-      if (theMotion != 0)
-        delete theMotion;
-
-      return TCL_ERROR;
-    }
 
     // Added by MHS to prevent call to Tcl_Eval at end of this function
     commandEndMarker = currentArg;
@@ -359,28 +344,10 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
     theMotion = new GroundMotionRecord(accelFileName, dt, factor);
 
-    if (theMotion == 0) {
-      opserr << "WARNING ran out of memory creating ground motion - pattern "
-                "UniformExcitation ";
-      opserr << patternID << endln;
-      return TCL_ERROR;
-    }
-
     // create the UniformExcitation Pattern
     thePattern = new UniformExcitation(*theMotion, dir, patternID);
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
 
-    if (thePattern == 0) {
-      opserr << "WARNING ran out of memory creating load pattern - pattern "
-                "UniformExcitation ";
-      opserr << patternID << endln;
-
-      // clean up memory allocated up to this point and return an error
-      if (theMotion != 0)
-        delete theMotion;
-
-      return TCL_ERROR;
-    }
   }
 
   else if ((strcmp(argv[1], "MultipleSupportExcitation") == 0) ||
@@ -391,11 +358,6 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)theTclMultiSupportPattern);
     thePattern = theTclMultiSupportPattern;
 
-    if (thePattern == 0) {
-      opserr << "WARNING ran out of memory creating load pattern - pattern "
-                "MultipleSupportExcitation ";
-      opserr << patternID << endln;
-    }
     commandEndMarker = 2;
   }
 
@@ -815,7 +777,12 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
   theTclLoadPattern = thePattern;
 
   builder->setEnclosingPattern(thePattern);
-  Tcl_CreateCommand(interp, "sp", TclCommand_addSP, (ClientData)thePattern, NULL);
+  // Set the Pattern for "sp" command
+  Tcl_CmdInfo info;
+  assert(Tcl_GetCommandInfo(interp, "sp", &info)==1);
+  info.clientData = (ClientData)thePattern;
+  Tcl_SetCommandInfo(interp, "sp", &info);
+
   Tcl_CreateCommand(interp, "nodalLoad", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
   Tcl_Eval(interp, "rename load opensees::import;");
   Tcl_Eval(interp, "rename nodalLoad load;");
@@ -833,9 +800,13 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
-  Tcl_DeleteCommand(interp, "sp");
-  Tcl_Eval(interp, "rename load opensees::import;");
-  Tcl_DeleteCommand(interp, "load");
+  // Tcl_DeleteCommand(interp, "sp");
+  info.clientData = (ClientData)nullptr;
+  Tcl_SetCommandInfo(interp, "sp", &info);
+
+  Tcl_Eval(interp, "rename load nodalLoad;");
+  Tcl_DeleteCommand(interp, "nodalLoad");
+  Tcl_Eval(interp, "rename opensees::import load;");
 
   return TCL_OK;
 }
@@ -851,15 +822,15 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   // TODO!!!
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData;
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-  // ensure the destructor has not been called
 
+  // ensure the destructor has not been called
   if (theTclBuilder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - load \n";
     return TCL_ERROR;
   }
 
-  int ndf = argc - 2;
-  NodalLoad *theLoad = 0;
+  int ndf = theTclBuilder->getNDF(); // argc - 2;
+  NodalLoad *theLoad = nullptr;
 
   bool isLoadConst = false;
   bool userSpecifiedPattern = false;
@@ -886,8 +857,8 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     for (int i = 0; i < ndf; i++) {
       double theForce;
       if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
-        opserr << "WARNING invalid force " << i + 1 << " - load" << nodeId;
-        opserr << " " << ndf << " forces\n";
+        opserr << "WARNING invalid force " << i + 1 << " in load " << nodeId;
+        opserr << ", got " << ndf << " forces\n";
         return TCL_ERROR;
       } else
         forces(i) = theForce;
@@ -926,11 +897,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
     // create the load
     theLoad = new NodalLoad(nodeLoadTag, nodeId, forces, isLoadConst);
-    if (theLoad == 0) {
-      opserr << "WARNING ran out of memory for load  - load " << nodeId;
-      opserr << " " << ndf << " forces\n";
-      return TCL_ERROR;
-    }
   }
 
   // add the load to the domain
