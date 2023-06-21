@@ -53,29 +53,25 @@ specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** co
 ConvergenceTest*
 TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
-  // Domain *domain = G3_getDomain(rt);
-
   // get the tolerence first
-  double tol = 1e-12;
-  double tol2 = 0.0;
-  double tolp = 0.0;
-  double tolp2 = 0.0;
-  double tolrel = 0.0;
+  double tol     = 1e-12;
+  double tol2    = 0.0;
+  double tolp    = 0.0;
+  double tolp2   = 0.0;
+  double tolrel  = 0.0;
   double tolprel = 0.0;
-  double maxTol = OPS_MAXTOL;
+  double maxTol  = OPS_MAXTOL;
 
-  int numIter = 10;
-  int printIt = 0;
-  int normType = 2;
-  int maxIncr = -1;
+  int numIter  = 10;
+  int printIt  =  0;
+  int normType =  2;
+  int maxIncr  = -1;
 
-
-  // make sure at least one other argument to contain numberer
+  // make sure at least one other argument to contain test type
   if (argc < 2) {
     opserr << G3_ERROR_PROMPT << "need to specify a ConvergenceTest type \n";
     return nullptr;
   }
-
 
   if ((strcmp(argv[1], "NormDispAndUnbalance") == 0) ||
       (strcmp(argv[1], "NormDispOrUnbalance") == 0)) {
@@ -185,6 +181,41 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
     }
   }
 
+  
+  int flag = ConvergenceTest::Silent;
+
+  switch (printIt) {
+    case 0:
+      flag |= ConvergenceTest::PrintFailure;
+      break;
+    case 1:
+      flag |= ConvergenceTest::PrintTest;
+      flag |= ConvergenceTest::PrintFailure;
+      break;
+    case 2:
+      flag |= ConvergenceTest::PrintSuccess;
+      flag |= ConvergenceTest::PrintFailure;
+      break;
+    case 4:
+      flag |= ConvergenceTest::PrintTest;
+      flag |= ConvergenceTest::PrintTest02;
+      flag |= ConvergenceTest::PrintFailure;
+      break;
+    case 5:
+      flag |= ConvergenceTest::AlwaysSucceed;
+      flag |= ConvergenceTest::PrintFailure;
+      break;
+    case 6: 
+      flag |= ConvergenceTest::AlwaysSucceed;
+      flag |= ConvergenceTest::PrintSuccess;
+      flag |= ConvergenceTest::PrintFailure;
+      break;
+
+    case 9:
+      // True silence
+      break;
+  }
+
   ConvergenceTest *theNewTest = nullptr;
 
   if (numIter == 0) {
@@ -193,43 +224,46 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
   }
 
   if (strcmp(argv[1], "FixedNumIter") == 0)
-    theNewTest = new CTestFixedNumIter(numIter, printIt, normType);
+    theNewTest = new CTestFixedNumIter(numIter, flag, normType);
+
   else {
     if (tol == 0.0) {
       opserr << G3_ERROR_PROMPT << "no tolerance specified in test command\n";
       return nullptr;
     }
+
     if (strcmp(argv[1], "NormUnbalance") == 0)
-      theNewTest = new CTestNormUnbalance(tol, numIter, printIt, normType,
-                                          maxIncr, maxTol);
+      return  new CTestNormUnbalance(tol, numIter, flag, normType,
+                                     maxIncr, maxTol);
+
     else if (strcmp(argv[1], "NormDispIncr") == 0)
-      theNewTest =
-          new CTestNormDispIncr(tol, numIter, printIt, normType, maxTol);
+      return new CTestNormDispIncr(tol, numIter, flag, normType, maxTol);
+
     else if (strcmp(argv[1], "NormDispAndUnbalance") == 0)
-      theNewTest = new NormDispAndUnbalance(tol, tol2, numIter, printIt,
+      return new NormDispAndUnbalance(tol, tol2, numIter, flag,
                                             normType, maxIncr);
+
     else if (strcmp(argv[1], "NormDispOrUnbalance") == 0)
-      theNewTest = new NormDispOrUnbalance(tol, tol2, numIter, printIt,
+      return new NormDispOrUnbalance(tol, tol2, numIter, flag,
                                            normType, maxIncr);
+
     else if (strcmp(argv[1], "EnergyIncr") == 0)
-      theNewTest = new CTestEnergyIncr(tol, numIter, printIt, normType, maxTol);
+      theNewTest = new CTestEnergyIncr(tol, numIter, flag, normType, maxTol);
+
     else if (strcmp(argv[1], "RelativeNormUnbalance") == 0)
-      theNewTest =
-          new CTestRelativeNormUnbalance(tol, numIter, printIt, normType);
+      return new CTestRelativeNormUnbalance(tol, numIter, flag, normType);
+
     else if (strcmp(argv[1], "RelativeNormDispIncr") == 0)
-      theNewTest =
-          new CTestRelativeNormDispIncr(tol, numIter, printIt, normType);
+      return new CTestRelativeNormDispIncr(tol, numIter, flag, normType);
+
     else if (strcmp(argv[1], "RelativeEnergyIncr") == 0)
-      theNewTest = new CTestRelativeEnergyIncr(tol, numIter, printIt, normType);
+      return new CTestRelativeEnergyIncr(tol, numIter, flag, normType);
+
     else if (strcmp(argv[1], "RelativeTotalNormDispIncr") == 0)
-      theNewTest =
-          new CTestRelativeTotalNormDispIncr(tol, numIter, printIt, normType);
+      return new CTestRelativeTotalNormDispIncr(tol, numIter, flag, normType);
+
     else {
-      opserr << G3_ERROR_PROMPT << "No ConvergenceTest type (NormUnbalance, NormDispIncr, "
-                "EnergyIncr, \n";
-      opserr << "RelativeNormUnbalance, RelativeNormDispIncr, "
-                "RelativeEnergyIncr, \n";
-      opserr << "RelativeTotalNormDispIncr, FixedNumIter)\n";
+      opserr << G3_ERROR_PROMPT << "unknown ConvergenceTest type";
       return nullptr;
     }
   }
