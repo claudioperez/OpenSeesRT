@@ -56,9 +56,8 @@ TclDispatch_SSPbrick(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Ch
   // Pointer to an element that will be returned
   Element *theElement = 0;
 
-  int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
 
-  if (numRemainingInputArgs < 10) {
+  if (argc < 10) {
     opserr
         << "Invalid #args, want: element SSPbrick eleTag? iNode? jNode? kNode? "
            "lNode? mNode? nNode? pNode? qNode? matTag? <b1? b2? b3?>\n";
@@ -86,7 +85,7 @@ TclDispatch_SSPbrick(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Ch
     return 0;
   }
 
-  if (numRemainingInputArgs == 13) {
+  if (argc == 13) {
     numData = 3;
     if (OPS_GetDoubleInput(&numData, dData) != 0) {
       opserr << "WARNING invalid optional data: element SSPbrick " << iData[0]
@@ -127,9 +126,7 @@ TclDispatch_SSPbrickUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_
   // Pointer to an element that will be returned
   Element *theElement = 0;
 
-  int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
-
-  if (numRemainingInputArgs < 17) {
+  if (argc < 17) {
     opserr << "Invalid #args, want: element SSPbrickUP eleTag? iNode? jNode? "
               "kNode? lNode? mNode? nNode? pNode? qNode? matTag? fBulk? fDen? "
               "k1? k2? k3? e? alpha? <b1? b2? b3?>\n";
@@ -164,7 +161,7 @@ TclDispatch_SSPbrickUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_
     return 0;
   }
 
-  if (numRemainingInputArgs == 20) {
+  if (argc == 20) {
     numData = 3;
     if (OPS_GetDoubleInput(&numData, &dData[7]) != 0) {
       opserr << "WARNING invalid optional data: element SSPbrickUP " << iData[0]
@@ -205,14 +202,12 @@ TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Cha
   }
 
   // Pointer to an element that will be returned
-  Element *theElement = 0;
+  Element *theElement = nullptr;
 
-  int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
-
-  if (numRemainingInputArgs < 8) {
+  if (argc < 8) {
     opserr << "Invalid #args, want: element SSPquad eleTag? iNode? jNode? "
               "kNode? lNode? matTag? type? thickness? <b1? b2?>?\n";
-    return 0;
+    return nullptr;
   }
 
   int iData[6];
@@ -243,7 +238,7 @@ TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Cha
     return 0;
   }
 
-  if (numRemainingInputArgs == 10) {
+  if (argc == 10) {
     numData = 2;
     if (OPS_GetDoubleInput(&numData, &dData[1]) != 0) {
       opserr << "WARNING invalid optional data: element SSPquad " << iData[0]
@@ -278,11 +273,10 @@ TclDispatch_SSPquadUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
   }
 
   // Pointer to an element that will be returned
-  Element *theElement = 0;
+  Element *theElement = nullptr;
 
-  int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
   // LM change
-  if (numRemainingInputArgs < 13) {
+  if (argc < 13) {
     opserr << "Invalid #args, want: element SSPquadUP eleTag? iNode? jNode? "
               "kNode? lNode? matTag? t? fBulk? fDen? k1? k2? e? alpha? <b1? "
               "b2?> <Pup? Plow? Pleft? Pright?>?\n";
@@ -322,14 +316,14 @@ TclDispatch_SSPquadUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
   }
 
   // LM change
-  if (numRemainingInputArgs == 15) {
+  if (argc == 15) {
     numData = 2;
     if (OPS_GetDoubleInput(&numData, &dData[7]) != 0) {
       opserr << "WARNING invalid optional data: element SSPquadUP " << iData[0]
              << endln;
       return 0;
     }
-  } else if (numRemainingInputArgs == 19) {
+  } else if (argc == 19) {
     numData = 6;
     if (OPS_GetDoubleInput(&numData, &dData[7]) != 0) {
       opserr << "WARNING invalid optional data: element SSPquadUP " << iData[0]
@@ -372,9 +366,7 @@ TclDispatch_BeamContact2D(ClientData clientData, Tcl_Interp* interp, int argc, T
   // Pointer to an element that will be returned
   Element *theElement = 0;
 
-  int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
-
-  if (numRemainingInputArgs < 9) {
+  if (argc < 9) {
     opserr << "Invalid #args, want: element BeamContact2D eleTag? iNode? "
               "jNode? secondaryNode? lambdaNode? matTag? width? gapTol? "
               "forceTol? <cSwitch>?\n";
@@ -407,15 +399,15 @@ TclDispatch_BeamContact2D(ClientData clientData, Tcl_Interp* interp, int argc, T
     return 0;
   }
 
-  numRemainingInputArgs -= 9;
-  while (numRemainingInputArgs >= 1) {
+  int i = argc - 9;
+  while (i >= 1) {
     numData = 1;
     if (OPS_GetIntInput(&numData, &icSwitch) != 0) {
       opserr << "WARNING invalid initial contact flag: element BeamContact2D "
              << iData[0] << endln;
       return 0;
     }
-    numRemainingInputArgs -= 1;
+    i -= 1;
   }
 
   // Parsing was successful, allocate the element

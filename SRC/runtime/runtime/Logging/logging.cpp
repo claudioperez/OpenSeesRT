@@ -2,12 +2,12 @@
 #include <OPS_Globals.h>
 
 // the following is a little kludgy but it works!
-#ifdef _USING_STL_STREAMS
-#  include <iomanip>
-   using std::ios;
-#  include <iostream>
-   using std::ofstream;
-#else
+// #ifdef _USING_STL_STREAMS
+// #  include <iomanip>
+//    using std::ios;
+// #  include <iostream>
+//    using std::ofstream;
+// #else
 #  include <StandardStream.h>
 #  include <FileStream.h>
 #  include <DummyStream.h>
@@ -17,8 +17,7 @@
    OPS_Stream *opsdbgPtr = &ssnul;
    OPS_Stream *opswrnPtr = &sserr;
    OPS_Stream *opsmrdPtr = &sserr;
-
-#endif
+// #endif
 
 #include <G3_Logging.h>
 
@@ -46,8 +45,8 @@ G3_setStreamLevel(G3_Runtime* rt, int stream, int level)
   }
 
   switch (level) {
-    case G3_Null: *theStream = &ssnul;
-    case G3_Log : *theStream = &sserr;
+    case G3_Null: *theStream = &ssnul; break;
+    case G3_Log : *theStream = &sserr; break;
   }
   return 0;
 }
@@ -58,6 +57,7 @@ int G3_setStreamColor(G3_Runtime* rt, int strm, int flag)
     G3_WARN_PROMPT = G3_WarnPromptColor;
     G3_ERROR_PROMPT = G3_ErrorPromptColor;
     G3_DEBUG_PROMPT = G3_DebugPromptColor;
+
   } else if (flag == 0) {
     G3_WARN_PROMPT = G3_WarnPromptNoColor;
     G3_ERROR_PROMPT = G3_ErrorPromptNoColor;

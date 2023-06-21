@@ -45,8 +45,8 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_Twenty_Node_Brick)
 {
     if (OPS_GetNDM() != 3 ) {
@@ -94,6 +94,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Twenty_Node_Brick)
 				 idata[18],idata[19],idata[20],
 				 *mat,data[0],data[1],data[2]);
 }
+#endif
 
 //static data
 double  Twenty_Node_Brick::xl[3][20] ;

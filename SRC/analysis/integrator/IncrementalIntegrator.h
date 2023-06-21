@@ -17,24 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2009-08-25 22:08:24 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/IncrementalIntegrator.h,v $
-                                                                        
-#ifndef IncrementalIntegrator_h
-#define IncrementalIntegrator_h
-
-// Written: fmk 
-// Created: Tue Sept 17 15:54:47: 1996
-// Revision: A
 //
 // Description: This file contains the interface for IncrementalIntegrator. 
 // IncrementalIntegrator is an algorithmic class for setting up the finite 
 // element equations in an incremental analysis and for updating the nodal
 // response quantities based on the values in the soln vector.
 //
-// What: "@(#) IncrementalIntegrator.h, revA"
+// Written: fmk 
+// Created: Tue Sept 17 15:54:47: 1996
+// Revision: A
+//
+#ifndef IncrementalIntegrator_h
+#define IncrementalIntegrator_h
+
 
 #include <Integrator.h>
 

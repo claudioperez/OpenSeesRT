@@ -259,7 +259,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     theEle = OPS_TrussSectionElement(rt, argc, argv);
   }
 
-  else if (strcmp(argv[1], "CorotTruss") == 0) {
+  else if (strcasecmp(argv[1], "CorotTruss") == 0) {
     theEle = OPS_CorotTrussElement(rt, argc, argv);
 
     // for backward compatibility
@@ -1270,12 +1270,6 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
     delete[] theMaterials;
   }
 
-  if (theElement == nullptr) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "multipleShearSpring element: " << eleTag << endln;
-    return TCL_ERROR;
-  }
-
   // then add the multipleShearSpring to the domain
   if (theTclDomain->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
@@ -1566,12 +1560,6 @@ error:
   // now create the multipleNormalSpring
   theElement = new MultipleNormalSpring(eleTag, iNode, jNode, nDivide,
                     material, shape, size, lambda, oriYp, oriX, mass);
-
-  if (theElement == nullptr) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "multipleNormalSpring element: " << eleTag << endln;
-    return TCL_ERROR;
-  }
 
   // then add the multipleNormalSpring to the domain
   if (theTclDomain->addElement(theElement) == false) {
@@ -2071,12 +2059,6 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
       limDisp, nMNS, matMNS, lambda, oriYp, oriX, mass, ifPDInput, ifTilt,
       adjCi, adjCj, ifBalance, limFo, limFi, nIter);
 
-  if (theElement == 0) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "KikuchiBearing element: " << eleTag << endln;
-    return TCL_ERROR;
-  }
-
   // then add the KikuchiBearing to the domain
   if (theTclDomain->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
@@ -2280,12 +2262,6 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
   theElement = new YamamotoBiaxialHDR(eleTag, iNode, jNode, Tp, DDo, DDi, Hr,
                                       Cr, Cs, oriYp, oriX, mass);
 
-  if (theElement == 0) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "YamamotoBiaxialHDR element: " << eleTag << endln;
-    return TCL_ERROR;
-  }
-
   // then add the YamamotoBiaxialHDR to the domain
   if (theTclDomain->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
@@ -2488,18 +2464,12 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
                                pI, pE, pA, theTransRWheel, pnLoad, pNodeList,
                                pDeltaYList, pDeltaYLocationList);
 
-    if (theElement == 0) {
-      opserr << "WARNING ran out of memory creating beam - WheelRail ";
-      opserr << pTag << " iNode jNode A E I\n";
-      return TCL_ERROR;
-    }
-
   } 
   // -- End of a 2D wheel-rail element(By Quan Gu, Yongdou Liu, et al.) on 2018/10/29
 
   else if (ndm == 3) {
 
-    opserr << "Have not developed yet." << endln;
+    opserr << G3_ERROR_PROMPT << "Unimplemented." << endln;
     return TCL_ERROR;
   }
 

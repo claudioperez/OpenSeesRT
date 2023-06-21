@@ -17,21 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-#ifndef HHTGeneralized_h
-#define HHTGeneralized_h
-
-// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
-// Created: 10/05
-// Revision: A
 //
 // Description: This file contains the class definition for HHTGeneralized.
 // HHTGeneralized is an algorithmic class for performing a transient analysis
 // using the HHTGeneralized integration scheme.
+//
+// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
+// Created: 10/05
+//
+#ifndef HHTGeneralized_h
+#define HHTGeneralized_h
 
 #include <TransientIntegrator.h>
 

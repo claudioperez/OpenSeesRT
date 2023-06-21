@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2010-02-04 19:16:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/ElementalLoad.h,v $
-                                                                        
-                                                                        
-#ifndef ElementalLoad_h
-#define ElementalLoad_h
-
-// Written: fmk 
 //
 // Purpose: This file contains the class definition for ElementalLoad.
 // ElementalLoad is an abstract class.
+//
+// Written: fmk 
+//
+#ifndef ElementalLoad_h
+#define ElementalLoad_h
+
 
 #include <Load.h>
 #include <Vector.h>

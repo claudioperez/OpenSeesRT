@@ -17,30 +17,24 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-02-02 01:18:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/fiber/Fiber.h,v $
-                                                                        
-                                                                        
-// File: ~/fiber/Fiber.h
-//
-// Written: Remo Magalhaes de Souza
-// Created: 10/98
-// Revision: 
 //
 // Description: This file contains the class definition for 
 // Fiber. Fiber is an abstract base class and thus no objects of 
 // it's type can be instatiated. It has pure virtual functions which
 // must be implemented in it's derived classes.
 //
-// What: "@(#) Fiber.h, revA"
-
-
+// File: ~/fiber/Fiber.h
+//
+// Written: Remo Magalhaes de Souza
+// Created: 10/98
+//
 #ifndef Fiber_h
 #define Fiber_h
-
-#include <DomainComponent.h>
+#if 0
+#  include <DomainComponent.h>
+#else
+#  include <TaggedObject.h>
+#endif
 #include <MovableObject.h>
 #include <Vector.h>
 

@@ -44,8 +44,10 @@
 #include <Parameter.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
+#define ELEM_NAME "20_8_BrickUP"
+
+#if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_TwentyEightNodeBrickUP)
 {
     if (OPS_GetNDM() != 3 ) {
@@ -95,6 +97,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_TwentyEightNodeBrickUP)
                       *mat,data[0],data[1],data[2],data[3],data[4],
                       opt[0],opt[1],opt[2]);
 }
+#endif
 
 //static data
 double  TwentyEightNodeBrickUP::xl[3][20] ;
@@ -395,6 +398,19 @@ void  TwentyEightNodeBrickUP::Print( OPS_Stream &s, int flag )
         s << materialPointers[i]->getStress();
         }
         */
+
+    } else if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        const int numNodes = 20;
+        s << "\t\t\t{";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"ShellANDeS\", ";
+        s << "\"material\":" << materialPointers[0]->getTag() << ", ";
+        s << "\"nodes\": [";
+        for (int i=0; i<numNodes-1; i++)
+          s << nodePointers[i]->getTag() << ", ";
+        s << nodePointers[numNodes-1]->getTag();
+        s << "], ";
+        // s << "\"masspervolume\": " << rho << "\"}";
 
     } else {
 

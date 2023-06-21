@@ -152,12 +152,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         else
           theLoad = new Beam2dUniformLoad(eleLoadTag, wta, waa, theEleTags(i));
 
-        if (theLoad == 0) {
-          opserr << "WARNING eleLoad - out of memory creating load of type "
-                 << argv[count];
-          return TCL_ERROR;
-        }
-
         // get the current pattern tag if no tag given in i/p
         int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -211,12 +205,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           theLoad =
               new Beam3dUniformLoad(eleLoadTag, wy, wz, wx, theEleTags(i));
 
-        if (theLoad == 0) {
-          opserr << "WARNING eleLoad - out of memory creating load of type "
-                 << argv[count];
-          return TCL_ERROR;
-        }
-
         // get the current pattern tag if no tag given in i/p
         int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -269,12 +257,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       for (int i = 0; i < theEleTags.Size(); i++) {
         theLoad = new Beam2dPointLoad(eleLoadTag, P, x, theEleTags(i), N);
 
-        if (theLoad == 0) {
-          opserr << "WARNING eleLoad - out of memory creating load of type "
-                 << argv[count];
-          return TCL_ERROR;
-        }
-
         // get the current pattern tag if no tag given in i/p
         int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -323,12 +305,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       for (int i = 0; i < theEleTags.Size(); i++) {
         theLoad = new Beam3dPointLoad(eleLoadTag, Py, Pz, x, theEleTags(i), N);
 
-        if (theLoad == 0) {
-          opserr << "WARNING eleLoad - out of memory creating load of type "
-                 << argv[count];
-          return TCL_ERROR;
-        }
-
         // get the current pattern tag if no tag given in i/p
         int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -355,12 +331,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     for (int i = 0; i < theEleTags.Size(); i++) {
       theLoad = new BrickSelfWeight(eleLoadTag, theEleTags(i));
 
-      if (theLoad == 0) {
-        opserr << "WARNING eleLoad - out of memory creating load of type "
-               << argv[count];
-        return TCL_ERROR;
-      }
-
       // get the current pattern tag if no tag given in i/p
       int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -382,12 +352,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     count++;
     for (int i = 0; i < theEleTags.Size(); i++) {
       theLoad = new SurfaceLoader(eleLoadTag, theEleTags(i));
-
-      if (theLoad == 0) {
-        opserr << "WARNING eleLoad - out of memory creating load of type "
-               << argv[count];
-        return TCL_ERROR;
-      }
 
       // get the current pattern tag if no tag given in i/p
       int loadPatternTag = theTclLoadPattern->getTag();
@@ -430,12 +394,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
     for (int i = 0; i < theEleTags.Size(); i++) {
       theLoad = new SelfWeight(eleLoadTag, xf, yf, zf, theEleTags(i));
-
-      if (theLoad == 0) {
-        opserr << "WARNING eleLoad - out of memory creating load of type "
-               << argv[count];
-        return TCL_ERROR;
-      }
 
       // get the current pattern tag if no tag given in i/p
       int loadPatternTag = theTclLoadPattern->getTag();
@@ -500,11 +458,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         for (int i = 0; i < theEleTags.Size(); i++) {
           theLoad = new ShellThermalAction(eleLoadTag, RcvLoc1, RcvLoc2,
                                            theSeries, theEleTags(i));
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
 
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
@@ -525,11 +478,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       else {
         for (int i = 0; i < theEleTags.Size(); i++) {
           theLoad = new ShellThermalAction(eleLoadTag, theEleTags(i));
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
 
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
@@ -573,12 +521,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
               indata[11], indata[12], indata[13], indata[14], indata[15],
               indata[16], indata[17], theEleTags(i));
 
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
-
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -617,12 +559,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                                            indata[2], indata[3], indata[4],
                                            indata[5], indata[6], indata[7],
                                            indata[8], indata[9], theEleTags(i));
-
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
 
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
@@ -670,12 +606,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         for (int i = 0; i < theEleTags.Size(); i++) {
           theLoad = new ShellThermalAction(eleLoadTag, t1, locY1, t2, locY2,
                                            theEleTags(i));
-
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
 
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
@@ -803,11 +733,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             theNodalThermals[5]);
       }
 
-      if (theLoad == 0) {
-        opserr << "WARNING eleLoad - out of memory creating load of type "
-               << argv[count];
-        return TCL_ERROR;
-      }
 
       if (loc != 0)
         ((ThermalActionWrapper *)theLoad)->setRatios(loc);
@@ -841,11 +766,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         if (strcmp(argv[count + 1], "-node") == 0) {
           for (int i = 0; i < theEleTags.Size(); i++) {
             theLoad = new Beam2dThermalAction(eleLoadTag, theEleTags(i));
-            if (theLoad == 0) {
-              opserr << "WARNING eleLoad - out of memory creating load of type "
-                     << argv[count];
-              return TCL_ERROR;
-            }
 
             // get the current pattern tag if no tag given in i/p
             int loadPatternTag = theTclLoadPattern->getTag();
@@ -922,11 +842,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           for (int i = 0; i < theEleTags.Size(); i++) {
             theLoad = new Beam2dThermalAction(eleLoadTag, locs, theSeries,
                                               theEleTags(i));
-            if (theLoad == 0) {
-              opserr << "WARNING eleLoad - out of memory creating load of type "
-                     << argv[count];
-              return TCL_ERROR;
-            }
 
             // get the current pattern tag if no tag given in i/p
             int loadPatternTag = theTclLoadPattern->getTag();
@@ -1042,12 +957,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
               Temp[3], Loc[3], Temp[4], Loc[4], Temp[5], Loc[5], Temp[6],
               Loc[6], Temp[7], Loc[7], Temp[8], Loc[8], theEleTags(i));
 
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                      "beamThermal";
-            return TCL_ERROR;
-          }
-
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -1081,11 +990,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         if (strcmp(argv[count], "-node") == 0) {
           for (int i = 0; i < theEleTags.Size(); i++) {
             theLoad = new Beam3dThermalAction(eleLoadTag, theEleTags(i));
-            if (theLoad == 0) {
-              opserr << "WARNING eleLoad - out of memory creating load of type "
-                     << argv[count];
-              return TCL_ERROR;
-            }
+
             // get the current pattern tag if no tag given in i/p
             int loadPatternTag = theTclLoadPattern->getTag();
             // add the load to the domain
@@ -1144,13 +1049,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
               theLoad =
                   new Beam3dThermalAction(eleLoadTag, RcvLoc1, RcvLoc2, RcvLoc3,
                                           RcvLoc4, theSeries, theEleTags(i));
-
-              if (theLoad == 0) {
-                opserr
-                    << "WARNING eleLoad - out of memory creating load of type "
-                    << argv[count];
-                return TCL_ERROR;
-              }
 
               // get the current pattern tag if no tag given in i/p
               int loadPatternTag = theTclLoadPattern->getTag();
@@ -1219,12 +1117,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             for (int i = 0; i < theEleTags.Size(); i++) {
               theLoad = new Beam3dThermalAction(eleLoadTag, locs, theSeries,
                                                 theEleTags(i));
-              if (theLoad == 0) {
-                opserr
-                    << "WARNING eleLoad - out of memory creating load of type "
-                    << argv[count];
-                return TCL_ERROR;
-              }
 
               // get the current pattern tag if no tag given in i/p
               int loadPatternTag = theTclLoadPattern->getTag();
@@ -1279,11 +1171,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                 indata[14], indata[15], indata[16], indata[17], indata[18],
                 indata[19], indata[20], indata[21], indata[22], indata[23],
                 indata[24], theEleTags(i));
-            if (theLoad == 0) {
-              opserr << "WARNING eleLoad - out of memory creating load of type "
-                     << argv[count];
-              return TCL_ERROR;
-            }
+
             // get the current pattern tag if no tag given in i/p
             int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -1339,11 +1227,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                 eleLoadTag, t1, locY1, t2, locY2, t3, locY3, t4, locY4, t5,
                 locY5, t6, t7, locZ1, t8, t9, locZ2, t10, t11, locZ3, t12, t13,
                 locZ4, t14, t15, locZ5, theEleTags(i));
-            if (theLoad == 0) {
-              opserr << "WARNING eleLoad - out of memory creating load of type "
-                     << argv[count];
-              return TCL_ERROR;
-            }
+
             // get the current pattern tag if no tag given in i/p
             int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -1406,11 +1290,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, temp3, temp4,
                                        theEleTags(i));
 
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
 
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
@@ -1447,12 +1326,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         for (int i = 0; i < theEleTags.Size(); i++) {
           theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, theEleTags(i));
 
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
-
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();
 
@@ -1479,12 +1352,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
         for (int i = 0; i < theEleTags.Size(); i++) {
           theLoad = new Beam2dTempLoad(eleLoadTag, temp1, theEleTags(i));
-
-          if (theLoad == 0) {
-            opserr << "WARNING eleLoad - out of memory creating load of type "
-                   << argv[count];
-            return TCL_ERROR;
-          }
 
           // get the current pattern tag if no tag given in i/p
           int loadPatternTag = theTclLoadPattern->getTag();

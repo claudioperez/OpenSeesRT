@@ -114,7 +114,7 @@ int
 LoadPath::update(const Vector &deltaU)
 {
     AnalysisModel *myModel = this->getAnalysisModel();
-    if (myModel == 0) {
+    if (myModel == nullptr) {
 	opserr << "WARNING LoadPath::update() ";
 	opserr << "No AnalysisModel has been set\n";
 	return -1;

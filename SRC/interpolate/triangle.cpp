@@ -22,10 +22,10 @@ Tri31::shapeFunction(double xi, double eta)
   double L[2][2];
 
   // L = inv(J)
-  L[0][0] = J[1][1] * oneOverdetJ;
+  L[0][0] =  J[1][1] * oneOverdetJ;
   L[1][0] = -J[0][1] * oneOverdetJ;
   L[0][1] = -J[1][0] * oneOverdetJ;
-  L[1][1] = J[0][0] * oneOverdetJ;
+  L[1][1] =  J[0][0] * oneOverdetJ;
 
   // See Cook, Malkus, Plesha p. 169 for the derivation of these terms
   shp[0][0] = L[0][0];              // N_1,1
@@ -52,7 +52,7 @@ SixNodeTri::shapeFunction(double s, double t)
   shp[2][0] = s * (2 * s - 1);
   shp[2][1] = t * (2 * t - 1);
   shp[2][2] = (1 - s - t) * (1 - 2 * s - 2 * t);
-  // shp[2][2] = 1 - 3*s - 3*t + 2*s*s + 2*t*t + 4*s*t;
+// shp[2][2] = 1 - 3*s - 3*t + 2*s*s + 2*t*t + 4*s*t;
   shp[2][3] = 4 * s * t;
   shp[2][4] = 4 * t * (1 - s - t);
   shp[2][5] = 4 * s * (1 - s - t);
@@ -73,14 +73,14 @@ SixNodeTri::shapeFunction(double s, double t)
 
   double J[2][2];
 
-  J[0][0] = nd1Crds(0) * N11 + nd2Crds(0) * N21 + nd3Crds(0) * N31 +
-            nd4Crds(0) * N41 + nd5Crds(0) * N51 + nd6Crds(0) * N61;
-  J[0][1] = nd1Crds(0) * N12 + nd2Crds(0) * N22 + nd3Crds(0) * N32 +
-            nd4Crds(0) * N42 + nd5Crds(0) * N52 + nd6Crds(0) * N62;
-  J[1][0] = nd1Crds(1) * N11 + nd2Crds(1) * N21 + nd3Crds(1) * N31 +
-            nd4Crds(1) * N41 + nd5Crds(1) * N51 + nd6Crds(1) * N61;
-  J[1][1] = nd1Crds(1) * N12 + nd2Crds(1) * N22 + nd3Crds(1) * N32 +
-            nd4Crds(1) * N42 + nd5Crds(1) * N52 + nd6Crds(1) * N62;
+  J[0][0] = nd1Crds(0) * N11 + nd2Crds(0) * N21 + nd3Crds(0) * N31
+          + nd4Crds(0) * N41 + nd5Crds(0) * N51 + nd6Crds(0) * N61;
+  J[0][1] = nd1Crds(0) * N12 + nd2Crds(0) * N22 + nd3Crds(0) * N32
+          + nd4Crds(0) * N42 + nd5Crds(0) * N52 + nd6Crds(0) * N62;
+  J[1][0] = nd1Crds(1) * N11 + nd2Crds(1) * N21 + nd3Crds(1) * N31
+          + nd4Crds(1) * N41 + nd5Crds(1) * N51 + nd6Crds(1) * N61;
+  J[1][1] = nd1Crds(1) * N12 + nd2Crds(1) * N22 + nd3Crds(1) * N32
+          + nd4Crds(1) * N42 + nd5Crds(1) * N52 + nd6Crds(1) * N62;
 
   double detJ = J[0][0] * J[1][1] - J[0][1] * J[1][0];
 
@@ -261,15 +261,15 @@ shapeFunDer(Matrix &dN)
   dN(0, 0) = -1.0;
   dN(0, 1) = -1.0;
   dN(0, 2) = -1.0;
-  dN(1, 0) = 1.0;
-  dN(1, 1) = 0.0;
-  dN(1, 2) = 0.0;
-  dN(2, 0) = 0.0;
-  dN(2, 1) = 1.0;
-  dN(2, 2) = 0.0;
-  dN(3, 0) = 0.0;
-  dN(3, 1) = 0.0;
-  dN(3, 2) = 1.0;
+  dN(1, 0) =  1.0;
+  dN(1, 1) =  0.0;
+  dN(1, 2) =  0.0;
+  dN(2, 0) =  0.0;
+  dN(2, 1) =  1.0;
+  dN(2, 2) =  0.0;
+  dN(3, 0) =  0.0;
+  dN(3, 1) =  0.0;
+  dN(3, 2) =  1.0;
 }
 
 void

@@ -242,6 +242,54 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain *theTclDomain = G3_getDomain(rt);
 
+  if (argc > 1 && (strcmp(argv[1], "remove") == 0)) {
+    if (argc < 3) {
+      opserr << G3_ERROR_PROMPT << "want - remove sp spTag? -or- remove "
+                "sp nodeTag? dofTag? <patternTag?>\n";
+      return TCL_ERROR;
+    }
+    int tag;
+    if (argc == 3) {
+      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "remove sp tag? failed to read tag: " << argv[2]
+               << endln;
+        return TCL_ERROR;
+      }
+      SP_Constraint *theSPconstraint = theTclDomain->removeSP_Constraint(tag);
+      if (theSPconstraint != nullptr) {
+        delete theSPconstraint;
+      }
+    } else {
+      int nodeTag, dofTag;
+      int patternTag = -1;
+
+      if (Tcl_GetInt(interp, argv[2], &nodeTag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "remove sp tag? failed to read node tag: " << argv[2]
+               << endln;
+        return TCL_ERROR;
+      }
+      if (Tcl_GetInt(interp, argv[3], &dofTag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "remove sp tag? failed to read dof tag: " << argv[3]
+               << endln;
+        return TCL_ERROR;
+      }
+
+      if (argc == 5) {
+        if (Tcl_GetInt(interp, argv[4], &patternTag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "remove sp tag? failed to read pattern tag: "
+                 << argv[4] << endln;
+          return TCL_ERROR;
+        }
+      }
+      dofTag--; // one for C++ indexing of dof
+
+      theTclDomain->removeSP_Constraint(nodeTag, dofTag, patternTag);
+
+    }
+    return TCL_OK;
+  }
+
+
   // TODO!! 
   LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
 
@@ -338,12 +386,12 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     // Read in the node IDs and the DOF
     int RnodeID, CnodeID, dofID;
 
-    if (Tcl_GetInt (interp, argv[1], &RnodeID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[1], &RnodeID) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid RnodeID: " << argv[1]
              << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt (interp, argv[2], &CnodeID) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &CnodeID) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid CnodeID: " << argv[2]
              << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
       return TCL_ERROR;
@@ -362,7 +410,7 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     int i, j;
     // Read the degrees of freedom which are to be coupled
     for (i = 3, j = 0; i < argc; i++, j++) {
-      if (Tcl_GetInt (interp, argv[i], &dofID) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[i], &dofID) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid dofID: " << argv[3]
                << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
         return TCL_ERROR;
@@ -382,7 +430,7 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
     MP_Constraint *theMP = new MP_Constraint(RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
 
     // Add the multi-point constraint to the domain
-    if (theTclDomain->addMP_Constraint (theMP) == false) {
+    if (theTclDomain->addMP_Constraint(theMP) == false) {
       opserr << G3_ERROR_PROMPT << "could not add equalDOF MP_Constraint to domain ";
       delete theMP;
       return TCL_ERROR;
@@ -413,18 +461,18 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         // Read in the node IDs and the DOF
         int RnodeID, CnodeID, dofIDR, dofIDC, numDOF;
 
-        if (Tcl_GetInt (interp, argv[1], &RnodeID) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[1], &RnodeID) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid RnodeID: " << argv[1]
                << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
         }
-        if (Tcl_GetInt (interp, argv[2], &CnodeID) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[2], &CnodeID) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid CnodeID: " << argv[2]
                << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
         }
 
-        if (Tcl_GetInt (interp, argv[3], &numDOF) != TCL_OK) {
+        if (Tcl_GetInt(interp, argv[3], &numDOF) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid numDOF: " << argv[2]
                << " equalDOF RnodeID? CnodeID? numDOF? RDOF1? CDOF1? ...";
           return TCL_ERROR;
@@ -444,7 +492,7 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
         int i, j, k;
         // Read the degrees of freedom which are to be coupled
         for (i = 4, j = 5, k = 0; k < numDOF; i+=2, j+=2, k++) {
-          if (Tcl_GetInt (interp, argv[i], &dofIDR) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[i], &dofIDR) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid dofID: " << argv[3]
                  << " equalDOF RnodeID? CnodeID? DOF1? DOF2? ...";
             return TCL_ERROR;

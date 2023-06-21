@@ -27,9 +27,9 @@
 #include <ElementIter.h>
 
 #include <Node.h>
-#include <NodeIter.h>
 #include <Vector.h>
 
+#define MAX_NDF 6
 
 int
 domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -67,7 +67,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
     Element *theEle = the_domain->removeElement(tag);
-    if (theEle != 0) {
+    if (theEle != nullptr) {
 #if 0
       // we also have to remove any elemental loads from the domain
       LoadPatternIter &theLoadPatterns = the_domain->getLoadPatterns();
@@ -85,11 +85,11 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
           // note - if last element in load, remove the load and delete it
 
           /* *****************
-             int numLoadsLeft = theLoad->removeElement(tag);
-             if (numLoadsLeft == 0) {
+          int numLoadsLeft = theLoad->removeElement(tag);
+          if (numLoadsLeft == 0) {
              thePattern->removeElementalLoad(theLoad->getTag());
              delete theLoad;
-             }
+          }
           *********************/
         }
       }
@@ -110,7 +110,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
     LoadPattern *thePattern = the_domain->removeLoadPattern(tag);
-    if (thePattern != 0) {
+    if (thePattern != nullptr) {
       thePattern->clearAll();
       delete thePattern;
     }
@@ -145,7 +145,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
     Parameter *theParameter = the_domain->removeParameter(tag);
-    if (theParameter != 0) {
+    if (theParameter != nullptr) {
       delete theParameter;
     }
   }
@@ -165,7 +165,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       delete theNode;
     }
     Pressure_Constraint *thePC = the_domain->removePressure_Constraint(tag);
-    if (thePC != 0) {
+    if (thePC != nullptr) {
       delete thePC;
     }
   }
@@ -174,66 +174,20 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     the_domain->removeRecorders();
   }
 
-  else if ((strcmp(argv[1], "recorder") == 0)) {
-    if (argc < 3) {
-      opserr << "WARNING want - remove recorder recorderTag?\n";
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING remove recorder tag? failed to read tag: " << argv[2]
-             << endln;
-      return TCL_ERROR;
-    }
-    return the_domain->removeRecorder(tag);
-  }
-
-
   else if ((strcmp(argv[1], "SPconstraint") == 0) ||
-           (strcmp(argv[1], "sp") == 0)) {
-    if (argc < 3) {
-      opserr << "WARNING want - remove SPconstraint spTag? -or- remove "
-                "SPconstraint nodeTag? dofTag? <patternTag?>\n";
-      return TCL_ERROR;
-    }
-    if (argc == 3) {
-      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-        opserr << "WARNING remove sp tag? failed to read tag: " << argv[2]
-               << endln;
-        return TCL_ERROR;
-      }
-      SP_Constraint *theSPconstraint = the_domain->removeSP_Constraint(tag);
-      if (theSPconstraint != 0) {
-        delete theSPconstraint;
-      }
-    } else {
-      int nodeTag, dofTag;
-      int patternTag = -1;
+           (strcmp(argv[1], "sp") == 0)  ||
+           (strcmp(argv[1], "recorder") == 0)) {
+    const char** const args = new const char*[argc];
+    args[0] = argv[1];
+    args[1] = argv[0];
+    for (int i=2; i<argc; i++)
+      args[i] = argv[i];
 
-      if (Tcl_GetInt(interp, argv[2], &nodeTag) != TCL_OK) {
-        opserr << "WARNING remove sp tag? failed to read node tag: " << argv[2]
-               << endln;
-        return TCL_ERROR;
-      }
-      if (Tcl_GetInt(interp, argv[3], &dofTag) != TCL_OK) {
-        opserr << "WARNING remove sp tag? failed to read dof tag: " << argv[3]
-               << endln;
-        return TCL_ERROR;
-      }
-
-      if (argc == 5) {
-        if (Tcl_GetInt(interp, argv[4], &patternTag) != TCL_OK) {
-          opserr << "WARNING remove sp tag? failed to read pattern tag: "
-                 << argv[4] << endln;
-          return TCL_ERROR;
-        }
-      }
-      dofTag--; // one for C++ indexing of dof
-
-      the_domain->removeSP_Constraint(nodeTag, dofTag, patternTag);
-
-      return TCL_OK;
-    }
+    Tcl_CmdInfo info;
+    assert(Tcl_GetCommandInfo(interp, args[0], &info) == 1);
+    int status = info.proc(info.clientData, interp, argc, args);
+    delete[] args;
+    return status;
   }
 
   else if ((strcmp(argv[1], "MPconstraint") == 0) ||
@@ -389,14 +343,14 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   Domain * theDomain = (Domain*)clientData;
 
-  bool all = 1;
+  bool all = true;
   int rNode;
   if (argc > 1) {
     if (Tcl_GetInt(interp, argv[1], &rNode) != TCL_OK) {
       opserr << "WARNING constrainedNodes <rNode?> - could not read rNode? \n";
       return TCL_ERROR;
     }
-    all = 0;
+    all = false;
   }
 
   MP_Constraint *theMP;
@@ -404,9 +358,8 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // get unique constrained nodes with set
   std::set<int> tags;
-  int tag;
-  while ((theMP = mpIter()) != 0) {
-    tag = theMP->getNodeConstrained();
+  while ((theMP = mpIter()) != nullptr) {
+    int tag = theMP->getNodeConstrained();
     if (all || rNode == theMP->getNodeRetained()) {
       tags.insert(tag);
     }
@@ -430,7 +383,7 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  Domain * theDomain = (Domain*)clientData;
+  Domain *theDomain = (Domain*)clientData;
 
   if (argc < 2) {
     opserr << "WARNING want - constrainedDOFs cNode? <rNode?> <rDOF?>\n";
@@ -440,23 +393,23 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   int cNode;
   if (Tcl_GetInt(interp, argv[1], &cNode) != TCL_OK) {
     opserr << "WARNING constrainedDOFs cNode? <rNode?> <rDOF?> - could not "
-              "read cNode? \n";
+              "read cNode?\n";
     return TCL_ERROR;
   }
 
   int rNode;
-  bool allNodes = 1;
+  bool allNodes = true;
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
       opserr << "WARNING constrainedDOFs cNode? <rNode?> <rDOF?> - could not "
                 "read rNode? \n";
       return TCL_ERROR;
     }
-    allNodes = 0;
+    allNodes = false;
   }
 
   int rDOF;
-  bool allDOFs = 1;
+  bool allDOFs = true;
   if (argc > 3) {
     if (Tcl_GetInt(interp, argv[3], &rDOF) != TCL_OK) {
       opserr << "WARNING constrainedDOFs cNode? <rNode?> <rDOF?> - could not "
@@ -464,44 +417,40 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
     rDOF--;
-    allDOFs = 0;
+    allDOFs = false;
   }
 
   MP_Constraint *theMP;
   MP_ConstraintIter &mpIter = theDomain->getMPs();
 
-  int tag;
-  int i;
-  int n;
-  Vector constrained(6);
-  while ((theMP = mpIter()) != 0) {
-    tag = theMP->getNodeConstrained();
+  bool constrained[MAX_NDF];
+  while ((theMP = mpIter()) != nullptr) {
+    int tag = theMP->getNodeConstrained();
     if (tag == cNode) {
       if (allNodes || rNode == theMP->getNodeRetained()) {
         const ID &cDOFs = theMP->getConstrainedDOFs();
-        n = cDOFs.Size();
+        int n = cDOFs.Size();
         if (allDOFs) {
-          for (i = 0; i < n; i++) {
-            constrained(cDOFs(i)) = 1;
-          }
+          for (int i = 0; i < n; i++)
+            constrained[cDOFs(i)] = true;
+
         } else {
           const ID &rDOFs = theMP->getRetainedDOFs();
-          for (i = 0; i < n; i++) {
+          for (int i = 0; i < n; i++)
             if (rDOF == rDOFs(i))
-              constrained(cDOFs(i)) = 1;
-          }
+              constrained[cDOFs(i)] = true;
+
         }
       }
     }
   }
   char buffer[20];
-  for (int i = 0; i < 6; i++) {
-    if (constrained(i) == 1) {
+  for (int i = 0; i < MAX_NDF; i++) {
+    if (constrained[i]) {
       sprintf(buffer, "%d ", i + 1);
       Tcl_AppendResult(interp, buffer, NULL);
     }
   }
-
   return TCL_OK;
 }
 
