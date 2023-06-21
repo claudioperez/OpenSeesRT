@@ -19,7 +19,7 @@ TclDispatch_newShellMITC4(ClientData clientData, Tcl_Interp* interp, int argc, T
   Element *theElement = nullptr;
 
   if (argc < 6) {
-    opserr << "Want: element ShellMITC4 $tag $iNode $jNoe $kNode $lNode "
+    opserr << "Want: element ShellMITC4 $tag $iNode $jNode $kNode $lNode "
               "$secTag<-updateBasis>";
     return 0;
   }
