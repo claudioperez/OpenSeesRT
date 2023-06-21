@@ -684,10 +684,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       // for defining a uniform gradient thermal action
     }
     // end for source or no source
-    if (theLoad == 0) {
-      opserr << "WARNING NodalLoad - out of memory creating load " << argv[1];
-      return TCL_ERROR;
-    }
+
     // get the current pattern tag if no tag given in i/p
     if (userSpecifiedPattern == false) {
       if (theTclLoadPattern == 0) {
@@ -764,11 +761,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // create the load
     theLoad = new NodalLoad(nodeLoadTag, nodeId, forces, isLoadConst);
-    if (theLoad == 0) {
-      opserr << "WARNING ran out of memory for load  - load " << nodeId;
-      opserr << " " << ndf << " forces\n";
-      return TCL_ERROR;
-    }
 
   } // end of Liming change for nodal thermal action , putting the above block
     // into else{ }
@@ -860,12 +852,6 @@ TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
     theSP = new ImposedMotionSP(nodeId, dofId, loadPatternTag, gMotionID);
   }
 
-  if (theSP == 0) {
-    opserr << "WARNING ran out of memory for ImposedMotionSP ";
-    opserr << " -  imposedMotion ";
-    opserr << nodeId << " " << dofId++ << " " << gMotionID << endln;
-    return TCL_ERROR;
-  }
   if (thePattern->addSP_Constraint(theSP) == false) {
     opserr << "WARNING could not add SP_Constraint to pattern ";
     delete theSP;
@@ -937,10 +923,6 @@ TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // Create the multi-point constraint
   MP_Constraint *theMP = new MP_Constraint(RnodeID, CnodeID, Ccr, rcDOF, rcDOF);
-  if (theMP == 0) {
-    opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-    return TCL_ERROR;
-  }
 
   // Add the multi-point constraint to the domain
   if (theTclDomain->addMP_Constraint(theMP) == false) {
@@ -1031,10 +1013,6 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
 
   // Create the multi-point constraint
   MP_Constraint *theMP = new MP_Constraint(RnodeID, CnodeID, Ccr, cDOF, rDOF);
-  if (theMP == 0) {
-    opserr << "WARNING ran out of memory for equalDOF MP_Constraint ";
-    return TCL_ERROR;
-  }
 
   // Add the multi-point constraint to the domain
   if (theTclDomain->addMP_Constraint(theMP) == false) {
