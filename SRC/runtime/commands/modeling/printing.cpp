@@ -199,9 +199,9 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
     output = &opserr;
   } else {
 #ifdef _WIN32
-    outputFile.setFile("CON", APPEND);
+    outputFile.setFile("CON", openMode::APPEND);
 #else
-    outputFile.setFile("/dev/stdout", APPEND);
+    outputFile.setFile("/dev/stdout", openMode::APPEND);
 #endif
     output = &outputFile;
   }
@@ -263,9 +263,9 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
           (strcmp(argv[currentArg], "-file") == 0))
         currentArg++;
 
-      openMode mode = APPEND;
+      openMode mode = openMode::APPEND;
       if (flag == OPS_PRINT_PRINTMODEL_JSON)
-        mode = OVERWRITE;
+        mode = openMode::OVERWRITE;
 
       if (currentArg < argc) {
         if (outputFile.setFile(argv[currentArg], mode) != 0) {
@@ -479,10 +479,10 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << G3_ERROR_PROMPT << "printGID fileName? - no filename supplied\n";
     return TCL_ERROR;
   }
-  openMode mode = OVERWRITE;
+  openMode mode = openMode::OVERWRITE;
   if (argc >= 3) {
     if (strcmp(argv[i], "-append") == 0) {
-      mode = APPEND;
+      mode = openMode::APPEND;
       i++;
     }
     if (strcmp(argv[i], "-eleRange") == 0) {
