@@ -688,7 +688,7 @@ bool DomainModalProperties::compute(Domain* domain)
     auto compute_extra_rotary_mass = [&nodemap, num_nodes, ndf, this](Matrix& iML) {
         for (int i = 0; i < num_nodes; ++i) {
             Node* node = nodemap.nodes[static_cast<size_t>(i)];
-            const ID& ids = nodemap.node_ids[static_cast<size_t>(i)];
+            /// const ID& ids = nodemap.node_ids[static_cast<size_t>(i)];
             const Vector& pos = node->getCrds();
             double dx = pos(0) - m_center_of_mass(0);
             double dy = pos(1) - m_center_of_mass(1);
@@ -876,7 +876,7 @@ namespace
         };
         auto print_svec = [&out](const std::vector<std::string>& x, const char* fchar = DMP_OUT_BLANK) {
             out << fchar;
-            for (int i = 0; i < x.size(); ++i)
+            for (size_t i = 0; i < x.size(); ++i)
                 out << DMP_OUT_GEN(x[i]);
             out << "\n";
         };
