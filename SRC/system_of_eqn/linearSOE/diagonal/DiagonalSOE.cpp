@@ -117,9 +117,9 @@ DiagonalSOE::setSize(Graph &theGraph)
   // if not delete old and create new
   if (size > oldSize) { 
     
-    if (A != 0) delete [] A; A = 0;
-    if (B != 0) delete [] B; B = 0;
-    if (X != 0) delete [] X; X = 0;
+    if (A != 0) delete [] A;
+    if (B != 0) delete [] B;
+    if (X != 0) delete [] X;
     A = new double[size];
     B = new double[size];
     X = new double[size];	
@@ -136,20 +136,10 @@ DiagonalSOE::setSize(Graph &theGraph)
   }
 
   if (size != oldSize && size != 0) {
-    if (vectX != 0) delete vectX; vectX = 0;
-    if (vectB != 0) delete vectB; vectB = 0;
+    if (vectX != 0) delete vectX;
+    if (vectB != 0) delete vectB;
     vectX = new Vector(X,size);
     vectB = new Vector(B,size);
-    
-    if (vectB == 0 || vectX == 0) {
-      opserr << "ERROR DiagonalSOE::setSize() - ";
-      opserr << " ran out of memory for size: " << size << endln;
-      if (A != 0) delete [] A;
-      if (B != 0) delete [] B;
-      if (X != 0) delete [] X;
-      size = 0;
-      return -1;
-    }
   }    
     
   // zero the vectors
