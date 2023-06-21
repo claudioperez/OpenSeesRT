@@ -297,20 +297,55 @@ MP_Constraint::recvSelf(int cTag, Channel &theChannel,
 void
 MP_Constraint::Print(OPS_Stream &s, int flag)
 {     
-    s << "MP_Constraint: " << this->getTag() << "\n";
-    s << "\tNode Constrained: " << nodeConstrained;
-    s << " node Retained: " << nodeRetained << "\n";
-    if (constrDOF != 0 && retainDOF != 0) {
-      s << " constrained dof: ";
-      for (int i=0; i<(*constrDOF).Size(); i++)
-	s << (*constrDOF)(i)+1 << " ";
-      s << endln;
-	s << " retained dof: ";        
-      for (int i=0; i<(*retainDOF).Size(); i++)
-	s << (*retainDOF)(i)+1 << " ";
-      s << endln;
-      if (constraint != 0)
-	s << " constraint matrix: " << *constraint << "\n";
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      // const char *indent = "            ";
+      const char *indent = " ";
+      const char *newln = " ";
+      s << "            {";
+      s << indent << "\"name\": \"" << this->getTag() << "\"," << newln;
+      s << indent << "\"node_constrained\": " << nodeConstrained << "," << newln;
+      s << indent << "\"node_retained\": " << nodeRetained << "," << newln;
+      if (constrDOF != 0 && retainDOF != 0) {
+
+        s << indent << "\"constrained_dof\": [";
+        const int nc = (*constrDOF).Size();
+        for (int i=0; i < nc; i++)
+          s << (*constrDOF)(i)+1 << (i < nc-1? ", " : ""); 
+        s << "]," << newln;
+
+        const int nr = (*retainDOF).Size();
+        s << indent << "\"retained_dof\": [";
+        for (int i=0; i < nr; i++)
+          s << (*retainDOF)(i)+1 << (i < nr-1? ", " : "");
+        s << "]," << newln;
+
+        if (constraint != 0) {
+          s << indent << "\"constraint_matrix\": [";
+          // TODO print constraint matrix
+          // : s << *constraint ;
+          s << "]";
+        }
+      }
+      s << "}";
+      return;
+
+    } else {
+      s << "MP_Constraint: " << this->getTag() << "\n";
+      s << "\tNode Constrained: " << nodeConstrained;
+      s << " node Retained: " << nodeRetained << "\n";
+      if (constrDOF != 0 && retainDOF != 0) {
+        s << " constrained dof: ";
+        for (int i=0; i<(*constrDOF).Size(); i++)
+          s << (*constrDOF)(i)+1 << " ";
+        s << endln;
+          s << " retained dof: ";        
+        for (int i=0; i<(*retainDOF).Size(); i++)
+          s << (*retainDOF)(i)+1 << " ";
+        s << endln;
+        if (constraint != 0)
+          s << " constraint matrix: " << *constraint << "\n";
+      }
     }
 }
 
