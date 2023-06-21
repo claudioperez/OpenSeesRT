@@ -56,6 +56,7 @@ class FourNodeQuad3d : public Element
     ~FourNodeQuad3d();
 
     const char *getClassType(void) const {return "FourNodeQuad3d";};
+    static constexpr const char* class_name = "FourNodeQuad3d";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

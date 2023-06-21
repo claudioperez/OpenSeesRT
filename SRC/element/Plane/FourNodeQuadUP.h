@@ -40,6 +40,7 @@ class FourNodeQuadUP : public Element
     FourNodeQuadUP();
     virtual ~FourNodeQuadUP();
     const char *getClassType(void) const {return "FourNodeQuadUP";};
+    static constexpr const char* class_name = "FourNodeQuadUP";
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);
     Node **getNodePtrs(void);

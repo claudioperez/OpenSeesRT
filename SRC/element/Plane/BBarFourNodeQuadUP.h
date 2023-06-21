@@ -43,6 +43,7 @@ class BBarFourNodeQuadUP : public Element
     virtual ~BBarFourNodeQuadUP();
 
     const char *getClassType(void) const {return "BBarFourNodeQuadUP";};
+    static constexpr const char* class_name = "BBarFourNodeQuadUP";
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);
     Node **getNodePtrs(void);

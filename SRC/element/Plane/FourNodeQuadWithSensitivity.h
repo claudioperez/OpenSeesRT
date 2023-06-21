@@ -55,6 +55,7 @@ class FourNodeQuadWithSensitivity : public Element
     ~FourNodeQuadWithSensitivity();
 
     const char *getClassType(void) const {return "FourNodeQuadWithSensitivity";};
+    static constexpr const char* class_name = "FourNodeQuadWithSensitivity";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

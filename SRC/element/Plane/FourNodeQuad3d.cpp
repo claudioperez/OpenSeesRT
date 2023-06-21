@@ -56,9 +56,10 @@ double FourNodeQuad3d::wts[4];
 void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad3d)
 {
 
-  Element *theEle = 0;
+  Element *theEle = nullptr;
 
   int numRemainingArgs = OPS_GetNumRemainingInputArgs();
+
   if (numRemainingArgs == 0) { // parallel processing
     theEle = new FourNodeQuad3d();
     return theEle;
@@ -96,6 +97,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad3d)
 
   pType = OPS_GetString();
   if (pType != 0) {
+    // TODO: cmp - why is this printed? !=0?
     opserr << "WARNING element FourNodeQuad3d : invalid pType for element: " << eleTag << "\n";
   }
 
@@ -128,7 +130,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad3d)
 			      *theMaterial, pType,
 			      dData[0], dData[1], dData[2], dData[3], dData[4]);
 
-  if (theEle == 0) {
+  if (theEle == nullptr) {
     opserr << "WARNING ran out of memory creating element with tag " << eleTag << endln;
     delete theMaterial;
       delete [] pType;

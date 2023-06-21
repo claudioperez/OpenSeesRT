@@ -56,6 +56,7 @@ class Tri31 : public Element
     ~Tri31();
 
     const char *getClassType(void) const {return "Tri31";};
+    static constexpr const char* class_name = "Tri31";
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);

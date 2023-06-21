@@ -63,6 +63,7 @@ class NineNodeMixedQuad : public Element {
     ~NineNodeMixedQuad( ) ;
 
     const char *getClassType(void) const {return "NineNodeMixedQuad";};
+    static constexpr const char* class_name = "NineNodeMixedQuad";
 
     //set domain 
     void setDomain( Domain *theDomain ) ;

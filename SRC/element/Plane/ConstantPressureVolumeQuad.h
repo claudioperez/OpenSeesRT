@@ -54,6 +54,7 @@ class ConstantPressureVolumeQuad : public Element
     virtual ~ConstantPressureVolumeQuad( ) ;
 
     const char *getClassType(void) const {return "ConstantPressureVolumeQuad";};
+    static constexpr const char* class_name = "ConstantPressureVolumeQuad";
 
     int getNumExternalNodes( ) const ;
     const ID &getExternalNodes( ) ;
