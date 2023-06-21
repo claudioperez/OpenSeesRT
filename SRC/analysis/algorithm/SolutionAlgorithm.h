@@ -17,26 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2004-11-13 08:08:14 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/SolutionAlgorithm.h,v $
-                                                                        
-                                                                        
-#ifndef SolutionAlgorithm_h
-#define SolutionAlgorithm_h
-
-// File: ~/OOP/analysis/algorithm/SolutionAlgorithm.h
-// 
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for SolutionAlgorithm.
 // SolutionAlgorithm is an abstract base class, i.e. no objects of it's
 // type can be created. 
 //
-// What: "@(#) SolutionAlgorithm.h, revA"
+// Written: fmk 
+// Created: 11/96
+//
+#ifndef SolutionAlgorithm_h
+#define SolutionAlgorithm_h
 
 #include <MovableObject.h>
 
@@ -49,6 +39,16 @@ extern int SOLUTION_ALGORITHM_tangentFlag;
 class SolutionAlgorithm: public MovableObject
 {
   public:
+    enum SolveError {
+      BadAlgorithm    = -5, // Algo::solveCurrentStep          -5
+      BadTestStart    = -5, // test->start()                   -5
+      TestFailed      = -9, // result == CTest::Failure,       -3
+      BadLinearSolve  = -3, // theSOE->solve(),                -3
+      BadStepUpdate   = -4, // theIntegrator->update,          -4
+      BadFormResidual = -2, // theIntegrator->formUnbalance(), -2
+      BadFormTangent  = -1, // theIntegrator->formTangent(),   -1
+    };
+
     SolutionAlgorithm(int classTag);
     virtual ~SolutionAlgorithm();
 
