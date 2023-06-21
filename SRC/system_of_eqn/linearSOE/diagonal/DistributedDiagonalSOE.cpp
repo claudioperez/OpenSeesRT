@@ -243,16 +243,23 @@ DistributedDiagonalSOE::setSize(Graph &theGraph)
   }
 
 
-  if (A != 0) delete [] A; A = 0;
-  if (B != 0) delete [] B; B = 0;
-  if (X != 0) delete [] X; X = 0;
-  if (dataShared != 0) delete [] dataShared; dataShared = 0;
-  if (vectX != 0) delete vectX; vectX = 0;
-  if (vectB != 0) delete vectB; vectB = 0;
-
+  if (A != 0) delete [] A;
+  if (B != 0) delete [] B;
+  if (X != 0) delete [] X;
   A = new double[size];
   B = new double[size];
-  X = new double[size];	
+  X = new double[size];
+
+  if (dataShared != 0) delete [] dataShared; dataShared = 0;
+  if (vectX != 0) {
+    delete vectX;
+    vectX = 0;
+  }
+  if (vectB != 0) {
+    delete vectB;
+    vectB = 0;
+  }
+
   if (X != 0) 
     vectX = new Vector(X,size);
   if (B != 0) 
