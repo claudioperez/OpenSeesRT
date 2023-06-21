@@ -17,16 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.9 $
-// $Date: 2010-02-04 01:17:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/zeroLength/TclZeroLength.cpp,v $
-// Written: fmk
-// Created: 01/00
 //
 // Description: This file contains the implementation of the command used
 // to add zero length elements to the model.
-
+//
+// Written: fmk
+// Created: 01/00
+//
 #include <stdlib.h>
 #include <string.h>
 #include <tcl.h>
@@ -54,7 +51,8 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
 
-  int ndm = builder->getNDM(); // the spatial dimension of the problem
+  // the spatial dimension of the problem
+  int ndm = builder->getNDM();
 
   //
   // first scan the command line to obtain eleID, iNode, jNode, material ID's
@@ -529,12 +527,9 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
 
-  // need to write here.
-  int ndm = builder->getNDM(); // the spatial dimension of the problem
-
   //
   // first scan the command line to obtain eleID, SecondaryNode, PrimaryNode,
-
+  //
   int eleTag, iNode, jNode;
 
   // opserr << argc;
@@ -649,8 +644,6 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
-
-  int ndm = builder->getNDM(); // the spatial dimension of the problem
 
   //
   // first scan the command line to obtain eleID, SecondaryNode, PrimaryNode,
