@@ -492,7 +492,7 @@ PML2D::setResponse(const char **argv, int argc, OPS_Stream &output)
   output.tag("ElementOutput");
   output.attr("eleType","PML2D");
   output.attr("eleTag",this->getTag());
-  for (int i=1; i<=8; i++) {
+  for (int i=1; i<=PML2D_NUM_NODES; i++) {
     sprintf(outputData,"node%d",i);
     output.attr(outputData,nodePointers[i-1]->getTag());
   }
