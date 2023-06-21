@@ -32,7 +32,6 @@
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <Domain.h>
-#include <EquiSolnAlgo.h>
 #include <NodeIter.h>
 #include <ElementIter.h>
 #include <Node.h>
@@ -42,6 +41,7 @@
 #include <EquiSolnAlgo.h>
 #include <packages.h>
 
+// Streams
 #include <StandardStream.h>
 #include <DataFileStream.h>
 #include <DataFileStreamAdd.h>
@@ -51,8 +51,7 @@
 #include <DummyStream.h>
 #include <TCP_Stream.h>
 
-
-// recorders
+// Recorders
 #include <NodeRecorder.h>
 #include <EnvelopeNodeRecorder.h>
 #include <PatternRecorder.h>
@@ -130,33 +129,40 @@ createOutputStream(OutputOptions &options)
     if (options.eMode == OutputOptions::DATA_STREAM) {
       theOutputStream = new DataFileStream(
           options.filename, 
-          OVERWRITE, 2, 0, 
+          openMode::OVERWRITE, 2, 0, 
           options.closeOnWrite, 
           options.precision, 
           options.doScientific);
+
     } else if (options.eMode == OutputOptions::DATA_STREAM_ADD) {
       theOutputStream = new DataFileStreamAdd(
           options.filename, 
-          OVERWRITE, 2, 0, 
+          openMode::OVERWRITE, 2, 0, 
           options.closeOnWrite, 
           options.precision, 
           options.doScientific);
+
     } else if (options.eMode == OutputOptions::DATA_STREAM_CSV) {
       theOutputStream = new DataFileStream(
           options.filename, 
-          OVERWRITE, 2, 1, 
+          openMode::OVERWRITE, 2, 1, 
           options.closeOnWrite, 
           options.precision, 
           options.doScientific);
+
     } else if (options.eMode == OutputOptions::XML_STREAM) {
       theOutputStream = new XmlFileStream(options.filename);
+
     } else if (options.eMode == OutputOptions::BINARY_STREAM) {
       theOutputStream = new BinaryFileStream(options.filename);
     }
+
   } else if (options.eMode == OutputOptions::TCP_STREAM && options.inetAddr != 0) {
     theOutputStream = new TCP_Stream(options.inetPort, options.inetAddr);
+
   } else if (options.eMode == OutputOptions::DATABASE_STREAM && options.tableName != 0) {
     theOutputStream = new DatabaseStream(options.theDatabase, options.tableName);
+
   } else {
     theOutputStream = new StandardStream();
   }
@@ -496,7 +502,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       (*theRecorder) = new NormEnvelopeElementRecorder(eleIDs, data, argc - eleData,
                                                        *domain, *theOutputStream, dT,
                                                        echoTime, specificIndices);
-
 
     if (eleIDs != nullptr)
       delete eleIDs;
@@ -1021,7 +1026,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     if (numEle == 0) {
       ElementIter &theEleIter = domain->getElements();
       Element *theEle;
-      while ((theEle = theEleIter()) != 0)
+      while ((theEle = theEleIter()) != nullptr)
         eleIDs[numEle++] = theEle->getTag();
     }
 
@@ -1265,7 +1270,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     theOutputStream = createOutputStream(options);
 
-    if (theTimeSeries != 0 && theTimeSeriesID.Size() < theDofs.Size()) {
+    if (theTimeSeries != nullptr && theTimeSeriesID.Size() < theDofs.Size()) {
       opserr << "ERROR: recorder Node/EnvelopNode # TimeSeries must equal # "
                 "dof - IGNORING TimeSeries OPTION\n";
       for (int i = 0; i < theTimeSeriesID.Size(); i++) {
@@ -1638,7 +1643,7 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder);
 
-  if (theRecorder == 0) {
+  if (theRecorder == nullptr) {
     char buffer[] = "-1";
     Tcl_SetResult(interp, buffer, TCL_VOLATILE);
     return TCL_ERROR;
@@ -1646,7 +1651,7 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // add the recorder to the domain,
   // NOTE: will not be called with theALgo == 0
-  if (theAlgorithm != 0) {
+  if (theAlgorithm != nullptr) {
     if ((theAlgorithm->addRecorder(*theRecorder)) < 0) {
       opserr << "WARNING could not add to domain - recorder " << argv[1]
              << endln;
