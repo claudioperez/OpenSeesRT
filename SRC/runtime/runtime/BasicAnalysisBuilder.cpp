@@ -7,16 +7,9 @@
 //
 #include "BasicAnalysisBuilder.h"
 #include <Domain.h>
-#include <string>
 #include <assert.h>
 
 #include <G3_Logging.h>
-
-#include <Element.h>
-#include <ElementIter.h>
-#include <Node.h>
-#include <UniaxialMaterial.h>
-#include <NDMaterial.h>
 
 #include <EquiSolnAlgo.h>
 #include <StaticIntegrator.h>
@@ -301,8 +294,6 @@ void BasicAnalysisBuilder::newStaticAnalysis()
     }
 
     if (theNumberer == nullptr) {
-        // opserr << "WARNING analysis Static - no Numberer specified, \n";
-        // opserr << " RCM default will be used\n";
         RCM *theRCM = new RCM(false);        
         theNumberer = new DOF_Numberer(*theRCM);            
     }
@@ -354,35 +345,35 @@ BasicAnalysisBuilder::newTransientAnalysis()
 
     if (theTransientAnalysis != nullptr) {
       delete theTransientAnalysis;
-      theTransientAnalysis = nullptr;
+      theTransientAnalysis = nullptr;  
     }
-    
+
     if (theAnalysisModel == nullptr) {
         theAnalysisModel = new AnalysisModel();
     }
+
     if (theTest == nullptr) {
         theTest = new CTestNormUnbalance(1.0e-6,25,0);
     }
-    if (theAlgorithm == nullptr) {
-        opserr << "WARNING analysis Transient - no Algorithm yet specified, \n";
-        opserr << " NewtonRaphson default will be used\n";            
 
+    if (theAlgorithm == nullptr) {
         theAlgorithm = new NewtonRaphson(*theTest); 
     }
+
     if (theHandler == nullptr) {
         opserr << "WARNING analysis Transient dt tFinal - no ConstraintHandler\n";
         opserr << " yet specified, PlainHandler default will be used\n";
         theHandler = new PlainHandler();       
     }
+
     if (theNumberer == nullptr) {
-        opserr << "WARNING analysis Transient dt tFinal - no Numberer specified, \n";
-        opserr << " RCM default will be used\n";
         RCM *theRCM = new RCM(false);        
         theNumberer = new DOF_Numberer(*theRCM);            
     }
+
     if (theTransientIntegrator == nullptr) {
         opserr << "WARNING analysis Transient dt tFinal - no Integrator specified, \n";
-        opserr << " Newmark(.5,.25) default will be used\n";
+        opserr << "        Newmark(.5,.25) default will be used\n";
         theTransientIntegrator = new Newmark(0.5,0.25);       
     }
     if (theSOE == nullptr) {
@@ -400,13 +391,12 @@ BasicAnalysisBuilder::newTransientAnalysis()
 
     // set eigen SOE
     if (theEigenSOE != nullptr) {
-        if (theTransientAnalysis != 0) {
+        if (theTransientAnalysis != nullptr) {
           theTransientAnalysis->setEigenSOE(*theEigenSOE);
         }
     }
 
     // this->resetTransient();
-
     return 1;
 }
 
@@ -446,7 +436,7 @@ void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
         //
         if(theStaticAnalysis == nullptr && theTransientAnalysis == nullptr) {
           // TODO: these are only created to initialize a StaticAnalysis
-          // object, but is not required
+          //       object, but is not required
           this->set(new CTestNormUnbalance(1.0e-6,25,0));
           this->set(new LoadControl(1, 1, 1, 1), true);
 
@@ -475,24 +465,23 @@ Domain* BasicAnalysisBuilder::getDomain()
 
 EquiSolnAlgo* BasicAnalysisBuilder::getAlgorithm()
 {
-    if (theStaticAnalysis != 0) {
+    if (theStaticAnalysis != nullptr) {
         return theStaticAnalysis->getAlgorithm();
-    } else if (theTransientAnalysis != 0) {
+    } else if (theTransientAnalysis != nullptr) {
         return theTransientAnalysis->getAlgorithm();
     }
-
     return 0;
 }
 
 StaticIntegrator* BasicAnalysisBuilder::getStaticIntegrator() {
-    if (theStaticAnalysis != 0) {
+    if (theStaticAnalysis != nullptr) {
         return theStaticAnalysis->getIntegrator();
     }
     return 0;
 }
 
 TransientIntegrator* BasicAnalysisBuilder::getTransientIntegrator() {
-    if (theTransientAnalysis != 0) {
+    if (theTransientAnalysis != nullptr) {
         return theTransientAnalysis->getIntegrator();
     }
     return 0;
@@ -562,7 +551,7 @@ PyObject *ops_printModel(PyObject *self, PyObject *args)
                 type = OPS_GetString();
                 numData = OPS_GetNumRemainingInputArgs();
             }
-            if (outputFile.setFile(type.c_str(), APPEND) != 0) {
+            if (outputFile.setFile(type.c_str(), openMode::APPEND) != 0) {
                 PyErr_SetString(PyExc_RuntimeError,"failed to open file ");
                 return NULL;
             }
