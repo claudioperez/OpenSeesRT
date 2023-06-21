@@ -70,16 +70,17 @@
 #include <SubdomainIter.h>
 
 #include <FileStream.h>
+#include <map>
 
-typedef map<int, int>         MAP_INT;
+typedef std::map<int, int>    MAP_INT;
 typedef MAP_INT::value_type   MAP_INT_TYPE;
 typedef MAP_INT::iterator     MAP_INT_ITERATOR;
 
-typedef map<int, ID *> MAP_ID;
+typedef std::map<int, ID *>  MAP_ID;
 typedef MAP_ID::value_type   MAP_ID_TYPE;
 typedef MAP_ID::iterator     MAP_ID_ITERATOR;
 
-typedef map<int, Vertex *> MAP_VERTEX;
+typedef std::map<int, Vertex *>  MAP_VERTEX;
 typedef MAP_VERTEX::value_type   MAP_VERTEX_TYPE;
 typedef MAP_VERTEX::iterator     MAP_VERTEX_ITERATOR;
 
@@ -88,12 +89,12 @@ PartitionedDomain::PartitionedDomain()
     theSubdomains(0), theDomainPartitioner(0),
     theSubdomainIter(0), mySubdomainGraph(0), has_sent_yet(false)
 {
-  elements = new MapOfTaggedObjects();//(1024);
+  elements      = new MapOfTaggedObjects();//(1024);
   theSubdomains = new ArrayOfTaggedObjects(32);
   theSubdomainIter = new PartitionedDomainSubIter(theSubdomains);
 
   mainEleIter = new SingleDomEleIter(elements);
-  theEleIter = new PartitionedDomainEleIter(this);
+  theEleIter  = new PartitionedDomainEleIter(this);
 
   if (theSubdomains == 0 || elements == 0 ||
       theSubdomainIter == 0 ||
@@ -138,12 +139,12 @@ PartitionedDomain::PartitionedDomain(int numNodes, int numElements,
     theSubdomains(0), theDomainPartitioner(&thePartitioner),
     theSubdomainIter(0), mySubdomainGraph(0), has_sent_yet(false)
 {
-  elements = new MapOfTaggedObjects();//(numElements);
-  theSubdomains = new ArrayOfTaggedObjects(numSubdomains);
+  elements         = new MapOfTaggedObjects();//(numElements);
+  theSubdomains    = new ArrayOfTaggedObjects(numSubdomains);
   theSubdomainIter = new PartitionedDomainSubIter(theSubdomains);
 
   mainEleIter = new SingleDomEleIter(elements);
-  theEleIter = new PartitionedDomainEleIter(this);
+  theEleIter  = new PartitionedDomainEleIter(this);
 
   if (theSubdomains == 0 || elements == 0 ||
       theSubdomainIter == 0 ||
