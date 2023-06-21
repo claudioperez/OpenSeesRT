@@ -58,7 +58,7 @@ GSA_Recorder::GSA_Recorder(Domain &theDom,
   theDomain(&theDom), ndm(3), ndf(6), counter(0), deltaT(dT), nextTimeStampToRecord(0.0)
 {
   // open file 
-  if (theFile.setFile(fileName, OVERWRITE) < 0) {
+  if (theFile.setFile(fileName, openMode::OVERWRITE) < 0) {
     opserr << "WARNING - GSA_Recorder::GSA_Recorder()";
     opserr << " - could not open file " << fileName << endln;
     exit(-1);

@@ -265,11 +265,11 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeNodeRecorder)
 
     // data handler
     if (eMode == DATA_STREAM && filename != 0)
-        theOutputStream = new DataFileStream(filename, OVERWRITE, 2, 0, closeOnWrite, precision, doScientific);
+        theOutputStream = new DataFileStream(filename, openMode::OVERWRITE, 2, 0, closeOnWrite, precision, doScientific);
     else if (eMode == DATA_STREAM_ADD && filename != 0)
-        theOutputStream = new DataFileStreamAdd(filename, OVERWRITE, 2, 0, closeOnWrite, precision, doScientific);
+        theOutputStream = new DataFileStreamAdd(filename, openMode::OVERWRITE, 2, 0, closeOnWrite, precision, doScientific);
     else if (eMode == DATA_STREAM_CSV && filename != 0)
-        theOutputStream = new DataFileStream(filename, OVERWRITE, 2, 1, closeOnWrite, precision, doScientific);
+        theOutputStream = new DataFileStream(filename, openMode::OVERWRITE, 2, 1, closeOnWrite, precision, doScientific);
     else if (eMode == XML_STREAM && filename != 0)
         theOutputStream = new XmlFileStream(filename);
     //else if (eMode == DATABASE_STREAM && tableName != 0)
