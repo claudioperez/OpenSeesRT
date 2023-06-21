@@ -16,7 +16,7 @@ static int nDOF = 4; // 2 dof at pile, 2 at free field	!!!!!!!!
 // initialise the class wide variables
 Matrix PY_Macro2D::theMatrix(nDOF,nDOF);
 Vector PY_Macro2D::theVector(nDOF);
-
+#undef OPS_Export
 #ifdef _USRDLL
 #include <windows.h>
 #define OPS_Export extern "C" _declspec(dllexport)
