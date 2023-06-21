@@ -17,18 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2009-05-14 22:50:53 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/StaticDomainDecompositionAnalysis.cpp,v $
-                                                                        
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the implementation of StaticDomainDecompositionAnalysis.
 //
-// What: "@(#) StaticDomainDecompositionAnalysis.C, revA"
-
+// Written: fmk 
+//
 #include <StaticDomainDecompositionAnalysis.h>
 #include <EquiSolnAlgo.h>
 #include <AnalysisModel.h>
@@ -40,7 +33,6 @@
 #include <StaticIntegrator.h>
 #include <ConvergenceTest.h>
 #include <Subdomain.h>
-//#include <Timer.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
@@ -373,14 +365,8 @@ StaticDomainDecompositionAnalysis::domainChanged(void)
 
   int result = 0;
   
-  // Timer theTimer; theTimer.start();
-  theAnalysisModel->clearAll();    
+  theAnalysisModel->clearAll();
   theConstraintHandler->clearAll();
-
-  // theTimer.pause(); 
-  // cout <<  "StaticDomainDecompositionAnalysis::clearAll() " << theTimer.getReal();
-  // cout << theTimer.getCPU() << endln;
-  // theTimer.start();    
   
   // now we invoke handle() on the constraint handler which
   // causes the creation of FE_Element and DOF_Group objects
