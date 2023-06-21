@@ -419,6 +419,7 @@ void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
     if (theEigenSOE == nullptr) {
                        
         if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
+
             SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver(); 
             theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *theAnalysisModel); 
             
@@ -428,6 +429,7 @@ void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
             theEigenSOE = new FullGenEigenSOE(*theEigenSolver, *theAnalysisModel);
 
         } else {
+
             theEigenSOE = new ArpackSOE(shift);    
         }
       

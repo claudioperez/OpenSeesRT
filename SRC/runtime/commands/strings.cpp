@@ -4,6 +4,7 @@
 ** ****************************************************************** */
 //
 //
+#if 0
 static const char*
 classic_banner = R"(
 
@@ -23,26 +24,29 @@ peer_banner = R"(
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             Pacific Earthquake Engineering Research Center
 )";
+#endif
 
 static const char*
-unicode_banner = R"(
+unicode_banner 
+#if 1
+= R"(
                  ┌─┐┌─┐┌─┐┌─┐  ┌──┌─┐┌─┐ ┌──
                  └─┘├─┘└──┘ │ ─┘  └──└───┘
  ───────────────────┘Berkeley, California ──────────────────────
                          © UC Regents
 )";
 
-static const char*
-double_banner = R"(
+#else
+= R"(
                  ╔═╗╔═╗╔═╗╔═╗  ╔══╔═╗╔═╗ ╔══
                  ╚═╝╠═╝╚══╝ ║ ═╝  ╚══╚═══╝
  ═══════════════════╝Berkeley, California ══════════════════════
 )";
-
+#endif
 
 static const char*
 copyright = R"(
-Copyright (c) 1999-2022 The Regents of the University of California.
+Copyright (c) 1999-2023 The Regents of the University of California.
 All Rights Reserved.
 )";
 

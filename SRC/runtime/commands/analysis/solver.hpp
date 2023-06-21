@@ -42,18 +42,12 @@
 #include <SparseGenRowLinSOE.h>
 // #include <SymSparseLinSOE.h>
 // #include <SymSparseLinSolver.h>
-#include <EigenSOE.h>
-#include <EigenSolver.h>
 #include <ArpackSOE.h>
 #include <ArpackSolver.h>
 #include <SymArpackSOE.h>
 #include <SymArpackSolver.h>
 #include <BandArpackSOE.h>
 #include <BandArpackSolver.h>
-#include <SymBandEigenSOE.h>
-#include <SymBandEigenSolver.h>
-#include <FullGenEigenSOE.h>
-#include <FullGenEigenSolver.h>
 //
 #ifdef _CUSP
 #  include <CuSPSolver.h>

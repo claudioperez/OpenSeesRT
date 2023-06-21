@@ -162,10 +162,9 @@ MPI_Channel::recvMsg(int dbTag, int commitTag, Message &msg, ChannelAddress *the
 
     // if o.k. get a ponter to the data in the message and 
     // place the incoming data there
-    int nleft,nread;
     char *gMsg;
     gMsg = msg.data;
-    nleft = msg.length;
+    int nleft = msg.length;
 
     MPI_Status status;
     MPI_Recv((void *)gMsg, nleft, MPI_CHAR, otherTag, 0, otherComm, &status);
@@ -214,10 +213,9 @@ MPI_Channel::sendMsg(int dbTag, int commitTag, const Message &msg, ChannelAddres
 
     // if o.k. get a ponter to the data in the message and 
     // place the incoming data there
-    int nwrite, nleft;    
     char *gMsg;
     gMsg = msg.data;
-    nleft = msg.length;
+    int nleft = msg.length;
 
     MPI_Send((void *)gMsg, nleft, MPI_CHAR, otherTag, 0, otherComm);
     return 0;
@@ -244,10 +242,9 @@ MPI_Channel::recvMatrix(int dbTag, int commitTag, Matrix &theMatrix, ChannelAddr
 
     // if o.k. get a ponter to the data in the Matrix and 
     // place the incoming data there
-    int nleft,nread;
     double *data = theMatrix.data;
     char *gMsg = (char *)data;;
-    nleft =  theMatrix.dataSize;
+    int nleft  =  theMatrix.dataSize;
 
     MPI_Status status;
     MPI_Recv((void *)gMsg, nleft, MPI_DOUBLE, otherTag, 0, 
@@ -287,10 +284,9 @@ MPI_Channel::sendMatrix(int dbTag, int commitTag, const Matrix &theMatrix, Chann
 
     // if o.k. get a ponter to the data in the Matrix and 
     // place the incoming data there
-    int nwrite, nleft;    
     double *data = theMatrix.data;
     char *gMsg = (char *)data;
-    nleft =  theMatrix.dataSize;
+    int nleft  =  theMatrix.dataSize;
 
     MPI_Send((void *)gMsg, nleft, MPI_DOUBLE, otherTag, 0, otherComm);
 
@@ -327,10 +323,9 @@ MPI_Channel::recvVector(int dbTag, int commitTag, Vector &theVector, ChannelAddr
 
     // if o.k. get a ponter to the data in the Vector and 
     // place the incoming data there
-    int nleft,nread;
     double *data = theVector.theData;
     char *gMsg = (char *)data;;
-    nleft =  theVector.sz;
+    int nleft =  theVector.sz;
 
     MPI_Status status;
     MPI_Recv((void *)gMsg, nleft, MPI_DOUBLE, otherTag, 0, otherComm, &status);
@@ -371,10 +366,9 @@ MPI_Channel::sendVector(int dbTag, int commitTag, const Vector &theVector, Chann
 
     // if o.k. get a ponter to the data in the Vector and 
     // place the incoming data there
-    int nwrite, nleft;    
     double *data = theVector.theData;
     char *gMsg = (char *)data;
-    nleft =  theVector.sz;
+    int nleft =  theVector.sz;
 
     //    opserr << "MPI:sendVector " << otherTag << " " << theVector.Size() << endln;
 
@@ -406,21 +400,14 @@ MPI_Channel::recvID(int dbTag, int commitTag, ID &theID, ChannelAddress *theAddr
 
     // if o.k. get a ponter to the data in the ID and 
     // place the incoming data there
-    int nleft,nread;
     int *data = theID.data;
     char *gMsg = (char *)data;;
-    nleft =  theID.sz;
-
-    //    opserr << "MPI:recvID " << otherTag << " " << theID.Size() << endln;
+    int nleft =  theID.sz;
 
     MPI_Status status;
     MPI_Recv((void *)gMsg, nleft, MPI_INT, otherTag, 0, otherComm, &status);
     int count =0;
     MPI_Get_count(&status, MPI_INT, &count);
-
-    //    int rank;
-    //MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    //opserr << "MPI_Channel::recvID " << rank << " " << otherTag << " " << theID;
 
     if (count != nleft) {
       opserr << "MPI_Channel::recvID() -";
@@ -455,18 +442,11 @@ MPI_Channel::sendID(int dbTag, int commitTag, const ID &theID, ChannelAddress *t
 
     // if o.k. get a ponter to the data in the ID and 
     // place the incoming data there
-    int nwrite, nleft;    
     int *data = theID.data;
     char *gMsg = (char *)data;
-    nleft =  theID.sz;
-
-    //    opserr << "MPI:sendID " << otherTag << " " << theID.Size() << endln;
+    int nleft =  theID.sz;
 
     MPI_Send((void *)gMsg, nleft, MPI_INT, otherTag, 0, otherComm);
-
-    // int rank;
-    // MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    //    opserr << "MPI_Channel::sendID " << rank << " " << otherTag << " " << theID;
 
     return 0;
 }
@@ -485,7 +465,8 @@ MPI_Channel::addToProgram(void)
 {
     opserr << "MPI_Channel::addToProgram(void) - ";
     opserr << " this should not be called - need MPI-2.0\n";
-    char *newStuff =(char *)malloc(10*sizeof(char));
+    // char *newStuff =(char *)malloc(10*sizeof(char));
+    char *newStuff = new char[10];
     for (int i=0; i<10; i++) 
 	newStuff[i] = ' ';
 
