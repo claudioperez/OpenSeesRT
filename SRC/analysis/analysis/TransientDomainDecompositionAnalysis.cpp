@@ -17,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2009-05-14 22:50:53 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/TransientDomainDecompositionAnalysis.cpp,v $
-                                                                        
+//
+// Description: This file contains the implementation of 
+// TransientDomainDecompositionAnalysis.
+//
 // Written: fmk 
 // Revision: A
 //
-// Description: This file contains the implementation of TransientDomainDecompositionAnalysis.
-//
-// What: "@(#) TransientDomainDecompositionAnalysis.C, revA"
-
 #include <TransientDomainDecompositionAnalysis.h>
 #include <EquiSolnAlgo.h>
 #include <AnalysisModel.h>
@@ -40,16 +35,12 @@
 #include <TransientIntegrator.h>
 #include <ConvergenceTest.h>
 #include <Subdomain.h>
-//#include <Timer.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-// AddingSensitivity:BEGIN //////////////////////////////////
 #ifdef _RELIABILITY
-#include <SensitivityAlgorithm.h>
+#  include <SensitivityAlgorithm.h>
 #endif
-// AddingSensitivity:END ////////////////////////////////////
-
 
 #include <FE_Element.h>
 #include <DOF_Group.h>
