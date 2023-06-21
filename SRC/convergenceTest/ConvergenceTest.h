@@ -53,6 +53,8 @@ class ConvergenceTest: public MovableObject
       PrintTest02   = 1<<4, // 4 More verbose test() output
       AlwaysSucceed = 1<<5, // 5 if it fails to converge at end of $numIter it will
                             //   print an error message BUT RETURN A SUCEESSFULL test
+      // TODO: add output option 7:
+      //       print current iterations dx and du vectors (see commit 9cd8104)
     };
 
     // constructors and destructor
@@ -75,7 +77,6 @@ class ConvergenceTest: public MovableObject
 
   private:
 };
-
 
 #endif
 
