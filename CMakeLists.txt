@@ -185,7 +185,7 @@ include_directories(
   ${OPS_SRC_DIR}/material/uniaxial
   ${OPS_SRC_DIR}/matrix
   ${OPS_SRC_DIR}/modelbuilder
-  ${OPS_SRC_DIR}/modelbuilder/tcl
+# ${OPS_SRC_DIR}/modelbuilder/tcl
   ${OPS_SRC_DIR}/recorder
   ${OPS_SRC_DIR}/recorder/response
   ${OPS_SRC_DIR}/system_of_eqn
@@ -219,7 +219,7 @@ target_link_libraries(OPS_Numerics INTERFACE
 # Core OpenSees
 add_library(OPS_Matrix             OBJECT)
 add_library(OPS_Actor              OBJECT)
-add_library(OPS_ObjectBroker       OBJECT)
+# add_library(OPS_ObjectBroker       OBJECT)
 add_library(G3_ObjectBroker        OBJECT)
 add_library(OPS_Handler            OBJECT)
 add_library(OPS_Recorder           OBJECT)
@@ -275,7 +275,7 @@ add_subdirectory(${OPS_SRC_DIR})
 target_link_libraries(OPS_Numerics     INTERFACE ${OPS_Numlib_List})
 message(">>> Numeric libs: ${OPS_Numlib_List}")
 target_link_libraries(OPS_Element      PRIVATE ${OPS_Element_List})
-target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
+# target_link_libraries(OPS_ObjectBroker PRIVATE ${OPS_Element_List})
 
 target_link_libraries(OPS_Material PRIVATE ${TCL_LIBRARY})
 
