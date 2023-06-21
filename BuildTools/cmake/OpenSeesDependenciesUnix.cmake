@@ -16,7 +16,6 @@
 # - SUPERLU_LIBRARIES
 # - SUPERLU_INCLUDE_DIRS
 #
-#
 #==============================================================================
 # Synopsis
 # - opensees_load(<PACKAGE> [FLAGS] [<PATHS>])
@@ -41,16 +40,18 @@
 # set(TCL_INCLUDE_PATH /home/claudio/miniconda3/envs/elle/include/)
 # set(TCL_STUB_LIBRARY ${TCL_LIBRARIES})
 
+find_package(MPI)
+set(CMAKE_PREFIX_PATH "/usr/lib")
 
-opensees_load(BLAS                                           #FIND)
+opensees_load(BLAS                                           FIND)
   #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
-  LIBRARY /usr/lib/libblas.so.3
-)
+# LIBRARY /usr/lib/libblas.so.3
+#)
 
-opensees_load(LAPACK                                         #FIND)
+opensees_load(LAPACK                                         FIND)
   #LIBRARY /home/claudio/miniconda3/envs/intel/lib/libmkl_rt.so
-  LIBRARY /usr/lib/liblapack.so.3
-)
+# LIBRARY /usr/lib/liblapack.so.3
+# )
 
 opensees_load(METIS                                          FIND)
 

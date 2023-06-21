@@ -74,7 +74,9 @@ if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()
 
-add_subdirectory(parallel)
+if (MPI_FOUND)
+  add_subdirectory(parallel)
+endif()
 
 # target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
 
@@ -82,3 +84,4 @@ target_link_libraries(OpenSeesRT PRIVATE
   # OpenSeesRT_LinearSystem
   OPS_Runtime ${TCL_STUB_LIBRARY}
 )
+

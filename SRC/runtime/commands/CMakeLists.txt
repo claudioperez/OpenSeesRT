@@ -65,13 +65,3 @@ target_sources(OPS_Runtime PRIVATE
 )
 
 
-add_library(OpenSeesRT_Parallel)
-target_compile_definitions(OpenSeesRT_Parallel PRIVATE 
-  _PARALLEL_INTERPRETERS
-  _PARALLEL_PROCESSING
-)
-target_link_libraries(OpenSeesRT_Parallel PRIVATE OPS_Parallel OPS_Actor)
-
-target_sources(OpenSeesRT_Parallel PRIVATE
-  parallel.cpp
-)

@@ -9,23 +9,6 @@
 #==============================================================================
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Synopsis
 # - opensees_load(<PACKAGE> [BUILD|FIND|SEARCH|PATHS] [<PATHS>])
 #
@@ -37,38 +20,35 @@
 # - PATHS:  Provide specific paths for library.
 #
 #==============================================================================
-set(CONDA_DIR "C:/Users/claud/miniconda3")
-set(CONDA_ENV "C:/Users/claud/miniconda3/envs/sim")
+set(CONDA_PREFIX $ENV{CONDA_PREFIX})
+# set(CMAKE_PREFIX_PATH "${CONDA_PREFIX}/lib/")
 
-opensees_load(TCL                                          FIND
-  #LIBRARY ${CONDA_DIR}/Library/lib/tcl86t.lib
-  #INCLUDE ${CONDA_DIR}/Library/include 
-)
+# message("CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
-find_package(TCL)
-find_package(TclStub)
-set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
+# opensees_load(TCL                                          FIND
+#   #LIBRARY ${CONDA_DIR}/Library/lib/tcl86t.lib
+#   #INCLUDE ${CONDA_DIR}/Library/include 
+# )
+
 #set(TCL_LIBRARY ${TCL_LIBRARIES})
 
-
-message("TCL: ${TCL_INCLUDE_PATH}")
-
-opensees_load(BLAS                                         FIND
-  #LIBRARY ${CONDA_ENV}/Library/lib/blas.lib
-  #INCLUDE ${CONDA_ENV}/Library/include/
-)
+# opensees_load(BLAS                                         FIND
+#   #LIBRARY ${CONDA_PREFIX}/Library/lib/blas.lib
+#   #INCLUDE ${CONDA_PREFIX}/Library/include/
+# )
 
 # opensees_load(CBLAS                                         FIND
-#   #LIBRARY ${CONDA_ENV}/Library/lib/cblas.lib
-#   #INCLUDE ${CONDA_ENV}/Library/include/
+#   #LIBRARY ${CONDA_PREFIX}/Library/lib/cblas.lib
+#   #INCLUDE ${CONDA_PREFIX}/Library/include/
 # )
 
 opensees_load(LAPACK                                       FIND
-  LIBRARY ${CONDA_PREFIX}/lib/liblapack.so
-  #LIBRARY ${CONDA_ENV}/Library/lib/lapack.lib
+  #  LIBRARY ${CONDA_PREFIX}/lib/liblapack.so
+  #LIBRARY ${CONDA_PREFIX}/Library/lib/lapack.lib
 )
 
-set(ENV{SUPERLU_DIR})
+# set(ENV{SUPERLU_DIR})
+
 opensees_load(SUPERLU                                       #SEARCH
     BUNDLED ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/
 )
@@ -79,9 +59,9 @@ opensees_load(METIS                                        SEARCH)
 opensees_load(HDF5                                           FIND)
 
 # opensees_load(MySQL                                          FIND
-#   #LIBRARY ${CONDA_ENV}/Library/lib/libmysql.lib
-#   #INCLUDE ${CONDA_ENV}/Library/include/mysql
+#   #LIBRARY ${CONDA_PREFIX}/Library/lib/libmysql.lib
+#   #INCLUDE ${CONDA_PREFIX}/Library/include/mysql
 # )
 
-# set(MYSQL_INCLUDE_DIR "${CONDA_ENV}/Library/include/mysql/")
+# set(MYSQL_INCLUDE_DIR "${CONDA_PREFIX}/Library/include/mysql/")
 
