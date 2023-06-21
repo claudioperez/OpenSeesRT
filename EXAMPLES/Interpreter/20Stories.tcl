@@ -1,7 +1,9 @@
 # written: fmk
 # units: kip & in
 #
-# select number of stories <---
+set verbose 0
+
+# select number of stories
 set frame 20Story
 
 set pDampSecondary 0.00
@@ -127,7 +129,7 @@ proc ElasticBeamHSSection2d {eleTag iNode jNode sectType E transfTag args} {
   }
 
   if {$found == 0} {
-  puts stderr "ElasticBeamHSSection2d sectType: $sectType not found for ee: $eleTag"
+    puts stderr "ElasticBeamHSSection2d sectType: $sectType not found for ee: $eleTag"
   }
 }
 
@@ -196,7 +198,6 @@ proc ForceBeamWSection2d {eleTag iNode jNode sectType matTag transfTag args} {
     element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
   } else {
     set found 0
-    puts stderr "SECT: $sectType"
     foreach {section prop} [array get WSection $sectType] {
       set propList [split $prop]
       # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
@@ -278,7 +279,6 @@ proc ForceBeamHSS2d {eleTag iNode jNode sectType matTag transfTag args} {
     element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
 
   } else {
-    puts stderr "SECT: $sectType"
     foreach {section prop} [array get HSSection $sectType] {
       set propList [split $prop]
           # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
@@ -550,7 +550,7 @@ proc BeamWithPlasticHingesWSection2d {eleTag iNode jNode sectType E Fy H Lb Com_
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  puts stderr "YY orientation not handled - uses XX!"
+    puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -617,7 +617,7 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-  puts stderr "YY orientation not handled - uses XX!"
+    puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -782,7 +782,6 @@ proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args
     puts stderr "YY orientation not handled - uses XX!"
   }
 
-
   set nFactor 1000.
 
   set matType "Bilin02"
@@ -828,7 +827,6 @@ proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args
 
 
 proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
-
   # This procedure develops a 2D brace element in a 2D/3D system (Z coordinates were set to 0).
   # Corotational Transformation is used by defualt
   #
@@ -944,8 +942,6 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
 #
 # 4. PROCEDURES TO CREATE SECTIONS
 #
-
-
 proc ElasticSteelWSection2d {sectTag sectType E args} {
   global WSection
   global in
@@ -2908,7 +2904,7 @@ proc write_displacements {file_name {name 1}} {
   set fid [open "$file_name" "w+"]
   puts $fid "$name:"
   foreach n [getNodeTags] {
-  puts $fid "    $n: \[[join [nodeDisp $n] {, }]\]";
+    puts $fid "    $n: \[[join [nodeDisp $n] {, }]\]";
   }
   close $fid;
 }
@@ -3103,7 +3099,9 @@ if {$frame == "20Story" } {
   set firstfloorWeight [expr 0.05396940*2204.6226/$g*6/4]; # nodal mass from Lignos model, assign to each panel zone, not ea end of beam
   set roofWeight       [expr 0.05066770*2204.6226/$g*6/4];
   set floorWeight      [expr 0.05364600*2204.6226/$g*6/4];
-  puts stderr "roof: $roofWeight floor: $floorWeight 1stfloor: $firstfloorWeight"
+  if $verbose {
+    puts stderr "roof: $roofWeight floor: $floorWeight 1stfloor: $firstfloorWeight"
+  }
 
   set forceColfirstExt [expr 190.7000*0.2248];
   set forceColfirstInt [expr 127.1300*0.2248];
@@ -3200,7 +3198,10 @@ for {set floor 1; set floorLoc 0} {$floor <= $numFloor} {incr floor 1} {
           fix $colLine$floor$p7 1 1 1
       }  else {
           # add panel zone nodes
-          set aaa [lindex $BeamDepth [expr $floor -2]]; puts stderr "$floor $aaa"
+          set aaa [lindex $BeamDepth [expr $floor -2]];
+          if $verbose {
+            puts stderr "$floor $aaa"
+          }
           set pzvert [expr $aaa*0.5];
           set bbb [lindex $ColDepth [expr $floor -2]];
           set pzlat [expr $bbb/2.0];
@@ -3348,7 +3349,9 @@ for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
                 lappend eleColListHinge $colLine$floor1$colLine$floor2
             } else {
                 set PgPy [string cat $location b]
-                puts stderr "$colLine$floor1$colLine$floor2"
+                if $verbose {
+                  puts stderr "$colLine$floor1$colLine$floor2"
+                }
                 ComponentColWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPy] 1 -matType Bilin -nFactor $nFactorElem
                 lappend eleColListHinge $colLine$floor1$colLine$floor2
             }
@@ -3390,7 +3393,9 @@ for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
                 ComponentColWSection2d 909$colLine$floor1$colLine$floor2 909$colLine$floor1 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPyt] 1 -matType Bilin -nFactor $nFactorElem
                 lappend eleColListHinge $colLine$floor1$colLine$floor2
 
-                puts stderr "floor=$floor1 col=$colLine section=$theSectionlow $theSection"
+                if $verbose {
+                  puts stderr "floor=$floor1 col=$colLine section=$theSectionlow $theSection"
+                }
 
             } else {
                 set PgPy [string cat $location b]
@@ -3434,7 +3439,6 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
               # ComponentBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -matType MultiLinear -metric
               lappend eleListHinge $colLine1$floor$colLine2$floor
       }
-
       if {$beamType == "Displacement"} {
               DispBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2
               lappend eleListHinge $colLine1$floor$colLine2$floor
@@ -3447,7 +3451,6 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
               ForceBeamWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2
               lappend eleListHinge $colLine1$floor$colLine2$floor -capIt $pDamp $Fyb
       }
-
       if {$beamType == "ForceWithHinge"} {
               BeamWithHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection 2 2
       }
@@ -3469,8 +3472,6 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
           lappend eleListHinge $colLine1$floor$colLine2$floor$one
           lappend eleListHinge $colLine1$floor$colLine2$floor$two
       }
-
-
       if {$beamType == "HingeBilin"} {
            BeamWithConcentratedHingesWSection2d $colLine1$floor$colLine2$floor $colLine1$floor$p1 $colLine2$floor$p4 $theSection $E $Fyb 2 -nFactor $nFactorElem -doRayleigh $doRayleigh -matType Bilin02 -metric
            lappend eleListHinge $colLine1$floor$colLine2$floor$one
@@ -3485,7 +3486,7 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
 }
 
 
-puts stderr "build PZ..."
+if $verbose {puts stderr "build PZ..."}
 #====#====# add panel zone elements
 set Apz 1000.0;
 set Ipz 1.0e5;
@@ -3564,16 +3565,14 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
           set found 1
       }
 
-
       rotPanelZone2D 5$colLine$floor$pzspring $colLine$floor$p03 $colLine$floor$p04 $E $Fyc $dc $bf_c $tf_c $tp $db $Ry $as_PZ;
 
       lappend PZspringList 5$colLine$floor$pzspring
-
   }
 }
 
 
-puts stderr "build elastic section btn col and RBS..."
+# puts stderr "build elastic section btn col and RBS..."
 #====#====# add cover plate/RBS offset element
 set K44_two 2.0625; # K44 = 6*(1+n)/(2+3*n)
 set K11_two 3.9375; # K11 = K33 = (1+2*n)*K44/(1+n)

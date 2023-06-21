@@ -25,3 +25,12 @@ if {[getNumElements] != 3} {
   puts "PASSED - getNumElements"
 }
 
+getNodeTags
+
+
+print
+
+remove sp 2
+remove sp 3 2 ; # sp with tag 5
+
+print
