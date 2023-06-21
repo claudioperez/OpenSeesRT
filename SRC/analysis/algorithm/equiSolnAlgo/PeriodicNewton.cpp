@@ -70,28 +70,28 @@ PeriodicNewton::solveCurrentStep(void)
     // NOTE this could be taken away if we set Ptrs as protecetd in superclass
     AnalysisModel       *theAnalysisModel = this->getAnalysisModelPtr();
     IncrementalIntegrator *theIncIntegratorr = this->getIncrementalIntegratorPtr();
-    LinearSOE	        *theSOE = this->getLinearSOEptr();
+    LinearSOE                *theSOE = this->getLinearSOEptr();
 
     if ((theAnalysisModel == 0) || (theIncIntegratorr == 0) || (theSOE == 0)
-	|| (theTest == 0)){
-	opserr << "WARNING PeriodicNewton::solveCurrentStep() - setLinks() has";
-	opserr << " not been called - or no ConvergenceTest has been set\n";
-	return -5;
-    }	
+        || (theTest == 0)){
+        opserr << "WARNING PeriodicNewton::solveCurrentStep() - setLinks() has";
+        opserr << " not been called - or no ConvergenceTest has been set\n";
+        return -5;
+    }        
 
     // we form the tangent
     
     if (theIncIntegratorr->formUnbalance() < 0) {
-	opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
-	opserr << "the Integrator failed in formUnbalance()\n";	
-	return -2;
-    }	
+        opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
+        opserr << "the Integrator failed in formUnbalance()\n";        
+        return -2;
+    }        
 
     if (theIncIntegratorr->formTangent(tangent) < 0){
-	opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
-	opserr << "the Integrator failed in formTangent()\n";
-	return -1;
-    }		    
+        opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
+        opserr << "the Integrator failed in formTangent()\n";
+        return -1;
+    }                    
 
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
@@ -104,42 +104,42 @@ PeriodicNewton::solveCurrentStep(void)
     // repeat until convergence is obtained or reach max num iterations
     int result = -1;
     int count = 0;
-	int iter = 0;
+        int iter = 0;
     do {
-	if (theSOE->solve() < 0) {
-	    opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
-	    opserr << "the LinearSysOfEqn failed in solve()\n";	
-	    return -3;
-	}	    
+        if (theSOE->solve() < 0) {
+            opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
+            opserr << "the LinearSysOfEqn failed in solve()\n";        
+            return -3;
+        }            
 
-	if (theIncIntegratorr->update(theSOE->getX()) < 0) {
-	    opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
-	    opserr << "the Integrator failed in update()\n";	
-	    return -4;
-	}	        
+        if (theIncIntegratorr->update(theSOE->getX()) < 0) {
+            opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
+            opserr << "the Integrator failed in update()\n";        
+            return -4;
+        }                
 
-	if (theIncIntegratorr->formUnbalance() < 0) {
-	    opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
-	    opserr << "the Integrator failed in formUnbalance()\n";	
-	    return -2;
-	}	
+        if (theIncIntegratorr->formUnbalance() < 0) {
+            opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
+            opserr << "the Integrator failed in formUnbalance()\n";        
+            return -2;
+        }        
 
-	this->record(count++);
-	result = theTest->test();
-	
-	iter++;
-	if (iter > maxCount) {
-		if (theIncIntegratorr->formTangent(tangent) < 0){
-		opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
-		opserr << "the Integrator failed in formTangent()\n";
-		return -1;
-		}
-		iter = 0;
-	}
+        this->record(count++);
+        result = theTest->test();
+        
+        iter++;
+        if (iter > maxCount) {
+                if (theIncIntegratorr->formTangent(tangent) < 0){
+                opserr << "WARNING PeriodicNewton::solveCurrentStep() -";
+                opserr << "the Integrator failed in formTangent()\n";
+                return -1;
+                }
+                iter = 0;
+        }
 
-    } while (result == -1);
+    }  while (result == ConvergenceTest::Continue);
 
-    if (result == -2) {
+    if (result == ConvergenceTest::Failure) {
       opserr << "PeriodicNewton::solveCurrentStep() -";
       opserr << "the ConvergenceTest object failed in test()\n";
       return -3;
@@ -175,8 +175,8 @@ PeriodicNewton::sendSelf(int cTag, Channel &theChannel)
 
 int
 PeriodicNewton::recvSelf(int cTag, 
-			Channel &theChannel, 
-			FEM_ObjectBroker &theBroker)
+                        Channel &theChannel, 
+                        FEM_ObjectBroker &theBroker)
 {
     static ID data(3);
     int result;
@@ -206,7 +206,7 @@ void
 PeriodicNewton::Print(OPS_Stream &s, int flag)
 {
     if (flag == 0) {
-	s << "PeriodicNewton" << endln;
-	s << "Max count: " << maxCount << endln;
+        s << "PeriodicNewton" << endln;
+        s << "Max count: " << maxCount << endln;
     }
 }

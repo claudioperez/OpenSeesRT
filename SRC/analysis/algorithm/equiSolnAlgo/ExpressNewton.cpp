@@ -114,39 +114,39 @@ ExpressNewton::solveCurrentStep(void)
     IncrementalIntegrator *theIntegrator = this->getIncrementalIntegratorPtr();
 
     if ((theAnalysisModel == 0) || (theIntegrator ==0 ) || (theSOE == 0)){
-	opserr << "WARNING ExpressNewton::solveCurrentStep() -";
-	opserr << "setLinks() has not been called.\n";
-	return -5;
+        opserr << "WARNING ExpressNewton::solveCurrentStep() -";
+        opserr << "setLinks() has not been called.\n";
+        return -5;
     }
 
-	if (factorOnce != 2) {
-		if (theIntegrator->formTangent(HALL_TANGENT, kMultiplier1, kMultiplier2) < 0) {
-		  opserr << "WARNING ExpressNewton::solveCurrentStep() -";
-		  opserr << "the Integrator failed in formTangent()\n";
-		  return -1;
-		}
-		if (factorOnce == 1)
-			factorOnce = 2;
+        if (factorOnce != 2) {
+                if (theIntegrator->formTangent(HALL_TANGENT, kMultiplier1, kMultiplier2) < 0) {
+                  opserr << "WARNING ExpressNewton::solveCurrentStep() -";
+                  opserr << "the Integrator failed in formTangent()\n";
+                  return -1;
+                }
+                if (factorOnce == 1)
+                        factorOnce = 2;
     }
 
     for (int iter = 0; iter <nIter; ++iter)
     {
     if (theIntegrator->formUnbalance() < 0) {
-	opserr << "WARNING ExpressNewton::solveCurrentStep() -";
-	opserr << "the Integrator failed in formUnbalance()\n";	
-	return -2;
+        opserr << "WARNING ExpressNewton::solveCurrentStep() -";
+        opserr << "the Integrator failed in formUnbalance()\n";        
+        return -2;
     }
 
     if (theSOE->solve() < 0) {
-	opserr << "WARNING ExpressNewton::solveCurrentStep() -";
-	opserr << "the LinearSOE failed in solve()\n";	
-	return -3;
+        opserr << "WARNING ExpressNewton::solveCurrentStep() -";
+        opserr << "the LinearSOE failed in solve()\n";        
+        return -3;
     }
 
     if (theIntegrator->update(theSOE->getX()) < 0) {
-	opserr << "WARNING ExpressNewton::solveCurrentStep() -";
-	opserr << "the Integrator failed in update()\n";	
-	return -4;
+        opserr << "WARNING ExpressNewton::solveCurrentStep() -";
+        opserr << "the Integrator failed in update()\n";        
+        return -4;
     }
     }
 

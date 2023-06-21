@@ -55,31 +55,31 @@ OPS_ADD_RUNTIME_VPV(OPS_NewtonHallM)
   while (OPS_GetNumRemainingInputArgs() > 0) {
       const char* type = OPS_GetString();
       if(strcmp(type,"-exp")==0 || strcmp(type,"-Exp")==0) {
-	numData = 1;
-	if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	  opserr << "WARNING invalid data reading 2 hall factors\n";
-	  return 0;
-	} else 
-	  alpha = data[0];
+        numData = 1;
+        if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+          opserr << "WARNING invalid data reading 2 hall factors\n";
+          return 0;
+        } else 
+          alpha = data[0];
       } else if(strcmp(type,"-sigmoid")==0 || strcmp(type,"-Sigmoid")==0) {
-	method = 1;
-	int numData = 2;
-	if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	  opserr << "WARNING invalid data reading 2 hall factors\n";
-	  return 0;
-	} else {
-	  alpha = data[0];
-	  c = data[1];
-	}
+        method = 1;
+        int numData = 2;
+        if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+          opserr << "WARNING invalid data reading 2 hall factors\n";
+          return 0;
+        } else {
+          alpha = data[0];
+          c = data[1];
+        }
       } else if(strcmp(type,"-constant")==0 || strcmp(type,"-Constant")==0) {
-	method = 2;
-	int numData = 1;
-	if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	  opserr << "WARNING invalid data reading 2 hall factors\n";
-	  return 0;
-	} else {
-	  c = data[0];
-	}
+        method = 2;
+        int numData = 1;
+        if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+          opserr << "WARNING invalid data reading 2 hall factors\n";
+          return 0;
+        } else {
+          c = data[0];
+        }
       }
     }
 
@@ -120,17 +120,17 @@ NewtonHallM::solveCurrentStep(void)
     LinearSOE  *theSOE = this->getLinearSOEptr();
 
     if ((theAnaModel == 0) || (theIntegrator == 0) || (theSOE == 0)
-	|| (theTest == 0)){
-	opserr << "WARNING NewtonHallM::solveCurrentStep() - setLinks() has";
-	opserr << " not been called - or no ConvergenceTest has been set\n";
-	return -5;
-    }	
+        || (theTest == 0)){
+        opserr << "WARNING NewtonHallM::solveCurrentStep() - setLinks() has";
+        opserr << " not been called - or no ConvergenceTest has been set\n";
+        return -5;
+    }        
 
     if (theIntegrator->formUnbalance() < 0) {
       opserr << "WARNING NewtonHallM::solveCurrentStep() -";
-      opserr << "the Integrator failed in formUnbalance()\n";	
+      opserr << "the Integrator failed in formUnbalance()\n";        
       return -2;
-    }	    
+    }            
 
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
@@ -150,49 +150,49 @@ NewtonHallM::solveCurrentStep(void)
 
       double iFact, cFact;
       if (method == 0) {
-	iFact = iFactor*exp(-alpha*numIterations);
-	cFact = 1.0 - iFact;
+        iFact = iFactor*exp(-alpha*numIterations);
+        cFact = 1.0 - iFact;
       } else if (method ==1) {
-	double iFact0 = 1.0/(1. + exp(-alpha*c));
-	iFact = 1/(1 + exp(alpha*(numIterations-c)));
-	iFact = iFactor*iFact/iFact0;
-	cFact = 1.0 - iFact;
+        double iFact0 = 1.0/(1. + exp(-alpha*c));
+        iFact = 1/(1 + exp(alpha*(numIterations-c)));
+        iFact = iFactor*iFact/iFact0;
+        cFact = 1.0 - iFact;
       } else {
-	iFact = iFactor;
-	cFact = cFactor;
+        iFact = iFactor;
+        cFact = cFactor;
       }
       
       if (theIntegrator->formTangent(tangent, iFact, cFact) < 0){
-	opserr << "WARNING NewtonHallM::solveCurrentStep() -";
-	opserr << "the Integrator failed in formTangent()\n";
-	return -1;
-      }		    
+        opserr << "WARNING NewtonHallM::solveCurrentStep() -";
+        opserr << "the Integrator failed in formTangent()\n";
+        return -1;
+      }                    
       
       if (theSOE->solve() < 0) {
-	opserr << "WARNING NewtonHallM::solveCurrentStep() -";
-	opserr << "the LinearSysOfEqn failed in solve()\n";	
-	return -3;
-      }	    
+        opserr << "WARNING NewtonHallM::solveCurrentStep() -";
+        opserr << "the LinearSysOfEqn failed in solve()\n";        
+        return -3;
+      }            
       
       if (theIntegrator->update(theSOE->getX()) < 0) {
-	opserr << "WARNING NewtonHallM::solveCurrentStep() -";
-	opserr << "the Integrator failed in update()\n";	
-	return -4;
-      }	        
+        opserr << "WARNING NewtonHallM::solveCurrentStep() -";
+        opserr << "the Integrator failed in update()\n";        
+        return -4;
+      }                
       if (theIntegrator->formUnbalance() < 0) {
-	opserr << "WARNING NewtonHallM::solveCurrentStep() -";
-	opserr << "the Integrator failed in formUnbalance()\n";	
-	return -2;
-      }	
+        opserr << "WARNING NewtonHallM::solveCurrentStep() -";
+        opserr << "the Integrator failed in formUnbalance()\n";        
+        return -2;
+      }        
       
       result = theTest->test();
       numIterations++;
       this->record(numIterations);
       
       
-    } while (result == -1);
+    }  while (result == ConvergenceTest::Continue);
     
-    if (result == -2) {
+    if (result == ConvergenceTest::Failure) {
       opserr << "NewtnRaphson::solveCurrentStep() -";
       opserr << "the ConvergenceTest object failed in test()\n";
       return -3;
@@ -215,8 +215,8 @@ NewtonHallM::sendSelf(int cTag, Channel &theChannel)
 
 int
 NewtonHallM::recvSelf(int cTag, 
-		      Channel &theChannel, 
-		      FEM_ObjectBroker &theBroker)
+                      Channel &theChannel, 
+                      FEM_ObjectBroker &theBroker)
 {
   static Vector data(4);
   theChannel.recvVector(this->getDbTag(), cTag, data);

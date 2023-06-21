@@ -55,16 +55,16 @@ class Broyden: public EquiSolnAlgo
     int solveCurrentStep(void);    
 
     void setLinks(AnalysisModel &theModel, 
-		  IncrementalIntegrator &theIntegrator,
-		  LinearSOE &theSOE,
-		  ConvergenceTest *theTest);
+                  IncrementalIntegrator &theIntegrator,
+                  LinearSOE &theSOE,
+                  ConvergenceTest *theTest);
 
     int setConvergenceTest(ConvergenceTest *theNewTest);
     ConvergenceTest *getConvergenceTest(void);     
     
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker);
+                         FEM_ObjectBroker &theBroker);
 
     void Print(OPS_Stream &s, int flag =0);    
     
@@ -88,8 +88,8 @@ class Broyden: public EquiSolnAlgo
 
     void BroydenUpdate( IncrementalIntegrator *theIntegrator,
                         LinearSOE *theSOE,
-			Vector &du, 
-			int count ) ;
+                        Vector &du, 
+                        int count ) ;
 
     ConvergenceTest *localTest;
   

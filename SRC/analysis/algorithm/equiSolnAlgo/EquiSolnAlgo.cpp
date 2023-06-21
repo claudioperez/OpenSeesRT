@@ -59,9 +59,9 @@ EquiSolnAlgo::~EquiSolnAlgo()
 
 void 
 EquiSolnAlgo::setLinks(AnalysisModel &theNewModel, 
-		       IncrementalIntegrator &theNewIntegrator,
-		       LinearSOE &theSOE,
-		       ConvergenceTest *theConvergenceTest)
+                       IncrementalIntegrator &theNewIntegrator,
+                       LinearSOE &theSOE,
+                       ConvergenceTest *theConvergenceTest)
 {
     theModel = &theNewModel;
     theIntegrator = &theNewIntegrator;

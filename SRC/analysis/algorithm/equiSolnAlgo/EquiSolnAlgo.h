@@ -56,9 +56,9 @@ class EquiSolnAlgo: public SolutionAlgorithm
 
     // public functions defined for subclasses
     virtual void setLinks(AnalysisModel &theModel, 
-		  IncrementalIntegrator &theIntegrator,
-		  LinearSOE &theSOE,
-		  ConvergenceTest *theTest);
+                  IncrementalIntegrator &theIntegrator,
+                  LinearSOE &theSOE,
+                  ConvergenceTest *theTest);
     
     // virtual functions
     virtual int solveCurrentStep(void) =0;
@@ -80,15 +80,15 @@ class EquiSolnAlgo: public SolutionAlgorithm
     // may need access to them
     AnalysisModel           *getAnalysisModelPtr(void) const;
     IncrementalIntegrator   *getIncrementalIntegratorPtr(void) const;
-    LinearSOE	            *getLinearSOEptr(void) const;
+    LinearSOE                    *getLinearSOEptr(void) const;
 
   protected:
     ConvergenceTest *theTest;
     
   private:
-    AnalysisModel 	  *theModel;
+    AnalysisModel           *theModel;
     IncrementalIntegrator *theIntegrator;
-    LinearSOE 		  *theSysOfEqn;
+    LinearSOE                   *theSysOfEqn;
 };
 
 #endif

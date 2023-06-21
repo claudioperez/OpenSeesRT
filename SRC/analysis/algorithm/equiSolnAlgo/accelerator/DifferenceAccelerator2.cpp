@@ -76,14 +76,14 @@ DifferenceAccelerator2::newStep(LinearSOE &theSOE)
   if (numEqns != newNumEqns) {
     if (v != 0) {
       for (int i = 0; i < maxDimension+1; i++)
-	delete v[i];
+        delete v[i];
       delete [] v;
       v = 0;
     }
     
     if (Av != 0) {
       for (int i = 0; i < maxDimension+1; i++)
-	delete Av[i];
+        delete Av[i];
       delete [] Av;
       Av = 0;
     }
@@ -145,20 +145,20 @@ DifferenceAccelerator2::newStep(LinearSOE &theSOE)
 #ifdef _WIN32
 
 extern "C" int DGELS(char *T, unsigned int *SZ, int *M, int *N, int *NRHS,
-			      double *A, int *LDA, double *B, int *LDB,
-			      double *WORK, int *LWORK, int *INFO);
+                              double *A, int *LDA, double *B, int *LDB,
+                              double *WORK, int *LWORK, int *INFO);
 
 #else
 
 extern "C" int dgels_(char *T, int *M, int *N, int *NRHS,
-		      double *A, int *LDA, double *B, int *LDB,
-		      double *WORK, int *LWORK, int *INFO);
+                      double *A, int *LDA, double *B, int *LDB,
+                      double *WORK, int *LWORK, int *INFO);
 
 #endif
 
 int
 DifferenceAccelerator2::accelerate(Vector &vStar, LinearSOE &theSOE, 
-				   IncrementalIntegrator &theIntegrator)
+                                   IncrementalIntegrator &theIntegrator)
 {
   const Vector &R = theSOE.getB();
 
@@ -180,7 +180,7 @@ DifferenceAccelerator2::accelerate(Vector &vStar, LinearSOE &theSOE,
     for (i = 0; i < k; i++) {
       Vector &Ai = *(Av[i]);
       for (j = 0; j < numEqns; j++)
-	A(j,i) = Ai(j);
+        A(j,i) = Ai(j);
     }
 
     // Put residual vector into rData
@@ -203,10 +203,10 @@ DifferenceAccelerator2::accelerate(Vector &vStar, LinearSOE &theSOE,
 #ifdef _WIN32
     unsigned int sizeC = 1;
     DGELS(trans, &sizeC, &numEqns, &k, &nrhs, AvData, &numEqns,
-	  rData, &ldb, work, &lwork, &info);
+          rData, &ldb, work, &lwork, &info);
 #else
     dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns,
-	   rData, &ldb, work, &lwork, &info);
+           rData, &ldb, work, &lwork, &info);
 #endif
     
     // Check for error returned by subroutine
@@ -272,7 +272,7 @@ DifferenceAccelerator2::sendSelf(int commitTag, Channel &theChannel)
 
 int
 DifferenceAccelerator2::recvSelf(int commitTag, Channel &theChannel, 
-				 FEM_ObjectBroker &theBroker)
+                                 FEM_ObjectBroker &theBroker)
 {
   return -1;
 }

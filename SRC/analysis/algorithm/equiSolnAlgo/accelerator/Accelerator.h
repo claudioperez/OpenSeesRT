@@ -51,7 +51,7 @@ class Accelerator : public MovableObject
   // virtual functions
   virtual int newStep(LinearSOE &theSOE) = 0;
   virtual int accelerate(Vector &v, LinearSOE &theSOE, 
-			 IncrementalIntegrator &theIntegrator) = 0;
+                         IncrementalIntegrator &theIntegrator) = 0;
   virtual int updateTangent(IncrementalIntegrator &theIntegrator);
   virtual bool updateTangent(void) {return false;}
 

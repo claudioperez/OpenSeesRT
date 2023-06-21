@@ -51,7 +51,7 @@ NewtonLineSearch::NewtonLineSearch( )
 
 //Constructor 
 NewtonLineSearch::NewtonLineSearch( ConvergenceTest &theT, 
-				   LineSearch *theSearch) 
+                                   LineSearch *theSearch) 
 :EquiSolnAlgo(EquiALGORITHM_TAGS_NewtonLineSearch),
  theTest(&theT), theLineSearch(theSearch)
 {
@@ -89,11 +89,11 @@ NewtonLineSearch::solveCurrentStep(void)
     LinearSOE  *theSOE = this->getLinearSOEptr();
 
     if ((theAnaModel == 0) || (theIntegrator == 0) || (theSOE == 0)
-	|| (theTest == 0)){
-	opserr << "WARNING NewtonLineSearch::solveCurrentStep() - setLinks() has";
-	opserr << " not been called - or no ConvergenceTest has been set\n";
-	return -5;
-    }	
+        || (theTest == 0)){
+        opserr << "WARNING NewtonLineSearch::solveCurrentStep() - setLinks() has";
+        opserr << " not been called - or no ConvergenceTest has been set\n";
+        return -5;
+    }        
 
     theLineSearch->newStep(*theSOE);
 
@@ -107,71 +107,71 @@ NewtonLineSearch::solveCurrentStep(void)
 
     if (theIntegrator->formUnbalance() < 0) {
       opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
-      opserr << "the Integrator failed in formUnbalance()\n";	
+      opserr << "the Integrator failed in formUnbalance()\n";        
       return -2;
-    }	    
+    }            
 
     int result = -1;
     do {
 
-	//residual at this iteration before next solve 
-	const Vector &Resid0 = theSOE->getB() ;
-	
-	//form the tangent
+        //residual at this iteration before next solve 
+        const Vector &Resid0 = theSOE->getB() ;
+        
+        //form the tangent
         if (theIntegrator->formTangent() < 0){
-	    opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
-	    opserr << "the Integrator failed in formTangent()\n";
-	    return -1;
-	}		    
-	
-	//solve 
-	if (theSOE->solve() < 0) {
-	    opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
-	    opserr << "the LinearSysOfEqn failed in solve()\n";	
-	    return -3;
-	}	    
+            opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
+            opserr << "the Integrator failed in formTangent()\n";
+            return -1;
+        }                    
+        
+        //solve 
+        if (theSOE->solve() < 0) {
+            opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
+            opserr << "the LinearSysOfEqn failed in solve()\n";        
+            return -3;
+        }            
 
 
-	//line search direction 
-	const Vector &dx0 = theSOE->getX() ;
+        //line search direction 
+        const Vector &dx0 = theSOE->getX() ;
 
-	//initial value of s
-	double s0 = - (dx0 ^ Resid0) ; 
+        //initial value of s
+        double s0 = - (dx0 ^ Resid0) ; 
 
-	if (theIntegrator->update(theSOE->getX()) < 0) {
-	    opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
-	    opserr << "the Integrator failed in update()\n";	
-	    return -4;
-	}	        
+        if (theIntegrator->update(theSOE->getX()) < 0) {
+            opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
+            opserr << "the Integrator failed in update()\n";        
+            return -4;
+        }                
 
-	if (theIntegrator->formUnbalance() < 0) {
-	    opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
-	    opserr << "the Integrator failed in formUnbalance()\n";	
-	    return -2;
-	}	
+        if (theIntegrator->formUnbalance() < 0) {
+            opserr << "WARNING NewtonLineSearch::solveCurrentStep() -";
+            opserr << "the Integrator failed in formUnbalance()\n";        
+            return -2;
+        }        
 
-	// do a line search only if convergence criteria not met
-	theOtherTest->start();
-	result = theOtherTest->test();
+        // do a line search only if convergence criteria not met
+        theOtherTest->start();
+        result = theOtherTest->test();
 
-	if (result < 1) {
-	  //new residual 
-	  const Vector &Resid = theSOE->getB() ;
-	  
-	  //new value of s 
-	  double s = - ( dx0 ^ Resid ) ;
-	  
-	  if (theLineSearch != 0)
-	    theLineSearch->search(s0, s, *theSOE, *theIntegrator);
-	}
+        if (result < 1) {
+          //new residual 
+          const Vector &Resid = theSOE->getB() ;
+          
+          //new value of s 
+          double s = - ( dx0 ^ Resid ) ;
+          
+          if (theLineSearch != 0)
+            theLineSearch->search(s0, s, *theSOE, *theIntegrator);
+        }
 
-	this->record(0);
-	  
-	result = theTest->test();
+        this->record(0);
+          
+        result = theTest->test();
 
-    } while (result == -1);
+    }  while (result == ConvergenceTest::Continue);
 
-    if (result == -2) {
+    if (result == ConvergenceTest::Failure) {
       opserr << "NewtonLineSearch::solveCurrentStep() -";
       opserr << "the ConvergenceTest object failed in test()\n";
       return -3;
@@ -208,8 +208,8 @@ NewtonLineSearch::sendSelf(int cTag, Channel &theChannel)
 
 int
 NewtonLineSearch::recvSelf(int cTag, 
-			Channel &theChannel, 
-			FEM_ObjectBroker &theBroker)
+                        Channel &theChannel, 
+                        FEM_ObjectBroker &theBroker)
 {
   static ID data(1);
   if (theChannel.recvID(0, cTag, data) < 0) {

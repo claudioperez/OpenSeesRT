@@ -48,23 +48,23 @@ OPS_ADD_RUNTIME_VPV(OPS_ModifiedNewton)
     if (OPS_GetNumRemainingInputArgs() > 0) {
       const char* type = OPS_GetString();
       if (strcmp(type,"-secant") == 0) {
-	formTangent = CURRENT_SECANT;
+        formTangent = CURRENT_SECANT;
       } else if (strcmp(type,"-initial") == 0) {
-	formTangent = INITIAL_TANGENT;
+        formTangent = INITIAL_TANGENT;
       } else if(strcmp(type,"-hall")==0 || strcmp(type,"-Hall")==0) {
-	formTangent = HALL_TANGENT;
-	iFactor = 0.1;
-	cFactor = 0.9;
-	if (OPS_GetNumRemainingInputArgs() == 2) {
-	  double data[2];
-	  int numData = 2;
-	  if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	    opserr << "WARNING invalid data reading 2 hall factors\n";
-	    return 0;
-	  }
-	  iFactor = data[0];
-	  cFactor = data[1];
-	}
+        formTangent = HALL_TANGENT;
+        iFactor = 0.1;
+        cFactor = 0.9;
+        if (OPS_GetNumRemainingInputArgs() == 2) {
+          double data[2];
+          int numData = 2;
+          if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+            opserr << "WARNING invalid data reading 2 hall factors\n";
+            return 0;
+          }
+          iFactor = data[0];
+          cFactor = data[1];
+        }
       }
     }
 
@@ -102,27 +102,27 @@ ModifiedNewton::solveCurrentStep(void)
     // NOTE this could be taken away if we set Ptrs as protecetd in superclass
     AnalysisModel       *theAnalysisModel = this->getAnalysisModelPtr();
     IncrementalIntegrator *theIncIntegratorr = this->getIncrementalIntegratorPtr();
-    LinearSOE	        *theSOE = this->getLinearSOEptr();
+    LinearSOE                *theSOE = this->getLinearSOEptr();
 
     if ((theAnalysisModel == 0) || (theIncIntegratorr == 0) || (theSOE == 0)
-	|| (theTest == 0)){
-	opserr << "WARNING ModifiedNewton::solveCurrentStep() - setLinks() has";
-	opserr << " not been called - or no ConvergenceTest has been set\n";
-	return -5;
+        || (theTest == 0)){
+        opserr << "WARNING ModifiedNewton::solveCurrentStep() - setLinks() has";
+        opserr << " not been called - or no ConvergenceTest has been set\n";
+        return -5;
     }
 
     if (theIncIntegratorr->formUnbalance() < 0) {
-	opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-	opserr << "the Integrator failed in formUnbalance()\n";	
-	return -2;
-    }	
+        opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
+        opserr << "the Integrator failed in formUnbalance()\n";        
+        return -2;
+    }        
 
     SOLUTION_ALGORITHM_tangentFlag = tangent;
     if (theIncIntegratorr->formTangent(tangent, iFactor, cFactor) < 0){
-	opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-	opserr << "the Integrator failed in formTangent()\n";
-	return -1;
-    }		    
+        opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
+        opserr << "the Integrator failed in formTangent()\n";
+        return -1;
+    }                    
 
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
@@ -136,31 +136,31 @@ ModifiedNewton::solveCurrentStep(void)
     int result = -1;
     numIterations = 0;
     do {
-	if (theSOE->solve() < 0) {
-	    opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-	    opserr << "the LinearSysOfEqn failed in solve()\n";	
-	    return -3;
-	}	    
-	
-	if (theIncIntegratorr->update(theSOE->getX()) < 0) {
-	    opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-	    opserr << "the Integrator failed in update()\n";	
-	    return -4;
-	}	        
+        if (theSOE->solve() < 0) {
+            opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
+            opserr << "the LinearSysOfEqn failed in solve()\n";        
+            return -3;
+        }            
+        
+        if (theIncIntegratorr->update(theSOE->getX()) < 0) {
+            opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
+            opserr << "the Integrator failed in update()\n";        
+            return -4;
+        }                
 
-	if (theIncIntegratorr->formUnbalance() < 0) {
-	    opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-	    opserr << "the Integrator failed in formUnbalance()\n";	
-	    return -2;
-	}	
+        if (theIncIntegratorr->formUnbalance() < 0) {
+            opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
+            opserr << "the Integrator failed in formUnbalance()\n";        
+            return -2;
+        }        
 
-	this->record(numIterations++);
-	result = theTest->test();
+        this->record(numIterations++);
+        result = theTest->test();
 
 
-    } while (result == -1);
+    }  while (result == ConvergenceTest::Continue);
 
-    if (result == -2) {
+    if (result == ConvergenceTest::Failure) {
       return -3;
     }
     return result;
@@ -178,8 +178,8 @@ ModifiedNewton::sendSelf(int cTag, Channel &theChannel)
 
 int
 ModifiedNewton::recvSelf(int cTag, 
-			Channel &theChannel, 
-			FEM_ObjectBroker &theBroker)
+                        Channel &theChannel, 
+                        FEM_ObjectBroker &theBroker)
 {
   static Vector data(3);
   theChannel.recvVector(this->getDbTag(), cTag, data);
@@ -193,7 +193,7 @@ void
 ModifiedNewton::Print(OPS_Stream &s, int flag)
 {
     if (flag == 0) {
-	s << "ModifiedNewton";
+        s << "ModifiedNewton";
     }
 }
 

@@ -17,19 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2007-04-02 23:41:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/NewtonRaphson.cpp,v $
-                                                                        
-                                                                        
-// File: ~/OOP/analysis/algorithm/NewtonRaphson.C 
-// 
-// Written: fmk 
-// Created: Sun Sept 15 15:06:47: 1996 
-// Revision: A 
 //
-
 // Description: This file contains the class definition for 
 // NewtonRaphson. NewtonRaphson is a class which uses the
 // Newton-Raphson solution algorithm
@@ -37,7 +25,10 @@
 // it is not expected that this class will be subclassed.
 // 
 // What: "@(#)NewtonRaphson.C, revA"
-
+// 
+// Written: fmk 
+// Created: Sun Sept 15 15:06:47: 1996 
+//
 #include <NewtonRaphson.h>
 #include <AnalysisModel.h>
 #include <StaticAnalysis.h>
@@ -61,31 +52,31 @@ OPS_ADD_RUNTIME_VPV(OPS_NewtonRaphsonAlgorithm)
     while (OPS_GetNumRemainingInputArgs() > 0) {
       const char* type = OPS_GetString();
       if(strcmp(type,"-secant")==0 || strcmp(type,"-Secant")==0) {
-	formTangent = CURRENT_SECANT;
-	iFactor = 0;
-	cFactor = 1.0;
+        formTangent = CURRENT_SECANT;
+        iFactor = 0;
+        cFactor = 1.0;
       } else if(strcmp(type,"-initial")==0 || strcmp(type,"-Initial")==0) {
-	formTangent = INITIAL_TANGENT;
-	iFactor = 1.;
-	cFactor = 0;
+        formTangent = INITIAL_TANGENT;
+        iFactor = 1.;
+        cFactor = 0;
       } else if(strcmp(type,"-intialThenCurrent")==0 || strcmp(type,"-intialCurrent")==0) {
-	formTangent = INITIAL_THEN_CURRENT_TANGENT;
-	iFactor = 0;
-	cFactor = 1.0;
+        formTangent = INITIAL_THEN_CURRENT_TANGENT;
+        iFactor = 0;
+        cFactor = 1.0;
       } else if(strcmp(type,"-hall")==0 || strcmp(type,"-Hall")==0) {
-	formTangent = HALL_TANGENT;
-	iFactor = 0.1;
-	cFactor = 0.9;
-	if (OPS_GetNumRemainingInputArgs() == 2) {
-	  double data[2];
-	  int numData = 2;
-	  if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	    opserr << "WARNING invalid data reading 2 hall factors\n";
-	    return 0;
-	  }
-	  iFactor = data[0];
-	  cFactor = data[1];
-	}
+        formTangent = HALL_TANGENT;
+        iFactor = 0.1;
+        cFactor = 0.9;
+        if (OPS_GetNumRemainingInputArgs() == 2) {
+          double data[2];
+          int numData = 2;
+          if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+            opserr << "WARNING invalid data reading 2 hall factors\n";
+            return 0;
+          }
+          iFactor = data[0];
+          cFactor = data[1];
+        }
       }
     }
 
@@ -102,8 +93,8 @@ NewtonRaphson::NewtonRaphson(int theTangentToUse, double iFact, double cFact)
 }
 
 NewtonRaphson::NewtonRaphson()
-	:EquiSolnAlgo(EquiALGORITHM_TAGS_NewtonRaphson),
-	tangent(CURRENT_TANGENT), iFactor(0.), cFactor(1.)
+        :EquiSolnAlgo(EquiALGORITHM_TAGS_NewtonRaphson),
+        tangent(CURRENT_TANGENT), iFactor(0.), cFactor(1.)
 {
 
 }
@@ -120,7 +111,6 @@ NewtonRaphson::NewtonRaphson(ConvergenceTest &theT, int theTangentToUse, double 
 NewtonRaphson::~NewtonRaphson()
 {
   
-
 }
 
 
@@ -131,91 +121,79 @@ NewtonRaphson::solveCurrentStep(void)
     // NOTE this could be taken away if we set Ptrs as protecetd in superclass
     AnalysisModel   *theAnaModel = this->getAnalysisModelPtr();
     IncrementalIntegrator *theIntegrator = this->getIncrementalIntegratorPtr();
-    //IncrementalIntegrator *theIntegratorSens=this->getIncrementalIntegratorPtr();//Abbas
     LinearSOE  *theSOE = this->getLinearSOEptr();
 
-    if ((theAnaModel == 0) || (theIntegrator == 0) || (theSOE == 0)
-	|| (theTest == 0)){
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() - setLinks() has";
-	opserr << " not been called - or no ConvergenceTest has been set\n";
-	return -5;
-    }	
+    if  ( (theAnaModel  == nullptr) 
+       || (theIntegrator== nullptr)
+       || (theSOE       == nullptr)
+       || (theTest      == nullptr)){
+        opserr << "WARNING NewtonRaphson::solveCurrentStep() - setLinks() has";
+        opserr << " not been called - or no ConvergenceTest has been set\n";
+        return SolutionAlgorithm::BadAlgorithm;
+    }        
 
     if (theIntegrator->formUnbalance() < 0) {
       opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-      opserr << "the Integrator failed in formUnbalance()\n";	
-      return -2;
-    }	    
+      opserr << "the Integrator failed in formUnbalance()\n";        
+      return SolutionAlgorithm::BadFormResidual;
+    }            
 
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
     if (theTest->start() < 0) {
       opserr << "NewtonRaphson::solveCurrentStep() - ";
       opserr << "the ConvergenceTest object failed in start()\n";
-      return -3;
+      return SolutionAlgorithm::BadTestStart;
     }
 
-    int result = -1;
+    int result = ConvergenceTest::Continue;
     numIterations = 0;
 
     do {
-
       if (tangent == INITIAL_THEN_CURRENT_TANGENT) {
-	if (numIterations == 0) {
-	  SOLUTION_ALGORITHM_tangentFlag = INITIAL_TANGENT;
-	  if (theIntegrator->formTangent(INITIAL_TANGENT) < 0){
-	    opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-	    opserr << "the Integrator failed in formTangent()\n";
-	    return -1;
-	  } 
-	} else {
-	  SOLUTION_ALGORITHM_tangentFlag = CURRENT_TANGENT;
-	  if (theIntegrator->formTangent(CURRENT_TANGENT) < 0){
-	    opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-	    opserr << "the Integrator failed in formTangent()\n";
-	    return -1;
-	  } 
-	}
-      }	else {
-	
-	SOLUTION_ALGORITHM_tangentFlag = tangent;
-	if (theIntegrator->formTangent(tangent, iFactor, cFactor) < 0){
-	    opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-	    opserr << "the Integrator failed in formTangent()\n";
-	    return -1;
-	}		    
-      } 
-      if (theSOE->solve() < 0) {
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-	opserr << "the LinearSysOfEqn failed in solve()\n";	
-	return -3;
-      }	    
 
-      if (theIntegrator->update(theSOE->getX()) < 0) {
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-	opserr << "the Integrator failed in update()\n";	
-	return -4;
-      }	        
-      if (theIntegrator->formUnbalance() < 0) {
-	opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
-	opserr << "the Integrator failed in formUnbalance()\n";	
-	return -2;
-      }	
+        if (numIterations == 0) {
+
+          SOLUTION_ALGORITHM_tangentFlag = INITIAL_TANGENT;
+          if (theIntegrator->formTangent(INITIAL_TANGENT) < 0)
+            return SolutionAlgorithm::BadFormTangent;
+
+        } else {
+
+          SOLUTION_ALGORITHM_tangentFlag = CURRENT_TANGENT;
+          if (theIntegrator->formTangent(CURRENT_TANGENT) < 0)
+            return SolutionAlgorithm::BadFormTangent;
+
+        }
+      } else {
+        
+        SOLUTION_ALGORITHM_tangentFlag = tangent;
+        if (theIntegrator->formTangent(tangent, iFactor, cFactor) < 0)
+            return SolutionAlgorithm::BadFormTangent;
+
+      } 
+
+      if (theSOE->solve() < 0) 
+        return SolutionAlgorithm::BadLinearSolve;
+
+      if (theIntegrator->update(theSOE->getX()) < 0)
+        return SolutionAlgorithm::BadStepUpdate;
+
+      if (theIntegrator->formUnbalance() < 0)
+        return SolutionAlgorithm::BadFormResidual;
 
       result = theTest->test();
       numIterations++;
       this->record(numIterations);
 
-    } while (result == -1);
+    }  while (result == ConvergenceTest::Continue);
 
-    if (result == -2) {
-      // opserr << "NewtonRaphson::solveCurrentStep() - ";
-      // opserr << "the convergence test failed in test()\n";
-      return -3;
-    }
+    if (result == ConvergenceTest::Failure)
+      return SolutionAlgorithm::TestFailed;
 
-    // if postive result, we are returning what the convergence test returned
-    // which should be the number of iterations  
+
+    // if postive result, we are returning what the convergence test
+    // returned which should be the number of iterations  
     return result;
 }
 
@@ -232,8 +210,8 @@ NewtonRaphson::sendSelf(int cTag, Channel &theChannel)
 
 int
 NewtonRaphson::recvSelf(int cTag, 
-			Channel &theChannel, 
-			FEM_ObjectBroker &theBroker)
+                        Channel &theChannel, 
+                        FEM_ObjectBroker &theBroker)
 {
   static Vector data(3);
   theChannel.recvVector(this->getDbTag(), cTag, data);

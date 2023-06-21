@@ -17,23 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2007-04-02 23:41:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/BFGS.h,v $
-                                                                        
-#ifndef BFGS_h
-#define BFGS_h
-
-// File: ~/OOP/analysis/algorithm/BFGS.h 
-// 
-// Written: Ed Love
-// Created: 06/01
-
+//
 // Description: This file contains the class definition for
 // BFGS.
 // 
-// What: "@(#)BFGS.h, revA"
+// Written: Ed Love
+// Created: 06/01
+//
+#ifndef BFGS_h
+#define BFGS_h
 
 #include <EquiSolnAlgo.h>
 #include <Vector.h>
@@ -51,16 +43,16 @@ class BFGS: public EquiSolnAlgo
     int solveCurrentStep(void);    
 
     void setLinks(AnalysisModel &theModel, 
-		  IncrementalIntegrator &theIntegrator,
-		  LinearSOE &theSOE,
-		  ConvergenceTest *theTest);
+                  IncrementalIntegrator &theIntegrator,
+                  LinearSOE &theSOE,
+                  ConvergenceTest *theTest);
 
     int setConvergenceTest(ConvergenceTest *theNewTest);
     ConvergenceTest *getConvergenceTest(void);     
     
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker);
+                         FEM_ObjectBroker &theBroker);
 
     void Print(OPS_Stream &s, int flag =0);    
     
@@ -90,10 +82,10 @@ class BFGS: public EquiSolnAlgo
     double *sdotr;
 
     void BFGSUpdate(IncrementalIntegrator *theIntegrator,
-		    LinearSOE *theSOE,
-		    Vector &du, 
-		    Vector &b, 
-		    int count);
+                    LinearSOE *theSOE,
+                    Vector &du, 
+                    Vector &b, 
+                    int count);
   
 };
 

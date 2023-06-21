@@ -62,8 +62,8 @@ AcceleratedNewton::AcceleratedNewton(int theTangentToUse)
 }
 
 AcceleratedNewton::AcceleratedNewton(ConvergenceTest &theT,
-				     Accelerator *theAccel,
-				     int theTangentToUse)
+                                     Accelerator *theAccel,
+                                     int theTangentToUse)
   :EquiSolnAlgo(EquiALGORITHM_TAGS_AcceleratedNewton),
    theTest(&theT), tangent(theTangentToUse),
    theAccelerator(theAccel), vAccel(0), 
@@ -108,7 +108,7 @@ AcceleratedNewton::solveCurrentStep(void)
     opserr << "WARNING AcceleratedNewton::solveCurrentStep() - setLinks() has";
     opserr << " not been called - or no ConvergenceTest has been set\n";
     return -5;
-  }	
+  }        
 
   if (theAccelerator != 0)
     theAccelerator->newStep(*theSOE);
@@ -134,7 +134,7 @@ AcceleratedNewton::solveCurrentStep(void)
   // Evaluate system residual R(y_0)
   if (theIntegrator->formUnbalance() < 0) {
     opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
-    opserr << "the Integrator failed in formUnbalance()\n";	
+    opserr << "the Integrator failed in formUnbalance()\n";        
     return -2;
   }
 
@@ -167,7 +167,7 @@ AcceleratedNewton::solveCurrentStep(void)
     // Solve for displacement increment
     if (theSOE->solve() < 0) {
       opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
-      opserr << "the LinearSysOfEqn failed in solve()\n";	
+      opserr << "the LinearSysOfEqn failed in solve()\n";        
       return -3;
     }
 //    solveTimer.pause();
@@ -182,9 +182,9 @@ AcceleratedNewton::solveCurrentStep(void)
 
 //      accelTimer.start();
       if (theAccelerator->accelerate(*vAccel, *theSOE, *theIntegrator) < 0) {
-	opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
-	opserr << "the Accelerator failed in accelerate()\n";
-	return -1;
+        opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
+        opserr << "the Accelerator failed in accelerate()\n";
+        return -1;
       }
 //      accelTimer.pause();
 //      accelTimeReal += accelTimer.getReal();
@@ -194,14 +194,14 @@ AcceleratedNewton::solveCurrentStep(void)
     // Update system with accelerated displacement increment v_{k+1}
     if (theIntegrator->update(*vAccel) < 0) {
       opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
-      opserr << "the Integrator failed in update()\n";	
+      opserr << "the Integrator failed in update()\n";        
       return -4;
-    }	
+    }        
 
     // Evaluate residual
     if (theIntegrator->formUnbalance() < 0) {
       opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
-      opserr << "the Integrator failed in formUnbalance()\n";	
+      opserr << "the Integrator failed in formUnbalance()\n";        
       return -2;
     }
 
@@ -213,21 +213,21 @@ AcceleratedNewton::solveCurrentStep(void)
     if (result == -1) {
       // Let the accelerator update the tangent if needed
       if (theAccelerator != 0) {
-	int ret = theAccelerator->updateTangent(*theIntegrator);
-	if (ret < 0) {
-	  opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
-	  opserr << "the Accelerator failed in updateTangent()\n";
-	  return -1;
-	}
-	if (ret > 0)
-	  numFactorizations++;
+        int ret = theAccelerator->updateTangent(*theIntegrator);
+        if (ret < 0) {
+          opserr << "WARNING AcceleratedNewton::solveCurrentStep() - ";
+          opserr << "the Accelerator failed in updateTangent()\n";
+          return -1;
+        }
+        if (ret > 0)
+          numFactorizations++;
       }
     }
     this->record(k++);
 
-  } while (result == -1);
+  }  while (result == ConvergenceTest::Continue);
  
-  if (result == -2) {
+  if (result == ConvergenceTest::Failure) {
     // opserr << "AcceleratedNewton::solveCurrentStep() - ";
     // opserr << "The ConvergenceTest object failed in test()\n";
     return -3;
@@ -273,7 +273,7 @@ AcceleratedNewton::sendSelf(int cTag, Channel &theChannel)
 
 int
 AcceleratedNewton::recvSelf(int cTag, Channel &theChannel, 
-			    FEM_ObjectBroker &theBroker)
+                            FEM_ObjectBroker &theBroker)
 {
   static ID data(2);
   int res = theChannel.recvID(0, cTag, data);
@@ -299,8 +299,8 @@ AcceleratedNewton::recvSelf(int cTag, Channel &theChannel,
     if (res == 0) {
       res = theAccelerator->recvSelf(cTag, theChannel, theBroker);
       if (res < 0) {
-	opserr << "AcceleratedNewton::recvSelf() - accelerator failed to recvSelf\n";
-	return -1;
+        opserr << "AcceleratedNewton::recvSelf() - accelerator failed to recvSelf\n";
+        return -1;
       }
     }
   }

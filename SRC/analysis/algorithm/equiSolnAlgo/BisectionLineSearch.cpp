@@ -67,15 +67,15 @@ BisectionLineSearch::newStep(LinearSOE &theSOE)
 
 int 
 BisectionLineSearch::search(double s0, 
-			    double s1, 
-			    LinearSOE &theSOE, 
-			    IncrementalIntegrator &theIntegrator)
+                            double s1, 
+                            LinearSOE &theSOE, 
+                            IncrementalIntegrator &theIntegrator)
 {
   double r0 = 0.0;
 
   if ( s0 != 0.0 ) 
     r0 = fabs( s1 / s0 );
-	
+        
   if  (r0 <= tolerance )
     return 0; // Line Search Not Required Residual Decrease Less Than Tolerance
 
@@ -97,7 +97,7 @@ BisectionLineSearch::search(double s0,
 
   if (printFlag == 0) {
     opserr << "Bisection Line Search - initial: " 
-	 << "     eta(0) : " << eta << " , Ratio |sj/s0| = " << r0 << endln;
+         << "     eta(0) : " << eta << " , Ratio |sj/s0| = " << r0 << endln;
   }
 
   // we first search for a bracket to a solution, i.e. we want sU * sL < 0.0
@@ -123,15 +123,15 @@ BisectionLineSearch::search(double s0,
 
     if (theIntegrator.update(*x) < 0) {
       opserr << "WARNING BisectionLineSearch::search() -";
-      opserr << "the Integrator failed in update()\n";	
+      opserr << "the Integrator failed in update()\n";        
       return -1;
     }
     
     if (theIntegrator.formUnbalance() < 0) {
       opserr << "WARNING BisectionLineSearch::search() -";
-      opserr << "the Integrator failed in formUnbalance()\n";	
+      opserr << "the Integrator failed in formUnbalance()\n";        
       return -2;
-    }	
+    }        
   
     //new residual
     const Vector &ResidJ = theSOE.getB();
@@ -146,7 +146,7 @@ BisectionLineSearch::search(double s0,
 
     if (printFlag == 0) {
       opserr << "Bisection Line Search - bracketing: " << count 
-	   << " , eta(j) : " << etaU << " , Ratio |sj/s0| = " << r << endln;
+           << " , eta(j) : " << etaU << " , Ratio |sj/s0| = " << r << endln;
     }
   }
 
@@ -184,18 +184,18 @@ BisectionLineSearch::search(double s0,
       break;
 
     *x *= fact;
-	    
+            
     if (theIntegrator.update(*x) < 0) {
       opserr << "WARNING BisectionLineSearch::search() -";
-      opserr << "the Integrator failed in update()\n";	
+      opserr << "the Integrator failed in update()\n";        
       return -1;
     }
     
     if (theIntegrator.formUnbalance() < 0) {
       opserr << "WARNING BisectionLineSearch::search() -";
-      opserr << "the Integrator failed in formUnbalance()\n";	
+      opserr << "the Integrator failed in formUnbalance()\n";        
       return -2;
-    }	
+    }        
 
     //new residual
     const Vector &ResidJ = theSOE.getB();
@@ -224,7 +224,7 @@ BisectionLineSearch::search(double s0,
 
     if (printFlag == 0) {
       opserr << "Bisection Line Search - iteration: " << count 
-	   << " , eta(j) : " << eta << " , Ratio |sj/s0| = " << r << endln;
+           << " , eta(j) : " << eta << " , Ratio |sj/s0| = " << r << endln;
     }
     
   } //end while
@@ -248,8 +248,8 @@ BisectionLineSearch::sendSelf(int cTag, Channel &theChannel)
 
 int
 BisectionLineSearch::recvSelf(int cTag, 
-			      Channel &theChannel, 
-			      FEM_ObjectBroker &theBroker)
+                              Channel &theChannel, 
+                              FEM_ObjectBroker &theBroker)
 {
   return 0;
 }

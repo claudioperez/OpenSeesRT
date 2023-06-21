@@ -54,18 +54,18 @@ class BisectionLineSearch: public LineSearch
 {
   public:
     BisectionLineSearch(double tolerance = 0.8, 
-			int maxIter = 10, 
-			double minEta = 0.1, 
-			double maxEta = 10.0, 
-			int flag = 1);
+                        int maxIter = 10, 
+                        double minEta = 0.1, 
+                        double maxEta = 10.0, 
+                        int flag = 1);
 
     ~BisectionLineSearch();
 
     int newStep(LinearSOE &theSOE);
     int search(double s0, 
-	       double s1, 
-	       LinearSOE &theSOE, 
-	       IncrementalIntegrator &theIntegrator);
+               double s1, 
+               LinearSOE &theSOE, 
+               IncrementalIntegrator &theIntegrator);
 
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);

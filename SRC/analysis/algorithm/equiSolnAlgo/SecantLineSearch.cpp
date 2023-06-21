@@ -1,4 +1,3 @@
-
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
@@ -18,16 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-04-02 22:02:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/SecantLineSearch.cpp,v $
-
+//
 // Written: fmk 
 // Created: 11/01
 // 
-// What: "@(#)SecantLineSearch.h, revA"
-
 #include <SecantLineSearch.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
@@ -68,15 +61,15 @@ SecantLineSearch::newStep(LinearSOE &theSOE)
 
 int 
 SecantLineSearch::search(double s0, 
-				 double s1, 
-				 LinearSOE &theSOE, 
-				 IncrementalIntegrator &theIntegrator)
+                                 double s1, 
+                                 LinearSOE &theSOE, 
+                                 IncrementalIntegrator &theIntegrator)
 {
   double r0 = 0.0;
 
   if ( s0 != 0.0 ) 
     r0 = fabs( s1 / s0 );
-	
+        
   if  (r0 <= tolerance )
     return 0; // Line Search Not Required Residual Decrease Less Than Tolerance
 
@@ -96,7 +89,7 @@ SecantLineSearch::search(double s0,
 
   if (printFlag == 0) {
     opserr << "Secant Line Search - initial: "
-	 << "      eta(0) : " << eta << " , Ratio |s/s0| = " << r0 << endln;
+         << "      eta(0) : " << eta << " , Ratio |s/s0| = " << r0 << endln;
   }
 
   // perform the secant iterations:
@@ -123,18 +116,18 @@ SecantLineSearch::search(double s0,
 
     *x = dU;
     *x *= eta-etaJ;
-	    
+            
     if (theIntegrator.update(*x) < 0) {
       opserr << "WARNING SecantLineSearch::search() -";
-      opserr << "the Integrator failed in update()\n";	
+      opserr << "the Integrator failed in update()\n";        
       return -1;
     }
     
     if (theIntegrator.formUnbalance() < 0) {
       opserr << "WARNING SecantLineSearch::search() -";
-      opserr << "the Integrator failed in formUnbalance()\n";	
+      opserr << "the Integrator failed in formUnbalance()\n";        
       return -2;
-    }	
+    }        
 
     //new residual
     const Vector &ResidJ = theSOE.getB();
@@ -147,7 +140,7 @@ SecantLineSearch::search(double s0,
 
     if (printFlag == 0) {
       opserr << "Secant Line Search - iteration: " << count 
-	   << " , eta(j) : " << eta << " , Ratio |sj/s0| = " << r << endln;
+           << " , eta(j) : " << eta << " , Ratio |sj/s0| = " << r << endln;
     }
 
     if (etaJ == eta)
@@ -182,8 +175,8 @@ SecantLineSearch::sendSelf(int cTag, Channel &theChannel)
 
 int
 SecantLineSearch::recvSelf(int cTag, 
-			   Channel &theChannel, 
-			   FEM_ObjectBroker &theBroker)
+                           Channel &theChannel, 
+                           FEM_ObjectBroker &theBroker)
 {
   return 0;
 }
