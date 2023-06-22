@@ -38,6 +38,9 @@
 // What: "@(#) MovableObject.h, revA"
 
 #include <classTags.h>
+#include <cstddef>
+
+typedef int ClassTag;
 
 class Channel;
 class FEM_ObjectBroker;
@@ -47,11 +50,11 @@ class Parameter;
 class MovableObject
 {
   public:
-    MovableObject(int classTag, int dbTag);        
-    MovableObject(int classTag);    
+    MovableObject(ClassTag classTag, int dbTag);        
+    MovableObject(ClassTag classTag);    
     virtual ~MovableObject();
 
-    int getClassTag(void) const;
+    ClassTag getClassTag(void) const;
     virtual const char *getClassType(void) const;
 
     int getDbTag(void) const;
@@ -72,7 +75,7 @@ class MovableObject
   protected:
     
   private:
-    int classTag;
+    ClassTag classTag;
     int dbTag;
 };
 

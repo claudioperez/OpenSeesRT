@@ -54,7 +54,7 @@ const double ShellMITC9::root3_over_root5 = root3 / sqrt(5.0);
 
 double ShellMITC9::sg[9];
 double ShellMITC9::tg[9];
-double ShellMITC9::wg[9];
+// double ShellMITC9::wg[9];
 
 //null constructor
 ShellMITC9::ShellMITC9()
@@ -83,15 +83,6 @@ ShellMITC9::ShellMITC9()
   tg[7] = 0;
   tg[8] = 0;
 
-  wg[0] = 25.0 / 81.0;
-  wg[1] = 40.0 / 81.0;
-  wg[2] = 25.0 / 81.0;
-  wg[3] = 40.0 / 81.0;
-  wg[4] = 25.0 / 81.0;
-  wg[5] = 40.0 / 81.0;
-  wg[6] = 25.0 / 81.0;
-  wg[7] = 40.0 / 81.0;
-  wg[8] = 64.0 / 81.0;
 }
 
 //*********************************************************************
@@ -119,8 +110,8 @@ ShellMITC9::ShellMITC9(int tag, int node1, int node2, int node3, int node4,
     if (materialPointers[i] == 0) {
       opserr << "ShellMITC9::constructor - failed to get a material of type: "
                 "ShellSection\n";
-    } //end if
-  }   //end for i
+    }
+  }
 
   sg[0] = -root3_over_root5;
   sg[1] = 0;
@@ -142,15 +133,15 @@ ShellMITC9::ShellMITC9(int tag, int node1, int node2, int node3, int node4,
   tg[7] = 0;
   tg[8] = 0;
 
-  wg[0] = 25.0 / 81.0;
-  wg[1] = 40.0 / 81.0;
-  wg[2] = 25.0 / 81.0;
-  wg[3] = 40.0 / 81.0;
-  wg[4] = 25.0 / 81.0;
-  wg[5] = 40.0 / 81.0;
-  wg[6] = 25.0 / 81.0;
-  wg[7] = 40.0 / 81.0;
-  wg[8] = 64.0 / 81.0;
+//wg[0] = 25.0 / 81.0;
+//wg[1] = 40.0 / 81.0;
+//wg[2] = 25.0 / 81.0;
+//wg[3] = 40.0 / 81.0;
+//wg[4] = 25.0 / 81.0;
+//wg[5] = 40.0 / 81.0;
+//wg[6] = 25.0 / 81.0;
+//wg[7] = 40.0 / 81.0;
+//wg[8] = 64.0 / 81.0;
 }
 //******************************************************************
 
@@ -512,13 +503,6 @@ const Matrix &ShellMITC9::getInitialStiff()
   if (Ki != 0)
     return *Ki;
 
-  static const int ndf = 6; //two membrane plus three bending plus one drill
-
-  static const int nstress = 8; //three membrane, three moment, two shear
-
-  static const int ngauss = 9;
-
-  static const int numnodes = 9;
 
   int i, j, k, p, q;
   int jj, kk;
@@ -526,13 +510,11 @@ const Matrix &ShellMITC9::getInitialStiff()
 
   double volume = 0.0;
 
-  static double xsj; // determinant jacaobian matrix
+  static double xsj;               // determinant jacaobian matrix
+  static double dvol[ngauss];      // volume element
+  static double shp[3][numnodes];  // shape functions at a gauss point
 
-  static double dvol[ngauss]; //volume element
-
-  static double shp[3][numnodes]; //shape functions at a gauss point
-
-  static Matrix stiffJK(ndf, ndf); //nodeJK stiffness
+  static Matrix stiffJK(ndf, ndf); // nodeJK stiffness
 
   static Matrix dd(nstress, nstress); //material tangent
 
@@ -628,15 +610,15 @@ const Matrix &ShellMITC9::getInitialStiff()
 
       //multiply bending terms by (-1.0) for correct statement
       // of equilibrium
-      for (p = 3; p < 6; p++) {
-        for (q = 3; q < 6; q++)
+      for (int p = 3; p < 6; p++) {
+        for (int q = 3; q < 6; q++)
           BJ(p, q) *= (-1.0);
       } //end for p
 
       //transpose
       //BJtran = transpose( 8, ndf, BJ ) ;
-      for (p = 0; p < ndf; p++) {
-        for (q = 0; q < nstress; q++)
+      for (int p = 0; p < ndf; p++) {
+        for (int q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
       } //end for p
 
@@ -650,7 +632,7 @@ const Matrix &ShellMITC9::getInitialStiff()
       //BJtranD = BJtran * dd ;
       BJtranD.addMatrixProduct(0.0, BJtran, dd, 1.0);
 
-      for (p = 0; p < ndf; p++)
+      for (int p = 0; p < ndf; p++)
         BdrillJ[p] *= (Ktt * dvol[i]);
 
       kk = 0;
@@ -911,14 +893,6 @@ void ShellMITC9::formResidAndTangent(int tang_flag)
   //
   //  Shear strains gamma02, gamma12 constant through cross section
   //
-
-  static const int ndf = 6; //two membrane plus three bending plus one drill
-
-  static const int nstress = 8; //three membrane, three moment, two shear
-
-  static const int ngauss = 9;
-
-  static const int numnodes = 9;
 
   int i, j, k, p, q;
   int jj, kk;

@@ -87,7 +87,7 @@ ActorSubdomain::run(void)
 
       bool change;
       int theType, theOtherType, tag, dbTag, loadPatternTag;
-      int startTag, endTag, axisDirn, numSP, i, numMode, dof;
+      int endTag, axisDirn, numSP, i, numMode, dof;
       Element *theEle;
       Node *theNod;
       SP_Constraint *theSP;
@@ -323,6 +323,7 @@ ActorSubdomain::run(void)
 	    delete theI;
 		
 	    /* DON'T BOTHER SENDING
+            int startTag;
 	    if (numSP > 0) {
 	      theI = new ID(numSP);
 	      for (i = 0; i<numSP; i++) {
@@ -340,7 +341,7 @@ ActorSubdomain::run(void)
 	      }
 	      delete theI;
 	    }
-opserr << "ActorSubdomain::addSP_AXIS :: DONE\n";
+            opserr << "ActorSubdomain::addSP_AXIS :: DONE\n";
         */
 
 	    break;	    

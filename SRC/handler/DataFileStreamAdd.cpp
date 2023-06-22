@@ -344,6 +344,7 @@ DataFileStreamAdd::write(Vector &data)
       val = 0.;
       for (int k=0; k<=sendSelfCount; k++) {
 	if (theColumns[k] != 0) {
+          // TODO: shouldl currentColID be used below?
 	  ID &currentColID = *theColumns[k];
 	  if (currentCol(k) == i) {
 	    double *theColData = theData[k];

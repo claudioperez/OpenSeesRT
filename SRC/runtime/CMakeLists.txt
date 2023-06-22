@@ -2,14 +2,11 @@
 #*    OpenSees - Open System for Earthquake Engineering Simulation    *#
 #*          Pacific Earthquake Engineering Research Center            *#
 #* ****************************************************************** *#
-cmake_minimum_required(VERSION 3.16)
 
 add_library(OpenSeesRT SHARED)
-
-target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85 _NOGRAPHICS)
+target_sources(OpenSeesRT PRIVATE "OpenSeesRT.cpp")
+target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85)
 set_property(TARGET OpenSeesRT            PROPERTY POSITION_INDEPENDENT_CODE 1)
-set_property(TARGET OPS_Runtime           PROPERTY POSITION_INDEPENDENT_CODE 1)
-set_property(TARGET OPS_Material_Uniaxial_Drain_f  PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 
 target_include_directories(OPS_Runtime PUBLIC 
@@ -24,17 +21,19 @@ target_include_directories(OPS_Runtime PUBLIC
 target_link_libraries(OPS_Runtime PRIVATE G3)
 
 add_subdirectory(commands/)
-add_subdirectory(runtime/)
 
-target_sources(OpenSeesRT PRIVATE "OpenSeesRT.cpp")
+add_subdirectory(runtime/)
 
 target_sources(OPS_Runtime PRIVATE
     "G3_Runtime.cpp"
     "elementAPI_PYG3.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
+
     "${CMAKE_CURRENT_LIST_DIR}/contrib/packages/optimization/TclParameterCommands.cpp"
-#
-# SUB-ELEMENT MODELS
-#
+
+    #
+    # OTHER
+    #
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
@@ -43,16 +42,14 @@ target_sources(OPS_Runtime PRIVATE
     # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
     #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-#
-# OTHER
-#
-    "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
+
 )
 
 if (DEFINED OPENSEESRT_VERSION)
   set_property(
-      SOURCE OpenSeesRT.cpp
-      APPEND PROPERTY COMPILE_DEFINITIONS "OPENSEESRT_VERSION=\"${OPENSEESRT_VERSION}\""
+    SOURCE OpenSeesRT.cpp
+    APPEND PROPERTY COMPILE_DEFINITIONS 
+           "OPENSEESRT_VERSION=\"${OPENSEESRT_VERSION}\""
   )
 endif()
 
@@ -64,8 +61,11 @@ add_subdirectory(contrib/)
 if (${TCL_INCLUDE_PATH})
   target_include_directories(OpenSeesRT  PUBLIC ${TCL_INCLUDE_PATH})
   target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
-  target_include_directories(OpenSeesRT_LinearSystem PUBLIC ${TCL_INCLUDE_PATH})
 endif()
+
+target_link_libraries(OpenSeesRT PRIVATE
+  OPS_Runtime ${TCL_STUB_LIBRARY}
+)
 
 #
 # Python
@@ -74,14 +74,10 @@ if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()
 
+#
+# Parallel
+#
 if (MPI_FOUND)
   add_subdirectory(parallel)
 endif()
-
-# target_link_libraries(OpenSeesRT PUBLIC ${TCL_LIBRARY})
-
-target_link_libraries(OpenSeesRT PRIVATE
-  # OpenSeesRT_LinearSystem
-  OPS_Runtime ${TCL_STUB_LIBRARY}
-)
 

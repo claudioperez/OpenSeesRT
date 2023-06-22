@@ -1307,7 +1307,6 @@ XmlFileStream::setOrder(const ID &orderData)
 int
 XmlFileStream::mergeXML() 
 {
-  int fileNameLength = int(strlen(fileName));
 
   theFile.close();
   fileOpen = 0;

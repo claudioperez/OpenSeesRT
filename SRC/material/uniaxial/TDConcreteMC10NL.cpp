@@ -77,21 +77,11 @@ using namespace std; //Added by AMK for debugging
 #include <Vector.h>
 
 
-//Added by AMK to use dylib:
-//-----------------------------------------------------------------------
-	#ifdef _USRDLL
-	#define OPS_Export extern "C" _declspec(dllexport)
-	#elif _MACOSX
-	#define OPS_Export extern "C" __attribute__((visibility("default")))
-	#else
-	#define OPS_Export extern "C"
-	#endif
 
-	static int numTDConcreteMC10NL = 0;
-
-//	OPS_Export void * //ntosic: eliminated AMK code
-	void * //ntosic: new code over AMK
-	OPS_ADD_RUNTIME_VPV(OPS_TDConcreteMC10NL) {
+//  OPS_Export void * //ntosic: eliminated AMK code
+void * //ntosic: new code over AMK
+OPS_ADD_RUNTIME_VPV(OPS_TDConcreteMC10NL) {
+	  static int numTDConcreteMC10NL = 0;
 		// Print description of material model:
 		if (numTDConcreteMC10NL == 0) {
 			opserr << "Time-Dependent Concrete Material Model - Written by Nikola Tosic, 2019 \n";
@@ -138,7 +128,7 @@ using namespace std; //Added by AMK for debugging
 				//Return new material:
 				return theMaterial;
 			}
-	}
+}
 
 //-----------------------------------------------------------------------
 

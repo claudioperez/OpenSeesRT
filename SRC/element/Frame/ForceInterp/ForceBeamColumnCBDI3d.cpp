@@ -3868,8 +3868,7 @@ ForceBeamColumnCBDI3d::getResponse(int responseID, Information &eleInfo)
       return eleInfo.setVector(zlocal);    
   }
     
-  else
-    return -1;
+  return -1;
 }
 
 int 

@@ -21,8 +21,6 @@
 // $Revision: 1.3 $
 // $Date: 2006-01-12 23:39:21 $
 // $Source: /usr/local/cvs/OpenSees/SRC/graph/numberer/SimpleNumberer.cpp,v $
-                                                                        
-                                                                        
 
 // Written: fmk 
 // Revision: A
@@ -74,12 +72,6 @@ SimpleNumberer::number(Graph &theGraph, int lastVertex)
 	numVertex = theGraph.getNumVertex();
 	theRefResult = new ID(numVertex);
 
-	if (theRefResult == 0) {
-	    opserr << "ERROR:  SimpleNumberer::number - Out of Memory\n";
-	    theRefResult = new ID(0);
-	    numVertex = 0;
-	    return *theRefResult;
-	}
     }
 
     // see if we can do quick return

@@ -188,6 +188,12 @@ class ShellDKGQ : public Element {
     // vector for applying loads
     Vector *load;
     Matrix *Ki;
+
+    static const int ndf = 6;
+    static const int numberNodes = 4;
+    static const int numberGauss = 4;
+    static const int nShape = 3;
+    static const int massIndex = nShape - 1;
 } ; 
 
 

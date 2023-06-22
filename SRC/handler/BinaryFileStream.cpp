@@ -614,8 +614,8 @@ binaryToText(const char *inputFilename, const char *outputFilename)
 
   double data;
   char *c = (char *)&data;
-  int numNumbers = 0;
   /* ORIGINAL
+  int numNumbers = 0;
   while ( !input.eof()) {
     input.read(c, 1);
     if (*c != '\n') {

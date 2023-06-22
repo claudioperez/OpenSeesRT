@@ -24,6 +24,7 @@
 //
 // Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
 //
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -151,12 +152,9 @@ void ShellDKGQ::setDomain(Domain *theDomain)
       opserr << "ShellDKGQ::setDomain - no node " << connectedExternalNodes(i);
       opserr << " exists in the model\n";
     }
-    const Vector &nodeDisp = nodePointers[i]->getTrialDisp();
-    if (nodeDisp.Size() != 6) {
-      opserr << "ShellDKGQ::setDomain - node " << connectedExternalNodes(i);
-      opserr << " NEEDS 6 dof - GARBAGE RESULTS or SEGMENTATION FAULT WILL "
-                "FOLLOW\n";
-    }
+
+    assert(nodePointers[i]->getTrialDisp().Size() == 6);
+
   }
 
   //basis vectors and local coordinates
@@ -457,8 +455,6 @@ const Matrix &ShellDKGQ::getInitialStiff()
 
   static const int ndf      = 6; // two membrane plus three bending plus one drill
   static const int nstress  = 8; // three membrane, three moment, two shear
-  static const int ngauss   = 4;
-  static const int numnodes = 4;
 
   int jj, kk;
   int i, j, k, p, q;
@@ -468,11 +464,11 @@ const Matrix &ShellDKGQ::getInitialStiff()
   double volume = 0.0;
 
   static double xsj;              // determinant jacabian matrix
-  static double dvol[ngauss];     // volume element
-  static double shp[3][numnodes]; // shape function 2d at a gauss point
+  static double dvol[ShellDKGQ::numberGauss];     // volume element
+  static double shp[3][ShellDKGQ::numberNodes]; // shape function 2d at a gauss point
 
   // shape function-drilling dof(Nu,1&Nu,2&Nv,1&Nv,2) at a gauss point
-  static double shpDrill[4][numnodes];
+  static double shpDrill[4][ShellDKGQ::numberNodes];
 
   // shape function -bending part(Hx,Hy,Hx-1,2&Hy-1,2) at a gauss point
   static double shpBend[6][12]; 
@@ -507,7 +503,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
   static Matrix Bmembrane(3, 3);       // membrane B matrix
   static Matrix Bbend(3, 3);           // bending B matrix
   static Matrix Bshear(2, 3);          // shear B matrix (zero)
-  static double saveB[nstress][ndf][numnodes];
+  static double saveB[nstress][ShellDKGQ::ndf][ShellDKGQ::numberNodes];
   //-------------------------------------------------------------
 
   stiff.Zero();
@@ -521,9 +517,9 @@ const Matrix &ShellDKGQ::getInitialStiff()
   Pmat(3, 2) = one;
   Pmat(4, 3) = one;
   Pmat(5, 4) = one;
-  //transpose PmatTran=transpose(Pmat)
-  for (p1 = 0; p1 < 6; p1++) {
-    for (q1 = 0; q1 < 6; q1++) {
+  // transpose PmatTran=transpose(Pmat)
+  for (int p1 = 0; p1 < 6; p1++) {
+    for (int q1 = 0; q1 < 6; q1++) {
       PmatTran(p1, q1) = Pmat(q1, p1);
     }
   } //end for p1
@@ -558,7 +554,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
   }
 
   //------------gauss loop--------------------------
-  for (int i = 0; i < ngauss; i++) {
+  for (int i = 0; i < ShellDKGQ::numberGauss; i++) {
 
     //get shape functions
     shape2d(sg[i], tg[i], xl, shp, xsj, sx);
@@ -572,7 +568,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
     Bshear.Zero();
 
     // j-node loop to compute strain
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < ShellDKGQ::numberNodes; j++) {
       // compute B matrix
       Bmembrane = computeBmembrane(j, shp, shpDrill);
       Bbend     = computeBbend(j, shpBend);
@@ -592,7 +588,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
     //tangent stiff matrix calculations node loops
 
     jj = 0;
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < ShellDKGQ::numberNodes; j++) {
 
       //extract BJ
       for (int p = 0; p < nstress; p++) {
@@ -615,7 +611,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
       BJtranD.addMatrixProduct(0.0, BJtran, dd, 1.0);
 
       kk = 0;
-      for (int k = 0; k < numnodes; k++) {
+      for (int k = 0; k < ShellDKGQ::numberNodes; k++) {
 
         //extract BK
         for (int p = 0; p < nstress; p++) {
@@ -753,23 +749,12 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
   //translational mass only
   //rotational inertia terms are neglected
 
-  static const int ndf = 6;
+  double xsj;      // determinant jacaobian matrix
+  double sx[2][2]; // inverse jacobian matrix
+  double dvol;     // volume element
 
-  static const int numberNodes = 4;
-
-  static const int numberGauss = 4;
-
-  static const int nShape = 3;
-
-  static const int massIndex = nShape - 1;
-
-  double xsj; // determinant jacaobian matrix
-
-  double sx[2][2]; //inverse jacobian matrix
-
-  double dvol; //volume element
-
-  static double shp[nShape][numberNodes]; //shape functions at a gauss point
+  //shape functions at a gauss point
+  static double shp[ShellDKGQ::nShape][ShellDKGQ::numberNodes];
 
   static Vector momentum(ndf);
 
@@ -782,7 +767,7 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
   mass.Zero();
 
   //gauss loop
-  for (i = 0; i < numberGauss; i++) {
+  for (int i = 0; i < ShellDKGQ::numberGauss; i++) {
 
     //get shape functions
     shape2d(sg[i], tg[i], xl, shp, xsj, sx);
@@ -792,7 +777,7 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
 
     //node loop to compute accelerations
     momentum.Zero();
-    for (j = 0; j < numberNodes; j++)
+    for (int j = 0; j < ShellDKGQ::numberNodes; j++)
       //momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
       momentum.addVector(1.0, nodePointers[j]->getTrialAccel(),
                          shp[massIndex][j]);
@@ -804,11 +789,11 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
     momentum *= rhoH;
 
     //residual and tangent calculations node loops
-    for (j = 0, jj = 0; j < numberNodes; j++, jj += ndf) {
+    for (j = 0, jj = 0; j < ShellDKGQ::numberNodes; j++, jj += ndf) {
 
       temp = shp[massIndex][j] * dvol;
 
-      for (p = 0; p < 3; p++)
+      for (int p = 0; p < 3; p++)
         resid(jj + p) += (temp * momentum(p));
 
       if (tangFlag == 1 && rhoH != 0.0) {
@@ -817,14 +802,14 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
         temp *= rhoH;
 
         //node-node translational mass
-        for (k = 0, kk = 0; k < numberNodes; k++, kk += ndf) {
+        for (int k = 0, kk = 0; k < ShellDKGQ::numberNodes; k++, kk += ndf) {
 
           massJK = temp * shp[massIndex][k];
 
-          for (p = 0; p < 3; p++)
+          for (int p = 0; p < 3; p++)
             mass(jj + p, kk + p) += massJK;
 
-        } // end for k loop
+        }
 
       } // end if tang_flag
 
@@ -877,8 +862,6 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
   //
   static const int ndf      = 6; // 2 membrane + 3 moment + drill
   static const int nstress  = 8; // 3 membrane , 3 moment, 2 shear
-  static const int ngauss   = 4;
-  static const int numnodes = 4;
 
   int jj, kk;
   int i, j, k, p, q;
@@ -890,13 +873,13 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
 
   static double xsj; //determinant jacobian matrix
 
-  static double dvol[ngauss]; //volume element
+  static double dvol[ShellDKGQ::numberGauss]; //volume element
 
 
   static double 
-      shp[3][numnodes],      // shape function 2d at a gauss point
+      shp[3][ShellDKGQ::numberNodes],      // shape function 2d at a gauss point
       shpBend[6][12],        // shape function - bending part at a gauss point
-      shpDrill[4][numnodes]; // shape function drilling dof at a gauss point
+      shpDrill[4][ShellDKGQ::numberNodes]; // shape function drilling dof at a gauss point
 
 
   static Vector strain(nstress); //strain
@@ -948,7 +931,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
 
   static Matrix Bshear(2, 3); //shear B matrix (zero)
 
-  static double saveB[nstress][ndf][numnodes];
+  static double saveB[nstress][ShellDKGQ::ndf][ShellDKGQ::numberNodes];
   //---------------------------------------------------------------
 
   //zero stiffness and residual
@@ -969,9 +952,9 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
   Pmat(3, 2) = one;
   Pmat(4, 3) = one;
   Pmat(5, 4) = one;
-  //transpose PmatTran=transpose(Pmat)
-  for (p1 = 0; p1 < 6; p1++) {
-    for (q1 = 0; q1 < 6; q1++) {
+  // transpose PmatTran=transpose(Pmat)
+  for (int p1 = 0; p1 < 6; p1++) {
+    for (int q1 = 0; q1 < 6; q1++) {
       PmatTran(p1, q1) = Pmat(q1, p1);
     }
   } //end for p1
@@ -1006,7 +989,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
   } //end for p2
 
   //------------gauss loop--------------------------
-  for (i = 0; i < ngauss; i++) {
+  for (int i = 0; i < ShellDKGQ::numberGauss; i++) {
 
     //get shape functions
     shape2d(sg[i], tg[i], xl, shp, xsj, sx);
@@ -1023,7 +1006,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
     strain.Zero();
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (j = 0; j < ShellDKGQ::numberNodes; j++) {
 
       //compute B matrix
 
@@ -1068,7 +1051,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
     //residual and tangent calculations node loops
 
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (j = 0; j < ShellDKGQ::numberNodes; j++) {
 
       //extract BJ
       for (p = 0; p < nstress; p++) {
@@ -1103,9 +1086,9 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
 
         //k loop
         kk = 0;
-        for (k = 0; k < numnodes; k++) {
+        for (int k = 0; k < ShellDKGQ::numberNodes; k++) {
 
-          //extract BK
+          // extract BK
           for (p = 0; p < nstress; p++) {
             for (q = 0; q < ndf; q++)
               BK(p, q) = saveB[p][q][k];
@@ -1137,7 +1120,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
     } // end for j loop
 
   } //end for i gauss loop
-  //opserr<<dd<<endln;
+
 
   return;
 }

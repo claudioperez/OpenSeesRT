@@ -36,6 +36,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
+#include <numbers>
 
 #include <ID.h> 
 #include <Vector.h>
@@ -115,6 +116,10 @@ class ShellMITC4 : public Element {
     int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
 
   private : 
+    static const int ndf = 6;     // two membrane plus three bending plus one drill
+    static const int nstress = 8; // three membrane, three moment, two shear
+    static const int ngauss = 4;
+    static const int numnodes = 4;
 
     //static data
     static Matrix stiff ;
@@ -123,11 +128,11 @@ class ShellMITC4 : public Element {
     static Matrix damping ;
 
     //quadrature data
-    static const double root3 ;
-    static const double one_over_root3 ;    
+    static const double root3; // = std::numbers::sqrt3<double> ;
+    static const double one_over_root3; // = std::numbers::inv_sqrt3<double>;    
     static double sg[4] ;
     static double tg[4] ;
-    static double wg[4] ;
+    static constexpr const double wg[4] = {1.0, 1.0, 1.0, 1.0};
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
@@ -189,6 +194,8 @@ class ShellMITC4 : public Element {
     Vector *load;
     Matrix *Ki;
     double init_disp[4][6];
+
+
 } ; 
 
 

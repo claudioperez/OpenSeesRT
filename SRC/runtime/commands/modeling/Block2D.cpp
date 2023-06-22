@@ -137,7 +137,7 @@ Block2D::getElementNodes( int i, int j )
 
   else if (numNodesElement == 4) {
     int nenx = nx + 1;
-    int neny = ny + 1;
+    // int neny = ny + 1;
 
     int node1, node2, node3, node4;
 
@@ -155,7 +155,7 @@ Block2D::getElementNodes( int i, int j )
   } else {
 
     int nenx = nx + 1;
-    int neny = ny + 1;
+    // int neny = ny + 1;
 
     int node1, node2, node3, node4, node5, node6, node7, node8, node9;
 

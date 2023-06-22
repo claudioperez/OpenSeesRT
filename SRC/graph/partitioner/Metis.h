@@ -47,9 +47,7 @@
 #include <GraphPartitioner.h>
 #include <GraphNumberer.h>
 
-#ifndef _bool_h
 #include <stdbool.h>
-#endif
 
 class Metis : public GraphPartitioner, public GraphNumberer
 {

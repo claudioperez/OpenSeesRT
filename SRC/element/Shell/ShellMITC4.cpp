@@ -29,7 +29,7 @@
 // Ref: Dvorkin,Bathe, A continuum mechanics based four node shell
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
-
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cmath>
@@ -41,7 +41,6 @@
 #include <Node.h>
 #include <SectionForceDeformation.h>
 #include <Domain.h>
-#include <ErrorHandler.h>
 #include <ShellMITC4.h>
 #include <R3vectors.h>
 #include <Renderer.h>
@@ -50,7 +49,6 @@
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <map>
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -65,7 +63,6 @@ const double ShellMITC4::one_over_root3 = 1.0 / root3;
 
 double ShellMITC4::sg[4];
 double ShellMITC4::tg[4];
-double ShellMITC4::wg[4];
 
 //null constructor
 ShellMITC4::ShellMITC4()
@@ -75,6 +72,7 @@ ShellMITC4::ShellMITC4()
   for (int i = 0; i < 4; i++)
     materialPointers[i] = 0;
 
+  // TODO: constexpr
   sg[0] = -one_over_root3;
   sg[1] = one_over_root3;
   sg[2] = one_over_root3;
@@ -84,11 +82,6 @@ ShellMITC4::ShellMITC4()
   tg[1] = -one_over_root3;
   tg[2] = one_over_root3;
   tg[3] = one_over_root3;
-
-  wg[0] = 1.0;
-  wg[1] = 1.0;
-  wg[2] = 1.0;
-  wg[3] = 1.0;
 
   applyLoad = 0;
 
@@ -131,11 +124,6 @@ ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
   tg[1] = -one_over_root3;
   tg[2] = one_over_root3;
   tg[3] = one_over_root3;
-
-  wg[0] = 1.0;
-  wg[1] = 1.0;
-  wg[2] = 1.0;
-  wg[3] = 1.0;
 
   applyLoad = 0;
 
@@ -181,11 +169,8 @@ void ShellMITC4::setDomain(Domain *theDomain)
       opserr << " exists in the model\n";
     }
     const Vector &nodeDisp = nodePointers[i]->getTrialDisp();
-    if (nodeDisp.Size() != 6) {
-      opserr << "ShellMITC4::setDomain - node " << connectedExternalNodes(i);
-      opserr << " NEEDS 6 dof - GARBAGE RESULTS or SEGMENTATION FAULT WILL "
-                "FOLLOW\n";
-    }
+    assert(nodeDisp.Size() == 6);
+
     init_disp[i][0] = nodeDisp(0);
     init_disp[i][1] = nodeDisp(1);
     init_disp[i][2] = nodeDisp(2);
@@ -503,14 +488,6 @@ const Matrix &ShellMITC4::getInitialStiff()
 {
   if (Ki != 0)
     return *Ki;
-
-  static const int ndf = 6; //two membrane plus three bending plus one drill
-
-  static const int nstress = 8; //three membrane, three moment, two shear
-
-  static const int ngauss = 4;
-
-  static const int numnodes = 4;
 
   int i, j, k, p, q;
   int jj, kk;
@@ -1017,13 +994,6 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
   //  Shear strains gamma02, gamma12 constant through cross section
   //
 
-  static const int ndf = 6; //two membrane plus three bending plus one drill
-
-  static const int nstress = 8; //three membrane, three moment, two shear
-
-  static const int ngauss = 4;
-
-  static const int numnodes = 4;
 
   int i, j, k, p, q;
   int jj, kk;
@@ -1203,18 +1173,18 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
 
       Bbend = computeBbend(j, shp);
 
-      for (p = 0; p < 3; p++) {
+      for (int p = 0; p < 3; p++) {
         Bshear(0, p) = Bs(0, j * 3 + p);
         Bshear(1, p) = Bs(1, j * 3 + p);
-      } //end for p
+      }
 
       BJ = assembleB(Bmembrane, Bbend, Bshear);
 
-      //save the B-matrix
-      for (p = 0; p < nstress; p++) {
+      // save the B-matrix
+      for (int p = 0; p < nstress; p++) {
         for (q = 0; q < ndf; q++)
           saveB[p][q][j] = BJ(p, q);
-      } //end for p
+      }
 
       //nodal "displacements"
       const Vector &ul_tmp = nodePointers[j]->getTrialDisp();
@@ -1265,7 +1235,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
     //residual and tangent calculations node loops
 
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       //extract BJ
       for (p = 0; p < nstress; p++) {
@@ -1405,11 +1375,8 @@ void ShellMITC4::computeBasis()
   // nodal coordinate differences
 
   const Vector &coor0 = nodePointers[0]->getCrds();
-
   const Vector &coor1 = nodePointers[1]->getCrds();
-
   const Vector &coor2 = nodePointers[2]->getCrds();
-
   const Vector &coor3 = nodePointers[3]->getCrds();
 
   v1.Zero();
@@ -1617,22 +1584,11 @@ const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
                                     const Matrix &Bbend, const Matrix &Bshear)
 {
 
-  //Matrix Bbend(3,3) ;  // plate bending B matrix
-
-  //Matrix Bshear(2,3) ; // plate shear B matrix
-
-  //Matrix Bmembrane(3,2) ; // plate membrane B matrix
-
   static Matrix B(8, 6);
-
   static Matrix BmembraneShell(3, 3);
-
   static Matrix BbendShell(3, 3);
-
   static Matrix BshearShell(2, 6);
-
   static Matrix Gmem(2, 3);
-
   static Matrix Gshear(3, 6);
 
   int p, q;
@@ -1707,17 +1663,17 @@ const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
   } //end for p
 
   //bending terms
-  for (p = 3; p < 6; p++) {
+  for (int p = 3; p < 6; p++) {
     pp = p - 3;
     for (q = 3; q < 6; q++)
       B(p, q) = BbendShell(pp, q - 3);
   } // end for p
 
   //shear terms
-  for (p = 0; p < 2; p++) {
+  for (int p = 0; p < 2; p++) {
     pp = p + 6;
 
-    for (q = 0; q < 6; q++) {
+    for (int q = 0; q < 6; q++) {
       B(pp, q) = BshearShell(p, q);
     } // end for q
 

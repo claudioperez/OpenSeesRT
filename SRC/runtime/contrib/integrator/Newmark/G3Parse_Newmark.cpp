@@ -7,8 +7,6 @@
 TransientIntegrator*
 G3Parse_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
-  // Pointer to a uniaxial material that will be returned
-  TransientIntegrator *theIntegrator = nullptr;
 
   if (argc != 4 && argc != 6) {
     opserr << G3_ERROR_PROMPT << " incorrect number of args want Newmark $gamma $beta "
