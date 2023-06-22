@@ -8,7 +8,7 @@
 #==============================================================================
 # Claudio Perez
 
-project(ARPACK Fortran)
+# project(ARPACK Fortran)
 
 add_library(ARPACK)
 
