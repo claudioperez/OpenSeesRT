@@ -8,20 +8,22 @@
 #==============================================================================
 
 cmake_minimum_required(VERSION 3.16)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
+
 project(OpenSees C CXX Fortran)
 
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-set(OPS_EXTERN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
-set(OPS_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
 
-set(OPS_BUNDLED_DIR "${PROJECT_SOURCE_DIR}/OTHER/")
-set(OPS_SRC_DIR "${PROJECT_SOURCE_DIR}/SRC/")
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
+set(OPS_BUNDLED_DIR   "${PROJECT_SOURCE_DIR}/OTHER/")
+set(OPS_SRC_DIR       "${PROJECT_SOURCE_DIR}/SRC/")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
+                      "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
+
 include(OpenSeesFunctions)
 
 enable_testing()
 
-add_definitions(-DOPS_USE_RUNTIME)#  -D_THREADS)
+add_compile_definitions(OPS_USE_RUNTIME _NOGRAPHICS) # _THREADS
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -38,10 +40,6 @@ add_library(OPS_External_packages INTERFACE)
 
 # include user config
 include(${PROJECT_SOURCE_DIR}/Conf.cmake)
-
-# define user-selectable options for end target
-set_property(CACHE OPS_FINAL_TARGET PROPERTY STRINGS 
-    G3 OpenSeesMP OpenSeesSP)
 
 #==============================================================================
 #                            OS Configuration
@@ -78,10 +76,10 @@ if (UNIX)
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
-    include(OpenSeesDependenciesWin)
-    # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
-    add_compile_definitions(_WIN32 _TCL85)
-    message(STATUS ">>> WIN32")
+  include(OpenSeesDependenciesWin)
+  # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
+  add_compile_definitions(_WIN32 _TCL85)
+  message(STATUS ">>> WIN32")
 endif()
 
 
@@ -222,6 +220,10 @@ opensees_load(AMD
   #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
 )
 
+opensees_load(METIS
+  LIBRARY "${OPS_BUNDLED_DIR}/bin/METIS/libMETIS.a"
+)
+
 message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
 message("OPS >>> LAPACK:  ${LAPACK_LIBRARIES}")
 message("OPS >>> SUPERLU: ${SUPERLU_LIBRARIES}")
@@ -241,8 +243,6 @@ target_link_libraries(OPS_Numerics INTERFACE
   ${SUPERLU_LIBRARIES}
   ${LAPACK_LIBRARIES}
   ${BLAS_LIBRARIES}
-# ${UMFPACK_LIBRARIES}
-# ${CSPARSE_LIBRARIES}
 )
 
 
@@ -278,6 +278,7 @@ add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 # Packaged libraries
 add_library(G3) 
 
+set_property(TARGET OPS_Runtime           PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_MaterialFortran   PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_ElementFortran    PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET G3                    PROPERTY POSITION_INDEPENDENT_CODE 1)
@@ -339,7 +340,6 @@ target_link_libraries(G3
 #==============================================================================
 
 
-add_compile_definitions(_NOGRAPHICS)
 
 # Extensions
 #----------------------------
@@ -382,6 +382,10 @@ endif()
 # Include test suite
 #add_subdirectory(EXAMPLES/)
 
+get_target_property(OPS_Damage_COMPILE_OPTIONS OPS_Damage COMPILE_OPTIONS)
+  string(REPLACE "-Wall" "" OPS_Damage_COMPILE_OPTIONS "${OPS_Damage_COMPILE_OPTIONS}")
+  string(REPLACE "-Wextra" "" OPS_Damage_COMPILE_OPTIONS "${OPS_Damage_COMPILE_OPTIONS}")
+  set_target_properties(OPS_Damage PROPERTIES COMPILE_OPTIONS "${OPS_Damage_COMPILE_OPTIONS}")
 
 get_target_property(OPS_Material_COMPILE_OPTIONS OPS_Material COMPILE_OPTIONS)
   string(REPLACE "-Wall" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
