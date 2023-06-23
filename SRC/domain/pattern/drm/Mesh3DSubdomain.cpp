@@ -33,16 +33,15 @@
 #include <Matrix.h>
 #include "GeometricBrickDecorator.h"
 #include <math.h>
-using namespace std;
+// using namespace std;
 
 
-#include <Element.h>
-#include <Node.h>
-//#include <DummyNode.h>
-#include <ElementIter.h>
-#include <LinearCrdTransf3d.h>
-#include <Frame/Elastic/ElasticBeam3d.h>
-#include <MP_Constraint.h>
+// #include <DummyNode.h>
+// #include <ElementIter.h>
+// #include <LinearCrdTransf3d.h>
+// #include <Frame/Elastic/ElasticBeam3d.h>
+// #include <MP_Constraint.h>
+//
 #include <classTags.h>
 //general constructor
 Mesh3DSubdomain::Mesh3DSubdomain(Domain * inpDomain) 

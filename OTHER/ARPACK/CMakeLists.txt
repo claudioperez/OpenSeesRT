@@ -68,11 +68,11 @@ target_sources(ARPACK PUBLIC
 target_link_libraries(ARPACK PRIVATE ${LAPACK_LIBRARIES})
 
 # Required on Unix OS family to be able to be linked into shared libraries.
-set_target_properties(${PROJECT_NAME}
+set_target_properties(ARPACK
                       PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # Expose public includes to other subprojects through cache variable.
-set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}
+set(ARPACK_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 
 export(TARGETS ARPACK

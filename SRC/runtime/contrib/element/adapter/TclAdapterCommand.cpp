@@ -31,7 +31,7 @@
 
 class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
-
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
@@ -43,13 +43,9 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char ** const argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
-  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - adapter\n";
-    return TCL_ERROR;
-  }
 
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
@@ -59,14 +55,15 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Element *theElement = 0;
-  int ndm = builder->getNDM();
 
   // get the id and end nodes
   int tag, node, dof, ipPort, argi, i, j, k;
-  int numNodes = 0, numDOFj = 0, numDOF = 0;
+  int numNodes = 0, 
+      numDOFj  = 0, 
+      numDOF   = 0;
   int doRayleigh = 0;
-  Matrix *mass = 0;
+  Matrix *mass   = nullptr;
+  Element *theElement = nullptr;
 
   if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
     opserr << "WARNING invalid adapter eleTag" << endln;

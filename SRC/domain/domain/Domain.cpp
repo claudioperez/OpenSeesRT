@@ -60,10 +60,10 @@
 #include <SingleDomAllSP_Iter.h>
 #include <SingleDomParamIter.h>
 
-#include <UniaxialMaterial.h>
-#include <NDMaterial.h>
-#include <SectionForceDeformation.h>
-#include <CrdTransf.h>
+// #include <UniaxialMaterial.h>
+// #include <NDMaterial.h>
+// #include <SectionForceDeformation.h>
+// #include <CrdTransf.h>
 
 #include <Vertex.h>
 #include <Matrix.h>

@@ -9,7 +9,7 @@
 #==============================================================================
 # Claudio Perez
 
-project(CSPARSE VERSION 3.1.0)
+# project(CSPARSE VERSION 3.1.0)
 
 add_library(CSPARSE
     cs_add.c

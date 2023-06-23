@@ -5,9 +5,11 @@
 #
 #==============================================================================
 #add_library(OPS_Element OBJECT)
+target_link_libraries(OPS_Element PUBLIC OPS_Domain PRIVATE coordTransformation)
+
 target_include_directories(OPS_Element PUBLIC
+
   ${OPS_SRC_DIR}/element/Boundary
-  ${OPS_SRC_DIR}/element/absorbentBoundaries
   ${OPS_SRC_DIR}/element/Plane
   ${OPS_SRC_DIR}/element/tetrahedron
   ${OPS_SRC_DIR}/element/adapter
@@ -43,7 +45,6 @@ target_include_directories(OPS_Element PUBLIC
   ${OPS_SRC_DIR}/element/Other/pyMacro
   ${OPS_SRC_DIR}/element/surfaceLoad
   ${OPS_SRC_DIR}/element/Link
-
 )
 
 target_sources(OPS_Element
@@ -79,12 +80,14 @@ add_subdirectory(Frame)
 add_subdirectory(Frame/LHMYS)
 add_subdirectory(componentElement)
 
-add_subdirectory(absorbentBoundaries)
 add_subdirectory(adapter)
 add_subdirectory(Boundary)
+
 add_subdirectory(Bearing/friction)
 add_subdirectory(Bearing/elastomeric)
+
 add_subdirectory(ASDEA/CEqElement)
+add_subdirectory(ASDEA/absorbentBoundaries)
 
 add_subdirectory(Other/PML)
 add_subdirectory(Other/generic)

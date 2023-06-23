@@ -296,9 +296,8 @@ using namespace OpenSees::Hash::literals;
 #include "Boundary/RockingBC.h"
 
 #include "ASDEA/CEqElement/ASDEmbeddedNodeElement.h"
-
-#include "absorbentBoundaries/ASDAbsorbingBoundary2D.h"
-#include "absorbentBoundaries/ASDAbsorbingBoundary3D.h"
+#include "ASDEA/absorbentBoundaries/ASDAbsorbingBoundary2D.h"
+#include "ASDEA/absorbentBoundaries/ASDAbsorbingBoundary3D.h"
 
 #include "LinearCrdTransf2d.h"
 #include "LinearCrdTransf3d.h"

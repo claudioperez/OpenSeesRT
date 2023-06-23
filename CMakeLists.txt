@@ -134,19 +134,25 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/dof_grp
   ${OPS_SRC_DIR}/analysis/fe_ele
   ${OPS_SRC_DIR}/analysis/handler
+  ${OPS_SRC_DIR}/analysis/numberer
   ${OPS_SRC_DIR}/analysis/integrator
   ${OPS_SRC_DIR}/analysis/model
-  ${OPS_SRC_DIR}/analysis/model/simple
-  ${OPS_SRC_DIR}/analysis/numberer
+# ${OPS_SRC_DIR}/analysis/model/simple
 
   ${OPS_SRC_DIR}/runtime
+# ${OPS_SRC_DIR}/runtime/runtime/modelbuilder/
+
   ${OPS_SRC_DIR}/api
   ${OPS_SRC_DIR}/convergenceTest
-  ${OPS_SRC_DIR}/coordTransformation
-  ${OPS_SRC_DIR}/database
-  ${OPS_SRC_DIR}/domain/component
   ${OPS_SRC_DIR}/domain/constraints
+
+# ${OPS_SRC_DIR}/coordTransformation
+  ${OPS_SRC_DIR}/domain/component
   ${OPS_SRC_DIR}/domain/domain
+  ${OPS_SRC_DIR}/database
+
+
+
 # ${OPS_SRC_DIR}/domain/domain/partitioned
 # ${OPS_SRC_DIR}/domain/loadBalancer
   ${OPS_SRC_DIR}/domain/domain/single
@@ -191,11 +197,11 @@ include_directories(
 #
 #==============================================================================
 # find_package(MKL)
-find_package(TCL)
-find_package(TclStub)
-set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
-include_directories(${TCL_INCLUDE_PATH})
+if (TRUE)
 
+  add_subdirectory(OTHER)
+
+else()
 opensees_load(SUPERLU
   #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
   LIBRARY "${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/libSUPERLU.a"
@@ -223,6 +229,12 @@ opensees_load(AMD
 opensees_load(METIS
   LIBRARY "${OPS_BUNDLED_DIR}/bin/METIS/libMETIS.a"
 )
+endif()
+
+find_package(TCL)
+find_package(TclStub)
+set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
+include_directories(${TCL_INCLUDE_PATH})
 
 message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
 message("OPS >>> LAPACK:  ${LAPACK_LIBRARIES}")
@@ -276,7 +288,7 @@ add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 
 # Packaged libraries
-add_library(G3) 
+add_library(G3)
 
 set_property(TARGET OPS_Runtime           PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_MaterialFortran   PROPERTY POSITION_INDEPENDENT_CODE 1)
@@ -302,7 +314,7 @@ target_link_libraries(OPS_Material     PRIVATE ${TCL_STUB_LIBRARY})
 
 # G3
 #----------------------------
-target_link_libraries(G3 
+target_link_libraries(G3 PUBLIC
     OPS_Database
     OPS_Matrix
     OPS_Actor
