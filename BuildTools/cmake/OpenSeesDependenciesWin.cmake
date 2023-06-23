@@ -21,7 +21,7 @@
 #==============================================================================
 set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
-opensees_load(TCL CONAN tcl/8.6.11)
+# opensees_load(TCL CONAN tcl/8.6.11)
 # conan_cmake_configure(REQUIRES tcl/8.6.11 GENERATORS cmake_find_package)
 # conan_cmake_autodetect(settings)
 # conan_cmake_install(PATH_OR_REFERENCE .
@@ -83,15 +83,15 @@ find_package(LAPACK)
 #   LIBRARY ${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/Debug/SUPERLU.lib
 # )
 # 
- opensees_load(ARPACK                                       #SEARCH
-   BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
-   # LIBRARY ${OPS_BUNDLED_DIR}/bin/ARPACK/Debug/ARPACK.lib
- )
-# 
-opensees_load(AMD
-  BUNDLED ${OPS_BUNDLED_DIR}/AMD/
-  # LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
-)
+#  opensees_load(ARPACK                                       #SEARCH
+#    BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
+#    # LIBRARY ${OPS_BUNDLED_DIR}/bin/ARPACK/Debug/ARPACK.lib
+#  )
+# # 
+# opensees_load(AMD
+#   BUNDLED ${OPS_BUNDLED_DIR}/AMD/
+#   # LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
+# )
 # include_directories(${OPS_BUNDLED_DIR}/AMD)
 
 
