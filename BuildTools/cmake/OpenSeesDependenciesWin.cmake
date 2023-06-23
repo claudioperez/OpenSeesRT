@@ -21,7 +21,7 @@
 #==============================================================================
 set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 
-# opensees_load(TCL CONAN tcl/8.6.11)
+opensees_load(TCL CONAN tcl/8.6.11)
 # conan_cmake_configure(REQUIRES tcl/8.6.11 GENERATORS cmake_find_package)
 # conan_cmake_autodetect(settings)
 # conan_cmake_install(PATH_OR_REFERENCE .
@@ -92,13 +92,13 @@ opensees_load(AMD
   BUNDLED ${OPS_BUNDLED_DIR}/AMD/
   # LIBRARY ${OPS_BUNDLED_DIR}/bin/AMD/Debug/AMD.lib
 )
-include_directories(${OPS_BUNDLED_DIR}/AMD)
+# include_directories(${OPS_BUNDLED_DIR}/AMD)
 
 
-opensees_load(METIS                                        SEARCH)
+# opensees_load(METIS                                        SEARCH)
 
-opensees_load(HDF5                                           FIND)
+# opensees_load(HDF5                                           FIND)
 
-# set(MYSQL_INCLUDE_DIR "${CONDA_ENV}/Library/include/mysql/")
+
 
 
