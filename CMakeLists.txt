@@ -23,16 +23,17 @@ include(OpenSeesFunctions)
 
 enable_testing()
 
-add_compile_definitions(OPS_USE_RUNTIME _NOGRAPHICS) # _THREADS
+add_compile_definitions(OPS_USE_RUNTIME USE_TCL_STUBS _TCL85 _NOGRAPHICS) # _THREADS
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    message(">>> Using Conan")
    set(USE_CONAN TRUE)
    include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-   conan_basic_setup(TARGETS)
-   set(TCL_LIBRARIES "CONAN_PKG::tcl")
-   set(TCL_LIBRARY "CONAN_PKG::tcl")
+   conan_basic_setup() # TARGETS)
+   set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
+   set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
+   set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
 endif()
 
 # pseudo target modeling all exteral packages
@@ -231,9 +232,11 @@ opensees_load(METIS
 )
 endif()
 
+if (NOT WIN32)
 find_package(TCL)
 find_package(TclStub)
 set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
+endif()
 include_directories(${TCL_INCLUDE_PATH})
 
 message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
@@ -244,7 +247,6 @@ message("OPS >>> UMFPACK: ${UMFPACK_LIBRARIES}")
 message("OPS >>> CSPARSE: ${CSPARSE_LIBRARIES}")
 message("OPS >>> TCL:     ${TCL_LIBRARIES}")
 message("                 ${TCL_LIBRARY}  ")
-message("                $ENV{TCL_LIBRARY}")
 
 message("OPS >>> AMD:     ${AMD_LIBRARIES}")
 

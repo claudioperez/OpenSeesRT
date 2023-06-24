@@ -5,6 +5,10 @@
 #
 #==============================================================================
 
+
+target_include_directories(graph PUBLIC ${CMAKE_CURRENT_LIST_DIR})#  ${AMD_INCLUDE_DIRS})
+target_link_libraries(graph PRIVATE AMD) # ${AMD_LIBRARIES})
+
 target_sources(graph
     PRIVATE
       RCM.cpp
@@ -20,7 +24,4 @@ target_sources(graph
       MyRCM.h
 )
 
-
-target_include_directories(graph PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(graph PRIVATE ${AMD_LIBRARIES})
 

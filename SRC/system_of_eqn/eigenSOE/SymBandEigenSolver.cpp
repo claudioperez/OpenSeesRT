@@ -204,11 +204,11 @@ SymBandEigenSolver::solve(int nModes, bool generalized, bool findSmallest)
   // Call the LAPACK eigenvalue subroutine
 #ifdef _WIN32
   unsigned int sizeC = 1;
-  DSBEVX((char*)jobz, (char*)range, uplo, &n, &kd, ab, &ldab,
+  DSBEVX(const_cast<char*>(jobz), const_cast<char*>(range), const_cast<char*>(uplo), &n, &kd, ab, &ldab,
 	 q, &ldq, &vl, &vu, &il, &iu, &abstol, &m,
 	 eigenvalue, eigenvector, &ldz, work, iwork, ifail, &info);
 #else
-  dsbevx_((char*)jobz, (char*)range, (char*)uplo, &n, &kd, ab, &ldab,
+  dsbevx_(const_cast<char*>(jobz), const_cast<char*>(range), const_cast<char*>(uplo), &n, &kd, ab, &ldab,
 	  q, &ldq, &vl, &vu, &il, &iu, &abstol, &m,
 	  eigenvalue, eigenvector, &ldz, work, iwork, ifail, &info);
 #endif

@@ -72,11 +72,12 @@ set_target_properties(ARPACK
                       PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # Expose public includes to other subprojects through cache variable.
-set(ARPACK_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}
-    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+set(ARPACK_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}
+    CACHE INTERNAL "ARPACK: Include Directories" FORCE)
 
-export(TARGETS ARPACK
-       FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/ARPACK.cmake"
-)
+
+# export(TARGETS ARPACK
+#        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/ARPACK.cmake"
+# )
 
 
