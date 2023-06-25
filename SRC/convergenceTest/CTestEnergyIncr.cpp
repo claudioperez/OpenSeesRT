@@ -155,7 +155,7 @@ int CTestEnergyIncr::test(void)
             opserr << LOG_TEST << "WARNING failed to converge \n";
             opserr << "after: " << currentIter << " iterations\n";
             opserr << " current EnergyIncr: " << product << " (max: " << tol << ") ";
-            opserr << "\tNorm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
+            opserr << ", Norm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
         }
         currentIter++;
         return ConvergenceTest::Failure;

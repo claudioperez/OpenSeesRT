@@ -164,7 +164,7 @@ int CTestNormUnbalance::test(void)
     // algo failed to converged after specified number of iterations - but RETURN OK
     else if ((printFlag == ConvergenceTest::AlwaysSucceed) && (currentIter >= maxNumIter||numIncr>=maxIncr)) {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: CTestNormUnbalance::test() - failed to converge but going on -";
+            opserr << "WARNING Failed to converge with criteria CTestNormUnbalance but going on -";
             opserr << " current Norm: " << norm << " (max: " << tol;
             opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";
         }
@@ -174,7 +174,7 @@ int CTestNormUnbalance::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || numIncr >= maxIncr || norm > maxTol) { // the algorithm failed to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: CTestNormUnbalance::test() - failed to converge \n";
+            opserr << "WARNING Failed to converge with criteria CTestNormUnbalance \n";
             opserr << "after: " << currentIter << " iterations ";
             opserr << " current Norm: " << norm << " (max: " << tol;
             opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";

@@ -35,14 +35,4 @@ target_sources(OPS_Domain
   PUBLIC
     InitialStateParameter.h
 )
-        
-# target_sources(OPS_Reliability
-# #target_sources(OPS_Domain
-#   PRIVATE
-#     RVParameter.cpp
-#     DVParameter.cpp
-#   PUBLIC
-#     RVParameter.h
-#     DVParameter.h
-# )
 

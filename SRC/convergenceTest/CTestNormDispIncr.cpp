@@ -146,7 +146,7 @@ int CTestNormDispIncr::test(void)
     // failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || norm > maxTol) { // failes to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
-          opserr << "WARNING: CTestNormDispIncr::test() - failed to converge \n";
+          opserr << "WARNING Failed to converge with criteria CTestNormDispIncr \n";
           opserr << "after: " << currentIter << " iterations ";
           opserr << " current Norm: " << norm << " (max: " << tol;
           opserr << ", Norm deltaR: " << theSOE->getB().pNorm(nType) << ")\n";

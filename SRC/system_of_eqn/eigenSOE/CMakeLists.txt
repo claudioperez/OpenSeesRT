@@ -4,6 +4,8 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+target_link_libraries(OPS_SysOfEqn PRIVATE ARPACK)
+
 target_sources(OPS_SysOfEqn
     PRIVATE
         ArpackSOE.cpp

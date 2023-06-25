@@ -65,19 +65,15 @@
 //
 // Global variables
 //
-// TclPackageClassBroker  theBroker;
-// ConvergenceTest       *theTest = nullptr;
-// AnalysisModel         *theAnalysisModel = nullptr;
 class ModelBuilder;
 StaticAnalysis        *theStaticAnalysis = nullptr;
 ConstraintHandler     *theHandler = nullptr;
-Domain                 theDomain;
-ModelBuilder          *theBuilder = nullptr;
-EquiSolnAlgo          *theAlgorithm = nullptr;
-DOF_Numberer          *theGlobalNumberer = nullptr;
-LinearSOE             *theSOE = nullptr;
-EigenSOE              *theEigenSOE = nullptr;
-StaticIntegrator      *theStaticIntegrator = nullptr;
+ModelBuilder          *theBuilder         = nullptr;
+EquiSolnAlgo          *theAlgorithm       = nullptr;
+DOF_Numberer          *theGlobalNumberer      = nullptr;
+LinearSOE             *theSOE                 = nullptr;
+EigenSOE              *theEigenSOE            = nullptr;
+StaticIntegrator      *theStaticIntegrator    = nullptr;
 TransientIntegrator   *theTransientIntegrator = nullptr;
 
 DirectIntegrationAnalysis *theTransientAnalysis = nullptr;
@@ -1490,6 +1486,6 @@ addRegion(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
   assert(clientData != nullptr);
   Domain *the_domain = (Domain*)clientData;
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, the_domain);
-  return TclAddMeshRegion(clientData, interp, argc, argv, theDomain);
+  return TclAddMeshRegion(clientData, interp, argc, argv, *the_domain);
 }
 

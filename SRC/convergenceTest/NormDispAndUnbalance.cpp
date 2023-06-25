@@ -173,7 +173,7 @@ int NormDispAndUnbalance::test(void)
     // algo failed to converged after specified number of iterations - but RETURN OK
     else if ((printFlag == ConvergenceTest::AlwaysSucceed) && (currentIter >= maxNumIter || numIncr > maxIncr)) {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: NormDispAndUnbalance::test() - failed to converge but going on - ";
+            opserr << "WARNING Failed to converge with criteria NormDispAndUnbalance but going on - ";
             opserr << " current NormX: " << normX;
             opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
         }
@@ -182,7 +182,7 @@ int NormDispAndUnbalance::test(void)
 
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || numIncr > maxIncr) { // failes to converge
-        opserr << "WARNING: NormDispAndUnbalance::test() - failed to converge \n";
+        opserr << "WARNING Failed to converge with criteria NormDispAndUnbalance \n";
         opserr << "after: " << currentIter << " iterations\n";
         currentIter++;
         return ConvergenceTest::Failure;

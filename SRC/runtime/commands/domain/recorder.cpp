@@ -68,8 +68,6 @@
 #define MAX_NDF 6
 extern FE_Datastore    *theDatabase;
 extern FEM_ObjectBroker theBroker;
-static EquiSolnAlgo    *theAlgorithm = nullptr;
-
 
 OPS_Routine OPS_PVDRecorder;
 OPS_Routine OPS_GmshRecorder;
@@ -78,9 +76,10 @@ OPS_Routine OPS_VTK_Recorder;
 OPS_Routine OPS_ElementRecorderRMS;
 OPS_Routine OPS_NodeRecorderRMS;
 
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
-                                       int cArg, int mArg, TCL_Char ** const argv,
-                                       Domain *domain);
+extern "C" int
+OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
+                        int cArg, int mArg, TCL_Char ** const argv,
+                        Domain *domain);
 
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
@@ -308,7 +307,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     int numEle = 0;
     int endEleIDs = 2;
-    double dT = 0.0;
+    double dT   = 0.0;
     bool echoTime = false;
     int loc = endEleIDs;
     int flags   = 0;
@@ -413,7 +412,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
         MeshRegion *theRegion = domain->getRegion(tag);
-        if (theRegion == 0) {
+        if (theRegion == nullptr) {
           opserr << "WARNING recorder Element -region " << tag
                  << " - region does not exist" << endln;
           return TCL_OK;
@@ -648,10 +647,8 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     int endEleIDs = 2;
     int numEle = endEleIDs - 2;
     int loc = endEleIDs;
-    int flags = 0;
-    // int eleData = 0;
-    int nodeTag = 0;
-    //  new
+    int flags    = 0;
+    int nodeTag  = 0;
     int nTagbotn = 0;
     int nTagmidn = 0;
     int nTagtopn = 0;
@@ -671,7 +668,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     secondaryEleIDs[0] = 0;
     bool secondaryFlag = false;
     ID secIDs = 0;
-    //	secIDs = 0;
 
     // optional mass and weight definition
     Vector eleMass(1);
@@ -682,9 +678,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     Vector remCriteria(2 * maxNumCriteria);
     remCriteria.Zero();
     int numCrit = 0;
-
-    //   DataOutputHandler *theDataOutputHandler = 0;
-    //    TCL_Char *filename = 0;
 
     while (flags == 0 && loc < argc) {
 
@@ -976,17 +969,14 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         else if (strcmp(argv[loc + 1], "shearLS") == 0 ||
                  strcmp(argv[loc + 1], "6") == 0)
           critTag = 6;
-        //      new
         else if (strcmp(argv[loc + 1], "INFILLWALL") == 0 ||
                  strcmp(argv[loc + 1], "7") == 0)
           critTag = 7;
-        //
         else {
           opserr << "Error: RemoveRecorder - Removal Criteria " << argv[loc + 1]
                  << " not recognized" << endln;
           return TCL_ERROR;
         }
-        //     new
         if (critTag != 7) {
           if (Tcl_GetDouble(interp, argv[loc + 2], &critValue) != TCL_OK) {
             opserr << "WARNING recorder Remove -crit critTag? critValue?... "
@@ -997,7 +987,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         }
 
         remCriteria[2 * numCrit] = critTag;
-        //      new
         if (critTag != 7) {
           remCriteria[2 * numCrit + 1] = critValue;
         } else {
@@ -1358,7 +1347,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         if (Tcl_GetDouble(interp, argv[pos], &dT) != TCL_OK)
           return TCL_ERROR;
         pos++;
-
       } 
 
       else if ((strcmp(argv[pos], "-iNode") == 0) ||
@@ -1639,8 +1627,6 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   Recorder *theRecorder = nullptr;
   Domain* domain = (Domain*)clientData;
 
-  theAlgorithm = theAlgo;
-
   TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder);
 
   if (theRecorder == nullptr) {
@@ -1651,8 +1637,8 @@ TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // add the recorder to the domain,
   // NOTE: will not be called with theALgo == 0
-  if (theAlgorithm != nullptr) {
-    if ((theAlgorithm->addRecorder(*theRecorder)) < 0) {
+  if (theAlgo != nullptr) {
+    if ((theAlgo->addRecorder(*theRecorder)) < 0) {
       opserr << "WARNING could not add to domain - recorder " << argv[1]
              << endln;
       delete theRecorder;

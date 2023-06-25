@@ -39,17 +39,12 @@
 # project(SUPERLU C)
 set(SUPERLU_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/SRC")
 
-if (WIN32)
-  #target_compile_definitions(SUPERLU PUBLIC UpCase)
-  add_definitions(-DUpCase)
-endif()
 
-add_library(SUPERLU)
+add_library(SuperLU)
 
 add_library(DZLAUX  OBJECT
     ${SUPERLU_SRC_DIR}/dmach.c
 )
-
 
 add_library(ALLAUX OBJECT
     ${SUPERLU_SRC_DIR}/superlu_timer.c
@@ -156,105 +151,25 @@ add_library(DLUSRC OBJECT
      ## dgstrsL.c dgstrsU.c
 )
 
-#add_library(CLUSRC OBJECT
-#    ${SUPERLU_SRC_DIR}/scomplex.c
-#    ${SUPERLU_SRC_DIR}/cgssv.c
-#    ${SUPERLU_SRC_DIR}/cgssvx.c
-#    ${SUPERLU_SRC_DIR}/csp_blas2.c
-#    ${SUPERLU_SRC_DIR}/csp_blas3.c
-#    ${SUPERLU_SRC_DIR}/cgscon.c
-#    ${SUPERLU_SRC_DIR}/clangs.c
-#    ${SUPERLU_SRC_DIR}/cgsequ.c
-#    ${SUPERLU_SRC_DIR}/claqgs.c
-#    ${SUPERLU_SRC_DIR}/cpivotgrowth.c
-#    ${SUPERLU_SRC_DIR}/cgsrfs.c
-#    ${SUPERLU_SRC_DIR}/cgstrf.c
-#    ${SUPERLU_SRC_DIR}/cgstrs.c
-#    ${SUPERLU_SRC_DIR}/ccopy_to_ucol.c
-#    ${SUPERLU_SRC_DIR}/csnode_dfs.c
-#    ${SUPERLU_SRC_DIR}/csnode_bmod.c
-#    ${SUPERLU_SRC_DIR}/cpanel_dfs.c
-#    ${SUPERLU_SRC_DIR}/cpanel_bmod.c
-#    ${SUPERLU_SRC_DIR}/creadhb.c
-#    ${SUPERLU_SRC_DIR}/creadrb.c
-#    ${SUPERLU_SRC_DIR}/creadtriple.c
-#    ${SUPERLU_SRC_DIR}/ccolumn_dfs.c
-#    ${SUPERLU_SRC_DIR}/ccolumn_bmod.c
-#    ${SUPERLU_SRC_DIR}/cpivotL.c
-#    ${SUPERLU_SRC_DIR}/cpruneL.c
-#    ${SUPERLU_SRC_DIR}/cmemory.c
-#    ${SUPERLU_SRC_DIR}/cutil.c
-#    ${SUPERLU_SRC_DIR}/cmyblas2.c
-#    ${SUPERLU_SRC_DIR}/cgsisx.c
-#    ${SUPERLU_SRC_DIR}/cgsitrf.c
-#    ${SUPERLU_SRC_DIR}/cldperm.c
-#    ${SUPERLU_SRC_DIR}/ilu_cdrop_row.c
-#    ${SUPERLU_SRC_DIR}/ilu_csnode_dfs.c
-#    ${SUPERLU_SRC_DIR}/ilu_ccolumn_dfs.c
-#    ${SUPERLU_SRC_DIR}/ilu_cpanel_dfs.c
-#    ${SUPERLU_SRC_DIR}/ilu_ccopy_to_ucol.c
-#    ${SUPERLU_SRC_DIR}/ilu_cpivotL.c
-#    ${SUPERLU_SRC_DIR}/cdiagonal.c
-#    ${SUPERLU_SRC_DIR}/clacon2.c
-#    ${SUPERLU_SRC_DIR}/scsum1.c
-#    ${SUPERLU_SRC_DIR}/icmax1.c
-#)
-
-#add_library(ZLUSRC OBJECT 
-#    ${SUPERLU_SRC_DIR}/dcomplex.c
-#    ${SUPERLU_SRC_DIR}/zgssv.c
-#    ${SUPERLU_SRC_DIR}/zgssvx.c
-#    ${SUPERLU_SRC_DIR}/zsp_blas2.c
-#    ${SUPERLU_SRC_DIR}/zsp_blas3.c
-#    ${SUPERLU_SRC_DIR}/zgscon.c
-#    ${SUPERLU_SRC_DIR}/zlangs.c
-#    ${SUPERLU_SRC_DIR}/zgsequ.c
-#    ${SUPERLU_SRC_DIR}/zlaqgs.c
-#    ${SUPERLU_SRC_DIR}/zpivotgrowth.c
-#    ${SUPERLU_SRC_DIR}/zgsrfs.c
-#    ${SUPERLU_SRC_DIR}/zgstrf.c
-#    ${SUPERLU_SRC_DIR}/zgstrs.c
-#    ${SUPERLU_SRC_DIR}/zcopy_to_ucol.c
-#    ${SUPERLU_SRC_DIR}/zsnode_dfs.c
-#    ${SUPERLU_SRC_DIR}/zsnode_bmod.c
-#    ${SUPERLU_SRC_DIR}/zpanel_dfs.c
-#    ${SUPERLU_SRC_DIR}/zpanel_bmod.c
-#    ${SUPERLU_SRC_DIR}/zreadhb.c
-#    ${SUPERLU_SRC_DIR}/zreadrb.c
-#    ${SUPERLU_SRC_DIR}/zreadtriple.c
-#    ${SUPERLU_SRC_DIR}/zcolumn_dfs.c
-#    ${SUPERLU_SRC_DIR}/zcolumn_bmod.c
-#    ${SUPERLU_SRC_DIR}/zpivotL.c
-#    ${SUPERLU_SRC_DIR}/zpruneL.c
-#    ${SUPERLU_SRC_DIR}/zmemory.c
-#    ${SUPERLU_SRC_DIR}/zutil.c
-#    ${SUPERLU_SRC_DIR}/zmyblas2.c
-#    ${SUPERLU_SRC_DIR}/zgsisx.c
-#    ${SUPERLU_SRC_DIR}/zgsitrf.c
-#    ${SUPERLU_SRC_DIR}/zldperm.c
-#    ${SUPERLU_SRC_DIR}/ilu_zdrop_row.c
-#    ${SUPERLU_SRC_DIR}/ilu_zsnode_dfs.c
-#    ${SUPERLU_SRC_DIR}/ilu_zcolumn_dfs.c
-#    ${SUPERLU_SRC_DIR}/ilu_zpanel_dfs.c
-#    ${SUPERLU_SRC_DIR}/ilu_zcopy_to_ucol.c
-#    ${SUPERLU_SRC_DIR}/ilu_zpivotL.c
-#    ${SUPERLU_SRC_DIR}/zdiagonal.c
-#    ${SUPERLU_SRC_DIR}/zlacon2.c
-#    ${SUPERLU_SRC_DIR}/dzsum1.c
-#    ${SUPERLU_SRC_DIR}/izmax1.c
-#)
+if (WIN32)
+  target_compile_definitions(SuperLU PRIVATE UpCase)
+  target_compile_definitions(DLUSRC  PRIVATE UpCase)
+  target_compile_definitions(ALLAUX  PRIVATE UpCase)
+  target_compile_definitions(DZLAUX  PRIVATE UpCase)
+endif()
 
 include_directories(${SUPERLU_SRC_DIR})
-target_compile_options(SUPERLU PRIVATE -fPIC)
-target_compile_options(DLUSRC  PRIVATE -fPIC)
-target_compile_options(ALLAUX  PRIVATE -fPIC)
-target_compile_options(DZLAUX  PRIVATE -fPIC)
-target_link_libraries(SUPERLU DLUSRC ALLAUX DZLAUX ${LAPACK_LIBRARIES})
+set_property(TARGET SuperLU PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET DLUSRC  PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET ALLAUX  PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET DZLAUX  PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}
-    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+target_link_libraries(SuperLU DLUSRC ALLAUX DZLAUX ${LAPACK_LIBRARIES})
 
-export(TARGETS ALLAUX DZLAUX DLUSRC SUPERLU
-       FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/SUPERLU.cmake"
-)
+set(SUPERLU_INCLUDE_DIRS ${SUPERLU_SRC_DIR}
+    CACHE INTERNAL "SuperLU: Include Directories" FORCE)
+
+# export(TARGETS ALLAUX DZLAUX DLUSRC SuperLU
+#        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/SUPERLU.cmake"
+# )
 

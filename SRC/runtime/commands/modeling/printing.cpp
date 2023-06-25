@@ -247,8 +247,14 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
     else if ((strcmp(argv[currentArg], "algorithm") == 0) ||
              (strcmp(argv[currentArg], "-algorithm") == 0)) {
       currentArg++;
-      res = printAlgorithm((ClientData)domain, interp, argc - currentArg,
-                           argv + currentArg, *output);
+
+      Tcl_CmdInfo info;
+      if (Tcl_GetCommandInfo(interp, "analyze", &info)==1) {
+        res = printAlgorithm(info.clientData, interp, argc - currentArg,
+                             argv + currentArg, *output);
+      } else {
+        opserr << G3_ERROR_PROMPT << "Cannot print algorithm\n";
+      }
       done = true;
     }
 

@@ -132,10 +132,10 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
 
   // TODO: Umfpack
-//   {"umfpack", {
-//      G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
-//      SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
-//      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
+  {"umfpack", {
+     G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
+     SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
+     MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
 
 
   {"sparsegen",     {specifySparseGen, nullptr, nullptr}},

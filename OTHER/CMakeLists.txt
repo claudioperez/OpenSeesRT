@@ -28,6 +28,7 @@ add_subdirectory(METIS/)
 
 if(MPI_FOUND)
   message("adding MUMPS and SUPERLU_DIST")
-  add_subdirectory(MUMPS_5.4.1/)
-  add_subdirectory(SUPERLU_DIST_4.3/SRC)
+# add_subdirectory(MUMPS_5.4.1/)
+  add_subdirectory(SuperLU_DIST_4.3/SRC)
 endif()
+

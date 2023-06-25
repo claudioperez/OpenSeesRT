@@ -606,6 +606,7 @@ printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int eleArg = 0;
   if (theAlgorithm == nullptr) {
+    opserr << G3_ERROR_PROMPT << "No algorithm has been set.\n";
     return TCL_ERROR;
   }
 

@@ -5,6 +5,7 @@
 #
 #==============================================================================
 
+target_link_libraries(OPS_SysOfEqn PRIVATE SuperLU)
 target_sources(OPS_SysOfEqn
   PRIVATE 
     SparseGenColLinSOE.cpp
@@ -30,7 +31,6 @@ target_sources(OPS_SysOfEqn
 #         DistributedSparseGenColLinSOE.h
 #         DistributedSparseGenRowLinSOE.h
 # )
-
 target_include_directories(OPS_SysOfEqn PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(OPS_Parallel PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

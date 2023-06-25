@@ -458,8 +458,8 @@ NodeRecorder::NodeRecorder(const ID &dofs,
 
   } else {
     dataFlag = 10;
-    opserr << "NodeRecorder::NodeRecorder - dataToStore " << dataToStore;
-    opserr << "not recognized (disp, vel, accel, incrDisp, incrDeltaDisp)\n";
+    opserr << "NodeRecorder::NodeRecorder - dataToStore '" << dataToStore;
+    opserr << "' not recognized (disp, vel, accel, incrDisp, incrDeltaDisp)\n";
   }
 
   if (dataFlag == 7 || dataFlag == 8 || dataFlag == 9) {

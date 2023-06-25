@@ -136,7 +136,7 @@ int CTestRelativeNormUnbalance::test(void)
     // algo failed to converged after specified number of iterations - but RETURN OK
     else if ((printFlag == ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: CTestRelativeNormUnbalance::test() - failed to converge but going on -";
+            opserr << "WARNING Failed to converge with criteria CTestRelativeNormUnbalance but going on -";
             opserr << " current Ratio (dR/dR0): " << norm << " (max: " << tol;
             opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";
         }
@@ -146,7 +146,7 @@ int CTestRelativeNormUnbalance::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter) { // the algorithm failed to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: CTestRelativeNormUnbalance::test() - failed to converge \n";
+            opserr << "WARNING Failed to converge with criteria CTestRelativeNormUnbalance \n";
             opserr << "         after: " << currentIter << " iterations\n";
         }
         // we increment in case analysis does not check for convergence

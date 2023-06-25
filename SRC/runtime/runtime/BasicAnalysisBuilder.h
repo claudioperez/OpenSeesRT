@@ -40,10 +40,11 @@ public:
     BasicAnalysisBuilder();
     BasicAnalysisBuilder(Domain* domain);
     ~BasicAnalysisBuilder();
-
+/*
     int   tag_object(const char* type, int tag, void* obj);
     void* get_object(const char* type, int tag);
     void* pop_object(const char* type, int tag);
+*/
 
     void set(ConstraintHandler* obj);
     void set(DOF_Numberer* obj);
@@ -56,8 +57,8 @@ public:
     
     Domain* getDomain(void);
     void newStaticAnalysis();
-    int  setStaticAnalysis();
     int  newTransientAnalysis();
+    int  setStaticAnalysis();
     int  setTransientAnalysis();
     void newEigenAnalysis(int typeSolver, double shift);
     int  getNumEigen() {return numEigen;};
@@ -67,24 +68,31 @@ public:
     VariableTimeStepDirectIntegrationAnalysis* getVariableTimeStepDirectIntegrationAnalysis() {
 	return theVariableTimeStepTransientAnalysis;
     }
-    EquiSolnAlgo* getAlgorithm();
-    StaticIntegrator* getStaticIntegrator();
+
+    EquiSolnAlgo*        getAlgorithm();
+    StaticIntegrator*    getStaticIntegrator();
     TransientIntegrator* getTransientIntegrator();
-    ConvergenceTest  *getConvergenceTest();
+    ConvergenceTest*     getConvergenceTest();
+
+    int domainChanged(void);
+
+    enum CurrentAnalysis {
+      CURRENT_EMPTY_ANALYSIS,
+      CURRENT_STATIC_ANALYSIS, 
+      CURRENT_TRANSIENT_ANALYSIS
+    } current_analysis;
+
+    int analyze(int num_steps, double size_steps=0.0);
+    int analyzeStatic(int num_steps);
+    int analyzeTransient(int num_steps, double size_steps=0.0);
 
     void wipe();
     void resetStatic();
     void resetTransient();
     void resetAll();
-
-    enum CurrentAnalysis {
-      CURRENT_EMPTY_ANALYSIS     =0,
-      CURRENT_STATIC_ANALYSIS    =1, 
-      CURRENT_TRANSIENT_ANALYSIS =2
-    };
     
 private:
-    G3_Table* registry;
+//  G3_Table* registry;
     enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
     Domain                    *theDomain;
     ConstraintHandler 	      *theHandler;
@@ -100,6 +108,7 @@ private:
     DirectIntegrationAnalysis *theTransientAnalysis;
     VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 
+    int domainStamp;
     int numEigen;
 };
 

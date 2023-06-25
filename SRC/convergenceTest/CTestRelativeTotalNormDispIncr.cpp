@@ -143,7 +143,7 @@ int CTestRelativeTotalNormDispIncr::test(void)
     // algo failed to converged after specified number of iterations - but RETURN OK
     else if ((printFlag == ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter)  {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: CTestRelativeTotalNormDispIncr::test() - failed to converge but going on -";
+            opserr << "WARNING Failed to converge with criteria CTestRelativeTotalNormDispIncr but going on -";
             opserr << " current ratio (|dR|/|dRtot|): " << norm << " (max: " << tol << ")\n";
             opserr << "\tNorm deltaX: " << norm << ", Norm deltaR: " << theSOE->getB().pNorm(nType) << endln;
         }
@@ -153,7 +153,7 @@ int CTestRelativeTotalNormDispIncr::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter)  { // failes to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING: CTestRelativeTotalNormDispIncr::test() - failed to converge \n";
+            opserr << "WARNING Failed to converge with criteria CTestRelativeTotalNormDispIncr \n";
             opserr << "after: " << currentIter << " iterations\n";
         }
         currentIter++;
