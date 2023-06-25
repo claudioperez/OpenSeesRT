@@ -36,4 +36,7 @@ target_sources(OPS_Handler
 target_include_directories(OPS_Handler PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(OPS_Handler PRIVATE OPS_Actor)
+if (WIN32)
+  target_link_libraries(OPS_Handler PRIVATE  wsock32 ws2_32)
+endif()
 

@@ -202,16 +202,16 @@ Element* TclDispatch_newTri31(ClientData clientData, Tcl_Interp *interp, int arg
 
 
 // Shells
-void* TclDispatch_newASDShellQ4(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellANDeS(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellDKGT(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellMITC4(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellMITC4Thermal(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellMITC9(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellNLDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellNLDKGQThermal(ClientData, Tcl_Interp*, int, TCL_Char** const);
-void* TclDispatch_newShellNLDKGT(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newASDShellQ4(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellANDeS(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellDKGT(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellMITC4(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellMITC4Thermal(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellMITC9(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellNLDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellNLDKGQThermal(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Element* TclDispatch_newShellNLDKGT(ClientData, Tcl_Interp*, int, TCL_Char** const);
 
 // Brick
 int TclBasicBuilder_addBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);

@@ -40,11 +40,6 @@ set(BUNDLE_LIBS "${PROJECT_SOURCE_DIR}/Win64/lib/debug/")
 # set(TCL_INCLUDE_PATH "${TCL_LIBRARY}\\include")
 # set(TCL_LIBRARIES "${TCL_LIBRARY}")
 
-message("OpDepWin:TCL_LIBRARY:    ${TCL_LIBRARY}")
-message("OpDepWin:TCL_INCL_PATH:  ${TCL_INCLUDE_PATH}")
-message("OpDepWin:TCL:            ${TCL_LIBRARIES}")
-message("OpDepWin:TCL_ROOT:       ${TCL_ROOT}")
-
 # opensees_load(MySQL CONAN mysql-connector-c/6.1.11
 #     #LIBRARY ${CONDA_ENV}/Library/lib/libmysql.lib
 #     #INCLUDE ${CONDA_ENV}/Library/include/mysql
@@ -98,7 +93,5 @@ find_package(LAPACK)
 # opensees_load(METIS                                        SEARCH)
 
 # opensees_load(HDF5                                           FIND)
-
-
 
 

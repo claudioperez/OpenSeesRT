@@ -14,10 +14,10 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 project(OpenSees C CXX Fortran)
 
 
-set(OPS_BUNDLED_DIR   "${PROJECT_SOURCE_DIR}/OTHER/")
-set(OPS_SRC_DIR       "${PROJECT_SOURCE_DIR}/SRC/")
+set(OPS_BUNDLED_DIR   "${CMAKE_CURRENT_LIST_DIR}/OTHER/")
+set(OPS_SRC_DIR       "${CMAKE_CURRENT_LIST_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
-                      "${PROJECT_SOURCE_DIR}/BuildTools/cmake")
+                      "${CMAKE_CURRENT_LIST_DIR}/BuildTools/cmake")
 
 include(OpenSeesFunctions)
 
@@ -34,13 +34,50 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
+elseif(WIN32)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
+  list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+  
+  if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
+                  "${CMAKE_BINARY_DIR}/conan.cmake"
+                  TLS_VERIFY ON)
+  endif()
+  
+  include(${CMAKE_BINARY_DIR}/conan.cmake)
+  
+  conan_cmake_configure(REQUIRES tcl/8.6.11
+                        GENERATORS cmake ) # cmake_find_package)
+
+  conan_cmake_autodetect(settings)
+  
+  conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
+                      BUILD missing
+                      REMOTE conancenter
+                      SETTINGS ${settings})
+
+  include(${CMAKE_BINARY_DIR}/src/libg3/conanbuildinfo.cmake)
+  conan_basic_setup() # TARGETS)
+
+
+  set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
+  set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
+  set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
+  
+  message("Win: TCL_LIBRARY:     ${TCL_LIBRARY}")
+  message("Win: Env:TCL_LIBRARY: $ENV{TCL_LIBRARY}")
+  message("Win: TCL_INCL_PATH:   ${TCL_INCLUDE_PATH}")
+  message("Win: TCL:             ${TCL_LIBRARIES}")
+  message("Win: TCL_ROOT:        ${TCL_ROOT}")
+# find_package(TCL)
 endif()
 
 # pseudo target modeling all exteral packages
 add_library(OPS_External_packages INTERFACE)
 
 # include user config
-include(${PROJECT_SOURCE_DIR}/Conf.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/Conf.cmake)
 
 #==============================================================================
 #                            OS Configuration
@@ -78,7 +115,6 @@ endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   include(OpenSeesDependenciesWin)
-  # target_link_libraries(OPS_OS_Specific_libs INTERFACE wsock32 ws2_32)
   add_compile_definitions(_WIN32 _TCL85)
   message(STATUS ">>> WIN32")
 endif()
@@ -138,24 +174,17 @@ include_directories(
   ${OPS_SRC_DIR}/analysis/numberer
   ${OPS_SRC_DIR}/analysis/integrator
   ${OPS_SRC_DIR}/analysis/model
-# ${OPS_SRC_DIR}/analysis/model/simple
 
   ${OPS_SRC_DIR}/runtime
-# ${OPS_SRC_DIR}/runtime/runtime/modelbuilder/
 
   ${OPS_SRC_DIR}/api
   ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/domain/constraints
 
-# ${OPS_SRC_DIR}/coordTransformation
   ${OPS_SRC_DIR}/domain/component
   ${OPS_SRC_DIR}/domain/domain
   ${OPS_SRC_DIR}/database
 
-
-
-# ${OPS_SRC_DIR}/domain/domain/partitioned
-# ${OPS_SRC_DIR}/domain/loadBalancer
   ${OPS_SRC_DIR}/domain/domain/single
   ${OPS_SRC_DIR}/domain/groundMotion
   ${OPS_SRC_DIR}/domain/load
@@ -233,9 +262,9 @@ opensees_load(METIS
 endif()
 
 if (NOT WIN32)
-find_package(TCL)
-find_package(TclStub)
-set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
+  find_package(TCL)
+  find_package(TclStub)
+  set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
 endif()
 include_directories(${TCL_INCLUDE_PATH})
 
