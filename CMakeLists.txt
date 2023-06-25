@@ -69,7 +69,6 @@ elseif(WIN32)
   message("Win: Env:TCL_LIBRARY: $ENV{TCL_LIBRARY}")
   message("Win: TCL_INCL_PATH:   ${TCL_INCLUDE_PATH}")
   message("Win: TCL:             ${TCL_LIBRARIES}")
-  message("Win: TCL_ROOT:        ${TCL_ROOT}")
 # find_package(TCL)
 endif()
 
@@ -261,11 +260,10 @@ opensees_load(METIS
 )
 endif()
 
-if (NOT WIN32)
-  find_package(TCL)
-  find_package(TclStub)
-  set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
-endif()
+find_package(TCL)
+find_package(TclStub)
+set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
+
 include_directories(${TCL_INCLUDE_PATH})
 
 message("OPS >>> BLAS:    ${BLAS_LIBRARIES}")
@@ -276,9 +274,9 @@ message("OPS >>> UMFPACK: ${UMFPACK_LIBRARIES}")
 message("OPS >>> CSPARSE: ${CSPARSE_LIBRARIES}")
 message("OPS >>> TCL:     ${TCL_LIBRARIES}")
 message("                 ${TCL_LIBRARY}  ")
+message("                 ${TCL_STUB_LIBRARY}")
 
 message("OPS >>> AMD:     ${AMD_LIBRARIES}")
-
 
 add_library(OPS_Numerics           INTERFACE)
 target_link_libraries(OPS_Numerics INTERFACE
@@ -287,7 +285,6 @@ target_link_libraries(OPS_Numerics INTERFACE
   ${LAPACK_LIBRARIES}
   ${BLAS_LIBRARIES}
 )
-
 
 # Core OpenSees
 add_library(OPS_Matrix             OBJECT)
