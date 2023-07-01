@@ -243,43 +243,35 @@ DistributedDiagonalSOE::setSize(Graph &theGraph)
   }
 
 
-  if (A != 0) delete [] A;
-  if (B != 0) delete [] B;
-  if (X != 0) delete [] X;
+  if (A != nullptr) delete [] A;
+  if (B != nullptr) delete [] B;
+  if (X != nullptr) delete [] X;
   A = new double[size];
   B = new double[size];
   X = new double[size];
 
-  if (dataShared != 0) delete [] dataShared; dataShared = 0;
-  if (vectX != 0) {
-    delete vectX;
-    vectX = 0;
+  if (dataShared != nullptr) {
+    delete [] dataShared; 
+    dataShared = nullptr;
   }
-  if (vectB != 0) {
+  if (vectX != nullptr) {
+    delete vectX;
+    vectX = nullptr;
+  }
+  if (vectB != nullptr) {
     delete vectB;
-    vectB = 0;
+    vectB = nullptr;
   }
 
-  if (X != 0) 
+  if (X != nullptr) 
     vectX = new Vector(X,size);
-  if (B != 0) 
+  if (B != nullptr) 
     vectB = new Vector(B,size);
   
   dataShared = new double[2*numShared];	 // 2 times for A & B
-  if (dataShared != 0)
+  if (dataShared != nullptr)
     vectShared = new Vector(dataShared, 2*numShared);
 
-
-  if (A == 0 || B == 0 || X == 0 || vectX == 0 || vectB == 0 || dataShared == 0 || vectShared == 0) {
-    opserr << "ERROR DistributedDiagonalSOE::setSize() - ";
-    opserr << " ran out of memory for size: " << size << endln;
-    if (A != 0) delete [] A;
-    if (B != 0) delete [] B;
-    if (X != 0) delete [] X;
-    if (dataShared != 0) delete [] dataShared;
-    size = 0;
-    return -1;
-  }
 
   // zero the vectors
   for (int l=0; l<size; l++) {
@@ -293,14 +285,14 @@ DistributedDiagonalSOE::setSize(Graph &theGraph)
   //
 
   
-  if (theModel == 0) {
+  if (theModel == nullptr) {
     opserr << "WARNING DistributedDiagonalSOE::setSize - no AnalysisModel\n";
   } 
   else {
     DOF_GrpIter &theDOFs = theModel->getDOFs();
     DOF_Group *dofPtr;
     
-    while ((dofPtr = theDOFs()) != 0) {
+    while ((dofPtr = theDOFs()) != nullptr) {
 	const ID &theID = dofPtr->getID();
 	for (int i=0; i<theID.Size(); i++) {
 	  int dof = theID(i);
