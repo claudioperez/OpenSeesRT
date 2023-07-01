@@ -357,16 +357,8 @@ StaticAnalysis::domainChanged(void)
     int stamp = the_Domain->hasDomainChanged();
     domainStamp = stamp;
 
-    // Timer theTimer; theTimer.start();
-    // opserr << "StaticAnalysis::domainChanged(void)\n";
-
     theAnalysisModel->clearAll();    
     theConstraintHandler->clearAll();
-
-    // theTimer.pause(); 
-    // cout <<  "StaticAnalysis::clearAll() " << theTimer.getReal();
-    // cout << theTimer.getCPU() << endln;
-    // theTimer.start();    
 
     // now we invoke handle() on the constraint handler which
     // causes the creation of FE_Element and DOF_Group objects
@@ -399,7 +391,6 @@ StaticAnalysis::domainChanged(void)
 
     // we invoke setSize() on the LinearSOE which
     // causes that object to determine its size
-
     Graph &theGraph = theAnalysisModel->getDOFGraph();
 
     result = theSOE->setSize(theGraph);
@@ -439,7 +430,7 @@ StaticAnalysis::domainChanged(void)
 
     // if get here successful
     return 0;
-}    
+}
 
 int 
 StaticAnalysis::setNumberer(DOF_Numberer &theNewNumberer) 
