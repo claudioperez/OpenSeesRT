@@ -36,7 +36,7 @@
 
 // number of dimensions
 #define EBIP_NUM_DIM  3
-
+class Domain;
 class Node;
 class NDMaterial;
 class Response;
@@ -50,7 +50,7 @@ public:
     EmbeddedBeamInterfaceP(int tag, std::vector <int> beamTag, std::vector <int> solidTag, int crdTransfTag,
         std::vector <double>  beamRho, std::vector <double>  beamTheta, std::vector <double>  solidXi,
         std::vector <double>  solidEta, std::vector <double>  solidZeta, double radius, std::vector <double> area,
-        std::vector <double> length, double penaltyParam = 1.0e12, bool writeConnectivity = false, const char * connectivityFN = "");
+        std::vector <double> length, double penaltyParam = 1.0e12, bool writeConnectivity = false, const char * connectivityFN = "", Domain& theDomain);
     EmbeddedBeamInterfaceP();
     ~EmbeddedBeamInterfaceP();
 

@@ -63,10 +63,10 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <string.h>
 #include <float.h>
 
-#include <Information.h>
-#include <Parameter.h>
 #include <ForceBeamColumnCBDI2d.h>
 #include <interpolate/cbdi.h>
+#include <Information.h>
+#include <Parameter.h>
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -89,14 +89,14 @@ Vector ForceBeamColumnCBDI2d::SsrSubdivide[maxNumSections];
 
 void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI2d)
 {
-    if(OPS_GetNumRemainingInputArgs() < 5) {
-	opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag\n";
-	return 0;
+    if (OPS_GetNumRemainingInputArgs() < 5) {
+      opserr << "insufficient arguments: eleTag iNode jNode transfTag integrationTag\n";
+      return 0;
     }
 
     int ndm = OPS_GetNDM();
     int ndf = OPS_GetNDF();
-    if(ndm != 2 || ndf != 3) {
+    if (ndm != 2 || ndf != 3) {
 	opserr<<"ndm must be 2 and ndf must be 3\n";
 	return 0;
     }
@@ -104,7 +104,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI2d)
     // inputs: 
     int iData[5];
     int numData = 5;
-    if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
+    if (OPS_GetIntInput(&numData, &iData[0]) < 0) {
 	opserr << "WARNING invalid int inputs\n";
 	return 0;
     }
@@ -117,7 +117,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI2d)
     while(OPS_GetNumRemainingInputArgs() > 0) {
 	const char* type = OPS_GetString();
 	if(strcmp(type, "-iter") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 1) {
+	    if (OPS_GetNumRemainingInputArgs() > 1) {
 		if(OPS_GetIntInput(&numData,&maxIter) < 0) {
 		    opserr << "WARNING invalid maxIter\n";
 		    return 0;
@@ -127,33 +127,33 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI2d)
 		    return 0;
 		}
 	    }
-	} else if(strcmp(type,"-mass") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
+	} else if (strcmp(type,"-mass") == 0) {
+	    if (OPS_GetNumRemainingInputArgs() > 0) {
 		if(OPS_GetDoubleInput(&numData,&mass) < 0) {
 		    opserr << "WARNING invalid mass\n";
 		    return 0;
 		}
 	    }
-	} else if(strcmp(type,"-shear") == 0) {
+	} else if (strcmp(type,"-shear") == 0) {
 	    includeShear = true;
 	}
     }
 
     // check transf
     CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
-    if(theTransf == 0) {
+    if (theTransf == 0) {
 	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
     BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
-    if(theRule == 0) {
+    if (theRule == 0) {
 	opserr<<"beam integration not found\n";
 	return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
-    if(bi == 0) {
+    if (bi == 0) {
 	opserr<<"beam integration is null\n";
 	return 0;
     }
@@ -178,14 +178,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI2d)
 
 void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI2d)
 {
-    if(OPS_GetNumRemainingInputArgs() < 5) {
+    if (OPS_GetNumRemainingInputArgs() < 5) {
 	opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag\n";
 	return 0;
     }
 
     int ndm = OPS_GetNDM();
     int ndf = OPS_GetNDF();
-    if(ndm != 2 || ndf != 3) {
+    if (ndm != 2 || ndf != 3) {
 	opserr<<"ndm must be 2 and ndf must be 3\n";
 	return 0;
     }
@@ -193,7 +193,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI2d)
     // inputs: 
     int iData[5];
     int numData = 5;
-    if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
+    if (OPS_GetIntInput(&numData,&iData[0]) < 0) {
 	opserr << "WARNING invalid int inputs\n";
 	return 0;
     }
@@ -206,7 +206,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI2d)
     while(OPS_GetNumRemainingInputArgs() > 0) {
 	const char* type = OPS_GetString();
 	if(strcmp(type, "-iter") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 1) {
+	    if (OPS_GetNumRemainingInputArgs() > 1) {
 		if(OPS_GetIntInput(&numData,&maxIter) < 0) {
 		    opserr << "WARNING invalid maxIter\n";
 		    return 0;
@@ -216,8 +216,8 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI2d)
 		    return 0;
 		}
 	    }
-	} else if(strcmp(type,"-mass") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
+	} else if (strcmp(type,"-mass") == 0) {
+	    if (OPS_GetNumRemainingInputArgs() > 0) {
 		if(OPS_GetDoubleInput(&numData,&mass) < 0) {
 		    opserr << "WARNING invalid mass\n";
 		    return 0;
@@ -228,19 +228,19 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI2d)
 
     // check transf
     CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
-    if(theTransf == 0) {
+    if (theTransf == 0) {
 	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
     BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
-    if(theRule == 0) {
+    if (theRule == 0) {
 	opserr<<"beam integration not found\n";
 	return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
-    if(bi == 0) {
+    if (bi == 0) {
 	opserr<<"beam integration is null\n";
 	return 0;
     }
@@ -306,14 +306,15 @@ ForceBeamColumnCBDI2d::ForceBeamColumnCBDI2d (int tag, int nodeI, int nodeJ,
   connectedExternalNodes(1) = nodeJ;    
   
   beamIntegr = bi.getCopy();
-  if (beamIntegr == 0) {
+  if (beamIntegr == nullptr) {
     opserr << "Error: ForceBeamColumnCBDI2d::ForceBeamColumnCBDI2d: could not create copy of beam integration object" << endln;
     exit(-1);
   }
   
-  // get copy of the transformation object   
+  // TODO(cmp): get copy of the transformation object.
+  // This should fail in parse function.
   crdTransf = coordTransf.getCopy2d(); 
-  if (crdTransf == 0) {
+  if (crdTransf == nullptr) {
     opserr << "Error: ForceBeamColumnCBDI2d::ForceBeamColumnCBDI2d: could not create copy of coordinate transformation object" << endln;
     exit(-1);
   }
@@ -391,12 +392,12 @@ void
 ForceBeamColumnCBDI2d::setDomain(Domain *theDomain)
 {
   // check Domain is not null - invoked when object removed from a domain
-  if (theDomain == 0) {
+  if (theDomain == nullptr) {
     theNodes[0] = 0;
     theNodes[1] = 0;
     
     opserr << "ForceBeamColumnCBDI2d::setDomain:  theDomain = 0 ";
-    exit(0); 
+    exit(-1); 
   }
 
   // get pointers to the nodes
@@ -410,13 +411,13 @@ ForceBeamColumnCBDI2d::setDomain(Domain *theDomain)
   if (theNodes[0] == 0) {
     opserr << "ForceBeamColumnCBDI2d::setDomain: Nd1: ";
     opserr << Nd1 << "does not exist in model\n";
-    exit(0);
+    exit(-1);
   }
   
   if (theNodes[1] == 0) {
     opserr << "ForceBeamColumnCBDI2d::setDomain: Nd2: ";
     opserr << Nd2 << "does not exist in model\n";
-    exit(0);
+    exit(-1);
   }
   
   // call the DomainComponent class method 
@@ -428,20 +429,20 @@ ForceBeamColumnCBDI2d::setDomain(Domain *theDomain)
   
   if ((dofNode1 != NND) || (dofNode2 != NND)) {
     opserr << "ForceBeamColumnCBDI2d::setDomain(): Nd2 or Nd1 incorrect dof for element " << this->getTag();
-    exit(0);
+    exit(-1);
   }
    
   // initialize the transformation
   if (crdTransf->initialize(theNodes[0], theNodes[1])) {
     opserr << "ForceBeamColumnCBDI2d::setDomain(): Error initializing coordinate transformation for element " << this->getTag();
-    exit(0);
+    exit(-1);
   }
     
   // get element length
   double L = crdTransf->getInitialLength();
   if (L == 0.0) {
     opserr << "ForceBeamColumnCBDI2d::setDomain(): Zero length for element " << this->getTag();  
-    exit(0);
+    exit(-1);
   }
 
   if (initialFlag == 0) 
@@ -496,6 +497,7 @@ int ForceBeamColumnCBDI2d::revertToLastCommit()
     fs[i]  = sections[i]->getSectionFlexibility();
     
     i++;
+
   } while (err == 0 && i < numSections);
   
   
@@ -721,8 +723,7 @@ ForceBeamColumnCBDI2d::initializeSectionHistoryVariables (void)
   }
 }
 
-/********* NEWTON , SUBDIVIDE AND INITIAL ITERATIONS ********************
- */
+/* ****** NEWTON , SUBDIVIDE AND INITIAL ITERATIONS ****************** */
 int
 ForceBeamColumnCBDI2d::update()
 {

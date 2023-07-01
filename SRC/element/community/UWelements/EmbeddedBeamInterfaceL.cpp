@@ -98,8 +98,8 @@ EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTa
     std::vector <double> area, 
     std::vector <double> length, 
     bool writeConnectivity,
-    const char * connectivityFN
-
+    const char * connectivityFN,
+    Domain& theDomain
 ) : 
     Element(tag, ELE_TAG_EmbeddedBeamInterfaceL),
     m_beam_radius(radius), mQa(3, 3), mQb(3, 3), mQc(3, 3),
@@ -107,10 +107,12 @@ EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTa
 {
   
     // get domain to access element tags and their nodes
+#if 0
 #ifdef _PARALLEL_PROCESSING
     extern PartitionedDomain theDomain;
 #else
     extern Domain theDomain;
+#endif
 #endif
 
     m_numEmbeddedPoints = solidTag.size();

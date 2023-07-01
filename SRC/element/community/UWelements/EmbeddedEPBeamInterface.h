@@ -37,7 +37,7 @@
 
 // number of dimensions
 #define EEPBIP_NUM_DIM  3
-
+class Domain;
 class Node;
 class NDMaterial;
 class Response;
@@ -51,7 +51,7 @@ public:
     EmbeddedEPBeamInterface(int tag, std::vector <int> beamTag, std::vector <int> solidTag, int crdTransfTag, int matTag, 
     std::vector <double>  beamRho, std::vector <double>  beamTheta, std::vector <double>  solidXi, std::vector <double>  solidEta,
     std::vector <double>  solidZeta, double radius, std::vector <double> area, std::vector <double> length, 
-    bool writeConnectivity = false, const char * connectivityFN = "", double width = 0.0);
+    bool writeConnectivity = false, const char * connectivityFN = "", double width = 0.0, Domain& theDomain);
     EmbeddedEPBeamInterface();
     ~EmbeddedEPBeamInterface();
 

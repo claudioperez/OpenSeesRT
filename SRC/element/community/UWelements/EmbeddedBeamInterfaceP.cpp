@@ -92,16 +92,19 @@ EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag) : Element(tag, ELE_TAG_E
 EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag, std::vector <int> beamTag, std::vector <int> solidTag, int crdTransfTag,
     std::vector <double>  beamRho, std::vector <double>  beamTheta, std::vector <double>  solidXi, std::vector <double>  solidEta,
     std::vector <double>  solidZeta, double radius, std::vector <double> area, std::vector <double> length, double penaltyParam, 
-    bool writeConnectivity, const char * connectivityFN): Element(tag, ELE_TAG_EmbeddedBeamInterfaceP), m_beam_radius(radius), 
-    m_ep(penaltyParam), mQa(3, 3), mQb(3, 3), mQc(3, 3),
+    bool writeConnectivity, const char * connectivityFN, Domain &theDomain)
+  : Element(tag, ELE_TAG_EmbeddedBeamInterfaceP),
+    m_beam_radius(radius), m_ep(penaltyParam), mQa(3, 3), mQb(3, 3), mQc(3, 3),
     mBphi(3, 12), mBu(3, 12), mHf(3, 12), m_Ns(8)
 {
     // get domain to access element tags and their nodes
+#if 0
 #ifdef _PARALLEL_PROCESSING
 #include <PartitionedDomain.h>
     extern PartitionedDomain theDomain;
 #else
     extern Domain theDomain;
+#endif
 #endif
 
     m_numEmbeddedPoints = solidTag.size();

@@ -1,6 +1,6 @@
 #include <tcl.h>
 #include <assert.h>
-// #include <elementAPI.h>
+#include <elementAPI.h>
 #include <runtime/BasicModelBuilder.h>
 #include <element/Shell/ASDShellQ4.h>
 #include <element/Shell/ShellANDeS.h>

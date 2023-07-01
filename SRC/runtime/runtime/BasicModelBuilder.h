@@ -29,7 +29,7 @@ class UniaxialMaterial;
 class TaggedObjectStorage;
 class TimeSeries;
 class G3_Runtime;
-class CrdTrasnf;
+class CrdTransf;
 class HystereticBackbone;
 class G3_Table;
 

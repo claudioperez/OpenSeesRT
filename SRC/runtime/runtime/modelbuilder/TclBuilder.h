@@ -12,7 +12,6 @@
 #include <ModelBuilder.h>
 #include <string>
 #include <tcl.h>
-#include <g3_api.h>
 
 class LoadPattern;
 class SectionForceDeformation;

@@ -1,4 +1,4 @@
-target_sources(OpenSeesRT
+target_sources(OPS_Runtime
   PRIVATE
     G3_FedeasUniaxialDamage.cpp
     DegradingUniaxialWrapper.cpp

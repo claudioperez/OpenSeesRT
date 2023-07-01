@@ -92,15 +92,18 @@ EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag) : Element(tag, ELE_TAG
 EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag, std::vector <int> beamTag, std::vector <int> solidTag, int crdTransfTag, int matTag,
     std::vector <double>  beamRho, std::vector <double>  beamTheta, std::vector <double>  solidXi, std::vector <double>  solidEta,
     std::vector <double>  solidZeta, double radius, std::vector <double> area, std::vector <double> length, 
-    bool writeConnectivity, const char * connectivityFN, double width) : Element(tag, ELE_TAG_EmbeddedEPBeamInterface),
+    bool writeConnectivity, const char * connectivityFN, double width, Domain& theDomain)
+  : Element(tag, ELE_TAG_EmbeddedEPBeamInterface),
     m_beam_radius(radius), theMatTag(matTag), mQa(3, 3), mQb(3, 3), mQc(3, 3),
     mBphi(3, 12), mBu(3, 12), mHf(3, 12), m_Ns(8)
 {
     // get domain to access element tags and their nodes
+#if 0
 #ifdef _PARALLEL_PROCESSING
     extern PartitionedDomain theDomain;
 #else
     extern Domain theDomain;
+#endif
 #endif
 
     m_numEmbeddedPoints = solidTag.size();
@@ -144,7 +147,6 @@ EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag, std::vector <int> beam
             beamNodeTags[ii * 2 + jj] = theElement->getNodePtrs()[jj]->getTag();
         }
     }
-
 
     m_numSolidNodes = (int)uniqueSolidNodeTags.size();
     m_numBeamNodes  = (int)uniqueBeamNodeTags.size();

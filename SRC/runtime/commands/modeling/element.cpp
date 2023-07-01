@@ -18,16 +18,17 @@
 #endif
 #define strcmp strcasecmp
 
+#include <g3_api.h>
+#include <runtime/BasicModelBuilder.h>
+
 #include <OPS_Stream.h>
 #include <G3_Logging.h>
 #include <packages.h>
 #include <Domain.h>
 #include <Element.h>
 
-#include <runtime/BasicModelBuilder.h>
-#include <CrdTransf.h>
-
 class TclBasicBuilder;
+class CrdTransf;
 
 #include <UniaxialMaterial.h>
 #include <MultipleShearSpring.h>
@@ -51,6 +52,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
+typedef void *OPS_Routine(G3_Runtime* , int, const char** const);
 extern OPS_Routine OPS_ComponentElement2d;
 // extern  void *OPS_ComponentElementDamp2d(G3_Runtime*);
 extern OPS_Routine OPS_TrussElement;
@@ -2379,7 +2381,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
              << " iNode jNode A E I\n";
       return TCL_ERROR;
     }
-    CrdTransf *theTransRWheel = OPS_getCrdTransf(transTag);
+    CrdTransf *theTransRWheel = builder->getCrdTransf(transTag);
 
     if (Tcl_GetInt(interp, argv[11 + eleArgStart], &pnLoad) != TCL_OK) {
       opserr << "WARNING invalid I - WheelRail " << pTag
