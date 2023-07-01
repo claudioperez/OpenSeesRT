@@ -11,6 +11,7 @@
 
 #include "DispBeamColumn2dInt.h"
 class TclBasicBuilder;
+#include <g3_api.h>
 #include <runtime/BasicModelBuilder.h>
 
 
