@@ -10,9 +10,7 @@
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
-
 project(OpenSees C CXX Fortran)
-
 
 set(OPS_BUNDLED_DIR   "${CMAKE_CURRENT_LIST_DIR}/OTHER/")
 set(OPS_SRC_DIR       "${CMAKE_CURRENT_LIST_DIR}/SRC/")
@@ -152,7 +150,6 @@ add_compile_options(
 #----------------------------------------------------------------
 # Global Includes
 #---------------------------------------------------------------- 
-# TODO BeamIntegration and MatrixUtil need to be removed from element/forceBeamColumn
 
 include_directories(
   ${OPS_SRC_DIR}
@@ -215,11 +212,7 @@ include_directories(
   ${OPS_SRC_DIR}/tagged
   ${OPS_SRC_DIR}/tagged/storage
   ${OPS_SRC_DIR}/utility
-  ${OPS_BUNDLED_DIR}/SuperLU_5.1.1/SRC/ # TODO
 )
-
-
-
 
 #==============================================================================
 #                            Define Targets
@@ -261,7 +254,7 @@ opensees_load(METIS
 endif()
 
 find_package(TCL)
-find_package(TclStub)
+find_package(TclStub) # TODO: may not need to find TCL first
 set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
 
 include_directories(${TCL_INCLUDE_PATH})
@@ -278,6 +271,8 @@ message("                 ${TCL_STUB_LIBRARY}")
 
 message("OPS >>> AMD:     ${AMD_LIBRARIES}")
 
+# TODO: Probably not needed, link libs as needed
+# in sys_of_eqn/linearSOE/*/CMakeLists.txt
 add_library(OPS_Numerics           INTERFACE)
 target_link_libraries(OPS_Numerics INTERFACE
   ${ARPACK_LIBRARIES} 

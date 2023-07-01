@@ -63,9 +63,7 @@ if (${TCL_INCLUDE_PATH})
   target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-target_link_libraries(OpenSeesRT PRIVATE
-  OPS_Runtime ${TCL_STUB_LIBRARY}
-)
+target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime ${TCL_STUB_LIBRARY})
 
 #
 # Python
