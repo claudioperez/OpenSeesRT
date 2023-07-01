@@ -84,7 +84,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                    Domain *theTclDomain,
                                    TclBasicBuilder *theTclBuilder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
+  // G3_Runtime *rt = G3_getRuntime(interp);
 
   // ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -331,7 +331,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (ndm == 2) {
 
-      theTransf2d = OPS_getCrdTransf(transfTag);
+      theTransf2d = builder->getCrdTransf(transfTag);
 
       if (theTransf2d == 0) {
         opserr << "WARNING transformation not found\n";
@@ -343,7 +343,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     if (ndm == 3) {
 
-      theTransf3d = OPS_getCrdTransf(transfTag);
+      theTransf3d = builder->getCrdTransf(transfTag);
 
       if (theTransf3d == 0) {
         opserr << "WARNING transformation not found\n";
@@ -464,7 +464,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
   if (ndm == 2) {
 
-    theTransf2d = OPS_getCrdTransf(transfTag);
+    theTransf2d = builder->getCrdTransf(transfTag);
 
     if (theTransf2d == 0) {
       opserr << "WARNING transformation not found\n";
@@ -476,9 +476,9 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
   if (ndm == 3) {
 
-    theTransf3d = OPS_getCrdTransf(transfTag);
+    theTransf3d = builder->getCrdTransf(transfTag);
 
-    if (theTransf3d == 0) {
+    if (theTransf3d == nullptr) {
       opserr << "WARNING transformation not found\n";
       opserr << "transformation: " << transfTag;
       opserr << argv[1] << " element: " << eleTag << endln;
@@ -486,7 +486,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  BeamIntegration *beamIntegr = 0;
+  BeamIntegration *beamIntegr = nullptr;
   SectionForceDeformation **sections;
   int numSections;
 
