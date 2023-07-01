@@ -4,13 +4,10 @@
 // Description: This file contains the parsing routines for the
 // TCL strengthDegradation command.
 
+#include <string.h>
 #include <OPS_Globals.h>
 
 #include <runtime/BasicModelBuilder.h>
-
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
-                                       Tcl_Interp *interp, int cArg, int mArg,
-                                       TCL_Char ** const argv, Domain *domain);
 
 #include <SectionStrengthDegradation.h>
 #include <EnergyStrengthDegradation.h>
@@ -18,7 +15,13 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <DuctilityStrengthDegradation.h>
 #include <SectionForceDeformation.h>
 
-#include <string.h>
+#include <elementAPI.h>
+#include <packages.h>
+
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
+                                       Tcl_Interp *interp, int cArg, int mArg,
+                                       TCL_Char ** const argv, Domain *domain);
+
 
 extern OPS_Routine OPS_SectionStrengthDegradation;
 extern OPS_Routine OPS_DuctilityStrengthDegradation;
@@ -26,9 +29,6 @@ extern OPS_Routine OPS_EnergyStrengthDegradation;
 extern OPS_Routine OPS_ConstantStrengthDegradation;
 extern OPS_Routine OPS_ACIStrengthDegradation;
 extern OPS_Routine OPS_PetrangeliStrengthDegradation;
-
-#include <elementAPI.h>
-#include <packages.h>
 
 static void
 printCommand(int argc, TCL_Char ** const argv)

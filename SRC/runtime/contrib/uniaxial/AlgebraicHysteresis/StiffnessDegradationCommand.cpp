@@ -16,14 +16,13 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <ConstantStiffnessDegradation.h>
 
 #include <string.h>
+#include <elementAPI.h>
+#include <packages.h>
 
 extern OPS_Routine OPS_DuctilityStiffnessDegradation;
 extern OPS_Routine OPS_EnergyStiffnessDegradation;
 extern OPS_Routine OPS_ConstantStiffnessDegradation;
 extern OPS_Routine OPS_PincheiraStiffnessDegradation;
-
-#include <elementAPI.h>
-#include <packages.h>
 
 int
 TclBasicBuilderStiffnessDegradationCommand(ClientData clientData,
