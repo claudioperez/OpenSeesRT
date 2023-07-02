@@ -5,7 +5,11 @@
 #
 #==============================================================================
 
-target_link_libraries(OPS_SysOfEqn PRIVATE SuperLU)
+# TODO: SuperLU must be linked publically because
+# SuperLU.h must include it. This could be made
+# cleaner if SuperLU.h stored pointers to SuperLU 
+# types, and not the types directly.
+target_link_libraries(OPS_SysOfEqn PUBLIC SuperLU)
 target_sources(OPS_SysOfEqn
   PRIVATE 
     SparseGenColLinSOE.cpp
