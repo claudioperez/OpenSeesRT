@@ -1,7 +1,7 @@
 # Examples
 
-| Status  |     File     |
-|---------|--------------|
+| Status  |     File     |  Message              |
+|---------|--------------|-----------------------|
 |  0  | `16n.tcl` |  |
 |  0  | `1Cbn.tcl` |  |
 |  1  | `1Dconsolidation.tcl` | "equalDOF [expr $totalNumNode-1] [expr $totalNumNode-2]  1 2" |
