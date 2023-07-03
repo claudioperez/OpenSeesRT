@@ -21,14 +21,14 @@
 |  1  | `CenterCol_basicModel_Pushover.tcl` | invalid command name "limitCurve" |
 |  1  | `CenterColSecFiber.tcl` | can't read "L": no such variable |
 |  1  | `CenterColShearSpring.tcl` | can't read "shearCurveTag": no such variable |
-|  1  | `CheckingTripleFrictionPendulum_1DDynamics_ConstFriction.tcl` | couldn't open "TCU065-E.ATH": no such file or directory |
-|  1  | `CheckingTripleFrictionPendulum_1DDynamics_VariableFriction.tcl` | couldn't open "TCU065-E.ATH": no such file or directory |
+|  1  | `CheckingTripleFrictionPendulum_1DDynamics_ConstFriction.tcl` | invalid command name "frictionModel" |
+|  1  | `CheckingTripleFrictionPendulum_1DDynamics_VariableFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_2DDynamic_ConstFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_2DDynamic_VariableFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_3DDynamic_ConstFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_3DDynamic_VariableFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_StaticCyclicPushover.tcl` | invalid command name "frictionModel" |
-|  1  | `ConventionalColumn_Cyclic.tcl` | couldn't read file "singlecycle.tcl": no such file or directory |
+|  0  | `ConventionalColumn_Cyclic.tcl` |  |
 |  0  | `DisplayModel2D.tcl` |  |
 |  0  | `DisplayModel3D_IR.tcl` |  |
 |  0  | `DisplayModel3D.tcl` |  |
@@ -54,63 +54,26 @@
 |  0  | `Ex2b.Canti2D.InelasticSection.Push.tcl` |  |
 |  139  | `Ex2c.Canti2D.InelasticFiberSection.EQ.tcl` |  |
 |  0  | `Ex2c.Canti2D.InelasticFiberSection.Push.tcl` |  |
-|  1  | `Ex3.Canti2D.analyze.Dynamic.EQ.Uniform.tcl` | can't read "sec": no such variable |
-|  1  | `Ex3.Canti2D.analyze.Static.Push.tcl` | can't read "LCol": no such variable |
 |  0  | `Ex3.Canti2D.build.ElasticElement.tcl` |  |
 |  0  | `Ex3.Canti2D.build.InelasticFiberSection.tcl` |  |
 |  0  | `Ex3.Canti2D.build.InelasticSection.tcl` |  |
-|  1  | `Ex4.Portal2D.analyze.Dynamic.EQ.bidirect.tcl` | can't read "sec": no such variable |
-|  1  | `Ex4.Portal2D.analyze.Dynamic.EQ.multipleSupport.tcl` | can't read "sec": no such variable |
-|  1  | `Ex4.Portal2D.analyze.Dynamic.EQ.Uniform.tcl` | can't read "sec": no such variable |
-|  1  | `Ex4.Portal2D.analyze.Dynamic.sine.multipleSupport.tcl` | can't read "in": no such variable |
-|  1  | `Ex4.Portal2D.analyze.Dynamic.sine.Uniform.tcl` | can't read "g": no such variable |
-|  1  | `Ex4.Portal2D.analyze.Static.Cycle.tcl` | can't read "LCol": no such variable |
-|  1  | `Ex4.Portal2D.analyze.Static.Push.tcl` | can't read "LCol": no such variable |
 |  0  | `Ex4.Portal2D.build.ElasticElement.tcl` |  |
 |  0  | `Ex4.Portal2D.build.InelasticFiberSection.tcl` |  |
 |  0  | `Ex4.Portal2D.build.InelasticSection.tcl` |  |
-|  1  | `Ex5.Frame2D.analyze.Dynamic.EQ.bidirect.tcl` | can't read "sec": no such variable |
-|  1  | `Ex5.Frame2D.analyze.Dynamic.EQ.multipleSupport.tcl` | can't read "sec": no such variable |
-|  1  | `Ex5.Frame2D.analyze.Dynamic.EQ.Uniform.tcl` | can't read "sec": no such variable |
-|  1  | `Ex5.Frame2D.analyze.Dynamic.sine.multipleSupport.tcl` | can't read "in": no such variable |
-|  1  | `Ex5.Frame2D.analyze.Dynamic.sine.Uniform.tcl` | can't read "g": no such variable |
-|  1  | `Ex5.Frame2D.analyze.Static.Cycle.tcl` | can't read "LBuilding": no such variable |
-|  1  | `Ex5.Frame2D.analyze.Static.Push.tcl` | can't read "LBuilding": no such variable |
 |  0  | `Ex5.Frame2D.build.ElasticSection.tcl` |  |
 |  0  | `Ex5.Frame2D.build.InelasticFiberRCSection.tcl` |  |
 |  0  | `Ex5.Frame2D.build.InelasticFiberWSection.tcl` |  |
 |  0  | `Ex5.Frame2D.build.InelasticSection.tcl` |  |
-|  1  | `Ex6.genericFrame2D.analyze.Dynamic.EQ.bidirect.tcl` | can't read "sec": no such variable |
-|  1  | `Ex6.genericFrame2D.analyze.Dynamic.EQ.multipleSupport.tcl` | can't read "sec": no such variable |
-|  1  | `Ex6.genericFrame2D.analyze.Dynamic.EQ.Uniform.tcl` | can't read "sec": no such variable |
-|  1  | `Ex6.genericFrame2D.analyze.Dynamic.sine.multipleSupport.tcl` | can't read "in": no such variable |
-|  1  | `Ex6.genericFrame2D.analyze.Static.Cycle.tcl` | can't read "LBuilding": no such variable |
-|  1  | `Ex6.genericFrame2D.analyze.Static.Push.tcl` | can't read "LBuilding": no such variable |
 |  1  | `Ex6.genericFrame2D.build.ElasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
 |  1  | `Ex6.genericFrame2D.build.InelasticFiberRCSection.tcl` | 		set ColWeightFact 1;		# ..." |
 |  1  | `Ex6.genericFrame2D.build.InelasticFiberWSection.tcl` | can't read "ColSecTag": no such variable |
 |  1  | `Ex6.genericFrame2D.build.InelasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
-|  1  | `Ex7.Frame3D.analyze.Dynamic.EQ.bidirect.tcl` | can't read "sec": no such variable |
-|  1  | `Ex7.Frame3D.analyze.Dynamic.EQ.multipleSupport.tcl` | can't read "sec": no such variable |
-|  1  | `Ex7.Frame3D.analyze.Dynamic.EQ.Uniform.tcl` | can't read "sec": no such variable |
-|  1  | `Ex7.Frame3D.analyze.Dynamic.sine.multipleSupport.tcl` | can't read "in": no such variable |
-|  1  | `Ex7.Frame3D.analyze.Static.Cycle.tcl` | can't read "LBuilding": no such variable |
-|  1  | `Ex7.Frame3D.analyze.Static.Push.tcl` | can't read "LBuilding": no such variable |
 |  1  | `Ex7.Frame3D.build.RCsec.tcl` | 	set Ec [expr 57*$ksi*pow($fc/$p..." |
 |  1  | `Ex7.Frame3D.build.Wsec.tcl` | 	set Gs ..." |
-|  1  | `Ex8.genericFrame3D.analyze.Dynamic.EQ.bidirect.tcl` | can't read "sec": no such variable |
-|  1  | `Ex8.genericFrame3D.analyze.Dynamic.EQ.multipleSupport.tcl` | can't read "iSupportNode": no such variable |
-|  1  | `Ex8.genericFrame3D.analyze.Dynamic.EQ.Uniform.tcl` | can't read "sec": no such variable |
-|  1  | `Ex8.genericFrame3D.analyze.Dynamic.sine.multipleSupport.tcl` | can't read "iSupportNode": no such variable |
-|  1  | `Ex8.genericFrame3D.analyze.Dynamic.sine.Uniform.tcl` | can't read "g": no such variable |
-|  1  | `Ex8.genericFrame3D.analyze.Static.Cycle.tcl` | can't read "LBuilding": no such variable |
-|  1  | `Ex8.genericFrame3D.analyze.Static.Push.tcl` | can't read "LBuilding": no such variable |
 |  1  | `Ex8.genericFrame3D.build.RCsec.tcl` | 	set Ec [expr 57*$ksi*pow($fc/$p..." |
 |  1  | `Ex8.genericFrame3D.build.Wsec.tcl` | 	set Gs ..." |
 |  0  | `Ex9a.build.UniaxialSection2D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection3D.tcl` |  |
-|  1  | `Ex9.analyze.MomentCurvature2D.tcl` | can't read "kip": no such variable |
-|  1  | `Ex9.analyze.MomentCurvature3D.tcl` | can't read "kip": no such variable |
 |  0  | `Ex9b.build.WSection2D.tcl` |  |
 |  1  | `Ex9b.build.WSection3D.tcl` |      patch quadr  $matIDhard $nfbf $nftf   $..." |
 |  0  | `Ex9c.build.RCSection.RectUnconfinedSymm2D.tcl` |  |
@@ -170,11 +133,10 @@
 |  0  | `RotSect2DModIKModel.tcl` |  |
 |  0  | `RotSpring2DModIKModel.tcl` |  |
 |  0  | `SAWSZeroLength.tcl` |  |
-|  0  | `Singlecycle.tcl` |  |
+|  0  | `SingleCycle.tcl` |  |
 |  1  | `SlopeAnalysis2Deff.tcl` | "equalDOF 3911 3854  1 2" |
 |  1  | `StaticBNWFpile.tcl` | couldn't read file "get_pyParam.tcl": no such file or directory |
 |  0  | `Tags.tcl` |  |
-|  1  | `TCU065-V.tcl` | invalid command name "-0.0033716100" |
 |  1  | `TestFPS2d_0.tcl` | invalid command name "frictionModel" |
 |  1  | `TestFPS2d_1.tcl` | invalid command name "frictionModel" |
 |  1  | `TestFPS2d_2.tcl` | invalid command name "frictionModel" |
