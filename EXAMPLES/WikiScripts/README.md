@@ -15,12 +15,9 @@
 |  0  | `BuildRCrectSection_IR.tcl` |  |
 |  0  | `BuildRCrectSection.tcl` |  |
 |  1  | `CB_PortalFrame.tcl` | "uniaxialMaterial Fatigue $matID_fatBC $matID_BC " |
-|  1  | `CenterColAxialSpring.tcl` | can't read "Ec": no such variable |
 |  1  | `CenterCol_basicModel_Cyclic.tcl` | invalid command name "limitCurve" |
 |  1  | `CenterCol_basicModel_Dynamic.tcl` | invalid command name "limitCurve" |
 |  1  | `CenterCol_basicModel_Pushover.tcl` | invalid command name "limitCurve" |
-|  1  | `CenterColSecFiber.tcl` | can't read "L": no such variable |
-|  1  | `CenterColShearSpring.tcl` | can't read "shearCurveTag": no such variable |
 |  1  | `CheckingTripleFrictionPendulum_1DDynamics_ConstFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_1DDynamics_VariableFriction.tcl` | invalid command name "frictionModel" |
 |  1  | `CheckingTripleFrictionPendulum_2DDynamic_ConstFriction.tcl` | invalid command name "frictionModel" |
@@ -36,14 +33,14 @@
 |  0  | `DisplayPlane.tcl` |  |
 |  1  | `Dispwall1-cg.tcl` | invalid command name "0" |
 |  1  | `Dynamic.EQ.Uniform_LimitState.tcl` | invalid command name "constraints" |
-|  1  | `EigenAnal_twoStoreyFrame1.tcl` | invalid command name "prp" |
-|  1  | `EigenAnal_twoStoreyFrame.tcl` | invalid command name "prp" |
-|  1  | `EigenAnal_twoStoreyShearFrame7.tcl` | invalid command name "prp" |
-|  1  | `EigenAnal_twoStoreyShearFrame8.tcl` | invalid command name "prp" |
+|  0  | `EigenAnal_twoStoreyFrame1.tcl` |  |
+|  0  | `EigenAnal_twoStoreyFrame.tcl` |  |
+|  0  | `EigenAnal_twoStoreyShearFrame7.tcl` |  |
+|  0  | `EigenAnal_twoStoreyShearFrame8.tcl` |  |
 |  0  | `ElasticFrame.tcl` |  |
 |  1  | `ElasticPileSection.tcl` | invalid command name "section" |
 |  0  | `ElemPanelZone2D.tcl` |  |
-|  1  | `Ex1a.Canti2D.EQ.modif.tcl` | invalid command name "prp" |
+|  0  | `Ex1a.Canti2D.EQ.modif.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.tcl` |  |
 |  0  | `Ex1a.Canti2D.Push.tcl` |  |
 |  0  | `Ex1b.Portal2D.EQ.tcl` |  |
@@ -101,8 +98,6 @@
 |  0  | `HSSsection.tcl` |  |
 |  0  | `KikuchiAikenHDR_sample.tcl` |  |
 |  0  | `KikuchiAikenLRB_sample.tcl` |  |
-|  1  | `KikuchiBearing_input_X.tcl` | invalid command name "0" |
-|  1  | `KikuchiBearing_input_Z.tcl` | invalid command name "0" |
 |  1  | `KikuchiBearing_Sample.tcl` | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
 |  1  | `LateralSpreadPile.tcl` | "equalDOF 502 202 1" |
 |  0  | `ModelingDiaphragms2D.tcl` |  |
@@ -111,19 +106,15 @@
 |  0  | `MomentCurvature2D.tcl` |  |
 |  0  | `MomentCurvature3D.tcl` |  |
 |  0  | `MomentCurvature.tcl` |  |
-|  1  | `MRF_2Story_Concentrated_10Oct2013.tcl` | couldn't read file "rotSpring2DModIKModel.tcl": no such file or directory |
-|  1  | `MRF_2Story_Concentrated_PanelZone.tcl` | couldn't read file "rotSpring2DModIKModel.tcl": no such file or directory |
-|  1  | `MRF_2Story_Concentrated.tcl` | couldn't read file "rotSpring2DModIKModel.tcl": no such file or directory |
-|  1  | `MultipleShearSpring_input_X.tcl` | invalid command name "0" |
-|  1  | `MultipleShearSpring_input_Y.tcl` | invalid command name "0" |
+|  1  | `MRF_2Story_Concentrated_10Oct2013.tcl` | invalid command name "vrp" |
+|  1  | `MRF_2Story_Concentrated_PanelZone.tcl` | couldn't read file "elemPanelZone2D.tcl": no such file or directory |
+|  1  | `MRF_2Story_Concentrated.tcl` | invalid command name "vrp" |
 |  0  | `MultipleShearSpring_Sample.tcl` |  |
 |  1  | `NR94cnp.tcl` | invalid command name "-.1219107E-02" |
 |  1  | `NRHA_IR.tcl` | can't read "sec": no such variable |
-|  1  | `PUL104.tcl` | invalid command name "PEER" |
-|  1  | `PUL194.tcl` | invalid command name "PEER" |
-|  1  | `Pushover_concentrated.tcl` | couldn't read file "rotSpring2DModIKModel.tcl": no such file or directory |
-|  1  | `Pushover_distributed.tcl` | couldn't read file "rotSect2DModIKModel.tcl": no such file or directory |
-|  1  | `Pushover_example.tcl` | couldn't read file "rotSpring2DModIKModel.tcl": no such file or directory |
+|  1  | `Pushover_concentrated.tcl` | invalid command name "vrp" |
+|  1  | `Pushover_distributed.tcl` | "element beamWithHinges  111  11 12 $sec_c1 $Lp_c1 $sec_c1 $Lp_c1 $Es $Acol_12  $Icol_12 $PDeltaTransf" |
+|  1  | `Pushover_example.tcl` | invalid command name "vrp" |
 |  0  | `RandomStrainHstory.tcl` |  |
 |  0  | `RCFrameGravity.tcl` |  |
 |  0  | `RCFramePushover.tcl` |  |
@@ -135,7 +126,7 @@
 |  0  | `SAWSZeroLength.tcl` |  |
 |  0  | `SingleCycle.tcl` |  |
 |  1  | `SlopeAnalysis2Deff.tcl` | "equalDOF 3911 3854  1 2" |
-|  1  | `StaticBNWFpile.tcl` | couldn't read file "get_pyParam.tcl": no such file or directory |
+|  1  | `StaticBNWFpile.tcl` | }" |
 |  0  | `Tags.tcl` |  |
 |  1  | `TestFPS2d_0.tcl` | invalid command name "frictionModel" |
 |  1  | `TestFPS2d_1.tcl` | invalid command name "frictionModel" |
@@ -161,6 +152,4 @@
 |  0  | `Truss.tcl` |  |
 |  0  | `Wsection.tcl` |  |
 |  0  | `WSection.tcl` |  |
-|  1  | `YamamotoBiaxialHDR_input_X.tcl` | invalid command name "0.0" |
-|  1  | `YamamotoBiaxialHDR_input_Y.tcl` | invalid command name "0.0" |
 |  0  | `YamamotoBiaxialHDR_Sample.tcl` |  |
