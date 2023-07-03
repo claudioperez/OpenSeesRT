@@ -284,7 +284,7 @@ recorder Element -file strain3.out   -time -eleRange  1   $totalNumEleY   materi
 recorder Element -file strain4.out   -time -eleRange  1   $totalNumEleY   material 4 strain
 
 # real time display recorder for visualization during analysis
-# recorder display "OpenSees Real Time" 10 10 700 700 -wipe
+# # recorder display "OpenSees Real Time" 10 10 700 700 -wipe
 prp            0 0 100
 vup            0 1 0
 vpn            0 0 1

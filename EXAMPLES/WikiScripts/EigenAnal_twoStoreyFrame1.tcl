@@ -103,22 +103,24 @@ close $Periods
 #------------------------
 record 
 
+if 0 {
 # create display  for mode shapes
 #---------------------------------
 #                 $windowTitle $xLoc $yLoc $xPixels $yPixels
-# recorder display "Mode Shape 1"  10    10     500      500     -wipe  
+# # recorder display "Mode Shape 1"  10    10     500      500     -wipe  
 prp $h $h 1;                                         # projection reference point (prp); defines the center of projection (viewer eye)
 vup  0  1 0;                                         # view-up vector (vup) 
 vpn  0  0 1;                                         # view-plane normal (vpn)     
 viewWindow -200 200 -200 200;                        # coordiantes of the window relative to prp  
 display -1 5 20;                                     # the 1st arg. is the tag for display mode (ex. -1 is for the first mode shape)
                                                      # the 2nd arg. is magnification factor for nodes, the 3rd arg. is magnif. factor of deformed shape
-# recorder display "Mode Shape 2" 10 510 500 500 -wipe
+# # recorder display "Mode Shape 2" 10 510 500 500 -wipe
 prp $h $h 1;
 vup  0  1 0;
 vpn  0  0 1;
 viewWindow -200 200 -200 200
 display -2 5 20
+}
 
 # get values of eigenvectors for translational DOFs
 #---------------------------------------------------

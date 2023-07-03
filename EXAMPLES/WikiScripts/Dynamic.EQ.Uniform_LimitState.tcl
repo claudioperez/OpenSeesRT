@@ -5,7 +5,7 @@
 #
 
 # source in procedures
-source ReadSMDfile.tcl;		# procedure for reading GM file and converting it to proper format
+source ReadSMDFile.tcl;		# procedure for reading GM file and converting it to proper format
 set PI 3.141593
 # Uniform Earthquake ground motion (uniform acceleration input at all support nodes)
 set GMdirection 1;				# ground-motion direction

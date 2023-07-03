@@ -72,12 +72,14 @@ set freq [expr [eigen -fullGenLapack 1]**0.5]
 set dampRatio 0.02
 rayleigh 0. 0. 0. [expr 2*$dampRatio/$freq]
 
+if 0 {
 # display displacement shape of the column
-# recorder display "Displaced shape" 10 10 500 500 -wipe
+# # recorder display "Displaced shape" 10 10 500 500 -wipe
 prp 200. 50. 1;
 vup  0  1 0;
 vpn  0  0 1;
 display 1 5 40 
+}
 
 # create the analysis
 wipeAnalysis;					     # clear previously-define analysis parameters

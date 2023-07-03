@@ -66,6 +66,6 @@ proc DisplayModel2D { {ShapeType nill} {dAmp 5}  {xLoc 10} {yLoc 10} {xPixels 51
 	}
 
 	set viewPlane XY
-	recorder display $windowTitle $xLoc $yLoc $xPixels $yPixels  -wipe ; # display recorder
+	# recorder display $windowTitle $xLoc $yLoc $xPixels $yPixels  -wipe ; # display recorder
 	DisplayPlane $ShapeType $dAmp $viewPlane $nEigen 0
 }

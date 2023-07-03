@@ -1,5 +1,5 @@
 ############################################################################################
-# rotSect2DModIKModel.tcl
+# RotSect2DModIKModel.tcl
 #
 # This routine creates a section with elastic axial and bilinear flexural response
 # 

@@ -101,9 +101,9 @@ set gwtSwitch 1
 #----------------------------------------------------------
 
 # specify necessary procedures
-source get_pyParam.tcl
-source get_tzParam.tcl
-source get_qzParam.tcl
+source Get_pyParam.tcl
+source Get_tzParam.tcl
+source Get_qzParam.tcl
 
 # p-y spring material
 for {set i 1} {$i <= $nNodeEmbed} {incr i} {
@@ -226,13 +226,14 @@ recorder Node -file reaction.out  -time  -nodeRange 1 $nNodePile  -dof 1  -dT $t
 recorder Element -file pileForce.out  -time  -eleRange 201 [expr 200+$nElePile]  -dT $timeStep  globalForce
 puts "Finished creating all recorders..."
 
+if 0  {
 # real time display recorder for visualization during analysis
-# recorder display "OpenSees Real Time" 10 10 700 700 -wipe
+# # recorder display "OpenSees Real Time" 10 10 700 700 -wipe
 prp           0 100 0
 vup           0 0 1
 vpn           0 -1 0	
 display       1 3 10
-
+}
 #----------------------------------------------------------
 #  create the loading
 #----------------------------------------------------------

@@ -22,8 +22,8 @@
 	model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm = #dimension, ndf = #dofs
 	source DisplayModel2D.tcl;			# procedure for displaying a 2D perspective of model
 	source DisplayPlane.tcl;			# procedure for displaying a plane in the model
-	source rotSect2DModIKModel.tcl;		# procedure for defining bilinear plastic hinge section
-	source rotLeaningCol.tcl;			# procedure for defining a rotational spring (zero-length element) with very small stiffness
+	source RotSect2DModIKModel.tcl;		# procedure for defining bilinear plastic hinge section
+	source RotLeaningCol.tcl;			# procedure for defining a rotational spring (zero-length element) with very small stiffness
 	
 ###################################################################################################
 #          Define Analysis Type										  
@@ -144,7 +144,7 @@
 ###################################################################################################
 # define rotational spring properties and create spring elements using "rotSect2DModIKModel" procedure
 	# rotSect2DModIKModel creates a section with an elastic axial and bilinear flexural response based on Modified Ibarra Krawinkler Deterioration Model
-	# references provided in rotSect2DModIKModel.tcl
+	# references provided in RotSect2DModIKModel.tcl
 	# input values for Story 1 column springs
 	set McMy 1.05;			# ratio of capping moment to yield moment, Mc / My
 	set LS 1000.0;			# basic strength deterioration (a very large # = no cyclic deterioration)

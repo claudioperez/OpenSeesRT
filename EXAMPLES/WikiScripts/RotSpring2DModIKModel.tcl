@@ -1,5 +1,5 @@
 ############################################################################################
-# rotSpring2DModIKModel.tcl
+# RotSpring2DModIKModel.tcl
 #
 # This routine creates a uniaxial material spring with deterioration
 # 
@@ -43,7 +43,7 @@
 #
 ############################################################################################
 #
-proc rotSpring2DModIKModel {eleID nodeR nodeC K asPos asNeg MyPos MyNeg LS LK LA LD cS cK cA cD th_pP th_pN th_pcP th_pcN ResP ResN th_uP th_uN DP DN} {
+proc RotSpring2DModIKModel {eleID nodeR nodeC K asPos asNeg MyPos MyNeg LS LK LA LD cS cK cA cD th_pP th_pN th_pcP th_pcN ResP ResN th_uP th_uN DP DN} {
 #
 # Create the zero length element
       uniaxialMaterial Bilin  $eleID  $K  $asPos $asNeg $MyPos $MyNeg $LS $LK $LA $LD $cS $cK $cA $cD $th_pP $th_pN $th_pcP $th_pcN $ResP $ResN $th_uP $th_uN $DP $DN;

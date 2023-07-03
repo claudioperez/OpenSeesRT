@@ -192,7 +192,7 @@ recorder Element -file Elmt_Vel.out -time -ele 1 frictionModel vel
 recorder Element -file Elmt_Ff.out -time -ele 1 frictionModel frictionForce
 recorder Element -file Elmt_COF.out -time -ele 1 frictionModel COF
 
-# recorder display "Display" xLoc yLoc xPixels yPixels -wipe 
+# # recorder display "Display" xLoc yLoc xPixels yPixels -wipe 
 recorder  display  "Display"  5  5  630  630 -wipe
 # "normal" vector to the view window
 vpn -5.272000E-001  -6.871000E-001  +5.000000E-001

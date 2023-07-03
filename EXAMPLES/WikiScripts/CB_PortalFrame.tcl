@@ -217,15 +217,15 @@ puts "D"
 	set w2 [expr pow($lambdaJ,0.5)];					# w2 (2nd mode circular frequency)
 	set T1 [expr 2.0*$pi/$w1];							# 1st mode period of the structure
 	set T2 [expr 2.0*$pi/$w2];							# 2nd mode period of the structure
-	puts "T1 = $T1 s";									# display the first mode period in the command window
-	puts "T2 = $T2 s";									# display the second mode period in the command window
-
+	puts "T1 = $T1 s";								# display the first mode period in the command window
+	puts "T2 = $T2 s";								# display the second mode period in the command window
+if 0 {
 	recorder display "Mode 1" 10 10 500 500 -wipe 
 	prp 360. 270. 1.;
 	vup  0  1 0;
 	vpn  0  0 1;
 	display -1 2 50
- 		
+}		
 ############################################################################
 #              Gravity Loads & Gravity Analysis
 ############################################################################
@@ -259,4 +259,4 @@ puts "D"
 	# maintain constant gravity loads and reset time to zero
 	loadConst -time 0.0
 	puts "Model Built"
-	
+

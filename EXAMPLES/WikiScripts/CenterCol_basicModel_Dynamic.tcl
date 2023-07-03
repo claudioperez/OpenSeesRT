@@ -6,7 +6,7 @@
 
 wipe
 
-source tags.tcl
+source Tags.tcl
 source DisplayModel2D.tcl
 source DisplayPlane.tcl
 

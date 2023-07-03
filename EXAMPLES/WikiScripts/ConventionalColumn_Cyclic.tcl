@@ -239,7 +239,7 @@
 	set running 0.0
 
 	set cycles [llength $dhtot]
-	source singlecycle.tcl
+	source SingleCycle.tcl
 	for { set k 0 } { $k < $cycles } { incr k } {
 		set cycmax [expr $uy*[lindex $dhtot $k]]
 		set thist [singlecycle $cycmax $n $running]

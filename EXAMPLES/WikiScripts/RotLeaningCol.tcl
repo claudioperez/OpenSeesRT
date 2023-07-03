@@ -1,5 +1,5 @@
 ###########################################################################################################
-# rotLeaningCol.tcl
+# RotLeaningCol.tcl
 # Procedure that creates a zero-stiffness elastic rotational spring for the leaning column
 # and constrains the translations DOFs of the spring.
 #

@@ -4,7 +4,7 @@
 # KJE, Feb 2003
 # debugged by Mohammad Reza Azadi Kakavand, Nov 2011 
 
-source tags.tcl
+source Tags.tcl
 
 # Number of analysis steps and step size
 #set nSteps 35000

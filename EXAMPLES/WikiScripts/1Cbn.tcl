@@ -46,7 +46,7 @@ set Atruss 10000.0; #rigid
 
  # Please keep the follwoing procedures on the same path
 
- source procRCycDAns.tcl 
+ source ProcRCycDAns.tcl 
 
  # Physical and mechanical characteristics of SWP :
 
