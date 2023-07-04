@@ -1,4 +1,5 @@
 proc DisplayModel3D { {ShapeType nill} {dAmp 5}  {xLoc 0} {yLoc 0} {xPixels 0} {yPixels 0} {nEigen 1} } {
+if 0 {
 	######################################################################################
 	## DisplayModel3D $ShapeType $dAmp $xLoc $yLoc $xPixels $yPixels $nEigen
 	######################################################################################
@@ -100,4 +101,4 @@ proc DisplayModel3D { {ShapeType nill} {dAmp 5}  {xLoc 0} {yLoc 0} {xPixels 0} {
 		DisplayPlane $ShapeType $dAmp $viewPlane $nEigen 4
 	}
 }
-
+}

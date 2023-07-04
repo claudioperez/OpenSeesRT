@@ -32,7 +32,7 @@
 	source RotSpring2DModIKModel.tcl;	# procedure for defining a rotational spring (zero-length element) for plastic hinges
 	source RotLeaningCol.tcl;			# procedure for defining a rotational spring (zero-length element) with very small stiffness
 	source RotPanelZone2D.tcl;			# procedure for defining a rotational spring (zero-length element) to capture panel zone shear distortions
-	source elemPanelZone2D.tcl;			# procedure for defining 8 elements to create a rectangular panel zone
+	source ElemPanelZone2D.tcl;			# procedure for defining 8 elements to create a rectangular panel zone
 	
 ###################################################################################################
 #          Define Analysis Type										  

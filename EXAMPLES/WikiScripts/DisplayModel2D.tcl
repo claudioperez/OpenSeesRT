@@ -1,4 +1,5 @@
 proc DisplayModel2D { {ShapeType nill} {dAmp 5}  {xLoc 10} {yLoc 10} {xPixels 512} {yPixels 384} {nEigen 1} } {
+if 0 {
 	######################################################################################
 	## DisplayModel2D $ShapeType $dAmp $xLoc $yLoc $xPixels $yPixels $nEigen
 	######################################################################################
@@ -68,4 +69,5 @@ proc DisplayModel2D { {ShapeType nill} {dAmp 5}  {xLoc 10} {yLoc 10} {xPixels 51
 	set viewPlane XY
 	# recorder display $windowTitle $xLoc $yLoc $xPixels $yPixels  -wipe ; # display recorder
 	DisplayPlane $ShapeType $dAmp $viewPlane $nEigen 0
+}
 }

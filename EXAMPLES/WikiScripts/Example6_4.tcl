@@ -98,7 +98,7 @@ analyze 10
 # --------------------------
 # End of static analysis
 # --------------------------
-
+if 0 {
 # -------------------------------------
 # create display for transient analysis
 #--------------------------------------
@@ -110,7 +110,7 @@ vpn  0  0 1;                                         # view-plane normal (vpn)
 viewWindow -30 30 -10 10;                            # coordiantes of the window relative to prp  
 display 10 0 5;                                      # the 1st arg. is the tag for display mode
                                                      # the 2nd arg. is magnification factor for nodes, the 3rd arg. is magnif. factor of deformed shape
-
+}
 # ---------------------------------------
 # Create and Perform the dynamic analysis
 # ---------------------------------------

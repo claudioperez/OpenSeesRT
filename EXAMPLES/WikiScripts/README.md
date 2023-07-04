@@ -45,11 +45,11 @@
 |  0  | `Ex1a.Canti2D.Push.tcl` |  |
 |  0  | `Ex1b.Portal2D.EQ.tcl` |  |
 |  0  | `Ex1b.Portal2D.Push.tcl` |  |
-|  139  | `Ex2a.Canti2D.ElasticElement.EQ.tcl` |  |
+|  0  | `Ex2a.Canti2D.ElasticElement.EQ.tcl` |  |
 |  0  | `Ex2a.Canti2D.ElasticElement.Push.tcl` |  |
-|  139  | `Ex2b.Canti2D.InelasticSection.EQ.tcl` |  |
+|  0  | `Ex2b.Canti2D.InelasticSection.EQ.tcl` |  |
 |  0  | `Ex2b.Canti2D.InelasticSection.Push.tcl` |  |
-|  139  | `Ex2c.Canti2D.InelasticFiberSection.EQ.tcl` |  |
+|  0  | `Ex2c.Canti2D.InelasticFiberSection.EQ.tcl` |  |
 |  0  | `Ex2c.Canti2D.InelasticFiberSection.Push.tcl` |  |
 |  0  | `Ex3.Canti2D.build.ElasticElement.tcl` |  |
 |  0  | `Ex3.Canti2D.build.InelasticFiberSection.tcl` |  |
@@ -82,7 +82,7 @@
 |  0  | `Ex9f.build.RCSection.Circ2D.tcl` |  |
 |  1  | `Ex9f.build.RCSection.Circ3D.tcl` | 	patch circ $IDconcCore $nfCoreT $nfCoreR 0 0 $ri $rc 0 360;		# Define the..." |
 |  1  | `Ex9g.build.HollowSection3D.tcl` | 	patch quad $IDconcCover $numSu..." |
-|  1  | `Example6_4.tcl` | invalid command name "prp" |
+|  0  | `Example6_4.tcl` |  |
 |  1  | `ExampleSP1.tcl` | couldn't open "peerRecords.txt": no such file or directory |
 |  1  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  1  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
@@ -106,15 +106,15 @@
 |  0  | `MomentCurvature2D.tcl` |  |
 |  0  | `MomentCurvature3D.tcl` |  |
 |  0  | `MomentCurvature.tcl` |  |
-|  1  | `MRF_2Story_Concentrated_10Oct2013.tcl` | invalid command name "vrp" |
+|  0  | `MRF_2Story_Concentrated_10Oct2013.tcl` |  |
 |  1  | `MRF_2Story_Concentrated_PanelZone.tcl` | couldn't read file "elemPanelZone2D.tcl": no such file or directory |
-|  1  | `MRF_2Story_Concentrated.tcl` | invalid command name "vrp" |
+|  0  | `MRF_2Story_Concentrated.tcl` |  |
 |  0  | `MultipleShearSpring_Sample.tcl` |  |
 |  1  | `NR94cnp.tcl` | invalid command name "-.1219107E-02" |
 |  1  | `NRHA_IR.tcl` | can't read "sec": no such variable |
-|  1  | `Pushover_concentrated.tcl` | invalid command name "vrp" |
+|  0  | `Pushover_concentrated.tcl` |  |
 |  1  | `Pushover_distributed.tcl` | "element beamWithHinges  111  11 12 $sec_c1 $Lp_c1 $sec_c1 $Lp_c1 $Es $Acol_12  $Icol_12 $PDeltaTransf" |
-|  1  | `Pushover_example.tcl` | invalid command name "vrp" |
+|  0  | `Pushover_example.tcl` |  |
 |  0  | `RandomStrainHstory.tcl` |  |
 |  0  | `RCFrameGravity.tcl` |  |
 |  0  | `RCFramePushover.tcl` |  |
@@ -138,16 +138,6 @@
 |  1  | `TestFPS3d_2.tcl` | invalid command name "frictionModel" |
 |  1  | `TestFPS3d_3.tcl` | invalid command name "frictionModel" |
 |  1  | `TestFPS3d_4.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider2d_0.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider2d_1.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider2d_2.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider2d_3.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider2d_4.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider3d_0.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider3d_1.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider3d_2.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider3d_3.tcl` | invalid command name "frictionModel" |
-|  1  | `TestSlider3d_4.tcl` | invalid command name "frictionModel" |
 |  0  | `Test.tcl` |  |
 |  0  | `Truss.tcl` |  |
 |  0  | `Wsection.tcl` |  |
