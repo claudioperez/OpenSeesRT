@@ -23,8 +23,8 @@
 | 0	| `RCFrame1.tcl` |
 | 0	| `RCFrame2.tcl` |
 | 0	| `RCFrame3.tcl` |
-| 253	| `RCFrame4.tcl` |
-| 253	| `RCFrame5.tcl` |
+| 0	| `RCFrame4.tcl` |
+| 0	| `RCFrame5.tcl` |
 | 0	| `RigidFrame3D.tcl` |
 | 0	| `Rigid.tcl` |
 | 0	| `TestElement_Catenary.tcl` |
