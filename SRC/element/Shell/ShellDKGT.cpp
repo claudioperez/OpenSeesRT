@@ -30,11 +30,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <time.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
-
 #include <ID.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -42,12 +37,10 @@ using namespace std;
 #include <Node.h>
 #include <SectionForceDeformation.h>
 #include <Domain.h>
-#include <ErrorHandler.h>
 #include <ShellDKGT.h>
 #include <R3vectors.h>
 #include <Renderer.h>
 #include <ElementResponse.h>
-#include <DataFileStream.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -166,7 +159,7 @@ ShellDKGT::~ShellDKGT()
 
   } //end for i
 
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < ShellDKGT::numberNodes; i++) {
     nodePointers[i] = nullptr;
   }
 
@@ -204,7 +197,7 @@ void ShellDKGT::setDomain(Domain *theDomain)
 }
 
 //get the number of external nodes
-int ShellDKGT::getNumExternalNodes() const { return 3; }
+int ShellDKGT::getNumExternalNodes() const { return ShellDKGT::numberNodes; }
 
 //return connected external nodes
 const ID &ShellDKGT::getExternalNodes() { return connectedExternalNodes; }
@@ -312,7 +305,7 @@ void ShellDKGT::Print(OPS_Stream &s, int flag)
 Response *ShellDKGT::setResponse(const char **argv, int argc,
                                  OPS_Stream &output)
 {
-  Response *theResponse = 0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
 
@@ -490,10 +483,8 @@ const Matrix &ShellDKGT::getInitialStiff()
   if (Ki != 0)
     return *Ki;
 
-  static const int ndf      = 6; // two membrane plus three bending plus one drill
   static const int nstress  = 8; // three membrane, three moment, two shear
   static const int ngauss   = 4;
-  static const int numnodes = 3; // node number
 
   int jj, kk;
   int i, j, k, p, q;
@@ -503,13 +494,13 @@ const Matrix &ShellDKGT::getInitialStiff()
 
   static double xsj;              //determinant jacabian matrix
   static double dvol[ngauss];     //volume element
-  static double shp[3][numnodes]; //shape function 2d at a gauss point
+  static double shp[3][ShellDKGT::numberNodes]; //shape function 2d at a gauss point
 
-  //	static double shpM[3][numnodes];//shape function-membrane at a gausss point
+  //	static double shpM[3][ShellDKGT::numberNodes];//shape function-membrane at a gausss point
 
   static double shpDrill
       [4]
-      [numnodes]; //shape function-drilling dof(Nu,1&Nu,2&Nv,1&Nv,2) at a gauss point
+      [ShellDKGT::numberNodes]; //shape function-drilling dof(Nu,1&Nu,2&Nv,1&Nv,2) at a gauss point
 
   static double shpBend
       [6]
@@ -546,7 +537,7 @@ const Matrix &ShellDKGT::getInitialStiff()
   static Matrix Bbend(3, 3);           // bending B matrix
   static Matrix Bshear(2, 3);          // shear B matrix (zero)
 
-  static double saveB[nstress][ndf][numnodes];
+  static double saveB[nstress][ShellDKGT::ndf][ShellDKGT::numberNodes];
   //-------------------------------------------------------------
 
   stiff.Zero();
@@ -597,7 +588,7 @@ const Matrix &ShellDKGT::getInitialStiff()
   }
 
   //------------gauss loop--------------------------
-  for (int i = 0; i < ngauss; i++) {
+  for (int i = 0; i < ShellDKGT::numberGauss; i++) {
 
     // get shape functions
     shape2d(sg[i], tg[i], qg[i], xl, shp, xsj, sx);
@@ -611,7 +602,7 @@ const Matrix &ShellDKGT::getInitialStiff()
     Bshear.Zero();
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (j = 0; j < ShellDKGT::numberNodes; j++) {
 
       // compute B matrix
       Bmembrane = computeBmembrane(j, shp, shpDrill);
@@ -633,7 +624,7 @@ const Matrix &ShellDKGT::getInitialStiff()
     //tangent stiff matrix calculations node loops
 
     jj = 0;
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < ShellDKGT::numberNodes; j++) {
 
       //extract BJ
       for (p = 0; p < nstress; p++) {
@@ -658,7 +649,7 @@ const Matrix &ShellDKGT::getInitialStiff()
 
       //k loop
       kk = 0;
-      for (k = 0; k < numnodes; k++) {
+      for (k = 0; k < ShellDKGT::numberNodes; k++) {
 
         //extract BK
         for (p = 0; p < nstress; p++) {
@@ -817,15 +808,6 @@ void ShellDKGT::formInertiaTerms(int tangFlag)
   //translational mass only
   //rotational inertia terms are neglected
 
-  static const int ndf = 6;
-
-  static const int numberNodes = 3;
-
-  static const int numberGauss = 4;
-
-  static const int nShape = 3;
-
-  static const int massIndex = nShape - 1;
 
   double xsj; // determinant jacaobian matrix
 
@@ -833,7 +815,7 @@ void ShellDKGT::formInertiaTerms(int tangFlag)
 
   double dvol; //volume element
 
-  static double shp[nShape][numberNodes]; //shape functions at a gauss point
+  double shp[ShellDKGT::nShape][ShellDKGT::numberNodes]; //shape functions at a gauss point
 
   static Vector momentum(ndf);
 
@@ -846,7 +828,7 @@ void ShellDKGT::formInertiaTerms(int tangFlag)
   mass.Zero();
 
   //gauss loop
-  for (i = 0; i < numberGauss; i++) {
+  for (i = 0; i < ShellDKGT::numberGauss; i++) {
 
     //get shape functions
     shape2d(sg[i], tg[i], qg[i], xl, shp, xsj, sx);
@@ -856,7 +838,7 @@ void ShellDKGT::formInertiaTerms(int tangFlag)
 
     //node loop to compute accelerations
     momentum.Zero();
-    for (j = 0; j < numberNodes; j++)
+    for (j = 0; j < ShellDKGT::numberNodes; j++)
       //momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
       momentum.addVector(1.0, nodePointers[j]->getTrialAccel(),
                          shp[massIndex][j]);
@@ -868,7 +850,7 @@ void ShellDKGT::formInertiaTerms(int tangFlag)
     momentum *= rhoH;
 
     //residual and tangent calculations node loops
-    for (j = 0, jj = 0; j < numberNodes; j++, jj += ndf) {
+    for (j = 0, jj = 0; j < ShellDKGT::numberNodes; j++, jj += ndf) {
 
       temp = shp[massIndex][j] * dvol;
 
@@ -881,7 +863,7 @@ void ShellDKGT::formInertiaTerms(int tangFlag)
         temp *= rhoH;
 
         //node-node translational mass
-        for (k = 0, kk = 0; k < numberNodes; k++, kk += ndf) {
+        for (k = 0, kk = 0; k < ShellDKGT::numberNodes; k++, kk += ndf) {
 
           massJK = temp * shp[massIndex][k];
 
@@ -915,13 +897,11 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
   //|   theta3 |  <- drill (tran from membrane)
   //|----------|
 
-  static const int ndf = 6; //two membrane + 3 moment +drill
 
   static const int nstress = 8; //3 membrane , 3 moment, 2 shear
 
   static const int ngauss = 4;
 
-  static const int numnodes = 3;
 
   int i, j, k, p, q;
   int jj, kk;
@@ -940,10 +920,10 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
 
   static Vector strain(nstress); //strain
 
-  static double shp[3][numnodes]; //shape function 2d at a gauss point
+  static double shp[3][ShellDKGT::numberNodes]; //shape function 2d at a gauss point
 
   static double
-      shpDrill[4][numnodes]; //shape function drilling dof at a gauss point
+      shpDrill[4][ShellDKGT::numberNodes]; //shape function drilling dof at a gauss point
 
   static double shpBend[6][9]; //shape function - bending part at a gauss point
 
@@ -1002,7 +982,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
 
   static Matrix Bshear(2, 3); //shear B matrix (zero)
 
-  static double saveB[nstress][ndf][numnodes];
+  static double saveB[nstress][ShellDKGT::ndf][ShellDKGT::numberNodes];
   //---------------------------------------------------------------
 
   //zero stiffness and residual
@@ -1061,7 +1041,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
   }
 
   //------------gauss loop--------------------------
-  for (i = 0; i < ngauss; i++) {
+  for (i = 0; i < ShellDKGT::numberGauss; i++) {
 
     //get shape functions
     shape2d(sg[i], tg[i], qg[i], xl, shp, xsj, sx);
@@ -1072,7 +1052,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
 
     //volume element to be saved
     dvol[i] = 0.5 * wg[i] * xsj;
-    //		opserr<<dvol[i]<<endln;
+
     volume += dvol[i];
 
     Bshear.Zero();
@@ -1081,7 +1061,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
     strain.Zero();
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (j = 0; j < ShellDKGT::numberNodes; j++) {
 
       //compute B matrix
       Bmembrane = computeBmembrane(j, shp, shpDrill);
@@ -1127,7 +1107,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
     //residual and tangent calculations node loops
 
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (j = 0; j < ShellDKGT::numberNodes; j++) {
 
       //extract BJ
       for (p = 0; p < nstress; p++) {
@@ -1163,7 +1143,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
 
         //k loop
         kk = 0;
-        for (k = 0; k < numnodes; k++) {
+        for (k = 0; k < ShellDKGT::numberNodes; k++) {
 
           //extract BK
           for (p = 0; p < nstress; p++) {
@@ -1200,15 +1180,12 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
   } //end for i gauss loop
 
   if (applyLoad == 1) {
-    const int numberGauss = 4;
-    const int nShape      = 3;
-    const int numberNodes = 4;
-    const int massIndex   = nShape - 1;
+
     double temp, rhoH;
     //If defined, apply self-weight
     static Vector momentum(ndf);
     double ddvol = 0;
-    for (i = 0; i < numberGauss; i++) {
+    for (i = 0; i < ShellDKGT::numberGauss; i++) {
 
       //get shape functions
       // shape2d( sg[i], tg[i], xl, shp, xsj ) ;
@@ -1230,7 +1207,7 @@ void ShellDKGT::formResidAndTangent(int tang_flag)
       momentum *= rhoH;
 
       //residual and tangent calculations node loops
-      for (j = 0, jj = 0; j < numberNodes; j++, jj += ndf) {
+      for (j = 0, jj = 0; j < ShellDKGT::numberNodes; j++, jj += ndf) {
 
         temp = shp[massIndex][j] * ddvol;
 

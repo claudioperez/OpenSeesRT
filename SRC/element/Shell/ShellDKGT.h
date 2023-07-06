@@ -48,10 +48,10 @@ class ShellDKGT : public Element {
   
   //full constructor
   ShellDKGT( int tag, 
-	     int node1,
-	     int node2,
-	     int node3,
-	     SectionForceDeformation &theMaterial, double b1, double b2, double b3) ;
+         int node1,
+         int node2,
+         int node3,
+         SectionForceDeformation &theMaterial, double b1, double b2, double b3) ;
   
   //destructor 
   virtual ~ShellDKGT( ) ;
@@ -80,14 +80,14 @@ class ShellDKGT : public Element {
 
     //print out element data
     void Print( OPS_Stream &s, int flag ) ;
-	
+    
     //return stiffness matrix 
     const Matrix &getTangentStiff( ) ;
     const Matrix &getInitialStiff( );
     const Matrix &getMass( );
 
     // methods for applying loads
-    void zeroLoad( void );	
+    void zeroLoad( void );    
     int addLoad( ElementalLoad *theLoad, double loadFactor );
     int addInertiaLoadToUnbalance( const Vector &accel );
 
@@ -100,7 +100,7 @@ class ShellDKGT : public Element {
     // public methods for element output
     int sendSelf ( int commitTag, Channel &theChannel );
     int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		           &theBroker );
+                   &theBroker );
 
 
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
@@ -119,17 +119,17 @@ class ShellDKGT : public Element {
 
     //quadrature data
     static const double three ;
-	static const double one;
+    static const double one;
     static const double one_over_three ;
-	static const double five;
-	static const double one_over_five;
-	static const double three_over_five;
-	static const double one_over_four;
-	static const double wg1;
-	static const double wg2;
+    static const double five;
+    static const double one_over_five;
+    static const double three_over_five;
+    static const double one_over_four;
+    static const double wg1;
+    static const double wg2;
     static double sg[4] ;
     static double tg[4] ;
-	static double qg[4] ;
+    static double qg[4] ;
     static double wg[4] ;
 
     //node information
@@ -138,7 +138,7 @@ class ShellDKGT : public Element {
 
     //material information
     SectionForceDeformation *materialPointers[4] ; //pointers to four materials
-					  
+                      
     //local nodal coordinates, two coordinates for each of four nodes
     //static double xl[][4] ; 
     double xl[2][3] ; 
@@ -157,7 +157,7 @@ class ShellDKGT : public Element {
     //inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
-    //form residual and tangent					  
+    //form residual and tangent                      
     void formResidAndTangent( int tang_flag ) ;
 
     //compute Bdrill matrix
@@ -165,12 +165,12 @@ class ShellDKGT : public Element {
 
     //assemble a B matrix 
     const Matrix& assembleB( const Matrix &Bmembrane,
-			                 const Matrix &Bbend, 
-			                 const Matrix &Bshear ) ;
+                             const Matrix &Bbend, 
+                             const Matrix &Bshear ) ;
   
     //compute Bmembrane matrix
     const Matrix& computeBmembrane( int node, const double shp[3][3],
-		                         const double shpDrill[4][3]) ;
+                                 const double shpDrill[4][3]) ;
   
     //compute Bbend matrix
     const Matrix& computeBbend( int node, const double shpBend[6][9] ) ;
@@ -180,23 +180,31 @@ class ShellDKGT : public Element {
 
     //shape function routine for four node quads
     void shape2d( double ss, double tt,double qq, 
-		          const double x[2][3], 
-		          double shp[3][3], 
-		          double &xsj ,double sx[2][2]) ;
+                  const double x[2][3], 
+                  double shp[3][3], 
+                  double &xsj ,double sx[2][2]) ;
 
-	//shape function routine for membrane
-	void shapeDrill(double ss, double tt,double qq,  
-		          const double x[2][3],
-				  double sx[2][2], double shpDrill[4][3]);
-	//shape function routine for bending
-	void shapeBend(double ss, double tt,double qq,  const double x[2][3],
-		          double sx[2][2], double shpBend[6][9]);
+    //shape function routine for membrane
+    void shapeDrill(double ss, double tt,double qq,  
+                    const double x[2][3],
+                    double sx[2][2], double shpDrill[4][3]);
+    //shape function routine for bending
+    void shapeBend(double ss, double tt,double qq,  const double x[2][3],
+                   double sx[2][2], double shpBend[6][9]);
 
     // vector for applying loads
     Vector *load;
     Matrix *Ki;
 
     double b[3];        // Body forces
-    double appliedB[3];     // Body forces applied with load
+    double appliedB[3]; // Body forces applied with load
     int applyLoad;
+
+
+    static const int ndf         = 6;
+    static const int numberNodes = 3;
+    static const int numberGauss = 4;
+    static const int nShape      = 3;
+    static const int massIndex   = nShape - 1;
+
 } ; 
