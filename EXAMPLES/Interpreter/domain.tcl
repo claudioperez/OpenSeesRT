@@ -27,7 +27,6 @@ if {[getNumElements] != 3} {
 
 getNodeTags
 
-
 print
 
 remove sp 2
