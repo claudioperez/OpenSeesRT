@@ -64,7 +64,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 
 
-   int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
+int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 static Tcl_CmdProc specifyAnalysis;
 static Tcl_CmdProc eigenAnalysis;
 static Tcl_CmdProc modalProperties;
@@ -141,7 +141,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
 }
 
 //
-// command invoked to allow the Analysis object to be built
+// command invoked to build an Analysis object
 //
 int
 specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -172,20 +172,10 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
 
   } else {
-    opserr << "ERROR Analysis type '" << argv[1]
-      << "' does not exists (Static Transient only). \n";
+    opserr << G3_ERROR_PROMPT << "Analysis type '" << argv[1]
+      << "' does not exists (Static or Transient only). \n";
     return TCL_ERROR;
   }
-
-#if 0
-  if (theEigenSOE != 0) {
-    if (the_static_analysis != 0 ) {
-      the_static_analysis->setEigenSOE(*theEigenSOE);
-    } else if (theTransientAnalysis != 0) {
-      theTransientAnalysis->setEigenSOE(*theEigenSOE);
-    }
-  }
-#endif
 
   return TCL_OK;
 }
@@ -201,67 +191,65 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
-  int result = 0;
-
-
-  StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
-  DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
   VariableTimeStepDirectIntegrationAnalysis* theVariableTimeStepTransientAnalysis =
       builder->getVariableTimeStepDirectIntegrationAnalysis();
 
-  if (the_static_analysis != nullptr) {
-    int numIncr;
-    if (argc < 2) {
-      opserr << G3_ERROR_PROMPT << "static analysis: analysis numIncr?\n";
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
-      return TCL_ERROR;
-
-    result = the_static_analysis->analyze(numIncr);
-
-  } else if (theTransientAnalysis != nullptr) {
-    double dT;
-    int numIncr;
-    if (argc < 3) {
-      opserr << G3_ERROR_PROMPT << "transient analysis: analysis numIncr? deltaT?\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[2], &dT) != TCL_OK)
-      return TCL_ERROR;
-
-    // TODO: Set global timestep variable
-    ops_Dt = dT;
-
-    if (argc == 6) {
-      int Jd;
-      double dtMin, dtMax;
-      if (Tcl_GetDouble(interp, argv[3], &dtMin) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetDouble(interp, argv[4], &dtMax) != TCL_OK)
-        return TCL_ERROR;
-      if (Tcl_GetInt(interp, argv[5], &Jd) != TCL_OK)
-        return TCL_ERROR;
-
-      if (theVariableTimeStepTransientAnalysis != nullptr)
-        result = theVariableTimeStepTransientAnalysis->analyze(
-            numIncr, dT, dtMin, dtMax, Jd);
-      else {
-        opserr << G3_ERROR_PROMPT << "analyze - no variable time step transient analysis "
-                  "object constructed\n";
+  int result = 0;
+  switch (builder->CurrentAnalysisFlag) {
+    case BasicAnalysisBuilder::CURRENT_STATIC_ANALYSIS: {
+      int numIncr;
+      if (argc < 2) {
+        opserr << G3_ERROR_PROMPT << "static analysis: analysis numIncr?\n";
         return TCL_ERROR;
       }
 
-    } else {
-      result = theTransientAnalysis->analyze(numIncr, dT);
-    }
+      if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
+        return TCL_ERROR;
 
-  } else {
-    opserr << G3_ERROR_PROMPT << "No Analysis type has been specified \n";
-    return TCL_ERROR;
+  //  result = the_static_analysis->analyze(numIncr);
+      result = builder->analyze(numIncr, 0.0);
+      break;
+    }
+    case BasicAnalysisBuilder::CURRENT_TRANSIENT_ANALYSIS: {
+      double dT;
+      int numIncr;
+      if (argc < 3) {
+        opserr << G3_ERROR_PROMPT << "transient analysis: analysis numIncr? deltaT?\n";
+        return TCL_ERROR;
+      }
+      if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
+        return TCL_ERROR;
+      if (Tcl_GetDouble(interp, argv[2], &dT) != TCL_OK)
+        return TCL_ERROR;
+
+      if (argc == 6) {
+        int Jd;
+        double dtMin, dtMax;
+        if (Tcl_GetDouble(interp, argv[3], &dtMin) != TCL_OK)
+          return TCL_ERROR;
+        if (Tcl_GetDouble(interp, argv[4], &dtMax) != TCL_OK)
+          return TCL_ERROR;
+        if (Tcl_GetInt(interp, argv[5], &Jd) != TCL_OK)
+          return TCL_ERROR;
+
+        if (theVariableTimeStepTransientAnalysis != nullptr)
+          result = theVariableTimeStepTransientAnalysis->analyze(
+              numIncr, dT, dtMin, dtMax, Jd);
+        else {
+          opserr << G3_ERROR_PROMPT << "analyze - no variable time step transient analysis "
+                    "object constructed\n";
+          return TCL_ERROR;
+        }
+
+      } else {
+  //    result = theTransientAnalysis->analyze(numIncr, dT);
+        result = builder->analyze(numIncr, dT);
+      }
+      break;
+    }
+    default:
+      opserr << G3_ERROR_PROMPT << "No Analysis type has been specified \n";
+      return TCL_ERROR;
   }
 
 
@@ -379,18 +367,6 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  //
-  // create a transient analysis if no analysis exists
-  // 
-  builder->newEigenAnalysis(typeSolver, shift);
-  StaticAnalysis* theStaticAnalysis = builder->getStaticAnalysis();
-  DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
-
-  if(theStaticAnalysis == nullptr && theTransientAnalysis == nullptr) {
-      builder->newStaticAnalysis();
-      theStaticAnalysis = builder->getStaticAnalysis();
-  }
-
   int requiredDataSize = 40 * numEigen;
   if (requiredDataSize > resDataSize) {
     if (resDataPtr != nullptr) {
@@ -403,14 +379,13 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   for (int i = 0; i < requiredDataSize; i++)
     resDataPtr[i] = '\n';
 
-  int result = 0;
 
-  if (theStaticAnalysis != nullptr) {
-      result = theStaticAnalysis->eigen(numEigen,generalizedAlgo,findSmallest);
+  //
+  // create a transient analysis if no analysis exists
+  // 
+  builder->newEigenAnalysis(typeSolver, shift);
 
-  } else if (theTransientAnalysis != nullptr) {
-      result = theTransientAnalysis->eigen(numEigen,generalizedAlgo,findSmallest);
-  }
+  int result = builder->eigen(numEigen,generalizedAlgo,findSmallest);
 
   if (result == 0) {
     const Vector &eigenvalues = domain->getEigenvalues();
@@ -524,7 +499,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  if (numEigen == 0 || theEigenSOE == 0) {
+  if (numEigen == 0 || theEigenSOE == nullptr) {
     opserr << "WARINING - modalDmping - eigen command needs to be called first "
               "- NO MODAL DAMPING APPLIED\n ";
   }
@@ -612,7 +587,7 @@ printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
   else
     theIntegrator = theTransientIntegrator;
 
-  // if just 'print <filename> algorithm'- no flag
+  // if just 'print <filename> integrator'- no flag
   if (argc == 0) {
     theIntegrator->Print(output);
     return TCL_OK;
@@ -639,7 +614,11 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   FileStream outputFile;
   OPS_Stream *output = &opserr;
-  LinearSOE *theSOE = builder->getLinearSOE(0);
+  LinearSOE  *theSOE = builder->getLinearSOE(0);
+  if (theSOE == nullptr) {
+    opserr << G3_ERROR_PROMPT << "Cannot find an active system of equations\n";
+    return TCL_ERROR;
+  }
 
   bool ret = false;
   int currentArg = 1;
@@ -661,33 +640,34 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     currentArg++;
   }
 
-  if (theSOE != nullptr) {
-    if (theStaticIntegrator != nullptr)
-      theStaticIntegrator->formTangent();
+  if (builder->getStaticIntegrator() != nullptr)
+    builder->getStaticIntegrator()->formTangent();
 
-    else if (theTransientIntegrator != nullptr)
-      theTransientIntegrator->formTangent(0);
+  else if (builder->getTransientIntegrator() != nullptr)
+    builder->getTransientIntegrator()->formTangent(0);
 
-    const Matrix *A = theSOE->getA();
-    if (A != 0) {
-      if (ret) {
-        int n = A->noRows();
-        int m = A->noCols();
-        if (n * m > 0) {
-          for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-              char buffer[40];
-              sprintf(buffer, "%.10e ", (*A)(i, j));
-              Tcl_AppendResult(interp, buffer, NULL);
-            }
-          }
+  const Matrix *A = theSOE->getA();
+  if (A == nullptr) {
+    opserr << G3_ERROR_PROMPT << "Could not get matrix from linear system\n";
+    return TCL_ERROR;
+  }
+
+  if (ret) {
+    int n = A->noRows();
+    int m = A->noCols();
+    if (n * m > 0) {
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+          char buffer[40];
+          sprintf(buffer, "%.10e ", (*A)(i, j));
+          Tcl_AppendResult(interp, buffer, NULL);
         }
-      } else {
-        *output << *A;
-        // close the output file
-        outputFile.close();
       }
     }
+  } else {
+    *output << *A;
+    // close the output file
+    outputFile.close();
   }
 
   return res;
@@ -753,26 +733,6 @@ wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv
   if (cd != nullptr) {
     BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)cd;
     builder->wipe();
-
-  } else {
-#if 0
-    if (theTransientAnalysis != nullptr) {
-      theTransientAnalysis->clearAll();
-      delete theTransientAnalysis;
-      theTransientAnalysis = 0;
-    }
-
-    // NOTE : DON'T do the above on theVariableTimeStepAnalysis
-    // as it and theTansientAnalysis are one in the same
-
-    theAlgorithm = nullptr;
-    theHandler   = nullptr;
-    theEigenSOE = nullptr;
-    G3_setStaticIntegrator(rt,nullptr);
-    theTransientIntegrator = nullptr;
-    theVariableTimeStepTransientAnalysis = nullptr;
-    theTest = nullptr;
-#endif
   }
   return TCL_OK;
 }
