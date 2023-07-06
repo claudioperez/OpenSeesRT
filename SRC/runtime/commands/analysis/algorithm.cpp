@@ -55,6 +55,7 @@ TclEquiSolnAlgo G3Parse_newSecantNewtonAlgorithm;
 TclEquiSolnAlgo G3Parse_newLinearAlgorithm;
 TclEquiSolnAlgo G3_newNewtonLineSearch;
 static TclEquiSolnAlgo G3_newKrylovNewton;
+static TclEquiSolnAlgo G3_newBroyden;
 
 
 //
@@ -145,6 +146,11 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   // check argv[1] for type of Algorithm and create the object
   if (strcmp(argv[1], "Linear") == 0) {
     theNewAlgo = G3Parse_newLinearAlgorithm(clientData, interp, argc, argv);
+  }
+
+  else if (strcmp(argv[1], "Broyden") == 0) {
+    void *theNewtonAlgo = G3_newBroyden(clientData, interp, argc, argv);
+    theNewAlgo = (EquiSolnAlgo *)theNewtonAlgo;
   }
 
   else if (strcmp(argv[1], "Newton") == 0) {
@@ -562,7 +568,7 @@ G3_newPeriodicNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   return theNewAlgo;
 }
 
-EquiSolnAlgo *
+static EquiSolnAlgo *
 G3_newBroyden(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char ** const argv)
 {
