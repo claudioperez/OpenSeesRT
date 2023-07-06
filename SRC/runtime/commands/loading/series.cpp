@@ -11,6 +11,9 @@
 // Created: 11/00
 // Revision: A
 //
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <string.h>
 #include <g3_api.h>
 #include <G3_Logging.h>
@@ -98,7 +101,7 @@ static TimeSeries *
 TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+//  Domain *theDomain = G3_getDomain(rt);
 
   // note the 1 instead of usual 2
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
@@ -112,86 +115,98 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     if (theResult != 0)
       theSeries = (TimeSeries *)theResult;
   }
-#if 0
+// #if 0
     else if (strcmp(argv[0],"Trig") == 0 || 
              strcmp(argv[0],"Sine") == 0) {
      // LoadPattern and TrigSeries - read args & create TrigSeries object
+     int tag = 0;
      double cFactor = 1.0;
      double tStart, tFinish, period;
      double shift = 0.0;
        
-     if (argc < 4) {
+     if (argc < 3) {
        opserr << "WARNING not enough TimeSeries args - ";
-       opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
+       opserr << " Trig <tag?> tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
        return 0; 
-     }   
-     if (Tcl_GetDouble(interp, argv[1], &tStart) != TCL_OK) {
-       opserr << "WARNING invalid tStart " << argv[1] << " - ";
+     }
+     int argi = 1;
+
+     if (argc == 5 || argc == 7 || argc == 9 || argc == 11) {
+      if (Tcl_GetInt(interp, argv[argi++], &tag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid series tag in Trig tag?" << endln;
+        return nullptr;
+      }
+     }
+
+     if (Tcl_GetDouble(interp, argv[argi++], &tStart) != TCL_OK) {
+       opserr << "WARNING invalid tStart " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
        return 0;                         
      }
-     if (Tcl_GetDouble(interp, argv[2], &tFinish) != TCL_OK) {
-       opserr << "WARNING invalid tFinish " << argv[2] << " - ";
+
+     if (Tcl_GetDouble(interp, argv[argi++], &tFinish) != TCL_OK) {
+       opserr << "WARNING invalid tFinish " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
        return 0; 
-     }     
-     if (Tcl_GetDouble(interp, argv[3], &period) != TCL_OK) {
-       opserr << "WARNING invalid period " << argv[3] << " - ";
+     }
+
+     if (Tcl_GetDouble(interp, argv[argi++], &period) != TCL_OK) {
+       opserr << "WARNING invalid period " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
-       return 0; 
-     }     
-     
-     int endMarker = 4;
-     
-     while (endMarker < argc && endMarker < argc) {
-       if (strcmp(argv[endMarker],"-factor") == 0) {
-         // allow user to specify the factor
-         endMarker++;
-         if (endMarker == argc || 
-             Tcl_GetDouble(interp, argv[endMarker], &cFactor) != TCL_OK) {
+       return TCL_ERROR; 
+     } else if (period == 0.0) {
+       opserr << G3_WARN_PROMPT << "Period for '" << argv[0] << "' is zero.\n";
+     }
+      
+     while (argi < argc) {
+       if (strcmp(argv[argi], "-factor") == 0) {
+         // allow user to specify a scaling factor
+         argi++;
+         if (argi == argc || 
+             Tcl_GetDouble(interp, argv[argi], &cFactor) != TCL_OK) {
            
-           opserr << "WARNING invalid cFactor " << argv[endMarker] << " -";
+           opserr << "WARNING invalid cFactor " << argv[argi] << " -";
            opserr << " Trig  tStart tFinish period -factor cFactor\n";
            cleanup(argv);
            return 0;
          }
        }
  
-       else if (strcmp(argv[endMarker],"-shift") == 0) {
+       else if (strcmp(argv[argi],"-shift") == 0) {
          // allow user to specify phase shift
-         endMarker++;
-         if (endMarker == argc || 
-             Tcl_GetDouble(interp, argv[endMarker], &shift) != TCL_OK) {
+         argi++;
+         if (argi == argc || 
+             Tcl_GetDouble(interp, argv[argi], &shift) != TCL_OK) {
              
-           opserr << "WARNING invalid phase shift " << argv[endMarker] << " - ";
+           opserr << "WARNING invalid phase shift " << argv[argi] << " - ";
            opserr << " Trig tStart tFinish period -shift shift\n";
            cleanup(argv);
            return 0;
          }
        }
-       endMarker++;
+       argi++;
      }
  
-     theSeries = new TrigSeries(tStart, tFinish, period, shift, cFactor);
+     theSeries = new TrigSeries(tag, tStart, tFinish, period, shift, cFactor);
          
    }
-#endif
-// #if 0
+// #endif
+#if 0
    else if ((strcmp(argv[0], "Trig") == 0) ||
              (strcmp(argv[0], "TrigSeries") == 0) ||
              (strcmp(argv[0], "Sine") == 0) ||
              (strcmp(argv[0], "SineSeries") == 0)) {
 
     void *theResult = OPS_TrigSeries(rt, argc, argv);
-    if (theResult != 0)
+    if (theResult != nullptr)
       theSeries = (TimeSeries *)theResult;
 
   }
-// #endif
+#endif
 
   else if ((strcmp(argv[0], "Linear") == 0) ||
            (strcmp(argv[0], "LinearSeries") == 0)) {
@@ -255,6 +270,8 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     bool prependZero = false;
     double startTime = 0.0;
 
+    struct stat fileInfo;
+
     if (Tcl_GetInt(interp, argv[endMarker], &tag) == TCL_OK) {
       endMarker++;
     }
@@ -301,6 +318,11 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         endMarker++;
         if (endMarker != argc) {
           fileName = endMarker; // argv[endMarker];
+          if (stat(argv[endMarker], &fileInfo ) != 0) {
+            opserr << G3_ERROR_PROMPT << "Cannot open file "
+                   << argv[endMarker] << "\n";
+            return nullptr;
+          }
         }
       }
 
@@ -309,6 +331,11 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         endMarker++;
         if (endMarker != argc) {
           filePathName = endMarker; // argv[endMarker];
+          if (stat(argv[endMarker], &fileInfo ) != 0) {
+            opserr << G3_ERROR_PROMPT << "Cannot open file "
+                   << argv[endMarker] << "\n";
+            return nullptr;
+          }
         }
       }
 
@@ -317,6 +344,11 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
         endMarker++;
         if (endMarker != argc) {
           fileTimeName = endMarker; // argv[endMarker];
+          if (stat(argv[endMarker], &fileInfo ) != 0) {
+            opserr << G3_ERROR_PROMPT << "Cannot open file "
+                   << argv[endMarker] << "\n";
+            return nullptr;
+          }
         }
       }
 

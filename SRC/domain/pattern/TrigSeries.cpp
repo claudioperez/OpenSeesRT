@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2010-04-06 20:16:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/TrigSeries.cpp,v $
-
+//
+// Purpose: This file contains the class implementation of TrigSeries.
+//
 // Written: fmk 
 // Created: 07/99
 // Revision: A
 //
-// Purpose: This file contains the class implementation of TrigSeries.
-//
-// What: "@(#) TrigSeries.C, revA"
-
-
 #include <TrigSeries.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -38,84 +31,6 @@
 
 #include <string.h>
 #include <math.h>
-
-#include <elementAPI.h>
-
-
-void * OPS_ADD_RUNTIME_VPV(OPS_TrigSeries)
-{
-    // Pointer to a uniaxial material that will be returned
-    TimeSeries *theSeries = 0;
-
-    int numRemainingArgs = OPS_GetNumRemainingInputArgs();
-
-    if (numRemainingArgs < 3) {
-        opserr << "WARNING: invalid num args Trig <tag?> $tStart $tFinish $period <-phaseShift shift> <-factor cFactor> <-zeroShift shift>\n";
-        return 0;
-    }
-
-    int tag = 0;      // default tag = 0
-    double dData[6];
-    dData[3] = 0.0;   // default phaseShift = 0.0
-    dData[4] = 1.0;   // default cFactor = 1.0
-    dData[5] = 0.0;   // default zeroShift = 0.0
-    int numData = 0;
-
-    // get tag if provided
-    if (numRemainingArgs == 4 || numRemainingArgs == 6 || numRemainingArgs == 8 || numRemainingArgs == 10) {
-        numData = 1;
-        if (OPS_GetIntInput(&numData, &tag) != 0) {
-            opserr << "WARNING invalid series tag in Trig tag?" << endln;
-            return 0;
-        }
-        numRemainingArgs -= 1;
-    }
-
-    numData = 3;
-    if (OPS_GetDouble(&numData, dData) != 0) {
-        opserr << "WARNING invalid double data in Trig Series with tag: " << tag << endln;
-        return 0;
-    }
-    numRemainingArgs -= 3;
-
-    // parse the optional args
-    while (numRemainingArgs > 1) {
-      const char *argvS = OPS_GetString();
-
-      if (strcmp(argvS,"-shift") == 0 || strcmp(argvS,"-phaseShift") == 0) {
-	numData = 1;
-	if (OPS_GetDouble(&numData, &dData[3]) != 0) {
-	  opserr << "WARNING invalid phase shift in Trig Series with tag?" << tag << endln;
-                return 0;
-	}
-      } else if (strcmp(argvS,"-factor") == 0) {
-	numData = 1;
-            if (OPS_GetDouble(&numData, &dData[4]) != 0) {
-                opserr << "WARNING invalid factor in Trig Series with tag?" << tag << endln;
-                return 0;
-            }
-        } else if (strcmp(argvS,"-zeroShift") == 0) {
-            numData = 1;
-            if (OPS_GetDouble(&numData, &dData[5]) != 0) {
-                opserr << "WARNING invalid zero shift in Trig Series with tag?" << tag << endln;
-                return 0;
-            }
-        } else {
-            opserr << "WARNING unknown option: " << argvS << "  in Trig Series with tag?" << tag << endln;      
-            return 0;
-        }
-        numRemainingArgs -= 2;
-    }
-
-    theSeries = new TrigSeries(tag, dData[0], dData[1], dData[2], dData[3], dData[4], dData[5]);
-
-    if (theSeries == 0) {
-        opserr << "WARNING ran out of memory creating Trig Series with tag: " << tag << "\n";
-        return 0;
-    }
-
-    return theSeries;
-}
 
 
 TrigSeries::TrigSeries(int tag,
@@ -130,10 +45,7 @@ TrigSeries::TrigSeries(int tag,
     period(T), phaseShift(phaseshift),
     cFactor(theFactor), zeroShift(zeroshift)
 {
-    if (period == 0.0) {
-        opserr << "TrigSeries::TrigSeries -- input period is zero, setting period to PI\n";
-        period = 2*asin(1.0);
-    }
+
 }
 
 
