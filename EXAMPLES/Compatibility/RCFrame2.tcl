@@ -182,9 +182,7 @@ if {$displayMode == "displayON"} {
 # 'loadStep', over 'times' iterations
 proc runLoadControl {times initialLoadStep Jd minLoadStep maxLoadStep} {
    integrator LoadControl $initialLoadStep $Jd $minLoadStep $maxLoadStep
-   for {set i 1} {$i <= $times} {incr i 1} {
-     analyze 1
-   }
+   for {set i 1} {$i <= $times} {incr i 1} {analyze 1}
 }
 
 set nSteps  100
@@ -193,14 +191,6 @@ set Jd 3
 set minLoadStep 0.02
 set maxLoadStep 2.0
 
-runLoadControl $nSteps $initialLoadStep $Jd $minLoadStep $maxLoadStep 
-
-
-
-
-
-
-
-
+return [runLoadControl $nSteps $initialLoadStep $Jd $minLoadStep $maxLoadStep]
 
 

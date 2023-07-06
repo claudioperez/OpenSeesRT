@@ -89,9 +89,10 @@ system BandSPD
 analysis Static
 
 # Perform the linear analysis
-analyze 1
+set ok [analyze 1]
 
 # Get the roof displacement
 print node 3
 
+return $ok
 

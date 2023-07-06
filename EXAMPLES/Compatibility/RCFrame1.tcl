@@ -21,8 +21,8 @@
 #
 
 # comment out one of lines
-set displayMode "displayON"
-#set displayMode "displayOFF"
+# set displayMode "displayON"
+set displayMode "displayOFF"
 
 # Define the model builder
 model BasicBuilder -ndm 2 -ndf 3
@@ -192,11 +192,11 @@ while {$ok == 0 && $currentDisp < $maxU} {
     
     # if the analysis fails try initial tangent iteration
     if {$ok != 0} {
-	puts "regular newton failed .. lets try an initail stiffness for this step"
+	puts stderr " .. trying step again with initial stiffness"
 	test NormDispIncr 1.0e-12  2000 1
 	algorithm ModifiedNewton -initial
 	set ok [analyze 1]
-	if {$ok == 0} {puts "that worked .. back to regular newton"}
+	if {$ok == 0} {puts stderr " .. success, back to regular Newton"}
 	test NormDispIncr 1.0e-12  10 
 	algorithm Newton
     }
@@ -209,3 +209,4 @@ if {$ok == 0} {
 } else {
    puts "analysis FAILED";    
 }
+return $ok

@@ -167,7 +167,7 @@ integrator Newmark  0.5  0.25
 numberer RCM
 constraints Plain
 
-# spit out the 1'st 4 eigen values
+# compute the 1'st 4 eigen values
 eigen 4
 
 # create the analysis object
@@ -175,12 +175,11 @@ analysis Transient
 
 #type "Starting Transient Analysis .. hang on"
 
-#        numSteps   dt
-analyze    1000    0.01
+#                 numSteps   dt
+set ok [analyze    1000    0.01]
 
-# spit out the 1'st 4 eigen values
+# compute the 1'st 4 eigen values
 eigen 4
 
-
-
+return $ok
 

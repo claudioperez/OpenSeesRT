@@ -5,18 +5,19 @@
 #
 # Linear and Non-linear EQ analysis
 #
-#    _________________________   _
-#   |            |            |  
-#   |            |            | 12'
-#   |            |            |
-#   |____________|____________|  _
-#   |            |            |
-#   |            |            |
-#   |            |            | 15'
-#   |            |            |
-#   |            |            |  _
-#  ===          ===          ===
-#   |     24'    |     24'    |
+#      _________________________   _
+#     |            |            |  
+#     |            |            | 12'
+#     |            |            |
+#     |____________|____________|  _
+#     |            |            |
+#     |            |            |
+#     |            |            | 15'
+#     |            |            |
+#     |            |            |  _
+#  1 ===        4 ===        7 ===
+#
+#     |     24'    |     24'    |
 #
 set analysis "LINEAR"
 #set analysis "NONLINEAR"
@@ -43,7 +44,7 @@ set w [expr 2.0 * $PI / $period]
 set vel0 [expr -1.0 * $mag * $w]
 
 # ground motion 
-set dispSeries "Sine 0 20.0 $period -factor $mag"
+set dispSeries  "Sine 0 20.0 $period -factor $mag"
 set accelSeries "Sine 0 20.0 $period -factor [expr -1.0 * $w * $w * $mag]"
 
 #    tag  X   Y              massX massY rotZ
@@ -64,26 +65,26 @@ fix   7   1  1  1
 
 if {$analysis == "NONLINEAR"} {
 
-   #                  tag -f'c  -epsco  -f'cu -epscu
+   #                          tag -f'c  -epsco  -f'cu -epscu
    uniaxialMaterial Concrete01 1 -4.00  -0.002    0.0 -0.006
    uniaxialMaterial Concrete01 2 -5.20  -0.005  -4.70  -0.02
 
-	# Steel model
-	#                        tag fy   E     b
-	uniaxialMaterial Steel01  3  60 30000 0.02
+   # Steel model
+   #                        tag fy   E     b
+   uniaxialMaterial Steel01  3  60 30000 0.02
 
-    # Interior column section
-    section fiberSec 1 {
-       #           mat nfIJ nfJK   yI  zI    yJ  zJ    yK  zK    yL  zL
-       patch quadr  2    1   12 -11.5  10 -11.5 -10  11.5 -10  11.5  10
-       patch quadr  1    1   14 -13.5 -10 -13.5 -12  13.5 -12  13.5 -10
-       patch quadr  1    1   14 -13.5  12 -13.5  10  13.5  10  13.5  12
-       patch quadr  1    1    2 -13.5  10 -13.5 -10 -11.5 -10 -11.5  10
-       patch quadr  1    1    2  11.5  10  11.5 -10  13.5 -10  13.5  10
-       
-       #              mat nBars area    yI zI    yF zF
-       layer straight  3    6   1.56 -10.5  9 -10.5 -9
-       layer straight  3    6   1.56  10.5  9  10.5 -9
+   # Interior column section
+   section fiberSec 1 {
+      #           mat nfIJ nfJK   yI  zI    yJ  zJ    yK  zK    yL  zL
+      patch quadr  2    1   12 -11.5  10 -11.5 -10  11.5 -10  11.5  10
+      patch quadr  1    1   14 -13.5 -10 -13.5 -12  13.5 -12  13.5 -10
+      patch quadr  1    1   14 -13.5  12 -13.5  10  13.5  10  13.5  12
+      patch quadr  1    1    2 -13.5  10 -13.5 -10 -11.5 -10 -11.5  10
+      patch quadr  1    1    2  11.5  10  11.5 -10  13.5 -10  13.5  10
+      
+      #              mat nBars area    yI zI    yF zF
+      layer straight  3    6   1.56 -10.5  9 -10.5 -9
+      layer straight  3    6   1.56  10.5  9  10.5 -9
    }
 
    # Exterior column section
@@ -193,7 +194,7 @@ integrator Newmark  0.5  0.25
 numberer RCM
 constraints Plain
 
-# spit out the 1'st 4 eigen values
+# compute the 1'st 4 eigen values
 eigen 4
 
 # create the analysis object
@@ -202,10 +203,10 @@ analysis Transient
 #type "Starting Transient Analysis .. hang on"
 
 
-#        numSteps   dt
-analyze    1000    0.01
+#                 numSteps   dt
+set ok [analyze    1000    0.01]
 
-# spit out the 1'st 4 eigen values
+# compute the 1'st 4 eigen values
 eigen 4
 
-
+return $ok
