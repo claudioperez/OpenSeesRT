@@ -83,9 +83,9 @@ set T {}
 set pi 3.141593
 
 foreach lam $lambda {
-	lappend omega [expr sqrt($lam)]
-	lappend f [expr sqrt($lam)/(2*$pi)]
-	lappend T [expr (2*$pi)/sqrt($lam)]
+      lappend omega [expr sqrt($lam)]
+      lappend f [expr sqrt($lam)/(2*$pi)]
+      lappend T [expr (2*$pi)/sqrt($lam)]
 }
 
 puts "periods are $T"

@@ -198,4 +198,3 @@ analysis Static
 
 # perform the gravity load analysis, requires 10 steps to reach the load level
 analyze 10
-

@@ -67,5 +67,5 @@ set numIncr 100;	# Number of analysis increments
 
 # Call the section analysis procedure
 source Library/MomentCurvature.tcl
-exit [MomentCurvature 1 $P [expr $Ky*$mu] $numIncr]
+return [MomentCurvature 1 $P [expr $Ky*$mu] $numIncr]
 

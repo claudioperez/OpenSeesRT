@@ -111,7 +111,7 @@ test EnergyIncr     1.0e-10    20    0
 algorithm Newton
 numberer RCM
 constraints Plain 
-# system SparseGeneral -piv
+system SparseGeneral -piv
 #integrator GeneralizedMidpoint 0.50
 integrator Newmark 0.50 0.25
 analysis Transient

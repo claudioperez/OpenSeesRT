@@ -57,6 +57,6 @@ analysis    Static
 
 analyze 1
 
-print node 4
 print algorithm
+print node 4
 

@@ -79,10 +79,10 @@ foreach eleType {truss CorotTruss} {
     
     # Create the system of equation, a SPD using a band storage scheme
     system BandSPD
-    
+
     # Create the DOF numberer, the reverse Cuthill-McKee algorithm
     numberer RCM
-    
+
     # Create the constraint handler, a Plain handler is used as homo constraints
     constraints Plain
 
@@ -117,10 +117,13 @@ foreach eleType {truss CorotTruss} {
     # ------------------------------
     
     # Perform the analysis
-    analyze 1
+    set ok [analyze 1]
     
     # Print the current state at node 4 and at all elements
     print node 4
     print ele
 
+    if {!$ok} {
+      return $ok
+    }
 }

@@ -30,6 +30,8 @@
 | 0	| `TestElement_Catenary.tcl` |
 | 0	| `TestElement_CoupledZeroLength.tcl` |
 | 0	| `TestElement_Quad9_Bending.tcl` |
+| 0	| `TestElement_Shell_Dynamic2.tcl` |
+| 0	| `TestElement_Shell_Dynamic.tcl` |
 | 0	| `TestElement_Tri31_Patch.tcl` |
 | 0	| `Test.Example1.1.tcl` |
 | 0	| `Test.Example2.1.tcl` |

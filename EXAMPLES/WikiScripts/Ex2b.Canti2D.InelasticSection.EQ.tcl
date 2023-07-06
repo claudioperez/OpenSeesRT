@@ -103,6 +103,13 @@ test NormDispIncr $Tol 6 ; 		# determine if convergence has been achieved at the
 algorithm Newton;			# use Newton's solution algorithm: updates tangent stiffness at every iteration
 set NstepGravity 10;  		# apply gravity in 10 steps
 set DGravity [expr 1./$NstepGravity]; 	# first load increment;
+
+
+# Static INTEGRATOR: -- determine the next time step for an analysis  (http://opensees.berkeley.edu/OpenSees/manuals/usermanual/689.htm)
+#          LoadControl -- Specifies the incremental load factor to be applied to the loads in the domain 
+#          DisplacementControl -- Specifies the incremental displacement at a specified DOF in the domain 
+#          Minimum Unbalanced Displacement Norm -- Specifies the incremental load factor such that the residual displacement norm in minimized 
+#          Arc Length -- Specifies the incremental arc-length of the load-displacement path 
 integrator LoadControl $DGravity;	# determine the next time step for an analysis
 analysis Static;			# define type of analysis static or transient
 analyze $NstepGravity;		# apply gravity
@@ -174,11 +181,6 @@ test $TestType $Tol $maxNumIter $printFlag;
 set algorithmType ModifiedNewton 
 algorithm $algorithmType;        
 
-# Static INTEGRATOR: -- determine the next time step for an analysis  (http://opensees.berkeley.edu/OpenSees/manuals/usermanual/689.htm)
-#          LoadControl -- Specifies the incremental load factor to be applied to the loads in the domain 
-#          DisplacementControl -- Specifies the incremental displacement at a specified DOF in the domain 
-#          Minimum Unbalanced Displacement Norm -- Specifies the incremental load factor such that the residual displacement norm in minimized 
-#          Arc Length -- Specifies the incremental arc-length of the load-displacement path 
 # Transient INTEGRATOR: -- determine the next time step for an analysis including inertial effects 
 #          Newmark -- The two parameter time-stepping method developed by Newmark 
 #          HHT -- The three parameter Hilbert-Hughes-Taylor time-stepping method 
@@ -193,7 +195,6 @@ integrator Newmark $NewmarkGamma $NewmarkBeta
 #          variableTransient Analysis -- performs the same analysis type as the Transient Analysis object. The time step, however, is variable. This method is used when 
 #                 there are convergence problems with the Transient Analysis object at a peak or when the time step is too small. The time step in the output is also variable.
 analysis Transient
-
 # define DAMPING--------------------------------------------------------------------------------------
 # apply Rayleigh DAMPING from $xDamp
 # D=$alphaM*M + $betaKcurr*Kcurrent + $betaKcomm*KlastCommit + $beatKinit*$Kinitial

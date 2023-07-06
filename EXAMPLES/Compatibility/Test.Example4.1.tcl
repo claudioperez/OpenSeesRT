@@ -280,12 +280,12 @@ pattern Plain 2 Linear {
 
 # Create a recorder which writes to Node.out and prints
 # the current load factor (pseudo-time) and dof 1 displacements at node 2 & 3
-recorder Node Node41.out disp -time -node 2 3 -dof 1
+recorder Node -file out/Node41.out disp -time -node 2 3 -dof 1
 
 # Source in some commands to display the model
 # comment out one of lines
-set displayMode "displayON"
-#set displayMode "displayOFF"
+# set displayMode "displayON"
+set displayMode "displayOFF"
 
 #if {$displayMode == "displayON"} {
 #    # a window to plot the nodal displacements versus load for node 3
