@@ -14,7 +14,7 @@
 
 target_link_libraries(OpenSeesRT PRIVATE OPS_Material_YieldSurface)
 
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
     "TclModelBuilderYS_EvolutionCommand.cpp"
     "TclModelBuilderYSPlasticMaterialCommand.cpp"
     "TclModelBuilderYieldSurfaceBCCommand.cpp"

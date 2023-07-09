@@ -22,8 +22,7 @@ printCommand(int argc, TCL_Char ** const argv)
 
 int
 TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char ** const argv,
-                                      TclBasicBuilder *theBuilder)
+                                      int argc, TCL_Char ** const argv)
 {
   int tag;
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
@@ -37,7 +36,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   // Pointer to a ys that will be added to the model builder
-  YieldSurface_BC *theYS = 0;
+  YieldSurface_BC *theYS = nullptr;
 
   if (strcmp(argv[1], "null") == 0) {
     if (argc < 4) {

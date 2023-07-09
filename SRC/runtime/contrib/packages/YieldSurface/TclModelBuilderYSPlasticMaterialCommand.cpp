@@ -126,7 +126,7 @@ material objects destructor, otherwise mem leak return TCL_ERROR;
 
 int
 TclExponReducingCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv, TclBasicBuilder *theTclBuilder)
+                        TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
@@ -224,7 +224,7 @@ TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   }
 #endif
   else if (strcmp(argv[1], "exponReducing") == 0) {
-    return TclExponReducingCommand(clientData, interp, argc, argv, theTclBuilder);
+    return TclExponReducingCommand(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "null") == 0) {
     return TclNullPlasticMaterialCommand(clientData, interp, argc, argv, theTclBuilder);
