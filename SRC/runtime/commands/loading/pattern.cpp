@@ -201,7 +201,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
         currentArg++;
         accelSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
-        if (accelSeries == 0) {
+        if (accelSeries == nullptr) {
           opserr << "WARNING invalid accel series: " << argv[currentArg];
           opserr << " pattern UniformExcitation -accel {series}\n";
           return TCL_ERROR;

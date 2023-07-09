@@ -112,7 +112,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       (strcmp(argv[0], "ConstantSeries") == 0)) {
 
     void *theResult = OPS_ConstantSeries(rt, argc, argv);
-    if (theResult != 0)
+    if (theResult != nullptr)
       theSeries = (TimeSeries *)theResult;
   }
 // #if 0
@@ -128,7 +128,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
        opserr << "WARNING not enough TimeSeries args - ";
        opserr << " Trig <tag?> tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
-       return 0; 
+       return nullptr; 
      }
      int argi = 1;
 
@@ -143,21 +143,22 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
        opserr << "WARNING invalid tStart " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
-       return 0;                         
+       return nullptr;
      }
 
      if (Tcl_GetDouble(interp, argv[argi++], &tFinish) != TCL_OK) {
        opserr << "WARNING invalid tFinish " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
-       return 0; 
+       return nullptr; 
      }
 
      if (Tcl_GetDouble(interp, argv[argi++], &period) != TCL_OK) {
        opserr << "WARNING invalid period " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
-       return TCL_ERROR; 
+       return nullptr; 
+
      } else if (period == 0.0) {
        opserr << G3_WARN_PROMPT << "Period for '" << argv[0] << "' is zero.\n";
      }
@@ -185,7 +186,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
            opserr << "WARNING invalid phase shift " << argv[argi] << " - ";
            opserr << " Trig tStart tFinish period -shift shift\n";
            cleanup(argv);
-           return 0;
+           return nullptr;
          }
        }
        argi++;

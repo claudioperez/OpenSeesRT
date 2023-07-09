@@ -60,7 +60,9 @@ public:
     int  newTransientAnalysis();
     int  setStaticAnalysis();
     int  setTransientAnalysis();
+    //   Eigen
     void newEigenAnalysis(int typeSolver, double shift);
+    int  eigen(int numMode, bool generalized, bool findSmallest);
     int  getNumEigen() {return numEigen;};
 
     StaticAnalysis* getStaticAnalysis() {return theStaticAnalysis;}
@@ -91,9 +93,10 @@ public:
     void resetTransient();
     void resetAll();
     
+    enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
+
 private:
 //  G3_Table* registry;
-    enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
     Domain                    *theDomain;
     ConstraintHandler 	      *theHandler;
     DOF_Numberer 	      *theNumberer;

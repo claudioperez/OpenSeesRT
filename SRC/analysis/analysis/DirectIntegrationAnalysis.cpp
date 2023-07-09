@@ -286,6 +286,7 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
     int result = 0;
     Domain *the_Domain = this->getDomainPtr();
 
+    // for parallel processing, want all analysis doing an eigenvalue analysis
     result = theAnalysisModel->eigenAnalysis(numMode, generalized, findSmallest);
 
     int stamp = the_Domain->hasDomainChanged();
@@ -296,7 +297,7 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
       result = this->domainChanged();
       
       if (result < 0) {
-	     opserr << "DirectIntegrationAnalysis::eigen() - domainChanged failed";
+        opserr << "DirectIntegrationAnalysis::eigen() - domainChanged failed";
 	return -1;
       }	
     }
@@ -436,10 +437,11 @@ DirectIntegrationAnalysis::domainChanged(void)
 int 
 DirectIntegrationAnalysis::setNumberer(DOF_Numberer &theNewNumberer) 
 {
+#if 0 // TODO(cmp)
     // invoke the destructor on the old one
     if (theDOF_Numberer != 0)
 	delete theDOF_Numberer;
-
+#endif
     // first set the links needed by the Algorithm
     theDOF_Numberer = &theNewNumberer;
     theDOF_Numberer->setLinks(*theAnalysisModel);
@@ -454,10 +456,11 @@ DirectIntegrationAnalysis::setNumberer(DOF_Numberer &theNewNumberer)
 int 
 DirectIntegrationAnalysis::setAlgorithm(EquiSolnAlgo &theNewAlgorithm) 
 {
+#if 1 // TODO
   // invoke the destructor on the old one
   if (theAlgorithm != 0)
     delete theAlgorithm;
-  
+#endif  
   // first set the links needed by the Algorithm
   theAlgorithm = &theNewAlgorithm;
 

@@ -220,7 +220,6 @@ StaticAnalysis::analyze(int numSteps)
 int 
 StaticAnalysis::eigen(int numMode, bool generalized, bool findSmallest)
 {
-
     if (theAnalysisModel == 0 || theEigenSOE == 0) {
       opserr << "WARNING StaticAnalysis::eigen() - no EigenSOE has been set\n";
       return -1;
@@ -270,7 +269,7 @@ StaticAnalysis::eigen(int numMode, bool generalized, bool findSmallest)
     }
    
 
-
+    //
     // if generalized is true, form M
     //
 
@@ -366,7 +365,7 @@ StaticAnalysis::domainChanged(void)
 
     result = theConstraintHandler->handle();
     if (result < 0) {
-	opserr << "StaticAnalysis::handle() - ";
+	opserr << "StaticAnalysis::domainChanged() - ";
 	opserr << "ConstraintHandler::handle() failed";
 	return -1;
     }
@@ -377,14 +376,14 @@ StaticAnalysis::domainChanged(void)
 
     result = theDOF_Numberer->numberDOF();
     if (result < 0) {
-	opserr << "StaticAnalysis::handle() - ";
+	opserr << "StaticAnalysis::domainChanged() - ";
 	opserr << "DOF_Numberer::numberDOF() failed";
 	return -2;
     }	    
 
     result = theConstraintHandler->doneNumberingDOF();
     if (result < 0) {
-	opserr << "StaticAnalysis::handle() - ";
+	opserr << "StaticAnalysis::domainChanged() - ";
 	opserr << "ConstraintHandler::doneNumberingDOF() failed";
 	return -2;
     }	    
@@ -400,10 +399,10 @@ StaticAnalysis::domainChanged(void)
 	return -3;
     }	    
 
-    if (theEigenSOE != 0) {
+    if (theEigenSOE != nullptr) {
       result = theEigenSOE->setSize(theGraph);
       if (result < 0) {
-	opserr << "StaticAnalysis::handle() - ";
+	opserr << "StaticAnalysis::domainChanged() - ";
 	opserr << "EigenSOE::setSize() failed";
 	return -3;
       }	    
@@ -435,10 +434,11 @@ StaticAnalysis::domainChanged(void)
 int 
 StaticAnalysis::setNumberer(DOF_Numberer &theNewNumberer) 
 {
+#if 0 // TODO(cmp)
     // invoke the destructor on the old one
     if (theDOF_Numberer != 0)
 	delete theDOF_Numberer;
-
+#endif
     // first set the links needed by the Algorithm
     theDOF_Numberer = &theNewNumberer;
     theDOF_Numberer->setLinks(*theAnalysisModel);
