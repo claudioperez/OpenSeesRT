@@ -449,16 +449,14 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
 //
 extern int
 TclBasicBuilderYieldSurface_BCCommand(ClientData clienData, Tcl_Interp *interp,
-                                      int argc, TCL_Char ** const argv,
-                                      TclBasicBuilder *theTclBuilder);
+                                      int argc, TCL_Char ** const argv);
 
 int
 TclCommand_addYieldSurface_BC(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char ** const argv)
 
 {
-  return TclBasicBuilderYieldSurface_BCCommand(clientData, interp, argc, argv,
-                                               theTclBuilder);
+  return TclBasicBuilderYieldSurface_BCCommand(clientData, interp, argc, argv);
 }
 
 extern int TclBasicBuilderYS_EvolutionModelCommand(
