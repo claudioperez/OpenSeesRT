@@ -1,8 +1,8 @@
-target_sources(OpenSeesRT PRIVATE
+target_sources(OPS_Runtime PRIVATE
   G3_ReinforcingSteel.cpp
 )
 
-target_sources(OpenSeesCommunity PRIVATE
+target_sources(OPS_Runtime PRIVATE
   ReinforcingSteel.h
   ReinforcingSteel.cpp
 )
