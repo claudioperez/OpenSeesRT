@@ -6,6 +6,10 @@
 // Description: Domain manipulation commands which do not require
 // additional namespacing.
 //
+#include <string.h>
+#ifdef WIN32
+  #define strdup _strdup
+#endif
 #include <assert.h>
 #include <set>
 #include <vector>
@@ -178,14 +182,19 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
            (strcmp(argv[1], "sp") == 0)  ||
            (strcmp(argv[1], "recorder") == 0)) {
     const char** const args = new const char*[argc];
-    args[0] = argv[1];
-    args[1] = argv[0];
+//  args[0] = argv[1];
+//  args[1] = argv[0];
+    args[0] = strdup(argv[1]);
+    args[1] = strdup(argv[0]);
     for (int i=2; i<argc; i++)
-      args[i] = argv[i];
+      args[i] = strdup(argv[i]);
+//    args[i] = argv[i];
 
     Tcl_CmdInfo info;
     assert(Tcl_GetCommandInfo(interp, args[0], &info) == 1);
     int status = info.proc(info.clientData, interp, argc, args);
+    for (int i = 0; i < argc; i++)
+      free((void*)args[i]);
     delete[] args;
     return status;
   }
