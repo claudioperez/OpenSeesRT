@@ -1,0 +1,17 @@
+
+ ----------------   REGIONS   ---------------- 
+
+Area:                    17523.97967 sq in
+Perimeter:               3850.40555 in
+Bounding box:         X: 33298.39601  --  34129.07597 in
+                      Y: 14622.56226  --  14745.54305 in
+Centroid:             X: 33718.50929 in
+                      Y: 14686.94643 in
+Moments of inertia:   X: 3.78005E+12 sq in sq in
+                      Y: 1.99246E+13 sq in sq in
+Product of inertia:  XY: -8.67831E+12 sq in sq in
+Radii of gyration:    X: 14686.98300 in
+                      Y: 33719.28409 in
+Principal moments (sq in sq in) and X-Y directions about centroid:
+                      I: 15560932.81460 along [0.99819 0.06007]
+                      J: 918895130.36655 along [-0.06007 0.99819]
