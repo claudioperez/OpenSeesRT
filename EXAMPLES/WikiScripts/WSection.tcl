@@ -30,7 +30,7 @@ proc WSection { secID matID d bf tf tw nfdw nftw nfbf nftf} {
 	set z3 [expr  $tw/2]
 	set z4 [expr  $bf/2]
   
-	section fiberSec  $secID  {
+	section fiberSec  $secID -GJ 1e8 {
    		#                     nfIJ  nfJK    yI  zI    yJ  zJ    yK  zK    yL  zL
    		patch quadr  $matID  $nfbf $nftf   $y1 $z4   $y1 $z1   $y2 $z1   $y2 $z4
    		patch quadr  $matID  $nftw $nfdw   $y2 $z3   $y2 $z2   $y3 $z2   $y3 $z3

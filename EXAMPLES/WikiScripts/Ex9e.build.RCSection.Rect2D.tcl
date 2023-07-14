@@ -101,7 +101,7 @@ set coreZ [expr $coverZ-$coverB];	# The distance from the section y-axis to the 
 set nfY 16;			# number of fibers for concrete in y-direction
 set nfZ 4;				# number of fibers for concrete in z-direction
 set numBarsInt [expr $numBarsIntTot/2];	# number of intermediate bars per side
-section fiberSec $SecTag     {;	# Define the fiber section
+section fiberSec $SecTag -GJ 1e8 {;	# Define the fiber section
 	patch quadr $IDconcCore $nfZ $nfY -$coreY $coreZ -$coreY -$coreZ $coreY -$coreZ $coreY $coreZ; 	# Define the core patch
 	patch quadr $IDconcCover 1 $nfY -$coverY $coverZ -$coreY $coreZ $coreY $coreZ $coverY $coverZ;	# Define the four cover patches
 	patch quadr $IDconcCover 1 $nfY -$coreY -$coreZ -$coverY -$coverZ $coverY -$coverZ $coreY -$coreZ

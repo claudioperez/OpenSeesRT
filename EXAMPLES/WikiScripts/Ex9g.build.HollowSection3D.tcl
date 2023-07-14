@@ -87,7 +87,7 @@ set y4 [expr $y2+$cover+$dStirrup+$barD/2]
 #coordiantes for steel layers 
 set z4s [expr $z4-$shift]
 
-section Fiber $SecTag {
+section Fiber $SecTag -GJ 1e8 {
 	#cover
 	#                          nfIJ              nfJK    yI  zI  yJ  zJ  yK  zK    yL  zL
 	patch quad $IDconcCover $numSubdivIJ1 $numSubdivJK1 -$y1 $z2 $y1 $z2 $y1 $z1 -$y1 $z1

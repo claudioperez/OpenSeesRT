@@ -28,7 +28,7 @@ proc HSSsection { secID matID d t nfdy nfty nfdz nftz} {
 	set z3 [expr  $dw/2]
 	set z4 [expr  $d/2]
   
-	section fiberSec  $secID  {
+	section fiberSec  $secID -GJ 1e8 {
    		#                     nfIJ  nfJK    yI  zI    yJ  zJ    yK  zK    yL  zL
    		patch quadr  $matID  $nftz $nfdy   $y2 $z4   $y2 $z3   $y3 $z3   $y3 $z4
    		patch quadr  $matID  $nftz $nfdy   $y2 $z2   $y2 $z1   $y3 $z1   $y3 $z2

@@ -49,7 +49,7 @@ set nftf 4;	# number of fibers along flange thickness
   set z4 [expr  $bf/2]
   
   #                           
-  section fiberSec  $SecTag {
+  section fiberSec  $SecTag -GJ 1e8 {
      #                     nfIJ  nfJK    yI  zI    yJ  zJ    yK  zK    yL  zL
      patch quadr  $matIDhard $nfbf $nftf   $y1 $z4   $y1 $z1   $y2 $z1   $y2 $z4
      patch quadr  $matIDhard $nftw $nfdw   $y2 $z3   $y2 $z2   $y3 $z2   $y3 $z3

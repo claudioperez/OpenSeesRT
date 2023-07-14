@@ -66,7 +66,7 @@ set SecTag 1;			# set tag for symmetric section
    set coreZ [expr $coverZ-$coverSec ];	# The distance from the section y-axis to the edge of the core concrete --  edge of the core concrete/inner edge of cover concrete
    set nfY 16;			# number of fibers for concrete in y-direction
    set nfZ 4;			# number of fibers for concrete in z-direction
-   section fiberSec $SecTag   {;	# Define the fiber section
+   section fiberSec $SecTag -GJ 1e8 {;	# Define the fiber section
 	patch quadr $IDconcU $nfZ $nfY -$coverY $coverZ -$coverY -$coverZ $coverY -$coverZ $coverY $coverZ; 	# Define the concrete patch
 	layer straight $IDreinf $numBarsSec $barAreaSec  $coreY $coreZ  $coreY -$coreZ;	# top layer reinforcement
 	layer straight $IDreinf $numBarsSec $barAreaSec -$coreY $coreZ -$coreY -$coreZ;	# bottom layer reinfocement

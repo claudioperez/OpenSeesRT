@@ -117,7 +117,7 @@ uniaxialMaterial Steel02 $IDreinf $Fy $Es $Bs $R0 $cR1 $cR2;			# build reinforce
    set coreZ [expr $coverZ-$coverCol]
    set nfY 16;			# number of fibers for concrete in y-direction
    set nfZ 4;			# number of fibers for concrete in z-direction
-   section fiberSec $ColSecTag   {;	# Define the fiber section
+   section fiberSec $ColSecTag -GJ 1e8 {;	# Define the fiber section
 	patch quadr $IDconcU $nfZ $nfY -$coverY $coverZ -$coverY -$coverZ $coverY -$coverZ $coverY $coverZ; 	# Define the concrete patch
 	layer straight $IDreinf $numBarsCol $barAreaCol -$coreY $coreZ -$coreY -$coreZ;	# top layer reinfocement
 	layer straight $IDreinf $numBarsCol $barAreaCol  $coreY $coreZ  $coreY -$coreZ;	# bottom layer reinforcement

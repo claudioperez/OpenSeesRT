@@ -72,7 +72,7 @@ set nfCoverR 4;		# number of radial divisions in the cover
 set nfCoverT 8;		# number of theta divisions in the cover
 
 # Define the fiber section
-section fiberSec $SecTag  {
+section fiberSec $SecTag  -GJ 1e8 {
 	set rc [expr $ro-$coverSec];					# Core radius
 	patch circ $IDconcCore $nfCoreT $nfCoreR 0 0 $ri $rc 0 360;		# Define the core patch
 	patch circ $IDconcCover $nfCoverT $nfCoverR 0 0 $rc $ro 0 360;	# Define the cover patch

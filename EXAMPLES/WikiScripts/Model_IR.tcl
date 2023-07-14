@@ -330,7 +330,7 @@ recorder Element -file $dataDir/SSreinfEle1sec1.out -time -ele $FirstColumn sect
 set EminfM 500;    #masonry modulus of elasticity
 set sectioninf 10;
 
-section fiberSec $sectioninf {
+section fiberSec $sectioninf -GJ 1e8 {
 	  set infmattag 11;
 	  set fyfibinf 0.756;
 	  set areafibinf 2.214145;

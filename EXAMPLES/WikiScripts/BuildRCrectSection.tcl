@@ -72,7 +72,7 @@ proc BuildRCrectSection {id HSec BSec coverH coverB coreID coverID steelID numBa
 	set numBarsInt [expr $numBarsIntTot/2];	# number of intermediate bars per side
 
 	# Define the fiber section
-	section fiberSec $id {
+	section fiberSec $id -GJ 1e8 {
 		# Define the core patch
 		patch quadr $coreID $nfCoreZ $nfCoreY -$coreY $coreZ -$coreY -$coreZ $coreY -$coreZ $coreY $coreZ
 	   

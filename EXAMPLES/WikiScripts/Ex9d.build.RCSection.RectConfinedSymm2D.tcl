@@ -93,7 +93,7 @@ set SecTag 1;			# set tag for symmetric section
    set nfCoreZ 4;			# number of fibers for concrete in z-direction
    set nfCoverY 16;			# number of fibers for concrete in y-direction -- cover concrete
    set nfCoverZ 4;			# number of fibers for concrete in z-direction
-   section fiberSec $SecTag   {;	# Define the fiber section
+   section fiberSec $SecTag -GJ 1e8 {;	# Define the fiber section
 	# Define the core patch
 	patch quadr $IDconcCore $nfCoreZ $nfCoreY -$coreY $coreZ -$coreY -$coreZ $coreY -$coreZ $coreY $coreZ
       
