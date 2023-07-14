@@ -127,6 +127,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                  << "invalid factor: " << argv[commandEndMarker] << "\n";
           return TCL_ERROR;
         }
+        commandEndMarker++;
 
       } else if (series_arg == nullptr) {
 //      opserr << commandEndMarker << ": " << argv[commandEndMarker] << "\n";
@@ -755,19 +756,20 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
   theTclLoadPattern = thePattern;
 
   builder->setEnclosingPattern(thePattern);
-  // Set the Pattern for "sp" command
-  Tcl_CmdInfo info;
-  assert(Tcl_GetCommandInfo(interp, "sp", &info)==1);
-  info.clientData = (ClientData)thePattern;
-  Tcl_SetCommandInfo(interp, "sp", &info);
-
-  Tcl_CreateCommand(interp, "nodalLoad", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
-  Tcl_Eval(interp, "rename load opensees::import;");
-  Tcl_Eval(interp, "rename nodalLoad load;");
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
+//opserr << commandEndMarker << " / " << argc << "\n";
   if (commandEndMarker < argc) {
+    // Set the Pattern for "sp" command
+    Tcl_CmdInfo info;
+    assert(Tcl_GetCommandInfo(interp, "sp", &info)==1);
+    info.clientData = (ClientData)thePattern;
+    Tcl_SetCommandInfo(interp, "sp", &info);
+
+    // Tcl_CreateCommand(interp, "nodalLoad", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
+    Tcl_Eval(interp, "rename load opensees::import;");
+    Tcl_Eval(interp, "rename nodalLoad load;");
     if (Tcl_Eval(interp, argv[commandEndMarker]) != TCL_OK) {
       // opserr << "WARNING - error reading load pattern information in { }";
       opserr << G3_ERROR_PROMPT << Tcl_GetStringResult(interp);
@@ -775,15 +777,15 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 //    Tcl_Exit(TCL_ERROR);
       return TCL_ERROR;
     }
+    Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
+    info.clientData = (ClientData)nullptr;
+    Tcl_SetCommandInfo(interp, "sp", &info);
+
+    Tcl_Eval(interp, "rename load nodalLoad;");
+//  Tcl_DeleteCommand(interp, "nodalLoad");
+    Tcl_Eval(interp, "rename opensees::import load;");
   }
 
-  Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
-  info.clientData = (ClientData)nullptr;
-  Tcl_SetCommandInfo(interp, "sp", &info);
-
-  Tcl_Eval(interp, "rename load nodalLoad;");
-  Tcl_DeleteCommand(interp, "nodalLoad");
-  Tcl_Eval(interp, "rename opensees::import load;");
 
   return TCL_OK;
 }
@@ -791,22 +793,18 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
+
   G3_Runtime *rt = G3_getRuntime(interp);
-  BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-  Domain *theTclDomain = G3_getDomain(rt);
-  int nodeLoadTag = theTclBuilder->getNodalLoadTag();
+//BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);
+//Domain *theTclDomain = G3_getDomain(rt);
   
   // TODO!!!
-  LoadPattern *theTclLoadPattern = (LoadPattern*)clientData;
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  LoadPattern *theTclLoadPattern = builder->getEnclosingPattern();
+  int nodeLoadTag = builder->getNodalLoadTag();
 
-  // ensure the destructor has not been called
-  if (theTclBuilder == nullptr || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - load \n";
-    return TCL_ERROR;
-  }
-
-  int ndf = theTclBuilder->getNDF(); // argc - 2;
+  int ndf = builder->getNDF(); // argc - 2;
   NodalLoad *theLoad = nullptr;
 
   bool isLoadConst = false;
@@ -864,7 +862,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
     // get the current pattern tag if no tag given in i/p
     if (userSpecifiedPattern == false) {
-      if (theTclLoadPattern == 0) {
+      if (theTclLoadPattern == nullptr) {
         opserr << "WARNING no current load pattern - load " << nodeId;
         opserr << " " << ndf << " forces\n";
         return TCL_ERROR;
@@ -877,13 +875,13 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   }
 
   // add the load to the domain
-  if (theTclDomain->addNodalLoad(theLoad, loadPatternTag) == false) {
+  if (builder->getDomain()->addNodalLoad(theLoad, loadPatternTag) == false) {
     opserr << "WARNING BasicModelBuilder - could not add load to domain\n";
     printCommand(argc, argv);
     delete theLoad;
     return TCL_ERROR;
   }
-  theTclBuilder->incrNodalLoadTag();
+  builder->incrNodalLoadTag();
 
   // if get here we have sucessfully created the load and added it to the domain
   return TCL_OK;

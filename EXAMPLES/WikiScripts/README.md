@@ -31,7 +31,6 @@
 |  0  | `DisplayModel3D.tcl` |  |
 |  0  | `DisplayPlane_IR.tcl` |  |
 |  0  | `DisplayPlane.tcl` |  |
-|  255  | `Dispwall1-cg.tcl` | invalid command name "0" |
 |  255  | `Dynamic.EQ.Uniform_LimitState.tcl` | invalid command name "constraints" |
 |  0  | `EigenAnal_twoStoreyFrame1.tcl` |  |
 |  0  | `EigenAnal_twoStoreyFrame.tcl` |  |
@@ -62,26 +61,24 @@
 |  0  | `Ex5.Frame2D.build.InelasticFiberWSection.tcl` |  |
 |  0  | `Ex5.Frame2D.build.InelasticSection.tcl` |  |
 |  255  | `Ex6.genericFrame2D.build.ElasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
-|  255  | `Ex6.genericFrame2D.build.InelasticFiberRCSection.tcl` | 		set ColWeightFact 1;		# ..." |
-|  255  | `Ex6.genericFrame2D.build.InelasticFiberWSection.tcl` | can't read "ColSecTag": no such variable |
 |  255  | `Ex6.genericFrame2D.build.InelasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
-|  255  | `Ex7.Frame3D.build.RCsec.tcl` | 	set Ec [expr 57*$ksi*pow($fc/$p..." |
-|  255  | `Ex7.Frame3D.build.Wsec.tcl` | 	set Gs ..." |
-|  255  | `Ex8.genericFrame3D.build.RCsec.tcl` | 	set Ec [expr 57*$ksi*pow($fc/$p..." |
-|  255  | `Ex8.genericFrame3D.build.Wsec.tcl` | 	set Gs ..." |
+|  0  | `Ex7.Frame3D.build.RCsec.tcl` |  |
+|  0  | `Ex7.Frame3D.build.Wsec.tcl` |  |
+|  0  | `Ex8.genericFrame3D.build.RCsec.tcl` |  |
+|  0  | `Ex8.genericFrame3D.build.Wsec.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection2D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection3D.tcl` |  |
 |  0  | `Ex9b.build.WSection2D.tcl` |  |
-|  255  | `Ex9b.build.WSection3D.tcl` |      patch quadr  $matIDhard $nfbf $nftf   $..." |
+|  0  | `Ex9b.build.WSection3D.tcl` |  |
 |  0  | `Ex9c.build.RCSection.RectUnconfinedSymm2D.tcl` |  |
-|  255  | `Ex9c.build.RCSection.RectUnconfinedSymm3D.tcl` | 	patch quadr $IDconcU $nfZ $nfY -$coverY $coverZ -$coverY -$coverZ $coverY -$coverZ $coverY $..." |
+|  0  | `Ex9c.build.RCSection.RectUnconfinedSymm3D.tcl` |  |
 |  0  | `Ex9d.build.RCSection.RectConfinedSymm2D.tcl` |  |
-|  255  | `Ex9d.build.RCSection.RectConfinedSymm3D.tcl` | 	patch quadr $IDconcCore $nfCoreZ $nfCoreY -$coreY $coreZ -$coreY -$..." |
+|  0  | `Ex9d.build.RCSection.RectConfinedSymm3D.tcl` |  |
 |  0  | `Ex9e.build.RCSection.Rect2D.tcl` |  |
-|  255  | `Ex9e.build.RCSection.Rect3D.tcl` | 	patch quadr $IDconcCore $nfZ $nfY -$coreY $coreZ -$coreY -$coreZ $coreY -$coreZ $coreY $co..." |
+|  0  | `Ex9e.build.RCSection.Rect3D.tcl` |  |
 |  0  | `Ex9f.build.RCSection.Circ2D.tcl` |  |
-|  255  | `Ex9f.build.RCSection.Circ3D.tcl` | 	patch circ $IDconcCore $nfCoreT $nfCoreR 0 0 $ri $rc 0 360;		# Define the..." |
-|  255  | `Ex9g.build.HollowSection3D.tcl` | 	patch quad $IDconcCover $numSu..." |
+|  0  | `Ex9f.build.RCSection.Circ3D.tcl` |  |
+|  0  | `Ex9g.build.HollowSection3D.tcl` |  |
 |  0  | `Example6_4.tcl` |  |
 |  255  | `ExampleSP1.tcl` | couldn't open "peerRecords.txt": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
@@ -101,7 +98,7 @@
 |  255  | `KikuchiBearing_Sample.tcl` | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
 |  255  | `LateralSpreadPile.tcl` | "equalDOF 502 202 1" |
 |  0  | `ModelingDiaphragms2D.tcl` |  |
-|  255  | `Model_IR.tcl` | 	set Ec [expr 57*$ksi*pow($fc/$p..." |
+|  255  | `Model_IR.tcl` | 		for {set pier 1} {$pier <= [expr $NBay]} {incr pier 1} {        ..." |
 |  0  | `ModelSP1.tcl` |  |
 |  0  | `MomentCurvature2D.tcl` |  |
 |  0  | `MomentCurvature3D.tcl` |  |

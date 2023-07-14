@@ -16,6 +16,7 @@ extern Tcl_CmdProc  TclCommand_getNDM;
 extern Tcl_CmdProc  TclCommand_getNDF;
 extern Tcl_CmdProc  TclCommand_addNode;
 extern Tcl_CmdProc  TclCommand_addNodalMass;
+extern Tcl_CmdProc  TclCommand_addNodalLoad;
 // 
 extern Tcl_CmdProc TclCommand_addSeries;
 extern Tcl_CmdProc  TclCommand_addPattern;
@@ -117,6 +118,7 @@ struct char_cmd {
   {"transform",            TclCommand_addGeomTransf},
 
 //   {"load",             TclCommand_addNodalLoad},
+  {"nodalLoad",            TclCommand_addNodalLoad},
   {"pattern",              TclCommand_addPattern},
   {"timeSeries",           TclCommand_addTimeSeries},
 
