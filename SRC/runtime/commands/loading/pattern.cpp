@@ -127,6 +127,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                  << "invalid factor: " << argv[commandEndMarker] << "\n";
           return TCL_ERROR;
         }
+        commandEndMarker++;
 
       } else if (series_arg == nullptr) {
 //      opserr << commandEndMarker << ": " << argv[commandEndMarker] << "\n";
@@ -767,6 +768,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
+//opserr << commandEndMarker << " / " << argc << "\n";
   if (commandEndMarker < argc) {
     if (Tcl_Eval(interp, argv[commandEndMarker]) != TCL_OK) {
       // opserr << "WARNING - error reading load pattern information in { }";
