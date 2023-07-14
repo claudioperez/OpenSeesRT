@@ -117,6 +117,7 @@ struct char_cmd {
   {"transform",            TclCommand_addGeomTransf},
 
 //   {"load",             TclCommand_addNodalLoad},
+  {"nodalLoad",            TclCommand_addNodalLoad},
   {"pattern",              TclCommand_addPattern},
   {"timeSeries",           TclCommand_addTimeSeries},
 
