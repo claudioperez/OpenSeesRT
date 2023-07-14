@@ -92,9 +92,6 @@ Tcl_CmdProc TclCommand_record;
 Tcl_CmdProc TclCommand_setLoadConst;
 Tcl_CmdProc TclCommand_setCreep;
 
-// domain.cpp
-Tcl_CmdProc domainChange;
-
 
 // TODO: reimplement defaultUnits and setParameter
 // int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
@@ -112,7 +109,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
-  Tcl_CreateCommand(interp, "remove",            &removeObject,    domain, nullptr);
   Tcl_CreateCommand(interp, "region",              &addRegion,     domain, nullptr);
 
 
@@ -165,10 +161,12 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "getParamTags",        &getParamTags,        domain, nullptr);
   Tcl_CreateCommand(interp, "getParamValue",       &getParamValue,       domain, nullptr);
 
-  Tcl_CreateCommand(interp, "fixedNodes",          &fixedNodes,          domain, nullptr);
-  Tcl_CreateCommand(interp, "fixedDOFs",           &fixedDOFs,           domain, nullptr);
-  Tcl_CreateCommand(interp, "constrainedNodes",    &constrainedNodes,    domain, nullptr);
-  Tcl_CreateCommand(interp, "constrainedDOFs",     &constrainedDOFs,     domain, nullptr);
+  Tcl_CreateObjCommand(interp, "fixedNodes",          &fixedNodes,          domain, nullptr);
+  Tcl_CreateObjCommand(interp, "fixedDOFs",           &fixedDOFs,           domain, nullptr);
+  Tcl_CreateObjCommand(interp, "constrainedNodes",    &constrainedNodes,    domain, nullptr);
+  Tcl_CreateObjCommand(interp, "constrainedDOFs",     &constrainedDOFs,     domain, nullptr);
+  Tcl_CreateObjCommand(interp, "domainChange",        &domainChange,        domain, nullptr);
+  Tcl_CreateObjCommand(interp, "remove",              &removeObject,        domain, nullptr);
   Tcl_CreateCommand(interp, "retainedNodes",       &retainedNodes,       domain, nullptr);
   Tcl_CreateCommand(interp, "retainedDOFs",        &retainedDOFs,        domain, nullptr);
 
@@ -189,7 +187,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "recorderValue",       &OPS_recorderValue,   domain, nullptr);
   Tcl_CreateCommand(interp, "record",              &TclCommand_record,   domain, nullptr);
 
-  Tcl_CreateCommand(interp, "domainChange",        &domainChange, nullptr, nullptr);
   Tcl_CreateCommand(interp, "updateElementDomain", &updateElementDomain, nullptr, nullptr);
 
   Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, nullptr);

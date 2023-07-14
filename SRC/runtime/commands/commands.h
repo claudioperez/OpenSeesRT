@@ -37,7 +37,6 @@ Tcl_CmdProc playbackAlgorithmRecorders;
 
 Tcl_CmdProc groundExcitation;
 
-Tcl_CmdProc removeObject;
 
 Tcl_CmdProc eleForce;
 
@@ -87,21 +86,18 @@ Tcl_CmdProc nodeResponse;
 Tcl_CmdProc calculateNodalReactions;
 
 Tcl_CmdProc getNodeTags;
-
-Tcl_CmdProc fixedNodes;
-
-Tcl_CmdProc constrainedNodes;
-
 Tcl_CmdProc retainedNodes;
-//
-Tcl_CmdProc fixedDOFs;
 
-Tcl_CmdProc constrainedDOFs;
+// domain.cpp
+Tcl_ObjCmdProc removeObject;
+Tcl_ObjCmdProc fixedNodes;
+Tcl_ObjCmdProc constrainedNodes;
+Tcl_ObjCmdProc fixedDOFs;
+Tcl_ObjCmdProc constrainedDOFs;
+Tcl_ObjCmdProc domainChange;
 
 Tcl_CmdProc retainedDOFs;
-
 Tcl_CmdProc nodeDOFs;
-
 Tcl_CmdProc nodeMass;
 
 Tcl_CmdProc nodePressure;
