@@ -136,13 +136,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 add_compile_options(
-  # "$<$<CXX_COMPILER_ID:MSVC>:/W4>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>"
-  "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
   "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-Wno-reorder>"
   "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-reorder>"
-  # "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wpedantic>"
   # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wsign-conversion>
   # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wconversion>
 )
@@ -316,6 +313,9 @@ add_library(G3)
 set_property(TARGET OPS_Runtime           PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_MaterialFortran   PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET OPS_ElementFortran    PROPERTY POSITION_INDEPENDENT_CODE 1)
+if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
+  target_compile_options(OPS_ElementFortran PRIVATE "-w")
+endif()
 set_property(TARGET G3                    PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 
