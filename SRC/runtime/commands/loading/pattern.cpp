@@ -92,48 +92,58 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
   LoadPattern *thePattern = nullptr;
 
   // make sure at least one other argument to contain integrator
-  if (argc < 4) {
-    opserr << "WARNING invalid command - want: pattern type ";
+  if (argc < 3) {
+    opserr << G3_ERROR_PROMPT << "invalid command - want: pattern type ";
     opserr << " <type args> {list of load and sp constraints commands}\n";
-    opserr
-        << "           valid types: Plain, UniformExcitation, MultiSupport\n";
+    opserr << "           valid types: Plain, UniformExcitation, MultiSupport\n";
     return TCL_ERROR;
   }
+
+  int commandEndMarker = 3;
 
   TimeSeries *theSeries = nullptr;
-  int patternID = 0;
 
+  int patternID;
   if (Tcl_GetInt(interp, argv[2], &patternID) != TCL_OK) {
-    opserr << "WARNING invalid patternID: pattern type " << argv[2]
-           << "<type args>\n";
+    opserr << "WARNING invalid patternID: " << argv[2] << "\n";
     return TCL_ERROR;
   }
 
-  int commandEndMarker = 0;
-
   if (strcmp(argv[1], "Plain") == 0) {
+    if (argc < 4) {
+        opserr << G3_ERROR_PROMPT << "Invalid command for Plain pattern.\n";
+        return TCL_ERROR;
+    }
 
     double fact = 1.0;
-    if (argc == 7 && ((strcmp(argv[4], "-fact") == 0) ||
-                      (strcmp(argv[4], "-factor") == 0))) {
+    const char* series_arg = nullptr;
 
-      if (Tcl_GetDouble(interp, argv[5], &fact) != TCL_OK) {
-        opserr << "WARNING invalid fact: pattern type Plain\n";
-        return TCL_ERROR;
+    while (commandEndMarker < argc) {
+      if ((strcmp(argv[commandEndMarker], "-fact") == 0) ||
+          (strcmp(argv[commandEndMarker], "-factor") == 0)) {
+
+        if (Tcl_GetDouble(interp, argv[++commandEndMarker], &fact) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT
+                 << "invalid factor: " << argv[commandEndMarker] << "\n";
+          return TCL_ERROR;
+        }
+
+      } else if (series_arg == nullptr) {
+//      opserr << commandEndMarker << ": " << argv[commandEndMarker] << "\n";
+        series_arg = argv[commandEndMarker];
+        commandEndMarker++;
+
+      } else {
+        break;
       }
     }
+
     thePattern = new LoadPattern(patternID, fact);
-    theSeries = TclSeriesCommand(clientData, interp, argv[3]);
+    theSeries = TclSeriesCommand(clientData, interp, series_arg);
 
-    if (thePattern == nullptr || theSeries == nullptr) {
-
-      if (thePattern == nullptr) {
-        opserr << "WARNING - out of memory creating LoadPattern ";
-        opserr << patternID << endln;
-      } else {
-        opserr << "WARNING - problem creating TimeSeries for LoadPattern ";
-        opserr << patternID << endln;
-      }
+    if (theSeries == nullptr) {
+      opserr << G3_ERROR_PROMPT << "problem creating TimeSeries for LoadPattern "
+             << patternID << endln;
 
       // clean up the memory and return an error
       if (thePattern != nullptr)
@@ -265,7 +275,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     thePattern = new UniformExcitation(*theMotion, dir, patternID, vel0, fact);
 
     // Added by MHS to prevent call to Tcl_Eval at end of this function
-    commandEndMarker = currentArg;
+    commandEndMarker = currentArg+1;
   }
 
   else if (strcmp(argv[1], "Uniform") == 0) {
@@ -358,41 +368,9 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)theTclMultiSupportPattern);
     thePattern = theTclMultiSupportPattern;
 
-    commandEndMarker = 2;
+//  commandEndMarker = 2;
   }
 
-#ifdef _H5DRM
-  else if ((strcmp(argv[1], "H5DRM") == 0) || (strcmp(argv[1], "h5drm") == 0)) {
-    int tag = 0;
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING insufficient number of arguments - want: pattern ";
-      opserr << "H5DRM tag filename factor\n";
-      return TCL_ERROR;
-    }
-
-    std::string filename = argv[3];
-
-    double factor = 1.0;
-    if (Tcl_GetDouble(interp, argv[4], &factor) != TCL_OK) {
-      opserr << "WARNING insufficient number of arguments - want: pattern ";
-      opserr << "H5DRM " << patternID << " filename factor\n";
-      return TCL_ERROR;
-    }
-
-    opserr << "Creating H5DRM tag = " << tag
-           << " filename = " << filename.c_str() << " factor = " << factor
-           << endln;
-
-    thePattern = new H5DRM(tag, filename, factor);
-
-    opserr << "Done! Creating H5DRM tag = " << tag
-           << " filename = " << filename.c_str() << " factor = " << factor
-           << endln;
-
-    domain->addLoadPattern(thePattern);
-    return TCL_OK;
-  }
-#endif
 
 #ifdef OPSDEF_DRM
   //////// //////// ///////// ////////// /////  // DRMLoadPattern add BEGIN
@@ -718,14 +696,15 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                                              drm_box_crds, ele_d, steps_cached);
       // theTclMultiSupportPattern = 0;
       Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
-      commandEndMarker = c_arg;
+      commandEndMarker = c_arg+1;
     }
 
   }    // end else if DRMLoadPattern
 #endif // OPSDEF_DRM
 
 #ifdef _H5DRM
-  else if ((strcmp(argv[1], "H5DRM") == 0) || (strcmp(argv[1], "h5drm") == 0)) {
+  else if ((strcmp(argv[1], "H5DRM") == 0) || 
+           (strcmp(argv[1], "h5drm") == 0)) {
 
     int tag = 0;
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
@@ -760,7 +739,6 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
   else {
     opserr << "WARNING unknown pattern type " << argv[1];
-    opserr << " - want: pattern patternType " << patternID;
     opserr << " \t valid types: Plain, UniformExcitation, "
               "MultiSupportExciatation \n";
     return TCL_ERROR;
@@ -789,18 +767,17 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
-  if (commandEndMarker < (argc - 1)) {
-    if (Tcl_Eval(interp, argv[argc - 1]) != TCL_OK) {
+  if (commandEndMarker < argc) {
+    if (Tcl_Eval(interp, argv[commandEndMarker]) != TCL_OK) {
       // opserr << "WARNING - error reading load pattern information in { }";
-      opserr << G3_WARN_PROMPT << Tcl_GetStringResult(interp);
-      Tcl_Eval(interp, "puts $errorInfo; flush stdout;");
-      Tcl_Exit(TCL_ERROR);
+      opserr << G3_ERROR_PROMPT << Tcl_GetStringResult(interp);
+//    Tcl_Eval(interp, "puts $errorInfo; flush stdout;");
+//    Tcl_Exit(TCL_ERROR);
       return TCL_ERROR;
     }
   }
 
   Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
-  // Tcl_DeleteCommand(interp, "sp");
   info.clientData = (ClientData)nullptr;
   Tcl_SetCommandInfo(interp, "sp", &info);
 
@@ -824,7 +801,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // ensure the destructor has not been called
-  if (theTclBuilder == 0 || clientData == 0) {
+  if (theTclBuilder == nullptr || clientData == 0) {
     opserr << "WARNING builder has been destroyed - load \n";
     return TCL_ERROR;
   }
@@ -837,7 +814,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   int loadPatternTag = 0;
 
   if (1) {
-    // make sure at least one other argument to contain type of system
+    // make sure at least one other argument to contain type
     if (argc < (2 + ndf)) {
       opserr << "WARNING bad command - want: load nodeId " << ndf << "forces\n";
       printCommand(argc, argv);
