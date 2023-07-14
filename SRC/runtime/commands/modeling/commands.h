@@ -16,6 +16,7 @@ extern Tcl_CmdProc  TclCommand_getNDM;
 extern Tcl_CmdProc  TclCommand_getNDF;
 extern Tcl_CmdProc  TclCommand_addNode;
 extern Tcl_CmdProc  TclCommand_addNodalMass;
+extern Tcl_CmdProc  TclCommand_addNodalLoad;
 // 
 extern Tcl_CmdProc TclCommand_addSeries;
 extern Tcl_CmdProc  TclCommand_addPattern;
