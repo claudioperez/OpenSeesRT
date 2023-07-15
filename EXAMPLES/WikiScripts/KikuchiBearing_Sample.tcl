@@ -3,6 +3,8 @@
 
 #begin
 wipe
+set outDir ./out/
+file mkdir $outDir
 
 #---------------------------------------- model, node, fix
 model basic -ndm 3 -ndf 6
@@ -45,8 +47,8 @@ element KikuchiBearing 1   1 2  -shape round -size 1.016 0.320 -nMSS 8 -matMSS 1
 element zeroLength 99   3 2  -mat 99 -dir 2 -orient 0 0 1 1 0 0 ;#control local-y deformation
 
 #---------------------------------------- recorder
-recorder Element -file KikuchiBearing_output_deformation.txt -time -ele 1 basicDeformation
-recorder Element -file KikuchiBearing_output_force.txt -time -ele 1 basicForce
+recorder Element -file $outDir/KikuchiBearing_output_deformation.txt -time -ele 1 basicDeformation
+recorder Element -file $outDir/KikuchiBearing_output_force.txt -time -ele 1 basicForce
 
 #---------------------------------------- load
 timeSeries Path 1 -dt 1.0 -filePath KikuchiBearing_input_Z.tcl

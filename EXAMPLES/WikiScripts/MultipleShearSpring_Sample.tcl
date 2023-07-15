@@ -3,6 +3,8 @@
 
 #----- begin
 wipe
+set outDir ./out/
+file mkdir $outDir
 
 #---------------------------------------- model, node, fix
 model basic -ndm 3 -ndf 6
@@ -21,8 +23,8 @@ element multipleShearSpring 1   1 2   16 -mat 1 -lim 0.5 -orient 0 0 1 1 0 0 ;#n
 element twoNodeLink 99   1 2   -mat 99 99  -dir 2 3 -orient 0 0 1 1 0 0 ;#control local-y&z deformation of MSS
 
 #---------------------------------------- recorder
-recorder Element -file ./MultipleShearSpring_output_deformation.txt -time -ele 1 basicDeformation
-recorder Element -file ./MultipleShearSpring_output_force.txt -time -ele 1 basicForce
+recorder Element -file $outDir/MultipleShearSpring_output_deformation.txt -time -ele 1 basicDeformation
+recorder Element -file $outDir/MultipleShearSpring_output_force.txt -time -ele 1 basicForce
 
 #---------------------------------------- load
 timeSeries Path 1 -dt 1.0 -filePath ./MultipleShearSpring_input_X.tcl
