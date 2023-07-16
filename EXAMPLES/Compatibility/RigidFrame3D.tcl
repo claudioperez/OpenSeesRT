@@ -212,7 +212,7 @@ recorder Node -file out/RigidFrame3D.out -time -node 9 14 19 -dof 1 2 disp
 
 # Convergence test
 #                tol   maxIter  printFlag
-test EnergyIncr 1.0e-8   20         1
+test EnergyIncr 1.0e-8   20         0
 
 # Solution algorithm
 algorithm Newton
