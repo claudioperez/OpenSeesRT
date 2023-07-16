@@ -9,10 +9,11 @@
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
+#include <assert.h>
 #include <string>
 #include <unordered_map>
 #include <runtimeAPI.h>
-
+#include <BarSlipMaterial.h>
 extern OPS_Routine OPS_ASD_SMA_3K;
 extern OPS_Routine OPS_BWBN;
 extern OPS_Routine OPS_Bilin02;
@@ -69,6 +70,7 @@ extern OPS_Routine OPS_MinMaxMaterial;
 extern OPS_Routine OPS_ModIMKPeakOriented02;
 extern OPS_Routine OPS_ModIMKPeakOriented;
 extern OPS_Routine OPS_ModIMKPinching;
+extern OPS_Routine OPS_ModIMKPinching02;
 extern OPS_Routine OPS_MultiLinear;
 extern OPS_Routine OPS_OOHystereticMaterial;
 extern OPS_Routine OPS_OriginCentered;
@@ -109,277 +111,8 @@ extern OPS_Routine OPS_UVCuniaxial;
 extern OPS_Routine OPS_ViscousDamper;
 extern OPS_Routine OPS_ViscousMaterial;
 extern OPS_Routine OPS_pyUCLA;
+
 extern void *OPS_ConcretewBeta(void);
-
-const std::unordered_map<std::string, OPS_Routine*> uniaxial_rt_table 
-{
-// Standard
-    {"Elastic",                OPS_ElasticMaterial           },
-
-    {"Concrete01",             OPS_Concrete01                },
-    {"Concrete02",             OPS_Concrete02                },
-
-// Composites
-    {"MinMaxMaterial",         OPS_MinMaxMaterial            },
-    {"MinMax",                 OPS_MinMaxMaterial            },
-
-    {"Series",                 OPS_SeriesMaterial            },
-
-// Steels
-
-    {"Steel01",                OPS_Steel01                   },
-
-    {"Steel02",                OPS_Steel02                   },
-
-    {"Steel4",                 OPS_Steel4                    },
-
-    {"SteelBRB",               OPS_SteelBRB                  },
-
-    {"SteelFractureDI",        OPS_SteelFractureDI           },
-
-    {"Steel02Fatigue",         OPS_Steel02Fatigue            },
-
-    {"Dodd_Restrepo",          OPS_Dodd_Restrepo             },
-    {"DoddRestrepo" ,          OPS_Dodd_Restrepo             },
-    {"Restrepo",               OPS_Dodd_Restrepo             },
-
-#if !defined(_NO_NEW_RESTREPO)
-    {"DoddRestr",              OPS_DoddRestr                 },
-#endif
-
-
-// Piles
-    {"PySimple3",              OPS_PySimple3                 },
-
-// Other
-    {"ElasticBilin",           OPS_ElasticBilin              },
-    {"ElasticBilinear",        OPS_ElasticBilin              },
-
-    {"ImpactMaterial",         OPS_ImpactMaterial            },
-    {"Impact",                 OPS_ImpactMaterial            },
-
-    {"UVCuniaxial",            OPS_UVCuniaxial               },
-    {"GNG",                    OPS_GNGMaterial               },
-
-    {"SimpleFractureMaterial", OPS_SimpleFractureMaterial    },
-    {"SimpleFracture",         OPS_SimpleFractureMaterial    },
-
-    {"Maxwell",                OPS_Maxwell                   },
-    {"MaxwellMaterial",        OPS_Maxwell                   },
-
-    {"ViscousDamper",          OPS_ViscousDamper             },
-
-    {"DamperMaterial",         OPS_DamperMaterial            },
-
-// Concretes
-    {"Concrete02IS",           OPS_Concrete02IS              },
-    {"ConcreteCM",             OPS_ConcreteCM                },
-    {"ConfinedConcrete01",     OPS_ConfinedConcrete01Material},
-    {"ConfinedConcrete",       OPS_ConfinedConcrete01Material},
-
-    {"BilinearOilDamper",      OPS_BilinearOilDamper         },
-
-    {"Cast",                   OPS_Cast                      },
-    {"CastFuse",               OPS_Cast                      },
-
-    {"ElasticMultiLinear",     OPS_ElasticMultiLinear        },
-    {"ElasticPowerFunc",       OPS_ElasticPowerFunc          },
-
-/* 
-    {"HoehlerStanton",         OPS_HoehlerStanton            },
-*/  
-
-    {"SLModel",                OPS_SLModel                   },
-
-    {"RambergOsgood",          OPS_RambergOsgoodSteel        },
-    {"RambergOsgoodSteel",     OPS_RambergOsgoodSteel        },
-
-//  {"ReinforcingSteel",       OPS_ReinforcingSteel          },
-
-    {"Steel2",                 OPS_Steel2                    },
-
-    {"OriginCentered",         OPS_OriginCentered            },
-
-    {"HookGap",                OPS_HookGap                   },
-
-    {"HyperbolicGapMaterial",  OPS_HyperbolicGapMaterial     },
-
-    {"FRPConfinedConcrete02",  OPS_FRPConfinedConcrete02     },
-
-    {"PinchingLimitState",     OPS_PinchingLimitState        },
-
-    {"InitStrainMaterial",     OPS_InitStrainMaterial        },
-    {"InitStrain",             OPS_InitStrainMaterial        },
-
-    {"InitStressMaterial",     OPS_InitStressMaterial        },
-    {"InitStress",             OPS_InitStressMaterial        },
-
-    {"pyUCLA",                 OPS_pyUCLA                    },
-    {"PYUCLA",                 OPS_pyUCLA                    },
-
-    {"MultiLinear",            OPS_MultiLinear               },
-
-    {"BWBN",                   OPS_BWBN                      },
-
-    {"DegradingPinchedBW",     OPS_DegradingPinchedBW        },
-
-    {"IMKBilin",               OPS_IMKBilin                  },
-
-    {"IMKPeakOriented",        OPS_IMKPeakOriented           },
-
-    {"IMKPinching",            OPS_IMKPinching               },
-
-    {"ModIMKPeakOriented",     OPS_ModIMKPeakOriented        },
-
-    {"ModIMKPeakOriented02",   OPS_ModIMKPeakOriented02      },
-
-    {"Bilin02",                OPS_Bilin02                   },
-
-    {"BoucWenOriginal",        OPS_BoucWenOriginal           },
-
-// Thermal
-    {"Steel01Thermal",         OPS_Steel01Thermal            },
-
-    {"Steel02Thermal",         OPS_Steel02Thermal            },
-
-    {"SteelECThermal",         OPS_SteelECThermal            },
-
-    {"StainlessECThermal",     OPS_StainlessECThermal        },
-
-    {"ElasticThermal",         OPS_ElasticMaterialThermal    },
-
-    {"ConcreteECThermal",      OPS_ConcreteECThermal         },
-
-    {"Concrete02Thermal",      OPS_Concrete02Thermal         },
-
-#if 0
-    {"ConcretewBeta",          OPS_ConcretewBeta             },
-#endif
-
-    {"ConcreteD",              OPS_ConcreteD                 },
-
-    {"ConcreteSakaiKawashima", OPS_ConcreteSakaiKawashima    },
-
-
-    {"SteelMPF",               OPS_SteelMPF                  },
-
-    {"ResilienceLow",          OPS_ResilienceLow             },
-
-    {"ResilienceMaterialHR",   OPS_ResilienceMaterialHR      },
-
-    {"CFSWSWP",                OPS_CFSWSWP                   },
-
-    {"CFSSSWP",                OPS_CFSSSWP                   },
-
-    {"FRPConfinedConcrete",    OPS_FRPConfinedConcrete       },
-
-    {"Masonry",                OPS_Masonry                   },
-
-    {"Trilinwp",               OPS_Trilinwp                  },
-
-    {"Trilinwp2",              OPS_Trilinwp2                 },
-
-    {"Masonryt",               OPS_Masonryt                  },
-
-    {"ElasticPP",              OPS_ElasticPPMaterial         },
-
-    {"Hardening",              OPS_HardeningMaterial         },
-    {"Hardening2",             OPS_HardeningMaterial         },
-
-    {"BilinMaterial",          OPS_Bilin                     },
-    {"Bilin",                  OPS_Bilin                     },
-    
-    {"Hysteretic",             OPS_HystereticMaterial        },
-
-    {"ElasticPPGap",           OPS_EPPGapMaterial            },
-
-
-    {"OOHysteretic",           OPS_OOHystereticMaterial      },
-
-    {"Viscous",                OPS_ViscousMaterial           },
-
-    {"SAWSMaterial",           OPS_SAWSMaterial              },
-    {"SAWS",                   OPS_SAWSMaterial              },
-
-    {"ConcreteZ01Material",    OPS_ConcreteZ01Material       },
-    {"ConcreteZ01",            OPS_ConcreteZ01Material       },
-
-    {"ConcreteL01Material",    OPS_ConcreteL01Material       },
-    {"ConcreteL01",            OPS_ConcreteL01Material       },
-
-    {"SteelZ01Material",       OPS_SteelZ01Material          },
-    {"SteelZ01",               OPS_SteelZ01Material          },
-
-    {"TendonL01Material",      OPS_TendonL01Material         },
-    {"TendonL01",              OPS_TendonL01Material         },
-
-    {"Cable",                  OPS_CableMaterial             },
-
-    {"SMA",                    OPS_SMAMaterial               },
-
-    {"ASD_SMA_3K",             OPS_ASD_SMA_3K                },
-
-    {"HystereticPoly",         OPS_HystereticPoly            },
-
-    {"SPSW02",                 OPS_SPSW02                    },
-
-    {"TDConcreteEXP",          OPS_TDConcreteEXP             },
-
-    {"TDConcrete",             OPS_TDConcrete                },
-
-    {"TDConcreteMC10",         OPS_TDConcreteMC10            },
-
-    {"TDConcreteMC10NL",       OPS_TDConcreteMC10NL          },
-};
-
-/*
-  {"PlateBearingConnectionThermal",  OPS_PlateBearingConnectionThermal},
-  {"PinchingLimitStateMaterial",     OPS_PinchingLimitState           },
-*/
-
-typedef UniaxialMaterial* (G3_TclUniaxialCommand)(G3_Runtime*, int, TCL_Char ** const);
-G3_TclUniaxialCommand TclCommand_KikuchiAikenHDR;
-G3_TclUniaxialCommand TclCommand_KikuchiAikenLRB;
-G3_TclUniaxialCommand G3Parse_newFedeasUniaxialDamage;
-G3_TclUniaxialCommand G3Parse_newUniaxialConcrete04;
-G3_TclUniaxialCommand G3Parse_newUniaxialConcrete06;
-G3_TclUniaxialCommand G3Parse_newUniaxialConcrete07;
-G3_TclUniaxialCommand TclCommand_ReinforcingSteel;
-G3_TclUniaxialCommand G3Parse_newParallelMaterial;
-G3_TclUniaxialCommand G3Parse_newUniaxialBoucWen;
-// G3_TclUniaxialCommand TclCommand_AxialSp;
-// G3_TclUniaxialCommand TclCommand_AxialSpHD;
-
-template <void*(*fn)(G3_Runtime*)> static void*
-G3_(G3_Runtime* rt, int argc, G3_Char** const)
-{
-  return fn(rt);
-}
-
-
-std::unordered_map<std::string, G3_TclUniaxialCommand *> uniaxial_tcl_table = {
-
-    {"FedeasUniaxialDamage", G3Parse_newFedeasUniaxialDamage  },
-    {"KikuchiAikenHDR",      TclCommand_KikuchiAikenHDR       },
-    {"KikuchiAikenLRB",      TclCommand_KikuchiAikenLRB       },
-    /*
-    {"AxialSp",             TclCommand_AxialSp               },
-    {"AxialSpHD",           TclCommand_AxialSpHD             },
-    */
-    {"Concrete04",          G3Parse_newUniaxialConcrete04 },
-    {"Concrete06",          G3Parse_newUniaxialConcrete06 },
-    {"Concrete07",          G3Parse_newUniaxialConcrete07 },
-    {"ReinforcingSteel",    TclCommand_ReinforcingSteel      }, 
-    {"Parallel",            G3Parse_newParallelMaterial      },
-    {"BoucWen",             G3Parse_newUniaxialBoucWen       },
-/*
-    {"Elastic",             G3_<OPS_ElasticMaterial>         },
-
-    {"Steel01",             G3_<OPS_Steel01>                 },
-
-    {"Steel02",             G3_<OPS_Steel02>                 }
-*/
-};
 
 
 typedef UniaxialMaterial*(G3_TclUniaxialPackage)(ClientData, Tcl_Interp *, int, TCL_Char ** const);
@@ -387,14 +120,322 @@ G3_TclUniaxialPackage TclBasicBuilder_addFedeasMaterial;
 G3_TclUniaxialPackage TclBasicBuilder_addSnapMaterial;
 G3_TclUniaxialPackage TclBasicBuilder_addDrainMaterial;
 std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_table {
-
   {"DRAIN",              TclBasicBuilder_addDrainMaterial },
-
   {"SNAP",               TclBasicBuilder_addSnapMaterial  },
   {"snap",               TclBasicBuilder_addSnapMaterial  },
-
 // #if defined(_STEEL2) || defined(OPSDEF_UNIAXIAL_FEDEAS)
 //{"FEDEAS",             TclBasicBuilder_addFedeasMaterial},
 // #endif
+};
+
+
+typedef UniaxialMaterial* (TclDispatch_UniaxialMaterial)(G3_Runtime*, int, TCL_Char ** const);
+TclDispatch_UniaxialMaterial TclCommand_KikuchiAikenHDR;
+TclDispatch_UniaxialMaterial TclCommand_KikuchiAikenLRB;
+TclDispatch_UniaxialMaterial G3Parse_newFedeasUniaxialDamage;
+TclDispatch_UniaxialMaterial G3Parse_newUniaxialConcrete04;
+TclDispatch_UniaxialMaterial G3Parse_newUniaxialConcrete06;
+TclDispatch_UniaxialMaterial G3Parse_newUniaxialConcrete07;
+TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
+TclDispatch_UniaxialMaterial G3Parse_newParallelMaterial;
+TclDispatch_UniaxialMaterial G3Parse_newUniaxialBoucWen;
+// TclDispatch_UniaxialMaterial TclCommand_AxialSp;
+// TclDispatch_UniaxialMaterial TclCommand_AxialSpHD;
+
+typedef int (TclCommand_UniaxialMaterial)(ClientData, Tcl_Interp*, int, TCL_Char ** const);
+static TclCommand_UniaxialMaterial TclDispatch_newUniaxialPinching4;
+static TclCommand_UniaxialMaterial TclDispatch_LegacyUniaxials;
+
+template <OPS_Routine fn> static int
+dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const argv)
+{
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  UniaxialMaterial* theMaterial = (UniaxialMaterial*)fn( rt, argc, argv );
+
+  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
+    delete theMaterial;
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+
+template <UniaxialMaterial*(*fn)(G3_Runtime*, int, TCL_Char** const)> static int
+dispatch(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
+{
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  G3_Runtime *rt = G3_getRuntime(interp);
+  UniaxialMaterial* theMaterial = fn( rt, argc, argv );
+
+  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
+    delete theMaterial;
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+
+template <int (*fn)(ClientData clientData, Tcl_Interp* interp, int, G3_Char** const)> 
+static int
+dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const argv)
+{
+  assert(clientData != nullptr);
+  return fn( clientData, interp, argc, argv );
+}
+
+std::unordered_map<std::string, TclCommand_UniaxialMaterial*> uniaxial_dispatch {
+
+    {"FedeasUniaxialDamage", dispatch<G3Parse_newFedeasUniaxialDamage>  },
+    {"KikuchiAikenHDR",      dispatch<TclCommand_KikuchiAikenHDR>       },
+    {"KikuchiAikenLRB",      dispatch<TclCommand_KikuchiAikenLRB>       },
+    /*
+    {"AxialSp",              TclCommand_AxialSp               },
+    {"AxialSpHD",            TclCommand_AxialSpHD             },
+    */
+    {"Concrete04",           dispatch<G3Parse_newUniaxialConcrete04> },
+    {"Concrete06",           dispatch<G3Parse_newUniaxialConcrete06> },
+    {"Concrete07",           dispatch<G3Parse_newUniaxialConcrete07> },
+#if 0
+    { "ConcretewBeta",       dispatch<OPS_ConcretewBeta>    }
+#endif
+    {"ReinforcingSteel",     dispatch<TclCommand_ReinforcingSteel>   }, 
+    {"Parallel",             dispatch<G3Parse_newParallelMaterial>   },
+    {"BoucWen",              dispatch<G3Parse_newUniaxialBoucWen>    },
+
+    {"Elastic",                dispatch<OPS_ElasticMaterial>           },
+
+    {"Concrete01",             dispatch<OPS_Concrete01>                },
+    {"Concrete02",             dispatch<OPS_Concrete02>                },
+
+    {"Bond_SP01",              dispatch<OPS_Bond_SP01>                 },
+    {"Bond",                   dispatch<OPS_Bond_SP01>                 },
+
+// Composites
+    {"MinMaxMaterial",         dispatch<OPS_MinMaxMaterial>            },
+    {"MinMax",                 dispatch<OPS_MinMaxMaterial>            },
+
+    {"Series",                 dispatch<OPS_SeriesMaterial>            },
+
+// Steels
+
+    {"Steel01",                dispatch<OPS_Steel01>                   },
+
+    {"Steel02",                dispatch<OPS_Steel02>                   },
+
+    {"Steel4",                 dispatch<OPS_Steel4>                    },
+
+    {"SteelBRB",               dispatch<OPS_SteelBRB>                  },
+
+    {"SteelFractureDI",        dispatch<OPS_SteelFractureDI>           },
+
+    {"Steel02Fatigue",         dispatch<OPS_Steel02Fatigue>            },
+
+    {"Dodd_Restrepo",          dispatch<OPS_Dodd_Restrepo>             },
+    {"DoddRestrepo" ,          dispatch<OPS_Dodd_Restrepo>             },
+    {"Restrepo",               dispatch<OPS_Dodd_Restrepo>             },
+
+#if !defined(_NO_NEW_RESTREPO)
+    {"DoddRestr",              dispatch<OPS_DoddRestr>                 },
+#endif
+
+
+// Piles
+    {"PySimple3",              dispatch<OPS_PySimple3>                 },
+
+
+// Other
+
+/*
+  {"PlateBearingConnectionThermal",  OPS_PlateBearingConnectionThermal},
+  {"PinchingLimitStateMaterial",     OPS_PinchingLimitState           },
+*/
+
+// Other
+    {"ElasticBilin",           dispatch<OPS_ElasticBilin>              },
+    {"ElasticBilinear",        dispatch<OPS_ElasticBilin>              },
+
+    {"ImpactMaterial",         dispatch<OPS_ImpactMaterial>            },
+    {"Impact",                 dispatch<OPS_ImpactMaterial>            },
+
+    {"UVCuniaxial",            dispatch<OPS_UVCuniaxial>               },
+    {"GNG",                    dispatch<OPS_GNGMaterial>               },
+
+    {"SimpleFractureMaterial", dispatch<OPS_SimpleFractureMaterial>    },
+    {"SimpleFracture",         dispatch<OPS_SimpleFractureMaterial>    },
+
+    {"Maxwell",                dispatch<OPS_Maxwell>                   },
+    {"MaxwellMaterial",        dispatch<OPS_Maxwell>                   },
+
+    {"ViscousDamper",          dispatch<OPS_ViscousDamper>             },
+
+    {"DamperMaterial",         dispatch<OPS_DamperMaterial>            },
+
+// Concretes
+    {"Concrete02IS",           dispatch<OPS_Concrete02IS>              },
+    {"ConcreteCM",             dispatch<OPS_ConcreteCM>                },
+    {"ConfinedConcrete01",     dispatch<OPS_ConfinedConcrete01Material>},
+    {"ConfinedConcrete",       dispatch<OPS_ConfinedConcrete01Material>},
+
+    {"BilinearOilDamper",      dispatch<OPS_BilinearOilDamper>         },
+
+    {"Cast",                   dispatch<OPS_Cast>                      },
+    {"CastFuse",               dispatch<OPS_Cast>                      },
+
+    {"ElasticMultiLinear",     dispatch<OPS_ElasticMultiLinear>        },
+    {"ElasticPowerFunc",       dispatch<OPS_ElasticPowerFunc>          },
+
+/* 
+    {"HoehlerStanton",         dispatch<OPS_HoehlerStanton>            },
+*/  
+
+    {"SLModel",                dispatch<OPS_SLModel>                   },
+
+    {"RambergOsgood",          dispatch<OPS_RambergOsgoodSteel>        },
+    {"RambergOsgoodSteel",     dispatch<OPS_RambergOsgoodSteel>        },
+
+    {"ReinforcingSteel",       dispatch<OPS_ReinforcingSteel>          },
+
+    {"Steel2",                 dispatch<OPS_Steel2>                    },
+
+    {"OriginCentered",         dispatch<OPS_OriginCentered>            },
+
+    {"HookGap",                dispatch<OPS_HookGap>                   },
+
+    {"HyperbolicGapMaterial",  dispatch<OPS_HyperbolicGapMaterial>     },
+
+    {"FRPConfinedConcrete02",  dispatch<OPS_FRPConfinedConcrete02>     },
+
+    {"PinchingLimitState",     dispatch<OPS_PinchingLimitState>        },
+
+    {"InitStrainMaterial",     dispatch<OPS_InitStrainMaterial>        },
+    {"InitStrain",             dispatch<OPS_InitStrainMaterial>        },
+
+    {"InitStressMaterial",     dispatch<OPS_InitStressMaterial>        },
+    {"InitStress",             dispatch<OPS_InitStressMaterial>        },
+
+    {"pyUCLA",                 dispatch<OPS_pyUCLA>                    },
+    {"PYUCLA",                 dispatch<OPS_pyUCLA>                    },
+
+    {"MultiLinear",            dispatch<OPS_MultiLinear>               },
+
+    {"BWBN",                   dispatch<OPS_BWBN>                      },
+
+    {"DegradingPinchedBW",     dispatch<OPS_DegradingPinchedBW>        },
+
+    {"IMKBilin",               dispatch<OPS_IMKBilin>                  },
+
+    {"IMKPeakOriented",        dispatch<OPS_IMKPeakOriented>           },
+
+    {"IMKPinching",            dispatch<OPS_IMKPinching>               },
+
+    {"ModIMKPinching",         dispatch<OPS_ModIMKPinching>            },
+    {"ModIMKPinching02",       dispatch<OPS_ModIMKPinching02>          },
+
+    {"ModIMKPeakOriented",     dispatch<OPS_ModIMKPeakOriented>        },
+
+    {"ModIMKPeakOriented02",   dispatch<OPS_ModIMKPeakOriented02>      },
+
+    {"Bilin02",                dispatch<OPS_Bilin02>                   },
+
+    {"BoucWenOriginal",        dispatch<OPS_BoucWenOriginal>           },
+
+// Thermal
+    {"Steel01Thermal",         dispatch<OPS_Steel01Thermal>            },
+
+    {"Steel02Thermal",         dispatch<OPS_Steel02Thermal>            },
+
+    {"SteelECThermal",         dispatch<OPS_SteelECThermal>            },
+
+    {"StainlessECThermal",     dispatch<OPS_StainlessECThermal>        },
+
+    {"ElasticThermal",         dispatch<OPS_ElasticMaterialThermal>    },
+
+    {"ConcreteECThermal",      dispatch<OPS_ConcreteECThermal>         },
+
+    {"Concrete02Thermal",      dispatch<OPS_Concrete02Thermal>         },
+
+    {"ConcreteD",              dispatch<OPS_ConcreteD>                 },
+
+    {"ConcreteSakaiKawashima", dispatch<OPS_ConcreteSakaiKawashima>    },
+
+    {"SteelMPF",               dispatch<OPS_SteelMPF>                  },
+
+    {"ResilienceLow",          dispatch<OPS_ResilienceLow>             },
+
+    {"ResilienceMaterialHR",   dispatch<OPS_ResilienceMaterialHR>      },
+
+    {"CFSWSWP",                dispatch<OPS_CFSWSWP>                   },
+
+    {"CFSSSWP",                dispatch<OPS_CFSSSWP>                   },
+
+    {"FRPConfinedConcrete",    dispatch<OPS_FRPConfinedConcrete>       },
+
+    {"Masonry",                dispatch<OPS_Masonry>                   },
+
+    {"Trilinwp",               dispatch<OPS_Trilinwp>                  },
+
+    {"Trilinwp2",              dispatch<OPS_Trilinwp2>                 },
+
+    {"Masonryt",               dispatch<OPS_Masonryt>                  },
+
+    {"ElasticPP",              dispatch<OPS_ElasticPPMaterial>         },
+
+    {"Hardening",              dispatch<OPS_HardeningMaterial>         },
+    {"Hardening2",             dispatch<OPS_HardeningMaterial>         },
+
+    {"BilinMaterial",          dispatch<OPS_Bilin>                     },
+    {"Bilin",                  dispatch<OPS_Bilin>                     },
+    
+    {"Hysteretic",             dispatch<OPS_HystereticMaterial>        },
+
+    {"ElasticPPGap",           dispatch<OPS_EPPGapMaterial>            },
+
+
+    {"OOHysteretic",           dispatch<OPS_OOHystereticMaterial>      },
+
+    {"Viscous",                dispatch<OPS_ViscousMaterial>           },
+
+    {"SAWSMaterial",           dispatch<OPS_SAWSMaterial>              },
+    {"SAWS",                   dispatch<OPS_SAWSMaterial>              },
+
+    {"ConcreteZ01Material",    dispatch<OPS_ConcreteZ01Material>       },
+    {"ConcreteZ01",            dispatch<OPS_ConcreteZ01Material>       },
+
+    {"ConcreteL01Material",    dispatch<OPS_ConcreteL01Material>       },
+    {"ConcreteL01",            dispatch<OPS_ConcreteL01Material>       },
+
+    {"SteelZ01Material",       dispatch<OPS_SteelZ01Material>          },
+    {"SteelZ01",               dispatch<OPS_SteelZ01Material>          },
+
+    {"TendonL01Material",      dispatch<OPS_TendonL01Material>         },
+    {"TendonL01",              dispatch<OPS_TendonL01Material>         },
+
+    {"Cable",                  dispatch<OPS_CableMaterial>             },
+
+    {"SMA",                    dispatch<OPS_SMAMaterial>               },
+
+    {"ASD_SMA_3K",             dispatch<OPS_ASD_SMA_3K>                },
+
+    {"HystereticPoly",         dispatch<OPS_HystereticPoly>            },
+
+    {"SPSW02",                 dispatch<OPS_SPSW02>                    },
+
+    {"TDConcreteEXP",          dispatch<OPS_TDConcreteEXP>             },
+
+    {"TDConcrete",             dispatch<OPS_TDConcrete>                },
+
+    {"TDConcreteMC10",         dispatch<OPS_TDConcreteMC10>            },
+
+    {"TDConcreteMC10NL",       dispatch<OPS_TDConcreteMC10NL>          },
+
+    {"Pinching04",             TclDispatch_newUniaxialPinching4        },
+
+    {"Elastic2",               TclDispatch_LegacyUniaxials             },
+    {"ENT",                    TclDispatch_LegacyUniaxials             },
+    {"BarSlip",                TclDispatch_LegacyUniaxials             },
+    {"ShearPanel",             TclDispatch_LegacyUniaxials             },
+    {"Concrete01WithSITC",     TclDispatch_LegacyUniaxials             },
 };
 
