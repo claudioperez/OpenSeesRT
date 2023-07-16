@@ -154,12 +154,14 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
       }
     }
 
+    // TODO: remove this
+    int G3_setDomain(G3_Runtime*, Domain*);
+    G3_setDomain(rt, theNewDomain);
     // create the model builder
     theNewBuilder = new BasicModelBuilder(*theNewDomain, interp, ndm, ndf);
-
-    // TODO: remove this
     theBuilder = theNewBuilder;
     G3_setModelBuilder(rt, theNewBuilder);
+
   }
 
 #if 0
@@ -235,8 +237,8 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
 {
   // wipeAnalysis(clientData, interp, argc, argv);
   Tcl_Eval(interp, "wipeAnalysis");
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *domain = G3_getDomain(rt);
+//G3_Runtime *rt = G3_getRuntime(interp);
+//Domain *domain = G3_getDomain(rt);
 
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -255,8 +257,8 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   if (theDatabase != nullptr)
     delete theDatabase;
 
-  if (domain) {
-    domain->clearAll();
+  if (builder) {
+    builder->getDomain()->clearAll();
   }
 
   // builder->clearAllUniaxialMaterial();

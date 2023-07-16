@@ -67,7 +67,7 @@ public:
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);
   TimeSeries* getTimeSeries(const key_t&);
-  LoadPattern* getEnclosingPattern(void) const;
+  LoadPattern* getEnclosingPattern(void);
   int setEnclosingPattern(LoadPattern*);
   int incrNodalLoadTag(void);
   int decrNodalLoadTag(void);
@@ -140,8 +140,8 @@ private:
   bool no_clobber = true;
 
 // previously extern variables
-  LoadPattern *tclEnclosingPattern = 0;
-  MultiSupportPattern *theTclMultiSupportPattern = 0;
+  LoadPattern *tclEnclosingPattern = nullptr;
+  MultiSupportPattern *theTclMultiSupportPattern = nullptr;
 
 protected:
   Tcl_Interp *theInterp;

@@ -17,7 +17,7 @@
 
 #include <tcl.h>
 #include <FileStream.h>
-
+#include <G3_Logging.h>
 #include <Domain.h>
 #include <LoadPattern.h>
 #include <Parameter.h>
@@ -37,7 +37,7 @@
 
 int
 domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char ** const argv)
+             Tcl_Obj *const objv[])
 {
   assert(clientData != nullptr);
   ((Domain*)clientData)->domainChange();
@@ -47,7 +47,7 @@ domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char ** const argv)
+             Tcl_Obj *const objv[])
 {
   assert(clientData != nullptr);
   Domain * the_domain = (Domain*)clientData;
@@ -59,15 +59,15 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   int tag;
-  if ((strcmp(argv[1], "element") == 0) || (strcmp(argv[1], "ele") == 0)) {
+  if ((strcmp(Tcl_GetString(objv[1]), "element") == 0) || (strcmp(Tcl_GetString(objv[1]), "ele") == 0)) {
     if (argc < 3) {
       opserr << "WARNING want - remove element eleTag?\n";
       return TCL_ERROR;
     }
 
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING remove element tag? failed to read tag: " << argv[2]
-             << endln;
+    if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
+      opserr << "WARNING remove element tag? failed to read tag: " 
+             << Tcl_GetString(objv[2]) << endln;
       return TCL_ERROR;
     }
     Element *theEle = the_domain->removeElement(tag);
@@ -103,14 +103,14 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  else if (strcmp(argv[1], "loadPattern") == 0) {
+  else if (strcmp(Tcl_GetString(objv[1]), "loadPattern") == 0) {
     if (argc < 3) {
       opserr << "WARNING want - remove loadPattern patternTag?\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove loadPattern tag? failed to read tag: "
-             << argv[2] << endln;
+             << Tcl_GetString(objv[2]) << endln;
       return TCL_ERROR;
     }
     LoadPattern *thePattern = the_domain->removeLoadPattern(tag);
@@ -120,15 +120,15 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 #if 0
-  else if ((strcmp(argv[1], "TimeSeries") == 0) ||
-           (strcmp(argv[1], "timeSeries") == 0)) {
+  else if ((strcmp(Tcl_GetString(objv[1]), "TimeSeries") == 0) ||
+           (strcmp(Tcl_GetString(objv[1]), "timeSeries") == 0)) {
     if (argc < 3) {
       opserr << "WARNING want - remove loadPattern patternTag?\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove loadPattern tag? failed to read tag: "
-             << argv[2] << endln;
+             << Tcl_GetString(objv[2]) << endln;
       return TCL_ERROR;
     }
     bool ok = OPS_removeTimeSeries(tag);
@@ -138,13 +138,13 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
   }
 #endif
-  else if (strcmp(argv[1], "parameter") == 0) {
+  else if (strcmp(Tcl_GetString(objv[1]), "parameter") == 0) {
     if (argc < 3) {
       opserr << "WARNING want - remove parameter paramTag?\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING remove parameter tag? failed to read tag: " << argv[2]
+    if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
+      opserr << "WARNING remove parameter tag? failed to read tag: " << Tcl_GetString(objv[2])
              << endln;
       return TCL_ERROR;
     }
@@ -154,18 +154,18 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  else if (strcmp(argv[1], "node") == 0) {
+  else if (strcmp(Tcl_GetString(objv[1]), "node") == 0) {
     if (argc < 3) {
       opserr << "WARNING want - remove node nodeTag?\n";
       return TCL_ERROR;
     }
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING remove node tag? failed to read tag: " << argv[2]
-             << endln;
+    if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
+      opserr << "WARNING remove node tag? failed to read tag: " 
+             << Tcl_GetString(objv[2]) << endln;
       return TCL_ERROR;
     }
     Node *theNode = the_domain->removeNode(tag);
-    if (theNode != 0) {
+    if (theNode != nullptr) {
       delete theNode;
     }
     Pressure_Constraint *thePC = the_domain->removePressure_Constraint(tag);
@@ -174,33 +174,60 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  else if (strcmp(argv[1], "recorders") == 0) {
+  else if (strcmp(Tcl_GetString(objv[1]), "recorders") == 0) {
     the_domain->removeRecorders();
   }
 
-  else if ((strcmp(argv[1], "SPconstraint") == 0) ||
-           (strcmp(argv[1], "sp") == 0)  ||
-           (strcmp(argv[1], "recorder") == 0)) {
-    const char** const args = new const char*[argc];
-//  args[0] = argv[1];
-//  args[1] = argv[0];
-    args[0] = strdup(argv[1]);
-    args[1] = strdup(argv[0]);
-    for (int i=2; i<argc; i++)
-      args[i] = strdup(argv[i]);
-//    args[i] = argv[i];
-
-    Tcl_CmdInfo info;
-    assert(Tcl_GetCommandInfo(interp, args[0], &info) == 1);
-    int status = info.proc(info.clientData, interp, argc, args);
-    for (int i = 0; i < argc; i++)
-      free((void*)args[i]);
-    delete[] args;
-    return status;
+  else if (strcmp(Tcl_GetString(objv[1]), "recorder") == 0) {
+    if (argc < 3) {
+      opserr << G3_ERROR_PROMPT << "want - remove recorder recorderTag?\n";
+      return TCL_ERROR;
+    }
+    int tag;
+    if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT 
+               << "remove recorder tag? failed to read tag: " << Tcl_GetString(objv[2])
+               << endln;
+      return TCL_ERROR;
+    }
+    if (the_domain->removeRecorder(tag) != 0) {
+      opserr << G3_ERROR_PROMPT << "No recorder found with tag " << tag << "\n";
+      return TCL_ERROR;
+    }
+    return TCL_OK;
   }
 
-  else if ((strcmp(argv[1], "MPconstraint") == 0) ||
-           (strcmp(argv[1], "mp") == 0)) {
+  else if ((strcmp(Tcl_GetString(objv[1]), "SPconstraint") == 0) ||
+           (strcmp(Tcl_GetString(objv[1]), "sp") == 0)) {
+
+    return TCL_ERROR;
+    //
+
+
+//  const char** const args = new const char*[argc+1];
+//  args[0] = objv[1];
+//  args[1] = objv[0];
+//  args[0] = strdup(objv[1]);
+//  args[1] = strdup(objv[0]);
+//  opserr << args[0] << " " << args[1] << " ";
+//  for (int i=2; i<argc; i++) {
+//    args[i] = strdup(objv[i]);
+//    opserr << args[i] << " ";
+//  }
+//  args[argc] = nullptr;
+ // opserr << "\n";
+
+//  Tcl_CmdInfo info;
+//  assert(Tcl_GetCommandInfo(interp, args[0], &info) == 1);
+//  int status = info.proc(info.clientData, interp, argc, args);
+//  for (int i = 0; i < argc; i++)
+//    free((void*)args[i]);
+//  delete[] args;
+//  return status;
+  }
+
+  else if ((strcmp(Tcl_GetString(objv[1]), "MPconstraint") == 0) ||
+           (strcmp(Tcl_GetString(objv[1]), "mp") == 0)) {
     if (argc < 3) {
       opserr << "WARNING want - remove MPconstraint nNodeTag? -or- remove "
                 "MPconstraint -tag mpTag\n";
@@ -208,19 +235,19 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     int nodTag = 0;
     if (argc == 3) {
-      if (Tcl_GetInt(interp, argv[2], &nodTag) != TCL_OK) {
+      if (Tcl_GetIntFromObj(interp, objv[2], &nodTag) != TCL_OK) {
         opserr << "WARNING remove mp nodeTag? failed to read nodeTag: "
-               << argv[2] << endln;
+               << Tcl_GetString(objv[2]) << endln;
         return TCL_ERROR;
       }
 
       the_domain->removeMP_Constraints(nodTag);
       return TCL_OK;
     }
-    if (strcmp(argv[2], "-tag") == 0 && argc > 3) {
-      if (Tcl_GetInt(interp, argv[3], &nodTag) != TCL_OK) {
+    if (strcmp(Tcl_GetString(objv[2]), "-tag") == 0 && argc > 3) {
+      if (Tcl_GetIntFromObj(interp, objv[3], &nodTag) != TCL_OK) {
         opserr << "WARNING remove mp -tag mpTag? failed to read mpTag: "
-               << argv[3] << endln;
+               << Tcl_GetString(objv[3]) << endln;
         return TCL_ERROR;
       }
 
@@ -231,34 +258,34 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 
 #ifdef _RELIABILITY
   // AddingSensitivity:BEGIN ///////////////////////////////////////
-  else if (strcmp(argv[1], "randomVariable") == 0) {
+  else if (strcmp(Tcl_GetString(objv[1]), "randomVariable") == 0) {
     int rvTag;
-    if (Tcl_GetInt(interp, argv[2], &rvTag) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[2], &rvTag) != TCL_OK) {
       opserr << "WARNING invalid input: rvTag \n";
       return TCL_ERROR;
     }
     ReliabilityDomain *theReliabilityDomain =
         theReliabilityBuilder->getReliabilityDomain();
     theReliabilityDomain->removeRandomVariable(rvTag);
-  } else if (strcmp(argv[1], "performanceFunction") == 0) {
+  } else if (strcmp(Tcl_GetString(objv[1]), "performanceFunction") == 0) {
     int lsfTag;
-    if (Tcl_GetInt(interp, argv[2], &lsfTag) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[2], &lsfTag) != TCL_OK) {
       opserr << "WARNING invalid input: lsfTag \n";
       return TCL_ERROR;
     }
     ReliabilityDomain *theReliabilityDomain =
         theReliabilityBuilder->getReliabilityDomain();
     theReliabilityDomain->removeLimitStateFunction(lsfTag);
-  } else if (strcmp(argv[1], "cutset") == 0) {
+  } else if (strcmp(Tcl_GetString(objv[1]), "cutset") == 0) {
     int cutTag;
-    if (Tcl_GetInt(interp, argv[2], &cutTag) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[2], &cutTag) != TCL_OK) {
       opserr << "WARNING invalid input: cutTag \n";
       return TCL_ERROR;
     }
     ReliabilityDomain *theReliabilityDomain =
         theReliabilityBuilder->getReliabilityDomain();
     theReliabilityDomain->removeCutset(cutTag);
-  } else if (strcmp(argv[1], "sensitivityAlgorithm") == 0) {
+  } else if (strcmp(Tcl_GetString(objv[1]), "sensitivityAlgorithm") == 0) {
     if (theSensitivityAlgorithm != 0) {
       // the_static_analysis->setSensitivityAlgorithm(0);
       theSensitivityAlgorithm = 0;
@@ -269,14 +296,15 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif
 
   else
-    opserr << "WARNING remove " << argv[1] << " not supported" << endln;
+    opserr << "WARNING remove " 
+           << Tcl_GetString(objv[1]) << " not supported" << endln;
 
   return TCL_OK;
 }
 
 
 int
-fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const objv[])
 {
   assert(clientData != nullptr);
   Domain * domain = (Domain*)clientData;
@@ -306,7 +334,7 @@ fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 }
 
 int
-fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const objv[])
 {
   assert(clientData != nullptr);
   Domain * theDomain = (Domain*)clientData;
@@ -317,7 +345,7 @@ fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
   }
 
   int fNode;
-  if (Tcl_GetInt(interp, argv[1], &fNode) != TCL_OK) {
+  if (Tcl_GetIntFromObj(interp, objv[1], &fNode) != TCL_OK) {
     opserr << "WARNING fixedDOFs fNode? - could not read fNode? \n";
     return TCL_ERROR;
   }
@@ -347,7 +375,7 @@ fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
 
 int
 constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char ** const argv)
+                 Tcl_Obj *const objv[])
 {
   assert(clientData != nullptr);
   Domain * theDomain = (Domain*)clientData;
@@ -355,7 +383,7 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
   bool all = true;
   int rNode;
   if (argc > 1) {
-    if (Tcl_GetInt(interp, argv[1], &rNode) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[1], &rNode) != TCL_OK) {
       opserr << "WARNING constrainedNodes <rNode?> - could not read rNode? \n";
       return TCL_ERROR;
     }
@@ -389,7 +417,7 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char ** const argv)
+                Tcl_Obj *const objv[])
 {
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
@@ -400,7 +428,7 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   int cNode;
-  if (Tcl_GetInt(interp, argv[1], &cNode) != TCL_OK) {
+  if (Tcl_GetIntFromObj(interp, objv[1], &cNode) != TCL_OK) {
     opserr << "WARNING constrainedDOFs cNode? <rNode?> <rDOF?> - could not "
               "read cNode?\n";
     return TCL_ERROR;
@@ -409,7 +437,7 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   int rNode;
   bool allNodes = true;
   if (argc > 2) {
-    if (Tcl_GetInt(interp, argv[2], &rNode) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[2], &rNode) != TCL_OK) {
       opserr << "WARNING constrainedDOFs cNode? <rNode?> <rDOF?> - could not "
                 "read rNode? \n";
       return TCL_ERROR;
@@ -420,7 +448,7 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   int rDOF;
   bool allDOFs = true;
   if (argc > 3) {
-    if (Tcl_GetInt(interp, argv[3], &rDOF) != TCL_OK) {
+    if (Tcl_GetIntFromObj(interp, objv[3], &rDOF) != TCL_OK) {
       opserr << "WARNING constrainedDOFs cNode? <rNode?> <rDOF?> - could not "
                 "read rDOF? \n";
       return TCL_ERROR;

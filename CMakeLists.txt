@@ -106,6 +106,9 @@ if (UNIX)
     $<$<CONFIG:DEBUG>:-ggdb>
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
+
+    $<$<CONFIG:RELEASE>:-ggdb>
+    $<$<CONFIG:RELEASE>:-g3>
     $<$<CONFIG:RELEASE>:-O3>
   )
 endif()
@@ -115,8 +118,6 @@ if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   add_compile_definitions(_WIN32 _TCL85)
   message(STATUS ">>> WIN32")
 endif()
-
-
 
 #==============================================================================
 #                            General Setup

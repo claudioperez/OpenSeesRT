@@ -44,7 +44,6 @@
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
-int G3_setDomain(G3_Runtime*, Domain*);
 BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
                                int NDF)
     : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
@@ -59,19 +58,19 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
  
   theTclBuilder = this;
   theTclDomain = &theDomain;
-  tclEnclosingPattern = 0;
+  tclEnclosingPattern = nullptr;
   // theTclMultiSupportPattern = 0;
 
   nodeLoadTag = 0;
   eleArgStart = 0;
-  m_runtime = G3_getRuntime(interp);
   registry  = G3_NewTable();
 
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
-  G3_setDomain(m_runtime, &theDomain);
   Tcl_SetAssocData(interp, "OPS::theTclDomain", NULL, (ClientData)&theDomain);
+//m_runtime = G3_getRuntime(interp);
+//G3_setDomain(m_runtime, &theDomain);
 }
 
 BasicModelBuilder::~BasicModelBuilder()
@@ -136,7 +135,7 @@ BasicModelBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fi
 }
 
 LoadPattern *
-BasicModelBuilder::getEnclosingPattern(void) const {return tclEnclosingPattern;};
+BasicModelBuilder::getEnclosingPattern(void) {return tclEnclosingPattern;};
 
 int
 BasicModelBuilder::setEnclosingPattern(LoadPattern* pat){

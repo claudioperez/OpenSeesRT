@@ -267,6 +267,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   Domain* domain = (Domain*)clientData;
+  (*theRecorder) = nullptr;
 
   // make sure at least one other argument to contain integrator
   if (argc < 2) {
@@ -280,25 +281,8 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   OPS_Stream   *theOutputStream     = nullptr;
 
-
-  // TODO: reconcile with "Remove" below
-  if (strcmp(argv[1], "remove") == 0) {
-    if (argc < 3) {
-      opserr << G3_ERROR_PROMPT << "want - remove recorder recorderTag?\n";
-      return TCL_ERROR;
-    }
-    int tag;
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT 
-               << "remove recorder tag? failed to read tag: " << argv[2]
-               << endln;
-      return TCL_ERROR;
-    }
-    return domain->removeRecorder(tag);
-  }
-
   // an Element Recorder or ElementEnvelope Recorder
-  else if ((strcmp(argv[1], "Element") == 0) ||
+  if ((strcmp(argv[1], "Element") == 0) ||
       (strcmp(argv[1], "EnvelopeElement") == 0) ||
       (strcmp(argv[1], "NormElement") == 0) ||
       (strcmp(argv[1], "NormEnvelopeElement") == 0)) {
@@ -1595,13 +1579,13 @@ TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** 
   if (TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder) != TCL_OK)
     return TCL_ERROR;
 
-  if (theRecorder == nullptr) {
+  else if (theRecorder == nullptr) {
     Tcl_SetObjResult(interp, Tcl_NewIntObj(-1));
-    return TCL_ERROR;
+    return TCL_OK;
   }
 
-  if ((domain->addRecorder(*theRecorder)) < 0) {
-    opserr << "WARNING could not add to domain - recorder " << argv[1] << endln;
+  else if ((domain->addRecorder(*theRecorder)) < 0) {
+    opserr << G3_ERROR_PROMPT << "Failed to add recorder to domain" << endln;
     delete theRecorder;
     Tcl_SetObjResult(interp, Tcl_NewIntObj(-1));
     return TCL_ERROR;
