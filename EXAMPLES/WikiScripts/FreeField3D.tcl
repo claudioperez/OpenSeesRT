@@ -16,7 +16,8 @@
 ###########################################################
 
 wipe
-
+set outDir ./out/
+file mkdir $outDir
 #-----------------------------------------------------------------------------------------
 #  1. DEFINE ANALYSIS PARAMETERS
 #-----------------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ set yCoord  0.0
 set count   0
 set gwt     1
 set waterHeight [expr $soilThick-$waterTable]
-set nodesInfo [open nodesInfo.dat w]
+set nodesInfo [open $outDir/nodesInfo.dat w]
 # loop over layers
 for {set k 1} {$k <= $numLayers} {incr k 1} {
 	# loop over nodes
@@ -199,7 +200,7 @@ puts "Finished creating all soil materials..."
 
 set alpha 1.5e-6
 set count 0
-set elemInfo [open elementInfo.dat w]
+set elemInfo [open $outDir/elementInfo.dat w]
 # loop over layers 
 for {set k 1} {$k <= $numLayers} {incr k 1} {
     # loop over elements
@@ -312,14 +313,14 @@ close $meshFile
 #-----------------------------------------------------------------------------------------
 
 ## record nodal displacments, velocities, and accelerations at each time step
-recorder Node -file Gdisplacement.out -time  -nodeRange 1 $nNodeT -dof 1 2 3 disp
-recorder Node -file Gvelocity.out     -time  -nodeRange 1 $nNodeT -dof 1 2 3 vel
-recorder Node -file Gacceleration.out -time  -nodeRange 1 $nNodeT -dof 1 2 3 accel
-recorder Node -file GporePressure.out -time  -nodeRange 1 $nNodeT -dof 4 vel
+recorder Node -file $outDir/Gdisplacement.out -time  -nodeRange 1 $nNodeT -dof 1 2 3 disp
+recorder Node -file $outDir/Gvelocity.out     -time  -nodeRange 1 $nNodeT -dof 1 2 3 vel
+recorder Node -file $outDir/Gacceleration.out -time  -nodeRange 1 $nNodeT -dof 1 2 3 accel
+recorder Node -file $outDir/GporePressure.out -time  -nodeRange 1 $nNodeT -dof 4 vel
 
 # record stress and strain at each gauss point in the soil elements
-recorder Element -file Gstress.out   -time  -eleRange  1   $nElemT   stress
-recorder Element -file Gstrain.out   -time  -eleRange  1   $nElemT  strain
+recorder Element -file $outDir/Gstress.out   -time  -eleRange  1   $nElemT   stress
+recorder Element -file $outDir/Gstrain.out   -time  -eleRange  1   $nElemT  strain
 
 puts "Finished creating gravity recorders..."
 

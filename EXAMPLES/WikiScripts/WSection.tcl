@@ -3,10 +3,17 @@
 #
 # This routine creates a fiber section: AISC standard W section 
 # 
-# Variables
-	# secID = section ID number
-	# matID = material ID number 
-	# d  = nominal depth	
+############################################################################################
+
+proc WSection { secID matID d bf tf tw nfdw nftw nfbf nftf} {
+	# ###################################################################
+	# WSection  $secID $matID $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
+	# ###################################################################
+	# create a standard W section given the nominal section properties
+	# input parameters
+	# secID - section ID number
+	# matID - material ID number 
+	# d  = nominal depth
 	# bf = flange width
 	# tf = flange thickness
 	# tw = web thickness
@@ -14,11 +21,11 @@
 	# nftw = number of fibers along web thickness
 	# nfbf = number of fibers along flange width
 	# nftf = number of fibers along flange thickness
-############################################################################################
-
-############################################################################################
-
-proc WSection { secID matID d bf tf tw nfdw nftw nfbf nftf} {
+  #
+	# written: Remo M. de Souza
+	# date: 06/99
+	# modified: 08/99  (according to the new general modelbuilder)
+  	
 	set dw [expr $d - 2 * $tf]
 	set y1 [expr -$d/2]
 	set y2 [expr -$dw/2]
@@ -30,7 +37,7 @@ proc WSection { secID matID d bf tf tw nfdw nftw nfbf nftf} {
 	set z3 [expr  $tw/2]
 	set z4 [expr  $bf/2]
   
-	section fiberSec  $secID -GJ 1e8 {
+	section fiberSec  $secID  -GJ 1e8 {
    		#                     nfIJ  nfJK    yI  zI    yJ  zJ    yK  zK    yL  zL
    		patch quadr  $matID  $nfbf $nftf   $y1 $z4   $y1 $z1   $y2 $z1   $y2 $z4
    		patch quadr  $matID  $nftw $nfdw   $y2 $z3   $y2 $z2   $y3 $z2   $y3 $z3

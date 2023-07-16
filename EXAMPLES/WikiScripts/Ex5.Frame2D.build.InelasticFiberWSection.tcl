@@ -11,7 +11,7 @@ set dataDir Data;				# set up name of data directory (you can remove this)
 file mkdir $dataDir; 				# create data directory
 set GMdir "../GMfiles/";			# ground-motion file directory
 source LibUnits.tcl;			# define units
-source Wsection.tcl;		# procedure to define fiber W section
+source WSection.tcl;		# procedure to define fiber W section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -88,7 +88,7 @@ set nfdw 16;		# number of fibers along dw
 set nftw 2;		# number of fibers along tw
 set nfbf 16;		# number of fibers along bf
 set nftf 4;			# number of fibers along tf
-Wsection  $ColSecTag $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
+WSection  $ColSecTag $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 # beam sections: W24x94
 set d [expr 24.31*$in];	# depth
 set bf [expr 9.065*$in];	# flange width
@@ -98,7 +98,7 @@ set nfdw 16;		# number of fibers along dw
 set nftw 2;		# number of fibers along tw
 set nfbf 16;		# number of fibers along bf
 set nftf 4;			# number of fibers along tf
-Wsection  $BeamSecTag $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
+WSection  $BeamSecTag $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 
 # define ELEMENTS
 # set up geometric transformations of element

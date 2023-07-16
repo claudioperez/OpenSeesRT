@@ -13,7 +13,7 @@ set GMdir "../GMfiles";		# ground-motion file directory
 source LibUnits.tcl;			# define units
 source DisplayPlane.tcl;		# procedure for displaying a plane in model
 source DisplayModel3D.tcl;		# procedure for displaying 3D perspectives of model
-source Wsection.tcl;		# procedure to define fiber W section
+source WSection.tcl;		# procedure to define fiber W section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -145,7 +145,7 @@ if {$SectionType == "Elastic"} {
 	set nftw 2;		# number of fibers along tw
 	set nfbf 16;		# number of fibers along bf
 	set nftf 4;			# number of fibers along tf
-	Wsection  $ColSecTagFiber $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
+	WSection  $ColSecTagFiber $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 	# beam sections: W24x94
 	set d [expr 24.31*$in];	# depth
 	set bf [expr 9.065*$in];	# flange width
@@ -155,7 +155,7 @@ if {$SectionType == "Elastic"} {
 	set nftw 2;		# number of fibers along tw
 	set nfbf 16;		# number of fibers along bf
 	set nftf 4;			# number of fibers along tf
-	Wsection  $BeamSecTagFiber $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
+	WSection  $BeamSecTagFiber $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 	# girder sections: W24x94
 	set d [expr 24.31*$in];	# depth
 	set bf [expr 9.065*$in];	# flange width
@@ -165,7 +165,7 @@ if {$SectionType == "Elastic"} {
 	set nftw 2;		# number of fibers along tw
 	set nfbf 16;		# number of fibers along bf
 	set nftf 4;			# number of fibers along tf
-	Wsection  $GirdSecTagFiber $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
+	WSection  $GirdSecTagFiber $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 	
 	# assign torsional Stiffness for 3D Model
 	uniaxialMaterial Elastic $SecTagTorsion $Ubig

@@ -16,7 +16,8 @@
 #######################################################################
 
 wipe
-
+set outDir ./out/
+file mkdir $outDir
 #-----------------------------------------------------------------------------------------
 #  1. CREATE SOIL NODES AND FIXITIES
 #-----------------------------------------------------------------------------------------
@@ -556,7 +557,7 @@ puts "Finished creating all -ndf 2 boundary conditions..."
 #  2. DESIGNATE LIST OF PERMANENT NODES (NEVER REMOVED) FOR RECORDERS
 #-----------------------------------------------------------------------------------------
 
-set mNodeInfo [open NodesInfoPerm.dat w]
+set mNodeInfo [open $outDir/NodesInfoPerm.dat w]
 puts $mNodeInfo "       1      -5.250      0.000"
 puts $mNodeInfo "       2      -5.250      0.500"
 puts $mNodeInfo "       3      -4.750      0.000"
@@ -1370,7 +1371,7 @@ element quad 400 320 354 351 318  $thick1 PlaneStrain 1 0.0 0.0 $xWgt1 $yWgt1
 puts "Finished creating all soil elements..."
 
 # create list of permanent elements with connectivities for post-processing
-set eleFile [open SolidElementInfo.dat w]
+set eleFile [open $outDir/SolidElementInfo.dat w]
 puts $eleFile "       1       109       130       131       112"
 puts $eleFile "       2       130       152       157       131"
 puts $eleFile "       3       152       178       180       157"
@@ -1704,7 +1705,7 @@ node      435       0.000     10.250
 puts "Finished creating all -ndf 3 beam nodes..."
 
 # create list of beam nodes and locations for post-processing
-set bNodeInfo [open NodesInfo3.dat w]
+set bNodeInfo [open $outDir/NodesInfo3.dat w]
 puts $bNodeInfo "      99       0.000      0.250"
 puts $bNodeInfo "     100       0.000     -0.250"
 puts $bNodeInfo "     101       0.000      0.750"
@@ -1782,7 +1783,7 @@ element dispBeamColumn 421 417 435 $numIntPts $secTag $transTag
 puts "Finished creating all beam elements..."
 
 # create list of beam elements with connectivities for post-processing
-set beamInfo [open beamElementInfo.dat w]
+set beamInfo [open $outDir/beamElementInfo.dat w]
 puts $beamInfo " 401 100 99 "
 puts $beamInfo " 402 99 101 "
 puts $beamInfo " 403 101 106 "
@@ -1869,7 +1870,7 @@ element BeamContact2D 1042  417 435 430 1042  2 $thick $gapTol $forceTol
 puts "Finished creating all beam-contact elements..."
 
 # create list of permanent beam contact elements with connectivities for post-process
-set beamContactInfo [open beamContactInfo.dat w]
+set beamContactInfo [open $outDir/beamContactInfo.dat w]
 puts $beamContactInfo "1001  100  99  88 1001  "
 puts $beamContactInfo "1002  100  99 109 1002  "
 puts $beamContactInfo "1003   99 101  92 1003  "
@@ -1910,7 +1911,7 @@ close $beamContactInfo
 
 # permanent soil node list
 set nodeListPerm {}
-set channel [open "NodesInfoPerm.dat" r]
+set channel [open "$outDir/NodesInfoPerm.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
 set ctr0 [expr $ctr+1];
@@ -1922,7 +1923,7 @@ close $channel
 
 # permanent soil element list
 set solidElementList {}
-set channel [open "SolidElementInfo.dat" r]
+set channel [open "$outDir/SolidElementInfo.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
 set ctr0 [expr $ctr+1];
@@ -1934,7 +1935,7 @@ close $channel
 
 # beam element list
 set BeamElementList {}
-set channel [open "beamElementInfo.dat" r]
+set channel [open "$outDir/beamElementInfo.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
 set ctr0 [expr $ctr+1];
@@ -1946,7 +1947,7 @@ close $channel
 
 # permanent beam contact element list
 set BCElemList {}
-set channel [open "beamContactInfo.dat" r]
+set channel [open "$outDir/beamContactInfo.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
 set ctr0 [expr $ctr+1];
@@ -1962,19 +1963,19 @@ close $channel
 
 # PERMANENT RECORDERS---------------------------------------------------------------------
 # record nodal displacments at permanent nodes
-eval "recorder Node -file displacement.out -time -node $nodeListPerm -dof 1 2  disp"
+eval "recorder Node -file $outDir/displacement.out -time -node $nodeListPerm -dof 1 2  disp"
 # record elemental stress in the soil at permanent elements
-eval "recorder Element -file stress1.out   -time  -ele $solidElementList  material 1 stress"
-eval "recorder Element -file stress2.out   -time  -ele $solidElementList  material 2 stress"
-eval "recorder Element -file stress3.out   -time  -ele $solidElementList  material 3 stress"
-eval "recorder Element -file stress4.out   -time  -ele $solidElementList  material 4 stress"
+eval "recorder Element -file $outDir/stress1.out   -time  -ele $solidElementList  material 1 stress"
+eval "recorder Element -file $outDir/stress2.out   -time  -ele $solidElementList  material 2 stress"
+eval "recorder Element -file $outDir/stress3.out   -time  -ele $solidElementList  material 3 stress"
+eval "recorder Element -file $outDir/stress4.out   -time  -ele $solidElementList  material 4 stress"
 # record permanent contact element information
-eval "recorder Element  -file slaveForce.out  -time  -ele $BCElemList  forces"
-eval "recorder Element  -file frictForce.out  -time  -ele $BCElemList  frictionforces"
-eval "recorder Element  -file contForce.out   -time  -ele $BCElemList  forcescalars"
-eval "recorder Element  -file mastForce.out   -time  -ele $BCElemList  masterforces"
+eval "recorder Element  -file $outDir/slaveForce.out  -time  -ele $BCElemList  forces"
+eval "recorder Element  -file $outDir/frictForce.out  -time  -ele $BCElemList  frictionforces"
+eval "recorder Element  -file $outDir/contForce.out   -time  -ele $BCElemList  forcescalars"
+eval "recorder Element  -file $outDir/mastForce.out   -time  -ele $BCElemList  masterforces"
 # record beam response
-eval "recorder Element -file globalForces.out -time -ele $BeamElementList globalForce"
+eval "recorder Element -file $outDir/globalForces.out -time -ele $BeamElementList globalForce"
 
 # RECORDERS FOR EXCAVATED MATERIAL (TO BE REMOVED)---------------------------------------
 file mkdir ./lift1

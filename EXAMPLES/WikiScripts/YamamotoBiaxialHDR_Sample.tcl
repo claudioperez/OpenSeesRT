@@ -4,6 +4,8 @@
 
 #begin
 wipe
+set outDir ./out/
+file mkdir $outDir
 
 #---------------------------------------- model
 model basic -ndm 3 -ndf 6 ;#BasicBuilder
@@ -23,8 +25,8 @@ element YamamotoBiaxialHDR  1  1  2  1  1.30  0.03  0.261  -orient 0 0 1 1 0 0 -
 element twoNodeLink         2  1  2  -mat 99 99  -dir 2 3  -orient 0 0 1 1 0 0 ;#control local-y&z deformation
 
 #---------------------------------------- recorder
-recorder Element -file ./YamamotoBiaxialHDR_def.txt -time -ele 1 localDisplacement
-recorder Element -file ./YamamotoBiaxialHDR_frc.txt -time -ele 1 localForce
+recorder Element -file ./$outDir/YamamotoBiaxialHDR_def.txt -time -ele 1 localDisplacement
+recorder Element -file ./$outDir/YamamotoBiaxialHDR_frc.txt -time -ele 1 localForce
 
 #---------------------------------------- load
 timeSeries Path 1 -dt 1.0 -filePath ./YamamotoBiaxialHDR_input_X.tcl

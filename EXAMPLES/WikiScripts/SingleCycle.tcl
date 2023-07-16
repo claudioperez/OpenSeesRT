@@ -5,7 +5,7 @@
 	# Written: Vesna Terzic (vesna@berkeley.edu)
 	# Created: 12/2011
 
-	proc singlecycle {umax n running} {
+proc singlecycle {umax n running} {
 
 	# note, m should always equal the rate, by definition
 	set rate 0.01
@@ -13,8 +13,8 @@
 	set dt [expr 4.0*$umax/$rate/($N-1)]
 	set m [expr $umax/($n-1)/$dt]
 
-	set filet [open time.txt "a"]
-	set fileu [open displacement.txt "a"]
+	set filet [open out/time.txt "a"]
+	set fileu [open out/displacement.txt "a"]
 
 	for { set i 1 } { $i <= $N } { incr i } {
 		set tval($i) [expr ($i-1)*$dt]
@@ -36,4 +36,4 @@
 
 	return $tout($N)
 
-	}
+}

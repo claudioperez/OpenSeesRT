@@ -18,26 +18,17 @@
 |  255  | `CenterCol_basicModel_Cyclic.tcl` | invalid command name "limitCurve" |
 |  255  | `CenterCol_basicModel_Dynamic.tcl` | invalid command name "limitCurve" |
 |  255  | `CenterCol_basicModel_Pushover.tcl` | invalid command name "limitCurve" |
-|  255  | `CheckingTripleFrictionPendulum_1DDynamics_ConstFriction.tcl` | invalid command name "frictionModel" |
-|  255  | `CheckingTripleFrictionPendulum_1DDynamics_VariableFriction.tcl` | invalid command name "frictionModel" |
-|  255  | `CheckingTripleFrictionPendulum_2DDynamic_ConstFriction.tcl` | invalid command name "frictionModel" |
-|  255  | `CheckingTripleFrictionPendulum_2DDynamic_VariableFriction.tcl` | invalid command name "frictionModel" |
-|  255  | `CheckingTripleFrictionPendulum_3DDynamic_ConstFriction.tcl` | invalid command name "frictionModel" |
-|  255  | `CheckingTripleFrictionPendulum_3DDynamic_VariableFriction.tcl` | invalid command name "frictionModel" |
-|  255  | `CheckingTripleFrictionPendulum_StaticCyclicPushover.tcl` | invalid command name "frictionModel" |
 |  0  | `ConventionalColumn_Cyclic.tcl` |  |
 |  0  | `DisplayModel2D.tcl` |  |
 |  0  | `DisplayModel3D_IR.tcl` |  |
 |  0  | `DisplayModel3D.tcl` |  |
 |  0  | `DisplayPlane_IR.tcl` |  |
 |  0  | `DisplayPlane.tcl` |  |
-|  255  | `Dynamic.EQ.Uniform_LimitState.tcl` | invalid command name "constraints" |
 |  0  | `EigenAnal_twoStoreyFrame1.tcl` |  |
 |  0  | `EigenAnal_twoStoreyFrame.tcl` |  |
 |  0  | `EigenAnal_twoStoreyShearFrame7.tcl` |  |
 |  0  | `EigenAnal_twoStoreyShearFrame8.tcl` |  |
 |  0  | `ElasticFrame.tcl` |  |
-|  255  | `ElasticPileSection.tcl` | invalid command name "section" |
 |  0  | `ElemPanelZone2D.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.modif.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.tcl` |  |
@@ -137,6 +128,5 @@
 |  255  | `TestFPS3d_4.tcl` | invalid command name "frictionModel" |
 |  0  | `Test.tcl` |  |
 |  0  | `Truss.tcl` |  |
-|  0  | `Wsection.tcl` |  |
 |  0  | `WSection.tcl` |  |
 |  0  | `YamamotoBiaxialHDR_Sample.tcl` |  |

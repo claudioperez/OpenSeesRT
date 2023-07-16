@@ -226,7 +226,7 @@
     #--------------------------------
 
     # write displacement history into a file
-    set fileu [open displacement.txt "w"]
+    set fileu [open out/displacement.txt "w"]
     close $fileu
 
     set ductility 7
@@ -251,7 +251,7 @@
     puts "pts=$anpts, dt=$dt, tfinal=$running"
 
     # define time series
-    timeSeries Path 2 -dt $dt -filePath displacement.txt
+    timeSeries Path 2 -dt $dt -filePath out/displacement.txt
     set IDctrlDOF 1;
 
     # define load pattern

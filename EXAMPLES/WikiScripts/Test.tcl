@@ -5,7 +5,7 @@ source SAWSZeroLength.tcl
 ## Apply the nodal Load
 pattern Plain 1 Linear { load 2 1.0 0.0 0.0 }
 ## Recorder
-recorder Node -file LoadDisp.dat -time -node 2 -dof 1 disp
+recorder Node -file out/LoadDisp.dat -time -node 2 -dof 1 disp
 ## Static Analysis parameters
 test EnergyIncr 1.0e-8   300    0
 algorithm KrylovNewton

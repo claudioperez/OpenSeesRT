@@ -5,7 +5,8 @@
 ####################################################################
 
 wipe
-
+set outDir ./out/
+file mkdir $outDir
 #-----------------------------------------------------------------------------------------
 #  1. CREATE PORE PRESSURE NODES AND FIXITIES
 #-----------------------------------------------------------------------------------------
@@ -1038,7 +1039,7 @@ node     3963     -60.960      0.000
 node     3965     -60.960      2.438
 node     3967     -60.960      4.877
 
-set ppNodesInfo [open nodeInfo.dat w]
+set ppNodesInfo [open $outDir/nodeInfo.dat w]
 puts $ppNodesInfo "       1     544.068    -68.580"
 puts $ppNodesInfo "       3     544.068    -64.922"
 puts $ppNodesInfo "       5     544.068    -61.265"
@@ -6700,7 +6701,7 @@ puts "Finished creating -ndf 2 nodal masses..."
 
 # create list for pore pressure nodes
 set nodeList3 {}
-set channel [open "nodeInfo.dat" r]
+set channel [open "$outDir/nodeInfo.dat" r]
 set count 0;
 foreach line [split [read -nonewline $channel] \n] {
 set count [expr $count+1];
