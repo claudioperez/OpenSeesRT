@@ -43,10 +43,6 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char ** const argv, Domain *theTclDomain,
                            TclBasicBuilder *theTclBuilder, int eleArgStart)
 {
-  assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
     opserr << "WARNING insufficient arguments\n";
@@ -54,7 +50,6 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
               "dofNdj ... -stif Kij ipPort <-doRayleigh> <-mass Mij>\n";
     return TCL_ERROR;
   }
-
 
   // get the id and end nodes
   int tag, node, dof, ipPort, argi, i, j, k;
@@ -204,7 +199,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   if (dofs != 0)
     delete[] dofs;
 
-  if (theElement == 0) {
+  if (theElement == nullptr) {
     opserr << "WARNING ran out of memory creating element\n";
     opserr << "adapter element: " << tag << endln;
     return TCL_ERROR;

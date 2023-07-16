@@ -13,7 +13,7 @@ target_sources(OPS_Element
         ElasticForceBeamColumn2d.cpp
         ElasticForceBeamColumn3d.cpp
         ElasticForceBeamColumnWarping2d.cpp
-	ForceBeamColumnCBDI2d.cpp
+	      ForceBeamColumnCBDI2d.cpp
         ForceBeamColumnCBDI3d.cpp	
         ForceBeamColumnWarping2d.cpp
     PUBLIC
