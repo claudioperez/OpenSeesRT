@@ -313,7 +313,9 @@ target_sources(OPS_Material
 
 
 add_library(OPS_Material_f)
-
+if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
+  target_compile_options(OPS_Material_f PRIVATE "-w" "-std=legacy")
+endif()
 target_sources(OPS_Material_f PRIVATE
       DoddRestrepo.f
       STEELDR.f
