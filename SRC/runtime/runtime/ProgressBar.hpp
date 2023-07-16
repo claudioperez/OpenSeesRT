@@ -34,6 +34,8 @@
 #include <ostream>
 #include <string>
 #include <stdexcept>
+#include <codecvt>
+#include <locale>
 
 class ProgressBar {
 
@@ -49,7 +51,7 @@ public:
 
   // default constructor, must call set_niter later
   inline ProgressBar();
-  inline ProgressBar(int n, bool showbar = true, std::ostream &out = std::cerr);
+  inline ProgressBar(int n, bool showbar = true, std::wostream &out = std::wcerr);
 
   // reset bar to use it again
   inline void reset();
@@ -59,25 +61,25 @@ public:
 
   // chose your style
   inline void
-  set_done_char(const std::string &sym)
+  set_done_char(const std::wstring &sym)
   {
     done_char = sym;
   }
 
   inline void
-  set_todo_char(const std::string &sym)
+  set_todo_char(const std::wstring &sym)
   {
     todo_char = sym;
   }
 
   inline void
-  set_opening_char(const std::string &sym)
+  set_opening_char(const std::wstring &sym)
   {
     opening_char = sym;
   }
 
   inline void
-  set_closing_char(const std::string &sym)
+  set_closing_char(const std::wstring &sym)
   {
     closing_char = sym;
   }
@@ -91,7 +93,7 @@ public:
 
   // set the output stream
   inline void
-  set_output_stream(const std::ostream &stream)
+  set_output_stream(const std::wostream &stream)
   {
     output.rdbuf(stream.rdbuf());
   }
@@ -109,25 +111,25 @@ private:
   bool do_show_bar;
   bool update_is_called;
 
-  std::string done_char;
-  std::string todo_char;
-  std::string opening_char;
-  std::string closing_char;
+  std::wstring done_char;
+  std::wstring todo_char;
+  std::wstring opening_char;
+  std::wstring closing_char;
 
-  std::ostream &output;
+  std::wostream &output;
 };
 
 inline ProgressBar::ProgressBar()
     : progress(0), n_cycles(0), last_perc(0), do_show_bar(true),
-      update_is_called(false), done_char("#"), todo_char(" "),
-      opening_char("["), closing_char("]"), output(std::cerr)
+      update_is_called(false), done_char(L"#"), todo_char(L" "),
+      opening_char(L"["), closing_char(L"]"), output(std::wcerr)
 {
 }
 
-inline ProgressBar::ProgressBar(int n, bool showbar, std::ostream &out)
+inline ProgressBar::ProgressBar(int n, bool showbar, std::wostream &out)
     : progress(0), n_cycles(n), last_perc(0), do_show_bar(showbar),
-      update_is_called(false), done_char("#"), todo_char(" "),
-      opening_char("["), closing_char("]"), output(out)
+      update_is_called(false), done_char(L"#"), todo_char(L" "),
+      opening_char(L"["), closing_char(L"]"), output(out)
 {
 }
 
@@ -150,8 +152,9 @@ ProgressBar::set_niter(int niter)
 }
 
 inline int
-ProgressBar::update(std::string message = "")
+ProgressBar::update(std::string message_ = "")
 {
+  std::wstring message = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(message_);
 
   if (n_cycles == 0) {
     std::cerr <<  "ProgressBar::update: number of cycles not set";
@@ -193,7 +196,7 @@ ProgressBar::update(std::string message = "")
     // update bar every ten units
     if (perc % 2 == 0) {
       // erase closing bracket
-      output << std::string(closing_char.size(), '\b');
+      output << std::wstring(closing_char.size(), '\b');
       // erase trailing percentage characters
       if (perc < 10)
         output << "\b\b\b";
@@ -204,7 +207,7 @@ ProgressBar::update(std::string message = "")
 
       // erase 'todo_char'
       for (int j = 0; j < bar_width - (perc - 1) / 2; ++j) {
-        output << std::string(todo_char.size(), '\b');
+        output << std::wstring(todo_char.size(), '\b');
       }
 
       // add one additional 'done_char'
@@ -228,7 +231,7 @@ ProgressBar::update(std::string message = "")
   msg_width = message.length();
 
   if (msg_width > 0) {
-    output << " -- " << message;
+    output << L" -- " << message;
     // correct for " -- " chars
     msg_width += 4;
   }
