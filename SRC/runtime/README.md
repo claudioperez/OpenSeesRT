@@ -2,7 +2,9 @@
 
 ## Features
 
-- **Idempotent**
+- Use of Tcl API encourages users to design well-structured commands
+  with semantic meaning (e.g. using lists when meaningful as opposed to
+  sequences of arguments)
 
 - **Direct access to components** Developing OpenSees components
   is made easier by providing a direct interface to core object
