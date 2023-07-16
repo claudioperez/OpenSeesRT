@@ -37,7 +37,7 @@
 
 int
 domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
-             Tcl_Obj *const objv[])
+             Tcl_Obj *const *objv)
 {
   assert(clientData != nullptr);
   ((Domain*)clientData)->domainChange();
@@ -47,7 +47,7 @@ domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
-             Tcl_Obj *const objv[])
+             Tcl_Obj *const *objv)
 {
   assert(clientData != nullptr);
   Domain * the_domain = (Domain*)clientData;
@@ -304,7 +304,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
 int
-fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const objv[])
+fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const *objv)
 {
   assert(clientData != nullptr);
   Domain * domain = (Domain*)clientData;
@@ -334,7 +334,7 @@ fixedNodes(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const o
 }
 
 int
-fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const objv[])
+fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const *objv)
 {
   assert(clientData != nullptr);
   Domain * theDomain = (Domain*)clientData;
@@ -375,7 +375,7 @@ fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const ob
 
 int
 constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
-                 Tcl_Obj *const objv[])
+                 Tcl_Obj *const *objv)
 {
   assert(clientData != nullptr);
   Domain * theDomain = (Domain*)clientData;
@@ -417,7 +417,7 @@ constrainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
-                Tcl_Obj *const objv[])
+                Tcl_Obj *const *objv)
 {
   assert(clientData != nullptr);
   Domain *theDomain = (Domain*)clientData;
