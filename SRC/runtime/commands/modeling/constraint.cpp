@@ -239,8 +239,10 @@ int
 TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theTclDomain = G3_getDomain(rt);
+//G3_Runtime *rt = G3_getRuntime(interp);
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain *theTclDomain = builder->getDomain();
 
   if (argc > 1 && (strcmp(argv[1], "remove") == 0)) {
     if (argc < 3) {
@@ -289,9 +291,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
   }
 
-
-  // TODO!! 
-  LoadPattern *theTclLoadPattern = (LoadPattern*)clientData; // theTclBuilder->getCurrentLoadPattern();
+  LoadPattern *theTclLoadPattern = builder->getEnclosingPattern();
 
   // check number of arguments
   if (argc < 4) {

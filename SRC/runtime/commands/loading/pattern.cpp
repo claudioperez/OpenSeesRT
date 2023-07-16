@@ -56,7 +56,7 @@
 
 
 
-LoadPattern *theTclLoadPattern = 0;
+LoadPattern *theTclLoadPattern = nullptr;
 // MultiSupportPattern *theTclMultiSupportPattern = 0;
 
 Tcl_CmdProc TclCommand_addSP;
@@ -753,7 +753,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  theTclLoadPattern = thePattern;
+//theTclLoadPattern = thePattern;
 
   builder->setEnclosingPattern(thePattern);
 
@@ -762,10 +762,10 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 //opserr << commandEndMarker << " / " << argc << "\n";
   if (commandEndMarker < argc) {
     // Set the Pattern for "sp" command
-    Tcl_CmdInfo info;
-    assert(Tcl_GetCommandInfo(interp, "sp", &info)==1);
-    info.clientData = (ClientData)thePattern;
-    Tcl_SetCommandInfo(interp, "sp", &info);
+//  Tcl_CmdInfo info;
+//  assert(Tcl_GetCommandInfo(interp, "sp", &info)==1);
+//  info.clientData = (ClientData)thePattern;
+//  Tcl_SetCommandInfo(interp, "sp", &info);
 
     // Tcl_CreateCommand(interp, "nodalLoad", TclCommand_addNodalLoad, (ClientData)thePattern, NULL);
     Tcl_Eval(interp, "rename load opensees::import;");
@@ -778,8 +778,8 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
-    info.clientData = (ClientData)nullptr;
-    Tcl_SetCommandInfo(interp, "sp", &info);
+//  info.clientData = (ClientData)builder;
+//  Tcl_SetCommandInfo(interp, "sp", &info);
 
     Tcl_Eval(interp, "rename load nodalLoad;");
 //  Tcl_DeleteCommand(interp, "nodalLoad");
@@ -795,7 +795,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 {
   assert(clientData != nullptr);
 
-  G3_Runtime *rt = G3_getRuntime(interp);
+//G3_Runtime *rt = G3_getRuntime(interp);
 //BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);
 //Domain *theTclDomain = G3_getDomain(rt);
   
