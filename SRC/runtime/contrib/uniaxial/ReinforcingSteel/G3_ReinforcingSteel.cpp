@@ -34,6 +34,7 @@
 UniaxialMaterial*
 TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
+  Tcl_Interp* interp = G3_getInterpreter(rt);
   UniaxialMaterial *theMaterial = nullptr;
 
   if (argc < 9) {
@@ -58,42 +59,42 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
   double a1 = 0.0;
   double hardLim = 0.01;
   
-  if (G3Parse_getInt(rt, argv[2], &tag) != TCL_OK) {
-    opserr << "WARNING invalid uniaxialMaterial ReinforcingSteel tag" << endln;
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    opserr << "WARNING invalid uniaxialMaterial ReinforcingSteel tag " << argv[2] << endln;
     return nullptr;		
   }
   
-  if (G3Parse_getDouble(rt, argv[3], &fy) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &fy) != TCL_OK) {
     opserr << "WARNING invalid fy\n";
     opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
     return nullptr;	
   }
   
-  if (G3Parse_getDouble(rt, argv[4], &fu) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &fu) != TCL_OK) {
     opserr << "WARNING invalid fu\n";
     opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
     return nullptr;
   }
   
-  if (G3Parse_getDouble(rt, argv[5], &Es) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &Es) != TCL_OK) {
     opserr << "WARNING invalid Es\n";
     opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
     return nullptr;	
   }
  
-  if (G3Parse_getDouble(rt, argv[6], &Esh) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[6], &Esh) != TCL_OK) {
     opserr << "WARNING invalid Esh\n";
     opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
     return nullptr;	
   }
   
-  if (G3Parse_getDouble(rt, argv[7], &esh) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[7], &esh) != TCL_OK) {
     opserr << "WARNING invalid esh\n";
     opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
     return nullptr;	
   }
   
-  if (G3Parse_getDouble(rt, argv[8], &eult) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[8], &eult) != TCL_OK) {
     opserr << "WARNING invalid eult\n";
     opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
     return nullptr;	
@@ -109,24 +110,24 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 	    }
       
 	    buckModel = 1;
-	    if (G3Parse_getDouble(rt, argv[argLoc++], &slen) != TCL_OK) {
+	    if (Tcl_GetDouble(interp, argv[argLoc++], &slen) != TCL_OK) {
 	      opserr << "WARNING invalid lsr\n";
 	      opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
 	      return nullptr;	
 	    }
-	    if (G3Parse_getDouble(rt, argv[argLoc++], &beta) != TCL_OK) {
+	    if (Tcl_GetDouble(interp, argv[argLoc++], &beta) != TCL_OK) {
         opserr << "WARNING invalid beta\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
       }
     
-      if (G3Parse_getDouble(rt, argv[argLoc++], &r) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &r) != TCL_OK) {
         opserr << "WARNING invalid r\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
       }
     
-      if (G3Parse_getDouble(rt, argv[argLoc++], &gama) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &gama) != TCL_OK) {
         opserr << "WARNING invalid gama\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
@@ -141,7 +142,7 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 	    }
 
 	    buckModel = 2;
-	    if (G3Parse_getDouble(rt, argv[argLoc++], &slen) != TCL_OK) {
+	    if (Tcl_GetDouble(interp, argv[argLoc++], &slen) != TCL_OK) {
 	      opserr << "WARNING invalid lsr\n";
 	      opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
 	      return nullptr;	
@@ -149,7 +150,7 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
       if (argc <= argLoc)  {
         beta = 1.0;
       } else if (argv[argLoc][0]!=45) {
-        if (G3Parse_getDouble(rt, argv[argLoc++], &beta) != TCL_OK) {
+        if (Tcl_GetDouble(interp, argv[argLoc++], &beta) != TCL_OK) {
           opserr << "WARNING invalid alpha\n";
           opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
           return nullptr;	
@@ -165,17 +166,17 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 		    opserr << "Want: <-CMFatigue Cf? alpha? Cd?>" << endln;
 		    return nullptr;
 	    }
-	    if (G3Parse_getDouble(rt, argv[argLoc++], &Cf) != TCL_OK) {
+	    if (Tcl_GetDouble(interp, argv[argLoc++], &Cf) != TCL_OK) {
         opserr << "WARNING invalid Cf\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
       }
-      if (G3Parse_getDouble(rt, argv[argLoc++], &alpha) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &alpha) != TCL_OK) {
         opserr << "WARNING invalid alpha\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
       }
-      if (G3Parse_getDouble(rt, argv[argLoc++], &Cd) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &Cd) != TCL_OK) {
         opserr << "WARNING invalid Cd\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
@@ -188,17 +189,17 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 		    opserr << "Want: <-CMFatigue R1? R2? R3?>" << endln;
 		    return nullptr;
 	    }
-      if (G3Parse_getDouble(rt, argv[argLoc++], &RC1) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &RC1) != TCL_OK) {
         opserr << "WARNING invalid RC1\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
       }
-      if (G3Parse_getDouble(rt, argv[argLoc++], &RC2) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &RC2) != TCL_OK) {
         opserr << "WARNING invalid RC2\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
       }
-      if (G3Parse_getDouble(rt, argv[argLoc++], &RC3) != TCL_OK) {
+      if (Tcl_GetDouble(interp, argv[argLoc++], &RC3) != TCL_OK) {
         opserr << "WARNING invalid RC3\n";
         opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
         return nullptr;	
@@ -212,7 +213,7 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
         if (argv[argLoc][0]==45) {
           a1 = 4.3;
         } else {
-          if (G3Parse_getDouble(rt, argv[argLoc++], &a1) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[argLoc++], &a1) != TCL_OK) {
             opserr << "WARNING invalid a1\n";
             opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
             return nullptr;	
@@ -222,7 +223,7 @@ TclCommand_ReinforcingSteel(G3_Runtime* rt, int argc, TCL_Char ** const argv)
           if (argv[argLoc][0]==45) {
             a1 = 4.3;
           } else {
-            if (G3Parse_getDouble(rt, argv[argLoc++], &hardLim) != TCL_OK) {
+            if (Tcl_GetDouble(interp, argv[argLoc++], &hardLim) != TCL_OK) {
               opserr << "WARNING invalid hardening limit\n";
               opserr << "uniaxialMaterial ReinforcingSteel: " << tag << endln;
               return nullptr;	

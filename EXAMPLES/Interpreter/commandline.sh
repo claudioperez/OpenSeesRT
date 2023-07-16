@@ -18,4 +18,5 @@ opensees -c 'puts "[set argv 3]"'
 # The command should override argv and the output should be '3' on stdout
 opensees -c 'set argv 3' args.tcl a b c
 
-
+# this should print out "3"
+echo 'set a 3' | python -m opensees -c 'puts $a'

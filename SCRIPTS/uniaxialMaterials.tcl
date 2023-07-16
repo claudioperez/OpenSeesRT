@@ -1,6 +1,5 @@
 # source for opstkUniaxialMaterialViewer.tcl
 # define sample input, add to Material menu
-
 $m add command -label "Elastic" -command "uniaxialMaterialSample Elastic matTag=1 E=25."
 $m add command -label "ElasticPP" -command "uniaxialMaterialSample ElasticPP matTag=1 E=29000. yieldStrain=0.002"
 $m add command -label "Steel01" -command "uniaxialMaterialSample Steel01 matTag=1 Fy=40. E=29000. b=0.1"
@@ -14,3 +13,5 @@ $m add command -label "Bilin" -command "uniaxialMaterialSample Bilin matTag=1 p1
 $m add command -label "HoehlerStanton" -command "uniaxialMaterialSample HoehlerStanton matTag=1 200000 0.015 400 550 0.15 3 25 23 0.2"
 $m add command -label "BoucWenOriginal" -command "uniaxialMaterialSample BoucWenOriginal matTag=1 E=41760.0 fy=40.0 alphaL=0.025 alphaNL=0.0 mu=2.0 eta=1.0 beta=0.55 gamma=0.45"
 $m add command -label "BoucWen" -command "uniaxialMaterialSample BoucWen matTag=1 alpha=0.025 ko=41760.0 n=1.0 gamma=0.45 beta=0.55 Ao=1.0 deltaA=0.0 deltaNu=0.0 deltaEta=0.0"
+$m add command -label ReinforcingSteel -command \
+  "uniaxialMaterialSample ReinforcingSteel matTag=5 fy=40 fu=120 Es=29000 Esh=20000 esh=0.1 eult=1.0"

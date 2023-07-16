@@ -200,7 +200,8 @@ std::unordered_map<std::string, TclCommand_UniaxialMaterial*> uniaxial_dispatch 
 #if 0
     { "ConcretewBeta",       dispatch<OPS_ConcretewBeta>    }
 #endif
-    {"ReinforcingSteel",     dispatch<TclCommand_ReinforcingSteel>   }, 
+//  {"ReinforcingSteel",     dispatch<TclCommand_ReinforcingSteel>   }, 
+    {"ReinforcingSteel",     dispatch< OPS_ReinforcingSteel>         },
     {"Parallel",             dispatch<G3Parse_newParallelMaterial>   },
     {"BoucWen",              dispatch<G3Parse_newUniaxialBoucWen>    },
 
