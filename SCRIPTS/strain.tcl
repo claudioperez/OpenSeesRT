@@ -90,17 +90,17 @@ set buttonlist { .mbar.materials .mbar.values .mbar.settings .mbar.reset }
 # Procedure Settings - used to disable/enable all the buttons in the buttonlist
 
 proc disable_buttons {} {
-	global buttonlist
-	foreach x $buttonlist {
-		$x configure -state disabled
-	}
+    global buttonlist
+    foreach x $buttonlist {
+        $x configure -state disabled
+    }
 }
 
 proc enable_buttons {} {
-	global buttonlist
-	foreach x $buttonlist {
-		$x configure -state normal
-	}
+    global buttonlist
+    foreach x $buttonlist {
+        $x configure -state normal
+    }
 }
 
 
@@ -133,33 +133,33 @@ proc uniaxialMaterialSample {matName args} {
     set count 0
     foreach arg $args {
 
-	set posEq [string first "=" ${arg}]
+    set posEq [string first "=" ${arg}]
 
-	global matArg${count}
+    global matArg${count}
 
-	if {${posEq} != -1} {
-	    set argName [string range ${arg} 0 [expr ${posEq} - 1]]
-	    set argVal [string range ${arg} [expr ${posEq} + 1] end]
-	} else {
-	    set argName ""
-	    set argVal ${arg}
-	}
+    if {${posEq} != -1} {
+        set argName [string range ${arg} 0 [expr ${posEq} - 1]]
+        set argVal [string range ${arg} [expr ${posEq} + 1] end]
+    } else {
+        set argName ""
+        set argVal ${arg}
+    }
 
-	label ${w}.l${count} -text ${argName}
-	entry ${w}.e${count} -textvariable matArg${count} -relief sunken
-	set matArg${count} ${argVal}
+    label ${w}.l${count} -text ${argName}
+    entry ${w}.e${count} -textvariable matArg${count} -relief sunken
+    set matArg${count} ${argVal}
 
-	if {${argName} == "matTag"} {
-	    set matArg${count} ${matID}
-	    ${w}.e${count} configure -state disabled
-	} elseif {${posEq} == -1} {
-	    ${w}.e${count} configure -state disabled
-	}
-	
-	grid ${w}.l${count} -row ${count} -column 1 -sticky e -padx 5
-	grid ${w}.e${count} -row ${count} -column 2
+    if {${argName} == "matTag"} {
+        set matArg${count} ${matID}
+        ${w}.e${count} configure -state disabled
+    } elseif {${posEq} == -1} {
+        ${w}.e${count} configure -state disabled
+    }
+    
+    grid ${w}.l${count} -row ${count} -column 1 -sticky e -padx 5
+    grid ${w}.e${count} -row ${count} -column 2
 
-	incr count
+    incr count
     }
 
     button ${w}.ok -text "OK" -command "doneUniaxialMaterial ${matName} ${count}; destroy ${w}; enable_buttons" -padx 10
@@ -172,15 +172,16 @@ proc doneUniaxialMaterial {matName count} {
     set matCommand "uniaxialMaterial ${matName}"
 
     for {set i 0} {${i} < ${count}} {incr i} {
-	set tmp "matArg${i}"
-	global ${tmp}
-	eval "set matCommand \"${matCommand} $${tmp}\""
+    set tmp "matArg${i}"
+    global ${tmp}
+    eval "set matCommand \"${matCommand} $${tmp}\""
     }
 
     global matID
     set fileOpen [open results.out w]
     close $fileOpen
-    eval ${matCommand}
+    puts "$matCommand"
+    eval "${matCommand}"
     invoke UniaxialMaterial $matID {
       # eval uniaxialTest $matID
       SetValues
@@ -197,9 +198,9 @@ frame .figure
 
 # Create the scale (slider)
 set theScale [ scale .figure.scale -from [expr -$maxStrain] -to $maxStrain \
-	-length $width -variable strain -orient horizontal \
-	-tickinterval [expr $maxStrain / 2] -resolution [expr $maxStrain / 100] \
-	-showvalue true -command SetStrain ]
+    -length $width -variable strain -orient horizontal \
+    -tickinterval [expr $maxStrain / 2] -resolution [expr $maxStrain / 100] \
+    -showvalue true -command SetStrain ]
 
 #pack .figure .figure.scale
 
@@ -299,8 +300,8 @@ proc Reset { } {
     set strain 0
 
     $theScale configure -from [expr -$maxStrain] -to $maxStrain -length $width \
-	    -tickinterval [expr $maxStrain / 2] -resolution [expr $maxStrain / 100] \
-	    -showvalue true -command SetStrain 
+        -tickinterval [expr $maxStrain / 2] -resolution [expr $maxStrain / 100] \
+        -showvalue true -command SetStrain 
 
     $theCanvas move all 400 400
 
@@ -310,7 +311,10 @@ proc Reset { } {
     $theCanvas create text [expr $width/2.0+30] 10 -text "Stress $maxStress"
 #    $theCanvas create rectangle 30 30 40 40 -tags "drawing"
 
-    set pointTag [$theCanvas create oval [expr $height/2.-3] [expr $width/2.-3] [expr $height/2.+3] [expr $width/2.+3] -tags "point" -fill "red"]
+    set pointTag [
+      $theCanvas create oval [expr $height/2.-3] [expr $width/2.-3] [expr $height/2.+3] [expr $width/2.+3] \
+        -tags "point" -fill "red"
+    ]
 #    $theCanvas create rectangle [expr $height/2.-2] [expr $width/2.-2] [expr $height/2.+2] [expr $width/2.+2] -tags "point"
 
     puts $pointTag
@@ -322,7 +326,7 @@ proc Reset { } {
     .values.dstress  config -text [format "%6.4e" 0.0]
     .values.dtangent config -text [format "%6.4e" 0.0]
 
-    ResetMaterial
+    # ResetMaterial
 }
 
 
@@ -350,34 +354,34 @@ proc SetStrain {strain} {
 
 
     if {$matID != 0} {
-	invoke UniaxialMaterial $matID "strain $strain"
-	invoke UniaxialMaterial $matID "commit"
-	set stress  [invoke UniaxialMaterial $matID stress ]
-	set tangent [invoke UniaxialMaterial $matID tangent]
+      invoke UniaxialMaterial $matID "strain $strain"
+      invoke UniaxialMaterial $matID "commit"
+      set stress  [invoke UniaxialMaterial $matID stress ]
+      set tangent [invoke UniaxialMaterial $matID tangent]
 
-        puts "$strain $stress $tangent"
+      puts "$strain $stress $tangent"
 
-	set fileOpen [open results.out a]
-	puts $fileOpen "$strain $stress $tangent"
-	close $fileOpen
-	
-	set diffStrain [expr $width/(2*$maxStrain)]
-	set diffStress [expr $height/(2*$maxStress)]
+      set fileOpen [open results.out a]
+      puts $fileOpen "$strain $stress $tangent"
+      close $fileOpen
+      
+      set diffStrain [expr $width/(2*$maxStrain)]
+      set diffStress [expr $height/(2*$maxStress)]
 
-	set x [expr $width / 2 + $strain * $diffStrain]
-	set y [expr $height / 2 - $stress * $diffStress]
-	$theCanvas create line $xLast $yLast $x $y
+      set x [expr $width / 2 + $strain * $diffStrain]
+      set y [expr $height / 2 - $stress * $diffStress]
+      $theCanvas create line $xLast $yLast $x $y
 
-	$theCanvas move $pointTag [expr $x-$xLast] [expr $y-$yLast]
+      $theCanvas move $pointTag [expr $x-$xLast] [expr $y-$yLast]
 
-	set xLast $x
-	set yLast $y
+      set xLast $x
+      set yLast $y
 
-	if {$toggleFrame == ".values"} {
-	    .values.dstrain  config -text [format "%6.4e" $strain]
-	    .values.dstress  config -text [format "%6.4e" $stress]
-	    .values.dtangent config -text [format "%6.4e" $tangent]
-	}
+      if {$toggleFrame == ".values"} {
+          .values.dstrain  config -text [format "%6.4e" $strain]
+          .values.dstress  config -text [format "%6.4e" $stress]
+          .values.dtangent config -text [format "%6.4e" $tangent]
+      }
     }
 }
 
