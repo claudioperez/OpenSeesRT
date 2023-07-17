@@ -4,15 +4,15 @@ set Es 29000
 set fy  50.0
 set ey  [expr $fy/$Es]
 set R0  15.0
-set bk  0.05
+set b   0.05
 set cR1 0.925
 set cR2 0.150
-$m add command -label "Elastic" -command "uniaxialMaterialSample Elastic matTag=1 E=25."
+$m add command -label "Elastic" -command "uniaxialMaterialSample Elastic matTag=1 E=$Es"
 $m add command -label "ElasticPP" -command "uniaxialMaterialSample ElasticPP matTag=1 E=$Es yieldStrain=$ey"
-$m add command -label "Steel01" -command "uniaxialMaterialSample Steel01 matTag=1 Fy=$fy E=$Es b=0.1"
-$m add command -label "Steel02" -command "uniaxialMaterialSample Steel02 matTag=1 Fy=$fy E=$Es b=0.1 R0=$R0 CR1=$cR1 CR2=$cR2"
+$m add command -label "Steel01" -command "uniaxialMaterialSample Steel01 matTag=1 Fy=$fy E=$Es b=$b"
+$m add command -label "Steel02" -command "uniaxialMaterialSample Steel02 matTag=1 Fy=$fy E=$Es b=$b R0=$R0 CR1=$cR1 CR2=$cR2"
 $m add command -label "Steel04" -command \
-  "uniaxialMaterialSample Steel4 matTag=1 fy=$fy E=$Es -kin bk=$bk R0=$R0 r1=$cR1 r2=$cR2"; #   -iso bi=$bi $rho_i bl=$bl $R_i l_yp=1 < -ult $f_u $R_u >  -mem 10 "
+  "uniaxialMaterialSample Steel4 matTag=1 fy=$fy E=$Es -kin bk=$b R0=$R0 r1=$cR1 r2=$cR2"; #   -iso bi=$bi $rho_i bl=$bl $R_i l_yp=1 < -ult $f_u $R_u >  -mem 10 "
 $m add command -label "BoucWenOriginal"  -command "uniaxialMaterialSample BoucWenOriginal matTag=1 E=$Es fy=$fy alphaL=0.025 alphaNL=0.0 mu=2.0 eta=1.0 beta=0.55 gamma=0.45"
 $m add command -label "BoucWen" -command "uniaxialMaterialSample BoucWen matTag=1 alpha=0.025 ko=41760.0 n=1.0 gamma=0.45 beta=0.55 Ao=1.0 deltaA=0.0 deltaNu=0.0 deltaEta=0.0"
 $m add command -label "ReinforcingSteel" -command \
