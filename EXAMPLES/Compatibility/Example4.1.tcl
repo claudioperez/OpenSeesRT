@@ -338,5 +338,5 @@ if {$ok != 0} {
 } else {
     puts "Pushover analysis completed SUCCESSFULLY"
 }
-exit $ok;
+return $ok;
 
