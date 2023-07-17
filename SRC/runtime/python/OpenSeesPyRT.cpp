@@ -44,7 +44,6 @@ namespace py = pybind11;
 #define ARRAY_FLAGS py::array::c_style|py::array::forcecast
 
 
-
 std::unique_ptr<G3_Runtime, py::nodelete> 
 getRuntime(py::object interpaddr) {
       void *interp_addr;
@@ -52,12 +51,25 @@ getRuntime(py::object interpaddr) {
       return std::unique_ptr<G3_Runtime, py::nodelete>(G3_getRuntime((Tcl_Interp*)interp_addr));
 } // , py::return_value_policy::reference
 
+
 std::unique_ptr<BasicModelBuilder, py::nodelete> 
 get_builder(py::object interpaddr) {
-      void *interp_addr;
-      interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
-      void *builder_addr = G3_getSafeBuilder(G3_getRuntime((Tcl_Interp*)interp_addr));
-      return std::unique_ptr<BasicModelBuilder, py::nodelete>((BasicModelBuilder*)builder_addr);
+    void *interp_addr;
+    interp_addr = PyLong_AsVoidPtr(interpaddr.ptr());
+
+    Tcl_Interp* interp = (Tcl_Interp*)interp_addr;
+    Tcl_InitStubs(interp, "8.6", 0);
+
+    Tcl_CmdInfo info;
+    void *builder_addr = nullptr;
+    if (Tcl_GetCommandInfo(interp, "uniaxialMaterial", &info)==1) {
+      builder_addr = info.clientData;
+    } else {
+      return nullptr;
+    }
+
+//    void *builder_addr = G3_getSafeBuilder(G3_getRuntime((Tcl_Interp*)interp_addr));
+    return std::unique_ptr<BasicModelBuilder, py::nodelete>((BasicModelBuilder*)builder_addr);
 } // , py::return_value_policy::reference
 
 class Channel;
@@ -261,6 +273,7 @@ void
 init_obj_module(py::module &m)
 {
   py::class_<Vector, std::unique_ptr<Vector, py::nodelete>> PyVector(m, "Vector", py::buffer_protocol());
+
   PyVector.def (py::init([](
         py::array_t<double, py::array::c_style|py::array::forcecast> array
       ) -> Vector {
@@ -401,7 +414,6 @@ init_obj_module(py::module &m)
   //
   // Loading
   //
-
   py::class_<TimeSeries, std::unique_ptr<TimeSeries, py::nodelete> >(m, "TimeSeries");
   py::class_<PathTimeSeries>(m, "PathTimeSeries");
   py::class_<LinearSeries, TimeSeries, std::unique_ptr<LinearSeries, py::nodelete> >(m, "LinearSeries")
