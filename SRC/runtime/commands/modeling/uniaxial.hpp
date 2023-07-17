@@ -431,7 +431,7 @@ std::unordered_map<std::string, TclCommand_UniaxialMaterial*> uniaxial_dispatch 
 
     {"TDConcreteMC10NL",       dispatch<OPS_TDConcreteMC10NL>          },
 
-    {"Pinching04",             TclDispatch_newUniaxialPinching4        },
+    {"Pinching4",             TclDispatch_newUniaxialPinching4         },
 
     {"Elastic2",               TclDispatch_LegacyUniaxials             },
     {"ENT",                    TclDispatch_LegacyUniaxials             },
