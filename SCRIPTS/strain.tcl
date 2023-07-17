@@ -1,7 +1,8 @@
-#!/home/fmk/bin/OpenSees
+#!/usr/bin/env -S python -m opensees --enable-tk
 
 # OpenSees -- Open System for Earthquake Engineering Simulation
 # Pacific Earthquake Engineering Research Center
+#
 # http://opensees.berkeley.edu/
 #
 # Uniaxial Material Viewer
@@ -9,9 +10,9 @@
 #
 # To run:
 #
-#    python -m opensees --enable-tk strain2.tcl
+#    python -m opensees --enable-tk strain.tcl
 #
-# Written: fmk/MHS
+# Written: fmk/MHS/cmp
 # Date: March 2001
 
 # ##############################################################
@@ -32,8 +33,8 @@ set maxStress 150.0
 set maxStrain  0.05
 
 # last point plotted on canvas
-set xLast [expr $height /2]
-set yLast [expr  $width /2]
+set xLast [expr $height/2]
+set yLast [expr  $width/2]
 
 set minE -$maxStrain
 set maxE $maxStrain
