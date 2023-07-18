@@ -20,7 +20,8 @@ set L 288.
 set h  144.
 
 # create data directory
-file mkdir modes; 
+set outDir Output;
+file mkdir $outDir; 
 
 # define the model
 #---------------------------------
@@ -66,7 +67,7 @@ element elasticBeamColumn 6 5 6 $Ab $E  $Ib           $TransfTag;
 # record eigenvectors
 #----------------------
 for { set k 1 } { $k <= $numModes } { incr k } {
-    recorder Node -file [format "modes/mode%i.out" $k] -nodeRange 1 6 -dof 1 2 3  "eigen $k"
+    recorder Node -file [format "$outDir/mode%i.out" $k] -nodeRange 1 6 -dof 1 2 3  "eigen $k"
 }
 
 # perform eigen analysis
@@ -90,7 +91,7 @@ puts "periods are $T"
 
 # write the output file cosisting of periods
 #--------------------------------------------
-set period "modes/Periods.txt"
+set period "$outDir/Periods.txt"
 set Periods [open $period "w"]
 foreach t $T {
 	puts $Periods " $t"

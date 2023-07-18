@@ -6,7 +6,7 @@
 # SET UP ----------------------------------------------------------------------------
 wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
-set dataDir Data;			# set up name of data directory -- simple
+set dataDir Output;			# set up name of data directory -- simple
 file mkdir $dataDir; 			# create data directory
 source LibUnits.tcl;			# define units
 

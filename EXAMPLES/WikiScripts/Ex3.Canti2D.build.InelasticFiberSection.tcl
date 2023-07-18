@@ -19,7 +19,7 @@
 # SET UP ----------------------------------------------------------------------------
 wipe;                                        # clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;                # Define the model builder, ndm=#dimension, ndf=#dofs
-set dataDir Data;                                # set up name for data directory
+set dataDir Output;                                # set up name for data directory
 file mkdir $dataDir/;                         # create data directory
 set GMdir "../GMfiles";                        # ground-motion file directory
 

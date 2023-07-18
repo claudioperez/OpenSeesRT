@@ -71,7 +71,7 @@
 |  0  | `Ex9f.build.RCSection.Circ3D.tcl` |  |
 |  0  | `Ex9g.build.HollowSection3D.tcl` |  |
 |  0  | `Example6_4.tcl` |  |
-|  255  | `ExampleSP1.tcl` | couldn't open "peerRecords.txt": no such file or directory |
+|  255  | `ExampleSP1.tcl` | couldn't read file "model.tcl": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
 |  255  | `FreeField3D.tcl` |         set nI  [expr 4*($j..." |

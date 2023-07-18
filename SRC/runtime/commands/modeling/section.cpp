@@ -150,10 +150,10 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
   // Check argv[1] to dispatch section type
 
   if (strcmp(argv[1], "Fiber") == 0 || 
-           strcmp(argv[1], "fiberSec") == 0 ||
-           strcmp(argv[1], "FiberSection") == 0 ||
-           strcmp(argv[1], "NDFiberWarping") == 0 ||
-           strcmp(argv[1], "NDFiber") == 0)
+      strcmp(argv[1], "fiberSec") == 0 ||
+      strcmp(argv[1], "FiberSection") == 0 ||
+      strcmp(argv[1], "NDFiberWarping") == 0 ||
+      strcmp(argv[1], "NDFiber") == 0)
 
     return TclCommand_addFiberSection(clientData, interp, argc, argv, theTclBuilder);
 
@@ -949,10 +949,11 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
   int NDM = G3_getNDM(rt);
 
   if (argc < 4)
+    // TODO(cmp): Print error message here
     return TCL_ERROR;
 
   if (Tcl_GetInt(interp, argv[2], &secTag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "bad command - want: \nsection fiberSec secTag { "
+    opserr << G3_ERROR_PROMPT << "bad command - want: \nsection fiberSec secTag -GJ <GJ> { "
               "\n\tpatch <patch arguments> \n\tlayer <layer arguments> \n}\n";
     return TCL_ERROR;
   }

@@ -746,7 +746,8 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     int result = TclBasicBuilder_addForceBeamColumn(clientData, interp, argc, argv, theTclDomain, theTclBuilder);
     return result;
 
-  } else if (strstr(argv[1], "BeamWithHinges") != 0) {
+  } else if ((strstr(argv[1], "BeamWithHinges") != 0) ||
+             (strcmp(argv[1], "BeamWithHinges") != 0)) {
     int result = TclBasicBuilder_addBeamWithHinges(clientData, interp, argc, argv,
                                                    theTclDomain, theTclBuilder);
     return result;
