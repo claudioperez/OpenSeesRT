@@ -37,8 +37,17 @@ double Vector::VECTOR_NOT_VALID_ENTRY =0.0;
 
 #define VECTOR_BLAS
 
+extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
+extern "C" void dscal_(int*, double*, double*, const int*);
+extern "C" int  dgemv_(char* trans, int* M, int* N,
+                       double* alpha,
+                       double* A, int* lda,
+                       double* X, int* incX,
+                       double* beta,
+                       double* Y, int* incY);
+
 // Vector():
-//	Standard constructor, sets size = 0;
+//        Standard constructor, sets size = 0;
 
 Vector::Vector()
 : sz(0), theData(0), fromFree(0)
@@ -47,7 +56,7 @@ Vector::Vector()
 }
 
 // Vector(int size):
-//	Constructor used to allocate a vector of size size.
+//        Constructor used to allocate a vector of size size.
 
 Vector::Vector(int size)
 : sz(size), theData(0), fromFree(0)
@@ -87,7 +96,7 @@ Vector::Vector(double *data, int size)
 
 
 // Vector(const Vector&):
-//	Constructor to init a vector from another.
+//        Constructor to init a vector from another.
 
 Vector::Vector(const Vector &other)
 : sz(other.sz),theData(0),fromFree(0)
@@ -98,7 +107,7 @@ Vector::Vector(const Vector &other)
   // copy the component data
   for (int i=0; i<sz; i++)
     theData[i] = other.theData[i];
-}	
+}        
 
 
 
@@ -115,10 +124,8 @@ Vector::Vector(Vector &&other)
 #endif
 
 
-
-
 // ~Vector():
-// 	destructor, deletes the [] data
+//         destructor, deletes the [] data
 
 Vector::~Vector()
 {
@@ -162,9 +169,9 @@ Vector::resize(int newSize){
 
     // delete the old array
     if (theData != 0 && fromFree == 0) {
-	delete [] theData;
-  theData = 0;
-}
+      delete [] theData;
+      theData = nullptr;
+    }
     sz = 0;
     fromFree = 0;
     
@@ -185,18 +192,9 @@ Vector::resize(int newSize){
 
 
 // Assemble(Vector &x, ID &y, double fact ):
-//	Method to assemble into object the Vector V using the ID l.
-//	If ID(x) does not exist program writes error message if
-//	VECTOR_CHECK defined, otherwise ignores it and goes on.
-
-extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
-extern "C" void dscal_(int*, double*, double*, const int*);
-extern "C" int  dgemv_(char* trans, int* M, int* N,
-                       double* alpha,
-                       double* A, int* lda,
-                       double* X, int* incX,
-                       double* beta,
-                       double* Y, int* incY);
+//        Method to assemble into object the Vector V using the ID l.
+//        If ID(x) does not exist program writes error message if
+//        VECTOR_CHECK defined, otherwise ignores it and goes on.
 
 int 
 Vector::Assemble(const Vector &V, const ID &l, double fact )
@@ -214,9 +212,9 @@ Vector::Assemble(const Vector &V, const ID &l, double fact )
     else {
       result = -1;
       if (pos < sz)
-	opserr << "Vector::Assemble() " << pos << " out of range [1, " << sz-1 << "]\n";
+        opserr << "Vector::Assemble() " << pos << " out of range [1, " << sz-1 << "]\n";
       else
-	opserr << "Vector::Assemble() " << pos << " out of range [1, "<< V.Size()-1 << "]\n";
+        opserr << "Vector::Assemble() " << pos << " out of range [1, "<< V.Size()-1 << "]\n";
     }
   }
 
@@ -269,13 +267,13 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
     double *otherDataPtr = other.theData;
     if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
       for (int i=0; i<sz; i++) 
-	*dataPtr++ += *otherDataPtr++;
+        *dataPtr++ += *otherDataPtr++;
     } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
       for (int i=0; i<sz; i++) 
-	*dataPtr++ -= *otherDataPtr++;
+        *dataPtr++ -= *otherDataPtr++;
     } else 
       for (int i=0; i<sz; i++) 
-	*dataPtr++ += *otherDataPtr++ * otherFact;
+        *dataPtr++ += *otherDataPtr++ * otherFact;
 #endif
   }
 
@@ -286,13 +284,13 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
     double *otherDataPtr = other.theData;
     if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
       for (int i=0; i<sz; i++) 
-	*dataPtr++ = *otherDataPtr++;
+        *dataPtr++ = *otherDataPtr++;
     } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
       for (int i=0; i<sz; i++) 
-	*dataPtr++ = -(*otherDataPtr++);
+        *dataPtr++ = -(*otherDataPtr++);
     } else 
       for (int i=0; i<sz; i++) 
-	*dataPtr++ = *otherDataPtr++ * otherFact;
+        *dataPtr++ = *otherDataPtr++ * otherFact;
   }
 
   else {
@@ -302,26 +300,26 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
     double *otherDataPtr = other.theData;
     if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
       for (int i=0; i<sz; i++) {
-	double value = *dataPtr * thisFact + *otherDataPtr++;
-	*dataPtr++ = value;
+        double value = *dataPtr * thisFact + *otherDataPtr++;
+        *dataPtr++ = value;
       }
     } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
       for (int i=0; i<sz; i++) {
-	double value = *dataPtr * thisFact - *otherDataPtr++;
-	*dataPtr++ = value;
+        double value = *dataPtr * thisFact - *otherDataPtr++;
+        *dataPtr++ = value;
       }
     } else 
       for (int i=0; i<sz; i++) {
-	double value = *dataPtr * thisFact + *otherDataPtr++ * otherFact;
-	*dataPtr++ = value;
+        double value = *dataPtr * thisFact + *otherDataPtr++ * otherFact;
+        *dataPtr++ = value;
       }
   } 
 
   // successfull
   return 0;
 }
-	    
-	
+            
+        
 int
 Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact )
 {
@@ -356,9 +354,9 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++;
-	for (int j=0; j<sz; j++)
-	  theData[j] += *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++;
+        for (int j=0; j<sz; j++)
+          theData[j] += *matrixDataPtr++ * otherData;
       }
     } 
     else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
@@ -366,9 +364,9 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++;
-	for (int j=0; j<sz; j++)
-	  theData[j] -= *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++;
+        for (int j=0; j<sz; j++)
+          theData[j] -= *matrixDataPtr++ * otherData;
       }
     } 
     else { // have to do the multiplication
@@ -376,9 +374,9 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++ * otherFact;
-	for (int j=0; j<sz; j++)
-	  theData[j] += *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++ * otherFact;
+        for (int j=0; j<sz; j++)
+          theData[j] += *matrixDataPtr++ * otherData;
       }
     }
   }
@@ -394,9 +392,9 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++;
-	for (int j=0; j<sz; j++)
-	  theData[j] += *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++;
+        for (int j=0; j<sz; j++)
+          theData[j] += *matrixDataPtr++ * otherData;
       }
     } 
     else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
@@ -404,18 +402,18 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++;
-	for (int j=0; j<sz; j++)
-	  theData[j] -= *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++;
+        for (int j=0; j<sz; j++)
+          theData[j] -= *matrixDataPtr++ * otherData;
       }
     } else {
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++ * otherFact;
-	for (int j=0; j<sz; j++)
-	  theData[j] += *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++ * otherFact;
+        for (int j=0; j<sz; j++)
+          theData[j] += *matrixDataPtr++ * otherData;
       }
     }
   }
@@ -431,27 +429,27 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++;
-	for (int j=0; j<sz; j++)
-	  theData[j] += *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++;
+        for (int j=0; j<sz; j++)
+          theData[j] += *matrixDataPtr++ * otherData;
       }
     } else if (otherFact == -1.0) { // no point doing multiplication if otherFact = 1.0
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++;
-	for (int j=0; j<sz; j++)
-	  theData[j] -= *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++;
+        for (int j=0; j<sz; j++)
+          theData[j] -= *matrixDataPtr++ * otherData;
       }
     } else {
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtr = v.theData;
       for (int i=0; i<otherSize; i++) {
-	double otherData = *otherDataPtr++ * otherFact;
-	for (int j=0; j<sz; j++)
-	  theData[j] += *matrixDataPtr++ * otherData;
+        double otherData = *otherDataPtr++ * otherFact;
+        for (int j=0; j<sz; j++)
+          theData[j] += *matrixDataPtr++ * otherData;
       }
     }
   }
@@ -464,9 +462,9 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
 
 int
 Vector::addMatrixTransposeVector(double thisFact, 
-				 const Matrix &m, 
-				 const Vector &v, 
-				 double otherFact )
+                                 const Matrix &m, 
+                                 const Vector &v, 
+                                 double otherFact )
 {
 #ifdef _G3DEBUG
   // check the sizes are compatable
@@ -503,33 +501,33 @@ Vector::addMatrixTransposeVector(double thisFact,
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	theData[i] += sum;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        theData[i] += sum;
       }
     } else if (otherFact == -1.0) { // no point doing multiplication if otherFact = 1.0
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	theData[i] -= sum;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        theData[i] -= sum;
       }
     } else {
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	theData[i] += sum * otherFact;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        theData[i] += sum * otherFact;
       }
     }
   }
@@ -542,33 +540,33 @@ Vector::addMatrixTransposeVector(double thisFact,
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	theData[i] = sum;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        theData[i] = sum;
       }
     } else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	theData[i] = -sum;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        theData[i] = -sum;
       }
     } else {
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	theData[i] = sum * otherFact;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        theData[i] = sum * otherFact;
       }
     }
   } 
@@ -581,49 +579,49 @@ Vector::addMatrixTransposeVector(double thisFact,
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	double value = theData[i] * thisFact + sum;
-	theData[i] = value;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        double value = theData[i] * thisFact + sum;
+        theData[i] = value;
       }
     } else if (otherFact == -1.0) { // no point doing multiplication if otherFact = 1.0
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	double value = theData[i] * thisFact - sum;
-	theData[i] = value;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        double value = theData[i] * thisFact - sum;
+        theData[i] = value;
       }
     } else {
       int otherSize = v.sz;
       double *matrixDataPtr = m.data;
       double *otherDataPtrA = v.theData;
       for (int i=0; i<sz; i++) {
-	double *otherDataPtr = otherDataPtrA;
-	double sum = 0.0;
-	for (int j=0; j<otherSize; j++)
-	  sum += *matrixDataPtr++ * *otherDataPtr++;
-	double value = theData[i] * thisFact + sum * otherFact;
-	theData[i] = value;
+        double *otherDataPtr = otherDataPtrA;
+        double sum = 0.0;
+        for (int j=0; j<otherSize; j++)
+          sum += *matrixDataPtr++ * *otherDataPtr++;
+        double value = theData[i] * thisFact + sum * otherFact;
+        theData[i] = value;
       }
     }
 }
 
   return 0;
 }
-	
-	
+        
+        
 
 
 
 // double Norm();
-//	Method to return the norm of  vector. (non-const as may save norm for later)
+//        Method to return the norm of  vector. (non-const as may save norm for later)
 
 double
 Vector::Norm(void) const
@@ -677,7 +675,7 @@ Vector::operator[](int x)
     
     if (fromFree == 0)
       if (theData != 0){
-	delete [] theData;
+        delete [] theData;
       theData = 0;
     }
     theData = dataNew;
@@ -702,8 +700,8 @@ double Vector::operator[](int x) const
 
 
 // operator()(const ID &rows) const
-//	Method to return a vector whose components are the components of the
-//	current vector located in positions given by the ID rows.
+//        Method to return a vector whose components are the components of the
+//        current vector located in positions given by the ID rows.
 
 
 Vector 
@@ -732,9 +730,9 @@ Vector::operator()(const ID &rows) const
 
 
 // Vector &operator=(const Vector  &V):
-//	the assignment operator, This is assigned to be a copy of V. if sizes
-//	are not compatable this.theData [] is deleted. The data pointers will not
-//	point to the same area in mem after the assignment.
+//        the assignment operator, This is assigned to be a copy of V. if sizes
+//        are not compatable this.theData [] is deleted. The data pointers will not
+//        point to the same area in mem after the assignment.
 //
 
 Vector &
@@ -745,21 +743,21 @@ Vector::operator=(const Vector &V)
 
       if (sz != V.sz)  {
 #ifdef _G3DEBUG
-	  opserr << "Vector::operator=() - vectors of differing sizes\n";
+          opserr << "Vector::operator=() - vectors of differing sizes\n";
 #endif
 
-	  // Check that we are not deleting an empty Vector
-	  if (this->theData != 0){
+          // Check that we are not deleting an empty Vector
+          if (this->theData != 0){
             delete [] this->theData;
             this->theData = 0;
           }
-	  this->sz = V.sz;
-	  
-	  // Check that we are not creating an empty Vector
-	  theData = (sz != 0) ? new double[sz] : 0;
+          this->sz = V.sz;
+          
+          // Check that we are not creating an empty Vector
+          theData = (sz != 0) ? new double[sz] : 0;
       }
 
-      //	 copy the data
+      //         copy the data
       for (int i=0; i<sz; i++)
         theData[i] = V.theData[i];
   }
@@ -790,7 +788,7 @@ Vector::operator=(Vector &&V)
 
 
 // Vector &operator+=(double fact):
-//	The += operator adds fact to each element of the vector, data[i] = data[i]+fact.
+//        The += operator adds fact to each element of the vector, data[i] = data[i]+fact.
 
 Vector &Vector::operator+=(double fact)
 {
@@ -802,7 +800,7 @@ Vector &Vector::operator+=(double fact)
 
 
 // Vector &operator-=(double fact)
-//	The -= operator subtracts fact from each element of the vector, data[i] = data[i]-fact.
+//        The -= operator subtracts fact from each element of the vector, data[i] = data[i]-fact.
 
 Vector &Vector::operator-=(double fact)
 {
@@ -815,7 +813,7 @@ Vector &Vector::operator-=(double fact)
 
 
 // Vector &operator*=(double fact):
-//	The -= operator subtracts fact from each element of the vector, data[i] = data[i]-fact.
+//        The -= operator subtracts fact from each element of the vector, data[i] = data[i]-fact.
 
 Vector &Vector::operator*=(double fact)
 {
@@ -832,8 +830,8 @@ Vector &Vector::operator*=(double fact)
 
 
 // Vector &operator/=(double fact):
-//	The /= operator divides each element of the vector by fact, theData[i] = theData[i]/fact.
-//	Program exits if divide-by-zero would occur with warning message.
+//        The /= operator divides each element of the vector by fact, theData[i] = theData[i]/fact.
+//        Program exits if divide-by-zero would occur with warning message.
 
 Vector &Vector::operator/=(double fact)
 {
@@ -852,8 +850,8 @@ Vector &Vector::operator/=(double fact)
 
 
 // Vector operator+(double fact):
-//	The + operator returns a Vector of the same size as current, whose components
-//	are return(i) = theData[i]+fact;
+//        The + operator returns a Vector of the same size as current, whose components
+//        are return(i) = theData[i]+fact;
 
 Vector 
 Vector::operator+(double fact) const
@@ -869,8 +867,8 @@ Vector::operator+(double fact) const
 
 
 // Vector operator-(double fact):
-//	The + operator returns a Vector of the same size as current, whose components
-//	are return(i) = theData[i]-fact;
+//        The + operator returns a Vector of the same size as current, whose components
+//        are return(i) = theData[i]-fact;
 
 Vector 
 Vector::operator-(double fact) const
@@ -886,8 +884,8 @@ Vector::operator-(double fact) const
 
 
 // Vector operator*(double fact):
-//	The + operator returns a Vector of the same size as current, whose components
-//	are return(i) = theData[i]*fact;
+//        The + operator returns a Vector of the same size as current, whose components
+//        are return(i) = theData[i]*fact;
 
 Vector 
 Vector::operator*(double fact) const
@@ -902,8 +900,8 @@ Vector::operator*(double fact) const
 
 
 // Vector operator/(double fact):
-//	The + operator returns a Vector of the same size as current, whose components
-//	are return(i) = theData[i]/fact; Exits if divide-by-zero error.
+//        The + operator returns a Vector of the same size as current, whose components
+//        are return(i) = theData[i]/fact; Exits if divide-by-zero error.
 
 Vector 
 Vector::operator/(double fact) const
@@ -922,8 +920,8 @@ Vector::operator/(double fact) const
 
 
 // Vector &operator+=(const Vector &V):
-//	The += operator adds V's data to data, data[i]+=V(i). A check to see if
-//	vectors are of same size is performed if VECTOR_CHECK is defined.
+//        The += operator adds V's data to data, data[i]+=V(i). A check to see if
+//        vectors are of same size is performed if VECTOR_CHECK is defined.
 
 Vector &
 Vector::operator+=(const Vector &other)
@@ -937,14 +935,14 @@ Vector::operator+=(const Vector &other)
 
   for (int i=0; i<sz; i++)
     theData[i] += other.theData[i];
-  return *this;	    
+  return *this;            
 }
 
 
 
 // Vector &operator-=(const Vector &V):
-//	The -= operator subtracts V's data from  data, data[i]+=V(i). A check 
-//   	to see if vectors are of same size is performed if VECTOR_CHECK is defined.
+//        The -= operator subtracts V's data from  data, data[i]+=V(i). A check 
+//           to see if vectors are of same size is performed if VECTOR_CHECK is defined.
 
 Vector &
 Vector::operator-=(const Vector &other)
@@ -964,8 +962,8 @@ Vector::operator-=(const Vector &other)
 
 
 // Vector operator+(const Vector &V):
-//	The + operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
-// 	Then returns a Vector whose components are the vector sum of current and V's data.
+//        The + operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
+//         Then returns a Vector whose components are the vector sum of current and V's data.
 
 Vector 
 Vector::operator+(const Vector &b) const
@@ -990,8 +988,8 @@ Vector::operator+(const Vector &b) const
 
 
 // Vector operator-(const Vector &V):
-//	The - operator checks the two vectors are of the same size and then returns a Vector
-//	whose components are the vector difference of current and V's data.
+//        The - operator checks the two vectors are of the same size and then returns a Vector
+//        whose components are the vector difference of current and V's data.
 
 Vector 
 Vector::operator-(const Vector &b) const
@@ -1018,7 +1016,7 @@ Vector::operator-(const Vector &b) const
 
 
 // double operator^(const Vector &V) const;
-//	Method to perform (Vector)transposed * vector.
+//        Method to perform (Vector)transposed * vector.
 double
 Vector::operator^(const Vector &V) const
 {
@@ -1040,7 +1038,7 @@ Vector::operator^(const Vector &V) const
 
 
 // Vector operator/(const Matrix &M) const;    
-//	Method to return inv(M)*this
+//        Method to return inv(M)*this
 
 Vector
 Vector::operator/(const Matrix &M) const
@@ -1057,10 +1055,10 @@ Vector::operator/(const Matrix &M) const
   return res;
 }
     
-	
+        
 // Vector operator==(const Vector &V):
-//	The == operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
-// 	Then returns 1 if all the components of the two vectors are equal and 0 otherwise.
+//        The == operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
+//         Then returns 1 if all the components of the two vectors are equal and 0 otherwise.
 
 int 
 Vector::operator==(const Vector &V) const
@@ -1092,8 +1090,8 @@ Vector::operator==(double value) const
 
 
 // Vector operator!=(const Vector &V):
-//	The != operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
-// 	Then returns 1 if any of the components of the two vectors are unequal and 0 otherwise.
+//        The != operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
+//         Then returns 1 if any of the components of the two vectors are unequal and 0 otherwise.
 
 int
 Vector::operator!=(const Vector &V) const
@@ -1125,7 +1123,7 @@ Vector::operator!=(double value) const
 
 
 // friend OPS_Stream &operator<<(OPS_Stream &s, const Vector &V)
-//	A function is defined to allow user to print the vectors using OPS_Streams.
+//        A function is defined to allow user to print the vectors using OPS_Streams.
 
 OPS_Stream &operator<<(OPS_Stream &s, const Vector &V)
 {
@@ -1140,8 +1138,8 @@ OPS_Stream &operator<<(OPS_Stream &s, const Vector &V)
 }
 
 // friend istream &operator>>(istream &s, Vector &V)
-//	A function is defined to allow user to input the data into a Vector which has already
-//	been constructed with data, i.e. Vector(int) or Vector(const Vector &) constructors.
+//        A function is defined to allow user to input the data into a Vector which has already
+//        been constructed with data, i.e. Vector(int) or Vector(const Vector &) constructors.
 
 /*
 istream &operator>>(istream &s, Vector &V)
