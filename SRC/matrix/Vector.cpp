@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.20 $
-// $Date: 2009-12-23 22:54:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/Vector.cpp,v $
-                                                                        
-                                                                        
+//
+// Description: This file contains the class implementation for Vector.
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
-// Description: This file contains the class implementation for Vector.
-//
-// What: "@(#) Vector.C, revA"
-
 #include "Vector.h"
 #include "Matrix.h"
 #include "ID.h"
@@ -38,8 +31,11 @@
 using std::nothrow;
 
 #include <math.h>
+#include <assert.h>
 
 double Vector::VECTOR_NOT_VALID_ENTRY =0.0;
+
+#define VECTOR_BLAS
 
 // Vector():
 //	Standard constructor, sets size = 0;
@@ -66,13 +62,8 @@ Vector::Vector(int size)
   // get some space for the vector
   //  theData = (double *)malloc(size*sizeof(double));
   if (size > 0) {
-    theData = new (nothrow) double [size];
+    theData = new double [size];
 
-    if (theData == 0) {
-      opserr << "Vector::Vector(int) - out of memory creating vector of size " << size << endln;
-      sz = 0; // set this should fatal error handler not kill process!!
-    }
-    
     // zero the components
     for (int i=0; i<sz; i++)
       theData[i] = 0.0;
@@ -102,11 +93,7 @@ Vector::Vector(const Vector &other)
 : sz(other.sz),theData(0),fromFree(0)
 {
   if (sz != 0) {
-    theData = new (nothrow) double [other.sz];    
-    
-    if (theData == 0) {
-      opserr << "Vector::Vector(int) - out of memory creating vector of size " << sz << endln;
-    }
+    theData = new double [other.sz];    
   }
   // copy the component data
   for (int i=0; i<sz; i++)
@@ -122,7 +109,7 @@ Vector::Vector(Vector &&other)
 : sz(other.sz),theData(other.theData),fromFree(0)
 {
   //opserr << "move ctor!\n";
-  other.theData = 0;
+  other.theData = nullptr;
   other.sz = 0;
 } 
 #endif
@@ -183,12 +170,8 @@ Vector::resize(int newSize){
     
     // create new memory
     // theData = (double *)malloc(newSize*sizeof(double));    
-    theData = new (nothrow) double[newSize];
-    if (theData == 0) {
-      opserr << "Vector::resize() - out of memory for size " << newSize << endln;
-      sz = 0;
-      return -2;
-    }
+    theData = new double[newSize];
+
     sz = newSize;
   }  
 
@@ -205,6 +188,15 @@ Vector::resize(int newSize){
 //	Method to assemble into object the Vector V using the ID l.
 //	If ID(x) does not exist program writes error message if
 //	VECTOR_CHECK defined, otherwise ignores it and goes on.
+
+extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
+extern "C" void dscal_(int*, double*, double*, const int*);
+extern "C" int  dgemv_(char* trans, int* M, int* N,
+                       double* alpha,
+                       double* A, int* lda,
+                       double* X, int* incX,
+                       double* beta,
+                       double* Y, int* incY);
 
 int 
 Vector::Assemble(const Vector &V, const ID &l, double fact )
@@ -227,6 +219,7 @@ Vector::Assemble(const Vector &V, const ID &l, double fact )
 	opserr << "Vector::Assemble() " << pos << " out of range [1, "<< V.Size()-1 << "]\n";
     }
   }
+
   return result;
 }
     
@@ -234,40 +227,43 @@ Vector::Assemble(const Vector &V, const ID &l, double fact )
 int
 Vector::Normalize(void) 
 {
-  double length = 0.0;
+  double length = Norm();
+  /*
   for (int i=0; i<sz; i++)
     length += theData[i] * theData[i];
   length = sqrt(length);
+  */
   
   if (length == 0.0) 
     return -1;
 
   length = 1.0/length;
+#ifdef VECTOR_BLAS
+  const int incx = 1;
+  dscal_(&sz, &length, theData, &incx);
+#else
   for (int j=0; j<sz; j++)
     theData[j] *= length;
-
+#endif
   return 0;
 }
 
 int
 Vector::addVector(double thisFact, const Vector &other, double otherFact )
 {
+  // if sizes are compatable add
+  assert(sz == other.sz);
+
   // check if quick return
   if (otherFact == 0.0 && thisFact == 1.0)
     return 0; 
 
-  // if sizes are compatable add
-#ifdef _G3DEBUG
-  if (sz != other.sz) {
-    // else sizes are incompatable, do nothing but warning
-    opserr <<  "WARNING Vector::addVector() - incompatable Vector sizes\n";
-    return -1;
-  }
-#endif
-
-
-  if (thisFact == 1.0) {
-
+  else if (thisFact == 1.0) {
+#ifdef VECTOR_BLAS
+    const int incr = 1;
+    daxpy_(&sz, &otherFact, other.theData, &incr, theData, &incr);
+    return 0;
+#else
     // want: this += other * otherFact
     double *dataPtr = theData;
     double *otherDataPtr = other.theData;
@@ -280,7 +276,8 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
     } else 
       for (int i=0; i<sz; i++) 
 	*dataPtr++ += *otherDataPtr++ * otherFact;
-  } 
+#endif
+  }
 
   else if (thisFact == 0.0) {
 
@@ -328,21 +325,30 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
 int
 Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact )
 {
+  // check the sizes are compatable
+  assert(sz == m.noRows());
+  assert(m.noCols() == v.sz);
+
   // see if quick return
   if (thisFact == 1.0 && otherFact == 0.0)
     return 0;
 
-  // check the sizes are compatable
-#ifdef _G3DEBUG
-  // check the sizes are compatable
-  if ((sz != m.noRows()) && (m.noCols() != v.sz)) {
-    // otherwise incompatable sizes
-    opserr << "Vector::addMatrixVector() - incompatable sizes\n";
-    return -1;    
+#ifdef VECTOR_BLAS
+  else if (v.sz > 10) {
+    int incr = 1,
+           i = m.numRows,
+           n = m.numCols;
+    return
+      dgemv_("N", &i, &n,
+             &otherFact,
+             m.data, &i,
+             v.theData, &incr,
+             &thisFact,
+             theData,   &incr);
   }
 #endif
 
-  if (thisFact == 1.0) {
+  else if (thisFact == 1.0) {
 
     // want: this += m * v * otherFact
     if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
@@ -462,20 +468,34 @@ Vector::addMatrixTransposeVector(double thisFact,
 				 const Vector &v, 
 				 double otherFact )
 {
-  // see if quick return
-  if (otherFact == 0.0 && thisFact == 1.0)
-    return 0;
-
 #ifdef _G3DEBUG
   // check the sizes are compatable
   if ((sz != m.noRows()) && (m.noRows() != v.sz)) {
-    // otherwise incompatable sizes
     opserr << "Vector::addMatrixTransposeVector() - incompatable sizes\n";
     return -1;    
   }
 #endif
 
-  if (thisFact == 1.0) {
+  // see if quick return
+  if (otherFact == 0.0 && thisFact == 1.0)
+    return 0;
+
+#ifdef VECTOR_BLAS
+  else if (v.sz > 10) {
+    int incr = 1,
+           i = m.numRows,
+           n = m.numCols;
+    return
+      dgemv_("T", &i, &n,
+             &otherFact,
+             m.data, &i,
+             v.theData, &incr,
+             &thisFact,
+             theData,   &incr);
+  }
+#endif
+
+  else if (thisFact == 1.0) {
 
     // want: this += m^t * v * otherFact
     if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
@@ -658,8 +678,8 @@ Vector::operator[](int x)
     if (fromFree == 0)
       if (theData != 0){
 	delete [] theData;
-  theData = 0;
-}
+      theData = 0;
+    }
     theData = dataNew;
     sz = x+1;
   }
@@ -723,35 +743,25 @@ Vector::operator=(const Vector &V)
   // first check we are not trying v = v
   if (this != &V) {
 
-	  /*
-#ifdef _G3DEBUG
-    // check size compatability, if different warning
-    if (sz != V.sz) 
-      opserr << "Vector::operator=() - vectors of differing sizes\n");
-#endif
-	  */
-
       if (sz != V.sz)  {
-
 #ifdef _G3DEBUG
 	  opserr << "Vector::operator=() - vectors of differing sizes\n";
 #endif
 
 	  // Check that we are not deleting an empty Vector
 	  if (this->theData != 0){
-      delete [] this->theData;
-      this->theData = 0;
-    }
+            delete [] this->theData;
+            this->theData = 0;
+          }
 	  this->sz = V.sz;
 	  
 	  // Check that we are not creating an empty Vector
-	  theData = (sz != 0) ? new (nothrow) double[sz] : 0;
+	  theData = (sz != 0) ? new double[sz] : 0;
       }
-
 
       //	 copy the data
       for (int i=0; i<sz; i++)
-	  theData[i] = V.theData[i];
+        theData[i] = V.theData[i];
   }
 
   return *this;
@@ -765,7 +775,7 @@ Vector::operator=(Vector &&V)
   // first check we are not trying v = v
   if (this != &V) {
     // opserr << "move assign!\n";
-    if (this->theData != 0){ 
+    if (this->theData != nullptr){ 
       delete [] this->theData;
       this->theData = 0;
     }
@@ -779,9 +789,6 @@ Vector::operator=(Vector &&V)
 #endif
 
 
-
-
-
 // Vector &operator+=(double fact):
 //	The += operator adds fact to each element of the vector, data[i] = data[i]+fact.
 
@@ -792,7 +799,6 @@ Vector &Vector::operator+=(double fact)
       theData[i] += fact;
   return *this;    
 }
-
 
 
 // Vector &operator-=(double fact)
@@ -813,11 +819,16 @@ Vector &Vector::operator-=(double fact)
 
 Vector &Vector::operator*=(double fact)
 {
+#ifdef VECTOR_BLAS
+  const int incr = 1;
+  dscal_(&sz, &fact, theData, &incr);
+  return *this;
+#else
   for (int i=0; i<sz; i++)
     theData[i] *= fact;
   return *this;
+#endif
 }
-
 
 
 // Vector &operator/=(double fact):
@@ -1204,7 +1215,7 @@ Matrix Vector::operator%(const Vector &V) const
   }
 #endif
   
-  //we want result=a*b'
+  // we want result=a*b'
   
   Matrix result(sz,sz);
   for (int i=0; i<sz; i++)
