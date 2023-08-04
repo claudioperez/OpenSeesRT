@@ -60,6 +60,7 @@ extern OPS_Routine OPS_TrussSectionElement;
 extern OPS_Routine OPS_CorotTrussElement;
 extern OPS_Routine OPS_CorotTrussSectionElement;
 extern OPS_Routine OPS_ElasticTubularJoint;
+extern OPS_Routine OPS_ZeroLength;
 extern OPS_Routine OPS_ZeroLengthContactNTS2D;
 extern OPS_Routine OPS_ZeroLengthVG_HG;
 extern OPS_Routine OPS_ZeroLengthInterface2D;
@@ -747,7 +748,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     return result;
 
   } else if ((strstr(argv[1], "BeamWithHinges") != 0) ||
-             (strcmp(argv[1], "BeamWithHinges") != 0)) {
+             (strcmp(argv[1], "BeamWithHinges") == 0)) {
     int result = TclBasicBuilder_addBeamWithHinges(clientData, interp, argc, argv,
                                                    theTclDomain, theTclBuilder);
     return result;
@@ -845,7 +846,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 //
   else if (strcmp(argv[1], "zeroLength") == 0) {
     int result = TclBasicBuilder_addZeroLength(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+        clientData, interp, argc, argv, nullptr, nullptr);
     return result;
   } else if (strcmp(argv[1], "zeroLengthSection") == 0) {
     int result = TclBasicBuilder_addZeroLengthSection(
