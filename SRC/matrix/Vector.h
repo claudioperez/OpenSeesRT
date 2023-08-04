@@ -124,10 +124,10 @@ class Vector
     friend class BerkeleyDbDatastore;
     
   private:
-    static double VECTOR_NOT_VALID_ENTRY;
     int sz;
     double *theData;
     int fromFree;
+//  static double VECTOR_NOT_VALID_ENTRY;
 };
 
 

@@ -33,9 +33,19 @@ using std::nothrow;
 #include <math.h>
 #include <assert.h>
 
-double Vector::VECTOR_NOT_VALID_ENTRY =0.0;
-
 #define VECTOR_BLAS
+extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
+extern "C" void dscal_(int*, double*, double*, const int*);
+extern "C" int  dgemv_(char* trans, int* M, int* N,
+                       double* alpha,
+                       double* A, int* lda,
+                       double* X, int* incX,
+                       double* beta,
+                       double* Y, int* incY);
+
+
+// double Vector::VECTOR_NOT_VALID_ENTRY =0.0;
+
 
 // Vector():
 //	Standard constructor, sets size = 0;
@@ -188,15 +198,6 @@ Vector::resize(int newSize){
 //	Method to assemble into object the Vector V using the ID l.
 //	If ID(x) does not exist program writes error message if
 //	VECTOR_CHECK defined, otherwise ignores it and goes on.
-
-extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
-extern "C" void dscal_(int*, double*, double*, const int*);
-extern "C" int  dgemv_(char* trans, int* M, int* N,
-                       double* alpha,
-                       double* A, int* lda,
-                       double* X, int* incX,
-                       double* beta,
-                       double* Y, int* incY);
 
 int 
 Vector::Assemble(const Vector &V, const ID &l, double fact )
@@ -641,7 +642,7 @@ Vector::pNorm(int p) const
 {
   double value = 0;
   
-  if (p>0) {
+  if (p > 0) {
     for (int i=0; i<sz; i++) {
       double data = fabs(theData[i]);
       value += pow(data,p);
@@ -660,15 +661,11 @@ Vector::pNorm(int p) const
 double &
 Vector::operator[](int x) 
 {
-#ifdef _G3DEBUG
   // check if it is inside range [0,sz-1]
-  if (x < 0) {
-    opserr << "Vector::() - x " << x << " outside range 0 - << " << sz-1 << endln;
-    return VECTOR_NOT_VALID_ENTRY;
-  }
-#endif
+  assert(x >= 0);
   
   if (x >= sz) {
+    // TODO: Is this expected?
     double *dataNew = new (nothrow) double[x+1];
     for (int i=0; i<sz; i++)
       dataNew[i] = theData[i];
@@ -689,14 +686,8 @@ Vector::operator[](int x)
 
 double Vector::operator[](int x) const
 {
-#ifdef _G3DEBUG
   // check if it is inside range [0,sz-1]
-  if (x < 0 || x >= sz) {
-    opserr << "Vector::() - x " << x << " outside range 0 - " <<  sz-1 << endln;
-    return VECTOR_NOT_VALID_ENTRY;
-  }
-#endif
-
+  assert(x >= 0 && x < sz);
   return theData[x];
 }
 
@@ -711,12 +702,6 @@ Vector::operator()(const ID &rows) const
 {
   // create a new Vector to be returned
   Vector result(rows.Size());
-
-  // check if obtained VEctor of correct size
-  if (result.Size() != rows.Size()) {
-    opserr << "Vector::()(ID) - new Vector could not be constructed\n";
-    return result;
-  }
 
   // copy the appropraite contents from current to result     
   int pos;
@@ -756,10 +741,10 @@ Vector::operator=(const Vector &V)
 	  this->sz = V.sz;
 	  
 	  // Check that we are not creating an empty Vector
-	  theData = (sz != 0) ? new double[sz] : 0;
+	  theData = (sz != 0) ? new double[sz] : nullptr;
       }
 
-      //	 copy the data
+      // copy the data
       for (int i=0; i<sz; i++)
         theData[i] = V.theData[i];
   }
@@ -774,8 +759,7 @@ Vector::operator=(Vector &&V)
 {
   // first check we are not trying v = v
   if (this != &V) {
-    // opserr << "move assign!\n";
-    if (this->theData != nullptr){ 
+    if (this->theData != nullptr) { 
       delete [] this->theData;
       this->theData = 0;
     }
@@ -1167,13 +1151,11 @@ Vector::Assemble(const Vector &V, int init_pos, double fact)
   int cur_pos   = init_pos;  
   int final_pos = init_pos + V.sz - 1;
   
-  if ((init_pos >= 0) && (final_pos < sz))
-  {
+  if ((init_pos >= 0) && (final_pos < sz)) {
      for (int j=0; j<V.sz; j++) 
         (*this)(cur_pos++) += V(j)*fact;
   }
-  else 
-  {
+  else {
      opserr << "WARNING: Vector::Assemble(const Vector &V, int init_pos, double fact): ";
      opserr << "position outside bounds \n";
      res = -1;
