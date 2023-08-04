@@ -1547,7 +1547,7 @@ Node::Print(OPS_Stream &s, int flag)
     }
     
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << OPS_PRINT_JSON_NODE_INDENT << "{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"ndf\": " << numberDOF << ", ";
         s << "\"crd\": [";
