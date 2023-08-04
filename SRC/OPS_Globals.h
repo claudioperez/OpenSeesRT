@@ -63,5 +63,6 @@ extern bool  ops_InitialStateAnalysis;
 #define OPS_PRINT_PRINTMODEL_JSON   25000
 
 #define OPS_PRINT_JSON_ELEM_INDENT "      "
+#define OPS_PRINT_JSON_NODE_INDENT "      "
 
 #endif

@@ -582,14 +582,30 @@ ViscousDamper::updateParameter(int parameterID, Information &info)
 void 
 ViscousDamper::Print(OPS_Stream &s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+		  s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"ViscousDamper\",";
+      s << "\"K\": " << K << ", "; 
+      s << "\"C\": " << C << ", ";
+      s << "\"Alpha\": " << Alpha << ", ";
+      s << "\"LGap\": " << LGap << ", "; 
+      s << "\"NM\": " << NM << ", "; 
+      s << "\"RelTol\": " << RelTol << ", ";
+      s << "\"AbsTol\": " << AbsTol << ", ";
+      s << "\"MaxHalf\": " << MaxHalf;
+      s << "}";
+  }
+  else if (flag == OPS_PRINT_PRINTMODEL_MATERIAL) {
     s << "ViscousDamper tag: " << this->getTag() << endln;
     s << "  K: " << K << endln; 
     s << "  C: " << C << endln;
     s << "  Alpha: " << Alpha << endln;
-	s << "  LGap: " << LGap << endln; 
-	s << "  NM: " << NM << endln; 
+    s << "  LGap: " << LGap << endln; 
+    s << "  NM: " << NM << endln; 
     s << "  RelTol: " << RelTol << endln;
-	s << "  AbsTol: " << AbsTol << endln;
+    s << "  AbsTol: " << AbsTol << endln;
     s << "  MaxHalf: " << MaxHalf << endln;
+  }
         
 }
