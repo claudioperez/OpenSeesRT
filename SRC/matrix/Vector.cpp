@@ -1034,7 +1034,7 @@ Vector::operator^(const Vector &V) const
 
 // Vector operator/(const Matrix &M) const;    
 //        Method to return inv(M)*this
-
+#if 1
 Vector
 Vector::operator/(const Matrix &M) const
 {
@@ -1049,6 +1049,7 @@ Vector::operator/(const Matrix &M) const
   }
   return res;
 }
+#endif
     
         
 // Vector operator==(const Vector &V):

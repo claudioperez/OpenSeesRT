@@ -32,17 +32,20 @@
 #include <iostream>
 // using std::nothrow;
 
-#define MATRIX_WORK_AREA 400
-#define INT_WORK_AREA 20
+#define NO_STATIC_WORK
 
 #include <math.h>
 #include <assert.h>
 
-int Matrix::sizeDoubleWork = MATRIX_WORK_AREA;
-int Matrix::sizeIntWork = INT_WORK_AREA;
-double Matrix::MATRIX_NOT_VALID_ENTRY =0.0;
-double *Matrix::matrixWork = nullptr;
-int    *Matrix::intWork    = nullptr;
+#ifndef NO_STATIC_WORK
+# define MATRIX_WORK_AREA 400
+# define INT_WORK_AREA 20
+  int Matrix::sizeDoubleWork = MATRIX_WORK_AREA;
+  int Matrix::sizeIntWork = INT_WORK_AREA;
+  double Matrix::MATRIX_NOT_VALID_ENTRY =0.0;
+  double *Matrix::matrixWork = nullptr;
+  int    *Matrix::intWork    = nullptr;
+#endif
 
 #define MATRIX_BLAS
 //#define NO_WORK
@@ -138,7 +141,6 @@ Matrix::Matrix(int nRows,int nCols)
 
   if (dataSize > 0) {
     data = new double[dataSize];
-    // data = (double *)malloc(dataSize*sizeof(double));
     // zero the data
     double *dataPtr = data;
     for (int i=0; i<dataSize; i++)
@@ -210,6 +212,12 @@ Matrix::~Matrix()
       data = nullptr;
     }
   }
+
+  if (matrixWork != nullptr)
+    delete [] matrixWork;
+
+  if (intWork != nullptr)
+    delete [] intWork;
 }
     
 
@@ -295,25 +303,20 @@ Matrix::Assemble(const Matrix &V, const ID &rows, const ID &cols, double fact)
       assert((pos_Cols >= 0)      && (pos_Rows >= 0) && (pos_Rows < numRows) &&
              (pos_Cols < numCols) && (i < V.numCols) && (j < V.numRows));
       (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
-// else {
-//         opserr << "WARNING: Matrix::Assemble(const Matrix &V, const ID &l): ";
-//         opserr << " - position (" << pos_Rows << "," << pos_Cols << ") outside bounds \n";
-//         res = -1;
-// }
     }
   }
 
   return res;
 }
 
-
 int
-Matrix::Solve(const Vector &b, Vector &x) const
+Matrix::Solve(const Vector &b, Vector &x)
 {
     int n = numRows;
     assert(numRows == numCols);
     assert(numRows == x.Size());
     assert(numRows == b.Size());
+
     // check work area can hold all the data
     if (dataSize > sizeDoubleWork) {
       if (matrixWork != nullptr) {
@@ -334,8 +337,7 @@ Matrix::Solve(const Vector &b, Vector &x) const
       intWork = new int[n];
       sizeIntWork = n;  
     }
-
-    
+ 
     // copy the data
     int i;
     for (i=0; i<dataSize; i++)
@@ -352,18 +354,77 @@ Matrix::Solve(const Vector &b, Vector &x) const
     double *Xptr = x.theData;
     int *iPIV = intWork;
 
-#ifdef _WIN32
     DGESV(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
-#else
+
+    return -abs(info);
+}
+
+int
+Matrix::Solve(const Vector &b, Vector &x) const
+{
+    int n = numRows;
+    assert(numRows == numCols);
+    assert(numRows == x.Size());
+    assert(numRows == b.Size());
+
+#ifdef NO_STATIC_WORK
+    static double *matrixWork = nullptr;
+    static int *intWork = nullptr;
+    static int sizeDoubleWork = 0;
+    static int sizeIntWork    = 0;
+#endif
+    // check work area can hold all the data
+    if (dataSize > sizeDoubleWork) {
+      if (matrixWork != nullptr) {
+        delete [] matrixWork;
+        matrixWork = nullptr;
+      }
+      matrixWork = new double[dataSize];
+      sizeDoubleWork = dataSize;
+    }
+
+    // check work area can hold all the data
+    if (n > sizeIntWork) {
+
+      if (intWork != 0) {
+        delete [] intWork;
+        intWork = 0;
+      }
+      intWork = new int[n];
+      sizeIntWork = n;  
+    }
+ 
+    // copy the data
+    int i;
+    for (i=0; i<dataSize; i++)
+      matrixWork[i] = data[i];
+
+    // set x equal to b
+    x = b;
+
+    int nrhs = 1;
+    int ldA = n;
+    int ldB = n;
+    int info;
+    double *Aptr = matrixWork;
+    double *Xptr = x.theData;
+    int *iPIV = intWork;
+
+//#ifdef _WIN32
+    DGESV(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
+#if 0 // else
     dgesv_(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
 #endif
+
+    // delete [] intWork;
+    // delete [] matrixWork;
 
     return -abs(info);
 }
 
 
 int
-Matrix::Solve(const Matrix &b, Matrix &x) const
+Matrix::Solve(const Matrix &b, Matrix &x) // const
 {
 
     int n = numRows;
@@ -434,14 +495,23 @@ Matrix::Solve(const Matrix &b, Matrix &x) const
     return -abs(info);
 }
 
-
 int
 Matrix::Invert(Matrix &theInverse) const
+{
+    int n = numRows;
+    assert(numRows == numCols);
+    assert(n == theInverse.numRows);
+    theInverse = *this;
+    return theInverse.Invert();
+}
+
+int
+Matrix::Invert()
 {
 
     int n = numRows;
     assert(numRows == numCols);
-    assert(n == theInverse.numRows);
+    // assert(n == theInverse.numRows);
 
     // check work area can hold all the data
     if (dataSize > sizeDoubleWork) {
@@ -470,18 +540,18 @@ Matrix::Invert(Matrix &theInverse) const
       matrixWork[i] = data[i];
 #endif
 
-    theInverse = *this;
+    // theInverse = *this;
 
     int ldA = n;
     int info;
     double *Wptr = matrixWork;
-    double *Aptr = theInverse.data;
+    double *Aptr = data;
     int workSize = sizeDoubleWork;
     
     int *iPIV = intWork;
     
 
-#ifdef _WIN32
+#if 1 // || defined(_WIN32)
     DGETRF(&n,&n,Aptr,&ldA,iPIV,&info);
     if (info != 0) 
       return -abs(info);

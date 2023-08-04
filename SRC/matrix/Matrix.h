@@ -69,9 +69,11 @@ class Matrix
     int  Assemble(const Matrix &,const ID &rows, const ID &cols, 
 		  double fact = 1.0);  
     
-    int Solve(const Vector &V, Vector &res) const;
-    int Solve(const Matrix &M, Matrix &res) const;
+    int Solve(const Vector &V, Vector &res)     const;
+    int Solve(const Vector &V, Vector &res); // const;
+    int Solve(const Matrix &M, Matrix &res); // const;
     int Invert(Matrix &res) const;
+    int Invert();
 
     int addMatrix(double factThis, const Matrix &other, double factOther);
     int addMatrixTranspose(double factThis, const Matrix &other, double factOther);
@@ -91,26 +93,26 @@ class Matrix
     Matrix &operator=(Matrix &&M);
 #endif
     
-    // matrix operations which will preserve the derived type and
+    // Matrix operations which will preserve the derived type and
     // which can be implemented efficiently without many constructor calls.
 
-    // matrix-scalar operations
+    // Matrix-scalar operations
     Matrix &operator+=(double fact);
     Matrix &operator-=(double fact);
     Matrix &operator*=(double fact);
     Matrix &operator/=(double fact); 
 
-    // matrix operations which generate a new Matrix. They are not the
+    // Matrix operations which generate a new Matrix. They are not the
     // most efficient to use, as constructors must be called twice. They
     // however are usefull for matlab like expressions involving Matrices.
 
-    // matrix-scalar operations
+    // Matrix-scalar operations
     Matrix operator+(double fact) const;
     Matrix operator-(double fact) const;
     Matrix operator*(double fact) const;
     Matrix operator/(double fact) const;
     
-    // matrix-vector operations
+    // Matrix-vector operations
     Vector operator*(const Vector &V) const;
     Vector operator^(const Vector &V) const;    
 
@@ -155,11 +157,13 @@ class Matrix
   protected:
 
   private:
+#define STATIC
     static double MATRIX_NOT_VALID_ENTRY;
-    static double *matrixWork;
-    static int *intWork;
-    static int sizeDoubleWork;
-    static int sizeIntWork;
+    STATIC double *matrixWork = nullptr;
+    STATIC int *intWork = nullptr;
+    STATIC int sizeDoubleWork = 400;
+    STATIC int sizeIntWork = 20;
+#undef STATIC
 
     int numRows;
     int numCols;
