@@ -44,8 +44,6 @@ double Matrix::MATRIX_NOT_VALID_ENTRY =0.0;
 double *Matrix::matrixWork = nullptr;
 int    *Matrix::intWork    = nullptr;
 
-//double *Matrix::matrixWork = (double *)malloc(400*sizeof(double));
-
 #define MATRIX_BLAS
 #define NO_WORK
 
@@ -92,7 +90,6 @@ Matrix::Matrix(int nRows,int nCols)
 Matrix::Matrix(double *theData, int row, int col) 
 :numRows(row),numCols(col),dataSize(row*col),data(theData),fromFree(1)
 {
-
   assert(row > 0);
   assert(col > 0);
 
@@ -105,12 +102,12 @@ Matrix::Matrix(double *theData, int row, int col)
 }
 
 Matrix::Matrix(const Matrix &other)
-:numRows(0), numCols(0), dataSize(0), data(0), fromFree(0)
+: numRows(0), numCols(0), dataSize(0), data(0), fromFree(0)
 {
   // allocate work areas if the first matrix
   if (matrixWork == nullptr) {
-    matrixWork = new  double[sizeDoubleWork];
-    intWork    = new  int[sizeIntWork];
+    matrixWork = new double[sizeDoubleWork];
+    intWork    = new int[sizeIntWork];
   }
 
   numRows  = other.numRows;
@@ -130,7 +127,9 @@ Matrix::Matrix(const Matrix &other)
 // Move constructor
 #if !defined(NO_CXX11_MOVE)
 Matrix::Matrix(Matrix &&other)
-:numRows(other.numRows), numCols(other.numCols), dataSize(other.dataSize), data(other.data), fromFree(other.fromFree)
+: numRows(other.numRows), numCols(other.numCols), 
+  dataSize(other.dataSize), data(other.data),
+  fromFree(other.fromFree)
 {
   other.numRows  = 0;
   other.numCols  = 0;
@@ -162,7 +161,6 @@ Matrix::~Matrix()
 int
 Matrix::setData(double *theData, int row, int col) 
 {
-
   assert(row > 0);
   assert(col > 0);
 
@@ -172,10 +170,10 @@ Matrix::setData(double *theData, int row, int col)
       delete [] data; 
       data = 0;
     }
-  numRows = row;
-  numCols = col;
+  numRows  = row;
+  numCols  = col;
   dataSize = row*col;
-  data = theData;
+  data     = theData;
   fromFree = 1;
   
   return 0;
@@ -199,9 +197,9 @@ Matrix::resize(int rows, int cols) {
   if (newSize > dataSize) {
 
     // free the old space
-    if (data != 0) 
+    if (data != nullptr)
       if (fromFree == 0){
-	delete [] data; 
+        delete [] data; 
         data = 0;
       }
 
@@ -227,9 +225,8 @@ Matrix::resize(int rows, int cols) {
 int
 Matrix::Assemble(const Matrix &V, const ID &rows, const ID &cols, double fact) 
 {
-  int pos_Rows, pos_Cols;
   int res = 0;
-
+  int pos_Rows, pos_Cols;
   for (int i=0; i<cols.Size(); i++) {
     pos_Cols = cols(i);
 
@@ -237,13 +234,13 @@ Matrix::Assemble(const Matrix &V, const ID &rows, const ID &cols, double fact)
       pos_Rows = rows(j);
       
       assert((pos_Cols >= 0)      && (pos_Rows >= 0) && (pos_Rows < numRows) &&
-	     (pos_Cols < numCols) && (i < V.numCols) && (j < V.numRows));
+             (pos_Cols < numCols) && (i < V.numCols) && (j < V.numRows));
       (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
-//       else {
-// 	opserr << "WARNING: Matrix::Assemble(const Matrix &V, const ID &l): ";
-// 	opserr << " - position (" << pos_Rows << "," << pos_Cols << ") outside bounds \n";
-// 	res = -1;
-//       }
+// else {
+//         opserr << "WARNING: Matrix::Assemble(const Matrix &V, const ID &l): ";
+//         opserr << " - position (" << pos_Rows << "," << pos_Cols << ") outside bounds \n";
+//         res = -1;
+// }
     }
   }
 
@@ -253,34 +250,34 @@ Matrix::Assemble(const Matrix &V, const ID &rows, const ID &cols, double fact)
 #ifdef _WIN32
 
 extern "C" int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
-			      int *iPiv, double *B, int *LDB, int *INFO);
+                              int *iPiv, double *B, int *LDB, int *INFO);
 
 extern "C" int  DGETRF(int *M, int *N, double *A, int *LDA, 
-			      int *iPiv, int *INFO);
+                              int *iPiv, int *INFO);
 
 extern "C" int  DGETRS(char *TRANS, unsigned int sizeT,
-			       int *N, int *NRHS, double *A, int *LDA, 
-			       int *iPiv, double *B, int *LDB, int *INFO);
+                               int *N, int *NRHS, double *A, int *LDA, 
+                               int *iPiv, double *B, int *LDB, int *INFO);
 
 extern "C" int  DGETRI(int *N, double *A, int *LDA, 
-			      int *iPiv, double *Work, int *WORKL, int *INFO);
+                              int *iPiv, double *Work, int *WORKL, int *INFO);
 //#endif
 #else
 extern "C" int dgesv_(int *N, int *NRHS, double *A, int *LDA, int *iPiv, 
-		      double *B, int *LDB, int *INFO);
+                      double *B, int *LDB, int *INFO);
 
 extern "C" int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-		       int *iPiv, double *B, int *LDB, int *INFO);		       
+                       int *iPiv, double *B, int *LDB, int *INFO);                       
 
 extern "C" int dgetrf_(int *M, int *N, double *A, int *LDA, 
-		       int *iPiv, int *INFO);
+                       int *iPiv, int *INFO);
 
 extern "C" int dgetri_(int *N, double *A, int *LDA, 
-		       int *iPiv, double *Work, int *WORKL, int *INFO);
+                       int *iPiv, double *Work, int *WORKL, int *INFO);
 extern "C" int dgerfs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-		       double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
-		       double *X, int *LDX, double *FERR, double *BERR, 
-		       double *WORK, int *IWORK, int *INFO);
+                       double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
+                       double *X, int *LDX, double *FERR, double *BERR, 
+                       double *WORK, int *IWORK, int *INFO);
 extern "C" {
 /* C = alpha op(A)*op(B) + beta C, op(A) MxK, op(B) KxN, op(X) = X or X' */
 int
@@ -297,17 +294,14 @@ dgemm_(char* transA, char* transB, int* M, int* N, int* K,
 int
 Matrix::Solve(const Vector &b, Vector &x) const
 {
-
     int n = numRows;
     assert(numRows == numCols);
     assert(numRows == x.Size());
     assert(numRows == b.Size());
-
-#ifndef NO_WORK
     // check work area can hold all the data
     if (dataSize > sizeDoubleWork) {
       if (matrixWork != nullptr) {
-	delete [] matrixWork;
+        delete [] matrixWork;
         matrixWork = nullptr;
       }
       matrixWork = new double[dataSize];
@@ -318,7 +312,7 @@ Matrix::Solve(const Vector &b, Vector &x) const
     if (n > sizeIntWork) {
 
       if (intWork != 0) {
-	delete [] intWork;
+        delete [] intWork;
         intWork = 0;
       }
       intWork = new int[n];
@@ -330,7 +324,7 @@ Matrix::Solve(const Vector &b, Vector &x) const
     int i;
     for (i=0; i<dataSize; i++)
       matrixWork[i] = data[i];
-#endif
+
     // set x equal to b
     x = b;
 
@@ -338,11 +332,7 @@ Matrix::Solve(const Vector &b, Vector &x) const
     int ldA = n;
     int ldB = n;
     int info;
-#ifdef NO_WORK
-    double *Aptr = data;
-#else
     double *Aptr = matrixWork;
-#endif
     double *Xptr = x.theData;
     int *iPIV = intWork;
 
@@ -371,7 +361,7 @@ Matrix::Solve(const Matrix &b, Matrix &x) const
     if (dataSize > sizeDoubleWork) {
 
       if (matrixWork != 0) {
-	delete [] matrixWork;
+        delete [] matrixWork;
         matrixWork = 0;
       }
       matrixWork = new double[dataSize];
@@ -382,7 +372,7 @@ Matrix::Solve(const Matrix &b, Matrix &x) const
     if (n > sizeIntWork) {
 
       if (intWork != 0) {
-	delete [] intWork;
+        delete [] intWork;
         intWork = 0;
       }
       intWork = new int[n];
@@ -422,7 +412,7 @@ Matrix::Solve(const Matrix &b, Matrix &x) const
     int newIwork[n];
     
     dgerfs_("N",&n,&n,origData,&ldA,Aptr,&n,iPIV,Bptr,&ldB,Xptr,&ldB,
-	    Ferr, Berr, newWork, newIwork, &info);
+            Ferr, Berr, newWork, newIwork, &info);
     */
 #endif
     return -abs(info);
@@ -439,9 +429,8 @@ Matrix::Invert(Matrix &theInverse) const
 
     // check work area can hold all the data
     if (dataSize > sizeDoubleWork) {
-
-      if (matrixWork != 0) {
-	delete [] matrixWork;
+      if (matrixWork != nullptr) {
+        delete [] matrixWork;
         matrixWork = 0;
       }
       matrixWork = new double[dataSize];
@@ -450,9 +439,8 @@ Matrix::Invert(Matrix &theInverse) const
 
     // check work area can hold all the data
     if (n > sizeIntWork) {
-
       if (intWork != 0) {
-	delete [] intWork;
+        delete [] intWork;
         intWork = 0;
       }
       intWork = new int[n];
@@ -503,54 +491,49 @@ Matrix::addMatrix(double factThis, const Matrix &other, double factOther)
       return 0;
 
     if (factThis == 1.0) {
-
       // want: this += other * factOther
       if (factOther == 1.0) {
-	double *dataPtr = data;
-	double *otherDataPtr = other.data;		    
-	for (int i=0; i<dataSize; i++)
-	  *dataPtr++ += *otherDataPtr++;
+        double *dataPtr = data;
+        double *otherDataPtr = other.data;                    
+        for (int i=0; i<dataSize; i++)
+          *dataPtr++ += *otherDataPtr++;
       } else {
-	double *dataPtr = data;
-	double *otherDataPtr = other.data;		    
-	for (int i=0; i<dataSize; i++)
-	  *dataPtr++ += *otherDataPtr++ * factOther;
+        double *dataPtr = data;
+        double *otherDataPtr = other.data;                    
+        for (int i=0; i<dataSize; i++)
+          *dataPtr++ += *otherDataPtr++ * factOther;
       }
-    } 
-
+    }
     else if (factThis == 0.0) {
-
       // want: this = other * factOther
       if (factOther == 1.0) {
-	double *dataPtr = data;
-	double *otherDataPtr = other.data;		    
-	for (int i=0; i<dataSize; i++)
-	  *dataPtr++ = *otherDataPtr++;
+        double *dataPtr = data;
+        double *otherDataPtr = other.data;                    
+        for (int i=0; i<dataSize; i++)
+          *dataPtr++ = *otherDataPtr++;
       } else {
-	double *dataPtr = data;
-	double *otherDataPtr = other.data;		    
-	for (int i=0; i<dataSize; i++)
-	  *dataPtr++ = *otherDataPtr++ * factOther;
+        double *dataPtr = data;
+        double *otherDataPtr = other.data;                    
+        for (int i=0; i<dataSize; i++)
+          *dataPtr++ = *otherDataPtr++ * factOther;
       }
-    } 
-
+    }
     else {
-
       // want: this = this * thisFact + other * factOther
       if (factOther == 1.0) {
-	double *dataPtr = data;
-	double *otherDataPtr = other.data;		    
-	for (int i=0; i<dataSize; i++) {
-	  double value = *dataPtr * factThis + *otherDataPtr++;
-	  *dataPtr++ = value;
-	}
+        double *dataPtr = data;
+        double *otherDataPtr = other.data;                    
+        for (int i=0; i<dataSize; i++) {
+          double value = *dataPtr * factThis + *otherDataPtr++;
+          *dataPtr++ = value;
+        }
       } else {
-	double *dataPtr = data;
-	double *otherDataPtr = other.data;		    
-	for (int i=0; i<dataSize; i++) {
-	  double value = *dataPtr * factThis + *otherDataPtr++ * factOther;
-	  *dataPtr++ = value;
-	}
+        double *dataPtr = data;
+        double *otherDataPtr = other.data;                    
+        for (int i=0; i<dataSize; i++) {
+          double value = *dataPtr * factThis + *otherDataPtr++ * factOther;
+          *dataPtr++ = value;
+        }
       }
     } 
 
@@ -590,13 +573,13 @@ Matrix::addMatrixTranspose(double factThis, const Matrix &other, double factOthe
 
       // want: this = other^T * factOther
       if (factOther == 1.0) {
-	double *dataPtr = data;
+        double *dataPtr = data;
         for (int j=0; j<numCols; j++) {
           for (int i=0; i<numRows; i++)
                 *dataPtr++ = (other.data)[j+i*numCols];
         }
       } else {
-	double *dataPtr = data;
+        double *dataPtr = data;
         for (int j=0; j<numCols; j++) {
           for (int i=0; i<numRows; i++)
                 *dataPtr++ = (other.data)[j+i*numCols] * factOther;
@@ -608,7 +591,7 @@ Matrix::addMatrixTranspose(double factThis, const Matrix &other, double factOthe
 
       // want: this = this * thisFact + other^T * factOther
       if (factOther == 1.0) {
-	double *dataPtr = data;
+        double *dataPtr = data;
         for (int j=0; j<numCols; j++) {
           for (int i=0; i<numRows; i++) {
             double value = *dataPtr * factThis + (other.data)[j+i*numCols];
@@ -616,7 +599,7 @@ Matrix::addMatrixTranspose(double factThis, const Matrix &other, double factOthe
           }
         }
       } else {
-	double *dataPtr = data;
+        double *dataPtr = data;
         for (int j=0; j<numCols; j++) {
           for (int i=0; i<numRows; i++) {
                 double value = *dataPtr * factThis + (other.data)[j+i*numCols] * factOther;
@@ -633,9 +616,9 @@ Matrix::addMatrixTranspose(double factThis, const Matrix &other, double factOthe
 
 int
 Matrix::addMatrixProduct(double thisFact, 
-			 const Matrix &B, 
-			 const Matrix &C, 
-			 double otherFact)
+                         const Matrix &B, 
+                         const Matrix &C, 
+                         double otherFact)
 {
     assert(B.numRows == numRows);
     assert(C.numCols == numCols);
@@ -662,34 +645,33 @@ Matrix::addMatrixProduct(double thisFact,
       int numColB = B.numCols;
       double *ckjPtr  = &(C.data)[0];
       for (int j=0; j<numCols; j++) {
-	double *aijPtrA = &data[j*numRows];
-	for (int k=0; k<numColB; k++) {
-	  double tmp = *ckjPtr++ * otherFact;
-	  double *aijPtr = aijPtrA;
-	  double *bikPtr = &(B.data)[k*numRows];
-	  for (int i=0; i<numRows; i++)
-	    *aijPtr++ += *bikPtr++ * tmp;
-	}
+        double *aijPtrA = &data[j*numRows];
+        for (int k=0; k<numColB; k++) {
+          double tmp = *ckjPtr++ * otherFact;
+          double *aijPtr = aijPtrA;
+          double *bikPtr = &(B.data)[k*numRows];
+          for (int i=0; i<numRows; i++)
+            *aijPtr++ += *bikPtr++ * tmp;
+        }
       }
     }
 
     else if (thisFact == 0.0) {
-
       // want: this = B * C  otherFact
       double *dataPtr = data;
       for (int i=0; i<dataSize; i++)
-	  *dataPtr++ = 0.0;
+          *dataPtr++ = 0.0;
       int numColB = B.numCols;
       double *ckjPtr  = &(C.data)[0];
       for (int j=0; j<numCols; j++) {
-	double *aijPtrA = &data[j*numRows];
-	for (int k=0; k<numColB; k++) {
-	  double tmp = *ckjPtr++ * otherFact;
-	  double *aijPtr = aijPtrA;
-	  double *bikPtr = &(B.data)[k*numRows];
-	  for (int i=0; i<numRows; i++)
-	    *aijPtr++ += *bikPtr++ * tmp;
-	}
+        double *aijPtrA = &data[j*numRows];
+        for (int k=0; k<numColB; k++) {
+          double tmp = *ckjPtr++ * otherFact;
+          double *aijPtr = aijPtrA;
+          double *bikPtr = &(B.data)[k*numRows];
+          for (int i=0; i<numRows; i++)
+            *aijPtr++ += *bikPtr++ * tmp;
+        }
       }
     } 
 
@@ -697,18 +679,18 @@ Matrix::addMatrixProduct(double thisFact,
       // want: this = B * C  otherFact
       double *dataPtr = data;
       for (int i=0; i<dataSize; i++)
-	  *dataPtr++ *= thisFact;
+          *dataPtr++ *= thisFact;
       int numColB = B.numCols;
       double *ckjPtr  = &(C.data)[0];
       for (int j=0; j<numCols; j++) {
-	double *aijPtrA = &data[j*numRows];
-	for (int k=0; k<numColB; k++) {
-	  double tmp = *ckjPtr++ * otherFact;
-	  double *aijPtr = aijPtrA;
-	  double *bikPtr = &(B.data)[k*numRows];
-	  for (int i=0; i<numRows; i++)
-	    *aijPtr++ += *bikPtr++ * tmp;
-	}
+        double *aijPtrA = &data[j*numRows];
+        for (int k=0; k<numColB; k++) {
+          double tmp = *ckjPtr++ * otherFact;
+          double *aijPtr = aijPtrA;
+          double *bikPtr = &(B.data)[k*numRows];
+          for (int i=0; i<numRows; i++)
+            *aijPtr++ += *bikPtr++ * tmp;
+        }
       }
     } 
     return 0;
@@ -717,9 +699,9 @@ Matrix::addMatrixProduct(double thisFact,
 
 int
 Matrix::addMatrixTransposeProduct(double thisFact, 
-				  const Matrix &B, 
-				  const Matrix &C, 
-				  double otherFact)
+                                  const Matrix &B, 
+                                  const Matrix &C, 
+                                  double otherFact)
 {
 #ifdef _G3DEBUG
   if ((B.numCols != numRows) || (C.numCols != numCols) || (B.numRows != C.numRows)) {
@@ -748,13 +730,13 @@ Matrix::addMatrixTransposeProduct(double thisFact,
     double *aijPtr = data;
     for (int j=0; j<numCols; j++) {
       for (int i=0; i<numRows; i++) {
-	double *bkiPtr  = &(B.data)[i*numMults];
-	double *cjkPtr  = &(C.data)[j*numMults];
-	double sum = 0.0;
-	for (int k=0; k<numMults; k++) {
-	  sum += *bkiPtr++ * *cjkPtr++;
-	}
-	*aijPtr++ += sum * otherFact;
+        double *bkiPtr  = &(B.data)[i*numMults];
+        double *cjkPtr  = &(C.data)[j*numMults];
+        double sum = 0.0;
+        for (int k=0; k<numMults; k++) {
+          sum += *bkiPtr++ * *cjkPtr++;
+        }
+        *aijPtr++ += sum * otherFact;
       }
     } 
   } else if (thisFact == 0.0) {
@@ -762,13 +744,13 @@ Matrix::addMatrixTransposeProduct(double thisFact,
     double *aijPtr = data;
     for (int j=0; j<numCols; j++) {
       for (int i=0; i<numRows; i++) {
-	double *bkiPtr  = &(B.data)[i*numMults];
-	double *cjkPtr  = &(C.data)[j*numMults];
-	double sum = 0.0;
-	for (int k=0; k<numMults; k++) {
-	  sum += *bkiPtr++ * *cjkPtr++;
-	}
-	*aijPtr++ = sum * otherFact;
+        double *bkiPtr  = &(B.data)[i*numMults];
+        double *cjkPtr  = &(C.data)[j*numMults];
+        double sum = 0.0;
+        for (int k=0; k<numMults; k++) {
+          sum += *bkiPtr++ * *cjkPtr++;
+        }
+        *aijPtr++ = sum * otherFact;
       }
     } 
   } else {
@@ -776,14 +758,14 @@ Matrix::addMatrixTransposeProduct(double thisFact,
     double *aijPtr = data;
     for (int j=0; j<numCols; j++) {
       for (int i=0; i<numRows; i++) {
-	double *bkiPtr  = &(B.data)[i*numMults];
-	double *cjkPtr  = &(C.data)[j*numMults];
-	double sum = 0.0;
-	for (int k=0; k<numMults; k++) {
-	  sum += *bkiPtr++ * *cjkPtr++;
-	}
-	*aijPtr = *aijPtr * thisFact + sum * otherFact;
-	aijPtr++;
+        double *bkiPtr  = &(B.data)[i*numMults];
+        double *cjkPtr  = &(C.data)[j*numMults];
+        double sum = 0.0;
+        for (int k=0; k<numMults; k++) {
+          sum += *bkiPtr++ * *cjkPtr++;
+        }
+        *aijPtr = *aijPtr * thisFact + sum * otherFact;
+        aijPtr++;
       }
     } 
   }
@@ -797,20 +779,20 @@ Matrix::addMatrixTransposeProduct(double thisFact,
   (A)(i,j) = (A)(i,j)*a + b*(T(k,i)*B(k,m)*T(m,j))
 int
 Matrix::addMatrixTripleProduct(double thisFact, 
-			       const  Matrix &T, 
-			       const  Matrix &B, 
-			       double otherFact)
+                               const  Matrix &T, 
+                               const  Matrix &B, 
+                               double otherFact)
 {
-    if (thisFact == 1.0 && otherFact == 0.0)
-      return 0;
+  if (thisFact == 1.0 && otherFact == 0.0)
+    return 0;
 
 #if defined(MATRIX_BLAS)
-    for (int j=0; j < numCols; j++)
-      for (int i=0; i < numRows; i++)
-        for (int k=0; k < B.numRows; k++)
-          for (int m=0; m < B.numCols; m++)
-            Aij_TkiBkmTmk(*this, B, T, thisFact,otherFact,i,j,k,m);
-    return 0;
+  for (int j=0; j < numCols; j++)
+    for (int i=0; i < numRows; i++)
+      for (int k=0; k < B.numRows; k++)
+        for (int m=0; m < B.numCols; m++)
+          Aij_TkiBkmTmk(*this, B, T, thisFact,otherFact,i,j,k,m);
+  return 0;
 #else
     // check work area can hold the temporary matrix
     int dimB = B.numCols;
@@ -834,11 +816,11 @@ Matrix::addMatrixTripleProduct(double thisFact,
     for (int j=0; j<numCols; j++) {
       double *aijPtrA = &matrixWork[j*dimB];
       for (int k=0; k<dimB; k++) {
-	double tmp = *tkjPtr++ * otherFact;
-	double *aijPtr = aijPtrA;
-	double *bikPtr = &(B.data)[k*dimB];
-	for (int i=0; i<dimB; i++) 
-	  *aijPtr++ += *bikPtr++ * tmp;
+        double tmp = *tkjPtr++ * otherFact;
+        double *aijPtr = aijPtrA;
+        double *bikPtr = &(B.data)[k*dimB];
+        for (int i=0; i<dimB; i++) 
+          *aijPtr++ += *bikPtr++ * tmp;
       }
     }
 
@@ -847,43 +829,43 @@ Matrix::addMatrixTripleProduct(double thisFact,
     if (thisFact == 1.0) {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
-	double *workkjPtrA = &matrixWork[j*dimB];
-	for (int i=0; i<numRows; i++) {
-	  double *ckiPtr = &(T.data)[i*dimB];
-	  double *workkjPtr = workkjPtrA;
-	  double aij = 0.0;
-	  for (int k=0; k< dimB; k++)
-	    aij += *ckiPtr++ * *workkjPtr++;
-	  *dataPtr++ += aij;
-	}
+        double *workkjPtrA = &matrixWork[j*dimB];
+        for (int i=0; i<numRows; i++) {
+          double *ckiPtr = &(T.data)[i*dimB];
+          double *workkjPtr = workkjPtrA;
+          double aij = 0.0;
+          for (int k=0; k< dimB; k++)
+            aij += *ckiPtr++ * *workkjPtr++;
+          *dataPtr++ += aij;
+        }
       }
     } else if (thisFact == 0.0) {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
-	double *workkjPtrA = &matrixWork[j*dimB];
-	for (int i=0; i<numRows; i++) {
-	  double *ckiPtr = &(T.data)[i*dimB];
-	  double *workkjPtr = workkjPtrA;
-	  double aij = 0.0;
-	  for (int k=0; k< dimB; k++)
-	    aij += *ckiPtr++ * *workkjPtr++;
-	  *dataPtr++ = aij;
-	}
+        double *workkjPtrA = &matrixWork[j*dimB];
+        for (int i=0; i<numRows; i++) {
+          double *ckiPtr = &(T.data)[i*dimB];
+          double *workkjPtr = workkjPtrA;
+          double aij = 0.0;
+          for (int k=0; k< dimB; k++)
+            aij += *ckiPtr++ * *workkjPtr++;
+          *dataPtr++ = aij;
+        }
       }
 
     } else {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
-	double *workkjPtrA = &matrixWork[j*dimB];
-	for (int i=0; i<numRows; i++) {
-	  double *ckiPtr = &(T.data)[i*dimB];
-	  double *workkjPtr = workkjPtrA;
-	  double aij = 0.0;
-	  for (int k=0; k< dimB; k++)
-	    aij += *ckiPtr++ * *workkjPtr++;
-	  double value = *dataPtr * thisFact + aij;
-	  *dataPtr++ = value;
-	}
+        double *workkjPtrA = &matrixWork[j*dimB];
+        for (int i=0; i<numRows; i++) {
+          double *ckiPtr = &(T.data)[i*dimB];
+          double *workkjPtr = workkjPtrA;
+          double aij = 0.0;
+          for (int k=0; k< dimB; k++)
+            aij += *ckiPtr++ * *workkjPtr++;
+          double value = *dataPtr * thisFact + aij;
+          *dataPtr++ = value;
+        }
       }
     }
 
@@ -897,10 +879,10 @@ Matrix::addMatrixTripleProduct(double thisFact,
 //
 int
 Matrix::addMatrixTripleProduct(double thisFact, 
-			       const Matrix &A, 
-			       const Matrix &B,
-			       const Matrix &C,
-			       double otherFact)
+                               const Matrix &A, 
+                               const Matrix &B,
+                               const Matrix &C,
+                               double otherFact)
 {
     if (thisFact == 1.0 && otherFact == 0.0)
       return 0;
@@ -928,11 +910,11 @@ Matrix::addMatrixTripleProduct(double thisFact,
     for (int j=0; j<numCols; j++) {
       double *aijPtrA = &matrixWork[j*rowsB];
       for (int k=0; k<rowsB; k++) {
-	double tmp = *ckjPtr++ * otherFact;
-	double *aijPtr = aijPtrA;
-	double *bikPtr = &(B.data)[k*rowsB];
-	for (int i=0; i<rowsB; i++) 
-	  *aijPtr++ += *bikPtr++ * tmp;
+        double tmp = *ckjPtr++ * otherFact;
+        double *aijPtr = aijPtrA;
+        double *bikPtr = &(B.data)[k*rowsB];
+        for (int i=0; i<rowsB; i++) 
+          *aijPtr++ += *bikPtr++ * tmp;
       }
     }
 
@@ -942,43 +924,43 @@ Matrix::addMatrixTripleProduct(double thisFact,
     if (thisFact == 1.0) {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
-	double *workkjPtrA = &matrixWork[j*dimB];
-	for (int i=0; i<numRows; i++) {
-	  double *akiPtr = &(A.data)[i*dimB];
-	  double *workkjPtr = workkjPtrA;
-	  double aij = 0.0;
-	  for (int k=0; k< dimB; k++)
-	    aij += *akiPtr++ * *workkjPtr++;
-	  *dataPtr++ += aij;
-	}
+        double *workkjPtrA = &matrixWork[j*dimB];
+        for (int i=0; i<numRows; i++) {
+          double *akiPtr = &(A.data)[i*dimB];
+          double *workkjPtr = workkjPtrA;
+          double aij = 0.0;
+          for (int k=0; k< dimB; k++)
+            aij += *akiPtr++ * *workkjPtr++;
+          *dataPtr++ += aij;
+        }
       }
     } else if (thisFact == 0.0) {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
-	double *workkjPtrA = &matrixWork[j*dimB];
-	for (int i=0; i<numRows; i++) {
-	  double *akiPtr = &(A.data)[i*dimB];
-	  double *workkjPtr = workkjPtrA;
-	  double aij = 0.0;
-	  for (int k=0; k< dimB; k++)
-	    aij += *akiPtr++ * *workkjPtr++;
-	  *dataPtr++ = aij;
-	}
+        double *workkjPtrA = &matrixWork[j*dimB];
+        for (int i=0; i<numRows; i++) {
+          double *akiPtr = &(A.data)[i*dimB];
+          double *workkjPtr = workkjPtrA;
+          double aij = 0.0;
+          for (int k=0; k< dimB; k++)
+            aij += *akiPtr++ * *workkjPtr++;
+          *dataPtr++ = aij;
+        }
       }
 
     } else {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
-	double *workkjPtrA = &matrixWork[j*dimB];
-	for (int i=0; i<numRows; i++) {
-	  double *akiPtr = &(A.data)[i*dimB];
-	  double *workkjPtr = workkjPtrA;
-	  double aij = 0.0;
-	  for (int k=0; k< dimB; k++)
-	    aij += *akiPtr++ * *workkjPtr++;
-	  double value = *dataPtr * thisFact + aij;
-	  *dataPtr++ = value;
-	}
+        double *workkjPtrA = &matrixWork[j*dimB];
+        for (int i=0; i<numRows; i++) {
+          double *akiPtr = &(A.data)[i*dimB];
+          double *workkjPtr = workkjPtrA;
+          double aij = 0.0;
+          for (int k=0; k< dimB; k++)
+            aij += *akiPtr++ * *workkjPtr++;
+          double value = *dataPtr * thisFact + aij;
+          *dataPtr++ = value;
+        }
       }
     }
 
@@ -1001,12 +983,12 @@ Matrix::operator()(const ID &rows, const ID & cols) const
     Matrix result(nRows,nCols);
     double *dataPtr = result.data;
     for (int i=0; i<nCols; i++)
-	for (int j=0; j<nRows; j++)
-	    *dataPtr++ = (*this)(rows(j),cols(i));
+        for (int j=0; j<nRows; j++)
+            *dataPtr++ = (*this)(rows(j),cols(i));
 
     return result;
 }
-		
+                
 // Matrix &operator=(const Matrix  &V):
 //      the assignment operator, This is assigned to be a copy of V. if sizes
 //      are not compatable this.data [] is deleted. The data pointers will not
@@ -1024,25 +1006,23 @@ Matrix::operator=(const Matrix &other)
       opserr << "Matrix::operator=() - matrix dimensions do not match\n";
 #endif
 
-      if (this->data != 0)
-      {
-	  delete [] this->data;
+      if (this->data != 0) {
+          delete [] this->data;
           this->data = 0;
       }
-      
-      int theSize = other.numCols*other.numRows;
-      
-      data = new double[theSize];
-      
-      this->dataSize = theSize;
-      this->numCols = other.numCols;
-      this->numRows = other.numRows;
-  }
 
+      int theSize = other.numCols*other.numRows;
+
+      data = new double[theSize];
+
+      this->dataSize = theSize;
+      this->numCols  = other.numCols;
+      this->numRows  = other.numRows;
+  }
 
   // now copy the data
   double *dataPtr = data;
-  double *otherDataPtr = other.data;		    
+  double *otherDataPtr = other.data;                    
   for (int i=0; i<dataSize; i++)
       *dataPtr++ = *otherDataPtr++;
   
@@ -1086,8 +1066,8 @@ Matrix::operator=( Matrix &&other)
 // virtual Matrix &operator-=(double fact);
 // virtual Matrix &operator*=(double fact);
 // virtual Matrix &operator/=(double fact); 
-//	The above methods all modify the current matrix. If in
-//	derived matrices data kept in data and of sizeData no redef necessary.
+//        The above methods all modify the current matrix. If in
+//        derived matrices data kept in data and of sizeData no redef necessary.
 
 Matrix &
 Matrix::operator+=(double fact)
@@ -1140,14 +1120,14 @@ Matrix::operator/=(double fact)
 {
     // check if quick return
     if (fact == 1.0)
-	return *this;
+        return *this;
 
     if (fact != 0.0) {
       double val = 1.0/fact;
 
       double *dataPtr = data;
       for (int i=0; i<dataSize; i++)
-	*dataPtr++ *= val;
+        *dataPtr++ *= val;
 
       return *this;
     } else {
@@ -1157,7 +1137,7 @@ Matrix::operator/=(double fact)
 
       double *dataPtr = data;
       for (int i=0; i<dataSize; i++)
-	*dataPtr++ = MATRIX_VERY_LARGE_VALUE;
+        *dataPtr++ = MATRIX_VERY_LARGE_VALUE;
       
       return *this;
     }
@@ -1169,7 +1149,7 @@ Matrix::operator/=(double fact)
 //    virtual Matrix operator-(double fact);
 //    virtual Matrix operator*(double fact);
 //    virtual Matrix operator/(double fact);
-//	The above methods all return a new full general matrix.
+//        The above methods all return a new full general matrix.
 //
 
 Matrix
@@ -1221,7 +1201,7 @@ Matrix::operator*(const Vector &V) const
     double *dataPtr = data;
     for (int i=0; i<numCols; i++)
       for (int j=0; j<numRows; j++)
-	result(j) += *dataPtr++ * V(i);
+        result(j) += *dataPtr++ * V(i);
 
     return result;
 #endif
@@ -1244,7 +1224,7 @@ Matrix::operator^(const Vector &V) const
     double *dataPtr = data;
     for (int i=0; i<numCols; i++)
       for (int j=0; j<numRows; j++)
-	result(i) += *dataPtr++ * V(j);
+        result(i) += *dataPtr++ * V(j);
 
     return result;
 #endif
@@ -1261,7 +1241,7 @@ Matrix::operator+(const Matrix &M) const
     result.addMatrix(1.0,M,1.0);    
     return result;
 }
-	    
+            
 Matrix
 Matrix::operator-(const Matrix &M) const
 {
@@ -1269,7 +1249,7 @@ Matrix::operator-(const Matrix &M) const
     result.addMatrix(1.0,M,-1.0);    
     return result;
 }
-	    
+            
     
 Matrix
 Matrix::operator*(const Matrix &M) const
@@ -1282,8 +1262,8 @@ Matrix::operator*(const Matrix &M) const
 
 
 // Matrix operator^(const Matrix &M) const
-//	We overload the * operator to perform matrix^t-matrix multiplication.
-//	reults = (*this)transposed * M.
+//        We overload the * operator to perform matrix^t-matrix multiplication.
+//        reults = (*this)transposed * M.
 
 Matrix
 Matrix::operator^(const Matrix &M) const
@@ -1297,7 +1277,7 @@ Matrix::operator^(const Matrix &M) const
     return result;
   } 
 
-    double *resDataPtr = result.data;	    
+    double *resDataPtr = result.data;            
 
     int innerDim = numRows;
     int nCols = result.numCols;
@@ -1305,12 +1285,12 @@ Matrix::operator^(const Matrix &M) const
       double *aDataPtr = data;
       double *bStartColDataPtr = &(M.data[i*innerDim]);
       for (int j=0; j<numCols; j++) {
-	double *bDataPtr = bStartColDataPtr;
-	double sum = 0.0;
-	for (int k=0; k<innerDim; k++) {
-	  sum += *aDataPtr++ * *bDataPtr++;
-	}
-	*resDataPtr++ = sum;
+        double *bDataPtr = bStartColDataPtr;
+        double sum = 0.0;
+        for (int k=0; k<innerDim; k++) {
+          sum += *aDataPtr++ * *bDataPtr++;
+        }
+        *resDataPtr++ = sum;
       }
     }
 #endif
@@ -1369,9 +1349,9 @@ void
 Matrix::Output(OPS_Stream &s) const
 {
     for (int i=0; i<noRows(); i++) {
-	for (int j=0; j<noCols(); j++)
-	    s <<  (*this)(i,j) << " ";
-	s << endln;
+        for (int j=0; j<noCols(); j++)
+            s <<  (*this)(i,j) << " ";
+        s << endln;
     }
 }
 
@@ -1381,9 +1361,9 @@ void
 Matrix::Input(istream &s)
 {
     for (int i=0; i<noRows(); i++)
-	for (int j=0; j<noCols(); j++)
-	    s >> (*this)(i,j);
-}	
+        for (int j=0; j<noCols(); j++)
+            s >> (*this)(i,j);
+}        
 *****************/
 
 //
@@ -1411,23 +1391,21 @@ Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact)
   int final_row = init_row + VnumRows - 1;
   int final_col = init_col + VnumCols - 1;
   
-  if ((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols))
-  {
-     for (int i=0; i<VnumCols; i++) {
-        pos_Cols = init_col + i;
-        for (int j=0; j<VnumRows; j++) {
-           pos_Rows = init_row + j;
-      
-	   (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
-        }
+  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+
+  for (int i=0; i<VnumCols; i++) {
+     pos_Cols = init_col + i;
+     for (int j=0; j<VnumRows; j++) {
+        pos_Rows = init_row + j;
+   
+        (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
      }
   }  
-  else 
-  {
-     opserr << "WARNING: Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact): ";
-     opserr << "position outside bounds \n";
-     res = -1;
-  }
+//else {
+//   opserr << "WARNING: Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact): ";
+//   opserr << "position outside bounds \n";
+//   res = -1;
+//}
 
   return res;
 }
@@ -1518,17 +1496,13 @@ Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fa
 int
 Matrix::Extract(const Matrix &V, int init_row, int init_col, double fact) 
 {
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
-  int VnumRows = V.numRows;
-  int VnumCols = V.numCols;
-  
   int final_row = init_row + numRows - 1;
-  int final_col = init_col + numCols - 1;
-  
-  assert((init_row >= 0) && (final_row < VnumRows) && (init_col >= 0) && (final_col < VnumCols));
+  int final_col = init_col + numCols - 1;  
+  assert((init_row >= 0) && (final_row < V.numRows) && 
+         (init_col >= 0) && (final_col < V.numCols));
 
+  int res = 0;
+  int pos_Rows, pos_Cols;
   for (int i=0; i<numCols; i++) {
      pos_Cols = init_col + i;
      for (int j=0; j<numRows; j++) {
@@ -1634,60 +1608,60 @@ Matrix::Eigen3(const Matrix &M)
       g    = 100.0 * fabs(aij) ;
 
       if ( fabs(d(i)) + g != fabs(d(i))  ||
-	   fabs(d(j)) + g != fabs(d(j))     ) {
+           fabs(d(j)) + g != fabs(d(j))     ) {
 
-	if ( fabs(aij) > thresh ) {
+        if ( fabs(aij) > thresh ) {
 
-	  a(i) = 0.0 ; 
-	  h    = d(j) - d(i) ; 
+          a(i) = 0.0 ; 
+          h    = d(j) - d(i) ; 
 
-	  if ( fabs(h)+g == fabs(h) )
-	    t = aij / h ;
-	  else {
-	    //t = 2.0 * sign(h/aij) / ( fabs(h/aij) + sqrt(4.0+(h*h/aij/aij)));
-	    double hDIVaij = h/aij;
-	    if (hDIVaij > 0.0) 
-	      t = 2.0 / (  hDIVaij + sqrt(4.0+(hDIVaij * hDIVaij)));
-	    else
-	      t = - 2.0 / (-hDIVaij + sqrt(4.0+(hDIVaij * hDIVaij)));
-	  }
+          if ( fabs(h)+g == fabs(h) )
+            t = aij / h ;
+          else {
+            //t = 2.0 * sign(h/aij) / ( fabs(h/aij) + sqrt(4.0+(h*h/aij/aij)));
+            double hDIVaij = h/aij;
+            if (hDIVaij > 0.0) 
+              t = 2.0 / (  hDIVaij + sqrt(4.0+(hDIVaij * hDIVaij)));
+            else
+              t = - 2.0 / (-hDIVaij + sqrt(4.0+(hDIVaij * hDIVaij)));
+          }
 
-	  //.... set rotation parameters
+          //.... set rotation parameters
 
-	  c    = 1.0 / sqrt(1.0 + t*t) ;
-	  s    = t*c ;
-	  tau  = s / (1.0 + c) ;
+          c    = 1.0 / sqrt(1.0 + t*t) ;
+          s    = t*c ;
+          tau  = s / (1.0 + c) ;
 
-	  //.... rotate diagonal terms
+          //.... rotate diagonal terms
 
-	  h    = t * aij ;
-	  z(i) = z(i) - h ;
-	  z(j) = z(j) + h ;
-	  d(i) = d(i) - h ;
-	  d(j) = d(j) + h ;
+          h    = t * aij ;
+          z(i) = z(i) - h ;
+          z(j) = z(j) + h ;
+          d(i) = d(i) - h ;
+          d(j) = d(j) + h ;
 
-	  //.... rotate off-diagonal terms
+          //.... rotate off-diagonal terms
 
-	  h    = a(j) ;
-	  g    = a[k] ;
-	  a(j) = h + s*(g - h*tau) ;
-	  a(k) = g - s*(h + g*tau) ;
+          h    = a(j) ;
+          g    = a[k] ;
+          a(j) = h + s*(g - h*tau) ;
+          a(k) = g - s*(h + g*tau) ;
 
-	  //.... rotate eigenvectors
+          //.... rotate eigenvectors
 
-	  for ( k = 0; k < 3; k++ ) {
-	    g      = v(k,i) ;
-	    h      = v(k,j) ;
-	    v(k,i) = g - s*(h + g*tau) ;
-	    v(k,j) = h + s*(g - h*tau) ;
-	  } // end for k
+          for ( k = 0; k < 3; k++ ) {
+            g      = v(k,i) ;
+            h      = v(k,j) ;
+            v(k,i) = g - s*(h + g*tau) ;
+            v(k,j) = h + s*(g - h*tau) ;
+          } // end for k
 
-	  rot = rot + 1 ;
+          rot = rot + 1 ;
 
-	} // end if fabs > thresh 
+        } // end if fabs > thresh 
       } //else
       else 
-	a(i) = 0.0 ;
+        a(i) = 0.0 ;
 
     }  // end for i
 
