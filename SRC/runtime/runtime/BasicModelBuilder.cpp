@@ -202,9 +202,10 @@ BasicModelBuilder::addTimeSeries(TimeSeries *series)
 SectionForceDeformation*
 BasicModelBuilder::getSection(const std::string &name)
 {
+  auto iter = m_SectionForceDeformationMap.find(name);
   SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
-  if (instance) {
-    return instance->getCopy();
+  if (iter != m_SectionForceDeformationMap.end()) {
+    return iter->second->getCopy();
   } else {
     return nullptr;
   }
@@ -242,9 +243,10 @@ BasicModelBuilder::addSection(SectionForceDeformation &instance)
 SectionRepres*
 BasicModelBuilder::getSectionRepres(const std::string &name)
 {
-  SectionRepres *instance = m_SectionRepresMap.at(name);
-  if (instance) {
-    return instance;
+  // SectionRepres *instance = m_SectionRepresMap.at(name);
+  auto iter = m_SectionRepresMap.find(name);
+  if (iter != m_SectionRepresMap.end()) {
+    return iter->second ;
   } else {
     return nullptr;
   }
@@ -282,9 +284,10 @@ BasicModelBuilder::addSectionRepres(SectionRepres &instance)
 NDMaterial*
 BasicModelBuilder::getNDMaterial(const std::string &name)
 {
-  NDMaterial *instance = m_NDMaterialMap.at(name);
-  if (instance) {
-    return instance;
+  // NDMaterial *instance = m_NDMaterialMap.at(name);
+  auto iter = m_NDMaterialMap.find(name);
+  if (iter != m_NDMaterialMap.end()) {
+    return iter->second;
   } else {
     return nullptr;
   }
@@ -322,9 +325,10 @@ BasicModelBuilder::addNDMaterial(NDMaterial &instance)
 UniaxialMaterial*
 BasicModelBuilder::getUniaxialMaterial(const std::string &name)
 {
-  UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
-  if (instance) {
-    return instance->getCopy();
+  // UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
+  auto iter = m_UniaxialMaterialMap.find(name);
+  if (iter != m_UniaxialMaterialMap.end()) {
+    return iter->second->getCopy();
   } else {
     return nullptr;
   }
@@ -368,9 +372,10 @@ BasicModelBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial
 HystereticBackbone*
 BasicModelBuilder::getHystereticBackbone(const std::string &name)
 {
-  HystereticBackbone *instance = m_HystereticBackboneMap.at(name);
-  if (instance) {
-    return instance;
+  // HystereticBackbone *instance = m_HystereticBackboneMap.at(name);
+  auto iter = m_HystereticBackboneMap.find(name);
+  if (iter != m_HystereticBackboneMap.end()) {
+    return iter->second;
   } else {
     return nullptr;
   }
@@ -394,9 +399,10 @@ BasicModelBuilder::addHystereticBackbone(const std::string &name, HystereticBack
 CrdTransf*
 BasicModelBuilder::getCrdTransf(const std::string &name)
 {
-  CrdTransf *instance = m_CrdTransfMap.at(name);
-  if (instance) {
-    return instance;
+  // CrdTransf *instance = m_CrdTransfMap.at(name);
+  auto iter = m_CrdTransfMap.find(name);
+  if (iter != m_CrdTransfMap.end()) {
+    return iter->second;
   } else {
     return nullptr;
   }
