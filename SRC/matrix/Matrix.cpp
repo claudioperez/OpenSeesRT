@@ -45,7 +45,66 @@ double *Matrix::matrixWork = nullptr;
 int    *Matrix::intWork    = nullptr;
 
 #define MATRIX_BLAS
-#define NO_WORK
+//#define NO_WORK
+#ifndef _WIN32
+# define  DGESV  dgesv_   
+# define  DGETRS dgetrs_  
+# define  DGETRF dgetrf_  
+# define  DGETRI dgetri_  
+# define  DGEMM  dgemm_   
+
+// extern "C" int dgerfs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
+//                        double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
+//                        double *X, int *LDX, double *FERR, double *BERR, 
+//                        double *WORK, int *IWORK, int *INFO);
+/*
+extern "C" {
+int dgesv_(int *N, int *NRHS, double *A, int *LDA, int *iPiv, 
+           double *B, int *LDB, int *INFO);
+
+int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
+            int *iPiv, double *B, int *LDB, int *INFO);                       
+
+int dgetrf_(int *M, int *N, double *A, int *LDA, 
+            int *iPiv, int *INFO);
+
+int dgetri_(int *N, double *A, int *LDA, 
+            int *iPiv, double *Work, int *WORKL, int *INFO);
+
+// C = alpha op(A)*op(B) + beta C, 
+//           MxK,  KxN          MxN
+int
+dgemm_(char* transA, char* transB, int* M, int* N, int* K,
+       double* alpha,
+       double* A, int* lda,
+       double* B, int* ldb,
+       double* beta,
+       double* C, int* ldc);
+}
+*/
+#endif
+
+extern "C" {
+  int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
+             int *iPiv, double *B, int *LDB, int *INFO);
+
+  int  DGETRF(int *M, int *N, double *A, int *LDA, 
+              int *iPiv, int *INFO);
+
+  int  DGETRS(char *TRANS, unsigned int sizeT,
+              int *N, int *NRHS, double *A, int *LDA, 
+              int *iPiv, double *B, int *LDB, int *INFO);
+
+  int  DGETRI(int *N, double *A, int *LDA, 
+                     int *iPiv, double *Work, int *WORKL, int *INFO);
+
+  int DGEMM(char* transA, char* transB, int* M, int* N, int* K,
+            double* alpha,
+            double* A, int* lda,
+            double* B, int* ldb,
+            double* beta,
+            double* C, int* ldc);
+}
 
 //
 // CONSTRUCTORS
@@ -247,49 +306,6 @@ Matrix::Assemble(const Matrix &V, const ID &rows, const ID &cols, double fact)
   return res;
 }
 
-#ifdef _WIN32
-
-extern "C" int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
-                              int *iPiv, double *B, int *LDB, int *INFO);
-
-extern "C" int  DGETRF(int *M, int *N, double *A, int *LDA, 
-                              int *iPiv, int *INFO);
-
-extern "C" int  DGETRS(char *TRANS, unsigned int sizeT,
-                               int *N, int *NRHS, double *A, int *LDA, 
-                               int *iPiv, double *B, int *LDB, int *INFO);
-
-extern "C" int  DGETRI(int *N, double *A, int *LDA, 
-                              int *iPiv, double *Work, int *WORKL, int *INFO);
-//#endif
-#else
-extern "C" int dgesv_(int *N, int *NRHS, double *A, int *LDA, int *iPiv, 
-                      double *B, int *LDB, int *INFO);
-
-extern "C" int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-                       int *iPiv, double *B, int *LDB, int *INFO);                       
-
-extern "C" int dgetrf_(int *M, int *N, double *A, int *LDA, 
-                       int *iPiv, int *INFO);
-
-extern "C" int dgetri_(int *N, double *A, int *LDA, 
-                       int *iPiv, double *Work, int *WORKL, int *INFO);
-extern "C" int dgerfs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-                       double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
-                       double *X, int *LDX, double *FERR, double *BERR, 
-                       double *WORK, int *IWORK, int *INFO);
-extern "C" {
-/* C = alpha op(A)*op(B) + beta C, op(A) MxK, op(B) KxN, op(X) = X or X' */
-int
-dgemm_(char* transA, char* transB, int* M, int* N, int* K,
-       double* alpha,
-       double* A, int* lda,
-       double* B, int* ldb,
-       double* beta,
-       double* C, int* ldc);
-}
-
-#endif
 
 int
 Matrix::Solve(const Vector &b, Vector &x) const
@@ -632,7 +648,7 @@ Matrix::addMatrixProduct(double thisFact,
       int m = numRows,
           n = C.numCols,
           k = C.numRows;
-      return dgemm_("N", "N", &m, &n, &k,&otherFact, B.data, &  m,
+      return DGEMM ("N", "N", &m, &n, &k,&otherFact, B.data, &  m,
                                                      C.data, &  k,
                                          &thisFact,    data, &  m);
     }
@@ -718,7 +734,7 @@ Matrix::addMatrixTransposeProduct(double thisFact,
     int m = numRows,
         n = C.numCols,
         k = C.numRows;
-    return dgemm_("T", "N", &m, &n, &k,&otherFact, B.data, &  m,
+    return DGEMM ("T", "N", &m, &n, &k,&otherFact, B.data, &  m,
                                                    C.data, &  k,
                                        &thisFact,    data, &  m);
   }
@@ -775,8 +791,6 @@ Matrix::addMatrixTransposeProduct(double thisFact,
 
 
 // to perform this += T' * B * T
-#define Aij_TkiBkmTmk(A, B, T, a,b,i,j,k,m) \
-  (A)(i,j) = (A)(i,j)*a + b*(T(k,i)*B(k,m)*T(m,j))
 int
 Matrix::addMatrixTripleProduct(double thisFact, 
                                const  Matrix &T, 
@@ -786,14 +800,6 @@ Matrix::addMatrixTripleProduct(double thisFact,
   if (thisFact == 1.0 && otherFact == 0.0)
     return 0;
 
-#if defined(MATRIX_BLAS)
-  for (int j=0; j < numCols; j++)
-    for (int i=0; i < numRows; i++)
-      for (int k=0; k < B.numRows; k++)
-        for (int m=0; m < B.numCols; m++)
-          Aij_TkiBkmTmk(*this, B, T, thisFact,otherFact,i,j,k,m);
-  return 0;
-#else
     // check work area can hold the temporary matrix
     int dimB = B.numCols;
     int sizeWork = dimB * numCols;
@@ -801,6 +807,19 @@ Matrix::addMatrixTripleProduct(double thisFact,
     if (sizeWork > sizeDoubleWork) {
       // TODO
       this->addMatrix(thisFact, T^B*T, otherFact);
+      return 0;
+    } else {
+      int m = B.numRows,
+          n = T.numCols,
+          k = T.numRows;
+      double zero = 0.0,
+             one  = 1.0;
+      DGEMM ("N", "N", &m      , &n      , &k,&otherFact, B.data, &m,
+                                                          T.data, &k,
+                                              &zero,  matrixWork, &m);
+      DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &numRows,
+                                                      matrixWork, &k,
+                                              &thisFact,    data, &numRows);
       return 0;
     }
 
@@ -810,7 +829,7 @@ Matrix::addMatrixTripleProduct(double thisFact,
       *matrixWorkPtr++ = 0.0;
     
     // now form B * T * fact store in matrixWork == A area
-    // NOTE: looping as per blas3 dgemm_: j,k,i
+    // NOTE: looping as per blas3 DGEMM : j,k,i
 
     double *tkjPtr  = &(T.data)[0];
     for (int j=0; j<numCols; j++) {
@@ -825,7 +844,7 @@ Matrix::addMatrixTripleProduct(double thisFact,
     }
 
     // now form T' * matrixWork
-    // NOTE: looping as per blas3 dgemm_: j,i,k
+    // NOTE: looping as per blas3 DGEMM : j,i,k
     if (thisFact == 1.0) {
       double *dataPtr = &data[0];
       for (int j=0; j< numCols; j++) {
@@ -870,7 +889,6 @@ Matrix::addMatrixTripleProduct(double thisFact,
     }
 
     return 0;
-#endif
 }
 
 
@@ -903,7 +921,7 @@ Matrix::addMatrixTripleProduct(double thisFact,
       *matrixWorkPtr++ = 0.0;
 
     // now form B * C * fact store in matrixWork == A area
-    // NOTE: looping as per blas3 dgemm_: j,k,i
+    // NOTE: looping as per blas3 DGEMM : j,k,i
     
     int rowsB = B.numRows;
     double *ckjPtr  = &(C.data)[0];
@@ -919,7 +937,7 @@ Matrix::addMatrixTripleProduct(double thisFact,
     }
 
     // now form A' * matrixWork
-    // NOTE: looping as per blas3 dgemm_: j,i,k
+    // NOTE: looping as per blas3 DGEMM : j,i,k
     int dimB = rowsB;
     if (thisFact == 1.0) {
       double *dataPtr = &data[0];
@@ -968,6 +986,140 @@ Matrix::addMatrixTripleProduct(double thisFact,
 #endif
 }
 
+
+int
+Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact) 
+{
+  int pos_Rows, pos_Cols;
+  int res = 0;
+  
+  int VnumRows = V.numRows;
+  int VnumCols = V.numCols;
+  
+  int final_row = init_row + VnumRows - 1;
+  int final_col = init_col + VnumCols - 1;
+  
+  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+
+  for (int i=0; i<VnumCols; i++) {
+     pos_Cols = init_col + i;
+     for (int j=0; j<VnumRows; j++) {
+        pos_Rows = init_row + j;
+   
+        (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
+     }
+  }  
+//else {
+//   opserr << "WARNING: Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact): ";
+//   opserr << "position outside bounds \n";
+//   res = -1;
+//}
+
+  return res;
+}
+
+
+int
+Matrix::Assemble(const Vector &V, int init_row, int init_col, double fact) 
+{
+
+  int pos_Rows, pos_Cols;
+  int res = 0;
+  
+  const int VnumRows = V.sz;
+  const int VnumCols = 1;
+  
+  const int final_row = init_row + VnumRows - 1;
+  const int final_col = init_col + VnumCols - 1;
+
+  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+
+  for (int i=0; i<VnumCols; i++) {
+     pos_Cols = init_col + i;
+     for (int j=0; j<VnumRows; j++) {
+        pos_Rows = init_row + j;
+   
+        (*this)(pos_Rows,pos_Cols) += V(j)*fact;
+     }
+  }
+
+  return res;
+}
+
+
+int
+Matrix::AssembleTranspose(const Matrix &V, int init_row, int init_col, double fact) 
+{
+  int pos_Rows, pos_Cols;
+  int res = 0;
+  
+  int VnumRows = V.numRows;
+  int VnumCols = V.numCols;
+  
+  int final_row = init_row + VnumCols - 1;
+  int final_col = init_col + VnumRows - 1;
+  
+  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+
+  for (int i=0; i<VnumRows; i++) {
+     pos_Cols = init_col + i;
+     for (int j=0; j<VnumCols; j++) {
+        pos_Rows = init_row + j; 
+        (*this)(pos_Rows,pos_Cols) += V(i,j)*fact;
+     }
+  }
+
+  return res;
+}
+
+
+int
+Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fact) 
+{
+  int pos_Rows, pos_Cols;
+  int res = 0;
+  
+  int VnumRows = V.sz;
+  int VnumCols = 1;
+  
+  int final_row = init_row + VnumCols - 1;
+  int final_col = init_col + VnumRows - 1;
+  
+  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+
+  for (int i=0; i<VnumRows; i++) {
+     pos_Cols = init_col + i;
+     for (int j=0; j<VnumCols; j++) {
+        pos_Rows = init_row + j;   
+        (*this)(pos_Rows,pos_Cols) += V(i)*fact;
+     }
+  }
+
+  return res;
+}
+
+
+int
+Matrix::Extract(const Matrix &V, int init_row, int init_col, double fact) 
+{
+  int final_row = init_row + numRows - 1;
+  int final_col = init_col + numCols - 1;  
+  assert((init_row >= 0) && (final_row < V.numRows) && 
+         (init_col >= 0) && (final_col < V.numCols));
+
+  int res = 0;
+  int pos_Rows, pos_Cols;
+  for (int i=0; i<numCols; i++) {
+     pos_Cols = init_col + i;
+     for (int j=0; j<numRows; j++) {
+        pos_Rows = init_row + j;
+   
+        (*this)(j,i) = V(pos_Rows,pos_Cols)*fact;
+     }
+  }
+
+  return res;
+}
 
 
 //
@@ -1082,8 +1234,6 @@ Matrix::operator+=(double fact)
   
   return *this;
 }
-
-
 
 
 Matrix &
@@ -1376,143 +1526,6 @@ OPS_Stream &operator<<(OPS_Stream &s, const Matrix &V)
     V.Output(s);
     s << endln;        
     return s;
-}
-
-
-int
-Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact) 
-{
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
-  int VnumRows = V.numRows;
-  int VnumCols = V.numCols;
-  
-  int final_row = init_row + VnumRows - 1;
-  int final_col = init_col + VnumCols - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
-  for (int i=0; i<VnumCols; i++) {
-     pos_Cols = init_col + i;
-     for (int j=0; j<VnumRows; j++) {
-        pos_Rows = init_row + j;
-   
-        (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
-     }
-  }  
-//else {
-//   opserr << "WARNING: Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact): ";
-//   opserr << "position outside bounds \n";
-//   res = -1;
-//}
-
-  return res;
-}
-
-
-int
-Matrix::Assemble(const Vector &V, int init_row, int init_col, double fact) 
-{
-
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
-  const int VnumRows = V.sz;
-  const int VnumCols = 1;
-  
-  const int final_row = init_row + VnumRows - 1;
-  const int final_col = init_col + VnumCols - 1;
-
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-  
-
-  for (int i=0; i<VnumCols; i++) {
-     pos_Cols = init_col + i;
-     for (int j=0; j<VnumRows; j++) {
-        pos_Rows = init_row + j;
-   
-        (*this)(pos_Rows,pos_Cols) += V(j)*fact;
-     }
-  }
-
-  return res;
-}
-
-
-int
-Matrix::AssembleTranspose(const Matrix &V, int init_row, int init_col, double fact) 
-{
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
-  int VnumRows = V.numRows;
-  int VnumCols = V.numCols;
-  
-  int final_row = init_row + VnumCols - 1;
-  int final_col = init_col + VnumRows - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
-  for (int i=0; i<VnumRows; i++) {
-     pos_Cols = init_col + i;
-     for (int j=0; j<VnumCols; j++) {
-        pos_Rows = init_row + j; 
-        (*this)(pos_Rows,pos_Cols) += V(i,j)*fact;
-     }
-  }
-
-  return res;
-}
-
-
-int
-Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fact) 
-{
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
-  int VnumRows = V.sz;
-  int VnumCols = 1;
-  
-  int final_row = init_row + VnumCols - 1;
-  int final_col = init_col + VnumRows - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
-  for (int i=0; i<VnumRows; i++) {
-     pos_Cols = init_col + i;
-     for (int j=0; j<VnumCols; j++) {
-        pos_Rows = init_row + j;
-   
-        (*this)(pos_Rows,pos_Cols) += V(i)*fact;
-     }
-  }
-
-  return res;
-}
-
-
-int
-Matrix::Extract(const Matrix &V, int init_row, int init_col, double fact) 
-{
-  int final_row = init_row + numRows - 1;
-  int final_col = init_col + numCols - 1;  
-  assert((init_row >= 0) && (final_row < V.numRows) && 
-         (init_col >= 0) && (final_col < V.numCols));
-
-  int res = 0;
-  int pos_Rows, pos_Cols;
-  for (int i=0; i<numCols; i++) {
-     pos_Cols = init_col + i;
-     for (int j=0; j<numRows; j++) {
-        pos_Rows = init_row + j;
-   
-        (*this)(j,i) = V(pos_Rows,pos_Cols)*fact;
-     }
-  }
-
-  return res;
 }
 
 

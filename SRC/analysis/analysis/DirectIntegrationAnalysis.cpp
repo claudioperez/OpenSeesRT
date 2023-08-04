@@ -127,14 +127,14 @@ DirectIntegrationAnalysis::clearAll(void)
     delete theTest;
 
 
-    theAnalysisModel =0;
-    theConstraintHandler =0;
-    theDOF_Numberer =0;
-    theIntegrator =0;
-    theAlgorithm =0;
-    theSOE =0;
-    theEigenSOE =0;
-    theTest =0;
+  theAnalysisModel     = nullptr;
+  theConstraintHandler = nullptr;
+  theDOF_Numberer      = nullptr;
+  theIntegrator        = nullptr;
+  theAlgorithm         = nullptr;
+  theSOE               = nullptr;
+  theEigenSOE          = nullptr;
+  theTest              = nullptr;
 }    
 
 #include <NodeIter.h>
@@ -456,7 +456,7 @@ DirectIntegrationAnalysis::setNumberer(DOF_Numberer &theNewNumberer)
 int 
 DirectIntegrationAnalysis::setAlgorithm(EquiSolnAlgo &theNewAlgorithm) 
 {
-#if 1 // TODO
+#if 0 // TODO
   // invoke the destructor on the old one
   if (theAlgorithm != 0)
     delete theAlgorithm;

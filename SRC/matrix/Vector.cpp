@@ -33,7 +33,9 @@ using std::nothrow;
 #include <math.h>
 #include <assert.h>
 
+#if 0
 #define VECTOR_BLAS
+
 extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
 extern "C" void dscal_(int*, double*, double*, const int*);
 extern "C" int  dgemv_(char* trans, int* M, int* N,
@@ -55,6 +57,7 @@ extern "C" int  dgemv_(char* trans, int* M, int* N,
                        double* X, int* incX,
                        double* beta,
                        double* Y, int* incY);
+#endif
 
 // Vector():
 //        Standard constructor, sets size = 0;
