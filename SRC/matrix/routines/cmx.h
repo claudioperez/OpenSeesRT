@@ -5,12 +5,21 @@
 extern "C" {
 #endif
 
+int cmx_inv2   (double *a, double *ainv, int*ok_flag);
 int cmx_inv3   (double *a, double *ainv, int*ok_flag);
 int cmx_inv4   (double *a, double *ainv, int*ok_flag);
 int cmx_inv5   (double *a, double *ainv, int*ok_flag);
 int cmx_inv6   (double *a, double *ainv, int*ok_flag);
 int cmx_inv6_v2(double *a, double *ainv, int*ok_flag);
 int cmx_inv6_v3(double *a, double *ainv, int*ok_flag);
+
+#define cmx_inv(a, inv, flag) _Generic(&(a), \
+    double(*)[ 4]: cmx_inv2, \
+    double(*)[ 9]: cmx_inv3, \
+    double(*)[16]: cmx_inv4, \
+    double(*)[25]: cmx_inv5, \
+    double(*)[36]: cmx_inv6  \
+    )(a, inv, flag)
 
 #ifdef __cplusplus
 }

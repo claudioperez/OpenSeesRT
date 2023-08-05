@@ -8,6 +8,7 @@
 target_sources(OPS_Matrix
   PRIVATE
     eig3.cpp
+    inv2.c
     inv3.c
     inv4.c
     inv5.c
