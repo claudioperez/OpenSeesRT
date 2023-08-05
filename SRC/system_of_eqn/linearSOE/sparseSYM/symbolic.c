@@ -24,9 +24,12 @@
 
 #include <math.h>
 #include <assert.h>
+
 #include "utility.h"
 #include "FeStructs.h"
-/*#include "globalVars.h"*/
+#include "grcm.h"    // genrcm
+#include "newordr.h" // pfblk
+#include "nest.h"    // gennd, forminv
 
 
 #ifdef _WIN32
@@ -42,13 +45,8 @@ extern int mygenmmd_(int *neq, int *fxadj, int *adjncy, int *winvp,
 		     int *kdx);
 #endif
 
-void gennd(int neqns, int **padj, int *mask, int *perm, 
-	   int *xls, int *ls, int *work);
-void forminv(int neqns, int *perm, int *invp);
-int pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild, 
+int  pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild, 
 	   int *sibling, int *winvp, int *wperm, int *list, int *rowblks);
-void genrcm(int neqns, int **padj, int *perm, int *mask, int *xls, int *work);
-void pfblk (int nblks, int *xblk, int *list);
 
 int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns, 
 	   int nblks, int *xblk, int *envlen, OFFDBLK **segfirst, 

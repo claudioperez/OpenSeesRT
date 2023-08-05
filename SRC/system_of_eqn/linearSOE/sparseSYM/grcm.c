@@ -15,11 +15,12 @@
 #include <assert.h>
 
 /* fmk - adding prototypes */
-void zeroi(int, int *);
+extern void zeroi(int, int *);
+extern void revrse(int n, int *v);
+extern int  fnroot(int root, int **padj, int *mask, int *nlvl, int *xls, int *ls);
+
 int rcm(int root, int **padj, int *mask, int *perm, int *deg, int *work);
-int fnroot(int root, int **padj, int *mask, int *nlvl, int *xls, int *ls);
-int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work);
-void revrse(int n, int *v);
+static int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work);
 
 /*************************************************************************
 ***********************genrcm . . . general reverse cuthill mckee ********
@@ -195,34 +196,33 @@ int rcm(int root, int **padj, int *mask, int *perm, int *deg, int *work)
          node in perm.
          -----------------------------------------------------*/
          fnbr = lnbr ;
-         for (ptr = padj[node] ; ptr < padj[node + 1] ; ptr++)
-         {  if (mask[*ptr] < 0 ) continue ;
+         for (ptr = padj[node] ; ptr < padj[node + 1] ; ptr++) {
+            if (mask[*ptr] < 0 ) continue ;
             mask[*ptr] |= -1 ;
             perm[lnbr] = *ptr ;
             lnbr++ ;
          }
-         if (fnbr < lnbr-1)
-         {
+         if (fnbr < lnbr-1) {
 /*          ---------------------------------------------------
             sort the neighbors of node in increasing
             order by degree. linear insertion i sused.
             --------------------------------------------------*/
             k = fnbr ;
-            do
-            {  l = k ;
+            do {
+               l = k ;
                k++ ;
                nbr = perm[k] ;
-               while( l >= fnbr )
-               {  lperm = perm[l] ;
+               while( l >= fnbr ) {
+                  lperm = perm[l] ;
                   if (deg[lperm] <= deg[nbr]) break ;
                   perm[l+1] = lperm ;
                   l-- ;
-                }
-                perm[l+1] = nbr ;
-            } while(k < lnbr-1) ;
+               }
+               perm[l+1] = nbr ;
+            } while (k < lnbr-1);
          } /* endif */
       }  /* end for i =  */
-   }  while(lnbr > lvlend ) ; /* end do */
+   }  while (lnbr > lvlend );
 /* ----------------------------------------------------------
    we now haave the cuthill mckee ordering
    now reverse it
@@ -256,13 +256,13 @@ int rcm(int root, int **padj, int *mask, int *perm, int *deg, int *work)
                 ls - a temporary vector used to store the nodes of the
                         component level by level.
 ************************************************************************/
+static
 int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work)
 {
    int ccsize ;
    int i, lbegin, lvlend, node, ideg, lvsize ;
    int *ptr ;
    int minone = -1 ;
-
 /* ------------------------------------------
    initialization . . ..
    the array work is used to mark which nodes
@@ -305,10 +305,10 @@ int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work)
 /* ------------------------------------------------------
    reset work to 0
    -----------------------------------------------------*/
-   for (i=0;i<ccsize ; i++)
-   {  node = ls[i] ;
+   for (i=0; i<ccsize; i++) {
+      node = ls[i] ;
       work[node] &= 0 ;
    }
 
-   return(ccsize) ;
+   return ccsize;
 }

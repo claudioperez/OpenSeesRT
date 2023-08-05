@@ -26,6 +26,10 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
+extern "C" {
+#include "symbolic.h"
+}
+
 #include <iostream>
 using std::nothrow;
 
@@ -36,7 +40,7 @@ SymSparseLinSOE::SymSparseLinSOE(SymSparseLinSolver &the_Solver, int lSparse)
  Bsize(0), factored(false),
  nblks(0), xblk(0), invp(0), diag(0), penv(0), rowblks(0),
  begblk(0), first(0) 
-{	
+{
     the_Solver.setLinearSOE(*this);
     this->LSPARSE = lSparse;
 }
@@ -105,14 +109,6 @@ int SymSparseLinSOE::getNumEqn(void) const
 {
     return size;
 }
-
-
-/* the symbolic factorization method defined in <symbolic.c>
- */
-extern "C" int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE, 
-				int **xblkMY, int **invpMY, int **rowblksMY, 
-				OFFDBLK ***begblkMY, OFFDBLK **firstMY, 
-				double ***penvMY, double **diagMY);
 
 
 /* Based on the graph (the entries in A), set up the pair (rowStartA, colA).

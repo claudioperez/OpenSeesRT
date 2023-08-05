@@ -15,9 +15,11 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "grcm.h"
+
 /* fmk - adding prototypes */
-void zeroi(int, int *);
-int rcm(int root, int **padj, int *mask, int *perm, int *deg, int *work);
+extern void zeroi(int, int *);
+
 int fnroot(int root, int **padj, int *mask, int *nlvl, int *xls, int *ls);
 int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work);
 int fndsep(int root, int **padj, int *mask, int *sep, int *xls, int *ls, 
@@ -25,9 +27,9 @@ int fndsep(int root, int **padj, int *mask, int *sep, int *xls, int *ls,
 void revrse(int n, int *v);
 void subrcm (int neqns, int root, int **padj, int *perm, 
 	     int *mask, int *xls, int *work);
-int rootls(int root, int **padj, int *mask, int *xls, int *ls);
+extern int rootls(int root, int **padj, int *mask, int *xls, int *ls);
 
-int i_greater();
+extern int i_greater();
 
 #define INCLEVEL 6
 /******************************************************************************
@@ -373,7 +375,7 @@ int rootls(int root, int **padj, int *mask, int *xls, int *ls)
       mask[node] &= 0 ;
    }
 
-   return(nlvl) ;
+   return nlvl;
 }
 
 
@@ -391,8 +393,8 @@ void revrse(int n, int *v)
 
    ve = v + n - 1 ;
 
-   while (ve > v)
-   {  temp = *v ;
+   while (ve > v) {
+      temp = *v ;
       *v = *ve ;
       *ve = temp ;
       ve-- ;

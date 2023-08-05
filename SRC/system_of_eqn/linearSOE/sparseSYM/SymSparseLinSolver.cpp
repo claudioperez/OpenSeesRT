@@ -11,9 +11,6 @@
 // some "C" functions. The solver used here is generalized sparse
 // solver. The user can choose three different ordering schema.
 //
-// What: "@(#) SymSparseLinSolver.C, revA"
-
-
 #include "SymSparseLinSOE.h"
 #include "SymSparseLinSolver.h"
 #include <math.h>
@@ -22,6 +19,7 @@
 #include <elementAPI.h>
 
 extern "C" {
+#include "nmat.h"
 #include "FeStructs.h"
 }
 
@@ -57,13 +55,13 @@ SymSparseLinSolver::~SymSparseLinSolver()
     // nothing to do.
 }
 
-
+/*
 extern "C" int pfsfct(int neqns, double *diag, double **penv, int nblks, int *xblk,
 		      OFFDBLK **begblk, OFFDBLK *first, int *rowblks);
 
 extern "C" void pfsslv(int neqns, double *diag, double **penv, int nblks,
 		       int *xblk, double *rhs, OFFDBLK **begblk);
-
+*/
 
 int
 SymSparseLinSolver::solve(void)

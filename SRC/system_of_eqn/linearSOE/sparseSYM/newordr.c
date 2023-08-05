@@ -10,20 +10,29 @@
  *  Jun Peng (junpeng@stanford.edu)
  *  Prof. Kincho H. Law
  *  Stanford University
+ *
+ *  Claudio M. Perez
  * --------------------
  */
 
-/* define the static variables for the recursive function */
-static int count = 0 ;
-static int xcount = -1 ;
 
-void etree(int neqns, int **padj, int *perm, int *invp, int *parent, int *ancstr);
-void bntree (int neqns, int *parent, int *fchild, int *sibling);
-void zeroi(int, int *);
-void minoni( int n, int *v );
-void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *operm, 
-	      int *ninvp, int *nperm, int *list, int *rowblks);
-void initValues();
+extern void zeroi(int, int *);
+extern void minoni( int n, int *v );
+
+static void etree(int neqns, int **padj, int *perm, int *invp, int *parent, int *ancstr);
+static void bntree (int neqns, int *parent, int *fchild, int *sibling);
+static void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *operm, 
+                     int *ninvp, int *nperm, int *list, int *rowblks);
+
+/* define the static variables for the recursive function */
+static int count  =  0 ;
+static int xcount = -1 ;
+static
+void initValues()
+{
+   count = 0 ;
+   xcount = -1 ;
+}
 
 
 /************************************************************************
@@ -57,20 +66,22 @@ int pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild
    int nblks;
    int *i, j;
 
-   if ( neqns <= 0 )  return(0);
-/*       form elimination tree */
+   if ( neqns <= 0 )
+     return 0;
+
+/* form elimination tree */
    etree ( neqns, padj, wperm, winvp, parent, fchild );
-/*         -------------------------------------------------------
-           obtain a binary representation of the elim tree, and
-           then perform postordering 
-           -------------------------------------------------------
+/* -------------------------------------------------------
+   obtain a binary representation of the elim tree, and
+   then perform postordering 
+   -------------------------------------------------------
 */
    bntree ( neqns, parent, fchild, sibling ) ;
    zeroi(neqns, list ) ;
    list[0] = neqns ;
    minoni(neqns, list);
 
-   /* set the static variables to the right values */
+/* set the static variables to the right values */
    initValues();
    postordr ( neqns-1, parent, fchild, sibling, winvp, wperm,
 	      invp, perm, list, rowblks  ) ;
@@ -97,43 +108,38 @@ int pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild
 
 }
 
-void initValues()
-{
-   count = 0 ;
-   xcount = -1 ;
-}
-
 
 /*
-  revised and written in c by David Mackay Jan 1990
-  
-  acknowledgements:
-    this routine is based on a fortran routine
-    written and owned by dr. joseph liu,
-    department of computer science, york university.
- 
- ***********************************************************************
- ****************     etree ..... elimination tree    ******************
- ***********************************************************************
- 
-        purpose -
-            this subroutine computes the elimination tree from a given
-            ordering and adjacency structure.
- 
-        input parameters -
-            neqns       - number of equations.
-            padj        - the adjacency structure.
-            (perm,invp) - the permutation and inverse permutation
-                          vectors.
- 
-        output parameters -
-            parent      - the parent vector of the elimination tree.
- 
-        Working parameters -
-            ancstr      - the ancestor vector.
- 
- ***********************************************************************/
-
+ * **********************************************************************
+ * ***************     etree ..... elimination tree    ******************
+ * **********************************************************************
+ *
+ *       purpose -
+ *           this subroutine computes the elimination tree from a given
+ *           ordering and adjacency structure.
+ *
+ *       input parameters -
+ *           neqns       - number of equations.
+ *           padj        - the adjacency structure.
+ *           (perm,invp) - the permutation and inverse permutation
+ *                         vectors.
+ *
+ *       output parameters -
+ *           parent      - the parent vector of the elimination tree.
+ *
+ *       Working parameters -
+ *           ancstr      - the ancestor vector.
+ *
+ *
+ * revised and written in C by David Mackay Jan 1990
+ * 
+ * acknowledgements:
+ *   this routine is based on a fortran routine
+ *   written and owned by dr. joseph liu,
+ *   department of computer science, york university.
+ *
+ * *********************************************************************/
+static
 void etree(int neqns, int **padj, int *perm, int *invp, int *parent, int *ancstr)
 {  
    int  i, nbr, next, node, mone;
@@ -141,21 +147,22 @@ void etree(int neqns, int **padj, int *perm, int *invp, int *parent, int *ancstr
 
    mone = -1 ;
 
-   for (i = 0; i<neqns;i++)
-   { 
+   for (i = 0; i<neqns;i++) {
       parent[i] |= mone ;
       ancstr[i] |= mone ;
       node = perm[i] ;
-      for (pt = padj[node ] ; pt < padj[node+1] ; pt++)
-      {  nbr = invp[*pt] ;
-         if  ( nbr >=  i )  continue ;
-         while(ancstr[nbr] >= 0 && ancstr[nbr] != i)
-         {  next = ancstr[nbr] ;
+      for (pt = padj[node ] ; pt < padj[node+1] ; pt++) {
+         nbr = invp[*pt] ;
+         if  ( nbr >=  i )
+           continue ;
+
+         while (ancstr[nbr] >= 0 && ancstr[nbr] != i) {
+            next = ancstr[nbr] ;
             ancstr[nbr] = i  ;
             nbr = next ;
          }
-         if ( ancstr[nbr] <0)
-         {  parent[nbr] = i;
+         if ( ancstr[nbr] < 0 ) {
+            parent[nbr] = i;
             ancstr[nbr] = i ;
          }
       }
@@ -182,24 +189,23 @@ void etree(int neqns, int **padj, int *perm, int *invp, int *parent, int *ancstr
 
   modeled from a fortran program bntree by Kincho Law
  
-************************************************************************/
-     
+ ***********************************************************************/
+static 
 void bntree (int neqns, int *parent, int *fchild, int *sibling)
 {
-   int node, p ;
-
    minoni(neqns,fchild) ;
    minoni(neqns,sibling) ;
 
 /* start processing */
 
-   for (node = 0; node < neqns; node++)
-   {  p = parent[node] ;
-      if (p >= neqns ) continue ;
+   for (int node = 0; node < neqns; node++) {
+      int p = parent[node] ;
+      if (p >= neqns )
+        continue;
       if (fchild[p] == -1)
          fchild[p] = node ;
-      else
-      {  sibling[node] = fchild[p] ;
+      else {
+         sibling[node] = fchild[p] ;
          fchild[p] = node ;
       }
    }
@@ -237,6 +243,7 @@ page 231
         list 
  
  ************************************************************************/
+static
 void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *operm, 
 	      int *ninvp, int *nperm, int *list, int *rowblks)
 {
@@ -264,14 +271,14 @@ void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *op
    rowblks[count] = xcount ;
    count++ ;
 /* update subtrees of siblings */
-   if (sibling[i] >= 0)
-   {  postordr(sibling[i],parent,fchild, sibling, oinvp, operm, 
-	 ninvp, nperm, list, rowblks ) ;
+   if (sibling[i] >= 0) {
+      postordr(sibling[i],parent,fchild, sibling, oinvp, operm, 
+               ninvp, nperm, list, rowblks ) ;
       /* add parent to list of nodes beginning a new block */
       /* comment out below to cut down number of blocks and 
 	 follow Liu's scheme */ 
-      if (list[xcount] != count)
-      {  xcount++ ;
+      if (list[xcount] != count) {
+         xcount++ ;
          list[xcount] = count ;
       }
       /**/
@@ -296,7 +303,7 @@ void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *op
         xblk - index vector for blocks
  
  ************************************************************************/
-     
+ 
 void pfblk (int nblks, int *xblk, int *list)
 { 
    int *stop ;

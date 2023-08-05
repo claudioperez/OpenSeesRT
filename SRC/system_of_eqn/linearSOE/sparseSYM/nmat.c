@@ -23,6 +23,10 @@
 #include "utility.h"
 #include "nmat.h"
 
+static int pfefct(int neqns, double **penv, double *diag);
+static void pflslv (int neqns, double **penv, double *diag, double *rhs);
+static void pfuslv(int neqns, double **penv, double *diag, double *rhs);
+
 
 #define MAX(x,y)   (((x) < (y)) ? (y) : (x))
 
@@ -71,7 +75,7 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
    double *work;
    int ii;
    
-   if  ( neqns <= 0 )  return(0) ;
+   if  ( neqns <= 0 )  return 0;
    marker = begblk[0];
 
    marker = first;
@@ -79,8 +83,7 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
 /* ----------------------------------------------------------
    for each block blk, do ...
    ----------------------------------------------------------*/
-   for (blk = 0; blk < nblks; blk++)
-   {  
+   for (blk = 0; blk < nblks; blk++) {  
       nextblk = blk + 1 ;
       blkbeg = xblk[blk] ;
       blkend = xblk[nextblk]  ;
@@ -89,8 +92,7 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
       update rows from row segments
       The function Dotrows();
       -------------------------------------------------------*/
-      while( js->row < blkend)
-      {
+      while( js->row < blkend) {
 	 jrow = js->row;
 	 jbeg = js->beg;
  
@@ -110,7 +112,7 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
 	 diag[jrow] -= dot_real(js->nz, work, iband);
 	 if (diag[jrow] == 0) {
 	     printf("!!!pfsfct(): The diagonal entry %d is zero !!!\n", jrow);
-	     return (1);
+	     return 1;
 	 }
 	 free (work);
 	 
@@ -149,21 +151,21 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
       -------------------------------------------------------
 */
       iflag = pfefct(blksze, penv+blkbeg, diag+ blkbeg) ;
-      if (iflag) return(nextblk);
+      if (iflag) return nextblk;
 
 /*    -------------------------------------------------------
       for each row "node" in this block, do
          update row segments under block blk with a backsolve
       -------------------------------------------------------
 */
-      for (ks = begblk[blk]; ks->beg < blkend ; ks = ks->bnext )
-      {  jbeg = ks->beg ;
+      for (ks = begblk[blk]; ks->beg < blkend ; ks = ks->bnext ) {
+         jbeg = ks->beg ;
          iband = blkend - jbeg ;
          pflslv(iband, (penv + jbeg), (diag + jbeg), ks->nz);
       }
    }
 
-   return(0) ;
+   return 0;
 }
 
 /***************************************************************
@@ -188,7 +190,7 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
       pflslv, dot_real
  
  ***************************************************************/
-
+static
 int pfefct(int neqns, double **penv, double *diag)
 {  
    double *ptenv ; 
@@ -343,7 +345,7 @@ void pfsslv(int neqns, double *diag, double **penv, int nblks,
                 on return, it contains the solution vector.
  
  ***************************************************************/
- 
+static
 void pflslv (int neqns, double **penv, double *diag, double *rhs)
 { 
   int i, iband ;
@@ -381,7 +383,7 @@ void pflslv (int neqns, double **penv, double *diag, double *rhs)
                 on output, it contains the solution vector.
  
  ***************************************************************/
- 
+static 
 void pfuslv(int neqns, double **penv, double *diag, double *rhs)
 /***************************************************************/
 {  int i, k ;

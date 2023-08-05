@@ -19,13 +19,7 @@
 int pfsfct(int neqns, double *diag, double **penv, int nblks, 
 	   int *xblk, OFFDBLK **begblk, OFFDBLK *first, int *rowblks);
 
-int pfefct(int neqns, double **penv, double *diag);
-
 void pfsslv(int neqns, double *diag, double **penv, int nblks, 
-	    int *xblk, double *rhs, OFFDBLK **begblk);
-
-void pflslv (int neqns, double **penv, double *diag, double *rhs);
-
-void pfuslv(int neqns, double **penv, double *diag, double *rhs);
+            int *xblk, double *rhs, OFFDBLK **begblk);
 
 #endif
