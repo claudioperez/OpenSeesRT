@@ -2,7 +2,6 @@
 // TODO: Do symmetric version
 //
 #include <math.h>
-#include <stdbool.h>
 #if 0
 int cmx_inv6_v0(double *a, double *ainv, int*ok_flag__)
 {
@@ -392,7 +391,7 @@ int cmx_inv6_v0(double *a, double *ainv, int*ok_flag__)
 
     if (fabs(det) <= eps) {
 /*        ainv = 0.0d0 */
-        *ok_flag__ = false;
+        *ok_flag__ = -1;
         return 0;
     }
     cofactor[0] = a26 * a35 * a44 * a53 * a62 - a25 * a36 * a44 * a53 * a62 - 
@@ -2382,7 +2381,7 @@ int cmx_inv6_v0(double *a, double *ainv, int*ok_flag__)
         }
     }
 /*     ainv = transpose(cofactor) ! / det */
-    *ok_flag__ = true;
+    *ok_flag__ = 0;
     return 0;
 }
 
@@ -3336,8 +3335,8 @@ int cmx_inv6_v1(const double const a[6][6], double *ainv, int*ok_flag__)
              a[6-1][6-1];
 
     if (fabs(det) <= eps) {
-/*        ainv = 0.0d0 */*ok_flag__ = false;
-        return 0;
+      *ok_flag__ = -1;
+      return 0;
     }
     cofactor[0] = a[2-1][6-1]*a[3-1][5-1]*a[4-1][4-1]*a[5-1][3-1]*a[6-1][2-1]
             - a[2-1][5-1]*a[3-1][6-1]*a[4-1][4-1]*a[5-1][3-1]*a[6-1][2-1]
@@ -7939,7 +7938,7 @@ int cmx_inv6_v1(const double const a[6][6], double *ainv, int*ok_flag__)
             ainv[j + i*6] = cofactor[i + j*6 - 7] *jinv;
         }
     }
-/*     ainv = transpose(cofactor) ! / det */*ok_flag__ = true;
+    *ok_flag__ = 0;
     return 0;
 }
 #endif
@@ -8742,8 +8741,8 @@ int cmx_inv6(const double const a[36], double *ainv, int*ok_flag__)
             + a11*a22*a33*a44*a55)*a66;
 
     if (fabs(det) <= eps) {
-/*        ainv = 0.0d0 */*ok_flag__ = false;
-        return 0;
+      *ok_flag__ = -1;
+      return 0;
     }
     cofactor[0] = a26*a35*a44*a53*a62
             - a25*a36*a44*a53*a62
@@ -13377,6 +13376,6 @@ int cmx_inv6(const double const a[36], double *ainv, int*ok_flag__)
     ainv[34] = cofactor[29]*jinv;
     ainv[35] = cofactor[35]*jinv;
 
-    *ok_flag__ = true;
+    *ok_flag__ = 0;
     return 0;
 }

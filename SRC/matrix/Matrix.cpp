@@ -491,12 +491,16 @@ Matrix::Invert()
   switch (numRows) {
     case 3:
       cmx_inv3(data, data, &info);
+      break;
     case 4:
       cmx_inv4(data, data, &info);
+      break;
     case 5:
       cmx_inv5(data, data, &info);
+      break;
     case 6:
       cmx_inv6(data, data, &info);
+      break;
 
     default:
   

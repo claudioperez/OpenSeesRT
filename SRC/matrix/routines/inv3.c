@@ -1,6 +1,5 @@
 
 #include <math.h>
-#include <stdbool.h>
 
 
 int cmx_inv3(double *a, double *ainv, int *ok_flag__)
@@ -30,7 +29,7 @@ int cmx_inv3(double *a, double *ainv, int *ok_flag__)
                      - a[10]*a[8]*a[6];
 
     if (fabs(det) <= eps) {
-	*ok_flag__ = false;
+	*ok_flag__ = -1;
 	return 0;
     }
     cofactor[0] = a[8] * a[12] - a[11] * a[9];
@@ -47,7 +46,7 @@ int cmx_inv3(double *a, double *ainv, int *ok_flag__)
 	for (int j = 1; j <= 3; ++j)
 	    ainv[j + i__ * 3] = cofactor[i__ + j * 3 - 4] / det;
 
-    *ok_flag__ = true;
+    *ok_flag__ = 0;
     return 0;
 } /* m33inv_ */
 

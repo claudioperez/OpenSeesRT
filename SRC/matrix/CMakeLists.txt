@@ -4,20 +4,24 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+if (NOT WIN32)
+  target_compile_options(OPS_Matrix PRIVATE -fno-math-errno 
+                                            -fno-signaling-nans 
+                                            -fno-trapping-math 
+                                            -fassociative-math)
+endif()
 
 target_sources(OPS_Matrix
     PRIVATE
-#     eig3.cpp
+      ID.cpp
       Matrix.cpp
       Vector.cpp
       R3vectors.cpp
-      ID.cpp
     PUBLIC
-#     eig3.h
+      ID.h
       Matrix.h
       Vector.h
       R3vectors.h
-      ID.h
 )
 
 add_subdirectory(routines)

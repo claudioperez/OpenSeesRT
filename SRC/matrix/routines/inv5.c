@@ -1,6 +1,5 @@
 
 #include <math.h>
-#include <stdbool.h>
 
 int cmx_inv5(double *a, double *ainv, int *ok_flag__)
 {
@@ -103,7 +102,7 @@ int cmx_inv5(double *a, double *ainv, int *ok_flag__)
             a44*a55 - a11*a23*a32*a44*a55 - a12*a21*a33*a44*
             a55 + a11*a22*a33*a44*a55;
     if (fabs(det) <= eps) {
-        *ok_flag__ = false;
+        *ok_flag__ = -1;
         return 0;
     }
     cofactor[0] = a25*a34*a43*a52 - a24*a35*a43*a52 - a25*a33*
@@ -336,7 +335,7 @@ int cmx_inv5(double *a, double *ainv, int *ok_flag__)
         for (int j = 1; j <= 5; ++j)
             ainv[j + i__*5] = cofactor[i__ + j*5 - 6] / det;
 
-    *ok_flag__ = true;
+    *ok_flag__ = 0;
     return 0;
 }
 

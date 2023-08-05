@@ -1,6 +1,5 @@
 
 #include <math.h>
-#include <stdbool.h>
 
 int cmx_inv2(double *a, double *ainv, int *ok_flag__)
 {
@@ -26,7 +25,7 @@ int cmx_inv2(double *a, double *ainv, int *ok_flag__)
     eps = 1e-10;
     det = a[3] * a[6] - a[5] * a[4];
     if (fabs(det) <= eps) {
-	*ok_flag__ = false;
+	*ok_flag__ = -1;
 	return 0;
     }
     cofactor[0] = a[6];
@@ -38,7 +37,7 @@ int cmx_inv2(double *a, double *ainv, int *ok_flag__)
 	    ainv[j + (i__ << 1)] = cofactor[i__ + (j << 1) - 3] / det;
 	}
     }
-    *ok_flag__ = true;
+    *ok_flag__ = 0;
     return 0;
 } /* m22inv_ */
 
