@@ -21,12 +21,6 @@ target_sources(OPS_Element
       ShellNLDKGQThermal.cpp
       ShellNLDKGT.cpp
     PUBLIC
-      ASDEICR.h
-      ASDShellQ4CorotationalTransformation.h
-      ASDShellQ4.h
-      ASDShellQ4LocalCoordinateSystem.h
-      ASDShellQ4Transformation.h
-
       ShellANDeS.h
       ShellDKGQ.h
       ShellDKGT.h

@@ -7,7 +7,7 @@
 add_library(coordTransformation "")
 
 target_sources(coordTransformation
-    PRIVATE
+  PRIVATE
     CrdTransf.cpp
     LinearCrdTransf2d.cpp
     LinearCrdTransf3d.cpp
@@ -16,7 +16,7 @@ target_sources(coordTransformation
     CorotCrdTransf2d.cpp
     CorotCrdTransf3d.cpp
     CorotCrdTransfWarping2d.cpp
-    PUBLIC
+  PUBLIC
     CrdTransf.cpp
     LinearCrdTransf2d.cpp
     LinearCrdTransf3d.cpp
@@ -25,6 +25,11 @@ target_sources(coordTransformation
     CorotCrdTransf2d.cpp
     CorotCrdTransf3d.cpp
     CorotCrdTransfWarping2d.cpp
+
+    ASDEICR.h
+    ASDShellQ4CorotationalTransformation.h
+    ASDShellQ4LocalCoordinateSystem.h
+    ASDShellQ4Transformation.h
 )
 
 target_include_directories(coordTransformation PUBLIC ${CMAKE_CURRENT_LIST_DIR})

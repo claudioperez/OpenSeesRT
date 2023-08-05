@@ -41,13 +41,15 @@ class FE_Element;
 class DOF_Group;
 class Vector;
 
-#define CURRENT_TANGENT 0
-#define INITIAL_TANGENT 1
-#define CURRENT_SECANT  2
-#define INITIAL_THEN_CURRENT_TANGENT  3
-#define NO_TANGENT  4
-#define SECOND_TANGENT 5
-#define HALL_TANGENT 6
+enum TangentFlag {
+ CURRENT_TANGENT =0,
+ INITIAL_TANGENT =1,
+ CURRENT_SECANT  =2,
+ INITIAL_THEN_CURRENT_TANGENT  =3,
+ NO_TANGENT  =4,
+ SECOND_TANGENT =5,
+ HALL_TANGENT =6
+};
 
 class IncrementalIntegrator : public Integrator
 {

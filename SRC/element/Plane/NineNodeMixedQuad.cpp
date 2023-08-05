@@ -1326,7 +1326,7 @@ NineNodeMixedQuad::shape1d( int code, int node, double xi )
     if ( node == 2 ) 
       result = -2.0*xi ;
 
-  }//end if
+  }// end if
 
   return result ;
 }

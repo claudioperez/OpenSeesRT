@@ -26,34 +26,34 @@
  * References
  *
 
-State Determination Algorithm
----
-Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
-Element Models." Journal of Structural Engineering, 123(7):958-966.
+  State Determination Algorithm
+  ---
+  Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
+  Element Models." Journal of Structural Engineering, 123(7):958-966.
 
-Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
-Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
-
-
-Plastic Hinge Integration
----
-Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
-Force-Based Beam-Column Elements." Journal of Structural Engineering,
-132(2):244-252.
+  Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
+  Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
 
 
-Analytical Response Sensitivity (DDM)
----
-Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
-"Response Sensitivity for Nonlinear Beam-Column Elements."
-Journal of Structural Engineering, 130(9):1281-1288.
+  Plastic Hinge Integration
+  ---
+  Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
+  Force-Based Beam-Column Elements." Journal of Structural Engineering,
+  132(2):244-252.
 
 
-Software Design
----
-Scott, M. H., G. L. Fenves, F. T. McKenna, and F. C. Filippou (2007).
-"Software Patterns for Nonlinear Beam-Column Models."
-Journal of Structural Engineering, Approved for publication, February 2007.
+  Analytical Response Sensitivity (DDM)
+  ---
+  Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
+  "Response Sensitivity for Nonlinear Beam-Column Elements."
+  Journal of Structural Engineering, 130(9):1281-1288.
+
+
+  Software Design
+  ---
+  Scott, M. H., G. L. Fenves, F. T. McKenna, and F. C. Filippou (2007).
+  "Software Patterns for Nonlinear Beam-Column Models."
+  Journal of Structural Engineering, Approved for publication, February 2007.
 
  *
  */
@@ -480,16 +480,17 @@ ForceBeamColumn3d::getInitialStiff(void)
   static Matrix f(NEBD,NEBD);   // element flexibility matrix  
   this->getInitialFlexibility(f);
   
-  static Matrix I(NEBD,NEBD);   // an identity matrix for matrix inverse  
-  I.Zero();
-  for (int i=0; i<NEBD; i++)
-    I(i,i) = 1.0;
+//static Matrix I(NEBD,NEBD);   // an identity matrix for matrix inverse  
+//I.Zero();
+//for (int i=0; i<NEBD; i++)
+//  I(i,i) = 1.0;
   
   // calculate element stiffness matrix
   // invert3by3Matrix(f, kv);
   static Matrix kvInit(NEBD, NEBD);
-  if (f.Solve(I, kvInit) < 0)
-    opserr << "ForceBeamColumn3d::getInitialStiff() -- could not invert flexibility";
+  // if (f.Solve(I, kvInit) < 0)
+  if (f.Invert(kvInit) < 0)
+    opserr << "ForceBeamColumn3d::getInitialStiff -- could not invert flexibility";
 
     Ki = new Matrix(crdTransf->getInitialGlobalStiffMatrix(kvInit));
 
@@ -674,9 +675,9 @@ void
 
   /********* NEWTON , SUBDIVIDE AND INITIAL ITERATIONS ********************
    */
-  int
-  ForceBeamColumn3d::update()
-  {
+int
+ForceBeamColumn3d::update()
+{
     // if have completed a recvSelf() - do a revertToLastCommit
     // to get Ssr, etc. set correctly
     if (initialFlag == 2)
@@ -709,13 +710,13 @@ void
     static Vector vr(NEBD);       // element residual displacements
     static Matrix f(NEBD,NEBD);   // element flexibility matrix
 
-    static Matrix I(NEBD,NEBD);   // an identity matrix for matrix inverse
     double dW;                    // section strain energy (work) norm 
     int i, j;
 
-    I.Zero();
-    for (i=0; i<NEBD; i++)
-      I(i,i) = 1.0;
+//  static Matrix I(NEBD,NEBD);   // an identity matrix for matrix inverse
+//  I.Zero();
+//  for (i=0; i<NEBD; i++)
+//    I(i,i) = 1.0;
 
     int numSubdivide = 1;
     bool converged = false;
@@ -866,7 +867,6 @@ void
 	    dvs.addMatrixVector(0.0, fsSubdivide[i], dSs, 1.0);
 	    
 	  } else if (l == 2) {
-	    
 	    //  newton with initial tangent if first iteration
 	    //    vs += fs0 * dSs;     
 	    //  otherwise regular newton 
@@ -1056,7 +1056,8 @@ void
 	    // invert3by3Matrix(f, kv);	  
 	    // FRANK
 	    //	  if (f.SolveSVD(I, kvTrial, 1.0e-12) < 0)
-	    if (f.Solve(I, kvTrial) < 0)
+	    // if (f.Solve(I, kvTrial) < 0)
+	    if (f.Invert(kvTrial) < 0)
 	      opserr << "ForceBeamColumn3d::update() -- could not invert flexibility\n";
 	    
 	    // dv = vin + dvTrial  - vr

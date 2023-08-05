@@ -1861,13 +1861,11 @@ void ShellNLDKGQThermal::computeBasis()
   v2 *= 0.50;
 
   //normalize v1
-  //double length = LovelyNorm( v1 ) ;
   double length = v1.Norm();
   v1 /= length;
 
   //Gram-Schmidt process for v2
 
-  //double alpha = LovelyInnerProduct( v2, v1 ) ;
   double alpha = v2 ^ v1;
 
   //v2 -= alpha*v1 ;
@@ -1876,7 +1874,6 @@ void ShellNLDKGQThermal::computeBasis()
   v2 -= temp;
 
   //normalize v2
-  //length = LovelyNorm( v2 ) ;
   length = v2.Norm();
   v2 /= length;
 
@@ -1945,13 +1942,11 @@ void ShellNLDKGQThermal::updateBasis()
   v2 -= coor0;
   v2 *= 0.50;
   /*//normalize v1 
-  //double length = LovelyNorm( v1 ) ;
   double length = v1.Norm( ) ;
   v1 /= length ;
 
   //Gram-Schmidt process for v2 
 
-  //double alpha = LovelyInnerProduct( v2, v1 ) ;
   double alpha = v2^v1 ;
 
   //v2 -= alpha*v1 ;
@@ -1960,7 +1955,6 @@ void ShellNLDKGQThermal::updateBasis()
   v2 -= temp ;
 
   //normalize v2 
-  //length = LovelyNorm( v2 ) ;
   length = v2.Norm( ) ;
   v2 /= length ;
 

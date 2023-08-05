@@ -435,7 +435,6 @@ NineNodeQuad::update()
 
 		// Interpolate strains
 		//eps = B*u;
-		//eps.addMatrixVector(0.0, B, u, 1.0);
 		eps.Zero();
 		for (int beta = 0; beta < nnodes; beta++) {
 			eps(0) += shp[0][beta]*u[0][beta];
