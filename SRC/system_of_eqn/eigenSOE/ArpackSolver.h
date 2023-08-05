@@ -47,8 +47,6 @@
 #include <EigenSolver.h>
 #include <ArpackSOE.h>
 
-// #include <f2c.h>
-
 class LinearSOE;
 
 class ArpackSolver : public EigenSolver

@@ -46,7 +46,7 @@
 #include <LinearSOE.h>
 
 #include <math.h>
-#include <f2c.h>
+// #include <f2c.h>
 
 #include <stdio.h>
 #include <AnalysisModel.h>
@@ -108,7 +108,7 @@ extern "C" int  DSAUPD(int *ido, char* bmat,
 		       int *lworkl, int *info);
 
 extern "C" int  DSEUPD(bool *rvec, char *howmny,
-		       logical *select, double *d, double *z,
+		       int *select, double *d, double *z,
 		       int *ldz, double *sigma, char *bmat,
 		       int 	*n, char *which,
 		       int *nev, double *tol, double *resid, int *ncv, 
@@ -122,7 +122,7 @@ extern "C" int dsaupd_(int *ido, char* bmat, int *n, char *which, int *nev,
 		       int *iparam, int *ipntr, double *workd, double *workl,
 		       int *lworkl, int *info);
 
-extern "C" int dseupd_(bool *rvec, char *howmny, logical *select, double *d, double *z,
+extern "C" int dseupd_(bool *rvec, char *howmny, int *select, double *d, double *z,
 		       int *ldz, double *sigma, char *bmat, int *n, char *which,
 		       int *nev, double *tol, double *resid, int *ncv, double *v,
 		       int *ldv, int *iparam, int *ipntr, double *workd, 
@@ -368,11 +368,11 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
       unsigned int sizeBmat =1;
       unsigned int sizeHowmany =1;
       
-      DSEUPD(&rvec, &howmy, (logical*)(select), eigenvalues, eigenvectors, &ldv, &sigma, &bmat, &n, which,
+      DSEUPD(&rvec, &howmy, (int*)(select), eigenvalues, eigenvectors, &ldv, &sigma, &bmat, &n, which,
 	     &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd,
 	     workl, &lworkl, &info);
 #else
-      dseupd_(&rvec, &howmy, (logical*)(select), eigenvalues, eigenvectors, &ldv, &sigma, &bmat, &n, which,
+      dseupd_(&rvec, &howmy, (int*)(select), eigenvalues, eigenvectors, &ldv, &sigma, &bmat, &n, which,
 	      &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd,
 	      workl, &lworkl, &info);
 #endif

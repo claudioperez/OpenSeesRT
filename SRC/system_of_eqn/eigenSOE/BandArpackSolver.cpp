@@ -15,9 +15,6 @@
 #include <FE_Element.h>
 #include <Integrator.h>
 #include <string.h>
-// The version of f2c.h supplied with OpenSees
-// must be included after math.h
-#include <f2c.h> 
 #include <cstdlib> 
 
 BandArpackSolver::BandArpackSolver(int numE)
@@ -63,7 +60,7 @@ extern "C" int  DSAUPD(int *ido, char* bmat, unsigned int *,
 			       int *lworkl, int *info);
 
 extern "C" int  DSEUPD(bool *rvec, char *howmny, unsigned int *,
-			       logical *select, double *d, double *z,
+			       int *select, double *d, double *z,
 			       int *ldz, double *sigma, char *bmat, unsigned int *,
 			       int 	*n, char *which, unsigned int *,
 			       int *nev, double *tol, double *resid, int *ncv, 
@@ -86,7 +83,7 @@ extern "C" int  DSAUPD(int *ido, char* bmat,
 			       int *lworkl, int *info);
 
 extern "C" int  DSEUPD(bool *rvec, char *howmny,
-			       logical *select, double *d, double *z,
+			       int *select, double *d, double *z,
 			       int *ldz, double *sigma, char *bmat,
 			       int 	*n, char *which,
 			       int *nev, double *tol, double *resid, int *ncv, 
@@ -111,7 +108,7 @@ extern "C" int dsaupd_(int *ido, char* bmat, int *n, char *which, int *nev,
 		       int *iparam, int *ipntr, double *workd, double *workl,
 		       int *lworkl, int *info);
 
-extern "C" int dseupd_(bool *rvec, char *howmny, logical *select, double *d, double *z,
+extern "C" int dseupd_(bool *rvec, char *howmny, int *select, double *d, double *z,
 		       int *ldz, double *sigma, char *bmat, int *n, char *which,
 		       int *nev, double *tol, double *resid, int *ncv, double *v,
 		       int *ldv, int *iparam, int *ipntr, double *workd, 
@@ -170,7 +167,7 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     double *resid = new double[n];
     int *iparam = new int[11];
     int *ipntr = new int[11];
-    logical *select = new logical[ncv];
+    int *select = new int[ncv];
 
     static char which[3]; 
     if (findSmallest == true) {
@@ -513,7 +510,6 @@ BandArpackSolver::myMv(int n, double *v, double *result)
     // loop over the DOF_Groups
     DOF_Group *dofPtr;
     DOF_GrpIter &theDofs = theAnalysisModel->getDOFs();
-    Integrator *theIntegrator = 0;
     while ((dofPtr = theDofs()) != 0) {
       const Vector &a = dofPtr->getM_Force(x,1.0);      
       y.Assemble(a,dofPtr->getID(),1.0);
