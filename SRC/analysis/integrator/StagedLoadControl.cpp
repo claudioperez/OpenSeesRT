@@ -107,13 +107,13 @@ StagedLoadControl::StagedLoadControl(double dLambda, int numIncr, double min, do
 
 int StagedLoadControl::formTangent(int statFlag)
 {
+
+#ifdef _PARALLEL_PROCESSING
     int rank = 0;
     int nproc = 1;
-
-    #ifdef _PARALLEL_PROCESSING
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nproc);
-    #endif
+#endif
 
     // Run a typocal LoadControl formTangent call
     int errflag = this->IncrementalIntegrator::formTangent(statFlag);
@@ -130,23 +130,23 @@ int StagedLoadControl::formTangent(int statFlag)
     int numEqn = theSOE->getNumEqn();
 
     int * nodedofs = new int[numEqn + 1];
-    #ifdef _PARALLEL_PROCESSING
+#ifdef _PARALLEL_PROCESSING
     int * allnodedofs = new int[numEqn + 1];
-    #endif
+#endif
 
     for (int i = 0; i < numEqn; ++i)
     {
         nodedofs[i] = 0;
-    #ifdef _PARALLEL_PROCESSING
+#ifdef _PARALLEL_PROCESSING
         allnodedofs[i] = 0;
-    #endif
+#endif
     }
 
     FE_Element *elePtr = 0;
 
     FE_EleIter &theEles = theAnalysisModel->getFEs();
 
-    while ((elePtr = theEles()) != 0) {
+    while ((elePtr = theEles()) != nullptr) {
         const ID& elenodedofs = elePtr->getID();
 
         for (int i = 0; i < elenodedofs.Size(); ++i)
