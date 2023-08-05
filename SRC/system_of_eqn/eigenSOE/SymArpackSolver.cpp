@@ -29,8 +29,7 @@
 
 extern "C" {
   #include <FeStructs.h>
-  #include <globalVars.h>
-  #include <tim.h>
+//#include <globalVars.h>
 }
 
 #ifdef _WIN32
@@ -124,7 +123,6 @@ SymArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     if (n == 0)
 	return 0;
 
-//	timer (FACTOR);
 	if (factored == false) {
 
 	   //factor the matrix
