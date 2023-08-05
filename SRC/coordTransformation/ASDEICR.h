@@ -40,7 +40,7 @@
 #ifndef ASDEICR_h
 #define ASDEICR_h
 
-#include <ASDMath.h>
+#include <Quaternion.h>
 #include <Vector3D.h>
 #include <vector>
 

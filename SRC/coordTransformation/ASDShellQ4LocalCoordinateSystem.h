@@ -29,7 +29,7 @@
 #ifndef ASDShellQ4LocalCoordinateSystem_h
 #define ASDShellQ4LocalCoordinateSystem_h
 
-#include <ASDMath.h>
+#include <Quaternion.h>
 #include <Vector3D.h>
 #include <array>
 #include <vector>
