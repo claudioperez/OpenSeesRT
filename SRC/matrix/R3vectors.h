@@ -23,10 +23,9 @@
 class Matrix;
 class Vector;
 
-double  LovelyInnerProduct( const Vector &v, const Vector &w ) ;
+// double  LovelyInnerProduct( const Vector &v, const Vector &w ) ;
 
-double  LovelyNorm( const Vector &v ) ; 
+// double  LovelyNorm( const Vector &v ) ; 
 
 Vector  LovelyCrossProduct( const Vector &v, const Vector &w ) ;
-
 Vector  LovelyEig( const Matrix &M ) ;
