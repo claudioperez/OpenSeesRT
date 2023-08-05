@@ -36,6 +36,7 @@
 
 #include <math.h>
 #include <assert.h>
+#include "routines/cmx.h"
 
 #ifndef NO_STATIC_WORK
 # define MATRIX_WORK_AREA 400
@@ -60,31 +61,6 @@
 //                        double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
 //                        double *X, int *LDX, double *FERR, double *BERR, 
 //                        double *WORK, int *IWORK, int *INFO);
-/*
-extern "C" {
-int dgesv_(int *N, int *NRHS, double *A, int *LDA, int *iPiv, 
-           double *B, int *LDB, int *INFO);
-
-int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-            int *iPiv, double *B, int *LDB, int *INFO);                       
-
-int dgetrf_(int *M, int *N, double *A, int *LDA, 
-            int *iPiv, int *INFO);
-
-int dgetri_(int *N, double *A, int *LDA, 
-            int *iPiv, double *Work, int *WORKL, int *INFO);
-
-// C = alpha op(A)*op(B) + beta C, 
-//           MxK,  KxN          MxN
-int
-dgemm_(char* transA, char* transB, int* M, int* N, int* K,
-       double* alpha,
-       double* A, int* lda,
-       double* B, int* ldb,
-       double* beta,
-       double* C, int* ldc);
-}
-*/
 #endif
 
 extern "C" {
@@ -330,9 +306,9 @@ Matrix::Solve(const Vector &b, Vector &x)
     // check work area can hold all the data
     if (n > sizeIntWork) {
 
-      if (intWork != 0) {
+      if (intWork != nullptr) {
         delete [] intWork;
-        intWork = 0;
+        intWork = nullptr;
       }
       intWork = new int[n];
       sizeIntWork = n;  
@@ -509,61 +485,61 @@ int
 Matrix::Invert()
 {
 
-    int n = numRows;
-    assert(numRows == numCols);
-    // assert(n == theInverse.numRows);
+  int info;
+  int n = numRows;
+  assert(numRows == numCols);
+  switch (numRows) {
+    case 3:
+      cmx_inv3(data, data, &info);
+    case 4:
+      cmx_inv4(data, data, &info);
+    case 5:
+      cmx_inv5(data, data, &info);
+    case 6:
+      cmx_inv6(data, data, &info);
 
-    // check work area can hold all the data
-    if (dataSize > sizeDoubleWork) {
-      if (matrixWork != nullptr) {
-        delete [] matrixWork;
-        matrixWork = 0;
+    default:
+  
+      // check work area can hold all the data
+      if (dataSize > sizeDoubleWork) {
+        if (matrixWork != nullptr) {
+          delete [] matrixWork;
+          matrixWork = 0;
+        }
+        matrixWork = new double[dataSize];
+        sizeDoubleWork = dataSize;
       }
-      matrixWork = new double[dataSize];
-      sizeDoubleWork = dataSize;
-    }
 
-    // check work area can hold all the data
-    if (n > sizeIntWork) {
-      if (intWork != 0) {
-        delete [] intWork;
-        intWork = 0;
+      // check work area can hold all the data
+      if (n > sizeIntWork) {
+        if (intWork != 0) {
+          delete [] intWork;
+          intWork = nullptr;
+        }
+        intWork = new int[n];
+        sizeIntWork = n;  
       }
-      intWork = new int[n];
-      sizeIntWork = n;  
-    }
 
 #if 0
-    // copy the data
-    
-    for (int i=0; i<dataSize; i++)
-      matrixWork[i] = data[i];
+      // copy the data 
+      for (int i=0; i<dataSize; i++)
+        matrixWork[i] = data[i];
 #endif
+      // theInverse = *this;
+      int ldA = n;
+      double *Wptr = matrixWork;
+      double *Aptr = data;
+      int workSize = sizeDoubleWork;
+      
+      int *iPIV = intWork;
 
-    // theInverse = *this;
+      DGETRF(&n,&n,Aptr,&ldA,iPIV,&info);
+      if (info != 0) 
+        return -abs(info);
+      DGETRI(&n,Aptr,&ldA,iPIV,Wptr,&workSize,&info);
 
-    int ldA = n;
-    int info;
-    double *Wptr = matrixWork;
-    double *Aptr = data;
-    int workSize = sizeDoubleWork;
-    
-    int *iPIV = intWork;
-    
-
-#if 1 // || defined(_WIN32)
-    DGETRF(&n,&n,Aptr,&ldA,iPIV,&info);
-    if (info != 0) 
-      return -abs(info);
-    DGETRI(&n,Aptr,&ldA,iPIV,Wptr,&workSize,&info);
-#else
-    dgetrf_(&n,&n,Aptr,&ldA,iPIV,&info);
-    if (info != 0) 
-      return -abs(info); 
-    dgetri_(&n,Aptr,&ldA,iPIV,Wptr,&workSize,&info); 
-#endif
-
-    return -abs(info);
+  }
+  return -abs(info);
 }
 
 
@@ -722,7 +698,7 @@ Matrix::addMatrixProduct(double thisFact,
                                                      C.data, &  k,
                                          &thisFact,    data, &  m);
     }
-#else
+#endif
 
     // NOTE: looping as per blas3 dgemm_: j,k,i
     else if (thisFact == 1.0) {
@@ -780,7 +756,6 @@ Matrix::addMatrixProduct(double thisFact,
       }
     } 
     return 0;
-#endif
 }
 
 int
@@ -870,95 +845,95 @@ Matrix::addMatrixTripleProduct(double thisFact,
   if (thisFact == 1.0 && otherFact == 0.0)
     return 0;
 
-    // check work area can hold the temporary matrix
-    int dimB = B.numCols;
-    int sizeWork = dimB * numCols;
+  // check work area can hold the temporary matrix
+  int dimB = B.numCols;
+  int sizeWork = dimB * numCols;
 
-    if (sizeWork > sizeDoubleWork) {
-      // TODO
-      this->addMatrix(thisFact, T^B*T, otherFact);
-      return 0;
-    } else {
-      int m = B.numRows,
-          n = T.numCols,
-          k = T.numRows;
-      double zero = 0.0,
-             one  = 1.0;
-      DGEMM ("N", "N", &m      , &n      , &k,&otherFact, B.data, &m,
-                                                          T.data, &k,
-                                              &zero,  matrixWork, &m);
-      DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &numRows,
-                                                      matrixWork, &k,
-                                              &thisFact,    data, &numRows);
-      return 0;
-    }
-
-    // zero out the work area
-    double *matrixWorkPtr = matrixWork;
-    for (int l=0; l<sizeWork; l++)
-      *matrixWorkPtr++ = 0.0;
-    
-    // now form B * T * fact store in matrixWork == A area
-    // NOTE: looping as per blas3 DGEMM : j,k,i
-
-    double *tkjPtr  = &(T.data)[0];
-    for (int j=0; j<numCols; j++) {
-      double *aijPtrA = &matrixWork[j*dimB];
-      for (int k=0; k<dimB; k++) {
-        double tmp = *tkjPtr++ * otherFact;
-        double *aijPtr = aijPtrA;
-        double *bikPtr = &(B.data)[k*dimB];
-        for (int i=0; i<dimB; i++) 
-          *aijPtr++ += *bikPtr++ * tmp;
-      }
-    }
-
-    // now form T' * matrixWork
-    // NOTE: looping as per blas3 DGEMM : j,i,k
-    if (thisFact == 1.0) {
-      double *dataPtr = &data[0];
-      for (int j=0; j< numCols; j++) {
-        double *workkjPtrA = &matrixWork[j*dimB];
-        for (int i=0; i<numRows; i++) {
-          double *ckiPtr = &(T.data)[i*dimB];
-          double *workkjPtr = workkjPtrA;
-          double aij = 0.0;
-          for (int k=0; k< dimB; k++)
-            aij += *ckiPtr++ * *workkjPtr++;
-          *dataPtr++ += aij;
-        }
-      }
-    } else if (thisFact == 0.0) {
-      double *dataPtr = &data[0];
-      for (int j=0; j< numCols; j++) {
-        double *workkjPtrA = &matrixWork[j*dimB];
-        for (int i=0; i<numRows; i++) {
-          double *ckiPtr = &(T.data)[i*dimB];
-          double *workkjPtr = workkjPtrA;
-          double aij = 0.0;
-          for (int k=0; k< dimB; k++)
-            aij += *ckiPtr++ * *workkjPtr++;
-          *dataPtr++ = aij;
-        }
-      }
-
-    } else {
-      double *dataPtr = &data[0];
-      for (int j=0; j< numCols; j++) {
-        double *workkjPtrA = &matrixWork[j*dimB];
-        for (int i=0; i<numRows; i++) {
-          double *ckiPtr = &(T.data)[i*dimB];
-          double *workkjPtr = workkjPtrA;
-          double aij = 0.0;
-          for (int k=0; k< dimB; k++)
-            aij += *ckiPtr++ * *workkjPtr++;
-          double value = *dataPtr * thisFact + aij;
-          *dataPtr++ = value;
-        }
-      }
-    }
-
+  if (sizeWork > sizeDoubleWork) {
+    // TODO
+    this->addMatrix(thisFact, T^B*T, otherFact);
     return 0;
+  } else {
+    int m = B.numRows,
+        n = T.numCols,
+        k = T.numRows;
+    double zero = 0.0,
+           one  = 1.0;
+    DGEMM ("N", "N", &m      , &n      , &k,&otherFact, B.data, &m,
+                                                        T.data, &k,
+                                            &zero,  matrixWork, &m);
+    DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &numRows,
+                                                    matrixWork, &k,
+                                            &thisFact,    data, &numRows);
+    return 0;
+  }
+
+  // zero out the work area
+  double *matrixWorkPtr = matrixWork;
+  for (int l=0; l<sizeWork; l++)
+    *matrixWorkPtr++ = 0.0;
+  
+  // now form B * T * fact store in matrixWork == A area
+  // NOTE: looping as per blas3 DGEMM : j,k,i
+
+  double *tkjPtr  = &(T.data)[0];
+  for (int j=0; j<numCols; j++) {
+    double *aijPtrA = &matrixWork[j*dimB];
+    for (int k=0; k<dimB; k++) {
+      double tmp = *tkjPtr++ * otherFact;
+      double *aijPtr = aijPtrA;
+      double *bikPtr = &(B.data)[k*dimB];
+      for (int i=0; i<dimB; i++) 
+        *aijPtr++ += *bikPtr++ * tmp;
+    }
+  }
+
+  // now form T' * matrixWork
+  // NOTE: looping as per blas3 DGEMM : j,i,k
+  if (thisFact == 1.0) {
+    double *dataPtr = &data[0];
+    for (int j=0; j< numCols; j++) {
+      double *workkjPtrA = &matrixWork[j*dimB];
+      for (int i=0; i<numRows; i++) {
+        double *ckiPtr = &(T.data)[i*dimB];
+        double *workkjPtr = workkjPtrA;
+        double aij = 0.0;
+        for (int k=0; k< dimB; k++)
+          aij += *ckiPtr++ * *workkjPtr++;
+        *dataPtr++ += aij;
+      }
+    }
+  } else if (thisFact == 0.0) {
+    double *dataPtr = &data[0];
+    for (int j=0; j< numCols; j++) {
+      double *workkjPtrA = &matrixWork[j*dimB];
+      for (int i=0; i<numRows; i++) {
+        double *ckiPtr = &(T.data)[i*dimB];
+        double *workkjPtr = workkjPtrA;
+        double aij = 0.0;
+        for (int k=0; k< dimB; k++)
+          aij += *ckiPtr++ * *workkjPtr++;
+        *dataPtr++ = aij;
+      }
+    }
+
+  } else {
+    double *dataPtr = &data[0];
+    for (int j=0; j< numCols; j++) {
+      double *workkjPtrA = &matrixWork[j*dimB];
+      for (int i=0; i<numRows; i++) {
+        double *ckiPtr = &(T.data)[i*dimB];
+        double *workkjPtr = workkjPtrA;
+        double aij = 0.0;
+        for (int k=0; k< dimB; k++)
+          aij += *ckiPtr++ * *workkjPtr++;
+        double value = *dataPtr * thisFact + aij;
+        *dataPtr++ = value;
+      }
+    }
+  }
+
+  return 0;
 }
 
 

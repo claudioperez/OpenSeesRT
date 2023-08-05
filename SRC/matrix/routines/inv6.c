@@ -1,31 +1,20 @@
-/* m66inv.f -- translated by f2c (version 20200916).
- * You must link the resulting object file with libf2c:
- *      on Microsoft Windows system, link with libf2c.lib;
- *      on Linux or Unix systems, link with .../path/to/libf2c.a -lm
- *      or, if you install libf2c.a in a standard place, with -lf2c -lm
- *      -- in that order, at the end of the command line, as in
- *              cc *.o -lf2c -lm
- *      Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
- *
- *              http://www.netlib.org/f2c/libf2c.zip
- */
 //
 // TODO: Do symmetric version
 //
 #include <math.h>
 #include <stdbool.h>
-
+#if 0
+int cmx_inv6_v0(double *a, double *ainv, int*ok_flag__)
+{
 /* **************************************************************************************** *
  *  m66inv  -  compute the inverse of a 6x6 matrix. 
-
+ *
  *  a       = input 6x6 matrix to be inverted 
  *  ainv    = output 6x6 inverse of matrix a 
  *  ok_flag = (output) .true. if the input matrix could be inverted, 
  *            and .false. if the input matrix is singular. 
  * **************************************************************************************** */
 
-int m66inv(double *a, double *ainv, int*ok_flag__)
-{
     double cofactor[36]        /* was [6][6] */;
     double det;
 
@@ -2395,9 +2384,9 @@ int m66inv(double *a, double *ainv, int*ok_flag__)
 /*     ainv = transpose(cofactor) ! / det */
     *ok_flag__ = true;
     return 0;
-} /* m66inv_ */
+}
 
-int m66inv_v2(const double const a[6][6], double *ainv, int*ok_flag__)
+int cmx_inv6_v1(const double const a[6][6], double *ainv, int*ok_flag__)
 {
     double cofactor[36]        /* was [6][6] */;
 
@@ -7953,6 +7942,7 @@ int m66inv_v2(const double const a[6][6], double *ainv, int*ok_flag__)
 /*     ainv = transpose(cofactor) ! / det */*ok_flag__ = true;
     return 0;
 }
+#endif
 
 #define a11  a[ 0]
 #define a12  a[6]
@@ -7991,7 +7981,7 @@ int m66inv_v2(const double const a[6][6], double *ainv, int*ok_flag__)
 #define a65  a[29]
 #define a66  a[35]
 
-int m66inv_v3(const double const a[36], double *ainv, int*ok_flag__)
+int cmx_inv6(const double const a[36], double *ainv, int*ok_flag__)
 {
     double cofactor[36];
 
