@@ -9,6 +9,10 @@
 #include <math.h>
 
 void shap3dv(double *R, int *NP, double Q[27][4]){
+//
+// Local shape functions for 8-27 node brick
+//
+//
 // Formal parameters:
 //
 //  R (Input)  = Parametric coordinates, in the interval [-1,1],
@@ -19,9 +23,9 @@ void shap3dv(double *R, int *NP, double Q[27][4]){
 //               > 0 if node is present
 //  Q (Output) = Shape functions and derivatives, as follows:
 //               * Q[i][3] is the shape function for local node 'i'
-//               * Q[i][0] is the r-derivative
-//               * Q[i][1] is the s-derivative
-//               * Q[i][2] is the t-derivative
+//               * Q[i][0] is the (local) r-derivative
+//               * Q[i][1] is the (local) s-derivative
+//               * Q[i][2] is the (local) t-derivative
 //
 //
 // Local Node Pattern for Three-Dimensional Elements:
