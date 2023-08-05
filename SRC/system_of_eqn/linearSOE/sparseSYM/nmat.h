@@ -15,9 +15,10 @@
 
 #ifndef nmat_h
 #define nmat_h
+#include "FeStructs.h" // OFFDBLK
 
-int pfsfct(int neqns, double *diag, double **penv, int nblks, 
-	   int *xblk, OFFDBLK **begblk, OFFDBLK *first, int *rowblks);
+int  pfsfct(int neqns, double *diag, double **penv, int nblks, 
+            int *xblk, OFFDBLK **begblk, OFFDBLK *first, int *rowblks);
 
 void pfsslv(int neqns, double *diag, double **penv, int nblks, 
             int *xblk, double *rhs, OFFDBLK **begblk);

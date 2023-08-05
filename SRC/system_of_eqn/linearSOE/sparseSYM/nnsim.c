@@ -74,8 +74,7 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
    segprv = (OFFDBLK **) calloc((nblks+1), sizeof(OFFDBLK *)) ;
    len = (int *) calloc(nblks, sizeof(int)) ;
    assert (segprv && len != NULL) ;
-   for (i=0;i<=nblks;i++)
-   { 
+   for (i=0;i<=nblks;i++) { 
       segfirst[i] = NULL ;
       segprv[i]  =  NULL ;
    }
@@ -84,18 +83,16 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
    for (i = 0; i< neqns ; i++)
       list[i] = i ;
    zeroi(neqns,envlen) ;
-   for (node = 1 ; node < neqns; node++)
-   {
+   for (node = 1 ; node < neqns; node++) {
       knz = 0 ;
       i = perm[node] ;
 /*    sort adjacency list */
-      for (pt = padj[i] ; pt < padj[i+1] ; pt++)
-      {  
+      for (pt = padj[i] ; pt < padj[i+1] ; pt++) { 
 	 nbr = invp[*pt] ;
          if ( nbr >= node) continue ;
          qm = node ;
-         do
-         {  m = qm ;
+         do {
+            m = qm ;
             qm = list[m] ;
          }  while (qm<=nbr);
          list[m] = nbr ;
@@ -122,8 +119,8 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
 	 segprv[nbrblk] = p ;
 	 if (segfirst[nbrblk] == NULL) segfirst[nbrblk] = p ;
          qm = nbr ;
-         do
-         {  nnext = list[qm] ;
+         do {
+            nnext = list[qm] ;
             list[qm] = qm ;
             qm = nnext ;
 	 } while (nnext < xblk[nbrblk+1] ) ;

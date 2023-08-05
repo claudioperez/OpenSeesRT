@@ -23,10 +23,9 @@
 #include "utility.h"
 #include "nmat.h"
 
-static int pfefct(int neqns, double **penv, double *diag);
-static void pflslv (int neqns, double **penv, double *diag, double *rhs);
+static int  pfefct(int neqns, double **penv, double *diag);
+static void pflslv(int neqns, double **penv, double *diag, double *rhs);
 static void pfuslv(int neqns, double **penv, double *diag, double *rhs);
-
 
 #define MAX(x,y)   (((x) < (y)) ? (y) : (x))
 
