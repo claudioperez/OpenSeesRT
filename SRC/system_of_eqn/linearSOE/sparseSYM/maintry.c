@@ -4,8 +4,6 @@
 
 #include <stdio.h>
 #include "FeStructs.h"
-#include "globalVars.h"
-
 
 main()
 {
