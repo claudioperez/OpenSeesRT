@@ -30,6 +30,7 @@
 #define ASDShellQ4LocalCoordinateSystem_h
 
 #include <ASDMath.h>
+#include <Vector3D.h>
 #include <array>
 #include <vector>
 
@@ -43,7 +44,7 @@ class ASDShellQ4LocalCoordinateSystem
 
 public:
 
-	typedef ASDVector3<double> Vector3Type;
+	typedef Vector3D<double> Vector3Type;
 
 	typedef ASDQuaternion<double> QuaternionType;
 

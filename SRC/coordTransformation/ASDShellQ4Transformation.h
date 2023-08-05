@@ -29,6 +29,7 @@
 #ifndef ASDShellQ4Transformation_h
 #define ASDShellQ4Transformation_h
 
+#include <Vector3D.h>
 #include <ASDShellQ4LocalCoordinateSystem.h>
 #include <Node.h>
 #include <Domain.h>
@@ -47,7 +48,7 @@ class ASDShellQ4Transformation
 
 public:
 
-    typedef ASDVector3<double> Vector3Type;
+    typedef Vector3D<double> Vector3Type;
 
     typedef ASDQuaternion<double> QuaternionType;
 
