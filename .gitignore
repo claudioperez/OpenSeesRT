@@ -31,7 +31,6 @@
 *.lib
 
 # Executables
-*.exe
 *.out
 *.app
 
@@ -44,11 +43,7 @@ obj
 *.exp
 
 # CLion
-.gitignore
 .idea
-cmake-build-debug
-cmake-build-release
-#CMakeLists.txt
 .dropbox.attr
 
 # VSCode
