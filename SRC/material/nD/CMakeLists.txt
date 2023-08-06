@@ -11,6 +11,7 @@ target_sources(OPS_Material
     LinearCap.cpp
     FSAM.cpp
     AcousticMedium.cpp
+    ASDConcrete3DMaterial.cpp
     ElasticIsotropicAxiSymm.cpp
     ElasticIsotropicMaterial.cpp
     ElasticOrthotropicMaterial.cpp
@@ -57,6 +58,7 @@ target_sources(OPS_Material
     LinearCap.h
     FSAM.h
     AcousticMedium.h
+    ASDConcrete3DMaterial.h
     ElasticIsotropicAxiSymm.h
 
 
