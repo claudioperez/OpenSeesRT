@@ -83,15 +83,15 @@ ArcLength1::ArcLength1(double arcLength, double alpha)
 ArcLength1::~ArcLength1()
 {
     // delete any vector object created
-    if (deltaUhat != 0)
+    if (deltaUhat != nullptr)
 	delete deltaUhat;
-    if (deltaU != 0)
+    if (deltaU != nullptr)
 	delete deltaU;
-    if (deltaUstep != 0)
+    if (deltaUstep != nullptr)
 	delete deltaUstep;
-    if (deltaUbar != 0)
+    if (deltaUbar != nullptr)
 	delete deltaUbar;
-	if (phat != 0)
+    if (phat != nullptr)
 	delete phat;
 }
 
@@ -161,8 +161,8 @@ ArcLength1::update(const Vector &dU)
     (*deltaUhat) = theLinSOE->getX();    
 
     // determine delta lambda(i)
-    double a = (*deltaUstep)^(*deltaUbar);
-    double b = (*deltaUstep)^(*deltaUhat) + alpha2*deltaLambdaStep;
+    double a =  (*deltaUstep)^(*deltaUbar);
+    double b = ((*deltaUstep)^(*deltaUhat)) + alpha2*deltaLambdaStep;
     if (b == 0) {
       opserr << "ArcLength1::update() - zero denominator,";
       opserr << " alpha was set to 0.0 and zero reference load\n";
