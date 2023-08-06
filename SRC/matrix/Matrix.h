@@ -25,6 +25,7 @@
                                                                         
 #ifndef Matrix_h
 #define Matrix_h 
+#define NO_STATIC_WORK
 
 // Written: fmk 
 // Created: 11/96
@@ -157,14 +158,18 @@ class Matrix
   protected:
 
   private:
-#define STATIC
     static double MATRIX_NOT_VALID_ENTRY;
-    STATIC double *matrixWork = nullptr;
-    STATIC int *intWork = nullptr;
-    STATIC int sizeDoubleWork = 400;
-    STATIC int sizeIntWork = 20;
-#undef STATIC
-
+#ifdef NO_STATIC_WORK
+    double *matrixWork = nullptr;
+    int *intWork = nullptr;
+    int sizeDoubleWork = 400;
+    int sizeIntWork = 20;
+#else
+    static double *matrixWork;
+    static int *intWork;
+    static int sizeDoubleWork;
+    static int sizeIntWork;
+#endif
     int numRows;
     int numCols;
     int dataSize;

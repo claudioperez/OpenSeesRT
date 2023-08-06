@@ -32,7 +32,7 @@ int cmx_inv4(double *a, double *ainv, int *ok_flag__)
 
     if (fabs(det) <= eps) {
         *ok_flag__ = -1;
-        return 0;
+        // return 0;
     }
 
     cofactor[ 0] = a[10]*(a[15]*a[20] - a[19]*a[16])

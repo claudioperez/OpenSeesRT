@@ -107,9 +107,12 @@ if (UNIX)
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
 
-    $<$<CONFIG:RELEASE>:-ggdb>
-    $<$<CONFIG:RELEASE>:-g3>
+    # $<$<CONFIG:RELEASE>:-ggdb>
+    # $<$<CONFIG:RELEASE>:-g3>
     $<$<CONFIG:RELEASE>:-O3>
+    $<$<CONFIG:RELEASE>:-mtune=native>
+    $<$<CONFIG:RELEASE>:-march=haswell>
+    $<$<CONFIG:RELEASE>:-msse4>
   )
 endif()
 

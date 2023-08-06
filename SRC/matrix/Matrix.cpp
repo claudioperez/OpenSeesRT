@@ -32,7 +32,6 @@
 #include <iostream>
 // using std::nothrow;
 
-#define NO_STATIC_WORK
 
 #include <math.h>
 #include <assert.h>
@@ -79,10 +78,10 @@ extern "C" {
 
   int DGEMM(char* transA, char* transB, int* M, int* N, int* K,
             double* alpha,
-            double* A, int* lda,
-            double* B, int* ldb,
+            double* A, const int* lda,
+            double* B, const int* ldb,
             double* beta,
-            double* C, int* ldc);
+            double* C, const int* ldc);
 }
 
 //
@@ -188,12 +187,13 @@ Matrix::~Matrix()
       data = nullptr;
     }
   }
-
+#ifdef NO_STATIC_WORK
   if (matrixWork != nullptr)
     delete [] matrixWork;
 
   if (intWork != nullptr)
     delete [] intWork;
+#endif
 }
     
 
@@ -315,8 +315,7 @@ Matrix::Solve(const Vector &b, Vector &x)
     }
  
     // copy the data
-    int i;
-    for (i=0; i<dataSize; i++)
+    for (int i=0; i<dataSize; i++)
       matrixWork[i] = data[i];
 
     // set x equal to b
@@ -474,9 +473,8 @@ Matrix::Solve(const Matrix &b, Matrix &x) // const
 int
 Matrix::Invert(Matrix &theInverse) const
 {
-    int n = numRows;
     assert(numRows == numCols);
-    assert(n == theInverse.numRows);
+    assert(numRows == theInverse.numRows);
     theInverse = *this;
     return theInverse.Invert();
 }
@@ -489,6 +487,9 @@ Matrix::Invert()
   int n = numRows;
   assert(numRows == numCols);
   switch (numRows) {
+    case 2:
+      cmx_inv2(data, data, &info);
+      break;
     case 3:
       cmx_inv3(data, data, &info);
       break;
@@ -523,7 +524,6 @@ Matrix::Invert()
         intWork = new int[n];
         sizeIntWork = n;  
       }
-
 #if 0
       // copy the data 
       for (int i=0; i<dataSize; i++)
@@ -857,17 +857,23 @@ Matrix::addMatrixTripleProduct(double thisFact,
     // TODO
     this->addMatrix(thisFact, T^B*T, otherFact);
     return 0;
-  } else {
+  }
+  else {
     int m = B.numRows,
         n = T.numCols,
-        k = T.numRows;
+        k = B.numCols;
+      //k = T.numRows;
     double zero = 0.0,
            one  = 1.0;
-    DGEMM ("N", "N", &m      , &n      , &k,&otherFact, B.data, &m,
-                                                        T.data, &k,
+//  opserr << numRows << "x" << numCols << " <- "
+//         << T.numCols << "x" << T.numRows << "\t"
+//         << B.numRows << "x" << B.numCols << "\t"
+//         << T.numRows << "x" << T.numCols << "\n";
+    DGEMM ("N", "N", &m      , &n      , &k,&one      , B.data, &B.numRows, // m
+                                                        T.data, &T.numRows, // k
                                             &zero,  matrixWork, &m);
-    DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &numRows,
-                                                    matrixWork, &k,
+    DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &T.numRows,
+                                                    matrixWork, &m, // k
                                             &thisFact,    data, &numRows);
     return 0;
   }

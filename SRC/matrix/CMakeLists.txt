@@ -8,7 +8,8 @@ if (NOT WIN32)
   target_compile_options(OPS_Matrix PRIVATE -fno-math-errno 
                                             -fno-signaling-nans 
                                             -fno-trapping-math 
-                                            -fassociative-math)
+#                                           -fassociative-math)
+  )
 endif()
 
 target_sources(OPS_Matrix

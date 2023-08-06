@@ -2,6 +2,7 @@
 // TODO: Do symmetric version
 //
 #include <math.h>
+// #include <stdio.h>
 #if 0
 int cmx_inv6_v0(double *a, double *ainv, int*ok_flag__)
 {
@@ -8741,8 +8742,9 @@ int cmx_inv6(const double const a[36], double *ainv, int*ok_flag__)
             + a11*a22*a33*a44*a55)*a66;
 
     if (fabs(det) <= eps) {
+      // printf("inv6: det = %lf\n", det);
       *ok_flag__ = -1;
-      return 0;
+      // return -1;
     }
     cofactor[0] = a26*a35*a44*a53*a62
             - a25*a36*a44*a53*a62

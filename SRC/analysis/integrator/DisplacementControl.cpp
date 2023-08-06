@@ -261,13 +261,11 @@ DisplacementControl::newStep(void)
     // De-activate all parameters
      
     // Now, compute sensitivity wrt each parameter
-    int numGrads = theDomain->getNumParameters();
-    
-    while ((theParam = paramIter()) != 0)
+    while ((theParam = paramIter()) != nullptr)
       theParam->activate(false);
     
     paramIter = theDomain->getParameters();
-    while ((theParam = paramIter()) != 0) {
+    while ((theParam = paramIter()) != nullptr) {
       // Activate this parameter
       theParam->activate(true);
       // Get the grad index for this parameter

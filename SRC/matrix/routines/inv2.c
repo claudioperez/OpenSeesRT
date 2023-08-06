@@ -12,30 +12,27 @@ int cmx_inv2(double *a, double *ainv, int *ok_flag__)
 /*  ok_flag = (output) .true. if the input matrix could be inverted, and .false. if the input matrix is singular. */
 /* **************************************************************************************** */
 
-    static double cofactor[4]	/* was [2][2] */;
-    static int i__, j;
-    static double det, eps;
-
 
     /* Parameter adjustments */
     ainv -= 3;
     a -= 3;
 
     /* Function Body */
-    eps = 1e-10;
-    det = a[3] * a[6] - a[5] * a[4];
+    const double eps = 1e-10;
+    const double det = a[3] * a[6] - a[5] * a[4];
     if (fabs(det) <= eps) {
-	*ok_flag__ = -1;
-	return 0;
+        *ok_flag__ = -1;
+        // return 0;
     }
+    double cofactor[4];
     cofactor[0] = a[6];
     cofactor[2] = -a[4];
     cofactor[1] = -a[5];
     cofactor[3] = a[3];
-    for (i__ = 1; i__ <= 2; ++i__) {
-	for (j = 1; j <= 2; ++j) {
-	    ainv[j + (i__ << 1)] = cofactor[i__ + (j << 1) - 3] / det;
-	}
+    for (int i__ = 1; i__ <= 2; ++i__) {
+        for (int j = 1; j <= 2; ++j) {
+            ainv[j + (i__ << 1)] = cofactor[i__ + (j << 1) - 3] / det;
+        }
     }
     *ok_flag__ = 0;
     return 0;
