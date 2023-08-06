@@ -63,6 +63,8 @@ Tcl_CmdProc modalDampingQ;
 
 // Other
 extern Tcl_CmdProc  TclCommand_addHystereticBackbone;
+extern Tcl_CmdProc  TclCommand_updateMaterialStage;
+
 Tcl_CmdProc TclCommand_addParameter;
 Tcl_CmdProc TclCommand_mesh;
 Tcl_CmdProc TclCommand_remesh;
@@ -135,7 +137,6 @@ struct char_cmd {
 
   {"eleLoad",              TclCommand_addElementalLoad},
 
-
   {"block2D",              TclCommand_doBlock2D},
   {"block3D",              TclCommand_doBlock3D},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
@@ -174,9 +175,9 @@ struct char_cmd {
   {"updateParameter",      TclCommand_addParameter},
 #endif
 
-#if 0
 // command for elast2plast in Multi-yield plasticity, by ZHY
-  {"updateMaterialStage", TclCommand_UpdateMaterialStage},
+  {"updateMaterialStage", TclCommand_updateMaterialStage},
+#if 0
   {"updateMaterials",     TclCommand_UpdateMaterials},
 #endif
 
@@ -193,7 +194,6 @@ Tcl_CmdProc TclCommand_Package;
 Tcl_CmdProc TclCommand_doPySimple1Gen;
 Tcl_CmdProc TclCommand_doTzSimple1Gen;
 
-// End added by SJB
 // Added by Prishati Raychowdhury (UCSD)
 Tcl_CmdProc BasicModelBuilder_doShallowFoundationGen;
 // End PRC
@@ -204,9 +204,7 @@ Tcl_CmdProc TclCommand_addStiffnessDegradation;
 Tcl_CmdProc TclCommand_addUnloadingRule;
 Tcl_CmdProc TclCommand_addStrengthDegradation;
 /// added by ZHY
-Tcl_CmdProc TclCommand_UpdateMaterialStage;
 Tcl_CmdProc TclCommand_UpdateMaterials;
-/// added by ZHY
 Tcl_CmdProc TclCommand_UpdateParameter;
 Tcl_CmdProc TclCommand_addElementRayleigh;
 

@@ -64,7 +64,7 @@ loadConst -time 0.0;				# hold gravity constant and restart time
 # DYNAMIC ground-motion analysis -------------------------------------------------------------
 # create load pattern
 set G 386
-timeSeries Path 2 -dt 0.005 -filePath A10000.tcl -factor $G; # define acceleration vector from file (dt=0.005 is associated with the input file gm)
+timeSeries Path 2 -dt 0.005 -filePath A10000.txt -factor $G; # define acceleration vector from file (dt=0.005 is associated with the input file gm)
 pattern UniformExcitation 2 1 -accel 2;		         # define where and how (pattern tag, dof) acceleration is applied
 
 # set damping based on first eigen mode

@@ -80,14 +80,14 @@ int CTestNormDispIncr::test(void)
     // check to ensure the SOE has been set - this should not happen if the
     // return from start() is checked
     if (theSOE == 0) {
-                  opserr << "WARNING: CTestNormDispIncr::test() - no SOE set.\n";
+                  opserr << "WARNING: CTestNormDispIncr::test - no SOE set.\n";
         return -2;
         }
 
     // check to ensure the algo does invoke start() - this is needed otherwise
     // may never get convergence later on in analysis!
     if (currentIter == 0) {
-        opserr << "WARNING: CTestNormDispIncr::test() - start() was never invoked.\n";
+        opserr << "WARNING: CTestNormDispIncr::test - start() was never invoked.\n";
         return -2;
     }
 
@@ -166,7 +166,7 @@ int CTestNormDispIncr::test(void)
 int CTestNormDispIncr::start(void)
 {
     if (theSOE == 0) {
-        opserr << "WARNING: CTestNormDispIncr::test() - no SOE returning true\n";
+        opserr << "WARNING: CTestNormDispIncr::start - no SOE returning true\n";
         return -1;
     }
 

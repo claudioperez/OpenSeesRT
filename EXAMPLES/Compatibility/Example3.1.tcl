@@ -78,7 +78,6 @@ set y1 [expr $colDepth/2.0]
 set z1 [expr $colWidth/2.0]
 
 section Fiber 1 {
-
     # Create the concrete core fibers
     patch rect 1 10 1 [expr $cover-$y1] [expr $cover-$z1] [expr $y1-$cover] [expr $z1-$cover]
 
@@ -131,7 +130,6 @@ set P 180;                # 10% of axial capacity of columns
 
 # Create a Plain load pattern with a Linear TimeSeries
 pattern Plain 1 "Linear" {
-
         # Create nodal loads at nodes 3 & 4
 	#    nd    FX          FY  MZ 
 	load  3   0.0  [expr -$P] 0.0
@@ -198,3 +196,4 @@ analysis Static
 
 # perform the gravity load analysis, requires 10 steps to reach the load level
 analyze 10
+

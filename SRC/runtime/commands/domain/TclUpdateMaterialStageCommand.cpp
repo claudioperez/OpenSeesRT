@@ -40,17 +40,13 @@
 class TclBasicBuilder;
 
 int
-TclBasicBuilderUpdateMaterialStageCommand(ClientData clientData,
-                                          Tcl_Interp *interp, int argc,
-                                          TCL_Char ** const argv,
-                                          TclBasicBuilder *theTclBuilder,
-                                          Domain *theDomain)
+TclCommand_updateMaterialStage(ClientData clientData,
+                               Tcl_Interp *interp, int argc,
+                               TCL_Char ** const argv)
 {
+
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
-
-
-  // BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   if (argc < 5) {
     opserr << "WARNING insufficient number of UpdateMaterialStage arguments\n";

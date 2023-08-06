@@ -462,8 +462,7 @@ FullGenLinSOE::normRHS(void)
 	double Yi = B[i];
 	norm += Yi*Yi;
     }
-    return sqrt(norm);
-    
+    return sqrt(norm);    
 }    
 
 
@@ -471,7 +470,7 @@ int
 FullGenLinSOE::setFullGenSolver(FullGenLinSolver &newSolver)
 {
     newSolver.setLinearSOE(*this);
-    
+
     if (size != 0) {
 	int solverOK = newSolver.setSize();
 	if (solverOK < 0) {

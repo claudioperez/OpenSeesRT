@@ -4,11 +4,10 @@
 |---------|--------------|-----------------------|
 |  0  | `16n.tcl` |  |
 |  0  | `1Cbn.tcl` |  |
-|  255  | `1Dconsolidation.tcl` | "equalDOF [expr $totalNumNode-1] [expr $totalNumNode-2]  1 2" |
+|  0  | `1Dconsolidation.tcl` |  |
 |  0  | `26n.tcl` |  |
 |  0  | `32n.tcl` |  |
 |  0  | `3Can.tcl` |  |
-|  255  | `A10000.tcl` | invalid command name "-0.450671E-03" |
 |  0  | `AnalysisSP1.tcl` |  |
 |  255  | `AxialSpHD_sample.tcl` | "uniaxialMaterial AxialSpHD 1 1000e6 1e6 -25e6 0.50 0.01 0.10 0.50 -5e6 10.0" |
 |  255  | `AxialSp_sample.tcl` | "uniaxialMaterial AxialSp 1 1000e6 1e6 -25e6 0.50 0.01 0.50 -5e6" |
@@ -75,11 +74,11 @@
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
 |  255  | `FreeField3D.tcl` |         set nI  [expr 4*($j..." |
-|  255  | `FreeFieldDamp.tcl` | invalid command name "updateMaterialStage" |
-|  255  | `FreeFieldDepend.tcl` | invalid command name "updateMaterialStage" |
-|  255  | `FreeFieldEffective.tcl` |     equalDOF..." |
-|  255  | `FreeFieldIndepend.tcl` | invalid command name "updateMaterialStage" |
-|  255  | `FreeFieldSingle.tcl` | invalid command name "updateMaterialStage" |
+|  255  | `FreeFieldDamp.tcl` | invalid command name "prp" |
+|  255  | `FreeFieldDepend.tcl` | expected integer but got "-dt" |
+|  255  | `FreeFieldEffective.tcl` | invalid command name "parameter" |
+|  255  | `FreeFieldIndepend.tcl` | expected integer but got "-dt" |
+|  255  | `FreeFieldSingle.tcl` | expected integer but got "-dt" |
 |  0  | `Get_pyParam.tcl` |  |
 |  0  | `Get_qzParam.tcl` |  |
 |  0  | `Get_tzParam.tcl` |  |
@@ -87,21 +86,19 @@
 |  0  | `KikuchiAikenHDR_sample.tcl` |  |
 |  0  | `KikuchiAikenLRB_sample.tcl` |  |
 |  255  | `KikuchiBearing_Sample.tcl` | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
-|  255  | `LateralSpreadPile.tcl` | "equalDOF 502 202 1" |
+|  0  | `LateralSpreadPile.tcl` |  |
 |  0  | `ModelingDiaphragms2D.tcl` |  |
-|  255  | `Model_IR.tcl` | 		for {set pier 1} {$pier <= [expr $NBay]} {incr pier 1} {        ..." |
+|  0  | `Model_IR.tcl` |  |
 |  0  | `ModelSP1.tcl` |  |
 |  0  | `MomentCurvature2D.tcl` |  |
 |  0  | `MomentCurvature3D.tcl` |  |
 |  0  | `MomentCurvature.tcl` |  |
 |  0  | `MRF_2Story_Concentrated_10Oct2013.tcl` |  |
-|  0  | `MRF_2Story_Concentrated_PanelZone.tcl` |  |
+|  0  | `MRF_2Story_Concentrated_PanelZone.tcl` | |                                                  
 |  0  | `MRF_2Story_Concentrated.tcl` |  |
 |  0  | `MultipleShearSpring_Sample.tcl` |  |
-|  255  | `NR94cnp.tcl` | invalid command name "-.1219107E-02" |
-|  255  | `NRHA_IR.tcl` | can't read "sec": no such variable |
 |  0  | `Pushover_concentrated.tcl` |  |
-|  255  | `Pushover_distributed.tcl` | "element beamWithHinges  111  11 12 $sec_c1 $Lp_c1 $sec_c1 $Lp_c1 $Es $Acol_12  $Icol_12 $PDeltaTransf" |
+|  0  | `Pushover_distributed.tcl` |  |
 |  0  | `Pushover_example.tcl` |  |
 |  0  | `RandomStrainHstory.tcl` |  |
 |  0  | `RCFrameGravity.tcl` |  |
@@ -113,9 +110,8 @@
 |  0  | `RotSpring2DModIKModel.tcl` |  |
 |  0  | `SAWSZeroLength.tcl` |  |
 |  0  | `SingleCycle.tcl` |  |
-|  255  | `SlopeAnalysis2Deff.tcl` | "equalDOF 3911 3854  1 2" |
-|  255  | `StaticBNWFpile.tcl` | }" |
-|  99  | `Tags.tcl` |  |
+|  255  | `SlopeAnalysis2Deff.tcl` | invalid command name "parameter" |
+|  0  | `StaticBNWFpile.tcl` |  |
 |  255  | `TestFPS2d_0.tcl` | invalid command name "frictionModel" |
 |  255  | `TestFPS2d_1.tcl` | invalid command name "frictionModel" |
 |  255  | `TestFPS2d_2.tcl` | invalid command name "frictionModel" |

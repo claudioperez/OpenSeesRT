@@ -80,9 +80,7 @@
 // #include <HystereticBackbone.h>
 #include <BeamIntegration.h>
 
-////////////////////// gnp adding damping
 #include <Element.h>
-////////////////////////////////////////////
 
 extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char ** const argv, Domain *domain,
@@ -120,12 +118,9 @@ TclCommand_addDamageModel(ClientData, Tcl_Interp*, int argc,
 #endif // OPSDEF_DAMAGE
 
 static Tcl_CmdProc TclCommand_addBeamIntegration;
-
 static Tcl_CmdProc TclCommand_addEqualDOF_MP;
 static Tcl_CmdProc TclCommand_addEqualDOF_MP_Mixed;
-
 static Tcl_CmdProc TclCommand_addNodalLoad;
-
 static Tcl_CmdProc TclCommand_addImposedMotionSP;
 
 // Added by Scott J. Brandenberg
@@ -152,8 +147,8 @@ extern int TclCommand_addHFiber(ClientData, Tcl_Interp*,
 
 
 //
-// CLASS CONSTRUCTOR & DESTRUCTOR
 //
+// CLASS CONSTRUCTOR & DESTRUCTOR
 
 // constructor: the constructor will add certain commands to the interpreter
 TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,

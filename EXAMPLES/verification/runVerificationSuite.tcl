@@ -24,5 +24,5 @@ source Plane/PlaneStrain.tcl
 
 # Shells
 source Shell/PinchedCylinder.tcl
-# source Shell/PlanarShearWall.tcl
+source Shell/PlanarShearWall.tcl
 

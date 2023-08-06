@@ -49,7 +49,7 @@ model BasicBuilder -ndm 2 -ndf 3
 
 # loop in horizontal direction
 for {set i 1} {$i <= $numNodeX} {incr i 2} {
-  # loop in vertical direction
+    # loop in vertical direction
     for {set j 1} {$j <= $numNodeY} {incr j 2} {
 
         set xCoord  [expr ($i-1)*$sizeEleX/2] 
@@ -85,11 +85,11 @@ fix $totalNumNode           1 0 1
 
 # fix horizontal displacement for all remaining nodes
 for {set i 1} {$i <= [expr 3*$numNodeY-6]} {incr i 6} {
-
-    fix  $i  1 0 0
-    fix  [expr $i+2]  1 0 0
+    if {$i == 1 || $i == 3} continue
     puts "fix  $i  1 0 0"
+    fix  $i  1 0 0
     puts "fix  [expr $i+2]  1 0 0"
+    fix  [expr $i+2]  1 0 0
 }
 
 puts "Finished creating boundary conditions for corner nodes..."
@@ -147,6 +147,8 @@ for {set i 1} {$i <= $numEleY} {incr i 1} {
 }
 
 # define equalDOF for surface nodes
+puts "equalDOF [expr $totalNumNode-1] [expr $totalNumNode-2]  1 2"
+puts "equalDOF [expr $totalNumNode-1] [expr $totalNumNode]    1 2"
 equalDOF [expr $totalNumNode-1] [expr $totalNumNode-2]  1 2
 equalDOF [expr $totalNumNode-1] [expr $totalNumNode]    1 2
 
@@ -265,13 +267,14 @@ analyze    40 5.0e2
 
 puts "Finished with plastic gravity analysis..."
 
+
 #-------------------------------------------------------------------------------------------
 #  10. CREATE RECORDERS
 #-------------------------------------------------------------------------------------------
 
 # record nodal displacments, porewater pressures, and accelerations 
-recorder Node -file displacement.out -time -node all -dof 1 2  disp
-recorder Node -file porepressure.out -time -node all -dof 3    vel
+# recorder Node -file Output/displacement.out -time -node all -dof 1 2  disp
+# recorder Node -file Output/porepressure.out -time -node all -dof 3    vel
 
 # record stress and strain at third Gauss point in the elements
 recorder Element -file stress.out   -time -eleRange  1   $numEleY  material 9 stress

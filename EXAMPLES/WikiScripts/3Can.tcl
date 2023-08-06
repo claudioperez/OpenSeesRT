@@ -1,16 +1,19 @@
  #########################################################################################################################
- # Test example for Specimen 3Ca tested by Nisreen Balh (2010) 					  				       #
- # Written: Smail Kechidi, PhD student at University of Blida 1									  	 #
- # mailto: s_kechidi@univ-blida.com															 #
- # PLEASE CITE THIS WITH:																 #
+ # Test example for Specimen 3Ca tested by Nisreen Balh (2010)                                                           #
+ # Written: Smail Kechidi, PhD student at University of Blida 1                                                          #
+ # mailto: s_kechidi@univ-blida.com                                                                                      #
+ # PLEASE CITE THIS WITH:                                                                                                #
  # Smail Kechidi and Nouredine Bourahla, Deteriorating hysteresis model for cold-formed steel shear wall panel based on  #
- # its physical and mechanical characteristics. Journal of Thin-Walled Structures. 2016; 421-430. 				 #
- # DOI: 10.1016/j.tws.2015.09.022														       #
+ # its physical and mechanical characteristics. Journal of Thin-Walled Structures. 2016; 421-430.                        #
+ # DOI: 10.1016/j.tws.2015.09.022                                                                                        #
  # Description: uniaxial material with user defined shear wall panael's physical and mechanical characteristics          #
- # Date: March 12th 2016 																 #
- # Model subjected to The CUREE Cyclic Loading Protocol 											 #
- # File Name: 3Can.tcl 																	 #
+ # Date: March 12th 2016                                                                                                 #
+ # Model subjected to The CUREE Cyclic Loading Protocol                                                                  #
+ # File Name: 3Can.tcl                                                                                                   #
  #########################################################################################################################
+
+set outDir ./out
+file mkdir $outDir
 
 set N 1.
 set sec 1.
@@ -33,14 +36,14 @@ set Atruss 10000.0; #rigid
 
  # Add nodes - command: node nodeId xCrd yCrd
  
-    set story_Height 2.44
-    set bay_Width 1.22
-    node 1 0.0 0.0
-    node 2 0.0 $story_Height 
-    node 3 $bay_Width $story_Height
-    node 4 $bay_Width 0.0
-    node 5 [expr $bay_Width/2]  [expr $story_Height/2]
-    node 6 [expr $bay_Width/2]  [expr $story_Height/2]
+ set story_Height 2.44
+ set bay_Width 1.22
+ node 1 0.0 0.0
+ node 2 0.0 $story_Height 
+ node 3 $bay_Width $story_Height
+ node 4 $bay_Width 0.0
+ node 5 [expr $bay_Width/2]  [expr $story_Height/2]
+ node 6 [expr $bay_Width/2]  [expr $story_Height/2]
 
  # Procedure for the loading protocol
 
@@ -108,11 +111,11 @@ set Atruss 10000.0; #rigid
  fix 4 1 1
 
  pattern Plain 1 Linear {
- load 2 1 0 
+  load 2 1 0 
  }
 
- recorder Node -file x3Ca.out -node 3 -dof 1 disp
- recorder Element -file y3Ca.out -ele 9 localForce
+ recorder Node    -file $outDir/x3Ca.out -node 3 -dof 1 disp
+ recorder Element -file $outDir/y3Ca.out -ele 9 localForce
 
  # build the components for the analysis object
  system BandGeneral
@@ -123,7 +126,7 @@ set Atruss 10000.0; #rigid
 
  # analysis type used in the procedure is Static
 
- set peakpts [list   0.0018    0.0018    0.0018    0.0018    0.0018    0.0018    0.0026    0.0020    0.0020    0.0020    0.0020    0.0020    0.0020		0.0035    0.0026    0.0026    0.0026    0.0026    0.0026    0.0026    0.0071    0.0053    0.0053    0.0053    0.0106    0.0081 	0.0081    0.0081    0.0141    0.0106    0.0106    0.0247    0.0187    0.0187    0.0353    0.0265    0.0265]
+ set peakpts [list   0.0018    0.0018    0.0018    0.0018    0.0018    0.0018    0.0026    0.0020    0.0020    0.0020    0.0020    0.0020    0.0020  0.0035    0.0026    0.0026    0.0026    0.0026    0.0026    0.0026    0.0071    0.0053    0.0053    0.0053    0.0106    0.0081 	0.0081    0.0081    0.0141    0.0106    0.0106    0.0247    0.0187    0.0187    0.0353    0.0265    0.0265]
  set increments 10
  set nodeTag 2
  set dofTag 1

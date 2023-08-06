@@ -38,17 +38,23 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 {
   G3_Runtime *rt = G3_getRuntime(interp);
   BasicModelBuilder *theNewBuilder = nullptr;
-  Domain *theNewDomain = new Domain();
+  Domain *theNewDomain = (Domain*)clientData;
 
-  // TODO: remove ops_TheActiveDomain
-  ops_TheActiveDomain = theNewDomain;
+  if (clientData == nullptr) {
+    theNewDomain = new Domain();
 
-  G3_AddTclDomainCommands(interp, theNewDomain);
+    // TODO: remove ops_TheActiveDomain
+    ops_TheActiveDomain = theNewDomain;
 
-  const char* analysis_option;
-  if (!(analysis_option = Tcl_GetVar(interp,"opensees::pragma::analysis",TCL_GLOBAL_ONLY)) ||
-      (strcmp(analysis_option, "off") != 0)) {
-    G3_AddTclAnalysisAPI(interp, theNewDomain);
+    Tcl_CreateCommand(interp, "model", &TclCommand_specifyModel, theNewDomain, nullptr);
+
+    G3_AddTclDomainCommands(interp, theNewDomain);
+
+    const char* analysis_option;
+    if (!(analysis_option = Tcl_GetVar(interp,"opensees::pragma::analysis",TCL_GLOBAL_ONLY)) ||
+         (strcmp(analysis_option, "off") != 0)) {
+      G3_AddTclAnalysisAPI(interp, theNewDomain);
+    }
   }
 
   // make sure at least one other argument to contain model builder type given
@@ -109,20 +115,20 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
         posArg++;
 
       } else if (posArg == 1) {
-          if (Tcl_GetInt(interp, argv[argPos], &ndm) != TCL_OK) {
-            opserr << G3_ERROR_PROMPT << "invalid parameter ndm, expected:";
-            opserr << "\n\tmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
-            return TCL_ERROR;
-          }
+        if (Tcl_GetInt(interp, argv[argPos], &ndm) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid parameter ndm, expected:";
+          opserr << "\n\tmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
+          return TCL_ERROR;
+        }
         argPos++;
         posArg++;
 
       } else if (posArg == 2) {
-          if (Tcl_GetInt(interp, argv[argPos], &ndf) != TCL_OK) {
-            opserr << G3_ERROR_PROMPT << "error reading ndf: " << argv[argPos];
-            opserr << "\nmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
-            return TCL_ERROR;
-          }
+        if (Tcl_GetInt(interp, argv[argPos], &ndf) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "error reading ndf: " << argv[argPos];
+          opserr << "\nmodel modelBuilderType -ndm ndm? <-ndf ndf?>\n";
+          return TCL_ERROR;
+        }
         argPos++;
         posArg++;
 
@@ -161,7 +167,6 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     theNewBuilder = new BasicModelBuilder(*theNewDomain, interp, ndm, ndf);
     theBuilder = theNewBuilder;
     G3_setModelBuilder(rt, theNewBuilder);
-
   }
 
 #if 0
@@ -260,6 +265,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   if (builder) {
     builder->getDomain()->clearAll();
   }
+  Tcl_CreateCommand(interp, "model", &TclCommand_specifyModel, nullptr, nullptr);
 
   // builder->clearAllUniaxialMaterial();
   // builder->clearAllNDMaterial();

@@ -441,25 +441,5 @@ int argc, TCL_Char **argv)
 {
   return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
 }
-
-
-/// added by ZHY
-extern int
-BasicModelBuilderUpdateMaterialStageCommand(ClientData clientData,
-                                          Tcl_Interp *interp,
-                                          int argc,
-                                          TCL_Char **argv,
-                                          BasicModelBuilder *theTclBuilder,
-                                          Domain *theDomain);
-int
-TclCommand_UpdateMaterialStage(ClientData clientData,
-                                    Tcl_Interp *interp,
-                                    int argc,
-                                    TCL_Char **argv)
-{
-  return BasicModelBuilderUpdateMaterialStageCommand(clientData, interp,
-                                                   argc, argv, theTclBuilder,
-theTclDomain);
-}
 #endif
 
