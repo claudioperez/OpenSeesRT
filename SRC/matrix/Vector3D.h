@@ -36,7 +36,7 @@
 #define M_PI 3.1415926535897932384626433832795
 #endif // M_PI
 
-template<class T>
+template<class scalar_t=double>
 class Vector3D
 {
 public:
@@ -55,7 +55,7 @@ public:
     @param y y coefficient
     @param z z coefficient
     */
-    Vector3D(T x, T y, T z)
+    Vector3D(scalar_t x, scalar_t y, scalar_t z)
     {
         mData[0] = x;
         mData[1] = y;
@@ -108,43 +108,43 @@ public:
     Returns the X coefficient of this vector.
     @return the X coefficient of this vector.
     */
-    inline const T x()const { return mData[0]; }
+    inline const scalar_t x()const { return mData[0]; }
 
     /**
     Returns the Y coefficient of this vector.
     @return the Y coefficient of this vector.
     */
-    inline const T y()const { return mData[1]; }
+    inline const scalar_t y()const { return mData[1]; }
 
     /**
     Returns the Z coefficient of this vector.
     @return the Z coefficient of this vector.
     */
-    inline const T z()const { return mData[2]; }
+    inline const scalar_t z()const { return mData[2]; }
 
     /**
     Returns the i-th coefficient of this vector.
     @return the i-th coefficient of this vector.
     */
-    inline T operator()(size_t i) const { return mData[i]; }
+    inline constexpr scalar_t operator()(size_t i) const { return mData[i]; }
 
     /**
     Returns the i-th coefficient of this vector.
     @return the i-th coefficient of this vector.
     */
-    inline T& operator()(size_t i) { return mData[i]; }
+    inline constexpr scalar_t& operator()(size_t i) { return mData[i]; }
 
     /**
     Returns the i-th coefficient of this vector.
     @return the i-th coefficient of this vector.
     */
-    inline T operator[](size_t i) const { return mData[i]; }
+    inline scalar_t operator[](size_t i) const { return mData[i]; }
 
     /**
     Returns the i-th coefficient of this vector.
     @return the i-th coefficient of this vector.
     */
-    inline T& operator[](size_t i) { return mData[i]; }
+    inline scalar_t& operator[](size_t i) { return mData[i]; }
 
 public:
 
@@ -152,7 +152,7 @@ public:
     Returns the squared norm this vector.
     @return the squared norm of this vector.
     */
-    inline T squaredNorm() const
+    inline scalar_t squaredNorm() const
     {
         return 
             mData[0] * mData[0] +
@@ -164,7 +164,7 @@ public:
     Returns the norm this vector.
     @return the norm of this vector.
     */
-    inline T norm() const
+    inline scalar_t norm() const
     {
         return std::sqrt(squaredNorm());
     }
@@ -173,9 +173,8 @@ public:
     makes this vector a unit vector.
     @return the norm of this vector.
     */
-    inline T normalize()
-    {
-        T n = norm();
+    inline scalar_t normalize() {
+        scalar_t n = norm();
         if (n > 0.0) {
             mData[0] /= n;
             mData[1] /= n;
@@ -189,8 +188,7 @@ public:
     @param b the other vector
     @return the dot product.
     */
-    inline T dot(const Vector3D& b) const
-    {
+    inline constexpr scalar_t dot(const Vector3D& b) const {
         return
             mData[0] * b.mData[0] +
             mData[1] * b.mData[1] +
@@ -202,8 +200,7 @@ public:
     @param b the other vector
     @return the cross product.
     */
-    inline Vector3D cross(const Vector3D& b) const
-    {
+    inline constexpr Vector3D cross(const Vector3D& b) const {
         Vector3D c;
         c.mData[0] = mData[1] * b.mData[2] - mData[2] * b.mData[1];
         c.mData[1] = mData[2] * b.mData[0] - mData[0] * b.mData[2];
@@ -213,69 +210,60 @@ public:
 
 public:
 
-    inline void operator += (const Vector3D& b)
-    {
+    inline void operator += (const Vector3D& b) {
         mData[0] += b.mData[0];
         mData[1] += b.mData[1];
         mData[2] += b.mData[2];
     }
 
-    inline Vector3D operator + (const Vector3D& b) const
-    {
+    inline Vector3D operator + (const Vector3D& b) const {
         Vector3D a(*this);
         a += b;
         return a;
     }
 
-    inline void operator -= (const Vector3D& b)
-    {
+    inline void operator -= (const Vector3D& b) {
         mData[0] -= b.mData[0];
         mData[1] -= b.mData[1];
         mData[2] -= b.mData[2];
     }
 
-    inline Vector3D operator - (const Vector3D& b) const
-    {
+    inline Vector3D operator - (const Vector3D& b) const {
         Vector3D a(*this);
         a -= b;
         return a;
     }
 
-    inline void operator *= (T b)
-    {
+    inline void operator *= (scalar_t b) {
         mData[0] *= b;
         mData[1] *= b;
         mData[2] *= b;
     }
 
-    inline Vector3D operator * (T b) const
-    {
+    inline Vector3D operator * (scalar_t b) const {
         Vector3D a(*this);
         a *= b;
         return a;
     }
 
-    inline void operator /= (T b)
-    {
+    inline void operator /= (scalar_t b) {
         mData[0] /= b;
         mData[1] /= b;
         mData[2] /= b;
     }
 
-    inline Vector3D operator / (T b) const
-    {
+    inline Vector3D operator / (scalar_t b) const {
         Vector3D a(*this);
         a /= b;
         return a;
     }
 
 private:
-    T mData[3];
+    scalar_t mData[3];
 };
 
-template<class T>
-inline Vector3D<T> operator * (T a, const Vector3D<T>& b)
-{
+template<class scalar_t>
+inline Vector3D<scalar_t> operator * (scalar_t a, const Vector3D<scalar_t>& b) {
     return b * a;
 }
 
@@ -286,8 +274,7 @@ Prints this vector to a input stream
 @return the stream
 */
 template<class TStream, class T>
-inline TStream& operator << (TStream& s, const Vector3D<T>& v)
-{
+inline TStream& operator << (TStream& s, const Vector3D<T>& v) {
     return (s << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")");
 }
 
