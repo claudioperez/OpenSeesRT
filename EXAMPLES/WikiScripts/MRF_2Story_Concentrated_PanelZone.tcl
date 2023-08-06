@@ -23,7 +23,7 @@
 #		a = an integer describing the location relative to beam-column joint (see description where elements and nodes are defined)
 
 ###################################################################################################
-#          Set Up & Source Definition									  
+#          Set Up & Source Definition
 ###################################################################################################
 	wipe all;							# clear memory of past model definitions
 	model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm = #dimension, ndf = #dofs
@@ -33,24 +33,23 @@
 	source RotLeaningCol.tcl;			# procedure for defining a rotational spring (zero-length element) with very small stiffness
 	source RotPanelZone2D.tcl;			# procedure for defining a rotational spring (zero-length element) to capture panel zone shear distortions
 	source ElemPanelZone2D.tcl;			# procedure for defining 8 elements to create a rectangular panel zone
-	
+
 ###################################################################################################
-#          Define Analysis Type										  
+#          Define Analysis Type
 ###################################################################################################
 # Define type of analysis:  "pushover" = pushover;  "dynamic" = dynamic
 	set analysisType "dynamic";
-	
+
 	if {$analysisType == "pushover"} {
 		set dataDir Concentrated-PanelZone-Pushover-Output;	# name of output folder
-		file mkdir $dataDir; 								# create output folder
 	}
 	if {$analysisType == "dynamic"} {
 		set dataDir Concentrated-PanelZone-Dynamic-Output;	# name of output folder
-		file mkdir $dataDir; 								# create output folder
 	}
-	
+	file mkdir $dataDir; 					        # create output folder
+
 ###################################################################################################
-#          Define Building Geometry, Nodes, Masses, and Constraints											  
+#          Define Building Geometry, Nodes, Masses, and Constraints
 ###################################################################################################
 # define structure-geometry parameters
 	set NStories 2;						# number of stories
@@ -63,11 +62,11 @@
 # calculate locations of beam-column joint centerlines:
 	set Pier1  0.0;		# leftmost column line
 	set Pier2  [expr $Pier1 + $WBay];
-	set Pier3  [expr $Pier2 + $WBay];	# P-delta column line	
+	set Pier3  [expr $Pier2 + $WBay];	# P-delta column line
 	set Floor1 0.0;		# ground floor
 	set Floor2 [expr $Floor1 + $HStory1];
 	set Floor3 [expr $Floor2 + $HStoryTyp];
-	
+
 # calculate panel zone dimensions
 	set pzlat23  [expr 24.5/2.0];	# lateral dist from CL of beam-col joint to edge of panel zone (= half the column depth)
 	set pzvert23 [expr 27.1/2.0];	# vert dist from CL of beam-col joint to edge of panel zone (= half the beam depth)
@@ -87,7 +86,7 @@
 
 # define nodes and assign masses to beam-column intersections of frame
 	# command:  node nodeID xcoord ycoord -mass mass_dof1 mass_dof2 mass_dof3
-	# nodeID convention:  "xy" where x = Pier # and y = Floor # 
+	# nodeID convention:  "xy" where x = Pier # and y = Floor #
 	node 11 $Pier1 $Floor1;
 	node 21 $Pier2 $Floor1;
 	node 31 $Pier3 $Floor1;
@@ -130,10 +129,10 @@
 	node 132 [expr $Pier1 + $phlat23] $Floor3;
 	node 233 [expr $Pier2 - $phlat23] $Floor3;
 	node 234 [expr $Pier2 - $phlat23] $Floor3;
-	
+
 # define extra nodes for panel zones
 	# nodeID convention:  "xybc" where x = Pier #, y = Floor #, bc = location relative to beam-column joint
-	# "bc" conventions: 01,02 = top left of joint; 
+	# "bc" conventions: 01,02 = top left of joint;
 	# 					03,04 = top right of joint;
 	# 					05    = middle right of joint; (vertical middle, horizontal right)
 	# 					06,07 = btm right of joint;
@@ -152,7 +151,7 @@
 	node 1208 [expr $Pier1 - $pzlat23] [expr $Floor2 - $phvert23];
 	node 1209 [expr $Pier1 - $pzlat23] [expr $Floor2 - $phvert23];
 	node 1210 [expr $Pier1 - $pzlat23] [expr $Floor2];
-	
+
 	# panel zone at Pier 2, Floor 2
 	node 2201 [expr $Pier2 - $pzlat23] [expr $Floor2 + $phvert23];
 	node 2202 [expr $Pier2 - $pzlat23] [expr $Floor2 + $phvert23];
@@ -164,7 +163,7 @@
 	node 2208 [expr $Pier2 - $pzlat23] [expr $Floor2 - $phvert23];
 	node 2209 [expr $Pier2 - $pzlat23] [expr $Floor2 - $phvert23];
 	node 2210 [expr $Pier2 - $pzlat23] [expr $Floor2];
-	
+
 	# panel zone at Pier 1, Floor 3
 	node 1301 [expr $Pier1 - $pzlat23] [expr $Floor3 + $phvert23];
 	node 1302 [expr $Pier1 - $pzlat23] [expr $Floor3 + $phvert23];
@@ -177,7 +176,7 @@
 	node 1309 [expr $Pier1 - $pzlat23] [expr $Floor3 - $phvert23];
 	node 1310 [expr $Pier1 - $pzlat23] [expr $Floor3];
 	node 137  [expr $Pier1]  [expr $Floor3 + $phvert23]; # not previously defined since no column above
-	
+
 	# panel zone at Pier 2, Floor 3
 	node 2301 [expr $Pier2 - $pzlat23] [expr $Floor3 + $phvert23];
 	node 2302 [expr $Pier2 - $pzlat23] [expr $Floor3 + $phvert23];
@@ -190,7 +189,7 @@
 	node 2309 [expr $Pier2 - $pzlat23] [expr $Floor3 - $phvert23];
 	node 2310 [expr $Pier2 - $pzlat23] [expr $Floor3];
 	node 237  [expr $Pier2]  [expr $Floor3 + $phvert23]; # not previously defined since no column above
-	
+
 # define nodal masses:  lump at beam-column joints in frame
 	# command: mass $nodeID $dof1mass $dof2mass $dof3mass
 	mass 1205 $NodalMass2 $Negligible $Negligible;	# Pier 1, Floor 2
@@ -206,7 +205,7 @@
 	equalDOF 1305 2305 $dof1;	# Floor 3:  Pier 1 to Pier 2
 	equalDOF 1305 33 $dof1;		# Floor 3:  Pier 1 to Pier 3
 
-# assign boundary condidtions 
+# assign boundary condidtions
 	# command:  fix nodeID dxFixity dyFixity rzFixity
 	# fixity values: 1 = constrained; 0 = unconstrained
 	# fix the base of the building; pin P-delta column at base
@@ -215,7 +214,7 @@
 	fix 31 1 1 0;	# P-delta column is pinned
 
 ###################################################################################################
-#          Define Section Properties and Elements													  
+#          Define Section Properties and Elements
 ###################################################################################################
 # define material properties
 	set Es 29000.0;			# steel Young's modulus
@@ -235,7 +234,7 @@
 	set Ibeam_23  3620.0;	# moment of inertia  (full section properties)
 	set Mybeam_23 10938.0;	# yield moment at plastic hinge location (i.e., My of RBS section)
 	set dbeam_23 27.1;		# depth
-	
+
 # determine stiffness modifications to equate the stiffness of the spring-elastic element-spring subassembly to the stiffness of the actual frame member
 	# References: (1) Ibarra, L. F., and Krawinkler, H. (2005). "Global collapse of frame structures under seismic excitations," Technical Report 152,
 	#             		The John A. Blume Earthquake Engineering Research Center, Department of Civil Engineering, Stanford University, Stanford, CA.
@@ -247,12 +246,12 @@
 	# calculate modified moment of inertia for elastic elements between plastic hinge springs
 	set Icol_12mod  [expr $Icol_12*($n+1.0)/$n];	# modified moment of inertia for columns in Story 1 & 2
 	set Ibeam_23mod [expr $Ibeam_23*($n+1.0)/$n];	# modified moment of inertia for beams in Floor 2 & 3
-	
+
 	# calculate modified rotational stiffness for plastic hinge springs: use length between springs
 	set Ks_col_1   [expr $n*6.0*$Es*$Icol_12mod/($HStory1-$phvert23)];		# rotational stiffness of Story 1 column springs
 	set Ks_col_2   [expr $n*6.0*$Es*$Icol_12mod/($HStoryTyp-2*$phvert23)];	# rotational stiffness of Story 2 column springs
 	set Ks_beam_23 [expr $n*6.0*$Es*$Ibeam_23mod/($WBay-2*$phlat23)];		# rotational stiffness of Floor 2 & 3 beam springs
-	
+
 # set up geometric transformation of elements
 	set PDeltaTransf 1;
 	geomTransf PDelta $PDeltaTransf; 	# PDelta transformation
@@ -266,7 +265,7 @@
 	# Columns Story 2
 	element elasticBeamColumn  112  128 135 $Acol_12 $Es $Icol_12mod $PDeltaTransf;	# Pier 1
 	element elasticBeamColumn  122  228 235 $Acol_12 $Es $Icol_12mod $PDeltaTransf;	# Pier 2
-	
+
 # define elastic beam elements
 	# element between plastic hinges: eleID convention = "2xy" where 2 = beam, x = Bay #, y = Floor #
 	# element between plastic hinge and panel zone: eleID convention = "2xya" where 2 = beam, x = Bay #, y = Floor #, a = loc in bay
@@ -279,7 +278,7 @@
 	element elasticBeamColumn  2131 1305 131  $Abeam_23 $Es $Ibeam_23    $PDeltaTransf;
 	element elasticBeamColumn  213  132  233  $Abeam_23 $Es $Ibeam_23mod $PDeltaTransf;
 	element elasticBeamColumn  2132 234  2310 $Abeam_23 $Es $Ibeam_23    $PDeltaTransf;
-	
+
 # define p-delta columns and rigid links
 	set TrussMatID 600;		# define a material ID
 	set Arigid 1000.0;		# define area of truss section (make much larger than A of frame elements)
@@ -290,12 +289,12 @@
 	# eleID convention:  6xy, 6 = truss link, x = Bay #, y = Floor #
 	element truss  622 2205 32 $Arigid $TrussMatID;	# Floor 2
 	element truss  623 2305 33 $Arigid $TrussMatID;	# Floor 3
-	
+
 	# p-delta columns
 	# eleID convention:  7xy, 7 = p-delta columns, x = Pier #, y = Story #
 	element elasticBeamColumn  731  31  326 $Arigid $Es $Irigid $PDeltaTransf;	# Story 1
 	element elasticBeamColumn  732  327 336 $Arigid $Es $Irigid $PDeltaTransf;	# Story 2
-	
+
 # define elastic panel zone elements (assume rigid)
 	# elemPanelZone2D creates 8 elastic elements that form a rectangular panel zone
 	# references provided in elemPanelZone2D.tcl
@@ -309,12 +308,12 @@
 	elemPanelZone2D   500221 2201 $Es $Apz $Ipz $PDeltaTransf;	# Pier 2, Floor 2
 	elemPanelZone2D   500131 1301 $Es $Apz $Ipz $PDeltaTransf;	# Pier 1, Floor 3
 	elemPanelZone2D   500231 2301 $Es $Apz $Ipz $PDeltaTransf;	# Pier 2, Floor 3
-	
+
 # display the model with the node numbers
 	DisplayModel2D NodeNumbers;
-	
+
 ###################################################################################################
-#          Define Rotational Springs for Plastic Hinges, Panel Zones, and Leaning Columns												  
+#          Define Rotational Springs for Plastic Hinges, Panel Zones, and Leaning Columns
 ###################################################################################################
 # define rotational spring properties and create spring elements using "RotSpring2DModIKModel" procedure
 	# RotSpring2DModIKModel creates a uniaxial material spring with a bilinear response based on Modified Ibarra Krawinkler Deterioration Model
@@ -362,11 +361,11 @@
 	#col springs @ top of Story 2 (below Floor 3)
 	RotSpring2DModIKModel 3122 136 135 $Ks_col_2 $b $b $Mycol_12 [expr -$Mycol_12] $LS $LK $LA $LD $cS $cK $cA $cD $th_pP $th_pN $th_pcP $th_pcN $ResP $ResN $th_uP $th_uN $DP $DN;
 	RotSpring2DModIKModel 3222 236 235 $Ks_col_2 $b $b $Mycol_12 [expr -$Mycol_12] $LS $LK $LA $LD $cS $cK $cA $cD $th_pP $th_pN $th_pcP $th_pcN $ResP $ResN $th_uP $th_uN $DP $DN;
-	
+
 	# create region for frame column springs
 	# command: region $regionID -ele $ele_1_ID $ele_2_ID...
 	region 1 -ele 3111 3211 3112 3212 3121 3221 3122 3222;
-	
+
 # define beam springs
 	# Spring ID: "4xya", where 4 = beam spring, x = Bay #, y = Floor #, a = location in bay
 	# "a" convention: 1 = left end, 2 = right end
@@ -383,10 +382,10 @@
 	#beam springs at Floor 3
 	RotSpring2DModIKModel 4131 131 132 $Ks_beam_23 $b $b $Mybeam_23 [expr -$Mybeam_23] $LS $LK $LA $LD $cS $cK $cA $cD $th_pP $th_pN $th_pcP $th_pcN $ResP $ResN $th_uP $th_uN $DP $DN;
 	RotSpring2DModIKModel 4132 233 234 $Ks_beam_23 $b $b $Mybeam_23 [expr -$Mybeam_23] $LS $LK $LA $LD $cS $cK $cA $cD $th_pP $th_pN $th_pcP $th_pcN $ResP $ResN $th_uP $th_uN $DP $DN;
-	
+
 	# create region for beam springs
 	region 2 -ele 4121 4122 4131 4132;
-	
+
 #define panel zone springs
 	# rotPanelZone2D creates a uniaxial material spring with a trilinear response based on the Krawinkler Model
 	#				It also constrains the nodes in the corners of the panel zone.
@@ -403,20 +402,20 @@
 	#3rd Floor PZ springs
 	rotPanelZone2D 41300 1303 1304 $Es $Fy $dcol_12 $bfcol_12 $tfcol_12 $twcol_12 $dbeam_23 $Ry $as_PZ;
 	rotPanelZone2D 42300 2303 2304 $Es $Fy $dcol_12 $bfcol_12 $tfcol_12 $twcol_12 $dbeam_23 $Ry $as_PZ;
-	
-# define p-delta column spring: zero-stiffness elastic spring	
+
+# define p-delta column spring: zero-stiffness elastic spring
 	#Spring ID: "5xya" where 5 = leaning column spring, x = Pier #, y = Story #, a = location in story
 	# "a" convention: 1 = bottom of story, 2 = top of story
-	# rotLeaningCol ElemID ndR ndC 
+	# rotLeaningCol ElemID ndR ndC
 	rotLeaningCol 5312 32 326;	# top of Story 1
 	rotLeaningCol 5321 32 327;	# bottom of Story 2
 	rotLeaningCol 5322 33 336;	# top of Story 2
-	
+
 	# create region for P-Delta column springs
 	region 3 -ele 5312 5321 5322;
-	
+
 ############################################################################
-#                       Eigenvalue Analysis                    			   
+#                       Eigenvalue Analysis                    
 ############################################################################
 	set pi [expr 2.0*asin(1.0)];						# Definition of pi
 	set nEigenI 1;										# mode i = 1
@@ -430,29 +429,29 @@
 	set T2 [expr 2.0*$pi/$w2];							# 2nd mode period of the structure
 	puts "T1 = $T1 s";									# display the first mode period in the command window
 	puts "T2 = $T2 s";									# display the second mode period in the command window
-	
+
 ############################################################################
 #              Gravity Loads & Gravity Analysis
 ############################################################################
 # apply gravity loads
 	#command: pattern PatternType $PatternID TimeSeriesType
 	pattern Plain 101 Constant {
-		
+
 		# point loads on leaning column nodes
 		# command: load node Fx Fy Mz
 		set P_PD2 [expr -398.02];	# Floor 2
 		set P_PD3 [expr -391.31];	# Floor 3
 		load 32 0.0 $P_PD2 0.0;		# Floor 2
 		load 33 0.0 $P_PD3 0.0;		# Floor 3
-		
+
 		# point loads on frame column nodes
 		set P_F2 [expr 0.5*(-1.0*$Floor2Weight-$P_PD2)];	# load on each frame node in Floor 2
 		set P_F3 [expr 0.5*(-1.0*$Floor3Weight-$P_PD3)];	# load on each frame node in Floor 3
-		
+
 		# Floor 2 loads
 		load 127 0.0 $P_F2 0.0;
-		load 227 0.0 $P_F2 0.0;		
-		# Floor 3 loads		
+		load 227 0.0 $P_F2 0.0;
+		# Floor 3 loads
 		load 137 0.0 $P_F3 0.0;
 		load 237 0.0 $P_F3 0.0;
 	}
@@ -473,36 +472,36 @@
 	# maintain constant gravity loads and reset time to zero
 	loadConst -time 0.0
 	puts "Model Built"
-	
+
 ############################################################################
-#              Recorders					                			   
+#              Recorders					                
 ############################################################################
 # record drift histories
 	# record drifts
 	recorder Drift -file $dataDir/Drift-Story1.out -time -iNode 11 -jNode 1205 -dof 1 -perpDirn 2;
 	recorder Drift -file $dataDir/Drift-Story2.out -time -iNode 1205 -jNode 1305 -dof 1 -perpDirn 2;
 	recorder Drift -file $dataDir/Drift-Roof.out -time -iNode 11 -jNode 1305 -dof 1 -perpDirn 2;
-	
-# record floor displacements	
+
+# record floor displacements
 	recorder Node -file $dataDir/Disp.out -time -node 1205 1305 -dof 1 disp;
-	
+
 # record base shear reactions
 	recorder Node -file $dataDir/Vbase.out -time -node 117 217 31 -dof 1 reaction;
-	
-# record story 1 column forces in global coordinates 
+
+# record story 1 column forces in global coordinates
 	recorder Element -file $dataDir/Fcol111.out -time -ele 111 force;
 	recorder Element -file $dataDir/Fcol121.out -time -ele 121 force;
 	recorder Element -file $dataDir/Fcol731.out -time -ele 731 force;
-	
+
 # record response history of all frame column springs (one file for moment, one for rotation)
 	recorder Element -file $dataDir/MRFcol-Mom-Hist.out -time -region 1 force;
 	recorder Element -file $dataDir/MRFcol-Rot-Hist.out -time -region 1 deformation;
-	
+
 # record response history of all frame beam springs (one file for moment, one for rotation)
 	recorder Element -file $dataDir/MRFbeam-Mom-Hist.out -time -region 2 force;
 	recorder Element -file $dataDir/MRFbeam-Rot-Hist.out -time -region 2 deformation;
-	
-	
+
+
 #######################################################################################
 #                                                                                     #
 #                              Analysis Section			                              #
@@ -512,18 +511,18 @@
 ############################################################################
 #              Pushover Analysis                			   			   #
 ############################################################################
-if {$analysisType == "pushover"} { 
+if {$analysisType == "pushover"} {
 	puts "Running Pushover..."
 # assign lateral loads and create load pattern:  use ASCE 7-10 distribution
 	set lat2 16.255;	# force on each beam-column joint in Floor 2
 	set lat3 31.636;	# force on each beam-column joint in Floor 3
-	pattern Plain 200 Linear {			
+	pattern Plain 200 Linear {
 					load 1205 $lat2 0.0 0.0;
 					load 2205 $lat2 0.0 0.0;
 					load 1305 $lat3 0.0 0.0;
 					load 2305 $lat3 0.0 0.0;
 	}
-	
+
 # display deformed shape:
 	set ViewScale 5;
 	DisplayModel2D DeformedShape $ViewScale ;	# display deformed shape, the scaling factor needs to be adjusted for each model
@@ -545,25 +544,25 @@ if {$analysisType == "pushover"} {
 	set Nsteps [expr int($Dmax/$Dincr)];# number of pushover analysis steps
 	set ok [analyze $Nsteps];			# this will return zero if no convergence problems were encountered
 	puts "Pushover complete";			# display this message in the command window
-} 	
-	
+}
+
 ############################################################################
 #   Time History/Dynamic Analysis               			   			   #
-############################################################################	
-if {$analysisType == "dynamic"} { 
+############################################################################
+if {$analysisType == "dynamic"} {
 	puts "Running dynamic analysis..."
 		# display deformed shape:
 		set ViewScale 5;	# amplify display of deformed shape
 		DisplayModel2D DeformedShape $ViewScale;	# display deformed shape, the scaling factor needs to be adjusted for each model
-	
+
 	# Rayleigh Damping
 		# calculate damping parameters
 		set zeta 0.02;		# percentage of critical damping
 		set a0 [expr $zeta*2.0*$w1*$w2/($w1 + $w2)];	# mass damping coefficient based on first and second modes
 		set a1 [expr $zeta*2.0/($w1 + $w2)];			# stiffness damping coefficient based on first and second modes
 		set a1_mod [expr $a1*(1.0+$n)/$n];				# modified stiffness damping coefficient used for n modified elements. See Zareian & Medina 2010.
-		
-		# assign damping to frame beams and columns		
+
+		# assign damping to frame beams and columns
 		# command: region $regionID -eleRange $elementIDfirst $elementIDlast -rayleigh $alpha_mass $alpha_currentStiff $alpha_initialStiff $alpha_committedStiff
 		## old commands:	region 4 -eleRange 111 213 rayleigh 0.0 0.0 $a1_mod 0.0;	# assign stiffness proportional damping to frame beams & columns w/ n modifications
 		##					region 5 -eleRange 2121 2132 rayleigh 0.0 0.0 $a1 0.0;		# assign stiffness proportional damping to frame beams & columns w/out n modifications
@@ -575,8 +574,8 @@ if {$analysisType == "dynamic"} {
 		region 5 -eleRange 2121 2132 -rayleigh 0.0 0.0 $a1 0.0;			# assign stiffness proportional damping to frame beams & columns w/out n modifications
 		region 6 -eleRange 500000 599999 -rayleigh 0.0 0.0 $a1 0.0;		# assign stiffness proportional damping to panel zone elements
 		region 7 -node 1205 1305 2205 2305 -rayleigh $a0 0.0 0.0 0.0;	# assign mass proportional damping to structure (only assigns to nodes with mass)
-			
-		
+
+
 	# define ground motion parameters
 		set patternID 1;				# load pattern ID
 		set GMdirection 1;				# ground motion direction (1 = x)
@@ -585,15 +584,15 @@ if {$analysisType == "dynamic"} {
 		set Scalefact 1.0;				# ground motion scaling factor
 		set TotalNumberOfSteps 2495;	# number of steps in ground motion
 		set GMtime [expr $dt*$TotalNumberOfSteps + 10.0];	# total time of ground motion + 10 sec of free vibration
-		
+
 	# define the acceleration series for the ground motion
 		# syntax:  "Series -dt $timestep_of_record -filePath $filename_with_acc_history -factor $scale_record_by_this_amount
 		set accelSeries "Series -dt $dt -filePath $GMfile -factor [expr $Scalefact*$g]";
-		
+
 	# create load pattern: apply acceleration to all fixed nodes with UniformExcitation
-		# command: pattern UniformExcitation $patternID $GMdir -accel $timeSeriesID 
+		# command: pattern UniformExcitation $patternID $GMdir -accel $timeSeriesID
 		pattern UniformExcitation $patternID $GMdirection -accel $accelSeries;
-		
+
 	# define dynamic analysis parameters
 		set dt_analysis 0.001;			# timestep of analysis
 		wipeAnalysis;					# destroy all components of the Analysis object, i.e. any objects created with system, numberer, constraints, integrator, algorithm, and analysis commands
@@ -605,19 +604,25 @@ if {$analysisType == "dynamic"} {
 		integrator Newmark 0.5 0.25;	# uses Newmark's average acceleration method to compute the time history
 		analysis Transient;				# type of analysis: transient or static
 		set NumSteps [expr round(($GMtime + 0.0)/$dt_analysis)];	# number of steps in analysis
-		
-	# perform the dynamic analysis and display whether analysis was successful	
-		set ok [analyze $NumSteps $dt_analysis];	# ok = 0 if analysis was completed
+
+	# perform the dynamic analysis and display whether analysis was successful
+                puts "Starting analysis over $NumSteps steps"
+                progress create [expr $NumSteps/10]
+                foreach i [range 0 $NumSteps 10] {
+		    set ok [analyze 10 $dt_analysis];
+                    progress update
+                }
+		# set ok [analyze $NumSteps $dt_analysis];	# ok = 0 if analysis was completed
 		if {$ok == 0} {
 			puts "Dynamic analysis complete";
 		} else {
 			puts "Dynamic analysis did not converge";
-		}		
-		
-	# output time at end of analysis	
+		}
+
+	# output time at end of analysis
 		set currentTime [getTime];	# get current analysis time	(after dynamic analysis)
 		puts "The current time is: $currentTime";
 		wipe all;
 }
-	
+
 wipe all;

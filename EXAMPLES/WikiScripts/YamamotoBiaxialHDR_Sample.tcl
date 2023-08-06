@@ -4,7 +4,7 @@
 
 #begin
 wipe
-set outDir ./out/
+set outDir ./Output/
 file mkdir $outDir
 
 #---------------------------------------- model

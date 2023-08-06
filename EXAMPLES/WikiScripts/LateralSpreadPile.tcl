@@ -16,6 +16,8 @@
 ################################################################
 
 wipe
+set dataDir ./Output
+file mkdir $dataDir
 
 #-----------------------------------------------------------------------------------------
 #  1. CREATE P-Y SPRING NODES AND BOUNDARY CONDITIONS
@@ -612,7 +614,7 @@ node 579  0.000 0.000 1.00000
 node 580  0.000 0.000 0.50000
 node 581  0.000 0.000 0.00000
 
-set nodesInfo6 [open NodesInfo6.dat w]
+set nodesInfo6 [open $dataDir/NodesInfo6.dat w]
 puts $nodesInfo6 "501 0 0 40.00000"
 puts $nodesInfo6 "502 0 0 39.50000"
 puts $nodesInfo6 "503 0 0 39.00000"
@@ -978,7 +980,7 @@ element dispBeamColumn 578 578 579 $nIntPts $secTag3D $transTag
 element dispBeamColumn 579 579 580 $nIntPts $secTag3D $transTag
 element dispBeamColumn 580 580 581 $nIntPts $secTag3D $transTag
 
-set pileInfo [open PileInfo.dat w]
+set pileInfo [open $dataDir/PileInfo.dat w]
 puts $pileInfo "501 501 502"
 puts $pileInfo "502 502 503"
 puts $pileInfo "503 503 504"
@@ -1068,7 +1070,7 @@ puts "Finished creating all beam elements..."
 
 # create list with pile node info
 set nodeList6 {}
-set channel [open "NodesInfo6.dat" r]
+set channel [open $dataDir/"NodesInfo6.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
 set ctr0 [expr $ctr+1];
@@ -1080,7 +1082,7 @@ close $channel
 
 # create pile element list
 set BeamElementList {}
-set channel [open "PileInfo.dat" r]
+set channel [open $dataDir/"PileInfo.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
 set ctr0 [expr $ctr+1];

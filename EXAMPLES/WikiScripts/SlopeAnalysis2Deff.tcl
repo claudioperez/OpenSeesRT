@@ -5,7 +5,7 @@
 ####################################################################
 
 wipe
-set outDir ./out/
+set outDir ./Output/
 file mkdir $outDir
 #-----------------------------------------------------------------------------------------
 #  1. CREATE PORE PRESSURE NODES AND FIXITIES
@@ -6740,7 +6740,7 @@ puts "Finished creating gravity recorders..."
 #  8. CREATE FILES FOR POSTPROCESSING IN GiD
 #-----------------------------------------------------------------------------------------
 
-set meshFile [open renameMe.flavia.msh w]
+set meshFile [open $dataDir/renameMe.flavia.msh w]
 puts $meshFile "MESH 94quad dimension 2 ElemType Quadrilateral Nnode 4"
 puts $meshFile "Coordinates"
 puts $meshFile "#node_number   coord_x   coord_y"
@@ -8734,7 +8734,7 @@ puts $meshFile "     959       153        94        97       157"
 puts $meshFile "end elements"
 close $meshFile
 
-set eleFile [open elementInfo.dat w]
+set eleFile [open $dataDir/elementInfo.dat w]
 puts $eleFile "       1      3853      3967      3965      3851"
 puts $eleFile "       2      3851      3965      3963      3849"
 puts $eleFile "       3      3959      3845      3847      3961"
