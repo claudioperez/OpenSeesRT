@@ -61,7 +61,6 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     } else {
       if (theFixity != 0) {
-
         // create a homogeneous constraint
         SP_Constraint *theSP = new SP_Constraint(nodeId, i, 0.0, true);
 
@@ -71,6 +70,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
                     "command - node may already be constrained\n";
           sprintf(buffer, "%d ", 0);
           delete theSP;
+          return TCL_ERROR;
         } else {
           sprintf(buffer, "%d ", theSP->getTag());
           Tcl_AppendResult(interp, buffer, NULL);
@@ -78,7 +78,6 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
   }
-
   return TCL_OK;
 }
 
@@ -92,15 +91,17 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << G3_ERROR_PROMPT << "bad command - want: fixX xLoc " << ndf << " [0,1] conditions";
+    opserr << G3_ERROR_PROMPT << "bad command - want: fixX xLoc " << ndf 
+           << " [0,1] conditions" << "\n";
     return TCL_ERROR;
   }
 
   // get the xCrd of nodes to be constrained
   double xLoc;
   if (Tcl_GetDouble(interp, argv[1], &xLoc) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid xCrd - fixX xLoc " << ndf << " [0,1] conditions\n";
-      return TCL_ERROR;
+    opserr << G3_ERROR_PROMPT << "invalid xCrd - fixX xLoc " << ndf 
+           << " [0,1] conditions" << "\n";
+    return TCL_ERROR;
   }
 
   // read in the fixities
@@ -153,7 +154,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
   // get the yCrd of nodes to be constrained
   double yLoc;
   if (Tcl_GetDouble(interp, argv[1], &yLoc) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid yCrd - fixY yLoc " << ndf << " [0,1] conditions\n"; return TCL_ERROR;
+    opserr << G3_ERROR_PROMPT << "invalid yCrd - fixY yLoc " << ndf << " [0,1] conditions\n"; return TCL_ERROR;
   }
 
   // read in the fixities
@@ -171,12 +172,11 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
   double tol = 1.0e-10;
   if (argc >= (4 + ndf)) {
     if (strcmp(argv[2+ndf],"-tol") == 0)
-    if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid tol specified - fixY " << yLoc << endln;
-      return TCL_ERROR;
-    }
+      if (Tcl_GetDouble(interp, argv[3+ndf], &tol) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid tol specified - fixY " << yLoc << endln;
+        return TCL_ERROR;
+      }
   }
-
 
   builder->addSP_Constraint(1, yLoc, fixity, tol);
 
@@ -185,7 +185,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char ** const argv)
+                              int argc, TCL_Char ** const argv)
 {
 
   assert(clientData != nullptr);
@@ -204,7 +204,7 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
   // get the yCrd of nodes to be constrained
   double zLoc;
   if (Tcl_GetDouble(interp, argv[1], &zLoc) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid zCrd - fixZ zLoc " << ndf << " [0,1] conditions\n"; return TCL_ERROR;
+    opserr << G3_ERROR_PROMPT << "invalid zCrd - fixZ zLoc " << ndf << " [0,1] conditions\n"; return TCL_ERROR;
   }
 
   // read in the fixities
@@ -317,7 +317,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
   if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "invalid value: " << argv[3] << " -  sp ";
     opserr << nodeId << " dofID value\n";
-      return TCL_ERROR;
+    return TCL_ERROR;
   }
 
   bool isSpConst = false;
@@ -532,10 +532,8 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
 
 
 int
-TclCommand_addImposedMotionSP(ClientData clientData,
-                                   Tcl_Interp *interp,
-                                   int argc,
-                                   TCL_Char ** const argv)
+TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
+                              int argc, TCL_Char ** const argv)
 {
   // TODO: Cleanup
   G3_Runtime* rt = G3_getRuntime(interp);
@@ -556,15 +554,15 @@ TclCommand_addImposedMotionSP(ClientData clientData,
   int nodeId, dofId, gMotionID;
 
   if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid nodeId: " << argv[1];
-    opserr << " - imposedMotion nodeId dofID gMotionID\n";
+    opserr << G3_ERROR_PROMPT << "invalid nodeId: " << argv[1]
+           << " - imposedMotion nodeId dofID gMotionID" << "\n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetInt(interp, argv[2], &dofId) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid dofId: " << argv[2] << " -  imposedMotion ";
-    opserr << nodeId << " dofID gMotionID\n";
-      return TCL_ERROR;
+    opserr << G3_ERROR_PROMPT << "invalid dofId: " << argv[2] 
+           << " -  imposedMotion " << nodeId << " dofID gMotionID\n";
+    return TCL_ERROR;
   }
   dofId--; // DECREMENT THE DOF VALUE BY 1 TO GO TO OUR C++ INDEXING
 
