@@ -387,7 +387,7 @@ Domain::addElement(Element *element)
   // check if an Element with a similar tag already exists in the Domain
   TaggedObject *other = theElements->getComponentPtr(eleTag);
   if (other != nullptr) {
-    opserr << "Domain::addElement - element with tag " << eleTag << "already exists in model\n"; 
+    opserr << "Domain::addElement - element with tag " << eleTag << " already exists in model\n"; 
     return false;
   }
 
@@ -427,7 +427,7 @@ Domain::addNode(Node * node)
 
   TaggedObject *other = theNodes->getComponentPtr(nodTag);
   if (other != nullptr) {
-    opserr << "Domain::addNode - node with tag " << nodTag << "already exists in model\n"; 
+    opserr << "Domain::addNode - node with tag " << nodTag << " already exists in model\n"; 
     return false;
   }
   
@@ -497,8 +497,8 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
 
     Node *nodePtr = this->getNode(nodeTag);
     if (nodePtr == 0) {
-      opserr << "Domain::addSP_Constraint - cannot add as node node with tag " <<
-	nodeTag << "does not exist in model\n";       	
+      opserr << "Domain::addSP_Constraint - cannot add constraint, node with tag " <<
+	nodeTag << " does not exist in model\n";       	
       return false;
     }
 
@@ -506,7 +506,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
     int numDOF = nodePtr->getNumberDOF();
     if (numDOF < dof) {
 	opserr << "Domain::addSP_Constraint - cannot add as node with tag " << 
-	  nodeTag << "does not have associated constrained DOF\n"; 
+	  nodeTag << " does not have associated constrained DOF\n"; 
 	return false;
     }      
     // #endif
@@ -534,7 +534,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
   TaggedObject *other = theSPs->getComponentPtr(tag);
   if (other != 0) {
     opserr << "Domain::addSP_Constraint - cannot add as constraint with tag " << 
-      tag << "already exists in model\n";             
+      tag << " already exists in model\n";             
     spConstraint->Print(opserr);
 
     return false;
@@ -543,7 +543,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
   bool result = theSPs->addComponent(spConstraint);
   if (result == false) {
       opserr << "Domain::addSP_Constraint - cannot add constraint with tag " << 
-	tag << "to the container\n";             
+	tag << " to the container\n";             
       return false;
   } 
 
@@ -565,7 +565,7 @@ Domain::addPressure_Constraint(Pressure_Constraint *pConstraint)
     Node *nodePtr = this->getNode(nodeTag);
     if (nodePtr == nullptr) {
         opserr << "Domain::addPressure_Constraint - cannot add as node with tag ";
-        opserr << nodeTag << "does not exist in model\n";
+        opserr << nodeTag << " does not exist in model\n";
         return false;
     }
 #endif
@@ -575,14 +575,14 @@ Domain::addPressure_Constraint(Pressure_Constraint *pConstraint)
     TaggedObject *other = thePCs->getComponentPtr(tag);
     if (other != nullptr) {
         opserr << "Domain::addPressure_Constraint - cannot add as constraint with tag ";
-        opserr << tag << "already exists in model\n";             
+        opserr << tag << " already exists in model\n";             
         return false;
     }
   
     bool result = thePCs->addComponent(pConstraint);
     if (result == false) {
         opserr << "Domain::addPressure_Constraint - cannot add constraint with tag ";
-        opserr << tag << "to the container\n";
+        opserr << tag << " to the container\n";
         return false;
     } 
 
@@ -663,33 +663,32 @@ Domain::addSP_Constraint(int axisDirn, double axisValue,
 bool
 Domain::addMP_Constraint(MP_Constraint *mpConstraint)
 {
-//#ifdef _G3DEBUG
+#ifdef _G3DEBUG
     // perform the checks
     int nodeConstrained = mpConstraint->getNodeConstrained();
     Node *nodePtr = this->getNode(nodeConstrained);
-    if (nodePtr == 0) {
-      opserr << "Domain::addMP_Constraint -cannot add as constrained node with tag " <<
-	nodeConstrained << "does not exist in model\n";       		
+    if (nodePtr == nullptr) {
+      opserr << "Domain::addMP_Constraint - cannot add as constrained node with tag " <<
+	nodeConstrained << " does not exist in model\n";
       return false;
     }
     
     int nodeRetained = mpConstraint->getNodeRetained();      
     nodePtr = this->getNode(nodeRetained);
-    if (nodePtr == 0) {
+    if (nodePtr == nullptr) {
       opserr << "Domain::addMP_Constraint - cannot add as retained node with tag " <<
-	nodeRetained << "does not exist in model\n"; 	
-      
+	nodeRetained << " does not exist in model\n";
       return false;
     }      
     // MISSING CODE
-    //#endif
+#endif
 
   // check that no other object with similar tag exists in model
   int tag = mpConstraint->getTag();
   TaggedObject *other = theMPs->getComponentPtr(tag);
-  if (other != 0) {
-    opserr << "Domain::addMP_Constraint - cannot add as constraint with tag " <<
-      tag << "already exists in model";             
+  if (other != nullptr) {
+    opserr << "Domain::addMP_Constraint - cannot add as constraint with tag " 
+           << tag << " already exists in model";             
 			      
     return false;
   }
@@ -700,7 +699,7 @@ Domain::addMP_Constraint(MP_Constraint *mpConstraint)
       this->domainChange();
   } else
     opserr << "Domain::addMP_Constraint - cannot add constraint with tag " << 
-           tag << "to the container\n";                   
+           tag << " to the container\n";                   
   
   return result;
 }
@@ -713,7 +712,7 @@ Domain::addLoadPattern(LoadPattern *load)
     TaggedObject *other = theLoadPatterns->getComponentPtr(tag);
     if (other != 0) {
       opserr << "Domain::addLoadPattern - cannot add as LoadPattern with tag " <<
-	tag << "already exists in model\n";             
+	tag << " already exists in model\n";             
 				
       return false;
     }    
@@ -726,7 +725,7 @@ Domain::addLoadPattern(LoadPattern *load)
     }
     else 
       opserr << "Domain::addLoadPattern - cannot add LoadPattern with tag " <<
-	tag << "to the container\n";                   	
+	tag << " to the container\n";                   	
 			      
     return result;
 }    
@@ -745,7 +744,7 @@ Domain::addParameter(Parameter *theParam)
   // check if a Parameter with a similar tag already exists in the Domain
   TaggedObject *other = theParameters->getComponentPtr(paramTag);
   if (other != 0) {
-    opserr << "Domain::addParameter - parameter with tag " << paramTag << "already exists in model\n"; 
+    opserr << "Domain::addParameter - parameter with tag " << paramTag << " already exists in model\n"; 
     return false;
   }
 
@@ -801,7 +800,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint, int pattern)
     Node *nodePtr = this->getNode(nodeTag);
     if (nodePtr == 0) {
       opserr << "Domain::addSP_Constraint - cannot add as node with tag " <<
-	nodeTag << "does not exist in model\n";
+	nodeTag << " does not exist in model\n";
 	return false;
     }
 
@@ -809,7 +808,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint, int pattern)
     int numDOF = nodePtr->getNumberDOF();
     if (numDOF < spConstraint->getDOF_Number()) {
       opserr << "Domain::addSP_Constraint - cannot add as node with tag " <<
-	nodeTag << "does not have associated constrained DOF\n"; 
+	nodeTag << " does not have associated constrained DOF\n"; 
 
 	return false;
     }      
