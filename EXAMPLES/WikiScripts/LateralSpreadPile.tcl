@@ -16,8 +16,8 @@
 ################################################################
 
 wipe
-set dataDir ./Output
-file mkdir $dataDir
+set outDir ./Output
+file mkdir $outDir
 
 #-----------------------------------------------------------------------------------------
 #  1. CREATE P-Y SPRING NODES AND BOUNDARY CONDITIONS
@@ -25,14 +25,14 @@ file mkdir $dataDir
 model BasicBuilder -ndm 3 -ndf 3
 
 # nodes for soil end of the spring
-node 2  0.000 0.000 39.50000
-node 3  0.000 0.000 39.00000
-node 4  0.000 0.000 38.50000
-node 5  0.000 0.000 38.00000
-node 6  0.000 0.000 37.50000
-node 7  0.000 0.000 37.00000
-node 8  0.000 0.000 36.50000
-node 9  0.000 0.000 36.00000
+node  2  0.000 0.000 39.50000
+node  3  0.000 0.000 39.00000
+node  4  0.000 0.000 38.50000
+node  5  0.000 0.000 38.00000
+node  6  0.000 0.000 37.50000
+node  7  0.000 0.000 37.00000
+node  8  0.000 0.000 36.50000
+node  9  0.000 0.000 36.00000
 node 10  0.000 0.000 35.50000
 node 11  0.000 0.000 35.00000
 node 12  0.000 0.000 34.50000
@@ -614,7 +614,7 @@ node 579  0.000 0.000 1.00000
 node 580  0.000 0.000 0.50000
 node 581  0.000 0.000 0.00000
 
-set nodesInfo6 [open $dataDir/NodesInfo6.dat w]
+set nodesInfo6 [open $outDir/NodesInfo6.dat w]
 puts $nodesInfo6 "501 0 0 40.00000"
 puts $nodesInfo6 "502 0 0 39.50000"
 puts $nodesInfo6 "503 0 0 39.00000"
@@ -980,7 +980,7 @@ element dispBeamColumn 578 578 579 $nIntPts $secTag3D $transTag
 element dispBeamColumn 579 579 580 $nIntPts $secTag3D $transTag
 element dispBeamColumn 580 580 581 $nIntPts $secTag3D $transTag
 
-set pileInfo [open $dataDir/PileInfo.dat w]
+set pileInfo [open $outDir/PileInfo.dat w]
 puts $pileInfo "501 501 502"
 puts $pileInfo "502 502 503"
 puts $pileInfo "503 503 504"
@@ -1070,25 +1070,25 @@ puts "Finished creating all beam elements..."
 
 # create list with pile node info
 set nodeList6 {}
-set channel [open $dataDir/"NodesInfo6.dat" r]
+set channel [open $outDir/"NodesInfo6.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
-set ctr0 [expr $ctr+1];
-set lineData($ctr) $line
-set nodeNumber [lindex $lineData($ctr) 0]
-lappend nodeList6 $nodeNumber
+  set ctr0 [expr $ctr+1];
+  set lineData($ctr) $line
+  set nodeNumber [lindex $lineData($ctr) 0]
+  lappend nodeList6 $nodeNumber
 }
 close $channel
 
 # create pile element list
 set BeamElementList {}
-set channel [open $dataDir/"PileInfo.dat" r]
+set channel [open $outDir/"PileInfo.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
-set ctr0 [expr $ctr+1];
-set lineData($ctr) $line
-set elementNumber [lindex $lineData($ctr) 0]
-lappend BeamElementList $elementNumber
+  set ctr0 [expr $ctr+1];
+  set lineData($ctr) $line
+  set elementNumber [lindex $lineData($ctr) 0]
+  lappend BeamElementList $elementNumber
 }
 close $channel
 

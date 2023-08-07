@@ -16,3 +16,5 @@
 | PASSED |  EigenFrame.Extra.tcl solverType: -ProfileSPD
 | PASSED |  AISC25.tcl |
 | PASSED |  PinchedCylinder.tcl
+| PASSED |  PlanarShearWall.tcl
+| PASSED |  PlanarShearWall.tcl

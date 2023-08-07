@@ -28,6 +28,7 @@
 |  0  | `EigenAnal_twoStoreyShearFrame7.tcl` |  |
 |  0  | `EigenAnal_twoStoreyShearFrame8.tcl` |  |
 |  0  | `ElasticFrame.tcl` |  |
+|  255  | `elasticPileSection.tcl` | invalid command name "section" |
 |  0  | `ElemPanelZone2D.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.modif.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.tcl` |  |
@@ -70,7 +71,7 @@
 |  0  | `Ex9f.build.RCSection.Circ3D.tcl` |  |
 |  0  | `Ex9g.build.HollowSection3D.tcl` |  |
 |  0  | `Example6_4.tcl` |  |
-|  255  | `ExampleSP1.tcl` | couldn't read file "model.tcl": no such file or directory |
+|  255  | `ExampleSP1.tcl` | couldn't open "peerRecords.txt": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
 |  255  | `FreeField3D.tcl` |         set nI  [expr 4*($j..." |
@@ -86,7 +87,7 @@
 |  0  | `KikuchiAikenHDR_sample.tcl` |  |
 |  0  | `KikuchiAikenLRB_sample.tcl` |  |
 |  255  | `KikuchiBearing_Sample.tcl` | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
-|  0  | `LateralSpreadPile.tcl` |  |
+|  255  | `LateralSpreadPile.tcl` | couldn't open "./Output/"NodesInfo6.dat"": no such file or directory |
 |  0  | `ModelingDiaphragms2D.tcl` |  |
 |  0  | `Model_IR.tcl` |  |
 |  0  | `ModelSP1.tcl` |  |
@@ -94,9 +95,8 @@
 |  0  | `MomentCurvature3D.tcl` |  |
 |  0  | `MomentCurvature.tcl` |  |
 |  0  | `MRF_2Story_Concentrated_10Oct2013.tcl` |  |
-|  0  | `MRF_2Story_Concentrated_PanelZone.tcl` | |                                                  
-|  0  | `MRF_2Story_Concentrated.tcl` |  |
-|  0  | `MultipleShearSpring_Sample.tcl` |  |
+|  0  | `MRF_2Story_Concentrated_PanelZone.tcl` | |                                                  | 0|  0  | `MRF_2Story_Concentrated.tcl` |  |
+|  134  | `MultipleShearSpring_Sample.tcl` | python: /home/claudio/opensees/OpenSeesRT/src/libg3/SRC/matrix/Matrix.cpp:105: Matrix::Matrix(int, int): Assertion `nRows > 0' failed. |
 |  0  | `Pushover_concentrated.tcl` |  |
 |  0  | `Pushover_distributed.tcl` |  |
 |  0  | `Pushover_example.tcl` |  |
@@ -125,4 +125,4 @@
 |  0  | `Test.tcl` |  |
 |  0  | `Truss.tcl` |  |
 |  0  | `WSection.tcl` |  |
-|  0  | `YamamotoBiaxialHDR_Sample.tcl` |  |
+|  134  | `YamamotoBiaxialHDR_Sample.tcl` | python: /home/claudio/opensees/OpenSeesRT/src/libg3/SRC/matrix/Matrix.cpp:105: Matrix::Matrix(int, int): Assertion `nRows > 0' failed. |
