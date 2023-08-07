@@ -83,12 +83,14 @@ These store the objects in `Domain` and `AnalysisModel`.
         
 </dd>
 
-<dt><a href="./interpreter"><code>interpreter</code></a></dt>
-<dd>contains the stuff for the interpreter.
+<dt><a href="./runtime"><code>runtime</code></a></dt>
+<dd>contains stuff for the interpreter.
 </dd>
 
+<!--
 <dt><a href="./utility"><code>utility</code></a></dt>
 <dd>contains the `Timer` class.</dd>
+-->
 
 <dt><a href="./material"><code>material</code></a></dt>
 <dd>Material, UniaxialMaterial and some concrete classes need by
