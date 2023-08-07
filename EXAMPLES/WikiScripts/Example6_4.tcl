@@ -6,7 +6,7 @@
 wipe; # clear opensees model
 
 # create data directory
-file mkdir Data
+file mkdir Output
 
 #-----------------------------
 # Define the model
@@ -57,13 +57,13 @@ fix $bn 0 1
 
 # define the recorder
 #---------------------
-recorder Node -file Data/Node.out -time -node $l1 -dof 2 disp
+recorder Node -file Output/Node.out -time -node $l1 -dof 2 disp
 
 # define load pattern
 #---------------------
 pattern Plain 1 Linear {
-load $l1 0.0 -1.0
-load $l2 0.0 -1.0
+  load $l1 0.0 -1.0
+  load $l2 0.0 -1.0
 }
 # --------------------------------------------------------------------
 # Start of static analysis (creation of the analysis & analysis itself)
@@ -125,13 +125,13 @@ setTime 0.0
 remove loadPattern 1
 
 # Create the transient analysis
-test EnergyIncr 1.0e-12 10 0
-algorithm Newton
-numberer RCM
+test        EnergyIncr 1.0e-12 10 0 0
+algorithm   Newton
+numberer    RCM
 constraints Plain
-integrator Newmark 0.5 0.25
-system BandGeneral
-analysis Transient
+integrator  Newmark 0.5 0.25
+system      BandGeneral
+analysis    Transient
 
 # Perform the transient analysis (50 sec)
 analyze 1500 0.5
