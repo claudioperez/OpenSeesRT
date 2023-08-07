@@ -23,10 +23,13 @@ if (ARGMISMATCH)
 endif()
 
 # TODO: These are problems that should be fixed
-target_compile_options(ARPACK PRIVATE 
-  -Wno-compare-reals 
-  -Wno-unused-variable
-)
+if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
+  target_compile_options(ARPACK PRIVATE 
+    -Wno-compare-reals 
+    -Wno-unused-variable
+    -std=legacy -w # Suppress all warnings
+  )
+endif()
 
 target_sources(ARPACK PUBLIC
   dgetv0.f

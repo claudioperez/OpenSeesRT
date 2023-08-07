@@ -8,7 +8,6 @@
 //
 #include <string>
 #include <algorithm>
-// #include <g3_api.h>
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <runtimeAPI.h>
@@ -100,20 +99,17 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc, G3_Cha
 
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "need to specify a system type \n";
+    opserr << G3_ERROR_PROMPT
+           << "need to specify a system type" << "\n";
     return TCL_ERROR;
   }
 
   BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
-
   
   theSOE = G3Parse_newLinearSOE(clientData, interp, argc, argv);
 
-
-  if (theSOE == nullptr) {
-    opserr << G3_ERROR_PROMPT << " system '" << argv[1] << "' is unknown or not installed\n";
+  if (theSOE == nullptr)
     return TCL_ERROR;
-  }
 
   builder->set(theSOE);
   return TCL_OK;
@@ -133,7 +129,7 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
   auto ctor = soe_table.find(sys_name);
 
   if (ctor != soe_table.end()) {
-    theSOE = ctor->second.ss(rt, argc, argv);
+    return ctor->second.ss(rt, argc, argv);
 
   } else if (strcmp(argv[1], "Umfpack")==0) {
     // TODO: if "umfpack" is in solver.hpp, this wont be reached
@@ -162,12 +158,16 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
   }
 #endif
 
-
 #ifdef _PARALLEL_INTERPRETERS
-  if (strcmp(argv[1], "MPIDiagonal") == 0) {
+  else if (strcmp(argv[1], "MPIDiagonal") == 0) {
     setMPIDSOEFlag = true;
   }
 #endif
+
+  else {
+    opserr << G3_ERROR_PROMPT << " system '" << argv[1] << "' is unknown or not installed\n";
+    return nullptr;
+  }
 
   return theSOE;
 }
@@ -176,8 +176,8 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
 LinearSOE*
 specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char ** const argv)
 {
-  if ((strcmp(argv[1], "SparseSPD") == 0) ||
-           (strcmp(argv[1], "SparseSYM") == 0)) {
+//if ((strcmp(argv[1], "SparseSPD") == 0) ||
+//         (strcmp(argv[1], "SparseSYM") == 0)) {
     Tcl_Interp *interp = G3_getInterpreter(rt);
 
     // determine ordering scheme
@@ -192,9 +192,6 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char ** const argv)
     }
     SymSparseLinSolver *theSolver = new SymSparseLinSolver();
     return new SymSparseLinSOE(*theSolver, lSparse);
-  } else {
-    return nullptr;
-  }
 }
 
 
@@ -209,9 +206,9 @@ LinearSOE*
 specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
 {
   // SPARSE GENERAL SOE * SOLVER
-  if ((strcmp(argv[1], "SparseGeneral") == 0) ||
-           (strcmp(argv[1], "SuperLU") == 0) ||
-           (strcmp(argv[1], "SparseGEN") == 0)) {
+//if ((strcmp(argv[1], "SparseGeneral") == 0) ||
+//         (strcmp(argv[1], "SuperLU") == 0) ||
+//         (strcmp(argv[1], "SparseGEN") == 0))
     Tcl_Interp *interp = G3_getInterpreter(rt);
 
     SparseGenColLinSolver *theSolver = nullptr;
@@ -287,10 +284,6 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
 #else
     return new SparseGenColLinSOE(*theSolver);
 #endif
-
-  } else {
-    return nullptr;
-  }
 }
 
 

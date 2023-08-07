@@ -51,12 +51,14 @@ analysis Transient
 
 set tFinal [expr 20000 * $dt]
 set tCurrent [getTime]
+
 set ok 0
-
-analyze 20000 0.01
+if 1 {
+  set ok [analyze 20000 0.01]
+} else {
 # progress create 40000
-
-# Perform the transient analysis
+# 
+# # Perform the transient analysis
 # while {$ok == 0 && $tCurrent < $tFinal} {
 #     
 #     set ok [analyze 1 .01]
@@ -75,7 +77,7 @@ analyze 20000 0.01
 #     set tCurrent [getTime]
 #     progress update "$tCurrent / $tFinal"
 # }
-
+}
 # Print a message to indicate if analysis successful or not
 if {$ok == 0} {
    puts "Transient analysis completed SUCCESSFULLY";

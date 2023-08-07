@@ -507,7 +507,7 @@ ArcLength::Print(OPS_Stream &s, int flag)
 ArcLength::formTangDispSensitivity(int gradNumber)
 {
    AnalysisModel *theModel=this->getAnalysisModel();
-   int size=theModel->getNumEqn();
+   // int size=theModel->getNumEqn();
    LinearSOE *theLinSOE = this->getLinearSOE(); 
   // To get the structural stiffness Matrix
   //...............................................................

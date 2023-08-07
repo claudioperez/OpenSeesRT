@@ -125,12 +125,8 @@ SectionForceDeformation::getSectionFlexibility ()
 {
   int order = this->getOrder();
   
-  if (fDefault == 0) {		
+  if (fDefault == nullptr) {		
     fDefault = new Matrix(order,order);
-    if (fDefault == 0) {
-      opserr << "SectionForceDeformation::getSectionFlexibility -- failed to allocate flexibility matrix\n";
-      exit(-1);
-    }
   }
 
   const Matrix &k = this->getSectionTangent();

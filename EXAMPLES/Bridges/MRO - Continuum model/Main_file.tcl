@@ -43,9 +43,9 @@ source Soil_Domain.tcl
  constraints Penalty 1.e12 1.e12
  test NormDispIncr 1.0e-4 50 1
  algorithm KrylovNewton
- system SparseGeneral
+#system SparseGeneral
  # system Mumps
- #system SparseSYM
+ system SparseSYM
  analysis Static
 
  for {set numIncr 1} {$numIncr <= $NumIncr1 } {incr numIncr 1} {

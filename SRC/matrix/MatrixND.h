@@ -30,6 +30,9 @@
 #include <functional>
 #include <iostream> // overloading <<
 
+#include "VectorND.h"
+#include "Matrix.h"
+#include "Vector.h"
 
 #if __cplusplus < 202000L
 #define consteval
@@ -38,7 +41,7 @@
 
 #define G23_STACK_MAX 10
 
-namespace OpenSees {
+// namespace OpenSees {
 
 template <index_t NR, index_t NC, typename T=double>
 requires(NR > 0 && NC > 0)
@@ -53,10 +56,8 @@ struct MatrixND {
   
   constexpr T & // (i,j) indexing
   operator()(index_t index_r, index_t index_c) {
-#ifdef BOUNDS_CHECK
-  assert(index_r >= 0 && index_c >= 0);
-  assert(index_r < NR && index_c < NC);
-#endif
+    assert(index_r >= 0 && index_c >= 0);
+    assert(index_r < NR && index_c < NC);
     // column-major
     // return values[index_c*NR + index_r];
     return values[index_c][index_r];
@@ -64,11 +65,8 @@ struct MatrixND {
 
   constexpr const T & // (i,j) indexing
   operator()(index_t index_r, index_t index_c) const {
-    if (index_r < 0 || index_c < 0) {
-      throw std::out_of_range("negative MatrixND index");
-    } else if (index_r >= NR || index_c >= NC) {
-      throw std::out_of_range("compound access out of range");
-    }
+    assert(index_r >= 0 && index_c >= 0);
+    assert(index_r < NR && index_c < NC);
     return values[index_c][index_r];
   }
 
@@ -95,7 +93,85 @@ struct MatrixND {
 
   consteval VectorND<2,int>
   size() const {return {NR, NC};}
+
+  void zero(void)
+  {
+    double *dataPtr = &values[0][0];
+    for (int i=0; i<dataSize; i++)
+      *dataPtr++ = 0;
+  }
+
+  int solve(const Vector &V, Vector &res) const
+    requires(NR == NC)
+  {
+    MatrixND<NR,NC> work = *this;
+    int pivot_ind[NR];
+    int *nrhs = 1;
+    int nr = NR;
+    int nc = NC;
+    int info = 0;
+    res = V; // X will be overwritten with the solution
+    DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind, &res(0,0), &nc, &info);
+    return -abs(info);
+  }
+
+  int solve(const Matrix &M, Matrix &res)
+  {
+    MatrixND<NR,NC> work = *this;
+    int pivot_ind[NR];
+    int *nrhs = M.noCols();
+    int nr = NR;
+    int nc = NC;
+    int info = 0;
+    res = M; // M will be overwritten with the solution
+    DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind, &res(0,0), &nc, &info);
+    return -abs(info);
+  }
+
+  int invert(Matrix &res) const
+  {
+    return 0;
+  }
+  int invert(Matrix &res) const
+  {
+    return 0;
+  }
+  int invert()
+  {
+    return 0;
+  }
+
+  int addMatrix(double alpha, const MatrixND &other, double beta) {
+  }
+  int addMatrixTranspose(double factThis, const Matrix &other, double factOther)
+  {
+  }
+  // AB
+  int addMatrixProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
+  {
+  }
+  // A'B
+  int addMatrixTransposeProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
+  {
+  }
+  // A'BA
+  int addMatrixTripleProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
+  {
+  }
+  //A'BC
+  int addMatrixTripleProduct(double factThis, const Matrix &A, const Matrix &B, const Matrix &C, double otherFact)
+  {
+  } 
   
+  constexpr MatrixND &
+  operator=(const MatrixND<NR,NC> &other)
+  {  
+    double *dataPtr = &values[0][0];
+    double *otherDataPtr = &other.values[0][0];
+    for (int i=0; i<NR*NC; i++)
+      *dataPtr++ = *otherDataPtr++;
+  }
+
   constexpr MatrixND &
   operator+=(const double value) {
     for (index_t j = 0; j < NC; ++j) {
@@ -232,7 +308,7 @@ MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;
 namespace linalg {
 
 template<int nr, int nc, typename T=double>
-inline MatrixND<nr, nc, T> zeros(void){
+inline MatrixND<nr, nc, T> zeros(void) {
   MatrixND<nr, nc, T> m;
   for (int i=0; i<nr; i++)
     for (int j=0; j<nc; j++)
@@ -254,7 +330,7 @@ solve(MatrixND<nr,nr> A, MatrixND<nr,nc> B){
 
 } // namespace linalg
 
-} // namespace g23
+// } // namespace OpenSees
 
 #endif // MatrixND_H
 

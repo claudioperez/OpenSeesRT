@@ -80,19 +80,11 @@ using namespace std; //Added by AMK for debugging
 
 //Added by AMK to use dylib:
 //-----------------------------------------------------------------------
-	#ifdef _USRDLL
-	#define OPS_Export extern "C" _declspec(dllexport)
-	#elif _MACOSX
-	#define OPS_Export extern "C" __attribute__((visibility("default")))
-	#else
-	#define OPS_Export extern "C"
-	#endif
-
-	static int numTDConcrete = 0;
 
 //	OPS_Export void *
 	void *
 	OPS_ADD_RUNTIME_VPV(OPS_TDConcrete) {
+	  static int numTDConcrete = 0;
 		// Print description of material model:
 		if (numTDConcrete == 0) {
 			opserr << "Time-Dependent Concrete Material Model - Written by Adam Knaack, University of Notre Dame, 2012 \n";
@@ -100,7 +92,7 @@ using namespace std; //Added by AMK for debugging
 		}
 
 		// Pointer to a uniaxial material that will be returned:
-			UniaxialMaterial *theMaterial = 0;
+	  UniaxialMaterial *theMaterial = 0;
 		
 		// Parse the input line for the material parameters:
 			int iData;
