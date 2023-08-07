@@ -44,9 +44,8 @@ extern OPS_Routine OPS_VelNormalFrcDep;
 extern OPS_Routine OPS_VelPressureDep;
 
 int
-TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, TCL_Char ** const argv,
-                                    Domain *theDomain)
+TclCommand_addFrictionModel(ClientData clientData, Tcl_Interp *interp,
+                            int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
@@ -58,7 +57,7 @@ TclBasicBuilderFrictionModelCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theDomain);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
 
   // pointer to a friction model that will be added to the model builder
   FrictionModel *theFrnMdl = 0;

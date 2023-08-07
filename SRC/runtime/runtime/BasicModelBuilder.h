@@ -67,6 +67,7 @@ public:
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);
   TimeSeries* getTimeSeries(const key_t&);
+  TimeSeries* getTimeSeries(int tag);
   LoadPattern* getEnclosingPattern(void);
   int setEnclosingPattern(LoadPattern*);
   int incrNodalLoadTag(void);

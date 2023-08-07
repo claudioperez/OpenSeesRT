@@ -41,13 +41,13 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <elementAPI.h>
 #include <string.h>
 
 // initialize the class wide variables
 Matrix FlatSliderSimple2d::theMatrix(6,6);
 Vector FlatSliderSimple2d::theVector(6);
-
+#if 0
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_FlatSliderSimple2d)
 {
     if (OPS_GetNumRemainingInputArgs() < 9) {
@@ -191,6 +191,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FlatSliderSimple2d)
 				  kInit,mats,y,x,sDistI,doRayleigh,mass,
 				  maxIter,tol);
 }
+#endif
 
 
 FlatSliderSimple2d::FlatSliderSimple2d(int tag, int Nd1, int Nd2,

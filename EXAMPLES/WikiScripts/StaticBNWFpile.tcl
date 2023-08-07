@@ -229,10 +229,10 @@ puts "Finished creating all recorders..."
 if 0  {
 # real time display recorder for visualization during analysis
 # # recorder display "OpenSees Real Time" 10 10 700 700 -wipe
-prp           0 100 0
-vup           0 0 1
-vpn           0 -1 0	
-display       1 3 10
+# prp          0 100 0
+# vup          0 0 1
+# vpn          0 -1 0	
+# display      1 3 10
 }
 #----------------------------------------------------------
 #  create the loading

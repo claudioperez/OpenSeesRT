@@ -1070,7 +1070,7 @@ puts "Finished creating all beam elements..."
 
 # create list with pile node info
 set nodeList6 {}
-set channel [open $outDir/"NodesInfo6.dat" r]
+set channel [open "$outDir/NodesInfo6.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
   set ctr0 [expr $ctr+1];
@@ -1082,7 +1082,7 @@ close $channel
 
 # create pile element list
 set BeamElementList {}
-set channel [open $outDir/"PileInfo.dat" r]
+set channel [open "$outDir/PileInfo.dat" r]
 set ctr 0;
 foreach line [split [read -nonewline $channel] \n] {
   set ctr0 [expr $ctr+1];

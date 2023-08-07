@@ -211,9 +211,9 @@ foreach lambda $lambda {
 set dt 0.005
 set scale 1.0; # max = 1.1
 set npts 9000
-timeSeries Path 2 -filePath SCS052.AT2 -dt $dt -factor [expr $g*$scale]
-timeSeries Path 3 -filePath SCS142.AT2 -dt $dt -factor [expr $g*$scale]
-timeSeries Path 4 -filePath SCSUP.AT2 -dt $dt -factor [expr $g*$scale]
+timeSeries Path 2 -filePath SCS052.txt -dt $dt -factor [expr $g*$scale]
+timeSeries Path 3 -filePath SCS142.txt -dt $dt -factor [expr $g*$scale]
+timeSeries Path 4 -filePath SCSUP.txt  -dt $dt -factor [expr $g*$scale]
 
 # Create UniformExcitation load pattern
 #                         tag dir -accel tsTag 
@@ -256,17 +256,17 @@ recorder Element -file Elmt_COF.out -time -ele 1 frictionModel COF
 # # recorder display "Display" xLoc yLoc xPixels yPixels -wipe 
 recorder  display  "Display"  5  5  630  630 -wipe
 # "normal" vector to the view window
-vpn -5.272000E-001  -6.871000E-001  +5.000000E-001
+# vpn-5.272000E-001  -6.871000E-001  +5.000000E-001
 # "up" vector of the view window
-vup +0.000000E+000  +0.000000E+000  +1.000000E+000
+# vup+0.000000E+000  +0.000000E+000  +1.000000E+000
 # Projection Reference Point (direction vector to the eye)
-prp -4.965000E-001  -6.576000E-001  +5.666000E-001
+# prp-4.965000E-001  -6.576000E-001  +5.666000E-001
 # dimension of the view window
-viewWindow -1.350000E+002  +1.350000E+002  -1.350000E+002  +1.350000E+002
+# viewWindow-1.350000E+002  +1.350000E+002  -1.350000E+002  +1.350000E+002
 # center of the view window
-vrp +7.200000E+001  +7.200000E+001  +7.700000E+001
+# vrp+7.200000E+001  +7.200000E+001  +7.700000E+001
 # display    elemDispOpt    nodeDispOpt    magFactor
-display 1  3  +2.000000E+000
+# display1  3  +2.000000E+000
 # --------------------------------
 # End of recorder generation
 # --------------------------------

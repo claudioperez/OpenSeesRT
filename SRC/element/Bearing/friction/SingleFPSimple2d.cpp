@@ -43,6 +43,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#if 0
 #include <elementAPI.h>
 
 void * OPS_ADD_RUNTIME_VPV(OPS_SingleFPSimple2d)
@@ -201,6 +202,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SingleFPSimple2d)
 				data[0],data[1],mats,y,x,sDistI,doRayleigh,
 				inclVertDisp,mass,maxIter,tol,kFactUplift);
 }
+#endif
 
 
 // initialize the class wide variables

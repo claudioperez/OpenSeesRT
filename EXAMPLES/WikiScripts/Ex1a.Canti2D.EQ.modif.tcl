@@ -75,10 +75,10 @@ rayleigh 0. 0. 0. [expr 2*$dampRatio/$freq]
 if 0 {
 # display displacement shape of the column
 # # recorder display "Displaced shape" 10 10 500 500 -wipe
-prp 200. 50. 1;
-vup  0  1 0;
-vpn  0  0 1;
-display 1 5 40 
+# prp200. 50. 1;
+# vup 0  1 0;
+# vpn 0  0 1;
+# display1 5 40 
 }
 
 # create the analysis

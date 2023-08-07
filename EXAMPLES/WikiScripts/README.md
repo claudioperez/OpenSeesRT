@@ -74,12 +74,8 @@
 |  255  | `ExampleSP1.tcl` | couldn't open "peerRecords.txt": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
-|  255  | `FreeField3D.tcl` |         set nI  [expr 4*($j..." |
-|  255  | `FreeFieldDamp.tcl` | invalid command name "prp" |
-|  255  | `FreeFieldDepend.tcl` | expected integer but got "-dt" |
+|  255  | `FreeFieldDamp.tcl` | expected integer but got "-dt" |
 |  255  | `FreeFieldEffective.tcl` | invalid command name "parameter" |
-|  255  | `FreeFieldIndepend.tcl` | expected integer but got "-dt" |
-|  255  | `FreeFieldSingle.tcl` | expected integer but got "-dt" |
 |  0  | `Get_pyParam.tcl` |  |
 |  0  | `Get_qzParam.tcl` |  |
 |  0  | `Get_tzParam.tcl` |  |
@@ -87,7 +83,7 @@
 |  0  | `KikuchiAikenHDR_sample.tcl` |  |
 |  0  | `KikuchiAikenLRB_sample.tcl` |  |
 |  255  | `KikuchiBearing_Sample.tcl` | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
-|  255  | `LateralSpreadPile.tcl` | couldn't open "./Output/"NodesInfo6.dat"": no such file or directory |
+|  0  | `LateralSpreadPile.tcl` |  |
 |  0  | `ModelingDiaphragms2D.tcl` |  |
 |  0  | `Model_IR.tcl` |  |
 |  0  | `ModelSP1.tcl` |  |
@@ -110,18 +106,17 @@
 |  0  | `RotSpring2DModIKModel.tcl` |  |
 |  0  | `SAWSZeroLength.tcl` |  |
 |  0  | `SingleCycle.tcl` |  |
-|  255  | `SlopeAnalysis2Deff.tcl` | invalid command name "parameter" |
 |  0  | `StaticBNWFpile.tcl` |  |
-|  255  | `TestFPS2d_0.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS2d_1.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS2d_2.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS2d_3.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS2d_4.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS3d_0.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS3d_1.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS3d_2.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS3d_3.tcl` | invalid command name "frictionModel" |
-|  255  | `TestFPS3d_4.tcl` | invalid command name "frictionModel" |
+|  0  | `TestFPS2d_0.tcl` |  |
+|  0  | `TestFPS2d_1.tcl` |  |
+|  0  | `TestFPS2d_2.tcl` |  |
+|  0  | `TestFPS2d_3.tcl` |  |
+|  0  | `TestFPS2d_4.tcl` |  |
+|  0  | `TestFPS3d_0.tcl` |  |
+|  0  | `TestFPS3d_1.tcl` |  |
+|  0  | `TestFPS3d_2.tcl` |  |
+|  0  | `TestFPS3d_3.tcl` |  |
+|  0  | `TestFPS3d_4.tcl` |  |
 |  0  | `Test.tcl` |  |
 |  0  | `Truss.tcl` |  |
 |  0  | `WSection.tcl` |  |

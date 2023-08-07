@@ -171,18 +171,29 @@ BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
 TimeSeries *
 BasicModelBuilder::getTimeSeries(const std::string &name)
 {
-  TimeSeries *series = m_TimeSeriesMap.at(name);
-  if (series)
-    return series->getCopy();
-  else
-    return 0;
+  auto iter = m_TimeSeriesMap.find(name);
+//opserr << "Looking for " << name.c_str() << "\n";
+  if (iter != m_TimeSeriesMap.end()) {
+//  opserr << "Found.\n";
+    return iter->second->getCopy();
+  } else
+    return nullptr;
+}
+
+TimeSeries *
+BasicModelBuilder::getTimeSeries(int tag)
+{
+  const std::string &name = std::to_string(tag);
+  return this->getTimeSeries(name);
 }
 
 int
 BasicModelBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
 {
   m_TimeSeriesMap[name] = series;
-  G3_AddTableEntry(registry, "TimeSeries", std::stoi(name), (void*)series);
+  int tag = std::stoi(name);
+  // opserr << "Adding series " << name.c_str() << "(" << tag << ")" << "\n";
+  G3_AddTableEntry(registry, "TimeSeries", tag, (void*)series);
   return 1;
 }
 
@@ -202,8 +213,8 @@ BasicModelBuilder::addTimeSeries(TimeSeries *series)
 SectionForceDeformation*
 BasicModelBuilder::getSection(const std::string &name)
 {
+  // SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
   auto iter = m_SectionForceDeformationMap.find(name);
-  SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
   if (iter != m_SectionForceDeformationMap.end()) {
     return iter->second->getCopy();
   } else {

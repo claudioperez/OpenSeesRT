@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 02/06
 // Revision: A
 //
 // Description: This file contains the function to parse the TCL input
 // for the flatSliderBearing element.
-
+#include <assert.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <stdlib.h>
@@ -45,21 +41,16 @@
 class TclBasicBuilder;
 
 int
-TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char ** const argv,
-                                     Domain *theTclDomain,
-                                     TclBasicBuilder *theTclBuilder,
-                                     int eleArgStart)
+TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
+                                int argc, TCL_Char **const argv)
 {
-  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain* theTclDomain = builder->getDomain();
+  const int eleArgStart = 1;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - flatSliderBearing\n";
-    return TCL_ERROR;
-  }
 
-  Element *theElement = 0;
+  Element *theElement = nullptr;
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
   int tag;
@@ -111,7 +102,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = OPS_getFrictionModel(frnMdlTag);
+    FrictionModel *theFrnMdl = (FrictionModel*)builder->getRegistryObject("FrictionModel", frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -318,7 +309,7 @@ TclBasicBuilder_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = OPS_getFrictionModel(frnMdlTag);
+    FrictionModel *theFrnMdl = (FrictionModel*)builder->getRegistryObject("FrictionModel", frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
