@@ -53,27 +53,28 @@ set tFinal [expr 20000 * $dt]
 set tCurrent [getTime]
 set ok 0
 
-progress create 40000
+analyze 20000 0.01
+# progress create 40000
 
 # Perform the transient analysis
-while {$ok == 0 && $tCurrent < $tFinal} {
-    
-    set ok [analyze 1 .01]
-    
-    # if the analysis fails try initial tangent iteration
-    if {$ok != 0} {
-	puts "regular newton failed .. lets try an initial stiffness for this step"
-	test NormDispIncr 1.0e-12  100 0
-	algorithm ModifiedNewton -initial
-	set ok [analyze 1 .01]
-	if {$ok == 0} {puts "that worked .. back to regular newton"}
-	test NormDispIncr 1.0e-12  10 
-	algorithm Newton
-    }
-    
-    set tCurrent [getTime]
-    progress update "$tCurrent / $tFinal"
-}
+# while {$ok == 0 && $tCurrent < $tFinal} {
+#     
+#     set ok [analyze 1 .01]
+#     
+#     # if the analysis fails try initial tangent iteration
+#     if {$ok != 0} {
+# 	puts "regular newton failed .. lets try an initial stiffness for this step"
+# 	test NormDispIncr 1.0e-12  100 0
+# 	algorithm ModifiedNewton -initial
+# 	set ok [analyze 1 .01]
+# 	if {$ok == 0} {puts "that worked .. back to regular newton"}
+# 	test NormDispIncr 1.0e-12  10 
+# 	algorithm Newton
+#     }
+#     
+#     set tCurrent [getTime]
+#     progress update "$tCurrent / $tFinal"
+# }
 
 # Print a message to indicate if analysis successful or not
 if {$ok == 0} {

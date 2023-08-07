@@ -1,7 +1,7 @@
 # ----------------------------
 # Start of model generation
 # ----------------------------
-
+wipe;
 model basic -ndm 2 -ndf 2
 
 nDMaterial ElasticIsotropic   1   1000   0.25  6.75 

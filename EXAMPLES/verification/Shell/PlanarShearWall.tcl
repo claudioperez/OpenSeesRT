@@ -98,19 +98,19 @@ foreach eleType {quad SSPquad} {
 		}
 	    }
 	    
-	    integrator LoadControl  1.0  
-	    algorithm Linear
-	    numberer RCM
+	    integrator  LoadControl  1.0  
+	    algorithm   Linear
+	    numberer    RCM
 	    constraints Plain 
-	    system ProfileSPD
-	    analysis Static 
+	    system      ProfileSPD
+	    analysis    Static 
 	    
 	    analyze 1
 	    
 	    set disp [nodeDisp $nodeTop 1]
 	    set dispETABS [lindex $resultsETABS $counter]
 	    set dispSAP   [lindex $resultsSAP $counter]
-	    set diffR  [expr abs($dispSAP-$disp)]
+	    set diffR     [expr abs($dispSAP-$disp)]
 	    puts [format $formatString $numFloor [expr $floorHeight * $numFloor] [expr $bayWidth * $numBay] $dispETABS $dispSAP $disp $diffR]
 	    
 	    
@@ -183,6 +183,8 @@ foreach numFloor {6 3 1} {
 		equalDOF $mNode [expr $mNode+$j] 1
 	    }
 	}
+
+        print -json a.json
 	
 	integrator LoadControl  1.0  
 	algorithm Linear
