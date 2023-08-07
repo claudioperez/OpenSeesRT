@@ -73,6 +73,7 @@ target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime ${TCL_STUB_LIBRARY})
 #
 # Python
 #
+  message(" :: Configuring Pyton extension")
 if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()

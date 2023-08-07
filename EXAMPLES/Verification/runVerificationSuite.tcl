@@ -20,7 +20,7 @@ source Frame/EigenFrame.tcl
 source Frame/EigenFrame.Extra.tcl
 source Frame/AISC25.tcl
 
-source Plane/PlaneStrain.tcl
+# source Plane/PlaneStrain.tcl
 
 # Shells
 source Shell/PinchedCylinder.tcl

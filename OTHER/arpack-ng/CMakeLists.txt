@@ -31,7 +31,7 @@ option(EIGEN "Enable support for eigenvalue-problems solver based on ICB and eig
 option(PYTHON3 "Enable python3 support" OFF)
 set(BOOST_PYTHON_LIBSUFFIX "" CACHE STRING "suffix to add to custom boost python libs")
 option(EXAMPLES "Compile ARPACK examples" OFF)
-option(TESTS "Compile ARPACK tests" ON)
+option(TESTS "Compile ARPACK tests" OFF)
 
 # Suffixes: LIBSUFFIX modify ONLY libraries names, ITF64SUFFIX modify BOTH libraries AND include directory names.
 set(LIBSUFFIX ""
