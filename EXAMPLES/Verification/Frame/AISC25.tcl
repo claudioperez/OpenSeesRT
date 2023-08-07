@@ -4,6 +4,7 @@
 # R.C.Kaehler, D.W.White, Y.D.Kim, "Frame Design Using Web-Tapered Members", AISC 2011
 
 puts "AISC - Design Guide 25 - Frame Design Using Web-Tapered Members"
+puts "Prismatic Beam Benchmark Problems\n"
 
 set H  10.0
 set L 196.0
@@ -12,15 +13,14 @@ set PI [expr 2.0*asin(1.0)]
 set ok 0
 set results []
 set counter 0
-
-puts "Prismatic Beam Benchmark Problems\n"
-puts "    - Case 1 (Single Curvature)     - elasticBeamColumn"
-puts "------+--------+-------------------------+-------------------------"
-puts "      |        |     Tip Displacement    |      Base Moment        "
-puts "------+--------+--------+---------+------+---------+--------+------"
-set formatString {%5s|%8s|%8s|%9s|%6s|%9s|%8s|%6s}
+set indent "  "
+puts ":: Case 1 (Single Curvature)     - ElasticBeamColumn"
+puts "$indent------+--------+-------------------------+-------------------------"
+puts "$indent      |        |     Tip Displacement    |      Base Moment        "
+puts "$indent------+--------+--------+---------+------+---------+--------+------"
+set formatString "$indent%5s|%8s|%8s|%9s|%6s|%9s|%8s|%6s"
 puts [format $formatString numEle alpha Exact OpenSees %Error Exact OpenSees %Error]
-puts "------+--------+--------+---------+------+---------+--------+------"
+puts "$indent------+--------+--------+---------+------+---------+--------+------"
 
 foreach numEle {1 2 4 10} {
     foreach alpha {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.67} {
@@ -76,10 +76,10 @@ foreach numEle {1 2 4 10} {
 	
 	set delta [nodeDisp [expr $numEle + 1] 1]
 	set moment [lindex [eleResponse 1 forces] 2]
-	set formatString {%6.0f|%8.2f|%8.4f|%9.4f|%6.1f|%9.2f|%8.2f|%6.1f}
+	set formatString "$indent%6.0f|%8.2f|%8.4f|%9.4f|%6.1f|%9.2f|%8.2f|%6.1f"
 	puts [format $formatString $numEle $alpha $resU $delta [expr 100*($resU-$delta)/$delta] $resM $moment [expr 100*($resM-$moment)/$moment] ]
     }
-    puts "------+--------+--------+---------+------+---------+--------+------"
+    puts "$indent------+--------+--------+---------+------+---------+--------+------"
 }
 
 # test on last one
@@ -88,14 +88,13 @@ if {[expr abs(100*($resU-$delta)/$delta)] > 0.5 || [expr abs(100*($resM-$moment)
     puts "[expr abs(100*($resU-$delta)/$delta)] > 0.5 || [expr abs(100*($resM-$moment)/$moment)] > 0.5"
 }
 
-puts "Prismatic Beam Benchmark Problems\n"
-puts "    - Case 1 (Single Curvature) - forceBeamColumnCBDI element"
-puts "------+--------+-------------------------+-------------------------"
-puts "      |        |     Tip Displacement    |      Base Moment        "
-puts "------+--------+--------+---------+------+---------+--------+------"
-set formatString {%5s|%8s|%8s|%9s|%6s|%9s|%8s|%6s}
+puts "\n\n:: Case 1 (Single Curvature) - ForceBeamColumnCBDI element"
+puts "$indent------+--------+-------------------------+-------------------------"
+puts "$indent      |        |     Tip Displacement    |      Base Moment        "
+puts "$indent------+--------+--------+---------+------+---------+--------+------"
+set formatString "$indent%5s|%8s|%8s|%9s|%6s|%9s|%8s|%6s"
 puts [format $formatString numEle alpha Exact OpenSees %Error Exact OpenSees %Error]
-puts "------+--------+--------+---------+------+---------+--------+------"
+puts "$indent------+--------+--------+---------+------+---------+--------+------"
 foreach numEle {1 } {
     foreach alpha {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.67} {
 	wipe
@@ -150,10 +149,10 @@ foreach numEle {1 } {
 	
 	set delta [nodeDisp [expr $numEle + 1] 1]
 	set moment [lindex [eleResponse 1 forces] 2]
-	set formatString {%6.0f|%8.2f|%8.4f|%9.4f|%6.1f|%9.2f|%8.2f|%6.1f}
+	set formatString "$indent%6.0f|%8.2f|%8.4f|%9.4f|%6.1f|%9.2f|%8.2f|%6.1f"
 	puts [format $formatString $numEle $alpha $resU $delta [expr 100*($resU-$delta)/$delta] $resM $moment [expr 100*($resM-$moment)/$moment] ]
     }
-    puts "------+--------+--------+---------+------+---------+--------+------"
+    puts "$indent------+--------+--------+---------+------+---------+--------+------"
 }
 
 
@@ -164,13 +163,13 @@ if {[expr abs(100*($resU-$delta)/$delta)] > 0.5 || [expr abs(100*($resM-$moment)
 }
 
 
-puts "\n\n    - Case 2 (Double Curvature)  - elasticBeamColumn"
-puts "------+--------+-------------------------+-------------------------"
-puts "      |        |     Tip Displacement    |      Base Moment        "
-puts "------+--------+--------+---------+------+---------+--------+------"
-set formatString {%5s|%8s|%8s|%9s|%6s|%9s|%8s|%6s}
+puts "\n\n:: Case 2 (Double Curvature)  - ElasticBeamColumn"
+puts "$indent------+--------+-------------------------+-------------------------"
+puts "$indent      |        |     Tip Displacement    |      Base Moment        "
+puts "$indent------+--------+--------+---------+------+---------+--------+------"
+set formatString "$indent%5s|%8s|%8s|%9s|%6s|%9s|%8s|%6s"
 puts [format $formatString numEle alpha Exact OpenSees %Error Exact OpenSees %Error]
-puts "------+--------+--------+---------+------+---------+--------+------"
+puts "$indent------+--------+--------+---------+------+---------+--------+------"
 foreach numEle {1 2 10} {
     foreach alpha {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.67} {
 	wipe
@@ -225,10 +224,10 @@ foreach numEle {1 2 10} {
 	
 	set delta [nodeDisp [expr $numEle + 1] 1]
 	set moment [lindex [eleResponse 1 forces] 2]
-	set formatString {%6.0f|%8.2f|%8.4f|%9.4f|%6.1f|%9.2f|%8.2f|%6.1f}
+	set formatString "$indent%6.0f|%8.2f|%8.4f|%9.4f|%6.1f|%9.2f|%8.2f|%6.1f"
 	puts [format $formatString $numEle $alpha $resU $delta [expr 100*($resU-$delta)/$delta] $resM $moment [expr 100*($resM-$moment)/$moment] ]
     }
-    puts "------+--------+--------+---------+------+---------+--------+------"
+    puts "$indent------+--------+--------+---------+------+---------+--------+------"
 }
 
 # test on last one

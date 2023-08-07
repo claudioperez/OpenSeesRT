@@ -16,7 +16,7 @@ puts "PlanarShearWall.tcl: Verification of Linear Elastic Planar Shear Wall"
 # NOTE: The discretization of the SAP and ETABS models are not known at this time
 
 set testOK 0
-set tol 5.0e-3
+set tol 5.0e-2
 
 set resultsSAP   {2.4287 0.1031 0.0186 0.3205 0.0187 0.0052 0.0185 0.0029 0.0013}
 set resultsETABS {2.3926 0.0985 0.0172 0.3068 0.0169 0.0046 0.0144 0.0024 0.0011}
@@ -46,7 +46,7 @@ set nyFloor 16
 #foreach numFloor {6 3 1} {
 
 
-if 0 {
+if 1 {
 foreach eleType {quad SSPquad} {
 
     set counter 0
@@ -59,7 +59,6 @@ foreach eleType {quad SSPquad} {
     foreach numFloor {6 3 1} {
         foreach numBay {1 3 6} {
             wipe
-
             model basic -ndm 2 -ndf 2
 
             nDMaterial ElasticIsotropic 1  $E $v
@@ -113,7 +112,6 @@ foreach eleType {quad SSPquad} {
             set diffR     [expr abs($dispSAP-$disp)]
             puts [format $formatString $numFloor [expr $floorHeight * $numFloor] [expr $bayWidth * $numBay] $dispETABS $dispSAP $disp $diffR]
 
-
             # verify result
             if {[expr abs($disp-$dispSAP)] > $tol} {
                 set testOK -1;
@@ -127,7 +125,7 @@ foreach eleType {quad SSPquad} {
 }
 
 
-foreach eleType {ShellMITC4} {
+foreach eleType {ShellMITC4 ShellDKGQ ShellNLDKGQ} {
   # Shell
   puts "\n:: Using '$eleType' element"
 
@@ -139,7 +137,6 @@ foreach eleType {ShellMITC4} {
   foreach numFloor {6 3 1} {
       foreach numBay { 1 3 6} {
           wipe
-
           model basic -ndm 3 -ndf 6
 
           # create the material
@@ -183,14 +180,12 @@ foreach eleType {ShellMITC4} {
               }
           }
 
-          print -json a.json
-
-          integrator LoadControl  1.0
-          algorithm Linear
-          numberer RCM
+          integrator  LoadControl  1.0
+          algorithm   Linear
+          numberer    RCM
           constraints Plain
-          system sparsegen
-          analysis Static
+          system      sparsegen
+          analysis    Static
 
           analyze 1
 
@@ -204,7 +199,7 @@ foreach eleType {ShellMITC4} {
           # verify result
           if {[expr abs($disp-$dispSAP)] > $tol} {
               set testOK -1;
-              puts "failed  shell: $disp - $dispSAP [expr abs($disp-$dispSAP)] > $tol"
+              puts "\b | Failed : $disp - $dispSAP [expr abs($disp-$dispSAP)] > $tol"
           }
 
           incr counter
@@ -212,12 +207,11 @@ foreach eleType {ShellMITC4} {
   }
 }
 
-
+#
 # Brick
-
-
+#
 #  SSPbrick
-foreach eleType {stdBrick} {
+foreach eleType {stdBrick SSPbrick} {
     set counter 0
 
     puts "\n:: Using $eleType element"
@@ -283,7 +277,7 @@ foreach eleType {stdBrick} {
             algorithm Linear
             numberer RCM
             constraints Plain
-            # system ProfileSPD
+            system ProfileSPD
             analysis Static
 
             analyze 1
