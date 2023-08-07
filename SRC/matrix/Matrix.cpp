@@ -56,10 +56,10 @@
 # define  DGETRI dgetri_  
 # define  DGEMM  dgemm_   
 
-// extern "C" int dgerfs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-//                        double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
-//                        double *X, int *LDX, double *FERR, double *BERR, 
-//                        double *WORK, int *IWORK, int *INFO);
+// int dgerfs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
+//             double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
+//             double *X, int *LDX, double *FERR, double *BERR, 
+//             double *WORK, int *IWORK, int *INFO);
 #endif
 
 extern "C" {
@@ -126,8 +126,8 @@ Matrix::Matrix(int nRows,int nCols)
 Matrix::Matrix(double *theData, int row, int col) 
 :numRows(row),numCols(col),dataSize(row*col),data(theData),fromFree(1)
 {
-  assert(row > 0);
-  assert(col > 0);
+//assert(row > 0);
+//assert(col > 0);
 
   // allocate work areas if the first matrix
   if (matrixWork == nullptr) {
@@ -200,12 +200,11 @@ Matrix::~Matrix()
 //
 // METHODS - Zero, Assemble, Solve
 //
-
 int
 Matrix::setData(double *theData, int row, int col) 
 {
-  assert(row > 0);
-  assert(col > 0);
+//assert(row > 0);
+//assert(col > 0);
 
   // delete the old if allocated
   if (data != nullptr)
