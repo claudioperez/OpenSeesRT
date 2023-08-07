@@ -137,10 +137,15 @@ extern OPS_Routine OPS_ElastomericBearingPlasticity3d;
 extern OPS_Routine OPS_ElastomericBearingBoucWen2d;
 extern OPS_Routine OPS_ElastomericBearingBoucWen3d;
 extern OPS_Routine OPS_ElastomericBearingUFRP2d;
-extern OPS_Routine OPS_FlatSliderSimple2d;
-extern OPS_Routine OPS_FlatSliderSimple3d;
-extern OPS_Routine OPS_SingleFPSimple2d;
-extern OPS_Routine OPS_SingleFPSimple3d;
+
+Tcl_CmdProc TclCommand_addFlatSliderBearing;
+// extern OPS_Routine OPS_FlatSliderSimple2d;
+// extern OPS_Routine OPS_FlatSliderSimple3d;
+
+Tcl_CmdProc TclCommand_addSingleFPBearing;
+// extern OPS_Routine OPS_SingleFPSimple2d;
+// extern OPS_Routine OPS_SingleFPSimple3d;
+
 extern OPS_Routine OPS_RJWatsonEQS2d;
 extern OPS_Routine OPS_RJWatsonEQS3d;
 extern OPS_Routine OPS_RockingBC;
@@ -582,20 +587,28 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   }
 
   else if (strcmp(argv[1], "FlatSliderBearing") == 0) {
-    if (ndm == 2)
-      theEle = OPS_FlatSliderSimple2d(rt, argc, argv);
-    else
-      theEle = OPS_FlatSliderSimple3d(rt, argc, argv);
+    return TclCommand_addFlatSliderBearing(clientData,
+                                           interp,
+                                           argc,
+                                           argv);
+//  if (ndm == 2)
+//    theEle = OPS_FlatSliderSimple2d(rt, argc, argv);
+//  else
+//    theEle = OPS_FlatSliderSimple3d(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "SingleFPBearing") == 0 ||
           (strcmp(argv[1], "SinglePFBearing")) == 0 ||
           (strcmp(argv[1], "SFPBearing")) == 0 ||
           (strcmp(argv[1], "SPFBearing")) == 0) {
-    if (ndm == 2)
-      theEle = OPS_SingleFPSimple2d(rt, argc, argv);
-    else
-      theEle = OPS_SingleFPSimple3d(rt, argc, argv);
+    return TclCommand_addSingleFPBearing(clientData,
+                                         interp,
+                                         argc,
+                                         argv);
+//  if (ndm == 2)
+//    theEle = OPS_SingleFPSimple2d(rt, argc, argv);
+//  else
+//    theEle = OPS_SingleFPSimple3d(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "RJWatsonEqsBearing") == 0 ||

@@ -692,6 +692,9 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char * const arg
   int timeSeriesTag = 0;
 
   if (Tcl_GetInt(interp, arg, &timeSeriesTag) == TCL_OK) {
+    if (clientData && (series = ((BasicModelBuilder*)clientData)->getTimeSeries(timeSeriesTag)))
+      return series;
+
     G3_Runtime *rt = G3_getRuntime(interp);
     if ((series = G3_getTimeSeries(rt, timeSeriesTag)))
       return series;

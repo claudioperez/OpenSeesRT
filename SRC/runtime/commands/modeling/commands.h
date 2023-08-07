@@ -71,6 +71,8 @@ Tcl_CmdProc TclCommand_remesh;
 Tcl_CmdProc TclCommand_backgroundMesh; 
 Tcl_CmdProc TclCommand_addBeamIntegration;
 
+//
+Tcl_CmdProc TclCommand_addFrictionModel;
 Tcl_CmdProc TclCommand_addLimitCurve;
 Tcl_CmdProc TclCommand_addNDMaterial;
 
@@ -155,6 +157,8 @@ struct char_cmd {
   {"hystereticBackbone",   TclCommand_addHystereticBackbone},
   {          "backbone",   TclCommand_addHystereticBackbone},
 
+
+  {"frictionModel",        TclCommand_addFrictionModel},
 #if 0
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
@@ -162,7 +166,6 @@ struct char_cmd {
   {"cyclicModel",          TclCommand_addCyclicModel},
   {"limitCurve",           TclCommand_addLimitCurve},
   {"damageModel",          TclCommand_addDamageModel},
-  {"frictionModel",        TclCommand_addFrictionModel},
   {"stiffnessDegradation", TclCommand_addStiffnessDegradation},
   {"unloadingRule",        TclCommand_addUnloadingRule},
   {"strengthDegradation",  TclCommand_addStrengthDegradation},
@@ -199,7 +202,6 @@ Tcl_CmdProc BasicModelBuilder_doShallowFoundationGen;
 // End PRC
 //Leo
 Tcl_CmdProc BasicModelBuilder_addRemoHFiber;
-Tcl_CmdProc TclCommand_addFrictionModel;
 Tcl_CmdProc TclCommand_addStiffnessDegradation;
 Tcl_CmdProc TclCommand_addUnloadingRule;
 Tcl_CmdProc TclCommand_addStrengthDegradation;

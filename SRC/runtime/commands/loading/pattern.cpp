@@ -213,8 +213,9 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
         accelSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
         if (accelSeries == nullptr) {
-          opserr << "WARNING invalid accel series: " << argv[currentArg];
-          opserr << " pattern UniformExcitation -accel {series}\n";
+          // Assume TclSeriesCommand printed error info
+          opserr << "      in <series> for -accel flag of: '" << argv[currentArg];
+          opserr << "'\n      pattern UniformExcitation ... -accel <series>\n";
           return TCL_ERROR;
         }
         currentArg++;
@@ -225,9 +226,10 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
         currentArg++;
         velSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
-        if (velSeries == 0) {
-          opserr << "WARNING invalid vel series: " << argv[currentArg];
-          opserr << " pattern UniformExcitation -vel {series}\n";
+        if (velSeries == nullptr) {
+          // Assume TclSeriesCommand printed error info
+          opserr << "      in <series> for -vel[ocity] flag of: '" << argv[currentArg];
+          opserr << "'\n      pattern UniformExcitation ... -velocity <series>\n";
           return TCL_ERROR;
         }
         currentArg++;
@@ -238,9 +240,10 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
         currentArg++;
         dispSeries = TclSeriesCommand(clientData, interp, argv[currentArg]);
 
-        if (dispSeries == 0) {
-          opserr << "WARNING invalid disp series: " << argv[currentArg];
-          opserr << " pattern UniformExcitation -disp {series}\n";
+        if (dispSeries == nullptr) {
+          // Assume TclSeriesCommand printed error info
+          opserr << "      in <series> for -disp[lacement] flag '" << argv[currentArg] << "' of ";
+          opserr << "'\n      pattern UniformExcitation ... -displacement <series>\n";
           return TCL_ERROR;
         }
         currentArg++;
@@ -262,10 +265,10 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
         doneSeries = true;
     }
 
-    if (dispSeries == 0 && velSeries == 0 && accelSeries == 0) {
-      opserr << "WARNING invalid series, want - pattern UniformExcitation";
+    if (dispSeries == nullptr && velSeries == nullptr && accelSeries == nullptr) {
+      opserr << G3_ERROR_PROMPT << "invalid series, expected:\n    pattern UniformExcitation";
       opserr << "-disp {dispSeries} -vel {velSeries} -accel {accelSeries} ";
-      opserr << "-int {Series Integrator}\n";
+      opserr << "-int {Series Integrator}" << "\n";
       return TCL_ERROR;
     }
 
@@ -344,18 +347,18 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    GroundMotionRecord *theMotion;
+    GroundMotionRecord *theMotion = nullptr;
 
-    // read in the ground motion
+    // Read in the ground motion
     if (accelFileName == 0) {
-      opserr << "WARNING -- No ground motion data provided\n";
+      opserr << G3_ERROR_PROMPT << "No ground motion data provided\n";
       opserr << "UniformExcitation tag: " << patternID << endln;
       return TCL_ERROR;
     }
 
     theMotion = new GroundMotionRecord(accelFileName, dt, factor);
 
-    // create the UniformExcitation Pattern
+    // Create the UniformExcitation Pattern
     thePattern = new UniformExcitation(*theMotion, dir, patternID);
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
 
