@@ -1,4 +1,6 @@
-
+//
+// adapted from https://caps.gsfc.nasa.gov/simpson/software/m33inv_f90.txt
+//
 #include <math.h>
 
 
