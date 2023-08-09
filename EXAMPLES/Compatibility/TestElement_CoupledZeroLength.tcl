@@ -22,7 +22,7 @@ system BandSPD
 #constraints Penalty 1e16 1e16
 constraints Plain
 integrator LoadControl 0.01
-test NormDispIncr 1.0e-12 3 
+test NormDispIncr 1.0e-12 3 2
 algorithm Newton
 numberer RCM
 
