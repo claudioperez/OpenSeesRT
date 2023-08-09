@@ -117,17 +117,18 @@ int CTestRelativeEnergyIncr::test(void)
     // print the data if required
     if (printFlag & ConvergenceTest::PrintTest) {
         opserr << LOG_ITERATE
-               << "Iter: "       << currentIter
-               << ", dX*dR/dX1*dR1: " << product
-               << endln; // << " (max: " << tol << ")\n";
+               << "Iter: "            << pad(currentIter)
+               << ", dX*dR/dX1*dR1: " << pad(product)
+               << endln;
     }
     if (printFlag & ConvergenceTest::PrintTest02) {
         opserr << LOG_ITERATE
-               << "Iter: "       << currentIter
-               << ", dX*dR/dX1*dR1: " << product
-               << endln  // << " (max: " << tol << ")\n";
-               << "\tNorm deltaX: "   << x.pNorm(nType)
-               << ", Norm deltaR: "   << b.pNorm(nType) << endln
+               << "Iter: "            << pad(currentIter)
+               << ", dX*dR/dX1*dR1: " << pad(product)
+               << endln
+               << ", Norm deltaX: "   << pad(x.pNorm(nType))
+               << ", Norm deltaR: "   << pad(b.pNorm(nType)) 
+               << endln
                << "\tdeltaX: "        << x 
                << "\tdeltaR: "        << b;
     }
@@ -144,9 +145,9 @@ int CTestRelativeEnergyIncr::test(void)
             opserr << endln;
         if (printFlag & ConvergenceTest::PrintSuccess) {
             opserr << LOG_SUCCESS 
-                   << "Iter: "      << currentIter
-                   << " dX*dR/dX1*dR1: " << product
-                   << endln; // " (max: " << tol << ")\n";
+                   << "Iter: "           << pad(currentIter)
+                   << ", dX*dR/dX1*dR1: " << pad(product)
+                   << endln;
         }
 
         // return the number of times test has been called - SUCCESSFULL
@@ -158,9 +159,9 @@ int CTestRelativeEnergyIncr::test(void)
         if (printFlag & ConvergenceTest::PrintFailure) {
             opserr << LOG_FAILURE
                    //<< "criteria CTestRelativeEnergyIncr but goin on -"
-                   << " dX*dR/dX1*dR1: " << pad(product)
-                   // << LOG_CONTINUE
-                   << "\tNorm deltaX: "  << pad(x.pNorm(nType))
+                   << "Iter: "            << pad(currentIter)
+                   << ", dX*dR/dX1*dR1: " << pad(product)
+                   << ", Norm deltaX: "  << pad(x.pNorm(nType))
                    << ", Norm deltaR: "  << pad(b.pNorm(nType))
                    << endln;
         }
@@ -173,8 +174,8 @@ int CTestRelativeEnergyIncr::test(void)
             opserr << LOG_FAILURE
                    //<< "criteria CTestRelativeEnergyIncr"
                    // << LOG_CONTINUE
-                   << "Iter: "      << pad(currentIter)
-                   << " dX*dR/dX1*dR1: " << pad(product)
+                   << "Iter: "           << pad(currentIter)
+                   << ", dX*dR/dX1*dR1: " << pad(product)
                    << ", Norm deltaX: "  << pad(x.pNorm(nType))
                    // << LOG_CONTINUE
                    <<   "Norm deltaR: "  << pad(b.pNorm(nType))

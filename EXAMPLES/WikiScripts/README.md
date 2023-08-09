@@ -71,10 +71,10 @@
 |  0  | `Ex9f.build.RCSection.Circ3D.tcl` |  |
 |  0  | `Ex9g.build.HollowSection3D.tcl` |  |
 |  0  | `Example6_4.tcl` |  |
-|  255  | `ExampleSP1.tcl` | couldn't open "peerRecords.txt": no such file or directory |
+|  255  | `ExampleSP1.tcl` | couldn't read file "model.tcl": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
-|  255  | `FreeFieldDamp.tcl` | expected integer but got "-dt" |
+|  255  | `FreeFieldDamp.tcl` | invalid command name "prp" |
 |  255  | `FreeFieldEffective.tcl` | invalid command name "parameter" |
 |  0  | `Get_pyParam.tcl` |  |
 |  0  | `Get_qzParam.tcl` |  |
@@ -92,7 +92,7 @@
 |  0  | `MomentCurvature.tcl` |  |
 |  0  | `MRF_2Story_Concentrated_10Oct2013.tcl` |  |
 |  0  | `MRF_2Story_Concentrated_PanelZone.tcl` | |                                                  | 0|  0  | `MRF_2Story_Concentrated.tcl` |  |
-|  134  | `MultipleShearSpring_Sample.tcl` | python: /home/claudio/opensees/OpenSeesRT/src/libg3/SRC/matrix/Matrix.cpp:105: Matrix::Matrix(int, int): Assertion `nRows > 0' failed. |
+|  0  | `MultipleShearSpring_Sample.tcl` |  |
 |  0  | `Pushover_concentrated.tcl` |  |
 |  0  | `Pushover_distributed.tcl` |  |
 |  0  | `Pushover_example.tcl` |  |
@@ -120,4 +120,4 @@
 |  0  | `Test.tcl` |  |
 |  0  | `Truss.tcl` |  |
 |  0  | `WSection.tcl` |  |
-|  134  | `YamamotoBiaxialHDR_Sample.tcl` | python: /home/claudio/opensees/OpenSeesRT/src/libg3/SRC/matrix/Matrix.cpp:105: Matrix::Matrix(int, int): Assertion `nRows > 0' failed. |
+|  0  | `YamamotoBiaxialHDR_Sample.tcl` |  |

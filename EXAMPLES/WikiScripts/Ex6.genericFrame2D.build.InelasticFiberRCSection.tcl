@@ -11,8 +11,8 @@ set dataDir Output;			# set up name of data directory (can remove this)
 file mkdir $dataDir; 			# create data directory
 set GMdir "../GMfiles/";			# ground-motion file directory
 source LibUnits.tcl;			# define units
-source DisplayPlane.tcl;		# procedure for displaying a plane in model
-source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
+# source DisplayPlane.tcl;		# procedure for displaying a plane in model
+# source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
 source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
@@ -182,7 +182,7 @@ for {set level 2} {$level <=[expr $NStory+1]} {incr level 1} { ;
 		set WeightNode [expr $ColWeightFact*$WeightCol/2 + $BeamWeightFact*$WeightBeam/2]
 		set MassNode [expr $WeightNode/$g];
 		set nodeID [expr $level*10+$pier]
-		mass $nodeID $MassNode 0.0 0.0 0.0 0.0 0.0;			# define mass
+		mass $nodeID $MassNode 0.0 0.0;# 0.0 0.0 0.0;			# define mass
 		set FloorWeight [expr $FloorWeight+$WeightNode];
 	}
 	lappend iFloorWeight $FloorWeight

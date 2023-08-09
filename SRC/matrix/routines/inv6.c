@@ -1,8 +1,10 @@
 //
+// adapted from https://caps.gsfc.nasa.gov/simpson/software/m66inv_f90.txt
+//
 // TODO: Do symmetric version
 //
 #include <math.h>
-// #include <stdio.h>
+
 #if 0
 int cmx_inv6_v0(double *a, double *ainv, int*ok_flag__)
 {

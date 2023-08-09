@@ -1,4 +1,6 @@
-
+//
+// adapted from https://caps.gsfc.nasa.gov/simpson/software/m55inv_f90.txt
+//
 #include <math.h>
 
 int cmx_inv5(double *a, double *ainv, int *ok_flag__)
