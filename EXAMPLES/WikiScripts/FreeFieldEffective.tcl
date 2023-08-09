@@ -71,7 +71,7 @@ set nNodeT  [expr $nNodeX*$nNodeY]
 #-----------------------------------------------------------------------------------------
 model BasicBuilder -ndm 2 -ndf 3
 
-set ppNodesInfo [open ppNodesInfo.dat w]
+set ppNodesInfo [open Output/ppNodesInfo.dat w]
 set count 1
 set layerNodeCount 0
 # loop over soil layers
@@ -293,13 +293,13 @@ puts "Finished creating dashpot material and element..."
 
 # create list for pore pressure nodes
 set nodeList3 {}
-set channel [open "ppNodesInfo.dat" r]
+set channel [open Output/"ppNodesInfo.dat" r]
 set count 0;
 foreach line [split [read -nonewline $channel] \n] {
-set count [expr $count+1];
-set lineData($count) $line
-set nodeNumber [lindex $lineData($count) 0]
-lappend nodeList3 $nodeNumber
+  set count [expr $count+1];
+  set lineData($count) $line
+  set nodeNumber [lindex $lineData($count) 0]
+  lappend nodeList3 $nodeNumber
 }
 close $channel
 
