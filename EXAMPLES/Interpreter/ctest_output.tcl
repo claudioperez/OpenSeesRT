@@ -192,7 +192,7 @@ set P -192
 # ------------------------------
 
 
-foreach test {NormDispIncr NormUnbalance RelativeNormUnbalance EnergyIncr} {
+foreach test {NormDispIncr RelativeNormDispIncr RelativeTotalNormDispIncr NormUnbalance RelativeNormUnbalance EnergyIncr RelativeEnergyIncr} {
   puts "$test"
   reset
 

@@ -111,19 +111,19 @@ int CTestEnergyIncr::test(void)
     // print the data if required
     if (printFlag & ConvergenceTest::PrintTest) {
         opserr << LOG_ITERATE
-               << "Iter: "    << pad(currentIter)
+               << "Iter: "         << pad(currentIter)
                << ", EnergyIncr: " << pad(product) 
                << endln;
     }
     if (printFlag & ConvergenceTest::PrintTest02) {
         opserr << LOG_ITERATE
-               << "Iter: "     << pad(currentIter)
+               << "Iter: "          << pad(currentIter)
                << ", EnergyIncr: "  << pad(product)
-               << endln
-               << "\tNorm deltaX: " << pad(x.pNorm(nType))
+               << LOG_CONTINUE
+               << "Norm deltaX: "   << pad(x.pNorm(nType))
                << ", Norm deltaR: " << pad(b.pNorm(nType))
-               << endln
-               << "\tdeltaX: " << x
+               << LOG_CONTINUE
+               << "deltaX: " << x
                << "\tdeltaR: " << b;
     }
 
@@ -139,9 +139,9 @@ int CTestEnergyIncr::test(void)
             opserr << endln;
 
         else if (printFlag & ConvergenceTest::PrintSuccess) {
-            opserr << LOG_ITERATE
+            opserr << LOG_SUCCESS
                    << "Iter: "         << pad(currentIter)
-                   << ", last EnergyIncr: " << pad(product)
+                   << ", EnergyIncr: " << pad(product)
                    << endln;
         }
 
@@ -156,7 +156,7 @@ int CTestEnergyIncr::test(void)
                  << "failed to converge but goin on -"
                  << ", EnergyIncr: "  << pad(product)
                  << endln
-                 << "\tNorm deltaX: " << pad(x.pNorm(nType))
+                 << ", Norm deltaX: " << pad(x.pNorm(nType))
                  << ", Norm deltaR: " << pad(b.pNorm(nType))
                  << endln;
         }
@@ -171,7 +171,7 @@ int CTestEnergyIncr::test(void)
                    // << LOG_CONTINUE
                    << "Iter: "      << pad(currentIter)
                    << ", EnergyIncr: "   << pad(product)
-                   << endln
+                   // << LOG_CONTINUE
                    << ", Norm deltaX: "  << pad(x.pNorm(nType))
                    << ", Norm deltaR: "  << pad(b.pNorm(nType))
                    << endln;

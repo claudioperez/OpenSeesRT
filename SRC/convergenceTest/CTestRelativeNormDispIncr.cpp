@@ -110,17 +110,17 @@ int CTestRelativeNormDispIncr::test(void)
     // print the data if required
     if (printFlag & ConvergenceTest::PrintTest) {
         opserr << LOG_ITERATE
-               << "Iter: " << pad(currentIter);
-        opserr << " |dR|/|dR1|: " << norm 
-               << " (max: " << tol << ")\n";
+               << "Iter: "        << pad(currentIter)
+               << " |dR|/|dR1|: " << pad(norm)
+               << endln;
     }
     if (printFlag & ConvergenceTest::PrintTest02) {
         opserr << LOG_ITERATE 
-               << "Iter: " << pad(currentIter);
-        opserr << " |dR|/|dR1|: " << norm
-               << " (max: " << tol << ")\n";
-        opserr << "\tNorm deltaX: " << norm 
-               << ", Norm deltaR: " << theSOE->getB().pNorm(nType)
+               << "Iter: "          << pad(currentIter)
+               << " |dR|/|dR1|: "   << pad(norm)
+               << endln;
+        opserr << "\tNorm deltaX: " << pad(norm)
+               << ", Norm deltaR: " << pad(theSOE->getB().pNorm(nType))
                << endln;
         opserr << "\tdeltaX: " << x
                << "\tdeltaR: " << theSOE->getB();
@@ -138,9 +138,9 @@ int CTestRelativeNormDispIncr::test(void)
             opserr << endln;
         if (printFlag & ConvergenceTest::PrintSuccess) {
             opserr << LOG_SUCCESS
-                   << "Iter: " << currentIter
-                   << " |dR|/|dR1|: " << norm 
-                   << " (max: " << tol << ")\n";
+                   << "Iter: "        << pad(currentIter)
+                   << " |dR|/|dR1|: " << pad(norm)
+                   << endln;
         }
 
         // return the number of times test has been called
@@ -151,9 +151,10 @@ int CTestRelativeNormDispIncr::test(void)
     else if ((printFlag & ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
         if   (printFlag & ConvergenceTest::PrintFailure) {
             opserr << LOG_FAILURE
+                   << "Iter: "        << pad(currentIter)
+                   << " |dR|/|dR1|: "   << pad(norm)
+                   << ", Norm deltaR: " << pad(theSOE->getB().pNorm(nType))
                    //<< "criteria CTestRelativeNormDispIncr but going on -"
-                   << " |dR|/|dR1|: "   << norm
-                   << ", Norm deltaR: " << theSOE->getB().pNorm(nType)
                    << endln;
         }
         return currentIter;
@@ -163,9 +164,9 @@ int CTestRelativeNormDispIncr::test(void)
     else if (currentIter >= maxNumIter) { // failes to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
             opserr << LOG_FAILURE 
+                   << "Iter: "        << pad(currentIter)
+                   << " |dR|/|dR1|: "   << pad(norm)
                    //<< "criteria CTestRelativeNormDispIncr"
-                   << endln
-                   << "after: " << pad(currentIter) << " iterations"
                    << endln;
         }
         currentIter++;
