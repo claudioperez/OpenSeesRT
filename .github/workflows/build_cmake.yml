@@ -29,7 +29,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -DNoOpenSeesPy:BOOL=TRUE
+        cmake .. -DNoOpenSeesPyRT:BOOL=TRUE
         cmake --build . --target OpenSeesRT -j8
 
 #   - name: Verification
