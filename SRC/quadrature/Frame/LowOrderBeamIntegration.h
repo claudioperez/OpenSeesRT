@@ -19,26 +19,25 @@
 ** ****************************************************************** */
 
 // $Revision: 1.1 $
-// $Date: 2006-01-18 21:58:24 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/UserDefinedHingeIntegration.h,v $
+// $Date: 2007-10-12 21:03:29 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LowOrderBeamIntegration.h,v $
 
-#ifndef UserDefinedHingeIntegration_h
-#define UserDefinedHingeIntegration_h
+#ifndef LowOrderBeamIntegration_h
+#define LowOrderBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 #include <Vector.h>
 
 class Channel;
 class FEM_ObjectBroker;
 
-class UserDefinedHingeIntegration : public BeamIntegration
+class LowOrderBeamIntegration : public BeamIntegration
 {
  public:
-  UserDefinedHingeIntegration(int npL, const Vector &ptL, const Vector &wtL,
-			      int npR, const Vector &ptR, const Vector &wtR);
-  UserDefinedHingeIntegration();
-  ~UserDefinedHingeIntegration();
+  LowOrderBeamIntegration(int nIP, const Vector &pt, int nc, const Vector &wt);
+  LowOrderBeamIntegration();
+  ~LowOrderBeamIntegration();
   
   void getSectionLocations(int numSections, double L, double *xi);
   void getSectionWeights(int numSections, double L, double *wt);
@@ -48,13 +47,24 @@ class UserDefinedHingeIntegration : public BeamIntegration
   int sendSelf(int cTag, Channel &theChannel);
   int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  void Print(OPS_Stream &s, int flag = 0);
+  int setParameter(const char **argv, int argc, Parameter &param);
+  int updateParameter(int parameterID, Information &info);
+  int activateParameter(int parameterID);
+
+  void Print(OPS_Stream &s, int flag = 0);  
+
+  void getLocationsDeriv(int nIP, double L, double dLdh, double *dptsdh);
+  void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
 
  private:
-  Vector ptsL;
-  Vector wtsL;
-  Vector ptsR;
-  Vector wtsR;
+  Vector pts;
+  Vector wts;
+
+  int Nc;
+
+  int parameterID;
+
+  bool computed;
 };
 
 #endif

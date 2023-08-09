@@ -20,7 +20,7 @@
 
 // $Revision: 1.3 $
 // $Date: 2007-02-15 23:43:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/HingeEndpointBeamIntegration.h,v $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/HingeRadauBeamIntegration.h,v $
 
 /*
  * Reference
@@ -32,22 +32,22 @@ Force-Based Beam-Column Elements." Journal of Structural Engineering,
  *
  */
 
-#ifndef HingeEndpointBeamIntegration_h
-#define HingeEndpointBeamIntegration_h
+#ifndef HingeRadauBeamIntegration_h
+#define HingeRadauBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class HingeEndpointBeamIntegration : public BeamIntegration
+class HingeRadauBeamIntegration : public BeamIntegration
 {
  public:
-  HingeEndpointBeamIntegration(double lpI, double lpJ);
-  HingeEndpointBeamIntegration();
-  ~HingeEndpointBeamIntegration();
+  HingeRadauBeamIntegration(double lpI, double lpJ);
+  HingeRadauBeamIntegration();
+  ~HingeRadauBeamIntegration();
   
   void getSectionLocations(int numSections, double L, double *xi);
   void getSectionWeights(int numSections, double L, double *wt);

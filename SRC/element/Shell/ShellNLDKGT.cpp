@@ -24,8 +24,6 @@
 //
 // Written: Shuhao Zhang & Xinzheng Lu
 //
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include <ID.h>
 #include <Vector.h>
@@ -107,7 +105,7 @@ ShellNLDKGT::ShellNLDKGT(int tag, int node1, int node2, int node3,
   connectedExternalNodes(1) = node2;
   connectedExternalNodes(2) = node3;
 
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
 
     materialPointers[i] = theMaterial.getCopy();
 
@@ -116,7 +114,7 @@ ShellNLDKGT::ShellNLDKGT(int tag, int node1, int node2, int node3,
                 "ShellSection\n";
     }
 
-  } //end for i
+  }
 
   sg[0] = one_over_three;
   sg[1] = one_over_five;

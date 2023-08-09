@@ -19,36 +19,42 @@
 ** ****************************************************************** */
 
 // $Revision: 1.1 $
-// $Date: 2007-10-12 20:57:53 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/TrapezoidalBeamIntegration.h,v $
+// $Date: 2006-01-18 21:58:24 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/UserDefinedHingeIntegration.h,v $
 
-#ifndef TrapezoidalBeamIntegration_h
-#define TrapezoidalBeamIntegration_h
+#ifndef UserDefinedHingeIntegration_h
+#define UserDefinedHingeIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
-class Matrix;
-class ElementalLoad;
+#include <Vector.h>
+
 class Channel;
 class FEM_ObjectBroker;
 
-class TrapezoidalBeamIntegration : public BeamIntegration
+class UserDefinedHingeIntegration : public BeamIntegration
 {
  public:
-  TrapezoidalBeamIntegration();
-  virtual ~TrapezoidalBeamIntegration();
-
-  void getSectionLocations(int nIP, double L, double *xi);
-  void getSectionWeights(int nIP, double L, double *wt);
+  UserDefinedHingeIntegration(int npL, const Vector &ptL, const Vector &wtL,
+			      int npR, const Vector &ptR, const Vector &wtR);
+  UserDefinedHingeIntegration();
+  ~UserDefinedHingeIntegration();
+  
+  void getSectionLocations(int numSections, double L, double *xi);
+  void getSectionWeights(int numSections, double L, double *wt);
 
   BeamIntegration *getCopy(void);
 
-  // These two methods do nothing
-  int sendSelf(int cTag, Channel &theChannel) {return 0;}
-  int recvSelf(int cTag, Channel &theChannel,
-	       FEM_ObjectBroker &theBroker) {return 0;}
+  int sendSelf(int cTag, Channel &theChannel);
+  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  void Print(OPS_Stream &s, int flag = 0);  
+  void Print(OPS_Stream &s, int flag = 0);
+
+ private:
+  Vector ptsL;
+  Vector wtsL;
+  Vector ptsR;
+  Vector wtsR;
 };
 
 #endif

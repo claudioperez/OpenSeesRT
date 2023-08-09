@@ -50,7 +50,7 @@ integrator LoadControl  1.0  1   1.0   10.0
 
 # Convergence test
 #                  tolerance maxIter displayCode
-test EnergyIncr     1.0e-10    20       0
+test EnergyIncr     1.0e-10    20       4
 
 # Solution algorithm
 algorithm Newton

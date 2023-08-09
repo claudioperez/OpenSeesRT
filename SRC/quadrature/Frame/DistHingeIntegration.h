@@ -19,34 +19,25 @@
 ** ****************************************************************** */
 
 // $Revision: 1.2 $
-// $Date: 2008-12-03 23:43:45 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/RegularizedHingeIntegration.h,v $
+// $Date: 2006-09-05 22:57:36 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/DistHingeIntegration.h,v $
 
-// Theory Reference
-// ----------------
-// Scott, M.H. and Hamutcuoglu, O.M. "Numerically consistent regularization
-// of force-based frame elements." International Journal for Numerical
-// Methods in Engineering. http://dx.doi.org/10.1002/nme.2386
+#ifndef DistHingeIntegration_h
+#define DistHingeIntegration_h
 
-#ifndef RegularizedHingeIntegration_h
-#define RegularizedHingeIntegration_h
-
-#include <BeamIntegration.h>
-#include <math.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class RegularizedHingeIntegration : public BeamIntegration
+class DistHingeIntegration : public BeamIntegration
 {
  public:
-  RegularizedHingeIntegration(BeamIntegration &bi, 
-			      double lpI, double lpJ,
-			      double epsI, double epsJ);
-  RegularizedHingeIntegration();
-  ~RegularizedHingeIntegration();
+  DistHingeIntegration(double lpI, double lpJ, BeamIntegration &bi);
+  DistHingeIntegration();
+  ~DistHingeIntegration();
   
   void getSectionLocations(int numSections, double L, double *xi);
   void getSectionWeights(int numSections, double L, double *wt);
@@ -60,21 +51,16 @@ class RegularizedHingeIntegration : public BeamIntegration
   int updateParameter(int parameterID, Information &info);
   int activateParameter(int parameterID);
 
+  void Print(OPS_Stream &s, int flag = 0);
+
   void getLocationsDeriv(int nIP, double L, double dLdh, double *dptsdh);
   void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
-
-  void Print(OPS_Stream &s, int flag = 0);
 
  private:
   double lpI;
   double lpJ;
 
-  double epsI;
-  double epsJ;
-
   BeamIntegration *beamInt;
-
-  double *wf;
 
   int parameterID;
 };

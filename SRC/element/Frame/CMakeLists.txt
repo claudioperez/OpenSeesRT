@@ -1,5 +1,3 @@
-
-add_subdirectory(GaussRules)
 add_subdirectory(Elastic)
 add_subdirectory(ForceInterp)
 add_subdirectory(MixedInterp)

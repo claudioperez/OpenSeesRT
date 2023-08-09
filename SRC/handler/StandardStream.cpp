@@ -26,6 +26,8 @@
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>
+#include <string>
+
 #define OPS_CONSOLE std::cout
 using std::ios;
 
@@ -380,6 +382,7 @@ StandardStream::operator<<(bool b)
 */
  return *this;
 }
+
 OPS_Stream& 
 StandardStream::operator<<(double n)
 {
@@ -391,6 +394,7 @@ StandardStream::operator<<(double n)
 
  return *this;
 }
+
 OPS_Stream& 
 StandardStream::operator<<(float n)
 {
@@ -400,9 +404,20 @@ StandardStream::operator<<(float n)
   if (fileOpen != 0)
     theFile << n;
 
- return *this;
+  return *this;
 }
 
+OPS_Stream&
+StandardStream::operator<<(std::string const&s)
+{
+  if (echoApplication == true)
+    OPS_CONSOLE << s;
+
+  if (fileOpen != 0)
+    theFile << s;
+
+  return *this;
+}
 
 void
 StandardStream::indent(void)

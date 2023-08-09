@@ -78,7 +78,7 @@
 #include <UnloadingRule.h>
 #include <StrengthDegradation.h>
 // #include <HystereticBackbone.h>
-#include <BeamIntegration.h>
+#include <quadrature/Frame/BeamIntegration.h>
 
 #include <Element.h>
 

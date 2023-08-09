@@ -110,15 +110,22 @@ int CTestRelativeTotalNormDispIncr::test(void)
         norm /= totNorm;
 
     // print the data if required
-    if (printFlag == ConvergenceTest::PrintTest)  {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current ratio (|dR|/|dRtot|): " << norm << " (max: " << tol << ")\n";
+    if (printFlag & ConvergenceTest::PrintTest)  {
+        opserr << LOG_ITERATE 
+               << "Iter: "      << pad(currentIter)
+               << ", |dR|/|dRtot|: " << pad(norm) 
+               << endln;
     }
-    if (printFlag == ConvergenceTest::PrintTest02)  {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current ratio (|dR|/|dRtot|): " << norm << " (max: " << tol << ")\n";
-        opserr << "\tNorm deltaX: " << norm << ", Norm deltaR: " << theSOE->getB().pNorm(nType) << endln;
-        opserr << "\tdeltaX: " << x << "\tdeltaR: " << theSOE->getB();
+    if (printFlag & ConvergenceTest::PrintTest02)  {
+        opserr << LOG_ITERATE
+               << "Iter: "      << pad(currentIter);
+        opserr << ", |dR|/|dRtot|: " << pad(norm) 
+               << endln;
+        opserr << "\tNorm deltaX: "  << pad(norm) 
+               << ", Norm deltaR: "  << pad(theSOE->getB().pNorm(nType))
+               << endln;
+        opserr << "\tdeltaX: "       << x 
+               << "\tdeltaR: "       << theSOE->getB();
     }
 
     //
@@ -129,11 +136,13 @@ int CTestRelativeTotalNormDispIncr::test(void)
     if (norm <= tol)  {
 
         // do some printing first
-        if (printFlag == ConvergenceTest::PrintTest || printFlag == ConvergenceTest::PrintTest02)
+        if (printFlag & ConvergenceTest::PrintTest || printFlag & ConvergenceTest::PrintTest02)
             opserr << endln;
-        else if (printFlag == ConvergenceTest::PrintSuccess)  {
-            opserr << LOG_TEST << "iteration: " << currentIter;
-            opserr << " current ratio (|dR|/|dRtot|): " << norm << " (max: " << tol << ")\n";
+        else if (printFlag & ConvergenceTest::PrintSuccess)  {
+            opserr << LOG_SUCCESS
+                   << "Iter: "      << pad(currentIter)
+                   << ", |dR|/|dRtot|: " << pad(norm) 
+                   << endln;
         }
 
         // return the number of times test has been called
@@ -141,11 +150,17 @@ int CTestRelativeTotalNormDispIncr::test(void)
     }
 
     // algo failed to converged after specified number of iterations - but RETURN OK
-    else if ((printFlag == ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter)  {
+    else if ((printFlag & ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter)  {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING Failed to converge with criteria CTestRelativeTotalNormDispIncr but going on -";
-            opserr << " current ratio (|dR|/|dRtot|): " << norm << " (max: " << tol << ")\n";
-            opserr << "\tNorm deltaX: " << norm << ", Norm deltaR: " << theSOE->getB().pNorm(nType) << endln;
+            opserr << LOG_FAILURE 
+                   //<< "criteria CTestRelativeTotalNormDispIncr but going on"
+                   // << LOG_CONTINUE
+                   << "Iter: "      << pad(currentIter)
+                   << ", |dR|/|dRtot|: " << pad(norm) 
+                   << endln
+                   << "\tNorm deltaX: "  << pad(norm)
+                   << ", Norm deltaR: "  << pad(theSOE->getB().pNorm(nType)) 
+                   << endln;
         }
         return currentIter;
     }
@@ -153,8 +168,12 @@ int CTestRelativeTotalNormDispIncr::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter)  { // failes to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING Failed to converge with criteria CTestRelativeTotalNormDispIncr \n";
-            opserr << "after: " << currentIter << " iterations\n";
+            opserr << LOG_FAILURE
+                   //<< "criteria CTestRelativeTotalNormDispIncr"
+                   // << LOG_CONTINUE
+                   << "Iter: "      << pad(currentIter)
+                   << ", |dR|/|dRtot|: " << pad(norm) 
+                   << endln;
         }
         currentIter++;
         return ConvergenceTest::Failure;
@@ -171,7 +190,7 @@ int CTestRelativeTotalNormDispIncr::test(void)
 int CTestRelativeTotalNormDispIncr::start(void)
 {
     if (theSOE == 0) {
-        opserr << "WARNING: CTestRelativeTotalNormDispIncr::test() - no SOE returning true\n";
+        opserr << "WARNING: CTestRelativeTotalNormDispIncr::start - no SOE returning true\n";
         return -1;
     }
 

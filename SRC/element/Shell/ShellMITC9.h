@@ -103,9 +103,9 @@ class ShellMITC9 : public Element
     int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
 
   private : 
-    static constexpr int ndf = 6; //two membrane plus three bending plus one drill
-    static constexpr int nstress = 8; //three membrane, three moment, two shear
-    static constexpr int ngauss = 9;
+    static constexpr int ndf = 6;      // two membrane plus three bending plus one drill
+    static constexpr int nstress  = 8; // three membrane, three moment, two shear
+    static constexpr int ngauss   = 9;
     static constexpr int numnodes = 9;
 
     //static data

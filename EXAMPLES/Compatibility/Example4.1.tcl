@@ -319,16 +319,16 @@ while {$controlDisp < $maxU && $ok == 0} {
     set ok [analyze 1]
     set controlDisp [nodeDisp 3 1]
     if {$ok != 0} {
-        puts "... trying an initial tangent iteration"
-        test NormDispIncr 1.0e-8  4000 0
+        puts ".. trying an initial tangent iteration"
+        test NormDispIncr 1.0e-8  4000 2
         algorithm ModifiedNewton -initial
         set ok [analyze 1]
         if {$ok == 0} {
-          puts "... that worked, back to normal"
+          puts ".. that worked, returning to Newton"
         } else {
           break
         }
-        test NormDispIncr 1.0e-8  10 0
+        test NormDispIncr 1.0e-8  10 2
         algorithm Newton
     }
 }

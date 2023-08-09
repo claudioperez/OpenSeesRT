@@ -18,47 +18,63 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.1 $
-// $Date: 2007-10-12 21:03:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/FixedLocationBeamIntegration.h,v $
+// $Revision: 1.2 $
+// $Date: 2008-12-03 23:43:45 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/RegularizedHingeIntegration.h,v $
 
-#ifndef FixedLocationBeamIntegration_h
-#define FixedLocationBeamIntegration_h
+// Theory Reference
+// ----------------
+// Scott, M.H. and Hamutcuoglu, O.M. "Numerically consistent regularization
+// of force-based frame elements." International Journal for Numerical
+// Methods in Engineering. http://dx.doi.org/10.1002/nme.2386
 
-#include <BeamIntegration.h>
+#ifndef RegularizedHingeIntegration_h
+#define RegularizedHingeIntegration_h
 
-#include <Vector.h>
+#include "BeamIntegration.h"
+#include <math.h>
 
+class Matrix;
+class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class FixedLocationBeamIntegration : public BeamIntegration
+class RegularizedHingeIntegration : public BeamIntegration
 {
  public:
-  FixedLocationBeamIntegration(int nIP, const Vector &pt);
-  FixedLocationBeamIntegration();
-  ~FixedLocationBeamIntegration();
+  RegularizedHingeIntegration(BeamIntegration &bi, 
+			      double lpI, double lpJ,
+			      double epsI, double epsJ);
+  RegularizedHingeIntegration();
+  ~RegularizedHingeIntegration();
   
   void getSectionLocations(int numSections, double L, double *xi);
   void getSectionWeights(int numSections, double L, double *wt);
-
+  
   BeamIntegration *getCopy(void);
 
   int sendSelf(int cTag, Channel &theChannel);
   int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  int setParameter(const char **argv, int argc, Information &info);
+  int setParameter(const char **argv, int argc, Parameter &param);
   int updateParameter(int parameterID, Information &info);
   int activateParameter(int parameterID);
-
-  void Print(OPS_Stream &s, int flag = 0);  
 
   void getLocationsDeriv(int nIP, double L, double dLdh, double *dptsdh);
   void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
 
+  void Print(OPS_Stream &s, int flag = 0);
+
  private:
-  Vector pts;
-  Vector wts;
+  double lpI;
+  double lpJ;
+
+  double epsI;
+  double epsJ;
+
+  BeamIntegration *beamInt;
+
+  double *wf;
 
   int parameterID;
 };
