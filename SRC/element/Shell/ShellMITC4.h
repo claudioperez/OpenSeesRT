@@ -49,25 +49,25 @@ class ShellMITC4 : public Element {
 
  public:
   
-  //null constructor
-  ShellMITC4( );
-  
-  //full constructor
-  ShellMITC4( int tag, 
-	      int node1,
-	      int node2,
-	      int node3,
-	      int node4,
-	      SectionForceDeformation &theMaterial,
-	      bool updateBasis=false) ;
-  
-  //destructor 
-  virtual ~ShellMITC4( ) ;
+    //null constructor
+    ShellMITC4( );
+    
+    //full constructor
+    ShellMITC4( int tag, 
+                int node1,
+                int node2,
+                int node3,
+                int node4,
+                SectionForceDeformation &theMaterial,
+                bool updateBasis=false) ;
+    
+    //destructor 
+    virtual ~ShellMITC4( ) ;
 
-  void setDomain( Domain *theDomain ) ;
-  
-  //get the number of external nodes
-  int getNumExternalNodes( ) const ;
+    void setDomain( Domain *theDomain ) ;
+    
+    //get the number of external nodes
+    int getNumExternalNodes( ) const ;
     
     //return connected external nodes
     const ID &getExternalNodes( ) ;
@@ -127,11 +127,16 @@ class ShellMITC4 : public Element {
     static Matrix mass ;
     static Matrix damping ;
 
-    //quadrature data
-    static const double root3; // = std::numbers::sqrt3<double> ;
-    static const double one_over_root3; // = std::numbers::inv_sqrt3<double>;    
-    static double sg[4] ;
-    static double tg[4] ;
+    // quadrature data
+    static constexpr double one_over_root3 = 0.5773502691896258; // = std::numbers::inv_sqrt3<double>;    
+    static constexpr double sg[4] = { -one_over_root3,
+                                       one_over_root3,
+                                       one_over_root3,
+                                      -one_over_root3};
+    static constexpr double tg[4] = { -one_over_root3,
+                                      -one_over_root3,
+                                       one_over_root3,
+                                       one_over_root3};
     static constexpr const double wg[4] = {1.0, 1.0, 1.0, 1.0};
 
     //node information

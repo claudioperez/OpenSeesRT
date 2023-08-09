@@ -25,6 +25,7 @@
 #ifndef _OPS_Stream
 #define _OPS_Stream
 
+#include <string>
 #include <MovableObject.h>
 enum class openMode  {OVERWRITE, APPEND};
 enum floatField {FIXEDD, SCIENTIFIC};
@@ -76,6 +77,7 @@ class OPS_Stream:  public MovableObject
   virtual OPS_Stream& operator<<(bool b);
   virtual OPS_Stream& operator<<(double n);
   virtual OPS_Stream& operator<<(float n);
+  virtual OPS_Stream& operator<<(std::string const&s) { return *this;};
 
   // parallel stuff
   virtual void setAddCommon(int);

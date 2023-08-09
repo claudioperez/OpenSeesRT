@@ -18,51 +18,37 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.2 $
-// $Date: 2006-09-05 22:57:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/DistHingeIntegration.h,v $
+// $Revision$
+// $Date$
+// $Source$
 
-#ifndef DistHingeIntegration_h
-#define DistHingeIntegration_h
+#ifndef CompositeSimpsonBeamIntegration_h
+#define CompositeSimpsonBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class DistHingeIntegration : public BeamIntegration
+class CompositeSimpsonBeamIntegration : public BeamIntegration
 {
  public:
-  DistHingeIntegration(double lpI, double lpJ, BeamIntegration &bi);
-  DistHingeIntegration();
-  ~DistHingeIntegration();
-  
-  void getSectionLocations(int numSections, double L, double *xi);
-  void getSectionWeights(int numSections, double L, double *wt);
-  
+  CompositeSimpsonBeamIntegration();
+  virtual ~CompositeSimpsonBeamIntegration();
+
+  void getSectionLocations(int nIP, double L, double *xi);
+  void getSectionWeights(int nIP, double L, double *wt);
+
   BeamIntegration *getCopy(void);
 
-  int sendSelf(int cTag, Channel &theChannel);
-  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+  // These two methods do nothing
+  int sendSelf(int cTag, Channel &theChannel) {return 0;}
+  int recvSelf(int cTag, Channel &theChannel,
+	       FEM_ObjectBroker &theBroker) {return 0;}
 
-  int setParameter(const char **argv, int argc, Parameter &param);
-  int updateParameter(int parameterID, Information &info);
-  int activateParameter(int parameterID);
-
-  void Print(OPS_Stream &s, int flag = 0);
-
-  void getLocationsDeriv(int nIP, double L, double dLdh, double *dptsdh);
-  void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
-
- private:
-  double lpI;
-  double lpJ;
-
-  BeamIntegration *beamInt;
-
-  int parameterID;
+  void Print(OPS_Stream &s, int flag = 0);  
 };
 
 #endif

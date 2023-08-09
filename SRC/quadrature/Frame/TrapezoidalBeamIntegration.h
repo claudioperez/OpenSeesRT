@@ -19,24 +19,24 @@
 ** ****************************************************************** */
 
 // $Revision: 1.1 $
-// $Date: 2006-01-18 17:16:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/RadauBeamIntegration.h,v $
+// $Date: 2007-10-12 20:57:53 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/TrapezoidalBeamIntegration.h,v $
 
-#ifndef RadauBeamIntegration_h
-#define RadauBeamIntegration_h
+#ifndef TrapezoidalBeamIntegration_h
+#define TrapezoidalBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class RadauBeamIntegration : public BeamIntegration
+class TrapezoidalBeamIntegration : public BeamIntegration
 {
  public:
-  RadauBeamIntegration();
-  virtual ~RadauBeamIntegration();
+  TrapezoidalBeamIntegration();
+  virtual ~TrapezoidalBeamIntegration();
 
   void getSectionLocations(int nIP, double L, double *xi);
   void getSectionWeights(int nIP, double L, double *wt);

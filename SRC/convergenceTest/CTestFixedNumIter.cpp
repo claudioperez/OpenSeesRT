@@ -103,15 +103,15 @@ int CTestFixedNumIter::test(void)
         norms(currentIter-1) = product;
 
     // print the data if required
-    if (printFlag == ConvergenceTest::PrintTest)  {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current EnergyIncr: " << product;
+    if (printFlag & ConvergenceTest::PrintTest)  {
+        opserr << LOG_ITERATE << "Iter: " << pad(currentIter);
+        opserr << ", EnergyIncr: " << product;
         opserr << " (Norm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << ")\n";
     }
 
-    if (printFlag == ConvergenceTest::PrintTest02)  {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current EnergyIncr: " << product;
+    if (printFlag & ConvergenceTest::PrintTest02)  {
+        opserr << LOG_ITERATE << "Iter: " << pad(currentIter);
+        opserr << ", EnergyIncr: " << product;
         opserr << " (Norm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << ")\n";
         opserr << "\tdeltaX: " << x << "\tdeltaR: " << b;
     }
@@ -122,12 +122,11 @@ int CTestFixedNumIter::test(void)
 
     // if converged - print & return ok
     if (currentIter == maxNumIter)  {
-
-        if (printFlag == ConvergenceTest::PrintTest || printFlag == ConvergenceTest::PrintTest02)
+        if (printFlag & ConvergenceTest::PrintTest || printFlag & ConvergenceTest::PrintTest02)
             opserr << endln;
 
-        if (printFlag == ConvergenceTest::PrintSuccess)  {
-            opserr << LOG_TEST << "iteration: " << currentIter;
+        if (printFlag & ConvergenceTest::PrintSuccess)  {
+            opserr << LOG_SUCCESS << "Iter: " << pad(currentIter);
             opserr << " last EnergyIncr: " << product;
             opserr << " (Norm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << ")\n";
         }

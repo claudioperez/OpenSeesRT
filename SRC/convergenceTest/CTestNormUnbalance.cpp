@@ -81,10 +81,10 @@ int CTestNormUnbalance::test(void)
 {
     // check to ensure the SOE has been set - this should not happen if the
     // return from start() is checked
-    if (theSOE == 0) {
-                 opserr << "WARNING: CTestNormUnbalance::test() - no SOE set.\n";
-        return -2;
-        }
+    if (theSOE == nullptr) {
+      opserr << "WARNING: CTestNormUnbalance::test() - no SOE set.\n";
+      return -2;
+    }
 
     // check to ensure the algo does invoke start() - this is needed otherwise
     // may never get convergence later on in analysis!
@@ -106,15 +106,15 @@ int CTestNormUnbalance::test(void)
     }
 
     // print the data if required
-    if (printFlag == ConvergenceTest::PrintTest) {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current Norm: " << norm << " (max: " << tol;
+    if (printFlag & ConvergenceTest::PrintTest) {
+        opserr << LOG_ITERATE << "Iter: " << pad(currentIter);
+        opserr << ", Norm: " << pad(norm) << " (max: " << tol;
         opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";
     }
-    if (printFlag == ConvergenceTest::PrintTest02) {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current Norm: " << norm << " (max: " << tol << ")\n";
-        opserr << "\tNorm deltaX: " << theSOE->getX().pNorm(nType) << ", Norm deltaR: " << norm << endln;
+    if (printFlag & ConvergenceTest::PrintTest02) {
+        opserr << LOG_ITERATE << "Iter: " << pad(currentIter);
+        opserr << ", Norm: " << pad(norm) << " (max: " << tol << ")\n";
+        opserr << "\tNorm deltaX: " << theSOE->getX().pNorm(nType) << ", Norm deltaR: " << pad(norm) << endln;
         opserr << "\tdeltaX: " << theSOE->getX() << "\tdeltaR: " << x;
     }
 
@@ -149,11 +149,11 @@ int CTestNormUnbalance::test(void)
     if (norm <= tol) {
 
         // do some printing first
-        if (printFlag == ConvergenceTest::PrintTest || printFlag == ConvergenceTest::PrintTest02)
+        if (printFlag & ConvergenceTest::PrintTest || printFlag & ConvergenceTest::PrintTest02)
             opserr << endln;
-        if (printFlag == ConvergenceTest::PrintSuccess || printFlag == 7) {
-            opserr << LOG_TEST << "iteration: " << currentIter;
-            opserr << " current Norm: " << norm << " (max: " << tol;
+        if (printFlag & ConvergenceTest::PrintSuccess || printFlag == 7) {
+            opserr << LOG_SUCCESS << "Iter: " << pad(currentIter);
+            opserr << ", Norm: " << pad(norm) << " (max: " << tol;
             opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";
         }
 
@@ -162,11 +162,13 @@ int CTestNormUnbalance::test(void)
     }
 
     // algo failed to converged after specified number of iterations - but RETURN OK
-    else if ((printFlag == ConvergenceTest::AlwaysSucceed) && (currentIter >= maxNumIter||numIncr>=maxIncr)) {
+    else if ((printFlag & ConvergenceTest::AlwaysSucceed) && (currentIter >= maxNumIter||numIncr>=maxIncr)) {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING Failed to converge with criteria CTestNormUnbalance but going on -";
-            opserr << " current Norm: " << norm << " (max: " << tol;
-            opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";
+            opserr << LOG_FAILURE
+                   //<< "criteria CTestNormUnbalance but going on -";
+                   << ", Norm: " << pad(norm) 
+                   << ", Norm deltaX: " << pad(theSOE->getX().pNorm(nType))
+                   << endln;
         }
         return currentIter;
     }
@@ -174,10 +176,13 @@ int CTestNormUnbalance::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || numIncr >= maxIncr || norm > maxTol) { // the algorithm failed to converge
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING Failed to converge with criteria CTestNormUnbalance \n";
-            opserr << "after: " << currentIter << " iterations ";
-            opserr << " current Norm: " << norm << " (max: " << tol;
-            opserr << ", Norm deltaX: " << theSOE->getX().pNorm(nType) << ")\n";
+            opserr << LOG_FAILURE 
+                   //<< "criteria CTestNormUnbalance"
+                   // << LOG_CONTINUE
+                   << "Iter: "           << pad(currentIter)
+                   << ", Norm: "         << pad(norm)
+                   << ", Norm deltaX: "  << pad(theSOE->getX().pNorm(nType)) 
+                   << endln;
         }
         currentIter++;  // we increment in case analysis does not check for convergence
         return ConvergenceTest::Failure;

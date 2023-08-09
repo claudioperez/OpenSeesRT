@@ -25,7 +25,7 @@
 #ifndef SimpsonBeamIntegration_h
 #define SimpsonBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;

@@ -18,25 +18,25 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.1 $
-// $Date: 2006-01-17 21:12:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/NewtonCotesBeamIntegration.h,v $
+// $Revision: 1.2 $
+// $Date: 2003-06-10 00:36:09 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LobattoBeamIntegration.h,v $
 
-#ifndef NewtonCotesBeamIntegration_h
-#define NewtonCotesBeamIntegration_h
+#ifndef LobattoBeamIntegration_h
+#define LobattoBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class NewtonCotesBeamIntegration : public BeamIntegration
+class LobattoBeamIntegration : public BeamIntegration
 {
  public:
-  NewtonCotesBeamIntegration();
-  virtual ~NewtonCotesBeamIntegration();
+  LobattoBeamIntegration();
+  virtual ~LobattoBeamIntegration();
 
   void getSectionLocations(int nIP, double L, double *xi);
   void getSectionWeights(int nIP, double L, double *wt);

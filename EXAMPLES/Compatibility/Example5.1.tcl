@@ -221,7 +221,7 @@ pattern UniformExcitation  3   2  -accel      $tabasFP
 
 # Create the convergence test
 #                tol   maxIter  printFlag
-test EnergyIncr 1.0e-8   20         3
+test EnergyIncr 1.0e-8   20         1
 
 # Create the solution algorithm
 algorithm Newton

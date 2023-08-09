@@ -252,11 +252,12 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
   }
 
-
+#if 0
   if (result < 0) {
     opserr << G3_WARN_PROMPT << "analyze failed, returned: " << result
            << " error flag\n";
   }
+#endif
 
   char buffer[10];
   sprintf(buffer, "%d", result);

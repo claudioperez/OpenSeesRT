@@ -139,13 +139,13 @@ int NormDispAndUnbalance::test(void)
 
     // print the data if required
     if (printFlag == ConvergenceTest::PrintTest) {
-        opserr << "NormDispAndUnbalance::test() - iteration: " << currentIter;
-        opserr << " current NormX: " << normX;
+        opserr << "NormDispAndUnbalance::test() - iteration: " << pad(currentIter);
+        opserr << ", NormX: " << normX;
         opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
     }
     if (printFlag == ConvergenceTest::PrintTest02) {
-        opserr << "NormDispAndUnbalance::test() - iteration: " << currentIter;
-        opserr << " current NormX: " << normX;
+        opserr << "NormDispAndUnbalance::test() - iteration: " << pad(currentIter);
+        opserr << ", NormX: " << normX;
         opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
         opserr << "\tdeltaX: " << x << "\tdeltaR: " << theSOE->getB();
     }
@@ -161,8 +161,8 @@ int NormDispAndUnbalance::test(void)
         if (printFlag == ConvergenceTest::PrintTest || printFlag == ConvergenceTest::PrintTest02)
             opserr << endln;
         if (printFlag == ConvergenceTest::PrintSuccess) {
-            opserr << "NormDispAndUnbalance::test() - iteration: " << currentIter;
-            opserr << " current NormX: " << normX;
+            opserr << "NormDispAndUnbalance::test() - iteration: " << pad(currentIter);
+            opserr << ", NormX: " << normX;
             opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
         }
 
@@ -174,7 +174,7 @@ int NormDispAndUnbalance::test(void)
     else if ((printFlag == ConvergenceTest::AlwaysSucceed) && (currentIter >= maxNumIter || numIncr > maxIncr)) {
         if (printFlag & ConvergenceTest::PrintFailure) {
             opserr << "WARNING Failed to converge with criteria NormDispAndUnbalance but going on - ";
-            opserr << " current NormX: " << normX;
+            opserr << ", NormX: " << normX;
             opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
         }
         return currentIter;
@@ -183,7 +183,7 @@ int NormDispAndUnbalance::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || numIncr > maxIncr) { // failes to converge
         opserr << "WARNING Failed to converge with criteria NormDispAndUnbalance \n";
-        opserr << "after: " << currentIter << " iterations\n";
+        opserr << "after: " << pad(currentIter) << " iterations\n";
         currentIter++;
         return ConvergenceTest::Failure;
     }

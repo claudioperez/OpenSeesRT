@@ -115,15 +115,21 @@ int CTestRelativeEnergyIncr::test(void)
         product /= norm0;
 
     // print the data if required
-    if (printFlag == ConvergenceTest::PrintTest) {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current Ratio (dX*dR/dX1*dR1): " << product << " (max: " << tol << ")\n";
+    if (printFlag & ConvergenceTest::PrintTest) {
+        opserr << LOG_ITERATE
+               << "Iter: "       << currentIter
+               << ", dX*dR/dX1*dR1: " << product
+               << endln; // << " (max: " << tol << ")\n";
     }
-    if (printFlag == ConvergenceTest::PrintTest02) {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current Ratio (dX*dR/dX1*dR1): " << product << " (max: " << tol << ")\n";
-        opserr << "\tNorm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
-        opserr << "\tdeltaX: " << x << "\tdeltaR: " << b;
+    if (printFlag & ConvergenceTest::PrintTest02) {
+        opserr << LOG_ITERATE
+               << "Iter: "       << currentIter
+               << ", dX*dR/dX1*dR1: " << product
+               << endln  // << " (max: " << tol << ")\n";
+               << "\tNorm deltaX: "   << x.pNorm(nType)
+               << ", Norm deltaR: "   << b.pNorm(nType) << endln
+               << "\tdeltaX: "        << x 
+               << "\tdeltaR: "        << b;
     }
 
     //
@@ -134,11 +140,13 @@ int CTestRelativeEnergyIncr::test(void)
     if (product <= tol) {
 
         // do some printing first
-        if (printFlag == ConvergenceTest::PrintTest || printFlag == ConvergenceTest::PrintTest02)
+        if (printFlag & ConvergenceTest::PrintTest || printFlag & ConvergenceTest::PrintTest02)
             opserr << endln;
-        if (printFlag == ConvergenceTest::PrintSuccess) {
-            opserr << LOG_TEST << "iteration: " << currentIter;
-            opserr << " last Ratio (dX*dR/dX1*dR1): " << product << " (max: " << tol << ")\n";
+        if (printFlag & ConvergenceTest::PrintSuccess) {
+            opserr << LOG_SUCCESS 
+                   << "Iter: "      << currentIter
+                   << " dX*dR/dX1*dR1: " << product
+                   << endln; // " (max: " << tol << ")\n";
         }
 
         // return the number of times test has been called - SUCCESSFULL
@@ -146,11 +154,15 @@ int CTestRelativeEnergyIncr::test(void)
     }
 
     // algo failed to converged after specified number of iterations - but RETURN OK
-    else if ((printFlag == ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
+    else if ((printFlag & ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING Failed to converge with criteria CTestRelativeEnergyIncr but goin on -";
-            opserr << " current Ratio (dX*dR/dX1*dR1): " << product << " (max: " << tol << ")\n";
-            opserr << "\tNorm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
+            opserr << LOG_FAILURE
+                   //<< "criteria CTestRelativeEnergyIncr but goin on -"
+                   << " dX*dR/dX1*dR1: " << pad(product)
+                   // << LOG_CONTINUE
+                   << "\tNorm deltaX: "  << pad(x.pNorm(nType))
+                   << ", Norm deltaR: "  << pad(b.pNorm(nType))
+                   << endln;
         }
         return currentIter;
     }
@@ -158,8 +170,15 @@ int CTestRelativeEnergyIncr::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter) { // >= in case algorithm does not check
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << "WARNING Failed to converge with criteria CTestRelativeEnergyIncr \n";
-            opserr << "after: " << currentIter << " iterations\n";
+            opserr << LOG_FAILURE
+                   //<< "criteria CTestRelativeEnergyIncr"
+                   // << LOG_CONTINUE
+                   << "Iter: "      << pad(currentIter)
+                   << " dX*dR/dX1*dR1: " << pad(product)
+                   << ", Norm deltaX: "  << pad(x.pNorm(nType))
+                   // << LOG_CONTINUE
+                   <<   "Norm deltaR: "  << pad(b.pNorm(nType))
+                   << endln;
         }
         currentIter++;
         return ConvergenceTest::Failure;
@@ -176,7 +195,7 @@ int CTestRelativeEnergyIncr::test(void)
 int CTestRelativeEnergyIncr::start(void)
 {
     if (theSOE == 0) {
-        opserr << "WARNING: CTestRelativeEnergyIncr::test() - no SOE returning true\n";
+        opserr << "WARNING: CTestRelativeEnergyIncr::start - no SOE returning true\n";
         return -1;
     }
 

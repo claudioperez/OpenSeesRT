@@ -57,7 +57,7 @@ integrator LoadControl  1.0  1
 
 # Convergence test
 #                  tolerance maxIter displayCode
-test NormUnbalance  1.0e-10    20        0
+test NormUnbalance  1.0e-10    20        1
 
 # Solution algorithm
 algorithm Newton
@@ -115,7 +115,7 @@ remove loadPattern 1
 rayleigh 0.01 0.0 0.0 0.0
 
 # Create the transient analysis
-test EnergyIncr     1.0e-10    20   0
+test EnergyIncr     1.0e-10    10   0
 algorithm Newton
 numberer RCM
 constraints Plain

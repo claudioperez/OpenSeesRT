@@ -18,57 +18,47 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.3 $
-// $Date: 2007-02-15 23:43:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/HingeRadauBeamIntegration.h,v $
+// $Revision: 1.1 $
+// $Date: 2007-10-12 21:03:29 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/FixedLocationBeamIntegration.h,v $
 
-/*
- * Reference
+#ifndef FixedLocationBeamIntegration_h
+#define FixedLocationBeamIntegration_h
 
-Scott, M. H. and G. L. Fenves. "Plastic Hinge Integration Methods for
-Force-Based Beam-Column Elements." Journal of Structural Engineering,
-132(2):244-252, February 2006.
+#include "BeamIntegration.h"
 
- *
- */
+#include <Vector.h>
 
-#ifndef HingeRadauBeamIntegration_h
-#define HingeRadauBeamIntegration_h
-
-#include <BeamIntegration.h>
-
-class Matrix;
-class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class HingeRadauBeamIntegration : public BeamIntegration
+class FixedLocationBeamIntegration : public BeamIntegration
 {
  public:
-  HingeRadauBeamIntegration(double lpI, double lpJ);
-  HingeRadauBeamIntegration();
-  ~HingeRadauBeamIntegration();
+  FixedLocationBeamIntegration(int nIP, const Vector &pt);
+  FixedLocationBeamIntegration();
+  ~FixedLocationBeamIntegration();
   
   void getSectionLocations(int numSections, double L, double *xi);
   void getSectionWeights(int numSections, double L, double *wt);
-  
+
   BeamIntegration *getCopy(void);
 
   int sendSelf(int cTag, Channel &theChannel);
   int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  int setParameter(const char **argv, int argc, Parameter &param);
+  int setParameter(const char **argv, int argc, Information &info);
   int updateParameter(int parameterID, Information &info);
   int activateParameter(int parameterID);
 
-  void Print(OPS_Stream &s, int flag = 0);
+  void Print(OPS_Stream &s, int flag = 0);  
 
   void getLocationsDeriv(int nIP, double L, double dLdh, double *dptsdh);
   void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
 
  private:
-  double lpI;
-  double lpJ;
+  Vector pts;
+  Vector wts;
 
   int parameterID;
 };

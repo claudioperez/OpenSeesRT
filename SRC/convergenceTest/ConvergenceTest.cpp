@@ -27,6 +27,11 @@
 // Revised:
 //
 #include <ConvergenceTest.h>
+#include <string>
+#include <stdlib.h>
+#include <iomanip>
+#include <sstream>
+ 
 
 ConvergenceTest::ConvergenceTest(int clasTag)
 :MovableObject(clasTag)
@@ -39,3 +44,20 @@ ConvergenceTest::~ConvergenceTest()
 
 }
 
+std::string
+ConvergenceTest::pad(double x)
+{
+  std::ostringstream oss;
+  oss << std::setw(11) << x;
+  return oss.str();
+}
+
+
+std::string
+ConvergenceTest::pad(int i)
+{
+  const int n = 5; // i < 100 ? 3 : 5;
+  std::ostringstream oss;
+  oss << std::setw(n) << i;
+  return oss.str();
+}

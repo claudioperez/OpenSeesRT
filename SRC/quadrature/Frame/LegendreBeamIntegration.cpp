@@ -107,8 +107,8 @@ LegendreBeamIntegration::getCopy(void)
 
 void
 LegendreBeamIntegration::getSectionLocations(int numSections, 
-					     double L,
-					     double *xi)
+                                             double L,
+                                             double *xi)
 {
   switch(numSections) {
     
@@ -309,11 +309,11 @@ LegendreBeamIntegration::getSectionWeights(int numSections, double L,
 void
 LegendreBeamIntegration::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "{\"type\": \"Legendre\"}";
-	}
-	
-	else {
-		s << "Legendre" << endln;
-	}
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "{\"type\": \"Legendre\"}";
+  }
+  
+  else {
+    s << "Legendre" << endln;
+  }
 }

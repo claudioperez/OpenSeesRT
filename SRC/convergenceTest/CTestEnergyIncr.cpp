@@ -109,15 +109,22 @@ int CTestEnergyIncr::test(void)
         norms(currentIter-1) = product;
 
     // print the data if required
-    if (printFlag == ConvergenceTest::PrintTest) {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current EnergyIncr: " << product << " (max: " << tol << ")\n";
+    if (printFlag & ConvergenceTest::PrintTest) {
+        opserr << LOG_ITERATE
+               << "Iter: "    << pad(currentIter)
+               << ", EnergyIncr: " << pad(product) 
+               << endln;
     }
-    if (printFlag == ConvergenceTest::PrintTest02) {
-        opserr << LOG_TEST << "iteration: " << currentIter;
-        opserr << " current EnergyIncr: " << product << " (max: " << tol << ")\n";
-        opserr << "\tNorm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
-        opserr << "\tdeltaX: " << x << "\tdeltaR: " << b;
+    if (printFlag & ConvergenceTest::PrintTest02) {
+        opserr << LOG_ITERATE
+               << "Iter: "     << pad(currentIter)
+               << ", EnergyIncr: "  << pad(product)
+               << endln
+               << "\tNorm deltaX: " << pad(x.pNorm(nType))
+               << ", Norm deltaR: " << pad(b.pNorm(nType))
+               << endln
+               << "\tdeltaX: " << x
+               << "\tdeltaR: " << b;
     }
 
     //
@@ -128,11 +135,14 @@ int CTestEnergyIncr::test(void)
     if (product <= tol) {
 
         // do some printing first
-        if (printFlag == ConvergenceTest::PrintTest || printFlag == ConvergenceTest::PrintTest02)
+        if (printFlag & ConvergenceTest::PrintTest || printFlag & ConvergenceTest::PrintTest02)
             opserr << endln;
-        else if (printFlag == ConvergenceTest::PrintSuccess) {
-            opserr << LOG_TEST << "iteration: " << currentIter;
-            opserr << " last EnergyIncr: " << product << " (max: " << tol << ")\n";
+
+        else if (printFlag & ConvergenceTest::PrintSuccess) {
+            opserr << LOG_ITERATE
+                   << "Iter: "         << pad(currentIter)
+                   << ", last EnergyIncr: " << pad(product)
+                   << endln;
         }
 
         // return the number of times test has been called - SUCCESSFULL
@@ -140,11 +150,15 @@ int CTestEnergyIncr::test(void)
     }
 
     // algo failed to converged after specified number of iterations - but RETURN OK
-    else if ((printFlag == ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
+    else if ((printFlag & ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
         if (printFlag & ConvergenceTest::PrintFailure) {
-          opserr << LOG_TEST << "WARNING failed to converge but goin on -";
-          opserr << " current EnergyIncr: " << product << " (max: " << tol << ")\n";
-          opserr << "\tNorm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
+          opserr << LOG_FAILURE 
+                 << "failed to converge but goin on -"
+                 << ", EnergyIncr: "  << pad(product)
+                 << endln
+                 << "\tNorm deltaX: " << pad(x.pNorm(nType))
+                 << ", Norm deltaR: " << pad(b.pNorm(nType))
+                 << endln;
         }
         return currentIter;
     }
@@ -152,10 +166,15 @@ int CTestEnergyIncr::test(void)
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || product > maxTol) { // >= in case algorithm does not check
         if (printFlag & ConvergenceTest::PrintFailure) {
-            opserr << LOG_TEST << "WARNING failed to converge \n";
-            opserr << "after: " << currentIter << " iterations\n";
-            opserr << " current EnergyIncr: " << product << " (max: " << tol << ") ";
-            opserr << ", Norm deltaX: " << x.pNorm(nType) << ", Norm deltaR: " << b.pNorm(nType) << endln;
+            opserr << LOG_FAILURE
+                   //<< "criteria CTestEnergyIncr"
+                   // << LOG_CONTINUE
+                   << "Iter: "      << pad(currentIter)
+                   << ", EnergyIncr: "   << pad(product)
+                   << endln
+                   << ", Norm deltaX: "  << pad(x.pNorm(nType))
+                   << ", Norm deltaR: "  << pad(b.pNorm(nType))
+                   << endln;
         }
         currentIter++;
         return ConvergenceTest::Failure;

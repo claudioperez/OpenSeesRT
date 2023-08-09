@@ -18,42 +18,43 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision$
-// $Date$
-// $Source$
+// $Revision: 1.2 $
+// $Date: 2003-06-10 00:36:09 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/UserDefinedBeamIntegration.h,v $
 
-#ifndef ChebyshevBeamIntegration_h
-#define ChebyshevBeamIntegration_h
+#ifndef UserDefinedBeamIntegration_h
+#define UserDefinedBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
-class Matrix;
-class ElementalLoad;
+#include <Vector.h>
+
 class Channel;
 class FEM_ObjectBroker;
 
-#define BEAM_INTEGRATION_TAG_Chebyshev 1234
-
-class ChebyshevBeamIntegration : public BeamIntegration
+class UserDefinedBeamIntegration : public BeamIntegration
 {
  public:
-  ChebyshevBeamIntegration(int type = 1);
-  virtual ~ChebyshevBeamIntegration();
-
-  void getSectionLocations(int nIP, double L, double *xi);
-  void getSectionWeights(int nIP, double L, double *wt);
+  UserDefinedBeamIntegration(int nIP, const Vector &pt, const Vector &wt);
+  UserDefinedBeamIntegration();
+  ~UserDefinedBeamIntegration();
+  
+  void getSectionLocations(int numSections, double L, double *xi);
+  void getSectionWeights(int numSections, double L, double *wt);
 
   BeamIntegration *getCopy(void);
 
-  // These two methods do nothing
-  int sendSelf(int cTag, Channel &theChannel) {return 0;}
-  int recvSelf(int cTag, Channel &theChannel,
-	       FEM_ObjectBroker &theBroker) {return 0;}
+  int sendSelf(int cTag, Channel &theChannel);
+  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  void Print(OPS_Stream &s, int flag = 0);
+  int setParameter(const char **argv, int argc, Parameter &param);
+  int updateParameter(int parameterID, Information &info);
+
+  void Print(OPS_Stream &s, int flag = 0);  
 
  private:
-  int type;
+  Vector pts;
+  Vector wts;
 };
 
 #endif

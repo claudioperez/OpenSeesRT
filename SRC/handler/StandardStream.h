@@ -26,7 +26,7 @@
 #define _StandardStream
 
 #include <OPS_Stream.h>
-
+#include <string>
 #include <fstream>
 using std::ofstream;
 
@@ -72,6 +72,7 @@ class StandardStream : public OPS_Stream
   OPS_Stream& operator<<(bool b);
   OPS_Stream& operator<<(double n);
   OPS_Stream& operator<<(float n);
+  OPS_Stream& operator<<(std::string const&);
 
   int sendSelf(int commitTag, Channel &theChannel);  
   int recvSelf(int commitTag, Channel &theChannel, 

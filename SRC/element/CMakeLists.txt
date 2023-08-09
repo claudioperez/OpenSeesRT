@@ -4,11 +4,15 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-#add_library(OPS_Element OBJECT)
-target_link_libraries(OPS_Element PUBLIC OPS_Domain PRIVATE coordTransformation)
+
+target_link_libraries(OPS_Element 
+  PUBLIC  OPS_Domain 
+
+  PRIVATE coordTransformation
+          OPS_FrameQuadrature
+)
 
 target_include_directories(OPS_Element PUBLIC
-
   ${OPS_SRC_DIR}/element/Boundary
   ${OPS_SRC_DIR}/element/Plane
   ${OPS_SRC_DIR}/element/tetrahedron

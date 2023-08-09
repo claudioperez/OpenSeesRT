@@ -19,52 +19,36 @@
 ** ****************************************************************** */
 
 // $Revision: 1.1 $
-// $Date: 2007-10-12 21:03:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LowOrderBeamIntegration.h,v $
+// $Date: 2006-01-17 21:12:56 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LegendreBeamIntegration.h,v $
 
-#ifndef LowOrderBeamIntegration_h
-#define LowOrderBeamIntegration_h
+#ifndef LegendreBeamIntegration_h
+#define LegendreBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
-#include <Vector.h>
-
+class Matrix;
+class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class LowOrderBeamIntegration : public BeamIntegration
+class LegendreBeamIntegration : public BeamIntegration
 {
  public:
-  LowOrderBeamIntegration(int nIP, const Vector &pt, int nc, const Vector &wt);
-  LowOrderBeamIntegration();
-  ~LowOrderBeamIntegration();
-  
-  void getSectionLocations(int numSections, double L, double *xi);
-  void getSectionWeights(int numSections, double L, double *wt);
+  LegendreBeamIntegration();
+  virtual ~LegendreBeamIntegration();
+
+  void getSectionLocations(int nIP, double L, double *xi);
+  void getSectionWeights(int nIP, double L, double *wt);
 
   BeamIntegration *getCopy(void);
 
-  int sendSelf(int cTag, Channel &theChannel);
-  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-
-  int setParameter(const char **argv, int argc, Parameter &param);
-  int updateParameter(int parameterID, Information &info);
-  int activateParameter(int parameterID);
+  // These two methods do nothing
+  int sendSelf(int cTag, Channel &theChannel) {return 0;}
+  int recvSelf(int cTag, Channel &theChannel,
+	       FEM_ObjectBroker &theBroker) {return 0;}
 
   void Print(OPS_Stream &s, int flag = 0);  
-
-  void getLocationsDeriv(int nIP, double L, double dLdh, double *dptsdh);
-  void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
-
- private:
-  Vector pts;
-  Vector wts;
-
-  int Nc;
-
-  int parameterID;
-
-  bool computed;
 };
 
 #endif

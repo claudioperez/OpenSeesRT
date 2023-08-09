@@ -160,7 +160,7 @@ numberer RCM
 
 # Create the convergence test, the norm of the residual with a tolerance of 
 # 1e-12 and a max number of iterations of 10
-test NormDispIncr 1.0e-12  10 3
+test NormDispIncr 1.0e-12  10 2
 
 # Create the solution algorithm, a Newton-Raphson algorithm
 algorithm Newton

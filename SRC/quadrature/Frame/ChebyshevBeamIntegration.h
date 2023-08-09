@@ -18,25 +18,27 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// $Revision: 1.1 $
-// $Date: 2006-01-17 21:12:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LegendreBeamIntegration.h,v $
+// $Revision$
+// $Date$
+// $Source$
 
-#ifndef LegendreBeamIntegration_h
-#define LegendreBeamIntegration_h
+#ifndef ChebyshevBeamIntegration_h
+#define ChebyshevBeamIntegration_h
 
-#include <BeamIntegration.h>
+#include "BeamIntegration.h"
 
 class Matrix;
 class ElementalLoad;
 class Channel;
 class FEM_ObjectBroker;
 
-class LegendreBeamIntegration : public BeamIntegration
+#define BEAM_INTEGRATION_TAG_Chebyshev 1234
+
+class ChebyshevBeamIntegration : public BeamIntegration
 {
  public:
-  LegendreBeamIntegration();
-  virtual ~LegendreBeamIntegration();
+  ChebyshevBeamIntegration(int type = 1);
+  virtual ~ChebyshevBeamIntegration();
 
   void getSectionLocations(int nIP, double L, double *xi);
   void getSectionWeights(int nIP, double L, double *wt);
@@ -48,7 +50,10 @@ class LegendreBeamIntegration : public BeamIntegration
   int recvSelf(int cTag, Channel &theChannel,
 	       FEM_ObjectBroker &theBroker) {return 0;}
 
-  void Print(OPS_Stream &s, int flag = 0);  
+  void Print(OPS_Stream &s, int flag = 0);
+
+ private:
+  int type;
 };
 
 #endif
