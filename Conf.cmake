@@ -41,10 +41,10 @@ set(OPS_Extension_List
   OPS_ASDEA
 )
 
-set(OPS_Exclude_List
-  OPS_Element_feap
-  OPS_Material_StressDensity
-  OPS_Recorder_PVD
-  # OPS_Uniaxial_Fedeas
-)
+# set(OPS_Exclude_List
+#   OPS_Element_feap
+#   OPS_Material_StressDensity
+#   OPS_Recorder_PVD
+#   # OPS_Uniaxial_Fedeas
+# )
 
