@@ -15,7 +15,7 @@
 
 static Element *TclDispatch_SSPbrick(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv);
 static Element *TclDispatch_SSPbrickUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv);
-static Element *TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv);
+static int      TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv);
 static Element *TclDispatch_SSPquadUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv);
 
 int
@@ -23,17 +23,21 @@ TclCommand_SSP_Element(ClientData clientData, Tcl_Interp* interp, int argc, TCL_
 {
   Element* theEle = nullptr;
   assert(clientData != nullptr);
+
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
 
   if (strcasecmp(argv[1], "SSPquad")==0) {
-    theEle = TclDispatch_SSPquad(clientData, interp, argc, argv);
+    return TclCommand_addSSPquad(clientData, interp, argc, argv);
   }
   else if (strcasecmp(argv[1], "SSPquadUP")==0) {
     theEle = TclDispatch_SSPquadUP(clientData, interp, argc, argv);
   }
   else if (strcasecmp(argv[1], "SSPbrick")==0) {
     theEle = TclDispatch_SSPbrick(clientData, interp, argc, argv);
+  }
+  else if (strcasecmp(argv[1], "SSPbrickUP")==0) {
+    theEle = TclDispatch_SSPbrickUP(clientData, interp, argc, argv);
   }
 
   if (theEle && domain->addElement(theEle))
@@ -190,11 +194,33 @@ TclDispatch_SSPbrickUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_
 
 
 #include <element/community/UWelements/SSPquad.h>
-static Element*
-TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
+static int
+TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+
+  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
+    opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
+              "with quad element\n";
+    return TCL_ERROR;
+  }
+
+  // check the number of arguments is correct
+  int argStart = 2;
+
+//if ((argc - argStart) < 8) {
+//  opserr << "WARNING insufficient arguments\n";
+//  opserr << "Want: element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? "
+//            "thk? type? matTag? <pressure? rho? b1? b2?>\n";
+//  return TCL_ERROR;
+//}
+
+  // get the id and end nodes
+  int tag, iNode, jNode, kNode, lNode, matID;
+  double thickness = 1.0;
+  double b1 = 0.0;
+  double b2 = 0.0;
 
   static int num_SSPquad;
   if (num_SSPquad == 0) {
@@ -203,15 +229,89 @@ TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Cha
               "P.Mackenzie-Helnwein, U.Washington\n";
   }
 
-  // Pointer to an element that will be returned
-  Element *theElement = nullptr;
-
-  if (argc < 8) {
+  if (argc < 10) {
     opserr << "Invalid #args, want: element SSPquad eleTag? iNode? jNode? "
               "kNode? lNode? matTag? type? thickness? <b1? b2?>?\n";
-    return nullptr;
+    return TCL_ERROR;
   }
 
+#if 1
+  int argi = 1;
+  if (Tcl_GetInt(interp, argv[++argi], &tag) != TCL_OK) {
+    opserr << "WARNING invalid SSPquad eleTag" << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[++argi], &iNode) != TCL_OK) {
+    opserr << "WARNING invalid iNode\n";
+    opserr << "SSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[++argi], &jNode) != TCL_OK) {
+    opserr << "WARNING invalid jNode\n";
+    opserr << "SSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[++argi], &kNode) != TCL_OK) {
+    opserr << "WARNING invalid kNode\n";
+    opserr << "SSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[++argi], &lNode) != TCL_OK) {
+    opserr << "WARNING invalid lNode\n";
+    opserr << "SSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetDouble(interp, argv[++argi], &thickness) != TCL_OK) {
+    opserr << "WARNING invalid thickness\n";
+    opserr << "SSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  TCL_Char *type = argv[++argi];
+
+  if (Tcl_GetInt(interp, argv[++argi], &matID) != TCL_OK) {
+    opserr << "WARNING invalid matID\n";
+    opserr << "SSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  if (argi < argc) {
+    if (Tcl_GetDouble(interp, argv[++argi], &b1) != TCL_OK) {
+      opserr << "WARNING invalid b1\n";
+      opserr << "SSPquad element: " << tag << endln;
+      return TCL_ERROR;
+    }
+    if (Tcl_GetDouble(interp, argv[++argi], &b2) != TCL_OK) {
+      opserr << "WARNING invalid b2\n";
+      opserr << "SSPquad element: " << tag << endln;
+      return TCL_ERROR;
+    }
+  }
+
+  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  if (theMaterial == nullptr) {
+    opserr << "WARNING material not found\n";
+    opserr << "Material: " << matID;
+    opserr << "\n\tSSPquad element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  Element *theElem =
+      new SSPquad(tag, iNode, jNode, kNode, lNode, *theMaterial,
+                       type, thickness, b1, b2);
+
+  if (builder->getDomain()->addElement(theElem) == false) {
+    opserr << "WARNING could not add element to the domain\n";
+    opserr << "FourNodeQuad element: " << tag << endln;
+    delete theElem;
+    return TCL_ERROR;
+  }
+
+  return TCL_OK;
+#else
   int iData[6];
   const char *theType;
   double dData[3] = {1.0, 0.0, 0.0};
@@ -234,6 +334,7 @@ TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Cha
 
   int matID = iData[5];
   NDMaterial *theMaterial = builder->getNDMaterial(matID);
+
   if (theMaterial == 0) {
     opserr << "WARNING element SSPquad " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";
@@ -257,8 +358,8 @@ TclDispatch_SSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Cha
     opserr << "WARNING could not create element of type SSPquad\n";
     return 0;
   }
-
   return theElement;
+#endif
 }
 
 static Element*

@@ -5,6 +5,8 @@
 #
 #==============================================================================
 
+target_sources(OPS_Runtime PRIVATE Tcl_UWElements.cpp)
+
 target_sources(OPS_Element
   PRIVATE
 #   SimpleContact2D.cpp

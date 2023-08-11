@@ -178,17 +178,17 @@ G3_TclElementCommand TclBasicBuilder_addDispBeamColumnInt;
 G3_TclElementCommand TclBasicBuilder_addForceBeamColumn;
 G3_TclElementCommand TclBasicBuilder_addGradientInelasticBeamColumn;
 
-G3_TclElementCommand TclBasicBuilder_addEnhancedQuad;
-G3_TclElementCommand TclBasicBuilder_addNineNodeMixedQuad;
-G3_TclElementCommand TclBasicBuilder_addNineNodeQuad;
-G3_TclElementCommand TclBasicBuilder_addEightNodeQuad;
-G3_TclElementCommand TclBasicBuilder_addFourNodeQuadWithSensitivity;
-G3_TclElementCommand TclBasicBuilder_addFourNodeQuad;
-G3_TclElementCommand TclBasicBuilder_addFourNodeQuadUP;
-G3_TclElementCommand TclBasicBuilder_addNineFourNodeQuadUP;
-G3_TclElementCommand TclBasicBuilder_addBBarFourNodeQuadUP;
-G3_TclElementCommand TclBasicBuilder_addConstantPressureVolumeQuad;
-G3_TclElementCommand TclBasicBuilder_addSixNodeTri;
+Tcl_CmdProc TclBasicBuilder_addEnhancedQuad;
+Tcl_CmdProc TclBasicBuilder_addNineNodeMixedQuad;
+Tcl_CmdProc TclBasicBuilder_addNineNodeQuad;
+Tcl_CmdProc TclBasicBuilder_addEightNodeQuad;
+Tcl_CmdProc TclBasicBuilder_addFourNodeQuadWithSensitivity;
+Tcl_CmdProc TclBasicBuilder_addFourNodeQuad;
+Tcl_CmdProc TclBasicBuilder_addFourNodeQuadUP;
+Tcl_CmdProc TclBasicBuilder_addNineFourNodeQuadUP;
+Tcl_CmdProc TclBasicBuilder_addBBarFourNodeQuadUP;
+Tcl_CmdProc TclBasicBuilder_addConstantPressureVolumeQuad;
+Tcl_CmdProc TclBasicBuilder_addSixNodeTri;
 
 
 
@@ -649,27 +649,24 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 //
   else if ((strcmp(argv[1], "Shell") == 0) ||
            (strcmp(argv[1], "ShellMITC4") == 0)) {
-
     theEle = TclDispatch_newShellMITC4(clientData, interp, argc, argv);
+  }
 
-  } else if (strcmp(argv[1], "ShellMITC4Thermal") == 0) {
-
+  else if (strcmp(argv[1], "ShellMITC4Thermal") == 0) {
     theEle = TclDispatch_newShellMITC4Thermal(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "ShellNLDKGQThermal") == 0) {
-
     theEle = TclDispatch_newShellNLDKGQThermal(clientData, interp, argc, argv);
+  }
 
-  } else if ((strcmp(argv[1], "ShellNL") == 0) ||
+  else if ((strcmp(argv[1], "ShellNL") == 0) ||
              (strcmp(argv[1], "ShellMITC9") == 0)) {
-
     theEle = TclDispatch_newShellMITC9(clientData, interp, argc, argv);
   }
 
   else if ((strcmp(argv[1], "shellDKGQ") == 0) ||
            (strcmp(argv[1], "ShellDKGQ") == 0)) {
-
     theEle = TclDispatch_newShellDKGQ(clientData, interp, argc, argv);
   }
 
@@ -698,6 +695,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     // theEle = OPS_Tri31(info);
     theEle = TclDispatch_newTri31(clientData, interp, argc, argv);
   }
+
 
 
   // if one of the above worked
@@ -738,9 +736,8 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 #endif
 
   else if (strcmp(argv[1], "dispBeamColumnInt") == 0) {
-    int result = TclBasicBuilder_addDispBeamColumnInt(
+    return TclBasicBuilder_addDispBeamColumnInt(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
 
   } else if (strcmp(argv[1], "ForceBeamColumn") == 0 ||
              strcmp(argv[1], "DispBeamColumn") == 0 ||
@@ -757,89 +754,64 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
              strcmp(argv[1], "NonlinearBeamColumn") == 0 ||
              strcmp(argv[1], "DispBeamColumnWithSensitivity") == 0) {
 
-    int result = TclBasicBuilder_addForceBeamColumn(clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addForceBeamColumn(clientData, interp, argc, argv, theTclDomain, theTclBuilder);
 
   } else if ((strstr(argv[1], "BeamWithHinges") != 0) ||
              (strcmp(argv[1], "BeamWithHinges") == 0)) {
-    int result = TclBasicBuilder_addBeamWithHinges(clientData, interp, argc, argv,
-                                                   theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addBeamWithHinges(clientData, interp, argc, argv,
+                                             theTclDomain, theTclBuilder);
 
   } else if ((strcmp(argv[1], "Quad") == 0) ||
              (strcmp(argv[1], "stdQuad") == 0)) {
-    int result = TclBasicBuilder_addFourNodeQuad(clientData, interp, argc, argv,
-                                                 theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addFourNodeQuad(clientData, interp, argc, argv);
 
 
   } else if (strcmp(argv[1], "quadWithSensitivity") == 0) {
-    int result = TclBasicBuilder_addFourNodeQuadWithSensitivity(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addFourNodeQuadWithSensitivity(
+        clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "enhancedQuad") == 0) {
-    int result = TclBasicBuilder_addEnhancedQuad(clientData, interp, argc, argv,
-                                                 theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addEnhancedQuad(clientData, interp, argc, argv);
 
   } else if ((strcmp(argv[1], "bbarQuad") == 0) ||
              (strcmp(argv[1], "mixedQuad") == 0)) {
-    int result = TclBasicBuilder_addConstantPressureVolumeQuad(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addConstantPressureVolumeQuad(clientData, interp, argc, argv);
 
   } else if ((strcmp(argv[1], "nineNodeMixedQuad") == 0) ||
              (strcmp(argv[1], "nineNodeQuad") == 0)) {
-    int result = TclBasicBuilder_addNineNodeMixedQuad(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addNineNodeMixedQuad(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "quad9n") == 0) {
-    int result = TclBasicBuilder_addNineNodeQuad(clientData, interp, argc, argv,
-                                                 theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addNineNodeQuad(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "quad8n") == 0) {
-    int result = TclBasicBuilder_addEightNodeQuad(clientData, interp, argc, argv,
-                                                  theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addEightNodeQuad(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "tri6n") == 0) {
-    int result = TclBasicBuilder_addSixNodeTri(clientData, interp, argc, argv,
-                                               theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addSixNodeTri(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "quadUP") == 0) {
-    int result = TclBasicBuilder_addFourNodeQuadUP(clientData, interp, argc, argv,
-                                                   theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addFourNodeQuadUP(clientData, interp, argc, argv);
+
   } else if (strcmp(argv[1], "9_4_QuadUP") == 0) {
-    int result = TclBasicBuilder_addNineFourNodeQuadUP(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addNineFourNodeQuadUP(
+        clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "bbarQuadUP") == 0) {
-    int result = TclBasicBuilder_addBBarFourNodeQuadUP(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addBBarFourNodeQuadUP(clientData, interp, argc, argv);
 //
 // Brick
 //
   } else if (strcmp(argv[1], "BrickUP") == 0) {
-    int result = TclBasicBuilder_addBrickUP(clientData, interp, argc, argv);
-    return result;
+    return TclBasicBuilder_addBrickUP(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "20_8_BrickUP") == 0) {
-    int result = TclBasicBuilder_addTwentyEightNodeBrickUP(clientData, interp, argc, argv);
-    return result;
+    return TclBasicBuilder_addTwentyEightNodeBrickUP(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "20NodeBrick") == 0) {
-    int result = TclBasicBuilder_addTwentyNodeBrick(clientData, interp, argc, argv);
-    return result;
+    return TclBasicBuilder_addTwentyNodeBrick(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "bbarBrickUP") == 0) {
-    int result = TclBasicBuilder_addBBarBrickUP(clientData, interp, argc, argv);
-    return result;
+    return TclBasicBuilder_addBBarBrickUP(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "stdBrick") == 0 ||
              strcmp(argv[1], "bbarBrick") == 0 ||
@@ -849,8 +821,8 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     return TclBasicBuilder_addBrick(clientData, interp, argc, argv);
   
   } else if ((strcasecmp(argv[1], "SSPquad")==0)   ||
-           (strcasecmp(argv[1], "SSPquadUP")==0) ||
-           (strcasecmp(argv[1], "SSPbrick")==0)) {
+             (strcasecmp(argv[1], "SSPquadUP")==0) ||
+             (strcasecmp(argv[1], "SSPbrick")==0)) {
     int TclCommand_SSP_Element(ClientData, Tcl_Interp*, int, TCL_Char** const);
     return TclCommand_SSP_Element(clientData, interp, argc, argv);
   }
@@ -858,13 +830,13 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 // Zero-Length
 //
   else if (strcmp(argv[1], "zeroLength") == 0) {
-    int result = TclBasicBuilder_addZeroLength(
+    return TclBasicBuilder_addZeroLength(
         clientData, interp, argc, argv, nullptr, nullptr);
-    return result;
+
   } else if (strcmp(argv[1], "zeroLengthSection") == 0) {
-    int result = TclBasicBuilder_addZeroLengthSection(
+    return TclBasicBuilder_addZeroLengthSection(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+
   } else if (strcmp(argv[1], "zeroLengthRocking") == 0) {
     int result = TclBasicBuilder_addZeroLengthRocking(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
@@ -2079,7 +2051,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
       adjCi, adjCj, ifBalance, limFo, limFi, nIter);
 
   // then add the KikuchiBearing to the domain
-  if (theTclDomain->addElement(theElement) == false) {
+  if (builder->getDomain()->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
     opserr << "KikuchiBearing element: " << eleTag << endln;
     delete theElement;
@@ -2297,16 +2269,10 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
 int
 TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc,
                              TCL_Char ** const argv, Domain *theTclDomain,
-                             TclBasicBuilder *theTclBuilder, int eleArgStart)
+                             TclBasicBuilder *unused, int eleArgStart)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeamColumn \n";
-    return TCL_ERROR;
-  }
 
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -2487,13 +2453,12 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
   // -- End of a 2D wheel-rail element(By Quan Gu, Yongdou Liu, et al.) on 2018/10/29
 
   else if (ndm == 3) {
-
     opserr << G3_ERROR_PROMPT << "Unimplemented." << endln;
     return TCL_ERROR;
   }
 
   // add the WheelRail element to the Domain
-  if (theTclDomain->addElement(theElement) == false) {
+  if (builder->getDomain()->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
     opserr << "YamamotoBiaxialHDR element: " << pTag << endln;
     delete theElement;

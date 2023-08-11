@@ -41,7 +41,36 @@
 
 #define G23_STACK_MAX 10
 
-// namespace OpenSees {
+#ifndef _WIN32
+# define  DGESV  dgesv_   
+# define  DGETRS dgetrs_  
+# define  DGETRF dgetrf_  
+# define  DGETRI dgetri_  
+# define  DGEMM  dgemm_   
+#endif
+extern "C" {
+  int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
+             int *iPiv, double *B, int *LDB, int *INFO);
+
+  int  DGETRF(int *M, int *N, double *A, int *LDA, 
+              int *iPiv, int *INFO);
+
+  int  DGETRS(char *TRANS, unsigned int sizeT,
+              int *N, int *NRHS, double *A, int *LDA, 
+              int *iPiv, double *B, int *LDB, int *INFO);
+
+  int  DGETRI(int *N, double *A, int *LDA, 
+                     int *iPiv, double *Work, int *WORKL, int *INFO);
+
+  int DGEMM(char* transA, char* transB, int* M, int* N, int* K,
+            double* alpha,
+            double* A, const int* lda,
+            double* B, const int* ldb,
+            double* beta,
+            double* C, const int* ldc);
+}
+
+namespace OpenSees {
 
 template <index_t NR, index_t NC, typename T=double>
 requires(NR > 0 && NC > 0)
@@ -97,8 +126,22 @@ struct MatrixND {
   void zero(void)
   {
     double *dataPtr = &values[0][0];
-    for (int i=0; i<dataSize; i++)
+    for (int i=0; i<NR*NC; i++)
       *dataPtr++ = 0;
+  }
+
+  int solve(const VectorND<NR> &V, VectorND<NR> &res) const
+    requires(NR == NC)
+  {
+    MatrixND<NR,NC> work = *this;
+    int pivot_ind[NR];
+    int nrhs = 1;
+    int nr = NR;
+    int nc = NC;
+    int info = 0;
+    res = V; // X will be overwritten with the solution
+    DGESV(&nr, &nrhs, &work.values[0][0], &nr, pivot_ind, res.values, &nc, &info);
+    return -abs(info);
   }
 
   int solve(const Vector &V, Vector &res) const
@@ -106,12 +149,12 @@ struct MatrixND {
   {
     MatrixND<NR,NC> work = *this;
     int pivot_ind[NR];
-    int *nrhs = 1;
+    int nrhs = 1;
     int nr = NR;
     int nc = NC;
     int info = 0;
     res = V; // X will be overwritten with the solution
-    DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind, &res(0,0), &nc, &info);
+    DGESV(&nr, &nrhs, work.values, &nr, &pivot_ind, res.theData, &nc, &info);
     return -abs(info);
   }
 
@@ -127,8 +170,8 @@ struct MatrixND {
     DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind, &res(0,0), &nc, &info);
     return -abs(info);
   }
-
-  int invert(Matrix &res) const
+#if 0
+  int invert(MatrixND<NR,NC> &res) const
   {
     return 0;
   }
@@ -143,6 +186,7 @@ struct MatrixND {
 
   int addMatrix(double alpha, const MatrixND &other, double beta) {
   }
+
   int addMatrixTranspose(double factThis, const Matrix &other, double factOther)
   {
   }
@@ -162,7 +206,7 @@ struct MatrixND {
   int addMatrixTripleProduct(double factThis, const Matrix &A, const Matrix &B, const Matrix &C, double otherFact)
   {
   } 
-  
+#endif 
   constexpr MatrixND &
   operator=(const MatrixND<NR,NC> &other)
   {  
@@ -330,7 +374,7 @@ solve(MatrixND<nr,nr> A, MatrixND<nr,nc> B){
 
 } // namespace linalg
 
-// } // namespace OpenSees
+} // namespace OpenSees
 
 #endif // MatrixND_H
 

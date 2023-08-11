@@ -156,7 +156,7 @@ YieldSurfaceSection2d::setTrialSectionDeformation (const Vector &def)
       lamda = 0.0;
     }
   
-  int grow = ys->modifySurface(lamda, surfaceForce, G);
+  /* int grow = */ ys->modifySurface(lamda, surfaceForce, G);
   
   // used to do: (not tested shrinking yet)
   //	if(grow < 0)

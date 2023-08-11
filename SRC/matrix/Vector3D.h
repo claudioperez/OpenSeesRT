@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <cmath>
 #include <limits>
+#include <VectorND.h>
 #include <Vector.h>
 #include <Matrix.h>
 
@@ -36,8 +37,9 @@
 #define M_PI 3.1415926535897932384626433832795
 #endif // M_PI
 
+
 template<class scalar_t=double>
-class Vector3D
+class Vector3D: public OpenSees::VectorND<3>
 {
 public:
 

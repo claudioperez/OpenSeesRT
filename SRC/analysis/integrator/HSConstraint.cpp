@@ -193,7 +193,7 @@ HSConstraint::update(const Vector &dU)
            psi_f2*deltaLambdaStep  * (f_ext^f_ext));
     
     double a3 = 
-           psi_u2/u_ref2 * ((*deltaUstep)+(*deltaUbar))^((*deltaUstep)+(*deltaUbar)) 
+           psi_u2/u_ref2 * (((*deltaUstep)+(*deltaUbar))^((*deltaUstep)+(*deltaUbar)))
            - 
            arcLength2 
            + 

@@ -29,19 +29,24 @@
 #include <stdexcept>
 #include <functional>
 #include <iostream> // overloading <<
+                    //
+#include <Vector.h>
+#include <Matrix.h>
 
 #if __cplusplus < 202000L
 #define consteval
 #define requires(X)
 #endif
 
-namespace OpenSeees {
+namespace OpenSees {
 typedef int index_t;
 
 template <index_t N, typename T=double> 
 requires(N > 0)
 struct VectorND {
   T values[N];
+
+  operator Vector() { return Vector(values, N);}
 
   constexpr T&
   operator[](index_t index) {return values[index];}
@@ -60,7 +65,7 @@ struct VectorND {
   }
 
   int
-  addVector(scalar_t thisFact, VectorND<N> &other, scalar_t otherFact) {
+  addVector(T thisFact, VectorND<N> &other, T otherFact) {
     if (otherFact == 0.0 && thisFact == 1.0)
       return 0; 
 
@@ -113,6 +118,144 @@ struct VectorND {
           }
     }
 
+    // successfull
+    return 0;
+  }
+
+  int
+  addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact)
+  {
+    // check the sizes are compatable
+    assert(N == m.noRows());
+    assert(m.noCols() == v.sz);
+
+    // see if quick return
+    if (thisFact == 1.0 && otherFact == 0.0)
+      return 0;
+
+#ifdef VECTOR_BLAS
+    else if (v.sz > 10) {
+      int incr = 1,
+             i = m.numRows,
+             n = m.numCols;
+      return
+        dgemv_("N", &i, &n,
+               &otherFact,
+               m.data, &i,
+               v.theData, &incr,
+               &thisFact,
+               values,   &incr);
+    }
+#endif
+
+    else if (thisFact == 1.0) {
+
+      // want: this += m * v * otherFact
+      if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++;
+          for (int j=0; j<N; j++)
+            values[j] += *matrixDataPtr++ * otherData;
+        }
+      } 
+      else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++;
+          for (int j=0; j < N; j++)
+            values[j] -= *matrixDataPtr++ * otherData;
+        }
+      } 
+      else { // have to do the multiplication
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++ * otherFact;
+          for (int j=0; j < N; j++)
+            values[j] += *matrixDataPtr++ * otherData;
+        }
+      }
+    }
+
+    else if (thisFact == 0.0) {
+      
+      // want: this = m * v * otherFact
+      for (int i=0; i < N; i++)
+        values[i] = 0.0;
+
+      if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++;
+          for (int j=0; j < N; j++)
+            values[j] += *matrixDataPtr++ * otherData;
+        }
+      } 
+      else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++;
+          for (int j=0; j < N; j++)
+            values[j] -= *matrixDataPtr++ * otherData;
+        }
+      } else {
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++ * otherFact;
+          for (int j=0; j < N; j++)
+            values[j] += *matrixDataPtr++ * otherData;
+        }
+      }
+    }
+
+    else {
+
+      // want: this = this * thisFact + m * v * otherFact
+      for (int i=0; i<N; i++)
+        values[i] *= thisFact;
+
+      if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++;
+          for (int j=0; j < N; j++)
+            values[j] += *matrixDataPtr++ * otherData;
+        }
+      } else if (otherFact == -1.0) { // no point doing multiplication if otherFact = 1.0
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++;
+          for (int j=0; j < N; j++)
+            values[j] -= *matrixDataPtr++ * otherData;
+        }
+      } else {
+        int otherSize = v.sz;
+        double *matrixDataPtr = m.data;
+        double *otherDataPtr = v.theData;
+        for (int i=0; i<otherSize; i++) {
+          double otherData = *otherDataPtr++ * otherFact;
+          for (int j=0; j < N; j++)
+            values[j] += *matrixDataPtr++ * otherData;
+        }
+      }
+    }
+    
     // successfull
     return 0;
   }

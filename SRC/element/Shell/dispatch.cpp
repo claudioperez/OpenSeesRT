@@ -259,7 +259,6 @@ TclDispatch_newShellMITC9(ClientData clientData, Tcl_Interp* interp, int argc, T
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
-  Element *theElement = nullptr;
   int numArgs = OPS_GetNumRemainingInputArgs();
 
   if (numArgs < 11) {
@@ -328,7 +327,6 @@ Element*
 TclDispatch_newShellNLDKGQThermal(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
 {
   assert(clientData != nullptr);
-
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   int numArgs = OPS_GetNumRemainingInputArgs();

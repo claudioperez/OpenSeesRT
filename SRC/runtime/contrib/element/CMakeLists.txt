@@ -1,8 +1,8 @@
 
 target_sources(OPS_Runtime PRIVATE
   PRIVATE
-    "Plane/QuadCommands.cpp"
-    "Plane/TclFourNodeQuadUPCommand.cpp"
+#   "Plane/QuadCommands.cpp"
+#   "Plane/TclFourNodeQuadUPCommand.cpp"
 
     "brick/TclBrickCommand.cpp"
     "brick/TclTwenty_Node_BrickCommand.cpp"
@@ -17,18 +17,5 @@ target_sources(OPS_Runtime PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/Frame/updatedLagrangianBeamColumn/TclCyclicModelCommands.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/Frame/gradientInelasticBeamColumn.cpp"
 
-#   "Shell/IO_ASDShellQ4.cpp"
-#   "Shell/IO_ShellANDeS.cpp"
-#   "Shell/IO_ShellDKGQ.cpp"
-#   "Shell/IO_ShellDKGT.cpp"
-#   "Shell/IO_ShellMITC4.cpp"
-#   "Shell/IO_ShellMITC4Thermal.cpp"
-#   "Shell/IO_ShellMITC9.cpp"
-#   "Shell/IO_ShellNLDKGQ.cpp"
-#   "Shell/IO_ShellNLDKGQThermal.cpp"
-#   "Shell/IO_ShellNLDKGT.cpp"
-
-
-    "Tcl_UWElements.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/Other/TclGenericClientCommand.cpp"
 )

@@ -74,12 +74,7 @@ Vector::Vector()
 Vector::Vector(int size)
 : sz(size), theData(0), fromFree(0)
 {
-#ifdef _G3DEBUG
-  if (sz < 0) {
-    opserr << "Vector::Vector(int) - size " << size << " specified < 0\n";
-    sz = 1;
-  }
-#endif
+  assert(size >= 0);
 
   // get some space for the vector
   //  theData = (double *)malloc(size*sizeof(double));
@@ -120,9 +115,7 @@ Vector::Vector(const Vector &other)
   // copy the component data
   for (int i=0; i<sz; i++)
     theData[i] = other.theData[i];
-}        
-
-
+}
 
 // Vector(const Vector&):
 //  Move constructor
@@ -130,7 +123,6 @@ Vector::Vector(const Vector &other)
 Vector::Vector(Vector &&other)
 : sz(other.sz),theData(other.theData),fromFree(0)
 {
-  //opserr << "move ctor!\n";
   other.theData = nullptr;
   other.sz = 0;
 } 
@@ -142,9 +134,9 @@ Vector::Vector(Vector &&other)
 
 Vector::~Vector()
 {
-  if (theData != 0 && fromFree == 0) 
+  if (theData != nullptr && fromFree == 0)
     delete [] theData;
-  theData = 0;
+  theData = nullptr;
 }
 
 

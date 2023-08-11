@@ -43,6 +43,7 @@
 class Vector;
 class ID;
 class Message;
+namespace OpenSees {template<int n, typename T> struct VectorND;};
 
 #define MATRIX_VERY_LARGE_VALUE 1.0e213
 
@@ -146,6 +147,8 @@ class Matrix
     
     
     friend class Vector;    
+//  template<int n> friend struct VectorND;
+    template<int n, typename> friend struct OpenSees::VectorND;
     friend class Message;
     friend class UDP_Socket;
     friend class TCP_Socket;

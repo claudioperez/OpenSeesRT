@@ -39,6 +39,7 @@ class Matrix;
 class Message;
 class SystemOfEqn;
 class ID;
+namespace OpenSees {template<int n, typename T> struct VectorND;};
 
 class Vector
 {
@@ -47,7 +48,7 @@ class Vector
     Vector();
     Vector(int);
     Vector(const Vector &);    
-#if !defined(NO_CXX11_MOVE)   
+#if !defined(NO_CXX11_MOVE)
     Vector(Vector &&);    
 #endif
 
@@ -115,6 +116,8 @@ class Vector
     friend class Message;
     friend class SystemOfEqn;
     friend class Matrix;
+//  template<int n> friend struct OpenSees::VectorND;
+    template<int n, typename> friend struct OpenSees::VectorND;
     friend class UDP_Socket;
     friend class TCP_Socket;
     friend class TCP_SocketSSL;

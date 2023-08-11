@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 Results="README.md"
+OPENSEES="python -m opensees"
+#OPENSEES=OpenSees
 
 cat - > $Results <<EOF
 # Examples
@@ -13,7 +15,7 @@ EOF
 #
 ls $@ | grep -v -e "Rocking" -e "Brick27"  | while read i; do
   echo "FILE $i"; 
-  python -m opensees $i; 
+  $OPENSEES $i; 
   printf "| $?\t|"' `'"$i"'` |\n' | tee -a $Results;
 done
 

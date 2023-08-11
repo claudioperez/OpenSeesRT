@@ -25,7 +25,7 @@ add_compile_definitions(OPS_USE_RUNTIME USE_TCL_STUBS _TCL85 _NOGRAPHICS) # _THR
 
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-   message(">>> Using Conan")
+   message(":: Using Conan")
    set(USE_CONAN TRUE)
    include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    conan_basic_setup(TARGETS)
@@ -89,37 +89,42 @@ if (UNIX)
   endif ()
 
   if (APPLE)
-   message(STATUS ">>> MacOS")
-   add_compile_definitions(_LINUX _UNIX _TCL85)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
+    message(STATUS ":: MacOS")
+    add_compile_definitions(_LINUX _UNIX _TCL85)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
   else()
-     message(STATUS ">>> LINUX")
-     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
-     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak")
-     endif()
+    message(STATUS ":: LINUX")
+    add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
+    if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak")
+    endif()
+    add_compile_options(
+      $<$<CONFIG:RELEASE>:-march=haswell>
+    )
   endif()
 
+  # Debug / Optimization options
   add_compile_options(
     # -pg # Profiling with gprof
     $<$<CONFIG:DEBUG>:-ggdb>
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
 
-    # $<$<CONFIG:RELEASE>:-ggdb>
-    # $<$<CONFIG:RELEASE>:-g3>
     $<$<CONFIG:RELEASE>:-O3>
     $<$<CONFIG:RELEASE>:-mtune=native>
-    $<$<CONFIG:RELEASE>:-march=haswell>
     $<$<CONFIG:RELEASE>:-msse4>
   )
+  if (DEFINED ProfileBuild)
+    add_compile_options(-fno-omit-frame-pointer -g -p)
+  endif()
 endif()
 
 if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   include(OpenSeesDependenciesWin)
   add_compile_definitions(_WIN32 _TCL85)
-  message(STATUS ">>> WIN32")
+  add_compile_options(/favor:INTEL64)
+  message(STATUS ":: WIN32")
 endif()
 
 #==============================================================================
@@ -221,37 +226,35 @@ include_directories(
 #==============================================================================
 # find_package(MKL)
 if (TRUE)
-
   add_subdirectory(OTHER)
-
 else()
-opensees_load(SUPERLU
-  #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/libSUPERLU.a"
-)
+  opensees_load(SUPERLU
+    #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
+    LIBRARY "${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/libSUPERLU.a"
+  )
 
-opensees_load(UMFPACK
-  #BUNDLED "${OPS_BUNDLED_DIR}/UMFPACK/" 
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/UMFPACK/libUMFPACK.a" 
-)
+  opensees_load(UMFPACK
+    #BUNDLED "${OPS_BUNDLED_DIR}/UMFPACK/" 
+    LIBRARY "${OPS_BUNDLED_DIR}/bin/UMFPACK/libUMFPACK.a" 
+  )
 
-opensees_load(CSPARSE
-  #BUNDLED "${OPS_BUNDLED_DIR}/CSPARSE/"
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/CSPARSE/libCSPARSE.a"
-)
+  opensees_load(CSPARSE
+    #BUNDLED "${OPS_BUNDLED_DIR}/CSPARSE/"
+    LIBRARY "${OPS_BUNDLED_DIR}/bin/CSPARSE/libCSPARSE.a"
+  )
 
-opensees_load(ARPACK
-  BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
-)
+  opensees_load(ARPACK
+    BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
+  )
 
-opensees_load(AMD
-  BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
-  #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
-)
+  opensees_load(AMD
+    BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
+    #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
+  )
 
-opensees_load(METIS
-  LIBRARY "${OPS_BUNDLED_DIR}/bin/METIS/libMETIS.a"
-)
+  opensees_load(METIS
+    LIBRARY "${OPS_BUNDLED_DIR}/bin/METIS/libMETIS.a"
+  )
 endif()
 
 find_package(TCL)
@@ -382,18 +385,18 @@ target_link_libraries(G3 PUBLIC
 
 # Extensions
 #----------------------------
-message("OPS >>> Configuring OpenSees extensions")
+message(":: Configuring OpenSees extensions")
 foreach(extension IN LISTS OPS_Element_List OPS_Extension_List)
-    string(TOUPPER "${extension}" ext_flag) 
-    string(REGEX REPLACE "^OPS_" "OPSDEF_" ext_flag "${ext_flag}")
-    add_compile_definitions(${ext_flag})
+  string(TOUPPER "${extension}" ext_flag) 
+  string(REGEX REPLACE "^OPS_" "OPSDEF_" ext_flag "${ext_flag}")
+  add_compile_definitions(${ext_flag})
 endforeach()
 
 foreach(extension IN LISTS OPS_Exclude_List)
-    string(TOUPPER "${extension}" ext_flag) 
-    string(REGEX REPLACE "^OPS_" "OPS_EXCLUDE_" ext_flag "${ext_flag}")
-    message("    Adding macro definition '${ext_flag}'")
-    add_compile_definitions(${ext_flag})
+  string(TOUPPER "${extension}" ext_flag) 
+  string(REGEX REPLACE "^OPS_" "OPS_EXCLUDE_" ext_flag "${ext_flag}")
+  message("    Adding macro definition '${ext_flag}'")
+  add_compile_definitions(${ext_flag})
 endforeach()
 
 # Reliability
