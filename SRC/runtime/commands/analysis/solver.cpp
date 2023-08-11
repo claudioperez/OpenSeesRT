@@ -8,6 +8,14 @@
 //
 #include <string>
 #include <algorithm>
+#ifdef _MSC_VER 
+#  include <string.h>
+#  define strcasecmp _stricmp
+#else
+#  include <strings.h>
+#endif
+// #define strcmp strcasecmp
+
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <runtimeAPI.h>
@@ -96,7 +104,6 @@ TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 int
 specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char ** const argv)
 {
-
   // make sure at least one other argument to contain type of system
   if (argc < 2) {
     opserr << G3_ERROR_PROMPT
@@ -104,12 +111,12 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc, G3_Cha
     return TCL_ERROR;
   }
 
-  BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
-  
   theSOE = G3Parse_newLinearSOE(clientData, interp, argc, argv);
 
   if (theSOE == nullptr)
     return TCL_ERROR;
+
+  BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
 
   builder->set(theSOE);
   return TCL_OK;
@@ -131,9 +138,10 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
   if (ctor != soe_table.end()) {
     return ctor->second.ss(rt, argc, argv);
 
-  } else if (strcmp(argv[1], "Umfpack")==0) {
+  } else if (strcasecmp(argv[1], "Umfpack")==0) {
     // TODO: if "umfpack" is in solver.hpp, this wont be reached
-    theSOE = TclDispatch_newUmfpackSOE(clientData, interp, argc, argv);
+    opserr << argv[1] << "\n";
+    return TclDispatch_newUmfpackLinearSOE(clientData, interp, argc, argv);
 
     // theSOE = soe_table["sparsegen"].ss(rt, argc, argv);
     // opserr << G3_WARN_PROMPT << "Umfpack is not installed\n";
