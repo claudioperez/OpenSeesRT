@@ -19,7 +19,9 @@
 cmake_minimum_required(VERSION 3.16)
 # project(UMFPACK)
 include_directories(. ../AMD)
-add_compile_options(-fexceptions -fPIC)
+if (UNIX)
+  add_compile_options(-fexceptions -march=haswell -mtune=native -msse4 -Ofast) # -fPIC)
+endif()
 add_compile_definitions(NCHOLMOD)
 
 function (add_umflib libname libsource)

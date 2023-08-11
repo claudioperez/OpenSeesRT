@@ -128,6 +128,11 @@ if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   message(STATUS ":: WIN32")
 endif()
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT has_ipo OUTPUT error)
+if (has_ipo)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
 #==============================================================================
 #                            General Setup
 #
@@ -276,6 +281,9 @@ message("  :: AMD:       ${AMD_LIBRARIES}")
 message("  :: TCL:       ${TCL_LIBRARY}  ")
 message("                ${TCL_STUB_LIBRARY}")
 message("                ${TCL_LIBRARIES}")
+message("")
+message("  :: IPO        ${CMAKE_INTERPROCEDURAL_OPTIMIZATION}")
+message("  :: Arch       ${CMAKE_SYSTEM_PROCESSOR}")
 
 # TODO: Probably not needed, link libs as needed
 # in sys_of_eqn/linearSOE/*/CMakeLists.txt
