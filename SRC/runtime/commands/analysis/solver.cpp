@@ -140,11 +140,7 @@ G3Parse_newLinearSOE(ClientData clientData, Tcl_Interp* interp, int argc, G3_Cha
 
   } else if (strcasecmp(argv[1], "Umfpack")==0) {
     // TODO: if "umfpack" is in solver.hpp, this wont be reached
-    opserr << argv[1] << "\n";
     return TclDispatch_newUmfpackLinearSOE(clientData, interp, argc, argv);
-
-    // theSOE = soe_table["sparsegen"].ss(rt, argc, argv);
-    // opserr << G3_WARN_PROMPT << "Umfpack is not installed\n";
   }
 
 #if defined(OPS_PETSC)
