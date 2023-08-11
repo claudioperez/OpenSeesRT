@@ -16,7 +16,8 @@
 ###########################################################
 
 wipe
-
+set outDir ./Output
+file mkdir $outDir
 #-------------------------------------------------------------------------------------------
 #  1. DEFINE GEOMETRY OF SOIL PROFILE
 #-------------------------------------------------------------------------------------------
@@ -268,20 +269,20 @@ puts "Finished creating dashpot material and element..."
 #-------------------------------------------------------------------------------------------
 
 # record nodal displacments, velocities, and accelerations at each time step
-recorder Node -file displacement.out -time -nodeRange 1 $totalNumNode -dof 1 2  disp
-recorder Node -file velocity.out     -time -nodeRange 1 $totalNumNode -dof 1 2  vel
-recorder Node -file acceleration.out -time -nodeRange 1 $totalNumNode -dof 1 2  accel
+recorder Node -file $outDir/displacement.out -time -nodeRange 1 $totalNumNode -dof 1 2  disp
+recorder Node -file $outDir/velocity.out     -time -nodeRange 1 $totalNumNode -dof 1 2  vel
+recorder Node -file $outDir/acceleration.out -time -nodeRange 1 $totalNumNode -dof 1 2  accel
 
 # record stress and strain at each gauss point in the soil elements
-recorder Element -file stress1.out   -time -eleRange  1   $totalNumEleY   material 1 stress
-recorder Element -file stress2.out   -time -eleRange  1   $totalNumEleY   material 2 stress
-recorder Element -file stress3.out   -time -eleRange  1   $totalNumEleY   material 3 stress
-recorder Element -file stress4.out   -time -eleRange  1   $totalNumEleY   material 4 stress
+recorder Element -file $outDir/stress1.out   -time -eleRange  1   $totalNumEleY   material 1 stress
+recorder Element -file $outDir/stress2.out   -time -eleRange  1   $totalNumEleY   material 2 stress
+recorder Element -file $outDir/stress3.out   -time -eleRange  1   $totalNumEleY   material 3 stress
+recorder Element -file $outDir/stress4.out   -time -eleRange  1   $totalNumEleY   material 4 stress
 
-recorder Element -file strain1.out   -time -eleRange  1   $totalNumEleY   material 1 strain
-recorder Element -file strain2.out   -time -eleRange  1   $totalNumEleY   material 2 strain
-recorder Element -file strain3.out   -time -eleRange  1   $totalNumEleY   material 3 strain
-recorder Element -file strain4.out   -time -eleRange  1   $totalNumEleY   material 4 strain
+recorder Element -file $outDir/strain1.out   -time -eleRange  1   $totalNumEleY   material 1 strain
+recorder Element -file $outDir/strain2.out   -time -eleRange  1   $totalNumEleY   material 2 strain
+recorder Element -file $outDir/strain3.out   -time -eleRange  1   $totalNumEleY   material 3 strain
+recorder Element -file $outDir/strain4.out   -time -eleRange  1   $totalNumEleY   material 4 strain
 
 # real time display recorder for visualization during analysis
 # # recorder display "OpenSees Real Time" 10 10 700 700 -wipe
@@ -347,7 +348,7 @@ set mSeries "Path -dt $dT -filePath $forceFile -factor $gFactor"
 
 # loading object
 pattern Plain 10 $mSeries {
-load 1 1.0 0.0 
+  load 1 1.0 0.0 
 }
 puts "Dynamic loading created..."
 
