@@ -96,9 +96,9 @@ typedef LinearSOE*(G3_SysOfEqnSpecifier)(G3_Runtime*, int, G3_Char**);
 G3_SysOfEqnSpecifier specify_SparseSPD;
 G3_SysOfEqnSpecifier specifySparseGen;
 TclDispatch<LinearSOE*> TclDispatch_newMumpsLinearSOE;
-TclDispatch<LinearSOE*> TclDispatch_newUmfpackSOE;
-
-TclDispatch<LinearSOE*> TclDispatch_newItpackLinearSOE;
+// TclDispatch<LinearSOE*> TclDispatch_newUmfpackLinearSOE;
+LinearSOE* TclDispatch_newUmfpackLinearSOE(ClientData, Tcl_Interp*, int, const char** const);
+LinearSOE* TclDispatch_newItpackLinearSOE(ClientData, Tcl_Interp*, int, const char** const);
 
 // Helpers to automatically create constructors for systems/solvers 
 // that do not take arguments when they are constructed.
@@ -130,13 +130,13 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      G3_SOE(BandSPDLinLapackSolver,      BandSPDLinSOE),
      SP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE),
      MP_SOE(BandSPDLinLapackSolver,      DistributedBandSPDLinSOE)}},
-
+#if 0
   // TODO: Umfpack
   {"umfpack", {
      G3_SOE(BandGenLinLapackSolver,      BandGenLinSOE),
      SP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE),
      MP_SOE(BandGenLinLapackSolver,      DistributedBandGenLinSOE)}},
-
+#endif
 
   {"sparsegen",     {specifySparseGen, nullptr, nullptr}},
   {"sparsegeneral", {specifySparseGen, nullptr, nullptr}},

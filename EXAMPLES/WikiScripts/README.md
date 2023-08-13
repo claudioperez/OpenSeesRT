@@ -28,7 +28,6 @@
 |  0  | `EigenAnal_twoStoreyShearFrame7.tcl` |  |
 |  0  | `EigenAnal_twoStoreyShearFrame8.tcl` |  |
 |  0  | `ElasticFrame.tcl` |  |
-|  255  | `elasticPileSection.tcl` | invalid command name "section" |
 |  0  | `ElemPanelZone2D.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.modif.tcl` |  |
 |  0  | `Ex1a.Canti2D.EQ.tcl` |  |
@@ -74,7 +73,7 @@
 |  255  | `ExampleSP1.tcl` | couldn't read file "model.tcl": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
 |  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
-|  255  | `FreeFieldDamp.tcl` | invalid command name "prp" |
+|  255  | `FreeFieldDamp.tcl` | expected integer but got "-dt" |
 |  255  | `FreeFieldEffective.tcl` | invalid command name "parameter" |
 |  0  | `Get_pyParam.tcl` |  |
 |  0  | `Get_qzParam.tcl` |  |
