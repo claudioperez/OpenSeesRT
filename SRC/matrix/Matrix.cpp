@@ -36,6 +36,7 @@
 #include <math.h>
 #include <assert.h>
 #include "routines/cmx.h"
+#include "blasdecl.h"
 
 #ifndef NO_STATIC_WORK
 # define MATRIX_WORK_AREA 400
@@ -49,40 +50,7 @@
 
 #define MATRIX_BLAS
 //#define NO_WORK
-#ifndef _WIN32
-# define  DGESV  dgesv_   
-# define  DGETRS dgetrs_  
-# define  DGETRF dgetrf_  
-# define  DGETRI dgetri_  
-# define  DGEMM  dgemm_   
 
-// int dgerfs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-//             double *AF, int *LDAF, int *iPiv, double *B, int *LDB, 
-//             double *X, int *LDX, double *FERR, double *BERR, 
-//             double *WORK, int *IWORK, int *INFO);
-#endif
-
-extern "C" {
-  int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
-             int *iPiv, double *B, int *LDB, int *INFO);
-
-  int  DGETRF(int *M, int *N, double *A, int *LDA, 
-              int *iPiv, int *INFO);
-
-  int  DGETRS(char *TRANS, unsigned int sizeT,
-              int *N, int *NRHS, double *A, int *LDA, 
-              int *iPiv, double *B, int *LDB, int *INFO);
-
-  int  DGETRI(int *N, double *A, int *LDA, 
-                     int *iPiv, double *Work, int *WORKL, int *INFO);
-
-  int DGEMM(char* transA, char* transB, int* M, int* N, int* K,
-            double* alpha,
-            double* A, const int* lda,
-            double* B, const int* ldb,
-            double* beta,
-            double* C, const int* ldc);
-}
 
 //
 // CONSTRUCTORS
@@ -694,9 +662,10 @@ Matrix::addMatrixProduct(double thisFact,
       int m = numRows,
           n = C.numCols,
           k = C.numRows;
-      return DGEMM("N", "N", &m, &n, &k,&otherFact, B.data, &  m,
-                                                    C.data, &  k,
-                                        &thisFact,    data, &  m);
+      DGEMM("N", "N", &m, &n, &k,&otherFact, B.data, &  m,
+                                             C.data, &  k,
+                                 &thisFact,    data, &  m);
+      return 0;
     }
 #endif
 
@@ -779,9 +748,10 @@ Matrix::addMatrixTransposeProduct(double thisFact,
     int m = numRows,
         n = C.numCols,
         k = C.numRows;
-    return DGEMM ("T", "N", &m, &n, &k,&otherFact, B.data, &  m,
-                                                   C.data, &  k,
-                                       &thisFact,    data, &  m);
+    DGEMM ("T", "N", &m, &n, &k,&otherFact, B.data, &  m,
+                                            C.data, &  k,
+                                &thisFact,    data, &  m);
+    return 0;
   }
 #endif
 

@@ -666,8 +666,11 @@ stressDensity::getCurrentStress(void)
     oths[11] = istep;
 
     // FORTRAN subroutine for stress integration
-    sdmuc_(strhs, strsg, props, stran, nmats, nstrp,
-           istep, iiter, ielem,
+    int nstrp_local = nstrp;
+    int nmats_local = nmats;
+    int ielem_local = ielem;
+    sdmuc_(strhs, strsg, props, stran, &nmats_local, &nstrp_local,
+           &istep, &iiter, &ielem_local,
            strhs0, etahs, hdp, oths);
 
     // update iteration counter variable 

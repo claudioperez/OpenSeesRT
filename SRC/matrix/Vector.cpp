@@ -32,31 +32,10 @@ using std::nothrow;
 
 #include <math.h>
 #include <assert.h>
+#include "blasdecl.h"
 
 #if 0
 #define VECTOR_BLAS
-
-extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
-extern "C" void dscal_(int*, double*, double*, const int*);
-extern "C" int  dgemv_(char* trans, int* M, int* N,
-                       double* alpha,
-                       double* A, int* lda,
-                       double* X, int* incX,
-                       double* beta,
-                       double* Y, int* incY);
-
-
-// double Vector::VECTOR_NOT_VALID_ENTRY =0.0;
-
-
-extern "C" void daxpy_(int*, double*, double*, const int*, double*, const int*);
-extern "C" void dscal_(int*, double*, double*, const int*);
-extern "C" int  dgemv_(char* trans, int* M, int* N,
-                       double* alpha,
-                       double* A, int* lda,
-                       double* X, int* incX,
-                       double* beta,
-                       double* Y, int* incY);
 #endif
 
 // Vector():
