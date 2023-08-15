@@ -299,6 +299,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   /* static */ char *resDataPtr = 0;
   /* static */ int resDataSize = 0;
+
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   Domain *domain = builder->getDomain();
