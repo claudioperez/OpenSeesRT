@@ -207,7 +207,7 @@ TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
   }
 
   // check the number of arguments is correct
-  int argStart = 2;
+//int argStart = 2;
 
 //if ((argc - argStart) < 8) {
 //  opserr << "WARNING insufficient arguments\n";
@@ -237,17 +237,17 @@ TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
 
 #if 1
   int argi = 1;
-  if (Tcl_GetInt(interp, argv[++argi], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[++argi], &tag) != TCL_OK) {   // 2
     opserr << "WARNING invalid SSPquad eleTag" << endln;
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[++argi], &iNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[++argi], &iNode) != TCL_OK) { // 3
     opserr << "WARNING invalid iNode\n";
     opserr << "SSPquad element: " << tag << endln;
     return TCL_ERROR;
   }
 
-  if (Tcl_GetInt(interp, argv[++argi], &jNode) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[++argi], &jNode) != TCL_OK) { // 4
     opserr << "WARNING invalid jNode\n";
     opserr << "SSPquad element: " << tag << endln;
     return TCL_ERROR;
@@ -265,7 +265,7 @@ TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
     return TCL_ERROR;
   }
 
-  if (Tcl_GetDouble(interp, argv[++argi], &thickness) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[++argi], &thickness) != TCL_OK) { // 7
     opserr << "WARNING invalid thickness\n";
     opserr << "SSPquad element: " << tag << endln;
     return TCL_ERROR;
@@ -279,7 +279,7 @@ TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
     return TCL_ERROR;
   }
 
-  if (argi < argc) {
+  if (argi < argc-1) {
     if (Tcl_GetDouble(interp, argv[++argi], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
       opserr << "SSPquad element: " << tag << endln;
