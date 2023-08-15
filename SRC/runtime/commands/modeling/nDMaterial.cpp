@@ -63,6 +63,7 @@ class TclBasicBuilder;
 extern NDMaterial *Tcl_addWrapperNDMaterial(matObj *, ClientData, Tcl_Interp *,
                                             int, TCL_Char **, TclBasicBuilder *);
 
+extern OPS_Routine OPS_ASDConcrete3DMaterial;
 extern OPS_Routine OPS_ReinforcedConcretePlaneStressMaterial;
 extern OPS_Routine OPS_FAReinforcedConcretePlaneStressMaterial;
 extern OPS_Routine OPS_FAFourSteelRCPlaneStressMaterial;
@@ -170,6 +171,14 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       (strcmp(argv[1], "ReinforceConcretePlaneStress") == 0)) {
 
     void *theMat = OPS_ReinforcedConcretePlaneStressMaterial(rt, argc, argv);
+    if (theMat != 0)
+      theMaterial = (NDMaterial *)theMat;
+    else
+      return TCL_ERROR;
+  }
+  else if (strcmp(argv[1], "ASDConcrete3D") == 0) {
+
+    void *theMat = OPS_ASDConcrete3DMaterial(rt, argc, argv);
     if (theMat != 0)
       theMaterial = (NDMaterial *)theMat;
     else

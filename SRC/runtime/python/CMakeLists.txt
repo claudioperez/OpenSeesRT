@@ -15,7 +15,7 @@ pybind11_add_module(OpenSeesPyRT)
 target_compile_definitions(OpenSeesPyRT PRIVATE USE_TCL_STUBS)
 
 target_include_directories(OpenSeesPyRT 
-  PRIVATE ${Python_INCLUDE_DIRS}
+  PRIVATE #${Python_INCLUDE_DIRS}
           ${pybind11_INCLUDE_DIRS}
 )
 

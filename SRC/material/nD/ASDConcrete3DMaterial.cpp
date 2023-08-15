@@ -32,6 +32,7 @@
 #include <FEM_ObjectBroker.h>
 #include <OPS_Globals.h>
 #include <elementAPI.h>
+#include <runtimeAPI.h>
 #include <Element.h>
 #include <MaterialResponse.h>
 #include <Parameter.h>
@@ -368,7 +369,7 @@ namespace {
   
 }
 
-void *OPS_ASDConcrete3DMaterial(void)
+void *OPS_ADD_RUNTIME_VPV(OPS_ASDConcrete3DMaterial)
 {
 	// some kudos
 	static bool first_done = false;
