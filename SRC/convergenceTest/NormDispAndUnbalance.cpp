@@ -128,7 +128,8 @@ int NormDispAndUnbalance::test(void)
     const Vector &b = theSOE->getB();
     double normB = b.pNorm(nType);
 
-    if((currentIter>1 && norms(currentIter-2)<normX) || (currentIter>1 && norms(maxNumIter+currentIter-2)<normB)) {
+    if ((currentIter>1 && norms(currentIter-2)<normX) || 
+        (currentIter>1 && norms(maxNumIter+currentIter-2)<normB)) {
         numIncr++;
     }
 
@@ -139,14 +140,18 @@ int NormDispAndUnbalance::test(void)
 
     // print the data if required
     if (printFlag == ConvergenceTest::PrintTest) {
-        opserr << "NormDispAndUnbalance::test() - iteration: " << pad(currentIter);
-        opserr << ", NormX: " << normX;
-        opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
+        opserr << LOG_ITERATE;
+        opserr << "Iter: "    << pad(currentIter);
+        opserr << ", NormX: " << pad(normX);
+        opserr << ", NormB: " << pad(normB)  
+               << ", NormIncr: " << numIncr << "\n";
     }
     if (printFlag == ConvergenceTest::PrintTest02) {
-        opserr << "NormDispAndUnbalance::test() - iteration: " << pad(currentIter);
-        opserr << ", NormX: " << normX;
-        opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
+        opserr << LOG_ITERATE;
+        opserr << "Iter: " << pad(currentIter);
+        opserr << ", NormX: " << pad(normX);
+        opserr << ", NormB: " << pad(normB)  
+               << ", NormIncr: " << numIncr << "\n";
         opserr << "\tdeltaX: " << x << "\tdeltaR: " << theSOE->getB();
     }
 
@@ -162,8 +167,9 @@ int NormDispAndUnbalance::test(void)
             opserr << endln;
         if (printFlag == ConvergenceTest::PrintSuccess) {
             opserr << "NormDispAndUnbalance::test() - iteration: " << pad(currentIter);
-            opserr << ", NormX: " << normX;
-            opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
+            opserr << ", NormX: " << pad(normX);
+            opserr << ", NormB: " << pad(normB)  
+                   << ", NormIncr: " << numIncr << "\n";
         }
 
         // return the number of times test has been called
@@ -174,16 +180,20 @@ int NormDispAndUnbalance::test(void)
     else if ((printFlag == ConvergenceTest::AlwaysSucceed) && (currentIter >= maxNumIter || numIncr > maxIncr)) {
         if (printFlag & ConvergenceTest::PrintFailure) {
             opserr << "WARNING Failed to converge with criteria NormDispAndUnbalance but going on - ";
-            opserr << ", NormX: " << normX;
-            opserr << ", NormB: " << normB  << ", NormIncr: " << numIncr << "\n";
+            opserr << ", NormX: " << pad(normX);
+            opserr << ", NormB: " << pad(normB)  
+                   << ", NormIncr: " << numIncr << "\n";
         }
         return currentIter;
     }
 
     // algo failed to converged after specified number of iterations - return FAILURE -2
     else if (currentIter >= maxNumIter || numIncr > maxIncr) { // failes to converge
-        opserr << "WARNING Failed to converge with criteria NormDispAndUnbalance \n";
-        opserr << "after: " << pad(currentIter) << " iterations\n";
+        opserr << LOG_FAILURE;
+        opserr << "Iter: " << pad(currentIter);
+        opserr << ", NormX: " << pad(normX);
+        opserr << ", NormB: " << pad(normB)  
+               << ", NormIncr: " << numIncr << "\n";
         currentIter++;
         return ConvergenceTest::Failure;
     }
@@ -198,7 +208,7 @@ int NormDispAndUnbalance::test(void)
 
 int NormDispAndUnbalance::start(void)
 {
-    if (theSOE == 0) {
+    if (theSOE == nullptr) {
         opserr << "WARNING: NormDispAndUnbalance::test() - no SOE returning true\n";
         return -1;
     }
@@ -247,6 +257,7 @@ int NormDispAndUnbalance::sendSelf(int cTag, Channel &theChannel)
   x(3) = nType;
   x(5) = maxIncr;
   res = theChannel.sendVector(this->getDbTag(), cTag, x);
+
   if (res < 0)
     opserr << "NormDispAndUnbalance::sendSelf() - failed to send data\n";
 

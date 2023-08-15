@@ -13,7 +13,6 @@
 #include <element/Shell/ShellNLDKGQThermal.h>
 #include <element/Shell/ShellNLDKGT.h>
 
-
 Element*
 TclDispatch_newASDShellQ4(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
 {

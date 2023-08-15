@@ -38,8 +38,19 @@
 #define requires(X)
 #endif
 
+extern "C" int  dgemv_(const char* trans, int* M, int* N,
+                       double* alpha,
+                       const double* A, int* lda,
+                       double* X, int* incX,
+                       double* beta,
+                       double* Y, int* incY);
+
 namespace OpenSees {
+
 typedef int index_t;
+// forward declaration
+template<int n, int m, typename T> struct MatrixND;
+
 
 template <index_t N, typename T=double> 
 requires(N > 0)
@@ -47,6 +58,8 @@ struct VectorND {
   T values[N];
 
   operator Vector() { return Vector(values, N);}
+
+  template<int n, int m, typename> friend struct MatrixND;
 
   constexpr T&
   operator[](index_t index) {return values[index];}
@@ -122,6 +135,34 @@ struct VectorND {
     return 0;
   }
 
+
+  template <int NC>
+  int
+  addMatrixVector(double thisFact, const MatrixND<N, NC, double> &m, const Vector &v, double otherFact)
+  {
+    // check the sizes are compatable
+    assert(NC == v.sz);
+
+    // see if quick return
+    if (thisFact == 1.0 && otherFact == 0.0)
+      return 0;
+
+    else {
+      int incr = 1,
+             i = N,
+             n = NC;
+      dgemv_("N", &i, &n,
+             &otherFact,
+             &m.values[0][0], &i,
+             v.theData, &incr,
+             &thisFact,
+             values,   &incr);
+      // successfull
+      return 0;
+    } 
+  }
+
+
   int
   addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact)
   {
@@ -157,7 +198,7 @@ struct VectorND {
         double *otherDataPtr = v.theData;
         for (int i=0; i<otherSize; i++) {
           double otherData = *otherDataPtr++;
-          for (int j=0; j<N; j++)
+          for (int j=0; j < N; j++)
             values[j] += *matrixDataPtr++ * otherData;
         }
       } 
@@ -272,6 +313,12 @@ struct VectorND {
   constexpr T
   norm() const {
     return sqrt(this->dot(*this));
+  }
+
+  VectorND<N> &operator+=(const VectorND<N> &right) {
+    for (int i=0; i< N; i++)
+      values[i] += right[i];
+    return *this;
   }
 
 

@@ -341,12 +341,13 @@ Matrix::Solve(const Vector &b, Vector &x) const
     assert(numRows == x.Size());
     assert(numRows == b.Size());
 
-#ifdef NO_STATIC_WORK
-    static double *matrixWork = nullptr;
-    static int *intWork = nullptr;
-    static int sizeDoubleWork = 0;
-    static int sizeIntWork    = 0;
+#if defined(NO_STATIC_WORK)
+    /* static */ double *matrixWork = nullptr;
+    /* static */ int *intWork = nullptr;
+    /* static */ int sizeDoubleWork = 0;
+    /* static */ int sizeIntWork    = 0;
 #endif
+
     // check work area can hold all the data
     if (dataSize > sizeDoubleWork) {
       if (matrixWork != nullptr) {
@@ -384,14 +385,10 @@ Matrix::Solve(const Vector &b, Vector &x) const
     double *Xptr = x.theData;
     int *iPIV = intWork;
 
-//#ifdef _WIN32
     DGESV(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
-#if 0 // else
-    dgesv_(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
-#endif
 
-    // delete [] intWork;
-    // delete [] matrixWork;
+    delete [] intWork;
+    delete [] matrixWork;
 
     return -abs(info);
 }
@@ -697,9 +694,9 @@ Matrix::addMatrixProduct(double thisFact,
       int m = numRows,
           n = C.numCols,
           k = C.numRows;
-      return DGEMM ("N", "N", &m, &n, &k,&otherFact, B.data, &  m,
-                                                     C.data, &  k,
-                                         &thisFact,    data, &  m);
+      return DGEMM("N", "N", &m, &n, &k,&otherFact, B.data, &  m,
+                                                    C.data, &  k,
+                                        &thisFact,    data, &  m);
     }
 #endif
 

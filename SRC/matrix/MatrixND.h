@@ -77,6 +77,8 @@ requires(NR > 0 && NC > 0)
 struct MatrixND {
   double values[NC][NR];
 
+  operator Matrix() { return Matrix(&values[0][0], NR, NC);}
+
   constexpr std::array<T, NC> &
   operator[](index_t index) {return values[index];}
 
@@ -125,9 +127,14 @@ struct MatrixND {
 
   void zero(void)
   {
-    double *dataPtr = &values[0][0];
-    for (int i=0; i<NR*NC; i++)
-      *dataPtr++ = 0;
+    for (index_t j = 0; j < NC; ++j) {
+      for (index_t i = 0; i < NR; ++i) {
+        values[j][i] = 0.0;
+      }
+    }
+//  double *dataPtr = &values[0][0];
+//  for (int i=0; i<NR*NC; i++)
+//    *dataPtr++ = 0;
   }
 
   int solve(const VectorND<NR> &V, VectorND<NR> &res) const
@@ -208,12 +215,29 @@ struct MatrixND {
   } 
 #endif 
   constexpr MatrixND &
+  operator=(const Matrix &other)
+  {  
+    for (index_t j = 0; j < NC; ++j) {
+      for (index_t i = 0; i < NR; ++i) {
+        values[j][i] = other(i,j);
+      }
+    }
+    return *this;
+  }
+
+  constexpr MatrixND &
   operator=(const MatrixND<NR,NC> &other)
   {  
-    double *dataPtr = &values[0][0];
-    double *otherDataPtr = &other.values[0][0];
-    for (int i=0; i<NR*NC; i++)
-      *dataPtr++ = *otherDataPtr++;
+    for (index_t j = 0; j < NC; ++j) {
+      for (index_t i = 0; i < NR; ++i) {
+        values[j][i] = other.values[j][i];
+      }
+    }
+  //double *dataPtr = &values[0][0];
+  //const double *otherDataPtr = &other.values[0][0];
+  //for (int i=0; i<NR*NC; i++)
+  //  *dataPtr++ = *otherDataPtr++;
+    return *this;
   }
 
   constexpr MatrixND &
@@ -286,8 +310,40 @@ struct MatrixND {
   constexpr friend MatrixND<NR, J>
   operator*(const MatrixND<NR, NC> &left, const MatrixND<NC, J> &right) {
     MatrixND<NR, J> prod;
+//  prod.zero();
     for (index_t i = 0; i < NR; ++i) {
       for (index_t j = 0; j < J; ++j) {
+        prod(i, j) = 0.0;
+        for (index_t k = 0; k < NC; ++k) {
+          prod(i, j) += left(i,k) * right(k,j);
+        }
+      }
+    }
+    return prod;
+  }
+
+  friend  VectorND<NR>
+  operator*(const MatrixND<NR, NC> &left, Vector &right) {
+    VectorND<NR> prod;
+//  prod.zero();
+    for (index_t i = 0; i < NR; ++i) {
+        prod[i] = 0.0;
+        for (index_t k = 0; k < NC; ++k) {
+          prod[i] += left(i,k) * right(k);
+        }
+    }
+    return prod;
+  }
+
+
+  template <index_t J>
+  friend  MatrixND<NR, J>
+  operator*(const MatrixND<NR, NC> &left, const Matrix &right) {
+    MatrixND<NR, J> prod;
+//  prod.zero();
+    for (index_t i = 0; i < NR; ++i) {
+      for (index_t j = 0; j < J; ++j) {
+        prod(i, j) = 0.0;
         for (index_t k = 0; k < NC; ++k) {
           prod(i, j) += left(i,k) * right(k,j);
         }
