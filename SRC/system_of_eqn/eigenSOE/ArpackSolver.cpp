@@ -99,7 +99,7 @@ ArpackSolver::~ArpackSolver()
 
 #ifdef _WIN32
 
-extern "C" int  DSAUPD(int *ido, char* bmat, 
+extern "C" void DSAUPD(int *ido, char* bmat, 
 		       int *n, char *which,
 		       int *nev, 
 		       double *tol, double *resid, int *ncv, double *v, 
@@ -107,7 +107,7 @@ extern "C" int  DSAUPD(int *ido, char* bmat,
 		       int *iparam, int *ipntr, double *workd, double *workl,
 		       int *lworkl, int *info);
 
-extern "C" int  DSEUPD(bool *rvec, char *howmny,
+extern "C" void DSEUPD(bool *rvec, char *howmny,
 		       int *select, double *d, double *z,
 		       int *ldz, double *sigma, char *bmat,
 		       int 	*n, char *which,
@@ -117,12 +117,12 @@ extern "C" int  DSEUPD(bool *rvec, char *howmny,
 		       double *workl, int *lworkl, int *info);
 #else
 
-extern "C" int dsaupd_(int *ido, char* bmat, int *n, char *which, int *nev, 
+extern "C" void dsaupd_(int *ido, char* bmat, int *n, char *which, int *nev, 
 		       double *tol, double *resid, int *ncv, double *v, int *ldv,
 		       int *iparam, int *ipntr, double *workd, double *workl,
 		       int *lworkl, int *info);
 
-extern "C" int dseupd_(bool *rvec, char *howmny, int *select, double *d, double *z,
+extern "C" void dseupd_(bool *rvec, char *howmny, int *select, double *d, double *z,
 		       int *ldz, double *sigma, char *bmat, int *n, char *which,
 		       int *nev, double *tol, double *resid, int *ncv, double *v,
 		       int *ldv, int *iparam, int *ipntr, double *workd, 
