@@ -156,6 +156,33 @@ struct VectorND {
     } 
   }
 
+  template <int NR>
+  int
+  addMatrixTransposeVector(double thisFact, const MatrixND<NR, N, double> &m, const Vector &v, double otherFact)
+  {
+    // check the sizes are compatable
+    assert(NR == v.sz);
+
+    // see if quick return
+    if (thisFact == 1.0 && otherFact == 0.0)
+      return 0;
+
+    else {
+      int incr = 1,
+             i = N,
+             n = NR;
+      dgemv_("T", &i, &n,
+             &otherFact,
+             &m.values[0][0], &i,
+             v.theData, &incr,
+             &thisFact,
+             values,   &incr);
+      // successfull
+      return 0;
+    } 
+  }
+
+
 
   int
   addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact)
