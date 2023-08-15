@@ -35,40 +35,23 @@
 #include <ID.h>
 
 #ifdef _WIN32
-#define sdmuc_ SDMUC
-
-extern "C" {void sdmuc_(
-            double strhs[],
-            double strsg[],
-            double props[],
-            double stran[],
-            int nmats,
-            int nstrp,
-            int istep,
-            int iiter,
-            int ielem,
-            double strhs0[],
-            double etahs[][3],
-            double hdp[][3],
-            double oths[]);}
-
-#else
-
-extern "C" {void sdmuc_(
-            double strhs[],
-            double strsg[],
-            double props[],
-            double stran[],
-            int nmats,
-            int nstrp,
-            int istep,
-            int iiter,
-            int ielem,
-            double strhs0[],
-            double etahs[][3],
-            double hdp[][3],
-            double oths[]);}
+# define sdmuc_ SDMUC
 #endif
+
+extern "C" void sdmuc_(
+                       double strhs[],
+                       double strsg[],
+                       double props[],
+                       double stran[],
+                       const int *nmats,
+                       const int *nstrp,
+                       const int *istep,
+                       const int *iiter,
+                       const int *ielem,
+                       double strhs0[],
+                       double etahs[][3],
+                       double hdp[][3],
+                       double oths[]);
 
 class stressDensity : public NDMaterial
 {

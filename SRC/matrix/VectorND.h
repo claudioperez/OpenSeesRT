@@ -32,18 +32,12 @@
                     //
 #include <Vector.h>
 #include <Matrix.h>
+#include "blasdecl.h"
 
 #if __cplusplus < 202000L
 #define consteval
 #define requires(X)
 #endif
-
-extern "C" int  dgemv_(const char* trans, int* M, int* N,
-                       double* alpha,
-                       const double* A, int* lda,
-                       double* X, int* incX,
-                       double* beta,
-                       double* Y, int* incY);
 
 namespace OpenSees {
 

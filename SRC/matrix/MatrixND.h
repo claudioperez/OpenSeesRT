@@ -33,6 +33,7 @@
 #include "VectorND.h"
 #include "Matrix.h"
 #include "Vector.h"
+#include "blasdecl.h"
 
 #if __cplusplus < 202000L
 #define consteval
@@ -40,35 +41,6 @@
 #endif
 
 #define G23_STACK_MAX 10
-
-#ifndef _WIN32
-# define  DGESV  dgesv_   
-# define  DGETRS dgetrs_  
-# define  DGETRF dgetrf_  
-# define  DGETRI dgetri_  
-# define  DGEMM  dgemm_   
-#endif
-extern "C" {
-  int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
-             int *iPiv, double *B, int *LDB, int *INFO);
-
-  int  DGETRF(int *M, int *N, double *A, int *LDA, 
-              int *iPiv, int *INFO);
-
-  int  DGETRS(char *TRANS, unsigned int sizeT,
-              int *N, int *NRHS, double *A, int *LDA, 
-              int *iPiv, double *B, int *LDB, int *INFO);
-
-  int  DGETRI(int *N, double *A, int *LDA, 
-                     int *iPiv, double *Work, int *WORKL, int *INFO);
-
-  int DGEMM(char* transA, char* transB, int* M, int* N, int* K,
-            double* alpha,
-            double* A, const int* lda,
-            double* B, const int* ldb,
-            double* beta,
-            double* C, const int* ldc);
-}
 
 namespace OpenSees {
 
@@ -214,6 +186,7 @@ struct MatrixND {
   {
   } 
 #endif 
+
   constexpr MatrixND &
   operator=(const Matrix &other)
   {  
@@ -293,7 +266,7 @@ struct MatrixND {
 
 // Notes on operators:
 // - define friend operators inside class for use as header-only library
-// - LHS is passed by copied value
+// - LHS is passed by (copied) value
   friend constexpr MatrixND
   operator+(MatrixND left, const MatrixND &right) {left += right; return left;}
 
@@ -303,7 +276,7 @@ struct MatrixND {
   friend constexpr MatrixND // scalar * Matrix
   operator*(T scalar, MatrixND mat) {mat *= scalar; return mat;}
 
-  friend constexpr MatrixND // Matrix * Matrix
+  friend constexpr MatrixND // Matrix * scalar
   operator*(MatrixND mat, T scalar) {mat *= scalar; return mat;}
   
   template <index_t J>
@@ -325,7 +298,6 @@ struct MatrixND {
   friend  VectorND<NR>
   operator*(const MatrixND<NR, NC> &left, Vector &right) {
     VectorND<NR> prod;
-//  prod.zero();
     for (index_t i = 0; i < NR; ++i) {
         prod[i] = 0.0;
         for (index_t k = 0; k < NC; ++k) {
@@ -340,7 +312,6 @@ struct MatrixND {
   friend  MatrixND<NR, J>
   operator*(const MatrixND<NR, NC> &left, const Matrix &right) {
     MatrixND<NR, J> prod;
-//  prod.zero();
     for (index_t i = 0; i < NR; ++i) {
       for (index_t j = 0; j < J; ++j) {
         prod(i, j) = 0.0;
