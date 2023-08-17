@@ -21,6 +21,7 @@ source Frame/EigenFrame.Extra.tcl
 source Frame/AISC25.tcl
 
 # source Plane/PlaneStrain.tcl
+source Plane/QuadBending.tcl
 
 # Shells
 source Shell/PinchedCylinder.tcl
