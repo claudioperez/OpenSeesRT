@@ -30,3 +30,5 @@ add_subdirectory(runtime)
 add_subdirectory(database)
 add_subdirectory(utility)
 add_subdirectory(damage)
+
+add_subdirectory(executable)
