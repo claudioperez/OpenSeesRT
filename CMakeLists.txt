@@ -115,6 +115,7 @@ if (UNIX)
     $<$<CONFIG:RELEASE>:-O3>
     $<$<CONFIG:RELEASE>:-mtune=native>
     $<$<CONFIG:RELEASE>:-msse4>
+#   $<$<CONFIG:RELEASE>:-fno-rtti>
   )
   if (DEFINED ProfileBuild)
     add_compile_options(-fno-omit-frame-pointer -g -p)
@@ -128,9 +129,11 @@ if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   message(STATUS ":: WIN32")
 endif()
 
+
+
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (has_ipo)
+if (FALSE AND has_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 #==============================================================================
@@ -270,7 +273,7 @@ set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
 
 include_directories(${TCL_INCLUDE_PATH})
 
-message(":: OpenSees Summary")
+message("\n:: OpenSees Summary")
 message("  :: BLAS:      ${BLAS_LIBRARIES}")
 message("  :: LAPACK:    ${LAPACK_LIBRARIES}")
 message("  :: SUPERLU:   ${SUPERLU_LIBRARIES}")
