@@ -35,12 +35,15 @@
 #include <ID.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 
 class Node;
 class NDMaterial;
 class Response;
 
-class EightNodeQuad : public Element {
+class EightNodeQuad : public Element,
+                   protected LegendreFixedQuadrilateral<9>
+{
 public:
   EightNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4, int nd5, int nd6,
                int nd7, int nd8, NDMaterial &m, const char *type, double t,
@@ -101,7 +104,7 @@ protected:
 private:
   // private attributes - a copy for each object of the class
 
-  static constexpr int nip = 9; // number of integration/Gauss points
+  static constexpr int nip = 9;    // number of integration/Gauss points
   static constexpr int nnodes = 8; // number of nodes
 
   NDMaterial **theMaterial; // pointer to the ND material objects
@@ -127,8 +130,8 @@ private:
                    // Note: positive for outward normal
   double rho;
   static double shp[3][nnodes]; // Stores shape functions and derivatives (overwritten)
-  static double pts[nip][2]; // Stores quadrature points
-  static double wts[nip];    // Stores quadrature weights
+//static double pts[nip][2]; // Stores quadrature points
+//static double wts[nip];    // Stores quadrature weights
 
   // private member functions - only objects of this class can call these
   double shapeFunction(double xi, double eta);

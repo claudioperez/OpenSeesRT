@@ -36,11 +36,17 @@
 #include <Matrix.h>
 #include <Vector.h>
 
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
+// namespace OpenSees {template<int n, int m, typename T> struct MatrixND;};
+
 class Node;
 class NDMaterial;
 class Response;
 
-class NineNodeQuad : public Element {
+class NineNodeQuad : public Element ,
+                   protected LegendreFixedQuadrilateral<9>
+{
+
 public:
   NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4, int nd5, int nd6,
                int nd7, int nd8, int nd9, NDMaterial &m, const char *type, double t,
@@ -124,11 +130,12 @@ private:
 
   double thickness; // Element thickness
   double pressure;  // Normal surface traction (pressure) over entire element
-                   // Note: positive for outward normal
+                    // Note: positive for outward normal
   double rho;
   static double shp[3][nnodes]; // Stores shape functions and derivatives (overwritten)
-  static double pts[nip][2]; // Stores quadrature points
-  static double wts[nip];    // Stores quadrature weights
+
+//static double pts[nip][2]; // Stores quadrature points
+//static double wts[nip];    // Stores quadrature weights
 
   // private member functions - only objects of this class can call these
   double shapeFunction(double xi, double eta);

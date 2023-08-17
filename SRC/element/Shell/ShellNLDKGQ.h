@@ -37,22 +37,24 @@
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
-#include <SectionForceDeformation.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 
-class ShellNLDKGQ : public Element {
+class SectionForceDeformation;
 
- public:
-  
+class ShellNLDKGQ : public Element,
+                    protected LegendreFixedQuadrilateral<4>
+{
+ public: 
   //null constructor
   ShellNLDKGQ( );
   
   //full constructor
   ShellNLDKGQ( int tag, 
-	          int node1,
-	          int node2,
-			  int node3,
-			  int node4,
-			  SectionForceDeformation &theMaterial ) ;
+               int node1,
+               int node2,
+               int node3,
+               int node4,
+               SectionForceDeformation &theMaterial ) ;
   
   //destructor 
   virtual ~ShellNLDKGQ( ) ;
@@ -81,14 +83,14 @@ class ShellNLDKGQ : public Element {
 
     //print out element data
     void Print( OPS_Stream &s, int flag ) ;
-	
+    
     //return stiffness matrix 
     const Matrix &getTangentStiff( ) ;
     const Matrix &getInitialStiff( );
     const Matrix &getMass( );
 
     // methods for applying loads
-    void zeroLoad( void );	
+    void zeroLoad( void );    
     int addLoad( ElementalLoad *theLoad, double loadFactor );
     int addInertiaLoadToUnbalance( const Vector &accel );
 
@@ -101,7 +103,7 @@ class ShellNLDKGQ : public Element {
     // public methods for element output
     int sendSelf ( int commitTag, Channel &theChannel );
     int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		           &theBroker );
+                   &theBroker );
 
 
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
@@ -118,16 +120,16 @@ class ShellNLDKGQ : public Element {
     static Matrix mass ;
     static Matrix damping ;
 
-	//last resid
-	// Vector CstrainGauss,TstrainGauss;
-	Vector CstrainGauss,TstrainGauss;  //modify for geometric nonlinearity
+    //last resid
+    // Vector CstrainGauss,TstrainGauss;
+    Vector CstrainGauss,TstrainGauss;  //modify for geometric nonlinearity
 
     //quadrature data
-    static const double root3 ;
-    static const double one_over_root3 ;    
-    static double sg[4] ;
-    static double tg[4] ;
-    static double wg[4] ;
+//  static const double root3 ;
+//  static const double one_over_root3 ;    
+//  static double sg[4] ;
+//  static double tg[4] ;
+//  static double wg[4] ;
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
@@ -135,7 +137,7 @@ class ShellNLDKGQ : public Element {
 
     //material information
     SectionForceDeformation *materialPointers[4] ; //pointers to four materials
-					  
+                      
     //local nodal coordinates, two coordinates for each of four nodes
     //static double xl[][4] ; 
     double xl[2][4] ; 
@@ -154,7 +156,7 @@ class ShellNLDKGQ : public Element {
     //inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
-    //form residual and tangent					  
+    //form residual and tangent                      
     void formResidAndTangent( int tang_flag ) ;
 
     //compute Bdrill matrix
@@ -162,36 +164,36 @@ class ShellNLDKGQ : public Element {
 
     //assemble a B matrix 
     const Matrix& assembleB( const Matrix &Bmembrane,
-			                 const Matrix &Bbend, 
-			                 const Matrix &Bshear ) ;
+                             const Matrix &Bbend, 
+                             const Matrix &Bshear ) ;
   
     //compute Bmembrane matrix
     const Matrix& computeBmembrane( int node, const double shp[3][4],
-		                         const double shpDrill[4][4]) ;
+                                    const double shpDrill[4][4]) ;
   
     //compute Bbend matrix
     const Matrix& computeBbend( int node, const double shpBend[6][12] ) ;
 
-	//add for geometric nonlinearity
-	const Matrix& computeBG(int node, const double shpBend[6][12]);
-	const Vector& computeNLdstrain(const Matrix &BG,const Vector &dispIncLocalBend);
+    //add for geometric nonlinearity
+    const Matrix& computeBG(int node, const double shpBend[6][12]);
+    const Vector& computeNLdstrain(const Matrix &BG,const Vector &dispIncLocalBend);
   
     //Matrix transpose
     //Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
 
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 
-		          const double x[2][4], 
-		          double shp[3][4], 
-		          double &xsj ,double sx[2][2]) ;
+                  const double x[2][4], 
+                  double shp[3][4], 
+                  double &xsj ,double sx[2][2]) ;
 
-	//shape function routine for membrane
-	void shapeDrill(double ss, double tt, 
-		          const double x[2][4],
-				  double sx[2][2], double shpDrill[4][4]);
-	//shape function routine for bending
-	void shapeBend(double ss, double tt, const double x[2][4],
-		          double sx[2][2], double shpBend[6][12]);
+    //shape function routine for membrane
+    void shapeDrill(double ss, double tt, 
+                  const double x[2][4],
+                  double sx[2][2], double shpDrill[4][4]);
+    //shape function routine for bending
+    void shapeBend(double ss, double tt, const double x[2][4],
+                   double sx[2][2], double shpBend[6][12]);
 
     // vector for applying loads
     Vector *load;
