@@ -21,6 +21,8 @@ set tol 5.0e-2
 set resultsSAP   {2.4287 0.1031 0.0186 0.3205 0.0187 0.0052 0.0185 0.0029 0.0013}
 set resultsETABS {2.3926 0.0985 0.0172 0.3068 0.0169 0.0046 0.0144 0.0024 0.0011}
 
+set Algorithm Newton
+set System    SparseGEN
 
 # wall properties
 set E 3000.
@@ -42,12 +44,10 @@ set nyFloor 16
 # ----------------------------
 
 # QUAD
+# {quad SSPquad}
 
-#foreach numFloor {6 3 1} {
-
-
-if 1 {
-foreach eleType {quad SSPquad} {
+if 0 {
+foreach eleType {enhancedQuad} {
 
     set counter 0
     puts "\n:: Using '$eleType' element"
@@ -98,10 +98,10 @@ foreach eleType {quad SSPquad} {
             }
 
             integrator  LoadControl  1.0
-            algorithm   Linear
+            algorithm   $Algorithm
             numberer    RCM
             constraints Plain
-            system      ProfileSPD
+            system      $System
             analysis    Static
 
             analyze 1
@@ -122,10 +122,12 @@ foreach eleType {quad SSPquad} {
         }
     }
 }
-}
+#}
 
-
-foreach eleType {ShellMITC4 ShellDKGQ ShellNLDKGQ} {
+# {ShellDKGQ ShellNLDKGQ}
+#
+if 1 {
+foreach eleType {ShellMITC4} {
   # Shell
   puts "\n:: Using '$eleType' element"
 
@@ -181,10 +183,10 @@ foreach eleType {ShellMITC4 ShellDKGQ ShellNLDKGQ} {
           }
 
           integrator  LoadControl  1.0
-          algorithm   Linear
+          algorithm   $Algorithm
           numberer    RCM
           constraints Plain
-          system      sparsegen
+          system      $System
           analysis    Static
 
           analyze 1
@@ -204,6 +206,7 @@ foreach eleType {ShellMITC4 ShellDKGQ ShellNLDKGQ} {
 
           incr counter
       }
+    }
   }
 }
 
@@ -211,6 +214,7 @@ foreach eleType {ShellMITC4 ShellDKGQ ShellNLDKGQ} {
 # Brick
 #
 #  SSPbrick
+if 0 {
 foreach eleType {stdBrick SSPbrick} {
     set counter 0
 
@@ -273,12 +277,12 @@ foreach eleType {stdBrick SSPbrick} {
                 }
             }
 
-            integrator LoadControl  1.0
-            algorithm Linear
-            numberer RCM
+            integrator  LoadControl  1.0
+            algorithm   $Algorithm
+            numberer    RCM
             constraints Plain
-            system ProfileSPD
-            analysis Static
+            system      $System
+            analysis    Static
 
             analyze 1
 
@@ -299,6 +303,7 @@ foreach eleType {stdBrick SSPbrick} {
             incr counter
         }
     }
+}
 }
 
 
