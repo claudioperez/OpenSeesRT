@@ -64,40 +64,40 @@ void  Block2D::setUpXl( const ID &nodeID, const Matrix &coorArray )
 	   << " is not defined.  No Generation will take place."
 	   << endln;
       break; 
-    }// end if
-  }// end for i
+    }
+  }
 
   // local storage xl = transpose(coorArray)
   for ( i=0; i<3; i++ ) {
     for ( j=0; j<9; j++ )
       xl[i][j] = coorArray(j,i);
-  }// end for i
+  }
 
 
   if ( nodeID(4) == -1 ) {
     for ( i=0; i<3; i++ )
       xl[i][4] = 0.5*( xl[i][0] + xl[i][1] );
-  }// endif
+  }
 
   if ( nodeID(5) == -1 ) {
     for ( i=0; i<3; i++ )
       xl[i][5] = 0.5*( xl[i][1] + xl[i][2] );
-  }// endif
+  }
 
   if ( nodeID(6) == -1 ) {
     for ( i=0; i<3; i++ )
       xl[i][6] = 0.5*( xl[i][2] + xl[i][3] );
-  }// endif
+  }
 
   if ( nodeID(7) == -1 ) {
     for ( i=0; i<3; i++ )
       xl[i][7] = 0.5*( xl[i][3] + xl[i][0] );
-  }//endif
+  }
 
   if ( nodeID(8) == -1 ) {
     for ( i=0; i<3; i++ ) 
       xl[i][8]  = 0.25*( xl[i][0] + xl[i][1] + xl[i][2] + xl[i][3] ) ;
-  }//endif
+  }
 
   
   return;
@@ -110,11 +110,8 @@ Block2D::getNodalCoords( int i, int j )
 {
 
   double hx = 2.0 / nx;
-
   double hy = 2.0 / ny;
-
   double x = -1.0 + (i*hx);
-
   double y = -1.0 + (j*hy);
 
   coor(0) = x;

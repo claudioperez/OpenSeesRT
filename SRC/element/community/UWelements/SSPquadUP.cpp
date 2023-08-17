@@ -82,12 +82,12 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_SSPquadUP)
     double dData[13];
     dData[7]  = 0.0;
     dData[8]  = 0.0;
-	dData[9]  = 0.0;
-	dData[10] = 0.0;
-	dData[11] = 0.0;
-	dData[12] = 0.0;
-    // LM change
+    dData[9]  = 0.0;
+    dData[10] = 0.0;
+    dData[11] = 0.0;
+    dData[12] = 0.0;
 
+    // LM change
     int numData = 6;
     if (OPS_GetIntInput(&numData, iData) != 0) {
         opserr << "WARNING invalid integer data: element SSPquadUP " << iData[0] << endln;
@@ -163,11 +163,11 @@ SSPquadUP::SSPquadUP(int tag, int Nd1, int Nd2, int Nd3, int Nd4, NDMaterial &th
     mAlpha(alpha),
     mPorosity(0),
     applyLoad(0),
-	pressureLoad(12),
-	pressureUpperSide(Pup),
-	pressureLowerSide(Plow),
-	pressureLeftSide(Pleft),
-	pressureRightSide(Pright)
+    pressureLoad(12),
+    pressureUpperSide(Pup),
+    pressureLowerSide(Plow),
+    pressureLeftSide(Pleft),
+    pressureRightSide(Pright)
 {
     mExternalNodes(0) = Nd1;
     mExternalNodes(1) = Nd2;
@@ -188,12 +188,12 @@ SSPquadUP::SSPquadUP(int tag, int Nd1, int Nd2, int Nd3, int Nd4, NDMaterial &th
     perm[0] = k1;
     perm[1] = k2;
 
-	// LM change
-	P[0] = Pup;
-	P[1] = Plow;
+    // LM change
+    P[0] = Pup;
+    P[1] = Plow;
     P[2] = Pleft;
-	P[3] = Pright;
-	// LM change
+    P[3] = Pright;
+    // LM change
 
     mPorosity = eVoid/(1.0 + eVoid);
 
@@ -238,10 +238,10 @@ SSPquadUP::SSPquadUP()
     mPorosity(0),
     applyLoad(0),
     pressureLoad(12),
-	pressureUpperSide(0.0),
-	pressureLowerSide(0.0),
-	pressureLeftSide(0.0),
-	pressureRightSide(0.0)
+    pressureUpperSide(0.0),
+    pressureLowerSide(0.0),
+    pressureLeftSide(0.0),
+    pressureRightSide(0.0)
 {
 }
 
@@ -322,9 +322,9 @@ SSPquadUP::setDomain(Domain *theDomain)
     GetPermeabilityMatrix();
 
     //LM change
-	// Compute consistent nodal loads due to surface pressure (at any side)
+    // Compute consistent nodal loads due to surface pressure (at any side)
     this->setPressureLoadAtNodes();
-	//LM change
+    //LM change
 		
     // call the base-class method
     this->DomainComponent::setDomain(theDomain);
