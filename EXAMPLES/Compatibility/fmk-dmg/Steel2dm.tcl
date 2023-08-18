@@ -108,21 +108,21 @@ proc ElasticBeamWSection2d {eleTag iNode jNode sectType E transfTag args} {
 
 
     foreach {section prop} [array get WSection $sectType] {
-        set propList [split $prop]
-        #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-        set A [expr [lindex $propList 0]*$in*$in]
-        set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in*$factI]
-        set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in*$factI]
-        if {$Orient == "YY" } {
-            element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iyy $transfTag
-        } else {
-            element elasticBeamColumn $eleTag $iNode $jNode $A $E $Ixx $transfTag
-        }
-        set found 1
+      set propList [split $prop]
+      #AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+      set A [expr [lindex $propList 0]*$in*$in]
+      set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in*$factI]
+      set Iyy [expr [lindex $propList 6]*$in*$in*$in*$in*$factI]
+      if {$Orient == "YY" } {
+          element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iyy $transfTag
+      } else {
+          element elasticBeamColumn $eleTag $iNode $jNode $A $E $Ixx $transfTag
+      }
+      set found 1
     }
 
     if {$found == 0} {
-        puts "ElasticBeamWSection2d sectType: $sectType not found for ee: $eleTag"
+      puts "ElasticBeamWSection2d sectType: $sectType not found for ee: $eleTag"
     }
 }
 
@@ -256,7 +256,7 @@ proc ForceBeamHSS2d {eleTag iNode jNode sectType matTag transfTag args} {
     global ElasticHSSection2d
     global HSSection
     global in
-        set found 0
+    set found 0
 
     set Orient "XX"
     if {[lsearch $args "YY"] != -1} {
@@ -310,22 +310,23 @@ proc ForceBeamHSS2d {eleTag iNode jNode sectType matTag transfTag args} {
     } else {
         FiberHSSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
     }
+
     if {$capIt == "NO"} {
         
-        element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
-        
-        } else {
-        puts "SECT: $sectType"
-        foreach {section prop} [array get HSSection $sectType] {
-            set propList [split $prop]
-                # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
-            set A [expr [lindex $propList 1]*$in*$in]
-            set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
-            set Zx [expr [lindex $propList 6]*$in*$in*$in*$in]
-            set found 1
-        }
-        set maxC [expr 2.0*$dampRatio*$Fy*$Zx]
-        element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag -maxC $maxC
+      element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag
+      
+      } else {
+      puts "SECT: $sectType"
+      foreach {section prop} [array get HSSection $sectType] {
+          set propList [split $prop]
+              # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
+          set A [expr [lindex $propList 1]*$in*$in]
+          set Ix [expr [lindex $propList 5]*$in*$in*$in*$in]
+          set Zx [expr [lindex $propList 6]*$in*$in*$in*$in]
+          set found 1
+      }
+      set maxC [expr 2.0*$dampRatio*$Fy*$Zx]
+      element forceBeamColumn $eleTag $iNode $jNode $nip $eleTag $transfTag -maxC $maxC
     }
 }
 
@@ -902,11 +903,11 @@ proc HSSbrace {eleTag iNode jNode sectType matTag numSeg Im transfTag args} {
     set nFlange 4
     set nWeb 5
     if {[lsearch $args "-elasticSection"] != -1} {
-        set loc [lsearch $args "-elasticSection"] 
-        set E [lindex $args [expr $loc+1]]
-        ElasticHSSSection2d $eleTag $sectType $E  $Orient
+      set loc [lsearch $args "-elasticSection"] 
+      set E [lindex $args [expr $loc+1]]
+      ElasticHSSSection2d $eleTag $sectType $E  $Orient
     } else {
-        FiberHSSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
+      FiberHSSection2d $eleTag $sectType $matTag $nFlange $nWeb $Orient
     }
 
     set PI [expr 2*asin(1.0)];        # define constant pi
@@ -1389,22 +1390,24 @@ proc FiberHSSection2d {sectTag sectType matTag nFlange nWeb args} {
     }
 
     set found 0
+    puts "[array get HSSection $sectType]"
     foreach {section prop} [array get HSSection $sectType] {
-        set propList [split $prop]
-        # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
-        set  d [expr [lindex $propList 2]*$in]
-        set  b [expr [lindex $propList 3]*$in]
-        set  t [expr [lindex $propList 4]*$in]
+      puts ":: section"
+      set propList [split $prop]
+      # AISC_Manual_Label "W A h b tdes Ix Zx Sx rx Iy Zy Sy ry J C
+      set  d [expr [lindex $propList 2]*$in]
+      set  b [expr [lindex $propList 3]*$in]
+      set  t [expr [lindex $propList 4]*$in]
 
-        if {$Orient == "XX"} {
-            HSSectionD $sectTag $matTag $d $b $t $nFlange $nWeb 
-        } else {
-            HSSectionD $sectTag $matTag $b $d $t $nFlange $nWeb 
-        }
-        set found 1
+      if {$Orient == "XX"} {
+          HSSectionD $sectTag $matTag $d $b $t $nFlange $nWeb 
+      } else {
+          HSSectionD $sectTag $matTag $b $d $t $nFlange $nWeb 
+      }
+      set found 1
     }
     if {$found == 0} {
-        puts "FiberHSSSection2d sectType: $sectType not found for sectTag: $sectTag"
+      puts "FiberHSSSection2d sectType: $sectType not found for sectTag: $sectTag"
     }
 }
 
@@ -1500,7 +1503,7 @@ proc SteelWSectionMR {matTag E Fy Ry H Lcanti Lb sectType Com_Type Comp_Action a
         # set c1 25.4; 
         # set c2 6.895;
 
-        puts "$sectType query section properties"
+#   puts "$sectType query section properties"
     set found 0.
     foreach {section prop} [array get WSection $sectType] {
         set propList [split $prop]                              
@@ -1773,8 +1776,7 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
         # set c1 25.4; 
         # set c2 6.895;
 
-    puts "$sectType query section properties"
-    
+#   puts "$sectType query section properties"
     set found 0.
     foreach {section prop} [array get WSection $sectType] {
         set propList [split $prop]                              
@@ -1895,7 +1897,7 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
     if {$matType == "Bilin"} {
         set bilinType Bilin
         uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor
-        puts "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
+#       puts "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
     
         
         } elseif {$matType == "MultiLinear"} {
