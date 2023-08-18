@@ -1,6 +1,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef USE_TCL_STUBS
+#undef USE_TCL_STUBS
+#endif
+
 extern "C" {
  #include <tcl.h>
  #include <tclDecls.h>
