@@ -37,7 +37,8 @@ extern "C" {
 #include <tcl.h>
 }
 
-#include "commands.h"
+#include "runtime/commands/commands.h"
+extern int OpenSeesAppInit(Tcl_Interp *interp);
 
 /*
  * The following variable is a special hack that is needed in order for

@@ -10,4 +10,5 @@ add_executable(OpenSees
 #       tclAppInit.cpp
 )
 
-target_link_libraries(OpenSees PRIVATE OpenSeesRT)
+target_link_libraries(OpenSees PRIVATE ${TCL_LIBRARY} OpenSeesRT)
+
