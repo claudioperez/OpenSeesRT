@@ -34,8 +34,8 @@ set Ry 1.1;
 set b 0.03
 set g 386.4
 
-set colType  ComponentElement
-set beamType ComponentElement
+set colType  Force; # ComponentElement
+set beamType  ComponentElement
 
 
 # load procedures in other files
@@ -85,7 +85,7 @@ proc ElasticBeamWSection2d {eleTag iNode jNode sectType E transfTag args} {
   }
 
   if {$found == 0} {
-    puts stderr "ElasticBeamWSection2d sectType: $sectType not found for ee: $eleTag"
+#    puts stderr "ElasticBeamWSection2d sectType: $sectType not found for ee: $eleTag"
   }
 }
 
@@ -129,7 +129,7 @@ proc ElasticBeamHSSection2d {eleTag iNode jNode sectType E transfTag args} {
   }
 
   if {$found == 0} {
-    puts stderr "ElasticBeamHSSection2d sectType: $sectType not found for ee: $eleTag"
+#    puts stderr "ElasticBeamHSSection2d sectType: $sectType not found for ee: $eleTag"
   }
 }
 
@@ -550,7 +550,7 @@ proc BeamWithPlasticHingesWSection2d {eleTag iNode jNode sectType E Fy H Lb Com_
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-    puts stderr "YY orientation not handled - uses XX!"
+#    puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -617,7 +617,7 @@ proc ComponentBeamWSection2d {eleTag iNode jNode sectType E Fy Ry transfTag args
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-    puts stderr "YY orientation not handled - uses XX!"
+#    puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -701,7 +701,7 @@ proc ComponentColWSection2d {eleTag iNode jNode sectType E Fy Ry PgPy transfTag 
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-    puts stderr "YY orientation not handled - uses XX!"
+#    puts stderr "YY orientation not handled - uses XX!"
   }
 
   if {[lsearch $args "-release1"] != -1} {
@@ -779,7 +779,7 @@ proc ComponentBeamHSSection2d {eleTag iNode jNode sectType E Fy N transfTag args
 
   set Orient "XX"
   if {[lsearch $args "YY"] != -1} {
-    puts stderr "YY orientation not handled - uses XX!"
+#    puts stderr "YY orientation not handled - uses XX!"
   }
 
   set nFactor 1000.
@@ -968,7 +968,7 @@ proc ElasticSteelWSection2d {sectTag sectType E args} {
   }
 
   if {$found == 0} {
-    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
+#    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -994,7 +994,7 @@ proc FiberSteelWSection2d {sectTag sectType matTag nFlange nWeb args} {
       set found 1
   }
   if {$found == 0} {
-    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
+#    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -1097,7 +1097,7 @@ proc ElasticHSSection2d {sectTag sectType E args} {
   }
 
   if {$found == 0} {
-    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
+#    puts stderr "FiberSteelWSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -1127,7 +1127,7 @@ proc FiberHSSection2d {sectTag sectType matTag nFlange nWeb args} {
   set found 1
   }
   if {$found == 0} {
-    puts stderr "FiberHSSSection2d sectType: $sectType not found for sectTag: $sectTag"
+#    puts stderr "FiberHSSSection2d sectType: $sectType not found for sectTag: $sectTag"
   }
 }
 
@@ -1377,7 +1377,7 @@ proc SteelWSectionMR {matTag E Fy Ry H Lcanti Lb sectType Com_Type Comp_Action a
 
 
   } elseif {$matType == "MultiLinear"} {
-    puts stderr "not defined"
+#    puts stderr "not defined"
 
   } elseif {$matType == "Elastic"} {
     set K [expr $K*$nFactor]
@@ -1581,11 +1581,11 @@ proc SteelWSectionColMR {matTag E Fy Ry H Lcanti Lb PgPy sectType args} {
   if {$matType == "Bilin"} {
   set bilinType Bilin
   uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor
-  puts stderr "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
+#  puts stderr "uniaxialMaterial $bilinType $matTag $K_s $as_s $as_s $My_s -$My_s $Lmda $Lmda_c $Lmda $Lmda_k $c_S $c_C $c_A $c_K $theta_p_s $theta_p_s $theta_pc_s $theta_pc_s $Res_s $Res_s $theta_ult_s $theta_ult_s 1.  1. $nFactor"
 
 
   } elseif {$matType == "MultiLinear"} {
-  puts stderr "not defined"
+#  puts stderr "not defined"
 
   } elseif {$matType == "Elastic"} {
   set K [expr $K*$nFactor]
@@ -1660,10 +1660,10 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
 
   set Ny [expr $A*$Fy]
   set NNy [expr $N/$Ny]
-  puts stderr "NNy = $NNy"
+#  puts stderr "NNy = $NNy"
 
   if {$D != $b} {
-  puts stderr "HSS not square, not applicable!"}
+#  puts stderr "HSS not square, not applicable!"}
 
   if {[lsearch $args "-nFactor"] != -1} {
   set loc [lsearch $args "-nFactor"]
@@ -1722,7 +1722,7 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
   # Define Uniaxial Material Modified Ibarra-Medina-Krawinkler (IMK) Model with Bilinear Hysteretic response
   if {$matType == "Bilin02"} {
   uniaxialMaterial Bilin02 $matTag $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor
-  puts stderr "        uniaxialMaterial Bilin02 $matTag $c $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor"
+#  puts stderr "        uniaxialMaterial Bilin02 $matTag $c $K $as_mem_p $as_mem_n $My_P $My_N $Lmda $Lmda $Lmda $Lmda $c_S $c_C $c_A $c_K $theta_p_P $theta_p_N $theta_pc_P $theta_pc_N $Res $Res $theta_u $theta_u $D_P $D_N $nFactor"
 
   } elseif {$matType == "MultiLinear"} {
   # Define multilinear model
@@ -1733,7 +1733,7 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
   set s3p 0.0
   set e3p [expr $e2p+$theta_pc_P];
 
-  puts stderr "ORIGINAL:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        "
+#  puts stderr "ORIGINAL:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        "
 
   # Modifications based on Barbosa & Ribera
   set Ke [expr $K*(1+$nFactor)]; # eqn B.3
@@ -1756,7 +1756,7 @@ proc SteelSquareHSSMR02 {matTag E Fy H N sectType args} {
 #        set alphaCap [expr $alphaCap/(1+$nFactor*(1.0-$alphaCap))]; #eqn 7 Riberra & Barbosa DOES YIELD RESULT IN Ibarra and Krawinkle!!
 #        set Kcapping [expr $Ke*$alphaCap]
 
-  puts stderr "MODIFIED:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        E1: [expr $s1p/$e1p] E2 [expr ($s2p-$s1p)/($e2p-$e1p)] b [expr ($s2p-$s1p)/($e2p-$e1p)/($s1p/$e1p)]"
+#  puts stderr "MODIFIED:        uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.        E1: [expr $s1p/$e1p] E2 [expr ($s2p-$s1p)/($e2p-$e1p)] b [expr ($s2p-$s1p)/($e2p-$e1p)/($s1p/$e1p)]"
 
   uniaxialMaterial MultiLinear $matTag $e1p $s1p $e2p $s2p $e3p $s3p [expr $e3p+10.] 0.
 
@@ -3100,7 +3100,7 @@ if {$frame == "20Story" } {
   set roofWeight       [expr 0.05066770*2204.6226/$g*6/4];
   set floorWeight      [expr 0.05364600*2204.6226/$g*6/4];
   if $verbose {
-    puts stderr "roof: $roofWeight floor: $floorWeight 1stfloor: $firstfloorWeight"
+#    puts stderr "roof: $roofWeight floor: $floorWeight 1stfloor: $firstfloorWeight"
   }
 
   set forceColfirstExt [expr 190.7000*0.2248];
@@ -3200,7 +3200,7 @@ for {set floor 1; set floorLoc 0} {$floor <= $numFloor} {incr floor 1} {
           # add panel zone nodes
           set aaa [lindex $BeamDepth [expr $floor -2]];
           if $verbose {
-            puts stderr "$floor $aaa"
+#            puts stderr "$floor $aaa"
           }
           set pzvert [expr $aaa*0.5];
           set bbb [lindex $ColDepth [expr $floor -2]];
@@ -3350,7 +3350,7 @@ for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
             } else {
                 set PgPy [string cat $location b]
                 if $verbose {
-                  puts stderr "$colLine$floor1$colLine$floor2"
+#                  puts stderr "$colLine$floor1$colLine$floor2"
                 }
                 ComponentColWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection $E $Fyc $Ry [set $PgPy] 1 -matType Bilin -nFactor $nFactorElem
                 lappend eleColListHinge $colLine$floor1$colLine$floor2
@@ -3394,7 +3394,7 @@ for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
                 lappend eleColListHinge $colLine$floor1$colLine$floor2
 
                 if $verbose {
-                  puts stderr "floor=$floor1 col=$colLine section=$theSectionlow $theSection"
+#                  puts stderr "floor=$floor1 col=$colLine section=$theSectionlow $theSection"
                 }
 
             } else {
@@ -3729,7 +3729,7 @@ if {$pDelta == "YES"} {
 }
 
 #===# add column axial loads
-puts stderr "---> gravity loads"
+#puts stderr "---> gravity loads"
 pattern Plain 102 Linear {
   for {set floor2 2} {$floor2 <= $numFloor} {incr floor2 1} {
     for {set colLine  1} {$colLine1 < $numCline} {incr colLine 1} {
@@ -3756,20 +3756,20 @@ pattern Plain 102 Linear {
 # puts stderr "---> gravity loads"
 # puts stderr "roof:$uniformRoofLoad...floor:$uniformFloorLoad...ptRoofLoad:$ptRoofLoad ...ptFloorLoad:$ptFloorLoad"
 
-puts stderr "AFTER PDELTA"
+#puts stderr "AFTER PDELTA"
 
 # =========== analysis settings ============ #
 # Gravity-analysis: load-controlled static analysis
 constraints Plain;
 numberer RCM;
 system Umfpack;
-test NormUnbalance 1.0e-6 10 1;
+test NormUnbalance 1.0e-6 10 0;
 algorithm NewtonLineSearch;
 integrator LoadControl 0.1;
 analysis Static;
 set ok [analyze 10]
 if {$ok != 0} {
-  puts stderr "Gravity FAILED"
+#  puts stderr "Gravity FAILED"
 }
 
 loadConst -time 0.0

@@ -35,7 +35,7 @@ extern OPS_Stream *opserrPtr;
 
 #include <string.h>
 // #include <stdlib.h>
-
+#define OPS_STATIC
 
 #ifdef _TCL85
 #define TCL_Char const char

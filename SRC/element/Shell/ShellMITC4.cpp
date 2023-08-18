@@ -42,7 +42,6 @@
 #include <Matrix.h>
 #include <MatrixND.h>
 
-#define OPS_STATIC
 using namespace OpenSees;
 
 #include <Element.h>

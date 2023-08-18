@@ -18,17 +18,17 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// Description: This file contains the class definition for NineNodeQuad.
+//
 // based on FourNodeQuad by MHS
 // Written: Seweryn Kokot, Opole University of Technology, Poland
 // Created: Aug 2020
 //
-// Description: This file contains the class definition for NineNodeQuad.
-
 #ifndef NineNodeQuad_h
 #define NineNodeQuad_h
 
 #ifndef _bool_h
-#include <stdbool.h>
+# include <stdbool.h>
 #endif
 
 #include <Element.h>
@@ -133,9 +133,6 @@ private:
                     // Note: positive for outward normal
   double rho;
   static double shp[3][nnodes]; // Stores shape functions and derivatives (overwritten)
-
-//static double pts[nip][2]; // Stores quadrature points
-//static double wts[nip];    // Stores quadrature weights
 
   // private member functions - only objects of this class can call these
   double shapeFunction(double xi, double eta);

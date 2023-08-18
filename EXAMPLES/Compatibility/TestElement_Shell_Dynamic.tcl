@@ -6,11 +6,12 @@ section ElasticMembranePlateSection 1 3.0e3 0.25 1.175 1.27
 # set some parameters for node and element generation
 set Plate ShellMITC4
 
-set eleArgs "1"
 
 #these should both be even
-set nx 8
-set ny 2
+set nx 16; # 8
+set ny  4; # 2
+
+set eleArgs "1"
 
 #loaded nodes
 set mid [expr ( ($nx+1)*($ny+1)+1 ) / 2 ]
@@ -41,13 +42,13 @@ pattern UniformExcitation  2   1  -accel 1
 fixZ 0.0 1 1 1 0 1 1
 fixZ 40.0 1 1 1 0 1 1
 
-system BandGeneral
+system      BandSPD; # ProfileSPD
 constraints Plain
-test NormUnbalance 1.0e-8  10 0
-algorithm Newton
-numberer RCM
-integrator Newmark  0.5  0.25 
-analysis Transient
+test        NormUnbalance 1.0e-8  10 0
+algorithm   Newton
+numberer    RCM
+integrator  Newmark  0.5  0.25 
+analysis    Transient
 
 set tFinal [expr 20000 * $dt]
 set tCurrent [getTime]
@@ -56,27 +57,27 @@ set ok 0
 if 1 {
   set ok [analyze 20000 0.01]
 } else {
-# progress create 40000
-# 
-# # Perform the transient analysis
-# while {$ok == 0 && $tCurrent < $tFinal} {
-#     
-#     set ok [analyze 1 .01]
-#     
-#     # if the analysis fails try initial tangent iteration
-#     if {$ok != 0} {
-# 	puts "regular newton failed .. lets try an initial stiffness for this step"
-# 	test NormDispIncr 1.0e-12  100 0
-# 	algorithm ModifiedNewton -initial
-# 	set ok [analyze 1 .01]
-# 	if {$ok == 0} {puts "that worked .. back to regular newton"}
-# 	test NormDispIncr 1.0e-12  10 
-# 	algorithm Newton
-#     }
-#     
-#     set tCurrent [getTime]
-#     progress update "$tCurrent / $tFinal"
-# }
+  progress create 40000
+  
+  # Perform the transient analysis
+  while {$ok == 0 && $tCurrent < $tFinal} {
+      
+      set ok [analyze 1 .01]
+      
+      # if the analysis fails try initial tangent iteration
+      if {$ok != 0} {
+          puts "regular newton failed .. lets try an initial stiffness for this step"
+          test NormDispIncr 1.0e-12  100 0
+          algorithm ModifiedNewton -initial
+          set ok [analyze 1 .01]
+          if {$ok == 0} {puts "that worked .. back to regular newton"}
+          test NormDispIncr 1.0e-12  10 
+          algorithm Newton
+      }
+      
+      set tCurrent [getTime]
+      progress update "$tCurrent / $tFinal"
+  }
 }
 # Print a message to indicate if analysis successful or not
 if {$ok == 0} {
@@ -86,14 +87,11 @@ if {$ok == 0} {
 }
 
 # Perform an eigenvalue analysis
-puts "eigen values at start of transient: [eigen -Umfpack 1]"
-puts "eigen values at start of transient: [eigen -Umfpack 2]"
-puts "eigen values at start of transient: [eigen -Umfpack 2]"
+puts "eigen values at end of transient: [eigen 3]"
 
 # Print state of node 3
 #print node 3
 #print ele 1
 
-puts [getTime]
 wipe
 

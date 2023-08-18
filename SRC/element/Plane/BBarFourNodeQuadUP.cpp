@@ -507,12 +507,12 @@ BBarFourNodeQuadUP::getDamp()
   if (betaKc != 0.0)
     Kdamp.addMatrix(1.0, *Kc, betaKc);
 
-  int i, j, m, i1, j1;
+  int i1, j1;
 
   if (alphaM != 0.0) {
     this->getMass();
-    for (i = 0; i < 12; i += 3) {
-      for (j = 0; j < 12; j += 3) {
+    for (int i = 0; i < 12; i += 3) {
+      for (int j = 0; j < 12; j += 3) {
         Kdamp(i,j) += K(i,j)*alphaM;
         Kdamp(i+1,j+1) += K(i+1,j+1)*alphaM;
       }
@@ -524,14 +524,14 @@ BBarFourNodeQuadUP::getDamp()
 
   // Compute coupling matrix
   double vol = dvol[0] + dvol[1] + dvol[2] + dvol[3];
-  for (i = 0; i < 12; i += 3) {
+  for (int i = 0; i < 12; i += 3) {
     i1 = i / 3;
-    for (j = 2; j < 12; j += 3) {
+    for (int j = 2; j < 12; j += 3) {
       j1 = (j-2) / 3;
-      for (m = 0; m < 4; m++) {
+      for (int m = 0; m < 4; m++) {
       //Kdamp(i,j) += -dvol[m]*shp[0][i1][m]*shp[2][j1][m];
       //Kdamp(i+1,j) += -dvol[m]*shp[1][i1][m]*shp[2][j1][m];
-      Kdamp(i,j) += -dvol[m]*(B[0][0][i1][m]+B[1][0][i1][m]+B[3][0][i1][m])*shp[2][j1][m];
+      Kdamp(i,j)   += -dvol[m]*(B[0][0][i1][m]+B[1][0][i1][m]+B[3][0][i1][m])*shp[2][j1][m];
       Kdamp(i+1,j) += -dvol[m]*(B[0][1][i1][m]+B[1][1][i1][m]+B[3][1][i1][m])*shp[2][j1][m];
     }
       Kdamp(j,i) = Kdamp(i,j);
@@ -540,11 +540,11 @@ BBarFourNodeQuadUP::getDamp()
   }
 
   // Compute permeability matrix
-  for (i = 2; i < 12; i += 3) {
+  for (int i = 2; i < 12; i += 3) {
     int i1 = (i-2) / 3;
-    for (j = 2; j < 12; j += 3) {
+    for (int j = 2; j < 12; j += 3) {
       int j1 = (j-2) / 3;
-      for (m = 0; m < 4; m++) {
+      for (int m = 0; m < 4; m++) {
       //Kdamp(i,j) += - dvol[m]*(perm[0]*shp[0][i1][m]*shp[0][j1][m] +
       //              perm[1]*shp[1][i1][m]*shp[1][j1][m]);
       Kdamp(i,j) += - dvol[m]*(perm[0]*Bp[0][i1][m]*Bp[0][j1][m] +
@@ -583,13 +583,13 @@ BBarFourNodeQuadUP::getMass()
   }*/
 
   // Compute consistent mass matrix
-  for (i = 0, i1 = 0; i < 12; i += 3, i1++) {
-    for (j = 0, j1 = 0; j < 12; j += 3, j1++) {
-    for (m = 0; m < 4; m++) {
-    Nrho = dvol[m]*mixtureRho(m)*shp[2][i1][m]*shp[2][j1][m];
-    K(i,j) += Nrho;
-    K(i+1,j+1) += Nrho;
-    }
+  for (int i = 0, i1 = 0; i < 12; i += 3, i1++) {
+    for (int j = 0, j1 = 0; j < 12; j += 3, j1++) {
+      for (int m = 0; m < 4; m++) {
+        Nrho = dvol[m]*mixtureRho(m)*shp[2][i1][m]*shp[2][j1][m];
+        K(i,j) += Nrho;
+        K(i+1,j+1) += Nrho;
+      }
     }
   }
 
@@ -597,13 +597,13 @@ BBarFourNodeQuadUP::getMass()
   double vol = dvol[0] + dvol[1] + dvol[2] + dvol[3];
   double oneOverKc = 1./kc;
 
-  for (i = 2; i < 12; i += 3) {
+  for (int i = 2; i < 12; i += 3) {
     i1 = (i-2) / 3;
-    for (j = 2; j < 12; j += 3) {
+    for (int j = 2; j < 12; j += 3) {
       j1 = (j-2) / 3;
-      for (m = 0; m < 4; m++) {
-      K(i,j) += -dvol[m]*oneOverKc*shp[2][i1][m]*shp[2][j1][m];
-    }
+      for (int m = 0; m < 4; m++) {
+        K(i,j) += -dvol[m]*oneOverKc*shp[2][i1][m]*shp[2][j1][m];
+      }
     }
   }
 

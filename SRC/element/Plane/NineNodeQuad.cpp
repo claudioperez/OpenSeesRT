@@ -57,38 +57,11 @@ NineNodeQuad::NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
   theMaterial(0), connectedExternalNodes(nnodes),
  Q(2*nnodes), applyLoad(0), pressureLoad(2*nnodes), thickness(t), pressure(p), rho(r), Ki(0)
 {
-//     pts[0][0] = -0.7745966692414834;
-//     pts[0][1] = -0.7745966692414834;
-//     pts[1][0] =  0.7745966692414834;
-//     pts[1][1] = -0.7745966692414834;
-//     pts[2][0] =  0.7745966692414834;
-//     pts[2][1] =  0.7745966692414834;
-//     pts[3][0] = -0.7745966692414834;
-//     pts[3][1] =  0.7745966692414834;
-//     pts[4][0] =  0.0;
-//     pts[4][1] = -0.7745966692414834;
-//     pts[5][0] =  0.7745966692414834;
-//     pts[5][1] =  0.0;
-//     pts[6][0] =  0.0;
-//     pts[6][1] =  0.7745966692414834;
-//     pts[7][0] = -0.7745966692414834;
-//     pts[7][1] =  0.0;
-//     pts[8][0] =  0.0;
-//     pts[8][1] =  0.0;
-// 
-//     wts[0] = 0.30864197530864196;
-//     wts[1] = 0.30864197530864196;
-//     wts[2] = 0.30864197530864196;
-//     wts[3] = 0.30864197530864196;
-//     wts[4] = 0.49382716049382713;
-//     wts[5] = 0.49382716049382713;
-//     wts[6] = 0.49382716049382713;
-//     wts[7] = 0.49382716049382713;
-//     wts[8] = 0.7901234567901234;
 
     if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
         && strcmp(type,"PlaneStrain2D") != 0 && strcmp(type,"PlaneStress2D") != 0) {
-      opserr << "NineNodeQuad::NineNodeQuad -- improper material type: " << type << "for NineNodeQuad\n";
+      opserr << "NineNodeQuad::NineNodeQuad -- improper material type: "
+             << type << "for NineNodeQuad\n";
       exit(-1);
     }
 
@@ -99,13 +72,7 @@ NineNodeQuad::NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     // Allocate arrays of pointers to NDMaterials
     theMaterial = new NDMaterial *[nip];
 
-    if (theMaterial == nullptr) {
-      opserr << "NineNodeQuad::NineNodeQuad - failed allocate material model pointer\n";
-      exit(-1);
-    }
-
-    int i;
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
 
       // Get copies of the material model for each integration point
       theMaterial[i] = m.getCopy(type);
@@ -128,7 +95,7 @@ NineNodeQuad::NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     connectedExternalNodes(7) = nd8;
     connectedExternalNodes(8) = nd9;
 
-    for (i=0; i<nnodes; i++)
+    for (int i=0; i<nnodes; i++)
       theNodes[i] = 0;
 }
 
@@ -185,7 +152,7 @@ void
 NineNodeQuad::setDomain(Domain *theDomain)
 {
     // Check Domain is not null - invoked when object removed from a domain
-    if (theDomain == 0) {
+    if (theDomain == nullptr) {
       theNodes[0] = nullptr;
       theNodes[1] = nullptr;
       theNodes[2] = nullptr;
@@ -224,7 +191,7 @@ NineNodeQuad::setDomain(Domain *theDomain)
     //opserr << "FATAL ERROR NineNodeQuad (tag: %d), node not found in domain",
     //    this->getTag());
 
-    return;
+      return;
     }
 
     int dofNd1 = theNodes[0]->getNumberDOF();
@@ -242,7 +209,7 @@ NineNodeQuad::setDomain(Domain *theDomain)
     //opserr << "FATAL ERROR NineNodeQuad (tag: %d), has differing number of DOFs at its nodes",
     //    this->getTag());
 
-    return;
+      return;
     }
     this->DomainComponent::setDomain(theDomain);
 
