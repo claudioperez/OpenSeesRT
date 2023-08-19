@@ -720,7 +720,7 @@ void   EnhancedQuad::formInertiaTerms( int tangFlag )
               mass( jj+p, kk+p ) += massJK ;
             
             kk += ndf ;
-          } // end for k loop
+          }
 
       } // end if tang_flag 
 
@@ -749,13 +749,11 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
 
   int i, j, k, p, q ;
   int jj, kk ;
-
   int success ;
 
-  static double xsj[nip] ;  // determinant jacaobian matrix 
-  static double dvol[nip] ; // volume element
-// static double shp[nShape][numberNodes] ;  // shape functions at a gauss point
-  static double Shape[nip][nShape][numberNodes]; // [nip] ; // all the shape functions
+  OPS_STATIC double xsj[nip] ;  // determinant jacaobian matrix 
+  OPS_STATIC double dvol[nip] ; // volume element
+  OPS_STATIC double Shape[nip][nShape][numberNodes]; // [nip] ; // all the shape functions
 
   static VectorND<nstress> strain ;  // strain
   static Vector residJ(ndf) ; // nodeJ residual 
@@ -763,6 +761,7 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
   static Matrix stiffKJ(ndf,ndf) ; // nodeKJ stiffness
   static Vector stress(nstress) ;  // stress
   static Matrix dd(nstress,nstress) ;  // material tangent
+
   static Matrix J0(ndm,ndm) ; //Jacobian matrix at center of element
   static Matrix J0inv(ndm,ndm) ; // inverse of above
 
@@ -813,10 +812,10 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
     // volume element to also be saved
     dvol[i] = wts[i] * det * thickness;  
 
-  } // end for i gauss loop
+  }
 
   // -------------------------------------------------------------------
-  // newton loop to solve for enhanced strain parameters
+  // Newton loop to solve for enhanced strain parameters
 
   int count = 0 ;
   do {
@@ -834,7 +833,7 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
       for (int j = 0; j < numberNodes; j++ )  {
 
         // compute B matrix 
-        BJ = computeB( j, Shape[i], B[j]) ;
+        computeB( j, Shape[i], B[j]) ;
       
         // nodal displacements 
         const Vector &ul = nodePointers[j]->getTrialDisp( ) ;
@@ -921,8 +920,6 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
 
 
     // solve for enhanced strain parameters
-
-//  dalpha.Zero( ) ;
     Kee.Solve( residE, dalpha ) ;
 
     if (dalpha(0) > 1.0e10)  opserr << "dalpha: " << residE << dalpha;
@@ -947,13 +944,6 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
   // Gauss loop 
   for (int i = 0; i < nip; i++ ) {
 
-//  // extract shape functions from saved array
-//  for (int p = 0; p < nShape; p++ ) {
-//     for (int q = 0; q < numberNodes; q++ )
-//        shp[p][q]  = Shape[p][q][i] ;
-//  }
-
-
     // recover stress and tangent from saved data
     getData( i, stress, dd ) ;
 
@@ -962,7 +952,8 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
     jj = 0 ;
     for (int j = 0; j < numberNodes; j++ ) {
 
-      /* BJ = */ computeB( j, Shape[i], B[j]) ;
+      // TODO(cmp): check this
+      BJ = computeB( j, Shape[i], B[j]) ;
 
       // residual
       // residJ = BJtran * stress ;
@@ -981,7 +972,7 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
          kk = 0 ;
          for (int k = 0; k < numberNodes; k++ ) {
 
-            /* BK = */ computeB( k, Shape[i], B[k]) ;
+            computeB( k, Shape[i], B[k]) ;
   
             // stiffJK =  BJtranD * BK  ;
             stiffJK.addMatrixProduct(0.0, BJtranD, B[k], 1.0) ;
@@ -992,8 +983,7 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
             }
 
             kk += ndf ;
-          } // end for k loop
-
+          }
 
          // node-enhanced stiffness Kue 
          kk = 0 ;
@@ -1011,7 +1001,6 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
 
             kk += ndf ;
           }
-
 
          // enhanced-node stiffness Keu 
          kk = 0 ;
@@ -1215,8 +1204,8 @@ void EnhancedQuad::computeJacobian(double L1, double L2,
 
   static double shp[2][4] ;
 
-  double ss = L1 ;
-  double tt = L2 ;
+  double ss = L1;
+  double tt = L2;
 
   for (int i = 0; i < 4; i++ ) {
       shp[0][i] = s[i] * ( 0.5 + t[i]*tt ) ;
@@ -1232,8 +1221,8 @@ void EnhancedQuad::computeJacobian(double L1, double L2,
       for (int k = 0; k < 4; k++ )
           JJ(i,j) +=  x[i][k] * shp[j][k] ;
 
-    } // end for j
-  }  // end for i 
+    }
+  }
 
   double xsj = JJ(0,0)*JJ(1,1) - JJ(0,1)*JJ(1,0) ;
 
