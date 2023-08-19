@@ -5,11 +5,11 @@ lib="/src/libg3/SRC/runtime/libOpenSeesRT.so"
 
 opensees="python -m opensees"
 #opensees="$build/temp.linux-x86_64-cpython-39_stack/src/libg3/SRC/executable/OpenSees"
-perf="perf stat -B -r 4 -e cache-references,cache-misses,cycles,instructions,faults,page-faults,branches,branch-misses"
+perf="perf stat -B -r 10 -e cache-references,cache-misses,cycles,instructions,faults,page-faults,branches,branch-misses"
 
-#script="../Interpreter/20Stories.tcl"
+script="../Interpreter/20Stories.tcl"
 #script="RigidFrame3D.tcl"
-script="TestElement_Shell_Dynamic.tcl"
+#script="TestElement_Shell_Dynamic.tcl"
 # ../Verification/Shell/PlanarShearWall.tcl
 
 export OPENSEESRT_LIB="$build/temp.linux-x86_64-cpython-39_local/$lib"

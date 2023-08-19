@@ -34,8 +34,8 @@ set Ry 1.1;
 set b 0.03
 set g 386.4
 
-set colType  Force; # ComponentElement
-set beamType  ComponentElement
+set colType   Force; # ComponentElement
+set beamType  Force
 
 
 # load procedures in other files
@@ -3119,7 +3119,7 @@ if {$frame == "20Story" } {
   set colSizes     {W36X529 W36X529 W36X487 W36X487 W36X441 W36X441 W36X395 W36X395 W36X361 W36X361 W36X330 W36X330 W36X262 W36X262 W36X232 W36X232 W27X194 W27X194 W27X129 W27X129};
   # set colExtSizes  $colSizes
   set colExtSizes  {W14X500 W14X500 W14X455 W14X455 W14X455 W14X455 W14X370 W14X370 W14X370 W14X370 W14X311 W14X311 W14X283 W14X283 W14X233 W14X233 W14X193 W14X193 W14X132 W14X132}
-  set beamSizes    {W33X130 W33X130 W33X141 W33X141 W33X141 W33X141 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X130 W33X130 W33X130 W33X130 W24X68 W24X68};
+  set beamSizes    {W33X130 W33X130 W33X141 W33X141 W33X141 W33X141 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X152 W33X130 W33X130 W33X130 W33X130 W24X68  W24X68};
   set beamExtSizes $beamSizes
 
   set BeamDepth   {33.1 33.1 33.3 33.3 33.3 33.3 33.5 33.5 33.5 33.5 33.5 33.5 33.5 33.5 33.1 33.1 33.1 33.1 23.7 23.7};
@@ -3326,7 +3326,7 @@ for {set colLine 1;set colLoc 0;} {$colLine <= $numCline} {incr colLine 1} {
         set theSectionlow [lindex $colExtSizes [expr $floor1 -2]]
 
         if {$colType == "Force"} {
-            ForceBeamHSS2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 ;#-elasticSection $E
+            ForceBeamWSection2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 ;#-elasticSection $E
         }
         if {$colType == "ForceCap"} {
             ForceBeamHSS2d $colLine$floor1$colLine$floor2 $colLine$floor1$p7 $colLine$floor2$p6 $theSection 1 1 -nip 5 -capIt $pDamp $Fyc
@@ -3487,6 +3487,7 @@ for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
 
 
 if $verbose {puts stderr "build PZ..."}
+
 #====#====# add panel zone elements
 set Apz 1000.0;
 set Ipz 1.0e5;
@@ -3499,49 +3500,49 @@ set PZrigidList [];
 for {set floor 2} {$floor <= $numFloor} {incr floor 1} {
   for {set colLine 1} {$colLine <= $numCline} {incr colLine 1} {
 
-      if {$colLine == 1 || $colLine == $numCline} {
-          set theSection [lindex $colExtSizes [expr $floor -1]]
-          set tdpExt [lindex $tdpExtList [expr $floor -1]];
-          set found 0
+    if {$colLine == 1 || $colLine == $numCline} {
+        set theSection [lindex $colExtSizes [expr $floor -1]]
+        set tdpExt [lindex $tdpExtList [expr $floor -1]];
+        set found 0
 
-          foreach {section prop} [array get WSection $theSection] {
-              set propList [split $prop]
+        foreach {section prop} [array get WSection $theSection] {
+          set propList [split $prop]
 
-              # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-              set A [expr [lindex $propList 1]*$in*$in]
-              set dc [expr [lindex $propList 2]*$in]
-              set bf_c [expr [lindex $propList 3]*$in]
-              set tw [expr [lindex $propList 4]*$in]
-              set tf_c [expr [lindex $propList 4]*$in]
-              set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
+          # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+          set A [expr [lindex $propList 1]*$in*$in]
+          set dc [expr [lindex $propList 2]*$in]
+          set bf_c [expr [lindex $propList 3]*$in]
+          set tw [expr [lindex $propList 4]*$in]
+          set tf_c [expr [lindex $propList 4]*$in]
+          set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
 
-              set found 1
-              set tp [expr $tw+$tdpExt];
-          }
+          set found 1
+          set tp [expr $tw+$tdpExt];
+        }
 
-      } else {
+    } else {
 
-          set tdpInt [lindex $tdpIntList [expr $floor -1]];
+        set tdpInt [lindex $tdpIntList [expr $floor -1]];
 
-          set theSection [lindex $colSizes [expr $floor -1]];
-          set found 0
+        set theSection [lindex $colSizes [expr $floor -1]];
+        set found 0
 
-          foreach {section prop} [array get WSection $theSection] {
-            set propList [split $prop]
+        foreach {section prop} [array get WSection $theSection] {
+          set propList [split $prop]
 
-            # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
-            set A [expr [lindex $propList 0]*$in*$in]
-            set dc [expr [lindex $propList 1]*$in]
-            set bf_c [expr [lindex $propList 2]*$in]
-            set tw [expr [lindex $propList 3]*$in]
-            set tf_c [expr [lindex $propList 4]*$in]
-            set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
+          # AISC_Manual_Label A d bf tw tf Ix Iy Zx Sx rx Zy Sy ry J
+          set A [expr [lindex $propList 0]*$in*$in]
+          set dc [expr [lindex $propList 1]*$in]
+          set bf_c [expr [lindex $propList 2]*$in]
+          set tw [expr [lindex $propList 3]*$in]
+          set tf_c [expr [lindex $propList 4]*$in]
+          set Ixx [expr [lindex $propList 5]*$in*$in*$in*$in]
 
-            set found 1
-            set tp [expr $tw + $tdpInt];
-          }
+          set found 1
+          set tp [expr $tw + $tdpInt];
+        }
 
-      }
+    }
 
       #--- rigid element
       # elemPanelZone2D {eleID nodeR E A_PZ I_PZ transfTag}
@@ -3761,20 +3762,18 @@ pattern Plain 102 Linear {
 # =========== analysis settings ============ #
 # Gravity-analysis: load-controlled static analysis
 constraints Plain;
-numberer RCM;
-system Umfpack;
+numberer    RCM;
+system      Umfpack;
 test NormUnbalance 1.0e-6 10 0;
 algorithm NewtonLineSearch;
 integrator LoadControl 0.1;
 analysis Static;
 set ok [analyze 10]
 if {$ok != 0} {
-#  puts stderr "Gravity FAILED"
+   puts stderr "Gravity FAILED"
 }
 
 loadConst -time 0.0
 wipeAnalysis
-
-
 
 
