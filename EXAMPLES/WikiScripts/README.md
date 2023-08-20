@@ -54,8 +54,10 @@
 |  255  | `Ex6.genericFrame2D.build.InelasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
 |  0  | `Ex7.Frame3D.build.RCsec.tcl` |  |
 |  0  | `Ex7.Frame3D.build.Wsec.tcl` |  |
+|  255  | `Ex7.Frame3D.tcl` | can't read "dt": no such variable |
 |  0  | `Ex8.genericFrame3D.build.RCsec.tcl` |  |
 |  0  | `Ex8.genericFrame3D.build.Wsec.tcl` |  |
+|  0  | `Ex8.genericFrame3D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection2D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection3D.tcl` |  |
 |  0  | `Ex9b.build.WSection2D.tcl` |  |

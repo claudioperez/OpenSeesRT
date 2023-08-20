@@ -1,5 +1,4 @@
 if 1 {
-  puts " -------------Elastic Model -------------"
   puts " -------------Static Pushover Analysis -------------"
   foreach sec {RCsec Wsec} {
     wipe
@@ -10,7 +9,6 @@ if 1 {
 # To run RC Model, Uniform Earthquake Excitation
 if 0 {
   wipe
-  puts " -------------Uniaxial Inelastic Section, Nonlinear Model -------------"
   puts " -------------Uniform Earthquake Excitation -------------"
   source Ex8.genericFrame3D.build.RCsec.tcl
   source Ex8.genericFrame3D.analyze.Dynamic.EQ.Uniform.tcl
