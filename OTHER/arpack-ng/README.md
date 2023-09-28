@@ -286,6 +286,19 @@ $ LIBS="-framework Accelerate" FFLAGS="-ff2c -fno-second-underscore" FCFLAGS="-f
 
 ## Using arpack-ng from your own codebase
 
+The `*.pc` and `*.cmake` files provided by `arpack-ng` are only pointing to arpack libraries.
+If you need other libraries (like MPI), you must add them alongside arpack (see CMake example below).
+
+Typically, if you need
+
+- ARPACK: at compile/link time, you'll need to provide BLAS and LAPACK.
+
+- ARPACK with eigen support (arpackSolver): at compile/link time, you'll need to provide BLAS, LAPACK and Eigen.
+
+- PARPACK: at compile/link time, you'll need to provide BLAS, LAPACK and MPI.
+
+Examples are provided in `tstCMakeInstall.sh` and `tstAutotoolsInstall.sh` generated after running cmake/configure.
+
 ### With autotools
 
 First, set `PKG_CONFIG_PATH` to the location in the installation directory where `arpack.pc` lies.
@@ -314,9 +327,12 @@ To use PARPACK in your Cmake builds, use `PARPACK::PARPACK` target:
 
 ```cmake
 FIND_PACKAGE(arpackng)
+FIND_PACKAGE(MPI REQUIRED COMPONENTS Fortran)
 ADD_EXECUTABLE(main main.f)
 TARGET_INCLUDE_DIRECTORIES(main PUBLIC PARPACK::PARPACK)
 TARGET_LINK_LIBRARIES(main PARPACK::PARPACK)
+TARGET_INCLUDE_DIRECTORIES(main PUBLIC MPI::MPI_Fortran)
+TARGET_LINK_LIBRARIES(main MPI::MPI_Fortran)
 ```
 
 Note: Make sure to update `CMAKE_MODULE_PATH` env variable (otheriwse, `find_package` won't find arpack-ng cmake file).
@@ -343,11 +359,18 @@ Note: Make sure to update `CMAKE_MODULE_PATH` env variable (otheriwse, `find_pac
   You need to copy this eigen vector estimate in `v` (not `resid`) and set `info` to 1 before calling aupd methods.
   The `v` vector targets a non-null vector such that `resid = 0`, that is, such that `A*v = lambda*v`.
 
+- Using PARPACK, I get incorrect eigen values.
+
+  Make sure each MPI processor handles a subpart of the eigen system (matrices) only.
+  ARPACK handles and solves the whole eigen problem (matrices) at once.
+  PARPACK doesn't: each MPI processor must handle and solve a subpart of the eigen system (matrices) only (independently from the other processors).
+  See examples for Fortran in folder `PARPACK/EXAMPLES/MPI`, and for C/C++ examples in `PARPACK/TESTS/MPI/icb_parpack_c.c` and `PARPACK/TESTS/MPI/icb_parpack_cpp.cpp`
+
 ## Using MKL instead of BLAS / LAPACK
 
 How to use arpack-ng with Intel MKL:
 
-- Let autotools/cmake find MKL for you based on pkg-config files (setting `PKG_CONFIG_PATH`) or cmake options (`BLA_VENDOR=Intel`).
+- Let autotools/cmake find MKL for you based on pkg-config files (setting `PKG_CONFIG_PATH`) or cmake options (`BLA_VENDOR=Intel10_64lp` for lp64, `BLA_VENDOR=Intel10_64ilp` for ilp64).
 - Refers to the Intel Link Advisor: <https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-link-line-advisor.html>.
 
 ## Good luck and enjoy 🎊
