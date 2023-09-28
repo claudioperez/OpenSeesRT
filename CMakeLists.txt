@@ -33,6 +33,11 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
 
+   message(":: TCL :: ${TCL_INCLUDE_DIRS}\n${CONAN_INCLUDE_DIRS_TCL}")
+   message(":: TCL :: ${TCL_INCLUDE_PATH}\n${CONAN_INCLUDE_DIRS_TCL}")
+   message(":: TCL :: ${TCL_LIBRARIES}   \n${CONAN_PKG_LIBS_TCL}")
+
+
 elseif(WIN32)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
   list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
@@ -133,7 +138,7 @@ endif()
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (has_ipo)
+if (FALSE AND has_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 #==============================================================================
