@@ -513,8 +513,10 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
   const Vector &eigenvalues = theAnalysisModel->getEigenvalues();
   int numEigen = eigenvalues.Size();
 
-  if (numEigen < numModes) 
+  if (numEigen < numModes) {
     numModes = numEigen;
+    opserr << "WARNING: HAving to reset numModes to : " << numModes << "as not enough eigenvalues. NOTE if 0 you have done something to require new analysis or have not issued eigen command\n";
+  }
 
   int numDOF = theSOE->getNumEqn();
 
@@ -529,7 +531,8 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
   for (int i=0; i<numModes; i++) {
 
     double eigenvalue = (*eigenValues)(i);
-    if (eigenvalue > 0) {
+    double modalDampingValue = (*modalDampingValues)(i);
+    if (eigenvalue > 0 && modalDampingValue != 0.0) {
       double wn = sqrt(eigenvalue);
 
       double *eigenVectorI = &eigenVectors[numDOF*i];
@@ -542,7 +545,7 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 	}
       }
 
-      beta = -2.0 * (*modalDampingValues)(i) * wn * beta;
+      beta = -2.0 * modalDampingValue * wn * beta;
 
       for (int j=0; j<numDOF; j++) {
 	double eij = eigenVectorI[j];
@@ -591,7 +594,8 @@ IncrementalIntegrator::addModalDampingMatrix(const Vector *modalDampingValues) {
     for (int i=0; i<numModes; i++) {
 
       double eigenvalue = (*eigenValues)(i);
-      if (eigenvalue > 0) {
+      double modalDampingValue = (*modalDampingValues)(i);      
+      if (eigenvalue > 0 && modalDampingValue != 0.0) {
 	double wn = sqrt(eigenvalue);
 	double *eigenVectorI = &eigenVectors[numDOF*i];
 	double ei_dof = eigenVectors[numDOF*i+dof];
@@ -599,7 +603,7 @@ IncrementalIntegrator::addModalDampingMatrix(const Vector *modalDampingValues) {
 	if (ei_dof != 0.0) {
 	  zeroCol = false;
 	
-	  double beta = 2.0 * (*modalDampingValues)(i) * wn * ei_dof * cFactor;
+	  double beta = 2.0 * modalDampingValue * wn * ei_dof * cFactor;
 	  
 	  for (int j=0; j<numDOF; j++) {
 	    double eij = eigenVectorI[j];
@@ -620,7 +624,7 @@ IncrementalIntegrator::addModalDampingMatrix(const Vector *modalDampingValues) {
 
 const Vector &
 IncrementalIntegrator::getVel(void) {
-  opserr << "IncrementalIntegrator::getVel() - not implemeneted for this integrator\n";
+  opserr << "IncrementalIntegrator::getVel() - not implemented for this integrator\n";
   return theSOE->getX();
 }
 
