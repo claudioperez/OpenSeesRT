@@ -459,9 +459,9 @@ IncrementalIntegrator::setupModal(const Vector *modalDampingValues)
     if (tmpV2 != 0)
       delete tmpV2;
     
-    eigenValues = new Vector(eigenvalues);
+    eigenValues   = new Vector(eigenvalues);
     dampingForces = new Vector(numDOF);
-    eigenVectors = new double[numDOF*numModes];
+    eigenVectors  = new double[numDOF*numModes];
     mV = new Vector(numDOF);
     tmpV1 = new Vector(numDOF);
     tmpV2 = new Vector(numDOF);
@@ -489,6 +489,10 @@ IncrementalIntegrator::setupModal(const Vector *modalDampingValues)
       Vector v2(mEigenVectorI,numDOF);
       this->doMv(v1, v2);    
     }
+
+    if (eigenVectors != nullptr)
+      delete [] eigenVectors;
+
     eigenVectors = eigenVectors2;
   }
 
