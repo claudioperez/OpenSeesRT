@@ -83,10 +83,10 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
   TransientIntegrator* transient_integrator = 
     G3Parse_newTransientIntegrator(clientData, interp, argc, argv);
 
-  if (static_integrator != 0) {
+  if (static_integrator != nullptr) {
     builder->set(static_integrator, true);
 
-  } else if (transient_integrator != 0)
+  } else if (transient_integrator != nullptr)
     builder->set(transient_integrator, false);
 
   return TCL_OK;
@@ -341,32 +341,34 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 StaticIntegrator*
 G3Parse_newHSIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
-    double arcLength, psi_u, psi_f, u_ref;
+  double arcLength, psi_u, psi_f, u_ref;
 
-    if (argc < 3) {
-      opserr << "WARNING integrator HSConstraint <arcLength> <psi_u> <psi_f> "
-                "<u_ref> \n";
-      return nullptr;
-    }
-    if (argc >= 3 && Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
-      return nullptr;
-    if (argc >= 4 && Tcl_GetDouble(interp, argv[3], &psi_u) != TCL_OK)
-      return nullptr;
-    if (argc >= 5 && Tcl_GetDouble(interp, argv[4], &psi_f) != TCL_OK)
-      return nullptr;
-    if (argc == 6 && Tcl_GetDouble(interp, argv[5], &u_ref) != TCL_OK)
-      return nullptr;
+  if (argc < 3) {
+    opserr << "WARNING integrator HSConstraint <arcLength> <psi_u> <psi_f> "
+              "<u_ref> \n";
+    return nullptr;
+  }
+  if (argc >= 3 && Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
+    return nullptr;
+  if (argc >= 4 && Tcl_GetDouble(interp, argv[3], &psi_u) != TCL_OK)
+    return nullptr;
+  if (argc >= 5 && Tcl_GetDouble(interp, argv[4], &psi_f) != TCL_OK)
+    return nullptr;
+  if (argc == 6 && Tcl_GetDouble(interp, argv[5], &u_ref) != TCL_OK)
+    return nullptr;
 
-    switch (argc) {
-    case 3:
-      return new HSConstraint(arcLength);
-    case 4:
-      return new HSConstraint(arcLength, psi_u);
-    case 5:
-      return new HSConstraint(arcLength, psi_u, psi_f);
-    case 6:
-      return new HSConstraint(arcLength, psi_u, psi_f, u_ref);
-    }
+  switch (argc) {
+  case 3:
+    return new HSConstraint(arcLength);
+  case 4:
+    return new HSConstraint(arcLength, psi_u);
+  case 5:
+    return new HSConstraint(arcLength, psi_u, psi_f);
+  case 6:
+    return new HSConstraint(arcLength, psi_u, psi_f, u_ref);
+  default:
+    return nullptr;
+  }
 }
 
 StaticIntegrator*

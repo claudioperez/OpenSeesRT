@@ -27,11 +27,14 @@ static Tcl_CmdProc TclCommand_getTangUniaxialMaterial;
 static Tcl_CmdProc TclCommand_integrateUniaxialMaterial;
 
 const struct {const char*name; const Tcl_CmdProc*func;} command_table[] = {
-  {"strain",    TclCommand_setStrainUniaxialMaterial },
-  {"commit",    TclCommand_commitState               },
-  {"stress",    TclCommand_getStressUniaxialMaterial },
-  {"tangent",   TclCommand_getTangUniaxialMaterial   },
-  {"integrate", TclCommand_integrateUniaxialMaterial },
+  {"strain",      TclCommand_setStrainUniaxialMaterial },
+  {"commit",      TclCommand_commitState               },
+  {"stress",      TclCommand_getStressUniaxialMaterial },
+
+  {"tangent",     TclCommand_getTangUniaxialMaterial   },
+  {"stiffness",   TclCommand_getTangUniaxialMaterial   },
+
+  {"integrate",   TclCommand_integrateUniaxialMaterial },
   // {"uniaxialTest",     TclCommand_setUniaxialMaterial}
 };
 
@@ -92,6 +95,7 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
   Tcl_DeleteCommand(interp, "stress");
   Tcl_DeleteCommand(interp, "commit");
   Tcl_DeleteCommand(interp, "tangent");
+  Tcl_DeleteCommand(interp, "stiffness");
   Tcl_DeleteCommand(interp, "integrate");
 
   return TCL_OK;
@@ -183,15 +187,14 @@ struct generalized_alpha {
          alpha_f,
          beta,
          gamma;
-} CONF = {1.0, 1.0, 0.25, 0.5};
+};
 
 static inline int
 fsdof_integrate(struct generalized_alpha* conf,
-    UniaxialMaterial& material,
+    UniaxialMaterial& material, double M, double C,
     double scale, int n, double *p, double dt,
     double *response)
 { 
-    conf = &CONF;
     const int max_iter   = 10;
     const double gamma   = conf->gamma;
     const double beta    = conf->beta;
@@ -207,7 +210,8 @@ fsdof_integrate(struct generalized_alpha* conf,
     const double a3 = -1.0/(beta*dt);
     const double a4 =  1.0 - 0.5/beta;
 
-    double  va,
+    double  ua,
+            va,
             aa,
             *u = &response[0],
             *v = &response[1],
@@ -220,8 +224,8 @@ fsdof_integrate(struct generalized_alpha* conf,
     // NOTE: The first row of the response array
     // is expected to be initialized!
     //  u[pres] = 0.0; v[pres] = 0.0;
-    const double M = material.getRho() || 1.0;
-    double C = material.getDampTangent();
+    // const double M = material.getRho()   ;
+    // const double C = material.getDampTangent() ;
     a[pres] = (p[i] - C*v[pres] - material.getStress())/M;
 
     for (i = 1; i < n; i++) {
@@ -232,6 +236,7 @@ fsdof_integrate(struct generalized_alpha* conf,
       v[pres] = a1*v[past] + a2*a[past];
       a[pres] = a4*a[past] + a3*v[past];
 
+      ua = (1.0 - alpha_f)*u[past] + alpha_f*u[pres];
       va = (1.0 - alpha_f)*v[past] + alpha_f*v[pres];
       aa = (1.0 - alpha_m)*a[past] + alpha_m*a[pres];
 
@@ -241,11 +246,13 @@ fsdof_integrate(struct generalized_alpha* conf,
         u[pres] += du;
         v[pres] += c2*du;
         a[pres] += c3*du;
+
+        ua = (1.0 - alpha_f)*u[past] + alpha_f*u[pres];
         va = (1.0 - alpha_f)*v[past] + alpha_f*v[pres];
         aa = (1.0 - alpha_m)*a[past] + alpha_m*a[pres];
-        material.setTrialStrain(u[pres]);
+        material.setTrialStrain(ua); //u[pres]);
         // STATE DETERMINATION
-        double C = material.getDampTangent();
+        // double C = material.getDampTangent();
         double ri = (scale*p[i] - C*va - M*aa - material.getStress());
         double K = material.getTangent();
         double ki = alpha_f*c1*K + alpha_f*c2*C + alpha_m*c3*M;
@@ -268,29 +275,78 @@ TclCommand_integrateUniaxialMaterial(ClientData clientData,
 {
   int n;
   double dt;
+  double M=1.0, C=0.0;
   const char** str_values;
+  struct generalized_alpha conf = {1.0, 1.0, 0.25, 0.5};
   UniaxialMaterial* material = static_cast<UniaxialMaterial*>(clientData);
   
   if (Tcl_GetDouble(interp, argv[1], &dt) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "problem reading time step, got '" << argv[1] << "'\n";
     return TCL_ERROR;
   }
+
   if (Tcl_SplitList(interp, argv[2], &n, &str_values) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "problem splitting path list " << argv[2] << " - ";
-    opserr << " Series -values {path} ... \n";
+    opserr << G3_ERROR_PROMPT << "problem splitting path list " << argv[2] << endln;
     return TCL_ERROR;
   }
 
+  int argi = 3;
+  while (argi < argc) {
+    if (strcmp(argv[argi], "-alphaf") == 0) {
+      if (Tcl_GetDouble(interp, argv[1+argi], &conf.alpha_f) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "problem reading " << argv[argi] << ", got '" << argv[argi+1] << "'\n";
+        return TCL_ERROR;
+      }
+      argi += 2;
+    }
+    else if (strcmp(argv[argi], "-alpham") == 0) {
+      if (Tcl_GetDouble(interp, argv[1+argi], &conf.alpha_m) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "problem reading " << argv[argi] << ", got '" << argv[argi+1] << "'\n";
+        return TCL_ERROR;
+      }
+      argi += 2;
+    }
+    else if (strcmp(argv[argi], "-beta") == 0) {
+      if (Tcl_GetDouble(interp, argv[1+argi], &conf.beta) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "problem reading " << argv[argi] << ", got '" << argv[argi+1] << "'\n";
+        return TCL_ERROR;
+      }
+      argi += 2;
+    }
+    else if (strcmp(argv[argi], "-gamma") == 0) {
+      if (Tcl_GetDouble(interp, argv[1+argi], &conf.gamma) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "problem reading " << argv[argi] << ", got '" << argv[argi+1] << "'\n";
+        return TCL_ERROR;
+      }
+      argi += 2;
+    }
+    else if (strcmp(argv[argi], "-mass") == 0) {
+      if (Tcl_GetDouble(interp, argv[1+argi], &M) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "problem reading " << argv[argi] << ", got '" << argv[argi+1] << "'\n";
+        return TCL_ERROR;
+      }
+      argi += 2;
+    }
+    else if (strcmp(argv[argi], "-damp") == 0) {
+      if (Tcl_GetDouble(interp, argv[1+argi], &C) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "problem reading " << argv[argi] << ", got '" << argv[argi+1] << "'\n";
+        return TCL_ERROR;
+      }
+      argi += 2;
+    }
+  }
+  
+  // copy load vector strings into a double array
   double *load = new double[n];
   for (int i=0; i<n; i++)
     Tcl_GetDouble(interp, str_values[i], &load[i]);
 
-  auto    resp = new double[n][3];
+  auto  resp = new double[n][3];
   resp[0][0] = 0.0;
   resp[0][1] = 0.0;
   resp[0][2] = 0.0;
 
-  fsdof_integrate(&CONF, *material, 1.0, n, load, dt, (double*)resp);
+  fsdof_integrate(&conf, *material, M, C, 1.0, n, load, dt, (double*)resp);
 
   Tcl_Obj *displ = Tcl_NewListObj(0, NULL);
   for (int i=0; i<n; i++)
@@ -300,6 +356,7 @@ TclCommand_integrateUniaxialMaterial(ClientData clientData,
 
   // TODO: check that this frees everything
   Tcl_Free((char*)str_values);
+  delete[] resp;
 
   return TCL_OK;
 }

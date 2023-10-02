@@ -476,7 +476,7 @@ int Newmark::update(const Vector &deltaU)
     // update the response at the DOFs
     theModel->setResponse(*U,*Udot,*Udotdot);
     if (theModel->updateDomain() < 0)  {
-        opserr << "Newmark::update() - failed to update the domain\n";
+        opserr << "Newmark::update - failed to update the domain\n";
         return -4;
     }
     
@@ -506,7 +506,8 @@ int Newmark::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker
     Vector data(3);
     if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0)  {
         opserr << "WARNING Newmark::recvSelf() - could not receive data\n";
-        gamma = 0.5; beta = 0.25; 
+        gamma = 0.5;
+        beta = 0.25; 
         return -1;
     }
     

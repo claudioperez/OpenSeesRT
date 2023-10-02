@@ -57,10 +57,6 @@ extern Tcl_CmdProc TclCommand_addGroundMotion;
 // extern Tcl_CmdProc  TclCommand_addNodalLoad;
 Tcl_CmdProc TclCommand_addElementalLoad;
 
-// Damping
-Tcl_CmdProc modalDamping;
-Tcl_CmdProc modalDampingQ;
-
 // Other
 extern Tcl_CmdProc  TclCommand_addHystereticBackbone;
 extern Tcl_CmdProc  TclCommand_updateMaterialStage;
@@ -133,9 +129,6 @@ struct char_cmd {
   {"groundMotion",         TclCommand_addGroundMotion},
   {"imposedMotion",        TclCommand_addImposedMotionSP},
   {"imposedSupportMotion", TclCommand_addImposedMotionSP},
-
-  {"modalDamping",         modalDamping},
-  {"modalDampingQ",        modalDampingQ},
 
   {"eleLoad",              TclCommand_addElementalLoad},
 

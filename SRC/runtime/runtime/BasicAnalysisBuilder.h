@@ -53,7 +53,7 @@ public:
     void set(Integrator* obj, int isstatic);
     void set(ConvergenceTest* obj);
 
-    LinearSOE* getLinearSOE(int flag);
+    LinearSOE* getLinearSOE();
     
     Domain* getDomain(void);
     void newStaticAnalysis();
@@ -112,7 +112,7 @@ private:
     VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 
     int domainStamp;
-    int numEigen;
+    int numEigen = 0;
 };
 
 #endif
