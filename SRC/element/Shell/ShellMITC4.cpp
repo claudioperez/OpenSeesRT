@@ -922,7 +922,6 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
 void ShellMITC4::formResidAndTangent(int tang_flag)
 {
 
-  int i, j, k, p, q;
   int jj, kk;
   int success;
   double volume = 0.0;
@@ -1019,7 +1018,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
   double r2 = 0;
   double r3 = 0;
 
-  // gauss loop
+  // Gauss loop
   for (int i = 0; i < nip; i++) {
 
     r1 = Cx + pts[i][0] * Bx;
@@ -1121,7 +1120,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
       // of equilibrium
       for (int p = 3; p < 6; p++) {
         for (int q = 3; q < 6; q++)
-          BJtran(p, q) *= (-1.0);
+          BJtran(p, q) *= -1.0;
       }
 
 //    residJ.addMatrixTransposeVector(0.0, B[j], stress, 1.0);
