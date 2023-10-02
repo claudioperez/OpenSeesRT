@@ -178,11 +178,14 @@ class ForceBeamColumn2d: public Element
   
   Vector *vscommit;              // array of committed section deformation vectors
   
-  enum {maxNumEleLoads = 100};
-  enum {NDM = 2};         // dimension of the problem (2d)
-  enum {NND = 3};         // number of nodal dof's
-  enum {NEGD = 6};         // number of element global dof's
-  enum {NEBD = 3};         // number of element dof's in the basic system
+  
+  static constexpr int MaxNumSections = 30;
+//static constexpr int MaxSectionOrder = 5;
+  static constexpr int maxNumEleLoads = 100;
+  static constexpr int NDM = 2;         // dimension of the problem (2d)
+  static constexpr int NND = 3;         // number of nodal dof's
+  static constexpr int NEGD = 6;         // number of element global dof's
+  static constexpr int NEBD = 3;         // number of element dof's in the basic system
 
   int numEleLoads; // Number of element load objects
   int sizeEleLoads;
@@ -195,9 +198,6 @@ class ForceBeamColumn2d: public Element
   static Matrix theMatrix;
   static Vector theVector;
   static double workArea[];
-  
-  enum {maxNumSections = 30};
-  enum {maxSectionOrder = 5};
 
   // following are added for subdivision of displacement increment
   int    maxSubdivisions;       // maximum number of subdivisons of dv for local iterations

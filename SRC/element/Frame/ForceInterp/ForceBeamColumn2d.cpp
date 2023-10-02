@@ -81,14 +81,17 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <ElementalLoad.h>
 #include <ElementIter.h>
 #include <map>
+#include <Vector.h>
+#include <VectorND.h>
+using namespace OpenSees;
 
 Matrix ForceBeamColumn2d::theMatrix(6,6);
 Vector ForceBeamColumn2d::theVector(6);
 double ForceBeamColumn2d::workArea[200];
 
-Vector ForceBeamColumn2d::vsSubdivide[maxNumSections];
-Matrix ForceBeamColumn2d::fsSubdivide[maxNumSections];
-Vector ForceBeamColumn2d::SsrSubdivide[maxNumSections];
+Vector ForceBeamColumn2d::vsSubdivide[MaxNumSections];
+Matrix ForceBeamColumn2d::fsSubdivide[MaxNumSections];
+Vector ForceBeamColumn2d::SsrSubdivide[MaxNumSections];
 
 void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn2d)
 {
@@ -893,49 +896,40 @@ ForceBeamColumn2d::update()
   // get basic displacements and increments
   const Vector &v = crdTransf->getBasicTrialDisp();    
 
-  static Vector dv(NEBD);
-
+  OPS_STATIC VectorND<NEBD> dv;
   dv = crdTransf->getBasicIncrDeltaDisp();    
 
-  if (initialFlag != 0 && dv.Norm() <= DBL_EPSILON && numEleLoads == 0)
+  if (initialFlag != 0 && dv.norm() <= DBL_EPSILON && numEleLoads == 0)
     return 0;
 
-  static Vector vin(NEBD);
-  vin = v;
+  OPS_STATIC VectorND<NEBD> vin;
+  vin  = v;
   vin -= dv;
 
   double L = crdTransf->getInitialLength();
   double oneOverL  = 1.0/L;  
 
-  double xi[maxNumSections];
+  double xi[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
   
-  double wt[maxNumSections];
+  double wt[MaxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wt);
 
   static Vector vr(NEBD);       // element residual displacements
   static Matrix f(NEBD,NEBD);   // element flexibility matrix
-  
-  static Matrix I(NEBD,NEBD);   // an identity matrix for matrix inverse
-  double dW;                    // section strain energy (work) norm 
-  int i, j;
-  
-  I.Zero();
-  for (i=0; i<NEBD; i++)
-    I(i,i) = 1.0;
 
   int numSubdivide = 1;
   bool converged = false;
   static Vector dSe(NEBD);
-  static Vector dvToDo(NEBD);
-  static Vector dvTrial(NEBD);
   static Vector SeTrial(NEBD);
   static Matrix kvTrial(NEBD, NEBD);
+  OPS_STATIC VectorND<NEBD> dvTrial;
+  OPS_STATIC VectorND<NEBD> dvToDo;
 
   dvToDo = dv;
   dvTrial = dvToDo;
 
-  static double factor = 10;
+  constexpr double factor = 10;
 
   maxSubdivisions = 4;
 
@@ -954,8 +948,14 @@ ForceBeamColumn2d::update()
     // try regular newton (if l==0), or
     // initial tangent on first iteration then regular newton (if l==1), or 
     // initial tangent iterations (if l==2)
+    enum Algorithms {
+      Newton=0,
+      InitialFirst=1,
+      Initial=2,
+      BreakAlgorithms=3
+    };
 
-    for (int l=0; l<3; l++) {
+    for (int l=Newton; l < BreakAlgorithms; l++) {
 
       SeTrial = Se;
       kvTrial = kv;
@@ -973,10 +973,10 @@ ForceBeamColumn2d::update()
       if (initialFlag != 2) {
 
         int numIters = maxIters;
-        if (l == 1) 
+        if (l == InitialFirst) 
           numIters = 10*maxIters; // allow 10 times more iterations for initial tangent
         
-        for (j=0; j <numIters; j++) {
+        for (int j=0; j <numIters; j++) {
           // initialize f and vr for integration
           f.Zero();
           vr.Zero();
@@ -987,8 +987,7 @@ ForceBeamColumn2d::update()
             vr(2) += f(2,1)*SeTrial(1) + f(2,2)*SeTrial(2);
           }
 
-          double v0[3];
-          v0[0] = 0.0; v0[1] = 0.0; v0[2] = 0.0;
+          double v0[3] = {0.0, 0.0, 0.0};
 
           for (int ie = 0; ie < numEleLoads; ie++) 
             beamIntegr->addElasticDeformations(eleLoads[ie], eleLoadFactors[ie], L, v0);
@@ -998,7 +997,7 @@ ForceBeamColumn2d::update()
           vr(1) += v0[1];
           vr(2) += v0[2];
           
-          for (i=0; i<numSections; i++) {
+          for (int i=0; i<numSections; i++) {
 
             int order      = sections[i]->getOrder();
             const ID &code = sections[i]->getType();
@@ -1048,13 +1047,13 @@ ForceBeamColumn2d::update()
             dSs.addVector(1.0, SsrSubdivide[i], -1.0);
             
             // compute section deformation increments
-            if (l == 0) {
-
+            if (l == Newton) {
               //  regular newton 
-              //    vs += fs * dSs;     
-
+              //    vs += fs * dSs;
               dvs.addMatrixVector(0.0, fsSubdivide[i], dSs, 1.0);
-            } else if (l == 2) {
+
+          //} else if (l == 2) { // TODO - This seems to have been the wrong flag
+            } else if (l == Initial) {
 
               //  newton with initial tangent if first iteration
               //    vs += fs0 * dSs;     
@@ -1069,7 +1068,6 @@ ForceBeamColumn2d::update()
                 dvs.addMatrixVector(0.0, fsSubdivide[i], dSs, 1.0);
 
             } else {
-             
               //  newton with initial tangent
               //    vs += fs0 * dSs;     
             
@@ -1102,25 +1100,25 @@ ForceBeamColumn2d::update()
             // integrate element flexibility matrix
             // f = f + (b^ fs * b) * wtL;
             //f.addMatrixTripleProduct(1.0, b[i], fs[i], wtL);
-            int jj;
+            //
             const Matrix &fSec = fsSubdivide[i];
             fb.Zero();
             double tmp;
-            for (ii = 0; ii < order; ii++) {
+            for (int ii = 0; ii < order; ii++) {
               switch(code(ii)) {
               case SECTION_RESPONSE_P:
-                for (jj = 0; jj < order; jj++)
+                for (int jj = 0; jj < order; jj++)
                   fb(jj,0) += fSec(jj,ii)*wtL;
                 break;
               case SECTION_RESPONSE_MZ:
-                for (jj = 0; jj < order; jj++) {
+                for (int jj = 0; jj < order; jj++) {
                   tmp = fSec(jj,ii)*wtL;
                   fb(jj,1) += xL1*tmp;
                   fb(jj,2) += xL*tmp;
                 }
                 break;
               case SECTION_RESPONSE_VY:
-                for (jj = 0; jj < order; jj++) {
+                for (int jj = 0; jj < order; jj++) {
                   tmp = oneOverL*fSec(jj,ii)*wtL;
                   fb(jj,1) += tmp;
                   fb(jj,2) += tmp;
@@ -1131,21 +1129,21 @@ ForceBeamColumn2d::update()
               }
             }
             
-            for (ii = 0; ii < order; ii++) {
+            for (int ii = 0; ii < order; ii++) {
               switch (code(ii)) {
               case SECTION_RESPONSE_P:
-                for (jj = 0; jj < NEBD; jj++)
+                for (int jj = 0; jj < NEBD; jj++)
                   f(0,jj) += fb(ii,jj);
                 break;
               case SECTION_RESPONSE_MZ:
-                for (jj = 0; jj < NEBD; jj++) {
+                for (int jj = 0; jj < NEBD; jj++) {
                   tmp = fb(ii,jj);
                   f(1,jj) += xL1*tmp;
                   f(2,jj) += xL*tmp;
                 }
                 break;
               case SECTION_RESPONSE_VY:
-                for (jj = 0; jj < NEBD; jj++) {
+                for (int jj = 0; jj < NEBD; jj++) {
                   tmp = oneOverL*fb(ii,jj);
                   f(1,jj) += tmp;
                   f(2,jj) += tmp;
@@ -1161,18 +1159,20 @@ ForceBeamColumn2d::update()
             //vr.addMatrixTransposeVector(1.0, b[i], vs[i] + dvs, wtL);
             dvs.addVector(1.0, vsSubdivide[i], 1.0);
             double dei;
-            for (ii = 0; ii < order; ii++) {
+            for (int ii = 0; ii < order; ii++) {
               dei = dvs(ii)*wtL;
               switch(code(ii)) {
               case SECTION_RESPONSE_P:
                 vr(0) += dei;
                 break;
               case SECTION_RESPONSE_MZ:
-                vr(1) += xL1*dei; vr(2) += xL*dei;
+                vr(1) += xL1*dei; 
+                vr(2) += xL*dei;
                 break;
               case SECTION_RESPONSE_VY:
                 tmp = oneOverL*dei;
-                vr(1) += tmp; vr(2) += tmp; 
+                vr(1) += tmp;
+                vr(2) += tmp; 
                 break;
               default:
                 break;
@@ -1196,19 +1196,19 @@ ForceBeamColumn2d::update()
           // dSe = kv * dv;
           dSe.addMatrixVector(0.0, kvTrial, dv, 1.0);
 
-          dW = dv ^ dSe; 
-          
+          double dW = dv.dot(dSe); 
+
           SeTrial += dSe;
-          
+
           // check for convergence of this interval
-          if (fabs(dW) < tol) { 
-            
+          if (fabs(dW) < tol) {
+
             // set the target displacement
             dvToDo -= dvTrial;
-            vin += dvTrial;
-            
+            vin    += dvTrial;
+
             // check if we have got to where we wanted
-            if (dvToDo.Norm() <= DBL_EPSILON) {
+            if (dvToDo.norm() <= DBL_EPSILON) {
               converged = true;
               
             } else {  // we convreged but we have more to do
@@ -1230,14 +1230,13 @@ ForceBeamColumn2d::update()
 
             // break out of j & l loops
             j = numIters+1;
-            l = 4;
+            l = BreakAlgorithms;
 
           } else {   //  if (fabs(dW) < tol) { 
 
             // if we have failed to convrege for all of our newton schemes
             // - reduce step size by the factor specified
-
-            if (j == (numIters-1) && (l == 2)) {
+            if (j == (numIters-1) && (l == BreakAlgorithms-1)) {
               dvTrial /= factor;
               numSubdivide++;
             }
@@ -1333,11 +1332,9 @@ int
 ForceBeamColumn2d::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
   if (numEleLoads == sizeEleLoads) {
-
     //
     // create larger arrays, copy old, delete old & set as new
     //
-
     ElementalLoad ** theNextEleLoads = new ElementalLoad *[sizeEleLoads+1];
     double *theNextEleLoadFactors = new double[sizeEleLoads+1];
     for (int i=0; i<numEleLoads; i++) {
@@ -1367,7 +1364,7 @@ ForceBeamColumn2d::computeSectionForces(Vector &sp, int isec)
 
   double L = crdTransf->getInitialLength();
 
-  double xi[maxNumSections];
+  double xi[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
   double x = xi[isec]*L;
 
@@ -1528,10 +1525,10 @@ ForceBeamColumn2d::computeSectionForceSensitivity(Vector &dspdh, int isec,
   double L = crdTransf->getInitialLength();
   double dLdh = crdTransf->getdLdh();
 
-  double xi[maxNumSections];
+  double xi[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
 
-  double dxidh[maxNumSections];
+  double dxidh[MaxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dxidh);
 
   double x = xi[isec]*L;
@@ -1753,7 +1750,7 @@ ForceBeamColumn2d::sendSelf(int commitTag, Channel &theChannel)
 
   ID idSections(2*numSections);
   loc = 0;
-  for (i = 0; i<numSections; i++) {
+  for (int i = 0; i<numSections; i++) {
     int sectClassTag = sections[i]->getClassTag();
     int sectDbTag = sections[i]->getDbTag();
     if (sectDbTag == 0) {
@@ -1785,7 +1782,7 @@ ForceBeamColumn2d::sendSelf(int commitTag, Channel &theChannel)
   
   // into a vector place distrLoadCommit, rho, UeCommit, Secommit and kvcommit
   int secDefSize = 0;
-  for (i = 0; i < numSections; i++) {
+  for (int i = 0; i < numSections; i++) {
      int size = sections[i]->getOrder();
      secDefSize   += size;
   }
@@ -1798,21 +1795,21 @@ ForceBeamColumn2d::sendSelf(int commitTag, Channel &theChannel)
   dData(loc++) = tol;
   
   // put  distrLoadCommit into the Vector
-  //  for (i=0; i<NL; i++) 
+  //  for (int i=0; i<NL; i++) 
   //dData(loc++) = distrLoadcommit(i);
 
   // place kvcommit into vector
-  for (i=0; i<NEBD; i++) 
+  for (int i=0; i<NEBD; i++) 
     dData(loc++) = Secommit(i);
 
   // place kvcommit into vector
-  for (i=0; i<NEBD; i++) 
-     for (j=0; j<NEBD; j++)
+  for (int i=0; i<NEBD; i++) 
+     for (int j=0; j<NEBD; j++)
         dData(loc++) = kvcommit(i,j);
   
   // place vscommit into vector
-  for (k=0; k<numSections; k++)
-     for (i=0; i<sections[k]->getOrder(); i++)
+  for (int k=0; k<numSections; k++)
+     for (int i=0; i<sections[k]->getOrder(); i++)
         dData(loc++) = (vscommit[k])(i);
 
   // send damping coefficients
@@ -1992,7 +1989,7 @@ ForceBeamColumn2d::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
 
     loc = 0;
     
-    for (i=0; i<numSections; i++) {
+    for (int i=0; i<numSections; i++) {
       int sectClassTag = idSections(loc);
       int sectDbTag = idSections(loc+1);
       loc += 2;
@@ -2114,10 +2111,10 @@ ForceBeamColumn2d::getInitialFlexibility(Matrix &fe)
   // Flexibility from elastic interior
   beamIntegr->addElasticFlexibility(L, fe);
   
-  double xi[maxNumSections];
+  double xi[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
   
-  double wt[maxNumSections];
+  double wt[MaxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wt);
   
   for (int i = 0; i < numSections; i++) {
@@ -2138,18 +2135,18 @@ ForceBeamColumn2d::getInitialFlexibility(Matrix &fe)
     for (ii = 0; ii < order; ii++) {
       switch(code(ii)) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < order; jj++)
+        for (int jj = 0; jj < order; jj++)
           fb(jj,0) += fSec(jj,ii)*wtL;
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < order; jj++) {
+        for (int jj = 0; jj < order; jj++) {
           tmp = fSec(jj,ii)*wtL;
           fb(jj,1) += xL1*tmp;
           fb(jj,2) += xL*tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < order; jj++) {
+        for (int jj = 0; jj < order; jj++) {
           tmp = oneOverL*fSec(jj,ii)*wtL;
           fb(jj,1) += tmp;
           fb(jj,2) += tmp;
@@ -2198,10 +2195,10 @@ ForceBeamColumn2d::getInitialDeformations(Vector &v0)
   double L = crdTransf->getInitialLength();
   double oneOverL  = 1.0/L;
 
-  double xi[maxNumSections];
+  double xi[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
   
-  double wt[maxNumSections];
+  double wt[MaxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wt);
   
   for (int i = 0; i < numSections; i++) {
@@ -2260,7 +2257,7 @@ void ForceBeamColumn2d::compSectionDisplacements(Vector sectionCoords[], Vector 
    // get integration point positions and weights
    //   const Matrix &xi_pt  = quadRule.getIntegrPointCoords(numSections);
    // get integration point positions and weights
-   static double xi_pts[maxNumSections];
+   static double xi_pts[MaxNumSections];
    beamIntegr->getSectionLocations(numSections, L, xi_pts);
 
    // setup Vandermode and CBDI influence matrices
@@ -2418,7 +2415,7 @@ OPS_Stream &operator<<(OPS_Stream &s, ForceBeamColumn2d &E)
 void
 ForceBeamColumn2d::setSectionPointers(int numSec, SectionForceDeformation **secPtrs)
 {
-  if (numSec > maxNumSections) {
+  if (numSec > MaxNumSections) {
     opserr << "Error: ForceBeamColumn2d::setSectionPointers -- max number of sections exceeded";
   }
   
@@ -2618,7 +2615,7 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
-      double xi[maxNumSections];
+      double xi[MaxNumSections];
       double L = crdTransf->getInitialLength();
       beamIntegr->getSectionLocations(numSections, L, xi);
       
@@ -2657,7 +2654,7 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
 
       if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
 
-        double xi[maxNumSections];
+        double xi[MaxNumSections];
         double L = crdTransf->getInitialLength();
         beamIntegr->getSectionLocations(numSections, L, xi);
 
@@ -2680,7 +2677,7 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
 
         CompositeResponse *theCResponse = new CompositeResponse();
         int numResponse = 0;
-        double xi[maxNumSections];
+        double xi[MaxNumSections];
         double L = crdTransf->getInitialLength();
         beamIntegr->getSectionLocations(numSections, L, xi);
 
@@ -2787,10 +2784,10 @@ ForceBeamColumn2d::getResponse(int responseID, Information &eleInfo)
     if (fabs(Se(1)+Se(2)) > DBL_EPSILON)
       LI = Se(1)/(Se(1)+Se(2))*L;
       
-    double wts[maxNumSections];
+    double wts[MaxNumSections];
     beamIntegr->getSectionWeights(numSections, L, wts);
     
-    double pts[maxNumSections];
+    double pts[MaxNumSections];
     beamIntegr->getSectionLocations(numSections, L, pts);
     
     for (int i = 0; i < numSections; i++) {
@@ -2858,7 +2855,7 @@ ForceBeamColumn2d::getResponse(int responseID, Information &eleInfo)
 
   else if (responseID == 10) {
     double L = crdTransf->getInitialLength();
-    double pts[maxNumSections];
+    double pts[MaxNumSections];
     beamIntegr->getSectionLocations(numSections, L, pts);
     Vector locs(numSections);
     for (int i = 0; i < numSections; i++)
@@ -2868,7 +2865,7 @@ ForceBeamColumn2d::getResponse(int responseID, Information &eleInfo)
 
   else if (responseID == 11) {
     double L = crdTransf->getInitialLength();
-    double wts[maxNumSections];
+    double wts[MaxNumSections];
     beamIntegr->getSectionWeights(numSections, L, wts);
     Vector weights(numSections);
     for (int i = 0; i < numSections; i++)
@@ -2885,7 +2882,7 @@ ForceBeamColumn2d::getResponse(int responseID, Information &eleInfo)
   
   else if (responseID == 111) {
     double L = crdTransf->getInitialLength();
-    double pts[maxNumSections];
+    double pts[MaxNumSections];
     beamIntegr->getSectionLocations(numSections, L, pts);
     // CBDI influence matrix
     Matrix ls(numSections, numSections);
@@ -2921,7 +2918,7 @@ ForceBeamColumn2d::getResponse(int responseID, Information &eleInfo)
 
   else if (responseID == 112) {
     double L = crdTransf->getInitialLength();
-    double ipts[maxNumSections];
+    double ipts[MaxNumSections];
     beamIntegr->getSectionLocations(numSections, L, ipts);
     // CBDI influence matrix
     double pts[20];
@@ -2959,7 +2956,7 @@ ForceBeamColumn2d::getResponse(int responseID, Information &eleInfo)
   
   //by SAJalali
   else if (responseID == 14) {
-          double xi[maxNumSections];
+          double xi[MaxNumSections];
           double L = crdTransf->getInitialLength();
           beamIntegr->getSectionWeights(numSections, L, xi);
           double energy = 0;
@@ -3022,7 +3019,7 @@ ForceBeamColumn2d::getResponseSensitivity(int responseID, int gradNumber,
  
     double L = crdTransf->getInitialLength();
     double oneOverL  = 1.0/L;  
-    double pts[maxNumSections];
+    double pts[MaxNumSections];
     beamIntegr->getSectionLocations(numSections, L, pts);
     
     const ID &code = sections[sectionNum-1]->getType();
@@ -3050,7 +3047,7 @@ ForceBeamColumn2d::getResponseSensitivity(int responseID, int gradNumber,
     double dLdh = crdTransf->getdLdh();
     double d1oLdh = crdTransf->getd1overLdh();
     
-    double dptsdh[maxNumSections];
+    double dptsdh[MaxNumSections];
     beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
     double dxLdh = dptsdh[sectionNum-1];// - xL/L*dLdh;
 
@@ -3142,7 +3139,7 @@ ForceBeamColumn2d::setParameter(const char **argv, int argc, Parameter &param)
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
-      double xi[maxNumSections];
+      double xi[MaxNumSections];
       double L = crdTransf->getInitialLength();
       beamIntegr->getSectionLocations(numSections, L, xi);
       
@@ -3287,15 +3284,15 @@ ForceBeamColumn2d::commitSensitivity(int gradNumber, int numGrads)
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
   
-  double pts[maxNumSections];
+  double pts[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, pts);
   
-  double wts[maxNumSections];
+  double wts[MaxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wts);
 
   double dLdh = crdTransf->getdLdh();
 
-  double dptsdh[maxNumSections];
+  double dptsdh[MaxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
   double d1oLdh = crdTransf->getd1overLdh();
@@ -3383,18 +3380,18 @@ ForceBeamColumn2d::computedqdh(int gradNumber)
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
   
-  double pts[maxNumSections];
+  double pts[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, pts);
   
-  double wts[maxNumSections];
+  double wts[MaxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wts);
 
   double dLdh = crdTransf->getdLdh();
 
-  double dptsdh[maxNumSections];
+  double dptsdh[MaxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
-  double dwtsdh[maxNumSections];
+  double dwtsdh[MaxNumSections];
   beamIntegr->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
 
   double d1oLdh = crdTransf->getd1overLdh();
@@ -3525,16 +3522,16 @@ ForceBeamColumn2d::computedfedh(int gradNumber)
 
   beamIntegr->addElasticFlexDeriv(L, dfedh, dLdh);
 
-  double xi[maxNumSections];
+  double xi[MaxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
   
-  double wt[maxNumSections];
+  double wt[MaxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wt);
 
-  double dptsdh[maxNumSections];
+  double dptsdh[MaxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
-  double dwtsdh[maxNumSections];
+  double dwtsdh[MaxNumSections];
   beamIntegr->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
 
   for (int i = 0; i < numSections; i++) {
