@@ -1,5 +1,7 @@
 #include <string.h>
-#include <unistd.h>
+#ifndef _WIN32
+#  include <unistd.h>
+#endif
 
 #ifdef USE_TCL_STUBS
 #undef USE_TCL_STUBS
