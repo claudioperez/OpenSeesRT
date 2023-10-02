@@ -80,6 +80,7 @@ OPS_ADD_RUNTIME_VXV(OPS_clearAllUniaxialMaterial)
   theUniaxialMaterialObjects.clearAll();
 }
 
+#if 0
 void OPS_printUniaxialMaterial(OPS_Stream &s, int flag) {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << "\t\t\"uniaxialMaterials\": [\n";        
@@ -98,6 +99,7 @@ void OPS_printUniaxialMaterial(OPS_Stream &s, int flag) {
     s << "\n\t\t]";
   }
 }
+#endif
 
 UniaxialMaterial::UniaxialMaterial(int tag, int clasTag)
 :Material(tag,clasTag)
@@ -115,7 +117,7 @@ UniaxialMaterial::UniaxialMaterial()
 
 UniaxialMaterial::~UniaxialMaterial()
 {
-	// does nothing
+  // does nothing
 }
 
 
@@ -171,16 +173,15 @@ UniaxialMaterial::setTrial(double strain, double temperature, double &stress, do
 double
 UniaxialMaterial::getStrainRate(void)
 {
-    return 0.0;
+  return 0.0;
 }
-
 
 
 // default operation for damping tangent is zero
 double
 UniaxialMaterial::getDampTangent(void)
 {
-    return 0.0;
+  return 0.0;
 }
 
 // default operation for secant stiffness
@@ -201,20 +202,20 @@ return this->getTangent();
 double 
 UniaxialMaterial::getRho(void)
 {
-	return 0.0;
+  return 0.0;
 }
 
 UniaxialMaterial*
 UniaxialMaterial::getCopy(SectionForceDeformation *s)
 {
-	return this->getCopy();
+  return this->getCopy();
 }
 
 Response* 
 UniaxialMaterial::setResponse(const char **argv, int argc,
 			      OPS_Stream &theOutput)
 {
-  Response *theResponse = 0;
+  Response *theResponse = nullptr;
 
   if ( (strcmp(argv[0],"stress") == 0) ||
        (strcmp(argv[0],"tangent") == 0)||

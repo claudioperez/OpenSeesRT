@@ -6,11 +6,12 @@ set results [open README.md w]
 puts $results "| Status | Notes |\n|--------|------------------------------|"
 close $results
 
-# cd Basic
-# source sdofTransient.tcl
-# source SmallEigen.tcl
-# source NewmarkIntegrator.tcl
-# cd ..
+cd Basic
+source sdofTransient.tcl
+source SmallEigen.tcl
+source NewmarkIntegrator.tcl
+source mdofModal.tcl
+cd ..
 
 source Truss/PlanarTruss.tcl
 source Truss/PlanarTruss.Extra.tcl

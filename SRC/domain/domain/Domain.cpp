@@ -2177,7 +2177,7 @@ int
 Domain::setModalDampingFactors(Vector *theValues, bool inclMatrix)
 {
   // if theValues == 0, turn off modal damping
-  if (theValues == 0) {
+  if (theValues == nullptr) {
     if (theModalDampingFactors != 0)
       delete theModalDampingFactors;
     theModalDampingFactors = 0;
@@ -2186,7 +2186,7 @@ Domain::setModalDampingFactors(Vector *theValues, bool inclMatrix)
   }
 
   // make sure the eigen value vector is large enough
-  if (theModalDampingFactors == 0 || theModalDampingFactors->Size() != theValues->Size()) {
+  if (theModalDampingFactors == nullptr || theModalDampingFactors->Size() != theValues->Size()) {
     if (theModalDampingFactors != 0)
       delete theModalDampingFactors;
     theModalDampingFactors = new Vector(*theValues);

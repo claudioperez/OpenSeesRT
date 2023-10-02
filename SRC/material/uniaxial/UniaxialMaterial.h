@@ -17,23 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2008-08-26 16:36:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/UniaxialMaterial.h,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 05/98
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // UniaxialMaterial. UniaxialMaterial is a base class and 
 // thus no objects of it's type can be instantiated. It has pure virtual 
 // functions which must be implemented in it's derived classes. 
 //
-// What: "@(#) UniaxialMaterial.h, revA"
-
+// Written: fmk 
+// Created: 05/98
+// Revision: A
+//
 #ifndef UniaxialMaterial_h
 #define UniaxialMaterial_h
 
@@ -91,7 +84,7 @@ class UniaxialMaterial : public Material
     virtual int    commitSensitivity        (double strainGradient, int gradIndex, int numGrads);
     // AddingSensitivity:END ///////////////////////////////////////////
 	//by SAJalali
-	virtual double getEnergy(void) { return 0; }
+    virtual double getEnergy(void) { return 0; }
 
  protected:
     
@@ -103,6 +96,6 @@ extern bool OPS_addUniaxialMaterial(UniaxialMaterial *newComponent);
 // extern UniaxialMaterial* G3_getUniaxialMaterialInstance(G3_Runtime*, int tag);
 extern bool OPS_removeUniaxialMaterial(int tag);
 extern void OPS_clearAllUniaxialMaterial(void);
-extern void OPS_printUniaxialMaterial(OPS_Stream &s, int flag = 0);
+// extern void OPS_printUniaxialMaterial(OPS_Stream &s, int flag = 0);
 
 #endif
