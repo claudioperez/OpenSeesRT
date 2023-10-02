@@ -54,7 +54,9 @@ opensees_load(CBLAS
 )
 # set(USE_STATIC_MKL FALSE)
 # set(BLA_STATIC ON)
-find_package(MKL)
+set(BLA_VENDOR Intel10_64ilp)
+set (MKL_LPATH ${MKL_ROOT}/lib/intel64)
+find_package(MKL  CONFIG REQUIRED)
 find_package(BLAS)
 find_package(LAPACK)
 # opensees_load(LAPACK
