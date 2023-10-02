@@ -55,9 +55,10 @@ proc buildModel {} {
 # trig motio
 #
 
+# Rayleigh
+#------------------------------------------------
 buildModel 
 
-# add load pattern
 timeSeries Trig 1 0.0 [expr 100.0*$periodForce] $periodForce -factor $P
 pattern Plain 1 1 {
     load 2 1.0 
@@ -81,7 +82,12 @@ rayleigh $a0 $a1 0. 0.
 recorder Node -file nodeR1.out -time -node 2 3 -dof 1 disp
 analyze 1000 .01
 
+
 set rayleighRES1 [nodeDisp 3 1]
+
+
+# Modal
+#------------------------------------------------
 
 buildModel 
 
@@ -106,6 +112,7 @@ analyze 1000 .01
 
 set modalRES1 [nodeDisp 3 1]
 
+
 #
 # elCentro motion
 #
@@ -128,6 +135,13 @@ set a1 [expr $zeta*2.0/($w1 + $w2)]
 rayleigh $a0 $a1 0. 0.
 
 recorder Node -file r2.out -time -node 2 3 -dof 1 disp
+
+constraints Plain
+system FullGeneral
+algorithm Newton
+integrator Newmark 0.5 0.25
+analysis Transient
+
 analyze 1000 .01
 
 set rayleighRES2 [nodeDisp 3 1]
@@ -166,7 +180,7 @@ set modalRES2 [nodeDisp 3 1]
 set error1 [expr $modalRES1-$rayleighRES1]
 set error2 [expr $modalRES2-$rayleighRES2]
 puts "RESULTS Comparing Rayleigh & Modal"
-set formatString {%20s%15.5f%15.5f%10s%15.5f}
+set formatString {%20s%15.5f%15.5f%10s%15.5g}
 puts [format $formatString Harmonic: $rayleighRES1 $modalRES1 Diff: $error1]
 puts [format $formatString Earthquake: $rayleighRES2 $modalRES2 Diff: $error2]
 

@@ -216,6 +216,7 @@ BasicAnalysisBuilder::domainChanged(void)
 int
 BasicAnalysisBuilder::analyze(int num_steps, double size_steps)
 {
+
   switch (this->CurrentAnalysisFlag) {
 
     case CURRENT_STATIC_ANALYSIS:
@@ -397,7 +398,7 @@ BasicAnalysisBuilder::set(LinearSOE* obj)
 }
 
 LinearSOE*
-BasicAnalysisBuilder::getLinearSOE(int flag) {
+BasicAnalysisBuilder::getLinearSOE() {
   return theSOE;
 }
 
@@ -584,7 +585,8 @@ BasicAnalysisBuilder::newTransientAnalysis()
 }
 
 
-void BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
+void
+BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
 {
 
     assert(theAnalysisModel != nullptr);
@@ -663,15 +665,15 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
       theAnalysisModel->clearAll();
       theHandler->clearAll();
 
-      // now invoke handle() on the constraint handler which
+      // Now invoke handle() on the constraint handler which
       // causes the creation of FE_Element and DOF_Group objects
       // and their addition to the AnalysisModel.
       result = theHandler->handle();
       if (result < 0) {
-        opserr << "BasicAnalysisBuilder::eigen() - ConstraintHandler::handle() failed\n";
+        opserr << "BasicAnalysisBuilder::eigen - ConstraintHandler::handle failed\n";
         return -1;
       }
-      // now invoke number() on the numberer which causes
+      // Now invoke number() on the numberer which causes
       // equation numbers to be assigned to all the DOFs in the
       // AnalysisModel.
       result = theNumberer->numberDOF();
@@ -695,7 +697,6 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
           opserr << "LinearSOE::setSize() failed\n";
           return -3;
       }
-
 
       result = theEigenSOE->setSize(theGraph);
       if (result < 0) {
@@ -723,7 +724,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
     //
     FE_EleIter &theEles = theAnalysisModel->getFEs();
     FE_Element *elePtr;
-    while((elePtr = theEles()) != nullptr) {
+    while ((elePtr = theEles()) != nullptr) {
       elePtr->zeroTangent();
       elePtr->addKtToTang(1.0);
       if (theEigenSOE->addA(elePtr->getTangent(0), elePtr->getID()) < 0) {
@@ -738,7 +739,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
     //
     if (generalized == true) {
       FE_EleIter &theEles2 = theAnalysisModel->getFEs();
-      while((elePtr = theEles2()) != nullptr) {
+      while ((elePtr = theEles2()) != nullptr) {
 	elePtr->zeroTangent();
 	elePtr->addMtoTang(1.0);
 	if (theEigenSOE->addM(elePtr->getTangent(0), elePtr->getID()) < 0) {
@@ -750,7 +751,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
 
       DOF_Group *dofPtr;
       DOF_GrpIter &theDofs = theAnalysisModel->getDOFs();
-      while((dofPtr = theDofs()) != nullptr) {
+      while ((dofPtr = theDofs()) != nullptr) {
 	dofPtr->zeroTangent();
 	dofPtr->addMtoTang(1.0);
 	if (theEigenSOE->addM(dofPtr->getTangent(0), dofPtr->getID()) < 0) {
@@ -779,35 +780,41 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
       theAnalysisModel->setEigenvector(i, theEigenSOE->getEigenvector(i));
     }
     theAnalysisModel->setEigenvalues(theEigenvalues);
+    this->numEigen = numMode;
 
     return 0;
 }
 
-Domain* BasicAnalysisBuilder::getDomain()
+Domain*
+BasicAnalysisBuilder::getDomain()
 {
   return theDomain;
 }
 
-EquiSolnAlgo* BasicAnalysisBuilder::getAlgorithm()
+EquiSolnAlgo*
+BasicAnalysisBuilder::getAlgorithm()
 {
     return theAlgorithm;
 }
 
-StaticIntegrator* BasicAnalysisBuilder::getStaticIntegrator() {
+StaticIntegrator*
+BasicAnalysisBuilder::getStaticIntegrator() {
     if (theStaticAnalysis != nullptr) {
         return theStaticAnalysis->getIntegrator();
     }
     return nullptr;
 }
 
-TransientIntegrator* BasicAnalysisBuilder::getTransientIntegrator() {
+TransientIntegrator*
+BasicAnalysisBuilder::getTransientIntegrator() {
     if (theTransientAnalysis != nullptr) {
         return theTransientAnalysis->getIntegrator();
     }
     return nullptr;
 }
 
-ConvergenceTest* BasicAnalysisBuilder::getConvergenceTest()
+ConvergenceTest*
+BasicAnalysisBuilder::getConvergenceTest()
 {
     if (theStaticAnalysis != nullptr) {
         return theStaticAnalysis->getConvergenceTest();

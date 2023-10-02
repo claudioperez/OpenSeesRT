@@ -51,8 +51,8 @@ extern VariableTimeStepDirectIntegrationAnalysis
 
 // extern ConvergenceTest   *theTest;
 // extern DOF_Numberer      *theGlobalNumberer ;
-extern LinearSOE         *theSOE;
-extern EigenSOE          *theEigenSOE;
+// extern EigenSOE          *theEigenSOE;
+// extern LinearSOE         *theSOE;
 extern ConstraintHandler *theHandler ;
 
 // for response spectrum analysis
@@ -75,6 +75,9 @@ static Tcl_CmdProc initializeAnalysis;
 static Tcl_CmdProc resetModel;
 static Tcl_CmdProc analyzeModel;
 static Tcl_CmdProc specifyConstraintHandler;
+// Damping
+static Tcl_CmdProc modalDamping;
+static Tcl_CmdProc modalDampingQ;
 
 extern Tcl_CmdProc specifyIntegrator;
 
@@ -121,11 +124,13 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "eigen",             &eigenAnalysis,   builder, nullptr);
   Tcl_CreateCommand(interp, "analysis",          &specifyAnalysis, builder, nullptr);
 
-  Tcl_CreateCommand(interp, "analyze",           &analyzeModel,    builder, nullptr);
-  Tcl_CreateCommand(interp, "wipeAnalysis",      &wipeAnalysis,    builder, nullptr);
+  Tcl_CreateCommand(interp, "analyze",           &analyzeModel,       builder, nullptr);
+  Tcl_CreateCommand(interp, "wipeAnalysis",      &wipeAnalysis,       builder, nullptr);
   Tcl_CreateCommand(interp, "initialize",        &initializeAnalysis, builder, nullptr);
-  Tcl_CreateCommand(interp, "modalProperties",   &modalProperties, builder, nullptr);
-  Tcl_CreateCommand(interp, "responseSpectrum",  &responseSpectrum, builder, nullptr);
+  Tcl_CreateCommand(interp, "modalProperties",   &modalProperties,    builder, nullptr);
+  Tcl_CreateCommand(interp, "modalDamping",      &modalDamping,       builder, nullptr);
+  Tcl_CreateCommand(interp, "modalDampingQ",     &modalDamping,       builder, nullptr);
+  Tcl_CreateCommand(interp, "responseSpectrum",  &responseSpectrum,   builder, nullptr);
   Tcl_CreateCommand(interp, "printA",            &printA,          builder, nullptr);
   Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);
   Tcl_CreateCommand(interp, "reset",             &resetModel,      builder, nullptr);
@@ -424,7 +429,7 @@ responseSpectrum(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // TODO: Move this to commands/modeling/damping.cpp? ...but it uses and
 // AnalysisBuilder
-extern int
+static int
 modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
@@ -438,9 +443,11 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  if (numEigen == 0 || theEigenSOE == 0) {
-    opserr << G3_ERROR_PROMPT << "- modalDmping - eigen command needs to be called first "
-              "- NO MODAL DAMPING APPLIED\n ";
+  if (numEigen == 0) {
+    opserr << G3_ERROR_PROMPT 
+           << "- modalDamping - eigen command needs to be called first "
+            "- NO MODAL DAMPING APPLIED\n ";
+    return TCL_ERROR;
   }
 
   int numModes = argc - 1;
@@ -448,7 +455,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   Vector modalDampingValues(numEigen);
 
   if (numModes != 1 && numModes != numEigen) {
-    opserr << G3_ERROR_PROMPT << "modalDmping - same # damping factors as modes must be "
+    opserr << G3_ERROR_PROMPT << "modalDamping - same # damping factors as modes must be "
               "specified\n";
     opserr << "                    - same damping ratio will be applied to all\n";
   }
@@ -456,7 +463,6 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // read in values and set factors
   //
-
   if (numModes == numEigen) {
 
     for (int i = 0; i < numEigen; i++) {
@@ -487,7 +493,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-extern int
+static int
 modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char ** const argv)
 {
@@ -497,13 +503,13 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (argc < 2) {
     opserr
-        << G3_ERROR_PROMPT << "modalDamping ?factor - not enough arguments to command\n";
+        << G3_ERROR_PROMPT << "modalDampingQ ?factor - not enough arguments to command\n";
     return TCL_ERROR;
   }
 
-  if (numEigen == 0 || theEigenSOE == nullptr) {
-    opserr << "WARINING - modalDmping - eigen command needs to be called first "
-              "- NO MODAL DAMPING APPLIED\n ";
+  if (numEigen == 0) {
+    opserr << "WARINING - modalDampingQ - eigen command needs to be called first\n";
+    return TCL_ERROR;
   }
 
   int numModes = argc - 1;
@@ -511,9 +517,10 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
   Vector modalDampingValues(numEigen);
 
   if (numModes != 1 && numModes != numEigen) {
-    opserr << G3_ERROR_PROMPT << "modalDmping - same #damping factors as modes must be "
+    opserr << G3_ERROR_PROMPT << "modalDampingQ - same number of damping factors as modes must be "
               "specified\n";
-    opserr << "                    - same damping ratio will be applied to all";
+//  opserr << "                    - same damping ratio will be applied to all\n";
+    return TCL_ERROR;
   }
 
   //
@@ -535,7 +542,8 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 
     //  read in one & set all factors to that value
     if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
+      opserr << G3_ERROR_PROMPT 
+             << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
                 "read betaK? \n";
       return TCL_ERROR;
     }
@@ -616,7 +624,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   FileStream outputFile;
   OPS_Stream *output = &opserr;
-  LinearSOE  *theSOE = builder->getLinearSOE(0);
+  LinearSOE  *theSOE = builder->getLinearSOE();
   if (theSOE == nullptr) {
     opserr << G3_ERROR_PROMPT << "Cannot find an active system of equations\n";
     return TCL_ERROR;
@@ -678,6 +686,9 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 int
 printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
+  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+
   int res = 0;
 
   FileStream outputFile;
@@ -702,7 +713,11 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     }
     currentArg++;
   }
-  if (theSOE != 0) {
+
+  LinearSOE  *theSOE = builder->getLinearSOE();
+  if (theSOE != nullptr) {
+
+    // TODO
     if (theStaticIntegrator != 0)
       theStaticIntegrator->formUnbalance();
     else if (theTransientIntegrator != 0)
