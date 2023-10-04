@@ -147,7 +147,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn2d)
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
+    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -291,7 +291,7 @@ void *OPS_DECL_RUNTIME_VPID(OPS_ForceBeamColumn2d, const ID &info)
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
+    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -358,7 +358,7 @@ int OPS_DECL_RUNTIME(OPS_ForceBeamColumn2d, Domain& theDomain, const ID& elenode
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[1]);
+    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[1]));
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return -1;

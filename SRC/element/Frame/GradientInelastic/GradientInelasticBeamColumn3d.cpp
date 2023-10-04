@@ -159,7 +159,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_GradientInelasticBeamColumn3d)
 	}
 
 	// check beam integrataion
-	BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(integrTag);
+	BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", integrTag));
 	if (theRule == 0) {
 		opserr << "WARNING! gradientInelasticBeamColumn3d - BeamIntegrationRule with tag " << integrTag << " not found\n";
 		return 0;

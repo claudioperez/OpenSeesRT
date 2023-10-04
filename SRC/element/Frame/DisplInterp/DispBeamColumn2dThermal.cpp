@@ -80,26 +80,26 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn2dThermal)
     double mass = 0.0;
     numData = 1;
     while(OPS_GetNumRemainingInputArgs() > 0) {
-	const char* type = OPS_GetString();
-	if(strcmp(type,"-mass") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&mass) < 0) {
-		    opserr<<"WARNING: invalid mass\n";
-		    return 0;
-		}
-	    }
-	}
+      const char* type = OPS_GetString();
+      if(strcmp(type,"-mass") == 0) {
+        if(OPS_GetNumRemainingInputArgs() > 0) {
+          if(OPS_GetDoubleInput(&numData,&mass) < 0) {
+              opserr<<"WARNING: invalid mass\n";
+              return 0;
+          }
+        }
+      }
     }
 
     // check transf
     CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
-    if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
+    if (theTransf == nullptr) {
+      opserr<<"coord transfomration not found\n";
+      return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
+    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
     if(theRule == 0) {
 	opserr<<"beam integration not found\n";
 	return 0;

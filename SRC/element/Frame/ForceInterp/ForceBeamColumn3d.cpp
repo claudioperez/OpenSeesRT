@@ -103,7 +103,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn3d)
 
     int ndm = OPS_GetNDM();
     int ndf = OPS_GetNDF();
-    if(ndm != 3 || ndf != 6) {
+    if (ndm != 3 || ndf != 6) {
         opserr<<"ndm must be 3 and ndf must be 6\n";
         return 0;
     }
@@ -111,7 +111,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn3d)
     // inputs: 
     int iData[5];
     int numData = 5;
-    if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
+    if (OPS_GetIntInput(&numData,&iData[0]) < 0) {
         opserr << "WARNING invalid int inputs\n";
         return 0;
     }
@@ -122,20 +122,20 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn3d)
     numData = 1;
     while(OPS_GetNumRemainingInputArgs() > 0) {
         const char* type = OPS_GetString();
-        if(strcmp(type,"-iter") == 0) {
-            if(OPS_GetNumRemainingInputArgs() > 1) {
-                if(OPS_GetIntInput(&numData,&maxIter) < 0) {
+        if (strcmp(type,"-iter") == 0) {
+            if (OPS_GetNumRemainingInputArgs() > 1) {
+                if (OPS_GetIntInput(&numData,&maxIter) < 0) {
                     opserr << "WARNING invalid maxIter\n";
                     return 0;
                 }
-                if(OPS_GetDoubleInput(&numData,&tol) < 0) {
+                if (OPS_GetDoubleInput(&numData,&tol) < 0) {
                     opserr << "WARNING invalid tol\n";
                     return 0;
                 }
             }
-        } else if(strcmp(type,"-mass") == 0) {
-            if(OPS_GetNumRemainingInputArgs() > 0) {
-                if(OPS_GetDoubleInput(&numData,&mass) < 0) {
+        } else if (strcmp(type,"-mass") == 0) {
+            if (OPS_GetNumRemainingInputArgs() > 0) {
+                if (OPS_GetDoubleInput(&numData,&mass) < 0) {
                     opserr << "WARNING invalid mass\n";
                     return 0;
                 }
@@ -145,19 +145,19 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn3d)
 
     // check transf
     CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
-    if(theTransf == 0) {
+    if (theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
-    if(theRule == nullptr) {
+    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    if (theRule == nullptr) {
         opserr<<"beam integration not found\n";
         return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
-    if(bi == nullptr) {
+    if (bi == nullptr) {
         opserr<<"beam integration is null\n";
         return 0;
     }
@@ -166,11 +166,11 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn3d)
     const ID& secTags = theRule->getSectionTags();
     SectionForceDeformation** sections = new SectionForceDeformation *[secTags.Size()];
     for(int i=0; i<secTags.Size(); i++) {
-        sections[i] = OPS_getSectionForceDeformation(secTags(i));
-        if(sections[i] == 0) {
-            opserr<<"section "<<secTags(i)<<"not found\n";
-            return 0;
-        }
+      sections[i] = OPS_getSectionForceDeformation(secTags(i));
+      if (sections[i] == 0) {
+        opserr<<"section "<<secTags(i)<<"not found\n";
+        return 0;
+      }
     }
 
     Element *theEle =  new ForceBeamColumn3d(iData[0],iData[1],iData[2],secTags.Size(),sections,
@@ -3119,6 +3119,7 @@ ForceBeamColumn3d::getResponse(int responseID, Information &eleInfo)
 
   } else if (responseID == 77) { // Why is this here?
     return -1;
+
   } else if (responseID == 8) {
 
     ID *eleInfoID = eleInfo.theID;
@@ -3189,18 +3190,18 @@ ForceBeamColumn3d::getResponse(int responseID, Information &eleInfo)
       double valoutchck=valmidoutfn-(valtopoutfn+valbotoutfn)/2.0;
       oofwallresp = sqrt(pow(valoutchck,2.0));
       //        
-      double outplanevaldat; // variable for input value
-      double inplanevaldat; // variable for input value
+      double outplanevaldat;  // variable for input value
+      double inplanevaldat;   // variable for input value
       double outplanevaldat1; // variable for input value
-      double inplanevaldat1; // variable for input value
+      double inplanevaldat1;  // variable for input value
       ifstream indata;
 
-      if (filenamewall!=NULL) {
+      if (filenamewall != nullptr) {
         //                
         indata.open(filenamewall); // opens the file
-        if(!indata) { // file couldn't be opened
-                opserr << "ForceBeamColumn3d::getResponse()"
-                        << " file for infill wall (" << filenamewall << " could not be opened" << endln;
+        if (!indata) {             // file couldn't be opened
+          opserr << "ForceBeamColumn3d::getResponse"
+                  << " file for infill wall (" << filenamewall << " could not be opened" << endln;
           return -1;
         }
         checkvalue1=0.0;
@@ -3234,18 +3235,17 @@ ForceBeamColumn3d::getResponse(int responseID, Information &eleInfo)
   }
   //by SAJalali
   else if (responseID == 10) {
-          double xi[maxNumSections];
-          double L = crdTransf->getInitialLength();
-          beamIntegr->getSectionWeights(numSections, L, xi);
-          double energy = 0;
-          for (int i = 0; i < numSections; i++) {
-                  energy += sections[i]->getEnergy()*xi[i] * L;
-          }
-          return eleInfo.setDouble(energy);
+    double xi[maxNumSections];
+    double L = crdTransf->getInitialLength();
+    beamIntegr->getSectionWeights(numSections, L, xi);
+    double energy = 0;
+    for (int i = 0; i < numSections; i++) {
+            energy += sections[i]->getEnergy()*xi[i] * L;
+    }
+    return eleInfo.setDouble(energy);
   }
 
-  else
-    return -1;
+  return -1;
 }
 
 int 

@@ -92,7 +92,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn3dID)
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(iData[4]);
+    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
     if (theRule == 0) {
         opserr << "beam integration not found\n";
         return 0;

@@ -164,7 +164,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumn3d) {
   }
 
   // Get beam integrataion
-  BeamIntegrationRule* theRule = OPS_getBeamIntegrationRule(beamIntTag);
+  BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", beamIntTag));
   if(theRule == 0) {
     opserr<<"beam integration not found\n";
     return 0;
@@ -1638,9 +1638,7 @@ int MixedBeamColumn3d::getResponse(int responseID, Information &eleInfo) {
       return eleInfo.setVector(zlocal);    
   }
 
-  else {
-    return -1;
-  }
+  return -1;
 }
 
 Vector MixedBeamColumn3d::getd_hat(int sec, const Vector &v, double L, bool geomLinear) {
