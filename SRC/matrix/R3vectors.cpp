@@ -27,26 +27,6 @@
 
 #define sign(a) ( (a)>0 ? 1:-1 )
 
-double  LovelyInnerProduct( const Vector &v, const Vector &w )
-{
-  int i ;
-
-  double dot = 0.0 ;
-
-  for ( i = 0; i < 3; i++ )
-    dot +=  v(i)*w(i) ;
-
-  return dot ;
-
-}
-
-
-double  LovelyNorm( const Vector &v ) 
-{
-  return sqrt(  LovelyInnerProduct(v,v)  ) ;
-}
-
-
 Vector  LovelyCrossProduct( const Vector &v, const Vector &w )
 {
 
@@ -195,7 +175,7 @@ Vector LovelyEig( const Matrix &M )
 		 rot = rot + 1 ;
 
 	      } // end if fabs > thresh 
-           } //else
+           }
            else 
              a(i) = 0.0 ;
 

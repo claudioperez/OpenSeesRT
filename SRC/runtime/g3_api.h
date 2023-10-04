@@ -29,7 +29,6 @@
 // Materials
 #  undef  OPS_GetUniaxialMaterial
 #  define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
-// #  undef  OPS_getUniaxialMaterial
 #  define OPS_getUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 // Time series
 #  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
@@ -56,7 +55,7 @@ typedef int G3_Tag;
 class G3_Runtime;
 class ModelBuilder;
 class TclBuilder;
-class BasicModelBuilder;
+#include <runtime/BasicModelBuilder.h>
 class TclBasicBuilder;
 class AnalysisModel;
 class EquiSolnAlgo;

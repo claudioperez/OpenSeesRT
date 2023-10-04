@@ -10,11 +10,11 @@
 // Created: 07/99
 //
 
+#include <G3_Logging.h>
 #include <iostream>
 #include <runtime/BasicModelBuilder.h>
 #include "uniaxial.hpp"
 #include <packages.h>
-#include <G3_Logging.h>
 
 #include <BackboneMaterial.h>        // MHS
 #include <Concrete01WithSITC.h>      // Won Lee
