@@ -18,7 +18,7 @@
 #include <tcl.h>
 #include <string>
 #include <unordered_map>
-#include <TclBuilder.h>
+#include <runtime/modelbuilder/TclBuilder.h>
 #include <MultiSupportPattern.h>
 #include "Storage/G3_TableIterator.h"
 

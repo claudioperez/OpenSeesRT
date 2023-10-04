@@ -28,13 +28,14 @@
 #include <MapOfTaggedObjects.h>
 #include <api/runtimeAPI.h>
 
+#if 0
 static MapOfTaggedObjects theBeamIntegrationRuleObjects;
 
 bool OPS_addBeamIntegrationRule(BeamIntegrationRule *newComponent) {
   return theBeamIntegrationRuleObjects.addComponent(newComponent);
 }
-
-BeamIntegrationRule *OPS_getBeamIntegrationRule(int tag) {
+BeamIntegrationRule *
+OPS_getBeamIntegrationRule(int tag) {
 
   TaggedObject *theResult = theBeamIntegrationRuleObjects.getComponentPtr(tag);
   if (theResult == 0) {
@@ -51,6 +52,7 @@ OPS_ADD_RUNTIME_VXV(OPS_clearAllBeamIntegrationRule)
 {
   theBeamIntegrationRuleObjects.clearAll();
 }
+#endif
 
 BeamIntegration::BeamIntegration(int classTag):
   MovableObject(classTag)

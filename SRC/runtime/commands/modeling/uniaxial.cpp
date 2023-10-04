@@ -9,13 +9,12 @@
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
-// #include <g3_api.h>
-#include <G3_Logging.h>
 
 #include <iostream>
 #include <runtime/BasicModelBuilder.h>
 #include "uniaxial.hpp"
 #include <packages.h>
+#include <G3_Logging.h>
 
 #include <BackboneMaterial.h>        // MHS
 #include <Concrete01WithSITC.h>      // Won Lee
@@ -98,6 +97,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   Domain *theDomain = builder->getDomain();
+
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
     opserr << G3_ERROR_PROMPT << "insufficient number of uniaxial material arguments\n";
@@ -134,7 +134,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   }
     // Fedeas
 #if defined(_STEEL2) || defined(OPSDEF_UNIAXIAL_FEDEAS)
-  if (theMaterial == 0)
+  if (theMaterial == nullptr)
     theMaterial =
         TclBasicBuilder_addFedeasMaterial(clientData, interp, argc, argv);
 #endif
@@ -155,7 +155,6 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
     //  loop through linked list of loaded functions comparing names & if find
     //  call it
     //
-
     UniaxialPackageCommand *matCommands = theUniaxialPackageCommands;
     bool found = false;
     while (matCommands != NULL && found == false) {
@@ -231,18 +230,15 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   //
   // if still here the element command does not exist
   //
-  if (theMaterial == 0) {
+  if (theMaterial == nullptr) {
     opserr << G3_ERROR_PROMPT << "Could not create uniaxialMaterial " << argv[1] << endln;
     return TCL_ERROR;
   }
 
-
-
   // Now add the material to the modelBuilder
   if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
-    delete theMaterial; // invoke the material objects destructor, otherwise mem
-                        // leak
+    delete theMaterial;
     return TCL_ERROR;
   }
 
@@ -250,134 +246,109 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
 }
 
 
-#if 0
-   else if (strcmp(argv[1], "Backbone") == 0) {
-      if (argc < 4) {
-        opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
-        printCommand(argc, argv);
-        opserr << "Want: uniaxialMaterial Backbone tag? bbTag?" << endln;
-        return TCL_ERROR;
-      }
+int
+TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-      int tag, bbTag;
+  if (argc < 4) {
+    opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
+    printCommand(argc, argv);
+    opserr << "Want: uniaxialMaterial Fatigue tag? matTag?";
+    opserr << " <-D_max dmax?> <-e0 e0?> <-m m?>" << endln;
+    opserr << " <-min min?> <-max max?>" << endln;
+    return TCL_ERROR;
+  }
 
-      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid tag\n";
-        opserr << "Backbone material: " << tag << endln;
-        return TCL_ERROR;
-      }
+  int tag, matTag;
 
-      if (Tcl_GetInt(interp, argv[3], &bbTag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid bTag\n";
-        opserr << "Backbone material: " << tag << endln;
-        return TCL_ERROR;
-      }
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Fatigue tag" << endln;
+    return TCL_ERROR;
+  }
 
-      HystereticBackbone *backbone = OPS_getHystereticBackbone(bbTag);
+  if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "invalid component tag\n";
+    opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+    return TCL_ERROR;
+  }
 
-      if (backbone == 0) {
-        opserr << G3_ERROR_PROMPT << "backbone does not exist\n";
-        opserr << "backbone: " << bbTag;
-        opserr << "\nuniaxialMaterial Backbone: " << tag << endln;
-        return TCL_ERROR;
-      }
+  double Dmax = 1.0;
+  double E0 = 0.191;
+  double m = -0.458;
+  double epsmin = NEG_INF_STRAIN;
+  double epsmax = POS_INF_STRAIN;
 
-      theMaterial = new BackboneMaterial(tag, *backbone);
-    }
-#endif
-
-#if 0
-    else if (strcmp(argv[1], "Fatigue") == 0) {
-      if (argc < 4) {
-        opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
-        printCommand(argc, argv);
-        opserr << "Want: uniaxialMaterial Fatigue tag? matTag?";
-        opserr << " <-D_max dmax?> <-e0 e0?> <-m m?>" << endln;
-        opserr << " <-min min?> <-max max?>" << endln;
-        return TCL_ERROR;
-      }
-
-      int tag, matTag;
-
-      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Fatigue tag" << endln;
-        return TCL_ERROR;
-      }
-
-      if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid component tag\n";
+  for (int j = 4; j < argc; j++) {
+    if (strcmp(argv[j], "-Dmax") == 0) {
+      if ((j + 1 >= argc) ||
+          (Tcl_GetDouble(interp, argv[j + 1], &Dmax) != TCL_OK)) {
+        opserr << G3_ERROR_PROMPT << "invalid -Dmax";
         opserr << "uniaxialMaterial Fatigue: " << tag << endln;
         return TCL_ERROR;
       }
-
-      double Dmax = 1.0;
-      double E0 = 0.191;
-      double m = -0.458;
-      double epsmin = NEG_INF_STRAIN;
-      double epsmax = POS_INF_STRAIN;
-
-      for (int j = 4; j < argc; j++) {
-        if (strcmp(argv[j], "-Dmax") == 0) {
-          if ((j + 1 >= argc) ||
-              (Tcl_GetDouble(interp, argv[j + 1], &Dmax) != TCL_OK)) {
-            opserr << G3_ERROR_PROMPT << "invalid -Dmax";
-            opserr << "uniaxialMaterial Fatigue: " << tag << endln;
-            return TCL_ERROR;
-          }
-        } else if (strcmp(argv[j], "-E0") == 0) {
-          if ((j + 1 >= argc) ||
-              (Tcl_GetDouble(interp, argv[j + 1], &E0) != TCL_OK)) {
-            opserr << G3_ERROR_PROMPT << "invalid -E0";
-            opserr << "uniaxialMaterial Fatigue: " << tag << endln;
-            return TCL_ERROR;
-          }
-        } else if (strcmp(argv[j], "-m") == 0) {
-          if ((j + 1 >= argc) ||
-              (Tcl_GetDouble(interp, argv[j + 1], &m) != TCL_OK)) {
-            opserr << G3_ERROR_PROMPT << "invalid -m";
-            opserr << "uniaxialMaterial Fatigue: " << tag << endln;
-            return TCL_ERROR;
-          }
-        } else if (strcmp(argv[j], "-min") == 0) {
-          if ((j + 1 >= argc) ||
-              (Tcl_GetDouble(interp, argv[j + 1], &epsmin) != TCL_OK)) {
-            opserr << G3_ERROR_PROMPT << "invalid -min ";
-            opserr << "uniaxialMaterial Fatigue: " << tag << endln;
-            return TCL_ERROR;
-          }
-        } else if (strcmp(argv[j], "-max") == 0) {
-          if ((j + 1 >= argc) ||
-              (Tcl_GetDouble(interp, argv[j + 1], &epsmax) != TCL_OK)) {
-            opserr << G3_ERROR_PROMPT << "invalid -max";
-            opserr << "uniaxialMaterial Fatigue: " << tag << endln;
-            return TCL_ERROR;
-          }
-        }
-        j++;
-      }
-
-      UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt, matTag);
-
-      if (theMat == 0) {
-        opserr << G3_ERROR_PROMPT << "component material does not exist\n";
-        opserr << "Component material: " << matTag;
-        opserr << "\nuniaxialMaterial Fatigue: " << tag << endln;
+    } else if (strcmp(argv[j], "-E0") == 0) {
+      if ((j + 1 >= argc) ||
+          (Tcl_GetDouble(interp, argv[j + 1], &E0) != TCL_OK)) {
+        opserr << G3_ERROR_PROMPT << "invalid -E0";
+        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
         return TCL_ERROR;
       }
-
-      // Parsing was successful, allocate the material
-      theMaterial =
-          new FatigueMaterial(tag, *theMat, Dmax, E0, m, epsmin, epsmax);
-
+    } else if (strcmp(argv[j], "-m") == 0) {
+      if ((j + 1 >= argc) ||
+          (Tcl_GetDouble(interp, argv[j + 1], &m) != TCL_OK)) {
+        opserr << G3_ERROR_PROMPT << "invalid -m";
+        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        return TCL_ERROR;
+      }
+    } else if (strcmp(argv[j], "-min") == 0) {
+      if ((j + 1 >= argc) ||
+          (Tcl_GetDouble(interp, argv[j + 1], &epsmin) != TCL_OK)) {
+        opserr << G3_ERROR_PROMPT << "invalid -min ";
+        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        return TCL_ERROR;
+      }
+    } else if (strcmp(argv[j], "-max") == 0) {
+      if ((j + 1 >= argc) ||
+          (Tcl_GetDouble(interp, argv[j + 1], &epsmax) != TCL_OK)) {
+        opserr << G3_ERROR_PROMPT << "invalid -max";
+        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        return TCL_ERROR;
+      }
     }
-#endif
+    j++;
+  }
+
+  UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
+
+  if (theMat == nullptr) {
+    opserr << G3_ERROR_PROMPT << "component material does not exist\n";
+    opserr << "Component material: " << matTag;
+    opserr << "\nuniaxialMaterial Fatigue: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  // Parsing was successful, allocate the material
+  UniaxialMaterial *theMaterial =
+      new FatigueMaterial(tag, *theMat, Dmax, E0, m, epsmin, epsmax);
+
+  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "Could not add Fatigue UniaxialMaterial to the model builder.\n";
+    delete theMaterial;
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+
+}
+
 
 static int
 TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-  UniaxialMaterial * theMaterial = nullptr;
+  UniaxialMaterial  *theMaterial = nullptr;
 
   if (strcmp(argv[1], "Elastic2") == 0) {
     if (argc < 4 || argc > 5) {
@@ -457,57 +428,46 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
 
     if (Tcl_GetInt(interp, argv[argStart++], &tag) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid tag\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &fc) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fc\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &fy) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fy\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &Es) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid Es\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &fu) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fu\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &Eh) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid Eh\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &db) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid db\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &ld) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid ld\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[argStart++], &nb) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid nbars\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &width) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid width\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[argStart++], &depth) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid depth\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
 
@@ -527,7 +487,6 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
       }
     } else {
       opserr << G3_ERROR_PROMPT << "invalid bond strength specified\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     y++;
@@ -560,7 +519,6 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
       }
     } else {
       opserr << G3_ERROR_PROMPT << "invalid location of bar specified\n";
-      opserr << "BarSlip: " << tag << endln;
       return TCL_ERROR;
     }
     if (argc == 17) {
@@ -589,7 +547,6 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
 
       } else {
         opserr << G3_ERROR_PROMPT << "invalid damage specified\n";
-        opserr << "BarSlip: " << tag << endln;
         return TCL_ERROR;
       }
 
@@ -629,7 +586,6 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
         }
       } else {
         opserr << G3_ERROR_PROMPT << "invalid unit specified\n";
-        opserr << "BarSlip: " << tag << endln;
         return TCL_ERROR;
       }
     }
@@ -1298,3 +1254,39 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
   return TCL_OK;
 }
 
+
+#if 0
+   else if (strcmp(argv[1], "Backbone") == 0) {
+      if (argc < 4) {
+        opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
+        printCommand(argc, argv);
+        opserr << "Want: uniaxialMaterial Backbone tag? bbTag?" << endln;
+        return TCL_ERROR;
+      }
+
+      int tag, bbTag;
+
+      if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid tag\n";
+        opserr << "Backbone material: " << tag << endln;
+        return TCL_ERROR;
+      }
+
+      if (Tcl_GetInt(interp, argv[3], &bbTag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid bTag\n";
+        opserr << "Backbone material: " << tag << endln;
+        return TCL_ERROR;
+      }
+
+      HystereticBackbone *backbone = OPS_getHystereticBackbone(bbTag);
+
+      if (backbone == 0) {
+        opserr << G3_ERROR_PROMPT << "backbone does not exist\n";
+        opserr << "backbone: " << bbTag;
+        opserr << "\nuniaxialMaterial Backbone: " << tag << endln;
+        return TCL_ERROR;
+      }
+
+      theMaterial = new BackboneMaterial(tag, *backbone);
+    }
+#endif

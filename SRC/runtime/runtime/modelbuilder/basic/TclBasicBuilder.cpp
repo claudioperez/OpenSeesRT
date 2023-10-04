@@ -78,7 +78,6 @@
 #include <UnloadingRule.h>
 #include <StrengthDegradation.h>
 // #include <HystereticBackbone.h>
-#include <quadrature/Frame/BeamIntegration.h>
 
 #include <Element.h>
 
@@ -117,7 +116,6 @@ TclCommand_addDamageModel(ClientData, Tcl_Interp*, int argc,
                           TCL_Char ** const);
 #endif // OPSDEF_DAMAGE
 
-static Tcl_CmdProc TclCommand_addBeamIntegration;
 static Tcl_CmdProc TclCommand_addEqualDOF_MP;
 static Tcl_CmdProc TclCommand_addEqualDOF_MP_Mixed;
 static Tcl_CmdProc TclCommand_addNodalLoad;
@@ -166,9 +164,9 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
 #if 0
   Tcl_CreateCommand(interp, "mesh", TclCommand_mesh, NULL, NULL);
   Tcl_CreateCommand(interp, "remesh", TclCommand_remesh, NULL, NULL);
+  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, NULL, NULL);
 #endif
 
-  Tcl_CreateCommand(interp, "load", TclCommand_addNodalLoad, NULL, NULL);
 
   Tcl_CreateCommand(interp, "imposedMotion", TclCommand_addImposedMotionSP, NULL, NULL);
 
@@ -190,7 +188,6 @@ TclBasicBuilder::TclBasicBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
   // Added by LEO
   Tcl_CreateCommand(interp, "Hfiber",               TclBasicBuilder_addRemoHFiber, NULL, NULL);
 
-  Tcl_CreateCommand(interp, "beamIntegration",  TclCommand_addBeamIntegration,  NULL, NULL);
 #if 0
   Tcl_CreateCommand(interp, "frictionModel",        TclCommand_addFrictionModel, NULL, NULL);
   Tcl_CreateCommand(interp, "yieldSurface_BC", TclCommand_addYieldSurface_BC, NULL, NULL);
@@ -341,96 +338,6 @@ TclCommand_addParameter(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-extern void *OPS_LobattoBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_LegendreBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_NewtonCotesBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_RadauBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_TrapezoidalBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_CompositeSimpsonBeamIntegration(int &integrationTag,
-                                                 ID &secTags);
-extern void *OPS_UserDefinedBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_FixedLocationBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_LowOrderBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_MidDistanceBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_UserHingeBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_HingeMidpointBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_HingeRadauBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_HingeRadauTwoBeamIntegration(int &integrationTag, ID &secTags);
-extern void *OPS_HingeEndpointBeamIntegration(int &integrationTag, ID &secTags);
-
-int
-TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv)
-{
-  if (argc < 2) {
-    opserr << "WARNING: want beamIntegration type itag...\n";
-    return TCL_ERROR;
-  }
-
-  OPS_ResetInput(clientData, interp, 2, argc, argv, theTclDomain,
-                 theTclBuilder);
-
-  int iTag;
-  ID secTags;
-  BeamIntegration *bi = 0;
-  if (strcmp(argv[1], "Lobatto") == 0) {
-    bi = (BeamIntegration *)OPS_LobattoBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "Legendre") == 0) {
-    bi = (BeamIntegration *)OPS_LegendreBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "NewtoCotes") == 0) {
-    bi = (BeamIntegration *)OPS_NewtonCotesBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "Radau") == 0) {
-    bi = (BeamIntegration *)OPS_RadauBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "Trapezoidal") == 0) {
-    bi = (BeamIntegration *)OPS_TrapezoidalBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "CompositeSimpson") == 0) {
-    bi = (BeamIntegration *)OPS_CompositeSimpsonBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "UserDefined") == 0) {
-    bi = (BeamIntegration *)OPS_UserDefinedBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "FixedLocation") == 0) {
-    bi = (BeamIntegration *)OPS_FixedLocationBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "LowOrder") == 0) {
-    bi = (BeamIntegration *)OPS_LowOrderBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "MidDistance") == 0) {
-    bi = (BeamIntegration *)OPS_MidDistanceBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "UserHinge") == 0) {
-    bi = (BeamIntegration *)OPS_UserHingeBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "HingeMidpoint") == 0) {
-    bi = (BeamIntegration *)OPS_HingeMidpointBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "HingeRadau") == 0) {
-    bi = (BeamIntegration *)OPS_HingeRadauBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "HingeRadauTwo") == 0) {
-    bi = (BeamIntegration *)OPS_HingeRadauTwoBeamIntegration(iTag, secTags);
-  } else if (strcmp(argv[1], "HingeEndpoint") == 0) {
-    bi = (BeamIntegration *)OPS_HingeEndpointBeamIntegration(iTag, secTags);
-  } else {
-    opserr << "WARNING: integration type " << argv[1] << " is unknown\n";
-    return TCL_ERROR;
-  }
-
-  if (bi == 0) {
-    opserr << "WARNING: failed to create beam integration\n";
-    return TCL_ERROR;
-  }
-
-  BeamIntegrationRule *rule = new BeamIntegrationRule(iTag, bi, secTags);
-  if (rule == 0) {
-    opserr << "WARNING: failed to create beam integration\n";
-    delete bi;
-    return TCL_ERROR;
-  }
-
-  // Now add the
-  if (OPS_addBeamIntegrationRule(rule) == false) {
-    opserr << "WARNING: could not add BeamIntegrationRule.";
-    delete rule; // invoke the destructor, otherwise mem leak
-    return TCL_ERROR;
-    ;
-  }
-
-  return TCL_OK;
-}
-
 // extern int Tcl_AddLimitCurveCommand(ClientData clienData, Tcl_Interp *interp,
 //                                     int argc, TCL_Char ** const argv,
 //                                     Domain *theDomain);
@@ -510,6 +417,7 @@ TclCommand_addDamageModel(ClientData clientData, Tcl_Interp *interp, int argc,
 #endif // OPSDEF_DAMAGE
 
 
+#if 0
 int
 TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                         TCL_Char ** const argv)
@@ -769,6 +677,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   // if get here we have sucessfully created the load and added it to the domain
   return TCL_OK;
 }
+#endif
 
 
 

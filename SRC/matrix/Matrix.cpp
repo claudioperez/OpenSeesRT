@@ -70,8 +70,8 @@ Matrix::Matrix()
 Matrix::Matrix(int nRows,int nCols)
 :numRows(nRows), numCols(nCols), dataSize(0), data(0), fromFree(0)
 {
-  assert(nRows > 0);
-  assert(nCols > 0);
+//assert(nRows > 0);
+//assert(nCols > 0);
 
   // allocate work areas if the first matrix
   if (matrixWork == nullptr) {

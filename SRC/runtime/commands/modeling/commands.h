@@ -107,7 +107,7 @@ struct char_cmd {
 // Materials & sections
   {"uniaxialMaterial",     TclCommand_addUniaxialMaterial},
   {"nDMaterial",           TclCommand_addNDMaterial},
-//{"beamIntegration",      TclCommand_addBeamIntegration},
+  {"beamIntegration",      TclCommand_addBeamIntegration},
 
   {"section",              TclCommand_addSection},
   {"patch",                TclCommand_addPatch},

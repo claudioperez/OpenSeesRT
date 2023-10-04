@@ -355,6 +355,7 @@ BasicModelBuilder::getUniaxialMaterial(int tag)
 int
 BasicModelBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
 {
+  assert(mat != nullptr);
   return this->addUniaxialMaterial(*mat);
 }
 
@@ -371,11 +372,13 @@ int
 BasicModelBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
 {
   if (!canClobber() && (m_UniaxialMaterialMap.find(name) != m_UniaxialMaterialMap.end())) {
+    opserr // << G3_ERROR_PROMPT 
+           << "Cannot add new material with tag " << name << " as one already exists.\n";
     return -1;
   }
 
   m_UniaxialMaterialMap[name] = &instance;
-  G3_AddTableEntry(registry, "UniaxialMaterial", std::stoi(name), (void*)&instance);
+  // G3_AddTableEntry(registry, "UniaxialMaterial", std::stoi(name), (void*)&instance);
   return TCL_OK;
 }
 

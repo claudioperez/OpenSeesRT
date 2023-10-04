@@ -141,10 +141,12 @@ TclDispatch_UniaxialMaterial G3Parse_newParallelMaterial;
 TclDispatch_UniaxialMaterial G3Parse_newUniaxialBoucWen;
 // TclDispatch_UniaxialMaterial TclCommand_AxialSp;
 // TclDispatch_UniaxialMaterial TclCommand_AxialSpHD;
+static Tcl_CmdProc TclCommand_newFatigueMaterial;
 
-typedef int (TclCommand_UniaxialMaterial)(ClientData, Tcl_Interp*, int, TCL_Char ** const);
-static TclCommand_UniaxialMaterial TclDispatch_newUniaxialPinching4;
-static TclCommand_UniaxialMaterial TclDispatch_LegacyUniaxials;
+
+// typedef int (TclCommand_UniaxialMaterial)(ClientData, Tcl_Interp*, int, TCL_Char ** const);
+static Tcl_CmdProc TclDispatch_newUniaxialPinching4;
+static Tcl_CmdProc TclDispatch_LegacyUniaxials;
 
 template <OPS_Routine fn> static int
 dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const argv)
@@ -185,7 +187,7 @@ dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const ar
   return fn( clientData, interp, argc, argv );
 }
 
-std::unordered_map<std::string, TclCommand_UniaxialMaterial*> uniaxial_dispatch {
+std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
 
     {"FedeasUniaxialDamage", dispatch<G3Parse_newFedeasUniaxialDamage>  },
     {"KikuchiAikenHDR",      dispatch<TclCommand_KikuchiAikenHDR>       },
@@ -213,6 +215,7 @@ std::unordered_map<std::string, TclCommand_UniaxialMaterial*> uniaxial_dispatch 
     {"Bond_SP01",              dispatch<OPS_Bond_SP01>                 },
     {"Bond",                   dispatch<OPS_Bond_SP01>                 },
 
+    {"Fatigue",                dispatch<TclCommand_newFatigueMaterial> },
 // Composites
     {"MinMaxMaterial",         dispatch<OPS_MinMaxMaterial>            },
     {"MinMax",                 dispatch<OPS_MinMaxMaterial>            },

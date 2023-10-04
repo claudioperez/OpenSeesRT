@@ -48,11 +48,11 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MasonPan3D)
   static int numMyPanel = 0;
   // print out a message about who wrote this element & any copyright info wanted
   if (numMyPanel == 0) {
-	opserr << " \n";
+  opserr << " \n";
     opserr << "                 REFINED MASONRY PANEL\n";
     opserr << "   Written by Gonzalo Torrisi UNCuyo Copyright 2016\n";
-	opserr << "          Model with 6 compression struts\n";
-	opserr << "                      3D VERSION \n";
+  opserr << "          Model with 6 compression struts\n";
+  opserr << "                      3D VERSION \n";
     opserr << "                Use at your Own Peril\n";
 
     numMyPanel++;
@@ -105,8 +105,8 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MasonPan3D)
 
 
 
-  	  UniaxialMaterial *theMaterial = OPS_GetUniaxialMaterial(matID);
-	  UniaxialMaterial *theMaterial2 =OPS_GetUniaxialMaterial(matID2);
+      UniaxialMaterial *theMaterial = OPS_GetUniaxialMaterial(matID);
+    UniaxialMaterial *theMaterial2 =OPS_GetUniaxialMaterial(matID2);
 
   if (theMaterial == 0) {
     opserr << "WARNING material with tag " << matID << "not found for element " << eleTag << endln;
@@ -154,13 +154,13 @@ MasonPan3D::MasonPan3D(int tag,
 
  
       theMaterial[0] = theMat.getCopy();
-	  theMaterial[3] = theMat.getCopy();
+    theMaterial[3] = theMat.getCopy();
       
-	  if (theMaterial[0] == 0) {
+    if (theMaterial[0] == 0) {
         opserr << "FATAL MasonPan3D::MasonPan3D - failed to get a copy of material\n" ;
         exit(-1);
       }
-	  	  if (theMaterial[3] == 0) {
+        if (theMaterial[3] == 0) {
         opserr << "FATAL MasonPan3D::MasonPan3D - failed to get a copy of material\n" ;
         exit(-1);
       }
@@ -234,12 +234,12 @@ MasonPan3D::~MasonPan3D()
     // memory the Truss2D objects allocates and memory allocated 
     // by other objects that the Truss2D object is responsible for 
     // cleaning up, i.e. the MaterialObject.
-	for (int i=0; i<6; i++) {
+  for (int i=0; i<6; i++) {
     if (theMaterial[i] != 0)
         delete theMaterial[i];    
 }
-	delete [] theMaterial;
-	delete theMaterial2;
+  delete [] theMaterial;
+  delete theMaterial2;
 }
 
 int
@@ -278,7 +278,7 @@ MasonPan3D::setDomain(Domain *theDomain)
         return;
     }
     int i1;
-	int i2;
+  int i2;
 
     // first ensure nodes exist in Domain and set the node pointers
     Node *end1Ptr, *end2Ptr, *end3Ptr, *end4Ptr, *end5Ptr, *end6Ptr, *end7Ptr, *end8Ptr, *end9Ptr, *end10Ptr, *end11Ptr, *end12Ptr;
@@ -322,17 +322,17 @@ MasonPan3D::setDomain(Domain *theDomain)
     }   
 
         theNodes[0] = end1Ptr;
-		theNodes[1] = end2Ptr;
-		theNodes[2] = end3Ptr;
-		theNodes[3] = end4Ptr;
-		theNodes[4] = end5Ptr;
-		theNodes[5] = end6Ptr;
+    theNodes[1] = end2Ptr;
+    theNodes[2] = end3Ptr;
+    theNodes[3] = end4Ptr;
+    theNodes[4] = end5Ptr;
+    theNodes[5] = end6Ptr;
         theNodes[6] = end7Ptr;
-		theNodes[7] = end8Ptr;
-		theNodes[8] = end9Ptr;
-		theNodes[9] = end10Ptr;
+    theNodes[7] = end8Ptr;
+    theNodes[8] = end9Ptr;
+    theNodes[9] = end10Ptr;
         theNodes[10] = end11Ptr;
-		theNodes[11] = end12Ptr;
+    theNodes[11] = end12Ptr;
         
         
         // call the DomainComponent class method THIS IS VERY IMPORTANT
@@ -353,7 +353,7 @@ MasonPan3D::setDomain(Domain *theDomain)
     int dofNd12 = end12Ptr->getNumberDOF();     
 
     if ((dofNd1 != 6 || dofNd2 != 6)) {
-		opserr << "MasonPan3D::setDomain(): 6 dof required at nodes because the panel is genral-3D\n";
+    opserr << "MasonPan3D::setDomain(): 6 dof required at nodes because the panel is genral-3D\n";
       return;
     }   
 
@@ -373,124 +373,124 @@ MasonPan3D::setDomain(Domain *theDomain)
 
  //   double dx = end4Crd(0)-end1Crd(0);
  //   double dy = end10Crd(1)-end1Crd(1); 
-	
-	double dy71=end7Crd(1)-end1Crd(1);
-	double dz71=end7Crd(2)-end1Crd(2);
+  
+  double dy71=end7Crd(1)-end1Crd(1);
+  double dz71=end7Crd(2)-end1Crd(2);
     double dx71=end7Crd(0)-end7Crd(0);
-	
+  
 
-	if (dy71 == 0.0) {
-		int iplan=1;
-		 i1=0;
-		 i2=2;
+  if (dy71 == 0.0) {
+    int iplan=1;
+     i1=0;
+     i2=2;
       opserr << "MasonPan3D::Panel is in X-Z plane\n";
-	}
-	else if (dz71 == 0.0) {
-		int iplan=2;
-		 i1=0;
-		i2=1;
+  }
+  else if (dz71 == 0.0) {
+    int iplan=2;
+     i1=0;
+    i2=1;
      opserr << "MasonPan3D::Panel is in X-Y plane\n";
-	}
-	else if (dx71 == 0.0) {
-		int iplan=3;
-		 i1=1;
-		 i2=2;
+  }
+  else if (dx71 == 0.0) {
+    int iplan=3;
+     i1=1;
+     i2=2;
      opserr << "MasonPan3D::Panel is in Y-Z plane\n";
-	}
-	else {
-		i1=1;
-		i2=2;
+  }
+  else {
+    i1=1;
+    i2=2;
      opserr << "WARNING!!!! MasonPan3D::Panel has no defined plane!!!! \n";
-	       return;
-	}
-	
-//	 opserr << "dz71 " << dz71 << endln;
-//	 	 opserr << "dx71 " << dx71 << endln;
-//		 	 opserr << "dy71 " << dy71 << endln;
+         return;
+  }
+  
+//   opserr << "dz71 " << dz71 << endln;
+//      opserr << "dx71 " << dx71 << endln;
+//        opserr << "dy71 " << dy71 << endln;
         // cosenos de las diagonales
         double dx1 =end4Crd(i1)-end10Crd(i1);
         double dy1= end4Crd(i2)-end10Crd(i2);
-		double L1=sqrt(dx1*dx1+dy1*dy1);
+    double L1=sqrt(dx1*dx1+dy1*dy1);
         double dx2 =end3Crd(i1)-end11Crd(i1);
         double dy2= end3Crd(i2)-end11Crd(i2);
-		double L2=sqrt(dx2*dx2+dy2*dy2);
+    double L2=sqrt(dx2*dx2+dy2*dy2);
         double dx3 =end5Crd(i1)-end9Crd(i1);
         double dy3= end5Crd(i2)-end9Crd(i2);
-		double L3=sqrt(dx3*dx3+dy3*dy3);
+    double L3=sqrt(dx3*dx3+dy3*dy3);
         
         double dx4 =end7Crd(i1)-end1Crd(i1);
-		double dy4= end7Crd(i2)-end1Crd(i2);
-		double L4=sqrt(dx4*dx4+dy4*dy4);
+    double dy4= end7Crd(i2)-end1Crd(i2);
+    double L4=sqrt(dx4*dx4+dy4*dy4);
         double dx5 =end6Crd(i1)-end2Crd(i1);
         double dy5= end6Crd(i2)-end2Crd(i2);
-		double L5=sqrt(dx5*dx5+dy5*dy5);
+    double L5=sqrt(dx5*dx5+dy5*dy5);
         double dx6 =end8Crd(i1)-end12Crd(i1);
         double dy6= end8Crd(i2)-end12Crd(i2);
-		double L6=sqrt(dx6*dx6+dy6*dy6);
-		double Area1=L1*WR*TH*W1;
-		double Area2=L1*WR*TH*(1-W1)/2;
-		double Area3=L1*WR*TH*(1-W1)/2;
-		double Area4=L1*WR*TH*W1;
-		double Area5=L1*WR*TH*(1-W1)/2;
-		double Area6=L1*WR*TH*(1-W1)/2;
-		double Lpan=end4Crd(i1)-end1Crd(i1);
-		double Apan=Lpan*TH;
+    double L6=sqrt(dx6*dx6+dy6*dy6);
+    double Area1=L1*WR*TH*W1;
+    double Area2=L1*WR*TH*(1-W1)/2;
+    double Area3=L1*WR*TH*(1-W1)/2;
+    double Area4=L1*WR*TH*W1;
+    double Area5=L1*WR*TH*(1-W1)/2;
+    double Area6=L1*WR*TH*(1-W1)/2;
+    double Lpan=end4Crd(i1)-end1Crd(i1);
+    double Apan=Lpan*TH;
 
-		//rigidez del resorte
-		 //suma de cosenos l cuadrado
-		trans(0,0)=L1;
-		trans(0,1)=dx1/L1;
-		trans(0,2)=dy1/L1;
-		trans(0,3)=Area1;
-		trans(1,0)=L2;
-		trans(1,1)=dx2/L2;
-		trans(1,2)=dy2/L2;
-		trans(1,3)=Area2;
-		trans(2,0)=L3;
-		trans(2,1)=dx3/L3;
-		trans(2,2)=dy3/L3;
-		trans(2,3)=Area3;
-		trans(3,0)=L4;
-		trans(3,1)=dx4/L4;
-		trans(3,2)=dy4/L4;
-		trans(3,3)=Area4;
-		trans(4,0)=L5;
-		trans(4,1)=dx5/L5;
-		trans(4,2)=dy5/L5;
-		trans(4,3)=Area5;
-		trans(5,0)=L6;
-		trans(5,1)=dx6/L6;
-		trans(5,2)=dy6/L6;
-		trans(5,3)=Area6;
-		trans(6,0)=Apan;
-		trans(6,1)=0;
-		trans(6,2)=0;
-		trans(6,3)=0;
-		trans(7,0)=dy1;
-		trans(7,1)=i1;
-		trans(7,2)=i2;
-		for (int im=0; im<6; im++) {
-			rig1(im) = trans(im,1)*trans(im,1)*trans(im,3)/trans(im,0);
-			rig2(im) = trans(im,1)*trans(im,2)*trans(im,3)/trans(im,0);
-		    rig3(im) = trans(im,2)*trans(im,2)*trans(im,3)/trans(im,0);
-		}
+    //rigidez del resorte
+     //suma de cosenos l cuadrado
+    trans(0,0)=L1;
+    trans(0,1)=dx1/L1;
+    trans(0,2)=dy1/L1;
+    trans(0,3)=Area1;
+    trans(1,0)=L2;
+    trans(1,1)=dx2/L2;
+    trans(1,2)=dy2/L2;
+    trans(1,3)=Area2;
+    trans(2,0)=L3;
+    trans(2,1)=dx3/L3;
+    trans(2,2)=dy3/L3;
+    trans(2,3)=Area3;
+    trans(3,0)=L4;
+    trans(3,1)=dx4/L4;
+    trans(3,2)=dy4/L4;
+    trans(3,3)=Area4;
+    trans(4,0)=L5;
+    trans(4,1)=dx5/L5;
+    trans(4,2)=dy5/L5;
+    trans(4,3)=Area5;
+    trans(5,0)=L6;
+    trans(5,1)=dx6/L6;
+    trans(5,2)=dy6/L6;
+    trans(5,3)=Area6;
+    trans(6,0)=Apan;
+    trans(6,1)=0;
+    trans(6,2)=0;
+    trans(6,3)=0;
+    trans(7,0)=dy1;
+    trans(7,1)=i1;
+    trans(7,2)=i2;
+    for (int im=0; im<6; im++) {
+      rig1(im) = trans(im,1)*trans(im,1)*trans(im,3)/trans(im,0);
+      rig2(im) = trans(im,1)*trans(im,2)*trans(im,3)/trans(im,0);
+        rig3(im) = trans(im,2)*trans(im,2)*trans(im,3)/trans(im,0);
+    }
 
 }        
 
 int
 MasonPan3D::commitState()
 {
-	 int ecode=0;
-	 //commit material models
-	 for (int i=0; i<6; i++)
-		 ecode += theMaterial[i]->commitState();
-	 //commit the base class
+   int ecode=0;
+   //commit material models
+   for (int i=0; i<6; i++)
+     ecode += theMaterial[i]->commitState();
+   //commit the base class
 
-	 
-	 ecode += this->Element::commitState();
+   
+   ecode += this->Element::commitState();
 
 
-	 return ecode;
+   return ecode;
 }
 
 int
@@ -518,7 +518,7 @@ MasonPan3D::revertToStart()
         code += theMaterial[i]->revertToStart();
  //   code += theMaterial2->revertToStart();
 
-		return code;
+    return code;
 }
 
 int
@@ -533,7 +533,7 @@ MasonPan3D::update()
         // compute strain and rate; set as current trial for material
  //////////////////////////////////////       strain     = this->computeCurrentStrain(mat );
    // strainRate = this->computeCurrentStrain();
-			double str[6];
+      double str[6];
 
     // determine the strain
     const Vector &disp1 = theNodes[0]->getTrialDisp();
@@ -549,56 +549,56 @@ MasonPan3D::update()
     const Vector &disp11 = theNodes[10]->getTrialDisp();        
     const Vector &disp12 = theNodes[11]->getTrialDisp();        
 
-	       int i1=int(trans(7,1));
-		   int i2=int(trans(7,2));
+         int i1=int(trans(7,1));
+       int i2=int(trans(7,2));
 
         double c1=trans(0,1);
         double s1=trans(0,2);
-      double	L1=trans(0,0);
-	  double A1=trans(0,3);
+      double  L1=trans(0,0);
+    double A1=trans(0,3);
         double du1=((disp4(i1)-disp10(i1))*c1+(disp4(i2)-disp10(i2))*s1)/L1;
         c1=trans(1,1);
        double s2=trans(1,2);
-		double L2=trans(1,0);
-		 double A2=trans(1,3);
+    double L2=trans(1,0);
+     double A2=trans(1,3);
         double du2=((disp3(i1)-disp11(i1))*c1+(disp3(i2)-disp11(i2))*s2)/L2;
         c1=trans(2,1);
       double  s3=trans(2,2);
-		 double L3=trans(2,0);
-		  double A3=trans(2,3);
+     double L3=trans(2,0);
+      double A3=trans(2,3);
         double du3=((disp5(i1)-disp9(i1))*c1+(disp5(i2)-disp9(i2))*s3)/L3;
         c1=trans(3,1);
      double   s4=trans(3,2);
-		double L4=trans(3,0);
-		 double A4=trans(3,3);
+    double L4=trans(3,0);
+     double A4=trans(3,3);
         double du4=((disp7(i1)-disp1(i1))*c1+(disp7(i2)-disp1(i2))*s4)/L4;
         c1=trans(4,1);
      double   s5=trans(4,2);
-	double	L5=trans(4,0);
-	 double A5=trans(4,3);
+  double  L5=trans(4,0);
+   double A5=trans(4,3);
         double du5=((disp6(i1)-disp2(i1))*c1+(disp6(i2)-disp2(i2))*s5)/L5;
         c1=trans(5,1);
     double    s6=trans(5,2);
-	double	L6=trans(5,0);
-	 double A6=trans(5,3);
+  double  L6=trans(5,0);
+   double A6=trans(5,3);
         double du6=((disp8(i1)-disp12(i1))*c1+(disp8(i2)-disp12(i2))*s6)/L6;
    //resorte
-		
+    
 
           str[0]=du1;
-		  str[1]=du2;
-		  str[2]=du3;
-		  str[3]=du4;
-		  str[4]=du5;
-		  str[5]=du6;
-		
-		
-		
-		  int ret = 0;
-	for (int mat=0; mat<6; mat++) {
+      str[1]=du2;
+      str[2]=du3;
+      str[3]=du4;
+      str[4]=du5;
+      str[5]=du6;
+    
+    
+    
+      int ret = 0;
+  for (int mat=0; mat<6; mat++) {
                  
-				 double strain=0;
-				 strain=str[mat];
+         double strain=0;
+         strain=str[mat];
         ret+= theMaterial[mat]->setTrialStrain(strain);
     }
 
@@ -611,50 +611,50 @@ MasonPan3D::update()
 const Matrix &
 MasonPan3D::getTangentStiff(void)
 {
-	for( int i=0; i<72; i++){
-    	for( int j=0; j<72; j++){
-		PanelK(i,j)=0.0;
-		}
-	}
+  for( int i=0; i<72; i++){
+      for( int j=0; j<72; j++){
+    PanelK(i,j)=0.0;
+    }
+  }
 
-	int dj1;
-	int dj2;
-	int j1i;
-	int j2i;
-	int j1d;
-	int j2d;
+  int dj1;
+  int dj2;
+  int j1i;
+  int j2i;
+  int j1d;
+  int j2d;
      double Et;
-	 int i1=int(trans(7,1));
-	 int i2=int(trans(7,2));
-	 int i12=i1+i2;
-	 if (i12==2){
-		 int ji=0;
-		 int jj=2;
-		  dj1=5;
-		  dj2=3;
-	 }
-	 else if (i12==1){
-		 int ji=0;
-		 int jj=1;
-		  dj1=5;
-		  dj2=4;
+   int i1=int(trans(7,1));
+   int i2=int(trans(7,2));
+   int i12=i1+i2;
+   if (i12==2){
+     int ji=0;
+     int jj=2;
+      dj1=5;
+      dj2=3;
+   }
+   else if (i12==1){
+     int ji=0;
+     int jj=1;
+      dj1=5;
+      dj2=4;
 
-	 }
-	 else if (i12==3){
-		 int ji=1;
-		 int jj=2;
-		  dj1=4;
-		  dj2=3;
-	 }
+   }
+   else if (i12==3){
+     int ji=1;
+     int jj=2;
+      dj1=4;
+      dj2=3;
+   }
 
 //diagonal 1 (nodo 10-4)
-	     Et=theMaterial[0]->getTangent();
-		  j1i=6*4-dj1-1;
-		  j2i=6*4-dj2-1;
-		  j1d=6*10-dj1-1;
-		  j2d=6*10-dj2-1;
+       Et=theMaterial[0]->getTangent();
+      j1i=6*4-dj1-1;
+      j2i=6*4-dj2-1;
+      j1d=6*10-dj1-1;
+      j2d=6*10-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(0)*Et;
+         PanelK(j1i,j1i)=rig1(0)*Et;
         PanelK(j1i,j2i)=rig2(0)*Et;
         PanelK(j2i,j1i)=rig2(0)*Et;
         PanelK(j2i,j2i)=rig3(0)*Et;
@@ -672,13 +672,13 @@ MasonPan3D::getTangentStiff(void)
         PanelK(j2d,j2i)=-rig3(0)*Et;
    
 //diagonal 2 nodos 11-3
-		 Et=theMaterial[1]->getTangent();
-		 j1i=6*3-dj1-1;
-		 j2i=6*3-dj2-1;
-		 j1d=6*11-dj1-1;
-		 j2d=6*11-dj2-1;
+     Et=theMaterial[1]->getTangent();
+     j1i=6*3-dj1-1;
+     j2i=6*3-dj2-1;
+     j1d=6*11-dj1-1;
+     j2d=6*11-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(1)*Et;
+         PanelK(j1i,j1i)=rig1(1)*Et;
         PanelK(j1i,j2i)=rig2(1)*Et;
         PanelK(j2i,j1i)=rig2(1)*Et;
         PanelK(j2i,j2i)=rig3(1)*Et;
@@ -696,13 +696,13 @@ MasonPan3D::getTangentStiff(void)
         PanelK(j2d,j2i)=-rig3(1)*Et;
     
 //diagonal 3 nodos 9-5
-		 j1i=6*5-dj1-1;
-		 j2i=6*5-dj2-1;
-		 j1d=6*9-dj1-1;
-		 j2d=6*9-dj2-1;
+     j1i=6*5-dj1-1;
+     j2i=6*5-dj2-1;
+     j1d=6*9-dj1-1;
+     j2d=6*9-dj2-1;
 
-		 Et=theMaterial[2]->getTangent();
-       	PanelK(j1i,j1i)=rig1(2)*Et;
+     Et=theMaterial[2]->getTangent();
+         PanelK(j1i,j1i)=rig1(2)*Et;
         PanelK(j1i,j2i)=rig2(2)*Et;
         PanelK(j2i,j1i)=rig2(2)*Et;
         PanelK(j2i,j2i)=rig3(2)*Et;
@@ -720,13 +720,13 @@ MasonPan3D::getTangentStiff(void)
         PanelK(j2d,j2i)=-rig3(2)*Et;
 
 //diagonal 4  nodos 1-7
-		 Et=theMaterial[3]->getTangent();
-		 j1i=6*1-dj1-1;
-		 j2i=6*1-dj2-1;
-		 j1d=6*7-dj1-1;
-		 j2d=6*7-dj2-1;
+     Et=theMaterial[3]->getTangent();
+     j1i=6*1-dj1-1;
+     j2i=6*1-dj2-1;
+     j1d=6*7-dj1-1;
+     j2d=6*7-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(3)*Et;
+         PanelK(j1i,j1i)=rig1(3)*Et;
         PanelK(j1i,j2i)=rig2(3)*Et;
         PanelK(j2i,j1i)=rig2(3)*Et;
         PanelK(j2i,j2i)=rig3(3)*Et;
@@ -744,13 +744,13 @@ MasonPan3D::getTangentStiff(void)
         PanelK(j2d,j2i)=-rig3(3)*Et;
     
 //diagonal 5 nodos 2-6
-		 j1i=6*2-dj1-1;
-		 j2i=6*2-dj2-1;
-		 j1d=6*6-dj1-1;
-		 j2d=6*6-dj2-1;
+     j1i=6*2-dj1-1;
+     j2i=6*2-dj2-1;
+     j1d=6*6-dj1-1;
+     j2d=6*6-dj2-1;
 
-		 Et=theMaterial[4]->getTangent();
-       	PanelK(j1i,j1i)=rig1(4)*Et;
+     Et=theMaterial[4]->getTangent();
+         PanelK(j1i,j1i)=rig1(4)*Et;
         PanelK(j1i,j2i)=rig2(4)*Et;
         PanelK(j2i,j1i)=rig2(4)*Et;
         PanelK(j2i,j2i)=rig3(4)*Et;
@@ -768,12 +768,12 @@ MasonPan3D::getTangentStiff(void)
         PanelK(j2d,j2i)=-rig3(4)*Et;
 
 //diagonal 6 nodos 12-8
-		 j1i=6*8-dj1-1;
-		 j2i=6*8-dj2-1;
-		 j1d=6*12-dj1-1;
-		 j2d=6*12-dj2-1;
-		Et=theMaterial[5]->getTangent();
-       	PanelK(j1i,j1i)=rig1(5)*Et;
+     j1i=6*8-dj1-1;
+     j2i=6*8-dj2-1;
+     j1d=6*12-dj1-1;
+     j2d=6*12-dj2-1;
+    Et=theMaterial[5]->getTangent();
+         PanelK(j1i,j1i)=rig1(5)*Et;
         PanelK(j1i,j2i)=rig2(5)*Et;
         PanelK(j2i,j1i)=rig2(5)*Et;
         PanelK(j2i,j2i)=rig3(5)*Et;
@@ -791,7 +791,7 @@ MasonPan3D::getTangentStiff(void)
         PanelK(j2d,j2i)=-rig3(5)*Et;
     
     
-   		
+       
     // return the matrix
     return PanelK;
 }
@@ -799,50 +799,50 @@ MasonPan3D::getTangentStiff(void)
 const Matrix &
 MasonPan3D::getInitialStiff(void)
 {
-		for( int i=0; i<72; i++){
-    	for( int j=0; j<72; j++){
-		PanelK(i,j)=0.0;
-		}
-	}
-	double E;
-	int dj1;
-	int dj2;
-	int j1i;
-	int j2i;
-	int j1d;
-	int j2d;
-	 int i1=int(trans(7,1));
-	 int i2=int(trans(7,2));
-	 int i12=i1+i2;
-	 if (i12==2){
-		 int ji=0;
-		 int jj=2;
-		  dj1=5;
-		  dj2=3;
-	 }
-	 if (i12==1){
-		 int ji=0;
-		 int jj=1;
-		  dj1=5;
-		  dj2=4;
+    for( int i=0; i<72; i++){
+      for( int j=0; j<72; j++){
+    PanelK(i,j)=0.0;
+    }
+  }
+  double E;
+  int dj1;
+  int dj2;
+  int j1i;
+  int j2i;
+  int j1d;
+  int j2d;
+   int i1=int(trans(7,1));
+   int i2=int(trans(7,2));
+   int i12=i1+i2;
+   if (i12==2){
+     int ji=0;
+     int jj=2;
+      dj1=5;
+      dj2=3;
+   }
+   if (i12==1){
+     int ji=0;
+     int jj=1;
+      dj1=5;
+      dj2=4;
 
-	 }
-	 if (i12==3){
-		 int ji=1;
-		 int jj=2;
-		  dj1=4;
-		  dj2=3;
-	 }
+   }
+   if (i12==3){
+     int ji=1;
+     int jj=2;
+      dj1=4;
+      dj2=3;
+   }
 
 
    E = theMaterial[0]->getInitialTangent();
 //diagonal 1
-		  j1i=6*4-dj1-1;
-		  j2i=6*4-dj2-1;
-		  j1d=6*10-dj1-1;
-		  j2d=6*10-dj2-1;
+      j1i=6*4-dj1-1;
+      j2i=6*4-dj2-1;
+      j1d=6*10-dj1-1;
+      j2d=6*10-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(0)*E;
+         PanelK(j1i,j1i)=rig1(0)*E;
         PanelK(j1i,j2i)=rig2(0)*E;
         PanelK(j2i,j1i)=rig2(0)*E;
         PanelK(j2i,j2i)=rig3(0)*E;
@@ -862,12 +862,12 @@ MasonPan3D::getInitialStiff(void)
 
    E = theMaterial[1]->getInitialTangent();
 //diagonal 2
- 		  j1i=6*3-dj1-1;
-		  j2i=6*3-dj2-1;
-		  j1d=6*11-dj1-1;
-		  j2d=6*11-dj2-1;
+       j1i=6*3-dj1-1;
+      j2i=6*3-dj2-1;
+      j1d=6*11-dj1-1;
+      j2d=6*11-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(1)*E;
+         PanelK(j1i,j1i)=rig1(1)*E;
         PanelK(j1i,j2i)=rig2(1)*E;
         PanelK(j2i,j1i)=rig2(1)*E;
         PanelK(j2i,j2i)=rig3(1)*E;
@@ -886,12 +886,12 @@ MasonPan3D::getInitialStiff(void)
 
     E = theMaterial[2]->getInitialTangent();
 //diagonal 3
-		  j1i=6*5-dj1-1;
-		  j2i=6*5-dj2-1;
-		  j1d=6*9-dj1-1;
-		  j2d=6*9-dj2-1;
+      j1i=6*5-dj1-1;
+      j2i=6*5-dj2-1;
+      j1d=6*9-dj1-1;
+      j2d=6*9-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(2)*E;
+         PanelK(j1i,j1i)=rig1(2)*E;
         PanelK(j1i,j2i)=rig2(2)*E;
         PanelK(j2i,j1i)=rig2(2)*E;
         PanelK(j2i,j2i)=rig3(2)*E;
@@ -910,12 +910,12 @@ MasonPan3D::getInitialStiff(void)
 
     E = theMaterial[3]->getInitialTangent();
 //diagonal 4
-		 j1i=6*1-dj1-1;
-		 j2i=6*1-dj2-1;
-		 j1d=6*7-dj1-1;
-		 j2d=6*7-dj2-1;
+     j1i=6*1-dj1-1;
+     j2i=6*1-dj2-1;
+     j1d=6*7-dj1-1;
+     j2d=6*7-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(3)*E;
+         PanelK(j1i,j1i)=rig1(3)*E;
         PanelK(j1i,j2i)=rig2(3)*E;
         PanelK(j2i,j1i)=rig2(3)*E;
         PanelK(j2i,j2i)=rig3(3)*E;
@@ -934,12 +934,12 @@ MasonPan3D::getInitialStiff(void)
 
     E = theMaterial[4]->getInitialTangent();
 //diagonal 5
-		j1i=6*2-dj1-1;
-		j2i=6*2-dj2-1;
-		j1d=6*6-dj1-1;
-		j2d=6*6-dj2-1;
+    j1i=6*2-dj1-1;
+    j2i=6*2-dj2-1;
+    j1d=6*6-dj1-1;
+    j2d=6*6-dj2-1;
 
-       	PanelK(j1i,j1i)=rig1(4)*E;
+         PanelK(j1i,j1i)=rig1(4)*E;
         PanelK(j1i,j2i)=rig2(4)*E;
         PanelK(j2i,j1i)=rig2(4)*E;
         PanelK(j2i,j2i)=rig3(4)*E;
@@ -959,11 +959,11 @@ MasonPan3D::getInitialStiff(void)
 
     E = theMaterial[5]->getInitialTangent();
 //diagonal 6
- 		j1i=6*8-dj1-1;
-		j2i=6*8-dj2-1;
-		j1d=6*12-dj1-1;
-		j2d=6*12-dj2-1;
-       	PanelK(j1i,j1i)=rig1(5)*E;
+     j1i=6*8-dj1-1;
+    j2i=6*8-dj2-1;
+    j1d=6*12-dj1-1;
+    j2d=6*12-dj2-1;
+         PanelK(j1i,j1i)=rig1(5)*E;
         PanelK(j1i,j2i)=rig2(5)*E;
         PanelK(j2i,j1i)=rig2(5)*E;
         PanelK(j2i,j2i)=rig3(5)*E;
@@ -987,79 +987,79 @@ MasonPan3D::getInitialStiff(void)
 const Vector &
 MasonPan3D::getResistingForce()
 {       
-		for( int i=0; i<72; i++){
+    for( int i=0; i<72; i++){
 
-		PanelR(i)=0.0;
-		}
+    PanelR(i)=0.0;
+    }
 
-	 	int dj1;
-	int dj2;
-	int j1i;
-	int j2i;
-	int j1d;
-	int j2d;
-	 int i1=int(trans(7,1));
-	 int i2=int(trans(7,2));
+     int dj1;
+  int dj2;
+  int j1i;
+  int j2i;
+  int j1d;
+  int j2d;
+   int i1=int(trans(7,1));
+   int i2=int(trans(7,2));
 
 
-	 int i12=i1+i2;
-	 if (i12==2){
-		 int ji=0;
-		 int jj=2;
-		  dj1=5;
-		  dj2=3;
-	 }
-	 if (i12==1){
-		 int ji=0;
-		 int jj=1;
-		  dj1=5;
-		  dj2=4;
+   int i12=i1+i2;
+   if (i12==2){
+     int ji=0;
+     int jj=2;
+      dj1=5;
+      dj2=3;
+   }
+   if (i12==1){
+     int ji=0;
+     int jj=1;
+      dj1=5;
+      dj2=4;
 
-	 }
-	 if (i12==3){
-		 int ji=1;
-		 int jj=2;
-		  dj1=4;
-		  dj2=3;
-	 }
+   }
+   if (i12==3){
+     int ji=1;
+     int jj=2;
+      dj1=4;
+      dj2=3;
+   }
 
-		 j1i=6*4-dj1-1;
-		 j2i=6*4-dj2-1;
-		 j1d=6*10-dj1-1;
-		 j2d=6*10-dj2-1;
+     j1i=6*4-dj1-1;
+     j2i=6*4-dj2-1;
+     j1d=6*10-dj1-1;
+     j2d=6*10-dj2-1;
 
        double Area1=trans(0,3);
       double  c1=trans(0,1);
       double  s1=trans(0,2);
         double force=0; 
-			force = Area1*theMaterial[0]->getStress();
-	PanelR(j1i)=force*c1;
+      force = Area1*theMaterial[0]->getStress();
+  PanelR(j1i)=force*c1;
     PanelR(j2i)=force*s1;
     PanelR(j1d)=-force*c1;
     PanelR(j2d)=-force*s1;
 
-		 j1i=6*3-dj1-1;
-		 j2i=6*3-dj2-1;
-		 j1d=6*11-dj1-1;
-		 j2d=6*11-dj2-1;
+     j1i=6*3-dj1-1;
+     j2i=6*3-dj2-1;
+     j1d=6*11-dj1-1;
+     j2d=6*11-dj2-1;
          double Area2=trans(1,3);
         c1=trans(1,1);
         s1=trans(1,2);
       force=0;
       force = Area2*theMaterial[1]->getStress();
-	PanelR(j1i)=force*c1;
+  PanelR(j1i)=force*c1;
     PanelR(j2i)=force*s1;
     PanelR(j1d)=-force*c1;
     PanelR(j2d)=-force*s1;
 
-		 j1i=6*5-dj1-1;
-		 j2i=6*5-dj2-1;
-		 j1d=6*9-dj1-1;
-		 j2d=6*9-dj2-1;
+     j1i=6*5-dj1-1;
+     j2i=6*5-dj2-1;
+     j1d=6*9-dj1-1;
+     j2d=6*9-dj2-1;
        double  Area3=trans(2,3);
         c1=trans(2,1);
         s1=trans(2,2);
-		force=0;
+    force=0;
       force = Area3*theMaterial[2]->getStress();
     PanelR(j1i)=force*c1;
     PanelR(j2i)=force*s1;
@@ -1067,51 +1067,51 @@ MasonPan3D::getResistingForce()
     PanelR(j2d)=-force*s1;
 
 
-		 j1i=6*7-dj1-1;
-		 j2i=6*7-dj2-1;
-		 j1d=6*1-dj1-1;
-		 j2d=6*1-dj2-1;
+     j1i=6*7-dj1-1;
+     j2i=6*7-dj2-1;
+     j1d=6*1-dj1-1;
+     j2d=6*1-dj2-1;
        double  Area4=trans(3,3);
         c1=trans(3,1);
         s1=trans(3,2);
-		force=0;
+    force=0;
      force = Area4*theMaterial[3]->getStress();
 
     PanelR(j1i)=force*c1;
     PanelR(j2i)=force*s1;
-	PanelR(j1d)=-force*c1;
+  PanelR(j1d)=-force*c1;
     PanelR(j2d)=-force*s1;
 
-		 j1i=6*2-dj1-1;
-		 j2i=6*2-dj2-1;
-		 j1d=6*6-dj1-1;
-		 j2d=6*6-dj2-1;
+     j1i=6*2-dj1-1;
+     j2i=6*2-dj2-1;
+     j1d=6*6-dj1-1;
+     j2d=6*6-dj2-1;
 
       double   Area5=trans(4,3);
         c1=trans(4,1);
         s1=trans(4,2);
-		force=0;
+    force=0;
      force = Area5*theMaterial[4]->getStress();
     PanelR(j1i)=-force*c1;
     PanelR(j2i)=-force*s1;
     PanelR(j1d)=force*c1;
     PanelR(j2d)=force*s1;
 
-			 j1i=6*8-dj1-1;
-		 j2i=6*8-dj2-1;
-		 j1d=6*12-dj1-1;
-		 j2d=6*12-dj2-1;
+       j1i=6*8-dj1-1;
+     j2i=6*8-dj2-1;
+     j1d=6*12-dj1-1;
+     j2d=6*12-dj2-1;
        double  Area6=trans(5,3);
         c1=trans(5,1);
         s1=trans(5,2);
-		force=0;
+    force=0;
      force = Area6*theMaterial[5]->getStress();
     PanelR(j1i)=force*c1;
     PanelR(j2i)=force*s1;
     PanelR(j1d)=-force*c1;
     PanelR(j2d)=-force*s1;
 
-	
+  
     return PanelR;
 }
 
@@ -1124,27 +1124,27 @@ MasonPan3D::sendSelf(int commitTag, Channel &theChannel)
     // objects as that is taken care of in a commit by the Domain
     // object - don't want to have to do the check if sending data
     
-	//int dataTag = this->getDbTag();
+  //int dataTag = this->getDbTag();
 
     // Truss2D packs it's data into a Vector and sends this to theChannel
     // along with it's dbTag and the commitTag passed in the arguments
-	
+  
     //Vector data(5);
     //data(0) = this->getTag();
     //data(1) = A;
     //data(2) = theMaterial->getClassTag();
     //int matDbTag = theMaterial->getDbTag();
     
-	// NOTE: we do have to ensure that the material has a database
+  // NOTE: we do have to ensure that the material has a database
     // tag if we are sending to a database channel.
     
-	//if (matDbTag == 0) {
+  //if (matDbTag == 0) {
     //    matDbTag = theChannel.getDbTag();
     //    if (matDbTag != 0)
     //         theMaterial->setDbTag(matDbTag);
    // }
     //data(3) = matDbTag;
-	res=0;
+  res=0;
     // res = theChannel.sendVector(dataTag, commitTag, data);
     if (res < 0) {
       opserr << "WARNING MasonPan3D::sendSelf() - failed to send Vector\n";
@@ -1180,7 +1180,7 @@ MasonPan3D::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBr
     //Vector data(5);
     //res = theChannel.recvVector(dataTag, commitTag, data);
     res=-1;
-	if (res < 0) {
+  if (res < 0) {
       opserr << "WARNING MasonPan3D::recvSelf() - failed to receive Vector\n";
       return -1;
     }         
@@ -1220,9 +1220,9 @@ MasonPan3D::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBr
 void
 MasonPan3D::Print(OPS_Stream &s, int flag)
 {
-		 int i1=int(trans(7,1));
-	 int i2=int(trans(7,2));
-	 int i12=i1+i2;
+     int i1=int(trans(7,1));
+   int i2=int(trans(7,2));
+   int i12=i1+i2;
 
 
   s << " " << "\n";
@@ -1250,17 +1250,17 @@ MasonPan3D::Print(OPS_Stream &s, int flag)
   s << "Nodo 10 :"<< externalNodes(9)<< "\n";
   s << "Nodo 11 :"<< externalNodes(10)<< "\n";
   s << "Nodo 12 :"<< externalNodes(11)<< "\n";
-  	 if (i12==1){
+     if (i12==1){
   s << "The panel is in plane  X-Y"<< "\n";
-	 }
-	 else if(i12==2){
+   }
+   else if(i12==2){
   s << "The panel is in plane  X-Z"<< "\n";
-	 }
-	 else if (i12==3){
+   }
+   else if (i12==3){
   s << "The panel is in plane  Y-Z"<< "\n";
-	 }
-	 else
-	 {
+   }
+   else
+   {
   s << "The panel is in plane  UNKNOWN!!!"<< "\n";
 }
   s << "        MasonPan3D Factors: " << "\n";
@@ -1297,7 +1297,7 @@ MasonPan3D::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.attr("node9 ",externalNodes[8]);
     output.attr("node10",externalNodes[9]);
     output.attr("node11",externalNodes[10]);
-    output.attr("node12",externalNodes[11]);	
+    output.attr("node12",externalNodes[11]);  
     char outputData[10];
 
     if ((strcmp(argv[0],"force") == 0) || (strcmp(argv[0],"forces") == 0) 
@@ -1316,7 +1316,7 @@ MasonPan3D::setResponse(const char **argv, int argc, OPS_Stream &output)
             theResponse = new ElementResponse(this, 1, Vector(36));
 
     } else if ((strcmp(argv[0],"basicForce") == 0 || strcmp(argv[0],"basicForces") == 0) ||
-	       (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0)) {
+         (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0)) {
 
         for (int i=0; i<6; i++) {
             sprintf(outputData,"P%d",i+1);
@@ -1325,7 +1325,7 @@ MasonPan3D::setResponse(const char **argv, int argc, OPS_Stream &output)
         theResponse = new ElementResponse(this, 2, Vector(6));
 
     } else if (strcmp(argv[0],"defo") == 0 || strcmp(argv[0],"deformations") == 0 ||
-	       strcmp(argv[0],"deformation") == 0 || strcmp(argv[0],"basicDeformation") == 0) {
+         strcmp(argv[0],"deformation") == 0 || strcmp(argv[0],"basicDeformation") == 0) {
 
             for (int i=0; i<6; i++) {
                 sprintf(outputData,"e%d",i+1);
@@ -1359,13 +1359,13 @@ MasonPan3D::setResponse(const char **argv, int argc, OPS_Stream &output)
     // a material quantity
     } else if (strcmp(argv[0],"material") == 0) {
       if (argc > 2) {
-	int matNum = atoi(argv[1]);
-	if (matNum >= 1 && matNum <= 6)
-	  theResponse =  theMaterial[matNum-1]->setResponse(&argv[2], argc-2, output);
-	
+  int matNum = atoi(argv[1]);
+  if (matNum >= 1 && matNum <= 6)
+    theResponse =  theMaterial[matNum-1]->setResponse(&argv[2], argc-2, output);
+  
       }
     
-	}
+  }
 
 
     output.endTag();
@@ -1378,62 +1378,62 @@ MasonPan3D::getResponse(int responseID, Information &eleInformation)
 {
     const Vector& disp1 = theNodes[0]->getTrialDisp();
     const Vector& disp2 = theNodes[1]->getTrialDisp();
-    const Vector& disp3 = theNodes[2]->getTrialDisp();	
-    const Vector& disp4 = theNodes[3]->getTrialDisp();	
-    const Vector& disp5 = theNodes[4]->getTrialDisp();	
-    const Vector& disp6 = theNodes[5]->getTrialDisp();	
+    const Vector& disp3 = theNodes[2]->getTrialDisp();  
+    const Vector& disp4 = theNodes[3]->getTrialDisp();  
+    const Vector& disp5 = theNodes[4]->getTrialDisp();  
+    const Vector& disp6 = theNodes[5]->getTrialDisp();  
     const Vector& disp7 = theNodes[6]->getTrialDisp();
     const Vector& disp8 = theNodes[7]->getTrialDisp();
     const Vector& disp9 = theNodes[8]->getTrialDisp();
     const Vector& disp10 = theNodes[9]->getTrialDisp();
     const Vector& disp11 = theNodes[10]->getTrialDisp();
     const Vector& disp12 = theNodes[11]->getTrialDisp();
-	
+  
     const Vector  diff  = disp2-disp1;
 
     switch (responseID) {
     case -1:
-        return -1;
+      return -1;
 
     case 1:
-        return eleInformation.setVector(this->getResistingForce());
+      return eleInformation.setVector(this->getResistingForce());
 
     case 2:
-        if (eleInformation.theVector != 0) {
-            for (int i = 0; i < 6; i++)
-                (*(eleInformation.theVector))(i) = trans(i,3)*theMaterial[i]->getStress();
-                 			 
-        }
-        return 0;
+      if (eleInformation.theVector != 0) {
+        for (int i = 0; i < 6; i++)
+            (*(eleInformation.theVector))(i) = trans(i,3)*theMaterial[i]->getStress();
+                      
+      }
+      return 0;
 
     case 3:
-        if (eleInformation.theVector != 0) {
-            for (int i = 0; i < 6; i++)
-                (*(eleInformation.theVector))(i) = theMaterial[i]->getStrain();
+      if (eleInformation.theVector != 0) {
+        for (int i = 0; i < 6; i++)
+            (*(eleInformation.theVector))(i) = theMaterial[i]->getStrain();
 
-        }
-        return 0;
+      }
+      return 0;
 
     case 13:
-        if (eleInformation.theMatrix != 0) {
-            for (int i = 0; i < 72; i++)
-	      (*(eleInformation.theMatrix))(i,i) = theMaterial[i]->getTangent();
-        }
-        return 0;
+      if (eleInformation.theMatrix != 0) {
+        for (int i = 0; i < 72; i++)
+            (*(eleInformation.theMatrix))(i,i) = theMaterial[i]->getTangent();
+      }
+      return 0;
 
     case 4:
-        if (eleInformation.theVector != 0) {
-            for (int i = 0; i < 6; i++) {
-                (*(eleInformation.theVector))(i) = theMaterial[i]->getStrain();
-                (*(eleInformation.theVector))(i+6) = trans(i,3)*theMaterial[i]->getStress();
-					}
-        return 0;      
+      if (eleInformation.theVector != 0) {
+          for (int i = 0; i < 6; i++) {
+              (*(eleInformation.theVector))(i) = theMaterial[i]->getStrain();
+              (*(eleInformation.theVector))(i+6) = trans(i,3)*theMaterial[i]->getStress();
+          }
+      }
+      return 0;      
 
     default:
         return -1;
-    }
-		 }
-	 }
+  }
+}
 
 
 double
@@ -1441,234 +1441,234 @@ MasonPan3D::computeCurrentStrain(int mat) const
 //MasonPan3D::computeCurrentStrain(void) const
 {
 
-			 int i1=int(trans(7,1));
-	 int i2=int(trans(7,2));
+       int i1=int(trans(7,1));
+   int i2=int(trans(7,2));
 
-			// NOTE this method will never be called with L == 0.0
-		double str[6];
-		double strain;
-		// determine the strain
-		const Vector &disp1 = theNodes[0]->getTrialDisp();
-		const Vector &disp2 = theNodes[1]->getTrialDisp();  
-		const Vector &disp3 = theNodes[2]->getTrialDisp();  
-		const Vector &disp4 = theNodes[3]->getTrialDisp();  
-		const Vector &disp5 = theNodes[4]->getTrialDisp();  
-		const Vector &disp6 = theNodes[5]->getTrialDisp();  
-		const Vector &disp7 = theNodes[6]->getTrialDisp();  
-		const Vector &disp8 = theNodes[7]->getTrialDisp();  
-		const Vector &disp9 = theNodes[8]->getTrialDisp();  
-		const Vector &disp10 = theNodes[9]->getTrialDisp(); 
-		const Vector &disp11 = theNodes[10]->getTrialDisp();        
-		const Vector &disp12 = theNodes[11]->getTrialDisp();        
+      // NOTE this method will never be called with L == 0.0
+    double str[6];
+    double strain;
+    // determine the strain
+    const Vector &disp1 = theNodes[0]->getTrialDisp();
+    const Vector &disp2 = theNodes[1]->getTrialDisp();  
+    const Vector &disp3 = theNodes[2]->getTrialDisp();  
+    const Vector &disp4 = theNodes[3]->getTrialDisp();  
+    const Vector &disp5 = theNodes[4]->getTrialDisp();  
+    const Vector &disp6 = theNodes[5]->getTrialDisp();  
+    const Vector &disp7 = theNodes[6]->getTrialDisp();  
+    const Vector &disp8 = theNodes[7]->getTrialDisp();  
+    const Vector &disp9 = theNodes[8]->getTrialDisp();  
+    const Vector &disp10 = theNodes[9]->getTrialDisp(); 
+    const Vector &disp11 = theNodes[10]->getTrialDisp();        
+    const Vector &disp12 = theNodes[11]->getTrialDisp();        
 
        double  c1=trans(0,1);
        double s1=trans(0,2);
-	double	L1=trans(0,0);
+  double  L1=trans(0,0);
         double du1=((disp4(i1)-disp10(i1))*c1+(disp4(i2)-disp10(i2))*s1)/L1;
         c1=trans(1,1);
         s1=trans(1,2);
-	double	L2=trans(1,0);
+  double  L2=trans(1,0);
         double du2=((disp3(i1)-disp11(i1))*c1+(disp3(i2)-disp11(i2))*s1)/L2;
         c1=trans(2,1);
         s1=trans(2,2);
-	double	L3=trans(2,0);
+  double  L3=trans(2,0);
         double du3=((disp5(i1)-disp9(i1))*c1+(disp5(i2)-disp9(i2))*s1)/L3;
         c1=trans(3,1);
         s1=trans(3,2);
-	double	L4=trans(3,0);
+  double  L4=trans(3,0);
         double du4=((disp7(i1)-disp1(i1))*c1+(disp7(i2)-disp1(i2))*s1)/L4;
         c1=trans(4,1);
         s1=trans(4,2);
-	double	L5=trans(4,0);
+  double  L5=trans(4,0);
         double du5=((disp6(i1)-disp2(i1))*c1+(disp6(i2)-disp2(i2))*s1)/L5;
         c1=trans(5,1);
         s1=trans(5,2);
-	double	L6=trans(5,0);
+  double  L6=trans(5,0);
         double du6=((disp8(i1)-disp12(i1))*c1+(disp8(i2)-disp12(i2))*s1)/L6;
  
            str[0]=du1;
-		   str[1]=du2;
-		   str[2]=du3;
-		   str[3]=du4;
-		   str[4]=du5;
-		   str[5]=du6;
-  		 strain=str[mat];
-		return strain;
+       str[1]=du2;
+       str[2]=du3;
+       str[3]=du4;
+       str[4]=du5;
+       str[5]=du6;
+       strain=str[mat];
+    return strain;
 }
 
 int
 MasonPan3D::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
 //MasonPan3D::displaySelf(Renderer &theViewer, int displayMode, float fact)
 {
-	int code = 0;
-	int error = 0;
-	int i1 = int(trans(7, 1));
-	int i2 = int(trans(7, 2));
+  int code = 0;
+  int error = 0;
+  int i1 = int(trans(7, 1));
+  int i2 = int(trans(7, 2));
 
-	// first determine the two end points of the CorotTruss2 based on
-	// the display factor (a measure of the distorted image)
-	// store this information in 2 3d vectors v1 and v2
-	const Vector &end1Crd = theNodes[0]->getCrds();
-	const Vector &end2Crd = theNodes[1]->getCrds();
-	const Vector &end3Crd = theNodes[2]->getCrds();
-	const Vector &end4Crd = theNodes[3]->getCrds();
-	const Vector &end5Crd = theNodes[4]->getCrds();
-	const Vector &end6Crd = theNodes[5]->getCrds();
-	const Vector &end7Crd = theNodes[6]->getCrds();
-	const Vector &end8Crd = theNodes[7]->getCrds();
-	const Vector &end9Crd = theNodes[8]->getCrds();
-	const Vector &end10Crd = theNodes[9]->getCrds();
-	const Vector &end11Crd = theNodes[10]->getCrds();
-	const Vector &end12Crd = theNodes[11]->getCrds();
-
-
-	const Vector &end1Disp = theNodes[0]->getDisp();
-	const Vector &end2Disp = theNodes[1]->getDisp();
-	const Vector &end3Disp = theNodes[2]->getDisp();
-	const Vector &end4Disp = theNodes[3]->getDisp();
-	const Vector &end5Disp = theNodes[4]->getDisp();
-	const Vector &end6Disp = theNodes[5]->getDisp();
-	const Vector &end7Disp = theNodes[6]->getDisp();
-	const Vector &end8Disp = theNodes[7]->getDisp();
-	const Vector &end9Disp = theNodes[8]->getDisp();
-	const Vector &end10Disp = theNodes[9]->getDisp();
-	const Vector &end11Disp = theNodes[10]->getDisp();
-	const Vector &end12Disp = theNodes[11]->getDisp();
-
-	static Vector v1(3);
-	static Vector v2(3);
-	static Vector v3(3);
-	static Vector v4(3);
-	static Vector v5(3);
-	static Vector v6(3);
-	static Vector v7(3);
-	static Vector v8(3);
-	static Vector v9(3);
-	static Vector v10(3);
-	static Vector v11(3);
-	static Vector v12(3);
-	static Vector v13(3);
-	static Vector v14(3);
-
-	static Vector rgb(3);
-	static Vector values(4);
-
-	static Matrix coords(4, 3);
-
-	static Vector v1a(3);
-	static Vector v2a(3);
-	static Vector v3a(3);
-	static Vector v4a(3);
-	static Vector v5a(3);
-	static Vector v6a(3);
-	static Vector v7a(3);
-	static Vector v8a(3);
-	static Vector v9a(3);
-	static Vector v10a(3);
-	static Vector v11a(3);
-	static Vector v12a(3);
-
-	theNodes[3]->getDisplayCrds(v1a, fact, displayMode);
-	theNodes[9]->getDisplayCrds(v2a, fact, displayMode);
-	theNodes[2]->getDisplayCrds(v3a, fact, displayMode);
-	theNodes[10]->getDisplayCrds(v4a, fact, displayMode);
-	theNodes[4]->getDisplayCrds(v5a, fact, displayMode);
-	theNodes[8]->getDisplayCrds(v6a, fact, displayMode);
-	theNodes[6]->getDisplayCrds(v7a, fact, displayMode);
-	theNodes[0]->getDisplayCrds(v8a, fact, displayMode);
-	theNodes[5]->getDisplayCrds(v9a, fact, displayMode);
-	theNodes[1]->getDisplayCrds(v10a, fact, displayMode);
-	theNodes[7]->getDisplayCrds(v11a, fact, displayMode);
-	theNodes[11]->getDisplayCrds(v12a, fact, displayMode);
-
-	for (int i = 0; i < 3; i++) {
-		v1(i) = end4Crd(i) + end4Disp(i)*fact;
-		v2(i) = end10Crd(i) + end10Disp(i)*fact;
-		v3(i) = end3Crd(i) + end3Disp(i)*fact;
-		v4(i) = end11Crd(i) + end11Disp(i)*fact;
-		v5(i) = end5Crd(i) + end5Disp(i)*fact;
-		v6(i) = end9Crd(i) + end9Disp(i)*fact;
-
-		v7(i) = end7Crd(i) + end7Disp(i)*fact;
-		v8(i) = end1Crd(i) + end1Disp(i)*fact;
-		v9(i) = end6Crd(i) + end6Disp(i)*fact;
-		v10(i) = end2Crd(i) + end2Disp(i)*fact;
-		v11(i) = end8Crd(i) + end8Disp(i)*fact;
-		v12(i) = end12Crd(i) + end12Disp(i)*fact;
-
-	}
-
-	// compute the strain and axial force in the member
-	double strain[6], force[6];
-
-	for (int i = 0; i < 6; i++) {
-
-		strain[i] = this->computeCurrentStrain(i);
-		theMaterial[i]->setTrialStrain(strain[i]);
-		force[i] = theMaterial[i]->getStress();
-	}
+  // first determine the two end points of the CorotTruss2 based on
+  // the display factor (a measure of the distorted image)
+  // store this information in 2 3d vectors v1 and v2
+  const Vector &end1Crd = theNodes[0]->getCrds();
+  const Vector &end2Crd = theNodes[1]->getCrds();
+  const Vector &end3Crd = theNodes[2]->getCrds();
+  const Vector &end4Crd = theNodes[3]->getCrds();
+  const Vector &end5Crd = theNodes[4]->getCrds();
+  const Vector &end6Crd = theNodes[5]->getCrds();
+  const Vector &end7Crd = theNodes[6]->getCrds();
+  const Vector &end8Crd = theNodes[7]->getCrds();
+  const Vector &end9Crd = theNodes[8]->getCrds();
+  const Vector &end10Crd = theNodes[9]->getCrds();
+  const Vector &end11Crd = theNodes[10]->getCrds();
+  const Vector &end12Crd = theNodes[11]->getCrds();
 
 
+  const Vector &end1Disp = theNodes[0]->getDisp();
+  const Vector &end2Disp = theNodes[1]->getDisp();
+  const Vector &end3Disp = theNodes[2]->getDisp();
+  const Vector &end4Disp = theNodes[3]->getDisp();
+  const Vector &end5Disp = theNodes[4]->getDisp();
+  const Vector &end6Disp = theNodes[5]->getDisp();
+  const Vector &end7Disp = theNodes[6]->getDisp();
+  const Vector &end8Disp = theNodes[7]->getDisp();
+  const Vector &end9Disp = theNodes[8]->getDisp();
+  const Vector &end10Disp = theNodes[9]->getDisp();
+  const Vector &end11Disp = theNodes[10]->getDisp();
+  const Vector &end12Disp = theNodes[11]->getDisp();
 
-	for (int i = 0; i < 3; i++) {
-		coords(0, i) = end1Crd(i) + end1Disp(i)*fact;
-		coords(1, i) = end4Crd(i) + end4Disp(i)*fact;
-		coords(2, i) = end7Crd(i) + end7Disp(i)*fact;
-		coords(3, i) = end10Crd(i) + end10Disp(i)*fact;
-	}
+  static Vector v1(3);
+  static Vector v2(3);
+  static Vector v3(3);
+  static Vector v4(3);
+  static Vector v5(3);
+  static Vector v6(3);
+  static Vector v7(3);
+  static Vector v8(3);
+  static Vector v9(3);
+  static Vector v10(3);
+  static Vector v11(3);
+  static Vector v12(3);
+  static Vector v13(3);
+  static Vector v14(3);
+
+  static Vector rgb(3);
+  static Vector values(4);
+
+  static Matrix coords(4, 3);
+
+  static Vector v1a(3);
+  static Vector v2a(3);
+  static Vector v3a(3);
+  static Vector v4a(3);
+  static Vector v5a(3);
+  static Vector v6a(3);
+  static Vector v7a(3);
+  static Vector v8a(3);
+  static Vector v9a(3);
+  static Vector v10a(3);
+  static Vector v11a(3);
+  static Vector v12a(3);
+
+  theNodes[3]->getDisplayCrds(v1a, fact, displayMode);
+  theNodes[9]->getDisplayCrds(v2a, fact, displayMode);
+  theNodes[2]->getDisplayCrds(v3a, fact, displayMode);
+  theNodes[10]->getDisplayCrds(v4a, fact, displayMode);
+  theNodes[4]->getDisplayCrds(v5a, fact, displayMode);
+  theNodes[8]->getDisplayCrds(v6a, fact, displayMode);
+  theNodes[6]->getDisplayCrds(v7a, fact, displayMode);
+  theNodes[0]->getDisplayCrds(v8a, fact, displayMode);
+  theNodes[5]->getDisplayCrds(v9a, fact, displayMode);
+  theNodes[1]->getDisplayCrds(v10a, fact, displayMode);
+  theNodes[7]->getDisplayCrds(v11a, fact, displayMode);
+  theNodes[11]->getDisplayCrds(v12a, fact, displayMode);
+
+  for (int i = 0; i < 3; i++) {
+    v1(i) = end4Crd(i) + end4Disp(i)*fact;
+    v2(i) = end10Crd(i) + end10Disp(i)*fact;
+    v3(i) = end3Crd(i) + end3Disp(i)*fact;
+    v4(i) = end11Crd(i) + end11Disp(i)*fact;
+    v5(i) = end5Crd(i) + end5Disp(i)*fact;
+    v6(i) = end9Crd(i) + end9Disp(i)*fact;
+
+    v7(i) = end7Crd(i) + end7Disp(i)*fact;
+    v8(i) = end1Crd(i) + end1Disp(i)*fact;
+    v9(i) = end6Crd(i) + end6Disp(i)*fact;
+    v10(i) = end2Crd(i) + end2Disp(i)*fact;
+    v11(i) = end8Crd(i) + end8Disp(i)*fact;
+    v12(i) = end12Crd(i) + end12Disp(i)*fact;
+
+  }
+
+  // compute the strain and axial force in the member
+  double strain[6], force[6];
+
+  for (int i = 0; i < 6; i++) {
+
+    strain[i] = this->computeCurrentStrain(i);
+    theMaterial[i]->setTrialStrain(strain[i]);
+    force[i] = theMaterial[i]->getStress();
+  }
 
 
-	if (displayMode == 2) // use the strain as the drawing measure
-	{
-		code = 0;
-		// code +=theViewer.drawLine(v1,v2,(float)strain[0],(float)strain[0],0,0,2,1);
-		code += theViewer.drawLine(v1, v2, (float)strain[0], (float)strain[0]);
-		code += theViewer.drawLine(v3, v4, (float)strain[1], (float)strain[1]);
-		code += theViewer.drawLine(v5, v6, (float)strain[2], (float)strain[2]);
-		// code +=theViewer.drawLine(v7,v8,(float)strain[3],(float)strain[3],0,0,2,1);
-		code += theViewer.drawLine(v7, v8, (float)strain[3], (float)strain[3]);
-		code += theViewer.drawLine(v9, v10, (float)strain[4], (float)strain[4]);
-		code += theViewer.drawLine(v11, v12, (float)strain[5], (float)strain[5]);
-		for (int j = 0; j<4; j++)
-			values(j) = strain[j] * 100;
-		code += theViewer.drawPolygon(coords, values);
-		return code;
-	}
-	else if (displayMode < 0)
-	{
-		code = 0;
-		code += theViewer.drawLine(v1a, v2a, 1.0, 1.0, this->getTag(), 0);
-		code += theViewer.drawLine(v3a, v4a, 1.0, 1.0, this->getTag(), 0);
-		code += theViewer.drawLine(v5a, v6a, 1.0, 1.0, this->getTag(), 0);
-		code += theViewer.drawLine(v7a, v8a, 1.0, 1.0, this->getTag(), 0);
-		code += theViewer.drawLine(v9a, v10a, 1.0, 1.0, this->getTag(), 0);
-		code += theViewer.drawLine(v11a, v12a, 1.0, 1.0, this->getTag(), 0);
-		for (int j = 0; j<4; j++)
-			values(j) = force[j];
-		code += theViewer.drawPolygon(coords, values);
-		return code;
 
-	}
+  for (int i = 0; i < 3; i++) {
+    coords(0, i) = end1Crd(i) + end1Disp(i)*fact;
+    coords(1, i) = end4Crd(i) + end4Disp(i)*fact;
+    coords(2, i) = end7Crd(i) + end7Disp(i)*fact;
+    coords(3, i) = end10Crd(i) + end10Disp(i)*fact;
+  }
 
 
-	else { // otherwise use the axial force as measure
-		code = 0;
-		// code +=theViewer.drawLine(v1,v2,(float)force[0],(float)force[0],0,0,2,1);
-		code += theViewer.drawLine(v1, v2, (float)force[0], (float)force[0]);
-		code += theViewer.drawLine(v3, v4, (float)force[1], (float)force[1]);
-		code += theViewer.drawLine(v5, v6, (float)force[2], (float)force[2]);
-		code += theViewer.drawLine(v7, v8, (float)force[3], (float)force[3]);
-		// code += theViewer.drawLine(v7, v8, (float)force[3], (float)force[3], 0, 0, 2, 1);
-		code += theViewer.drawLine(v9, v10, (float)force[4], (float)force[4]);
-		code += theViewer.drawLine(v11, v12, (float)force[5], (float)force[5]);
-		//  	      code +=theViewer.drawLine(v13,v14,(float)force[6],(float)force[6]);
-		for (int j = 0; j<4; j++)
-			values(j) = force[j];
-		code += theViewer.drawPolygon(coords, values);
-		return code;
-	}
+  if (displayMode == 2) // use the strain as the drawing measure
+  {
+    code = 0;
+    // code +=theViewer.drawLine(v1,v2,(float)strain[0],(float)strain[0],0,0,2,1);
+    code += theViewer.drawLine(v1, v2, (float)strain[0], (float)strain[0]);
+    code += theViewer.drawLine(v3, v4, (float)strain[1], (float)strain[1]);
+    code += theViewer.drawLine(v5, v6, (float)strain[2], (float)strain[2]);
+    // code +=theViewer.drawLine(v7,v8,(float)strain[3],(float)strain[3],0,0,2,1);
+    code += theViewer.drawLine(v7, v8, (float)strain[3], (float)strain[3]);
+    code += theViewer.drawLine(v9, v10, (float)strain[4], (float)strain[4]);
+    code += theViewer.drawLine(v11, v12, (float)strain[5], (float)strain[5]);
+    for (int j = 0; j<4; j++)
+      values(j) = strain[j] * 100;
+    code += theViewer.drawPolygon(coords, values);
+    return code;
+  }
+  else if (displayMode < 0)
+  {
+    code = 0;
+    code += theViewer.drawLine(v1a, v2a, 1.0, 1.0, this->getTag(), 0);
+    code += theViewer.drawLine(v3a, v4a, 1.0, 1.0, this->getTag(), 0);
+    code += theViewer.drawLine(v5a, v6a, 1.0, 1.0, this->getTag(), 0);
+    code += theViewer.drawLine(v7a, v8a, 1.0, 1.0, this->getTag(), 0);
+    code += theViewer.drawLine(v9a, v10a, 1.0, 1.0, this->getTag(), 0);
+    code += theViewer.drawLine(v11a, v12a, 1.0, 1.0, this->getTag(), 0);
+    for (int j = 0; j<4; j++)
+      values(j) = force[j];
+    code += theViewer.drawPolygon(coords, values);
+    return code;
 
-	return 0;
+  }
+
+
+  else { // otherwise use the axial force as measure
+    code = 0;
+    // code +=theViewer.drawLine(v1,v2,(float)force[0],(float)force[0],0,0,2,1);
+    code += theViewer.drawLine(v1, v2, (float)force[0], (float)force[0]);
+    code += theViewer.drawLine(v3, v4, (float)force[1], (float)force[1]);
+    code += theViewer.drawLine(v5, v6, (float)force[2], (float)force[2]);
+    code += theViewer.drawLine(v7, v8, (float)force[3], (float)force[3]);
+    // code += theViewer.drawLine(v7, v8, (float)force[3], (float)force[3], 0, 0, 2, 1);
+    code += theViewer.drawLine(v9, v10, (float)force[4], (float)force[4]);
+    code += theViewer.drawLine(v11, v12, (float)force[5], (float)force[5]);
+    //          code +=theViewer.drawLine(v13,v14,(float)force[6],(float)force[6]);
+    for (int j = 0; j<4; j++)
+      values(j) = force[j];
+    code += theViewer.drawPolygon(coords, values);
+    return code;
+  }
+
+  return 0;
 }
 
 
