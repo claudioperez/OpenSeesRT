@@ -94,11 +94,12 @@ class FE_Element: public TaggedObject
     virtual void addD_ForceSensitivity       (int gradNumber, const Vector &vect, double fact = 1.0);
     virtual int  commitSensitivity           (int gradNum, int numGrads);
     // AddingSensitivity:END //////////////////////////////////////
-    
+   
+#if 0
     void activate();
     void deactivate();
     bool isActive();
-
+#endif
   protected:
     void  addLocalM_Force(const Vector &accel, double fact = 1.0);
     void  addLocalD_Force(const Vector &vel, double fact = 1.0);

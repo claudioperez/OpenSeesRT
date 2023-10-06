@@ -150,7 +150,7 @@ class Domain
     // methods to query the state of the domain
     virtual double  getCurrentTime(void) const;
     virtual int getCreep(void) const;
-    virtual int     getCommitTag(void) const;    	
+    virtual int getCommitTag(void) const;    	
     virtual int getNumElements(void) const;
     virtual int getNumNodes(void) const;
     virtual int getNumSPs(void) const;
@@ -167,10 +167,10 @@ class Domain
     virtual  Graph  &getNodeGraph(void);
     virtual  void   clearElementGraph(void);
     virtual  void   clearNodeGraph(void);
-    
+
     // methods to update the domain
     virtual  void setCommitTag(int newTag);    	
-    virtual  void setCurrentTime(double newTime);    
+    virtual  void setCurrentTime(double newTime);
     virtual  void setCommittedTime(double newTime);
     virtual void setCreep(int newCreep);
     virtual  void applyLoad(double pseudoTime);
@@ -203,8 +203,8 @@ class Domain
     
     // methods for other objects to determine if model has changed
     virtual int hasDomainChanged(void);
-    virtual bool getDomainChangeFlag(void);    
-    virtual void domainChange(void);    
+    virtual bool getDomainChangeFlag(void);
+    virtual void domainChange(void);
     virtual void setDomainChangeStamp(int newStamp);
 
 
@@ -232,11 +232,13 @@ class Domain
     virtual int setMass(const Matrix &mass, int nodeTag);
 
     virtual int calculateNodalReactions(int flag);
-	Recorder* getRecorder(int tag);	//by SAJalali
+    
+    Recorder* getRecorder(int tag);
 
+#if 0
     virtual int activateElements(const ID& elementList);
     virtual int deactivateElements(const ID& elementList);
-
+#endif
   protected:    
 
     virtual int buildEleGraph(Graph *theEleGraph);
@@ -251,7 +253,7 @@ class Domain
     double dT;                        // difference between committed and current time
     int	   currentGeoTag;             // an integer used to mark if domain has changed
     bool   hasDomainChangedFlag;      // a bool flag used to indicate if GeoTag needs to be ++
-    int    theDbTag;                   // the Domains unique database tag == 0
+    int    theDbTag;                  // the Domains unique database tag == 0
     int    lastGeoSendTag;            // the value of currentGeoTag when sendSelf was last invoked
     int dbEle, dbNod, dbSPs, dbPCs, dbMPs, dbLPs, dbParam; // database tags for storing info
 
@@ -284,7 +286,7 @@ class Domain
     int commitTag;
     
     Vector theBounds;
-    bool initBounds; // added to fix bug when all nodes are positive or negative - ambaker1
+    bool initBounds;  // added to fix bug when all nodes are positive or negative - ambaker1
     bool resetBounds; // added to optimize bound resetting for when nodes are removed.
     
     Vector *theEigenvalues;

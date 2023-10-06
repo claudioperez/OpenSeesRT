@@ -3577,7 +3577,7 @@ Domain::getRecorder(int tag)
 
 
 
-
+#if 0
 int Domain::activateElements(const ID& elementList)
 {
     Element* theElement;
@@ -3608,3 +3608,4 @@ int Domain::deactivateElements(const ID& elementList)
     }
     return 0;
 }
+#endif

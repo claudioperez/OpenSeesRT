@@ -53,8 +53,8 @@ int  Element::numMatrices(0);
 Element::Element(int tag, int cTag) 
   :DomainComponent(tag, cTag), alphaM(0.0), 
   betaK(0.0), betaK0(0.0), betaKc(0.0), 
-      Kc(0), previousK(0), numPreviousK(0), index(-1), nodeIndex(-1),
-      is_this_element_active(true)
+      Kc(0), previousK(0), numPreviousK(0), index(-1), nodeIndex(-1)
+      /* is_this_element_active(true) */
 {
   // does nothing
   ops_TheActiveElement = this;
@@ -753,6 +753,7 @@ Element::getGeometricTangentStiff()
     return *theMatrix;
 }
 
+#if 0
 void Element::activate()
 {
     // opserr << "Activating element # " << this->getTag() << endln;
@@ -766,7 +767,6 @@ void Element::deactivate()
     is_this_element_active = false;
     this->onDeactivate();
 }
-
 
 void Element::onActivate()
 {
@@ -801,3 +801,4 @@ bool  Element::isActive()
     // }
     return is_this_element_active;
 }
+#endif
