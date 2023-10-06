@@ -87,7 +87,7 @@ ActorSubdomain::run(void)
 
       bool change;
       int theType, theOtherType, tag, dbTag, loadPatternTag;
-      int endTag, axisDirn, numSP, i, numMode, dof;
+      int endTag, axisDirn, numSP, numMode, dof;
       Element *theEle;
       Node *theNod;
       SP_Constraint *theSP;
