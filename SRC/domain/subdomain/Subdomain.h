@@ -17,26 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.13 $
-// $Date: 2009-08-26 20:33:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/subdomain/Subdomain.h,v $
-                                                                        
-                                                                        
-#ifndef Subdomain_h
-#define Subdomain_h
-
-// Written: fmk 
-// Created:  11/96
-// Revision: A
-// Revision: B 03/98 - revised to allow parallel model generation
 //
 // Description: This file contains the class definition for Subdomain.
 // Subdomain is a container class. The class is responsible for holding
 // and providing access to the Elements, Nodes, LoadCases, SP_Constraints 
 // and MP_Constraints that have been added to the subdomain.
 //
-// What: "@(#) Subdomain.h, revA"
+// Written: fmk 
+// Created:  11/96
+// Revision: A
+// Revision: B 03/98 - revised to allow parallel model generation
+//
+#ifndef Subdomain_h
+#define Subdomain_h
 
 #include <Domain.h>
 #include <Element.h>
