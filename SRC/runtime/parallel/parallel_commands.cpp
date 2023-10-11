@@ -138,7 +138,7 @@ partitionModel(int eleTag)
   }
 
   // create a partitioner & partition the domain
-  if (OPS_DOMAIN_PARTITIONER == 0) {
+  if (OPS_DOMAIN_PARTITIONER == nullptr) {
     //      OPS_BALANCER = new ShedHeaviest();
     OPS_GRAPH_PARTITIONER = new Metis;
     // OPS_DOMAIN_PARTITIONER = new DomainPartitioner(*OPS_GRAPH_PARTITIONER,

@@ -59,15 +59,9 @@ const Matrix &
 LagrangeDOF_Group::getTangent(Integrator *theIntegrator)
 {
     // does nothing - the Lagrange FE_Elements provide coeffs to tangent
-    if (tangent == 0) {
+    if (tangent == nullptr) {
 	int numDOF = this->getNumDOF();
 	tangent = new Matrix(numDOF,numDOF);
-	
-	if (tangent == 0) {
-	    opserr << "FATAL LagrangeDOF_Group::getTangent() ";
-	    opserr << " ranout of memory\n";
-	    exit(-1);
-	}
     }
     
     tangent->Zero();
@@ -226,5 +220,4 @@ LagrangeDOF_Group::getM_Force(const Vector &disp, double fact)
   unbalance->Zero();
   return *unbalance;
 }
-
 

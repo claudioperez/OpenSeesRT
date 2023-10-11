@@ -265,8 +265,9 @@ static int
 TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
                   TCL_Char ** const argv, Domain &theDomain, Recorder **theRecorder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
+  assert(clientData != nullptr);
   Domain* domain = (Domain*)clientData;
+  G3_Runtime *rt = G3_getRuntime(interp);
   (*theRecorder) = nullptr;
 
   // make sure at least one other argument to contain integrator
