@@ -17,19 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/IncrementalIntegrator.cpp,v $
-                                                                        
+//
+// Description: This file contains the implementation of IncrementalIntegrator.
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
-// Description: This file contains the implementation of IncrementalIntegrator.
-//
-// What: "@(#) IncrementalIntegrator.C, revA"
-
 #include <IncrementalIntegrator.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
@@ -87,7 +81,7 @@ IncrementalIntegrator::formTangent(int statFlag)
     int result = 0;
     statusFlag = statFlag;
 
-    if (theAnalysisModel == 0 || theSOE == 0) {
+    if (theAnalysisModel == nullptr || theSOE == nullptr) {
 	opserr << "WARNING IncrementalIntegrator::formTangent() -";
 	opserr << " no AnalysisModel or LinearSOE have been set\n";
 	return -1;
@@ -102,7 +96,7 @@ IncrementalIntegrator::formTangent(int statFlag)
     // loop through the FE_Elements adding their contributions to the tangent
     FE_Element *elePtr;
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
-    while((elePtr = theEles2()) != 0)     
+    while((elePtr = theEles2()) != nullptr)
 	if (theSOE->addA(elePtr->getTangent(this), elePtr->getID()) < 0) {
 	    opserr << "WARNING IncrementalIntegrator::formTangent -";
 	    opserr << " failed in addA for ID " << elePtr->getID();	    
