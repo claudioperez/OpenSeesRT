@@ -436,7 +436,8 @@
 #include "DistributedDisplacementControl.h"
 #endif
 #include "LoadControl.h"
-#include "StagedLoadControl.h"
+// #include "StagedLoadControl.h"
+// #include "StagedNewmark.h"
 
 #include "TransientIntegrator.h"
 #include "AlphaOS.h"
@@ -467,7 +468,6 @@
 #include "KRAlphaExplicit.h"
 #include "KRAlphaExplicit_TP.h"
 #include "Newmark.h"
-#include "StagedNewmark.h"
 #include "NewmarkExplicit.h"
 #include "NewmarkHSFixedNumIter.h"
 #include "NewmarkHSIncrLimit.h"
@@ -2087,10 +2087,10 @@ FEM_ObjectBrokerAllClasses::getNewStaticIntegrator(int classTag)
     switch(classTag) {
 	case INTEGRATOR_TAGS_LoadControl:  
 	     return new LoadControl(1.0,1,1.0,.10); // must recvSelf
-
+#if 0
     case INTEGRATOR_TAGS_StagedLoadControl:
         return new StagedLoadControl(1.0, 1, 1.0, .10); // must recvSelf
-
+#endif
 #ifdef _PARALLEL_PROCESSING
 	case INTEGRATOR_TAGS_DistributedDisplacementControl:  
 	     return new DistributedDisplacementControl(); // must recvSelf
@@ -2197,10 +2197,10 @@ FEM_ObjectBrokerAllClasses::getNewTransientIntegrator(int classTag)
 
     case INTEGRATOR_TAGS_Newmark:  
 	     return new Newmark();
-
+#if 0
         case INTEGRATOR_TAGS_StagedNewmark:
         return new StagedNewmark();
-
+#endif
     case INTEGRATOR_TAGS_NewmarkExplicit:  
 	     return new NewmarkExplicit();
 

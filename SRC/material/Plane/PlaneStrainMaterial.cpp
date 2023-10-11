@@ -28,12 +28,14 @@
 // Generic Plane Strain Material
 //
 
-
+#include <Vector.h>
+#include <VectorND.h>
 #include <PlaneStrainMaterial.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <MaterialResponse.h>   //Antonios Vytiniotis used for the recorder
 #include <elementAPI.h>
+using namespace OpenSees;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_PlaneStrain)
 {
@@ -182,20 +184,21 @@ PlaneStrainMaterial::setTrialStrain( const Vector &strainFromElement )
   this->strain(1) = strainFromElement(1) ;
   this->strain(2) = strainFromElement(2) ;
 
-  static Vector threeDstrain(6) ;
+//static Vector threeDstrain(6) ;
+  VectorND<6> threeDstrain;
 
-    //set three dimensional strain
-    threeDstrain(0) = this->strain(0) ;
-    threeDstrain(1) = this->strain(1) ;
-    threeDstrain(2) = 0.0 ;
-    threeDstrain(3) = this->strain(2) ; 
-    threeDstrain(4) = 0.0 ;
-    threeDstrain(5) = 0.0 ;
+  //set three dimensional strain
+  threeDstrain[0] = this->strain(0) ;
+  threeDstrain[1] = this->strain(1) ;
+  threeDstrain[2] = 0.0 ;
+  threeDstrain[3] = this->strain(2) ;
+  threeDstrain[4] = 0.0 ;
+  threeDstrain[5] = 0.0 ;
 
-    if (theMaterial->setTrialStrain( threeDstrain ) < 0) {
-      opserr << "PlaneStrainMaterial::setTrialStrain() - setTrialStrain in material failed with strain " << threeDstrain;
-      return -1;
-    }
+  if (theMaterial->setTrialStrain( threeDstrain ) < 0) {
+    opserr << "PlaneStrainMaterial::setTrialStrain() - setTrialStrain in material failed with strain " ; // << threeDstrain;
+    return -1;
+  }
 
   return 0;
 }
@@ -228,22 +231,21 @@ PlaneStrainMaterial::getStress( )
 const Matrix&  
 PlaneStrainMaterial::getTangent( )
 {
-  static Matrix dd11(3,3) ;
 
-  static Matrix threeDtangentCopy(6,6);
+//static Matrix threeDtangentCopy(6,6);
 
   //three dimensional tangent 
   const Matrix &threeDtangent = theMaterial->getTangent( ) ;
 
-  tangent(0,0)=threeDtangent(0,0);
-  tangent(1,0)=threeDtangent(1,0);
-  tangent(2,0)=threeDtangent(3,0);
-  tangent(0,1)=threeDtangent(0,1);
-  tangent(1,1)=threeDtangent(1,1);
-  tangent(2,1)=threeDtangent(3,1);
-  tangent(0,2)=threeDtangent(0,3);
-  tangent(1,2)=threeDtangent(1,3);
-  tangent(2,2)=threeDtangent(3,3);
+  tangent(0,0) = threeDtangent(0,0);
+  tangent(1,0) = threeDtangent(1,0);
+  tangent(2,0) = threeDtangent(3,0);
+  tangent(0,1) = threeDtangent(0,1);
+  tangent(1,1) = threeDtangent(1,1);
+  tangent(2,1) = threeDtangent(3,1);
+  tangent(0,2) = threeDtangent(0,3);
+  tangent(1,2) = threeDtangent(1,3);
+  tangent(2,2) = threeDtangent(3,3);
 
   return this->tangent ;
 }
@@ -251,40 +253,48 @@ PlaneStrainMaterial::getTangent( )
 // AV not sure if it actually works
 //send back the tangent 
 const Matrix&  
-PlaneStrainMaterial::getInitialTangent
-( )
+PlaneStrainMaterial::getInitialTangent( )
 {
-  static Matrix dd11(3,3) ;
+//static Matrix dd11(3,3) ;
 
-  static Matrix threeDtangentCopy(6,6);
+//static Matrix threeDtangentCopy(6,6);
 
   //three dimensional tangent 
   const Matrix &threeDtangent = theMaterial->getInitialTangent( ) ;
 
-  tangent(0,0)=threeDtangent(0,0);
-  tangent(1,0)=threeDtangent(1,0);
-  tangent(2,0)=threeDtangent(3,0);
-  tangent(0,1)=threeDtangent(0,1);
-  tangent(1,1)=threeDtangent(1,1);
-  tangent(2,1)=threeDtangent(3,1);
-  tangent(0,2)=threeDtangent(0,3);
-  tangent(1,2)=threeDtangent(1,3);
-  tangent(2,2)=threeDtangent(3,3);
+  tangent(0,0) = threeDtangent(0,0);
+  tangent(1,0) = threeDtangent(1,0);
+  tangent(2,0) = threeDtangent(3,0);
+  tangent(0,1) = threeDtangent(0,1);
+  tangent(1,1) = threeDtangent(1,1);
+  tangent(2,1) = threeDtangent(3,1);
+  tangent(0,2) = threeDtangent(0,3);
+  tangent(1,2) = threeDtangent(1,3);
+  tangent(2,2) = threeDtangent(3,3);
 
   return this->tangent ;
 }
 // End of un-known part
 
 
-//print out data
+// print out data
 void  
-PlaneStrainMaterial::Print( OPS_Stream &s, int flag )
+PlaneStrainMaterial::Print(OPS_Stream &s, int flag)
 {
-  s << "General Plane Strain Material \n" ;
-  s << " Tag: " << this->getTag() << "\n" ; 
-  s << "using the 3D material : \n" ;
+  if (flag ==  OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"type\": \"PlaneStrainMaterial\", ";
+    s << "\"material\": \"" << theMaterial->getTag() << "\"";
+    s << "}";
 
-  theMaterial->Print( s, flag ) ;
+  } else if (flag == OPS_PRINT_PRINTMODEL_MATERIAL) {
+    s << "General Plane Strain Material \n" ;
+    s << " Tag: " << this->getTag() << "\n" ; 
+    s << "using the 3D material : \n" ;
+
+    theMaterial->Print( s, flag ) ;
+  }
 
   return ;
 }
