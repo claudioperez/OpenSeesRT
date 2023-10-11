@@ -17,23 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-09-23 22:49:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/ID.h,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the class definition for ID.
 // ID is a concrete class implementing the integer array abstraction.
 // ID objects are Vectors of integers which only need a few
 // operators defined on them.
 //
-// What: "@(#) ID.h, revA"
-
-
+// Written: fmk 
+// Revision: A
+//
 #ifndef ID_h
 #define ID_h
 
@@ -110,7 +102,6 @@ ID::operator()(int x)
   }
 #endif
 
-  
   return data[x];
 }
 

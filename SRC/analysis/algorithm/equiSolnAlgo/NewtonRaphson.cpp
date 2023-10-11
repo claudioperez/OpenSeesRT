@@ -147,6 +147,7 @@ NewtonRaphson::solveCurrentStep(void)
     }
 
     int result = ConvergenceTest::Continue;
+
     numIterations = 0;
 
     do {
@@ -159,17 +160,17 @@ NewtonRaphson::solveCurrentStep(void)
             return SolutionAlgorithm::BadFormTangent;
 
         } else {
-
           SOLUTION_ALGORITHM_tangentFlag = CURRENT_TANGENT;
           if (theIntegrator->formTangent(CURRENT_TANGENT) < 0)
             return SolutionAlgorithm::BadFormTangent;
 
         }
+
       } else {
         
         SOLUTION_ALGORITHM_tangentFlag = tangent;
         if (theIntegrator->formTangent(tangent, iFactor, cFactor) < 0)
-            return SolutionAlgorithm::BadFormTangent;
+          return SolutionAlgorithm::BadFormTangent;
 
       } 
 
