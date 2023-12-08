@@ -17,11 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.0 $
-// $Date: 2015-11-12 $
+//
 // Save all data into paraview format
-
+//
 #include "VTK_Recorder.h"
 #include <sstream>
 #include <elementAPI.h>
@@ -48,7 +46,7 @@
 #endif
 
 
-OutputData::OutputData()
+VTK_Recorder::OutputData::OutputData()
 {
     disp = false;
     disp2 = false;
@@ -69,8 +67,9 @@ OutputData::OutputData()
       modes[i] = 0;
     }
 }
-OutputData &
-OutputData::operator=(const OutputData &other) 
+
+VTK_Recorder::OutputData &
+VTK_Recorder::OutputData::operator=(const VTK_Recorder::OutputData &other) 
 {
   // first check we are not trying v = v
   if (this != &other) {
@@ -113,7 +112,7 @@ OPS_ADD_RUNTIME_VPV(OPS_VTK_Recorder)
     numdata = OPS_GetNumRemainingInputArgs();
     int indent=2;
     int precision = 10;
-    OutputData outputData;
+    VTK_Recorder::OutputData outputData;
     std::vector<VTK_Recorder::EleData> eledata;
     double dT = 0.0;
 
@@ -987,6 +986,8 @@ VTK_Recorder::setVTKType()
     if (vtktypes.empty() == false) {
 	return;
     }
+    // TODO: Make this into literal at file level.
+
     //    vtktypes[ELE_TAG_Subdomain] = VTK_POLY_VERTEX;
     vtktypes[ELEMENT_TAGS_WrapperElement] = VTK_POLY_VERTEX;
     vtktypes[ELE_TAG_ElasticBeam2d] = VTK_LINE;

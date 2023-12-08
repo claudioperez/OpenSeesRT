@@ -40,37 +40,34 @@
 class Node;
 class Element;
 
-class OutputData {
-
- public:
-  OutputData();
-  OutputData &operator=(const OutputData &other);
-
-  bool disp,
-    disp2,
-    disp3,
-    vel,
-    vel2,
-    vel3,
-    accel,
-    accel2,
-    accel3,
-    reaction,
-    reaction2,
-    reaction3,
-    mass,
-    unbalancedLoad;
-  int modes[10];
-};
-
 
 class VTK_Recorder: public Recorder
 {
 public:
-  OutputData outputData;
+  struct OutputData {
+      OutputData();
+      OutputData &operator=(const OutputData &other);
+
+      bool disp,
+        disp2,
+        disp3,
+        vel,
+        vel2,
+        vel3,
+        accel,
+        accel2,
+        accel3,
+        reaction,
+        reaction2,
+        reaction3,
+        mass,
+        unbalancedLoad;
+      int modes[10];
+  } outputData;
+
+
   typedef std::vector<std::string> EleData;
     
-public:
   VTK_Recorder(const char *filename, const OutputData& ndata,
 	       const std::vector<EleData>& edata, int ind=2, int pre=10, double dt=0);
   VTK_Recorder();
