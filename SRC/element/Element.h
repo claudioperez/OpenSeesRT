@@ -111,7 +111,7 @@ class Element : public DomainComponent
 
     virtual int storePreviousK(int numK);
     virtual const Matrix *getPreviousK(int num);
-
+#if 0
     virtual void onActivate();
     virtual void onDeactivate();
 
@@ -119,7 +119,7 @@ class Element : public DomainComponent
     void deactivate();
 
     bool isActive();
-
+#endif
 
 
 protected:
