@@ -163,7 +163,6 @@ NewtonRaphson::solveCurrentStep(void)
           SOLUTION_ALGORITHM_tangentFlag = CURRENT_TANGENT;
           if (theIntegrator->formTangent(CURRENT_TANGENT) < 0)
             return SolutionAlgorithm::BadFormTangent;
-
         }
 
       } else {
@@ -191,7 +190,6 @@ NewtonRaphson::solveCurrentStep(void)
 
     if (result == ConvergenceTest::Failure)
       return SolutionAlgorithm::TestFailed;
-
 
     // if postive result, we are returning what the convergence test
     // returned which should be the number of iterations  
