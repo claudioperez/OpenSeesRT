@@ -148,8 +148,7 @@ LagrangeConstraintHandler::handle(const ID *nodesLast)
       } else {
 
 	// just a regular element .. create an FE_Element for it & add to AnalysisModel
-	fePtr = new FE_Element(numFeEle++, elePtr);
-	
+	fePtr = new FE_Element(numFeEle++, elePtr);	
 	theModel->addFE_Element(fePtr);
       }
     }
@@ -228,7 +227,7 @@ LagrangeConstraintHandler::clearAll(void)
 {
     // for the nodes reset the DOF_Group pointers to 0
     Domain *theDomain = this->getDomainPtr();
-    if (theDomain == 0)
+    if (theDomain == nullptr)
 	return;
 
     NodeIter &theNod = theDomain->getNodes();
