@@ -841,93 +841,78 @@ void ShellMITC9::formInertiaTerms(int tangFlag)
 //*********************************************************************
 
 // form residual and tangent
+//
+//  six(6) nodal dof's ordered :
+//
+//    -        -
+//   |    u1    |   <---plate membrane
+//   |    u2    |
+//   |----------|
+//   |  w = u3  |   <---plate bending
+//   |  theta1  |
+//   |  theta2  |
+//   |----------|
+//   |  theta3  |   <---drill
+//    -        -
+//
+// membrane strains ordered :
+//
+//            strain(0) =   eps00     i.e.   (11)-strain
+//            strain(1) =   eps11     i.e.   (22)-strain
+//            strain(2) =   gamma01   i.e.   (12)-shear
+//
+// curvatures and shear strains ordered  :
+//
+//            strain(3) =     kappa00  i.e.   (11)-curvature
+//            strain(4) =     kappa11  i.e.   (22)-curvature
+//            strain(5) =   2*kappa01  i.e. 2*(12)-curvature
+//
+//            strain(6) =     gamma02  i.e.   (13)-shear
+//            strain(7) =     gamma12  i.e.   (23)-shear
+//
+//  same ordering for moments/shears but no 2
+//
+//  Then,
+//              epsilon00 = -z * kappa00      +    eps00_membrane
+//              epsilon11 = -z * kappa11      +    eps11_membrane
+//  gamma01 = 2*epsilon01 = -z * (2*kappa01)  +  gamma01_membrane
+//
+//  Shear strains gamma02, gamma12 constant through cross section
+//
 void ShellMITC9::formResidAndTangent(int tang_flag)
 {
-  //
-  //  six(6) nodal dof's ordered :
-  //
-  //    -        -
-  //   |    u1    |   <---plate membrane
-  //   |    u2    |
-  //   |----------|
-  //   |  w = u3  |   <---plate bending
-  //   |  theta1  |
-  //   |  theta2  |
-  //   |----------|
-  //   |  theta3  |   <---drill
-  //    -        -
-  //
-  // membrane strains ordered :
-  //
-  //            strain(0) =   eps00     i.e.   (11)-strain
-  //            strain(1) =   eps11     i.e.   (22)-strain
-  //            strain(2) =   gamma01   i.e.   (12)-shear
-  //
-  // curvatures and shear strains ordered  :
-  //
-  //            strain(3) =     kappa00  i.e.   (11)-curvature
-  //            strain(4) =     kappa11  i.e.   (22)-curvature
-  //            strain(5) =   2*kappa01  i.e. 2*(12)-curvature
-  //
-  //            strain(6) =     gamma02  i.e.   (13)-shear
-  //            strain(7) =     gamma12  i.e.   (23)-shear
-  //
-  //  same ordering for moments/shears but no 2
-  //
-  //  Then,
-  //              epsilon00 = -z * kappa00      +    eps00_membrane
-  //              epsilon11 = -z * kappa11      +    eps11_membrane
-  //  gamma01 = 2*epsilon01 = -z * (2*kappa01)  +  gamma01_membrane
-  //
-  //  Shear strains gamma02, gamma12 constant through cross section
-  //
 
   int i, j, k, p, q;
   int jj, kk;
-  int node;
-
   int success;
-
   double volume = 0.0;
+  double xsj; // determinant jacaobian matrix
 
-  static double xsj; // determinant jacaobian matrix
-  static double dvol[ngauss]; // volume element
-
-  static Vector strain(nstress); // strain
-
-  static double shp[3][numnodes]; // shape functions at a gauss point
+  OPS_STATIC double dvol[ngauss]; // volume element
+  OPS_STATIC double shp[3][numnodes]; // shape functions at a gauss point
                                   //
   static Vector residJ(ndf); // nodeJ residual
   static Matrix stiffJK(ndf, ndf); // nodeJK stiffness
-  static Vector stress(nstress); // stress resultants
+  OPS_STATIC Vector strain(nstress); // strain
+  OPS_STATIC Vector stress(nstress); // stress resultants
   static Matrix dd(nstress, nstress); // material tangent
 
   double epsDrill = 0.0; // drilling "strain"
-
   double tauDrill = 0.0; // drilling "stress"
 
   //---------B-matrices------------------------------------
-
-  static Matrix BJ(nstress, ndf); // B matrix node J
-
+  static Matrix BJ(nstress, ndf);      // B matrix node J
   static Matrix BJtran(ndf, nstress);
-
-  static Matrix BK(nstress, ndf); // B matrix node k
-
+  static Matrix BK(nstress, ndf);      // B matrix node k
   static Matrix BJtranD(ndf, nstress);
-
-  static Matrix Bbend(3, 3); // bending B matrix
-
-  static Matrix Bshear(2, 3); // shear B matrix
-
-  static Matrix Bmembrane(3, 2); // membrane B matrix
-
-  static double BdrillJ[ndf]; // drill B matrix
-
+  static Matrix Bbend(3, 3);           // bending B matrix
+  static Matrix Bshear(2, 3);          // shear B matrix
+  static Matrix Bmembrane(3, 2);       // membrane B matrix
+  static double BdrillJ[ndf];          // drill B matrix
   static double BdrillK[ndf];
+  //-------------------------------------------------------
 
   double *drillPointer;
-
   static double saveB[nstress][ndf][numnodes];
 
   //-------------------------------------------------------
@@ -955,7 +940,7 @@ void ShellMITC9::formResidAndTangent(int tang_flag)
     epsDrill = 0.0;
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       // compute B matrix
 

@@ -17,52 +17,47 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
+                                                                        
+// $Revision: 1.1.1.1 $
+// $Date: 2000-09-15 08:23:30 $
+// $Source: /usr/local/cvs/OpenSees/SRC/tagged/storage/VectorOfTaggedObjectsIter.h,v $
+                                                                        
+// File: ~/tagged/storage/ArrayComponentIter
 //
-// Description: This file contains global variables used in OpenSees files.
-// if you change some of the variables, you must recompile ALL the code.
+// Written: fmk 
+// Created: Fri Sep 20 15:27:47: 1996
+// Revision: A
 //
-// Written: fmk
-// Created: 11/99
+// Description: This file contains the class definition for 
+// VectorOfTaggedObjectsIter. A VectorOfTaggedObjectsIter is an iter for 
+// returning the TaggedObjects of a storage objects of type 
+// VectorOfTaggedComponents.
 //
-#ifndef _OPS_Globals_h
-#define _OPS_Globals_h
+#ifndef VectorOfTaggedObjectsIter_h
+#define VectorOfTaggedObjectsIter_h
 
-#define _USING_OpenSees_STREAMS
-#include <OPS_Stream.h>
-extern OPS_Stream *opserrPtr;
-#define opserr (*opserrPtr)
-#define endln "\n"
+#include <TaggedObjectIter.h>
+#include <map>
 
-#include <string.h>
-// #include <stdlib.h>
-#define OPS_STATIC
+class VectorOfTaggedObjects;
 
-#ifdef _TCL85
-#define TCL_Char const char
-#elif _TCL84
-#define TCL_Char const char
-#else
-#define TCL_Char char
+class VectorOfTaggedObjectsIter: public TaggedObjectIter
+{
+  public:
+    VectorOfTaggedObjectsIter(VectorOfTaggedObjects &theComponents);
+    virtual ~VectorOfTaggedObjectsIter();
+    
+    virtual void reset(void);
+    virtual TaggedObject *operator()(void);
+    
+  private:
+    std::map<int, TaggedObject *> *theMap;
+    std::map<int, TaggedObject *>::iterator currentComponent;
+};
+
 #endif
 
-class Domain;
-class Element;
 
-extern double   ops_Dt;                // current delta T for current domain doing an update
-extern int ops_Creep;
-extern Domain  *ops_TheActiveDomain;   // current domain undergoing an update
-extern Element *ops_TheActiveElement;  // current element undergoing an update
 
-// global variable for initial state analysis
-// added: Chris McGann, University of Washington
-extern bool  ops_InitialStateAnalysis;
 
-#define OPS_PRINT_CURRENTSTATE 0
-#define OPS_PRINT_PRINTMODEL_SECTION  1
-#define OPS_PRINT_PRINTMODEL_MATERIAL 2
-#define OPS_PRINT_PRINTMODEL_JSON   25000
 
-#define OPS_PRINT_JSON_ELEM_INDENT "      "
-#define OPS_PRINT_JSON_NODE_INDENT "      "
-
-#endif

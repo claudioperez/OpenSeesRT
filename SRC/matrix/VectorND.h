@@ -72,6 +72,63 @@ struct VectorND {
   }
 
   int
+  addVector(T thisFact, Vector &other, T otherFact) {
+    if (otherFact == 0.0 && thisFact == 1.0)
+      return 0; 
+
+    else if (thisFact == 1.0) {
+      // want: this += other * otherFact
+      double *dataPtr = values;
+      double *otherDataPtr = other.theData;
+      if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
+        for (int i=0; i<N; i++) 
+          *dataPtr++ += *otherDataPtr++;
+      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+        for (int i=0; i<N; i++) 
+          *dataPtr++ -= *otherDataPtr++;
+      } else 
+        for (int i=0; i<N; i++) 
+          *dataPtr++ += *otherDataPtr++ * otherFact;
+
+    } else if (thisFact == 0.0) {
+        // want: this = other * otherFact
+        double *dataPtr = values;
+        double *otherDataPtr = other.theData;
+        if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
+          for (int i=0; i<N; i++) 
+            *dataPtr++ = *otherDataPtr++;
+        } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+          for (int i=0; i<N; i++) 
+            *dataPtr++ = -(*otherDataPtr++);
+        } else 
+          for (int i=0; i<N; i++) 
+            *dataPtr++ = *otherDataPtr++ * otherFact;
+    } else {
+      // want: this = this * thisFact + other * otherFact
+      double *dataPtr = values;
+      double *otherDataPtr = other.theData;
+      if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
+        for (int i=0; i<N; i++) {
+          double value = *dataPtr * thisFact + *otherDataPtr++;
+          *dataPtr++ = value;
+        }
+      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+        for (int i=0; i<N; i++) {
+          double value = *dataPtr * thisFact - *otherDataPtr++;
+          *dataPtr++ = value;
+        }
+      } else 
+        for (int i=0; i<N; i++) {
+          double value = *dataPtr * thisFact + *otherDataPtr++ * otherFact;
+          *dataPtr++ = value;
+      }
+    }
+
+    // successfull
+    return 0;
+  }
+
+  int
   addVector(T thisFact, VectorND<N> &other, T otherFact) {
     if (otherFact == 0.0 && thisFact == 1.0)
       return 0; 
@@ -103,26 +160,25 @@ struct VectorND {
         } else 
           for (int i=0; i<N; i++) 
             *dataPtr++ = *otherDataPtr++ * otherFact;
-
     } else {
-        // want: this = this * thisFact + other * otherFact
-        double *dataPtr = values;
-        double *otherDataPtr = other.values;
-        if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
-          for (int i=0; i<N; i++) {
-            double value = *dataPtr * thisFact + *otherDataPtr++;
-            *dataPtr++ = value;
-          }
-        } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
-          for (int i=0; i<N; i++) {
-            double value = *dataPtr * thisFact - *otherDataPtr++;
-            *dataPtr++ = value;
-          }
-        } else 
-          for (int i=0; i<N; i++) {
-            double value = *dataPtr * thisFact + *otherDataPtr++ * otherFact;
-            *dataPtr++ = value;
-          }
+      // want: this = this * thisFact + other * otherFact
+      double *dataPtr = values;
+      double *otherDataPtr = other.values;
+      if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
+        for (int i=0; i<N; i++) {
+          double value = *dataPtr * thisFact + *otherDataPtr++;
+          *dataPtr++ = value;
+        }
+      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+        for (int i=0; i<N; i++) {
+          double value = *dataPtr * thisFact - *otherDataPtr++;
+          *dataPtr++ = value;
+        }
+      } else 
+        for (int i=0; i<N; i++) {
+          double value = *dataPtr * thisFact + *otherDataPtr++ * otherFact;
+          *dataPtr++ = value;
+      }
     }
 
     // successfull
@@ -322,11 +378,12 @@ struct VectorND {
     return 0;
   }
 
+  template<typename VecT>
   constexpr T
-  dot(const VectorND<N> &other) const {
+  dot(const VecT &other) const {
     T sum = 0.0;
     for (index_t i = 0; i < N; ++i) {
-      sum += values[i] * other.values[i];
+      sum += values[i] * other[i];
     }
     return sum;
   }
@@ -336,9 +393,46 @@ struct VectorND {
     return sqrt(this->dot(*this));
   }
 
+  template<typename VecT>
+  VectorND<N> &operator=(const VecT &right) {
+    for (int i=0; i< N; i++)
+      values[i] = right[i];
+    return *this;
+  }
+
+  VectorND<N> &operator/=(const double &right) {
+    for (int i=0; i< N; i++)
+      values[i] /= right;
+    return *this;
+  }
+
+  VectorND<N> &operator*=(const double &right) {
+    for (int i=0; i< N; i++)
+      values[i] *= right;
+    return *this;
+  }
+
   VectorND<N> &operator+=(const VectorND<N> &right) {
     for (int i=0; i< N; i++)
       values[i] += right[i];
+    return *this;
+  }
+
+  VectorND<N> &operator+=(const Vector &right) {
+    for (int i=0; i< N; i++)
+      values[i] += right[i];
+    return *this;
+  }
+
+  VectorND<N> &operator-=(const VectorND<N> &right) {
+    for (int i=0; i< N; i++)
+      values[i] -= right[i];
+    return *this;
+  }
+
+  VectorND<N> &operator-=(const Vector &right) {
+    for (int i=0; i< N; i++)
+      values[i] -= right[i];
     return *this;
   }
 

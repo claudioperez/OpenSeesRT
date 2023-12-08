@@ -37,12 +37,14 @@
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
-#include <SectionForceDeformation.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 
-class ShellDKGQ : public Element {
+class SectionForceDeformation;
 
- public:
-  
+class ShellDKGQ : public Element,
+                  protected LegendreFixedQuadrilateral<4>
+{
+ public:  
   //null constructor
   ShellDKGQ( );
   
@@ -119,11 +121,11 @@ class ShellDKGQ : public Element {
     static Matrix damping ;
 
     //quadrature data
-    static const double root3 ;
-    static const double one_over_root3 ;    
-    static double sg[4] ;
-    static double tg[4] ;
-    static double wg[4] ;
+ // static const double root3 ;
+ // static const double one_over_root3 ;    
+ // static double sg[4] ;
+ // static double tg[4] ;
+ // static double wg[4] ;
 
     //node information
     ID connectedExternalNodes ;  //four node numbers

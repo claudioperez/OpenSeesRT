@@ -8,10 +8,6 @@
 // based on FourNodeQuad element by Michael Scott                            //
 ///////////////////////////////////////////////////////////////////////////////
 
-// $Revision: 1.5 $
-// $Date: 2007-02-02 01:44:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/UP-ucsd/FourNodeQuadUP.h,v $
-
 #ifndef FourNodeQuadUP_h
 #define FourNodeQuadUP_h
 
@@ -21,6 +17,7 @@
 
 
 #include <Element.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
@@ -29,7 +26,8 @@ class Node;
 class NDMaterial;
 class Response;
 
-class FourNodeQuadUP : public Element
+class FourNodeQuadUP : public Element,
+                     protected LegendreFixedQuadrilateral<4>
 {
   public:
     FourNodeQuadUP(int tag, int nd1, int nd2, int nd3, int nd4,
@@ -110,8 +108,8 @@ class FourNodeQuadUP : public Element
     // Note: positive for outward normal
     double perm[2];  // lateral/vertical permeability
     static double shp[3][4][4];	// Stores shape functions and derivatives (overwritten)
-    static double pts[4][2];	// Stores quadrature points
-    static double wts[4];		// Stores quadrature weights
+//  static double pts[4][2];	// Stores quadrature points
+//  static double wts[4];		// Stores quadrature weights
     static double dvol[4];  // Stores detJacobian (overwritten)
     static double shpBar[3][4]; // Stores averaged shap functions (overwritten)
     // private member functions - only objects of this class can call these

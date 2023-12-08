@@ -334,9 +334,3 @@ J2PlaneStrain::recvSelf (int commitTag, Channel &theChannel,
 }
 
 
-
-
-
-
-
-

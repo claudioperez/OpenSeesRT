@@ -43,10 +43,13 @@
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
-#include <SectionForceDeformation.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
+class SectionForceDeformation;
+namespace OpenSees {template<int n, int m, typename T> struct MatrixND;};
 
-class ShellMITC4 : public Element {
-
+class ShellMITC4 : public    Element,
+                   protected LegendreFixedQuadrilateral<4>
+{
  public:
   
     //null constructor
@@ -128,16 +131,16 @@ class ShellMITC4 : public Element {
     static Matrix damping ;
 
     // quadrature data
-    static constexpr double one_over_root3 = 0.5773502691896258; // = std::numbers::inv_sqrt3<double>;    
-    static constexpr double sg[4] = { -one_over_root3,
-                                       one_over_root3,
-                                       one_over_root3,
-                                      -one_over_root3};
-    static constexpr double tg[4] = { -one_over_root3,
-                                      -one_over_root3,
-                                       one_over_root3,
-                                       one_over_root3};
-    static constexpr const double wg[4] = {1.0, 1.0, 1.0, 1.0};
+//  static constexpr double one_over_root3 = 0.5773502691896258; // = std::numbers::inv_sqrt3<double>;    
+//  static constexpr double sg[4] = { -one_over_root3,
+//                                     one_over_root3,
+//                                     one_over_root3,
+//                                    -one_over_root3};
+//  static constexpr double tg[4] = { -one_over_root3,
+//                                    -one_over_root3,
+//                                     one_over_root3,
+//                                     one_over_root3};
+//  static constexpr const double wg[4] = {1.0, 1.0, 1.0, 1.0};
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
@@ -176,12 +179,15 @@ class ShellMITC4 : public Element {
     void formResidAndTangent( int tang_flag ) ;
 
     //compute Bdrill matrix
-    double* computeBdrill( int node, const double shp[3][4] ) ;
+    double* computeBdrill( int node, const double shp[3][4] , double Bdrill[6]);
 
     //assemble a B matrix 
-    const Matrix& assembleB( const Matrix &Bmembrane,
-			                 const Matrix &Bbend, 
-			                 const Matrix &Bshear ) ;
+    void
+    assembleB( const Matrix &Bmembrane,
+               const Matrix &Bbend, 
+               const Matrix &Bshear,
+               OpenSees::MatrixND<nstress, ndf, double> &B
+               ) ;
   
     //compute Bmembrane matrix
     const Matrix& computeBmembrane( int node, const double shp[3][4] ) ;

@@ -208,7 +208,8 @@ main(int argc, char **argv)
     /*
      * Invoke application-specific initialization.
      */
-    Tcl_Eval(interp, "import /home/claudio/packages/opensees-pypi/build/temp.linux-x86_64-cpython-39_rt/src/libg3/SRC/interpreter/libOpenSeesRT.so");
+    // TODO
+    Tcl_Eval(interp, "import /home/claudio/opensees/OpenSeesRT/build/temp.linux-x86_64-cpython-39_stack/src/libg3/SRC/runtime/libOpenSeesRT.so");
 
 //
 //  if ((*appInitProc)(interp) != TCL_OK) {

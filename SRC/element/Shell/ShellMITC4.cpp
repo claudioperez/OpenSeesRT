@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2011/03/10 22:51:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/ShellMITC4.cpp,v $
-
+//
 // Original implementation: Ed "C++" Love
 // Reimplementation: Leopoldo Tesser, Diego A. Talledo, Veronique Le Corvec
 //
@@ -29,14 +25,25 @@
 // Ref: Dvorkin,Bathe, A continuum mechanics based four node shell
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
+//
+// $Revision: 1.10 $
+// $Date: 2011/03/10 22:51:21 $
+// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/ShellMITC4.cpp,v $
+//
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <cmath>
+#include <math.h>
 
 #include <ID.h>
 #include <Vector.h>
+#include <VectorND.h>
+#include <Vector3D.h>
 #include <Matrix.h>
+#include <MatrixND.h>
+
+using namespace OpenSees;
+
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
@@ -52,17 +59,14 @@
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
+using OpenSees::VectorND;
 // static data
 Matrix ShellMITC4::stiff(24, 24);
 Vector ShellMITC4::resid(24);
 Matrix ShellMITC4::mass(24, 24);
 
-// quadrature data
-// const double ShellMITC4::one_over_root3 = 1.0 / root3;
 
-
-
-//null constructor
+// null constructor
 ShellMITC4::ShellMITC4()
     : Element(0, ELE_TAG_ShellMITC4), connectedExternalNodes(4), load(0), Ki(0),
       doUpdateBasis(false)
@@ -79,7 +83,7 @@ ShellMITC4::ShellMITC4()
 }
 
 //*********************************************************************
-//full constructor
+// full constructor
 ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
                        SectionForceDeformation &theMaterial, bool UpdateBasis)
     : Element(tag, ELE_TAG_ShellMITC4), connectedExternalNodes(4), load(0),
@@ -107,7 +111,7 @@ ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
 }
 //******************************************************************
 
-//destructor
+// destructor
 ShellMITC4::~ShellMITC4()
 {
   for (int i = 0; i < 4; i++) {
@@ -124,13 +128,13 @@ ShellMITC4::~ShellMITC4()
 }
 //**************************************************************************
 
-//set domain
+// set domain
 void ShellMITC4::setDomain(Domain *theDomain)
 {
   static Vector eig(3);
   static Matrix ddMembrane(3, 3);
 
-  //node pointers
+  // node pointers
   for (int i = 0; i < 4; i++) {
     nodePointers[i] = theDomain->getNode(connectedExternalNodes(i));
     if (nodePointers[i] == 0) {
@@ -148,41 +152,41 @@ void ShellMITC4::setDomain(Domain *theDomain)
     init_disp[i][5] = nodeDisp(5);
   }
 
-  //compute drilling stiffness penalty parameter
+  // compute drilling stiffness penalty parameter
   const Matrix &dd = materialPointers[0]->getInitialTangent();
 
-  //assemble ddMembrane ;
+  // assemble ddMembrane ;
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++)
       ddMembrane(i, j) = dd(i, j);
-  } //end for i
+  }
 
   // eigenvalues of ddMembrane
   eig = LovelyEig(ddMembrane);
 
-  //set ktt
-  //Ktt = dd(2,2) ;  //shear modulus
+  // set ktt
+  //Ktt = dd(2,2) ;  // shear modulus
   Ktt = min(eig(2), min(eig(0), eig(1)));
   //Ktt = dd(2,2);
 
-  //basis vectors and local coordinates
+  // basis vectors and local coordinates
   computeBasis();
 
   this->DomainComponent::setDomain(theDomain);
 }
 
-//get the number of external nodes
+// get the number of external nodes
 int ShellMITC4::getNumExternalNodes() const { return 4; }
 
-//return connected external nodes
+// return connected external nodes
 const ID &ShellMITC4::getExternalNodes() { return connectedExternalNodes; }
 
 Node **ShellMITC4::getNodePtrs(void) { return nodePointers; }
 
-//return number of dofs
+// return number of dofs
 int ShellMITC4::getNumDOF() { return 24; }
 
-//commit state
+// commit state
 int ShellMITC4::commitState()
 {
   int success = 0;
@@ -198,7 +202,7 @@ int ShellMITC4::commitState()
   return success;
 }
 
-//revert to last commit
+// revert to last commit
 int ShellMITC4::revertToLastCommit()
 {
   int success = 0;
@@ -209,7 +213,7 @@ int ShellMITC4::revertToLastCommit()
   return success;
 }
 
-//revert to start
+// revert to start
 int ShellMITC4::revertToStart()
 {
   int success = 0;
@@ -220,7 +224,7 @@ int ShellMITC4::revertToStart()
   return success;
 }
 
-//print out element data
+// print out element data
 void ShellMITC4::Print(OPS_Stream &s, int flag)
 {
   if (flag == -1) {
@@ -319,8 +323,8 @@ Response *ShellMITC4::setResponse(const char **argv, int argc,
 
       output.tag("GaussPoint");
       output.attr("number", pointNum);
-      output.attr("eta",  sg[pointNum - 1]);
-      output.attr("neta", tg[pointNum - 1]);
+      output.attr("eta",    pts[pointNum - 1][0]);
+      output.attr("neta",   pts[pointNum - 1][1]);
 
       theResponse = materialPointers[pointNum - 1]->setResponse(
           &argv[2], argc - 2, output);
@@ -333,8 +337,8 @@ Response *ShellMITC4::setResponse(const char **argv, int argc,
     for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
-      output.attr("eta", sg[i]);
-      output.attr("neta", tg[i]);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("SectionForceDeformation");
       output.attr("classType", materialPointers[i]->getClassTag());
@@ -361,8 +365,8 @@ Response *ShellMITC4::setResponse(const char **argv, int argc,
     for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
-      output.attr("eta", sg[i]);
-      output.attr("neta", tg[i]);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("SectionForceDeformation");
       output.attr("classType", materialPointers[i]->getClassTag());
@@ -416,7 +420,7 @@ int ShellMITC4::getResponse(int responseID, Information &eleInfo)
     }
     return eleInfo.setVector(stresses);
     break;
-  case 3: //strain
+  case 3: // strain
     for (int i = 0; i < 4; i++) {
 
       // Get section deformation
@@ -439,10 +443,10 @@ int ShellMITC4::getResponse(int responseID, Information &eleInfo)
   cnt = 0;
 }
 
-//return stiffness matrix
+// return stiffness matrix
 const Matrix &ShellMITC4::getTangentStiff()
 {
-  int tang_flag = 1; //get the tangent
+  int tang_flag = 1; // get the tangent
 
   // do tangent and residual here
   formResidAndTangent(tang_flag);
@@ -450,7 +454,7 @@ const Matrix &ShellMITC4::getTangentStiff()
   return stiff;
 }
 
-//return secant matrix
+// return secant matrix
 const Matrix &ShellMITC4::getInitialStiff()
 {
   if (Ki != 0)
@@ -461,39 +465,31 @@ const Matrix &ShellMITC4::getInitialStiff()
 
   double volume = 0.0;
 
-  static double xsj; // determinant jacaobian matrix
+  double xsj; // determinant jacaobian matrix
 
-  static double dvol[ngauss]; //volume element
+  double dvol[nip]; // volume element
 
-  static double shp[3][numnodes]; //shape functions at a gauss point
+  double shp[3][numnodes]; // shape functions at a gauss point
 
-  //  static double Shape[3][numnodes][ngauss] ; //all the shape functions
+  //  static double Shape[3][numnodes][nip] ; // all the shape functions
 
-  static Matrix stiffJK(ndf, ndf); //nodeJK stiffness
-
-  static Matrix dd(nstress, nstress); //material tangent
-
-  static Matrix J0(2, 2); //Jacobian at center
-
-  static Matrix J0inv(2, 2); //inverse of Jacobian at center
+  static Matrix stiffJK(ndf, ndf);    // nodeJK stiffness
+  static Matrix dd(nstress, nstress); // material tangent
 
   //---------B-matrices------------------------------------
-
   static Matrix BJ(nstress, ndf); // B matrix node J
-
-  static Matrix BJtran(ndf, nstress);
   static Matrix BK(nstress, ndf); // B matrix node k
+  static Matrix BJtran(ndf, nstress);
   static Matrix BJtranD(ndf, nstress);
 
   static Matrix Bbend(3, 3);     // bending B matrix
   static Matrix Bshear(2, 3);    // shear B matrix
   static Matrix Bmembrane(3, 2); // membrane B matrix
-  double BdrillJ[ndf]; //drill B matrix
-  double BdrillK[ndf];
+  OPS_STATIC double BdrillJ[ndf]; // drill B matrix
+  OPS_STATIC double BdrillK[ndf];
 
-  double *drillPointer;
-
-  static double saveB[nstress][ndf][numnodes];
+  OPS_STATIC double saveB[nstress][ndf][numnodes];
+  OPS_STATIC MatrixND<nstress, ndf> B[numnodes];
 
   //-------------------------------------------------------
 
@@ -514,7 +510,6 @@ const Matrix &ShellMITC4::getInitialStiff()
   // TODO
   Matrix G(4, 12);
   G.Zero();
-  double one_over_four = 0.25;
   G(0, 0)              = -0.5;
   G(0, 1)              = -dy41 * 0.25;
   G(0, 2)              =  dx41 * 0.25;
@@ -543,6 +538,7 @@ const Matrix &ShellMITC4::getInitialStiff()
   // TODO:
   Matrix Ms(2, 4);
   Ms.Zero();
+  Matrix Bs (2, 12);
   Matrix Bsv(2, 12);
   Bsv.Zero();
 
@@ -562,47 +558,45 @@ const Matrix &ShellMITC4::getInitialStiff()
   Rot(0, 1) = -sin(alph);
   Rot(1, 0) = -cos(beta);
   Rot(1, 1) =  cos(alph);
-  Matrix Bs(2, 12);
 
   double r1 = 0;
   double r2 = 0;
   double r3 = 0;
 
-  //gauss loop
-  for (int i = 0; i < ngauss; i++) {
+  // gauss loop
+  for (int i = 0; i < nip; i++) {
 
-    r1 = Cx + sg[i] * Bx;
-    r3 = Cy + sg[i] * By;
+    r1 = Cx + pts[i][0] * Bx;
+    r3 = Cy + pts[i][0] * By;
     r1 = r1 * r1 + r3 * r3;
     r1 = sqrt(r1);
-    r2 = Ax + tg[i] * Bx;
-    r3 = Ay + tg[i] * By;
+    r2 = Ax + pts[i][1] * Bx;
+    r3 = Ay + pts[i][1] * By;
     r2 = r2 * r2 + r3 * r3;
     r2 = sqrt(r2);
 
-    //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj);
-    //volume element to also be saved
-    dvol[i] = wg[i] * xsj;
+    // get shape functions
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj);
+    // volume element to also be saved
+    dvol[i] = wts[i] * xsj;
     volume += dvol[i];
 
-    Ms(1, 0) = 1 - sg[i];
-    Ms(0, 1) = 1 - tg[i];
-    Ms(1, 2) = 1 + sg[i];
-    Ms(0, 3) = 1 + tg[i];
+    Ms(1, 0) = 1 - pts[i][0];
+    Ms(0, 1) = 1 - pts[i][1];
+    Ms(1, 2) = 1 + pts[i][0];
+    Ms(0, 3) = 1 + pts[i][1];
     Bsv      = Ms * G;
 
-    for (j = 0; j < 12; j++) {
+    for (int j = 0; j < 12; j++) {
       Bsv(0, j) = Bsv(0, j) * r1 / (8 * xsj);
       Bsv(1, j) = Bsv(1, j) * r2 / (8 * xsj);
     }
     Bs = Rot * Bsv;
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
-      //compute B matrix
-
+      // compute B matrix
       Bmembrane = computeBmembrane(j, shp);
       Bbend     = computeBbend(j, shp);
 
@@ -611,21 +605,10 @@ const Matrix &ShellMITC4::getInitialStiff()
         Bshear(1, p) = Bs(1, j * 3 + p);
       }
 
-      BJ = assembleB(Bmembrane, Bbend, Bshear);
-
-      // save the B-matrix
-      for (int p = 0; p < nstress; p++) {
-        for (int q = 0; q < ndf; q++)
-          saveB[p][q][j] = BJ(p, q);
-      }
+      assembleB(Bmembrane, Bbend, Bshear, B[j]);
 
       // drilling B matrix
-      drillPointer = computeBdrill(j, shp);
-      for (int p = 0; p < ndf; p++) {
-        // BdrillJ[p] = *drillPointer++ ;
-        BdrillJ[p] = *drillPointer; //set p-th component
-        drillPointer++;             //pointer arithmetic
-      }
+      computeBdrill(j, shp, BdrillJ);
     }
 
     dd = materialPointers[i]->getInitialTangent();
@@ -639,29 +622,25 @@ const Matrix &ShellMITC4::getInitialStiff()
       // extract BJ
       for (int p = 0; p < nstress; p++) {
         for (int q = 0; q < ndf; q++)
-          BJ(p, q) = saveB[p][q][j];
+          BJ(p, q) = B[j](p,q); // [p][q][j];
       } 
 
-      //multiply bending terms by (-1.0) for correct statement
+      // multiply bending terms by (-1.0) for correct statement
       // of equilibrium
       for (int p = 3; p < 6; p++) {
         for (int q = 3; q < 6; q++)
           BJ(p, q) *= (-1.0);
       }
 
-      //transpose
+      // transpose
       //BJtran = transpose( 8, ndf, BJ ) ;
       for (int p = 0; p < ndf; p++) {
         for (int q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
       } 
 
-      //drilling B matrix
-      drillPointer = computeBdrill(j, shp);
-      for (int p = 0; p < ndf; p++) {
-        BdrillJ[p] = *drillPointer;
-        drillPointer++;
-      } 
+      // drilling B matrix
+      computeBdrill(j, shp, BdrillJ);
 
       //BJtranD = BJtran * dd ;
       BJtranD.addMatrixProduct(0.0, BJtran, dd, 1.0);
@@ -672,20 +651,16 @@ const Matrix &ShellMITC4::getInitialStiff()
       kk = 0;
       for (int k = 0; k < numnodes; k++) {
 
-        //extract BK
+        // extract BK
         for (int p = 0; p < nstress; p++) {
           for (int q = 0; q < ndf; q++)
             BK(p, q) = saveB[p][q][k];
         } 
 
-        //drilling B matrix
-        drillPointer = computeBdrill(k, shp);
-        for (int p = 0; p < ndf; p++) {
-          BdrillK[p] = *drillPointer;
-          drillPointer++;
-        } 
+        // drilling B matrix
+        computeBdrill(k, shp, BdrillK);
 
-        //stiffJK = BJtranD * BK  ;
+        // stiffJK = BJtranD * BK  ;
         // +  transpose( 1,ndf,BdrillJ ) * BdrillK ;
         stiffJK.addMatrixProduct(0.0, BJtranD, BK, 1.0);
 
@@ -701,15 +676,14 @@ const Matrix &ShellMITC4::getInitialStiff()
       jj += ndf;
     } // end for j loop
 
-  } //end for i gauss loop
+  } // end for i gauss loop
 
-  // TODO
   Ki = new Matrix(stiff);
 
   return stiff;
 }
 
-//return mass matrix
+// return mass matrix
 const Matrix &ShellMITC4::getMass()
 {
   int tangFlag = 1;
@@ -787,10 +761,10 @@ int ShellMITC4::addInertiaLoadToUnbalance(const Vector &accel)
   return 0;
 }
 
-//get residual
+// get residual
 const Vector &ShellMITC4::getResistingForce()
 {
-  int tang_flag = 0; //don't get the tangent
+  int tang_flag = 0; // don't get the tangent
 
   formResidAndTangent(tang_flag);
 
@@ -801,13 +775,13 @@ const Vector &ShellMITC4::getResistingForce()
   return resid;
 }
 
-//get residual with inertia terms
+// get residual with inertia terms
 const Vector &ShellMITC4::getResistingForceIncInertia()
 {
   static Vector res(24);
-  int tang_flag = 0; //don't get the tangent
+  int tang_flag = 0; // don't get the tangent
 
-  //do tangent and residual here
+  // do tangent and residual here
   formResidAndTangent(tang_flag);
 
   formInertiaTerms(tang_flag);
@@ -830,18 +804,17 @@ const Vector &ShellMITC4::getResistingForceIncInertia()
 void ShellMITC4::formInertiaTerms(int tangFlag)
 {
 
-  //translational mass only
-  //rotational inertia terms are neglected
+  // translational mass only
+  // rotational inertia terms are neglected
 
-  static const int ndf = 6;
-  static const int numberNodes = 4;
-  static const int numberGauss = 4;
-  static const int nShape = 3;
-  static const int massIndex = nShape - 1;
+  static constexpr int ndf = 6;
+  static constexpr int numberNodes = 4;
+  static constexpr int nShape = 3;
+  static constexpr int massIndex = nShape - 1;
 
   double xsj; // determinant jacaobian matrix
-  double dvol; //volume element
-  static double shp[nShape][numberNodes]; //shape functions at a gauss point
+  double dvol; // volume element
+  OPS_STATIC double shp[nShape][numberNodes]; // shape functions at a gauss point
 
   static Vector momentum(ndf);
 
@@ -850,32 +823,32 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
 
   double temp, rhoH, massJK;
 
-  //zero mass
+  // zero mass
   mass.Zero();
 
   // Gauss loop
-  for (int i = 0; i < numberGauss; i++) {
+  for (int i = 0; i < nip; i++) {
 
-    //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj);
+    // get shape functions
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj);
 
-    //volume element to also be saved
-    dvol = wg[i] * xsj;
+    // volume element to also be saved
+    dvol = wts[i] * xsj;
 
-    //node loop to compute accelerations
+    // node loop to compute accelerations
     momentum.Zero();
     for (int j = 0; j < numberNodes; j++)
-      //momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
+      // momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
       momentum.addVector(1.0, nodePointers[j]->getTrialAccel(),
                          shp[massIndex][j]);
 
-    //density
+    // density
     rhoH = materialPointers[i]->getRho();
 
-    //multiply acceleration by density to form momentum
+    // multiply acceleration by density to form momentum
     momentum *= rhoH;
 
-    //residual and tangent calculations node loops
+    // residual and tangent calculations node loops
     for (int j = 0, jj = 0; j < numberNodes; j++, jj += ndf) {
 
       temp = shp[massIndex][j] * dvol;
@@ -885,10 +858,10 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
 
       if (tangFlag == 1 && rhoH != 0.0) {
 
-        //multiply by density
+        // multiply by density
         temp *= rhoH;
 
-        //node-node translational mass
+        // node-node translational mass
         for (int k = 0, kk = 0; k < numberNodes; k++, kk += ndf) {
 
           massJK = temp * shp[massIndex][k];
@@ -902,93 +875,81 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
 
     } // end for j loop
 
-  } //end for i gauss loop
+  } // end for i gauss loop
 }
 
 //*********************************************************************
 
-//form residual and tangent
+// form residual and tangent
+//
+//  six(6) nodal dof's ordered :
+//
+//    -        -
+//   |    u1    |   <---plate membrane
+//   |    u2    |
+//   |----------|
+//   |  w = u3  |   <---plate bending
+//   |  theta1  |
+//   |  theta2  |
+//   |----------|
+//   |  theta3  |   <---drill
+//    -        -
+//
+// membrane strains ordered :
+//
+//            strain(0) =   eps00     i.e.   (11)-strain
+//            strain(1) =   eps11     i.e.   (22)-strain
+//            strain(2) =   gamma01   i.e.   (12)-shear
+//
+// curvatures and shear strains ordered  :
+//
+//            strain(3) =     kappa00  i.e.   (11)-curvature
+//            strain(4) =     kappa11  i.e.   (22)-curvature
+//            strain(5) =   2*kappa01  i.e. 2*(12)-curvature
+//
+//            strain(6) =     gamma02  i.e.   (13)-shear
+//            strain(7) =     gamma12  i.e.   (23)-shear
+//
+//  same ordering for moments/shears but no 2
+//
+//  Then,
+//              epsilon00 = -z * kappa00      +    eps00_membrane
+//              epsilon11 = -z * kappa11      +    eps11_membrane
+//  gamma01 = 2*epsilon01 = -z * (2*kappa01)  +  gamma01_membrane
+//
+//  Shear strains gamma02, gamma12 constant through cross section
+//
 void ShellMITC4::formResidAndTangent(int tang_flag)
 {
-  //
-  //  six(6) nodal dof's ordered :
-  //
-  //    -        -
-  //   |    u1    |   <---plate membrane
-  //   |    u2    |
-  //   |----------|
-  //   |  w = u3  |   <---plate bending
-  //   |  theta1  |
-  //   |  theta2  |
-  //   |----------|
-  //   |  theta3  |   <---drill
-  //    -        -
-  //
-  // membrane strains ordered :
-  //
-  //            strain(0) =   eps00     i.e.   (11)-strain
-  //            strain(1) =   eps11     i.e.   (22)-strain
-  //            strain(2) =   gamma01   i.e.   (12)-shear
-  //
-  // curvatures and shear strains ordered  :
-  //
-  //            strain(3) =     kappa00  i.e.   (11)-curvature
-  //            strain(4) =     kappa11  i.e.   (22)-curvature
-  //            strain(5) =   2*kappa01  i.e. 2*(12)-curvature
-  //
-  //            strain(6) =     gamma02  i.e.   (13)-shear
-  //            strain(7) =     gamma12  i.e.   (23)-shear
-  //
-  //  same ordering for moments/shears but no 2
-  //
-  //  Then,
-  //              epsilon00 = -z * kappa00      +    eps00_membrane
-  //              epsilon11 = -z * kappa11      +    eps11_membrane
-  //  gamma01 = 2*epsilon01 = -z * (2*kappa01)  +  gamma01_membrane
-  //
-  //  Shear strains gamma02, gamma12 constant through cross section
-  //
 
-
-  int i, j, k, p, q;
   int jj, kk;
-
   int success;
-
   double volume = 0.0;
+  double xsj;                   // determinant jacaobian matrix
 
-  double xsj;                      // determinant jacaobian matrix
-  double dvol[ngauss];             // volume element
-  static Vector strain(nstress);   // strain
-  static double shp[3][numnodes];  // shape functions at a gauss point
-  //  static double Shape[3][numnodes][ngauss] ; //all the shape functions
-  static Vector residJ(ndf);       // nodeJ residual
-  static Matrix stiffJK(ndf, ndf); // nodeJK stiffness
-  static Vector stress(nstress);   // stress resultants
+  OPS_STATIC double dvol[nip];             // volume element
+  OPS_STATIC double shp[3][numnodes];      // shape functions at a gauss point
 
-  static Matrix dd(nstress, nstress); // material tangent
-  static Matrix J0(2, 2);             // Jacobian at center
-  static Matrix J0inv(2, 2);          // inverse of Jacobian at center
+  //  static double Shape[3][numnodes][nip] ; // all the shape functions
+  static Vector stress(nstress);      // stress resultants
+  static Vector strain(nstress);      // strain
+                                      //
+  OPS_STATIC VectorND<ndf> residJ;
+  OPS_STATIC MatrixND<nstress,nstress> dd; // material tangent
 
-  double epsDrill = 0.0; //drilling "strain"
-  double tauDrill = 0.0; //drilling "stress"
+
+  double epsDrill = 0.0; // drilling "strain"
+  double tauDrill = 0.0; // drilling "stress"
 
   //---------B-matrices------------------------------------
-
-  static Matrix BJ(nstress, ndf);      // B matrix node J
-  static Matrix BJtran(ndf, nstress);
-  static Matrix BK(nstress, ndf);      // B matrix node k
+  OPS_STATIC MatrixND<nstress, ndf> B[numnodes];
   static Matrix BJtranD(ndf, nstress);
   static Matrix Bbend(3, 3);           // bending B matrix
   static Matrix Bshear(2, 3);          // shear B matrix
 
   static Matrix Bmembrane(3, 2);       // membrane B matrix
-  double BdrillJ[ndf];                 // drill B matrix
-  double BdrillK[ndf];
-
-  double *drillPointer;
-  static double saveB[nstress][ndf][numnodes];
-
+  OPS_STATIC double BdrillJ[ndf];      // drill B matrix
+  OPS_STATIC double BdrillK[ndf];
   //-------------------------------------------------------
 
   // zero stiffness and residual
@@ -1012,38 +973,6 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
   double dx41 = xl[0][3] - xl[0][0];
   double dy41 = xl[1][3] - xl[1][0];
 
-  Matrix G(4, 12);
-  G.Zero();
-  double one_over_four = 0.25;
-  G(0, 0)              = -0.5;
-  G(0, 1)              = -dy41 * one_over_four;
-  G(0, 2)              = dx41 * one_over_four;
-  G(0, 9)              = 0.5;
-  G(0, 10)             = -dy41 * one_over_four;
-  G(0, 11)             = dx41 * one_over_four;
-  G(1, 0)              = -0.5;
-  G(1, 1)              = -dy21 * one_over_four;
-  G(1, 2)              = dx21 * one_over_four;
-  G(1, 3)              = 0.5;
-  G(1, 4)              = -dy21 * one_over_four;
-  G(1, 5)              = dx21 * one_over_four;
-  G(2, 3)              = -0.5;
-  G(2, 4)              = -dy32 * one_over_four;
-  G(2, 5)              = dx32 * one_over_four;
-  G(2, 6)              = 0.5;
-  G(2, 7)              = -dy32 * one_over_four;
-  G(2, 8)              = dx32 * one_over_four;
-  G(3, 6)              = 0.5;
-  G(3, 7)              = -dy34 * one_over_four;
-  G(3, 8)              = dx34 * one_over_four;
-  G(3, 9)              = -0.5;
-  G(3, 10)             = -dy34 * one_over_four;
-  G(3, 11)             = dx34 * one_over_four;
-
-  Matrix Ms(2, 4);
-  Ms.Zero();
-  Matrix Bsv(2, 12);
-  Bsv.Zero();
 
   double Ax = -xl[0][0] + xl[0][1] + xl[0][2] - xl[0][3];
   double Bx =  xl[0][0] - xl[0][1] + xl[0][2] - xl[0][3];
@@ -1055,49 +984,71 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
 
   double alph = atan(Ay / Ax);
   double beta = 3.141592653589793 / 2 - atan(Cx / Cy);
-  Matrix Rot(2, 2);
-  Rot.Zero();
-  Rot(0, 0) = sin(beta);
+
+  MatrixND<2, 2> Rot;
+  Rot.zero();
+  Rot(0, 0) =  sin(beta);
   Rot(0, 1) = -sin(alph);
   Rot(1, 0) = -cos(beta);
-  Rot(1, 1) = cos(alph);
-  Matrix Bs(2, 12);
+  Rot(1, 1) =  cos(alph);
+
+  const MatrixND<4, 12> G = {{ // NOTE: initialization is transposed
+   {     -0.50,        -0.50,          0.00,          0.00},
+   {-dy41*0.25, -dy21 * 0.25,          0.00,          0.00},
+   { dx41*0.25,  dx21 * 0.25,          0.00,          0.00},
+   {      0.00,         0.50,         -0.5 ,          0.00},
+   {      0.00, -dy21 * 0.25,  -dy32 * 0.25,          0.00},
+   {      0.00,  dx21 * 0.25,   dx32 * 0.25,          0.00},
+   {      0.00,         0.00,          0.5 ,          0.5 },
+   {      0.00,         0.00,  -dy32 * 0.25,  -dy34 * 0.25},
+   {      0.00,         0.00,   dx32 * 0.25,   dx34 * 0.25},
+   {      0.50,         0.00,          0.00,         -0.5 },
+   {-dy41*0.25,         0.00,          0.00,  -dy34 * 0.25},
+   { dx41*0.25,         0.00,          0.00,   dx34 * 0.25}}};
+
+  MatrixND<2, 4> Ms;
+  Ms.zero();
+
+//MatrixND<2, 12> Bs;
+//Bs.zero();
+//MatrixND<2, 12> Bsv;
+//Bsv.zero();
 
   double r1 = 0;
   double r2 = 0;
   double r3 = 0;
 
-  // gauss loop
-  for (int i = 0; i < ngauss; i++) {
+  // Gauss loop
+  for (int i = 0; i < nip; i++) {
 
-    r1 = Cx + sg[i] * Bx;
-    r3 = Cy + sg[i] * By;
+    r1 = Cx + pts[i][0] * Bx;
+    r3 = Cy + pts[i][0] * By;
     r1 = r1 * r1 + r3 * r3;
     r1 = sqrt(r1);
-    r2 = Ax + tg[i] * Bx;
-    r3 = Ay + tg[i] * By;
+    r2 = Ax + pts[i][1] * Bx;
+    r3 = Ay + pts[i][1] * By;
     r2 = r2 * r2 + r3 * r3;
     r2 = sqrt(r2);
 
     // get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj);
     // volume element to also be saved
-    dvol[i] = wg[i] * xsj;
+    dvol[i] = wts[i] * xsj;
     volume += dvol[i];
 
-    Ms(1, 0) = 1 - sg[i];
-    Ms(0, 1) = 1 - tg[i];
-    Ms(1, 2) = 1 + sg[i];
-    Ms(0, 3) = 1 + tg[i];
-    Bsv      = Ms * G;
+    Ms(1, 0) = 1 - pts[i][0];
+    Ms(0, 1) = 1 - pts[i][1];
+    Ms(1, 2) = 1 + pts[i][0];
+    Ms(0, 3) = 1 + pts[i][1];
+    auto Bsv      = Ms * G;
 
     for (int j = 0; j < 12; j++) {
       Bsv(0, j) = Bsv(0, j) * r1 / (8 * xsj);
       Bsv(1, j) = Bsv(1, j) * r2 / (8 * xsj);
     }
-    Bs = Rot * Bsv;
+    auto Bs = Rot * Bsv;
 
-    //zero the strains
+    // zero the strains
     strain.Zero();
     epsDrill = 0.0;
 
@@ -1114,52 +1065,42 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
         Bshear(1, p) = Bs(1, j * 3 + p);
       }
 
-      BJ = assembleB(Bmembrane, Bbend, Bshear);
-
-      // save the B-matrix
-      for (int p = 0; p < nstress; p++) {
-        for (int q = 0; q < ndf; q++)
-          saveB[p][q][j] = BJ(p, q);
-      }
+      assembleB(Bmembrane, Bbend, Bshear, B[j]);
 
       // nodal "displacements"
       const Vector &ul_tmp = nodePointers[j]->getTrialDisp();
-      static Vector ul(6);
-      ul.Zero();
 
-      ul(0) = ul_tmp(0) - init_disp[j][0];
-      ul(1) = ul_tmp(1) - init_disp[j][1];
-      ul(2) = ul_tmp(2) - init_disp[j][2];
-      ul(3) = ul_tmp(3) - init_disp[j][3];
-      ul(4) = ul_tmp(4) - init_disp[j][4];
-      ul(5) = ul_tmp(5) - init_disp[j][5];
+      OPS_STATIC VectorND<6> ul;
+
+      ul[0] = ul_tmp(0) - init_disp[j][0];
+      ul[1] = ul_tmp(1) - init_disp[j][1];
+      ul[2] = ul_tmp(2) - init_disp[j][2];
+      ul[3] = ul_tmp(3) - init_disp[j][3];
+      ul[4] = ul_tmp(4) - init_disp[j][4];
+      ul[5] = ul_tmp(5) - init_disp[j][5];
 
       // compute the strain
       // strain += (BJ*ul) ;
-      strain.addMatrixVector(1.0, BJ, ul, 1.0);
+      strain.addMatrixVector(1.0, B[j], ul, 1.0);
 
       // drilling B matrix
-      drillPointer = computeBdrill(j, shp);
-      for (int p = 0; p < ndf; p++) {
-        BdrillJ[p] = *drillPointer; // set p-th component
-        drillPointer++;             // pointer arithmetic
-      }
+      computeBdrill(j, shp, BdrillJ);
 
       // drilling "strain"
       for (int p = 0; p < ndf; p++)
-        epsDrill += BdrillJ[p] * ul(p);
+        epsDrill += BdrillJ[p] * ul[p];
     }
 
-    //send the strain to the material
+    // send the strain to the material
     success = materialPointers[i]->setTrialSectionDeformation(strain);
 
-    //compute the stress
-    stress = materialPointers[i]->getStressResultant();
+    // compute the stress
+    /* VectorND<nstress> */ stress = materialPointers[i]->getStressResultant();
 
-    //drilling "stress"
+    // drilling "stress"
     tauDrill = Ktt * epsDrill;
 
-    //multiply by volume element
+    // multiply by volume element
     stress *= dvol[i];
     tauDrill *= dvol[i];
 
@@ -1173,64 +1114,42 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
     jj = 0;
     for (int j = 0; j < numnodes; j++) {
 
-      //extract BJ
-      for (p = 0; p < nstress; p++) {
-        for (q = 0; q < ndf; q++)
-          BJ(p, q) = saveB[p][q][j];
-      }
+      MatrixND<ndf, nstress> BJtran = B[j].transpose();
 
-      //multiply bending terms by (-1.0) for correct statement
+      // multiply bending terms by (-1.0) for correct statement
       // of equilibrium
-      for (p = 3; p < 6; p++) {
-        for (q = 3; q < 6; q++)
-          BJ(p, q) *= (-1.0);
+      for (int p = 3; p < 6; p++) {
+        for (int q = 3; q < 6; q++)
+          BJtran(p, q) *= -1.0;
       }
 
-      // transpose
-      for (int p = 0; p < ndf; p++) {
-        for (q = 0; q < nstress; q++)
-          BJtran(p, q) = BJ(q, p);
-      }
-
-      residJ.addMatrixVector(0.0, BJtran, stress, 1.0);
+//    residJ.addMatrixTransposeVector(0.0, B[j], stress, 1.0);
+      residJ = BJtran * stress;
 
       // drilling B matrix
-      drillPointer = computeBdrill(j, shp);
-      for (int p = 0; p < ndf; p++) {
-        BdrillJ[p] = *drillPointer;
-        drillPointer++;
-      }
+      computeBdrill(j, shp, BdrillJ);
 
       // residual including drill
       for (int p = 0; p < ndf; p++)
-        resid(jj + p) += (residJ(p) + BdrillJ[p] * tauDrill);
+        resid(jj + p) += (residJ[p] + BdrillJ[p] * tauDrill);
 
       if (tang_flag == 1) {
 
-        BJtranD.addMatrixProduct(0.0, BJtran, dd, 1.0);
+//      BJtranD.addMatrixTransposeProduct(0.0, B[j], dd, 1.0);
+        MatrixND<ndf, nstress> BJtranD = BJtran*dd;
 
-        for (p = 0; p < ndf; p++)
+        for (int p = 0; p < ndf; p++)
           BdrillJ[p] *= (Ktt * dvol[i]);
 
         kk = 0;
-        for (k = 0; k < numnodes; k++) {
+        for (int k = 0; k < numnodes; k++) {
 
-          //extract BK
-          for (p = 0; p < nstress; p++) {
-            for (q = 0; q < ndf; q++)
-              BK(p, q) = saveB[p][q][k];
-          }
+          // drilling B matrix
+          computeBdrill(k, shp, BdrillK);
 
-          //drilling B matrix
-          drillPointer = computeBdrill(k, shp);
-          for (p = 0; p < ndf; p++) {
-            BdrillK[p] = *drillPointer;
-            drillPointer++;
-          }
-
-          //stiffJK = BJtranD * BK  ;
+          // stiffJK = BJtranD * BK  ;
           // +  transpose( 1,ndf,BdrillJ ) * BdrillK ;
-          stiffJK.addMatrixProduct(0.0, BJtranD, BK, 1.0);
+          MatrixND<ndf,ndf> stiffJK = BJtranD * B[k]; // .addMatrixProduct(0.0, BJtranD, BK, 1.0);
 
           for (int p = 0; p < ndf; p++) {
             for (int q = 0; q < ndf; q++) {
@@ -1250,7 +1169,6 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
   } // end gauss loop
 
   if (applyLoad == 1) {
-    const int numberGauss = 4;
     const int nShape      = 3;
     const int numberNodes = 4;
     const int massIndex   = nShape - 1;
@@ -1259,13 +1177,13 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
     static Vector momentum(ndf);
     double ddvol = 0;
 
-    for (i = 0; i < numberGauss; i++) {
+    for (int i = 0; i < nip; i++) {
 
       // get shape functions
-      shape2d(sg[i], tg[i], xl, shp, xsj);
+      shape2d(pts[i][0], pts[i][1], xl, shp, xsj);
 
       // volume element to also be saved
-      ddvol = wg[i] * xsj;
+      ddvol = wts[i] * xsj;
 
       // node loop to compute accelerations
       momentum.Zero();
@@ -1273,13 +1191,13 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
       momentum(1) = appliedB[1];
       momentum(2) = appliedB[2];
 
-      //density
+      // density
       rhoH = materialPointers[i]->getRho();
 
-      //multiply acceleration by density to form momentum
+      // multiply acceleration by density to form momentum
       momentum *= rhoH;
 
-      //residual and tangent calculations node loops
+      // residual and tangent calculations node loops
       for (int j = 0, jj = 0; j < numberNodes; j++, jj += ndf) {
 
         temp = shp[massIndex][j] * ddvol;
@@ -1297,18 +1215,17 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
 
 void ShellMITC4::computeBasis()
 {
-  //could compute derivatives \frac{ \partial {\bf x} }{ \partial L_1 }
+  // could compute derivatives \frac{ \partial {\bf x} }{ \partial L_1 }
   //                     and  \frac{ \partial {\bf x} }{ \partial L_2 }
-  //and use those as basis vectors but this is easier
-  //and the shell is flat anyway.
+  // and use those as basis vectors but this is easier
+  // and the shell is flat anyway.
 
-  static Vector temp(3);
+  OPS_STATIC Vector3D temp;
+  OPS_STATIC Vector3D v1;
+  OPS_STATIC Vector3D v2;
+  OPS_STATIC Vector3D v3;
 
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-
-  //get two vectors (v1, v2) in plane of shell by
+  // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
 
   const Vector &coor0 = nodePointers[0]->getCrds();
@@ -1316,79 +1233,73 @@ void ShellMITC4::computeBasis()
   const Vector &coor2 = nodePointers[2]->getCrds();
   const Vector &coor3 = nodePointers[3]->getCrds();
 
-  v1.Zero();
-  //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
-  v1 = coor2;
+  v1.zero();
+  // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
+  v1  = coor2;
   v1 += coor1;
   v1 -= coor3;
   v1 -= coor0;
   v1 *= 0.50;
 
-  v2.Zero();
-  //v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
-  v2 = coor3;
+  v2.zero();
+  // v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
+  v2  = coor3;
   v2 += coor2;
   v2 -= coor1;
   v2 -= coor0;
   v2 *= 0.50;
 
-  //normalize v1
-  double length = v1.Norm();
+  // normalize v1
+  double length = v1.norm();
   v1 /= length;
 
   //Gram-Schmidt process for v2
 
-  double alpha = v2 ^ v1;
+  double alpha = v2.dot(v1);
 
-  //v2 -= alpha*v1 ;
+  // v2 -= alpha*v1 ;
   temp = v1;
   temp *= alpha;
   v2 -= temp;
 
-  //normalize v2
-  length = v2.Norm();
+  // normalize v2
+  length = v2.norm();
   v2 /= length;
 
-  //cross product for v3
-  v3 = LovelyCrossProduct(v1, v2);
+  // cross product for v3
+  v3 = v1.cross(v2);
 
-  //local nodal coordinates in plane of shell
+  // local nodal coordinates in plane of shell
 
-  int i;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
 
     const Vector &coorI = nodePointers[i]->getCrds();
-    xl[0][i]            = coorI ^ v1;
-    xl[1][i]            = coorI ^ v2;
+    xl[0][i]            = v1.dot(coorI);
+    xl[1][i]            = v2.dot(coorI);
 
-  } //end for i
+  } // end for i
 
-  //basis vectors stored as array of doubles
-  for (i = 0; i < 3; i++) {
+  // basis vectors stored as array of doubles
+  for (int i = 0; i < 3; i++) {
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } //end for i
+  }
 }
 
-//start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
+// start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 //************************************************************************
-//compute local coordinates and basis
+// compute local coordinates and basis
 
 void ShellMITC4::updateBasis()
 {
-  //could compute derivatives \frac{ \partial {\bf x} }{ \partial L_1 }
+  // could compute derivatives \frac{ \partial {\bf x} }{ \partial L_1 }
   //                     and  \frac{ \partial {\bf x} }{ \partial L_2 }
-  //and use those as basis vectors but this is easier
-  //and the shell is flat anyway.
+  // and use those as basis vectors but this is easier
+  // and the shell is flat anyway.
 
-  static Vector temp(3);
-
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-
-  //get two vectors (v1, v2) in plane of shell by
+  
+  // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
 
   Vector id0(6), id1(6), id2(6), id3(6);
@@ -1407,16 +1318,20 @@ void ShellMITC4::updateBasis()
   const Vector &coor3 =
       nodePointers[3]->getCrds() + nodePointers[3]->getTrialDisp() - id3;
 
-  v1.Zero();
-  //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
+  // double v[4][3];
+  Vector3D v1; // (&v[0], 3);
+  Vector3D v2; // (&v[1], 3);
+  Vector3D temp; // (&v[3], 3);
+
+
+  // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
   v1 = coor2;
   v1 += coor1;
   v1 -= coor3;
   v1 -= coor0;
   v1 *= 0.50;
 
-  v2.Zero();
-  //v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
+  // v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
   v2 = coor3;
   v2 += coor2;
   v2 -= coor1;
@@ -1424,36 +1339,35 @@ void ShellMITC4::updateBasis()
   v2 *= 0.50;
 
   // normalize v1
-  double length = v1.Norm();
+  double length = v1.norm();
   v1 /= length;
 
   // Gram-Schmidt process for v2
-  double alpha = v2 ^ v1;
+  double alpha = v2.dot(v1);
 
-  //v2 -= alpha*v1 ;
+  // v2 -= alpha*v1 ;
   temp = v1;
   temp *= alpha;
   v2 -= temp;
 
-  //normalize v2
-  length = v2.Norm();
+  // normalize v2
+  length = v2.norm();
   v2 /= length;
 
-  //cross product for v3
-  v3 = LovelyCrossProduct(v1, v2);
+  // cross product for v3
+  Vector3D v3 = v1.cross(v2);
 
   // local nodal coordinates in plane of shell
-  int i;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
 
     const Vector &coorI = nodePointers[i]->getCrds();
-    xl[0][i]            = coorI ^ v1;
-    xl[1][i]            = coorI ^ v2;
+    xl[0][i]            = v1.dot(coorI);
+    xl[1][i]            = v2.dot(coorI);
 
   }
 
-  //basis vectors stored as array of doubles
-  for (i = 0; i < 3; i++) {
+  // basis vectors stored as array of doubles
+  for (int i = 0; i < 3; i++) {
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
@@ -1462,16 +1376,10 @@ void ShellMITC4::updateBasis()
 // end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
 //*************************************************************************
-//compute Bdrill
-
-double *ShellMITC4::computeBdrill(int node, const double shp[3][4])
+// compute Bdrill
+inline
+double *ShellMITC4::computeBdrill(int node, const double shp[3][4], double Bdrill[6])
 {
-
-  //static Matrix Bdrill(1,6) ;
-  static double Bdrill[6];
-  static double B1;
-  static double B2;
-  static double B6;
 
   //---Bdrill Matrix in standard {1,2,3} mechanics notation---------
   //
@@ -1481,15 +1389,9 @@ double *ShellMITC4::computeBdrill(int node, const double shp[3][4])
   //
   //----------------------------------------------------------------
 
-  //  Bdrill.Zero( ) ;
-  //Bdrill(0,0) = -0.5*shp[1][node] ;
-  //Bdrill(0,1) = +0.5*shp[0][node] ;
-  //Bdrill(0,5) =     -shp[2][node] ;
-
-  B1 = -0.5 * shp[1][node];
-  B2 = +0.5 * shp[0][node];
-
-  B6 = -shp[2][node];
+  double B1 = -0.5 * shp[1][node];
+  double B2 = +0.5 * shp[0][node];
+  double B6 =       -shp[2][node];
 
   Bdrill[0] = B1 * g1[0] + B2 * g2[0];
   Bdrill[1] = B1 * g1[1] + B2 * g2[1];
@@ -1505,21 +1407,12 @@ double *ShellMITC4::computeBdrill(int node, const double shp[3][4])
 //********************************************************************
 // assemble a B matrix
 
-const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
-                                    const Matrix &Bbend, const Matrix &Bshear)
+void
+ShellMITC4::assembleB(const Matrix &Bmembrane,
+                       const Matrix &Bbend, const Matrix &Bshear,
+                       MatrixND<nstress, ndf> &B
+                       )
 {
-
-  static Matrix B(8, 6);
-  static Matrix BmembraneShell(3, 3);
-  static Matrix BbendShell(3, 3);
-  static Matrix BshearShell(2, 6);
-  static Matrix Gmem(2, 3);
-  static Matrix Gshear(3, 6);
-
-  int p, q;
-
-  //
-  // For Shell :
   //
   //---B Matrices in standard {1,2,3} mechanics notation---------
   //
@@ -1533,8 +1426,13 @@ const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
   //
   //-------------------------------------------------------------
   //
+  static Matrix BmembraneShell(3, 3);
+  static Matrix BbendShell(3, 3);
+  static Matrix BshearShell(2, 6);
+  static Matrix Gmem(2, 3);
+  static Matrix Gshear(3, 6);
 
-  //shell modified membrane terms
+  // shell modified membrane terms
 
   Gmem(0, 0) = g1[0];
   Gmem(0, 1) = g1[1];
@@ -1547,15 +1445,13 @@ const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
   //BmembraneShell = Bmembrane * Gmem ;
   BmembraneShell.addMatrixProduct(0.0, Bmembrane, Gmem, 1.0);
 
-  //shell modified bending terms
-
+  // shell modified bending terms
   Matrix &Gbend = Gmem;
 
   //BbendShell = Bbend * Gbend ;
   BbendShell.addMatrixProduct(0.0, Bbend, Gbend, 1.0);
 
-  //shell modified shear terms
-
+  // shell modified shear terms
   Gshear.Zero();
 
   Gshear(0, 0) = g3[0];
@@ -1573,7 +1469,7 @@ const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
   // BshearShell = Bshear * Gshear ;
   BshearShell.addMatrixProduct(0.0, Bshear, Gshear, 1.0);
 
-  B.Zero();
+  B.zero();
 
   // assemble B from sub-matrices
 
@@ -1598,18 +1494,14 @@ const Matrix &ShellMITC4::assembleB(const Matrix &Bmembrane,
       B(pp, q) = BshearShell(p, q);
 
   }
-
-  return B;
 }
 
 //***********************************************************************
-//compute Bmembrane matrix
+// compute Bmembrane matrix
 
-const Matrix &ShellMITC4::computeBmembrane(int node, const double shp[3][4])
+const Matrix &
+ShellMITC4::computeBmembrane(int node, const double shp[3][4])
 {
-
-  static Matrix Bmembrane(3, 2);
-
   //---Bmembrane Matrix in standard {1,2,3} mechanics notation---------
   //
   //                -             -
@@ -1620,6 +1512,8 @@ const Matrix &ShellMITC4::computeBmembrane(int node, const double shp[3][4])
   //
   //  three(3) strains and two(2) displacements (for plate)
   //-------------------------------------------------------------------
+
+  static Matrix Bmembrane(3, 2);
 
   Bmembrane.Zero();
 
@@ -1632,57 +1526,51 @@ const Matrix &ShellMITC4::computeBmembrane(int node, const double shp[3][4])
 }
 
 //***********************************************************************
-//compute Bbend matrix
-
-const Matrix &ShellMITC4::computeBbend(int node, const double shp[3][4])
+// compute Bbend matrix
+//
+//---Bbend Matrix in standard {1,2,3} mechanics notation---------
+//
+//            -             -
+//   Bbend = |    0    -N,1  |
+//           |  +N,2     0   |    (3x2)
+//           |  +N,1   -N,2  |
+//            -             -
+//
+//  three(3) curvatures and two(2) rotations (for plate)
+//----------------------------------------------------------------
+const Matrix &
+ShellMITC4::computeBbend(int node, const double shp[3][4])
 {
-
   static Matrix Bbend(3, 2);
-
-  //---Bbend Matrix in standard {1,2,3} mechanics notation---------
-  //
-  //            -             -
-  //   Bbend = |    0    -N,1  |
-  //           |  +N,2     0   |    (3x2)
-  //           |  +N,1   -N,2  |
-  //            -             -
-  //
-  //  three(3) curvatures and two(2) rotations (for plate)
-  //----------------------------------------------------------------
-
   Bbend.Zero();
 
   Bbend(0, 1) = -shp[0][node];
-  Bbend(1, 0) = shp[1][node];
-  Bbend(2, 0) = shp[0][node];
+  Bbend(1, 0) =  shp[1][node];
+  Bbend(2, 0) =  shp[0][node];
   Bbend(2, 1) = -shp[1][node];
 
   return Bbend;
 }
 
 //************************************************************************
-//shape function routine for four node quads
+// shape function routine for four node quads
 
 void ShellMITC4::shape2d(double ss, double tt, const double x[2][4],
                          double shp[3][4], double &xsj)
-
 {
 
-  int i, j, k;
+//int i, j, k;
+  constexpr static const double s[] = {-0.5, 0.5, 0.5, -0.5};
+  constexpr static const double t[] = {-0.5, -0.5, 0.5, 0.5};
 
-  double temp;
-
-  static const double s[] = {-0.5, 0.5, 0.5, -0.5};
-  static const double t[] = {-0.5, -0.5, 0.5, 0.5};
-
-  static double xs[2][2];
-  static double sx[2][2];
+  double xs[2][2];
+  double sx[2][2];
 
   for (int i = 0; i < 4; i++) {
     shp[2][i] = (0.5 + s[i] * ss) * (0.5 + t[i] * tt);
     shp[0][i] = s[i] * (0.5 + t[i] * tt);
     shp[1][i] = t[i] * (0.5 + s[i] * ss);
-  } // end for i
+  }
 
   // Construct jacobian and its inverse
 
@@ -1701,23 +1589,24 @@ void ShellMITC4::shape2d(double ss, double tt, const double x[2][4],
 
   // inverse jacobian
   double jinv = 1.0 / xsj;
-  sx[0][0]    = xs[1][1] * jinv;
-  sx[1][1]    = xs[0][0] * jinv;
+  sx[0][0]    =  xs[1][1] * jinv;
+  sx[1][1]    =  xs[0][0] * jinv;
   sx[0][1]    = -xs[0][1] * jinv;
   sx[1][0]    = -xs[1][0] * jinv;
 
   // form global derivatives
 
-  for (i = 0; i < 4; i++) {
-    temp      = shp[0][i] * sx[0][0] + shp[1][i] * sx[1][0];
-    shp[1][i] = shp[0][i] * sx[0][1] + shp[1][i] * sx[1][1];
-    shp[0][i] = temp;
-  } // end for i
+  for (int i = 0; i < 4; i++) {
+    double temp = shp[0][i] * sx[0][0] + shp[1][i] * sx[1][0];
+    shp[1][i]   = shp[0][i] * sx[0][1] + shp[1][i] * sx[1][1];
+    shp[0][i]   = temp;
+  }
 
   return;
 }
 
-int ShellMITC4::sendSelf(int commitTag, Channel &theChannel)
+int
+ShellMITC4::sendSelf(int commitTag, Channel &theChannel)
 {
   int res = 0;
 
@@ -1726,13 +1615,12 @@ int ShellMITC4::sendSelf(int commitTag, Channel &theChannel)
   // object - don't want to have to do the check if sending data
   int dataTag = this->getDbTag();
 
-  // Now quad sends the ids of its materials
+  // Now send the ids of materials
   int matDbTag;
 
   static ID idData(14);
 
-  int i;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     idData(i) = materialPointers[i]->getClassTag();
     matDbTag  = materialPointers[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
@@ -1784,8 +1672,8 @@ int ShellMITC4::sendSelf(int commitTag, Channel &theChannel)
     return res;
   }
 
-  // Finally, quad asks its material objects to send themselves
-  for (i = 0; i < 4; i++) {
+  // Finally, ask material objects to send themselves
+  for (int i = 0; i < 4; i++) {
     res += materialPointers[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
       opserr << "WARNING ShellMITC4::sendSelf() - " << this->getTag()

@@ -32,9 +32,13 @@
 #include <Element.h>
 #include <Node.h>
 #include <NDMaterial.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 
-class EnhancedQuad : public Element {
+namespace OpenSees {template<int n, int m, typename T> struct MatrixND;};
 
+class EnhancedQuad : public Element,
+                     protected LegendreFixedQuadrilateral<4>
+{
   public:
 
   //full constructor
@@ -111,11 +115,11 @@ class EnhancedQuad : public Element {
     static Matrix damping ;
 
     //quadrature data
-    static const double root3 ;
-    static const double one_over_root3 ;    
-    static const double sg[4] ;
-    static const double tg[4] ;
-    static const double wg[4] ;
+//  static const double root3 ;
+//  static const double one_over_root3 ;    
+//  static const double sg[4] ;
+//  static const double tg[4] ;
+//  static const double wg[4] ;
 
     //stress data
     static double stressData[][4] ;
@@ -175,9 +179,10 @@ class EnhancedQuad : public Element {
                            Matrix &JJinv ) ;
 
     //compute Bbend matrix
-    const Matrix& computeB( int node, const double shp[3][4] ) ;
+    const Matrix computeB(int node, const double shp[3][4], 
+                          OpenSees::MatrixND<3,2,double> &B) ;
 
-    //Matrix transpose of a 3x2 matrix
+    // Matrix transpose of a 3x2 matrix
     const Matrix& transpose( const Matrix &M ) ;
 
     //shape function routine for four node quads

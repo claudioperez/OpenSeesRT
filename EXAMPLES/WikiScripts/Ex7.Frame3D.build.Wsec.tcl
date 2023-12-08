@@ -188,7 +188,7 @@ set QGird [expr 94*$lbf/$ft];		# W-section weight per length
 set IDColTransf 1; # all columns
 set IDBeamTransf 2; # all beams
 set IDGirdTransf 3; # all girders
-set ColTransfType Linear ;				# options, Linear PDelta Corotational 
+set ColTransfType Corotational ;				# options, Linear PDelta Corotational 
 geomTransf $ColTransfType $IDColTransf  0 0 1 ; 	# only columns can have PDelta effects (gravity effects)
 geomTransf Linear $IDBeamTransf 0 0 1
 geomTransf Linear $IDGirdTransf 1 0 0
