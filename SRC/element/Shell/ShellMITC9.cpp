@@ -131,16 +131,6 @@ ShellMITC9::ShellMITC9(int tag, int node1, int node2, int node3, int node4,
   tg[6] = root3_over_root5;
   tg[7] = 0;
   tg[8] = 0;
-
-// wg[0] = 25.0 / 81.0;
-// wg[1] = 40.0 / 81.0;
-// wg[2] = 25.0 / 81.0;
-// wg[3] = 40.0 / 81.0;
-// wg[4] = 25.0 / 81.0;
-// wg[5] = 40.0 / 81.0;
-// wg[6] = 25.0 / 81.0;
-// wg[7] = 40.0 / 81.0;
-// wg[8] = 64.0 / 81.0;
 }
 //******************************************************************
 
@@ -578,9 +568,9 @@ const Matrix &ShellMITC9::getInitialStiff()
       for (p = 0; p < ndf; p++) {
         //BdrillJ[p] = *drillPointer++ ;
         BdrillJ[p] = *drillPointer; // set p-th component
-        drillPointer++;             // pointer arithmetic
+        drillPointer++;
       }
-    }                               // end for j
+    }
 
     dd = materialPointers[i]->getInitialTangent();
     dd *= dvol[i];
@@ -588,11 +578,11 @@ const Matrix &ShellMITC9::getInitialStiff()
     // residual and tangent calculations node loops
 
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       // extract BJ
-      for (p = 0; p < nstress; p++) {
-        for (q = 0; q < ndf; q++)
+      for (int p = 0; p < nstress; p++) {
+        for (int q = 0; q < ndf; q++)
           BJ(p, q) = saveB[p][q][j];
       }
 
@@ -643,16 +633,16 @@ const Matrix &ShellMITC9::getInitialStiff()
         // +  transpose( 1,ndf,BdrillJ ) * BdrillK ;
         stiffJK.addMatrixProduct(0.0, BJtranD, BK, 1.0);
 
-        for (p = 0; p < ndf; p++) {
-          for (q = 0; q < ndf; q++) {
+        for (int p = 0; p < ndf; p++) {
+          for (int q = 0; q < ndf; q++) {
             stiff(jj + p, kk + q) += stiffJK(p, q) + (BdrillJ[p] * BdrillK[q]);
-          } // end for q
+          }
         }
         kk += ndf;
-      } // end for k loop
+      }
       jj += ndf;
     } // end for j loop
-  }   // end for i gauss loop
+  } // end for i gauss loop
   Ki = new Matrix(stiff);
   return stiff;
 }
