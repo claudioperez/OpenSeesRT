@@ -491,8 +491,9 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
     }
     int tangFlag = 0;
 
-    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK) {
       return nullptr;
+    }
     if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK)
       return nullptr;
     if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
@@ -507,12 +508,18 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
     }
 
     if (argc > 6) {
-      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK) {
+	opserr << "WARNING failed to read numIter\n";
         return nullptr;
-      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK)
+      }
+      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK) {
+	opserr << "WARNING failed to read minIncr\n";
         return nullptr;
-      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK)
+      }
+      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK) {
+	opserr << "WARNING failed to read maxIncr\n";
         return nullptr;
+      }
     } else {
       minIncr = increment;
       maxIncr = increment;
@@ -524,16 +531,14 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
         node, dof - 1, increment, numIter, minIncr, maxIncr);
 #else
     Node *theNode = domain->getNode(node);
-    if (theNode == 0) {
-      opserr << "WARNING integrator DisplacementControl node dof dU : Node "
-                "does not exist\n";
+    if (theNode == nullptr) {
+      opserr << "WARNING Node " << node << " does not exist\n";
       return nullptr;
     }
 
     int numDOF = theNode->getNumberDOF();
     if (dof <= 0 || dof > numDOF) {
-      opserr << "WARNING integrator DisplacementControl node dof dU : invalid "
-                "dof given\n";
+      opserr << "WARNING invalid dof " << dof << "\n";
       return nullptr;
     }
 
