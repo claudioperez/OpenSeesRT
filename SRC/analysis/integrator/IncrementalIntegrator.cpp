@@ -264,9 +264,8 @@ IncrementalIntegrator::formElementResidual(void)
     int res = 0;    
 
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
-    while((elePtr = theEles2()) != 0) {
-
-	if (theSOE->addB(elePtr->getResidual(this),elePtr->getID()) <0) {
+    while((elePtr = theEles2()) != nullptr) {
+	if (theSOE->addB(elePtr->getResidual(this),elePtr->getID()) < 0) {
 	    opserr << "WARNING IncrementalIntegrator::formElementResidual -";
 	    opserr << " failed in addB for ID " << elePtr->getID();
 	    res = -2;
