@@ -1017,8 +1017,8 @@ Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact)
   int VnumRows = V.numRows;
   int VnumCols = V.numCols;
   
-  int final_row = init_row + VnumRows - 1;
-  int final_col = init_col + VnumCols - 1;
+  [[maybe_unused]] int final_row = init_row + VnumRows - 1;
+  [[maybe_unused]] int final_col = init_col + VnumCols - 1;
   
   assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
 
@@ -1044,17 +1044,19 @@ int
 Matrix::Assemble(const Vector &V, int init_row, int init_col, double fact) 
 {
 
+  const int VnumRows = V.sz;
+  const int VnumCols = 1;
+ 
+  {
+    [[maybe_unused]] int final_row = init_row + VnumRows - 1;
+    [[maybe_unused]] int final_col = init_col + VnumCols - 1;
+
+    assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  }
+
   int pos_Rows, pos_Cols;
   int res = 0;
   
-  const int VnumRows = V.sz;
-  const int VnumCols = 1;
-  
-  const int final_row = init_row + VnumRows - 1;
-  const int final_col = init_col + VnumCols - 1;
-
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
   for (int i=0; i<VnumCols; i++) {
      pos_Cols = init_col + i;
      for (int j=0; j<VnumRows; j++) {
@@ -1071,16 +1073,17 @@ Matrix::Assemble(const Vector &V, int init_row, int init_col, double fact)
 int
 Matrix::AssembleTranspose(const Matrix &V, int init_row, int init_col, double fact) 
 {
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
   int VnumRows = V.numRows;
   int VnumCols = V.numCols;
   
-  int final_row = init_row + VnumCols - 1;
-  int final_col = init_col + VnumRows - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  {
+    [[maybe_unused]] int final_row = init_row + VnumCols - 1;
+    [[maybe_unused]] int final_col = init_col + VnumRows - 1; 
+    assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  }
+
+  int pos_Rows, pos_Cols;
+  int res = 0;
 
   for (int i=0; i<VnumRows; i++) {
      pos_Cols = init_col + i;
@@ -1097,17 +1100,18 @@ Matrix::AssembleTranspose(const Matrix &V, int init_row, int init_col, double fa
 int
 Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fact) 
 {
+  int VnumRows = V.sz;
+  int VnumCols = 1;
+  { 
+    [[maybe_unused]] int final_row = init_row + VnumCols - 1;
+    [[maybe_unused]] int final_col = init_col + VnumRows - 1;
+    
+    assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  }
+
   int pos_Rows, pos_Cols;
   int res = 0;
   
-  int VnumRows = V.sz;
-  int VnumCols = 1;
-  
-  int final_row = init_row + VnumCols - 1;
-  int final_col = init_col + VnumRows - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
   for (int i=0; i<VnumRows; i++) {
      pos_Cols = init_col + i;
      for (int j=0; j<VnumCols; j++) {
@@ -1123,8 +1127,8 @@ Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fa
 int
 Matrix::Extract(const Matrix &V, int init_row, int init_col, double fact) 
 {
-  int final_row = init_row + numRows - 1;
-  int final_col = init_col + numCols - 1;  
+  [[maybe_unused]] int final_row = init_row + numRows - 1;
+  [[maybe_unused]] int final_col = init_col + numCols - 1;  
   assert((init_row >= 0) && (final_row < V.numRows) && 
          (init_col >= 0) && (final_col < V.numCols));
 
