@@ -112,8 +112,8 @@ set Atruss 1000.0; #rigid
  load 2 1 0 
  }
 
- recorder Node -file x26.out -node 3 -dof 1 disp
- recorder Element -file y26.out -ele 9 localForce
+ recorder Node -file out/x26.out-node 3 -dof 1 disp
+ recorder Element -file out/y26.out-ele 9 localForce
 
  # build the components for the analysis object
  system BandGeneral

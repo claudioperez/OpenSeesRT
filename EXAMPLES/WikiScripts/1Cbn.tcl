@@ -112,8 +112,8 @@ set Atruss 10000.0; #rigid
  load 2 1 0 
  }
 
- recorder Node -file x1Cb.out -node 3 -dof 1 disp
- recorder Element -file y1Cb.out -ele 9 localForce
+ recorder Node -file out/x1Cb.out-node 3 -dof 1 disp
+ recorder Element -file out/y1Cb.out-ele 9 localForce
 
  # build the components for the analysis object
  

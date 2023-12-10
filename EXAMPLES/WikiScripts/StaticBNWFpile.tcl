@@ -219,11 +219,11 @@ puts "Finished creating all pile elements..."
 set timeStep 0.5
 
 # record displacements at pile nodes
-recorder Node -file pileDisp.out  -time  -nodeRange 201 [expr 200+$nNodePile]  -dof 1 2 3  -dT $timeStep  disp 
+recorder Node -file out/pileDisp.out -time  -nodeRange 201 [expr 200+$nNodePile]  -dof 1 2 3  -dT $timeStep  disp 
 # record reaction force in the p-y springs
-recorder Node -file reaction.out  -time  -nodeRange 1 $nNodePile  -dof 1  -dT $timeStep  reaction
+recorder Node -file out/reaction.out -time  -nodeRange 1 $nNodePile  -dof 1  -dT $timeStep  reaction
 # record element forces in pile elements
-recorder Element -file pileForce.out  -time  -eleRange 201 [expr 200+$nElePile]  -dT $timeStep  globalForce
+recorder Element -file out/pileForce.out -time  -eleRange 201 [expr 200+$nElePile]  -dT $timeStep  globalForce
 puts "Finished creating all recorders..."
 
 if 0  {

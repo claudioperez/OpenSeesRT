@@ -150,8 +150,8 @@ analysis Static
 # Start of recorder generation
 # ------------------------------
 # create a Recorder object for the nodal displacements at node 2
-recorder Node -file Gravity_Dsp.out -time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 disp
-recorder Element -file Gravity_Frc.out -time -ele 1 2 force
+recorder Node -file out/Gravity_Dsp.out-time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 disp
+recorder Element -file out/Gravity_Frc.out-time -ele 1 2 force
 # --------------------------------
 # End of recorder generation
 # --------------------------------
@@ -226,17 +226,17 @@ rayleigh $alphaM $betaK $betaKinit $betaKcomm
 # Start of recorder generation
 # ------------------------------
 # create a Recorder object for the nodal displacements at node 2
-recorder Node -file Node_Dsp.out -time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 disp
-recorder Node -file Node_Vel.out -time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 vel
-recorder Node -file Node_Acc.out -time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 accel
-recorder Node -file Node_AbsAcc.out -timeSeries 2 3 -time -node 1 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 accel
+recorder Node -file out/Node_Dsp.out-time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 disp
+recorder Node -file out/Node_Vel.out-time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 vel
+recorder Node -file out/Node_Acc.out-time -node 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 3 accel
+recorder Node -file out/Node_AbsAcc.out-timeSeries 2 3 -time -node 1 2 3 4 5 6 7 9 10 11 12 13 14 -dof 1 2 accel
 
-recorder Element -file Elmt_Frc.out -time -ele 1 2 force
-recorder Element -file Elmt_Def.out -time -ele 1 2 basicDeformation
-recorder Element -file Elmt_N.out -time -ele 1 2 frictionModel normalForce
-recorder Element -file Elmt_Vel.out -time -ele 1 2 frictionModel vel
-recorder Element -file Elmt_Ff.out -time -ele 1 2 frictionModel frictionForce
-recorder Element -file Elmt_COF.out -time -ele 1 2 frictionModel COF
+recorder Element -file out/Elmt_Frc.out-time -ele 1 2 force
+recorder Element -file out/Elmt_Def.out-time -ele 1 2 basicDeformation
+recorder Element -file out/Elmt_N.out-time -ele 1 2 frictionModel normalForce
+recorder Element -file out/Elmt_Vel.out-time -ele 1 2 frictionModel vel
+recorder Element -file out/Elmt_Ff.out-time -ele 1 2 frictionModel frictionForce
+recorder Element -file out/Elmt_COF.out-time -ele 1 2 frictionModel COF
 
 # # recorder display "Display" xLoc yLoc xPixels yPixels -wipe 
 recorder  display  "Display"  5  5  630  630 -wipe

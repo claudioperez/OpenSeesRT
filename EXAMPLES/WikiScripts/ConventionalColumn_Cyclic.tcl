@@ -260,8 +260,8 @@
     }
 
     # define recorders for displacement and force
-    recorder Node -file Disp.out -time -node [expr $NoEle +1] -dof 1 disp; #records displacement at the top node (TN)
-    recorder Node -file Force.out -time -node 1 -dof 1 reaction; #records displacement at the top node (TN)
+    recorder Node -file out/Disp.out-time -node [expr $NoEle +1] -dof 1 disp; #records displacement at the top node (TN)
+    recorder Node -file out/Force.out-time -node 1 -dof 1 reaction; #records displacement at the top node (TN)
 
     # cyclic analysis objects
     constraints Penalty 1.0e14 1.0e14

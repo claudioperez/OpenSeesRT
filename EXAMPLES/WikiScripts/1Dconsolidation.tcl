@@ -277,8 +277,8 @@ puts "Finished with plastic gravity analysis..."
 # recorder Node -file Output/porepressure.out -time -node all -dof 3    vel
 
 # record stress and strain at third Gauss point in the elements
-recorder Element -file stress.out   -time -eleRange  1   $numEleY  material 9 stress
-recorder Element -file strain.out   -time -eleRange  1   $numEleY  material 9 strain
+recorder Element -file out/stress.out  -time -eleRange  1   $numEleY  material 9 stress
+recorder Element -file out/strain.out  -time -eleRange  1   $numEleY  material 9 strain
 
 puts "Finished creating all recorders..."
 

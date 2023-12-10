@@ -1095,12 +1095,12 @@ close $channel
 # designate recorder timestep
 set dt 0.5
 
-recorder Node -file pyDisplace.out -time -nodeRange 202 281 -dof 1 -dT $dt disp
-recorder Node -file pyForces.out   -time -nodeRange 2   81 -dof 1 -dT $dt reaction
+recorder Node -file out/pyDisplace.out-time -nodeRange 202 281 -dof 1 -dT $dt disp
+recorder Node -file out/pyForces.out  -time -nodeRange 2   81 -dof 1 -dT $dt reaction
 
-eval "recorder Node -file Displacements.out -time -node $nodeList6 -dof 1 2 3 -dT $dt disp"
-eval "recorder Node -file Reaction.out      -time -node $nodeList6 -dof 1 2 3 -dT $dt reaction "
-eval "recorder Element -file globalForces.out    -time -ele $BeamElementList -dT $dt globalForce"
+eval "recorder Node -file out/Displacements.out-time -node $nodeList6 -dof 1 2 3 -dT $dt disp"
+eval "recorder Node -file out/Reaction.out     -time -node $nodeList6 -dof 1 2 3 -dT $dt reaction "
+eval "recorder Element -file out/globalForces.out   -time -ele $BeamElementList -dT $dt globalForce"
 
 #-----------------------------------------------------------------------------------------
 #  8. CREATE APPLIED DISPLACEMENT PROFILE
