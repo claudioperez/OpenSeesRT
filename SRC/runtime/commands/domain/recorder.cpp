@@ -1,22 +1,22 @@
- /* ****************************************************************** **
- **    OpenSees - Open System for Earthquake Engineering Simulation    **
- **          Pacific Earthquake Engineering Research Center            **
- **                                                                    **
- **                                                                    **
- ** (C) Copyright 1999, The Regents of the University of California    **
- ** All Rights Reserved.                                               **
- **                                                                    **
- ** Commercial use of this program without express permission of the   **
- ** University of California, Berkeley, is strictly prohibited.  See   **
- ** file 'COPYRIGHT'  in main directory for information on usage and   **
- ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
- **                                                                    **
- ** Developed by:                                                      **
- **   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
- **   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
- **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
- **                                                                    **
- ** ****************************************************************** */
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+**                                                                    **
+**                                                                    **
+** (C) Copyright 1999, The Regents of the University of California    **
+** All Rights Reserved.                                               **
+**                                                                    **
+** Commercial use of this program without express permission of the   **
+** University of California, Berkeley, is strictly prohibited.  See   **
+** file 'COPYRIGHT'  in main directory for information on usage and   **
+** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
+**                                                                    **
+** Developed by:                                                      **
+**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
+**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
+**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
+**                                                                    **
+** ****************************************************************** */
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the comand 'record' is invoked by the
@@ -33,6 +33,7 @@
 #include <G3_Logging.h>
 #include <Domain.h>
 #include <NodeIter.h>
+#include <NodeData.h>
 #include <ElementIter.h>
 #include <Node.h>
 #include <Element.h>
@@ -170,6 +171,107 @@ createOutputStream(OutputOptions &options)
 
   return theOutputStream;
 }
+
+static NodeData
+getNodeDataFlag(const char *dataToStore, Domain& theDomain, int* dataIndex)
+{
+  NodeData dataFlag = NodeData::DisplTrial; // 10;
+
+  if (dataToStore == nullptr)
+    dataFlag = NodeData::DisplTrial; // 0;
+
+  else if ((strcmp(dataToStore, "disp") == 0)) {
+    dataFlag = NodeData::DisplTrial; // 0
+
+  } else if ((strcmp(dataToStore, "vel") == 0)) {
+    dataFlag = NodeData::VelocTrial; // 1
+
+  } else if ((strcmp(dataToStore, "accel") == 0)) {
+    dataFlag = NodeData::AccelTrial; // 2
+  } else if ((strcmp(dataToStore, "incrDisp") == 0)) {
+    dataFlag = NodeData::IncrDisp;  // 3;
+  } else if ((strcmp(dataToStore, "incrDeltaDisp") == 0)) {
+    dataFlag = NodeData::IncrDeltaDisp; // 4;
+  } else if ((strcmp(dataToStore, "unbalance") == 0)) {
+    dataFlag = NodeData::UnbalancedLoad; // 5
+  } else if ((strcmp(dataToStore, "unbalanceInclInertia") == 0) ||
+	     (strcmp(dataToStore, "unbalanceIncInertia") == 0) ||
+	     (strcmp(dataToStore, "unbalanceIncludingInertia") == 0))  {
+    dataFlag = NodeData::UnbalanceInclInertia; // 6
+  } else if ((strcmp(dataToStore, "reaction") == 0)) {
+    dataFlag = NodeData::Reaction;   // 7
+  } else if (((strcmp(dataToStore, "reactionIncInertia") == 0))
+	     || ((strcmp(dataToStore, "reactionInclInertia") == 0))
+	     || ((strcmp(dataToStore, "reactionIncludingInertia") == 0))) {
+    dataFlag = NodeData::ReactionInclInertia; // 8;
+  } else if (((strcmp(dataToStore, "rayleighForces") == 0))
+	     || ((strcmp(dataToStore, "rayleighDampingForces") == 0))) {
+    dataFlag = NodeData::ReactionInclRayleigh; // 9;
+
+  } else if ((strcmp(dataToStore, "dispNorm") == 0)) {
+    dataFlag = NodeData::DisplNorm;
+
+  } else if (((strcmp(dataToStore, "nodalRayleighForces") == 0))) {
+    dataFlag = NodeData::RayleighForces; // 10001;
+
+  } else if (((strcmp(dataToStore, "pressure") == 0))) {
+    dataFlag = NodeData::Pressure;
+
+  } else if ((strncmp(dataToStore, "eigen",5) == 0)) {
+    int mode = atoi(&(dataToStore[5]));
+    *dataIndex = mode;
+    if (mode > 0)
+      dataFlag = NodeData::EigenVector; // 10 + mode;
+    else
+      dataFlag = NodeData::Empty; // 10;
+
+  } else if ((strncmp(dataToStore, "sensitivity",11) == 0)) {
+    int paramTag = atoi(&(dataToStore[11]));
+    Parameter *theParameter = theDomain.getParameter(paramTag);
+    int grad = -1;
+    if (theParameter != nullptr)
+      grad = theParameter->getGradIndex();
+    *dataIndex = grad;
+    if (grad > 0)
+      dataFlag = NodeData::DisplSensitivity; // 1000 + grad;
+    else
+      dataFlag = NodeData::Empty; // 10;
+
+  } else if ((strncmp(dataToStore, "velSensitivity",14) == 0)) {
+    int paramTag = atoi(&(dataToStore[14]));
+    Parameter *theParameter = theDomain.getParameter(paramTag);
+    int grad = -1;
+    if (theParameter != nullptr)
+      grad = theParameter->getGradIndex();
+    
+    *dataIndex = grad;
+    if (grad > 0)
+      dataFlag = NodeData::VelocSensitivity; // 2000 + grad;
+    else
+      dataFlag = NodeData::Empty; // 10;
+
+  } else if ((strncmp(dataToStore, "accSensitivity",14) == 0)) {
+    int paramTag = atoi(&(dataToStore[14]));
+    Parameter *theParameter = theDomain.getParameter(paramTag);
+    int grad = -1;
+    if (theParameter != nullptr)
+      grad = theParameter->getGradIndex();
+
+    *dataIndex = grad;
+    if (grad > 0)
+      dataFlag = NodeData::AccelSensitivity; // 3000 + grad;
+    else
+      dataFlag = NodeData::Empty; // 10;
+
+  } else {
+    // TODO
+    dataFlag = NodeData::Empty; // 10;
+    opserr << "NodeRecorder::NodeRecorder - dataToStore '" << dataToStore;
+    opserr << "' not recognized (disp, vel, accel, incrDisp, incrDeltaDisp)\n";
+  }
+  return dataFlag;
+}
+
 
 static int
 parseOutputOption(OutputOptions *options, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
@@ -400,7 +502,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         if (theRegion == nullptr) {
           opserr << "WARNING recorder Element -region " << tag
                  << " - region does not exist" << endln;
-          return TCL_OK;
+          return TCL_ERROR; // was TCL_OK
         }
         const ID &eleRegion = theRegion->getElements();
 
@@ -1214,7 +1316,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       else if (strcmp(argv[pos], "-sensitivity") == 0) {
         pos++;
         if (Tcl_GetInt(interp, argv[pos], &paramTag) != TCL_OK) {
-          opserr << "ERROR: Invalid parameter tag to node recorder." << endln;
+          opserr << G3_ERROR_PROMPT << "invalid parameter tag to node recorder." << endln;
           return TCL_ERROR;
         }
         pos++;
@@ -1222,7 +1324,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         // Now get gradIndex from parameter tag
         Parameter *theParameter = domain->getParameter(paramTag);
         if (theParameter == nullptr) {
-          opserr << "NodeRecorder: parameter " << paramTag << " not found"
+          opserr << G3_ERROR_PROMPT << "parameter " << paramTag << " not found"
                  << endln;
           return TCL_ERROR;
         }
@@ -1245,7 +1347,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     theOutputStream = createOutputStream(options);
 
     if (theTimeSeries != nullptr && theTimeSeriesID.Size() < theDofs.Size()) {
-      opserr << "ERROR: recorder Node/EnvelopNode # TimeSeries must equal # "
+      opserr << G3_ERROR_PROMPT << "recorder Node/EnvelopNode # TimeSeries must equal # "
                 "dof - IGNORING TimeSeries OPTION\n";
       for (int i = 0; i < theTimeSeriesID.Size(); i++) {
         if (theTimeSeries[i] != 0)
@@ -1256,13 +1358,17 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     if (strcmp(argv[1], "Node") == 0) {
-
+      int dataIndex = -1;
+      NodeData dataFlag;
+      if ((dataFlag = getNodeDataFlag(responseID, *domain, &dataIndex)) == NodeData::Unknown) {
+        opserr << G3_ERROR_PROMPT << "invalid response ID '" << responseID << "'\n";
+        return TCL_ERROR;
+      }
       (*theRecorder) =
-          new NodeRecorder(theDofs, theNodes, gradIndex, responseID, *domain,
+          new NodeRecorder(theDofs, theNodes, gradIndex, dataFlag, dataIndex, *domain,
                            *theOutputStream, dT, echoTimeFlag, theTimeSeries);
 
     } else {
-
       (*theRecorder) = new EnvelopeNodeRecorder(theDofs, theNodes, responseID,
                                                 *domain, *theOutputStream, dT,
                                                 echoTimeFlag, theTimeSeries);
@@ -1690,4 +1796,5 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
   Tcl_SetResult(interp, buffer, TCL_VOLATILE);
   return TCL_OK;
 }
+
 

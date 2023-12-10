@@ -28,7 +28,7 @@
 #include <Vector.h>
 
 NodeResponseParameter::NodeResponseParameter(int passedTag, Node *theNode, 
-					     NodeResponseType theType,
+					     NodeData theType,
 					     int theDOF)
   :Parameter(passedTag,1976), myNode(theNode), myType(theType), myDOF(theDOF), currentValue(0.0)
 {

@@ -42,16 +42,8 @@
 #include <TaggedObject.h>
 #include <MovableObject.h>
 
-enum NodeResponseType : int {
-  Disp = 1, 
-  Vel = 2, 
-  Accel =3, 
-  IncrDisp =4, 
-  IncrDeltaDisp =5, 
-  Reaction =6, 
-  Unbalance =7, 
-  RayleighForces =8
-};
+// TODO: Remove include of NodeData
+#include "NodeData.h"
 
 class Element;
 class Vector;
@@ -146,7 +138,9 @@ class Node :
     VIRTUAL const Vector &getReaction();
     VIRTUAL int   addReactionForce(const Vector &, double factor);
     VIRTUAL int   resetReactionForce(int flag);
-    VIRTUAL const Vector *getResponse(NodeResponseType);
+
+    VIRTUAL const Vector *getResponse(NodeData);
+    int fillResponse(NodeData responseType, Vector& result, int offset=0);
     
     //
     // Load information

@@ -33,7 +33,7 @@
 #include <OPS_Stream.h>
 #include <Vector.h>
 
-enum NodeResponseType: int;
+enum class NodeData: int;
 class Element;
 class Node;
 class SP_Constraint;
@@ -159,7 +159,7 @@ class Domain
     virtual int getNumLoadPatterns(void) const;            
     virtual int getNumParameters(void) const;            
     virtual const Vector &getPhysicalBounds(void); 
-    virtual const Vector *getNodeResponse(int nodeTag, NodeResponseType responseType); 
+    virtual const Vector *getNodeResponse(int nodeTag, NodeData responseType); 
     virtual const Vector *getElementResponse(int eleTag, const char **argv, int argc); 
 
     // methods to get element and node graphs

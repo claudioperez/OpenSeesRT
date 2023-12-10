@@ -111,7 +111,7 @@ ActorSubdomain::run(void)
       bool res, generalized, findSmallest;
       double doubleRes;
       int intRes;
-      NodeResponseType nodeResponseType;
+      NodeData nodeResponseType;
       Parameter *theParameter;
       int argc;
       char **argv;
@@ -872,7 +872,7 @@ ActorSubdomain::run(void)
 
 	  case ShadowActorSubdomain_getNodeResponse:
 	    tag = msgData(1);  // nodeTag
-	    nodeResponseType = (NodeResponseType)msgData(2); 
+	    nodeResponseType = (NodeData)msgData(2); 
 	    theVector = this->getNodeResponse(tag, nodeResponseType);
 
 	    if (theVector == 0)

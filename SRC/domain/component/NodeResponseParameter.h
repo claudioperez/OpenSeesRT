@@ -33,12 +33,12 @@ class MovableObject;
 class Channel;
 class FEM_ObjectBroker;
 class Domain;
-enum NodeResponseType: int;
+enum class NodeData: int;
 
 class NodeResponseParameter : public Parameter
 {
  public:
-  NodeResponseParameter(int tag, Node *theNode, NodeResponseType theType, int theDOF);
+  NodeResponseParameter(int tag, Node *theNode, NodeData theType, int theDOF);
   virtual ~NodeResponseParameter();
   
   virtual void Print(OPS_Stream &s, int flag =0);
@@ -63,7 +63,7 @@ class NodeResponseParameter : public Parameter
   
  private:
   Node *myNode;
-  NodeResponseType myType;
+  NodeData myType;
   int myDOF;
   
   double currentValue;

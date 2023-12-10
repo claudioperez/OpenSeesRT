@@ -17,17 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2010-06-09 17:31:00 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/domain/component/TclParameterCommands.cpp,v $
-
+//
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 #include <OPS_Stream.h>
 #include <Domain.h>
 #include <Node.h>
+#include <NodeData.h>
 
 class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
@@ -41,7 +38,6 @@ class TclBasicBuilder;
 #ifdef _RELIABILITY
 #include <RandomVariable.h>
 #include <RVParameter.h>
-
 #include <ReliabilityDomain.h>
 
 extern ReliabilityDomain *theReliabilityDomain;
@@ -53,14 +49,11 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
                                 TCL_Char ** const argv, Domain *theTclDomain,
                                 TclBasicBuilder *theTclBuilder)
 {
-  // ensure the destructor has not been called -
+  assert(clientData != nullptr);
+
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   Domain *domain = builder->getDomain();
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
 
   // check at least two arguments so don't segemnt fault on strcmp
   if (argc < 2) {
@@ -127,7 +120,7 @@ TclBasicBuilderParameterCommand(ClientData clientData, Tcl_Interp *interp, int a
     }
 
     Parameter *newParameter =
-        new NodeResponseParameter(paramTag, theNode, NodeResponseType::Disp, dof);
+        new NodeResponseParameter(paramTag, theNode, NodeData::Disp, dof);
 
     domain->addParameter(newParameter);
 
