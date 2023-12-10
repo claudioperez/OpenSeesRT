@@ -9,7 +9,7 @@ c I  hstvP contains committed history variables:
 c     hstvP(1) = ep    --> effective plastic strain
 c     hstvP(2) = alpha --> internal hardening variable
 c     hstvP(3) = kappa --> back stress for kinematic hardening
-c	 
+c
 c O  hstv will be set to the corresponding trial values of hstvP
 
 c I  epsP: strain at last committed state
@@ -74,13 +74,13 @@ c     Normal to yield surface
 
 c     Updated stress
          sig = sig - dGamma*E*sgn
-	
+
 c     Updated plastic strain
          ep = ep + dGamma*sgn
 
 c     Updated back stress
          kappa = kappa + dGamma*Hkin*sgn
-	
+
 c     Updated internal hardening variable
          alpha = alpha + dGamma
 
@@ -95,12 +95,12 @@ c     Update history variables
 
 c     Compute requested tangent
       if (ist.eq.2.and.deps.ne.0.d0) then
-      	tang = (sig-sigP)/deps
+        tang = (sig-sigP)/deps
       else if (ist.eq.3.and.eps.ne.0.d0)then
-      	tang = sig/eps
+        tang = sig/eps
       else
 c     add additional cases, if needed
-      endif	         
+      endif
 
       return
 

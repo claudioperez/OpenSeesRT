@@ -19,7 +19,7 @@ c
       integer ist
       real*8 d(10),hstvp(11),hstv(11),delt,xl(2,2),eps,str,dd
       real*8 oldeps,phibound
-	  real*8 epsp,sigp,deps
+      real*8 epsp,sigp,deps
 
 c  Local Variables ----------------------------------------------
 
@@ -39,21 +39,20 @@ c set numerical parameters ------------------------------------------
 
       tol = 10.d-12
       tol2 = 10.d-8
-	  maxitr = 10
+      maxitr = 10
 
 c temperary setting ++++++++++-----------------------
 
 
-	  
-	  eps = epsp + deps
-	  
-	  xl(1,1) = 0.
-	  xl(1,2) = 1.
-	  xl(2,1) = 0.
-	  xl(2,2) = 0.
-	  
-	  delt = 1.d0
-	  
+      eps = epsp + deps
+      
+      xl(1,1) = 0.
+      xl(1,2) = 1.
+      xl(2,1) = 0.
+      xl(2,2) = 0.
+      
+      delt = 1.d0
+
 
 c initialize the material properties & variables --------------------
 
@@ -82,7 +81,7 @@ c  ------------------------------------------------------------------
       crmode = 0
 
 c      if (delt .le. 0.d0) then
-	     delt = 1.d0
+         delt = 1.d0
 c      endif
       viscom = mu/(mu+delt)
       viscot = delt/(mu+delt)
@@ -114,9 +113,8 @@ c  check whether tensile or compressive state
       endif
 
       flag = 0
-	  
-	  
-	  call setpara(d,matpara)
+
+      call setpara(d,matpara)
   
       call yield1(index,cohn,trstr,resf,temp)
 
@@ -130,8 +128,8 @@ c  check whether tensile or compressive state
 C+++++++++++++++++++++++++ Reloading +++++++++++++++++++++++++++++++
           chleng = dsqrt((xl(1,1)-xl(1,2))**2+(xl(2,1)-xl(2,2))**2) 
        
-	      call reloading(chleng,kp,d,matpara,eps,deps,peps,phibound
-     & 	                  ,cohn,tol,maxitr)
+          call reloading(chleng,kp,d,matpara,eps,deps,peps,phibound
+     &                       ,cohn,tol,maxitr)
           kapa(2) = kp
         else
    
@@ -155,7 +153,7 @@ C+++++++++++++++++++++++++ Reloading +++++++++++++++++++++++++++++++
    
 c  plastic loading state  ---------------------------------------------
         
-	chleng = dsqrt((xl(1,1)-xl(1,2))**2+(xl(2,1)-xl(2,2))**2)
+    chleng = dsqrt((xl(1,1)-xl(1,2))**2+(xl(2,1)-xl(2,2))**2)
 
         if ((kp.gt.ktcrit).and.(index.eq.1)) then
 
@@ -225,10 +223,10 @@ c  ------------------------------------------------------------
 
 
       
-	  
+      
  
-	  
-	  
+      
+      
       subroutine setpara(d,matpara)
 
       real*8 d(*), matpara(4)
@@ -236,8 +234,8 @@ c  ------------------------------------------------------------
 
 
       deg_para1 = 0.7d0
-	  deg_para2 = 0.5d0
-	  deg_para3 = 1.0d0
+      deg_para2 = 0.5d0
+      deg_para3 = 1.0d0
 c ----- compute the parameters for the material model
 
       temp = d(6)/d(5)
@@ -252,8 +250,8 @@ c ----- compute the parameters for the material model
       end
 
 
-	  
-	  
+      
+      
 
 
 
@@ -336,11 +334,11 @@ c      write(*,*) 'kp =',kp
       if (error .gt. toler) then
 
         if (iter .gt. maxitr) then
-	  
-	  write(*,*) 'toler =',toler
-	  write(*,*) 'error =', error
-	  write(*,*) 'kp =',kp
-	  error = error/0.d0
+      
+      write(*,*) 'toler =',toler
+      write(*,*) 'error =', error
+      write(*,*) 'kp =',kp
+      error = error/0.d0
           stop 'VEPD_2D: exceed the maximum iteration (iter)!'
         endif
 
@@ -351,13 +349,13 @@ c      write(*,*) 'kp =',kp
 
         kp = kp - resq
 
-	temp = 1.d0 - toler
+    temp = 1.d0 - toler
         if (kp.lt.kpn) then 
           kp = kpn
         elseif (kp.gt.temp) then
           kp = temp 
-	  switch = -1
-	endif
+      switch = -1
+    endif
 
         goto 100                 ! ---> go back to 100 
 
@@ -704,11 +702,11 @@ c   check the convergence of the damage evolution eqn
       if (error .gt. toler) then
 
         if (iter .gt. maxitr) then
-	  
-	  write(*,*) 'toler =',toler
-	  write(*,*) 'error =', error
-	  write(*,*) 'kp =',kp
-	  error = error/0.d0
+      
+      write(*,*) 'toler =',toler
+      write(*,*) 'error =', error
+      write(*,*) 'kp =',kp
+      error = error/0.d0
           stop 'RELOADING: exceed the maximum iteration (iter)!'
         endif
 
@@ -719,13 +717,13 @@ c   check the convergence of the damage evolution eqn
 
         kp = kp - resq
 
-	temp = 1.d0 - toler
+    temp = 1.d0 - toler
         if (kp.lt.kpn) then 
           kp = kpn
         elseif (kp.gt.temp) then
           kp = temp 
-	  switch = -1
-	endif
+      switch = -1
+    endif
 
         peps = pepsn + (kp-kpn)*fenergy/(fstr*(1.d0-br))
 
@@ -788,10 +786,10 @@ c   check the convergence of the damage evolution eqn
       if (error .gt. toler) then
 
         if (iter .gt. maxitr) then
-	  
-	  write(*,*) 'toler =',toler
-	  write(*,*) 'error =', error
-	  error = error/0.d0
+      
+      write(*,*) 'toler =',toler
+      write(*,*) 'error =', error
+      error = error/0.d0
           stop 'UNLOADING: exceed the maximum iteration (iter)!'
         endif
 
