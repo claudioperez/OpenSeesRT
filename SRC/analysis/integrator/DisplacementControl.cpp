@@ -17,17 +17,6 @@
  **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
  **                                                                    **
  ** ****************************************************************** */
-
-// $Revision: 1.13 $
-// $Date: 2010-06-01 23:47:54 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/DisplacementControl.cpp,v $
-
-
-// File: ~/analysis/integrator/DisplacementControl.C
-// 
-// Written: fmk 
-// Created: 07/98
-// Revision: A
 //
 // Description: This file contains the class definition for DisplacementControl.
 // DisplacementControl is an algorithmic class for performing a static analysis
@@ -36,9 +25,12 @@
 // where dU is change in nodal displacements for step, dLambda is
 // change in applied load and DisplacementControl is a control parameter.
 //
-// What: "@(#) DisplacementControl.C, revA"
-
-
+// File: ~/analysis/integrator/DisplacementControl.C
+// 
+// Written: fmk 
+// Created: 07/98
+// Revision: A
+//
 #include <DisplacementControl.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -60,6 +52,7 @@
 #include <EquiSolnAlgo.h>
 #include <Matrix.h>
 #include <TaggedObjectStorage.h>
+#if 0
 #include <elementAPI.h>
 
 void *
@@ -128,6 +121,7 @@ OPS_ADD_RUNTIME_VPV(OPS_DisplacementControlIntegrator)
 				   numIter,data[0],data[1], 
 				   formTangent);
 }
+#endif
 
 
 DisplacementControl::DisplacementControl(int node, int dof, 
@@ -194,7 +188,7 @@ DisplacementControl::newStep(void)
 {
 
   if (theDofID == -1) {
-    opserr << "DisplacementControl::newStep() - dof is fixed or constrained (or domainChanged has not been called!)\n";
+    opserr << "DisplacementControl::newStep - dof is fixed or constrained (or domainChanged has not been called!)\n";
     return -1;
    }
 
@@ -202,7 +196,7 @@ DisplacementControl::newStep(void)
    AnalysisModel *theModel = this->getAnalysisModel();
    LinearSOE *theLinSOE = this->getLinearSOE();    
    if (theModel == 0 || theLinSOE == 0) {
-      opserr << "WARNING DisplacementControl::newStep() ";
+      opserr << "WARNING DisplacementControl::newStep ";
       opserr << "No AnalysisModel or LinearSOE has been set\n";
       return -1;
    }
@@ -253,7 +247,7 @@ DisplacementControl::newStep(void)
 
    ////////////////Abbas////////////////////////////
 
-  if(this->activateSensitivity()==true) { 
+  if (this->activateSensitivity()==true) { 
     Domain *theDomain=theModel->getDomainPtr();
     ParameterIter &paramIter = theDomain->getParameters();
     Parameter *theParam;
@@ -293,7 +287,6 @@ DisplacementControl::newStep(void)
 
 int DisplacementControl::update(const Vector &dU)
 {
- //  opserr<<"Update: Start"<<endln;
 
    if (theDofID == -1) {
       opserr << "DisplacementControl::newStep() - domainChanged has not been called\n";
@@ -310,7 +303,6 @@ int DisplacementControl::update(const Vector &dU)
 
    (*deltaUbar) = dU; // have to do this as the SOE is gonna change
    double dUabar = (*deltaUbar)(theDofID);//dUbar is the vector of residual displacement and dUabar is its component
-    // opserr<<" DisplacementControl:: deltaUbar = "<<*deltaUbar<<endln; 
 
    // determine dUhat    
    theLinSOE->setB(*phat);
@@ -417,26 +409,26 @@ DisplacementControl::domainChanged(void)
       dUIJdh = new Vector(size);
    }
 
-   if (Residual == 0 || Residual->Size() != size) { 
-      if (Residual != 0)
+   if (Residual == nullptr || Residual->Size() != size) { 
+      if (Residual != nullptr)
 	 delete Residual;  
       Residual = new Vector(size);
    } 
    
-   if (Residual2 == 0 || Residual2->Size() != size) { 
-     if (Residual2 != 0)
+   if (Residual2 == nullptr || Residual2->Size() != size) { 
+     if (Residual2 != nullptr)
        delete Residual2;  
      Residual2 = new Vector(size);
    } 
 
-   if (sensU == 0 || sensU->Size() != size) { 
-      if (sensU != 0)
+   if (sensU == nullptr || sensU->Size() != size) { 
+      if (sensU != nullptr)
 	 delete sensU;  
       sensU = new Vector(size);
    } 
 
 
-   Domain *theDomain=theModel->getDomainPtr();//Abbas
+   Domain *theDomain = theModel->getDomainPtr();//Abbas
    int numGrads = theDomain->getNumParameters();
 
    if (dLAMBDAdh == 0 || dLAMBDAdh->Size() != (numGrads)) { 
@@ -712,20 +704,15 @@ DisplacementControl::formSensitivityRHS(int passedGradNumber)
   FE_Element *elePtr;
   FE_EleIter &theEles = theAnalysisModel->getFEs(); 
 
-  while((elePtr = theEles()) != 0) {
+  while((elePtr = theEles()) != nullptr) {
     theSOE->addB(elePtr->getResidual(this) ,elePtr->getID()  );
   }
 
-  //  opserr<<" dKdh*deltaUbar after while loop is "<<*dUIJdh<<endln;
   (*Residual)=theSOE->getB();
  
-  // opserr<<"RHS():getB()............"<<theSOE->getB()<<endln;
   // (*Residual) += (*dUIJdh);
 
   //   (*Residual2)=theSOE->getB();
-
-  //  opserr<<" the new RHS is  "<<*Residual<<endln;
-  //  opserr<<"where dUIJ is "<<*dUIJdh<<endln;
 
   
   //    if(CallParam==1) {
@@ -733,12 +720,10 @@ DisplacementControl::formSensitivityRHS(int passedGradNumber)
   //  this->formTangDispSensitivity(dUhatdh,gradNumber);
   //  this->formdLambdaDh(gradNumber);
   // }
-  
 
-  //   opserr<<"RHS: dLambdaStepdh is "<<(*dLAMBDAdh)(gradNumber)<<endln;
 
-  double CallDlambda1dh=(*dLAMBDAdh)(gradNumber);
-  // opserr<<"RHS:: dphatdh is ....................................//"<<*dphatdh<<endln;
+  double CallDlambda1dh = (*dLAMBDAdh)(gradNumber);
+
   Residual->addVector(1.0,*phat, CallDlambda1dh ); //needed to calculate dLambdadh
   //opserr<<"The residual sensitivity... dRdh= "<<*Residual<<endln;
   //    opserr<<"Pref=  "<<*phat<<endln;
@@ -766,10 +751,6 @@ DisplacementControl::formSensitivityRHS(int passedGradNumber)
     
     opserr<<"Resid= "<<*Residual<<endln;
   */
-  
-
-
-
 
   Residual2->addVector(1.0,*phat,CallDlambda1dh);// needed to calculate dUdh
   //  Residual2->addVector(1.0,*dphatdh, currentLambda );
@@ -808,8 +789,6 @@ DisplacementControl::formSensitivityRHS(int passedGradNumber)
 	relevantID = anID(dofNumber-1);
 	oneDimID(0) = relevantID;
 	theSOE->addB(oneDimVectorWithOne, oneDimID);
-	
-	
       }
     }
     //  (*Residual) =theSOE->getB();
@@ -818,12 +797,10 @@ DisplacementControl::formSensitivityRHS(int passedGradNumber)
   
   theSOE->setB(*Residual);
   
-  //  (*Residual2)=theSOE->getB();
-  
-  
+  //  (*Residual2)=theSOE->getB();  
+ 
   //reset sensitivity flag
-  sensitivityFlag=0;
-  //  opserr<<"RHS :Ends"<<endln;
+  sensitivityFlag = 0;
   return 0;
 }
 
@@ -836,11 +813,8 @@ DisplacementControl::saveSensitivity(const Vector &v, int gradNum, int numGrads)
    DOF_GrpIter &theDOFGrps = theAnalysisModel->getDOFs();
    DOF_Group 	*dofPtr;
 
-   while ( (dofPtr = theDOFGrps() ) != 0)  {
-      //	dofPtr->saveSensitivity(v,0,0,gradNum,numGrads);
+   while ( (dofPtr = theDOFGrps() ) != nullptr)
       dofPtr->saveDispSensitivity(v,gradNum,numGrads);
-
-   }
 
    return 0;
 }
@@ -853,7 +827,7 @@ DisplacementControl::saveLambdaSensitivity(double dlambdadh, int gradNum, int nu
 
    LoadPattern *lpPtr;
    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
-   while ( (lpPtr = thePatterns() ) != 0)
+   while ( (lpPtr = thePatterns() ) != nullptr)
      lpPtr->saveLoadFactorSensitivity(dlambdadh, gradNum, numGrads);
 
    return 0;
@@ -868,7 +842,7 @@ DisplacementControl::commitSensitivity(int gradNum, int numGrads)
    // Loop through the FE_Elements and set unconditional sensitivities
    FE_Element *elePtr;
    FE_EleIter &theEles = theAnalysisModel->getFEs();    
-   while((elePtr = theEles()) != 0) {
+   while((elePtr = theEles()) != nullptr) {
       elePtr->commitSensitivity(gradNum, numGrads);
    }
    return 0;
@@ -876,15 +850,14 @@ DisplacementControl::commitSensitivity(int gradNum, int numGrads)
 
 
 
-   bool 
+bool 
 DisplacementControl::computeSensitivityAtEachIteration()
 {
-
    return true;     
 }
 
 
-   int 
+int 
 DisplacementControl::computeSensitivities(void)
 {
   LinearSOE *theSOE = this->getLinearSOE();
@@ -901,7 +874,7 @@ DisplacementControl::computeSensitivities(void)
   Parameter *theParam;
 
   // De-activate all parameters
-  while ((theParam = paramIter()) != 0)
+  while ((theParam = paramIter()) != nullptr)
     theParam->activate(false);
   
   // Now, compute sensitivity wrt each parameter
@@ -909,7 +882,7 @@ DisplacementControl::computeSensitivities(void)
   paramIter = theDomain->getParameters();
 
  
-  while ((theParam = paramIter()) != 0) {
+  while ((theParam = paramIter()) != nullptr) {
     // Activate this parameter
     theParam->activate(true);
     
@@ -946,7 +919,6 @@ DisplacementControl::computeSensitivities(void)
     //  x->addVector(1.0,*dUhatdh,dLambda);
     (*sensU) = theSOE->getX();//.................................
     //   sensU->addVector(1.0,*deltaUhat,Dlambdadh);
-    //    opserr<<" computeSensitivities::...... final dudh is "<<theSOE->getX()<<endln;
     //(*sensU) +=(*x);
 
     // Save sensitivity to nodes
@@ -962,10 +934,7 @@ DisplacementControl::computeSensitivities(void)
  
   } 
   // end of if statement to be run only one time during the iteration process.
-  //  opserr<<"computeSensitivity: End"<<endln;
   //  CallParam=0;
-  // opserr<<"CallParam now is "<<CallParam<<endln;
-  //opserr<<" computeSensitivities: end"<<endln;
 
   return 0;
 }
