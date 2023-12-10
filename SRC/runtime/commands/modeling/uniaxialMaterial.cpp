@@ -1350,7 +1350,7 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp
       return TCL_ERROR;
     }
 
-    int tag, nb, bsf, typ, dmg, unt;
+    int tag, nb, bsf, typ = 2, dmg = 0, unt = 1;
     double fc, fy, Es, fu, Eh, ld, width, depth, db;
 
     int argStart = 2;
