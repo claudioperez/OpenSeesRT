@@ -5,8 +5,8 @@
 
 // Simple hash table iterator implemented in C.
 
-#ifndef G3_TABLEITERATOR_H
-#define G3_TABLEITERATOR_H
+#ifndef G3_TableEntry_H
+#define G3_TableEntry_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -21,11 +21,11 @@ extern "C" {
 //
 // Hash table iterator: create with ht_iterator, iterate with ht_next.
 typedef struct {
-    union {
-      int tag;
-      const char* key;
-    }; // current key
-    int _key_type;
+ // union {
+ //   int tag;
+ //   const char* key;
+ // }; // current key
+ // int _key_type;
 
     void* value;      // current value
 
@@ -40,4 +40,4 @@ bool G3_NextTableEntry(G3_TableIterator* it);
 #ifdef __cplusplus
 }
 #endif
-#endif // G3_TABLEITERATOR_H
+#endif // G3_TableEntry_H

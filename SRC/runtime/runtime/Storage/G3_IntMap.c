@@ -199,31 +199,6 @@ G3_GetIntMapLength(G3_IntMap *table)
   return table->length;
 }
 
-/*
-hti ht_iterator(G3_IntMap *table) {
-    hti it;
-    it._table = table;
-    it._index = 0;
-    return it;
-}
-
-bool ht_next(hti* it) {
-    // Loop till we've hit end of entries array.
-    G3_IntMap *table = it->_table;
-    while (it->_index < table->capacity) {
-        size_t i = it->_index;
-        it->_index++;
-        if (table->entries[i].key != NULL) {
-            // Found next non-empty item, update iterator key and value.
-            ht_entry entry = table->entries[i];
-            it->key = entry.key;
-            it->value = entry.value;
-            return true;
-        }
-    }
-    return false;
-}
-*/
 #include "G3_TableIterator.h"
 
 bool G3_NextTableEntry(G3_TableIterator* iter) {
@@ -239,11 +214,10 @@ bool G3_NextTableEntry(G3_TableIterator* iter) {
         if (table->entries[i].key != NULL) {
             // Found next non-empty item, update iterator key and value.
             ht_entry entry = table->entries[i];
-            iter->tag = entry.key;
+            // iter->tag = entry.key;
             iter->value = entry.value;
             return true;
         }
     }
     return false;
 }
-

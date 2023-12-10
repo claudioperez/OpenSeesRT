@@ -35,11 +35,13 @@ G3_DeleteTable(G3_Table *table)
   // TODO
 }
 
+#if 0
 const char *
 G3_SetTableEntry(G3_Table *table, const char *partition, int tag, void *value)
 {
   // TODO
 }
+#endif
 
 
 int
@@ -86,7 +88,7 @@ G3_TableIterator G3_IteratePartition(G3_Table* table, const char* partition)
   else
     iter._table = imap;
 
-  iter._key_type = 'i';
+//iter._key_type = 'i';
   iter._index = 0;
   
   return iter;
