@@ -82,7 +82,7 @@ ShellMITC4::ShellMITC4()
   appliedB[2] = 0.0;
 }
 
-//*********************************************************************
+
 // full constructor
 ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
                        SectionForceDeformation &theMaterial, bool UpdateBasis)
@@ -109,7 +109,7 @@ ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
   appliedB[1] = 0.0;
   appliedB[2] = 0.0;
 }
-//******************************************************************
+
 
 // destructor
 ShellMITC4::~ShellMITC4()
@@ -126,7 +126,7 @@ ShellMITC4::~ShellMITC4()
   if (Ki != nullptr)
     delete Ki;
 }
-//**************************************************************************
+
 
 // set domain
 void ShellMITC4::setDomain(Domain *theDomain)
@@ -650,7 +650,6 @@ const Matrix &ShellMITC4::getInitialStiff()
 
       kk = 0;
       for (int k = 0; k < numnodes; k++) {
-
         // extract BK
         for (int p = 0; p < nstress; p++) {
           for (int q = 0; q < ndf; q++)
@@ -708,8 +707,7 @@ void ShellMITC4::zeroLoad()
 
 int ShellMITC4::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
-  // opserr << "ShellMITC4::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
-  // return -1;
+
   int type;
   const Vector &data = theLoad->getData(type, loadFactor);
 
@@ -719,9 +717,6 @@ int ShellMITC4::addLoad(ElementalLoad *theLoad, double loadFactor)
     appliedB[0] += loadFactor * data(0);
     appliedB[1] += loadFactor * data(1);
     appliedB[2] += loadFactor * data(2);
-    // opserr << "loadfactor = " << loadFactor << endln;
-    // opserr << "      data = " << data;
-    // opserr << "      b    = " << b   ;
     return 0;
   } else {
     opserr << "ShellMITC4::addLoad() - ele with tag: " << this->getTag()
@@ -798,12 +793,9 @@ const Vector &ShellMITC4::getResistingForceIncInertia()
   return res;
 }
 
-//*********************************************************************
 // form inertia terms
-
 void ShellMITC4::formInertiaTerms(int tangFlag)
 {
-
   // translational mass only
   // rotational inertia terms are neglected
 
@@ -1008,11 +1000,6 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
 
   MatrixND<2, 4> Ms;
   Ms.zero();
-
-//MatrixND<2, 12> Bs;
-//Bs.zero();
-//MatrixND<2, 12> Bsv;
-//Bsv.zero();
 
   double r1 = 0;
   double r2 = 0;
@@ -1404,9 +1391,8 @@ double *ShellMITC4::computeBdrill(int node, const double shp[3][4], double Bdril
   return Bdrill;
 }
 
-//********************************************************************
-// assemble a B matrix
 
+// assemble a B matrix
 void
 ShellMITC4::assembleB(const Matrix &Bmembrane,
                        const Matrix &Bbend, const Matrix &Bshear,
@@ -1496,9 +1482,9 @@ ShellMITC4::assembleB(const Matrix &Bmembrane,
   }
 }
 
-//***********************************************************************
+//
 // compute Bmembrane matrix
-
+//
 const Matrix &
 ShellMITC4::computeBmembrane(int node, const double shp[3][4])
 {
@@ -1525,8 +1511,12 @@ ShellMITC4::computeBmembrane(int node, const double shp[3][4])
   return Bmembrane;
 }
 
-//***********************************************************************
+//
 // compute Bbend matrix
+//
+const Matrix &
+ShellMITC4::computeBbend(int node, const double shp[3][4])
+{
 //
 //---Bbend Matrix in standard {1,2,3} mechanics notation---------
 //
@@ -1538,9 +1528,6 @@ ShellMITC4::computeBmembrane(int node, const double shp[3][4])
 //
 //  three(3) curvatures and two(2) rotations (for plate)
 //----------------------------------------------------------------
-const Matrix &
-ShellMITC4::computeBbend(int node, const double shp[3][4])
-{
   static Matrix Bbend(3, 2);
   Bbend.Zero();
 
@@ -1554,7 +1541,6 @@ ShellMITC4::computeBbend(int node, const double shp[3][4])
 
 //************************************************************************
 // shape function routine for four node quads
-
 void ShellMITC4::shape2d(double ss, double tt, const double x[2][4],
                          double shp[3][4], double &xsj)
 {

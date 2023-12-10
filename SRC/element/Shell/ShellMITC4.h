@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2011/03/10 22:51:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/ShellMITC4.h,v $
-
+//
 // Original implementation: Ed "C++" Love
 // Reimplementation: Leopoldo Tesser, Diego A. Talledo, Véronique Le Corvec
 //
@@ -36,7 +32,6 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
-// #include <numbers>
 
 #include <ID.h> 
 #include <Vector.h>
@@ -52,10 +47,10 @@ class ShellMITC4 : public    Element,
 {
  public:
   
-    //null constructor
+    // null constructor
     ShellMITC4( );
     
-    //full constructor
+    // full constructor
     ShellMITC4( int tag, 
                 int node1,
                 int node2,
@@ -64,28 +59,28 @@ class ShellMITC4 : public    Element,
                 SectionForceDeformation &theMaterial,
                 bool updateBasis=false) ;
     
-    //destructor 
+    // destructor 
     virtual ~ShellMITC4( ) ;
 
     void setDomain( Domain *theDomain ) ;
     
-    //get the number of external nodes
+    // get the number of external nodes
     int getNumExternalNodes( ) const ;
     
-    //return connected external nodes
+    // return connected external nodes
     const ID &getExternalNodes( ) ;
     Node **getNodePtrs( );
 
-    //return number of dofs
+    // return number of dofs
     int getNumDOF( ) ;
 
-    //commit state
+    // commit state
     int commitState( ) ;
     
-    //revert to last commit 
+    // revert to last commit 
     int revertToLastCommit( ) ;
     
-    //revert to start 
+    // revert to start 
     int revertToStart( ) ;
 
     //print out element data
@@ -130,18 +125,6 @@ class ShellMITC4 : public    Element,
     static Matrix mass ;
     static Matrix damping ;
 
-    // quadrature data
-//  static constexpr double one_over_root3 = 0.5773502691896258; // = std::numbers::inv_sqrt3<double>;    
-//  static constexpr double sg[4] = { -one_over_root3,
-//                                     one_over_root3,
-//                                     one_over_root3,
-//                                    -one_over_root3};
-//  static constexpr double tg[4] = { -one_over_root3,
-//                                    -one_over_root3,
-//                                     one_over_root3,
-//                                     one_over_root3};
-//  static constexpr const double wg[4] = {1.0, 1.0, 1.0, 1.0};
-
     //node information
     ID connectedExternalNodes ;  //four node numbers
     Node *nodePointers[4] ;      //pointers to four nodes
@@ -172,16 +155,16 @@ class ShellMITC4 : public    Element,
     void updateBasis( ) ;
     //end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
         
-    //inertia terms
+    // inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
-    //form residual and tangent					  
+    // form residual and tangent					  
     void formResidAndTangent( int tang_flag ) ;
 
-    //compute Bdrill matrix
+    // compute Bdrill matrix
     double* computeBdrill( int node, const double shp[3][4] , double Bdrill[6]);
 
-    //assemble a B matrix 
+    // assemble a B matrix 
     void
     assembleB( const Matrix &Bmembrane,
                const Matrix &Bbend, 
@@ -189,26 +172,22 @@ class ShellMITC4 : public    Element,
                OpenSees::MatrixND<nstress, ndf, double> &B
                ) ;
   
-    //compute Bmembrane matrix
+    // compute Bmembrane matrix
     const Matrix& computeBmembrane( int node, const double shp[3][4] ) ;
   
-    //compute Bbend matrix
+    // compute Bbend matrix
     const Matrix& computeBbend( int node, const double shp[3][4] ) ;
   
-    //shape function routine for four node quads
+    // shape function routine for four node quads
     void shape2d( double ss, double tt, 
-		          const double x[2][4], 
-		          double shp[3][4], 
-		          double &xsj ) ;
+		  const double x[2][4], 
+		  double shp[3][4], 
+		  double &xsj ) ;
 
     // vector for applying loads
     Vector *load;
     Matrix *Ki;
     double init_disp[4][6];
-
-
-} ; 
-
-
+}; 
 
 #endif
