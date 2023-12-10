@@ -244,9 +244,7 @@ IncrementalIntegrator::formNodalUnbalance(void)
     DOF_Group *dofPtr;
     int res = 0;
 
-    while ((dofPtr = theDOFs()) != 0) { 
-      //      opserr << "NODPTR: " << dofPtr->getUnbalance(this);
-
+    while ((dofPtr = theDOFs()) != nullptr) {
 	if (theSOE->addB(dofPtr->getUnbalance(this),dofPtr->getID()) <0) {
 	    opserr << "WARNING IncrementalIntegrator::formNodalUnbalance -";
 	    opserr << " failed in addB for ID " << dofPtr->getID();
@@ -338,9 +336,10 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 
   return res;
 }
- */
+*/
 
-/*int 
+/*
+int 
 IncrementalIntegrator::addModalDampingForce(void)
 {
   int res = 0;
@@ -499,7 +498,7 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 {
   int res = 0;
   
-  if (modalDampingValues == 0)
+  if (modalDampingValues == nullptr)
     return 0;
 
   int numModes = modalDampingValues->Size();
@@ -637,7 +636,7 @@ IncrementalIntegrator::doMv(const Vector &v, Vector &res) {
   // loop over the FE_Elements
   FE_Element *elePtr;
   FE_EleIter &theEles = theAnalysisModel->getFEs();    
-  while((elePtr = theEles()) != 0) {
+  while((elePtr = theEles()) != nullptr) {
     const Vector &b = elePtr->getM_Force(v, 1.0);
     res.Assemble(b, elePtr->getID(), 1.0);
   }
