@@ -147,9 +147,9 @@ BasicAnalysisBuilder::domainChanged(void)
     // and their addition to the AnalysisModel.
     result = theHandler->handle();
     if (result < 0) {
-	opserr << "BasicAnalysisBuilder::domainChange() - ";
-	opserr << "ConstraintHandler::handle() failed\n";
-	return -1;
+      opserr << "BasicAnalysisBuilder::domainChange() - ";
+      opserr << "ConstraintHandler::handle() failed\n";
+      return -1;
     }
 
     // we now invoke number() on the numberer which causes
@@ -157,16 +157,16 @@ BasicAnalysisBuilder::domainChanged(void)
     // AnalysisModel.
     result = theNumberer->numberDOF();
     if (result < 0) {
-	opserr << "BasicAnalysisBuilder::domainChange() - ";
-	opserr << "DOF_Numberer::numberDOF() failed\n";
-	return -2;
+      opserr << "BasicAnalysisBuilder::domainChange() - ";
+      opserr << "DOF_Numberer::numberDOF() failed\n";
+      return -2;
     }
 
     result = theHandler->doneNumberingDOF();
     if (result < 0) {
-	opserr << "BasicAnalysisBuilder::domainChange() - ";
-	opserr << "ConstraintHandler::doneNumberingDOF() failed";
-	return -2;
+      opserr << "BasicAnalysisBuilder::domainChange() - ";
+      opserr << "ConstraintHandler::doneNumberingDOF() failed";
+      return -2;
     }
 
     // we invoke setSize() on the LinearSOE which
@@ -189,25 +189,25 @@ BasicAnalysisBuilder::domainChanged(void)
     if (theStaticIntegrator != nullptr) {
       result = theStaticIntegrator->domainChanged();
       if (result < 0) {
-          opserr << "BasicAnalysisBuilder::domainChange() - ";
-          opserr << "Integrator::domainChanged() failed";
-          return -4;
+        opserr << "BasicAnalysisBuilder::domainChange() - ";
+        opserr << "Integrator::domainChanged() failed";
+        return -4;
       }
     }
     if (theTransientIntegrator != nullptr) {
       result = theTransientIntegrator->domainChanged();
       if (result < 0) {
-          opserr << "BasicAnalysisBuilder::domainChange() - ";
-          opserr << "Integrator::domainChanged() failed";
-          return -4;
+        opserr << "BasicAnalysisBuilder::domainChange() - ";
+        opserr << "Integrator::domainChanged() failed";
+        return -4;
       }
     }
 
     result = theAlgorithm->domainChanged();
     if (result < 0) {
-	opserr << "StaticAnalysis::setAlgorithm() - ";
-	opserr << "Algorithm::domainChanged() failed";
-	return -5;
+      opserr << "StaticAnalysis::setAlgorithm() - ";
+      opserr << "Algorithm::domainChanged() failed";
+      return -5;
     }
 
     return 0;
@@ -247,11 +247,11 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
       result = theAnalysisModel->analysisStep();
 
       if (result < 0) {
-          opserr << "StaticAnalysis::analyze() - the AnalysisModel failed";
-          opserr << " at step: " << i << " with domain at load factor ";
-          opserr << theDomain->getCurrentTime() << endln;
-          theDomain->revertToLastCommit();
-          return -2;
+        opserr << "StaticAnalysis::analyze - the AnalysisModel failed";
+        opserr << " at step: " << i << " with domain at load factor ";
+        opserr << theDomain->getCurrentTime() << endln;
+        theDomain->revertToLastCommit();
+        return -2;
       }
 
       // Check for change in Domain since last step. As a change can
@@ -260,46 +260,46 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
       int stamp = theDomain->hasDomainChanged();
 
       if (stamp != domainStamp) {
-          domainStamp = stamp;
+        domainStamp = stamp;
 
-          result = this->domainChanged();
-          if (result < 0) {
-              opserr << "BasicAnalysisBuilder::analyzeStatic() - domainChanged failed";
-              opserr << " at step " << i << " of " << numSteps << endln;
-              return -1;
-          }
+        result = this->domainChanged();
+        if (result < 0) {
+          opserr << "BasicAnalysisBuilder::analyzeStatic - domainChanged failed";
+          opserr << " at step " << i << " of " << numSteps << endln;
+          return -1;
+        }
       }
 
       result = theStaticIntegrator->newStep();
       if (result < 0) {
-          opserr << "StaticAnalysis::analyze() - the Integrator failed";
-          opserr << " at step: " << i << " with domain at load factor ";
-          opserr << theDomain->getCurrentTime() << endln;
-          theDomain->revertToLastCommit();
-          theStaticIntegrator->revertToLastStep();
-          return -2;
+        opserr << "StaticAnalysis::analyze - the Integrator failed";
+        opserr << " at step: " << i << " with domain at load factor ";
+        opserr << theDomain->getCurrentTime() << endln;
+        theDomain->revertToLastCommit();
+        theStaticIntegrator->revertToLastStep();
+        return -2;
       }
 
       result = theAlgorithm->solveCurrentStep();
       if (result < 0) {
-          // opserr << "StaticAnalysis::analyze() - the Algorithm failed";
-          // opserr << " at step: " << i << " with domain at load factor ";
-          // opserr << theDomain->getCurrentTime() << endln;
-          theDomain->revertToLastCommit();
-          theStaticIntegrator->revertToLastStep();
-          return -3;
+        // opserr << "StaticAnalysis::analyze() - the Algorithm failed";
+        // opserr << " at step: " << i << " with domain at load factor ";
+        // opserr << theDomain->getCurrentTime() << endln;
+        theDomain->revertToLastCommit();
+        theStaticIntegrator->revertToLastStep();
+        return -3;
       }
 
       result = theStaticIntegrator->commit();
       if (result < 0) {
-          opserr << "StaticAnalysis::analyze() - ";
-          opserr << "the Integrator failed to commit";
-          opserr << " at step: " << i << " with domain at load factor ";
-          opserr << theDomain->getCurrentTime() << endln;
+        opserr << "StaticAnalysis::analyze - ";
+        opserr << "the Integrator failed to commit";
+        opserr << " at step: " << i << " with domain at load factor ";
+        opserr << theDomain->getCurrentTime() << endln;
 
-          theDomain->revertToLastCommit();
-          theStaticIntegrator->revertToLastStep();
-          return -4;
+        theDomain->revertToLastCommit();
+        theStaticIntegrator->revertToLastStep();
+        return -4;
       }
   }
 
@@ -464,32 +464,34 @@ void BasicAnalysisBuilder::newStaticAnalysis()
     }
 
     if (theAnalysisModel == nullptr) {
-        theAnalysisModel = new AnalysisModel();
+      theAnalysisModel = new AnalysisModel();
     }
 
     if (theTest == nullptr) {
-        theTest = new CTestNormUnbalance(1.0e-6,25,0);
+      theTest = new CTestNormUnbalance(1.0e-6,25,0);
     }
 
     if (theAlgorithm == nullptr) {
-        theAlgorithm = new NewtonRaphson(*theTest);
+      theAlgorithm = new NewtonRaphson(*theTest);
     }
 
     if (theHandler == nullptr) {
-        opserr << "WARNING analysis Static - no ConstraintHandler yet specified, \n";
-        opserr << " PlainHandler default will be used\n";
-        theHandler = new PlainHandler();
+      opserr << "WARNING analysis Static - no ConstraintHandler yet specified, \n";
+      opserr << " PlainHandler default will be used\n";
+      theHandler = new PlainHandler();
     }
 
     if (theNumberer == nullptr) {
-        RCM *theRCM = new RCM(false);
-        theNumberer = new DOF_Numberer(*theRCM);
+      RCM *theRCM = new RCM(false);
+      theNumberer = new DOF_Numberer(*theRCM);
     }
 
     if (theStaticIntegrator == nullptr) {
-        opserr << "WARNING analysis Static - no Integrator specified, \n";
-        opserr << " StaticIntegrator default will be used\n";
-        theStaticIntegrator = new LoadControl(1, 1, 1, 1);
+      // TODO
+      opserr << "WARNING analysis Static - no Integrator specified, \n";
+      //opserr << " StaticIntegrator default will be used\n";
+      opserr << " LoadControl default will be used\n";
+      theStaticIntegrator = new LoadControl(1, 1, 1, 1);
     }
 
     if (theSOE == nullptr) {
