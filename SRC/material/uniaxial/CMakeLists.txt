@@ -15,9 +15,9 @@ target_sources(OPS_Material
       BWBN.cpp
       Bilin.cpp
       Bilin02.cpp
-      ConcreteCM.cpp
-      ConcreteD.cpp
-      ConcretewBeta.cpp
+#     ConcreteCM.cpp
+#     ConcreteD.cpp
+#     ConcretewBeta.cpp
       DowelType.cpp
       Elastic2Material.cpp
       ElasticBilin.cpp
@@ -32,9 +32,9 @@ target_sources(OPS_Material
       OriginCentered.cpp
       ParallelMaterial.cpp
       ResilienceLow.cpp
-      Steel2.cpp
-      SteelMPF.cpp
-      SteelDRC.cpp      
+#     Steel2.cpp
+#     SteelMPF.cpp
+#     SteelDRC.cpp      
       UVCuniaxial.cpp
       UniaxialMaterial.cpp
     PUBLIC
@@ -44,9 +44,9 @@ target_sources(OPS_Material
       BWBN.h
       Bilin.h
       Bilin02.h
-      ConcreteCM.h
-      ConcreteD.h
-      ConcretewBeta.h
+#     ConcreteCM.h
+#     ConcreteD.h
+#     ConcretewBeta.h
       DowelType.h
       Elastic2Material.h
       ElasticBilin.h
@@ -61,9 +61,9 @@ target_sources(OPS_Material
       OriginCentered.h
       ParallelMaterial.h
       ResilienceLow.h
-      Steel2.h
-      SteelMPF.h
-      SteelDRC.h      
+#     Steel2.h
+#     SteelMPF.h
+#     SteelDRC.h      
       UVCuniaxial.h
       UniaxialMaterial.h
 )
@@ -82,33 +82,31 @@ target_sources(OPS_Material
       CFSWSWP.cpp
       CableMaterial.cpp
       Cast.cpp
-      Concrete01.cpp
-      Concrete01WithSITC.cpp
-      Concrete02.cpp
-      Concrete02IS.cpp
-      Concrete02Thermal.cpp
-      Concrete04.cpp
-      Concrete05.cpp
-      Concrete06.cpp
-      Concrete07.cpp
-      ConcreteECThermal.cpp
-      ConcreteSakaiKawashima.cpp
-      ConcretewBeta.cpp
-      ConfinedConcrete01.cpp
+#     Concrete01.cpp
+#     Concrete01WithSITC.cpp
+#     Concrete02.cpp
+#     Concrete02IS.cpp
+#     Concrete02Thermal.cpp
+#     Concrete04.cpp
+#     Concrete05.cpp
+#     Concrete06.cpp
+#     Concrete07.cpp
+#     ConcreteECThermal.cpp
+#     ConcreteSakaiKawashima.cpp
+#     ConcretewBeta.cpp
+#     ConfinedConcrete01.cpp
       ContinuumUniaxial.cpp
       CubicSpline.cpp
       DamperMaterial.cpp
       DegradingPinchedBW.cpp
-      DoddRestr.cpp
-      Dodd_Restrepo.cpp
       DrainMaterial.cpp
       ECC01.cpp
       ENTMaterial.cpp
       EPPGapMaterial.cpp
       ElasticBDMaterial.cpp
       ElasticMaterialThermal.cpp
-      FRPConfinedConcrete.cpp
-      FRPConfinedConcrete02.cpp
+#     FRPConfinedConcrete.cpp
+#     FRPConfinedConcrete02.cpp
       FatigueMaterial.cpp
       #FedeasMaterial.cpp
       GNGMaterial.cpp
@@ -134,35 +132,35 @@ target_sources(OPS_Material
       OOHystereticMaterial.cpp
       PathIndependentMaterial.cpp
       Pinching4Material.cpp
-      PrestressedSteelMaterial.cpp
-      RambergOsgoodSteel.cpp
+#     PrestressedSteelMaterial.cpp
+#     RambergOsgoodSteel.cpp
       ReinforcingSteel.cpp
       ResilienceMaterialHR.cpp
       SAWSMaterial.cpp
       SPSW02.cpp
-      SecantConcrete.cpp
+#     SecantConcrete.cpp
       SelfCenteringMaterial.cpp
       SeriesMaterial.cpp
       ShearPanelMaterial.cpp
       SimpleFractureMaterial.cpp
       SLModel.cpp
-      SmoothPSConcrete.cpp
-      StainlessECThermal.cpp
-      Steel01.cpp
-      Steel01Thermal.cpp
-      Steel02.cpp
-      Steel02Fatigue.cpp
-      Steel02Thermal.cpp
-      Steel03.cpp
-      Steel4.cpp
-      SteelBRB.cpp
-      SteelECThermal.cpp
-      SteelFractureDI.cpp
-      SteelMP.cpp
-      TDConcrete.cpp
-      TDConcreteEXP.cpp
-      TDConcreteMC10.cpp
-      TDConcreteMC10NL.cpp
+#     SmoothPSConcrete.cpp
+#     StainlessECThermal.cpp
+#     Steel01.cpp
+#     Steel01Thermal.cpp
+#     Steel02.cpp
+#     Steel02Fatigue.cpp
+#     Steel02Thermal.cpp
+#     Steel03.cpp
+#     Steel4.cpp
+#     SteelBRB.cpp
+#     SteelECThermal.cpp
+#     SteelFractureDI.cpp
+#     SteelMP.cpp
+#     TDConcrete.cpp
+#     TDConcreteEXP.cpp
+#     TDConcreteMC10.cpp
+#     TDConcreteMC10NL.cpp
       TensionOnlyMaterial.cpp
       UniaxialJ2Plasticity.cpp
       ViscousDamper.cpp
@@ -186,33 +184,33 @@ target_sources(OPS_Material
       CFSWSWP.h
       CableMaterial.h
       Cast.h
-      Concrete01.h
-      Concrete01WithSITC.h
-      Concrete02.h
-      Concrete02IS.h
-      Concrete02Thermal.h
-      Concrete04.h
-      Concrete05.h
-      Concrete06.h
-      Concrete07.h
-      ConcreteECThermal.h
-      ConcreteSakaiKawashima.h
-      ConcretewBeta.h
-      ConfinedConcrete01.h
+#     Concrete01.h
+#     Concrete01WithSITC.h
+#     Concrete02.h
+#     Concrete02IS.h
+#     Concrete02Thermal.h
+#     Concrete04.h
+#     Concrete05.h
+#     Concrete06.h
+#     Concrete07.h
+#     ConcreteECThermal.h
+#     ConcreteSakaiKawashima.h
+#     ConcretewBeta.h
+#     ConfinedConcrete01.h
       ContinuumUniaxial.h
       CubicSpline.h
       DamperMaterial.h
       DegradingPinchedBW.h
-      DoddRestr.h
-      Dodd_Restrepo.h
+#     DoddRestr.h
+#     Dodd_Restrepo.h
       DrainMaterial.h
       ECC01.h
       ENTMaterial.h
       EPPGapMaterial.h
       ElasticBDMaterial.h
       ElasticMaterialThermal.h
-      FRPConfinedConcrete.h
-      FRPConfinedConcrete02.h
+#     FRPConfinedConcrete.h
+#     FRPConfinedConcrete02.h
       FatigueMaterial.h
       #FedeasMaterial.h
       GNGMaterial.h
@@ -238,34 +236,34 @@ target_sources(OPS_Material
       OOHystereticMaterial.h
       PathIndependentMaterial.h
       Pinching4Material.h
-      PrestressedSteelMaterial.h
-      RambergOsgoodSteel.h
+#     PrestressedSteelMaterial.h
+#     RambergOsgoodSteel.h
       ReinforcingSteel.h
       ResilienceMaterialHR.h
       SAWSMaterial.h
       SPSW02.h
-      SecantConcrete.h
+#     SecantConcrete.h
       SelfCenteringMaterial.h
       SeriesMaterial.h
       ShearPanelMaterial.h
       SimpleFractureMaterial.h
       SLModel.h
-      SmoothPSConcrete.h
-      StainlessECThermal.h
-      Steel01.h
-      Steel01Thermal.h
-      Steel02.h
-      Steel02Fatigue.h
-      Steel02Thermal.h
-      Steel03.h
-      Steel4.h
-      SteelBRB.h
-      SteelECThermal.h
-      SteelMP.h
-      TDConcrete.h
-      TDConcreteEXP.h
-      TDConcreteMC10.h
-      TDConcreteMC10NL.h
+#     SmoothPSConcrete.h
+#     StainlessECThermal.h
+#     Steel01.h
+#     Steel01Thermal.h
+#     Steel02.h
+#     Steel02Fatigue.h
+#     Steel02Thermal.h
+#     Steel03.h
+#     Steel4.h
+#     SteelBRB.h
+#     SteelECThermal.h
+#     SteelMP.h
+#     TDConcrete.h
+#     TDConcreteEXP.h
+#     TDConcreteMC10.h
+#     TDConcreteMC10NL.h
       TensionOnlyMaterial.h
       UniaxialJ2Plasticity.h
       ViscousDamper.h
@@ -294,8 +292,6 @@ target_sources(OPS_Material
    Trilinwpd.h
 )
 
-
-
 target_sources(OPS_Material
   PRIVATE
    Masonry.cpp
@@ -316,11 +312,11 @@ add_library(OPS_Material_f)
 if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
   target_compile_options(OPS_Material_f PRIVATE "-w" "-std=legacy")
 endif()
-target_sources(OPS_Material_f PRIVATE
-      DoddRestrepo.f
-      STEELDR.f
-      c14-SK-M.f
-)
+# target_sources(OPS_Material_f PRIVATE
+#      #DoddRestrepo.f
+#      #STEELDR.f
+#      #c14-SK-M.f
+# )
 
 target_link_libraries(OPS_Material PUBLIC OPS_Material_f)
 
@@ -329,6 +325,8 @@ add_subdirectory(stiffness)
 add_subdirectory(strength)
 add_subdirectory(unloading)
 add_subdirectory(limitState)
+add_subdirectory(concrete)
+add_subdirectory(steel)
 
 add_subdirectory(PY)
 add_subdirectory(snap)
