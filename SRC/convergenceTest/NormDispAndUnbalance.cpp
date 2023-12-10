@@ -24,6 +24,7 @@
 #include <Channel.h>
 #include <EquiSolnAlgo.h>
 #include <LinearSOE.h>
+#if 0
 #include <elementAPI.h>
 
 void* OPS_NormDispAndUnbalance()
@@ -49,6 +50,7 @@ void* OPS_NormDispAndUnbalance()
 
     return new NormDispAndUnbalance(data[0],data[1],idata[0],idata[1],idata[2],idata[3]);
 }
+#endif
 
 NormDispAndUnbalance::NormDispAndUnbalance()
   : ConvergenceTest(CONVERGENCE_TEST_NormDispAndUnbalance),
