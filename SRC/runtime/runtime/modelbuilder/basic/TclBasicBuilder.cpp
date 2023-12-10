@@ -22,9 +22,9 @@
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
 
-#include <CrdTransf.h>
+// #include <CrdTransf.h>
 
-#include <NodalLoad.h>
+// #include <NodalLoad.h>
 #include <Beam2dPointLoad.h>
 #include <Beam2dUniformLoad.h>
 #include <Beam2dPartialUniformLoad.h>
@@ -92,7 +92,7 @@ extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
 static Domain *theTclDomain = nullptr;
 static TclBasicBuilder *theTclBuilder = nullptr;
 extern LoadPattern *theTclLoadPattern;
-static int nodeLoadTag = 0;
+// static int nodeLoadTag = 0;
 
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
@@ -118,7 +118,6 @@ TclCommand_addDamageModel(ClientData, Tcl_Interp*, int argc,
 
 static Tcl_CmdProc TclCommand_addEqualDOF_MP;
 static Tcl_CmdProc TclCommand_addEqualDOF_MP_Mixed;
-static Tcl_CmdProc TclCommand_addNodalLoad;
 static Tcl_CmdProc TclCommand_addImposedMotionSP;
 
 // Added by Scott J. Brandenberg
