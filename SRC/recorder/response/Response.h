@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2009-12-17 23:50:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/response/Response.h,v $
-                                                                        
+//
 // Written: MHS 
 // Created: Oct 2000
 //
 // Description: This file contains the Response class interface
-
+//
 #ifndef Response_h
 #define Response_h
 
@@ -62,6 +58,5 @@ class Response
  private:
 
 };
-
 
 #endif
