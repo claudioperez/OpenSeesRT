@@ -17,15 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-
+//
 // Written Y.Lu and M.Panagiotou 2013
 //  minor mod to Truss written by fmk 1997
-
 //
 // Description: This file contains the implementation for the Truss2 class.
 //
-
 #include <Truss2.h>
 #include <Information.h>
 #include <Parameter.h>
@@ -350,154 +347,153 @@ void
 		theMatrix = &trussM2;
 		theVector = &trussV2;
 	}
-	else 
-		if (dimension == 2 && dofNd1 == 2) {
-			numDOF = 4;
-			theMatrix = &trussM4;
-			theVector = &trussV4;	
-		}
-		else if (dimension == 2 && dofNd1 == 3) {
-			numDOF = 6;	
-			theMatrix = &trussM6;
-			theVector = &trussV6;		
-		}
-		else if (dimension == 3 && dofNd1 == 3) {
-			numDOF = 6;	
-			theMatrix = &trussM6;
-			theVector = &trussV6;			
-		}
-		else if (dimension == 3 && dofNd1 == 6) {
-			numDOF = 12;	    
-			theMatrix = &trussM12;
-			theVector = &trussV12;			
-		}
-		else {
-			opserr <<"WARNING Truss2::setDomain cannot handle " << dimension << " dofs at nodes in " << 
-				dofNd1  << " problem\n";
+	else if (dimension == 2 && dofNd1 == 2) {
+                numDOF = 4;
+                theMatrix = &trussM4;
+                theVector = &trussV4;	
+        }
+        else if (dimension == 2 && dofNd1 == 3) {
+                numDOF = 6;	
+                theMatrix = &trussM6;
+                theVector = &trussV6;		
+        }
+        else if (dimension == 3 && dofNd1 == 3) {
+                numDOF = 6;	
+                theMatrix = &trussM6;
+                theVector = &trussV6;			
+        }
+        else if (dimension == 3 && dofNd1 == 6) {
+                numDOF = 12;	    
+                theMatrix = &trussM12;
+                theVector = &trussV12;			
+        }
+        else {
+                opserr <<"WARNING Truss2::setDomain cannot handle " << dimension << " dofs at nodes in " << 
+                        dofNd1  << " problem\n";
 
-			numDOF = 2;    
-			theMatrix = &trussM2;
-			theVector = &trussV2;	
-			return;
-		}
+                numDOF = 2;    
+                theMatrix = &trussM2;
+                theVector = &trussV2;	
+                return;
+        }
 
-		if (theLoad == 0)
-			theLoad = new Vector(numDOF);
-		else if (theLoad->Size() != numDOF) {
-			delete theLoad;
-			theLoad = new Vector(numDOF);
-		}
+        if (theLoad == nullptr)
+                theLoad = new Vector(numDOF);
+        else if (theLoad->Size() != numDOF) {
+                delete theLoad;
+                theLoad = new Vector(numDOF);
+        }
 
-		if (theLoad == 0) {
-			opserr << "Truss2::setDomain - truss " << this->getTag() << 
-				"out of memory creating vector of size" << numDOF << endln;
-			exit(-1);
-			return;
-		}          
+        if (theLoad == nullptr) {
+                opserr << "Truss2::setDomain - truss " << this->getTag() << 
+                        "out of memory creating vector of size" << numDOF << endln;
+                exit(-1);
+                return;
+        }          
 
-		// now determine the length, cosines and fill in the transformation
-		// NOTE t = -t(every one else uses for residual calc)
-		const Vector &end1Crd = theNodes[0]->getCrds();
-		const Vector &end2Crd = theNodes[1]->getCrds();	
+        // now determine the length, cosines and fill in the transformation
+        // NOTE t = -t(every one else uses for residual calc)
+        const Vector &end1Crd = theNodes[0]->getCrds();
+        const Vector &end2Crd = theNodes[1]->getCrds();	
 
-		if (dimension == 1) {
-			double dx = end2Crd(0)-end1Crd(0);	
+        if (dimension == 1) {
+                double dx = end2Crd(0)-end1Crd(0);	
 
-			L = sqrt(dx*dx);
+                L = sqrt(dx*dx);
 
-			if (L == 0.0) {
-				opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has zero length\n";
-				return;
-			}
+                if (L == 0.0) {
+                        opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has zero length\n";
+                        return;
+                }
 
-			cosX[0] = 1.0;
+                cosX[0] = 1.0;
 
-			const Vector &end1Crd2 = theOtherNodes[0]->getCrds();
-			const Vector &end2Crd2 = theOtherNodes[1]->getCrds();	
-			dx = end2Crd2(0)-end1Crd2(0);
-			otherLength = sqrt(dx*dx);
-			otherCosX[0] = 0;
+                const Vector &end1Crd2 = theOtherNodes[0]->getCrds();
+                const Vector &end2Crd2 = theOtherNodes[1]->getCrds();	
+                dx = end2Crd2(0)-end1Crd2(0);
+                otherLength = sqrt(dx*dx);
+                otherCosX[0] = 0;
 
-		} else if (dimension == 2) {
-			double dx = end2Crd(0)-end1Crd(0);
-			double dy = end2Crd(1)-end1Crd(1);	
+        } else if (dimension == 2) {
+                double dx = end2Crd(0)-end1Crd(0);
+                double dy = end2Crd(1)-end1Crd(1);	
 
-			L = sqrt(dx*dx + dy*dy);
+                L = sqrt(dx*dx + dy*dy);
 
-			if (L == 0.0) {
-				opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has zero length\n";
-				return;
-			}
+                if (L == 0.0) {
+                        opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has zero length\n";
+                        return;
+                }
 
-			cosX[0] = dx/L;
-			cosX[1] = dy/L;
+                cosX[0] = dx/L;
+                cosX[1] = dy/L;
 
-			const Vector &end1Crd2 = theOtherNodes[0]->getCrds();
-			const Vector &end2Crd2 = theOtherNodes[1]->getCrds();	
-			double dx2 = end2Crd2(0)-end1Crd2(0);
-			double dy2 = end2Crd2(1)-end1Crd2(1);	
+                const Vector &end1Crd2 = theOtherNodes[0]->getCrds();
+                const Vector &end2Crd2 = theOtherNodes[1]->getCrds();	
+                double dx2 = end2Crd2(0)-end1Crd2(0);
+                double dy2 = end2Crd2(1)-end1Crd2(1);	
 
-			otherLength = sqrt(dx2*dx2 + dy2*dy2);
+                otherLength = sqrt(dx2*dx2 + dy2*dy2);
 
-			if (otherLength == 0.0) {
-				opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has auxiliary nodes that are the same point\n";
-				otherCosX[0] = 0;
-				otherCosX[1] = 0;
-				return;
-			} 
+                if (otherLength == 0.0) {
+                        opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has auxiliary nodes that are the same point\n";
+                        otherCosX[0] = 0;
+                        otherCosX[1] = 0;
+                        return;
+                } 
 
-			otherCosX[0] = dx2/otherLength;
-			otherCosX[1] = dy2/otherLength;
+                otherCosX[0] = dx2/otherLength;
+                otherCosX[1] = dy2/otherLength;
 
-			// project on normal of truss direction.
-			theta = acos((dx*dx2+dy*dy2)/(L*otherLength)); // cos*theta = a*b/(|a|*|b|)
-			if (theta == 0.0) {
-				opserr << "WARNING Truss2::setDomain() - truss2 " << this->getTag() << " has theta = 0, disabling biaxial effects\n";
-			}
-		}
+                // project on normal of truss direction.
+                theta = acos((dx*dx2+dy*dy2)/(L*otherLength)); // cos*theta = a*b/(|a|*|b|)
+                if (theta == 0.0) {
+                        opserr << "WARNING Truss2::setDomain() - truss2 " << this->getTag() << " has theta = 0, disabling biaxial effects\n";
+                }
+        }
 
-		else {
-			double dx = end2Crd(0)-end1Crd(0);
-			double dy = end2Crd(1)-end1Crd(1);	
-			double dz = end2Crd(2)-end1Crd(2);		
+        else {
+                double dx = end2Crd(0)-end1Crd(0);
+                double dy = end2Crd(1)-end1Crd(1);	
+                double dz = end2Crd(2)-end1Crd(2);		
 
-			L = sqrt(dx*dx + dy*dy + dz*dz);
+                L = sqrt(dx*dx + dy*dy + dz*dz);
 
-			if (L == 0.0) {
-				opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has zero length\n";
-				return;
-			}
+                if (L == 0.0) {
+                        opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has zero length\n";
+                        return;
+                }
 
-			cosX[0] = dx/L;
-			cosX[1] = dy/L;
-			cosX[2] = dz/L;
+                cosX[0] = dx/L;
+                cosX[1] = dy/L;
+                cosX[2] = dz/L;
 
-			const Vector &end1Crd2 = theOtherNodes[0]->getCrds();
-			const Vector &end2Crd2 = theOtherNodes[1]->getCrds();	
-			double dx2 = end2Crd2(0)-end1Crd2(0);
-			double dy2 = end2Crd2(1)-end1Crd2(1);	
-			double dz2 = end2Crd2(2)-end1Crd2(2);	
+                const Vector &end1Crd2 = theOtherNodes[0]->getCrds();
+                const Vector &end2Crd2 = theOtherNodes[1]->getCrds();	
+                double dx2 = end2Crd2(0)-end1Crd2(0);
+                double dy2 = end2Crd2(1)-end1Crd2(1);	
+                double dz2 = end2Crd2(2)-end1Crd2(2);	
 
-			otherLength = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
+                otherLength = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
 
-			if (otherLength == 0.0) {
-				opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has auxiliary nodes that are the same point\n";
-				otherCosX[0] = 0;
-				otherCosX[1] = 0;
-				otherCosX[2] = 0;
-				return;
-			} 
+                if (otherLength == 0.0) {
+                        opserr <<"WARNING Truss2::setDomain() - truss " << this->getTag() << " has auxiliary nodes that are the same point\n";
+                        otherCosX[0] = 0;
+                        otherCosX[1] = 0;
+                        otherCosX[2] = 0;
+                        return;
+                } 
 
-			otherCosX[0] = dx2/otherLength;
-			otherCosX[1] = dy2/otherLength;
-			otherCosX[2] = dz2/otherLength;
+                otherCosX[0] = dx2/otherLength;
+                otherCosX[1] = dy2/otherLength;
+                otherCosX[2] = dz2/otherLength;
 
-			// project on normal of truss direction.
-			theta = acos((dx*dx2+dy*dy2+dz*dz2)/(L*otherLength)); // cos*theta = a*b/(|a|*|b|)
-			if (theta == 0.0) {
-				opserr << "WARNING Truss2::setDomain() - truss2 " << this->getTag() << " has theta = 0, disabling biaxial effects\n";
-			}
-		}
+                // project on normal of truss direction.
+                theta = acos((dx*dx2+dy*dy2+dz*dz2)/(L*otherLength)); // cos*theta = a*b/(|a|*|b|)
+                if (theta == 0.0) {
+                        opserr << "WARNING Truss2::setDomain() - truss2 " << this->getTag() << " has theta = 0, disabling biaxial effects\n";
+                }
+        }
 }   	 
 
 
@@ -1167,7 +1163,7 @@ Response*
 
 	if ((strcmp(argv[0],"force") == 0) || (strcmp(argv[0],"forces") == 0) 
 		|| (strcmp(argv[0],"globalForce") == 0) || (strcmp(argv[0],"globalForces") == 0)){
-			char outputData[10];
+			char outputData[20];
 			int numDOFperNode = numDOF/2;
 			for (int i=0; i<numDOFperNode; i++) {
 				sprintf(outputData,"P1_%d", i+1);
