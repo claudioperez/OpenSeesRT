@@ -7,15 +7,15 @@
 
 target_sources(OPS_Matrix
   PRIVATE
-    eig3.cpp
-    inv2.c
-    inv3.c
-    inv4.c
-    inv5.c
-    inv6.c
+    eigSY3.c
+    invGL2.c
+    invGL3.c
+    invGL4.c
+    invGL5.c
+    invGL6.c
   PUBLIC
     cmx.h
-    eig3.h
+    SY3.h
 )
 
 target_include_directories(OPS_Matrix PUBLIC ${CMAKE_CURRENT_LIST_DIR})

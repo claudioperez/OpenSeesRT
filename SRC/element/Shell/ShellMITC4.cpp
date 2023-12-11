@@ -41,6 +41,7 @@
 #include <Vector3D.h>
 #include <Matrix.h>
 #include <MatrixND.h>
+#include <Matrix3D.h>
 
 using namespace OpenSees;
 
@@ -49,7 +50,6 @@ using namespace OpenSees;
 #include <SectionForceDeformation.h>
 #include <Domain.h>
 #include <ShellMITC4.h>
-#include <R3vectors.h>
 #include <Renderer.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
@@ -131,8 +131,10 @@ ShellMITC4::~ShellMITC4()
 // set domain
 void ShellMITC4::setDomain(Domain *theDomain)
 {
-  static Vector eig(3);
-  static Matrix ddMembrane(3, 3);
+//static Vector eig(3);
+//static Matrix ddMembrane(3, 3);
+         Vector3D eig;
+         Matrix3D ddMembrane; // (3, 3);
 
   // node pointers
   for (int i = 0; i < 4; i++) {
@@ -162,12 +164,10 @@ void ShellMITC4::setDomain(Domain *theDomain)
   }
 
   // eigenvalues of ddMembrane
-  eig = LovelyEig(ddMembrane);
+  ddMembrane.symeig(eig);
 
   // set ktt
-  //Ktt = dd(2,2) ;  // shear modulus
   Ktt = min(eig(2), min(eig(0), eig(1)));
-  //Ktt = dd(2,2);
 
   // basis vectors and local coordinates
   computeBasis();

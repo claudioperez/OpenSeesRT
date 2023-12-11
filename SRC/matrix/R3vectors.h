@@ -28,4 +28,3 @@ class Vector;
 // double  LovelyNorm( const Vector &v ) ; 
 
 Vector  LovelyCrossProduct( const Vector &v, const Vector &w ) ;
-Vector  LovelyEig( const Matrix &M ) ;

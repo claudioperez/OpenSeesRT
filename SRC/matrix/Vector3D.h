@@ -38,10 +38,13 @@
 #endif // M_PI
 
 
+namespace OpenSees {class Matrix3D;};
+
 template<class scalar_t=double>
 class Vector3D: public OpenSees::VectorND<3>
 {
 public:
+    friend class OpenSees::Matrix3D;
 
     /**
      * Creates a Zero Vector3D.

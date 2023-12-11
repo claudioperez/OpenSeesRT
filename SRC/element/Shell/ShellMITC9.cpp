@@ -28,7 +28,9 @@
 
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Matrix.h>
+#include <Matrix3D.h>
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
@@ -42,6 +44,8 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #define min(a, b) ((a) < (b) ? (a) : (b))
+
+using namespace OpenSees;
 
 // static data
 Matrix ShellMITC9::stiff(54, 54);
@@ -159,8 +163,8 @@ ShellMITC9::~ShellMITC9()
 // set domain
 void ShellMITC9::setDomain(Domain *theDomain)
 {
-  static Vector eig(3);
-  static Matrix ddMembrane(3, 3);
+  Vector3D eig;
+  Matrix3D ddMembrane;
 
   // node pointers
   for (int i = 0; i < numnodes; i++) {
@@ -183,7 +187,7 @@ void ShellMITC9::setDomain(Domain *theDomain)
   }
 
   // eigenvalues of ddMembrane
-  eig = LovelyEig(ddMembrane);
+  ddMembrane.symeig(eig);
 
   // set ktt
   //Ktt = dd(2,2) ;  // shear modulus
