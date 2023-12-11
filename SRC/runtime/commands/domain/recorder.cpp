@@ -29,6 +29,14 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _MSC_VER 
+#  include <string.h>
+#  define strcasecmp _stricmp
+#else
+#  include <strings.h>
+#endif
+#define strcmp strcasecmp
+
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <Domain.h>
@@ -54,6 +62,7 @@
 
 // Recorders
 #include <NodeRecorder.h>
+#include <NodeRecorderRMS.h>
 #include <EnvelopeNodeRecorder.h>
 #include <PatternRecorder.h>
 #include <DriftRecorder.h>
@@ -75,7 +84,6 @@ OPS_Routine OPS_GmshRecorder;
 OPS_Routine OPS_MPCORecorder;
 OPS_Routine OPS_VTK_Recorder;
 OPS_Routine OPS_ElementRecorderRMS;
-OPS_Routine OPS_NodeRecorderRMS;
 
 extern "C" int
 OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
@@ -118,6 +126,10 @@ struct OutputOptions {
   } eMode = STANDARD_STREAM;
 };
 
+
+static int
+createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
+                  TCL_Char ** const argv, Recorder **theRecorder);
 
 static OPS_Stream *
 createOutputStream(OutputOptions &options)
@@ -1115,267 +1127,11 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   }
 
-  else if ((strcmp(argv[1], "Node") == 0) ||
-           (strcmp(argv[1], "EnvelopeNode") == 0) ||
-           (strcmp(argv[1], "NodeEnvelope") == 0)) {
-
-    OutputOptions options;
-
-    if (argc < 7) {
-      opserr << G3_ERROR_PROMPT << "recorder Node ";
-      opserr << "-node <list nodes> -dof <doflist> -file <filename> -dT <dT> "
-                "<reponse>";
-      return TCL_ERROR;
-    }
-
-    // AddingSensitivity:BEGIN ///////////////////////////////////
-    // int sensitivity = 0;
-    int paramTag = 0;
-    int gradIndex = -1;
-    // AddingSensitivity:END /////////////////////////////////////
-
-    TCL_Char *responseID = nullptr;
-
-
-    bool   echoTimeFlag = false;
-    int    flags        = 0;
-    double dT           = 0.0;
-    int    numNodes     = 0;
-
-    // create ID's to contain the node tags and dofs
-    ID *theNodes = nullptr;
-    ID theDofs(0, MAX_NDF);
-    ID theTimeSeriesID(0, MAX_NDF);
-
-    TimeSeries **theTimeSeries = nullptr;
-
-
-    int pos = 2;
-    while (flags == 0 && pos < argc) {
-      int consumed;
-      if ((consumed = parseOutputOption(&options, interp, argc-pos, &argv[pos])) != 0) {
-        if (consumed > 0)
-          pos += consumed;
-        else
-          return TCL_ERROR;
-      }
-
-      else if ((strcmp(argv[pos], "-time") == 0) ||
-          (strcmp(argv[pos], "-load") == 0)) {
-        echoTimeFlag = true;
-        pos++;
-      }
-
-      else if (strcmp(argv[pos], "-dT") == 0) {
-        // allow user to specify time step size for recording
-        pos++;
-        if (Tcl_GetDouble(interp, argv[pos], &dT) != TCL_OK)
-          return TCL_ERROR;
-        pos++;
-      }
-      else if (strcmp(argv[pos], "-timeSeries") == 0) {
-
-        pos++;
-        int numTimeSeries = 0;
-        int dof;
-
-        for (int j = pos; j < argc; j++) {
-          if (Tcl_GetInt(interp, argv[pos], &dof) != TCL_OK) {
-            j = argc;
-            Tcl_ResetResult(interp);
-          } else {
-            theTimeSeriesID[numTimeSeries] =
-                dof; // -1 for c indexing of the dof's
-            numTimeSeries++;
-            pos++;
-          }
-        }
-
-        theTimeSeries = new TimeSeries *[numTimeSeries];
-        for (int j = 0; j < numTimeSeries; j++) {
-          int timeSeriesTag = theTimeSeriesID(j);
-          if (timeSeriesTag != 0 && timeSeriesTag != -1) {
-            theTimeSeries[j] = OPS_getTimeSeries(theTimeSeriesID(j));
-          } else {
-            theTimeSeries[j] = 0;
-          }
-        }
-      }
-
-      else if ((strcmp(argv[pos], "-node") == 0) ||
-               (strcmp(argv[pos], "-nodes") == 0)) {
-        pos++;
-
-        // read in the node tags or 'all' can be used
-        if (strcmp(argv[pos], "all") == 0) {
-          opserr << "recoder Node - error -all option has been removed, use "
-                    "-nodeRange instaed\n";
-          return TCL_ERROR;
-
-        } else {
-          theNodes = new ID(0, 16);
-          int node;
-          for (int j = pos; j < argc; j++)
-            if (Tcl_GetInt(interp, argv[pos], &node) != TCL_OK) {
-              j = argc;
-              Tcl_ResetResult(interp);
-
-            } else if (domain->getNode(node) == nullptr) {
-              delete theNodes;
-              theNodes = nullptr;
-              opserr << G3_ERROR_PROMPT << "cannot find node with tag " << node << "\n";
-              return TCL_ERROR;
-
-            } else {
-              (*theNodes)[numNodes] = node;
-              numNodes++;
-              pos++;
-            }
-        }
-      }
-
-      else if ((strcmp(argv[pos], "-nodeRange") == 0) || 
-               (strcmp(argv[pos], "-range")==0)) {
-        // ensure no segmentation fault if user messes up
-        if (argc < pos + 3) {
-          opserr << G3_ERROR_PROMPT << "recorder " << argv[1] 
-                 << " .. -range start? end?  .. - missing start/end tags\n";
-          return TCL_ERROR;
-        }
-
-        // read in start and end tags of two elements & add set [start,end]
-        int start, end;
-        if (Tcl_GetInt(interp, argv[pos + 1], &start) != TCL_OK) {
-          opserr << G3_ERROR_PROMPT << "recorder " << argv[1] 
-                 << " -range start? end? - invalid start "
-                 << argv[pos + 1] << endln;
-          return TCL_ERROR;
-        }
-
-        if (Tcl_GetInt(interp, argv[pos + 2], &end) != TCL_OK) {
-          opserr << G3_ERROR_PROMPT << "recorder " << argv[1] 
-                 << " -range start? end? - invalid end "
-                 << argv[pos + 2] << endln;
-          return TCL_ERROR;
-        }
-
-        if (start > end) {
-          int swap = end;
-          end = start;
-          start = swap;
-        }
-
-        theNodes = new ID(end - start + 1);
-        for (int i = start; i <= end; i++)
-          (*theNodes)[numNodes++] = i;
-
-        pos += 3;
-      }
-
-      else if (strcmp(argv[pos], "-region") == 0) {
-        // allow user to specif elements via a region
-        if (argc < pos + 2) {
-          opserr << "WARNING recorder Node .. -region tag?  .. - no region "
-                    "specified\n";
-          return TCL_ERROR;
-        }
-        int tag;
-        if (Tcl_GetInt(interp, argv[pos + 1], &tag) != TCL_OK) {
-          opserr << "WARNING recorder Node -region tag? - invalid tag "
-                 << argv[pos + 1] << endln;
-          return TCL_ERROR;
-        }
-        MeshRegion *theRegion = domain->getRegion(tag);
-        if (theRegion == nullptr) {
-          opserr << "WARNING recorder Node -region " << tag
-                 << " - region does not exist" << endln;
-          return TCL_OK;
-        }
-
-        const ID &nodeRegion = theRegion->getNodes();
-        theNodes = new ID(nodeRegion);
-
-        pos += 2;
-      }
-
-      else if (strcmp(argv[pos], "-dof") == 0) {
-        pos++;
-        int numDOF = 0;
-        int dof;
-        for (int j = pos; j < argc; j++)
-          if (Tcl_GetInt(interp, argv[pos], &dof) != TCL_OK) {
-            j = argc;
-            Tcl_ResetResult(interp);
-          } else {
-            theDofs[numDOF] = dof - 1; // -1 for c indexing of the dof's
-            numDOF++;
-            pos++;
-          }
-      }
-      // AddingSensitivity:BEGIN //////////////////////////////////////
-      else if (strcmp(argv[pos], "-sensitivity") == 0) {
-        pos++;
-        if (Tcl_GetInt(interp, argv[pos], &paramTag) != TCL_OK) {
-          opserr << G3_ERROR_PROMPT << "invalid parameter tag to node recorder." << endln;
-          return TCL_ERROR;
-        }
-        pos++;
-
-        // Now get gradIndex from parameter tag
-        Parameter *theParameter = domain->getParameter(paramTag);
-        if (theParameter == nullptr) {
-          opserr << G3_ERROR_PROMPT << "parameter " << paramTag << " not found"
-                 << endln;
-          return TCL_ERROR;
-        }
-        gradIndex = theParameter->getGradIndex();
-      }
-      // AddingSensitivity:END ////////////////////////////////////////
-      else
-        flags = 1;
-    }
-
-    if (pos >= argc) {
-      opserr << "WARNING: No response type specified for node recorder, will "
-                "assume you meant -disp\n"
-             << endln;
-    }
-
-    if (responseID == nullptr && pos < argc)
-      responseID = argv[pos];
-
-    theOutputStream = createOutputStream(options);
-
-    if (theTimeSeries != nullptr && theTimeSeriesID.Size() < theDofs.Size()) {
-      opserr << G3_ERROR_PROMPT << "recorder Node/EnvelopNode # TimeSeries must equal # "
-                "dof - IGNORING TimeSeries OPTION\n";
-      for (int i = 0; i < theTimeSeriesID.Size(); i++) {
-        if (theTimeSeries[i] != 0)
-          delete theTimeSeries[i];
-        delete[] theTimeSeries;
-        theTimeSeries = 0;
-      }
-    }
-
-    if (strcmp(argv[1], "Node") == 0) {
-      int dataIndex = -1;
-      NodeData dataFlag;
-      if ((dataFlag = getNodeDataFlag(responseID, *domain, &dataIndex)) == NodeData::Unknown) {
-        opserr << G3_ERROR_PROMPT << "invalid response ID '" << responseID << "'\n";
-        return TCL_ERROR;
-      }
-      (*theRecorder) =
-          new NodeRecorder(theDofs, theNodes, gradIndex, dataFlag, dataIndex, *domain,
-                           *theOutputStream, dT, echoTimeFlag, theTimeSeries);
-
-    } else {
-      (*theRecorder) = new EnvelopeNodeRecorder(theDofs, theNodes, responseID,
-                                                *domain, *theOutputStream, dT,
-                                                echoTimeFlag, theTimeSeries);
-    }
-
-    if (theNodes != nullptr)
-      delete theNodes;
+  else if ((strcasecmp(argv[1], "Node") == 0) ||
+           (strcasecmp(argv[1], "NodeRMS") == 0) ||
+           (strcasecmp(argv[1], "EnvelopeNode") == 0) ||
+           (strcasecmp(argv[1], "NodeEnvelope") == 0)) {
+    return createNodeRecorder(clientData, interp, argc, argv, theRecorder);
   }
 
   else if (strcmp(argv[1], "Pattern") == 0) {
@@ -1534,15 +1290,12 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS(rt, argc, argv);
 
   }
-  else if (strcmp(argv[1], "NodeRMS") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
-    (*theRecorder) = (Recorder *)OPS_NodeRecorderRMS(rt, argc, argv);
 
-  }
   else if (strcmp(argv[1], "gmsh") == 0 || strcmp(argv[1], "GMSH") == 0) {
     OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
     (*theRecorder) = (Recorder *)OPS_GmshRecorder(rt, argc, argv);
   }
+
   // else if (strcmp(argv[1],"gmshparallel") == 0 ||
   // strcmp(argv[1],"GMSHPARALLEL") == 0) {
   //  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, &theDomain);
@@ -1676,8 +1429,6 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 TclAddRecorder(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-  // G3_Runtime *rt = G3_getRuntime(interp);
-  // Domain& theDomain = *G3_getDomain(rt);
 
   Domain* domain = (Domain*)clientData;
 
@@ -1797,4 +1548,282 @@ OPS_recorderValue(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
+static int
+createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
+                  TCL_Char ** const argv, Recorder **theRecorder)
+{
+  assert(clientData != nullptr);
+  Domain* domain = (Domain*)clientData;
+  G3_Runtime *rt = G3_getRuntime(interp);
 
+  // make sure at least one other argument to contain integrator
+  if (argc < 2) {
+    opserr << "WARNING need to specify a Recorder type\n";
+    return TCL_ERROR;
+  }
+
+  //
+  // check argv[1] for type of Recorder, parse in rest of arguments
+  // needed for the type of Recorder, create the object and add to Domain
+  //
+  OPS_Stream   *theOutputStream = nullptr;
+  TCL_Char     *responseID      = nullptr;
+  bool         echoTimeFlag     = false;
+  int          flags            = 0;
+  double       dT               = 0.0;
+  int          numNodes         = 0;
+  int          gradIndex        = -1;
+  int          dataIndex        = -1;
+  NodeData     dataFlag;
+
+  // create ID's to contain the node tags and dofs
+  ID *theNodes = nullptr;
+  ID theDofs(0, MAX_NDF);
+  ID theTimeSeriesID(0, MAX_NDF);
+
+  TimeSeries **theTimeSeries = nullptr;
+
+  OutputOptions options;
+
+  if (argc < 7) {
+    opserr << G3_ERROR_PROMPT << "recorder Node ";
+    opserr << "-node <list nodes> -dof <doflist> -file <filename> -dT <dT> "
+              "<reponse>";
+    return TCL_ERROR;
+  }
+
+
+  int pos = 2;
+  while (flags == 0 && pos < argc) {
+    int consumed;
+    if ((consumed = parseOutputOption(&options, interp, argc-pos, &argv[pos])) != 0) {
+      if (consumed > 0)
+        pos += consumed;
+      else
+        return TCL_ERROR;
+    }
+
+    else if ((strcmp(argv[pos], "-time") == 0) ||
+        (strcmp(argv[pos], "-load") == 0)) {
+      echoTimeFlag = true;
+      pos++;
+    }
+
+    else if (strcmp(argv[pos], "-dT") == 0) {
+      // allow user to specify time step size for recording
+      pos++;
+      if (Tcl_GetDouble(interp, argv[pos], &dT) != TCL_OK)
+        return TCL_ERROR;
+      pos++;
+    }
+    else if (strcmp(argv[pos], "-timeSeries") == 0) {
+
+      pos++;
+      int numTimeSeries = 0;
+      int dof;
+
+      for (int j = pos; j < argc; j++) {
+        if (Tcl_GetInt(interp, argv[pos], &dof) != TCL_OK) {
+          j = argc;
+          Tcl_ResetResult(interp);
+        } else {
+          theTimeSeriesID[numTimeSeries] = dof; // -1 for c indexing of the dof's
+          numTimeSeries++;
+          pos++;
+        }
+      }
+
+      theTimeSeries = new TimeSeries *[numTimeSeries];
+      for (int j = 0; j < numTimeSeries; j++) {
+        int timeSeriesTag = theTimeSeriesID(j);
+        if (timeSeriesTag != 0 && timeSeriesTag != -1) {
+          theTimeSeries[j] = G3_getTimeSeries(rt, theTimeSeriesID(j));
+        } else {
+          theTimeSeries[j] = 0;
+        }
+      }
+    }
+
+    else if ((strcmp(argv[pos], "-node") == 0) ||
+             (strcmp(argv[pos], "-nodes") == 0)) {
+      pos++;
+
+      // read in the node tags or 'all' can be used
+      if (strcmp(argv[pos], "all") == 0) {
+        opserr << "recoder Node - error -all option has been removed, use "
+                  "-nodeRange instaed\n";
+        return TCL_ERROR;
+
+      } else {
+        theNodes = new ID(0, 16);
+        int node;
+        for (int j = pos; j < argc; j++)
+          if (Tcl_GetInt(interp, argv[pos], &node) != TCL_OK) {
+            j = argc;
+            Tcl_ResetResult(interp);
+
+          } else if (domain->getNode(node) == nullptr) {
+            delete theNodes;
+            theNodes = nullptr;
+            opserr << G3_ERROR_PROMPT << "cannot find node with tag " << node << "\n";
+            return TCL_ERROR;
+
+          } else {
+            (*theNodes)[numNodes] = node;
+            numNodes++;
+            pos++;
+          }
+      }
+    }
+
+    else if ((strcmp(argv[pos], "-nodeRange") == 0) || 
+             (strcmp(argv[pos], "-range")==0)) {
+      // ensure no segmentation fault if user messes up
+      if (argc < pos + 3) {
+        opserr << G3_ERROR_PROMPT << "recorder " << argv[1] 
+               << " .. -range start? end?  .. - missing start/end tags\n";
+        return TCL_ERROR;
+      }
+
+      // read in start and end tags of two elements & add set [start,end]
+      int start, end;
+      if (Tcl_GetInt(interp, argv[pos + 1], &start) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "recorder " << argv[1] 
+               << " -range start? end? - invalid start "
+               << argv[pos + 1] << endln;
+        return TCL_ERROR;
+      }
+
+      if (Tcl_GetInt(interp, argv[pos + 2], &end) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "recorder " << argv[1] 
+               << " -range start? end? - invalid end "
+               << argv[pos + 2] << endln;
+        return TCL_ERROR;
+      }
+
+      if (start > end) {
+        int swap = end;
+        end = start;
+        start = swap;
+      }
+
+      theNodes = new ID(end - start + 1);
+      for (int i = start; i <= end; i++)
+        (*theNodes)[numNodes++] = i;
+
+      pos += 3;
+    }
+
+    else if (strcmp(argv[pos], "-region") == 0) {
+      // allow user to specif elements via a region
+      if (argc < pos + 2) {
+        opserr << "WARNING recorder Node .. -region tag?  .. - no region "
+                  "specified\n";
+        return TCL_ERROR;
+      }
+      int tag;
+      if (Tcl_GetInt(interp, argv[pos + 1], &tag) != TCL_OK) {
+        opserr << "WARNING recorder Node -region tag? - invalid tag "
+               << argv[pos + 1] << endln;
+        return TCL_ERROR;
+      }
+      MeshRegion *theRegion = domain->getRegion(tag);
+      if (theRegion == nullptr) {
+        opserr << "WARNING recorder Node -region " << tag
+               << " - region does not exist" << endln;
+        return TCL_OK;
+      }
+
+      const ID &nodeRegion = theRegion->getNodes();
+      theNodes = new ID(nodeRegion);
+
+      pos += 2;
+    }
+
+    else if (strcmp(argv[pos], "-dof") == 0) {
+      pos++;
+      int numDOF = 0;
+      int dof;
+      for (int j = pos; j < argc; j++)
+        if (Tcl_GetInt(interp, argv[pos], &dof) != TCL_OK) {
+          j = argc;
+          Tcl_ResetResult(interp);
+        } else {
+          theDofs[numDOF] = dof - 1; // -1 for c indexing of the dof's
+          numDOF++;
+          pos++;
+        }
+    }
+    // AddingSensitivity:BEGIN //////////////////////////////////////
+    else if (strcmp(argv[pos], "-sensitivity") == 0) {
+      pos++;
+      int paramTag;
+      if (Tcl_GetInt(interp, argv[pos], &paramTag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid parameter tag to node recorder." << endln;
+        return TCL_ERROR;
+      }
+      pos++;
+
+      // Now get gradIndex from parameter tag
+      Parameter *theParameter = domain->getParameter(paramTag);
+      if (theParameter == nullptr) {
+        opserr << G3_ERROR_PROMPT << "parameter " << paramTag << " not found"
+               << endln;
+        return TCL_ERROR;
+      }
+      gradIndex = theParameter->getGradIndex();
+    }
+    // AddingSensitivity:END ////////////////////////////////////////
+    else
+      flags = 1;
+  }
+
+  if (pos >= argc) {
+    opserr << "WARNING: No response type specified for node recorder, will "
+              "assume you meant -disp\n";
+  }
+
+  if (responseID == nullptr && pos < argc)
+    responseID = argv[pos];
+
+  theOutputStream = createOutputStream(options);
+
+  if (theTimeSeries != nullptr && theTimeSeriesID.Size() < theDofs.Size()) {
+    opserr << G3_ERROR_PROMPT << "recorder Node/EnvelopNode # TimeSeries must equal # "
+              "dof - IGNORING TimeSeries OPTION\n";
+    for (int i = 0; i < theTimeSeriesID.Size(); i++) {
+      if (theTimeSeries[i] != nullptr)
+        delete theTimeSeries[i];
+      delete[] theTimeSeries;
+      theTimeSeries = nullptr;
+    }
+  }
+
+
+  if ((dataFlag = getNodeDataFlag(responseID, *domain, &dataIndex)) == NodeData::Unknown) {
+    opserr << G3_ERROR_PROMPT << "invalid response ID '" << responseID << "'\n";
+    return TCL_ERROR;
+  }
+
+  // Create and set the recorder
+  if (strcasecmp(argv[1], "Node") == 0) {
+    (*theRecorder) =
+        new NodeRecorder(theDofs, theNodes, gradIndex, dataFlag, dataIndex, *domain,
+                         *theOutputStream, dT, echoTimeFlag, theTimeSeries);
+
+  } else if (strcasecmp(argv[1], "NodeRMS") == 0) {
+    (*theRecorder) =
+        new NodeRecorderRMS(theDofs, theNodes, dataFlag, dataIndex, *domain,
+                            *theOutputStream, dT, theTimeSeries);
+
+  } else {
+    (*theRecorder) = new EnvelopeNodeRecorder(theDofs, theNodes, dataFlag, dataIndex,
+                                              *domain, *theOutputStream, dT,
+                                              echoTimeFlag, theTimeSeries);
+  }
+
+  if (theNodes != nullptr)
+    delete theNodes;
+
+  return TCL_OK;
+}

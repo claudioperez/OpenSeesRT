@@ -47,6 +47,7 @@
 #include <TCP_Stream.h>
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <math.h>
 
@@ -64,15 +65,15 @@ NodeRecorder::NodeRecorder()
 
 
 NodeRecorder::NodeRecorder(const ID &dofs, 
-			   const ID *nodes, 
-			   int pgradIndex,
-			   NodeData _dataFlag,
-			   int _dataIndex,
-			   Domain &theDom,
-			   OPS_Stream &theOutput,
-			   double dT,
-			   bool timeFlag,
-			   TimeSeries **theSeries)
+                           const ID *nodes, 
+                           int pgradIndex,
+                           NodeData _dataFlag,
+                           int _dataIndex,
+                           Domain &theDom,
+                           OPS_Stream &theOutput,
+                           double dT,
+                           bool timeFlag,
+                           TimeSeries **theSeries)
 :Recorder(RECORDER_TAGS_NodeRecorder),
  theDofs(0), theNodalTags(0), theNodes(0), response(0), 
  theDomain(&theDom), theOutputHandler(&theOutput),
@@ -110,7 +111,6 @@ NodeRecorder::NodeRecorder(const ID &dofs,
   // 
   // create memory to hold nodal ID's
   //
-
   if (nodes != nullptr) {
     int numNode = nodes->Size();
     if (numNode != 0) {
@@ -398,7 +398,7 @@ NodeRecorder::record(int commitTag, double timeStamp)
 	      response(cnt) = 0.0;
 	    cnt++;
 	  }
-	  
+
 	} else if (dataFlag == NodeData::Reaction 
                 || dataFlag == NodeData::ReactionInclInertia 
                 || dataFlag == NodeData::ReactionInclRayleigh) {
@@ -822,7 +822,7 @@ NodeRecorder::initialize(void)
   //
   
   char outputData[32];
-  char dataType[15];
+  char dataType[32];
 
   if (dataFlag == NodeData::DisplTrial) {
     strcpy(dataType,"D");

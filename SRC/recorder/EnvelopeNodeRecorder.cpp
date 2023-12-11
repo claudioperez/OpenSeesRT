@@ -30,6 +30,7 @@
 #include <EnvelopeNodeRecorder.h>
 #include <Domain.h>
 #include <Node.h>
+#include <NodeData.h>
 #include <NodeIter.h>
 #include <Vector.h>
 #include <ID.h>
@@ -48,12 +49,12 @@
 // #include <DatabaseStream.h>
 #include <TCP_Stream.h>
 
-#include <elementAPI.h>
 
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-
+#if 0
+#include <elementAPI.h>
 void *
 OPS_ADD_RUNTIME_VPV(OPS_EnvelopeNodeRecorder)
 {
@@ -292,6 +293,7 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeNodeRecorder)
 
     return recorder;
 }
+#endif
 
 
 EnvelopeNodeRecorder::EnvelopeNodeRecorder()
@@ -301,14 +303,16 @@ EnvelopeNodeRecorder::EnvelopeNodeRecorder()
  theDomain(0), theHandler(0),
  deltaT(0.0), nextTimeStampToRecord(0.0), 
  first(true), initializationDone(false), 
- numValidNodes(0), addColumnInfo(0), theTimeSeries(0), timeSeriesValues(0)
+ numValidNodes(0), addColumnInfo(0), theTimeSeries(0), timeSeriesValues(0),
+ dataFlag(NodeData::Disp), dataIndex(-1)
 {
 
 }
 
 EnvelopeNodeRecorder::EnvelopeNodeRecorder(const ID &dofs, 
 					   const ID *nodes, 
-					   const char *dataToStore,
+					   NodeData _dataFlag,
+                                           int _dataIndex,
 					   Domain &theDom,
 					   OPS_Stream &theOutputHandler,
 					   double dT, 
@@ -320,7 +324,8 @@ EnvelopeNodeRecorder::EnvelopeNodeRecorder(const ID &dofs,
  theDomain(&theDom), theHandler(&theOutputHandler),
  deltaT(dT), nextTimeStampToRecord(0.0), 
  first(true), initializationDone(false), numValidNodes(0), echoTimeFlag(echoTime), 
- addColumnInfo(0), theTimeSeries(theSeries), timeSeriesValues(0)
+ addColumnInfo(0), theTimeSeries(theSeries), timeSeriesValues(0),
+ dataFlag(_dataFlag), dataIndex(_dataIndex)
 {
   // verify dof are valid 
   int numDOF = dofs.Size();
@@ -343,18 +348,13 @@ EnvelopeNodeRecorder::EnvelopeNodeRecorder(const ID &dofs,
   // 
   // create memory to hold nodal ID's (neeed parallel)
   //
-
-  if (nodes != 0) {
+  if (nodes != nullptr) {
     int numNode = nodes->Size();
-    if (numNode != 0) {
+    if (numNode != 0)
       theNodalTags = new ID(*nodes);
-      if (theNodalTags == 0 || theNodalTags->Size() != nodes->Size()) {
-	opserr << "NodeRecorder::NodeRecorder - out of memory\n";
-      }
-    }
   } 
 
-  if (theTimeSeries != 0) {
+  if (theTimeSeries != nullptr) {
     timeSeriesValues = new double [numDOF];
     for (int i=0; i<numDOF; i++)
       timeSeriesValues[i] = 0.0;
@@ -363,72 +363,13 @@ EnvelopeNodeRecorder::EnvelopeNodeRecorder(const ID &dofs,
   //
   // set the data flag used as a switch to get the response in a record
   //
-
-  if (dataToStore == 0 || (strcmp(dataToStore, "disp") == 0)) {
-    dataFlag = 0;
-  } else if ((strcmp(dataToStore, "vel") == 0)) {
-    dataFlag = 1;
-  } else if ((strcmp(dataToStore, "accel") == 0)) {
-    dataFlag = 2;
-  } else if ((strcmp(dataToStore, "incrDisp") == 0)) {
-    dataFlag = 3;
-  } else if ((strcmp(dataToStore, "incrDeltaDisp") == 0)) {
-    dataFlag = 4;
-  } else if ((strcmp(dataToStore, "unbalance") == 0)) {
-    dataFlag = 5;
-  } else if ((strcmp(dataToStore, "unbalanceInclInertia") == 0) ||
-	     (strcmp(dataToStore, "unbalanceIncInertia") == 0) ||
-	     (strcmp(dataToStore, "unbalanceIncludingInertia") == 0))  {
-    dataFlag = 6;
-  } else if ((strcmp(dataToStore, "reaction") == 0)) {
-    dataFlag = 7;
-  } else if (((strcmp(dataToStore, "reactionIncInertia") == 0))
-	     || ((strcmp(dataToStore, "reactionInclInertia") == 0))
-	     || ((strcmp(dataToStore, "reactionIncludingInertia") == 0))) {
-    dataFlag = 8;
-  } else if (((strcmp(dataToStore, "rayleighForces") == 0))
-	     || ((strcmp(dataToStore, "rayleighDampingForces") == 0))) {
-    dataFlag = 9;
-
-  } else if ((strcmp(dataToStore, "dispNorm") == 0)) {
-    dataFlag = 10000;
-
-  } else if ((strncmp(dataToStore, "eigen",5) == 0)) {
-    int mode = atoi(&(dataToStore[5]));
-    if (mode > 0)
-      dataFlag = 10 + mode;
-    else
-      dataFlag = 10;
-  } else if ((strncmp(dataToStore, "sensitivity",11) == 0)) {
-    int grad = atoi(&(dataToStore[11]));
-    if (grad > 0)
-      dataFlag = 1000 + grad;
-    else
-      dataFlag = 10;
-  } else if ((strncmp(dataToStore, "velSensitivity",14) == 0)) {
-    int grad = atoi(&(dataToStore[14]));
-    if (grad > 0)
-      dataFlag = 2000 + grad;
-    else
-      dataFlag = 10;
-  } else if ((strncmp(dataToStore, "accSensitivity",14) == 0)) {
-    int grad = atoi(&(dataToStore[14]));
-    if (grad > 0)
-      dataFlag = 3000 + grad;
-    else
-      dataFlag = 10;
-
-  } else {
-    dataFlag = 10;
-    opserr << "EnvelopeNodeRecorder::NodeRecorder - dataToStore " << dataToStore;
-    opserr << "not recognized (disp, vel, accel, incrDisp, incrDeltaDisp)\n";
-  }
-
-  if (dataFlag == 7 || dataFlag == 8 || dataFlag == 9) {
+  if (dataFlag == NodeData::Reaction
+   || dataFlag == NodeData::ReactionInclInertia
+   || dataFlag == NodeData::ReactionInclRayleigh) {
     if (echoTime == true)
-      theOutputHandler.setAddCommon(2);
+      theHandler->setAddCommon(2);
     else
-      theOutputHandler.setAddCommon(1);
+      theHandler->setAddCommon(1);
   }
 }
 
@@ -438,7 +379,6 @@ EnvelopeNodeRecorder::~EnvelopeNodeRecorder()
   //
   // write the data
   //
-
   if (theHandler != 0 && data != 0) {
     
     theHandler->tag("Data"); // Data
@@ -457,7 +397,6 @@ EnvelopeNodeRecorder::~EnvelopeNodeRecorder()
   //
   // clean up the memory
   //
-
   int numDOF = theDofs->Size();
 
   if (theDofs != 0)
@@ -526,24 +465,23 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
     // if need nodal reactions get the domain to calculate them
     // before we iterate over the nodes
     //
-
-    if (dataFlag == 7)
+    if (dataFlag == NodeData::Reaction)
       theDomain->calculateNodalReactions(0);
-    else if (dataFlag == 8)
+    else if (dataFlag == NodeData::ReactionInclInertia)
       theDomain->calculateNodalReactions(1);
-    if (dataFlag == 9)
+    if (dataFlag == NodeData::ReactionInclRayleigh)
       theDomain->calculateNodalReactions(2);
 
     
     for (int i=0; i<numValidNodes; i++) {
       int cnt = i*numDOF;
 
-      if (dataFlag == 10000)
+      if (dataFlag == NodeData::DisplNorm)
 	cnt = i;
 
       Node *theNode = theNodes[i];
 
-      if (dataFlag == 0) {
+      if (dataFlag == NodeData::DisplTrial) { // == 0
 	const Vector &response = theNode->getTrialDisp();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -560,7 +498,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag == 10000) {
+      } else if (dataFlag == NodeData::DisplNorm) {
 	const Vector &response = theNode->getTrialDisp();
 	double sum = 0.0;
 	for (int j=0; j<numDOF; j++) {
@@ -579,7 +517,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	(*currentData)(cnt) = sqrt(sum);
 	cnt++;
 
-      } else if (dataFlag == 1) {
+      } else if (dataFlag == NodeData::VelocTrial) {
 	const Vector &response = theNode->getTrialVel();
 	for (int j=0; j<numDOF; j++) {
 
@@ -595,7 +533,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 2) {
+      } else if (dataFlag == NodeData::AccelTrial) {
 	const Vector &response = theNode->getTrialAccel();
 	for (int j=0; j<numDOF; j++) {
 
@@ -611,7 +549,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 3) {
+      } else if (dataFlag == NodeData::IncrDisp) {
 	const Vector &response = theNode->getIncrDisp();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -622,7 +560,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 4) {
+      } else if (dataFlag == NodeData::IncrDeltaDisp) {
 	const Vector &response = theNode->getIncrDeltaDisp();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -633,7 +571,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 5) {
+      } else if (dataFlag == NodeData::UnbalancedLoad) {
 	const Vector &theResponse = theNode->getUnbalancedLoad();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -645,7 +583,7 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag == 6) {
+      } else if (dataFlag == NodeData::UnbalanceInclInertia) {
 	const Vector &theResponse = theNode->getUnbalancedLoadIncInertia();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -657,7 +595,9 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag == 7 || dataFlag == 8 || dataFlag == 9) {
+      } else if (dataFlag == NodeData::Reaction 
+              || dataFlag == NodeData::ReactionInclInertia 
+              || dataFlag == NodeData::ReactionInclRayleigh) {
 	const Vector &theResponse = theNode->getReaction();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -669,8 +609,8 @@ EnvelopeNodeRecorder::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag > 10) {
-	int mode = dataFlag - 10;
+      } else if (dataFlag == NodeData::EigenVector) {
+	int mode = dataIndex;
 	int column = mode - 1;
 	const Matrix &theEigenvectors = theNode->getEigenvectors();
 	if (theEigenvectors.noCols() > column) {
@@ -811,7 +751,7 @@ EnvelopeNodeRecorder::sendSelf(int commitTag, Channel &theChannel)
     idData(2) = theHandler->getClassTag();
   }
 
-  idData(3) = dataFlag;
+  idData(3) = (int)dataFlag;
 
   if (echoTimeFlag == true)
     idData(4) = 1;
@@ -901,7 +841,7 @@ EnvelopeNodeRecorder::recvSelf(int commitTag, Channel &theChannel,
   int numDOFs = idData(0);
   int numNodes = idData(1);
 
-  dataFlag = idData(3);
+  dataFlag = (NodeData)idData(3);
 
   this->setTag(idData(5));
 
@@ -1068,28 +1008,28 @@ EnvelopeNodeRecorder::initialize(void)
   char outputData[32];
   char dataType[15];
 
-  if (dataFlag == 0) {
+  if (dataFlag == NodeData::DisplTrial) {
     strcpy(dataType,"D");
-  } else if (dataFlag == 1) {
+  } else if (dataFlag == NodeData::VelocTrial) {
     strcpy(dataType,"V");
-  } else if (dataFlag == 2) {
+  } else if (dataFlag == NodeData::AccelTrial) {
     strcpy(dataType,"A");
-  } else if (dataFlag == 3) {
+  } else if (dataFlag == NodeData::IncrDisp) {
     strcpy(dataType,"dD");
-  } else if (dataFlag == 4) {
-  } else if (dataFlag == 5) {
+  } else if (dataFlag == NodeData::IncrDeltaDisp) {
     strcpy(dataType,"ddD");
+  } else if (dataFlag == NodeData::UnbalancedLoad) {
     strcpy(dataType,"U");
-  } else if (dataFlag == 6) {
+  } else if (dataFlag == NodeData::UnbalanceInclInertia) {
     strcpy(dataType,"U");
-  } else if (dataFlag == 7) {
+  } else if (dataFlag == NodeData::Reaction) {
     strcpy(dataType,"R");
-  } else if (dataFlag == 8) {
+  } else if (dataFlag == NodeData::ReactionInclInertia) {
     strcpy(dataType,"R");
-  } else if (dataFlag == 10000) {
+  } else if (dataFlag == NodeData::DisplNorm) {
     strcpy(dataType,"|D|");
-  } else if (dataFlag > 10) {
-    sprintf(dataType,"E%d", dataFlag-10);
+  } else if (dataFlag == NodeData::EigenVector) {
+    sprintf(dataType,"E%d", dataIndex);
   } else
     strcpy(dataType,"Unknown");
 
@@ -1101,7 +1041,7 @@ EnvelopeNodeRecorder::initialize(void)
   int numDOF = theDofs->Size();
   int numValidResponse = numValidNodes*numDOF;
 
-  if (dataFlag == 10000)
+  if (dataFlag == NodeData::DisplNorm)
     numValidResponse = numValidNodes;  
 
   if (echoTimeFlag == true) {
