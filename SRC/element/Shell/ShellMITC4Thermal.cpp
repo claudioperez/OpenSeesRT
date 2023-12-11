@@ -196,7 +196,7 @@ void ShellMITC4Thermal::setDomain(Domain *theDomain)
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++)
       ddMembrane(i, j) = dd(i, j);
-  } //end for i
+  }
 
   //eigenvalues of ddMembrane
   ddMembrane.symeig(eig);
@@ -2127,10 +2127,8 @@ int ShellMITC4Thermal::recvSelf(int commitTag, Channel &theChannel,
   betaK0 = vectData(3);
   betaKc = vectData(4);
 
-  int i;
-
   if (materialPointers[0] == 0) {
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       int matClassTag = idData(i);
       int matDbTag    = idData(i + 4);
       // Allocate new material with the sent class tag
@@ -2154,7 +2152,7 @@ int ShellMITC4Thermal::recvSelf(int commitTag, Channel &theChannel,
   }
   // Number of materials is the same, receive materials into current space
   else {
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       int matClassTag = idData(i);
       int matDbTag    = idData(i + 4);
       // Check that material is of the right type; if not,

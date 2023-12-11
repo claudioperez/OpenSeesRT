@@ -26,9 +26,7 @@
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
 //
-// $Revision: 1.10 $
 // $Date: 2011/03/10 22:51:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/ShellMITC4.cpp,v $
 //
 #include <assert.h>
 #include <stdio.h>
@@ -42,8 +40,6 @@
 #include <Matrix.h>
 #include <MatrixND.h>
 #include <Matrix3D.h>
-
-using namespace OpenSees;
 
 #include <Element.h>
 #include <Node.h>
@@ -59,7 +55,8 @@ using namespace OpenSees;
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-using OpenSees::VectorND;
+using namespace OpenSees;
+
 // static data
 Matrix ShellMITC4::stiff(24, 24);
 Vector ShellMITC4::resid(24);
@@ -131,10 +128,8 @@ ShellMITC4::~ShellMITC4()
 // set domain
 void ShellMITC4::setDomain(Domain *theDomain)
 {
-//static Vector eig(3);
-//static Matrix ddMembrane(3, 3);
-         Vector3D eig;
-         Matrix3D ddMembrane; // (3, 3);
+  Vector3D eig;
+  Matrix3D ddMembrane;
 
   // node pointers
   for (int i = 0; i < 4; i++) {
