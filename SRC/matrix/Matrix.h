@@ -17,15 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2007/07/16 22:57:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/Matrix.h,v $
-                                                                        
-                                                                        
-#ifndef Matrix_h
-#define Matrix_h 
-#define NO_STATIC_WORK
 //
 // Description: This file contains the class definition for Matrix.
 // Matrix is a concrete class implementing the matrix abstraction.
@@ -36,7 +27,9 @@
 // Created: 11/96
 // Revision: A
 //
-// #include <OPS_Globals.h>
+#ifndef Matrix_h
+#define Matrix_h 
+#define NO_STATIC_WORK
 class Vector;
 class ID;
 class Message;
