@@ -74,6 +74,7 @@ extern OPS_Routine OPS_SurfaceLoad;
 extern OPS_Routine OPS_TriSurfaceLoad;
 
 extern OPS_Routine OPS_ModElasticBeam2d;
+extern OPS_Routine OPS_ModElasticBeam3d;
 extern void *OPS_ElasticBeam2d(G3_Runtime *, const ID &);
 extern OPS_Routine OPS_ElasticBeam3d;
 extern OPS_Routine OPS_ElasticTimoshenkoBeam2d;
@@ -322,6 +323,11 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if ((strcmp(argv[1], "ModElasticBeam2d") == 0) ||
              (strcmp(argv[1], "modElasticBeam2d")) == 0) {
     theEle = OPS_ModElasticBeam2d(rt, argc, argv);
+  }
+
+  else if ((strcmp(argv[1], "ModElasticBeam3d") == 0) ||
+             (strcmp(argv[1], "modElasticBeam3d")) == 0) {
+    theEle = OPS_ModElasticBeam3d(rt, argc, argv);
   }
 
   else if ((strcasecmp(argv[1], "elasticBeamColumn") == 0) ||
