@@ -305,9 +305,9 @@ foreach line [split [read -nonewline $channel] \n] {
 close $channel
 
 # record nodal displacment, acceleration, and porepressure
-eval "recorder Node -file out/Gdisplacement.out-time -node $nodeList3 -dof 1 2  disp"
-eval "recorder Node -file out/Gacceleration.out-time -node $nodeList3 -dof 1 2  accel"
-eval "recorder Node -file out/GporePressure.out-time -node $nodeList3 -dof 3 vel"
+eval "recorder Node -file out/Gdisplacement.out -time -node $nodeList3 -dof 1 2  disp"
+eval "recorder Node -file out/Gacceleration.out -time -node $nodeList3 -dof 1 2  accel"
+eval "recorder Node -file out/GporePressure.out -time -node $nodeList3 -dof 3 vel"
 # record elemental stress and strain (files are names to reflect GiD gp numbering)
 recorder Element -file out/Gstress1.out  -time  -eleRange 1 $nElemT  material 1 stress
 recorder Element -file out/Gstress2.out  -time  -eleRange 1 $nElemT  material 2 stress
@@ -487,9 +487,9 @@ remove recorders
 set recDT  [expr 10*$motionDT]
 
 # record nodal displacment, acceleration, and porepressure
-eval "recorder Node -file out/displacement.out-time -dT $recDT -node $nodeList3 -dof 1 2  disp"
-eval "recorder Node -file out/acceleration.out-time -dT $recDT -node $nodeList3 -dof 1 2  accel"
-eval "recorder Node -file out/porePressure.out-time -dT $recDT -node $nodeList3 -dof 3 vel"
+eval "recorder Node -file out/displacement.out -time -dT $recDT -node $nodeList3 -dof 1 2  disp"
+eval "recorder Node -file out/acceleration.out -time -dT $recDT -node $nodeList3 -dof 1 2  accel"
+eval "recorder Node -file out/porePressure.out -time -dT $recDT -node $nodeList3 -dof 3 vel"
 # record elemental stress and strain (files are names to reflect GiD gp numbering)
 recorder Element -file out/stress1.out  -time -dT $recDT  -eleRange 1 $nElemT  material 1 stress
 recorder Element -file out/stress2.out  -time -dT $recDT  -eleRange 1 $nElemT  material 2 stress

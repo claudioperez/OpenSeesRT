@@ -1095,10 +1095,10 @@ close $channel
 # designate recorder timestep
 set dt 0.5
 
-recorder Node -file out/pyDisplace.out-time -nodeRange 202 281 -dof 1 -dT $dt disp
+recorder Node -file out/pyDisplace.out -time -nodeRange 202 281 -dof 1 -dT $dt disp
 recorder Node -file out/pyForces.out  -time -nodeRange 2   81 -dof 1 -dT $dt reaction
 
-eval "recorder Node -file out/Displacements.out-time -node $nodeList6 -dof 1 2 3 -dT $dt disp"
+eval "recorder Node -file out/Displacements.out -time -node $nodeList6 -dof 1 2 3 -dT $dt disp"
 eval "recorder Node -file out/Reaction.out     -time -node $nodeList6 -dof 1 2 3 -dT $dt reaction "
 eval "recorder Element -file out/globalForces.out   -time -ele $BeamElementList -dT $dt globalForce"
 
