@@ -17,6 +17,7 @@ namespace py = pybind11;
 #include <Domain.h>
 #include <Vector.h>
 #include <Node.h>
+#include <NodeData.h>
 #include <Element.h>
 #include <SectionForceDeformation.h>
 #include <UniaxialMaterial.h>
@@ -494,11 +495,11 @@ init_obj_module(py::module &m)
   py::class_<Domain>(m, "_Domain")
     // .def ("getElementResponse", &Domain::getElementResponse)
     .def ("getNodeResponse", [](Domain& domain, int node, std::string type) {
-        NodeResponseType typ;
-        if (type == "displ") typ = Disp;
-        if (type == "accel") typ = Accel;
-        if (type == "veloc") typ = Vel;
-        if (type == "react") typ = Reaction;
+        NodeData typ;
+        if (type == "displ") typ = NodeData::Disp;
+        if (type == "accel") typ = NodeData::Accel;
+        if (type == "veloc") typ = NodeData::Vel;
+        if (type == "react") typ = NodeData::Reaction;
       return copy_vector(*domain.getNodeResponse(node, typ));
     })
     .def ("getTime", &Domain::getCurrentTime)
