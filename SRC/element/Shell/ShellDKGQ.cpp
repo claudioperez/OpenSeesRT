@@ -52,34 +52,34 @@ Vector ShellDKGQ::resid(24);
 Matrix ShellDKGQ::mass(24, 24);
 
 // quadrature data
-const double ShellDKGQ::root3          = sqrt(3.0);
-const double ShellDKGQ::one_over_root3 = 1.0 / root3;
-
-double ShellDKGQ::sg[4];
-double ShellDKGQ::tg[4];
-double ShellDKGQ::wg[4];
+// const double ShellDKGQ::root3          = sqrt(3.0);
+// const double ShellDKGQ::one_over_root3 = 1.0 / root3;
+// 
+// double ShellDKGQ::sg[4];
+// double ShellDKGQ::tg[4];
+// double ShellDKGQ::wg[4];
 
 // null constructor
 ShellDKGQ::ShellDKGQ()
     : Element(0, ELE_TAG_ShellDKGQ), connectedExternalNodes(4), load(0), Ki(0)
 {
-  for (int i = 0; i < 4; i++)
-    materialPointers[i] = 0;
+  for (int i = 0; i < ShellDKGQ::nip; i++)
+    materialPointers[i] = nullptr;
 
-  sg[0] = -one_over_root3;
-  sg[1] =  one_over_root3;
-  sg[2] =  one_over_root3;
-  sg[3] = -one_over_root3;
+  // sg[0] = -one_over_root3;
+  // sg[1] =  one_over_root3;
+  // sg[2] =  one_over_root3;
+  // sg[3] = -one_over_root3;
 
-  tg[0] = -one_over_root3;
-  tg[1] = -one_over_root3;
-  tg[2] =  one_over_root3;
-  tg[3] =  one_over_root3;
+  // tg[0] = -one_over_root3;
+  // tg[1] = -one_over_root3;
+  // tg[2] =  one_over_root3;
+  // tg[3] =  one_over_root3;
 
-  wg[0] = 1.0;
-  wg[1] = 1.0;
-  wg[2] = 1.0;
-  wg[3] = 1.0;
+  // wg[0] = 1.0;
+  // wg[1] = 1.0;
+  // wg[2] = 1.0;
+  // wg[3] = 1.0;
 }
 
 //*********************************************************************
@@ -99,27 +99,26 @@ ShellDKGQ::ShellDKGQ(int tag, int node1, int node2, int node3, int node4,
 
     materialPointers[i] = theMaterial.getCopy();
 
-    if (materialPointers[i] == 0) {
+    if (materialPointers[i] == nullptr) {
       opserr << "ShellDKGQ::constructor - failed to get a material of type: "
                 "ShellSection\n";
     }
+  }
 
-  } //end for i
+//sg[0] = -one_over_root3;
+//sg[1] =  one_over_root3;
+//sg[2] =  one_over_root3;
+//sg[3] = -one_over_root3;
 
-  sg[0] = -one_over_root3;
-  sg[1] =  one_over_root3;
-  sg[2] =  one_over_root3;
-  sg[3] = -one_over_root3;
+//tg[0] = -one_over_root3;
+//tg[1] = -one_over_root3;
+//tg[2] =  one_over_root3;
+//tg[3] =  one_over_root3;
 
-  tg[0] = -one_over_root3;
-  tg[1] = -one_over_root3;
-  tg[2] =  one_over_root3;
-  tg[3] =  one_over_root3;
-
-  wg[0] = 1.0;
-  wg[1] = 1.0;
-  wg[2] = 1.0;
-  wg[3] = 1.0;
+//wg[0] = 1.0;
+//wg[1] = 1.0;
+//wg[2] = 1.0;
+//wg[3] = 1.0;
 }
 //******************************************************************
 
@@ -309,12 +308,11 @@ Response *ShellDKGQ::setResponse(const char **argv, int argc,
       return 0;
     }
     int pointNum = atoi(argv[1]);
-    if (pointNum > 0 && pointNum <= 4) {
-
+    if (pointNum > 0 && pointNum <= ShellDKGQ::nip) {
       output.tag("GaussPoint");
       output.attr("number", pointNum);
-      output.attr("eta", sg[pointNum - 1]);
-      output.attr("neta", tg[pointNum - 1]);
+      output.attr("eta",    pts[pointNum - 1][0]);
+      output.attr("neta",   pts[pointNum - 1][1]);
 
       theResponse = materialPointers[pointNum - 1]->setResponse(
           &argv[2], argc - 2, output);
@@ -327,8 +325,8 @@ Response *ShellDKGQ::setResponse(const char **argv, int argc,
     for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
-      output.attr("eta", sg[i]);
-      output.attr("neta", tg[i]);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("SectionForceDeformation");
       output.attr("classType", materialPointers[i]->getClassTag());
@@ -355,8 +353,8 @@ Response *ShellDKGQ::setResponse(const char **argv, int argc,
     for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
-      output.attr("eta", sg[i]);
-      output.attr("neta", tg[i]);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("SectionForceDeformation");
       output.attr("classType", materialPointers[i]->getClassTag());
@@ -464,7 +462,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
   double volume = 0.0;
 
   static double xsj;              // determinant jacabian matrix
-  static double dvol[ShellDKGQ::numberGauss];     // volume element
+  static double dvol[ShellDKGQ::nip];     // volume element
   static double shp[3][ShellDKGQ::numberNodes]; // shape function 2d at a gauss point
 
   // shape function-drilling dof(Nu,1&Nu,2&Nv,1&Nv,2) at a gauss point
@@ -554,15 +552,15 @@ const Matrix &ShellDKGQ::getInitialStiff()
   }
 
   //------------gauss loop--------------------------
-  for (int i = 0; i < ShellDKGQ::numberGauss; i++) {
+  for (int i = 0; i < ShellDKGQ::nip; i++) {
 
     //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj, sx);
-    shapeDrill(sg[i], tg[i], xl, sx, shpDrill);
-    shapeBend(sg[i], tg[i], xl, sx, shpBend);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
+    shapeDrill(pts[i][0], pts[i][1], xl, sx, shpDrill);
+    shapeBend(pts[i][0], pts[i][1], xl, sx, shpBend);
 
     //volume element to be saved
-    dvol[i] = wg[i] * xsj;
+    dvol[i] = wts[i] * xsj;
     volume += dvol[i];
 
     Bshear.Zero();
@@ -767,13 +765,13 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
   mass.Zero();
 
   //gauss loop
-  for (int i = 0; i < ShellDKGQ::numberGauss; i++) {
+  for (int i = 0; i < ShellDKGQ::nip; i++) {
 
     //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj, sx);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
 
     //volume element to also be saved
-    dvol = wg[i] * xsj;
+    dvol = wts[i] * xsj;
 
     //node loop to compute accelerations
     momentum.Zero();
@@ -873,7 +871,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
 
   static double xsj; //determinant jacobian matrix
 
-  static double dvol[ShellDKGQ::numberGauss]; //volume element
+  static double dvol[ShellDKGQ::nip]; //volume element
 
 
   static double 
@@ -989,15 +987,15 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
   } //end for p2
 
   //------------gauss loop--------------------------
-  for (int i = 0; i < ShellDKGQ::numberGauss; i++) {
+  for (int i = 0; i < ShellDKGQ::nip; i++) {
 
     //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj, sx);
-    shapeDrill(sg[i], tg[i], xl, sx, shpDrill);
-    shapeBend(sg[i], tg[i], xl, sx, shpBend);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
+    shapeDrill(pts[i][0], pts[i][1], xl, sx, shpDrill);
+    shapeBend(pts[i][0], pts[i][1], xl, sx, shpBend);
 
     // volume element to be saved
-    dvol[i] = wg[i] * xsj;
+    dvol[i] = wts[i] * xsj;
     volume += dvol[i];
 
     Bshear.Zero();

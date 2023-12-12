@@ -4,10 +4,6 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-#add_library(OPS_Element_truss OBJECT)
-
-#target_sources(OPS_Element_truss
-#  PRIVATE
 
 target_sources(OPS_Element
   PRIVATE
@@ -15,29 +11,36 @@ target_sources(OPS_Element
     TrussSection.cpp
     CorotTruss.cpp
     CorotTrussSection.cpp
-    Truss2.cpp
-    N4BiaxialTruss.cpp
-    CorotTruss2.cpp
   PUBLIC
     Truss.h
     TrussSection.h
     CorotTruss.h
     CorotTrussSection.h
-    Truss2.h
-    N4BiaxialTruss.h
-    CorotTruss2.h
 )
 
-
-#add_library(OPS_Element_InertiaTruss OBJECT)
-
-#target_sources(OPS_Element_InertiaTruss
 target_sources(OPS_Element
   PRIVATE
     InertiaTruss.cpp
   PUBLIC
     InertiaTruss.h
 )
+
+# These elements include specific material headers
+#add_library(OPS_ConcreteTruss OBJECT)
+target_include_directories(OPS_Element PUBLIC "${OPS_SRC_DIR}/material/uniaxial/concrete")
+target_sources(OPS_Element
+  PRIVATE
+    Truss2.cpp
+    N4BiaxialTruss.cpp
+    CorotTruss2.cpp
+  PUBLIC
+    N4BiaxialTruss.h
+    CorotTruss2.h
+    Truss2.h
+)
+
+# target_link_libraries(OPS_ConcreteTruss PRIVATE OPS_Material)
+# target_link_libraries(OPS_Element PUBLIC OPS_ConcreteTruss)
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

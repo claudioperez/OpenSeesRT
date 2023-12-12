@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2020/05/18 22:51:21 $
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // A 4-node general shell element based on the AGQ formulation
@@ -30,7 +27,8 @@
 // It supports both linear and corotational kinematics. Warped geometries
 // can be modelled since this element is not assumed flat.
 //
-
+// $Date: 2020/05/18 22:51:21 $
+//
 #include <ASDShellQ4.h>
 #include <ASDShellQ4CorotationalTransformation.h>
 
@@ -129,12 +127,12 @@ inline void shapeFunctionsNaturalDerivatives(double xi, double eta, Matrix &dN)
 }
 
 /** \brief JacobianOperator
-     *
-     * This class is a utility to compute at a given integration point,
-     * the Jacobian, its inverse, its determinant
-     * and the derivatives of the shape functions in the local
-     * cartesian coordinate system.
-     */
+  *
+  * This class is a utility to compute at a given integration point,
+  * the Jacobian, its inverse, its determinant
+  * and the derivatives of the shape functions in the local
+  * cartesian coordinate system.
+  */
 struct JacobianOperator {
   // Jacobian matrix
   Matrix J = Matrix(2, 2);
@@ -247,11 +245,11 @@ struct MITC4Params {
 };
 
 /** \brief AGQIParams
-     *
-     * This class performs some operations and stores some data to compute
-     * the AGQI enhancement of the membrane part
-     *
-     */
+ *
+ * This class performs some operations and stores some data to compute
+ * the AGQI enhancement of the membrane part
+ *
+ */
 struct AGQIParams {
   std::array<double, 4> X = {{0.0, 0.0, 0.0, 0.0}};
   std::array<double, 4> Y = {{0.0, 0.0, 0.0, 0.0}};
@@ -318,16 +316,13 @@ public:
   Vector UG = Vector(24); // global displacements
   Vector UL = Vector(24); // local displacements
 
-  Matrix B = Matrix(8, 24); // strain-displacement matrix
-  Matrix B1 =
-      Matrix(8, 24); // strain-displacement matrix with inverted bending terms
+  Matrix B    = Matrix(8, 24); // strain-displacement matrix
+  Matrix B1   = Matrix(8, 24); // strain-displacement matrix with inverted bending terms
   Matrix B1TD = Matrix(24, 8); // holds the B1^T*D terms
   Vector Bd   = Vector(24);    // strain-displacement matrix for drilling
-  Vector Bd0  = Vector(
-      24); // strain-displacement matrix for drilling (reduced integration)
-  Vector N = Vector(4); // shape functions
-  Matrix dN =
-      Matrix(4, 2); // shape functions derivatives in isoparametric space
+  Vector Bd0  = Vector(24);    // strain-displacement matrix for drilling (reduced integration)
+  Vector N    = Vector(4); // shape functions
+  Matrix dN   = Matrix(4, 2); // shape functions derivatives in isoparametric space
   Matrix dNdX = Matrix(4, 2); // shape functions derivatives in cartesian space
   Vector E    = Vector(8);    // strain vector
   Vector S    = Vector(8);    // stress vector

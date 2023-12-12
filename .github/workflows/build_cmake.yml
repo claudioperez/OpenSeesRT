@@ -43,21 +43,21 @@ jobs:
 
 # Not building on Windows until we can figure out how to use Fortran
 # with Github Actions
-  build-win32:
-    name: Build on Windows
-    runs-on: [windows-latest]
-    steps:
-    - uses: awvwgk/setup-fortran@v1
-      with:
-        compiler: "intel"
-        version:  "2023.1"
+# build-win32:
+#   name: Build on Windows
+#   runs-on: [windows-latest]
+#   steps:
+#   - uses: awvwgk/setup-fortran@v1
+#     with:
+#       compiler: "intel"
+#       version:  "2023.1"
 
-    - name: Checkout sources
-      uses: actions/checkout@v2
-      with: {ref: cmake-build}
-    
-    - name: Install Conan
-      uses: turtlebrowser/get-conan@main
+#   - name: Checkout sources
+#     uses: actions/checkout@v2
+#     with: {ref: cmake-build}
+#   
+#   - name: Install Conan
+#     uses: turtlebrowser/get-conan@main
   
   
 #   - name: Build

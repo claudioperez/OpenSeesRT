@@ -12,6 +12,8 @@ target_sources(OPS_Material
     FSAM.cpp
     AcousticMedium.cpp
     ASDConcrete3DMaterial.cpp
+    ElasticPlaneStress.cpp
+    VonPapaDamage.cpp
     ElasticIsotropicAxiSymm.cpp
     ElasticIsotropicMaterial.cpp
     ElasticOrthotropicMaterial.cpp
@@ -25,7 +27,6 @@ target_sources(OPS_Material
     J2PlateFibre.cpp
     PlateFiberMaterial.cpp
     ElasticIsotropicPlateFiber.cpp
-
     PlateFromPlaneStressMaterial.cpp
     PlateRebarMaterial.cpp
     PlateFiberMaterialThermal.cpp
@@ -65,6 +66,8 @@ target_sources(OPS_Material
     ElasticIsotropicMaterial.h
     ElasticIsotropicPlateFiber.h
     ElasticOrthotropicMaterial.h
+    ElasticPlaneStress.h
+    VonPapaDamage.h
     PressureDependentElastic3D.h
     FeapMaterial.h
     J2AxiSymm.h

@@ -17,25 +17,23 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// Written: fmk 
 //
 // Description: This file contains the class definition for NodeRecorderRMS.
 // A NodeRecorderRMS is used to record the envelop of specified dof responses 
 // at a collection of nodes over an analysis. (between commitTag of 0 and
 // last commitTag).
 //
-// What: "@(#) NodeRecorderRMS.C, revA"
-
+// Written: fmk 
+//
 #include <NodeRecorderRMS.h>
 #include <Domain.h>
 #include <Node.h>
+#include <NodeData.h>
 #include <NodeIter.h>
 #include <Vector.h>
 #include <ID.h>
 #include <Matrix.h>
 #include <Channel.h>
-// #include <FE_Datastore.h>
 #include <FEM_ObjectBroker.h>
 #include <MeshRegion.h>
 #include <TimeSeries.h>
@@ -45,246 +43,11 @@
 #include <DataFileStreamAdd.h>
 #include <XmlFileStream.h>
 #include <BinaryFileStream.h>
-// #include <DatabaseStream.h>
 #include <TCP_Stream.h>
-
-#include <elementAPI.h>
 
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_NodeRecorderRMS)
-{
-    if (OPS_GetNumRemainingInputArgs() < 5) {
-        opserr << "WARING: recorder EnvelopeNode ";
-        opserr << "-node <list nodes> -dof <doflist> -file <fileName> -dT <dT> reponse";
-        return 0;
-    }
-
-    const char* responseID = 0;
-    OPS_Stream *theOutputStream = 0;
-    const char* filename = 0;
-
-    const int STANDARD_STREAM = 0;
-    const int DATA_STREAM = 1;
-    const int XML_STREAM = 2;
-    // const int DATABASE_STREAM = 3;
-    const int BINARY_STREAM = 4;
-    const int DATA_STREAM_CSV = 5;
-    const int TCP_STREAM = 6;
-    const int DATA_STREAM_ADD = 7;
-
-    int eMode = STANDARD_STREAM;
-
-    double dT = 0.0;
-    bool doScientific = false;
-
-    int precision = 6;
-
-    bool closeOnWrite = false;
-
-    const char *inetAddr = 0;
-    int inetPort;
-
-    TimeSeries **theTimeSeries = 0;
-
-    ID nodes(0, 6);
-    ID dofs(0, 6);
-    ID timeseries(0, 6);
-
-    while (OPS_GetNumRemainingInputArgs() > 0) {
-
-        const char* option = OPS_GetString();
-        responseID = option;
-
-        if (strcmp(option, "-scientific") == 0) {
-            doScientific = true;
-        }
-        else if (strcmp(option, "-file") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                filename = OPS_GetString();
-            }
-            eMode = DATA_STREAM;
-        }
-        else if (strcmp(option, "-fileAdd") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                filename = OPS_GetString();
-            }
-            eMode = DATA_STREAM_ADD;
-        }
-        else if (strcmp(option, "-closeOnWrite") == 0) {
-            closeOnWrite = true;
-        }
-        else if (strcmp(option, "-csv") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                filename = OPS_GetString();
-            }
-            eMode = DATA_STREAM_CSV;
-        }
-        else if (strcmp(option, "-tcp") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                inetAddr = OPS_GetString();
-            }
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                if (OPS_GetIntInput(&num, &inetPort) < 0) {
-                    opserr << "WARNING: failed to read inetPort\n";
-                    return 0;
-                }
-            }
-            eMode = TCP_STREAM;
-        }
-        else if (strcmp(option, "-xml") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                filename = OPS_GetString();
-            }
-            eMode = XML_STREAM;
-        }
-        else if (strcmp(option, "-binary") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                filename = OPS_GetString();
-            }
-            eMode = BINARY_STREAM;
-        }
-        else if (strcmp(option, "-dT") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                if (OPS_GetDoubleInput(&num, &dT) < 0) {
-                    opserr << "WARNING: failed to read dT\n";
-                    return 0;
-                }
-            }
-        }
-        else if (strcmp(option, "-timeSeries") == 0) {
-            int numTimeSeries = 0;
-            while (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                int ts;
-                if (OPS_GetIntInput(&num, &ts) < 0) {
-		  // OPS_ResetCurrentInputArg(-1);
-                    break;
-                }
-                timeseries[numTimeSeries++] = ts;
-            }
-            theTimeSeries = new TimeSeries *[numTimeSeries];
-            for (int j = 0; j<numTimeSeries; j++) {
-                if (timeseries(j) != 0 && timeseries(j) != -1)
-                    theTimeSeries[j] = OPS_getTimeSeries(timeseries(j));
-                else
-                    theTimeSeries[j] = 0;
-            }
-        }
-        else if (strcmp(option, "-precision") == 0) {
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                if (OPS_GetIntInput(&num, &precision) < 0) {
-                    opserr << "WARNING: failed to read precision\n";
-                    return 0;
-                }
-            }
-        }
-        else if (strcmp(option, "-node") == 0) {
-            int numNodes = 0;
-            while (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                int nd;
-                if (OPS_GetIntInput(&num, &nd) < 0) {
-		  //                    OPS_ResetCurrentInputArg(-1);
-                    break;
-                }
-                nodes[numNodes++] = nd;
-            }
-        }
-        else if (strcmp(option, "-nodeRange") == 0) {
-            int start, end;
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                if (OPS_GetIntInput(&num, &start) < 0) {
-                    opserr << "WARNING: failed to read start node\n";
-                    return 0;
-                }
-            }
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                if (OPS_GetIntInput(&num, &end) < 0) {
-                    opserr << "WARNING: failed to read end node\n";
-                    return 0;
-                }
-            }
-            if (start > end) {
-                int swap = end;
-                end = start;
-                start = swap;
-            }
-            int numNodes = 0;
-            for (int i = start; i <= end; i++)
-                nodes[numNodes++] = i;
-        }
-        else if (strcmp(option, "-region") == 0) {
-            int tag;
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                if (OPS_GetIntInput(&num, &tag) < 0) {
-                    opserr << "WARNING: failed to read region tag\n";
-                    return 0;
-                }
-            }
-            Domain *domain = OPS_GetDomain();
-            MeshRegion *theRegion = domain->getRegion(tag);
-            if (theRegion == 0) {
-                opserr << "WARNING: region does not exist\n";
-                return 0;
-            }
-            const ID &nodeRegion = theRegion->getNodes();
-            int numNodes = 0;
-            for (int i = 0; i < nodeRegion.Size(); i++)
-                nodes[numNodes++] = nodeRegion(i);
-        }
-        else if (strcmp(option, "-dof") == 0) {
-            int numDOF = 0;
-            while (OPS_GetNumRemainingInputArgs() > 0) {
-                int num = 1;
-                int dof;
-                if (OPS_GetIntInput(&num, &dof) < 0) {
-		  //                    OPS_ResetCurrentInputArg(-1);
-                    break;
-                }
-                dofs[numDOF++] = dof - 1;
-            }
-        }
-    }
-
-    // data handler
-    if (eMode == DATA_STREAM && filename != 0)
-        theOutputStream = new DataFileStream(filename, openMode::OVERWRITE, 2, 0, closeOnWrite, precision, doScientific);
-    else if (eMode == DATA_STREAM_ADD && filename != 0)
-        theOutputStream = new DataFileStreamAdd(filename, openMode::OVERWRITE, 2, 0, closeOnWrite, precision, doScientific);
-    else if (eMode == DATA_STREAM_CSV && filename != 0)
-        theOutputStream = new DataFileStream(filename, openMode::OVERWRITE, 2, 1, closeOnWrite, precision, doScientific);
-    else if (eMode == XML_STREAM && filename != 0)
-        theOutputStream = new XmlFileStream(filename);
-    //else if (eMode == DATABASE_STREAM && tableName != 0)
-    //    theOutputStream = new DatabaseStream(theDatabase, tableName);
-    else if (eMode == BINARY_STREAM && filename != 0)
-        theOutputStream = new BinaryFileStream(filename);
-    else if (eMode == TCP_STREAM && inetAddr != 0)
-        theOutputStream = new TCP_Stream(inetPort, inetAddr);
-    else
-        theOutputStream = new StandardStream();
-
-    theOutputStream->setPrecision(precision);
-
-    Domain* domain = OPS_GetDomain();
-    if (domain == 0)
-        return 0;
-    NodeRecorderRMS* recorder = new NodeRecorderRMS(dofs, &nodes,
-        responseID, *domain, *theOutputStream,
-        dT, theTimeSeries);
-
-    return recorder;
-}
 
 
 NodeRecorderRMS::NodeRecorderRMS()
@@ -292,35 +55,38 @@ NodeRecorderRMS::NodeRecorderRMS()
  theDofs(0), theNodalTags(0), theNodes(0),
  currentData(0), runningTotal(0), count(0),
  theDomain(0), theHandler(0),
- deltaT(0.0), nextTimeStampToRecord(0.0), 
+ deltaT(0.0), relDeltaTTol(0.00001), nextTimeStampToRecord(0.0),
  initializationDone(false), 
- numValidNodes(0), addColumnInfo(0), theTimeSeries(0), timeSeriesValues(0)
+ numValidNodes(0), addColumnInfo(0), theTimeSeries(0), timeSeriesValues(0),
+ dataFlag(NodeData::Disp), dataIndex(-1)
 {
 
 }
 
 NodeRecorderRMS::NodeRecorderRMS(const ID &dofs, 
-				 const ID *nodes, 
-				 const char *dataToStore,
-				 Domain &theDom,
-				 OPS_Stream &theOutputHandler,
-				 double dT, 
-				 TimeSeries **theSeries)
+                                 const ID *nodes, 
+                                 NodeData _dataFlag,
+                                 int _dataIndex,
+                                 Domain &theDom,
+                                 OPS_Stream &theOutputHandler,
+                                 double dT, 
+                                 double rTolDt,
+                                 TimeSeries **theSeries)
 :Recorder(RECORDER_TAGS_NodeRecorderRMS),
  theDofs(0), theNodalTags(0), theNodes(0),
  currentData(0), runningTotal(0), count(0),
  theDomain(&theDom), theHandler(&theOutputHandler),
- deltaT(dT), nextTimeStampToRecord(0.0), 
+ deltaT(dT), relDeltaTTol(rTolDt), nextTimeStampToRecord(0.0),
  initializationDone(false), numValidNodes(0), 
- addColumnInfo(0), theTimeSeries(theSeries), timeSeriesValues(0)
+ addColumnInfo(0), theTimeSeries(theSeries), timeSeriesValues(0),
+ dataFlag(_dataFlag), dataIndex(_dataIndex)
 {
   // verify dof are valid 
   int numDOF = dofs.Size();
   theDofs = new ID(0, numDOF);
 
   int count = 0;
-  int i;
-  for (i=0; i<numDOF; i++) {
+  for (int i=0; i<numDOF; i++) {
     int dof = dofs(i);
     if (dof >= 0) {
       (*theDofs)[count] = dof;
@@ -331,9 +97,8 @@ NodeRecorderRMS::NodeRecorderRMS(const ID &dofs,
     }
   }
 
-
   // 
-  // create memory to hold nodal ID's (neeed parallel)
+  // create memory to hold nodal ID's (need parallel)
   //
 
   if (nodes != 0) {
@@ -346,78 +111,16 @@ NodeRecorderRMS::NodeRecorderRMS(const ID &dofs,
     }
   } 
 
-  if (theTimeSeries != 0) {
+  if (theTimeSeries != nullptr) {
     timeSeriesValues = new double [numDOF];
     for (int i=0; i<numDOF; i++)
       timeSeriesValues[i] = 0.0;
   }
 
-  //
-  // set the data flag used as a switch to get the response in a record
-  //
-
-  if (dataToStore == 0 || (strcmp(dataToStore, "disp") == 0)) {
-    dataFlag = 0;
-  } else if ((strcmp(dataToStore, "vel") == 0)) {
-    dataFlag = 1;
-  } else if ((strcmp(dataToStore, "accel") == 0)) {
-    dataFlag = 2;
-  } else if ((strcmp(dataToStore, "incrDisp") == 0)) {
-    dataFlag = 3;
-  } else if ((strcmp(dataToStore, "incrDeltaDisp") == 0)) {
-    dataFlag = 4;
-  } else if ((strcmp(dataToStore, "unbalance") == 0)) {
-    dataFlag = 5;
-  } else if ((strcmp(dataToStore, "unbalanceInclInertia") == 0) ||
-	     (strcmp(dataToStore, "unbalanceIncInertia") == 0) ||
-	     (strcmp(dataToStore, "unbalanceIncludingInertia") == 0))  {
-    dataFlag = 6;
-  } else if ((strcmp(dataToStore, "reaction") == 0)) {
-    dataFlag = 7;
-  } else if (((strcmp(dataToStore, "reactionIncInertia") == 0))
-	     || ((strcmp(dataToStore, "reactionInclInertia") == 0))
-	     || ((strcmp(dataToStore, "reactionIncludingInertia") == 0))) {
-    dataFlag = 8;
-  } else if (((strcmp(dataToStore, "rayleighForces") == 0))
-	     || ((strcmp(dataToStore, "rayleighDampingForces") == 0))) {
-    dataFlag = 9;
-
-  } else if ((strcmp(dataToStore, "dispNorm") == 0)) {
-    dataFlag = 10000;
-
-  } else if ((strncmp(dataToStore, "eigen",5) == 0)) {
-    int mode = atoi(&(dataToStore[5]));
-    if (mode > 0)
-      dataFlag = 10 + mode;
-    else
-      dataFlag = 10;
-  } else if ((strncmp(dataToStore, "sensitivity",11) == 0)) {
-    int grad = atoi(&(dataToStore[11]));
-    if (grad > 0)
-      dataFlag = 1000 + grad;
-    else
-      dataFlag = 10;
-  } else if ((strncmp(dataToStore, "velSensitivity",14) == 0)) {
-    int grad = atoi(&(dataToStore[14]));
-    if (grad > 0)
-      dataFlag = 2000 + grad;
-    else
-      dataFlag = 10;
-  } else if ((strncmp(dataToStore, "accSensitivity",14) == 0)) {
-    int grad = atoi(&(dataToStore[14]));
-    if (grad > 0)
-      dataFlag = 3000 + grad;
-    else
-      dataFlag = 10;
-
-  } else {
-    dataFlag = 10;
-    opserr << "NodeRecorderRMS::NodeRecorder - dataToStore " << dataToStore;
-    opserr << "not recognized (disp, vel, accel, incrDisp, incrDeltaDisp)\n";
-  }
-
-  if (dataFlag == 7 || dataFlag == 8 || dataFlag == 9) {
-      theOutputHandler.setAddCommon(1);
+  if (dataFlag == NodeData::Reaction
+   || dataFlag == NodeData::ReactionInclInertia
+   || dataFlag == NodeData::ReactionInclRayleigh) {
+    theHandler->setAddCommon(1);
   }
 }
 
@@ -427,7 +130,6 @@ NodeRecorderRMS::~NodeRecorderRMS()
   //
   // write the data
   //
-
   if (theHandler != 0 && runningTotal != 0) {
     
     theHandler->tag("Data"); // Data
@@ -476,6 +178,9 @@ NodeRecorderRMS::~NodeRecorderRMS()
       delete theTimeSeries[i];
     delete [] theTimeSeries;
   }
+
+  if (timeSeriesValues != 0)
+    delete [] timeSeriesValues;  
 }
 
 int 
@@ -501,7 +206,9 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 
   int numDOF = theDofs->Size();
 
-  if (deltaT == 0.0 || timeStamp >= nextTimeStampToRecord) {
+  // where relDeltaTTol is the maximum reliable ratio between analysis time step and deltaT
+  // and provides tolerance for floating point precision (see floating-point-tolerance-for-recorder-time-step.md)
+    if (deltaT == 0.0 || timeStamp - nextTimeStampToRecord >= -deltaT * relDeltaTTol) {
     
     if (deltaT != 0.0) 
       nextTimeStampToRecord = timeStamp + deltaT;
@@ -520,23 +227,22 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
     // before we iterate over the nodes
     //
 
-    if (dataFlag == 7)
+    if (dataFlag == NodeData::Reaction)
       theDomain->calculateNodalReactions(0);
-    else if (dataFlag == 8)
+    else if (dataFlag == NodeData::ReactionInclInertia)
       theDomain->calculateNodalReactions(1);
-    if (dataFlag == 9)
+    if (dataFlag == NodeData::ReactionInclRayleigh)
       theDomain->calculateNodalReactions(2);
-
-    
+ 
     for (int i=0; i<numValidNodes; i++) {
       int cnt = i*numDOF;
 
-      if (dataFlag == 10000)
+      if (dataFlag == NodeData::DisplNorm)
 	cnt = i;
 
       Node *theNode = theNodes[i];
 
-      if (dataFlag == 0) {
+      if (dataFlag == NodeData::DisplTrial) {
 	const Vector &response = theNode->getTrialDisp();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -553,7 +259,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag == 10000) {
+      } else if (dataFlag == NodeData::DisplNorm) {
 	const Vector &response = theNode->getTrialDisp();
 	double sum = 0.0;
 	for (int j=0; j<numDOF; j++) {
@@ -572,7 +278,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	(*currentData)(cnt) = sqrt(sum);
 	cnt++;
 
-      } else if (dataFlag == 1) {
+      } else if (dataFlag == NodeData::VelocTrial) {
 	const Vector &response = theNode->getTrialVel();
 	for (int j=0; j<numDOF; j++) {
 
@@ -588,7 +294,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 2) {
+      } else if (dataFlag == NodeData::AccelTrial) {
 	const Vector &response = theNode->getTrialAccel();
 	for (int j=0; j<numDOF; j++) {
 
@@ -604,7 +310,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 3) {
+      } else if (dataFlag == NodeData::IncrDisp) {
 	const Vector &response = theNode->getIncrDisp();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -615,7 +321,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 4) {
+      } else if (dataFlag == NodeData::IncrDeltaDisp) {
 	const Vector &response = theNode->getIncrDeltaDisp();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -626,7 +332,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  
 	  cnt++;
 	}
-      } else if (dataFlag == 5) {
+      } else if (dataFlag == NodeData::UnbalancedLoad) {
 	const Vector &theResponse = theNode->getUnbalancedLoad();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -638,7 +344,7 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag == 6) {
+      } else if (dataFlag == NodeData::UnbalanceInclInertia) {
 	const Vector &theResponse = theNode->getUnbalancedLoadIncInertia();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -650,7 +356,9 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag == 7 || dataFlag == 8 || dataFlag == 9) {
+      } else if (dataFlag == NodeData::Reaction 
+              || dataFlag == NodeData::ReactionInclInertia 
+              || dataFlag == NodeData::ReactionInclRayleigh) {
 	const Vector &theResponse = theNode->getReaction();
 	for (int j=0; j<numDOF; j++) {
 	  int dof = (*theDofs)(j);
@@ -662,8 +370,8 @@ NodeRecorderRMS::record(int commitTag, double timeStamp)
 	  cnt++;
 	}
 
-      } else if (dataFlag > 10) {
-	int mode = dataFlag - 10;
+      } else if (dataFlag == NodeData::EigenVector) {
+	int mode = dataIndex;
 	int column = mode - 1;
 	const Matrix &theEigenvectors = theNode->getEigenvectors();
 	if (theEigenvectors.noCols() > column) {
@@ -739,7 +447,7 @@ NodeRecorderRMS::sendSelf(int commitTag, Channel &theChannel)
     idData(2) = theHandler->getClassTag();
   }
 
-  idData(3) = dataFlag;
+  idData(3) = (int)dataFlag;
 
 
   idData(5) = this->getTag();
@@ -769,6 +477,7 @@ NodeRecorderRMS::sendSelf(int commitTag, Channel &theChannel)
   static Vector data(2);
   data(0) = deltaT;
   data(1) = nextTimeStampToRecord;
+  data(2) = relDeltaTTol;
   if (theChannel.sendVector(0, commitTag, data) < 0) {
     opserr << "NodeRecorderRMS::sendSelf() - failed to send data\n";
     return -1;
@@ -825,7 +534,7 @@ NodeRecorderRMS::recvSelf(int commitTag, Channel &theChannel,
   int numDOFs = idData(0);
   int numNodes = idData(1);
 
-  dataFlag = idData(3);
+  dataFlag = (NodeData)idData(3);
 
   this->setTag(idData(5));
 
@@ -883,6 +592,7 @@ NodeRecorderRMS::recvSelf(int commitTag, Channel &theChannel,
   }
   deltaT = data(0);
   nextTimeStampToRecord = data(1);
+  relDeltaTTol = data(2);
  
   if (theHandler != 0)
     delete theHandler;
@@ -986,42 +696,40 @@ NodeRecorderRMS::initialize(void)
   //
 
   char outputData[32];
-  char dataType[15];
+  char dataType[32];
 
-  if (dataFlag == 0) {
+  if (dataFlag == NodeData::DisplTrial) {
     strcpy(dataType,"D");
-  } else if (dataFlag == 1) {
+  } else if (dataFlag == NodeData::VelocTrial) {
     strcpy(dataType,"V");
-  } else if (dataFlag == 2) {
+  } else if (dataFlag == NodeData::AccelTrial) {
     strcpy(dataType,"A");
-  } else if (dataFlag == 3) {
+  } else if (dataFlag == NodeData::IncrDisp) {
     strcpy(dataType,"dD");
-  } else if (dataFlag == 4) {
+  } else if (dataFlag == NodeData::IncrDeltaDisp) {
     strcpy(dataType,"ddD");
-  } else if (dataFlag == 5) {
+  } else if (dataFlag == NodeData::UnbalancedLoad) {
     strcpy(dataType,"U");
-  } else if (dataFlag == 6) {
+  } else if (dataFlag == NodeData::UnbalanceInclInertia) {
     strcpy(dataType,"U");
-  } else if (dataFlag == 7) {
+  } else if (dataFlag == NodeData::Reaction) {
     strcpy(dataType,"R");
-  } else if (dataFlag == 8) {
+  } else if (dataFlag == NodeData::ReactionInclInertia) {
     strcpy(dataType,"R");
-  } else if (dataFlag == 10000) {
+  } else if (dataFlag == NodeData::DisplNorm) {
     strcpy(dataType,"|D|");
-  } else if (dataFlag > 10) {
-    sprintf(dataType,"E%d", dataFlag-10);
+  } else if (dataFlag == NodeData::EigenVector) {
+    sprintf(dataType,"E%d", dataIndex);
   } else
     strcpy(dataType,"Unknown");
-
 
   //
   // resize the output matrix
   //
-
   int numDOF = theDofs->Size();
   int numValidResponse = numValidNodes*numDOF;
 
-  if (dataFlag == 10000)
+  if (dataFlag == NodeData::DisplNorm)
     numValidResponse = numValidNodes;  
 
   currentData = new Vector(numValidResponse);
@@ -1031,7 +739,7 @@ NodeRecorderRMS::initialize(void)
   ID dataOrder(numValidResponse);
   ID xmlOrder(numValidNodes);
 
-  if (theNodalTags != 0 && addColumnInfo == 1) {
+  if (theNodalTags != nullptr && addColumnInfo == 1) {
 
     int count = 0;
     int nodeCount = 0;
@@ -1086,4 +794,11 @@ double NodeRecorderRMS::getRecordedValue(int clmnId, int rowOffset, bool reset)
 	if (reset)
 	  count = 0;
 	return res;
+}
+
+int NodeRecorderRMS::flush(void) {
+  if (theHandler != 0) {
+    return theHandler->flush();
+  }
+  return 0;
 }

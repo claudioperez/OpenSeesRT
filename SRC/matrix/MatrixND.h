@@ -49,8 +49,12 @@ requires(NR > 0 && NC > 0)
 struct MatrixND {
   double values[NC][NR];
 
+  // Convert to regular Matrix class
   operator Matrix() { return Matrix(&values[0][0], NR, NC);}
 
+  //
+  // Indexing
+  //
   constexpr std::array<T, NC> &
   operator[](index_t index) {return values[index];}
 
@@ -62,7 +66,6 @@ struct MatrixND {
     assert(index_r >= 0 && index_c >= 0);
     assert(index_r < NR && index_c < NC);
     // column-major
-    // return values[index_c*NR + index_r];
     return values[index_c][index_r];
   }
 
@@ -77,7 +80,6 @@ struct MatrixND {
   column(index_t index) const {
     assert(index >= 0);
     assert(index < NC);
-
     // TODO: ugly temporary implementation
     return *(VectorND<NR>*)(&(values[index]));
   }
@@ -97,6 +99,9 @@ struct MatrixND {
   consteval VectorND<2,int>
   size() const {return {NR, NC};}
 
+  //
+  //
+  //
   void zero(void)
   {
     for (index_t j = 0; j < NC; ++j) {
@@ -104,9 +109,35 @@ struct MatrixND {
         values[j][i] = 0.0;
       }
     }
-//  double *dataPtr = &values[0][0];
-//  for (int i=0; i<NR*NC; i++)
-//    *dataPtr++ = 0;
+  }
+
+  constexpr MatrixND<NC, NR>
+  transpose() const {
+    MatrixND<NC, NR> result = {};
+    for (index_t j = 0; j < NC; ++j) {
+      for (index_t i = 0; i < NR; ++i) {
+        result.values[i][j] = values[j][i];
+      }
+    }
+    return result;
+  }
+
+  constexpr T
+  trace() const
+  requires(NR == NC) 
+  {
+    T sum = 0.0;
+    for (index_t i = 0; i < NR; ++i) {
+      sum += values[i][i];
+    }
+    return sum;
+  }
+
+  constexpr T
+  determinant() const
+  requires(NR == NC && NR == 2)
+  {
+    return values[0][0] * values[1][1] - values[0][1] * values[1][0];
   }
 
   int solve(const VectorND<NR> &V, VectorND<NR> &res) const
@@ -149,6 +180,7 @@ struct MatrixND {
     DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind, &res(0,0), &nc, &info);
     return -abs(info);
   }
+
 #if 0
   int invert(MatrixND<NR,NC> &res) const
   {
@@ -206,10 +238,6 @@ struct MatrixND {
         values[j][i] = other.values[j][i];
       }
     }
-  //double *dataPtr = &values[0][0];
-  //const double *otherDataPtr = &other.values[0][0];
-  //for (int i=0; i<NR*NC; i++)
-  //  *dataPtr++ = *otherDataPtr++;
     return *this;
   }
 
@@ -338,68 +366,10 @@ struct MatrixND {
     return out << "}\n";
   }
 
-/**********************
- *
- */
-  constexpr MatrixND<NC, NR>
-  transpose() const {
-    MatrixND<NC, NR> result = {};
-    for (index_t j = 0; j < NC; ++j) {
-      for (index_t i = 0; i < NR; ++i) {
-        result.values[i][j] = values[j][i];
-      }
-    }
-    return result;
-  }
-
-  constexpr T
-  trace() const
-  requires(NR == NC) 
-  {
-    T sum = 0.0;
-    for (index_t i = 0; i < NR; ++i) {
-      sum += values[i][i];
-    }
-    return sum;
-  }
-
-  constexpr T
-  determinant() const
-  requires(NR == NC && NR == 2)
-  {
-    return values[0][0] * values[1][1] - values[0][1] * values[1][0];
-  }
-
 };
-
 
 template <int nr, int nc, typename T=double>
 MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;
-
-namespace linalg {
-
-template<int nr, int nc, typename T=double>
-inline MatrixND<nr, nc, T> zeros(void) {
-  MatrixND<nr, nc, T> m;
-  for (int i=0; i<nr; i++)
-    for (int j=0; j<nc; j++)
-      m(i,j) = T(0.0);
-  return m;
-}
-
-
-template<int nr, int nc>
-// constrain nr and nc to avoid blowing out the stack
-requires (nr < G23_STACK_MAX && nc < G23_STACK_MAX)
-inline MatrixND<nr,nc>
-solve(MatrixND<nr,nr> A, MatrixND<nr,nc> B){
-  int pivot_ind[nr] ;
-  MatrixND<nr,nc> X = B; // X will be overwritten with the solution
-  // LAPACKE_dgesv(LAPACK_COL_MAJOR, nr, nc, &A(0,0), nr, pivot_ind, &X(0,0), nc);
-  return X;
-}
-
-} // namespace linalg
 
 } // namespace OpenSees
 

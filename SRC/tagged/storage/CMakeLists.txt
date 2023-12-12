@@ -10,6 +10,10 @@ target_sources(OPS_Tagged
       ArrayOfTaggedObjectsIter.cpp
       MapOfTaggedObjectsIter.cpp 
       MapOfTaggedObjects.cpp
+      HashMapOfTaggedObjectsIter.cpp 
+      HashMapOfTaggedObjects.cpp
+      VectorOfTaggedObjectsIter.cpp 
+      VectorOfTaggedObjects.cpp
     PUBLIC
       ArrayOfTaggedObjects.h 
       ArrayOfTaggedObjectsIter.h

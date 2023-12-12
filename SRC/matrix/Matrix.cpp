@@ -32,6 +32,7 @@
 #include <iostream>
 // using std::nothrow;
 
+#define MATRIX_VERY_LARGE_VALUE 1.0e213
 
 #include <math.h>
 #include <assert.h>
@@ -1017,8 +1018,8 @@ Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact)
   int VnumRows = V.numRows;
   int VnumCols = V.numCols;
   
-  int final_row = init_row + VnumRows - 1;
-  int final_col = init_col + VnumCols - 1;
+  [[maybe_unused]] int final_row = init_row + VnumRows - 1;
+  [[maybe_unused]] int final_col = init_col + VnumCols - 1;
   
   assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
 
@@ -1044,17 +1045,19 @@ int
 Matrix::Assemble(const Vector &V, int init_row, int init_col, double fact) 
 {
 
+  const int VnumRows = V.sz;
+  const int VnumCols = 1;
+ 
+  {
+    [[maybe_unused]] int final_row = init_row + VnumRows - 1;
+    [[maybe_unused]] int final_col = init_col + VnumCols - 1;
+
+    assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  }
+
   int pos_Rows, pos_Cols;
   int res = 0;
   
-  const int VnumRows = V.sz;
-  const int VnumCols = 1;
-  
-  const int final_row = init_row + VnumRows - 1;
-  const int final_col = init_col + VnumCols - 1;
-
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
   for (int i=0; i<VnumCols; i++) {
      pos_Cols = init_col + i;
      for (int j=0; j<VnumRows; j++) {
@@ -1071,16 +1074,17 @@ Matrix::Assemble(const Vector &V, int init_row, int init_col, double fact)
 int
 Matrix::AssembleTranspose(const Matrix &V, int init_row, int init_col, double fact) 
 {
-  int pos_Rows, pos_Cols;
-  int res = 0;
-  
   int VnumRows = V.numRows;
   int VnumCols = V.numCols;
   
-  int final_row = init_row + VnumCols - 1;
-  int final_col = init_col + VnumRows - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  {
+    [[maybe_unused]] int final_row = init_row + VnumCols - 1;
+    [[maybe_unused]] int final_col = init_col + VnumRows - 1; 
+    assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  }
+
+  int pos_Rows, pos_Cols;
+  int res = 0;
 
   for (int i=0; i<VnumRows; i++) {
      pos_Cols = init_col + i;
@@ -1097,17 +1101,18 @@ Matrix::AssembleTranspose(const Matrix &V, int init_row, int init_col, double fa
 int
 Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fact) 
 {
+  int VnumRows = V.sz;
+  int VnumCols = 1;
+  { 
+    [[maybe_unused]] int final_row = init_row + VnumCols - 1;
+    [[maybe_unused]] int final_col = init_col + VnumRows - 1;
+    
+    assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+  }
+
   int pos_Rows, pos_Cols;
   int res = 0;
   
-  int VnumRows = V.sz;
-  int VnumCols = 1;
-  
-  int final_row = init_row + VnumCols - 1;
-  int final_col = init_col + VnumRows - 1;
-  
-  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
-
   for (int i=0; i<VnumRows; i++) {
      pos_Cols = init_col + i;
      for (int j=0; j<VnumCols; j++) {
@@ -1123,8 +1128,8 @@ Matrix::AssembleTranspose(const Vector &V, int init_row, int init_col, double fa
 int
 Matrix::Extract(const Matrix &V, int init_row, int init_col, double fact) 
 {
-  int final_row = init_row + numRows - 1;
-  int final_col = init_col + numCols - 1;  
+  [[maybe_unused]] int final_row = init_row + numRows - 1;
+  [[maybe_unused]] int final_col = init_col + numCols - 1;  
   assert((init_row >= 0) && (final_row < V.numRows) && 
          (init_col >= 0) && (final_col < V.numCols));
 
@@ -1293,23 +1298,13 @@ Matrix::operator/=(double fact)
     if (fact == 1.0)
         return *this;
 
-    if (fact != 0.0) {
+    else {
       double val = 1.0/fact;
 
       double *dataPtr = data;
       for (int i=0; i<dataSize; i++)
         *dataPtr++ *= val;
 
-      return *this;
-    } else {
-      // print out the warining message
-      opserr << "WARNING:Matrix::operator/= - 0 factor specified all values in Matrix set to ";
-      opserr << MATRIX_VERY_LARGE_VALUE << endln;
-
-      double *dataPtr = data;
-      for (int i=0; i<dataSize; i++)
-        *dataPtr++ = MATRIX_VERY_LARGE_VALUE;
-      
       return *this;
     }
 }
@@ -1495,6 +1490,8 @@ Matrix::operator-=(const Matrix &M)
 #ifdef MATRIX_BLAS
   addMatrix(1.0, M, -1.0);
 #else
+
+  assert(numRows == M.numRows && numCols == M.numCols);
 #ifdef _G3DEBUG
   if (numRows != M.numRows || numCols != M.numCols) {
     opserr << "Matrix::operator-=(const Matrix &M) - matrices incompatable [" << numRows << " " ;
@@ -1527,16 +1524,6 @@ Matrix::Output(OPS_Stream &s) const
 }
 
 
-/*****************
-void 
-Matrix::Input(istream &s)
-{
-    for (int i=0; i<noRows(); i++)
-        for (int j=0; j<noCols(); j++)
-            s >> (*this)(i,j);
-}        
-*****************/
-
 //
 // friend stream functions for input and output
 //
@@ -1555,204 +1542,6 @@ Matrix operator*(double a, const Matrix &V)
   return V * a;
 }
 
-
-
-
-int
-Matrix::Eigen3(const Matrix &M)
-{
-  //.... compute eigenvalues and vectors for a 3 x 3 symmetric matrix
-  //
-  //.... INPUTS:
-  //        M(3,3) - matrix with initial values (only upper half used)
-  //
-  //.... OUTPUTS
-  //        v(3,3) - matrix of eigenvectors (by column)
-  //        d(3)   - eigenvalues associated with columns of v
-  //        rot    - number of rotations to diagonalize
-  //
-  //---------------------------------------------------------------eig3==
-
-  //.... Storage done as follows:
-  //
-  //       | v(1,1) v(1,2) v(1,3) |     |  d(1)  a(1)  a(3)  |
-  //       | v(2,1) v(2,2) v(2,3) |  =  |  a(1)  d(2)  a(2)  |
-  //       | v(3,1) v(3,2) v(3,3) |     |  a(3)  a(2)  d(3)  |
-  //
-  //        Transformations performed on d(i) and a(i) and v(i,j) become
-  //        the eigenvectors.  
-  //
-  //---------------------------------------------------------------eig3==
-
-  int     rot, its, i, j , k ;
-  double  g, h, aij, sm, thresh, t, c, s, tau ;
-
-  static Matrix  v(3,3) ;
-  static Vector  d(3) ;
-  static Vector  a(3) ;
-  static Vector  b(3) ; 
-  static Vector  z(3) ;
-
-  static const double tol = 1.0e-08 ;
-
-  // set dataPtr 
-  double *dataPtr = data;
-
-  // set v = M 
-  v = M ;
-  
-  //.... move array into one-d arrays
-  a(0) = v(0,1) ;
-  a(1) = v(1,2) ;
-  a(2) = v(2,0) ;
-
-
-  for ( i = 0; i < 3; i++ ) {
-    d(i) = v(i,i) ;
-    b(i) = v(i,i) ;
-    z(i) = 0.0 ;
-
-    for ( j = 0; j < 3; j++ ) 
-      v(i,j) = 0.0 ;
-
-    v(i,i) = 1.0 ;
-
-  } //end for i
-
-  rot = 0 ;
-  its = 0 ;
-
-  sm = fabs(a(0)) + fabs(a(1)) + fabs(a(2)) ;
-
-  while ( sm > tol ) {
-    //.... set convergence test and threshold
-    if ( its < 3 ) 
-      thresh = 0.011*sm ;
-    else
-      thresh = 0.0 ;
-      
-    //.... perform sweeps for rotations
-    for ( i = 0; i < 3; i++ ) {
-
-      j = (i+1)%3;
-      k = (j+1)%3;
-
-      aij  = a(i) ;
-
-      g    = 100.0 * fabs(aij) ;
-
-      if ( fabs(d(i)) + g != fabs(d(i))  ||
-           fabs(d(j)) + g != fabs(d(j))     ) {
-
-        if ( fabs(aij) > thresh ) {
-
-          a(i) = 0.0 ; 
-          h    = d(j) - d(i) ; 
-
-          if ( fabs(h)+g == fabs(h) )
-            t = aij / h ;
-          else {
-            //t = 2.0 * sign(h/aij) / ( fabs(h/aij) + sqrt(4.0+(h*h/aij/aij)));
-            double hDIVaij = h/aij;
-            if (hDIVaij > 0.0) 
-              t = 2.0 / (  hDIVaij + sqrt(4.0+(hDIVaij * hDIVaij)));
-            else
-              t = - 2.0 / (-hDIVaij + sqrt(4.0+(hDIVaij * hDIVaij)));
-          }
-
-          //.... set rotation parameters
-
-          c    = 1.0 / sqrt(1.0 + t*t) ;
-          s    = t*c ;
-          tau  = s / (1.0 + c) ;
-
-          //.... rotate diagonal terms
-
-          h    = t * aij ;
-          z(i) = z(i) - h ;
-          z(j) = z(j) + h ;
-          d(i) = d(i) - h ;
-          d(j) = d(j) + h ;
-
-          //.... rotate off-diagonal terms
-
-          h    = a(j) ;
-          g    = a[k] ;
-          a(j) = h + s*(g - h*tau) ;
-          a(k) = g - s*(h + g*tau) ;
-
-          //.... rotate eigenvectors
-
-          for ( k = 0; k < 3; k++ ) {
-            g      = v(k,i) ;
-            h      = v(k,j) ;
-            v(k,i) = g - s*(h + g*tau) ;
-            v(k,j) = h + s*(g - h*tau) ;
-          } // end for k
-
-          rot = rot + 1 ;
-
-        } // end if fabs > thresh 
-      } //else
-      else 
-        a(i) = 0.0 ;
-
-    }  // end for i
-
-    //.... update the diagonal terms
-    for ( i = 0; i < 3; i++ ) {
-      b(i) = b(i) + z(i) ;
-      d(i) = b(i) ;
-      z(i) = 0.0 ;
-    } // end for i
-
-    its += 1 ;
-
-    sm = fabs(a(0)) + fabs(a(1)) + fabs(a(2)) ;
-
-  } // end while sm
-
-  static Vector  dd(3) ; // TODO: Change to array
-  if (d(0)>d(1)) {
-    if (d(0)>d(2)) {
-      dd(0) = d(0);
-      if (d(1)>d(2)) {
-        dd(1) = d(1);
-        dd(2) = d(2);
-      } else {
-        dd(1) = d(2);
-        dd(2) = d(1);
-      }
-    } else {
-      dd(0) = d(2);
-      dd(1) = d(0);
-      dd(2) = d(1);
-    }
-  } else {
-    if (d(1) > d(2)) {
-      dd(0) = d(1);
-      if (d(0)>d(2)) {
-        dd(1) = d(0);
-        dd(2) = d(2);
-      } else {
-        dd(1) = d(2);
-        dd(2) = d(0);
-      }
-    } else {
-      dd(0) = d(2);
-      dd(1) = d(1);
-      dd(2) = d(0);
-    }
-  }
-  data[0] = dd(2);
-  data[4] = dd(1);
-  data[8] = dd(0);
-
-  return 0;
-}
-
-
-
 Vector Matrix::diagonal() const
 {
   
@@ -1765,9 +1554,8 @@ Vector Matrix::diagonal() const
   int size = numRows < numCols ? numRows : numCols;
   Vector diagonal(size);
 
-  for (int i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i)
     diagonal(i) = data[i*numRows + i];
-  }
 
   return diagonal;
 }

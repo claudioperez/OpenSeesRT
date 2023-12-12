@@ -338,29 +338,8 @@ OPS_builtModel(void)
   return &builtModel;
 }
 
-
 AnalysisModel **
 G3_getAnalysisModelPtr(G3_Runtime *rt){return rt->m_analysis_model_ptr;}
-
-StaticIntegrator *
-G3_getStaticIntegrator(G3_Runtime *rt)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  StaticIntegrator *tsi =
-      (StaticIntegrator *)Tcl_GetAssocData(interp, "OPS::theStaticIntegrator", NULL);
-
-  return tsi;
-}
-
-
-int
-G3_setStaticIntegrator(G3_Runtime *rt, StaticIntegrator *the_analysis)
-{
-  Tcl_Interp *interp = G3_getInterpreter(rt);
-  Tcl_SetAssocData(interp, "OPS::theStaticIntegrator", NULL, (ClientData)the_analysis);
-  return 1;
-}
-
 
 FE_Datastore *
 OPS_GetFEDatastore() {return theDatabase;}

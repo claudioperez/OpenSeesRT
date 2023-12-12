@@ -305,20 +305,20 @@ foreach line [split [read -nonewline $channel] \n] {
 close $channel
 
 # record nodal displacment, acceleration, and porepressure
-eval "recorder Node -file Gdisplacement.out -time -node $nodeList3 -dof 1 2  disp"
-eval "recorder Node -file Gacceleration.out -time -node $nodeList3 -dof 1 2  accel"
-eval "recorder Node -file GporePressure.out -time -node $nodeList3 -dof 3 vel"
+eval "recorder Node -file out/Gdisplacement.out -time -node $nodeList3 -dof 1 2  disp"
+eval "recorder Node -file out/Gacceleration.out -time -node $nodeList3 -dof 1 2  accel"
+eval "recorder Node -file out/GporePressure.out -time -node $nodeList3 -dof 3 vel"
 # record elemental stress and strain (files are names to reflect GiD gp numbering)
-recorder Element -file Gstress1.out   -time  -eleRange 1 $nElemT  material 1 stress
-recorder Element -file Gstress2.out   -time  -eleRange 1 $nElemT  material 2 stress
-recorder Element -file Gstress3.out   -time  -eleRange 1 $nElemT  material 3 stress
-recorder Element -file Gstress4.out   -time  -eleRange 1 $nElemT  material 4 stress
-recorder Element -file Gstress9.out   -time  -eleRange 1 $nElemT  material 9 stress
-recorder Element -file Gstrain1.out   -time  -eleRange 1 $nElemT  material 1 strain
-recorder Element -file Gstrain2.out   -time  -eleRange 1 $nElemT  material 2 strain
-recorder Element -file Gstrain3.out   -time  -eleRange 1 $nElemT  material 3 strain
-recorder Element -file Gstrain4.out   -time  -eleRange 1 $nElemT  material 4 strain
-recorder Element -file Gstrain9.out   -time  -eleRange 1 $nElemT  material 9 strain
+recorder Element -file out/Gstress1.out  -time  -eleRange 1 $nElemT  material 1 stress
+recorder Element -file out/Gstress2.out  -time  -eleRange 1 $nElemT  material 2 stress
+recorder Element -file out/Gstress3.out  -time  -eleRange 1 $nElemT  material 3 stress
+recorder Element -file out/Gstress4.out  -time  -eleRange 1 $nElemT  material 4 stress
+recorder Element -file out/Gstress9.out  -time  -eleRange 1 $nElemT  material 9 stress
+recorder Element -file out/Gstrain1.out  -time  -eleRange 1 $nElemT  material 1 strain
+recorder Element -file out/Gstrain2.out  -time  -eleRange 1 $nElemT  material 2 strain
+recorder Element -file out/Gstrain3.out  -time  -eleRange 1 $nElemT  material 3 strain
+recorder Element -file out/Gstrain4.out  -time  -eleRange 1 $nElemT  material 4 strain
+recorder Element -file out/Gstrain9.out  -time  -eleRange 1 $nElemT  material 9 strain
 puts "Finished creating gravity recorders..."
 
 #-----------------------------------------------------------------------------------------
@@ -487,20 +487,20 @@ remove recorders
 set recDT  [expr 10*$motionDT]
 
 # record nodal displacment, acceleration, and porepressure
-eval "recorder Node -file displacement.out -time -dT $recDT -node $nodeList3 -dof 1 2  disp"
-eval "recorder Node -file acceleration.out -time -dT $recDT -node $nodeList3 -dof 1 2  accel"
-eval "recorder Node -file porePressure.out -time -dT $recDT -node $nodeList3 -dof 3 vel"
+eval "recorder Node -file out/displacement.out -time -dT $recDT -node $nodeList3 -dof 1 2  disp"
+eval "recorder Node -file out/acceleration.out -time -dT $recDT -node $nodeList3 -dof 1 2  accel"
+eval "recorder Node -file out/porePressure.out -time -dT $recDT -node $nodeList3 -dof 3 vel"
 # record elemental stress and strain (files are names to reflect GiD gp numbering)
-recorder Element -file stress1.out   -time -dT $recDT  -eleRange 1 $nElemT  material 1 stress
-recorder Element -file stress2.out   -time -dT $recDT  -eleRange 1 $nElemT  material 2 stress
-recorder Element -file stress3.out   -time -dT $recDT  -eleRange 1 $nElemT  material 3 stress
-recorder Element -file stress4.out   -time -dT $recDT  -eleRange 1 $nElemT  material 4 stress
-recorder Element -file stress9.out   -time -dT $recDT  -eleRange 1 $nElemT  material 9 stress
-recorder Element -file strain1.out   -time -dT $recDT  -eleRange 1 $nElemT  material 1 strain
-recorder Element -file strain2.out   -time -dT $recDT  -eleRange 1 $nElemT  material 2 strain
-recorder Element -file strain3.out   -time -dT $recDT  -eleRange 1 $nElemT  material 3 strain
-recorder Element -file strain4.out   -time -dT $recDT  -eleRange 1 $nElemT  material 4 strain
-recorder Element -file strain9.out   -time -dT $recDT  -eleRange 1 $nElemT  material 9 strain
+recorder Element -file out/stress1.out  -time -dT $recDT  -eleRange 1 $nElemT  material 1 stress
+recorder Element -file out/stress2.out  -time -dT $recDT  -eleRange 1 $nElemT  material 2 stress
+recorder Element -file out/stress3.out  -time -dT $recDT  -eleRange 1 $nElemT  material 3 stress
+recorder Element -file out/stress4.out  -time -dT $recDT  -eleRange 1 $nElemT  material 4 stress
+recorder Element -file out/stress9.out  -time -dT $recDT  -eleRange 1 $nElemT  material 9 stress
+recorder Element -file out/strain1.out  -time -dT $recDT  -eleRange 1 $nElemT  material 1 strain
+recorder Element -file out/strain2.out  -time -dT $recDT  -eleRange 1 $nElemT  material 2 strain
+recorder Element -file out/strain3.out  -time -dT $recDT  -eleRange 1 $nElemT  material 3 strain
+recorder Element -file out/strain4.out  -time -dT $recDT  -eleRange 1 $nElemT  material 4 strain
+recorder Element -file out/strain9.out  -time -dT $recDT  -eleRange 1 $nElemT  material 9 strain
 puts "Finished creating all recorders..."
 
 #-----------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 // Constant volume/pressure integration (BBar method) is used for integration//
 // of the volumetric component of solid phase and the fulid phase.           //
 //                                                                           //
-// Written by Zhaohui Yang	(June 2009)                                      //
+// Written by Zhaohui Yang    (June 2009)                                      //
 ///////////////////////////////////////////////////////////////////////////////
 
 // $Revision: 1.1 $
@@ -25,19 +25,21 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 
 class Node;
 class NDMaterial;
 class Response;
 
-class BBarFourNodeQuadUP : public Element
+class BBarFourNodeQuadUP : public Element,
+                           protected LegendreFixedQuadrilateral<4>
 {
   public:
 
     BBarFourNodeQuadUP(int tag, int nd1, int nd2, int nd3, int nd4,
-		  NDMaterial &m, const char *type,
-		  double t, double bulk, double rhof, double perm1, double perm2,
-		   double b1 = 0.0, double b2 = 0.0, double p = 0.0);
+                       NDMaterial &m, const char *type,
+                       double t, double bulk, double rhof, double perm1, double perm2,
+                       double b1 = 0.0, double b2 = 0.0, double p = 0.0);
 
     BBarFourNodeQuadUP();
     virtual ~BBarFourNodeQuadUP();
@@ -72,7 +74,7 @@ class BBarFourNodeQuadUP : public Element
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
-		  &theBroker);
+          &theBroker);
     int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
     void Print(OPS_Stream &s, int flag =0);
 
@@ -94,33 +96,33 @@ class BBarFourNodeQuadUP : public Element
     NDMaterial **theMaterial; // pointer to the ND material objects
     ID connectedExternalNodes; // Tags of quad nodes
 
-    Node *nd1Ptr;		// Pointers to quad nodes
+    Node *nd1Ptr;        // Pointers to quad nodes
     Node *nd2Ptr;
     Node *nd3Ptr;
     Node *nd4Ptr;
 
-    static Matrix K;		// Element stiffness, damping, and mass Matrix
-    static Vector P;		// Element resisting force vector
-    Vector Q;		// Applied nodal loads
-    double b[2];		// Body forces
+    static Matrix K;        // Element stiffness, damping, and mass Matrix
+    static Vector P;        // Element resisting force vector
+    Vector Q;        // Applied nodal loads
+    double b[2];        // Body forces
 
-	double appliedB[2]; // Body forces applied with load pattern, C.McGann, U.Washington
-	int applyLoad;      // flag for body force in load, C.McGann, U.Washington
-	
-    Vector pressureLoad;	// Pressure load at nodes
+    double appliedB[2]; // Body forces applied with load pattern, C.McGann, U.Washington
+    int applyLoad;      // flag for body force in load, C.McGann, U.Washington
+    
+    Vector pressureLoad;    // Pressure load at nodes
 
-    double thickness;	// Element thickness
-    double rho;			// Fluid mass per unit volume
+    double thickness;    // Element thickness
+    double rho;            // Fluid mass per unit volume
     double kc;   // combined bulk modulus
-    double pressure;	// Normal surface traction (pressure) over entire element
+    double pressure;    // Normal surface traction (pressure) over entire element
 
     // Note: positive for outward normal
     double perm[2];  // lateral/vertical permeability
 
     // [0,1=derivative wrt x, y; 2=shape func][node][Gauss point]
-    static double shp[3][4][4];	// Stores shape functions and derivatives (overwritten)
-    static double pts[4][2];	// Stores quadrature points
-    static double wts[4];		// Stores quadrature weights
+    static double shp[3][4][4];    // Stores shape functions and derivatives (overwritten)
+//  static double pts[4][2];    // Stores quadrature points
+//  static double wts[4];        // Stores quadrature weights
     static double dvol[4];  // Stores detJacobian (overwritten)
 
     // [x,y][node]

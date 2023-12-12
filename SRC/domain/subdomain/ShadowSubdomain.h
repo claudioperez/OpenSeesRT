@@ -174,7 +174,7 @@ class ShadowSubdomain: public Shadow, public Subdomain
     virtual double getNodeDisp(int nodeTag, int dof, int &errorFlag);
     virtual int setMass(const Matrix &mass, int nodeTag);
 
-    virtual const Vector *getNodeResponse(int tag, NodeResponseType responseType);
+    virtual const Vector *getNodeResponse(int tag, NodeData responseType);
     virtual const Vector *getElementResponse(int eleTag, const char **argv, int argc); 
     virtual int calculateNodalReactions(bool inclInertia);
     

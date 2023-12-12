@@ -28,7 +28,9 @@
 
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Matrix.h>
+#include <Matrix3D.h>
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
@@ -42,6 +44,8 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #define min(a, b) ((a) < (b) ? (a) : (b))
+
+using namespace OpenSees;
 
 // static data
 Matrix ShellMITC9::stiff(54, 54);
@@ -131,16 +135,6 @@ ShellMITC9::ShellMITC9(int tag, int node1, int node2, int node3, int node4,
   tg[6] = root3_over_root5;
   tg[7] = 0;
   tg[8] = 0;
-
-// wg[0] = 25.0 / 81.0;
-// wg[1] = 40.0 / 81.0;
-// wg[2] = 25.0 / 81.0;
-// wg[3] = 40.0 / 81.0;
-// wg[4] = 25.0 / 81.0;
-// wg[5] = 40.0 / 81.0;
-// wg[6] = 25.0 / 81.0;
-// wg[7] = 40.0 / 81.0;
-// wg[8] = 64.0 / 81.0;
 }
 //******************************************************************
 
@@ -169,8 +163,8 @@ ShellMITC9::~ShellMITC9()
 // set domain
 void ShellMITC9::setDomain(Domain *theDomain)
 {
-  static Vector eig(3);
-  static Matrix ddMembrane(3, 3);
+  Vector3D eig;
+  Matrix3D ddMembrane;
 
   // node pointers
   for (int i = 0; i < numnodes; i++) {
@@ -193,7 +187,7 @@ void ShellMITC9::setDomain(Domain *theDomain)
   }
 
   // eigenvalues of ddMembrane
-  eig = LovelyEig(ddMembrane);
+  ddMembrane.symeig(eig);
 
   // set ktt
   //Ktt = dd(2,2) ;  // shear modulus
@@ -578,9 +572,9 @@ const Matrix &ShellMITC9::getInitialStiff()
       for (p = 0; p < ndf; p++) {
         //BdrillJ[p] = *drillPointer++ ;
         BdrillJ[p] = *drillPointer; // set p-th component
-        drillPointer++;             // pointer arithmetic
+        drillPointer++;
       }
-    }                               // end for j
+    }
 
     dd = materialPointers[i]->getInitialTangent();
     dd *= dvol[i];
@@ -588,11 +582,11 @@ const Matrix &ShellMITC9::getInitialStiff()
     // residual and tangent calculations node loops
 
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       // extract BJ
-      for (p = 0; p < nstress; p++) {
-        for (q = 0; q < ndf; q++)
+      for (int p = 0; p < nstress; p++) {
+        for (int q = 0; q < ndf; q++)
           BJ(p, q) = saveB[p][q][j];
       }
 
@@ -643,16 +637,16 @@ const Matrix &ShellMITC9::getInitialStiff()
         // +  transpose( 1,ndf,BdrillJ ) * BdrillK ;
         stiffJK.addMatrixProduct(0.0, BJtranD, BK, 1.0);
 
-        for (p = 0; p < ndf; p++) {
-          for (q = 0; q < ndf; q++) {
+        for (int p = 0; p < ndf; p++) {
+          for (int q = 0; q < ndf; q++) {
             stiff(jj + p, kk + q) += stiffJK(p, q) + (BdrillJ[p] * BdrillK[q]);
-          } // end for q
+          }
         }
         kk += ndf;
-      } // end for k loop
+      }
       jj += ndf;
     } // end for j loop
-  }   // end for i gauss loop
+  } // end for i gauss loop
   Ki = new Matrix(stiff);
   return stiff;
 }
@@ -841,93 +835,78 @@ void ShellMITC9::formInertiaTerms(int tangFlag)
 //*********************************************************************
 
 // form residual and tangent
+//
+//  six(6) nodal dof's ordered :
+//
+//    -        -
+//   |    u1    |   <---plate membrane
+//   |    u2    |
+//   |----------|
+//   |  w = u3  |   <---plate bending
+//   |  theta1  |
+//   |  theta2  |
+//   |----------|
+//   |  theta3  |   <---drill
+//    -        -
+//
+// membrane strains ordered :
+//
+//            strain(0) =   eps00     i.e.   (11)-strain
+//            strain(1) =   eps11     i.e.   (22)-strain
+//            strain(2) =   gamma01   i.e.   (12)-shear
+//
+// curvatures and shear strains ordered  :
+//
+//            strain(3) =     kappa00  i.e.   (11)-curvature
+//            strain(4) =     kappa11  i.e.   (22)-curvature
+//            strain(5) =   2*kappa01  i.e. 2*(12)-curvature
+//
+//            strain(6) =     gamma02  i.e.   (13)-shear
+//            strain(7) =     gamma12  i.e.   (23)-shear
+//
+//  same ordering for moments/shears but no 2
+//
+//  Then,
+//              epsilon00 = -z * kappa00      +    eps00_membrane
+//              epsilon11 = -z * kappa11      +    eps11_membrane
+//  gamma01 = 2*epsilon01 = -z * (2*kappa01)  +  gamma01_membrane
+//
+//  Shear strains gamma02, gamma12 constant through cross section
+//
 void ShellMITC9::formResidAndTangent(int tang_flag)
 {
-  //
-  //  six(6) nodal dof's ordered :
-  //
-  //    -        -
-  //   |    u1    |   <---plate membrane
-  //   |    u2    |
-  //   |----------|
-  //   |  w = u3  |   <---plate bending
-  //   |  theta1  |
-  //   |  theta2  |
-  //   |----------|
-  //   |  theta3  |   <---drill
-  //    -        -
-  //
-  // membrane strains ordered :
-  //
-  //            strain(0) =   eps00     i.e.   (11)-strain
-  //            strain(1) =   eps11     i.e.   (22)-strain
-  //            strain(2) =   gamma01   i.e.   (12)-shear
-  //
-  // curvatures and shear strains ordered  :
-  //
-  //            strain(3) =     kappa00  i.e.   (11)-curvature
-  //            strain(4) =     kappa11  i.e.   (22)-curvature
-  //            strain(5) =   2*kappa01  i.e. 2*(12)-curvature
-  //
-  //            strain(6) =     gamma02  i.e.   (13)-shear
-  //            strain(7) =     gamma12  i.e.   (23)-shear
-  //
-  //  same ordering for moments/shears but no 2
-  //
-  //  Then,
-  //              epsilon00 = -z * kappa00      +    eps00_membrane
-  //              epsilon11 = -z * kappa11      +    eps11_membrane
-  //  gamma01 = 2*epsilon01 = -z * (2*kappa01)  +  gamma01_membrane
-  //
-  //  Shear strains gamma02, gamma12 constant through cross section
-  //
 
   int i, j, k, p, q;
   int jj, kk;
-  int node;
-
   int success;
-
   double volume = 0.0;
+  double xsj; // determinant jacaobian matrix
 
-  static double xsj; // determinant jacaobian matrix
-  static double dvol[ngauss]; // volume element
-
-  static Vector strain(nstress); // strain
-
-  static double shp[3][numnodes]; // shape functions at a gauss point
+  OPS_STATIC double dvol[ngauss]; // volume element
+  OPS_STATIC double shp[3][numnodes]; // shape functions at a gauss point
                                   //
   static Vector residJ(ndf); // nodeJ residual
   static Matrix stiffJK(ndf, ndf); // nodeJK stiffness
-  static Vector stress(nstress); // stress resultants
+  OPS_STATIC Vector strain(nstress); // strain
+  OPS_STATIC Vector stress(nstress); // stress resultants
   static Matrix dd(nstress, nstress); // material tangent
 
   double epsDrill = 0.0; // drilling "strain"
-
   double tauDrill = 0.0; // drilling "stress"
 
   //---------B-matrices------------------------------------
-
-  static Matrix BJ(nstress, ndf); // B matrix node J
-
+  static Matrix BJ(nstress, ndf);      // B matrix node J
   static Matrix BJtran(ndf, nstress);
-
-  static Matrix BK(nstress, ndf); // B matrix node k
-
+  static Matrix BK(nstress, ndf);      // B matrix node k
   static Matrix BJtranD(ndf, nstress);
-
-  static Matrix Bbend(3, 3); // bending B matrix
-
-  static Matrix Bshear(2, 3); // shear B matrix
-
-  static Matrix Bmembrane(3, 2); // membrane B matrix
-
-  static double BdrillJ[ndf]; // drill B matrix
-
+  static Matrix Bbend(3, 3);           // bending B matrix
+  static Matrix Bshear(2, 3);          // shear B matrix
+  static Matrix Bmembrane(3, 2);       // membrane B matrix
+  static double BdrillJ[ndf];          // drill B matrix
   static double BdrillK[ndf];
+  //-------------------------------------------------------
 
   double *drillPointer;
-
   static double saveB[nstress][ndf][numnodes];
 
   //-------------------------------------------------------
@@ -955,7 +934,7 @@ void ShellMITC9::formResidAndTangent(int tang_flag)
     epsDrill = 0.0;
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       // compute B matrix
 

@@ -80,8 +80,8 @@ TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     int doRayleigh = 0;
     double mass = 0.0;
     int maxIter = 25;
-    double tol = 1E-12;
-    double kFactUplift = 1E-12;
+    double tol = 1e-12;
+    // double kFactUplift = 1e-12;
 
     if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid flatSliderBearing eleTag\n";
@@ -287,8 +287,8 @@ TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
     int doRayleigh = 0;
     double mass = 0.0;
     int maxIter = 25;
-    double tol = 1E-12;
-    double kFactUplift = 1E-12;
+    double tol = 1e-12;
+    double kFactUplift = 1e-12;
 
     if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
       opserr << "WARNING invalid flatSliderBearing eleTag\n";

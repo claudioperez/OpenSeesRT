@@ -17,25 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/LoadControl.cpp,v $
-                                                                        
-                                                                        
-// 
-// Written: fmk 
-// Created: 07/98
-// Revision: A
 //
 // Description: This file contains the class definition for LoadControl.
 // LoadControl is an algorithmic class for performing a static analysis
 // using a load control integration scheme.
+// 
+// Written: fmk 
+// Created: 07/98
 //
-// What: "@(#) LoadControl.h, revA"
-
-
-
 #include <LoadControl.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -49,9 +38,9 @@
 #include <LoadPattern.h>
 #include <LoadPatternIter.h>
 #include <Domain.h>
-#include<Parameter.h>
-#include<ParameterIter.h>
-#include<EquiSolnAlgo.h>
+#include <Parameter.h>
+#include <ParameterIter.h>
+#include <EquiSolnAlgo.h>
 #include <elementAPI.h>
 #include <iostream>
 
@@ -111,17 +100,18 @@ int
 LoadControl::newStep(void)
 {
     AnalysisModel *theModel = this->getAnalysisModel();    
-    if (theModel == 0) {
+    if (theModel == nullptr) {
 	opserr << "LoadControl::newStep() - no associated AnalysisModel\n";
 	return -1;
     }
 
     // determine delta lambda for this step based on dLambda and #iter of last step
     double factor = specNumIncrStep/numIncrLastStep;
-    deltaLambda *=factor;
+    deltaLambda *= factor;
 
     if (deltaLambda < dLambdaMin)
       deltaLambda = dLambdaMin;
+
     else if (deltaLambda > dLambdaMax)
       deltaLambda = dLambdaMax;
     
@@ -132,7 +122,7 @@ LoadControl::newStep(void)
 
     numIncrLastStep = 0;
    
-     return 0;
+    return 0;
 }
     
 int
@@ -140,7 +130,7 @@ LoadControl::update(const Vector &deltaU)
 {
     AnalysisModel *myModel = this->getAnalysisModel();
     LinearSOE *theSOE = this->getLinearSOE();
-    if (myModel == 0 || theSOE == 0) {
+    if (myModel == nullptr || theSOE == nullptr) {
 	opserr << "WARNING LoadControl::update() ";
 	opserr << "No AnalysisModel or LinearSOE has been set\n";
 	return -1;
@@ -213,7 +203,7 @@ void
 LoadControl::Print(OPS_Stream &s, int flag)
 { 
      AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != 0) {
+    if (theModel != nullptr) {
 	double currentLambda = theModel->getCurrentDomainTime();
 	s << "\t LoadControl - currentLambda: " << currentLambda;
 	s << "  deltaLambda: " << deltaLambda << endln;
@@ -225,7 +215,7 @@ LoadControl::Print(OPS_Stream &s, int flag)
 int
 LoadControl::formEleResidual(FE_Element* theEle)
 {
-    if(sensitivityFlag == 0) {  // no sensitivity
+    if (sensitivityFlag == 0) {  // no sensitivity
 	this->StaticIntegrator::formEleResidual(theEle);
     } else {
 	theEle->zeroResidual();
@@ -333,24 +323,17 @@ LoadControl::commitSensitivity(int gradNum, int numGrads)
     return 0;
 }
 
-
-
 // false for LC and true for DC
-   bool 
+bool 
 LoadControl::computeSensitivityAtEachIteration()
 {
-
-return false;
+  return false;
 }
-
-
-
 
 
 int 
 LoadControl::computeSensitivities(void)
 {
-//  opserr<<" computeSensitivity::start"<<endln; 
     LinearSOE *theSOE = this->getLinearSOE();
 
     /*
@@ -398,14 +381,14 @@ LoadControl::computeSensitivities(void)
 	
 	Parameter *theParam;
 	// De-activate all parameters
-	while ((theParam = paramIter()) != 0)
+	while ((theParam = paramIter()) != nullptr)
 	  theParam->activate(false);
 	
 	// Now, compute sensitivity wrt each parameter
 	int numGrads = theDomain->getNumParameters();
 	paramIter = theDomain->getParameters();
 	
-	while ((theParam = paramIter()) != 0) {
+	while ((theParam = paramIter()) != nullptr) {
 
 	  // Activate this parameter
 	  theParam->activate(true);
@@ -425,14 +408,11 @@ LoadControl::computeSensitivities(void)
 	  // Save sensitivity to nodes
 	  this->saveSensitivity( theSOE->getX(), gradIndex, numGrads );
 	 
-
-
 	  // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
 	  this->commitSensitivity(gradIndex, numGrads);
 	  
 	  // De-activate this parameter for next sensitivity calc
 	  theParam->activate(false);
-	//  opserr<<"LoadControl::..........ComputeSensitivities. end"<<endln;
 	}
 
 	return 0;

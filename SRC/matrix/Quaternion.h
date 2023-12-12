@@ -23,7 +23,6 @@
 //
 // Original implementation: Massimo Petracca (ASDEA)
 //
-// $Revision: 1.10 $
 // $Date: 2020/05/18 22:51:21 $
 //
 #ifndef ASDMath_h
@@ -33,16 +32,10 @@
 #include <math.h>
 #include <cmath>
 #include <limits>
-#include <Vector.h>
-#include <Matrix.h>
 
 #ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
+#  define M_PI 3.1415926535897932384626433832795
 #endif // M_PI
-
-/** \brief ASDQuaternion
- * A simple fixed size 3D vector
- */
 
 /** \brief ASDQuaternion
  * A simple class that implements the main features of quaternion algebra
@@ -151,7 +144,7 @@ public:
     sqrt(x*x + y*y + z*z + w*w)
     @return the norm of this quaternion.
     */
-    inline const T norm()const
+    inline const T norm() const
     {
         return std::sqrt(squaredNorm());
     }
@@ -176,7 +169,7 @@ public:
     Returns the Conjugate of this ASDQuaternion, which represents the opposite rotation
     @return the Conjugate of this ASDQuaternion
     */
-    inline ASDQuaternion conjugate()const
+    inline ASDQuaternion conjugate() const
     {
         return ASDQuaternion(mW, -mX, -mY, -mZ);
     }
@@ -195,7 +188,7 @@ public:
     @param R the output rotation matrix
     */
     template<class TMatrix3x3>
-    inline void toRotationMatrix(TMatrix3x3& R)const
+    inline void toRotationMatrix(TMatrix3x3& R) const
     {
         R(0, 0) = 2.0 * (mW * mW + mX * mX - 0.5);
         R(0, 1) = 2.0 * (mX * mY - mW * mZ);
@@ -277,7 +270,7 @@ public:
     @param b the output rotated vector
     */
     template<class TVector3_A, class TVector3_B>
-    inline void rotateVector(const TVector3_A& a, TVector3_B& b)const
+    inline void rotateVector(const TVector3_A& a, TVector3_B& b) const
     {
         // b = 2.0 * cross( this->VectorialPart, a )
         b(0) = 2.0 * (mY * a(2) - mZ * a(1));
@@ -306,7 +299,7 @@ public:
     @param a the input source vector - rotated on exit
     */
     template<class TVector3>
-    inline void rotateVector(TVector3& a)const
+    inline void rotateVector(TVector3& a) const
     {
         // b = 2.0 * cross( this->VectorialPart, a )
         T b0 = 2.0 * (mY * a(2) - mZ * a(1));

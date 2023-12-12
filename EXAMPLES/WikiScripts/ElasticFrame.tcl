@@ -190,7 +190,7 @@ pattern Plain 2 2 {
 # Create Recorder
 # ---------------------------------
 
-recorder Element -file EleForces.out -ele 1 4 7 10 forces
+recorder Element -file out/EleForces.out -ele 1 4 7 10 forces
 
 # ---------------------------------
 # Perform Lateral Analysis
@@ -238,7 +238,7 @@ puts "T[expr 3+1] = [expr 2*$PI/sqrt($eigenValue)]"
 set eigenValue [lindex $eigenValues 4]
 puts "T[expr 4+1] = [expr 2*$PI/sqrt($eigenValue)]"
 
-recorder Node -file eigenvector.out -nodeRange 5 16 -dof 1 2 3 eigen 0
+recorder Node -file out/eigenvector.out -nodeRange 5 16 -dof 1 2 3 eigen 0
 record
 
 exit

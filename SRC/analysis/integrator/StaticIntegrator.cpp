@@ -17,25 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2003-02-14 23:00:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/StaticIntegrator.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/integrator/StaticIntegrator.C
-// 
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for StaticIntegrator.
 // StaticIntegrator is an algorithmic class for setting up the finite element
 // equations for a static analysis and for Incrementing the nodal displacements
 // with the values in the soln vector to the LinearSOE object. 
 //
-// What: "@(#) StaticIntegrator.C, revA"
-
+// Written: fmk 
+// Created: 11/96
+// Revision: A
+//
 #include <StaticIntegrator.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
@@ -56,8 +47,7 @@
 
 StaticIntegrator::StaticIntegrator(int clasTag)
  :IncrementalIntegrator(clasTag)
-{
-   
+{   
     // for subclasses
 }
 
@@ -71,16 +61,18 @@ StaticIntegrator::formEleTangent(FE_Element *theEle)
   if (statusFlag == CURRENT_TANGENT) {
     theEle->zeroTangent();
     theEle->addKtToTang();
+
   } else if (statusFlag == INITIAL_TANGENT) {
     theEle->zeroTangent();
     theEle->addKiToTang();
+
   } else if (statusFlag == HALL_TANGENT)  {
     theEle->zeroTangent();
     theEle->addKtToTang(cFactor);
     theEle->addKiToTang(iFactor);
   } 
 
-    return 0;
+  return 0;
 }    
 
 int
@@ -117,11 +109,12 @@ StaticIntegrator::formEleTangentSensitivity(FE_Element *theEle,int gradNumber)
  
   if (statusFlag == CURRENT_TANGENT) {
     theEle->zeroTangent();
+
   } else if (statusFlag == INITIAL_TANGENT) {
     theEle->zeroTangent();
     theEle->addKiToTang();
   } 
   
-    return 0;
+  return 0;
 }    
 

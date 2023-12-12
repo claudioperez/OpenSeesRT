@@ -571,10 +571,65 @@ int Pinching4Material::recvSelf(int commitTag, Channel &theChannel,
 
 void Pinching4Material::Print(OPS_Stream &s, int flag)
 {
-	s << "Pinching4Material, tag: " << this-> getTag() << endln;
-	s << "strain: " << Tstrain << endln;
-	s << "stress: " << Tstress << endln;
-	s << "state: " << Tstate << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "\t\t\t{";
+      s << "\"name\": \"" << this->getTag() << "\", ";
+      s << "\"type\": \"Pinching4Material\", ";
+      s << "\"stress1p\": " << stress1p << ", ";
+      s << "\"strain1p\": " << strain1p << ", ";
+      s << "\"stress2p\": " << stress2p << ", ";
+      s << "\"strain2p\": " << strain2p << ", ";
+     
+      s << "\"stress3p\": " << stress3p << ", ";
+      s << "\"strain3p\": " << strain3p << ", ";
+      s << "\"stress4p\": " << stress4p << ", ";
+      s << "\"strain4p\": " << strain4p << ", ";
+     
+      s << "\"stress1n\": " << stress1n << ", ";
+      s << "\"strain1n\": " << strain1n << ", ";
+      s << "\"stress2n\": " << stress2n << ", ";
+      s << "\"strain2n\": " << strain2n << ", ";
+     
+      s << "\"stress3n\": " << stress3n << ", ";
+      s << "\"strain3n\": " << strain3n << ", ";
+      s << "\"stress4n\": " << stress4n << ", ";
+      s << "\"strain4n\": " << strain4n << ", ";     
+     
+      s << "\"gammaK1\": " << gammaK1 << ", ";
+      s << "\"gammaK2\": " << gammaK2 << ", ";
+      s << "\"gammaK3\": " << gammaK3 << ", ";
+      s << "\"gammaK4\": " << gammaK4 << ", ";
+      s << "\"gammaKLimit\": " << gammaKLimit << ", ";
+     
+      s << "\"gammaD1\": " << gammaD1 << ", ";
+      s << "\"gammaD2\": " << gammaD2 << ", ";
+      s << "\"gammaD3\": " << gammaD3 << ", ";
+      s << "\"gammaD4\": " << gammaD4 << ", ";
+      s << "\"gammaDLimit\": " << gammaDLimit << ", ";
+     
+      s << "\"gammaF1\": " << gammaF1 << ", ";
+      s << "\"gammaF2\": " << gammaF2 << ", ";
+      s << "\"gammaF3\": " << gammaF3 << ", ";
+      s << "\"gammaF4\": " << gammaF4 << ", ";
+      s << "\"gammaFLimit\": " << gammaFLimit << ", ";
+     
+      s << "\"gammaE\": " << gammaE << ", ";
+      s << "\"DmgCyc\": " << DmgCyc << ", ";
+     
+      s << "\"rDispP\": " << rDispP << ", ";
+      s << "\"rForceP\": " << rForceP << ", ";
+      s << "\"uForceP\": " << uForceP << ", ";
+      s << "\"rDispN\": " << rDispN << ", ";
+      s << "\"rForceN\": " << rForceN << ", ";
+      s << "\"uForceN\": " << uForceN;
+    s << "}";
+  } else {
+
+    s << "Pinching4Material, tag: " << this-> getTag() << endln;
+    s << "strain: " << Tstrain << endln;
+    s << "stress: " << Tstress << endln;
+    s << "state: " << Tstate << endln;
+  }
 }
 
 void Pinching4Material::SetEnvelope(void)

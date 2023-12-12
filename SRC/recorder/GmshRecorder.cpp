@@ -430,7 +430,7 @@ GmshRecorder::write_node_data()
     }
 
     std::string viewname(" ");
-    if(nodedata.disp) viewname = std::string("\"Displacment\"");
+    if(nodedata.disp) viewname = std::string("\"Displacement\"");
     if(nodedata.vel) viewname = std::string("\"Velocity\"");
     if(nodedata.accel) viewname = std::string("\"Acceleration\"");
     if(nodedata.incrdisp) viewname = std::string("\"Incremental Displacement\"");
@@ -1393,6 +1393,7 @@ GmshRecorder::setGMSHType()
     gmshtypes[ELE_TAG_TFP_Bearing] = GMSH_LINE;
     gmshtypes[ELE_TAG_TFP_Bearing2d] = GMSH_LINE;
     gmshtypes[ELE_TAG_TripleFrictionPendulum] = GMSH_LINE;
+    gmshtypes[ELE_TAG_TripleFrictionPendulumX] = GMSH_LINE;
     gmshtypes[ELE_TAG_PFEMElement2D] = GMSH_TRIANGLE;
     gmshtypes[ELE_TAG_FourNodeQuad02] = GMSH_QUAD;
     gmshtypes[ELE_TAG_cont2d01] = GMSH_POLY_VERTEX;
@@ -1426,6 +1427,8 @@ GmshRecorder::setGMSHType()
     gmshtypes[ELE_TAG_SFI_MVLEM] = GMSH_POLY_VERTEX;
     gmshtypes[ELE_TAG_MVLEM_3D] = GMSH_POLY_VERTEX;
     gmshtypes[ELE_TAG_SFI_MVLEM_3D] = GMSH_POLY_VERTEX;
+    gmshtypes[ELE_TAG_E_SFI_MVLEM_3D] = GMSH_POLY_VERTEX;
+	gmshtypes[ELE_TAG_E_SFI] = GMSH_POLY_VERTEX;
     gmshtypes[ELE_TAG_PFEMElement2DFIC] = GMSH_TRIANGLE;
     gmshtypes[ELE_TAG_CatenaryCable] = GMSH_LINE;
     gmshtypes[ELE_TAG_FourNodeTetrahedron] = GMSH_TETRA;
@@ -1436,4 +1439,11 @@ GmshRecorder::setGMSHType()
     gmshtypes[ELE_TAG_InertiaTruss] = GMSH_LINE;
     gmshtypes[ELE_TAG_ASDAbsorbingBoundary2D] = GMSH_QUAD;
     gmshtypes[ELE_TAG_ASDAbsorbingBoundary3D] = GMSH_HEXAHEDRON;
+}
+
+int GmshRecorder::flush() {
+    if (theFile.is_open() && theFile.good()) {
+        theFile.flush();
+    }
+    return 0;
 }

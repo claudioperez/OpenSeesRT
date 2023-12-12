@@ -30,6 +30,7 @@
 #include <ID.h> 
 #include <Vector.h>
 #include <Matrix.h>
+#include <MatrixND.h>
 #include <Element.h>
 #include <Node.h>
 #include <NDMaterial.h>
@@ -40,27 +41,27 @@
 #include <ElementResponse.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-
+using namespace OpenSees;
 #if 0
 void * OPS_ADD_RUNTIME_VPV(OPS_EnhancedQuad)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 2) {
-	opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
-	return 0;
+        opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
+        return 0;
     }
     
     if (OPS_GetNumRemainingInputArgs() < 8) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: element ConstantPressureVolumeQuad eleTag? iNode? jNode? kNode? lNode? thk? type? matTag?\n";
-	return 0;
+        opserr << "WARNING insufficient arguments\n";
+        opserr << "Want: element ConstantPressureVolumeQuad eleTag? iNode? jNode? kNode? lNode? thk? type? matTag?\n";
+        return 0;
     }
 
     // EnhancedQuadId, iNode, jNode, kNode, lNode
     int data[5];
     int num = 5;
     if (OPS_GetIntInput(&num,data) < 0) {
-	opserr<<"WARNING: invalid integer input\n";
-	return 0;
+        opserr<<"WARNING: invalid integer input\n";
+        return 0;
     }
 
     double thk = 1.0;
@@ -75,15 +76,15 @@ void * OPS_ADD_RUNTIME_VPV(OPS_EnhancedQuad)
     int matTag;
     num = 1;
     if (OPS_GetIntInput(&num,&matTag) < 0) {
-	opserr<<"WARNING: invalid matTag\n";
-	return 0;
+        opserr<<"WARNING: invalid matTag\n";
+        return 0;
     }
     NDMaterial* mat = OPS_getNDMaterial(matTag);
     if (mat == 0) {
-	opserr << "WARNING material not found\n";
-	opserr << "Material: " << matTag;
-	opserr << "\nConstantPressureVolumeQuad element: " << data[0] << endln;
-	return 0;
+        opserr << "WARNING material not found\n";
+        opserr << "Material: " << matTag;
+        opserr << "\nConstantPressureVolumeQuad element: " << data[0] << endln;
+        return 0;
     }
 
     return new EnhancedQuad(data[0],data[1],data[2],data[3],data[4],
@@ -92,7 +93,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_EnhancedQuad)
 #endif
 
 
-//static data
+// static data
 double  EnhancedQuad::xl[2][4] ;
 Matrix  EnhancedQuad::stiff(8,8) ;
 Vector  EnhancedQuad::resid(8) ;
@@ -100,41 +101,23 @@ Matrix  EnhancedQuad::mass(8,8) ;
 
 double  EnhancedQuad::stressData[3][4] ;
 double  EnhancedQuad::tangentData[3][3][4] ;
-
-    
-//quadrature data
-const double  EnhancedQuad::root3 = sqrt(3.0) ;
-const double  EnhancedQuad::one_over_root3 = 1.0 / root3 ;
-
-const double  EnhancedQuad::sg[] = { -one_over_root3,  
-				     one_over_root3, 
-				     one_over_root3, 
-				     -one_over_root3 } ;
-
-const double  EnhancedQuad::tg[] = { -one_over_root3, 
-				     -one_over_root3, 
-				     one_over_root3,  
-				     one_over_root3 } ;
-
-const double  EnhancedQuad::wg[] = { 1.0, 1.0, 1.0, 1.0 } ;
-
   
 
-//null constructor
+// null constructor
 EnhancedQuad::EnhancedQuad( ) :
 Element( 0, ELE_TAG_EnhancedQuad ),
 connectedExternalNodes(4),
 alpha(4), thickness(0.0), load(0), Ki(0)
 { 
   for ( int i = 0 ;  i < 4; i++ ) {
-    materialPointers[i] = 0;
+    materialPointers[i] = nullptr;
   }
 
-  //zero enhanced parameters
+  // zero enhanced parameters
   alpha.Zero( ) ;
 }
 
-//full constructor
+// full constructor
 EnhancedQuad::EnhancedQuad(int tag, 
                            int node1,
                            int node2,
@@ -143,10 +126,10 @@ EnhancedQuad::EnhancedQuad(int tag,
                            NDMaterial &theMaterial,
                            const char *type,
                            double t) 
-  :
-Element( tag, ELE_TAG_EnhancedQuad ),
-connectedExternalNodes(4),
-alpha(4), thickness(t), load(0), Ki(0)
+ :
+  Element( tag, ELE_TAG_EnhancedQuad ),
+  connectedExternalNodes(4),
+  alpha(4), thickness(t), load(0), Ki(0)
 {
 
   connectedExternalNodes(0) = node1 ;
@@ -160,58 +143,53 @@ alpha(4), thickness(t), load(0), Ki(0)
     exit(-1);
   }
 
-  int i ;
-  for ( i = 0 ;  i < 4; i++ ) {
+  for (int i = 0 ;  i < 4; i++ ) {
 
       materialPointers[i] = theMaterial.getCopy(type) ;
 
       if (materialPointers[i] == 0) {
-	opserr << "EnhancedQuad::EnhancedQuad -- failed to get a material of type " << type << endln;
-	exit(-1);
-      } //end if
+        opserr << "EnhancedQuad::EnhancedQuad -- failed to get a material of type " << type << endln;
+        exit(-1);
+      }
       
-  } //end for i 
+  } // end for i 
 
-  //zero enhanced parameters
+  // zero enhanced parameters
   alpha.Zero( ) ;
 
 }
 
-//destructor 
+// destructor 
 EnhancedQuad::~EnhancedQuad( )
 {
-  int i ;
-  for ( i = 0 ;  i < 4; i++ ) 
-    if (materialPointers[i] != 0)
+  for (int i = 0 ;  i < 4; i++ ) 
+    if (materialPointers[i] != nullptr)
       delete materialPointers[i] ;
 
-  if (load != 0)
+  if (load != nullptr)
     delete load;
 
-  if (Ki != 0)
+  if (Ki != nullptr)
     delete Ki;
 }
 
-//set domain
+// set domain
 void  EnhancedQuad::setDomain( Domain *theDomain ) 
 {  
-
-  int i ;
-
-  //node pointers
-  for ( i = 0; i < 4; i++ ) 
-     nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
+  // node pointers
+  for (int i = 0; i < 4; i++ ) 
+    nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
 
   this->DomainComponent::setDomain(theDomain) ;
 }
 
-//get the number of external nodes
+// get the number of external nodes
 int  EnhancedQuad::getNumExternalNodes( ) const
 {
   return 4 ;
 } 
 
-//return connected external nodes
+// return connected external nodes
 const ID&  EnhancedQuad::getExternalNodes( ) 
 {
   return connectedExternalNodes ;
@@ -223,13 +201,13 @@ EnhancedQuad::getNodePtrs(void)
   return nodePointers;
 } 
 
-//return number of dofs
+// return number of dofs
 int  EnhancedQuad::getNumDOF( ) 
 {
   return 8 ;
 }
 
-//commit state
+// commit state
 int  EnhancedQuad::commitState( )
 {
   int success = 0 ;
@@ -245,34 +223,32 @@ int  EnhancedQuad::commitState( )
   return success ;
 }
 
-//revert to last commit 
+// revert to last commit 
 int  EnhancedQuad::revertToLastCommit( ) 
 {
-  int i ;
   int success = 0 ;
 
-  for ( i = 0; i < 4; i++ ) 
+  for (int i = 0; i < nip; i++ ) 
     success += materialPointers[i]->revertToLastCommit( ) ;
   
   return success ;
 }
 
-//revert to start 
+// revert to start 
 int  EnhancedQuad::revertToStart( ) 
 {
-  int i ;
   int success = 0 ;
 
-  //zero enhanced parameters
+  // zero enhanced parameters
   this->alpha.Zero( ) ;
 
-  for ( i = 0; i < 4; i++ ) 
+  for (int i = 0; i < 4; i++ ) 
     success += materialPointers[i]->revertToStart( ) ;
   
   return success ;
 }
 
-//print out element data
+// print out element data
 void  EnhancedQuad::Print( OPS_Stream &s, int flag )
 {
     if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -302,18 +278,18 @@ void  EnhancedQuad::Print( OPS_Stream &s, int flag )
     }
 }
 
-//return stiffness matrix 
+// return stiffness matrix 
 const Matrix&  EnhancedQuad::getTangentStiff( ) 
 {
-  int tang_flag = 1 ; //get the tangent 
+  int tang_flag = 1 ; // get the tangent 
 
-  //do tangent and residual here
+  // do tangent and residual here
   formResidAndTangent( tang_flag ) ;  
 
   return stiff ;
 }    
 
-//return secant matrix 
+// return secant matrix 
 const Matrix&  EnhancedQuad::getInitialStiff( ) 
 {
 
@@ -321,51 +297,33 @@ const Matrix&  EnhancedQuad::getInitialStiff( )
     return *Ki;
 
   static const int ndm = 2 ;
-
   static const int ndf = 2 ; 
-
-  static const int nstress = 3 ;
- 
+  static const int nstress = 3 ; 
   static const int numberNodes = 4 ;
-
-  static const int numberGauss = 4 ;
-
+  static const int nip = 4 ;
   static const int nShape = 3 ;
-
-  static const int nEnhanced = 4 ;
-  
+  static const int nEnhanced = 4 ; 
   static const int nModes = 2 ;
-
   static const int numberDOF = 8 ;
 
 
   int i, j, k, p, q ;
   int jj, kk ;
 
-  static double xsj[numberGauss] ;  // determinant jacaobian matrix 
+  static double xsj[nip] ;  // determinant jacaobian matrix 
+  static double dvol[nip] ; // volume element
+  static Vector strain(nstress) ;  // strain
+  static double shp[nShape][numberNodes] ;  // shape functions at a gauss point
 
-  static double dvol[numberGauss] ; //volume element
+  static double Shape[nShape][numberNodes][nip] ; // all the shape functions
 
-  static Vector strain(nstress) ;  //strain
-
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
-
-  static double Shape[nShape][numberNodes][numberGauss] ; //all the shape functions
-
-  static Vector residJ(ndf) ; //nodeJ residual 
-
-  static Matrix stiffJK(ndf,ndf) ; //nodeJK stiffness 
-
-  static Matrix stiffKJ(ndf,ndf) ; //nodeKJ stiffness
-
-  static Vector stress(nstress) ;  //stress
-
-  static Matrix dd(nstress,nstress) ;  //material tangent
-
+  static Vector residJ(ndf) ; // nodeJ residual 
+  static Matrix stiffJK(ndf,ndf) ; // nodeJK stiffness 
+  static Matrix stiffKJ(ndf,ndf) ; // nodeKJ stiffness
+  static Vector stress(nstress) ;  // stress
+  static Matrix dd(nstress,nstress) ;  // material tangent
   static Matrix J0(ndm,ndm) ; //Jacobian matrix at center of element
-
-  static Matrix J0inv(ndm,ndm) ; //inverse of above
-
+  static Matrix J0inv(ndm,ndm) ; // inverse of above
 
   static Matrix Kee(nEnhanced,nEnhanced) ;
 
@@ -382,23 +340,18 @@ const Matrix&  EnhancedQuad::getInitialStiff( )
   static Matrix KeeInvKeu(nEnhanced,numberDOF) ;
 
 
-  //---------B-matrices------------------------------------
-
+  // ---------B-matrices------------------------------------
+    MatrixND<nstress, ndf> B[numberNodes];
     static Matrix BJ(nstress,ndf) ;      // B matrix node J
-
-    static Matrix BJtran(ndf,nstress) ;
-
+//  static Matrix BJtran(ndf,nstress) ;
     static Matrix BK(nstress,ndf) ;      // B matrix node k
-
     static Matrix BKtran(ndf,nstress) ;
-
     static Matrix BJtranD(ndf,nstress) ;
-
     static Matrix BKtranD(ndf,nstress) ;
-  //-------------------------------------------------------
+  // -------------------------------------------------------
 
   
-  //zero stiffness and residual 
+  // zero stiffness and residual 
   stiff.Zero( ) ;
 
   Kee.Zero( ) ;
@@ -408,177 +361,173 @@ const Matrix&  EnhancedQuad::getInitialStiff( )
   Keu.Zero( ) ;
 
 
-  //compute basis vectors and local nodal coordinates
-  computeBasis( ) ;
-
-  //compute Jacobian and inverse at center
+  // compute Jacobian and inverse at center
   double L1 = 0.0 ;
   double L2 = 0.0 ;
   computeJacobian( L1, L2, xl, J0, J0inv ) ; 
 
-  //gauss loop to compute and save shape functions 
+  // gauss loop to compute and save shape functions 
   double det ;
-  for ( i = 0; i < numberGauss; i++ ) {
+  for (int i = 0; i < nip; i++ ) {
 
-    //get shape functions    
-    shape2d( sg[i], tg[i], xl, shp, det ) ;
+    // get shape functions    
+    shape2d( pts[i][0], pts[i][1], xl, shp, det ) ;
 
-    //save shape functions
-    for ( p = 0; p < nShape; p++ ) {
+    // save shape functions
+    for (int p = 0; p < nShape; p++ ) {
        for ( q = 0; q < numberNodes; q++ )
-	  Shape[p][q][i] = shp[p][q] ;
-    } // end for p
+          Shape[p][q][i] = shp[p][q] ;
+    }
 
-    //save jacobian determinant
+    // save jacobian determinant
     xsj[i] = det ;
 
-    //volume element to also be saved
-    dvol[i] = wg[i] * det * thickness;  
+    // volume element to also be saved
+    dvol[i] = wts[i] * det * thickness;  
 
   } // end for i gauss loop
 
   Kee.Zero( ) ;
-  //gauss loop
-  for ( i = 0; i < numberGauss; i++ ) {
-
-    //tangent 
+  // gauss loop
+  for (int i = 0; i < nip; i++ ) {
+    // tangent 
     dd = materialPointers[i]->getInitialTangent( ) ;
     
-    //multiply by volume element
+    // multiply by volume element
     dd *= dvol[i] ;
     saveData( i, stress, dd ) ;   
   }
   Kee.Zero( ) ;
-  for ( i = 0; i < numberGauss; i++ ) {
-    //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) {
-      for ( q = 0; q < numberNodes; q++ )
-	shp[p][q]  = Shape[p][q][i] ;
-    } // end for p
+  for (int i = 0; i < nip; i++ ) {
+    // extract shape functions from saved array
+    for (int p = 0; p < nShape; p++ ) {
+      for (int q = 0; q < numberNodes; q++ )
+        shp[p][q]  = Shape[p][q][i] ;
+    }
     
-    //enhanced residual and tangent calculations loops
+    // enhanced residual and tangent calculations loops
     jj = 0 ;
-    for ( j = 0; j < nModes; j++ ) {
+    for (int j = 0; j < nModes; j++ ) {
       
-      //compute B matrix 
-      BJ = computeBenhanced( j, sg[i], tg[i], xsj[i], J0inv ) ; 
+      // compute B matrix 
+      BJ = computeBenhanced( j, pts[i][0], pts[i][1], xsj[i], J0inv ) ; 
       
-      //transpose 
-      BJtran = transpose( BJ ) ;
-      
+      // transpose 
+//    BJtran = transpose( BJ ) ;
+
       //BJtranD = BJtran * dd ;
-      BJtranD.addMatrixProduct(0.0, BJtran, dd, 1.0) ;
+      BJtranD.addMatrixTransposeProduct(0.0, BJ, dd, 1.0) ;
       
       kk = 0 ;
-      for ( k = 0; k < nModes; k++ ) {
-	
-	BK = computeBenhanced( k, sg[i], tg[i], xsj[i], J0inv ) ;
-	
-	//stiffJK =  BJtranD * BK  ;
-	stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
-	
-	for ( p = 0; p < ndf; p++ )  {
-	  for ( q = 0; q < ndf; q++ )
-	    Kee( jj+p, kk+q ) += stiffJK( p, q ) ;
-	} //end for p
-	
-	kk += ndf ;
-      } // end for k loop
+      for (int k = 0; k < nModes; k++ ) {
+
+        BK = computeBenhanced( k, pts[i][0], pts[i][1], xsj[i], J0inv ) ;
+
+        // stiffJK =  BJtranD * BK  ;
+        stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
+
+        for (int p = 0; p < ndf; p++ )  {
+          for (int q = 0; q < ndf; q++ )
+            Kee( jj+p, kk+q ) += stiffJK( p, q ) ;
+        }
+        
+        kk += ndf ;
+      }
       
       jj += ndf ;
     } // end for j loop
   } // end for i gauss loop 
   
   /// HERE
-  for ( i = 0; i < numberGauss; i++ ) {
-    //extract shape functions from saved array
+  for (int i = 0; i < nip; i++ ) {
+    // extract shape functions from saved array
     for ( p = 0; p < nShape; p++ ) {
        for ( q = 0; q < numberNodes; q++ )
-	  shp[p][q]  = Shape[p][q][i] ;
-    } // end for p
+          shp[p][q]  = Shape[p][q][i] ;
+    }
 
 
-    //recover stress and tangent from saved data
+    // recover stress and tangent from saved data
     getData( i, stress, dd ) ;
     jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) {
+    for (int j = 0; j < numberNodes; j++ ) {
 
-      BJ = computeB( j, shp ) ;
+      BJ = computeB( j, shp, B[j]) ;
    
-      //transpose 
-      BJtran = transpose( BJ ) ;
+      // transpose 
+//    BJtran = B[j].transpose(); // transpose( BJ ) ;
 
       //BJtranD = BJtran * dd ;
-      BJtranD.addMatrixProduct(0.0, BJtran, dd, 1.0) ;
+      BJtranD.addMatrixTransposeProduct(0.0, BJ, dd, 1.0) ;
       
-      //node-node stiffness
+      // node-node stiffness
       kk = 0 ;
-      for ( k = 0; k < numberNodes; k++ ) {
-	
-	BK = computeB( k, shp ) ;
-	
-	//stiffJK =  BJtranD * BK  ;
-	stiffJK.addMatrixProduct(0.0, BJtranD, BK,1.0) ;
-	
-	for ( p = 0; p < ndf; p++ )  {
-	  for ( q = 0; q < ndf; q++ )
-	    stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
-	} //end for p
-	
-	kk += ndf ;
+      for (int k = 0; k < numberNodes; k++ ) {
+        
+        BK = computeB( k, shp, B[k]) ;
+        
+        // stiffJK =  BJtranD * BK  ;
+        stiffJK.addMatrixProduct(0.0, BJtranD, B[k],1.0) ;
+        
+        for ( p = 0; p < ndf; p++ )  {
+          for ( q = 0; q < ndf; q++ )
+            stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
+        } // end for p
+        
+        kk += ndf ;
       } // end for k loop
       
 
-      //node-enhanced stiffness Kue 
+      // node-enhanced stiffness Kue 
       kk = 0 ;
       for ( k = 0; k < nModes; k++ ) {
-	
-	BK = computeBenhanced( k, sg[i], tg[i], xsj[i], J0inv ) ;
-	
-	//stiffJK =  BJtranD * BK  ;
-	stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
-	
-	for ( p = 0; p < ndf; p++ )  {
-	  for ( q = 0; q < ndf; q++ )
-	    Kue( jj+p, kk+q ) += stiffJK( p, q ) ;
-	} //end for p 
-	
-	kk += ndf ;
+        
+        BK = computeBenhanced( k, pts[i][0], pts[i][1], xsj[i], J0inv ) ;
+        
+        // stiffJK =  BJtranD * BK  ;
+        stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
+        
+        for ( p = 0; p < ndf; p++ )  {
+          for ( q = 0; q < ndf; q++ )
+            Kue( jj+p, kk+q ) += stiffJK( p, q ) ;
+        } // end for p 
+        
+        kk += ndf ;
       } // end for k loop
 
-      //enhanced-node stiffness Keu 
+      // enhanced-node stiffness Keu 
       kk = 0 ;
       for ( k = 0; k < nModes; k++ ) {
-	
-	BK = computeBenhanced( k, sg[i], tg[i], xsj[i], J0inv ) ;
-	
-	//transpose 
-	BKtran = transpose( BK ) ;
-	
-	//BKtranD = BKtran * dd ;
-	BKtranD.addMatrixProduct(0.0, BKtran,dd,1.0 ) ;
-	
-	//stiffKJ = (BKtran*dd)*BJ ;
-	stiffKJ.addMatrixProduct(0.0, BKtranD,BJ,1.0) ;
-	
-	for ( p = 0; p < ndf; p++ )  {
-	  for ( q = 0; q < ndf; q++ )
-	    Keu( kk+p, jj+q ) += stiffKJ( p, q ) ;
-	} //end for p  
-	
-	kk += ndf ;
+        
+        BK = computeBenhanced( k, pts[i][0], pts[i][1], xsj[i], J0inv ) ;
+        
+        // transpose 
+        BKtran = transpose( BK ) ;
+        
+        //BKtranD = BKtran * dd ;
+        BKtranD.addMatrixProduct(0.0, BKtran,dd,1.0 ) ;
+        
+        // stiffKJ = (BKtran*dd)*BJ ;
+        stiffKJ.addMatrixProduct(0.0, BKtranD,BJ,1.0) ;
+        
+        for ( p = 0; p < ndf; p++ )  {
+          for ( q = 0; q < ndf; q++ )
+            Keu( kk+p, jj+q ) += stiffKJ( p, q ) ;
+        } // end for p  
+        
+        kk += ndf ;
       } // end for k loop
     
       jj += ndf ;
     } // end for j loop
   
   
-  } //end for i gauss loop 
+  } // end for i gauss loop 
 
 
   Kee.Solve( Keu, KeeInvKeu ) ;
 
-  //stiff -= ( Kue * KeeInvKeu ) ;
+  // stiff -= ( Kue * KeeInvKeu ) ;
   stiff.addMatrixProduct(1.0,  Kue, KeeInvKeu, -1.0);
 
   Ki = new Matrix(stiff);
@@ -586,7 +535,7 @@ const Matrix&  EnhancedQuad::getInitialStiff( )
   return stiff;
 }
 
-//return mass matrix
+// return mass matrix
 const Matrix&  EnhancedQuad::getMass( ) 
 {
 
@@ -616,7 +565,7 @@ EnhancedQuad::addLoad(ElementalLoad *theLoad, double loadFactor)
 int
 EnhancedQuad::addInertiaLoadToUnbalance(const Vector &accel)
 {
-  static const int numberGauss = 4 ;
+  static const int nip = 4 ;
   static const int numberNodes = 4 ;
   static const int ndf = 2 ; 
 
@@ -624,7 +573,7 @@ EnhancedQuad::addInertiaLoadToUnbalance(const Vector &accel)
 
   // check to see if have mass
   int haveRho = 0;
-  for (i = 0; i < numberGauss; i++) {
+  for (i = 0; i < nip; i++) {
     if (materialPointers[i]->getRho() != 0.0)
       haveRho = 1;
   }
@@ -654,10 +603,10 @@ EnhancedQuad::addInertiaLoadToUnbalance(const Vector &accel)
   return 0;
 }
 
-//get residual
+// get residual
 const Vector&  EnhancedQuad::getResistingForce( ) 
 {
-  int tang_flag = 0 ; //don't get the tangent
+  int tang_flag = 0 ; // don't get the tangent
 
   formResidAndTangent( tang_flag ) ;
 
@@ -668,17 +617,17 @@ const Vector&  EnhancedQuad::getResistingForce( )
   return resid ;   
 }
 
-//get residual with inertia terms
+// get residual with inertia terms
 const Vector&  EnhancedQuad::getResistingForceIncInertia( )
 {
-  int tang_flag = 0 ; //don't get the tangent
+  int tang_flag = 0 ; // don't get the tangent
 
   static Vector res(8);
 
-  //do tangent and residual here 
+  // do tangent and residual here 
   formResidAndTangent( tang_flag ) ;
 
-  //inertia terms
+  // inertia terms
   formInertiaTerms( tang_flag ) ;
 
   res = resid;
@@ -695,26 +644,22 @@ const Vector&  EnhancedQuad::getResistingForceIncInertia( )
 }
 
 //*********************************************************************
-//form inertia terms
+// form inertia terms
 
 void   EnhancedQuad::formInertiaTerms( int tangFlag ) 
 {
 
   static const int ndf = 2 ; 
-
   static const int numberNodes = 4 ;
-
-  static const int numberGauss = 4 ;
-
+  static const int nip = 4 ;
   static const int nShape = 3 ;
-
   static const int massIndex = nShape - 1 ;
 
   double xsj ;  // determinant jacaobian matrix 
 
-  double dvol ; //volume element
+  double dvol ; // volume element
 
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
+  static double shp[nShape][numberNodes] ;  // shape functions at a gauss point
 
   static Vector momentum(ndf) ;
 
@@ -723,203 +668,154 @@ void   EnhancedQuad::formInertiaTerms( int tangFlag )
 
   double temp, rho, massJK ;
 
-
-  //zero mass 
+  // zero mass 
   mass.Zero( ) ;
 
-  //compute basis vectors and local nodal coordinates
-  computeBasis( ) ;
+  // gauss loop 
+  for (int i = 0; i < nip; i++ ) {
 
-  //gauss loop 
-  for ( i = 0; i < numberGauss; i++ ) {
-
-    //get shape functions    
-    shape2d( sg[i], tg[i], xl, shp, xsj ) ;
+    // get shape functions    
+    shape2d( pts[i][0], pts[i][1], xl, shp, xsj ) ;
     
-    //volume element
-    dvol = wg[i] * xsj * thickness;
+    // volume element
+    dvol = wts[i] * xsj * thickness;
 
-    //node loop to compute acceleration
+    // node loop to compute acceleration
     momentum.Zero( ) ;
-    for ( j = 0; j < numberNodes; j++ ) 
-      //momentum += shp[massIndex][j] * ( nodePointers[j]->getTrialAccel()  ) ; 
+    for (int j = 0; j < numberNodes; j++ ) 
+      // momentum += shp[massIndex][j] * ( nodePointers[j]->getTrialAccel()  ) ; 
       momentum.addVector( 1.0,
-			  nodePointers[j]->getTrialAccel(),
-			  shp[massIndex][j] ) ;
+                          nodePointers[j]->getTrialAccel(),
+                          shp[massIndex][j] ) ;
 
-    //density
+    // density
     rho = materialPointers[i]->getRho() ;
 
-    //multiply acceleration by density to form momentum
+    // multiply acceleration by density to form momentum
     momentum *= rho ;
 
 
-    //residual and tangent calculations node loops
+    // residual and tangent calculations node loops
     jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) {
+    for (int j = 0; j < numberNodes; j++ ) {
 
       temp = shp[massIndex][j] * dvol ;
 
-      for ( p = 0; p < ndf; p++ )
+      for (int p = 0; p < ndf; p++ )
         resid( jj+p ) += ( temp * momentum(p) )  ;
 
       
       if ( tangFlag == 1 ) {
 
-	 //multiply by density
-	 temp *= rho ;
+         // multiply by density
+         temp *= rho ;
 
-	 //node-node mass
+         // node-node mass
          kk = 0 ;
-         for ( k = 0; k < numberNodes; k++ ) {
+         for (int k = 0; k < numberNodes; k++ ) {
 
-	    massJK = temp * shp[massIndex][k] ;
+            massJK = temp * shp[massIndex][k] ;
 
-            for ( p = 0; p < ndf; p++ )  
-	      mass( jj+p, kk+p ) += massJK ;
+            for (int p = 0; p < ndf; p++ )  
+              mass( jj+p, kk+p ) += massJK ;
             
             kk += ndf ;
-          } // end for k loop
+          }
 
       } // end if tang_flag 
 
       jj += ndf ;
     } // end for j loop
-  } //end for i gauss loop 
+  } // end for i gauss loop 
 }
 
 //*********************************************************************
-//form residual and tangent
+// form residual and tangent
 void  EnhancedQuad::formResidAndTangent( int tang_flag ) 
 {
 
-  static const double tolerance = 1.0e-08 ;
+  static constexpr double tolerance = 1.0e-08 ;
+  static constexpr int nIterations = 10 ;
 
-  static const int nIterations = 10 ;
-
-  static const int ndm = 2 ;
-
-  static const int ndf = 2 ; 
-
-  static const int nstress = 3 ;
- 
-  static const int numberNodes = 4 ;
-
-  static const int numberGauss = 4 ;
-
-  static const int nShape = 3 ;
-
-  static const int nEnhanced = 4 ;
-  
-  static const int nModes = 2 ;
-
-  static const int numberDOF = 8 ;
-
+  static constexpr int ndm = 2 ;
+  static constexpr int ndf     = 2 ; 
+  static constexpr int nstress = 3 ; 
+  static constexpr int numberNodes = 4 ;
+  static constexpr int nip    = 4 ;
+  static constexpr int nShape = 3 ;
+  static constexpr int nEnhanced = 4 ; 
+  static constexpr int nModes = 2 ;
+  static constexpr int numberDOF = 8 ;
 
   int i, j, k, p, q ;
   int jj, kk ;
-
   int success ;
 
-  static double xsj[numberGauss] ;  // determinant jacaobian matrix 
+  OPS_STATIC double xsj[nip] ;  // determinant jacaobian matrix 
+  OPS_STATIC double dvol[nip] ; // volume element
+  OPS_STATIC double Shape[nip][nShape][numberNodes]; // [nip] ; // all the shape functions
 
-  static double dvol[numberGauss] ; //volume element
-
-  static Vector strain(nstress) ;  //strain
-
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
-
-  static double Shape[nShape][numberNodes][numberGauss] ; //all the shape functions
-
-  static Vector residJ(ndf) ; //nodeJ residual 
-
-  static Matrix stiffJK(ndf,ndf) ; //nodeJK stiffness 
-
-  static Matrix stiffKJ(ndf,ndf) ; //nodeKJ stiffness
-
-  static Vector stress(nstress) ;  //stress
-
-  static Matrix dd(nstress,nstress) ;  //material tangent
+  static VectorND<nstress> strain ;  // strain
+  static Vector residJ(ndf) ; // nodeJ residual 
+  static Matrix stiffJK(ndf,ndf) ; // nodeJK stiffness 
+  static Matrix stiffKJ(ndf,ndf) ; // nodeKJ stiffness
+  static Vector stress(nstress) ;  // stress
+  static Matrix dd(nstress,nstress) ;  // material tangent
 
   static Matrix J0(ndm,ndm) ; //Jacobian matrix at center of element
-
-  static Matrix J0inv(ndm,ndm) ; //inverse of above
-
+  static Matrix J0inv(ndm,ndm) ; // inverse of above
 
   static Matrix Kee(nEnhanced,nEnhanced) ;
 
-  static Vector residE(nEnhanced) ;
-
-  static Vector Umode(ndf) ;
-
-  static Vector dalpha(nEnhanced) ;
-
+  static Vector residE(nEnhanced);
+  static Vector Umode(ndf);
+  static Vector dalpha(nEnhanced);
   static Matrix Kue(numberDOF,nEnhanced) ;
-
   static Matrix Keu(nEnhanced,numberDOF) ;
-
   static Matrix KeeInvKeu(nEnhanced,numberDOF) ;
 
-
-  //---------B-matrices------------------------------------
-
-    static Matrix BJ(nstress,ndf) ;      // B matrix node J
-
-    static Matrix BJtran(ndf,nstress) ;
-
-    static Matrix BK(nstress,ndf) ;      // B matrix node k
-
-    static Matrix BKtran(ndf,nstress) ;
-
-    static Matrix BJtranD(ndf,nstress) ;
-
-    static Matrix BKtranD(ndf,nstress) ;
-  //-------------------------------------------------------
-
+  // ---------B-matrices------------------------------------
+  static MatrixND<nstress, ndf> B[numberNodes];
+  static Matrix BJ(nstress,ndf) ;      // B matrix node J
+  static Matrix BK(nstress,ndf) ;      // B matrix node k
+//static Matrix BJtran(ndf,nstress) ;
+//static Matrix BKtran(ndf,nstress) ;
+  static Matrix BJtranD(ndf,nstress) ;
+  static Matrix BKtranD(ndf,nstress) ;
+  // -------------------------------------------------------
   
-  //zero stiffness and residual 
-  stiff.Zero( ) ;
-  resid.Zero( ) ;
+  // zero stiffness and residual 
+  stiff.Zero( );
+  resid.Zero( );
 
-  Kee.Zero( ) ;
-  residE.Zero( ) ;
+  Kee.Zero( );
+  residE.Zero( );
 
-  Kue.Zero( ) ;
-  Keu.Zero( ) ;
+  Kue.Zero( );
+  Keu.Zero( );
 
-
-  //compute basis vectors and local nodal coordinates
-  computeBasis( ) ;
-
-  //compute Jacobian and inverse at center
+  // compute Jacobian and inverse at center
   double L1 = 0.0 ;
   double L2 = 0.0 ;
   computeJacobian( L1, L2, xl, J0, J0inv ) ; 
 
-
-  //gauss loop to compute and save shape functions 
+  // gauss loop to compute and save shape functions 
   double det ;
-  for ( i = 0; i < numberGauss; i++ ) {
+  for (int i = 0; i < nip; i++ ) {
 
-    //get shape functions    
-    shape2d( sg[i], tg[i], xl, shp, det ) ;
+    // get shape functions    
+    shape2d( pts[i][0], pts[i][1], xl, Shape[i], det ) ;
 
-    //save shape functions
-    for ( p = 0; p < nShape; p++ ) {
-       for ( q = 0; q < numberNodes; q++ )
-	  Shape[p][q][i] = shp[p][q] ;
-    } // end for p
-
-    //save jacobian determinant
+    // save jacobian determinant
     xsj[i] = det ;
 
-    //volume element to also be saved
-    dvol[i] = wg[i] * det * thickness;  
+    // volume element to also be saved
+    dvol[i] = wts[i] * det * thickness;  
 
-  } // end for i gauss loop
+  }
 
-  //-------------------------------------------------------------------
-  //newton loop to solve for enhanced strain parameters
+  // -------------------------------------------------------------------
+  // Newton loop to solve for enhanced strain parameters
 
   int count = 0 ;
   do {
@@ -927,119 +823,103 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
     residE.Zero( ) ;
     Kee.Zero( ) ;
 
-    //gauss loop
-    for ( i = 0; i < numberGauss; i++ ) {
+    // gauss loop
+    for (int i = 0; i < nip; i++ ) {
 
-      //extract shape functions from saved array
-      for ( p = 0; p < nShape; p++ ) {
-	for ( q = 0; q < numberNodes; q++ )
-	  shp[p][q]  = Shape[p][q][i] ;
-      } // end for p
-
-
-      //zero the strain
-      strain.Zero( ) ;
+      // zero the strain
+      strain.zero( ) ;
 
       // j-node loop to compute nodal strain contributions
-      for ( j = 0; j < numberNodes; j++ )  {
+      for (int j = 0; j < numberNodes; j++ )  {
 
-        //compute B matrix 
-        BJ = computeB( j, shp ) ;
+        // compute B matrix 
+        computeB( j, Shape[i], B[j]) ;
       
-        //nodal displacements 
+        // nodal displacements 
         const Vector &ul = nodePointers[j]->getTrialDisp( ) ;
 
-        //compute the strain
-        //strain += (BJ*ul) ; 
-	strain.addMatrixVector(1.0, BJ, ul, 1.0) ;
+        // compute the strain
+        // strain += (BJ*ul) ; 
+        strain.addMatrixVector(1.0, B[j], ul, 1.0) ;
 
-      } // end for j
+      }
 
       // j-node loop to compute enhanced strain contributions
-      for ( j = 0; j < nModes; j++ )  {
+      for (int j = 0; j < nModes; j++ )  {
 
-        //compute B matrix 
-        BJ = computeBenhanced( j, sg[i], tg[i], xsj[i], J0inv ) ; 
+        // compute B matrix 
+        BJ = computeBenhanced( j, pts[i][0], pts[i][1], xsj[i], J0inv ) ; 
       
-        //enhanced "displacements" 
+        // enhanced "displacements" 
         Umode(0) = this->alpha( 2*j     ) ;
         Umode(1) = this->alpha( 2*j + 1 ) ;
 
-        //compute the strain
-        //strain += (BJ*Umode) ; 
-	strain.addMatrixVector(1.0, BJ, Umode, 1.0) ;
+        // compute the strain
+        // strain += (BJ*Umode) ; 
+        strain.addMatrixVector(1.0, BJ, Umode, 1.0) ;
 
-      } // end for j
+      }
 
       success = materialPointers[i]->setTrialStrain( strain ) ;
 
-      //compute the stress
+      // compute the stress
       stress = materialPointers[i]->getStress( ) ;
 
-      //multiply by volume element
+      // multiply by volume element
       stress  *= dvol[i] ;
 
-      //tangent 
+      // tangent 
       dd = materialPointers[i]->getTangent( ) ;
 
-      //multiply by volume element
+      // multiply by volume element
       dd *= dvol[i] ;
 
-      //save stress and tangent (already multiplied by volume element)
+      // save stress and tangent (already multiplied by volume element)
       saveData( i, stress, dd ) ; 
 
-      //enhanced residual and tangent calculations loops
+      // enhanced residual and tangent calculations loops
 
       jj = 0 ;
-      for ( j = 0; j < nModes; j++ ) {
+      for (int j = 0; j < nModes; j++ ) {
 
-        //compute B matrix 
-        BJ = computeBenhanced( j, sg[i], tg[i], xsj[i], J0inv ) ; 
+        // compute B matrix 
+        BJ = computeBenhanced( j, pts[i][0], pts[i][1], xsj[i], J0inv ) ; 
 
-	//transpose 
-	BJtran = transpose( BJ ) ;
+        // residual
+        // residJ = -BJ^T * stress) ;
+        residJ.addMatrixTransposeVector(0.0, BJ, stress,-1.0) ;
 
-
-	//residual
-	//residJ = (BJtran * stress) ;
-	//residJ *= (-1.0) ;
-	residJ.addMatrixVector(0.0, BJtran,stress,-1.0) ;
-
-	//residual 
-	for ( p = 0; p < ndf; p++ )
-	  residE( jj+p ) += residJ(p)  ;
+        // residual 
+        for (int p = 0; p < ndf; p++ )
+          residE( jj+p ) += residJ(p)  ;
 
 
         //BJtranD = BJtran * dd ;
-	BJtranD.addMatrixProduct(0.0, BJtran,dd,1.0) ;
+        BJtranD.addMatrixTransposeProduct(0.0, BJ, dd, 1.0) ;
 
-	kk = 0 ;
-	for ( k = 0; k < nModes; k++ ) {
+        kk = 0 ;
+        for (int k = 0; k < nModes; k++ ) {
 
-          BK = computeBenhanced( k, sg[i], tg[i], xsj[i], J0inv ) ;
+          BK = computeBenhanced( k, pts[i][0], pts[i][1], xsj[i], J0inv ) ;
   
-	  //stiffJK =  BJtranD * BK  ;
-	  stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
+          // stiffJK =  BJtranD * BK  ;
+          stiffJK.addMatrixProduct(0.0, BJtranD, BK, 1.0) ;
 
-          for ( p = 0; p < ndf; p++ )  {
-             for ( q = 0; q < ndf; q++ )
+          for (int p = 0; p < ndf; p++ )  {
+             for (int q = 0; q < ndf; q++ )
                 Kee( jj+p, kk+q ) += stiffJK( p, q ) ;
-          } //end for p
+          }
 
-            kk += ndf ;
-          } // end for k loop
+          kk += ndf ;
+        }
 
-	jj += ndf ;
+        jj += ndf ;
       } // end for j loop
-
 
     } // end for i gauss loop 
 
 
-    //solve for enhanced strain parameters
-
-    dalpha.Zero( ) ;
-
+    // solve for enhanced strain parameters
     Kee.Solve( residE, dalpha ) ;
 
     if (dalpha(0) > 1.0e10)  opserr << "dalpha: " << residE << dalpha;
@@ -1049,115 +929,98 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
     count++ ;
     if ( count > nIterations ) {
       opserr << "Exceeded " << nIterations
-	   << " iterations solving for enhanced strain parameters " << endln ;
+             << " iterations solving for enhanced strain parameters "
+             << endln ;
       break ;
-    } //end if 
+    }
 
-
-    //do at least 2 iterations so saved data is good
+    // do at least 2 iterations so saved data is good
   } while ( residE.Norm() > tolerance  ||  count < 2 ) ;
 
 
-  //end enhanced strain parameters newton loop
-  //-------------------------------------------------------------------
+  // end enhanced strain parameters newton loop
+  // -------------------------------------------------------------------
 
-  //gauss loop 
-  for ( i = 0; i < numberGauss; i++ ) {
+  // Gauss loop 
+  for (int i = 0; i < nip; i++ ) {
 
-    //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) {
-       for ( q = 0; q < numberNodes; q++ )
-	  shp[p][q]  = Shape[p][q][i] ;
-    } // end for p
-
-
-    //recover stress and tangent from saved data
+    // recover stress and tangent from saved data
     getData( i, stress, dd ) ;
 
-
-    //residual and tangent calculations node loops
+    // residual and tangent calculations node loops
 
     jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) {
+    for (int j = 0; j < numberNodes; j++ ) {
 
-      BJ = computeB( j, shp ) ;
-   
-      //transpose 
-      BJtran = transpose( BJ ) ;
+      // TODO(cmp): check this
+      BJ = computeB( j, Shape[i], B[j]) ;
 
-      //residual
-      //residJ = BJtran * stress ;
-      residJ.addMatrixVector(0.0, BJtran,stress,1.0) ;
+      // residual
+      // residJ = BJtran * stress ;
+      residJ.addMatrixTransposeVector(0.0, B[j], stress, 1.0) ;
 
-      for ( p = 0; p < ndf; p++ )
+      for (int p = 0; p < ndf; p++ )
         resid( jj+p ) += residJ(p)  ;
 
 
       if ( tang_flag == 1 ) {
 
-	//BJtranD = BJtran * dd ;
-	BJtranD.addMatrixProduct(0.0, BJtran,dd,1.0) ;
+        //BJtranD = BJtran * dd ;
+        BJtranD.addMatrixTransposeProduct(0.0, B[j], dd, 1.0) ;
 
-	 //node-node stiffness
+         // node-node stiffness
          kk = 0 ;
-         for ( k = 0; k < numberNodes; k++ ) {
+         for (int k = 0; k < numberNodes; k++ ) {
 
-            BK = computeB( k, shp ) ;
+            computeB( k, Shape[i], B[k]) ;
   
-            //stiffJK =  BJtranD * BK  ;
-	    stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
+            // stiffJK =  BJtranD * BK  ;
+            stiffJK.addMatrixProduct(0.0, BJtranD, B[k], 1.0) ;
 
-            for ( p = 0; p < ndf; p++ )  {
-               for ( q = 0; q < ndf; q++ )
+            for (int p = 0; p < ndf; p++ )  {
+               for (int q = 0; q < ndf; q++ )
                   stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
-            } //end for p
+            }
 
             kk += ndf ;
-          } // end for k loop
+          }
 
-
-	 //node-enhanced stiffness Kue 
+         // node-enhanced stiffness Kue 
          kk = 0 ;
-         for ( k = 0; k < nModes; k++ ) {
+         for (int k = 0; k < nModes; k++ ) {
 
-            BK = computeBenhanced( k, sg[i], tg[i], xsj[i], J0inv ) ;
+            BK = computeBenhanced( k, pts[i][0], pts[i][1], xsj[i], J0inv ) ;
   
-            //stiffJK =  BJtranD * BK  ;
-	    stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
-	   
-            for ( p = 0; p < ndf; p++ )  {
-               for ( q = 0; q < ndf; q++ )
+            // stiffJK =  BJtranD * BK  ;
+            stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0) ;
+           
+            for (int p = 0; p < ndf; p++ ) {
+               for (int q = 0; q < ndf; q++ )
                   Kue( jj+p, kk+q ) += stiffJK( p, q ) ;
-            } //end for p 
+            }
 
             kk += ndf ;
-          } // end for k loop
+          }
 
-
-	 //enhanced-node stiffness Keu 
+         // enhanced-node stiffness Keu 
          kk = 0 ;
-         for ( k = 0; k < nModes; k++ ) {
+         for (int k = 0; k < nModes; k++ ) {
 
-            BK = computeBenhanced( k, sg[i], tg[i], xsj[i], J0inv ) ;
+            BK = computeBenhanced( k, pts[i][0], pts[i][1], xsj[i], J0inv ) ;
+            
+            //BKtranD = BKtran * dd ;
+            BKtranD.addMatrixTransposeProduct(0.0, BK, dd, 1.0 ) ;
 
-	    //transpose 
-	    BKtran = transpose( BK ) ;
-	    
-	    //BKtranD = BKtran * dd ;
-	    BKtranD.addMatrixProduct(0.0, BKtran,dd,1.0 ) ;
+            // stiffKJ = (BKtran*dd)*BJ ;
+            stiffKJ.addMatrixProduct(0.0, BKtranD,BJ,1.0) ;
 
-            //stiffKJ = (BKtran*dd)*BJ ;
-	    stiffKJ.addMatrixProduct(0.0, BKtranD,BJ,1.0) ;
-
-            for ( p = 0; p < ndf; p++ )  {
-               for ( q = 0; q < ndf; q++ )
+            for (int p = 0; p < ndf; p++ )  {
+               for (int q = 0; q < ndf; q++ )
                   Keu( kk+p, jj+q ) += stiffKJ( p, q ) ;
-            } //end for p  
+            }  
 
             kk += ndf ;
-          } // end for k loop
-
-
+          }
 
       } // end if tang_flag 
 
@@ -1165,19 +1028,17 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
     } // end for j loop
 
 
-  } //end for i gauss loop 
+  } // end for i gauss loop 
 
 
-  //static condensation of enhanced parameters
+  // static condensation of enhanced parameters
 
-  if ( tang_flag == 1 ) {
-    
+  if ( tang_flag == 1 ) {  
      Kee.Solve( Keu, KeeInvKeu ) ;
 
-     //stiff -= ( Kue * KeeInvKeu ) ;
-     stiff.addMatrixProduct(1.0,  Kue,KeeInvKeu,-1.0 ) ;
-
-  } //end if 
+     // stiff -= ( Kue * KeeInvKeu ) ;
+     stiff.addMatrixProduct(1.0,  Kue,KeeInvKeu, -1.0 ) ;
+  }
 
   return ;
 }
@@ -1185,84 +1046,74 @@ void  EnhancedQuad::formResidAndTangent( int tang_flag )
 int  
 EnhancedQuad::update(void) 
 {
+  // compute basis vectors and local nodal coordinates
+  computeBasis( ) ;
+
   return 0;
 }
   
 //************************************************************************
 void   
 EnhancedQuad::saveData(int gp, 
-		       const Vector &stress,
-		       const Matrix &tangent ) 
+                       const Vector &stress,
+                       const Matrix &tangent ) 
 {
-
-  int i, j ;
-
-  //save stress
-  for ( i=0; i<3; i++ )
+  // save stress
+  for (int i=0; i<3; i++ )
     stressData[i][gp] = stress(i) ;
 
-  //save tangent
-  for ( i=0; i<3; i++ ) {
-    for (j=0; j<3; j++ ) 
+  // save tangent
+  for (int i=0; i<3; i++ ) {
+    for (int j=0; j<3; j++ ) 
       tangentData[i][j][gp] = tangent(i,j) ;
-  } //end for i
+  }
 
   return ;
 }
 
 //************************************************************************
-//recover stress and tangent data
+// recover stress and tangent data
 
 void  EnhancedQuad::getData( int gp,
-			     Vector &stress,
-			     Matrix &tangent ) 
+                             Vector &stress,
+                             Matrix &tangent ) 
 {
 
-  int i, j ;
-
-  //get stress
-  for ( i=0; i<3; i++ )
+  // get stress
+  for (int i=0; i<3; i++ )
     stress(i) = stressData[i][gp] ;
 
-  //get tangent
-  for ( i=0; i<3; i++ ) {
-    for ( j=0; j<3; j++ ) 
+  // get tangent
+  for (int i=0; i<3; i++ ) {
+    for (int j=0; j<3; j++ ) 
       tangent(i,j) = tangentData[i][j][gp] ;
-  } //end for i
+  }
 
   return ;
-
 }
 
 //************************************************************************
-//compute local coordinates and basis
+// compute local coordinates and basis
 
-void   EnhancedQuad::computeBasis( ) 
+void EnhancedQuad::computeBasis( ) 
 {
-  //nodal coordinates 
+  // nodal coordinates 
 
-  int i ;
-  for ( i = 0; i < 4; i++ ) {
+  for (int i = 0; i < 4; i++ ) {
+     const Vector &coorI = nodePointers[i]->getCrds( ) ;
 
-       const Vector &coorI = nodePointers[i]->getCrds( ) ;
-
-       xl[0][i] = coorI(0) ;
-       xl[1][i] = coorI(1) ;
-
-  }  //end for i 
-
+     xl[0][i] = coorI(0);
+     xl[1][i] = coorI(1);
+  }
 }
 
 //*************************************************************************
-//compute B matrix
+// compute B matrix
 
-const Matrix&
-EnhancedQuad::computeB( int node, const double shp[3][4] ) 
+const Matrix
+EnhancedQuad::computeB( int node, const double shp[3][4] , MatrixND<3,2> & B)
 {
-
-  static Matrix B(3,2) ;
-
-//---B Matrix in standard {1,2,3} mechanics notation---------------
+// ---B Matrix in standard {1,2,3} mechanics notation---------------
 //
 //                -             -
 //               | +N,1      0   | 
@@ -1270,49 +1121,45 @@ EnhancedQuad::computeB( int node, const double shp[3][4] )
 //               | +N,2    +N,1  |
 //                -             -  
 //
-//-------------------------------------------------------------------
+// -------------------------------------------------------------------
 
-  B.Zero( ) ;
+// static Matrix B(3,2) ;
+  B.zero( ) ;
 
-  B(0,0) = shp[0][node] ;
-  B(1,1) = shp[1][node] ;
-  B(2,0) = shp[1][node] ;
-  B(2,1) = shp[0][node] ;
+  B(0,0) = shp[0][node];
+  B(1,1) = shp[1][node];
+  B(2,0) = shp[1][node];
+  B(2,1) = shp[0][node];
 
   return B ;
 
 }
 
 //***********************************************************************
-//compute enhanced strain B-matrices
+// compute enhanced strain B-matrices
 
 const Matrix&   
-EnhancedQuad::computeBenhanced( int node, 
-					 double L1,
-					 double L2,
-					 double j, 
-					 const Matrix &Jinv )
+EnhancedQuad::computeBenhanced(int node, 
+                               double L1,
+                               double L2,
+                               double j, 
+                               const Matrix &Jinv )
 {
   static Matrix B(3,2) ;
-
   static double JinvTran[2][2] ;
-
   static double shape[2] ;
-
   static double parameter ;
 
 
-  //compute JinvTran
+  // compute JinvTran
   JinvTran[0][0] = Jinv(0,0) ;
   JinvTran[1][1] = Jinv(1,1) ;
   JinvTran[0][1] = Jinv(1,0) ;
-  JinvTran[1][0] = Jinv(0,1) ;      //residual 
-
-
+  JinvTran[1][0] = Jinv(0,1) ;      // residual 
 
   if ( node == 0 ) {
 
-    //first column of JinvTran 
+    // first column of JinvTran 
     shape[0] = JinvTran[0][0] ;
     shape[1] = JinvTran[1][0] ;
 
@@ -1320,14 +1167,12 @@ EnhancedQuad::computeBenhanced( int node,
 
   }
   else if ( node == 1 ) {
-
-    //second column of JinvTran 
+    // second column of JinvTran 
     shape[0] = JinvTran[0][1] ;
     shape[1] = JinvTran[1][1] ;
 
     parameter = L2 / j ;
-
-  } //end if 
+  } 
 
   shape[0] *= parameter ;
   shape[1] *= parameter ; 
@@ -1345,44 +1190,43 @@ EnhancedQuad::computeBenhanced( int node,
 }
 
 //***********************************************************************
-//compute Jacobian matrix and inverse at point {L1,L2} 
+// compute Jacobian matrix and inverse at point {L1,L2} 
 
-void   EnhancedQuad::computeJacobian( double L1, double L2,
-				      const double x[2][4], 
-                                      Matrix &JJ, 
-                                      Matrix &JJinv )
+void EnhancedQuad::computeJacobian(double L1, double L2,
+                                   const double x[2][4], 
+                                   Matrix &JJ, 
+                                   Matrix &JJinv )
 {
   int i, j, k ;
      
-  static const double s[] = { -0.5,  0.5, 0.5, -0.5 } ;
-  static const double t[] = { -0.5, -0.5, 0.5,  0.5 } ;
+  static constexpr double s[] = { -0.5,  0.5, 0.5, -0.5 } ;
+  static constexpr double t[] = { -0.5, -0.5, 0.5,  0.5 } ;
 
   static double shp[2][4] ;
 
-  double ss = L1 ;
-  double tt = L2 ;
+  double ss = L1;
+  double tt = L2;
 
-  for ( i = 0; i < 4; i++ ) {
+  for (int i = 0; i < 4; i++ ) {
       shp[0][i] = s[i] * ( 0.5 + t[i]*tt ) ;
       shp[1][i] = t[i] * ( 0.5 + s[i]*ss ) ;
-  } // end for i
-
+  }
   
   // Construct jacobian and its inverse
   
   JJ.Zero( ) ;
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
 
-      for ( k = 0; k < 4; k++ )
-	  JJ(i,j) +=  x[i][k] * shp[j][k] ;
+      for (int k = 0; k < 4; k++ )
+          JJ(i,j) +=  x[i][k] * shp[j][k] ;
 
-    } //end for j
-  }  // end for i 
+    }
+  }
 
   double xsj = JJ(0,0)*JJ(1,1) - JJ(0,1)*JJ(1,0) ;
 
-  //inverse jacobian
+  // inverse jacobian
   double jinv = 1.0 / xsj ;
   JJinv(0,0) =  JJ(1,1) * jinv ;
   JJinv(1,1) =  JJ(0,0) * jinv ;
@@ -1394,48 +1238,46 @@ void   EnhancedQuad::computeJacobian( double L1, double L2,
 }
 
 //************************************************************************
-//shape function routine for four node quads
+// shape function routine for four node quads
 
-void  EnhancedQuad::shape2d( double ss, double tt, 
-		           const double x[2][4], 
-		           double shp[3][4], 
-		           double &xsj            )
-
+void  EnhancedQuad::shape2d(double ss, double tt, 
+                            const double x[2][4], 
+                            double shp[3][4], 
+                            double &xsj            )
 { 
 
   int i, j, k ;
 
   double temp ;
      
-  static const double s[] = { -0.5,  0.5, 0.5, -0.5 } ;
-  static const double t[] = { -0.5, -0.5, 0.5,  0.5 } ;
+  static constexpr double s[] = { -0.5,  0.5, 0.5, -0.5 } ;
+  static constexpr double t[] = { -0.5, -0.5, 0.5,  0.5 } ;
 
   static Matrix xs(2,2) ;
   static Matrix sx(2,2) ;
 
-  for ( i = 0; i < 4; i++ ) {
+  for (int i = 0; i < 4; i++ ) {
       shp[2][i] = ( 0.5 + s[i]*ss )*( 0.5 + t[i]*tt ) ;
       shp[0][i] = s[i] * ( 0.5 + t[i]*tt ) ;
       shp[1][i] = t[i] * ( 0.5 + s[i]*ss ) ;
-  } // end for i
+  }
 
   
   // Construct jacobian and its inverse
   
-  xs.Zero( ) ;
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
-
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      xs(i,j) = 0.0;
       for ( k = 0; k < 4; k++ )
-	  xs(i,j) +=  x[i][k] * shp[j][k] ;
+          xs(i,j) +=  x[i][k] * shp[j][k] ;
 
-    } //end for j
-  }  // end for i 
+    }
+  }
 
   xsj = xs(0,0)*xs(1,1) - xs(0,1)*xs(1,0) ;
 
-  //inverse jacobian
-  //inverse jacobian
+  // inverse jacobian
+  // inverse jacobian
   double jinv = 1.0 / xsj ;
   sx(0,0) =  xs(1,1) * jinv ;
   sx(1,1) =  xs(0,0) * jinv ;
@@ -1443,13 +1285,13 @@ void  EnhancedQuad::shape2d( double ss, double tt,
   sx(1,0) = -xs(1,0) * jinv ;
 
 
-  //form global derivatives 
+  // form global derivatives 
   
   for ( i = 0; i < 4; i++ ) {
     temp      = shp[0][i]*sx(0,0) + shp[1][i]*sx(1,0) ;
     shp[1][i] = shp[0][i]*sx(0,1) + shp[1][i]*sx(1,1) ;
     shp[0][i] = temp ;
-  } // end for i
+  }
 
   return ;
 }
@@ -1460,8 +1302,8 @@ EnhancedQuad::transpose( const Matrix &M )
   int i ;
   int j ;
 
-  //we're always transposing 3x2 matrices for this element,
-  //so always return a 2x3 .
+  // we're always transposing 3x2 matrices for this element,
+  // so always return a 2x3 .
 
   static int dim1 = 2 ;
   static int dim2 = 3 ;
@@ -1470,16 +1312,16 @@ EnhancedQuad::transpose( const Matrix &M )
   for ( i = 0; i < dim1; i++ ) {
      for ( j = 0; j < dim2; j++ ) 
          Mtran(i,j) = M(j,i) ;
-  } // end for i
+  }
 
   return Mtran ;
 }
 
 Response*
 EnhancedQuad::setResponse(const char **argv, int argc, 
-			  OPS_Stream &output)
+                          OPS_Stream &output)
 {
-  Response *theResponse =0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
   output.attr("eleType","EnhancedQuad");
@@ -1506,8 +1348,8 @@ EnhancedQuad::setResponse(const char **argv, int argc,
 
       output.tag("GaussPoint");
       output.attr("number",pointNum);
-      output.attr("eta",sg[pointNum-1]);
-      output.attr("neta",tg[pointNum-1]);
+      output.attr("eta",   pts[pointNum-1][0]);
+      output.attr("neta",  pts[pointNum-1][1]);
 
       theResponse =  materialPointers[pointNum-1]->setResponse(&argv[2], argc-2, output);
       
@@ -1518,21 +1360,21 @@ EnhancedQuad::setResponse(const char **argv, int argc,
   else if ((strcmp(argv[0],"stress") == 0) || (strcmp(argv[0],"stresses") == 0)) {
 
       for (int i=0; i<4; i++) {
-	output.tag("GaussPoint");
-	output.attr("number",i+1);
-	output.attr("eta",sg[i]);
-	output.attr("neta",tg[i]);
+        output.tag("GaussPoint");
+        output.attr("number",i+1);
+        output.attr("eta",pts[i][0]);
+        output.attr("neta",pts[i][1]);
 
-	output.tag("NdMaterialOutput");
-	output.attr("classType", materialPointers[i]->getClassTag());
-	output.attr("tag", materialPointers[i]->getTag());
+        output.tag("NdMaterialOutput");
+        output.attr("classType", materialPointers[i]->getClassTag());
+        output.attr("tag", materialPointers[i]->getTag());
 
-	output.tag("ResponseType","sigma11");
-	output.tag("ResponseType","sigma22");
-	output.tag("ResponseType","sigma12");
+        output.tag("ResponseType","sigma11");
+        output.tag("ResponseType","sigma22");
+        output.tag("ResponseType","sigma12");
 
-	output.endTag(); // GaussPoint
-	output.endTag(); // NdMaterialOutput
+        output.endTag(); // GaussPoint
+        output.endTag(); // NdMaterialOutput
       }
 
       theResponse =  new ElementResponse(this, 3, Vector(12));
@@ -1541,26 +1383,26 @@ EnhancedQuad::setResponse(const char **argv, int argc,
   else if ((strcmp(argv[0],"strain") == 0) ||(strcmp(argv[0],"strains") == 0)) {
 
       for (int i=0; i<4; i++) {
-	output.tag("GaussPoint");
-	output.attr("number",i+1);
-	output.attr("eta",sg[i]);
-	output.attr("neta",tg[i]);
+        output.tag("GaussPoint");
+        output.attr("number",i+1);
+        output.attr("eta",pts[i][0]);
+        output.attr("neta",pts[i][1]);
 
-	output.tag("NdMaterialOutput");
-	output.attr("classType", materialPointers[i]->getClassTag());
-	output.attr("tag", materialPointers[i]->getTag());
+        output.tag("NdMaterialOutput");
+        output.attr("classType", materialPointers[i]->getClassTag());
+        output.attr("tag", materialPointers[i]->getTag());
 
-	output.tag("ResponseType","eta11");
-	output.tag("ResponseType","eta22");
-	output.tag("ResponseType","eta12");
+        output.tag("ResponseType","eta11");
+        output.tag("ResponseType","eta22");
+        output.tag("ResponseType","eta12");
 
-	output.endTag(); // GaussPoint
-	output.endTag(); // NdMaterialOutput
+        output.endTag(); // GaussPoint
+        output.endTag(); // NdMaterialOutput
       }
 
       theResponse =  new ElementResponse(this, 4, Vector(12));
   }
-	
+        
   output.endTag(); // ElementOutput
 
   return theResponse;
@@ -1604,7 +1446,7 @@ EnhancedQuad::getResponse(int responseID, Information &eleInfo)
       cnt += 3;
     }
     return eleInfo.setVector(stresses);
-	
+        
   } else
 
     return -1;
@@ -1635,7 +1477,7 @@ EnhancedQuad::sendSelf (int commitTag, Channel &theChannel)
   if (res < 0) {
     opserr << "WARNING EnhancedQuad::sendSelf() - " << this->getTag() << " failed to send Vector\n";
     return res;
-  }	      
+  }              
   
 
   // Now quad sends the ids of its materials
@@ -1651,7 +1493,7 @@ EnhancedQuad::sendSelf (int commitTag, Channel &theChannel)
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-			if (matDbTag != 0)
+                        if (matDbTag != 0)
                 materialPointers[i]->setDbTag(matDbTag);
     }
     idData(i+4) = matDbTag;
@@ -1679,10 +1521,10 @@ EnhancedQuad::sendSelf (int commitTag, Channel &theChannel)
   
   return res;
 }
-    
+
 int
-EnhancedQuad::recvSelf (int commitTag, Channel &theChannel, 
-                        FEM_ObjectBroker &theBroker)
+EnhancedQuad::recvSelf(int commitTag, Channel &theChannel, 
+                       FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   
@@ -1725,15 +1567,15 @@ EnhancedQuad::recvSelf (int commitTag, Channel &theChannel,
       // Allocate new material with the sent class tag
       materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
       if (materialPointers[i] == 0) {
-	    opserr << "EnhancedQuad::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
-	    return -1;
+            opserr << "EnhancedQuad::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
+            return -1;
       }
       // Now receive materials into the newly allocated space
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
         opserr << "EnhancedQuad::recvSelf() - material " << i << "failed to recv itself\n";
-	    return res;
+            return res;
       }
     }
   }
@@ -1746,19 +1588,19 @@ EnhancedQuad::recvSelf (int commitTag, Channel &theChannel,
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (materialPointers[i]->getClassTag() != matClassTag) {
-	    delete materialPointers[i];
+        delete materialPointers[i];
         materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
-	    if (materialPointers[i] == 0) {
+        if (materialPointers[i] == nullptr) {
           opserr << "EnhancedQuad::recvSelf() - material " << i << "failed to create\n";
-	      return -1;
-	    }
+          return -1;
+        }
       }
       // Receive the material
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
         opserr << "EnhancedQuad::recvSelf() - material " << i << "failed to recv itself\n";
-	    return res;
+        return res;
       }
     }
   }
@@ -1769,41 +1611,41 @@ EnhancedQuad::recvSelf (int commitTag, Channel &theChannel,
 int
 EnhancedQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
 {
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
+  // get the end point display coords
+  static Vector v1(3);
+  static Vector v2(3);
+  static Vector v3(3);
+  static Vector v4(3);
+  nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
+  nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
+  nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
+  nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
 
-    // place values in coords matrix
-    static Matrix coords(4, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-    }
+  // place values in coords matrix
+  static Matrix coords(4, 3);
+  for (int i = 0; i < 3; i++) {
+      coords(0, i) = v1(i);
+      coords(1, i) = v2(i);
+      coords(2, i) = v3(i);
+      coords(3, i) = v4(i);
+  }
 
-    // set the quantity to be displayed at the nodes;
-    // if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
-    // until someone projects the stress to the nodes will display the stress 
-    // at the guass points at the nodes .. could also just display the average!
-    static Vector values(4);
-    if (displayMode < 4 && displayMode > 0) {
-        for (int i = 0; i < 4; i++) {
-            const Vector& stress = materialPointers[i]->getStress();
-            values(i) = stress(displayMode - 1);
-        }
-    }
-    else {
-        for (int i = 0; i < 4; i++)
-            values(i) = 0.0;
-    }
+  // set the quantity to be displayed at the nodes;
+  // if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
+  // until someone projects the stress to the nodes will display the stress 
+  // at the guass points at the nodes .. could also just display the average!
+  static Vector values(4);
+  if (displayMode < 4 && displayMode > 0) {
+      for (int i = 0; i < 4; i++) {
+          const Vector& stress = materialPointers[i]->getStress();
+          values(i) = stress(displayMode - 1);
+      }
+  }
+  else {
+      for (int i = 0; i < 4; i++)
+          values(i) = 0.0;
+  }
 
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
+  // draw the polygon
+  return theViewer.drawPolygon(coords, values, this->getTag());
 }

@@ -37,8 +37,14 @@ class ID;
 class Matrix;
 class Vector;
 
-enum InfoType {UnknownType, IntType, DoubleType, 
-	       IdType, VectorType, MatrixType};
+enum InfoType {
+  UnknownType, 
+  IntType, 
+  DoubleType, 
+  IdType, 
+  VectorType, 
+  MatrixType
+};
 
 #define VIRTUAL
 class Information

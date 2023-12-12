@@ -399,8 +399,7 @@ Domain::addElement(Element *element)
 
     // finally check the ele has correct number of dof
 #ifdef _G3DEBUG
-    if (numDOF != element->getNumDOF()) { 
-      
+    if (numDOF != element->getNumDOF()) {
       opserr << "Domain::addElement - element " << eleTag << " - #DOF does not match with number at nodes\n";
       theElements->removeComponent(eleTag);
       return false;
@@ -710,23 +709,29 @@ Domain::addLoadPattern(LoadPattern *load)
     // first check if a load pattern with a similar tag exists in model
     int tag = load->getTag();
     TaggedObject *other = theLoadPatterns->getComponentPtr(tag);
-    if (other != 0) {
-      opserr << "Domain::addLoadPattern - cannot add as LoadPattern with tag " <<
-	tag << " already exists in model\n";             
+    if (other != nullptr) {
+      opserr << "Domain::addLoadPattern - cannot add as LoadPattern with tag "
+             << tag << " already exists in model\n";             
 				
       return false;
     }    
 
-    // now we add the load pattern to the container for load pattrens
+    int numSPs = 0;
+    SP_Constraint *theSP_Constraint;
+    SP_ConstraintIter &theSP_Constraints = load->getSPs();
+    while ((theSP_Constraint = theSP_Constraints()) != 0)
+      numSPs++;
+    
+    // now we add the load pattern to the container for load patterns
     bool result = theLoadPatterns->addComponent(load);
     if (result == true) {
 	load->setDomain(this);
-	this->domainChange();
+	if (numSPs > 0)
+	  this->domainChange();
     }
     else 
       opserr << "Domain::addLoadPattern - cannot add LoadPattern with tag " <<
 	tag << " to the container\n";                   	
-			      
     return result;
 }    
 
@@ -735,11 +740,13 @@ Domain::addParameter(Parameter *theParam)
 {
   int paramTag = theParam->getTag();
 
-  if (paramTag == 0) {
-    // don't add it .. just invoke setDomain on the parameter
-    theParam->setDomain(this);
-    return true;
-  }
+  // Commenting out bc setDomain is done below for all parameters -- MHS
+  // We need to be able to have tag=0 for parameters just like nodes, elements, etc.
+  //if (paramTag == 0) {
+  //  // don't add it .. just invoke setDomain on the parameter
+  //  theParam->setDomain(this);
+  //  return true;
+  //}
 
   // check if a Parameter with a similar tag already exists in the Domain
   TaggedObject *other = theParameters->getComponentPtr(paramTag);
@@ -865,7 +872,7 @@ Domain::addNodalLoad(NodalLoad *load, int pattern)
     }
 
     load->setDomain(this);    // done in LoadPattern::addNodalLoad()
-    this->domainChange();
+    //this->domainChange(); // a nodal load does not change the domain
 
     return result;
 }    
@@ -1508,7 +1515,13 @@ Domain::getLoadPattern(int tag)
 double
 Domain::getCurrentTime(void) const
 {
-    return currentTime;
+  return currentTime;
+}
+
+double
+Domain::getDT(void) const
+{
+  return dT;
 }
 
 int
@@ -1623,7 +1636,7 @@ Domain::getPhysicalBounds(void)
 }
 
 const Vector *
-Domain::getNodeResponse(int nodeTag, NodeResponseType responseType)
+Domain::getNodeResponse(int nodeTag, NodeData responseType)
 {
   Node *theNode = this->getNode(nodeTag);
   if (theNode == 0)
@@ -2164,13 +2177,16 @@ void Domain::unsetModalProperties(void)
     }
 }
 
-const DomainModalProperties& Domain::getModalProperties(void) const
+int Domain::getModalProperties(DomainModalProperties &dmp) const
 {
     if (theModalProperties == 0) {
-        opserr << "Domain::getModalProperties - DomainModalProperties were never set\n";
-        exit(-1);
+      opserr << "Domain::getModalProperties - DomainModalProperties were never set" << endln;
+      return -1;
     }
-    return *theModalProperties;
+    else {
+      dmp = *theModalProperties;
+      return 0;
+    }
 }
 
 int
@@ -2307,12 +2323,11 @@ Domain::Print(OPS_Stream &s, int flag)
 
     return;
   }
-      
   
   s << "Current Domain Information\n";
-  s << "\tCurrent Time: " << currentTime;
-  s << "\ntCommitted Time: " << committedTime << endln;    
-  s << "NODE DATA: NumNodes: " << theNodes->getNumComponents() << "\n";  
+  s << "\tCurrent Time: " << currentTime << endln;
+  s << "\tCommitted Time: " << committedTime << endln;
+  s << "NODE DATA: NumNodes: " << theNodes->getNumComponents() << "\n";
   theNodes->Print(s, flag);
   
   s << "ELEMENT DATA: NumEle: " << theElements->getNumComponents() << "\n";
@@ -2415,6 +2430,17 @@ Domain::removeRecorders(void)
     return 0;
 }
 
+int 
+Domain::flushRecorders() 
+{
+  for (int i = 0; i < numRecorders; i++) {
+    if (theRecorders[i] != nullptr) {
+    theRecorders[i]->flush();
+    }
+  }
+  return 0;
+}
+
 int
 Domain::removeRecorder(int tag)
 {
@@ -2487,210 +2513,207 @@ typedef MAP_ID::iterator     MAP_ID_ITERATOR;
 int 
 Domain::buildEleGraph(Graph *theEleGraph)
 {
-   // see if quick return
-    int numVertex = this->getNumElements();
-    if (numVertex == 0)
-        return 0;
+  // see if quick return
+  int numVertex = this->getNumElements();
+  if (numVertex == 0)
+      return 0;
 
-    //
-    // iterate over the lements of the domain
-    //  create a vertex with a unique tag for each element
-    //  also create a map to hold element tag - vertex tag mapping
-    //
+  //
+  // iterate over the lements of the domain
+  //  create a vertex with a unique tag for each element
+  //  also create a map to hold element tag - vertex tag mapping
+  //
+  MAP_INT theEleToVertexMap;
+  MAP_INT_ITERATOR theEleToVertexMapEle;
 
-    MAP_INT theEleToVertexMap;
-    MAP_INT_ITERATOR theEleToVertexMapEle;
+  Element *theEle;
+  ElementIter &theElements = this->getElements();
+  int count = START_VERTEX_NUM;
+  while ((theEle = theElements()) != nullptr) {
+    int eleTag = theEle->getTag();
+    Vertex *vertexPtr = new Vertex(count, eleTag);
 
-    Element *theEle;
-    ElementIter &theElements = this->getElements();
-    int count = START_VERTEX_NUM;
-    while ((theEle = theElements()) != nullptr) {
-      int eleTag = theEle->getTag();
-      Vertex *vertexPtr = new Vertex(count, eleTag);
+    if (vertexPtr == nullptr) {
+      opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
+      return -1;
+    }
 
-      if (vertexPtr == nullptr) {
-        opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
-        return -1;
-      }
+    theEleGraph->addVertex(vertexPtr);
+    theEleToVertexMapEle = theEleToVertexMap.find(eleTag);
+    if (theEleToVertexMapEle == theEleToVertexMap.end()) {
+      theEleToVertexMap.insert(MAP_INT_TYPE(eleTag, count));
 
-      theEleGraph->addVertex(vertexPtr);
+      // check if successfully added
       theEleToVertexMapEle = theEleToVertexMap.find(eleTag);
       if (theEleToVertexMapEle == theEleToVertexMap.end()) {
-        theEleToVertexMap.insert(MAP_INT_TYPE(eleTag, count));
-
-        // check if successfully added
-        theEleToVertexMapEle = theEleToVertexMap.find(eleTag);
-        if (theEleToVertexMapEle == theEleToVertexMap.end()) {
-          opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << eleTag << endln;
-          return false;
-        }
-
-        count++;
+        opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << eleTag << endln;
+        return false;
       }
+
+      count++;
+    }
+  }
+
+  //
+  // We now need to determine which elements are associated with each node.
+  // As this info is not in the Node interface we must build it;
+  //
+  // again we will use an STL map, index will be nodeTag, object will be Vertex
+  // do using vertices for each node, when we addVertex at these nodes we
+  // will not be adding vertices but element tags.
+  //
+
+  MAP_ID theNodeToVertexMap;
+  MAP_ID_ITERATOR theNodeEle;
+  Node *nodPtr;
+
+  // now create the vertices with a reference equal to the node number.
+  // and a tag which ranges from 0 through numVertex-1 and placed in
+  // theNodeTagVertices at a position equal to the node's tag.
+
+  NodeIter &theNodes = this->getNodes();
+  while ((nodPtr = theNodes()) != nullptr) {
+    int nodeTag = nodPtr->getTag();
+    ID *eleTags = new ID(0, 4);
+
+    if (eleTags == nullptr) {
+      opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
+      return -1;
     }
 
-    //
-    // We now need to determine which elements are associated with each node.
-    // As this info is not in the Node interface we must build it;
-    //
-    // again we will use an STL map, index will be nodeTag, object will be Vertex
-    // do using vertices for each node, when we addVertex at these nodes we
-    // will not be adding vertices but element tags.
-    //
+    theNodeEle = theNodeToVertexMap.find(nodeTag);
+    if (theNodeEle == theNodeToVertexMap.end()) {
+      theNodeToVertexMap.insert(MAP_ID_TYPE(nodeTag, eleTags));
 
-    MAP_ID theNodeToVertexMap;
-    MAP_ID_ITERATOR theNodeEle;
-    Node *nodPtr;
-
-    // now create the vertices with a reference equal to the node number.
-    // and a tag which ranges from 0 through numVertex-1 and placed in
-    // theNodeTagVertices at a position equal to the node's tag.
-
-    NodeIter &theNodes = this->getNodes();
-    while ((nodPtr = theNodes()) != nullptr) {
-      int nodeTag = nodPtr->getTag();
-      ID *eleTags = new ID(0, 4);
-
-      if (eleTags == nullptr) {
-        opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
-        return -1;
-      }
-
+      // check if successfully added
       theNodeEle = theNodeToVertexMap.find(nodeTag);
       if (theNodeEle == theNodeToVertexMap.end()) {
-        theNodeToVertexMap.insert(MAP_ID_TYPE(nodeTag, eleTags));
-
-        // check if successfully added
-        theNodeEle = theNodeToVertexMap.find(nodeTag);
-        if (theNodeEle == theNodeToVertexMap.end()) {
-          opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << nodeTag << endln;
-          return false;
-        }
+        opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << nodeTag << endln;
+        return false;
       }
     }
+  }
 
-    // now add the the Elements to the node vertices
+  // now add the the Elements to the node vertices
 
-    ElementIter &eleIter3 = this->getElements();
+  ElementIter &eleIter3 = this->getElements();
 
-    while((theEle = eleIter3()) != nullptr) {
-      int eleTag = theEle->getTag();
-      const ID &id = theEle->getExternalNodes();
+  while((theEle = eleIter3()) != nullptr) {
+    int eleTag = theEle->getTag();
+    const ID &id = theEle->getExternalNodes();
 
-      int size = id.Size();
-      for (int i=0; i<size; i++) {
-        int nodeTag = id(i);
+    int size = id.Size();
+    for (int i=0; i<size; i++) {
+      int nodeTag = id(i);
 
-        MAP_ID_ITERATOR theNodeEle;
-        theNodeEle = theNodeToVertexMap.find(nodeTag);
-        if (theNodeEle == theNodeToVertexMap.end()) {
-          return -1;
-        } else {
-          ID *theNodeEleTags = (*theNodeEle).second;
-          theNodeEleTags->insert(eleTag);
-        }
+      MAP_ID_ITERATOR theNodeEle;
+      theNodeEle = theNodeToVertexMap.find(nodeTag);
+      if (theNodeEle == theNodeToVertexMap.end()) {
+        return -1;
+      } else {
+        ID *theNodeEleTags = (*theNodeEle).second;
+        theNodeEleTags->insert(eleTag);
       }
     }
+  }
 
-    //
-    // now add the edges to the vertices of our element graph;
-    // this is done by looping over the Node vertices, getting their
-    // Adjacenecy and adding edges between elements with common nodes
-    //
-    MAP_ID_ITERATOR currentComponent;
-    currentComponent = theNodeToVertexMap.begin();
-    while (currentComponent != theNodeToVertexMap.end()) {
-      ID *id = (*currentComponent).second;
+  //
+  // now add the edges to the vertices of our element graph;
+  // this is done by looping over the Node vertices, getting their
+  // Adjacenecy and adding edges between elements with common nodes
+  //
+  MAP_ID_ITERATOR currentComponent;
+  currentComponent = theNodeToVertexMap.begin();
+  while (currentComponent != theNodeToVertexMap.end()) {
+    ID *id = (*currentComponent).second;
 
-      int size = id->Size();
-      for (int i=0; i<size; i++) {
-        int eleTag1 = (*id)(i);
+    int size = id->Size();
+    for (int i=0; i<size; i++) {
+      int eleTag1 = (*id)(i);
 
-        theEleToVertexMapEle = theEleToVertexMap.find(eleTag1);
-        if (theEleToVertexMapEle != theEleToVertexMap.end()) {
-          int vertexTag1 = (*theEleToVertexMapEle).second;
+      theEleToVertexMapEle = theEleToVertexMap.find(eleTag1);
+      if (theEleToVertexMapEle != theEleToVertexMap.end()) {
+        int vertexTag1 = (*theEleToVertexMapEle).second;
 
-          for (int j=0; j<size; j++)
-            if (i != j) {
-	      int eleTag2 = (*id)(j);
-              theEleToVertexMapEle = theEleToVertexMap.find(eleTag2);
-              if (theEleToVertexMapEle != theEleToVertexMap.end()) {
-                int vertexTag2 = (*theEleToVertexMapEle).second;
+        for (int j=0; j<size; j++)
+          if (i != j) {
+            int eleTag2 = (*id)(j);
+            theEleToVertexMapEle = theEleToVertexMap.find(eleTag2);
+            if (theEleToVertexMapEle != theEleToVertexMap.end()) {
+              int vertexTag2 = (*theEleToVertexMapEle).second;
 
-                // addEdge() adds for both vertices - do only once
+              // addEdge() adds for both vertices - do only once
 
-                if (vertexTag1 > vertexTag2) {
-                  theEleGraph->addEdge(vertexTag1,vertexTag2);
-		  theEleGraph->addEdge(vertexTag2,vertexTag1);
-		}
+              if (vertexTag1 > vertexTag2) {
+                theEleGraph->addEdge(vertexTag1,vertexTag2);
+                theEleGraph->addEdge(vertexTag2,vertexTag1);
               }
             }
-        }
+          }
       }
-      currentComponent++;
     }
+    currentComponent++;
+  }
 
-    // clean up - delete the ID's associated with the nodes
-    currentComponent = theNodeToVertexMap.begin();
-    while (currentComponent != theNodeToVertexMap.end()) {
-      delete (*currentComponent).second;
-      currentComponent++;
-    }
+  // clean up - delete the ID's associated with the nodes
+  currentComponent = theNodeToVertexMap.begin();
+  while (currentComponent != theNodeToVertexMap.end()) {
+    delete (*currentComponent).second;
+    currentComponent++;
+  }
 
-    return 0;
-
+  return 0;
 }
 
 int
 Domain::buildNodeGraph(Graph *theNodeGraph)
 {
-    int numVertex = this->getNumNodes();
+  int numVertex = this->getNumNodes();
 
-    if (numVertex == 0) {
-	return 0;
-    }	
-	
-    Node *nodPtr;
-    MAP_INT theNodeTagVertices;
+  if (numVertex == 0) {
+      return 0;
+  }	
+      
+  Node *nodPtr;
+  MAP_INT theNodeTagVertices;
 
-    // now create the vertices with a reference equal to the node number.
-    // and a tag which ranges from START_VERTEX_NUM through 
-    // numNodes+START_VERTEX_NUM
-    NodeIter &nodeIter2 = this->getNodes();
-    int count = START_VERTEX_NUM;
-    while ((nodPtr = nodeIter2()) != nullptr) {
-	// add the vertex to the graph
-	int nodeTag = nodPtr->getTag();
-	theNodeGraph->addVertex(new Vertex(count,nodeTag));
-	theNodeTagVertices[nodeTag] = count++;
+  // now create the vertices with a reference equal to the node number.
+  // and a tag which ranges from START_VERTEX_NUM through 
+  // numNodes+START_VERTEX_NUM
+  NodeIter &nodeIter2 = this->getNodes();
+  int count = START_VERTEX_NUM;
+  while ((nodPtr = nodeIter2()) != nullptr) {
+    // add the vertex to the graph
+    int nodeTag = nodPtr->getTag();
+    theNodeGraph->addVertex(new Vertex(count,nodeTag));
+    theNodeTagVertices[nodeTag] = count++;
+  }
+
+  // now add the edges, by looping over the Elements, getting their
+  // IDs and adding edges between all elements who share a node. 
+  Element *elePtr;
+  ElementIter &eleIter = this->getElements();
+
+  while((elePtr = eleIter()) != nullptr) {
+    const ID &id = elePtr->getExternalNodes();
+    int size = id.Size();
+    for (int i=0; i<size; i++) {
+      int node1 = id(i);
+      int vertexTag1 = theNodeTagVertices[node1];
+      
+      for (int j=0; j<size; j++) {
+        if (i != j) {
+          int node2 = id(j);
+          int vertexTag2 = theNodeTagVertices[node2];
+          
+          // addEdge() adds for both vertices - do only once
+          if (vertexTag1 > vertexTag2) 
+              theNodeGraph->addEdge(vertexTag1,vertexTag2);
+        }
+      }
     }
-
-    // now add the edges, by looping over the Elements, getting their
-    // IDs and adding edges between all elements who share a node. 
-    Element *elePtr;
-    ElementIter &eleIter = this->getElements();
-
-    while((elePtr = eleIter()) != nullptr) {
-	const ID &id = elePtr->getExternalNodes();
-	int size = id.Size();
-	for (int i=0; i<size; i++) {
-	    int node1 = id(i);
-	    int vertexTag1 = theNodeTagVertices[node1];
-	    
-	    for (int j=0; j<size; j++) {
-		if (i != j) {
-
-		    int node2 = id(j);
-		    int vertexTag2 = theNodeTagVertices[node2];
-		    
-		    // addEdge() adds for both vertices - do only once
-		    if (vertexTag1 > vertexTag2) 
-			theNodeGraph->addEdge(vertexTag1,vertexTag2);
-		}
-            }
-	}
-    }
-    return 0;
+  }
+  return 0;
 }
 
 int 
@@ -2977,9 +3000,9 @@ Domain::sendSelf(int cTag, Channel &theChannel)
 	loc+=2;
       }    
 
-      if (theChannel.sendID(dbLPs, currentGeoTag, paramData) < 0) {
-	opserr << "Domain::send - channel failed to send the LoadPattern ID\n";
-	return -6;
+      if (theChannel.sendID(dbParam, currentGeoTag, paramData) < 0) {
+	opserr << "Domain::send - channel failed to send the Parameter ID\n";
+	return -7;
       }    
   }
     // now so that we don't do this next time if nothing in the domain has changed
@@ -3221,8 +3244,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     // 
     // now we rebuild the SP_Constraints .. same as nodes above .. see above if can't understand!!
-    //
-    
+    //    
     numSPs = domainData(3);
     dbSPs = domainData(8);
     if (numSPs != 0) {
@@ -3259,11 +3281,9 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
       }
     }
 
-
     // 
     // now we rebuild the Pressure_Constraints .. same as nodes above .. see above if can't understand!!
-    //
-    
+    //    
     numPCs = domainData(13);
     dbPCs = domainData(14);
     if (numPCs != 0) {
@@ -3276,27 +3296,27 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
       loc = 0;
       for (i=0; i<numPCs; i++) {
-          int classTag = pData(loc);
-          int dbTag = pData(loc+1);
-      
-          Pressure_Constraint *thePC = theBroker.getNewPC(classTag);
-          if (thePC == 0) {
-              opserr << "Domain::recv - cannot create Pressure_Constraint with classTag " << classTag << endln;
-              return -2;
-          }			
-          thePC->setDbTag(dbTag);
-      
-          if (thePC->recvSelf(commitTag, theChannel, theBroker) < 0) {
-              opserr << "Domain::recv - Pressure_Constraint with dbTag " << dbTag << " failed in recvSelf\n";
-              return -2;
-          }	
+        int classTag = pData(loc);
+        int dbTag = pData(loc+1);
+    
+        Pressure_Constraint *thePC = theBroker.getNewPC(classTag);
+        if (thePC == 0) {
+            opserr << "Domain::recv - cannot create Pressure_Constraint with classTag " << classTag << endln;
+            return -2;
+        }			
+        thePC->setDbTag(dbTag);
+    
+        if (thePC->recvSelf(commitTag, theChannel, theBroker) < 0) {
+            opserr << "Domain::recv - Pressure_Constraint with dbTag " << dbTag << " failed in recvSelf\n";
+            return -2;
+        }	
 
-          if (this->addPressure_Constraint(thePC) == false) {
-              opserr << "Domain::recv - could not add Pressure_Constraint with tag " << thePC->getTag() << " into domain!\n";
-              return -3;
-          }			
+        if (this->addPressure_Constraint(thePC) == false) {
+            opserr << "Domain::recv - could not add Pressure_Constraint with tag " << thePC->getTag() << " into domain!\n";
+            return -3;
+        }			
 
-          loc+=2;
+        loc+=2;
       }
     }
 
@@ -3352,7 +3372,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
       ID lpData(2*numLPs);
       
       if (theChannel.recvID(dbLPs, geoTag, lpData) < 0) {
-	opserr << "Domain::recv - channel failed to recv the MP_Constraints ID\n";
+	opserr << "Domain::recv - channel failed to recv the LoadPatterns ID\n";
 	return -2;
       }
 
@@ -3363,7 +3383,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
 	LoadPattern *theLP = theBroker.getNewLoadPattern(classTag);
 	if (theLP == 0) {
-	  opserr << "Domain::recv - cannot create MP_Constraint with classTag  " << classTag << endln;
+	  opserr << "Domain::recv - cannot create LoadPattern with classTag  " << classTag << endln;
 	  return -2;
 	}			
 	theLP->setDbTag(dbTag);
@@ -3390,7 +3410,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
       ID paramData(2*numParameters);
       
       if (theChannel.recvID(dbParameters, geoTag, paramData) < 0) {
-	opserr << "Domain::recv - channel failed to recv the MP_Constraints ID\n";
+	opserr << "Domain::recv - channel failed to recv the Parameters ID\n";
 	return -2;
       }
 
@@ -3401,7 +3421,7 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
 	Parameter *theParameter = theBroker.getParameter(classTag);
 	if (theParameter == 0) {
-	  opserr << "Domain::recv - cannot create MP_Constraint with classTag  " << classTag << endln;
+	  opserr << "Domain::recv - cannot create Parameter with classTag  " << classTag << endln;
 	  return -2;
 	}			
 	theParameter->setDbTag(dbTag);
@@ -3412,14 +3432,13 @@ Domain::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 	}			
 
 	if (this->addParameter(theParameter) == false) {
-	  opserr << "Domain::recv - could not add LoadPattern with tag " << theParameter->getTag() <<  " into the Domain\n";
+	  opserr << "Domain::recv - could not add Parameter with tag " << theParameter->getTag() <<  " into the Domain\n";
 	  return -3;
 	}			
 
 	loc+=2;
       }
     }
-
 
     // set the currentGeoTag & mark domainChangeFlag as false
     // this way if restoring froma a database and domain has not changed for the analysis
@@ -3517,9 +3536,8 @@ Domain::getNodeDisp(int nodeTag, int dof, int &errorFlag)
     return 0.0;
   }
   const Vector &disp = theNode->getTrialDisp();
-  if (dof < disp.Size() && dof >= 0) {
+  if (dof < disp.Size() && dof >= 0)
     result = disp(dof); 
-  }  
   
   return result;
 }
@@ -3543,14 +3561,14 @@ Domain::calculateNodalReactions(int flag)
   Node *theNode;
   Element *theElement;
   NodeIter &theNodes = this->getNodes();
-  while ((theNode = theNodes()) != nullptr) {
+  while ((theNode = theNodes()) != nullptr)
     theNode->resetReactionForce(flag);
-  }
 
   ElementIter &theElements = this->getElements();
   while ((theElement = theElements()) != nullptr)
     if (theElement->isSubdomain() == false)
       theElement->addResistingForceToNodalReaction(flag);
+
   return 0;
 }
 
@@ -3558,26 +3576,24 @@ Domain::calculateNodalReactions(int flag)
 Recorder*
 Domain::getRecorder(int tag)
 {
-	Recorder* res = 0;
+  Recorder* res = nullptr;
 
-	// invoke record on all recorders
-	for (int i = 0; i < numRecorders; i++)
-	{
-		if (theRecorders[i] == 0)
-			break;
-		if (theRecorders[i]->getTag() == tag)
-		{
-			res = theRecorders[i];
-			break;
-		}
-	}
+  // invoke record on all recorders
+  for (int i = 0; i < numRecorders; i++) {
+    if (theRecorders[i] == 0)
+      break;
+    if (theRecorders[i]->getTag() == tag) {
+      res = theRecorders[i];
+      break;
+    }
+  }
 
-	return res;
+  return res;
 }
 
 
 
-
+#if 0
 int Domain::activateElements(const ID& elementList)
 {
     Element* theElement;
@@ -3608,3 +3624,4 @@ int Domain::deactivateElements(const ID& elementList)
     }
     return 0;
 }
+#endif

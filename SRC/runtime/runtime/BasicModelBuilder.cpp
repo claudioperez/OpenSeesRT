@@ -336,13 +336,14 @@ BasicModelBuilder::addNDMaterial(NDMaterial &instance)
 UniaxialMaterial*
 BasicModelBuilder::getUniaxialMaterial(const std::string &name)
 {
-  // UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
-  auto iter = m_UniaxialMaterialMap.find(name);
-  if (iter != m_UniaxialMaterialMap.end()) {
-    return iter->second->getCopy();
-  } else {
-    return nullptr;
-  }
+  return (UniaxialMaterial*)getRegistryObject("UniaxialMaterial", std::stoi(name));
+// // UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
+// auto iter = m_UniaxialMaterialMap.find(name);
+// if (iter != m_UniaxialMaterialMap.end()) {
+//   return iter->second->getCopy();
+// } else {
+//   return nullptr;
+// }
 }
 
 UniaxialMaterial*
@@ -377,8 +378,8 @@ BasicModelBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial
     return -1;
   }
 
-  m_UniaxialMaterialMap[name] = &instance;
-  // G3_AddTableEntry(registry, "UniaxialMaterial", std::stoi(name), (void*)&instance);
+  // m_UniaxialMaterialMap[name] = &instance;
+  G3_AddTableEntry(registry, "UniaxialMaterial", std::stoi(name), (void*)&instance);
   return TCL_OK;
 }
 

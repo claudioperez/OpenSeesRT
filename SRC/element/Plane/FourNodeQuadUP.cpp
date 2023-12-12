@@ -4,15 +4,11 @@
 // coupled analysis. This implementation is a simplified u-p formulation     //
 // of Biot theory (u - solid displacement, p - fluid pressure). Each element //
 // node has two DOFs for u and 1 DOF for p.                                  //
-//									     //
-// Written by Zhaohui Yang	(May 2002)				     //
-// based on FourNodeQuad element by Michael Scott		  	     //
+//                       //
+// Written by Zhaohui Yang  (May 2002)             //
+// based on FourNodeQuad element by Michael Scott             //
 ///////////////////////////////////////////////////////////////////////////////
-
-// $Revision: 1.8 $
-// $Date: 2008-07-08 00:01:54 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/UP-ucsd/FourNodeQuadUP.cpp,v $
-
+//
 #include <FourNodeQuadUP.h>
 #include <Node.h>
 #include <NDMaterial.h>
@@ -34,134 +30,128 @@
 void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuadUP)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 3) {
-	opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with QuadUP element\n";
-	return 0;
+  opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with QuadUP element\n";
+  return 0;
     }
     if (OPS_GetNumRemainingInputArgs() < 11) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: element FourNodeQuadUP eleTag? iNode? jNode? kNode? lNode? thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? pressure? dM? dK?>\n";
-	return 0;
+  opserr << "WARNING insufficient arguments\n";
+  opserr << "Want: element FourNodeQuadUP eleTag? iNode? jNode? kNode? lNode? thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? pressure? dM? dK?>\n";
+  return 0;
     }
 
     // FourNodeQuadUPId, iNode, jNode, kNode, lNode
     int tags[5];
     int num = 5;
     if (OPS_GetIntInput(&num,tags) < 0) {
-	opserr<<"WARNING: invalid integer input\n";
-	return 0;
+  opserr<<"WARNING: invalid integer input\n";
+  return 0;
     }
 
     double thk;
     num = 1;
     if (OPS_GetDoubleInput(&num,&thk) < 0) {
-	opserr<<"WARNING: invalid double input\n";
-	return 0;
+  opserr<<"WARNING: invalid double input\n";
+  return 0;
     }
 
     int matTag;
     if (OPS_GetIntInput(&num,&matTag) < 0) {
-	opserr<<"WARNING: invalid integer input\n";
-	return 0;
+  opserr<<"WARNING: invalid integer input\n";
+  return 0;
     }
     NDMaterial* mat = OPS_getNDMaterial(matTag);
     if (mat == 0) {
-	opserr << "WARNING material not found\n";
-	opserr << "material tag: " << matTag;
-	opserr << "\nquad element: " << tags[0] << endln;
+  opserr << "WARNING material not found\n";
+  opserr << "material tag: " << matTag;
+  opserr << "\nquad element: " << tags[0] << endln;
     }
 
     // bk, r, perm1, perm2
     double data[4];
     num = 4;
     if (OPS_GetDoubleInput(&num,data) < 0) {
-	opserr<<"WARNING: invalid double input\n";
-	return 0;
+  opserr<<"WARNING: invalid double input\n";
+  return 0;
     }
 
     // b1, b2, p
     double opt[3] = {0,0,0};
     num = OPS_GetNumRemainingInputArgs();
     if (num > 3) {
-	num = 3;
+  num = 3;
     }
     if (num > 0) {
-	if (OPS_GetDoubleInput(&num,opt) < 0) {
-	    opserr<<"WARNING: invalid double input\n";
-	    return 0;
-	}
+  if (OPS_GetDoubleInput(&num,opt) < 0) {
+      opserr<<"WARNING: invalid double input\n";
+      return 0;
+  }
     }
 
     return new FourNodeQuadUP(tags[0],tags[1],tags[2],tags[3],tags[4],
-			      *mat,"PlaneStrain",thk,data[0],data[1],data[2],data[3],
-			      opt[0],opt[1],opt[2]);
+            *mat,"PlaneStrain",thk,data[0],data[1],data[2],data[3],
+            opt[0],opt[1],opt[2]);
 }
 #endif
 
 Matrix FourNodeQuadUP::K(12,12);
 Vector FourNodeQuadUP::P(12);
 double FourNodeQuadUP::shp[3][4][4];
-double FourNodeQuadUP::pts[4][2];
-double FourNodeQuadUP::wts[4];
+// double FourNodeQuadUP::pts[4][2];
+// double FourNodeQuadUP::wts[4];
 double FourNodeQuadUP::dvol[4];
 double FourNodeQuadUP::shpBar[3][4];
 Node *FourNodeQuadUP::theNodes[4];
 
 
 FourNodeQuadUP::FourNodeQuadUP(int tag, int nd1, int nd2, int nd3, int nd4,
-			       NDMaterial &m, const char *type, double t, double bulk, 
-			       double r, double p1, double p2, double b1, double b2, double p)
+             NDMaterial &m, const char *type, double t, double bulk, 
+             double r, double p1, double p2, double b1, double b2, double p)
 :Element (tag, ELE_TAG_FourNodeQuadUP),
   theMaterial(0), connectedExternalNodes(4),
   nd1Ptr(0), nd2Ptr(0), nd3Ptr(0), nd4Ptr(0), Ki(0),
  Q(12), pressureLoad(12), applyLoad(0), thickness(t), kc(bulk), rho(r), pressure(p),
  end1InitDisp(0),end2InitDisp(0),end3InitDisp(0),end4InitDisp(0)
 {
-	pts[0][0] = -0.5773502691896258;
-	pts[0][1] = -0.5773502691896258;
-	pts[1][0] =  0.5773502691896258;
-	pts[1][1] = -0.5773502691896258;
-	pts[2][0] =  0.5773502691896258;
-	pts[2][1] =  0.5773502691896258;
-	pts[3][0] = -0.5773502691896258;
-	pts[3][1] =  0.5773502691896258;
+  // pts[0][0] = -0.5773502691896258;
+  // pts[0][1] = -0.5773502691896258;
+  // pts[1][0] =  0.5773502691896258;
+  // pts[1][1] = -0.5773502691896258;
+  // pts[2][0] =  0.5773502691896258;
+  // pts[2][1] =  0.5773502691896258;
+  // pts[3][0] = -0.5773502691896258;
+  // pts[3][1] =  0.5773502691896258;
 
-	wts[0] = 1.0;
-	wts[1] = 1.0;
-	wts[2] = 1.0;
-	wts[3] = 1.0;
+  // wts[0] = 1.0;
+  // wts[1] = 1.0;
+  // wts[2] = 1.0;
+  // wts[3] = 1.0;
 
-	// Body forces
-	b[0] = b1;
-	b[1] = b2;
-	// Permeabilities
+  // Body forces
+  b[0] = b1;
+  b[1] = b2;
+  // Permeabilities
   perm[0] = p1;
   perm[1] = p2;
 
-    // Allocate arrays of pointers to NDMaterials
-    theMaterial = new NDMaterial *[4];
+  // Allocate arrays of pointers to NDMaterials
+  theMaterial = new NDMaterial *[nip];
 
-    if (theMaterial == 0) {
-      opserr << "FourNodeQuadUP::FourNodeQuadUP - failed allocate material model pointer\n";
-      exit(-1);
-    }
-
-    for (int i = 0; i < 4; i++) {
-
-      // Get copies of the material model for each integration point
-      theMaterial[i] = m.getCopy(type);
+  for (int i = 0; i < nip; i++) {
+    // Get copies of the material model for each integration point
+    theMaterial[i] = m.getCopy(type);
 
       // Check allocation
-      if (theMaterial[i] == 0) {
-	opserr << "FourNodeQuadUP::FourNodeQuadUP -- failed to get a copy of material model\n";
-	exit(-1);
-      }
+    if (theMaterial[i] == 0) {
+      opserr << "FourNodeQuadUP::FourNodeQuadUP -- failed to get a copy of material model\n";
+      exit(-1);
     }
+  }
 
-    // Set connected external node IDs
-    connectedExternalNodes(0) = nd1;
-    connectedExternalNodes(1) = nd2;
-    connectedExternalNodes(2) = nd3;
-    connectedExternalNodes(3) = nd4;
+  // Set connected external node IDs
+  connectedExternalNodes(0) = nd1;
+  connectedExternalNodes(1) = nd2;
+  connectedExternalNodes(2) = nd3;
+  connectedExternalNodes(3) = nd4;
 }
 
 FourNodeQuadUP::FourNodeQuadUP()
@@ -171,31 +161,31 @@ FourNodeQuadUP::FourNodeQuadUP()
  Q(12), pressureLoad(12), applyLoad(0), thickness(0.0), kc(0.0), rho(0.0), pressure(0.0),
  end1InitDisp(0),end2InitDisp(0),end3InitDisp(0),end4InitDisp(0)
 {
-	pts[0][0] = -0.577350269189626;
-	pts[0][1] = -0.577350269189626;
-	pts[1][0] =  0.577350269189626;
-	pts[1][1] = -0.577350269189626;
-	pts[2][0] =  0.577350269189626;
-	pts[2][1] =  0.577350269189626;
-	pts[3][0] = -0.577350269189626;
-	pts[3][1] =  0.577350269189626;
+  // pts[0][0] = -0.577350269189626;
+  // pts[0][1] = -0.577350269189626;
+  // pts[1][0] =  0.577350269189626;
+  // pts[1][1] = -0.577350269189626;
+  // pts[2][0] =  0.577350269189626;
+  // pts[2][1] =  0.577350269189626;
+  // pts[3][0] = -0.577350269189626;
+  // pts[3][1] =  0.577350269189626;
 
-	wts[0] = 1.0;
-	wts[1] = 1.0;
-	wts[2] = 1.0;
-	wts[3] = 1.0;
+  // wts[0] = 1.0;
+  // wts[1] = 1.0;
+  // wts[2] = 1.0;
+  // wts[3] = 1.0;
 }
 
 FourNodeQuadUP::~FourNodeQuadUP()
 {
     for (int i = 0; i < 4; i++) {
-		if (theMaterial[i])
-			delete theMaterial[i];
-	}
+      if (theMaterial[i])
+        delete theMaterial[i];
+    }
 
     // Delete the array of pointers to NDMaterial pointer arrays
     if (theMaterial)
-		delete [] theMaterial;
+    delete [] theMaterial;
 
     if (Ki != 0)
       delete Ki;
@@ -262,7 +252,7 @@ FourNodeQuadUP::setDomain(Domain *theDomain)
   
   if (nd1Ptr == 0 || nd2Ptr == 0 || nd3Ptr == 0 || nd4Ptr == 0) {
     //opserr << "FATAL ERROR FourNodeQuadUP (tag: %d), node not found in domain",
-    //	this->getTag());
+    //  this->getTag());
     
     return;
   }
@@ -274,7 +264,7 @@ FourNodeQuadUP::setDomain(Domain *theDomain)
   
   if (dofNd1 != 3 || dofNd2 != 3 || dofNd3 != 3 || dofNd4 != 3) {
     //opserr << "FATAL ERROR FourNodeQuadUP (tag: %d), has differing number of DOFs at its nodes",
-    //	this->getTag());
+    //  this->getTag());
     
     return;
   }
@@ -340,7 +330,7 @@ FourNodeQuadUP::revertToLastCommit()
 
     // Loop over the integration points and revert to last committed state
     for (int i = 0; i < 4; i++)
-		retVal += theMaterial[i]->revertToLastCommit();
+    retVal += theMaterial[i]->revertToLastCommit();
 
     return retVal;
 }
@@ -351,8 +341,8 @@ FourNodeQuadUP::revertToStart()
     int retVal = 0;
 
     // Loop over the integration points and revert states to start
-    for (int i = 0; i < 4; i++)
-		retVal += theMaterial[i]->revertToStart();
+    for (int i = 0; i < nip; i++)
+    retVal += theMaterial[i]->revertToStart();
 
     return retVal;
 }
@@ -437,7 +427,7 @@ FourNodeQuadUP::getTangentStiff()
   this->shapeFunction();
 
   // Loop over the integration points
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
 
     // Get the material tangent
     const Matrix &D = theMaterial[i]->getTangent();
@@ -449,17 +439,17 @@ FourNodeQuadUP::getTangentStiff()
 
       for (int beta = 0, ib = 0; beta < 4; beta++, ib += 3) {
 
-	DB[0][0] = dvol[i] * (D(0,0)*shp[0][beta][i] + D(0,2)*shp[1][beta][i]);
-	DB[1][0] = dvol[i] * (D(1,0)*shp[0][beta][i] + D(1,2)*shp[1][beta][i]);
-	DB[2][0] = dvol[i] * (D(2,0)*shp[0][beta][i] + D(2,2)*shp[1][beta][i]);
-	DB[0][1] = dvol[i] * (D(0,1)*shp[1][beta][i] + D(0,2)*shp[0][beta][i]);
-	DB[1][1] = dvol[i] * (D(1,1)*shp[1][beta][i] + D(1,2)*shp[0][beta][i]);
-	DB[2][1] = dvol[i] * (D(2,1)*shp[1][beta][i] + D(2,2)*shp[0][beta][i]);
+        DB[0][0] = dvol[i] * (D(0,0)*shp[0][beta][i] + D(0,2)*shp[1][beta][i]);
+        DB[1][0] = dvol[i] * (D(1,0)*shp[0][beta][i] + D(1,2)*shp[1][beta][i]);
+        DB[2][0] = dvol[i] * (D(2,0)*shp[0][beta][i] + D(2,2)*shp[1][beta][i]);
+        DB[0][1] = dvol[i] * (D(0,1)*shp[1][beta][i] + D(0,2)*shp[0][beta][i]);
+        DB[1][1] = dvol[i] * (D(1,1)*shp[1][beta][i] + D(1,2)*shp[0][beta][i]);
+        DB[2][1] = dvol[i] * (D(2,1)*shp[1][beta][i] + D(2,2)*shp[0][beta][i]);
 
-	K(ia,ib) += shp[0][alpha][i]*DB[0][0] + shp[1][alpha][i]*DB[2][0];
-	K(ia,ib+1) += shp[0][alpha][i]*DB[0][1] + shp[1][alpha][i]*DB[2][1];
-	K(ia+1,ib) += shp[1][alpha][i]*DB[1][0] + shp[0][alpha][i]*DB[2][0];
-	K(ia+1,ib+1) += shp[1][alpha][i]*DB[1][1] + shp[0][alpha][i]*DB[2][1];
+        K(ia,ib) += shp[0][alpha][i]*DB[0][0] + shp[1][alpha][i]*DB[2][0];
+        K(ia,ib+1) += shp[0][alpha][i]*DB[0][1] + shp[1][alpha][i]*DB[2][1];
+        K(ia+1,ib) += shp[1][alpha][i]*DB[1][0] + shp[0][alpha][i]*DB[2][0];
+        K(ia+1,ib+1) += shp[1][alpha][i]*DB[1][1] + shp[0][alpha][i]*DB[2][1];
 
       }
     }
@@ -480,7 +470,7 @@ const Matrix &FourNodeQuadUP::getInitialStiff ()
   this->shapeFunction();
 
   // Loop over the integration points
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
 
     // Get the material tangent
     const Matrix &D = theMaterial[i]->getInitialTangent();
@@ -492,28 +482,23 @@ const Matrix &FourNodeQuadUP::getInitialStiff ()
 
       for (int beta = 0, ib = 0; beta < 4; beta++, ib += 3) {
 
-	DB[0][0] = dvol[i] * (D(0,0)*shp[0][beta][i] + D(0,2)*shp[1][beta][i]);
-	DB[1][0] = dvol[i] * (D(1,0)*shp[0][beta][i] + D(1,2)*shp[1][beta][i]);
-	DB[2][0] = dvol[i] * (D(2,0)*shp[0][beta][i] + D(2,2)*shp[1][beta][i]);
-	DB[0][1] = dvol[i] * (D(0,1)*shp[1][beta][i] + D(0,2)*shp[0][beta][i]);
-	DB[1][1] = dvol[i] * (D(1,1)*shp[1][beta][i] + D(1,2)*shp[0][beta][i]);
-	DB[2][1] = dvol[i] * (D(2,1)*shp[1][beta][i] + D(2,2)*shp[0][beta][i]);
+        DB[0][0] = dvol[i] * (D(0,0)*shp[0][beta][i] + D(0,2)*shp[1][beta][i]);
+        DB[1][0] = dvol[i] * (D(1,0)*shp[0][beta][i] + D(1,2)*shp[1][beta][i]);
+        DB[2][0] = dvol[i] * (D(2,0)*shp[0][beta][i] + D(2,2)*shp[1][beta][i]);
+        DB[0][1] = dvol[i] * (D(0,1)*shp[1][beta][i] + D(0,2)*shp[0][beta][i]);
+        DB[1][1] = dvol[i] * (D(1,1)*shp[1][beta][i] + D(1,2)*shp[0][beta][i]);
+        DB[2][1] = dvol[i] * (D(2,1)*shp[1][beta][i] + D(2,2)*shp[0][beta][i]);
 
-	K(ia,ib) += shp[0][alpha][i]*DB[0][0] + shp[1][alpha][i]*DB[2][0];
-	K(ia,ib+1) += shp[0][alpha][i]*DB[0][1] + shp[1][alpha][i]*DB[2][1];
-	K(ia+1,ib) += shp[1][alpha][i]*DB[1][0] + shp[0][alpha][i]*DB[2][0];
-	K(ia+1,ib+1) += shp[1][alpha][i]*DB[1][1] + shp[0][alpha][i]*DB[2][1];
+        K(ia,ib) += shp[0][alpha][i]*DB[0][0] + shp[1][alpha][i]*DB[2][0];
+        K(ia,ib+1) += shp[0][alpha][i]*DB[0][1] + shp[1][alpha][i]*DB[2][1];
+        K(ia+1,ib) += shp[1][alpha][i]*DB[1][0] + shp[0][alpha][i]*DB[2][0];
+        K(ia+1,ib+1) += shp[1][alpha][i]*DB[1][1] + shp[0][alpha][i]*DB[2][1];
 
       }
     }
   }
 
   Ki = new Matrix(K);
-  if (Ki == 0) {
-    opserr << "FATAL FourNodeQuadUP::getInitialStiff() -";
-    opserr << "ran out of memory\n";
-    exit(-1);
-  }
 
   return *Ki;
 }
@@ -534,12 +519,12 @@ FourNodeQuadUP::getDamp()
   int i, j, m, i1, j1;
 
   if (alphaM != 0.0) {
-	this->getMass();
+    this->getMass();
     for (i = 0; i < 12; i += 3) {
       for (j = 0; j < 12; j += 3) {
         Kdamp(i,j) += K(i,j)*alphaM;
         Kdamp(i+1,j+1) += K(i+1,j+1)*alphaM;
-	  }
+      }
     }
   }
 
@@ -555,9 +540,9 @@ FourNodeQuadUP::getDamp()
       //K(i,j) += -vol*shpBar[0][i1]*shpBar[2][j1];
       //K(i+1,j) += -vol*shpBar[1][i1]*shpBar[2][j1];
       for (m = 0; m < 4; m++) {
-	    Kdamp(i,j) += -dvol[m]*shp[0][i1][m]*shp[2][j1][m];
-	    Kdamp(i+1,j) += -dvol[m]*shp[1][i1][m]*shp[2][j1][m];
-	  }
+      Kdamp(i,j) += -dvol[m]*shp[0][i1][m]*shp[2][j1][m];
+      Kdamp(i+1,j) += -dvol[m]*shp[1][i1][m]*shp[2][j1][m];
+    }
       Kdamp(j,i) = Kdamp(i,j);
       Kdamp(j,i+1) = Kdamp(i+1,j);
     }
@@ -569,11 +554,11 @@ FourNodeQuadUP::getDamp()
     for (j = 2; j < 12; j += 3) {
       int j1 = (j-2) / 3;
       //K(i,j) = - (vol*perm[0]*shpBar[0][i1]*shpBar[0][j1] +
-		//  vol*perm[1]*shpBar[1][i1]*shpBar[1][j1]);
+    //  vol*perm[1]*shpBar[1][i1]*shpBar[1][j1]);
       for (m = 0; m < 4; m++) {
-	    Kdamp(i,j) += - dvol[m]*(perm[0]*shp[0][i1][m]*shp[0][j1][m] +
-	                  perm[1]*shp[1][i1][m]*shp[1][j1][m]);
-	  }
+      Kdamp(i,j) += - dvol[m]*(perm[0]*shp[0][i1][m]*shp[0][j1][m] +
+                    perm[1]*shp[1][i1][m]*shp[1][j1][m]);
+    }
     }
   }
 
@@ -609,11 +594,11 @@ FourNodeQuadUP::getMass()
     // Compute consistent mass matrix
   for (i = 0, i1 = 0; i < 12; i += 3, i1++) {
     for (j = 0, j1 = 0; j < 12; j += 3, j1++) {
-    for (m = 0; m < 4; m++) {
-    Nrho = dvol[m]*mixtureRho(m)*shp[2][i1][m]*shp[2][j1][m];
-    K(i,j) += Nrho;
-    K(i+1,j+1) += Nrho;
-    }
+      for (m = 0; m < 4; m++) {
+        Nrho = dvol[m]*mixtureRho(m)*shp[2][i1][m]*shp[2][j1][m];
+        K(i,j) += Nrho;
+        K(i+1,j+1) += Nrho;
+      }
     }
   }
 
@@ -627,8 +612,8 @@ FourNodeQuadUP::getMass()
       j1 = (j-2) / 3;
       //K(i,j) = -vol*oneOverKc*shpBar[2][i1]*shpBar[2][j1];
       for (m = 0; m < 4; m++) {
-	    K(i,j) += -dvol[m]*oneOverKc*shp[2][i1][m]*shp[2][j1][m];
-	  }
+        K(i,j) += -dvol[m]*oneOverKc*shp[2][i1][m]*shp[2][j1][m];
+      }
     }
   }
 
@@ -642,33 +627,33 @@ FourNodeQuadUP::getMass()
 void
 FourNodeQuadUP::zeroLoad(void)
 {
-	Q.Zero();
-	applyLoad = 0;
+  Q.Zero();
+  applyLoad = 0;
 
-	appliedB[0] = 0.0;
-	appliedB[1] = 0.0;
+  appliedB[0] = 0.0;
+  appliedB[1] = 0.0;
 
-	return;
+  return;
 }
 
 int
 FourNodeQuadUP::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
-	// Added option for applying body forces in load pattern: C.McGann, U.Washington
-	int type;
-	const Vector &data = theLoad->getData(type, loadFactor);
+  // Added option for applying body forces in load pattern: C.McGann, U.Washington
+  int type;
+  const Vector &data = theLoad->getData(type, loadFactor);
 
-	if (type == LOAD_TAG_SelfWeight) {
-		applyLoad = 1;
-		appliedB[0] += loadFactor*data(0)*b[0];
-		appliedB[1] += loadFactor*data(1)*b[1];
-		return 0;
-	} else {
-		opserr << "FourNodeQuadUP::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
-		return -1;
-	} 
+  if (type == LOAD_TAG_SelfWeight) {
+    applyLoad = 1;
+    appliedB[0] += loadFactor*data(0)*b[0];
+    appliedB[1] += loadFactor*data(1)*b[1];
+    return 0;
+  } else {
+    opserr << "FourNodeQuadUP::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
+    return -1;
+  } 
 
-	return -1;
+  return -1;
 }
 
 
@@ -747,28 +732,29 @@ FourNodeQuadUP::getResistingForce()
       //P.addMatrixTransposeVector(1.0, N, b, -intWt(i)*intWt(j)*detJ);
 
       double r = mixtureRho(i);
-	  if (applyLoad == 0) {
-      	P(ia) -= dvol[i]*(shp[2][alpha][i]*r*b[0]);
-      	P(ia+1) -= dvol[i]*(shp[2][alpha][i]*r*b[1]);
-	  } else {
-		P(ia) -= dvol[i]*(shp[2][alpha][i]*r*appliedB[0]);
-      	P(ia+1) -= dvol[i]*(shp[2][alpha][i]*r*appliedB[1]);
-	  }
+      if (applyLoad == 0) {
+        P(ia) -= dvol[i]*(shp[2][alpha][i]*r*b[0]);
+        P(ia+1) -= dvol[i]*(shp[2][alpha][i]*r*b[1]);
+      } else {
+        P(ia) -= dvol[i]*(shp[2][alpha][i]*r*appliedB[0]);
+        P(ia+1) -= dvol[i]*(shp[2][alpha][i]*r*appliedB[1]);
+      }
     }
   }
 
   // Subtract fluid body force
   for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 3) {
     //P(ia+2) += vol*rho*(perm[0]*b[0]*shpBar[0][alpha]
-	//		+perm[1]*b[1]*shpBar[1][alpha]);
-    for (i = 0; i < 4; i++) {
-		if (applyLoad == 0) {
-      		P(ia+2) += dvol[i]*rho*(perm[0]*b[0]*shp[0][alpha][i] +
-      		           perm[1]*b[1]*shp[1][alpha][i]);
-		} else {
-			P(ia+2) += dvol[i]*rho*(perm[0]*appliedB[0]*shp[0][alpha][i] +
-      		           perm[1]*appliedB[1]*shp[1][alpha][i]);
-		}
+  //    +perm[1]*b[1]*shpBar[1][alpha]);
+
+    for (i = 0; i < nip; i++) {
+      if (applyLoad == 0) {
+        P(ia+2) += dvol[i]*rho*(perm[0]*b[0]*shp[0][alpha][i]
+                               +perm[1]*b[1]*shp[1][alpha][i]);
+      } else {
+        P(ia+2) += dvol[i]*rho*(perm[0]*appliedB[0]*shp[0][alpha][i]
+                               +perm[1]*appliedB[1]*shp[1][alpha][i]);
+      }
     }
   }
 
@@ -817,8 +803,8 @@ FourNodeQuadUP::getResistingForceIncInertia()
   // Compute the mass matrix
   this->getMass();
 
-  for (i = 0; i < 12; i++) {
-    for (j = 0; j < 12; j++)
+  for (int i = 0; i < 12; i++) {
+    for (int j = 0; j < 12; j++)
       P(i) += K(i,j)*a[j];
   }
   //opserr<<"K+M "<<P<<endln;
@@ -828,37 +814,37 @@ FourNodeQuadUP::getResistingForceIncInertia()
     // loop over integration points
     for (j = 0; j < 4; j++) {
       P(i+2) -= rho*dvol[j]*(shp[2][i][j]*a[k]*perm[0]*shp[0][i][j]
-			     +shp[2][i][j]*a[k+1]*perm[1]*shp[1][i][j]);
+           +shp[2][i][j]*a[k+1]*perm[1]*shp[1][i][j]);
     }
   }*/
-  //opserr<<"K+M+fb "<<P<<endln;
+
 
   const Vector &vel1 = nd1Ptr->getTrialVel();
   const Vector &vel2 = nd2Ptr->getTrialVel();
   const Vector &vel3 = nd3Ptr->getTrialVel();
   const Vector &vel4 = nd4Ptr->getTrialVel();
 
-  a[0] = vel1(0);
-  a[1] = vel1(1);
-  a[2] = vel1(2);
-  a[3] = vel2(0);
-  a[4] = vel2(1);
-  a[5] = vel2(2);
-  a[6] = vel3(0);
-  a[7] = vel3(1);
-  a[8] = vel3(2);
-  a[9] = vel4(0);
+  a[0]  = vel1(0);
+  a[1]  = vel1(1);
+  a[2]  = vel1(2);
+  a[3]  = vel2(0);
+  a[4]  = vel2(1);
+  a[5]  = vel2(2);
+  a[6]  = vel3(0);
+  a[7]  = vel3(1);
+  a[8]  = vel3(2);
+  a[9]  = vel4(0);
   a[10] = vel4(1);
   a[11] = vel4(2);
 
   this->getDamp();
 
-  for (i = 0; i < 12; i++) {
-    for (j = 0; j < 12; j++) {
+  for (int i = 0; i < 12; i++) {
+    for (int j = 0; j < 12; j++) {
       P(i) += K(i,j)*a[j];
     }
   }
-  //opserr<<"final "<<P<<endln;
+
   return P;
 }
 
@@ -873,7 +859,7 @@ FourNodeQuadUP::sendSelf(int commitTag, Channel &theChannel)
   int dataTag = this->getDbTag();
 
   // Quad packs its data into a Vector and sends this to theChannel
-	// along with its dbTag and the commitTag passed in the arguments
+  // along with its dbTag and the commitTag passed in the arguments
   static Vector data(13);
   data(0) = this->getTag();
   data(1) = thickness;
@@ -910,8 +896,8 @@ FourNodeQuadUP::sendSelf(int commitTag, Channel &theChannel)
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-			if (matDbTag != 0)
-			  theMaterial[i]->setDbTag(matDbTag);
+      if (matDbTag != 0)
+        theMaterial[i]->setDbTag(matDbTag);
     }
     idData(i+4) = matDbTag;
   }
@@ -941,7 +927,7 @@ FourNodeQuadUP::sendSelf(int commitTag, Channel &theChannel)
 
 int
 FourNodeQuadUP::recvSelf(int commitTag, Channel &theChannel,
-						FEM_ObjectBroker &theBroker)
+            FEM_ObjectBroker &theBroker)
 {
   int res = 0;
 
@@ -999,15 +985,15 @@ FourNodeQuadUP::recvSelf(int commitTag, Channel &theChannel,
       // Allocate new material with the sent class tag
       theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
       if (theMaterial[i] == 0) {
-	opserr << "FourNodeQuadUP::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
-	return -1;
+  opserr << "FourNodeQuadUP::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
+  return -1;
       }
       // Now receive materials into the newly allocated space
       theMaterial[i]->setDbTag(matDbTag);
       res += theMaterial[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
 opserr << "FourNodeQuadUP::recvSelf() - material " << i << "failed to recv itself\n";
-	return res;
+  return res;
       }
     }
   }
@@ -1020,20 +1006,20 @@ opserr << "FourNodeQuadUP::recvSelf() - material " << i << "failed to recv itsel
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (theMaterial[i]->getClassTag() != matClassTag) {
-	delete theMaterial[i];
-	theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
-	if (theMaterial[i] == 0) {
+  delete theMaterial[i];
+  theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
+  if (theMaterial[i] == 0) {
 opserr << "FourNodeQuadUP::recvSelf() - material " << i << "failed to create\n";
 
-	  return -1;
-	}
+    return -1;
+  }
       }
       // Receive the material
       theMaterial[i]->setDbTag(matDbTag);
       res += theMaterial[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
 opserr << "FourNodeQuadUP::recvSelf() - material " << i << "failed to recv itself\n";
-	return res;
+  return res;
       }
     }
   }
@@ -1044,16 +1030,16 @@ opserr << "FourNodeQuadUP::recvSelf() - material " << i << "failed to recv itsel
 void
 FourNodeQuadUP::Print(OPS_Stream &s, int flag)
 {
-	s << "\nFourNodeQuadUP, element id:  " << this->getTag() << endln;
-	s << "\tConnected external nodes:  " << connectedExternalNodes;
-	s << "\tthickness:  " << thickness << endln;
-	s << "\tmass density:  " << rho << endln;
-	s << "\tsurface pressure:  " << pressure << endln;
-	s << "\tbody forces:  " << b[0] << ' ' << b[1] << endln;
-	theMaterial[0]->Print(s,flag);
-	s << "\tStress (xx yy xy)" << endln;
-	for (int i = 0; i < 4; i++)
-		s << "\t\tGauss point " << i+1 << ": " << theMaterial[i]->getStress();
+  s << "\nFourNodeQuadUP, element id:  " << this->getTag() << endln;
+  s << "\tConnected external nodes:  " << connectedExternalNodes;
+  s << "\tthickness:  " << thickness << endln;
+  s << "\tmass density:  " << rho << endln;
+  s << "\tsurface pressure:  " << pressure << endln;
+  s << "\tbody forces:  " << b[0] << ' ' << b[1] << endln;
+  theMaterial[0]->Print(s,flag);
+  s << "\tStress (xx yy xy)" << endln;
+  for (int i = 0; i < 4; i++)
+    s << "\t\tGauss point " << i+1 << ": " << theMaterial[i]->getStress();
 }
 
 int
@@ -1213,7 +1199,7 @@ FourNodeQuadUP::setParameter(const char **argv, int argc, Parameter &param)
     for (int i=0; i<4; i++) {
       matRes =  theMaterial[i]->setParameter(argv, argc, param);
       if (matRes != -1)
-	res = matRes;
+  res = matRes;
     }
   }
 
@@ -1229,205 +1215,205 @@ FourNodeQuadUP::updateParameter(int parameterID, Information &info)
     case -1:
       return -1;
 
-	case 1:
-		rho = info.theDouble;
-		this->getMass();	// update mass matrix
-		return 0;
-	case 2:
-		pressure = info.theDouble;
-		this->setPressureLoadAtNodes();	// update consistent nodal loads
-		return 0;
-	case 3:
-		perm[0] = info.theDouble;
-		this->getDamp();	// update mass matrix
-		return 0;
-	case 4:
-		perm[1] = info.theDouble;
-		this->getDamp();	// update mass matrix
-		return 0;
+  case 1:
+    rho = info.theDouble;
+    this->getMass();  // update mass matrix
+    return 0;
+  case 2:
+    pressure = info.theDouble;
+    this->setPressureLoadAtNodes();  // update consistent nodal loads
+    return 0;
+  case 3:
+    perm[0] = info.theDouble;
+    this->getDamp();  // update mass matrix
+    return 0;
+  case 4:
+    perm[1] = info.theDouble;
+    this->getDamp();  // update mass matrix
+    return 0;
   case 5:
     b[0] = info.theDouble;
     return 0;
   case 6:
     b[1] = info.theDouble;
     return 0;
-	default:
-		if (parameterID >= 100) { // material parameter
-			int pointNum = parameterID/100;
-			if (pointNum > 0 && pointNum <= 4)
-				return theMaterial[pointNum-1]->updateParameter(parameterID-100*pointNum, info);
-			else
-				return -1;
-		} else // unknown
-			return -1;
+  default:
+    if (parameterID >= 100) { // material parameter
+      int pointNum = parameterID/100;
+      if (pointNum > 0 && pointNum <= 4)
+        return theMaterial[pointNum-1]->updateParameter(parameterID-100*pointNum, info);
+      else
+        return -1;
+    } else // unknown
+      return -1;
   }
 }
 
 void FourNodeQuadUP::shapeFunction(void)
 {
-	double xi, eta, oneMinuseta, onePluseta, oneMinusxi, onePlusxi,
-		     detJ, oneOverdetJ, J[2][2], L[2][2], L00, L01, L10, L11,
-				 L00oneMinuseta, L00onePluseta, L01oneMinusxi, L01onePlusxi,
-				 L10oneMinuseta, L10onePluseta, L11oneMinusxi, L11onePlusxi,
-				 vol = 0.0;
+  double xi, eta, oneMinuseta, onePluseta, oneMinusxi, onePlusxi,
+         detJ, oneOverdetJ, J[2][2], L[2][2], L00, L01, L10, L11,
+         L00oneMinuseta, L00onePluseta, L01oneMinusxi, L01onePlusxi,
+         L10oneMinuseta, L10onePluseta, L11oneMinusxi, L11onePlusxi,
+         vol = 0.0;
   int k, l;
 
-	for (k=0; k<3; k++) {
-		for (l=0; l<4; l++) {
-			shpBar[k][l] = 0.0;
-		}
-	}
+  for (k=0; k<3; k++) {
+    for (l=0; l<4; l++) {
+      shpBar[k][l] = 0.0;
+    }
+  }
 
-	// loop over integration points
-	for (int i=0; i<4; i++) {
-		xi = pts[i][0];
-		eta = pts[i][1];
-	  const Vector &nd1Crds = nd1Ptr->getCrds();
-	  const Vector &nd2Crds = nd2Ptr->getCrds();
-	  const Vector &nd3Crds = nd3Ptr->getCrds();
-	  const Vector &nd4Crds = nd4Ptr->getCrds();
+  // loop over integration points
+  for (int i=0; i<4; i++) {
+    xi = pts[i][0];
+    eta = pts[i][1];
+    const Vector &nd1Crds = nd1Ptr->getCrds();
+    const Vector &nd2Crds = nd2Ptr->getCrds();
+    const Vector &nd3Crds = nd3Ptr->getCrds();
+    const Vector &nd4Crds = nd4Ptr->getCrds();
 
-	  oneMinuseta = 1.0-eta;
-	  onePluseta = 1.0+eta;
-	  oneMinusxi = 1.0-xi;
-	  onePlusxi = 1.0+xi;
+    oneMinuseta = 1.0-eta;
+    onePluseta = 1.0+eta;
+    oneMinusxi = 1.0-xi;
+    onePlusxi = 1.0+xi;
 
-	  shp[2][0][i] = 0.25*oneMinusxi*oneMinuseta;	// N_1
-	  shp[2][1][i] = 0.25*onePlusxi*oneMinuseta;		// N_2
-	  shp[2][2][i] = 0.25*onePlusxi*onePluseta;		// N_3
-	  shp[2][3][i] = 0.25*oneMinusxi*onePluseta;		// N_4
+    shp[2][0][i] = 0.25*oneMinusxi*oneMinuseta;  // N_1
+    shp[2][1][i] = 0.25*onePlusxi*oneMinuseta;    // N_2
+    shp[2][2][i] = 0.25*onePlusxi*onePluseta;    // N_3
+    shp[2][3][i] = 0.25*oneMinusxi*onePluseta;    // N_4
 
-	  J[0][0] = 0.25 * (-nd1Crds(0)*oneMinuseta + nd2Crds(0)*oneMinuseta +
-				nd3Crds(0)*(onePluseta) - nd4Crds(0)*(onePluseta));
+    J[0][0] = 0.25 * (-nd1Crds(0)*oneMinuseta + nd2Crds(0)*oneMinuseta +
+        nd3Crds(0)*(onePluseta) - nd4Crds(0)*(onePluseta));
 
-	  J[0][1] = 0.25 * (-nd1Crds(0)*oneMinusxi - nd2Crds(0)*onePlusxi +
-				nd3Crds(0)*onePlusxi + nd4Crds(0)*oneMinusxi);
+    J[0][1] = 0.25 * (-nd1Crds(0)*oneMinusxi - nd2Crds(0)*onePlusxi +
+        nd3Crds(0)*onePlusxi + nd4Crds(0)*oneMinusxi);
 
-	  J[1][0] = 0.25 * (-nd1Crds(1)*oneMinuseta + nd2Crds(1)*oneMinuseta +
-				nd3Crds(1)*onePluseta - nd4Crds(1)*onePluseta);
+    J[1][0] = 0.25 * (-nd1Crds(1)*oneMinuseta + nd2Crds(1)*oneMinuseta +
+        nd3Crds(1)*onePluseta - nd4Crds(1)*onePluseta);
 
-	  J[1][1] = 0.25 * (-nd1Crds(1)*oneMinusxi - nd2Crds(1)*onePlusxi +
-				nd3Crds(1)*onePlusxi + nd4Crds(1)*oneMinusxi);
+    J[1][1] = 0.25 * (-nd1Crds(1)*oneMinusxi - nd2Crds(1)*onePlusxi +
+        nd3Crds(1)*onePlusxi + nd4Crds(1)*oneMinusxi);
 
-	  detJ = J[0][0]*J[1][1] - J[0][1]*J[1][0];
-	  oneOverdetJ = 1.0/detJ;
+    detJ = J[0][0]*J[1][1] - J[0][1]*J[1][0];
+    oneOverdetJ = 1.0/detJ;
 
-	  // L = inv(J)
-	  L[0][0] =  J[1][1]*oneOverdetJ;
-	  L[1][0] = -J[0][1]*oneOverdetJ;
-	  L[0][1] = -J[1][0]*oneOverdetJ;
-	  L[1][1] =  J[0][0]*oneOverdetJ;
+    // L = inv(J)
+    L[0][0] =  J[1][1]*oneOverdetJ;
+    L[1][0] = -J[0][1]*oneOverdetJ;
+    L[0][1] = -J[1][0]*oneOverdetJ;
+    L[1][1] =  J[0][0]*oneOverdetJ;
 
     L00 = 0.25*L[0][0];
     L10 = 0.25*L[1][0];
     L01 = 0.25*L[0][1];
     L11 = 0.25*L[1][1];
 
-	  L00oneMinuseta = L00*oneMinuseta;
-	  L00onePluseta  = L00*onePluseta;
-	  L01oneMinusxi  = L01*oneMinusxi;
-	  L01onePlusxi   = L01*onePlusxi;
+    L00oneMinuseta = L00*oneMinuseta;
+    L00onePluseta  = L00*onePluseta;
+    L01oneMinusxi  = L01*oneMinusxi;
+    L01onePlusxi   = L01*onePlusxi;
 
-	  L10oneMinuseta = L10*oneMinuseta;
-	  L10onePluseta  = L10*onePluseta;
-	  L11oneMinusxi  = L11*oneMinusxi;
-	  L11onePlusxi   = L11*onePlusxi;
+    L10oneMinuseta = L10*oneMinuseta;
+    L10onePluseta  = L10*onePluseta;
+    L11oneMinusxi  = L11*oneMinusxi;
+    L11onePlusxi   = L11*onePlusxi;
 
-	  // B: See Cook, Malkus, Plesha p. 169 for the derivation of these terms
-    shp[0][0][i] = -L00oneMinuseta - L01oneMinusxi;	// N_1,1
-    shp[0][1][i] =  L00oneMinuseta - L01onePlusxi;		// N_2,1
-    shp[0][2][i] =  L00onePluseta  + L01onePlusxi;		// N_3,1
-    shp[0][3][i] = -L00onePluseta  + L01oneMinusxi;	// N_4,1
+    // B: See Cook, Malkus, Plesha p. 169 for the derivation of these terms
+    shp[0][0][i] = -L00oneMinuseta - L01oneMinusxi;  // N_1,1
+    shp[0][1][i] =  L00oneMinuseta - L01onePlusxi;    // N_2,1
+    shp[0][2][i] =  L00onePluseta  + L01onePlusxi;    // N_3,1
+    shp[0][3][i] = -L00onePluseta  + L01oneMinusxi;  // N_4,1
 
-    shp[1][0][i] = -L10oneMinuseta - L11oneMinusxi;	// N_1,2
-    shp[1][1][i] =  L10oneMinuseta - L11onePlusxi;		// N_2,2
-    shp[1][2][i] =  L10onePluseta  + L11onePlusxi;		// N_3,2
-    shp[1][3][i] = -L10onePluseta  + L11oneMinusxi;	// N_4,2
+    shp[1][0][i] = -L10oneMinuseta - L11oneMinusxi;  // N_1,2
+    shp[1][1][i] =  L10oneMinuseta - L11onePlusxi;    // N_2,2
+    shp[1][2][i] =  L10onePluseta  + L11onePlusxi;    // N_3,2
+    shp[1][3][i] = -L10onePluseta  + L11oneMinusxi;  // N_4,2
 
-		dvol[i] = detJ * thickness * wts[i];
+    dvol[i] = detJ * thickness * wts[i];
     vol += dvol[i];
 
-	  for (k=0; k<3; k++) {
-		  for (l=0; l<4; l++) {
-		    shpBar[k][l] += shp[k][l][i] * dvol[i];
-			}
-		}
-	}
+    for (k=0; k<3; k++) {
+      for (l=0; l<4; l++) {
+        shpBar[k][l] += shp[k][l][i] * dvol[i];
+      }
+    }
+  }
 
-	for (k=0; k<3; k++) {
-	  for (l=0; l<4; l++) {
-	    shpBar[k][l] /= vol;
-		}
-	}
+  for (k=0; k<3; k++) {
+    for (l=0; l<4; l++) {
+      shpBar[k][l] /= vol;
+    }
+  }
 }
 
 
 double FourNodeQuadUP::mixtureRho(int i)
 {
   double rhoi, e, n;
-	rhoi= theMaterial[i]->getRho();
-	e = 0.7;  //theMaterial[i]->getVoidRatio();
+  rhoi= theMaterial[i]->getRho();
+  e = 0.7;  //theMaterial[i]->getVoidRatio();
   n = e / (1.0 + e);
   //return n * rho + (1.0-n) * rhoi;
-	return rhoi;
+  return rhoi;
 }
 
 void FourNodeQuadUP::setPressureLoadAtNodes(void)
 {
         pressureLoad.Zero();
 
-	if (pressure == 0.0)
-		return;
+  if (pressure == 0.0)
+    return;
 
-	const Vector &node1 = nd1Ptr->getCrds();
-	const Vector &node2 = nd2Ptr->getCrds();
-	const Vector &node3 = nd3Ptr->getCrds();
-	const Vector &node4 = nd4Ptr->getCrds();
+  const Vector &node1 = nd1Ptr->getCrds();
+  const Vector &node2 = nd2Ptr->getCrds();
+  const Vector &node3 = nd3Ptr->getCrds();
+  const Vector &node4 = nd4Ptr->getCrds();
 
-	double x1 = node1(0);
-	double y1 = node1(1);
-	double x2 = node2(0);
-	double y2 = node2(1);
-	double x3 = node3(0);
-	double y3 = node3(1);
-	double x4 = node4(0);
-	double y4 = node4(1);
+  double x1 = node1(0);
+  double y1 = node1(1);
+  double x2 = node2(0);
+  double y2 = node2(1);
+  double x3 = node3(0);
+  double y3 = node3(1);
+  double x4 = node4(0);
+  double y4 = node4(1);
 
-	double dx12 = x2-x1;
-	double dy12 = y2-y1;
-	double dx23 = x3-x2;
-	double dy23 = y3-y2;
-	double dx34 = x4-x3;
-	double dy34 = y4-y3;
-	double dx41 = x1-x4;
-	double dy41 = y1-y4;
+  double dx12 = x2-x1;
+  double dy12 = y2-y1;
+  double dx23 = x3-x2;
+  double dy23 = y3-y2;
+  double dx34 = x4-x3;
+  double dy34 = y4-y3;
+  double dx41 = x1-x4;
+  double dy41 = y1-y4;
 
-	double pressureOver2 = pressure*thickness/2.0;
+  double pressureOver2 = pressure*thickness/2.0;
 
-	// Contribution from side 12
-	pressureLoad(0) += pressureOver2*dy12;
-	pressureLoad(3) += pressureOver2*dy12;
-	pressureLoad(1) += pressureOver2*-dx12;
-	pressureLoad(4) += pressureOver2*-dx12;
+  // Contribution from side 12
+  pressureLoad(0) += pressureOver2*dy12;
+  pressureLoad(3) += pressureOver2*dy12;
+  pressureLoad(1) += pressureOver2*-dx12;
+  pressureLoad(4) += pressureOver2*-dx12;
 
-	// Contribution from side 23
-	pressureLoad(3) += pressureOver2*dy23;
-	pressureLoad(6) += pressureOver2*dy23;
-	pressureLoad(4) += pressureOver2*-dx23;
-	pressureLoad(7) += pressureOver2*-dx23;
+  // Contribution from side 23
+  pressureLoad(3) += pressureOver2*dy23;
+  pressureLoad(6) += pressureOver2*dy23;
+  pressureLoad(4) += pressureOver2*-dx23;
+  pressureLoad(7) += pressureOver2*-dx23;
 
-	// Contribution from side 34
-	pressureLoad(6) += pressureOver2*dy34;
-	pressureLoad(9) += pressureOver2*dy34;
-	pressureLoad(7) += pressureOver2*-dx34;
-	pressureLoad(10) += pressureOver2*-dx34;
+  // Contribution from side 34
+  pressureLoad(6) += pressureOver2*dy34;
+  pressureLoad(9) += pressureOver2*dy34;
+  pressureLoad(7) += pressureOver2*-dx34;
+  pressureLoad(10) += pressureOver2*-dx34;
 
-	// Contribution from side 41
-	pressureLoad(9) += pressureOver2*dy41;
-	pressureLoad(0) += pressureOver2*dy41;
-	pressureLoad(10) += pressureOver2*-dx41;
-	pressureLoad(1) += pressureOver2*-dx41;
+  // Contribution from side 41
+  pressureLoad(9) += pressureOver2*dy41;
+  pressureLoad(0) += pressureOver2*dy41;
+  pressureLoad(10) += pressureOver2*-dx41;
+  pressureLoad(1) += pressureOver2*-dx41;
 
-	//pressureLoad = pressureLoad*thickness;
+  //pressureLoad = pressureLoad*thickness;
 }
 

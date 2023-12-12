@@ -39,12 +39,14 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
+#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 
 class Node;
 class NDMaterial;
 class Response;
 
-class FourNodeQuad : public Element
+class FourNodeQuad : public Element,
+                     protected LegendreFixedQuadrilateral<4>
 {
   public:
     FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
@@ -133,8 +135,8 @@ class FourNodeQuad : public Element
 					 // Note: positive for outward normal
     double rho;
     static double shp[3][4];	// Stores shape functions and derivatives (overwritten)
-    static double pts[4][2];	// Stores quadrature points
-    static double wts[4];		// Stores quadrature weights
+//  static double pts[4][2];	// Stores quadrature points
+//  static double wts[4];		// Stores quadrature weights
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);

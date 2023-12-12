@@ -157,7 +157,7 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
 
   dof--;
 
-  const Vector *nodalResponse = domain->getNodeResponse(tag, Disp);
+  const Vector *nodalResponse = domain->getNodeResponse(tag, NodeData::Disp);
 
   if (nodalResponse == nullptr)
     // TODO: add error message
@@ -309,7 +309,7 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
 
   dof--;
 
-  const Vector *nodalResponse = the_domain->getNodeResponse(tag, Vel);
+  const Vector *nodalResponse = the_domain->getNodeResponse(tag, NodeData::Vel);
 
   if (nodalResponse == nullptr)
     // TODO: add error message
@@ -547,7 +547,7 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
 
   dof--;
 
-  const Vector *nodalResponse = the_domain->getNodeResponse(tag, Accel);
+  const Vector *nodalResponse = the_domain->getNodeResponse(tag, NodeData::Accel);
   if (nodalResponse == nullptr)
     // TODO: add error message
     return TCL_ERROR;
@@ -601,7 +601,7 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
 
   dof--;
 
-  const Vector *nodalResponse = domain->getNodeResponse(tag, Unbalance);
+  const Vector *nodalResponse = domain->getNodeResponse(tag, NodeData::UnbalancedLoad);
 
   if (nodalResponse == nullptr)
     // TODO: add error message
@@ -660,7 +660,7 @@ nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   dof--;
 
   const Vector *nodalResponse =
-      the_domain->getNodeResponse(tag, (NodeResponseType)responseID);
+      the_domain->getNodeResponse(tag, (NodeData)responseID);
 
   if (nodalResponse == 0 || nodalResponse->Size() < dof || dof < 0)
     // TODO: add error message
@@ -801,7 +801,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
 
   dof--;
 
-  const Vector *nodalResponse = domain->getNodeResponse(tag, Reaction);
+  const Vector *nodalResponse = domain->getNodeResponse(tag, NodeData::Reaction);
 
   if (nodalResponse == nullptr)
     // TODO: add error message

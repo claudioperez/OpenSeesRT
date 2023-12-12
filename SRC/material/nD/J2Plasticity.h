@@ -135,8 +135,9 @@ class J2Plasticity : public NDMaterial {
   Matrix stress ;                //stress tensor
   double tangent[3][3][3][3] ;   //material tangent
   static double initialTangent[3][3][3][3] ;   //material tangent
-  static double IIdev[3][3][3][3] ; //rank 4 deviatoric 
-  static double IbunI[3][3][3][3] ; //rank 4 I bun I 
+
+//static double IIdev[3][3][3][3] ; //rank 4 deviatoric 
+//static double IbunI[3][3][3][3] ; //rank 4 I bun I 
 
   //material input
   Matrix strain ;               //strain tensor

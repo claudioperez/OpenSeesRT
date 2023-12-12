@@ -20,7 +20,7 @@ target_sources(OPS_Analysis
        Newmark.cpp
        Newmark1.cpp
        StaticIntegrator.cpp
-       StagedLoadControl.cpp
+#      StagedLoadControl.cpp
        TransientIntegrator.cpp
     PUBLIC
        ExplicitDifference.h
@@ -37,7 +37,7 @@ target_sources(OPS_Analysis
        Newmark.h
        Newmark1.h
        StaticIntegrator.h
-       StagedLoadControl.h
+#      StagedLoadControl.h
        TransientIntegrator.h
 )
 
@@ -71,7 +71,7 @@ target_sources(OPS_Analysis
        TRBDF2.cpp
        TRBDF3.cpp
        WilsonTheta.cpp
-       StagedNewmark.cpp
+#      StagedNewmark.cpp
        GimmeMCK.cpp                     # MHS
     PUBLIC
        Collocation.h
@@ -102,7 +102,7 @@ target_sources(OPS_Analysis
        TRBDF2.h
        TRBDF3.h
        WilsonTheta.h
-       StagedNewmark.h
+#      StagedNewmark.h
        GimmeMCK.h
 )
 

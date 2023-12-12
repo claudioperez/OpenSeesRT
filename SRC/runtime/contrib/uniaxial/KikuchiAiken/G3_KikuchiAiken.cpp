@@ -8,7 +8,7 @@ TclCommand_KikuchiAikenHDR(G3_Runtime* rt, int argc, TCL_Char ** const argv)
 {
   // arguments (necessary)
   int tag;
-  int tp;
+  int tp = -1;
   double ar;
   double hr;
 
@@ -53,6 +53,7 @@ TclCommand_KikuchiAikenHDR(G3_Runtime* rt, int argc, TCL_Char ** const argv)
     } else if ((strcmp(argv[3], "X0.3-0MPa") == 0) ||
                (strcmp(argv[3], "6") == 0)) {
       tp = 6;
+
     } else {
       opserr << "WARNING invalid KikuchiAikenHDR tp" << endln;
       ifNoError = false;

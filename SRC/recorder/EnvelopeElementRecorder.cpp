@@ -20,7 +20,7 @@
                                                                         
 // Written: fmk 
 //
-// Description: This file contains the class implementatation of 
+// Description: This file contains the class implementation of 
 // EnvelopeEnvelopeElementRecorder.
 //
 // What: "@(#) EnvelopeEnvelopeElementRecorder.C, revA"
@@ -58,8 +58,8 @@ void *
 OPS_ADD_RUNTIME_VPV(OPS_EnvelopeElementRecorder)
 {
     if (OPS_GetNumRemainingInputArgs() < 5) {
-        opserr << "WARING: recorder EnvelopeElement ";
-        opserr << "-ele <list elements> -file <fileName> -dT <dT> reponse";
+        opserr << "WARNING: recorder EnvelopeElement ";
+        opserr << "-ele <list elements> -file <fileName> -dT <dT> response";
         return 0;
     }
 
@@ -81,6 +81,7 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeElementRecorder)
 
     bool echoTimeFlag = false;
     double dT = 0.0;
+    double rTolDt = 0.00001;
     bool doScientific = false;
 
     int precision = 6;
@@ -157,6 +158,15 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeElementRecorder)
                 int num = 1;
                 if (OPS_GetDoubleInput(&num, &dT) < 0) {
                     opserr << "WARNING: failed to read dT\n";
+                    return 0;
+                }
+            }
+        }
+        else if (strcmp(option, "-rTolDt") == 0) {
+            if (OPS_GetNumRemainingInputArgs() > 0) {
+                int num = 1;
+                if (OPS_GetDoubleInput(&num, &rTolDt) < 0) {
+                    opserr << "WARNING: failed to read rTolDt\n";
                     return 0;
                 }
             }
@@ -280,7 +290,7 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeElementRecorder)
     if (domain == 0)
         return 0;
     EnvelopeElementRecorder* recorder = new EnvelopeElementRecorder(&elements,
-        data, nargrem, *domain, *theOutputStream, dT, echoTimeFlag, &dofs);
+        data, nargrem, *domain, *theOutputStream, dT, rTolDt, echoTimeFlag, &dofs);
 
     return recorder;
 }
@@ -289,7 +299,7 @@ OPS_ADD_RUNTIME_VPV(OPS_EnvelopeElementRecorder)
 EnvelopeElementRecorder::EnvelopeElementRecorder()
 :Recorder(RECORDER_TAGS_EnvelopeElementRecorder),
  numEle(0), numDOF(0), eleID(0), dof(0), theResponses(0), theDomain(0),
- theHandler(0), deltaT(0), nextTimeStampToRecord(0.0), 
+ theHandler(0), deltaT(0.0), relDeltaTTol(0.00001), nextTimeStampToRecord(0.0),
  data(0), currentData(0), first(true),
  initializationDone(false), responseArgs(0), numArgs(0), echoTimeFlag(false), addColumnInfo(0)
 {
@@ -302,12 +312,13 @@ EnvelopeElementRecorder::EnvelopeElementRecorder(const ID *ele,
 							 int argc,
 							 Domain &theDom, 
 							 OPS_Stream &theOutputHandler,
-							 double dT, 
+							 double dT,
+							 double rTolDt,
 							 bool echoTime,
 							 const ID *indexValues)
  :Recorder(RECORDER_TAGS_EnvelopeElementRecorder),
   numEle(0), eleID(0), numDOF(0), dof(0), theResponses(0), theDomain(&theDom),
-  theHandler(&theOutputHandler), deltaT(dT), nextTimeStampToRecord(0.0), 
+  theHandler(&theOutputHandler), deltaT(dT), relDeltaTTol(rTolDt), nextTimeStampToRecord(0.0),
   data(0), currentData(0), first(true),
   initializationDone(false), responseArgs(0), numArgs(0), echoTimeFlag(echoTime), addColumnInfo(0)
 {
@@ -418,8 +429,10 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
   }
 
   int result = 0;
-  if (deltaT == 0.0 || timeStamp >= nextTimeStampToRecord) {
-      
+  // where relDeltaTTol is the maximum reliable ratio between analysis time step and deltaT
+  // and provides tolerance for floating point precision (see floating-point-tolerance-for-recorder-time-step.md)
+    if (deltaT == 0.0 || timeStamp - nextTimeStampToRecord >= -deltaT * relDeltaTTol) {
+
     if (deltaT != 0.0) 
       nextTimeStampToRecord = timeStamp + deltaT;
     
@@ -427,7 +440,7 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
     // for each element do a getResponse() & put the result in current data
     for (int i=0; i< numEle; i++) {
       if (theResponses[i] != 0) {
-	// ask the element for the reponse
+	// ask the element for the response
 	int res;
 	if (( res = theResponses[i]->getResponse()) < 0)
 	  result += res;
@@ -525,7 +538,7 @@ EnvelopeElementRecorder::record(int commitTag, double timeStamp)
       }
     }
   }    
-  // succesfull completion - return 0
+  // successful completion - return 0
   return result;
 }
 
@@ -590,8 +603,9 @@ EnvelopeElementRecorder::sendSelf(int commitTag, Channel &theChannel)
     return -1;
   }
 
-  static Vector dData(1);
+  static Vector dData(2);
   dData(1) = deltaT;
+  dData(2) = relDeltaTTol;
   if (theChannel.sendVector(0, commitTag, dData) < 0) {
     opserr << "EnvelopeElementRecorder::sendSelf() - failed to send dData\n";
     return -1;
@@ -709,12 +723,13 @@ EnvelopeElementRecorder::recvSelf(int commitTag, Channel &theChannel,
   numEle = eleSize;
 
 
-  static Vector dData(1);
+  static Vector dData(2);
   if (theChannel.recvVector(0, commitTag, dData) < 0) {
     opserr << "EnvelopeElementRecorder::recvSelf() - failed to recv dData\n";
     return -1;
   }
   deltaT = dData(1);
+  relDeltaTTol = dData(2);
 
 
   //
@@ -852,7 +867,7 @@ EnvelopeElementRecorder::initialize(void)
     int eleCount = 0;
     int responseCount = 0;
 
-    // loop over ele & set Reponses
+    // loop over ele & set Responses
     for (i=0; i<numEle; i++) {
       Element *theEle = theDomain->getElement((*eleID)(i));
       if (theEle != 0) {
@@ -864,10 +879,10 @@ EnvelopeElementRecorder::initialize(void)
     theHandler->setOrder(xmlOrder);
 
     //
-    // if we have an eleID we know Reponse size so allocate Response holder & loop over & ask each element
+    // if we have an eleID we know Response size so allocate Response holder & loop over & ask each element
     //
 
-    // allocate memory for Reponses & set to 0
+    // allocate memory for Responses & set to 0
     theResponses = new Response *[numEle];
     if (theResponses == 0) {
       opserr << "ElementRecorder::initialize() - out of memory\n";
@@ -948,7 +963,7 @@ EnvelopeElementRecorder::initialize(void)
     for (int k=0; k<numEle; k++)
       theResponses[k] = 0;
 
-    // loop over ele & set Reponses
+    // loop over ele & set Responses
     ElementIter &theElements = theDomain->getElements();
     Element *theEle;
 
@@ -1020,4 +1035,11 @@ double EnvelopeElementRecorder::getRecordedValue(int clmnId, int rowOffset, bool
 	if (reset)
 		first = true;
 	return res;
+}
+
+int EnvelopeElementRecorder::flush(void) {
+  if (theHandler != 0) {
+    return theHandler->flush();
+  }
+  return 0;
 }

@@ -13,7 +13,7 @@
 |  255  | `AxialSp_sample.tcl` | "uniaxialMaterial AxialSp 1 1000e6 1e6 -25e6 0.50 0.01 0.50 -5e6" |
 |  0  | `BuildRCrectSection_IR.tcl` |  |
 |  0  | `BuildRCrectSection.tcl` |  |
-|  255  | `CB_PortalFrame.tcl` | "uniaxialMaterial Fatigue $matID_fatBC $matID_BC " |
+|  0  | `CB_PortalFrame.tcl` |  |
 |  255  | `CenterCol_basicModel_Cyclic.tcl` | invalid command name "limitCurve" |
 |  255  | `CenterCol_basicModel_Dynamic.tcl` | invalid command name "limitCurve" |
 |  255  | `CenterCol_basicModel_Pushover.tcl` | invalid command name "limitCurve" |
@@ -54,8 +54,10 @@
 |  255  | `Ex6.genericFrame2D.build.InelasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
 |  0  | `Ex7.Frame3D.build.RCsec.tcl` |  |
 |  0  | `Ex7.Frame3D.build.Wsec.tcl` |  |
+|  255  | `Ex7.Frame3D.tcl` | can't read "dt": no such variable |
 |  0  | `Ex8.genericFrame3D.build.RCsec.tcl` |  |
 |  0  | `Ex8.genericFrame3D.build.Wsec.tcl` |  |
+|  0  | `Ex8.genericFrame3D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection2D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection3D.tcl` |  |
 |  0  | `Ex9b.build.WSection2D.tcl` |  |
@@ -72,7 +74,7 @@
 |  0  | `Example6_4.tcl` |  |
 |  255  | `ExampleSP1.tcl` | couldn't read file "model.tcl": no such file or directory |
 |  255  | `Excavation.tcl` | "nDMaterial InitialStateAnalysisWrapper 1 5 2" |
-|  255  | `FatigueExample.tcl` | "uniaxialMaterial Fatigue 2 1" |
+|  0  | `FatigueExample.tcl` |  |
 |  255  | `FreeFieldDamp.tcl` | expected integer but got "-dt" |
 |  255  | `FreeFieldEffective.tcl` | invalid command name "parameter" |
 |  0  | `Get_pyParam.tcl` |  |

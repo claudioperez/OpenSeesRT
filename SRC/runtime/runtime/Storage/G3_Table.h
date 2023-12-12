@@ -24,9 +24,10 @@ typedef struct G3_Table G3_Table;
 
 G3_Table *G3_NewTable(void);
 
+#if 0
 const char *G3_SetTableEntry(G3_Table *, const char *partition, int tag,
                              void *value);
-
+#endif
 int G3_AddTableEntry(G3_Table *, const char *partition, int tag, void *value);
 
 void *G3_GetTableEntry(G3_Table *, const char *partition, unsigned long int tag);

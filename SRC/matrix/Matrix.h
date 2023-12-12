@@ -17,35 +17,25 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2007/07/16 22:57:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/Matrix.h,v $
-                                                                        
-                                                                        
-#ifndef Matrix_h
-#define Matrix_h 
-#define NO_STATIC_WORK
-
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for Matrix.
 // Matrix is a concrete class implementing the matrix abstraction.
 // Matrix class is used to provide the abstraction for the most
 // general type of matrix, that of an unsymmetric full matrix.
 //
-// What: "@(#) Matrix.h, revA"
-
-#include <OPS_Globals.h>
-
+// Written: fmk 
+// Created: 11/96
+// Revision: A
+//
+#ifndef Matrix_h
+#define Matrix_h 
+#define NO_STATIC_WORK
 class Vector;
 class ID;
 class Message;
+class OPS_Stream;
 namespace OpenSees {template<int n, typename T> struct VectorND;};
 
-#define MATRIX_VERY_LARGE_VALUE 1.0e213
 
 class Matrix
 {
@@ -138,8 +128,6 @@ class Matrix
     int  AssembleTranspose(const Matrix &V, int init_row, int init_col, double fact = 1.0);
     int  AssembleTranspose(const Vector &V, int init_row, int init_col, double fact = 1.0);
     int  Extract(const Matrix &V, int init_row, int init_col, double fact = 1.0);
-
-    int Eigen3(const Matrix &M);
 
     friend OPS_Stream &operator<<(OPS_Stream &s, const Matrix &M);
     //    friend istream &operator>>(istream &s, Matrix &M);    

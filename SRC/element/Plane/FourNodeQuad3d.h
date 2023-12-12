@@ -132,7 +132,7 @@ class FourNodeQuad3d : public Element
     double rho;
     static double shp[3][4];	// Stores shape functions and derivatives (overwritten)
     static double pts[4][2];	// Stores quadrature points
-    static double wts[4];		// Stores quadrature weights
+    static double wts[4];	// Stores quadrature weights
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);

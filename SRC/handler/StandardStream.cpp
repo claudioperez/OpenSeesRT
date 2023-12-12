@@ -442,3 +442,10 @@ StandardStream::recvSelf(int commitTag, Channel &theChannel,
 
   return 0;
 }
+
+int StandardStream::flush() {
+  if (theFile.is_open() && theFile.good()) {
+    theFile.flush();
+  }
+  return 0;
+}

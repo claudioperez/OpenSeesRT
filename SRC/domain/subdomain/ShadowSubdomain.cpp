@@ -1358,7 +1358,7 @@ int ShadowSubdomain::setMass(const Matrix &mass, int nodeTag)
 }
 
 const Vector *ShadowSubdomain::getNodeResponse(int tag,
-                                               NodeResponseType responseType)
+                                               NodeData responseType)
 {
   if (theNodes.getLocation(tag) < 0)
     return NULL;
@@ -1367,7 +1367,7 @@ const Vector *ShadowSubdomain::getNodeResponse(int tag,
 
   msgData(0) = ShadowActorSubdomain_getNodeResponse;
   msgData(1) = tag;
-  msgData(2) = responseType;
+  msgData(2) = (int)responseType;
   this->sendID(msgData);
 
   this->recvID(msgData);

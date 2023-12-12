@@ -93,11 +93,11 @@ analysis Static
 # ------------------------------
 
 # create a Recorder object for the nodal displacements at node 4
-recorder Node -file example.out -time -node 4 -dof 1 2 disp
+recorder Node -file out/example.out -time -node 4 -dof 1 2 disp
 
 # Create a recorder for element forces, one in global and the other local system
-recorder Element -file eleGlobal.out -time -ele 1 2 3 forces
-recorder Element -file eleLocal.out -time -ele 1 2 3  basicForces
+recorder Element -file out/eleGlobal.out -time -ele 1 2 3 forces
+recorder Element -file out/eleLocal.out -time -ele 1 2 3  basicForces
 
 # ------------------------------
 # Finally perform the analysis

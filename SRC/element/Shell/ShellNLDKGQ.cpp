@@ -54,12 +54,12 @@ Vector ShellNLDKGQ::resid(24);
 Matrix ShellNLDKGQ::mass(24, 24);
 
 //quadrature data
-const double ShellNLDKGQ::root3          = sqrt(3.0);
-const double ShellNLDKGQ::one_over_root3 = 1.0 / root3;
-
-double ShellNLDKGQ::sg[4];
-double ShellNLDKGQ::tg[4];
-double ShellNLDKGQ::wg[4];
+// const double ShellNLDKGQ::root3          = sqrt(3.0);
+// const double ShellNLDKGQ::one_over_root3 = 1.0 / root3;
+// 
+// double ShellNLDKGQ::sg[4];
+// double ShellNLDKGQ::tg[4];
+// double ShellNLDKGQ::wg[4];
 
 //null constructor
 ShellNLDKGQ::ShellNLDKGQ()
@@ -70,20 +70,20 @@ ShellNLDKGQ::ShellNLDKGQ()
   for (int i = 0; i < 4; i++)
     materialPointers[i] = 0;
 
-  sg[0] = -one_over_root3;
-  sg[1] = one_over_root3;
-  sg[2] = one_over_root3;
-  sg[3] = -one_over_root3;
+//sg[0] = -one_over_root3;
+//sg[1] = one_over_root3;
+//sg[2] = one_over_root3;
+//sg[3] = -one_over_root3;
 
-  tg[0] = -one_over_root3;
-  tg[1] = -one_over_root3;
-  tg[2] = one_over_root3;
-  tg[3] = one_over_root3;
+//tg[0] = -one_over_root3;
+//tg[1] = -one_over_root3;
+//tg[2] = one_over_root3;
+//tg[3] = one_over_root3;
 
-  wg[0] = 1.0;
-  wg[1] = 1.0;
-  wg[2] = 1.0;
-  wg[3] = 1.0;
+//wg[0] = 1.0;
+//wg[1] = 1.0;
+//wg[2] = 1.0;
+//wg[3] = 1.0;
 }
 
 //*********************************************************************
@@ -112,20 +112,20 @@ ShellNLDKGQ::ShellNLDKGQ(int tag, int node1, int node2, int node3, int node4,
 
   } //end for i
 
-  sg[0] = -one_over_root3;
-  sg[1] = one_over_root3;
-  sg[2] = one_over_root3;
-  sg[3] = -one_over_root3;
+//sg[0] = -one_over_root3;
+//sg[1] = one_over_root3;
+//sg[2] = one_over_root3;
+//sg[3] = -one_over_root3;
 
-  tg[0] = -one_over_root3;
-  tg[1] = -one_over_root3;
-  tg[2] = one_over_root3;
-  tg[3] = one_over_root3;
+//tg[0] = -one_over_root3;
+//tg[1] = -one_over_root3;
+//tg[2] = one_over_root3;
+//tg[3] = one_over_root3;
 
-  wg[0] = 1.0;
-  wg[1] = 1.0;
-  wg[2] = 1.0;
-  wg[3] = 1.0;
+//wg[0] = 1.0;
+//wg[1] = 1.0;
+//wg[2] = 1.0;
+//wg[3] = 1.0;
 }
 //******************************************************************
 
@@ -332,12 +332,12 @@ Response *ShellNLDKGQ::setResponse(const char **argv, int argc,
       return 0;
     }
     int pointNum = atoi(argv[1]);
-    if (pointNum > 0 && pointNum <= 4) {
+    if (pointNum > 0 && pointNum <= ShellNLDKGQ::nip) {
 
       output.tag("GaussPoint");
       output.attr("number", pointNum);
-      output.attr("eta", sg[pointNum - 1]);
-      output.attr("neta", tg[pointNum - 1]);
+      output.attr("eta",    pts[pointNum - 1][0]);
+      output.attr("neta",   pts[pointNum - 1][1]);
 
       theResponse = materialPointers[pointNum - 1]->setResponse(
           &argv[2], argc - 2, output);
@@ -347,11 +347,11 @@ Response *ShellNLDKGQ::setResponse(const char **argv, int argc,
 
   } else if (strcmp(argv[0], "stresses") == 0) {
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < ShellNLDKGQ::nip; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
-      output.attr("eta", sg[i]);
-      output.attr("neta", tg[i]);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("SectionForceDeformation");
       output.attr("classType", materialPointers[i]->getClassTag());
@@ -378,8 +378,8 @@ Response *ShellNLDKGQ::setResponse(const char **argv, int argc,
     for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
-      output.attr("eta", sg[i]);
-      output.attr("neta", tg[i]);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("SectionForceDeformation");
       output.attr("classType", materialPointers[i]->getClassTag());
@@ -477,12 +477,9 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
   if (Ki != 0)
     return *Ki;
 
-  static const int ndf = 6; //two membrane + 3 moment +drill
-
-  static const int nstress = 8; //3 membrane , 3 moment, 2 shear
-
+  static const int ndf = 6;     // two membrane + 3 moment +drill
+  static const int nstress = 8; // 3 membrane , 3 moment, 2 shear
   static const int ngauss = 4;
-
   static const int numnodes = 4;
 
   int i, j, k, p, q;
@@ -490,11 +487,8 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
   int jlast, jnew; //add for geometric nonlinearity
 
   int p1, q1;
-
   int p2, q2;
-
   int p3, q3;
-
   int pp, qq;
 
   int success;
@@ -563,45 +557,30 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
   static Vector stressLast_gauss(8); //eleForceLast
   //static Vector stressNew_gauss(8);  //eleForce
   static Matrix membraneForce(2, 2); //membrane force in gauss point
-
   Matrix Tmat(6, 6); //local-global coordinates transform matrix
-
   Matrix TmatTran(6, 6);
-
   Matrix Pmat(6, 6); //transform dofs order
-
   Matrix PmatTran(6, 6);
 
   //-------------------B-matrices---------------------------------
 
   static Matrix BJ(nstress, ndf); // B matrix node J
-
   static Matrix BJtran(ndf, nstress);
-
   static Matrix BK(nstress, ndf); // B matrix node K
-
   static Matrix BJtranD(ndf, nstress); //BJtran * dd
-
   static Matrix BJP(nstress, ndf); //BJ * Pmat, transform the dof order
-
   //static Matrix BJPT(nstress,ndf); //BJP * Tmat, from global coordinates to local coordinates
 
   static Matrix Bmembrane(3, 3); //membrane B matrix
-
   static Matrix Bbend(3, 3); //bending B matrix
-
   static Matrix Bshear(2, 3); //shear B matrix (zero)
-
   static double saveB[nstress][ndf][numnodes];
 
   //Added for geometric nonlinearity
   //BG
   static Matrix BGJ(2, 3);
-
   static Matrix BGJtran(3, 2);
-
   static Matrix stiffBGM(3, 2); // BGJtran * membraneForce
-
   static Matrix BGK(2, 3);
   //---------------------------------------------------------------
 
@@ -662,14 +641,14 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
   for (i = 0; i < ngauss; i++) {
 
     //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj, sx);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
 
-    shapeDrill(sg[i], tg[i], xl, sx, shpDrill);
+    shapeDrill(pts[i][0], pts[i][1], xl, sx, shpDrill);
 
-    shapeBend(sg[i], tg[i], xl, sx, shpBend);
+    shapeBend(pts[i][0], pts[i][1], xl, sx, shpBend);
 
     //volume element to be saved
-    dvol[i] = wg[i] * xsj;
+    dvol[i] = wts[i] * xsj;
     volume += dvol[i];
 
     Bshear.Zero();
@@ -1022,10 +1001,10 @@ void ShellNLDKGQ::formInertiaTerms(int tangFlag)
   for (i = 0; i < numberGauss; i++) {
 
     //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj, sx);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
 
     //volume element to also be saved
-    dvol = wg[i] * xsj;
+    dvol = wts[i] * xsj;
 
     //node loop to compute accelerations
     momentum.Zero();
@@ -1296,14 +1275,14 @@ void ShellNLDKGQ::formResidAndTangent(int tang_flag)
   for (i = 0; i < ngauss; i++) {
 
     //get shape functions
-    shape2d(sg[i], tg[i], xl, shp, xsj, sx);
+    shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
 
-    shapeDrill(sg[i], tg[i], xl, sx, shpDrill);
+    shapeDrill(pts[i][0], pts[i][1], xl, sx, shpDrill);
 
-    shapeBend(sg[i], tg[i], xl, sx, shpBend);
+    shapeBend(pts[i][0], pts[i][1], xl, sx, shpBend);
 
     //volume element to be saved
-    dvol[i] = wg[i] * xsj;
+    dvol[i] = wts[i] * xsj;
     volume += dvol[i];
 
     Bshear.Zero();

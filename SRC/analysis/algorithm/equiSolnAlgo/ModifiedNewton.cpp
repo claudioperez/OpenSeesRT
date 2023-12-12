@@ -104,65 +104,56 @@ ModifiedNewton::solveCurrentStep(void)
     IncrementalIntegrator *theIncIntegratorr = this->getIncrementalIntegratorPtr();
     LinearSOE                *theSOE = this->getLinearSOEptr();
 
-    if ((theAnalysisModel == 0) || (theIncIntegratorr == 0) || (theSOE == 0)
-        || (theTest == 0)){
-        opserr << "WARNING ModifiedNewton::solveCurrentStep() - setLinks() has";
-        opserr << " not been called - or no ConvergenceTest has been set\n";
-        return -5;
+    if ((theAnalysisModel == nullptr) 
+        || (theIncIntegratorr == nullptr) 
+        || (theSOE == nullptr)
+        || (theTest == nullptr)) {
+      opserr << "WARNING ModifiedNewton::solveCurrentStep() - setLinks() has";
+      opserr << " not been called - or no ConvergenceTest has been set\n";
+      return SolutionAlgorithm::BadAlgorithm;
     }
 
     if (theIncIntegratorr->formUnbalance() < 0) {
-        opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-        opserr << "the Integrator failed in formUnbalance()\n";        
-        return -2;
+      opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
+      opserr << "the Integrator failed in formUnbalance()\n";        
+      return SolutionAlgorithm::BadFormResidual;
     }        
 
     SOLUTION_ALGORITHM_tangentFlag = tangent;
-    if (theIncIntegratorr->formTangent(tangent, iFactor, cFactor) < 0){
-        opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-        opserr << "the Integrator failed in formTangent()\n";
-        return -1;
-    }                    
+    if (theIncIntegratorr->formTangent(tangent, iFactor, cFactor) < 0)
+      return SolutionAlgorithm::BadFormTangent;
+
 
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
     if (theTest->start() < 0) {
       opserr << "ModifiedNewton::solveCurrentStep() -";
       opserr << "the ConvergenceTest object failed in start()\n";
-      return -3;
+      return SolutionAlgorithm::BadTestStart;
     }
 
     // repeat until convergence is obtained or reach max num iterations
     int result = -1;
     numIterations = 0;
     do {
-        if (theSOE->solve() < 0) {
-            opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-            opserr << "the LinearSysOfEqn failed in solve()\n";        
-            return -3;
-        }            
-        
-        if (theIncIntegratorr->update(theSOE->getX()) < 0) {
-            opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-            opserr << "the Integrator failed in update()\n";        
-            return -4;
-        }                
+      if (theSOE->solve() < 0)
+        return SolutionAlgorithm::BadLinearSolve;
+      
+      if (theIncIntegratorr->update(theSOE->getX()) < 0)
+        return SolutionAlgorithm::BadStepUpdate;
 
-        if (theIncIntegratorr->formUnbalance() < 0) {
-            opserr << "WARNING ModifiedNewton::solveCurrentStep() -";
-            opserr << "the Integrator failed in formUnbalance()\n";        
-            return -2;
-        }        
+      if (theIncIntegratorr->formUnbalance() < 0)
+        return SolutionAlgorithm::BadFormResidual;
 
-        this->record(numIterations++);
-        result = theTest->test();
-
+      result = theTest->test();
+      numIterations++;
+      this->record(numIterations);
 
     }  while (result == ConvergenceTest::Continue);
 
-    if (result == ConvergenceTest::Failure) {
-      return -3;
-    }
+    if (result == ConvergenceTest::Failure)
+      return SolutionAlgorithm::TestFailed;
+
     return result;
 }
 

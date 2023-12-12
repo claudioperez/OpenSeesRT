@@ -34,16 +34,17 @@
 // for the specified nodes in a file.
 //
 // What: "@(#) NodeRecorder.h, revA"
-
-
+//
 #include <Recorder.h>
 #include <ID.h>
 #include <Vector.h>
-#include <TimeSeries.h>
+// #include <TimeSeries.h>
 
 class Domain;
 class FE_Datastore;
 class Node;
+class TimeSeries;
+enum class NodeData : int;
 
 class NodeRecorder: public Recorder
 {
@@ -52,27 +53,30 @@ class NodeRecorder: public Recorder
     NodeRecorder(const ID &theDof, 
 		 const ID *theNodes, 
 		 int sensitivity,
-		 const char *dataToStore,
+		 NodeData _dataFlag,
+		 int _dataIndex,
 		 Domain &theDomain,
 		 OPS_Stream &theOutputHandler,
 		 double deltaT = 0.0,
+		 double relDeltaTTol = 0.00001,
 		 bool echoTimeFlag = true,
-		 TimeSeries **timeSeries = 0); 
+		 TimeSeries **timeSeries = nullptr); 
     
     ~NodeRecorder();
 
     int record(int commitTag, double timeStamp);
+    int flush();
 
-    int domainChanged(void);    
+    int domainChanged(void);
     int setDomain(Domain &theDomain);
-    int sendSelf(int commitTag, Channel &theChannel);  
-    int recvSelf(int commitTag, Channel &theChannel, 
+    int sendSelf(int commitTag, Channel &theChannel);
+    int recvSelf(int commitTag, Channel &theChannel,
 		 FEM_ObjectBroker &theBroker);
 	virtual double getRecordedValue(int clmnId, int rowOffset, bool reset); //added by SAJalali
 
   protected:
 
-  private:	
+  private:
     int initialize(void);
 
     ID *theDofs;
@@ -84,14 +88,16 @@ class NodeRecorder: public Recorder
     OPS_Stream *theOutputHandler;
 
     bool echoTimeFlag;   // flag indicating whether time to be included in o/p
-    int dataFlag;        // flag indicating what it is to be stored in recorder
-
-    double deltaT;
-    double nextTimeStampToRecord;
-
+    NodeData dataFlag;        // flag indicating what it is to be stored in recorder
+    int dataIndex;       // data index for enumerated data (e.g, mode number)
     // AddingSensitivity:BEGIN //////////////////////////////
     int gradIndex;
     // AddingSensitivity:END ////////////////////////////////
+
+    double deltaT;
+    double relDeltaTTol;
+    double nextTimeStampToRecord;
+
 
     bool initializationDone;
     int numValidNodes;

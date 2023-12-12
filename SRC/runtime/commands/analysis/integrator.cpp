@@ -15,12 +15,10 @@
 
 // integrators
 #include <LoadControl.h>
-#include <StagedLoadControl.h>
 #include <ArcLength1.h>
 #include <DisplacementControl.h>
 
 #include <Newmark.h>
-#include <StagedNewmark.h>
 #include <TRBDF2.h>
 #include <TRBDF3.h>
 #include <Houbolt.h>
@@ -45,8 +43,6 @@ StaticIntegrator*
 G3Parse_newEQPathIntegrator(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
 StaticIntegrator*
 G3Parse_newArcLengthIntegrator(ClientData, Tcl_Interp*, int argc, TCL_Char ** const);
-StaticIntegrator*
-G3Parse_newStagedLoadControlIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 StaticIntegrator*
 G3Parse_newMinUnbalDispNormIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 StaticIntegrator*
@@ -102,17 +98,10 @@ G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (strcmp(argv[1], "LoadControl") == 0) {
     the_static_integrator = G3Parse_newLoadControl(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "StagedLoadControl") == 0) {
-    the_static_integrator = G3Parse_newStagedLoadControlIntegrator(clientData, interp, argc, argv);
-  }
+  } 
 
   else if (strcmp(argv[1], "EQPath") == 0) {
     the_static_integrator = G3Parse_newEQPathIntegrator(clientData, interp, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ArcLength") == 0) {
-    the_static_integrator = G3Parse_newArcLengthIntegrator(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "MinUnbalDispNorm") == 0) {
@@ -123,6 +112,9 @@ G3Parse_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     the_static_integrator = G3Parse_newDisplacementControlIntegrator(clientData, interp, argc, argv);
   }
 
+  else if (strcmp(argv[1], "ArcLength") == 0) {
+    the_static_integrator = G3Parse_newArcLengthIntegrator(clientData, interp, argc, argv);
+  }
 
   else if (strcmp(argv[1], "ArcLength1") == 0) {
     double arcLength;
@@ -189,11 +181,6 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   else if (strcmp(argv[1], "GimmeMCK") == 0 || strcmp(argv[1], "MCK") == 0 || strcmp(argv[1], "ZZTop") == 0) {
     theTransientIntegrator = (TransientIntegrator *)OPS_GimmeMCK(rt, argc, argv);
   } 
-
-  else if (strcmp(argv[1], "StagedNewmark") == 0) {
-    theTransientIntegrator = (TransientIntegrator *)OPS_StagedNewmark(rt, argc, argv);
-  }
-
   else if (strcmp(argv[1], "NewmarkExplicit") == 0) {
     theTransientIntegrator = (TransientIntegrator *)OPS_NewmarkExplicit(rt, argc, argv);
   }
@@ -504,8 +491,9 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
     }
     int tangFlag = 0;
 
-    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK)
+    if (Tcl_GetInt(interp, argv[2], &node) != TCL_OK) {
       return nullptr;
+    }
     if (Tcl_GetInt(interp, argv[3], &dof) != TCL_OK)
       return nullptr;
     if (Tcl_GetDouble(interp, argv[4], &increment) != TCL_OK)
@@ -520,12 +508,18 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
     }
 
     if (argc > 6) {
-      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK)
+      if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK) {
+	opserr << "WARNING failed to read numIter\n";
         return nullptr;
-      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK)
+      }
+      if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK) {
+	opserr << "WARNING failed to read minIncr\n";
         return nullptr;
-      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK)
+      }
+      if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK) {
+	opserr << "WARNING failed to read maxIncr\n";
         return nullptr;
+      }
     } else {
       minIncr = increment;
       maxIncr = increment;
@@ -537,16 +531,14 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
         node, dof - 1, increment, numIter, minIncr, maxIncr);
 #else
     Node *theNode = domain->getNode(node);
-    if (theNode == 0) {
-      opserr << "WARNING integrator DisplacementControl node dof dU : Node "
-                "does not exist\n";
+    if (theNode == nullptr) {
+      opserr << "WARNING Node " << node << " does not exist\n";
       return nullptr;
     }
 
     int numDOF = theNode->getNumberDOF();
     if (dof <= 0 || dof > numDOF) {
-      opserr << "WARNING integrator DisplacementControl node dof dU : invalid "
-                "dof given\n";
+      opserr << "WARNING invalid dof " << dof << "\n";
       return nullptr;
     }
 
@@ -557,6 +549,7 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
 #endif
 }
 
+#if 0
 StaticIntegrator*
 G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
@@ -584,6 +577,7 @@ G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp
     }
     return  new StagedLoadControl(dLambda, numIter, minIncr, maxIncr);
 }
+#endif
 
 #include <Newmark1.h>
 TransientIntegrator*

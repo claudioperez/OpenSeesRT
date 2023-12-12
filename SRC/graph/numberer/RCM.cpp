@@ -481,10 +481,3 @@ RCM::number(Graph &theGraph, const ID &startVertices)
 }
 
 
-
-
-
-
-
-
-

@@ -33,7 +33,9 @@
 
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Matrix.h>
+#include <Matrix3D.h>
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
@@ -50,6 +52,8 @@
 #include <FEM_ObjectBroker.h>
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
+
+using namespace OpenSees;
 
 // static data
 Matrix ShellMITC4Thermal::stiff(24, 24);
@@ -165,12 +169,11 @@ ShellMITC4Thermal::~ShellMITC4Thermal()
 //set domain
 void ShellMITC4Thermal::setDomain(Domain *theDomain)
 {
-  int i, j;
-  static Vector eig(3);
-  static Matrix ddMembrane(3, 3);
+  Vector3D eig;
+  Matrix3D ddMembrane;
 
   //node pointers
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     nodePointers[i] = theDomain->getNode(connectedExternalNodes(i));
     if (nodePointers[i] == 0) {
       opserr << "ShellMITC4Thermal::setDomain - no node "
@@ -190,18 +193,16 @@ void ShellMITC4Thermal::setDomain(Domain *theDomain)
   const Matrix &dd = materialPointers[0]->getInitialTangent();
 
   //assemble ddMembrane ;
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++)
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++)
       ddMembrane(i, j) = dd(i, j);
-  } //end for i
+  }
 
   //eigenvalues of ddMembrane
-  eig = LovelyEig(ddMembrane);
+  ddMembrane.symeig(eig);
 
   //set ktt
-  //Ktt = dd(2,2) ;  //shear modulus
   Ktt = min(eig(2), min(eig(0), eig(1)));
-  //Ktt = dd(2,2);
 
   //basis vectors and local coordinates
   computeBasis();
@@ -242,10 +243,9 @@ int ShellMITC4Thermal::commitState()
 //revert to last commit
 int ShellMITC4Thermal::revertToLastCommit()
 {
-  int i;
   int success = 0;
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     success += materialPointers[i]->revertToLastCommit();
 
   return success;
@@ -2127,10 +2127,8 @@ int ShellMITC4Thermal::recvSelf(int commitTag, Channel &theChannel,
   betaK0 = vectData(3);
   betaKc = vectData(4);
 
-  int i;
-
   if (materialPointers[0] == 0) {
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       int matClassTag = idData(i);
       int matDbTag    = idData(i + 4);
       // Allocate new material with the sent class tag
@@ -2154,7 +2152,7 @@ int ShellMITC4Thermal::recvSelf(int commitTag, Channel &theChannel,
   }
   // Number of materials is the same, receive materials into current space
   else {
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       int matClassTag = idData(i);
       int matDbTag    = idData(i + 4);
       // Check that material is of the right type; if not,

@@ -17,19 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/IncrementalIntegrator.cpp,v $
-                                                                        
+//
+// Description: This file contains the implementation of IncrementalIntegrator.
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
-// Description: This file contains the implementation of IncrementalIntegrator.
-//
-// What: "@(#) IncrementalIntegrator.C, revA"
-
 #include <IncrementalIntegrator.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
@@ -87,7 +81,7 @@ IncrementalIntegrator::formTangent(int statFlag)
     int result = 0;
     statusFlag = statFlag;
 
-    if (theAnalysisModel == 0 || theSOE == 0) {
+    if (theAnalysisModel == nullptr || theSOE == nullptr) {
 	opserr << "WARNING IncrementalIntegrator::formTangent() -";
 	opserr << " no AnalysisModel or LinearSOE have been set\n";
 	return -1;
@@ -102,7 +96,7 @@ IncrementalIntegrator::formTangent(int statFlag)
     // loop through the FE_Elements adding their contributions to the tangent
     FE_Element *elePtr;
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
-    while((elePtr = theEles2()) != 0)     
+    while((elePtr = theEles2()) != nullptr)
 	if (theSOE->addA(elePtr->getTangent(this), elePtr->getID()) < 0) {
 	    opserr << "WARNING IncrementalIntegrator::formTangent -";
 	    opserr << " failed in addA for ID " << elePtr->getID();	    
@@ -250,9 +244,7 @@ IncrementalIntegrator::formNodalUnbalance(void)
     DOF_Group *dofPtr;
     int res = 0;
 
-    while ((dofPtr = theDOFs()) != 0) { 
-      //      opserr << "NODPTR: " << dofPtr->getUnbalance(this);
-
+    while ((dofPtr = theDOFs()) != nullptr) {
 	if (theSOE->addB(dofPtr->getUnbalance(this),dofPtr->getID()) <0) {
 	    opserr << "WARNING IncrementalIntegrator::formNodalUnbalance -";
 	    opserr << " failed in addB for ID " << dofPtr->getID();
@@ -272,9 +264,8 @@ IncrementalIntegrator::formElementResidual(void)
     int res = 0;    
 
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
-    while((elePtr = theEles2()) != 0) {
-
-	if (theSOE->addB(elePtr->getResidual(this),elePtr->getID()) <0) {
+    while((elePtr = theEles2()) != nullptr) {
+	if (theSOE->addB(elePtr->getResidual(this),elePtr->getID()) < 0) {
 	    opserr << "WARNING IncrementalIntegrator::formElementResidual -";
 	    opserr << " failed in addB for ID " << elePtr->getID();
 	    res = -2;
@@ -344,9 +335,10 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 
   return res;
 }
- */
+*/
 
-/*int 
+/*
+int 
 IncrementalIntegrator::addModalDampingForce(void)
 {
   int res = 0;
@@ -505,7 +497,7 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 {
   int res = 0;
   
-  if (modalDampingValues == 0)
+  if (modalDampingValues == nullptr)
     return 0;
 
   int numModes = modalDampingValues->Size();
@@ -643,7 +635,7 @@ IncrementalIntegrator::doMv(const Vector &v, Vector &res) {
   // loop over the FE_Elements
   FE_Element *elePtr;
   FE_EleIter &theEles = theAnalysisModel->getFEs();    
-  while((elePtr = theEles()) != 0) {
+  while((elePtr = theEles()) != nullptr) {
     const Vector &b = elePtr->getM_Force(v, 1.0);
     res.Assemble(b, elePtr->getID(), 1.0);
   }

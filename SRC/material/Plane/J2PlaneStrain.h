@@ -12,14 +12,6 @@
 ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2008-10-20 22:23:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/J2PlaneStrain.h,v $
-
-#ifndef J2PlaneStrain_h
-#define J2PlaneStrain_h
-
 // Written: Ed "C++" Love
 //
 // J2PlaneStrain isotropic hardening material class
@@ -51,6 +43,8 @@
 // 
 //  set eta := 0 for rate independent case
 //
+#ifndef J2PlaneStrain_h
+#define J2PlaneStrain_h
 
 #include <stdio.h> 
 #include <stdlib.h> 

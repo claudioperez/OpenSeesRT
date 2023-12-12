@@ -17,26 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.18 $
-// $Date: 2010-02-16 18:54:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/ID.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the class implementation for ID.
 //
-// What: "@(#) ID.C, revA"
-
+// Written: fmk 
+// Revision: A
+//
 #include "ID.h"
-#include <stdlib.h>
 #include <map>
 #include <list>
 
 #include <iostream>
-using std::nothrow;
 
 int ID::ID_NOT_VALID_ENTRY = 0;
 
@@ -65,19 +56,10 @@ ID::ID(int size)
   }
 #endif    
 
-  // create the space for the data & check space was available
-  //  data = (int *)malloc(size*sizeof(int));
-  if (size > 0) {
-    data = new (nothrow) int[size]; 
-    if (data == 0) {
-      opserr << "ID::ID(int): ran out of memory with size " << size << endln;
-      exit(-1);
-    }
+  // create the (zero-initialized) space for the data
+  if (size > 0)
+    data = new int[size]{};
     
-    // zero the data
-    for (int i=0; i<size; i++)
-      data[i] = 0;
-  }
 }
 
 
@@ -105,40 +87,25 @@ ID::ID(int size, int arraySz)
   }
 #endif    
 
-  // create the space
-  //  data = (int *)malloc(arraySize*sizeof(int));
-  data = new (nothrow) int[arraySize];
-  if (data == 0) {
-    opserr << "ID::ID(int, int): ran out of memory with arraySize: " << arraySize << endln;
-    exit(-1);
-  }
+  // create the space; braces used to zero-initialize.
+  data = new int[arraySize]{};
 
-  // zero the data
-  for (int i=0; i<arraySize; i++)
-    data[i] = 0;
 }
 
 ID::ID(int *d, int size, bool cleanIt)
   :sz(size), data(d), arraySize(size), fromFree(1)
 {
-  if (d == 0) { // OOPS must have been other constructor we wanted
+  // TODO: Dont do this, instead assert(d != nullptr)
+  if (d == nullptr) { // OOPS must have been other constructor we wanted
     sz = 0;
     data = 0;
     arraySize = size;
     fromFree = 0;
 
-    // create the space
-    if (arraySize != 0) {
-      data = (int *)malloc(arraySize*sizeof(int));
-      if (data == 0) {
-	opserr << "ID::ID(int, int): ran out of memory with arraySize " << arraySize << endln;
-	exit(-1);
-      }
-    }
+    // create the space; braces used to zero-initialize.
+    if (arraySize != 0)
+      data = new int[arraySize]{};
 
-    // zero the data
-    for (int i=0; i<arraySize; i++)
-      data[i] = 0;
   }
   
   if (cleanIt == true)
@@ -152,12 +119,7 @@ ID::ID(const ID &other)
   :sz(other.sz), data(0), arraySize(other.arraySize), fromFree(0)
 {
   // create the space
-  //  data = (int *)malloc(arraySize*sizeof(int));
-  data = new (nothrow) int[arraySize]; 
-  if (data == 0) {
-    opserr << "ID::ID(ID): ran out of memory with arraySize " << arraySize << endln,
-    exit(-1);
-  }
+  data = new int[arraySize]; 
   
   // copy the data 
   for (int i=0; i<sz; i++)
@@ -171,16 +133,14 @@ ID::ID(const ID &other)
 
 ID::~ID()
 {
-  if (data != 0 && fromFree == 0) 
-    //    free((void *)data);
+  if (data != nullptr && fromFree == 0) 
     delete [] data;
 }
 
 int 
 ID::setData(int *newData, int size, bool cleanIt){
 	
-  if (data != 0 && fromFree == 0) 
-    //    free((void *)data);
+  if (data != nullptr && fromFree == 0) 
     delete [] data;
 
   sz = size;
@@ -188,6 +148,7 @@ ID::setData(int *newData, int size, bool cleanIt){
   
   if (cleanIt == false)
     fromFree = 1;
+
   else
     fromFree = 0;
 
@@ -204,7 +165,7 @@ void
 ID::Zero(void)
 {
   for (int i=0; i<sz; i++)
-    data[i] =0;
+    data[i] = 0;
 }
 
 int
@@ -278,7 +239,7 @@ ID::unique(void)
     }
 
     sz = int(uniquesl.size());
-    int* newdata = new (nothrow) int[sz];
+    int* newdata = new int[sz];
     for (std::list<int>::iterator pos=uniquesl.begin(); pos!=uniquesl.end(); pos++)
         newdata[count++] = *pos;
 
@@ -324,37 +285,27 @@ ID::operator[](int x)
     int newArraySize = arraySize * 2;
     if (newArraySize <= x) 
       newArraySize = x+1;
-    //    int *newData = (int *)malloc(newArraySize*sizeof(int));    
-    int *newData = new (nothrow) int[newArraySize];
 
-    if (newData != 0) {
+    int *newData = new int[newArraySize];
 
-      // copy the old
-      for (int i=0; i<sz; i++)
-	newData[i] = data[i];
+    // copy the old
+    for (int i=0; i<sz; i++)
+      newData[i] = data[i];
 
-      // zero the new
-      for (int j=sz; j<newArraySize; j++)
-	newData[j] = 0;
-      
-      sz = x+1;
+    // zero the new
+    for (int j=sz; j<newArraySize; j++)
+      newData[j] = 0;
+    
+    sz = x+1;
 
-      // release the memory held by the old
-      //      free((void *)data);	    
+    // release the memory held by the old
+    if (fromFree == 0 && data != nullptr)
+      delete [] data;
 
-      if (fromFree == 0 && data != 0)
-	delete [] data;
-
-      data = newData;
-      arraySize = newArraySize;
-      
-      return newData[x];
-    }
-    else {
-      // we could not allocate more mem .. leave the current size
-      opserr << "ID::[]): ran out of memory with arraySize " << arraySize << endln;
-      return ID_NOT_VALID_ENTRY;
-    }
+    data = newData;
+    arraySize = newArraySize;
+    
+    return newData[x];
   }
   
   // we should never get here, but some compilers need this line
@@ -371,7 +322,6 @@ ID::resize(int newSize, int fill_value){
     return -1;
   } 
   
-
   if (sz >= newSize) {
 
     // is size smaller than current, simply reset sz
@@ -390,26 +340,21 @@ ID::resize(int newSize, int fill_value){
 
     // otherwise we go get more space
     
-    int *newData = new (nothrow) int[newSize];
-    if (newData != 0) {
-      // copy the old
-      for (int i=0; i<sz; i++)
-	newData[i] = data[i];
-      // zero the new
-      for (int j=sz; j<newSize; j++)
-	newData[j] = fill_value;
-      
-      sz = newSize;
-      // release the memory held by the old
-      //      free((void *)data);	    
-      delete [] data;
-      data = newData;
-      arraySize = newSize;
+    int *newData = new int[newSize];
 
-    } else {
-      opserr << "ID::resize() - out of memory creating ID of size " << newSize << "\n";
-      return -1;      
-    }
+    // copy the old
+    for (int i=0; i<sz; i++)
+      newData[i] = data[i];
+
+    // zero the new
+    for (int j=sz; j<newSize; j++)
+      newData[j] = fill_value;
+    
+    sz = newSize;
+    // release the memory held by the old
+    delete [] data;
+    data = newData;
+    arraySize = newSize;
   }
 
   return 0;
@@ -435,32 +380,22 @@ ID &
 ID::operator=(const ID &V) 
 {
     // first check we are not trying v = v
-    if (this != &V) {
-	
-	// check size compatability, if different delete
-	// old and make room for new.
-	if (sz != V.sz) {
-	    if (arraySize < V.sz) {
-		arraySize = V.sz;
-		if (data != 0)
-		  //free((void *)data);
-		  delete [] data;
-		//		data = (int *)malloc(arraySize*sizeof(int));		
-		data = new (nothrow) int[arraySize];
-		// check we got the memory requested
-		if (data == 0) {
-		    opserr << "WARNING ID::=(ID) - ran out of memory ";
-		    opserr << "for new array of size" << arraySize << endln;
-		    sz = 0;
-		    arraySize = 0;
-		}
-	    }
-	    sz = V.sz;
-	}
-	
-	// copy the data
-	for (int i=0; i<sz; i++)
-	    data[i] = V(i);
+    if (this != &V) {	
+      // check size compatability, if different delete
+      // old and make room for new.
+      if (sz != V.sz) {
+          if (arraySize < V.sz) {
+            arraySize = V.sz;
+            if (data != nullptr)
+              delete [] data;
+            data = new int[arraySize];
+          }
+          sz = V.sz;
+      }
+      
+      // copy the data
+      for (int i=0; i<sz; i++)
+          data[i] = V(i);
     }
 
     return *this;
@@ -470,7 +405,6 @@ ID::operator=(const ID &V)
 // ID operator==(const ID &V):
 //	The == operator checks the two IDs are of the same size.
 // 	Then returns 1 if all the components of the two IDs are equal and 0 otherwise.
-
 int 
 ID::operator==(const ID &V) const
 {
@@ -559,8 +493,7 @@ ID::operator<(const ID &V) const
 
 OPS_Stream &operator<<(OPS_Stream &s, const ID &V)
 {
-    for (int i=0; i<V.Size(); i++) 
-    {
+    for (int i=0; i<V.Size(); i++) {
 	s << V(i) << " ";
     }
     return s << endln;
@@ -623,29 +556,29 @@ ID::insert(int x)
     sz++;
     data[i] = x;
     return 0;
+
   } else {
     int newArraySize = (sz+1) * 2;
-    int *newData = new (nothrow) int[newArraySize];
-    if (newData != 0) {
+    int *newData = new int[newArraySize];
       
-      // copy the old
-      for (int ii=0; ii<middle; ii++)
-	newData[ii] = data[ii];
-      newData[middle] = x;
-      
-      for (int jj=middle; jj<sz; jj++)
-	newData[jj+1] = data[jj];
-      
-      sz++;
-      
-      if (data != 0 && fromFree == 0)
-	delete [] data;
-      data = newData;
-      arraySize = newArraySize;
-      
-      return 0;
-      
-    }
+    // copy the old
+    for (int ii=0; ii<middle; ii++)
+      newData[ii] = data[ii];
+
+    newData[middle] = x;
+    
+    for (int jj=middle; jj<sz; jj++)
+      newData[jj+1] = data[jj];
+    
+    sz++;
+    
+    if (data != 0 && fromFree == 0)
+      delete [] data;
+
+    data = newData;
+    arraySize = newArraySize;
+    
+    return 0;  
   }
   return -1; 
 }
