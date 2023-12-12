@@ -5,10 +5,12 @@
 #
 #==============================================================================
 target_sources(OPS_Element
-    PRIVATE
+  PRIVATE
     FourNodeTetrahedron.cpp
-    PUBLIC
+    TenNodeTetrahedron.cpp
+  PUBLIC
     FourNodeTetrahedron.h
+    TenNodeTetrahedron.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})

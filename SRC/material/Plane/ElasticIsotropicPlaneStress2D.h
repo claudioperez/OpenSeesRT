@@ -38,8 +38,10 @@
 
 #include <ElasticIsotropicMaterial.h>
 
-#include <Matrix.h>
-#include <Vector.h>
+#include <Matrix3D.h>
+#include <Vector3D.h>
+class Vector;
+class Matrix;
 #include <ID.h>
 
 class ElasticIsotropicPlaneStress2D : public ElasticIsotropicMaterial
