@@ -58,23 +58,25 @@ class NodeRecorder: public Recorder
 		 Domain &theDomain,
 		 OPS_Stream &theOutputHandler,
 		 double deltaT = 0.0,
+		 double relDeltaTTol = 0.00001,
 		 bool echoTimeFlag = true,
 		 TimeSeries **timeSeries = nullptr); 
     
     ~NodeRecorder();
 
     int record(int commitTag, double timeStamp);
+    int flush();
 
-    int domainChanged(void);    
+    int domainChanged(void);
     int setDomain(Domain &theDomain);
-    int sendSelf(int commitTag, Channel &theChannel);  
-    int recvSelf(int commitTag, Channel &theChannel, 
+    int sendSelf(int commitTag, Channel &theChannel);
+    int recvSelf(int commitTag, Channel &theChannel,
 		 FEM_ObjectBroker &theBroker);
 	virtual double getRecordedValue(int clmnId, int rowOffset, bool reset); //added by SAJalali
 
   protected:
 
-  private:	
+  private:
     int initialize(void);
 
     ID *theDofs;
@@ -93,6 +95,7 @@ class NodeRecorder: public Recorder
     // AddingSensitivity:END ////////////////////////////////
 
     double deltaT;
+    double relDeltaTTol;
     double nextTimeStampToRecord;
 
 

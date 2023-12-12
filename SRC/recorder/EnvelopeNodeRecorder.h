@@ -59,6 +59,7 @@ class EnvelopeNodeRecorder: public Recorder
 			 Domain &theDomain,
 			 OPS_Stream &theOutputHandler,
 			 double deltaT = 0.0,
+			 double relDeltaTTol = 0.00001,
 			 bool echoTimeFlag = false,
 			 TimeSeries **theTimeSeries =0); 
     
@@ -66,6 +67,7 @@ class EnvelopeNodeRecorder: public Recorder
 
     int record(int commitTag, double timeStamp);
     int restart(void);    
+    int flush(void);    
 
     int setDomain(Domain &theDomain);
     int sendSelf(int commitTag, Channel &theChannel);  
@@ -93,6 +95,7 @@ class EnvelopeNodeRecorder: public Recorder
     int dataIndex;
 
     double deltaT;
+    double relDeltaTTol;
     double nextTimeStampToRecord;
 
     bool first;

@@ -191,13 +191,10 @@ getNodeDataFlag(const char *dataToStore, Domain& theDomain, int* dataIndex)
 
   if (dataToStore == nullptr)
     dataFlag = NodeData::DisplTrial; // 0;
-
   else if ((strcmp(dataToStore, "disp") == 0)) {
     dataFlag = NodeData::DisplTrial; // 0
-
   } else if ((strcmp(dataToStore, "vel") == 0)) {
     dataFlag = NodeData::VelocTrial; // 1
-
   } else if ((strcmp(dataToStore, "accel") == 0)) {
     dataFlag = NodeData::AccelTrial; // 2
   } else if ((strcmp(dataToStore, "incrDisp") == 0)) {
@@ -407,6 +404,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     int numEle = 0;
     int endEleIDs = 2;
     double dT   = 0.0;
+    double rTolDt = 1e-5;
     bool echoTime = false;
     int loc = endEleIDs;
     int flags   = 0;
@@ -422,6 +420,13 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           loc += consumed;
         else
           return TCL_ERROR;
+      }
+
+      else if (strcmp(argv[loc], "-rTolDt") == 0) {
+        loc++;
+        if (Tcl_GetDouble(interp, argv[loc], &rTolDt) != TCL_OK)
+          return TCL_ERROR;
+        loc++;
       }
 
       else if ((strcmp(argv[loc], "-ele") == 0) ||
@@ -584,21 +589,21 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (strcmp(argv[1], "Element") == 0)
       (*theRecorder) = new ElementRecorder(eleIDs, data, argc - eleData, echoTime, *domain,
-                                           *theOutputStream, dT, specificIndices);
+                                           *theOutputStream, dT, rTolDt, specificIndices);
 
     else if (strcmp(argv[1], "EnvelopeElement") == 0)
       (*theRecorder) = new EnvelopeElementRecorder(eleIDs, data, argc - eleData,
-                                                   *domain, *theOutputStream, dT, 
+                                                   *domain, *theOutputStream, dT, rTolDt,
                                                    echoTime, specificIndices);
 
     else if (strcmp(argv[1], "NormElement") == 0)
       (*theRecorder) = new NormElementRecorder(eleIDs, data, argc - eleData, 
                                                echoTime, *domain, *theOutputStream, 
-                                               dT, specificIndices);
+                                               dT, rTolDt, specificIndices);
 
     else
       (*theRecorder) = new NormEnvelopeElementRecorder(eleIDs, data, argc - eleData,
-                                                       *domain, *theOutputStream, dT,
+                                                       *domain, *theOutputStream, dT, 1e-6,
                                                        echoTime, specificIndices);
 
     if (eleIDs != nullptr)
@@ -718,7 +723,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // now construct the recorder
     (*theRecorder) = new DamageRecorder(eleID, secIDs, dofID, dmgPTR, *domain,
-                                        echoTime, dT, *theOutput);
+                                        echoTime, dT, 1e-6, *theOutput);
 
   }
 
@@ -1122,7 +1127,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     // now construct the recorder
     (*theRecorder) = new RemoveRecorder(
         nodeTag, eleIDs, secIDs, secondaryEleIDs, remCriteria, *domain,
-        *theOutputStream, echoTime, dT, filename, eleMass, gAcc, gDir, gPat,
+        *theOutputStream, echoTime, dT, 1e-6, filename, eleMass, gAcc, gDir, gPat,
         nTagbotn, nTagmidn, nTagtopn, globgrav, filenameinf);
 
   }
@@ -1181,6 +1186,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         else
           return TCL_ERROR;
       }
+
 
       else if (strcmp(argv[pos], "-time") == 0) {
         echoTimeFlag = true;
@@ -1571,6 +1577,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   bool         echoTimeFlag     = false;
   int          flags            = 0;
   double       dT               = 0.0;
+  double       rTolDt           = 1e-5;
   int          numNodes         = 0;
   int          gradIndex        = -1;
   int          dataIndex        = -1;
@@ -1613,6 +1620,12 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       // allow user to specify time step size for recording
       pos++;
       if (Tcl_GetDouble(interp, argv[pos], &dT) != TCL_OK)
+        return TCL_ERROR;
+      pos++;
+    }
+    else if (strcmp(argv[pos], "-rTolDt") == 0) {
+      pos++;
+      if (Tcl_GetDouble(interp, argv[pos], &rTolDt) != TCL_OK)
         return TCL_ERROR;
       pos++;
     }
@@ -1809,16 +1822,16 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcasecmp(argv[1], "Node") == 0) {
     (*theRecorder) =
         new NodeRecorder(theDofs, theNodes, gradIndex, dataFlag, dataIndex, *domain,
-                         *theOutputStream, dT, echoTimeFlag, theTimeSeries);
+                         *theOutputStream, dT, rTolDt, echoTimeFlag, theTimeSeries);
 
   } else if (strcasecmp(argv[1], "NodeRMS") == 0) {
     (*theRecorder) =
         new NodeRecorderRMS(theDofs, theNodes, dataFlag, dataIndex, *domain,
-                            *theOutputStream, dT, theTimeSeries);
+                            *theOutputStream, dT, rTolDt, theTimeSeries);
 
   } else {
     (*theRecorder) = new EnvelopeNodeRecorder(theDofs, theNodes, dataFlag, dataIndex,
-                                              *domain, *theOutputStream, dT,
+                                              *domain, *theOutputStream, dT, rTolDt,
                                               echoTimeFlag, theTimeSeries);
   }
 

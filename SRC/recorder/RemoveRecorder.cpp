@@ -61,7 +61,7 @@ using std::ios;
 //#define MMTDEBUG
 //#define MMTDEBUGIO
 
-// initiatie class-wide static members to keep track of removed components
+// initiate class-wide static members to keep track of removed components
 int RemoveRecorder::numRecs = 0;
 ID RemoveRecorder::remEleList(0);
 ID RemoveRecorder::remNodeList(0);
@@ -81,7 +81,8 @@ ofstream RemoveRecorder::theFile;
 RemoveRecorder::RemoveRecorder(int nodeID, ID &eleIDs, ID &secIDs,
                                ID &secondaryTags, Vector remCriteria,
                                Domain &theDomainPtr, OPS_Stream &s,
-                               bool echotimeflag, double deltat,
+                               bool echotimeflag, 
+                               double deltat, double _relDeltaTTol,
                                const char *theFileName, Vector eleMass,
                                double gAcc, int gDir, int gPat, int nTagbotn,
                                int nTagmidn, int nTagtopn, int globgrav,
@@ -90,7 +91,9 @@ RemoveRecorder::RemoveRecorder(int nodeID, ID &eleIDs, ID &secIDs,
       numEles(eleIDs.Size()), eleTags(eleIDs.Size()), secTags(secIDs.Size()),
       numSecs(secIDs.Size()), criteria(remCriteria), theDomain(&theDomainPtr),
       secondaryEleTags(secondaryTags.Size()), secondaryFlag(false),
-      echoTimeFlag(echotimeflag), deltaT(deltat), nextTimeStampToRecord(0.0),
+      echoTimeFlag(echotimeflag), 
+      deltaT(deltat), relDeltaTTol(_relDeltaTTol),
+      nextTimeStampToRecord(0.0),
       gAcc(gAcc), gDir(gDir), gPat(gPat), nTagbotn(nTagbotn),
       nTagmidn(nTagmidn), nTagtopn(nTagtopn), globgrav(globgrav),
       eleResponses(0)
@@ -789,6 +792,13 @@ int RemoveRecorder::updateNodalMasses(int theEleTag, double theEleMass)
         }
       }
     }
+  }
+  return 0;
+}
+
+int RemoveRecorder::flush(void) {
+  if (theFile.is_open() && theFile.good()) {
+    theFile.flush();
   }
   return 0;
 }
