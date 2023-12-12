@@ -224,6 +224,7 @@ using namespace OpenSees::Hash::literals;
 #include "Frame/Elastic/ElasticBeam2d.h"
 #include "Frame/Elastic/ElasticBeam3d.h"
 #include "Frame/Elastic/ModElasticBeam2d.h" //SAJalali
+#include "Frame/Elastic/ModElasticBeam3d.h"
 #include "Frame/Elastic/ElasticTimoshenkoBeam2d.h"
 #include "Frame/Elastic/ElasticTimoshenkoBeam3d.h"
 #include "Frame/ForceInterp/ForceBeamColumn2d.h"
@@ -632,6 +633,7 @@ TclPackageClassBroker::getNewElement(int classTag)
     DISPATCH(Tri31);
     DISPATCH(ElasticBeam2d);
     DISPATCH(ModElasticBeam2d);
+    DISPATCH(ModElasticBeam3d);
     DISPATCH(ElasticBeam3d);
     DISPATCH(ElasticTimoshenkoBeam2d);
     DISPATCH(ElasticTimoshenkoBeam3d);
