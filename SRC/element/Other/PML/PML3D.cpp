@@ -681,7 +681,7 @@ void  PML3D::Print(OPS_Stream &s, int flag) {
 		s << "\"type\": \"PML3D\", ";
 		s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
 		for (int i = 1; i < 7; i++)
-		s << connectedExternalNodes(i) << ", ";
+		  s << connectedExternalNodes(i) << ", ";
 		s << connectedExternalNodes(7) << "], ";
   	}
 	return;
