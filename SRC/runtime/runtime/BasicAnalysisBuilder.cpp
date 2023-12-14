@@ -73,7 +73,12 @@ BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
 
 BasicAnalysisBuilder::~BasicAnalysisBuilder()
 {
-    this->wipe();
+  this->wipe();
+
+  if (theAnalysisModel != nullptr) {
+    delete theAnalysisModel;
+    theAnalysisModel = nullptr;
+  }
 }
 
 void 
@@ -146,9 +151,10 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
       theTransientIntegrator->setLinks(*theAnalysisModel, *theSOE, theTest);
     if (theAnalysisModel && theTransientIntegrator && theSOE && theTest && theAlgorithm)
       theAlgorithm->setLinks(*theAnalysisModel, *theTransientIntegrator, *theSOE, theTest);
-    if (domainStamp != 0 && theTransientIntegrator)
-      theTransientIntegrator->domainChanged();
+    // if (domainStamp != 0 && theTransientIntegrator)
+    //   theTransientIntegrator->domainChanged();
 
+    domainStamp  = 0;
     break;
   
   case CURRENT_STATIC_ANALYSIS:
@@ -414,7 +420,6 @@ BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
         
         this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
     }
-
 }
 
 
@@ -454,10 +459,6 @@ BasicAnalysisBuilder::set(EigenSOE &theNewSOE)
 void
 BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 {
-  /*
-  if (theAnalysisModel == nullptr)
-    theAnalysisModel = new AnalysisModel();
-  */
 
   switch (flag) {
     case CURRENT_STATIC_ANALYSIS:
@@ -475,27 +476,22 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
     theTest = new CTestNormUnbalance(1.0e-6,25,0);
   }
 
-  if (theAlgorithm == nullptr) {
+  if (theAlgorithm == nullptr)
     theAlgorithm = new NewtonRaphson(*theTest);
-  }
+
 
   if (theHandler == nullptr) {
-    opserr << G3_WARN_PROMPT << "analysis Static - no ConstraintHandler yet specified, \n";
-    opserr << " PlainHandler default will be used\n";
+    opserr << G3_WARN_PROMPT << "no ConstraintHandler has been specified, \n";
+    opserr << "   PlainHandler default will be used\n";
     theHandler = new PlainHandler();
   }
 
-  if (theNumberer == nullptr) {
-    RCM *theRCM = new RCM(false);
-    theNumberer = new DOF_Numberer(*theRCM);
-  }
+  if (theNumberer == nullptr)
+    theNumberer = new DOF_Numberer(*(new RCM(false)));
 
-  if (theSOE == nullptr) {
+  if (theSOE == nullptr)
     // TODO: CHANGE TO MORE GENERAL SOE
-      ProfileSPDLinSolver *theSolver;
-      theSolver = new ProfileSPDLinDirectSolver();
-      theSOE = new ProfileSPDLinSOE(*theSolver);
-  }
+      theSOE = new ProfileSPDLinSOE(*(new ProfileSPDLinDirectSolver()));
 
 }
 
