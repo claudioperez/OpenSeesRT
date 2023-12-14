@@ -44,7 +44,6 @@
 # define INT_WORK_AREA 20
   int Matrix::sizeDoubleWork = MATRIX_WORK_AREA;
   int Matrix::sizeIntWork = INT_WORK_AREA;
-  double Matrix::MATRIX_NOT_VALID_ENTRY =0.0;
   double *Matrix::matrixWork = nullptr;
   int    *Matrix::intWork    = nullptr;
 #endif
@@ -326,13 +325,10 @@ Matrix::Solve(const Vector &b, Vector &x) const
       matrixWork = new double[dataSize];
       sizeDoubleWork = dataSize;
     }
-
-    // check work area can hold all the data
     if (n > sizeIntWork) {
-
-      if (intWork != 0) {
+      if (intWork != nullptr) {
         delete [] intWork;
-        intWork = 0;
+        intWork = nullptr;
       }
       intWork = new int[n];
       sizeIntWork = n;  
@@ -376,7 +372,6 @@ Matrix::Solve(const Matrix &b, Matrix &x) // const
 
     // check work area can hold all the data
     if (dataSize > sizeDoubleWork) {
-
       if (matrixWork != 0) {
         delete [] matrixWork;
         matrixWork = 0;
@@ -384,11 +379,8 @@ Matrix::Solve(const Matrix &b, Matrix &x) // const
       matrixWork = new double[dataSize];
       sizeDoubleWork = dataSize;
     }
-
-    // check work area can hold all the data
     if (n > sizeIntWork) {
-
-      if (intWork != 0) {
+      if (intWork != nullptr) {
         delete [] intWork;
         intWork = 0;
       }
