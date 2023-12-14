@@ -17,18 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.17 $
-// $Date: 2009-05-14 22:50:53 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/StaticAnalysis.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 //
 // Description: This file contains the implementation of StaticAnalysis.
 //
-// What: "@(#) StaticAnalysis.C, revA"
-
 #include <StaticAnalysis.h>
 #include <EquiSolnAlgo.h>
 #include <AnalysisModel.h>
@@ -60,7 +53,7 @@ StaticAnalysis::StaticAnalysis(Domain &the_Domain,
 			       LinearSOE &theLinSOE,
 			       StaticIntegrator &theStaticIntegrator,
 			       ConvergenceTest *theConvergenceTest)
-:Analysis(the_Domain), theConstraintHandler(&theHandler),
+:theDomain(&the_Domain), theConstraintHandler(&theHandler),
  theDOF_Numberer(&theNumberer), theAnalysisModel(&theModel), 
  theAlgorithm(&theSolnAlgo), theSOE(&theLinSOE), theEigenSOE(0),
  theIntegrator(&theStaticIntegrator), theTest(theConvergenceTest),
@@ -84,9 +77,6 @@ StaticAnalysis::StaticAnalysis(Domain &the_Domain,
 
 StaticAnalysis::~StaticAnalysis()
 {
-  // we don't invoke the destructors in case user switching
-  // from a static to a direct integration analysis 
-  // clearAll() must be invoked if user wishes to invoke destructor
 }    
 
 void
@@ -94,24 +84,6 @@ StaticAnalysis::clearAll(void)
 {
 #if 0 // TODO: resolve with upstream. Commented out to give ownership to
       // BasicAnalsisBuilder.
-
-  // invoke the destructor on all the objects in the aggregation
-  if (theAnalysisModel != 0)     
-    delete theAnalysisModel;
-  if (theConstraintHandler != 0) 
-    delete theConstraintHandler;
-  if (theDOF_Numberer != 0)      
-    delete theDOF_Numberer;
-  if (theIntegrator != 0) 
-    delete theIntegrator;
-  if (theAlgorithm != 0)  
-    delete theAlgorithm;
-  if (theSOE != 0)
-    delete theSOE;
-  if (theTest != 0)
-    delete theTest;
-  if (theEigenSOE != 0)
-    delete theEigenSOE;
 #endif
   
   theAnalysisModel =0;
@@ -129,7 +101,7 @@ int
 StaticAnalysis::analyze(int numSteps)
 {
     int result = 0;
-    Domain *the_Domain = this->getDomainPtr();
+    // Domain *the_Domain = this->getDomainPtr();
 
     for (int i=0; i<numSteps; i++) {
 
@@ -138,18 +110,15 @@ StaticAnalysis::analyze(int numSteps)
 	if (result < 0) {
 	    opserr << "StaticAnalysis::analyze() - the AnalysisModel failed";
 	    opserr << " at step: " << i << " with domain at load factor ";
-	    opserr << the_Domain->getCurrentTime() << endln;
-	    the_Domain->revertToLastCommit();
+	    opserr << theDomain->getCurrentTime() << endln;
+	    theDomain->revertToLastCommit();
 	    return -2;
 	}
 
 	// Check for change in Domain since last step. As a change can
 	// occur in a commit() in a domaindecomp with load balancing
 	// this must now be inside the loop
-
-	int stamp = the_Domain->hasDomainChanged();
-
-	
+	int stamp = theDomain->hasDomainChanged();	
 	if (stamp != domainStamp) {
 	    domainStamp = stamp;
 
@@ -166,34 +135,30 @@ StaticAnalysis::analyze(int numSteps)
 	if (result < 0) {
 	    opserr << "StaticAnalysis::analyze() - the Integrator failed";
 	    opserr << " at step: " << i << " with domain at load factor ";
-	    opserr << the_Domain->getCurrentTime() << endln;
-	    the_Domain->revertToLastCommit();
+	    opserr << theDomain->getCurrentTime() << endln;
+	    theDomain->revertToLastCommit();
 	    theIntegrator->revertToLastStep();
  
 	    return -2;
 	}
 
         result = theAlgorithm->solveCurrentStep();
-	if (result < 0) {
-	    // opserr << "StaticAnalysis::analyze() - the Algorithm failed";
-	    // opserr << " at step: " << i << " with domain at load factor ";
-	    // opserr << the_Domain->getCurrentTime() << endln;
-	    the_Domain->revertToLastCommit();	    
-	    theIntegrator->revertToLastStep();
 
+	if (result < 0) {
+	    theDomain->revertToLastCommit();	    
+	    theIntegrator->revertToLastStep();
 	    return -3;
 	}    
 
 #ifdef _RELIABILITY
-
 	if (theIntegrator->shouldComputeAtEachStep()) {
 
 	    result = theIntegrator->computeSensitivities();
 	    if (result < 0) {
 		opserr << "StaticAnalysis::analyze() - the SensitivityAlgorithm failed";
 		opserr << " at step: " << i << " with domain at load factor ";
-		opserr << the_Domain->getCurrentTime() << endln;
-		the_Domain->revertToLastCommit();	    
+		opserr << theDomain->getCurrentTime() << endln;
+		theDomain->revertToLastCommit();	    
 		theIntegrator->revertToLastStep();
 		return -5;
 	    }    
@@ -205,8 +170,8 @@ StaticAnalysis::analyze(int numSteps)
 	    opserr << "StaticAnalysis::analyze() - ";
 	    opserr << "the Integrator failed to commit";
 	    opserr << " at step: " << i << " with domain at load factor ";
-	    opserr << the_Domain->getCurrentTime() << endln;
-	    the_Domain->revertToLastCommit();	    
+	    opserr << theDomain->getCurrentTime() << endln;
+	    theDomain->revertToLastCommit();	    
 	    theIntegrator->revertToLastStep();
 
 	    return -4;
@@ -226,12 +191,12 @@ StaticAnalysis::eigen(int numMode, bool generalized, bool findSmallest)
     }
 
     int result = 0;
-    Domain *the_Domain = this->getDomainPtr();
+    // Domain *the_Domain = this->getDomainPtr();
 
     // for parallel processing, want all analysis doing an eigenvalue analysis
     result = theAnalysisModel->eigenAnalysis(numMode, generalized, findSmallest);
 
-    int stamp = the_Domain->hasDomainChanged();
+    int stamp = theDomain->hasDomainChanged();
 
     if (stamp != domainStamp) {
       domainStamp = stamp;
@@ -327,10 +292,10 @@ StaticAnalysis::eigen(int numMode, bool generalized, bool findSmallest)
 int 
 StaticAnalysis::initialize(void)
 {
-    Domain *the_Domain = this->getDomainPtr();
+    // Domain *the_Domain = this->getDomainPtr();
 
     // check if domain has undergone change
-    int stamp = the_Domain->hasDomainChanged();
+    int stamp = theDomain->hasDomainChanged();
     if (stamp != domainStamp) {
       domainStamp = stamp;	
       if (this->domainChanged() < 0) {
@@ -352,8 +317,8 @@ StaticAnalysis::domainChanged(void)
 {
     int result = 0;
 
-    Domain *the_Domain = this->getDomainPtr();
-    int stamp = the_Domain->hasDomainChanged();
+    // Domain *the_Domain = this->getDomainPtr();
+    int stamp = theDomain->hasDomainChanged();
     domainStamp = stamp;
 
     theAnalysisModel->clearAll();    
@@ -414,18 +379,12 @@ StaticAnalysis::domainChanged(void)
     // objects .. informing them that the model has changed
 
     result = theIntegrator->domainChanged();
-    if (result < 0) {
-	opserr << "StaticAnalysis::setAlgorithm() - ";
-	opserr << "Integrator::domainChanged() failed";
+    if (result < 0)
 	return -4;
-    }	    
 
     result = theAlgorithm->domainChanged();
-    if (result < 0) {
-	opserr << "StaticAnalysis::setAlgorithm() - ";
-	opserr << "Algorithm::domainChanged() failed";
+    if (result < 0) 
 	return -5;
-    }	        
 
     // if get here successful
     return 0;
@@ -482,11 +441,11 @@ StaticAnalysis::setIntegrator(StaticIntegrator &theNewIntegrator)
 	delete theIntegrator;
     }
     // set the links needed by the other objects in the aggregation
-    Domain *the_Domain = this->getDomainPtr();
+    // Domain *the_Domain = this->getDomainPtr();
   
     theIntegrator = &theNewIntegrator;
     theIntegrator->setLinks(*theAnalysisModel, *theSOE, theTest);
-    theConstraintHandler->setLinks(*the_Domain, *theAnalysisModel, *theIntegrator);
+    theConstraintHandler->setLinks(*theDomain, *theAnalysisModel, *theIntegrator);
     theAlgorithm->setLinks(*theAnalysisModel, *theIntegrator, *theSOE, theTest);
 
     // cause domainChanged to be invoked on next analyze
@@ -517,12 +476,6 @@ StaticAnalysis::setLinearSOE(LinearSOE &theNewSOE)
       theEigenSOE->setLinearSOE(*theSOE);
 
     // cause domainChanged to be invoked on next analyze
-    /*
-    if (domainStamp != 0) {
-      Graph &theGraph = theAnalysisModel->getDOFGraph();
-      int result = theSOE->setSize(theGraph);
-    }
-    */
     domainStamp = 0;
     return 0;
 }

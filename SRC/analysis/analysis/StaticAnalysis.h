@@ -35,7 +35,7 @@
 //
 // What: "@(#) StaticAnalysis.h, revA"
 
-#include <Analysis.h>
+// #include <Analysis.h>
 
 
 class ConstraintHandler;
@@ -46,11 +46,12 @@ class LinearSOE;
 class EquiSolnAlgo;
 class ConvergenceTest;
 class EigenSOE;
+class Domain;
 
-class StaticAnalysis: public Analysis
+class StaticAnalysis 
 {
   public:
-        StaticAnalysis(Domain &theDomain,
+        StaticAnalysis(Domain &the_Domain,
 		   ConstraintHandler &theHandler,
 		   DOF_Numberer &theNumberer,
 		   AnalysisModel &theModel,
@@ -80,6 +81,7 @@ class StaticAnalysis: public Analysis
     ConvergenceTest  *getConvergenceTest(void);
 
   protected: 
+    // Domain *getDomainPtr(void);
     
   private:
     ConstraintHandler 	*theConstraintHandler;    
@@ -90,6 +92,7 @@ class StaticAnalysis: public Analysis
     EigenSOE 		*theEigenSOE;
     StaticIntegrator    *theIntegrator;
     ConvergenceTest     *theTest;
+    Domain              *theDomain;
     int domainStamp;
 
 };

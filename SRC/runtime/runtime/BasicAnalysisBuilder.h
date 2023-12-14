@@ -52,6 +52,7 @@ public:
     void set(LinearSOE* obj);
     void set(Integrator* obj, int isstatic);
     void set(ConvergenceTest* obj);
+    void set(EigenSOE& obj);
 
     LinearSOE* getLinearSOE();
     
@@ -86,17 +87,16 @@ public:
 
     int analyze(int num_steps, double size_steps=0.0);
     int analyzeStatic(int num_steps);
-    int analyzeTransient(int num_steps, double size_steps=0.0);
 
     void wipe();
-    void resetStatic();
-    void resetTransient();
-    void resetAll();
+
     
     enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
 
 private:
-//  G3_Table* registry;
+    void setLinks(CurrentAnalysis flag = CURRENT_EMPTY_ANALYSIS);
+    void fillDefaults(enum CurrentAnalysis flag);
+
     Domain                    *theDomain;
     ConstraintHandler 	      *theHandler;
     DOF_Numberer 	      *theNumberer;
@@ -104,6 +104,7 @@ private:
     EquiSolnAlgo 	      *theAlgorithm;
     LinearSOE 		      *theSOE;
     EigenSOE 		      *theEigenSOE;
+//  Integrator                *theIntegrator;
     StaticIntegrator          *theStaticIntegrator;
     TransientIntegrator       *theTransientIntegrator;
     ConvergenceTest           *theTest;

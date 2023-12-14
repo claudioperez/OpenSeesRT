@@ -17,15 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/TransientAnalysis.h,v $
-                                                                        
-                                                                        
-#ifndef TransientAnalysis_h
-#define TransientAnalysis_h
-
+//
 // File: ~/analysis/analysis/TransientAnalysis.h
 // 
 // Written: fmk 
@@ -37,8 +29,9 @@
 // dynamic analysis on the FE\_Model. The class itself is an abstract base
 // class. 
 //
-// What: "@(#) TransientAnalysis.h, revA"
-
+#ifndef TransientAnalysis_h
+#define TransientAnalysis_h
+//
 #include <Analysis.h>
 
 class TransientAnalysis: public Analysis

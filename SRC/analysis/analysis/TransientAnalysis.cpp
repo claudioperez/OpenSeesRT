@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/TransientAnalysis.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/analysis/TransientAnalysis.C
 // 
 // Written: fmk 
 // Created: Sun Sept 15 11:47:47: 1996
@@ -34,7 +27,7 @@
 // type can be created. 
 //
 // What: "@(#) TransientAnalysis.C, revA"
-
+//
 #include <TransientAnalysis.h>
 #include <Domain.h>
 
@@ -49,19 +42,4 @@ TransientAnalysis::~TransientAnalysis()
 {
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

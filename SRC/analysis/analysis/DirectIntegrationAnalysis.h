@@ -17,15 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2009-05-11 21:32:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/DirectIntegrationAnalysis.h,v $
-                                                                        
-                                                                        
-#ifndef DirectIntegrationAnalysis_h
-#define DirectIntegrationAnalysis_h
-
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
@@ -36,8 +28,11 @@
 // dynamic analysis on the FE\_Model using a direct integration scheme.
 //
 // What: "@(#) DirectIntegrationAnalysis.h, revA"
-
-#include <TransientAnalysis.h>
+//
+#ifndef DirectIntegrationAnalysis_h
+#define DirectIntegrationAnalysis_h
+//
+#include <Analysis.h>
 
 class ConstraintHandler;
 class DOF_Numberer;
@@ -48,7 +43,8 @@ class EquiSolnAlgo;
 class ConvergenceTest;
 class EigenSOE;
 
-class DirectIntegrationAnalysis: public TransientAnalysis
+// class DirectIntegrationAnalysis: public TransientAnalysis
+class DirectIntegrationAnalysis: public Analysis
 {
   public:
     DirectIntegrationAnalysis(Domain &theDomain, 

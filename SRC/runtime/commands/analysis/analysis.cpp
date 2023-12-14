@@ -370,15 +370,15 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check argv[loc] for number of modes
   if ((Tcl_GetInt(interp, argv[loc], &numEigen) != TCL_OK) || numEigen < 0) {
-    opserr << G3_ERROR_PROMPT << "eigen numModes?  - illegal numModes\n";
+    opserr << G3_ERROR_PROMPT << "eigen numModes?  - invalid numModes\n";
     return TCL_ERROR;
   }
 
   int requiredDataSize = 40 * numEigen;
   if (requiredDataSize > resDataSize) {
-    if (resDataPtr != nullptr) {
+    if (resDataPtr != nullptr)
       delete[] resDataPtr;
-    }
+
     resDataPtr = new char[requiredDataSize];
     resDataSize = requiredDataSize;
   }

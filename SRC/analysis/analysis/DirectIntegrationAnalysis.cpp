@@ -69,7 +69,7 @@ DirectIntegrationAnalysis::DirectIntegrationAnalysis(Domain &the_Domain,
 						     ConvergenceTest *theConvergenceTest,
 						     int num_SubLevels, 
 						     int num_SubSteps)
-:TransientAnalysis(the_Domain), 
+:Analysis(the_Domain), 
  theConstraintHandler(&theHandler),
  theDOF_Numberer(&theNumberer), 
  theAnalysisModel(&theModel), 
@@ -219,13 +219,11 @@ DirectIntegrationAnalysis::analyzeStep(double dT)
     the_Domain->revertToLastCommit();	    
     theIntegrator->revertToLastStep();
     return -3;
-  }    
+  }
   
   // AddingSensitivity:BEGIN ////////////////////////////////////
 #ifdef _RELIABILITY
-
-    if (theIntegrator->shouldComputeAtEachStep()) {
-	
+    if (theIntegrator->shouldComputeAtEachStep()) {	
       result = theIntegrator->computeSensitivities();
       if (result < 0) {
 	opserr << "DirectIntegrationAnalysis::analyze() - the SensitivityAlgorithm failed";
@@ -439,8 +437,6 @@ DirectIntegrationAnalysis::setNumberer(DOF_Numberer &theNewNumberer)
 {
 #if 0 // TODO(cmp)
     // invoke the destructor on the old one
-    if (theDOF_Numberer != 0)
-	delete theDOF_Numberer;
 #endif
     // first set the links needed by the Algorithm
     theDOF_Numberer = &theNewNumberer;
@@ -479,9 +475,9 @@ int
 DirectIntegrationAnalysis::setIntegrator(TransientIntegrator &theNewIntegrator)
 {
   // invoke the destructor on the old one
-  if (theIntegrator != 0) {
+  if (theIntegrator != 0)
       delete theIntegrator;
-  }
+
   // set the links needed by the other objects in the aggregation
   Domain *the_Domain = this->getDomainPtr();
   theIntegrator = &theNewIntegrator;
@@ -584,7 +580,6 @@ DirectIntegrationAnalysis::checkDomainChange(void)
   return 0;
 }
 
-
 EquiSolnAlgo *
 DirectIntegrationAnalysis::getAlgorithm(void)
 {
@@ -609,7 +604,4 @@ DirectIntegrationAnalysis::getConvergenceTest(void)
 {
   return theTest;
 }
-
-
-
 
