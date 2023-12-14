@@ -50,7 +50,7 @@
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
 #include <EigenSOE.h>
-#include <ConvergenceTest.h>
+#include <analysis/criteria/ConvergenceTest.h>
 #include <Recorder.h>
 #include <Parameter.h>
 

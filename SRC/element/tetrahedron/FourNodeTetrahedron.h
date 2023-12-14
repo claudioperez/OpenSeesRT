@@ -18,14 +18,21 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.15 $
-// $Date: 2010-04-23 22:56:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/brick/FourNodeTetrahedron.h,v $
+// ============================================================================
+// 2018 By Jose Abell @ Universidad de los Andes, Chile
+// www.joseabell.com | https://github.com/jaabell | jaabell@miuandes.cl
+// ============================================================================
+// Implements a standard 4-node tetrahedron element.
+//
+// This element has one Gauss point of integration that represents the stress or
+// strain field in the whole element. This is a constant stress/strain element
+// because the displacement interpolation is linear. 
+//
+// This element is very succeptible to locking, so use with fine discretizations
+// requires care. 
+//
+// ============================================================================
 
-// Ed "C++" Love
-//
-// Eight node FourNodeTetrahedron element 
-//
 
 #ifndef FOURNODETETRAHEDRON_H
 #define FOURNODETETRAHEDRON_H
@@ -41,14 +48,6 @@
 #include <Element.h>
 #include <Node.h>
 #include <NDMaterial.h>
-
-
-//Number of Gauss-points
-#define NumGaussPoints 1
-#define NumNodes 4
-#define NumDOFsPerNode 3
-#define NumStressComponents 6
-#define NumDOFsTotal NumNodes*NumDOFsPerNode
 
 class FourNodeTetrahedron : public Element {
 
@@ -70,7 +69,6 @@ class FourNodeTetrahedron : public Element {
     virtual ~FourNodeTetrahedron( ) ;
 
     const char *getClassType(void) const {return "FourNodeTetrahedron";};
-    static constexpr const char* class_name = "FourNodeTetrahedron";
 
     //set domain
     void setDomain( Domain *theDomain ) ;
@@ -134,6 +132,13 @@ class FourNodeTetrahedron : public Element {
 
   private : 
 
+  //Number of Gauss-points  
+  enum {NumGaussPoints=1};
+  enum {NumNodes=4};
+  enum {NumDOFsPerNode=3};
+  enum {NumStressComponents=6};
+  enum {NumDOFsTotal=NumNodes*NumDOFsPerNode};
+  
     void shp3d( const double ss[4], double &xsj, double shp[4][4], const double xl[3][4]   );
 
     //
@@ -161,7 +166,8 @@ class FourNodeTetrahedron : public Element {
     static Vector resid ;
     static Matrix mass ;
     static Matrix damping ;
-
+  static Matrix B;
+  
     //quadrature data
     static const double root3 ;
     static const double one_over_root3 ;    
@@ -169,7 +175,7 @@ class FourNodeTetrahedron : public Element {
     static const double wg[1] ;
   
     //local nodal coordinates, three coordinates for each of four nodes
-    static double xl[3][4] ; 
+    static double xl[3][NumNodes] ; 
 
     //
     // private methods
@@ -185,14 +191,13 @@ class FourNodeTetrahedron : public Element {
     void computeBasis( ) ;
 
     //compute B matrix
-    const Matrix& computeB( int node, const double shp[4][4] ) ;
+    const Matrix& computeB( int node, const double shp[4][NumNodes] ) ;
   
     //Matrix transpose
     Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-    Vector initDisp[4];
+    Vector initDisp[NumNodes];
 
     int do_update;
-
 } ; 
 
 #endif

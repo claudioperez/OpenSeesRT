@@ -19,7 +19,6 @@ add_subdirectory(coordTransformation)
 add_subdirectory(element)
 
 add_subdirectory(graph)
-add_subdirectory(convergenceTest)
 add_subdirectory(system_of_eqn)
 add_subdirectory(analysis)
 

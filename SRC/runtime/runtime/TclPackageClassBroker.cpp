@@ -31,14 +31,14 @@ using namespace OpenSees::Hash::literals;
 #include "domain/subdomain/ActorSubdomain.h"
 
 // Convergence tests
-#include "convergenceTest/CTestNormUnbalance.h"
-#include "convergenceTest/CTestRelativeNormUnbalance.h"
-#include "convergenceTest/CTestNormDispIncr.h"
-#include "convergenceTest/CTestRelativeNormDispIncr.h"
-#include "convergenceTest/CTestRelativeTotalNormDispIncr.h"
-#include "convergenceTest/CTestEnergyIncr.h"
-#include "convergenceTest/CTestRelativeEnergyIncr.h"
-#include "convergenceTest/CTestFixedNumIter.h"
+#include "analysis/criteria/CTestNormUnbalance.h"
+#include "analysis/criteria/CTestRelativeNormUnbalance.h"
+#include "analysis/criteria/CTestNormDispIncr.h"
+#include "analysis/criteria/CTestRelativeNormDispIncr.h"
+#include "analysis/criteria/CTestRelativeTotalNormDispIncr.h"
+#include "analysis/criteria/CTestEnergyIncr.h"
+#include "analysis/criteria/CTestRelativeEnergyIncr.h"
+#include "analysis/criteria/CTestFixedNumIter.h"
 
 // graph numbering schemes
 #include "graph/numberer/RCM.h"

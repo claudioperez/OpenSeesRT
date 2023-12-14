@@ -194,7 +194,6 @@ include_directories(
   ${OPS_SRC_DIR}/runtime
 
   ${OPS_SRC_DIR}/api
-  ${OPS_SRC_DIR}/convergenceTest
   ${OPS_SRC_DIR}/domain/constraints
 
   ${OPS_SRC_DIR}/domain/component

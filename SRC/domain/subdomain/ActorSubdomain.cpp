@@ -35,7 +35,7 @@
 #include <Vector.h>
 #include <DomainDecompositionAnalysis.h>
 #include <PartitionedModelBuilder.h>
-#include <ConvergenceTest.h>
+#include <analysis/criteria/ConvergenceTest.h>
 
 #include <EquiSolnAlgo.h>
 #include <IncrementalIntegrator.h>

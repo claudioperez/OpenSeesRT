@@ -18,14 +18,13 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.31 $
-// $Date: 2010-04-23 22:56:02 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/brick/FourNodeTetrahedron.cpp,v $
-
-// Ed "C++" Love
 //
-// Eight node FourNodeTetrahedron element
-//
+// ============================================================================
+// 2018 By Jose Abell @ Universidad de los Andes, Chile
+// www.joseabell.com | https://github.com/jaabell | jaabell@miuandes.cl
+// ============================================================================
+// Please read detailed description in FourNodeTetrahedron.h.
+// ============================================================================
 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -197,10 +196,10 @@ const double  FourNodeTetrahedron::one_over_root3 = 1.0 / root3 ;
 
 const double  FourNodeTetrahedron::sg[] = { 0.25 } ;
 
-const double  FourNodeTetrahedron::wg[] = { 0.16667 } ;
+const double  FourNodeTetrahedron::wg[] = { 0.166666666666666667 } ;
 
   
-static Matrix B(NumStressComponents,NumDOFsPerNode) ;
+Matrix FourNodeTetrahedron::B(NumStressComponents,NumDOFsPerNode) ;
 
 //null constructor
 FourNodeTetrahedron::FourNodeTetrahedron( ) 
@@ -453,8 +452,8 @@ void  FourNodeTetrahedron::Print(OPS_Stream &s, int flag)
         s << "\t\t\t{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"FourNodeTetrahedron\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-        for (int i = 1; i < 2; i++)
+        s << "\"nodes\": [";
+        for (int i = 0; i < 3; i++)
             s << connectedExternalNodes(i) << ", ";
         s << connectedExternalNodes(3) << "], ";
         s << "\"bodyForces\": [" << b[0] << ", " << b[1] << ", " << b[2] << "], ";
@@ -548,13 +547,11 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
         shp3d( gaussPoint, xsj, shp, xl ) ;
 
         //save shape functions
-        for ( p = 0; p < nShape; p++ ) 
-        {
-          for ( q = 0; q < numberNodes; q++ )
-          {
+        for ( p = 0; p < nShape; p++ ) {
+          for ( q = 0; q < numberNodes; q++ ) {
             Shape[p][q][count] = shp[p][q] ;
           }
-         } // end for p
+         }
 
         //volume element to also be saved
         dvol[count] = wg[count] * xsj ;  
@@ -1316,7 +1313,7 @@ void  FourNodeTetrahedron::formResidAndTangent( int tang_flag )
         resid( jj + p ) += residJ(p)  ;
         if (applyLoad == 0)
         {
-          // resid( jj + p ) -= dvol[i]*b[p]*shp[3][j];
+          resid( jj + p ) -= dvol[i]*b[p]*shp[3][j];
         }
         else
         {
@@ -1903,7 +1900,7 @@ FourNodeTetrahedron::updateParameter(int parameterID, Information &info)
     else if (parameterID == 1414)
     {
       int new_do_update = info.theDouble;
-      if (do_update == 0 & new_do_update == 1)
+      if (do_update == 0 && new_do_update == 1)
       {
         do_update = 1;
         Domain * mydomain = this->getDomain();
