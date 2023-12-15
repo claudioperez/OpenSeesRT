@@ -80,7 +80,11 @@ endif()
 add_library(OPS_External_packages INTERFACE)
 
 # include user config
-include(${CMAKE_CURRENT_LIST_DIR}/Conf.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/Conf.cmake)
+
+set(OPS_Extension_List
+  OPS_ASDEA
+)
 
 #==============================================================================
 #                            OS Configuration
@@ -138,7 +142,7 @@ endif()
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (FALSE AND has_ipo)
+if (FALSE) #has_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 #==============================================================================
@@ -426,7 +430,7 @@ endif()
 
 # HDF5
 #----------------------------
-if(OPS_Use_HDF5)
+if(FALSE)
    find_package(HDF5)
     if(HDF5_FOUND)
         include_directories(${HDF5_INCLUDE_DIR})
