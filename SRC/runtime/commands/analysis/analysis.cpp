@@ -57,7 +57,7 @@ extern ConstraintHandler *theHandler ;
 
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
-extern void OPS_ResponseSpectrumAnalysis(G3_Runtime*);
+extern int OPS_ResponseSpectrumAnalysis(G3_Runtime*);
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
@@ -129,7 +129,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "initialize",        &initializeAnalysis, builder, nullptr);
   Tcl_CreateCommand(interp, "modalProperties",   &modalProperties,    builder, nullptr);
   Tcl_CreateCommand(interp, "modalDamping",      &modalDamping,       builder, nullptr);
-  Tcl_CreateCommand(interp, "modalDampingQ",     &modalDamping,       builder, nullptr);
+  Tcl_CreateCommand(interp, "modalDampingQ",     &modalDampingQ,      builder, nullptr);
   Tcl_CreateCommand(interp, "responseSpectrum",  &responseSpectrum,   builder, nullptr);
   Tcl_CreateCommand(interp, "printA",            &printA,          builder, nullptr);
   Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);

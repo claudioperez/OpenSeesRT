@@ -515,12 +515,14 @@ init_obj_module(py::module &m)
     .def ("analyze", &StaticAnalysis::analyze)
   ;
 
-  py::class_<TransientAnalysis>(m, "TransientAnalysis");
-  py::class_<DirectIntegrationAnalysis, TransientAnalysis>(m, "_DirectIntegrationAnalysis")
+//py::class_<TransientAnalysis>(m, "TransientAnalysis");
+  py::class_<DirectIntegrationAnalysis//, TransientAnalysis
+                                      >(m, "_DirectIntegrationAnalysis")
     .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
       return *((DirectIntegrationAnalysis*)runtime->newTransientAnalysis(conf));
     }))
-    .def ("analyze", &TransientAnalysis::analyze)
+    //.def ("analyze", &TransientAnalysis::analyze)
+    .def ("analyze", &DirectIntegrationAnalysis::analyze)
   ;
 
   //
