@@ -148,6 +148,8 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
 
   //
   switch (flag) {
+  case CURRENT_EMPTY_ANALYSIS:
+    break;
   case CURRENT_TRANSIENT_ANALYSIS:
     if (theDomain && theAnalysisModel && theTransientIntegrator && theHandler)
       theHandler->setLinks(*theDomain, *theAnalysisModel, *theTransientIntegrator);
@@ -172,11 +174,8 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
       theAlgorithm->setLinks(*theAnalysisModel, *theStaticIntegrator, *theSOE, theTest);
 
     domainStamp  = 0;
-
     break;
   }
-  
-
 }
 
 int 
@@ -193,6 +192,9 @@ BasicAnalysisBuilder::initialize(void)
   }
 
   switch (this->CurrentAnalysisFlag) {
+    case CURRENT_EMPTY_ANALYSIS:
+      break;
+
     case CURRENT_STATIC_ANALYSIS:
       if (theStaticIntegrator->initialize() < 0) {
           opserr << "initialize - integrator initialize() failed\n";
@@ -507,6 +509,9 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 {
 
   switch (flag) {
+    case CURRENT_EMPTY_ANALYSIS:
+      break;
+
     case CURRENT_STATIC_ANALYSIS:
       if (theStaticIntegrator == nullptr)
         theStaticIntegrator = new LoadControl(1, 1, 1, 1);
