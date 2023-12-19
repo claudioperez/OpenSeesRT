@@ -445,8 +445,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (numEigen == 0) {
     opserr << G3_ERROR_PROMPT 
-           << "- modalDamping - eigen command needs to be called first "
-            "- NO MODAL DAMPING APPLIED\n ";
+           << "- modalDamping - eigen command needs to be called first\n"
     return TCL_ERROR;
   }
 
@@ -508,7 +507,8 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   if (numEigen == 0) {
-    opserr << "WARINING - modalDampingQ - eigen command needs to be called first\n";
+    opserr << G3_ERROR_PROMPT 
+           << "- modalDampingQ - eigen command needs to be called first\n"
     return TCL_ERROR;
   }
 
