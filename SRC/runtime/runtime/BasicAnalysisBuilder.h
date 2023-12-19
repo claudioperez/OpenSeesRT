@@ -52,6 +52,7 @@ public:
     LinearSOE* getLinearSOE();
     
     Domain* getDomain(void);
+    int initialize(void);
     void newStaticAnalysis();
     int  newTransientAnalysis();
     int  setStaticAnalysis();
@@ -61,8 +62,10 @@ public:
     int  eigen(int numMode, bool generalized, bool findSmallest);
     int  getNumEigen() {return numEigen;};
 
+    /*
     StaticAnalysis* getStaticAnalysis() {return theStaticAnalysis;}
     DirectIntegrationAnalysis* getTransientAnalysis() {return theTransientAnalysis;}
+    */
     VariableTimeStepDirectIntegrationAnalysis* getVariableTimeStepDirectIntegrationAnalysis() {
 	return theVariableTimeStepTransientAnalysis;
     }

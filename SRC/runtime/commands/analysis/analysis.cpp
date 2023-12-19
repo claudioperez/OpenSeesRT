@@ -279,20 +279,18 @@ initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   // TODO
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
-  Domain* domain = builder->getDomain();
+  /*
   StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
   DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
-
-  // builder->initialize();
-  
   if (theTransientAnalysis != 0) {
       theTransientAnalysis->initialize();
   } else if (the_static_analysis != 0) {
     the_static_analysis->initialize();
   }
+  */
 
-  domain->initialize();
-
+  builder->initialize();
+  
   return TCL_OK;
 }
 
@@ -445,7 +443,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (numEigen == 0) {
     opserr << G3_ERROR_PROMPT 
-           << "- modalDamping - eigen command needs to be called first\n"
+           << "- modalDamping - eigen command needs to be called first\n";
     return TCL_ERROR;
   }
 
@@ -508,7 +506,7 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (numEigen == 0) {
     opserr << G3_ERROR_PROMPT 
-           << "- modalDampingQ - eigen command needs to be called first\n"
+           << "- modalDampingQ - eigen command needs to be called first\n";
     return TCL_ERROR;
   }
 

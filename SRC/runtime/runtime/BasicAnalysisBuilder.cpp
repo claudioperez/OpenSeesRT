@@ -124,6 +124,10 @@ BasicAnalysisBuilder::wipe()
       delete theEigenSOE;
       theEigenSOE = nullptr;
   }
+  if (theAnalysisModel != nullptr) {
+    delete theAnalysisModel;
+    theAnalysisModel = new AnalysisModel();
+  }
   theVariableTimeStepTransientAnalysis = nullptr;
 }
 
@@ -173,6 +177,41 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
   }
   
 
+}
+
+int 
+BasicAnalysisBuilder::initialize(void)
+{
+  // check if domain has undergone change
+  int stamp = theDomain->hasDomainChanged();
+  if (stamp != domainStamp) {
+    domainStamp = stamp;	
+    if (this->domainChanged() < 0) {
+      opserr << "DirectIntegrationAnalysis::initialize() - domainChanged() failed\n";
+      return -1;
+    }	
+  }
+
+  switch (this->CurrentAnalysisFlag) {
+    case CURRENT_STATIC_ANALYSIS:
+      if (theStaticIntegrator->initialize() < 0) {
+          opserr << "initialize - integrator initialize() failed\n";
+          return -2;
+      } else
+        theStaticIntegrator->commit();
+      break;
+
+    case CURRENT_TRANSIENT_ANALYSIS:
+      if (theTransientIntegrator->initialize() < 0) {
+          opserr << "initialize - integrator initialize() failed\n";
+          return -2;
+      } else
+        theTransientIntegrator->commit();
+      break;
+  }
+  theDomain->initialize();
+
+  return 0;
 }
 
 int
@@ -479,9 +518,8 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
       break;
   }
 
-  if (theTest == nullptr) {
+  if (theTest == nullptr)
     theTest = new CTestNormUnbalance(1.0e-6,25,0);
-  }
 
   if (theAlgorithm == nullptr)
     theAlgorithm = new NewtonRaphson(*theTest);
@@ -489,7 +527,7 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 
   if (theHandler == nullptr) {
     opserr << G3_WARN_PROMPT << "no ConstraintHandler has been specified, \n";
-    opserr << "   PlainHandler default will be used\n";
+    opserr << "        PlainHandler default will be used\n";
     theHandler = new PlainHandler();
   }
 
@@ -565,6 +603,9 @@ void
 BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
 {
   assert(theAnalysisModel != nullptr);
+  if (theHandler == nullptr) {
+    theHandler = new TransformationConstraintHandler();
+  }
   this->fillDefaults(CURRENT_STATIC_ANALYSIS);
   this->setLinks(CURRENT_STATIC_ANALYSIS);
 
