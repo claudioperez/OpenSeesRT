@@ -874,11 +874,11 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
 //    -        -
 //   |    u1    |   <---plate membrane
 //   |    u2    |
-//   |----------|
+//   | -------- |
 //   |  w = u3  |   <---plate bending
 //   |  theta1  |
 //   |  theta2  |
-//   |----------|
+//   | -------- |
 //   |  theta3  |   <---drill
 //    -        -
 //
@@ -1390,9 +1390,8 @@ double *ShellMITC4::computeBdrill(int node, const double shp[3][4], double Bdril
 // assemble a B matrix
 void
 ShellMITC4::assembleB(const Matrix &Bmembrane,
-                       const Matrix &Bbend, const Matrix &Bshear,
-                       MatrixND<nstress, ndf> &B
-                       )
+                      const Matrix &Bbend, const Matrix &Bshear,
+                      MatrixND<nstress, ndf> &B)
 {
   //
   //---B Matrices in standard {1,2,3} mechanics notation---------

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision $
-// $Date$
-// $URL$
-
+//
 // Written: Minjie Zhu (zhum@oregonstate.edu)
 //
 // Description: P2+P-1 element, quadratic velocity, discontinuous linear pressure
@@ -31,12 +27,12 @@
 
 #include "TaylorHood2D.h"
 #include <elementAPI.h>
-#include "TriGaussPoints.h"
 #include <Node.h>
 #include <Domain.h>
 #include <ElementResponse.h>
 #include <math.h>
 #include "HigherOrder.h"
+#include "quadrature/GaussTriangle.h"
 
 Matrix TaylorHood2D::mat;
 Vector TaylorHood2D::vec;

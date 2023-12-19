@@ -32,14 +32,17 @@
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
+#include <quadrature/GaussLegendre2D.hpp>
 
-class ShellMITC9 : public Element
+class ShellMITC9 : public Element,
+                   protected GaussLegendre<2,9>
 {
   public:
 
-    //null constructor
+    // null constructor
     ShellMITC9();
-    //full constructor
+
+    // full constructor
     ShellMITC9(int tag, 
 	     int node1,
 	     int node2,
@@ -51,7 +54,7 @@ class ShellMITC9 : public Element
 	     int node8,
 	     int node9,
 	     SectionForceDeformation &theMaterial ) ;
-    //destructor 
+    // destructor 
     virtual ~ShellMITC9( ) ;
 
     //get the number of external nodes

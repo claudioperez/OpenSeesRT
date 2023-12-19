@@ -17,22 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.15 $
-// $Date: 2009-05-14 22:50:52 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/DirectIntegrationAnalysis.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the implementation of the
 // DirectIntegrationAnalysis class.
 //
-// What: "@(#) DirectIntegrationAnalysis.C, revA"
-
-
+// Written: fmk 
+// Created: 11/96
+// Revision: A
+//
 #include <DOF_Group.h>
 #include <DOF_GrpIter.h>
 #include <FE_EleIter.h>
@@ -310,8 +302,6 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
     //
     // form K
     //
-
-
     FE_EleIter &theEles = theAnalysisModel->getFEs();    
     FE_Element *elePtr;
 
@@ -328,7 +318,6 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
     //
     // if generalized is true, form M
     //
-
     if (generalized == true) {
       //      int result = 0;
       FE_EleIter &theEles2 = theAnalysisModel->getFEs();    

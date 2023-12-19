@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision $
-// $Date$
-// $URL$
-
+//
 // Written: Minjie Zhu (zhum@oregonstate.edu)
 //
 // Description: Track the edge nodes in higher order elements

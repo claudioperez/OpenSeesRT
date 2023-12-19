@@ -217,6 +217,13 @@ BasicAnalysisBuilder::domainChanged(void)
     }
   }
 
+  if (theEigenSOE != nullptr) {
+    int result = theEigenSOE->setSize(theGraph);
+    if (result < 0) {
+      return -3;
+    }	    
+  }
+
   theAnalysisModel->clearDOFGraph();
 
   // finally we invoke domainChanged on the Integrator and Algorithm
@@ -234,8 +241,8 @@ BasicAnalysisBuilder::domainChanged(void)
     }
   }
 
-  if (theAlgorithm->domainChanged() < 0) {
-    opserr << "StaticAnalysis::setAlgorithm - Algorithm::domainChanged failed\n";
+  if (theAlgorithm && theAlgorithm->domainChanged() < 0) {
+    opserr << "BasicAnalysisBuilder::domainChange - Algorithm::domainChanged failed\n";
     return -5;
   }
 
@@ -512,8 +519,10 @@ void BasicAnalysisBuilder::newStaticAnalysis()
 int
 BasicAnalysisBuilder::setStaticAnalysis()
 {
-  if (theStaticAnalysis == nullptr)
-    this->newStaticAnalysis();
+//if (theStaticAnalysis == nullptr)
+//  this->newStaticAnalysis();
+  this->fillDefaults(CURRENT_STATIC_ANALYSIS);
+  this->setLinks(CURRENT_STATIC_ANALYSIS);
 
   this->CurrentAnalysisFlag = CURRENT_STATIC_ANALYSIS;
 
@@ -527,6 +536,7 @@ BasicAnalysisBuilder::setTransientAnalysis()
     this->newTransientAnalysis();
 
   this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
+  this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
 
   return 1;
 }
@@ -614,37 +624,19 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
     // causes the creation of FE_Element and DOF_Group objects
     // and their addition to the AnalysisModel.
     result = theHandler->handle();
-    if (result < 0) {
-      opserr << "BasicAnalysisBuilder::eigen - ConstraintHandler::handle failed\n";
-      return -1;
-    }
+
     // Now invoke number() on the numberer which causes
     // equation numbers to be assigned to all the DOFs in the
     // AnalysisModel.
     result = theNumberer->numberDOF();
-    if (result < 0) {
-      opserr << "BasicAnalysisBuilder::eigen - DOF_Numberer::numberDOF failed\n";
-      return -2;
-    }
 
     result = theHandler->doneNumberingDOF();
-    if (result < 0) {
-      opserr << "BasicAnalysisBuilder::eigen - ConstraintHandler::doneNumberingDOF failed\n";
-      return -2;
-    }
+
     Graph &theGraph = theAnalysisModel->getDOFGraph();
 
     result = theSOE->setSize(theGraph);
-    if (result < 0) {
-        opserr << "BasicAnalysisBuilder::eigen - LinearSOE::setSize() failed\n";
-        return -3;
-    }
 
     result = theEigenSOE->setSize(theGraph);
-    if (result < 0) {
-      opserr << "BasicAnalysisBuilder::eigen - EigenSOE::setSize() failed\n";
-      return -3;
-    }
 
     theAnalysisModel->clearDOFGraph();
 

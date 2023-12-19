@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision $
-// $Date$
-// $URL$
-
+//
 // Written: Minjie Zhu (zhum@oregonstate.edu)
 //
 // Description: Gaussian points and weights for triangles
@@ -259,5 +255,4 @@ TriGaussPoints::operator()(int n, VDouble& xpts, VDouble& ypts, VDouble& wts)
 	ypts[i] = xv[3*i+1];
 	wts[i] = xv[3*i+2];
     }
-
 }

@@ -44,8 +44,7 @@
 #define TOL 100*DBL_EPSILON
 
 
-double** init2DArray(int x, int y)
-{
+double** init2DArray(int x, int y) {
   double **array = (double **)malloc(x * sizeof(double *));
 
   int c;
@@ -58,8 +57,7 @@ double** init2DArray(int x, int y)
   return array;
 }
 
-void free2Darray(double **array, int x)
-{
+void free2Darray(double **array, int x) {
   int c;
   for (c = 0; c < x; c++)
   {
@@ -68,7 +66,6 @@ void free2Darray(double **array, int x)
   free(array);
 }
 
-// int FindSpan(int n, int p, double u, Vector U)
 int FindSpan(int n, int p, double u, Vector& U)
 {
   /* This function determines the knot span.

@@ -51,14 +51,6 @@ Matrix ShellDKGQ::stiff(24, 24);
 Vector ShellDKGQ::resid(24);
 Matrix ShellDKGQ::mass(24, 24);
 
-// quadrature data
-// const double ShellDKGQ::root3          = sqrt(3.0);
-// const double ShellDKGQ::one_over_root3 = 1.0 / root3;
-// 
-// double ShellDKGQ::sg[4];
-// double ShellDKGQ::tg[4];
-// double ShellDKGQ::wg[4];
-
 // null constructor
 ShellDKGQ::ShellDKGQ()
     : Element(0, ELE_TAG_ShellDKGQ), connectedExternalNodes(4), load(0), Ki(0)
@@ -66,20 +58,6 @@ ShellDKGQ::ShellDKGQ()
   for (int i = 0; i < ShellDKGQ::nip; i++)
     materialPointers[i] = nullptr;
 
-  // sg[0] = -one_over_root3;
-  // sg[1] =  one_over_root3;
-  // sg[2] =  one_over_root3;
-  // sg[3] = -one_over_root3;
-
-  // tg[0] = -one_over_root3;
-  // tg[1] = -one_over_root3;
-  // tg[2] =  one_over_root3;
-  // tg[3] =  one_over_root3;
-
-  // wg[0] = 1.0;
-  // wg[1] = 1.0;
-  // wg[2] = 1.0;
-  // wg[3] = 1.0;
 }
 
 //*********************************************************************
@@ -95,41 +73,24 @@ ShellDKGQ::ShellDKGQ(int tag, int node1, int node2, int node3, int node4,
   connectedExternalNodes(2) = node3;
   connectedExternalNodes(3) = node4;
 
-  for (i = 0; i < 4; i++) {
-
+  for (i = 0; i < ShellDKGQ::nip; i++) {
     materialPointers[i] = theMaterial.getCopy();
-
-    if (materialPointers[i] == nullptr) {
-      opserr << "ShellDKGQ::constructor - failed to get a material of type: "
-                "ShellSection\n";
-    }
+    assert(materialPointers[i] != nullptr);
   }
-
-//sg[0] = -one_over_root3;
-//sg[1] =  one_over_root3;
-//sg[2] =  one_over_root3;
-//sg[3] = -one_over_root3;
-
-//tg[0] = -one_over_root3;
-//tg[1] = -one_over_root3;
-//tg[2] =  one_over_root3;
-//tg[3] =  one_over_root3;
-
-//wg[0] = 1.0;
-//wg[1] = 1.0;
-//wg[2] = 1.0;
-//wg[3] = 1.0;
 }
-//******************************************************************
+
 
 //destructor
 ShellDKGQ::~ShellDKGQ()
 {
-  for (int i = 0; i < 4; i++) {
-    delete materialPointers[i];
+  for (int i = 0; i < ShellDKGQ::nip; i++) {
+    if (materialPointers[i])
+      delete materialPointers[i];
     materialPointers[i] = nullptr;
-    nodePointers[i]     = nullptr;
   }
+
+  for (int i = 0; i < 4; i++)
+    nodePointers[i]     = nullptr;
 
   if (load != 0)
     delete load;
@@ -137,15 +98,14 @@ ShellDKGQ::~ShellDKGQ()
   if (Ki != 0)
     delete Ki;
 }
-//**************************************************************************
+
 
 //set domain
 void ShellDKGQ::setDomain(Domain *theDomain)
 {
-  int i;
 
-  //node pointers
-  for (i = 0; i < 4; i++) {
+  // node pointers
+  for (int i = 0; i < 4; i++) {
     nodePointers[i] = theDomain->getNode(connectedExternalNodes(i));
     if (nodePointers[i] == 0) {
       opserr << "ShellDKGQ::setDomain - no node " << connectedExternalNodes(i);
@@ -156,7 +116,7 @@ void ShellDKGQ::setDomain(Domain *theDomain)
 
   }
 
-  //basis vectors and local coordinates
+  // basis vectors and local coordinates
   computeBasis();
 
   this->DomainComponent::setDomain(theDomain);
@@ -458,7 +418,6 @@ const Matrix &ShellDKGQ::getInitialStiff()
   int i, j, k, p, q;
   int p1, q1, p2, q2;
 
-
   double volume = 0.0;
 
   static double xsj;              // determinant jacabian matrix
@@ -520,7 +479,7 @@ const Matrix &ShellDKGQ::getInitialStiff()
     for (int q1 = 0; q1 < 6; q1++) {
       PmatTran(p1, q1) = Pmat(q1, p1);
     }
-  } //end for p1
+  }
 
   //define Tmat xl=Tmat * x - from global to local coordinates
   Tmat.Zero();
@@ -777,8 +736,7 @@ void ShellDKGQ::formInertiaTerms(int tangFlag)
     momentum.Zero();
     for (int j = 0; j < ShellDKGQ::numberNodes; j++)
       //momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
-      momentum.addVector(1.0, nodePointers[j]->getTrialAccel(),
-                         shp[massIndex][j]);
+      momentum.addVector(1.0, nodePointers[j]->getTrialAccel(), shp[massIndex][j]);
 
     //density
     rhoH = materialPointers[i]->getRho();
@@ -955,7 +913,7 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
     for (int q1 = 0; q1 < 6; q1++) {
       PmatTran(p1, q1) = Pmat(q1, p1);
     }
-  } //end for p1
+  }
 
   //define Tmat xl=Tmat * x from global to local coordinates
   Tmat.Zero();
@@ -980,11 +938,9 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
   Tmat(5, 5) = g3[2];
 
   //transpose TmatTran=transpose(Tmat)
-  for (p2 = 0; p2 < 6; p2++) {
-    for (q2 = 0; q2 < 6; q2++) {
+  for (int p2 = 0; p2 < 6; p2++)
+    for (int q2 = 0; q2 < 6; q2++)
       TmatTran(p2, q2) = Tmat(q2, p2);
-    }
-  } //end for p2
 
   //------------gauss loop--------------------------
   for (int i = 0; i < ShellDKGQ::nip; i++) {
@@ -1060,13 +1016,13 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
       for (p = 3; p < 6; p++) {
         for (q = 3; q < 6; q++)
           BJ(p, q) *= (-1.0);
-      } //end for p
+      }
 
       //transpose BJtran=transpose(BJ);
       for (p = 0; p < ndf; p++) {
         for (q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
-      } //end for p
+      }
 
       //compute residual force
       residJlocal.addMatrixVector(0.0, BJtran, stress, 1.0);
@@ -1105,8 +1061,8 @@ void ShellDKGQ::formResidAndTangent(int tang_flag)
           for (p = 0; p < ndf; p++) {
             for (q = 0; q < ndf; q++) {
               stiff(jj + p, kk + q) += stiffJK(p, q);
-            } //end for q
-          }   //end for p
+            }
+          }  
 
           kk += ndf;
         } //end for k loop
@@ -1324,26 +1280,26 @@ const Matrix &ShellDKGQ::assembleB(const Matrix &Bmembrane, const Matrix &Bbend,
   //assemble B from sub-matrices
 
   //membrane parts
-  for (p = 0; p < 3; p++) {
+  for (int p = 0; p < 3; p++) {
 
-    for (q = 0; q < 3; q++)
+    for (int q = 0; q < 3; q++)
       B(p, q) = Bmembrane(p, q);
-  } //end for p
+  }
 
   //bending parts
-  for (p = 3; p < 6; p++) {
+  for (int p = 3; p < 6; p++) {
     pp = p - 3;
-    for (q = 3; q < 6; q++)
+    for (int q = 3; q < 6; q++)
       B(p, q) = Bbend(pp, q - 3);
-  } //end for p
+  }
 
   //shear parts
-  for (p = 0; p < 2; p++) {
+  for (int p = 0; p < 2; p++) {
     pp = p + 6;
 
-    for (q = 3; q < 6; q++)
+    for (int q = 3; q < 6; q++)
       B(pp, q) = Bshear(p, q - 3);
-  } //end for p
+  }
 
   return B;
 }
@@ -1457,8 +1413,8 @@ void ShellDKGQ::shape2d(double ss, double tt, const double x[2][4],
       for (k = 0; k < 4; k++)
         xs[i][j] += x[i][k] * shp[j][k];
 
-    } //end for j
-  }   // end for i
+    }
+  }
 
   xsj = xs[0][0] * xs[1][1] - xs[0][1] * xs[1][0];
 
@@ -1471,7 +1427,7 @@ void ShellDKGQ::shape2d(double ss, double tt, const double x[2][4],
 
   //form global derivatives, local coordinates
 
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     temp      = shp[0][i] * sx[0][0] + shp[1][i] * sx[1][0];
     shp[1][i] = shp[0][i] * sx[0][1] + shp[1][i] * sx[1][1];
     shp[0][i] = temp;
@@ -1484,8 +1440,6 @@ void ShellDKGQ::shape2d(double ss, double tt, const double x[2][4],
 void ShellDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
                            double sx[2][2], double shpDrill[4][4])
 {
-  double a1, a2, a3;
-  double b1, b2, b3;
 
   static const double s[] = {-1.0, 1.0, 1.0, -1.0};
   static const double t[] = {-1.0, -1.0, 1.0, 1.0};
@@ -1494,23 +1448,23 @@ void ShellDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
 
   int i, j, k;
 
-  const double one_over_four  = 1 / 4.0;
   const double one_over_eight = 1 / 8.0;
-  //compute a1-a3,b1-b3
-  a1 = 0.0;
-  a2 = 0.0;
-  a3 = 0.0;
-  b1 = 0.0;
-  b2 = 0.0;
-  b3 = 0.0;
-  for (i = 0; i < 4; i++) {
-    a1 += s[i] * x[0][i] * one_over_four;
-    a2 += t[i] * x[0][i] * one_over_four;
-    a3 += s[i] * t[i] * x[0][i] * one_over_four;
-    b1 += s[i] * x[1][i] * one_over_four;
-    b2 += t[i] * x[1][i] * one_over_four;
-    b3 += s[i] * t[i] * x[1][i] * one_over_four;
-  } //end for i
+
+  // compute a1-a3,b1-b3
+  double  a1 = 0.0,
+          a2 = 0.0,
+          a3 = 0.0,
+          b1 = 0.0,
+          b2 = 0.0,
+          b3 = 0.0;
+  for (int i = 0; i < 4; i++) {
+    a1 += s[i] * x[0][i] * 0.25;
+    a2 += t[i] * x[0][i] * 0.25;
+    a3 += s[i] * t[i] * x[0][i] * 0.25;
+    b1 += s[i] * x[1][i] * 0.25;
+    b2 += t[i] * x[1][i] * 0.25;
+    b3 += s[i] * t[i] * x[1][i] * 0.25;
+  }
 
   //compute the derivatives of shape function to xi, eta
   // shptemp[0][j] = Nu,xi   shptemp[1][j] = Nu,eta
@@ -1535,7 +1489,7 @@ void ShellDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   //shpDrill = |  Nu,2  |
   //           |  Nv,1  |
   //           |  Nv,2  |
-  for (k = 0; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
 
     shpDrill[0][k] = shptemp[0][k] * sx[0][0] + shptemp[1][k] * sx[1][0];
     shpDrill[1][k] = shptemp[0][k] * sx[0][1] + shptemp[1][k] * sx[1][1];

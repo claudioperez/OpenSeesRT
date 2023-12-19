@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision $
-// $Date$
-// $URL$
-
+//
 // Written: Minjie Zhu (zhum@oregonstate.edu)
 //
 // Description: P2P1 element, quadratic velocity, linear pressure
 //
-
 #ifndef TaylorHood2D_H
 #define TaylorHood2D_H
 

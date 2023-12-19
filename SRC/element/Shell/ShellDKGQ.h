@@ -50,11 +50,11 @@ class ShellDKGQ : public Element,
   
   //full constructor
   ShellDKGQ( int tag, 
-	          int node1,
-	          int node2,
-			  int node3,
-			  int node4,
-			  SectionForceDeformation &theMaterial ) ;
+             int node1,
+             int node2,
+             int node3,
+             int node4,
+             SectionForceDeformation &theMaterial ) ;
   
   //destructor 
   virtual ~ShellDKGQ( ) ;
@@ -83,14 +83,14 @@ class ShellDKGQ : public Element,
 
     //print out element data
     void Print( OPS_Stream &s, int flag ) ;
-	
+
     //return stiffness matrix 
     const Matrix &getTangentStiff( ) ;
     const Matrix &getInitialStiff( );
     const Matrix &getMass( );
 
     // methods for applying loads
-    void zeroLoad( void );	
+    void zeroLoad( void );
     int addLoad( ElementalLoad *theLoad, double loadFactor );
     int addInertiaLoadToUnbalance( const Vector &accel );
 
@@ -102,8 +102,7 @@ class ShellDKGQ : public Element,
 
     // public methods for element output
     int sendSelf ( int commitTag, Channel &theChannel );
-    int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		           &theBroker );
+    int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker );
 
 
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
@@ -120,20 +119,13 @@ class ShellDKGQ : public Element,
     static Matrix mass ;
     static Matrix damping ;
 
-    //quadrature data
- // static const double root3 ;
- // static const double one_over_root3 ;    
- // static double sg[4] ;
- // static double tg[4] ;
- // static double wg[4] ;
-
     //node information
     ID connectedExternalNodes ;  //four node numbers
     Node *nodePointers[4] ;      //pointers to four nodes
 
     //material information
     SectionForceDeformation *materialPointers[4] ; //pointers to four materials
-					  
+
     //local nodal coordinates, two coordinates for each of four nodes
     //static double xl[][4] ; 
     double xl[2][4] ; 

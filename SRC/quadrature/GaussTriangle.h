@@ -17,21 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision $
-// $Date$
-// $URL$
-
+//
 // Written: Minjie Zhu (zhum@oregonstate.edu)
 //
-// Description: Gaussian points and weights for triangles
+// Description: Gauss points and weights for triangles
 // n - the order of the Gaussian quadrature (n<=12)
 // xpts,ypts,wts - x,y coordinates and weights
 
 #ifndef TriGaussPoints_H
 #define TriGaussPoints_H
 
-#include <BackgroundDef.h>
+#include <vector>
 
 class TriGaussPoints
 {
@@ -39,7 +35,7 @@ public:
     TriGaussPoints();
     ~TriGaussPoints();
 
-    void operator()(int n, VDouble& xpts, VDouble& ypts, VDouble& wts);
+    void operator()(int n, std::vector<double>& xpts, std::vector<double>& ypts, std::vector<double>& wts);
 };
 
 

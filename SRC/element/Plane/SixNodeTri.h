@@ -43,9 +43,9 @@ class Response;
 class SixNodeTri : public Element {
 public:
   SixNodeTri(int tag, int nd1, int nd2, int nd3, int nd4, int nd5, int nd6,
-               NDMaterial &m, const char *type, double t,
-               double pressure = 0.0, double rho = 0.0, double b1 = 0.0,
-               double b2 = 0.0);
+             NDMaterial &m, const char *type, double t,
+             double pressure = 0.0, double rho = 0.0, double b1 = 0.0,
+             double b2 = 0.0);
   SixNodeTri();
   ~SixNodeTri();
 

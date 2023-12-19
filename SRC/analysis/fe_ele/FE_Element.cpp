@@ -42,8 +42,6 @@
 #define MAX_NUM_DOF 64
 
 // static variables initialisation
-Matrix FE_Element::errMatrix(1,1);
-Vector FE_Element::errVector(1);
 Matrix **FE_Element::theMatrices; // pointers to class wide matrices
 Vector **FE_Element::theVectors;  // pointers to class widde vectors
 int FE_Element::numFEs(0);           // number of objects
@@ -56,18 +54,11 @@ FE_Element::FE_Element(int tag, Element *ele)
    numDOF(ele->getNumDOF()), theModel(0), myEle(ele),
    theResidual(0), theTangent(0), theIntegrator(0)
 {
-    if (numDOF <= 0) {
-      opserr << "FE_Element::FE_Element(Element *) ";
-      opserr << " element must have 1 dof " << *ele;
-      exit(-1);
-    }
+    assert(numDOF > 0);
 
     // get elements domain & check it is valid
     Domain *theDomain = ele->getDomain();
-    if (theDomain == nullptr) {
-        opserr << "FATAL FE_Element::FE_Element() - element has no domain "<< *ele;
-        exit(-1);
-    }
+    assert(theDomain != nullptr);
 
     // keep a pointer to all DOF_Groups
     int numGroups = ele->getNumExternalNodes();
@@ -75,12 +66,7 @@ FE_Element::FE_Element(int tag, Element *ele)
 
     for (int i=0; i<numGroups; i++) {
         Node *nodePtr =theDomain->getNode(nodes(i));
-        if (nodePtr == nullptr) {
-            opserr << "FATAL FE_Element::FE_Element() - Node: ";
-            opserr <<  nodes(i) <<  "does not exist in the Domain\n";
-            opserr << *ele;
-            exit(-1);
-        }
+        assert(nodePtr != nullptr);
 
         DOF_Group *dofGrpPtr = nodePtr->getDOF_GroupPtr();
         assert(dofGrpPtr != nullptr);
@@ -197,7 +183,7 @@ FE_Element::~FE_Element()
 const ID &
 FE_Element::getDOFtags(void) const
 {
-    return myDOF_Groups;
+  return myDOF_Groups;
 }
 
 
@@ -207,13 +193,13 @@ FE_Element::getDOFtags(void) const
 const ID &
 FE_Element::getID(void) const
 {
-    return myID;
+  return myID;
 }
 
 void
 FE_Element::setAnalysisModel(AnalysisModel &theAnalysisModel)
 {
-    theModel = &theAnalysisModel;
+  theModel = &theAnalysisModel;
 }
 
 // void setID(int index, int value);
@@ -244,6 +230,7 @@ FE_Element::setID(void)
     for (int j=0; j<theDOFid.Size(); j++)
       if (current < numDOF)
           myID(current++) = theDOFid(j);
+
       else {
           opserr << "WARNING FE_Element::setID() - numDOF and";
           opserr << " number of dof at the DOF_Groups\n";
@@ -333,16 +320,15 @@ FE_Element::addCtoTang(double fact)
 void
 FE_Element::addMtoTang(double fact)
 {
-    if (myEle != nullptr) {
+  if (myEle != nullptr) {
+    assert(myEle->isSubdomain() == false);
 
-        assert(myEle->isSubdomain() == false);
-
-        // check for a quick return
-        if (fact == 0.0)
-          return;
-        else
-          theTangent->addMatrix(1.0, myEle->getMass(),fact);
-    }
+    // check for a quick return
+    if (fact == 0.0)
+      return;
+    else
+      theTangent->addMatrix(1.0, myEle->getMass(),fact);
+  }
 }
 
 
@@ -399,9 +385,8 @@ int
 FE_Element::storePreviousK(int numP)
 {
   int res = 0;
-  if (myEle != 0) {
+  if (myEle != nullptr)
     res = myEle->storePreviousK(numP);
-  }
 
   return res;
 }
@@ -474,20 +459,12 @@ FE_Element::getTangForce(const Vector &disp, double fact)
     }
 
     if (myEle->isSubdomain() == false) {
-        // form the tangent again and then add the force
-        theIntegrator->formEleTangent(this);
-        if (theResidual->addMatrixVector(1.0, *theTangent,tmp,fact) < 0) {
-            opserr << "WARNING FE_Element::getTangForce() - ";
-            opserr << "- addMatrixVector returned error\n";
-        }
-    }
+      // form the tangent again and then add the force
+      theIntegrator->formEleTangent(this);
+      theResidual->addMatrixVector(1.0, *theTangent,tmp,fact);
 
-    else {
-        Subdomain *theSub = (Subdomain *)myEle;
-        if (theResidual->addMatrixVector(1.0, theSub->getTang(),tmp,fact) < 0) {
-            opserr << "WARNING FE_Element::getTangForce() - ";
-            opserr << "- addMatrixVector returned error\n";
-        }
+    } else {
+      theResidual->addMatrixVector(1.0, ((Subdomain *)myEle)->getTang(),tmp,fact);
     }
     return *theResidual;
 }
@@ -517,10 +494,7 @@ FE_Element::getK_Force(const Vector &disp, double fact)
         tmp(i) = 0.0;
     }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getTangentStiff(), tmp, fact) < 0){
-      opserr << "WARNING FE_Element::getKForce() - ";
-      opserr << "- addMatrixVector returned error\n";
-    }
+    theResidual->addMatrixVector(1.0, myEle->getTangentStiff(), tmp, fact);
 
     return *theResidual;
 }
@@ -549,10 +523,7 @@ FE_Element::getKi_Force(const Vector &disp, double fact)
         tmp(i) = 0.0;
     }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getInitialStiff(), tmp, fact) < 0){
-      opserr << "WARNING FE_Element::getKForce() - ";
-      opserr << "- addMatrixVector returned error\n";
-    }
+    theResidual->addMatrixVector(1.0, myEle->getInitialStiff(), tmp, fact);
 
     return *theResidual;
 
@@ -581,11 +552,7 @@ FE_Element::getM_Force(const Vector &disp, double fact)
         tmp(i) = 0.0;
     }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getMass(), tmp, fact) < 0){
-      opserr << "WARNING FE_Element::getMForce() - ";
-      opserr << "- addMatrixVector returned error\n";
-    }
-
+    theResidual->addMatrixVector(1.0, myEle->getMass(), tmp, fact);
 
     return *theResidual;
 }
@@ -613,10 +580,7 @@ FE_Element::getC_Force(const Vector &disp, double fact)
         tmp(i) = 0.0;
     }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getDamp(), tmp, fact) < 0){
-      opserr << "WARNING FE_Element::getDForce() - ";
-      opserr << "- addMatrixVector returned error\n";
-    }
+    theResidual->addMatrixVector(1.0, myEle->getDamp(), tmp, fact);
 
     return *theResidual;
 }
@@ -671,112 +635,95 @@ FE_Element::addM_Force(const Vector &accel, double fact)
             tmp(i) = 0.0;
     }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getMass(), tmp, fact) < 0){
-        opserr << "WARNING FE_Element::addM_Force() - ";
-        opserr << "- addMatrixVector returned error\n";
-    }
+    theResidual->addMatrixVector(1.0, myEle->getMass(), tmp, fact);
 
 }
 
 void
 FE_Element::addD_Force(const Vector &accel, double fact)
 {
-    assert(myEle != nullptr);
-    assert(myEle->isSubdomain() == false);
+  assert(myEle != nullptr);
+  assert(myEle->isSubdomain() == false);
 
-    // check for a quick return
-    if (fact == 0.0)
-        return;
+  // check for a quick return
+  if (fact == 0.0)
+    return;
 
-    // get the components we need out of the vector
-    // and place in a temporary vector
-    Vector tmp(numDOF);
-    for (int i=0; i<numDOF; i++) {
-        int loc = myID(i);
-        if (loc >= 0)
-            tmp(i) = accel(loc);
-        else
-            tmp(i) = 0.0;
-    }
+  // get the components we need out of the vector
+  // and place in a temporary vector
+  Vector tmp(numDOF);
+  for (int i=0; i<numDOF; i++) {
+    int loc = myID(i);
+    if (loc >= 0)
+        tmp(i) = accel(loc);
+    else
+        tmp(i) = 0.0;
+  }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getDamp(), tmp, fact) < 0){
-        opserr << "WARNING FE_Element::addD_Force() - ";
-        opserr << "- addMatrixVector returned error\n";
-    }
+  theResidual->addMatrixVector(1.0, myEle->getDamp(), tmp, fact);
 }
 
 void
 FE_Element::addK_Force(const Vector &disp, double fact)
 {
-    assert(myEle != nullptr);
-    assert(myEle->isSubdomain() == false);
+  assert(myEle != nullptr);
+  assert(myEle->isSubdomain() == false);
 
-    // check for a quick return
-    if (fact == 0.0)
-        return;
+  // check for a quick return
+  if (fact == 0.0)
+    return;
 
-    // get the components we need out of the vector
-    // and place in a temporary vector
-    Vector tmp(numDOF);
-    for (int i=0; i<numDOF; i++) {
-        int loc = myID(i);
-        if (loc >= 0)
-            tmp(i) = disp(loc);
-        else
-            tmp(i) = 0.0;
-    }
+  // get the components we need out of the vector
+  // and place in a temporary vector
+  Vector tmp(numDOF);
+  for (int i=0; i<numDOF; i++) {
+    int loc = myID(i);
+    if (loc >= 0)
+        tmp(i) = disp(loc);
+    else
+        tmp(i) = 0.0;
+  }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getTangentStiff(), tmp, fact) < 0){
-        opserr << "WARNING FE_Element::addK_Force() - ";
-        opserr << "- addMatrixVector returned error\n";
-    }
+  theResidual->addMatrixVector(1.0, myEle->getTangentStiff(), tmp, fact);
 }
 
 void
 FE_Element::addKg_Force(const Vector &disp, double fact)
 {
-    assert(myEle != nullptr);
-    assert(myEle->isSubdomain() == false);
+  assert(myEle != nullptr);
+  assert(myEle->isSubdomain() == false);
 
-    // check for a quick return
-    if (fact == 0.0)
-        return;
+  // check for a quick return
+  if (fact == 0.0)
+      return;
 
-    // get the components we need out of the vector
-    // and place in a temporary vector
-    Vector tmp(numDOF);
+  // get the components we need out of the vector
+  // and place in a temporary vector
+  Vector tmp(numDOF);
 
-    for (int i=0; i<numDOF; i++) {
-        int loc = myID(i);
-        if (loc >= 0)
-            tmp(i) = disp(loc);
-        else
-            tmp(i) = 0.0;
-    }
+  for (int i=0; i<numDOF; i++) {
+    int loc = myID(i);
+    if (loc >= 0)
+        tmp(i) = disp(loc);
+    else
+        tmp(i) = 0.0;
+  }
 
-    if (theResidual->addMatrixVector(1.0, myEle->getGeometricTangentStiff(), tmp, fact) < 0){
-        opserr << "WARNING FE_Element::addKg_Force() - ";
-        opserr << "- addMatrixVector returned error\n";
-    }
+  theResidual->addMatrixVector(1.0, myEle->getGeometricTangentStiff(), tmp, fact);
 }
 
 
 void
 FE_Element::addLocalM_Force(const Vector &accel, double fact)
 {
-    assert(myEle != nullptr);
-    assert(myEle->isSubdomain() == false);
+  assert(myEle != nullptr);
+  assert(myEle->isSubdomain() == false);
 
-    // check for a quick return
-    if (fact == 0.0)
-        return;
+  // check for a quick return
+  if (fact == 0.0)
+    return;
 
-    if (theResidual->addMatrixVector(1.0, myEle->getMass(),
-                                     accel, fact) < 0){
-
-      opserr << "WARNING FE_Element::addLocalM_Force() - ";
-      opserr << "- addMatrixVector returned error\n";
-    }
+  theResidual->addMatrixVector(1.0, myEle->getMass(), accel, fact);
 }
 
 void

@@ -40,11 +40,6 @@ public:
     BasicAnalysisBuilder();
     BasicAnalysisBuilder(Domain* domain);
     ~BasicAnalysisBuilder();
-/*
-    int   tag_object(const char* type, int tag, void* obj);
-    void* get_object(const char* type, int tag);
-    void* pop_object(const char* type, int tag);
-*/
 
     void set(ConstraintHandler* obj);
     void set(DOF_Numberer* obj);

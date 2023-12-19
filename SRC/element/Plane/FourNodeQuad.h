@@ -17,36 +17,28 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.15 $
-// $Date: 2009-08-07 20:01:54 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/FourNodeQuad.h,v $
-                                                                        
+// 
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
 //
 // Description: This file contains the class definition for FourNodeQuad.
-
+//
 #ifndef FourNodeQuad_h
 #define FourNodeQuad_h
-
-#ifndef _bool_h
-#include <stdbool.h>
-#endif
 
 #include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
+#include <quadrature/GaussLegendre2D.hpp>
 
 class Node;
 class NDMaterial;
 class Response;
 
 class FourNodeQuad : public Element,
-                     protected LegendreFixedQuadrilateral<4>
+                     protected GaussLegendre<2,4>
 {
   public:
     FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
@@ -54,6 +46,7 @@ class FourNodeQuad : public Element,
 		 double t, double pressure = 0.0, 
 		 double rho = 0.0,
 		 double b1 = 0.0, double b2 = 0.0);
+
     FourNodeQuad();
     ~FourNodeQuad();
 
@@ -125,8 +118,8 @@ class FourNodeQuad : public Element,
     Vector Q;		        // Applied nodal loads
     double b[2];		// Body forces
 
-	double appliedB[2]; // Body forces applied with load pattern, C.McGann, U.Washington
-	int applyLoad;      // flag for body force in load, C.McGann, U.Washington
+    double appliedB[2]; // Body forces applied with load pattern, C.McGann, U.Washington
+    int applyLoad;      // flag for body force in load, C.McGann, U.Washington
 	
     Vector pressureLoad;	// Pressure load at nodes
 
@@ -135,8 +128,6 @@ class FourNodeQuad : public Element,
 					 // Note: positive for outward normal
     double rho;
     static double shp[3][4];	// Stores shape functions and derivatives (overwritten)
-//  static double pts[4][2];	// Stores quadrature points
-//  static double wts[4];		// Stores quadrature weights
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);

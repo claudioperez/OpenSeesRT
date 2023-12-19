@@ -327,39 +327,9 @@ int Newmark::domainChanged()
         U = new Vector(size);
         Udot = new Vector(size);
         Udotdot = new Vector(size);
-  dUn.resize(size); dUn.Zero();
-  dVn.resize(size); dVn.Zero();
-  dAn.resize(size); dAn.Zero();
-        
-        // check we obtained the new
-        if (Ut == 0 || Ut->Size() != size ||
-            Utdot == 0 || Utdot->Size() != size ||
-            Utdotdot == 0 || Utdotdot->Size() != size ||
-            U == 0 || U->Size() != size ||
-            Udot == 0 || Udot->Size() != size ||
-            Udotdot == 0 || Udotdot->Size() != size)  {
-            
-            opserr << "Newmark::domainChanged - ran out of memory\n";
-            
-            // delete the old
-            if (Ut != 0)
-                delete Ut;
-            if (Utdot != 0)
-                delete Utdot;
-            if (Utdotdot != 0)
-                delete Utdotdot;
-            if (U != 0)
-                delete U;
-            if (Udot != 0)
-                delete Udot;
-            if (Udotdot != 0)
-                delete Udotdot;
-            
-            Ut = 0; Utdot = 0; Utdotdot = 0;
-            U = 0; Udot = 0; Udotdot = 0;
-
-            return -1;
-        }
+        dUn.resize(size); dUn.Zero();
+        dVn.resize(size); dVn.Zero();
+        dAn.resize(size); dAn.Zero(); 
     }        
     
     // now go through and populate U, Udot and Udotdot by iterating through
@@ -367,62 +337,62 @@ int Newmark::domainChanged()
     DOF_GrpIter &theDOFs = myModel->getDOFs();
     DOF_Group *dofPtr;
     while ((dofPtr = theDOFs()) != 0)  {
-        const ID &id = dofPtr->getID();
-        int idSize = id.Size();
-        
-        int i;
-        const Vector &disp = dofPtr->getCommittedDisp();  
-        for (i=0; i < idSize; i++)  {
-            int loc = id(i);
-            if (loc >= 0)  {
-                (*U)(loc) = disp(i);    
-            }
-        }
-        
-        const Vector &vel = dofPtr->getCommittedVel();
-        for (i=0; i < idSize; i++)  {
-            int loc = id(i);
-            if (loc >= 0)  {
-                (*Udot)(loc) = vel(i);
-            }
-        }
-        
-        const Vector &accel = dofPtr->getCommittedAccel();  
-        for (i=0; i < idSize; i++)  {
-            int loc = id(i);
-            if (loc >= 0)  {
-                (*Udotdot)(loc) = accel(i);
-            }
-        }
+      const ID &id = dofPtr->getID();
+      int idSize = id.Size();
+      
+      int i;
+      const Vector &disp = dofPtr->getCommittedDisp();  
+      for (i=0; i < idSize; i++)  {
+          int loc = id(i);
+          if (loc >= 0)  {
+              (*U)(loc) = disp(i);    
+          }
+      }
+      
+      const Vector &vel = dofPtr->getCommittedVel();
+      for (i=0; i < idSize; i++)  {
+          int loc = id(i);
+          if (loc >= 0)  {
+              (*Udot)(loc) = vel(i);
+          }
+      }
+      
+      const Vector &accel = dofPtr->getCommittedAccel();  
+      for (i=0; i < idSize; i++)  {
+          int loc = id(i);
+          if (loc >= 0)  {
+              (*Udotdot)(loc) = accel(i);
+          }
+      }
 
       // The remaining get**Sensitivity methods cause seg faults with Lagrange constraint
       // handler in dynamic (transient) analysis even when there is no sensitivity algorithm.
       // However, I don't think these methods need to be called in domainChanged -- MHS
       continue;
       
-  const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);  
-  for (i=0; i < idSize; i++) {
-      int loc = id(i);
-      if (loc >= 0) {
-    dUn(loc) = dispSens(i);    
+      const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);  
+      for (i=0; i < idSize; i++) {
+          int loc = id(i);
+          if (loc >= 0) {
+            dUn(loc) = dispSens(i);    
+          }
       }
-  }
 
-  const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
-  for (i=0; i < idSize; i++) {
-      int loc = id(i);
-      if (loc >= 0) {
-    dVn(loc) = velSens(i);
+      const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
+      for (i=0; i < idSize; i++) {
+          int loc = id(i);
+          if (loc >= 0) {
+            dVn(loc) = velSens(i);
+          }
       }
-  }
 
-  const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);  
-  for (i=0; i < idSize; i++) {
-      int loc = id(i);
-      if (loc >= 0) {
-    dAn(loc) = accelSens(i);
+      const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);  
+      for (i=0; i < idSize; i++) {
+          int loc = id(i);
+          if (loc >= 0) {
+            dAn(loc) = accelSens(i);
+          }
       }
-  }
     }    
     
     return 0;

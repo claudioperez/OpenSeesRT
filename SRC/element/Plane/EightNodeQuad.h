@@ -104,7 +104,7 @@ protected:
 private:
   // private attributes - a copy for each object of the class
 
-  static constexpr int nip = 9;    // number of integration/Gauss points
+//static constexpr int nip = 9;    // number of integration/Gauss points
   static constexpr int nnodes = 8; // number of nodes
 
   NDMaterial **theMaterial; // pointer to the ND material objects

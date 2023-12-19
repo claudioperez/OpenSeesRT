@@ -38,9 +38,9 @@ class BeamGT : public Element
   public:
     // constructors
     BeamGT(int tag, 
-              int Nd1, int Nd2,
-             UniaxialMaterial &theMaterial, UniaxialMaterial &theMaterial2, UniaxialMaterial &theMaterial3,
-             double E,  double G, double A, double I, double LP1, double LP2, double LR, double FC);
+           int Nd1, int Nd2,
+           UniaxialMaterial &theMaterial, UniaxialMaterial &theMaterial2, UniaxialMaterial &theMaterial3,
+           double E,  double G, double A, double I, double LP1, double LP2, double LR, double FC);
 
 
 

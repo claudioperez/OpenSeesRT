@@ -24,6 +24,7 @@
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
+//
 #include <FourNodeQuad.h>
 #include <Node.h>
 #include <NDMaterial.h>
@@ -113,8 +114,6 @@ double FourNodeQuad::matrixData[64];
 Matrix FourNodeQuad::K(matrixData, 8, 8);
 Vector FourNodeQuad::P(8);
 double FourNodeQuad::shp[3][4];
-// double FourNodeQuad::pts[4][2];
-// double FourNodeQuad::wts[4];
 
 FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
                            NDMaterial &m, const char *type, double t,
@@ -188,13 +187,13 @@ FourNodeQuad::~FourNodeQuad()
 int
 FourNodeQuad::getNumExternalNodes() const
 {
-    return 4;
+  return 4;
 }
 
 const ID&
 FourNodeQuad::getExternalNodes()
 {
-    return connectedExternalNodes;
+  return connectedExternalNodes;
 }
 
 
@@ -207,51 +206,51 @@ FourNodeQuad::getNodePtrs(void)
 int
 FourNodeQuad::getNumDOF()
 {
-    return 8;
+  return 8;
 }
 
 void
 FourNodeQuad::setDomain(Domain *theDomain)
 {
-    // Check Domain is not null - invoked when object removed from a domain
-    if (theDomain == nullptr) {
-        theNodes[0] = nullptr;
-        theNodes[1] = nullptr;
-        theNodes[2] = nullptr;
-        theNodes[3] = nullptr;
-        return;
-    }
+  // Check Domain is not null - invoked when object removed from a domain
+  if (theDomain == nullptr) {
+      theNodes[0] = nullptr;
+      theNodes[1] = nullptr;
+      theNodes[2] = nullptr;
+      theNodes[3] = nullptr;
+      return;
+  }
 
-    int Nd1 = connectedExternalNodes(0);
-    int Nd2 = connectedExternalNodes(1);
-    int Nd3 = connectedExternalNodes(2);
-    int Nd4 = connectedExternalNodes(3);
+  int Nd1 = connectedExternalNodes(0);
+  int Nd2 = connectedExternalNodes(1);
+  int Nd3 = connectedExternalNodes(2);
+  int Nd4 = connectedExternalNodes(3);
 
-    theNodes[0] = theDomain->getNode(Nd1);
-    theNodes[1] = theDomain->getNode(Nd2);
-    theNodes[2] = theDomain->getNode(Nd3);
-    theNodes[3] = theDomain->getNode(Nd4);
+  theNodes[0] = theDomain->getNode(Nd1);
+  theNodes[1] = theDomain->getNode(Nd2);
+  theNodes[2] = theDomain->getNode(Nd3);
+  theNodes[3] = theDomain->getNode(Nd4);
 
-    if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0) {
-        //opserr << "FATAL ERROR FourNodeQuad (tag: %d), node not found in domain",
-        //        this->getTag()); 
-        return;
-    }
+  if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0) {
+      //opserr << "FATAL ERROR FourNodeQuad (tag: %d), node not found in domain",
+      //        this->getTag()); 
+      return;
+  }
 
-    int dofNd1 = theNodes[0]->getNumberDOF();
-    int dofNd2 = theNodes[1]->getNumberDOF();
-    int dofNd3 = theNodes[2]->getNumberDOF();
-    int dofNd4 = theNodes[3]->getNumberDOF();
-    
-    if (dofNd1 != 2 || dofNd2 != 2 || dofNd3 != 2 || dofNd4 != 2) {
-        //opserr << "FATAL ERROR FourNodeQuad (tag: %d), has differing number of DOFs at its nodes",
-        //        this->getTag());   
-        return;
-    }
-    this->DomainComponent::setDomain(theDomain);
+  int dofNd1 = theNodes[0]->getNumberDOF();
+  int dofNd2 = theNodes[1]->getNumberDOF();
+  int dofNd3 = theNodes[2]->getNumberDOF();
+  int dofNd4 = theNodes[3]->getNumberDOF();
+  
+  if (dofNd1 != 2 || dofNd2 != 2 || dofNd3 != 2 || dofNd4 != 2) {
+      //opserr << "FATAL ERROR FourNodeQuad (tag: %d), has differing number of DOFs at its nodes",
+      //        this->getTag());   
+      return;
+  }
+  this->DomainComponent::setDomain(theDomain);
 
-    // Compute consistent nodal loads due to pressure
-    this->setPressureLoadAtNodes();
+  // Compute consistent nodal loads due to pressure
+  this->setPressureLoadAtNodes();
 }
 
 int
@@ -321,21 +320,21 @@ FourNodeQuad::update()
 
     // Loop over the integration points
     for (int i = 0; i < nip; i++) {
-        // Determine Jacobian for this integration point
-        this->shapeFunction(pts[i][0], pts[i][1]);
+      // Determine Jacobian for this integration point
+      this->shapeFunction(pts[i][0], pts[i][1]);
 
-        // Interpolate strains
-        //eps = B*u;
-        //eps.addMatrixVector(0.0, B, u, 1.0);
-        eps.zero();
-        for (int beta = 0; beta < 4; beta++) {
-            eps[0] += shp[0][beta]*u[0][beta];
-            eps[1] += shp[1][beta]*u[1][beta];
-            eps[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
-        }
+      // Interpolate strains
+      //eps = B*u;
+      //eps.addMatrixVector(0.0, B, u, 1.0);
+      eps.zero();
+      for (int beta = 0; beta < 4; beta++) {
+          eps[0] += shp[0][beta]*u[0][beta];
+          eps[1] += shp[1][beta]*u[1][beta];
+          eps[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
+      }
 
-        // Set the material strain
-        ret += theMaterial[i]->setTrialStrain(eps);
+      // Set the material strain
+      ret += theMaterial[i]->setTrialStrain(eps);
     }
 
     return ret;
@@ -509,30 +508,29 @@ FourNodeQuad::zeroLoad(void)
 int 
 FourNodeQuad::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
-        // Added option for applying body forces in load pattern: C.McGann, U.Washington
-        int type;
-        const Vector &data = theLoad->getData(type, loadFactor);
+  // Added option for applying body forces in load pattern: C.McGann, U.Washington
+  int type;
+  const Vector &data = theLoad->getData(type, loadFactor);
 
-        if (type == LOAD_TAG_SelfWeight) {
-                applyLoad = 1;
-                appliedB[0] += loadFactor*data(0)*b[0];
-                appliedB[1] += loadFactor*data(1)*b[1];
-                return 0;
-        } else {
-                opserr << "FourNodeQuad::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
-                return -1;
-        } 
+  if (type == LOAD_TAG_SelfWeight) {
+    applyLoad = 1;
+    appliedB[0] += loadFactor*data(0)*b[0];
+    appliedB[1] += loadFactor*data(1)*b[1];
+    return 0;
+  } else {
+    opserr << "FourNodeQuad::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
+    return -1;
+  } 
 
-        return -1;
+  return -1;
 }
 
 int 
 FourNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
 {
-  int i;
   static double rhoi[4];
   double sum = 0.0;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     rhoi[i] = theMaterial[i]->getRho();
     sum += rhoi[i];
   }
@@ -568,7 +566,7 @@ FourNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
   
   // Want to add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
     Q(i) += -K(i,i)*ra[i];
   
   return 0;
@@ -617,7 +615,7 @@ FourNodeQuad::getResistingForce()
     }
     
     // Subtract other external nodal loads ... P_res = P_int - P_ext
-    //P = P - Q;
+    // P = P - Q;
     P.addVector(1.0, Q, -1.0);
 
     return P;
@@ -629,7 +627,7 @@ FourNodeQuad::getResistingForceIncInertia()
     int i;
     static double rhoi[4];
     double sum = 0.0;
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       rhoi[i] = theMaterial[i]->getRho();
       sum += rhoi[i];
     }
@@ -668,7 +666,7 @@ FourNodeQuad::getResistingForceIncInertia()
     this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
         P(i) += K(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
@@ -826,12 +824,12 @@ FourNodeQuad::recvSelf(int commitTag, Channel &theChannel,
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (theMaterial[i]->getClassTag() != matClassTag) {
-            delete theMaterial[i];
-            theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
-            if (theMaterial[i] == 0) {
-          opserr << "FourNodeQuad::recvSelf() - material " << i << "failed to create\n";
-              return -1;
-            }
+          delete theMaterial[i];
+          theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
+          if (theMaterial[i] == nullptr) {
+            opserr << "FourNodeQuad::recvSelf() - material " << i << "failed to create\n";
+            return -1;
+          }
       }
       // Receive the material
       theMaterial[i]->setDbTag(matDbTag);
@@ -1243,9 +1241,9 @@ double FourNodeQuad::shapeFunction(double xi, double eta)
     double onePlusxi = 1.0+xi;
 
     shp[2][0] = 0.25*oneMinusxi*oneMinuseta;        // N_1
-    shp[2][1] = 0.25*onePlusxi*oneMinuseta;                // N_2
-    shp[2][2] = 0.25*onePlusxi*onePluseta;                // N_3
-    shp[2][3] = 0.25*oneMinusxi*onePluseta;                // N_4
+    shp[2][1] = 0.25*onePlusxi*oneMinuseta;         // N_2
+    shp[2][2] = 0.25*onePlusxi*onePluseta;          // N_3
+    shp[2][3] = 0.25*oneMinusxi*onePluseta;         // N_4
 
     double J[2][2];
 
@@ -1359,11 +1357,5 @@ FourNodeQuad::setPressureLoadAtNodes(void)
 
     //pressureLoad = pressureLoad*thickness;
 }
-
-
-
-
-
-
 
 

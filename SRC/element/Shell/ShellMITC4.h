@@ -38,12 +38,14 @@
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
-#include <quadrature/Plane/LegendreFixedQuadrilateral.h>
+// #include <quadrature/Plane/LegendreFixedQuadrilateral.h>
+#include <quadrature/GaussLegendre2D.hpp>
+
 class SectionForceDeformation;
 namespace OpenSees {template<int n, int m, typename T> struct MatrixND;};
 
 class ShellMITC4 : public    Element,
-                   protected LegendreFixedQuadrilateral<4>
+                   protected GaussLegendre<2,4>
 {
  public:
   

@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.31 $
-// $Date: 2010-04-23 22:56:02 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/brick/Brick.cpp,v $
-
+//
 // Ed "C++" Love
 //
 // Eight node Brick element
 //
-
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -192,11 +187,8 @@ Brick::~Brick( )
 //set domain
 void  Brick::setDomain( Domain *theDomain ) 
 {  
-
-  int i ;
-
   //node pointers
-  for ( i=0; i<8; i++ ) 
+  for (int i=0; i<8; i++ ) 
      nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
 
   this->DomainComponent::setDomain(theDomain);
@@ -239,7 +231,6 @@ int  Brick::commitState( )
   if ((success = this->Element::commitState()) != 0) {
     opserr << "Brick::commitState () - failed in base class";
   }    
-
 
   for (int i=0; i<8; i++ ) 
     success += materialPointers[i]->commitState( ) ;
@@ -443,10 +434,10 @@ const Matrix&  Brick::getInitialStiff( )
 	shp3d( gaussPoint, xsj, shp, xl ) ;
 
 	//save shape functions
-	for ( p = 0; p < nShape; p++ ) {
-	  for ( q = 0; q < numberNodes; q++ )
+	for (int p = 0; p < nShape; p++ ) {
+	  for (int q = 0; q < numberNodes; q++ )
 	    Shape[p][q][count] = shp[p][q] ;
-	} // end for p
+	}
 
 
 	//volume element to also be saved
@@ -465,17 +456,17 @@ const Matrix&  Brick::getInitialStiff( )
   for ( i = 0; i < numberGauss; i++ ) {
 
     //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) {
-       for ( q = 0; q < numberNodes; q++ )
+    for (int p = 0; p < nShape; p++ ) {
+       for (int q = 0; q < numberNodes; q++ )
 	  shp[p][q]  = Shape[p][q][i] ;
-    } // end for p
+    }
 
 
     dd = materialPointers[i]->getInitialTangent( ) ;
     dd *= dvol[i] ;
     
     jj = 0;
-    for ( j = 0; j < numberNodes; j++ ) {
+    for (int j = 0; j < numberNodes; j++ ) {
 
       BJ = computeB( j, shp ) ;
    
@@ -484,7 +475,7 @@ const Matrix&  Brick::getInitialStiff( )
       for (p=0; p<ndf; p++) {
 	for (q=0; q<nstress; q++) 
 	  BJtran(p,q) = BJ(q,p) ;
-      }//end for p
+      }
 
       //BJtranD = BJtran * dd ;
       BJtranD.addMatrixProduct(0.0,  BJtran, dd, 1.0) ;
@@ -700,18 +691,18 @@ void   Brick::formInertiaTerms( int tangFlag )
 
   int count = 0 ;
 
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
-      for ( k = 0; k < 2; k++ ) {
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      for (int k = 0; k < 2; k++ ) {
 
         gaussPoint[0] = sg[i] ;        
 	gaussPoint[1] = sg[j] ;        
 	gaussPoint[2] = sg[k] ;
 
-	//get shape functions    
+	// get shape functions    
 	shp3d( gaussPoint, xsj, shp, xl ) ;
 
-	//save shape functions
+	// save shape functions
 	for ( p = 0; p < nShape; p++ ) {
 	  for ( q = 0; q < numberNodes; q++ )
 	    Shape[p][q][count] = shp[p][q] ;
@@ -723,9 +714,9 @@ void   Brick::formInertiaTerms( int tangFlag )
 
 	count++ ;
 
-      } //end for k
-    } //end for j
-  } // end for i 
+      }
+    }
+  } 
   
 
 
@@ -773,11 +764,11 @@ void   Brick::formInertiaTerms( int tangFlag )
 
 	 //node-node mass
          kk = 0 ;
-         for ( k = 0; k < numberNodes; k++ ) {
+         for (int k = 0; k < numberNodes; k++ ) {
 
 	    massJK = temp * shp[massIndex][k] ;
 
-            for ( p = 0; p < ndf; p++ )  
+            for (int p = 0; p < ndf; p++ )  
 	      mass( jj+p, kk+p ) += massJK ;
             
             kk += ndf ;
@@ -832,13 +823,10 @@ Brick::update(void)
 
   //---------B-matrices------------------------------------
 
-    static Matrix BJ(nstress,ndf) ;      // B matrix node J
-
-    static Matrix BJtran(ndf,nstress) ;
-
-    static Matrix BK(nstress,ndf) ;      // B matrix node k
-
-    static Matrix BJtranD(ndf,nstress) ;
+  static Matrix BJ(nstress,ndf) ;      // B matrix node J
+  static Matrix BJtran(ndf,nstress) ;
+  static Matrix BK(nstress,ndf) ;      // B matrix node k
+  static Matrix BJtranD(ndf,nstress) ;
 
   //-------------------------------------------------------
 
@@ -1135,7 +1123,7 @@ void  Brick::formResidAndTangent( int tang_flag )
       for (p=0; p<ndf; p++) {
 	for (q=0; q<nstress; q++) 
 	  BJtran(p,q) = BJ(q,p) ;
-      }//end for p
+      }
 
 
       //residual 
@@ -1185,13 +1173,13 @@ void  Brick::formResidAndTangent( int tang_flag )
 //************************************************************************
 //compute local coordinates and basis
 
-void   Brick::computeBasis( ) 
+void
+Brick::computeBasis( ) 
 {
 
   //nodal coordinates 
 
-  int i ;
-  for ( i = 0; i < 8; i++ ) {
+  for (int i = 0; i < 8; i++ ) {
 
        const Vector &coorI = nodePointers[i]->getCrds( ) ;
 
@@ -1242,9 +1230,8 @@ Brick::computeB( int node, const double shp[4][8] )
 
 //***********************************************************************
 
-Matrix  Brick::transpose( int dim1, 
-                                       int dim2, 
-		                       const Matrix &M ) 
+Matrix
+Brick::transpose( int dim1, int dim2, const Matrix &M ) 
 {
   int i ;
   int j ;
@@ -1261,7 +1248,8 @@ Matrix  Brick::transpose( int dim1,
 
 //**********************************************************************
 
-int  Brick::sendSelf (int commitTag, Channel &theChannel)
+int
+Brick::sendSelf (int commitTag, Channel &theChannel)
 {
   int res = 0;
   

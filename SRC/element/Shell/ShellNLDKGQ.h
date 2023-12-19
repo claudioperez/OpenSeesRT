@@ -124,13 +124,6 @@ class ShellNLDKGQ : public Element,
     // Vector CstrainGauss,TstrainGauss;
     Vector CstrainGauss,TstrainGauss;  //modify for geometric nonlinearity
 
-    //quadrature data
-//  static const double root3 ;
-//  static const double one_over_root3 ;    
-//  static double sg[4] ;
-//  static double tg[4] ;
-//  static double wg[4] ;
-
     //node information
     ID connectedExternalNodes ;  //four node numbers
     Node *nodePointers[4] ;      //pointers to four nodes

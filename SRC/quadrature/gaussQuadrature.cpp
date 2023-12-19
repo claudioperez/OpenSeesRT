@@ -73,34 +73,31 @@ gaussQuad(int order, Vector& pt, Vector& wt)
       double pp;
 
       for (int i = 0; i < m; ++i) {
-              z = cos(pi * (i + 1 - 0.25) / (n + 0.5));
-              p1 = 1.0;
-              p2 = 0.0;
+        z = cos(pi * (i + 1 - 0.25) / (n + 0.5));
+        p1 = 1.0;
+        p2 = 0.0;
 
-              while (abs(z - z1) > eps) {
-                      p1 = 1.0;
-                      p2 = 0.0;
-                      for (int j = 0; j < n; ++j) {
-                              p3 = p2;
-                              p2 = p1;
-                              p1 = ((2 * (j + 1) - 1) * z * p2 - ((j + 1) - 1) * p3) / (j + 1);
-                      }
-                      pp = n * (z * p1 - p2) / (z * z - 1);
-                      z1 = z;
-                      z = z1 - p1 / pp;
-              }
-              pt(i) = xm - x1 * z;
-              pt(n + 1 - (i + 1 + 1)) = xm + x1 * z;
-              wt(i) = 2 * x1 / ((1 - z * z) * pp * pp);
-              wt(n + 1 - (i + 1 + 1)) = wt(i);
+        while (fabs(z - z1) > eps) {
+          p1 = 1.0;
+          p2 = 0.0;
+          for (int j = 0; j < n; ++j) {
+            p3 = p2;
+            p2 = p1;
+            p1 = ((2 * (j + 1) - 1) * z * p2 - ((j + 1) - 1) * p3) / (j + 1);
+          }
+          pp = n * (z * p1 - p2) / (z * z - 1);
+          z1 = z;
+          z  = z1 - p1 / pp;
+        }
+        pt(i)                   = xm - x1 * z;
+        pt(n + 1 - (i + 1 + 1)) = xm + x1 * z;
+        wt(i)                   = 2 * x1 / ((1 - z * z) * pp * pp);
+        wt(n + 1 - (i + 1 + 1)) = wt(i);
       }
-
-
 
       if (order == 1) {
               pt(0) = 0.000000000000000;
               wt(0) = 2.000000000000000;
-
       }
       else if (order == 2) {
               pt(0) = 0.577350269189626;
@@ -277,24 +274,22 @@ gaussQuad(int order, Vector& pt, Vector& wt)
 void
 gaussQuad2dNurbs(int orderU, int orderV, Matrix* quadPoint, Vector* quadWeight)
 {
-	Vector ptU(orderU);
-	Vector ptV(orderV);
-	Vector wtU(orderU);
-	Vector wtV(orderV);
+  Vector ptU(orderU);
+  Vector ptV(orderV);
+  Vector wtU(orderU);
+  Vector wtV(orderV);
 
-	gaussQuad(orderU, ptU, wtU);
-	gaussQuad(orderV, ptV, wtV);
+  gaussQuad(orderU, ptU, wtU);
+  gaussQuad(orderV, ptV, wtV);
 
-	int n = 0;
-	for (int i = 0; i < orderU; ++i)
-	{
-		for (int j = 0; j < orderV; ++j)
-		{
-			(*quadPoint)(n, 0) = ptU(i); 
-			(*quadPoint)(n, 1) = ptV(j); 
-			(*quadWeight)(n) = wtU(i) * wtV(j); 
-			n++;
-		}
-	}
+  int n = 0;
+  for (int i = 0; i < orderU; ++i) {
+    for (int j = 0; j < orderV; ++j) {
+      (*quadPoint)(n, 0) = ptU(i); 
+      (*quadPoint)(n, 1) = ptV(j); 
+      (*quadWeight)(n) = wtU(i) * wtV(j); 
+      n++;
+    }
+  }
 }
 

@@ -85,7 +85,7 @@ static int numIGAKLShell = 0;
 
 //static data
 Matrix*  IGAKLShell::stiff = 0;
-Matrix*  IGAKLShell::mass = 0;
+Matrix*  IGAKLShell::mass  = 0;
 Vector*  IGAKLShell::resid = 0;
 // Vector*  IGAKLShell::load = 0;
 
@@ -126,7 +126,7 @@ IGAKLShell::IGAKLShell( int tag,
 
   // ngauss=36;
 
-  quadPoint = new Matrix(ngauss, 2);
+  quadPoint  = new Matrix(ngauss, 2);
   quadWeight = new Vector(ngauss);
 
   ID PQ = myPatch -> getOrders();
@@ -149,22 +149,18 @@ IGAKLShell::IGAKLShell( int tag,
 
   materialPointers = new NDMaterial** [ngauss]; //Double array
   for (int i = 0; i < ngauss; ++i)
-  {
     materialPointers[i] = new NDMaterial* [nLayers];
-  }
 
 
-  for (int gp = 0 ;  gp < ngauss; gp++ )
-  {
-    for (int capa = 0; capa < nLayers; capa++)
-    {
+  for (int gp = 0 ;  gp < ngauss; gp++ ) {
+    for (int capa = 0; capa < nLayers; capa++) {
       NDMaterial* theReferenceMaterial = OPS_getNDMaterial(myPatch->getMatTag(capa)); // Pointer to NDMaterial
       NDMaterial* newmat = theReferenceMaterial->getCopy( );  // Copy of pointer to NDMaterial
       materialPointers[gp][capa] =  newmat;   // llama new
 
       if (materialPointers[gp][capa] == 0) {
         opserr << "ShellMITC4::constructor - failed to get a material of type: ShellSection\n";
-      } //end if
+      }
     }
   } //end for gp
 
@@ -189,18 +185,9 @@ IGAKLShell::~IGAKLShell( )
   // opserr << 'IGAKLShell::~IGAKLShell' << endln;
   // borrar todos los punteros. ARREGLAR PARA ARREGLO 2D
   int nLayers = myPatch->getNLayers();
-  // opserr << "quadorder = " << quadorder << endln;
-  // int i ;
-  // for ( i = 0 ;  i < 4; i++ ) {
 
-  //   delete materialPointers[i] ;
-  //   materialPointers[i] = 0 ;
-
-  // } //end for i
-  for (int gp = 0; gp < ngauss; ++gp)
-  {
-    for (int capa = 0; capa < nLayers; ++capa)
-    {
+  for (int gp = 0; gp < ngauss; ++gp) {
+    for (int capa = 0; capa < nLayers; ++capa) {
       delete materialPointers[gp][capa];
       materialPointers[gp][capa] = 0;
     }
@@ -305,7 +292,6 @@ int  IGAKLShell::commitState( )
 
       // Should update the stresses here ?
 
-
       success += materialPointers[gp][capa]->commitState( ) ;
     }
 
@@ -320,8 +306,7 @@ int  IGAKLShell::revertToLastCommit( )
   int success = 0 ;
 
   for (int gp = 0; gp < ngauss; gp++ )
-    for (int capa = 0; capa < myPatch->getNLayers(); ++capa)
-    {
+    for (int capa = 0; capa < myPatch->getNLayers(); ++capa) {
       success += materialPointers[gp][capa]->revertToLastCommit( ) ;
     }
 
@@ -335,8 +320,7 @@ int  IGAKLShell::revertToStart( )
   int success = 0 ;
 
   for (int gp = 0; gp < ngauss; gp++ )
-    for (int capa = 0; capa < myPatch->getNLayers(); ++capa)
-    {
+    for (int capa = 0; capa < myPatch->getNLayers(); ++capa) {
       success += materialPointers[gp][capa]->revertToStart( ) ;
     }
 

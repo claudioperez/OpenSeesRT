@@ -28,7 +28,7 @@
 //
 #include <DOF_Group.h>
 #include <stdlib.h>
-
+#include <assert.h>
 #include <Node.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -38,11 +38,10 @@
 
 
 // static variables initialisation
-Matrix DOF_Group::errMatrix(1,1);
 Vector DOF_Group::errVect(1);
 Matrix **DOF_Group::theMatrices; // array of pointers to class wide matrices
 Vector **DOF_Group::theVectors;  // array of pointers to class widde vectors
-int DOF_Group::numDOFs(0);           // number of objects
+int DOF_Group::numDOFs(0);       // number of objects
 
 
 //  DOF_Group(Node *);
@@ -80,10 +79,6 @@ DOF_Group::DOF_Group(int tag, Node *node)
 	theMatrices = new Matrix *[MAX_NUM_DOF+1];
 	theVectors  = new Vector *[MAX_NUM_DOF+1];
 	
-	if (theMatrices == 0 || theVectors == 0) {
-	    opserr << "DOF_Group::DOF_Group(Node *) ";
-	    opserr << " ran out of memory";	    
-	}
 	for (int i=0; i<MAX_NUM_DOF; i++) {
 	    theMatrices[i] = 0;
 	    theVectors[i] = 0;
@@ -126,13 +121,6 @@ DOF_Group::DOF_Group(int tag, int ndof)
 	opserr << "DOF_Group::DOF_Group(int, int ndof) ";
 	opserr << ndof << " ndof specified, there must be at least 1\n";
 	exit(-1);
-    }	
-
-    // check the ID created is of appropriate size
-    if (myID.Size() != numDOF) {
-	opserr << "DOF_Group::DOF_Group(int, int ndof) ";
-	opserr << " ran out of memory creating ID of size " << ndof << endln;
-	exit(-1);
     }
 
     // initially set all the IDs to be -2
@@ -146,13 +134,9 @@ DOF_Group::DOF_Group(int tag, int ndof)
 	theMatrices = new Matrix *[MAX_NUM_DOF+1];
 	theVectors  = new Vector *[MAX_NUM_DOF+1];
 	
-	if (theMatrices == 0 || theVectors == 0) {
-	    opserr << "DOF_Group::DOF_Group(int, int ndof) ";
-	    opserr << " ran out of memory";	    
-	}
 	for (int i=0; i<MAX_NUM_DOF; i++) {
 	    theMatrices[i] = 0;
-	    theVectors[i] = 0;
+	    theVectors[i]  = 0;
 	}
     }    
 
@@ -164,32 +148,16 @@ DOF_Group::DOF_Group(int tag, int ndof)
 	    theVectors[numDOF] = new Vector(numDOF);
 	    theMatrices[numDOF] = new Matrix(numDOF,numDOF);
 	    unbalance = theVectors[numDOF];
-	    tangent = theMatrices[numDOF];
-	    if (unbalance == 0 || unbalance->Size() != numDOF ||	
-		tangent == 0 || tangent->noCols() != numDOF)	{  
-		opserr << "DOF_Group::DOF_Group(int, int ndof) ";
-		opserr << " ran out of memory for vector/Matrix of size :";
-		opserr << numDOF << endln;
-		exit(-1);
-	    }
+	    tangent   = theMatrices[numDOF];
 	} else {
 	    unbalance = theVectors[numDOF];
-	    tangent = theMatrices[numDOF];
+	    tangent   = theMatrices[numDOF];
 	}
     } else {
 	// create matrices and vectors for each object instance
 	unbalance = new Vector(numDOF);
-	tangent = new Matrix(numDOF, numDOF);
-	if (unbalance == 0 || tangent ==0 ||
-	    tangent ==0 || tangent->noRows() ==0) {
-	    
-	    opserr << "DOF_Group::DOF_Group(int, int ndof) ";
-	    opserr << " ran out of memory for vector/Matrix of size :";
-	    opserr << numDOF << endln;
-	    exit(-1);
-	}
+	tangent   = new Matrix(numDOF, numDOF);
     }
-    
     numDOFs++;
 }
 
@@ -198,33 +166,33 @@ DOF_Group::DOF_Group(int tag, int ndof)
 
 DOF_Group::~DOF_Group()
 {
-    numDOFs--;
+  numDOFs--;
 
-    int numDOF = unbalance->Size();
+  int numDOF = unbalance->Size();
 
-    // set the pointer in the associated Node to 0, to stop
-    // segmentation fault if node tries to use this object after destroyed
-    if (myNode != 0) 
-      myNode->setDOF_GroupPtr(0);
+  // set the pointer in the associated Node to 0, to stop
+  // segmentation fault if node tries to use this object after destroyed
+  if (myNode != 0) 
+    myNode->setDOF_GroupPtr(0);
 
-    // delete tangent and residual if created specially
-    if (numDOF > MAX_NUM_DOF) {
-	if (tangent != 0) delete tangent;
-	if (unbalance != 0) delete unbalance;
+  // delete tangent and residual if created specially
+  if (numDOF > MAX_NUM_DOF) {
+      if (tangent != 0) delete tangent;
+      if (unbalance != 0) delete unbalance;
+  }
+
+  // if this is the last FE_Element, clean up the
+  // storage for the matrix and vector objects
+  if (numDOFs == 0) {
+    for (int i=0; i<MAX_NUM_DOF; i++) {
+        if (theVectors[i] != nullptr)
+            delete theVectors[i];
+        if (theMatrices[i] != nullptr)
+            delete theMatrices[i];
     }
-
-    // if this is the last FE_Element, clean up the
-    // storage for the matrix and vector objects
-    if (numDOFs == 0) {
-	for (int i=0; i<MAX_NUM_DOF; i++) {
-	    if (theVectors[i] != 0)
-		delete theVectors[i];
-	    if (theMatrices[i] != 0)
-		delete theMatrices[i];
-	}	
-	delete [] theMatrices;
-	delete [] theVectors;
-    }    
+    delete [] theMatrices;
+    delete [] theVectors;
+  }
 }    
 
 // void setID(int index, int value);
@@ -233,12 +201,8 @@ DOF_Group::~DOF_Group()
 void
 DOF_Group::setID(int index, int value)
 {
-    if ((index >= 0) && (index < numDOF))
-	myID(index) = value;
-    else {
-	opserr << "WARNING DOF_Group::setID - invalid location ";
-	opserr << index << " in ID of size " << numDOF << endln;
-    }	
+  assert((index >=0) && (index < numDOF));
+  myID(index) = value;
 }
 
 // void setID(const ID &);
@@ -247,7 +211,7 @@ DOF_Group::setID(int index, int value)
 void
 DOF_Group::setID(const ID &copy)
 {
-    myID = copy;
+  myID = copy;
 }
  
 
@@ -257,54 +221,50 @@ DOF_Group::setID(const ID &copy)
 const ID &
 DOF_Group::getID(void) const
 {
-    return myID;
+  return myID;
 }
-
-
 
 int
 DOF_Group::doneID(void)
 {
-    return 0;
+  return 0;
 }
-
-
 
 int
 DOF_Group::getNumDOF(void) const
 {
-    return numDOF;
+  return numDOF;
 }
 
 int
 DOF_Group::getNodeTag(void) const
 {
-    if (myNode != 0)
-    	return myNode->getTag();
-    else
-    	return -1;
+  if (myNode != nullptr)
+      return myNode->getTag();
+  else
+      return -1;
 }
 
 int
 DOF_Group::getNumFreeDOF(void) const
 {
-    int numFreeDOF = numDOF;
-    for (int i=0; i<numDOF; i++)
-	if (myID(i) == -1 || myID(i) == -4)
-	    numFreeDOF--;
-    
-    return numFreeDOF;
+  int numFreeDOF = numDOF;
+  for (int i=0; i<numDOF; i++)
+      if (myID(i) == -1 || myID(i) == -4)
+          numFreeDOF--;
+  
+  return numFreeDOF;
 }
 
 int
 DOF_Group::getNumConstrainedDOF(void) const
 {   
-    int numConstr = 0;
-    for (int i=0; i<numDOF; i++)
-	if (myID(i) < 0)
-	    numConstr++;    
+  int numConstr = 0;
+  for (int i=0; i<numDOF; i++)
+    if (myID(i) < 0)
+      numConstr++;    
 
-    return numConstr;
+  return numConstr;
 }    
 
 
@@ -312,47 +272,35 @@ DOF_Group::getNumConstrainedDOF(void) const
 const Matrix &
 DOF_Group::getTangent(Integrator *theIntegrator) 
 {	
-    if (theIntegrator != 0)
-	theIntegrator->formNodTangent(this);    
-    return *tangent;
+  if (theIntegrator != nullptr)
+      theIntegrator->formNodTangent(this);    
+  return *tangent;
 }
 
 void  
 DOF_Group::zeroTangent(void)
 {
-    tangent->Zero();
+  tangent->Zero();
 }
 
 
 void  
 DOF_Group::addMtoTang(double fact)
 {
-    if (myNode != 0) {
-	if (tangent->addMatrix(1.0, myNode->getMass(), fact) < 0) {
-	    opserr << "DOF_Group::addMtoTang(void) ";
-	    opserr << " invoking addMatrix() on the tangent failed\n";	    
-	}
-    }
-    else {
-	opserr << "DOF_Group::addMtoTang(void) - no Node associated";
-	opserr << " subclass should provide the method \n";	    
-    }	
+  // if there is no associated node, subclass should 
+  // implement this method (ie addMtoTang())
+  assert(myNode != nullptr);
+  tangent->addMatrix(1.0, myNode->getMass(), fact);
 }
 
 
 void  
 DOF_Group::addCtoTang(double fact)
 {
-    if (myNode != 0) {
-	if (tangent->addMatrix(1.0, myNode->getDamp(), fact) < 0) {
-	    opserr << "DOF_Group::addMtoTang(void) ";
-	    opserr << " invoking addMatrix() on the tangent failed\n";	    
-	}
-    }
-    else {
-	opserr << "DOF_Group::addMtoTang(void) - no Node associated";
-	opserr << " subclass should provide the method \n";	    
-    }	
+  // if there is no associated node, subclass should 
+  // implement this method (ie addCtoTang())
+  assert(myNode != nullptr);
+  tangent->addMatrix(1.0, myNode->getDamp(), fact);
 }
 
 
@@ -360,62 +308,49 @@ DOF_Group::addCtoTang(double fact)
 void
 DOF_Group::zeroUnbalance(void) 
 {
-    unbalance->Zero();
+  unbalance->Zero();
 }
 
 
 const Vector &
 DOF_Group::getUnbalance(Integrator *theIntegrator)
 {
-    if (theIntegrator != 0)
-	theIntegrator->formNodUnbalance(this);
+  if (theIntegrator != nullptr)
+    theIntegrator->formNodUnbalance(this);
 
-    return *unbalance;
+  return *unbalance;
 }
 
 
 void
 DOF_Group::addPtoUnbalance(double fact)
 {
-    if (myNode != 0) {
-	if (unbalance->addVector(1.0, myNode->getUnbalancedLoad(), fact) < 0) {
-	    opserr << "DOF_Group::addPIncInertiaToUnbalance() -";
-	    opserr << " invoking addVector() on the unbalance failed\n";	    
-	}
-    }
-    else {
-	opserr << "DOF_Group::addPtoUnbalance() - no Node associated";
-	opserr << " subclass should provide the method \n";	    
-    }		
+  // if there is no associated node, subclass should 
+  // implement this method (ie addPtoUnbalance())
+  assert(myNode != nullptr);
+  unbalance->addVector(1.0, myNode->getUnbalancedLoad(), fact);
 }
 
 
 void
 DOF_Group::addPIncInertiaToUnbalance(double fact)
 {
-    if (myNode != 0) {
-	if (unbalance->addVector(1.0, myNode->getUnbalancedLoadIncInertia(), 
-				 fact) < 0) {
-
-	    opserr << "DOF_Group::addPIncInertiaToUnbalance() - ";
-	    opserr << " invoking addVector() on the unbalance failed\n";	    
-	}
-    }
-     else {
-	opserr << "DOF_Group::addPIncInertiaToUnbalance() - no Node associated";
-	opserr << " subclass should provide the method \n";	    
-    }		
+  // if there is no associated node, subclass should 
+  // implement this method (ie addPIncInertiaToUnbalance())
+  assert(myNode != nullptr);
+  unbalance->addVector(1.0, myNode->getUnbalancedLoadIncInertia(), fact);
 }
 
 
 void  
 DOF_Group::addM_Force(const Vector &Udotdot, double fact)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::addM_Force() - no Node associated";	
-	opserr << " subclass should not call this method \n";	    
-	return;
-    }
+  assert(myNode != nullptr);
+//  if (myNode == 0) {
+//      opserr << "DOF_Group::addM_Force() - no Node associated";	
+//      opserr << " subclass should not call this method \n";	    
+//      return;
+//  }
 
     Vector accel(numDOF);
     // get accel for the unconstrained dof
@@ -425,14 +360,8 @@ DOF_Group::addM_Force(const Vector &Udotdot, double fact)
 	    accel(i) = Udotdot(loc); 
 	else accel(i) = 0.0;
     }
-	
-    if (unbalance->addMatrixVector(1.0, myNode->getMass(), accel, fact) < 0) {  
-	opserr << "DOF_Group::addM_Force() ";
-	opserr << " invoking addMatrixVector() on the unbalance failed\n";
-    }
-    else {
 
-    }		
+    unbalance->addMatrixVector(1.0, myNode->getMass(), accel, fact);
 }
 
 
@@ -463,10 +392,7 @@ DOF_Group::getM_Force(const Vector &Udotdot, double fact)
 	else accel(i) = 0.0;
     }
 	
-    if (unbalance->addMatrixVector(0.0, myNode->getMass(), accel, fact) < 0) {  
-	opserr << "DOF_Group::getM_Force() ";
-	opserr << " invoking addMatrixVector() on the unbalance failed\n";
-    }
+    unbalance->addMatrixVector(0.0, myNode->getMass(), accel, fact);
     
     return *unbalance;
 }
@@ -476,26 +402,19 @@ DOF_Group::getM_Force(const Vector &Udotdot, double fact)
 const Vector &
 DOF_Group::getC_Force(const Vector &Udotdot, double fact)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getC_Force() - no Node associated";	
-	opserr << " subclass should not call this method \n";	    
-	return *unbalance;
-    }
+  assert(myNode != nullptr);
 
-    Vector accel(numDOF);
-    // get accel for the unconstrained dof
-    for (int i=0; i<numDOF; i++) {
-	int loc = myID(i);
-	if (loc >= 0)
-	    accel(i) = Udotdot(loc); 
-	else accel(i) = 0.0;
-    }
-	
-    if (unbalance->addMatrixVector(0.0, myNode->getDamp(), accel, fact) < 0) {  
-	opserr << "DOF_Group::getC_Force() ";
-	opserr << " invoking addMatrixVector() on the unbalance failed\n";
-    }
-    return *unbalance;
+  Vector accel(numDOF);
+  // get accel for the unconstrained dof
+  for (int i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+          accel(i) = Udotdot(loc); 
+      else accel(i) = 0.0;
+  }
+      
+  unbalance->addMatrixVector(0.0, myNode->getDamp(), accel, fact);
+  return *unbalance;
 }
 
 
@@ -541,10 +460,7 @@ DOF_Group::getCommittedAccel(void)
 void
 DOF_Group::setNodeDisp(const Vector &u)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeDisp: no associated Node\n";
-	return;
-    }
+  assert(myNode != nullptr);
     
     Vector &disp = *unbalance;
     disp = myNode->getTrialDisp();
@@ -568,54 +484,44 @@ DOF_Group::setNodeDisp(const Vector &u)
 void
 DOF_Group::setNodeVel(const Vector &udot)
 {
+  assert(myNode != nullptr);
 
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeVel: 0 Node Pointer\n";
-	return;
-    }
-    
-    Vector &vel = *unbalance;
-    vel = myNode->getTrialVel();
-    int i;
-    
-    // get vel for my dof out of vector udot
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);	    	
-	if (loc >= 0) 
-	    vel(i) = udot(loc);  
-    }
+  Vector &vel = *unbalance;
+  vel = myNode->getTrialVel();
+  int i;
+  
+  // get vel for my dof out of vector udot
+  for (i=0; i<numDOF; i++) {
+    int loc = myID(i);	    	
+    if (loc >= 0) 
+      vel(i) = udot(loc);  
+  }
 
-    myNode->setTrialVel(vel);
-
+  myNode->setTrialVel(vel);
 }
-
 
 
 // void setNodeAccel(const Vector &udotdot);
 //	Method to set the corresponding nodes accelerations to the
 //	values in udotdot, components identified by myID;
-
 void
 DOF_Group::setNodeAccel(const Vector &udotdot)
 {
 
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeAccel: 0 Node Pointer\n";
-	return;
-    }
+  assert(myNode != nullptr);
 
-    Vector &accel = *unbalance;;
-    accel = myNode->getTrialAccel();
-    int i;
-    
-    // get disp for the unconstrained dof
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);	    		
-	if (loc >= 0)
-	    accel(i) = udotdot(loc); 
-    }
+  Vector &accel = *unbalance;;
+  accel = myNode->getTrialAccel();
+  int i;
+  
+  // get disp for the unconstrained dof
+  for (i=0; i<numDOF; i++) {
+      int loc = myID(i);	    		
+      if (loc >= 0)
+          accel(i) = udotdot(loc); 
+  }
 
-    myNode->setTrialAccel(accel);
+  myNode->setTrialAccel(accel);
 }
 
 
@@ -626,28 +532,26 @@ DOF_Group::setNodeAccel(const Vector &udotdot)
 void
 DOF_Group::incrNodeDisp(const Vector &u)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeDisp: 0 Node Pointer\n";
-	exit(-1);
-    }
+  assert(myNode != nullptr);
 
-    Vector &disp = *unbalance;;
+  Vector &disp = *unbalance;;
 
-    if (disp.Size() == 0) {
-      opserr << "DOF_Group::setNodeIncrDisp - out of space\n";
-      return;
-    }
-    int i;
+  if (disp.Size() == 0) {
+    opserr << "DOF_Group::setNodeIncrDisp - out of space\n";
+    return;
+  }
+  int i;
 
-    // get disp for my dof out of vector u
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);	    			
-	if (loc >= 0)
-	    disp(i) = u(loc);  
-	else disp(i) = 0.0;  
-    }
+  // get disp for my dof out of vector u
+  for (i=0; i<numDOF; i++) {
+      int loc = myID(i);	    			
+      if (loc >= 0)
+        disp(i) = u(loc);  
+      else 
+        disp(i) = 0.0;  
+  }
 
-    myNode->incrTrialDisp(disp);
+  myNode->incrTrialDisp(disp);
 }
 	
 	
@@ -659,10 +563,7 @@ void
 DOF_Group::incrNodeVel(const Vector &udot)
 {
 
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeVel: 0 Node Pointer\n";
-	exit(-1);
-    }
+  assert(myNode != nullptr);
     
     Vector &vel = *unbalance;
     int i;
@@ -687,10 +588,7 @@ void
 DOF_Group::incrNodeAccel(const Vector &udotdot)
 {
 
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeAccel: 0 Node Pointer\n";
-	exit(-1);
-    }
+  assert(myNode != nullptr);
 
     Vector &accel = *unbalance;
     int i;
@@ -744,23 +642,19 @@ DOF_Group::getTrialAccel()
 void
 DOF_Group::setEigenvector(int mode, const Vector &theVector)
 {
+  assert(myNode != nullptr);
 
-    if (myNode == 0) {
-	opserr << "DOF_Group::setNodeAccel: 0 Node Pointer\n";
-	exit(-1);
-    }
-
-    Vector &eigenvector = *unbalance;
-    int i;
-    
-    // get disp for the unconstrained dof
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);
-	if (loc >= 0)
-	    eigenvector(i) = theVector(loc); 
-	else eigenvector(i) = 0.0;
-    }    
-    myNode->setEigenvector(mode, eigenvector);
+  Vector &eigenvector = *unbalance;
+  int i;
+  
+  // get disp for the unconstrained dof
+  for (i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+          eigenvector(i) = theVector(loc); 
+      else eigenvector(i) = 0.0;
+  }    
+  myNode->setEigenvector(mode, eigenvector);
 }
 
 
@@ -768,11 +662,7 @@ DOF_Group::setEigenvector(int mode, const Vector &theVector)
 const Matrix &
 DOF_Group::getEigenvectors(void)
 {
-  if (myNode == 0) {
-    opserr << "DOF_Group::setNodeAccel: 0 Node Pointer\n";
-    exit(-1);
-  }
-
+  assert(myNode != nullptr);
   return myNode->getEigenvectors();
 }
 
@@ -789,17 +679,8 @@ DOF_Group::getT(void)
 void  
 DOF_Group::addLocalM_Force(const Vector &accel, double fact)
 {
-    if (myNode != 0) {
-	if (unbalance->addMatrixVector(1.0, myNode->getMass(), accel, fact) < 0) {  
-				       
-	    opserr << "DOF_Group::addLocalM_Force() ";
-	    opserr << " invoking addMatrixVector() on the unbalance failed\n"; 
-	}
-    }
-    else {
-	opserr << "DOF_Group::addM_Force() - no Node associated";
-	opserr << " subclass should not call this method \n";	    
-    }		
+  assert(myNode != nullptr);
+  unbalance->addMatrixVector(1.0, myNode->getMass(), accel, fact);
 }
 
 
@@ -807,11 +688,11 @@ DOF_Group::addLocalM_Force(const Vector &accel, double fact)
 const Vector &
 DOF_Group::getDispSensitivity(int gradNumber)
 {
-    Vector &result = *unbalance;
-	for (int i=0; i<numDOF; i++) {
-		result(i) = myNode->getDispSensitivity(i+1,gradNumber);
-	}
-	return result;
+  Vector &result = *unbalance;
+  for (int i=0; i<numDOF; i++) {
+    result(i) = myNode->getDispSensitivity(i+1,gradNumber);
+  }
+  return result;
 }
 	
 const Vector &
@@ -901,82 +782,52 @@ DOF_Group::saveSensitivity(const Vector &v, const Vector &vdot,
 void  
 DOF_Group::addM_ForceSensitivity(const Vector &Udotdot, double fact)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::addM_Force() - no Node associated";	
-	opserr << " subclass should not call this method \n";	    
-	return;
-    }
+  assert(myNode != nullptr);
 
-    Vector accel(numDOF);
-    // get accel for the unconstrained dof
-    for (int i=0; i<numDOF; i++) {
-	int loc = myID(i);
-	if (loc >= 0)
-	    accel(i) = Udotdot(loc); 
-	else accel(i) = 0.0;
-    }
-	
-    if (unbalance->addMatrixVector(1.0, myNode->getMassSensitivity(), accel, fact) < 0) {  
-	opserr << "DOF_Group::addM_Force() ";
-	opserr << " invoking addMatrixVector() on the unbalance failed\n";
-    }
-    else {
-
-    }		
+  Vector accel(numDOF);
+  // get accel for the unconstrained dof
+  for (int i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+          accel(i) = Udotdot(loc); 
+      else accel(i) = 0.0;
+  }
+      
+  unbalance->addMatrixVector(1.0, myNode->getMassSensitivity(), accel, fact);
 }
 
 void
 DOF_Group::addD_Force(const Vector &Udot, double fact)
 {
-    if (myNode == 0) {
-        opserr << "DOF_Group::addD_Force() - no Node associated";
-        opserr << " subclass should not call this method \n";
-        return;
-    }
+  assert(myNode != nullptr);
 
-    Vector vel(numDOF);
-    // get velocity for the unconstrained dof
-    for (int i=0; i<numDOF; i++) {
-        int loc = myID(i);
-        if (loc >= 0)
-            vel(i) = Udot(loc);
-        else vel(i) = 0.0;
-    }
+  Vector vel(numDOF);
+  // get velocity for the unconstrained dof
+  for (int i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+          vel(i) = Udot(loc);
+      else vel(i) = 0.0;
+  }
 
-    if (unbalance->addMatrixVector(1.0, myNode->getDamp(), vel, fact) < 0) {
-        opserr << "DOF_Group::addD_Force() ";
-        opserr << " invoking addMatrixVector() on the unbalance failed\n";
-    }
-    else {
-
-    }
+  unbalance->addMatrixVector(1.0, myNode->getDamp(), vel, fact);
 }
 
 void
 DOF_Group::addD_ForceSensitivity(const Vector &Udot, double fact)
 {
-    if (myNode == 0) {
-        opserr << "DOF_Group::addD_ForceSensitivity() - no Node associated";
-        opserr << " subclass should not call this method \n";
-        return;
-    }
+  assert(myNode != nullptr);
 
-    Vector vel(numDOF);
-    // get velocity for the unconstrained dof
-    for (int i=0; i<numDOF; i++) {
-        int loc = myID(i);
-        if (loc >= 0)
-            vel(i) = Udot(loc);
-        else vel(i) = 0.0;
-    }
+  Vector vel(numDOF);
+  // get velocity for the unconstrained dof
+  for (int i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+          vel(i) = Udot(loc);
+      else vel(i) = 0.0;
+  }
 
-    if (unbalance->addMatrixVector(1.0, myNode->getDampSensitivity(), vel, fact) < 0) {
-        opserr << "DOF_Group::addD_ForceSensitivity() ";
-        opserr << " invoking addMatrixVector() on the unbalance failed\n";
-    }
-    else {
-
-    }
+  unbalance->addMatrixVector(1.0, myNode->getDampSensitivity(), vel, fact);
 }
 
 // AddingSensitivity:END //////////////////////////////////////////

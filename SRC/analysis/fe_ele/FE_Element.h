@@ -120,8 +120,8 @@ class FE_Element: public TaggedObject
     Integrator *theIntegrator; // need for Subdomain
     
     // static variables - single copy for all objects of the class	
-    static Matrix errMatrix;
-    static Vector errVector;
+//  static Matrix errMatrix;
+//  static Vector errVector;
     static Matrix **theMatrices; // array of pointers to class wide matrices
     static Vector **theVectors;  // array of pointers to class widde vectors
     static int numFEs;           // number of objects

@@ -120,8 +120,6 @@ private :
     Vector* load; // For follower loads
 
 
-
-
     int quadorder, ngauss, nLayers;
 
     IGASurfacePatch *myPatch;
