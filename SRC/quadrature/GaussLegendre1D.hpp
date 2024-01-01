@@ -1,4 +1,7 @@
-
+//
+// This file has been automatically generated.
+// Claudio M. Perez
+//
 #pragma once
 template <int ndm, int nip> struct GaussLegendre;
 
