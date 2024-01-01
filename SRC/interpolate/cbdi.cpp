@@ -1,39 +1,15 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2003-04-04 16:55:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/nonlinearBeamColumn/matrixutil/MatrixUtil.cpp,v $
- 
-#include <math.h>
-                                                                        
+#include <math.h>                                                                        
 #include <stdlib.h>
 #include <Vector.h>
+#include <Matrix.h>
 #include "cbdi.h"
 
-void invertMatrix(int n, const Matrix &a, Matrix &b)
-{
-  a.Invert(b);
-}
-
-void getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matrix &ls)
+void 
+getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
    double xi;
@@ -56,7 +32,6 @@ void getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matri
    for (int i=0; i<nIntegrPts; i++)
      I(i,i) = 1.0;
 
-   //invertMatrix(nIntegrPts, G, Ginv);
    if (G.Solve(I,Ginv) < 0)
      opserr << "LargeDispBeamCol3d::getCBDIinfluenceMatrix() - could not invert G\n";
       
@@ -86,7 +61,6 @@ void getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls)
    for (int i=0; i<nIntegrPts; i++)
      I(i,i) = 1.0;
 
-   //invertMatrix(nIntegrPts, G, Ginv);
    if (G.Solve(I,Ginv) < 0)
      opserr << "getCBDIinfluenceMatrix() - could not invert G\n";
       
@@ -94,7 +68,8 @@ void getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls)
    ls.addMatrixProduct(0.0, l, Ginv, L*L);
 }
 
-void getCBDIinfluenceMatrix(int nPts, double *pts, int nIntegrPts, double *integrPts, double L, Matrix &ls)
+void 
+getCBDIinfluenceMatrix(int nPts, double *pts, int nIntegrPts, double *integrPts, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
    double xi;
@@ -120,7 +95,6 @@ void getCBDIinfluenceMatrix(int nPts, double *pts, int nIntegrPts, double *integ
    for (int i=0; i<nIntegrPts; i++)
      I(i,i) = 1.0;
 
-   //invertMatrix(nIntegrPts, G, Ginv);
    if (G.Solve(I,Ginv) < 0)
      opserr << "getCBDIinfluenceMatrix() - could not invert G\n";
       
