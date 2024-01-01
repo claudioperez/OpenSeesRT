@@ -47,35 +47,32 @@
 static void
 gaussQuad(int order, Vector& pt, Vector& wt)
 {
-      int n = order;
-      int x1 = 1;
-      int x2 = -1;
+      constexpr double x1  =  1;
+      constexpr double x2  = -1;
+      constexpr double eps = 1e-15;
+      constexpr double pi  = 3.1415926535897932846;
+      // double pi = acos(-1);
 
-      double eps = 1e-15;
+      int    n   = order;
       double m   = (n + 1) / 2;
       double xm  = (1 / 2) * (x2 + x1);
       double xl  = (1 / 2) * (x2 - x1);
 
-      double pi = 3.1415926535897932846;
-      // double pi = acos(-1);
 
-      double z1 = 0;
+      double z1 = 0.0;
       double z;
-      double p1;
-      double p2;
-      double p3;
       double pp;
 
       for (int i = 0; i < m; ++i) {
         z = cos(pi * (i + 1 - 0.25) / (n + 0.5));
-        p1 = 1.0;
-        p2 = 0.0;
+        double p1 = 1.0;
+        double p2 = 0.0;
 
         while (fabs(z - z1) > eps) {
           p1 = 1.0;
           p2 = 0.0;
           for (int j = 0; j < n; ++j) {
-            p3 = p2;
+            double p3 = p2;
             p2 = p1;
             p1 = ((2 * (j + 1) - 1) * z * p2 - ((j + 1) - 1) * p3) / (j + 1);
           }
