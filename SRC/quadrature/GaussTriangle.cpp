@@ -24,7 +24,7 @@
 // n - the order of the Gaussian quadrature (n<=12)
 // xpts,ypts,wts - x,y coordinates and weights
 
-#include "TriGaussPoints.h"
+#include "GaussTriangle.h"
 
 TriGaussPoints::TriGaussPoints()
 {
@@ -35,12 +35,12 @@ TriGaussPoints::~TriGaussPoints()
 }
 
 void
-TriGaussPoints::operator()(int n, VDouble& xpts, VDouble& ypts, VDouble& wts)
+TriGaussPoints::operator()(int n, std::vector<double>& xpts, std::vector<double>& ypts, std::vector<double>& wts)
 {
     if (n < 1) n = 1;
     if (n > 12) n = 12;
 
-    VDouble xv;
+    std::vector<double> xv;
     
     if (n == 1) {
 	double xw[] = {0.33333333333333 , 0.33333333333333 , 1.00000000000000};

@@ -17,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2006-09-05 22:57:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/BeamIntegration.cpp,v $
-
+//
 #include <BeamIntegration.h>
 #include <Matrix.h>
 
-#include <MapOfTaggedObjects.h>
-#include <api/runtimeAPI.h>
 
 #if 0
+#include <MapOfTaggedObjects.h>
 static MapOfTaggedObjects theBeamIntegrationRuleObjects;
 
 bool OPS_addBeamIntegrationRule(BeamIntegrationRule *newComponent) {

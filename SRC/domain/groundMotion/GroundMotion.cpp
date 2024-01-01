@@ -26,7 +26,6 @@
 // Created: 05/98
 // Revision: A
 
-
 #include <GroundMotion.h>
 #include <TimeSeriesIntegrator.h>
 #include <TrapezoidalTimeSeriesIntegrator.h>
@@ -34,9 +33,10 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <ID.h>
-#include <elementAPI.h>
-#include <string>
 
+#if 0
+#include <string>
+#include <elementAPI.h>
 void *
 OPS_ADD_RUNTIME_VPV(OPS_GroundMotion)
 {
@@ -77,6 +77,7 @@ OPS_ADD_RUNTIME_VPV(OPS_GroundMotion)
 
     return new GroundMotion(dispSeries,velSeries,accelSeries,seriesIntegrator,dtInt,fact);
 }
+#endif
 
 GroundMotion::GroundMotion(TimeSeries *dispSeries, 
 			   TimeSeries *velSeries, 

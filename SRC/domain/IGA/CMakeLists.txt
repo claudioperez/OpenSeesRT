@@ -7,12 +7,12 @@
 
 target_sources(OPS_Domain
     PRIVATE
-    gaussQuadrature.cpp
+#   gaussQuadrature.cpp
     IGASurfacePatch.cpp
     IGAFollowerLoad.cpp
     NurbsDers.cpp
     PUBLIC
-    gaussQuadrature.h
+#   gaussQuadrature.h
     IGASurfacePatch.h
     IGAFollowerLoad.h
     NurbsDers.h

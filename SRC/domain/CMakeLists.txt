@@ -15,4 +15,3 @@ add_subdirectory(pattern)
 add_subdirectory(groundMotion)
 add_subdirectory(region)
 add_subdirectory(partitioner)
-

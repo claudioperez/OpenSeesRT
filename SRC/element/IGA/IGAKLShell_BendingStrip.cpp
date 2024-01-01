@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2011/03/10 22:51:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shell/IGAKLShell_BendingStrip.cpp,v $
-
+//
 // Original implementation: Ed "C++" Love
 // Reimplementation: Leopoldo Tesser, Diego A. Talledo, Véronique Le Corvec
 //
@@ -64,7 +60,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include "gaussQuadrature.h"
+#include <quadrature/GaussNURBS.h>
 #include "R3vectors.h"
 
 #include <set>

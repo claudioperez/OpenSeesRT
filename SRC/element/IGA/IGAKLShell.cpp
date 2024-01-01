@@ -60,7 +60,7 @@
 
 #define min(a,b) ( (a)<(b) ? (a):(b) )
 
-#include "gaussQuadrature.h"
+#include <quadrature/GaussNURBS.h>
 #include "R3vectors.h"
 
 #ifndef M_PI
@@ -137,14 +137,8 @@ IGAKLShell::IGAKLShell( int tag,
   // Q=2;
 
   gaussQuad2dNurbs(P + 1, Q + 1, quadPoint, quadWeight);
-
-  // opserr << "quadPoint" << (*quadPoint) << endln;
-  // opserr << "quadWeight" << (*quadWeight) << endln;
-  // raise(SIGSEGV);
-
   // gaussQuad2dNurbs(P + 1, P + 1, quadPoint, quadWeight);
   // gaussQuad2dNurbs(6, 6, quadPoint, quadWeight);
-
 
 
   materialPointers = new NDMaterial** [ngauss]; //Double array

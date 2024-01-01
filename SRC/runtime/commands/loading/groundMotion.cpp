@@ -41,8 +41,8 @@ extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientDa
                                                         Tcl_Interp *interp,
                                                         TCL_Char * const arg);
 
-int
-G3Parse_newGroundMotion(G3_Runtime* rt,
+static int
+TclCommand_newGroundMotion(G3_Runtime* rt,
                        int argc,
                        TCL_Char ** const argv,
                        MultiSupportPattern *thePattern);
@@ -55,16 +55,17 @@ TclCommand_addGroundMotion(ClientData clientData, Tcl_Interp *interp,
   G3_Runtime *rt = G3_getRuntime(interp);
   MultiSupportPattern* pattern = 
     (MultiSupportPattern *)Tcl_GetAssocData(interp,"theTclMultiSupportPattern", NULL);
-  if (pattern == 0) {
+
+  if (pattern == nullptr) {
     opserr << "ERROR no multi-support pattern\n";
     return TCL_ERROR;
   }
-  return G3Parse_newGroundMotion(rt, argc, argv, pattern);
+  return TclCommand_newGroundMotion(rt, argc, argv, pattern);
 }
 
 
-int
-G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
+static int
+TclCommand_newGroundMotion(G3_Runtime* rt, int argc,
                        TCL_Char ** const argv, MultiSupportPattern *thePattern)
 {
 
@@ -89,10 +90,10 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
   if ((strcmp(argv[startArg], "Series") == 0) ||
       (strcmp(argv[startArg], "Plain") == 0)) {
 
-    TimeSeries *accelSeries = 0;
-    TimeSeries *velSeries = 0;
-    TimeSeries *dispSeries = 0;
-    TimeSeriesIntegrator *seriesIntegrator = 0;
+    TimeSeries *accelSeries = nullptr;
+    TimeSeries *velSeries   = nullptr;
+    TimeSeries *dispSeries  = nullptr;
+    TimeSeriesIntegrator *seriesIntegrator = nullptr;
 
     int currentArg = startArg + 1;
     double dtInt = 0.01;
@@ -196,27 +197,30 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
 
     int endMotionIDs = startArg + 1;
     int motionID;
-    while (Tcl_GetInt(interp, argv[endMotionIDs], &motionID) == TCL_OK) {
+    while (Tcl_GetInt(interp, argv[endMotionIDs], &motionID) == TCL_OK)
       endMotionIDs++;
-    }
+
     int numMotions = endMotionIDs - startArg - 1;
     GroundMotion **theMotions;
 
     if (numMotions != 0) {
-      // LEAKED?
+      // TODO: LEAKED?
       theMotions = new GroundMotion *[numMotions];
       ID motionIDs(numMotions);
       for (int i = 3; i < endMotionIDs; i++) {
+
         if (Tcl_GetInt(interp, argv[i], &motionID) != TCL_OK)
           return TCL_ERROR;
-        motionIDs[i - 3] = motionID;
-        GroundMotion *theMotion1 = thePattern->getMotion(motionID);
 
-        if (theMotion1 == 0) {
+        motionIDs[i - 3] = motionID;
+
+        GroundMotion *theMotion1 = thePattern->getMotion(motionID);
+        if (theMotion1 == nullptr) {
           opserr << "WARNING no groundMotion with tag " << motionID << " :";
           opserr << " pattern MultiSupport gMotion1? gMotion? .. ";
           opserr << "-fact fact1? fact2? .. \n";
           return TCL_ERROR;
+
         } else
           theMotions[i - 3] = theMotion1;
       }
@@ -246,7 +250,7 @@ G3Parse_newGroundMotion(G3_Runtime* rt, int argc,
   }
 
   // now add the load pattern to the modelBuilder
-  if (theMotion != 0) {
+  if (theMotion != nullptr) {
     if (thePattern->addMotion(*theMotion, gMotionTag) < 0) {
       opserr << "WARNING could not add ground motion with tag " << gMotionTag;
       opserr << " to pattern\n ";

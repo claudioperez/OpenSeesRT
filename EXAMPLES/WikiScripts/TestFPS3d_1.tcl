@@ -269,7 +269,7 @@ while {$ok == 0 && $tCurrent < $tFinal} {
         }
     } else {
         set tCurrent [getTime "%1.12E"]
-        puts [format "t = %1.4f sec" $tCurrent]
+     #    puts [format "t = %1.4f sec" $tCurrent]
         if {[expr $dtAna*2.0] <= $dtMax} {
             set dtAna [expr $dtAna*2.0]
             puts [format "\nINCREASING time step size (dtNew = %1.6e)" $dtAna]

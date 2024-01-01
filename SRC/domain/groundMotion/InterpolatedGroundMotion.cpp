@@ -17,23 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:00:57 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/groundMotion/InterpolatedGroundMotion.cpp,v $
-                                                                        
-                                                                        
-// File: ~/earthquake/InterpolatedGroundMotion.C
-// 
-// Written: fmk 
-// Created: 11/00
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // InterpolatedGroundMotion. 
 //
-// What: "@(#) InterpolatedGroundMotion.C, revA"
-
+// Written: fmk 
+// Created: 11/00
+// Revision: A
+// 
 #include <InterpolatedGroundMotion.h>
 #include <stdlib.h>
 #include <math.h>

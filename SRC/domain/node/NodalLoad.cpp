@@ -17,26 +17,21 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-03-10 18:25:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/node/NodalLoad.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
 // Purpose: This file contains the implementation of NodalLoad
-
+//
 #include <NodalLoad.h>
 #include <stdlib.h>
 #include <Domain.h>
 #include <Channel.h>
 #include <Information.h>
 #include <Parameter.h>
-#include <string>
-#include <elementAPI.h>
+// #include <string>
+// #include <elementAPI.h>
 
 // AddingSensitivity:BEGIN /////////////////////////////////////
 Vector NodalLoad::gradientVector(1);

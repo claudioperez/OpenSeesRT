@@ -292,7 +292,7 @@ analysis Transient
 # ------------------------------
 # Finally perform the analysis
 # ------------------------------
-logFile "TestFPS2d_4.log"
+logFile "out/TestFPS2d_4.log"
 
 set dtAna [expr $dt/2.5]
 set dtMin 1.0e-8
@@ -330,7 +330,7 @@ if {$ok != 0} {
 }
 
 wipe
-exit
+return $ok
 # --------------------------------
 # End of analysis
 # --------------------------------

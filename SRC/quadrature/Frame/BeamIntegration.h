@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.7 $
-// $Date: 2006-09-05 22:57:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/BeamIntegration.h,v $
-
+//
 #ifndef BeamIntegration_h
 #define BeamIntegration_h
 

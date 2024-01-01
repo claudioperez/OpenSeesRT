@@ -33,7 +33,7 @@
 #include <DOF_Group.h>
 #include <DOF_GrpIter.h>
 
-// Defaults
+// Defaults analysis classes
 #include <Newmark.h>
 #include <EigenSOE.h>
 #include <SymBandEigenSolver.h>
@@ -54,9 +54,11 @@
 
 BasicAnalysisBuilder::BasicAnalysisBuilder()
 :theHandler(nullptr),theNumberer(nullptr),theAlgorithm(nullptr),
- theSOE(nullptr),theEigenSOE(nullptr),theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
+ theSOE(nullptr),theEigenSOE(nullptr),
+ theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
  theTest(nullptr),theStaticAnalysis(nullptr),theTransientAnalysis(nullptr),
- theVariableTimeStepTransientAnalysis(nullptr),CurrentAnalysisFlag(CURRENT_EMPTY_ANALYSIS)
+ theVariableTimeStepTransientAnalysis(nullptr),
+ CurrentAnalysisFlag(CURRENT_EMPTY_ANALYSIS)
 {
   theAnalysisModel = new AnalysisModel();
 }
@@ -65,7 +67,8 @@ BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
 :theHandler(nullptr),theNumberer(nullptr),theAlgorithm(nullptr),
  theSOE(nullptr),theEigenSOE(nullptr),theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
  theTest(nullptr),theStaticAnalysis(nullptr),theTransientAnalysis(nullptr),
- theVariableTimeStepTransientAnalysis(nullptr), theDomain(domain),
+ theVariableTimeStepTransientAnalysis(nullptr),
+ theDomain(domain),
  CurrentAnalysisFlag(CURRENT_EMPTY_ANALYSIS)
 {
   theAnalysisModel = new AnalysisModel();
@@ -186,7 +189,7 @@ BasicAnalysisBuilder::initialize(void)
   if (stamp != domainStamp) {
     domainStamp = stamp;	
     if (this->domainChanged() < 0) {
-      opserr << "DirectIntegrationAnalysis::initialize() - domainChanged() failed\n";
+      opserr << G3_WARN_PROMPT << "initialize - domainChanged() failed\n";
       return -1;
     }	
   }
@@ -197,7 +200,7 @@ BasicAnalysisBuilder::initialize(void)
 
     case CURRENT_STATIC_ANALYSIS:
       if (theStaticIntegrator->initialize() < 0) {
-          opserr << "initialize - integrator initialize() failed\n";
+          opserr << G3_WARN_PROMPT << "initialize - integrator initialize() failed\n";
           return -2;
       } else
         theStaticIntegrator->commit();
@@ -224,28 +227,30 @@ BasicAnalysisBuilder::domainChanged(void)
   domainStamp = stamp;
 
   theAnalysisModel->clearAll();
-  theHandler->clearAll();
+  if (theHandler != nullptr) {
+    theHandler->clearAll();
 
-  // invoke handle() on the constraint handler which
-  // causes the creation of FE_Element and DOF_Group objects
-  // and their addition to the AnalysisModel.
-  if (theHandler->handle() < 0) {
-    opserr << "BasicAnalysisBuilder::domainChange() - ConstraintHandler::handle() failed\n";
-    return -1;
+    // invoke handle() on the constraint handler which
+    // causes the creation of FE_Element and DOF_Group objects
+    // and their addition to the AnalysisModel.
+    if (theHandler->handle() < 0) {
+      opserr << "BasicAnalysisBuilder::domainChange() - ConstraintHandler::handle() failed\n";
+      return -1;
+    }
+    // invoke number() on the numberer which causes
+    // equation numbers to be assigned to all the DOFs in the
+    // AnalysisModel.
+    if (theNumberer != nullptr && theNumberer->numberDOF() < 0) {
+      opserr << "BasicAnalysisBuilder::domainChange() - DOF_Numberer::numberDOF() failed\n";
+      return -2;
+    }
+
+    if (theHandler->doneNumberingDOF() < 0) {
+      opserr << "BasicAnalysisBuilder::domainChange() - ConstraintHandler::doneNumberingDOF() failed\n";
+      return -2;
+    }
   }
 
-  // invoke number() on the numberer which causes
-  // equation numbers to be assigned to all the DOFs in the
-  // AnalysisModel.
-  if (theNumberer->numberDOF() < 0) {
-    opserr << "BasicAnalysisBuilder::domainChange() - DOF_Numberer::numberDOF() failed\n";
-    return -2;
-  }
-
-  if (theHandler->doneNumberingDOF() < 0) {
-    opserr << "BasicAnalysisBuilder::domainChange() - ConstraintHandler::doneNumberingDOF() failed\n";
-    return -2;
-  }
 
   // invoke setSize() on the LinearSOE which
   // causes that object to determine its size
@@ -707,7 +712,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
     elePtr->zeroTangent();
     elePtr->addKtToTang(1.0);
     if (theEigenSOE->addA(elePtr->getTangent(0), elePtr->getID()) < 0) {
-      opserr << "WARNING DirectIntegrationAnalysis::eigen() -";
+      opserr << G3_WARN_PROMPT << "eigen -";
       opserr << " failed in addA for ID " << elePtr->getID();	
       result = -2;
     }
@@ -722,7 +727,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
       elePtr->zeroTangent();
       elePtr->addMtoTang(1.0);
       if (theEigenSOE->addM(elePtr->getTangent(0), elePtr->getID()) < 0) {
-        opserr << "WARNING BasicAnalysisBuilder::eigen() -";
+        opserr << "WARNING BasicAnalysisBuilder::eigen -";
         opserr << " failed in addA for ID " << elePtr->getID() << "\n";
         result = -2;
       }
@@ -734,8 +739,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
       dofPtr->zeroTangent();
       dofPtr->addMtoTang(1.0);
       if (theEigenSOE->addM(dofPtr->getTangent(0), dofPtr->getID()) < 0) {
-        opserr << "WARNING BasicAnalysisBuilder::eigen() -";
-        opserr << " failed in addM for ID " << dofPtr->getID() << "\n";
+        opserr << G3_WARN_PROMPT << "theEigenSOE failed in addM for ID " << dofPtr->getID() << "\n";
         result = -3;
       }
     }
@@ -745,7 +749,7 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
   // solve for the eigen values & vectors
   //
   if (theEigenSOE->solve(numMode, generalized, findSmallest) < 0) {
-      opserr << "WARNING BasicAnalysisBuilder::eigen() - EigenSOE failed in solve()\n";
+      opserr << G3_WARN_PROMPT << "EigenSOE failed in solve()\n";
       return -4;
   }
       

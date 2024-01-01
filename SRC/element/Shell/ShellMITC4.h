@@ -29,8 +29,6 @@
 #ifndef ShellMITC4_h
 #define ShellMITC4_h
 
-#include <stdio.h> 
-#include <stdlib.h> 
 #include <math.h> 
 
 #include <ID.h> 
@@ -38,10 +36,10 @@
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
-// #include <quadrature/Plane/LegendreFixedQuadrilateral.h>
 #include <quadrature/GaussLegendre2D.hpp>
 
 class SectionForceDeformation;
+
 namespace OpenSees {template<int n, int m, typename T> struct MatrixND;};
 
 class ShellMITC4 : public    Element,
@@ -172,7 +170,7 @@ class ShellMITC4 : public    Element,
                const Matrix &Bbend, 
                const Matrix &Bshear,
                OpenSees::MatrixND<nstress, ndf, double> &B
-               ) ;
+             ) ;
   
     // compute Bmembrane matrix
     const Matrix& computeBmembrane( int node, const double shp[3][4] ) ;

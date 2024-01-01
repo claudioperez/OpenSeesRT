@@ -244,7 +244,7 @@ analysis Transient
 # ------------------------------
 # Finally perform the analysis
 # ------------------------------
-logFile "TestFPS2d_1.log"
+logFile "out/TestFPS2d_1.log"
 
 set dtAna [expr $dt/1.0]
 set dtMin 1.0e-8
@@ -267,7 +267,7 @@ while {$ok == 0 && $tCurrent < $tFinal} {
         }
     } else {
         set tCurrent [getTime "%1.12E"]
-        puts [format "t = %1.4f sec" $tCurrent]
+        # puts [format "t = %1.4f sec" $tCurrent]
         if {[expr $dtAna*2.0] <= $dtMax} {
             set dtAna [expr $dtAna*2.0]
             puts [format "\nINCREASING time step size (dtNew = %1.6e)" $dtAna]
@@ -282,7 +282,7 @@ if {$ok != 0} {
 }
 
 wipe
-exit
+return $ok
 # --------------------------------
 # End of analysis
 # --------------------------------

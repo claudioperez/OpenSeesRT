@@ -38,6 +38,4 @@ public:
     void operator()(int n, std::vector<double>& xpts, std::vector<double>& ypts, std::vector<double>& wts);
 };
 
-
-
 #endif
