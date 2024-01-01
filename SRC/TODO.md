@@ -7,17 +7,6 @@ General
 - Some methods are preemptively marked `virtual`; I've changed
   some of these to use a macro, `VIRTUAL`, which is defined empty.
 
-
-Memory
-
-- Why do `Matrix` and `Vector` allocate with `nothrow`?
-  nothing else does this.
-
-Consolidating:
-
-- Put `RigidDiaphragm` and friends into one file,
-  change to functions.
-
 Organizing:
 
 - `material/damage/` <- `SRC/damage`

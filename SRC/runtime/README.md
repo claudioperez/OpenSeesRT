@@ -80,13 +80,12 @@ changes from the classic `OpenSees` interpreter:
 
 ## Codebase changes
 
-Files that are superseded
-
-- socket.c
-- utility/PeerNGA.cpp
+- `socket.c` removed
+- `utility/PeerNGA.cpp` removed
+- Put `RigidDiaphragm` and friends into one file,
+  change to functions.
 
 ## Cleaning & TODO
-
 
 Remove dependence on
 
