@@ -870,7 +870,7 @@ int MixedBeamColumnAsym3d::revertToStart()
   for ( i = 0; i < numSections; i++ ){
     //getSectionTangent(i,2,ks,GJ);
 	ks = sections[i]->getInitialTangent();
-    invertMatrix(NSD,ks,sectionFlexibility[i]);
+    ks.Invert(sectionFlexibility[i]);
     commitedSectionFlexibility[i] = sectionFlexibility[i];
   }
 
@@ -909,7 +909,7 @@ int MixedBeamColumnAsym3d::revertToStart()
   }
 
   // Compute the inverse of the H matrix
-  invertMatrix(NGF, H, Hinv);
+  H.Invert(Hinv);
   commitedHinv = Hinv;
 
   // Compute the GMH matrix ( G + Md - H12 ) and its transpose
@@ -1166,7 +1166,7 @@ int MixedBeamColumnAsym3d::update() {
 	ks = sections[i]->getSectionTangent();
 
     // Compute section flexibility matrix
-    invertMatrix(NSD,ks,sectionFlexibility[i]);
+    ks.Invert(sectionFlexibility[i]);
   }
 
   // Compute the following matrices: V, V2, G, G2, H, H12, H22, Md, Kg
@@ -1206,7 +1206,7 @@ int MixedBeamColumnAsym3d::update() {
   }
 
   // Compute the inverse of the H matrix
-  invertMatrix(NGF, H, Hinv);
+  H.Invert(Hinv);
 
   // Compute the GMH matrix ( G + Md - H12 ) and its transpose
   GMH = G + Md - H12;
@@ -1688,7 +1688,7 @@ int MixedBeamColumnAsym3d::getResponse(int responseID, Information &eleInfo) {
     for ( i = 0; i < numSections; i++ ){
 	  sectionForce = sections[i]->getStressResultant();
 	  ks = sections[i]->getInitialTangent();
-      invertMatrix(NSD,ks,fs);
+      ks.Invert(fs);
 
       plasticSectionDef = sectionDefFibers[i] - fs*sectionForce;
 

@@ -25,28 +25,13 @@
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
-extern EquiSolnAlgo              *theAlgorithm;
-extern LinearSOE                 *theSOE;
-extern EigenSOE                  *theEigenSOE;
-extern StaticAnalysis            *theStaticAnalysis;
-extern StaticIntegrator          *theStaticIntegrator;
-extern DirectIntegrationAnalysis *theTransientAnalysis;
-extern TransientIntegrator       *theTransientIntegrator;
-extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
-extern bool builtModel;
-extern FE_Datastore *theDatabase;
-
 static Tcl_Interp *theInterp       = nullptr;
-static TclBuilder *theModelBuilder = nullptr;
-
 static TCL_Char **currentArgv      = nullptr;
 static int currentArg = 0;
-static int maxArg = 0;
+static int maxArg     = 0;
 
-modelState theModelState;
 
 extern const char *getInterpPWD(Tcl_Interp *interp);
-
 
 struct cmp_str {
   bool
@@ -121,7 +106,6 @@ OPS_GetIntInput(int *numData, int *data)
   for (int i = 0; i < size; i++) {
     if ((currentArg >= maxArg) ||
         (Tcl_GetInt(theInterp, currentArgv[currentArg], &data[i]) != TCL_OK)) {
-      // opserr << "OPS_GetIntInput -- error reading " << currentArg << endln;
       return -1;
     } else
       currentArg++;
@@ -136,15 +120,11 @@ OPS_GetDoubleInput(int *numData, double *data)
   int size = *numData;
   for (int i = 0; i < size; i++) {
     if ((currentArg >= maxArg) ||
-        (Tcl_GetDouble(theInterp, currentArgv[currentArg], &data[i]) !=
-         TCL_OK)) {
-      // opserr << "OPS_GetDoubleInput -- error reading " << currentArg <<
-      // endln;
+        (Tcl_GetDouble(theInterp, currentArgv[currentArg], &data[i]) != TCL_OK)) {
       return -1;
     } else
       currentArg++;
   }
-
   return 0;
 }
 
@@ -153,7 +133,6 @@ OPS_GetString(void)
 {
   const char *res = 0;
   if (currentArg >= maxArg) {
-    // opserr << "OPS_GetStringInput -- error reading " << currentArg << endln;
     return res;
   }
   res = currentArgv[currentArg];
@@ -194,6 +173,19 @@ OPS_GetStringCopy(char **arrayData)
 // 
 // END INTERPRETER STUFF
 //
+
+extern EquiSolnAlgo              *theAlgorithm;
+extern LinearSOE                 *theSOE;
+extern EigenSOE                  *theEigenSOE;
+extern StaticAnalysis            *theStaticAnalysis;
+extern StaticIntegrator          *theStaticIntegrator;
+extern DirectIntegrationAnalysis *theTransientAnalysis;
+extern TransientIntegrator       *theTransientIntegrator;
+extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
+extern bool builtModel;
+extern FE_Datastore *theDatabase;
+
+static TclBuilder                *theModelBuilder = nullptr;
 
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
@@ -360,6 +352,9 @@ StaticAnalysis **
 OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
 
 #if 0 && !defined(OPS_USE_RUNTIME)
+
+modelState theModelState;
+
 UniaxialMaterial *
 OPS_GetUniaxialMaterial(int matTag)
 {

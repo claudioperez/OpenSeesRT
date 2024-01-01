@@ -688,14 +688,12 @@ int MixedBeamColumn2d::revertToLastCommit() {
 
 int MixedBeamColumn2d::revertToStart() {
   int err;
-  int i,j,k; // for loops
-  i = 0;
 
   // revert the sections state to start
+  int i = 0;
   do {
      err = sections[i++]->revertToStart();
-
-  }while (err == 0 && i < numSections);
+  } while (err == 0 && i < numSections);
 
   if (err)
     return err;
@@ -717,13 +715,13 @@ int MixedBeamColumn2d::revertToStart() {
   theNaturalVector.Zero();
 
   // Set initial shape functions
-  for ( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     nldhat[i] = this->getNld_hat(i, theNaturalVector, initialLength, geomLinear);
     nd1[i] = this->getNd1(i, theNaturalVector, initialLength, geomLinear);
     nd2[i] = this->getNd2(i, 0, initialLength);
 
-    for( j = 0; j < NDM_SECTION; j++ ){
-      for( k = 0; k < NDM_NATURAL; k++ ){
+    for(int j = 0; j < NDM_SECTION; j++ ){
+      for(int k = 0; k < NDM_NATURAL; k++ ){
         nd1T[i](k,j) = nd1[i](j,k);
         nd2T[i](k,j) = nd2[i](j,k);
       }
@@ -731,14 +729,14 @@ int MixedBeamColumn2d::revertToStart() {
   }
 
   // Set initial and committed section flexibility and GJ
-  for ( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     getSectionTangent(i,2,ks);
-    invertMatrix(NDM_SECTION,ks,sectionFlexibility[i]);
+    ks.Invert(sectionFlexibility[i]);
     commitedSectionFlexibility[i] = sectionFlexibility[i];
   }
 
   // Set initial and committed section forces and deformations
-  for ( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     sectionForceFibers[i].Zero();
     commitedSectionForceFibers[i].Zero();
     sectionDefFibers[i].Zero();
@@ -753,7 +751,7 @@ int MixedBeamColumn2d::revertToStart() {
   H22.Zero();
   Md.Zero();
   Kg.Zero();
-  for( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     G   = G   + initialLength * wt[i] * nd1T[i] * nldhat[i];
     G2  = G2  + initialLength * wt[i] * nd2T[i] * nldhat[i];
     H   = H   + initialLength * wt[i] * nd1T[i] * sectionFlexibility[i] * nd1[i];
@@ -764,7 +762,7 @@ int MixedBeamColumn2d::revertToStart() {
   }
 
   // Compute the inverse of the H matrix
-  invertMatrix(NDM_NATURAL, H, Hinv);
+  H.Invert(Hinv);
   commitedHinv = Hinv;
 
   // Compute the GMH matrix ( G + Md - H12 ) and its transpose
@@ -773,8 +771,8 @@ int MixedBeamColumn2d::revertToStart() {
   commitedGMH = GMH;
 
   // Compute the transposes of the following matrices: G2, GMH
-  for( i = 0; i < NDM_NATURAL; i++ ){
-    for( j = 0; j < NDM_NATURAL; j++ ){
+  for (int i = 0; i < NDM_NATURAL; i++ ){
+    for (int j = 0; j < NDM_NATURAL; j++ ){
       G2T(i,j) = G2(j,i);
       GMHT(i,j) = GMH(j,i);
     }
@@ -916,7 +914,7 @@ int MixedBeamColumn2d::update() {
     getSectionTangent(i,1,ks);
 
     // Compute section flexibility matrix
-    invertMatrix(NDM_SECTION,ks,sectionFlexibility[i]);
+    ks.Invert(sectionFlexibility[i]);
 
   }
 
@@ -947,7 +945,7 @@ int MixedBeamColumn2d::update() {
   }
 
   // Compute the inverse of the H matrix
-  invertMatrix(NDM_NATURAL, H, Hinv);
+  H.Invert(Hinv);
 
   // Compute the GMH matrix ( G + Md - H12 ) and its transpose
   GMH = G + Md - H12;
@@ -1359,7 +1357,7 @@ int MixedBeamColumn2d::getResponse(int responseID, Information &eleInfo) {
 
       getSectionStress(i,sectionForce);
       getSectionTangent(i,2,ks);
-      invertMatrix(NDM_SECTION,ks,fs);
+      ks.Invert(fs);
 
       plasticSectionDef = sectionDefFibers[i] - fs*sectionForce;
 

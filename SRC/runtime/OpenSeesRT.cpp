@@ -3,6 +3,8 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
+// This file contains functions that are required by Tcl to load the
+// OpenSeesRT library.
 //
 #ifndef OPENSEESRT_VERSION
 #  define OPENSEESRT_VERSION "0.0.0"
@@ -16,6 +18,8 @@
 #include <StandardStream.h>      
 #include "commands/strings.cpp"
 #include <stdio.h>
+
+// Determine when stdout is a TTY
 #ifdef _WIN32
 #  include <io.h>
 #  define isatty _isatty
@@ -29,7 +33,7 @@ extern void G3_InitTclSequentialAPI(Tcl_Interp* interp);
 extern int init_g3_tcl_utils(Tcl_Interp*);
 
 //
-// Return the current OpenSees version
+// Tcl Command that returns the current OpenSees version
 //
 static int
 version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
@@ -42,40 +46,38 @@ version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
-//
-extern "C" {
+
 //
 // Called when the library is loaded as a Tcl extension.
 //
-int DLLEXPORT
+extern "C" int DLLEXPORT
 Openseesrt_Init(Tcl_Interp *interp)
 {
-  if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL) {
+  if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
     return TCL_ERROR;
-  }
 
-  if (Tcl_PkgProvide(interp, "OpenSeesRT", OPENSEESRT_VERSION) == TCL_ERROR) {
+  if (Tcl_PkgProvide(interp, "OpenSeesRT", OPENSEESRT_VERSION) == TCL_ERROR)
     return TCL_ERROR;
-  }
 
+  // Create a runtime instance, and store it with the interpreter
   G3_Runtime *rt = new G3_Runtime{interp};
   Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
 
+  // Initialize OpenSees
   OpenSeesAppInit(interp);
-  G3_InitTclSequentialAPI(interp);
-  init_g3_tcl_utils(interp);
+  G3_InitTclSequentialAPI(interp); // Add sequential API
+  init_g3_tcl_utils(interp);       // Add utility commands (linspace, range, etc.)
 
+  // Prevent coloring output when stderr is not a TTY
   if (isatty(STDERR_FILENO))
     G3_setStreamColor(nullptr, G3_Warn, 1);
 
 
-  // Set some variables
+  // Set some variables with package information
   Tcl_SetVar(interp, "opensees::copyright", copyright,      TCL_LEAVE_ERR_MSG);
   Tcl_SetVar(interp, "opensees::license",   license,        TCL_LEAVE_ERR_MSG);
   Tcl_SetVar(interp, "opensees::banner",    unicode_banner, TCL_LEAVE_ERR_MSG);
   Tcl_CreateCommand(interp, "version",      version,      nullptr, nullptr);
   return TCL_OK;
 }
-
-} // extern "C"
 
