@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2010-05-04 17:14:45 $
-// $Source: /scratch/slocal/chroot/cvsroot/openseescomp/CompositePackages/mixedBeamColumn/MixedBeamColumn3d.cpp,v $
-
+//
 #include <MixedBeamColumn3d.h>
 #include <elementAPI.h>
 #include <OPS_Globals.h>
@@ -117,7 +113,8 @@ Matrix *MixedBeamColumn3d::nd2T = 0;
 //      Urbana-Champaign, Urbana, Illinois, March.
 //
 
-void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumn3d) {
+void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumn3d) 
+{
   // Variables to retrieve input
   int iData[10];
   double dData[10];
@@ -268,7 +265,7 @@ MixedBeamColumn3d::MixedBeamColumn3d (int tag, int nodeI, int nodeJ, int numSec,
 
   // get copy of the beam integration object
   beamIntegr = bi.getCopy();
-  if (beamIntegr == 0) {
+  if (beamIntegr == nullptr) {
     opserr<<"Error: MixedBeamColumn3d::MixedBeamColumn3d: could not create copy of beam integration object" << endln;
     exit(-1);
   }
@@ -531,28 +528,28 @@ MixedBeamColumn3d::~MixedBeamColumn3d() {
   if (crdTransf)
     delete crdTransf;
 
-  if (beamIntegr != 0)
+  if (beamIntegr != nullptr)
     delete beamIntegr;
 
-  if (sp != 0)
+  if (sp != nullptr)
     delete sp;
 
-  if (Ki != 0)
+  if (Ki != nullptr)
     delete Ki;
 
-  if (sectionForceFibers != 0)
+  if (sectionForceFibers != nullptr)
     delete [] sectionForceFibers;
 
   if (commitedSectionForceFibers != 0)
     delete [] commitedSectionForceFibers;
 
-  if (sectionDefFibers != 0)
+  if (sectionDefFibers != nullptr)
     delete [] sectionDefFibers;
 
   if (commitedSectionDefFibers != 0)
     delete [] commitedSectionDefFibers;
 
-  if (sectionFlexibility != 0)
+  if (sectionFlexibility != nullptr)
     delete [] sectionFlexibility;
 
   if (commitedSectionFlexibility != 0)
@@ -578,9 +575,9 @@ int MixedBeamColumn3d::getNumDOF(void) {
 void MixedBeamColumn3d::setDomain(Domain *theDomain) {
 
   // check Domain is not null - invoked when object removed from a domain
-  if (theDomain == 0) {
-    theNodes[0] = 0;
-    theNodes[1] = 0;
+  if (theDomain == nullptr) {
+    theNodes[0] = nullptr;
+    theNodes[1] = nullptr;
 
     opserr << "MixedBeamColumn3d::setDomain:  theDomain = 0 ";
     exit(0);
