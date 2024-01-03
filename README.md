@@ -4,7 +4,7 @@
 
 <br>
 
-Optimized kernel for the experimental [`opensees`](https://github.com/BRACE2/OpenSeesRT) package.
+Optimized kernel for the experimental [`opensees`](https://github.com/BRACE2/opensees) package.
 
 <div style="align:center">
 
