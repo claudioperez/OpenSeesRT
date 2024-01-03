@@ -1,10 +1,10 @@
 <img align="left" src="https://github.com/BRACE2/OpenSeesRT/blob/master/docs/figures/peer-black.svg" width="250px">
 
-# `elle`
+# OpenSeesRT
 
 <br>
 
-Optimized OpenSees kernel for the experimental [OpenSeesRT](https://github.com/BRACE2/OpenSeesRT) library.
+Optimized kernel for the experimental [`opensees`](https://github.com/BRACE2/OpenSeesRT) package.
 
 <div style="align:center">
 
