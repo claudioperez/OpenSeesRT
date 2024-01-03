@@ -2,6 +2,8 @@
 
 # OpenSeesRT
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10456866.svg)](https://doi.org/10.5281/zenodo.10456866)
+
 <br>
 
 Optimized kernel for the experimental [`opensees`](https://github.com/BRACE2/opensees) package.
