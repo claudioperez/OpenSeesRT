@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/repres/patch/QuadPatch.h,v $
-                                                                        
-                                                                        
+//
 // File: QuadPatch.h
 // Written by Remo M. de Souza
 // December 1998
