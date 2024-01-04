@@ -11,8 +11,6 @@
 |  0  | `AnalysisSP1.tcl` |  |
 |  255  | `AxialSpHD_sample.tcl` | "uniaxialMaterial AxialSpHD 1 1000e6 1e6 -25e6 0.50 0.01 0.10 0.50 -5e6 10.0" |
 |  255  | `AxialSp_sample.tcl` | "uniaxialMaterial AxialSp 1 1000e6 1e6 -25e6 0.50 0.01 0.50 -5e6" |
-|  0  | `BuildRCrectSection_IR.tcl` |  |
-|  0  | `BuildRCrectSection.tcl` |  |
 |  0  | `CB_PortalFrame.tcl` |  |
 |  255  | `CenterCol_basicModel_Cyclic.tcl` | invalid command name "limitCurve" |
 |  255  | `CenterCol_basicModel_Dynamic.tcl` | invalid command name "limitCurve" |
@@ -50,13 +48,9 @@
 |  0  | `Ex5.Frame2D.build.InelasticFiberRCSection.tcl` |  |
 |  0  | `Ex5.Frame2D.build.InelasticFiberWSection.tcl` |  |
 |  0  | `Ex5.Frame2D.build.InelasticSection.tcl` |  |
-|  255  | `Ex6.genericFrame2D.build.ElasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
-|  255  | `Ex6.genericFrame2D.build.InelasticSection.tcl` | 		set ColWeightFact 1;		# ..." |
 |  0  | `Ex7.Frame3D.build.RCsec.tcl` |  |
 |  0  | `Ex7.Frame3D.build.Wsec.tcl` |  |
-|  255  | `Ex7.Frame3D.tcl` | can't read "dt": no such variable |
-|  0  | `Ex8.genericFrame3D.build.RCsec.tcl` |  |
-|  0  | `Ex8.genericFrame3D.build.Wsec.tcl` |  |
+|  0  | `Ex7.Frame3D.tcl` |  |
 |  0  | `Ex8.genericFrame3D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection2D.tcl` |  |
 |  0  | `Ex9a.build.UniaxialSection3D.tcl` |  |
@@ -92,7 +86,8 @@
 |  0  | `MomentCurvature3D.tcl` |  |
 |  0  | `MomentCurvature.tcl` |  |
 |  0  | `MRF_2Story_Concentrated_10Oct2013.tcl` |  |
-|  0  | `MRF_2Story_Concentrated_PanelZone.tcl` | |                                                  | 0|  0  | `MRF_2Story_Concentrated.tcl` |  |
+|  0  | `MRF_2Story_Concentrated_PanelZone.tcl` |  |
+|  0  | `MRF_2Story_Concentrated.tcl` |  |
 |  0  | `MultipleShearSpring_Sample.tcl` |  |
 |  0  | `Pushover_concentrated.tcl` |  |
 |  0  | `Pushover_distributed.tcl` |  |
@@ -108,6 +103,7 @@
 |  0  | `SAWSZeroLength.tcl` |  |
 |  0  | `SingleCycle.tcl` |  |
 |  0  | `StaticBNWFpile.tcl` |  |
+|  0  | `tcl_version.tcl` |  |
 |  0  | `TestFPS2d_0.tcl` |  |
 |  0  | `TestFPS2d_1.tcl` |  |
 |  0  | `TestFPS2d_2.tcl` |  |
