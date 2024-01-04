@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.32 $
-// $Date: 2010-08-16 05:05:07 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection3d.cpp,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/04
 //
 // Description: This file contains the class implementation of FiberSection3d.
-
+//
 #include <stdlib.h>
 #include <math.h>
 
@@ -120,23 +116,13 @@ FiberSection3d::FiberSection3d(int tag, int num, Fiber **fibers,
   if (numFibers != 0) {
     theMaterials = new UniaxialMaterial *[numFibers];
 
-    if (theMaterials == 0) {
-      opserr << "FiberSection3d::FiberSection3d -- failed to allocate Material pointers\n";
-      exit(-1);
-    }
-
     matData = new double [numFibers*3];
 
-    if (matData == 0) {
-      opserr << "FiberSection3d::FiberSection3d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
-
-    double yLoc, zLoc, Area;
+    double yLoc, zLoc;
     for (int i = 0; i < numFibers; i++) {
       Fiber *theFiber = fibers[i];
       theFiber->getFiberLocation(yLoc, zLoc);
-      Area = theFiber->getArea();
+      double Area = theFiber->getArea();
 
       QzBar += yLoc*Area;
       QyBar += zLoc*Area;
@@ -187,20 +173,12 @@ FiberSection3d::FiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool
     QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
     sectionIntegr(0), e(4), s(0), ks(0), theTorsion(0)
 {
-    if(sizeFibers != 0) {
+    if (sizeFibers != 0) {
 	theMaterials = new UniaxialMaterial *[sizeFibers];
 
-	if (theMaterials == 0) {
-	    opserr << "FiberSection3d::FiberSection3d -- failed to allocate Material pointers\n";
-	    exit(-1);
-	}
 
 	matData = new double [sizeFibers*3];
 
-	if (matData == 0) {
-	    opserr << "FiberSection3d::FiberSection3d -- failed to allocate double array for material data\n";
-	    exit(-1);
-	}
 
 	for (int i = 0; i < sizeFibers; i++) {
 	    matData[i*3] = 0.0;
@@ -241,17 +219,7 @@ FiberSection3d::FiberSection3d(int tag, int num, UniaxialMaterial **mats,
 {
   if (numFibers != 0) {
     theMaterials = new UniaxialMaterial *[numFibers];
-
-    if (theMaterials == 0) {
-      opserr << "FiberSection3d::FiberSection3d -- failed to allocate Material pointers";
-      exit(-1);
-    }
-    matData = new double [numFibers*3];
-
-    if (matData == 0) {
-      opserr << "FiberSection3d::FiberSection3d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
+    matData      = new double [numFibers*3];
   }
 
   sectionIntegr = si.getCopy();
@@ -333,15 +301,10 @@ int
 FiberSection3d::addFiber(Fiber &newFiber)
 {
   // need to create a larger array
-  if(numFibers == sizeFibers) {
+  if (numFibers == sizeFibers) {
       int newSize = 2*sizeFibers;
       UniaxialMaterial **newArray = new UniaxialMaterial *[newSize]; 
       double *newMatData = new double [3 * newSize];
-      
-      if (newArray == 0 || newMatData == 0) {
-	  opserr << "FiberSection3d::addFiber -- failed to allocate Fiber pointers\n";
-	  exit(-1);
-      }
 
       // copy the old pointers
       for (int i = 0; i < numFibers; i++) {
@@ -371,9 +334,9 @@ FiberSection3d::addFiber(Fiber &newFiber)
   }
 	    
   // set the new pointers
-  double yLoc, zLoc, Area;
+  double yLoc, zLoc;
   newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
+  double Area = newFiber.getArea();
   matData[numFibers*3] = yLoc;
   matData[numFibers*3+1] = zLoc;
   matData[numFibers*3+2] = Area;
@@ -452,8 +415,7 @@ FiberSection3d::setTrialSectionDeformation (const Vector &deforms)
   if (sectionIntegr != 0) {
     sectionIntegr->getFiberLocations(numFibers, yLocs, zLocs);
     sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
+  } else {
 	
     for (int i = 0; i < numFibers; i++) {
 		
