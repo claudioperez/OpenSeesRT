@@ -17,24 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/repres/patch/Patch.h,v $
-                                                                        
-                                                                        
+//
 // File: Patch.h
 // Written by Remo M. de Souza
 // December 1998
-
-
+//
 #ifndef Patch_h 
 #define Patch_h 
 
-
-#include <OPS_Globals.h>
-
 class Cell;
+class OPS_Stream;
 
 class Patch
 {
@@ -64,4 +56,3 @@ class Patch
 
 
 #endif
-
