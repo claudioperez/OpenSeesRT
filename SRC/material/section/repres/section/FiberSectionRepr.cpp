@@ -58,46 +58,17 @@ FiberSectionRepr::FiberSectionRepr(int sectionID, int maxNumPatches, int maxNumR
   
 {
 
-    theFibers = new Fiber *[sizeFibers];
-
-    if (theFibers == 0) {
-      opserr << "FiberSectionRepr::FiberSectionRepr -- failed to allocate Fiber pointers\n";
-			      
-	sizeFibers = 0;
-    }
-
-
-    theHFibers = new Fiber *[sizeFibers];
-
-    if (theHFibers == 0) {
-      opserr << "FiberSectionRepr::FiberSectionRepr -- failed to allocate Fiber pointers\n";
-			      
-	sizeHFibers = 0;
-    }
-
-
-
-   patch      = new Patch*[maxNumPatches];
-   if (!patch)
-   {
-      opserr << "FATAL ERROR: FiberSectionRepr - not enough memory to allocate " << maxNumPatches << " patches";
-      exit (-1);
-   }
-   int i;
+   theFibers  = new Fiber *[sizeFibers];
+   theHFibers = new Fiber *[sizeFibers];
+   patch      = new Patch *[maxNumPatches];
    
-   for (i=0; i< maxNumPatches; i++)
+   for (int i=0; i< maxNumPatches; i++)
        patch[i] = 0;
       
    reinfLayer = new ReinfLayer*[maxNumReinfLayers];
-   if (!reinfLayer)
-   {
-      opserr << "FATAL ERROR: FiberSectionRepr - not enough memory to allocate " << maxNumReinfLayers << "reinforcing layers";
-      exit (-1);
-   }
 
-   for (i=0; i< maxNumReinfLayers; i++)
-       reinfLayer[i] = 0;
-      
+   for (int i=0; i< maxNumReinfLayers; i++)
+       reinfLayer[i] = 0; 
 }
 
 
@@ -137,8 +108,7 @@ FiberSectionRepr::~FiberSectionRepr(void)
 {
    int i;
 
-   if (patch)
-   {
+   if (patch) {
       for (i = 0; i < maxNPatches; i++)
          if (patch[i])
               delete patch[i];
@@ -146,8 +116,7 @@ FiberSectionRepr::~FiberSectionRepr(void)
       delete [] patch;
    }
 
-   if (reinfLayer)
-   { 
+   if (reinfLayer) {
       for (i = 0; i < maxNReinfLayers; i++)
          if (reinfLayer[i])
             delete reinfLayer[i];
@@ -159,12 +128,12 @@ FiberSectionRepr::~FiberSectionRepr(void)
        delete [] theFibers;  // NOTE: don't delete fiber objects themselves
                              //       leave this to FiberSection destructor
 
-      if (theHFibers != 0)
-       delete [] theHFibers;  // NOTE: don't delete fiber objects themselves
+   if (theHFibers != 0)
+    delete [] theHFibers;  // NOTE: don't delete fiber objects themselves
 
 }
         
- 
+#if 0 
 void FiberSectionRepr::setNumPatches (int numPatches)
 {
    opserr << "Function FiberSectionRepr::setnumPatches not implemented yet";
@@ -192,7 +161,8 @@ int FiberSectionRepr::setReinfLayers (ReinfLayer **reinfLayers)
 
    return 1;
 }
- 
+#endif
+
 int FiberSectionRepr::addPatch (const Patch & aPatch)
 {
    int error = 0;
