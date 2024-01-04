@@ -17,45 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/repres/section/SectionRepres.cpp,v $
-                                                                        
-                                                                        
-// File: SectionRepres.C
 //
 // Written by Remo M. de Souza
 // November 1998
-
+//
 #include <SectionRepres.h>
 #include <TaggedObject.h>
-#include <MapOfTaggedObjects.h>
-#include <api/runtimeAPI.h>
-
-static MapOfTaggedObjects theSectionRepresObjects;
-
-bool OPS_addSectionRepres(SectionRepres *newComponent)
-{
-    return theSectionRepresObjects.addComponent(newComponent);
-}
-
-SectionRepres *OPS_getSectionRepres(int tag)
-{
-    TaggedObject *theResult = theSectionRepresObjects.getComponentPtr(tag);
-    if(theResult == 0) {
-	return 0;
-    }
-    SectionRepres *theRep = (SectionRepres *)theResult;
-
-    return theRep;
-}
-
-void
-OPS_ADD_RUNTIME_VXV(OPS_clearAllSectionRepres)
-{
-    theSectionRepresObjects.clearAll();
-}
 
 SectionRepres::SectionRepres(int tag):
                  TaggedObject(tag)
