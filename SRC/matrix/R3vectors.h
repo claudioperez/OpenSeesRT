@@ -23,8 +23,4 @@
 class Matrix;
 class Vector;
 
-// double  LovelyInnerProduct( const Vector &v, const Vector &w ) ;
-
-// double  LovelyNorm( const Vector &v ) ; 
-
 Vector  LovelyCrossProduct( const Vector &v, const Vector &w ) ;

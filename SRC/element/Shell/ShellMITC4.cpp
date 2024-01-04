@@ -1095,7 +1095,6 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
 
     jj = 0;
     for (int j = 0; j < numnodes; j++) {
-
       MatrixND<ndf, nstress> BJtran = B[j].transpose();
 
       // multiply bending terms by (-1.0) for correct statement

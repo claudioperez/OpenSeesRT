@@ -17,25 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: MHS
 // Created: Feb 2001
 //
 // Description: This file contains the class definition for DispBeamColumn2d.
 // The element displacement field gives rise to constant axial strain and
 // linear curvature.
-
+//
 #ifndef DispBeamColumn2d_h
 #define DispBeamColumn2d_h
 
-#ifndef _bool_h
-#include <stdbool.h>
-#endif
-
+// #include <element/Frame/FrameElement.h>
 #include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -113,10 +106,10 @@ class DispBeamColumn2d : public Element
     const Matrix &getInitialBasicStiff(void);
     void getBasicStiff(Matrix &kb, int initial = 0);
 
-	int numSections;
-	SectionForceDeformation** theSections; // pointer to the ND material objects
-	BeamIntegration* beamInt;
-	CrdTransf* crdTransf;        // pointer to coordinate tranformation object
+    int numSections;
+    SectionForceDeformation** theSections; // pointer to the ND material objects
+    BeamIntegration* beamInt;
+    CrdTransf* crdTransf;        // pointer to coordinate tranformation object
 
     ID connectedExternalNodes; // Tags of quad nodes
 

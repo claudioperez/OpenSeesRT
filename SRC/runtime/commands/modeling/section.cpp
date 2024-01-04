@@ -1482,11 +1482,6 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       theFiber = new UniaxialFiber2d(numFibers, *material, area, yLoc);
     }
-
-    if (theFiber == 0) {
-      opserr << G3_ERROR_PROMPT << "unable to allocate fiber \n";
-      return TCL_ERROR;
-    }
   }
 
   else if (NDM == 3) {
@@ -2028,7 +2023,7 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
         k++;
       }
 
-      SectionForceDeformation *section = 0;
+      SectionForceDeformation *section = nullptr;
       if (currentSectionIsND) {
         if (currentSectionIsWarping)
           section = new NDFiberSectionWarping2d(secTag, numFibers, fiber);
@@ -2049,7 +2044,6 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
       }
 
       if (theTclBasicBuilder->addSection(*section) < 0) {
-      // if (OPS_addSectionForceDeformation(section) != true) {
         opserr << G3_ERROR_PROMPT << "cannot add section\n";
         return TCL_ERROR;
       }

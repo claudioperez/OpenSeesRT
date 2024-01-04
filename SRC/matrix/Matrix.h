@@ -62,8 +62,8 @@ class Matrix
 		  double fact = 1.0);  
     
     int Solve(const Vector &V, Vector &res)     const;
-    int Solve(const Vector &V, Vector &res); // const;
-    int Solve(const Matrix &M, Matrix &res); // const;
+    int Solve(const Vector &V, Vector &res);
+    int Solve(const Matrix &M, Matrix &res);
     int Invert(Matrix &res) const;
     int Invert();
 

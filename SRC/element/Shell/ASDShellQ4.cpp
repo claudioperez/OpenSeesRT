@@ -203,10 +203,10 @@ struct MITC4Params {
     double Alpha = std::atan(Ay / Ax);
     double Beta  = 3.141592653589793 * 0.5 - std::atan(Cx / Cy);
 
-    transformation(0, 0) = std::sin(Beta);
+    transformation(0, 0) =  std::sin(Beta);
     transformation(0, 1) = -std::sin(Alpha);
     transformation(1, 0) = -std::cos(Beta);
-    transformation(1, 1) = std::cos(Alpha);
+    transformation(1, 1) =  std::cos(Alpha);
 
     shearStrains.Zero();
 
@@ -1474,8 +1474,8 @@ int ASDShellQ4::calculateAll(Matrix &LHS, Vector &RHS, int options)
     double dA = w * jac.detJ;
 
     // Strain-displacement matrix
-    computeBMatrix(reference_cs, xi, eta, jac, agq, mitc, N, dN, BQ_mean, B, BQ,
-                   Bd);
+    computeBMatrix(reference_cs, xi, eta, jac, agq, mitc, N, dN, BQ_mean, 
+                   B, BQ, Bd);
 
     // The drilling according to Hughes-Brezzi plays and important role in warped shells and
     // the stiffness should be equal to the initial (elastic) in-plane shear modulus.

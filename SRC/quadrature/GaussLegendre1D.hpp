@@ -11,7 +11,7 @@ template<> struct GaussLegendre<1,1> {
   constexpr static int nip = 1;
   constexpr static int deg = 1;
 
-  constexpr static double pts[1][1] = {
+  constexpr static double pts[1] = {
                       0.0
   };
   constexpr static double wts[1] = {
@@ -24,7 +24,7 @@ template<> struct GaussLegendre<1,2> {
   constexpr static int nip = 2;
   constexpr static int deg = 2;
 
-  constexpr static double pts[2][1] = {
+  constexpr static double pts[2] = {
      -0.57735026918962573,
       0.57735026918962573
   };
@@ -39,7 +39,7 @@ template<> struct GaussLegendre<1,3> {
   constexpr static int nip = 3;
   constexpr static int deg = 3;
 
-  constexpr static double pts[3][1] = {
+  constexpr static double pts[3] = {
       -0.7745966692414834,
                       0.0,
        0.7745966692414834
@@ -56,7 +56,7 @@ template<> struct GaussLegendre<1,4> {
   constexpr static int nip = 4;
   constexpr static int deg = 4;
 
-  constexpr static double pts[4][1] = {
+  constexpr static double pts[4] = {
      -0.86113631159405257,
      -0.33998104358485626,
       0.33998104358485626,
@@ -75,7 +75,7 @@ template<> struct GaussLegendre<1,5> {
   constexpr static int nip = 5;
   constexpr static int deg = 5;
 
-  constexpr static double pts[5][1] = {
+  constexpr static double pts[5] = {
      -0.90617984593866396,
      -0.53846931010568311,
                       0.0,
@@ -96,7 +96,7 @@ template<> struct GaussLegendre<1,6> {
   constexpr static int nip = 6;
   constexpr static int deg = 6;
 
-  constexpr static double pts[6][1] = {
+  constexpr static double pts[6] = {
      -0.93246951420315205,
      -0.66120938646626448,
      -0.23861918608319693,
@@ -119,7 +119,7 @@ template<> struct GaussLegendre<1,7> {
   constexpr static int nip = 7;
   constexpr static int deg = 7;
 
-  constexpr static double pts[7][1] = {
+  constexpr static double pts[7] = {
      -0.94910791234275849,
      -0.74153118559939446,
      -0.40584515137739718,
@@ -144,7 +144,7 @@ template<> struct GaussLegendre<1,8> {
   constexpr static int nip = 8;
   constexpr static int deg = 8;
 
-  constexpr static double pts[8][1] = {
+  constexpr static double pts[8] = {
      -0.96028985649753618,
      -0.79666647741362673,
      -0.52553240991632899,
@@ -171,7 +171,7 @@ template<> struct GaussLegendre<1,9> {
   constexpr static int nip = 9;
   constexpr static int deg = 9;
 
-  constexpr static double pts[9][1] = {
+  constexpr static double pts[9] = {
      -0.96816023950762609,
      -0.83603110732663577,
      -0.61337143270059036,
@@ -200,7 +200,7 @@ template<> struct GaussLegendre<1,10> {
   constexpr static int nip = 10;
   constexpr static int deg = 10;
 
-  constexpr static double pts[10][1] = {
+  constexpr static double pts[10] = {
      -0.97390652851717174,
      -0.86506336668898454,
      -0.67940956829902444,
@@ -231,7 +231,7 @@ template<> struct GaussLegendre<1,11> {
   constexpr static int nip = 11;
   constexpr static int deg = 11;
 
-  constexpr static double pts[11][1] = {
+  constexpr static double pts[11] = {
      -0.97822865814605697,
      -0.88706259976809532,
      -0.73015200557404936,
@@ -264,7 +264,7 @@ template<> struct GaussLegendre<1,12> {
   constexpr static int nip = 12;
   constexpr static int deg = 12;
 
-  constexpr static double pts[12][1] = {
+  constexpr static double pts[12] = {
      -0.98156063424671924,
       -0.9041172563704748,
      -0.76990267419430469,
@@ -299,7 +299,7 @@ template<> struct GaussLegendre<1,13> {
   constexpr static int nip = 13;
   constexpr static int deg = 13;
 
-  constexpr static double pts[13][1] = {
+  constexpr static double pts[13] = {
      -0.98418305471858814,
      -0.91759839922297792,
      -0.80157809073330988,
@@ -336,7 +336,7 @@ template<> struct GaussLegendre<1,14> {
   constexpr static int nip = 14;
   constexpr static int deg = 14;
 
-  constexpr static double pts[14][1] = {
+  constexpr static double pts[14] = {
      -0.98628380869681231,
      -0.92843488366357352,
      -0.82720131506976502,
@@ -375,7 +375,7 @@ template<> struct GaussLegendre<1,15> {
   constexpr static int nip = 15;
   constexpr static int deg = 15;
 
-  constexpr static double pts[15][1] = {
+  constexpr static double pts[15] = {
      -0.98799251802048538,
      -0.93727339240070595,
      -0.84820658341042721,
@@ -416,7 +416,7 @@ template<> struct GaussLegendre<1,16> {
   constexpr static int nip = 16;
   constexpr static int deg = 16;
 
-  constexpr static double pts[16][1] = {
+  constexpr static double pts[16] = {
      -0.98940093499164994,
       -0.9445750230732326,
      -0.86563120238783176,
@@ -459,7 +459,7 @@ template<> struct GaussLegendre<1,17> {
   constexpr static int nip = 17;
   constexpr static int deg = 17;
 
-  constexpr static double pts[17][1] = {
+  constexpr static double pts[17] = {
      -0.99057547531441736,
       -0.9506755217687678,
      -0.88023915372698591,
@@ -504,7 +504,7 @@ template<> struct GaussLegendre<1,18> {
   constexpr static int nip = 18;
   constexpr static int deg = 18;
 
-  constexpr static double pts[18][1] = {
+  constexpr static double pts[18] = {
       -0.9915651684209309,
      -0.95582394957139782,
       -0.8926024664975557,
@@ -551,7 +551,7 @@ template<> struct GaussLegendre<1,19> {
   constexpr static int nip = 19;
   constexpr static int deg = 19;
 
-  constexpr static double pts[19][1] = {
+  constexpr static double pts[19] = {
      -0.99240684384358435,
      -0.96020815213483002,
       -0.9031559036148179,
@@ -600,7 +600,7 @@ template<> struct GaussLegendre<1,20> {
   constexpr static int nip = 20;
   constexpr static int deg = 20;
 
-  constexpr static double pts[20][1] = {
+  constexpr static double pts[20] = {
      -0.99312859918509488,
      -0.96397192727791381,
      -0.91223442825132584,
@@ -651,7 +651,7 @@ template<> struct GaussLegendre<1,21> {
   constexpr static int nip = 21;
   constexpr static int deg = 21;
 
-  constexpr static double pts[21][1] = {
+  constexpr static double pts[21] = {
      -0.99375217062038945,
      -0.96722683856630631,
      -0.92009933415040079,
@@ -704,7 +704,7 @@ template<> struct GaussLegendre<1,22> {
   constexpr static int nip = 22;
   constexpr static int deg = 22;
 
-  constexpr static double pts[22][1] = {
+  constexpr static double pts[22] = {
      -0.99429458548239924,
      -0.97006049783542869,
      -0.92695677218717398,
@@ -759,7 +759,7 @@ template<> struct GaussLegendre<1,23> {
   constexpr static int nip = 23;
   constexpr static int deg = 23;
 
-  constexpr static double pts[23][1] = {
+  constexpr static double pts[23] = {
      -0.99476933499755216,
      -0.97254247121811521,
      -0.93297108682601615,
@@ -816,7 +816,7 @@ template<> struct GaussLegendre<1,24> {
   constexpr static int nip = 24;
   constexpr static int deg = 24;
 
-  constexpr static double pts[24][1] = {
+  constexpr static double pts[24] = {
      -0.99518721999702131,
      -0.97472855597130947,
       -0.9382745520027328,
@@ -875,7 +875,7 @@ template<> struct GaussLegendre<1,25> {
   constexpr static int nip = 25;
   constexpr static int deg = 25;
 
-  constexpr static double pts[25][1] = {
+  constexpr static double pts[25] = {
      -0.99555696979049801,
      -0.97666392145951753,
      -0.94297457122897432,
@@ -936,7 +936,7 @@ template<> struct GaussLegendre<1,26> {
   constexpr static int nip = 26;
   constexpr static int deg = 26;
 
-  constexpr static double pts[26][1] = {
+  constexpr static double pts[26] = {
      -0.99588570114561692,
      -0.97838544595647092,
      -0.94715906666171423,
@@ -999,7 +999,7 @@ template<> struct GaussLegendre<1,27> {
   constexpr static int nip = 27;
   constexpr static int deg = 27;
 
-  constexpr static double pts[27][1] = {
+  constexpr static double pts[27] = {
       -0.9961792628889885,
       -0.9799234759615012,
      -0.95090055781470506,
@@ -1064,7 +1064,7 @@ template<> struct GaussLegendre<1,28> {
   constexpr static int nip = 28;
   constexpr static int deg = 28;
 
-  constexpr static double pts[28][1] = {
+  constexpr static double pts[28] = {
      -0.99644249757395442,
      -0.98130316537087281,
      -0.95425928062893817,
@@ -1131,7 +1131,7 @@ template<> struct GaussLegendre<1,29> {
   constexpr static int nip = 29;
   constexpr static int deg = 29;
 
-  constexpr static double pts[29][1] = {
+  constexpr static double pts[29] = {
      -0.99667944226059657,
      -0.98254550526141315,
      -0.95728559577808769,
@@ -1200,7 +1200,7 @@ template<> struct GaussLegendre<1,30> {
   constexpr static int nip = 30;
   constexpr static int deg = 30;
 
-  constexpr static double pts[30][1] = {
+  constexpr static double pts[30] = {
      -0.99689348407464951,
      -0.98366812327974729,
      -0.96002186496830755,
@@ -1271,7 +1271,7 @@ template<> struct GaussLegendre<1,31> {
   constexpr static int nip = 31;
   constexpr static int deg = 31;
 
-  constexpr static double pts[31][1] = {
+  constexpr static double pts[31] = {
      -0.99708748181947704,
      -0.98468590966515246,
      -0.96250392509294969,
@@ -1344,7 +1344,7 @@ template<> struct GaussLegendre<1,32> {
   constexpr static int nip = 32;
   constexpr static int deg = 32;
 
-  constexpr static double pts[32][1] = {
+  constexpr static double pts[32] = {
      -0.99726386184948157,
      -0.98561151154526838,
      -0.96476225558750639,
@@ -1419,7 +1419,7 @@ template<> struct GaussLegendre<1,33> {
   constexpr static int nip = 33;
   constexpr static int deg = 33;
 
-  constexpr static double pts[33][1] = {
+  constexpr static double pts[33] = {
      -0.99742469424645519,
      -0.98645572623064248,
      -0.96682290968999274,
@@ -1496,7 +1496,7 @@ template<> struct GaussLegendre<1,34> {
   constexpr static int nip = 34;
   constexpr static int deg = 34;
 
-  constexpr static double pts[34][1] = {
+  constexpr static double pts[34] = {
      -0.99757175379084195,
      -0.98722781640630952,
       -0.9687082625333443,
@@ -1575,7 +1575,7 @@ template<> struct GaussLegendre<1,35> {
   constexpr static int nip = 35;
   constexpr static int deg = 35;
 
-  constexpr static double pts[35][1] = {
+  constexpr static double pts[35] = {
      -0.99770656909960032,
      -0.98793576444385156,
      -0.97043761603922984,
@@ -1656,7 +1656,7 @@ template<> struct GaussLegendre<1,36> {
   constexpr static int nip = 36;
   constexpr static int deg = 36;
 
-  constexpr static double pts[36][1] = {
+  constexpr static double pts[36] = {
       -0.9978304624840858,
       -0.9885864789022123,
      -0.97202769104969799,
@@ -1739,7 +1739,7 @@ template<> struct GaussLegendre<1,37> {
   constexpr static int nip = 37;
   constexpr static int deg = 37;
 
-  constexpr static double pts[37][1] = {
+  constexpr static double pts[37] = {
      -0.99794458247791362,
      -0.98918596321431917,
       -0.9734930300564858,
@@ -1824,7 +1824,7 @@ template<> struct GaussLegendre<1,38> {
   constexpr static int nip = 38;
   constexpr static int deg = 38;
 
-  constexpr static double pts[38][1] = {
+  constexpr static double pts[38] = {
      -0.99804993053568758,
      -0.98973945426638554,
      -0.97484632859015352,
@@ -1911,7 +1911,7 @@ template<> struct GaussLegendre<1,39> {
   constexpr static int nip = 39;
   constexpr static int deg = 39;
 
-  constexpr static double pts[39][1] = {
+  constexpr static double pts[39] = {
      -0.99814738306643291,
      -0.99025153685468603,
      -0.97609870933347109,

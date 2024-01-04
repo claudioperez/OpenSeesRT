@@ -1,11 +1,13 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
 ** ****************************************************************** */
 //
 // This file contains the implementation for NURBS derivatives
-// Written originally by Vinh Phu Nguyen, nvinhphu@gmail.com
+//
+// Authors 
+//   Vinh Phu Nguyen, nvinhphu@gmail.com
+//   Robert Simpson, Cardiff University, UK
 //
 #include <math.h>
 #include <float.h>
@@ -78,19 +80,16 @@ BasisFuns( int i, double u, int p, Vector& U, Vector& N)
   // double *left  = (double *)malloc(sizeof(double) * (p + 1));
   // double *right = (double *)malloc(sizeof(double) * (p + 1));
 
-  static Vector left(p+1);
-  static Vector right(p+1);
-  left.resize(p+1);
-  right.resize(p+1);
+  Vector left(p+1);
+  Vector right(p+1);
 
   double saved, temp;
 
-  int j, r;
-  for ( j = 1; j <= p; ++j) {
+  for (int j = 1; j <= p; ++j) {
     left[j]  = u - U[i + 1 - j];
     right[j] = U[i + j] - u;
     saved = 0.0;
-    for (r = 0; r < j; ++r) {
+    for (int r = 0; r < j; ++r) {
       temp  = N[r] / ( right[r + 1] + left[j - r] );
       N[r]  = saved + right[r + 1] * temp;
       saved = left[j - r] * temp;
@@ -143,20 +142,17 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
     }
     ndu(j,j) = saved;
   }
-  for ( j = 0; j <= p; j++ )
+  for (int j = 0; j <= p; j++ )
     ders(0,j) = ndu(j,p);
 
   if ( order == 0 )
     return;
 
-
-  for ( r = 0; r <= p; r++ )
-  {
+  for (int r = 0; r <= p; r++ ) {
     int s1 = 0, s2 = 1;
     a(0,0) = 1.0;
 
-    for ( k = 1; k <= order; k++ )
-    {
+    for (int k = 1; k <= order; k++ ) {
       double d = 0.;
       int rk = r - k, pk = p - k;
       if ( r >= k ) {
@@ -169,8 +165,7 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
         a(s2,j) = (a(s1,j) - a(s1,j - 1)) / ndu(pk + 1,rk + j);
         d += a(s2,j) * ndu(rk + j,pk);
       }
-      if ( r <= pk )
-      {
+      if ( r <= pk ) {
         a(s2,k) = -a(s1,k - 1) / ndu(pk + 1,r);
         d += a(s2,k) * ndu(r,pk);
       }
@@ -179,9 +174,8 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
     }
   }
   r = p;
-  for ( k = 1; k <= order; k++ )
-  {
-    for ( j = 0; j <= p; j++ )
+  for (int k = 1; k <= order; k++ ) {
+    for (int j = 0; j <= p; j++ )
       ders(k,j) *= r;
     r *= (p - k);
   }
@@ -266,7 +260,6 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
     for (k = 0; k <= order; k++)
       ders[k] = 0.0;
     return;
-
   }
 
   for (j = 0; j <= p; j++) {

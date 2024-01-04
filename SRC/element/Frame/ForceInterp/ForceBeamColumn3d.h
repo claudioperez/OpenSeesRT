@@ -206,7 +206,6 @@ class ForceBeamColumn3d: public Element
   static Vector vsSubdivide[];
   static Vector SsrSubdivide[];
   static Matrix fsSubdivide[];
-  //static int maxNumSections;
 
   // AddingSensitivity:BEGIN //////////////////////////////////////////
   int parameterID;

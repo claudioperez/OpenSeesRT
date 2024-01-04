@@ -27,7 +27,9 @@ target_sources(OPS_Material
     Elliptical2.cpp
     FiberSection.cpp
     FiberSection2d.cpp
+    FiberSection2dInt.h
     FiberSection2dThermal.cpp
+
     FiberSection3d.cpp
     FiberSectionWarping3d.cpp    
     FiberSectionAsym3d.cpp
