@@ -1101,14 +1101,11 @@ void ShellNLDKGQ::formResidAndTangent(int tang_flag)
 
   int i, j, k, p, q;
   int jj, kk;
-  int jlast, jnew; //add for geometric nonlinearity
+  int jlast, jnew; // add for geometric nonlinearity
 
   int p1, q1;
-
   int p2, q2;
-
   int p3, q3;
-
   int pp, qq;
 
   int success;
@@ -1653,24 +1650,22 @@ void ShellNLDKGQ::updateBasis()
   v2 /= temp(1);
   v3 /= temp(2);
 
-  //local nodal coordinates in plane of shell
-
-  int i;
-  for (i = 0; i < 4; i++) {
+  // local nodal coordinates in plane of shell
+  for (int i = 0; i < 4; i++) {
 
     const Vector &coorI = nodePointers[i]->getCrds() +
                           nodePointers[i]->getDisp(); //modify by Lisha Wang
     xl[0][i] = coorI ^ v1;
     xl[1][i] = coorI ^ v2;
 
-  } //end for i
+  }
 
-  //basis vectors stored as array of doubles
-  for (i = 0; i < 3; i++) {
+  // basis vectors stored as array of doubles
+  for (int i = 0; i < 3; i++) {
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } //end for i
+  }
 }
 //end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
@@ -1702,22 +1697,21 @@ const Matrix &ShellNLDKGQ::assembleB(const Matrix &Bmembrane,
   B.Zero();
   //assemble B from sub-matrices
 
-  //membrane parts
-  for (p = 0; p < 3; p++) {
-
-    for (q = 0; q < 3; q++)
+  // membrane parts
+  for (int p = 0; p < 3; p++) {
+    for (int q = 0; q < 3; q++)
       B(p, q) = Bmembrane(p, q);
   } //end for p
 
   //bending parts
-  for (p = 3; p < 6; p++) {
+  for (int p = 3; p < 6; p++) {
     pp = p - 3;
-    for (q = 3; q < 6; q++)
+    for (int q = 3; q < 6; q++)
       B(p, q) = Bbend(pp, q - 3);
   } //end for p
 
   //shear parts
-  for (p = 0; p < 2; p++) {
+  for (int p = 0; p < 2; p++) {
     pp = p + 6;
 
     for (q = 3; q < 6; q++)
