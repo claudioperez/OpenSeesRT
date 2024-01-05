@@ -27,7 +27,7 @@ target_sources(OPS_Material
     Elliptical2.cpp
     FiberSection.cpp
     FiberSection2d.cpp
-    FiberSection2dInt.h
+    FiberSection2dInt.cpp
     FiberSection2dThermal.cpp
 
     FiberSection3d.cpp
@@ -58,6 +58,7 @@ target_sources(OPS_Material
     Elliptical2.h
     FiberSection.h
     FiberSection2d.h
+    FiberSection2dInt.h
     FiberSection2dThermal.h
     FiberSection3d.h
     FiberSectionWarping3d.h    
