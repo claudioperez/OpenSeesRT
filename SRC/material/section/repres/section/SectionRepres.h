@@ -40,7 +40,6 @@
 
 #include <TaggedObject.h>
 
-
 class SectionRepres: public TaggedObject
 {
   public:
@@ -53,19 +52,15 @@ class SectionRepres: public TaggedObject
 
     virtual ~SectionRepres();
    
-    // Section inquiring functions
-     
+    // Section inquiring functions     
     virtual int  getType(void) const = 0;
+
     friend OPS_Stream &operator<<(OPS_Stream &s, const SectionRepres &sectionRepres);    
     
   protected:
     
   private:
 };
-
-bool OPS_addSectionRepres(SectionRepres *newComponent);
-SectionRepres *OPS_getSectionRepres(int tag);
-void OPS_clearAllSectionRepres(void);
 
 #endif
 
