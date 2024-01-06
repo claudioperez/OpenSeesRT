@@ -57,12 +57,18 @@ Vector::Vector(int size)
 
   // get some space for the vector
   //  theData = (double *)malloc(size*sizeof(double));
+  if (size > 0)
+    theData = new double [size]{};
+}
+
+Vector::Vector(std::shared_ptr<double[]> data, int size)
+: sz(size), theData(0), fromFree(0)
+{
   if (size > 0) {
     theData = new double [size];
 
-    // zero the components
     for (int i=0; i<sz; i++)
-      theData[i] = 0.0;
+      theData[i] = data[i];
   }
 }
 
@@ -80,7 +86,6 @@ Vector::Vector(double *data, int size)
 #endif
 }
  
-
 
 // Vector(const Vector&):
 //        Constructor to init a vector from another.
@@ -840,9 +845,6 @@ Vector
 Vector::operator-(double fact) const
 {
     Vector result(*this);
-    if (result.Size() != sz) 
-      opserr << "Vector::operator-(double) - ran out of memory for new Vector\n";
-
     result -= fact;
     return result;
 }
@@ -857,9 +859,6 @@ Vector
 Vector::operator*(double fact) const
 {
     Vector result(*this);
-    if (result.Size() != sz) 
-      opserr << "Vector::operator*(double) - ran out of memory for new Vector\n";
-
     result *= fact;
     return result;
 }
@@ -872,13 +871,8 @@ Vector::operator*(double fact) const
 Vector 
 Vector::operator/(double fact) const
 {
-    if (fact == 0.0) 
-      opserr << "Vector::operator/(double fact) - divide-by-zero error coming\n";
-
+    assert(fact != 0.0);
     Vector result(*this);
-    if (result.Size() != sz) 
-      opserr << "Vector::operator/(double) - ran out of memory for new Vector\n";
-
     result /= fact;
     return result;
 }

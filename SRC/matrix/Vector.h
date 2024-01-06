@@ -32,6 +32,7 @@
 #define Vector_h 
 
 #include <OPS_Globals.h>
+#include <memory>
 
 #define VECTOR_VERY_LARGE_VALUE 1.0e200
 
@@ -53,6 +54,7 @@ class Vector
 #endif
 
     Vector(double *data, int size);
+    Vector(std::shared_ptr<double[]>, int size);
     ~Vector();
 
     // utility methods
