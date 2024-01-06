@@ -75,16 +75,18 @@ class UniaxialFiber3d: public Fiber
     Response *setResponse(const char **argv, int argc, OPS_Stream &S);
     int getResponse(int responseID, Information &info);
 
+#if 0
     void getFiberLocation(double &y, double &z);
-    UniaxialMaterial *getMaterial(void) {return theMaterial;};
     double getArea(void) {return area;};
+#endif
     double getd(void) {return dValue;};
+    UniaxialMaterial *getMaterial(void) {return theMaterial;};
 
   protected:
     
   private:
     UniaxialMaterial *theMaterial;   // pointer to a material
-    double area;                          // area of the fiber
+    // double area;                          // area of the fiber
     double dValue;
     double as[2];                            // matrix that transforms
 	                            // section deformations into fiber strain	

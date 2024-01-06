@@ -72,7 +72,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NDFiber3d)
 
     // get material
     NDMaterial* theMat = OPS_getNDMaterial(tag);
-    if(theMat == 0) {
+    if (theMat == 0) {
 	opserr<<"invalid NDMaterial tag\n";
 	return 0;
     }
@@ -84,8 +84,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NDFiber3d)
 // constructor:
 NDFiber3d::NDFiber3d(int tag, NDMaterial &theMat,
 		     double Area, double yy, double zz, double d):
-  Fiber(tag, FIBER_TAG_ND3d),
-  theMaterial(0), area(Area), y(yy), z(zz), dValue(d)
+  Fiber(tag, FIBER_TAG_ND3d, yy, zz, Area),
+  theMaterial(0), // area(Area), 
+  y(yy), z(zz), 
+  dValue(d)
 {
   theMaterial = theMat.getCopy("BeamFiber");
   
@@ -106,8 +108,10 @@ NDFiber3d::NDFiber3d(int tag, NDMaterial &theMat,
 
 // constructor for blank object that recvSelf needs to be invoked upon
 NDFiber3d::NDFiber3d(): 
-  Fiber(0, FIBER_TAG_ND3d),
-  theMaterial(0), area(0), y(0.0), z(0.0), dValue(0.0)
+  Fiber(0, FIBER_TAG_ND3d, 0, 0, 0),
+  theMaterial(0), // area(0), 
+  y(0.0), z(0.0), 
+  dValue(0.0)
 {
   if (code(0) != SECTION_RESPONSE_P) {
     code(0) = SECTION_RESPONSE_P;
@@ -374,13 +378,14 @@ NDFiber3d::getResponse(int responseID, Information &fibInfo)
     return -1;
   }
 }
-
+#if 0
 void 
 NDFiber3d::getFiberLocation(double &yLoc, double &zLoc)
 {
   yLoc = y;
   zLoc = z;
 }
+#endif
 
 int
 NDFiber3d::setParameter(const char **argv, int argc, Parameter &param)

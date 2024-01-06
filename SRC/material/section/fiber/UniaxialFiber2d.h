@@ -74,10 +74,12 @@ class UniaxialFiber2d : public Fiber
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 	
+#if 0
     void getFiberLocation(double &y, double &z);
-    UniaxialMaterial *getMaterial(void) {return theMaterial;};
     double getArea(void) {return area;};
+#endif
     double getd(void) {return 1.0;};
+    UniaxialMaterial *getMaterial(void) {return theMaterial;};
     
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
@@ -91,8 +93,8 @@ class UniaxialFiber2d : public Fiber
     
   private:
     UniaxialMaterial *theMaterial;   // pointer to a material
-    double area;                          // area of the fiber 
-    double y;		// fiber location
+    // double area;                     // area of the fiber 
+    double y;		    // fiber location
 
     static Matrix ks;       // static class wide matrix object for returns
     static Vector fs;	    // static class wide vector object for returns

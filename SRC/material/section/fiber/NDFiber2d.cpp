@@ -81,8 +81,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NDFiber2d)
 NDFiber2d::NDFiber2d(int tag, 
 		     NDMaterial &theMat,
 		     double Area, double position):
-  Fiber(tag, FIBER_TAG_ND2d),
-  theMaterial(0), area(Area), y(-position)
+  Fiber(tag, FIBER_TAG_ND2d, position, 0.0, Area),
+  theMaterial(0), // area(Area), 
+  y(-position)
 {
   theMaterial = theMat.getCopy("BeamFiber2d");
   
@@ -99,8 +100,9 @@ NDFiber2d::NDFiber2d(int tag,
 }
 
 // constructor for blank object that recvSelf needs to be invoked upon
-NDFiber2d::NDFiber2d(): Fiber(0, FIBER_TAG_ND2d),
-			theMaterial(0), area(0), y(0.0)
+NDFiber2d::NDFiber2d(): Fiber(0, FIBER_TAG_ND2d, 0, 0, 0),
+			theMaterial(0), // area(0), 
+                        y(0.0)
 {
   if (code(0) != SECTION_RESPONSE_P) {
     code(0) = SECTION_RESPONSE_P;
@@ -362,12 +364,14 @@ NDFiber2d::getResponse(int responseID, Information &fibInfo)
   }
 }
 
+#if 0
 void 
 NDFiber2d::getFiberLocation(double &yLoc, double &zLoc)
 {
   yLoc = -y;
   zLoc = 0.0;
 }
+#endif
 
 int
 NDFiber2d::setParameter(const char **argv, int argc, Parameter &param)

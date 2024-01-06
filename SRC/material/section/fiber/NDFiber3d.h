@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $Source$
-
-
+//
 // File: ~/fiber/NDFiber3d.h
 //
 // Written: MHS
@@ -74,10 +69,11 @@ class NDFiber3d : public Fiber
     
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &info);
-	
+#if 0	
     void getFiberLocation(double &y, double &z);
-    NDMaterial *getNDMaterial(void) {return theMaterial;}
     double getArea(void) {return area;};
+#endif
+    NDMaterial *getNDMaterial(void) {return theMaterial;}
     double getd(void) {return dValue;};
     
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -92,7 +88,7 @@ class NDFiber3d : public Fiber
     
   private:
     NDMaterial *theMaterial;   // pointer to a material
-    double area;                          // area of the fiber
+    // double area;                          // area of the fiber
     double y;		// fiber location
     double z;
     double dValue;
