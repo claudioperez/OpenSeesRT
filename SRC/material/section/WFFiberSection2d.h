@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-08-26 16:45:04 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/WFFiberSection2d.h,v $
-                                                                        
+//
 // Written: MHS
 // Created: Aug 2001
 //
 // Description: This file contains the class definition for 
 // WFFiberSection2d.h. WFFiberSection2d provides the abstraction of a 
-// rectangular section discretized by fibers. The section stiffness and
-// stress resultants are obtained by summing fiber contributions.
-// The fiber stresses are the 11, 12, and 13 components of stress, from
-// which all six beam stress resultants are obtained.
-
+// wide-flange section discretized by uniaxial fibers. 
+//
 #ifndef WFFiberSection2d_h
 #define WFFiberSection2d_h
 

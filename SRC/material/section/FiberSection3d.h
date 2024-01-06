@@ -36,6 +36,7 @@
 #include <SectionForceDeformation.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <memory>
 
 class UniaxialMaterial;
 class Fiber;
@@ -49,8 +50,10 @@ class FiberSection3d : public SectionForceDeformation
     FiberSection3d(int tag, int numFibers, Fiber **fibers, 
 		   UniaxialMaterial &torsion, bool compCentroid=true);
     FiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, bool compCentroid=true);
+#if 0
     FiberSection3d(int tag, int numFibers, UniaxialMaterial **mats,
 		   SectionIntegration &si, UniaxialMaterial &torsion, bool compCentroid=true);
+#endif
     ~FiberSection3d();
 
     const char *getClassType(void) const {return "FiberSection3d";};
@@ -91,8 +94,8 @@ class FiberSection3d : public SectionForceDeformation
     const Vector & getSectionDeformationSensitivity(int gradIndex);
     // AddingSensitivity:END ///////////////////////////////////////////
 
-	//by SAJalali
-	double getEnergy() const;
+    //by SAJalali
+    double getEnergy() const;
 
 
   protected:
@@ -100,7 +103,8 @@ class FiberSection3d : public SectionForceDeformation
   private:
     int numFibers, sizeFibers;       // number of fibers in the section
     UniaxialMaterial **theMaterials; // array of pointers to materials
-    double   *matData;               // data for the materials [yloc, zloc, area]
+//  double   *matData;               // data for the materials [yloc, zloc, area]
+    std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
     double   kData[16];              // data for ks matrix 
     double   sData[4];               // data for s vector 
 
@@ -108,12 +112,12 @@ class FiberSection3d : public SectionForceDeformation
     double yBar;       // Section centroid
     double zBar;
     bool computeCentroid;
-    
+
     SectionIntegration *sectionIntegr;
 
     static ID code;
 
-    Vector e;          // trial section deformations 
+    Vector  e;         // trial section deformations 
     Vector *s;         // section resisting forces  (axial force, bending moment)
     Matrix *ks;        // section stiffness
 

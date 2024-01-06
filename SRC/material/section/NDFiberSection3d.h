@@ -48,8 +48,10 @@ class NDFiberSection3d : public SectionForceDeformation
     NDFiberSection3d(); 
     NDFiberSection3d(int tag, int numFibers, Fiber **fibers, double a = 1.0, bool compCentroid=true);
     NDFiberSection3d(int tag, int numFibers, double a = 1.0, bool compCentroid=true);
+#if 0
     NDFiberSection3d(int tag, int numFibers, NDMaterial **mats,
 		     SectionIntegration &si, double a = 1.0, bool compCentroid=true);
+#endif
     ~NDFiberSection3d();
 
     const char *getClassType(void) const {return "NDFiberSection3d";};

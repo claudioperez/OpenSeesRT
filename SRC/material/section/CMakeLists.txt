@@ -34,8 +34,8 @@ target_sources(OPS_Material
     FiberSectionWarping3d.cpp    
     FiberSectionAsym3d.cpp
     FiberSection3dThermal.cpp
-    FiberSectionGJ.cpp
-    FiberSectionGJThermal.cpp    
+#   FiberSectionGJ.cpp
+#   FiberSectionGJThermal.cpp    
     GenericSection1d.cpp
     Isolator2spring.cpp
     NDFiberSection2d.cpp
@@ -64,8 +64,8 @@ target_sources(OPS_Material
     FiberSectionWarping3d.h    
     FiberSectionAsym3d.h
     FiberSection3dThermal.h
-    FiberSectionGJ.h
-    FiberSectionGJThermal.h
+#   FiberSectionGJ.h
+#   FiberSectionGJThermal.h
     GenericSection1d.h
     Isolator2spring.h
     NDFiberSection2d.h

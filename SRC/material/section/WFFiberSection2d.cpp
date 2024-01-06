@@ -27,11 +27,8 @@
 //
 // Description: This file contains the class definition for 
 // WFFiberSection2d.h. WFFiberSection2d provides the abstraction of a 
-// rectangular section discretized by fibers. The section stiffness and
-// stress resultants are obtained by summing fiber contributions.
-// The fiber stresses are the 11, 12, and 13 components of stress, from
-// which all six beam stress resultants are obtained.
-
+// wide-flange section discretized by uniaxial fibers. 
+//
 #include <stdlib.h>
 
 #include <Channel.h>
@@ -58,8 +55,7 @@ WFFiberSection2d::WFFiberSection2d(int tag, UniaxialMaterial &theMat,
       opserr << "WFFiberSection2d::WFFiberSection2d -- failed to get copy of beam fiber" << endln;
   }
   
-  double dw = d-2*tf;
-  
+  double dw = d-2*tf;  
   double a_f = bf*tf/nftf;
   double a_w = dw*tw/nfdw;
   
