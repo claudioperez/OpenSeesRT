@@ -23,8 +23,12 @@ in Earthquake Engineering (CUREE) loading protocol.</p>
 <p><a href="Media:16n.tcl" title="wikilink">16n.tcl</a></p>
 <p><a href="Media:procRCycDAns.tcl"
 title="wikilink">procRCycDAns.tcl</a></p>
-<p>uniaxialMaterial CFSWSWP 26 2440 2440 344 1.12 181600 51240 12.5 1
-4.064 3256 102 98 3 0 0</p>
+
+```tcl
+uniaxialMaterial CFSWSWP 26 2440 2440 344 1.12 181600 51240 12.5 1
+4.064 3256 102 98 3 0 0
+```
+
 <figure>
 <img src="./1139px-26.png"
 title="Fig 1. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 26"
@@ -33,20 +37,26 @@ alt="Fig 1. Comparison between wood-sheathed CFS SWP experimental and numerical 
 <figcaption aria-hidden="true">Fig 1. Comparison between wood-sheathed
 CFS SWP experimental and numerical results specimens No 26</figcaption>
 </figure>
-<p>uniaxialMaterial CFSWSWP 32 2440 2440 344 1.12 181600 51240 12.5 1
-4.064 3256 102 98 3 0 0</p>
+
+```tcl
+uniaxialMaterial CFSWSWP 32 2440 2440 344 1.12 181600 51240 12.5 1 4.064 3256 102 98 3 0 0
+```
+
 <figure>
-<img src="/OpenSeesRT/contrib/static/321.png"
+<img src="./1125px-321.png"
 title="Fig 2. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 32"
 width="400"
 alt="Fig 2. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 32" />
 <figcaption aria-hidden="true">Fig 2. Comparison between wood-sheathed
 CFS SWP experimental and numerical results specimens No 32</figcaption>
 </figure>
-<p>uniaxialMaterial CFSWSWP 16 2440 610 344 1.12 181600 51240 12.5 1
-4.064 3256 152 40 3 0 0</p>
+
+```tcl
+uniaxialMaterial CFSWSWP 16 2440 610 344 1.12 181600 51240 12.5 1 4.064 3256 152 40 3 0 0
+```
+
 <figure>
-<img src="/OpenSeesRT/contrib/static/16.png"
+<img src="./1146px-16.png"
 title="Fig 3. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 16"
 width="400"
 alt="Fig 3. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 16" />
@@ -55,6 +65,7 @@ CFS SWP experimental and numerical results specimens No 16</figcaption>
 </figure>
 <hr />
 <h2>References</h2>
+
 <p><a
 href="http://www.sciencedirect.com/science/article/pii/S0263823115301026">Smail
 Kechidi and Nouredine Bourahla, Deteriorating hysteresis model for
@@ -70,6 +81,7 @@ cold-formed steel shear wall panel based on physical and mechanical
 characteristics, OpenSees Days Portugal 2014- Workshop on Multi-Hazard
 Analysis of Structures using OpenSees, Porto 3-4, Portugal, July
 2014.</p>
+
 <p>L.N. Lowes, A. Altoontash, Modelling reinforced-concrete beam-column
 joints subjected to cyclic loading, Journal of Structural Engineering,
 129(12):1686-1697, 2003.</p>
@@ -85,6 +97,7 @@ Nouredine Bourahla, University of Blida 1, Algeria </span></p>
 <p>Images Developed by: <span style="color:blue"> Smail Kechidi,
 University of Blida 1, Algeria </span></p>
 <hr />
+
 <p>Authors contact:</p>
 <p><strong>Smail Kechidi</strong>, PhD student at University of Blida 1,
 Algeria, s_kechidi@univ-blida.dz, skechidi@yahoo.com</p>
