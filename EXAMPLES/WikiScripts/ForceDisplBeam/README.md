@@ -42,7 +42,7 @@ title="wikilink">ConventionalColumn_Cyclic.tcl</a></li>
 <ul>
 <li><a href="LibUnits.tcl" title="wikilink">LibUnits.tcl</a> (define
 system of units)</li>
-<li><a href="singlecycle.tcl" title="wikilink">singlecycle.tcl</a>
+<li><a href="SingleCycle.tcl" title="wikilink">SingleCycle.tcl</a>
 (procedure for writing one cycle of displacement history)</li>
 <li><a href="Media:_leh415.xls" title="wikilink">leh415.xls</a>
 (experimental force-displacement response)</li>
