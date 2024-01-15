@@ -111,31 +111,31 @@ href="./get_tzParam.tcl" title="wikilink">get_tzParam.tcl</a>, and
 <p>Several input soil properties are necessary to define these
 springs:</p>
 <ul>
-<li>soil unit weight, $gamma</li>
-<li>soil internal friction angle, $phi</li>
-<li>soil shear modulus, $Gsoil</li>
+<li>soil unit weight, `$gamma`</li>
+<li>soil internal friction angle, `$phi`</li>
+<li>soil shear modulus, `$Gsoil`</li>
 </ul>
-<p>The default values are set at $gamma = 17 kN/m^3, $phi = 36 degrees,
-and $Gsoil = 150000 kPa.</p>
+<p>The default values are set at `$gamma` = 17 kN/m^3, `$phi` = 36 degrees,
+and `$Gsoil` = 150000 kPa.</p>
 <p>The procedure <a href="./get_pyParam.tcl"
 title="wikilink">get_pyParam.tcl</a>, which defines the p-y springs, has
 several options which must be selected.</p>
 <ul>
-<li>The first switch, $puSwitch, specifies the variation in ultimate
-lateral resistance with depth. The default, $puSwitch = 1, uses the
+<li>The first switch, `$puSwitch`, specifies the variation in ultimate
+lateral resistance with depth. The default, `$puSwitch` = 1, uses the
 recommendations of the American Petroleum Institute (API) (1993). The
 alternative method is that of Brinch Hansen (1961).</li>
 </ul>
 <ul>
-<li>The second switch, $kSwitch, specifies the variation in initial
-stiffness with depth. The default, $kSwitch = 1, specifies a linear
+<li>The second switch, `$kSwitch`, specifies the variation in initial
+stiffness with depth. The default, `$kSwitch` = 1, specifies a linear
 variation of initial stiffness with depth (API 1993). The alternative
 uses a modified version of the API stiffness which varies parabolically
 with depth after Boulanger et al. (2003).</li>
 </ul>
 <ul>
 <li>The presence of groundwater can be accounted for in the initial
-stiffness using the third switch, $gwtSwitch. Default, $gwtSwitch = 1,
+stiffness using the third switch, `$gwtSwitch`. Default, `$gwtSwitch` = 1,
 is for no groundwater.</li>
 </ul>
 <p>The other procedures, <a href="./get_tzParam.tcl"
@@ -209,7 +209,7 @@ obtain shear and moment diagrams for the pile.</li>
 </ul>
 <p>The recorders are set up to only record values at 0.5 second
 increments of pseudo-time during the analysis to facilitate the use of
-smaller load steps. This is done with the variable $timeStep.</p>
+smaller load steps. This is done with the variable `$timeStep`.</p>
 <p>A display recorder is included in the input file to allow the user to
 visualize the deformation of the pile in "real time" during the
 analysis. The parameters are set up for the orientation of the pile in
@@ -230,11 +230,12 @@ title="wikilink">load-controlled integrator</a> with a loading step of
 in the loading object. 200 steps with a loading step of 0.05 will put
 the last step exactly at 10 seconds of pseudo-time. 201 steps are used
 in this example to make sure that the last recorded step is at the full
-loading magnitude. The variables $startT and $endT are used to print the
+loading magnitude. The variables `$startT` and `$endT` are used to print the
 cpu time needed to complete the analysis in the standard output or the
 OpenSees interpreter. The remaining <a href="Analysis_Commands"
 title="wikilink">analysis commands</a> are well-documented in the
 OpenSees command manual.</p>
+
 <h2 id="representative_results">Representative Results</h2>
 <figure>
 <img src="/OpenSeesRT/contrib/static/typicalPileResult.png"
