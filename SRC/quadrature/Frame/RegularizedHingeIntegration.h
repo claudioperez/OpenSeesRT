@@ -32,6 +32,7 @@
 #define RegularizedHingeIntegration_h
 
 #include "BeamIntegration.h"
+#include <math.h>
 
 class Matrix;
 class ElementalLoad;
@@ -47,8 +48,8 @@ class RegularizedHingeIntegration : public BeamIntegration
   RegularizedHingeIntegration();
   ~RegularizedHingeIntegration();
   
-  void getSectionLocations(int numSections, double L, double *xi) const;
-  void getSectionWeights(int numSections, double L, double *wt) const;
+  void getSectionLocations(int numSections, double L, double *xi);
+  void getSectionWeights(int numSections, double L, double *wt);
   
   BeamIntegration *getCopy(void);
 
@@ -73,7 +74,7 @@ class RegularizedHingeIntegration : public BeamIntegration
 
   BeamIntegration *beamInt;
 
-  static double *wf;
+  double *wf;
 
   int parameterID;
 };

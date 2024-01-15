@@ -104,7 +104,7 @@ UserDefinedBeamIntegration::~UserDefinedBeamIntegration()
 
 void
 UserDefinedBeamIntegration::getSectionLocations(int numSections,
-						double L, double *xi) const
+						double L, double *xi)
 {
   int nIP = pts.Size();
 
@@ -117,7 +117,7 @@ UserDefinedBeamIntegration::getSectionLocations(int numSections,
 
 void
 UserDefinedBeamIntegration::getSectionWeights(int numSections,
-					      double L, double *wt) const
+					      double L, double *wt)
 {
   int nIP = wts.Size();
 

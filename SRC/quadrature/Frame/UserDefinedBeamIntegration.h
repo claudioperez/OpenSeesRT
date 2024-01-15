@@ -39,8 +39,8 @@ class UserDefinedBeamIntegration : public BeamIntegration
   UserDefinedBeamIntegration();
   ~UserDefinedBeamIntegration();
   
-  void getSectionLocations(int numSections, double L, double *xi) const;
-  void getSectionWeights(int numSections, double L, double *wt) const;
+  void getSectionLocations(int numSections, double L, double *xi);
+  void getSectionWeights(int numSections, double L, double *wt);
 
   BeamIntegration *getCopy(void);
 

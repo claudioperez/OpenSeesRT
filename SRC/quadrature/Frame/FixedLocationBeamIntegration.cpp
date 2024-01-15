@@ -17,9 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-//
+
+// $Revision: 1.1 $
 // $Date: 2007-10-12 21:03:29 $
-//
+// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/FixedLocationBeamIntegration.cpp,v $
+
 #include <FixedLocationBeamIntegration.h>
 
 #include <Matrix.h>
@@ -107,7 +109,7 @@ FixedLocationBeamIntegration::~FixedLocationBeamIntegration()
 
 void
 FixedLocationBeamIntegration::getSectionLocations(int numSections,
-						  double L, double *xi) const
+						  double L, double *xi)
 {
   int nIP = pts.Size();
 
@@ -120,7 +122,7 @@ FixedLocationBeamIntegration::getSectionLocations(int numSections,
 
 void
 FixedLocationBeamIntegration::getSectionWeights(int numSections,
-						double L, double *wt) const
+						double L, double *wt)
 {
   int nIP = wts.Size();
 

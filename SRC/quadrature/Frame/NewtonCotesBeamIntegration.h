@@ -38,8 +38,8 @@ class NewtonCotesBeamIntegration : public BeamIntegration
   NewtonCotesBeamIntegration();
   virtual ~NewtonCotesBeamIntegration();
 
-  void getSectionLocations(int nIP, double L, double *xi) const;
-  void getSectionWeights(int nIP, double L, double *wt) const;
+  void getSectionLocations(int nIP, double L, double *xi);
+  void getSectionWeights(int nIP, double L, double *wt);
 
   BeamIntegration *getCopy(void);
 

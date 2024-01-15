@@ -110,7 +110,7 @@ HingeRadauTwoBeamIntegration::~HingeRadauTwoBeamIntegration()
 
 void
 HingeRadauTwoBeamIntegration::getSectionLocations(int numSections, double L,
-						  double *xi) const
+						  double *xi)
 {
   double oneOverL = 1.0/L;
 
@@ -132,7 +132,7 @@ HingeRadauTwoBeamIntegration::getSectionLocations(int numSections, double L,
 
 void
 HingeRadauTwoBeamIntegration::getSectionWeights(int numSections, double L,
-						double *wt) const
+						double *wt)
 {
   double oneOverL = 1.0/L;
 

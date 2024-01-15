@@ -40,8 +40,8 @@ class ChebyshevBeamIntegration : public BeamIntegration
   ChebyshevBeamIntegration(int type = 1);
   virtual ~ChebyshevBeamIntegration();
 
-  void getSectionLocations(int nIP, double L, double *xi) const;
-  void getSectionWeights(int nIP, double L, double *wt) const;
+  void getSectionLocations(int nIP, double L, double *xi);
+  void getSectionWeights(int nIP, double L, double *wt);
 
   BeamIntegration *getCopy(void);
 

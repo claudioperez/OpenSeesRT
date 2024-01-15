@@ -106,7 +106,8 @@ SimpsonBeamIntegration::getCopy(void)
 }
 
 void
-SimpsonBeamIntegration::getSectionLocations(int numSections, double L, double *xi) const
+SimpsonBeamIntegration::getSectionLocations(int numSections, double L,
+double *xi)
 {
 	if (numSections > 1) {
 		xi[0] = -1.0;
@@ -123,7 +124,8 @@ SimpsonBeamIntegration::getSectionLocations(int numSections, double L, double *x
 }
 
 void
-SimpsonBeamIntegration::getSectionWeights(int numSections, double L, double *wt) const
+SimpsonBeamIntegration::getSectionWeights(int numSections, double L,
+double *wt)
 {
 	if (numSections > 1) {
 		wt[0] = 1.0 / 6.0;

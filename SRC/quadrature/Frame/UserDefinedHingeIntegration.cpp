@@ -144,7 +144,7 @@ UserDefinedHingeIntegration::~UserDefinedHingeIntegration()
 
 void
 UserDefinedHingeIntegration::getSectionLocations(int numSections,
-						 double L, double *xi) const
+						 double L, double *xi)
 {
   int npL = ptsL.Size();
   int npR = ptsR.Size();
@@ -172,7 +172,7 @@ UserDefinedHingeIntegration::getSectionLocations(int numSections,
 
 void
 UserDefinedHingeIntegration::getSectionWeights(int numSections,
-					       double L, double *wt) const
+					       double L, double *wt)
 {
   int npL = wtsL.Size();
   int npR = wtsR.Size();
