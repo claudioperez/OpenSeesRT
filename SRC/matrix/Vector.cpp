@@ -895,9 +895,8 @@ Vector::operator+=(const Vector &other)
 
   for (int i=0; i<sz; i++)
     theData[i] += other.theData[i];
-  return *this;            
+  return *this;
 }
-
 
 
 // Vector &operator-=(const Vector &V):

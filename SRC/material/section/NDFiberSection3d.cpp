@@ -406,7 +406,7 @@ NDFiberSection3d::setTrialSectionDeformation (const Vector &deforms)
     double yz = y*z;
     double tmp;
     // Bending terms
-    ksi(0,0) += d00;
+    ksi(0,0) +=    d00;
     ksi(1,1) += y2*d00;
     ksi(2,2) += z2*d00;
     tmp = -y*d00;

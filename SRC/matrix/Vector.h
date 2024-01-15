@@ -49,12 +49,16 @@ class Vector
     Vector();
     Vector(int);
     Vector(const Vector &);    
+    template <int n> Vector(OpenSees::VectorND<n,double> v)
+      : sz(v.size()), theData(v.values), fromFree(1)
+    {
+    }
+    Vector(double *data, int size);
+    Vector(std::shared_ptr<double[]>, int size);
 #if !defined(NO_CXX11_MOVE)
     Vector(Vector &&);    
 #endif
 
-    Vector(double *data, int size);
-    Vector(std::shared_ptr<double[]>, int size);
     ~Vector();
 
     // utility methods

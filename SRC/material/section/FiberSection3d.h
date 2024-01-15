@@ -36,7 +36,9 @@
 #include <SectionForceDeformation.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <VectorND.h>
 #include <memory>
+
 
 class UniaxialMaterial;
 class Fiber;
@@ -106,7 +108,7 @@ class FiberSection3d : public SectionForceDeformation
 //  double   *matData;               // data for the materials [yloc, zloc, area]
     std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
     double   kData[16];              // data for ks matrix 
-    double   sData[4];               // data for s vector 
+//  double   sData[4];               // data for s vector 
 
     double QzBar, QyBar, Abar;
     double yBar;       // Section centroid
@@ -118,8 +120,10 @@ class FiberSection3d : public SectionForceDeformation
     static ID code;
 
     Vector  e;         // trial section deformations 
-    Vector *s;         // section resisting forces  (axial force, bending moment)
-    Matrix *ks;        // section stiffness
+    Vector  s;         // section resisting forces  (axial force, bending moment)
+    Matrix  ks;        // section stiffness
+
+    OpenSees::VectorND<4> eData, sData;
 
     UniaxialMaterial *theTorsion;
 };
