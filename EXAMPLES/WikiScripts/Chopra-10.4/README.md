@@ -92,9 +92,9 @@ The <a href="Geometric_Transformation_Command"
 title="wikilink">geometric transformation</a> with id tag 1 is defined
 to be linear.
 
-<pre style="background:yellow;color:black;width:650px">
+```tcl
 set TransfTag 1; geomTransf Linear $TransfTag ; 
-</pre>
+```
 
 The beams and columns of the frame are defined to be elastic using <a
 href="Elastic_Beam_Column_Element"
@@ -117,25 +117,33 @@ constrained to each other in the 2nd DOF (vertical displacement) and the
 3rd DOF (rotation). <a href="EqualDOF_command"
 title="wikilink">EqualDOF</a> command is used to imply these
 constraints.
-<pre style="background:yellow;color:black;width:650px">
-equalDOF 3 4 2 3 equalDOF 5 6 2 3 </pre>
+
+```tcl
+equalDOF 3 4 2 3 equalDOF 5 6 2 3
+```
+
 <h2 id="define_recorders">Define recorders</h2>
 
 For the specified number of eigenvalues (numModes) (for this example
 it is 2) the eigenvectors are recorded at all nodes in all DOFs using <a
 href="Node_Recorder" title="wikilink"> node recorder</a> command.
-<pre style="background:yellow;color:black;width:650px"> for {
-set k 1 } { $k <= $numModes } { incr k } { recorder Node -file
-[format "modes/mode%i.out" $k] -nodeRange 1 6 -dof 1 2 3 "eigen $k" }
-</pre>
+
+```tcl
+for {set k 1 } { $k <= $numModes } { incr k } {
+    recorder Node -file [format "modes/mode%i.out" $k] -nodeRange 1 6 -dof 1 2 3 "eigen $k" 
+}
+```
+
 <h2
 id="perform_eigenvalue_analysis_and_store_periods_into_a_file">Perform
 eigenvalue analysis and store periods into a file</h2>
 
 The eigenvalues are calculated using <a href="Eigen_Command"
 title="wikilink">eigen commnad</a> and stored in lambda variable.
-<pre style="background:yellow;color:black;width:650px"> set
-lambda [eigen $numModes]; </pre>
+
+```tcl
+set lambda [eigen $numModes];
+```
 
 The periods and frequencies of the structure are calculated next.
 
