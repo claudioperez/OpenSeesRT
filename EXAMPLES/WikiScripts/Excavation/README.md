@@ -28,14 +28,14 @@ this wiki. The GiD tool can be downloaded from <a
 href="http://gid.cimne.upc.es/download">http://gid.cimne.upc.es/download</a>.</p>
 <h2 id="model_description">Model Description</h2>
 <figure>
-<img src="/OpenSeesRT/contrib/static/originalMesh.png"
+<img src="./originalMesh.png"
 title="Fig. 1: Undeformed FE mesh for the excavation model."
 alt="Fig. 1: Undeformed FE mesh for the excavation model." />
 <figcaption aria-hidden="true">Fig. 1: Undeformed FE mesh for the
 excavation model.</figcaption>
 </figure>
 <figure>
-<img src="/OpenSeesRT/contrib/static/excavatedMesh.png"
+<img src="./excavatedMesh.png"
 title="Fig. 2: Deformed FE mesh after completion of excavation."
 alt="Fig. 2: Deformed FE mesh after completion of excavation." />
 <figcaption aria-hidden="true">Fig. 2: Deformed FE mesh after completion
@@ -136,17 +136,17 @@ demand during the excavation analysis.</figcaption>
 <p><img src="shearDiagram.gif"
 title="Fig. 4: Evolution of wall shear force demand during the excavation analysis."
 alt="Fig. 4: Evolution of wall shear force demand during the excavation analysis." />
-&lt;br style="clear: both" /&gt;</p>
+<br style="clear: both" /></p>
 <h4 id="soil_wall_interface">Soil-Wall Interface</h4>
 <figure>
-<img src="/OpenSeesRT/contrib/static/initialContact.png"
+<img src="./initialContact.png"
 title="Fig. 5: Contact forces after completion of initial state analysis."
 alt="Fig. 5: Contact forces after completion of initial state analysis." />
 <figcaption aria-hidden="true">Fig. 5: Contact forces after completion
 of initial state analysis.</figcaption>
 </figure>
 <figure>
-<img src="/OpenSeesRT/contrib/static/finalContact.png"
+<img src="./finalContact.png"
 title="Fig. 6: Contact forces in final excavated configuration."
 alt="Fig. 6: Contact forces in final excavated configuration." />
 <figcaption aria-hidden="true">Fig. 6: Contact forces in final excavated
@@ -263,12 +263,12 @@ process for the first excavation lift is provided here</p>
 1-----------------------------------</li>
 <li>recorders</li>
 </ol>
-<p>set recCount 10 for {set k 0} {$k &lt;= 8} {incr k 1} { remove
+<p>set recCount 10 for {set k 0} {$k <= 8} {incr k 1} { remove
 recorder [expr $recCount + $k] } set recCount [expr $recCount + $k]</p>
 <ol>
 <li>soil elements</li>
 </ol>
-<p>for {set k 1} {$k &lt;= 10} {incr k 1} { remove element [expr 190+$k]
+<p>for {set k 1} {$k <= 10} {incr k 1} { remove element [expr 190+$k]
 }</p>
 <ol>
 <li>contact element</li>
@@ -296,10 +296,10 @@ to a depth of 5 m. Due to the use of GiD to create the input file, the
 nodes are not numbered in a useful order, therefore, loops are not
 employed in their removal.</p>
 <h2 id="representative_results">Representative Results</h2>
-<p><img src="/OpenSeesRT/contrib/static/wallMoment.png"
+<p><img src="./wallMoment.png"
 title="Fig. 7: Bending moment diagram for sheet pile wall after excavation. (units are kNm)"
 alt="Fig. 7: Bending moment diagram for sheet pile wall after excavation. (units are kNm)" />
-<img src="/OpenSeesRT/contrib/static/wallShear.png"
+<img src="./wallShear.png"
 title="Fig. 8: Shear force diagram for sheet pile wall after excavation. (units are kN)"
 alt="Fig. 8: Shear force diagram for sheet pile wall after excavation. (units are kN)" /></p>
 <p>Several sets of results are provided in this section of the article
@@ -321,19 +321,20 @@ magnitude of the displacements which occur. Fig. 12 shows the evolution
 of the wall-soil interface contact forces as elements are removed from
 the model. As shown, these force vectors do not remain horizontal,
 indicating the generation of frictional forces on the interface.</p>
-<p>&lt;br style="clear: both" /&gt; <img src="/OpenSeesRT/contrib/static/vertStress.png"
+<p><br style="clear: both" /> 
+<img src="./vertStress.png"
 title="Fig. 9: Vertical stress distribution in final excavated configuration. (units are kPa)"
 alt="Fig. 9: Vertical stress distribution in final excavated configuration. (units are kPa)" />
-<img src="/OpenSeesRT/contrib/static/shearStress.png"
+<img src="./shearStress.png"
 title="Fig. 10: Shear stress distribution in final excavated configuration. (units are kPa)"
 alt="Fig. 10: Shear stress distribution in final excavated configuration. (units are kPa)" />
-&lt;br style="clear: both" /&gt;</p>
+<br style="clear: both" /></p>
 <p><img src="nodalDisp.gif"
 title="Fig. 11: Animated deformation for excavation analysis. Contours show displacement magnitude."
 alt="Fig. 11: Animated deformation for excavation analysis. Contours show displacement magnitude." />
 <img src="contactForces.gif"
 title="Fig. 12: Evolution of wall-soil interface contact forces during excavation analysis."
 alt="Fig. 12: Evolution of wall-soil interface contact forces during excavation analysis." /></p>
-<p>&lt;br style="clear: both" /&gt;</p>
+<p><br style="clear: both" /></p>
 <p><a href="Examples" title="wikilink"> Return to OpenSees Examples
 Page</a></p>
