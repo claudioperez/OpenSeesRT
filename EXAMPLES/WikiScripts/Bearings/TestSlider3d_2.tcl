@@ -1,4 +1,4 @@
-# File: TestSlider2d_1.tcl
+# File: TestSlider3d_2.tcl
 #
 # $Revision: $
 # $Date: $
@@ -8,34 +8,36 @@
 # Created: 02/09
 # Revision: A
 #
-# Purpose: this file tests the 2D flatSliderBearing or the
-# singleFPBearing element. It models a rigid isolated mass
-# and the bearing element has finite length. It also tests the
-# different friction models.
+# Purpose: this file tests the 3D flatSliderBearing or the
+# singleFPBearing element. It models an isolated one story
+# stick and the bearing element has finite length. It also
+# tests the different friction models.
 
 # ------------------------------
 # Start of model generation
 # ------------------------------
-# create ModelBuilder (with two-dimensions and 3 DOF/node)
-model BasicBuilder -ndm 2 -ndf 3
+# Create ModelBuilder (with three-dimensions and 6 DOF/node)
+model BasicBuilder -ndm 3 -ndf 6
 
 # Define geometry for model
 # -------------------------
 set g [expr 32.174*12.0]
-set P 18.0
+set P 9.0
 set mass [expr $P/$g]
-#    tag   xCrd   yCrd        mass
-node  1     0.0    0.0
-node  2     0.0   10.0  -mass $mass $mass 0.0
+#    tag   xCrd   yCrd   zCrd        mass
+node  1     0.0    0.0    0.0
+node  2     0.0    0.0   10.0  -mass $mass $mass $mass 0.0 0.0 0.0
+node  3     0.0    0.0  154.0  -mass $mass $mass $mass 0.0 0.0 0.0
 
-# set the boundary conditions
-#   tag DX DY RZ
-fix  1   1  1  1
-fix  2   0  0  1
+# Set the boundary conditions
+#   tag DX DY DZ RX RY RZ
+fix 1   1  1  1  1  1  1
+fix 2   0  0  0  1  1  1
+fix 3   0  0  0  1  1  1
 
 # Define material models
 # ----------------------
-set mv [expr 1.0*$mass] 
+set mv [expr 2.0*$mass]
 set kv 7500.0
 set zetaVertical 0.02
 set cv [expr 2.0*$zetaVertical*sqrt($kv*$mv)]
@@ -53,24 +55,33 @@ frictionModel Coulomb 1 0.163
 # frictionModel VPDependent tag muSlow muFast0 A deltaMu alpha transRate
 #frictionModel VPDependent 1 0.085 0.163 7.0686 0.05 0.08 0.77
 
+# Define geometric transformations
+# --------------------------------
+# geomTransf type tag vec_xz
+geomTransf Linear  1  0 1 0
+
 # Define elements
 # ---------------
-# element flatSliderBearing eleTag NodeI NodeJ frnMdlTag kInit -P matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol>
-element flatSliderBearing 1 1 2 1 250.0 -P 1 -Mz 2
+# element flatSliderBearing eleTag NodeI NodeJ frnMdlTag kInit -P matTag -T matTag -My matTag -Mz matTag <-orient <x1 x2 x3> y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol>
+element flatSliderBearing 1 1 2 1 250.0 -P 1 -T 2 -My 2 -Mz 2 -orient 1 0 0
 
-# element singleFPBearing eleTag NodeI NodeJ frnMdlTag Reff kInit -P matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol>
-#element singleFPBearing 1 1 2 1 34.68 250.0 -P 1 -Mz 2
+# element singleFPBearing eleTag NodeI NodeJ frnMdlTag Reff kInit -P matTag -T matTag -My matTag -Mz matTag <-orient <x1 x2 x3> y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol>
+#element singleFPBearing 1 1 2 1 34.68 250.0 -P 1 -T 2 -My 2 -Mz 2 -orient 1 0 0
 
 # element RJWatsonEqsBearing eleTag NodeI NodeJ frnMdlTag kInit k2 k3 mu -P matTag -Mz matTag <-orient x1 x2 x3 y1 y2 y3> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol>
-#element RJWatsonEqsBearing 1 1 2 1 250.0 0.519 0.0 3.0 -P 1 -Mz 2
+#element RJWatsonEqsBearing 1 1 2 1 250.0 0.519 0.0 3.0 -P 1 -T 2 -My 2 -Mz 2 -orient 1 0 0
+
+# element elasticBeamColumn eleTag NodeI NodeJ A E G J Iy Iz geoTranTag <-mass massDens> 
+element elasticBeamColumn 2 2 3 20.0 29000.0 11154.0 100.0 200.0 200.0 1 
 
 # Define gravity loads
 # --------------------
-# create a Plain load pattern with a Linear TimeSeries
+# Create a Plain load pattern with a Linear TimeSeries
 pattern Plain 1 "Linear" {
-    # create nodal loads
-    #    nd    FX          FY   MZ 
-    load  2   0.0  [expr -$P]  0.0
+    # Create nodal loads
+    #    nd    FX  FY         FZ  MX  MY  MZ 
+    load  2   0.0 0.0 [expr -$P] 0.0 0.0 0.0
+    load  3   0.0 0.0 [expr -$P] 0.0 0.0 0.0
 }
 # ------------------------------
 # End of model generation
@@ -81,19 +92,19 @@ pattern Plain 1 "Linear" {
 # ------------------------------
 # Start of analysis generation
 # ------------------------------
-# create the system of equation
+# Create the system of equation
 system BandGeneral
-# create the DOF numberer
+# Create the DOF numberer
 numberer Plain
-# create the constraint handler
+# Create the constraint handler
 constraints Plain
-# create the convergence test
+# Create the convergence test
 test NormDispIncr 1.0e-12 10
-# create the integration scheme
+# Create the integration scheme
 integrator LoadControl 0.1
-# create the solution algorithm
+# Create the solution algorithm
 algorithm Newton
-# create the analysis object
+# Create the analysis object
 analysis Static
 # ------------------------------
 # End of analysis generation
@@ -105,7 +116,7 @@ analysis Static
 # Start of recorder generation
 # ------------------------------
 # create a Recorder object for the nodal displacements at node 2
-recorder Node -file out/Gravity_Dsp.out -time -node 2 -dof 1 2 3 disp
+recorder Node -file out/Gravity_Dsp.out -time -node 2 3 -dof 1 2 3 4 5 6 disp
 recorder Element -file out/Gravity_Frc.out -time -ele 1 force
 # --------------------------------
 # End of recorder generation
@@ -120,7 +131,7 @@ recorder Element -file out/Gravity_Frc.out -time -ele 1 force
 analyze 10
 puts "\nGravity load analysis completed";
 
-# set the gravity loads to be constant & reset the time in the domain
+# Set the gravity loads to be constant & reset the time in the domain
 loadConst -time 0.0
 remove recorders
 
@@ -130,7 +141,8 @@ remove recorders
 # Perform an eigenvalue analysis
 # --------------------------------
 set pi [expr acos(-1.0)]
-set lambda [eigen -fullGenLapack 2]
+set lambda [eigen -fullGenLapack 3]
+set omega1 [expr pow([lindex $lambda 0],0.5)]
 puts "\nEigenvalues at start of transient:"
 puts "|   lambda   |  omega   |  period | frequency |"
 foreach lambda $lambda {
@@ -148,23 +160,27 @@ foreach lambda $lambda {
 
 # Define dynamic loads
 # --------------------
-# set time series to be passed to uniform excitation
+# Set time series to be passed to uniform excitation
 set dt 0.005
-set scale 1.0; # max = 1.7
+set scale 1.0; # max = 1.1
 set npts 9000
 timeSeries Path 2 -filePath SCS052.txt -dt $dt -factor [expr $g*$scale]
-timeSeries Path 3 -filePath SCSUP.txt -dt $dt -factor [expr $g*$scale]
+timeSeries Path 3 -filePath SCS142.txt -dt $dt -factor [expr $g*$scale]
+timeSeries Path 4 -filePath SCSUP.txt -dt $dt -factor [expr $g*$scale]
 
-# create UniformExcitation load pattern
+# Create UniformExcitation load pattern
 #                         tag dir -accel tsTag 
 pattern UniformExcitation  2   1  -accel   2
 pattern UniformExcitation  3   2  -accel   3
+pattern UniformExcitation  4   3  -accel   4
 
 # calculate the Rayleigh damping factors for nodes & elements
-set alphaM     0.05;    # mass proportional damping;       D = alphaM*M
+set zeta 0.01
+set beta [expr 2.0*$zeta/$omega1];
+set alphaM     0.0;     # mass proportional damping;       D = alphaM*M
 set betaK      0.0;     # stiffness proportional damping;  D = betaK*Kcurrent
 set betaKinit  0.0;     # stiffness proportional damping;  D = beatKinit*Kinit
-set betaKcomm  0.0;     # stiffness proportional damping;  D = betaKcomm*KlastCommit
+set betaKcomm  $beta;   # stiffness proportional damping;  D = betaKcomm*KlastCommit
 
 # set the Rayleigh damping 
 rayleigh $alphaM $betaK $betaKinit $betaKcomm
@@ -178,10 +194,10 @@ rayleigh $alphaM $betaK $betaKinit $betaKcomm
 # Start of recorder generation
 # ------------------------------
 # create a Recorder object for the nodal displacements at node 2
-recorder Node -file out/Node_Dsp.out -time -node 2 -dof 1 2 3 disp
-recorder Node -file out/Node_Vel.out -time -node 2 -dof 1 2 3 vel
-recorder Node -file out/Node_Acc.out -time -node 2 -dof 1 2 3 accel
-recorder Node -file out/Node_AbsAcc.out -timeSeries 2 3 -time -node 1 2 -dof 1 2 accel
+recorder Node -file out/Node_Dsp.out -time -node 2 3 -dof 1 2 3 4 5 6 disp
+recorder Node -file out/Node_Vel.out -time -node 2 3 -dof 1 2 3 4 5 6 vel
+recorder Node -file out/Node_Acc.out -time -node 2 3 -dof 1 2 3 4 5 6 accel
+recorder Node -file out/Node_AbsAcc.out -timeSeries 2 3 4 -time -node 1 2 3 -dof 1 2 3 accel
 
 recorder Element -file out/Elmt_Frc.out -time -ele 1 force
 recorder Element -file out/Elmt_Def.out -time -ele 1 basicDeformation
@@ -193,15 +209,15 @@ recorder Element -file out/Elmt_COF.out -time -ele 1 frictionModel COF
 # # recorder display "Display" xLoc yLoc xPixels yPixels -wipe 
 recorder  display  "Display"  5  5  630  630 -wipe
 # "normal" vector to the view window
-# vpn+0.000000E+000  +0.000000E+000  +1.000000E+000
+# vpn-5.272000E-001  -6.871000E-001  +5.000000E-001
 # "up" vector of the view window
-# vup+0.000000E+000  +1.000000E+000  +0.000000E+000
+# vup+0.000000E+000  +0.000000E+000  +1.000000E+000
 # Projection Reference Point (direction vector to the eye)
-# prp+0.000000E+000  +0.000000E+000  +1.000000E+000
+# prp-4.965000E-001  -6.576000E-001  +5.666000E-001
 # dimension of the view window
-# viewWindow-8.000000E+000  +8.000000E+000  -8.000000E+000  +8.000000E+000
+# viewWindow-1.350000E+002  +1.350000E+002  -1.350000E+002  +1.350000E+002
 # center of the view window
-# vrp+0.000000E+000  +5.000000E+000  +0.000000E+000
+# vrp+0.000000E+000  +0.000000E+000  +7.700000E+001
 # display    elemDispOpt    nodeDispOpt    magFactor
 # display1  3  +2.000000E+000
 # --------------------------------
@@ -230,7 +246,7 @@ test $testType $testTol $testIter
 integrator Newmark 0.5 0.25
 
 # set the algorithm parameters
-set algoType Newton
+set algoType KrylovNewton
 algorithm  $algoType
 
 # create the analysis object 
@@ -244,7 +260,7 @@ analysis Transient
 # ------------------------------
 # Finally perform the analysis
 # ------------------------------
-logFile "TestSlider2d_1.log"
+logFile "TestSlider3d_2.log"
 
 set dtAna [expr $dt/1.0]
 set dtMin 1.0e-8
@@ -267,7 +283,7 @@ while {$ok == 0 && $tCurrent < $tFinal} {
         }
     } else {
         set tCurrent [getTime "%1.12E"]
-        puts [format "t = %1.4f sec" $tCurrent]
+     #    puts [format "t = %1.4f sec" $tCurrent]
         if {[expr $dtAna*2.0] <= $dtMax} {
             set dtAna [expr $dtAna*2.0]
             puts [format "\nINCREASING time step size (dtNew = %1.6e)" $dtAna]
