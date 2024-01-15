@@ -1,4 +1,4 @@
-# Cold-Formed Steel Wood Sheathed Shear Wall Panel examples
+# [Cold-Formed Steel Wood Sheathed Shear Wall Panel examples](https://opensees.berkeley.edu/wiki/index.php/Cold-Formed_Steel_Wood_Sheathed_Shear_Wall_Panel_examples)
 
 <p>In order to check the accuracy of the proposed models, results from
 quasi-static non-linear analyses of Wood-sheathed Cold-Formed Steel
