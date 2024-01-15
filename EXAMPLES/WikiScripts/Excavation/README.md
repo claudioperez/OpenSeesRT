@@ -28,14 +28,14 @@ this wiki. The GiD tool can be downloaded from <a
 href="http://gid.cimne.upc.es/download">http://gid.cimne.upc.es/download</a>.</p>
 <h2 id="model_description">Model Description</h2>
 <figure>
-<img src="./originalMesh.png"
+<img src="./OriginalMesh.png"
 title="Fig. 1: Undeformed FE mesh for the excavation model."
 alt="Fig. 1: Undeformed FE mesh for the excavation model." />
 <figcaption aria-hidden="true">Fig. 1: Undeformed FE mesh for the
 excavation model.</figcaption>
 </figure>
 <figure>
-<img src="./excavatedMesh.png"
+<img src="./ExcavatedMesh.png"
 title="Fig. 2: Deformed FE mesh after completion of excavation."
 alt="Fig. 2: Deformed FE mesh after completion of excavation." />
 <figcaption aria-hidden="true">Fig. 2: Deformed FE mesh after completion
@@ -127,26 +127,26 @@ realized using this approach in concert with GiD, showing the evolution
 of the bending moment and shear force demands in the sheet pile wall
 during the excavation, respectively.</p>
 <figure>
-<img src="momentDiagram.gif"
+<img src="MomentDiagram.gif"
 title="Fig. 3: Evolution of wall bending moment demand during the excavation analysis."
 alt="Fig. 3: Evolution of wall bending moment demand during the excavation analysis." />
 <figcaption aria-hidden="true">Fig. 3: Evolution of wall bending moment
 demand during the excavation analysis.</figcaption>
 </figure>
-<p><img src="shearDiagram.gif"
+<p><img src="ShearDiagram.gif"
 title="Fig. 4: Evolution of wall shear force demand during the excavation analysis."
 alt="Fig. 4: Evolution of wall shear force demand during the excavation analysis." />
 <br style="clear: both" /></p>
 <h4 id="soil_wall_interface">Soil-Wall Interface</h4>
 <figure>
-<img src="./initialContact.png"
+<img src="./InitialContact.png"
 title="Fig. 5: Contact forces after completion of initial state analysis."
 alt="Fig. 5: Contact forces after completion of initial state analysis." />
 <figcaption aria-hidden="true">Fig. 5: Contact forces after completion
 of initial state analysis.</figcaption>
 </figure>
 <figure>
-<img src="./finalContact.png"
+<img src="./FinalContact.png"
 title="Fig. 6: Contact forces in final excavated configuration."
 alt="Fig. 6: Contact forces in final excavated configuration." />
 <figcaption aria-hidden="true">Fig. 6: Contact forces in final excavated
@@ -247,15 +247,17 @@ forces of the solid elements are the only loads which are applied to the
 model. Removing sets of elements from one side of the wall results in an
 unbalanced application of forces to the wall and the associated
 deformation of the wall and surrounding soil.</p>
-<p>The removal process for each excavation lift begins with the removal
+
+The removal process for each excavation lift begins with the removal
 of the associated recorder objects. Failure to remove the recorders
 associated with removed elements and nodes will result in a segmentation
 fault, so it is important to include this step. The soil elements are
 removed next, followed by the contact element and Lagrange multiplier
 node connected to the removed layer, and then by the nodes along the
 upper boundary of the removed layer. The full removal and analysis
-process for the first excavation lift is provided here</p>
-<p>
+process for the first excavation lift is provided here
+
+
 ```tcl
 </p>
 <ol>
@@ -289,17 +291,18 @@ node 480 remove node 482 remove node 484</p>
 </ol>
 <p>analyze 4 
 ```
-</p>
+
+
 <p>There are a total of ten excavation lifts in the example analysis,
 representing the soil on the right-hand side of the sheet pile wall up
 to a depth of 5 m. Due to the use of GiD to create the input file, the
 nodes are not numbered in a useful order, therefore, loops are not
 employed in their removal.</p>
 <h2 id="representative_results">Representative Results</h2>
-<p><img src="./wallMoment.png"
+<p><img src="./WallMoment.png"
 title="Fig. 7: Bending moment diagram for sheet pile wall after excavation. (units are kNm)"
 alt="Fig. 7: Bending moment diagram for sheet pile wall after excavation. (units are kNm)" />
-<img src="./wallShear.png"
+<img src="./WallShear.png"
 title="Fig. 8: Shear force diagram for sheet pile wall after excavation. (units are kN)"
 alt="Fig. 8: Shear force diagram for sheet pile wall after excavation. (units are kN)" /></p>
 <p>Several sets of results are provided in this section of the article
@@ -315,24 +318,26 @@ the expected concentration of stresses which occurs near the base of the
 sheet pile wall, and also indicate that the level of mesh refinement in
 this example is rather coarse, though it it sufficient for the purposes
 of this example.</p>
-<p>Fig. 11 is an animation of the full excavation analysis, showing the
+
+Fig. 11 is an animation of the full excavation analysis, showing the
 nodal deformations (magnified 25 times) with the contours indicating the
 magnitude of the displacements which occur. Fig. 12 shows the evolution
 of the wall-soil interface contact forces as elements are removed from
 the model. As shown, these force vectors do not remain horizontal,
-indicating the generation of frictional forces on the interface.</p>
+indicating the generation of frictional forces on the interface.
+
 <p><br style="clear: both" /> 
-<img src="./vertStress.png"
+<img src="./VertStress.png"
 title="Fig. 9: Vertical stress distribution in final excavated configuration. (units are kPa)"
 alt="Fig. 9: Vertical stress distribution in final excavated configuration. (units are kPa)" />
-<img src="./shearStress.png"
+<img src="./ShearStress.png"
 title="Fig. 10: Shear stress distribution in final excavated configuration. (units are kPa)"
 alt="Fig. 10: Shear stress distribution in final excavated configuration. (units are kPa)" />
 <br style="clear: both" /></p>
-<p><img src="nodalDisp.gif"
+<p><img src="NodalDisp.gif"
 title="Fig. 11: Animated deformation for excavation analysis. Contours show displacement magnitude."
 alt="Fig. 11: Animated deformation for excavation analysis. Contours show displacement magnitude." />
-<img src="contactForces.gif"
+<img src="ContactForces.gif"
 title="Fig. 12: Evolution of wall-soil interface contact forces during excavation analysis."
 alt="Fig. 12: Evolution of wall-soil interface contact forces during excavation analysis." /></p>
 <p><br style="clear: both" /></p>
