@@ -338,6 +338,7 @@ the discrepancies are attributable to known differences between the two
 analysis methods.</p>
 
 <h2 id="references">References</h2>
+
 1. American Petroleum Institute (API) (1987). Recommended Practice
    for Planning, Designing and Constructing Fixed Offshore Platforms. API
    Recommended Practice 2A(RP-2A), Washington D.C, 17th edition.
