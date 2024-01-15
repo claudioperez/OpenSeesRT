@@ -1,4 +1,4 @@
-# Infill Wall Model and Element Removal
+# [Infill Wall Model and Element Removal](https://opensees.berkeley.edu/wiki/index.php/Infill_Wall_Model_and_Element_Removal)
 
 <p><span style="color:blue"> M. Selim Gunay and Khalid M. Mosalam,
 University of California, Berkeley</span></p>
