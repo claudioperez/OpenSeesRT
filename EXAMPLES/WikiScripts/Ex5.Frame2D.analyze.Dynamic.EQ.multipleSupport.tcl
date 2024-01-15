@@ -12,7 +12,7 @@ source ReadSMDFile.tcl;		# procedure for reading GM file and converting it to pr
 set iSupportNode "11 12 13 14" ;			# support nodes where ground motions are input, for multiple-support excitation
 set iGMfact "1.5 1.25 1.25 1.5";			# ground-motion scaling factor (units not included here)  -- for each support node
 set iGMdirection "1 1 1 1";				# ground-motion direction  -- for each support node
-set iGMfile "H-e12140  H-e12140  H-e12140  H-e12140";	# groun-motion filename for each support node  -- each should be different
+set iGMfile "H-E12140  H-E12140  H-E12140  H-E12140";	# groun-motion filename for each support node  -- each should be different
 
 # set up ground-motion-analysis parameters
 set DtAnalysis	[expr 0.01*$sec];	# time-step Dt for lateral analysis

@@ -9,7 +9,7 @@ wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 3 -ndf 6;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;			# set up name of data directory -- remove
 file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles";		# ground-motion file directory
+set GMdir ./Motions;		# ground-motion file directory
 source LibUnits.tcl;			# define units
 source DisplayPlane.tcl;		# procedure for displaying a plane in model
 source DisplayModel3D.tcl;		# procedure for displaying 3D perspectives of model

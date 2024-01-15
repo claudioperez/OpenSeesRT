@@ -9,7 +9,7 @@ set iSupportNode "1 2";			# support nodes where ground motions are input, for mu
 set iGMfact "1.5 1.25";			# ground-motion scaling factor (units not included here)  -- for each support node
 set iGMdirection "1 1";			# ground-motion direction  -- for each support node
 # ground-motion input:
-set iGMfile "H-e12140  H-e12140";		# groun-motion filename for each support node  -- each should be different
+set iGMfile "H-E12140  H-E12140";		# groun-motion filename for each support node  -- each should be different
 
 # set up ground-motion-analysis parameters
 set DtAnalysis	[expr 0.01*$sec];	# time-step Dt for lateral analysis

@@ -11,7 +11,7 @@ source ReadSMDFile.tcl;		# procedure for reading GM file and converting it to pr
 # - support Nodes: 111 112 211 212;	# support nodes where ground motions are input, for multiple-support excitation
 set iGMfact "1.0 1.1 1.2 1.3"
 set iGMdirection "1 1 1 1"
-set iGMfile "H-e12140 H-e12140 H-e12140 H-e12140"
+set iGMfile "H-E12140 H-E12140 H-E12140 H-E12140"
 
 # display deformed shape:
 # Define DISPLAY -------------------------------------------------------------
