@@ -1,9 +1,10 @@
 # Dynamic Analyses of 1-Story Moment Frame with Viscous Dampers
 
-Example posted by: [ ***[Sarven
-Akcelyan](http://sarvenakcelyan.com)***&***[Prof. Dimitrios G.
-Lignos](http://dimitrios-lignos.research.mcgill.ca/PLignos.html)***
-(McGill University)]{style="color:blue"}
+Example posted by:
+***[Sarven Akcelyan](http://sarvenakcelyan.com)***
+ and 
+***[Prof. Dimitrios G. Lignos](http://dimitrios-lignos.research.mcgill.ca/PLignos.html)***
+(McGill University)
 
 ------------------------------------------------------------------------
 
@@ -26,7 +27,7 @@ All files are available in a compressed format here:
 The rest of this example describes the model and shows the analysis
 results.
 
-## Model Description {#model_description}
+## Model Description
 
 <figure>
 <img src="Viscous-Fig1.jpg"
@@ -45,14 +46,14 @@ An idealized schematic of the model is presented in Figure 1.
 
 The units of the model are mm, kN, and seconds.
 
-### Basic Geometry {#basic_geometry}
+### Basic Geometry 
 
 The single bay single story frame shown in Figure 1 has 5000mm bay width
 and 3000mm story height (centerline). The period of the system is
-0.7sec. Columns and beams of the frame are modeled with elastic
+**0.7sec**. Columns and beams of the frame are modeled with elastic
 beam-column elements.
 
-### Damper Links {#damper_links}
+### Damper Links
 
 [A Two Node Link Element](Two_Node_Link_Element "wikilink") is used to
 link the two nodes that define the geometry of the viscous damper.
@@ -62,7 +63,7 @@ link the two nodes that define the geometry of the viscous damper.
 the Nodes at the base of the frame are fixed. The beam (element 3 in
 Figure 1) is considered to be rigid.
 
-### Viscous Damper Material {#viscous_damper_material}
+### Viscous Damper Material
 
 To model the viscous damper the
 [ViscousDamper](ViscousDamper_Material "wikilink") is used. The input
@@ -94,7 +95,7 @@ time step dt = 0.001sec. Two percent mass proportional damping is used.
 
 ## Results
 
-### Simulation Results for the 50% JR Takatori Record {#simulation_results_for_the_50_jr_takatori_record}
+### Simulation Results for the 50% JR Takatori Record
 
 <figure>
 <img src="./Viscous-Fig2.png"
