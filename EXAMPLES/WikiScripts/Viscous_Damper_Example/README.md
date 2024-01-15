@@ -1,4 +1,4 @@
-\# Dynamic Analyses of 1-Story Moment Frame with Viscous Dampers
+# Dynamic Analyses of 1-Story Moment Frame with Viscous Dampers
 
 Example posted by: [ ***[Sarven
 Akcelyan](http://sarvenakcelyan.com)***&***[Prof. Dimitrios G.
