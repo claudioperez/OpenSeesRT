@@ -1,4 +1,4 @@
-# Eigen analysis of a two-storey shear frame
+# [Eigen analysis of a two-storey shear frame](https://opensees.berkeley.edu/wiki/index.php/Eigen_analysis_of_a_two-story_shear_frame)
 
 Example Provided by: <span style="color:blue"> Vesna Terzic, UC Berkeley</span>
 
@@ -14,18 +14,16 @@ material characteristics of the frame structure are shown in Figure 1.
 Node and element numbering is given in Figure 2.
 
 <figure>
-<img src="/OpenSeesRT/contrib/static/ShearFrame5.png" title="ShearFrame5.png"
-alt="ShearFrame5.png" />
-<figcaption aria-hidden="true">ShearFrame5.PNG</figcaption>
+  <img src="./ShearFrame5.png" />
+  <figcaption aria-hidden="true">ShearFrame5.png</figcaption>
 </figure>
-<h2 id="instructions_on_how_to_run_this_example">Instructions on how to
-run this example</h2>
+
+## Instructions on how to run this example
 
 To execute this ananlysis in OpenSees the user has to download this
 files:
 <ul>
-<li><a href="Media:EigenAnal_twoStoreyShearFrame8.tcl"
-title="wikilink">EigenAnal_twoStoreyShearFrame.tcl</a></li>
+<li><a href="./EigenAnal_twoStoreyShearFrame8.tcl">EigenAnal_twoStoreyShearFrame.tcl</a></li>
 </ul>
 
 Place `EigenAnal_twoStoreyShearFrame.tcl` in the same folder with the
@@ -41,8 +39,7 @@ the user has to exit OpenSees interpreter by typing "exit".
 <h2 id="create_the_model">Create the model</h2>
 
 Spatial dimension of the model and number of degrees-of-freedom (DOF)
-at nodes are defined using <a href="model_command"
-title="wikilink">model</a> command. In this example we have 2D model
+at nodes are defined using <a href="model_command">model</a> command. In this example we have 2D model
 with 3 DOFs at each node. This is defined in the following way:
 
 ```tcl
@@ -88,8 +85,7 @@ mass 5 [expr $m/2.] 0. 0. ;
 mass 6 [expr $m/2.] 0. 0. ;
 ```
 
-The <a href="Geometric_Transformation_Command"
-title="wikilink">geometric transformation</a> with id tag 1 is defined
+The <a href="Geometric_Transformation_Command">geometric transformation</a> with id tag 1 is defined
 to be linear.
 
 ```tcl
@@ -97,8 +93,7 @@ set TransfTag 1; geomTransf Linear $TransfTag ;
 ```
 
 The beams and columns of the frame are defined to be elastic using <a
-href="Elastic_Beam_Column_Element"
-title="wikilink">elasticBeamColumn</a> element. In order to make beams
+href="Elastic_Beam_Column_Element">elasticBeamColumn</a> element. In order to make beams
 infinitely rigid moment of inertia for beams (Ib) is set to very high
 value (10e+12).
 
@@ -114,8 +109,7 @@ element elasticBeamColumn 6 5 6 $Ab $E $Ib $TransfTag;
 To comply with the assumptions of the shear frame (no vertical
 displacemnts and rotations at nodes) end nodes of the beams are
 constrained to each other in the 2nd DOF (vertical displacement) and the
-3rd DOF (rotation). <a href="EqualDOF_command"
-title="wikilink">EqualDOF</a> command is used to imply these
+3rd DOF (rotation). <a href="EqualDOF_command">EqualDOF</a> command is used to imply these
 constraints.
 
 ```tcl
@@ -138,8 +132,7 @@ for {set k 1 } { $k <= $numModes } { incr k } {
 id="perform_eigenvalue_analysis_and_store_periods_into_a_file">Perform
 eigenvalue analysis and store periods into a file</h2>
 
-The eigenvalues are calculated using <a href="Eigen_Command"
-title="wikilink">eigen commnad</a> and stored in lambda variable.
+The eigenvalues are calculated using <a href="Eigen_Command">eigen commnad</a> and stored in lambda variable.
 
 ```tcl
 set lambda [eigen $numModes];
@@ -169,8 +162,7 @@ close $Periods
 
 <h2 id="record_the_eigenvectors">Record the eigenvectors</h2>
 
-For eigenvectors to be recorded <a href="Record_Command"
-title="wikilink"> record</a> command has to be issued following the
+For eigenvectors to be recorded <a href="Record_Command"> record</a> command has to be issued following the
 eigen command.
 <pre style="background:yellow;color:black;width:650px"> record</pre>
 
