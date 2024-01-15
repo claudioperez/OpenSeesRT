@@ -260,7 +260,7 @@ process for the first excavation lift is provided here
 
 ```tcl
 # remove objects associated with lift
-#-----------------------------------
+# -----------------------------------
 # recorders
 
 set recCount 10 for {set k 0} {$k <= 8} {incr k 1} { 
@@ -270,7 +270,8 @@ set recCount [expr $recCount + $k]
 
 # soil elements
 
-for {set k 1} {$k <= 10} {incr k 1} { remove element [expr 190+$k]
+for {set k 1} {$k <= 10} {incr k 1} {
+    remove element [expr 190+$k]
 }
 
 # contact element
@@ -281,7 +282,6 @@ remove element 1042
 remove node 1042
 
 # soil nodes
-
 remove node 430 
 remove node 437 
 remove node 446 
