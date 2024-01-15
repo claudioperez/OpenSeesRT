@@ -13,7 +13,7 @@ set GMdir "GMfiles";		# ground-motion file directory
 source LibUnits_IR.tcl;			# define units
 source DisplayPlane_IR.tcl;		# procedure for displaying a plane in model
 source DisplayModel3D_IR.tcl;		# procedure for displaying 3D perspectives of model
-source Library/BuildRCrectSection_IR.tcl;		# procedure for definining RC fiber section
+source BuildRCrectSection_IR.tcl;		# procedure for definining RC fiber section
 
 # ------ frame configuration
 set NStory 2;			# number of stories above ground level

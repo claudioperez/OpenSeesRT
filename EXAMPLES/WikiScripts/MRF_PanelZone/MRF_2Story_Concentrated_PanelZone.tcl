@@ -414,6 +414,7 @@
 	# create region for P-Delta column springs
 	region 3 -ele 5312 5321 5322;
 
+        constraints Transformation
 ############################################################################
 #                       Eigenvalue Analysis                    
 ############################################################################
@@ -579,7 +580,7 @@ if {$analysisType == "dynamic"} {
 	# define ground motion parameters
 		set patternID 1;				# load pattern ID
 		set GMdirection 1;				# ground motion direction (1 = x)
-		set GMfile "NR94cnp.tcl";		# ground motion filename
+		set GMfile "NR94cnp.txt";		# ground motion filename
 		set dt 0.01;					# timestep of input GM file
 		set Scalefact 1.0;				# ground motion scaling factor
 		set TotalNumberOfSteps 2495;	# number of steps in ground motion
@@ -607,12 +608,12 @@ if {$analysisType == "dynamic"} {
 
 	# perform the dynamic analysis and display whether analysis was successful
                 puts "Starting analysis over $NumSteps steps"
-                progress create [expr $NumSteps/10]
-                foreach i [range 0 $NumSteps 10] {
-		    set ok [analyze 10 $dt_analysis];
-                    progress update
-                }
-		# set ok [analyze $NumSteps $dt_analysis];	# ok = 0 if analysis was completed
+                # progress create [expr $NumSteps/10]
+                # foreach i [range 0 $NumSteps 10] {
+		#     set ok [analyze 10 $dt_analysis];
+                #     progress update
+                # }
+		set ok [analyze $NumSteps $dt_analysis];	# ok = 0 if analysis was completed
 		if {$ok == 0} {
 			puts "Dynamic analysis complete";
 		} else {

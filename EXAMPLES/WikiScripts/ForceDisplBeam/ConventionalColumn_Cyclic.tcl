@@ -226,6 +226,7 @@
     #--------------------------------
 
     # write displacement history into a file
+    file mkdir out
     set fileu [open out/displacement.txt "w"]
     close $fileu
 

@@ -450,7 +450,7 @@ if {$analysisType == "dynamic"} {
 	# define ground motion parameters
 		set patternID 1;				# load pattern ID
 		set GMdirection 1;				# ground motion direction (1 = x)
-		set GMfile "NR94cnp.tcl";		# ground motion filename
+		set GMfile "NR94cnp.txt";		# ground motion filename
 		set dt 0.01;					# timestep of input GM file
 		set Scalefact 1.0;				# ground motion scaling factor
 		set TotalNumberOfSteps 2495;	# number of steps in ground motion

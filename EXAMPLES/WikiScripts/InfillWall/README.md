@@ -3,17 +3,20 @@
 <p><span style="color:blue"> M. Selim Gunay and Khalid M. Mosalam,
 University of California, Berkeley</span></p>
 <hr />
-<p>This article describes the commands for modeling an infill wall
+
+This article describes the commands for modeling an infill wall
 element which considers in-plane and out-of-plane interaction and for
 removal of the element during nonlinear time history simulation in
 OpenSees. In addition, the infill wall model and element removal
 algorithm are briefly described. Interested readers can refer to the
 mentioned references for more information. Questions or comments can be
 directed to selimgunay [at] berkeley . edu or mosalam [at] ce . berkeley
-. edu</p>
-<p>Note: This article is best viewed with Mozilla Firefox.</p>
+. edu
+
+
 <h2 id="modeling_of_the_infill_wall">Modeling of the Infill Wall</h2>
-<p>The described infill wall model is a model which considers the
+
+The described infill wall model is a model which considers the
 interaction of in-plane (IP) and out-of-plane (OOP) effects. Modeling of
 the infill wall is performed by using the available OpenSees materials,
 sections, elements and tcl commands. The infill wall model is comprised
@@ -28,7 +31,7 @@ sharp yield point for the element, while at the same time providing a
 numerically stable solution. 1/10 of the total length of the diagonal is
 a suitable value for the total hinge length (sum of the lengths of the
 hinges on both sides of the node). The hinge length on the other end can
-be selected as small as possible without losing numerical stability.</p>
+be selected as small as possible without losing numerical stability.
 <figure>
 <img src="Figure1.jpg" title="Figure1.jpg" alt="Figure1.jpg" />
 <figcaption aria-hidden="true">Figure1.jpg</figcaption>
@@ -471,3 +474,4 @@ Non-Ductile Reinforced Concrete Frames,” <em>Proceedings of the
 ATC&amp;SEI Conference on Improving the Seismic Performance of Existing
 Buildings and Other Structures</em>, December 9-11, San Francisco,
 California.</p>
+
