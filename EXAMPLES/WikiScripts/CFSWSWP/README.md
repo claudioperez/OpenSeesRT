@@ -26,7 +26,7 @@ title="wikilink">procRCycDAns.tcl</a></p>
 <p>uniaxialMaterial CFSWSWP 26 2440 2440 344 1.12 181600 51240 12.5 1
 4.064 3256 102 98 3 0 0</p>
 <figure>
-<img src="/OpenSeesRT/contrib/static/26.png"
+<img src="./1139px-26.png"
 title="Fig 1. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 26"
 width="400"
 alt="Fig 1. Comparison between wood-sheathed CFS SWP experimental and numerical results specimens No 26" />
