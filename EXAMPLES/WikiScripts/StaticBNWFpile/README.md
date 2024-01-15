@@ -284,13 +284,22 @@ software. For those who prefer Matlab (http://www.mathworks.com/), the
 following lines will extract the desired information when pasted into an
 m-file.
 
-% create depth vector depth = linspace(-20,1,85); % load data react =
-load('reaction.out'); % remove pseudo-time information react(:,1) = [];
-% create plotting variable (divide by tributary area of pile to get
-force/length) reactPlot = react(end,:)/0.25; plot(reactPlot,depth)
+```matlab
+% create depth vector 
+depth = linspace(-20,1,85);
+% load data 
+react = load('reaction.out');
+% remove pseudo-time information 
+react(:,1) = [];
+
+% create plotting variable (divide by tributary area of pile to get force/length)
+reactPlot = react(end,:)/0.25;
+plot(reactPlot,depth)
+```
 
 The shear and moment diagram plots in the following section can also
 be used for verification purposes.
+
 <h2 id="comparison_of_opensees_results_with_lpile">Comparison of
 OpenSees Results with LPile</h2>
 <figure>
