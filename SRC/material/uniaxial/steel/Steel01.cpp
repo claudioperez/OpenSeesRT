@@ -99,6 +99,8 @@ Steel01::Steel01(int tag, double FY, double E, double B,
 
    // Initialize state variables
    Energy = 0;	//by SAJalali
+   parameterID = 0;
+   SHVs = 0;
    this->revertToStart();
 }
 
@@ -111,7 +113,6 @@ Steel01::Steel01():UniaxialMaterial(0,MAT_TAG_Steel01),
   parameterID = 0;
   SHVs = 0;
   // AddingSensitivity:END //////////////////////////////////////
-
 }
 
 Steel01::~Steel01 ()
