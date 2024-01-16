@@ -17,17 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-
+//
 // Written: Q. Gu & Y.Peng
 // Created: May 2012
 //
 // Description: This file contains the class definition for steel buckling restrained braces
 // refer to: Alessandro Zona, Andrea Dall'Asta, 2012, "Elastoplastic model for 
 // steel buckling restrained braces", Journal of Constructional steel research 68(2012), 118-125
-
-
-
+//
 #include <SteelBRB.h>
 #include <Vector.h>
 #include <Matrix.h>
