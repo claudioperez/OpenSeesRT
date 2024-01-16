@@ -17,21 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.20 $
-// $Date: 2008-08-26 16:35:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/Steel01.cpp,v $
-                                                                        
-// Written: MHS 
-// Created: 06/99
-// Revision: A
 //
 // Description: This file contains the class implementation for 
 // Steel01. 
 //
-// What: "@(#) Steel01.C, revA"
-
-
+// Written: MHS 
+// Created: 06/99
+//
 #include <Steel01.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -44,11 +36,10 @@
 #include <math.h>
 #include <float.h>
 
-
-#include <elementAPI.h>
 #include <OPS_Globals.h>
 
-
+#if 1
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_Steel01)
 {
   // Pointer to a uniaxial material that will be returned
@@ -95,63 +86,39 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Steel01)
 
   return theMaterial;
 }
+#endif
 
 
 
-Steel01::Steel01
-(int tag, double FY, double E, double B,
- double A1, double A2, double A3, double A4):
+Steel01::Steel01(int tag, double FY, double E, double B,
+                double A1, double A2, double A3, double A4):
    UniaxialMaterial(tag,MAT_TAG_Steel01),
    fy(FY), E0(E), b(B), a1(A1), a2(A2), a3(A3), a4(A4)
 {
    // Sets all history and state variables to initial values
-   // History variables
-	Energy = 0;	//by SAJalali
-	
-	CminStrain = 0.0;
-   CmaxStrain = 0.0;
-   CshiftP = 1.0;
-   CshiftN = 1.0;
-   Cloading = 0;
 
-   TminStrain = 0.0;
-   TmaxStrain = 0.0;
-   TshiftP = 1.0;
-   TshiftN = 1.0;
-   Tloading = 0;
-
-   // State variables
-   Cstrain = 0.0;
-   Cstress = 0.0;
-   Ctangent = E0;
-
-   Tstrain = 0.0;
-   Tstress = 0.0;
-   Ttangent = E0;
-
-// AddingSensitivity:BEGIN /////////////////////////////////////
-	parameterID = 0;
-	SHVs = 0;
-// AddingSensitivity:END //////////////////////////////////////
+   // Initialize state variables
+   Energy = 0;	//by SAJalali
+   this->revertToStart();
 }
 
 Steel01::Steel01():UniaxialMaterial(0,MAT_TAG_Steel01),
  fy(0.0), E0(0.0), b(0.0), a1(0.0), a2(0.0), a3(0.0), a4(0.0)
 {
-	Energy = 0;	//by SAJalali
+  Energy = 0;	//by SAJalali
 
-// AddingSensitivity:BEGIN /////////////////////////////////////
-	parameterID = 0;
-	SHVs = 0;
-// AddingSensitivity:END //////////////////////////////////////
+  // AddingSensitivity:BEGIN /////////////////////////////////////
+  parameterID = 0;
+  SHVs = 0;
+  // AddingSensitivity:END //////////////////////////////////////
 
 }
 
 Steel01::~Steel01 ()
 {
 // AddingSensitivity:BEGIN /////////////////////////////////////
-	if (SHVs != 0) 
-		delete SHVs;
+  if (SHVs != 0) 
+      delete SHVs;
 // AddingSensitivity:END //////////////////////////////////////
 }
 
@@ -264,10 +231,10 @@ void Steel01::determineTrialState (double dStrain)
 
       // Determine initial loading condition
       if (Tloading == 0 && dStrain != 0.0) {
-	  if (dStrain > 0.0)
-	    Tloading = 1;
-	  else
-	    Tloading = -1;
+        if (dStrain > 0.0)
+          Tloading = 1;
+        else
+          Tloading = -1;
       }
 
       // Transition from loading to unloading, i.e. positive strain increment
@@ -304,8 +271,7 @@ void Steel01::detectLoadReversal (double dStrain)
 
    // Transition from loading to unloading, i.e. positive strain increment
    // to negative strain increment
-   if (Tloading == 1 && dStrain < 0.0)
-   {
+   if (Tloading == 1 && dStrain < 0.0) {
       Tloading = -1;
       if (Cstrain > TmaxStrain)
          TmaxStrain = Cstrain;
@@ -314,8 +280,7 @@ void Steel01::detectLoadReversal (double dStrain)
 
    // Transition from unloading to loading, i.e. negative strain increment
    // to positive strain increment
-   if (Tloading == -1 && dStrain > 0.0)
-   {
+   if (Tloading == -1 && dStrain > 0.0) {
       Tloading = 1;
       if (Cstrain < TminStrain)
          TminStrain = Cstrain;
@@ -363,19 +328,20 @@ int Steel01::revertToLastCommit ()
    // Reset trial history variables to last committed state
    TminStrain = CminStrain;
    TmaxStrain = CmaxStrain;
-   TshiftP = CshiftP;
-   TshiftN = CshiftN;
+   TshiftP  = CshiftP;
+   TshiftN  = CshiftN;
    Tloading = Cloading;
 
    // Reset trial state variables to last committed state
-   Tstrain = Cstrain;
-   Tstress = Cstress;
+   Tstrain  = Cstrain;
+   Tstress  = Cstress;
    Ttangent = Ctangent;
 
    return 0;
 }
 
-int Steel01::revertToStart ()
+int
+Steel01::revertToStart()
 {
    // History variables
    CminStrain = 0.0;
@@ -386,22 +352,22 @@ int Steel01::revertToStart ()
 
    TminStrain = 0.0;
    TmaxStrain = 0.0;
-   TshiftP = 1.0;
-   TshiftN = 1.0;
-   Tloading = 0;
+   TshiftP    = 1.0;
+   TshiftN    = 1.0;
+   Tloading   = 0;
 
    // State variables
-   Cstrain = 0.0;
-   Cstress = 0.0;
+   Cstrain  = 0.0;
+   Cstress  = 0.0;
    Ctangent = E0;
 
-   Tstrain = 0.0;
-   Tstress = 0.0;
+   Tstrain  = 0.0;
+   Tstress  = 0.0;
    Ttangent = E0;
 
 // AddingSensitivity:BEGIN /////////////////////////////////
-	if (SHVs != 0) 
-		SHVs->Zero();
+   if (SHVs != 0) 
+      SHVs->Zero();
 // AddingSensitivity:END //////////////////////////////////
 
    return 0;
