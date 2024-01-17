@@ -15,7 +15,6 @@ target_sources(OPS_Material_f PRIVATE c14-SK-M.f)
 
 target_sources(OPS_Material
   PRIVATE
-    Concrete01A.cpp
     Concrete01.cpp
     Concrete01WithSITC.cpp
     Concrete02.cpp
@@ -40,7 +39,6 @@ target_sources(OPS_Material
     TDConcreteMC10.cpp
     TDConcreteMC10NL.cpp
   PUBLIC
-      Concrete01A.h
       Concrete01.h
       Concrete01WithSITC.h
       Concrete02.h
