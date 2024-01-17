@@ -118,7 +118,6 @@ DirectIntegrationAnalysis::clearAll(void)
   if (theTest != 0)
     delete theTest;
 
-
   theAnalysisModel     = nullptr;
   theConstraintHandler = nullptr;
   theDOF_Numberer      = nullptr;
@@ -193,7 +192,7 @@ DirectIntegrationAnalysis::analyzeStep(double dT)
     if (this->domainChanged() < 0) {
       opserr << "DirectIntegrationAnalysis::analyze() - domainChanged() failed\n";
       return -1;
-    }	
+    }
   }
   
   if (theIntegrator->newStep(dT) < 0) {
@@ -369,7 +368,6 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
 }
 
 
-
 int
 DirectIntegrationAnalysis::domainChanged(void)
 {
@@ -416,10 +414,10 @@ DirectIntegrationAnalysis::domainChanged(void)
 
     // we invoke domainChange() on the integrator and algorithm
     theIntegrator->domainChanged();
-    theAlgorithm->domainChanged();
+    // theAlgorithm->domainChanged();
 
     return 0;
-}    
+}
 
 int 
 DirectIntegrationAnalysis::setNumberer(DOF_Numberer &theNewNumberer) 
@@ -437,7 +435,7 @@ DirectIntegrationAnalysis::setNumberer(DOF_Numberer &theNewNumberer)
 }
 
 
-
+#if 0
 int 
 DirectIntegrationAnalysis::setAlgorithm(EquiSolnAlgo &theNewAlgorithm) 
 {
@@ -458,7 +456,6 @@ DirectIntegrationAnalysis::setAlgorithm(EquiSolnAlgo &theNewAlgorithm)
 
   return 0;
 }
-
 
 int 
 DirectIntegrationAnalysis::setIntegrator(TransientIntegrator &theNewIntegrator)
@@ -481,6 +478,8 @@ DirectIntegrationAnalysis::setIntegrator(TransientIntegrator &theNewIntegrator)
    
   return 0;
 }
+#endif
+
 int 
 DirectIntegrationAnalysis::setLinearSOE(LinearSOE &theNewSOE)
 {
@@ -507,14 +506,14 @@ int
 DirectIntegrationAnalysis::setEigenSOE(EigenSOE &theNewSOE)
 {
   // invoke the destructor on the old one if not the same!
-  if (theEigenSOE != 0) {
+  if (theEigenSOE != nullptr) {
     if (theEigenSOE->getClassTag() != theNewSOE.getClassTag()) {
       delete theEigenSOE;
       theEigenSOE = 0;
     }
   }
 
-  if (theEigenSOE == 0) {
+  if (theEigenSOE == nullptr) {
     theEigenSOE = &theNewSOE;
     theEigenSOE->setLinks(*theAnalysisModel);
     theEigenSOE->setLinearSOE(*theSOE);
