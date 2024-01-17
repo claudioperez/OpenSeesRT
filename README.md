@@ -94,7 +94,7 @@ See also:
   </td>
 
   <td>
-    <a href="https://peer.berkeley.edu">
+    <a href="https://github.com/BRACE2">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/brace2_logo-new3_ungrouped.svg"
          alt="BRACE2 Logo" width="200"/>
     </a>
