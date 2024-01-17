@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2010-09-16 00:04:05 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/Steel2.cpp,v $
-                                                                      
+//
 // Written: fmk
 // Created: 03/06
 //
@@ -34,7 +30,7 @@
 //          adapted to FEDEAS material library
 //    by E. Spacone, G. Monti and F.C. Filippou (1994)
 //-----------------------------------------------------------------------
-
+//
 #include <math.h>
 
 #include <stdlib.h>

@@ -9,12 +9,28 @@ cat - > $Results <<EOF
 |---------|--------------|-----------------------|
 EOF
 
-ls $@ | grep -v -e "Proc.*" -e '.*FrictionPendulum.*' -e lasticPileSection.tcl -e Dispwall1-cg.tcl -e Dynamic.EQ.Uniform_LimitState.tcl -e Ex6.genericFrame[23]D.build.InelasticFiber -e "Lib.*" -e TestSlider -e "Read.*" -e "Ex.*\.analyze\..*" -e "^PUL.*" -e "CenterCol[A-Z]" -e '.*_input_.*'  -e Tags.tcl -e 'NRHA_IR.tcl' -e 'NR94cnp.tcl' | while read i; do
+for i in */test.tcl; do
+  dir="$(dirname $i)"
+  cd $dir
   echo "FILE $i"; 
-  msg="$(python -m opensees $i 2>&1 >/dev/null)";
+  msg="$(python -m opensees test.tcl 2>&1 >/dev/null)";
   code="$?"
   echo "$msg"
   msg=$(tail -1 <<< "$msg")
-  printf "|  $code  |"' `'"$i"'`'" | $msg |\n"  >> $Results; #| tee -a $Results;
+  printf "|  $code  | "'[`'"$dir"'`]('./$dir") | $msg |\n"  >> ../$Results; #| tee -a $Results;
+  #
+  cd ../
+done
+#exit
+ls *.tcl | grep -v -e Ex8 -e Dynamic.EQ.Uniform_LimitState -e Ex[68].genericFrame[23]D.build'\.' -e "Lib.*" -e "Read.*" -e "Ex.*\.analyze\..*" -e "CenterCol[A-Z]" -e '.*_input_.*'  -e Tags.tcl  | while read i; do
+  echo "FILE $i"; 
+# msg="$(OpenSees $i 2>&1 >/dev/null)";
+  msg="$(python -m opensees $i 2>&1 >/dev/null)";
+# msg="$(python -m opensees $i)";
+  code="$?"
+  echo "$msg"
+  msg=$(tail -1 <<< "$msg")
+# printf "|  $code  |"' `'"$i"'`'" | $msg |\n"  >> $Results; #| tee -a $Results;
+  printf "|  $code  | "'[`'"$i"'`]('./$i") | $msg |\n"  >> $Results;
 done
 

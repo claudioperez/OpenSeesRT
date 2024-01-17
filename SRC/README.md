@@ -94,10 +94,10 @@ These store the objects in `Domain` and `AnalysisModel`.
 
 <dt><a href="./material"><code>material</code></a></dt>
 <dd>Material, UniaxialMaterial and some concrete classes need by
-        my Truss ele and Filip's element.
+        [FMK]'s Truss ele and Filip's element.
         
 <dt><a href="./actor"><code>actor</code></a></dt>
-<dd>the classes for my parallel stuff, again in subdirectories:
+<dd>The classes for [FMK]'s parallel stuff, again in subdirectories:
 
  - `shadow/` the Shadow class.  
  - `actor/` the Actor class

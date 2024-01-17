@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2010-09-16 00:04:05 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/Steel02.cpp,v $
-                                                                      
-// Written: fmk
-// Created: 03/06
 //
 // Description: This file contains the class implementation of Steel02. 
 // This Steel02 is based on an f2c of the FEDEAS material
@@ -34,7 +27,10 @@
 //          adapted to FEDEAS material library
 //    by E. Spacone, G. Monti and F.C. Filippou (1994)
 //-----------------------------------------------------------------------
-
+//
+// Written: fmk
+// Created: 03/06
+//
 #include <math.h>
 
 #include <stdlib.h>
@@ -44,10 +40,10 @@
 #include <Information.h>
 #include <Parameter.h>
 
-#include <elementAPI.h>
 #include <OPS_Globals.h>
 
-
+#if 1
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_Steel02)
 {
   // Pointer to a uniaxial material that will be returned
@@ -73,7 +69,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Steel02)
   if (numData == 3) {
     if (OPS_GetDoubleInput(&numData, dData) != 0) {
       opserr << "Invalid double: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+  " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
       return 0;
     }
 
@@ -83,7 +79,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Steel02)
   } else if (numData == 6) {
     if (OPS_GetDoubleInput(&numData, dData) != 0) {
       opserr << "Invalid int: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+  " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
       return 0;
     }
 
@@ -93,56 +89,57 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Steel02)
   } else if (numData == 10) {
     if (OPS_GetDoubleInput(&numData, dData) != 0) {
       opserr << "Invalid arggs: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+  " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
       return 0;
     }
 
     // Parsing was successful, allocate the material
     theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], 
-			      dData[3], dData[4], dData[5], dData[6], 
-			      dData[7], dData[8], dData[9]);    
+            dData[3], dData[4], dData[5], dData[6], 
+            dData[7], dData[8], dData[9]);    
 
   } else if (numData == 11) {
     if (OPS_GetDoubleInput(&numData, dData) != 0) {
       opserr << "Invalid arggs: uniaxialMaterial Steel02 " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+  " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
       return 0;
     }
 
     // Parsing was successful, allocate the material
     theMaterial = new Steel02(iData[0], dData[0], dData[1], dData[2], 
-			      dData[3], dData[4], dData[5], dData[6], 
-			      dData[7], dData[8], dData[9], dData[10]);    
+            dData[3], dData[4], dData[5], dData[6], 
+            dData[7], dData[8], dData[9], dData[10]);    
 
   }   
 
-  if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial of type Steel02 Material\n";
-    return 0;
-  }
-
   return theMaterial;
 }
+#endif
 
 
 Steel02::Steel02(int tag,
-		 double _Fy, double _E0, double _b,
-		 double _R0, double _cR1, double _cR2,
-		 double _a1, double _a2, double _a3, double _a4, double sigInit):
+     double _Fy, double _E0, double _b,
+     double _R0, double _cR1, double _cR2,
+     double _a1, double _a2, double _a3, double _a4, double sigInit):
   UniaxialMaterial(tag, MAT_TAG_Steel02),
   Fy(_Fy), E0(_E0), b(_b), R0(_R0), cR1(_cR1), cR2(_cR2), a1(_a1), a2(_a2), a3(_a3), a4(_a4), 
   sigini(sigInit)
 {
-	EnergyP = 0;	//by SAJalali
-	konP = 0;
-  kon = 0;
+  this->revertToStart();
+}
+
+int 
+Steel02::revertToStart(void)
+{
+  EnergyP = 0;  //by SAJalali
   eP = E0;
   epsP = 0.0;
   sigP = 0.0;
   sig = 0.0;
   eps = 0.0;
-  e = E0;
+  e = E0;  
 
+  konP = 0;
   epsmaxP = Fy/E0;
   epsminP = -epsmaxP;
   epsplP = 0.0;
@@ -155,16 +152,18 @@ Steel02::Steel02(int tag,
     epsP = sigini/E0;
     sigP = sigini;
   } 
+
+  return 0;
 }
 
 Steel02::Steel02(int tag,
-		 double _Fy, double _E0, double _b,
-		 double _R0, double _cR1, double _cR2):
+     double _Fy, double _E0, double _b,
+     double _R0, double _cR1, double _cR2):
   UniaxialMaterial(tag, MAT_TAG_Steel02),
   Fy(_Fy), E0(_E0), b(_b), R0(_R0), cR1(_cR1), cR2(_cR2), sigini(0.0)
 {
-	EnergyP = 0;	//by SAJalali
-	konP = 0;
+  EnergyP = 0;  //by SAJalali
+  konP = 0;
 
   // Default values for no isotropic hardening
   a1 = 0.0;
@@ -192,11 +191,11 @@ Steel02::Steel02(int tag, double _Fy, double _E0, double _b):
   UniaxialMaterial(tag, MAT_TAG_Steel02),
   Fy(_Fy), E0(_E0), b(_b), sigini(0.0)
 {
-	EnergyP = 0;	//by SAJalali
-	konP = 0;
+  EnergyP = 0;  // by SAJalali
+  konP    = 0;  //
 
   // Default values for elastic to hardening transitions
-  R0 = 15.0;
+  R0  = 15.0;
   cR1 = 0.925;
   cR2 = 0.15;
 
@@ -206,12 +205,12 @@ Steel02::Steel02(int tag, double _Fy, double _E0, double _b):
   a3 = 0.0;
   a4 = 1.0;
 
-  eP = E0;
+  eP   = E0;
   epsP = 0.0;
   sigP = 0.0;
-  sig = 0.0;
-  eps = 0.0;
-  e = E0;
+  sig  = 0.0;
+  eps  = 0.0;
+  e    = E0;
 
   epsmaxP = Fy/E0;
   epsminP = -epsmaxP;
@@ -225,8 +224,8 @@ Steel02::Steel02(int tag, double _Fy, double _E0, double _b):
 Steel02::Steel02(void):
   UniaxialMaterial(0, MAT_TAG_Steel02)
 {
-	EnergyP = 0;	//by SAJalali
-	konP = 0;
+  EnergyP = 0;  //by SAJalali
+  konP = 0;
 }
 
 Steel02::~Steel02(void)
@@ -257,7 +256,7 @@ Steel02::setTrialStrain(double trialStrain, double strainRate)
   // modified C-P. Lamarche 2006
   if (sigini != 0.0) {
     double epsini = sigini/E0;
-    eps = trialStrain+epsini;
+    eps = trialStrain + epsini;
   } else
     eps = trialStrain;
   // modified C-P. Lamarche 2006
@@ -271,7 +270,7 @@ Steel02::setTrialStrain(double trialStrain, double strainRate)
   sigs0  = sigs0P; 
   epsr   = epssrP;  
   sigr   = sigsrP;  
-  kon = konP;
+  kon    = konP;
 
   if (kon == 0 || kon == 3) { // modified C-P. Lamarche 2006
 
@@ -288,29 +287,27 @@ Steel02::setTrialStrain(double trialStrain, double strainRate)
       epsmax = epsy;
       epsmin = -epsy;
       if (deps < 0.0) {
-	kon = 2;
-	epss0 = epsmin;
-	sigs0 = -Fy;
-	epspl = epsmin;
+        kon = 2;
+        epss0 = epsmin;
+        sigs0 = -Fy;
+        epspl = epsmin;
       } else {
-	kon = 1;
-	epss0 = epsmax;
-	sigs0 = Fy;
-	epspl = epsmax;
+        kon = 1;
+        epss0 = epsmax;
+        sigs0 = Fy;
+        epspl = epsmax;
       }
     }
   }
-  
+
   // in case of load reversal from negative to positive strain increment, 
   // update the minimum previous strain, store the last load reversal 
   // point and calculate the stress and strain (sigs0 and epss0) at the 
   // new intersection between elastic and strain hardening asymptote 
   // To include isotropic strain hardening shift the strain hardening 
   // asymptote by sigsft before calculating the intersection point 
-  // Constants a3 and a4 control this stress shift on the tension side 
-  
+  // Constants a3 and a4 control this stress shift on the tension side
   if (kon == 2 && deps > 0.0) {
-
 
     kon = 1;
     epsr = epsP;
@@ -318,33 +315,33 @@ Steel02::setTrialStrain(double trialStrain, double strainRate)
     //epsmin = min(epsP, epsmin);
     if (epsP < epsmin)
       epsmin = epsP;
-    double d1 = (epsmax - epsmin) / (2.0*(a4 * epsy));
-    double shft = 1.0 + a3 * pow(d1, 0.8);
-    epss0 = (Fy * shft - Esh * epsy * shft - sigr + E0 * epsr) / (E0 - Esh);
-    sigs0 = Fy * shft + Esh * (epss0 - epsy * shft);
-    epspl = epsmax;
+      double d1 = (epsmax - epsmin) / (2.0*(a4 * epsy));
+      double shft = 1.0 + a3 * pow(d1, 0.8);
+      epss0 = (Fy * shft - Esh * epsy * shft - sigr + E0 * epsr) / (E0 - Esh);
+      sigs0 = Fy * shft + Esh * (epss0 - epsy * shft);
+      epspl = epsmax;
 
-  } else if (kon == 1 && deps < 0.0) {
-    
-    // update the maximum previous strain, store the last load reversal 
-    // point and calculate the stress and strain (sigs0 and epss0) at the 
-    // new intersection between elastic and strain hardening asymptote 
-    // To include isotropic strain hardening shift the strain hardening 
-    // asymptote by sigsft before calculating the intersection point 
-    // Constants a1 and a2 control this stress shift on compression side 
+    } else if (kon == 1 && deps < 0.0) {
+      
+      // update the maximum previous strain, store the last load reversal 
+      // point and calculate the stress and strain (sigs0 and epss0) at the 
+      // new intersection between elastic and strain hardening asymptote 
+      // To include isotropic strain hardening shift the strain hardening 
+      // asymptote by sigsft before calculating the intersection point 
+      // Constants a1 and a2 control this stress shift on compression side 
 
-    kon = 2;
-    epsr = epsP;
-    sigr = sigP;
-    //      epsmax = max(epsP, epsmax);
-    if (epsP > epsmax)
-      epsmax = epsP;
-    
-    double d1 = (epsmax - epsmin) / (2.0*(a2 * epsy));
-    double shft = 1.0 + a1 * pow(d1, 0.8);
-    epss0 = (-Fy * shft + Esh * epsy * shft - sigr + E0 * epsr) / (E0 - Esh);
-    sigs0 = -Fy * shft + Esh * (epss0 + epsy * shft);
-    epspl = epsmin;
+      kon = 2;
+      epsr = epsP;
+      sigr = sigP;
+      //      epsmax = max(epsP, epsmax);
+      if (epsP > epsmax)
+        epsmax = epsP;
+      
+      double d1 = (epsmax - epsmin) / (2.0*(a2 * epsy));
+      double shft = 1.0 + a1 * pow(d1, 0.8);
+      epss0 = (-Fy * shft + Esh * epsy * shft - sigr + E0 * epsr) / (E0 - Esh);
+      sigs0 = -Fy * shft + Esh * (epss0 + epsy * shft);
+      epspl = epsmin;
   }
 
   
@@ -426,47 +423,19 @@ Steel02::revertToLastCommit(void)
 }
 
 int 
-Steel02::revertToStart(void)
-{
-	EnergyP = 0;	//by SAJalali
-	eP = E0;
-  epsP = 0.0;
-  sigP = 0.0;
-  sig = 0.0;
-  eps = 0.0;
-  e = E0;  
-
-  konP = 0;
-  epsmaxP = Fy/E0;
-  epsminP = -epsmaxP;
-  epsplP = 0.0;
-  epss0P = 0.0;
-  sigs0P = 0.0;
-  epssrP = 0.0;
-  sigsrP = 0.0;
-
-  if (sigini != 0.0) {
-	  epsP = sigini/E0;
-	  sigP = sigini;
-   } 
-
-  return 0;
-}
-
-int 
 Steel02::sendSelf(int commitTag, Channel &theChannel)
 {
   static Vector data(23);
-  data(0) = Fy;
-  data(1) = E0;
-  data(2) = b;
-  data(3) = R0;
-  data(4) = cR1;
-  data(5) = cR2;
-  data(6) = a1;
-  data(7) = a2;
-  data(8) = a3;
-  data(9) = a4;
+  data(0)  = Fy;
+  data(1)  = E0;
+  data(2)  = b;
+  data(3)  = R0;
+  data(4)  = cR1;
+  data(5)  = cR2;
+  data(6)  = a1;
+  data(7)  = a2;
+  data(8)  = a3;
+  data(9)  = a4;
   data(10) = epsminP;
   data(11) = epsmaxP;
   data(12) = epsplP;
@@ -490,7 +459,7 @@ Steel02::sendSelf(int commitTag, Channel &theChannel)
 
 int 
 Steel02::recvSelf(int commitTag, Channel &theChannel, 
-	     FEM_ObjectBroker &theBroker)
+       FEM_ObjectBroker &theBroker)
 {
   static Vector data(23);
 
@@ -550,10 +519,10 @@ Steel02::Print(OPS_Stream &s, int flag)
   
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << "\t\t\t{";
-	s << "\"name\": \"" << this->getTag() << "\", ";
-	s << "\"type\": \"Steel02\", ";
-	s << "\"E\": " << E0 << ", ";
-	s << "\"fy\": " << Fy << ", ";
+    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"type\": \"Steel02\", ";
+    s << "\"E\": " << E0 << ", ";
+    s << "\"fy\": " << Fy << ", ";
     s << "\"b\": " << b << ", ";
     s << "\"R0\": " << R0 << ", ";
     s << "\"cR1\": " << cR1 << ", ";

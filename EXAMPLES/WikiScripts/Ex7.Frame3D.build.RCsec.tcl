@@ -9,12 +9,12 @@ wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 3 -ndf 6;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;			# set up name of data directory -- remove
 file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles";		# ground-motion file directory
+set GMdir ./Motions;		# ground-motion file directory
 set ViewScale 0.25;			# scaling factor for viewing deformed shape, it depends on the dimensions of the model
 source LibUnits.tcl;			# define units
 source DisplayPlane.tcl;		# procedure for displaying a plane in model
 source DisplayModel3D.tcl;		# procedure for displaying 3D perspectives of model
-source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
+source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -23,9 +23,9 @@ set LBeam [expr 20*$ft];		# beam length (parallel to X axis)
 set LGird [expr 20*$ft];		# girder length (parallel to Z axis)
 
 # ------ frame configuration
-set NStory 3;			# number of stories above ground level
-set NBay 1;			# number of bays in X direction
-set NBayZ 1;			# number of bays in Z direction
+set NStory 6;			# number of stories above ground level
+set NBay   3;			# number of bays in X direction
+set NBayZ  3;			# number of bays in Z direction
 puts "Number of Stories in Y: $NStory; Number of bays in X: $NBay; Number of bays in Z: $NBayZ"
 
 # define NODAL COORDINATES
@@ -164,8 +164,8 @@ if {$SectionType == "Elastic"} {
 	set barAreaBotGird [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
 	set barAreaIntGird [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
 
-	set nfCoreY 20;		# number of fibers in the core patch in the y direction
-	set nfCoreZ 20;		# number of fibers in the core patch in the z direction
+	set nfCoreY  20;		# number of fibers in the core patch in the y direction
+	set nfCoreZ  20;		# number of fibers in the core patch in the z direction
 	set nfCoverY 20;		# number of fibers in the cover patches with long sides in the y direction
 	set nfCoverZ 20;		# number of fibers in the cover patches with long sides in the z direction
 	# rectangular section with one layer of steel evenly distributed around the perimeter and a confined core.
@@ -293,12 +293,12 @@ set F4 [expr $WiHi4/$sumWiHi*$WeightTotal];	# lateral load at level
 
 
 # Define RECORDERS -------------------------------------------------------------
-recorder Node -file $dataDir/DFree.out -time -node 141 -dof 1 2 3 disp;			# displacements of free node
-recorder Node -file $dataDir/DBase.out -time -node 111 112 211 212   -dof 1 2 3 disp;		# displacements of support nodes
-recorder Node -file $dataDir/RBase.out -time -node 111 112 211 212   -dof 1 2 3 reaction;		# support reaction
-recorder Drift -file $dataDir/DrNode.out -time -iNode 111 -jNode 141 -dof 1 -perpDirn 2;		# lateral drift
+recorder Node    -file $dataDir/DFree.out -time -node 141 -dof 1 2 3 disp;			# displacements of free node
+recorder Node    -file $dataDir/DBase.out -time -node 111 112 211 212   -dof 1 2 3 disp;		# displacements of support nodes
+recorder Node    -file $dataDir/RBase.out -time -node 111 112 211 212   -dof 1 2 3 reaction;		# support reaction
+recorder Drift   -file $dataDir/DrNode.out -time -iNode 111 -jNode 141 -dof 1 -perpDirn 2;		# lateral drift
 recorder Element -file $dataDir/Fel1.out -time -ele 1111 localForce;				# element forces in local coordinates
-recorder Element -xml $dataDir/PlasticRotation1.out -time -ele 1111 plasticRotation;				# element forces in local coordinates
+recorder Element -xml  $dataDir/PlasticRotation1.out -time -ele 1111 plasticRotation;				# element forces in local coordinates
 recorder Element -file $dataDir/ForceEle1sec1.out -time -ele 1111 section 1 force;			# section forces, axial and moment, node i
 recorder Element -file $dataDir/DefoEle1sec1.out -time -ele 11111 section 1 deformation;		# section deformations, axial and curvature, node i
 recorder Element -file $dataDir/ForceEle1sec$np.out -time -ele 111 section $np force;			# section forces, axial and moment, node j
@@ -379,4 +379,5 @@ loadConst -time 0.0
 set Tol 1.0e-6;			# reduce tolerance after gravity loads
 puts "Model Built"
 
+print -json $dataDir/Ex7.RCsec.json
 

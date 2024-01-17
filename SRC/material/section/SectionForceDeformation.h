@@ -17,15 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:45:44 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/SectionForceDeformation.h,v $
-                                                                        
-                                                                        
+//
 #ifndef SectionForceDeformation_h
 #define SectionForceDeformation_h
-
+//
 // Written: MHS
 // Created: Feb 2000
 // Revision: A

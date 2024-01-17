@@ -3,17 +3,17 @@
 # fiber section, nonlinearBeamColumn element
 #			Silvia Mazzoni & Frank McKenna, 2006
 #
-#    ^Y
-#    |
-#    2       __ 
-#    |          | 
-#    |          |
-#    |          |
-#  (1)       LCol
-#    |          |
-#    |          |
-#    |          |
-#  =1=      _|_  -------->X
+#   ^Y
+#   |
+#   2       ___
+#   |        | 
+#   |        |
+#   |        |
+#  (1)     LCol
+#   |        |
+#   |        |
+#   |        |
+#  =1=------_|_-------->X
 #
 
 # SET UP ----------------------------------------------------------------------------
@@ -119,15 +119,15 @@ set numIntgrPts 5;								# number of integration points for force-based element
 element nonlinearBeamColumn 1 1 2 $numIntgrPts $ColSecTag $ColTransfTag;	# self-explanatory when using variables
 
 # Define RECORDERS -------------------------------------------------------------
-recorder Node -file Data/DFree.out -time -node 2 -dof 1 2 3 disp;		# displacements of free nodes
-recorder Node -file Data/DBase.out -time -node 1 -dof 1 2 3 disp;		# displacements of support nodes
-recorder Node -file Data/RBase.out -time -node 1 -dof 1 2 3 reaction;		# support reaction
-recorder Drift -file Data/Drift.out -time -iNode 1 -jNode 2 -dof 1   -perpDirn 2 ;	# lateral drift
-recorder Element -file Data/FCol.out -time -ele 2 globalForce;						# element forces -- column
-recorder Element -file Data/ForceColSec1.out -time -ele 1 section 1 force;				# Column section forces, axial and moment, node i
-recorder Element -file Data/DefoColSec1.out -time -ele 1 section 1 deformation;				# section deformations, axial and curvature, node i
-recorder Element -file Data/ForceColSec$numIntgrPts.out -time -ele 1 section $numIntgrPts force;		# section forces, axial and moment, node j
-recorder Element -file Data/DefoColSec$numIntgrPts.out -time -ele 1 section 1 deformation;		# section deformations, axial and curvature, node j
+recorder Node    -file Data/Ex2cPush-DFree.out -time -node 2 -dof 1 2 3 disp;		# displacements of free nodes
+recorder Node    -file Data/Ex2cPush-DBase.out -time -node 1 -dof 1 2 3 disp;		# displacements of support nodes
+recorder Node    -file Data/Ex2cPush-RBase.out -time -node 1 -dof 1 2 3 reaction;		# support reaction
+recorder Drift   -file Data/Ex2cPush-Drift.out -time -iNode 1 -jNode 2 -dof 1   -perpDirn 2 ;	# lateral drift
+recorder Element -file Data/Ex2cPush-FCol.out  -time -ele 2 globalForce;						# element forces -- column
+recorder Element -file Data/Ex2cPush-ForceColSec1.out -time -ele 1 section 1 force;				# Column section forces, axial and moment, node i
+recorder Element -file Data/Ex2cPush-DefoColSec1.out -time -ele 1 section 1 deformation;				# section deformations, axial and curvature, node i
+recorder Element -file Data/Ex2cPush-ForceColSec$numIntgrPts.out -time -ele 1 section $numIntgrPts force;		# section forces, axial and moment, node j
+recorder Element -file Data/Ex2cPush-DefoColSec$numIntgrPts.out  -time -ele 1 section 1 deformation;		# section deformations, axial and curvature, node j
 
 
 # define GRAVITY -------------------------------------------------------------
@@ -268,5 +268,6 @@ if {$ok != 0} {
 	}
 	};      # end if ok !0
 
-puts "DonePushover"
+puts "Pushover Complete, Tip displacement: \n\t[nodeDisp 2]"
+return $ok
 

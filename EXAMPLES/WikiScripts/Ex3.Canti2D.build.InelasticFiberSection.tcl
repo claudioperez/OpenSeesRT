@@ -21,7 +21,7 @@ wipe;                                        # clear memory of all past model de
 model BasicBuilder -ndm 2 -ndf 3;                # Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;                                # set up name for data directory
 file mkdir $dataDir/;                         # create data directory
-set GMdir "../GMfiles";                        # ground-motion file directory
+set GMdir ./Motions;                        # ground-motion file directory
 
 # define UNITS ----------------------------------------------------------------------------
 set in 1.;                                 # define basic units -- output units

@@ -6,7 +6,7 @@
 
 # Uniform Earthquake ground motion (uniform acceleration input at all support nodes)
 set GMdirection 1;				# ground-motion direction
-set GMfile "H-e12140" ;			# ground-motion filenames
+set GMfile "H-E12140" ;			# ground-motion filenames
 set GMfact 1.5;				# ground-motion scaling factor
 
 # set up ground-motion-analysis parameters

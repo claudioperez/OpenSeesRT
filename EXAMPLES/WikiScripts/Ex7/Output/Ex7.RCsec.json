@@ -1,0 +1,1452 @@
+Current Domain Information
+	Current Time: 0
+	Committed Time: 0
+NODE DATA: NumNodes: 19
+
+numComponents: 19
+
+ Node: 111
+	Coordinates  : 0 0 0 
+	Disps: 0 0 0 7.62349e-06 6.00325e-28 1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.22814 51.9 -0.455911 1.14792e-12 2.13428e-12 2.0712e-12 
+	ID : 169 170 171 172 173 174 
+
+
+ Node: 112
+	Coordinates  : 240 0 0 
+	Disps: 1.64753e-18 5.50472e-21 -2.935e-25 7.62349e-06 0 -1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.22814 51.9 -0.455911 1.17222e-12 2.78379e-12 -1.91702e-12 
+	ID : 126 127 128 129 130 131 
+
+
+ Node: 121
+	Coordinates  : 0 144 0 
+	Disps: 3.28327e-16 -0.00210309 -4.10079e-16 -1.5244e-05 -3.10409e-18 -3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 2.01252 -3.96128e-13 -0.770289 1.0715e-11 4.84715e-12 1.86549e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 163 164 165 166 167 168 
+
+
+ Node: 122
+	Coordinates  : 240 144 0 
+	Disps: 3.28121e-16 -0.00210309 4.39109e-16 -1.5244e-05 -4.04874e-18 3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -2.01252 -3.30402e-13 -0.770289 1.08855e-11 2.09598e-12 -1.86111e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 153 154 155 156 157 158 
+
+
+ Node: 131
+	Coordinates  : 0 288 0 
+	Disps: 2.56123e-16 -0.00343142 -9.10928e-16 -5.16691e-06 -2.57419e-18 -1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.61802 -2.82796e-12 -0.606345 2.91038e-11 2.29513e-11 4.92348e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 147 148 149 150 151 152 
+
+
+ Node: 132
+	Coordinates  : 240 288 0 
+	Disps: 3.47935e-16 -0.00343142 4.92042e-16 -5.16691e-06 2.00003e-17 1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.61802 -2.81908e-12 -0.606345 2.92744e-11 3.27483e-11 -4.9313e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 120 121 122 123 124 125 
+
+
+ Node: 141
+	Coordinates  : 0 432 0 
+	Disps: 3.13696e-16 -0.00398629 -5.80117e-16 -2.52787e-05 2.25527e-17 -6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -4.9442 3.64864e-12 1.82049 3.99325e-11 6.72051e-11 6.74946e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 105 106 107 108 109 110 
+
+
+ Node: 142
+	Coordinates  : 240 432 0 
+	Disps: 6.79564e-16 -0.00398629 5.58449e-16 -2.52787e-05 -1.55708e-18 6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 4.9442 3.64508e-12 1.82049 4.01599e-11 1.07568e-11 -6.73119e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 65 66 67 68 69 70 
+
+
+ Node: 211
+	Coordinates  : 0 0 240 
+	Disps: -1.56256e-18 -1.14033e-20 -1.22339e-17 -7.62349e-06 0 1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.22814 51.9 0.455911 -1.13819e-12 -1.23249e-11 1.98312e-12 
+	ID : 84 85 86 87 88 89 
+
+
+ Node: 212
+	Coordinates  : 240 0 240 
+	Disps: -3.02308e-18 3.54313e-18 1.38954e-17 -7.62349e-06 8.68676e-19 -1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.22814 51.9 0.455911 -1.16737e-12 -4.03267e-11 -2.0492e-12 
+	ID : 50 51 52 53 54 55 
+
+
+ Node: 221
+	Coordinates  : 0 144 240 
+	Disps: -3.23557e-16 -0.00210309 -3.28855e-16 1.5244e-05 1.79253e-17 -3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 2.01252 -4.10338e-13 0.770289 -1.08291e-11 2.48954e-11 1.86446e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 141 142 143 144 145 146 
+
+
+ Node: 222
+	Coordinates  : 240 144 240 
+	Disps: -3.23557e-16 -0.00210309 2.91454e-16 1.5244e-05 5.95199e-17 3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -2.01252 -3.67706e-13 0.770289 -1.08424e-11 2.46663e-10 -1.8872e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 114 115 116 117 118 119 
+
+
+ Node: 231
+	Coordinates  : 0 288 240 
+	Disps: -2.99952e-16 -0.00343142 -1.78368e-17 5.16691e-06 7.5648e-17 -1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.61802 -2.80842e-12 0.606345 -2.92456e-11 1.5204e-10 4.89422e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 99 100 101 102 103 104 
+
+
+ Node: 232
+	Coordinates  : 240 288 240 
+	Disps: -3.005e-16 -0.00343142 4.19511e-16 5.16691e-06 -9.91923e-17 1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.61802 -2.80487e-12 0.606345 -2.91895e-11 -2.98748e-10 -4.92832e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 59 60 61 62 63 64 
+
+
+ Node: 241
+	Coordinates  : 0 432 240 
+	Disps: -4.74025e-16 -0.00398629 -6.16008e-16 2.52787e-05 2.4816e-17 -6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -4.9442 3.64153e-12 -1.82049 -4.00545e-11 2.74282e-11 6.73026e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 44 45 46 47 48 49 
+
+
+ Node: 242
+	Coordinates  : 240 432 240 
+	Disps: -5.28888e-16 -0.00398629 6.14872e-16 2.52787e-05 2.48109e-17 6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 4.9442 3.64686e-12 -1.82049 -4.00663e-11 1.40789e-10 -6.77574e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 16 17 18 19 20 21 
+
+
+ Node: 1121
+	Coordinates  : 120 144 120 
+	Disps: 4.29338e-18 0 -1.00748e-18 0 -2.73208e-18 0 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 0 0 0 0 0 0 
+	ID : 135 136 137 138 139 140 
+
+
+ Node: 1131
+	Coordinates  : 120 288 120 
+	Disps: -1.98878e-17 0 2.6224e-16 0 -2.33387e-18 0 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 0 0 0 0 0 0 
+	ID : 93 94 95 96 97 98 
+
+
+ Node: 1141
+	Coordinates  : 120 432 120 
+	Disps: 7.53481e-17 0 -1.17919e-17 0 -5.03513e-18 0 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 0 0 0 0 0 0 
+	ID : 38 39 40 41 42 43 
+
+ELEMENT DATA: NumEle: 24
+
+numComponents: 24
+
+Element: 1111 Type: ForceBeamColumn3d 	Connected Nodes: 111 121 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 2.0712e-12 -1.22814 -1.14792e-12 -0.455911 -2.13428e-12
+	End 2 Forces (P MZ VY MY VZ T): -42.1 -176.853 1.22814 65.6512 0.455911 2.13428e-12
+
+Element: 1112 Type: ForceBeamColumn3d 	Connected Nodes: 112 122 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 -1.91702e-12 1.22814 -1.17222e-12 -0.455911 -2.78379e-12
+	End 2 Forces (P MZ VY MY VZ T): -42.1 176.853 -1.22814 65.6512 0.455911 2.78379e-12
+
+Element: 1121 Type: ForceBeamColumn3d 	Connected Nodes: 121 131 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 -274.905 -3.26903 102.47 -1.22221 3.64344e-13
+	End 2 Forces (P MZ VY MY VZ T): -24.8 -195.835 3.26903 73.5278 1.22221 -3.64344e-13
+
+Element: 1122 Type: ForceBeamColumn3d 	Connected Nodes: 122 132 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 274.905 3.26903 102.47 -1.22221 1.65354e-11
+	End 2 Forces (P MZ VY MY VZ T): -24.8 195.835 -3.26903 73.5278 1.22221 -1.65354e-11
+
+Element: 1131 Type: ForceBeamColumn3d 	Connected Nodes: 131 141 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 -274.839 -4.91498 102.443 -1.82463 1.72765e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 -432.919 4.91498 160.304 1.82463 -1.72765e-11
+
+Element: 1132 Type: ForceBeamColumn3d 	Connected Nodes: 132 142 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 274.839 4.91498 102.443 -1.82463 -1.48222e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 432.919 -4.91498 160.304 1.82463 1.48222e-11
+
+Element: 1221 Type: ForceBeamColumn3d 	Connected Nodes: 121 122 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.028361 451.758 12 1.32047e-13 3.36851e-16 1.86599e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.028361 -451.758 12 -2.12892e-13 -3.36851e-16 -1.86599e-12
+
+Element: 1231 Type: ForceBeamColumn3d 	Connected Nodes: 131 132 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.027932 470.674 12 1.1745e-11 -1.32007e-13 3.33362e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.027932 -470.674 12 1.99366e-11 1.32007e-13 -3.33362e-13
+
+Element: 1241 Type: ForceBeamColumn3d 	Connected Nodes: 141 142 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.0292199 432.919 12 2.09651e-11 -1.38251e-13 -1.14475e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.0292199 -432.919 12 1.22151e-11 1.38251e-13 1.14475e-12
+
+Element: 1321 Type: ForceBeamColumn3d 	Connected Nodes: 121 221 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00399296 168.121 4.5 -7.21372e-12 9.19305e-14 4.44483e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00399296 -168.121 4.5 -1.48496e-11 -9.19305e-14 -4.44483e-13
+
+Element: 1322 Type: ForceBeamColumn3d 	Connected Nodes: 122 222 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00399296 168.121 4.5 -2.16281e-11 2.76409e-13 4.78028e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00399296 -168.121 4.5 -4.471e-11 -2.76409e-13 -4.78028e-13
+
+Element: 1331 Type: ForceBeamColumn3d 	Connected Nodes: 131 231 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00391769 175.971 4.5 -2.81183e-11 3.52651e-13 -8.38646e-15
+	End 2 Forces (P MZ VY MY VZ T): 0.00391769 -175.971 4.5 -5.65179e-11 -3.52651e-13 8.38646e-15
+
+Element: 1332 Type: ForceBeamColumn3d 	Connected Nodes: 132 232 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00391769 175.971 4.5 1.85459e-11 -3.34867e-13 5.98234e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00391769 -175.971 4.5 6.18222e-11 3.34867e-13 -5.98234e-13
+
+Element: 1341 Type: ForceBeamColumn3d 	Connected Nodes: 141 241 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00414185 160.304 4.5 -2.89635e-11 2.44793e-13 6.03825e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00414185 -160.304 4.5 -2.97867e-11 -2.44793e-13 -6.03825e-13
+
+Element: 1342 Type: ForceBeamColumn3d 	Connected Nodes: 142 242 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00414185 160.304 4.5 -1.3364e-11 1.51263e-13 1.4872e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.00414185 -160.304 4.5 -2.2939e-11 -1.51263e-13 -1.4872e-12
+
+Element: 2111 Type: ForceBeamColumn3d 	Connected Nodes: 211 221 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 1.98312e-12 -1.22814 1.13819e-12 0.455911 1.23249e-11
+	End 2 Forces (P MZ VY MY VZ T): -42.1 -176.853 1.22814 -65.6512 -0.455911 -1.23249e-11
+
+Element: 2112 Type: ForceBeamColumn3d 	Connected Nodes: 212 222 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 -2.0492e-12 1.22814 1.16737e-12 0.455911 4.03267e-11
+	End 2 Forces (P MZ VY MY VZ T): -42.1 176.853 -1.22814 -65.6512 -0.455911 -4.03267e-11
+
+Element: 2121 Type: ForceBeamColumn3d 	Connected Nodes: 221 231 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 -274.905 -3.26903 -102.47 1.22221 3.96883e-11
+	End 2 Forces (P MZ VY MY VZ T): -24.8 -195.835 3.26903 -73.5278 -1.22221 -3.96883e-11
+
+Element: 2122 Type: ForceBeamColumn3d 	Connected Nodes: 222 232 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 274.905 3.26903 -102.47 1.22221 -1.09126e-10
+	End 2 Forces (P MZ VY MY VZ T): -24.8 195.835 -3.26903 -73.5278 -1.22221 1.09126e-10
+
+Element: 2131 Type: ForceBeamColumn3d 	Connected Nodes: 231 241 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 -274.839 -4.91498 -102.443 1.82463 -3.49505e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 -432.919 4.91498 -160.304 -1.82463 3.49505e-11
+
+Element: 2132 Type: ForceBeamColumn3d 	Connected Nodes: 232 242 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 274.839 4.91498 -102.443 1.82463 8.52608e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 432.919 -4.91498 -160.304 -1.82463 -8.52608e-11
+
+Element: 2221 Type: ForceBeamColumn3d 	Connected Nodes: 221 222 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.028361 451.758 12 3.74093e-11 -3.74627e-13 -2.79549e-14
+	End 2 Forces (P MZ VY MY VZ T): 0.028361 -451.758 12 5.25011e-11 3.74627e-13 2.79549e-14
+
+Element: 2231 Type: ForceBeamColumn3d 	Connected Nodes: 231 232 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.027932 470.674 12 2.0883e-11 9.02362e-14 5.96487e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.027932 -470.674 12 -4.25396e-11 -9.02362e-14 -5.96487e-13
+
+Element: 2241 Type: ForceBeamColumn3d 	Connected Nodes: 241 242 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.0292199 432.919 12 3.2592e-11 -2.71587e-13 2.31047e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.0292199 -432.919 12 3.25888e-11 2.71587e-13 -2.31047e-12
+
+SP_Constraints: numConstraints: 25
+
+numComponents: 25
+SP_Constraint: 0	 Node: 1121 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 1	 Node: 1121 DOF: 4 ref value: 0 current value: 0
+SP_Constraint: 2	 Node: 1121 DOF: 6 ref value: 0 current value: 0
+SP_Constraint: 3	 Node: 1131 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 4	 Node: 1131 DOF: 4 ref value: 0 current value: 0
+SP_Constraint: 5	 Node: 1131 DOF: 6 ref value: 0 current value: 0
+SP_Constraint: 6	 Node: 1141 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 7	 Node: 1141 DOF: 4 ref value: 0 current value: 0
+SP_Constraint: 8	 Node: 1141 DOF: 6 ref value: 0 current value: 0
+SP_Constraint: 9	 Node: 111 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 10	 Node: 111 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 11	 Node: 111 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 12	 Node: 111 DOF: 5 ref value: 0 current value: 0
+SP_Constraint: 13	 Node: 112 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 14	 Node: 112 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 15	 Node: 112 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 16	 Node: 112 DOF: 5 ref value: 0 current value: 0
+SP_Constraint: 17	 Node: 211 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 18	 Node: 211 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 19	 Node: 211 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 20	 Node: 211 DOF: 5 ref value: 0 current value: 0
+SP_Constraint: 21	 Node: 212 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 22	 Node: 212 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 23	 Node: 212 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 24	 Node: 212 DOF: 5 ref value: 0 current value: 0
+
+Pressure_Constraints: numConstraints: 0
+
+numComponents: 0
+
+MP_Constraints: numConstraints: 12
+
+numComponents: 12
+MP_Constraint: 0
+	Node Constrained: 121 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 1
+	Node Constrained: 122 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 2
+	Node Constrained: 221 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 3
+	Node Constrained: 222 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 4
+	Node Constrained: 131 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 5
+	Node Constrained: 132 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 6
+	Node Constrained: 231 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 7
+	Node Constrained: 232 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 8
+	Node Constrained: 141 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 9
+	Node Constrained: 142 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 10
+	Node Constrained: 241 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 11
+	Node Constrained: 242 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 -120 
+0 0 1 
+
+
+
+LOAD PATTERNS: numPatterns: 1
+
+
+numComponents: 1
+Load Pattern: 101
+  Scale Factor: 1
+Linear Series: constant factor: 1
+  Nodal Loads: 
+
+numComponents: 0
+
+  Elemental Loads: 
+
+numComponents: 24
+Beam3dUniformLoad - Reference load: 0
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1111
+Beam3dUniformLoad - Reference load: 1
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1112
+Beam3dUniformLoad - Reference load: 2
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1121
+Beam3dUniformLoad - Reference load: 3
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1122
+Beam3dUniformLoad - Reference load: 4
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1131
+Beam3dUniformLoad - Reference load: 5
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1132
+Beam3dUniformLoad - Reference load: 6
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1221
+Beam3dUniformLoad - Reference load: 7
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1231
+Beam3dUniformLoad - Reference load: 8
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1241
+Beam3dUniformLoad - Reference load: 9
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2111
+Beam3dUniformLoad - Reference load: 10
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2112
+Beam3dUniformLoad - Reference load: 11
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2121
+Beam3dUniformLoad - Reference load: 12
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2122
+Beam3dUniformLoad - Reference load: 13
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2131
+Beam3dUniformLoad - Reference load: 14
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2132
+Beam3dUniformLoad - Reference load: 15
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 2221
+Beam3dUniformLoad - Reference load: 16
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 2231
+Beam3dUniformLoad - Reference load: 17
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 2241
+Beam3dUniformLoad - Reference load: 18
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1321
+Beam3dUniformLoad - Reference load: 19
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1322
+Beam3dUniformLoad - Reference load: 20
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1331
+Beam3dUniformLoad - Reference load: 21
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1332
+Beam3dUniformLoad - Reference load: 22
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1341
+Beam3dUniformLoad - Reference load: 23
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1342
+
+  Single Point Constraints: 
+
+numComponents: 0
+
+PARAMETERS: numParameters: 0
+
+
+numComponents: 0
+Current Domain Information
+	Current Time: 0
+	Committed Time: 0
+NODE DATA: NumNodes: 19
+
+numComponents: 19
+
+ Node: 111
+	Coordinates  : 0 0 0 
+	Disps: 0 0 0 7.62349e-06 6.00325e-28 1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.22814 51.9 -0.455911 1.14792e-12 2.13428e-12 2.0712e-12 
+	ID : 169 170 171 172 173 174 
+
+
+ Node: 112
+	Coordinates  : 240 0 0 
+	Disps: 1.64753e-18 5.50472e-21 -2.935e-25 7.62349e-06 0 -1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.22814 51.9 -0.455911 1.17222e-12 2.78379e-12 -1.91702e-12 
+	ID : 126 127 128 129 130 131 
+
+
+ Node: 121
+	Coordinates  : 0 144 0 
+	Disps: 3.28327e-16 -0.00210309 -4.10079e-16 -1.5244e-05 -3.10409e-18 -3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 2.01252 -3.96128e-13 -0.770289 1.0715e-11 4.84715e-12 1.86549e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 163 164 165 166 167 168 
+
+
+ Node: 122
+	Coordinates  : 240 144 0 
+	Disps: 3.28121e-16 -0.00210309 4.39109e-16 -1.5244e-05 -4.04874e-18 3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -2.01252 -3.30402e-13 -0.770289 1.08855e-11 2.09598e-12 -1.86111e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 153 154 155 156 157 158 
+
+
+ Node: 131
+	Coordinates  : 0 288 0 
+	Disps: 2.56123e-16 -0.00343142 -9.10928e-16 -5.16691e-06 -2.57419e-18 -1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.61802 -2.82796e-12 -0.606345 2.91038e-11 2.29513e-11 4.92348e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 147 148 149 150 151 152 
+
+
+ Node: 132
+	Coordinates  : 240 288 0 
+	Disps: 3.47935e-16 -0.00343142 4.92042e-16 -5.16691e-06 2.00003e-17 1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.61802 -2.81908e-12 -0.606345 2.92744e-11 3.27483e-11 -4.9313e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 120 121 122 123 124 125 
+
+
+ Node: 141
+	Coordinates  : 0 432 0 
+	Disps: 3.13696e-16 -0.00398629 -5.80117e-16 -2.52787e-05 2.25527e-17 -6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -4.9442 3.64864e-12 1.82049 3.99325e-11 6.72051e-11 6.74946e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 105 106 107 108 109 110 
+
+
+ Node: 142
+	Coordinates  : 240 432 0 
+	Disps: 6.79564e-16 -0.00398629 5.58449e-16 -2.52787e-05 -1.55708e-18 6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 4.9442 3.64508e-12 1.82049 4.01599e-11 1.07568e-11 -6.73119e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 65 66 67 68 69 70 
+
+
+ Node: 211
+	Coordinates  : 0 0 240 
+	Disps: -1.56256e-18 -1.14033e-20 -1.22339e-17 -7.62349e-06 0 1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.22814 51.9 0.455911 -1.13819e-12 -1.23249e-11 1.98312e-12 
+	ID : 84 85 86 87 88 89 
+
+
+ Node: 212
+	Coordinates  : 240 0 240 
+	Disps: -3.02308e-18 3.54313e-18 1.38954e-17 -7.62349e-06 8.68676e-19 -1.81329e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.22814 51.9 0.455911 -1.16737e-12 -4.03267e-11 -2.0492e-12 
+	ID : 50 51 52 53 54 55 
+
+
+ Node: 221
+	Coordinates  : 0 144 240 
+	Disps: -3.23557e-16 -0.00210309 -3.28855e-16 1.5244e-05 1.79253e-17 -3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 2.01252 -4.10338e-13 0.770289 -1.08291e-11 2.48954e-11 1.86446e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 141 142 143 144 145 146 
+
+
+ Node: 222
+	Coordinates  : 240 144 240 
+	Disps: -3.23557e-16 -0.00210309 2.91454e-16 1.5244e-05 5.95199e-17 3.62594e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -2.01252 -3.67706e-13 0.770289 -1.08424e-11 2.46663e-10 -1.8872e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 114 115 116 117 118 119 
+
+
+ Node: 231
+	Coordinates  : 0 288 240 
+	Disps: -2.99952e-16 -0.00343142 -1.78368e-17 5.16691e-06 7.5648e-17 -1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 1.61802 -2.80842e-12 0.606345 -2.92456e-11 1.5204e-10 4.89422e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 99 100 101 102 103 104 
+
+
+ Node: 232
+	Coordinates  : 240 288 240 
+	Disps: -3.005e-16 -0.00343142 4.19511e-16 5.16691e-06 -9.91923e-17 1.19505e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -1.61802 -2.80487e-12 0.606345 -2.91895e-11 -2.98748e-10 -4.92832e-11 
+	Mass : 
+0.0680642 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.0680642 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 59 60 61 62 63 64 
+
+
+ Node: 241
+	Coordinates  : 0 432 240 
+	Disps: -4.74025e-16 -0.00398629 -6.16008e-16 2.52787e-05 2.4816e-17 -6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: -4.9442 3.64153e-12 -1.82049 -4.00545e-11 2.74282e-11 6.73026e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 44 45 46 47 48 49 
+
+
+ Node: 242
+	Coordinates  : 240 432 240 
+	Disps: -5.28888e-16 -0.00398629 6.14872e-16 2.52787e-05 2.48109e-17 6.04679e-05 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 4.9442 3.64686e-12 -1.82049 -4.00663e-11 1.40789e-10 -6.77574e-11 
+	Mass : 
+0.055383 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0.055383 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+
+	 Rayleigh Factor: alphaM: 0
+	 Rayleigh Forces: 0 0 0 0 0 0 
+	ID : 16 17 18 19 20 21 
+
+
+ Node: 1121
+	Coordinates  : 120 144 120 
+	Disps: 4.29338e-18 0 -1.00748e-18 0 -2.73208e-18 0 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 0 0 0 0 0 0 
+	ID : 135 136 137 138 139 140 
+
+
+ Node: 1131
+	Coordinates  : 120 288 120 
+	Disps: -1.98878e-17 0 2.6224e-16 0 -2.33387e-18 0 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 0 0 0 0 0 0 
+	ID : 93 94 95 96 97 98 
+
+
+ Node: 1141
+	Coordinates  : 120 432 120 
+	Disps: 7.53481e-17 0 -1.17919e-17 0 -5.03513e-18 0 
+	 unbalanced Load: 0 0 0 0 0 0 
+	 reaction: 0 0 0 0 0 0 
+	ID : 38 39 40 41 42 43 
+
+ELEMENT DATA: NumEle: 24
+
+numComponents: 24
+
+Element: 1111 Type: ForceBeamColumn3d 	Connected Nodes: 111 121 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 2.0712e-12 -1.22814 -1.14792e-12 -0.455911 -2.13428e-12
+	End 2 Forces (P MZ VY MY VZ T): -42.1 -176.853 1.22814 65.6512 0.455911 2.13428e-12
+
+Element: 1112 Type: ForceBeamColumn3d 	Connected Nodes: 112 122 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 -1.91702e-12 1.22814 -1.17222e-12 -0.455911 -2.78379e-12
+	End 2 Forces (P MZ VY MY VZ T): -42.1 176.853 -1.22814 65.6512 0.455911 2.78379e-12
+
+Element: 1121 Type: ForceBeamColumn3d 	Connected Nodes: 121 131 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 -274.905 -3.26903 102.47 -1.22221 3.64344e-13
+	End 2 Forces (P MZ VY MY VZ T): -24.8 -195.835 3.26903 73.5278 1.22221 -3.64344e-13
+
+Element: 1122 Type: ForceBeamColumn3d 	Connected Nodes: 122 132 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 274.905 3.26903 102.47 -1.22221 1.65354e-11
+	End 2 Forces (P MZ VY MY VZ T): -24.8 195.835 -3.26903 73.5278 1.22221 -1.65354e-11
+
+Element: 1131 Type: ForceBeamColumn3d 	Connected Nodes: 131 141 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 -274.839 -4.91498 102.443 -1.82463 1.72765e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 -432.919 4.91498 160.304 1.82463 -1.72765e-11
+
+Element: 1132 Type: ForceBeamColumn3d 	Connected Nodes: 132 142 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 274.839 4.91498 102.443 -1.82463 -1.48222e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 432.919 -4.91498 160.304 1.82463 1.48222e-11
+
+Element: 1221 Type: ForceBeamColumn3d 	Connected Nodes: 121 122 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.028361 451.758 12 1.32047e-13 3.36851e-16 1.86599e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.028361 -451.758 12 -2.12892e-13 -3.36851e-16 -1.86599e-12
+
+Element: 1231 Type: ForceBeamColumn3d 	Connected Nodes: 131 132 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.027932 470.674 12 1.1745e-11 -1.32007e-13 3.33362e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.027932 -470.674 12 1.99366e-11 1.32007e-13 -3.33362e-13
+
+Element: 1241 Type: ForceBeamColumn3d 	Connected Nodes: 141 142 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.0292199 432.919 12 2.09651e-11 -1.38251e-13 -1.14475e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.0292199 -432.919 12 1.22151e-11 1.38251e-13 1.14475e-12
+
+Element: 1321 Type: ForceBeamColumn3d 	Connected Nodes: 121 221 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00399296 168.121 4.5 -7.21372e-12 9.19305e-14 4.44483e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00399296 -168.121 4.5 -1.48496e-11 -9.19305e-14 -4.44483e-13
+
+Element: 1322 Type: ForceBeamColumn3d 	Connected Nodes: 122 222 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00399296 168.121 4.5 -2.16281e-11 2.76409e-13 4.78028e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00399296 -168.121 4.5 -4.471e-11 -2.76409e-13 -4.78028e-13
+
+Element: 1331 Type: ForceBeamColumn3d 	Connected Nodes: 131 231 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00391769 175.971 4.5 -2.81183e-11 3.52651e-13 -8.38646e-15
+	End 2 Forces (P MZ VY MY VZ T): 0.00391769 -175.971 4.5 -5.65179e-11 -3.52651e-13 8.38646e-15
+
+Element: 1332 Type: ForceBeamColumn3d 	Connected Nodes: 132 232 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00391769 175.971 4.5 1.85459e-11 -3.34867e-13 5.98234e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00391769 -175.971 4.5 6.18222e-11 3.34867e-13 -5.98234e-13
+
+Element: 1341 Type: ForceBeamColumn3d 	Connected Nodes: 141 241 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00414185 160.304 4.5 -2.89635e-11 2.44793e-13 6.03825e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.00414185 -160.304 4.5 -2.97867e-11 -2.44793e-13 -6.03825e-13
+
+Element: 1342 Type: ForceBeamColumn3d 	Connected Nodes: 142 242 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.00414185 160.304 4.5 -1.3364e-11 1.51263e-13 1.4872e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.00414185 -160.304 4.5 -2.2939e-11 -1.51263e-13 -1.4872e-12
+
+Element: 2111 Type: ForceBeamColumn3d 	Connected Nodes: 211 221 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 1.98312e-12 -1.22814 1.13819e-12 0.455911 1.23249e-11
+	End 2 Forces (P MZ VY MY VZ T): -42.1 -176.853 1.22814 -65.6512 -0.455911 -1.23249e-11
+
+Element: 2112 Type: ForceBeamColumn3d 	Connected Nodes: 212 222 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 51.9 -2.0492e-12 1.22814 1.16737e-12 0.455911 4.03267e-11
+	End 2 Forces (P MZ VY MY VZ T): -42.1 176.853 -1.22814 -65.6512 -0.455911 -4.03267e-11
+
+Element: 2121 Type: ForceBeamColumn3d 	Connected Nodes: 221 231 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 -274.905 -3.26903 -102.47 1.22221 3.96883e-11
+	End 2 Forces (P MZ VY MY VZ T): -24.8 -195.835 3.26903 -73.5278 -1.22221 -3.96883e-11
+
+Element: 2122 Type: ForceBeamColumn3d 	Connected Nodes: 222 232 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 34.6 274.905 3.26903 -102.47 1.22221 -1.09126e-10
+	End 2 Forces (P MZ VY MY VZ T): -24.8 195.835 -3.26903 -73.5278 -1.22221 1.09126e-10
+
+Element: 2131 Type: ForceBeamColumn3d 	Connected Nodes: 231 241 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 -274.839 -4.91498 -102.443 1.82463 -3.49505e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 -432.919 4.91498 -160.304 -1.82463 3.49505e-11
+
+Element: 2132 Type: ForceBeamColumn3d 	Connected Nodes: 232 242 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): 17.3 274.839 4.91498 -102.443 1.82463 8.52608e-11
+	End 2 Forces (P MZ VY MY VZ T): -7.5 432.919 -4.91498 -160.304 -1.82463 -8.52608e-11
+
+Element: 2221 Type: ForceBeamColumn3d 	Connected Nodes: 221 222 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.028361 451.758 12 3.74093e-11 -3.74627e-13 -2.79549e-14
+	End 2 Forces (P MZ VY MY VZ T): 0.028361 -451.758 12 5.25011e-11 3.74627e-13 2.79549e-14
+
+Element: 2231 Type: ForceBeamColumn3d 	Connected Nodes: 231 232 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.027932 470.674 12 2.0883e-11 9.02362e-14 5.96487e-13
+	End 2 Forces (P MZ VY MY VZ T): 0.027932 -470.674 12 -4.25396e-11 -9.02362e-14 -5.96487e-13
+
+Element: 2241 Type: ForceBeamColumn3d 	Connected Nodes: 241 242 
+	Number of Sections: 5	Mass density: 0
+Lobatto
+	End 1 Forces (P MZ VY MY VZ T): -0.0292199 432.919 12 3.2592e-11 -2.71587e-13 2.31047e-12
+	End 2 Forces (P MZ VY MY VZ T): 0.0292199 -432.919 12 3.25888e-11 2.71587e-13 -2.31047e-12
+
+SP_Constraints: numConstraints: 25
+
+numComponents: 25
+SP_Constraint: 0	 Node: 1121 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 1	 Node: 1121 DOF: 4 ref value: 0 current value: 0
+SP_Constraint: 2	 Node: 1121 DOF: 6 ref value: 0 current value: 0
+SP_Constraint: 3	 Node: 1131 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 4	 Node: 1131 DOF: 4 ref value: 0 current value: 0
+SP_Constraint: 5	 Node: 1131 DOF: 6 ref value: 0 current value: 0
+SP_Constraint: 6	 Node: 1141 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 7	 Node: 1141 DOF: 4 ref value: 0 current value: 0
+SP_Constraint: 8	 Node: 1141 DOF: 6 ref value: 0 current value: 0
+SP_Constraint: 9	 Node: 111 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 10	 Node: 111 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 11	 Node: 111 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 12	 Node: 111 DOF: 5 ref value: 0 current value: 0
+SP_Constraint: 13	 Node: 112 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 14	 Node: 112 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 15	 Node: 112 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 16	 Node: 112 DOF: 5 ref value: 0 current value: 0
+SP_Constraint: 17	 Node: 211 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 18	 Node: 211 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 19	 Node: 211 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 20	 Node: 211 DOF: 5 ref value: 0 current value: 0
+SP_Constraint: 21	 Node: 212 DOF: 1 ref value: 0 current value: 0
+SP_Constraint: 22	 Node: 212 DOF: 2 ref value: 0 current value: 0
+SP_Constraint: 23	 Node: 212 DOF: 3 ref value: 0 current value: 0
+SP_Constraint: 24	 Node: 212 DOF: 5 ref value: 0 current value: 0
+
+Pressure_Constraints: numConstraints: 0
+
+numComponents: 0
+
+MP_Constraints: numConstraints: 12
+
+numComponents: 12
+MP_Constraint: 0
+	Node Constrained: 121 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 1
+	Node Constrained: 122 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 2
+	Node Constrained: 221 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 3
+	Node Constrained: 222 node Retained: 1121
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 4
+	Node Constrained: 131 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 5
+	Node Constrained: 132 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 6
+	Node Constrained: 231 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 7
+	Node Constrained: 232 node Retained: 1131
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 8
+	Node Constrained: 141 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 9
+	Node Constrained: 142 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 -120 
+0 1 -120 
+0 0 1 
+
+
+MP_Constraint: 10
+	Node Constrained: 241 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 120 
+0 0 1 
+
+
+MP_Constraint: 11
+	Node Constrained: 242 node Retained: 1141
+ constrained dof: 1 3 5 
+ retained dof: 1 3 5 
+ constraint matrix: 
+1 0 120 
+0 1 -120 
+0 0 1 
+
+
+
+LOAD PATTERNS: numPatterns: 1
+
+
+numComponents: 1
+Load Pattern: 101
+  Scale Factor: 1
+Linear Series: constant factor: 1
+  Nodal Loads: 
+
+numComponents: 0
+
+  Elemental Loads: 
+
+numComponents: 24
+Beam3dUniformLoad - Reference load: 0
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1111
+Beam3dUniformLoad - Reference load: 1
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1112
+Beam3dUniformLoad - Reference load: 2
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1121
+Beam3dUniformLoad - Reference load: 3
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1122
+Beam3dUniformLoad - Reference load: 4
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1131
+Beam3dUniformLoad - Reference load: 5
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 1132
+Beam3dUniformLoad - Reference load: 6
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1221
+Beam3dUniformLoad - Reference load: 7
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1231
+Beam3dUniformLoad - Reference load: 8
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1241
+Beam3dUniformLoad - Reference load: 9
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2111
+Beam3dUniformLoad - Reference load: 10
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2112
+Beam3dUniformLoad - Reference load: 11
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2121
+Beam3dUniformLoad - Reference load: 12
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2122
+Beam3dUniformLoad - Reference load: 13
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2131
+Beam3dUniformLoad - Reference load: 14
+  Transverse (y): 0
+  Transverse (z): 0
+  Axial (x):      -0.0680556
+  Element  : 2132
+Beam3dUniformLoad - Reference load: 15
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 2221
+Beam3dUniformLoad - Reference load: 16
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 2231
+Beam3dUniformLoad - Reference load: 17
+  Transverse (y): -0.1
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 2241
+Beam3dUniformLoad - Reference load: 18
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1321
+Beam3dUniformLoad - Reference load: 19
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1322
+Beam3dUniformLoad - Reference load: 20
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1331
+Beam3dUniformLoad - Reference load: 21
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1332
+Beam3dUniformLoad - Reference load: 22
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1341
+Beam3dUniformLoad - Reference load: 23
+  Transverse (y): -0.0375
+  Transverse (z): 0
+  Axial (x):      0
+  Element  : 1342
+
+  Single Point Constraints: 
+
+numComponents: 0
+
+PARAMETERS: numParameters: 0
+
+
+numComponents: 0

@@ -1,6 +1,6 @@
 if 1 {
   puts " -------------Static Pushover Analysis -------------"
-  foreach sec {RCsec Wsec} {
+  foreach sec {RCsec} { ; # Wsec
     wipe
     source Ex8.genericFrame3D.build.$sec.tcl
     source Ex8.genericFrame3D.analyze.Static.Push.tcl

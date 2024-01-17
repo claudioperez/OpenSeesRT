@@ -8,7 +8,7 @@
 source ReadSMDFile.tcl;		# procedure for reading GM file and converting it to proper format
 
 # Bidirectional Uniform Earthquake ground motion (uniform acceleration input at all support nodes)
-set iGMfile "H-E01140 H-e12140" ;		# ground-motion filenames, should be different files
+set iGMfile "H-E01140 H-E12140" ;		# ground-motion filenames, should be different files
 set iGMdirection "1 2";			# ground-motion direction
 set iGMfact "1.5 0.25";			# ground-motion scaling factor
 

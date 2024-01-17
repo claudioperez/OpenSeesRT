@@ -77,7 +77,6 @@ static Tcl_CmdProc analyzeModel;
 static Tcl_CmdProc specifyConstraintHandler;
 // Damping
 static Tcl_CmdProc modalDamping;
-static Tcl_CmdProc modalDampingQ;
 
 extern Tcl_CmdProc specifyIntegrator;
 
@@ -129,7 +128,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "initialize",        &initializeAnalysis, builder, nullptr);
   Tcl_CreateCommand(interp, "modalProperties",   &modalProperties,    builder, nullptr);
   Tcl_CreateCommand(interp, "modalDamping",      &modalDamping,       builder, nullptr);
-  Tcl_CreateCommand(interp, "modalDampingQ",     &modalDampingQ,      builder, nullptr);
+  Tcl_CreateCommand(interp, "modalDampingQ",     &modalDamping,       builder, nullptr);
   Tcl_CreateCommand(interp, "responseSpectrum",  &responseSpectrum,   builder, nullptr);
   Tcl_CreateCommand(interp, "printA",            &printA,          builder, nullptr);
   Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);
@@ -163,9 +162,8 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcmp(argv[1], "Static") == 0) {
     builder->setStaticAnalysis();
     return TCL_OK;
-  }
 
-  else if (strcmp(argv[1], "Transient") == 0) {
+  } else if (strcmp(argv[1], "Transient") == 0) {
     builder->setTransientAnalysis();
     return TCL_OK;
   }
@@ -437,69 +435,6 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (argc < 2) {
     opserr
-        << G3_ERROR_PROMPT << "modalDamping ?factor - not enough arguments to command\n";
-    return TCL_ERROR;
-  }
-
-  if (numEigen == 0) {
-    opserr << G3_ERROR_PROMPT 
-           << "- modalDamping - eigen command needs to be called first\n";
-    return TCL_ERROR;
-  }
-
-  int numModes = argc - 1;
-  double factor;
-  Vector modalDampingValues(numEigen);
-
-  if (numModes != 1 && numModes != numEigen) {
-    opserr << G3_ERROR_PROMPT << "modalDamping - same # damping factors as modes must be "
-              "specified\n";
-    opserr << "                    - same damping ratio will be applied to all\n";
-  }
-
-  //
-  // read in values and set factors
-  //
-  if (numModes == numEigen) {
-
-    for (int i = 0; i < numEigen; i++) {
-      if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "modalDamping - could not read factor for model "
-               << i + 1 << endln;
-        return TCL_ERROR;
-      }
-      modalDampingValues[i] = factor;
-    }
-
-  } else {
-
-    if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "modalDamping - could not read factor for all modes \n";
-      return TCL_ERROR;
-    }
-
-    for (int i = 0; i < numEigen; i++)
-      modalDampingValues[i] = factor;
-  }
-
-  // set factors in domain
-  Domain *theDomain = builder->getDomain();
-  assert(theDomain != nullptr);
-  theDomain->setModalDampingFactors(&modalDampingValues, true);
-
-  return TCL_OK;
-}
-
-static int
-modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char ** const argv)
-{
-
-  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
-  int numEigen = builder->getNumEigen();
-
-  if (argc < 2) {
-    opserr
         << G3_ERROR_PROMPT << "modalDampingQ ?factor - not enough arguments to command\n";
     return TCL_ERROR;
   }
@@ -509,6 +444,16 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
            << "- modalDampingQ - eigen command needs to be called first\n";
     return TCL_ERROR;
   }
+
+  /* 
+   * "quick" modal damping adds modal damping forces to the right-hand side,
+   * but does not add modal damping terms to the dynamic tangent.
+   *
+   * see https://portwooddigital.com/2022/11/08/quick-and-dirty-modal-damping/
+   */
+  bool do_tangent = true;
+  if (strcmp(argv[0], "modalDampingQ") == 0)
+    do_tangent = false;
 
   int numModes = argc - 1;
   double factor = 0;
@@ -553,7 +498,8 @@ modalDampingQ(ClientData clientData, Tcl_Interp *interp, int argc,
   // set factors in domain
   Domain *theDomain = builder->getDomain();
   assert(theDomain != nullptr);
-  theDomain->setModalDampingFactors(&modalDampingValues, false);
+
+  theDomain->setModalDampingFactors(&modalDampingValues, do_tangent);
   return TCL_OK;
 }
 

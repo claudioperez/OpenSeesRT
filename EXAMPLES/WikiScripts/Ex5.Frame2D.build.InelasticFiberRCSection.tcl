@@ -11,7 +11,7 @@ set dataDir Output;			# set up name of data directory (you can remove this)
 file mkdir $dataDir; 			# create data directory
 set GMdir "../GMfiles/";		# ground-motion file directory
 source LibUnits.tcl;			# define units
-source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
+source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
