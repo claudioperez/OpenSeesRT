@@ -4,7 +4,7 @@
 ** ****************************************************************** */
 //
 // Description: This file contains basic commands that enhance the
-// experience of the interpreter. This file should not require see
+// experience of the interpreter. This file should not reference
 // any analysis or modeling classes.
 //
 #include <tcl.h>
@@ -23,7 +23,7 @@ Tcl_CmdProc TclCommand_specifyModel;
 class ProgressBar;
 Tcl_ObjCmdProc TclObjCommand_progress;
 extern ProgressBar* progress_bar_ptr;
-// #include "progress.cpp"
+
 
 const char *getInterpPWD(Tcl_Interp *interp);
 
@@ -108,6 +108,7 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
       chanObjPtr = objv[2];
       string = objv[3];
       break;
+
     } else if (strcmp(Tcl_GetString(objv[3]), "nonewline") == 0) {
       /*
        * The code below provides backwards compatibility with an old
@@ -115,7 +116,6 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
        * documented. See also [Bug #3151675]. Will be removed in Tcl 9,
        * maybe even earlier.
        */
-
       chanObjPtr = objv[1];
       string = objv[2];
       break;
@@ -134,6 +134,7 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
         fprintf(rt->streams[1], "%s", Tcl_GetString(string));
       else
         fprintf(rt->streams[1], "%s\n", Tcl_GetString(string));
+
     } else {
       if (newline == 0)
         opserr << Tcl_GetString(string);
@@ -154,7 +155,6 @@ static int
 OPS_SetObjCmd(ClientData clientData, Tcl_Interp *interp, int objc,
               Tcl_Obj *const objv[])
 {
-
 
   Tcl_Obj *varValueObj;
 
@@ -190,13 +190,14 @@ logFile(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
     opserr << "WARNING logFile fileName? - no filename supplied\n";
     return TCL_ERROR;
   }
-  openMode mode = openMode::OVERWRITE;
   bool echo = true;
+  openMode mode = openMode::OVERWRITE;
 
   int cArg = 2;
   while (cArg < argc) {
     if (strcmp(argv[cArg], "-append") == 0)
       mode = openMode::APPEND;
+
     if (strcmp(argv[cArg], "-noEcho") == 0)
       echo = false;
     cArg++;
