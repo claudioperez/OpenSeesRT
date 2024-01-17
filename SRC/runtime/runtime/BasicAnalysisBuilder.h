@@ -53,7 +53,9 @@ public:
     
     Domain* getDomain(void);
     int initialize(void);
+#if 0
     void newStaticAnalysis();
+#endif
     int  newTransientAnalysis();
     int  setStaticAnalysis();
     int  setTransientAnalysis();
@@ -61,6 +63,8 @@ public:
     void newEigenAnalysis(int typeSolver, double shift);
     int  eigen(int numMode, bool generalized, bool findSmallest);
     int  getNumEigen() {return numEigen;};
+
+    void formUnbalance();
 
     /*
     StaticAnalysis* getStaticAnalysis() {return theStaticAnalysis;}
@@ -85,6 +89,10 @@ public:
 
     int analyze(int num_steps, double size_steps=0.0);
     int analyzeStatic(int num_steps);
+    
+    int analyzeTransient(int numSteps, double dT);
+    int analyzeStep(double dT);
+    int analyzeSubLevel(int level, double dT);
 
     void wipe();
 
@@ -112,6 +120,9 @@ private:
 
     int domainStamp;
     int numEigen = 0;
+
+    int numSubLevels = 0;
+    int numSubSteps = 0;
 };
 
 #endif
