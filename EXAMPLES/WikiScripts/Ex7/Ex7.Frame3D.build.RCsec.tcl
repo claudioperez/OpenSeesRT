@@ -14,7 +14,7 @@ set ViewScale 0.25;			# scaling factor for viewing deformed shape, it depends on
 source LibUnits.tcl;			# define units
 source DisplayPlane.tcl;		# procedure for displaying a plane in model
 source DisplayModel3D.tcl;		# procedure for displaying 3D perspectives of model
-source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
+source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters

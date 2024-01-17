@@ -71,8 +71,10 @@ class DirectIntegrationAnalysis: public Analysis
     int domainChanged(void);
 
     int setNumberer(DOF_Numberer &theNumberer);    
+#if 0
     int setAlgorithm(EquiSolnAlgo &theAlgorithm);
     int setIntegrator(TransientIntegrator &theIntegrator);
+#endif
     int setLinearSOE(LinearSOE &theSOE); 
     int setConvergenceTest(ConvergenceTest &theTest);
     int setEigenSOE(EigenSOE &theSOE);
