@@ -149,12 +149,12 @@ class ConvergenceTest;
 #define OPS_GetInterpPWD ops_getinterppwd_
 
 #define OPS_GetAnalysisModel ops_getanalysismodel_
-#define OPS_GetAlgorithm ops_getalgorithm_
-#define OPS_GetHandler ops_gethandler_
-#define OPS_GetNumberer ops_getnumberer_
-#define OPS_GetSOE ops_getsoe_
-#define OPS_GetEigenSOE ops_geteigensoe_
-#define OPS_GetStaticAnalysis ops_getstaticanalysis_
+// #define OPS_GetAlgorithm ops_getalgorithm_
+// #define OPS_GetHandler ops_gethandler_
+// #define OPS_GetNumberer ops_getnumberer_
+// #define OPS_GetSOE ops_getsoe_
+// #define OPS_GetEigenSOE ops_geteigensoe_
+// #define OPS_GetStaticAnalysis ops_getstaticanalysis_
 #define OPS_GetVariableTimeStepTransientAnalysis ops_getvariabletimesteptransientanalysis_
 #define OPS_GetNumEigen ops_getnumeigen_
 #define OPS_GetStaticIntegrator ops_getstaticintegrator_
@@ -208,10 +208,10 @@ extern FrictionModel* OPS_GetFrictionModel(int frnTag);
 extern FE_Datastore* OPS_GetFEDatastore();
 extern "C" const char* OPS_GetInterpPWD();
 
-extern "C" AnalysisModel * *OPS_GetAnalysisModel(void);
-extern "C" EquiSolnAlgo * *OPS_GetAlgorithm(void);
-extern "C" ConstraintHandler * *OPS_GetHandler(void);
-extern "C" DOF_Numberer * *OPS_GetNumberer(void);
+// extern "C" AnalysisModel * *OPS_GetAnalysisModel(void);
+// extern "C" EquiSolnAlgo * *OPS_GetAlgorithm(void);
+// extern "C" ConstraintHandler * *OPS_GetHandler(void);
+// extern "C" DOF_Numberer * *OPS_GetNumberer(void);
 extern "C" bool* OPS_builtModel(void);
 int OPS_numIter();
 
