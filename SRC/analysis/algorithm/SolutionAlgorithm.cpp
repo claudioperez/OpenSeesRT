@@ -47,12 +47,6 @@ SolutionAlgorithm::~SolutionAlgorithm()
     }
 }
 
-int
-SolutionAlgorithm::domainChanged()
-{
-    return 0;
-}
-
 int  
 SolutionAlgorithm::addRecorder(Recorder &theRecorder)
 {
