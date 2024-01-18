@@ -58,11 +58,16 @@ public:
 // Time series
 private:
   G3_Table* registry = nullptr;
+  G3_Table* shared_registry = nullptr;
   map_t<TimeSeries*> m_TimeSeriesMap;
 public:
 
   int   addRegistryObject(const char*, int tag, void* obj); 
   void* getRegistryObject(const char*, int tag); 
+#if 0
+  const void* getSharedObject(const char* partition, int tag);
+  int   addSharedObject(const char*, int tag, const void* obj);
+#endif
 
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);

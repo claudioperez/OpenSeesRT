@@ -25,9 +25,9 @@
 #include <ParkLMS3.h>
 #include <BackwardEuler.h>
 
-extern TransientIntegrator *theTransientIntegrator;
-extern StaticAnalysis *theStaticAnalysis;
-extern DirectIntegrationAnalysis *theTransientAnalysis;
+// extern TransientIntegrator *theTransientIntegrator;
+// extern StaticAnalysis *theStaticAnalysis;
+// extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis
            *theVariableTimeStepTransientAnalysis;
 
@@ -142,6 +142,7 @@ TransientIntegrator*
 G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime* rt = G3_getRuntime(interp);
+  TransientIntegrator * theTransientIntegrator = nullptr;
 
   if ((strcmp(argv[1], "TRBDF2") == 0) ||
       (strcmp(argv[1], "Bathe") == 0)) {

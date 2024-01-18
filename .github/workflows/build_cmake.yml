@@ -41,6 +41,35 @@ jobs:
         #ctest
         #cd ./EXAMPLES/verification/ && ../../build/OpenSeesTcl runVerificationSuite.tcl
 
+  build-mac:
+    name: Mac Build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install Library
+        run: |
+         ln -s /usr/local/bin/gfortran-11 /usr/local/bin/gfortran
+#        brew install hdf5
+#        brew install open-mpi
+#        brew install scalapack
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. # -DMUMPS_DIR=$PWD/../../mumps/build
+#         cmake --build . --target OpenSees -j8
+          cmake --build . --target OpenSeesRT -j8
+
+#     - name: Verification
+#       run: |
+#         cd ./EXAMPLES/Verification/
+
+
 # Not building on Windows until we can figure out how to use Fortran
 # with Github Actions
 # build-win32:

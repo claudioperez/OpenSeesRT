@@ -68,8 +68,8 @@
 #endif
 
 // TODO: remove
-extern DirectIntegrationAnalysis *theTransientAnalysis;
-extern LinearSOE *theSOE;
+// extern DirectIntegrationAnalysis *theTransientAnalysis;
+// extern LinearSOE *theSOE;
 
 // LinearSOE*
 // G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
@@ -111,7 +111,7 @@ specifySysOfEqnTable(ClientData clientData, Tcl_Interp *interp, int argc, G3_Cha
     return TCL_ERROR;
   }
 
-  theSOE = G3Parse_newLinearSOE(clientData, interp, argc, argv);
+  LinearSOE* theSOE = G3Parse_newLinearSOE(clientData, interp, argc, argv);
 
   if (theSOE == nullptr)
     return TCL_ERROR;
