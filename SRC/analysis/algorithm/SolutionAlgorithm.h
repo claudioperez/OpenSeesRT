@@ -52,8 +52,6 @@ class SolutionAlgorithm: public MovableObject
     SolutionAlgorithm(int classTag);
     virtual ~SolutionAlgorithm();
 
-    virtual int domainChanged(void);
-    
     // methods for monitoring the analysis during an algorithm
     virtual int  addRecorder(Recorder &theRecorder);    	
     virtual int  record(int track);    

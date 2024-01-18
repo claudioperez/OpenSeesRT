@@ -257,7 +257,7 @@ DomainDecompositionAnalysis::domainChanged(void)
     // we invoke domainChange() on the integrator and algorithm
 
     theIntegrator->domainChanged();
-    theAlgorithm->domainChanged();        
+    //theAlgorithm->domainChanged();        
 
     // now set the variables to indicate that tangent has not been formed
 

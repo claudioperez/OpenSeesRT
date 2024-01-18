@@ -382,9 +382,10 @@ StaticAnalysis::domainChanged(void)
     if (result < 0)
 	return -4;
 
-    result = theAlgorithm->domainChanged();
-    if (result < 0) 
-	return -5;
+    // cmp - removed
+    // result = theAlgorithm->domainChanged();
+//     if (result < 0) 
+// 	return -5;
 
     // if get here successful
     return 0;
@@ -427,8 +428,8 @@ StaticAnalysis::setAlgorithm(EquiSolnAlgo &theNewAlgorithm)
     
     // invoke domainChanged() either indirectly or directly
     //    domainStamp = 0;
-    if (domainStamp != 0)
-      theAlgorithm->domainChanged();
+//    if (domainStamp != 0)
+//      theAlgorithm->domainChanged();
 
     return 0;
 }

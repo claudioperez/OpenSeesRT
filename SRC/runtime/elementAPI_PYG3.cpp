@@ -174,14 +174,14 @@ OPS_GetStringCopy(char **arrayData)
 // END INTERPRETER STUFF
 //
 
-extern EquiSolnAlgo              *theAlgorithm;
-extern LinearSOE                 *theSOE;
-extern EigenSOE                  *theEigenSOE;
-extern StaticAnalysis            *theStaticAnalysis;
-extern StaticIntegrator          *theStaticIntegrator;
-extern DirectIntegrationAnalysis *theTransientAnalysis;
-extern TransientIntegrator       *theTransientIntegrator;
-extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
+// extern EquiSolnAlgo              *theAlgorithm;
+// extern LinearSOE                 *theSOE;
+// extern EigenSOE                  *theEigenSOE;
+// extern StaticAnalysis            *theStaticAnalysis;
+// extern StaticIntegrator          *theStaticIntegrator;
+// extern DirectIntegrationAnalysis *theTransientAnalysis;
+// extern TransientIntegrator       *theTransientIntegrator;
+// extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 extern bool builtModel;
 extern FE_Datastore *theDatabase;
 
@@ -339,17 +339,19 @@ OPS_GetFEDatastore() {return theDatabase;}
 const char *
 OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
 
+#if 0
 EquiSolnAlgo **
 OPS_GetAlgorithm(void) {return &theAlgorithm;}
-
-LinearSOE **
-OPS_GetSOE(void) {return &theSOE;}
 
 EigenSOE **
 OPS_GetEigenSOE(void) {return &theEigenSOE;}
 
+LinearSOE **
+OPS_GetSOE(void) {return &theSOE;}
+
 StaticAnalysis **
 OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
+#endif
 
 #if 0 && !defined(OPS_USE_RUNTIME)
 
