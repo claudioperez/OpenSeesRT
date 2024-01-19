@@ -17,11 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
+//
 // $Revision: 1.13 $
 // $Date: 2009-10-13 21:17:42 $
 // $Source: /usr/local/cvs/OpenSees/SRC/handler/XmlFileStream.cpp,v $
-
+//
 #include <XmlFileStream.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -107,22 +107,27 @@ XmlFileStream::~XmlFileStream()
         if (theRemoteData[i] != 0)
           delete theRemoteData[i];
     }
-    if (theData != 0) delete [] theData;
-    if (theRemoteData != 0) delete [] theRemoteData;
-    if (theColumns != 0) delete [] theColumns;
-    if (sizeColumns != 0) delete sizeColumns;
+    if (theData != nullptr) delete [] theData;
+    if (theRemoteData != nullptr) delete [] theRemoteData;
+    if (theColumns != nullptr) delete [] theColumns;
+    if (sizeColumns != nullptr) delete sizeColumns;
   }    
 
   if (sendSelfCount < 0) {
-
     if (theColumns[0] != 0)
       delete theColumns[0];
-
     delete [] theColumns;
   }    
 
   if (xmlColumns != 0)
     delete xmlColumns;
+
+  if (tags != nullptr) {
+    for (int i=0; i<sizeTags; i++)
+      if (tags[i] != nullptr)
+        delete[] tags[i];
+    delete[] tags;
+  }
 }
 
 int 
@@ -175,13 +180,11 @@ XmlFileStream::open(void)
   }
 
   // if file already open, return
-  if (fileOpen == 1) {
+  if (fileOpen == 1)
     return 0;
-  }
 
-  if (sendSelfCount > 0) {
+  if (sendSelfCount > 0)
     strcat(fileName,".0");
-  }
   
   // open file
   if (theOpenMode == openMode::OVERWRITE) 
@@ -192,8 +195,6 @@ XmlFileStream::open(void)
   theOpenMode = openMode::APPEND;
 
   if (theFile.bad()) {
-    std::cerr << "WARNING - XmlFileStream::open()";
-    std::cerr << " - could not open file " << fileName << std::endl;
     fileOpen = 0;
     return -1;
   } else
@@ -221,9 +222,8 @@ int
 XmlFileStream::close(void)
 {
   if (fileOpen == 1) {
-    for (int i=0; i<numTag; i++) {
+    for (int i=0; i<numTag; i++)
       this->endTag();
-    }
 
     theFile << "</OpenSees>\n";
     theFile.close();
@@ -280,26 +280,23 @@ XmlFileStream::tag(const char *tagName)
   if (numTag == sizeTags) {
     int nextSize = 2*sizeTags;
     
-    if (nextSize == 0) nextSize = 32;
+    if (nextSize == 0) 
+      nextSize = 32;
+
     char **nextTags = new char *[nextSize];
-    if (nextTags != 0) {
-      for (int i=0; i<sizeTags; i++)
-        nextTags[i] = tags[i];
-      for (int j=sizeTags+1; j<nextSize; j++)
-        nextTags[j] = 0;
-      sizeTags = nextSize;
-    } else {
-      sizeTags = 0;
-      delete [] tags;
-      tags = 0;
-      return -1;
-    }
+
+    for (int i=0; i<sizeTags; i++)
+      nextTags[i] = tags[i];
+
+    for (int j=sizeTags+1; j<nextSize; j++)
+      nextTags[j] = nullptr;
     
     if (tags != 0)
         delete [] tags;
     
     tags = nextTags;
-  } 
+    sizeTags = nextSize;
+  }
 
 
   // copy string and assign to end of array
@@ -312,16 +309,16 @@ XmlFileStream::tag(const char *tagName)
     else
       (*xmlColumns)(numXMLTags) += 1;
   }
-  
+
   tags[numTag++] = newTag;
 
   //  if (sendSelfCount == 0 || (strstr(tagName,"Data") != 0)) {
     if (attributeMode == true) {
       theFile << ">\n";
     }
-    
+
     // output the xml for it to the file
-    
+
     numIndent++;
     this->indent();
     theFile << "<" << tagName;
@@ -429,11 +426,13 @@ XmlFileStream::endTag()
       if (attributeMode == true) {
         theFile << "/>\n";
         delete [] tags[numTag-1];
+        tags[numTag-1] = nullptr;
         numTag--;
       } else {
         this->indent();
         theFile << "</" << tags[numTag-1] << ">\n";
         delete [] tags[numTag-1];
+        tags[numTag-1] = nullptr;
         numTag--;
       }    
       
@@ -466,7 +465,8 @@ XmlFileStream::endTag()
         xmlStringLength = nextXmlStringLength;
 
         strcat(xmlString,"/>\n");
-        delete [] tags[numTag-1];
+        delete [] tags[numTag-1]; 
+	tags[numTag-1] = nullptr;
         numTag--;
 
       } else {
@@ -490,7 +490,8 @@ XmlFileStream::endTag()
         strcat(xmlString, tags[numTag-1]);      
         strcat(xmlString, ">\n");      
 
-        delete [] tags[numTag-1];
+        delete [] tags[numTag-1]; 
+	tags[numTag-1] = nullptr;
         numTag--;
       }
           
