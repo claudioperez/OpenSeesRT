@@ -2,60 +2,59 @@
 
 | Status  |     File     |  Message              |
 |---------|--------------|-----------------------|
-|  255  | [`AxialSp`](./AxialSp) | "source AxialSp_sample.tcl" |
-|  0  | [`BeamColumnJointExample`](./BeamColumnJointExample) |  |
-|  0  | [`CFSSSWP`](./CFSSSWP) |  |
-|  0  | [`CFSWSWP`](./CFSWSWP) |  |
-|  0  | [`Chopra-10.4`](./Chopra-10.4) |  |
-|  0  | [`Ex1`](./Ex1) |  |
-|  255  | [`Excavation`](./Excavation) | "source Excavation.tcl" |
-|  0  | [`FatigueMaterial`](./FatigueMaterial) |  |
-|  0  | [`ForceDisplBeam`](./ForceDisplBeam) |  |
-|  0  | [`InfillWall`](./InfillWall) |  |
-|  255  | [`LimitStateMaterial`](./LimitStateMaterial) | invalid command name "limitCurve" |
-|  0  | [`ModelingDiaphragms2D`](./ModelingDiaphragms2D) |  |
-|  0  | [`MRF_Concentrated`](./MRF_Concentrated) |  |
-|  0  | [`MRF_PanelZone`](./MRF_PanelZone) |  |
-|  0  | [`MRF_Pushover`](./MRF_Pushover) |  |
-|  0  | [`MultipleShearSpring`](./MultipleShearSpring) |  |
-|  0  | [`Parallel`](./Parallel) |  |
-|  0  | [`SAWSZeroLength`](./SAWSZeroLength) |  |
-|  0  | [`StaticBNWFpile`](./StaticBNWFpile) |  |
-|  0  | [`ViscousDamper`](./ViscousDamper) |  |
-|  0  | [`1Dconsolidation.tcl`](./1Dconsolidation.tcl) |  |
-|  0  | [`CB_PortalFrame.tcl`](./CB_PortalFrame.tcl) |  |
-|  0  | [`DisplayModel2D.tcl`](./DisplayModel2D.tcl) |  |
-|  0  | [`DisplayModel3D.tcl`](./DisplayModel3D.tcl) |  |
-|  0  | [`DisplayPlane.tcl`](./DisplayPlane.tcl) |  |
-|  0  | [`ElasticFrame.tcl`](./ElasticFrame.tcl) |  |
-|  0  | [`Ex2a.Canti2D.ElasticElement.EQ.tcl`](./Ex2a.Canti2D.ElasticElement.EQ.tcl) |  |
-|  0  | [`Ex2a.Canti2D.ElasticElement.Push.tcl`](./Ex2a.Canti2D.ElasticElement.Push.tcl) |  |
-|  0  | [`Ex2b.Canti2D.InelasticSection.EQ.tcl`](./Ex2b.Canti2D.InelasticSection.EQ.tcl) |  |
-|  0  | [`Ex2b.Canti2D.InelasticSection.Push.tcl`](./Ex2b.Canti2D.InelasticSection.Push.tcl) |  |
-|  0  | [`Ex2c.Canti2D.InelasticFiberSection.EQ.tcl`](./Ex2c.Canti2D.InelasticFiberSection.EQ.tcl) |  |
-|  0  | [`Ex2c.Canti2D.InelasticFiberSection.Push.tcl`](./Ex2c.Canti2D.InelasticFiberSection.Push.tcl) |  |
-|  0  | [`Ex3.Canti2D.build.ElasticElement.tcl`](./Ex3.Canti2D.build.ElasticElement.tcl) |  |
-|  0  | [`Ex3.Canti2D.build.InelasticFiberSection.tcl`](./Ex3.Canti2D.build.InelasticFiberSection.tcl) |  |
-|  0  | [`Ex3.Canti2D.build.InelasticSection.tcl`](./Ex3.Canti2D.build.InelasticSection.tcl) |  |
-|  0  | [`Ex4.Portal2D.build.ElasticElement.tcl`](./Ex4.Portal2D.build.ElasticElement.tcl) |  |
-|  0  | [`Ex4.Portal2D.build.InelasticFiberSection.tcl`](./Ex4.Portal2D.build.InelasticFiberSection.tcl) |  |
-|  0  | [`Ex4.Portal2D.build.InelasticSection.tcl`](./Ex4.Portal2D.build.InelasticSection.tcl) |  |
-|  0  | [`Ex5.Frame2D.build.ElasticSection.tcl`](./Ex5.Frame2D.build.ElasticSection.tcl) |  |
-|  0  | [`Ex5.Frame2D.build.InelasticFiberRCSection.tcl`](./Ex5.Frame2D.build.InelasticFiberRCSection.tcl) |  |
-|  0  | [`Ex5.Frame2D.build.InelasticFiberWSection.tcl`](./Ex5.Frame2D.build.InelasticFiberWSection.tcl) |  |
-|  0  | [`Ex5.Frame2D.build.InelasticSection.tcl`](./Ex5.Frame2D.build.InelasticSection.tcl) |  |
-|  0  | [`Example6_4.tcl`](./Example6_4.tcl) |  |
-|  255  | [`FreeFieldDamp.tcl`](./FreeFieldDamp.tcl) | expected integer but got "-dt" |
-|  255  | [`FreeFieldEffective.tcl`](./FreeFieldEffective.tcl) | invalid command name "parameter" |
-|  0  | [`HSSsection.tcl`](./HSSsection.tcl) |  |
-|  0  | [`KikuchiAikenHDR_sample.tcl`](./KikuchiAikenHDR_sample.tcl) |  |
-|  0  | [`KikuchiAikenLRB_sample.tcl`](./KikuchiAikenLRB_sample.tcl) |  |
-|  255  | [`KikuchiBearing_Sample.tcl`](./KikuchiBearing_Sample.tcl) | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
-|  0  | [`LateralSpreadPile.tcl`](./LateralSpreadPile.tcl) |  |
-|  0  | [`MomentCurvature.tcl`](./MomentCurvature.tcl) |  |
-|  0  | [`osmg.tcl`](./osmg.tcl) |  |
-|  0  | [`RCFrameGravity.tcl`](./RCFrameGravity.tcl) |  |
-|  0  | [`RCFramePushover.tcl`](./RCFramePushover.tcl) |  |
-|  0  | [`Truss.tcl`](./Truss.tcl) |  |
-|  0  | [`WSection.tcl`](./WSection.tcl) |  |
-|  0  | [`YamamotoBiaxialHDR_Sample.tcl`](./YamamotoBiaxialHDR_Sample.tcl) |  |
+|  1  | [`AxialSp`](./AxialSp) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`BeamColumnJointExample`](./BeamColumnJointExample) | SUMMARY: AddressSanitizer: 1829694 byte(s) leaked in 1399 allocation(s). |
+|  1  | [`CFSSSWP`](./CFSSSWP) | SUMMARY: AddressSanitizer: 16543507 byte(s) leaked in 223370 allocation(s). |
+|  1  | [`CFSWSWP`](./CFSWSWP) | SUMMARY: AddressSanitizer: 23713507 byte(s) leaked in 330920 allocation(s). |
+|  1  | [`Chopra-10.4`](./Chopra-10.4) | SUMMARY: AddressSanitizer: 1678284 byte(s) leaked in 949 allocation(s). |
+|  1  | [`Ex1`](./Ex1) | SUMMARY: AddressSanitizer: 1806635 byte(s) leaked in 962 allocation(s). |
+|  1  | [`Ex3`](./Ex3) | SUMMARY: AddressSanitizer: 1678284 byte(s) leaked in 949 allocation(s). |
+|  1  | [`Ex4`](./Ex4) | SUMMARY: AddressSanitizer: 3140578 byte(s) leaked in 5531 allocation(s). |
+|  1  | [`Ex5`](./Ex5) | SUMMARY: AddressSanitizer: 1806439 byte(s) leaked in 1010 allocation(s). |
+|  1  | [`Ex6`](./Ex6) | SUMMARY: AddressSanitizer: 1824895 byte(s) leaked in 1011 allocation(s). |
+|  1  | [`Ex7`](./Ex7) | SUMMARY: AddressSanitizer: 13631850 byte(s) leaked in 53371 allocation(s). |
+|  1  | [`Excavation`](./Excavation) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`FatigueMaterial`](./FatigueMaterial) | SUMMARY: AddressSanitizer: 1696627 byte(s) leaked in 950 allocation(s). |
+|  1  | [`ForceDisplBeam`](./ForceDisplBeam) | SUMMARY: AddressSanitizer: 1870237 byte(s) leaked in 1705 allocation(s). |
+|  1  | [`InfillWall`](./InfillWall) | SUMMARY: AddressSanitizer: 5855465 byte(s) leaked in 18559 allocation(s). |
+|  1  | [`LimitStateMaterial`](./LimitStateMaterial) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`ModelingDiaphragms2D`](./ModelingDiaphragms2D) | SUMMARY: AddressSanitizer: 3063400 byte(s) leaked in 3305 allocation(s). |
+|  1  | [`MRF_Concentrated`](./MRF_Concentrated) | SUMMARY: AddressSanitizer: 1737372 byte(s) leaked in 973 allocation(s). |
+|  1  | [`MRF_PanelZone`](./MRF_PanelZone) | SUMMARY: AddressSanitizer: 1719452 byte(s) leaked in 976 allocation(s). |
+|  1  | [`MRF_Pushover`](./MRF_Pushover) | SUMMARY: AddressSanitizer: 1679468 byte(s) leaked in 969 allocation(s). |
+|  1  | [`MultipleShearSpring`](./MultipleShearSpring) | SUMMARY: AddressSanitizer: 1709179 byte(s) leaked in 961 allocation(s). |
+|  1  | [`Parallel`](./Parallel) | SUMMARY: AddressSanitizer: 1754388 byte(s) leaked in 1149 allocation(s). |
+|  1  | [`SAWSZeroLength`](./SAWSZeroLength) | SUMMARY: AddressSanitizer: 1697041 byte(s) leaked in 955 allocation(s). |
+|  1  | [`StaticBNWFpile`](./StaticBNWFpile) | SUMMARY: AddressSanitizer: 2308695 byte(s) leaked in 2323 allocation(s). |
+|  1  | [`ViscousDamper`](./ViscousDamper) | SUMMARY: AddressSanitizer: 1777452 byte(s) leaked in 968 allocation(s). |
+|  1  | [`1Dconsolidation.tcl`](./1Dconsolidation.tcl) | SUMMARY: AddressSanitizer: 1682923 byte(s) leaked in 1005 allocation(s). |
+|  1  | [`CB_PortalFrame.tcl`](./CB_PortalFrame.tcl) | SUMMARY: AddressSanitizer: 2340162 byte(s) leaked in 3076 allocation(s). |
+|  1  | [`DisplayModel2D.tcl`](./DisplayModel2D.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`DisplayModel3D.tcl`](./DisplayModel3D.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`DisplayPlane.tcl`](./DisplayPlane.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`ElasticFrame.tcl`](./ElasticFrame.tcl) | SUMMARY: AddressSanitizer: 6259659 byte(s) leaked in 4362 allocation(s). |
+|  1  | [`Ex2a.Canti2D.ElasticElement.EQ.tcl`](./Ex2a.Canti2D.ElasticElement.EQ.tcl) | SUMMARY: AddressSanitizer: 1742736 byte(s) leaked in 961 allocation(s). |
+|  1  | [`Ex2a.Canti2D.ElasticElement.Push.tcl`](./Ex2a.Canti2D.ElasticElement.Push.tcl) | SUMMARY: AddressSanitizer: 1696740 byte(s) leaked in 950 allocation(s). |
+|  1  | [`Ex2b.Canti2D.InelasticSection.EQ.tcl`](./Ex2b.Canti2D.InelasticSection.EQ.tcl) | SUMMARY: AddressSanitizer: 1757892 byte(s) leaked in 1000 allocation(s). |
+|  1  | [`Ex2b.Canti2D.InelasticSection.Push.tcl`](./Ex2b.Canti2D.InelasticSection.Push.tcl) | SUMMARY: AddressSanitizer: 1693440 byte(s) leaked in 988 allocation(s). |
+|  1  | [`Ex2c.Canti2D.InelasticFiberSection.EQ.tcl`](./Ex2c.Canti2D.InelasticFiberSection.EQ.tcl) | SUMMARY: AddressSanitizer: 1819316 byte(s) leaked in 1196 allocation(s). |
+|  1  | [`Ex2c.Canti2D.InelasticFiberSection.Push.tcl`](./Ex2c.Canti2D.InelasticFiberSection.Push.tcl) | SUMMARY: AddressSanitizer: 1721976 byte(s) leaked in 1139 allocation(s). |
+|  1  | [`Example6_4.tcl`](./Example6_4.tcl) | SUMMARY: AddressSanitizer: 1696683 byte(s) leaked in 950 allocation(s). |
+|  1  | [`FreeFieldDamp.tcl`](./FreeFieldDamp.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`FreeFieldEffective.tcl`](./FreeFieldEffective.tcl) | SUMMARY: AddressSanitizer: 1695750 byte(s) leaked in 939 allocation(s). |
+|  1  | [`HSSsection.tcl`](./HSSsection.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`KikuchiAikenHDR_sample.tcl`](./KikuchiAikenHDR_sample.tcl) | SUMMARY: AddressSanitizer: 1678502 byte(s) leaked in 953 allocation(s). |
+|  1  | [`KikuchiAikenLRB_sample.tcl`](./KikuchiAikenLRB_sample.tcl) | SUMMARY: AddressSanitizer: 1678502 byte(s) leaked in 953 allocation(s). |
+|  1  | [`KikuchiBearing_Sample.tcl`](./KikuchiBearing_Sample.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`LateralSpreadPile.tcl`](./LateralSpreadPile.tcl) | SUMMARY: AddressSanitizer: 2261486 byte(s) leaked in 2258 allocation(s). |
+|  1  | [`MomentCurvature.tcl`](./MomentCurvature.tcl) | SUMMARY: AddressSanitizer: 1741440 byte(s) leaked in 1099 allocation(s). |
+|  1  | [`NR94cnp.tcl`](./NR94cnp.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`NRHA_IR.tcl`](./NRHA_IR.tcl) | SUMMARY: AddressSanitizer: 1695750 byte(s) leaked in 939 allocation(s). |
+|  1  | [`osmg.tcl`](./osmg.tcl) | SUMMARY: AddressSanitizer: 1949885 byte(s) leaked in 1705 allocation(s). |
+|  1  | [`PUL104.tcl`](./PUL104.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`PUL194.tcl`](./PUL194.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`RCFrameGravity.tcl`](./RCFrameGravity.tcl) | SUMMARY: AddressSanitizer: 1754396 byte(s) leaked in 1149 allocation(s). |
+|  1  | [`RCFramePushover.tcl`](./RCFramePushover.tcl) | SUMMARY: AddressSanitizer: 1754396 byte(s) leaked in 1149 allocation(s). |
+|  1  | [`Truss.tcl`](./Truss.tcl) | SUMMARY: AddressSanitizer: 1678502 byte(s) leaked in 953 allocation(s). |
+|  1  | [`WSection.tcl`](./WSection.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
+|  1  | [`YamamotoBiaxialHDR_Sample.tcl`](./YamamotoBiaxialHDR_Sample.tcl) | SUMMARY: AddressSanitizer: 1693089 byte(s) leaked in 959 allocation(s). |
