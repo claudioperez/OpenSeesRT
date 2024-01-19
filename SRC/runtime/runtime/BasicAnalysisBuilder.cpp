@@ -3,7 +3,7 @@
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
 //
-// Written: Minjie Zhu, Claudio Perez
+// Written: Claudio Perez
 //
 #include "BasicAnalysisBuilder.h"
 #include <Domain.h>
@@ -87,14 +87,15 @@ BasicAnalysisBuilder::~BasicAnalysisBuilder()
 void 
 BasicAnalysisBuilder::wipe()
 {
+#if 1
   if (theStaticAnalysis != nullptr) {
       delete theStaticAnalysis;
       theStaticAnalysis = nullptr;
   }
-  if (theTransientAnalysis != nullptr) {
-      delete theTransientAnalysis;
-      theTransientAnalysis = nullptr;
-  }
+//  if (theTransientAnalysis != nullptr) {
+//      delete theTransientAnalysis;
+//      theTransientAnalysis = nullptr;
+//  }
   if (theAlgorithm != nullptr) {
       delete theAlgorithm;
       theAlgorithm = nullptr;
@@ -132,6 +133,7 @@ BasicAnalysisBuilder::wipe()
     theAnalysisModel = new AnalysisModel();
   }
   theVariableTimeStepTransientAnalysis = nullptr;
+#endif
 }
 
 void
@@ -156,12 +158,14 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
   case CURRENT_TRANSIENT_ANALYSIS:
     if (theDomain && theAnalysisModel && theTransientIntegrator && theHandler)
       theHandler->setLinks(*theDomain, *theAnalysisModel, *theTransientIntegrator);
-    if (theAnalysisModel && theSOE && theTest && theTransientIntegrator)
-      theTransientIntegrator->setLinks(*theAnalysisModel, *theSOE, theTest);
     if (theAnalysisModel && theTransientIntegrator && theSOE && theTest && theAlgorithm)
       theAlgorithm->setLinks(*theAnalysisModel, *theTransientIntegrator, *theSOE, theTest);
-    // if (domainStamp != 0 && theTransientIntegrator)
+    if (theAnalysisModel && theSOE && theTest && theTransientIntegrator) {
+      theTransientIntegrator->setLinks(*theAnalysisModel, *theSOE, theTest);
+    }
+    // if (theTransientIntegrator && domainStamp != 0)
     //   theTransientIntegrator->domainChanged();
+      // this->domainChanged();
 
     domainStamp  = 0;
     break;
@@ -274,23 +278,30 @@ BasicAnalysisBuilder::domainChanged(void)
 
   // finally we invoke domainChanged on the Integrator and Algorithm
   // objects .. informing them that the model has changed
-  if (theStaticIntegrator != nullptr) {
+  switch (this->CurrentAnalysisFlag) {
+  //if (theStaticIntegrator != nullptr) {
+  case CURRENT_STATIC_ANALYSIS:
     if (theStaticIntegrator->domainChanged() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange - Integrator::domainChanged() failed\n";
       return -4;
     }
-  }
-  if (theTransientIntegrator != nullptr) {
+    break;
+  //}
+  case CURRENT_TRANSIENT_ANALYSIS:
+  //if (theTransientIntegrator != nullptr) {
     if (theTransientIntegrator->domainChanged() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange - Integrator::domainChanged() failed\n";
       return -4;
     }
+    break;
+  default:
+    break;
   }
 
-  if (theAlgorithm && theAlgorithm->domainChanged() < 0) {
-    opserr << "BasicAnalysisBuilder::domainChange - Algorithm::domainChanged failed\n";
-    return -5;
-  }
+//  if (theAlgorithm && theAlgorithm->domainChanged() < 0) {
+//    opserr << "BasicAnalysisBuilder::domainChange - Algorithm::domainChanged failed\n";
+//    return -5;
+//  }
 
   return 0;
 }
@@ -303,15 +314,19 @@ BasicAnalysisBuilder::analyze(int num_steps, double size_steps)
 
     case CURRENT_STATIC_ANALYSIS:
       return this->analyzeStatic(num_steps);
-//    return theStaticAnalysis->analyze(num_steps);
       break;
 
-    case CURRENT_TRANSIENT_ANALYSIS:
+    case CURRENT_TRANSIENT_ANALYSIS: {
       // TODO: Set global timestep variable
       ops_Dt = size_steps;
+      DirectIntegrationAnalysis   aTransientAnalysis(*theDomain,*theHandler,*theNumberer,
+                                                     *theAnalysisModel,*theAlgorithm,
+                                                     *theSOE,*theTransientIntegrator,
+                                                     theTest);
+      return aTransientAnalysis.analyze(num_steps, size_steps);
 //    return this->analyzeTransient(num_steps, size_steps);
-      return theTransientAnalysis->analyze(num_steps, size_steps);
       break;
+    }
 
     default:
       opserr << G3_ERROR_PROMPT << "No Analysis type has been specified \n";
@@ -384,6 +399,101 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
   return 0;
 }
 
+int 
+BasicAnalysisBuilder::analyzeTransient(int numSteps, double dT)
+{
+  int result = 0;
+
+  for (int i=0; i<numSteps; i++) {
+    result = this->analyzeStep(dT);
+    if (result < 0) {
+      if (numSubLevels != 0)
+	result = this->analyzeSubLevel(1, dT);
+      if (result < 0)
+	return result;
+    }
+  }
+  return result;
+}
+
+int
+BasicAnalysisBuilder::analyzeSubLevel(int level, double dT)
+{
+  int result = 0;
+  if (numSubSteps == 0)
+    return -1;
+
+  double stepDT = dT/(numSubSteps*1.);
+
+  for (int i=0; i<numSubSteps; i++) {
+    result = this->analyzeStep(stepDT);
+    if (result < 0) {
+      if (level == numSubLevels) {
+	return result;
+      } else {
+	result = this->analyzeSubLevel(level+1, stepDT);
+	if (result < 0)
+	  return result;
+      }
+    }
+  }
+  return result;
+}
+
+// analyze a transient step
+int 
+BasicAnalysisBuilder::analyzeStep(double dT)
+{
+  int result = 0;
+  if (theAnalysisModel->analysisStep(dT) < 0) {
+    opserr << "DirectIntegrationAnalysis::analyze() - the AnalysisModel failed";
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();
+    return -2;
+  }
+  
+  // check if domain has undergone change
+  int stamp = theDomain->hasDomainChanged();
+  if (stamp != domainStamp) {
+    domainStamp = stamp;	
+    if (this->domainChanged() < 0) {
+      opserr << "DirectIntegrationAnalysis::analyze() - domainChanged() failed\n";
+      return -1;
+    }
+  }
+  
+  if (theTransientIntegrator->newStep(dT) < 0) {
+    opserr << "DirectIntegrationAnalysis::analyze() - the Integrator failed";
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();
+    theTransientIntegrator->revertToLastStep();
+    return -2;
+  }
+  
+  result = theAlgorithm->solveCurrentStep();
+  if (result < 0) {
+    opserr << "DirectIntegrationAnalysis::analyze() - the Algorithm failed";
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();	    
+    theTransientIntegrator->revertToLastStep();
+    return -3;
+  }
+
+  
+  result = theTransientIntegrator->commit();
+  if (result < 0) {
+    opserr << "DirectIntegrationAnalysis::analyze() - ";
+    opserr << "the Integrator failed to commit";
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();	    
+    theTransientIntegrator->revertToLastStep();
+    return -4;
+  } 
+    
+  return result;
+}
+
+
 
 void 
 BasicAnalysisBuilder::set(ConstraintHandler* obj) 
@@ -417,15 +527,16 @@ BasicAnalysisBuilder::set(EquiSolnAlgo* obj)
 
   theAlgorithm = obj;
 
-  this->setLinks(this->CurrentAnalysisFlag);
-
   if (theTest != nullptr)
     theAlgorithm->setConvergenceTest(theTest);
   else   // this else is for backward compatibility. // ?
     theTest = theAlgorithm->getConvergenceTest();
-    
-  if (domainStamp != 0)
-    theAlgorithm->domainChanged();
+
+  this->setLinks(this->CurrentAnalysisFlag);
+
+  // Algorithms dont do anything on domainChanged()?
+  // if (domainStamp != 0)
+  //   theAlgorithm->domainChanged();
 }
 
 void
@@ -456,23 +567,23 @@ void
 BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
 {
 
-    if (isstatic == 1) {
-        if (theStaticIntegrator != nullptr)
-          delete theStaticIntegrator;
+  if (isstatic == 1) {
+      if (theStaticIntegrator != nullptr)
+        delete theStaticIntegrator;
 
-        theStaticIntegrator = dynamic_cast<StaticIntegrator*>(obj);
+      theStaticIntegrator = dynamic_cast<StaticIntegrator*>(obj);
 
-        this->setLinks(CURRENT_STATIC_ANALYSIS);
+      this->setLinks(CURRENT_STATIC_ANALYSIS);
 
-    } else {
+  } else {
 
-        if (theTransientIntegrator != nullptr)
-          delete theTransientIntegrator;
+      if (theTransientIntegrator != nullptr)
+        delete theTransientIntegrator;
 
-        theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
-        
-        this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
-    }
+      theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
+      
+      this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
+  }
 }
 
 
@@ -550,6 +661,7 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 
 }
 
+#if 0
 void BasicAnalysisBuilder::newStaticAnalysis()
 {
     assert(theDomain != nullptr);
@@ -563,6 +675,7 @@ void BasicAnalysisBuilder::newStaticAnalysis()
     theStaticAnalysis = new StaticAnalysis(*theDomain,*theHandler,*theNumberer,*theAnalysisModel,
                                            *theAlgorithm,*theSOE,*theStaticIntegrator,theTest);
 }
+#endif
 
 int
 BasicAnalysisBuilder::setStaticAnalysis()
@@ -580,8 +693,8 @@ BasicAnalysisBuilder::setStaticAnalysis()
 int
 BasicAnalysisBuilder::setTransientAnalysis()
 {
-  if (theTransientAnalysis == nullptr)
-    this->newTransientAnalysis();
+//  if (theTransientAnalysis == nullptr)
+//    this->newTransientAnalysis();
 
   this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
   this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
@@ -613,9 +726,10 @@ void
 BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
 {
   assert(theAnalysisModel != nullptr);
-  if (theHandler == nullptr) {
+
+  if (theHandler == nullptr)
     theHandler = new TransformationConstraintHandler();
-  }
+
   this->fillDefaults(CURRENT_STATIC_ANALYSIS);
   this->setLinks(CURRENT_STATIC_ANALYSIS);
 
@@ -798,402 +912,12 @@ BasicAnalysisBuilder::getConvergenceTest()
   return theTest;
 }
 
-#if 0
-
-// static int ops_printEle(OPS_Stream &output, PyObject *args);
-// static int ops_printNode(OPS_Stream &output, PyObject *args);
-// static int ops_printAlgo(OPS_Stream &output, PyObject *args);
-// static int ops_printInteg(OPS_Stream &output, PyObject *args);
-
-PyObject *ops_printModel(PyObject *self, PyObject *args)
+void
+BasicAnalysisBuilder::formUnbalance()
 {
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    // file stream
-    FileStream outputFile;
-    OPS_Stream *output = &opserr;
-
-    // domain
-    Domain& theDomain = *(OPS_GetDomain());
-
-    // just printModel()
-    int numData = OPS_GetNumRemainingInputArgs();
-    if (numData == 0) {
-        opserr << theDomain;
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-
-    // printModel()
-    int res = 0;
-    while(numData > 0) {
-        std::string type = OPS_GetString();
-        if (type=="-ele" || type=="ele") {
-            res = ops_printEle(*output,args);
-            break;
-        } else if (type=="-node" || type=="node") {
-            res = ops_printNode(*output,args);
-            break;
-        } else if (type=="-integrator" || type=="integrator") {
-            res = ops_printInteg(*output,args);
-            break;
-        } else if (type=="-algorithm" || type=="algorithm") {
-            res = ops_printAlgo(*output,args);
-            break;
-        } else {
-            // open file
-            if (type=="-file" || type=="file") {
-                type = OPS_GetString();
-                numData = OPS_GetNumRemainingInputArgs();
-            }
-            if (outputFile.setFile(type.c_str(), openMode::APPEND) != 0) {
-                PyErr_SetString(PyExc_RuntimeError,"failed to open file ");
-                return NULL;
-            }
-
-            // just print(filename)
-            if (numData == 0) {
-                outputFile << theDomain;
-                Py_INCREF(Py_None);
-                return Py_None;
-            }
-            output = &outputFile;
-        }
-    }
-
-    if (res < 0) {
-        PyErr_SetString(PyExc_RuntimeError,"failed to print ");
-        return NULL;
-    }
-
-    // close the output file
-    outputFile.close();
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-int ops_printEle(OPS_Stream &output, PyObject *args)
-{
-    int flag = 0;
-
-    Domain& theDomain = *(OPS_GetDomain());
-
-    // just print(<filename>, 'ele')
-    if (OPS_GetNumRemainingInputArgs() == 0) {
-        ElementIter &theElements = theDomain.getElements();
-        Element *theElement;
-        while ((theElement = theElements()) != 0) {
-            theElement->Print(output);
-        }
-        return 0;
-    }
-
-    // if 'print <filename> Element flag int <int int ..>' get the flag
-    std::string type = OPS_GetString();
-    if (type=="flag" || type=="-flag") {
-        if (OPS_GetNumRemainingInputArgs() < 1) {
-            opserr << "WARNING printModel(<filename>, 'ele', <'flag', int> no int specified \n";
-            return -1;
-        }
-        int numData = 1;
-        if (OPS_GetIntInput(&numData,&flag) < 0) return -1;
-    } else {
-        int numData = OPS_GetNumRemainingInputArgs();
-        int numArgs = PyTuple_Size(args);
-        OPS_ResetCommandLine(numArgs, numArgs-numData-1, args);
-    }
-
-    // now print the Elements with the specified flag, 0 by default
-    int numEle = OPS_GetNumRemainingInputArgs();
-    if (numEle == 0) {
-        ElementIter &theElements = theDomain.getElements();
-        Element *theElement;
-        while ((theElement = theElements()) != 0) {
-            theElement->Print(output, flag);
-        }
-        return 0;
-    } else {
-
-        // otherwise print out the specified nodes i j k .. with flag
-        ID theEle(numEle);
-        if (OPS_GetIntInput(&numEle, &theEle(0)) < 0) return -1;
-        theDomain.Print(output, 0, &theEle, flag);
-    }
-
-    return 0;
-}
-
-int ops_printNode(OPS_Stream &output, PyObject *args)
-{
-    int flag = 0;
-
-    Domain& theDomain = *(OPS_GetDomain());
-
-    // just print(<filename>, 'node')
-    if (OPS_GetNumRemainingInputArgs() == 0) {
-        NodeIter &theNodes = theDomain.getNodes();
-        Node *theNode;
-        while((theNode = theNodes()) != 0) {
-            theNode->Print(output);
-        }
-        return 0;
-    }
-
-    // if 'print <filename> node flag int <int int ..>' get the flag
-    std::string type = OPS_GetString();
-    if (type=="flag" || type=="-flag") {
-        if (OPS_GetNumRemainingInputArgs() < 1) {
-            opserr << "WARNING printModel(<filename>, 'ele', <'flag', int> no int specified \n";
-            return -1;
-        }
-        int numData = 1;
-        if (OPS_GetIntInput(&numData,&flag) < 0) return -1;
-    } else {
-        int numData = OPS_GetNumRemainingInputArgs();
-        int numArgs = PyTuple_Size(args);
-        OPS_ResetCommandLine(numArgs, numArgs-numData-1, args);
-    }
-
-    // now print the nodes with the specified flag, 0 by default
-    int numNode = OPS_GetNumRemainingInputArgs();
-    if (numNode == 0) {
-        NodeIter &theNodes = theDomain.getNodes();
-        Node *theNode;
-        while ((theNode = theNodes()) != 0) {
-            theNode->Print(output, flag);
-        }
-        return 0;
-    } else {
-
-        // otherwise print out the specified nodes i j k .. with flag
-        ID theNode(numNode);
-        if (OPS_GetIntInput(&numNode, &theNode(0)) < 0) return -1;
-        theDomain.Print(output, &theNode, 0, flag);
-    }
-
-    return 0;
-}
-
-int ops_printAlgo(OPS_Stream &output, PyObject *args)
-{
-    EquiSolnAlgo* theAlgorithm = anaBuilder.getAlgorithm();
-    if (theAlgorithm == 0) return 0;
-
-    // if just 'print <filename> algorithm'- no flag
-    if (OPS_GetNumRemainingInputArgs() == 0) {
-        theAlgorithm->Print(output);
-        return 0;
-    }
-
-    // if 'print <filename> Algorithm flag' get the flag
-    int flag;
-    int numData = 1;
-    if (OPS_GetIntInput(&numData, &flag) < 0) return -1;
-    theAlgorithm->Print(output,flag);
-
-    return 0;
-}
-
-int ops_printInteg(OPS_Stream &output, PyObject *args)
-{
-    StaticIntegrator* theStaticIntegrator=anaBuilder.getStaticIntegrator();
-    TransientIntegrator* theTransientIntegrator=anaBuilder.getTransientIntegrator();
-
-    if (theStaticIntegrator == 0 && theTransientIntegrator==0)
-        return 0;
-
-    IncrementalIntegrator *theIntegrator;
     if (theStaticIntegrator != 0)
-        theIntegrator = theStaticIntegrator;
-    else
-        theIntegrator = theTransientIntegrator;
-
-    // if just 'print <filename> algorithm'- no flag
-    if (OPS_GetNumRemainingInputArgs() == 0) {
-        theIntegrator->Print(output);
-        return 0;
-    }
-
-    // if 'print <filename> Algorithm flag' get the flag
-    int flag;
-    int numData = 1;
-    if (OPS_GetIntInput(&numData, &flag) < 0) return -1;
-    theIntegrator->Print(output,flag);
-
-    return 0;
+      theStaticIntegrator->formUnbalance();
+    else if (theTransientIntegrator != 0)
+      theTransientIntegrator->formUnbalance();
 }
 
-PyObject *ops_wipeModel(PyObject *self, PyObject *args)
-{
-    anaBuilder.wipe();
-    anaBuilder.resetAll();
-
-    // wipe domain
-    // Domain* theDomain = OPS_GetDomain();
-    theDomain->clearAll();
-
-    // wipe uniaxial material
-    OPS_clearAllUniaxialMaterial();
-    OPS_clearAllNDMaterial();
-
-    // wipe sections
-    OPS_clearAllSectionForceDeformation();
-    OPS_clearAllSectionRepres();
-
-    // wipe time series
-    OPS_clearAllTimeSeries();
-
-    // wipe GeomTransf
-    OPS_ClearAllCrdTransf();
-
-    // wipe BeamIntegration
-    OPS_clearAllBeamIntegrationRule();
-
-    ops_Dt = 0.0;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject *ops_getLoadFactor(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    int numData = OPS_GetNumRemainingInputArgs();
-    if (numData < 1) {
-        PyErr_SetString(PyExc_RuntimeError,"want patternTag");
-        return NULL;
-    }
-
-    // get inputs
-    int patternTag;
-    numData = 1;
-    if (OPS_GetIntInput(&numData,&patternTag) < 0) return NULL;
-
-    // get load pattern
-    Domain& theDomain = *(OPS_GetDomain());
-    LoadPattern* thePattern = theDomain.getLoadPattern(patternTag);
-    if (thePattern == 0) {
-        PyErr_SetString(PyExc_RuntimeError,"the load pattern is not found");
-        return NULL;
-    }
-
-    // get load factor
-    double value = thePattern->getLoadFactor();
-    return Py_BuildValue("d", value);
-}
-
-PyObject *ops_setLoadConst(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    int numData = OPS_GetNumRemainingInputArgs();
-    if (numData < 2) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-
-    // Domain* theDomain = OPS_GetDomain();
-    theDomain->setLoadConstant();
-
-    std::string type = OPS_GetString();
-
-    if (type == "-time") {
-        double newTime;
-        numData = 1;
-        if (OPS_GetDoubleInput(&numData,&newTime) < 0) return NULL;
-        theDomain->setCurrentTime(newTime);
-        theDomain->setCommittedTime(newTime);
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject *ops_eigenAnalysis(PyObject *self, PyObject *args)
-{
-    OPS_ResetCommandLine(PyTuple_Size(args), 0, args);
-
-    // check inputs
-    int numArgs = OPS_GetNumRemainingInputArgs();
-    if (numArgs < 1) {
-        PyErr_SetString(PyExc_RuntimeError,"ERROR eigen('type',numModes)");
-        return NULL;
-    }
-
-    // get parameters
-    bool generalizedAlgo = true; // 0 - frequency/generalized (default),
-                                 // 1 - standard,
-                                 // 2 - buckling
-    int typeSolver = EigenSOE_TAGS_ArpackSOE;
-    double shift = 0.0;
-    bool findSmallest = true;
-    this->numEigen = 0;
-
-    // check type of eigenvalue analysis
-    if (numArgs >1) {
-        std::string type = OPS_GetString();
-        if (type=="frequency"||type=="-frenquency"||type=="generalized"||type=="-generalized") {
-            generalizedAlgo = true;
-        } else if (type=="standard"||type=="-standard") {
-            generalizedAlgo = false;
-        } else if (type=="-findLargest") {
-            findSmallest = false;
-        } else if (type=="genBandArpack"||type=="--genBandArpack"||
-                  type=="genBandArpackEigen"||type=="-genBandArpackEigen") {
-            typeSolver = EigenSOE_TAGS_ArpackSOE;
-        } else if (type=="symmBandLapack"||type=="-symmBandLapack"||
-                  type=="symmBandLapackEigen"||type=="-symmBandLapackEigen") {
-            typeSolver = EigenSOE_TAGS_SymBandEigenSOE;
-        } else if (type=="fullGenLapack"||type=="-fullGenLapack"||
-                  type=="fullGenLapackEigen"||type=="-fullGenLapackEigen") {
-            typeSolver = EigenSOE_TAGS_FullGenEigenSOE;
-        } else {
-            PyErr_SetString(PyExc_RuntimeError,"eigen - unknown option specified");
-            return NULL;
-        }
-    }
-
-    int numData = 1;
-    if (OPS_GetIntInput(&numData,&numEigen) < 0) return NULL;
-
-    anaBuilder.newEigenAnalysis(typeSolver,shift);
-
-    // create a transient analysis if no analysis exists
-
-    StaticAnalysis* theStaticAnalysis = anaBuilder.getStaticAnalysis();
-    DirectIntegrationAnalysis* theTransientAnalysis = anaBuilder.getTransientAnalysis();
-    if (theStaticAnalysis == 0 && theTransientAnalysis == 0) {
-        anaBuilder.newTransientAnalysis();
-    }
-
-    // call analysis
-    int res = 0;
-    if (theStaticAnalysis != 0) {
-        res = theStaticAnalysis->eigen(numEigen,generalizedAlgo,findSmallest);
-    } else if (theTransientAnalysis != 0) {
-        res = theTransientAnalysis->eigen(numEigen,generalizedAlgo,findSmallest);
-    }
-
-    // return
-    PyObject* theList = PyList_New(0);
-    if (res == 0) {
-        const Vector& eigenvalues = theDomain->getEigenvalues();
-        // get list
-        if (theList == 0) {
-            PyErr_SetString(PyExc_RuntimeError,"failed to create disp list");
-            return NULL;
-        }
-
-        for (int i=0; i<numEigen; i++) {
-            if (PyList_Append(theList,Py_BuildValue("d",eigenvalues(i))) < 0) {
-                PyErr_SetString(PyExc_RuntimeError,"failed to create disp list");
-                return NULL;
-            }
-        }
-    }
-
-    return theList;
-
-}
-#endif

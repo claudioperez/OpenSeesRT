@@ -43,17 +43,17 @@
 #include <DOF_Numberer.h>
 
 
-extern StaticIntegrator *theStaticIntegrator;
-extern TransientIntegrator *theTransientIntegrator;
-extern DirectIntegrationAnalysis *theTransientAnalysis;
-extern VariableTimeStepDirectIntegrationAnalysis
-           *theVariableTimeStepTransientAnalysis;
+// extern StaticIntegrator *theStaticIntegrator;
+// extern TransientIntegrator *theTransientIntegrator;
+// extern DirectIntegrationAnalysis *theTransientAnalysis;
+// extern VariableTimeStepDirectIntegrationAnalysis
+//            *theVariableTimeStepTransientAnalysis;
 
 // extern ConvergenceTest   *theTest;
 // extern DOF_Numberer      *theGlobalNumberer ;
 // extern EigenSOE          *theEigenSOE;
 // extern LinearSOE         *theSOE;
-extern ConstraintHandler *theHandler ;
+// extern ConstraintHandler *theHandler ;
 
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
@@ -97,6 +97,10 @@ extern Tcl_CmdProc getCTestIter;
 
 
 DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**const);
+// TODO: consolidate
+extern int TclCommand_algorithmRecorder(ClientData clientData, Tcl_Interp *interp,
+                                   int argc, TCL_Char ** const argv); //, EquiSolnAlgo *theAlgorithm);
+
 // int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
 //
@@ -141,6 +145,8 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "accelCPU",  &TclCommand_accelCPU,          builder, nullptr);
   Tcl_CreateCommand(interp, "totalCPU",  &TclCommand_totalCPU,          builder, nullptr);
   Tcl_CreateCommand(interp, "solveCPU",  &TclCommand_solveCPU,          builder, nullptr);
+  // recorder.cpp
+  Tcl_CreateCommand(interp, "algorithmRecorder",   &TclCommand_algorithmRecorder, builder, nullptr);
   return TCL_OK;
 }
 
@@ -298,8 +304,8 @@ static int
 eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char ** const argv)
 {
-  /* static */ char *resDataPtr = 0;
-  /* static */ int resDataSize = 0;
+  static  char *resDataPtr = 0;
+  static  int resDataSize = 0;
 
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
@@ -381,7 +387,6 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
   for (int i = 0; i < requiredDataSize; i++)
     resDataPtr[i] = '\n';
-
 
   //
   // create a transient analysis if no analysis exists
@@ -662,10 +667,7 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   if (theSOE != nullptr) {
 
     // TODO
-    if (theStaticIntegrator != 0)
-      theStaticIntegrator->formUnbalance();
-    else if (theTransientIntegrator != 0)
-      theTransientIntegrator->formUnbalance();
+    builder->formUnbalance();
 
     const Vector &b = theSOE->getB();
     if (ret) {
@@ -691,10 +693,12 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 int
 wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
+#if 0
   if (cd != nullptr) {
     BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)cd;
     builder->wipe();
   }
+#endif
   return TCL_OK;
 }
 
@@ -715,6 +719,7 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
+  ConstraintHandler *theHandler = nullptr;
   // check argv[1] for type of Numberer and create the object
   if (strcmp(argv[1], "Plain") == 0)
     theHandler = new PlainHandler();
