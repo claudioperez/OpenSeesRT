@@ -64,6 +64,7 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
   nodeLoadTag = 0;
   eleArgStart = 0;
   registry  = G3_NewTable();
+  shared_registry  = G3_NewTable();
 
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
@@ -101,9 +102,11 @@ BasicModelBuilder::~BasicModelBuilder()
   
   // TODO
   // G3_DelTable(registry);
+  // G3_DelTable(shared_registry);
 
   // theTclMultiSupportPattern = 0;
 
+// TODO
   // may possibly invoke Tcl_DeleteCommand() later
   // Tcl_DeleteCommand(theInterp, "node");
   // Tcl_DeleteCommand(theInterp, "element");
@@ -113,6 +116,10 @@ BasicModelBuilder::~BasicModelBuilder()
   // Tcl_DeleteCommand(theInterp, "pattern");
   // Tcl_DeleteCommand(theInterp, "timeSeries");
   // Tcl_DeleteCommand(theInterp, "load");
+
+//  static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
+//  for (int i = 0; i < ncmd; i++)
+//    Tcl_DeleteCommand(interp, tcl_char_cmds[i].name);
 }
 
 //
@@ -154,6 +161,21 @@ BasicModelBuilder::iterate(const char* partition)
 {
   return G3_IteratePartition(registry, partition);
 }
+
+#if 0
+const void* 
+BasicModelBuilder::getSharedObject(const char* partition, int tag)
+{
+  return const_cast<void*>(G3_GetTableEntry(shared_registry, partition, tag));
+}
+
+int
+BasicModelBuilder::addRegistryObject(const char* partition, int tag, const void *obj)
+{
+  G3_AddTableEntry(shared_registry, partition, tag, obj);
+  return 1;
+}
+#endif
 
 void* 
 BasicModelBuilder::getRegistryObject(const char* partition, int tag)
@@ -295,7 +317,6 @@ BasicModelBuilder::addSectionRepres(SectionRepres &instance)
 NDMaterial*
 BasicModelBuilder::getNDMaterial(const std::string &name)
 {
-  // NDMaterial *instance = m_NDMaterialMap.at(name);
   auto iter = m_NDMaterialMap.find(name);
   if (iter != m_NDMaterialMap.end()) {
     return iter->second;
@@ -337,7 +358,6 @@ UniaxialMaterial*
 BasicModelBuilder::getUniaxialMaterial(const std::string &name)
 {
   return (UniaxialMaterial*)getRegistryObject("UniaxialMaterial", std::stoi(name));
-// // UniaxialMaterial *instance = m_UniaxialMaterialMap.at(name);
 // auto iter = m_UniaxialMaterialMap.find(name);
 // if (iter != m_UniaxialMaterialMap.end()) {
 //   return iter->second->getCopy();
