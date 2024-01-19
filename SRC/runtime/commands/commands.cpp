@@ -66,17 +66,7 @@
 // Global variables
 //
 class ModelBuilder;
-StaticAnalysis        *theStaticAnalysis = nullptr;
-ConstraintHandler     *theHandler = nullptr;
 ModelBuilder          *theBuilder         = nullptr;
-EquiSolnAlgo          *theAlgorithm       = nullptr;
-DOF_Numberer          *theGlobalNumberer      = nullptr;
-LinearSOE             *theSOE                 = nullptr;
-EigenSOE              *theEigenSOE            = nullptr;
-StaticIntegrator      *theStaticIntegrator    = nullptr;
-TransientIntegrator   *theTransientIntegrator = nullptr;
-
-DirectIntegrationAnalysis *theTransientAnalysis = nullptr;
 VariableTimeStepDirectIntegrationAnalysis
                       *theVariableTimeStepTransientAnalysis = nullptr;
 //
@@ -87,7 +77,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
 
-
 Tcl_CmdProc TclCommand_record;
 Tcl_CmdProc TclCommand_setLoadConst;
 Tcl_CmdProc TclCommand_setCreep;
@@ -96,8 +85,6 @@ Tcl_CmdProc TclCommand_setCreep;
 // TODO: reimplement defaultUnits and setParameter
 // int defaultUnits(ClientData, Tcl_Interp *, int, TCL_Char ** const argv);
 // int setParameter(ClientData, Tcl_Interp *, int, TCL_Char **);
-
-
 int
 G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 {
@@ -106,7 +93,6 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
 
   Tcl_CreateCommand(interp, "loadConst",           &TclCommand_setLoadConst, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "algorithmRecorder", &addAlgoRecorder, domain, nullptr);
 
   Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "region",              &addRegion,     domain, nullptr);
@@ -235,20 +221,6 @@ getLoadFactor(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-
-// TODO: consolidate
-extern int TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char ** const argv, EquiSolnAlgo *theAlgorithm);
-
-int
-addAlgoRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
-                TCL_Char** const argv)
-{
-  if (theAlgorithm != nullptr)
-    return TclAddAlgorithmRecorder(clientData, interp, argc, argv, theAlgorithm);
-  else
-    return TCL_ERROR;
-}
 
 
 
@@ -420,7 +392,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         } else {
           const ID &cDOFs = theMP->getConstrainedDOFs();
-          for (i = 0; i < n; i++) {
+          for (int i = 0; i < n; i++) {
             if (cDOF == cDOFs(i))
               retained(rDOFs(i)) = 1;
           }
@@ -451,9 +423,9 @@ updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
 
   ElementIter &theElements = domain->getElements();
   Element *theElement;
-  while ((theElement = theElements()) != nullptr) {
+  while ((theElement = theElements()) != nullptr)
     theElement->setDomain(domain);
-  }
+
   return 0;
 }
 

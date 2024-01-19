@@ -135,7 +135,7 @@ EigenAnalysis::domainChanged()
     theSOE->setSize(theGraph);
 
     theIntegrator->domainChanged();
-    theAlgorithm->domainChanged();
+    // theAlgorithm->domainChanged();
 
     return 0;
 }

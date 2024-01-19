@@ -47,7 +47,6 @@
 #include <Element.h>
 #include <Parameter.h>
 #include <DamageModel.h>
-#include <EquiSolnAlgo.h>
 #include <packages.h>
 
 // Streams
@@ -1468,36 +1467,6 @@ TclCommand_record(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
   return TCL_OK;
 }
 
-int
-TclAddAlgorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv, EquiSolnAlgo *theAlgo)
-{
-  Recorder *theRecorder = nullptr;
-  Domain* domain = (Domain*)clientData;
-
-  TclCreateRecorder(clientData, interp, argc, argv, *domain, &theRecorder);
-
-  if (theRecorder == nullptr) {
-    char buffer[] = "-1";
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-    return TCL_ERROR;
-  }
-
-  // add the recorder to the domain,
-  // NOTE: will not be called with theALgo == 0
-  if (theAlgo != nullptr) {
-    if ((theAlgo->addRecorder(*theRecorder)) < 0) {
-      opserr << "WARNING could not add to domain - recorder " << argv[1]
-             << endln;
-      delete theRecorder;
-      return TCL_ERROR;
-    }
-  }
-
-  int recorderTag = theRecorder->getTag();
-  Tcl_SetObjResult(interp, Tcl_NewIntObj(recorderTag));
-  return TCL_OK;
-}
 
 // by SAJalali
 int

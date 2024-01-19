@@ -7,18 +7,18 @@
 # SET UP ----------------------------------------------------------------------------
 wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 3 -ndf 6;	# Define the model builder, ndm=#dimension, ndf=#dofs
-set dataDir Output;			# set up name of data directory
+set dataDir out;			# set up name of data directory
 file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles";		# ground-motion file directory
+set GMdir ./Motions;		# ground-motion file directory
+#source DisplayPlane.tcl;		# procedure for displaying a plane in model
+#source DisplayModel3D.tcl;		# procedure for displaying 3D perspectives of model
 source LibUnits.tcl;			# define units
-source DisplayPlane.tcl;		# procedure for displaying a plane in model
-source DisplayModel3D.tcl;		# procedure for displaying 3D perspectives of model
-source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
+source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # ------ frame configuration
-set NStory 2;			# number of stories above ground level
-set NBay 2;			# number of bays in X direction
-set NBayZ 2;			# number of bays in Z direction
+set NStory 3;			# number of stories above ground level
+set NBay   2;			# number of bays in X direction
+set NBayZ  2;			# number of bays in Z direction
 puts "Number of Stories in Y: $NStory Number of bays in X: $NBay Number of bays in Z: $NBayZ"
 set NFrame [expr $NBayZ + 1];	# actually deal with frames in Z direction, as this is an easy extension of the 2d model
 
@@ -290,7 +290,7 @@ set MassTotal [expr $WeightTotal/$g];						# total mass
 
 #------------------------------------------------------------------------------------------------------------------
 #Eigenvalue analysis
-
+constraints Transformation
 set numModes 3
 set lambda [eigen  $numModes];
 

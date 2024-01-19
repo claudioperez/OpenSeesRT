@@ -13,7 +13,7 @@ set GMdir "../GMfiles/";			# ground-motion file directory
 source LibUnits.tcl;			# define units
 # source DisplayPlane.tcl;		# procedure for displaying a plane in model
 # source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
-source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
+source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters

@@ -424,12 +424,12 @@ StaticDomainDecompositionAnalysis::domainChanged(void)
     return -4;
   }	    
 
-  result = theAlgorithm->domainChanged();
-  if (result < 0) {
-    opserr << "StaticDomainDecompositionAnalysis::setAlgorithm() - ";
-    opserr << "Algorithm::domainChanged() failed";
-    return -5;
-  }	        
+//  result = theAlgorithm->domainChanged();
+//  if (result < 0) {
+//    opserr << "StaticDomainDecompositionAnalysis::setAlgorithm() - ";
+//    opserr << "Algorithm::domainChanged() failed";
+//    return -5;
+//  }	        
 
   // if get here successful
   return 0;
@@ -736,8 +736,8 @@ StaticDomainDecompositionAnalysis::setAlgorithm(EquiSolnAlgo &theNewAlgorithm)
 
   // invoke domainChanged() either indirectly or directly
   // domainStamp = 0;
-  if (domainStamp != 0)
-    theAlgorithm->domainChanged();  
+//  if (domainStamp != 0)
+//    theAlgorithm->domainChanged();  
   return 0;
 }
 

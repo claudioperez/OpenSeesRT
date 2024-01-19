@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/BRACE2/OpenSeesRT/blob/master/docs/figures/peer-black.svg" width="250px">
+<img align="left" src="https://github.com/claudioperez/sdof/blob/master/docs/assets/peer-black.svg" width="250px">
 
 # OpenSeesRT
 
@@ -6,7 +6,7 @@
 
 <br>
 
-Optimized kernel for the experimental [`opensees`](https://github.com/BRACE2/opensees) package.
+Optimized kernel for the experimental [`opensees`](https://github.com/claudioperez/opensees) package.
 
 <div style="align:center">
 
@@ -22,3 +22,32 @@ Optimized kernel for the experimental [`opensees`](https://github.com/BRACE2/ope
 
 --------------------------------------------------------------------
 
+
+## Support
+
+<table align="center">
+<tr>
+
+  <td>
+    <a href="https://peer.berkeley.edu">
+    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png"
+         alt="PEER Logo" width="120"/>
+    </a>
+  </td>
+
+  <td>
+    <a href="https://dot.ca.gov/">
+    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/Caltrans.svg.png"
+         alt="Caltrans Logo" width="120"/>
+    </a>
+  </td>
+
+  <td>
+    <a href="https://github.com/BRACE2">
+    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/brace2_logo-new3_ungrouped.svg"
+         alt="BRACE2 Logo" width="120"/>
+    </a>
+  </td>
+ 
+ </tr>
+</table>
