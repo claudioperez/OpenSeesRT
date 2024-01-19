@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------------------------
-# Example 6. 2D RC Frame
+# Example 6. 2D Frame --  Inelastic Uniaxial Section
 #		Silvia Mazzoni & Frank McKenna, 2006
 # nonlinearBeamColumn element, inelastic fiber section
 #
@@ -9,11 +9,10 @@ wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;			# set up name of data directory (can remove this)
 file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles/";			# ground-motion file directory
+set GMdir "Motions";			# ground-motion file directory
+source DisplayPlane.tcl;		# procedure for displaying a plane in model
+source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
 source LibUnits.tcl;			# define units
-# source DisplayPlane.tcl;		# procedure for displaying a plane in model
-# source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
-source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -31,8 +30,6 @@ for {set level 1} {$level <=[expr $NStory+1]} {incr level 1} {
 		node $nodeID $X $Y;		# actually define node
 	}
 }
-
-
 # determine support nodes where ground motions are input, for multiple-support excitation
 set iSupportNode ""
 set level 1
@@ -40,6 +37,7 @@ for {set pier 1} {$pier <= [expr $NBay+1]} {incr pier 1} {
 	set nodeID [expr $level*10+$pier]
 	lappend iSupportNode $nodeID
 }
+
 
 
 # BOUNDARY CONDITIONS
@@ -52,66 +50,47 @@ set IDctrlNode [expr ($NStory+1)*10+1];		# node where displacement is read for d
 set IDctrlDOF 1;		# degree of freedom of displacement read for displacement control
 set LBuilding [expr $NStory*$LCol];	# total building height
 
-# Define SECTIONS -------------------------------------------------------------
-set SectionType FiberSection;		# options: Elastic FiberSection
+# Define ELEMENTS & SECTIONS  -------------------------------------------------------------
+set ColSecTag 1;				# assign a tag number to the column section tag
+set ColMatTagFlex 2;			# assign a tag number to the column flexural behavior
+set ColMatTagAxial 3;			# assign a tag number to the column axial behavior	
+set BeamSecTag 4;				# assign a tag number to the beam section tag
+set BeamMatTagFlex 5;			# assign a tag number to the beam flexural behavior
+set BeamMatTagAxial 6;			# assign a tag number to the beam axial behavior	
 
-# define section tags:
-set ColSecTag 1
-set BeamSecTag 2
+# define MATERIAL properties ----------------------------------------
+set Fy [expr 6.0*$ksi]
+set Es [expr 29000*$ksi];		# Steel Young's Modulus
+set nu 0.3;
+set Gs [expr $Es/2./[expr 1+$nu]];  	# Torsional stiffness Modulus
 
-# Section Properties:
-set HCol [expr 24*$in];		# square-Column width
-set BCol $HCol
-set HBeam [expr 42*$in];		# Beam depth -- perpendicular to bending axis
-set BBeam [expr 24*$in];		# Beam width -- parallel to bending axis
+# COLUMN section W27x114
+set AgCol [expr 33.5*pow($in,2)];		# cross-sectional area
+set IzCol [expr 4090.*pow($in,4)];		# moment of Inertia
+set EICol [expr $Es*$IzCol];				# EI, for moment-curvature relationship
+set EACol [expr $Es*$AgCol];				# EA, for axial-force-strain relationship
+set MyCol [expr 2e4*$kip*$in];			# yield moment
+set PhiYCol [expr 0.25e-3/$in];			# yield curvature
+set PhiYCol [expr $MyCol/$EICol];			# yield curvature
+set EIColCrack [expr $MyCol/$PhiYCol];		# cracked section inertia
+set b 0.01 ;					# strain-hardening ratio (ratio between post-yield tangent and initial elastic tangent)
+uniaxialMaterial Steel01 $ColMatTagFlex $MyCol $EIColCrack $b; 		# bilinear behavior for flexure
+uniaxialMaterial Elastic $ColMatTagAxial $EACol;				# this is not used as a material, this is an axial-force-strain response
+section Aggregator $ColSecTag $ColMatTagAxial P $ColMatTagFlex Mz;	# combine axial and flexural behavior into one section (no P-M interaction here)
 
-if {$SectionType == "Elastic"} {
-	# material properties:
-	set fc 4000*$psi;			# concrete nominal compressive strength
-	set Ec [expr 57*$ksi*pow($fc/$psi,0.5)];	# concrete Young's Modulus
-	# column section properties:
-	set AgCol [expr $HCol*$BCol];		# rectuangular-Column cross-sectional area
-	set IzCol [expr 0.5*1./12*$BCol*pow($HCol,3)];	# about-local-z Rect-Column gross moment of inertial
-	# beam sections:
-	set AgBeam [expr $HBeam*$BBeam];		# rectuangular-Beam cross-sectional area
-	set IzBeam [expr 0.5*1./12*$BBeam*pow($HBeam,3)];	# about-local-z Rect-Beam cracked moment of inertial
-		
-	section Elastic $ColSecTag $Ec $AgCol $IzCol 
-	section Elastic $BeamSecTag $Ec $AgBeam $IzBeam 
-
-} elseif {$SectionType == "FiberSection"} {
-	# MATERIAL parameters 
-	source LibMaterialsRC.tcl;	# define library of Reinforced-concrete Materials
-
-	# FIBER SECTION properties 
-	# Column section geometry:
-	set cover [expr 2.5*$in];	# rectangular-RC-Column cover
-	set numBarsTopCol 8;		# number of longitudinal-reinforcement bars on top layer
-	set numBarsBotCol 8;		# number of longitudinal-reinforcement bars on bottom layer
-	set numBarsIntCol 6;		# TOTAL number of reinforcing bars on the intermediate layers
-	set barAreaTopCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaBotCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaIntCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-
-	set numBarsTopBeam 6;		# number of longitudinal-reinforcement bars on top layer
-	set numBarsBotBeam 6;		# number of longitudinal-reinforcement bars on bottom layer
-	set numBarsIntBeam 2;		# TOTAL number of reinforcing bars on the intermediate layers
-	set barAreaTopBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaBotBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaIntBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-
-	set nfCoreY 20;		# number of fibers in the core patch in the y direction
-	set nfCoreZ 20;		# number of fibers in the core patch in the z direction
-	set nfCoverY 20;		# number of fibers in the cover patches with long sides in the y direction
-	set nfCoverZ 20;		# number of fibers in the cover patches with long sides in the z direction
-	# rectangular section with one layer of steel evenly distributed around the perimeter and a confined core.
-	BuildRCrectSection $ColSecTag $HCol $BCol $cover $cover $IDconcCore  $IDconcCover $IDSteel $numBarsTopCol $barAreaTopCol $numBarsBotCol $barAreaBotCol $numBarsIntCol $barAreaIntCol  $nfCoreY $nfCoreZ $nfCoverY $nfCoverZ
-	BuildRCrectSection $BeamSecTag $HBeam $BBeam $cover $cover $IDconcCore  $IDconcCover $IDSteel $numBarsTopBeam $barAreaTopBeam $numBarsBotBeam $barAreaBotBeam $numBarsIntBeam $barAreaIntBeam  $nfCoreY $nfCoreZ $nfCoverY $nfCoverZ
-
-} else {
-	puts "No section has been defined"
-	return -1
-}
+# BEAM section W24x94
+set AgBeam [expr 27.7*pow($in,2)];		# cross-sectional area
+set IzBeam [expr 2700.*pow($in,4)];		# moment of Inertia
+set EIBeam [expr $Es*$IzBeam];			# EI, for moment-curvature relationship
+set EABeam [expr $Es*$AgBeam];			# EA, for axial-force-strain relationship
+set MyBeam [expr 1.5e4*$kip*$in];			# yield moment
+set PhiYBeam [expr 0.25e-3/$in];			# yield curvature
+set PhiYBeam [expr $MyBeam/$EIBeam];		# yield curvature
+set EIBeamCrack [expr $MyBeam/$PhiYBeam];		# cracked section inertia
+set b 0.01 ;					# strain-hardening ratio (ratio between post-yield tangent and initial elastic tangent)
+uniaxialMaterial Steel01 $BeamMatTagFlex $MyBeam $EIBeamCrack $b; 		# bilinear behavior for flexure
+uniaxialMaterial Elastic $BeamMatTagAxial $EABeam;				# this is not used as a material, this is an axial-force-strain response
+section Aggregator $BeamSecTag $BeamMatTagAxial P $BeamMatTagFlex Mz;	# combine axial and flexural behavior into one section (no P-M interaction here)
 
 
 # define ELEMENTS
@@ -155,9 +134,9 @@ set GammaConcrete [expr 150*$pcf];   		# Reinforced-Concrete floor slabs
 set Tslab [expr 6*$in];			# 6-inch slab
 set Lslab [expr 2*$LBeam/2]; 			# assume slab extends a distance of $LBeam1/2 in/out of plane
 set Qslab [expr $GammaConcrete*$Tslab*$Lslab]; 
-set QdlCol [expr $GammaConcrete*$HCol*$BCol];	# self weight of Column, weight per length
-set QBeam [expr $GammaConcrete*$HBeam*$BBeam];	# self weight of Beam, weight per length
+set QBeam [expr 94*$lbf/$ft];		# W-section weight per length
 set QdlBeam [expr $Qslab + $QBeam]; 	# dead load distributed along beam.
+set QdlCol [expr 114*$lbf/$ft]; 	# W-section weight per length
 set WeightCol [expr $QdlCol*$LCol];  		# total Column weight
 set WeightBeam [expr $QdlBeam*$LBeam]; 	# total Beam weight
 
@@ -182,7 +161,7 @@ for {set level 2} {$level <=[expr $NStory+1]} {incr level 1} { ;
 		set WeightNode [expr $ColWeightFact*$WeightCol/2 + $BeamWeightFact*$WeightBeam/2]
 		set MassNode [expr $WeightNode/$g];
 		set nodeID [expr $level*10+$pier]
-		mass $nodeID $MassNode 0.0 0.0;# 0.0 0.0 0.0;			# define mass
+		mass $nodeID $MassNode 0.0 0.0; # 0.0 0.0 0.0;			# define mass
 		set FloorWeight [expr $FloorWeight+$WeightNode];
 	}
 	lappend iFloorWeight $FloorWeight
@@ -227,8 +206,6 @@ recorder Element -file $dataDir/ForceEle1sec1.out -time -ele $FirstColumn sectio
 recorder Element -file $dataDir/DefoEle1sec1.out -time -ele $FirstColumn section 1 deformation;			# section deformations, axial and curvature, node i
 recorder Element -file $dataDir/ForceEle1sec$np.out -time -ele $FirstColumn section $np force;			# section forces, axial and moment, node j
 recorder Element -file $dataDir/DefoEle1sec$np.out -time -ele $FirstColumn section $np deformation;		# section deformations, axial and curvature, node j
-recorder Element -file $dataDir/SSEle1sec1.out -time -ele $FirstColumn section $np fiber 0 0 $IDSteel stressStrain;	# steel fiber stress-strain, node i
-
 
 # Define DISPLAY -------------------------------------------------------------
 #DisplayModel2D NodeNumbers
@@ -249,6 +226,7 @@ pattern Plain 101 Linear {
 		}
 	}
 }
+
 # Gravity-analysis parameters -- load-controlled static analysis
 set Tol 1.0e-8;			# convergence tolerance for test
 variable constraintsTypeGravity Plain;		# default;

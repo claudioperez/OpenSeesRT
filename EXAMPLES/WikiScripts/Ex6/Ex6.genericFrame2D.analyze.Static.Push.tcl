@@ -36,7 +36,7 @@ if {$ok != 0} {
 	while {$Dstep <= 1.0 && $ok == 0} {	
 		set controlDisp [nodeDisp $IDctrlNode $IDctrlDOF ]
 		set Dstep [expr $controlDisp/$Dmax]
-		set ok [analyze 1 ]
+		set ok [analyze 1]
 		# if analysis fails, we try some other stuff
 		# performance is slower inside this loop	global maxNumIterStatic;	    # max no. of iterations performed before "failure to converge" is ret'd
 		if {$ok != 0} {
@@ -65,7 +65,7 @@ if {$ok != 0} {
 # -----------------------------------------------------------------------------------------------------
 
 if {$ok != 0 } {
-	puts [format $fmt1 "PROBLEM" $IDctrlNode $IDctrlDOF [nodeDisp $IDctrlNode $IDctrlDOF] $LunitTXT]
+	puts [format $fmt1 "FAILED" $IDctrlNode $IDctrlDOF [nodeDisp $IDctrlNode $IDctrlDOF] $LunitTXT]
 } else {
-	puts [format $fmt1 "DONE"  $IDctrlNode $IDctrlDOF [nodeDisp $IDctrlNode $IDctrlDOF] $LunitTXT]
+	puts [format $fmt1 "Passed" $IDctrlNode $IDctrlDOF [nodeDisp $IDctrlNode $IDctrlDOF] $LunitTXT]
 }

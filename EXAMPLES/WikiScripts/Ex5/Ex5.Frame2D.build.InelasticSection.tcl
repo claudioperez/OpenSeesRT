@@ -1,17 +1,16 @@
 # --------------------------------------------------------------------------------------------------
 # Example 5. 2D Frame --  Build Model
-# nonlinearBeamColumn element, inelastic fiber section -- Reinforced Concrete Section
-#			Silvia Mazzoni & Frank McKenna, 2006
+# nonlinearBeamColumn element, uniaxial inelastic section
+#		Silvia Mazzoni & Frank McKenna, 2006
 #
 
 # SET UP ----------------------------------------------------------------------------
 wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
-set dataDir Output;			# set up name of data directory (you can remove this)
-file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles/";		# ground-motion file directory
+set dataDir Output;				# set up name of data directory (you can remove this)
+file mkdir $dataDir; 				# create data directory
+set GMdir "Motions";			# ground-motion file directory
 source LibUnits.tcl;			# define units
-source Library/BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -59,66 +58,47 @@ fix 12 1 1 0
 fix 13 1 1 0
 fix 14 1 1 0
 
-# Define SECTIONS -------------------------------------------------------------
-set SectionType FiberSection;		# options: Elastic FiberSection
+# Define ELEMENTS & SECTIONS  -------------------------------------------------------------
+set ColSecTag 1;				# assign a tag number to the column section tag
+set ColMatTagFlex 2;			# assign a tag number to the column flexural behavior
+set ColMatTagAxial 3;			# assign a tag number to the column axial behavior	
+set BeamSecTag 4;				# assign a tag number to the beam section tag
+set BeamMatTagFlex 5;			# assign a tag number to the beam flexural behavior
+set BeamMatTagAxial 6;			# assign a tag number to the beam axial behavior	
 
-# define section tags:
-set ColSecTag 1
-set BeamSecTag 2
+# define MATERIAL properties ----------------------------------------
+set Fy [expr 6.0*$ksi]
+set Es [expr 29000*$ksi];		# Steel Young's Modulus
+set nu 0.3;
+set Gs [expr $Es/2./[expr 1+$nu]];  	# Torsional stiffness Modulus
 
-# Section Properties:
-set HCol [expr 24*$in];		# square-Column width
-set BCol $HCol
-set HBeam [expr 42*$in];		# Beam depth -- perpendicular to bending axis
-set BBeam [expr 24*$in];		# Beam width -- parallel to bending axis
+# COLUMN section W27x114
+set AgCol [expr 33.5*pow($in,2)];		# cross-sectional area
+set IzCol [expr 4090.*pow($in,4)];		# moment of Inertia
+set EICol [expr $Es*$IzCol];				# EI, for moment-curvature relationship
+set EACol [expr $Es*$AgCol];				# EA, for axial-force-strain relationship
+set MyCol [expr 2e4*$kip*$in];			# yield moment
+set PhiYCol [expr 0.25e-3/$in];			# yield curvature
+set PhiYCol [expr $MyCol/$EICol];			# yield curvature
+set EIColCrack [expr $MyCol/$PhiYCol];		# cracked section inertia
+set b 0.01 ;					# strain-hardening ratio (ratio between post-yield tangent and initial elastic tangent)
+uniaxialMaterial Steel01 $ColMatTagFlex $MyCol $EIColCrack $b; 		# bilinear behavior for flexure
+uniaxialMaterial Elastic $ColMatTagAxial $EACol;				# this is not used as a material, this is an axial-force-strain response
+section Aggregator $ColSecTag $ColMatTagAxial P $ColMatTagFlex Mz;	# combine axial and flexural behavior into one section (no P-M interaction here)
 
-if {$SectionType == "Elastic"} {
-	# material properties:
-	set fc 4000*$psi;			# concrete nominal compressive strength
-	set Ec [expr 57*$ksi*pow($fc/$psi,0.5)];	# concrete Young's Modulus
-	# column section properties:
-	set AgCol [expr $HCol*$BCol];		# rectuangular-Column cross-sectional area
-	set IzCol [expr 0.5*1./12*$BCol*pow($HCol,3)];	# about-local-z Rect-Column gross moment of inertial
-	# beam sections:
-	set AgBeam [expr $HBeam*$BBeam];		# rectuangular-Beam cross-sectional area
-	set IzBeam [expr 0.5*1./12*$BBeam*pow($HBeam,3)];	# about-local-z Rect-Beam cracked moment of inertial
-		
-	section Elastic $ColSecTag $Ec $AgCol $IzCol 
-	section Elastic $BeamSecTag $Ec $AgBeam $IzBeam 
-
-} elseif {$SectionType == "FiberSection"} {
-	# MATERIAL parameters 
-	source LibMaterialsRC.tcl;	# define library of Reinforced-concrete Materials
-
-	# FIBER SECTION properties 
-	# Column section geometry:
-	set cover [expr 2.5*$in];	# rectangular-RC-Column cover
-	set numBarsTopCol 8;		# number of longitudinal-reinforcement bars on top layer
-	set numBarsBotCol 8;		# number of longitudinal-reinforcement bars on bottom layer
-	set numBarsIntCol 6;		# TOTAL number of reinforcing bars on the intermediate layers
-	set barAreaTopCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaBotCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaIntCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-
-	set numBarsTopBeam 6;		# number of longitudinal-reinforcement bars on top layer
-	set numBarsBotBeam 6;		# number of longitudinal-reinforcement bars on bottom layer
-	set numBarsIntBeam 2;		# TOTAL number of reinforcing bars on the intermediate layers
-	set barAreaTopBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaBotBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-	set barAreaIntBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
-
-	set nfCoreY 20;		# number of fibers in the core patch in the y direction
-	set nfCoreZ 20;		# number of fibers in the core patch in the z direction
-	set nfCoverY 20;		# number of fibers in the cover patches with long sides in the y direction
-	set nfCoverZ 20;		# number of fibers in the cover patches with long sides in the z direction
-	# rectangular section with one layer of steel evenly distributed around the perimeter and a confined core.
-	BuildRCrectSection $ColSecTag $HCol $BCol $cover $cover $IDconcCore  $IDconcCover $IDSteel $numBarsTopCol $barAreaTopCol $numBarsBotCol $barAreaBotCol $numBarsIntCol $barAreaIntCol  $nfCoreY $nfCoreZ $nfCoverY $nfCoverZ
-	BuildRCrectSection $BeamSecTag $HBeam $BBeam $cover $cover $IDconcCore  $IDconcCover $IDSteel $numBarsTopBeam $barAreaTopBeam $numBarsBotBeam $barAreaBotBeam $numBarsIntBeam $barAreaIntBeam  $nfCoreY $nfCoreZ $nfCoverY $nfCoverZ
-} else {
-	puts "No section has been defined"
-	return -1
-}
-
+# BEAM section W24x94
+set AgBeam [expr 27.7*pow($in,2)];		# cross-sectional area
+set IzBeam [expr 2700.*pow($in,4)];		# moment of Inertia
+set EIBeam [expr $Es*$IzBeam];			# EI, for moment-curvature relationship
+set EABeam [expr $Es*$AgBeam];			# EA, for axial-force-strain relationship
+set MyBeam [expr 1.5e4*$kip*$in];			# yield moment
+set PhiYBeam [expr 0.25e-3/$in];			# yield curvature
+set PhiYBeam [expr $MyBeam/$EIBeam];		# yield curvature
+set EIBeamCrack [expr $MyBeam/$PhiYBeam];		# cracked section inertia
+set b 0.01 ;					# strain-hardening ratio (ratio between post-yield tangent and initial elastic tangent)
+uniaxialMaterial Steel01 $BeamMatTagFlex $MyBeam $EIBeamCrack $b; 		# bilinear behavior for flexure
+uniaxialMaterial Elastic $BeamMatTagAxial $EABeam;				# this is not used as a material, this is an axial-force-strain response
+section Aggregator $BeamSecTag $BeamMatTagAxial P $BeamMatTagFlex Mz;	# combine axial and flexural behavior into one section (no P-M interaction here)
 
 # define ELEMENTS
 # set up geometric transformations of element
@@ -130,7 +110,7 @@ geomTransf $ColTransfType $IDColTransf  ; 	# only columns can have PDelta effect
 geomTransf Linear $IDBeamTransf
 
 # Define Beam-Column Elements
-set np 5;	# number of Gauss integration points for nonlinear curvature distribution-- np=2 for linear distribution ok
+set np 5;	# number of Gauss integration points for nonlinear curvature distribution
 # columns
 element nonlinearBeamColumn 111 11 21 $np $ColSecTag $IDColTransf;		# level 1-2
 element nonlinearBeamColumn 112 12 22 $np $ColSecTag $IDColTransf
@@ -214,7 +194,6 @@ recorder Element -file $dataDir/ForceEle1sec1.out -time -ele 111 section 1 force
 recorder Element -file $dataDir/DefoEle1sec1.out -time -ele 111 section 1 deformation;			# section deformations, axial and curvature, node i
 recorder Element -file $dataDir/ForceEle1sec$np.out -time -ele 111 section $np force;			# section forces, axial and moment, node j
 recorder Element -file $dataDir/DefoEle1sec$np.out -time -ele 111 section $np deformation;		# section deformations, axial and curvature, node j
-recorder Element -file $dataDir/SSEle1sec1.out -time -ele 111 section $np fiber 0 0 $IDSteel  stressStrain;	# steel fiber stress-strain, node i
 
 # define GRAVITY -------------------------------------------------------------
 # GRAVITY LOADS # define gravity load applied to beams and columns -- eleLoad applies loads in local coordinate axis

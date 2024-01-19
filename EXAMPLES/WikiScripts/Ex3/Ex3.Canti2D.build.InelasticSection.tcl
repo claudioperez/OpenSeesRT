@@ -136,4 +136,3 @@ analyze $NstepGravity;		# apply gravity
 # ------------------------------------------------- maintain constant gravity loads and reset time to zero
 loadConst -time 0.0
 
-puts "Model Built"

@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------------------------
-# Example 6. 2D Frame --  Inelastic Uniaxial Section
+# Example 6. 2D Frame
 #		Silvia Mazzoni & Frank McKenna, 2006
-# nonlinearBeamColumn element, inelastic fiber section
+# nonlinearBeamColumn element, elastic section
 #
 
 # SET UP ----------------------------------------------------------------------------
@@ -9,10 +9,10 @@ wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;			# set up name of data directory (can remove this)
 file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles/";			# ground-motion file directory
+set GMdir "Motions";			# ground-motion file directory
+source LibUnits.tcl;			# define units
 source DisplayPlane.tcl;		# procedure for displaying a plane in model
 source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
-source LibUnits.tcl;			# define units
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -39,7 +39,6 @@ for {set pier 1} {$pier <= [expr $NBay+1]} {incr pier 1} {
 }
 
 
-
 # BOUNDARY CONDITIONS
 fixY 0.0 1 1 0;		# pin all Y=0.0 nodes
 
@@ -50,48 +49,23 @@ set IDctrlNode [expr ($NStory+1)*10+1];		# node where displacement is read for d
 set IDctrlDOF 1;		# degree of freedom of displacement read for displacement control
 set LBuilding [expr $NStory*$LCol];	# total building height
 
-# Define ELEMENTS & SECTIONS  -------------------------------------------------------------
-set ColSecTag 1;				# assign a tag number to the column section tag
-set ColMatTagFlex 2;			# assign a tag number to the column flexural behavior
-set ColMatTagAxial 3;			# assign a tag number to the column axial behavior	
-set BeamSecTag 4;				# assign a tag number to the beam section tag
-set BeamMatTagFlex 5;			# assign a tag number to the beam flexural behavior
-set BeamMatTagAxial 6;			# assign a tag number to the beam axial behavior	
-
-# define MATERIAL properties ----------------------------------------
-set Fy [expr 6.0*$ksi]
+# Structural-Steel W-section properties
+# material properties:
 set Es [expr 29000*$ksi];		# Steel Young's Modulus
 set nu 0.3;
-set Gs [expr $Es/2./[expr 1+$nu]];  	# Torsional stiffness Modulus
+set Gs [expr $Es/2./[expr 1+$nu]];  # Torsional stiffness Modulus
 
-# COLUMN section W27x114
+# column sections: W27x114
 set AgCol [expr 33.5*pow($in,2)];		# cross-sectional area
 set IzCol [expr 4090.*pow($in,4)];		# moment of Inertia
-set EICol [expr $Es*$IzCol];				# EI, for moment-curvature relationship
-set EACol [expr $Es*$AgCol];				# EA, for axial-force-strain relationship
-set MyCol [expr 2e4*$kip*$in];			# yield moment
-set PhiYCol [expr 0.25e-3/$in];			# yield curvature
-set PhiYCol [expr $MyCol/$EICol];			# yield curvature
-set EIColCrack [expr $MyCol/$PhiYCol];		# cracked section inertia
-set b 0.01 ;					# strain-hardening ratio (ratio between post-yield tangent and initial elastic tangent)
-uniaxialMaterial Steel01 $ColMatTagFlex $MyCol $EIColCrack $b; 		# bilinear behavior for flexure
-uniaxialMaterial Elastic $ColMatTagAxial $EACol;				# this is not used as a material, this is an axial-force-strain response
-section Aggregator $ColSecTag $ColMatTagAxial P $ColMatTagFlex Mz;	# combine axial and flexural behavior into one section (no P-M interaction here)
-
-# BEAM section W24x94
+# beam sections: W24x94
 set AgBeam [expr 27.7*pow($in,2)];		# cross-sectional area
 set IzBeam [expr 2700.*pow($in,4)];		# moment of Inertia
-set EIBeam [expr $Es*$IzBeam];			# EI, for moment-curvature relationship
-set EABeam [expr $Es*$AgBeam];			# EA, for axial-force-strain relationship
-set MyBeam [expr 1.5e4*$kip*$in];			# yield moment
-set PhiYBeam [expr 0.25e-3/$in];			# yield curvature
-set PhiYBeam [expr $MyBeam/$EIBeam];		# yield curvature
-set EIBeamCrack [expr $MyBeam/$PhiYBeam];		# cracked section inertia
-set b 0.01 ;					# strain-hardening ratio (ratio between post-yield tangent and initial elastic tangent)
-uniaxialMaterial Steel01 $BeamMatTagFlex $MyBeam $EIBeamCrack $b; 		# bilinear behavior for flexure
-uniaxialMaterial Elastic $BeamMatTagAxial $EABeam;				# this is not used as a material, this is an axial-force-strain response
-section Aggregator $BeamSecTag $BeamMatTagAxial P $BeamMatTagFlex Mz;	# combine axial and flexural behavior into one section (no P-M interaction here)
 
+set ColSecTag 1
+set BeamSecTag 2
+section Elastic $ColSecTag $Es $AgCol $IzCol 
+section Elastic $BeamSecTag $Es $AgBeam $IzBeam 
 
 # define ELEMENTS
 # set up geometric transformations of element
@@ -161,7 +135,7 @@ for {set level 2} {$level <=[expr $NStory+1]} {incr level 1} { ;
 		set WeightNode [expr $ColWeightFact*$WeightCol/2 + $BeamWeightFact*$WeightBeam/2]
 		set MassNode [expr $WeightNode/$g];
 		set nodeID [expr $level*10+$pier]
-		mass $nodeID $MassNode 0.0 0.0 0.0 0.0 0.0;			# define mass
+		mass $nodeID $MassNode 0.0 0.0; # 0.0 0.0 0.0;			# define mass
 		set FloorWeight [expr $FloorWeight+$WeightNode];
 	}
 	lappend iFloorWeight $FloorWeight
@@ -192,6 +166,7 @@ for {set level 2} {$level <=[expr $NStory+1]} {incr level 1} {
 	}
 }
 
+
 # Define RECORDERS -------------------------------------------------------------
 set FreeNodeID [expr ($NStory+1)*10+($NBay+1)];					# ID: free node
 set SupportNodeFirst [lindex $iSupportNode 0];						# ID: first support node
@@ -206,6 +181,7 @@ recorder Element -file $dataDir/ForceEle1sec1.out -time -ele $FirstColumn sectio
 recorder Element -file $dataDir/DefoEle1sec1.out -time -ele $FirstColumn section 1 deformation;			# section deformations, axial and curvature, node i
 recorder Element -file $dataDir/ForceEle1sec$np.out -time -ele $FirstColumn section $np force;			# section forces, axial and moment, node j
 recorder Element -file $dataDir/DefoEle1sec$np.out -time -ele $FirstColumn section $np deformation;		# section deformations, axial and curvature, node j
+
 
 # Define DISPLAY -------------------------------------------------------------
 #DisplayModel2D NodeNumbers
@@ -226,7 +202,6 @@ pattern Plain 101 Linear {
 		}
 	}
 }
-
 # Gravity-analysis parameters -- load-controlled static analysis
 set Tol 1.0e-8;			# convergence tolerance for test
 variable constraintsTypeGravity Plain;		# default;

@@ -1,16 +1,17 @@
 # --------------------------------------------------------------------------------------------------
 # Example 5. 2D Frame --  Build Model
-# nonlinearBeamColumn element, uniaxial elastic section
-#			Silvia Mazzoni & Frank McKenna, 2006
+# nonlinearBeamColumn element, inelastic fiber section -- Steel W-Section
+#		Silvia Mazzoni & Frank McKenna, 2006
 #
 
 # SET UP ----------------------------------------------------------------------------
-wipe;					# clear memory of all past model definitions
-model BasicBuilder -ndm 2 -ndf 3;		# Define the model builder, ndm=#dimension, ndf=#dofs
+wipe;				# clear memory of all past model definitions
+model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;				# set up name of data directory (you can remove this)
 file mkdir $dataDir; 				# create data directory
-set GMdir "../GMfiles/";			# ground-motion file directory
+set GMdir "Motions";			# ground-motion file directory
 source LibUnits.tcl;			# define units
+source WSection.tcl;		# procedure to define fiber W section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -58,23 +59,46 @@ fix 12 1 1 0
 fix 13 1 1 0
 fix 14 1 1 0
 
-# Structural-Steel W-section properties
-# material properties:
+# Define ELEMENTS & SECTIONS  -------------------------------------------------------------
+set ColSecTag 1;				# assign a tag number to the column section tag
+set ColMatTagFlex 2;			# assign a tag number to the column flexural behavior
+set ColMatTagAxial 3;			# assign a tag number to the column axial behavior	
+set BeamSecTag 4;				# assign a tag number to the beam section tag
+set BeamMatTagFlex 5;			# assign a tag number to the beam flexural behavior
+set BeamMatTagAxial 6;			# assign a tag number to the beam axial behavior	
+
+# define MATERIAL properties ----------------------------------------
+set Fy [expr 60.0*$ksi]
 set Es [expr 29000*$ksi];		# Steel Young's Modulus
 set nu 0.3;
 set Gs [expr $Es/2./[expr 1+$nu]];  # Torsional stiffness Modulus
+set Hiso 0
+set Hkin 1000
+set matIDhard 1
+uniaxialMaterial Hardening  $matIDhard $Es $Fy   $Hiso  $Hkin
 
+# ELEMENT properties
+# Structural-Steel W-section properties
 # column sections: W27x114
-set AgCol [expr 33.5*pow($in,2)];		# cross-sectional area
-set IzCol [expr 4090.*pow($in,4)];		# moment of Inertia
+set d [expr 27.29*$in];	# depth
+set bf [expr 10.07*$in];	# flange width
+set tf [expr 0.93*$in];	# flange thickness
+set tw [expr 0.57*$in];	# web thickness
+set nfdw 16;		# number of fibers along dw
+set nftw 2;		# number of fibers along tw
+set nfbf 16;		# number of fibers along bf
+set nftf 4;			# number of fibers along tf
+WSection  $ColSecTag $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 # beam sections: W24x94
-set AgBeam [expr 27.7*pow($in,2)];		# cross-sectional area
-set IzBeam [expr 2700.*pow($in,4)];		# moment of Inertia
-
-set ColSecTag 1
-set BeamSecTag 2
-section Elastic $ColSecTag $Es $AgCol $IzCol 
-section Elastic $BeamSecTag $Es $AgBeam $IzBeam 
+set d [expr 24.31*$in];	# depth
+set bf [expr 9.065*$in];	# flange width
+set tf [expr 0.875*$in];	# flange thickness
+set tw [expr 0.515*$in];	# web thickness
+set nfdw 16;		# number of fibers along dw
+set nftw 2;		# number of fibers along tw
+set nfbf 16;		# number of fibers along bf
+set nftf 4;			# number of fibers along tf
+WSection  $BeamSecTag $matIDhard $d $bf $tf $tw $nfdw $nftw $nfbf $nftf
 
 # define ELEMENTS
 # set up geometric transformations of element
@@ -84,7 +108,6 @@ set IDBeamTransf 2; # all beams
 set ColTransfType Linear ;			# options, Linear PDelta Corotational 
 geomTransf $ColTransfType $IDColTransf  ; 	# only columns can have PDelta effects (gravity effects)
 geomTransf Linear $IDBeamTransf
-
 
 # Define Beam-Column Elements
 set np 5;	# number of Gauss integration points for nonlinear curvature distribution-- np=2 for linear distribution ok
@@ -111,7 +134,6 @@ element nonlinearBeamColumn 233 33 34 $np $BeamSecTag $IDBeamTransf;
 element nonlinearBeamColumn 241 41 42 $np $BeamSecTag $IDBeamTransf;		# level 4
 element nonlinearBeamColumn 242 42 43 $np $BeamSecTag $IDBeamTransf;
 element nonlinearBeamColumn 243 43 44 $np $BeamSecTag $IDBeamTransf;
-
 	
 # Define GRAVITY LOADS, weight and masses
 # calculate dead load of frame, assume this to be an internal frame (do LL in a similar manner)
@@ -166,12 +188,13 @@ set iFi "$Fi2 $Fi3 $Fi4";			# vectorize
 recorder Node -file $dataDir/DFree.out -time -node 41 -dof 1 2 3 disp;			# displacements of free node
 recorder Node -file $dataDir/DBase.out -time -node 11 12 13 14 -dof 1 2 3 disp;		# displacements of support nodes
 recorder Node -file $dataDir/RBase.out -time -node 11 12 13 14 -dof 1 2 3 reaction;		# support reaction
-recorder Drift -file $dataDir/DrNode.out -time -iNode 41 -jNode 11 -dof 1 -perpDirn 2;		# lateral drift
+recorder Drift -file $dataDir/DrNode.out -time -iNode 11 -jNode 41 -dof 1 -perpDirn 2;		# lateral drift
 recorder Element -file $dataDir/Fel1.out -time -ele 111 localForce;				# element forces in local coordinates
 recorder Element -file $dataDir/ForceEle1sec1.out -time -ele 111 section 1 force;			# section forces, axial and moment, node i
 recorder Element -file $dataDir/DefoEle1sec1.out -time -ele 111 section 1 deformation;			# section deformations, axial and curvature, node i
 recorder Element -file $dataDir/ForceEle1sec$np.out -time -ele 111 section $np force;			# section forces, axial and moment, node j
 recorder Element -file $dataDir/DefoEle1sec$np.out -time -ele 111 section $np deformation;		# section deformations, axial and curvature, node j
+recorder Element -file $dataDir/SSEle1sec1.out -time -ele 111 section $np fiber 0 0 $matIDhard stressStrain;	# steel fiber stress-strain, node i
 
 # define GRAVITY -------------------------------------------------------------
 # GRAVITY LOADS # define gravity load applied to beams and columns -- eleLoad applies loads in local coordinate axis
@@ -201,7 +224,6 @@ set DGravity [expr 1./$NstepGravity]; 	# first load increment;
 integrator LoadControl $DGravity;	# determine the next time step for an analysis
 analysis Static;			# define type of analysis static or transient
 analyze $NstepGravity;		# apply gravity
-
 # ------------------------------------------------- maintain constant gravity loads and reset time to zero
 loadConst -time 0.0
 

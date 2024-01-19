@@ -175,5 +175,3 @@ analysis Static;                        # define type of analysis static or tran
 analyze $NstepGravity;                  # apply gravity
 # ------------------------------------------------- maintain constant gravity loads and reset time to zero
 loadConst -time 0.0
-
-puts "Model Built"

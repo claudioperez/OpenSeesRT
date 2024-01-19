@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------------------------
-# Example 6. 2D Frame
+# Example 6. 2D RC Frame
 #		Silvia Mazzoni & Frank McKenna, 2006
-# nonlinearBeamColumn element, elastic section
+# nonlinearBeamColumn element, inelastic fiber section
 #
 
 # SET UP ----------------------------------------------------------------------------
@@ -9,10 +9,11 @@ wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;			# set up name of data directory (can remove this)
 file mkdir $dataDir; 			# create data directory
-set GMdir "../GMfiles/";			# ground-motion file directory
+set GMdir "Motions";			# ground-motion file directory
 source LibUnits.tcl;			# define units
-source DisplayPlane.tcl;		# procedure for displaying a plane in model
-source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
+# source DisplayPlane.tcl;		# procedure for displaying a plane in model
+# source DisplayModel2D.tcl;		# procedure for displaying 2D perspective of model
+source BuildRCrectSection.tcl;		# procedure for definining RC fiber section
 
 # define GEOMETRY -------------------------------------------------------------
 # define structure-geometry paramters
@@ -30,6 +31,8 @@ for {set level 1} {$level <=[expr $NStory+1]} {incr level 1} {
 		node $nodeID $X $Y;		# actually define node
 	}
 }
+
+
 # determine support nodes where ground motions are input, for multiple-support excitation
 set iSupportNode ""
 set level 1
@@ -49,23 +52,67 @@ set IDctrlNode [expr ($NStory+1)*10+1];		# node where displacement is read for d
 set IDctrlDOF 1;		# degree of freedom of displacement read for displacement control
 set LBuilding [expr $NStory*$LCol];	# total building height
 
-# Structural-Steel W-section properties
-# material properties:
-set Es [expr 29000*$ksi];		# Steel Young's Modulus
-set nu 0.3;
-set Gs [expr $Es/2./[expr 1+$nu]];  # Torsional stiffness Modulus
+# Define SECTIONS -------------------------------------------------------------
+set SectionType FiberSection;		# options: Elastic FiberSection
 
-# column sections: W27x114
-set AgCol [expr 33.5*pow($in,2)];		# cross-sectional area
-set IzCol [expr 4090.*pow($in,4)];		# moment of Inertia
-# beam sections: W24x94
-set AgBeam [expr 27.7*pow($in,2)];		# cross-sectional area
-set IzBeam [expr 2700.*pow($in,4)];		# moment of Inertia
-
+# define section tags:
 set ColSecTag 1
 set BeamSecTag 2
-section Elastic $ColSecTag $Es $AgCol $IzCol 
-section Elastic $BeamSecTag $Es $AgBeam $IzBeam 
+
+# Section Properties:
+set HCol [expr 24*$in];		# square-Column width
+set BCol $HCol
+set HBeam [expr 42*$in];		# Beam depth -- perpendicular to bending axis
+set BBeam [expr 24*$in];		# Beam width -- parallel to bending axis
+
+if {$SectionType == "Elastic"} {
+	# material properties:
+	set fc 4000*$psi;			# concrete nominal compressive strength
+	set Ec [expr 57*$ksi*pow($fc/$psi,0.5)];	# concrete Young's Modulus
+	# column section properties:
+	set AgCol [expr $HCol*$BCol];		# rectuangular-Column cross-sectional area
+	set IzCol [expr 0.5*1./12*$BCol*pow($HCol,3)];	# about-local-z Rect-Column gross moment of inertial
+	# beam sections:
+	set AgBeam [expr $HBeam*$BBeam];		# rectuangular-Beam cross-sectional area
+	set IzBeam [expr 0.5*1./12*$BBeam*pow($HBeam,3)];	# about-local-z Rect-Beam cracked moment of inertial
+		
+	section Elastic $ColSecTag $Ec $AgCol $IzCol 
+	section Elastic $BeamSecTag $Ec $AgBeam $IzBeam 
+
+} elseif {$SectionType == "FiberSection"} {
+	# MATERIAL parameters 
+	source LibMaterialsRC.tcl;	# define library of Reinforced-concrete Materials
+
+	# FIBER SECTION properties 
+	# Column section geometry:
+	set cover [expr 2.5*$in];	# rectangular-RC-Column cover
+	set numBarsTopCol 8;		# number of longitudinal-reinforcement bars on top layer
+	set numBarsBotCol 8;		# number of longitudinal-reinforcement bars on bottom layer
+	set numBarsIntCol 6;		# TOTAL number of reinforcing bars on the intermediate layers
+	set barAreaTopCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
+	set barAreaBotCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
+	set barAreaIntCol [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
+
+	set numBarsTopBeam 6;		# number of longitudinal-reinforcement bars on top layer
+	set numBarsBotBeam 6;		# number of longitudinal-reinforcement bars on bottom layer
+	set numBarsIntBeam 2;		# TOTAL number of reinforcing bars on the intermediate layers
+	set barAreaTopBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
+	set barAreaBotBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
+	set barAreaIntBeam [expr 1.*$in*$in];	# longitudinal-reinforcement bar area
+
+	set nfCoreY 20;		# number of fibers in the core patch in the y direction
+	set nfCoreZ 20;		# number of fibers in the core patch in the z direction
+	set nfCoverY 20;		# number of fibers in the cover patches with long sides in the y direction
+	set nfCoverZ 20;		# number of fibers in the cover patches with long sides in the z direction
+	# rectangular section with one layer of steel evenly distributed around the perimeter and a confined core.
+	BuildRCrectSection $ColSecTag $HCol $BCol $cover $cover $IDconcCore  $IDconcCover $IDSteel $numBarsTopCol $barAreaTopCol $numBarsBotCol $barAreaBotCol $numBarsIntCol $barAreaIntCol  $nfCoreY $nfCoreZ $nfCoverY $nfCoverZ
+	BuildRCrectSection $BeamSecTag $HBeam $BBeam $cover $cover $IDconcCore  $IDconcCover $IDSteel $numBarsTopBeam $barAreaTopBeam $numBarsBotBeam $barAreaBotBeam $numBarsIntBeam $barAreaIntBeam  $nfCoreY $nfCoreZ $nfCoverY $nfCoverZ
+
+} else {
+	puts "No section has been defined"
+	return -1
+}
+
 
 # define ELEMENTS
 # set up geometric transformations of element
@@ -108,9 +155,9 @@ set GammaConcrete [expr 150*$pcf];   		# Reinforced-Concrete floor slabs
 set Tslab [expr 6*$in];			# 6-inch slab
 set Lslab [expr 2*$LBeam/2]; 			# assume slab extends a distance of $LBeam1/2 in/out of plane
 set Qslab [expr $GammaConcrete*$Tslab*$Lslab]; 
-set QBeam [expr 94*$lbf/$ft];		# W-section weight per length
+set QdlCol [expr $GammaConcrete*$HCol*$BCol];	# self weight of Column, weight per length
+set QBeam [expr $GammaConcrete*$HBeam*$BBeam];	# self weight of Beam, weight per length
 set QdlBeam [expr $Qslab + $QBeam]; 	# dead load distributed along beam.
-set QdlCol [expr 114*$lbf/$ft]; 	# W-section weight per length
 set WeightCol [expr $QdlCol*$LCol];  		# total Column weight
 set WeightBeam [expr $QdlBeam*$LBeam]; 	# total Beam weight
 
@@ -135,7 +182,7 @@ for {set level 2} {$level <=[expr $NStory+1]} {incr level 1} { ;
 		set WeightNode [expr $ColWeightFact*$WeightCol/2 + $BeamWeightFact*$WeightBeam/2]
 		set MassNode [expr $WeightNode/$g];
 		set nodeID [expr $level*10+$pier]
-		mass $nodeID $MassNode 0.0 0.0 0.0 0.0 0.0;			# define mass
+		mass $nodeID $MassNode 0.0 0.0;# 0.0 0.0 0.0;			# define mass
 		set FloorWeight [expr $FloorWeight+$WeightNode];
 	}
 	lappend iFloorWeight $FloorWeight
@@ -166,7 +213,6 @@ for {set level 2} {$level <=[expr $NStory+1]} {incr level 1} {
 	}
 }
 
-
 # Define RECORDERS -------------------------------------------------------------
 set FreeNodeID [expr ($NStory+1)*10+($NBay+1)];					# ID: free node
 set SupportNodeFirst [lindex $iSupportNode 0];						# ID: first support node
@@ -181,6 +227,7 @@ recorder Element -file $dataDir/ForceEle1sec1.out -time -ele $FirstColumn sectio
 recorder Element -file $dataDir/DefoEle1sec1.out -time -ele $FirstColumn section 1 deformation;			# section deformations, axial and curvature, node i
 recorder Element -file $dataDir/ForceEle1sec$np.out -time -ele $FirstColumn section $np force;			# section forces, axial and moment, node j
 recorder Element -file $dataDir/DefoEle1sec$np.out -time -ele $FirstColumn section $np deformation;		# section deformations, axial and curvature, node j
+recorder Element -file $dataDir/SSEle1sec1.out -time -ele $FirstColumn section $np fiber 0 0 $IDSteel stressStrain;	# steel fiber stress-strain, node i
 
 
 # Define DISPLAY -------------------------------------------------------------
