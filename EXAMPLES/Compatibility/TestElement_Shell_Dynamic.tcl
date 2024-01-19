@@ -7,14 +7,14 @@ section ElasticMembranePlateSection 1 3.0e3 0.25 1.175 1.27
 set Plate ShellMITC4
 
 
-#these should both be even
+# these should both be even
 set nx 16; # 8
 set ny  4; # 2
 
 set eleArgs "1"
 
 #loaded nodes
-set mid [expr ( ($nx+1)*($ny+1)+1 ) / 2 ]
+set mid   [expr ( ($nx+1)*($ny+1)+1 ) / 2 ]
 set side1 [expr ($nx + 2)/2 ]
 set side2 [expr ($nx+1)*($ny+1) - $side1 + 1 ]
 
