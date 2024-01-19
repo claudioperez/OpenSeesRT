@@ -109,6 +109,9 @@ if (UNIX)
     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak")
     endif()
+    add_link_options(
+      $<$<CONFIG:DEBUG>:-fsanitize=address>
+    )
     add_compile_options(
       $<$<CONFIG:RELEASE>:-march=haswell>
     )
