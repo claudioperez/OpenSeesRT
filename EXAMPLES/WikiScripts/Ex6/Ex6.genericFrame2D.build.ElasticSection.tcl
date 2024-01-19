@@ -20,6 +20,7 @@ set LCol [expr 14*$ft];		# column height
 set LBeam [expr 24*$ft];		# beam length
 set NStory 3;			# number of stories above ground level -------------- you can change this.
 set NBay 3;			# number of bays (max 9) ------------------------------you can change this.
+#puts "Number of Stories: $NStory Number of bays: $NBay"
 
 # define NODAL COORDINATES
 for {set level 1} {$level <=[expr $NStory+1]} {incr level 1} {
@@ -43,7 +44,6 @@ for {set pier 1} {$pier <= [expr $NBay+1]} {incr pier 1} {
 fixY 0.0 1 1 0;		# pin all Y=0.0 nodes
 
 # calculated MODEL PARAMETERS, particular to this model
-puts "Number of Stories: $NStory Number of bays: $NBay"
 # Set up parameters that are particular to the model for displacement control
 set IDctrlNode [expr ($NStory+1)*10+1];		# node where displacement is read for displacement control
 set IDctrlDOF 1;		# degree of freedom of displacement read for displacement control
@@ -223,7 +223,4 @@ analyze $NstepGravity;		# apply gravity
 
 # ------------------------------------------------- maintain constant gravity loads and reset time to zero
 loadConst -time 0.0
-
-puts "Model Built"
-
 

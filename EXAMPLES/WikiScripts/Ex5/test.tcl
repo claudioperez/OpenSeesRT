@@ -1,30 +1,24 @@
 
 foreach model {
-  ElasticElement 
-  InelasticFiberSection
+  ElasticSection
+  InelasticFiberRCSection
+  InelasticFiberWSection
   InelasticSection
   } {
 
   puts "Model: $model"
   foreach analysis {
-    Static.Push
-    Dynamic.EQ.Uniform
+                    Dynamic.EQ.bidirect
+                    Dynamic.EQ.multipleSupport
+                    Dynamic.EQ.Uniform
+                    Dynamic.sine.multipleSupport
+                    Dynamic.sine.Uniform
+                    Static.Cycle
+                    Static.Push
     } {
     puts "       $analysis"
     wipe
-    source Ex3.Canti2D.build.$model.tcl
-    source Ex3.Canti2D.analyze.$analysis.tcl
+    source Ex5.Frame2D.build.$model.tcl
+    source Ex5.Frame2D.analyze.$analysis.tcl
   }
 }
-Ex5.Frame2D.analyze.Dynamic.EQ.bidirect.tcl
-Ex5.Frame2D.analyze.Dynamic.EQ.multipleSupport.tcl
-Ex5.Frame2D.analyze.Dynamic.EQ.Uniform.tcl
-Ex5.Frame2D.analyze.Dynamic.sine.multipleSupport.tcl
-Ex5.Frame2D.analyze.Dynamic.sine.Uniform.tcl
-Ex5.Frame2D.analyze.Static.Cycle.tcl
-Ex5.Frame2D.analyze.Static.Push.tcl
-Ex5.Frame2D.build.ElasticSection.tcl
-Ex5.Frame2D.build.InelasticFiberRCSection.tcl
-Ex5.Frame2D.build.InelasticFiberWSection.tcl
-Ex5.Frame2D.build.InelasticSection.tcl
-test.tcl

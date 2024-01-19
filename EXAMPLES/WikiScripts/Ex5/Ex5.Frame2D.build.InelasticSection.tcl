@@ -9,7 +9,7 @@ wipe;				# clear memory of all past model definitions
 model BasicBuilder -ndm 2 -ndf 3;	# Define the model builder, ndm=#dimension, ndf=#dofs
 set dataDir Output;				# set up name of data directory (you can remove this)
 file mkdir $dataDir; 				# create data directory
-set GMdir "Motions";			# ground-motion file directory
+set GMdir "./Motions/";			# ground-motion file directory
 source LibUnits.tcl;			# define units
 
 # define GEOMETRY -------------------------------------------------------------
