@@ -2426,9 +2426,6 @@ ForceBeamColumn2d::setSectionPointers(int numSec, SectionForceDeformation **secP
   }          
   
   sections = new SectionForceDeformation *[numSections];
-  if (sections == 0) {
-    opserr << "Error: ForceBeamColumn2d::setSectionPointers -- could not allocate section pointers";
-  }  
   
   for (int i = 0; i < numSections; i++) {
     
@@ -2444,25 +2441,10 @@ ForceBeamColumn2d::setSectionPointers(int numSec, SectionForceDeformation **secP
   }
   
   // allocate section flexibility matrices and section deformation vectors
-  fs  = new Matrix [numSections];
-  if (fs == 0) {
-    opserr << "ForceBeamColumn2d::setSectionPointers -- failed to allocate fs array";
-  }
-  
-  vs = new Vector [numSections];
-  if (vs == 0) {
-    opserr << "ForceBeamColumn2d::setSectionPointers -- failed to allocate vs array";
-  }
-  
-  Ssr  = new Vector [numSections];
-  if (Ssr == 0) {
-    opserr << "ForceBeamColumn2d::setSectionPointers -- failed to allocate Ssr array";
-  }
-  
+  fs   = new Matrix [numSections]; 
+  vs   = new Vector [numSections]; 
+  Ssr  = new Vector [numSections]; 
   vscommit = new Vector [numSections];
-  if (vscommit == 0) {
-    opserr << "ForceBeamColumn2d::setSectionPointers -- failed to allocate vscommit array";   
-  }
   
 }
 

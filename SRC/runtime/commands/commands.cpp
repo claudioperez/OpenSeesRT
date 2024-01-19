@@ -45,7 +45,6 @@
 #include <ElementStateParameter.h>
 #include <Pressure_Constraint.h>
 // Analysis
-#include "analysis/analysis.h"
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
@@ -92,11 +91,8 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   ClientData domain = (ClientData)the_domain;
 
   Tcl_CreateCommand(interp, "loadConst",           &TclCommand_setLoadConst, domain, nullptr);
-
-
-  Tcl_CreateCommand(interp, "recorder",          &TclAddRecorder,  domain, nullptr);
+  Tcl_CreateCommand(interp, "recorder",            &TclAddRecorder,  domain, nullptr);
   Tcl_CreateCommand(interp, "region",              &addRegion,     domain, nullptr);
-
 
   Tcl_CreateCommand(interp, "printGID",            &printModelGID, domain, nullptr);
 

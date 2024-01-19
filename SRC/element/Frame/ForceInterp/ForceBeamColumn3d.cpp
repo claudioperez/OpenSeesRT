@@ -226,14 +226,14 @@ ForceBeamColumn3d::ForceBeamColumn3d (int tag, int nodeI, int nodeJ,
   connectedExternalNodes(1) = nodeJ;    
 
   beamIntegr = bi.getCopy();
-  if (beamIntegr == 0) {
+  if (beamIntegr == nullptr) {
     opserr << "Error: ForceBeamColumn3d::ForceBeamColumn3d: could not create copy of beam integration object" << endln;
     exit(-1);
   }
 
   // get copy of the transformation object   
   crdTransf = coordTransf.getCopy3d(); 
-  if (crdTransf == 0) {
+  if (crdTransf == nullptr) {
     opserr << "Error: ForceBeamColumn3d::ForceBeamColumn3d: could not create copy of coordinate transformation object" << endln;
     exit(-1);
   }
@@ -3999,9 +3999,6 @@ ForceBeamColumn3d::setSectionPointers(int numSec, SectionForceDeformation **secP
   }          
   
   sections = new SectionForceDeformation *[numSections];
-  if (sections == 0) {
-    opserr << "Error: ForceBeamColumn3d::setSectionPointers -- could not allocate section pointers";
-  }  
   
   for (int i = 0; i < numSections; i++) {
     

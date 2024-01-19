@@ -82,7 +82,6 @@ struct char_cmd {
   const char* name;
   Tcl_CmdProc*  func;
 }  const tcl_char_cmds[] =  {
-  {"wipe",                 TclCommand_wipeModel},
   {"build",                buildModel},
 
   {"getNDM",               TclCommand_getNDM},

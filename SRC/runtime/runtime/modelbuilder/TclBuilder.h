@@ -31,7 +31,7 @@ class FrictionModel;
 class TclBuilder : public ModelBuilder {
 public:
   TclBuilder(Domain &theDomain, int ndm, int ndf);
-  ~TclBuilder();
+  virtual ~TclBuilder();
 
   // eventually make private
   int currentSectionTag = -1;
