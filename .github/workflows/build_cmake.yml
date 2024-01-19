@@ -59,7 +59,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DNoOpenSeesPyRT:BOOL=TRUE
-          cmake --build . --target OpenSeesRT -j8
+          cmake --build . --target OpenSeesRT
 
 #     - name: Verification
 #       run: |
