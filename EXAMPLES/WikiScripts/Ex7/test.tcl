@@ -1,7 +1,7 @@
 
 foreach section {RCsec Wsec} {
+#                   Dynamic.EQ.bidirect
   foreach analysis {
-                    Dynamic.EQ.bidirect
                     Static.Cycle
                     Static.Push
                   } {
