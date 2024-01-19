@@ -81,8 +81,6 @@ Tcl_CmdProc TclCommand_print;
 struct char_cmd {
   const char* name;
   Tcl_CmdProc*  func;
-  bool was_added = false;
-
 }  const tcl_char_cmds[] =  {
   {"wipe",                 TclCommand_wipeModel},
   {"build",                buildModel},

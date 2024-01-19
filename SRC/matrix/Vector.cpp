@@ -57,13 +57,9 @@ Vector::Vector(int size)
 
   // get some space for the vector
   //  theData = (double *)malloc(size*sizeof(double));
-  if (size > 0) {
-    theData = new double [size];
+  if (size > 0)
+    theData = new double [size]{};
 
-    // zero the components
-    for (int i=0; i<sz; i++)
-      theData[i] = 0.0;
-  }
 }
 
 

@@ -68,7 +68,7 @@ int
 VariableTimeStepDirectIntegrationAnalysis::analyze(int numSteps, double dT, double dtMin, double dtMax, int Jd)
 {
   // get some pointers
-  Domain *theDom = this->getDomainPtr();
+  // Domain *theDom = this->getDomainPtr();
   EquiSolnAlgo *theAlgo = this->getAlgorithm();
   TransientIntegrator *theIntegratr = this->getIntegrator();
   ConvergenceTest *theTest = theAlgo->getConvergenceTest();
@@ -86,8 +86,8 @@ VariableTimeStepDirectIntegrationAnalysis::analyze(int numSteps, double dT, doub
 
     if (theModel->analysisStep(currentDt) < 0) {
       opserr << "DirectIntegrationAnalysis::analyze() - the AnalysisModel failed in newStepDomain";
-      opserr << " at time " << theDom->getCurrentTime() << endln;
-      theDom->revertToLastCommit();
+      opserr << " at time " << theDomain->getCurrentTime() << endln;
+      theDomain->revertToLastCommit();
       return -2;
     }
 
@@ -124,8 +124,8 @@ VariableTimeStepDirectIntegrationAnalysis::analyze(int numSteps, double dT, doub
       if (result < 0) {
 	opserr << "VariableTimeStepDirectIntegrationAnalysis::analyze() - the SensitivityAlgorithm failed";
 	opserr << " at time ";
-	opserr << theDom->getCurrentTime() << endln;
-	theDom->revertToLastCommit();
+	opserr << theDomain->getCurrentTime() << endln;
+	theDomain->revertToLastCommit();
 	theIntegrator->revertToLastStep();
 	return -5;
       }    
@@ -148,13 +148,13 @@ VariableTimeStepDirectIntegrationAnalysis::analyze(int numSteps, double dT, doub
     else {
 
       // invoke the revertToLastCommit
-      theDom->revertToLastCommit();	    
+      theDomain->revertToLastCommit();	    
       theIntegratr->revertToLastStep();
 
       // if last dT was <= min specified the analysis FAILS - return FAILURE
       if (currentDt <= dtMin) {
 	opserr << "VariableTimeStepDirectIntegrationAnalysis::analyze() - ";
-	opserr << " failed at time " << theDom->getCurrentTime() << endln;
+	opserr << " failed at time " << theDomain->getCurrentTime() << endln;
 	return result;
       }
 

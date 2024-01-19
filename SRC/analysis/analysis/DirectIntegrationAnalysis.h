@@ -42,9 +42,10 @@ class LinearSOE;
 class EquiSolnAlgo;
 class ConvergenceTest;
 class EigenSOE;
+class Domain;
 
 // class DirectIntegrationAnalysis: public TransientAnalysis
-class DirectIntegrationAnalysis: public Analysis
+class DirectIntegrationAnalysis // : public Analysis
 {
   public:
     DirectIntegrationAnalysis(Domain &theDomain, 
@@ -86,8 +87,9 @@ class DirectIntegrationAnalysis: public Analysis
     ConvergenceTest     *getConvergenceTest(void); 
     AnalysisModel       *getModel(void) ;
 
-  protected:
-    
+  protected: 
+    Domain              *theDomain;
+
   private:
     ConstraintHandler 	*theConstraintHandler;    
     DOF_Numberer 	*theDOF_Numberer;
