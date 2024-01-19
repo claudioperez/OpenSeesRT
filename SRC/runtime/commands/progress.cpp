@@ -44,7 +44,7 @@ TclObjCommand_progress(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_
     }
 
     ProgressBar *bar = new ProgressBar(steps);
-    bar->set_todo_char(L" ");
+    bar->set_todo_char(L" "); //  ━━━━━━━━━━╸━━━━━━━━━━━━━━━╸━━━━━━━━
     bar->set_done_char(L"█");
     bar->set_opening_char(L"|");
     bar->set_closing_char(L"|");

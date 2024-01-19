@@ -21,11 +21,6 @@ set LCol [expr 12*$ft];		# column height (parallel to Y axis)
 set LBeam [expr 20*$ft];		# beam length (parallel to X axis)
 set LGird [expr 20*$ft];		# girder length (parallel to Z axis)
 
-# ------ frame configuration
-set NStory 3;			# number of stories above ground level
-set NBay 1;			# number of bays in X direction
-set NBayZ 1;			# number of bays in Z direction
-puts "Number of Stories in Y: $NStory; Number of bays in X: $NBay; Number of bays in Z: $NBayZ"
 
 # define NODAL COORDINATES
 # calculate locations of beam/column intersections:
@@ -370,6 +365,5 @@ analyze $NstepGravity;		# apply gravity
 # ------------------------------------------------- maintain constant gravity loads and reset time to zero
 loadConst -time 0.0
 set Tol 1.0e-6;			# reduce tolerance after gravity loads
-puts "Model Built"
 
 

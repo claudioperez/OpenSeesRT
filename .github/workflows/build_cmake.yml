@@ -54,16 +54,12 @@ jobs:
       - name: Install Library
         run: |
          ln -s /usr/local/bin/gfortran-11 /usr/local/bin/gfortran
-#        brew install hdf5
-#        brew install open-mpi
-#        brew install scalapack
       - name: Build
         run: |
           mkdir build
           cd build
-          cmake .. # -DMUMPS_DIR=$PWD/../../mumps/build
-#         cmake --build . --target OpenSees -j8
-          cmake --build . --target OpenSeesRT -j8
+          cmake .. -DNoOpenSeesPyRT:BOOL=TRUE
+          cmake --build . --target OpenSeesRT
 
 #     - name: Verification
 #       run: |

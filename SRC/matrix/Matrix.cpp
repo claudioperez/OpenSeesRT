@@ -80,14 +80,11 @@ Matrix::Matrix(int nRows,int nCols)
   }
 
   dataSize = numRows * numCols;
-  data = 0;
+  data = nullptr;
 
   if (dataSize > 0) {
-    data = new double[dataSize];
-    // zero the data
+    data = new double[dataSize]{};
     double *dataPtr = data;
-    for (int i=0; i<dataSize; i++)
-      *dataPtr++ = 0.0;
   }
 }
 

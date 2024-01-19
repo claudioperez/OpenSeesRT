@@ -15,9 +15,6 @@ target_sources(OPS_Material
       BWBN.cpp
       Bilin.cpp
       Bilin02.cpp
-#     ConcreteCM.cpp
-#     ConcreteD.cpp
-#     ConcretewBeta.cpp
       DowelType.cpp
       Elastic2Material.cpp
       ElasticBilin.cpp
@@ -32,9 +29,6 @@ target_sources(OPS_Material
       OriginCentered.cpp
       ParallelMaterial.cpp
       ResilienceLow.cpp
-#     Steel2.cpp
-#     SteelMPF.cpp
-#     SteelDRC.cpp      
       UVCuniaxial.cpp
       UniaxialMaterial.cpp
     PUBLIC
@@ -44,9 +38,6 @@ target_sources(OPS_Material
       BWBN.h
       Bilin.h
       Bilin02.h
-#     ConcreteCM.h
-#     ConcreteD.h
-#     ConcretewBeta.h
       DowelType.h
       Elastic2Material.h
       ElasticBilin.h
@@ -61,9 +52,6 @@ target_sources(OPS_Material
       OriginCentered.h
       ParallelMaterial.h
       ResilienceLow.h
-#     Steel2.h
-#     SteelMPF.h
-#     SteelDRC.h      
       UVCuniaxial.h
       UniaxialMaterial.h
 )
@@ -82,19 +70,6 @@ target_sources(OPS_Material
       CFSWSWP.cpp
       CableMaterial.cpp
       Cast.cpp
-#     Concrete01.cpp
-#     Concrete01WithSITC.cpp
-#     Concrete02.cpp
-#     Concrete02IS.cpp
-#     Concrete02Thermal.cpp
-#     Concrete04.cpp
-#     Concrete05.cpp
-#     Concrete06.cpp
-#     Concrete07.cpp
-#     ConcreteECThermal.cpp
-#     ConcreteSakaiKawashima.cpp
-#     ConcretewBeta.cpp
-#     ConfinedConcrete01.cpp
       ContinuumUniaxial.cpp
       CubicSpline.cpp
       DamperMaterial.cpp
@@ -105,8 +80,6 @@ target_sources(OPS_Material
       EPPGapMaterial.cpp
       ElasticBDMaterial.cpp
       ElasticMaterialThermal.cpp
-#     FRPConfinedConcrete.cpp
-#     FRPConfinedConcrete02.cpp
       FatigueMaterial.cpp
       #FedeasMaterial.cpp
       GNGMaterial.cpp
@@ -132,35 +105,15 @@ target_sources(OPS_Material
       OOHystereticMaterial.cpp
       PathIndependentMaterial.cpp
       Pinching4Material.cpp
-#     PrestressedSteelMaterial.cpp
-#     RambergOsgoodSteel.cpp
       ReinforcingSteel.cpp
       ResilienceMaterialHR.cpp
       SAWSMaterial.cpp
       SPSW02.cpp
-#     SecantConcrete.cpp
       SelfCenteringMaterial.cpp
       SeriesMaterial.cpp
       ShearPanelMaterial.cpp
       SimpleFractureMaterial.cpp
       SLModel.cpp
-#     SmoothPSConcrete.cpp
-#     StainlessECThermal.cpp
-#     Steel01.cpp
-#     Steel01Thermal.cpp
-#     Steel02.cpp
-#     Steel02Fatigue.cpp
-#     Steel02Thermal.cpp
-#     Steel03.cpp
-#     Steel4.cpp
-#     SteelBRB.cpp
-#     SteelECThermal.cpp
-#     SteelFractureDI.cpp
-#     SteelMP.cpp
-#     TDConcrete.cpp
-#     TDConcreteEXP.cpp
-#     TDConcreteMC10.cpp
-#     TDConcreteMC10NL.cpp
       TensionOnlyMaterial.cpp
       UniaxialJ2Plasticity.cpp
       ViscousDamper.cpp
@@ -169,7 +122,6 @@ target_sources(OPS_Material
       pyUCLA.cpp
       SMAMaterial.cpp
       
-      TriMatrix.cpp
       DuctileFracture.cpp
 
     PUBLIC
@@ -236,42 +188,29 @@ target_sources(OPS_Material
       OOHystereticMaterial.h
       PathIndependentMaterial.h
       Pinching4Material.h
-#     PrestressedSteelMaterial.h
-#     RambergOsgoodSteel.h
+
       ReinforcingSteel.h
       ResilienceMaterialHR.h
       SAWSMaterial.h
       SPSW02.h
-#     SecantConcrete.h
       SelfCenteringMaterial.h
       SeriesMaterial.h
       ShearPanelMaterial.h
       SimpleFractureMaterial.h
       SLModel.h
-#     SmoothPSConcrete.h
-#     StainlessECThermal.h
-#     Steel01.h
-#     Steel01Thermal.h
-#     Steel02.h
-#     Steel02Fatigue.h
-#     Steel02Thermal.h
-#     Steel03.h
-#     Steel4.h
-#     SteelBRB.h
-#     SteelECThermal.h
-#     SteelMP.h
+
+#     SecantConcrete.h
 #     TDConcrete.h
 #     TDConcreteEXP.h
 #     TDConcreteMC10.h
 #     TDConcreteMC10NL.h
+      # WrapperUniaxialMaterial.h
       TensionOnlyMaterial.h
       UniaxialJ2Plasticity.h
       ViscousDamper.h
       ViscousMaterial.h
-      # WrapperUniaxialMaterial.h
       pyUCLA.h
 
-      TriMatrix.h  # move to SRC/matrix ?
       DuctileFracture.h
 )
 

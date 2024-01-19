@@ -17,26 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2010-06-01 23:48:14 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/VariableTimeStepDirectIntegrationAnalysis.h,v $
-                                                                        
-                                                                        
+//
 #ifndef VariableTimeStepDirectIntegrationAnalysis_h
 #define VariableTimeStepDirectIntegrationAnalysis_h
-
-// Written: fmk 
-// Created: 10/00
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // VariableTimeStepDirectIntegrationAnalysis. VariableTimeStepDirectIntegrationAnalysis 
 // is a subclass of DirectIntegrationAnalysis. It is used to perform a 
 // dynamic analysis on the FE\_Model using a direct integration scheme.  
 //
-// What: "@(#) VariableTimeStepDirectIntegrationAnalysis.h, revA"
-
+// Written: fmk 
+// Created: 10/00
+// Revision: A
+//
 #include <DirectIntegrationAnalysis.h>
 
 class ConstraintHandler;

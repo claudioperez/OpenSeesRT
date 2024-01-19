@@ -18,11 +18,13 @@ target_sources(OPS_Matrix
       Matrix.cpp
       Vector.cpp
       R3vectors.cpp
+      TriMatrix.cpp
     PUBLIC
       ID.h
       Matrix.h
       Vector.h
       R3vectors.h
+      TriMatrix.h
 )
 
 add_subdirectory(routines)

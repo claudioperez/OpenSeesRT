@@ -51,7 +51,7 @@
 // Constructor
 //    sets theModel and theSysOFEqn to 0 and the Algorithm to the one supplied
 
-DirectIntegrationAnalysis::DirectIntegrationAnalysis(Domain &the_Domain,
+DirectIntegrationAnalysis::DirectIntegrationAnalysis(Domain &theDomain,
 						     ConstraintHandler &theHandler,
 						     DOF_Numberer &theNumberer,
 						     AnalysisModel &theModel,
@@ -61,7 +61,7 @@ DirectIntegrationAnalysis::DirectIntegrationAnalysis(Domain &the_Domain,
 						     ConvergenceTest *theConvergenceTest,
 						     int num_SubLevels, 
 						     int num_SubSteps)
-:Analysis(the_Domain), 
+:theDomain(&theDomain), 
  theConstraintHandler(&theHandler),
  theDOF_Numberer(&theNumberer), 
  theAnalysisModel(&theModel), 
@@ -76,8 +76,8 @@ DirectIntegrationAnalysis::DirectIntegrationAnalysis(Domain &the_Domain,
 {
   // first we set up the links needed by the elements in the 
   // aggregation
-  theAnalysisModel->setLinks(the_Domain, theHandler);
-  theConstraintHandler->setLinks(the_Domain, theModel, theTransientIntegrator);
+  theAnalysisModel->setLinks(theDomain, theHandler);
+  theConstraintHandler->setLinks(theDomain, theModel, theTransientIntegrator);
   theDOF_Numberer->setLinks(theModel);
   theIntegrator->setLinks(theModel, theLinSOE, theTest);
   theAlgorithm->setLinks(theModel, theTransientIntegrator, theLinSOE, theTest);
@@ -134,10 +134,10 @@ DirectIntegrationAnalysis::clearAll(void)
 int 
 DirectIntegrationAnalysis::initialize(void)
 {
-    Domain *the_Domain = this->getDomainPtr();
+    // Domain *theDomain = this->getDomainPtr();
 
     // check if domain has undergone change
-    int stamp = the_Domain->hasDomainChanged();
+    int stamp = theDomain->hasDomainChanged();
     if (stamp != domainStamp) {
       domainStamp = stamp;	
       if (this->domainChanged() < 0) {
@@ -176,17 +176,17 @@ int
 DirectIntegrationAnalysis::analyzeStep(double dT)
 {
   int result = 0;
-  Domain *the_Domain = this->getDomainPtr();
+  // Domain *theDomain = this->getDomainPtr();
 
   if (theAnalysisModel->analysisStep(dT) < 0) {
     opserr << "DirectIntegrationAnalysis::analyze() - the AnalysisModel failed";
-    opserr << " at time " << the_Domain->getCurrentTime() << endln;
-    the_Domain->revertToLastCommit();
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();
     return -2;
   }
   
   // check if domain has undergone change
-  int stamp = the_Domain->hasDomainChanged();
+  int stamp = theDomain->hasDomainChanged();
   if (stamp != domainStamp) {
     domainStamp = stamp;	
     if (this->domainChanged() < 0) {
@@ -197,8 +197,8 @@ DirectIntegrationAnalysis::analyzeStep(double dT)
   
   if (theIntegrator->newStep(dT) < 0) {
     opserr << "DirectIntegrationAnalysis::analyze() - the Integrator failed";
-    opserr << " at time " << the_Domain->getCurrentTime() << endln;
-    the_Domain->revertToLastCommit();
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();
     theIntegrator->revertToLastStep();
     return -2;
   }
@@ -206,8 +206,8 @@ DirectIntegrationAnalysis::analyzeStep(double dT)
   result = theAlgorithm->solveCurrentStep();
   if (result < 0) {
     opserr << "DirectIntegrationAnalysis::analyze() - the Algorithm failed";
-    opserr << " at time " << the_Domain->getCurrentTime() << endln;
-    the_Domain->revertToLastCommit();	    
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();	    
     theIntegrator->revertToLastStep();
     return -3;
   }
@@ -219,8 +219,8 @@ DirectIntegrationAnalysis::analyzeStep(double dT)
       if (result < 0) {
 	opserr << "DirectIntegrationAnalysis::analyze() - the SensitivityAlgorithm failed";
 	opserr << " at time ";
-	opserr << the_Domain->getCurrentTime() << endln;
-	the_Domain->revertToLastCommit();	    
+	opserr << theDomain->getCurrentTime() << endln;
+	theDomain->revertToLastCommit();	    
 	theIntegrator->revertToLastStep();
 	return -5;
       }    
@@ -232,8 +232,8 @@ DirectIntegrationAnalysis::analyzeStep(double dT)
   if (result < 0) {
     opserr << "DirectIntegrationAnalysis::analyze() - ";
     opserr << "the Integrator failed to commit";
-    opserr << " at time " << the_Domain->getCurrentTime() << endln;
-    the_Domain->revertToLastCommit();	    
+    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    theDomain->revertToLastCommit();	    
     theIntegrator->revertToLastStep();
     return -4;
   } 
@@ -273,12 +273,12 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
     }
 
     int result = 0;
-    Domain *the_Domain = this->getDomainPtr();
+    // Domain *theDomain = this->getDomainPtr();
 
     // for parallel processing, want all analysis doing an eigenvalue analysis
     result = theAnalysisModel->eigenAnalysis(numMode, generalized, findSmallest);
 
-    int stamp = the_Domain->hasDomainChanged();
+    int stamp = theDomain->hasDomainChanged();
 
     if (stamp != domainStamp) {
       domainStamp = stamp;
@@ -371,8 +371,8 @@ DirectIntegrationAnalysis::eigen(int numMode, bool generalized, bool findSmalles
 int
 DirectIntegrationAnalysis::domainChanged(void)
 {
-    Domain *the_Domain = this->getDomainPtr();
-    int stamp = the_Domain->hasDomainChanged();
+    // Domain *theDomain = this->getDomainPtr();
+    int stamp = theDomain->hasDomainChanged();
     domainStamp = stamp;
 
     theAnalysisModel->clearAll();    
@@ -465,10 +465,10 @@ DirectIntegrationAnalysis::setIntegrator(TransientIntegrator &theNewIntegrator)
       delete theIntegrator;
 
   // set the links needed by the other objects in the aggregation
-  Domain *the_Domain = this->getDomainPtr();
+  Domain *theDomain = this->getDomainPtr();
   theIntegrator = &theNewIntegrator;
   theIntegrator->setLinks(*theAnalysisModel, *theSOE, theTest);
-  theConstraintHandler->setLinks(*the_Domain, *theAnalysisModel, *theIntegrator);
+  theConstraintHandler->setLinks(*theDomain, *theAnalysisModel, *theIntegrator);
   theAlgorithm->setLinks(*theAnalysisModel, *theIntegrator, *theSOE, theTest);
 
   // cause domainChanged to be invoked on next analyze
@@ -553,10 +553,10 @@ DirectIntegrationAnalysis::setConvergenceTest(ConvergenceTest &theNewTest)
 int
 DirectIntegrationAnalysis::checkDomainChange(void)
 {
-  Domain *the_Domain = this->getDomainPtr();
+  // Domain *theDomain = this->getDomainPtr();
 
   // check if domain has undergone change
-  int stamp = the_Domain->hasDomainChanged();
+  int stamp = theDomain->hasDomainChanged();
   if (stamp != domainStamp) {
     domainStamp = stamp;	
     if (this->domainChanged() < 0) {

@@ -429,8 +429,10 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       else if ((strcmp(argv[loc], "-ele") == 0) ||
-          (strcmp(argv[loc], "-eles") == 0) ||
-          (strcmp(argv[loc], "-element") == 0)) {
+               (strcmp(argv[loc], "-tag") == 0) ||
+               (strcmp(argv[loc], "-eles") == 0) ||
+               (strcmp(argv[loc], "-elem") == 0) ||
+               (strcmp(argv[loc], "-element") == 0)) {
 
         // ensure no segmentation fault if user messes up
         if (argc < loc + 2) {
@@ -784,7 +786,8 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
     while (flags == 0 && loc < argc) {
 
-      if (strcmp(argv[loc], "-node") == 0) {
+      if ((strcmp(argv[loc], "-node") == 0) ||
+          (strcmp(argv[loc], "-tag") == 0)) {
 
         if (Tcl_GetInt(interp, argv[loc + 1], &nodeTag) != TCL_OK) {
           opserr << "WARNING recorder Collapse -node - invalid node tag "
@@ -1627,6 +1630,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     else if ((strcmp(argv[pos], "-node") == 0) ||
+             (strcmp(argv[pos], "-tag") == 0)  ||
              (strcmp(argv[pos], "-nodes") == 0)) {
       pos++;
 
