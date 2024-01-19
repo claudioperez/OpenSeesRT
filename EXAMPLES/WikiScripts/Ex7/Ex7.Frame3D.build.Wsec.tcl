@@ -370,6 +370,5 @@ analyze $NstepGravity;		# apply gravity
 # ------------------------------------------------- maintain constant gravity loads and reset time to zero
 loadConst -time 0.0
 set Tol 1.0e-6;			# reduce tolerance after gravity loads
-puts "Model Built"
 
 
