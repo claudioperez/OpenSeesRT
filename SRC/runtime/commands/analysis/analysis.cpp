@@ -41,7 +41,7 @@
 // numberers
 #include <PlainNumberer.h>
 #include <DOF_Numberer.h>
-
+#include "analysis.h"
 
 // extern StaticIntegrator *theStaticIntegrator;
 // extern TransientIntegrator *theTransientIntegrator;
@@ -62,45 +62,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
 
-
-
-int wipeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
-static Tcl_CmdProc specifyAnalysis;
-static Tcl_CmdProc eigenAnalysis;
-static Tcl_CmdProc modalProperties;
-static Tcl_CmdProc responseSpectrum;
-static Tcl_CmdProc printA;
-static Tcl_CmdProc printB;
-static Tcl_CmdProc initializeAnalysis;
-static Tcl_CmdProc resetModel;
-static Tcl_CmdProc analyzeModel;
-static Tcl_CmdProc specifyConstraintHandler;
-// Damping
-static Tcl_CmdProc modalDamping;
-
-extern Tcl_CmdProc specifyIntegrator;
-
-extern Tcl_CmdProc specifySOE;
-extern Tcl_CmdProc specifySysOfEqnTable;
-
-// commands/analysis/algorithm.cpp
-extern Tcl_CmdProc TclCommand_specifyAlgorithm;
-extern Tcl_CmdProc TclCommand_numIter;
-extern Tcl_CmdProc TclCommand_accelCPU;
-extern Tcl_CmdProc TclCommand_totalCPU;
-extern Tcl_CmdProc TclCommand_solveCPU;
-extern Tcl_CmdProc TclCommand_numFact;
-// from commands/analysis/ctest.cpp
-extern Tcl_CmdProc specifyCTest;
-extern Tcl_CmdProc getCTestNorms;
-extern Tcl_CmdProc getCTestIter;
-
+Tcl_CmdProc TclCommand_clearAnalysis;
 
 DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**const);
 // TODO: consolidate
-extern int TclCommand_algorithmRecorder(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char ** const argv); //, EquiSolnAlgo *theAlgorithm);
-
 // int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
 //
@@ -111,42 +76,22 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
 {
 
   BasicAnalysisBuilder *builder = new BasicAnalysisBuilder(domain);
+  Tcl_CreateCommand(interp, "wipeAnalysis", &wipeAnalysis, builder, nullptr);
+  Tcl_CreateCommand(interp, "_clearAnalysis", &TclCommand_clearAnalysis, builder, nullptr);
 
-  Tcl_CreateCommand(interp, "system",            &specifySysOfEqnTable, builder, nullptr);
   Tcl_CreateCommand(interp, "numberer", [](ClientData builder, Tcl_Interp *i, int ac, G3_Char** const av)->int{
       ((BasicAnalysisBuilder*)builder)->set(G3Parse_newNumberer(G3_getRuntime(i), ac, av));
       return TCL_OK;
   }, builder, nullptr);
 
-  Tcl_CreateCommand(interp, "test",              &specifyCTest,      builder, nullptr);
-  Tcl_CreateCommand(interp, "testIter",          &getCTestIter,      builder, nullptr);
-  Tcl_CreateCommand(interp, "testNorms",         &getCTestNorms,     builder, nullptr);
-  Tcl_CreateCommand(interp, "integrator",        &specifyIntegrator, builder, nullptr);
-  Tcl_CreateCommand(interp, "constraints",       &specifyConstraintHandler, builder, nullptr);
 
-  Tcl_CreateCommand(interp, "eigen",             &eigenAnalysis,   builder, nullptr);
-  Tcl_CreateCommand(interp, "analysis",          &specifyAnalysis, builder, nullptr);
+  static int ncmd = sizeof(tcl_analysis_cmds)/sizeof(char_cmd);
+  for (int i = 0; i < ncmd; i++)
+    Tcl_CreateCommand(interp, 
+        tcl_analysis_cmds[i].name, 
+        tcl_analysis_cmds[i].func, 
+        (ClientData) builder, nullptr);
 
-  Tcl_CreateCommand(interp, "analyze",           &analyzeModel,       builder, nullptr);
-  Tcl_CreateCommand(interp, "wipeAnalysis",      &wipeAnalysis,       builder, nullptr);
-  Tcl_CreateCommand(interp, "initialize",        &initializeAnalysis, builder, nullptr);
-  Tcl_CreateCommand(interp, "modalProperties",   &modalProperties,    builder, nullptr);
-  Tcl_CreateCommand(interp, "modalDamping",      &modalDamping,       builder, nullptr);
-  Tcl_CreateCommand(interp, "modalDampingQ",     &modalDamping,       builder, nullptr);
-  Tcl_CreateCommand(interp, "responseSpectrum",  &responseSpectrum,   builder, nullptr);
-  Tcl_CreateCommand(interp, "printA",            &printA,          builder, nullptr);
-  Tcl_CreateCommand(interp, "printB",            &printB,          builder, nullptr);
-  Tcl_CreateCommand(interp, "reset",             &resetModel,      builder, nullptr);
-
-  // From algorithm.cpp
-  Tcl_CreateCommand(interp, "algorithm", &TclCommand_specifyAlgorithm,  builder, nullptr);
-  Tcl_CreateCommand(interp, "numIter",   &TclCommand_numIter,           builder, nullptr);
-  Tcl_CreateCommand(interp, "numFact",   &TclCommand_numFact,           builder, nullptr);
-  Tcl_CreateCommand(interp, "accelCPU",  &TclCommand_accelCPU,          builder, nullptr);
-  Tcl_CreateCommand(interp, "totalCPU",  &TclCommand_totalCPU,          builder, nullptr);
-  Tcl_CreateCommand(interp, "solveCPU",  &TclCommand_solveCPU,          builder, nullptr);
-  // recorder.cpp
-  Tcl_CreateCommand(interp, "algorithmRecorder",   &TclCommand_algorithmRecorder, builder, nullptr);
   return TCL_OK;
 }
 
@@ -215,7 +160,6 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
       if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
         return TCL_ERROR;
 
-  //  result = the_static_analysis->analyze(numIncr);
       result = builder->analyze(numIncr, 0.0);
       break;
     }
@@ -260,13 +204,6 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
       opserr << G3_ERROR_PROMPT << "No Analysis type has been specified \n";
       return TCL_ERROR;
   }
-
-#if 0
-  if (result < 0) {
-    opserr << G3_WARN_PROMPT << "analyze failed, returned: " << result
-           << " error flag\n";
-  }
-#endif
 
   char buffer[10];
   sprintf(buffer, "%d", result);
@@ -689,16 +626,35 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   return res;
 }
 
+// This is removed in model.cpp
+extern int
+TclCommand_clearAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
 
-int
+  if (cd != nullptr) {
+    BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)cd;
+    builder->wipe();
+    delete builder;
+
+    static int ncmd = sizeof(tcl_analysis_cmds)/sizeof(char_cmd);
+    for (int i = 0; i < ncmd; i++)
+      Tcl_DeleteCommand(interp, tcl_analysis_cmds[i].name);
+
+    Tcl_CreateCommand(interp, "wipeAnalysis",  &wipeAnalysis, nullptr, nullptr);
+    Tcl_CreateCommand(interp, "_clearAnalysis", &TclCommand_clearAnalysis, nullptr, nullptr);
+  }
+
+  return TCL_OK;
+}
+
+static int
 wipeAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-#if 0
+
   if (cd != nullptr) {
     BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)cd;
     builder->wipe();
   }
-#endif
   return TCL_OK;
 }
 

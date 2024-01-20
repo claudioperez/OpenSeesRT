@@ -18,6 +18,7 @@ static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
 static Timer *theTimer = nullptr;
 
 Tcl_CmdProc TclCommand_wipeModel;
+Tcl_CmdProc TclCommand_clearAnalysis;
 Tcl_CmdProc TclCommand_specifyModel;
 
 class ProgressBar;
@@ -35,6 +36,11 @@ Tcl_CmdProc convertBinaryToText;
 Tcl_CmdProc convertTextToBinary;
 Tcl_CmdProc stripOpenSeesXML;
 
+static int
+debug(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+
+}
 
 //
 // Consider reimplmenting to use Tcl built-ins; see
@@ -393,9 +399,10 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "setMaxOpenFiles",     maxOpenFiles,        nullptr, nullptr);
 
   // Some entry points
-  Tcl_CreateCommand(interp, "model",               TclCommand_specifyModel, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "opensees::model",     TclCommand_specifyModel, nullptr, nullptr);
-  Tcl_CreateCommand(interp, "wipe",                TclCommand_wipeModel,    nullptr, nullptr);
+  Tcl_CreateCommand(interp, "model",               TclCommand_specifyModel,   nullptr, nullptr);
+  Tcl_CreateCommand(interp, "opensees::model",     TclCommand_specifyModel,   nullptr, nullptr);
+  Tcl_CreateCommand(interp, "wipe",                TclCommand_wipeModel,      nullptr, nullptr);
+  Tcl_CreateCommand(interp, "_clearAnalysis",      TclCommand_clearAnalysis,  nullptr, nullptr);
 
   Tcl_CreateObjCommand(interp, "pset",             OPS_SetObjCmd, nullptr, nullptr);
   Tcl_CreateObjCommand(interp, "source",           OPS_SourceCmd, nullptr, nullptr);

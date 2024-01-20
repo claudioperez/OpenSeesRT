@@ -64,10 +64,6 @@ public:
 
   int   addRegistryObject(const char*, int tag, void* obj); 
   void* getRegistryObject(const char*, int tag); 
-#if 0
-  const void* getSharedObject(const char* partition, int tag);
-  int   addSharedObject(const char*, int tag, const void* obj);
-#endif
 
   int addTimeSeries(const std::string&, TimeSeries*);
   int addTimeSeries(TimeSeries*);
@@ -137,7 +133,7 @@ private:
 
   G3_Runtime *m_runtime = nullptr;
   Domain *theTclDomain = 0;
-  BasicModelBuilder *theTclBuilder = 0;
+  BasicModelBuilder *theTclBuilder = nullptr;
   int eleArgStart = 0;
   int nodeLoadTag = 0;
   int eleLoadTag = 0;

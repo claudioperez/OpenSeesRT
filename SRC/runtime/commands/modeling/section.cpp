@@ -331,17 +331,8 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial **theMats = 0;
     ID codes(nMats);
-
-    theMats = new UniaxialMaterial *[nMats];
-
-    if (theMats == 0) {
-      opserr << "TclBasicBuilderSection (Aggregator) -- unable to create "
-                "uniaxial array"
-             << endln;
-      return TCL_ERROR;
-    }
+    UniaxialMaterial **theMats = new UniaxialMaterial *[nMats];
 
     int tagI;
     int i, j;
@@ -1918,7 +1909,6 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
     int numSectionRepresFibers  = fiberSectionRepr->getNumFibers();
     Fiber **sectionRepresFibers = fiberSectionRepr->getFibers();
 
-
     int i, j, k;
     int numFibers;
     numFibers = numSectionRepresFibers;
@@ -2037,11 +2027,6 @@ buildSection(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theTclB
       // Delete fibers
       for (i = 0; i < numFibers; i++)
         delete fiber[i];
-
-      if (section == nullptr) {
-        opserr << G3_ERROR_PROMPT << "cannot construct section\n";
-        return TCL_ERROR;
-      }
 
       if (theTclBasicBuilder->addSection(*section) < 0) {
         opserr << G3_ERROR_PROMPT << "cannot add section\n";

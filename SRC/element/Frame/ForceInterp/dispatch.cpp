@@ -203,6 +203,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     SectionForceDeformation **sections = nullptr;
 
     if (strcmp(argv[argi], "-sections") != 0) {
+      // ""
 
       if (Tcl_GetInt(interp, argv[argi], &secTag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid secTag\n";
@@ -211,22 +212,24 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         argi++;
 
       if (Tcl_GetVar(interp, "opensees::pragma::openseespy", 0) == nullptr) { // (0) { // (Tcl_Eval(interp, "expr [pragma openseespy check] == 1") != TCL_OK) {
+      // OpenSees Tcl behavior
 
         SectionForceDeformation *theSection = builder->getSection(secTag);
         if (theSection == nullptr) {
           opserr << G3_ERROR_PROMPT << "section not found with tag " << secTag << endln;
           return TCL_ERROR;
         }
+        sections = new SectionForceDeformation *[nIP];
+        for (int i = 0; i < nIP; i++)
+          sections[i] = theSection;
 
+        // Geometric transformation
         if (Tcl_GetInt(interp, argv[argi], &transfTag) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid transfTag\n";
           return TCL_ERROR;
         } else
           argi++;
 
-        sections = new SectionForceDeformation *[nIP];
-        for (int i = 0; i < nIP; i++)
-          sections[i] = theSection;
 
       } else {
         transfTag = nIP;
@@ -345,6 +348,9 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         argi++;
     }
 
+    //
+    //
+    //
     switch (ndm) {
       case 2:
         theTransf2d = builder->getCrdTransf(transfTag);
@@ -432,10 +438,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     delete beamIntegr;
     delete[] sections;
-    if (theElement == nullptr) {
-      opserr << G3_ERROR_PROMPT << "ran out of memory creating element\n";
-      return TCL_ERROR;
-    }
 
     if (theTclDomain->addElement(theElement) == false) {
       opserr << G3_ERROR_PROMPT << "could not add element to the domain\n";
