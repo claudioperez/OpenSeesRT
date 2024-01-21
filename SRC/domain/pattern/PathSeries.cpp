@@ -244,20 +244,13 @@ PathSeries::PathSeries(int tag,
   // create a copy of the vector containing path points
   if (prependZero == false) {
     thePath = new Vector(theLoadPath);
+
   } else if (theLoadPath != 0) {
     // prepend a zero value
     thePath = new Vector(1 + theLoadPath.Size());
     thePath->Assemble(theLoadPath, 1);
   }
 
-  // ensure we did not run out of memory
-  if (thePath == 0 || thePath->Size() == 0) {
-    opserr << "PathSeries::PathSeries() - ran out of memory constructing";
-    opserr << " a Vector of size: " <<  theLoadPath.Size() << endln;
-    if (thePath != 0)
-      delete thePath; 
-    thePath = 0;
-  }
 }
 
 PathSeries::PathSeries(int tag,
@@ -340,11 +333,11 @@ PathSeries::~PathSeries()
 
 TimeSeries *
 PathSeries::getCopy(void) {
-  if (thePath != 0)
-  return new PathSeries(this->getTag(), *thePath, pathTimeIncr, cFactor,
-                        useLast, false, startTime);
+  if (thePath != nullptr)
+    return new PathSeries(this->getTag(), *thePath, pathTimeIncr, cFactor,
+                          useLast, false, startTime);
   else
-  return 0;
+    return nullptr;
 }
 
 double
@@ -375,29 +368,25 @@ PathSeries::getFactor(double pseudoTime)
 double
 PathSeries::getDuration()
 {
-  if (thePath == 0)
-  {
-    opserr << "WARNING -- PathSeries::getDuration() on empty Vector" << endln;
-	return 0.0;
-  }
+  if (thePath == nullptr)
+    return 0.0;
+
   return (startTime + thePath->Size()*pathTimeIncr);
 }
 
 double
 PathSeries::getPeakFactor()
 {
-  if (thePath == 0)
-  {
+  if (thePath == 0) {
     opserr << "WARNING -- PathSeries::getPeakFactor() on empty Vector" << endln;
-	return 0.0;
+    return 0.0;
   }
 
   double peak = fabs((*thePath)[0]);
   int num = thePath->Size();
   double temp;
 
-  for (int i = 1; i < num; i++)
-  {
+  for (int i = 1; i < num; i++) {
 	temp = fabs((*thePath)[i]);
 	if (temp > peak)
 	  peak = temp;
