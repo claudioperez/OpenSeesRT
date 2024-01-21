@@ -269,7 +269,7 @@ SectionForceDeformation(0, SEC_TAG_NDFiberSectionWarping2d),
 }
 
 int
-    NDFiberSectionWarping2d::addFiber(Fiber &newFiber)
+NDFiberSectionWarping2d::addFiber(Fiber &newFiber)
 {
     // need to create larger arrays
     int newSize = numFibers+1;
@@ -671,19 +671,19 @@ NDFiberSectionWarping2d::getInitialTangent(void)
 }
 
 const Matrix&
-    NDFiberSectionWarping2d::getSectionTangent(void)
+NDFiberSectionWarping2d::getSectionTangent(void)
 {
     return *ks;
 }
 
 const Vector&
-    NDFiberSectionWarping2d::getStressResultant(void)
+NDFiberSectionWarping2d::getStressResultant(void)
 {
     return *s;
 }
 
 SectionForceDeformation*
-    NDFiberSectionWarping2d::getCopy(void)
+NDFiberSectionWarping2d::getCopy(void)
 {
     NDFiberSectionWarping2d *theCopy = new NDFiberSectionWarping2d ();
     theCopy->setTag(this->getTag());
@@ -766,19 +766,19 @@ SectionForceDeformation*
 }
 
 const ID&
-    NDFiberSectionWarping2d::getType ()
+NDFiberSectionWarping2d::getType ()
 {
     return code;
 }
 
 int
-    NDFiberSectionWarping2d::getOrder () const
+NDFiberSectionWarping2d::getOrder () const
 {
     return 5;
 }
 
 int
-    NDFiberSectionWarping2d::commitState(void)
+NDFiberSectionWarping2d::commitState(void)
 {
     int err = 0;
 
@@ -791,7 +791,7 @@ int
 }
 
 int
-    NDFiberSectionWarping2d::revertToLastCommit(void)
+NDFiberSectionWarping2d::revertToLastCommit(void)
 {
     int err = 0;
 
@@ -950,7 +950,7 @@ int
 }
 
 int
-    NDFiberSectionWarping2d::revertToStart(void)
+NDFiberSectionWarping2d::revertToStart(void)
 {
     // revert the fibers to start    
     int err = 0;
@@ -1102,7 +1102,7 @@ int
 }
 
 int
-    NDFiberSectionWarping2d::sendSelf(int commitTag, Channel &theChannel)
+NDFiberSectionWarping2d::sendSelf(int commitTag, Channel &theChannel)
 {
     int res = 0;
 
@@ -1158,7 +1158,7 @@ int
 }
 
 int
-    NDFiberSectionWarping2d::recvSelf(int commitTag, Channel &theChannel,
+NDFiberSectionWarping2d::recvSelf(int commitTag, Channel &theChannel,
     FEM_ObjectBroker &theBroker)
 {
     int res = 0;
@@ -1266,7 +1266,7 @@ int
 }
 
 void
-    NDFiberSectionWarping2d::Print(OPS_Stream &s, int flag)
+NDFiberSectionWarping2d::Print(OPS_Stream &s, int flag)
 {
     s << "\nNDFiberSectionWarping2d, tag: " << this->getTag() << endln;
     s << "\tSection code: " << code;
@@ -1284,7 +1284,7 @@ void
 }
 
 Response*
-    NDFiberSectionWarping2d::setResponse(const char **argv, int argc,
+NDFiberSectionWarping2d::setResponse(const char **argv, int argc,
     OPS_Stream &output)
 {
     Response *theResponse =0;
@@ -1335,13 +1335,12 @@ Response*
         else {                  // fiber near-to coordinate specified
 
             double yCoord = atof(argv[1]);
-            double closestDist;
             double ySearch, dy;
             double distance;
 
             ySearch = matData[0];
             dy = ySearch-yCoord;
-            closestDist = dy*dy;
+            double closestDist = dy*dy;
             key = 0;
             for (int j = 1; j < numFibers; j++) {
                 ySearch = matData[2*j];
@@ -1388,7 +1387,7 @@ NDFiberSectionWarping2d::getResponse(int responseID, Information &sectInfo)
 
 // AddingSensitivity:BEGIN ////////////////////////////////////
 int
-    NDFiberSectionWarping2d::setParameter(const char **argv, int argc, Parameter &param)
+NDFiberSectionWarping2d::setParameter(const char **argv, int argc, Parameter &param)
 {
     if (argc < 1)
         return -1;
@@ -1443,7 +1442,7 @@ int
 }
 
 int
-    NDFiberSectionWarping2d::updateParameter(int paramID, Information &info)
+NDFiberSectionWarping2d::updateParameter(int paramID, Information &info)
 {
     switch(paramID) {
     case 1:
@@ -1455,7 +1454,7 @@ int
 }
 
 int
-    NDFiberSectionWarping2d::activateParameter(int paramID)
+NDFiberSectionWarping2d::activateParameter(int paramID)
 {
     parameterID = paramID;
 
@@ -1463,13 +1462,13 @@ int
 }
 
 const Vector &
-    NDFiberSectionWarping2d::getSectionDeformationSensitivity(int gradIndex)
+NDFiberSectionWarping2d::getSectionDeformationSensitivity(int gradIndex)
 {
     return dedh;
 }
 
 const Vector &
-    NDFiberSectionWarping2d::getStressResultantSensitivity(int gradIndex, bool conditional)
+NDFiberSectionWarping2d::getStressResultantSensitivity(int gradIndex, bool conditional)
 {
     static Vector ds(5);
 
@@ -1568,7 +1567,7 @@ const Vector &
 }
 
 const Matrix &
-    NDFiberSectionWarping2d::getInitialTangentSensitivity(int gradIndex)
+NDFiberSectionWarping2d::getInitialTangentSensitivity(int gradIndex)
 {
     static Matrix dksdh(5,5);
 
@@ -1626,7 +1625,7 @@ const Matrix &
 }
 
 int
-    NDFiberSectionWarping2d::commitSensitivity(const Vector& defSens,
+NDFiberSectionWarping2d::commitSensitivity(const Vector& defSens,
     int gradIndex, int numGrads)
 {
     double d0 = defSens(0);
