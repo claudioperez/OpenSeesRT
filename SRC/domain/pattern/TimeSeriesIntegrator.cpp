@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-03-04 00:48:12 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/TimeSeriesIntegrator.cpp,v $
-                                                                        
+//
 // Written: MHS
 // Created: 10/99
 // Revision: A
@@ -29,9 +25,8 @@
 // Description: This file contains the class definition for 
 // TimeSeriesIntegrator.
 //
-// What: "@(#) TimeSeriesIntegrator.C, revA"
-
 #include <TimeSeriesIntegrator.h>
+#if 0
 #include <elementAPI.h>
 
 
@@ -69,6 +64,7 @@ OPS_ADD_RUNTIME_VPV(OPS_TimeSeriesIntegrator)
 
     return seriesIntegrator;
 }
+#endif
 
 
 TimeSeriesIntegrator::TimeSeriesIntegrator (int classTag)
