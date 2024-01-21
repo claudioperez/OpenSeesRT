@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
-// Written: MHS
-// Created: 2012
 //
 // Description: This file contains the class definition for 
 // NDFiberSection3d.h. NDFiberSection3d provides the abstraction of a 
 // 2d beam section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
-
+//
+// Written: MHS
+// Created: 2012
+//
 #ifndef NDFiberSection3d_h
 #define NDFiberSection3d_h
 
@@ -94,18 +90,17 @@ class NDFiberSection3d : public SectionForceDeformation
 			  int gradIndex, int numGrads);
     // AddingSensitivity:END ///////////////////////////////////////////
 
-  protected:
-    
+  protected: 
     //  private:
-    int numFibers, sizeFibers;                   // number of fibers in the section
-    NDMaterial **theMaterials; // array of pointers to materials
-    double   *matData;               // data for the materials [yloc and area]
+    int numFibers, sizeFibers;        // number of fibers in the section
+    NDMaterial **theMaterials;        // array of pointers to materials
+    double   *matData;                // data for the materials [yloc and area]
     double   kData[36];               // data for ks matrix 
-    double   sData[6];               // data for s vector 
+    double   sData[6];                // data for s vector 
 
     double Abar,QyBar, QzBar;
-    double yBar;       // Section centroid
-    double zBar;       // Section centroid
+    double yBar;                      // Section centroid
+    double zBar;                      // Section centroid
     bool computeCentroid;
     double alpha;      // Shear shape factor
 
