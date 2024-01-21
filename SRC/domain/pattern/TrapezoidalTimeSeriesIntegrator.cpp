@@ -17,24 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2010-02-04 00:36:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/TrapezoidalTimeSeriesIntegrator.cpp,v $
-                                                                        
-                                                                        
-// File: ~/domain/pattern/TrapezoidalTimeSeriesIntegrator.cpp
-// 
-// Written: MHS
-// Created: 10/99
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // a TrapezoidalTimeSeriesIntegrator, which integrates a
 // ground motion TimeSeries using the trapezoidal rule.
 //
-// What: "@(#) TrapezoidalTimeSeriesIntegrator.cpp, revA"
-
+// Written: MHS
+// Created: 10/99
+// Revision: A
+//
 #include <TrapezoidalTimeSeriesIntegrator.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -77,18 +68,7 @@ TrapezoidalTimeSeriesIntegrator::integrate(TimeSeries *theSeries, double delta)
   // Add one to get ceiling out of type cast
   int numSteps = (int)(theSeries->getDuration()/delta + 1.0);
 
-  Vector *theIntegratedValues = new Vector (numSteps);
-
-  // Check that the Vector was allocated properly
-  if (theIntegratedValues == 0 || theIntegratedValues->Size() == 0) {
-    opserr << "TrapezoidalTimeSeriesIntegrator::integrate() Ran out of memory allocating Vector of size " <<
-      numSteps << endln;
-
-    if (theIntegratedValues != 0)
-      delete theIntegratedValues;
-
-    return 0;
-  }
+  Vector *theIntegratedValues = new Vector(numSteps);
 
   int i;                // Counter for indexing
   double dummyTime;     // Dummy variable for integrating
@@ -125,12 +105,7 @@ TrapezoidalTimeSeriesIntegrator::integrate(TimeSeries *theSeries, double delta)
   // Set the method return value
   PathSeries *returnSeries = new PathSeries (0, *theIntegratedValues, delta, true);
 
-  if (returnSeries == 0) {
-    opserr << "TrapezoidalTimeSeriesIntegrator::integrate() Ran out of memory creating PathSeries\n";
-
-    return 0;
-   }
-
+  delete theIntegratedValues;
   return returnSeries;
 }
 
