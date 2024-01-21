@@ -59,7 +59,8 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   int tag;
-  if ((strcmp(Tcl_GetString(objv[1]), "element") == 0) || (strcmp(Tcl_GetString(objv[1]), "ele") == 0)) {
+  if ((strcmp(Tcl_GetString(objv[1]), "element") == 0) || 
+      (strcmp(Tcl_GetString(objv[1]), "ele") == 0)) {
     if (argc < 3) {
       opserr << "WARNING want - remove element eleTag?\n";
       return TCL_ERROR;
