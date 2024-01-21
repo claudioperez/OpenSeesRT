@@ -159,19 +159,13 @@ ProfileSPDLinSOE::setSize(Graph &theGraph)
     // if not delete old and create new
     if (size > Bsize) { 
 	if (iDiagLoc != 0) delete [] iDiagLoc;
-	iDiagLoc = new (nothrow) int[size];
+	iDiagLoc = new int[size]{};
 
-	if (iDiagLoc == 0) {
-	    opserr << "WARNING ProfileSPDLinSOE::setSize() : ";
-	    opserr << " - ran out of memory for iDiagLoc\n";
-	    size = 0; Asize = 0;
-	    result = -1;
-	}
-    }
-
-    // zero out iDiagLoc 
-    for (int i=0; i<size; i++) {
-	iDiagLoc[i] = 0;
+    } else {
+      // zero out iDiagLoc 
+      for (int i=0; i<size; i++) {
+          iDiagLoc[i] = 0;
+      }
     }
 
     // now we go through the vertices to find the height of each col and
@@ -212,60 +206,44 @@ ProfileSPDLinSOE::setSize(Graph &theGraph)
 
     // check if we need more space to hold A
     // if so then go get it
-    if (profileSize > Asize) { 
-
+    if (profileSize > Asize) {
 	// delete old space
 	if (A != 0)
 	    delete [] A;
-	
-	// get new space
-	A = new (nothrow) double[profileSize];
-	
-        if (A == 0) {
-            opserr << "ProfileSPDLinSOE::ProfileSPDLinSOE :";
-	    opserr << " ran out of memory for A (size,Profile) (";
-	    opserr << size <<", " << profileSize << ") \n";
-	    size = 0;  Asize = 0;  profileSize = 0;
-	    result = -1;
-        }
-	else 
-	    Asize = profileSize;
-    }
 
-    // zero the matrix
-    for (int k=0; k<profileSize; k++)
-	A[k] = 0;
+	// get new zeroed-out space
+	A = new double[profileSize]{};
+
+	Asize = profileSize;
+
+    } else {
+      // zero the matrix
+      for (int k=0; k<profileSize; k++)
+          A[k] = 0;
+    }
 
     isAfactored = false;
     isAcondensed = false;    
 
     if (size > Bsize) { // we have to get another space for A
-	
+
 	// delete the old
 	if (B != 0) delete [] B;
 	if (X != 0) delete [] X;
 
-	// create the new	
-	B = new double[size];
-	X = new double[size];
-	
-        if (B == 0 || X == 0 ) {
-            opserr << "ProfileSPDLinSOE::ProfileSPDLinSOE :";
-	    opserr << " ran out of memory for vectors (size) (";
-	    opserr << size << ") \n";
-	    size = 0; Bsize = 0;
-	    result = -1;
-        }
-    }
+	// allocate zeroed-out memory 
+	B = new double[size]{};
+	X = new double[size]{};
 
-    // zero the vectors
-    for (int l=0; l<size; l++) {
-	B[l] = 0;
-	X[l] = 0;
+    } else {
+      // zero the vectors
+      for (int l=0; l<size; l++) {
+          B[l] = 0;
+          X[l] = 0;
+      }
     }
     
     if (size != oldSize) {
-	
 	if (vectX != 0)
 	    delete vectX;
 	if (vectB != 0)
@@ -335,9 +313,10 @@ ProfileSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 		    minColRow = 0;
 		else
 		    minColRow = col - (iDiagLoc[col] - iDiagLoc[col-1]) +1;
+
 		for (int j=0; j<idSize; j++) {
 		    int row = id(j);
-		    if (row <size && row >= 0 && 
+		    if (row < size && row >= 0 && 
 			row <= col && row >= minColRow) { 
 
 			// we only add upper and inside profile
@@ -381,7 +360,7 @@ ProfileSPDLinSOE::addColA(const Vector &colData, int col, double fact)
     for (int row=0; row<size; row++) {
       double data = colData(row);
       if (data != 0) {
-	if (row <size && row >= 0 && 
+	if (row < size && row >= 0 && 
 	    row <= col && row >= minColRow) { 
 	  
 	  // we only add upper and inside profile
@@ -399,6 +378,7 @@ ProfileSPDLinSOE::addColA(const Vector &colData, int col, double fact)
       minColRow = 0;
     else
       minColRow = col - (iDiagLoc[col] - iDiagLoc[col-1]) +1;
+
     for (int row=0; row<size; row++) {
       double data = colData(row);
       if (data != 0) {

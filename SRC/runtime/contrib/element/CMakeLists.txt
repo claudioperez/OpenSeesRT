@@ -7,7 +7,6 @@ target_sources(OPS_Runtime PRIVATE
     "brick/TclBrickCommand.cpp"
     "brick/TclTwenty_Node_BrickCommand.cpp"
 
-    "Frame/TclForceBeamColumnCommand.cpp"
 
     "${CMAKE_CURRENT_LIST_DIR}/Frame/beamWithHinges.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/Frame/TclDispBeamColumnIntCommand.cpp"

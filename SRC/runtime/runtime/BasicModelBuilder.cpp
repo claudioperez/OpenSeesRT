@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <initializer_list>
 #include <g3_api.h>
 #include <modeling/commands.h>
 
@@ -50,6 +51,8 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
 {
   static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
 
+  Tcl_CreateCommand(interp, "wipe", TclCommand_wipeModel, (ClientData)this, nullptr);
+
   for (int i = 0; i < ncmd; i++)
     Tcl_CreateCommand(interp, 
         tcl_char_cmds[i].name, 
@@ -76,6 +79,14 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
 
 BasicModelBuilder::~BasicModelBuilder()
 {
+  for (auto type: {"UniaxialMaterial", "BeamIntegrationRule", "CrossSection", "SectionRepres",
+                   // "TimeSeries",
+                   "YS_PlasticMaterial", "YieldSurface_BC", "YieldSurface_BC", "YS_EvolutionModel",
+                   "FrictionModel", "CyclicModel"}) {
+    G3_TableIterator iter = this->iterate(type);  
+    while (G3_NextTableEntry(&iter))
+      delete ((TaggedObject*)iter.value);
+  }
 
   // OPS_clearAllTimeSeries();
   // OPS_clearAllUniaxialMaterial();
@@ -106,20 +117,9 @@ BasicModelBuilder::~BasicModelBuilder()
 
   // theTclMultiSupportPattern = 0;
 
-// TODO
-  // may possibly invoke Tcl_DeleteCommand() later
-  // Tcl_DeleteCommand(theInterp, "node");
-  // Tcl_DeleteCommand(theInterp, "element");
-  // Tcl_DeleteCommand(theInterp, "uniaxialMaterial");
-  // Tcl_DeleteCommand(theInterp, "nDMaterial");
-  // Tcl_DeleteCommand(theInterp, "section");
-  // Tcl_DeleteCommand(theInterp, "pattern");
-  // Tcl_DeleteCommand(theInterp, "timeSeries");
-  // Tcl_DeleteCommand(theInterp, "load");
-
-//  static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
-//  for (int i = 0; i < ncmd; i++)
-//    Tcl_DeleteCommand(interp, tcl_char_cmds[i].name);
+  static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
+  for (int i = 0; i < ncmd; i++)
+    Tcl_DeleteCommand(theInterp, tcl_char_cmds[i].name);
 }
 
 //
@@ -148,7 +148,7 @@ int
 BasicModelBuilder::setEnclosingPattern(LoadPattern* pat){
   tclEnclosingPattern = pat;
   return 1;
-};
+}
 
 Domain *
 BasicModelBuilder::getDomain(void) const {return theTclDomain;}
@@ -162,20 +162,6 @@ BasicModelBuilder::iterate(const char* partition)
   return G3_IteratePartition(registry, partition);
 }
 
-#if 0
-const void* 
-BasicModelBuilder::getSharedObject(const char* partition, int tag)
-{
-  return const_cast<void*>(G3_GetTableEntry(shared_registry, partition, tag));
-}
-
-int
-BasicModelBuilder::addRegistryObject(const char* partition, int tag, const void *obj)
-{
-  G3_AddTableEntry(shared_registry, partition, tag, obj);
-  return 1;
-}
-#endif
 
 void* 
 BasicModelBuilder::getRegistryObject(const char* partition, int tag)
@@ -193,28 +179,20 @@ BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
 TimeSeries *
 BasicModelBuilder::getTimeSeries(const std::string &name)
 {
-  auto iter = m_TimeSeriesMap.find(name);
-//opserr << "Looking for " << name.c_str() << "\n";
-  if (iter != m_TimeSeriesMap.end()) {
-//  opserr << "Found.\n";
-    return iter->second->getCopy();
-  } else
-    return nullptr;
+  return this->getTimeSeries(std::stoi(name));
 }
 
 TimeSeries *
 BasicModelBuilder::getTimeSeries(int tag)
 {
-  const std::string &name = std::to_string(tag);
-  return this->getTimeSeries(name);
+  return ((TimeSeries*)getRegistryObject("TimeSeries", tag))->getCopy();
 }
 
 int
 BasicModelBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
 {
-  m_TimeSeriesMap[name] = series;
+//  m_TimeSeriesMap[name] = series;
   int tag = std::stoi(name);
-  // opserr << "Adding series " << name.c_str() << "(" << tag << ")" << "\n";
   G3_AddTableEntry(registry, "TimeSeries", tag, (void*)series);
   return 1;
 }
@@ -223,7 +201,8 @@ int
 BasicModelBuilder::addTimeSeries(TimeSeries *series)
 {
   const std::string &name = std::to_string(series->getTag());
-  m_TimeSeriesMap[name] = series;
+  addTimeSeries(name, series);
+//  m_TimeSeriesMap[name] = series;
   return 1;
 }
 
@@ -236,12 +215,8 @@ SectionForceDeformation*
 BasicModelBuilder::getSection(const std::string &name)
 {
   // SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
-  auto iter = m_SectionForceDeformationMap.find(name);
-  if (iter != m_SectionForceDeformationMap.end()) {
-    return iter->second->getCopy();
-  } else {
-    return nullptr;
-  }
+
+  return (SectionForceDeformation*)getRegistryObject("CrossSection", std::stoi(name));
 }
 
 SectionForceDeformation*
@@ -255,7 +230,7 @@ BasicModelBuilder::getSection(int tag)
 int
 BasicModelBuilder::addSection(const std::string &name, SectionForceDeformation &instance)
 {
-  m_SectionForceDeformationMap[name] = &instance;
+//  m_SectionForceDeformationMap[name] = &instance;
   G3_AddTableEntry(registry, "CrossSection", std::stoi(name), (void*)&instance);
   return 1;
 }
@@ -276,13 +251,14 @@ BasicModelBuilder::addSection(SectionForceDeformation &instance)
 SectionRepres*
 BasicModelBuilder::getSectionRepres(const std::string &name)
 {
-  // SectionRepres *instance = m_SectionRepresMap.at(name);
-  auto iter = m_SectionRepresMap.find(name);
-  if (iter != m_SectionRepresMap.end()) {
-    return iter->second ;
-  } else {
-    return nullptr;
-  }
+//  // SectionRepres *instance = m_SectionRepresMap.at(name);
+//  auto iter = m_SectionRepresMap.find(name);
+//  if (iter != m_SectionRepresMap.end()) {
+//    return iter->second ;
+//  } else {
+//    return nullptr;
+//  }
+  return (SectionRepres*)getRegistryObject("SectionRepres", std::stoi(name));
 }
 
 SectionRepres*
@@ -296,7 +272,7 @@ BasicModelBuilder::getSectionRepres(int tag)
 int
 BasicModelBuilder::addSectionRepres(const std::string &name, SectionRepres &instance)
 {
-  m_SectionRepresMap[name] = &instance;
+  G3_AddTableEntry(registry, "SectionRepres", std::stoi(name), (void*)&instance);
   return 1;
 }
 
@@ -305,7 +281,8 @@ int
 BasicModelBuilder::addSectionRepres(SectionRepres &instance)
 {
   const std::string &name = std::to_string(instance.getTag());
-  m_SectionRepresMap[name] = &instance;
+//  m_SectionRepresMap[name] = &instance;
+  addSectionRepres(name, instance);
   return 1;
 }
 
