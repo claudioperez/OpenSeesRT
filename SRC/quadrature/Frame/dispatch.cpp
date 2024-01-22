@@ -26,6 +26,8 @@ extern void *OPS_HingeMidpointBeamIntegration(int &integrationTag, ID &secTags);
 extern void *OPS_HingeRadauBeamIntegration(int &integrationTag, ID &secTags);
 extern void *OPS_HingeRadauTwoBeamIntegration(int &integrationTag, ID &secTags);
 extern void *OPS_HingeEndpointBeamIntegration(int &integrationTag, ID &secTags);
+extern void* OPS_ConcentratedPlasticityBeamIntegration(int&, ID&);
+extern void* OPS_ConcentratedCurvatureBeamIntegration(int&, ID&);
 
 extern int
 TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
@@ -74,6 +76,10 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
     bi = (BeamIntegration *)OPS_HingeRadauTwoBeamIntegration(iTag, secTags);
   } else if (strcmp(argv[1], "HingeEndpoint") == 0) {
     bi = (BeamIntegration *)OPS_HingeEndpointBeamIntegration(iTag, secTags);
+  } else if (strcmp(argv[1],"ConcentratedPlasticity") == 0) {
+      bi = (BeamIntegration*)OPS_ConcentratedPlasticityBeamIntegration(iTag,secTags);
+  } else if (strcmp(argv[1],"ConcentratedCurvature") == 0) {
+      bi = (BeamIntegration*)OPS_ConcentratedCurvatureBeamIntegration(iTag,secTags);
   } else {
     opserr << "WARNING: integration type " << argv[1] << " is unknown\n";
     return TCL_ERROR;
