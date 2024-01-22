@@ -574,12 +574,6 @@ DirectIntegrationAnalysis::getAlgorithm(void)
   return theAlgorithm;
 }
 
-AnalysisModel *
-DirectIntegrationAnalysis::getModel(void)
-{
-  return theAnalysisModel;
-}
-
 
 TransientIntegrator *
 DirectIntegrationAnalysis::getIntegrator(void)
