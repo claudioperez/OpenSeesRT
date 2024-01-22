@@ -18,21 +18,19 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: fmk 
-// Created: 11/96
-// Revision: A
-//
 // Description: This file contains the class definition for 
 // DirectIntegrationAnalysis. DirectIntegrationAnalysis is a 
 // subclass of TransientAnalysis. It is used to perform a 
 // dynamic analysis on the FE\_Model using a direct integration scheme.
 //
-// What: "@(#) DirectIntegrationAnalysis.h, revA"
+// Written: fmk 
+// Created: 11/96
+// Revision: A
 //
 #ifndef DirectIntegrationAnalysis_h
 #define DirectIntegrationAnalysis_h
 //
-#include <Analysis.h>
+// #include <Analysis.h>
 
 class ConstraintHandler;
 class DOF_Numberer;
@@ -85,15 +83,15 @@ class DirectIntegrationAnalysis // : public Analysis
     EquiSolnAlgo        *getAlgorithm(void);
     TransientIntegrator *getIntegrator(void);
     ConvergenceTest     *getConvergenceTest(void); 
-    AnalysisModel       *getModel(void) ;
+    //AnalysisModel       *getModel(void) ;
 
   protected: 
     Domain              *theDomain;
+    AnalysisModel 	*theAnalysisModel;
 
   private:
     ConstraintHandler 	*theConstraintHandler;    
     DOF_Numberer 	*theDOF_Numberer;
-    AnalysisModel 	*theAnalysisModel;
     EquiSolnAlgo 	*theAlgorithm;
     LinearSOE 		*theSOE;
     EigenSOE 		*theEigenSOE;

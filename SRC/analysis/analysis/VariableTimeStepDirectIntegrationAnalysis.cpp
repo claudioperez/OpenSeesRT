@@ -17,23 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2009-05-11 21:32:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/VariableTimeStepDirectIntegrationAnalysis.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/analysis/VariableTimeStepDirectIntegrationAnalysis.C
+//
+// Description: This file contains the implementation of the
+// VariableTimeStepDirectIntegrationAnalysis class.
 // 
 // Written: fmk 
 // Created: 10/00
 // Revision: A
 //
-// Description: This file contains the implementation of the
-// VariableTimeStepDirectIntegrationAnalysis class.
-//
-// What: "@(#) VariableTimeStepDirectIntegrationAnalysis.C, revA"
-
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 #include <EquiSolnAlgo.h>
 #include <TransientIntegrator.h>
@@ -72,7 +63,6 @@ VariableTimeStepDirectIntegrationAnalysis::analyze(int numSteps, double dT, doub
   EquiSolnAlgo *theAlgo = this->getAlgorithm();
   TransientIntegrator *theIntegratr = this->getIntegrator();
   ConvergenceTest *theTest = theAlgo->getConvergenceTest();
-  AnalysisModel *theModel = this->getModel();
 
 
   // set some variables
@@ -84,7 +74,7 @@ VariableTimeStepDirectIntegrationAnalysis::analyze(int numSteps, double dT, doub
   // loop until analysis has performed the total time incr requested
   while (currentTimeIncr < totalTimeIncr) {
 
-    if (theModel->analysisStep(currentDt) < 0) {
+    if (theAnalysisModel->analysisStep(currentDt) < 0) {
       opserr << "DirectIntegrationAnalysis::analyze() - the AnalysisModel failed in newStepDomain";
       opserr << " at time " << theDomain->getCurrentTime() << endln;
       theDomain->revertToLastCommit();
@@ -203,5 +193,4 @@ VariableTimeStepDirectIntegrationAnalysis::determineDt(double dT,
     
   return newDt;
 }
-
 

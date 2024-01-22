@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.11 $
-// $Date: 2008-02-29 22:35:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/groundMotion/GroundMotion.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Created: 05/98
 // Revision: A
@@ -133,16 +129,10 @@ TimeSeries*
 GroundMotion::integrate(TimeSeries *theSeries, double delta)
 {
   // check that an integrator & accel series exist
-  if(theIntegrator == 0) {
+  if (theIntegrator == 0)
     theIntegrator = new TrapezoidalTimeSeriesIntegrator();
 
-    if(theIntegrator == 0) {
-      opserr << "WARNING:GroundMotion::integrate() - no TimeSeriesIntegrator provided - failed to create a Trapezoidal .. memory problems! \n";
-      return 0;
-    }
-  }
-
-  if(theSeries == 0) {
+  if (theSeries == 0) {
     opserr << "GroundMotion::integrate - no TimeSeries specified\n";
     return 0;
   }
