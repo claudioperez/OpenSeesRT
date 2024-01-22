@@ -14,6 +14,8 @@ target_sources(OPS_Runtime PRIVATE dispatch.cpp)
 target_sources(OPS_FrameQuadrature
   PRIVATE
       BeamIntegration.cpp
+      ConcentratedCurvatureBeamIntegration.cpp
+      ConcentratedPlasticityBeamIntegration.cpp
       LobattoBeamIntegration.cpp
       LegendreBeamIntegration.cpp
       RadauBeamIntegration.cpp
@@ -36,6 +38,8 @@ target_sources(OPS_FrameQuadrature
       ChebyshevBeamIntegration.cpp
   PUBLIC
       BeamIntegration.h
+      ConcentratedCurvatureBeamIntegration.h
+      ConcentratedPlasticityBeamIntegration.h
       LobattoBeamIntegration.h
       LegendreBeamIntegration.h
       RadauBeamIntegration.h
