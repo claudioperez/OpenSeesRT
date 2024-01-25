@@ -14,11 +14,30 @@
 #include <elementAPI.h>
 #include <OPS_Globals.h>
 
-static int numUVCuniaxial = 0;
+
+
+/**
+*
+* @tparam T type of val, note will warn if unsigned type.
+* @param val value to check the sign of, should be numeric.
+* @return -1 if abs(val) < 0, 1 if abs(val) > 0, and 0 if val = 0.
+*
+*/
+// Returns the sign of val
+// From: https ://stackoverflow.com/a/4609795
+//
+template <typename T> static int 
+sgn(T val) {
+  return (T(0) < val) - (val < T(0));
+}
+
+
+/* ------------------------------------------------------------------------ */
 
 // NOTE: Do not use the OPS_GetNumRemainingInputArgs() function or the
 // OPS_GetString() function: causes crash with .dll
 void * OPS_ADD_RUNTIME_VPV(OPS_UVCuniaxial) {
+  static int numUVCuniaxial = 0;
   if (numUVCuniaxial == 0) {
     opserr << "Using the UVCuniaxial material, see "
       "https://www.epfl.ch/labs/resslab/resslab-tools/" << endln;
@@ -169,55 +188,44 @@ UVCuniaxial::~UVCuniaxial() {
  */
 void UVCuniaxial::returnMapping(double strainIncrement) {
 
-  // Initialize all the variables
-  bool converged = true;
-  int iterationNumber = 0;
-  double sigmaY1 = 0.;
-  double sigmaY2 = 0.;
-  double dit = 0.;
-  double plasticStrainIncrement = 0.;
-  double aux = 0.;
-  double alpha = 0.;
-  double sy = 0.;
-  double stressRadius = 0.;
-  double phi = 0.;
-  double ePEq = strainPEqConverged;
 
   // Yield criteria
-  for (int i = 0; i < nBackstresses; ++i) {
+  double alpha = 0.;
+  for (int i = 0; i < nBackstresses; ++i)
     alpha += alphaKConverged[i];
-  }
-  sigmaY1 = qInf * (1. - exp(-bIso * ePEq));
-  sigmaY2 = dInf * (1. - exp(-aIso * ePEq));
-  sy = yieldStress + sigmaY1 - sigmaY2;
+
+  double ePEq    = strainPEqConverged;
+  double sigmaY1 = qInf * (1. - exp(-bIso * ePEq));
+  double sigmaY2 = dInf * (1. - exp(-aIso * ePEq));
   stressTrial = stressConverged + elasticModulus * strainIncrement;
-  stressRadius = stressTrial - alpha;
-  phi = pow(stressRadius, 2) - pow(sy, 2);
+
+  double sy = yieldStress + sigmaY1 - sigmaY2;
+  double stressRadius = stressTrial - alpha;
+  double phi = stressRadius*stressRadius - sy*sy;
 
   // Determine if have elastic or plastic loading
-  if (phi > RETURN_MAP_TOL) {
+  bool converged = true;
+  if (phi > RETURN_MAP_TOL) 
     converged = false;
-  }
+
+  int iterationNumber = 0;
   while ((!converged) && (iterationNumber < MAXIMUM_ITERATIONS)) {
     iterationNumber++;
 
-    aux = elasticModulus;
-    for (int i = 0; i < nBackstresses; ++i) {
-      aux = aux + sgn<double>(stressRadius) * cK[i] -
-        gammaK[i] * alphaKTrial[i];
-    }
+    double aux = elasticModulus;
+    for (int i = 0; i < nBackstresses; ++i)
+      aux = aux + sgn(stressRadius) * cK[i] - gammaK[i] * alphaKTrial[i];
 
     // Calculate the plastic strain from the strain increment
-    dit = 2. * stressRadius * aux +
+    double dit = 2. * stressRadius * aux +
       2. * sy * qInf * bIso * exp(-bIso * ePEq) -
       2. * sy * dInf * aIso * exp(-aIso * ePEq);
-    plasticStrainIncrement = phi / dit;
+    double plasticStrainIncrement = phi / dit;
 
     // Prevent Newton step from overshooting
-    if (abs(plasticStrainIncrement) > abs(stressTrial / elasticModulus)) {
-      plasticStrainIncrement = sgn<double>(plasticStrainIncrement) * 0.95 *
-        abs(stressTrial / elasticModulus);
-    }
+    if (abs(plasticStrainIncrement) > abs(stressTrial / elasticModulus))
+      plasticStrainIncrement = sgn(plasticStrainIncrement) * 0.95 
+                              *abs(stressTrial / elasticModulus);
 
     // Update the variables
     ePEq = ePEq + abs(plasticStrainIncrement);
@@ -250,14 +258,12 @@ void UVCuniaxial::returnMapping(double strainIncrement) {
   }
 
   // Condition for plastic loading is whether or not iterations were performed
-  if (iterationNumber == 0) {
+  if (iterationNumber == 0)
     plasticLoading = false;
-  }
-  else {
+  else
     plasticLoading = true;
-  }
 
-  flowDirection = sgn<double>(stressRadius);
+  flowDirection  = sgn(stressRadius);
   strainPEqTrial = ePEq;
   return;
 }
@@ -556,18 +562,4 @@ void UVCuniaxial::Print(OPS_Stream& s, int flag) {
 }
 /* ------------------------------------------------------------------------ */
 
-/**
-*
-* @tparam T type of val, note will warn if unsigned type.
-* @param val value to check the sign of, should be numeric.
-* @return -1 if abs(val) < 0, 1 if abs(val) > 0, and 0 if val = 0.
-*
-*/
-// From: https ://stackoverflow.com/a/4609795
 
-template <typename T> int UVCuniaxial::sgn(T val) {
-  return (T(0) < val) - (val < T(0));
-}
-
-
-/* ------------------------------------------------------------------------ */
