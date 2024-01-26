@@ -17,15 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
+//
 // $Date: 2006-01-17 21:12:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LegendreBeamIntegration.cpp,v $
-
+//
 #include <LegendreBeamIntegration.h>
-#include <elementAPI.h>
 #include <ID.h>
 
+#include <elementAPI.h>
 void* OPS_LegendreBeamIntegration(int& integrationTag, ID& secTags)
 {
   int nArgs = OPS_GetNumRemainingInputArgs();
@@ -106,11 +104,11 @@ LegendreBeamIntegration::getCopy(void)
 }
 
 void
-LegendreBeamIntegration::getSectionLocations(int numSections, 
+LegendreBeamIntegration::getSectionLocations(int nIP, 
                                              double L,
-                                             double *xi)
+                                             double *xi) const
 {
-  switch(numSections) {
+  switch(nIP) {
     
   case 1:
     xi[0] = 0.0;
@@ -202,15 +200,15 @@ LegendreBeamIntegration::getSectionLocations(int numSections,
     break;
   }
 
-  for (int i = 0; i < numSections; i++)
+  for (int i = 0; i < nIP; i++)
     xi[i]  = 0.5*(xi[i] + 1.0);
 }
 
 void
-LegendreBeamIntegration::getSectionWeights(int numSections, double L,
-					   double *wt)
+LegendreBeamIntegration::getSectionWeights(int nIP, double L,
+					   double *wt) const
 {
-  switch (numSections) {
+  switch (nIP) {
   
   case 1:
     wt[0] = 2.0;
@@ -302,7 +300,7 @@ LegendreBeamIntegration::getSectionWeights(int numSections, double L,
     break;
   }
   
-  for (int i = 0; i < numSections; i++)
+  for (int i = 0; i < nIP; i++)
     wt[i] *= 0.5;
 }
 

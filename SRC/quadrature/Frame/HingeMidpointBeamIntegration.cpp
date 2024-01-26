@@ -108,7 +108,7 @@ HingeMidpointBeamIntegration::~HingeMidpointBeamIntegration()
 
 void
 HingeMidpointBeamIntegration::getSectionLocations(int numSections, double L,
-						  double *xi)
+						  double *xi) const
 {
   double halfOneOverL = 0.5/L;
 
@@ -128,7 +128,7 @@ HingeMidpointBeamIntegration::getSectionLocations(int numSections, double L,
 
 void
 HingeMidpointBeamIntegration::getSectionWeights(int numSections, double L,
-						double *wt)
+						double *wt) const
 {
   double oneOverL = 1.0/L;
 

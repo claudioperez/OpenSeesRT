@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2006-01-17 21:12:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/ChebyshevBeamIntegration.cpp,v $
-
+//
 #include <ChebyshevBeamIntegration.h>
 #include <elementAPI.h>
 #include <ID.h>
@@ -110,7 +106,7 @@ ChebyshevBeamIntegration::getCopy(void)
 void
 ChebyshevBeamIntegration::getSectionLocations(int numSections, 
 					     double L,
-					     double *xi)
+					     double *xi) const
 {
   double pi = acos(-1.0);
 
@@ -195,7 +191,7 @@ ChebyshevBeamIntegration::getSectionLocations(int numSections,
 
 void
 ChebyshevBeamIntegration::getSectionWeights(int numSections, double L,
-					   double *wt)
+					   double *wt) const
 {
   double pi = acos(-1.0);
 

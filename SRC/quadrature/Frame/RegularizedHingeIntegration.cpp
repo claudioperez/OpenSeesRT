@@ -37,12 +37,15 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <Parameter.h>
+#include <math.h>
+
+double *RegularizedHingeIntegration::wf = nullptr;
 
 RegularizedHingeIntegration::RegularizedHingeIntegration(BeamIntegration &bi,
 							 double lpi, double lpj,
 							 double epsi, double epsj):
   BeamIntegration(BEAM_INTEGRATION_TAG_RegularizedHinge),
-  beamInt(0), lpI(lpi), lpJ(lpj), epsI(epsi), epsJ(epsj), wf(0),
+  beamInt(0), lpI(lpi), lpJ(lpj), epsI(epsi), epsJ(epsj),
   parameterID(0)
 {
   beamInt = bi.getCopy();
@@ -53,7 +56,7 @@ RegularizedHingeIntegration::RegularizedHingeIntegration(BeamIntegration &bi,
 
 RegularizedHingeIntegration::RegularizedHingeIntegration():
   BeamIntegration(BEAM_INTEGRATION_TAG_RegularizedHinge),
-  beamInt(0), lpI(0.0), lpJ(0.0), epsI(0.0), epsJ(0.0), wf(0), parameterID(0)
+  beamInt(0), lpI(0.0), lpJ(0.0), epsI(0.0), epsJ(0.0), parameterID(0)
 {
 
 }
@@ -62,14 +65,15 @@ RegularizedHingeIntegration::~RegularizedHingeIntegration()
 {
   if (beamInt != 0)
     delete beamInt;
-
+#if 0
   if (wf != 0)
     delete [] wf;
+#endif
 }
 
 void
 RegularizedHingeIntegration::getSectionLocations(int numSections, double L,
-						 double *xi)
+						 double *xi) const
 {
   beamInt->getSectionLocations(numSections-2, L, xi);
   double tmp = xi[numSections-3];
@@ -85,7 +89,7 @@ RegularizedHingeIntegration::getSectionLocations(int numSections, double L,
 
 void
 RegularizedHingeIntegration::getSectionWeights(int numSections, double L,
-					       double *wt)
+					       double *wt) const
 {
   beamInt->getSectionWeights(numSections-2, L, wt);
 
@@ -104,7 +108,7 @@ RegularizedHingeIntegration::getSectionWeights(int numSections, double L,
 
   if (nf > 0) {
     
-    if (wf == 0)
+    if (wf == nullptr)
       wf = new double[nf];
     
     double pt[100];

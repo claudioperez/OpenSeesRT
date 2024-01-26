@@ -79,9 +79,6 @@ private:
   //! Sets the elastoplastic tangent modulus based on the trial state
   void calculateStiffness();
 
-  //! Returns the sign of val
-  template <typename T> int sgn(T val);
-
   /* ------------------------------------------------------------------------ */
   /* Members                                                                  */
   /* ------------------------------------------------------------------------ */

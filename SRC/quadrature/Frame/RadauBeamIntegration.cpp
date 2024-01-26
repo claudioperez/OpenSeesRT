@@ -124,7 +124,7 @@ extern "C" int gaussq_(int *kind, int *n, double *alpha, double *beta,
 
 void
 RadauBeamIntegration::getSectionLocations(int numSections, double L,
-					  double *xi)
+					  double *xi) const
 {
   switch(numSections) {
 
@@ -223,7 +223,7 @@ RadauBeamIntegration::getSectionLocations(int numSections, double L,
 
 void
 RadauBeamIntegration::getSectionWeights(int numSections, double L,
-					double *wt)
+					double *wt) const
 {
   switch (numSections) {
     
@@ -323,11 +323,11 @@ RadauBeamIntegration::getSectionWeights(int numSections, double L,
 void
 RadauBeamIntegration::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "{\"type\": \"Radau\"}";
-	}
-	
-	else {
-		s << "Radau" << endln;
-	}
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+            s << "{\"type\": \"Radau\"}";
+    }
+    
+    else {
+            s << "Radau" << endln;
+    }
 }

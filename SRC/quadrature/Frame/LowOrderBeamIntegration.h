@@ -39,8 +39,8 @@ class LowOrderBeamIntegration : public BeamIntegration
   LowOrderBeamIntegration();
   ~LowOrderBeamIntegration();
   
-  void getSectionLocations(int numSections, double L, double *xi);
-  void getSectionWeights(int numSections, double L, double *wt);
+  void getSectionLocations(int numSections, double L, double *xi) const;
+  void getSectionWeights(int numSections, double L, double *wt) const;
 
   BeamIntegration *getCopy(void);
 
@@ -57,14 +57,14 @@ class LowOrderBeamIntegration : public BeamIntegration
   void getWeightsDeriv(int nIP, double L, double dLdh, double *dwtsdh);
 
  private:
-  Vector pts;
-  Vector wts;
+         Vector pts;
+         Vector wts;
 
   int Nc;
 
   int parameterID;
 
-  bool computed;
+         int computed;
 };
 
 #endif

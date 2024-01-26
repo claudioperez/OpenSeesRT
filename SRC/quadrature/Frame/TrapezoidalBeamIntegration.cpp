@@ -107,7 +107,7 @@ TrapezoidalBeamIntegration::getCopy(void)
 
 void
 TrapezoidalBeamIntegration::getSectionLocations(int numSections, double L,
-						double *xi)
+						double *xi) const
 {
   if (numSections > 1) {
     xi[0] = -1.0;
@@ -125,7 +125,7 @@ TrapezoidalBeamIntegration::getSectionLocations(int numSections, double L,
 
 void
 TrapezoidalBeamIntegration::getSectionWeights(int numSections, double L,
-					      double *wt)
+					      double *wt) const
 {
   if (numSections > 1) {
 

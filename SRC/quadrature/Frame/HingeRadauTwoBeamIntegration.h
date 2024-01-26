@@ -49,8 +49,8 @@ class HingeRadauTwoBeamIntegration : public BeamIntegration
   HingeRadauTwoBeamIntegration();
   ~HingeRadauTwoBeamIntegration();
   
-  void getSectionLocations(int numSections, double L, double *xi);
-  void getSectionWeights(int numSections, double L, double *wt);
+  void getSectionLocations(int nIP, double L, double *xi) const;
+  void getSectionWeights(int nIP, double L, double *wt) const;
   
   BeamIntegration *getCopy(void);
 
