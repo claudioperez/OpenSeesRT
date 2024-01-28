@@ -236,17 +236,28 @@ ElasticBilin::recvSelf(int cTag, Channel &theChannel,
     eps2P   = data(5);
     eps2N   = data(6);  
   }
-
   return res;
 }
 
 void 
 ElasticBilin::Print(OPS_Stream &s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "\t\t\t{";
+    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"type\": \"" << this->getClassType() << "\", ";
+    s << "\"E1P\": "   << E1P << ", ";
+    s << "\"E2P\": "   << E2P << ", ";
+    s << "\"eps2P\": " << eps2P << ", ";
+    s << "\"E1N\": "   << E1N << ", ";
+    s << "\"E2N\": "   << E2N << ", ";
+    s << "\"eps2N\": " << eps2N << "}";
+  } else {
     s << "ElasticBilin tag: " << this->getTag() << endln;
     s << "Input Parameters: E1P: " << E1P << " E2P: " << E2P << " eps2P: " << eps2P;
     s << "  E1N: " << E1N << " E2N: " << E2N << " eps2N: " << eps2N << endln;
     s << "Current State: strain: "<< trialStrain << " stress: " << trialStress << " tangent: " << trialTangent << endln;
+  }
 }
 
 
