@@ -61,7 +61,6 @@ class BoucWenMaterial : public UniaxialMaterial
     double getStrain(void);          
     double getStress(void);
     double getTangent(void);
-    double signum(double);
     int commitState(void);
     int revertToLastCommit(void);    
     int revertToStart(void);        

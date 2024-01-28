@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: $
-// $Date: $
-// $URL: $
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 07/17
 // Revision: A
 //
 // Description: This file contains the implementation of the
 // BoucWenOriginal uniaxial material class.
-
+//
 #include <BoucWenOriginal.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -87,6 +83,17 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BoucWenOriginal)
     return mat;
 }
 
+static inline double 
+signum(double x)
+{
+    if (x > 0)
+        return 1.0;
+    else if (x < 0)
+        return -1.0;
+    else
+        return 0.0;
+}
+
 
 BoucWenOriginal::BoucWenOriginal(int tag,
     double ei, double _fy, double alphal, double alphanl,
@@ -140,16 +147,16 @@ int BoucWenOriginal::setTrialStrain(double strain, double strainRate)
         
         // calculate hysteretic evolution parameter z using Newton-Raphson
         int iter = 0;
-        double zAbs, tmp1, f, Df, delta_z;
+        double delta_z;
         do {
-            zAbs = fabs(z);
+            double zAbs = fabs(z);
             if (zAbs == 0.0)    // check because of negative exponents
                 zAbs = DBL_EPSILON;
-            tmp1 = gamma + beta*sgn(z*delta_eps);
+            double tmp1 = gamma + beta*signum(z*delta_eps);
             
             // function and derivative
-            f = z - zC - delta_eps / epsy*(1.0 - pow(zAbs, eta)*tmp1);
-            Df = 1.0 + delta_eps / epsy*eta*pow(zAbs, eta - 1.0)*sgn(z)*tmp1;
+            double f = z - zC - delta_eps / epsy*(1.0 - pow(zAbs, eta)*tmp1);
+            double Df = 1.0 + delta_eps / epsy*eta*pow(zAbs, eta - 1.0)*signum(z)*tmp1;
             
             // issue warning if derivative Df is zero
             if (fabs(Df) <= DBL_EPSILON) {
@@ -160,7 +167,7 @@ int BoucWenOriginal::setTrialStrain(double strain, double strainRate)
             }
             
             // advance one step
-            delta_z = f / Df;
+            double delta_z = f / Df;
             z -= delta_z;
             iter++;
         } while ((fabs(delta_z) >= tol) && (iter < maxIter));
@@ -174,9 +181,9 @@ int BoucWenOriginal::setTrialStrain(double strain, double strainRate)
         }
         
         // get derivative of hysteretic evolution parameter * epsy
-        double dzdeps = 1.0 - pow(fabs(z), eta)*(gamma + beta*sgn(z*delta_eps));
+        double dzdeps = 1.0 - pow(fabs(z), eta)*(gamma + beta*signum(z*delta_eps));
         // set stress
-        sig = qd*z + k2*eps + k3*sgn(eps)*pow(fabs(eps), mu);
+        sig = qd*z + k2*eps + k3*signum(eps)*pow(fabs(eps), mu);
         // set tangent stiffness
         Et = k0*dzdeps + k2 + k3*mu*pow(fabs(eps), mu - 1.0);
     }
@@ -358,13 +365,3 @@ void BoucWenOriginal::Print(OPS_Stream &s, int flag)
     }
 }
 
-
-double BoucWenOriginal::sgn(double x)
-{
-    if (x > 0)
-        return 1.0;
-    else if (x < 0)
-        return -1.0;
-    else
-        return 0.0;
-}

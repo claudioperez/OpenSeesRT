@@ -82,9 +82,6 @@ public:
 protected:
 
 private:
-    // private methods
-    double sgn(double x);
-
     // material parameters
     double Ei;          // initial stiffness of material
     double fy;          // yield stress
