@@ -17,16 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2007-04-02 23:41:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/KrylovNewton.h,v $
-                                                                        
+//
 #ifndef KrylovNewton_h
 #define KrylovNewton_h
-
-// Written: MHS
-// Created: June 2001
 //
 // Description: This file contains the class definition for 
 // KrylovNewton.  KrylovNewton is a class which uses a Krylov
@@ -35,7 +28,10 @@
 // "Design and Application of a 1D GWMFE Code"
 // from SIAM Journal of Scientific Computing (Vol. 19, No. 3,
 // pp. 728-765, May 1998)
-
+//
+// Written: MHS
+// Created: June 2001
+//
 #include <EquiSolnAlgo.h>
 #include <Vector.h>
 

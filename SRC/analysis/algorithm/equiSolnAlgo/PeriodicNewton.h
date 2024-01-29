@@ -17,23 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2007-04-02 23:41:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/PeriodicNewton.h,v $
-
 #ifndef PeriodicNewton_h
 #define PeriodicNewton_h
-
-// Written: MHS
-// Created: Oct 2002
-//
 // Description: This file contains the class definition for 
 // PeriodicNewton. PeriodicNewton is a class which performs a Periodic 
 // Newton-Raphson  solution algorithm in solving the equations.
 // No member functions are declared as virtual as 
 // it is not expected that this class will be subclassed.
-
+//
+// Written: MHS
+// Created: Oct 2002
+//
 #include <EquiSolnAlgo.h>
 #include <Vector.h>
 
@@ -58,7 +52,6 @@ class PeriodicNewton: public EquiSolnAlgo
     
   private:
     int tangent;
-
     int maxCount;
 };
 
