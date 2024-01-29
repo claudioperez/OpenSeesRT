@@ -47,7 +47,11 @@ The package may be used as a drop-in replacement for both OpenSees and
 OpenSeesPy, and generally provides a considerable performance boost.
 
 - With a single `pip`-install, run any OpenSees Tcl script **and** most OpenSeesPy scripts.
-  Just change the line:
+- To start a Tcl interpreter run the shell command:
+  ```bash
+  python -m opensees
+  ```
+- To run Python scripts, just change the import:
   ```python
   import openseespy.opensees
   ```
