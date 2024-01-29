@@ -39,7 +39,7 @@
 #include <UniaxialMaterial.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <math.h>
+#include <cmath>
 #include <float.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -63,6 +63,7 @@
 
 
 static int numFSAMMaterials = 0;
+
 
 // Read input parameters and build the material
 OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_FSAMMaterial)
@@ -231,7 +232,7 @@ FSAM::FSAM (int tag,
 	CStrainStressSteel1(2), CStrainStressSteel2(2), TStrainStressSteel1(2), TStrainStressSteel2(2),
 	CStrainStressConc1(2), CStrainStressConc2(2), TStrainStressConc1(2), TStrainStressConc2(2), 
 	CStrainStressInterlock1(2), CStrainStressInterlock2(2), TStrainStressInterlock1(2), TStrainStressInterlock2(2),
-	CCrackingAngles(2), pi(3.1415926535)
+	CCrackingAngles(2)
 {
 
 	TeTaSt = 0.0; // Direction of horizontal reinforcement (fixed for now)
@@ -255,7 +256,7 @@ FSAM::FSAM (int tag,
 	alfa_crackA = 10.0;		// Direction of 1st strut
 	alfa_crackB = 10.0;		// Direction of 2nd strut
 
-	// State Vairables
+	// State Variables
 	crackA = 0;				// Crack/Strut 1
 	crackB = 0;				// Crack/Strut 2
 
@@ -403,33 +404,37 @@ FSAM::FSAM (int tag,
 		exit(-1);
 	}
 
-	OPS_Stream *theDummyStream = new DummyStream();
-	const char **argv = new const char *[1];
-	argv[0] = "getCommittedCyclicCrackingConcreteStrain"; // to get committed concrete cyclic cracking strain from strut A2
-	theResponses[0] = theMaterial[5]->setResponse(argv, 1, *theDummyStream);
+	//OPS_Stream *theDummyStream = new DummyStream();
+	DummyStream theDummyStream;
+	//const char **argv = new const char *[1];
+	//argv[0] = "getCommittedCyclicCrackingConcreteStrain"; // to get committed concrete cyclic cracking strain from strut A2
+	char aa[80] = "getCommittedCyclicCrackingConcreteStrain";
+	const char *argv[1];
+	argv[0] = aa;
+	theResponses[0] = theMaterial[5]->setResponse(argv, 1, theDummyStream);
 
 	if (theResponses[0] == 0) {
 			opserr << " FSAM::FSAM - failed to get cracking strain for material with tag: " << tag << "\n";
 			exit(-1);
 	}
 
-	argv[0] = "getInputParameters"; // to get input parameters from ConcreteCM
-	theResponses[1] = theMaterial[4]->setResponse(argv, 1, *theDummyStream);
+	//argv[0] = "getInputParameters"; // to get input parameters from ConcreteCM
+	char bb[80] = "getInputParameters";
+	argv[0] = bb;
+	
+	theResponses[1] = theMaterial[4]->setResponse(argv, 1, theDummyStream);
 
 	if (theResponses[1] == 0) {
 			opserr << " FSAM::FSAM - failed to get input parameters for material with tag: " << tag << "\n";
 			exit(-1);
 	}
 
-	delete theDummyStream;
+	//delete theDummyStream;
 
 	// Get ConcreteCM material input variables
 	theResponses[1]->getResponse();
 	Information &theInfoInput = theResponses[1]->getInformation();
-	const Vector InputConc = theInfoInput.getData();
-
-	for (int i=0; i<InputConc.Size() ; i++)
-	ConcreteInput[i] = InputConc[i];
+	const Vector &ConcreteInput = theInfoInput.getData();
 
 	// Now create monotonic concrete materials for uncracked stage of behavior
 	// Concrete 1.1
@@ -459,13 +464,13 @@ FSAM::FSAM (int tag,
 	Ec = theMaterial[4] -> getInitialTangent();
 
 	// Strain at peak compressive stress for concrete
-	epcc = InputConc[2];
+	epcc = ConcreteInput[2];
 	
 	// Peak compressive stress for concrete
-	fpc = InputConc[1];
+	fpc = ConcreteInput[1];
 
 	// Cracking strain for concrete
-	et = InputConc[7];
+	et = ConcreteInput[7];
 
 	// Young's modulus for steel
 	E0x = theMaterial[0] -> getInitialTangent(); // Horizontal reinforcement
@@ -476,9 +481,7 @@ FSAM::FSAM (int tag,
 
 // Blank constructor
 FSAM::FSAM():NDMaterial(0, ND_TAG_FSAM), 
-	strain_vec(3), stress_vec(3), tangent_matrix(3,3),
-	pi(3.1415926535)
-
+	strain_vec(3), stress_vec(3), tangent_matrix(3,3)
 {
 	theMaterial = 0;
 	theResponses = 0;
@@ -1823,7 +1826,7 @@ void FSAM::Stage2(double &ex, double &ey, double &gamma)
 
 }
 
-// STAGE 3 - 2st CRACK PANEL MODEL
+// STAGE 3 - 2nd CRACK PANEL MODEL
 void FSAM::Stage3(double &ex, double &ey, double &gamma)
 {
 
@@ -2445,12 +2448,28 @@ Response* FSAM::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
 
 	if (strcmp(argv[0],"panel_strain") == 0 || strcmp(argv[0],"Panel_strain") == 0) {
 
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "eps22");
+		theOutput.tag("ResponseType", "eps12");
+		theOutput.endTag();
+
 		Vector data1(3);
 		data1.Zero();
 
 		theResponse = new MaterialResponse(this, 101, data1);
 	
 	} else if (strcmp(argv[0],"panel_stress") == 0 || strcmp(argv[0],"Panel_Stress") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "sigma11");
+		theOutput.tag("ResponseType", "sigma22");
+		theOutput.tag("ResponseType", "sigma12");
+		theOutput.endTag();
 
 		Vector data2(3);
 		data2.Zero();
@@ -2459,12 +2478,28 @@ Response* FSAM::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
 	
 	} else if (strcmp(argv[0],"panel_stress_concrete") == 0 || strcmp(argv[0],"Panel_Stress_Concrete") == 0) {
 
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "sigma11");
+		theOutput.tag("ResponseType", "sigma22");
+		theOutput.tag("ResponseType", "sigma12");
+		theOutput.endTag();
+
 		Vector data3(3);
 		data3.Zero();
 
 		theResponse = new MaterialResponse(this, 103, data3);
 	
 	} else if (strcmp(argv[0],"panel_stress_steel") == 0 || strcmp(argv[0],"Panel_Stress_Steel") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "sigma11");
+		theOutput.tag("ResponseType", "sigma22");
+		theOutput.tag("ResponseType", "sigma12");
+		theOutput.endTag();
 
 		Vector data4(3);
 		data4.Zero();
@@ -2473,12 +2508,26 @@ Response* FSAM::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
 	
 	} else if (strcmp(argv[0],"strain_stress_steelX") == 0 || strcmp(argv[0],"Strain_Stress_SteelX") == 0) {
 
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "sig11");
+		theOutput.endTag();
+
 		Vector data5(2);
 		data5.Zero();
 
 		theResponse = new MaterialResponse(this, 105, data5);
 	
 	} else if (strcmp(argv[0],"strain_stress_steelY") == 0 || strcmp(argv[0],"Strain_Stress_SteelY") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "sig11");
+		theOutput.endTag();
 
 		Vector data6(2);
 		data6.Zero();
@@ -2487,12 +2536,26 @@ Response* FSAM::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
 	
 	} else if (strcmp(argv[0],"strain_stress_concrete1") == 0 || strcmp(argv[0],"Strain_Stress_Concrete1") == 0) {
 
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "sig11");
+		theOutput.endTag();
+
 		Vector data7(2);
 		data7.Zero();
 
 		theResponse = new MaterialResponse(this, 107, data7);
 	
 	} else if (strcmp(argv[0],"strain_stress_concrete2") == 0 || strcmp(argv[0],"Strain_Stress_Concrete2") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "sig11");
+		theOutput.endTag();
 
 		Vector data8(2);
 		data8.Zero();
@@ -2501,12 +2564,26 @@ Response* FSAM::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
 
 	} else if (strcmp(argv[0],"strain_stress_interlock1") == 0 || strcmp(argv[0],"Strain_Stress_Interlock1") == 0) {
 
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "sig11");
+		theOutput.endTag();
+
 		Vector data9(2);
 		data9.Zero();
 
 		theResponse = new MaterialResponse(this, 109, data9);
 
 	} else if (strcmp(argv[0],"strain_stress_interlock2") == 0 || strcmp(argv[0],"Strain_Stress_Interlock2") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "eps11");
+		theOutput.tag("ResponseType", "sig11");
+		theOutput.endTag();
 
 		Vector data10(2);
 		data10.Zero();
@@ -2515,19 +2592,59 @@ Response* FSAM::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
 
 	} else if (strcmp(argv[0],"cracking_angles") == 0 || strcmp(argv[0],"Cracking_Angles") == 0) {
 
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "alpha");
+		theOutput.tag("ResponseType", "beta");
+		theOutput.endTag();
+
 		Vector data11(2);
 		data11.Zero();
 
 		theResponse = new MaterialResponse(this, 111, data11);
 	
-	}
-	else if (strcmp(argv[0], "getInputParameters") == 0) {
+	} else if (strcmp(argv[0], "getInputParameters") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "IP_1");
+		theOutput.tag("ResponseType", "IP_2");
+		theOutput.tag("ResponseType", "IP_3");
+		theOutput.tag("ResponseType", "IP_4");
+		theOutput.tag("ResponseType", "IP_5");
+		theOutput.tag("ResponseType", "IP_6");
+		theOutput.tag("ResponseType", "IP_7");
+		theOutput.tag("ResponseType", "IP_8");
+		theOutput.tag("ResponseType", "IP_9");
+		theOutput.tag("ResponseType", "IP_10");
+		theOutput.tag("ResponseType", "IP_11");
+		theOutput.tag("ResponseType", "IP_12");
+		theOutput.endTag();
 
 		Vector data12(12);
 		data12.Zero();
 		theResponse = new MaterialResponse(this, 112, data12);
 
-	} else
+	}
+	else if (strcmp(argv[0], "panel_crack") == 0) {
+
+		theOutput.tag("NdMaterialOutput");
+		theOutput.attr("matType", this->getClassType());
+		theOutput.attr("matTag", this->getTag());
+		theOutput.tag("ResponseType", "C11");
+		theOutput.tag("ResponseType", "C22");
+		theOutput.tag("ResponseType", "C12");
+		theOutput.endTag();
+
+		Vector data13(3);
+		data13.Zero();
+
+		theResponse = new MaterialResponse(this, 113, data13);
+
+		}
+	else
 
 		return this->NDMaterial::setResponse(argv, argc, theOutput);
 
@@ -2569,9 +2686,28 @@ int FSAM::getResponse(int responseID, Information &matInfo)
 
 	} else if (responseID == 111){
 		return matInfo.setVector(this->getCrackingAngles()); 
-
-	} else if (responseID == 112) {
+	}
+	else if (responseID == 112) {
 		return matInfo.setVector(this->getInputParameters());
+
+	} else if (responseID == 113) {
+		static Vector aux(3);
+		aux.Zero();
+		if (crackA > 0) {
+			double v2 = cos(CCrackingAngles[0]);
+			double v1 = -sin(CCrackingAngles[0]);
+			aux(0) += v1 * v1 * CStrainStressConc1(0);
+			aux(1) += v2 * v2 * CStrainStressConc1(0);
+			aux(2) += v1 * v2 * CStrainStressConc1(0);
+		}
+		if (crackB > 0) {
+			double v2 = cos(CCrackingAngles[1]);
+			double v1 = -sin(CCrackingAngles[1]);
+			aux(0) += v1 * v1 * CStrainStressConc2(0);
+			aux(1) += v2 * v2 * CStrainStressConc2(0);
+			aux(2) += v1 * v2 * CStrainStressConc2(0);
+		}
+		return matInfo.setVector(aux);
 
 	} else {
 
