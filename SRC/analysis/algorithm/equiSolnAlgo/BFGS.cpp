@@ -68,11 +68,10 @@ BFGS::BFGS(int theTangentToUse, int n )
  tangent(theTangentToUse), numberLoops(n) 
 {
 
-  theTest = 0;
-  localTest = 0;
+  theTest = nullptr;
 
-  s  = new Vector*[numberLoops+3];
-  z  = new Vector*[numberLoops+3];
+  s  = new Vector*[numberLoops+3]{};
+  z  = new Vector*[numberLoops+3]{};
 
   //  r  = new (Vector*)[numberLoops+3];
   residOld = 0;
@@ -85,11 +84,6 @@ BFGS::BFGS(int theTangentToUse, int n )
   rdotz = 0;
   sdotr = 0;
 
-  for ( int i =0; i < numberLoops+3; i++ ) {
-    s[i] = 0;
-    z[i] = 0;
-  }
-
   localTest = 0;
 }
 
@@ -100,8 +94,8 @@ BFGS::BFGS(ConvergenceTest &theT, int theTangentToUse, int n)
 {
   theTest = &theT;
 
-  s  = new Vector*[numberLoops+3];
-  z  = new Vector*[numberLoops+3];
+  s  = new Vector*[numberLoops+3]{};
+  z  = new Vector*[numberLoops+3]{};
 
   residOld = 0;
   residNew = 0;
@@ -112,10 +106,6 @@ BFGS::BFGS(ConvergenceTest &theT, int theTangentToUse, int n)
   rdotz = 0;
   sdotr = 0;
 
-  for ( int i =0; i < numberLoops+3; i++ ) {
-    s[i] = 0;
-    z[i] = 0;
-  }
 
   localTest = theTest->getCopy(numberLoops);
 }
@@ -123,17 +113,21 @@ BFGS::BFGS(ConvergenceTest &theT, int theTangentToUse, int n)
 // Destructor
 BFGS::~BFGS()
 {
-  if (temp != 0) delete temp;
-  temp = 0;
+  if (temp != nullptr) 
+    delete temp;
+  temp = nullptr;
 
-  if (residOld != 0 ) delete residOld;  
-  residOld = 0;
+  if (residOld != nullptr ) 
+    delete residOld;  
+  residOld = nullptr;
 
-  if (residNew != 0) delete residNew;
-  residNew = 0;
+  if (residNew != nullptr)
+    delete residNew;
+  residNew = nullptr;
 
-  if (du != 0) delete du;
-  du = 0;
+  if (du != nullptr) 
+    delete du;
+  du = nullptr;
 
   if (b != 0 ) delete b;
   b = 0;
@@ -145,22 +139,26 @@ BFGS::~BFGS()
   sdotr = 0;
 
   for ( int i =0; i < numberLoops+3; i++ ) {
-    if ( s[i] != 0 ) delete s[i];
-    if ( z[i] != 0 ) delete z[i];
+    if ( s[i] != nullptr )
+      delete s[i];
+    if ( z[i] != nullptr )
+      delete z[i];
     //delete r[i];
-    s[i] = 0;
-    z[i] = 0;
+    s[i] = nullptr;
+    z[i] = nullptr;
     //r[i] = 0;
   } //end for i
 
-  if ( s != 0 ) delete[] s; 
-  if ( z != 0 ) delete[] z;
-  s = 0;  
-  z = 0;
+  if ( s != nullptr ) 
+    delete[] s; 
+  if ( z != nullptr ) 
+    delete[] z;
+  s = nullptr;  
+  z = nullptr;
 
-  if ( localTest != 0 )
+  if ( localTest != nullptr )
      delete localTest;
-  localTest = 0;
+  localTest = nullptr;
 }
 
 void 
