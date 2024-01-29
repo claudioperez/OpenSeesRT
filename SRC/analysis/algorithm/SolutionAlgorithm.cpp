@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2004-11-13 08:08:14 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/SolutionAlgorithm.cpp,v $
-                                                                        
-                                                                        
+//
 #include <SolutionAlgorithm.h>
 #include <Recorder.h>
 #include <stdlib.h>
