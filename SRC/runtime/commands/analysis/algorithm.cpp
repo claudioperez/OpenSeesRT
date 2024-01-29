@@ -232,6 +232,7 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
   int incrementTangent = CURRENT_TANGENT;
   int iterateTangent = CURRENT_TANGENT;
   int maxDim = 3;
+  int numTerms = 2;
   for (int i = 2; i < argc; i++) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
@@ -252,11 +253,23 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
     } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
       i++;
       maxDim = atoi(argv[i]);
+    } else if (strcmp(argv[i], "-numTerms") == 0) {
+      if (i+1 < argc)
+        numTerms = atoi(argv[++i]);
+      else {
+        opserr << G3_ERROR_PROMPT << "Flag -numTerms requires follow up argument\n";
+        return nullptr;
+      }
     }
   }
 
-  Accelerator *theAccel;
-  theAccel = new SecantAccelerator2(maxDim, iterateTangent);
+  Accelerator *theAccel = nullptr;
+  if (numTerms <= 1)
+    theAccel = new SecantAccelerator1(maxDim, iterateTangent);
+  if (numTerms >= 3)
+    theAccel = new SecantAccelerator3(maxDim, iterateTangent);
+  if (numTerms == 2)
+    theAccel = new SecantAccelerator2(maxDim, iterateTangent);
   return new AcceleratedNewton(*theTest, theAccel, incrementTangent);
 }
 
