@@ -46,7 +46,10 @@ of global state.
 The package may be used as a drop-in replacement for both OpenSees and
 OpenSeesPy, and generally provides a considerable performance boost.
 
-Python versions 3.7 - 3.11 are supported on Linux.
+- With a single `pip`-install, run any OpenSees Tcl script **and** most OpenSeesPy scripts
+- Convert OpenSeesPy scripts into serialized Tcl files that can be used
+  for faster processing or serialization.
+- Python versions 3.7 - 3.11 are supported on Linux.
 
 > **Note** This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
 > library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
