@@ -17,15 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2010-09-16 00:04:05 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/OriginCentered.cpp,v $
-
 //
 // Description: This file contains the class definition for 
 // OriginCentered. 
-
+//
 #include <math.h>
 
 #include <stdlib.h>
@@ -60,14 +55,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_OriginCentered)
     return 0;
   }
 
-    if (OPS_GetDoubleInput(&numData, dData) != 0) {
-      opserr << "Invalid arggs: uniaxialMaterial OriginCentered " << iData[0] << 
-	" fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
-      return 0;
-    }
+  if (OPS_GetDoubleInput(&numData, dData) != 0) {
+    opserr << "Invalid arggs: uniaxialMaterial OriginCentered " << iData[0] << 
+      " fy? E? b? <R0? cR1? cR2? <a1? a2? a3? a4?>>" << endln;
+    return 0;
+  }
 
-    // Parsing was successful, allocate the material
-    theMaterial = new OriginCentered(iData[0], dData[0], dData[1], dData[2], dData[3], dData[4], dData[5]);    
+  // Parsing was successful, allocate the material
+  theMaterial = new OriginCentered(iData[0], dData[0], dData[1], dData[2], dData[3], dData[4], dData[5]);    
 
   if (theMaterial == 0) {
     opserr << "WARNING could not create uniaxialMaterial of type OriginCentered Material\n";
@@ -282,8 +277,8 @@ int
 }
 
 int 
-	OriginCentered::recvSelf(int commitTag, Channel &theChannel, 
-	FEM_ObjectBroker &theBroker)
+OriginCentered::recvSelf(int commitTag, Channel &theChannel, 
+                         FEM_ObjectBroker &theBroker)
 {
 	static Vector data(34);
 
@@ -318,7 +313,7 @@ int
 }
 
 void 
-	OriginCentered::Print(OPS_Stream &s, int flag)
+OriginCentered::Print(OPS_Stream &s, int flag)
 {
-	s << "OriginCentered:(strain, stress, tangent) " << Ceps << " " << Csig << " " << Ctan << endln;
+    s << "OriginCentered:(strain, stress, tangent) " << Ceps << " " << Csig << " " << Ctan << endln;
 }

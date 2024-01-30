@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-12-18 23:40:51 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/BraceMaterial.h,v $
-
-// Written: MHS
-// Created: July 2000
 //
 // Description: This file contains the class definition for 
 // BraceMaterial.  BraceMaterial provides the implementation
@@ -31,7 +24,10 @@
 // force and deformation, damage due to deformation and energy, and
 // degraded unloading stiffness based on maximum ductility.  This
 // is a modified implementation of Hyster2.f90 by Filippou.
-
+//
+// Written: MHS
+// Created: July 2000
+//
 #ifndef BraceMaterial_h
 #define BraceMaterial_h
 
