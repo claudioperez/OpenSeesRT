@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:00:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/InitialInterpolatedLineSearch.h,v $
-
+//
 // Written: fmk 
 // Created: 11/01
 
@@ -34,7 +30,6 @@
 //                                -----------
 //                                s0 - s(i-1)  to compute eta(i)
 //
-
 #ifndef InitialInterpolatedLineSearch_h
 #define InitialInterpolatedLineSearch_h
 
@@ -75,5 +70,4 @@ class InitialInterpolatedLineSearch: public LineSearch
 };
 
 #endif
-
 

@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:00:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/SecantLineSearch.h,v $
-
-// Written: fmk 
-// Created: 11/01
-
+//
 // Description: This file contains the class definition for SecantLineSearch.
 // This performs the search for U(i+1) = U(i) + eta * deltaU(i) by using the 
 // secant method to find the best solution.
@@ -38,7 +31,10 @@
 //  and      U(i+1,j) = U(i) + eta(j)*deltaU(i)
 // 
 // What: "@(#)NewtonLineSearch.h, revA"
-
+//
+// Written: fmk 
+// Created: 11/01
+//
 #ifndef SecantLineSearch_h
 #define SecantLineSearch_h
 
@@ -79,5 +75,4 @@ class SecantLineSearch: public LineSearch
 };
 
 #endif
-
 

@@ -1,4 +1,3 @@
-
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
@@ -18,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-04-02 22:02:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/InitialInterpolatedLineSearch.cpp,v $
-
+//
 // Written: fmk 
 // Created: 11/01
 // 
 // What: "@(#)InitialInterpolatedLineSearch.h, revA"
-
+//
 #include <InitialInterpolatedLineSearch.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
@@ -195,12 +190,4 @@ InitialInterpolatedLineSearch::Print(OPS_Stream &s, int flag)
   if (flag == 0) 
     s << "InitialInterpolatedLineSearch :: Line Search Tolerance = " << tolerance << endln; 
 }
-
-
-
-
-
-
-
-
 
