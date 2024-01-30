@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2007-05-04 06:59:54 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/NewtonLineSearch.cpp,v $
-
+//
 // Written: fmk 
 // Created: 11/96 
 // Modified: Ed "C++" Love 10/00 to perform the line search
@@ -65,6 +61,9 @@ NewtonLineSearch::~NewtonLineSearch()
 {
   if (theOtherTest != 0)
     delete theOtherTest;
+
+  if (theLineSearch != 0)
+    delete theLineSearch;
 }
 
 int
