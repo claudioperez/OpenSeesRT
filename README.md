@@ -119,5 +119,5 @@ See also:
 </table>
 
 <center>
-<img align="left" src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/path3.png" width="250px" alt="OpenSeesRT Logo">
+<img align="left" src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/path3.png" width="600" alt="OpenSeesRT Logo">
 </center>
