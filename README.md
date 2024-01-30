@@ -116,8 +116,8 @@ See also:
   </td>
  
  </tr>
- <tr>
-  <td colspan="3">
+ <tr style="background-color:rgba(0, 0, 0, 0);">
+  <td style="background-color:rgba(0, 0, 0, 0);" colspan="3">
     <a>
     <img src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" 
          width="600" alt="OpenSeesRT Logo">
