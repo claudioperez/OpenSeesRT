@@ -117,7 +117,5 @@ See also:
  
  </tr>
 </table>
-
-<center>
 <img align="center" src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" width="600" alt="OpenSeesRT Logo">
-</center>
+
