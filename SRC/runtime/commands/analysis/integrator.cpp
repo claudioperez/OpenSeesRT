@@ -5,7 +5,7 @@
 //
 // Description: This file implements selection of an integrator object.
 //
-#include "analysis.h"
+#include "integrator.h"
 #include <assert.h>
 #include <tcl.h>
 #include <runtimeAPI.h>
