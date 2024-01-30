@@ -117,7 +117,7 @@ See also:
   </td>
 
   <td>
-    <a href="https://github.com/BRACE2">
+    <a href="https://brace2.herokuapp.com">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/brace2_logo-new3_ungrouped.svg"
          alt="BRACE2 Logo" width="200"/>
     </a>
