@@ -5,8 +5,11 @@
 //
 //
 #include <tcl.h>
-// wipe is not added to the table on purpose
+//
+// NOTE: wipe is not added to the table on purpose, it cannot be added to
+// and removed from the interpreter as simply as the other commands.
 static Tcl_CmdProc wipeAnalysis;
+//
 static Tcl_CmdProc specifyAnalysis;
 static Tcl_CmdProc eigenAnalysis;
 static Tcl_CmdProc modalProperties;
@@ -17,11 +20,12 @@ static Tcl_CmdProc initializeAnalysis;
 static Tcl_CmdProc resetModel;
 static Tcl_CmdProc analyzeModel;
 static Tcl_CmdProc specifyConstraintHandler;
-// Damping
 static Tcl_CmdProc modalDamping;
 
+// commands/analysis/integrator.cpp
 extern Tcl_CmdProc specifyIntegrator;
 
+// commands/analysis/solver.cpp
 extern Tcl_CmdProc specifySOE;
 extern Tcl_CmdProc specifySysOfEqnTable;
 
