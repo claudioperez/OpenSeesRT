@@ -130,6 +130,7 @@ BraceMaterial::BraceMaterial(int tag,
   this->revertToStart();
   this->revertToLastCommit();
 }
+
 BraceMaterial::BraceMaterial(int tag,
 			     double m1p, double r1p, double m2p, double r2p,
 			     double m1n, double r1n, double m2n, double r2n,
@@ -175,10 +176,12 @@ BraceMaterial::BraceMaterial():
   mom1n(0.0), rot1n(0.0), mom2n(0.0), rot2n(0.0), mom3n(0.0), rot3n(0.0)
 {
 }
+
 BraceMaterial::~BraceMaterial()
 {
   // Nothing to do
 }
+
 int
 BraceMaterial::setTrialStrain(double strain, double strainRate)
 {

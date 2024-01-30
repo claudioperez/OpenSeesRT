@@ -17,20 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2008-12-09 21:23:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/Neoprene.cpp,v $
-
+//
 // Written: mackie
 // Created: 12/2005
 // Revision: A
 //
 // Description: This file contains the class implementation for 
-// ElasticMaterial. 
+// Neoprene. 
 //
 // What: "@(#) Neoprene.C, revA"
-
+//
 #include <stdlib.h>
 
 #include "Neoprene.h"
@@ -45,12 +41,12 @@ Neoprene::Neoprene(int tag, double e, double gap0)
 :UniaxialMaterial(tag,MAT_TAG_EPPGap),
  commitStrain(0.0), trialStrain(0.0), E(e), gap(gap0), minElasticYieldStrain(gap0) 
 {
-	if (E <= 0.0) {
-	  opserr << "Neoprene::Neoprene -- E <= zero\n";
-	  exit(-1);
-	}
-        
-        commitStrain = 0.0;
+      if (E <= 0.0) {
+        opserr << "Neoprene::Neoprene -- E <= zero\n";
+        exit(-1);
+      }
+      
+      commitStrain = 0.0;
 
 }
 

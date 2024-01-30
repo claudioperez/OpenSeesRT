@@ -90,10 +90,9 @@ FE_Element::FE_Element(int tag, Element *ele)
 
         // if Elements are not subdomains, set up pointers to
         // objects to return tangent Matrix and residual Vector.
-
         if (numDOF <= MAX_NUM_DOF) {
             // use class wide objects
-            if (theVectors[numDOF] == 0) {
+            if (theVectors[numDOF] == nullptr) {
                 theVectors[numDOF] = new Vector(numDOF);
                 theMatrices[numDOF] = new Matrix(numDOF,numDOF);
                 theResidual = theVectors[numDOF];
@@ -155,7 +154,6 @@ FE_Element::FE_Element(int tag, int numDOF_Group, int ndof)
 //        destructor.
 FE_Element::~FE_Element()
 {
-
     // decrement number of FE_Elements
     numFEs--;
 

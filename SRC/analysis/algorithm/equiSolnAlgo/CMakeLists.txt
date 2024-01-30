@@ -17,12 +17,7 @@ target_sources(OPS_Analysis
       KrylovNewton.cpp 
       PeriodicNewton.cpp 
       AcceleratedNewton.cpp
-      LineSearch.cpp 
-      InitialInterpolatedLineSearch.cpp 
       NewtonHallM.cpp
-      SecantLineSearch.cpp 
-      RegulaFalsiLineSearch.cpp 
-      BisectionLineSearch.cpp
     PUBLIC
       EquiSolnAlgo.h 
       ExpressNewton.h
@@ -35,14 +30,11 @@ target_sources(OPS_Analysis
       KrylovNewton.h 
       PeriodicNewton.h 
       AcceleratedNewton.h
-      LineSearch.h 
-      InitialInterpolatedLineSearch.h 
       NewtonHallM.h
-      SecantLineSearch.h 
-      RegulaFalsiLineSearch.h 
-      BisectionLineSearch.h
 )
 
 target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(accelerator)
+add_subdirectory(search)
+
