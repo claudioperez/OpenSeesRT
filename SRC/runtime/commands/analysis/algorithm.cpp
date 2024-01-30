@@ -378,18 +378,15 @@ G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
         count++;
     }
 
-    LineSearch *theLineSearch = 0;
+    LineSearch *theLineSearch = nullptr;
     if (typeSearch == 0)
-      theLineSearch = new InitialInterpolatedLineSearch(tol, maxIter, minEta,
-                                                        maxEta, pFlag);
+      theLineSearch = new InitialInterpolatedLineSearch(tol, maxIter, minEta, maxEta, pFlag);
     else if (typeSearch == 1)
-      theLineSearch =
-          new BisectionLineSearch(tol, maxIter, minEta, maxEta, pFlag);
+      theLineSearch = new BisectionLineSearch(tol, maxIter, minEta, maxEta, pFlag);
     else if (typeSearch == 2)
       theLineSearch = new SecantLineSearch(tol, maxIter, minEta, maxEta, pFlag);
     else if (typeSearch == 3)
-      theLineSearch =
-          new RegulaFalsiLineSearch(tol, maxIter, minEta, maxEta, pFlag);
+      theLineSearch = new RegulaFalsiLineSearch(tol, maxIter, minEta, maxEta, pFlag);
 
     theNewAlgo = new NewtonLineSearch(*theTest, theLineSearch);
   }
