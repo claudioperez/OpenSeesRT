@@ -92,8 +92,16 @@ See also:
 ## Support
 
 <table align="center" style="border: 0;">
-<tr>
+ <tr style="background-color:rgba(0, 0, 0, 0);">
+  <td style="background-color:rgba(0, 0, 0, 0);" colspan="3">
+    <a>
+    <img src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" 
+         width="600" alt="OpenSeesRT Logo">
+    </a>
+  </td>
+ </tr>
 
+<tr>
   <td>
     <a href="https://peer.berkeley.edu">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png"
@@ -116,12 +124,5 @@ See also:
   </td>
  
  </tr>
- <tr style="background-color:rgba(0, 0, 0, 0);">
-  <td style="background-color:rgba(0, 0, 0, 0);" colspan="3">
-    <a>
-    <img src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" 
-         width="600" alt="OpenSeesRT Logo">
-    </a>
-  </td>
 </table>
 
