@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2008-09-16 18:17:57 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/AcceleratedNewton.cpp,v $
-
-// Written: MHS
-// Created: Oct 2001
 //
 // Description: This file contains the class definition for 
 // AcceleratedNewton.  AcceleratedNewton is a class which uses a Krylov
@@ -32,7 +25,10 @@
 // "Design and Application of a 1D GWMFE Code"
 // from SIAM Journal of Scientific Computing (Vol. 19, No. 3,
 // pp. 728-765, May 1998)
-
+//
+// Written: MHS
+// Created: Oct 2001
+//
 #include <AcceleratedNewton.h>
 #include <Accelerator.h>
 #include <AnalysisModel.h>
@@ -320,3 +316,4 @@ AcceleratedNewton::Print(OPS_Stream &s, int flag)
   else
     s << "\tNo accelerator --> Modified Newton" << endln;
 }
+
