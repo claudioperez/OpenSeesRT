@@ -110,6 +110,11 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MVLEM_3D)
 	UniaxialMaterial** theMaterialsConcrete = new UniaxialMaterial * [m];
 	UniaxialMaterial** theMaterialsSteel = new UniaxialMaterial * [m];
 	UniaxialMaterial** theMaterialsShear = new UniaxialMaterial * [1];
+	for (int i = 0; i < m; i++) {
+		theMaterialsConcrete[i] = 0;
+		theMaterialsSteel[i] = 0;
+	}
+	theMaterialsShear[0] = 0;
 
 	numArgs = OPS_GetNumRemainingInputArgs();
 	while (numArgs > 0) {
@@ -132,14 +137,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MVLEM_3D)
 		else if (strcmp(str, "-rho") == 0) {
 			numData = m;
 			if (OPS_GetDoubleInput(&numData, theRho) != 0) {
-				opserr << "Invalid width value for MVLEM  " << iData[0] << endln;
+				opserr << "Invalid rho value for MVLEM  " << iData[0] << endln;
 				return 0;
 			}
 		}
 		else if (strcmp(str, "-matConcrete") == 0) {
 			numData = m;
 			if (OPS_GetIntInput(&numData, matTags) != 0) {
-				opserr << "Invalid width value for MVLEM  " << iData[0] << endln;
+				opserr << "Invalid concrete tags for MVLEM  " << iData[0] << endln;
 				return 0;
 			}
 			for (int i = 0; i < m; i++) {
@@ -522,31 +527,31 @@ MVLEM_3D::~MVLEM_3D()
 		delete theLoad;
 
 	if (x != 0)
-		delete x;
+		delete []x;
 	if (t != 0)
-		delete t;
+		delete []t;
 	if (b != 0)
-		delete b;
+		delete []b;
 	if (rho != 0)
-		delete rho;
+		delete []rho;
 	if (Ac != 0)
-		delete Ac;
+		delete []Ac;
 	if (As != 0)
-		delete As;
+		delete []As;
 	if (ky != 0)
-		delete ky;
+		delete []ky;
 	if (kh != 0)
-		delete kh;
+		delete []kh;
 	if (Ec != 0)
-		delete Ec;
+		delete []Ec;
 	if (Es != 0)
-		delete Es;
+		delete []Es;
 	if (stressC != 0)
-		delete stressC;
+		delete []stressC;
 	if (stressS != 0)
-		delete stressS;
+		delete []stressS;
 	if (MVLEM_3DStrain != 0)
-		delete MVLEM_3DStrain;
+		delete []MVLEM_3DStrain;
 }
 
 int MVLEM_3D::getNumExternalNodes(void) const
@@ -853,7 +858,7 @@ int MVLEM_3D::update() {
 double * MVLEM_3D::computeCurrentStrain(void)
 {
 
-	// get nodal dispalcements in global cs
+	// get nodal displacements in global cs
 	const Vector &disp1 = theNodes[0]->getTrialDisp();
 	const Vector &disp2 = theNodes[1]->getTrialDisp();
 	const Vector &disp3 = theNodes[2]->getTrialDisp();
@@ -871,7 +876,7 @@ double * MVLEM_3D::computeCurrentStrain(void)
 		dispG(i + 18) = disp4(i);
 	}
 
-	// tranform nodal displacements from global to local cs
+	// transform nodal displacements from global to local cs
 	dispL.addMatrixVector(0.0, T, dispG, 1.0);
 
 	// Calculate 2-node 6DOF MVLEM local displacement vector
@@ -2242,7 +2247,7 @@ int MVLEM_3D::addInertiaLoadToUnbalance(const Vector &accel)
 		RaccelG(i + 18) = Raccel4(i);
 	}
 
-	// Tranform accelerations from global to local cs
+	// Transform accelerations from global to local cs
 	RaccelL.addMatrixVector(0.0, T, RaccelG, 1.0);
 
 	// Compute mass matrix
@@ -2382,7 +2387,7 @@ const Vector & MVLEM_3D::getResistingForceIncInertia()
 		accelG(i + 18) = accel4(i);
 	}
 
-	// Tranform accelerations from global to local cs
+	// Transform accelerations from global to local cs
 	accelL.addMatrixVector(0.0, T, accelG, 1.0);
 
 	// Compute the current resisting force
@@ -2745,7 +2750,7 @@ int MVLEM_3D::displaySelf(Renderer& theViewer, int displayMode, float fact, cons
 		NodePLotCrds(panel, 9) = GlCoord(2);
 		LocCoord.Zero();
 		GlCoord.Zero();
-		// Local node 4 - top rigth
+		// Local node 4 - top right
 		LocCoord(0) = Lv2_(0) + x[panel] - b[panel] / 2.0; // x
 		LocCoord(1) = Lv2_(1) + (x[panel] - b[panel] / 2.0)*end2Disp(5)*fact; // y
 		LocCoord(2) = Lv2_(2) - (x[panel] - b[panel] / 2.0)*end2Disp(4)*fact; // z
@@ -2859,7 +2864,7 @@ Response *MVLEM_3D::setResponse(const char **argv, int argc, OPS_Stream &s)
 		s.tag("ResponseType", "globalMy_l");
 		s.tag("ResponseType", "globalMz_l");
 
-		return theResponse = new ElementResponse(this, 1, Vector(24));
+		theResponse = new ElementResponse(this, 1, Vector(24));
 
 	}
 
@@ -2892,7 +2897,7 @@ Response *MVLEM_3D::setResponse(const char **argv, int argc, OPS_Stream &s)
 		s.tag("ResponseType", "localMy_l");
 		s.tag("ResponseType", "localMz_l");
 
-		return theResponse = new ElementResponse(this, 2, Vector(24));
+		theResponse = new ElementResponse(this, 2, Vector(24));
 
 	}
 
@@ -2901,39 +2906,61 @@ Response *MVLEM_3D::setResponse(const char **argv, int argc, OPS_Stream &s)
 
 		s.tag("ResponseType", "fi");
 
-		return theResponse = new ElementResponse(this, 3, 0.0);
+		theResponse = new ElementResponse(this, 3, 0.0);
 	}
 
 	// Fiber strain
 	else if (strcmp(argv[0], "Fiber_Strain") == 0 || strcmp(argv[0], "fiber_strain") == 0) {
 
-		s.tag("ResponseType", "epsy");
+		for (int pointNum = 1; pointNum <= m; ++pointNum) {
+			s.tag("GaussPointOutput");
+			s.attr("number", pointNum);
+			s.attr("eta", x[pointNum - 1] / Lw * 2.0);
+			s.attr("weight", b[pointNum - 1] / Lw * 2.0);
+			s.tag("ResponseType", "epsy");
+			s.endTag();
+		}
 
-		return theResponse = new ElementResponse(this, 4, Vector(m));
+		theResponse = new ElementResponse(this, 4, Vector(m));
 	}
 
 	// Fiber concrete stresses
 	else if (strcmp(argv[0], "Fiber_Stress_Concrete") == 0 || strcmp(argv[0], "fiber_stress_concrete") == 0) {
 
-		s.tag("ResponseType", "sigmayc");
+		for (int pointNum = 1; pointNum <= m; ++pointNum) {
+			s.tag("GaussPointOutput");
+			s.attr("number", pointNum);
+			s.attr("eta", x[pointNum - 1] / Lw * 2.0);
+			s.attr("weight", b[pointNum - 1] / Lw * 2.0);
+			s.tag("ResponseType", "sigmayc");
+			s.endTag();
+		}
 
-		return theResponse = new ElementResponse(this, 5, Vector(m));
+		theResponse = new ElementResponse(this, 5, Vector(m));
 	}
 
 	// Fiber steel stresses
 	else if (strcmp(argv[0], "Fiber_Stress_Steel") == 0 || strcmp(argv[0], "fiber_stress_steel") == 0) {
 
-		s.tag("ResponseType", "sigmays");
+		for (int pointNum = 1; pointNum <= m; ++pointNum) {
+			s.tag("GaussPointOutput");
+			s.attr("number", pointNum);
+			s.attr("eta", x[pointNum - 1] / Lw * 2.0);
+			s.attr("weight", b[pointNum - 1] / Lw * 2.0);
+			s.tag("ResponseType", "sigmays");
+			s.endTag();
+		}
 
-		return theResponse = new ElementResponse(this, 6, Vector(m));
+		theResponse = new ElementResponse(this, 6, Vector(m));
 	}
 
 	// Shear force deformation
 	else if (strcmp(argv[0], "Shear_Force_Deformation") == 0 || strcmp(argv[0], "shear_force_deformation") == 0) {
 
-		s.tag("ResponseType", "shearFD");
+		s.tag("ResponseType", "shearDef");
+		s.tag("ResponseType", "shearFrc");
 
-		return theResponse = new ElementResponse(this, 7, Vector(2));
+		theResponse = new ElementResponse(this, 7, Vector(2));
 	}
 
 	// Shear Deformation
@@ -2941,12 +2968,36 @@ Response *MVLEM_3D::setResponse(const char **argv, int argc, OPS_Stream &s)
 
 		s.tag("ResponseType", "shearDef");
 
-		return theResponse = new ElementResponse(this, 8, 0.0);
+		theResponse = new ElementResponse(this, 8, 0.0);
+	}
+
+	// Results at specified integration point
+	else if (strcmp(argv[0], "material") == 0 && (argc > 2)) {
+		int pointNum = atoi(argv[1]);
+		if (pointNum > 0 && pointNum <= m) {
+			s.tag("GaussPointOutput");
+			s.attr("number", pointNum);
+			s.attr("eta", x[pointNum - 1] / Lw * 2.0);
+			s.attr("weight", b[pointNum - 1] / Lw * 2.0);
+			if (argc > 3) {
+				// specify material and forward result type
+				if (strcmp(argv[2], "concrete") == 0 || strcmp(argv[2], "Concrete") == 0) {
+					theResponse = theMaterialsConcrete[pointNum - 1]->setResponse(&argv[3], argc - 3, s);
+				}
+				else if (strcmp(argv[2], "steel") == 0 || strcmp(argv[2], "Steel") == 0) {
+					theResponse = theMaterialsSteel[pointNum - 1]->setResponse(&argv[3], argc - 3, s);
+				}
+				else if (strcmp(argv[2], "shear") == 0 || strcmp(argv[2], "Shear") == 0) {
+					theResponse = theMaterialsShear[0]->setResponse(&argv[3], argc - 3, s);
+				}
+			}
+			s.endTag();
+		}
 	}
 
 	s.endTag();
 
-	return 0;
+	return theResponse;
 }
 
 // get recorders
@@ -2976,7 +3027,7 @@ int MVLEM_3D::getResponse(int responseID, Information &eleInfo)
 		return eleInfo.setVector(this->getShearFD());
 
 	case 8:  // Shear Deformtion
-		return eleInfo.setVector(this->getShearDef());
+		return eleInfo.setDouble(this->getShearDef());
 
 	default:
 

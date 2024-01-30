@@ -322,11 +322,21 @@ Maxwell::recvSelf(int cTag, Channel &theChannel,
 void 
 Maxwell::Print(OPS_Stream &s, int flag)
 {
-  s << "Maxwell tag: " << this->getTag() << endln;
-  s << "  K: " << K << endln;	
-  s << "  C: " << C << endln;
-  s << "  Alpha: " << Alpha << endln;
-  s << "  Length: " << L << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "\t\t\t{";
+    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"type\": \"" << this->getClassType() << "\", ";
+    s << "\"K\": " << K << ", ";	
+    s << "\"C\": " << C << ", ";
+    s << "\"Alpha\": " << Alpha << ", ";
+    s << "\"Length\": " << L << "}";
+  } else {
+    s << "Maxwell tag: " << this->getTag() << endln;
+    s << "  K: " << K << endln;	
+    s << "  C: " << C << endln;
+    s << "  Alpha: " << Alpha << endln;
+    s << "  Length: " << L << endln;
+  }
 }
 
 

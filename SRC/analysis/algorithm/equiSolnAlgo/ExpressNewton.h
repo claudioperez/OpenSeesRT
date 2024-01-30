@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.0 $
-// $Date: 2019-01-28 17:53:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/ExpressNewton.h,v $
-
+//
 // Written: Yuli Huang (yulee@berkeley.edu)
 // Created: 02/2020
 // Revision: A
@@ -36,9 +32,7 @@
 // International Journal for Numerical Methods in Engineering,
 // https://doi.org/10.1002/nme.6456.
 // (https://onlinelibrary.wiley.com/doi/abs/10.1002/nme.6456)
-
-// What: "@(#)ExpressNewton.h, revA"
-
+//
 #ifndef ExpressNewton_h
 #define ExpressNewton_h
 
