@@ -91,7 +91,7 @@ See also:
 
 ## Support
 
-<table align="center">
+<table align="center" style="border: 0;">
 <tr>
 
   <td>
