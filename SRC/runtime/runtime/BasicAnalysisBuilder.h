@@ -37,7 +37,6 @@ class Integrator;
 class BasicAnalysisBuilder
 {
 public:
-    BasicAnalysisBuilder();
     BasicAnalysisBuilder(Domain* domain);
     ~BasicAnalysisBuilder();
 
