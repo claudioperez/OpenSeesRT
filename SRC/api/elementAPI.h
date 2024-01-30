@@ -26,7 +26,6 @@
 #ifndef _eleAPI
 #define _eleAPI
 
-
 #define ISW_INIT 0
 #define ISW_COMMIT 1
 #define ISW_REVERT 2
@@ -123,6 +122,10 @@ class ConvergenceTest;
 // #define OPS_SetIntOutput ops_setintoutput_
 #define OPS_GetDoubleInput ops_getdoubleinput_
 // #define OPS_SetDoubleOutput ops_setdoubleoutput_
+#define OPS_SetDoubleListsOutput ops_setdoublelistsoutput_
+#define OPS_SetDoubleDictOutput ops_setdoubledictoutput_
+#define OPS_SetDoubleDictListOutput ops_setdoubledictlistoutput_
+//
 #define OPS_AllocateMaterial ops_allocatematerial_
 #define OPS_AllocateElement ops_allocateelement_
 #define OPS_GetMaterialType ops_getmaterialtype_
@@ -170,6 +173,8 @@ class ConvergenceTest;
 #endif
 
 #ifdef __cplusplus
+#include <map>
+#include <vector>
 extern "C" int         OPS_GetNDM();
 extern "C" int         OPS_GetNDF();
 extern "C" int         OPS_Error(const char* errorMessage, int length);
@@ -183,6 +188,11 @@ extern "C" int         OPS_SetString(const char* str);
 extern "C" int         OPS_GetStringCopy(char** cArray); // returns a new copy
 // extern "C" int       OPS_SetIntOutput(int* numData, int* data, bool scalar);
 // extern "C" int       OPS_SetDoubleOutput(int* numData, double* data, bool scalar);
+//
+extern "C" int         OPS_SetDoubleListsOutput(std::vector<std::vector<double>>& data);
+extern "C" int         OPS_SetDoubleDictOutput(std::map<const char*, double>& data);
+extern "C" int         OPS_SetDoubleDictListOutput(std::map<const char*, std::vector<double>>& data);
+//
 // extern "C" int       OPS_ResetInput(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain, TclModelBuilder * builder);
 // extern "C" int       OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain);
 // extern "C" int       OPS_GetString(char *cArray, int sizeArray); // does a strcpy
