@@ -116,6 +116,12 @@ See also:
   </td>
  
  </tr>
+ <tr>
+  <td colspan="3">
+    <a>
+    <img src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" 
+         width="600" alt="OpenSeesRT Logo">
+    </a>
+  </td>
 </table>
-<img align="center" src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" width="600" alt="OpenSeesRT Logo">
 
