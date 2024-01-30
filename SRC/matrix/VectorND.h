@@ -201,7 +201,7 @@ struct VectorND {
       int incr = 1,
              i = N,
              n = NC;
-      dgemv_("N", &i, &n,
+       DGEMV("N", &i, &n,
              &otherFact,
              &m.values[0][0], &i,
              v.theData, &incr,
