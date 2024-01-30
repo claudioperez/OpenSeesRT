@@ -118,3 +118,6 @@ See also:
  </tr>
 </table>
 
+<center>
+<img align="left" src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/path3.png" width="250px" alt="OpenSeesRT Logo">
+</center>
