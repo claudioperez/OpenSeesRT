@@ -1764,7 +1764,7 @@ ForceBeamColumn3d::computeSectionForceSensitivity(Vector &dspdh, int isec,
        secDefSize   += size;
     }
 
-    Vector dData(1+1+NEBD+NEBD*NEBD+secDefSize + 4); 
+    Vector dData(1+1+1+NEBD+NEBD*NEBD+secDefSize + 4); 
     loc = 0;
 
     // place double variables into Vector
