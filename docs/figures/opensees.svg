@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="11in"
+   height="8.5in"
+   viewBox="0 0 279.4 215.9"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="opensees.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.0066252"
+     inkscape:cx="578.16949"
+     inkscape:cy="383.9562"
+     inkscape:window-width="1920"
+     inkscape:window-height="1013"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" /><defs
+     id="defs1"><rect
+       x="129.14439"
+       y="854.33978"
+       width="567.24188"
+       height="78.480049"
+       id="rect3" /></defs><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"><path
+       style="fill:#000000;stroke-width:0.566288"
+       d="m 7.5496935,102.67676 v -0.22475 H 48.303531 89.057367 v -8.39049 -8.390498 h 4.494909 4.49491 v 4.419994 4.419995 h -4.19525 -4.195248 v 4.195245 4.195254 H 48.603191 7.5496935 Z M 97.447866,90.091016 v -3.970503 h -3.89559 -3.895588 v 3.970503 3.970504 h 3.895588 3.89559 z m 82.106994,12.585744 v -0.22475 h 46.14772 46.14773 v 0.22475 0.22475 H 225.70258 179.55486 Z M 122.61934,92.488299 v -6.367786 h -3.89558 -3.89559 v 4.195246 4.195252 h -6.59253 -6.59253 v -4.419995 -4.419994 h 4.49491 4.49491 v 2.397283 2.397282 h -0.29967 -0.29965 v -2.172534 -2.17254 h -3.89559 -3.89559 v 3.970503 3.970504 h 5.99321 5.99321 v -4.195252 -4.195246 h 4.49491 4.49491 v 6.592529 6.592533 h -0.29966 -0.29967 z M 76.471623,90.091016 v -4.419994 h 4.494909 4.494908 v 4.419994 4.419995 h -4.494908 -4.494909 z m 8.390496,0 v -3.970503 h -3.895587 -3.895587 v 3.970503 3.970504 h 3.895587 3.895587 z m 44.349761,4.195246 V 94.06152 h 2.99661 2.9966 v -4.195252 -4.195246 h 5.39389 5.39389 v 0.224743 0.224748 h -5.09422 -5.09424 v 4.195246 4.195252 h -3.29626 -3.29627 z m 18.57896,-4.195246 v -4.419994 h 4.49491 4.4949 v 2.397283 2.397282 h -0.29966 -0.29965 v -2.172534 -2.17254 h -3.89559 -3.89559 v 3.970503 3.970504 h 5.09423 5.09423 v 0.224742 0.224749 h -5.39389 -5.39389 z m 12.58574,0 v -4.419994 h 4.49491 4.49491 v 2.397283 2.397282 h -0.29966 -0.29966 v -2.172534 -2.17254 h -3.89559 -3.89559 v 3.970503 3.970504 h 8.09084 8.09083 v -4.195252 -4.195246 h 5.39389 5.39389 v 0.224743 0.224748 h -5.09423 -5.09422 v 4.195246 4.195252 h -8.69016 -8.69016 z"
+       id="path3"
+       inkscape:export-filename="path3.png"
+       inkscape:export-xdpi="121.311"
+       inkscape:export-ydpi="121.311" /><text
+       xml:space="preserve"
+       transform="matrix(0.14983028,0,0,0.14983028,75.845856,-28.881944)"
+       id="text3"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:42.6667px;line-height:1.25;font-family:'Fira Code';-inkscape-font-specification:'Fira Code, Light';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect3)"><tspan
+         x="129.14453"
+         y="891.6732"
+         id="tspan1">Berkeley, California</tspan></text></g></svg>
