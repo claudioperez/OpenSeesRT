@@ -134,7 +134,7 @@ ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double
     Matrix J(nf,nf);
     for (int i = 0; i < nf; i++)
       for (int j = 0; j < nf; j++)
-    J(i,j) = pow(pt(nc+j),i);
+        J(i,j) = pow(pt(nc+j),i);
     
     Vector wf(nf);
     
@@ -152,7 +152,6 @@ ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double
 BeamIntegration*
 ConcentratedPlasticityBeamIntegration::getCopy(void)
 {
-
   return new ConcentratedPlasticityBeamIntegration();
 }
 
@@ -187,7 +186,6 @@ ConcentratedPlasticityBeamIntegration::recvSelf(int cTag, Channel &theChannel,
     opserr << "ConcentratedPlasticityBeamIntegration::recvSelf() - failed to receive Vector data\n";
     return -1;
   }
-  
 
   return 0;
 }
@@ -195,26 +193,22 @@ ConcentratedPlasticityBeamIntegration::recvSelf(int cTag, Channel &theChannel,
 int
 ConcentratedPlasticityBeamIntegration::setParameter(const char **argv, int argc,
                       Parameter &param)
-{
-    
-    // there really aren't any parameters that you can change!
+{    
+  // there really aren't any parameters that you can change!
 
-    return 0;
+  return 0;
 }
 
 int
 ConcentratedPlasticityBeamIntegration::updateParameter(int parameterID,
                      Information &info)
 {
-
     return 0;
 }
 
 int
 ConcentratedPlasticityBeamIntegration::activateParameter(int paramID)
-{
-  
-
+{  
   return 0;
 }
 
@@ -224,7 +218,6 @@ ConcentratedPlasticityBeamIntegration::Print(OPS_Stream &s, int flag)
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
         s << "{\"type\": \"ConcentratedPlasticity\", ";
     }
-    
     else {
         s << "ConcentratedPlasticity" << endln;
     }
@@ -256,8 +249,6 @@ void
 ConcentratedPlasticityBeamIntegration::getWeightsDeriv(int numSections, double L,
                      double dLdh, double *dwtsdh)
 {
-
-
     dwtsdh[0] = 0.;
     dwtsdh[1] = 0.;
     dwtsdh[2] = 0.;
