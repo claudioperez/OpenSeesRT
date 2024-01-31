@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.8 $
-// $Date: 2007-11-30 23:34:45 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSectionGJThermal.cpp,v $
-
+//
 // Written: fmk
 // Created: 04/04
 //

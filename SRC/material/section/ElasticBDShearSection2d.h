@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2008-08-26 16:46:09 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticBDShearSection2d.h,v $
-
+//
+//
 #ifndef ElasticBDShearSection2d_h
 #define ElasticBDShearSection2d_h
 

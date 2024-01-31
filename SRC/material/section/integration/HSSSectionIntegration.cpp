@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2010-09-13 21:31:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/integration/HSSSectionIntegration.cpp,v $
-
+//
+//
 #include <HSSSectionIntegration.h>
 #include <Matrix.h>
 #include <Vector.h>

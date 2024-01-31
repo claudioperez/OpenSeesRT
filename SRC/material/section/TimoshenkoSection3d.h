@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2007-10-26 04:42:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/TimoshenkoSection3d.h,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/01
 //
