@@ -23,20 +23,14 @@
 // it's type can be instatiated. It has pure virtual functions which
 // must be implemented in it's derived classes.
 //
-// File: ~/fiber/Fiber.h
-//
 // Written: Remo Magalhaes de Souza
 // Created: 10/98
 //
 #ifndef Fiber_h
 #define Fiber_h
-#if 0
-#  include <DomainComponent.h>
-#else
-#  include <TaggedObject.h>
-#endif
+//
+#include <TaggedObject.h>
 #include <MovableObject.h>
-// #include <Vector.h>
 
 class Matrix;
 class ID;
@@ -66,17 +60,14 @@ class Fiber : public TaggedObject, public MovableObject
     virtual Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     virtual int getResponse(int responseID, Information &info);
 
-#if 0
-    virtual void getFiberLocation(double &y, double &z) =0;
-    virtual double getArea(void) =0;
-#endif
-    double getArea(void) const {return area;};
+    double getArea(void) const {
+      return area;
+    };
     void getFiberLocation(double &yLoc, double &zLoc) const {
-      yLoc = loc_y;
-      zLoc = loc_z;
-    //  yLoc = -y;
-    //  zLoc = 0.0;
+      yLoc = loc_y; //  yLoc = -y;
+      zLoc = loc_z; //  zLoc = 0.0;
     }
+
     virtual double getd(void) =0;
 
     virtual UniaxialMaterial *getMaterial(void) {return 0;}

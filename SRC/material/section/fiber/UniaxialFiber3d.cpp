@@ -18,13 +18,10 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Description: This file contains the implementation for the
-// UniaxialFiber3d class. UniaxialFiber3d provides the abstraction of a
+// Description: UniaxialFiber3d provides the abstraction of a
 // uniaxial fiber that forms a fiber section for 3d frame elements.
 // The UniaxialFiber3d is subjected to a stress state with
 // only one nonzero axial stress and corresponding axial strain.
-//
-// File: ~/section/UniaxialFiber3d.C
 //
 // Written: Remo Magalhaes de Souza
 // Created: 10/98
@@ -332,7 +329,8 @@ UniaxialFiber3d::setResponse(const char **argv, int argc, OPS_Stream &s)
     if (argc == 0)
         return 0;
 
-    if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0)		
+    if (strcmp(argv[0],"force") == 0 || 
+        strcmp(argv[0],"forces") == 0)		
         return new FiberResponse(this, 1, Vector(3));
 
     else
@@ -342,20 +340,12 @@ UniaxialFiber3d::setResponse(const char **argv, int argc, OPS_Stream &s)
 int
 UniaxialFiber3d::getResponse(int responseID, Information &fibInfo)
 {
-    switch(responseID) {
-        case 1:
-            return fibInfo.setVector(this->getFiberStressResultants());
+  switch (responseID) {
+    case 1:
+      return fibInfo.setVector(this->getFiberStressResultants());
 
-        default:
-            return -1;
-    }
+    default:
+      return -1;
+  }
 }
 
-#if 0
-void 
-UniaxialFiber3d::getFiberLocation(double &yLoc, double &zLoc)
-{
-    yLoc = -as[0];
-    zLoc = as[1];
-}
-#endif

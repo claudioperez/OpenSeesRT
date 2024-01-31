@@ -18,16 +18,12 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// File: ~/fiber/Fiber.C
+// Description: This file contains the implementation for the
+// Fiber class. Fiber provides the abstraction of a section fiber.
 //
 // Written: Remo Magalhaes de Souza
 // Created: 10/98
 // Revision: 
-//
-// Description: This file contains the implementation for the
-// Fiber class. Fiber provides the abstraction of a section fiber.
-// 
-// What: "@(#) Fiber.C, revA"
 //
 #include <Fiber.h>
 #include <Matrix.h>

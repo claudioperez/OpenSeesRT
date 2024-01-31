@@ -18,18 +18,16 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: 2012
-// Revision: 
-//
 // Description: This file contains the implementation for the
 // NDFiber2d class. NDFiber2d provides the abstraction of a
 // uniaXial Fiber whose position  is defined with only one coordinate.
 // The NDFiber2d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) NDFiber2d.h, revA"
-
+// Written: MHS
+// Created: 2012
+// Revision: 
+//
 #include <stdlib.h>
 
 #include <NDMaterial.h>
