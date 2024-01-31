@@ -17,17 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// Written: fmk 
-// Created: 12/17
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // DamperModel. DamperModel is an aggregation
 // of UniaxialMaterial objects all considered acting in parallel.
 //
 // What: "@(#) DamperModel.C, revA"
-
+//
+// Written: fmk 
+// Created: 12/17
+// Revision: A
+//
 #include <DamperMaterial.h>
 #include <ID.h>
 #include <Vector.h>
@@ -221,10 +221,10 @@ DamperMaterial::getCopy(void)
 int 
 DamperMaterial::sendSelf(int cTag, Channel &theChannel)
 {
-  if (theMaterial == 0) {
-    opserr << "DamperMaterial::sendSelf() - theMaterial is null, nothing to send\n";
-    return -1;
-  }
+    if (theMaterial == 0) {
+      opserr << "DamperMaterial::sendSelf() - theMaterial is null, nothing to send\n";
+      return -1;
+    }
   
     int res = 0;
 
@@ -276,7 +276,6 @@ DamperMaterial::recvSelf(int cTag, Channel &theChannel,
     if (theMaterial  == 0) {
       opserr << "FATAL DamperMaterial::recvSelf() ";
       opserr << " could not get a UniaxialMaterial \n";
-      //exit(-1);
       return -1;
     }    	    
     theMaterial->setDbTag(dbTag);

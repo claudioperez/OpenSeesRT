@@ -1,10 +1,8 @@
-                                                                        
 #ifndef BWBN_h
 #define BWBN_h
 
 
 #include <UniaxialMaterial.h>
-#include <Matrix.h>
 
 //#define MAT_TAG_BWBN 5002
 
@@ -35,7 +33,6 @@ class BWBN : public UniaxialMaterial
     double getStrain(void);          
     double getStress(void);
     double getTangent(void);
-    double signum(double);
     int commitState(void);
     int revertToLastCommit(void);    
     int revertToStart(void);        

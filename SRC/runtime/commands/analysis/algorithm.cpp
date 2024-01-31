@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <G3_Logging.h>
-#include "analysis.h"
+// #include "analysis.h"
 #include <tcl.h>
 #include <api/InputAPI.h>
 #include "runtime/BasicAnalysisBuilder.h"
@@ -42,6 +42,13 @@
 #include <SecantAccelerator2.h>
 #include <SecantAccelerator3.h>
 #include <MillerAccelerator.h>
+#include <runtimeAPI.h>
+class G3_Runtime;
+
+OPS_Routine OPS_NewtonRaphsonAlgorithm;
+OPS_Routine OPS_ExpressNewton;
+OPS_Routine OPS_ModifiedNewton;
+OPS_Routine OPS_NewtonHallM;
 
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
@@ -232,6 +239,7 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
   int incrementTangent = CURRENT_TANGENT;
   int iterateTangent = CURRENT_TANGENT;
   int maxDim = 3;
+  int numTerms = 2;
   for (int i = 2; i < argc; i++) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
@@ -252,11 +260,23 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
     } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
       i++;
       maxDim = atoi(argv[i]);
+    } else if (strcmp(argv[i], "-numTerms") == 0) {
+      if (i+1 < argc)
+        numTerms = atoi(argv[++i]);
+      else {
+        opserr << G3_ERROR_PROMPT << "Flag -numTerms requires follow up argument\n";
+        return nullptr;
+      }
     }
   }
 
-  Accelerator *theAccel;
-  theAccel = new SecantAccelerator2(maxDim, iterateTangent);
+  Accelerator *theAccel = nullptr;
+  if (numTerms <= 1)
+    theAccel = new SecantAccelerator1(maxDim, iterateTangent);
+  if (numTerms >= 3)
+    theAccel = new SecantAccelerator3(maxDim, iterateTangent);
+  if (numTerms == 2)
+    theAccel = new SecantAccelerator2(maxDim, iterateTangent);
   return new AcceleratedNewton(*theTest, theAccel, incrementTangent);
 }
 
@@ -365,18 +385,15 @@ G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
         count++;
     }
 
-    LineSearch *theLineSearch = 0;
+    LineSearch *theLineSearch = nullptr;
     if (typeSearch == 0)
-      theLineSearch = new InitialInterpolatedLineSearch(tol, maxIter, minEta,
-                                                        maxEta, pFlag);
+      theLineSearch = new InitialInterpolatedLineSearch(tol, maxIter, minEta, maxEta, pFlag);
     else if (typeSearch == 1)
-      theLineSearch =
-          new BisectionLineSearch(tol, maxIter, minEta, maxEta, pFlag);
+      theLineSearch = new BisectionLineSearch(tol, maxIter, minEta, maxEta, pFlag);
     else if (typeSearch == 2)
       theLineSearch = new SecantLineSearch(tol, maxIter, minEta, maxEta, pFlag);
     else if (typeSearch == 3)
-      theLineSearch =
-          new RegulaFalsiLineSearch(tol, maxIter, minEta, maxEta, pFlag);
+      theLineSearch = new RegulaFalsiLineSearch(tol, maxIter, minEta, maxEta, pFlag);
 
     theNewAlgo = new NewtonLineSearch(*theTest, theLineSearch);
   }

@@ -17,16 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.0 $
-// $Date: 12-10-2015 $
-
+//
 // Written by Smail KECHIDI, Ph.D student at University of Blida 1 (s_kechidi@univ-blida.dz), PhD mobility Student at University of Porto FEUP (smail.kechidi@fe.up.pt)
 // Created: 12-10-2015 12:24:20 $
 //
 // Description: This file contains the class implementation for CFSSSWP
 // CFSSSWP is based on Pinching4 uniaxialMaterial
-
+//
 #include <elementAPI.h>
 #include "CFSSSWP.h"
 #include <OPS_Globals.h>
@@ -40,7 +37,6 @@
 #include "TriMatrix.h"
  
 
-static int numCFSSSWP = 0;
 
 #ifdef _WIN32
 #define isnan _isnan
@@ -48,6 +44,7 @@ static int numCFSSSWP = 0;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_CFSSSWP)
 {
+  static int numCFSSSWP = 0;
   // print out some KUDO's
   if (numCFSSSWP == 0) {
     opserr << "Cold Formed Steel Steel-Sheathed Shear Wall Panel uniaxialMaterial - Written by Smail KECHIDI Ph.D Student at University of Blida 1 - Please when using this make reference as: Smail Kechidi and Nouredine Bourahla (2016), Deteriorating hysteresis model for cold-formed steel shear wall panel based on its physical and mechanical characteristics, Journal of Thin-Walled Structures, DOI: 10.1016/j.tws.2015.09.022\n";

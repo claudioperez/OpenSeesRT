@@ -17,30 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-08-26 17:07:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/EquiSolnAlgo.h,v $
-                                                                        
-                                                                        
+//
 #ifndef EquiSolnAlgo_h
 #define EquiSolnAlgo_h
-
-// File: ~/OOP/analysis/algorithm/EquiSolnAlgo.h 
-// 
-// Written: fmk 
-// Created: 11/96 
-// Revision: A 
 //
-
 // Description: This file contains the class definition for 
 // EquiSolnAlgo. EquiSolnAlgo is an abstract base class, 
 // i.e. no objects of it's type can be created.  Its subclasses deifine
 // the sequence of operations to be performed in the analysis by static
 // equilibrium of a finite element model.  
 // 
-// What: "@(#)EquiSolnAlgo.h, revA"
-
+// Written: fmk 
+// Created: 11/96 
+// Revision: A 
+//
 #include <SolutionAlgorithm.h>
 #include <IncrementalIntegrator.h>
 

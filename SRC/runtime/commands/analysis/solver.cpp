@@ -19,7 +19,7 @@
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <runtimeAPI.h>
-#include "analysis.h"
+// #include "analysis.h"
 #include <OPS_Globals.h>
 #include "solver.hpp"
 #include "runtime/BasicAnalysisBuilder.h"

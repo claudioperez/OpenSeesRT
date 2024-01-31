@@ -89,7 +89,13 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SFI_MVLEM)
   int *matTags = new int[m];
 
   NDMaterial **theMaterials = new NDMaterial* [m];
-
+  for (int i = 0; i < m; i++) {
+    theThickness[i] = 0.0;
+    theWidth[i] = 0.0;
+    matTags[i] = 0;
+    theMaterials[i] = 0;
+  }
+	
   numArgs = OPS_GetNumRemainingInputArgs();
   while (numArgs >= (m+1)) {
       //OPS_GetStringCopy(&str);
@@ -280,7 +286,7 @@ SFI_MVLEM::SFI_MVLEM(int tag,
       exit(-1);
     }
     
-    theMaterial[i] = materials[i]->getCopy();
+    theMaterial[i] = materials[i]->getCopy("PlaneStress2D");
     
     if (theMaterial[i] == 0) {
       opserr << "SFI_MVLEM::SFI_MVLEM() - "
@@ -315,7 +321,7 @@ SFI_MVLEM::SFI_MVLEM(int tag,
   SFI_MVLEMStrainXY = new double[m];
   SFI_MVLEMStrain = new double[3*m]; 
   
-  // Denisty
+  // Density
   Dens = new double[m];
   
   // Assign zero to element arrays
@@ -424,45 +430,47 @@ SFI_MVLEM::~SFI_MVLEM()
 	if (theLoad != 0)
 		delete theLoad;
 	if(x!=0)
-		delete x;
+		delete []x;
 	if(b!=0)
-		delete b;
+		delete []b;
+	if(t!=0)
+		delete []t;	
 	if(AcX!=0)
-		delete AcX;
+		delete []AcX;
 	if(AcY!=0)
-		delete AcY;
+		delete []AcY;
 	if(kx!=0)
-		delete kx;
+		delete []kx;
 	if(ky!=0)
-		delete ky;
+		delete []ky;
 	if(kh!=0)
-		delete kh;
+		delete []kh;
 	if(Fx!=0)
-		delete Fx;
+		delete []Fx;
 	if(Fy!=0)
-		delete Fy;
+		delete []Fy;
 	if(Fxy!=0)
-		delete Fxy;
+		delete []Fxy;
 	if(Dens!=0)
-		delete Dens;
+		delete []Dens;
 	if(Dx!=0)
-		delete Dx;
+		delete []Dx;
 	if(Dy!=0)
-		delete Dy;
+		delete []Dy;
 	if(Dxy!=0)
-		delete Dxy;
+		delete []Dxy;
 	if(SFI_MVLEMStrainX!=0)
-		delete SFI_MVLEMStrainX;
+		delete []SFI_MVLEMStrainX;
 	if(SFI_MVLEMStrainY!=0)
-		delete SFI_MVLEMStrainY;
+		delete []SFI_MVLEMStrainY;
 	if(SFI_MVLEMStrainXY!=0)
-		delete SFI_MVLEMStrainXY;
+		delete []SFI_MVLEMStrainXY;
 	if(SFI_MVLEMStrain!=0)
-		delete SFI_MVLEMStrain;
+		delete []SFI_MVLEMStrain;
 	if(theNodesX!=0)
-		delete theNodesX;
+		delete [] theNodesX;
 	if(theNodesALL!=0)
-		delete theNodesALL;
+		delete [] theNodesALL;
 }
 
 // Get number of nodes (external + internal)
@@ -962,7 +970,7 @@ Response *SFI_MVLEM::setResponse(const char **argv, int argc, OPS_Stream &s)
 			s.tag("ResponseType","Fy_j");
 			s.tag("ResponseType","Mz_j");
 			
-			return theResponse = new ElementResponse(this, 1, Vector(6));
+			theResponse = new ElementResponse(this, 1, Vector(6));
 
 	}  
 
@@ -971,7 +979,7 @@ Response *SFI_MVLEM::setResponse(const char **argv, int argc, OPS_Stream &s)
 		
 			s.tag("ResponseType","Dsh");
 		
-		return theResponse = new ElementResponse(this, 2, 0.0);
+		theResponse = new ElementResponse(this, 2, 0.0);
 
 	} 
 	
@@ -980,7 +988,7 @@ Response *SFI_MVLEM::setResponse(const char **argv, int argc, OPS_Stream &s)
 		
 			s.tag("ResponseType","fi");
 		
-		return theResponse = new ElementResponse(this, 3, 0.0);
+		theResponse = new ElementResponse(this, 3, 0.0);
 	}
 
 	// Material output
@@ -999,13 +1007,13 @@ Response *SFI_MVLEM::setResponse(const char **argv, int argc, OPS_Stream &s)
 		s.tag("Material");
 		s.attr("number",matNum);
 		
-		return theResponse = theMaterial[matNum-1]->setResponse(&argv[argc-1], argc-2, s);
+		theResponse = theMaterial[matNum-1]->setResponse(&argv[argc-1], argc-2, s);
 
     }
 
 	s.endTag();
 	
-	return 0;
+	return theResponse;
 }
 
 // Obtain element responses
@@ -1327,7 +1335,7 @@ void SFI_MVLEM::computeCurrentStrain(void)
   }
 }
 
-// Get resisting force incremenet from inertial forces
+// Get resisting force increment from inertial forces
 const Vector & SFI_MVLEM::getResistingForceIncInertia()
 {
   // compute the current resisting force

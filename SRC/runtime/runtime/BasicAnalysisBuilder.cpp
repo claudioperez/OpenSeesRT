@@ -5,6 +5,12 @@
 //
 // Written: Claudio Perez
 //
+//
+//  ANALYSIS_TRANSIENT
+//  ANALYSIS_UNDEFINED
+//  ANALYSIS_STATIC
+//  ANALYSIS_EIGEN
+//
 #include "BasicAnalysisBuilder.h"
 #include <Domain.h>
 #include <assert.h>
@@ -52,23 +58,20 @@
 #include <TransformationConstraintHandler.h>
 
 
-BasicAnalysisBuilder::BasicAnalysisBuilder()
-:theHandler(nullptr),theNumberer(nullptr),theAlgorithm(nullptr),
- theSOE(nullptr),theEigenSOE(nullptr),
- theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
- theTest(nullptr),theStaticAnalysis(nullptr),theTransientAnalysis(nullptr),
- theVariableTimeStepTransientAnalysis(nullptr),
- CurrentAnalysisFlag(CURRENT_EMPTY_ANALYSIS)
-{
-  theAnalysisModel = new AnalysisModel();
-}
-
 BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
-:theHandler(nullptr),theNumberer(nullptr),theAlgorithm(nullptr),
- theSOE(nullptr),theEigenSOE(nullptr),theStaticIntegrator(nullptr),theTransientIntegrator(nullptr),
- theTest(nullptr),theStaticAnalysis(nullptr),theTransientAnalysis(nullptr),
- theVariableTimeStepTransientAnalysis(nullptr),
- theDomain(domain),
+: 
+  theDomain(domain),
+  theHandler(nullptr),
+  theNumberer(nullptr),
+  theAlgorithm(nullptr),
+  theSOE(nullptr),
+  theEigenSOE(nullptr),
+  theStaticIntegrator(nullptr),
+  theTransientIntegrator(nullptr),
+  theTest(nullptr),
+  theStaticAnalysis(nullptr),
+  theTransientAnalysis(nullptr),
+  theVariableTimeStepTransientAnalysis(nullptr),
  CurrentAnalysisFlag(CURRENT_EMPTY_ANALYSIS)
 {
   theAnalysisModel = new AnalysisModel();
@@ -87,15 +90,11 @@ BasicAnalysisBuilder::~BasicAnalysisBuilder()
 void 
 BasicAnalysisBuilder::wipe()
 {
-#if 1
+
   if (theStaticAnalysis != nullptr) {
       delete theStaticAnalysis;
       theStaticAnalysis = nullptr;
   }
-//  if (theTransientAnalysis != nullptr) {
-//      delete theTransientAnalysis;
-//      theTransientAnalysis = nullptr;
-//  }
   if (theAlgorithm != nullptr) {
       delete theAlgorithm;
       theAlgorithm = nullptr;
@@ -133,7 +132,6 @@ BasicAnalysisBuilder::wipe()
     theAnalysisModel = new AnalysisModel();
   }
   theVariableTimeStepTransientAnalysis = nullptr;
-#endif
 }
 
 void
@@ -151,7 +149,7 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
   if (theTest && theAlgorithm)
     theAlgorithm->setConvergenceTest(theTest);
 
-  //
+
   switch (flag) {
   case CURRENT_EMPTY_ANALYSIS:
     break;
@@ -167,10 +165,11 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
     //   theTransientIntegrator->domainChanged();
       // this->domainChanged();
 
-    domainStamp  = 0;
+    // domainStamp  = 0;
     break;
   
   case CURRENT_STATIC_ANALYSIS:
+    // opserr << "setLinks(STATIC)\n";
     if (theDomain && theAnalysisModel && theStaticIntegrator && theHandler)
       theHandler->setLinks(*theDomain, *theAnalysisModel, *theStaticIntegrator);
 
@@ -180,7 +179,7 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
     if (theAnalysisModel && theStaticIntegrator && theSOE && theTest && theAlgorithm)
       theAlgorithm->setLinks(*theAnalysisModel, *theStaticIntegrator, *theSOE, theTest);
 
-    domainStamp  = 0;
+    // domainStamp  = 0;
     break;
   }
 }
@@ -319,12 +318,12 @@ BasicAnalysisBuilder::analyze(int num_steps, double size_steps)
     case CURRENT_TRANSIENT_ANALYSIS: {
       // TODO: Set global timestep variable
       ops_Dt = size_steps;
-      DirectIntegrationAnalysis   aTransientAnalysis(*theDomain,*theHandler,*theNumberer,
-                                                     *theAnalysisModel,*theAlgorithm,
-                                                     *theSOE,*theTransientIntegrator,
-                                                     theTest);
-      return aTransientAnalysis.analyze(num_steps, size_steps);
-//    return this->analyzeTransient(num_steps, size_steps);
+//    DirectIntegrationAnalysis   aTransientAnalysis(*theDomain,*theHandler,*theNumberer,
+//                                                   *theAnalysisModel,*theAlgorithm,
+//                                                   *theSOE,*theTransientIntegrator,
+//                                                   theTest);
+//    return aTransientAnalysis.analyze(num_steps, size_steps);
+      return this->analyzeTransient(num_steps, size_steps);
       break;
     }
 
@@ -358,7 +357,6 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
 
       if (stamp != domainStamp) {
         domainStamp = stamp;
-
         result = this->domainChanged();
         if (result < 0) {
           opserr << "BasicAnalysisBuilder::analyzeStatic - domainChanged failed";
@@ -507,16 +505,16 @@ BasicAnalysisBuilder::set(ConstraintHandler* obj)
 void
 BasicAnalysisBuilder::set(DOF_Numberer* obj) 
 {
-    // invoke the destructor on the old one
-    if (theNumberer != nullptr)
-      delete theNumberer;
+  // free the old numberer
+  if (theNumberer != nullptr)
+    delete theNumberer;
 
-    // first set the links needed by the Algorithm
-    theNumberer = obj;
-    theNumberer->setLinks(*theAnalysisModel);
+  // set the links needed by the Algorithm
+  theNumberer = obj;
+  theNumberer->setLinks(*theAnalysisModel);
 
-    domainStamp = 0;
-    return;
+  domainStamp = 0;
+  return;
 }
 
 void
@@ -533,10 +531,6 @@ BasicAnalysisBuilder::set(EquiSolnAlgo* obj)
     theTest = theAlgorithm->getConvergenceTest();
 
   this->setLinks(this->CurrentAnalysisFlag);
-
-  // Algorithms dont do anything on domainChanged()?
-  // if (domainStamp != 0)
-  //   theAlgorithm->domainChanged();
 }
 
 void
@@ -575,6 +569,9 @@ BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
 
       this->setLinks(CURRENT_STATIC_ANALYSIS);
 
+      if (domainStamp != 0 && this->CurrentAnalysisFlag != CURRENT_EMPTY_ANALYSIS)
+        theStaticIntegrator->domainChanged();
+
   } else {
 
       if (theTransientIntegrator != nullptr)
@@ -583,6 +580,9 @@ BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
       theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
       
       this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
+
+      if (domainStamp != 0  && this->CurrentAnalysisFlag != CURRENT_EMPTY_ANALYSIS)
+        theTransientIntegrator->domainChanged();
   }
 }
 
@@ -682,6 +682,7 @@ BasicAnalysisBuilder::setStaticAnalysis()
 {
 //if (theStaticAnalysis == nullptr)
 //  this->newStaticAnalysis();
+  domainStamp = 0;
   this->fillDefaults(CURRENT_STATIC_ANALYSIS);
   this->setLinks(CURRENT_STATIC_ANALYSIS);
 
@@ -696,7 +697,9 @@ BasicAnalysisBuilder::setTransientAnalysis()
 //  if (theTransientAnalysis == nullptr)
 //    this->newTransientAnalysis();
 
+  domainStamp = 0;
   this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
+  this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
   this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
 
   return 1;
@@ -708,7 +711,7 @@ BasicAnalysisBuilder::newTransientAnalysis()
     assert(theDomain != nullptr);
 
     this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
-
+#if 0
     if (theTransientAnalysis != nullptr) {
       delete theTransientAnalysis;
       theTransientAnalysis = nullptr;
@@ -718,6 +721,7 @@ BasicAnalysisBuilder::newTransientAnalysis()
                                                        *theAnalysisModel,*theAlgorithm,
                                                        *theSOE,*theTransientIntegrator,
                                                        theTest);
+#endif
     return 1;
 }
 
@@ -730,8 +734,9 @@ BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
   if (theHandler == nullptr)
     theHandler = new TransformationConstraintHandler();
 
-  this->fillDefaults(CURRENT_STATIC_ANALYSIS);
-  this->setLinks(CURRENT_STATIC_ANALYSIS);
+  this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
+  this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
+  this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
 
   // create a new eigen system and solver
   if (theEigenSOE != nullptr) {
@@ -742,6 +747,7 @@ BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
   }
 
   if (theEigenSOE == nullptr) {
+    domainStamp = 0;
     if (typeSolver == EigenSOE_TAGS_SymBandEigenSOE) {
       SymBandEigenSolver *theEigenSolver = new SymBandEigenSolver();
       theEigenSOE = new SymBandEigenSOE(*theEigenSolver, *theAnalysisModel);

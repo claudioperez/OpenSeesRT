@@ -18,8 +18,7 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Description: This file contains the class definition for
-// BFGS.
+// Description: This file contains the class definition for BFGS.
 // 
 // Written: Ed Love
 // Created: 06/01

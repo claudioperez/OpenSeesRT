@@ -148,7 +148,6 @@ int
 ASD_SMA_3K::setTrialStrain(double strain, double strainRate)
 {
 
-
     diffStrain = strain - Cstrain;
 
     if (fabs(diffStrain) < DBL_EPSILON)
