@@ -38,28 +38,29 @@
 #include <math.h>
 #include <elementAPI.h>
 
-void* OPS_ConcentratedPlasticityBeamIntegration(int& integrationTag, ID& secTags)
+void*
+OPS_ConcentratedPlasticityBeamIntegration(int& integrationTag, ID& secTags)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
-    opserr<<"insufficient arguments:integrationTag,secTagI,secTagJ,secTagE\n";
-    return 0;
+      opserr<<"insufficient arguments:integrationTag,secTagI,secTagJ,secTagE\n";
+      return 0;
     }
 
     // inputs: 
     int iData[4];
     int numData = 2;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {   
-    opserr << "WARNING: failed to get tag and secTagI\n";
-    return 0;
+      opserr << "WARNING: failed to get tag and secTagI\n";
+      return 0;
     }
     numData = 1;
     if(OPS_GetIntInput(&numData,&iData[2]) < 0) {
-    opserr << "WARNING: failed to get secTagJ\n";
-    return 0;
+      opserr << "WARNING: failed to get secTagJ\n";
+      return 0;
     }
     if(OPS_GetIntInput(&numData,&iData[3]) < 0) {
-    opserr << "WARNING: failed to get secTagE\n";
-    return 0;
+      opserr << "WARNING: failed to get secTagE\n";
+      return 0;
     }
 
     
@@ -72,10 +73,6 @@ void* OPS_ConcentratedPlasticityBeamIntegration(int& integrationTag, ID& secTags
     secTags(3) = iData[3];
     secTags(4) = iData[2];
 
-
-    
-    
-    
     return new ConcentratedPlasticityBeamIntegration();
 }
 
@@ -83,8 +80,6 @@ ConcentratedPlasticityBeamIntegration::ConcentratedPlasticityBeamIntegration():
   BeamIntegration(BEAM_INTEGRATION_TAG_ConcentratedPlasticity)
 {
   // Nothing to do
-
-
 }
 
 ConcentratedPlasticityBeamIntegration::~ConcentratedPlasticityBeamIntegration()
@@ -132,8 +127,8 @@ ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double
     for (int i = 0; i < nf; i++) {
         double sum = 0.0;
         for (int j = 0; j < nc; j++)
-        sum += pow(pt(j),i)*wc(j);
-          R(i) = 1.0/(i+1) - sum;
+          sum += pow(pt(j),i)*wc(j);
+        R(i) = 1.0/(i+1) - sum;
     }
     
     Matrix J(nf,nf);
