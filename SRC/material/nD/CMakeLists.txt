@@ -17,11 +17,11 @@ target_sources(OPS_Material
     ElasticIsotropicAxiSymm.cpp
     ElasticIsotropicMaterial.cpp
     ElasticOrthotropicMaterial.cpp
+    ElasticOrthotropicPlaneStress.cpp
     PressureDependentElastic3D.cpp
     FeapMaterial.cpp
     J2AxiSymm.cpp
     J2Plasticity.cpp
-
 
     J2PlateFiber.cpp
     J2PlateFibre.cpp
@@ -53,6 +53,8 @@ target_sources(OPS_Material
     UVCmultiaxial.cpp
     UVCplanestress.cpp
     PlateRebarMaterialThermal.cpp
+    OrthotropicMaterial.cpp
+    Series3DMaterial.cpp
   PUBLIC
     NDMaterial.h
     PlasticDamageConcrete3d.h
@@ -66,6 +68,7 @@ target_sources(OPS_Material
     ElasticIsotropicMaterial.h
     ElasticIsotropicPlateFiber.h
     ElasticOrthotropicMaterial.h
+    ElasticOrthotropicPlaneStress.h
     ElasticPlaneStress.h
     VonPapaDamage.h
     PressureDependentElastic3D.h
@@ -100,6 +103,8 @@ target_sources(OPS_Material
     PlateRebarMaterialThermal.h
     PlateFromPlaneStressMaterial.h
     PlateFromPlaneStressMaterialThermal.h
+    OrthotropicMaterial.h
+    Series3DMaterial.h
 )
 
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
