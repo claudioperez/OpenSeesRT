@@ -30,6 +30,7 @@ target_sources(OPS_Material
     ConcreteSakaiKawashima.cpp
     ConcretewBeta.cpp
     ConfinedConcrete01.cpp
+    FRCC.cpp
     FRPConfinedConcrete02.cpp
     FRPConfinedConcrete.cpp
     SecantConcrete.cpp
@@ -56,6 +57,7 @@ target_sources(OPS_Material
     ConcreteSakaiKawashima.h
     ConcretewBeta.h
     ConfinedConcrete01.h
+    FRCC.h
     FRPConfinedConcrete02.h
     FRPConfinedConcrete.h
     SecantConcrete.h
