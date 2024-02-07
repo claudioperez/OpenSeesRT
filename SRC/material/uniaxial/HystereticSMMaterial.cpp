@@ -57,8 +57,7 @@
 
 static int numHystereticSMMaterials = 0;
 
-void*
-OPS_HystereticSMMaterial(void)
+void* OPS_ADD_RUNTIME_VPV(OPS_HystereticSMMaterial)
 {
 
     if (numHystereticSMMaterials == 0) {

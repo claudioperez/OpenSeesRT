@@ -26,6 +26,8 @@ target_sources(OPS_Material
       IMKPeakOriented.cpp
       IMKPinching.cpp
       HystereticSMMaterial.cpp
+      HystereticSmooth.cpp
+      HystereticAsym.cpp
       MaterialState.cpp
       OriginCentered.cpp
       ParallelMaterial.cpp
@@ -50,6 +52,8 @@ target_sources(OPS_Material
       IMKPeakOriented.h
       IMKPinching.h
       HystereticSMMaterial.h
+      HystereticSmooth.h
+      HystereticAsym.h
       MaterialState.h
       OriginCentered.h
       ParallelMaterial.h
