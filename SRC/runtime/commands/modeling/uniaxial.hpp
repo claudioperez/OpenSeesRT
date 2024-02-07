@@ -52,6 +52,7 @@ extern OPS_Routine OPS_ElasticPowerFunc;
 extern OPS_Routine OPS_FRPConfinedConcrete02;
 extern OPS_Routine OPS_FRPConfinedConcrete02;
 extern OPS_Routine OPS_FRPConfinedConcrete;
+extern OPS_Routine OPS_GMG_CyclicReinforcedConcrete;
 extern OPS_Routine OPS_FRCC;
 extern OPS_Routine OPS_GNGMaterial;
 extern OPS_Routine OPS_HardeningMaterial;
@@ -319,6 +320,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
 
     {"FRPConfinedConcrete02",  dispatch<OPS_FRPConfinedConcrete02>     },
     {"FRCC",                   dispatch<OPS_FRCC>                      },
+    {"GMG_CyclicReinforcedConcrete", dispatch<OPS_GMG_CyclicReinforcedConcrete>},
 
     {"PinchingLimitState",     dispatch<OPS_PinchingLimitState>        },
 

@@ -33,6 +33,7 @@ target_sources(OPS_Material
     FRCC.cpp
     FRPConfinedConcrete02.cpp
     FRPConfinedConcrete.cpp
+    GMG_CyclicReinforcedConcrete.cpp
     SecantConcrete.cpp
     SmoothPSConcrete.cpp
     TDConcrete.cpp
@@ -60,6 +61,7 @@ target_sources(OPS_Material
     FRCC.h
     FRPConfinedConcrete02.h
     FRPConfinedConcrete.h
+    GMG_CyclicReinforcedConcrete.h
     SecantConcrete.h
     SmoothPSConcrete.h
     TDConcrete.h
