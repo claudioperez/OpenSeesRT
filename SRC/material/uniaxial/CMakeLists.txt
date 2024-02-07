@@ -25,6 +25,7 @@ target_sources(OPS_Material
       IMKBilin.cpp
       IMKPeakOriented.cpp
       IMKPinching.cpp
+      JankowskiImpact.cpp
       HystereticSMMaterial.cpp
       HystereticSmooth.cpp
       HystereticAsym.cpp
@@ -51,6 +52,7 @@ target_sources(OPS_Material
       IMKBilin.h
       IMKPeakOriented.h
       IMKPinching.h
+      JankowskiImpact.h
       HystereticSMMaterial.h
       HystereticSmooth.h
       HystereticAsym.h
@@ -124,6 +126,7 @@ target_sources(OPS_Material
       UniaxialJ2Plasticity.cpp
       ViscousDamper.cpp
       ViscousMaterial.cpp
+      ViscoelasticGap.cpp
       # WrapperUniaxialMaterial.cpp
       pyUCLA.cpp
       SMAMaterial.cpp
@@ -215,6 +218,7 @@ target_sources(OPS_Material
       UniaxialJ2Plasticity.h
       ViscousDamper.h
       ViscousMaterial.h
+      ViscoelasticGap.cpp
       pyUCLA.h
 
       DuctileFracture.h
