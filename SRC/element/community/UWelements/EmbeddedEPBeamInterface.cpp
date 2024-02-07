@@ -84,7 +84,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_EmbeddedEPBeamInterface)
 }
 
 
-EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag) : Element(tag, ELE_TAG_EmbeddedEPBeamInterface)
+EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag) :
+  Element(tag, ELE_TAG_EmbeddedEPBeamInterface),
+  theSolidTags(0), solidNodeTags(0), theBeamTags(0), beamNodeTags(0), theNodes(0),
+  crdTransf(0), theMat(0)
 {
 
 }
@@ -219,7 +222,7 @@ EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag, std::vector <int> beam
         m_intWidth = 0.1 * m_beam_radius;
 
     // get the coordinate transformation object
-    crdTransf = OPS_GetCrdTransf(crdTransfTag)->getCopy3d();
+    crdTransf = OPS_getCrdTransf(crdTransfTag)->getCopy3d();
     if (writeConnectivity)
     {
         FileStream connFile(connectivityFN, APPEND);
@@ -242,14 +245,35 @@ EmbeddedEPBeamInterface::EmbeddedEPBeamInterface(int tag, std::vector <int> beam
 }
 
 EmbeddedEPBeamInterface::EmbeddedEPBeamInterface()
-    : Element(0, ELE_TAG_EmbeddedEPBeamInterface)
+  : Element(0, ELE_TAG_EmbeddedEPBeamInterface),
+    theSolidTags(0), solidNodeTags(0), theBeamTags(0), beamNodeTags(0), theNodes(0),
+    crdTransf(0), theMat(0)
 {
 
 }
 
 EmbeddedEPBeamInterface::~EmbeddedEPBeamInterface()
 {
+  if (theSolidTags != 0)
+    delete [] theSolidTags;
+  if (solidNodeTags != 0)
+    delete [] solidNodeTags;
+  if (theBeamTags != 0)
+    delete [] theBeamTags;
+  if (beamNodeTags != 0)
+    delete [] beamNodeTags;
 
+  if (crdTransf != 0)
+    delete crdTransf;
+  if (theNodes != 0)
+    delete [] theNodes;
+
+  if (theMat != 0) {
+    for (int i = 0; i < m_numEmbeddedPoints; i++)
+      if (theMat[i] != 0)
+	delete theMat[i];
+    delete [] theMat;
+  }
 }
 
 int
