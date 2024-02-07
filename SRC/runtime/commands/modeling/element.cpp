@@ -54,6 +54,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
 //
 typedef void *OPS_Routine(G3_Runtime* , int, const char** const);
 extern OPS_Routine OPS_ComponentElement2d;
+extern OPS_Routine OPS_ComponentElement3d;
 // extern  void *OPS_ComponentElementDamp2d(G3_Runtime*);
 extern OPS_Routine OPS_TrussElement;
 extern OPS_Routine OPS_TrussSectionElement;
@@ -310,13 +311,18 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   else if (strcmp(argv[1], "componentElement2d") == 0) {
     theEle = OPS_ComponentElement2d(rt, argc, argv);
+  }
+  else if (strcmp(argv[1], "componentElement3d") == 0) {
+    theEle = OPS_ComponentElement3d(rt, argc, argv);
+  }
 
 #if 0
-  } else if (strcmp(argv[1],"componentElementDamp2d") == 0) {
+  else if (strcmp(argv[1],"componentElementDamp2d") == 0) {
     theEle = OPS_ComponentElementDamp2d(rt, argc, argv);
+  }
 #endif
 
-  } else if (strcmp(argv[1], "zeroLengthImpact3D") == 0) {
+  else if (strcmp(argv[1], "zeroLengthImpact3D") == 0) {
     theEle = OPS_ZeroLengthImpact3D(rt, argc, argv);
   }
 
