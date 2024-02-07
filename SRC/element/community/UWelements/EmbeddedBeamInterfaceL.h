@@ -50,7 +50,7 @@ public:
     EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTag, std::vector <int> solidTag, int crdTransfTag,
         std::vector <double>  beamRho, std::vector <double>  beamTheta, std::vector <double>  solidXi,
         std::vector <double>  solidEta, std::vector <double>  solidZeta, double radius, std::vector <double> area,
-        std::vector <double> length, bool writeConnectivity = false, const char * connectivityFN = "", Domain& theDomain);
+        std::vector <double> length, bool writeConnectivity = false, const char * connectivityFN = "");
     EmbeddedBeamInterfaceL();
     ~EmbeddedBeamInterfaceL();
 
@@ -102,8 +102,11 @@ private:
     int *solidNodeTags;
     int *theBeamTags;
     int *beamNodeTags;
+    bool memoryallocated = false;
+    
 
     Node **theNodes;
+    bool theNodesStatus = false;
 
     Vector		m_InterfaceForces;	// force vector
     Matrix		m_InterfaceStiffness;	// stiffness matrix
@@ -133,7 +136,8 @@ private:
     int     m_numBeamNodes, m_numSolidNodes, m_numEmbeddedPoints;
 
     CrdTransf* crdTransf;  // pointer to coordinate transformation object
-
+    bool mInitialize;
+    int m_crdTransfTag;
     Vector  m_Lambda;
     
     // initial displacement
