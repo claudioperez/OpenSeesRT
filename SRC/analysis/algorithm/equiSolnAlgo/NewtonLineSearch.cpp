@@ -219,11 +219,11 @@ NewtonLineSearch::recvSelf(int cTag,
   int lineSearchClassTag = data(0);
 
   if (theLineSearch == 0 || theLineSearch->getClassTag() != lineSearchClassTag) {
-    if (theLineSearch != 0)
+    if (theLineSearch != nullptr)
       delete theLineSearch;
 
     theLineSearch = theBroker.getLineSearch(lineSearchClassTag);
-    if (theLineSearch == 0) {
+    if (theLineSearch == nullptr) {
       opserr << "NewtonLineSearch::recvSelf(int cTag, Channel &theChannel) - failed to obtain a LineSerach object\n";
       return -1;
     }

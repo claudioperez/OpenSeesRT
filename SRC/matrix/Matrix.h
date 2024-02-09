@@ -67,6 +67,7 @@ class Matrix
     int Invert(Matrix &res) const;
     int Invert();
 
+    int addMatrix(const Matrix &other, double factOther);
     int addMatrix(double factThis, const Matrix &other, double factOther);
     int addMatrixTranspose(double factThis, const Matrix &other, double factOther);
     int addMatrixProduct(double factThis, const Matrix &A, const Matrix &B, double factOther); // AB

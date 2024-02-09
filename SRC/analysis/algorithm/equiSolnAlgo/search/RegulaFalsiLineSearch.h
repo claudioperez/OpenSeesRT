@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:00:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/RegulaFalsiLineSearch.h,v $
-
-// Written: fmk 
-// Created: 11/01
-
+//
 // Description: This file contains the class definition for RegulaFalsiLineSearch.
 // This performs the search for U(i+1) = U(i) + eta * deltaU(i) by using the 
 // secant method to find the best solution.
@@ -44,7 +37,10 @@
 //      if s(eta(j+1))*s(l) < 0 { eta(u) = eta(j+1) and s(u) = s(eta(j+1))
 //      if s(eta(j+1))*s(u) < 0 { eta(l) = eta(j+1) and s(l) = s(eta(j+1))
 //      if s(eta(j+1))*s(u) == 0  SOLN FOUND.
-
+//
+// Written: fmk 
+// Created: 11/01
+//
 #ifndef RegulaFalsiLineSearch_h
 #define RegulaFalsiLineSearch_h
 

@@ -84,7 +84,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_EmbeddedBeamInterfaceP)
 }
 
 
-EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag) : Element(tag, ELE_TAG_EmbeddedBeamInterfaceP)
+EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag) :
+  Element(tag, ELE_TAG_EmbeddedBeamInterfaceP),
+  theSolidTags(0), solidNodeTags(0), theBeamTags(0), beamNodeTags(0), theNodes(0),
+  crdTransf(0)  
 {
 
 }
@@ -213,7 +216,7 @@ EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag, std::vector <int> beamTa
 
 
     // get the coordinate transformation object
-    crdTransf = OPS_GetCrdTransf(crdTransfTag)->getCopy3d();
+    crdTransf = OPS_getCrdTransf(crdTransfTag)->getCopy3d();
 
 
     if (writeConnectivity)
@@ -239,9 +242,23 @@ EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag, std::vector <int> beamTa
 }
 
 EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP()
-    : Element(0, ELE_TAG_EmbeddedBeamInterfaceP)
+  : Element(0, ELE_TAG_EmbeddedBeamInterfaceP),
+  theSolidTags(0), solidNodeTags(0), theBeamTags(0), beamNodeTags(0), theNodes(0),
+    crdTransf(0)
 {
+  if (theSolidTags != 0)
+    delete [] theSolidTags;
+  if (solidNodeTags != 0)
+    delete [] solidNodeTags;
+  if (theBeamTags != 0)
+    delete [] theBeamTags;
+  if (beamNodeTags != 0)
+    delete [] beamNodeTags;
 
+  if (crdTransf != 0)
+    delete crdTransf;
+  if (theNodes != 0)
+    delete [] theNodes;
 }
 
 EmbeddedBeamInterfaceP::~EmbeddedBeamInterfaceP()

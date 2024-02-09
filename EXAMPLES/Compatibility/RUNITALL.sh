@@ -1,6 +1,9 @@
 #!/bin/bash
 #
 Results="README.md"
+
+export OPENSEESRT_LIB="/home/claudio/opensees/OpenSeesRT/build/temp.linux-x86_64-cpython-39_stack/src/libg3/SRC/runtime/libOpenSeesRT.so"
+
 OPENSEES="python -m opensees"
 #OPENSEES=OpenSees
 

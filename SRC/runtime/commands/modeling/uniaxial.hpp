@@ -25,6 +25,8 @@ extern OPS_Routine OPS_CFSSSWP;
 extern OPS_Routine OPS_CFSWSWP;
 extern OPS_Routine OPS_CableMaterial;
 extern OPS_Routine OPS_Cast;
+extern OPS_Routine OPS_CreepMaterial;
+
 extern OPS_Routine OPS_Concrete01;
 extern OPS_Routine OPS_Concrete02;
 extern OPS_Routine OPS_Concrete02IS;
@@ -50,6 +52,8 @@ extern OPS_Routine OPS_ElasticPowerFunc;
 extern OPS_Routine OPS_FRPConfinedConcrete02;
 extern OPS_Routine OPS_FRPConfinedConcrete02;
 extern OPS_Routine OPS_FRPConfinedConcrete;
+extern OPS_Routine OPS_GMG_CyclicReinforcedConcrete;
+extern OPS_Routine OPS_FRCC;
 extern OPS_Routine OPS_GNGMaterial;
 extern OPS_Routine OPS_HardeningMaterial;
 extern OPS_Routine OPS_HoehlerStanton;
@@ -57,9 +61,13 @@ extern OPS_Routine OPS_HookGap;
 extern OPS_Routine OPS_HyperbolicGapMaterial;
 extern OPS_Routine OPS_HystereticMaterial;
 extern OPS_Routine OPS_HystereticPoly;
+extern OPS_Routine OPS_HystereticAsym;
+extern OPS_Routine OPS_HystereticSmooth;
+extern OPS_Routine OPS_HystereticSMMaterial;
 extern OPS_Routine OPS_IMKBilin;
 extern OPS_Routine OPS_IMKPeakOriented;
 extern OPS_Routine OPS_IMKPinching;
+extern OPS_Routine OPS_JankowskiImpact;
 extern OPS_Routine OPS_ImpactMaterial;
 extern OPS_Routine OPS_InitStrainMaterial;
 extern OPS_Routine OPS_InitStressMaterial;
@@ -110,6 +118,7 @@ extern OPS_Routine OPS_Trilinwp;
 extern OPS_Routine OPS_UVCuniaxial;
 extern OPS_Routine OPS_ViscousDamper;
 extern OPS_Routine OPS_ViscousMaterial;
+extern OPS_Routine OPS_ViscoelasticGap;
 extern OPS_Routine OPS_pyUCLA;
 
 extern void *OPS_ConcretewBeta(void);
@@ -310,6 +319,8 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"HyperbolicGapMaterial",  dispatch<OPS_HyperbolicGapMaterial>     },
 
     {"FRPConfinedConcrete02",  dispatch<OPS_FRPConfinedConcrete02>     },
+    {"FRCC",                   dispatch<OPS_FRCC>                      },
+    {"GMG_CyclicReinforcedConcrete", dispatch<OPS_GMG_CyclicReinforcedConcrete>},
 
     {"PinchingLimitState",     dispatch<OPS_PinchingLimitState>        },
 
@@ -333,6 +344,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"IMKPeakOriented",        dispatch<OPS_IMKPeakOriented>           },
 
     {"IMKPinching",            dispatch<OPS_IMKPinching>               },
+    {"JankowskiImpact",        dispatch<OPS_JankowskiImpact>           },
 
     {"ModIMKPinching",         dispatch<OPS_ModIMKPinching>            },
     {"ModIMKPinching02",       dispatch<OPS_ModIMKPinching02>          },
@@ -394,12 +406,17 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     
     {"Hysteretic",             dispatch<OPS_HystereticMaterial>        },
 
+    {"HystereticAsym",         dispatch<OPS_HystereticAsym>            },
+    {"HystereticSmooth",       dispatch<OPS_HystereticSmooth>          },
+    {"HystereticSMMaterial",   dispatch<OPS_HystereticSMMaterial>      },
+
     {"ElasticPPGap",           dispatch<OPS_EPPGapMaterial>            },
 
 
     {"OOHysteretic",           dispatch<OPS_OOHystereticMaterial>      },
 
     {"Viscous",                dispatch<OPS_ViscousMaterial>           },
+    {"ViscoelasticGap",        dispatch<OPS_ViscoelasticGap>           },
 
     {"SAWSMaterial",           dispatch<OPS_SAWSMaterial>              },
     {"SAWS",                   dispatch<OPS_SAWSMaterial>              },
@@ -409,6 +426,8 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
 
     {"ConcreteL01Material",    dispatch<OPS_ConcreteL01Material>       },
     {"ConcreteL01",            dispatch<OPS_ConcreteL01Material>       },
+
+    {"Creep",                  dispatch<OPS_CreepMaterial>             },
 
     {"SteelZ01Material",       dispatch<OPS_SteelZ01Material>          },
     {"SteelZ01",               dispatch<OPS_SteelZ01Material>          },

@@ -132,10 +132,10 @@ SecantLineSearch::search(double s0,
     //new residual
     const Vector &ResidJ = theSOE.getB();
     
-    //new value of s
+    // new value of s
     s = dU ^ ResidJ;
     
-    //new value of r 
+    // new value of r 
     r = fabs( s / s0 ); 
 
     if (printFlag == 0) {
@@ -155,7 +155,7 @@ SecantLineSearch::search(double s0,
     if (sJm1 == sJ)
       count = maxIter;
     
-  } //end while
+  } // end while
 
   // set X in the SOE for the revised dU, needed for convergence tests
   *x = dU;

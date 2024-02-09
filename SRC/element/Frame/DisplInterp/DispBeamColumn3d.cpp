@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: MHS
 // Created: Feb 2001
 //
 // Description: This file contains the class definition for DispBeamColumn3d.
-
+//
 #include <DispBeamColumn3d.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
@@ -56,16 +52,16 @@ double DispBeamColumn3d::workArea[200];
 void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn3d)
 {
     if(OPS_GetNumRemainingInputArgs() < 5) {
-	opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
-	return 0;
+        opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
+        return 0;
     }
 
     // inputs: 
     int iData[5];
     int numData = 5;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
-	opserr<<"WARNING: invalid integer inputs\n";
-	return 0;
+        opserr<<"WARNING: invalid integer inputs\n";
+        return 0;
     }
 
     // options
@@ -73,61 +69,61 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn3d)
     int cmass = 0;
     numData = 1;
     while(OPS_GetNumRemainingInputArgs() > 0) {
-	const char* type = OPS_GetString();
-	if(strcmp(type,"-cMass") == 0) {
-	    cmass = 1;
-	} else if(strcmp(type,"-mass") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&mass) < 0) {
-		    opserr<<"WARNING: invalid mass\n";
-		    return 0;
-		}
-	    }
-	}
+        const char* type = OPS_GetString();
+        if(strcmp(type,"-cMass") == 0) {
+            cmass = 1;
+        } else if(strcmp(type,"-mass") == 0) {
+            if(OPS_GetNumRemainingInputArgs() > 0) {
+                if(OPS_GetDoubleInput(&numData,&mass) < 0) {
+                    opserr<<"WARNING: invalid mass\n";
+                    return 0;
+                }
+            }
+        }
     }
 
     // check transf
     CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
+        opserr<<"coord transfomration not found\n";
+        return 0;
     }
 
     // check beam integrataion
     BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
     if(theRule == 0) {
-	opserr<<"beam integration not found\n";
-	return 0;
+        opserr<<"beam integration not found\n";
+        return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
     if(bi == 0) {
-	opserr<<"beam integration is null\n";
-	return 0;
+        opserr<<"beam integration is null\n";
+        return 0;
     }
 
     // check sections
     const ID& secTags = theRule->getSectionTags();
     SectionForceDeformation** sections = new SectionForceDeformation *[secTags.Size()];
     for(int i=0; i<secTags.Size(); i++) {
-	sections[i] = OPS_getSectionForceDeformation(secTags(i));
-	if(sections[i] == 0) {
-	    opserr<<"section "<<secTags(i)<<"not found\n";
-		delete [] sections;
-	    return 0;
-	}
+        sections[i] = OPS_getSectionForceDeformation(secTags(i));
+        if(sections[i] == 0) {
+            opserr<<"section "<<secTags(i)<<"not found\n";
+                delete [] sections;
+            return 0;
+        }
     }
     
     Element *theEle =  new DispBeamColumn3d(iData[0],iData[1],iData[2],secTags.Size(),sections,
-					    *bi,*theTransf,mass,cmass);
+                                            *bi,*theTransf,mass,cmass);
     delete [] sections;
     return theEle;
 }
 
 
 DispBeamColumn3d::DispBeamColumn3d(int tag, int nd1, int nd2,
-				   int numSec, SectionForceDeformation **s,
-				   BeamIntegration &bi,
-				   CrdTransf &coordTransf, double r, int cm)
+                                   int numSec, SectionForceDeformation **s,
+                                   BeamIntegration &bi,
+                                   CrdTransf &coordTransf, double r, int cm)
 :Element (tag, ELE_TAG_DispBeamColumn3d),
 numSections(numSec), theSections(0), crdTransf(0), beamInt(0),
 connectedExternalNodes(2), 
@@ -256,11 +252,11 @@ DispBeamColumn3d::getNumDOF()
 void
 DispBeamColumn3d::setDomain(Domain *theDomain)
 {
-	// Check Domain is not null - invoked when object removed from a domain
+        // Check Domain is not null - invoked when object removed from a domain
     if (theDomain == 0) {
-	theNodes[0] = 0;
-	theNodes[1] = 0;
-	return;
+        theNodes[0] = 0;
+        theNodes[1] = 0;
+        return;
     }
 
     int Nd1 = connectedExternalNodes(0);
@@ -270,35 +266,35 @@ DispBeamColumn3d::setDomain(Domain *theDomain)
     theNodes[1] = theDomain->getNode(Nd2);
 
     if (theNodes[0] == 0 || theNodes[1] == 0) {
-	//opserr << "FATAL ERROR DispBeamColumn3d (tag: %d), node not found in domain",
-	//	this->getTag());
-	
-	return;
+        //opserr << "FATAL ERROR DispBeamColumn3d (tag: %d), node not found in domain",
+        //        this->getTag());
+        
+        return;
     }
 
     int dofNd1 = theNodes[0]->getNumberDOF();
     int dofNd2 = theNodes[1]->getNumberDOF();
     
     if (dofNd1 != 6 || dofNd2 != 6) {
-	//opserr << "FATAL ERROR DispBeamColumn3d (tag: %d), has differing number of DOFs at its nodes",
-	//	this->getTag());
-	
-	return;
+        //opserr << "FATAL ERROR DispBeamColumn3d (tag: %d), has differing number of DOFs at its nodes",
+        //        this->getTag());
+        
+        return;
     }
 
-	if (crdTransf->initialize(theNodes[0], theNodes[1])) {
-		// Add some error check
-	}
+        if (crdTransf->initialize(theNodes[0], theNodes[1])) {
+                // Add some error check
+        }
 
-	double L = crdTransf->getInitialLength();
+        double L = crdTransf->getInitialLength();
 
-	if (L == 0.0) {
-		// Add some error check
-	}
+        if (L == 0.0) {
+                // Add some error check
+        }
 
     this->DomainComponent::setDomain(theDomain);
 
-	this->update();
+        this->update();
 }
 
 int
@@ -313,7 +309,7 @@ DispBeamColumn3d::commitState()
 
     // Loop over the integration points and commit the material states
     for (int i = 0; i < numSections; i++)
-		retVal += theSections[i]->commitState();
+                retVal += theSections[i]->commitState();
 
     retVal += crdTransf->commitState();
 
@@ -327,7 +323,7 @@ DispBeamColumn3d::revertToLastCommit()
 
     // Loop over the integration points and revert to last committed state
     for (int i = 0; i < numSections; i++)
-		retVal += theSections[i]->revertToLastCommit();
+                retVal += theSections[i]->revertToLastCommit();
 
     retVal += crdTransf->revertToLastCommit();
 
@@ -341,7 +337,7 @@ DispBeamColumn3d::revertToStart()
 
     // Loop over the integration points and revert states to start
     for (int i = 0; i < numSections; i++)
-		retVal += theSections[i]->revertToStart();
+                retVal += theSections[i]->revertToStart();
 
     retVal += crdTransf->revertToStart();
 
@@ -380,20 +376,20 @@ DispBeamColumn3d::update(void)
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	e(j) = oneOverL*v(0);
-	break;
+        e(j) = oneOverL*v(0);
+        break;
       case SECTION_RESPONSE_MZ:
-	e(j) = oneOverL*((xi6-4.0)*v(1) + (xi6-2.0)*v(2));
-	break;
+        e(j) = oneOverL*((xi6-4.0)*v(1) + (xi6-2.0)*v(2));
+        break;
       case SECTION_RESPONSE_MY:
-	e(j) = oneOverL*((xi6-4.0)*v(3) + (xi6-2.0)*v(4));
-	break;
+        e(j) = oneOverL*((xi6-4.0)*v(3) + (xi6-2.0)*v(4));
+        break;
       case SECTION_RESPONSE_T:
-	e(j) = oneOverL*v(5);
-	break;
+        e(j) = oneOverL*v(5);
+        break;
       default:
-	e(j) = 0.0;
-	break;
+        e(j) = 0.0;
+        break;
       }
     }
     
@@ -450,57 +446,57 @@ DispBeamColumn3d::getTangentStiff()
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < order; k++)
-	  ka(k,0) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,0) += ks(k,j)*wti;
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,1) += (xi6-4.0)*tmp;
-	  ka(k,2) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,1) += (xi6-4.0)*tmp;
+          ka(k,2) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_MY:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,3) += (xi6-4.0)*tmp;
-	  ka(k,4) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,3) += (xi6-4.0)*tmp;
+          ka(k,4) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_T:
-	for (k = 0; k < order; k++)
-	  ka(k,5) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,5) += ks(k,j)*wti;
+        break;
       default:
-	break;
+        break;
       }
     }
     for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < 6; k++)
-	  kb(0,k) += ka(j,k);
-	break;
+        for (k = 0; k < 6; k++)
+          kb(0,k) += ka(j,k);
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < 6; k++) {
-	  tmp = ka(j,k);
-	  kb(1,k) += (xi6-4.0)*tmp;
-	  kb(2,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 6; k++) {
+          tmp = ka(j,k);
+          kb(1,k) += (xi6-4.0)*tmp;
+          kb(2,k) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_MY:
-	for (k = 0; k < 6; k++) {
-	  tmp = ka(j,k);
-	  kb(3,k) += (xi6-4.0)*tmp;
-	  kb(4,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 6; k++) {
+          tmp = ka(j,k);
+          kb(3,k) += (xi6-4.0)*tmp;
+          kb(4,k) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_T:
-	for (k = 0; k < 6; k++)
-	  kb(5,k) += ka(j,k);
-	break;
+        for (k = 0; k < 6; k++)
+          kb(5,k) += ka(j,k);
+        break;
       default:
-	break;
+        break;
       }
     }
     
@@ -510,19 +506,19 @@ DispBeamColumn3d::getTangentStiff()
       si = s(j)*wt[i];
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	q(0) += si;
-	break;
+        q(0) += si;
+        break;
       case SECTION_RESPONSE_MZ:
-	q(1) += (xi6-4.0)*si; q(2) += (xi6-2.0)*si;
-	break;
+        q(1) += (xi6-4.0)*si; q(2) += (xi6-2.0)*si;
+        break;
       case SECTION_RESPONSE_MY:
-	q(3) += (xi6-4.0)*si; q(4) += (xi6-2.0)*si;
-	break;
+        q(3) += (xi6-4.0)*si; q(4) += (xi6-2.0)*si;
+        break;
       case SECTION_RESPONSE_T:
-	q(5) += si;
-	break;
+        q(5) += si;
+        break;
       default:
-	break;
+        break;
       }
     }
     
@@ -580,57 +576,57 @@ DispBeamColumn3d::getInitialBasicStiff()
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < order; k++)
-	  ka(k,0) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,0) += ks(k,j)*wti;
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,1) += (xi6-4.0)*tmp;
-	  ka(k,2) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,1) += (xi6-4.0)*tmp;
+          ka(k,2) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_MY:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,3) += (xi6-4.0)*tmp;
-	  ka(k,4) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,3) += (xi6-4.0)*tmp;
+          ka(k,4) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_T:
-	for (k = 0; k < order; k++)
-	  ka(k,5) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,5) += ks(k,j)*wti;
+        break;
       default:
-	break;
+        break;
       }
     }
     for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < 6; k++)
-	  kb(0,k) += ka(j,k);
-	break;
+        for (k = 0; k < 6; k++)
+          kb(0,k) += ka(j,k);
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < 6; k++) {
-	  tmp = ka(j,k);
-	  kb(1,k) += (xi6-4.0)*tmp;
-	  kb(2,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 6; k++) {
+          tmp = ka(j,k);
+          kb(1,k) += (xi6-4.0)*tmp;
+          kb(2,k) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_MY:
-	for (k = 0; k < 6; k++) {
-	  tmp = ka(j,k);
-	  kb(3,k) += (xi6-4.0)*tmp;
-	  kb(4,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 6; k++) {
+          tmp = ka(j,k);
+          kb(3,k) += (xi6-4.0)*tmp;
+          kb(4,k) += (xi6-2.0)*tmp;
+        }
+        break;
       case SECTION_RESPONSE_T:
-	for (k = 0; k < 6; k++)
-	  kb(5,k) += ka(j,k);
-	break;
+        for (k = 0; k < 6; k++)
+          kb(5,k) += ka(j,k);
+        break;
       default:
-	break;
+        break;
       }
     }
     
@@ -874,19 +870,19 @@ DispBeamColumn3d::getResistingForce()
       si = s(j)*wt[i];
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	q(0) += si;
-	break;
+        q(0) += si;
+        break;
       case SECTION_RESPONSE_MZ:
-	q(1) += (xi6-4.0)*si; q(2) += (xi6-2.0)*si;
-	break;
+        q(1) += (xi6-4.0)*si; q(2) += (xi6-2.0)*si;
+        break;
       case SECTION_RESPONSE_MY:
-	q(3) += (xi6-4.0)*si; q(4) += (xi6-2.0)*si;
-	break;
+        q(3) += (xi6-4.0)*si; q(4) += (xi6-2.0)*si;
+        break;
       case SECTION_RESPONSE_T:
-	q(5) += si;
-	break;
+        q(5) += si;
+        break;
       default:
-	break;
+        break;
       }
     }
     
@@ -1048,7 +1044,7 @@ DispBeamColumn3d::sendSelf(int commitTag, Channel &theChannel)
 
 int
 DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
-						FEM_ObjectBroker &theBroker)
+                                                FEM_ObjectBroker &theBroker)
 {
   //
   // receive the integer data containing tag, numSections and coord transformation info
@@ -1084,15 +1080,15 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
   // create a new crdTransf object if one needed
   if (crdTransf == 0 || crdTransf->getClassTag() != crdTransfClassTag) {
       if (crdTransf != 0)
-	  delete crdTransf;
+          delete crdTransf;
 
       crdTransf = theBroker.getNewCrdTransf(crdTransfClassTag);
 
       if (crdTransf == 0) {
-	opserr << "DispBeamColumn3d::recvSelf() - " <<
-	  "failed to obtain a CrdTrans object with classTag" <<
-	  crdTransfClassTag << endln;
-	return -2;	  
+        opserr << "DispBeamColumn3d::recvSelf() - " <<
+          "failed to obtain a CrdTrans object with classTag" <<
+          crdTransfClassTag << endln;
+        return -2;          
       }
   }
 
@@ -1107,14 +1103,14 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
   // create a new beamInt object if one needed
   if (beamInt == 0 || beamInt->getClassTag() != beamIntClassTag) {
       if (beamInt != 0)
-	  delete beamInt;
+          delete beamInt;
 
       beamInt = theBroker.getNewBeamIntegration(beamIntClassTag);
 
       if (beamInt == 0) {
-	opserr << "DispBeamColumn3d::recvSelf() - failed to obtain the beam integration object with classTag" <<
-	  beamIntClassTag << endln;
-	exit(-1);
+        opserr << "DispBeamColumn3d::recvSelf() - failed to obtain the beam integration object with classTag" <<
+          beamIntClassTag << endln;
+        exit(-1);
       }
   }
 
@@ -1153,7 +1149,7 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
     // delete the old
     if (numSections != 0) {
       for (int i=0; i<numSections; i++)
-	delete theSections[i];
+        delete theSections[i];
       delete [] theSections;
     }
 
@@ -1161,7 +1157,7 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
     theSections = new SectionForceDeformation *[nSect];
     if (theSections == 0) {
       opserr << "DispBeamColumn3d::recvSelf() - out of memory creating sections array of size" <<
-	nSect << endln;
+        nSect << endln;
       exit(-1);
     }    
 
@@ -1175,15 +1171,15 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
       loc += 2;
       theSections[i] = theBroker.getNewSection(sectClassTag);
       if (theSections[i] == 0) {
-	opserr << "DispBeamColumn3d::recvSelf() - Broker could not create Section of class type" <<
-	  sectClassTag << endln;
-	exit(-1);
+        opserr << "DispBeamColumn3d::recvSelf() - Broker could not create Section of class type" <<
+          sectClassTag << endln;
+        exit(-1);
       }
       theSections[i]->setDbTag(sectDbTag);
       if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-	opserr << "DispBeamColumn3d::recvSelf() - section " <<
-	  i << "failed to recv itself\n";
-	return -1;
+        opserr << "DispBeamColumn3d::recvSelf() - section " <<
+          i << "failed to recv itself\n";
+        return -1;
       }     
     }
 
@@ -1202,22 +1198,22 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
 
       // check of correct type
       if (theSections[i]->getClassTag() !=  sectClassTag) {
-	// delete the old section[i] and create a new one
-	delete theSections[i];
-	theSections[i] = theBroker.getNewSection(sectClassTag);
-	if (theSections[i] == 0) {
-	  opserr << "DispBeamColumn3d::recvSelf() - Broker could not create Section of class type" <<
-	    sectClassTag << endln;
-	  exit(-1);
-	}
+        // delete the old section[i] and create a new one
+        delete theSections[i];
+        theSections[i] = theBroker.getNewSection(sectClassTag);
+        if (theSections[i] == 0) {
+          opserr << "DispBeamColumn3d::recvSelf() - Broker could not create Section of class type" <<
+            sectClassTag << endln;
+          exit(-1);
+        }
       }
 
       // recvSelf on it
       theSections[i]->setDbTag(sectDbTag);
       if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-	opserr << "DispBeamColumn3d::recvSelf() - section " << 
-	  i << "failed to recv itself\n";
-	return -1;
+        opserr << "DispBeamColumn3d::recvSelf() - section " << 
+          i << "failed to recv itself\n";
+        return -1;
       }     
     }
   }
@@ -1228,54 +1224,54 @@ DispBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
 void
 DispBeamColumn3d::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_CURRENTSTATE) {
-		s << "\nDispBeamColumn3d, element id:  " << this->getTag() << endln;
-		s << "\tConnected external nodes:  " << connectedExternalNodes;
-		s << "\tCoordTransf: " << crdTransf->getTag() << endln;
-		s << "\tmass density:  " << rho << ", cMass: " << cMass << endln;
+        if (flag == OPS_PRINT_CURRENTSTATE) {
+                s << "\nDispBeamColumn3d, element id:  " << this->getTag() << endln;
+                s << "\tConnected external nodes:  " << connectedExternalNodes;
+                s << "\tCoordTransf: " << crdTransf->getTag() << endln;
+                s << "\tmass density:  " << rho << ", cMass: " << cMass << endln;
 
-		double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
-		double L = crdTransf->getInitialLength();
-		double oneOverL = 1.0 / L;
+                double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
+                double L = crdTransf->getInitialLength();
+                double oneOverL = 1.0 / L;
 
-		N = q(0);
-		Mz1 = q(1);
-		Mz2 = q(2);
-		Vy = (Mz1 + Mz2)*oneOverL;
-		My1 = q(3);
-		My2 = q(4);
-		Vz = -(My1 + My2)*oneOverL;
-		T = q(5);
+                N = q(0);
+                Mz1 = q(1);
+                Mz2 = q(2);
+                Vy = (Mz1 + Mz2)*oneOverL;
+                My1 = q(3);
+                My2 = q(4);
+                Vz = -(My1 + My2)*oneOverL;
+                T = q(5);
 
-		s << "\tEnd 1 Forces (P Mz Vy My Vz T): "
-			<< -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << endln;
-		s << "\tEnd 2 Forces (P Mz Vy My Vz T): "
-			<< N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << endln;
-		s << "Number of sections: " << numSections << endln;
-		beamInt->Print(s, flag);
+                s << "\tEnd 1 Forces (P Mz Vy My Vz T): "
+                        << -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << endln;
+                s << "\tEnd 2 Forces (P Mz Vy My Vz T): "
+                        << N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << endln;
+                s << "Number of sections: " << numSections << endln;
+                beamInt->Print(s, flag);
 
-		for (int i = 0; i < numSections; i++) {
-		  //opserr << "Section Type: " << theSections[i]->getClassTag() << endln;
-		  theSections[i]->Print(s,flag);
-		}
-		//  if (rho != 0)
-		//    opserr << "Mass: \n" << this->getMass();
-	}
+                for (int i = 0; i < numSections; i++) {
+                  //opserr << "Section Type: " << theSections[i]->getClassTag() << endln;
+                  theSections[i]->Print(s,flag);
+                }
+                //  if (rho != 0)
+                //    opserr << "Mass: \n" << this->getMass();
+        }
 
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "\t\t\t{";
-		s << "\"name\": " << this->getTag() << ", ";
-		s << "\"type\": \"DispBeamColumn3d\", ";
-		s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-		s << "\"sections\": [";
-		for (int i = 0; i < numSections - 1; i++)
-			s << "\"" << theSections[i]->getTag() << "\", ";
-		s << "\"" << theSections[numSections - 1]->getTag() << "\"], ";
-		s << "\"integration\": ";
-		beamInt->Print(s, flag);
-		s << ", \"massperlength\": " << rho << ", ";
-		s << "\"crdTransformation\": \"" << crdTransf->getTag() << "\"}";
-	}
+        if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+                s << "\t\t\t{";
+                s << "\"name\": " << this->getTag() << ", ";
+                s << "\"type\": \"DispBeamColumn3d\", ";
+                s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
+                s << "\"sections\": [";
+                for (int i = 0; i < numSections - 1; i++)
+                        s << "\"" << theSections[i]->getTag() << "\", ";
+                s << "\"" << theSections[numSections - 1]->getTag() << "\"], ";
+                s << "\"integration\": ";
+                beamInt->Print(s, flag);
+                s << ", \"massperlength\": " << rho << ", ";
+                s << "\"crdTransformation\": \"" << crdTransf->getTag() << "\"}";
+        }
 }
 
 
@@ -1309,7 +1305,7 @@ DispBeamColumn3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 
     // global force - 
     if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0
-	|| strcmp(argv[0],"globalForce") == 0 || strcmp(argv[0],"globalForces") == 0) {
+        || strcmp(argv[0],"globalForce") == 0 || strcmp(argv[0],"globalForces") == 0) {
 
       output.tag("ResponseType","Px_1");
       output.tag("ResponseType","Py_1");
@@ -1347,7 +1343,7 @@ DispBeamColumn3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 
     // chord rotation -
     }  else if (strcmp(argv[0],"chordRotation") == 0 || strcmp(argv[0],"chordDeformation") == 0 
-	      || strcmp(argv[0],"basicDeformation") == 0) {
+              || strcmp(argv[0],"basicDeformation") == 0) {
 
       output.tag("ResponseType","eps");
       output.tag("ResponseType","thetaZ_1");
@@ -1397,81 +1393,81 @@ DispBeamColumn3d::setResponse(const char **argv, int argc, OPS_Stream &output)
   // section response -
   else if (strstr(argv[0],"sectionX") != 0) {
       if (argc > 2) {
-	float sectionLoc = atof(argv[1]);
-	
-	double xi[maxNumSections];
-	double L = crdTransf->getInitialLength();
-	beamInt->getSectionLocations(numSections, L, xi);
-	
-	sectionLoc /= L;
-	
-	float minDistance = fabs(xi[0]-sectionLoc);
-	int sectionNum = 0;
-	for (int i = 1; i < numSections; i++) {
-	  if (fabs(xi[i]-sectionLoc) < minDistance) {
-	    minDistance = fabs(xi[i]-sectionLoc);
-	    sectionNum = i;
-	  }
-	}
-	
-	output.tag("GaussPointOutput");
-	output.attr("number",sectionNum+1);
-	output.attr("eta",xi[sectionNum]*L);
-	
-	theResponse = theSections[sectionNum]->setResponse(&argv[2], argc-2, output);
+        float sectionLoc = atof(argv[1]);
+        
+        double xi[maxNumSections];
+        double L = crdTransf->getInitialLength();
+        beamInt->getSectionLocations(numSections, L, xi);
+        
+        sectionLoc /= L;
+        
+        float minDistance = fabs(xi[0]-sectionLoc);
+        int sectionNum = 0;
+        for (int i = 1; i < numSections; i++) {
+          if (fabs(xi[i]-sectionLoc) < minDistance) {
+            minDistance = fabs(xi[i]-sectionLoc);
+            sectionNum = i;
+          }
+        }
+        
+        output.tag("GaussPointOutput");
+        output.attr("number",sectionNum+1);
+        output.attr("eta",xi[sectionNum]*L);
+        
+        theResponse = theSections[sectionNum]->setResponse(&argv[2], argc-2, output);
       }
     }
     
     else if (strcmp(argv[0],"section") ==0) { 
       if (argc > 1) {
-	
-	int sectionNum = atoi(argv[1]);
+        
+        int sectionNum = atoi(argv[1]);
 
-	if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
-	  
-	  double xi[maxNumSections];
-	  double L = crdTransf->getInitialLength();
-	  beamInt->getSectionLocations(numSections, L, xi);
-	  
-	  output.tag("GaussPointOutput");
-	  output.attr("number",sectionNum);
-	  output.attr("eta",xi[sectionNum-1]*L);
-	  
-	  theResponse =  theSections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
-	  
-	  output.endTag();
-	} else if (sectionNum == 0) { // argv[1] was not an int, we want all sections, 
-	
-	  CompositeResponse *theCResponse = new CompositeResponse();
-	  int numResponse = 0;
-	  double xi[maxNumSections];
-	  double L = crdTransf->getInitialLength();
-	  beamInt->getSectionLocations(numSections, L, xi);
-	  
-	  for (int i=0; i<numSections; i++) {
-	    
-	    output.tag("GaussPointOutput");
-	    output.attr("number",i+1);
-	    output.attr("eta",xi[i]*L);
-	    
-	    Response *theSectionResponse = theSections[i]->setResponse(&argv[1], argc-1, output);
-	    
-	    output.endTag();	  
-	    
-	    if (theSectionResponse != 0) {
-	      numResponse = theCResponse->addResponse(theSectionResponse);
-	    }
-	  }
-	  
-	  if (numResponse == 0) // no valid responses found
-	    delete theCResponse;
-	  else
-	    theResponse = theCResponse;
-	}
+        if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
+          
+          double xi[maxNumSections];
+          double L = crdTransf->getInitialLength();
+          beamInt->getSectionLocations(numSections, L, xi);
+          
+          output.tag("GaussPointOutput");
+          output.attr("number",sectionNum);
+          output.attr("eta",xi[sectionNum-1]*L);
+          
+          theResponse =  theSections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
+          
+          output.endTag();
+        } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections, 
+        
+          CompositeResponse *theCResponse = new CompositeResponse();
+          int numResponse = 0;
+          double xi[maxNumSections];
+          double L = crdTransf->getInitialLength();
+          beamInt->getSectionLocations(numSections, L, xi);
+          
+          for (int i=0; i<numSections; i++) {
+            
+            output.tag("GaussPointOutput");
+            output.attr("number",i+1);
+            output.attr("eta",xi[i]*L);
+            
+            Response *theSectionResponse = theSections[i]->setResponse(&argv[1], argc-1, output);
+            
+            output.endTag();          
+            
+            if (theSectionResponse != 0) {
+              numResponse = theCResponse->addResponse(theSectionResponse);
+            }
+          }
+          
+          if (numResponse == 0) // no valid responses found
+            delete theCResponse;
+          else
+            theResponse = theCResponse;
+        }
       }
     }
-	// by SAJalali
-	else if (strcmp(argv[0], "energy") == 0)
+        // by SAJalali
+        else if (strcmp(argv[0], "energy") == 0)
   {
   return new ElementResponse(this, 13, 0.0);
   }
@@ -1584,14 +1580,14 @@ DispBeamColumn3d::getResponse(int responseID, Information &eleInfo)
   
   //by SAJalali
   else if (responseID == 13) {
-	  double xi[maxNumSections];
-	  double L = crdTransf->getInitialLength();
-	  beamInt->getSectionWeights(numSections, L, xi);
-	  double energy = 0;
-	  for (int i = 0; i < numSections; i++) {
-		  energy += theSections[i]->getEnergy()*xi[i] * L;
-	  }
-	  return eleInfo.setDouble(energy);
+          double xi[maxNumSections];
+          double L = crdTransf->getInitialLength();
+          beamInt->getSectionWeights(numSections, L, xi);
+          double energy = 0;
+          for (int i = 0; i < numSections; i++) {
+                  energy += theSections[i]->getEnergy()*xi[i] * L;
+          }
+          return eleInfo.setDouble(energy);
   }
 
   else
@@ -1618,9 +1614,9 @@ DispBeamColumn3d::setParameter(const char **argv, int argc, Parameter &param)
 
   if (strstr(argv[0],"sectionX") != 0) {
     if (argc < 3)
-		return -1;
+                return -1;
       
-	float sectionLoc = atof(argv[1]);
+        float sectionLoc = atof(argv[1]);
 
       double xi[maxNumSections];
       double L = crdTransf->getInitialLength();
@@ -1631,12 +1627,12 @@ DispBeamColumn3d::setParameter(const char **argv, int argc, Parameter &param)
       float minDistance = fabs(xi[0]-sectionLoc);
       int sectionNum = 0;
       for (int i = 1; i < numSections; i++) {
-	if (fabs(xi[i]-sectionLoc) < minDistance) {
-	  minDistance = fabs(xi[i]-sectionLoc);
-	  sectionNum = i;
-	}
-	  }  
-	return theSections[sectionNum]->setParameter(&argv[2], argc-2, param);
+        if (fabs(xi[i]-sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i]-sectionLoc);
+          sectionNum = i;
+        }
+          }  
+        return theSections[sectionNum]->setParameter(&argv[2], argc-2, param);
   }
   // If the parameter belongs to a section or lower
   if (strstr(argv[0],"section") != 0) {
@@ -1703,8 +1699,8 @@ DispBeamColumn3d::activateParameter(int passedParameterID)
 const Matrix &
 DispBeamColumn3d::getInitialStiffSensitivity(int gradNumber)
 {
-	K.Zero();
-	return K;
+        K.Zero();
+        return K;
 }
 
 const Matrix &
@@ -1795,27 +1791,27 @@ DispBeamColumn3d::getResistingForceSensitivity(int gradNumber)
       sensi = dsdh(j)*wti;
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	dqdh(0) += sensi; 
-	break;
+        dqdh(0) += sensi; 
+        break;
       case SECTION_RESPONSE_MZ:
-	dqdh(1) += (xi6-4.0)*sensi; 
-	dqdh(2) += (xi6-2.0)*sensi; 
-	break;
+        dqdh(1) += (xi6-4.0)*sensi; 
+        dqdh(2) += (xi6-2.0)*sensi; 
+        break;
       case SECTION_RESPONSE_MY:
-	dqdh(3) += (xi6-4.0)*sensi; 
-	dqdh(4) += (xi6-2.0)*sensi; 
-	break;
+        dqdh(3) += (xi6-4.0)*sensi; 
+        dqdh(4) += (xi6-2.0)*sensi; 
+        break;
       case SECTION_RESPONSE_T:
-	dqdh(5) += sensi; 
-	break;
+        dqdh(5) += sensi; 
+        break;
       default:
-	break;
+        break;
       }
     }
   }
   
   // Transform forces
-  static Vector dp0dh(6);		// No distributed loads
+  static Vector dp0dh(6);                // No distributed loads
 
   P.Zero();
 
@@ -1851,71 +1847,71 @@ DispBeamColumn3d::getResistingForceSensitivity(int gradNumber)
       
       double si;
       for (j = 0; j < order; j++) {
-	si = s(j)*wti;
-	switch(code(j)) {
-	case SECTION_RESPONSE_P:
-	  q(0) += si;
-	  for (k = 0; k < order; k++) {
-	    ka(k,0) += ks(k,j)*wti;
-	  }
-	  break;
-	case SECTION_RESPONSE_MZ:
-	  q(1) += (xi6-4.0)*si; 
-	  q(2) += (xi6-2.0)*si;
-	  for (k = 0; k < order; k++) {
-	    tmp = ks(k,j)*wti;
-	    ka(k,1) += (xi6-4.0)*tmp;
-	    ka(k,2) += (xi6-2.0)*tmp;
-	  }
-	  break;
-	case SECTION_RESPONSE_MY:
-	  q(3) += (xi6-4.0)*si; 
-	  q(4) += (xi6-2.0)*si;
-	  for (k = 0; k < order; k++) {
-	    tmp = ks(k,j)*wti;
-	    ka(k,3) += (xi6-4.0)*tmp;
-	    ka(k,4) += (xi6-2.0)*tmp;
-	  }
-	  break;
-	case SECTION_RESPONSE_T:
-	  q(5) += si;
-	  for (k = 0; k < order; k++) {
-	    ka(k,5) += ks(k,j)*wti;
-	  }
-	  break;
-	default:
-	  break;
-	}
+        si = s(j)*wti;
+        switch(code(j)) {
+        case SECTION_RESPONSE_P:
+          q(0) += si;
+          for (k = 0; k < order; k++) {
+            ka(k,0) += ks(k,j)*wti;
+          }
+          break;
+        case SECTION_RESPONSE_MZ:
+          q(1) += (xi6-4.0)*si; 
+          q(2) += (xi6-2.0)*si;
+          for (k = 0; k < order; k++) {
+            tmp = ks(k,j)*wti;
+            ka(k,1) += (xi6-4.0)*tmp;
+            ka(k,2) += (xi6-2.0)*tmp;
+          }
+          break;
+        case SECTION_RESPONSE_MY:
+          q(3) += (xi6-4.0)*si; 
+          q(4) += (xi6-2.0)*si;
+          for (k = 0; k < order; k++) {
+            tmp = ks(k,j)*wti;
+            ka(k,3) += (xi6-4.0)*tmp;
+            ka(k,4) += (xi6-2.0)*tmp;
+          }
+          break;
+        case SECTION_RESPONSE_T:
+          q(5) += si;
+          for (k = 0; k < order; k++) {
+            ka(k,5) += ks(k,j)*wti;
+          }
+          break;
+        default:
+          break;
+        }
       }
       for (j = 0; j < order; j++) {
-	switch (code(j)) {
-	case SECTION_RESPONSE_P:
-	  for (k = 0; k < 6; k++) {
-	    kbmine(0,k) += ka(j,k);
-	  }
-	  break;
-	case SECTION_RESPONSE_MZ:
-	  for (k = 0; k < 6; k++) {
-	    tmp = ka(j,k);
-	    kbmine(1,k) += (xi6-4.0)*tmp;
-	    kbmine(2,k) += (xi6-2.0)*tmp;
-	  }
-	  break;
-	case SECTION_RESPONSE_MY:
-	  for (k = 0; k < 6; k++) {
-	    tmp = ka(j,k);
-	    kbmine(3,k) += (xi6-4.0)*tmp;
-	    kbmine(4,k) += (xi6-2.0)*tmp;
-	  }
-	  break;
-	case SECTION_RESPONSE_T:
-	  for (k = 0; k < 6; k++) {
-	    kbmine(5,k) += ka(j,k);
-	  }
-	  break;
-	default:
-	  break;
-	}
+        switch (code(j)) {
+        case SECTION_RESPONSE_P:
+          for (k = 0; k < 6; k++) {
+            kbmine(0,k) += ka(j,k);
+          }
+          break;
+        case SECTION_RESPONSE_MZ:
+          for (k = 0; k < 6; k++) {
+            tmp = ka(j,k);
+            kbmine(1,k) += (xi6-4.0)*tmp;
+            kbmine(2,k) += (xi6-2.0)*tmp;
+          }
+          break;
+        case SECTION_RESPONSE_MY:
+          for (k = 0; k < 6; k++) {
+            tmp = ka(j,k);
+            kbmine(3,k) += (xi6-4.0)*tmp;
+            kbmine(4,k) += (xi6-2.0)*tmp;
+          }
+          break;
+        case SECTION_RESPONSE_T:
+          for (k = 0; k < 6; k++) {
+            kbmine(5,k) += ka(j,k);
+          }
+          break;
+        default:
+          break;
+        }
       }
     }      
     
@@ -1974,24 +1970,24 @@ DispBeamColumn3d::commitSensitivity(int gradNumber, int numGrads)
     for (int j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	e(j) = oneOverL*dvdh(0)
-	  + d1oLdh*v(0); 
-	break;
+        e(j) = oneOverL*dvdh(0)
+          + d1oLdh*v(0); 
+        break;
       case SECTION_RESPONSE_MZ:
-	e(j) = oneOverL*((xi6-4.0)*dvdh(1) + (xi6-2.0)*dvdh(2))
-	  + d1oLdh*((xi6-4.0)*v(1) + (xi6-2.0)*v(2)); 
-	break;
+        e(j) = oneOverL*((xi6-4.0)*dvdh(1) + (xi6-2.0)*dvdh(2))
+          + d1oLdh*((xi6-4.0)*v(1) + (xi6-2.0)*v(2)); 
+        break;
       case SECTION_RESPONSE_MY:
-	e(j) = oneOverL*((xi6-4.0)*dvdh(3) + (xi6-2.0)*dvdh(4))
-	  + d1oLdh*((xi6-4.0)*v(3) + (xi6-2.0)*v(4)); 
-	break;
+        e(j) = oneOverL*((xi6-4.0)*dvdh(3) + (xi6-2.0)*dvdh(4))
+          + d1oLdh*((xi6-4.0)*v(3) + (xi6-2.0)*v(4)); 
+        break;
       case SECTION_RESPONSE_T:
-	e(j) = oneOverL*dvdh(5)
-	  + d1oLdh*v(5); 
-	break;
+        e(j) = oneOverL*dvdh(5)
+          + d1oLdh*v(5); 
+        break;
       default:
-	e(j) = 0.0; 
-	break;
+        e(j) = 0.0; 
+        break;
       }
     }
     
@@ -2001,7 +1997,5 @@ DispBeamColumn3d::commitSensitivity(int gradNumber, int numGrads)
   
   return 0;
 }
-
-
 // AddingSensitivity:END /////////////////////////////////////////////
 

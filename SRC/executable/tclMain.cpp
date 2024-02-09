@@ -1,4 +1,7 @@
 #include <string.h>
+#include <stdlib.h>
+#include <string>
+
 #ifndef _WIN32
 #  include <unistd.h>
 #endif
@@ -54,6 +57,29 @@ int Tcl_AppInit _ANSI_ARGS_((Tcl_Interp *interp));
 extern "C" int          isatty _ANSI_ARGS_((int fd));
 //extern "C" char * strcpy _ANSI_ARGS_((char *dst, CONST char *src)) throw();
 #endif
+
+static int load_opensees(Tcl_Interp* interp)
+{
+    char* path = getenv("OPENSEESRT_LIB");
+    if (path) {
+      std::string path_string{path};
+      std::string statement = std::string("import ") + path_string;
+      int status = Tcl_Eval(interp, statement.c_str());
+
+      if (status == TCL_OK) {
+        // Library was loaded, now set variable in interpreter
+        Tcl_Eval(interp, (
+              std::string("set OPENSEESRT_LIB ") + path_string
+              ).c_str()
+        );
+        return status;
+      }
+    } else {
+      return TCL_ERROR;
+    }
+}
+
+
 static char *tclStartupScriptFileName = NULL;
 
 /*
@@ -77,7 +103,6 @@ void TclSetStartupScriptFileName(char *fileName)
 {
     tclStartupScriptFileName = fileName;
 }
-
 
 /*
  *----------------------------------------------------------------------
@@ -209,7 +234,8 @@ main(int argc, char **argv)
      * Invoke application-specific initialization.
      */
     // TODO
-    Tcl_Eval(interp, "import /home/claudio/opensees/OpenSeesRT/build/temp.linux-x86_64-cpython-39_stack/src/libg3/SRC/runtime/libOpenSeesRT.so");
+
+    load_opensees(interp);
 
 //
 //  if ((*appInitProc)(interp) != TCL_OK) {

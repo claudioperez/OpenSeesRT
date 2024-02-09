@@ -24,7 +24,7 @@ class BWBN : public UniaxialMaterial
 	 double lamda,
 	 double tolerance,
 	 int maxNumIter);
-	
+    BWBN();	
     ~BWBN();
 
     const char *getClassType(void) const {return "BoucWenMaterial";};
@@ -67,7 +67,7 @@ class BWBN : public UniaxialMaterial
     double Tz, Cz;
     double Te, Ce;
     
-    // Ohter variables
+    // Other variables
     double Tstress, Ttangent;
     
     double tolerance;
