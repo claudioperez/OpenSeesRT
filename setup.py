@@ -62,7 +62,7 @@ if __name__ == "__main__":
                     *EnvArgs,
 #                   "-DCMAKE_BUILD_TYPE=DEBUG",
                     "-DCMAKE_BUILD_TYPE=RELEASE",
-                    "-DOPENSEESRT_VERSION=0.0.49",
+                    "-DOPENSEESRT_VERSION=0.0.56",
 #                   "-DProfileBuild:BOOL=TRUE",
                     *OpenSeesPyRT_Config,
 
