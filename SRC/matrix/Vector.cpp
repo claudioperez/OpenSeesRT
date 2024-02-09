@@ -326,12 +326,12 @@ Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, doubl
            i = m.numRows,
            n = m.numCols;
     return
-      dgemv_("N", &i, &n,
-             &otherFact,
-             m.data, &i,
-             v.theData, &incr,
-             &thisFact,
-             theData,   &incr);
+      DGEMV("N", &i, &n,
+            &otherFact,
+            m.data, &i,
+            v.theData, &incr,
+            &thisFact,
+            theData,   &incr);
   }
 #endif
 
@@ -473,12 +473,12 @@ Vector::addMatrixTransposeVector(double thisFact,
            i = m.numRows,
            n = m.numCols;
     return
-      dgemv_("T", &i, &n,
-             &otherFact,
-             m.data, &i,
-             v.theData, &incr,
-             &thisFact,
-             theData,   &incr);
+      DGEMV("T", &i, &n,
+            &otherFact,
+            m.data, &i,
+            v.theData, &incr,
+            &thisFact,
+            theData,   &incr);
   }
 #endif
 

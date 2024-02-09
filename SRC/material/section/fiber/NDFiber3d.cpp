@@ -17,14 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
-// Written: MHS
-// Created: 2012
-// Revision: 
 //
 // Description: This file contains the implementation for the
 // NDFiber3d class. NDFiber3d provides the abstraction of a
@@ -32,8 +24,10 @@
 // The NDFiber3d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) NDFiber3d.h, revA"
-
+// Written: MHS
+// Created: 2012
+// Revision: 
+//
 #include <stdlib.h>
 
 #include <NDMaterial.h>

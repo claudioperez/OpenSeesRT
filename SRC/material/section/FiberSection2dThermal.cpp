@@ -17,13 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-//Modified by Jian Zhang, [University of Edinburgh]
-//Modified by Panagiotis Kotsovinos, [University of Edinburgh]
-//Modified by Liming Jiang, [University of Edinburgh]
-
+//
 // Description: This file contains the class implementation of FiberSection2dThermal.
-
+//
+// Modified by Jian Zhang, [University of Edinburgh]
+// Modified by Panagiotis Kotsovinos, [University of Edinburgh]
+// Modified by Liming Jiang, [University of Edinburgh]
+//
 #include <stdlib.h>
 
 #include <Channel.h>

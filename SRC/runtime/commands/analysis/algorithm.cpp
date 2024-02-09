@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <G3_Logging.h>
-#include "analysis.h"
+// #include "analysis.h"
 #include <tcl.h>
 #include <api/InputAPI.h>
 #include "runtime/BasicAnalysisBuilder.h"
@@ -42,6 +42,13 @@
 #include <SecantAccelerator2.h>
 #include <SecantAccelerator3.h>
 #include <MillerAccelerator.h>
+#include <runtimeAPI.h>
+class G3_Runtime;
+
+OPS_Routine OPS_NewtonRaphsonAlgorithm;
+OPS_Routine OPS_ExpressNewton;
+OPS_Routine OPS_ModifiedNewton;
+OPS_Routine OPS_NewtonHallM;
 
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,

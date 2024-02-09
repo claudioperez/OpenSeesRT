@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2011-07-18 10:11:35 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/FiberSection2dThermal.h,v $
-
-//Modified by Jian Zhang, [University of Edinburgh]
-//Modified by Panagiotis Kotsovinos, [University of Edinburgh]
-
+//
 // Description: This file contains the class definition for FiberSection2dThermal
 // FiberSection2dThermal provides the abstraction of a 2d beam section discretized by fibers.
 // The section stiffness and stress resultants are obtained by summing fiber contributions.
 // Also the thermal stress are integrated through section.
-
+//
+// Modified by Jian Zhang, [University of Edinburgh]
+// Modified by Panagiotis Kotsovinos, [University of Edinburgh]
+//
 #ifndef FiberSection2dThermal_h
 #define FiberSection2dThermal_h
 

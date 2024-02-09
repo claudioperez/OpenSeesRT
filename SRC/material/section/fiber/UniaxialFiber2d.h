@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2007-02-02 01:18:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/fiber/UniaxialFiber2d.h,v $
-                                                                        
-                                                                        
-// File: ~/fiber/UniaxialFiber2d.h
-//
-// Written: Remo Magalhaes de Souza
-// Created: 10/98
-// Revision: 
 //
 // Description: This file contains the class definition for 
 // UniaxialFiber2d.h. UniaxialFiber2d provides the abstraction of a
@@ -35,8 +24,10 @@
 // The UniaxialFiber2d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) UniaxialFiber2d.h, revA"
-
+// Written: Remo Magalhaes de Souza
+// Created: 10/98
+// Revision: 
+//
 #ifndef UniaxialFiber2d_h
 #define UniaxialFiber2d_h
 

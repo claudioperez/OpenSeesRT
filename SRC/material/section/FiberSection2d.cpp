@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.35 $
-// $Date: 2008-11-04 21:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection2d.cpp,v $
-                                                                        
+//
+// Description: This file contains the class implementation of FiberSection2d.
+//
 // Written: fmk
 // Created: 04/04
 //
-// Description: This file contains the class implementation of FiberSection2d.
-
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>

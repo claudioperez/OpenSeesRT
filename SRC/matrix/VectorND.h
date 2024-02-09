@@ -201,7 +201,7 @@ struct VectorND {
       int incr = 1,
              i = N,
              n = NC;
-      dgemv_("N", &i, &n,
+       DGEMV("N", &i, &n,
              &otherFact,
              &m.values[0][0], &i,
              v.theData, &incr,
@@ -227,12 +227,12 @@ struct VectorND {
       int incr = 1,
              i = N,
              n = NR;
-      dgemv_("T", &i, &n,
-             &otherFact,
-             &m.values[0][0], &i,
-             v.theData, &incr,
-             &thisFact,
-             values,   &incr);
+      DGEMV("T", &i, &n,
+            &otherFact,
+            &m.values[0][0], &i,
+            v.theData, &incr,
+            &thisFact,
+            values,   &incr);
       // successfull
       return 0;
     } 
@@ -257,12 +257,12 @@ struct VectorND {
              i = m.numRows,
              n = m.numCols;
       return
-        dgemv_("N", &i, &n,
-               &otherFact,
-               m.data, &i,
-               v.theData, &incr,
-               &thisFact,
-               values,   &incr);
+        DGEMV("N", &i, &n,
+              &otherFact,
+              m.data, &i,
+              v.theData, &incr,
+              &thisFact,
+              values,   &incr);
     }
 #endif
 

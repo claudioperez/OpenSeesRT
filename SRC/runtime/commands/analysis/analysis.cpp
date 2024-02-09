@@ -98,7 +98,7 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
 //
 // command invoked to build an Analysis object
 //
-int
+static int
 specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char ** const argv)
 {
@@ -138,7 +138,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 // Command invoked to build the model, i.e. to invoke analyze()
 // on the Analysis object
 //
-int
+static int
 analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
@@ -500,7 +500,7 @@ printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
+static int
 printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
@@ -569,7 +569,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   return res;
 }
 
-int
+static int
 printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);

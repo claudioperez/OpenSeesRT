@@ -374,15 +374,6 @@ UniaxialFiber2d::getResponse(int responseID, Information &fibInfo)
   }
 }
 
-#if 0
-void 
-UniaxialFiber2d::getFiberLocation(double &yLoc, double &zLoc)
-{
-    yLoc = -y;
-    zLoc = 0.0;
-}
-#endif
-
 int
 UniaxialFiber2d::setParameter(const char **argv, int argc, Parameter &param)
 {

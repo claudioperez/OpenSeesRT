@@ -1,12 +1,9 @@
-// $Source: /usr/local/cvs/OpenSees/SRC/element/dispBeamColumnInt/FiberSection2dInt.h,v $
-// $Revision: 1.3 $
-// $Date: 2008-04-14 21:22:20 $
-
+//
 // Created: 07/04
 // Modified by: LMS 
-// Description: This file contains the class implementation of FiberSection2dInt.Based on FiberSection2d.cpp.
-
-                                                                        
+// Description: This file contains the class implementation of FiberSection2dInt. 
+// Based on FiberSection2d.cpp.
+//
 #ifndef FiberSection2dInt_h
 #define FiberSection2dInt_h
 

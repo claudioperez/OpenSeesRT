@@ -18,18 +18,16 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: 2012
-// Revision: 
-//
 // Description: This file contains the class definition for 
 // NDFiber2d.h. NDFiber2d provides the abstraction of a
 // uniaxial fiber whose position  is defined with only one coordinate.
 // The NDFiber2d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) NDFiber2d.h, revA"
-
+// Written: MHS
+// Created: 2012
+// Revision: 
+//
 #ifndef NDFiber2d_h
 #define NDFiber2d_h
 

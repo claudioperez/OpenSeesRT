@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2007-02-02 01:18:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/fiber/UniaxialFiber3d.h,v $
-                                                                        
-                                                                        
-// File: ~/fiber/UniaxialFiber3d.h
-//
-// Written: Remo Magalhaes de Souza
-// Created: 10/98
-// Revision: 
 //
 // Description: This file contains the class definition for 
 // UniaxialFiber3d.h. UniaxialFiber3d provides the abstraction of a
@@ -36,8 +25,9 @@
 // The UniaxialFiber3d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) UniaxialFiber3d.h, revA"
-
+// Written: Remo Magalhaes de Souza
+// Created: 10/98
+//
 #ifndef UniaxialFiber3d_h
 #define UniaxialFiber3d_h
 
@@ -75,10 +65,6 @@ class UniaxialFiber3d: public Fiber
     Response *setResponse(const char **argv, int argc, OPS_Stream &S);
     int getResponse(int responseID, Information &info);
 
-#if 0
-    void getFiberLocation(double &y, double &z);
-    double getArea(void) {return area;};
-#endif
     double getd(void) {return dValue;};
     UniaxialMaterial *getMaterial(void) {return theMaterial;};
 
