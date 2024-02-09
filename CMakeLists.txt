@@ -107,11 +107,11 @@ if (UNIX)
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak,undefined")
+      add_link_options(
+        $<$<CONFIG:DEBUG>:-fsanitize=address,leak,undefined>
+      )
     endif()
-    add_link_options(
-      $<$<CONFIG:DEBUG>:-fsanitize=address>
-    )
     add_compile_options(
       $<$<CONFIG:RELEASE>:-march=haswell>
     )

@@ -1,9 +1,7 @@
 
-
-add_library(OpenSeesRT_Parallel)
 target_compile_definitions(OpenSeesRT_Parallel PRIVATE 
   _PARALLEL_INTERPRETERS
-  _PARALLEL_PROCESSING
+  _PARALLEL_PROCESSING     # OpenSeesSP
 )
 target_link_libraries(OpenSeesRT_Parallel PRIVATE OPS_Parallel OPS_Actor)
 
@@ -23,7 +21,7 @@ else()
   message(">>> ScaLAPACK: ${ScaLAPACK_LIBRARIES}")
 endif()
   
-target_link_libraries(OpenSeesRT PRIVATE OPS_Parallel OPS_Actor
+target_link_libraries(OpenSeesRT_Parallel PRIVATE OPS_Parallel OPS_Actor
     ${MPI_CXX_LIBRARIES}
     /usr/lib/libscalapack.so
     ${MPI_Fortran_LIBRARIES}
