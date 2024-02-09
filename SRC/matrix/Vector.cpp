@@ -227,6 +227,40 @@ Vector::Normalize(void)
 }
 
 int
+Vector::addVector(const Vector &other, double otherFact )
+{
+  // if sizes are compatable add
+  assert(sz == other.sz);
+
+  // check if quick return
+  if (otherFact == 0.0)
+    return 0; 
+
+  else {
+#ifdef VECTOR_BLAS
+    const int incr = 1;
+    daxpy_(&sz, &otherFact, other.theData, &incr, theData, &incr);
+    return 0;
+#else
+    // want: this += other * otherFact
+    double *dataPtr = theData;
+    double *otherDataPtr = other.theData;
+    if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
+      for (int i=0; i<sz; i++) 
+        *dataPtr++ += *otherDataPtr++;
+    } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+      for (int i=0; i<sz; i++) 
+        *dataPtr++ -= *otherDataPtr++;
+    } else 
+      for (int i=0; i<sz; i++) 
+        *dataPtr++ += *otherDataPtr++ * otherFact;
+#endif
+  }
+
+  // successfull
+  return 0;
+}
+int
 Vector::addVector(double thisFact, const Vector &other, double otherFact )
 {
   // if sizes are compatable add
@@ -300,6 +334,7 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
 }
             
         
+
 int
 Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact )
 {
