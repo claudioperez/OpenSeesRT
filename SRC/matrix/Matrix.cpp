@@ -500,6 +500,27 @@ Matrix::Invert()
   return -abs(info);
 }
 
+int
+Matrix::addMatrix(const Matrix &other, double factOther)
+{
+    assert(other.numRows == numRows);
+    assert(other.numCols == numCols);
+
+    // want: this += other * factOther
+    if (factOther == 1.0) {
+      double *dataPtr = data;
+      double *otherDataPtr = other.data;                    
+      for (int i=0; i<dataSize; i++)
+        *dataPtr++ += *otherDataPtr++;
+    } else {
+      double *dataPtr = data;
+      double *otherDataPtr = other.data;                    
+      for (int i=0; i<dataSize; i++)
+        *dataPtr++ += *otherDataPtr++ * factOther;
+    }
+    // successfull
+    return 0;
+}
 
 int
 Matrix::addMatrix(double factThis, const Matrix &other, double factOther)
@@ -1393,7 +1414,7 @@ Matrix
 Matrix::operator+(const Matrix &M) const
 {
     Matrix result(*this);
-    result.addMatrix(1.0,M,1.0);    
+    result.addMatrix(M,1.0);    
     return result;
 }
             
@@ -1401,7 +1422,7 @@ Matrix
 Matrix::operator-(const Matrix &M) const
 {
     Matrix result(*this);
-    result.addMatrix(1.0,M,-1.0);    
+    result.addMatrix(M,-1.0);    
     return result;
 }
             
@@ -1457,7 +1478,7 @@ Matrix &
 Matrix::operator+=(const Matrix &M)
 {
 #ifdef MATRIX_BLAS
-  addMatrix(1.0, M, 1.0);
+  addMatrix( M, 1.0);
 #else
 #ifdef _G3DEBUG
   if (numRows != M.numRows || numCols != M.numCols) {
@@ -1477,7 +1498,7 @@ Matrix &
 Matrix::operator-=(const Matrix &M)
 {
 #ifdef MATRIX_BLAS
-  addMatrix(1.0, M, -1.0);
+  addMatrix(M, -1.0);
 #else
 
   assert(numRows == M.numRows && numCols == M.numCols);

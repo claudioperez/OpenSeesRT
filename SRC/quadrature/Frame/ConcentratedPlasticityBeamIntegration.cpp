@@ -132,8 +132,8 @@ ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double
     for (int i = 0; i < nf; i++) {
     	double sum = 0.0;
     	for (int j = 0; j < nc; j++)
-		sum += pow(pt(j),i)*wc(j);
-	  	R(i) = 1.0/(i+1) - sum;
+	    sum += pow(pt(j),i)*wc(j);
+	R(i) = 1.0/(i+1) - sum;
     }
     
     Matrix J(nf,nf);

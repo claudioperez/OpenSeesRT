@@ -229,6 +229,8 @@ BasicAnalysisBuilder::domainChanged(void)
   int stamp = domain->hasDomainChanged();
   domainStamp = stamp;
 
+  opsdbg << G3_DEBUG_PROMPT << "DomainChanged\n";
+
   theAnalysisModel->clearAll();
   if (theHandler != nullptr) {
     theHandler->clearAll();

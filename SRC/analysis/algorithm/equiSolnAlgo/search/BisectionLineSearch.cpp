@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-04-02 22:02:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/BisectionLineSearch.cpp,v $
-
+//
 // Written: fmk 
 // Created: 11/01
 // 
@@ -264,12 +260,5 @@ BisectionLineSearch::Print(OPS_Stream &s, int flag)
     s << "                         max value on eta = " << maxEta << endln;
   }
 }
-
-
-
-
-
-
-
 
 

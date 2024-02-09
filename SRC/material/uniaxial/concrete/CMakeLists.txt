@@ -30,37 +30,45 @@ target_sources(OPS_Material
     ConcreteSakaiKawashima.cpp
     ConcretewBeta.cpp
     ConfinedConcrete01.cpp
+    FRCC.cpp
     FRPConfinedConcrete02.cpp
     FRPConfinedConcrete.cpp
+    GMG_CyclicReinforcedConcrete.cpp
     SecantConcrete.cpp
     SmoothPSConcrete.cpp
     TDConcrete.cpp
     TDConcreteEXP.cpp
     TDConcreteMC10.cpp
     TDConcreteMC10NL.cpp
+    TDConcreteNL.cpp
+    CreepMaterial.cpp
   PUBLIC
-      Concrete01.h
-      Concrete01WithSITC.h
-      Concrete02.h
-      Concrete02IS.h
-      Concrete02Thermal.h
-      Concrete04.h
-      Concrete05.h
-      Concrete06.h
-      Concrete07.h
-      ConcreteCM.h
-      ConcreteD.h
-      ConcreteECThermal.h
-      ConcreteSakaiKawashima.h
-      ConcretewBeta.h
-      ConfinedConcrete01.h
-      FRPConfinedConcrete02.h
-      FRPConfinedConcrete.h
-      SecantConcrete.h
-      SmoothPSConcrete.h
-      TDConcrete.h
-      TDConcreteEXP.h
-      TDConcreteMC10.h
-      TDConcreteMC10NL.h
+    Concrete01.h
+    Concrete01WithSITC.h
+    Concrete02.h
+    Concrete02IS.h
+    Concrete02Thermal.h
+    Concrete04.h
+    Concrete05.h
+    Concrete06.h
+    Concrete07.h
+    ConcreteCM.h
+    ConcreteD.h
+    ConcreteECThermal.h
+    ConcreteSakaiKawashima.h
+    ConcretewBeta.h
+    ConfinedConcrete01.h
+    FRCC.h
+    FRPConfinedConcrete02.h
+    FRPConfinedConcrete.h
+    GMG_CyclicReinforcedConcrete.h
+    SecantConcrete.h
+    SmoothPSConcrete.h
+    TDConcrete.h
+    TDConcreteEXP.h
+    TDConcreteMC10.h
+    TDConcreteMC10NL.h
+    TDConcreteNL.h
+    CreepMaterial.h
 )
 

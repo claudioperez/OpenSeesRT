@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:00:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/LineSearch.h,v $
-                                                                        
+//
 #ifndef LineSearch_h
 #define LineSearch_h
-
+//
 // Written: fmk 
 // Created: 11/01
-
+//
 // Description: This file contains the class definition for 
 // LineSearch. LineSearch is an abstract base class, 
 // i.e. no objects of it's type can be created.  Its subclasses seek

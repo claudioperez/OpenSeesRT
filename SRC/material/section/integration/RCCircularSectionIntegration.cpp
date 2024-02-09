@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
+//
 #include <RCCircularSectionIntegration.h>
 #include <Matrix.h>
 #include <Vector.h>

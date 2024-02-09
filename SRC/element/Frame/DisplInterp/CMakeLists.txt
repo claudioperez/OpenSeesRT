@@ -19,7 +19,7 @@ target_sources(OPS_Element
     DispBeamColumn3dWithSensitivity.cpp
     AxEqDispBeamColumn2d.cpp
     TimoshenkoBeamColumn2d.cpp
-    DispBeamColumn3dID.cpp
+#   DispBeamColumn3dID.cpp
   PUBLIC
     DispBeamColumn2d.h
     DispBeamColumn3d.h
@@ -33,7 +33,7 @@ target_sources(OPS_Element
     DispBeamColumn3dWithSensitivity.h
     AxEqDispBeamColumn2d.h
     TimoshenkoBeamColumn2d.h
-    DispBeamColumn3dID.h
+#   DispBeamColumn3dID.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
