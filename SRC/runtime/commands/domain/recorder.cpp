@@ -1,28 +1,13 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the comand 'record' is invoked by the
 // user.
 //
-// Written: fmk
+// Written: fmk, cmp
 // Created: 04/98
 //
 #include <stdio.h>
@@ -92,6 +77,8 @@ OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char *arg);
 
+//
+// Dynamically loaded recorders
 typedef struct externalRecorderCommand {
   char *funcName;
   void *(*funcPtr)();
@@ -100,6 +87,8 @@ typedef struct externalRecorderCommand {
 
 static ExternalRecorderCommand *theExternalRecorderCommands = NULL;
 
+//
+// Small structure to hold common config options
 struct OutputOptions {
   TCL_Char   *filename  = nullptr;
   TCL_Char   *tableName = nullptr;
@@ -1289,18 +1278,16 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else if (strcmp(argv[1], "vtk") == 0 || strcmp(argv[1], "VTK") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
     (*theRecorder) = (Recorder *)OPS_VTK_Recorder(rt, argc, argv);
-
   } 
   else if (strcmp(argv[1], "ElementRMS") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
     (*theRecorder) = (Recorder *)OPS_ElementRecorderRMS(rt, argc, argv);
-
   }
 
   else if (strcmp(argv[1], "gmsh") == 0 || strcmp(argv[1], "GMSH") == 0) {
-    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, domain);
+    OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
     (*theRecorder) = (Recorder *)OPS_GmshRecorder(rt, argc, argv);
   }
 
