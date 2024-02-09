@@ -16,6 +16,13 @@
 #include <T2Vector.h>
 #include <Matrix.h>
 
+static double
+delta(int i,int j) {
+    if (i==j) return 1.0;
+    else return 0.0;
+}
+
+
 
 
 Vector T2Vector::engrgStrain(6);
@@ -89,11 +96,6 @@ void tensorProduct(Matrix & c, const Vector & a, const Vector & b)
 	  }
   }
   return;
-}
-
-double delta(int i,int j){
-	if (i==j) return 1.0;
-	else return 0.0;
 }
 
 

@@ -461,7 +461,7 @@ BasicAnalysisBuilder::analyzeStep(double dT)
       return -1;
     }
   }
-  
+
   if (theTransientIntegrator->newStep(dT) < 0) {
     opserr << "DirectIntegrationAnalysis::analyze() - the Integrator failed";
     opserr << " at time " << theDomain->getCurrentTime() << endln;
@@ -573,6 +573,8 @@ BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
 
       if (domainStamp != 0 && this->CurrentAnalysisFlag != CURRENT_EMPTY_ANALYSIS)
         theStaticIntegrator->domainChanged();
+      else
+        domainStamp = 0;
 
   } else {
 
@@ -585,6 +587,8 @@ BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
 
       if (domainStamp != 0  && this->CurrentAnalysisFlag != CURRENT_EMPTY_ANALYSIS)
         theTransientIntegrator->domainChanged();
+      else
+        domainStamp = 0;
   }
 }
 
@@ -787,7 +791,8 @@ BasicAnalysisBuilder::eigen(int numMode, bool generalized, bool findSmallest)
   int stamp = the_Domain->hasDomainChanged();
 
   if (stamp != domainStamp) {
-    domainStamp = stamp;
+    //domainStamp = stamp; // commented out so domainChanged() gets called with integrator,
+                         //  which isnt updated here
 //    result = this->domainChanged();
 
     theAnalysisModel->clearAll();

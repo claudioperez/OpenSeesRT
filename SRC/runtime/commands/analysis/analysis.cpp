@@ -110,11 +110,23 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  if (strcmp(argv[1], "Static") == 0) {
+  int argi = 1;
+
+  if (strcmp(argv[argi], "-linear") == 0) {
+    if (argc < 3) {
+      opserr << G3_ERROR_PROMPT << "need to specify an analysis type (Static, Transient)\n";
+      return TCL_ERROR;
+    }
+    Tcl_Eval(interp, "algorithm Linear\n"
+                     "test FixedNumIter 1\n"
+    );
+    argi++;
+  }
+  if (strcmp(argv[argi], "Static") == 0) {
     builder->setStaticAnalysis();
     return TCL_OK;
 
-  } else if (strcmp(argv[1], "Transient") == 0) {
+  } else if (strcmp(argv[argi], "Transient") == 0) {
     builder->setTransientAnalysis();
     return TCL_OK;
   }
