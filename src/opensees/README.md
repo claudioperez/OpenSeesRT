@@ -1,10 +1,10 @@
 
 <dl>
-<dt><code>tcl.py/</code></dt><dd>
+<dt><a href="./tcl.py"><code>tcl.py</code></a></dt><dd>
   Interpreter wrapper. Python objects are defined that wrap Tcl interpreters.
 </dd>
 
-<dt><a href="./openseespy"><code>openseespy.py/</code></a></dt><dd>
+<dt><a href="./openseespy.py"><code>openseespy.py</code></a></dt><dd>
   OpenSeesPy compatibility layer. Implements the OpenSeesPy API.
 </dd>
 
