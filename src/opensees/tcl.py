@@ -191,6 +191,26 @@ class Interpreter:
             print(e, file=sys.stderr)
 
 
+
+class ModelRuntime:
+    def __init__(self, ndm=None, ndf=None, **kwds):
+        self._interp = Interpreter(**kwds)
+        self._tcl = self._interp._tcl
+        self._c_domain = None
+        self._c_rt = None
+        if ndm is not None:
+            self.model(ndm, ndf)
+
+    def model(self, ndm, ndf, **kwds):
+        """
+        model(model: opensees.model)
+        model(ndm:int, ndf:int)
+        """
+        self._interp.eval(f"model basic -ndm {ndm} -ndf {ndf}")
+
+    def eval(self, cmd: str):
+        return self._interp.eval(cmd)
+
     def lift(self, type: str, tag: int=None):
         """
         Experimental
@@ -203,40 +223,23 @@ class Interpreter:
         # when a python c-binding attempts to call a Tcl
         # C function. Users should never import OpenSeesPyRT
         # themselves
-        from opensees.tcl import TclRuntime
         from opensees import OpenSeesPyRT as libOpenSeesRT
 
+        _builder = libOpenSeesRT.get_builder(self._tcl.interpaddr())
+
         if type == "uniaxialmaterial":
-            _builder = libOpenSeesRT.get_builder(self._tcl.interpaddr())
+            self.model(2,3)
             return _builder.getUniaxialMaterial(tag)
 
         elif type == "section":
-#           rt.send(self, ndm=2, ndf=3)
-            self._builder = libOpenSeesRT.get_builder(self._tcl.interpaddr())
-            handle = self._builder.getSection(str(self.name))
+            return _builder.getSection(tag)
 
         elif type == "backbone":
 #           rt.send(self)
-            self._builder = libOpenSeesRT.get_builder(self._tcl.interpaddr())
-            handle = self._builder.getHystereticBackbone(str(self.name))
+            return _builder.getHystereticBackbone(tag)
 
         else:
             raise TypeError("Unimplemented type")
-
-
-class ModelRuntime:
-    def __init__(self, *args, **kwds):
-        self._interp = Interpreter(*args, **kwds)
-        self._tcl = self._interp._tcl
-        self._c_domain = None
-        self._c_rt = None
-
-    def model(self, ndm, ndf, **kwds):
-        """
-        model(model: opensees.model)
-        model(ndm:int, ndf:int)
-        """
-        self._interp.eval(f"model basic -ndm {ndm} -ndf {ndf}")
 
 
     def send(self, obj, ndm=2, ndf=3, **kwds):
@@ -361,5 +364,5 @@ def _create_interp(verbose=False, tcl_lib=None, preload=True, enable_tk=False):
     return interp
 
 
-TclRuntime = Interpreter
+TclRuntime = ModelRuntime; # Interpreter
 

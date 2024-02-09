@@ -13,12 +13,11 @@ cR2 = 0.15
 
 command = f"uniaxialMaterial Steel02 {tag} {fy} {E} {b} {R0} 0.925 0.15"
 
-runtime = opensees.tcl.ModelRuntime()
+runtime = opensees.tcl.ModelRuntime(ndm=1, ndf=1)
 
-runtime.eval("model basic 1 1")
 runtime.eval(command)
 
-strains = fy/E*sin(linspace(0, 20, 100))
+strains = 1.2*fy/E*sin(linspace(0, 20, 100))
 
 material = runtime.lift("UniaxialMaterial", tag)
 

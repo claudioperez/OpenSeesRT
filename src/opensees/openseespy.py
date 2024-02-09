@@ -322,7 +322,8 @@ class OpenSeesPy:
             return None
 
         parts = ret.split()
-        # Use json parse to cast types from string. This is faster than AST.
+        # Use json parse to cast return values from string. 
+        # This is faster than the standard ast module.
         if len(parts) > 1:
             try:    return json.loads("[" + ",".join(parts) + "]")
             except: return ret
@@ -340,8 +341,16 @@ class OpenSeesPy:
 
 
 # The global singleton
-import sys
 _openseespy = OpenSeesPy()
+# 
+_tcl_echo   = None
+
+# def model(*args, **kwds):
+#     global _openseespy
+#     rt = OpenSeesPy()
+#     _openseespy = rt
+#     rt.model(*args, **kwds)
+#     return rt
 
 def __getattr__(name: str):
     # For reference:

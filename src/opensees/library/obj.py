@@ -21,27 +21,31 @@ class Component:
         # C function. Users should never import OpenSeesPyRT
         # themselves
         from opensees.tcl import TclRuntime
-        rt = TclRuntime()
+        rt = TclRuntime(3, 6)
         from opensees import OpenSeesPyRT as libOpenSeesRT
+        self.name = self.tag = tag = self.name if self.name is not None else "1"
+        rt.send(self)
+        handle = rt.lift(self.tag_space, str(self.name))
 
-        if self.tag_space == "uniaxialMaterial":
-            self.name = self.tag = tag = self.name if self.name is not None else "1"
-            rt.send(self, ndm=1, ndf=1)
-            self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
-            handle = self._builder.getUniaxialMaterial(tag)
 
-        elif self.tag_space == "section":
-            rt.send(self, ndm=2, ndf=3)
-            self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
-            handle = self._builder.getSection(str(self.name))
+#       if self.tag_space == "uniaxialMaterial":
+#           self.name = self.tag = tag = self.name if self.name is not None else "1"
+#           rt.send(self, ndm=1, ndf=1)
+#           self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
+#           handle = self._builder.getUniaxialMaterial(tag)
 
-        elif self._cmd[0] == "backbone":
-            rt.send(self)
-            self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
-            handle = self._builder.getHystereticBackbone(str(self.name))
+#       elif self.tag_space == "section":
+#           rt.send(self, ndm=2, ndf=3)
+#           self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
+#           handle = self._builder.getSection(str(self.name))
 
-        else:
-            raise TypeError("Unimplemented type")
+#       elif self._cmd[0] == "backbone":
+#           rt.send(self)
+#           self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
+#           handle = self._builder.getHystereticBackbone(str(self.name))
+
+#       else:
+#           raise TypeError("Unimplemented type")
 
         self._rt = rt
         return handle

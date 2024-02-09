@@ -3,7 +3,10 @@ project(OpenSeesRT)
 
 add_subdirectory(src/libg3)
 
-install(TARGETS 
-    OpenSeesRT OpenSeesPyRT LIBRARY DESTINATION .)
-
-
+if (TARGET OpenSeesPyRT)
+  install(TARGETS 
+      OpenSeesRT OpenSeesPyRT LIBRARY DESTINATION .)
+else()
+  install(TARGETS 
+      OpenSeesRT LIBRARY DESTINATION .)
+endif()
