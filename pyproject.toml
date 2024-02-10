@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.0.51"
+version = "0.0.56"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
@@ -92,7 +92,7 @@ docs = [
 ]
 
 [project.urls]
-Repository = "http://github.com/BRACE2/OpenSeesRT"
+Repository = "http://github.com/claudioperez/OpenSeesRT"
 # Documentation = "https://brace2.github.io/OpenSeesRT"
 
 [build-system]
@@ -106,7 +106,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-# exclude = ["libg3*", "site*"]
+exclude = ["libg3*", "site*"]
 
 [tool.setuptools.package-data]
 opensees = ["*.py", "*.so", "*.dll"]
@@ -116,9 +116,9 @@ opensees = ["site*", "docs*", "*.html", "*.cmake"]
 
 
 [tool.cibuildwheel]
-skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*"] #, "cp38*", "cp37*"] # , "cp39*", "cp311*"]
-manylinux-x86_64-image = "manylinux_2_28"
-# manylinux-x86_64-image="manylinux2014"
+skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp311*", "cp312*"] #, "cp38*", "cp37*"] # , "cp39*", "cp311*"]
+# manylinux-x86_64-image = "manylinux_2_28"
+manylinux-x86_64-image="manylinux2014"
 # manylinux-x86_64-image="manylinux_2_24"
 
 # [tool.cibuildwheel.windows]

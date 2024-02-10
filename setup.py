@@ -19,6 +19,7 @@ if os.name == "nt":
     EnvArgs = []
 
 elif "CONDA_PREFIX" in os.environ:
+    # Ensure that conda libraries and compilers are used
     EnvArgs = [
         "-DDependencies=Conda",
         f"-DCMAKE_PREFIX_PATH:FILEPATH={os.environ['CONDA_PREFIX']}",
@@ -52,17 +53,16 @@ if __name__ == "__main__":
                     "cmake": amoeba.CMakeCommand},
         ext_modules = [
             amoeba.CMakeExtension(
-                name = "pypa",        # PyPA
-#               name = "local",
-#               name = "stack",
+                name = "local",
 #               name = "debug",
+#               name = "pypa",        # PyPA
                 install_prefix="opensees",
                 cmake_configure_options = [
                     "-G", "Unix Makefiles",
                     *EnvArgs,
 #                   "-DCMAKE_BUILD_TYPE=DEBUG",
                     "-DCMAKE_BUILD_TYPE=RELEASE",
-                    "-DOPENSEESRT_VERSION=0.0.49",
+                    "-DOPENSEESRT_VERSION=0.0.56",
 #                   "-DProfileBuild:BOOL=TRUE",
                     *OpenSeesPyRT_Config,
 
