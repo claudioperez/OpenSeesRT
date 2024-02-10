@@ -1,7 +1,6 @@
 # Compiling
 
 1. Clone with submodules:
-
    ``` shell
    git clone --recurse-submodules https://github.com/claudioperez/opensees
    ```
