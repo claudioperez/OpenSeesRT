@@ -1,9 +1,13 @@
 # Compiling
 
-1. Clone with submodules:
+1. Clone the package repository with submodules:
    ``` shell
    git clone --recurse-submodules https://github.com/claudioperez/opensees
    ```
+   This will additionally clone the [`claudioperez/OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) repository,
+   which is a fork of OpenSees where most of the global variables have been relegated to various "runtime" classes 
+   (see the added `SRC/runtime/` directory).
+
 
 2. Install *compile-time* dependencies; see **Dependencies** below. Note that
    *run-time* dependencies are handled in the next step automatically by `pip`.
