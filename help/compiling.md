@@ -3,7 +3,7 @@
 1. Clone with submodules:
 
    ``` shell
-   git clone --recurse-submodules https://github.com/BRACE2/OpenSeesRT
+   git clone --recurse-submodules https://github.com/claudioperez/opensees
    ```
 
 2. Install dependencies (see below)
@@ -27,9 +27,10 @@
 The primary system dependencies required for compiling are LAPACK/BLAS and Tcl.
 Packages providing these libraries are listed below for various package
 management ecosystems.
-> **NOTE** If you build in an Anaconda environment, you should install 
-> everything with `conda` or `mamba`, and preferably from `conda-forge`. 
-> See Anaconda below.
+
+> **NOTE** When building in an Anaconda environment, you should install 
+> **all** dependencies with `conda` or `mamba`, and preferably from the
+> `conda-forge` channel. See notes on Anaconda below.
 
 **Windows**: Install Intel compilers and Conan
 
@@ -62,14 +63,16 @@ The Pacman package manager
 <b>Anaconda (Mac, Windows, Linux)</b>
 </summary>
 
-When using conda, you need to ensure that CMake only finds conda
-compilers.
+When using conda, you need to ensure that CMake only finds 
+compilers that are compatible with the libraries in the
+environment. <b>System compilers (like those installed
+by the operating system's package manager) often cannot be used
+and can lead to segfaults.</b>
 The following command should install everything you need:
 
 ``` shell
 conda install -c conda-forge fortran-compiler cxx-compiler c-compiler openblas
 ```
-
 
 </details>
 </details>
@@ -92,3 +95,4 @@ conda install -c conda-forge fortran-compiler cxx-compiler c-compiler openblas
   ``` shell
   python scripts\win_repair.py win32 wheelhouse\opensees-*
   ```
+
