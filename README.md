@@ -10,7 +10,7 @@
 
 
 
-**A *fast* and *clean* interface to the OpenSees framework for finite element analysis.**
+**A *fast* and *stateless* interface to the OpenSees framework for finite element analysis.**
 
 
 <br>

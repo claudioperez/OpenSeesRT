@@ -10,7 +10,7 @@ license = {file = "project/LICENSE"}
 
 readme = "README.md"
 
-description = "A fast and clean interface to the OpenSees framework for finite element analysis."
+description = "A fast and stateless interface to the OpenSees framework for finite element analysis."
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -116,7 +116,7 @@ opensees = ["site*", "docs*", "*.html", "*.cmake"]
 
 
 [tool.cibuildwheel]
-skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp311*", "cp312*"] #, "cp38*", "cp37*"] # , "cp39*", "cp311*"]
+skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
 # manylinux-x86_64-image = "manylinux_2_28"
 manylinux-x86_64-image="manylinux2014"
 # manylinux-x86_64-image="manylinux_2_24"
