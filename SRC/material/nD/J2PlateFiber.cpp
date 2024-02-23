@@ -12,12 +12,6 @@
 ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2008-10-20 22:23:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/J2PlateFiber.cpp,v $
-
-// Written: Ed "C++" Love
 //
 // J2PlateFiber isotropic hardening material class
 // 
@@ -48,7 +42,9 @@
 // 
 //  set eta := 0 for rate independent case
 //
-
+// Written: Ed "C++" Love
+//
+#include <OPS_ErrorStream.h>
 #include <J2PlateFiber.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
