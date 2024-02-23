@@ -31,15 +31,19 @@
 #ifndef Vector_h
 #define Vector_h 
 
-#include <OPS_Globals.h>
+// #include <OPS_Globals.h>
 
 #define VECTOR_VERY_LARGE_VALUE 1.0e200
 
 class Matrix; 
 class Message;
 class SystemOfEqn;
+class OPS_Stream;
 class ID;
-namespace OpenSees {template<int n, typename T> struct VectorND;};
+namespace OpenSees {
+  template<int n, typename T> struct VectorND;
+  template<int nr, int nc, typename T> struct MatrixND;
+};
 
 class Vector
 {
@@ -119,6 +123,7 @@ class Vector
     friend class Matrix;
 //  template<int n> friend struct OpenSees::VectorND;
     template<int n, typename> friend struct OpenSees::VectorND;
+    template<int nr, int nc, typename> friend struct OpenSees::MatrixND;
     friend class UDP_Socket;
     friend class TCP_Socket;
     friend class TCP_SocketSSL;
