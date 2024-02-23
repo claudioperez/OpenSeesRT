@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/bandGEN/BandGenLinLapackSolver.cpp,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/bandGEN/BandGenLinLapackSolver.h
 //
 // Written: fmk 
 // Created: Tue Sep 26 16:27:47: 1996
@@ -38,6 +31,7 @@
 #include <BandGenLinLapackSolver.h>
 #include <BandGenLinSOE.h>
 #include <math.h>
+#include <assert.h>
 
 void* OPS_BandGenLinLapack()
 {
@@ -83,19 +77,21 @@ extern "C" int dgbtrs_(char *TRANS, int *N, int *KL, int *KU, int *NRHS,
 int
 BandGenLinLapackSolver::solve(void)
 {
-    if (theSOE == 0) {
-	opserr << "WARNING BandGenLinLapackSolver::solve(void)- ";
-	opserr << " No LinearSOE object has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
+    // if (theSOE == nullptr) {
+    //     opserr << "WARNING BandGenLinLapackSolver::solve(void)- ";
+    //     opserr << " No LinearSOE object has been set\n";
+    //     return -1;
+    // }
 
     int n = theSOE->size;    
     // check iPiv is large enough
-    if (iPivSize < n) {
-	opserr << "WARNING BandGenLinLapackSolver::solve(void)- ";
-	opserr << " iPiv not large enough - has setSize() been called?\n";
-	return -1;
-    }	    
+    assert(!(iPivSize < n));
+    // if (iPivSize < n) {
+    //     opserr << "WARNING BandGenLinLapackSolver::solve(void)- ";
+    //     opserr << " iPiv not large enough - has setSize() been called?\n";
+    //     return -1;
+    // }	    
 
     int kl = theSOE->numSubD;
     int ku = theSOE->numSuperD;
@@ -139,11 +135,11 @@ BandGenLinLapackSolver::solve(void)
     // check if successful
     if (info != 0) {
       if (info > 0) {
-	opserr << "WARNING BandGenLinLapackSolver::solve() -";
-	opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
+	// opserr << "WARNING BandGenLinLapackSolver::solve() -";
+	// opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
 	return -info+1;
       } else {
-	opserr << "WARNING BandGenLinLapackSolver::solve() - OpenSees code error\n";
+	// opserr << "WARNING BandGenLinLapackSolver::solve() - OpenSees code error\n";
 	return info;
       }
     }
@@ -159,19 +155,12 @@ BandGenLinLapackSolver::setSize()
 {
     // if iPiv not big enough, free it and get one large enough
     if (iPivSize < theSOE->size) {
-	if (iPiv != 0)
-	    delete [] iPiv;
-	
-	iPiv = new int[theSOE->size];
-	if (iPiv == 0) {
-	    opserr << "WARNING BandGenLinLapackSolver::setSize() ";
-	    opserr << " - ran out of memory for iPiv of size ";
-	    opserr << theSOE->size << endln;
-	    return -1;
-	} else
-	    iPivSize = theSOE->size;
+      if (iPiv != nullptr)
+          delete [] iPiv;
+      
+      iPiv = new int[theSOE->size];
+      iPivSize = theSOE->size;
     }
-	
     return 0;
 }
 
