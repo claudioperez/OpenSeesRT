@@ -134,7 +134,7 @@ public:
     x*x + y*y + z*z + w*w
     @return the squared norm of this quaternion.
     */
-    inline const T squaredNorm()const
+    inline const T squaredNorm() const
     {
         return mX * mX + mY * mY + mZ * mZ + mW * mW;
     }
@@ -253,7 +253,7 @@ public:
     @param v the output rotation vector
     */
     template<class TVector3>
-    inline void toRotationVector(TVector3& v)const
+    inline void toRotationVector(TVector3& v) const
     {
         toRotationVector(v(0), v(1), v(2));
     }
@@ -383,7 +383,7 @@ public:
         T halfAngle = rModulus * 0.5;
 
         T q0 = std::cos(halfAngle);
-        T s = std::sin(halfAngle);
+        T s  = std::sin(halfAngle);
 
         ASDQuaternion result(q0, rx * s, ry * s, rz * s);
         result.normalize();

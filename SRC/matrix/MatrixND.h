@@ -172,7 +172,7 @@ struct MatrixND {
   {
     MatrixND<NR,NC> work = *this;
     int pivot_ind[NR];
-    int *nrhs = M.noCols();
+    int nrhs = M.noCols();
     int nr = NR;
     int nc = NC;
     int info = 0;
