@@ -33,6 +33,7 @@
 #include <BandSPDLinLapackSolver.h>
 #include <BandSPDLinSOE.h>
 //#include <f2c.h>
+#include <assert.h>
 #include <math.h>
 
 void* OPS_BandSPDLinLapack()
@@ -80,11 +81,12 @@ extern "C" int dpbtrs_(char *UPLO, int *N, int *KD, int *NRHS,
 int
 BandSPDLinLapackSolver::solve(void)
 {
-    if (theSOE == 0) {
-	opserr << "WARNING BandSPDLinLapackSolver::solve(void)- ";
-	opserr << " No LinearSOE object has been set\n";
-	return -1;
-    }
+  assert(theSOE != nullptr);
+  //if (theSOE == 0) {
+  //    opserr << "WARNING BandSPDLinLapackSolver::solve(void)- ";
+  //    opserr << " No LinearSOE object has been set\n";
+  //    return -1;
+  //}
 
     int n = theSOE->size;
     int kd = theSOE->half_band -1;
@@ -128,11 +130,11 @@ BandSPDLinLapackSolver::solve(void)
     // check if successful
     if (info != 0) {
       if (info > 0) {
-	opserr << "WARNING BandSPDLinLapackSolver::solve() -";
-	opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
+	// opserr << "WARNING BandSPDLinLapackSolver::solve() -";
+	// opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
 	return -info+1;
       } else {
-	opserr << "WARNING BandSPDLinLapackSolver::solve() - OpenSees code error\n";
+	// opserr << "WARNING BandSPDLinLapackSolver::solve() - OpenSees code error\n";
 	return info;
       }      
     }

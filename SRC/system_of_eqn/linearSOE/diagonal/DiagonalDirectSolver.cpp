@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2005-02-09 19:58:47 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/diagonal/DiagonalDirectSolver.cpp,v $
-
+//
 // Written: fmk 
 // Created: Jan 2005
 // Revision: A
@@ -38,6 +34,7 @@
 #include <math.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <assert.h>
 
 void* OPS_DiagonalDirectSolver()
 {
@@ -61,11 +58,12 @@ DiagonalDirectSolver::~DiagonalDirectSolver()
 int
 DiagonalDirectSolver::setSize(void)
 {
-  if (theSOE == 0) {
-    opserr << "DiagonalDirectSolver::setSize()";
-    opserr << " No system has been set!\n";
-    return -1;
-  }
+  assert(theSOE != nullptr);
+  // if (theSOE == 0) {
+  //   opserr << "DiagonalDirectSolver::setSize()";
+  //   opserr << " No system has been set!\n";
+  //   return -1;
+  // }
   return 0;
 }
 
@@ -73,13 +71,13 @@ DiagonalDirectSolver::setSize(void)
 int 
 DiagonalDirectSolver::solve(void)
 {
-
   // check for quick returns
-  if (theSOE == 0) {
-    opserr << "DiagonalDirectSolver::solve(void): ";
-    opserr << " - No ProfileSPDSOE has been assigned\n";
-    return -1;
-  }
+  assert(theSOE != nullptr);
+//  if (theSOE == 0) {
+//    opserr << "DiagonalDirectSolver::solve(void): ";
+//    opserr << " - No ProfileSPDSOE has been assigned\n";
+//    return -1;
+//  }
     
   if (theSOE->size == 0)
     return 0;
@@ -100,15 +98,15 @@ DiagonalDirectSolver::solve(void)
 
       // check that the diag > the tolerance specified
       if (aii == 0.0) {
-	opserr << "DiagonalDirectSolver::solve() - ";
-	opserr << " aii = 0 (i, aii): (" << i << ", " << aii << ")\n"; 
-	return(-2);
+	// opserr << "DiagonalDirectSolver::solve() - ";
+	// opserr << " aii = 0 (i, aii): (" << i << ", " << aii << ")\n"; 
+	return -2;
       }
       if (fabs(aii) <= minDiagTol) {
-	opserr << "DiagonalDirectSolver::solve() - ";
-	opserr << " aii < minDiagTol (i, aii): (" << i;
-	opserr << ", " << aii << ")\n"; 
-	return(-2);
+	// opserr << "DiagonalDirectSolver::solve() - ";
+	// opserr << " aii < minDiagTol (i, aii): (" << i;
+	// opserr << ", " << aii << ")\n"; 
+	return -2;
       }		
 
       // store the inverse 1/Aii in A; and solve for Xi
@@ -137,6 +135,7 @@ DiagonalDirectSolver::getDeterminant(void)
   return determinant;
 }
 
+#if 0
 int 
 DiagonalDirectSolver::setDiagonalSOE(DiagonalSOE &theNewSOE)
 {
@@ -149,6 +148,7 @@ DiagonalDirectSolver::setDiagonalSOE(DiagonalSOE &theNewSOE)
   theSOE = &theNewSOE;
   return 0;
 }
+#endif
 
 
 int
