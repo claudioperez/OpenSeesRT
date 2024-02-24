@@ -4,6 +4,7 @@
 
 #include "ExponReducing.h"
 #include <stdlib.h>
+#include <Print.h>
 #include <OPS_ErrorStream.h>
 
 #define MAT_TAG_EXPON -1
