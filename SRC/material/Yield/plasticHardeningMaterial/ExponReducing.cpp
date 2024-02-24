@@ -4,6 +4,7 @@
 
 #include "ExponReducing.h"
 #include <stdlib.h>
+#include <OPS_ErrorStream.h>
 
 #define MAT_TAG_EXPON -1
 #define DEBG 0
@@ -21,7 +22,6 @@ ExponReducing::ExponReducing(int tag, double kp0, double alfa, double min_fact)
 :PlasticHardeningMaterial(tag,MAT_TAG_EXPON),
   Kp0(kp0), alpha(alfa), resFactor(min_fact)
 {
-//	opserr << "ResFact = " <<  res_fact << endln; opserr << "\a";
 }
 
 
@@ -62,9 +62,13 @@ double ExponReducing::getTrialPlasticStiffness()
 
 void ExponReducing::Print(OPS_Stream &s, int flag)
 {
-	s << "MultiLinear, Tag = " << getTag() << endln;
-	s << "Kp0 = " << Kp0 << endln;
-	s << "Alpha = " <<  alpha << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "{}";
+  } else {
+    s << "MultiLinear, Tag = " << getTag() << "\n";
+    s << "Kp0 = " << Kp0 << "\n";
+    s << "Alpha = " <<  alpha << "\n";
+  }
 }
 
 PlasticHardeningMaterial *ExponReducing::getCopy(void)
