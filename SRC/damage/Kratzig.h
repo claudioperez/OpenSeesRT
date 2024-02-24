@@ -1,4 +1,3 @@
-
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
@@ -42,7 +41,7 @@
 #include <DamageModel.h>
 
 class DamageResponse;
-
+class Element;
 
 class Kratzig : public DamageModel
 {

@@ -38,7 +38,7 @@
 #include <DamageModel.h>
 
 class DamageResponse;
-
+class Element;
 
 class Mehanny : public DamageModel
 {
