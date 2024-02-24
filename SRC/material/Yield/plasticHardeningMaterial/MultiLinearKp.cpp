@@ -101,7 +101,9 @@ MultiLinearKp::Print(OPS_Stream &s, int flag)
 {
     this->PlasticHardeningMaterial::Print(s, flag);
 
-    if (flag != OPS_PRINT_PRINTMODEL_JSON) {  
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {  
+      s << "{}";
+    } else {
       s << "+-MultiLinear" << "\n";
       s << "    Kp = " << this->getTrialPlasticStiffness();
       s << "    SumPlasDefo Vector = " <<  sumPlasDefo;
