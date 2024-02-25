@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/SPSW02.cpp,v $
-//
-//
 // 
+// Purpose: This file contains the implementation for the SPSW02 class.
 //
 // Written: S. A. Jalalli 03/2015
-//Reference: S.A. Jalali and M. Banazadeh, "Development of a new deteriorating hysteresis model for seismic collapse assessment of thin steel plate shear walls"
-//link to reference: http://www.sciencedirect.com/science/article/pii/S026382311630249X
-// Purpose: This file contains the implementation for the SPSW02 class.
+// Reference: S.A. Jalali and M. Banazadeh, "Development of a new deteriorating hysteresis model for seismic collapse assessment of thin steel plate shear walls"
+// link to reference: http://www.sciencedirect.com/science/article/pii/S026382311630249X
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -125,8 +121,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SPSW02)
 			return 0;
 		}
 		curArg ++;
-	} else if (strcmp(str , "-params") == 0)
-	{
+	} else if (strcmp(str , "-params") == 0) {
 		paramsSet = true;
 		//Fts, Fcs, cmpUnldngEFac, sigTEFac, sigTFfac, epsTFfac
 		if (OPS_GetDoubleInput (&numData, &Fts) != 0) {
@@ -797,7 +792,11 @@ int SPSW02::recvSelf(int commitTag, Channel & theChannel, FEM_ObjectBroker & the
 
 void SPSW02::Print(OPS_Stream & s, int flag)
 {
-	s << "SPSW02:(strain, stress, tangent)" << eps << " " << sig << " " << e << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{}";
+  } else {
+    s << "SPSW02:(strain, stress, tangent)" << eps << " " << sig << " " << e << endln;
+  }
 }
 
 void SPSW02::Calc_sigcr(/*double & _Fts, double &_Fcs*/)
