@@ -17,24 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/fullGEN/FullGenLinLapackSolver.h,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/FullGEN/FullGenLinLapackSolver.h
-//
-// Written: fmk 
-// Created: Tue Sep 26 16:27:47: 1996
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // FullGenLinLapackSolver. It solves the FullGenLinSOE object by calling
 // Lapack routines.
 //
-// What: "@(#) FullGenLinLapackSolver.h, revA"
-
+// Written: fmk 
+// Created: Tue Sep 26 16:27:47: 1996
+// Revision: A
+//
 #ifndef FullGenLinLapackSolver_h
 #define FullGenLinLapackSolver_h
 
