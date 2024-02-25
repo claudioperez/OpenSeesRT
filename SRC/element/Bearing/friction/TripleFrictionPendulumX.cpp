@@ -2394,26 +2394,7 @@ int TripleFrictionPendulumX::displaySelf(Renderer& theViewer,
         v2(2) = end1Crd(2) + (end2Disp(2) + xp(0) * end2Disp(4) - xp(1) * end2Disp(3)) * fact;
     }
     else {
-        int mode = displayMode * -1;
-        const Matrix& eigen1 = theNodes[0]->getEigenvectors();
-        const Matrix& eigen2 = theNodes[1]->getEigenvectors();
-
-        if (eigen1.noCols() >= mode) {
-            for (int i = 0; i < 3; i++) {
-                v1(i) = end1Crd(i) + eigen1(i, mode - 1) * fact;
-                v3(i) = end2Crd(i) + eigen2(i, mode - 1) * fact;
-            }
-            v2(0) = end1Crd(0) + (eigen2(0, mode - 1) + xp(1) * eigen2(5, mode - 1) - xp(2) * eigen2(4, mode - 1)) * fact;
-            v2(1) = end1Crd(1) + (eigen2(1, mode - 1) - xp(0) * eigen2(5, mode - 1) + xp(2) * eigen2(3, mode - 1)) * fact;
-            v2(2) = end1Crd(2) + (eigen2(2, mode - 1) + xp(0) * eigen2(4, mode - 1) - xp(1) * eigen2(3, mode - 1)) * fact;
-        }
-        else {
-            for (int i = 0; i < 3; i++) {
-                v1(i) = end1Crd(i);
-                v2(i) = end1Crd(i);
-                v3(i) = end2Crd(i);
-            }
-        }
+      // cmp 
     }
 
     errCode += theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag(), 0);
