@@ -31,7 +31,7 @@
 #include <ProfileSPDLinDirectSolver.h>
 #include <ProfileSPDLinSOE.h>
 #include <math.h>
-#include <stdlib.h>
+#include <assert.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -61,12 +61,7 @@ ProfileSPDLinDirectSolver::~ProfileSPDLinDirectSolver()
 int
 ProfileSPDLinDirectSolver::setSize(void)
 {
-
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectSolver::setSize()";
-	opserr << " No system has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
 
     // check for quick return 
     if (theSOE->size == 0)
@@ -74,23 +69,19 @@ ProfileSPDLinDirectSolver::setSize(void)
     
     size = theSOE->size;
     
-    if (RowTop != 0) delete [] RowTop;
-    if (topRowPtr != 0) free((void *)topRowPtr);
-    if (invD != 0) delete [] invD;
+    if (RowTop != 0) 
+      delete [] RowTop;
+    if (topRowPtr != 0) 
+      free((void *)topRowPtr);
+    if (invD != 0) 
+      delete [] invD;
 
     RowTop = new int[size];
 
     // we cannot use topRowPtr = new (double *)[size] with the cxx compiler
     topRowPtr = (double **)malloc(size *sizeof(double *));
 
-    invD = new double[size]; 
-	
-    if (RowTop == 0 || topRowPtr == 0 || invD == 0) {
-	opserr << "Warning :ProfileSPDLinDirectSolver::ProfileSPDLinDirectSolver :";
-	opserr << " ran out of memory for work areas \n";
-	return -1;
-    }
-
+    invD = new double[size];
 
     // set some pointers
     double *A = theSOE->A;
@@ -118,11 +109,12 @@ ProfileSPDLinDirectSolver::solve(void)
   //  timer.start();
 
     // check for quick returns
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectSolver::solve(void): ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
+    // if (theSOE == 0) {
+    //     opserr << "ProfileSPDLinDirectSolver::solve(void): ";
+    //     opserr << " - No ProfileSPDSOE has been assigned\n";
+    //     return -1;
+    // }
     
     if (theSOE->size == 0)
 	return 0;
@@ -135,22 +127,6 @@ ProfileSPDLinDirectSolver::solve(void)
     for (int ii=0; ii<theSize; ii++)
 	X[ii] = B[ii];
 
-    /*
-      for (int iii=0; iii<theSize; iii++) {
-      int rowiiitop = RowTop[iii];
-      double *ajiptr = topRowPtr[iii];
-      opserr << "\n COLUMN " << iii << " TopRow " << rowiiitop << " -> ";
-      for (int jjj = rowiiitop; jjj <=iii; jjj++)
-      opserr << *ajiptr++ << " ";
-      }
-      opserr << endln;
-
-      for (int iii=0; iii<theSOE->size; iii++) {
-      opserr << "COLUMN " << iii << " Biii -> " << X[iii] << endln;
-      }
-      opserr << endln;
-      */
-
     
     if (theSOE->isAfactored == false)  {
 
@@ -162,8 +138,8 @@ ProfileSPDLinDirectSolver::solve(void)
 
 	double a00 = theSOE->A[0];
 	if (a00 <= 0.0) {
-	  opserr << "ProfileSPDLinDirectSolver::solve() - ";
-	  opserr << " aii < 0 (i, aii): (0,0)\n"; 
+	  // opserr << "ProfileSPDLinDirectSolver::solve() - ";
+	  // opserr << " aii < 0 (i, aii): (0,0)\n"; 
 	  return(-2);
 	}    
 	
@@ -217,15 +193,15 @@ ProfileSPDLinDirectSolver::solve(void)
 	    
 	    // check that the diag > the tolerance specified
 	    if (aii == 0.0) {
-		opserr << "ProfileSPDLinDirectSolver::solve() - ";
-		opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
-		return(-2);
+		// opserr << "ProfileSPDLinDirectSolver::solve() - ";
+		// opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
+		return -2;
 	    }
 	    if (fabs(aii) <= minDiagTol) {
-		opserr << "ProfileSPDLinDirectSolver::solve() - ";
-		opserr << " aii < minDiagTol (i, aii): (" << i;
-		opserr << ", " << aii << ")\n"; 
-		return(-2);
+		// opserr << "ProfileSPDLinDirectSolver::solve() - ";
+		// opserr << " aii < minDiagTol (i, aii): (" << i;
+		// opserr << ", " << aii << ")\n"; 
+		return -2;
 	    }		
 	    invD[i] = 1.0/aii; 
 	    X[i] += tmp;	    
@@ -290,14 +266,6 @@ ProfileSPDLinDirectSolver::solve(void)
 		X[j] -= *ajiPtr++ * bk;
 	}   	 
     }    
-    
-    /*
-    opserr << "BBBB " << theSOE->getB();
-    opserr << "XXXX " << theSOE->getX();
-    */
-
-    // timer.pause();
-    // timer.Print(opserr);
 
     return 0;
 }
@@ -313,6 +281,7 @@ ProfileSPDLinDirectSolver::getDeterminant(void)
    return determinant;
 }
 
+#if 0
 int 
 ProfileSPDLinDirectSolver::setProfileSOE(ProfileSPDLinSOE &theNewSOE)
 {
@@ -325,29 +294,30 @@ ProfileSPDLinDirectSolver::setProfileSOE(ProfileSPDLinSOE &theNewSOE)
     theSOE = &theNewSOE;
     return 0;
 }
-	
+#endif	
 
 int 
 ProfileSPDLinDirectSolver::factor(int n)
 {
 
     // check for quick returns
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectSolver::factor: ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
+    // if (theSOE == 0) {
+    //     opserr << "ProfileSPDLinDirectSolver::factor: ";
+    //     opserr << " - No ProfileSPDSOE has been assigned\n";
+    //     return -1;
+    // }
 
     int theSize = theSOE->size;    
-    if (n > theSize) {
-	opserr << "ProfileSPDLinDirectSolver::factor: ";
-	opserr << " - n " << n << " greater than size of system" << theSize << endln;
-	return -1;
-    }
+    assert( ! (n > theSize));
+    // if (n > theSize) {
+    //     opserr << "ProfileSPDLinDirectSolver::factor: ";
+    //     opserr << " - n " << n << " greater than size of system" << theSize << endln;
+    //     return -1;
+    // }
 
     if (theSize == 0 || n == 0)
 	return 0;
-
 
     // set some pointers
     if (theSOE->isAfactored == false)  {
@@ -405,14 +375,14 @@ ProfileSPDLinDirectSolver::factor(int n)
 	    
 	    // check that the diag > the tolerance specified
 	    if (aii <= 0.0) {
-		opserr << "ProfileSPDLinDirectSolver::solve() - ";
-		opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
+		// opserr << "ProfileSPDLinDirectSolver::solve() - ";
+		// opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
 		return(-2);
 	    }
 	    if (aii <= minDiagTol) {
-		opserr << "ProfileSPDLinDirectSolver::solve() - ";
-		opserr << " aii < minDiagTol (i, aii): (" << i;
-		opserr << ", " << aii << ")\n"; 
+		// opserr << "ProfileSPDLinDirectSolver::solve() - ";
+		// opserr << " aii < minDiagTol (i, aii): (" << i;
+		// opserr << ", " << aii << ")\n"; 
 		return(-2);
 	    }		
 	    

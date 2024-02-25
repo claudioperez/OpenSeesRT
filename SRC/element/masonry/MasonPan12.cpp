@@ -1385,7 +1385,7 @@ int
 //MasonPan12::displaySelf(Renderer &theViewer, int displayMode, float fact)
 MasonPan12::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
 {
-	  
+#if 0
 	int code=0;
 	// first determine the two end points of the CorotTruss2 based on
 	// the display factor (a measure of the distorted image)
@@ -1557,7 +1557,7 @@ MasonPan12::displaySelf(Renderer &theViewer, int displayMode, float fact, const 
 
 		  return code;
 	}
-
+#endif
 	return 0;
 }
 

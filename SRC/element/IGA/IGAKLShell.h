@@ -111,8 +111,6 @@ public:
     Response* emulateSectionSetResponse(const char **argv, int argc,
                                       OPS_Stream &output, int gaussPointNum, double xi, double eta);
 
-    //plotting
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes = 0, int numModes = 0);
 
     Matrix transpose( int dim1, int dim2, const Matrix &M );
 

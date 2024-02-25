@@ -451,7 +451,7 @@ AnalysisModel::setDisp(const Vector &disp)
 void 
 AnalysisModel::setVel(const Vector &vel)
 {
-        DOF_GrpIter &theDOFGrps = this->getDOFs();
+    DOF_GrpIter &theDOFGrps = this->getDOFs();
     DOF_Group 	*dofPtr;
     
     while ((dofPtr = theDOFGrps()) != 0) 
@@ -482,13 +482,13 @@ AnalysisModel::incrDisp(const Vector &disp)
 void 
 AnalysisModel::incrVel(const Vector &vel)
 {
-        DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
-    
-    while ((dofPtr = theDOFGrps()) != 0) 
+    DOF_GrpIter &theDOFGrps = this->getDOFs();
+    DOF_Group 	*dofPtr;    
+    while ((dofPtr = theDOFGrps()) != nullptr)
 	dofPtr->incrNodeVel(vel);
-}	
-	
+}
+
+#if 0
 void 
 AnalysisModel::incrAccel(const Vector &accel)
 {
@@ -498,6 +498,7 @@ AnalysisModel::incrAccel(const Vector &accel)
     while ((dofPtr = theDOFGrps()) != 0) 
 	dofPtr->incrNodeAccel(accel);	
 }	
+#endif
 
 
 void 
@@ -507,7 +508,7 @@ AnalysisModel::setNumEigenvectors(int numEigenvectors)
     NodeIter &theNodes = myDomain->getNodes();
     while ((theNode = theNodes()) != 0)
 	theNode->setNumEigenvectors(numEigenvectors);
-}	
+}
 
 void 
 AnalysisModel::setEigenvalues(const Vector &eigenvalues)

@@ -32,7 +32,7 @@
 #include <Channel.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
-#include <Node.h>
+#include <Node.h> // getDOF_GroupPtr
 #include <DOF_Group.h>
 #include <DOF_GrpIter.h>
 #include <LoadPattern.h>
@@ -256,21 +256,21 @@ LoadControl::formSensitivityRHS(int passedGradNumber)
 
     Node *aNode;
     DOF_Group *aDofGroup;
-    int nodeNumber, dofNumber, relevantID, i, sizeRandomLoads, numRandomLoads;
+    int nodeNumber, dofNumber, relevantID;
     LoadPattern *loadPatternPtr;
 
     Domain *theDomain = theAnalysisModel->getDomainPtr();
     LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
     while((loadPatternPtr = thePatterns()) != 0) {
 	const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
-	sizeRandomLoads = randomLoads.Size();
+	int sizeRandomLoads = randomLoads.Size();
 	if (sizeRandomLoads == 1) {
 	    // No random loads in this load pattern
 	}
 	else {
 	    // Random loads: add contributions to the 'B' vector
-	    numRandomLoads = (int)(sizeRandomLoads/2);
-	    for (i=0; i<numRandomLoads*2; i=i+2) {
+	    int numRandomLoads = (int)(sizeRandomLoads/2);
+	    for (int i=0; i<numRandomLoads*2; i=i+2) {
 		nodeNumber = (int)randomLoads(i);
 		dofNumber = (int)randomLoads(i+1);
 		aNode = theDomain->getNode(nodeNumber);

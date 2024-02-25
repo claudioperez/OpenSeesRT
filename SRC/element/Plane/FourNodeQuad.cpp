@@ -32,7 +32,6 @@
 #include <Vector.h>
 #include <VectorND.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -900,59 +899,19 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
   }
   
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << "\t\t\t{";
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
       s << "\"name\": " << this->getTag() << ", ";
       s << "\"type\": \"" << this->class_name << "\", ";
       s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-      s << connectedExternalNodes(1) << ", ";
-      s << connectedExternalNodes(2) << ", ";
-      s << connectedExternalNodes(3) << "], ";
+                        s << connectedExternalNodes(1) << ", ";
+                        s << connectedExternalNodes(2) << ", ";
+                        s << connectedExternalNodes(3) << "], ";
       s << "\"thickness\": " << thickness << ", ";
       s << "\"surfacePressure\": " << pressure << ", ";
       s << "\"masspervolume\": " << rho << ", ";
       s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
       s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
   }
-}
-
-int
-FourNodeQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-    theNodes[2]->getDisplayCrds(v3, fact, displayMode);
-    theNodes[3]->getDisplayCrds(v4, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(4, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-    }
-
-// set the quantity to be displayed at the nodes;
-// if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
-    static Vector values(4);
-    if (displayMode < 4 && displayMode > 0) {
-        for (int i = 0; i < 4; i++) {
-              const Vector& stress = theMaterial[i]->getStress();
-              values(i) = stress(displayMode - 1);
-        }
-    }
-    else {
-        for (int i = 0; i < 4; i++)
-            values(i) = 0.0;
-    }
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
 }
 
 Response*

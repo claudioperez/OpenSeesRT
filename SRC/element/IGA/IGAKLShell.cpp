@@ -48,7 +48,6 @@
 #include <ErrorHandler.h>
 #include <IGAKLShell.h>
 #include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <MaterialResponse.h>
 #include <ElementalLoad.h>
@@ -84,9 +83,9 @@ static int numIGAKLShell = 0;
 
 
 //static data
-Matrix*  IGAKLShell::stiff = 0;
-Matrix*  IGAKLShell::mass  = 0;
-Vector*  IGAKLShell::resid = 0;
+Matrix*  IGAKLShell::stiff = nullptr;
+Matrix*  IGAKLShell::mass  = nullptr;
+Vector*  IGAKLShell::resid = nullptr;
 // Vector*  IGAKLShell::load = 0;
 
 
@@ -208,16 +207,13 @@ IGAKLShell::~IGAKLShell( )
 //set domain
 void  IGAKLShell::setDomain( Domain *theDomain )
 {
-  int i;
-
   int Nnodes = connectedExternalNodes.Size();
   int NDOF = 3 * Nnodes;
 
   // Initialiaze class-wide static data
-  if (numIGAKLShell == 1)
-  {
+  if (numIGAKLShell == 1) {
     stiff = new Matrix(NDOF, NDOF);
-    mass = new Matrix(NDOF, NDOF);
+    mass  = new Matrix(NDOF, NDOF);
     resid = new Vector(NDOF);
     // load = new Vector(NDOF);
   }
@@ -225,7 +221,7 @@ void  IGAKLShell::setDomain( Domain *theDomain )
   //node pointers
   nodePointers = new Node* [connectedExternalNodes.Size()];
 
-  for ( i = 0; i < connectedExternalNodes.Size(); i++ ) {
+  for (int i = 0; i < connectedExternalNodes.Size(); i++ ) {
     nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
     if (nodePointers[i] == 0) {
       opserr << "IGAKLShell::setDomain - no node " << connectedExternalNodes(i);
@@ -4496,21 +4492,9 @@ int  IGAKLShell::recvSelf (int commitTag,
                            FEM_ObjectBroker &theBroker)
 {
   int res = 0;
-
-
-
   return res;
 }
 //**************************************************************************
-
-int
-IGAKLShell::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-
-  int error = 0;
-
-  return error;
-}
 
 
 bool IGAKLShell::pointInElement(double xi, double eta) const

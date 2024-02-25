@@ -107,8 +107,7 @@ public:
 
         // save initial rotations, no need to take current rotation
         // since we will remove the initial ones (themselves)...
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             m_RV[i] = Vector3Type(0.0, 0.0, 0.0);
             m_QN[i] = QuaternionType::FromRotationVector(m_RV[i]);
 
@@ -138,8 +137,7 @@ public:
 
     virtual void commit()
     {
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             m_RV_converged[i] = m_RV[i];
             m_QN_converged[i] = m_QN[i];
         }
@@ -147,8 +145,7 @@ public:
 
     virtual void update(const VectorType& globalDisplacements)
     {
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             // compute current rotation vector removing initial rotations if any
             Vector3Type currentRotVec;
             int index = i * 6;
@@ -242,8 +239,7 @@ public:
         QuaternionType Q = QuaternionType::FromRotationMatrix(LCS.Orientation());
         const Vector3Type& C = LCS.Center();
 
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             int index = i * 6;
 
             // centered undeformed position

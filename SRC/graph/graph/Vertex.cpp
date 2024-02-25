@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2009-05-11 21:37:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/Vertex.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
@@ -129,7 +125,7 @@ Vertex::Print(OPS_Stream &s, int flag)
     s << myRef << " ";
     if (flag == 1) 
 	s << myWeight << " " ;
-    else if (flag ==2) 
+    else if (flag == 2)
 	s << myColor << " " ;
     else if (flag == 3)
         s << myWeight << " " << myColor << " " ;    

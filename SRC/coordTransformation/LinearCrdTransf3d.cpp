@@ -809,16 +809,15 @@ LinearCrdTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
   static double kb[6][6];    // Basic stiffness
   static double kl[12][12];  // Local stiffness
   static double tmp[12][12]; // Temporary storage
-  double oneOverL = 1.0 / L;
+  const double oneOverL = 1.0 / L;
 
-  int i, j;
-  for (i = 0; i < 6; i++)
-    for (j = 0; j < 6; j++)
+  for (int i = 0; i < 6; i++)
+    for (int j = 0; j < 6; j++)
       kb[i][j] = KB(i, j);
 
   // Transform basic stiffness to local system
   // First compute kb*T_{bl}
-  for (i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; i++) {
     tmp[i][0]  = -kb[i][0];
     tmp[i][1]  = oneOverL * (kb[i][1] + kb[i][2]);
     tmp[i][2]  = -oneOverL * (kb[i][3] + kb[i][4]);
@@ -834,7 +833,7 @@ LinearCrdTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
   }
 
   // Now compute T'_{bl}*(kb*T_{bl})
-  for (i = 0; i < 12; i++) {
+  for (int i = 0; i < 12; i++) {
     kl[0][i]  = -tmp[0][i];
     kl[1][i]  = oneOverL * (tmp[1][i] + tmp[2][i]);
     kl[2][i]  = -oneOverL * (tmp[3][i] + tmp[4][i]);

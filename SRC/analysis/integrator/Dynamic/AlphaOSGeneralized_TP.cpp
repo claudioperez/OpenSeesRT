@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 10/05
 // Revision: A
 //
 // Description: This file contains the implementation of the AlphaOSGeneralized_TP class.
-
+//
 #include <AlphaOSGeneralized_TP.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>

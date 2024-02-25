@@ -17,27 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectSkypackSolver.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 03/98
-
 //
 // Description: This file contains the class definition for 
 // ProfileSPDLinDirectSkypackSolver. ProfileSPDLinDirectSkypackSolver 
 // is a subclass of LinearSOESOlver. It solves a ProfileSPDLinSOE object using
 // the Skypack library developed by Osni Marques, software available at
 //   http://www.nersc.gov/research/SCG/Osni/marques_software.html
-
-// What: "@(#) ProfileSPDLinDirectSkypackSolver.C, revA"
-
+//
+// Written: fmk 
+// Created: 03/98
+//
 #include <ProfileSPDLinDirectSkypackSolver.h>
 #include <ProfileSPDLinSOE.h>
 #include <math.h>
+#include <assert.h>
 
 #include <math.h>
 #include <Channel.h>
@@ -68,13 +61,6 @@ ProfileSPDLinDirectSkypackSolver::ProfileSPDLinDirectSkypackSolver(int Mcols, in
 	mCols = 0;
 	mRows = 0;
     }
-
-    // check we got the space requested
-    if (rw == 0 || tw == 0 || index == 0) {
-	opserr << "WARNING ProfileSPDLinDirectSkypackSolver::ProfileSPDLinDirectSkypack";
-	opserr << "Solver() - ran out of memory for work areas, setting mCols and mRows = 0\n";
-	mCols = 0; mRows = 0;
-    }
 }
 
     
@@ -90,12 +76,7 @@ int
 ProfileSPDLinDirectSkypackSolver::setSize(void)
 {
     int result = 0;
-
-    if (theSOE == 0) {
-	opserr << "WARNING ProfileSPDLinDirectSkypackSolver::setSize()";
-	opserr << " No system has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
 
     // check for quick return 
     if (theSOE->size == 0)
@@ -112,12 +93,6 @@ ProfileSPDLinDirectSkypackSolver::setSize(void)
 
     // create the new work areas
     invD = new double[size];
-    if (invD == 0) {
-      opserr << "Warning :ProfileSPDLinDirectSkypackSolver::setSize():";
-      opserr << " ran out of memory for work area invD\n";
-      result = -2;;
-    }    
-
     return result;
 }
 
@@ -134,23 +109,25 @@ extern "C" int skyss_(int *LDX, int *N, int *NRHS,
 int 
 ProfileSPDLinDirectSkypackSolver::solve(void)
 {
-    // check for quick returns
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectSkypackSolver::solve(void): ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
+    // if (theSOE == 0) {
+    //     opserr << "ProfileSPDLinDirectSkypackSolver::solve(void): ";
+    //     opserr << " - No ProfileSPDSOE has been assigned\n";
+    //     return -1;
+    // }
     
+    // check for quick returns
     if (theSOE->size == 0)
 	return 0;    
     
 
     // check that work area invD has been created
-    if (invD == 0) {
-	opserr << "ProfileSPDLinDirectSkypackSolver::solve(void): ";
-	opserr << " - no space for invD - has setSize() been called?\n";
-	return -1;
-    }	
+    assert(invD != 0);
+    // if (invD == 0) {
+    //     opserr << "ProfileSPDLinDirectSkypackSolver::solve(void): ";
+    //     opserr << " - no space for invD - has setSize() been called?\n";
+    //     return -1;
+    // }	
 
     // set some pointers
     double *A = theSOE->A;
@@ -210,10 +187,10 @@ ProfileSPDLinDirectSkypackSolver::solve(void)
 	   (char*)filename,  &fileFD, &INFO);
       
     // return
-    if (INFO < 0) {
-	opserr << "WARNING ProfileSPDLinDirectSkypackSolver::solve()";
-	opserr << " error value returned from skyss()\n";
-    }    
+    // if (INFO < 0) {
+    //     opserr << "WARNING ProfileSPDLinDirectSkypackSolver::solve()";
+    //     opserr << " error value returned from skyss()\n";
+    // }    
 
     return INFO;
 
@@ -231,8 +208,8 @@ int
 ProfileSPDLinDirectSkypackSolver::sendSelf(int cTag,
 					   Channel &theChannel)
 {
-    if (size != 0)
-	opserr << "ProfileSPDLinDirectSkypackSolver::sendSelf - does not send itself YET\n"; 
+//     if (size != 0)
+// 	opserr << "ProfileSPDLinDirectSkypackSolver::sendSelf - does not send itself YET\n"; 
     return 0;
 }
 
