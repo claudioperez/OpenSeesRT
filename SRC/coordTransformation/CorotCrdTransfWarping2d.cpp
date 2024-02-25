@@ -41,8 +41,9 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <Node.h>
+#include <Print.h>
 #include <Channel.h>
-
+#include <OPS_ErrorStream.h>
 #include <CorotCrdTransfWarping2d.h>
 
 // initialize static variables
@@ -118,7 +119,6 @@ int
 CorotCrdTransfWarping2d::revertToLastCommit(void)
 {
   ub = ubcommit;
-
   this->update();
   return 0;
 }
