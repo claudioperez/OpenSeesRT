@@ -20,7 +20,7 @@
                                                                         
 // Written: K.Petek	
 // Created: 12/04
-
+#include <assert.h>
 #include <BoundingCamClay3D.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -74,10 +74,11 @@ int BoundingCamClay3D::setTrialStrain( const Vector &strain_from_element)
 	return 0 ;
 }
 
-//unused trial strain functions
+// unused trial strain functions
 int BoundingCamClay3D::setTrialStrain(const Vector &v, const Vector &r)
 {
-    opserr << "YOU SHOULD NOT SEE THIS: BoundingCamClay::setTrialStrain (const Vector &v, const Vector &r)" << endln;
+    assert(false);
+    // opserr << "YOU SHOULD NOT SEE THIS: BoundingCamClay::setTrialStrain (const Vector &v, const Vector &r)" << endln;
     return this->setTrialStrain (v);
 }
 

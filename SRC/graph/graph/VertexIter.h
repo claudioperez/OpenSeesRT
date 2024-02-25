@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/VertexIter.h,v $
-                                                                        
-                                                                        
-// File: ~/analysis/model/VertexIter.h
 //
 // Written: fmk 
 // Created: Fri Sep 20 15:27:47: 1996

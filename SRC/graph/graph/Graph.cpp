@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-01-09 19:20:18 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/Graph.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
 // Description: This file contains the class implementation for Graph.
 //
-// What: "@(#) Graph.C, revA"
-
 #include <stdlib.h>
 
 #include <Graph.h>

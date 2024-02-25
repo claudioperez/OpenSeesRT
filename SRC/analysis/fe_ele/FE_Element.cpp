@@ -208,32 +208,22 @@ FE_Element::setID(void)
 {
   int current = 0;
 
-  if (theModel == nullptr) {
-      opserr << "WARNING FE_Element::setID() - no AnalysisModel set\n";
-      return -1;
-  }
+  assert(theModel != nullptr);
 
   int numGrps = myDOF_Groups.Size();
   for (int i=0; i<numGrps; i++) {
     int tag = myDOF_Groups(i);
 
     DOF_Group *dofPtr = theModel->getDOF_GroupPtr(tag);
-    if (dofPtr == nullptr) {
-        opserr << "WARNING FE_Element::setID: 0 DOF_Group Pointer\n";
-        return -2;
-    }
+    assert(dofPtr != nullptr);
 
     const ID &theDOFid = dofPtr->getID();
 
-    for (int j=0; j<theDOFid.Size(); j++)
-      if (current < numDOF)
-          myID(current++) = theDOFid(j);
+    for (int j=0; j<theDOFid.Size(); j++) {
+      assert(current < numDOF);
+      myID(current++) = theDOFid(j);
+    }
 
-      else {
-          opserr << "WARNING FE_Element::setID() - numDOF and";
-          opserr << " number of dof at the DOF_Groups\n";
-          return -3;
-      }
   }
   return 0;
 }
@@ -284,7 +274,7 @@ FE_Element::getResidual(Integrator *theNewIntegrator)
 void
 FE_Element::zeroTangent(void)
 {
-    assert (myEle != nullptr);
+    assert(myEle != nullptr);
     assert(myEle->isSubdomain() == false);
     theTangent->Zero();
 }
@@ -299,7 +289,7 @@ FE_Element::addKtToTang(double fact)
     if (fact == 0.0)
         return;
     else
-        theTangent->addMatrix(1.0, myEle->getTangentStiff(),fact);
+        theTangent->addMatrix(myEle->getTangentStiff(),fact);
 }
 
 void
@@ -312,7 +302,7 @@ FE_Element::addCtoTang(double fact)
     if (fact == 0.0)
       return;
     else
-      theTangent->addMatrix(1.0, myEle->getDamp(),fact);
+      theTangent->addMatrix(myEle->getDamp(),fact);
 }
 
 void
@@ -325,7 +315,7 @@ FE_Element::addMtoTang(double fact)
     if (fact == 0.0)
       return;
     else
-      theTangent->addMatrix(1.0, myEle->getMass(),fact);
+      theTangent->addMatrix(myEle->getMass(),fact);
   }
 }
 
@@ -341,7 +331,7 @@ FE_Element::addKiToTang(double fact)
       return;
 
     else // if (myEle->isSubdomain() == false)
-      theTangent->addMatrix(1.0, myEle->getInitialStiff(), fact);
+      theTangent->addMatrix(myEle->getInitialStiff(), fact);
   }
 }
 
@@ -356,7 +346,7 @@ FE_Element::addKgToTang(double fact)
       return;
 
     else
-      theTangent->addMatrix(1.0, myEle->getGeometricTangentStiff(), fact);
+      theTangent->addMatrix(myEle->getGeometricTangentStiff(), fact);
   }
 }
 
@@ -370,7 +360,7 @@ FE_Element::addKpToTang(double fact, int numP)
     else if (myEle->isSubdomain() == false) {
       const Matrix *thePrevMat = myEle->getPreviousK(numP);
       if (thePrevMat != nullptr)
-        theTangent->addMatrix(1.0, *thePrevMat, fact);
+        theTangent->addMatrix(*thePrevMat, fact);
 
     } else {
       opserr << "WARNING FE_Element::addKpToTang() - ";

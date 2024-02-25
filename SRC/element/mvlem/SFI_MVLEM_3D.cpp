@@ -2667,37 +2667,7 @@ int SFI_MVLEM_3D::displaySelf(Renderer& theViewer, int displayMode, float fact, 
 
 	}
 	else {
-
-		int mode = displayMode * -1;
-
-		const Matrix &eigen1 = theNodes[0]->getEigenvectors();
-		const Matrix &eigen2 = theNodes[1]->getEigenvectors();
-		const Matrix &eigen3 = theNodes[2]->getEigenvectors();
-		const Matrix &eigen4 = theNodes[3]->getEigenvectors();
-
-		if (eigen1.noCols() >= mode) {
-
-			for (int i = 0; i < 3; i++) {
-
-				Gv1(i) = nd1Crds(i) + eigen1(i, mode - 1)*fact;
-				Gv2(i) = nd2Crds(i) + eigen2(i, mode - 1)*fact;
-				Gv3(i) = nd3Crds(i) + eigen3(i, mode - 1)*fact;
-				Gv4(i) = nd4Crds(i) + eigen4(i, mode - 1)*fact;
-
-			}
-
-		}
-		else {
-
-			for (int i = 0; i < 3; i++) {
-
-				Gv1(i) = nd1Crds(i);
-				Gv2(i) = nd2Crds(i);
-				Gv3(i) = nd3Crds(i);
-				Gv4(i) = nd4Crds(i);
-
-			}
-		}
+          //cmp
 	}
 
 	int error = 0;
