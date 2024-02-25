@@ -35,7 +35,7 @@
 #include <Vector.h>
 #include <Channel.h>
 #include <math.h>
-#include <stdlib.h>
+#include <assert.h>
 #include <elementAPI.h>
 #include<Domain.h>
 #include<ID.h>
@@ -471,10 +471,9 @@ ArcLength::formTangDispSensitivity(int gradNumber)
   dphatdh->Zero();
   this->formTangent();
   theLinSOE->setB(*dphatdh);
-  if(theLinSOE->solve()<0) {
-    opserr<<"SOE failed to obtained dUhatdh ";
-    exit(-1);
-  }
+  if(theLinSOE->solve()<0)
+    opserr << "SOE failed to obtained dUhatdh ";
+
   (*dUhatdh)=theLinSOE->getX();
   
 /*
@@ -524,9 +523,8 @@ ArcLength::formTangDispSensitivity(int gradNumber)
       }
    }
 
-   if(theLinSOE->solve()<0) {
-      opserr<<"SOE failed to obtained dUhatdh ";
-      exit(-1);
+   if (theLinSOE->solve()<0) {
+      opserr << "SOE failed to obtained dUhatdh ";
    }
 //if(dphatdh !=0) {
  //  this->formTangent();
