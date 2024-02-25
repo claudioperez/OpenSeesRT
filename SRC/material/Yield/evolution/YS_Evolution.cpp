@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "YS_Evolution.h"
+#include <OPS_ErrorStream.h>
 
 Vector YS_Evolution::crd1(1);
 Vector YS_Evolution::crd2(2);
