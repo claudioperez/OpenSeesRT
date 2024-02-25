@@ -26,7 +26,7 @@
 // Lapack routines.
 //
 // What: "@(#) FullGenLinLapackSolver.h, revA"
-
+//
 #include <FullGenLinLapackSolver.h>
 #include <FullGenLinSOE.h>
 #include <math.h>
@@ -49,7 +49,7 @@ FullGenLinLapackSolver::FullGenLinLapackSolver()
 
 FullGenLinLapackSolver::~FullGenLinLapackSolver()
 {
-    if (iPiv != 0)
+    if (iPiv != nullptr)
 	delete [] iPiv;
 }
 
@@ -71,26 +71,17 @@ extern "C" int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA,
 int
 FullGenLinLapackSolver::solve(void)
 {
-  assert(theSOE != nullptr);
-  // if (theSOE == 0) {
-  //     opserr << "WARNING FullGenLinLapackSolver::solve(void)- ";
-  //     opserr << " No LinearSOE object has been set\n";
-  //     return -1;
-  // }
+    assert(theSOE != nullptr);
     
     int n = theSOE->size;
     
     // check for quick return
     if (n == 0)
-	return 0;
+      return 0;
     
     // check iPiv is large enough
     assert(!(sizeIpiv < n));
-    // if (sizeIpiv < n) {
-    //     opserr << "WARNING FullGenLinLapackSolver::solve(void)- ";
-    //     opserr << " iPiv not large enough - has setSize() been called?\n";
-    //     return -1;
-    // }	
+    //  opserr << " iPiv not large enough - has setSize() been called?\n";
 	
     int ldA = n;
     int nrhs = 1;
@@ -106,8 +97,9 @@ FullGenLinLapackSolver::solve(void)
 	*(Xptr++) = *(Bptr++);
     Xptr = theSOE->X;
 
+    //
     // now solve AX = Y
-
+    //
 #ifdef _WIN32
     {if (theSOE->factored == false)  
 	// factor and solve 
@@ -148,7 +140,7 @@ FullGenLinLapackSolver::setSize()
     int n = theSOE->size;
     if (n > 0) {
 	if (sizeIpiv < n) {
-	    if (iPiv != 0)
+	    if (iPiv != nullptr)
 		delete [] iPiv;
 	    iPiv = new int[n];		
 	    sizeIpiv = n;
@@ -162,7 +154,6 @@ FullGenLinLapackSolver::setSize()
 int
 FullGenLinLapackSolver::sendSelf(int commitTag,
 				 Channel &theChannel)
-
 {
     // nothing to do
     return 0;
