@@ -976,24 +976,19 @@ Domain::clearAll(void) {
   
   dbEle =0; dbNod =0; dbSPs =0; dbPCs = 0; dbMPs =0; dbLPs = 0; dbParam = 0;
 
-  currentGeoTag = 0;
+  currentGeoTag  = 0;
   lastGeoSendTag = -1;
-  lastChannel = 0;
+  lastChannel    = 0;
 
-  // rest the flag to be as initial
-  hasDomainChangedFlag = false;
-  nodeGraphBuiltFlag = false;
-  eleGraphBuiltFlag = false;
-
-  if (theNodeGraph != 0)
+  if (theNodeGraph != nullptr)
     delete theNodeGraph;
-  theNodeGraph = 0;
+  theNodeGraph = nullptr;
 
-  if (theElementGraph != 0)
+  if (theElementGraph != nullptr)
     delete theElementGraph;
-  theElementGraph = 0;
+  theElementGraph = nullptr;
   
-  dbEle =0; dbNod =0; dbSPs =0; dbPCs = 0; dbMPs =0; dbLPs = 0; dbParam = 0;
+  // dbEle =0; dbNod =0; dbSPs =0; dbPCs = 0; dbMPs =0; dbLPs = 0; dbParam = 0;
 }
 
 
