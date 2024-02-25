@@ -1502,14 +1502,7 @@ Matrix::operator-=(const Matrix &M)
 #else
 
   assert(numRows == M.numRows && numCols == M.numCols);
-#ifdef _G3DEBUG
-  if (numRows != M.numRows || numCols != M.numCols) {
-    opserr << "Matrix::operator-=(const Matrix &M) - matrices incompatable [" << numRows << " " ;
-    opserr << numCols << "]" << "[" << M.numRows << "]" << M.numCols << "]\n";
 
-    return *this;
-  }
-#endif
   double *dataPtr = data;
   double *otherData = M.data;
   for (int i=0; i<dataSize; i++)
