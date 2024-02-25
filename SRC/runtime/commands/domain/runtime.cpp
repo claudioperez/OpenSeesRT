@@ -7,6 +7,8 @@
 #include <assert.h>
 #include <Domain.h>
 #include <tcl.h>
+#include <OPS_Globals.h> // Tcl_Char
+#include <OPS_ErrorStream.h>
 
 int
 TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
