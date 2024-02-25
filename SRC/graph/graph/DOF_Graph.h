@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/DOF_Graph.h,v $
-                                                                        
-                                                                        
-// File: ~/graph/graph/DOF_Graph.h
 // 
 // Written: fmk 
 // Created: Sun Sept 15 11:47:47: 1996
