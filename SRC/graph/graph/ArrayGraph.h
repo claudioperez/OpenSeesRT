@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/ArrayGraph.h,v $
-                                                                        
-                                                                        
-// File: ~/graph/graph/ArrayGraph.h
 // 
 // Written: fmk 
 // Created: Sun Sept 15 11:47:47: 1996

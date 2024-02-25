@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/fullGEN/FullGenLinSolver.cpp,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/FullGEN/FullGenLinSolver.C
-//
-// Written: fmk 
-// Created: Tue Sep 26 16:27:47: 1996
-// Revision: A
 //
 // Description: This file contains the class definition for FullGenLinSolver.
 // FullGenLinSolver is an abstract base class and thus no objects of it's type
@@ -35,8 +24,10 @@
 // implemented in it's derived classes.  Instances of FullGenLinSolver 
 // are used to solve a system of equations of type FullGenLinSOE.
 //
-// What: "@(#) FullGenLinSolver.C, revA"
-
+// Written: fmk 
+// Created: Tue Sep 26 16:27:47: 1996
+// Revision: A
+//
 #include <FullGenLinSolver.h>
 #include <FullGenLinSOE.h>
 

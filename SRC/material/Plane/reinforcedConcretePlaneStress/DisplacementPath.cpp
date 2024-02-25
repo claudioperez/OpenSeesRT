@@ -88,10 +88,10 @@ DisplacementPath::~DisplacementPath()
 int
 DisplacementPath::newStep(void)
 {
-	if (theDofID == -1) {
-		opserr << "DisplacementPath::newStep() - domainChanged has not been called\n";
-		return -1;
-	}
+    if (theDofID == -1) {
+            opserr << "DisplacementPath::newStep() - domainChanged has not been called\n";
+            return -1;
+    }
 
     // get pointers to AnalysisModel and LinearSOE
     AnalysisModel *theModel = this->getAnalysisModel();
@@ -102,34 +102,33 @@ DisplacementPath::newStep(void)
 	return -1;
     }
 
-	// check theIncrementVector Vector
-	if ( theIncrementVector == 0 ) {
-		opserr << "DisplacementPath::newStep() - no theIncrementVector associated with object\n";
-		return -2;
-	}
+    // check theIncrementVector Vector
+    if ( theIncrementVector == 0 ) {
+        opserr << "DisplacementPath::newStep() - no theIncrementVector associated with object\n";
+        return -2;
+    }
 
 
     // determine increment for this iteration
     if (currentStep < theIncrementVector->Size()) {
-		theCurrentIncrement = (*theIncrementVector)(currentStep);
-	}
-	else {
-		theCurrentIncrement = 0.0;
-		opserr << "DisplacementPath::newStep() - reach the end of specified load path\n";
-		opserr << " - setting theCurrentIncrement = 0.0\n";
-	}
+	theCurrentIncrement = (*theIncrementVector)(currentStep);
+    }
+    else {
+        theCurrentIncrement = 0.0;
+        opserr << "DisplacementPath::newStep() - reach the end of specified load path\n";
+        opserr << " - setting theCurrentIncrement = 0.0\n";
+    }
 
 
     // get the current load factor
     currentLambda = theModel->getCurrentDomainTime();
 
-
     // determine dUhat and dUabar
     this->formTangent();
     this->formUnbalance();
 
-	(*deltaUbar) = theLinSOE->getX();
-	double dUabar = (*deltaUbar)(theDofID);
+    (*deltaUbar) = theLinSOE->getX();
+    double dUabar = (*deltaUbar)(theDofID);
 
 
     theLinSOE->setB(*phat);
@@ -140,14 +139,10 @@ DisplacementPath::newStep(void)
     }
     
 	
-	(*deltaUhat) = theLinSOE->getX();
+    (*deltaUhat)  = theLinSOE->getX();
     Vector &dUhat = *deltaUhat;
 
     double dUahat = dUhat(theDofID);
-
-	//opserr << " newStep( ) " << endln;
-    //opserr << " theDofID = " << theDofID << endln;
-	//opserr << "dUahat = " << dUahat << endln;
 
     if (dUahat == 0.0) {
 	opserr << "WARNING DisplacementPath::newStep() ";

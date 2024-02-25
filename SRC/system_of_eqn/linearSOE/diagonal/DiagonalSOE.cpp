@@ -17,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/diagonal/DiagonalSOE.cpp,v $
-
+//
+// Description: This file contains the implementation for DiagonalSOE
+//
 // Written: fmk 
 // Created: February 1997
 // Revision: A
 //
-// Description: This file contains the implementation for DiagonalSOE
-
-
 #include <DiagonalSOE.h>
 #include <DiagonalSolver.h>
 #include <Matrix.h>

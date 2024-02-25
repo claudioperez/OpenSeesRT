@@ -17,24 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-05-20 17:30:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/umfGEN/UmfpackGenLinSolver.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 11/98
 //
 // Description: This file contains the class definition for 
 // UmfpackGenLinSolver. It solves the UmfpackGenLinSOEobject by calling
 // UMFPACK5.7.1 routines.
 //
-// What: "@(#) UmfpackGenLinSolver.C, revA"
-
+// Written: fmk 
+// Created: 11/98
+//
 #include <UmfpackGenLinSOE.h>
 #include <UmfpackGenLinSolver.h>
 #include <math.h>
+#include <assert.h>
+
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
@@ -72,10 +67,11 @@ UmfpackGenLinSolver::solve(void)
     double* B = &(theSOE->B(0));
 
     // check if symbolic is done
-    if (Symbolic == 0) {
-	opserr<<"WARNING: setSize has not been called -- Umfpackgenlinsolver::solve\n";
-	return -1;
-    }
+    assert(Symbolic != 0);
+    // if (Symbolic == 0) {
+    //     opserr<<"WARNING: setSize has not been called -- Umfpackgenlinsolver::solve\n";
+    //     return -1;
+    // }
     
     // numerical analysis
     void* Numeric = 0;
@@ -83,7 +79,8 @@ UmfpackGenLinSolver::solve(void)
 
     // check error
     if (status!=UMFPACK_OK) {
-	opserr<<"WARNING: numeric analysis returns "<<status<<" -- Umfpackgenlinsolver::solve\n";
+      // TODO
+      // opserr<<"WARNING: numeric analysis returns "<<status<<" -- Umfpackgenlinsolver::solve\n";
 	return -1;
     }
 
@@ -97,8 +94,8 @@ UmfpackGenLinSolver::solve(void)
     
     // check error
     if (status!=UMFPACK_OK) {
-	opserr<<"WARNING: solving returns "<<status<<" -- Umfpackgenlinsolver::solve\n";
-	return -1;
+      // opserr<<"WARNING: solving returns "<<status<<" -- Umfpackgenlinsolver::solve\n";
+      return -1;
     }
 
     return 0;
@@ -129,7 +126,7 @@ UmfpackGenLinSolver::setSize()
 
     // check error
     if (status!=UMFPACK_OK) {
-	opserr<<"WARNING: symbolic analysis returns "<<status<<" -- Umfpackgenlinsolver::setsize\n";
+	// opserr<<"WARNING: symbolic analysis returns "<<status<<" -- Umfpackgenlinsolver::setsize\n";
 	Symbolic = 0;
 	return -1;
     }

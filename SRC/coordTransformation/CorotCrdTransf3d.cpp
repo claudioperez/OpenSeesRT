@@ -1188,7 +1188,6 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     kg.Assemble(A, 6, 0, -pl(6));
     kg.Assemble(A, 6, 6,  pl(6));
 
-    //opserr << "kg += ksigma1: " << kg;
 
     // ksigma3 -------------------------------
     //  kbar2 = -Lr2*(m(3)*S(rI3) + m(1)*S(rI1)) + ...
@@ -1228,7 +1227,6 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     kg.Assemble(kbar, 0, 9, 1.0);
     kg.AssembleTranspose(kbar, 9, 0, 1.0);
 
-    //opserr << "kg += ksigma3: " << kg;
 
     // Ksigma4 -------------------------------
     // Ks4_22 =  m(3)*( S(e2)*S(rI3) - S(e3)*S(rI2)) + ...
@@ -1464,6 +1462,7 @@ const Vector &
 CorotCrdTransf3d::getQuaternionFromRotMatrix(const Matrix &R) const
 {
     // obtains the normalised quaternion from the rotation matrix
+    // using Spurrier's algorithm
     double trR;              // trace of R
     double a    ;
     static Vector q(4);      // normalized quaternion
@@ -1749,12 +1748,9 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
 
     U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
 
-    //opserr << "U: A*zrit*zrit " << U;
     U.addMatrixProduct (1.0, A, ze1t,   rite1/(2*Ln));
-    //opserr << "U: A*ze1t*rite1/(2*Ln) " << U;
     U.addMatrixProduct (1.0, A, rie1t, (zte1 + ztr1)/(2*Ln));
 
-    //opserr << "U: " << U;
     static Matrix ks(3,3);
 
     //K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
@@ -1768,7 +1764,6 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
 
     ks.addMatrix(1.0, A, rite1*(2*zte1 + ztr1)/(2*Ln));
 
-    //opserr << "Ks211: " << ks;
 
     ks2.Zero();
 
@@ -1795,8 +1790,6 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
     ks.addMatrixProduct(1.0, m1, Sr1, 0.25);
 
     ks.addMatrixProduct(1.0, A, Sri, -0.25*(zte1+ztr1));
-
-    //opserr << "Ks2_12: " << ks;
 
     ks2.Assemble(ks, 0, 3,  1.0);
     ks2.Assemble(ks, 0, 9,  1.0);
@@ -2033,20 +2026,20 @@ CorotCrdTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 void
 CorotCrdTransf3d::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_CURRENTSTATE) {
-		s << "\nCrdTransf: " << this->getTag() << " Type: CorotCrdTransf3d";
-		s << "\tvAxis: " << vAxis;
-		s << "\tnodeI Offset: " << nodeIOffset;
-		s << "\tnodeJ Offset: " << nodeJOffset;
-	}
+  if (flag == OPS_PRINT_CURRENTSTATE) {
+          s << "\nCrdTransf: " << this->getTag() << " Type: CorotCrdTransf3d";
+          s << "\tvAxis: " << vAxis;
+          s << "\tnodeI Offset: " << nodeIOffset;
+          s << "\tnodeJ Offset: " << nodeJOffset;
+  }
 
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "\t\t\t{\"name\": \"" << this->getTag() << "\", \"type\": \"CorotCrdTransf3d\"";
-        s << ", \"vecInLocXZPlane\": [" << vAxis(0) << ", " << vAxis(1) << ", " << vAxis(2) << "]";
-        if (nodeIOffset != 0)
-            s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1] << ", " << nodeIOffset[2] << "]";
-        if (nodeJOffset != 0)
-            s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1] << ", " << nodeJOffset[2] << "]";
-        s << "}";
-    }
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << "\t\t\t{\"name\": \"" << this->getTag() << "\", \"type\": \"CorotCrdTransf3d\"";
+      s << ", \"vecInLocXZPlane\": [" << vAxis(0) << ", " << vAxis(1) << ", " << vAxis(2) << "]";
+      if (nodeIOffset != 0)
+          s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1] << ", " << nodeIOffset[2] << "]";
+      if (nodeJOffset != 0)
+          s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1] << ", " << nodeJOffset[2] << "]";
+      s << "}";
+  }
 }

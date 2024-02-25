@@ -82,7 +82,7 @@ FE_Element::FE_Element(int tag, Element *ele)
 
         for (int i=0; i<MAX_NUM_DOF; i++) {
             theMatrices[i] = 0;
-            theVectors[i] = 0;
+            theVectors[i]  = 0;
         }
     }
 

@@ -55,7 +55,9 @@ class ProfileSPDLinDirectSolver : public ProfileSPDLinSolver
 
     
     virtual int factor(int n);
+#if 0
     virtual int setProfileSOE(ProfileSPDLinSOE &theSOE);
+#endif
 
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);

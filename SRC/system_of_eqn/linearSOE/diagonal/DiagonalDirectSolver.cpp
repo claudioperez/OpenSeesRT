@@ -18,17 +18,15 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: fmk 
-// Created: Jan 2005
-// Revision: A
-//
 // Description: This file contains the implementation for ProfileSPDLinSOESolver
 // Description: This file contains the class definition for 
 // DiagonalDirectSolver. DiagonalDirectSolver is a subclass 
 // of LinearSOESOlver. It solves a DiagonalSOE object directly!
-
-// What: "@(#) DiagonalDirectSolver.C, revA"
-
+//
+// Written: fmk 
+// Created: Jan 2005
+// Revision: A
+//
 #include <DiagonalDirectSolver.h>
 #include <DiagonalSOE.h>
 #include <math.h>
@@ -59,11 +57,6 @@ int
 DiagonalDirectSolver::setSize(void)
 {
   assert(theSOE != nullptr);
-  // if (theSOE == 0) {
-  //   opserr << "DiagonalDirectSolver::setSize()";
-  //   opserr << " No system has been set!\n";
-  //   return -1;
-  // }
   return 0;
 }
 
@@ -71,14 +64,9 @@ DiagonalDirectSolver::setSize(void)
 int 
 DiagonalDirectSolver::solve(void)
 {
-  // check for quick returns
   assert(theSOE != nullptr);
-//  if (theSOE == 0) {
-//    opserr << "DiagonalDirectSolver::solve(void): ";
-//    opserr << " - No ProfileSPDSOE has been assigned\n";
-//    return -1;
-//  }
     
+  // check for quick returns
   if (theSOE->size == 0)
     return 0;
   
@@ -91,26 +79,19 @@ DiagonalDirectSolver::solve(void)
   if (theSOE->isAfactored == false)  {
     
     // FACTOR & SOLVE
-    double invD;
     for (int i=0; i<size; i++) {
       
       double aii = *Aptr;
 
       // check that the diag > the tolerance specified
-      if (aii == 0.0) {
-	// opserr << "DiagonalDirectSolver::solve() - ";
-	// opserr << " aii = 0 (i, aii): (" << i << ", " << aii << ")\n"; 
+      if (aii == 0.0)
 	return -2;
-      }
-      if (fabs(aii) <= minDiagTol) {
-	// opserr << "DiagonalDirectSolver::solve() - ";
-	// opserr << " aii < minDiagTol (i, aii): (" << i;
-	// opserr << ", " << aii << ")\n"; 
+
+      if (fabs(aii) <= minDiagTol)
 	return -2;
-      }		
 
       // store the inverse 1/Aii in A; and solve for Xi
-      invD = 1.0/aii; 
+      double invD = 1.0/aii; 
       *Xptr++ = invD * *Bptr++;
       *Aptr++ = invD;
     }

@@ -1496,6 +1496,7 @@ MasonPan3D::computeCurrentStrain(int mat) const
     return strain;
 }
 
+#if 0
 int
 MasonPan3D::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
 //MasonPan3D::displaySelf(Renderer &theViewer, int displayMode, float fact)
@@ -1667,8 +1668,8 @@ MasonPan3D::displaySelf(Renderer &theViewer, int displayMode, float fact, const 
     code += theViewer.drawPolygon(coords, values);
     return code;
   }
-
   return 0;
 }
+#endif
 
 

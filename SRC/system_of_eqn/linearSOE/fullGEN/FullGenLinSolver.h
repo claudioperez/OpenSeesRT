@@ -17,16 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/fullGEN/FullGenLinSolver.h,v $
-                                                                        
-                                                                        
+//
 #ifndef FullGenLinSolver_h
 #define FullGenLinSolver_h
-
-// File: ~/system_of_eqn/linearSOE/FullGEN/FullGenLinSolver.h
 //
 // Written: fmk 
 // Created: 11/96
@@ -36,8 +29,6 @@
 // FullGenLinSolver is a concrete subclass of LinearSOE. It stores full
 // unsymmetric linear system of equations using 1d arrays in Fortran style
 //
-// What: "@(#) FullGenLinSolver.h, revA"
-
 #include <LinearSOESolver.h>
 class FullGenLinSOE;
 

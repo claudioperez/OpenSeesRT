@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:02:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinSubstrSolver.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/system_of_eqn/linearSOE/ProfileSPD/ProfileSPDLinSubstrSolver.C
 //
 // Written: fmk 
@@ -38,6 +33,7 @@
 #include <Vector.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -95,18 +91,6 @@ ProfileSPDLinSubstrSolver::setSize(void)
 int 
 ProfileSPDLinSubstrSolver::condenseA(int numInt)
 {
-  /*
-for (int iii=0; iii<theSOE->size; iii++) {
-  int rowiiitop = RowTop[iii];
-  double *ajiptr = topRowPtr[iii];
-  opserr << "\n COLUMN " << iii << " TopRow " << rowiiitop << " -> ";
-  for (int jjj = rowiiitop; jjj <=iii; jjj++)
-    opserr << *ajiptr++ << " ";
-}
-opserr << endln;
-*/
-
-    
     // check for quick return
     if (theSOE == 0)
 	return -1;
@@ -119,15 +103,9 @@ opserr << endln;
     if (dSize != size) {
 	if (DU != 0) delete [] DU;
 	DU = new double[numInt];
-	if (DU == 0) {
-	    opserr << "ProfileSPDLinSubstrSolver::condenseA()";
-	    opserr << " - ran out of memory for work space\n";	    
-	    return -1;
-	}
 	dSize = numInt;
     }
 
-		
     //
     //  form D1 & U11, store in A11
     //    - where A11 = U11'*D1*U11
@@ -242,10 +220,9 @@ opserr << endln;
     theSOE->isAcondensed = true;
     theSOE->numInt = numInt;
 
-    opserr << "ProfileSPDLinSubstrSolver::condenseA  numDOF: " << size << "  numInt: " << numInt << "  numExt: " << size-numInt << endln;
+    // opserr << "ProfileSPDLinSubstrSolver::condenseA  numDOF: " << size << "  numInt: " << numInt << "  numExt: " << size-numInt << endln;
 
     return 0;
-
 }
 
 
@@ -293,16 +270,16 @@ ProfileSPDLinSubstrSolver::condenseRHS(int numInt, Vector *v)
     if (theSOE->isAcondensed != true) {
 	int ok = this->condenseA(numInt);
 	if (ok < 0) {
-	    opserr << "ProfileSPDLinSubstrSolver::condenseRHS()";
-	    opserr << " - failed to condenseA\n";
+	//  opserr << "ProfileSPDLinSubstrSolver::condenseRHS()";
+	//  opserr << " - failed to condenseA\n";
 	    return ok;
 	}
     }
 
     if (theSOE->numInt != numInt) {	
-	opserr << "ProfileSPDLinSubstrSolver::condenseRHS()";
-	opserr << " - numInt " << numInt << "does not agree with condensedA";
-	opserr << " numInt " << theSOE->numInt << endln;
+	// opserr << "ProfileSPDLinSubstrSolver::condenseRHS()";
+	// opserr << " - numInt " << numInt << "does not agree with condensedA";
+	// opserr << " numInt " << theSOE->numInt << endln;
 	return -1;
     }
 
@@ -350,12 +327,6 @@ ProfileSPDLinSubstrSolver::condenseRHS(int numInt, Vector *v)
 
 	B[ii] += tmp;
     }
-    /*
-      for (int iii=0; iii<theSOE->size; iii++) {
-      opserr << "COLUMN " << iii << " Biii -> " << B[iii] << endln;
-      }
-      opserr << endln;
-      */
 
     return 0;
 }
@@ -365,8 +336,9 @@ int
 ProfileSPDLinSubstrSolver::computeCondensedMatVect(
 			       int numInt, const Vector &theVect) 
 {
-    opserr << "ProfileSPDLinSubstrSolver::computeCondensedMatVect() -";
-    opserr << " not implemented yet\n";
+  assert(false);
+  //  opserr << "ProfileSPDLinSubstrSolver::computeCondensedMatVect() -";
+  //  opserr << " not implemented yet\n";
     return -1;
 }
 
@@ -378,28 +350,15 @@ ProfileSPDLinSubstrSolver::getCondensedA(void)
     int matSize = size - numInt;
 
     // check Aext exists, if not create it
-    if (Aext == 0) {
-	Aext = new Matrix(matSize,matSize);
-	
-	if (Aext == 0 || Aext->noRows() == 0) {
-	    opserr << "ProfileSPDLinSubstrSolver::getCondensedA";
-	    opserr << "- ran out of memory for matSize " << matSize << " \n";
-	    exit(-1);
-	}
-    }
-    
-    // check that current Aext is big enough if not enllarge
-    if (Aext->noRows() != matSize) {
+    if (Aext == nullptr)
+	Aext = new Matrix(matSize,matSize);	
+
+    // check that current Aext is big enough if not enlarge
+    else if (Aext->noRows() != matSize) {
 	delete Aext;
 	Aext = new Matrix(matSize,matSize);
-	
-	if (Aext == 0 || Aext->noRows() == 0) {
-	    opserr << "ProfileSPDLinSubstrSolver::getCondensedA";
-	    opserr << "- ran out of memory for matSize " << matSize << " \n";
-	    exit(-1);
-	}
     }
-    
+
     // set the components of Aee to be the matrix
     Aext->Zero();
     for (int i=numInt; i<size; i++) {
@@ -407,7 +366,7 @@ ProfileSPDLinSubstrSolver::getCondensedA(void)
 
 	int rowitop = RowTop[i];
 	double *akiPtr = topRowPtr[i];
-	
+
 	int row =0;
 	if (rowitop < numInt) 
 	    akiPtr += (numInt - rowitop);
@@ -435,26 +394,13 @@ ProfileSPDLinSubstrSolver::getCondensedRHS(void)
     double *Y = &(theSOE->B[numInt]);
 
     // check Yext exists, if not create it
-    if (Yext == 0) {
+    if (Yext == nullptr)
 	Yext = new Vector(Y,matSize);
-	
-	if (Yext == 0 || Yext->Size() == 0) {
-	    opserr << "ProfileSPDLinSubstrSolver::getCondensedRHS";
-	    opserr << "- ran out of memory for vector Size " << matSize << " \n";
-	    exit(-1);
-	}
-    }
-    
+
     // check that current Yext is big enough if not enllarge
     if (Yext->Size() != matSize) {
 	delete Yext;
 	Yext = new Vector(Y,matSize);
-	
-	if (Yext == 0 || Yext->Size() == 0) {
-	    opserr << "ProfileSPDLinSubstrSolver::getCondensedRHS";
-	    opserr << "- ran out of memory for vect Size " << matSize << " \n";
-	    exit(-1);
-	}
     }
     
     return *Yext;
@@ -463,9 +409,10 @@ ProfileSPDLinSubstrSolver::getCondensedRHS(void)
 const Vector &
 ProfileSPDLinSubstrSolver::getCondensedMatVect(void)
 {
-    opserr << "ProfileSPDLinSubstrSolver::computeCondensedMatVect() -";
-    opserr << " not implemented yet\n";
-    exit(-1);
+    assert(false);
+    // opserr << "ProfileSPDLinSubstrSolver::computeCondensedMatVect() -";
+    // opserr << " not implemented yet\n";
+    // exit(-1);
 
     // needed for a strict compiler, program will exit before this
     Vector *errVect = new Vector(0); 
@@ -477,12 +424,13 @@ ProfileSPDLinSubstrSolver::getCondensedMatVect(void)
 int 
 ProfileSPDLinSubstrSolver::setComputedXext(const Vector &xExt)
 {
-    if (xExt.Size() != (size - theSOE->numInt)) {
-	opserr << "ProfileSPDLinSubstrSolver::setComputedxExt() :";
-	opserr << " - size mismatch " << xExt.Size() << " and ";
-	opserr << size-theSOE->numInt << endln;
-	return -1;
-    }
+    assert(xExt.Size() == (size - theSOE->numInt));
+    // if (xExt.Size() != (size - theSOE->numInt)) {
+    //     opserr << "ProfileSPDLinSubstrSolver::setComputedxExt() :";
+    //     opserr << " - size mismatch " << xExt.Size() << " and ";
+    //     opserr << size-theSOE->numInt << endln;
+    //     return -1;
+    // }
 
     double *xPtr = &(theSOE->X)[theSOE->numInt];
     for (int i=0; i<xExt.Size(); i++)
@@ -566,8 +514,10 @@ int
 ProfileSPDLinSubstrSolver::sendSelf(int cTag,
 				    Channel &theChannel)
 {
-    if (size != 0)
-	opserr << "ProfileSPDLinSubstrSolver::sendSelf - does not send itself YET\n"; 
+    if (size != 0) {
+      assert(false);
+      // opserr << "ProfileSPDLinSubstrSolver::sendSelf - does not send itself YET\n"; 
+    }
     return 0;
 }
 

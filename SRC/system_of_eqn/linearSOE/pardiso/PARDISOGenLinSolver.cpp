@@ -1,4 +1,3 @@
-// File: ~/system_of_eqn/pardiso/PARDISOGenLinSolver.h
 //
 // Written: M. Salehi opensees.net@gmail.com
 // website : http://opensees.net

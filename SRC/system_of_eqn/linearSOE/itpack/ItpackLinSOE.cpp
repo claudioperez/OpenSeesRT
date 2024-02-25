@@ -17,24 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2006-10-02 20:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/itpack/ItpackLinSOE.cpp,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/umfGEN/ItpackLinSOE.h
-//
-// Written: fmk 
-// Created: 11/98
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // ItpackLinSolver. It solves the ItpackLinSOEobject by calling
 // UMFPACK2.2.1 routines.
 //
-// What: "@(#) ItpackLinSolver.h, revA"
-
+// Written: fmk 
+// Created: 11/98
+// Revision: A
+//
 #include <ItpackLinSOE.h>
 #include <ItpackLinSolver.h>
 #include <Matrix.h>

@@ -119,12 +119,10 @@ int MultiaxialCyclicPlasticityAxiSymm :: setTrialStrain( const Vector &strain_fr
 
 //  this->plastic_integrator( ) ;
 
-   //opserr<<"MCP:integrator"<<endln;
-
-   if (this->MaterialStageID ==1) { 
- 	  this->elastic_integrator( ) ;
+  if (this->MaterialStageID ==1) { 
+      this->elastic_integrator( ) ;
   } else if (this->MaterialStageID ==2) {	  
- 	  this->plastic_integrator( ) ;
+      this->plastic_integrator( ) ;
   }
 
   return 0 ;
@@ -134,22 +132,19 @@ int MultiaxialCyclicPlasticityAxiSymm :: setTrialStrain( const Vector &strain_fr
 //unused trial strain functions
 int MultiaxialCyclicPlasticityAxiSymm :: setTrialStrain( const Vector &v, const Vector &r )
 { 
-  //opserr<<"MCP::setTrialStrain v"<<v<<endln;
    return this->setTrialStrain( v ) ;
 } 
 
 int MultiaxialCyclicPlasticityAxiSymm :: setTrialStrainIncr( const Vector &v ) 
 {
-	// implemented Dec. 5, 2003, Gang Wang
-	static Vector newStrain(4);
-	newStrain(0) = strain(0,0) + v(0);
-	newStrain(1) = strain(1,1) + v(1);
-	newStrain(2) = strain(2,2) + v(2);
-	newStrain(3) = 2.0*strain(0,1) + v(3);
-	
-	//opserr<<"MCP::setTrialStrainIncr "<<newStrain<<endln;
-	return this->setTrialStrain(newStrain);
-	// return -1 ;  
+    // implemented Dec. 5, 2003, Gang Wang
+    static Vector newStrain(4);
+    newStrain(0) = strain(0,0) + v(0);
+    newStrain(1) = strain(1,1) + v(1);
+    newStrain(2) = strain(2,2) + v(2);
+    newStrain(3) = 2.0*strain(0,1) + v(3);
+    
+    return this->setTrialStrain(newStrain);
 }
 
 int MultiaxialCyclicPlasticityAxiSymm :: setTrialStrainIncr( const Vector &v, const Vector &r ) 
@@ -163,8 +158,6 @@ int MultiaxialCyclicPlasticityAxiSymm :: setTrialStrainIncr( const Vector &v, co
 	newStrain(1) = strain(1,1) + v(1);
 	newStrain(2) = strain(2,2) + v(2);
 	newStrain(3) = 2.0*strain(0,1) + v(3);
-    	
-	opserr<<"MCP::setTrialStrainIncr"<<strain; 
 
     //this->ResidStress(0,0)= r(0);
     //this->ResidStress(1,1)= r(1);
@@ -185,10 +178,8 @@ const Vector& MultiaxialCyclicPlasticityAxiSymm :: getStrain( )
   strain_vec(0) =       strain(0,0) ;
   strain_vec(1) =       strain(1,1) ;
   strain_vec(2) =       strain(2,2) ;
-
   strain_vec(3) = 2.0 * strain(0,1) ;
 
-  //opserr<<"MCP::getStrain() "<<strain_vec;
   return strain_vec ;
   
 } 
@@ -200,10 +191,8 @@ const Vector& MultiaxialCyclicPlasticityAxiSymm :: getStress( )
   stress_vec(0) = stress(0,0) ;
   stress_vec(1) = stress(1,1) ;
   stress_vec(2) = stress(2,2) ;
-
   stress_vec(3) = stress(0,1) ;
 
-  //opserr<<"MCP::getStress()= "<<stress_vec;
   return stress_vec ;
 }
 
@@ -218,22 +207,18 @@ const Matrix& MultiaxialCyclicPlasticityAxiSymm :: getTangent( )
   //   2           2 2   
   //   3           0 1  ( or 1 0 )
   
-  int ii, jj ;
   int i, j, k, l ;
 
-  for ( ii = 0; ii < 4; ii++ ) {
-    for ( jj = 0; jj < 4; jj++ ) {
+  for (int ii = 0; ii < 4; ii++ ) {
+    for (int jj = 0; jj < 4; jj++ ) {
 
       index_map( ii, i, j ) ;
       index_map( jj, k, l ) ;
 
       tangent_matrix(ii,jj) = tangent[i][j][k][l] ;
 
-    } //end for j
-  } //end for i
-
-  //opserr<<"MCP::return tangent"<<endln;
-  //opserr<<"MCP:"<<tangent_matrix<<endln;
+    } // end for jj
+  } // end for ii
 
   return tangent_matrix ;
 } 

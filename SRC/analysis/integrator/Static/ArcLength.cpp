@@ -17,17 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/ArcLength.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/integrator/ArcLength.C
-// 
-// Written: fmk 
-// Created: 07/98
-// Revision: A
 //
 // Description: This file contains the class definition for ArcLength.
 // ArcLength is an algorithmic class for perfroming a static analysis
@@ -35,10 +24,11 @@
 // constraint is enforced: dU^TdU + alpha^2*dLambda^2 = arcLength^2
 // where dU is change in nodal displacements for step, dLambda is
 // change in applied load and arcLength is a control parameter.
+// 
+// Written: fmk 
+// Created: 07/98
+// Revision: A
 //
-// What: "@(#) ArcLength.C, revA"
-
-
 #include <ArcLength.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -126,16 +116,10 @@ ArcLength::~ArcLength()
 int
 ArcLength::newStep(void)
 {
-  // opserr<<"sewStep: start"<<endln;
-//opserr<<"alpha2 is "<<alpha2<<endln;
     // get pointers to AnalysisModel and LinearSOE
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();    
-    if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING ArcLength::newStep() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
-    }
+    assert(theModel != nullptr && theLinSOE != nullptr);
 
     // get the current load factor
     currentLambda = theModel->getCurrentDomainTime();
@@ -148,11 +132,9 @@ ArcLength::newStep(void)
     // determine dUhat
     this->formTangent();
     theLinSOE->setB(*phat);
-   // opserr<<" ArcLength: Phat is "<<*phat<<endln;
-    if (theLinSOE->solve() < 0) {
-      opserr << "ArcLength::newStep(void) - failed in solver\n";
+
+    if (theLinSOE->solve() < 0)
       return -1;
-    }
 
     (*deltaUhat) = theLinSOE->getX();
     Vector &dUhat = *deltaUhat;
@@ -160,10 +142,9 @@ ArcLength::newStep(void)
     // determine delta lambda(1) == dlambda
     double dLambda = sqrt(arcLength2/((dUhat^dUhat)+alpha2));
     dLambda *= signLastDeltaLambdaStep; // base sign of load change
-   //    opserr<<"newStep:   the sign is "<<signLastDeltaLambdaStep<<endln;     // on what was happening last step
+
     deltaLambdaStep = dLambda;
-    dLAMBDA=dLambda;
-  //  opserr<<"newStep:   dLAMBDA= "<<dLAMBDA<<endln;
+    dLAMBDA = dLambda;
     currentLambda += dLambda;
 
     // determine delta U(1) == dU
@@ -176,15 +157,15 @@ ArcLength::newStep(void)
     theModel->incrDisp(*deltaU);    
     //////
 
-   if(this->activateSensitivity()==true) { 
-          Domain *theDomain=theModel->getDomainPtr();
+   if(this->activateSensitivity() == true) { 
+      Domain *theDomain=theModel->getDomainPtr();
       ParameterIter &paramIter = theDomain->getParameters();
       Parameter *theParam;
 
       // De-activate all parameters
 
       // Now, compute sensitivity wrt each parameter
-      //int numGrads = theDomain->getNumParameters();
+      // int numGrads = theDomain->getNumParameters();
 
       while ((theParam = paramIter()) != 0)
 	 theParam->activate(false);
@@ -214,7 +195,6 @@ ArcLength::newStep(void)
          /////
     theModel->applyLoadDomain(currentLambda);    
     theModel->updateDomain();
-//opserr<<" newStep:   end"<<endln;
 
     return 0;
 }
@@ -222,20 +202,13 @@ ArcLength::newStep(void)
 int
 ArcLength::update(const Vector &dU)
 {
-  /// opserr<<" update: start"<<endln;
 
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();    
-    if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING ArcLength::update() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
-    }
+    assert(theModel != nullptr && theLinSOE != nullptr);
 
     (*deltaUbar) = dU; // have to do this as the SOE is gonna change
-//opserr<<"deltaUbar= "<<*deltaUbar<<endln;
 
-//opserr<<"Update:   phat is = "<<*phat<<"////////////////////////////"<<endln;
     // determine dUhat    
     theLinSOE->setB(*phat);
     theLinSOE->solve();
@@ -243,14 +216,15 @@ ArcLength::update(const Vector &dU)
     (*deltaUhat) = theLinSOE->getX();    
 
     // determine the coeeficients of our quadratic equation
-           a = alpha2 + ((*deltaUhat)^(*deltaUhat));
-           b = alpha2*deltaLambdaStep 
+    a = alpha2 + ((*deltaUhat)^(*deltaUhat));
+    b = alpha2*deltaLambdaStep 
       + ((*deltaUhat)^(*deltaUbar))
       + ((*deltaUstep)^(*deltaUhat));
-      b *= 2.0;
-      c = 2*((*deltaUstep)^(*deltaUbar)) + ((*deltaUbar)^(*deltaUbar));
+    b *= 2.0;
+    c = 2*((*deltaUstep)^(*deltaUbar)) + ((*deltaUbar)^(*deltaUbar));
     // check for a solution to quadratic
-         b24ac = b*b - 4.0*a*c;
+    b24ac = b*b - 4.0*a*c;
+
     if (b24ac < 0) {
       opserr << "ArcLength::update() - imaginary roots due to multiple instability";
       opserr << " directions - initial load increment was too large\n";
@@ -268,7 +242,7 @@ ArcLength::update(const Vector &dU)
     double sqrtb24ac = sqrt(b24ac);
     double dlambda1 = (-b + sqrtb24ac)/a2;
     double dlambda2 = (-b - sqrtb24ac)/a2;
-//opserr<<"squareRoot of b24ac= "<<sqrtb24ac<<endln;
+
     double val = (*deltaUhat)^(*deltaUstep);
     double theta1 = ((*deltaUstep)^(*deltaUstep)) + ((*deltaUbar)^(*deltaUstep));
     //    double theta2 = theta1 + dlambda2*val;
@@ -282,7 +256,8 @@ ArcLength::update(const Vector &dU)
     else
       dLambda = dlambda2;
 
-dLAMBDA2=dLambda;
+    dLAMBDA2 = dLambda;
+
     // determine delta U(i)
     (*deltaU) = (*deltaUbar);    
     deltaU->addVector(1.0, *deltaUhat,dLambda);
@@ -303,7 +278,6 @@ dLAMBDA2=dLambda;
     
     // set the X soln in linearSOE to be deltaU for convergence Test
     theLinSOE->setX(*deltaU);
-//opserr<<" update:  end"<<endln;
     return 0;
 }
 
@@ -312,16 +286,11 @@ dLAMBDA2=dLambda;
 int 
 ArcLength::domainChanged(void)
 {
- //  opserr<<"domainChanged: start"<<endln;
-
     // we first create the Vectors needed
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();    
-    if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING ArcLength::update() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
-    }    
+    assert(theModel != nullptr && theLinSOE != nullptr);
+
     int size = theModel->getNumEqn(); // ask model in case N+1 space
 
     if (deltaUhat == nullptr || deltaUhat->Size() != size) { // create new Vector
@@ -349,7 +318,7 @@ ArcLength::domainChanged(void)
 	deltaUstep = new Vector(size);
     }
 
-if (deltaUstep2 == nullptr || deltaUstep2->Size() != size) { 
+    if (deltaUstep2 == nullptr || deltaUstep2->Size() != size) { 
 	if (deltaUstep2 != nullptr)
 	    delete deltaUstep2;  
 	deltaUstep2 = new Vector(size);
@@ -388,9 +357,7 @@ if (deltaUstep2 == nullptr || deltaUstep2->Size() != size) {
       if (Residual != nullptr)
 	 delete Residual;  
       Residual = new Vector(size);
-   } 
-
-
+   }
    if (sensU == nullptr || sensU->Size() != size) { 
       if (sensU != nullptr)
 	 delete sensU;  
@@ -403,14 +370,9 @@ if (deltaUstep2 == nullptr || deltaUstep2->Size() != size) {
    int numGrads = theDomain->getNumParameters();
 
    if (dLAMBDAdh == 0 || dLAMBDAdh->Size() != (numGrads)) { 
-      if (dLAMBDAdh != 0 )  
+      if (dLAMBDAdh != nullptr)
 	 delete dLAMBDAdh;
       dLAMBDAdh = new Vector(numGrads);
-      if (dLAMBDAdh== 0 || dLAMBDAdh->Size() != (numGrads)) { 
-	 opserr << "FATAL DisplacementControl::domainChanged() - ran out of memory for";
-	 opserr << " dLAMBDAdh Vector of size " << numGrads << endln;
-	 exit(-1);
-      }
    } 
 
     // now we have to determine phat
@@ -437,7 +399,7 @@ if (deltaUstep2 == nullptr || deltaUstep2->Size() != size) {
       opserr << "WARNING ArcLength::domainChanged() - zero reference load";
       return -1;
     }
-  //  opserr<<" domainChanged: end"<<endln;
+
   return 0;  
 }
 
@@ -445,8 +407,6 @@ int
 ArcLength::sendSelf(int cTag,
 		    Channel &theChannel)
 {
- //  opserr<<"sendSelf: start"<<endln;
-
   Vector data(5);
   data(0) = arcLength2;
   data(1) = alpha2;
@@ -458,7 +418,7 @@ ArcLength::sendSelf(int cTag,
       opserr << "ArcLength::sendSelf() - failed to send the data\n";
       return -1;
   }
- // opserr<<"sendSelf: end"<<endln;
+
   return 0;
 }
 
@@ -467,7 +427,6 @@ int
 ArcLength::recvSelf(int cTag,
 		    Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
- //  opserr<<"ArcLength:: recSelf: start"<<endln;
 
   Vector data(5);
   if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0) {
@@ -481,8 +440,6 @@ ArcLength::recvSelf(int cTag,
   deltaLambdaStep = data(2);
   currentLambda = data(3);
   signLastDeltaLambdaStep = data(4);
- // opserr<<"recSelf: end"<<endln;
-
   return 0;
 }
 
@@ -490,7 +447,7 @@ void
 ArcLength::Print(OPS_Stream &s, int flag)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != 0) {
+    if (theModel != nullptr) {
 	double cLambda = theModel->getCurrentDomainTime();
 	s << "\t ArcLength - currentLambda: " << cLambda;
 	s << "  arcLength: " << sqrt(arcLength2) <<  "  alpha: ";
@@ -537,10 +494,6 @@ ArcLength::formTangDispSensitivity(int gradNumber)
    static Vector oneDimVectorWithOne(1);
    oneDimVectorWithOne(0) = 1.0;
    static ID oneDimID(1);
-   Node *aNode;
-   DOF_Group *aDofGroup;
-
-   int nodeNumber, dofNumber, relevantID, i, sizeRandomLoads, numRandomLoads;
 
    LoadPattern *loadPatternPtr;
    //AnalysisModel *theModel = this->getAnalysisModel();
@@ -549,27 +502,24 @@ ArcLength::formTangDispSensitivity(int gradNumber)
 
    while((loadPatternPtr = thePatterns()) != 0) {
       const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
-      sizeRandomLoads = randomLoads.Size();
+      int sizeRandomLoads = randomLoads.Size();
       if (sizeRandomLoads == 1) {
 	 // No random loads in this load pattern
-
       }
       else {
 	 // opserr<<"there is sensitivity load parameter"<<endln;//Abbas.............
 	 // Random loads: add contributions to the 'B' vector
-	 numRandomLoads = (int)(sizeRandomLoads/2);
-	 for (i=0; i<numRandomLoads*2; i=i+2) {
-	    nodeNumber = (int)randomLoads(i);
-	    dofNumber = (int)randomLoads(i+1);
-	    aNode = theDomain->getNode(nodeNumber);
-	    aDofGroup = aNode->getDOF_GroupPtr();
+	 int numRandomLoads = (int)(sizeRandomLoads/2);
+	 for (int i=0; i<numRandomLoads*2; i=i+2) {
+	    int nodeNumber = (int)randomLoads(i);
+	    int dofNumber = (int)randomLoads(i+1);
+	    Node *aNode = theDomain->getNode(nodeNumber);
+	    DOF_Group *aDofGroup = aNode->getDOF_GroupPtr();
 	    const ID &anID = aDofGroup->getID();
-	    relevantID = anID(dofNumber-1);
+	    int relevantID = anID(dofNumber-1);
 	    oneDimID(0) = relevantID;
 	    theLinSOE->addB(oneDimVectorWithOne, oneDimID);
 	    (*dphatdh)=theLinSOE->getB();
-
-
 	 }
       }
    }

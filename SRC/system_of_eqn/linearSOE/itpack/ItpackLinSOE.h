@@ -17,25 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2002-06-08 16:17:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/itpack/ItpackLinSOE.h,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/umfGEN/ItpackGenLinSOE.h
-//
-// Written: fmk 
-// Created: 11/98
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // ItpackGenLinSOE. It stores the sparse matrix A in a fashion
 // required by the ItpackLinSolver object.
 //
-// What: "@(#) ItpackGenLinSOE.h, revA"
-
-
+// Written: fmk 
+// Created: 11/98
+// Revision: A
+//
 #ifndef ItpackGenLinSOE_h
 #define ItpackGenLinSOE_h
 

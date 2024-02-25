@@ -281,7 +281,7 @@ class Domain
     LoadPatternIter       *theLoadPatternIter;        
     SingleDomAllSP_Iter   *allSP_Iter;
     SingleDomParamIter    *theParamIter;
-    
+
     MeshRegion **theRegions;
     int numRegions;    
 
@@ -309,5 +309,4 @@ class Domain
 };
 
 #endif
-
 

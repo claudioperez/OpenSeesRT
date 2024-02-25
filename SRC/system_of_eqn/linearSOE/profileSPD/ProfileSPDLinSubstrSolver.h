@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinSubstrSolver.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinSubstrSolver.h
 //
 // Written: fmk 
