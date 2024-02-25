@@ -24,7 +24,7 @@
 #include "BeamGT.h"
 #include <elementAPI.h>
 #include <OPS_Globals.h>
-
+#include <Print.h>
 #include <Information.h>
 #include <Domain.h>
 #include <Node.h>
@@ -967,32 +967,35 @@ BeamGT::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker
 void
 BeamGT::Print(OPS_Stream &s, int flag)
 {
-
-  s << " " << "\n";
-  s << " " << "\n";
-  s << "Element: " << this->getTag(); 
-  s << " type: BeamGT " << "\n";
-  s << " " << "\n";
-  s << "+--------------------------------------------------------+"<< "\n";
-  s << "|        Beam with Flexure and Shear Hinges              |\n";
-  s << "|   Written by Gonzalo Torrisi UNCuyo Copyright 2016     |\n";
-  s << "|                 Only in plane X-Y                      |\n";
-  s << "|                Use at your Own Peril                   |\n";
-  s << "+--------------------------------------------------------+"<<"\n";
-  s << "             Nodes: " << "\n";
-  s << "Nodo 1  :"<< externalNodes(0)<< "\n";
-  s << "Nodo 2  :"<< externalNodes(1)<< "\n";
-  s << "        BeamGT Elastic properties: " << "\n";
-  s << "Beam Area :"<< A<< "\n";  
-  s << "Beam I    :"<< I<< "\n";
-  s << "Beam E    :"<< E<< "\n";
-  s << "Beam G    :"<< G<< "\n";
-  s << "         BeamGT Materials: " << "\n";
-  s << "Material for Flexure 1 :" << *theMaterial[0]<< "\n";
-  s << "Material for Flexure 2 :" << *theMaterial[1]<< "\n";
-  s << "Material for Shear     :" << *theMaterial2<< "\n";
-  s << "Material for Axial     :" << *theMaterial3<< "\n";
-  s << " " << "\n";
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{}";
+  } else {
+    s << " " << "\n";
+    s << " " << "\n";
+    s << "Element: " << this->getTag(); 
+    s << " type: BeamGT " << "\n";
+    s << " " << "\n";
+    s << "+--------------------------------------------------------+"<< "\n";
+    s << "|        Beam with Flexure and Shear Hinges              |\n";
+    s << "|   Written by Gonzalo Torrisi UNCuyo Copyright 2016     |\n";
+    s << "|                 Only in plane X-Y                      |\n";
+    s << "|                Use at your Own Peril                   |\n";
+    s << "+--------------------------------------------------------+"<<"\n";
+    s << "             Nodes: " << "\n";
+    s << "Nodo 1  :"<< externalNodes(0)<< "\n";
+    s << "Nodo 2  :"<< externalNodes(1)<< "\n";
+    s << "        BeamGT Elastic properties: " << "\n";
+    s << "Beam Area :"<< A<< "\n";  
+    s << "Beam I    :"<< I<< "\n";
+    s << "Beam E    :"<< E<< "\n";
+    s << "Beam G    :"<< G<< "\n";
+    s << "         BeamGT Materials: " << "\n";
+    s << "Material for Flexure 1 :" << *theMaterial[0]<< "\n";
+    s << "Material for Flexure 2 :" << *theMaterial[1]<< "\n";
+    s << "Material for Shear     :" << *theMaterial2<< "\n";
+    s << "Material for Axial     :" << *theMaterial3<< "\n";
+    s << " " << "\n";
+  }
 }
 
 Response*
@@ -1192,92 +1195,6 @@ BeamGT::computeCurrentStrain(int mat) const
 		str[5]=dr2;
 		strain=str[mat];
 		return strain;
-}
-
-int
-BeamGT::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-//BeamGT::displaySelf(Renderer &theViewer, int displayMode, float fact)
-{
-	          int code=0;
-	// first determine the two end points of the CorotTruss2 based on
-	// the display factor (a measure of the distorted image)
-	// store this information in 2 3d vectors v1 and v2
-	const Vector &end1Crd = theNodes[0]->getCrds();
-	const Vector &end2Crd = theNodes[1]->getCrds();	
-
-//						
-	const Vector &end1Disp = theNodes[0]->getDisp();
-	const Vector &end2Disp = theNodes[1]->getDisp();   
-    
-	static Vector v1(3);
-	static Vector v2(3);
-	static Vector rgb(3);
-	static Vector v3(3);
-	static Vector v4(3);
-
-
-	theNodes[0]->getDisplayCrds(v3, fact, displayMode);
-	theNodes[1]->getDisplayCrds(v4, fact, displayMode);
-
-	for (int i = 0; i < 2; i++) {
-		v1(i) = end1Crd(i)+end1Disp(i)*fact;
-		v2(i) = end2Crd(i)+end2Disp(i)*fact;    
-	}
-
-	// compute the strain and axial force in the member
-	double strain[6], force[6];
-		    
-        double L=trans(0,0);
-        double c1=trans(0,1);
-        double	s1=trans(0,2);
-   
-	//deformaciones en locales del elemento.
-
-	for (int i = 0; i < 1; i++) {
-
-	    strain[i] = this->computeCurrentStrain(i);
-	}
-		double ro1=strain[2]+(strain[4]-strain[1])/L;
-		double ro2=strain[5]+(strain[4]-strain[1])/L;
-		double dg=(strain[4]-strain[1])/L;
-
-	   // theMaterial[0]->setTrialStrain(ro1);
-	 //	theMaterial[1]->setTrialStrain(ro2);
-	//	theMaterial2->setTrialStrain(dg);
-		force[0]=E*A/L*(strain[3]-strain[0]);
-		force[1]=theMaterial2->getStress();
-		force[2]=theMaterial[0]->getStress();
-		force[3]=force[0];
-		force[4]=force[1];
-		force[5]=theMaterial[1]->getStress();
-
-		//		
-	if (displayMode == 2) // use the strain as the drawing measure
-		{
-			code=0;
-		  //code +=theViewer.drawLine(v1,v2,(float)strain[2],(float)strain[5],0,0,2,1);
-		  code += theViewer.drawLine(v1, v2, (float)strain[2], (float)strain[5]);
-		  return code;
-}
-	else if(displayMode < 0)
-	{
-		code = 0;
-		code += theViewer.drawLine(v3, v4, 1.0, 1.0, this->getTag(), 0);
-		return code;
-	}
-
-
-	else { // otherwise use the axial force as measure
-		code=0;
-		  //code +=theViewer.drawLine(v1,v2,(float)force[2],(float)force[5],0,0,2,1);
-		  code += theViewer.drawLine(v1, v2, (float)force[2], (float)force[5]);
-
-		  return code;
-	}
-
-
-
-	return 0;
 }
 
  
