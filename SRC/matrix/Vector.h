@@ -17,21 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2008-06-13 22:24:48 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/Vector.h,v $
-
-// Written: fmk 
-// Created: 11/96
 //
 // Description: This file contains the class definition for Vector.
 // Vector is a concrete class implementing the vector abstraction.
-
+//
+// Written: fmk 
+// Created: 11/96
+//
 #ifndef Vector_h
 #define Vector_h 
-
-// #include <OPS_Globals.h>
 
 #define VECTOR_VERY_LARGE_VALUE 1.0e200
 
@@ -182,7 +176,6 @@ Vector::operator()(int x)
   
   return theData[x];
 }
-
 
 #endif
 
