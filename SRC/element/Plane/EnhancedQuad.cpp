@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.15 $
-// $Date: 2007-02-02 01:35:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/EnhancedQuad.cpp,v $
-
+//
 #include <stdio.h> 
 #include <string.h>
 #include <stdlib.h> 
@@ -510,8 +506,8 @@ const Matrix&  EnhancedQuad::getInitialStiff( )
         // stiffKJ = (BKtran*dd)*BJ ;
         stiffKJ.addMatrixProduct(0.0, BKtranD,BJ,1.0) ;
         
-        for ( p = 0; p < ndf; p++ )  {
-          for ( q = 0; q < ndf; q++ )
+        for (int p = 0; p < ndf; p++ )  {
+          for (int q = 0; q < ndf; q++ )
             Keu( kk+p, jj+q ) += stiffKJ( p, q ) ;
         } // end for p  
         
@@ -1299,18 +1295,15 @@ void  EnhancedQuad::shape2d(double ss, double tt,
 const Matrix&
 EnhancedQuad::transpose( const Matrix &M ) 
 {
-  int i ;
-  int j ;
-
   // we're always transposing 3x2 matrices for this element,
   // so always return a 2x3 .
 
-  static int dim1 = 2 ;
-  static int dim2 = 3 ;
+  static constexpr int dim1 = 2 ;
+  static constexpr int dim2 = 3 ;
   static Matrix Mtran(dim1,dim2) ;
 
-  for ( i = 0; i < dim1; i++ ) {
-     for ( j = 0; j < dim2; j++ ) 
+  for (int i = 0; i < dim1; i++ ) {
+     for (int j = 0; j < dim2; j++ ) 
          Mtran(i,j) = M(j,i) ;
   }
 
