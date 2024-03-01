@@ -126,11 +126,6 @@ public :
     int getResponse(int responseID, Information &eleInformation);
 
 
-
-
-    //plotting
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
-
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
 
@@ -146,11 +141,6 @@ private :
     static Matrix mass ;
     static Matrix damp ;
 
-    //quadrature data
-    static const int nintu;
-    static const int nintp;
-    static const int nenu;
-    static const int nenp;
 
     //node information
     ID connectedExternalNodes ;  //eight node numbers
@@ -158,7 +148,7 @@ private :
 
     //material information
     NDMaterial **materialPointers; // pointer to the ND material objects
-
+                                   //
     //local nodal coordinates, three coordinates for each of twenty nodes
     //    static double xl[3][20] ;
     static double xl[3][20] ;
@@ -169,15 +159,21 @@ private :
     double kc;   // combined bulk modulus
     double perm[3];  // permeability
 
-    static double shgu[4][20][27];	// Stores shape functions and derivatives (overwritten)
+    //quadrature data
+    static constexpr int nintu = 27;
+    static constexpr int nintp =  8;
+    static constexpr int nenu  = 20;
+    static constexpr int nenp  =  8;
+
+    static double shgu[4][nenu][nintu];	// Stores shape functions and derivatives (overwritten)
     static double shgp[4][8][8];	// Stores shape functions and derivatives (overwritten)
     static double shgq[4][20][8];	// Stores shape functions and derivatives (overwritten)
     static double shlu[4][20][27];	// Stores shape functions and derivatives
     static double shlp[4][8][8];	// Stores shape functions and derivatives
     static double shlq[4][20][8];	// Stores shape functions and derivatives
-    static double wu[27];		// Stores quadrature weights
+    static double wu[nintu];		// Stores quadrature weights
     static double wp[8];		// Stores quadrature weights
-    static double dvolu[27];  // Stores detJacobian (overwritten)
+    static double dvolu[nintu];  // Stores detJacobian (overwritten)
     static double dvolp[8];  // Stores detJacobian (overwritten)
     static double dvolq[8];  // Stores detJacobian (overwritten)
     //inertia terms
