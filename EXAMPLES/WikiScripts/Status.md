@@ -2,58 +2,55 @@
 
 | Status  |     File     |  Message              |
 |---------|--------------|-----------------------|
-|  1  | [`AxialSp`](./AxialSp) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`BeamColumnJointExample`](./BeamColumnJointExample) | SUMMARY: AddressSanitizer: 1758622 byte(s) leaked in 1133 allocation(s). |
-|  1  | [`CFSSSWP`](./CFSSSWP) | SUMMARY: AddressSanitizer: 16525051 byte(s) leaked in 223369 allocation(s). |
-|  1  | [`CFSWSWP`](./CFSWSWP) | SUMMARY: AddressSanitizer: 23695051 byte(s) leaked in 330919 allocation(s). |
-|  1  | [`Chopra-10.4`](./Chopra-10.4) | SUMMARY: AddressSanitizer: 1696740 byte(s) leaked in 950 allocation(s). |
-|  1  | [`Ex1`](./Ex1) | SUMMARY: AddressSanitizer: 1825091 byte(s) leaked in 963 allocation(s). |
-|  1  | [`Ex3`](./Ex3) | SUMMARY: AddressSanitizer: 1696740 byte(s) leaked in 950 allocation(s). |
-|  1  | [`Ex4`](./Ex4) | SUMMARY: AddressSanitizer: 2722482 byte(s) leaked in 3991 allocation(s). |
-|  1  | [`Ex5`](./Ex5) | SUMMARY: AddressSanitizer: 1803919 byte(s) leaked in 968 allocation(s). |
-|  1  | [`Ex6`](./Ex6) | SUMMARY: AddressSanitizer: 1803919 byte(s) leaked in 968 allocation(s). |
-|  1  | [`Ex7`](./Ex7) | SUMMARY: AddressSanitizer: 4793298 byte(s) leaked in 11803 allocation(s). |
-|  1  | [`Excavation`](./Excavation) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`FatigueMaterial`](./FatigueMaterial) | SUMMARY: AddressSanitizer: 1696627 byte(s) leaked in 950 allocation(s). |
-|  1  | [`ForceDisplBeam`](./ForceDisplBeam) | SUMMARY: AddressSanitizer: 1792505 byte(s) leaked in 1345 allocation(s). |
-|  1  | [`InfillWall`](./InfillWall) | SUMMARY: AddressSanitizer: 2091953 byte(s) leaked in 2860 allocation(s). |
-|  1  | [`LimitStateMaterial`](./LimitStateMaterial) | SUMMARY: AddressSanitizer: 1695750 byte(s) leaked in 939 allocation(s). |
-|  1  | [`ModelingDiaphragms2D`](./ModelingDiaphragms2D) | SUMMARY: AddressSanitizer: 2816680 byte(s) leaked in 2327 allocation(s). |
-|  1  | [`MRF_Concentrated`](./MRF_Concentrated) | SUMMARY: AddressSanitizer: 1737372 byte(s) leaked in 973 allocation(s). |
-|  1  | [`MRF_PanelZone`](./MRF_PanelZone) | SUMMARY: AddressSanitizer: 1719452 byte(s) leaked in 976 allocation(s). |
-|  1  | [`MRF_Pushover`](./MRF_Pushover) | SUMMARY: AddressSanitizer: 1678924 byte(s) leaked in 968 allocation(s). |
-|  1  | [`MultipleShearSpring`](./MultipleShearSpring) | SUMMARY: AddressSanitizer: 1709179 byte(s) leaked in 961 allocation(s). |
-|  1  | [`Parallel`](./Parallel) | SUMMARY: AddressSanitizer: 1728788 byte(s) leaked in 1047 allocation(s). |
-|  1  | [`SAWSZeroLength`](./SAWSZeroLength) | SUMMARY: AddressSanitizer: 1697041 byte(s) leaked in 955 allocation(s). |
-|  1  | [`StaticBNWFpile`](./StaticBNWFpile) | SUMMARY: AddressSanitizer: 1686287 byte(s) leaked in 976 allocation(s). |
-|  1  | [`ViscousDamper`](./ViscousDamper) | SUMMARY: AddressSanitizer: 1795908 byte(s) leaked in 969 allocation(s). |
-|  1  | [`1Dconsolidation.tcl`](./1Dconsolidation.tcl) | SUMMARY: AddressSanitizer: 1682923 byte(s) leaked in 1005 allocation(s). |
-|  1  | [`CB_PortalFrame.tcl`](./CB_PortalFrame.tcl) | SUMMARY: AddressSanitizer: 1884034 byte(s) leaked in 1580 allocation(s). |
-|  1  | [`DisplayModel2D.tcl`](./DisplayModel2D.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`DisplayModel3D.tcl`](./DisplayModel3D.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`DisplayPlane.tcl`](./DisplayPlane.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`ElasticFrame.tcl`](./ElasticFrame.tcl) | SUMMARY: AddressSanitizer: 6224623 byte(s) leaked in 4348 allocation(s). |
-|  1  | [`Ex2a.Canti2D.ElasticElement.EQ.tcl`](./Ex2a.Canti2D.ElasticElement.EQ.tcl) | SUMMARY: AddressSanitizer: 1742736 byte(s) leaked in 961 allocation(s). |
-|  1  | [`Ex2a.Canti2D.ElasticElement.Push.tcl`](./Ex2a.Canti2D.ElasticElement.Push.tcl) | SUMMARY: AddressSanitizer: 1696740 byte(s) leaked in 950 allocation(s). |
-|  1  | [`Ex2b.Canti2D.InelasticSection.EQ.tcl`](./Ex2b.Canti2D.InelasticSection.EQ.tcl) | SUMMARY: AddressSanitizer: 1750612 byte(s) leaked in 985 allocation(s). |
-|  1  | [`Ex2b.Canti2D.InelasticSection.Push.tcl`](./Ex2b.Canti2D.InelasticSection.Push.tcl) | SUMMARY: AddressSanitizer: 1686160 byte(s) leaked in 973 allocation(s). |
-|  1  | [`Ex2c.Canti2D.InelasticFiberSection.EQ.tcl`](./Ex2c.Canti2D.InelasticFiberSection.EQ.tcl) | SUMMARY: AddressSanitizer: 1774460 byte(s) leaked in 1090 allocation(s). |
-|  1  | [`Ex2c.Canti2D.InelasticFiberSection.Push.tcl`](./Ex2c.Canti2D.InelasticFiberSection.Push.tcl) | SUMMARY: AddressSanitizer: 1702792 byte(s) leaked in 1056 allocation(s). |
-|  1  | [`Example6_4.tcl`](./Example6_4.tcl) | SUMMARY: AddressSanitizer: 1696683 byte(s) leaked in 950 allocation(s). |
-|  1  | [`FreeFieldDamp.tcl`](./FreeFieldDamp.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`FreeFieldEffective.tcl`](./FreeFieldEffective.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`HSSsection.tcl`](./HSSsection.tcl) | SUMMARY: AddressSanitizer: 1695750 byte(s) leaked in 939 allocation(s). |
-|  1  | [`KikuchiAikenHDR_sample.tcl`](./KikuchiAikenHDR_sample.tcl) | SUMMARY: AddressSanitizer: 1678502 byte(s) leaked in 953 allocation(s). |
-|  1  | [`KikuchiAikenLRB_sample.tcl`](./KikuchiAikenLRB_sample.tcl) | SUMMARY: AddressSanitizer: 1696958 byte(s) leaked in 954 allocation(s). |
-|  1  | [`KikuchiBearing_Sample.tcl`](./KikuchiBearing_Sample.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`LateralSpreadPile.tcl`](./LateralSpreadPile.tcl) | SUMMARY: AddressSanitizer: 1686286 byte(s) leaked in 976 allocation(s). |
-|  1  | [`MomentCurvature.tcl`](./MomentCurvature.tcl) | SUMMARY: AddressSanitizer: 1728640 byte(s) leaked in 1048 allocation(s). |
-|  1  | [`NR94cnp.tcl`](./NR94cnp.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`osmg.tcl`](./osmg.tcl) | SUMMARY: AddressSanitizer: 1931429 byte(s) leaked in 1704 allocation(s). |
-|  1  | [`PUL104.tcl`](./PUL104.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`PUL194.tcl`](./PUL194.tcl) | SUMMARY: AddressSanitizer: 1695750 byte(s) leaked in 939 allocation(s). |
-|  1  | [`RCFrameGravity.tcl`](./RCFrameGravity.tcl) | SUMMARY: AddressSanitizer: 1728796 byte(s) leaked in 1047 allocation(s). |
-|  1  | [`RCFramePushover.tcl`](./RCFramePushover.tcl) | SUMMARY: AddressSanitizer: 1728796 byte(s) leaked in 1047 allocation(s). |
-|  1  | [`Truss.tcl`](./Truss.tcl) | SUMMARY: AddressSanitizer: 1696958 byte(s) leaked in 954 allocation(s). |
-|  1  | [`WSection.tcl`](./WSection.tcl) | SUMMARY: AddressSanitizer: 1677294 byte(s) leaked in 938 allocation(s). |
-|  1  | [`YamamotoBiaxialHDR_Sample.tcl`](./YamamotoBiaxialHDR_Sample.tcl) | SUMMARY: AddressSanitizer: 1693089 byte(s) leaked in 959 allocation(s). |
+|  255  | [`AxialSp`](./AxialSp) | "source AxialSp_sample.tcl" |
+|  134  | [`BeamColumnJointExample`](./BeamColumnJointExample) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`CFSSSWP`](./CFSSSWP) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`CFSWSWP`](./CFSWSWP) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Chopra-10.4`](./Chopra-10.4) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex1`](./Ex1) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex3`](./Ex3) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex4`](./Ex4) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex5`](./Ex5) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex6`](./Ex6) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex7`](./Ex7) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  255  | [`Excavation`](./Excavation) | "source Excavation.tcl" |
+|  134  | [`FatigueMaterial`](./FatigueMaterial) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`ForceDisplBeam`](./ForceDisplBeam) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`InfillWall`](./InfillWall) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  255  | [`LimitStateMaterial`](./LimitStateMaterial) | invalid command name "limitCurve" |
+|  134  | [`ModelingDiaphragms2D`](./ModelingDiaphragms2D) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`MRF_Concentrated`](./MRF_Concentrated) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`MRF_PanelZone`](./MRF_PanelZone) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`MRF_Pushover`](./MRF_Pushover) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`MultipleShearSpring`](./MultipleShearSpring) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Parallel`](./Parallel) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`SAWSZeroLength`](./SAWSZeroLength) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`StaticBNWFpile`](./StaticBNWFpile) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`ViscousDamper`](./ViscousDamper) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`1Dconsolidation.tcl`](./1Dconsolidation.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`CB_PortalFrame.tcl`](./CB_PortalFrame.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  0  | [`DisplayModel2D.tcl`](./DisplayModel2D.tcl) |  |
+|  0  | [`DisplayModel3D.tcl`](./DisplayModel3D.tcl) |  |
+|  0  | [`DisplayPlane.tcl`](./DisplayPlane.tcl) |  |
+|  134  | [`ElasticFrame.tcl`](./ElasticFrame.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex2a.Canti2D.ElasticElement.EQ.tcl`](./Ex2a.Canti2D.ElasticElement.EQ.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex2a.Canti2D.ElasticElement.Push.tcl`](./Ex2a.Canti2D.ElasticElement.Push.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex2b.Canti2D.InelasticSection.EQ.tcl`](./Ex2b.Canti2D.InelasticSection.EQ.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex2b.Canti2D.InelasticSection.Push.tcl`](./Ex2b.Canti2D.InelasticSection.Push.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex2c.Canti2D.InelasticFiberSection.EQ.tcl`](./Ex2c.Canti2D.InelasticFiberSection.EQ.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Ex2c.Canti2D.InelasticFiberSection.Push.tcl`](./Ex2c.Canti2D.InelasticFiberSection.Push.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Example6_4.tcl`](./Example6_4.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`FreeFieldDamp.tcl`](./FreeFieldDamp.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`FreeFieldEffective.tcl`](./FreeFieldEffective.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  0  | [`HSSsection.tcl`](./HSSsection.tcl) |  |
+|  134  | [`KikuchiAikenHDR_sample.tcl`](./KikuchiAikenHDR_sample.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`KikuchiAikenLRB_sample.tcl`](./KikuchiAikenLRB_sample.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  255  | [`KikuchiBearing_Sample.tcl`](./KikuchiBearing_Sample.tcl) | "uniaxialMaterial AxialSp 2   1013e6 1e6 -100e6 1.00 0.01 0.50 0e6" |
+|  134  | [`LateralSpreadPile.tcl`](./LateralSpreadPile.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`MomentCurvature.tcl`](./MomentCurvature.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`osmg.tcl`](./osmg.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`RCFrameGravity.tcl`](./RCFrameGravity.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`RCFramePushover.tcl`](./RCFramePushover.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  134  | [`Truss.tcl`](./Truss.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
+|  0  | [`WSection.tcl`](./WSection.tcl) |  |
+|  134  | [`YamamotoBiaxialHDR_Sample.tcl`](./YamamotoBiaxialHDR_Sample.tcl) | python: /home/claudio/packages/opensees-pypi/src/libg3/SRC/domain/node/Node.cpp:1384: int Node::createDisp(): Assertion `theDOF_GroupPtr' failed. |
