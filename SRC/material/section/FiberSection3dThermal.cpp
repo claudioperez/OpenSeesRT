@@ -68,11 +68,6 @@ FiberSection3dThermal::FiberSection3dThermal(int tag, int num, Fiber **fibers, b
       matData[i*3+2] = Area;
       UniaxialMaterial *theMat = theFiber->getMaterial();
       theMaterials[i] = theMat->getCopy();
-
-      if (theMaterials[i] == 0) {
-    opserr << "FiberSection3dThermal::FiberSection3dThermal -- failed to get copy of a Material\n";
-    exit(-1);
-      }
     }
 
     if (computeCentroid) {
@@ -220,32 +215,27 @@ FiberSection3dThermal::addFiber(Fiber &newFiber)
       UniaxialMaterial **newArray = new UniaxialMaterial *[newSize];
       double *newMatData = new double [3 * newSize];
 
-      if (newArray == 0 || newMatData == 0) {
-      opserr << "FiberSection3d::addFiber -- failed to allocate Fiber pointers\n";
-      exit(-1);
-      }
-
       // copy the old pointers
       for (int i = 0; i < numFibers; i++) {
-      newArray[i] = theMaterials[i];
-      newMatData[3*i] = matData[3*i];
-      newMatData[3*i+1] = matData[3*i+1];
-      newMatData[3*i+2] = matData[3*i+2];
+        newArray[i] = theMaterials[i];
+        newMatData[3*i] = matData[3*i];
+        newMatData[3*i+1] = matData[3*i+1];
+        newMatData[3*i+2] = matData[3*i+2];
       }
 
       // initialize new memomry
       for (int i = numFibers; i < newSize; i++) {
-      newArray[i] = 0;
-      newMatData[3*i] = 0.0;
-      newMatData[3*i+1] = 0.0;
-      newMatData[3*i+2] = 0.0;
+        newArray[i] = 0;
+        newMatData[3*i] = 0.0;
+        newMatData[3*i+1] = 0.0;
+        newMatData[3*i+2] = 0.0;
       }
       sizeFibers = newSize;
 
       // set new memory
       if (theMaterials != 0) {
-      delete [] theMaterials;
-      delete [] matData;
+        delete [] theMaterials;
+        delete [] matData;
       }
 
       theMaterials = newArray;
@@ -763,9 +753,9 @@ FiberSection3dThermal::sendSelf(int commitTag, Channel &theChannel)
       materialData(2*i) = theMat->getClassTag();
       int matDbTag = theMat->getDbTag();
       if (matDbTag == 0) {
-    matDbTag = theChannel.getDbTag();
-    if (matDbTag != 0)
-      theMat->setDbTag(matDbTag);
+        matDbTag = theChannel.getDbTag();
+        if (matDbTag != 0)
+          theMat->setDbTag(matDbTag);
       }
       materialData(2*i+1) = matDbTag;
     }
@@ -822,14 +812,14 @@ FiberSection3dThermal::recvSelf(int commitTag, Channel &theChannel,
     // if current arrays not of correct size, release old and resize
     if (theMaterials == 0 || numFibers != data(1)) {
       // delete old stuff if outa date
-      if (theMaterials != 0) {
-    for (int i=0; i<numFibers; i++)
-      delete theMaterials[i];
-    delete [] theMaterials;
-    if (matData != 0)
-      delete [] matData;
-    matData = 0;
-    theMaterials = 0;
+      if (theMaterials != nullptr) {
+        for (int i=0; i<numFibers; i++)
+          delete theMaterials[i];
+        delete [] theMaterials;
+        if (matData != 0)
+          delete [] matData;
+        matData = 0;
+        theMaterials = nullptr;
       }
 
       // create memory to hold material pointers and fiber data
@@ -838,13 +828,8 @@ FiberSection3dThermal::recvSelf(int commitTag, Channel &theChannel,
 
     theMaterials = new UniaxialMaterial *[numFibers];
 
-    if (theMaterials == 0) {
-      opserr << "FiberSection2d::recvSelf -- failed to allocate Material pointers\n";
-      exit(-1);
-    }
-
     for (int j=0; j<numFibers; j++)
-      theMaterials[j] = 0;
+      theMaterials[j] = nullptr;
 
     matData = new double [numFibers*3];
 
@@ -870,15 +855,10 @@ FiberSection3dThermal::recvSelf(int commitTag, Channel &theChannel,
       // if material pointed to is blank or not of corrcet type,
       // release old and create a new one
       if (theMaterials[i] == 0)
-    theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);
+        theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);
       else if (theMaterials[i]->getClassTag() != classTag) {
-    delete theMaterials[i];
-    theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);
-      }
-
-      if (theMaterials[i] == 0) {
-    opserr << "FiberSection2d::recvSelf -- failed to allocate double array for material data\n";
-    exit(-1);
+        delete theMaterials[i];
+        theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);
       }
 
       theMaterials[i]->setDbTag(dbTag);
@@ -920,7 +900,7 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
   if (flag == 2) {
     for (int i = 0; i < numFibers; i++) {
       s << -matData[3*i] << " "  << matData[3*i+1] << " "  << matData[3*i+2] << " " ;
-      s << theMaterials[i]->getStress() << " "  << theMaterials[i]->getStrain() << endln;
+      s << theMaterials[i]->getStress() << " "  << theMaterials[i]->getStrain() << "\n";
     }
   } else {
     s << "\nFiberSection3dThermal, tag: " << this->getTag() << endln;
@@ -930,9 +910,9 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
 
     if (flag == 1) {
       for (int i = 0; i < numFibers; i++) {
-    s << "\nLocation (y, z) = (" << -matData[3*i] << ", " << matData[3*i+1] << ")";
-    s << "\nArea = " << matData[3*i+2] << endln;
-      theMaterials[i]->Print(s, flag);
+        s << "\nLocation (y, z) = (" << -matData[3*i] << ", " << matData[3*i+1] << ")";
+        s << "\nArea = " << matData[3*i+2] << "\n";
+        theMaterials[i]->Print(s, flag);
       }
     }
   }
