@@ -145,7 +145,7 @@ endif()
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (FALSE) #has_ipo)
+if (has_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 #==============================================================================

@@ -107,7 +107,7 @@ NewtonCotesBeamIntegration::getCopy(void)
 
 void
 NewtonCotesBeamIntegration::getSectionLocations(int numSections, double L,
-						double *xi)
+						double *xi) const
 {
   switch(numSections) {
     
@@ -199,7 +199,7 @@ NewtonCotesBeamIntegration::getSectionLocations(int numSections, double L,
 
 void
 NewtonCotesBeamIntegration::getSectionWeights(int numSections, double L,
-					      double *wt)
+					      double *wt) const
 {
   switch (numSections) {
     

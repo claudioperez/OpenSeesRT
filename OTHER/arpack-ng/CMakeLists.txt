@@ -713,7 +713,7 @@ function(build_tests)
       add_test(NAME issue215_tst WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND ${BASH_PROGRAM} -eu issue215.sh)
     endif()
 
-    if (PYTHON3)
+    if (FALSE) #(PYTHON3)
       python_add_module(pyarpack ${arpackutil_STAT_SRCS} ${arpacksrc_STAT_SRCS} ${arpacksrc_ICB} ${PROJECT_SOURCE_DIR}/EXAMPLES/PYARPACK/pyarpack.cpp)
       target_include_directories(pyarpack
           PRIVATE
@@ -833,6 +833,7 @@ string(REPLACE ";" " " PARPACK_PC_LIBS_PRIVATE "${PARPACK_PC_LIBS_PRIVATE}")
 configure_file(pkg-config/arpack.pc.in "${PROJECT_BINARY_DIR}/arpack${LIBSUFFIX}${ITF64SUFFIX}.pc" @ONLY)
 configure_file(pkg-config/parpack.pc.in "${PROJECT_BINARY_DIR}/parpack${LIBSUFFIX}${ITF64SUFFIX}.pc" @ONLY)
 
+if (FALSE)
 install(TARGETS arpack
     EXPORT arpackngTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -840,7 +841,6 @@ install(TARGETS arpack
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES "${PROJECT_BINARY_DIR}/arpack${LIBSUFFIX}${ITF64SUFFIX}.pc"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
-
 if (MPI)
   install(TARGETS parpack
       EXPORT arpackngTargets
@@ -862,7 +862,6 @@ if(ICB)
     install(FILES EXAMPLES/MATRIX_MARKET/arpackSolver.hpp DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
   endif()
 endif()
-
 install(FILES debug.h DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
 install(FILES debugF90.h DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
 if(ICB)
@@ -872,6 +871,7 @@ endif()
 
 install(FILES stat.h DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
 install(FILES statF90.h DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
+
 if(ICB)
   install(FILES ICB/stat_c.h DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
   install(FILES ICB/stat_c.hpp DESTINATION ${ARPACK_INSTALL_INCLUDEDIR})
@@ -886,6 +886,7 @@ install(FILES "${PROJECT_BINARY_DIR}/arpackicb.h" DESTINATION ${ARPACK_INSTALL_I
 install(EXPORT arpackngTargets
   DESTINATION "${ARPACK_INSTALL_CMAKEDIR}"
 )
+
 # Provide find_package for arpack-ng to users.
 configure_file(cmake/arpackng-config.cmake.in "${PROJECT_BINARY_DIR}/arpackng-config.cmake" @ONLY)
 configure_file(cmake/arpackng-config-version.cmake.in "${PROJECT_BINARY_DIR}/arpackng-config-version.cmake" @ONLY)
@@ -896,6 +897,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/arpackng${LIBSUFFIX}${ITF64SUFFIX}) # find_package(arpackng)
 
 configure_file(cmake/tstCMakeInstall.sh.in ${PROJECT_BINARY_DIR}/tstCMakeInstall.sh @ONLY)
+endif(FALSE)
 
 # Packaging: ease arpack-ng distribution (precompiled binaries and sources tarballs).
 set(CPACK_VERSION_MAJOR "${arpack_ng_MAJOR_VERSION}")

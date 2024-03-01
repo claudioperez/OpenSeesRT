@@ -164,7 +164,7 @@
 /* === BLAS and LAPACK prototypes and macros ================================ */
 /* ========================================================================== */
 
-void BLAS_DGEMV (char *trans, BLAS_INT *m, BLAS_INT *n, double *alpha,
+long int BLAS_DGEMV (char *trans, BLAS_INT *m, BLAS_INT *n, double *alpha,
 	double *A, BLAS_INT *lda, double *X, BLAS_INT *incx, double *beta,
 	double *Y, BLAS_INT *incy) ;
 

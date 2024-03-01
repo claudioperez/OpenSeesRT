@@ -17,33 +17,24 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-02-02 01:18:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/fiber/Fiber.cpp,v $
-                                                                        
-                                                                        
-// File: ~/fiber/Fiber.C
+//
+// Description: This file contains the implementation for the
+// Fiber class. Fiber provides the abstraction of a section fiber.
 //
 // Written: Remo Magalhaes de Souza
 // Created: 10/98
 // Revision: 
 //
-// Description: This file contains the implementation for the
-// Fiber class. Fiber provides the abstraction of a section fiber.
-// 
-// What: "@(#) Fiber.C, revA"
-
-
 #include <Fiber.h>
 #include <Matrix.h>
+#include <Vector.h>
 
 // constructor:
-Fiber::Fiber(int tag, int classTag):
+Fiber::Fiber(int tag, int classTag, double y, double z, double area):
   TaggedObject(tag), MovableObject(classTag),
+  loc_y(y), loc_z(z), area(area),
   sDefault(0), fDefault(0)
 {
-
 }
 
 // destructor:

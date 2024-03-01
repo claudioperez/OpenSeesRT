@@ -39,8 +39,8 @@ class DistHingeIntegration : public BeamIntegration
   DistHingeIntegration();
   ~DistHingeIntegration();
   
-  void getSectionLocations(int numSections, double L, double *xi);
-  void getSectionWeights(int numSections, double L, double *wt);
+  void getSectionLocations(int numSections, double L, double *xi) const;
+  void getSectionWeights(int numSections, double L, double *wt) const;
   
   BeamIntegration *getCopy(void);
 

@@ -17,15 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.11 $
-// $Date: 2007-02-02 01:18:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/fiber/UniaxialFiber2d.cpp,v $
-                                                                        
-                                                                        
-// Written: Remo Magalhaes de Souza
-// Created: 10/98
-// Revision: 
 //
 // Description: This file contains the implementation for the
 // UniaxialFiber2d class. UniaxialFiber2d provides the abstraction of a
@@ -33,10 +24,10 @@
 // The UniaxialFiber2d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) UniaxialFiber2d.h, revA"
-
-#include <stdlib.h>
-
+// Written: Remo Magalhaes de Souza
+// Created: 10/98
+// Revision: 
+//
 #include <UniaxialMaterial.h>
 #include <UniaxialFiber2d.h>
 #include <Channel.h>
@@ -46,7 +37,6 @@
 #include <Information.h>
 #include <Parameter.h>
 #include <FiberResponse.h>
-#include <elementAPI.h>
 
 Matrix UniaxialFiber2d::ks(2,2); 
 Vector UniaxialFiber2d::fs(2); 
@@ -54,6 +44,8 @@ ID UniaxialFiber2d::code(2);
 
 static int numUniaxialFiber2d = 0;
 
+#if 0
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_UniaxialFiber2d)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
@@ -86,14 +78,16 @@ void * OPS_ADD_RUNTIME_VPV(OPS_UniaxialFiber2d)
 
     return new UniaxialFiber2d(numUniaxialFiber2d++,*theMat,data[2],data[0]);
 }
+#endif
 
 
 // constructor:
 UniaxialFiber2d::UniaxialFiber2d(int tag, 
                                  UniaxialMaterial &theMat,
                                  double Area, double position):
-                                 Fiber(tag, FIBER_TAG_Uniaxial2d),
-                                 theMaterial(0), area(Area), y(-position)
+                                 Fiber(tag, FIBER_TAG_Uniaxial2d, position, 0.0, Area),
+                                 theMaterial(0), // area(Area), 
+                                 y(-position)
 {
   theMaterial = theMat.getCopy();  // get a copy of the MaterialModel
   
@@ -109,8 +103,9 @@ UniaxialFiber2d::UniaxialFiber2d(int tag,
 }
 
 // constructor for blank object that recvSelf needs to be invoked upon
-UniaxialFiber2d::UniaxialFiber2d(): Fiber(0, FIBER_TAG_Uniaxial2d),
-                                    theMaterial(0), area(0), y(0.0)
+UniaxialFiber2d::UniaxialFiber2d(): Fiber(0, FIBER_TAG_Uniaxial2d, 0, 0, 0),
+                                    theMaterial(0), //area(0), 
+                                    y(0.0)
 {
   if (code(0) != SECTION_RESPONSE_P) {
     code(0) = SECTION_RESPONSE_P;
@@ -377,13 +372,6 @@ UniaxialFiber2d::getResponse(int responseID, Information &fibInfo)
   default:
     return -1;
   }
-}
-
-void 
-UniaxialFiber2d::getFiberLocation(double &yLoc, double &zLoc)
-{
-  yLoc = -y;
-  zLoc = 0.0;
 }
 
 int

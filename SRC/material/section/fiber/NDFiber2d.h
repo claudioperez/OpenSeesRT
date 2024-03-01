@@ -18,20 +18,16 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// File: ~/fiber/NDFiber2d.h
-//
-// Written: MHS
-// Created: 2012
-// Revision: 
-//
 // Description: This file contains the class definition for 
 // NDFiber2d.h. NDFiber2d provides the abstraction of a
 // uniaxial fiber whose position  is defined with only one coordinate.
 // The NDFiber2d is subjected to a stress state with 
 // only one nonzero axial stress and corresponding axial strain.
 //
-// What: "@(#) NDFiber2d.h, revA"
-
+// Written: MHS
+// Created: 2012
+// Revision: 
+//
 #ifndef NDFiber2d_h
 #define NDFiber2d_h
 
@@ -69,9 +65,9 @@ class NDFiber2d : public Fiber
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 	
-    void getFiberLocation(double &y, double &z);
     NDMaterial *getNDMaterial(void) {return theMaterial;}
-    double getArea(void) {return area;};
+    // void getFiberLocation(double &y, double &z);
+    // double getArea(void) {return area;};
     double getd(void) {return 1.0;};
  
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -86,7 +82,7 @@ class NDFiber2d : public Fiber
     
   private:
     NDMaterial *theMaterial;   // pointer to a material
-    double area;                          // area of the fiber 
+    // double area;                          // area of the fiber 
     double y;		// fiber location
 
     static Matrix ks;       // static class wide matrix object for returns

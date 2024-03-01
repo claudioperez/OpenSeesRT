@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.5 $
-// $Date: 2010-09-13 21:31:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/integration/HSSSectionIntegration.h,v $
-
+//
+//
 #ifndef HSSSectionIntegration_h
 #define HSSSectionIntegration_h
 

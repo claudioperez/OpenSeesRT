@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2006-01-17 20:44:32 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/Isolator2spring.cpp,v $
-
+//
 // Written: K. Ryan
 // Created: September 2003
 // Updates: November 2005

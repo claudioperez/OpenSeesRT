@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-04-14 21:34:58 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection.cpp,v $
-                                                                        
-// Written: MHS
-// Created: Aug 2000
 //
 // Description: This file contains the class definition for 
 // FiberSection.h. FiberSection provides the abstraction of a 
 // section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
-
+//
+// Written: MHS
+// Created: Aug 2000
+//
 #include <stdlib.h>
 #include <math.h>
 
@@ -52,11 +48,6 @@ FiberSection::FiberSection(int tag, int num, Fiber **fibers):
 {
     theFibers = new Fiber *[numFibers];
 
-    if (theFibers == 0) {
-      opserr << "FiberSection::FiberSection -- failed to allocate Fiber pointers";
-      exit(-1);
-    }
-
     for (int i = 0; i < numFibers; i++) {
       theFibers[i] = fibers[i]->getCopy();
 
@@ -67,15 +58,15 @@ FiberSection::FiberSection(int tag, int num, Fiber **fibers):
 			      
     }
 
-	order = theFibers[0]->getOrder();
+    order = theFibers[0]->getOrder();
 
-	e = new Vector(order);
-	eCommit = new Vector(order);
-	s = new Vector(order);
-	ks = new Matrix(order,order);
+    e = new Vector(order);
+    eCommit = new Vector(order);
+    s = new Vector(order);
+    ks = new Matrix(order,order);
 
-	code = new ID(order);
-	*code = theFibers[0]->getType();
+    code = new ID(order);
+    *code = theFibers[0]->getType();
 }
 
 // constructor for blank object that recvSelf needs to be invoked upon
@@ -92,21 +83,16 @@ FiberSection::FiberSection(int tag, int num):
   numFibers(0), theFibers(0), sizeFibers(num),
   e(0), eCommit(0), s(0), ks(0), order(0), code(0), otherDbTag(0)
 {
-	// check for zero -- if zero make initial size 2
-	if (sizeFibers == 0)
-		sizeFibers = 2;
+    // check for zero -- if zero make initial size 2
+    if (sizeFibers == 0)
+        sizeFibers = 2;
 
-	// create the array of fiber pointers
-	theFibers = new Fiber *[sizeFibers];
+    // create the array of fiber pointers
+    theFibers = new Fiber *[sizeFibers]{};
 
-	if (theFibers == 0) {
-	  opserr << "FiberSection::FiberSection -- failed to allocate Fiber pointers";
-	  exit(-1);
-	}
-
-	// zero the pointers
-	for (int i = 0; i < sizeFibers; i++)
-		theFibers[i] =0;
+    // zero the pointers
+    for (int i = 0; i < sizeFibers; i++)
+        theFibers[i] =0;
 }
 
 int
@@ -130,38 +116,33 @@ FiberSection::addFiber(Fiber &newFiber)
 		numFibers++;
 	}
 	else {
-		// need to create a larger array
-		int newSize = 2*numFibers;
-		if (newSize == 0) 
-			newSize = 2; // in case failed in constructor
+            // need to create a larger array
+            int newSize = 2*numFibers;
+            if (newSize == 0) 
+                    newSize = 2; // in case failed in constructor
 
-		Fiber **newArray = new Fiber *[newSize]; 
+            Fiber **newArray = new Fiber *[newSize]; 
 
-	    if (newArray == 0) {
-	      opserr << "FiberSection::addFiber -- failed to allocate Fiber pointers";
-	      exit(-1);
 
-			return -1;
-		}
 
-		// set the new size of the array
-		sizeFibers = newSize;
+            // set the new size of the array
+            sizeFibers = newSize;
 
-		// copy the old pointers
-		for (int i = 0; i < numFibers; i++)
-			newArray[i] = theFibers[i];
+            // copy the old pointers
+            for (int i = 0; i < numFibers; i++)
+                    newArray[i] = theFibers[i];
 
-		// add the new pointer
-		newArray[numFibers] = &newFiber;
-		numFibers++;
+            // add the new pointer
+            newArray[numFibers] = &newFiber;
+            numFibers++;
 
-		// zero the last elements of the array
-		for (int j = numFibers; j < newSize; j++) 
-			newArray[j] = 0;
-    
-		delete [] theFibers;
-		
-		theFibers = newArray;
+            // zero the last elements of the array
+            for (int j = numFibers; j < newSize; j++) 
+                    newArray[j] = 0;
+
+            delete [] theFibers;
+            
+            theFibers = newArray;
 	}
   
 	return 0;
