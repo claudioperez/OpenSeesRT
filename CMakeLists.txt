@@ -126,7 +126,7 @@ if (UNIX)
 
     $<$<CONFIG:RELEASE>:-O3>
     $<$<CONFIG:RELEASE>:-mtune=native>
-    $<$<CONFIG:RELEASE>:-msse4>
+#   $<$<CONFIG:RELEASE>:-msse4>
 #   $<$<CONFIG:RELEASE>:-fno-rtti>
   )
   if (DEFINED ProfileBuild)
