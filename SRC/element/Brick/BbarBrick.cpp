@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.24 $
-// $Date: 2010-04-23 22:56:44 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/brick/BbarBrick.cpp,v $
-
+//
 // Ed "C++" Love
 //
 // Eight node BbarBrick element
 //
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -40,7 +35,6 @@
 #include <ErrorHandler.h>
 #include <BbarBrick.h>
 #include <shp3d.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <Parameter.h>
 #include <ElementalLoad.h>
@@ -151,14 +145,7 @@ connectedExternalNodes(8), applyLoad(0), load(0), Ki(0)
 
   int i ;
   for ( i=0; i<8; i++ ) {
-
       materialPointers[i] = theMaterial.getCopy("ThreeDimensional") ;
-
-      if (materialPointers[i] == 0) {
-	  opserr <<"BbarBrick::constructor - failed to get a material of type: ThreeDimensional\n";
-	  exit(-1);
-      } //end if
-
   } //end for i
 
   // Body forces
@@ -193,11 +180,8 @@ BbarBrick::~BbarBrick( )
 //set domain
 void  BbarBrick::setDomain( Domain *theDomain )
 {
-
-  int i ;
-
   //node pointers
-  for ( i=0; i<8; i++ )
+  for (int i=0; i<8; i++ )
      nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
 
   this->DomainComponent::setDomain(theDomain);
@@ -222,7 +206,7 @@ const ID&  BbarBrick::getExternalNodes( )
 Node **
 BbarBrick::getNodePtrs(void)
 {
-  return nodePointers ;
+  return nodePointers;
 }
 
 
@@ -332,20 +316,11 @@ const Matrix&  BbarBrick::getInitialStiff( )
   //strains ordered : eps11, eps22, eps33, 2*eps12, 2*eps23, 2*eps31
 
   static const int ndm = 3 ;
-
   static const int ndf = 3 ;
-
   static const int nstress = 6 ;
-
   static const int numberNodes = 8 ;
-
   static const int numberGauss = 8 ;
-
   static const int nShape = 4 ;
-
-  int i, j, k, p, q ;
-  int jj, kk ;
-
   static double volume ;
 
   static double xsj ;  // determinant jacaobian matrix
@@ -387,9 +362,10 @@ const Matrix&  BbarBrick::getInitialStiff( )
   //compute basis vectors and local nodal coordinates
   computeBasis( ) ;
 
-  //zero mean shape functions
-  for ( p = 0; p < nShape; p++ ) {
-    for ( q = 0; q < numberNodes; q++ )
+
+  // zero mean shape functions
+  for (int p = 0; p < nShape; p++ ) {
+    for (int q = 0; q < numberNodes; q++ )
       shpBar[p][q] = 0.0 ;
   } // end for p
 
@@ -400,9 +376,9 @@ const Matrix&  BbarBrick::getInitialStiff( )
   //gauss loop to compute and save shape functions
   int count = 0 ;
 
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
-      for ( k = 0; k < 2; k++ ) {
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      for (int k = 0; k < 2; k++ ) {
 
         gaussPoint[0] = sg[i] ;
 	gaussPoint[1] = sg[j] ;
@@ -412,8 +388,8 @@ const Matrix&  BbarBrick::getInitialStiff( )
 	shp3d( gaussPoint, xsj, shp, xl ) ;
 
 	//save shape functions
-	for ( p = 0; p < nShape; p++ ) {
-	  for ( q = 0; q < numberNodes; q++ )
+	for (int p = 0; p < nShape; p++ ) {
+	  for (int q = 0; q < numberNodes; q++ )
 	    Shape[p][q][count] = shp[p][q] ;
 	} // end for p
 
@@ -424,8 +400,8 @@ const Matrix&  BbarBrick::getInitialStiff( )
 	volume += dvol[count] ;
 
 	//add to mean shape functions
-	for ( p = 0; p < nShape; p++ ) {
-	  for ( q = 0; q < numberNodes; q++ )
+	for (int p = 0; p < nShape; p++ ) {
+	  for (int q = 0; q < numberNodes; q++ )
 	    shpBar[p][q] += ( dvol[count] * shp[p][q] ) ;
 	} // end for p
 
@@ -437,18 +413,18 @@ const Matrix&  BbarBrick::getInitialStiff( )
 
 
   //mean value of shape functions
-  for ( p = 0; p < nShape; p++ ) {
-    for ( q = 0; q < numberNodes; q++ )
+  for (int p = 0; p < nShape; p++ ) {
+    for (int q = 0; q < numberNodes; q++ )
       shpBar[p][q] /= volume ;
   } // end for p
 
 
   //gauss loop
-  for ( i = 0; i < numberGauss; i++ ) {
+  for (int i = 0; i < numberGauss; i++ ) {
 
     //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) {
-       for ( q = 0; q < numberNodes; q++ )
+    for (int p = 0; p < nShape; p++ ) {
+       for (int q = 0; q < numberNodes; q++ )
 	  shp[p][q]  = Shape[p][q][i] ;
     } // end for p
 
@@ -457,31 +433,30 @@ const Matrix&  BbarBrick::getInitialStiff( )
 
     //residual and tangent calculations node loops
 
-    jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) {
+    int jj = 0 ;
+    for (int j = 0; j < numberNodes; j++ ) {
 
       BJ = computeBbar( j, shp, shpBar ) ;
 
       //transpose
-      //BJtran = transpose( nstress, ndf, BJ ) ;
-      for (p=0; p<ndf; p++) {
-	for (q=0; q<nstress; q++)
+      for (int p = 0; p<ndf; p++) {
+	for (int q = 0; q<nstress; q++)
 	  BJtran(p,q) = BJ(q,p) ;
       }//end for p
 
       //BJtranD = BJtran * dd ;
       BJtranD.addMatrixProduct(0.0,  BJtran,dd,1.0);
 
-      kk = 0 ;
-      for ( k = 0; k < numberNodes; k++ ) {
+      int kk = 0 ;
+      for (int k = 0; k < numberNodes; k++ ) {
 
 	BK = computeBbar( k, shp, shpBar ) ;
 
 	//stiffJK =  BJtranD * BK  ;
 	stiffJK.addMatrixProduct(0.0,  BJtranD,BK,1.0) ;
 
-	for ( p = 0; p < ndf; p++ )  {
-	  for ( q = 0; q < ndf; q++ )
+	for (int p = 0; p < ndf; p++ )  {
+	  for (int q = 0; q < ndf; q++ )
 	    stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
 	} //end for p
 
@@ -559,11 +534,9 @@ BbarBrick::addInertiaLoadToUnbalance(const Vector &accel)
   static const int numberGauss = 8 ;
   static const int ndf = 3 ;
 
-  int i;
-
   // check to see if have mass
   int haveRho = 0;
-  for (i = 0; i < numberGauss; i++) {
+  for (int i = 0; i < numberGauss; i++) {
     if (materialPointers[i]->getRho() != 0.0)
       haveRho = 1;
   }
@@ -577,7 +550,7 @@ BbarBrick::addInertiaLoadToUnbalance(const Vector &accel)
 
   // store computed RV for nodes in resid vector
   int count = 0;
-  for (i=0; i<numberNodes; i++) {
+  for (int i=0; i<numberNodes; i++) {
     const Vector &Raccel = nodePointers[i]->getRV(accel);
     for (int j=0; j<ndf; j++)
       resid(count++) = Raccel(j);
@@ -636,19 +609,15 @@ const Vector&  BbarBrick::getResistingForceIncInertia( )
 //*********************************************************************
 //form inertia terms
 
-void   BbarBrick::formInertiaTerms( int tangFlag )
+void
+BbarBrick::formInertiaTerms( int tangFlag )
 {
 
   static const int ndm = 3 ;
-
   static const int ndf = 3 ;
-
   static const int numberNodes = 8 ;
-
   static const int numberGauss = 8 ;
-
   static const int nShape = 4 ;
-
   static const int massIndex = nShape - 1 ;
 
   double xsj ;  // determinant jacaobian matrix
@@ -663,9 +632,6 @@ void   BbarBrick::formInertiaTerms( int tangFlag )
 
   static Vector momentum(ndf) ;
 
-  int i, j, k, p, q ;
-  int jj, kk ;
-
   double temp, rho, massJK ;
 
 
@@ -677,11 +643,14 @@ void   BbarBrick::formInertiaTerms( int tangFlag )
 
   //gauss loop to compute and save shape functions
 
+  int i, j, k, p, q ;
+  int jj, kk ;
+
   int count = 0 ;
 
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
-      for ( k = 0; k < 2; k++ ) {
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      for (int k = 0; k < 2; k++ ) {
 
         gaussPoint[0] = sg[i] ;
 	gaussPoint[1] = sg[j] ;
@@ -691,8 +660,8 @@ void   BbarBrick::formInertiaTerms( int tangFlag )
 	shp3d( gaussPoint, xsj, shp, xl ) ;
 
 	//save shape functions
-	for ( p = 0; p < nShape; p++ ) {
-	  for ( q = 0; q < numberNodes; q++ )
+	for (int p = 0; p < nShape; p++ ) {
+	  for (int q = 0; q < numberNodes; q++ )
 	    Shape[p][q][count] = shp[p][q] ;
 	} // end for p
 
@@ -708,18 +677,18 @@ void   BbarBrick::formInertiaTerms( int tangFlag )
 
 
   //gauss loop
-  for ( i = 0; i < numberGauss; i++ ) {
+  for (int i = 0; i < numberGauss; i++ ) {
 
     //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) {
-       for ( q = 0; q < numberNodes; q++ )
+    for (int p = 0; p < nShape; p++ ) {
+       for (int q = 0; q < numberNodes; q++ )
 	  shp[p][q]  = Shape[p][q][i] ;
     } // end for p
 
 
     //node loop to compute acceleration
     momentum.Zero( ) ;
-    for ( j = 0; j < numberNodes; j++ )
+    for (int j = 0; j < numberNodes; j++ )
       //momentum += shp[massIndex][j] * ( nodePointers[j]->getTrialAccel()  ) ;
       momentum.addVector( 1.0,
 			  nodePointers[j]->getTrialAccel(),
@@ -734,12 +703,12 @@ void   BbarBrick::formInertiaTerms( int tangFlag )
 
 
     //residual and tangent calculations node loops
-    jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) {
+    int jj = 0 ;
+    for (int j = 0; j < numberNodes; j++ ) {
 
       temp = shp[massIndex][j] * dvol[i] ;
 
-      for ( p = 0; p < ndf; p++ )
+      for (int p = 0; p < ndf; p++ )
         resid( jj+p ) += ( temp * momentum(p) )  ;
 
 
@@ -750,11 +719,11 @@ void   BbarBrick::formInertiaTerms( int tangFlag )
 
 	 //node-node mass
          kk = 0 ;
-         for ( k = 0; k < numberNodes; k++ ) {
+         for (int k = 0; k < numberNodes; k++ ) {
 
 	    massJK = temp * shp[massIndex][k] ;
 
-            for ( p = 0; p < ndf; p++ )
+            for (int p = 0; p < ndf; p++ )
 	      mass( jj+p, kk+p ) += massJK ;
 
             kk += ndf ;
@@ -778,15 +747,10 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
   //strains ordered : eps11, eps22, eps33, 2*eps12, 2*eps23, 2*eps31
 
   static const int ndm = 3 ;
-
   static const int ndf = 3 ;
-
   static const int nstress = 6 ;
-
   static const int numberNodes = 8 ;
-
   static const int numberGauss = 8 ;
-
   static const int nShape = 4 ;
 
   int i, j, k, p, q ;
@@ -799,7 +763,6 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
   static double xsj ;  // determinant jacaobian matrix
 
   static double dvol[numberGauss] ; //volume element
-
   static double gaussPoint[ndm] ;
 
   static Vector strain(nstress) ;  //strain
@@ -853,9 +816,9 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
   //gauss loop to compute and save shape functions
   int count = 0 ;
 
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
-      for ( k = 0; k < 2; k++ ) {
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      for (int k = 0; k < 2; k++ ) {
 
         gaussPoint[0] = sg[i] ;
 	gaussPoint[1] = sg[j] ;
@@ -865,8 +828,8 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
 	shp3d( gaussPoint, xsj, shp, xl ) ;
 
 	//save shape functions
-	for ( p = 0; p < nShape; p++ ) {
-	  for ( q = 0; q < numberNodes; q++ )
+	for (int p = 0; p < nShape; p++ ) {
+	  for (int q = 0; q < numberNodes; q++ )
 	    Shape[p][q][count] = shp[p][q] ;
 	} // end for p
 
@@ -897,11 +860,11 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
 
 
   //gauss loop
-  for ( i = 0; i < numberGauss; i++ ) {
+  for (int i = 0; i < numberGauss; i++ ) {
 
     //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) {
-       for ( q = 0; q < numberNodes; q++ )
+    for (int p = 0; p < nShape; p++ ) {
+       for (int q = 0; q < numberNodes; q++ )
 	  shp[p][q]  = Shape[p][q][i] ;
     } // end for p
 
@@ -909,9 +872,8 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
     //zero the strains
     strain.Zero( ) ;
 
-
     // j-node loop to compute strain
-    for ( j = 0; j < numberNodes; j++ )  {
+    for (int j = 0; j < numberNodes; j++ )  {
 
       //compute B matrix
 
@@ -947,12 +909,11 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
     //residual and tangent calculations node loops
 
     jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) {
+    for (int j = 0; j < numberNodes; j++ ) {
 
       BJ = computeBbar( j, shp, shpBar ) ;
 
       //transpose
-      //BJtran = transpose( nstress, ndf, BJ ) ;
       for (p=0; p<ndf; p++) {
 	for (q=0; q<nstress; q++)
 	  BJtran(p,q) = BJ(q,p) ;
@@ -964,7 +925,7 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
       residJ.addMatrixVector(0.0,  BJtran,stress,1.0);
 
       //residual
-      for ( p = 0; p < ndf; p++ ) {
+      for (int p = 0; p < ndf; p++ ) {
         resid( jj + p ) += residJ(p)  ;
 	if (applyLoad == 0) {
 	  resid( jj + p ) -= dvol[i]*b[p]*shp[3][j];
@@ -979,7 +940,7 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
 	BJtranD.addMatrixProduct(0.0,  BJtran,dd,1.0);
 
          kk = 0 ;
-         for ( k = 0; k < numberNodes; k++ ) {
+         for (int k = 0; k < numberNodes; k++ ) {
 
             BK = computeBbar( k, shp, shpBar ) ;
 
@@ -987,8 +948,8 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
             //stiffJK =  BJtranD * BK  ;
 	    stiffJK.addMatrixProduct(0.0,  BJtranD,BK,1.0) ;
 
-            for ( p = 0; p < ndf; p++ )  {
-               for ( q = 0; q < ndf; q++ )
+            for (int p = 0; p < ndf; p++ )  {
+               for (int q = 0; q < ndf; q++ )
                   stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
             } //end for p
 
@@ -1011,13 +972,12 @@ void  BbarBrick::formResidAndTangent( int tang_flag )
 //************************************************************************
 //compute local coordinates and basis
 
-void   BbarBrick::computeBasis( )
+void
+BbarBrick::computeBasis( )
 {
 
-  //nodal coordinates
-
-  int i ;
-  for ( i = 0; i < 8; i++ ) {
+  // nodal coordinates
+  for (int i = 0; i < 8; i++ ) {
 
        const Vector &coorI = nodePointers[i]->getCrds( ) ;
 
@@ -1034,18 +994,13 @@ void   BbarBrick::computeBasis( )
 
 const Matrix&
 BbarBrick::computeBbar( int node,
-				 const double shp[4][8],
-				 const double shpBar[4][8] )
+                           const double shp[4][8],
+                           const double shpBar[4][8] )
 {
 
   static Matrix Bbar(6,3) ;
-
-  //static Matrix Bdev(3,3) ;
   static double Bdev[3][3] ;
-
-  //static Matrix BbarVol(3,3) ;
   static double BbarVol[3][3] ;
-
   static const double one3 = 1.0/3.0 ;
 
 
@@ -1127,30 +1082,8 @@ BbarBrick::computeBbar( int node,
 
 }
 
-//***********************************************************************
-
-Matrix  BbarBrick::transpose( int dim1,
-                                       int dim2,
-		                       const Matrix &M )
-{
-  int i ;
-  int j ;
-
-  Matrix Mtran( dim2, dim1 ) ;
-
-  for ( i = 0; i < dim1; i++ ) {
-     for ( j = 0; j < dim2; j++ )
-         Mtran(j,i) = M(i,j) ;
-  } // end for i
-
-  return Mtran ;
-}
 
 //**********************************************************************
-
-
-
-
 
 int  BbarBrick::sendSelf (int commitTag, Channel &theChannel)
 {
@@ -1283,7 +1216,7 @@ int  BbarBrick::recvSelf (int commitTag,
       materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
       if (materialPointers[i] == 0) {
 	  opserr << "BbarBrick::recvSelf() - Broker could not create NDMaterial of class type" <<
-	    matClassTag << endln;
+	            matClassTag << endln;
 	  exit(-1);
       }
       // Now receive materials into the newly allocated space
@@ -1328,58 +1261,6 @@ int  BbarBrick::recvSelf (int commitTag,
 }
 //**************************************************************************
 
-int
-BbarBrick::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // vertex display coordinate vectors
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    static Vector v5(3);
-    static Vector v6(3);
-    static Vector v7(3);
-    static Vector v8(3);
-    static Matrix coords(8, 3); // polygon coordinate matrix
-    static Vector values(8); // color vector
-    static Vector P(24); // not sure what this was intended for -ambaker1
-    int i;
-
-    // get display coords
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-    nodePointers[4]->getDisplayCrds(v5, fact, displayMode);
-    nodePointers[5]->getDisplayCrds(v6, fact, displayMode);
-    nodePointers[6]->getDisplayCrds(v7, fact, displayMode);
-    nodePointers[7]->getDisplayCrds(v8, fact, displayMode);
-
-    // add to coord matrix
-    for (i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-        coords(4, i) = v5(i);
-        coords(5, i) = v6(i);
-        coords(6, i) = v7(i);
-        coords(7, i) = v8(i);
-    }
-
-    // create color vector
-    if (displayMode > 0)
-        for (i = 0; i < 8; i++)
-            values(i) = 1.0;
-    else
-        for (i = 0; i < 8; i++)
-            values(i) = 0.0; // from Brick.cpp
-
-    if (displayMode < 3 && displayMode > 0)
-        P = this->getResistingForce();
-
-    return theViewer.drawCube(coords, values, this->getTag());
-}
 
 Response*
 BbarBrick::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -1523,7 +1404,7 @@ int
 BbarBrick::setParameter(const char **argv, int argc, Parameter &param)
 {
   if (argc < 1)
-  return -1;
+    return -1;
 
   int res = -1;
 

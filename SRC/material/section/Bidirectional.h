@@ -17,25 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2006-12-20 17:21:39 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/Bidirectional.h,v $
-                                                                        
-                                                                        
-#ifndef Bidirectional_h
-#define Bidirectional_h
-
-// File: ~/material/Bidirectional.h
+//
+// Description: 
 //
 // Written: MHS
 // Created: Feb 2000
 // Revision: A
 //
-// Description: 
+#ifndef Bidirectional_h
+#define Bidirectional_h
 //
-// What: "@(#) Bidirectional.h, revA"
-
 #include <SectionForceDeformation.h>
 
 #include <Matrix.h>

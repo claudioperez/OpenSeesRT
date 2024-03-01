@@ -108,7 +108,7 @@ LobattoBeamIntegration::getCopy(void)
 void
 LobattoBeamIntegration::getSectionLocations(int numSections, 
 					    double L,
-					    double *xi)
+					    double *xi) const
 {
   switch(numSections) {
     
@@ -205,7 +205,7 @@ LobattoBeamIntegration::getSectionLocations(int numSections,
 
 void
 LobattoBeamIntegration::getSectionWeights(int numSections, double L,
-					  double *wt)
+					  double *wt) const
 {
   switch (numSections) {
     

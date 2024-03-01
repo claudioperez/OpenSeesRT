@@ -17,15 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2007-11-30 23:34:45 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/TimoshenkoSection3d.cpp,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/04
 //
-// Description: This file contains the class implementation of TimoshenkoSection2d.
+// Description: This file contains the class implementation of TimoshenkoSection3d.
 
 #include <stdlib.h>
 #include <math.h>
@@ -56,18 +52,7 @@ TimoshenkoSection3d::TimoshenkoSection3d(int tag, int num, NDMaterial **fibers,
 {
   if (numFibers != 0) {
     theMaterials = new NDMaterial *[numFibers];
-
-    if (theMaterials == 0) {
-      opserr << "TimoshenkoSection3d::TimoshenkoSection3d -- failed to allocate Material pointers\n";
-      exit(-1);
-    }
-
-    matData = new double [numFibers*3];
-
-    if (matData == 0) {
-      opserr << "TimoshenkoSection3d::TimoshenkoSection3d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
+    matData      = new double [numFibers*3];
 
     double Qz = 0.0;
     double Qy = 0.0;
@@ -84,7 +69,7 @@ TimoshenkoSection3d::TimoshenkoSection3d(int tag, int num, NDMaterial **fibers,
       Qy += zLoc*Area;
       a  += Area;
 
-      matData[i*3] = -yLoc;
+      matData[i*3]   = -yLoc;
       matData[i*3+1] = zLoc;
       matData[i*3+2] = Area;
 
@@ -180,12 +165,13 @@ TimoshenkoSection3d::setTrialSectionDeformation (const Vector &deforms)
   kData[8] = 0.0; 
   sData[0] = 0.0; sData[1] = 0.0;  sData[2] = 0.0; 
 
-  int loc = 0;
 
   double d0 = deforms(0);
   double d1 = deforms(1);
   double d2 = deforms(2);
 
+  Vector eps(3);
+  int loc = 0;
   for (int i = 0; i < numFibers; i++) {
     NDMaterial *theMat = theMaterials[i];
     double y = matData[loc++] - yBar;
@@ -193,28 +179,30 @@ TimoshenkoSection3d::setTrialSectionDeformation (const Vector &deforms)
     double A = matData[loc++];
 
     // determine material strain and set it
-    double strain = d0 + y*d1 + z*d2;
 
-    Vector eps(3);
-    eps(0) = strain;
+    eps(0) = d0 + y*d1 + z*d2;
+
     res = theMat->setTrialStrain(eps);
-
     const Vector &stress = theMat->getStress();
     const Matrix &tangent = theMat->getTangent();
 
-    double value = tangent(0,0) * A;
-    double vas1 = y*value;
-    double vas2 = z*value;
+    double d00 = tangent(0,0) * A;
+    double y2 = y*y;
+    double z2 = z*z;
+    double yz = y*z;
+
+    double vas1 = y*d00;
+    double vas2 = z*d00;
     double vas1as2 = vas1*z;
 
-    kData[0] += value;
-    kData[1] += vas1;
-    kData[2] += vas2;
+    kData[0] += d00;
+    kData[1] += y*d00;
+    kData[2] += z*d00;
     
-    kData[4] += vas1 * y;
+    kData[4] += y2*d00;
     kData[5] += vas1as2;
     
-    kData[8] += vas2 * z; 
+    kData[8] += z2*d00; 
 
     double fs0 = stress(0) * A;
 
@@ -298,19 +286,8 @@ TimoshenkoSection3d::getCopy(void)
   if (numFibers != 0) {
     theCopy->theMaterials = new NDMaterial *[numFibers];
 
-    if (theCopy->theMaterials == 0) {
-      opserr << "TimoshenkoSection3d::TimoshenkoSection3d -- failed to allocate Material pointers\n";
-      exit(-1);			    
-    }
-
     theCopy->matData = new double [numFibers*3];
 
-    if (theCopy->matData == 0) {
-      opserr << "TimoshenkoSection3d::TimoshenkoSection3d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
-			    
-    
     for (int i = 0; i < numFibers; i++) {
       theCopy->matData[i*3] = matData[i*3];
       theCopy->matData[i*3+1] = matData[i*3+1];
@@ -566,23 +543,8 @@ TimoshenkoSection3d::recvSelf(int commitTag, Channel &theChannel,
       // create memory to hold material pointers and fiber data
       numFibers = data(1);
       if (numFibers != 0) {
-
-	theMaterials = new NDMaterial *[numFibers];
-	
-	if (theMaterials == 0) {
-	  opserr << "TimoshenkoSection2d::recvSelf -- failed to allocate Material pointers\n";
-	  exit(-1);
-	}
-
-	for (int j=0; j<numFibers; j++)
-	  theMaterials[j] = 0;
-	
-	matData = new double [numFibers*3];
-
-	if (matData == 0) {
-	  opserr << "TimoshenkoSection2d::recvSelf  -- failed to allocate double array for material data\n";
-	  exit(-1);
-	}
+	theMaterials = new NDMaterial *[numFibers]{};
+	matData      = new double [numFibers*3];
       }
     }
 

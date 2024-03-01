@@ -142,9 +142,6 @@ CorotCrdTransfWarping3d::CorotCrdTransfWarping3d(int tag,
   } else
     nodeJOffset = rigJntOffsetJ;
 
-  //opserr << "nodeIOffset:" << nodeIOffset;
-  //opserr << "nodeJOffset:" << nodeJOffset;
-
   // temporary
   if (nodeIOffset.Norm() != 0 || nodeJOffset.Norm() != 0) {
     opserr << "CorotCrdTransfWarping3d::CorotCrdTransfWarping3d: rigid joint "
@@ -178,7 +175,6 @@ CorotCrdTransfWarping3d::CorotCrdTransfWarping3d(int tag,
     Tp(5, 3) = 1;
   }
 
-  //opserr << "Tp: " << Tp;
 }
 
 // constructor:
@@ -532,15 +528,13 @@ void
 CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
 {
   // extract columns of rotation matrices
-  int i, j, k;
 
-  //opserr << "comprTransfMatrixBasicGlobal: *****************************\n";
   static Vector r1(3), r2(3), r3(3);
   static Vector e1(3), e2(3), e3(3);
   static Vector rI1(3), rI2(3), rI3(3);
   static Vector rJ1(3), rJ2(3), rJ3(3);
 
-  for (k = 0; k < 3; k++) {
+  for (int k = 0; k < 3; k++) {
     r1(k) = Rbar(k, 0);
     r2(k) = Rbar(k, 1);
     r3(k) = Rbar(k, 2);
@@ -563,11 +557,11 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   static Matrix I(3, 3);
 
   //   A = (1/Ln)*(I - e1*e1');
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     I(i, i) = 1;
 
-  for (i = 0; i < 3; i++)
-    for (j = 0; j < 3; j++)
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++)
       A(i, j) = (I(i, j) - e1(i) * e1(j)) / Ln;
 
   Lr2 = this->getLMatrix(r2);
@@ -606,9 +600,9 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   Se.addMatrixVector(0.0, Sr2, e1, -1.0); // (-S(rI2)*e1 + S(rI1)*e2)'
   Se.addMatrixVector(1.0, Sr1, e2, 1.0);
 
-  for (i = 0; i < 3; i++) {
-    T(1, i)     = At(i);
-    T(1, i + 3) = Se(i);
+  for (int i = 0; i < 3; i++) {
+    T(1, i)     =  At(i);
+    T(1, i + 3) =  Se(i);
     T(1, i + 7) = -At(i);
   }
 
@@ -619,7 +613,7 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   Se.addMatrixVector(0.0, Sr3, e1, -1.0); // (-S(rI3)*e1 + S(rI1)*e3)
   Se.addMatrixVector(1.0, Sr1, e3, 1.0);
 
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     T(2, i)     = At(i);
     T(2, i + 3) = Se(i);
     T(2, i + 7) = -At(i);
@@ -634,7 +628,7 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   Se.addMatrixVector(0.0, Sr3, e2, -1.0); // -S(rJ3)*e2 + S(rJ2)*e3
   Se.addMatrixVector(1.0, Sr2, e3, 1.0);
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     T(4, i + 10) = Se(i);
 
   //   T6 = [(A*rJ2)', O', 0, -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)', 0]';
@@ -644,7 +638,7 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   Se.addMatrixVector(0.0, Sr2, e1, -1.0); // (-S(rJ2)*e1 + S(rJ1)*e2)
   Se.addMatrixVector(1.0, Sr1, e2, 1.0);
 
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     T(5, i)      = At(i);
     T(5, i + 7)  = -At(i);
     T(5, i + 10) = Se(i);
@@ -657,10 +651,10 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   Se.addMatrixVector(0.0, Sr3, e1, -1.0); // (-S(rJ3)*e1 + S(rJ1)*e3)
   Se.addMatrixVector(1.0, Sr1, e3, 1.0);
 
-  for (i = 0; i < 3; i++) {
-    T(6, i)      = At(i);
+  for (int i = 0; i < 3; i++) {
+    T(6, i)      =  At(i);
     T(6, i + 7)  = -At(i);
-    T(6, i + 10) = Se(i);
+    T(6, i + 10) =  Se(i);
   }
 
   // setup tranformation matrix
@@ -677,55 +671,54 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobal(void)
   Lr.addMatrixVector(0.0, Lr3, rI2, 1.0); //  T(:,1) += Lr3*rI2 - Lr2*rI3
   Lr.addMatrixVector(1.0, Lr2, rI3, -1.0);
 
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     T(0, i) += Lr(i);
 
   Lr.addMatrixVector(0.0, Lr2, rI1, 1.0); //  T(:,2) +=           Lr2*rI1
 
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     T(1, i) += Lr(i);
 
   Lr.addMatrixVector(0.0, Lr3, rI1, 1.0); //  T(:,3) += Lr3*rI1
 
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     T(2, i) += Lr(i);
 
   Lr.addMatrixVector(0.0, Lr3, rJ2, 1.0); //  T(:,5) += Lr3*rJ2 - Lr2*rJ3;
   Lr.addMatrixVector(1.0, Lr2, rJ3, -1.0);
 
   T(3, 6) = 1.0;
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     T(4, i) += Lr(i);
 
   Lr.addMatrixVector(0.0, Lr2, rJ1, 1.0); //  T(:,6) += Lr2*rJ1
 
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     T(5, i) += Lr(i);
 
   Lr.addMatrixVector(0.0, Lr3, rJ1, 1.0); //   T(:,7) += Lr3*rJ1
 
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     T(6, i) += Lr(i);
   T(7, 13) = 1.0;
 
-  double c;
-  for (j = 0; j < 3; j++) {
-    c = 2 * cos(ul(j));
+  for (int j = 0; j < 3; j++) {
+    double c = 2 * cos(ul(j));
 
-    for (i = 0; i < 14; i++)
+    for (int i = 0; i < 14; i++)
       T(j, i) /= c;
   }
 
-  for (j = 4; j < 7; j++) {
-    c = 2 * cos(ul(j));
+  for (int j = 4; j < 7; j++) {
+    double c = 2 * cos(ul(j));
 
-    for (i = 0; i < 14; i++)
+    for (int i = 0; i < 14; i++)
       T(j, i) /= c;
   }
   // T(:,9) = [-e1' O' e1' O']';
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     T(8, i)     = -e1(i);
-    T(8, i + 7) = e1(i);
+    T(8, i + 7) =  e1(i);
   }
 }
 
@@ -735,13 +728,12 @@ CorotCrdTransfWarping3d::compTransfMatrixBasicGlobalNew(void)
   // extract columns of rotation matrices
   int i, j, k;
 
-  //opserr << "comprTransfMatrixBasicGlobal: *****************************\n";
   static Vector r1(3), r2(3), r3(3);
   static Vector e1(3), e2(3), e3(3);
   static Vector rI1(3), rI2(3), rI3(3);
   static Vector rJ1(3), rJ2(3), rJ3(3);
 
-  for (k = 0; k < 3; k++) {
+  for (int k = 0; k < 3; k++) {
     r1(k) = Rbar(k, 0);
     r2(k) = Rbar(k, 1);
     r3(k) = Rbar(k, 2);

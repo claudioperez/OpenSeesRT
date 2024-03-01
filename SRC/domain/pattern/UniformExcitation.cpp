@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
-                                                                        
-// File: ~/domain/load/UniformExcitation.h
+//
+// Purpose: This file contains the class definition for UniformExcitation.
+// UniformExcitation is an abstract class.
 //
 // Written: fmk 11/98
 // Revised:
 //
-// Purpose: This file contains the class definition for UniformExcitation.
-// UniformExcitation is an abstract class.
-
 #include <UniformExcitation.h>
 #include <GroundMotion.h>
 #include <Domain.h>
@@ -46,6 +39,7 @@
 
 void* OPS_ADD_RUNTIME_VPV(OPS_TimeSeriesIntegrator);
 
+#if 0
 void *
 OPS_ADD_RUNTIME_VPV(OPS_UniformExcitationPattern)
 {
@@ -188,6 +182,7 @@ OPS_ADD_RUNTIME_VPV(OPS_UniformExcitationPattern)
 
     return thePattern;
 }
+#endif
 
 UniformExcitation::UniformExcitation()
 :EarthquakePattern(0, PATTERN_TAG_UniformExcitation), 

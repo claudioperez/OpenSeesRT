@@ -115,9 +115,6 @@ class BbarBrick : public Element {
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
 
-    //plotting 
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
-
   private : 
 
     //static data
@@ -164,9 +161,6 @@ class BbarBrick : public Element {
 			       const double shp[4][8], 
 			       const double shpBar[4][8] ) ;
   
-    //Matrix transpose
-    Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-
     Vector *load;
     Matrix *Ki;
 } ; 

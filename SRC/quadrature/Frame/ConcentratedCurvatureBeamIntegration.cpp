@@ -105,7 +105,7 @@ ConcentratedCurvatureBeamIntegration::~ConcentratedCurvatureBeamIntegration()
 }
 void
 ConcentratedCurvatureBeamIntegration::getSectionLocations(int numSections, double L,
-					       double *xi)
+					       double *xi) const
 {
 	double oneOverL = 1.0/L;
 	
@@ -119,7 +119,7 @@ ConcentratedCurvatureBeamIntegration::getSectionLocations(int numSections, doubl
 
 void
 ConcentratedCurvatureBeamIntegration::getSectionWeights(int numSections, double L,
-					     double *wt)
+					     double *wt) const
 {
 	double oneOverL = 1.0/L;
 	int N = 5 ;

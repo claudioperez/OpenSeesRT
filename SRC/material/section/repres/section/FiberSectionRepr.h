@@ -53,11 +53,12 @@ class FiberSectionRepr: public SectionRepres
     ~FiberSectionRepr();
         
     // edition functions
+#if 0
     void setNumPatches     (int numPatches);
     int  setPatches        (Patch **patches);    
     void setNumReinfLayers (int numReinfLayers);
     int  setReinfLayers    (ReinfLayer **reinfLayers);
- 
+#endif 
     int  addPatch          (const Patch & aPatch);
     int  addReinfLayer     (const ReinfLayer & aReinfLayer);
     int  addFiber(Fiber &theFiber);    
@@ -88,19 +89,16 @@ class FiberSectionRepr: public SectionRepres
     int        maxNPatches;       // maximum number of patches that can be stored
     int        maxNReinfLayers;   // maximum number of reinforcing layers  that can be stored
     Patch      **patch;           // patch array (change to linked list later!!!!) 
-    ReinfLayer **reinfLayer;      // reinforcing bar array (change to linked
-                                  // list later!!!!!!!!)
+    ReinfLayer **reinfLayer;      // reinforcing bar array (change to linked list later!!!!!!!!)
     int        nPatches;          // current number of patches
     int        nReinfLayers;      // current number of reinforcing layers
 
     int numFibers;       // number of fibers in the section
-    Fiber **theFibers;   // array of pointers to fibers
-                         // that form the section
+    Fiber **theFibers;   // array of pointers to fibers that form the section
     int sizeFibers;      // size of the fibers array
 
-	int numHFibers;       // number of fibers in the section
-    Fiber **theHFibers;   // array of pointers to fibers
-                         // that form the section
+    int numHFibers;       // number of fibers in the section
+    Fiber **theHFibers;   // array of pointers to fibers that form the section
     int sizeHFibers;      // size of the fibers array
 };
 

@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.35 $
-// $Date: 2008-11-04 21:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection2d.cpp,v $
-                                                                        
+//
+// Description: This file contains the class implementation of FiberSection2d.
+//
 // Written: fmk
 // Created: 04/04
 //
-// Description: This file contains the class implementation of FiberSection2d.
-
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -73,7 +69,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FiberSection2d)
 // constructors:
 FiberSection2d::FiberSection2d(int tag, int num, Fiber **fibers, bool compCentroid): 
   SectionForceDeformation(tag, SEC_TAG_FiberSection2d),
-  numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
+  numFibers(num), sizeFibers(num), theMaterials(nullptr), matData(nullptr),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
   sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
 
@@ -81,17 +77,8 @@ FiberSection2d::FiberSection2d(int tag, int num, Fiber **fibers, bool compCentro
   if (numFibers > 0) {
     theMaterials = new UniaxialMaterial *[numFibers];
 
-    if (theMaterials == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate Material pointers";
-      exit(-1);
-    }
-
-    matData = new double [numFibers*2];
-
-    if (matData == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
+   // matData = std::make_shared<double[]>(new double [numFibers*2]);
+    matData.reset(new double [numFibers*2]);
 
     for (int i = 0; i < numFibers; i++) {
       Fiber *theFiber = fibers[i];
@@ -137,29 +124,14 @@ FiberSection2d::FiberSection2d(int tag, int num, bool compCentroid):
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
   sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
 {
-    if(sizeFibers > 0) {
-	theMaterials = new UniaxialMaterial *[sizeFibers];
-
-	if(theMaterials == 0) {
-	    opserr << "FiberSection2d::FiberSection2d -- failed to allocate Material pointers";
-	    exit(-1);
-	}
-
-	matData = new double [sizeFibers*2];
-
-	if(matData == 0) {
-	    opserr << "FiberSection2d::FiberSection2d -- failed to allocate double array for material data\n";
-	    exit(-1);
-	}
-
-	for(int i = 0; i < sizeFibers; i++) {
-	    matData[i*2] = 0.0;
-	    matData[i*2+1] = 0.0;
-	    theMaterials[i] = 0;
-	}    
+    if (sizeFibers > 0) {
+      theMaterials = new UniaxialMaterial *[sizeFibers]{};
+//    matData      = new double [sizeFibers*2]{};
+//    matData = std::make_shared<double[]>(new double [numFibers*2]{});
+      matData.reset(new double [numFibers*2]);
     }
 
-    s = new Vector(sData, 2);
+    s  = new Vector(sData, 2);
     ks = new Matrix(kData, 2, 2);
 
     sData[0] = 0.0;
@@ -182,18 +154,11 @@ FiberSection2d::FiberSection2d(int tag, int num, UniaxialMaterial **mats,
   sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
 {
   if (numFibers != 0) {
-    theMaterials = new UniaxialMaterial *[numFibers];
+    theMaterials = new UniaxialMaterial *[numFibers]{};
+//  matData      = new double [numFibers*2]{};
+   // matData = std::make_shared<double[]>(new double [numFibers*2]{});
+    matData.reset(new double [numFibers*2]);
 
-    if (theMaterials == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate Material pointers";
-      exit(-1);
-    }
-    matData = new double [numFibers*2];
-
-    if (matData == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
   }
 
   sectionIntegr = si.getCopy();
@@ -264,16 +229,18 @@ FiberSection2d::FiberSection2d():
 int
 FiberSection2d::addFiber(Fiber &newFiber)
 {
+  double yLoc, zLoc, Area;
+  newFiber.getFiberLocation(yLoc, zLoc);
+  Area = newFiber.getArea();
+
   // need to create larger arrays
-  if(numFibers == sizeFibers) {
+  if (numFibers == sizeFibers) {
       int newsize = 2*sizeFibers;
-      if(newsize == 0) newsize = 30;
+      if (newsize == 0) 
+        newsize = 30;
       UniaxialMaterial **newArray = new UniaxialMaterial *[newsize]; 
-      double *newMatData = new double [2 * newsize];
-      if (newArray == 0 || newMatData == 0) {
-	  opserr <<"FiberSection2d::addFiber -- failed to allocate Fiber pointers\n";
-	  return -1;
-      }
+      // std::shared_ptr<double[]> newMatData = std::make_shared<double[]>(new double [2 * newsize]);
+      std::shared_ptr<double[]> newMatData(new double [2 * newsize]);
 
       // copy the old pointers and data
       int i;
@@ -295,7 +262,7 @@ FiberSection2d::addFiber(Fiber &newFiber)
       // set new memory
       if (theMaterials != 0) {
 	  delete [] theMaterials;
-	  delete [] matData;
+	  // delete [] matData;
       }
 
       theMaterials = newArray;
@@ -303,9 +270,6 @@ FiberSection2d::addFiber(Fiber &newFiber)
   }
 
   // set the new pointers and data
-  double yLoc, zLoc, Area;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
   matData[numFibers*2] = yLoc;
   matData[numFibers*2+1] = Area;
   UniaxialMaterial *theMat = newFiber.getMaterial();
@@ -340,8 +304,8 @@ FiberSection2d::~FiberSection2d()
     delete [] theMaterials;
   }
 
-  if (matData != 0)
-    delete [] matData;
+//  if (matData != 0)
+//    delete [] matData;
 
   if (s != 0)
     delete s;
@@ -467,30 +431,18 @@ FiberSection2d::getStressResultant(void)
 SectionForceDeformation*
 FiberSection2d::getCopy(void)
 {
-  FiberSection2d *theCopy = new FiberSection2d ();
+  FiberSection2d *theCopy = new FiberSection2d();
   theCopy->setTag(this->getTag());
-
   theCopy->numFibers = numFibers;
   theCopy->sizeFibers = numFibers;
 
   if (numFibers != 0) {
-    theCopy->theMaterials = new UniaxialMaterial *[numFibers];
+    theCopy->theMaterials = new UniaxialMaterial *[numFibers]; 
+    theCopy->matData = matData; // new double [numFibers*2];
 
-    if (theCopy->theMaterials == 0) {
-      opserr <<"FiberSection2d::getCopy -- failed to allocate Material pointers\n";
-      exit(-1);
-    }
-  
-    theCopy->matData = new double [numFibers*2];
-
-    if (theCopy->matData == 0) {
-      opserr << "FiberSection2d::getCopy -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
-			    
     for (int i = 0; i < numFibers; i++) {
-      theCopy->matData[i*2] = matData[i*2];
-      theCopy->matData[i*2+1] = matData[i*2+1];
+//    theCopy->matData[i*2] = matData[i*2];
+//    theCopy->matData[i*2+1] = matData[i*2+1];
       theCopy->theMaterials[i] = theMaterials[i]->getCopy();
 
       if (theCopy->theMaterials[i] == 0) {
@@ -515,10 +467,10 @@ FiberSection2d::getCopy(void)
 
   theCopy->computeCentroid = computeCentroid;
   
-  if (sectionIntegr != 0)
+  if (sectionIntegr != nullptr)
     theCopy->sectionIntegr = sectionIntegr->getCopy();
   else
-    theCopy->sectionIntegr = 0;
+    theCopy->sectionIntegr = nullptr;
 
   return theCopy;
 }
@@ -734,10 +686,10 @@ FiberSection2d::recvSelf(int commitTag, Channel &theChannel,
 	for (int i=0; i<numFibers; i++)
 	  delete theMaterials[i];
 	delete [] theMaterials;
-	if (matData != 0)
-	  delete [] matData;
-	matData = 0;
-	theMaterials = 0;
+	theMaterials = nullptr;
+	// if (matData != 0)
+	//   delete [] matData;
+	// matData = 0;
       }
 
       // create memory to hold material pointers and fiber data
@@ -745,21 +697,12 @@ FiberSection2d::recvSelf(int commitTag, Channel &theChannel,
       sizeFibers = data(1);
       if (numFibers != 0) {
 	theMaterials = new UniaxialMaterial *[numFibers];
-	
-	if (theMaterials == 0) {
-	  opserr <<"FiberSection2d::recvSelf -- failed to allocate Material pointers\n";
-	  exit(-1);
-	}
-	
 	for (int j=0; j<numFibers; j++)
 	  theMaterials[j] = 0;
 
-	matData = new double [numFibers*2];
+	// matData = std::make_shared<double[]>(new double [numFibers*2]);
+	matData.reset(new double [numFibers*2]);
 
-	if (matData == 0) {
-	  opserr <<"FiberSection2d::recvSelf  -- failed to allocate double array for material data\n";
-	  exit(-1);
-	}
       }
     }
 
@@ -782,11 +725,6 @@ FiberSection2d::recvSelf(int commitTag, Channel &theChannel,
       else if (theMaterials[i]->getClassTag() != classTag) {
 	delete theMaterials[i];
 	theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);      
-      }
-
-      if (theMaterials[i] == 0) {
-	opserr <<"FiberSection2d::recvSelf -- failed to allocate double array for material data\n";
-	exit(-1);
       }
 
       theMaterials[i]->setDbTag(dbTag);

@@ -17,26 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2007-02-02 01:18:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/fiber/UniaxialFiber3d.cpp,v $
-                                                                        
-                                                                        
-// File: ~/section/UniaxialFiber3d.C
+//
+// Description: UniaxialFiber3d provides the abstraction of a
+// uniaxial fiber that forms a fiber section for 3d frame elements.
+// The UniaxialFiber3d is subjected to a stress state with
+// only one nonzero axial stress and corresponding axial strain.
 //
 // Written: Remo Magalhaes de Souza
 // Created: 10/98
 // Revision: 
 //
-// Description: This file contains the implementation for the
-// UniaxialFiber3d class. UniaxialFiber3d provides the abstraction of a
-// uniaxial fiber that forms a fiber section for 3d frame elements.
-// The UniaxialFiber3d is subjected to a stress state with
-// only one nonzero axial stress and corresponding axial strain.
-//
-// What: "@(#) UniaxialFiber3d.C, revA"
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -51,7 +41,6 @@
 #include <SectionForceDeformation.h>
 #include <Information.h>
 #include <FiberResponse.h>
-#include <elementAPI.h>
 
 Matrix UniaxialFiber3d::ks(3,3); 
 Vector UniaxialFiber3d::fs(3); 
@@ -59,47 +48,17 @@ ID UniaxialFiber3d::code(3);
 
 static int numUniaxialFiber3d = 0;
 
-void * OPS_ADD_RUNTIME_VPV(OPS_UniaxialFiber3d)
-{
-    if(OPS_GetNumRemainingInputArgs() < 4) {
-	opserr<<"insufficient arguments for UniaxialFiber3d\n";
-	return 0;
-    }
-
-    // get data
-    int numData = 3;
-    double data[3];
-    if(OPS_GetDoubleInput(&numData,&data[0]) < 0) return 0;
-
-    // get mat tag
-    int tag;
-    numData = 1;
-    if(OPS_GetIntInput(&numData,&tag) < 0) return 0;
-
-    // get material
-    UniaxialMaterial* theMat = OPS_getUniaxialMaterial(tag);
-    if(theMat == 0) {
-	opserr<<"invalid UniaxialMaterial tag\n";
-	return 0;
-    }
-
-    static Vector fiberPos(2);
-    fiberPos(0) = data[0];
-    fiberPos(1) = data[1];
-    return new UniaxialFiber3d(numUniaxialFiber3d++,*theMat,data[2],fiberPos);
-}
-
-
 // constructor:
 UniaxialFiber3d::UniaxialFiber3d()
-:Fiber(0, FIBER_TAG_Uniaxial3d),
- theMaterial(0), area(0.0), dValue(0.0)
+:Fiber(0, FIBER_TAG_Uniaxial3d, 0, 0, 0), // TODO
+ theMaterial(0), //area(0.0), 
+ dValue(0.0)
 {
-	if (code(0) != SECTION_RESPONSE_P) {
-		code(0) = SECTION_RESPONSE_P;
-		code(1) = SECTION_RESPONSE_MZ;
-		code(2) = SECTION_RESPONSE_MY;
-	}
+   if (code(0) != SECTION_RESPONSE_P) {
+       code(0)  = SECTION_RESPONSE_P;
+       code(1)  = SECTION_RESPONSE_MZ;
+       code(2)  = SECTION_RESPONSE_MY;
+   }
 
    as[0] = 0.0;
    as[1] = 0.0;
@@ -108,24 +67,25 @@ UniaxialFiber3d::UniaxialFiber3d()
 UniaxialFiber3d::UniaxialFiber3d(int tag, 
                                  UniaxialMaterial &theMat,
                                  double Area, const Vector &position, double d)
-:Fiber(tag, FIBER_TAG_Uniaxial3d),
- theMaterial(0), area(Area), dValue(d)
+:Fiber(tag, FIBER_TAG_Uniaxial3d, position(0), position(1), Area),
+ theMaterial(0), // area(Area), 
+  dValue(d)
 {
-	theMaterial = theMat.getCopy();  // get a copy of the MaterialModel
+    theMaterial = theMat.getCopy();  // get a copy of the MaterialModel
 
-	if (theMaterial == 0) {
-	  opserr << "UniaxialFiber3d::UniaxialFiber2d -- failed to get copy of UniaxialMaterial\n";
-	  exit(-1);
-	}
-	
-   	if (code(0) != SECTION_RESPONSE_P) {
-		code(0) = SECTION_RESPONSE_P;
-		code(1) = SECTION_RESPONSE_MZ;
-		code(2) = SECTION_RESPONSE_MY;
-	}
+    if (theMaterial == 0) {
+      opserr << "UniaxialFiber3d::UniaxialFiber2d -- failed to get copy of UniaxialMaterial\n";
+      exit(-1);
+    }
+    
+    if (code(0) != SECTION_RESPONSE_P) {
+            code(0) = SECTION_RESPONSE_P;
+            code(1) = SECTION_RESPONSE_MZ;
+            code(2) = SECTION_RESPONSE_MY;
+    }
 
-	as[0] = -position(0);
-	as[1] =  position(1);
+    as[0] = -position(0);
+    as[1] =  position(1);
 }
 
 // destructor:
@@ -219,7 +179,7 @@ UniaxialFiber3d::getOrder(void)
 const ID&
 UniaxialFiber3d::getType(void)
 {
-	return code;
+   return code;
 }
 
 int   
@@ -248,7 +208,6 @@ UniaxialFiber3d::sendSelf(int commitTag, Channel &theChannel)
     // 
     // store tag and material info in an ID and send it
     //
-
     static ID idData(3);
     int dbTag = this->getDbTag();
     idData(0) = this->getTag();
@@ -296,7 +255,6 @@ UniaxialFiber3d::recvSelf(int commitTag, Channel &theChannel,
     // 
     // get tag and material info from an ID
     //
-
     static ID idData(3);
     int dbTag = this->getDbTag();
     
@@ -309,8 +267,7 @@ UniaxialFiber3d::recvSelf(int commitTag, Channel &theChannel,
 
     // 
     // get area and position datafrom a vector
-    //
-    
+    // 
     static Vector dData(3);
     if (theChannel.recvVector(dbTag, commitTag, dData) < 0)  {
       opserr << "UniaxialFiber3d::recvSelf() -  failed to recv Vector data\n";
@@ -369,31 +326,26 @@ void UniaxialFiber3d::Print(OPS_Stream &s, int flag)
 Response*
 UniaxialFiber3d::setResponse(const char **argv, int argc, OPS_Stream &s)
 {
-	if (argc == 0)
-		return 0;
+    if (argc == 0)
+        return 0;
 
-	if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0)		
-		return new FiberResponse(this, 1, Vector(3));
+    if (strcmp(argv[0],"force") == 0 || 
+        strcmp(argv[0],"forces") == 0)		
+        return new FiberResponse(this, 1, Vector(3));
 
-	else
-	  return theMaterial->setResponse(argv, argc, s);
+    else
+        return theMaterial->setResponse(argv, argc, s);
 }
 
 int
 UniaxialFiber3d::getResponse(int responseID, Information &fibInfo)
 {
-	switch(responseID) {
-		case 1:
-			return fibInfo.setVector(this->getFiberStressResultants());
+  switch (responseID) {
+    case 1:
+      return fibInfo.setVector(this->getFiberStressResultants());
 
-		default:
-			return -1;
-	}
+    default:
+      return -1;
+  }
 }
 
-void 
-UniaxialFiber3d::getFiberLocation(double &yLoc, double &zLoc)
-{
-	yLoc = -as[0];
-	zLoc = as[1];
-}

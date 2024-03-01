@@ -60,7 +60,7 @@ DistHingeIntegration::~DistHingeIntegration()
 
 void
 DistHingeIntegration::getSectionLocations(int numSections, double L,
-					  double *xi)
+					  double *xi) const
 {
   int numPerHinge = (numSections-2)/2;
 
@@ -81,16 +81,11 @@ DistHingeIntegration::getSectionLocations(int numSections, double L,
   double beta  = 0.5*(1.0+betaI-betaJ);
   xi[numSections-2] = alpha*(-oneRoot3) + beta;
   xi[numSections-1] = alpha*(oneRoot3) + beta;
-
-  //for (int i = 0; i < numSections; i++) {
-  //  opserr << xi[i] << ' ';
-  //}
-  //opserr << endln;
 }
 
 void
 DistHingeIntegration::getSectionWeights(int numSections, double L,
-					double *wt)
+					double *wt) const
 {
   int numPerHinge = (numSections-2)/2;
 
@@ -107,11 +102,6 @@ DistHingeIntegration::getSectionWeights(int numSections, double L,
 
   wt[numSections-2] = 0.5*(1.0-betaI-betaJ);
   wt[numSections-1] = wt[numSections-2];
-
-  //for (int i = 0; i < numSections; i++) {
-  //  opserr << wt[i] << ' ';
-  //}
-  //opserr << endln;
 }
 
 BeamIntegration*
@@ -208,21 +198,20 @@ DistHingeIntegration::activateParameter(int paramID)
 void
 DistHingeIntegration::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "{\"type\": \"DistHinge\", ";
-		s << "\"lpI\": " << lpI << ", ";
-		s << "\"lpJ\": " << lpJ << ", ";
-		s << "\"integration\": ";
-		beamInt->Print(s, flag);
-		s << "}";
-	}
-	
-	else {
-		s << "DistHinge" << endln;
-		s << " lpI = " << lpI;
-		s << " lpJ = " << lpJ << endln;
-		beamInt->Print(s, flag);
-	}
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << "{\"type\": \"DistHinge\", ";
+        s << "\"lpI\": " << lpI << ", ";
+        s << "\"lpJ\": " << lpJ << ", ";
+        s << "\"integration\": ";
+        beamInt->Print(s, flag);
+        s << "}";
+
+    } else {
+        s << "DistHinge" << endln;
+        s << " lpI = " << lpI;
+        s << " lpJ = " << lpJ << endln;
+        beamInt->Print(s, flag);
+    }
 }
 
 void 

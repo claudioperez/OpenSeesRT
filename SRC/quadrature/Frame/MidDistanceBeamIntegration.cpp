@@ -122,7 +122,7 @@ MidDistanceBeamIntegration::~MidDistanceBeamIntegration()
 
 void
 MidDistanceBeamIntegration::getSectionLocations(int numSections,
-						double L, double *xi)
+						double L, double *xi) const
 {
   int nIP = pts.Size();
 
@@ -135,7 +135,7 @@ MidDistanceBeamIntegration::getSectionLocations(int numSections,
 
 void
 MidDistanceBeamIntegration::getSectionWeights(int numSections,
-					      double L, double *wt)
+					      double L, double *wt) const
 {
   int nIP = wts.Size();
 

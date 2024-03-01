@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
 #ifndef CompositeSimpsonBeamIntegration_h
 #define CompositeSimpsonBeamIntegration_h
 
@@ -38,8 +34,8 @@ class CompositeSimpsonBeamIntegration : public BeamIntegration
   CompositeSimpsonBeamIntegration();
   virtual ~CompositeSimpsonBeamIntegration();
 
-  void getSectionLocations(int nIP, double L, double *xi);
-  void getSectionWeights(int nIP, double L, double *wt);
+  void getSectionLocations(int nIP, double L, double *xi) const;
+  void getSectionWeights(int nIP, double L, double *wt) const;
 
   BeamIntegration *getCopy(void);
 

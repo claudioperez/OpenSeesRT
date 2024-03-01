@@ -630,15 +630,14 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
   Tmat(5, 4) = g2[2];
   Tmat(5, 5) = g3[2];
 
-  //transpose TmatTran=transpose(Tmat)
-  for (p2 = 0; p2 < 6; p2++) {
-    for (q2 = 0; q2 < 6; q2++) {
+  for (int p2 = 0; p2 < 6; p2++) {
+    for (int q2 = 0; q2 < 6; q2++) {
       TmatTran(p2, q2) = Tmat(q2, p2);
     }
   } //end for p2
 
   //------------gauss loop--------------------------
-  for (i = 0; i < ngauss; i++) {
+  for (int i = 0; i < ngauss; i++) {
 
     //get shape functions
     shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
@@ -790,7 +789,6 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
           BJ(p, q) *= (-1.0);
       } //end for p
 
-      //transpose BJtran=transpose(BJ);
       for (p = 0; p < ndf; p++) {
         for (q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
@@ -1401,22 +1399,22 @@ void ShellNLDKGQ::formResidAndTangent(int tang_flag)
 
     //jj loop----------------
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       //extract BJ
-      for (p = 0; p < nstress; p++) {
+      for (int p = 0; p < nstress; p++) {
         for (q = 0; q < ndf; q++)
           BJ(p, q) = saveB[p][q][j];
       } // end for p
       //multiply bending terms by -1.0 for correct statement of equilibrium
-      for (p = 3; p < 6; p++) {
+      for (int p = 3; p < 6; p++) {
         for (q = 3; q < 6; q++)
           BJ(p, q) *= (-1.0);
       } //end for p
 
       //transpose BJtran=transpose(BJ);
-      for (p = 0; p < ndf; p++) {
-        for (q = 0; q < nstress; q++)
+      for (int p = 0; p < ndf; p++) {
+        for (int q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
       } //end for p
 
@@ -1430,8 +1428,8 @@ void ShellNLDKGQ::formResidAndTangent(int tang_flag)
       //add for geometric nonlinearity
       BGJ = computeBG(j, shpBend);
       //transpose BGJ
-      for (p3 = 0; p3 < 3; p3++) {
-        for (q3 = 0; q3 < 2; q3++)
+      for (int p3 = 0; p3 < 3; p3++) {
+        for (int q3 = 0; q3 < 2; q3++)
           BGJtran(p3, q3) = BGJ(q3, p3);
       } //end for p3
       stiffBGM.addMatrixProduct(0.0, BGJtran, membraneForce, 1.0);
@@ -1898,26 +1896,6 @@ void ShellNLDKGQ::shape2d(double ss, double tt, const double x[2][4],
 }
 
 //**********************************************************************
-
-/*Matrix  
-ShellNLDKGQ::transpose( int dim1, 
-                                       int dim2, 
-		                       const Matrix &M ) 
-{
-  int i ;
-  int j ;
-
-  Matrix Mtran( dim2, dim1 ) ;
-
-  for ( i = 0; i < dim1; i++ ) {
-     for ( j = 0; j < dim2; j++ ) 
-         Mtran(j,i) = M(i,j) ;
-  } // end for i
-
-  return Mtran ;
-}
-*/
-//**********************************************************************
 // shape function for drill dof
 void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
                              double sx[2][2], double shpDrill[4][4])
@@ -1930,7 +1908,6 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
 
   double shptemp[4][4]; //derivative to xi,eta
 
-  int i, j, k;
 
   const double one_over_four  = 1 / 4.0;
   const double one_over_eight = 1 / 8.0;
@@ -1941,7 +1918,8 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   b1 = 0.0;
   b2 = 0.0;
   b3 = 0.0;
-  for (i = 0; i < 4; i++) {
+
+  for (int i = 0; i < 4; i++) {
     a1 += s[i] * x[0][i] * one_over_four;
     a2 += t[i] * x[0][i] * one_over_four;
     a3 += s[i] * t[i] * x[0][i] * one_over_four;
@@ -1953,7 +1931,7 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   //compute the derivatives of shape function to xi, eta
   // shptemp[0][j] = Nu,xi   shptemp[1][j] = Nu,eta
   // shptemp[2][j] = Nv,xi   shptemp[3][j] = Nv,eta
-  for (j = 0; j < 4; j++) {
+  for (int j = 0; j < 4; j++) {
     shptemp[0][j] = one_over_eight *
                     (-2.0 * s[j] * ss * (b1 + b3 * t[j]) * (1.0 + t[j] * tt) +
                      s[j] * t[j] * (1.0 - tt * tt) * (b2 + b3 * s[j]));
@@ -1973,7 +1951,7 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   //shpDrill = |  Nu,2  |
   //           |  Nv,1  |
   //           |  Nv,2  |
-  for (k = 0; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
 
     shpDrill[0][k] = shptemp[0][k] * sx[0][0] + shptemp[1][k] * sx[1][0];
     shpDrill[1][k] = shptemp[0][k] * sx[0][1] + shptemp[1][k] * sx[1][1];

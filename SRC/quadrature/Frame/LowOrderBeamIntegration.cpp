@@ -23,6 +23,9 @@
 // $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/LowOrderBeamIntegration.cpp,v $
 
 #include <LowOrderBeamIntegration.h>
+// int LowOrderBeamIntegration::computed = -1;
+// Vector LowOrderBeamIntegration::wts(1);
+// Vector LowOrderBeamIntegration::pts(1);
 
 #include <ID.h>
 #include <Matrix.h>
@@ -64,11 +67,19 @@ void* OPS_LowOrderBeamIntegration(int& integrationTag, ID& secTags)
 
     // secTags
     int *secptr = &secTags(0);
-    if(OPS_GetIntInput(&N,secptr) < 0) return 0;
+    if(OPS_GetIntInput(&N,secptr) < 0)
+      return 0;
 
     // locations
     double *locptr = &pt(0);
-    if(OPS_GetDoubleInput(&N,locptr) < 0) return 0;
+    if(OPS_GetDoubleInput(&N,locptr) < 0)
+      return 0;
+    for (int i = 0; i < N; i++) {
+      if (pt(i) < 0.0 || pt(i) > 1.0) {
+        opserr << "LowOrderBeamIntegration::LowOrderBeamIntegration -- point lies outside [0,1]" << endln;
+        return nullptr;
+      }
+    }
 
     // weights
     int Nc = OPS_GetNumRemainingInputArgs();
@@ -86,12 +97,13 @@ LowOrderBeamIntegration::LowOrderBeamIntegration(int nIP,
 						 int nc,
 						 const Vector &wc):
   BeamIntegration(BEAM_INTEGRATION_TAG_LowOrder),
-  pts(nIP), wts(nIP), Nc(nc), parameterID(0), computed(false)
+  Nc(nc), parameterID(0)
 {
+  pts.resize(nIP);
+  wts.resize(nIP);
   for (int i = 0; i < nIP; i++) {
     if (pt(i) < 0.0 || pt(i) > 1.0)
       opserr << "LowOrderBeamIntegration::LowOrderBeamIntegration -- point lies outside [0,1]" << endln;
-
     pts(i) = pt(i);
   }
 
@@ -124,7 +136,7 @@ LowOrderBeamIntegration::LowOrderBeamIntegration(int nIP,
   else
     wts = wc;
 
-  computed = true;
+  computed = nIP;
 }
 
 LowOrderBeamIntegration::LowOrderBeamIntegration():
@@ -140,7 +152,7 @@ LowOrderBeamIntegration::~LowOrderBeamIntegration()
 
 void
 LowOrderBeamIntegration::getSectionLocations(int numSections,
-					     double L, double *xi)
+					     double L, double *xi) const
 {
   int nIP = pts.Size();
 
@@ -153,13 +165,13 @@ LowOrderBeamIntegration::getSectionLocations(int numSections,
 
 void
 LowOrderBeamIntegration::getSectionWeights(int numSections,
-					   double L, double *wt)
+					   double L, double *wt) const
 {
   int nIP = wts.Size();
-
+#if 0
   int Nf = nIP-Nc;
 
-  if (!computed && Nf > 0) {
+  if (computed==-1 && Nf > 0) {
     Vector R(Nf);
     for (int i = 0; i < Nf; i++) {
       double sum = 0.0;
@@ -180,12 +192,13 @@ LowOrderBeamIntegration::getSectionWeights(int numSections,
     for (int i = 0; i < Nf; i++)
       wts(Nc+i) = wf(i);
 	  
-    computed = true;
+    computed = nIP;
   }
-
+#endif
   int i;
   for (i = 0; i < nIP; i++)
     wt[i] = wts(i);
+
   for ( ; i < numSections; i++)
     wt[i] = 1.0;
 }
@@ -275,17 +288,17 @@ LowOrderBeamIntegration::updateParameter(int parameterID,
 {
   if (parameterID <= 10) { // xf
     pts(Nc+(parameterID-1)) = info.theDouble;
-    computed = false;
+    computed = -1;
     return 0;
   }
   else if (parameterID <= 20) { // xc
     pts(parameterID-10-1) = info.theDouble;
-    computed = false;
+    computed = -1;
     return 0;
   }
   else if (parameterID <= 30) { // wc
     wts(parameterID-20-1) = info.theDouble;
-    computed = false;
+    computed = -1;
     return 0;
   }
   else
@@ -343,16 +356,12 @@ LowOrderBeamIntegration::getLocationsDeriv(int numSections, double L,
   if (parameterID == 0)
     return;
 
-  double oneOverL = 1.0/L;
+  // double oneOverL = 1.0/L;
 
   if (parameterID < 10) // xf
     dptsdh[Nc+(parameterID-1)] = 1.0;
   else if (parameterID < 20) // xc
     dptsdh[parameterID-10-1] = 1.0;
-
-  //for (int i = 0; i < numSections; i++)
-  //  opserr << dptsdh[i] << ' ';
-  //opserr << endln;
 
   return;
 }
@@ -374,7 +383,7 @@ LowOrderBeamIntegration::getWeightsDeriv(int numSections, double L,
     dxfdh[i] = 0.0;
   }
   
-  double oneOverL = 1.0/L;
+  // double oneOverL = 1.0/L;
 
   if (parameterID < 10) // xf
     dxfdh[parameterID-1] = 1.0;
@@ -387,11 +396,11 @@ LowOrderBeamIntegration::getWeightsDeriv(int numSections, double L,
   int Nf = N-Nc;
 
   if (Nf > 0) {
-
     Vector R(Nf);
 
     double sum = 0.0;
     for (int j = 0; j < Nc; j++)
+
       sum += dwtsdh[j];
     R(0) = -sum;
 
@@ -418,10 +427,6 @@ LowOrderBeamIntegration::getWeightsDeriv(int numSections, double L,
     for (int i = 0; i < Nf; i++)
       dwtsdh[Nc+i] = dwfdh(i);    
   }
-
-  //for (int i = 0; i < numSections; i++)
-  //  opserr << dwtsdh[i] << ' ';
-  //opserr << endln;
 
   return;
 }

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.31 $
-// $Date: 2009/09/28 22:48:15 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSectionWarping3d.cpp,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/04
 //

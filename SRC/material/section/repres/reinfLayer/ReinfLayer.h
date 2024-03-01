@@ -30,9 +30,10 @@
 #ifndef ReinfLayer_h 
 #define ReinfLayer_h 
 
-#include <OPS_Globals.h>
+// #include <OPS_Globals.h>
 
 class ReinfBar;
+class OPS_Stream;
 
 class ReinfLayer
 {
@@ -67,4 +68,3 @@ class ReinfLayer
 
 
 #endif
-

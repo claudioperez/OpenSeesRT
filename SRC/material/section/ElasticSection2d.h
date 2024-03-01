@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.11 $
-// $Date: 2008-08-26 16:46:32 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticSection2d.h,v $
-
+//
+//
 #ifndef ElasticSection2d_h
 #define ElasticSection2d_h
 

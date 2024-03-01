@@ -23,20 +23,14 @@
 // it's type can be instatiated. It has pure virtual functions which
 // must be implemented in it's derived classes.
 //
-// File: ~/fiber/Fiber.h
-//
 // Written: Remo Magalhaes de Souza
 // Created: 10/98
 //
 #ifndef Fiber_h
 #define Fiber_h
-#if 0
-#  include <DomainComponent.h>
-#else
-#  include <TaggedObject.h>
-#endif
+//
+#include <TaggedObject.h>
 #include <MovableObject.h>
-#include <Vector.h>
 
 class Matrix;
 class ID;
@@ -48,7 +42,7 @@ class Response;
 class Fiber : public TaggedObject, public MovableObject
 {
   public:
-    Fiber (int tag, int classTag);
+    Fiber (int tag, int classTag, double y, double z, double area);
     virtual ~Fiber();
 
     virtual int    setTrialFiberStrain(const Vector &vs)=0;
@@ -66,20 +60,30 @@ class Fiber : public TaggedObject, public MovableObject
     virtual Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     virtual int getResponse(int responseID, Information &info);
 
-    virtual void getFiberLocation(double &y, double &z) =0;
-    virtual double getArea(void) =0;
+    double getArea(void) const {
+      return area;
+    };
+    void getFiberLocation(double &yLoc, double &zLoc) const {
+      yLoc = loc_y; //  yLoc = -y;
+      zLoc = loc_z; //  zLoc = 0.0;
+    }
+
     virtual double getd(void) =0;
 
     virtual UniaxialMaterial *getMaterial(void) {return 0;}
-    virtual NDMaterial *getNDMaterial(void) {return 0;}
+    virtual NDMaterial       *getNDMaterial(void) {return 0;}
 
     virtual const Vector &getFiberSensitivity(int gradNumber, bool cond);
     virtual int commitSensitivity(const Vector &dedh, int gradNumber,
 				  int numGrads);
 
+
  protected:
     Vector *sDefault;
     Matrix *fDefault;
+    double area;
+    const double loc_y, 
+                 loc_z = 0.0;
 
  private:
 };

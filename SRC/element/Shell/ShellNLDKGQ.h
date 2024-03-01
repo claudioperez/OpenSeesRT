@@ -171,9 +171,6 @@ class ShellNLDKGQ : public Element,
     const Matrix& computeBG(int node, const double shpBend[6][12]);
     const Vector& computeNLdstrain(const Matrix &BG,const Vector &dispIncLocalBend);
   
-    //Matrix transpose
-    //Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 
                   const double x[2][4], 

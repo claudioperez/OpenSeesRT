@@ -111,6 +111,7 @@ proc MomentCurvature2D { secTag axialLoad maxK {numIncr 100} } {
 						algorithm $algorithmTypeStatic
 					}
 					if {$ok != 0} {;				# stop if still fails to converge
+	          set fmt1 "%s Pushover analysis: CtrlNode %.3i, dof %.1i, Curv=%.4f /%s";	# format for screen/file output of DONE/PROBLEM analysis
 						puts [format $fmt1 "PROBLEM" $IDctrlNode $IDctrlDOF [nodeDisp $IDctrlNode $IDctrlDOF] $LunitTXT]
 						return -1
 					}; # end if

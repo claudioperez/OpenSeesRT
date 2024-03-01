@@ -17,13 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-08-26 16:48:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/GenericSection1d.cpp,v $
-                                                                        
-                                                                        
-// File: ~/material/GenericSection1d.C
+//
 //
 // Written: MHS 
 // Created: Apr 2000

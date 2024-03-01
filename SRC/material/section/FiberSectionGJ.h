@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-02-02 01:18:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSectionGJ.h,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -29,7 +25,7 @@
 // FiberSectionGJ.h. FiberSectionGJ provides the abstraction of a 
 // 3d beam section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
-
+//
 #ifndef FiberSectionGJ_h
 #define FiberSectionGJ_h
 

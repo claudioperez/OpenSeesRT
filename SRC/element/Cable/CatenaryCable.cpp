@@ -17,15 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 6149 $
-// $Date: 2015-11-18 16:04:51 -0300 (Wed, 18 Nov 2015) $
-// $URL: svn://peera.berkeley.edu/usr/local/svn/OpenSees/trunk/SRC/element/CatenaryCable/CatenaryCable.cpp $
-                                                                        
-                                                                        
-// Written: jaabell  (Jose Abell)
-// Created: May 2017
-// Revision: A
 //
 // Written: jaabell  (Jose Abell)
 // Created: May 2017
@@ -54,7 +45,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <UniaxialMaterial.h>
-#include <Renderer.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -104,8 +94,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_CatenaryCableElement)
 
 
   //(int tag, int node1, int node2, double weight, double E, double A, double L0, double alpha, double temperature_change = 100., double rho)
-  if (numRemainingArgs < 4) 
-  {
+  if (numRemainingArgs < 4) {
     opserr << "Invalid Args want: element CatenaryCable $tag $iNode $jNode $weight $E $A $L0 $alpha $temperature_change $rho $errorTol $Nsubsteps\n";
     return 0; 
   }
@@ -974,20 +963,6 @@ CatenaryCable::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &th
 
   return 0;
 }
-
-int
-CatenaryCable::displaySelf(Renderer &theViewer, int displayMode, float fact, 
-		   const char **displayModes, int numModes)
-{  
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
-
 
 
 void
