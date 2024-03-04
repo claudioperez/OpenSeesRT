@@ -17,27 +17,23 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2010-02-25 23:21:31 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/bandSPD/DistributedBandSPDLinSOE.cpp,v $
-                                                                        
+//
+// Description: This file contains the implementation for BandSPDLinSOE
+//
 // Written: fmk 
 // Revision: A
 //
-// Description: This file contains the implementation for BandSPDLinSOE
-
-
 #include <DistributedBandSPDLinSOE.h>
 #include <BandSPDLinSolver.h>
 #include <Matrix.h>
 #include <Graph.h>
 #include <Vertex.h>
 #include <VertexIter.h>
-// #include <f2c.h>
+
 #include <math.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <assert.h>
 
 DistributedBandSPDLinSOE::DistributedBandSPDLinSOE(BandSPDLinSolver &theSolvr)
   :BandSPDLinSOE(theSolvr, LinSOE_TAGS_DistributedBandSPDLinSOE), 
