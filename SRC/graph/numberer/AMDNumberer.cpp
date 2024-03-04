@@ -17,16 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2009-12-10 00:40:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/numberer/AMDNumberer.cpp,v $
-                                                                        
-
+//
 // Description: This file contains the class definition for AMD.
-
-// What: "@(#) AMD.C, revA"
-
+//
 #include <amd.h>
 
 #include <AMDNumberer.h>
@@ -36,6 +29,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 // Constructor
 AMD::AMD()
