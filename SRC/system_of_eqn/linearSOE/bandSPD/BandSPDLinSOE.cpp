@@ -17,15 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/bandSPD/BandSPDLinSOE.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: February 1997
-
+//
 // Description: This file contains the implementation for BandSPDLinSOE
 
 #include <stdlib.h>
@@ -36,13 +31,13 @@
 #include <Graph.h>
 #include <Vertex.h>
 #include <VertexIter.h>
-//#include <f2c.h>
 #include <math.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <iostream>
-using std::nothrow;
+#include <assert.h>
+#include <OPS_ErrorStream.h>
 
 BandSPDLinSOE::BandSPDLinSOE(BandSPDLinSolver &the_Solver)
 :LinearSOE(the_Solver, LinSOE_TAGS_BandSPDLinSOE),
@@ -75,7 +70,7 @@ BandSPDLinSOE::BandSPDLinSOE(int classTag)
 
 
 BandSPDLinSOE::BandSPDLinSOE(int N, int numSuper,
-			     BandSPDLinSolver &the_Solver)
+                             BandSPDLinSolver &the_Solver)
 :LinearSOE(the_Solver, LinSOE_TAGS_BandSPDLinSOE),
  size(0), half_band(0), A(0), B(0), X(0), vectX(0), vectB(0),
  Asize(0), Bsize(0),
@@ -84,49 +79,26 @@ BandSPDLinSOE::BandSPDLinSOE(int N, int numSuper,
     size = N;
     half_band = numSuper+1;
 
-    A = new (nothrow) double[half_band*size];
-	
-    if (A == 0) {
-	opserr << "FATAL:BandSPDLinSOE::BandSPDLinSOE :";
-	opserr << " ran out of memory for A (size,ku) (";
-	opserr << size <<", " << numSuper << ") \n";
-	size = 0; Asize = 0;
-    } else {
+    A = new double[half_band*size];
 
-	// zero the matrix
-	Asize = half_band*size;
-	for (int j=0; j<Asize; j++)
-	    A[j] = 0;
-    
-	B = new (nothrow) double[size];
-	X = new (nothrow) double[size];
-	
-	if (B == 0 || X == 0 ) {
-	    opserr << "FATAL:BandSPDLinSOE::BandSPDLinSOE :";
-	    opserr << " ran out of memory for vectors (size) (";
-	    opserr << size << ") \n";
-	    size = 0; Bsize = 0;
-	}
-	
-	// zero the vectors
-	for (int i=0; i<size; i++) {
-	    B[i] = 0;
-	    X[i] = 0;
-	}
-	
-    }
+    // zero the matrix
+    Asize = half_band*size;
+    for (int j=0; j<Asize; j++)
+        A[j] = 0;
+
+    B = new double[size]{};
+    X = new double[size]{};
 
     vectX = new Vector(X,size);
     vectB = new Vector(B,size);    
-    
 
     the_Solver.setLinearSOE(*this);    
     
     int solverOK = the_Solver.setSize();
     if (solverOK < 0) {
-	opserr << "FATAL:BandSPDLinSOE::BandSPDLinSOE :";
-	opserr << " solver failed setSize() in constructor\n";
-    }   	 
+        // opserr << "FATAL:BandSPDLinSOE::BandSPDLinSOE :";
+        // opserr << " solver failed setSize() in constructor\n";
+    }
 }
 
     
@@ -158,87 +130,64 @@ BandSPDLinSOE::setSize(Graph &theGraph)
     VertexIter &theVertices = theGraph.getVertices();
     
     while ((vertexPtr = theVertices()) != 0) {
-	int vertexNum = vertexPtr->getTag();
-	const ID &theAdjacency = vertexPtr->getAdjacency();
-	for (int i=0; i<theAdjacency.Size(); i++) {
-	    int otherNum = theAdjacency(i);
-	    int diff = vertexNum-otherNum;
-	    if (half_band < diff)
-		half_band = diff;
-	}
+        int vertexNum = vertexPtr->getTag();
+        const ID &theAdjacency = vertexPtr->getAdjacency();
+        for (int i=0; i<theAdjacency.Size(); i++) {
+            int otherNum = theAdjacency(i);
+            int diff = vertexNum-otherNum;
+            if (half_band < diff)
+                half_band = diff;
+        }
     }
     half_band += 1; // include the diagonal
      
     if (half_band*size > Asize) { // we have to get another space for A
 
-	if (A != 0) 
-	    delete [] A;
+        if (A != 0) 
+            delete [] A;
 
-	A = new (nothrow) double[half_band*size];
-	
-        if (A == 0) {
-            opserr << "WARNING BandSPDLinSOE::setSize() :";
-	    opserr << " ran out of memory for A (size,ku) (";
-	    opserr << size <<", " << half_band-1 << ") \n";
-	    Asize = 0; size = 0;
-	    result = -1;
-        }
-	else
-	    Asize = half_band*size;
+        A = new double[half_band*size];        
+        Asize = half_band*size;
     }
 
     // zero the matrix
     for (int i=0; i<half_band*size; i++)
-	A[i] = 0;
-	
+        A[i] = 0;
+        
     factored = false;
     
     if (size > Bsize) { // we have to get another space for A
-	
-	// delete the old	
-	if (B != 0) delete [] B;
-	if (X != 0) delete [] X;
+        
+        // delete the old        
+        if (B != 0) delete [] B;
+        if (X != 0) delete [] X;
 
-	// create the new
-	B = new (nothrow) double[size];
-	X = new (nothrow) double[size];
-	
-        if (B == 0 || X == 0) {
-            opserr << "WARNING BandSPDLinSOE::setSize():";
-	    opserr << " ran out of memory for vectors (size) (";
-	    opserr << size << ") \n";
-	    Bsize = 0; size =0;
-	    result = -1;
-        }
-    }
-
-    // zero the vectors
-    for (int j=0; j<size; j++) {
-	B[j] = 0;
-	X[j] = 0;
+        // create the new
+        B = new double[size]{};
+        X = new double[size]{};
     }
 
     if (size != oldSize) {
 
-	if (vectX != 0)
-	    delete vectX;
-	if (vectB != 0)
-	    delete vectB;
+        if (vectX != 0)
+            delete vectX;
+        if (vectB != 0)
+            delete vectB;
 
-	vectX = new Vector(X,size);	
-	vectB = new Vector(B,size);
+        vectX = new Vector(X,size);        
+        vectB = new Vector(B,size);
 
-	if (size > Bsize)
-	    Bsize = size;
+        if (size > Bsize)
+            Bsize = size;
     }
     
     // invoke setSize() on the Solver
     LinearSOESolver *the_Solver = this->getSolver();
     int solverOK = the_Solver->setSize();
     if (solverOK < 0) {
-	opserr << "WARNING:BandSPDLinSOE::setSize :";
-	opserr << " solver failed setSize()\n";
-	return solverOK;
+        // opserr << "WARNING:BandSPDLinSOE::setSize :";
+        // opserr << " solver failed setSize()\n";
+        return solverOK;
     }    
 
     return result;    
@@ -247,48 +196,46 @@ BandSPDLinSOE::setSize(Graph &theGraph)
 int 
 BandSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+    assert(id.Size == m.noRows() && id.Size == m.noCols());
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
-    
-    // check that m and id are of similar size
-    int idSize = id.Size();    
-    if (idSize != m.noRows() && idSize != m.noCols()) {
-	opserr << "BandSPDLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-	return -1;
-    }
+    if (fact == 0.0)
+      return 0;
+
+    const int idSize = id.Size();
 
     if (fact == 1.0) { // do not need to multiply 
-	for (int i=0; i<idSize; i++) {
-	    int col = id(i);
-	    if (col < size && col >= 0) {
-		double *coliiPtr = A +(col+1)*half_band -1;
-		int minColRow = col - half_band + 1;
-		for (int j=0; j<idSize; j++) {
-		    int row = id(j);
-		    if (row <size && row >= 0 && 
-			row <= col && row >= minColRow) { // only add upper
-			 double *APtr = coliiPtr + (row-col);
-			 *APtr += m(j,i);
-		     }
-		}  // for j
-	    } 
-	}  // for i
+        for (int i=0; i<idSize; i++) {
+            int col = id(i);
+            if (col < size && col >= 0) {
+                double *coliiPtr = A +(col+1)*half_band -1;
+                int minColRow = col - half_band + 1;
+                for (int j=0; j<idSize; j++) {
+                    int row = id(j);
+                    if (row <size && row >= 0 && 
+                        row <= col && row >= minColRow) { // only add upper
+                         double *APtr = coliiPtr + (row-col);
+                         *APtr += m(j,i);
+                     }
+                }  // for j
+            } 
+        }  // for i
     } else {
-	for (int i=0; i<idSize; i++) {
-	    int col = id(i);
-	    if (col < size && col >= 0) {
-		double *coliiPtr = A +(col+1)*half_band -1;
-		int minColRow = col - half_band +1;
-		for (int j=0; j<idSize; j++) {
-		    int row = id(j);
-		    if (row <size && row >= 0 && 
-			row <= col && row >= minColRow) { // only add upper
-			 double *APtr = coliiPtr + (row-col);
-			 *APtr += m(j,i)*fact;
-		     }
-		}  // for j
-	    } 
-	}  // for i
+        for (int i=0; i<idSize; i++) {
+            int col = id(i);
+            if (col < size && col >= 0) {
+                double *coliiPtr = A +(col+1)*half_band -1;
+                int minColRow = col - half_band +1;
+                for (int j=0; j<idSize; j++) {
+                    int row = id(j);
+                    if (row <size && row >= 0 && 
+                        row <= col && row >= minColRow) { // only add upper
+                         double *APtr = coliiPtr + (row-col);
+                         *APtr += m(j,i)*fact;
+                     }
+                }  // for j
+            } 
+        }  // for i
     }
     return 0;
 }
@@ -297,18 +244,13 @@ BandSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 int 
 BandSPDLinSOE::addColA(const Vector &colData, int col, double fact)
 {
-  // check for a quick return 
-  if (fact == 0.0)  return 0;
-  
-  if (colData.Size() != size) {
-    opserr << "BanSPDLinSOE::addColA() - colData size not equal to n\n";
-    return -1;
-  }
+  assert(colData.Size() == size);
+  assert(col <= size && col >= 0);
 
-  if (col > size && col < 0) {
-    opserr << "BandSPDLinSOE::addColA() - col " << col << "outside range 0 to " << size << endln;
-    return -1;
-  }
+  // check for a quick return 
+  if (fact == 0.0)
+    return 0;
+  
   
   if (fact == 1.0) { // do not need to multiply 
     
@@ -316,9 +258,9 @@ BandSPDLinSOE::addColA(const Vector &colData, int col, double fact)
     int minColRow = col - half_band + 1;
     for (int row=0; row<size; row++) {
       if (row <size && row >= 0 && 
-	  row <= col && row >= minColRow) { // only add upper
-	double *APtr = coliiPtr + (row-col);
-	*APtr += colData(row);
+          row <= col && row >= minColRow) { // only add upper
+        double *APtr = coliiPtr + (row-col);
+        *APtr += colData(row);
       }
     }  
 
@@ -328,9 +270,9 @@ BandSPDLinSOE::addColA(const Vector &colData, int col, double fact)
     int minColRow = col - half_band + 1;
     for (int row=0; row<size; row++) {
       if (row <size && row >= 0 && 
-	  row <= col && row >= minColRow) { // only add upper
-	double *APtr = coliiPtr + (row-col);
-	*APtr += colData(row) * fact;
+          row <= col && row >= minColRow) { // only add upper
+        double *APtr = coliiPtr + (row-col);
+        *APtr += colData(row) * fact;
       }
     }  
   }
@@ -342,65 +284,58 @@ BandSPDLinSOE::addColA(const Vector &colData, int col, double fact)
 int 
 BandSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
+    assert(id.Size == v.Size());
     
     // check for a quick return 
     if (fact == 0.0)  return 0;
 
     // check that m and id are of similar size
     int idSize = id.Size();        
-    if (idSize != v.Size() ) {
-	opserr << "BandSPDLinSOE::addB()	- Vector and ID not of similar sizes\n";
-	return -1;
-    }    
-    
+
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
-	for (int i=0; i<idSize; i++) {
-	    int pos = id(i);
-	    if (pos <size && pos >= 0)
-		B[pos] += v(i);
-	}
+        for (int i=0; i<idSize; i++) {
+            int pos = id(i);
+            if (pos <size && pos >= 0)
+                B[pos] += v(i);
+        }
     } else if (fact == -1.0) {
-	for (int i=0; i<idSize; i++) {
-	    int pos = id(i);
-	    if (pos <size && pos >= 0)
-		B[pos] -= v(i);
-	}
+        for (int i=0; i<idSize; i++) {
+            int pos = id(i);
+            if (pos <size && pos >= 0)
+                B[pos] -= v(i);
+        }
     } else {
-	for (int i=0; i<idSize; i++) {
-	    int pos = id(i);
-	    if (pos <size && pos >= 0)
-		B[pos] += v(i) * fact;
-	}
-    }	
+        for (int i=0; i<idSize; i++) {
+            int pos = id(i);
+            if (pos <size && pos >= 0)
+                B[pos] += v(i) * fact;
+        }
+    }        
     return 0;
 }
 
 int
 BandSPDLinSOE::setB(const Vector &v, double fact)
 {
+    assert(v.Size() == size);
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
-
-    if (v.Size() != size) {
-	opserr << "WARNING BandGenLinSOE::setB() -";
-	opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-	return -1;
-    }
-    
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
-	for (int i=0; i<size; i++) {
-	    B[i] = v(i);
-	}
+        for (int i=0; i<size; i++) {
+            B[i] = v(i);
+        }
     } else if (fact == -1.0) {
-	for (int i=0; i<size; i++) {
-	    B[i] = -v(i);
-	}
+        for (int i=0; i<size; i++) {
+            B[i] = -v(i);
+        }
     } else {
-	for (int i=0; i<size; i++) {
-	    B[i] = v(i) * fact;
-	}
-    }	
+        for (int i=0; i<size; i++) {
+            B[i] = v(i) * fact;
+        }
+    }        
     return 0;
 }
 
@@ -410,17 +345,17 @@ BandSPDLinSOE::zeroA(void)
     double *Aptr = A;
     int theSize = Asize; 
     for (int i=0; i<theSize; i++)
-	*Aptr++ = 0;
+        *Aptr++ = 0;
     
     factored = false;
 }
-	
+        
 void 
 BandSPDLinSOE::zeroB(void)
 {
     double *Bptr = B;
     for (int i=0; i<size; i++)
-	*Bptr++ = 0;
+        *Bptr++ = 0;
 }
 
 
@@ -428,7 +363,7 @@ void
 BandSPDLinSOE::setX(int loc, double value)
 {
     if (loc < size && loc >= 0)
-	X[loc] = value;
+        X[loc] = value;
 }
 
 void 
@@ -444,21 +379,15 @@ BandSPDLinSOE::setX(const Vector &x)
 const Vector &
 BandSPDLinSOE::getX(void)
 {
-    if (vectX == 0) {
-	opserr << "FATAL BandSPDLinSOE::getX - vectX == 0";
-	exit(-1);
-    }
-    return *vectX;
+  assert(vectX != nullptr);
+  return *vectX;
 }
 
 const Vector &
 BandSPDLinSOE::getB(void)
 {
-    if (vectB == 0) {
-	opserr << "FATAL BandSPDLinSOE::getB - vectB == 0";
-	exit(-1);
-    }    
-    return *vectB;
+  assert(vectB != nullptr);
+  return *vectB;
 }
 
 double 
@@ -466,8 +395,8 @@ BandSPDLinSOE::normRHS(void)
 {
     double norm =0.0;
     for (int i=0; i<size; i++) {
-	double Bi = B[i];
-	norm += Bi*Bi;
+        double Bi = B[i];
+        norm += Bi*Bi;
     }
     return sqrt(norm);
 }    
@@ -479,12 +408,12 @@ BandSPDLinSOE::setBandSPDSolver(BandSPDLinSolver &newSolver)
     newSolver.setLinearSOE(*this);
     
     if (size != 0) {
-	int solverOK = newSolver.setSize();
-	if (solverOK < 0) {
-	    opserr << "WARNING:BandSPDLinSOE::setSolver :";
-	    opserr << "the new solver could not setSeize() - staying with old\n";
-	    return solverOK;
-	}
+        int solverOK = newSolver.setSize();
+        if (solverOK < 0) {
+            // opserr << "WARNING:BandSPDLinSOE::setSolver :";
+            // opserr << "the new solver could not setSeize() - staying with old\n";
+            return solverOK;
+        }
     }
 
     return this->LinearSOE::setSolver(newSolver);
