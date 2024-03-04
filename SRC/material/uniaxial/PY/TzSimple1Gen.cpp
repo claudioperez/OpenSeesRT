@@ -210,7 +210,7 @@ void TzSimple1Gen::GetTzSimple1(const char *file1, const char *file2, const char
             }
             else if(NodeNum[j] == TzNode2[i])
             {
-                for(k=0;k<NumPileEle;k++)
+                for (int k=0;k<NumPileEle;k++)
                 {
                     if(PileNode1[k] == TzNode2[i] || PileNode2[k] == TzNode2[i])
                     {
@@ -228,7 +228,7 @@ void TzSimple1Gen::GetTzSimple1(const char *file1, const char *file2, const char
 
         // Find depth of node
         maxz = z_t[0];
-        for (j=0;j<NumMat;j++)
+        for (int j=0;j<NumMat;j++)
         {
             if(z_t[j] > maxz)
                 maxz = z_t[j];
@@ -254,13 +254,13 @@ void TzSimple1Gen::GetTzSimple1(const char *file1, const char *file2, const char
             dzsub = (ztrib2 - ztrib1)/10.0; // sublayer incremental depth change
             sublength = fabs(dzsub);  // thickness of sublayer
             tult = 0.0;
-            for(k=0;k<10;k++)
+            for (int k=0;k<10;k++)
             {            
                 zsub = ztrib1 + dzsub/2.0 + k*dzsub; // z-coordinate at sublayer center
                 depthsub = maxz - zsub;
             
                 // Find properties at node location
-                for(j=0;j<NumMat;j++)
+                for (int j=0;j<NumMat;j++)
                 {
                     if(zsub<=z_t[j] && zsub>=z_b[j])
                     {
@@ -289,7 +289,7 @@ void TzSimple1Gen::GetTzSimple1(const char *file1, const char *file2, const char
                     }
                 }
                                 
-                for(j=0;j<NumMt;j++)
+                for (int j=0;j<NumMt;j++)
                 {
                     if(zsub<=zMt_t[j] && zsub>=zMt_b[j])
                         mt = linterp(zMt_t[j], zMt_b[j], mt_val_t[j], mt_val_b[j], zsub);
@@ -305,7 +305,7 @@ void TzSimple1Gen::GetTzSimple1(const char *file1, const char *file2, const char
 
             // Calculate the number of t-z elements that share nodes with the current t-z element
             numtzshared = 1.0;
-            for(j=0;j<NumTzEle;j++)
+            for (int j=0;j<NumTzEle;j++)
             {
                 if(j!=i)
                 {
@@ -363,7 +363,7 @@ void TzSimple1Gen::GetPattern(const char *file6)
     // that is not spreading) must already be fixed when the mesh is generated in GiD.    
     // Write constraints file for pushover analyses
     
-    for(i=0;i<NumNodes;i++)
+    for (int i=0;i<NumNodes;i++)
     {
         z = Nodey[i];
         GetTributaryCoordsPile(NodeNum[i]);
@@ -373,7 +373,7 @@ void TzSimple1Gen::GetPattern(const char *file6)
         // Find depth of node
         maxz = z_t[0];  // initialize maxz to some value in the domain
         minz = z_b[0];
-        for (j=0;j<NumMat;j++)
+        for (int j=0;j<NumMat;j++)
         {
             if(z_t[j] > maxz)
                 maxz = z_t[j];
@@ -385,12 +385,12 @@ void TzSimple1Gen::GetPattern(const char *file6)
         dzsub = (ztrib2 - ztrib1)/10.0; // sublayer incremental depth change
         sublength = fabs(dzsub);  // thickness of sublayer
         load = 0.0;
-        for(k=0;k<10;k++)
+        for (int k=0;k<10;k++)
         {    
             zsub = ztrib1 + dzsub/2.0 + k*dzsub; // z-coordinate at sublayer center
             depthsub = maxz - zsub;
 
-            for(j=0;j<NumLoad;j++)
+            for (int j=0;j<NumLoad;j++)
             {                
                 if(zsub<=zLoad_t[j] && zsub>=zLoad_b[j])
                 {
@@ -403,7 +403,7 @@ void TzSimple1Gen::GetPattern(const char *file6)
         node = -1;
         if(strcmp(patterntype,"load")==0)
         {
-            for(j=0;j<NumPileEle;j++)
+            for (int j=0;j<NumPileEle;j++)
             {                    
                 if(NodeNum[i] == PileNode1[j] || NodeNum[i] == PileNode2[j])
                 {
@@ -414,7 +414,7 @@ void TzSimple1Gen::GetPattern(const char *file6)
             PatternOut << "load " << node << " 0.0 " << load << " 0.0" << endln;
         }
     
-        for(j=0;j<NumSp;j++)
+        for (int j=0;j<NumSp;j++)
         {
             if(z<=zSp_t[j] && z>=zSp_b[j])
             {
@@ -426,13 +426,13 @@ void TzSimple1Gen::GetPattern(const char *file6)
         node = -1;
         if(strcmp(patterntype,"sp")==0)
         {
-            for(k=0;k<NumTzEle;k++)
+            for (int k=0;k<NumTzEle;k++)
             {
                 if(NodeNum[i] == TzNode1[k] || NodeNum[i] == TzNode2[k])
                 {
                     node = NodeNum[i];
                     // Check if node is free or attached to pile
-                    for(j=0;j<NumPileEle;j++)
+                    for (int j=0;j<NumPileEle;j++)
                     {
                         if(PileNode1[j] == NodeNum[i] || PileNode2[j] == NodeNum[i])
                         {
@@ -624,7 +624,7 @@ void TzSimple1Gen::GetSoilProperties(const char *file)
     // Dynamically allocate memory for arrays containing information for each soil layer.
     // Arguments general to all layers
     MatType = new char*[4];
-    for(i=0;i<NumMat;i++)
+    for (int i=0;i<NumMat;i++)
         MatType[i] = new char[4];
     z_t = new double[NumMat];
     z_b = new double[NumMat];
@@ -666,7 +666,7 @@ void TzSimple1Gen::GetSoilProperties(const char *file)
     sp_val_t = new double[NumSp];
     sp_val_b = new double[NumSp];
 
-    for(i=0;i<NumMat;i++)
+    for (int i=0;i<NumMat;i++)
     {
         // initialize variables to zero, then redefine later
         c_t[i] = 0;
@@ -720,7 +720,7 @@ void TzSimple1Gen::GetSoilProperties(const char *file)
     // displacements applied to the backs of the tz elements).
     // Read in values that define patterns (either loads applied directly to the pile nodes, or free-field
     // displacements applied to the backs of the py elements).
-    for(i=0;i<NumMtLoadSp;i++)
+    for (int i=0;i<NumMtLoadSp;i++)
     {
         in1 >> OptionalTag;
         if(strcmp(OptionalTag,"load")==0)
@@ -876,7 +876,7 @@ double TzSimple1Gen::GetVStress(double z)
 
 
     // Extract coordinates of top and bottom of layer
-    for(i=0;i<NumMat;i++)
+    for (int i=0;i<NumMat;i++)
     {
         if(z >= z_b[i] && z <= z_t[i])
         {
@@ -920,8 +920,7 @@ void TzSimple1Gen::GetTributaryCoordsTz(int nodenum1)
 {
     
     double coordnodenum1;
-    int i, j, k, I, tzeletag;
-    I = 0;
+    int I=0, tzeletag;
 
     // initialize tribcoord to the coordinate of nodenum1
     for (int i=0; i<NumNodes; i++) {
@@ -932,8 +931,7 @@ void TzSimple1Gen::GetTributaryCoordsTz(int nodenum1)
         }
     }
     for (int i=0; i<NumPileEle; i++) {
-        if (PileNode1[i] == nodenum1)
-        {
+        if (PileNode1[i] == nodenum1) {
             tzeletag = 0;
             for (int j=0; j<NumTzEle; j++)
             {
@@ -948,7 +946,7 @@ void TzSimple1Gen::GetTributaryCoordsTz(int nodenum1)
             }
             if(tzeletag==1)
             {
-                for(j=0; j<NumNodes; j++)
+                for(int j=0; j<NumNodes; j++)
                 {
                     if(PileNode2[i] == NodeNum[j])
                     {
@@ -957,30 +955,18 @@ void TzSimple1Gen::GetTributaryCoordsTz(int nodenum1)
                 }
             }
         }
-        if(PileNode2[i] == nodenum1)
-        {
+        if (PileNode2[i] == nodenum1) {
             tzeletag = 0;
-            for(j=0;j<NumTzEle;j++)
-            {
-                if(TzNode1[j] == PileNode2[i] || TzNode2[j] == PileNode2[i])
-                {
-                    for(k=0; k<NumTzEle; k++)
-                    {
-                        if(TzNode1[k] == PileNode1[i] || TzNode2[k] == PileNode1[i])
-                            tzeletag = 1;  // set pyeletag = 1 if PileNode2 is attached to a py element
-                    }
-                }
+            for (int j=0;j<NumTzEle;j++) {
+              if (TzNode1[j] == PileNode2[i] || TzNode2[j] == PileNode2[i])
+                  for (int k=0; k<NumTzEle; k++)
+                      if(TzNode1[k] == PileNode1[i] || TzNode2[k] == PileNode1[i])
+                          tzeletag = 1;  // set pyeletag = 1 if PileNode2 is attached to a py element
             }
-            if(tzeletag==1)
-            {
-                for(j=0; j<NumNodes; j++)
-                {
-                    if(PileNode1[i] == NodeNum[j])
-                    {
-                        tribcoord[1] = coordnodenum1 + 0.5*(Nodey[j] - coordnodenum1);
-                    }
-                }
-            }
+            if (tzeletag==1)
+              for (int j=0; j<NumNodes; j++)
+                if(PileNode1[i] == NodeNum[j])
+                    tribcoord[1] = coordnodenum1 + 0.5*(Nodey[j] - coordnodenum1);
         }
     }
 
@@ -1001,7 +987,7 @@ void TzSimple1Gen::GetTributaryCoordsPile(int nodenum1)
     I = 0;
 
     // initialize tribcoord to the coordinate of nodenum1
-    for(i=0; i<NumNodes; i++)
+    for (int i=0; i<NumNodes; i++)
     {
         if(nodenum1 == NodeNum[i])
         {
@@ -1010,11 +996,11 @@ void TzSimple1Gen::GetTributaryCoordsPile(int nodenum1)
             tribcoord[1] = Nodey[i];
         }
     }
-    for(i=0; i<NumPileEle; i++)
+    for (int i=0; i<NumPileEle; i++)
     {
         if(PileNode1[i] == nodenum1)
         {
-            for(j=0; j<NumNodes; j++)
+            for (int j=0; j<NumNodes; j++)
             {
                 if(PileNode2[i] == NodeNum[j])
                 {
@@ -1024,7 +1010,7 @@ void TzSimple1Gen::GetTributaryCoordsPile(int nodenum1)
         }
         if(PileNode2[i] == nodenum1)
         {
-            for(j=0; j<NumNodes; j++)
+            for (int j=0; j<NumNodes; j++)
             {
                 if(PileNode1[i] == NodeNum[j])
                 {
