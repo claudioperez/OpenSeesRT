@@ -260,13 +260,14 @@ DistributedBandSPDLinSOE::setSize(Graph &theGraph)
 int 
 DistributedBandSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+  assert(id.Size() == m.noRows() && id.Size() == m.noCols());
+
   // check for a quick return 
   if (fact == 0.0)
     return 0;
   
   // check that m and id are of similar size
-  int idSize = id.Size();    
-  assert(idSize == m.noRows() && idSize == m.noCols());
+  const int idSize = id.Size();    
 
   ID *theMap =0;
   if (numChannels > 0)
