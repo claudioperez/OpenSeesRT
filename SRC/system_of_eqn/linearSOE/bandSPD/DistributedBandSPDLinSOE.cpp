@@ -199,16 +199,7 @@ DistributedBandSPDLinSOE::setSize(Graph &theGraph)
       delete [] A;
     
     A = new double[newSize];
-    
-    if (A == 0) {
-      opserr << "WARNING DistributedBandSPDLinSOE::DistributedBandSPDLinSOE :";
-      opserr << " ran out of memory for A (size, half_band) (";
-      opserr << size <<", " << half_band << "\n";
-      Asize = 0; size = 0; half_band = 0;
-      result= -1;
-    }
-    else  
-      Asize = newSize;
+    Asize = newSize;
   }
   
   // zero the matrix
@@ -227,16 +218,8 @@ DistributedBandSPDLinSOE::setSize(Graph &theGraph)
     B = new double[size];
     X = new double[size];
     myB = new double[size];
-    
-    if (B == 0 || X == 0 || myB == 0) {
-      opserr << "WARNING DistributedBandSPDLinSOE::DistributedBandSPDLinSOE :";
-      opserr << " ran out of memory for vectors (size) (";
-      opserr << size << ") \n";
-      Bsize = 0; size = 0; half_band = 0;
-      result = -1;
-    }
-    else 
-      Bsize = size;
+
+    Bsize = size;
   }
   
   // zero the vectors
@@ -268,8 +251,8 @@ DistributedBandSPDLinSOE::setSize(Graph &theGraph)
     LinearSOESolver *theSolvr = this->getSolver();
     int solverOK = theSolvr->setSize();
     if (solverOK < 0) {
-      opserr << "WARNING:DistributedBandSPDLinSOE::setSize :";
-      opserr << " solver failed setSize()\n";
+      // opserr << "WARNING:DistributedBandSPDLinSOE::setSize :";
+      // opserr << " solver failed setSize()\n";
       return solverOK;
     }    
   }
@@ -282,15 +265,13 @@ int
 DistributedBandSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
   // check for a quick return 
-  if (fact == 0.0)  return 0;
+  if (fact == 0.0)
+    return 0;
   
   // check that m and id are of similar size
   int idSize = id.Size();    
-  if (idSize != m.noRows() && idSize != m.noCols()) {
-    opserr << "BandSPDLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-    return -1;
-  }
-  
+  assert(idSize == m.noRows() && idSize == m.noCols());
+
   ID *theMap =0;
   if (numChannels > 0)
     theMap = localCol[0];
@@ -423,16 +404,15 @@ int
 DistributedBandSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
     
+    assert(id.Size == v.Size() );
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
     // check that m and id are of similar size
     int idSize = id.Size();        
-    if (idSize != v.Size() ) {
-	opserr << "BandSPDLinSOE::addB() - Vector and ID not of similar sizes\n";
-	return -1;
-    }    
-    
+
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<idSize; i++) {
 	    int pos = id(i);
@@ -458,16 +438,12 @@ DistributedBandSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 int
 DistributedBandSPDLinSOE::setB(const Vector &v, double fact)
 {
+    assert(v.Size() == size);
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
-
-    if (v.Size() != size) {
-	opserr << "WARNING DistributedBandGenLinSOE::setB() -";
-	opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-	return -1;
-    }
-    
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<size; i++) {
 	    myB[i] = v(i);
@@ -557,11 +533,6 @@ DistributedBandSPDLinSOE::sendSelf(int commitTag, Channel &theChannel)
     if (found == false) {
       int nextNumChannels = numChannels + 1;
       Channel **nextChannels = new Channel *[nextNumChannels];
-      if (nextNumChannels == 0) {
-	opserr << "DistributedBandSPDLinSOE::sendSelf() - failed to allocate channel array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
       for (int i=0; i<numChannels; i++)
 	nextChannels[i] = theChannels[i];
       nextChannels[numChannels] = &theChannel;
@@ -576,11 +547,7 @@ DistributedBandSPDLinSOE::sendSelf(int commitTag, Channel &theChannel)
       if (localCol != 0)
 	delete [] localCol;
       localCol = new ID *[numChannels];
-      if (localCol == 0) {
-	opserr << "DistributedBandSPDLinSOE::sendSelf() - failed to allocate id array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
+
       for (int i=0; i<numChannels; i++)
 	localCol[i] = 0;    
 
@@ -598,7 +565,7 @@ DistributedBandSPDLinSOE::sendSelf(int commitTag, Channel &theChannel)
   
   int res = theChannel.sendID(0, commitTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedBandSPDLinSOE::sendSelf() - failed to send data\n";
+    // opserr <<"WARNING DistributedBandSPDLinSOE::sendSelf() - failed to send data\n";
     return -1;
   }
 
@@ -612,7 +579,7 @@ DistributedBandSPDLinSOE::recvSelf(int commitTag, Channel &theChannel, FEM_Objec
   ID idData(1);
   int res = theChannel.recvID(0, commitTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedBandSPDLinSOE::recvSelf() - failed to send data\n";
+    // opserr <<"WARNING DistributedBandSPDLinSOE::recvSelf() - failed to send data\n";
     return -1;
   }	      
   processID = idData(0);
