@@ -17,17 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2009-10-13 21:17:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/DataFileStreamAdd.cpp,v $
-
-
+//
+//
 #include <DataFileStreamAdd.h>
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <string.h>
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
@@ -313,7 +310,7 @@ DataFileStreamAdd::write(Vector &data)
       if (numColumns != 0) {
 	Vector *theV = theRemoteData[i];
 	if (theChannels[i-1]->recvVector(0, 0, *theV) < 0) {
-	  opserr << "DataFileStreamAdd::write - failed to recv data\n";
+	  // opserr << "DataFileStreamAdd::write - failed to recv data\n";
 	}
       } 
     }
