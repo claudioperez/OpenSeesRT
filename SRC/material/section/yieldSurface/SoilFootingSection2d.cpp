@@ -1,13 +1,11 @@
-// Date: 12/08/2004
-//
-// File name: SoilFootingSection2d.cpp
-//
-// Coded by: Sivapalan Gajan <sgajan@ucdavis.edu>
 //
 // Description: This file contains the members and methods for 
 // SoilFootingSection2d class.
-
-
+//
+// Coded by: Sivapalan Gajan <sgajan@ucdavis.edu>
+//
+// Date: 12/08/2004
+//
 #include <math.h>
 #include <stdlib.h>
 
@@ -16,7 +14,7 @@
 #include <Vector.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
-// #include <MatrixUtil.h>
+#include <OPS_ErrorStream.h>
 
 #include <classTags.h>
 
@@ -2071,7 +2069,7 @@ SoilFootingSection2d::recvSelf(int commitTag, Channel &theChannel,
 void
 SoilFootingSection2d::Print(OPS_Stream &s, int flag)
 {
-  s << "YieldSurfaceSection2d, tag: " << this->getTag() << endln;
+  s << "YieldSurfaceSection2d, tag: " << this->getTag() << "\n";
   s << "\tSection Force:" << sCommit;
   s << "\tSection Defom:" << eCommit;
 }
