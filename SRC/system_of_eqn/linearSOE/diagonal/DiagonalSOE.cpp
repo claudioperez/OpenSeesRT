@@ -32,6 +32,7 @@
 #include <VertexIter.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -52,46 +53,29 @@ DiagonalSOE::DiagonalSOE(int N, DiagonalSolver &the_Solver)
     size = N;
     A = new double[size];
     B = new double[size];
-    X = new double[size];	
-    
-    if (A == 0 || B == 0 || X == 0) {
-      opserr << "ERROR DiagonalSOE::DiagonalSOE :";
-      opserr << " ran out of memory for size: " << size << endln;
-      if (A != 0) delete [] A;
-      if (B != 0) delete [] B;
-      if (X != 0) delete [] X;
-      size = 0;
-    }
+    X = new double[size];
     
     vectX = new Vector(X,size);
     vectB = new Vector(B,size);
-    
-    if (vectB == 0 || vectX == 0) {
-      opserr << "ERROR DiagonalSOE::DiagonalSOE :";
-      opserr << " ran out of memory for size: " << size << endln;
-      if (A != 0) delete [] A;
-      if (B != 0) delete [] B;
-      if (X != 0) delete [] X;
-      size = 0;
-    }
+
   }
   the_Solver.setLinearSOE(*this);        
   
   int solverOK = the_Solver.setSize();
-  if (solverOK < 0) {
-    opserr << "WARNING DiagonalSOE::DiagonalSOE :";
-    opserr << " solver failed setSize() in constructor\n";
-  }
+  // if (solverOK < 0) {
+  //   opserr << "WARNING DiagonalSOE::DiagonalSOE :";
+  //   opserr << " solver failed setSize() in constructor\n";
+  // }
 }
 
     
 DiagonalSOE::~DiagonalSOE()
 {
-  if (A != 0) delete [] A;
-  if (B != 0) delete [] B;
-  if (X != 0) delete [] X;
-  if (vectX != 0) delete vectX;    
-  if (vectB != 0) delete vectB;    
+  if (A != nullptr)     delete [] A;
+  if (B != nullptr)     delete [] B;
+  if (X != nullptr)     delete [] X;
+  if (vectX != nullptr) delete vectX;    
+  if (vectB != nullptr) delete vectB;    
 }
 
 
@@ -117,17 +101,7 @@ DiagonalSOE::setSize(Graph &theGraph)
     if (X != 0) delete [] X;
     A = new double[size];
     B = new double[size];
-    X = new double[size];	
-    
-    if (A == 0 || B == 0 || X == 0) {
-      opserr << "ERROR DiagonalSOE::setSize() - ";
-      opserr << " ran out of memory for size: " << size << endln;
-      if (A != 0) delete [] A;
-      if (B != 0) delete [] B;
-      if (X != 0) delete [] X;
-      size = 0;
-      return -1;
-    }
+    X = new double[size];
   }
 
   if (size != oldSize && size != 0) {
@@ -148,8 +122,8 @@ DiagonalSOE::setSize(Graph &theGraph)
   LinearSOESolver *the_Solver = this->getSolver();
   int solverOK = the_Solver->setSize();
   if (solverOK < 0) {
-    opserr << "WARNING DiagonalSOE::setSize :";
-    opserr << " solver failed setSize()\n";
+    // opserr << "WARNING DiagonalSOE::setSize :";
+    // opserr << " solver failed setSize()\n";
     return solverOK;
   }    
   
@@ -158,18 +132,13 @@ DiagonalSOE::setSize(Graph &theGraph)
 
 int 
 DiagonalSOE::addA(const Matrix &m, const ID &id, double fact)
-{
-  // check for a quick return 
-  if (fact == 0.0)  return 0;
-  
-#ifdef _G3DEBUG
+{  
   // check that m and id are of similar size
-  int idSize = id.Size();    
-  if (idSize != m.noRows() && idSize != m.noCols()) {
-    opserr << "FullGenLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-    return -1;
-  }
-#endif
+  assert(id.Size == m.noRows() && id.Size == m.noCols());
+
+  // check for a quick return 
+  if (fact == 0.0)
+    return 0;
 
   if (fact == 1.0) { // do not need to multiply if fact == 1.0
     for (int i=0; i<id.Size(); i++) {
@@ -189,29 +158,21 @@ DiagonalSOE::addA(const Matrix &m, const ID &id, double fact)
       if (pos <size && pos >= 0)
 	A[pos] += m(i,i) * fact;
     }
-  }	
+  }
 
   return 0;
 }
- 
-    
+
+
 int 
 DiagonalSOE::addB(const Vector &v, const ID &id, double fact)
 {
-    
+  assert(id.Size == v.Size() );
+
   // check for a quick return 
-  if (fact == 0.0)  return 0;
-  
-#ifdef _G3DEBUG
-  // check that m and id are of similar size
-  int idSize = id.Size();        
-  if (idSize != v.Size() ) {
-    opserr << "DiagonalSOE::addB() -";
-    opserr << " Vector and ID not of similar sizes\n";
-    return -1;
-  }    
-#endif
-  
+  if (fact == 0.0)
+    return 0;
+
   if (fact == 1.0) { // do not need to multiply if fact == 1.0
     for (int i=0; i<id.Size(); i++) {
       int pos = id(i);
@@ -238,15 +199,11 @@ DiagonalSOE::addB(const Vector &v, const ID &id, double fact)
 int
 DiagonalSOE::setB(const Vector &v, double fact)
 {
+  assert(v.Size() == size);
   // check for a quick return 
   if (fact == 0.0)  return 0;
   
-  if (v.Size() != size) {
-    opserr << "WARNING DiagonalSOE::setB() -";
-    opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-    return -1;
-  }
-  
+
   if (fact == 1.0) { // do not need to multiply if fact == 1.0
     for (int i=0; i<size; i++) {
       B[i] = v(i);
@@ -308,20 +265,14 @@ DiagonalSOE::setX(const Vector &x)
 const Vector &
 DiagonalSOE::getX(void)
 {
-  if (vectX == 0) {
-    opserr << "FATAL DiagonalSOE::getX - vectX == 0";
-    exit(-1);
-  }    
+  assert(vectX != nullptr);
   return *vectX;
 }
 
 const Vector &
 DiagonalSOE::getB(void)
 {
-  if (vectB == 0) {
-    opserr << "FATAL DiagonalSOE::getB - vectB == 0";
-    exit(-1);
-  }        
+  assert(vectB != nullptr);
   return *vectB;
 }
 
@@ -346,12 +297,12 @@ DiagonalSOE::setDiagonalSolver(DiagonalSolver &newSolver)
   if (size != 0) {
     int solverOK = newSolver.setSize();
     if (solverOK < 0) {
-      opserr << "WARNING:DiagonalSOE::setSolver :";
-      opserr << "the new solver could not setSeize() - staying with old\n";
-      return -1;
+      // opserr << "WARNING:DiagonalSOE::setSolver :";
+      // opserr << "the new solver could not setSeize() - staying with old\n";
+      return solverOK;
     }
   }
-  
+
   return this->setSolver(newSolver);
 }
 
