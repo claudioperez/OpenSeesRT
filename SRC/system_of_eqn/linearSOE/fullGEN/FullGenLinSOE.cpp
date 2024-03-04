@@ -72,8 +72,8 @@ FullGenLinSOE::FullGenLinSOE(int N, FullGenLinSolver &theSolvr)
     
     // invoke setSize() on the Solver        
     if (theSolvr.setSize() < 0) {
-	opserr << "WARNING :FullGenLinSOE::FullGenLinSOE :";
-	opserr << " solver failed setSize() in constructor\n";
+	// opserr << "WARNING :FullGenLinSOE::FullGenLinSOE :";
+	// opserr << " solver failed setSize() in constructor\n";
     }    
     
 }
@@ -109,15 +109,7 @@ FullGenLinSOE::setSize(Graph &theGraph)
 	    delete [] A;
 
 	A = new (nothrow) double[size*size];
-	
-        if (A == 0) {
-            opserr << "WARNING FullGenLinSOE::FullGenLinSOE :";
-	    opserr << " ran out of memory for A (size,size) (";
-	    opserr << size <<", " << size << ") \n";
-	    size = 0; Asize = 0;
-	    result =  -1;
-        } else
-	    Asize = size*size;
+        Asize = size*size;
     }
 
     // zero the matrix
@@ -164,8 +156,8 @@ FullGenLinSOE::setSize(Graph &theGraph)
     LinearSOESolver *theSolvr = this->getSolver();
     int solverOK = theSolvr->setSize();
     if (solverOK < 0) {
-	opserr << "WARNING:FullGenLinSOE::setSize :";
-	opserr << " solver failed setSize()\n";
+	// opserr << "WARNING:FullGenLinSOE::setSize :";
+	// opserr << " solver failed setSize()\n";
 	return solverOK;
     }    
     
@@ -175,18 +167,15 @@ FullGenLinSOE::setSize(Graph &theGraph)
 int 
 FullGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+    // check that m and id are of similar size
+    assert(id.Size == m.noRows() && id.Size == m.noCols());
+
     // check for a quick return 
     if (fact == 0.0)
       return 0;
 
     int idSize = id.Size();
-    
-    // check that m and id are of similar size
-    if (idSize != m.noRows() && idSize != m.noCols()) {
-	opserr << "FullGenLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-	return -1;
-    }
-    
+
     if (fact == 1.0) { // do not need to multiply 
 	for (int i=0; i<idSize; i++) {
 	    int col = id(i);
@@ -226,16 +215,11 @@ FullGenLinSOE::addColA(const Vector &colData, int col, double fact)
 {
   
   assert(colData.Size() == size);
+  assert(col <= size && col >= 0);
 
   if (fact == 0.0)
     return 0; 
-  
-  if (col > size && col < 0) {
-    opserr << "FullGenLinSOE::addColA() - col " << col << "outside range 0 to " << size << endln;
-    return -1;
-  }
-  
-  
+
   if (fact == 1.0) { // do not need to multiply
     double *coliPtr = A + col*size;
     for (int row=0; row<size; row++) {
@@ -244,7 +228,6 @@ FullGenLinSOE::addColA(const Vector &colData, int col, double fact)
     }
 
   } else {
-
     double *coliPtr = A + col*size;
     for (int row=0; row<size; row++) {
       *coliPtr += colData(row) * fact;
@@ -255,8 +238,6 @@ FullGenLinSOE::addColA(const Vector &colData, int col, double fact)
 
   return 0;
 }
-
-
 
 
 int 
@@ -296,16 +277,13 @@ FullGenLinSOE::addB(const Vector &v, const ID &id, double fact)
 int
 FullGenLinSOE::setB(const Vector &v, double fact)
 {
+    assert (v.Size() == size);
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
 
-    if (v.Size() != size) {
-	opserr << "WARNING BandGenLinSOE::setB() -";
-	opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-	return -1;
-    }
-    
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<size; i++) {
 	    B[i] = v(i);
@@ -345,10 +323,7 @@ int
 FullGenLinSOE::formAp(const Vector &p, Vector &Ap)
 {
   // Check that p and A are same size
-  if (size != p.Size() || size != Ap.Size() || p.Size() != Ap.Size()) {
-    opserr << "FullGenLinSOE::formAp -- vectors not of same size\n";
-    return -1;
-  }
+  assert(size == p.Size() && size == Ap.Size() && p.Size() == Ap.Size());
 
   for (int row = 0; row < size; row++) {
     double sum = 0.0;
@@ -418,8 +393,8 @@ FullGenLinSOE::setFullGenSolver(FullGenLinSolver &newSolver)
     if (size != 0) {
 	int solverOK = newSolver.setSize();
 	if (solverOK < 0) {
-	    opserr << "WARNING:FullGenLinSOE::setSolver :";
-	    opserr << "the new solver could not setSize() - staying with old\n";
+	    // opserr << "WARNING:FullGenLinSOE::setSolver :";
+	    // opserr << "the new solver could not setSize() - staying with old\n";
 	    return -1;
 	}
     }
