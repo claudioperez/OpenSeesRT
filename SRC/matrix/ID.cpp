@@ -83,7 +83,7 @@ ID::ID(int size, int arraySz)
       arraySz = 1;
   }
   if (arraySz < sz) {
-    opserr << "ID::ID(size, arraySize) - arraySize " << arraySz  << " specified < " << size << endln;
+    opserr << "ID::ID(size, arraySize) - arraySize " << arraySz  << " specified < " << size << "\n";
     arraySz = sz;
   }
 #endif    
@@ -489,7 +489,7 @@ OPS_Stream &operator<<(OPS_Stream &s, const ID &V)
     for (int i=0; i<V.Size(); i++) {
 	s << V(i) << " ";
     }
-    return s << endln;
+    return s << "\n";
 }
 
 // friend istream &operator>>(istream &s, ID &V)
