@@ -17,19 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2008-09-23 22:47:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/actor/actor/Actor.cpp,v $
-                                                                        
-                                                                        
+//
+// Description: This file contains the implementation of Actor.
+//
 // Written: fmk
 // Revision: A
 //
-// Purpose: This file contains the implementation of Actor.
-//
-// What: "@(#) Actor.C, revA"
-
 #include <Actor.h>
 #include <Channel.h>
 #include <ChannelAddress.h>
@@ -39,7 +32,8 @@
 #include <Vector.h>
 #include <ID.h>
 
-#include <stdlib.h>
+#include <OPS_ErrorStream.h>
+#include <stdlib.h> // TODO: remove use of std::exit
 
 // Actor
 //	constructor to init the list.
@@ -54,9 +48,9 @@ Actor::Actor(Channel &theChan,
 {
     // call setUpActor on the channel and get shadows address
     if (theChannel->setUpConnection() != 0)  {
-        opserr << "Actor::Actor() "
-            << "- failed to setup connection\n";
-        exit(-1);
+      opserr << "Actor::Actor() "
+          << "- failed to setup connection\n";
+      exit(-1);
     }
     theRemoteShadowsAddress = theChan.getLastSendersAddress();
 
