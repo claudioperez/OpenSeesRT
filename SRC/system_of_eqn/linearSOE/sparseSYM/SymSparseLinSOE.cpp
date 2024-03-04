@@ -13,7 +13,7 @@
 
 
 #include <fstream>
-#include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 
 #include <SymSparseLinSOE.h>
