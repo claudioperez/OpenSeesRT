@@ -26,6 +26,7 @@
 #include "ID.h"
 #include <map>
 #include <list>
+#include <assert.h>
 
 #include <iostream>
 
