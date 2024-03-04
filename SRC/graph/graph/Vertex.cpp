@@ -25,11 +25,10 @@
 // Description: This file contains the class implementation for Vertex.
 // Vertex is an element of a graph.
 //
-// What: "@(#) Vertex.C, revA"
-
 #include <Vertex.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 #include <Vector.h>
 
 Vertex::Vertex(int tag, int ref, double weight, int color)
