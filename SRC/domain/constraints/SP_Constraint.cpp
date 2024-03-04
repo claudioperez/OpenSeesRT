@@ -34,6 +34,7 @@
 #include <Domain.h>
 #include <Node.h>
 #include <ID.h>
+#include <Print.h>
 
 static int numSPs = 0;
 static int nextTag = 0;
