@@ -32,12 +32,10 @@
 #include <Channel.h>
 #include <Message.h>
 #include <Matrix.h>
+#include <string.h>
 
-using std::cerr;
 using std::ios;
-using std::setiosflags;
 using std::ifstream;
-using std::string;
 using std::getline;
 
 DataFileStream::DataFileStream(int indent)
@@ -218,11 +216,11 @@ DataFileStream::setFloatField(floatField field)
 
   if (field == FIXEDD) {
     if (fileOpen != 0)
-      theFile << setiosflags(ios::fixed);
+      theFile << std::setiosflags(ios::fixed);
   }
   else if (field == SCIENTIFIC) {
     if (fileOpen != 0)
-      theFile << setiosflags(ios::scientific);
+      theFile << std::setiosflags(ios::scientific);
   }
 
   return 0;
@@ -314,7 +312,7 @@ DataFileStream::write(Vector &data)
       if (numColumns != 0) {
 	Vector *theV = theRemoteData[i];
 	if (theChannels[i-1]->recvVector(0, 0, *theV) < 0) {
-	  opserr << "DataFileStream::write - failed to recv data\n";
+	  // opserr << "DataFileStream::write - failed to recv data\n";
 	}
       } 
     }
