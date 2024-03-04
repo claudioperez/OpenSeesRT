@@ -132,14 +132,7 @@ int SymSparseLinSOE::setSize(Graph &theGraph)
     }
     nnz = newNNZ;
  
-    colA = new (nothrow) int[newNNZ];	
-    if (colA == 0) {
-        opserr << "WARNING SymSparseLinSOE::SymSparseLinSOE :";
-	opserr << " ran out of memory for colA with nnz = ";
-      	opserr << newNNZ << " \n";
-       	size = 0; nnz = 0;
-       	result =  -1;
-    } 
+    colA = new int[newNNZ];
 	
     factored = false;
     
@@ -151,19 +144,10 @@ int SymSparseLinSOE::setSize(Graph &theGraph)
 	if (rowStartA != 0) delete [] rowStartA;
 
 	// create the new
-	B = new (nothrow) double[size];
-	X = new (nothrow) double[size];
+	B = new  double[size];
+	X = new  double[size];
 	rowStartA = new int[size+1]; 
-	
-	if (B == 0 || X == 0 || rowStartA == 0) {
-            opserr << "WARNING SymSparseLinSOE::SymSparseLinSOE :";
-	    opserr << " ran out of memory for vectors (size) (";
-	    opserr << size << ") \n";
-	    size = 0; Bsize = 0;
-	    result =  -1;
-	} else {
-	    Bsize = size;
-	}
+	Bsize = size;
     }
 
     // zero the vectors
