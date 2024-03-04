@@ -17,21 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2005-11-28 21:28:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/numberer/DOF_Numberer.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 9/96
-// Revision: A
 //
 // Description: This file contains the class implementation for DOF_Numberer.
 // DOF_Numberer is an abstract base class, i.e. no objects of it's
 // type can be created. 
 //
-// What: "@(#) DOF_Numberer.h, revA"
+// Written: fmk 
+// Created: 9/96
+// Revision: A
+//
+#include <assert.h>
 
 #include <DOF_Numberer.h>
 #include <AnalysisModel.h>
@@ -41,11 +36,9 @@
 #include <FE_Element.h>
 #include <FE_EleIter.h>
 #include <Channel.h>
-#include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-
 #include <Graph.h>
 
 #include <Domain.h>
@@ -53,8 +46,8 @@
 #include <Node.h>
 #include <MP_ConstraintIter.h>
 #include <DOF_GrpIter.h>
-// Constructor
 
+// Constructor
 DOF_Numberer::DOF_Numberer(int clsTag) 
 :MovableObject(clsTag),
  theAnalysisModel(0), theGraphNumberer(0)
