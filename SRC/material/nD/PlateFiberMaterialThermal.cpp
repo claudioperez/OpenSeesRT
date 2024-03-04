@@ -17,22 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007/05/03 23:03:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/PlateFiberMaterialThermal.cpp,v $
-
+//
+// Generic Plate Fiber Material
+// 
+// Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io] 
 //
 // Ed "C++" Love
 //
-// Generic Plate Fiber Material
- 
-// Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io] 
-
-
 #include <PlateFiberMaterialThermal.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 //static vector and matrices
 Vector  PlateFiberMaterialThermal::stress(5);
@@ -204,14 +199,13 @@ PlateFiberMaterialThermal::setTrialStrain(const Vector &strainFromElement)
     threeDstrain(4) = this->strain(3);
     threeDstrain(5) = this->strain(4);
 
-	//if(threeDstrain(2)>0.005||strain2>0.01||strain2<-0.01){
-		//opserr<<threeDstrain(2)<<"  strain22 "<< strain2<<endln;
-		//threeDstrain(2) =Cstrain22;
-	//}
-	
+//  if (threeDstrain(2)>0.005||strain2>0.01||strain2<-0.01){
+//         opserr<<threeDstrain(2)<<"  strain22 "<< strain2<<endln;
+//         threeDstrain(2) =Cstrain22;
+//  }
 
     if (theMaterial->setTrialStrain(threeDstrain) < 0) {
-      opserr << "PlateFiberMaterialThermal::setTrialStrain - material failed in setTrialStrain() with strain " << threeDstrain;
+      // opserr << "PlateFiberMaterialThermal::setTrialStrain - material failed in setTrialStrain() with strain " << threeDstrain;
       return -1;
     }
 
@@ -270,18 +264,19 @@ PlateFiberMaterialThermal::setTrialStrain(const Vector &strainFromElement)
     //update out of plane strains
 	// if( (Ttemp-Ctemp)<tolerance){
 	this->Tstrain22 -= strainIncrement(0);
-	 //this->Tstrain22 -= Incrstrain22; 
+        //this->Tstrain22 -= Incrstrain22; 
 	// if(count>5&&count<10){
 		//this->Tstrain22 += strainIncrement(0);
 	//}
 #ifdef _SDEBUG
-		if(strainFromElement(5)==1110){
-			opserr<<"Eps22 "<<this->Tstrain22<< "  Eps11: "<<strain11<< "  Eps22: "<<strain22<< "  Eps12: "<<strain12<<" norm "<<norm<<endln;
-		}
+        if (strainFromElement(5)==1110){
+            // opserr<<"Eps22 "<<this->Tstrain22<< "  Eps11: "<<strain11<< "  Eps22: "<<strain22<< "  Eps12: "<<strain12<<" norm "<<norm<<endln;
+        }
 #endif
 
     count++;
   } while (norm > tolerance && count < 10);
+
   Ctemp = Ttemp;
   Cstrain1 = this->strain(0);
   Cstrain2 = this->strain(1);
@@ -474,7 +469,7 @@ PlateFiberMaterialThermal::sendSelf(int commitTag, Channel &theChannel)
   
   res = theChannel.sendID(this->getDbTag(), commitTag, idData);
   if (res < 0) {
-    opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send id data\n";
+    // opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send id data\n";
     return res;
   }
 
@@ -484,14 +479,14 @@ PlateFiberMaterialThermal::sendSelf(int commitTag, Channel &theChannel)
 
   res = theChannel.sendVector(this->getDbTag(), commitTag, vecData);
   if (res < 0) {
-    opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector data\n";
+    // opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector data\n";
     return res;
   }
 
   // now send the materials data
   res = theMaterial->sendSelf(commitTag, theChannel);
   if (res < 0) 
-    opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector material\n";
+    // opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector material\n";
 
   return res;
 }
@@ -505,7 +500,7 @@ PlateFiberMaterialThermal::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
   static ID idData(3);
   res = theChannel.recvID(this->getDbTag(), commitTag, idData);
   if (res < 0) {
-    opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send id data\n";
+    // opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send id data\n";
     return res;
   }
 
@@ -518,8 +513,8 @@ PlateFiberMaterialThermal::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
     if (theMaterial != 0)
       delete theMaterial;
     theMaterial = theBroker.getNewNDMaterial(matClassTag);
-    if (theMaterial == 0) {
-      opserr << "PlateFiberMaterialThermal::recvSelf() - failed to get a material of type: " << matClassTag << endln;
+    if (theMaterial == nullptr) {
+      // opserr << "PlateFiberMaterialThermal::recvSelf() - failed to get a material of type: " << matClassTag << endln;
       return -1;
     }
   }
@@ -529,7 +524,7 @@ PlateFiberMaterialThermal::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
   static Vector vecData(1);
   res = theChannel.recvVector(this->getDbTag(), commitTag, vecData);
   if (res < 0) {
-    opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector data\n";
+    // opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector data\n";
     return res;
   }
 
@@ -539,7 +534,7 @@ PlateFiberMaterialThermal::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
   // now receive the associated materials data
   res = theMaterial->recvSelf(commitTag, theChannel, theBroker);
   if (res < 0) 
-    opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector material\n";
+    // opserr << "PlateFiberMaterialThermal::sendSelf() - failed to send vector material\n";
   
   return res;
 }
