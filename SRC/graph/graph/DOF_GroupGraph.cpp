@@ -25,9 +25,6 @@
 // DOF_GroupGraph is a graph of the DOF_Groups in the domain. It is used by the
 // DOF_Numberer to assign equation numbers to the DOFs.
 //
-// What: "@(#) DOF_GroupGraph.C, revA"
-
-
 #include <DOF_GroupGraph.h>
 #include <Vertex.h>
 #include <AnalysisModel.h>
@@ -35,6 +32,7 @@
 #include <DOF_Group.h>
 #include <FE_EleIter.h>
 #include <DOF_GrpIter.h>
+#include <OPS_ErrorStream.h>
 
 // constructs the Graph
 DOF_GroupGraph::DOF_GroupGraph(AnalysisModel &theModel)
