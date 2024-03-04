@@ -1,9 +1,3 @@
-// $Revision: 1.3 $
-// $Date: 2005-11-07 21:34:25 $
-// $Source: /usr/local/cvs/OpenSees/SRC/database/OracleDatastore.cpp,v $
-
-
-// Written: Jun Peng  (junpeng@stanford.edu)
 //
 // Description: This file contains the class implementation for OracleDatastore.
 // OracleDatastore is a concrete subclas of FE_Datastore. A OracleDatastore 
@@ -11,9 +5,8 @@
 // information in a domain at a particular instance in the analysis. The
 // information is stored in text files.
 //
-// What: "@(#) OracleDatastore.C, revA"
-
-
+// Written: Jun Peng  (junpeng@stanford.edu)
+//
 #include "OracleDatastore.h"
 #include <iostream>
 #include <fstream>
@@ -185,7 +178,7 @@ OracleDatastore::sendMsg(int dataTag, int commitTag,
 		       const Message &, 
 		       ChannelAddress *theAddress)
 {
-  opserr << "OracleDatastore::sendMsg() - not yet implemented\n";
+  // TODO: not yet implemented.
   return -1;
 }		       
 
@@ -194,7 +187,7 @@ OracleDatastore::recvMsg(int dataTag, int commitTag,
 		       Message &, 
 		       ChannelAddress *theAddress)
 {
-  opserr << "OracleDatastore::recvMsg() - not yet implemented\n";
+  // TODO: not yet implemented.
   return -1;
 }		       
 
