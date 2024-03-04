@@ -152,10 +152,7 @@ ID::setData(int *newData, int size, bool cleanIt){
   else
     fromFree = 0;
 
-  if (sz <= 0) {
-    opserr << "ID::ID(int *, size) - size " << size << " specified <= 0\n";
-    sz = 0;
-  }
+  assert(sz > 0);
 
   return 0;
 }
@@ -317,21 +314,16 @@ int
 ID::resize(int newSize, int fill_value){
 
   // first check that newSize is valid
-  if (newSize < 0) {
-    opserr << "ID::resize() - size specified " << newSize << " <= 0\n";
-    return -1;
-  } 
-  
-  if (sz >= newSize) {
+  assert(newSize >= 0);
 
+  if (sz >= newSize) {
     // is size smaller than current, simply reset sz
     sz = newSize;
 
   } else if (newSize <= arraySize) {
 
     // see if we can just enlarge the array
-    // without having to go get more space
-    
+    // without having to go get more space 
     for (int i=sz; i<newSize; i++)
       data[i] = fill_value;
     sz = newSize;
