@@ -17,12 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2007-05-03 21:24:31 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/FileStream.cpp,v $
-
-
+//
+//
 #include <FileStream.h>
 #include <Vector.h>
 #include <iostream>
@@ -30,7 +26,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
-
+#include <string.h>
 
 using std::cerr;
 using std::ios;
@@ -220,7 +216,7 @@ FileStream::tag(const char *tagName)
 
   // output the xml for it to the file
   this->indent();
-  (*this) << tagName << endln;
+  (*this) << tagName << "\n";
 
   numIndent++;
 
@@ -236,7 +232,7 @@ FileStream::tag(const char *tagName, const char *value)
   // output the xml for it to the file
   numIndent++;
   this->indent();
-  (*this) << tagName << " = " << value << endln;
+  (*this) << tagName << " = " << value << "\n";
 
   numIndent--;
 
@@ -259,7 +255,7 @@ FileStream::attr(const char *name, int value)
     this->open();
 
   this->indent();
-  (*this) << name << " = " << value << endln;
+  (*this) << name << " = " << value << "\n";
   
   return 0;
 }
@@ -271,7 +267,7 @@ FileStream::attr(const char *name, double value)
     this->open();
 
   this->indent();
-  (*this) << name << " = " << value << endln;
+  (*this) << name << " = " << value << "\n";
 
   return 0;
 }
@@ -283,7 +279,7 @@ FileStream::attr(const char *name, const char *value)
     this->open();
 
   this->indent();
-  (*this) << name << " = " << value << endln;
+  (*this) << name << " = " << value << "\n";
 
   return 0;
 }
@@ -295,7 +291,7 @@ FileStream::write(Vector &data)
     this->open();
 
   this->indent();
-  (*this) << data << endln;  
+  (*this) << data << "\n";  
 
   return 0;
 }
@@ -534,14 +530,14 @@ FileStream::sendSelf(int commitTag, Channel &theChannel)
     idData(1) = 1;
 
   if (theChannel.sendID(0, commitTag, idData) < 0) {
-    opserr << "FileStream::sendSelf() - failed to send id data\n";
+    std::cerr << "FileStream::sendSelf() - failed to send id data\n";
     return -1;
   }
 
   if (fileNameLength != 0) {
     Message theMessage(fileName, fileNameLength);
     if (theChannel.sendMsg(0, commitTag, theMessage) < 0) {
-      opserr << "FileStream::sendSelf() - failed to send message\n";
+      std::cerr << "FileStream::sendSelf() - failed to send message\n";
       return -1;
     }
   }
@@ -557,7 +553,7 @@ FileStream::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBr
   static ID idData(2);
 
   if (theChannel.recvID(0, commitTag, idData) < 0) {
-    opserr << "FileStream::recvSelf() - failed to recv id data\n";
+    std::cerr << "FileStream::recvSelf() - failed to recv id data\n";
     return -1;
   }
 
@@ -572,19 +568,19 @@ FileStream::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBr
       delete [] fileName;
     fileName = new char[fileNameLength+5];
     if (fileName == 0) {
-      opserr << "FileStream::recvSelf() - out of memory\n";
+      std::cerr << "FileStream::recvSelf() - out of memory\n";
       return -1;
     }
 
     Message theMessage(fileName, fileNameLength);
     if (theChannel.recvMsg(0, commitTag, theMessage) < 0) {
-      opserr << "FileStream::recvSelf() - failed to recv message\n";
+      std::cerr << "FileStream::recvSelf() - failed to recv message\n";
       return -1;
     }
     sprintf(&fileName[fileNameLength],".%d",commitTag);
 
     if (this->setFile(fileName, theOpenMode) < 0) {
-      opserr << "FileStream::FileStream() - setFile() failed\n";
+      std::cerr << "FileStream::FileStream() - setFile() failed\n";
       if (fileName != 0) {
 	delete [] fileName;
 	fileName = 0;

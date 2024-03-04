@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $Source$
-
+//
 // Written: MHS
 // Created: Aug 2000
 //
@@ -34,6 +30,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 LinearCappedBackbone::LinearCappedBackbone(int tag, HystereticBackbone &backbone,
 					   double def, double slope, double res):
