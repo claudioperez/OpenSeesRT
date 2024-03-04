@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2020/05/18 22:51:21 $
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a linear coordinate transformation 4-node shells
@@ -33,6 +30,7 @@
 #include <ASDShellQ4LocalCoordinateSystem.h>
 #include <Node.h>
 #include <Domain.h>
+#include <OPS_ErrorStream.h>
 
 /** \brief ASDShellQ4Transformation
 *
