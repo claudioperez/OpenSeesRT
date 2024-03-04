@@ -169,18 +169,10 @@ DRMBoundaryLayerDecorator::computeDRMLoad(Vector &drmLoad,
 				      const Vector &accel)
 {
   Matrix *Ke = new Matrix(this->myBrick->getTangentStiff());
-  if (Ke == 0) {
-    opserr << " NO MATRIX Ke ALLOCATED \n";
-  }
+
   Matrix *Ce = new Matrix(this->myBrick->getDamp());
-  if (Ce == 0) {
-     opserr << " NO MATRIX Ce ALLOCATED \n";
-  }
 
   Matrix *Me = new Matrix(this->myBrick->getMass());
-  if (Me == 0) {
-     opserr << " NO MATRIX Me ALLOCATED \n";
-  }
 
   ID e(8), b(8);
   e.Zero();
