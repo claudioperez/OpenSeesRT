@@ -196,15 +196,10 @@ Vector::Assemble(const Vector &V, const ID &l, double fact )
     
     if (pos < 0)
       ;
-    else if ((pos < sz) && (i < V.Size()))
+    else {
+      assert((pos < sz) && (i < V.Size()));
       // assemble into vector
       theData[pos] += V.theData[i] *fact;
-    else {
-      result = -1;
-      if (pos < sz)
-        opserr << "Vector::Assemble() " << pos << " out of range [1, " << sz-1 << "]\n";
-      else
-        opserr << "Vector::Assemble() " << pos << " out of range [1, "<< V.Size()-1 << "]\n";
     }
   }
 
