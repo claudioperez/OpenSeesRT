@@ -79,7 +79,7 @@ Beam3dPointLoad::sendSelf(int commitTag, Channel &theChannel)
 
   int result = theChannel.sendVector(dbTag, commitTag, vectData);
   if (result < 0) {
-    opserr << "Beam3dPointLoad::sendSelf - failed to send data\n";
+    // opserr << "Beam3dPointLoad::sendSelf - failed to send data\n";
     return result;
   }
 
@@ -95,7 +95,7 @@ Beam3dPointLoad::recvSelf(int commitTag, Channel &theChannel,  FEM_ObjectBroker 
 
   int result = theChannel.recvVector(dbTag, commitTag, vectData);
   if (result < 0) {
-    opserr << "Beam3dPointLoad::recvSelf - failed to recv data\n";
+    // opserr << "Beam3dPointLoad::recvSelf - failed to recv data\n";
     return result;
 
   }
@@ -112,10 +112,10 @@ Beam3dPointLoad::recvSelf(int commitTag, Channel &theChannel,  FEM_ObjectBroker 
 void 
 Beam3dPointLoad::Print(OPS_Stream &s, int flag)
 {
-  s << "Beam3dPointLoad - Reference load" << endln;
-  s << "  Transverse (y): " << Py << endln;
-  s << "  Transverse (z): " << Pz << endln;
-  s << "  Axial (x):      " << Px << endln;
-  s << "  Relative Distance: " << x << endln;
-  s << "  Element: " << eleTag << endln;;
+  s << "Beam3dPointLoad - Reference load" << "\n";
+  s << "  Transverse (y): " << Py << "\n";
+  s << "  Transverse (z): " << Pz << "\n";
+  s << "  Axial (x):      " << Px << "\n";
+  s << "  Relative Distance: " << x << "\n";
+  s << "  Element: " << eleTag << "\n";
 }
