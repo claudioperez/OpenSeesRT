@@ -73,7 +73,7 @@ SimpleNumberer::number(Graph &theGraph, int lastVertex)
 
     // see if we can do quick return
 
-    if (numVertex == nullptr)
+    if (numVertex == 0)
       return *theRefResult;
 
 
