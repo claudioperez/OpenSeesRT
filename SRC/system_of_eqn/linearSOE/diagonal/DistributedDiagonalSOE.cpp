@@ -282,33 +282,29 @@ DistributedDiagonalSOE::setSize(Graph &theGraph)
 
   //
   // now let's redo the mapping of the dof's .. locally numbered 0 through size
-  //
+  // 
+  assert(theModel != nullptr);
 
+  DOF_GrpIter &theDOFs = theModel->getDOFs();
+  DOF_Group *dofPtr;
   
-  if (theModel == nullptr) {
-    opserr << "WARNING DistributedDiagonalSOE::setSize - no AnalysisModel\n";
-  } 
-  else {
-    DOF_GrpIter &theDOFs = theModel->getDOFs();
-    DOF_Group *dofPtr;
-    
-    while ((dofPtr = theDOFs()) != nullptr) {
-	const ID &theID = dofPtr->getID();
-	for (int i=0; i<theID.Size(); i++) {
-	  int dof = theID(i);
-	  if (dof >= 0) {
-	    int newDOF = myDOFs.getLocation(dof);
-	    dofPtr->setID(i, newDOF);
-	  }
-	}   
-    }
-    
-    // iterate through the FE_Element getting them to set their IDs
-    FE_EleIter &theEle = theModel->getFEs();
-    FE_Element *elePtr;
-    while ((elePtr = theEle()) != 0)
-	elePtr->setID(); 
-  }  
+  while ((dofPtr = theDOFs()) != nullptr) {
+      const ID &theID = dofPtr->getID();
+      for (int i=0; i<theID.Size(); i++) {
+        int dof = theID(i);
+        if (dof >= 0) {
+          int newDOF = myDOFs.getLocation(dof);
+          dofPtr->setID(i, newDOF);
+        }
+      }   
+  }
+  
+  // iterate through the FE_Element getting them to set their IDs
+  FE_EleIter &theEle = theModel->getFEs();
+  FE_Element *elePtr;
+  while ((elePtr = theEle()) != nullptr)
+      elePtr->setID(); 
+
 
   // invoke setSize() on the Solver
   DistributedDiagonalSolver *the_Solver = (DistributedDiagonalSolver *)this->getSolver();
@@ -316,8 +312,8 @@ DistributedDiagonalSOE::setSize(Graph &theGraph)
   int solverOK = the_Solver->setSize();
   
   if (solverOK < 0) {
-    opserr << "WARNING DistributedDiagonalSOE::setSize :";
-    opserr << " solver failed setSize()\n";
+    // opserr << "WARNING DistributedDiagonalSOE::setSize :";
+    // opserr << " solver failed setSize()\n";
     return solverOK;
   }    
 
@@ -409,14 +405,11 @@ DistributedDiagonalSOE::addB(const Vector &v, const ID &id, double fact)
 int
 DistributedDiagonalSOE::setB(const Vector &v, double fact)
 {
+  assert(v.Size() == size);
+
   // check for a quick return 
-  if (fact == 0.0)  return 0;
-  
-  if (v.Size() != size) {
-    opserr << "WARNING DistributedDiagonalSOE::setB() -";
-    opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-    return -1;
-  }
+  if (fact == 0.0)
+    return 0;
   
   if (fact == 1.0) { // do not need to multiply if fact == 1.0
     for (int i=0; i<size; i++) {
@@ -470,20 +463,14 @@ DistributedDiagonalSOE::setX(const Vector &x)
 const Vector &
 DistributedDiagonalSOE::getX(void)
 {
-  if (vectX == 0) {
-    opserr << "FATAL DistributedDiagonalSOE::getX - vectX == 0";
-    exit(-1);
-  }    
+  assert(vectX != nullptr);
   return *vectX;
 }
 
 const Vector &
 DistributedDiagonalSOE::getB(void)
 {
-  if (vectB == 0) {
-    opserr << "FATAL DistributedDiagonalSOE::getB - vectB == 0";
-    exit(-1);
-  }        
+  assert(vectB != nullptr);
   return *vectB;
 }
 
