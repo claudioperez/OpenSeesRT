@@ -64,7 +64,7 @@ SurfaceLoader::sendSelf(int commitTag, Channel &theChannel)
 
     res = theChannel.sendID(dataTag, commitTag, iddata);
     if (res < 0) {
-        opserr << "WARNING SurfaceLoader::sendSelf() - " << this->getTag() << " failed to send iddata\n";
+        // opserr << "WARNING SurfaceLoader::sendSelf() - " << this->getTag() << " failed to send iddata\n";
         return res;
     }
 
@@ -80,7 +80,7 @@ SurfaceLoader::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &th
 
     res = theChannel.recvID(dataTag, commitTag, iddata);
     if (res < 0) {
-        opserr << "WARNING SurfaceLoader::recvSelf() - " << this->getTag() << " failed to receive iddata\n";
+        // opserr << "WARNING SurfaceLoader::recvSelf() - " << this->getTag() << " failed to receive iddata\n";
         return res;
     }
      this->setTag(iddata(0));
@@ -92,7 +92,7 @@ SurfaceLoader::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &th
 void
 SurfaceLoader::Print(OPS_Stream &s, int flag)
 {
-	s << "SurfaceLoader...";
-	s << "  element acted on: " << eleTag << endln;
+    s << "SurfaceLoader...";
+    s << "  element acted on: " << eleTag << "\n";
 }
 
