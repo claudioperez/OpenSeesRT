@@ -1522,7 +1522,7 @@ Matrix::Output(OPS_Stream &s) const
     for (int i=0; i<noRows(); i++) {
         for (int j=0; j<noCols(); j++)
             s <<  (*this)(i,j) << " ";
-        s << endln;
+        s << "\n";
     }
 }
 
@@ -1533,9 +1533,9 @@ Matrix::Output(OPS_Stream &s) const
 
 OPS_Stream &operator<<(OPS_Stream &s, const Matrix &V)
 {
-    s << endln;
+    s << "\n";
     V.Output(s);
-    s << endln;        
+    s << "\n";        
     return s;
 }
 
