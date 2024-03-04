@@ -161,7 +161,7 @@ SP_Constraint::sendSelf(int cTag, Channel &theChannel)
 
     int result = theChannel.sendVector(this->getDbTag(), cTag, data);
     if (result != 0) {
-      opserr << "WARNING SP_Constraint::sendSelf - error sending Vector data\n";
+      // opserr << "WARNING SP_Constraint::sendSelf - error sending Vector data\n";
       return result;
     }
 
@@ -176,7 +176,7 @@ SP_Constraint::recvSelf(int cTag, Channel &theChannel,
                      // two messages
     int result = theChannel.recvVector(this->getDbTag(), cTag, data);
     if (result < 0) {
-	opserr << "WARNING SP_Constraint::recvSelf - error receiving Vector data\n";
+	// opserr << "WARNING SP_Constraint::recvSelf - error receiving Vector data\n";
 	return result;
     }
     
@@ -203,9 +203,17 @@ SP_Constraint::recvSelf(int cTag, Channel &theChannel,
 void
 SP_Constraint::Print(OPS_Stream &s, int flag) 
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "            {";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"node\": " << nodeTag << ", ";
+    s << "\"DOF\": " << dofNumber+1 << ", ";
+    s << "\"ref value\": " << valueR << "}";
+  } else {
     s << "SP_Constraint: " << this->getTag();
     s << "\t Node: " << nodeTag << " DOF: " << dofNumber+1;
-    s << " ref value: " << valueR << " current value: " << valueC << endln;
+    s << " ref value: " << valueR << " current value: " << valueC << "\n";
+  }
 }
 
 
