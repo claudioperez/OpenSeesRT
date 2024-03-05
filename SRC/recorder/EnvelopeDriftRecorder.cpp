@@ -35,6 +35,7 @@
 #include <string.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 EnvelopeDriftRecorder::EnvelopeDriftRecorder()
   :Recorder(RECORDER_TAGS_EnvelopeDriftRecorder),
@@ -377,20 +378,20 @@ EnvelopeDriftRecorder::initialize(void)
   // check valid node ID's
   //
   if (ndI == nullptr || ndJ == nullptr) {
-    // opserr << "EnvelopeDriftRecorder::initialize() - no nodal id's set\n";
+    opserr << "EnvelopeDriftRecorder::initialize() - no nodal id's set\n";
     return -1;
   }
 
   int ndIsize = ndI->Size();
   int ndJsize = ndJ->Size();
 
-  if (ndIsize == nullptr) {
-    // opserr << "EnvelopeDriftRecorder::initialize() - no nodal id's set\n";
+  if (ndIsize == 0) {
+    opserr << "EnvelopeDriftRecorder::initialize() - no nodal id's set\n";
     return -1;
   }
 
   if (ndIsize != ndJsize) {
-    // opserr << "EnvelopeDriftRecorder::initialize() - error node arrays differ in size\n";
+    opserr << "EnvelopeDriftRecorder::initialize() - error node arrays differ in size\n";
     return -2;
   }
 
@@ -419,7 +420,7 @@ EnvelopeDriftRecorder::initialize(void)
   }
 
   if (numNodes == 0) {
-    // opserr << "EnvelopeDriftRecorder::initialize() - no valid nodes or perpendicular direction\n";
+    opserr << "EnvelopeDriftRecorder::initialize() - no valid nodes or perpendicular direction\n";
     return 0;
   }
 

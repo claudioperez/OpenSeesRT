@@ -79,7 +79,10 @@ MaxNodeDispRecorder::record(int commitTag, double timeStamp)
 int 
 MaxNodeDispRecorder::playback(int commitTag)
 {
+#if 0
+  // cmp - removed to avoid including OPS_ErrorStream.h
     opserr << "Max Recorded Displacement: " << maxDisp << endln;
+#endif
     return 0;
 }
 
