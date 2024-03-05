@@ -29,6 +29,8 @@
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
+//
+//      
 #include <math.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -56,6 +58,27 @@ Matrix CorotCrdTransf3d::kg(12,12);
 Matrix CorotCrdTransf3d::Lr2(12,3);
 Matrix CorotCrdTransf3d::Lr3(12,3);
 Matrix CorotCrdTransf3d::A(3,3);
+
+// Permutation matrix (to renumber basic dof's)
+
+// v = Tp * ul
+//
+//      |  thI  |   thJ  |
+//      |0 1  2 | 3 4  5 | 6
+// Tp=  [0 0  0   0 0  0   1;  0 // axial
+//       0 1  0   0 0  0   0;  1 // rot z I
+//       0 0  0   0 1  0   0;  2 // rot z J
+//       0 0 -1   0 0  0   0;  3 // rot y I
+//       0 0  0   0 0 -1   0;  4 // rot y J
+//      -1 0  0   1 0  0   0]; 5 // torsion
+constexpr MatrixND<6,7> T = {{
+    {0,    0,    0,    0,    0,   -1 },
+    {0,    1,    0,    0,    0,    0 },
+    {0,    0,    0,   -1,    0,    0 },
+    {0,    0,    0,    0,    0,    1 },
+    {0,    0,    1,    0,    0,    0 },
+    {0,    0,    0,    0,   -1,    0 },
+    {1,    0,    0,    0,    0,    0 }}};
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_CorotCrdTransf3d)
@@ -107,7 +130,9 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
     if (vecInLocXZPlane.Size() != 3 ) {
         opserr << "CorotCrdTransf3d::CorotCrdTransf3d:  Vector that defines local xz plane is invalid\n";
         opserr << "Size must be 3\n. Using (0,0,1)";
-        vAxis(0) = 0;       vAxis(1) = 0;      vAxis(2) = 1;
+        vAxis(0) = 0;
+        vAxis(1) = 0;
+        vAxis(2) = 1;
     }
     else
         vAxis = vecInLocXZPlane;
@@ -140,14 +165,16 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 
     // Permutation matrix (to renumber basic dof's)
 
-    //       0 1  2 3 4  5 6
+    // v = Tp * ul
     //
-    // Tp=  [0 0  0 0 0  0 1;  0
-    //       0 1  0 0 0  0 0;  1
-    //       0 0  0 0 1  0 0;  2
-    //       0 0 -1 0 0  0 0;  3
-    //       0 0  0 0 0 -1 0;  4
-    //      -1 0  0 1 0  0 0]; 5
+    //       0 1  2 | 3 4  5 | 6
+    // Tp=  [0 0  0   0 0  0   1;  0 // axial
+    //       0 1  0   0 0  0   0;  1 // rot z I
+    //       0 0  0   0 1  0   0;  2 // rot z J
+    //       0 0 -1   0 0  0   0;  3 // rot y I
+    //       0 0  0   0 0 -1   0;  4 // rot y J
+    //      -1 0  0   1 0  0   0]; 5 // torsion
+    //
 
     // using static matrix (one constant matrix for all objects)
 
@@ -508,9 +535,11 @@ CorotCrdTransf3d::update(void)
 
     // compute the basic displacements
     ulpr = ul;
+    // Log(thI)
     ul(0) = asin((rI2.dot(e3) - rI3.dot(e2))*0.5);
     ul(1) = asin((rI1.dot(e2) - rI2.dot(e1))*0.5);
     ul(2) = asin((rI1.dot(e3) - rI3.dot(e1))*0.5);
+    // Log(thJ)
     ul(3) = asin((rJ2.dot(e3) - rJ3.dot(e2))*0.5);
     ul(4) = asin((rJ1.dot(e2) - rJ2.dot(e1))*0.5);
     ul(5) = asin((rJ1.dot(e3) - rJ3.dot(e1))*0.5);		
@@ -633,9 +662,9 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     Se.addMatrixVector(1.0, Sr2, e3,  1.0);
 
     for (int i = 0; i < 3; i++)
-      T(3,i+9) =  Se(i);
+      T(3, i+9) =  Se(i);
 
-    //   T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
+    // T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
 
     At.addMatrixVector(0.0, A, rJ2, 1.0);
 
@@ -643,12 +672,12 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
     Se.addMatrixVector(1.0, Sr1, e2,  1.0);
 
     for (int i = 0; i < 3; i++) {
-        T(4,i  ) =  At(i);
-        T(4,i+6) = -At(i);
-        T(4,i+9) =  Se(i);
+        T(4, i  ) =  At(i);
+        T(4, i+6) = -At(i);
+        T(4, i+9) =  Se(i);
     }
 
-    //   T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
+    // T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
 
     At.addMatrixVector(0.0, A, rJ3, 1.0);
 
