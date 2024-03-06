@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2010-09-16 00:03:55 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/InitStressMaterial.cpp,v $
-
+//
 // Written: fmk
 // Created: Sep 2010
 
@@ -81,7 +77,7 @@ int
 InitStressMaterial::findInitialStrain(void)
 {
   // determine the initial strain
-  double tol=1e-12;
+  double tol  = fabs(sigInit)*1e-12;
   double dSig = sigInit;
   double tStrain = 0.0, tStress = 0.0;
   int count = 0;
