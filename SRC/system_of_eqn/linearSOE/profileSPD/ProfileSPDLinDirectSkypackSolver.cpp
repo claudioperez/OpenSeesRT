@@ -75,8 +75,8 @@ ProfileSPDLinDirectSkypackSolver::~ProfileSPDLinDirectSkypackSolver()
 int
 ProfileSPDLinDirectSkypackSolver::setSize(void)
 {
-    int result = 0;
     assert(theSOE != nullptr);
+    int result = 0;
 
     // check for quick return 
     if (theSOE->size == 0)

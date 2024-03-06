@@ -401,7 +401,7 @@ int
 DistributedBandSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
     
-    assert(id.Size == v.Size() );
+    assert(id.Size() == v.Size() );
 
     // check for a quick return 
     if (fact == 0.0)

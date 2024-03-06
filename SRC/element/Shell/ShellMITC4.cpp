@@ -805,9 +805,6 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
 
   static Vector momentum(ndf);
 
-  int i, j, k, p;
-  int jj, kk;
-
   double temp, rhoH, massJK;
 
   // zero mass

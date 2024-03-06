@@ -377,7 +377,7 @@ int SymSparseLinSOE::addA(const Matrix &in_m, const ID &in_id, double fact)
  */
 int SymSparseLinSOE::addB(const Vector &in_v, const ID &in_id, double fact)
 {
-    assert(id.Size() == in_v.Size() );
+    assert(in_id.Size() == in_v.Size());
 
     // check for a quick return 
     if (fact == 0.0)

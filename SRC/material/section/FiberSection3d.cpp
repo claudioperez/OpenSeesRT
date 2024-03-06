@@ -601,11 +601,15 @@ FiberSection3d::revertToLastCommit(void)
 
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
-
+#if 0
+    double y = yLocs[i] - yBar;
+    double z = zLocs[i] - zBar;
+    double A = fiberArea[i];
+#else
     double y  = matData[3*i]   - yBar;
     double z  = matData[3*i+1] - zBar;
     double A  = matData[3*i+2];
-
+#endif
     // invoke revertToLast on the material
     err += theMat->revertToLastCommit();
 
@@ -675,7 +679,6 @@ FiberSection3d::revertToStart(void)
 
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
-
     double y  = matData[3*i]   - yBar;
     double z  = matData[3*i+1] - zBar;
     double A  = matData[3*i+2];
@@ -728,13 +731,13 @@ FiberSection3d::sendSelf(int commitTag, Channel &theChannel)
   int res = 0;
 
   // create an id to send objects tag and numFibers, 
-  // size 5 so no conflict with matData below if just 2 fibers
+  //     size 5 so no conflict with matData below if just 2 fibers
   static ID data(5);
   data(0) = this->getTag();
   data(1) = numFibers;
   data(2) = (theTorsion != 0) ? 1 : 0;
   int dbTag = this->getDbTag();
-  if (theTorsion != nullptr) {
+  if (theTorsion != 0) {
     theTorsion->setDbTag(dbTag);
     data(3) = theTorsion->getClassTag();
   }

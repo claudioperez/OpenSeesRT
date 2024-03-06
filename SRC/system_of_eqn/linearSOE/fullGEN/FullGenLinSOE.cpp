@@ -37,7 +37,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <iostream>
-using std::nothrow;
 
 FullGenLinSOE::FullGenLinSOE(FullGenLinSolver &theSolvr)
 :LinearSOE(theSolvr, LinSOE_TAGS_FullGenLinSOE),
@@ -108,7 +107,7 @@ FullGenLinSOE::setSize(Graph &theGraph)
 	if (A != 0) 
 	    delete [] A;
 
-	A = new (nothrow) double[size*size];
+	A = new double[size*size];
         Asize = size*size;
     }
 
@@ -168,7 +167,7 @@ int
 FullGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
     // check that m and id are of similar size
-    assert(id.Size == m.noRows() && id.Size == m.noCols());
+    assert(id.Size() == m.noRows() && id.Size() == m.noCols());
 
     // check for a quick return 
     if (fact == 0.0)

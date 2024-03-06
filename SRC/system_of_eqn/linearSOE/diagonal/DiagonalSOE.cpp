@@ -134,7 +134,7 @@ int
 DiagonalSOE::addA(const Matrix &m, const ID &id, double fact)
 {  
   // check that m and id are of similar size
-  assert(id.Size == m.noRows() && id.Size == m.noCols());
+  assert(id.Size() == m.noRows() && id.Size() == m.noCols());
 
   // check for a quick return 
   if (fact == 0.0)
@@ -167,7 +167,7 @@ DiagonalSOE::addA(const Matrix &m, const ID &id, double fact)
 int 
 DiagonalSOE::addB(const Vector &v, const ID &id, double fact)
 {
-  assert(id.Size == v.Size() );
+  assert(id.Size() == v.Size() );
 
   // check for a quick return 
   if (fact == 0.0)

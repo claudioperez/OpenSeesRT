@@ -17,19 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2010-02-25 20:46:25 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/ChannelStream.cpp,v $
-
+//
 // Written:fmk
-
+//
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
+#include <OPS_ErrorStream.h>
 
 #include <ChannelStream.h>
 

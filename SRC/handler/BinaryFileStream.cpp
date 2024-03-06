@@ -17,27 +17,23 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-04-30 23:23:04 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/BinaryFileStream.cpp,v $
-
+//
 #include <BinaryFileStream.h>
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <string.h>
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
 #include <Matrix.h>
+#include <OPS_ErrorStream.h>
 
 using std::cerr;
 using std::ios;
 using std::setiosflags;
 using std::ifstream;
-using std::string;
-using std::getline;
 
 BinaryFileStream::BinaryFileStream()
   :OPS_Stream(OPS_STREAM_TAGS_BinaryFileStream), 
@@ -715,9 +711,9 @@ textToBinary(const char *inputFilename, const char *outputFilename)
   char *dataNext;
   double d;
 
-  while ( !input.eof()) {
-    string inputLine;
-    getline(input, inputLine);
+  while ( !input.eof() ) {
+    std::string inputLine;
+    std::getline(input, inputLine);
     const char *c = inputLine.data();
     const char *cNext = c;
 
@@ -728,7 +724,6 @@ textToBinary(const char *inputFilename, const char *outputFilename)
     while (loc < endLoc) {
       
       int dataCount = 0;
-
 
       while ((loc < endLoc) && 
 	     (*cNext != ' ') && 
