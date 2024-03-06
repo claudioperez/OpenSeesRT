@@ -90,7 +90,6 @@ private:
     const Vector &quaternionProduct(const Vector &q1, const Vector &q2) const;
     const Matrix &getRotationMatrixFromQuaternion(const Vector &q) const;
     const Matrix &getRotMatrixFromTangScaledPseudoVector(const Vector &w) const;
-    const Matrix &getSkewSymMatrix(const Vector &theta) const;
     const Matrix &getLMatrix(const Vector &ri) const;
     const Matrix &getKs2Matrix(const Vector &ri, const Vector &z) const;
     

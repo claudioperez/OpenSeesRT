@@ -28,7 +28,7 @@
 
 #ifndef ASDShellQ4CorotationalTransformation_h
 #define ASDShellQ4CorotationalTransformation_h
-
+#include <SO3.h>
 #include <ASDEICR.h>
 #include <ASDShellQ4Transformation.h>
 
@@ -339,10 +339,10 @@ public:
 
         static MatrixType Fnm(24, 3);
         Fnm.Zero();
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 0);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 6);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 12);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 18);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 0);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 6);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 12);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 18);
 
         static MatrixType FnmT(3, 24);
         FnmT.addMatrixTranspose(0.0, Fnm, 1.0);
@@ -355,10 +355,10 @@ public:
         // At this point 'LHS' contains also this term of the Geometric stiffness
         // (Ke = (P' * Km * H * P) - (G' * Fn' * P) - (Fnm * G))
 
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 3);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 9);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 15);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 21);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 3);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 9);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 15);
+        SO3::Spin_AtRow(projectedLocalForces, Fnm, 21);
 
         LHS.addMatrixProduct(1.0, Fnm, G, 1.0); // note: '+' not '-' because the RHS already has the negative sign
 

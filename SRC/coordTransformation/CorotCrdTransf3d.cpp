@@ -43,6 +43,7 @@ using namespace OpenSees;
 #include <elementAPI.h>
 #include <string>
 #include <CorotCrdTransf3d.h>
+#include <SO3.h>
 
 // initialize static variables
 Matrix CorotCrdTransf3d::RI(3,3);
@@ -614,9 +615,9 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
 
     T.Zero();
 
-    Sr1 = this->getSkewSymMatrix(rI1);
-    Sr2 = this->getSkewSymMatrix(rI2);
-    Sr3 = this->getSkewSymMatrix(rI3);
+    SO3::Spin(rI1, Sr1);
+    SO3::Spin(rI2, Sr2);
+    SO3::Spin(rI3, Sr3);
 
     //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
 
@@ -652,9 +653,9 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
         T(2,i+6) = -At(i);
     }
 
-    Sr1 = this->getSkewSymMatrix(rJ1);
-    Sr2 = this->getSkewSymMatrix(rJ2);
-    Sr3 = this->getSkewSymMatrix(rJ3);
+    SO3::Spin(rJ1, Sr1);
+    SO3::Spin(rJ2, Sr2);
+    SO3::Spin(rJ3, Sr3);
 
     //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
 
@@ -807,9 +808,9 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
     static Vector hI1(12), hI2(12), hI3(12),
                   hJ1(12), hJ2(12), hJ3(12);
 
-    Sr1 = this->getSkewSymMatrix(rI1);
-    Sr2 = this->getSkewSymMatrix(rI2);
-    Sr3 = this->getSkewSymMatrix(rI3);
+    SO3::Spin(rI1, Sr1 );
+    SO3::Spin(rI2, Sr2 );
+    SO3::Spin(rI3, Sr3 );
 
     // hI1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
     Se.addMatrixVector(0.0, Sr3, e2, -1.0);     // (-S(rI3)*e2 + S(rI2)*e3)
@@ -839,9 +840,9 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
       hI3(i+6) = -At(i);
     }
 
-    Sr1 = this->getSkewSymMatrix(rJ1);
-    Sr2 = this->getSkewSymMatrix(rJ2);
-    Sr3 = this->getSkewSymMatrix(rJ3);
+    SO3::Spin(rJ1, Sr1);
+    SO3::Spin(rJ2, Sr2);
+    SO3::Spin(rJ3, Sr3);
 
     // hJ1 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
     Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
@@ -1188,20 +1189,21 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     //        ks3 + ks3' + ks4 + ks5;
 
     static Matrix  Se1(3,3),  Se2(3,3),  Se3(3,3),
-                  SrI1(3,3), SrI2(3,3), SrI3(3,3),
-                  SrJ1(3,3), SrJ2(3,3), SrJ3(3,3);
+                   SrI1(3,3), SrI2(3,3), SrI3(3,3),
+                   SrJ1(3,3), SrJ2(3,3), SrJ3(3,3);
 
-    Se1 = this->getSkewSymMatrix(e1);
-    Se2 = this->getSkewSymMatrix(e2);
-    Se3 = this->getSkewSymMatrix(e3);
 
-    SrJ1 = this->getSkewSymMatrix(rJ1);
-    SrJ2 = this->getSkewSymMatrix(rJ2);
-    SrJ3 = this->getSkewSymMatrix(rJ3);
+    SO3::Spin(e1,  Se1  );
+    SO3::Spin(e2,  Se2  );
+    SO3::Spin(e3,  Se3  );
 
-    SrI1 = this->getSkewSymMatrix(rI1);
-    SrI2 = this->getSkewSymMatrix(rI2);
-    SrI3 = this->getSkewSymMatrix(rI3);
+    SO3::Spin(rJ1, SrJ1 );
+    SO3::Spin(rJ2, SrJ2 );
+    SO3::Spin(rJ3, SrJ3 );
+
+    SO3::Spin(rI1, SrI1 );
+    SO3::Spin(rI2, SrI2 );
+    SO3::Spin(rI3, SrI3 );
 
 
     // ksigma1 -------------------------------
@@ -1599,7 +1601,8 @@ CorotCrdTransf3d::getRotationMatrixFromQuaternion(const Vector &q) const
         qqT(i,j) = q(i) * q(j);
 
     // get skew symmetric matrix	
-    S = this->getSkewSymMatrix (q);
+    SO3::Spin(q, S);
+    // S = this->getSkewSymMatrix (q);
 
     R.Zero();
 
@@ -1633,7 +1636,7 @@ CorotCrdTransf3d::getRotMatrixFromTangScaledPseudoVector(const Vector &w) const
     static Matrix S2(3,3);
     static Matrix R(3,3);
 
-    S = this->getSkewSymMatrix(w);
+    SO3::Spin(w, S);
 
     // R = I + (S + S*S/2)/(1 + w' * w / 4);
 
@@ -1650,31 +1653,6 @@ CorotCrdTransf3d::getRotMatrixFromTangScaledPseudoVector(const Vector &w) const
     R.addMatrix(1.0, S2, 1.0/(1 + normw2/4.0));
 
     return R;
-}
-
-
-const Matrix &
-CorotCrdTransf3d::getSkewSymMatrix(const Vector &theta) const
-{
-    static Matrix S(3,3);
-
-    //  St = [   0       -theta(2)  theta(1);
-    //         theta(2)     0      -theta(0);
-    //        -theta(1)   theta(0)      0   ];
-
-    S(0,0) =  0.0;
-    S(0,1) = -theta(2);
-    S(0,2) =  theta(1);
-
-    S(1,0) =  theta(2);
-    S(1,1) =  0.0;
-    S(1,2) = -theta(0);
-
-    S(2,0) = -theta(1);
-    S(2,1) =  theta(0);
-    S(2,2) =  0.0;
-
-    return S;
 }
 
 
@@ -1710,8 +1688,8 @@ CorotCrdTransf3d::getLMatrix(const Vector &ri) const
   L1.addMatrix(0.0, A, rie1*0.5);
   L1.addMatrixProduct(1.0, A, rie1r1, 0.5);
 
-  Sri = this->getSkewSymMatrix(ri);       // TODO: Change ??????????????????????
-  Sr1 = this->getSkewSymMatrix(r1);       // TODO: Change ??????????????????????
+  SO3::Spin(ri, Sri);       // TODO: Change ??????????????????????
+  SO3::Spin(r1, Sr1);       // TODO: Change ??????????????????????
 
   // L2  = Sri/2 - ri'*e1*S(r1)/4 - Sri*e1*(e1 + r1)'/4;
   L2.addMatrix (0.0, Sri, 0.5);
@@ -1803,10 +1781,10 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
 
     static Matrix Sri(3,3), Sr1(3,3), Sz(3,3), Se1(3,3);
 
-    Sri = this->getSkewSymMatrix(ri);
-    Sr1 = this->getSkewSymMatrix(r1);
-    Sz  = this->getSkewSymMatrix(z);
-    Se1 = this->getSkewSymMatrix(e1);
+    SO3::Spin(ri, Sri);
+    SO3::Spin(r1, Sr1);
+    SO3::Spin(z,  Sz);
+    SO3::Spin(e1, Se1);
 
     //K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
 
