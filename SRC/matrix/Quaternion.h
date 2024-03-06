@@ -101,6 +101,17 @@ public:
         return *this;
     }
 
+
+    inline ASDQuaternion<T> &operator*= (const ASDQuaternion<T>& b)
+    {
+
+            mW = w() * b.w() - x() * b.x() - y() * b.y() - z() * b.z();
+            mX = w() * b.x() + x() * b.w() + y() * b.z() - z() * b.y();
+            mY = w() * b.y() + y() * b.w() + z() * b.x() - x() * b.z();
+            mZ = w() * b.z() + z() * b.w() + x() * b.y() - y() * b.x();
+            return *this;
+    }
+
 public:
 
     /**
