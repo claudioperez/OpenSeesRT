@@ -167,6 +167,12 @@ BandSPDLinSOE::setSize(Graph &theGraph)
         X = new double[size]{};
     }
 
+    // zero the vectors
+    for (int j=0; j<size; j++) {
+	B[j] = 0;
+	X[j] = 0;
+    }
+
     if (size != oldSize) {
 
         if (vectX != 0)
@@ -174,7 +180,7 @@ BandSPDLinSOE::setSize(Graph &theGraph)
         if (vectB != 0)
             delete vectB;
 
-        vectX = new Vector(X,size);        
+        vectX = new Vector(X,size);
         vectB = new Vector(B,size);
 
         if (size > Bsize)
@@ -196,7 +202,7 @@ BandSPDLinSOE::setSize(Graph &theGraph)
 int 
 BandSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
-    assert(id.Size == m.noRows() && id.Size == m.noCols());
+    assert(id.Size() == m.noRows() && id.Size() == m.noCols());
 
     // check for a quick return 
     if (fact == 0.0)
@@ -284,7 +290,7 @@ BandSPDLinSOE::addColA(const Vector &colData, int col, double fact)
 int 
 BandSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
-    assert(id.Size == v.Size());
+    assert(id.Size() == v.Size());
     
     // check for a quick return 
     if (fact == 0.0)  return 0;
