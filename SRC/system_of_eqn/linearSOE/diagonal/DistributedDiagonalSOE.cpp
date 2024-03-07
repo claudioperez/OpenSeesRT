@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/diagonal/DistributedDiagonalSOE.cpp,v $
-
+//
 // Written: fmk 
 // Created: 05/05
 //
 // Description: This file contains the implementation for DistributedDiagonalSOE
-
-
+//
+#include <assert.h>
 #include <DistributedDiagonalSOE.h>
 #include <DistributedDiagonalSolver.h>
 #include <Matrix.h>
