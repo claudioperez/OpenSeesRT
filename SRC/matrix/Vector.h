@@ -28,6 +28,7 @@
 #define Vector_h 
 
 #include <memory>
+#include <assert.h>
 
 #define VECTOR_VERY_LARGE_VALUE 1.0e200
 
@@ -48,7 +49,7 @@ class Vector
     Vector();
     Vector(int);
     Vector(const Vector &);    
-    template <int n> Vector(OpenSees::VectorND<n,double> v)
+    template <int n> Vector(OpenSees::VectorND<n,double>& v)
       : sz(v.size()), theData(v.values), fromFree(1)
     {
     }
@@ -78,8 +79,8 @@ class Vector
     // overloaded operators
     inline double operator()(int x) const;
     inline double &operator()(int x);
-    double operator[](int x) const;  // these two operator do bounds checks
-    double &operator[](int x);
+    inline double operator[](int x) const;  
+    double &operator[](int x); // this operator does bounds checks
     Vector operator()(const ID &rows) const;
     Vector &operator=(const Vector  &V);
 #if !defined(NO_CXX11_MOVE)   
@@ -137,7 +138,6 @@ class Vector
     int sz;
     double *theData;
     int fromFree;
-//  static double VECTOR_NOT_VALID_ENTRY;
 };
 
 
@@ -151,21 +151,23 @@ Vector::Size(void) const
 
 inline void
 Vector::Zero(void){
-  for (int i=0; i<sz; i++) theData[i] = 0.0;
+  for (int i=0; i<sz; i++)
+    theData[i] = 0.0;
 }
 
 
 inline double 
 Vector::operator()(int x) const
 {
-#ifdef _G3DEBUG
-  // check if it is inside range [0,sz-1]
-  if (x < 0 || x >= sz) {
-      opserr << "Vector::(loc) - loc " << x << " outside range [0, " << sz-1 << endln;
-      return VECTOR_NOT_VALID_ENTRY;
-  }
-#endif
+  assert(x >= 0 && x < sz);
+  return theData[x];
+}
 
+inline double
+Vector::operator[](int x) const
+{
+  // check if it is inside range [0,sz-1]
+  assert(x >= 0 && x < sz);
   return theData[x];
 }
 
@@ -173,14 +175,7 @@ Vector::operator()(int x) const
 inline double &
 Vector::operator()(int x)
 {
-#ifdef _G3DEBUG
-  // check if it is inside range [0,sz-1]
-  if (x < 0 || x >= sz) {
-      opserr << "Vector::(loc) - loc " << x << " outside range [0, " << sz-1 << endln;
-      return VECTOR_NOT_VALID_ENTRY;
-  }
-#endif
-  
+  assert(x >= 0 && x < sz);
   return theData[x];
 }
 

@@ -700,12 +700,6 @@ Vector::operator[](int x)
   return theData[x];
 }
 
-double Vector::operator[](int x) const
-{
-  // check if it is inside range [0,sz-1]
-  assert(x >= 0 && x < sz);
-  return theData[x];
-}
 
 
 // operator()(const ID &rows) const
@@ -737,6 +731,7 @@ Vector::operator()(const ID &rows) const
 Vector &
 Vector::operator=(const Vector &V) 
 {
+  assert(sz == V.sz);
   // first check we are not trying v = v
   if (this != &V) {
 
@@ -952,13 +947,7 @@ Vector::operator-=(const Vector &other)
 Vector 
 Vector::operator+(const Vector &b) const
 {
-#ifdef _G3DEBUG
-  if (sz != b.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << b.sz << endln;
-    return *this;
-  }
-#endif
-
+  assert(sz == b.sz);
   Vector result(*this);
   result += b;
   return result;
@@ -1099,14 +1088,7 @@ Vector::operator!=(double value) const
 
 OPS_Stream &operator<<(OPS_Stream &s, const Vector &V)
 {
-  /*
-  for (int i=0; i<V.Size(); i++) 
-      s << V(i) << " ";
-
-  return s << endln;
-  */
   return s.write(V.theData, V.sz);
-
 }
 
 // friend istream &operator>>(istream &s, Vector &V)
@@ -1160,7 +1142,8 @@ Vector::Extract(const Vector &V, int init_pos, double fact)
   return res;
 }
 
-Matrix Vector::operator%(const Vector &V) const
+Matrix
+Vector::operator%(const Vector &V) const
 {
   // if sizes are compatable add
 #ifdef _G3DEBUG
