@@ -229,10 +229,6 @@ FiberSection2d::FiberSection2d():
 int
 FiberSection2d::addFiber(Fiber &newFiber)
 {
-  double yLoc, zLoc, Area;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
-
   // need to create larger arrays
   if (numFibers == sizeFibers) {
       int newsize = 2*sizeFibers;
@@ -243,24 +239,23 @@ FiberSection2d::addFiber(Fiber &newFiber)
       std::shared_ptr<double[]> newMatData(new double [2 * newsize]);
 
       // copy the old pointers and data
-      int i;
-      for (i = 0; i < sizeFibers; i++) {
-	  newArray[i] = theMaterials[i];
-	  newMatData[2*i] = matData[2*i];
+      for (int i = 0; i < sizeFibers; i++) {
+	  newArray[i]       = theMaterials[i];
+	  newMatData[2*i]   = matData[2*i];
 	  newMatData[2*i+1] = matData[2*i+1];
       }
 
       // initialize new memory
-      for(i = sizeFibers; i<newsize; i++) {
-	  newArray[i] = 0;
-	  newMatData[2*i] = 0.0;
+      for(int i = sizeFibers; i<newsize; i++) {
+	  newArray[i]       = nullptr;
+	  newMatData[2*i]   = 0.0;
 	  newMatData[2*i+1] = 0.0;
       }
 
       sizeFibers = newsize;
 
       // set new memory
-      if (theMaterials != 0) {
+      if (theMaterials != nullptr) {
 	  delete [] theMaterials;
 	  // delete [] matData;
       }
@@ -270,6 +265,10 @@ FiberSection2d::addFiber(Fiber &newFiber)
   }
 
   // set the new pointers and data
+  double yLoc, zLoc, Area;
+  newFiber.getFiberLocation(yLoc, zLoc);
+  Area = newFiber.getArea();
+
   matData[numFibers*2] = yLoc;
   matData[numFibers*2+1] = Area;
   UniaxialMaterial *theMat = newFiber.getMaterial();
@@ -320,15 +319,14 @@ FiberSection2d::~FiberSection2d()
 int
 FiberSection2d::setTrialSectionDeformation (const Vector &deforms)
 {
-  int res = 0;
 
   e = deforms;
 
   kData[0] = 0.0; kData[1] = 0.0; kData[2] = 0.0; kData[3] = 0.0;
   sData[0] = 0.0; sData[1] = 0.0;
 
-  double d0 = deforms(0);
-  double d1 = deforms(1);
+  const double d0 = deforms(0),
+               d1 = deforms(1);
 
   static double fiberLocs[10000];
   static double fiberArea[10000];
@@ -344,6 +342,7 @@ FiberSection2d::setTrialSectionDeformation (const Vector &deforms)
     }
   }
   
+  int res = 0;
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
     double y = fiberLocs[i] - yBar;
@@ -356,9 +355,9 @@ FiberSection2d::setTrialSectionDeformation (const Vector &deforms)
 
     double ks0 = tangent * A;
     double ks1 = ks0 * -y;
-    kData[0] += ks0;
-    kData[1] += ks1;
-    kData[3] += ks1 * -y;
+    kData[0]  += ks0;
+    kData[1]  += ks1;
+    kData[3]  += ks1 * -y;
 
     double fs0 = stress * A;
     sData[0] += fs0;
@@ -433,7 +432,7 @@ FiberSection2d::getCopy(void)
 {
   FiberSection2d *theCopy = new FiberSection2d();
   theCopy->setTag(this->getTag());
-  theCopy->numFibers = numFibers;
+  theCopy->numFibers  = numFibers;
   theCopy->sizeFibers = numFibers;
 
   if (numFibers != 0) {
@@ -454,8 +453,8 @@ FiberSection2d::getCopy(void)
 
   theCopy->e = e;
   theCopy->QzBar = QzBar;
-  theCopy->ABar = ABar;
-  theCopy->yBar = yBar;
+  theCopy->ABar  = ABar;
+  theCopy->yBar  = yBar;
 
   theCopy->kData[0] = kData[0];
   theCopy->kData[1] = kData[1];
