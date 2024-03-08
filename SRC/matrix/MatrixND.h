@@ -52,6 +52,22 @@ struct MatrixND {
   // Convert to regular Matrix class
   operator Matrix() { return Matrix(&values[0][0], NR, NC);}
 
+  void addDiagonal(const double vol) requires(NR == NC);
+
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, size_t row_index);
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, size_t vector_index, size_t matrix_row_index);
+  template<class VecT>
+  void addSpin(const VecT& V, double mult);
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, double mult, size_t row_index);
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, double mult, size_t vector_index, size_t matrix_row_index);
+
+  template<class VecT> void addTensorProduct(const VecT& V, const VecT& W);
+  template<class VecT> void addTensorProduct(const VecT& V, const VecT& W, double factThis);
+
   //
   // Indexing
   //
@@ -97,13 +113,14 @@ struct MatrixND {
   }
 
   consteval VectorND<2,int>
-  size() const {return {NR, NC};}
+  size() const {
+    return {NR, NC};
+  }
 
   //
   //
   //
-  void zero(void)
-  {
+  void zero(void) {
     for (index_t j = 0; j < NC; ++j) {
       for (index_t i = 0; i < NR; ++i) {
         values[j][i] = 0.0;
@@ -352,7 +369,10 @@ struct MatrixND {
   }
 
   friend constexpr MatrixND
-  operator/(MatrixND mat, T scalar) {mat /= scalar; return mat;}
+  operator/(MatrixND mat, T scalar) {
+    mat /= scalar; 
+    return mat;
+  }
   
   friend std::ostream &
   operator<<(std::ostream &out, MatrixND const &mat) {
@@ -366,7 +386,15 @@ struct MatrixND {
     return out << "}\n";
   }
 
-};
+}; // class MatrixND
+
+template <index_t nr, index_t nc, typename T> void
+MatrixND<nr, nc, T>::addDiagonal(const double diag)
+{
+  for (int i=0; i<nr; i++)
+    (*this)(i,i) += diag;
+}
+
 
 template <int nr, int nc, typename T=double>
 MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;

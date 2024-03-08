@@ -62,7 +62,7 @@ RCM::~RCM()
 // enough memory to allocate a new ID an ID of size 0 is returned.
 //
 // side effects: this routine changes the color of the vertices.
-
+//
 const ID &
 RCM::number(Graph &theGraph, int startVertex)
 {
@@ -458,5 +458,4 @@ RCM::number(Graph &theGraph, const ID &startVertices)
 
     return *theRefResult;
 }
-
 

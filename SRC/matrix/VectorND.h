@@ -378,7 +378,7 @@ struct VectorND {
     return 0;
   }
 
-  template<typename VecT>
+  template<typename VecT> inline
   constexpr T
   dot(const VecT &other) const {
     T sum = 0.0;
@@ -393,7 +393,7 @@ struct VectorND {
     return sqrt(this->dot(*this));
   }
 
-  template<typename VecT>
+  template<typename VecT> inline
   VectorND<N> &operator=(const VecT &right) {
     for (int i=0; i< N; i++)
       values[i] = right[i];
@@ -424,18 +424,12 @@ struct VectorND {
     return *this;
   }
 
-  VectorND<N> &operator-=(const VectorND<N> &right) {
+  template <class VecT>
+  VectorND<N> &operator-=(const VecT &right) {
     for (int i=0; i< N; i++)
       values[i] -= right[i];
     return *this;
   }
-
-  VectorND<N> &operator-=(const Vector &right) {
-    for (int i=0; i< N; i++)
-      values[i] -= right[i];
-    return *this;
-  }
-
 
   friend std::ostream &
   operator<<(std::ostream &out, VectorND const &vec) {
