@@ -28,7 +28,6 @@
 
 #ifndef ASDShellQ4CorotationalTransformation_h
 #define ASDShellQ4CorotationalTransformation_h
-
 #include <ASDEICR.h>
 #include <ASDShellQ4Transformation.h>
 
@@ -107,8 +106,7 @@ public:
 
         // save initial rotations, no need to take current rotation
         // since we will remove the initial ones (themselves)...
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             m_RV[i] = Vector3Type(0.0, 0.0, 0.0);
             m_QN[i] = QuaternionType::FromRotationVector(m_RV[i]);
 
@@ -138,8 +136,7 @@ public:
 
     virtual void commit()
     {
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             m_RV_converged[i] = m_RV[i];
             m_QN_converged[i] = m_QN[i];
         }
@@ -147,8 +144,7 @@ public:
 
     virtual void update(const VectorType& globalDisplacements)
     {
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             // compute current rotation vector removing initial rotations if any
             Vector3Type currentRotVec;
             int index = i * 6;
@@ -242,8 +238,7 @@ public:
         QuaternionType Q = QuaternionType::FromRotationMatrix(LCS.Orientation());
         const Vector3Type& C = LCS.Center();
 
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             int index = i * 6;
 
             // centered undeformed position
@@ -343,10 +338,10 @@ public:
 
         static MatrixType Fnm(24, 3);
         Fnm.Zero();
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 0);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 6);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 12);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 18);
+        Fnm.addSpinAtRow(projectedLocalForces,  0);
+        Fnm.addSpinAtRow(projectedLocalForces,  6);
+        Fnm.addSpinAtRow(projectedLocalForces,  12);
+        Fnm.addSpinAtRow(projectedLocalForces,  18);
 
         static MatrixType FnmT(3, 24);
         FnmT.addMatrixTranspose(0.0, Fnm, 1.0);
@@ -359,10 +354,10 @@ public:
         // At this point 'LHS' contains also this term of the Geometric stiffness
         // (Ke = (P' * Km * H * P) - (G' * Fn' * P) - (Fnm * G))
 
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 3);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 9);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 15);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 21);
+        Fnm.addSpinAtRow(projectedLocalForces, 3);
+        Fnm.addSpinAtRow(projectedLocalForces, 9);
+        Fnm.addSpinAtRow(projectedLocalForces, 15);
+        Fnm.addSpinAtRow(projectedLocalForces, 21);
 
         LHS.addMatrixProduct(1.0, Fnm, G, 1.0); // note: '+' not '-' because the RHS already has the negative sign
 

@@ -29,7 +29,7 @@
 #ifndef ASDShellQ4LocalCoordinateSystem_h
 #define ASDShellQ4LocalCoordinateSystem_h
 
-#include <ASDMath.h>
+#include <Quaternion.h>
 #include <Vector3D.h>
 #include <array>
 #include <vector>
@@ -64,7 +64,7 @@ public:
 		, m_orientation(3, 3)
 	{
 		// compute the central point
-		m_center = P1global;
+		m_center  = P1global;
 		m_center += P2global;
 		m_center += P3global;
 		m_center += P4global;
@@ -91,7 +91,7 @@ public:
 
 		// if user defined local rotation is included...
 		if (std::abs(alpha) > 0.0)
-			QuaternionType::FromAxisAngle(e3(0), e3(1), e3(2), alpha).rotateVector(e1);
+		    QuaternionType::FromAxisAngle(e3(0), e3(1), e3(2), alpha).rotateVector(e1);
 
 		e1.normalize();
 
@@ -100,11 +100,10 @@ public:
 		e2.normalize();
 
 		// form the 3x3 transformation matrix (the transposed actually...)
-		for (int i = 0; i < 3; i++)
-		{
-			m_orientation(0, i) = e1(i);
-			m_orientation(1, i) = e2(i);
-			m_orientation(2, i) = e3(i);
+		for (int i = 0; i < 3; i++) {
+                    m_orientation(0, i) = e1(i);
+                    m_orientation(1, i) = e2(i);
+                    m_orientation(2, i) = e3(i);
 		}
 
 		// transform global coordinates to the local coordinate system
@@ -150,31 +149,31 @@ public:
 
 	inline const MatrixType& Orientation()const { return m_orientation; }
 
-	inline Vector3Type Vx()const { return Vector3Type(m_orientation(0, 0), m_orientation(0, 1), m_orientation(0, 2)); }
-	inline Vector3Type Vy()const { return Vector3Type(m_orientation(1, 0), m_orientation(1, 1), m_orientation(1, 2)); }
-	inline Vector3Type Vz()const { return Vector3Type(m_orientation(2, 0), m_orientation(2, 1), m_orientation(2, 2)); }
+	inline Vector3Type Vx() const { return Vector3Type( m_orientation(0, 0), m_orientation(0, 1), m_orientation(0, 2)) ; }
+	inline Vector3Type Vy() const { return Vector3Type( m_orientation(1, 0), m_orientation(1, 1), m_orientation(1, 2)) ; }
+	inline Vector3Type Vz() const { return Vector3Type( m_orientation(2, 0), m_orientation(2, 1), m_orientation(2, 2)) ; }
 
 	inline double WarpageFactor()const { return Z1(); }
 	inline bool IsWarped()const { return std::abs(WarpageFactor()) > 0.0; }
 
-	inline void ComputeTotalRotationMatrix(MatrixType& R)const
+	inline void ComputeTotalRotationMatrix(MatrixType& R) const
 	{
-		constexpr size_t mat_size = 24;
-		if (R.noRows() != mat_size || R.noCols() != mat_size)
-			R.resize(mat_size, mat_size);
+            constexpr size_t mat_size = 24;
+            if (R.noRows() != mat_size || R.noCols() != mat_size)
+                    R.resize(mat_size, mat_size);
 
-		R.Zero();
+            R.Zero();
 
-		for (size_t k = 0; k < 8; k++)
-		{
-			size_t i = k * 3;
-			R(i, i) = m_orientation(0, 0);   R(i, i + 1) = m_orientation(0, 1);   R(i, i + 2) = m_orientation(0, 2);
-			R(i + 1, i) = m_orientation(1, 0);   R(i + 1, i + 1) = m_orientation(1, 1);   R(i + 1, i + 2) = m_orientation(1, 2);
-			R(i + 2, i) = m_orientation(2, 0);   R(i + 2, i + 1) = m_orientation(2, 1);   R(i + 2, i + 2) = m_orientation(2, 2);
-		}
+            for (size_t k = 0; k < 8; k++)
+            {
+                    size_t i = k * 3;
+                    R(i, i) = m_orientation(0, 0);   R(i, i + 1) = m_orientation(0, 1);   R(i, i + 2) = m_orientation(0, 2);
+                    R(i + 1, i) = m_orientation(1, 0);   R(i + 1, i + 1) = m_orientation(1, 1);   R(i + 1, i + 2) = m_orientation(1, 2);
+                    R(i + 2, i) = m_orientation(2, 0);   R(i + 2, i + 1) = m_orientation(2, 1);   R(i + 2, i + 2) = m_orientation(2, 2);
+            }
 	}
 
-	inline void ComputeTotalWarpageMatrix(MatrixType& W, double wf)const
+	inline void ComputeTotalWarpageMatrix(MatrixType& W, double wf) const
 	{
 		constexpr size_t mat_size = 24;
 		if (W.noRows() != mat_size || W.noCols() != mat_size)
