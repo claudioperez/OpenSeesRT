@@ -53,7 +53,7 @@ Matrix ModElasticBeam3d::K(12, 12);
 Vector ModElasticBeam3d::P(12);
 Matrix ModElasticBeam3d::kb(6, 6);
 
-void *OPS_ModElasticBeam3d(void) {
+void *OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam3d) {
   int numArgs = OPS_GetNumRemainingInputArgs();
 
   // Read the optional arguments first
