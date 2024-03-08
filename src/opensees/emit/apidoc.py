@@ -6,8 +6,8 @@ import importlib
 
 from opensees.emit.writer import ModelWriter
 from opensees.emit.emitter import Emitter, ScriptBuilder
-from opensees.ast import Arg
-from opensees import ast
+from opensees.library import ast
+from opensees.library.ast import Arg
 
 def write_grp(a):
     args = (write_grp(i) if isinstance(i, ast.Grp) else (i.name if i.name else "") for i in a.args)
