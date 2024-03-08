@@ -28,7 +28,7 @@
 // Created: Fri Sep 20 15:27:47: 1996
 // Revision: A
 //
-#include <stdlib.h>
+#include <assert.h>
 
 #include <ArrayOfTaggedObjects.h>
 #include <AnalysisModel.h>
@@ -358,27 +358,17 @@ AnalysisModel::getDOFGroupGraph(void)
   if (myGroupGraph == 0) {
     int numVertex = this->getNumDOF_Groups();
 
-    if (numVertex == 0) {
-	opserr << "WARNING AnalysisMode::getGroupGraph";
-	opserr << "  - 0 vertices, has the Domain been populated?\n";
-	exit(-1);
-    }	
+    assert(numVertex != 0);
+
 
     //    myGroupGraph = new Graph(numVertex);
     MapOfTaggedObjects *graphStorage = new MapOfTaggedObjects();
     myGroupGraph = new Graph(*graphStorage);
-
-    if (numVertex == 0) {
-	opserr << "WARNING AnalysisMode::getGroupGraph";
-	opserr << "  - out of memory\n";
-	exit(-1);
-    }	
 	
-    DOF_Group *dofPtr;
 
     // now create the vertices with a reference equal to the DOF_Group number.
     // and a tag which ranges from 0 through numVertex-1
-
+    DOF_Group   *dofPtr;
     DOF_GrpIter &dofIter2 = this->getDOFs();
     int count = START_VERTEX_NUM;
     while ((dofPtr = dofIter2()) != 0) {
@@ -387,13 +377,6 @@ AnalysisModel::getDOFGroupGraph(void)
 	int numDOF = dofPtr->getNumFreeDOF();
 	Vertex *vertexPtr = new Vertex(DOF_GroupTag, DOF_GroupNodeTag, 0, numDOF);
 
-	if (vertexPtr == 0) {
-	    opserr << "WARNING DOF_GroupGraph::DOF_GroupGraph";
-	    opserr << " - Not Enough Memory to create ";
-	    opserr << count << "th Vertex\n";
-	    return *myGroupGraph;
-	}
-	
 	myGroupGraph->addVertex(vertexPtr);
     }
 
@@ -456,7 +439,7 @@ AnalysisModel::setVel(const Vector &vel)
     
     while ((dofPtr = theDOFGrps()) != 0) 
 	dofPtr->setNodeVel(vel);
-}	
+}
 	
 
 void 
@@ -467,7 +450,7 @@ AnalysisModel::setAccel(const Vector &accel)
     
     while ((dofPtr = theDOFGrps()) != 0) 
 	dofPtr->setNodeAccel(accel);	
-}	
+}
 
 void 
 AnalysisModel::incrDisp(const Vector &disp)
@@ -477,7 +460,7 @@ AnalysisModel::incrDisp(const Vector &disp)
 
     while ((dofPtr = theDOFGrps()) != 0) 
 	dofPtr->incrNodeDisp(disp);
-}	
+}
 	
 void 
 AnalysisModel::incrVel(const Vector &vel)
@@ -548,12 +531,7 @@ AnalysisModel::setEigenvector(int mode, const Vector &eigenvalue)
 void 
 AnalysisModel::applyLoadDomain(double pseudoTime)
 {
-    // check to see there is a Domain linked to the Model
-
-    if (myDomain == 0) {
-	opserr << "WARNING: AnalysisModel::applyLoadDomain. No Domain linked.\n";
-	return;
-    }
+    assert(myDomain != nullptr);
 
     // invoke the method
     myDomain->applyLoad(pseudoTime);
@@ -564,15 +542,11 @@ AnalysisModel::applyLoadDomain(double pseudoTime)
 int
 AnalysisModel::updateDomain(void)
 {
-    // check to see there is a Domain linked to the Model
-
-    if (myDomain == 0) {
-	opserr << "WARNING: AnalysisModel::updateDomain. No Domain linked.\n";
-	return -1;
-    }
+    assert(myDomain != nullptr);
 
     // invoke the method
     int res = myDomain->update();
+
     if (res == 0)
       return myHandler->update();
 
@@ -583,16 +557,9 @@ AnalysisModel::updateDomain(void)
 int
 AnalysisModel::updateDomain(double newTime, double dT)
 {
-
-    // check to see there is a Domain linked to the Model
-
-    if (myDomain == 0) {
-	opserr << "WARNING: AnalysisModel::updateDomain. No Domain linked.\n";
-	return -1;
-    }
+    assert(myDomain != nullptr);
 
     // invoke the method
-
     int res = 0;
     myDomain->applyLoad(newTime);
     if (res == 0)
@@ -609,14 +576,7 @@ AnalysisModel::updateDomain(double newTime, double dT)
 int
 AnalysisModel::analysisStep(double dT)
 {
-    // check to see there is a Domain linked to the Model
-
-    if (myDomain == 0) {
-	opserr << "WARNING: AnalysisModel::newStep. No Domain linked.\n";
-	return -1;
-    }
-
-    // invoke the method
+    assert(myDomain != nullptr);
     return myDomain->analysisStep(dT);
 }
 
