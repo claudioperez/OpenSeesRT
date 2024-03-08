@@ -27,7 +27,7 @@
 // is a subclass of LinearSOESOlver. It solves a ProfileSPDLinSOE object using
 // the Skypack library developed by Osni Marques, software available at
 //   http://www.nersc.gov/research/SCG/Osni/marques_software.html
-
+//
 // What: "@(#) ProfileSPDLinDirectSkypackSolver.h, revA"
 
 #ifndef ProfileSPDLinDirectSkypackSolver_h

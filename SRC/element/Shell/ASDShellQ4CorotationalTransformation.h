@@ -60,15 +60,17 @@
 *   Chapter 5 of B.Haugen's Thesis.
 *   link: http://www.colorado.edu/engineering/CAS/courses.d/AFEM.d/
 */
-
 class ASDShellQ4CorotationalTransformation : public ASDShellQ4Transformation
 {
 
 public:
 
-    typedef Vector3D<double> Vector3Type;
+    typedef ASDVector3<double> Vector3Type;
+
     typedef ASDQuaternion<double> QuaternionType;
+
     typedef Vector VectorType;
+
     typedef Matrix MatrixType;
 
     typedef std::array<Node*, 4> NodeContainerType;

@@ -48,7 +48,7 @@
   int    *Matrix::intWork    = nullptr;
 #endif
 
-#define MATRIX_BLAS
+// #define MATRIX_BLAS
 //#define NO_WORK
 
 

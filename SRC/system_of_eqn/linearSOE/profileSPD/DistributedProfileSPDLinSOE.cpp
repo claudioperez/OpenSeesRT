@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/DistributedProfileSPDLinSOE.cpp,v $
-                                                                        
+//
+// Description: This file contains the implementation for DistributedProfileSPDLinSOE
+//
 // Written: fmk 
 // Revision: A
 //
-// Description: This file contains the implementation for DistributedProfileSPDLinSOE
-
 #include <DistributedProfileSPDLinSOE.h>
 #include <ProfileSPDLinSolver.h>
 #include <Matrix.h>
@@ -36,6 +32,7 @@
 #include <math.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <assert.h>
 
 DistributedProfileSPDLinSOE::DistributedProfileSPDLinSOE(ProfileSPDLinSolver &theSolvr)
   :ProfileSPDLinSOE(theSolvr, LinSOE_TAGS_DistributedProfileSPDLinSOE), 
@@ -100,7 +97,8 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
     size = data(0);
 
     if (size > Bsize) { 
-	if (iDiagLoc != 0) delete [] iDiagLoc;
+	if (iDiagLoc != 0) 
+          delete [] iDiagLoc;
 	iDiagLoc = new int[size];
     }
     
@@ -149,8 +147,8 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
       Graph theSubGraph;
       
       if (theSubGraph.recvSelf(0, *theChannel, theBroker) < 0) {
-	opserr << "WARNING DistributedProfileSPDLinSOE::setSize() : ";
-	opserr << " - failed to recv graph\n";
+	// opserr << "WARNING DistributedProfileSPDLinSOE::setSize() : ";
+	// opserr << " - failed to recv graph\n";
       }
 
       theGraph.merge(theSubGraph);
@@ -167,15 +165,9 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
     // check we have enough space in iDiagLoc and iLastCol
     // if not delete old and create new
     if (size != Bsize) { 
-	if (iDiagLoc != 0) delete [] iDiagLoc;
+	if (iDiagLoc != nullptr)
+          delete [] iDiagLoc;
 	iDiagLoc = new int[size];
-
-	if (iDiagLoc == 0) {
-	    opserr << "WARNING DistributedProfileSPDLinSOE::setSize() : ";
-	    opserr << " - ran out of memory for iDiagLoc\n";
-	    size = 0; Asize = 0;
-	    result = -1;
-	}
     }
 
     // zero out iDiagLoc 
@@ -274,16 +266,7 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
     
     // get new space
     A = new double[profileSize];
-    
-    if (A == 0) {
-      opserr << "DistributedProfileSPDLinSOE::ProfileSPDLinSOE :";
-      opserr << " ran out of memory for A (size,Profile) (";
-      opserr << size <<", " << profileSize << ") \n";
-      size = 0;  Asize = 0;  profileSize = 0;
-      result = -1;
-    }
-    else 
-      Asize = profileSize;
+    Asize = profileSize;
   }
   
   // zero the matrix
@@ -301,29 +284,19 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
     if (myB != 0) delete [] myB;
     
     // create the new	
-    B = new double[size];
-    X = new double[size];
+    B   = new double[size];
+    X   = new double[size];
     myB = new double[size];
-
-    if (B == 0 || X == 0 || myB == 0) {
-      opserr << "DistributedProfileSPDLinSOE::ProfileSPDLinSOE :";
-      opserr << " ran out of memory for vectors (size) (";
-      opserr << size << ") \n";
-      size = 0; Bsize = 0;
-      result = -1;
-    }
   }
-  
+
   // zero the vectors
   for (int l=0; l<size; l++) {
-    B[l] = 0;
-    X[l] = 0;
+    B[l]   = 0;
+    X[l]   = 0;
     myB[l] = 0;
-
   }
   
-  if (size != oldSize) {
-    
+  if (size != oldSize) { 
     if (vectX != 0)
       delete vectX;
 
@@ -336,8 +309,8 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
     if (myVectB != 0)
       delete myVectB;
 
-    vectX = new Vector(X,size);
-    vectB = new Vector(B,size);
+    vectX   = new Vector(X,size);
+    vectB   = new Vector(B,size);
     myVectB = new Vector(myB, size);
     
     if (size > Bsize)
@@ -348,8 +321,8 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
   LinearSOESolver *the_Solver = this->getSolver();
   int solverOK = the_Solver->setSize();
   if (solverOK < 0) {
-    opserr << "WARNING DistributedProfileSPDLinSOE::setSize :";
-    opserr << " solver failed setSize()\n";
+    // opserr << "WARNING DistributedProfileSPDLinSOE::setSize :";
+    // opserr << " solver failed setSize()\n";
     return solverOK;
   }    
 
@@ -360,15 +333,14 @@ DistributedProfileSPDLinSOE::setSize(Graph &theGraph)
 int 
 DistributedProfileSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+  assert(id.Size() == m.noRows() && id.Size() == m.noCols());
+
   // check for a quick return 
-  if (fact == 0.0)  return 0;
+  if (fact == 0.0)
+    return 0;
   
   // check that m and id are of similar size
   int idSize = id.Size();    
-  if (idSize != m.noRows() && idSize != m.noCols()) {
-    opserr << "DistributedProfileSPDLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-    return -1;
-  }
 
   ID *theMap = 0;
   if (numChannels > 0) 
@@ -499,8 +471,6 @@ DistributedProfileSPDLinSOE::solve(void)
     // solve
     result(0) = this->LinearSOE::solve();
 
-    //    opserr << *vectX;
-
     // send results back
     for (int j=0; j<numChannels; j++) {
       Channel *theChannel = theChannels[j];
@@ -517,18 +487,14 @@ DistributedProfileSPDLinSOE::solve(void)
 int 
 DistributedProfileSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
+    assert(id.Size() == v.Size());
     
     // check for a quick return 
     if (fact == 0.0)  return 0;
 
     // check that m and id are of similar size
     int idSize = id.Size();        
-    if (idSize != v.Size() ) {
-	opserr << "DistributedProfileSPDLinSOE::addB() -";
-	opserr << " Vector and ID not of similar sizes\n";
-	return -1;
-    }    
-    
+
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<id.Size(); i++) {
 	    int pos = id(i);
@@ -554,16 +520,12 @@ DistributedProfileSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 int
 DistributedProfileSPDLinSOE::setB(const Vector &v, double fact)
 {
+    assert(v.Size() == size);
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
-
-    if (v.Size() != size) {
-	opserr << "WARNING DistributedBandGenLinSOE::setB() -";
-	opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-	return -1;
-    }
-    
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<size; i++) {
 	    myB[i] = v(i);
@@ -654,11 +616,7 @@ DistributedProfileSPDLinSOE::sendSelf(int commitTag, Channel &theChannel)
     if (found == false) {
       int nextNumChannels = numChannels + 1;
       Channel **nextChannels = new Channel *[nextNumChannels];
-      if (nextNumChannels == 0) {
-	opserr << "DistributedProfileSPDLinSOE::sendSelf() - failed to allocate channel array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
+
       for (int i=0; i<numChannels; i++)
 	nextChannels[i] = theChannels[i];
       nextChannels[numChannels] = &theChannel;
@@ -673,11 +631,7 @@ DistributedProfileSPDLinSOE::sendSelf(int commitTag, Channel &theChannel)
       if (localCol != 0)
 	delete [] localCol;
       localCol = new ID *[numChannels];
-      if (localCol == 0) {
-	opserr << "DistributedProfileSPDLinSOE::sendSelf() - failed to allocate id array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
+
       for (int i=0; i<numChannels; i++)
 	localCol[i] = 0;    
 
@@ -700,7 +654,7 @@ DistributedProfileSPDLinSOE::sendSelf(int commitTag, Channel &theChannel)
   
   int res = theChannel.sendID(0, commitTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedProfileSPDLinSOE::sendSelf() - failed to send data\n";
+    // opserr <<"WARNING DistributedProfileSPDLinSOE::sendSelf() - failed to send data\n";
     return -1;
   }
   
@@ -715,7 +669,7 @@ DistributedProfileSPDLinSOE::recvSelf(int commitTag, Channel &theChannel, FEM_Ob
   ID idData(1);
   int res = theChannel.recvID(0, commitTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedProfileSPDLinSOE::recvSelf() - failed to send data\n";
+    // opserr <<"WARNING DistributedProfileSPDLinSOE::recvSelf() - failed to send data\n";
     return -1;
   }	      
   processID = idData(0);
