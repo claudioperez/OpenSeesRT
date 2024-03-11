@@ -26,11 +26,11 @@
 //
 #include "Matrix.h"
 #include "Vector.h"
+#include "Vector3D.h"
 #include "ID.h"
 
 #include <stdlib.h>
 #include <iostream>
-// using std::nothrow;
 
 #define MATRIX_VERY_LARGE_VALUE 1.0e213
 
@@ -48,7 +48,7 @@
   int    *Matrix::intWork    = nullptr;
 #endif
 
-// #define MATRIX_BLAS
+//#define MATRIX_BLAS
 //#define NO_WORK
 
 
@@ -82,10 +82,8 @@ Matrix::Matrix(int nRows,int nCols)
   dataSize = numRows * numCols;
   data = nullptr;
 
-  if (dataSize > 0) {
+  if (dataSize > 0)
     data = new double[dataSize]{};
-    double *dataPtr = data;
-  }
 }
 
 Matrix::Matrix(double *theData, int row, int col) 
@@ -101,6 +99,7 @@ Matrix::Matrix(double *theData, int row, int col)
   }
 
 }
+
 
 Matrix::Matrix(const Matrix &other)
 : numRows(0), numCols(0), dataSize(0), data(0), fromFree(0)
@@ -744,12 +743,9 @@ Matrix::addMatrixTransposeProduct(double thisFact,
                                   const Matrix &C, 
                                   double otherFact)
 {
-#ifdef _G3DEBUG
-  if ((B.numCols != numRows) || (C.numCols != numCols) || (B.numRows != C.numRows)) {
-    opserr << "Matrix::addMatrixProduct(): incompatable matrices, this\n";
-    return -1;
-  }
-#endif
+  assert((B.numCols == numRows) && 
+         (C.numCols == numCols) && 
+         (B.numRows == C.numRows));
 
   if (thisFact == 1.0 && otherFact == 0.0)
     return 0;
@@ -757,11 +753,12 @@ Matrix::addMatrixTransposeProduct(double thisFact,
 #ifdef MATRIX_BLAS
   else if (numRows >  6) {
     int m = numRows,
-        n = C.numCols,
+        // n = C.numCols,
+        n = numCols,
         k = C.numRows;
-    DGEMM ("T", "N", &m, &n, &k,&otherFact, B.data, &  m,
-                                            C.data, &  k,
-                                &thisFact,    data, &  m);
+    DGEMM("T", "N", &m, &n, &k,&otherFact, B.data, &  k,
+                                           C.data, &  k,
+                               &thisFact,    data, &  m);
     return 0;
   }
 #endif
@@ -842,13 +839,11 @@ Matrix::addMatrixTripleProduct(double thisFact,
       //k = T.numRows;
     double zero = 0.0,
            one  = 1.0;
-//  opserr << numRows << "x" << numCols << " <- "
-//         << T.numCols << "x" << T.numRows << "\t"
-//         << B.numRows << "x" << B.numCols << "\t"
-//         << T.numRows << "x" << T.numCols << "\n";
+
     DGEMM ("N", "N", &m      , &n      , &k,&one      , B.data, &B.numRows, // m
                                                         T.data, &T.numRows, // k
                                             &zero,  matrixWork, &m);
+
     DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &T.numRows,
                                                     matrixWork, &m, // k
                                             &thisFact,    data, &numRows);
@@ -954,7 +949,7 @@ Matrix::addMatrixTripleProduct(double thisFact,
 
     // now form B * C * fact store in matrixWork == A area
     // NOTE: looping as per blas3 DGEMM : j,k,i
-    
+
     int rowsB = B.numRows;
     double *ckjPtr  = &(C.data)[0];
     for (int j=0; j<numCols; j++) {
@@ -1364,6 +1359,18 @@ Matrix::operator/(double fact) const
 //
 // MATRIX_VECTOR OPERATIONS
 //
+Vector
+Matrix::operator*(const Vector3D<double> &V) const
+{
+    Vector result(numRows);
+
+    double *dataPtr = data;
+    for (int i=0; i<numCols; i++)
+      for (int j=0; j<numRows; j++)
+        result(j) += *dataPtr++ * V[i];
+
+    return result;
+}
 
 Vector
 Matrix::operator*(const Vector &V) const
@@ -1386,16 +1393,13 @@ Matrix::operator*(const Vector &V) const
 Vector
 Matrix::operator^(const Vector &V) const
 {
+    assert(V.Size() == numRows);
+
     Vector result(numCols);
 #ifdef MATRIX_BLAS
     result.addMatrixTransposeVector(0.0, *this, V, 1.0);
     return result;
 #else
-
-    if (V.Size() != numRows) {
-      opserr << "Matrix::operator*(Vector): incompatable sizes\n";
-      return result;
-    } 
 
     double *dataPtr = data;
     for (int i=0; i<numCols; i++)
@@ -1477,15 +1481,11 @@ Matrix::operator^(const Matrix &M) const
 Matrix &
 Matrix::operator+=(const Matrix &M)
 {
+  assert(numRows == M.numRows && numCols == M.numCols);
+
 #ifdef MATRIX_BLAS
   addMatrix( M, 1.0);
 #else
-#ifdef _G3DEBUG
-  if (numRows != M.numRows || numCols != M.numCols) {
-    opserr << "Matrix::operator+=(const Matrix &M) - matrices incompatable\n";
-    return *this;
-  }
-#endif
   double *dataPtr = data;
   double *otherData = M.data;
   for (int i=0; i<dataSize; i++)

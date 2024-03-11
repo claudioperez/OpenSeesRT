@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2020/05/18 22:51:21 $
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of the EICR (Element Independent CoRotational) formulation

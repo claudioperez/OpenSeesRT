@@ -17,14 +17,22 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
+                                                                        
+// $Revision: 1.9 $                                                              
+// $Date: 2006-01-13 01:07:48 $                                                                  
+// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransf3d.h,v $      
+
+
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+// Revision: A
 //
 // Description: This file contains the class definition for
 // CorotCrdTransf3d.h. CorotCrdTransf3d provides the
 // abstraction of a corotation transformation for a spatial frame element
-//
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-//
+
+// What: "@(#) CorotCrdTransf3d.h, revA"
+
 #ifndef CorotCrdTransf3d_h
 #define CorotCrdTransf3d_h
 
@@ -78,7 +86,8 @@ public:
     const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps);    
     
     int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
-    
+  int getRigidOffsets(Vector &offsets);
+  
 private:
     void compTransfMatrixBasicGlobal(void);
     void compTransfMatrixBasicGlobalNew(void);
@@ -90,6 +99,7 @@ private:
     const Vector &quaternionProduct(const Vector &q1, const Vector &q2) const;
     const Matrix &getRotationMatrixFromQuaternion(const Vector &q) const;
     const Matrix &getRotMatrixFromTangScaledPseudoVector(const Vector &w) const;
+    const Matrix &getSkewSymMatrix(const Vector &theta) const;
     const Matrix &getLMatrix(const Vector &ri) const;
     const Matrix &getKs2Matrix(const Vector &ri, const Vector &z) const;
     
@@ -108,13 +118,13 @@ private:
     Vector alphaIq;             // quaternion for node I
     Vector alphaJq;             // quaternion for node I
     
-    Vector alphaIqcommit;       // commited quaternion for node I
-    Vector alphaJqcommit;       // commited quaternion for node J
+    Vector alphaIqcommit;       // committed quaternion for node I
+    Vector alphaJqcommit;       // committed quaternion for node J
     Vector alphaI;              // last trial rotations end i
     Vector alphaJ;              // last trial rotatations end j
     
     Vector ul;                  // local displacements
-    Vector ulcommit;            // commited local displacements
+    Vector ulcommit;            // committed local displacements
     Vector ulpr;                // previous local displacements
     
     static Matrix RI;           // nodal triad for node 1

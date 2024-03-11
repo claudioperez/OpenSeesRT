@@ -731,7 +731,7 @@ Vector::operator()(const ID &rows) const
 Vector &
 Vector::operator=(const Vector &V) 
 {
-  assert(sz == V.sz);
+  // assert(sz == V.sz); // TODO
   // first check we are not trying v = v
   if (this != &V) {
 
@@ -906,13 +906,7 @@ Vector::operator/(double fact) const
 Vector &
 Vector::operator+=(const Vector &other)
 {
-#ifdef _G3DEBUG
-  if (sz != other.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << other.sz << endln;
-    return *this;
-  }    
-#endif
-
+  assert(sz == other.sz);
   for (int i=0; i<sz; i++)
     theData[i] += other.theData[i];
   return *this;
@@ -922,22 +916,14 @@ Vector::operator+=(const Vector &other)
 // Vector &operator-=(const Vector &V):
 //        The -= operator subtracts V's data from  data, data[i]+=V(i). A check 
 //           to see if vectors are of same size is performed if VECTOR_CHECK is defined.
-
 Vector &
 Vector::operator-=(const Vector &other)
 {
-#ifdef _G3DEBUG
-  if (sz != other.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << other.sz << endln;
-    return *this;
-  }
-#endif
-  
+  assert(sz == other.sz);
   for (int i=0; i<sz; i++)
     theData[i] -= other.theData[i];
   return *this;    
 }
-
 
 
 // Vector operator+(const Vector &V):
@@ -961,13 +947,7 @@ Vector::operator+(const Vector &b) const
 Vector 
 Vector::operator-(const Vector &b) const
 {
-#ifdef _G3DEBUG
-  if (sz != b.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << b.sz << endln;
-    return *this;
-  }
-#endif
-
+  assert(sz == b.sz);
   Vector result(*this);
   result -= b;
   return result;

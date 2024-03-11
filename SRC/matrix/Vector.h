@@ -95,7 +95,7 @@ class Vector
     Vector operator-(double fact) const;
     Vector operator*(double fact) const;
     Vector operator/(double fact) const;
-    
+
     Vector &operator+=(const Vector &V);
     Vector &operator-=(const Vector &V);
     
@@ -178,6 +178,7 @@ Vector::operator()(int x)
   assert(x >= 0 && x < sz);
   return theData[x];
 }
+
 
 #endif
 
