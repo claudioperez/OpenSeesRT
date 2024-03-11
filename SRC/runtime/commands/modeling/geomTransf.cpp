@@ -16,7 +16,8 @@
 #include <PDeltaCrdTransf2d.h>
 #include <PDeltaCrdTransf3d.h>
 #include <CorotCrdTransf2d.h>
-#include <CorotCrdTransf3d.h>
+#include <CorotCrdTransf3d01.h>
+#include <CorotCrdTransf3d02.h>
 #include <CorotCrdTransfWarping2d.h>
 
 //
@@ -232,7 +233,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       crdTransf3d = new PDeltaCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "Corotational") == 0)
-      crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      crdTransf3d = new CorotCrdTransf3d02(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";
