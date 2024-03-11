@@ -17,14 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.20 $
-// $Date: 2007-04-05 01:15:52 $
-// $Source: /usr/local/cvs/OpenSees/SRC/database/FileDatastore.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 10/98
 //
 // Description: This file contains the class implementation for FileDatastore.
 // FileDatastore is a concrete subclas of FE_Datastore. A FileDatastore 
@@ -32,9 +24,11 @@
 // information in a domain at a particular instance in the analysis. The
 // information is stored in text files.
 //
-// What: "@(#) FileDatastore.C, revA"
-
+// Written: fmk 
+// Created: 10/98
+//
 #include "FileDatastore.h"
+#include <OPS_ErrorStream.h>
 
 #include <string.h>
 #include <stdlib.h>
