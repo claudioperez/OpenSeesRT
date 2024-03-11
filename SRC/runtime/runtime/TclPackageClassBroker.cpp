@@ -42,7 +42,6 @@ using namespace OpenSees::Hash::literals;
 
 // graph numbering schemes
 #include "graph/numberer/RCM.h"
-#include "graph/numberer/MyRCM.h"
 #include "graph/numberer/SimpleNumberer.h"
 
 // uniaxial material model header files
@@ -305,7 +304,7 @@ using namespace OpenSees::Hash::literals;
 #include "PDeltaCrdTransf2d.h"
 #include "PDeltaCrdTransf3d.h"
 #include "CorotCrdTransf2d.h"
-#include "CorotCrdTransf3d.h"
+#include "CorotCrdTransf3d01.h"
 
 #include "quadrature/Frame/HingeMidpointBeamIntegration.h"
 #include "quadrature/Frame/HingeEndpointBeamIntegration.h"
@@ -593,9 +592,6 @@ TclPackageClassBroker::getPtrNewGraphNumberer(int classTag)
   case GraphNUMBERER_TAG_RCM:
     return new RCM();
 
-  case GraphNUMBERER_TAG_MyRCM:
-    return new MyRCM();
-
   case GraphNUMBERER_TAG_SimpleNumberer:
     return new SimpleNumberer();
 
@@ -877,7 +873,7 @@ TclPackageClassBroker::getNewCrdTransf(int classTag)
   case CRDTR_TAG_PDeltaCrdTransf3d:
     return new PDeltaCrdTransf3d();
   case CRDTR_TAG_CorotCrdTransf3d:
-    return new CorotCrdTransf3d();
+    return new CorotCrdTransf3d01();
   default:
     opserr << "TclPackageClassBroker::getCrdTransf - ";
     opserr << " - no CrdTransf type exists for class tag ";
