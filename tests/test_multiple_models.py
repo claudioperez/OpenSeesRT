@@ -7,7 +7,6 @@ import opensees.openseespy as ops
 
 
 def make_truss(system):
-
     # create nodes & add to Domain - command: node nodeId xCrd yCrd
     system.node(1,   0.0,  0.0)
     system.node(2, 144.0,  0.0)
