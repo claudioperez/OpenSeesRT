@@ -30,7 +30,7 @@
 #ifndef Matrix_h
 #define Matrix_h 
 #define NO_STATIC_WORK
-
+#include <assert.h>
 #include <cstddef>
 using std::size_t;
 
@@ -38,7 +38,11 @@ class Vector;
 class ID;
 class Message;
 class OPS_Stream;
-namespace OpenSees {template<int n, typename T> struct VectorND;};
+namespace OpenSees {
+  template<int n, typename T> struct VectorND;
+  template<int, int, typename T> struct MatrixND;
+};
+template <typename T> class Vector3D;
 
 
 class Matrix
@@ -48,7 +52,7 @@ class Matrix
     Matrix();	
     Matrix(int nrows, int ncols);
     Matrix(double *data, int nrows, int ncols);    
-    Matrix(const Matrix &M);    
+    Matrix(const Matrix &M);
 #if !defined(NO_CXX11_MOVE)
     Matrix( Matrix &&M);    
 #endif
@@ -65,6 +69,8 @@ class Matrix
     int  Assemble(const Matrix &,const ID &rows, const ID &cols, double fact = 1.0);  
     // methods added by Remo
     int  Assemble(const Matrix &V, int init_row, int init_col, double fact = 1.0);
+
+    template <int nr, int nc> int  Assemble(const OpenSees::MatrixND<nr,nc,double> &V, int init_row, int init_col, double fact = 1.0);
     int  Assemble(const Vector &V, int init_row, int init_col, double fact = 1.0);
     int  AssembleTranspose(const Matrix &V, int init_row, int init_col, double fact = 1.0);
     int  AssembleTranspose(const Vector &V, int init_row, int init_col, double fact = 1.0);
@@ -135,8 +141,9 @@ class Matrix
     Matrix operator/(double fact) const;
     
     // Matrix-vector operations
-    Vector operator*(const Vector &V) const;
-    Vector operator^(const Vector &V) const;
+    Vector operator^(const Vector           &V) const;
+    Vector operator*(const Vector           &V) const;
+    Vector operator*(const Vector3D<double> &V) const;
 
     
     // matrix-matrix operations
@@ -236,6 +243,26 @@ Matrix::operator()(int row, int col) const
   return data[col*numRows + row];
 }
 
+template <int nr, int nc>
+int
+Matrix::Assemble(const OpenSees::MatrixND<nr,nc,double> &M, int init_row, int init_col, double fact) 
+{
+  
+  [[maybe_unused]] int final_row = init_row + nr - 1;
+  [[maybe_unused]] int final_col = init_col + nc - 1;
+  
+  assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
+
+  for (int i=0; i<nc; i++) {
+     const int pos_Cols = init_col + i;
+     for (int j=0; j<nr; j++) {
+        const int pos_Rows = init_row + j; 
+        (*this)(pos_Rows,pos_Cols) += M(j,i)*fact;
+     }
+  }  
+
+  return 0;
+}
 
 /**
 * Computes the Spin of the input vector V, and saves the result into the output matrix S,
