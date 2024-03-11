@@ -277,18 +277,17 @@ class OpenSeesPy:
     It encapsulates an instance of Interpreter which implements an
     OpenSees state.
     """
-    def __init__(self, *args, save=False, echo=None, **kwds):
+    def __init__(self, *args, save=False, echo_file=None, **kwds):
         self._interp = Interpreter(*args,  **kwds)
         self._partial = partial
         self._save = save
-        import sys
-        self._echo = echo # sys.stdout
+        self._echo = echo_file # sys.stdout
 
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
 
     def eval(self, cmd: str) -> str:
-        "Evaluate a Tcl script"
+        "Evaluate a Tcl command"
         if self._echo is not None:
             print(cmd, file=self._echo)
         return self._interp.eval(cmd)
@@ -340,17 +339,22 @@ class OpenSeesPy:
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
 
-# The global singleton
+class Model:
+    def __init__(self, *args, echo_file=None, **kwds):
+        self._openseespy = OpenSeesPy(echo_file=echo_file)
+        self._openseespy._str_call("model", *args, **kwds)
+
+    def __getattr__(self, name: str):
+        if name in {"pattern", "load", "eval"}:
+            return getattr(self._openseespy, name)
+        else:
+            return self._openseespy._partial(self._openseespy._str_call, name)
+
+
+# The global singleton, for backwards compatibility
 _openseespy = OpenSeesPy()
 # 
 _tcl_echo   = None
-
-# def model(*args, **kwds):
-#     global _openseespy
-#     rt = OpenSeesPy()
-#     _openseespy = rt
-#     rt.model(*args, **kwds)
-#     return rt
 
 def __getattr__(name: str):
     # For reference:
