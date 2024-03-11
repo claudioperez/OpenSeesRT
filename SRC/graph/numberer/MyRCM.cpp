@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2006-01-12 23:39:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/numberer/MyRCM.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/graph/numberer/MyRCM.C
 // 
 // Written: fmk 
@@ -43,6 +38,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 // Constructor
 MyRCM::MyRCM(int startVertex, bool minDegreeFlag)
