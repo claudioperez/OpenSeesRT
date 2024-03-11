@@ -1,6 +1,7 @@
-<img align="left" src="https://github.com/claudioperez/sdof/blob/master/docs/assets/peer-black.svg" width="250px">
 
 # OpenSeesRT
+
+<img align="left" src="https://github.com/claudioperez/sdof/blob/master/docs/assets/peer-black.svg" width="250px">
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10456866.svg)](https://doi.org/10.5281/zenodo.10456866)
 
