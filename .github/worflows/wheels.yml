@@ -2,18 +2,19 @@
 name: Wheels
 
 on:
-  workflow_dispatch:
-# pull_request:
   push:
     branches:
      - master
+
+# workflow_dispatch:
+# pull_request:
 # release:
 #   types:
 #     - published
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
 jobs:
 # build_sdist:
