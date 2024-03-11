@@ -112,9 +112,9 @@ Beam3dUniformLoad::recvSelf(int commitTag, Channel &theChannel,
 void 
 Beam3dUniformLoad::Print(OPS_Stream &s, int flag)
 {
-  s << "Beam3dUniformLoad - Reference load: " << this->getTag() << endln;
-  s << "  Transverse (y): " << wy << endln;
-  s << "  Transverse (z): " << wz << endln;
-  s << "  Axial (x):      " << wx << endln;
-  s << "  Element  : "      << eleTag << endln;
+  s << "Beam3dUniformLoad - Reference load: " << this->getTag() << "\n";
+  s << "  Transverse (y): " << wy << "\n";
+  s << "  Transverse (z): " << wz << "\n";
+  s << "  Axial (x):      " << wx << "\n";
+  s << "  Element  : "      << eleTag << "\n";
 }
