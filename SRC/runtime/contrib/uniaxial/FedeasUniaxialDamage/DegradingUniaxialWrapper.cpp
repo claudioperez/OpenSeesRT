@@ -73,8 +73,9 @@ DegradingUniaxialWrapper::parseNew(Tcl_Interp* interp, void *cd, int argc,
       *wrapper = *(StateOperator *)Tcl_GetAssocData(interp, 
                                                     "fedeas::damage::UniaxialDamage", NULL);
 
-      wrapper->call(wrapper, interp, ISW_CREATE, argc - argn, &argv[++argn], 0, 0, 0, 0, 0);
+      wrapper->call(wrapper, interp, ISW_CREATE, argc - argn, &argv[1+argn], 0, 0, 0, 0, 0);
       wrapper->call(wrapper, interp, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
+      argn++;
 
     } else if ((strcmp(param, "-couple") == 0) ||
                (strcmp(param, "-ccd") == 0) || 

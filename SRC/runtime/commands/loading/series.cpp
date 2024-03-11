@@ -64,7 +64,6 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
 
   int tag = 0;
   double cFactor = 1.0;
-  int numData = 0;
 
   if (numRemainingArgs != 0) {
 
@@ -85,7 +84,6 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
                << endln;
         return nullptr;
       }
-      numData = 1;
       if (Tcl_GetDouble(interp, argv[2], &cFactor) != 0) {
         opserr << G3_ERROR_PROMPT << "invalid factor in LinearSeries with tag: " << tag
                << endln;
