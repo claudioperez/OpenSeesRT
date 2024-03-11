@@ -9,12 +9,15 @@
 #include "routines/SY3.h"
 
 namespace OpenSees {
-class  Matrix3D: public MatrixND<3,3> {
+class  Matrix3D: public MatrixND<3,3,double> {
 
 public:
   template<class VecT> void addSpin(const VecT& V);
   template<class VecT> void addSpin(const VecT& V, const double scale);
   template<class VecT> void addSpinSquare(const VecT& V, const double scale);
+  template<class VecT> void addSpinProduct(const VecT& a, const Vector3D<double>& b, const double scale);
+  template<class VecT> void addMatrixSpinProduct(const Matrix3D& A, const VecT& b, const double scale);
+  template<class MatT> void addSpinMatrixProduct(const Vector3D<double>& a, const MatT& B, const double scale);
   // inline void addEye(Vector3D<double>& v, double scale);
   // void addDev;
 
@@ -24,6 +27,19 @@ public:
     return 0;
   }
 };
+
+template< class VecT> inline void 
+Matrix3D::addSpin(const VecT& v)
+{
+   const double v0 = v[0],
+                v1 = v[1],
+                v2 = v[2];
+
+  (*this)(0, 0) += 0.0;   (*this)(0, 1) += -v2;     (*this)(0, 2) +=  v1;
+  (*this)(1, 0) +=  v2;   (*this)(1, 1) +=  0.0;    (*this)(1, 2) += -v0;
+  (*this)(2, 0) += -v1;   (*this)(2, 1) +=  v0;     (*this)(2, 2) += 0.0;
+}
+
 
 template< class VecT> inline void 
 Matrix3D::addSpin(const VecT& v, double mult)
@@ -37,8 +53,8 @@ Matrix3D::addSpin(const VecT& v, double mult)
   (*this)(2, 0) += -v1;   (*this)(2, 1) +=  v0;     (*this)(2, 2) += 0.0;
 }
 
-template <class VecT> inline void
-Matrix3D::addSpinSquare(const VecT& v, const double scale)
+template <class VecT> inline
+void Matrix3D::addSpinSquare(const VecT& v, const double scale)
 {
   const double v1 = v[0],
                v2 = v[1],
@@ -54,6 +70,53 @@ Matrix3D::addSpinSquare(const VecT& v, const double scale)
   (*this)(0,2) += scale*(  v1*v3 );
   (*this)(1,2) += scale*(  v2*v3 );
   (*this)(2,1) += scale*(  v2*v3 );
+}
+
+
+template<class VecT> inline
+void Matrix3D::addSpinProduct(const VecT& a, const Vector3D<double>& b, const double scale)
+{
+  // a^b^ = boa - a.b 1
+  // where 'o' denotes the tensor product and '.' the dot product
+  //
+  this->addTensorProduct(b, a, scale);
+  this->addDiagonal(-b.dot(a)*scale);
+}
+
+template<class VecT> inline
+void Matrix3D::addMatrixSpinProduct(const Matrix3D& A, const VecT& b, const double scale)
+{
+  // this += s*A*[b^]
+  // where b^ is the skew-symmetric representation of the three-vector b, s is a scalar,
+  // and A a 3x3 matrix.
+  //
+  (*this)(0, 0) += scale*( A(0,1)*b[2] - A(0,2)*b[1]);
+  (*this)(0, 1) += scale*(-A(0,0)*b[2] + A(0,2)*b[0]);
+  (*this)(0, 2) += scale*( A(0,0)*b[1] - A(0,1)*b[0]);
+  (*this)(1, 0) += scale*( A(1,1)*b[2] - A(1,2)*b[1]);
+  (*this)(1, 1) += scale*(-A(1,0)*b[2] + A(1,2)*b[0]);
+  (*this)(1, 2) += scale*( A(1,0)*b[1] - A(1,1)*b[0]);
+  (*this)(2, 0) += scale*( A(2,1)*b[2] - A(2,2)*b[1]);
+  (*this)(2, 1) += scale*(-A(2,0)*b[2] + A(2,2)*b[0]);
+  (*this)(2, 2) += scale*( A(2,0)*b[1] - A(2,1)*b[0]);
+}
+
+template<class MatT> inline
+void Matrix3D::addSpinMatrixProduct(const Vector3D<double>& a, const MatT& B, const double scale)
+{
+  // this += s*[a^]*B
+  // where a^ is the skew-symmetric representation of the three-vector a, s is a scalar,
+  // and B a 3x3 matrix.
+  //
+  (*this)(0, 0) += scale*( -B(1,0)*a[2] + B(2,0)*a[1]);
+  (*this)(0, 1) += scale*( -B(1,1)*a[2] + B(2,1)*a[1]);
+  (*this)(0, 2) += scale*( -B(1,2)*a[2] + B(2,2)*a[1]);
+  (*this)(1, 0) += scale*(  B(0,0)*a[2] - B(2,0)*a[0]);
+  (*this)(1, 1) += scale*(  B(0,1)*a[2] - B(2,1)*a[0]);
+  (*this)(1, 2) += scale*(  B(0,2)*a[2] - B(2,2)*a[0]);
+  (*this)(2, 0) += scale*( -B(0,0)*a[1] + B(1,0)*a[0]);
+  (*this)(2, 1) += scale*( -B(0,1)*a[1] + B(1,1)*a[0]);
+  (*this)(2, 2) += scale*( -B(0,2)*a[1] + B(1,2)*a[0]);
 }
 
 } // namespace OpenSees
