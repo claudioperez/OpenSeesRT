@@ -72,7 +72,7 @@ struct VectorND {
   }
 
   int
-  addVector(T thisFact, Vector &other, T otherFact) {
+  addVector(const T thisFact, const Vector &other, const T otherFact) {
     if (otherFact == 0.0 && thisFact == 1.0)
       return 0; 
 
@@ -129,14 +129,14 @@ struct VectorND {
   }
 
   int
-  addVector(T thisFact, VectorND<N> &other, T otherFact) {
+  addVector(const T thisFact, const VectorND<N> &other, const T otherFact) {
     if (otherFact == 0.0 && thisFact == 1.0)
       return 0; 
 
     else if (thisFact == 1.0) {
       // want: this += other * otherFact
       double *dataPtr = values;
-      double *otherDataPtr = other.values;
+      const double * otherDataPtr = other.values;
       if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
         for (int i=0; i<N; i++) 
           *dataPtr++ += *otherDataPtr++;
@@ -150,7 +150,7 @@ struct VectorND {
     } else if (thisFact == 0.0) {
         // want: this = other * otherFact
         double *dataPtr = values;
-        double *otherDataPtr = other.values;
+        const double *otherDataPtr = other.values;
         if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
           for (int i=0; i<N; i++) 
             *dataPtr++ = *otherDataPtr++;
@@ -163,7 +163,7 @@ struct VectorND {
     } else {
       // want: this = this * thisFact + other * otherFact
       double *dataPtr = values;
-      double *otherDataPtr = other.values;
+      const double *otherDataPtr = other.values;
       if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
         for (int i=0; i<N; i++) {
           double value = *dataPtr * thisFact + *otherDataPtr++;
@@ -241,7 +241,7 @@ struct VectorND {
 
 
   int
-  addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact)
+  addMatrixVector(const double thisFact, const Matrix &m, const Vector &v, const double otherFact)
   {
     // check the sizes are compatable
     assert(N == m.noRows());
@@ -272,7 +272,7 @@ struct VectorND {
       if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
         int otherSize = v.sz;
         double *matrixDataPtr = m.data;
-        double *otherDataPtr = v.theData;
+        const double *otherDataPtr = v.theData;
         for (int i=0; i<otherSize; i++) {
           double otherData = *otherDataPtr++;
           for (int j=0; j < N; j++)
@@ -282,7 +282,7 @@ struct VectorND {
       else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
         int otherSize = v.sz;
         double *matrixDataPtr = m.data;
-        double *otherDataPtr = v.theData;
+        const double *otherDataPtr = v.theData;
         for (int i=0; i<otherSize; i++) {
           double otherData = *otherDataPtr++;
           for (int j=0; j < N; j++)
@@ -309,10 +309,10 @@ struct VectorND {
 
       if (otherFact == 1.0) { // no point doing multiplication if otherFact = 1.0
         int otherSize = v.sz;
-        double *matrixDataPtr = m.data;
-        double *otherDataPtr = v.theData;
+        const double *matrixDataPtr = m.data;
+        const double *otherDataPtr = v.theData;
         for (int i=0; i<otherSize; i++) {
-          double otherData = *otherDataPtr++;
+          const double otherData = *otherDataPtr++;
           for (int j=0; j < N; j++)
             values[j] += *matrixDataPtr++ * otherData;
         }
@@ -320,9 +320,9 @@ struct VectorND {
       else if (otherFact == -1.0) { // no point doing multiplication if otherFact = -1.0
         int otherSize = v.sz;
         double *matrixDataPtr = m.data;
-        double *otherDataPtr = v.theData;
+        const double *otherDataPtr = v.theData;
         for (int i=0; i<otherSize; i++) {
-          double otherData = *otherDataPtr++;
+          const double otherData = *otherDataPtr++;
           for (int j=0; j < N; j++)
             values[j] -= *matrixDataPtr++ * otherData;
         }
@@ -432,7 +432,7 @@ struct VectorND {
   }
 
   friend std::ostream &
-  operator<<(std::ostream &out, VectorND const &vec) {
+  operator<<(std::ostream &out, const VectorND &vec) {
     out << "{";
     for (int r=0; r<N; r++){
         out << vec[r] << ( r < N-1? ", ": "");
