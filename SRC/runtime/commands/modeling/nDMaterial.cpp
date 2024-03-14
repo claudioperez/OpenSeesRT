@@ -59,9 +59,8 @@
 #include <MultiYieldSurfaceClay.h>
 #include <string.h>
 
-class TclBasicBuilder;
 extern NDMaterial *Tcl_addWrapperNDMaterial(matObj *, ClientData, Tcl_Interp *,
-                                            int, TCL_Char **, TclBasicBuilder *);
+                                            int, TCL_Char **);
 
 extern OPS_Routine OPS_ASDConcrete3DMaterial;
 extern OPS_Routine OPS_ReinforcedConcretePlaneStressMaterial;
@@ -129,8 +128,7 @@ extern OPS_Routine OPS_Damage2p;
 #if defined(OPSDEF_Material_FEAP)
 NDMaterial *TclBasicBuilder_addFeapMaterial(ClientData clientData,
                                             Tcl_Interp *interp, int argc,
-                                            TCL_Char ** const argv,
-                                            TclBasicBuilder *theTclBuilder);
+                                            TCL_Char ** const argv);
 #endif // _OPS_Material_FEAP
 
 
@@ -150,7 +148,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  // TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getModelBuilder(rt);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
@@ -1360,12 +1357,10 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
         return TCL_ERROR;
       }
 
-    NDMaterial *soil = builder->getNDMaterial(param[1]);
-    if (soil == 0) {
-      opserr << "WARNING FluidSolidPorous: couldn't get soil material ";
-      opserr << "tagged: " << param[1] << "\n";
+    NDMaterial *soil = builder->getTypedObject<NDMaterial>(param[1]);
+    if (soil == nullptr)
       return TCL_ERROR;
-    }
+
 
     param[3] = 101.;
     if (argc == 7) {
@@ -1401,13 +1396,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *threeDMaterial = builder->getNDMaterial(matTag);
-    if (threeDMaterial == 0) {
-      opserr << "WARNING nD material does not exist\n";
-      opserr << "nD material: " << matTag;
-      opserr << "\nPlaneStress nDMaterial: " << tag << endln;
+    NDMaterial *threeDMaterial = builder->getTypedObject<NDMaterial>(matTag);
+    if (threeDMaterial == nullptr)
       return TCL_ERROR;
-    }
 
     theMaterial = new PlaneStressMaterial(tag, *threeDMaterial);
   }
@@ -1434,13 +1425,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *threeDMaterial = builder->getNDMaterial(matTag);
-    if (threeDMaterial == 0) {
-      opserr << "WARNING nD material does not exist\n";
-      opserr << "nD material: " << matTag;
-      opserr << "\nPlaneStrain nDMaterial: " << tag << endln;
+    NDMaterial *threeDMaterial = builder->getTypedObject<NDMaterial>(matTag);
+    if (threeDMaterial == nullptr)
       return TCL_ERROR;
-    }
 
     theMaterial = new PlaneStrainMaterial(tag, *threeDMaterial);
   }
@@ -1650,13 +1637,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
-    if (theMat == nullptr) {
-      opserr << "WARNING uniaxialmaterial does not exist\n";
-      opserr << "UniaxialMaterial: " << matTag;
-      opserr << "\nPlateRebar nDMaterial: " << tag << endln;
+    UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matTag);
+    if (theMat == nullptr)
       return TCL_ERROR;
-    }
 
     if (Tcl_GetDouble(interp, argv[4], &angle) != TCL_OK) {
       opserr << "WARNING invalid angle" << endln;
@@ -1691,13 +1674,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *theMat = builder->getNDMaterial(matTag);
-    if (theMat == 0) {
-      opserr << "WARNING ndMaterial does not exist\n";
-      opserr << "ndMaterial: " << matTag;
-      opserr << "\nPlateFromPlaneStress nDMaterial: " << tag << endln;
+    NDMaterial *theMat = builder->getTypedObject<NDMaterial>(matTag);
+    if (theMat == nullptr)
       return TCL_ERROR;
-    }
 
     if (Tcl_GetDouble(interp, argv[4], &gmod) != TCL_OK) {
       opserr << "WARNING invalid gmod" << endln;
@@ -1973,13 +1952,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *theMat = builder->getNDMaterial(matTag);
-    if (theMat == 0) {
-      opserr << "WARNING ndMaterial does not exist\n";
-      opserr << "ndMaterial: " << matTag;
-      opserr << "\nPlateFromPlaneStress nDMaterial: " << tag << endln;
+    NDMaterial *theMat = builder->getTypedObject<NDMaterial>(matTag);
+    if (theMat == nullptr)
       return TCL_ERROR;
-    }
 
     if (Tcl_GetDouble(interp, argv[4], &gmod) != TCL_OK) {
       opserr << "WARNING invalid gmod" << endln;
@@ -2010,13 +1985,10 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
-    if (theMat == 0) {
-      opserr << "WARNING uniaxialmaterial does not exist\n";
-      opserr << "UniaxialMaterial: " << matTag;
-      opserr << "\nPlateRebar nDMaterial: " << tag << endln;
+    UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matTag);
+    if (theMat == nullptr)
       return TCL_ERROR;
-    }
+
 
     if (Tcl_GetDouble(interp, argv[4], &angle) != TCL_OK) {
       opserr << "WARNING invalid angle" << endln;
@@ -2107,13 +2079,9 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    NDMaterial *threeDMaterial = builder->getNDMaterial(matTag);
-    if (threeDMaterial == nullptr) {
-      opserr << "WARNING nD material does not exist\n";
-      opserr << "nD material: " << matTag;
-      opserr << "\nPlateFiberThermal nDMaterial: " << tag << endln;
+    NDMaterial *threeDMaterial = builder->getTypedObject<NDMaterial>(matTag);
+    if (threeDMaterial == nullptr)
       return TCL_ERROR;
-    }
 
     theMaterial = new PlateFiberMaterialThermal(tag, *threeDMaterial);
   }
@@ -2132,8 +2100,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
 #if defined(OPSDEF_Material_FEAP)
   else {
-    theMaterial = TclBasicBuilder_addFeapMaterial(clientData, interp, argc,
-                                                  argv, theTclBuilder);
+    theMaterial = TclBasicBuilder_addFeapMaterial(clientData, interp, argc, argv);
   }
 #endif // _OPS_Material_FEAP
 
@@ -2175,7 +2142,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     if (matObject != 0) {
 
       theMaterial = Tcl_addWrapperNDMaterial(matObject, clientData, interp,
-                                             argc, argv, theTclBuilder);
+                                             argc, argv);
 
       if (theMaterial == 0)
         delete matObject;
@@ -2223,8 +2190,8 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   }
 
   // Now add the material to the modelBuilder
-  if (builder->addNDMaterial(*theMaterial) != TCL_OK ) /* &&
-       OPS_addNDMaterial(theMaterial) == false) */ {
+  if (builder->addTaggedObject<NDMaterial>(*theMaterial) != TCL_OK ) {
+
     opserr << "WARNING could not add material to the domain\n";
     opserr << *theMaterial << endln;
     delete theMaterial; // invoke the material objects destructor, otherwise mem
