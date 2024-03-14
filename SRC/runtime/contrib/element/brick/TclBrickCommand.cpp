@@ -111,14 +111,9 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == nullptr) {
-    opserr << "WARNING material not found";
-    opserr << "\n    material tag: " << matID;
-    opserr << "\n    Brick element: " << BrickId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
 
 
   double b1 = 0.0;
