@@ -27,6 +27,8 @@
 #include <DirectIntegrationAnalysis.h>
 #include <StaticAnalysis.h>
 
+#include <TimeSeries.h>
+
 static Tcl_Interp *theInterp       = nullptr;
 static TCL_Char **currentArgv      = nullptr;
 static int currentArg = 0;
@@ -302,8 +304,9 @@ G3_getDomain(G3_Runtime *rt)
 
 int G3_addTimeSeries(G3_Runtime *rt, TimeSeries *series)
 {
+  assert(series != nullptr);
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
-  return builder->addTimeSeries(series);
+  return builder->addTaggedObject<TimeSeries>(*series);
 }
 
 
@@ -312,7 +315,7 @@ TimeSeries *G3_getTimeSeries(G3_Runtime *rt, int tag)
   TimeSeries *series;
   BasicModelBuilder *builder = G3_getSafeBuilder(rt);
   if (builder) {
-     series = builder->getTimeSeries(std::to_string(tag));
+     series = builder->getTypedObject<TimeSeries>(tag);
   } else {
     series = nullptr;
   }
@@ -328,7 +331,7 @@ G3_getCrdTransf(G3_Runtime *rt, G3_Tag tag)
   if (!builder) {
     return nullptr;
   }
-  return builder->getCrdTransf(tag);
+  return builder->getTypedObject<CrdTransf>(tag);
 }
 
 SectionForceDeformation*
@@ -336,7 +339,7 @@ G3_getSectionForceDeformation(G3_Runtime* rt, int tag)
 {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   assert(builder);
-  return builder->getSection(tag);
+  return builder->getTypedObject<SectionForceDeformation>(tag);
 }
 
 UniaxialMaterial *
@@ -344,13 +347,15 @@ G3_getUniaxialMaterialInstance(G3_Runtime *rt, int tag)
 {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   assert(builder != nullptr);
-  return builder->getUniaxialMaterial(tag);
+  return builder->getTypedObject<UniaxialMaterial>(tag);
 }
 
 int G3_addUniaxialMaterial(G3_Runtime *rt, UniaxialMaterial *mat) {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   assert(builder != nullptr);
-  return builder->addUniaxialMaterial(mat);
+  assert(mat != nullptr);
+
+  return builder->addTaggedObject<UniaxialMaterial>(*mat);
 }
 
 NDMaterial *
@@ -358,7 +363,7 @@ G3_GetNDMaterial(G3_Runtime* rt, int matTag)
 {
   BasicModelBuilder* builder = G3_getSafeBuilder(rt);
   assert(builder != nullptr);
-  return builder->getNDMaterial(matTag);
+  return builder->getTypedObject<NDMaterial>(matTag);
 }
 
 NDMaterial *
