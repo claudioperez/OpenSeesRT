@@ -301,8 +301,8 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
         saved = ND[0] / ( U[i + p - k + jj] - U[i]);
 
       for (int j = 0; j < (k - jj + 1); j++) {
-        Uleft = U[i + j + 1];
-        Uright = U[i + j + p + jj];
+        double Uleft = U[i + j + 1];
+        double Uright = U[i + j + p + jj];
 
         if (ND[j + 1] == 0.0) {
           ND[j] = (p - k + jj) * saved; 
