@@ -119,7 +119,7 @@ TclBasicBuilder_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int ar
       opserr << "twoNodeLink element: " << tag << endln;
       return TCL_ERROR;
     }
-    theMaterials[i] = builder->getUniaxialMaterial(matTag);
+    theMaterials[i] = builder->getTypedObject<UniaxialMaterial>(matTag);
     if (theMaterials[i] == 0) {
       opserr << "WARNING material model not found\n";
       opserr << "uniaxialMaterial " << matTag << endln;
