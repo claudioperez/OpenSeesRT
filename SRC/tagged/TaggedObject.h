@@ -38,9 +38,7 @@
 //
 // What: "@(#) TaggedObject.h, revA"
 
-#include <OPS_Stream.h>
-
-class Domain;
+class OPS_Stream;
 
 class TaggedObject 
 {
@@ -50,7 +48,8 @@ class TaggedObject
 
     inline int getTag(void) const;
 
-    virtual void Print(OPS_Stream &s, int flag =0) =0;       
+    virtual void inline Print(OPS_Stream &s, int flag =0) {}
+
     friend OPS_Stream &operator<<(OPS_Stream &s, TaggedObject &m);        
 
   protected:
@@ -69,5 +68,4 @@ TaggedObject::getTag(void) const
 }
 
 #endif
-
 
