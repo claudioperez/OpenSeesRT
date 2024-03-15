@@ -255,7 +255,7 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
   double saved, temp;
 
   if (u < U[i] || u >= U[i + p + 1]) {
-    for (k = 0; k <= order; k++)
+    for (int k = 0; k <= order; k++)
       ders[k] = 0.0;
     return;
   }
