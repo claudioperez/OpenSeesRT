@@ -27,7 +27,6 @@ init2DArray(int x, int y) {
   for (int c = 0; c < x; c++)
     array[c] = (double*)malloc(y * sizeof(double));
 
-  int d;
   return array;
 }
 
@@ -110,7 +109,7 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
   */
 
   double saved, temp;
-  int j, k, j1, j2, r;
+  int j, j1, j2, r;
 
   // double *left  = (double *)malloc(sizeof(double) * (p + 1));
   // double *right = (double *)malloc(sizeof(double) * (p + 1));
@@ -253,8 +252,7 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
   double **N = init2DArray(order + 1, order + 1);
   double *ND = (double*)malloc((order + 1) * sizeof(double));
 
-  int k, j, jj;
-  double Uleft, Uright, saved, temp;
+  double saved, temp;
 
   if (u < U[i] || u >= U[i + p + 1]) {
     for (k = 0; k <= order; k++)
@@ -262,14 +260,14 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
     return;
   }
 
-  for (j = 0; j <= p; j++) {
+  for (int j = 0; j <= p; j++) {
     if (u >= U[i + j] && u < U[i + j + 1])
       N[j][0] = 1.0;
     else
       N[j][0] = 0.0;
   }
 
-  for (k = 1; k <= p; k++)
+  for (int k = 1; k <= p; k++)
   {
     if (N[0][k - 1] == 0.0)
       saved = 0.0;
@@ -277,8 +275,8 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
       saved = ((u - U[i]) * N[0][k - 1]) / ( U[i + k] - U[i] );
 
     for (int j = 0; j < (p - k + 1); j++) {
-      Uleft = U[i + j + 1];
-      Uright = U[i + j + k + 1];
+      double Uleft = U[i + j + 1];
+      double Uright = U[i + j + k + 1];
       if (N[j + 1][k - 1] == 0.0) {
         N[j][k] = saved; 
         saved = 0.0;
