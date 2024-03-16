@@ -18,7 +18,7 @@ extern Tcl_CmdProc  TclCommand_addNode;
 extern Tcl_CmdProc  TclCommand_addNodalMass;
 extern Tcl_CmdProc  TclCommand_addNodalLoad;
 // 
-extern Tcl_CmdProc TclCommand_addSeries;
+extern Tcl_CmdProc  TclCommand_addSeries;
 extern Tcl_CmdProc  TclCommand_addPattern;
 extern Tcl_CmdProc  TclCommand_addTimeSeries;
 extern Tcl_CmdProc  TclCommand_addGeomTransf;
@@ -39,6 +39,7 @@ extern Tcl_CmdProc  TclCommand_addPatch;
 extern Tcl_CmdProc  TclCommand_addReinfLayer;
 // extern Tcl_CmdProc  TclCommand_addRemoFiber;
 extern Tcl_CmdProc  TclCommand_addFiber;
+extern Tcl_CmdProc  TclCommand_addHFiber;
 
 // Constraints
 extern Tcl_CmdProc TclCommand_addMP;
@@ -133,6 +134,7 @@ struct char_cmd {
   {"block3D",              TclCommand_doBlock3D},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
 
+  {"Hfiber",               TclCommand_addHFiber},
 /*
   {"mp",                   TclCommand_addMP},
 
@@ -140,7 +142,6 @@ struct char_cmd {
   {"PySimple1Gen",         TclCommand_doPySimple1Gen},
   {"TzSimple1Gen",         TclCommand_doTzSimple1Gen},
   {"ShallowFoundationGen", BasicModelBuilder_doShallowFoundationGen},
-  {"Hfiber",               BasicModelBuilder_addRemoHFiber},
 */
 
 // OTHER OBJECT TYPES
