@@ -143,13 +143,9 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       argi = 8;
     }
 
-    CrdTransf *theTrans = builder->getCrdTransf(transTag);
-
-    if (theTrans == 0) {
-      opserr << "WARNING transformation object not found - elasticBeamColumn "
-             << beamId;
+    CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
+    if (theTrans == nullptr)
       return TCL_ERROR;
-    }
 
     while (argi < argc) {
       if (strcmp(argv[argi], "-mass") == 0) {
@@ -230,7 +226,9 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      SectionForceDeformation *theSection = builder->getSection(section);
+      SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(section);
+      if (theSection == nullptr)
+        return TCL_ERROR;
 
       if (Tcl_GetInt(interp, argv[5 + eleArgStart], &transTag) != TCL_OK) {
         opserr << "WARNING invalid transTag - elasticBeamColumn " << beamId;
@@ -238,13 +236,10 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      CrdTransf *theTrans = builder->getCrdTransf(transTag);
-
-      if (theTrans == 0) {
-        opserr << "WARNING transformation object not found - elasticBeamColumn "
-               << beamId;
+      CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
+      if (theTrans == nullptr)
         return TCL_ERROR;
-      }
+
 
       double mass = 0.0;
       int cMass = 0;
@@ -317,13 +312,10 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      CrdTransf *theTrans = builder->getCrdTransf(transTag);
-
-      if (theTrans == 0) {
-        opserr << "WARNING transformation object not found - elasticBeamColumn "
-               << beamId;
+      CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
+      if (theTrans == nullptr)
         return TCL_ERROR;
-      }
+
 
       double mass = 0.0;
       int cMass = 0;
