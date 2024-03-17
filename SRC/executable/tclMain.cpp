@@ -77,6 +77,8 @@ static int load_opensees(Tcl_Interp* interp)
     } else {
       return TCL_ERROR;
     }
+
+    return TCL_OK;
 }
 
 
@@ -144,12 +146,11 @@ char *TclGetStartupScriptFileName()
  *----------------------------------------------------------------------
  */
 
-static bool OPS_suppressOpenSeesOutput = false;
 static bool OPS_showHeader = true;
 
 int
 main(int argc, char **argv)
-{ 
+{
     Tcl_Obj *resultPtr;
     Tcl_Obj *commandPtr = NULL;
     char buffer[1000], *args;
@@ -396,5 +397,5 @@ main(int argc, char **argv)
 
     Tcl_Eval(interp, "quit"); 
 
-    return 0;
+    return exitCode;
 }
