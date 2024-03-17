@@ -124,14 +124,9 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == nullptr) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nFourNodeQuad element: " << FourNodeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
 
   // now create the FourNodeQuad and add it to the Domain
   FourNodeQuad *theFourNodeQuad =
@@ -223,15 +218,10 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nConstantPressureVolumeQuad element: "
-           << ConstantPressureVolumeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the ConstantPressureVolumeQuad and add it to the Domain
   ConstantPressureVolumeQuad *theConstantPressureVolumeQuad =
@@ -326,7 +316,7 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -455,7 +445,7 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -595,7 +585,7 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -764,7 +754,7 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -920,7 +910,7 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -1063,7 +1053,7 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -1238,7 +1228,7 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -1375,7 +1365,7 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING material not found\n";
@@ -1537,7 +1527,7 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == nullptr) {
     opserr << "WARNING material not found\n";
