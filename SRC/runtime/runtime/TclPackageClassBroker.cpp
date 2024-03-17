@@ -187,9 +187,6 @@ using namespace OpenSees::Hash::literals;
 #include "stressDensityModel/stressDensity.h"
 #include "InitStressNDMaterial.h"
 
-// Fibers
-#include "fiber/UniaxialFiber2d.h"
-#include "fiber/UniaxialFiber3d.h"
 //
 // element header files
 //
@@ -1385,12 +1382,6 @@ Fiber *
 TclPackageClassBroker::getNewFiber(int classTag)
 {
   switch (classTag) {
-  case FIBER_TAG_Uniaxial2d:
-    return new UniaxialFiber2d();
-
-  case FIBER_TAG_Uniaxial3d:
-    return new UniaxialFiber3d();
-
   default:
     opserr << "TclPackageClassBroker::getNewFiber - ";
     opserr << " - no Fiber type exists for class tag ";
