@@ -40,7 +40,7 @@
 #include <Domain.h>
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
-
+#include <SectionForceDeformation.h>
 class TclBasicBuilder;
 
 int
@@ -168,19 +168,14 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
 
       // get a pointer to the material from the modelbuilder
       argi++;
-      UniaxialMaterial *theMat = builder->getUniaxialMaterial(matID);
-      if (theMat == 0) {
-        opserr << "WARNING no material " << matID
-               << " exists - element ZeroLength eleTag? iNode? jNode? "
-               << "-mat matID1? ... -dir dirMat1? .. "
-               << "<-orient x1? x2? x3? y1? y2? y3?>\n";
+      UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matID);
+      if (theMat == nullptr) {
         delete[] theMats;
         return TCL_ERROR;
-      } else {
-
-        // add the material to the array
-        theMats[i] = theMat;
       }
+      // add the material to the array
+      theMats[i] = theMat;
+
     }
   }
 
@@ -299,23 +294,18 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
         // read the material tag
         if (Tcl_GetInt(interp, argv[argi], &matID) != TCL_OK) {
           opserr << "WARNING invalid matID " << argv[argi]
-                 << "- element ZeroLength eleTag? iNode? jNode? "
+                 << " - element ZeroLength eleTag? iNode? jNode? "
                  << "-mat matID1? ... -dir dirMat1? .. "
                  << "<-orient x1? x2? x3? y1? y2? y3?>\n";
           delete[] theMats;
           return TCL_ERROR;
         } else {
-          UniaxialMaterial *theMat = builder->getUniaxialMaterial(matID);
-          if (theMat == 0) {
-            opserr << "WARNING no material " << matID
-                   << " exists - element ZeroLength eleTag? iNode? jNode? "
-                   << "-mat matID1? ... -dir dirMat1? .. "
-                   << "<-orient x1? x2? x3? y1? y2? y3?>\n";
+          UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matID);
+          if (theMat == nullptr) {
             delete[] theMats;
             return TCL_ERROR;
-          } else {
-            theDampMats[i] = theMat;
           }
+          theDampMats[i] = theMat;
         }
 
         argi++;
@@ -330,7 +320,7 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
   // now we create the element and add it to the domain
   //
 
-  Element *theEle;
+  Element *theEle = nullptr;
 
   if (doRayleighDamping != 2)
     theEle = new ZeroLength(eleTag, ndm, iNode, jNode, x, y, numMat, theMats,
@@ -339,10 +329,6 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
     theEle = new ZeroLength(eleTag, ndm, iNode, jNode, x, y, numMat, theMats,
                             theDampMats, theDirns, doRayleighDamping);
 
-  if (theEle == 0) {
-    delete[] theMats;
-    return TCL_ERROR;
-  }
 
   if (domain->addElement(theEle) == false) {
     delete[] theMats;
@@ -488,7 +474,7 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
   // now we create the element and add it to the domain
   //
 
-  SectionForceDeformation *theSection = builder->getSection(secTag);
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
 
   if (theSection == 0) {
     opserr << "zeroLengthSection -- no section with tag " << secTag
@@ -826,7 +812,7 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int a
       return TCL_ERROR;
     }
 
-    the1DMat = builder->getUniaxialMaterial(uniTag);
+    the1DMat = builder->getTypedObject<UniaxialMaterial>(uniTag);
 
     if (the1DMat == nullptr)
       opserr << "WARNING UniaxialMaterial " << uniTag
