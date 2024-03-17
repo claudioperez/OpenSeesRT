@@ -111,6 +111,7 @@ struct char_cmd {
   {"patch",                TclCommand_addPatch},
   {"fiber",                TclCommand_addFiber},
   {"layer",                TclCommand_addReinfLayer},
+  {"Hfiber",               TclCommand_addHFiber},
 
   {"geomTransf",           TclCommand_addGeomTransf},
   {"transform",            TclCommand_addGeomTransf},
@@ -134,7 +135,6 @@ struct char_cmd {
   {"block3D",              TclCommand_doBlock3D},
   {"rigidDiaphragm",       &TclCommand_RigidDiaphragm},
 
-  {"Hfiber",               TclCommand_addHFiber},
 /*
   {"mp",                   TclCommand_addMP},
 
