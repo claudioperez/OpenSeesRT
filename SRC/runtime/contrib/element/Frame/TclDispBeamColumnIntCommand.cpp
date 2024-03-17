@@ -13,6 +13,7 @@
 class TclBasicBuilder;
 #include <g3_api.h>
 #include <runtime/BasicModelBuilder.h>
+#include <SectionForceDeformation.h>
 
 
 int
@@ -135,19 +136,9 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
 
   SectionForceDeformation **sections = new SectionForceDeformation *[nIP];
 
-  if (!sections) {
-    opserr << "WARNING TclElmtBuilder - addFrameElement - Insufficient memory "
-              "to create sections\n";
-    return TCL_ERROR;
-  }
-
   for (int j = 0; j < nIP; j++) {
-    SectionForceDeformation *theSection = builder->getSection(secTag[j]);
-
-    if (theSection == 0) {
-      opserr << "WARNING TclElmtBuilder - frameElement - no Section found with "
-                "tag ";
-      opserr << secTag[j] << endln;
+    SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag[j]);
+    if (theSection == nullptr) {
       delete[] sections;
       return TCL_ERROR;
     }
@@ -155,16 +146,13 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
     sections[j] = theSection;
   }
 
-  Element *theElement = 0;
+  Element *theElement = nullptr;
 
   if (ndm == 2) {
 
-    CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
-
-    if (theTransf == 0) {
-      opserr << "WARNING transformation not found\n";
-      opserr << "transformation: " << transfTag;
-      opserr << "\ndispBeamColumn element: " << eleTag << endln;
+    CrdTransf *theTransf = builder->getTypedObject<CrdTransf>(transfTag);
+    if (theTransf == nullptr) {
+      delete[] sections;
       return TCL_ERROR;
     }
 
