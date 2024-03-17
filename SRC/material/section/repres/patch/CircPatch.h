@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/repres/patch/CircPatch.h,v $
-                                                                        
-                                                                        
+//                                                                       
 // File: CircPatch.h
 // Written by Remo M. de Souza
 // December 1998
-
+//
 #ifndef CircPatch_h 
 #define CircPatch_h 
 
@@ -51,7 +46,6 @@ class CircPatch: public Patch
 
     void setMaterialID     (int materialID);
     void setDiscretization (int numSubdivCircunf, int numSubdivRadial);
-    void setCenterPosition (const Vector & centerPosition);
     void setRadii          (double internRadius, double externRadius);
     void setAngles         (double initialAngle, double finalAngle);
 
@@ -75,7 +69,7 @@ class CircPatch: public Patch
   private:
     int    matID;
     int    nDivCirc, nDivRad;
-    Vector centerPosit;
+    const Vector& centerPosit;
     double intRad, extRad;
     double initAng, finalAng;
 };
