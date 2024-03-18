@@ -113,7 +113,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ComponentElement2d)
     }
   }
 
-  CrdTransf *theTrans = OPS_getCrdTransf(iData[3]);
+  CrdTransf *theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
 
   if (useK) {
     theElement = new ComponentElement2d(iData[0], dData[0], dData[1], dData[2],
