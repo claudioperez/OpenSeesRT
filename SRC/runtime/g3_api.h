@@ -7,7 +7,6 @@
 //
 #ifndef G3_API_H_
 #define G3_API_H_
-// #  include <tcl.h>
    struct Tcl_Interp;
    typedef void* ClientData;
 #  include <api/elementAPI.h>
@@ -56,7 +55,6 @@ class G3_Runtime;
 class ModelBuilder;
 class TclBuilder;
 #include <runtime/BasicModelBuilder.h>
-class TclBasicBuilder;
 class AnalysisModel;
 class EquiSolnAlgo;
 class ConstraintHandler;
