@@ -14,7 +14,7 @@ target_include_directories(OPS_Material PRIVATE
 )
 
 target_sources(OPS_Material
-    PRIVATE
+  PRIVATE
     BiaxialHysteretic.cpp
     Bidirectional.cpp
     ElasticBDShearSection2d.cpp
@@ -25,7 +25,6 @@ target_sources(OPS_Material
     ElasticTubeSection3d.cpp
     ElasticWarpingShearSection2d.cpp
     Elliptical2.cpp
-    FiberSection.cpp
     FiberSection2d.cpp
     FiberSection2dInt.cpp
     FiberSection2dThermal.cpp
@@ -45,7 +44,7 @@ target_sources(OPS_Material
     SectionAggregator.cpp
     SectionForceDeformation.cpp
     TimoshenkoSection3d.cpp
-    PUBLIC
+  PUBLIC
     BiaxialHysteretic.h
     Bidirectional.h
     ElasticBDShearSection2d.h
@@ -56,7 +55,6 @@ target_sources(OPS_Material
     ElasticTubeSection3d.h
     ElasticWarpingShearSection2d.h
     Elliptical2.h
-    FiberSection.h
     FiberSection2d.h
     FiberSection2dInt.h
     FiberSection2dThermal.h
@@ -79,8 +77,8 @@ target_sources(OPS_Material
 
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-add_subdirectory(fiber)
-add_subdirectory(repres)
 add_subdirectory(yieldSurface)
-add_subdirectory(integration)
+
+# add_subdirectory(fiber)
+# add_subdirectory(integration)
 
