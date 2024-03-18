@@ -20,6 +20,8 @@
 #include <UniaxialMaterial.h>
 #include <runtime/BasicModelBuilder.h>
 
+typedef const char TCL_Char;
+
 static Tcl_CmdProc TclCommand_setStrainUniaxialMaterial;
 static Tcl_CmdProc TclCommand_commitState;
 static Tcl_CmdProc TclCommand_getStressUniaxialMaterial;
@@ -60,7 +62,7 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
   UniaxialMaterial *theMaterial = (UniaxialMaterial*)
     ((BasicModelBuilder*)clientData)->getRegistryObject("UniaxialMaterial", tag);
   // UniaxialMaterial *theMaterial = 
-  // ((BasicModelBuilder*)clientData)->getUniaxialMaterial(argv[2]);
+  // ((BasicModelBuilder*)clientData)->getTypedObject<UniaxialMaterial>(argv[2]);
 
   if (theMaterial == nullptr) {
     opserr << G3_ERROR_PROMPT << "no material found with tag '" << tag << "'\n";
@@ -286,7 +288,7 @@ TclCommand_integrateUniaxialMaterial(ClientData clientData,
   }
 
   if (Tcl_SplitList(interp, argv[2], &n, &str_values) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "problem splitting path list " << argv[2] << endln;
+    opserr << G3_ERROR_PROMPT << "problem splitting path list " << argv[2] << "\n";
     return TCL_ERROR;
   }
 
