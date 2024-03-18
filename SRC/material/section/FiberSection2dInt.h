@@ -19,6 +19,7 @@ class FiberSection2dInt : public SectionForceDeformation
 {
   public:
     FiberSection2dInt(); 
+#if 0
     FiberSection2dInt(int tag, 
 		      int numFibers, 
 		      Fiber **fibers, 
@@ -30,6 +31,7 @@ class FiberSection2dInt : public SectionForceDeformation
 		      double tavg2, 
 		      int NStrip3, 
 		      double tavg3); 
+#endif
     ~FiberSection2dInt();
 
     int   setTrialSectionDeformation(const Vector &deforms); 
@@ -74,7 +76,8 @@ class FiberSection2dInt : public SectionForceDeformation
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &info);
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc);
+    int addHFiber(UniaxialMaterial &theMat, const double Area, const double yLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     const Vector & getStressResultantSensitivity(int gradNumber, bool conditional);

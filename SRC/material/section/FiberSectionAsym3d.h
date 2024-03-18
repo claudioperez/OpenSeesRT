@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:47:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSectionAsym3d.h,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -47,19 +43,20 @@
 #include <Matrix.h>
 
 class UniaxialMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
 
 class FiberSectionAsym3d : public SectionForceDeformation
 {
   public:
     FiberSectionAsym3d(); 
+    FiberSectionAsym3d(int tag, int numFibers, UniaxialMaterial *torsion = 0, double ys=0.0, double zs=0.0); //Xinlong
+
+#if 0
     FiberSectionAsym3d(int tag, int numFibers, Fiber **fibers,             //Xinlong
 		   UniaxialMaterial *torsion = 0, double ys = 0.0, double zs = 0.0);                             //Xinlong
-    FiberSectionAsym3d(int tag, int numFibers, UniaxialMaterial *torsion = 0, double ys=0.0, double zs=0.0); //Xinlong
     FiberSectionAsym3d(int tag, int numFibers, UniaxialMaterial **mats,
 		   SectionIntegration &si, UniaxialMaterial *torsion = 0, double ys=0.0, double zs=0.0);         //Xinlong
+#endif
     ~FiberSectionAsym3d();
 
     const char *getClassType(void) const {return "FiberSectionAsym3d";};
@@ -88,7 +85,7 @@ class FiberSectionAsym3d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &, const double area, const double yLoc, const double zLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -114,10 +111,9 @@ class FiberSectionAsym3d : public SectionForceDeformation
     double QzBar, QyBar, Abar;
     double yBar;       // Section centroid
     double zBar;
-	double ys; //Xinlong: y coord of shear center relative to centroid
-	double zs; //Xinlong: z coord of shear center relative to centroid
+    double ys;         // Xinlong: y coord of shear center relative to centroid
+    double zs;         // Xinlong: z coord of shear center relative to centroid
   
-    SectionIntegration *sectionIntegr;
 
     static ID code;
 

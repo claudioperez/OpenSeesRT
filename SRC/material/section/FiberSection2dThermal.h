@@ -37,16 +37,17 @@
 class UniaxialMaterial;
 class Fiber;
 class Response;
-class SectionIntegration;
 
 class FiberSection2dThermal : public SectionForceDeformation
 {
   public:
     FiberSection2dThermal();
-    FiberSection2dThermal(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2dThermal(int tag, int num, bool compCentroid=true);
+#if 0
+    FiberSection2dThermal(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2dThermal(int tag, int numFibers, UniaxialMaterial **mats,
 			  SectionIntegration &si, bool compCentroid=true);
+#endif
     ~FiberSection2dThermal();
 
     const char *getClassType(void) const {return "FiberSection2dThermal";};
@@ -78,7 +79,7 @@ class FiberSection2dThermal : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial& theMat, const double Area, const double yLoc);
     //double getMaterialPara(void);
 
 
@@ -106,8 +107,6 @@ class FiberSection2dThermal : public SectionForceDeformation
     double QzBar, ABar, yBar;       // Section centroid
     bool computeCentroid;
     
-    SectionIntegration *sectionIntegr;
-
     static ID code;
 
     Vector e;          // trial section deformations
@@ -116,8 +115,8 @@ class FiberSection2dThermal : public SectionForceDeformation
     Matrix *ks;        // section stiffness
     Vector DataMixed;
 
-    double   sTData[2];   //Data for section resisting force due to thermal load
-    Vector  *sT;  //  Pointer to sTData
+    double   sTData[2];   // Data for section resisting force due to thermal load
+    Vector  *sT;          // Pointer to sTData
     double *Fiber_Tangent;
     double *Fiber_ElongP;
     Vector AverageThermalElong;

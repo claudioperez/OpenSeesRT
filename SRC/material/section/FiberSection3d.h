@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:47:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection3d.h,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -40,19 +36,17 @@
 #include <memory>
 
 
-class UniaxialMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
+class UniaxialMaterial;
 
 class FiberSection3d : public SectionForceDeformation
 {
   public:
     FiberSection3d(); 
-    FiberSection3d(int tag, int numFibers, Fiber **fibers, 
-		   UniaxialMaterial &torsion, bool compCentroid=true);
     FiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, bool compCentroid=true);
 #if 0
+    FiberSection3d(int tag, int numFibers, Fiber **fibers, 
+		   UniaxialMaterial &torsion, bool compCentroid=true);
     FiberSection3d(int tag, int numFibers, UniaxialMaterial **mats,
 		   SectionIntegration &si, UniaxialMaterial &torsion, bool compCentroid=true);
 #endif
@@ -60,7 +54,7 @@ class FiberSection3d : public SectionForceDeformation
 
     const char *getClassType(void) const {return "FiberSection3d";};
 
-    int   setTrialSectionDeformation(const Vector &deforms); 
+    int   setTrialSectionDeformation(const Vector &deforms);
     const Vector &getSectionDeformation(void);
 
     const Vector &getStressResultant(void);
@@ -84,7 +78,7 @@ class FiberSection3d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &theMat, const double area, const double y, const double z);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -115,8 +109,6 @@ class FiberSection3d : public SectionForceDeformation
     double zBar;
     bool computeCentroid;
 
-    SectionIntegration *sectionIntegr;
-
     static ID code;
 
     Vector  e;         // trial section deformations 
@@ -124,8 +116,8 @@ class FiberSection3d : public SectionForceDeformation
     Matrix  ks;        // section stiffness
 
     OpenSees::VectorND<4> eData, sData;
-
     UniaxialMaterial *theTorsion;
+    void *pool;        // thread pool
 };
 
 #endif
