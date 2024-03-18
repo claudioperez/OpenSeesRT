@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.13 $
-// $Date: 2008-08-19 22:50:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/node/Node.h,v $
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
@@ -31,27 +28,24 @@
 // acceleration and committed displacement, velocity and acceleration 
 // (the last committed() trial quantities).
 //
-// What: "@(#) Node.h, revA"
-//
 #ifndef Node_h
 #define Node_h
 
 #define VIRTUAL
 
-//#include <DomainComponent.h>
 #include <TaggedObject.h>
 #include <MovableObject.h>
 
 // TODO: Remove include of NodeData
 #include "NodeData.h"
 
-class Element;
 class Vector;
 class Matrix;
 class Channel;
-
 class DOF_Group;
 class NodalThermalAction; //L.Jiang [ SIF ]
+class Domain;
+class Element;
 
 class Node :
 #if 0
@@ -62,6 +56,10 @@ class Node :
 #endif
 {
   public:
+    enum class Field {
+      R1, R2, R3, SE2, SE3, None
+    } field;
+
     // constructors
     Node(int classTag);
     Node(int tag, int classTag);
@@ -89,9 +87,9 @@ class Node :
     // State
     //
     // public methods dealing with the committed state of the node
-    VIRTUAL int commitState();
-    VIRTUAL int revertToLastCommit();
-    VIRTUAL int revertToStart();
+    virtual int commitState();
+    virtual int revertToLastCommit();
+    virtual int revertToStart();
 
     //
     // Response
@@ -99,26 +97,23 @@ class Node :
     // public methods for obtaining committed and trial 
     // response quantities of the node
     VIRTUAL const Vector &getDisp(void);
-    VIRTUAL const Vector &getVel(void);
-    VIRTUAL const Vector &getAccel(void);
     VIRTUAL const Vector &getIncrDisp(void);
     VIRTUAL const Vector &getIncrDeltaDisp(void);
     VIRTUAL const Vector &getTrialDisp(void);
+
+    VIRTUAL const Vector &getVel(void);
+    VIRTUAL const Vector &getAccel(void);
     VIRTUAL const Vector &getTrialVel(void);
     VIRTUAL const Vector &getTrialAccel(void);
 
     // public methods for updating the trial response quantities
-    VIRTUAL int setTrialDisp(double value, int dof);
-    VIRTUAL int setTrialDisp(const Vector &);
-    VIRTUAL int setTrialVel(const Vector &);
-    VIRTUAL int setTrialAccel(const Vector &);
-    VIRTUAL int incrTrialDisp(const Vector &);
-    VIRTUAL int incrTrialVel(const Vector &);
+    virtual int setTrialDisp  (double value, int dof);
+    virtual int setTrialDisp  (const Vector &);
+    virtual int incrTrialDisp (const Vector &);
+    VIRTUAL int setTrialVel   (const Vector &);
+    VIRTUAL int setTrialAccel (const Vector &);
+    VIRTUAL int incrTrialVel  (const Vector &);
     VIRTUAL int incrTrialAccel(const Vector &);
-
-    // Thermodynamics
-    virtual NodalThermalAction* getNodalThermalActionPtr(void);
-    virtual void setNodalThermalActionPtr(NodalThermalAction* theAction);
 
     // Dynamics
     VIRTUAL const Matrix &getMass(void);
@@ -134,13 +129,9 @@ class Node :
     VIRTUAL int setEigenvector(int mode, const Vector &eigenVector);
     VIRTUAL const Matrix &getEigenvectors(void);
 
-    // Misc. Responses
-    VIRTUAL const Vector &getReaction();
-    VIRTUAL int   addReactionForce(const Vector &, double factor);
-    VIRTUAL int   resetReactionForce(int flag);
-
-    VIRTUAL const Vector *getResponse(NodeData);
-    int fillResponse(NodeData responseType, Vector& result, int offset=0);
+    // Thermodynamics
+    VIRTUAL NodalThermalAction* getNodalThermalActionPtr(void);
+    VIRTUAL void setNodalThermalActionPtr(NodalThermalAction* theAction);
     
     //
     // Load information
@@ -151,6 +142,14 @@ class Node :
     VIRTUAL const Vector &getUnbalancedLoad(void);
     VIRTUAL const Vector &getUnbalancedLoadIncInertia(void);
 
+
+    // Misc. Responses
+    VIRTUAL const Vector &getReaction();
+    VIRTUAL int   addReactionForce(const Vector &, double factor);
+    VIRTUAL int   resetReactionForce(int flag);
+
+    VIRTUAL const Vector *getResponse(NodeData);
+    int fillResponse(NodeData responseType, Vector& result, int offset=0);
     
     //
     // Parallel
@@ -163,6 +162,7 @@ class Node :
     // Misc
     //
     VIRTUAL void Print(OPS_Stream &s, int flag = 0);
+
 
     // AddingSensitivity:BEGIN /////////////////////////////////////////
     int addInertiaLoadSensitivityToUnbalance(const Vector &accel, 
@@ -182,27 +182,36 @@ class Node :
     int    activateParameter(int parameterID);
     // AddingSensitivity:END ///////////////////////////////////////////
 
-
+#if 1
     //
     // Display
     //
     VIRTUAL int getDisplayCrds(Vector &results, double fact, int displayMode=0);
     VIRTUAL int getDisplayRots(Vector& results, double fact, int displayMode=0);
     VIRTUAL int setDisplayCrds(const Vector &theCrds);
+#endif
 
 
     Domain *getDomain(void) {return theDomain;};
     void setDomain(Domain *model) {theDomain = model;};
 
   protected:
+    double *vel, *accel;              // double arrays holding the vel and accel values
+    Vector *trialDisp, *commitDisp, *incrDisp, *incrDeltaDisp;
+    Vector *commitVel, *commitAccel;  // committed quantities
+    Vector *trialVel,  *trialAccel;   // trial quantities
+    Vector *unbalLoad;                // unbalanced load
 
   private:
+    double *disp;
+
 #if 1
     Domain* theDomain;
 #endif
 
     // Private global state
     int setGlobalMatrices();
+
     static Matrix **theMatrices;
     static int numMatrices;
     static Matrix **theVectors;
@@ -212,28 +221,22 @@ class Node :
 
     // priavte methods used to create the Vector objects 
     // for the committed and trial response quantaties.
-    int createDisp(void);
+    virtual int createDisp(void);
     int createVel(void);
     int createAccel(void);
 
     // private data associated with each node object
     int numberDOF;                    // number of dof at Node
     DOF_Group *theDOF_GroupPtr;       // pointer to associated DOF_Group
-    Vector *Crd;                      // original nodal coords
-    Vector *commitDisp, *commitVel, *commitAccel;  // committed quantities
-    Vector *trialDisp, *trialVel, *trialAccel;     // trial quantities
-    Vector *unbalLoad;                             // unbalanced load
-    Vector *incrDisp;
-    Vector *incrDeltaDisp;
     NodalThermalAction *theNodalThermalActionPtr; //Added by Liming Jiang for pointer to nodalThermalAction, [SIF]
+
+    Vector *Crd;                      // original nodal coords
     
-    double *disp, *vel, *accel; // double arrays holding the displ, 
-                                // vel and accel values
 
     Matrix *R;                          // nodal participation matrix
     Matrix *mass;                       // pointer to mass matrix
     Vector *unbalLoadWithInertia;
-    double alphaM;                    // rayleigh damping factor 
+    double alphaM;                      // rayleigh damping factor 
     Matrix *theEigenvectors;
 
 
@@ -246,11 +249,7 @@ class Node :
     int parameterID;
     // AddingSensitivity:END ///////////////////////////////////////////
 
-
     Vector *reaction;
-
-    Vector *displayLocation;
-
 };
 
 #endif
