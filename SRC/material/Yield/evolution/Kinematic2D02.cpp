@@ -4,6 +4,8 @@
 
 #include "Kinematic2D02.h"
 #include <math.h>
+#include <OPS_Stream.h>
+
 //#include "YieldSurface_BC.h"
  
 #define evolDebug 0
