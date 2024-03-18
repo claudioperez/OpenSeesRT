@@ -31,7 +31,7 @@
 #include <ReeseSandBackbone.h>
 #include <Vector.h>
 #include <Channel.h>
-
+#include <OPS_Stream.h>
 #include <math.h>
 
 ReeseSandBackbone::ReeseSandBackbone(int tag, double KX, 
