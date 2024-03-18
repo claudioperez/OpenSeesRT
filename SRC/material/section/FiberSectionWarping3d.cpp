@@ -25,13 +25,12 @@
 // Modified by Xi Zhang from University of Sydney, Australia (include warping degrees of freedom). Refer to 
 // Formulation and Implementation of Three-dimensional Doubly Symmetric Beam-Column Analyses with Warping Effects in OpenSees
 // Research Report R917, School of Civil Engineering, University of Sydney.
-
+//
 #include <stdlib.h>
 
 #include <Channel.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <Fiber.h>
 #include <classTags.h>
 #include <FiberSectionWarping3d.h>
 #include <ID.h>
@@ -43,10 +42,8 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
-#include <SectionIntegration.h>
+#include <string.h>
 #include <elementAPI.h>
-using std::string;
-using namespace std;
 
 
 ID FiberSectionWarping3d::code(6);
@@ -111,7 +108,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FiberSectionWarping3d)
       delete torsion;
     return section;
 }
-
+#if 0
 // constructors:
 FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, Fiber **fibers,
 					     UniaxialMaterial &torsion): 
@@ -121,11 +118,6 @@ FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, Fiber **fibers,
 {
   if (numFibers != 0) {
     theMaterials = new UniaxialMaterial *[numFibers];
-
-    if (theMaterials == 0) {
-      opserr << "FiberSectionWarping3d::FiberSectionWarping3d -- failed to allocate Material pointers\n";
-      exit(-1);
-    }
 
     matData = new double [numFibers*4];
 
@@ -140,7 +132,7 @@ FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, Fiber **fibers,
     double Heightt;
     
     for (int i = 0; i < numFibers; i++) {
-      Fiber *theFiber = fibers[i];
+      UniaxialFiber3d *theFiber = (UniaxialFiber3d *)fibers[i];
       double yLoc, zLoc, Area;
       theFiber->getFiberLocation(yLoc, zLoc);
       Area = theFiber->getArea();
@@ -196,6 +188,7 @@ FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, Fiber **fibers,
   SHVs=0;
   // AddingSensitivity:END //////////////////////////////////////
 }
+#endif
 
 FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, UniaxialMaterial &torsion): 
     SectionForceDeformation(tag, SEC_TAG_FiberSectionWarping3d),
@@ -285,18 +278,13 @@ FiberSectionWarping3d::FiberSectionWarping3d():
 }
 
 int
-FiberSectionWarping3d::addFiber(Fiber &newFiber)
+FiberSectionWarping3d::addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc, const double zLoc, const double Height)
 {
   // need to create a larger array
   int newSize = numFibers+1;
 
   UniaxialMaterial **newArray = new UniaxialMaterial *[newSize]; 
   double *newMatData = new double [4 * newSize];
-  
-  if (newArray == 0 || newMatData == 0) {
-    opserr << "FiberSectionWarping3d::addFiber -- failed to allocate Fiber pointers\n";
-    exit(-1);
-  }
 
   // copy the old pointers
   int i;
@@ -308,21 +296,19 @@ FiberSectionWarping3d::addFiber(Fiber &newFiber)
     newMatData[4*i+3] = matData[4*i+3];
   }
   // set the new pointers
-  double yLoc, zLoc, Area, Height;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
-  Height = newFiber.getd();
+//double yLoc, zLoc, Area, Height;
+//newFiber.getFiberLocation(yLoc, zLoc);
+//Area = newFiber.getArea();
+//Height = newFiber.getd();
   newMatData[numFibers*4] = -yLoc;
   newMatData[numFibers*4+1] = zLoc;
   newMatData[numFibers*4+2] = Area;
   newMatData[numFibers*4+3] = Height;
-  UniaxialMaterial *theMat = newFiber.getMaterial();
-  newArray[numFibers] = theMat->getCopy();
+//UniaxialMaterial *theMat = newFiber.getMaterial();
+  newArray[numFibers] = theMat.getCopy();
 
   if (newArray[numFibers] == 0) {
     opserr << "FiberSectionWarping3d::addFiber -- failed to get copy of a Material\n";
-    exit(-1);
-
     delete [] newArray;
     delete [] newMatData;
     return -1;
@@ -344,10 +330,10 @@ FiberSectionWarping3d::addFiber(Fiber &newFiber)
 
   // Recompute centroid
   for (i = 0; i < numFibers; i++) {
-    yLoc = -matData[4*i];
-    zLoc = matData[4*i+1];
-    Area = matData[4*i+2];
-    Height = matData[4*i+3];
+    double yLoc = -matData[4*i];
+    double zLoc = matData[4*i+1];
+    double Area = matData[4*i+2];
+//  double Height = matData[4*i+3];
     A  += Area;
     Qz += yLoc*Area;
     Qy += zLoc*Area;

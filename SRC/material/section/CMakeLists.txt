@@ -4,14 +4,6 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_include_directories(OPS_Material PRIVATE
-  ./integration
-  ./repres/cell
-  ./repres/patch
-  ./repres/reinfBar
-  ./repres/reinfLayer
-  ./repres/section
-)
 
 target_sources(OPS_Material
   PRIVATE
@@ -78,7 +70,4 @@ target_sources(OPS_Material
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(yieldSurface)
-
-# add_subdirectory(fiber)
-# add_subdirectory(integration)
 

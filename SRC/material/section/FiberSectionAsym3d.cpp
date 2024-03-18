@@ -39,7 +39,6 @@
 #include <Channel.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <Fiber.h>
 #include <classTags.h>
 #include <FiberSectionAsym3d.h>
 #include <ID.h>
@@ -48,7 +47,6 @@
 #include <MaterialResponse.h>
 #include <UniaxialMaterial.h>
 #include <ElasticMaterial.h>
-#include <SectionIntegration.h>
 #include <elementAPI.h>
 #include <string.h>
 
@@ -88,7 +86,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FiberSectionAsym3d)
         delete torsion;
     return section;
 }
-
+#if 0
 // constructors:
 FiberSectionAsym3d::FiberSectionAsym3d(int tag, int num, Fiber **fibers, UniaxialMaterial *torsion, double yss, double zss):
   SectionForceDeformation(tag, SEC_TAG_FiberSectionAsym3d),
@@ -149,11 +147,12 @@ FiberSectionAsym3d::FiberSectionAsym3d(int tag, int num, Fiber **fibers, Uniaxia
   code(3) = SECTION_RESPONSE_T;
   code(4) = SECTION_RESPONSE_W;
 }
+#endif
 
 FiberSectionAsym3d::FiberSectionAsym3d(int tag, int num, UniaxialMaterial *torsion, double yss, double zss):    //Xinlong 
     SectionForceDeformation(tag, SEC_TAG_FiberSectionAsym3d),
     numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
-    QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), sectionIntegr(0), e(5), s(0), ks(0), theTorsion(0), ys(yss), zs(zss)  //Xinlong
+    QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), e(5), s(0), ks(0), theTorsion(0), ys(yss), zs(zss)  //Xinlong
 {
     if(sizeFibers != 0) {
 	theMaterials = new UniaxialMaterial *[sizeFibers]{};
@@ -184,11 +183,12 @@ FiberSectionAsym3d::FiberSectionAsym3d(int tag, int num, UniaxialMaterial *torsi
     code(4) = SECTION_RESPONSE_W;
 }
 
+#if 0
 FiberSectionAsym3d::FiberSectionAsym3d(int tag, int num, UniaxialMaterial **mats,
 			       SectionIntegration &si, UniaxialMaterial *torsion, double yss, double zss):                   //Xinlong
   SectionForceDeformation(tag, SEC_TAG_FiberSectionAsym3d),
   numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
-  QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), sectionIntegr(0), e(5), s(0), ks(0), theTorsion(0), ys(yss), zs(zss)    //Xinlong
+  QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), e(5), s(0), ks(0), theTorsion(0), ys(yss), zs(zss)    //Xinlong
 {
   if (numFibers != 0) {
     theMaterials = new UniaxialMaterial *[numFibers];
@@ -240,12 +240,14 @@ FiberSectionAsym3d::FiberSectionAsym3d(int tag, int num, UniaxialMaterial **mats
   code(3) = SECTION_RESPONSE_T;
   code(4) = SECTION_RESPONSE_W;
 }
+#endif
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSectionAsym3d::FiberSectionAsym3d():
   SectionForceDeformation(0, SEC_TAG_FiberSectionAsym3d),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
-  QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), sectionIntegr(0), e(5), s(0), ks(0), theTorsion(0), ys(0.0), zs(0.0)     //Xinlong
+  QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), 
+  e(5), s(0), ks(0), theTorsion(0), ys(0.0), zs(0.0)     //Xinlong
 {
   s = new Vector(sData, 5);     //Xinlong
   ks = new Matrix(kData, 5, 5); //Xinlong
@@ -267,7 +269,7 @@ FiberSectionAsym3d::FiberSectionAsym3d():
 }
 
 int
-FiberSectionAsym3d::addFiber(Fiber &newFiber)
+FiberSectionAsym3d::addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc, const double zLoc)
 {
   // need to create a larger array
   if (numFibers == sizeFibers) {
@@ -303,14 +305,14 @@ FiberSectionAsym3d::addFiber(Fiber &newFiber)
   }
 	    
   // set the new pointers
-  double yLoc, zLoc, Area;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
+//double yLoc, zLoc, Area;
+//newFiber.getFiberLocation(yLoc, zLoc);
+//Area = newFiber.getArea();
   matData[numFibers*3] = yLoc;
   matData[numFibers*3+1] = zLoc;
   matData[numFibers*3+2] = Area;
-  UniaxialMaterial *theMat = newFiber.getMaterial();
-  theMaterials[numFibers] = theMat->getCopy();
+//UniaxialMaterial *theMat = newFiber.getMaterial();
+  theMaterials[numFibers] = theMat.getCopy();
 
   if (theMaterials[numFibers] == 0) {
     opserr << "FiberSectionAsym3d::addFiber -- failed to get copy of a Material\n";
@@ -351,9 +353,6 @@ FiberSectionAsym3d::~FiberSectionAsym3d()
 
   if (ks != 0)
     delete ks;
-
-  if (sectionIntegr != 0)
-    delete sectionIntegr;
 
   if (theTorsion != 0)
     delete theTorsion;
@@ -567,11 +566,6 @@ FiberSectionAsym3d::getCopy(void)
   else
     theCopy->theTorsion = 0;
 
-  if (sectionIntegr != 0)
-    theCopy->sectionIntegr = sectionIntegr->getCopy();
-  else
-    theCopy->sectionIntegr = 0;
-
   return theCopy;
 }
 
@@ -687,11 +681,7 @@ FiberSectionAsym3d::revertToStart(void)
   static double zLocs[10000];
   static double fiberArea[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, yLocs, zLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       yLocs[i] = matData[3*i];
       zLocs[i] = matData[3*i+1];
@@ -1024,10 +1014,8 @@ FiberSectionAsym3d::setResponse(const char **argv, int argc, OPS_Stream &output)
     static double yLocs[10000];
     static double zLocs[10000];
     
-    if (sectionIntegr != 0) {
-      sectionIntegr->getFiberLocations(numFibers, yLocs, zLocs);
-    }  
-    else {
+
+    { // TODO
       for (int i = 0; i < numFibers; i++) {
 	yLocs[i] = matData[3*i];
 	zLocs[i] = matData[3*i+1];
@@ -1241,9 +1229,6 @@ FiberSectionAsym3d::setParameter(const char **argv, int argc, Parameter &param)
 
   // Check if it belongs to the section integration
   else if (strstr(argv[0],"integration") != 0) {
-    if (sectionIntegr != 0)
-      return sectionIntegr->setParameter(&argv[1], argc-1, param);
-    else
       return -1;
   }
 
@@ -1260,12 +1245,6 @@ FiberSectionAsym3d::setParameter(const char **argv, int argc, Parameter &param)
   //ok = theTorsion->setParameter(argv, argc, param);
   //if (ok != -1)
   //  result = ok;
-
-  if (sectionIntegr != 0) {
-    ok = sectionIntegr->setParameter(argv, argc, param);
-    if (ok != -1)
-      result = ok;
-  }
 
   return result;
 }
@@ -1298,11 +1277,8 @@ FiberSectionAsym3d::getStressResultantSensitivity(int gradIndex, bool conditiona
   static double zLocs[10000];
   static double fiberArea[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, yLocs, zLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
+
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       yLocs[i] = matData[3*i];
       zLocs[i] = matData[3*i+1];
@@ -1314,11 +1290,7 @@ FiberSectionAsym3d::getStressResultantSensitivity(int gradIndex, bool conditiona
   static double dzdh[10000];
   static double areaDeriv[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getLocationsDeriv(numFibers, dydh, dzdh);  
-    sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
-  }
-  else {
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       dydh[i] = 0.0;
       dzdh[i] = 0.0;
@@ -1406,9 +1378,7 @@ FiberSectionAsym3d::commitSensitivity(const Vector& defSens, int gradIndex, int 
   static double yLocs[10000];
   static double zLocs[10000];
 
-  if (sectionIntegr != 0)
-    sectionIntegr->getFiberLocations(numFibers, yLocs, zLocs);
-  else {
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       yLocs[i] = matData[3*i];
       zLocs[i] = matData[3*i+1];
@@ -1418,9 +1388,7 @@ FiberSectionAsym3d::commitSensitivity(const Vector& defSens, int gradIndex, int 
   static double dydh[10000];
   static double dzdh[10000];
 
-  if (sectionIntegr != 0)
-    sectionIntegr->getLocationsDeriv(numFibers, dydh, dzdh);  
-  else {
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       dydh[i] = 0.0;
       dzdh[i] = 0.0;
