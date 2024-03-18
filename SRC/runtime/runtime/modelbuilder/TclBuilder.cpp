@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 #include <ID.h>
-#include <ArrayOfTaggedObjects.h>
 
 #include <Domain.h>
 

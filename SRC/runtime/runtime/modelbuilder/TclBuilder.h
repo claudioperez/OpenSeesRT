@@ -10,15 +10,9 @@
 #define TclBuilder_h
 
 #include <ModelBuilder.h>
-#include <string>
 #include <tcl.h>
 
 class LoadPattern;
-class SectionForceDeformation;
-class SectionRepres;
-class NDMaterial;
-class CrdTrasnf;
-class TaggedObjectStorage;
 
 class TclBuilder : public ModelBuilder {
 public:
