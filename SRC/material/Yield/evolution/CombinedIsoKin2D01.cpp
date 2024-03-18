@@ -4,6 +4,7 @@
 
 #include "CombinedIsoKin2D01.h"
 #include <math.h>
+#include <OPS_Stream.h>
 #include <OPS_ErrorStream.h>
 
 #define evolDebug 0
@@ -60,4 +61,4 @@ void CombinedIsoKin2D01::Print(OPS_Stream &s, int flag)
 	s << "\n";
 
 }
-	
+
