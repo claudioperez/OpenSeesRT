@@ -12,7 +12,6 @@ target_sources(OPS_Runtime
       BasicAnalysisBuilder.cpp
       BasicModelBuilder.cpp
       modelbuilder/TclBuilder.cpp
-      modelbuilder/basic/TclBasicBuilder.cpp
 
     PUBLIC
       BasicAnalysisBuilder.h

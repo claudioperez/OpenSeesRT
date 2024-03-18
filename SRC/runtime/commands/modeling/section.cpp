@@ -898,11 +898,23 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
+  bool openseespy = false;
+  if (Tcl_GetVar(interp, "opensees::pragma::openseespy", 0) != nullptr) { 
+    openseespy = true;
+  }
+
   int ndm = builder->getNDM();
 
-  if (argc < 4)
-    // TODO(cmp): Print error message here
+  // Check argument count for Tcl version
+  if (argc < 4 && !openseespy) {
+    opserr << "Insufficient arguments, expected at least 4\n";
     return TCL_ERROR;
+  }
+  else if (argc < 3 && openseespy) {
+    opserr << "Insufficient arguments, expected at least 4\n";
+    return TCL_ERROR;
+  }
+
 
   int secTag;
   if (Tcl_GetInt(interp, argv[2], &secTag) != TCL_OK) {
@@ -1022,7 +1034,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   // Parse the information inside the braces (fibers, patches, and reinforcing layers)
   //
-  if (Tcl_Eval(interp, argv[brace]) != TCL_OK) {
+  if (brace < argc && Tcl_Eval(interp, argv[brace]) != TCL_OK) {
     // Assume the subcommands have printed a message
     return TCL_ERROR;
   }
@@ -1164,6 +1176,32 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
+
+static SectionBuilder* 
+findSectionBuilder(BasicModelBuilder* builder, Tcl_Interp *interp, int argc, const char** const argv)
+{
+  int tag = -1;
+  for (int i = 0; i<argc; i++) {
+    if (strcmp(argv[i], "-section") == 0) {
+      if (Tcl_GetInt(interp, argv[i+1], &tag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to parse section tag \"" << argv[i+1] << "\"\n";
+        return nullptr;
+      } else {
+        break;
+      }
+    }
+  }
+
+  if (tag == -1)
+   tag = builder->currentSectionTag;
+
+  if (tag == -1)
+    return nullptr;
+
+  return builder->getTypedObject<SectionBuilder>(tag);
+
+}
+
 //
 // add patch to fiber section
 //
@@ -1176,37 +1214,12 @@ TclCommand_addPatch(ClientData clientData,
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
-  // get section
-  const int secTag = builder->currentSectionTag;
-
-  // check if a section is being processed
-  if (secTag == -1) {
-    opserr << G3_ERROR_PROMPT << "subcommand 'patch' is only valid inside a 'section' "
-              "command\n";
-    return TCL_ERROR;
-  }
-
-#if 0
-  SectionRepres *sectionRepres = builder->getSectionRepres(secTag);
-  if (sectionRepres == 0) {
+  SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
+  if (fiberSectionRepr == nullptr) {
     opserr << G3_ERROR_PROMPT << "cannot retrieve section\n";
     return TCL_ERROR;
   }
 
-  if (sectionRepres->getType() != SEC_TAG_FiberSection) {
-    opserr << G3_ERROR_PROMPT << "section invalid: patch can only be added to fiber "
-              "sections\n";
-    return TCL_ERROR;
-  }
-
-  FiberSectionRepr *fiberSectionRepr = (FiberSectionRepr *)sectionRepres;
-#else
-  SectionBuilder* fiberSectionRepr = builder->getTypedObject<SectionBuilder>(secTag);
-  if (fiberSectionRepr == nullptr) {
-    opserr << G3_ERROR_PROMPT << "cannot retrieve section builder for tag " << secTag << "\n";
-    return TCL_ERROR;
-  }
-#endif
 
   // make sure at least one other argument to contain patch type
   if (argc < 2) {
@@ -1267,27 +1280,12 @@ TclCommand_addPatch(ClientData clientData,
       vertexCoords(j, 1) = vertexCoordZ;
     }
 
-#if 0
-    // create patch
-
-    QuadPatch *patch =
-        new QuadPatch(matTag, numSubdivIJ, numSubdivJK, vertexCoords);
-
-    // add patch to section representation
-    int error = fiberSectionRepr->addPatch(*patch);
-    delete patch;
-
-    if (error) {
-      opserr << G3_ERROR_PROMPT << "cannot add patch to section\n";
-      return TCL_ERROR;
-    }
-#else
+    // Done parsing
     QuadPatch patch(matTag, numSubdivIJ, numSubdivJK, vertexCoords);
     int error = fiberSectionRepr->addPatch(patch);
-    if (error != 0) {
+    if (error != 0)
       return TCL_ERROR;
-    }
-#endif
+
   }
 
   // check argv[1] for type of patch  and create the object
@@ -1471,9 +1469,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  SectionBuilder *fiberSectionRepr = 
-    builder->getTypedObject<SectionBuilder>(builder->currentSectionTag);
-
+  SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
   if (fiberSectionRepr == nullptr) {
     opserr << G3_ERROR_PROMPT << "cannot retrieve section\n";
     return TCL_ERROR;
@@ -1536,15 +1532,12 @@ TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
-  // check if a section is being processed
-  if (builder->currentSectionTag == -1) {
-    opserr << G3_ERROR_PROMPT << "subcommand 'Hfiber' is only valid inside a 'section' "
-              "command\n";
+
+  SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
+  if (fiberSectionRepr == nullptr) {
+    opserr << G3_ERROR_PROMPT << "cannot retrieve section\n";
     return TCL_ERROR;
   }
-
-  SectionBuilder *fiberSectionRepr = 
-    builder->getTypedObject<SectionBuilder>(builder->currentSectionTag);
 
   // make sure at least one other argument to contain patch type
   if (argc < 5) {
@@ -1596,19 +1589,9 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  // get section
-  int secTag = builder->currentSectionTag;
-
-  // check if a section is being processed
-  if (secTag == -1) {
-    opserr << G3_ERROR_PROMPT << "subcommand 'patch' is only valid inside a 'section' "
-              "command\n";
-    return TCL_ERROR;
-  }
-
-  SectionBuilder *fiberSectionRepr = builder->getTypedObject<SectionBuilder>(secTag);
-  if (fiberSectionRepr == 0) {
-    opserr << G3_ERROR_PROMPT << "cannot retrieve section builder\n";
+  SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
+  if (fiberSectionRepr == nullptr) {
+    opserr << G3_ERROR_PROMPT << "cannot retrieve section\n";
     return TCL_ERROR;
   }
 

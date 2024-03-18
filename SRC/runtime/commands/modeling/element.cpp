@@ -7,6 +7,8 @@
 // The file contains the routine TclElementCommands which is invoked by the
 // TclBasicBuilder.
 //
+// cmp
+//
 #include "element.hpp"
 #include <assert.h>
 #include <stdlib.h>
@@ -71,8 +73,6 @@ extern int Tcl_addWrapperElement(eleObj *, ClientData clientData, Tcl_Interp *in
 int TclBasicBuilder_addWheelRail(ClientData, Tcl_Interp *, int, TCL_Char **, Domain *, TclBasicBuilder *, int);
 #endif
 
-extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
-                                      TCL_Char **const, Domain *);
 
 
 extern void *OPS_ElasticBeam2d(G3_Runtime *, const ID &);
@@ -80,24 +80,25 @@ extern void *OPS_ElasticBeam2d(G3_Runtime *, const ID &);
 typedef int (G3_TclElementCommand)(ClientData, Tcl_Interp*, int, const char** const, Domain*, TclBasicBuilder*);
 
 // Zero-length
-G3_TclElementCommand TclBasicBuilder_addZeroLength;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthContact2D;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthContact3D;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthRocking;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthSection;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthND;
+Tcl_CmdProc TclCommand_addZeroLength;
+Tcl_CmdProc TclCommand_addZeroLengthSection;
+Tcl_CmdProc TclCommand_addZeroLengthContact2D;
+Tcl_CmdProc TclCommand_addZeroLengthContact3D;
+Tcl_CmdProc TclCommand_addZeroLengthRocking;
+Tcl_CmdProc TclCommand_addZeroLengthND;
 
 G3_TclElementCommand TclBasicBuilder_addBeamWithHinges;
 G3_TclElementCommand TclBasicBuilder_addDispBeamColumnInt;
 
 
 // Other
+extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *);
 G3_TclElementCommand TclBasicBuilder_addJoint3D;
 G3_TclElementCommand TclBasicBuilder_addElastic2dGNL;
 G3_TclElementCommand TclBasicBuilder_addElement2dYS;
 G3_TclElementCommand TclBasicBuilder_addMultipleShearSpring;
 G3_TclElementCommand TclBasicBuilder_addMultipleNormalSpring;
-G3_TclElementCommand TclBasicBuilder_addKikuchiBearing;
+Tcl_CmdProc          TclBasicBuilder_addKikuchiBearing;
 G3_TclElementCommand TclBasicBuilder_addYamamotoBiaxialHDR;
 G3_TclElementCommand TclBasicBuilder_addMasonPan12;
 G3_TclElementCommand TclBasicBuilder_addMasonPan3D;
@@ -430,9 +431,11 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     int eleArgStart = 1;
     int result = TclBasicBuilder_addWheelRail(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
-
 #endif
 
+  //
+  // Beams
+  //
   else if (strcmp(argv[1], "dispBeamColumnInt") == 0) {
     return TclBasicBuilder_addDispBeamColumnInt(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
@@ -459,10 +462,12 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     return TclBasicBuilder_addBeamWithHinges(clientData, interp, argc, argv,
                                              theTclDomain, theTclBuilder);
 
+  //
+  //
+  //
   } else if ((strcmp(argv[1], "Quad") == 0) ||
              (strcmp(argv[1], "stdQuad") == 0)) {
     return TclBasicBuilder_addFourNodeQuad(clientData, interp, argc, argv);
-
 
   } else if (strcmp(argv[1], "quadWithSensitivity") == 0) {
     return TclBasicBuilder_addFourNodeQuadWithSensitivity(
@@ -528,30 +533,26 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 // Zero-Length
 //
   else if (strcmp(argv[1], "zeroLength") == 0) {
-    return TclBasicBuilder_addZeroLength(
-        clientData, interp, argc, argv, nullptr, nullptr);
+    return TclCommand_addZeroLength(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthSection") == 0) {
-    return TclBasicBuilder_addZeroLengthSection(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    return TclCommand_addZeroLengthSection(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthRocking") == 0) {
-    int result = TclBasicBuilder_addZeroLengthRocking(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclCommand_addZeroLengthRocking(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "zeroLengthContact2D") == 0) {
-    int result = TclBasicBuilder_addZeroLengthContact2D(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclCommand_addZeroLengthContact2D(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "zeroLengthContact3D") == 0) {
-    int result = TclBasicBuilder_addZeroLengthContact3D(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclCommand_addZeroLengthContact3D(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthND") == 0) {
-    int result = TclBasicBuilder_addZeroLengthND(clientData, interp, argc, argv,
-                                                 theTclDomain, theTclBuilder);
-    return result;
+    return TclCommand_addZeroLengthND(clientData, interp, argc, argv);
+
+  //
+  // Joints
+  //
   } else if ((strcmp(argv[1], "Joint2D") == 0) ||
              (strcmp(argv[1], "Joint2d") == 0)) {
     int result =
@@ -611,9 +612,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   }
 
   else if (strcmp(argv[1], "KikuchiBearing") == 0) {
-    int result = TclBasicBuilder_addKikuchiBearing(clientData, interp, argc, argv,
-                                                   theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addKikuchiBearing(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "YamamotoBiaxialHDR") == 0) {
@@ -836,7 +835,6 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
           return TCL_ERROR;
         }
 
-        // opserr << "org material " << material->getClassType() << "\n";
         recvMat++;
         i += 1;
 
@@ -1264,15 +1262,10 @@ error:
 
 int
 TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv,
-                                  Domain *theTclDomain, TclBasicBuilder* unused)
+                                  int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (builder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - KikuchiBearing\n";
-    return TCL_ERROR;
-  }
 
   // 3-dim, 6dof
   int ndm = builder->getNDM();
@@ -1345,7 +1338,6 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
   bool ifNoError = true;
 
   if (argc < 5) { // element KikuchiBearing eleTag? iNode? jNode?
-
     ifNoError = errDetected(ifNoError, "insufficient arguments");
 
   } else {
@@ -1800,8 +1792,7 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
   oriYp(2) = 0.0;
   double mass = 0.0;
 
-  //
-  Element *theElement = 0;
+  Element *theElement = nullptr;
 
   // error flag
   bool ifNoError = true;
