@@ -17,22 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-#ifndef ElasticTimoshenkoBeam2d_h
-#define ElasticTimoshenkoBeam2d_h
-
-// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
-// Created: 03/13
-// Revision: A
 //
 // Purpose: This file contains the class definition for ElasticTimoshenkoBeam2d.
 // ElasticTimoshenkoBeam2d is a frame member that takes shearing deformations
 // and rotational inertia effects into account.
-
+//
+// Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
+// Created: 03/13
+// Revision: A
+//
+#ifndef ElasticTimoshenkoBeam2d_h
+#define ElasticTimoshenkoBeam2d_h
+//
 #include <Element.h>
 #include <Matrix.h>
 
@@ -81,7 +77,6 @@ public:
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
 
     void Print(OPS_Stream &s, int flag = 0);
     

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 03/13
 // Revision: B
@@ -101,7 +97,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticTimoshenkoBeam2d)
         return 0;
     }
     
-    CrdTransf *theTrans = OPS_getCrdTransf(iData[3]);
+    CrdTransf *theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if (theTrans == 0)  {
         opserr << "WARNING transformation object not found for ElasticTimoshenkoBeam2d " << iData[0] << endln;
         return 0;
@@ -633,19 +629,6 @@ int ElasticTimoshenkoBeam2d::recvSelf(int commitTag, Channel &rChannel,
     theCoordTransf->revertToLastCommit();
     
     return res;
-}
-
-
-int ElasticTimoshenkoBeam2d::displaySelf(Renderer &theViewer,
-    int displayMode, float fact, const char **modes, int numModes)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag(), 0);
 }
 
 
