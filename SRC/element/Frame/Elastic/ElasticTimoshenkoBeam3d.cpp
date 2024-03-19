@@ -17,7 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 03/13
 // Revision: B
@@ -97,7 +97,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticTimoshenkoBeam3d)
         return 0;
     }
     
-    CrdTransf *theTrans = OPS_getCrdTransf(iData[3]);
+    CrdTransf *theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if (theTrans == 0)  {
         opserr << "WARNING transformation object not found for ElasticTimoshenkoBeam3d " << iData[0] << endln;
         return 0;
@@ -140,20 +140,13 @@ ElasticTimoshenkoBeam3d::ElasticTimoshenkoBeam3d(int tag, int Nd1, int Nd2,
     Iy(iy), Iz(iz), Avy(avy), Avz(avz), rho(r), cMass(cm), nlGeo(0), phiY(0.0),
     phiZ(0.0), L(0.0), ul(12), ql(12), ql0(12), kl(12,12), klgeo(12,12),
     Tgl(12,12), Ki(12,12), M(12,12), theLoad(12)
-{
-    // ensure the connectedExternalNode ID is of correct size & set values
-    if (connectedExternalNodes.Size() != 2)  {
-        opserr << "ElasticTimoshenkoBeam3d::ElasticTimoshenkoBeam3d() - element: "
-            << this->getTag() << " - failed to create an ID of size 2.\n";
-        exit(-1);
-    }
-    
+{    
     connectedExternalNodes(0) = Nd1;
     connectedExternalNodes(1) = Nd2;
     
     // set node pointers to NULL
     for (int i=0; i<2; i++)
-        theNodes[i] = 0;
+        theNodes[i] = nullptr;
     
     // get a copy of the coordinate transformation
     theCoordTransf = coordTransf.getCopy3d();
@@ -239,8 +232,8 @@ void ElasticTimoshenkoBeam3d::setDomain(Domain *theDomain)
 {
     // check Domain is not null - invoked when object removed from a domain
     if (!theDomain)  {
-        theNodes[0] = 0;
-        theNodes[1] = 0;
+        theNodes[0] = nullptr;
+        theNodes[1] = nullptr;
         
         return;
     }
@@ -339,6 +332,7 @@ const Matrix& ElasticTimoshenkoBeam3d::getTangentStiff()
     if (nlGeo == 0)  {
         // transform from local to global system
         theMatrix.addMatrixTripleProduct(0.0, Tgl, kl, 1.0);
+        return theMatrix;
         
     } else  {
         // initialize local stiffness matrix
@@ -366,9 +360,9 @@ const Matrix& ElasticTimoshenkoBeam3d::getTangentStiff()
         
         // transform from local to global system
         theMatrix.addMatrixTripleProduct(0.0, Tgl, klTot, 1.0);
+        return theMatrix;
     }
     
-    return theMatrix;
 }
 
 
@@ -397,7 +391,7 @@ int ElasticTimoshenkoBeam3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
     int type;
     const Vector &data = theLoad->getData(type, loadFactor);
-    
+
     if (type == LOAD_TAG_Beam3dUniformLoad) {
         double wy = data(0)*loadFactor;  // Transverse
         double wz = data(1)*loadFactor;  // Transverse
@@ -516,148 +510,6 @@ const Vector& ElasticTimoshenkoBeam3d::getResistingForceIncInertia()
     theVector.addMatrixVector(1.0, M, accel, 1.0);
     
     return theVector;
-}
-
-
-int ElasticTimoshenkoBeam3d::sendSelf(int commitTag, Channel &sChannel)
-{
-    int res = 0;
-    
-    static Vector data(19);
-    data(0) = this->getTag();
-    data(1) = connectedExternalNodes(0);
-    data(2) = connectedExternalNodes(1);
-    data(3) = E;
-    data(4) = G;
-    data(5) = A;
-    data(6) = Jx;
-    data(7) = Iy;
-    data(8) = Iz;
-    data(9) = Avy;
-    data(10) = Avz;
-    data(11) = rho;
-    data(12) = cMass;
-    data(13) = alphaM;
-    data(14) = betaK;
-    data(15) = betaK0;
-    data(16) = betaKc;
-    data(17) = theCoordTransf->getClassTag();
-    
-    int dbTag = theCoordTransf->getDbTag();
-    if (dbTag == 0)  {
-        dbTag = sChannel.getDbTag();
-        if (dbTag != 0)
-            theCoordTransf->setDbTag(dbTag);
-    }
-    data(18) = dbTag;
-    
-    // send the data vector
-    res += sChannel.sendVector(this->getDbTag(), commitTag, data);
-    if (res < 0) {
-        opserr << "ElasticTimoshenkoBeam3d::sendSelf() - could not send data Vector.\n";
-        return res;
-    }
-    
-    // ask the CoordTransf to send itself
-    res += theCoordTransf->sendSelf(commitTag, sChannel);
-    if (res < 0) {
-        opserr << "ElasticTimoshenkoBeam3d::sendSelf() - could not send CoordTransf.\n";
-        return res;
-    }
-    
-    return res;
-}
-
-
-int ElasticTimoshenkoBeam3d::recvSelf(int commitTag, Channel &rChannel,
-    FEM_ObjectBroker &theBroker)
-{
-    int res = 0;
-    
-    static Vector data(19);
-    res += rChannel.recvVector(this->getDbTag(), commitTag, data);
-    if (res < 0) {
-        opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not receive data Vector.\n";
-        return res;
-    }
-    
-    this->setTag((int)data(0));
-    connectedExternalNodes(0) = (int)data(1);
-    connectedExternalNodes(1) = (int)data(2);
-    E = data(3);
-    G = data(4);
-    A = data(5);
-    Jx = data(6);
-    Iy = data(7);
-    Iz = data(8);
-    Avy = data(9);
-    Avz = data(10);
-    rho = data(11);
-    cMass = (int)data(12);
-    alphaM = data(13);
-    betaK  = data(14);
-    betaK0 = data(15);
-    betaKc = data(16);
-    
-    // check if the CoordTransf is null; if so, get a new one
-    int crdTag = (int)data(17);
-    if (theCoordTransf == 0)  {
-        theCoordTransf = theBroker.getNewCrdTransf(crdTag);
-        if (theCoordTransf == 0)  {
-            opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not get a CrdTransf3d.\n";
-            return -1;
-        }
-    }
-    
-    // check that the CoordTransf is of the right type; if not, delete
-    // the current one and get a new one of the right type
-    if (theCoordTransf->getClassTag() != crdTag)  {
-        delete theCoordTransf;
-        theCoordTransf = theBroker.getNewCrdTransf(crdTag);
-        if (theCoordTransf == 0)  {
-            opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not get a CrdTransf3d.\n";
-            return -1;
-        }
-    }
-    
-    // receive the CoordTransf
-    theCoordTransf->setDbTag((int)data(18));
-    res += theCoordTransf->recvSelf(commitTag, rChannel, theBroker);
-    if (res < 0) {
-        opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not receive CoordTransf.\n";
-        return res;
-    }
-    
-    // get coordinate transformation type and save flag
-    if (strncmp(theCoordTransf->getClassType(),"Linear",6) == 0)  {
-        nlGeo = 0;
-    } else if (strncmp(theCoordTransf->getClassType(),"PDelta",6) == 0)  {
-        nlGeo = 1;
-    } else if (strncmp(theCoordTransf->getClassType(),"Corot",5) == 0)  {
-        nlGeo = 1;
-        opserr << "\nWARNING ElasticTimoshenkoBeam3d::recvSelf()"
-            << " - Element: " << this->getTag() << endln
-            << "Unsupported Corotational transformation assigned.\n"
-            << "Using PDelta transformation instead.\n";
-    }
-    
-    // revert the CoordTransf to its last committed state
-    theCoordTransf->revertToLastCommit();
-    
-    return res;
-}
-
-
-int ElasticTimoshenkoBeam3d::displaySelf(Renderer &theViewer,
-    int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag(), 0);
 }
 
 
@@ -984,3 +836,133 @@ void ElasticTimoshenkoBeam3d::setUp()
         }
     }
 }
+
+int ElasticTimoshenkoBeam3d::sendSelf(int commitTag, Channel &sChannel)
+{
+    int res = 0;
+    
+    static Vector data(19);
+    data(0) = this->getTag();
+    data(1) = connectedExternalNodes(0);
+    data(2) = connectedExternalNodes(1);
+    data(3) = E;
+    data(4) = G;
+    data(5) = A;
+    data(6) = Jx;
+    data(7) = Iy;
+    data(8) = Iz;
+    data(9) = Avy;
+    data(10) = Avz;
+    data(11) = rho;
+    data(12) = cMass;
+    data(13) = alphaM;
+    data(14) = betaK;
+    data(15) = betaK0;
+    data(16) = betaKc;
+    data(17) = theCoordTransf->getClassTag();
+    
+    int dbTag = theCoordTransf->getDbTag();
+    if (dbTag == 0)  {
+        dbTag = sChannel.getDbTag();
+        if (dbTag != 0)
+            theCoordTransf->setDbTag(dbTag);
+    }
+    data(18) = dbTag;
+    
+    // send the data vector
+    res += sChannel.sendVector(this->getDbTag(), commitTag, data);
+    if (res < 0) {
+        opserr << "ElasticTimoshenkoBeam3d::sendSelf() - could not send data Vector.\n";
+        return res;
+    }
+    
+    // ask the CoordTransf to send itself
+    res += theCoordTransf->sendSelf(commitTag, sChannel);
+    if (res < 0) {
+        opserr << "ElasticTimoshenkoBeam3d::sendSelf() - could not send CoordTransf.\n";
+        return res;
+    }
+    
+    return res;
+}
+
+
+int ElasticTimoshenkoBeam3d::recvSelf(int commitTag, Channel &rChannel,
+    FEM_ObjectBroker &theBroker)
+{
+    int res = 0;
+    
+    static Vector data(19);
+    res += rChannel.recvVector(this->getDbTag(), commitTag, data);
+    if (res < 0) {
+        opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not receive data Vector.\n";
+        return res;
+    }
+    
+    this->setTag((int)data(0));
+    connectedExternalNodes(0) = (int)data(1);
+    connectedExternalNodes(1) = (int)data(2);
+    E = data(3);
+    G = data(4);
+    A = data(5);
+    Jx = data(6);
+    Iy = data(7);
+    Iz = data(8);
+    Avy = data(9);
+    Avz = data(10);
+    rho = data(11);
+    cMass = (int)data(12);
+    alphaM = data(13);
+    betaK  = data(14);
+    betaK0 = data(15);
+    betaKc = data(16);
+    
+    // check if the CoordTransf is null; if so, get a new one
+    int crdTag = (int)data(17);
+    if (theCoordTransf == 0)  {
+        theCoordTransf = theBroker.getNewCrdTransf(crdTag);
+        if (theCoordTransf == 0)  {
+            opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not get a CrdTransf3d.\n";
+            return -1;
+        }
+    }
+    
+    // check that the CoordTransf is of the right type; if not, delete
+    // the current one and get a new one of the right type
+    if (theCoordTransf->getClassTag() != crdTag)  {
+        delete theCoordTransf;
+        theCoordTransf = theBroker.getNewCrdTransf(crdTag);
+        if (theCoordTransf == 0)  {
+            opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not get a CrdTransf3d.\n";
+            return -1;
+        }
+    }
+    
+    // receive the CoordTransf
+    theCoordTransf->setDbTag((int)data(18));
+    res += theCoordTransf->recvSelf(commitTag, rChannel, theBroker);
+    if (res < 0) {
+        opserr << "ElasticTimoshenkoBeam3d::recvSelf() - could not receive CoordTransf.\n";
+        return res;
+    }
+    
+    // get coordinate transformation type and save flag
+    if (strncmp(theCoordTransf->getClassType(),"Linear",6) == 0)  {
+        nlGeo = 0;
+    } else if (strncmp(theCoordTransf->getClassType(),"PDelta",6) == 0)  {
+        nlGeo = 1;
+    } else if (strncmp(theCoordTransf->getClassType(),"Corot",5) == 0)  {
+        nlGeo = 1;
+        opserr << "\nWARNING ElasticTimoshenkoBeam3d::recvSelf()"
+            << " - Element: " << this->getTag() << endln
+            << "Unsupported Corotational transformation assigned.\n"
+            << "Using PDelta transformation instead.\n";
+    }
+    
+    // revert the CoordTransf to its last committed state
+    theCoordTransf->revertToLastCommit();
+    
+    return res;
+}
+
+
