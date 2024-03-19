@@ -572,6 +572,7 @@ const Matrix &ShellMITC4::getInitialStiff()
 
     // get shape functions
     shape2d(pts[i][0], pts[i][1], xl, shp, xsj);
+
     // volume element to also be saved
     dvol[i] = wts[i] * xsj;
     volume += dvol[i];
@@ -606,11 +607,10 @@ const Matrix &ShellMITC4::getInitialStiff()
       computeBdrill(j, shp, BdrillJ);
     }
 
-    dd = materialPointers[i]->getInitialTangent();
+    dd  = materialPointers[i]->getInitialTangent();
     dd *= dvol[i];
 
     // residual and tangent calculations node loops
-
     jj = 0;
     for (int j = 0; j < numnodes; j++) {
 
@@ -1279,41 +1279,30 @@ void ShellMITC4::updateBasis()
   
   // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
-
-  Vector id0(6), id1(6), id2(6), id3(6);
-  for (int dof = 0; dof < 6; ++dof) {
-    id0(dof) = init_disp[0][dof];
-    id1(dof) = init_disp[1][dof];
-    id2(dof) = init_disp[2][dof];
-    id3(dof) = init_disp[3][dof];
+  Vector3D<double> coor[4];
+  for (int i=0; i<4; i++) {
+    coor[i] = nodePointers[i]->getCrds();
+    const Vector& displ = nodePointers[i]->getTrialDisp();
+    for (int j=0; j<3; j++)
+      coor[i][j] += displ[j] - init_disp[i][j];
   }
-  const Vector &coor0 =
-      nodePointers[0]->getCrds() + nodePointers[0]->getTrialDisp() - id0;
-  const Vector &coor1 =
-      nodePointers[1]->getCrds() + nodePointers[1]->getTrialDisp() - id1;
-  const Vector &coor2 =
-      nodePointers[2]->getCrds() + nodePointers[2]->getTrialDisp() - id2;
-  const Vector &coor3 =
-      nodePointers[3]->getCrds() + nodePointers[3]->getTrialDisp() - id3;
 
-  // double v[4][3];
-  Vector3D v1; // (&v[0], 3);
-  Vector3D v2; // (&v[1], 3);
-  Vector3D temp; // (&v[3], 3);
-
+  Vector3D v1;
+  Vector3D v2;
+  Vector3D temp;
 
   // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
-  v1 = coor2;
-  v1 += coor1;
-  v1 -= coor3;
-  v1 -= coor0;
+  v1  = coor[2];
+  v1 += coor[1];
+  v1 -= coor[3];
+  v1 -= coor[0];
   v1 *= 0.50;
 
   // v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
-  v2 = coor3;
-  v2 += coor2;
-  v2 -= coor1;
-  v2 -= coor0;
+  v2  = coor[3];
+  v2 += coor[2];
+  v2 -= coor[1];
+  v2 -= coor[0];
   v2 *= 0.50;
 
   // normalize v1
@@ -1351,7 +1340,6 @@ void ShellMITC4::updateBasis()
     g3[i] = v3(i);
   }
 }
-// end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
 //*************************************************************************
 // compute Bdrill

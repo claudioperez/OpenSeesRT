@@ -32,6 +32,7 @@
 
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
@@ -1572,7 +1573,7 @@ void ShellNLDKGQ::computeBasis()
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } //end for i
+  }
 }
 
 //start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
@@ -1587,35 +1588,31 @@ void ShellNLDKGQ::updateBasis()
   //and use those as basis vectors but this is easier
   //and the shell is flat anyway.
 
-  static Vector temp(3);
+  Vector3D<double> coor[4];
+  for (int i=0; i<4; i++) {
+    coor[i] = nodePointers[i]->getCrds();
+    const Vector& displ = nodePointers[i]->getTrialDisp();
+    for (int j=0; j<3; j++)
+      coor[i][j] += displ[j];
+  }
 
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
+  Vector3D v1;
+  Vector3D v2;
+  Vector3D temp;
 
-  const Vector &coor0 =
-      nodePointers[0]->getCrds() + nodePointers[0]->getTrialDisp();
-  const Vector &coor1 =
-      nodePointers[1]->getCrds() + nodePointers[1]->getTrialDisp();
-  const Vector &coor2 =
-      nodePointers[2]->getCrds() + nodePointers[2]->getTrialDisp();
-  const Vector &coor3 =
-      nodePointers[3]->getCrds() + nodePointers[3]->getTrialDisp();
-
-  v1.Zero();
   //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
-  v1 = coor2;
-  v1 += coor1;
-  v1 -= coor3;
-  v1 -= coor0;
+  v1  = coor[2];
+  v1 += coor[1];
+  v1 -= coor[3];
+  v1 -= coor[0];
   v1 *= 0.50;
 
-  v2.Zero();
+
   //v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
-  v2 = coor3;
-  v2 += coor2;
-  v2 -= coor1;
-  v2 -= coor0;
+  v2  = coor[3];
+  v2 += coor[2];
+  v2 -= coor[1];
+  v2 -= coor[0];
   v2 *= 0.50;
   /*//normalize v1 
   double length = v1.Norm( ) ;
@@ -1638,46 +1635,44 @@ void ShellNLDKGQ::updateBasis()
   v3 = LovelyCrossProduct( v1, v2 ) ;*/
 
   // this procesure is simplified by Lisha Wang
-  v3      = LovelyCrossProduct(v1, v2);
-  v2      = LovelyCrossProduct(v3, v1);
-  temp(0) = v1.Norm();
-  temp(1) = v2.Norm();
-  temp(2) = v3.Norm();
+  Vector3D v3 = v1.cross(v2);
 
-  v1 /= temp(0);
-  v2 /= temp(1);
-  v3 /= temp(2);
+  v2      = v3.cross(v1);
+  temp[0] = v1.norm();
+  temp[1] = v2.norm();
+  temp[2] = v3.norm();
+
+  v1 /= temp[0];
+  v2 /= temp[1];
+  v3 /= temp[2];
 
   // local nodal coordinates in plane of shell
   for (int i = 0; i < 4; i++) {
-
+#if 0
+    // modify by Lisha Wang
     const Vector &coorI = nodePointers[i]->getCrds() +
-                          nodePointers[i]->getDisp(); //modify by Lisha Wang
-    xl[0][i] = coorI ^ v1;
-    xl[1][i] = coorI ^ v2;
+                          nodePointers[i]->getDisp(); 
+#endif
+    xl[0][i] = v1.dot(coor[i]);
+    xl[1][i] = v2.dot(coor[i]);
 
   }
 
   // basis vectors stored as array of doubles
   for (int i = 0; i < 3; i++) {
-    g1[i] = v1(i);
-    g2[i] = v2(i);
-    g3[i] = v3(i);
+    g1[i] = v1[i];
+    g2[i] = v2[i];
+    g3[i] = v3[i];
   }
 }
-//end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
 //********************************************************************
-//assemble a B matrix
+// assemble a B matrix
 
 const Matrix &ShellNLDKGQ::assembleB(const Matrix &Bmembrane,
                                      const Matrix &Bbend, const Matrix &Bshear)
 {
   static Matrix B(8, 6);
-
-  int p, q;
-
-  int pp;
 
   // For Shell :
   //
@@ -1703,16 +1698,16 @@ const Matrix &ShellNLDKGQ::assembleB(const Matrix &Bmembrane,
 
   //bending parts
   for (int p = 3; p < 6; p++) {
-    pp = p - 3;
+    int pp = p - 3;
     for (int q = 3; q < 6; q++)
       B(p, q) = Bbend(pp, q - 3);
   } //end for p
 
   //shear parts
   for (int p = 0; p < 2; p++) {
-    pp = p + 6;
+    int pp = p + 6;
 
-    for (q = 3; q < 6; q++)
+    for (int q = 3; q < 6; q++)
       B(pp, q) = Bshear(p, q - 3);
   } //end for p
 
