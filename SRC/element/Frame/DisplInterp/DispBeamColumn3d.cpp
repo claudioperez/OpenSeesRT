@@ -18,10 +18,10 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// Description: This file contains the class definition for DispBeamColumn3d.
+//
 // Written: MHS
 // Created: Feb 2001
-//
-// Description: This file contains the class definition for DispBeamColumn3d.
 //
 #include <DispBeamColumn3d.h>
 #include <Node.h>
@@ -30,7 +30,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -83,14 +82,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn3d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -282,19 +281,19 @@ DispBeamColumn3d::setDomain(Domain *theDomain)
         return;
     }
 
-        if (crdTransf->initialize(theNodes[0], theNodes[1])) {
-                // Add some error check
-        }
+    if (crdTransf->initialize(theNodes[0], theNodes[1])) {
+            // Add some error check
+    }
 
-        double L = crdTransf->getInitialLength();
+    double L = crdTransf->getInitialLength();
 
-        if (L == 0.0) {
-                // Add some error check
-        }
+    if (L == 0.0) {
+            // Add some error check
+    }
 
     this->DomainComponent::setDomain(theDomain);
 
-        this->update();
+    this->update();
 }
 
 int
@@ -1275,17 +1274,6 @@ DispBeamColumn3d::Print(OPS_Stream &s, int flag)
 }
 
 
-int
-DispBeamColumn3d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numModes)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 DispBeamColumn3d::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -1592,6 +1580,7 @@ DispBeamColumn3d::getResponse(int responseID, Information &eleInfo)
 
   else
     return -1;
+  return -1;
 }
 
 // AddingSensitivity:BEGIN ///////////////////////////////////

@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: MHS
-// Created: Feb 2001
 //
 // Description: This file contains the class definition for DispBeamColumn3d.
 // The element displacement field gives rise to constant axial strain,
 // linear curvature, and constant twist angle.
-
+//
+// Written: MHS
+// Created: Feb 2001
+//
 #ifndef DispBeamColumn3d_h
 #define DispBeamColumn3d_h
 
@@ -89,7 +85,7 @@ class DispBeamColumn3d : public Element
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
                  &theBroker);
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes=0, int numModes=0);
+
     void Print(OPS_Stream &s, int flag =0);
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
