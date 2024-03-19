@@ -50,7 +50,8 @@ Project objectives include:
 - **Simpler installation** With a single `pip`-install, run any OpenSees Tcl 
   script **and** most OpenSeesPy scripts.
 
-- **Performance improvements** The `opensees` package uses the experimental `OpenSeesRT` 
+- **Performance improvements** The `opensees` package uses the experimental 
+  [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
   analysis kernel which
   eliminates reliance on global variables for state and memory management. 
   Furthermore, new template classes allow for stack-allocated
