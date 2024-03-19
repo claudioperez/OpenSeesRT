@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.22 $
-// $Date: 2009-08-25 23:40:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/UniaxialMaterial.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 05/98
 // Revision: A
