@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
 /*
  * References
  *
@@ -113,7 +109,6 @@ class ForceBeamColumnCBDI3d: public Element
   
   int sendSelf(int cTag, Channel &theChannel);
   int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-  int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes=0, int numModes=0);
   
   friend OPS_Stream &operator<<(OPS_Stream &s, ForceBeamColumnCBDI3d &E);        
   void Print(OPS_Stream &s, int flag =0);    
