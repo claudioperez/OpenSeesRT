@@ -68,7 +68,7 @@ Additional features include:
 
 - Python versions 3.7 - 3.11 are supported on Linux.
 
-#### Getting Started
+### Getting Started
 
 - To start a Tcl interpreter run the shell command:
 
