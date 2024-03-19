@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2002-12-05 22:49:09 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/J2BeamFiber2d.cpp,v $
-
+//
 // Written: MHS
 // Created: Aug 2001
 //
 // Description: Elastic isotropic model where stress 
 // components 22, 33, 13, and 23 are condensed out.
-
+//
 #include <J2BeamFiber2d.h>           
 #include <Channel.h>
 #include <string.h>
@@ -115,7 +111,6 @@ int
 J2BeamFiber2d::setTrialStrain (const Vector &strain)
 {
   Tepsilon = strain;
-
   return 0;
 }
 
@@ -123,7 +118,6 @@ int
 J2BeamFiber2d::setTrialStrain (const Vector &strain, const Vector &rate)
 {
   Tepsilon = strain;
-
   return 0;
 }
 
