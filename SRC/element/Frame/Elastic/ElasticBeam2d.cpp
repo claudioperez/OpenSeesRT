@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 6715 $
-// $Date: 2018-05-03 06:39:06 -0700 (Thu, 03 May 2018) $
-// $URL: svn://peera.berkeley.edu/usr/local/svn/OpenSees/trunk/SRC/element/elasticBeamColumn/ElasticBeam2d.cpp $
-                                                                        
-                                                                        
-// File: ~/model/ElasticBeam2d.C
-//
-// Written: fmk 11/95
-// Revised:
 //
 // Purpose: This file contains the class definition for ElasticBeam2d.
 // ElasticBeam2d is a 3d beam element. As such it can only
 // connect to a node with 6-dof. 
-
+//
+// Written: fmk 11/95
+// Revised:
+//
 #include <ElasticBeam2d.h>
 #include <ElementalLoad.h>
 
@@ -44,7 +37,6 @@
 #include <Information.h>
 #include <Parameter.h>
 #include <ElementResponse.h>
-#include <Renderer.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -223,9 +215,8 @@ to get element data
     }
 
     // check transf
-    CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+    CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
     if (theTransf == 0) {
-        opserr << "coord transfomration not found\n";
         return 0;
     }
 
@@ -291,9 +282,8 @@ int OPS_DECL_RUNTIME(OPS_ElasticBeam2d, Domain& theDomain, const ID& elenodes, I
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(transfTag);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
 	return -1;
     }
 
@@ -1102,92 +1092,6 @@ ElasticBeam2d::Print(OPS_Stream &s, int flag)
   }
 }
 
-int
-ElasticBeam2d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector vp(3);
-
-  theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-  theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-  float d1 = 0.0;
-  float d2 = 0.0;
-  float d3 = 0.0;
-
-  int res = 0;
-
-  if (displayMode > 0 && numMode == 0)
-      res += theViewer.drawLine(v1, v2, d1, d1, this->getTag(), 0);
-  else if (displayMode < 0)
-      return theViewer.drawLine(v1, v2, 0.0, 0.0, this->getTag(), 0);
-
-  if (numMode > 0) {
-    // calculate q for potential need below
-    this->getResistingForce();
-    vp = theCoordTransf->getBasicTrialDisp();
-  }
-  
-  for (int i=0; i<numMode; i++) {
-
-    const char *theMode = modes[i];
-    if (strcmp(theMode, "axialForce") == 0) {
-      d1 = q(0); 
-      res +=theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-      
-    } else if (strcmp(theMode, "endMoments") == 0) {
-
-      d1 = q(1);
-      d2 = q(2);
-      static Vector delta(3); delta = v2-v1; delta/=20.;
-      res += theViewer.drawPoint(v1+delta, d1, this->getTag(), i);
-      res += theViewer.drawPoint(v2-delta, d2, this->getTag(), i);
-
-    } else if (strcmp(theMode, "localForces") == 0) {
-      d1 = q(0);
-      d2 = q(1);
-      d3 = q(2);
-      static Vector delta(3); delta = v2-v1; delta/=20;
-      res += theViewer.drawPoint(v1+delta, d2, this->getTag(), i);
-      res += theViewer.drawPoint(v2-delta, d3, this->getTag(), i);
-      res +=theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-
-    } else if (strcmp(theMode, "axialDeformation") == 0) {
-      d1 = vp(0); 
-      res +=theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-      
-    } else if (strcmp(theMode, "endRotations") == 0) {
-
-      d1 = vp(1);
-      d2 = vp(2);
-      static Vector delta(3); delta = v2-v1; delta/=20.;
-      res += theViewer.drawPoint(v1+delta, d1, this->getTag(), i);
-      res += theViewer.drawPoint(v2-delta, d2, this->getTag(), i);
-
-    } else if (strcmp(theMode, "localDeformations") == 0) {
-      d1 = vp(0);
-      d2 = vp(1);
-      d3 = vp(2);
-      static Vector delta(3); delta = v2-v1; delta/=20;
-      res += theViewer.drawPoint(v1+delta, d2, this->getTag(), i);
-      res += theViewer.drawPoint(v2-delta, d3, this->getTag(), i);
-      res +=theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-
-    } else if (strcmp(theMode, "plasticDeformations") == 0) {
-      d1 = 0.;
-      d2 = 0.;
-      d3 = 0.;
-      static Vector delta(3); delta = v2-v1; delta/=20;
-      res += theViewer.drawPoint(v1+delta, d2, this->getTag(), i);
-      res += theViewer.drawPoint(v2-delta, d3, this->getTag(), i);
-      res +=theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-    }
-
-  }    
-
-  return res;
-}
 
 Response*
 ElasticBeam2d::setResponse(const char **argv, int argc, OPS_Stream &output)

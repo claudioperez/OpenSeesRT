@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
-                                                                        
+//
 // Written: fmk 11/95
 // Revised:
 //
@@ -42,7 +37,6 @@ class Information;
 class CrdTransf;
 class SectionForceDeformation;
 class Response;
-class Renderer;
 
 class ElasticBeam2d : public Element
 {
@@ -90,8 +84,7 @@ class ElasticBeam2d : public Element
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
     
-    void Print(OPS_Stream &s, int flag = 0);    
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes = 0, int numModes = 0);
+    void Print(OPS_Stream &s, int flag = 0);
 
     Response *setResponse (const char **argv, int argc, OPS_Stream &s);
     int getResponse (int responseID, Information &info);
