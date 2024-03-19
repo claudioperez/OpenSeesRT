@@ -66,8 +66,11 @@ def analyze(system):
     system.analyze(1)
 
 
-# create two systems (with two-dimensions and 2 DOF/node)
-system_1 = ops.Model("basic", ndm=2, ndf=2)
+# create first independent model (with two-dimensions and 2 DOF/node)
+system_1 = ops.Model("basic", "-ndm", 2, "-ndf", 2)
+
+# create second independent model. Note the optional improved syntax 
+# for `ndm` and `ndf`.
 system_2 = ops.Model("basic", ndm=2, ndf=2)
 
 # create truss models in each system
