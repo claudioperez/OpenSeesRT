@@ -25,7 +25,7 @@
 // Ref: Dvorkin,Bathe, A continuum mechanics based four node shell
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
-
+//
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -133,9 +133,6 @@ IGAKLShell_BendingStrip::IGAKLShell_BendingStrip( int tag,
   // gaussQuad2dNurbs(P + 1, P + 1, quadPoint, quadWeight);
   // gaussQuad2dNurbs(4, 4, quadPoint, quadWeight);
 
-  // opserr << "*quadWeight = " << *quadWeight << endln;
-  // opserr << "*quadPoint = " << *quadPoint << endln;
-
   P = PQ(0);
   Q = PQ(1);
 
@@ -181,7 +178,6 @@ IGAKLShell_BendingStrip::~IGAKLShell_BendingStrip( )
 {
   // borrar todos los punteros. ARREGLAR PARA ARREGLO 2D
   int nLayers = myPatch->getNLayers();
-  // opserr << "quadorder = " << quadorder << endln;
   // int i ;
   // for ( i = 0 ;  i < 4; i++ ) {
 
@@ -280,11 +276,8 @@ int  IGAKLShell_BendingStrip::commitState( )
     opserr << "IGAKLShell_BendingStrip::commitState () - failed in base class";
   }
 
-
-
   for (int gp = 0; gp < ngauss; gp++ )
-    for (int capa = 0; capa < myPatch->getNLayers(); ++capa)
-    {
+    for (int capa = 0; capa < myPatch->getNLayers(); ++capa) {
       success += materialPointers[gp][capa]->commitState( ) ;
     }
 
@@ -299,8 +292,7 @@ int  IGAKLShell_BendingStrip::revertToLastCommit( )
   int success = 0 ;
 
   for (int gp = 0; gp < ngauss; gp++ )
-    for (int capa = 0; capa < myPatch->getNLayers(); ++capa)
-    {
+    for (int capa = 0; capa < myPatch->getNLayers(); ++capa) {
       success += materialPointers[gp][capa]->revertToLastCommit( ) ;
     }
 
@@ -314,8 +306,7 @@ int  IGAKLShell_BendingStrip::revertToStart( )
   int success = 0 ;
 
   for (int gp = 0; gp < ngauss; gp++ )
-    for (int capa = 0; capa < myPatch->getNLayers(); ++capa)
-    {
+    for (int capa = 0; capa < myPatch->getNLayers(); ++capa) {
       success += materialPointers[gp][capa]->revertToStart( ) ;
     }
 
@@ -491,20 +482,10 @@ IGAKLShell_BendingStrip::getResponse(int responseID, Information &eleInfo)
 //return stiffness matrix
 const Matrix&  IGAKLShell_BendingStrip::getTangentStiff( )
 {
-  // opserr << "IGAKLShell_BendingStrip::getTangentStiff - eleTag" << this->getTag() << " called! " << endln;
-
-  // opserr << "connectedExternalNodes = " << connectedExternalNodes << endln;
-
-  // opserr << "Element number:  = " << this->getTag() << endln;
-
-  // opserr << "xiE = " << xiE << endln;
-  // opserr << "etaE = " << etaE << endln;
-
   int tang_flag = 1 ; //get the tangent
 
   //do tangent and residual here
   formResidAndTangent( tang_flag ) ;
-  // opserr << "(*stiff) = " << (*stiff) << endln;
 
   return *stiff ;
 
@@ -513,9 +494,6 @@ const Matrix&  IGAKLShell_BendingStrip::getTangentStiff( )
   // stiff->Zero();
 
   // bool nonLinearGeometry = myPatch->getAnalysisType();
-
-  // // opserr << "xiE = " << xiE << endln;
-  // // opserr << "etaE = " << etaE << endln;
 
   // float wt;
   // float ptU;
@@ -977,22 +955,7 @@ const Matrix&  IGAKLShell_BendingStrip::getTangentStiff( )
   // }
 
 
-
-
-  // // opserr << "K.noRows() = " << K.noRows() << endln;
-  // // opserr << "K.noCols() = " << K.noCols() << endln;
-  // // opserr << "ke.noRows() = " << ke.noRows() << endln;
-  // // opserr << "ke.noCols() = " << ke.noCols() << endln;
-
-  // // opserr << "Ke = " << memStiff * transpose(Bmem.noRows(), Bmem.noCols(), Bmem) * C * Bmem * J1 * J2 * wt + benStiff * transpose(Bben.noRows(), Bben.noCols(), Bben) * C * Bben * J1 * J2 * wt << endln;
-
-
-  // // opserr << "Finished making Ke!!" << endln << endln;
-  // // opserr << "K = " << K << endln;
-
-  // // opserr << "K = " << K << endln;
   // // return K ;
-  // // opserr << "*stiff = " << *stiff << endln;
   // return *stiff;
 }
 
@@ -1119,9 +1082,6 @@ const Matrix&  IGAKLShell_BendingStrip::getMass( )
 
   // }
 
-  // opserr << "Finished making M!!! " << endln << endln;
-  // opserr << "M = " << M << endln;
-
   // Rellenar M(i,j)   aqui
 
   return *mass ;
@@ -1130,12 +1090,8 @@ const Matrix&  IGAKLShell_BendingStrip::getMass( )
 void IGAKLShell_BendingStrip::shellGeo(Matrix G, Matrix H, Vector& G3, double& dA, Vector& N, Matrix& Gab, Vector& Bv, Matrix& T_Gcon_E, Matrix& T_E_G, Matrix& T_G_E) // Get geometric quantities
 
 {
-  // opserr << "Starting shellGeo!" << endln;
-
-
   //G: Covariant base vectors, needed in the reference configuration
   //H: Hessian matrix, needed in the reference configuration
-
 
   // Basis vector G3 (covariant) on reference configuration
 
@@ -1155,8 +1111,7 @@ void IGAKLShell_BendingStrip::shellGeo(Matrix G, Matrix H, Vector& G3, double& d
   // Curvature coefficients in vector notation
   // Vector Bv(3); //Defined in input
   Bv.Zero();
-  for (int i = 0; i < 3; ++i)
-  {
+  for (int i = 0; i < 3; ++i) {
     Bv(i) = H(0, i) * N(0) + H(1, i) * N(1) + H(2, i) * N(2) ;
     // Bv(i) = H(i, 0) * N(0) + H(i, 0) * N(1) + H(i, 2) * N(2) ; // Testing if the error is here
   }
@@ -1184,8 +1139,7 @@ void IGAKLShell_BendingStrip::shellGeo(Matrix G, Matrix H, Vector& G3, double& d
   // Local cartesian coordinates
   Vector g1(3);
   Vector g2_con(3);
-  for (int i = 0; i < 3; ++i)
-  {
+  for (int i = 0; i < 3; ++i) {
     g1(i) = G(i, 0);
     g2_con(i) = G_con(i, 1);
   }
@@ -1193,26 +1147,22 @@ void IGAKLShell_BendingStrip::shellGeo(Matrix G, Matrix H, Vector& G3, double& d
   double lg2_con = g2_con.Norm();
 
   Matrix E(3, 2);
-  for (int i = 0; i < 3; ++i)
-  {
+  for (int i = 0; i < 3; ++i) {
     E(i, 0) = g1(i) / lg1;
     E(i, 1) = g2_con(i) / lg2_con;
   }
 
   // Quick Fix for bending strip
-  int Q=myPatch->getOrders()(1);
+  int Q = myPatch->getOrders()(1);
   // if (Q==1)
-  if (Q==2)
-  {
-    for (int i = 0; i < 3; ++i)
-    {
+  if (Q==2) {
+    for (int i = 0; i < 3; ++i) {
       g1(i)=G(i,1);
       g2_con(i)=G_con(i,0);
     }
     lg1 = g1.Norm();
     lg2_con = g2_con.Norm();
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
       E(i, 0) = g1(i) / lg1;
       E(i, 1) = g2_con(i) / lg2_con;
     }
@@ -1245,15 +1195,11 @@ void IGAKLShell_BendingStrip::shellGeo(Matrix G, Matrix H, Vector& G3, double& d
   T_G_E(1, 0) = pow(EG(1, 0), 2)  ; T_G_E(1, 1) = pow(EG(1, 1), 2) ;  T_G_E(1, 2) = 2 * EG(1, 0) * EG(1, 1)               ;
   T_G_E(2, 0) = EG(0, 0) * EG(1, 0) ; T_G_E(2, 1) = EG(0, 1) * EG(1, 1);  T_G_E(2, 2) = EG(0, 0) * EG(1, 1) + EG(0, 1) * EG(1, 0) ;
 
-
-// opserr << "Finished shellGeo!" << endln;
-  // End shell geo function
 }
 
 
 void  IGAKLShell_BendingStrip::zeroLoad( )
 {
-  // opserr << "IGAKLShell_BendingStrip::zeroLoad - eleTag" << this->getTag() << " called! " << endln;
   if (load != 0)
   {
     load->Zero(); // Uncomment this for twisted shell
@@ -1272,12 +1218,10 @@ void  IGAKLShell_BendingStrip::zeroLoad( )
 int
 IGAKLShell_BendingStrip::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
-  // opserr << "IGAKLShell_BendingStrip::addLoad - tag = " << this->getTag() << endln;
   int type;
   const Vector &data = theLoad->getData(type, loadFactor);
 
   if (type == LOAD_TAG_SelfWeight) {
-    // opserr << "IGAKLShell_BendingStrip::addLoad - type = LOAD_TAG_SelfWeight - tag = " << this->getTag() << endln;
     // added compatability with selfWeight class implemented for all continuum elements, C.McGann, U.W.
     applyLoad = 1;
     appliedB[0] += loadFactor * data(0);
@@ -1304,7 +1248,6 @@ IGAKLShell_BendingStrip::addLoad(ElementalLoad *theLoad, double loadFactor)
 
     if (pointInElement(xi, eta))
     {
-      // opserr << "IGAKLShell_BendingStrip::addLoad - type = LOAD_TAG_IGAFollowerLoad -tag =  = " << this->getTag() << " called" << endln;
       Vector followerforce(3);
 
       followerforce(0) = data(2);
@@ -1468,11 +1411,9 @@ IGAKLShell_BendingStrip::addLoad(ElementalLoad *theLoad, double loadFactor)
         g2(i) = g(i, 1);
       }
 
-      // opserr << "g3 = " << g3 << endln;
       // To transform from local covariant g to local cartesian e
       Vector e1 = T_G_E * g1;
       Vector e2 = T_G_E * g2;
-
       Vector e3 = n;
 
       // for (int i = 0; i < 3; ++i)
@@ -1566,9 +1507,9 @@ IGAKLShell_BendingStrip::addInertiaLoadToUnbalance(const Vector &accel)
 
 
 //get residual
-const Vector&  IGAKLShell_BendingStrip::getResistingForce() 
+const Vector& 
+IGAKLShell_BendingStrip::getResistingForce() 
 {
-  // opserr << "IGAKLShell::getResistingForce - eleTag" << this->getTag() << " called! " << endln;
 
   int tang_flag = 1 ; //get the tangent
   bool nonLinearGeometry = myPatch->getAnalysisType();
@@ -1593,16 +1534,13 @@ const Vector&  IGAKLShell_BendingStrip::getResistingForce()
   disp_i.Zero();
 
 
-  if (nonLinearGeometry == false)
-  {
+  if (nonLinearGeometry == false) {
     // Loop through nodes
     int k = 0;
-    for (int i = 0; i < Nnodes; ++i)
-    {
+    for (int i = 0; i < Nnodes; ++i) {
       Node *node_i = nodePointers[i];
       disp_i = node_i->getTrialDisp();
-      for (int j = 0; j < 3; ++j)
-      {
+      for (int j = 0; j < 3; ++j) {
         NodalDisplacements(k) = disp_i(j);
         k += 1;
       }
