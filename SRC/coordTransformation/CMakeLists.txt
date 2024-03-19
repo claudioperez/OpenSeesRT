@@ -10,6 +10,7 @@ target_sources(coordTransformation
   PRIVATE
     CrdTransf.cpp
     LinearCrdTransf2d.cpp
+    LinearCrdTransf2d02.cpp
     LinearCrdTransf3d.cpp
     PDeltaCrdTransf2d.cpp
     PDeltaCrdTransf3d.cpp
@@ -20,6 +21,7 @@ target_sources(coordTransformation
   PUBLIC
     CrdTransf.h
     LinearCrdTransf2d.h
+    LinearCrdTransf2d02.h
     LinearCrdTransf3d.h
     PDeltaCrdTransf2d.h
     PDeltaCrdTransf3d.h
