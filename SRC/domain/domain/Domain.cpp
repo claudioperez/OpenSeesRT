@@ -408,6 +408,7 @@ Domain::addElement(Element *element)
 
     // mark the Domain as having been changed
     this->domainChange();
+
   } else 
     opserr << "Domain::addElement - element " << eleTag << "could not be added to container\n";      
 
@@ -930,10 +931,9 @@ Domain::clearAll(void) {
   numParameters = 0;
 
   // remove the recorders
-  int i;
-  for (i=0; i<numRecorders; i++)
-	  if (theRecorders[i] != 0)
-    delete theRecorders[i];
+  for (int i=0; i<numRecorders; i++)
+    if (theRecorders[i] != 0)
+      delete theRecorders[i];
   numRecorders = 0; 
 
   if (theRecorders != 0) {
@@ -941,7 +941,7 @@ Domain::clearAll(void) {
     theRecorders = 0;
   }
 
-  for (i=0; i<numRegions; i++)
+  for (int i=0; i<numRegions; i++)
     delete theRegions[i];
   numRegions = 0;
 
@@ -1685,37 +1685,6 @@ Domain::getElementResponse(int eleTag, const char **argv, int argc)
 }
 
 
-Graph  &
-Domain::getElementGraph(void)
-{
-    if (eleGraphBuiltFlag == false) {
-	// if the current graph is out of date .. delete it so we can start again
-	if (theElementGraph != 0) {
-	    delete theElementGraph;
-	    theElementGraph = 0;
-	}	
-	// create an empty graph 
-        theElementGraph = new Graph(this->getNumElements()+START_VERTEX_NUM);
-
-	if (theElementGraph == 0) {// if still 0 try a smaller one
-	    theElementGraph = new Graph();
-	    
-	    if (theElementGraph == 0) { // if still 0 out of memory
-		opserr << "Domain::getElementGraph() - out of memory\n";
-		exit(-1);
-	    }
-	}
-
-	// now build the graph
-	if (this->buildEleGraph(theElementGraph) == 0)
-	    eleGraphBuiltFlag = true;
-	else
-	    opserr << "Domain::getElementGraph() - failed to build the element graph\n";	    
-    }
-    
-    // return the Graph
-    return *theElementGraph;
-}
 
 
 Graph  &
@@ -1730,15 +1699,9 @@ Domain::getNodeGraph(void)
 	}
 
 	// try to get a graph as big as we should need
-	theNodeGraph = new Graph(this->getNumNodes()+START_VERTEX_NUM);
-	
+	theNodeGraph = new Graph(this->getNumNodes()+START_VERTEX_NUM);	
 	if (theNodeGraph == 0) { // if still 0 try a smaller one
 	    theNodeGraph = new Graph();
-
-	    if (theNodeGraph == 0) {// if still 0 out of memory
-		opserr << "Domain::getNodeGraph() - out of memory\n";
-		exit(-1);
-	    }
 	}
 
        // now build the graph
@@ -1888,7 +1851,7 @@ Domain::initialize(void)
     Matrix initM(elePtr->getInitialStiff());
 
 #else
-	 elePtr->getInitialStiff();
+    elePtr->getInitialStiff();
 #endif
 
 
@@ -1968,8 +1931,7 @@ Domain::revertToLastCommit(void)
 {
     // 
     // first invoke revertToLastCommit  on all nodes and elements in the domain
-    //
-    
+    // 
     Node *nodePtr;
     NodeIter &theNodeIter = this->getNodes();
     while ((nodePtr = theNodeIter()) != nullptr)
@@ -1998,7 +1960,6 @@ Domain::revertToStart(void)
     // first invoke revertToLastCommit  on all nodes and 
     // elements in the domain
     //
-
     Node *nodePtr;
     NodeIter &theNodeIter = this->getNodes();
     while ((nodePtr = theNodeIter()) != nullptr) 
@@ -2045,9 +2006,6 @@ Domain::update(void)
     ok += theEle->update();
   }
 
-  if (ok != 0)
-    opserr << "Domain::update - domain failed in update\n";
-
   return ok;
 }
 
@@ -2087,7 +2045,7 @@ Domain::updateParameter(int tag, double value)
   
   // if not there return 0
   if (mc == 0) {
-	  opserr << "Domain::updateParameter(int tag, double value) - parameter with tag not present\n";
+      opserr << "Domain::updateParameter(int tag, double value) - parameter with tag not present\n";
       return 0;
   }
 
@@ -2123,8 +2081,8 @@ Domain::setEigenvalues(const Vector &theValues)
 
     // create the new vector
     theEigenvalues = new Vector(theValues);
-  } else
 
+  } else
     // otherwise just a straight assignment
     *theEigenvalues = theValues;
 
@@ -2391,11 +2349,7 @@ Domain::addRecorder(Recorder &theRecorder)
   }
 
   Recorder **newRecorders = new Recorder *[numRecorders + 1]; 
-  if (newRecorders == 0) {
-    opserr << "Domain::addRecorder() - could not add ran out of memory\n";
-    return -1;
-  }
-  
+
   for (int i=0; i<numRecorders; i++)
     newRecorders[i] = theRecorders[i];
   newRecorders[numRecorders] = &theRecorder;
@@ -2430,7 +2384,7 @@ Domain::flushRecorders()
 {
   for (int i = 0; i < numRecorders; i++) {
     if (theRecorders[i] != nullptr) {
-    theRecorders[i]->flush();
+      theRecorders[i]->flush();
     }
   }
   return 0;
@@ -2446,7 +2400,7 @@ Domain::removeRecorder(int tag)
 	theRecorders[i] = 0;
 	return 0;
       }
-    }    
+    }
   }
   
   return -1;
@@ -2459,11 +2413,7 @@ int
 Domain::addRegion(MeshRegion &theRegion)
 {
     MeshRegion **newRegions = new MeshRegion *[numRegions + 1]; 
-    if (newRegions == 0) {
-	opserr << "Domain::addRegion() - could not add ran out of memory\n";
-	return -1;
-    }
-    
+
     for (int i=0; i<numRegions; i++)
 	newRegions[i] = theRegions[i];
     newRegions[numRegions] = &theRegion;
@@ -2504,7 +2454,7 @@ typedef std::map<int, ID *>  MAP_ID;
 typedef MAP_ID::value_type   MAP_ID_TYPE;
 typedef MAP_ID::iterator     MAP_ID_ITERATOR;
 
-
+#if 1
 int 
 Domain::buildEleGraph(Graph *theEleGraph)
 {
@@ -2527,11 +2477,6 @@ Domain::buildEleGraph(Graph *theEleGraph)
   while ((theEle = theElements()) != nullptr) {
     int eleTag = theEle->getTag();
     Vertex *vertexPtr = new Vertex(count, eleTag);
-
-    if (vertexPtr == nullptr) {
-      opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
-      return -1;
-    }
 
     theEleGraph->addVertex(vertexPtr);
     theEleToVertexMapEle = theEleToVertexMap.find(eleTag);
@@ -2557,7 +2502,6 @@ Domain::buildEleGraph(Graph *theEleGraph)
   // do using vertices for each node, when we addVertex at these nodes we
   // will not be adding vertices but element tags.
   //
-
   MAP_ID theNodeToVertexMap;
   MAP_ID_ITERATOR theNodeEle;
   Node *nodPtr;
@@ -2570,11 +2514,6 @@ Domain::buildEleGraph(Graph *theEleGraph)
   while ((nodPtr = theNodes()) != nullptr) {
     int nodeTag = nodPtr->getTag();
     ID *eleTags = new ID(0, 4);
-
-    if (eleTags == nullptr) {
-      opserr << "WARNING Domain::buildEleGraph - Not Enough Memory to create the " << count << " vertex\n";
-      return -1;
-    }
 
     theNodeEle = theNodeToVertexMap.find(nodeTag);
     if (theNodeEle == theNodeToVertexMap.end()) {
@@ -2659,6 +2598,35 @@ Domain::buildEleGraph(Graph *theEleGraph)
 
   return 0;
 }
+
+Graph  &
+Domain::getElementGraph(void)
+{
+    if (eleGraphBuiltFlag == false) {
+	// if the current graph is out of date .. delete it so we can start again
+	if (theElementGraph != 0) {
+	    delete theElementGraph;
+	    theElementGraph = 0;
+	}	
+	// create an empty graph 
+        theElementGraph = new Graph(this->getNumElements()+START_VERTEX_NUM);
+
+	if (theElementGraph == 0) {// if still 0 try a smaller one
+	    theElementGraph = new Graph();
+	}
+
+	// now build the graph
+	if (this->buildEleGraph(theElementGraph) == 0)
+	    eleGraphBuiltFlag = true;
+	else
+	    opserr << "Domain::getElementGraph() - failed to build the element graph\n";	    
+    }
+    
+    // return the Graph
+    return *theElementGraph;
+}
+#endif
+
 
 int
 Domain::buildNodeGraph(Graph *theNodeGraph)
