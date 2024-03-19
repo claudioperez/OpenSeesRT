@@ -45,12 +45,36 @@ of global state.
 
 The package may be used as a drop-in replacement for both OpenSees and
 OpenSeesPy, and generally provides a considerable performance boost.
+Project objectives include:
 
-- With a single `pip`-install, run any OpenSees Tcl script **and** most OpenSeesPy scripts.
+- **Simpler installation** With a single `pip`-install, run any OpenSees Tcl 
+  script **and** most OpenSeesPy scripts.
+
+- **Performance improvements** The `opensees` package uses the experimental `OpenSeesRT` 
+  analysis kernel which
+  eliminates reliance on global variables for state and memory management. Stack-allocated
+  matrices and vectors eliminate the need for static local variables and furnish additional 
+  performance improvements.
+
+- **Reliability** All program state is encapsulated in user-instantiated classes,
+  and global variables/singletons are avoided. This eliminates the possibility
+  of state corruption.
+
+Additional features include:
+
+- Convert OpenSeesPy scripts into serialized Tcl files that can be used
+  for faster processing or serialization.
+
+- Python versions 3.7 - 3.11 are supported on Linux.
+
+#### Getting Started
+
 - To start a Tcl interpreter run the shell command:
+
   ```bash
   python -m opensees
   ```
+
 - To run Python scripts, just change the import:
   ```python
   import openseespy.opensees
@@ -59,11 +83,9 @@ OpenSeesPy, and generally provides a considerable performance boost.
   ```python
   import opensees.openseespy
   ```
-- Convert OpenSeesPy scripts into serialized Tcl files that can be used
-  for faster processing or serialization.
-- Python versions 3.7 - 3.11 are supported on Linux.
 
-> **Note** This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
+> [!NOTE]
+> This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
 > library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
 > website.
 
