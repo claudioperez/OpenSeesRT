@@ -94,20 +94,16 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_BeamContact3Dp)
   }
 
   int transfTag = iData[4];
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
-  if (theTransf == 0) {
-    opserr << "WARNING element BeamContact3Dp " << iData[0] << endln;
-    opserr << " coordTransf: " << transfTag << "not found\n";
-    return 0;
-  }
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+  if (theTransf == nullptr)
+    return nullptr;
+
 
   int matID = iData[5];
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
-  if (theMaterial == 0) {
-    opserr << "WARNING element BeamContact3Dp " << iData[0] << endln;
-    opserr << " Material: " << matID << "not found\n";
-    return 0;
-  }
+  NDMaterial *theMaterial = G3_getSafeBuilder(rt)->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
+    return nullptr;
+
 
   numRemainingInputArgs -= 8;
   while (numRemainingInputArgs >= 1) {
