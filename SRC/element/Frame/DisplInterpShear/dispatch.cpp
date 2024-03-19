@@ -3,7 +3,8 @@
 // Description: This file contains the class
 // implementation of TclBasicBuilder_addDispBeamColumnInt(). Based on
 // TclBasicBuilder_addDispBeamColumn().
-
+//
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
@@ -22,8 +23,8 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
                                      Domain *theTclDomain,
                                      TclBasicBuilder *theTclBuilder)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
   // ensure the destructor has not been called -
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
