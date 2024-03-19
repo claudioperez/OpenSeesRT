@@ -31,7 +31,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <assert.h>
@@ -84,14 +83,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn2d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -219,14 +218,14 @@ void *OPS_DECL_RUNTIME_VPID(OPS_DispBeamColumn2d, const ID &info)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -289,14 +288,14 @@ int OPS_DECL_RUNTIME(OPS_DispBeamColumn2d, Domain& theDomain, const ID& elenodes
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[0]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[0]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return -1;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[1]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[1]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return -1;
@@ -1394,17 +1393,6 @@ DispBeamColumn2d::Print(OPS_Stream &s, int flag)
 }
 
 
-int
-DispBeamColumn2d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes, int numModes)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 DispBeamColumn2d::setResponse(const char **argv, int argc,
