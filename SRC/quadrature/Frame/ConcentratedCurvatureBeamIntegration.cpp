@@ -41,8 +41,8 @@
 void* OPS_ConcentratedCurvatureBeamIntegration(int& integrationTag, ID& secTags)
 {
     if(OPS_GetNumRemainingInputArgs() < 6) {
-	opserr<<"insufficient arguments:integrationTag,secTagI,LpI,secTagJ,LpJ,secTagE\n";
-	return 0;
+      opserr<<"insufficient arguments:integrationTag,secTagI,LpI,secTagJ,LpJ,secTagE\n";
+      return 0;
     }
 
     // inputs: 
@@ -50,25 +50,25 @@ void* OPS_ConcentratedCurvatureBeamIntegration(int& integrationTag, ID& secTags)
     double dData[2];
     int numData = 2;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {    
-	opserr << "WARNING: failed to get tag and secTagI\n";
-	return 0;
+      opserr << "WARNING: failed to get tag and secTagI\n";
+      return 0;
     }
     numData = 1;
     if(OPS_GetDoubleInput(&numData,&dData[0]) < 0) {
-	opserr << "WARNING: failed to get lpI\n";
-	return 0;
+      opserr << "WARNING: failed to get lpI\n";
+      return 0;
     }
     if(OPS_GetIntInput(&numData,&iData[2]) < 0) {
-	opserr << "WARNING: failed to get secTagJ\n";
-	return 0;
+      opserr << "WARNING: failed to get secTagJ\n";
+      return 0;
     }
     if(OPS_GetDoubleInput(&numData,&dData[1]) < 0) {
-	opserr << "WARNING: failed to get lpJ\n";
-	return 0;
+      opserr << "WARNING: failed to get lpJ\n";
+      return 0;
     }
     if(OPS_GetIntInput(&numData,&iData[3]) < 0) {
-	opserr << "WARNING: failed to get secTagE\n";
-	return 0;
+      opserr << "WARNING: failed to get secTagE\n";
+      return 0;
     }
 
     
@@ -81,13 +81,12 @@ void* OPS_ConcentratedCurvatureBeamIntegration(int& integrationTag, ID& secTags)
     secTags(3) = iData[3];
     secTags(4) = iData[2];
 
-
     
     return new ConcentratedCurvatureBeamIntegration(dData[0],dData[1]);
 }
 
 ConcentratedCurvatureBeamIntegration::ConcentratedCurvatureBeamIntegration(double lpi,
-						     double lpj):
+                             double lpj):
   BeamIntegration(BEAM_INTEGRATION_TAG_ConcentratedCurvature), lpI(lpi), lpJ(lpj)
 {
   // Nothing to do
@@ -105,10 +104,10 @@ ConcentratedCurvatureBeamIntegration::~ConcentratedCurvatureBeamIntegration()
 }
 void
 ConcentratedCurvatureBeamIntegration::getSectionLocations(int numSections, double L,
-					       double *xi) const
+                           double *xi) const
 {
-	double oneOverL = 1.0/L;
-	
+    double oneOverL = 1.0/L;
+    
     // section locations
     xi[0] = 0.0; // node I
     xi[1] = 0.0 + lpI*oneOverL;
@@ -119,10 +118,10 @@ ConcentratedCurvatureBeamIntegration::getSectionLocations(int numSections, doubl
 
 void
 ConcentratedCurvatureBeamIntegration::getSectionWeights(int numSections, double L,
-					     double *wt) const
+                         double *wt) const
 {
-	double oneOverL = 1.0/L;
-	int N = 5 ;
+    double oneOverL = 1.0/L;
+    int N = 5 ;
     
     // start with the two end nodes at the first two indices, then put them back
     Vector pt(N);
@@ -139,25 +138,24 @@ ConcentratedCurvatureBeamIntegration::getSectionWeights(int numSections, double 
     wc[1] = lpJ*oneOverL; // node J  ## curvature has a weight of Lp
 
     // fill in the rest using low-order integration:
-	int nf = N-nc;
+    int nf = N-nc;
     Vector R(nf);
     for (int i = 0; i < nf; i++) {
-    	double sum = 0.0;
-    	for (int j = 0; j < nc; j++)
-		sum += pow(pt(j),i)*wc(j);
-	  	R(i) = 1.0/(i+1) - sum;
+        double sum = 0.0;
+        for (int j = 0; j < nc; j++)
+            sum += pow(pt(j),i)*wc(j);
+        R(i) = 1.0/(i+1) - sum;
     }
     
     Matrix J(nf,nf);
     for (int i = 0; i < nf; i++)
       for (int j = 0; j < nf; j++)
-	J(i,j) = pow(pt(nc+j),i);
+        J(i,j) = pow(pt(nc+j),i);
     
     Vector wf(nf);
     
     J.Solve(R, wf);
-    
-     
+
     wt[0] = wc(0); // node I
     wt[1] = wf(0); // elastic
     wt[2] = wf(1); // elastic
@@ -193,7 +191,7 @@ ConcentratedCurvatureBeamIntegration::sendSelf(int cTag, Channel &theChannel)
 
 int
 ConcentratedCurvatureBeamIntegration::recvSelf(int cTag, Channel &theChannel,
-				  FEM_ObjectBroker &theBroker)
+                  FEM_ObjectBroker &theBroker)
 {
   static Vector data(2);
 
@@ -212,7 +210,7 @@ ConcentratedCurvatureBeamIntegration::recvSelf(int cTag, Channel &theChannel,
 
 int
 ConcentratedCurvatureBeamIntegration::setParameter(const char **argv, int argc,
-				      Parameter &param)
+                      Parameter &param)
 {
   if (argc < 1)
     return -1;
@@ -234,7 +232,7 @@ ConcentratedCurvatureBeamIntegration::setParameter(const char **argv, int argc,
 
 int
 ConcentratedCurvatureBeamIntegration::updateParameter(int parameterID,
-					 Information &info)
+                     Information &info)
 {
   switch (parameterID) {
   case 1:
@@ -262,22 +260,22 @@ ConcentratedCurvatureBeamIntegration::activateParameter(int paramID)
 void
 ConcentratedCurvatureBeamIntegration::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "{\"type\": \"ConcentratedCurvature\", ";
-		s << "\"lpI\": " << lpI << ", ";
-		s << "\"lpJ\": " << lpJ << "}";
-	}
-	
-	else {
-		s << "ConcentratedCurvature" << endln;
-		s << " lpI = " << lpI;
-		s << " lpJ = " << lpJ << endln;
-	}
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << "{\"type\": \"ConcentratedCurvature\", ";
+        s << "\"lpI\": " << lpI << ", ";
+        s << "\"lpJ\": " << lpJ << "}";
+    }
+    
+    else {
+        s << "ConcentratedCurvature" << "\n";
+        s << " lpI = " << lpI;
+        s << " lpJ = " << lpJ << "\n";
+    }
 }
 
 void 
 ConcentratedCurvatureBeamIntegration::getLocationsDeriv(int numSections, double L,
-					   double dLdh, double *dptsdh)
+                       double dLdh, double *dptsdh)
 {
   double oneOverL = 1.0/L;
 
@@ -285,8 +283,6 @@ ConcentratedCurvatureBeamIntegration::getLocationsDeriv(int numSections, double 
     dptsdh[i] = 0.0;
 
   //return;
-
-  static const double oneRoot3 = 1.0/sqrt(3.0);
 
   if (parameterID == 1) { // lpI
     dptsdh[1] = 1.0*oneOverL;
@@ -316,10 +312,10 @@ ConcentratedCurvatureBeamIntegration::getLocationsDeriv(int numSections, double 
 
 void
 ConcentratedCurvatureBeamIntegration::getWeightsDeriv(int numSections, double L,
-					 double dLdh, double *dwtsdh)
+                     double dLdh, double *dwtsdh)
 {
 
-	// this gets complicated....
+    // this gets complicated....
     dwtsdh[0] = 0.;
     dwtsdh[1] = 0.;
     dwtsdh[2] = 0.;
