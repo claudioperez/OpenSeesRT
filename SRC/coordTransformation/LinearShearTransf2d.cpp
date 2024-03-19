@@ -2,13 +2,13 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-// 
-// Modified: May 2001 for matrix-multiply unrolling
 //
 // Purpose: This file contains the implementation for the 
 // LinearShearTransf2d class. LinearShearTransf2d is a linear
 // transformation for a planar frame between the global 
 // and basic coordinate systems
+// 
+// Modified: May 2001 for matrix-multiply unrolling
 //
 #include <ID.h>
 #include <Vector.h>
