@@ -142,7 +142,7 @@ See also:
 
   <td>
     <a href="https://brace2.herokuapp.com">
-    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/brace2_logo-new3_ungrouped.svg"
+    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
          alt="BRACE2 Logo" width="200"/>
     </a>
   </td>
