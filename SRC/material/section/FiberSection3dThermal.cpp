@@ -29,7 +29,6 @@
 #include <Channel.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <Fiber.h>
 #include <classTags.h>
 #include <FiberSection3dThermal.h>
 #include <ID.h>
@@ -41,76 +40,6 @@
 
 ID FiberSection3dThermal::code(3);
 
-// constructors:
-FiberSection3dThermal::FiberSection3dThermal(int tag, int num, Fiber **fibers, bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_FiberSection3dThermal),
-  numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
-  QzBar(0.0), QyBar(0.0), ABar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
-  e(3), eCommit(3), s(0), ks(0), sT(0), Fiber_T(0), Fiber_TMax(0),
-  parameterID(0), SHVs(0)
-{
-  if (numFibers != 0) {
-    theMaterials = new UniaxialMaterial *[numFibers];
-
-    matData = new double [numFibers*3];
-
-    for (int i = 0; i < numFibers; i++) {
-      Fiber *theFiber = fibers[i];
-      double yLoc, zLoc, Area;
-      theFiber->getFiberLocation(yLoc, zLoc);
-      Area = theFiber->getArea();
-      QzBar += yLoc*Area;
-      QyBar += zLoc*Area;
-      ABar  += Area;
-
-      matData[i*3] = -yLoc;
-      matData[i*3+1] = zLoc;
-      matData[i*3+2] = Area;
-      UniaxialMaterial *theMat = theFiber->getMaterial();
-      theMaterials[i] = theMat->getCopy();
-    }
-
-    if (computeCentroid) {
-      yBar = QzBar/ABar;
-      zBar = QyBar/ABar;
-    }
-  }
-
-  s = new Vector(sData, 3);
-  ks = new Matrix(kData, 3, 3);
-
-  sData[0] = 0.0;
-  sData[1] = 0.0;
-  sData[2] = 0.0;
-
-  for (int i=0; i<9; i++)
-    kData[i] = 0.0;
-
-  code(0) = SECTION_RESPONSE_P;
-  code(1) = SECTION_RESPONSE_MZ;
-  code(2) = SECTION_RESPONSE_MY;
-
- // AddingSensitivity:BEGIN ////////////////////////////////////
-  parameterID = 0;
-  SHVs=0;
-  // AddingSensitivity:END //////////////////////////////////////
-
-  //J.Jiang add to see fiberLocsZ[i] = zLoc;
-  sT = new Vector(sTData, 3);
-  sTData[0] = 0.0;
-  sTData[1] = 0.0;
-  sTData[2] = 0.0;
-
-  //An array storing the current fiber Temperature and Maximum Temperature and initializing it.
-  Fiber_T = new double [1000];
-  for (int i = 0;i<1000; i++) {
-       Fiber_T[i] = 0;
-   }
-  Fiber_TMax = new double [1000];
-  for (int i = 0;i<1000; i++) {
-       Fiber_TMax[i] = 0;
-   }
-}
 
 FiberSection3dThermal::FiberSection3dThermal(int tag, int num, bool compCentroid):
   SectionForceDeformation(tag, SEC_TAG_FiberSection3dThermal),
@@ -207,7 +136,7 @@ FiberSection3dThermal::FiberSection3dThermal():
 }
 
 int
-FiberSection3dThermal::addFiber(Fiber &newFiber)
+FiberSection3dThermal::addFiber(UniaxialMaterial& theMat, const double Area, const double yLoc, const double zLoc)
 {
     // need to create a larger array
   if(numFibers == sizeFibers) {
@@ -243,17 +172,17 @@ FiberSection3dThermal::addFiber(Fiber &newFiber)
   }
 
   // set the new pointers
-  double yLoc, zLoc, Area;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
+//double yLoc, zLoc, Area;
+//newFiber.getFiberLocation(yLoc, zLoc);
+//Area = newFiber.getArea();
   matData[numFibers*3] = yLoc;
   matData[numFibers*3+1] = zLoc;
   matData[numFibers*3+2] = Area;
-  UniaxialMaterial *theMat = newFiber.getMaterial();
-  theMaterials[numFibers] = theMat->getCopy();
+//UniaxialMaterial *theMat = newFiber.getMaterial();
+  theMaterials[numFibers] = theMat.getCopy();
 
   if (theMaterials[numFibers] == 0) {
-    opserr << "FiberSection3d::addFiber -- failed to get copy of a Material\n";
+    opserr << "FiberSection3dThermal::addFiber -- failed to get copy of a Material\n";
     return -1;
   }
 

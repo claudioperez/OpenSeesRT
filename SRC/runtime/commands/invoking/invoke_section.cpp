@@ -32,7 +32,9 @@ TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, 
 {
 
   assert(clientData != nullptr);
-  SectionForceDeformation *theSection = ((BasicModelBuilder*)clientData)->getSection(argv[2]);
+  // TODO: Parse tag properly
+  SectionForceDeformation *theSection = 
+    ((BasicModelBuilder*)clientData)->getTypedObject<SectionForceDeformation>(std::atoi(argv[2]));
 
   if (theSection == nullptr) {
     opserr << G3_ERROR_PROMPT << "no section found with tag '" << argv[2] << "'\n";

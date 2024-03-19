@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2011-07-18 10:11:35 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/dispBeamColumn/DispBeamColumn2dThermal.h,v $
-                                                                        
+//
 // Written: MHS
 // Created: Feb 2001
 // Modified: Jian Zhang[University of Edinburgh]
 // Modified: Panagiotis Kotsovinos[University of Edinburgh]
 // Modified: Jian Jiang[University of Edinburgh]
 // Modified: Liming Jiang[University of Edinburgh,2014
-
-
-
-
+//
 #ifndef DispBeamColumn2dThermal_h
 #define DispBeamColumn2dThermal_h
 
@@ -95,7 +88,7 @@ class DispBeamColumn2dThermal : public Element
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
 		  &theBroker);
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes, int numModes);
+
     void Print(OPS_Stream &s, int flag =0);
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);

@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.20 $
-// $Date: 2008/09/23 22:50:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/elasticBeamColumn/ElasticBeamWarping3d.cpp,v $
-                                                                        
-                                                                        
-// File: ~/model/ElasticBeamWarping3d.C
 //
 // Written: fmk 11/95
 // Revised:
@@ -44,7 +37,6 @@
 #include <Information.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <Renderer.h>
 #include <SectionForceDeformation.h>
 #include <ID.h>
 #include <math.h>
@@ -62,14 +54,14 @@ using namespace std;
 void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeamWarping3d)
 {
     int numArgs = OPS_GetNumRemainingInputArgs();
-    if(numArgs < 11 && numArgs != 6) {
+    if (numArgs < 11 && numArgs != 6) {
 	opserr<<"insufficient arguments:eleTag,iNode,jNode,<A,E,G,J,Iy,Iz>or<sectionTag>,transfTag,Cw\n";
 	return 0;
     }
 
     int ndm = OPS_GetNDM();
     int ndf = OPS_GetNDF();
-    if(ndm != 3 || ndf != 7) {
+    if (ndm != 3 || ndf != 7) {
 	opserr<<"ndm must be 3 and ndf must be 7\n";
 	return 0;
     }
@@ -77,53 +69,56 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeamWarping3d)
     // inputs: 
     int iData[3];
     int numData = 3;
-    if(OPS_GetIntInput(&numData,&iData[0]) < 0) return 0;
+    if (OPS_GetIntInput(&numData,&iData[0]) < 0)
+      return 0;
 
     SectionForceDeformation* theSection = 0;
     CrdTransf* theTrans = 0;
     double data[6];
     int transfTag, secTag;
     
-    if(numArgs == 6) {
+    if (numArgs == 6) {
 	numData = 1;
-	if(OPS_GetIntInput(&numData,&secTag) < 0) return 0;
-	if(OPS_GetIntInput(&numData,&transfTag) < 0) return 0;
+	if (OPS_GetIntInput(&numData,&secTag) < 0)
+          return 0;
+	if (OPS_GetIntInput(&numData,&transfTag) < 0)
+          return 0;
 
-	theSection = OPS_getSectionForceDeformation(secTag);
-	if(theSection == 0) {
-	    opserr<<"no section is found\n";
-	    return 0;
-	}
-	theTrans = OPS_getCrdTransf(transfTag);
-	if(theTrans == 0) {
-	    opserr<<"no CrdTransf is found\n";
-	    return 0;
-	}
+	theSection = G3_getSafeBuilder(rt)->getTypedObject<SectionForceDeformation>(secTag);
+	if (theSection == nullptr)
+	    return nullptr;
+
+	theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+	if (theTrans == nullptr)
+	    return nullptr;
+
     } else {
 	numData = 6;
-	if(OPS_GetDoubleInput(&numData,&data[0]) < 0) return 0;
+	if (OPS_GetDoubleInput(&numData,&data[0]) < 0)
+          return 0;
 	numData = 1;
-	if(OPS_GetIntInput(&numData,&transfTag) < 0) return 0;
-	theTrans = OPS_getCrdTransf(transfTag);
-	if(theTrans == 0) {
-	    opserr<<"no CrdTransf is found\n";
-	    return 0;
+	if (OPS_GetIntInput(&numData,&transfTag) < 0)
+          return 0;
+
+	theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+	if (theTrans == nullptr) {
+	    return nullptr;
 	}
     }
 
     // Read Cw
     numData = 1;
     double Cw;
-    if(OPS_GetDoubleInput(&numData,&Cw) < 0)
+    if (OPS_GetDoubleInput(&numData,&Cw) < 0)
       return 0;    
-    
+
     // options
     double mass = 0.0;
     int cMass = 0;
     while(OPS_GetNumRemainingInputArgs() > 0) {
 	std::string theType = OPS_GetString();
 	if (theType == "-mass") {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
+	    if (OPS_GetNumRemainingInputArgs() > 0) {
 		if(OPS_GetDoubleInput(&numData,&mass) < 0) return 0;
 	    }
 	}
@@ -932,44 +927,6 @@ ElasticBeamWarping3d::Print(OPS_Stream &s, int flag)
   }
 }
 
-int
-ElasticBeamWarping3d::displaySelf(Renderer &theViewer, int displayMode, float fact)
-{
-    // first determine the end points of the quad based on
-    // the display factor (a measure of the distorted image)
-    const Vector &end1Crd = theNodes[0]->getCrds();
-    const Vector &end2Crd = theNodes[1]->getCrds();	
-
-    static Vector v1(3);
-    static Vector v2(3);
-
-    if (displayMode >= 0) {
-      const Vector &end1Disp = theNodes[0]->getDisp();
-      const Vector &end2Disp = theNodes[1]->getDisp();
-      
-      for (int i = 0; i < 3; i++) {
-	v1(i) = end1Crd(i) + end1Disp(i)*fact;
-	v2(i) = end2Crd(i) + end2Disp(i)*fact;    
-      }
-    } else {
-      int mode = displayMode * -1;
-      const Matrix &eigen1 = theNodes[0]->getEigenvectors();
-      const Matrix &eigen2 = theNodes[1]->getEigenvectors();
-      if (eigen1.noCols() >= mode) {
-	for (int i = 0; i < 3; i++) {
-	  v1(i) = end1Crd(i) + eigen1(i,mode-1)*fact;
-	  v2(i) = end2Crd(i) + eigen2(i,mode-1)*fact;    
-	}    
-      } else {
-	for (int i = 0; i < 3; i++) {
-	  v1(i) = end1Crd(i);
-	  v2(i) = end2Crd(i);
-	}    
-      }
-    }
-    
-    return theViewer.drawLine (v1, v2, 1.0, 1.0);
-}
 
 Response*
 ElasticBeamWarping3d::setResponse(const char **argv, int argc, OPS_Stream &output)

@@ -826,8 +826,8 @@ NodeRecorder::initialize(void)
   // need to create the data description, i.e. what each column of data is
   //
   
-  char outputData[32];
-  char dataType[32];
+  char outputData[64];
+  char dataType[64];
 
   if (dataFlag == NodeData::DisplTrial) {
     strcpy(dataType,"D");

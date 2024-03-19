@@ -70,7 +70,7 @@ int
 ActorSubdomain::run(void)
 {
     static Vector theVect(4);
-	static Vector theVect1(1);
+    static Vector theVect1(1);
     bool exitYet = false;
     int res = 0;
 

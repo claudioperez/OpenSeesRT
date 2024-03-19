@@ -17,43 +17,39 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2007-10-13 01:21:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/ElasticForceBeamColumn3d.cpp,v $
-
+//
 /*
  * References
  *
 
-State Determination Algorithm
----
-Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
-Element Models." Journal of Structural Engineering, 123(7):958-966.
+  State Determination Algorithm
+  ---
+  Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
+  Element Models." Journal of Structural Engineering, 123(7):958-966.
 
-Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
-Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
-
-
-Plastic Hinge Integration
----
-Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
-Force-Based Beam-Column Elements." Journal of Structural Engineering,
-132(2):244-252.
+  Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
+  Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
 
 
-Analytical Response Sensitivity (DDM)
----
-Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
-"Response Sensitivity for Nonlinear Beam-Column Elements."
-Journal of Structural Engineering, 130(9):1281-1288.
+  Plastic Hinge Integration
+  ---
+  Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
+  Force-Based Beam-Column Elements." Journal of Structural Engineering,
+  132(2):244-252.
 
 
-Software Design
----
-Scott, M. H., G. L. Fenves, F. T. McKenna, and F. C. Filippou (2007).
-"Software Patterns for Nonlinear Beam-Column Models."
-Journal of Structural Engineering, Approved for publication, February 2007.
+  Analytical Response Sensitivity (DDM)
+  ---
+  Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
+  "Response Sensitivity for Nonlinear Beam-Column Elements."
+  Journal of Structural Engineering, 130(9):1281-1288.
+
+
+  Software Design
+  ---
+  Scott, M. H., G. L. Fenves, F. T. McKenna, and F. C. Filippou (2007).
+  "Software Patterns for Nonlinear Beam-Column Models."
+  Journal of Structural Engineering, Approved for publication, February 2007.
 
  *
  */
@@ -70,7 +66,6 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Renderer.h>
 #include <math.h>
 #include <elementAPI.h>
 #include <ElementResponse.h>
@@ -111,14 +106,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticForceBeamColumn3d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
 	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
 	opserr<<"beam integration not found\n";
 	return 0;
@@ -1164,18 +1159,6 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
   {
     E.Print(s);
     return s;
-  }
-
-  int
-  ElasticForceBeamColumn3d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-  {
-      static Vector v1(3);
-      static Vector v2(3);
-
-      theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-      theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-      return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
   }
 
   Response*

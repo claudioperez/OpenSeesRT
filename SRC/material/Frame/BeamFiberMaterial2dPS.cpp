@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
 // Written: MHS
 // Created: June 2019
 //
@@ -30,8 +26,7 @@
 // condensation on a plane stress material model to give the 11 and 12
 // stress components which can then be integrated over an area to model a
 // shear flexible 2D beam.
-
-
+//
 #include <BeamFiberMaterial2dPS.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -192,7 +187,7 @@ BeamFiberMaterial2dPS::setTrialStrain(const Vector &strainFromElement)
 
   do {
 
-    //set three dimensional strain
+    // set three dimensional strain
     PSstrain(0) = this->strain(0); // 11
     PSstrain(1) = this->Tstrain22; // 22
     PSstrain(2) = this->strain(1); // 12

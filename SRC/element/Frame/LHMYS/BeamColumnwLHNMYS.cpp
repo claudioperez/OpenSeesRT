@@ -165,11 +165,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
     Matrix GPYSC(coefData,nrow,3);
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(transfTag);
-    if(theTransf == 0) {
-	opserr<<"coord transformation not found\n";
-	return 0;
-    }
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+    if(theTransf == nullptr)
+	return nullptr;
     
     return new BeamColumnwLHNMYS(iData[0],iData[1],iData[2],data[0],data[1],data[2],data[3],data[4], data[5],data[6],*theTransf,yftol,Wtol,MaxIter,Hir,Hkr,nrow,GPYSC,mass,cMass);
     

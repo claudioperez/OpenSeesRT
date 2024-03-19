@@ -5,6 +5,7 @@
 #include "Kinematic2D01.h"
 #include <math.h>
 #include <Print.h>
+#include <OPS_Stream.h>
 #include <OPS_ErrorStream.h>
 
 #define evolDebug 0

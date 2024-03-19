@@ -28,7 +28,6 @@
 #include <string.h>
 #include <Domain.h>
 
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include "Frame/GradientInelastic/GradientInelasticBeamColumn2d.h"
@@ -44,18 +43,11 @@ class TclBasicBuilder;
 int
 TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
                                                Tcl_Interp *interp, int argc,
-                                               TCL_Char ** const argv,
-                                               Domain *theTclDomain,
-                                               TclBasicBuilder *theTclBuilder)
+                                               TCL_Char ** const argv)
 {
-  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr
-        << "WARNING builder has been destroyed - gradientInelasticBeamColumn\n";
-    return TCL_ERROR;
-  }
+  Domain* domain = builder->getDomain();
 
   Element *theElement = 0;
   int ndm = builder->getNDM();
@@ -134,7 +126,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     SectionForceDeformation *endSection1 =
-        builder->getSection(endSecTag1);
+        builder->getTypedObject<SectionForceDeformation>(endSecTag1);
 
     if (!endSection1) {
       opserr << "WARNING end section not found";
@@ -143,7 +135,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *intSection = builder->getSection(intSecTag);
+    SectionForceDeformation *intSection = builder->getTypedObject<SectionForceDeformation>(intSecTag);
 
     if (!intSection) {
       opserr << "WARNING intermediate section not found";
@@ -153,7 +145,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     SectionForceDeformation *endSection2 =
-        builder->getSection(endSecTag2);
+        builder->getTypedObject<SectionForceDeformation>(endSecTag2);
 
     if (!endSection2) {
       opserr << "WARNING end section not found";
@@ -186,14 +178,10 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    CrdTransf *theTransf2d = builder->getCrdTransf(transfTag);
+    CrdTransf *theTransf2d = builder->getTypedObject<CrdTransf>(transfTag);
 
-    if (!theTransf2d) {
-      opserr << "WARNING transformation not found";
-      opserr << " - transformation: " << transfTag;
-      opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
+    if (!theTransf2d)
       return TCL_ERROR;
-    }
 
     // check for optional arguments
     BeamIntegration *beamIntegr = 0;
@@ -308,7 +296,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     // then add the NonlocalBeamColumn to the domain
-    if (theTclDomain->addElement(theElement) == false) {
+    if (builder->getDomain()->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       delete theElement;
@@ -384,7 +372,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *endSection1 = builder->getSection(endSecTag1);
+    SectionForceDeformation *endSection1 = builder->getTypedObject<SectionForceDeformation>(endSecTag1);
 
     if (!endSection1) {
       opserr << "WARNING end section not found";
@@ -393,7 +381,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *intSection = builder->getSection(intSecTag);
+    SectionForceDeformation *intSection = builder->getTypedObject<SectionForceDeformation>(intSecTag);
 
     if (!intSection) {
       opserr << "WARNING intermediate section not found";
@@ -403,7 +391,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
     }
 
     SectionForceDeformation *endSection2 =
-        builder->getSection(endSecTag2);
+        builder->getTypedObject<SectionForceDeformation>(endSecTag2);
 
     if (!endSection2) {
       opserr << "WARNING end section not found";
@@ -436,7 +424,7 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
       return TCL_ERROR;
     }
 
-    CrdTransf *theTransf3d = builder->getCrdTransf(transfTag);
+    CrdTransf *theTransf3d = builder->getTypedObject<CrdTransf>(transfTag);
 
     if (!theTransf3d) {
       opserr << "WARNING transformation not found";
@@ -551,14 +539,9 @@ TclBasicBuilder_addGradientInelasticBeamColumn(ClientData clientData,
         &endSection2, secLR1, secLR2, *beamIntegr, *theTransf3d, lc, minTol,
         maxTol, maxIter, constH, correctionControl, maxEpsInc, maxPhiInc);
 
-    if (!theElement) {
-      opserr << "WARNING ran out of memory creating element";
-      opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
-      return TCL_ERROR;
-    }
 
     // then add the NonlocalBeamColumn to the domain
-    if (theTclDomain->addElement(theElement) == false) {
+    if (domain->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain";
       opserr << " - gradientInelasticBeamColumn element: " << tag << endln;
       delete theElement;

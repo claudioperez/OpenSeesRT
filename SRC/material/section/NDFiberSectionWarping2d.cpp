@@ -31,7 +31,6 @@
 #include <Channel.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <Fiber.h>
 #include <classTags.h>
 #include <NDFiberSectionWarping2d.h>
 #include <ID.h>
@@ -39,192 +38,94 @@
 #include <Information.h>
 #include <MaterialResponse.h>
 #include <NDMaterial.h>
-#include <SectionIntegration.h>
 #include <Parameter.h>
+#include <elementAPI.h>
 
 ID NDFiberSectionWarping2d::code(5);
 
-// constructors:
-NDFiberSectionWarping2d::NDFiberSectionWarping2d(int tag, int num, Fiber **fibers, double a): 
-SectionForceDeformation(tag, SEC_TAG_NDFiberSectionWarping2d),
-    numFibers(num), theMaterials(0), matData(0), yBar(0.0), alpha(a), sectionIntegr(0),
-    e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5), yBarZero(0.0)
-{ 
-    if (numFibers != 0) {
-        theMaterials = new NDMaterial *[numFibers]; 
-
-        if (theMaterials == 0) {
-            opserr << "NDFiberSectionWarping2d::NDFiberSectionWarping2d -- failed to allocate Material pointers";
-            exit(-1);
-        }
-
-        matData = new double [numFibers*2];
-
-        if (matData == 0) {
-            opserr << "NDFiberSectionWarping2d::NDFiberSectionWarping2d -- failed to allocate double array for material data\n";
-            exit(-1);
-        }
-
-
-        double Qz = 0.0;
-        double A  = 0.0;
-
-        for (int i = 0; i < numFibers; i++) {
-            Fiber *theFiber = fibers[i];
-            double yLoc, zLoc, Area;
-            theFiber->getFiberLocation(yLoc, zLoc);
-            Area = theFiber->getArea();
-
-            NDMaterial *theMat = theFiber->getNDMaterial();
-
-            A  += Area;
-            Qz += yLoc * Area;
-            matData[i*2] = yLoc;
-            matData[i*2+1] = Area;
-
-            theMaterials[i] = theMat->getCopy("BeamFiber2d"); 
-
-            if (theMaterials[i] == 0) {
-                opserr << "NDFiberSectionWarping2d::NDFiberSectionWarping2d -- failed to get copy of a Material\n";
-                exit(-1);
-            }
-        }    
-
-        yBar = Qz/A; 
-        yBarZero = Qz/A;
-    }
-
-    s = new Vector(sData, 5);
-    ks = new Matrix(kData, 5, 5);
-
-    sData[0] = 0.0;
-    sData[1] = 0.0;
-    sData[2] = 0.0;
-    sData[3] = 0.0;
-    sData[4] = 0.0;
-
-    kData[0] = 0.0;
-    kData[1] = 0.0;
-    kData[2] = 0.0;
-    kData[3] = 0.0;
-    kData[4] = 0.0;
-    kData[5] = 0.0;
-    kData[6] = 0.0;
-    kData[7] = 0.0;
-    kData[8] = 0.0;
-    kData[9] = 0.0;
-    kData[10] = 0.0;
-    kData[11] = 0.0;
-    kData[12] = 0.0;
-    kData[13] = 0.0;
-    kData[14] = 0.0;
-    kData[15] = 0.0;
-    kData[16] = 0.0;
-    kData[17] = 0.0;
-    kData[18] = 0.0;
-    kData[19] = 0.0;
-    kData[20] = 0.0;
-    kData[21] = 0.0;
-    kData[22] = 0.0;
-    kData[23] = 0.0;
-    kData[24] = 0.0;
-
-    code(0) = SECTION_RESPONSE_P;
-    code(1) = SECTION_RESPONSE_MZ;
-    code(2) = SECTION_RESPONSE_VY;
-    code(3) = SECTION_RESPONSE_R;
-    code(4) = SECTION_RESPONSE_Q;
-}
-
-NDFiberSectionWarping2d::NDFiberSectionWarping2d(int tag, int num, NDMaterial **mats,
-    SectionIntegration &si, double a):
-SectionForceDeformation(tag, SEC_TAG_NDFiberSectionWarping2d),
-    numFibers(num), theMaterials(0), matData(0), yBar(0.0), alpha(a),
-    sectionIntegr(0), e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5), yBarZero(0.0)
+void* OPS_NDFiberSectionWarping2d()
 {
-    if (numFibers != 0) {
-        theMaterials = new NDMaterial *[numFibers];
-        matData = new double [numFibers*2];
+    int numData = OPS_GetNumRemainingInputArgs();
+    if(numData < 1) {
+	opserr<<"insufficient arguments for NDFiberSectionWarping2d\n";
+	return 0;
     }
 
-    sectionIntegr = si.getCopy();
-    if (sectionIntegr == 0) {
-        opserr << "Error: NDFiberSectionWarping2d::NDFiberSectionWarping2d: could not create copy of section integration object" << endln;
-        exit(-1);
+    numData = 1;
+    int tag;
+    if (OPS_GetIntInput(&numData,&tag) < 0) return 0;
+
+    double alpha = 1.0;
+    bool computeCentroid = true;
+    while (OPS_GetNumRemainingInputArgs() > 0) {
+      const char* opt = OPS_GetString();
+      if (strcmp(opt, "-noCentroid") == 0)
+	computeCentroid = false;
+      if (strcmp(opt, "-alpha") == 0 || strcmp(opt, "-shape") == 0) {
+	if (OPS_GetNumRemainingInputArgs() < 1)
+	  break;
+	numData = 1;
+	if (OPS_GetDoubleInput(&numData,&alpha) < 0)
+	  return 0;
+      }
+    }
+    
+    int num = 30;
+    return new NDFiberSectionWarping2d(tag, num, alpha);
+}
+
+NDFiberSectionWarping2d::NDFiberSectionWarping2d(int tag, int num, double a): 
+    SectionForceDeformation(tag, SEC_TAG_NDFiberSectionWarping2d),
+    numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
+    yBar(0.0), alpha(a), yBarZero(0.0), DeltaYbar(0.0),
+    e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5)
+{
+    if (sizeFibers != 0) {
+	theMaterials = new NDMaterial *[sizeFibers];
+
+	if (theMaterials == 0) {
+	    opserr << "NDFiberSection2d::NDFiberSection2d -- failed to allocate Material pointers";
+	    exit(-1);
+	}
+
+	matData = new double [sizeFibers*2];
+
+	if (matData == 0) {
+	    opserr << "NDFiberSection2d::NDFiberSection2d -- failed to allocate double array for material data\n";
+	    exit(-1);
+	}
+
+
+	for (int i = 0; i < sizeFibers; i++) {
+	    matData[i*2] = 0.0;
+	    matData[i*2+1] = 0.0;
+	    theMaterials[i] = 0;
+	}    
     }
 
-    static double fiberLocs[10000];
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
+    int order = 5;
+    s = new Vector(sData, order);
+    ks = new Matrix(kData, order, order);
 
-    static double fiberArea[10000];
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-
-    double Qz = 0.0;
-    double A  = 0.0;
-
-    for (int i = 0; i < numFibers; i++) {
-
-        A  +=  fiberArea[i];
-        Qz +=  fiberLocs[i]*fiberArea[i];
-
-        theMaterials[i] = mats[i]->getCopy("BeamFiber2d");
-
-        if (theMaterials[i] == 0) {
-            opserr << "NDFiberSectionWarping2d::NDFiberSectionWarping2d -- failed to get copy of a Material\n";
-            exit(-1);
-        }
-    }    
-
-    yBar = Qz/A; 
-    yBarZero = Qz/A;
-
-    s = new Vector(sData, 5);
-    ks = new Matrix(kData, 5, 5); 
-
-    sData[0] = 0.0;
-    sData[1] = 0.0;
-    sData[2] = 0.0;
-    sData[3] = 0.0;
-    sData[4] = 0.0;
-
-    kData[0] = 0.0;
-    kData[1] = 0.0;
-    kData[2] = 0.0;
-    kData[3] = 0.0;
-    kData[4] = 0.0;
-    kData[5] = 0.0;
-    kData[6] = 0.0;
-    kData[7] = 0.0;
-    kData[8] = 0.0;
-    kData[9] = 0.0;
-    kData[10] = 0.0;
-    kData[11] = 0.0;
-    kData[12] = 0.0;
-    kData[13] = 0.0;
-    kData[14] = 0.0;
-    kData[15] = 0.0;
-    kData[16] = 0.0;
-    kData[17] = 0.0;
-    kData[18] = 0.0;
-    kData[19] = 0.0;
-    kData[20] = 0.0;
-    kData[21] = 0.0;
-    kData[22] = 0.0;
-    kData[23] = 0.0;
-    kData[24] = 0.0;
-
+    for (int i = 0; i < order; i++) {
+      sData[i] = 0.0;
+      for (int j = 0; j < order; j++)
+	kData[5*i + j] = 0.0;
+    }
+    
     code(0) = SECTION_RESPONSE_P;
     code(1) = SECTION_RESPONSE_MZ;
     code(2) = SECTION_RESPONSE_VY;
     code(3) = SECTION_RESPONSE_R;
-    code(4) = SECTION_RESPONSE_Q;
+    code(4) = SECTION_RESPONSE_Q;    
 }
+
 
 // constructor for blank object that recvSelf needs to be invoked upon
 NDFiberSectionWarping2d::NDFiberSectionWarping2d():
 SectionForceDeformation(0, SEC_TAG_NDFiberSectionWarping2d),
     numFibers(0), theMaterials(0), matData(0), yBar(0.0), alpha(6.0/6),
-    sectionIntegr(0), e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5), yBarZero(0.0)
+    e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5), yBarZero(0.0)
 {
     s = new Vector(sData, 5);
     ks = new Matrix(kData, 5, 5);
@@ -269,16 +170,12 @@ SectionForceDeformation(0, SEC_TAG_NDFiberSectionWarping2d),
 }
 
 int
-NDFiberSectionWarping2d::addFiber(Fiber &newFiber)
+NDFiberSectionWarping2d::addFiber(NDMaterial &theMat, const double Area, const double yLoc)
 {
     // need to create larger arrays
     int newSize = numFibers+1;
     NDMaterial **newArray = new NDMaterial *[newSize]; 
     double *newMatData = new double [2 * newSize];
-    if (newArray == 0 || newMatData == 0) {
-        opserr <<"NDFiberSectionWarping2d::addFiber -- failed to allocate Fiber pointers\n";
-        return -1;
-    }
 
     // copy the old pointers and data
     for (int i = 0; i < numFibers; i++) {
@@ -288,13 +185,9 @@ NDFiberSectionWarping2d::addFiber(Fiber &newFiber)
     }
 
     // set the new pointers and data
-    double yLoc, zLoc, Area;
-    newFiber.getFiberLocation(yLoc, zLoc);
-    Area = newFiber.getArea();
     newMatData[numFibers*2] = yLoc;
     newMatData[numFibers*2+1] = Area;
-    NDMaterial *theMat = newFiber.getNDMaterial();
-    newArray[numFibers] = theMat->getCopy("BeamFiber2d");
+    newArray[numFibers] = theMat.getCopy("BeamFiber2d");
 
     if (newArray[numFibers] == 0) {
         opserr <<"NDFiberSectionWarping2d::addFiber -- failed to get copy of a Material\n";
@@ -317,8 +210,8 @@ NDFiberSectionWarping2d::addFiber(Fiber &newFiber)
 
     // Recompute centroid
     for (int i = 0; i < numFibers; i++) {
-        yLoc = -matData[2*i];
-        Area = matData[2*i+1];
+        double yLoc = -matData[2*i];
+        double Area = matData[2*i+1];
         A  += Area;
         Qz += yLoc*Area;
     }
@@ -349,9 +242,6 @@ NDFiberSectionWarping2d::~NDFiberSectionWarping2d()
 
     if (ks != 0)
         delete ks;
-
-    if (sectionIntegr != 0)
-        delete sectionIntegr;
 }
 
 int
@@ -393,20 +283,16 @@ NDFiberSectionWarping2d::setTrialSectionDeformation(const Vector &deforms)
     sData[3] = 0.0;
     sData[4] = 0.0;
 
-    double d0 = deforms(0);
-    double d1 = deforms(1);
-    double d2 = deforms(2);
-    double d3 = deforms(3);
-    double d4 = deforms(4);
+    const double d0 = deforms(0),
+                 d1 = deforms(1),
+                 d2 = deforms(2),
+                 d3 = deforms(3),
+                 d4 = deforms(4);
 
     static double fiberLocs[10000];
     static double fiberArea[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-        sectionIntegr->getFiberWeights(numFibers, fiberArea);
-    }  
-    else {
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             fiberLocs[i] = matData[2*i];
             fiberArea[i] = matData[2*i+1];
@@ -418,8 +304,12 @@ NDFiberSectionWarping2d::setTrialSectionDeformation(const Vector &deforms)
     // h ~ parameter equals Height/2 for symmetric cases
     double maxLoc(fiberLocs[1] - yBarZero), minLoc(fiberLocs[1] - yBarZero); 
     for (int i = 0; i < numFibers; i++) {
-        if (fiberLocs[i] - yBarZero > maxLoc) { maxLoc = fiberLocs[i] - yBarZero;}
-        if (fiberLocs[i] - yBarZero < minLoc) { minLoc = fiberLocs[i] - yBarZero;}
+        if (fiberLocs[i] - yBarZero > maxLoc)
+          maxLoc = fiberLocs[i] - yBarZero;
+
+        if (fiberLocs[i] - yBarZero < minLoc)
+          minLoc = fiberLocs[i] - yBarZero;
+
     }
     double h (maxLoc);  //opserr<<"   h:   "<<h<<endln;
 
@@ -576,11 +466,7 @@ NDFiberSectionWarping2d::getInitialTangent(void)
     static double fiberLocs[10000];
     static double fiberArea[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-        sectionIntegr->getFiberWeights(numFibers, fiberArea);
-    }  
-    else {
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             fiberLocs[i] = matData[2*i];
             fiberArea[i] = matData[2*i+1];
@@ -616,7 +502,7 @@ NDFiberSectionWarping2d::getInitialTangent(void)
         kInitial[4] += omega * d00;
 
         kInitial[5] += -y * d00;
-        kInitial[6] += y * y * d00;
+        kInitial[6] +=  y * y * d00;
         kInitial[7] += -y * d01;
         kInitial[8] += -y * omegaprime * d01;
         kInitial[9] += -y * omega * d00;
@@ -693,26 +579,17 @@ NDFiberSectionWarping2d::getCopy(void)
     if (numFibers != 0) {
         theCopy->theMaterials = new NDMaterial *[numFibers];
 
-        if (theCopy->theMaterials == 0) {
-            opserr <<"NDFiberSectionWarping2d::getCopy -- failed to allocate Material pointers\n";
-            exit(-1);
-        }
-
         theCopy->matData = new double [numFibers*2];
-
-        if (theCopy->matData == 0) {
-            opserr << "NDFiberSectionWarping2d::getCopy -- failed to allocate double array for material data\n";
-            exit(-1);
-        }
 
         for (int i = 0; i < numFibers; i++) {
             theCopy->matData[i*2] = matData[i*2];
             theCopy->matData[i*2+1] = matData[i*2+1];
             theCopy->theMaterials[i] = theMaterials[i]->getCopy("BeamFiber2d");
 
-            if (theCopy->theMaterials[i] == 0) {
+            if (theCopy->theMaterials[i] == nullptr) {
                 opserr <<"NDFiberSectionWarping2d::getCopy -- failed to get copy of a Material";
-                exit(-1);
+                delete theCopy;
+                return nullptr;
             }
         }  
     }
@@ -724,16 +601,16 @@ NDFiberSectionWarping2d::getCopy(void)
     theCopy->alpha = alpha;
     theCopy->parameterID = parameterID;
 
-    theCopy->kData[0] = kData[0];
-    theCopy->kData[1] = kData[1];
-    theCopy->kData[2] = kData[2];
-    theCopy->kData[3] = kData[3];
-    theCopy->kData[4] = kData[4];
-    theCopy->kData[5] = kData[5];
-    theCopy->kData[6] = kData[6];
-    theCopy->kData[7] = kData[7];
-    theCopy->kData[8] = kData[8];
-    theCopy->kData[9] = kData[9];
+    theCopy->kData[ 0] = kData[0];
+    theCopy->kData[ 1] = kData[1];
+    theCopy->kData[ 2] = kData[2];
+    theCopy->kData[ 3] = kData[3];
+    theCopy->kData[ 4] = kData[4];
+    theCopy->kData[ 5] = kData[5];
+    theCopy->kData[ 6] = kData[6];
+    theCopy->kData[ 7] = kData[7];
+    theCopy->kData[ 8] = kData[8];
+    theCopy->kData[ 9] = kData[9];
     theCopy->kData[10] = kData[10];
     theCopy->kData[11] = kData[11];
     theCopy->kData[12] = kData[12];
@@ -756,11 +633,6 @@ NDFiberSectionWarping2d::getCopy(void)
     theCopy->sData[2] = sData[2];
     theCopy->sData[3] = sData[3];
     theCopy->sData[4] = sData[4];
-
-    if (sectionIntegr != 0)
-        theCopy->sectionIntegr = sectionIntegr->getCopy();
-    else
-        theCopy->sectionIntegr = nullptr;
 
     return theCopy;
 }
@@ -833,11 +705,7 @@ NDFiberSectionWarping2d::revertToLastCommit(void)
     static double fiberLocs[10000];
     static double fiberArea[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-        sectionIntegr->getFiberWeights(numFibers, fiberArea);
-    }  
-    else {
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             fiberLocs[i] = matData[2*i];
             fiberArea[i] = matData[2*i+1];
@@ -847,8 +715,12 @@ NDFiberSectionWarping2d::revertToLastCommit(void)
     // h ~ section height / 2 in Linear case
     double maxLoc(fiberLocs[1] - yBarZero), minLoc(fiberLocs[1] - yBarZero);
     for (int i = 0; i < numFibers; i++) {
-        if (fiberLocs[i] - yBarZero > maxLoc) { maxLoc = fiberLocs[i] - yBarZero;}
-        if (fiberLocs[i] - yBarZero < minLoc) { minLoc = fiberLocs[i] - yBarZero;}
+        if (fiberLocs[i] - yBarZero > maxLoc) {
+          maxLoc = fiberLocs[i] - yBarZero;
+        }
+        if (fiberLocs[i] - yBarZero < minLoc) {
+          minLoc = fiberLocs[i] - yBarZero;
+        }
     }
     double h (maxLoc);
 
@@ -990,11 +862,7 @@ NDFiberSectionWarping2d::revertToStart(void)
     static double fiberLocs[10000];
     static double fiberArea[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-        sectionIntegr->getFiberWeights(numFibers, fiberArea);
-    }  
-    else {
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             fiberLocs[i] = matData[2*i];
             fiberArea[i] = matData[2*i+1];
@@ -1418,22 +1286,13 @@ NDFiberSectionWarping2d::setParameter(const char **argv, int argc, Parameter &pa
 
     // Check if it belongs to the section integration
     else if (strstr(argv[0],"integration") != 0) {
-        if (sectionIntegr != 0)
-            return sectionIntegr->setParameter(&argv[1], argc-1, param);
-        else
-            return -1;
+        return -1;
     }
 
     int ok = 0;
 
     for (int i = 0; i < numFibers; i++) {
         ok = theMaterials[i]->setParameter(argv, argc, param);
-        if (ok != -1)
-            result = ok;
-    }
-
-    if (sectionIntegr != 0) {
-        ok = sectionIntegr->setParameter(argv, argc, param);
         if (ok != -1)
             result = ok;
     }
@@ -1483,11 +1342,7 @@ NDFiberSectionWarping2d::getStressResultantSensitivity(int gradIndex, bool condi
     static double fiberLocs[10000];
     static double fiberArea[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-        sectionIntegr->getFiberWeights(numFibers, fiberArea);
-    }  
-    else {
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             fiberLocs[i] = matData[2*i];
             fiberArea[i] = matData[2*i+1];
@@ -1497,11 +1352,7 @@ NDFiberSectionWarping2d::getStressResultantSensitivity(int gradIndex, bool condi
     static double locsDeriv[10000];
     static double areaDeriv[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getLocationsDeriv(numFibers, locsDeriv);  
-        sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
-    }
-    else {
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             locsDeriv[i] = 0.0;
             areaDeriv[i] = 0.0;
@@ -1638,21 +1489,15 @@ NDFiberSectionWarping2d::commitSensitivity(const Vector& defSens,
 
     static double fiberLocs[10000];
 
-    if (sectionIntegr != 0)
-        sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    else {
-        for (int i = 0; i < numFibers; i++)
-            fiberLocs[i] = matData[2*i];
-    }
+    // TODO
+    for (int i = 0; i < numFibers; i++)
+        fiberLocs[i] = matData[2*i];
 
     static double locsDeriv[10000];
     static double areaDeriv[10000];
 
-    if (sectionIntegr != 0) {
-        sectionIntegr->getLocationsDeriv(numFibers, locsDeriv);  
-        sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
-    }
-    else {
+
+    { // TODO
         for (int i = 0; i < numFibers; i++) {
             locsDeriv[i] = 0.0;
             areaDeriv[i] = 0.0;

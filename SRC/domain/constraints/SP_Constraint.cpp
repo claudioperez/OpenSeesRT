@@ -30,7 +30,6 @@
 #include <Vector.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <string>
 #include <Domain.h>
 #include <Node.h>
 #include <ID.h>

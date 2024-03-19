@@ -43,13 +43,9 @@ TclDispatch_newASDShellQ4(ClientData clientData, Tcl_Interp* interp, int argc, T
       corotational = true;
   }
 
-  SectionForceDeformation *section = builder->getSection(iData[5]);
-
-  if (section == nullptr) {
-    opserr << "ERROR:  element ASDShellQ4 " << iData[0] << "section "
-           << iData[5] << " not found\n";
+  SectionForceDeformation *section = builder->getTypedObject<SectionForceDeformation>(iData[5]);
+  if (section == nullptr)
     return nullptr;
-  }
 
   return new ASDShellQ4(iData[0], iData[1], iData[2], iData[3], iData[4],
                         section, corotational);
@@ -115,13 +111,9 @@ TclDispatch_newShellDKGQ(ClientData clientData, Tcl_Interp* interp, int argc, TC
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[5]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellDKGQ " << iData[0] << "section " << iData[5]
-           << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[5]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   return new ShellDKGQ(iData[0], iData[1], iData[2], iData[3], iData[4],
                              *theSection);
@@ -147,13 +139,10 @@ TclDispatch_newShellDKGT(ClientData clientData, Tcl_Interp* interp, int argc, TC
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[4]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellDKGT " << iData[0] << "section " << iData[4]
-           << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[4]);
+  if (theSection == nullptr)
     return nullptr;
-  }
+
 
   double b_data[3] = {0, 0, 0};
 
@@ -203,13 +192,9 @@ TclDispatch_newShellMITC4(ClientData clientData, Tcl_Interp* interp, int argc, T
       updateBasis = true;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[5]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellMITC4 " << iData[0] << "section "
-           << iData[5] << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[5]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   theElement = new ShellMITC4(iData[0], iData[1], iData[2], iData[3], iData[4],
                               *theSection, updateBasis);
@@ -240,13 +225,9 @@ TclDispatch_newShellMITC4Thermal(ClientData clientData, Tcl_Interp* interp, int 
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[5]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellMITC4Thermal " << iData[0] << "section "
-           << iData[5] << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[5]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   return new ShellMITC4Thermal(iData[0], iData[1], iData[2], iData[3], iData[4], *theSection);
 }
@@ -272,13 +253,9 @@ TclDispatch_newShellMITC9(ClientData clientData, Tcl_Interp* interp, int argc, T
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[10]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellMITC9 " << iData[0] << "section "
-           << iData[10] << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[10]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   return
       new ShellMITC9(iData[0], iData[1], iData[2], iData[3], iData[4], iData[5],
@@ -308,13 +285,9 @@ TclDispatch_newShellNLDKGQ(ClientData clientData, Tcl_Interp* interp, int argc, 
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[5]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellNLDKGQ " << iData[0] << "section "
-           << iData[5] << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[5]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   return new ShellNLDKGQ(iData[0], iData[1], iData[2], iData[3], iData[4],
                                *theSection);
@@ -343,13 +316,9 @@ TclDispatch_newShellNLDKGQThermal(ClientData clientData, Tcl_Interp* interp, int
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[5]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellNLDKGQThermal " << iData[0] << "section "
-           << iData[5] << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[5]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   return new ShellNLDKGQThermal(iData[0], iData[1], iData[2], iData[3],
                                       iData[4], *theSection);
@@ -377,13 +346,9 @@ TclDispatch_newShellNLDKGT(ClientData clientData, Tcl_Interp* interp, int argc, 
     return nullptr;
   }
 
-  SectionForceDeformation *theSection = builder->getSection(iData[4]);
-
-  if (theSection == nullptr) {
-    opserr << "ERROR:  element ShellNLDKGT " << iData[0] << "section "
-           << iData[4] << " not found\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[4]);
+  if (theSection == nullptr)
     return nullptr;
-  }
 
   return
       new ShellNLDKGT(iData[0], iData[1], iData[2], iData[3], *theSection);

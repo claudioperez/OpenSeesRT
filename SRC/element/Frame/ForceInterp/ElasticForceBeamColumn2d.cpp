@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2007-10-13 01:21:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/ElasticForceBeamColumn2d.cpp,v $
-
+//
 /*
  * References
  *
@@ -63,6 +59,7 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <string.h>
 #include <float.h>
 
+#include <CrdTransf.h>
 #include <Information.h>
 #include <Parameter.h>
 #include <ElasticForceBeamColumn2d.h>
@@ -111,14 +108,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticForceBeamColumn2d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
 	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
 	opserr<<"beam integration not found\n";
 	return 0;
@@ -1041,17 +1038,6 @@ OPS_Stream &operator<<(OPS_Stream &s, ElasticForceBeamColumn2d &E)
   return s;
 }
 
-int
-ElasticForceBeamColumn2d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 ElasticForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -1366,6 +1352,8 @@ ElasticForceBeamColumn2d::setParameter(const char **argv, int argc, Parameter &p
     ok += beamIntegr->setParameter(argv, argc, param);
     return ok;
   }
+
+  return 0;
 }
 
 int

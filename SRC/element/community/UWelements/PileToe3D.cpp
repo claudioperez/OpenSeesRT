@@ -98,7 +98,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_PileToe3D)
   }
 
   int transfTag = iData[4];
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING element PileToe3D " << iData[0] << endln;
     opserr << " coordTransf: " << transfTag << "not found\n";

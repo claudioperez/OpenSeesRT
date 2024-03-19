@@ -20,7 +20,7 @@
 #include <FileStream.h>
 
 #include <BasicModelBuilder.h>
-#include <Storage/G3_TableIterator.h>
+// #include <Storage/G3_TableIterator.h>
 
 #include <ID.h>
 #include <Domain.h>
@@ -38,7 +38,6 @@
 #include <Node.h>
 #include <NodeIter.h>
 
-
 int printElement(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char ** const argv, OPS_Stream &output);
 
@@ -55,6 +54,7 @@ int printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
 static int
 printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *output)
 {
+#if 0
   G3_TableIterator iter = builder->iterate(type);
   
   bool newline = false;
@@ -66,6 +66,7 @@ printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *
 
     ((TaggedObject*)iter.value)->Print(*output, flag);
   }
+#endif
   
   return TCL_OK;
 }

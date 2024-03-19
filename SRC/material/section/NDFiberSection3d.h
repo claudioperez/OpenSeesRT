@@ -34,20 +34,13 @@
 #include <Matrix.h>
 
 class NDMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
 
 class NDFiberSection3d : public SectionForceDeformation
 {
   public:
     NDFiberSection3d(); 
-    NDFiberSection3d(int tag, int numFibers, Fiber **fibers, double a = 1.0, bool compCentroid=true);
     NDFiberSection3d(int tag, int numFibers, double a = 1.0, bool compCentroid=true);
-#if 0
-    NDFiberSection3d(int tag, int numFibers, NDMaterial **mats,
-		     SectionIntegration &si, double a = 1.0, bool compCentroid=true);
-#endif
     ~NDFiberSection3d();
 
     const char *getClassType(void) const {return "NDFiberSection3d";};
@@ -76,7 +69,7 @@ class NDFiberSection3d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(NDMaterial& theMat, const double Area, const double yLoc, const double zLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -104,7 +97,6 @@ class NDFiberSection3d : public SectionForceDeformation
     bool computeCentroid;
     double alpha;      // Shear shape factor
 
-    SectionIntegration *sectionIntegr;
 
     static ID code;
 

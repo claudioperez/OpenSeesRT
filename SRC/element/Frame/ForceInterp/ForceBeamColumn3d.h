@@ -193,7 +193,7 @@ class ForceBeamColumn3d: public Element
   Matrix *Ki;
 
   bool isTorsion;
-  
+
   static Matrix theMatrix;
   static Vector theVector;
   static double workArea[];

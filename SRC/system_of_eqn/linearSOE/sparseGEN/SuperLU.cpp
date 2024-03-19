@@ -46,7 +46,7 @@ using std::nothrow;
 void* OPS_SuperLUSolver()
 {
   //    int count = 2;
-  double thresh = 0.0;
+//  double thresh = 0.0;
     int npRow = 1;
     int npCol = 1;
     int np = 1;
@@ -61,7 +61,7 @@ void* OPS_SuperLUSolver()
     while(OPS_GetNumRemainingInputArgs() > 1) {
 	std::string type = OPS_GetString();
 	if(type=="p"||type=="piv"||type=="-piv") {
-	    thresh = 1.0;
+//        thresh = 1.0;
 	} else if(type=="np"||type=="-np") {
 	    if(OPS_GetIntInput(&numData,&np)<0) return 0;
 	} else if(type=="npRow"||type=="-npRow") {

@@ -229,21 +229,10 @@ static int
 initializeAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char ** const argv)
 {
-  // TODO
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
-  /*
-  StaticAnalysis* the_static_analysis = builder->getStaticAnalysis();
-  DirectIntegrationAnalysis* theTransientAnalysis = builder->getTransientAnalysis();
-  if (theTransientAnalysis != 0) {
-      theTransientAnalysis->initialize();
-  } else if (the_static_analysis != 0) {
-    the_static_analysis->initialize();
-  }
-  */
-
-  builder->initialize();
-  
+  if (builder->initialize() < 0)
+    return TCL_ERROR;
   return TCL_OK;
 }
 

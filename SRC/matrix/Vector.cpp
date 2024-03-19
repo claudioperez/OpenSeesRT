@@ -28,7 +28,6 @@
 #include "Matrix.h"
 #include "ID.h"
 #include <iostream>
-using std::nothrow;
 
 #include <math.h>
 #include <assert.h>
@@ -682,7 +681,7 @@ Vector::operator[](int x)
   
   if (x >= sz) {
     // TODO: Is this expected?
-    double *dataNew = new (nothrow) double[x+1];
+    double *dataNew = new double[x+1];
     for (int i=0; i<sz; i++)
       dataNew[i] = theData[i];
     for (int j=sz; j<x; j++)
@@ -736,19 +735,17 @@ Vector::operator=(const Vector &V)
   if (this != &V) {
 
       if (sz != V.sz)  {
-#ifdef _G3DEBUG
-          opserr << "Vector::operator=() - vectors of differing sizes\n";
-#endif
           // Check that we are not deleting an empty Vector
-          if (this->theData != 0){
+          if (this->theData != nullptr){
             delete [] this->theData;
-            this->theData = 0;
+            this->theData = nullptr;
           }
           this->sz = V.sz;
           
           // Check that we are not creating an empty Vector
-          theData = (sz != 0) ? new double[sz] : nullptr;
+          this->theData = (sz != 0) ? new double[sz] : nullptr;
       }
+
       // copy the data
       for (int i=0; i<sz; i++)
         theData[i] = V.theData[i];
@@ -960,12 +957,7 @@ Vector::operator-(const Vector &b) const
 double
 Vector::operator^(const Vector &V) const
 {
-#ifdef _G3DEBUG
-  if (sz != V.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << V.sz << endln;
-    return 0.0;
-  }
-#endif
+  assert(sz == V.sz);
 
   double result = 0.0;
   double *dataThis = theData;
@@ -1142,5 +1134,4 @@ Vector::operator%(const Vector &V) const
       result(i,j)=theData[i]*V.theData[j];
   
   return result;
-  
 }

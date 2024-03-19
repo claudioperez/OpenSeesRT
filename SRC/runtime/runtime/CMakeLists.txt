@@ -12,7 +12,6 @@ target_sources(OPS_Runtime
       BasicAnalysisBuilder.cpp
       BasicModelBuilder.cpp
       modelbuilder/TclBuilder.cpp
-      modelbuilder/basic/TclBasicBuilder.cpp
 
     PUBLIC
       BasicAnalysisBuilder.h
@@ -22,6 +21,7 @@ target_sources(OPS_Runtime
 
 add_subdirectory(Logging)
 add_subdirectory(Storage)
+add_subdirectory(SectionBuilder)
 
 target_link_libraries(OPS_Runtime PRIVATE G3_Table)
 

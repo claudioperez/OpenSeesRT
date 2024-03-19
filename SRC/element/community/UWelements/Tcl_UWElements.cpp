@@ -4,6 +4,7 @@
 #include <elementAPI.h>
 #include <element/community/UWelements/SSPquadUP.h>
 #include <element/community/UWelements/SSPbrick.h>
+#include <NDMaterial.h>
 
 #ifdef _MSC_VER 
 #  include <string.h>
@@ -84,11 +85,9 @@ TclDispatch_SSPbrick(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Ch
   }
 
   int matID = iData[9];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-  if (theMaterial == 0) {
-    opserr << "WARNING element SSPbrick " << iData[0] << endln;
-    opserr << " Material: " << matID << "not found\n";
-    return 0;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr) {
+    return nullptr;
   }
 
   if (argc == 13) {
@@ -153,11 +152,9 @@ TclDispatch_SSPbrickUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_
   }
 
   int matID = iData[9];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-  if (theMaterial == 0) {
-    opserr << "WARNING element SSPbrickUP " << iData[0] << endln;
-    opserr << " Material: " << matID << "not found\n";
-    return 0;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr) {
+    return nullptr;
   }
 
   numData = 7;
@@ -292,13 +289,11 @@ TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-  if (theMaterial == nullptr) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\n\tSSPquad element: " << tag << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
+
   Element *theElem =
       new SSPquad(tag, iNode, jNode, kNode, lNode, *theMaterial,
                        type, thickness, b1, b2);
@@ -333,7 +328,7 @@ TclCommand_addSSPquad(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
   }
 
   int matID = iData[5];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
 
   if (theMaterial == 0) {
     opserr << "WARNING element SSPquad " << iData[0] << endln;
@@ -411,12 +406,10 @@ TclDispatch_SSPquadUP(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
   }
 
   int matID = iData[5];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-  if (theMaterial == 0) {
-    opserr << "WARNING element SSPquadUP " << iData[0] << endln;
-    opserr << " Material: " << matID << "not found\n";
-    return 0;
-  }
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
+    return nullptr;
+
 
   // LM change
   if (argc == 15) {
@@ -495,7 +488,7 @@ TclDispatch_BeamContact2D(ClientData clientData, Tcl_Interp* interp, int argc, T
   }
 
   int matID = iData[5];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element BeamContact2D " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";
@@ -570,7 +563,7 @@ TclDispatch_BeamContact2Dp(ClientData clientData, Tcl_Interp* interp, int argc, 
   }
 
   int matID = iData[4];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element BeamContact2Dp " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";
@@ -661,7 +654,7 @@ TclDispatch_BeamContact3D(ClientData clientData, Tcl_Interp* interp, int argc, T
   }
 
   int transfTag = iData[5];
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING element BeamContact3D " << iData[0] << endln;
     opserr << " coordTransf: " << transfTag << "not found\n";
@@ -669,7 +662,7 @@ TclDispatch_BeamContact3D(ClientData clientData, Tcl_Interp* interp, int argc, T
   }
 
   int matID = iData[6];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element BeamContact3D " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";
@@ -761,7 +754,7 @@ TclDispatch_BeamContact3Dp(ClientData clientData, Tcl_Interp* interp, int argc, 
   }
 
   int transfTag = iData[4];
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING element BeamContact3Dp " << iData[0] << endln;
     opserr << " coordTransf: " << transfTag << "not found\n";
@@ -769,7 +762,7 @@ TclDispatch_BeamContact3Dp(ClientData clientData, Tcl_Interp* interp, int argc, 
   }
 
   int matID = iData[5];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element BeamContact3Dp " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";
@@ -1208,7 +1201,7 @@ TclDispatch_PileToe3D(ClientData clientData, Tcl_Interp* interp, int argc, TCL_C
   }
 
   int transfTag = iData[4];
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING element PileToe3D " << iData[0] << endln;
     opserr << " coordTransf: " << transfTag << "not found\n";
@@ -1407,7 +1400,7 @@ TclDispatch_SimpleContact2D(ClientData clientData, Tcl_Interp* interp, int argc,
   }
 
   int matID = iData[5];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element SimpleContact2D " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";
@@ -1472,7 +1465,7 @@ TclDispatch_SimpleContact3D(ClientData clientData, Tcl_Interp* interp, int argc,
   }
 
   int matID = iData[7];
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element SimpleContact3D " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";

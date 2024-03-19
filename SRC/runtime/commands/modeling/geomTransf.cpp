@@ -5,18 +5,21 @@
 //
 // Description: Geometric transformation command
 //
+// cmp
+//
 #include <string.h>
 #include <assert.h>
 #include <runtime/BasicModelBuilder.h>
 #include <G3_Logging.h>
 
 #include <LinearCrdTransf2d.h>
+#include <LinearCrdTransf2d02.h>
 #include <LinearCrdTransf2dInt.h>
 #include <LinearCrdTransf3d.h>
 #include <PDeltaCrdTransf2d.h>
 #include <PDeltaCrdTransf3d.h>
 #include <CorotCrdTransf2d.h>
-#include <CorotCrdTransf3d01.h>
+#include <CorotCrdTransf3d.h>
 #include <CorotCrdTransf3d02.h>
 #include <CorotCrdTransfWarping2d.h>
 
@@ -25,12 +28,11 @@
 //
 int
 TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char ** const argv)
+                         const char ** const argv)
 
 {
   assert(clientData != nullptr);
-
-  BasicModelBuilder *theTclBasicBuilder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   // Make sure there is a minimum number of arguments
   if (argc < 2) {
@@ -39,8 +41,8 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  int ndm = theTclBasicBuilder->getNDM();
-  int ndf = theTclBasicBuilder->getNDF(); // number of degrees of freedom per node
+  int ndm = builder->getNDM();
+  int ndf = builder->getNDF(); // number of degrees of freedom per node
 
   // create 2d coordinate transformation
   if ((ndm == 2 && ndf == 3) || (ndm == 2 && ndf == 4)) {
@@ -88,17 +90,21 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       else {
         opserr << G3_ERROR_PROMPT << "bad command\n    Expected: geomTransf type? tag? "
                   "<-jntOffset dXi? dYi? dXj? dYj?>\n";
-        opserr << "invalid: " << argv[argi] << endln;
+        opserr << "invalid: " << argv[argi] << "\n";
         return TCL_ERROR;
       }
     }
 
-    // construct the transformation object
+    // construct the transformation
 
     CrdTransf *crdTransf2d = nullptr;
 
     if (strcmp(argv[1], "Linear") == 0)
-      crdTransf2d = new LinearCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
+      if (getenv("CRD")) {
+        opserr << "Using new CRD\n";
+        crdTransf2d = new LinearCrdTransf2d02(crdTransfTag, jntOffsetI, jntOffsetJ);
+      } else
+        crdTransf2d = new LinearCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "LinearInt") == 0)
       crdTransf2d =
@@ -117,16 +123,13 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
 
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";
-      opserr << argv[1] << endln;
+      opserr << argv[1] << "\n";
       return TCL_ERROR;
     }
 
     // add the transformation to the modelBuilder
-    if (theTclBasicBuilder->addCrdTransf(crdTransf2d) != true) {
-      opserr << G3_ERROR_PROMPT << "could not add "
-                "geometric transformation to model Builder\n";
+    if (builder->addTaggedObject<CrdTransf>(*crdTransf2d) != TCL_OK)
       return TCL_ERROR;
-    }
 
   } else if (ndm == 3 && ndf == 6) {
     int crdTransfTag;
@@ -217,7 +220,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << G3_ERROR_PROMPT << "bad command\n    Expected: geomTransf type? tag? "
                   "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? "
                   "dYi? dZi? dXj? dYj? dZj? > \n";
-        opserr << "    invalid: " << argv[argi] << endln;
+        opserr << "    invalid: " << argv[argi] << "\n";
         return TCL_ERROR;
       }
     }
@@ -246,7 +249,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (theTclBasicBuilder->addCrdTransf(crdTransf3d) != true) {
+    if (builder->addTaggedObject<CrdTransf>(*crdTransf3d) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "could not add "
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;

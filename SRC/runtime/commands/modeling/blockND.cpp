@@ -18,6 +18,7 @@
 #include <Domain.h>
 #include <Matrix.h>
 #include <Node.h>
+#include <NodeND.h>
 #include <ID.h>
 #include <G3_Logging.h>
 #include <BasicModelBuilder.h>
@@ -159,7 +160,21 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
         theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1));
 
       } else if (ndm == 3) {
-        theNode = new Node(nodeID,ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+        if (getenv("NODE")) {
+          switch (ndf) {
+            case 3:
+              theNode = new NodeND<3, 3>(nodeID, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              break;
+            case 6:
+              theNode = new NodeND<3, 6>(nodeID, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              break;
+            default:
+              theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              break;
+          }
+        } else
+          theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+        // theNode = new Node(nodeID,ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
       }
 
       if (theTclDomain->addNode(theNode) == false) {
@@ -320,7 +335,24 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
       for (int ii=0; ii<=numX; ii++) {
 
         const Vector &nodeCoords = theBlock.getNodalCoords(ii,jj,kk);
-        Node *theNode = new Node(nodeID,ndf,nodeCoords(0),nodeCoords(1),nodeCoords(2));
+        //
+        Node* theNode = nullptr;
+        if (getenv("NODE")) {
+          switch (ndf) {
+            case 3:
+              theNode = new NodeND<3, 3>(nodeID, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              break;
+            case 6:
+              theNode = new NodeND<3, 6>(nodeID, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              break;
+            default:
+              theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              break;
+          }
+        } else
+          theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+
+        // theNode = new Node(nodeID,ndf,nodeCoords(0),nodeCoords(1),nodeCoords(2));
 
         if (theTclDomain->addNode(theNode) == false) {
           opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";

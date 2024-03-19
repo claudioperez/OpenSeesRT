@@ -100,21 +100,21 @@ class BeamIntegrationRule : public TaggedObject
 public:
     BeamIntegrationRule(int tag, BeamIntegration* bi, const ID& stags)
 	:TaggedObject(tag),theInt(bi),secTags(stags){}
+
     ~BeamIntegrationRule(){
-	if (theInt != 0) delete theInt;
+	if (theInt != 0) 
+          delete theInt;
     }
 
     BeamIntegration* getBeamIntegration(){return theInt;}
     const ID& getSectionTags() const {return secTags;}
 
-    void Print(OPS_Stream &s, int flag){theInt->Print(s);}
+    void Print(OPS_Stream &s, int flag) {
+      theInt->Print(s);
+    }
 private:
     BeamIntegration* theInt;
     ID secTags;
 };
-
-bool       OPS_addBeamIntegrationRule(BeamIntegrationRule *newComponent);
-BeamIntegrationRule *OPS_getBeamIntegrationRule(int tag);
-void       OPS_clearAllBeamIntegrationRule(void);
 
 #endif

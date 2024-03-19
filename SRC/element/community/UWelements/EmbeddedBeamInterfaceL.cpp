@@ -239,7 +239,8 @@ EmbeddedBeamInterfaceL::EmbeddedBeamInterfaceL(int tag, std::vector <int> beamTa
 
 
     // get the coordinate transformation object
-    crdTransf = OPS_getCrdTransf(crdTransfTag)->getCopy3d();
+    // TODO: Wont this segfault on a bad transform tag? do it before constructor - cmp
+    crdTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(crdTransfTag)->getCopy3d();
 
     if (writeConnectivity)
     {
@@ -287,6 +288,7 @@ EmbeddedBeamInterfaceL::~EmbeddedBeamInterfaceL()
 
   if (crdTransf != 0)
     delete crdTransf;
+
   if (theNodes != 0)
     delete [] theNodes;
 }

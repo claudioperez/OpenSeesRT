@@ -22,6 +22,7 @@
 //Modified by Liming Jiang [http://openseesforfire.github.io]
                                                                     
 #include <ElasticIsotropic3DThermal.h>           
+#include <OPS_ErrorStream.h>
 #include <Channel.h>
 
 Vector ElasticIsotropic3DThermal::sigma(6);

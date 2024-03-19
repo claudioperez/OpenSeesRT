@@ -15,60 +15,53 @@
 #ifndef TCLSAFEBUILDER_H
 #define TCLSAFEBUILDER_H
 
-#include <tcl.h>
+#include <typeinfo>
+// #include <tcl.h>
 #include <string>
 #include <unordered_map>
 #include <runtime/modelbuilder/TclBuilder.h>
-#include <MultiSupportPattern.h>
-#include "Storage/G3_TableIterator.h"
 
-class SectionForceDeformation;
-class SectionRepres;
-class NDMaterial;
-class UniaxialMaterial;
-class TaggedObjectStorage;
-class TimeSeries;
+
+#include <TaggedObject.h>
+class MultiSupportPattern;
 class G3_Runtime;
-class CrdTransf;
-class HystereticBackbone;
-class G3_Table;
-
+class ID;
+struct Tcl_Interp;
 
 class BasicModelBuilder : public TclBuilder {
+public:
 //
 // CONSTRUCTORS / DESTRUCTORS
 //
-public:
   BasicModelBuilder(Domain &domain, Tcl_Interp *interp, int ndm, int ndf);
   ~BasicModelBuilder();
+
   using TclBuilder::buildFE_Model;
-  typedef std::string key_t;
-  template <typename ObjectType> class map_t
-  : public std::unordered_map<key_t, ObjectType> {};
+
 
 // Options
   void letClobber(bool option);
   bool canClobber();
 
-  G3_TableIterator iterate(const char* partition);
-
-//
-// OBJECT CONTAINERS
-// 
-// Time series
-private:
-  G3_Table* registry = nullptr;
-  G3_Table* shared_registry = nullptr;
-  map_t<TimeSeries*> m_TimeSeriesMap;
-public:
 
   int   addRegistryObject(const char*, int tag, void* obj); 
-  void* getRegistryObject(const char*, int tag); 
 
-  int addTimeSeries(const std::string&, TimeSeries*);
-  int addTimeSeries(TimeSeries*);
-  TimeSeries* getTimeSeries(const key_t&);
-  TimeSeries* getTimeSeries(int tag);
+  template<class T> int addTypedObject(int tag, T* obj) {
+    return addRegistryObject(typeid(T).name(), tag, obj);
+  }
+
+  template<class T> int addTaggedObject(T& obj) {
+    int tag = obj.getTag();
+    m_registry[typeid(T).name()][tag] = &obj;
+    return addRegistryObject(typeid(T).name(), tag, &obj);
+  }
+
+  void* getRegistryObject(const char*, int tag) const;
+
+  template<class T> T* getTypedObject(int tag) {
+    return (T*)getRegistryObject(typeid(T).name(), tag);
+  }
+
   LoadPattern* getEnclosingPattern(void);
   int setEnclosingPattern(LoadPattern*);
   int incrNodalLoadTag(void);
@@ -80,53 +73,16 @@ public:
          const ID &fixityCodes, 
          double tol=1e-10);
 
-// Coordinate Transformations
-private: map_t<CrdTransf*> m_CrdTransfMap;
-public:  int addCrdTransf(CrdTransf *);
-         int addCrdTransf(const key_t, CrdTransf*);
-         CrdTransf *getCrdTransf(int tag);
-         CrdTransf *getCrdTransf(const key_t&);
-
-// Uniaxial materials
-private: map_t<UniaxialMaterial*> m_UniaxialMaterialMap;
-public:  int  addUniaxialMaterial(UniaxialMaterial &theMaterial);
-         int  addUniaxialMaterial(const std::string&, UniaxialMaterial &);
-         int  addUniaxialMaterial(UniaxialMaterial *theMaterial);
-         UniaxialMaterial *getUniaxialMaterial(int tag);
-         UniaxialMaterial *getUniaxialMaterial(const std::string &);
-
-// Backbone materials
-private: map_t<HystereticBackbone*> m_HystereticBackboneMap;
-public:  int addHystereticBackbone(HystereticBackbone &theMaterial);
-         int addHystereticBackbone(const std::string&, HystereticBackbone &);
-         // HystereticBackbone *getHystereticBackbone(int tag);
-         HystereticBackbone *getHystereticBackbone(const std::string &);
-
-// Multi-dimensional materials
-private: map_t<NDMaterial*> m_NDMaterialMap;
-public:  int addNDMaterial(NDMaterial &theMaterial);
-         int addNDMaterial(const std::string&, NDMaterial &);
-         NDMaterial *getNDMaterial(int tag);
-         NDMaterial *getNDMaterial(const std::string &);
-
-// Cross sections
-private: map_t<SectionForceDeformation*> m_SectionForceDeformationMap;
-         map_t<SectionRepres*          > m_SectionRepresMap;
-public:  int addSection(SectionForceDeformation &theSection);
-         int addSection(const std::string&, SectionForceDeformation &);
-         SectionForceDeformation *getSection(int tag);
-         SectionForceDeformation *getSection(const std::string &);
-         int addSectionRepres(SectionRepres &theSectionRepres);
-         int addSectionRepres(const std::string &, SectionRepres &);
-         SectionRepres *getSectionRepres(int tag);
-         SectionRepres *getSectionRepres(const std::string&);
-
 //
 // OTHER METHODS
 //
   Domain *getDomain(void) const;
   BasicModelBuilder *getBuilder(void) const;
 
+protected:
+  Tcl_Interp *theInterp;
+
+// 
 private:
   int ndm; // space dimension of the mesh
   int ndf; // number of degrees of freedom per node
@@ -145,10 +101,10 @@ private:
   LoadPattern *tclEnclosingPattern = nullptr;
   MultiSupportPattern *theTclMultiSupportPattern = nullptr;
 
-protected:
-  Tcl_Interp *theInterp;
+// OBJECT CONTAINERS
+  std::unordered_map<std::string, std::unordered_map<int, TaggedObject*>> m_registry;
 
 };
 
-#endif // TCLSAFEBUILDER_H
+#endif
 

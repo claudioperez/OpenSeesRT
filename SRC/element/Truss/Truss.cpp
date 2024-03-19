@@ -1045,39 +1045,39 @@ Truss::Print(OPS_Stream &s, int flag)
     force = A * theMaterial->getStress();
     
 	if (flag == OPS_PRINT_CURRENTSTATE) {
-		s << "Element: " << this->getTag();
-		s << " type: Truss  iNode: " << connectedExternalNodes(0);
-		s << " jNode: " << connectedExternalNodes(1);
-		s << " Area: " << A << " Mass/Length: " << rho;
-		s << " cMass: " << cMass;
-        
-		s << " \n\t strain: " << strain;
-		if (initialDisp != 0) {
-			s << " initialDisplacements: ";
-			for (int i = 0; i < dimension; i++)
-				s << initialDisp[i] << " ";
-		}
-        
-		s << " axial load: " << force;
-        
-		if (L != 0.0) {
-			int numDOF2 = numDOF / 2;
-			double temp;
-			for (int i = 0; i < dimension; i++) {
-				temp = cosX[i] * force;
-				(*theVector)(i) = -temp;
-				(*theVector)(i + numDOF2) = temp;
-			}
-			s << " \n\t unbalanced load: " << *theVector;
-		}
-        
-		s << " \t Material: " << *theMaterial;
-		s << endln;
+              s << "  Element: " << this->getTag();
+              s << " type: Truss  iNode: " << connectedExternalNodes(0);
+              s << " jNode: " << connectedExternalNodes(1);
+              s << " Area: " << A << " Mass/Length: " << rho;
+              s << " cMass: " << cMass; 
+
+              s << " \n\t strain: " << strain;
+              if (initialDisp != 0) {
+                    s << " initialDisplacements: ";
+                    for (int i = 0; i < dimension; i++)
+                            s << initialDisp[i] << " ";
+              }
+      
+              s << " axial load: " << force;
+      
+              if (L != 0.0) {
+                      int numDOF2 = numDOF / 2;
+                      double temp;
+                      for (int i = 0; i < dimension; i++) {
+                              temp = cosX[i] * force;
+                              (*theVector)(i) = -temp;
+                              (*theVector)(i + numDOF2) = temp;
+                      }
+                      s << " \n\t unbalanced load: " << *theVector;
+              }
+      
+              s << " \t Material: " << *theMaterial;
+              s << "\n";
 	}
     
 	if (flag == 1) {
 		s << this->getTag() << "  " << strain << "  ";
-		s << force << endln;
+		s << force << "\n";
 	}
     
 	if (flag == OPS_PRINT_PRINTMODEL_JSON) {

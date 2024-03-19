@@ -690,14 +690,8 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char * const arg
   int timeSeriesTag = 0;
 
   if (Tcl_GetInt(interp, arg, &timeSeriesTag) == TCL_OK) {
-    if (clientData && (series = ((BasicModelBuilder*)clientData)->getTimeSeries(timeSeriesTag)))
-      return series;
-
-    G3_Runtime *rt = G3_getRuntime(interp);
-    if ((series = G3_getTimeSeries(rt, timeSeriesTag)))
-      return series;
-    else
-      return OPS_getTimeSeries(timeSeriesTag);
+    if (clientData && (series = ((BasicModelBuilder*)clientData)->getTypedObject<TimeSeries>(timeSeriesTag)))
+      return series->getCopy();
   }
 
   // split the list
@@ -717,16 +711,20 @@ int
 TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char ** const argv)
 {
-
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc - 1, &argv[1]);
 
   BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
 
   if (theSeries != nullptr) {
-    if (builder->addTimeSeries(argv[2], theSeries))
-      return TCL_OK;
-    else
+    int tag;
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+      opserr << "failed to read tag \"" << argv[2] << "\"\n";
       return TCL_ERROR;
+    }
+    if (builder->addTypedObject<TimeSeries>(tag, theSeries) < 0)
+      return TCL_ERROR;
+    else
+      return TCL_OK;
   }
   return TCL_ERROR;
 }

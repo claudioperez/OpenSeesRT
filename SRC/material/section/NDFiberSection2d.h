@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
-// Written: MHS
-// Created: 2012
 //
 // Description: This file contains the class definition for 
 // NDFiberSection2d.h. NDFiberSection2d provides the abstraction of a 
 // 2d beam section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
-
+//
+// Written: MHS
+// Created: 2012
+//
 #ifndef NDFiberSection2d_h
 #define NDFiberSection2d_h
 
@@ -38,18 +34,18 @@
 #include <Matrix.h>
 
 class NDMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
 
 class NDFiberSection2d : public SectionForceDeformation
 {
   public:
     NDFiberSection2d(); 
-    NDFiberSection2d(int tag, int numFibers, Fiber **fibers, double a = 1.0, bool compCentroid=true);
     NDFiberSection2d(int tag, int numFibers, double a = 1.0, bool compCentroid=true);
+#if 0
+    NDFiberSection2d(int tag, int numFibers, Fiber **fibers, double a = 1.0, bool compCentroid=true);
     NDFiberSection2d(int tag, int numFibers, NDMaterial **mats,
 		     SectionIntegration &si, double a = 1.0, bool compCentroid=true);
+#endif
     ~NDFiberSection2d();
 
     const char *getClassType(void) const {return "NDFiberSection2d";};
@@ -78,7 +74,7 @@ class NDFiberSection2d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(NDMaterial& theMat, const double Area, const double yLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -105,7 +101,6 @@ class NDFiberSection2d : public SectionForceDeformation
     bool computeCentroid;
     double alpha;      // Shear shape factor
 
-    SectionIntegration *sectionIntegr;
 
     static ID code;
 

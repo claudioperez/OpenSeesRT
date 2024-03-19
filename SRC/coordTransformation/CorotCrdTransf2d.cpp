@@ -23,29 +23,21 @@
 // transformation for a planar frame between the global
 // and basic coordinate systems.
 //
-// $Revision: 1.4 $
-// $Date: 2008-12-03 23:40:07 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransf2d.cpp,v $
-
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 05/2000
 // Revision: rms 06/2000 (using Assemble, and AssembleTranspose)
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
-/*
- * References
- *
-
-General Formulation and Analytical Response Sensitivity
----
-Scott, M. H. and F. C. Filippou (2007).
-"Response Gradients for Nonlinear Beam-Column Elements under Large Displacements."
-Journal of Structural Engineering, 133(2):155-165.
-
- *
- */
-
+//
+// References
+//
+//  General Formulation and Analytical Response Sensitivity
+//  ---
+//  Scott, M. H. and F. C. Filippou (2007).
+//  "Response Gradients for Nonlinear Beam-Column Elements under Large Displacements."
+//  Journal of Structural Engineering, 133(2):155-165.
+//
 #include <math.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -384,9 +376,7 @@ void
 CorotCrdTransf2d::transfLocalDisplsToBasic(const Vector &ul)
 {
   // Eliminate rigid body modes, determining displacements wrt the basic system
-  double alpha;
-
-  alpha = atan2(sinAlpha, cosAlpha);
+  const double alpha = atan2(sinAlpha, cosAlpha);
 
   ub(0) = Ln - L;
   ub(1) = ul(2) - alpha;
@@ -544,9 +534,7 @@ CorotCrdTransf2d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 #endif
 
   // transform resisting forces  from local to global coordinates
-  //this->compTransfMatrixLocalGlobal(Tlg);     // OPTIMIZE LATER
-  //pg.addMatrixTransposeVector(0.0, Tlg, pl, 1.0);   // pg = Tlg ^ pl; residual
-
+  // pg = Tlg' * pl;
   pg(0) = cosTheta * pl[0] - sinTheta * pl[1];
   pg(1) = sinTheta * pl[0] + cosTheta * pl[1];
 

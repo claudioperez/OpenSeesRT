@@ -23,6 +23,7 @@
 // $Revision: 1.16 $
 // $Date: 2007-10-16 00:15:07 $
 //
+#include <ID.h>
 #include <runtime/BasicModelBuilder.h>
 #include <PressureIndependMultiYield.h>
 #include <PressureDependMultiYield.h>
@@ -141,12 +142,14 @@ TclBasicBuilderUpdateParameterCommand(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  NDMaterial *a = builder->getNDMaterial(tag);
+  // TODO: This will print an error message if not found; maybe
+  // getTypedObject should accept flag that tells it not to print
+  NDMaterial *a = builder->getTypedObject<NDMaterial>(tag);
 
   if (a == 0) {
     // opserr << "WARNING UpdateParameter: couldn't get NDmaterial tagged: " <<
     // tag << endln; return TCL_ERROR;
-    UniaxialMaterial *a = builder->getUniaxialMaterial(tag);
+    UniaxialMaterial *a = builder->getTypedObject<UniaxialMaterial>(tag);
     if (a == 0) {
       opserr
           << "WARNING UpdateParameter: couldn't get Uniaxialmaterial tagged: "

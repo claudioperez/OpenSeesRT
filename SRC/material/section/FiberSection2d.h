@@ -35,18 +35,18 @@
 #include <memory>
 
 class UniaxialMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
 
 class FiberSection2d : public SectionForceDeformation
 {
   public:
     FiberSection2d(); 
-    FiberSection2d(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2d(int tag, int numFibers, bool compCentroid=true);
+#if 0
+    FiberSection2d(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2d(int tag, int numFibers, UniaxialMaterial **mats,
 		   SectionIntegration &si, bool compCentroid=true);
+#endif
     ~FiberSection2d();
 
     const char *getClassType(void) const {return "FiberSection2d";};
@@ -75,7 +75,7 @@ class FiberSection2d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &theMat, const double area, const double yLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -100,8 +100,6 @@ class FiberSection2d : public SectionForceDeformation
     
     double QzBar, ABar, yBar;       // Section centroid
     bool computeCentroid;
-      
-    SectionIntegration *sectionIntegr;
 
     static ID code;
 
