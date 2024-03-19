@@ -5,6 +5,8 @@
 #
 #==============================================================================
 
+target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+
 target_sources(OPS_Element
     PRIVATE
         ElastomericBearingBoucWen2d.cpp
@@ -16,9 +18,6 @@ target_sources(OPS_Element
         ElastomericX.cpp
         HDR.cpp
         LeadRubberX.cpp
-        #TclElastomericBearingBoucWenCommand.cpp
-        #TclElastomericBearingPlasticityCommand.cpp
-        #TclElastomericBearingUFRPCommand.cpp
     PUBLIC
         ElastomericBearingBoucWen2d.h
         ElastomericBearingBoucWen3d.h
