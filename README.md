@@ -42,10 +42,7 @@ The package may be used as a drop-in replacement for both OpenSees and
 OpenSeesPy, and generally provides a substantial performance boost.
 Project objectives include:
 
-- **Simpler installation** With a single `pip`-install, run any OpenSees Tcl 
-  script *and* most OpenSeesPy scripts.
-
-- **Improved performance** The `opensees` package uses the experimental 
+- **Performance** The `opensees` package uses the experimental 
   [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
   analysis kernel which
   eliminates reliance on global variables for state and memory management. 
@@ -53,8 +50,13 @@ Project objectives include:
   matrices and vectors and eliminate the need for static local variables 
   furnishing substantial performance improvements.
 
-- **Reliability** All program state is encapsulated in user-instantiated classes,
+- **Robustness** All program state is encapsulated in user-instantiated classes,
   and global variables/singletons are avoided. This eliminates several preexisting vulnerabilities to inadvertent state corruption.
+
+- **Simplicity** With a single `pip`-install, run any OpenSees Tcl 
+  script *and* most OpenSeesPy scripts on a wide variety of Python versions.
+  No fidling with compilers or `PATH` variables.
+
 
 <!--
 - **Library semantics**
