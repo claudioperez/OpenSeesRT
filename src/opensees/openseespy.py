@@ -338,6 +338,23 @@ class OpenSeesPy:
         pattern = self._current_pattern
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
+    def section(self, *args, **kwds):
+        self._current_section = args[1]
+        # TODO: error handling
+        return self._str_call("section", *args, **kwds)
+
+    def patch(self, *args, **kwds):
+        section = self._current_section
+        return self._str_call("patch", *args, "-section", section, **kwds)
+
+    def layer(self, *args, **kwds):
+        section = self._current_section
+        return self._str_call("layer", *args, "-section", section, **kwds)
+
+    def fiber(self, *args, **kwds):
+        section = self._current_section
+        return self._str_call("fiber", *args, "-section", section, **kwds)
+
 
 class Model:
     def __init__(self, *args, echo_file=None, **kwds):
@@ -345,7 +362,7 @@ class Model:
         self._openseespy._str_call("model", *args, **kwds)
 
     def __getattr__(self, name: str):
-        if name in {"pattern", "load", "eval"}:
+        if name in {"pattern", "load", "eval", "section", "patch", "layer", "fiber"}:
             return getattr(self._openseespy, name)
         else:
             return self._openseespy._partial(self._openseespy._str_call, name)
@@ -359,7 +376,7 @@ _tcl_echo   = None
 def __getattr__(name: str):
     # For reference:
     #   https://peps.python.org/pep-0562/#id4
-    if name in {"pattern", "load", "eval"}:
+    if name in {"pattern", "load", "eval", "section", "patch", "layer", "fiber"}:
         return getattr(_openseespy, name)
     else:
         return _openseespy._partial(_openseespy._str_call, name)
