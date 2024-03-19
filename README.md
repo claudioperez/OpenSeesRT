@@ -52,8 +52,9 @@ Project objectives include:
 
 - **Performance improvements** The `opensees` package uses the experimental `OpenSeesRT` 
   analysis kernel which
-  eliminates reliance on global variables for state and memory management. Stack-allocated
-  matrices and vectors eliminate the need for static local variables and furnish additional 
+  eliminates reliance on global variables for state and memory management. 
+  Furthermore, new template classes allow for stack-allocated
+  matrices and vectors and eliminate the need for static local variables for additional 
   performance improvements.
 
 - **Reliability** All program state is encapsulated in user-instantiated classes,
