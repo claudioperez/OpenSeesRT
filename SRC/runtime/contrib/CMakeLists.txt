@@ -15,13 +15,6 @@ target_sources(OPS_Runtime PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/element/adapter/TclActuatorCorotCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/element/adapter/TclAdapterCommand.cpp"
 
-
-    "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/TclFlatSliderCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/TclRJWatsonEQSCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/TclSingleFPCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/element/frictionBearing/frictionModel/TclModelBuilderFrictionModelCommand.cpp"
-
-    "${CMAKE_CURRENT_LIST_DIR}/element/zeroLength/TclZeroLength.cpp"
 )
 
 

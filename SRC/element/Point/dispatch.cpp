@@ -18,7 +18,7 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Description: This file contains the implementation of the command used
+// Description: This file contains the implementation of the commands used
 // to add zero length elements to the model.
 //
 // Written: fmk
@@ -41,12 +41,11 @@
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <SectionForceDeformation.h>
-class TclBasicBuilder;
+
 
 int
-TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int argc,
-                              TCL_Char ** const argv, Domain *theDomain,
-                              TclBasicBuilder *theBuilder)
+TclCommand_addZeroLength(ClientData clientData, Tcl_Interp *interp, int argc,
+                              TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
@@ -342,10 +341,8 @@ TclBasicBuilder_addZeroLength(ClientData clientData, Tcl_Interp *interp, int arg
 }
 
 int
-TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char ** const argv,
-                                     Domain *theDomain,
-                                     TclBasicBuilder *theBuilder)
+TclCommand_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
+                                     int argc, TCL_Char ** const argv)
 {
 
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
@@ -496,19 +493,16 @@ TclBasicBuilder_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
 
 // add by Gang Wang for Contact Element
 // Tcl parse of zeroLengthContact2D command
-
+//
 // Command:
 //
 // element zeroLengthContact2D $tag $secondaryNd $primaryNd $Kn $Kt $fs
 // $ContactDirction
 //
 //
-
 int
-TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp,
-                                       int argc, TCL_Char ** const argv,
-                                       Domain *theDomain,
-                                       TclBasicBuilder *theBuilder)
+TclCommand_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp,
+                                       int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
@@ -623,10 +617,8 @@ TclBasicBuilder_addZeroLengthContact2D(ClientData clientData, Tcl_Interp *interp
 //
 
 int
-TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp,
-                                       int argc, TCL_Char ** const argv,
-                                       Domain *theDomain,
-                                       TclBasicBuilder *theBuilder)
+TclCommand_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp,
+                                       int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
@@ -737,9 +729,8 @@ TclBasicBuilder_addZeroLengthContact3D(ClientData clientData, Tcl_Interp *interp
 }
 
 int
-TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char ** const argv, Domain *theDomain,
-                                TclBasicBuilder *theBuilder)
+TclCommand_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int argc,
+                                TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
@@ -903,10 +894,8 @@ TclBasicBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int a
 }
 
 int
-TclBasicBuilder_addZeroLengthRocking(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char ** const argv,
-                                     Domain *theDomain,
-                                     TclBasicBuilder *theBuilder)
+TclCommand_addZeroLengthRocking(ClientData clientData, Tcl_Interp *interp,
+                                     int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* domain = builder->getDomain();
