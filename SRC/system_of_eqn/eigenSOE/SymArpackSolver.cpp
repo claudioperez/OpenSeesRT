@@ -121,23 +121,21 @@ SymArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 
     // check for quick return
     if (n == 0)
-	return 0;
+      return 0;
 
-	if (factored == false) {
-
-	   //factor the matrix
-	   //call the "C" function to do the numerical factorization.
-	   int factor;
-	   factor = pfsfct(n, diag, penv, nblks, xblk, begblk, first, rowblks);
-	   if (factor>0) {
-		  opserr << "In SymArpackSolver: error in factorization.\n";
-		  return -1;
-	   }
-	   factored = true;
-	}
+    if (factored == false) {
+       // factor the matrix
+       // call the "C" function to do the numerical factorization.
+       int factor = pfsfct(n, diag, penv, nblks, xblk, begblk, first, rowblks);
+       if (factor > 0) {
+          opserr << "In SymArpackSolver: error in factorization.\n";
+          return -1;
+       }
+       factored = true;
+    }
 
 
-	int nev = numModes;
+    int nev = numModes;
 
     int ncv = getNCV(n, nev);
 
@@ -156,8 +154,8 @@ SymArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     static char which[3];
     if (findSmallest == true) {
       strcpy(which, "LM");
-    }  else {
-    strcpy(which, "SM");
+    } else {
+      strcpy(which, "SM");
     }    
 
     int *iparam = new int[11];
