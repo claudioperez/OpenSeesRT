@@ -15,7 +15,7 @@ target_sources(coordTransformation
     PDeltaCrdTransf2d.cpp
     PDeltaCrdTransf3d.cpp
     CorotCrdTransf2d.cpp
-    CorotCrdTransf3d01.cpp
+    CorotCrdTransf3d.cpp
     CorotCrdTransf3d02.cpp
     CorotCrdTransfWarping2d.cpp
   PUBLIC
@@ -26,7 +26,7 @@ target_sources(coordTransformation
     PDeltaCrdTransf2d.h
     PDeltaCrdTransf3d.h
     CorotCrdTransf2d.h
-    CorotCrdTransf3d01.h
+    CorotCrdTransf3d.h
     CorotCrdTransf3d02.h
     CorotCrdTransfWarping2d.h
 
