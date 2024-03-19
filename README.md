@@ -9,15 +9,10 @@
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
 
-
 **A *fast* and *stateless* interface to the OpenSees framework for finite element analysis.**
-
 
 <br>
 
-<!-- 
--------------------------------------------------------------------- 
--->
 
 <br>
 
@@ -44,23 +39,22 @@ as well as a new set of Python bindings that is both idiomatic, and free
 of global state.
 
 The package may be used as a drop-in replacement for both OpenSees and
-OpenSeesPy, and generally provides a considerable performance boost.
+OpenSeesPy, and generally provides a substantial performance boost.
 Project objectives include:
 
 - **Simpler installation** With a single `pip`-install, run any OpenSees Tcl 
-  script **and** most OpenSeesPy scripts.
+  script *and* most OpenSeesPy scripts.
 
-- **Performance improvements** The `opensees` package uses the experimental 
+- **Improved performance** The `opensees` package uses the experimental 
   [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
   analysis kernel which
   eliminates reliance on global variables for state and memory management. 
   Furthermore, new template classes allow for stack-allocated
-  matrices and vectors and eliminate the need for static local variables for additional 
-  performance improvements.
+  matrices and vectors and eliminate the need for static local variables 
+  furnishing substantial performance improvements.
 
 - **Reliability** All program state is encapsulated in user-instantiated classes,
-  and global variables/singletons are avoided. This eliminates the possibility
-  of inadvertent state corruption.
+  and global variables/singletons are avoided. This eliminates several preexisting vulnerabilities to inadvertent state corruption.
 
 <!--
 - **Library semantics**
@@ -68,10 +62,10 @@ Project objectives include:
 
 Additional features include:
 
-- Convert OpenSeesPy scripts into serialized Tcl files that can be used
+- Convert OpenSeesPy scripts into equivalent Tcl files that can be used
   for faster processing or serialization.
 
-- Python versions 3.7 - 3.11 are supported on Linux.
+- Python versions 3.7 - 3.12 are supported on Linux.
 
 ### Getting Started
 
