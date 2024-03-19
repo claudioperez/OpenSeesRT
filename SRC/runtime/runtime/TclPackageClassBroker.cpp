@@ -301,7 +301,7 @@ using namespace OpenSees::Hash::literals;
 #include "PDeltaCrdTransf2d.h"
 #include "PDeltaCrdTransf3d.h"
 #include "CorotCrdTransf2d.h"
-#include "CorotCrdTransf3d01.h"
+#include "CorotCrdTransf3d.h"
 
 #include "quadrature/Frame/HingeMidpointBeamIntegration.h"
 #include "quadrature/Frame/HingeEndpointBeamIntegration.h"
@@ -870,7 +870,7 @@ TclPackageClassBroker::getNewCrdTransf(int classTag)
   case CRDTR_TAG_PDeltaCrdTransf3d:
     return new PDeltaCrdTransf3d();
   case CRDTR_TAG_CorotCrdTransf3d:
-    return new CorotCrdTransf3d01();
+    return new CorotCrdTransf3d();
   default:
     opserr << "TclPackageClassBroker::getCrdTransf - ";
     opserr << " - no CrdTransf type exists for class tag ";
