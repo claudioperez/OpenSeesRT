@@ -192,7 +192,7 @@ BasicAnalysisBuilder::initialize(void)
   if (stamp != domainStamp) {
     domainStamp = stamp;	
     if (this->domainChanged() < 0) {
-      opserr << G3_WARN_PROMPT << "initialize - domainChanged() failed\n";
+      opserr << G3_ERROR_PROMPT << "initialize - domainChanged() failed\n";
       return -1;
     }	
   }
@@ -203,7 +203,7 @@ BasicAnalysisBuilder::initialize(void)
 
     case CURRENT_STATIC_ANALYSIS:
       if (theStaticIntegrator->initialize() < 0) {
-          opserr << G3_WARN_PROMPT << "initialize - integrator initialize() failed\n";
+          opserr << G3_WARN_PROMPT << "integrator initialize() failed\n";
           return -2;
       } else
         theStaticIntegrator->commit();
@@ -211,7 +211,7 @@ BasicAnalysisBuilder::initialize(void)
 
     case CURRENT_TRANSIENT_ANALYSIS:
       if (theTransientIntegrator->initialize() < 0) {
-          opserr << "initialize - integrator initialize() failed\n";
+          opserr << "integrator initialize() failed\n";
           return -2;
       } else
         theTransientIntegrator->commit();
@@ -740,9 +740,11 @@ BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
   if (theHandler == nullptr)
     theHandler = new TransformationConstraintHandler();
 
-  this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
-  this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
-  this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
+  // this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
+  if (this->CurrentAnalysisFlag == CURRENT_EMPTY_ANALYSIS)
+    this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
+  this->fillDefaults(this->CurrentAnalysisFlag); //CURRENT_TRANSIENT_ANALYSIS);
+  this->setLinks(this->CurrentAnalysisFlag); //CURRENT_TRANSIENT_ANALYSIS);
 
   // create a new eigen system and solver
   if (theEigenSOE != nullptr) {
