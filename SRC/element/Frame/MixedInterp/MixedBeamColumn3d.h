@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2010-05-04 17:14:46 $
-// $Source: /scratch/slocal/chroot/cvsroot/openseescomp/CompositePackages/mixedBeamColumn/MixedBeamColumn3d.h,v $
-
+//
 #ifndef MixedBeamColumn3d_h
 #define MixedBeamColumn3d_h
 
@@ -30,8 +26,6 @@
 // Description: This file contains the interface for the MixedBeamColumn3d class.
 // It defines the class interface and the class attributes.
 //
-// What: "@(#) MixedBeamColumn3d.h, revA"
-
 #include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -91,7 +85,6 @@ class MixedBeamColumn3d : public Element
     int getResponse(int responseID, Information &eleInfo);
 
     const char *getClassType(void) const {return "MixedBeamColumn3d";};
-    int displaySelf(Renderer&, int mode, float fact, const char** displayModes = 0, int numModes = 0);
   protected:
 
   private:
