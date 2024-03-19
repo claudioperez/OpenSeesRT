@@ -59,7 +59,11 @@ Project objectives include:
 
 - **Reliability** All program state is encapsulated in user-instantiated classes,
   and global variables/singletons are avoided. This eliminates the possibility
-  of state corruption.
+  of inadvertent state corruption.
+
+<!--
+- **Library semantics**
+-->
 
 Additional features include:
 
