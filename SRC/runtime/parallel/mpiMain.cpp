@@ -17,10 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.13 $
-// $Date: 2010-04-23 23:01:14 $
-// $Source: /usr/local/cvs/OpenSees/SRC/tcl/mpiMain.cpp,v $
 
 /* 
  * tclAppInit.c --
