@@ -216,7 +216,8 @@ EmbeddedBeamInterfaceP::EmbeddedBeamInterfaceP(int tag, std::vector <int> beamTa
 
 
     // get the coordinate transformation object
-    crdTransf = OPS_getCrdTransf(crdTransfTag)->getCopy3d();
+    // TODO: this should happend before the constructor - cmp
+    crdTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(crdTransfTag)->getCopy3d();
 
 
     if (writeConnectivity)
