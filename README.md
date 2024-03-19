@@ -67,6 +67,17 @@ Additional features include:
 
 - Python versions 3.7 - 3.12 are supported on Linux.
 
+> [!NOTE]
+> This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
+> library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
+> website.
+
+
+<p style="text-align: center;">
+<b>This package is <i>experimental</i> and not yet intended for public use.</b>
+</p>
+
+
 ### Getting Started
 
 - To start a Tcl interpreter run the shell command:
@@ -83,17 +94,6 @@ Additional features include:
   ```python
   import opensees.openseespy
   ```
-
-> [!NOTE]
-> This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
-> library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
-> website.
-
-
-<p style="text-align: center;">
-<b>This package is <i>experimental</i> and not yet intended for public use.</b>
-</p>
-
 
 <!-- Badge links -->
 
