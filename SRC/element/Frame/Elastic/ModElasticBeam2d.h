@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: fmk 11/95
-// Revised: Dimitrios G. Lignos, 01/31/2011
 //
 // Purpose: This file contains the class definition for modElasticBeam2d.
 // modElasticBeam2d is a plane frame member that can consider stiffness modification factors
-
+//
+// Written: fmk 11/95
+// Revised: Dimitrios G. Lignos, 01/31/2011
+//
 #ifndef modElasticBeam2d_h
 #define modElasticBeam2d_h
 
@@ -83,7 +79,6 @@ class ModElasticBeam2d : public Element
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
     
     void Print(OPS_Stream &s, int flag = 0);    
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes=0, int numModes=0);
 
     Response *setResponse (const char **argv, int argc, OPS_Stream &s);
     int getResponse (int responseID, Information &info);
