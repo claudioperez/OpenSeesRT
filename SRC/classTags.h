@@ -540,6 +540,9 @@
 
 #define ND_TAG_ASDConcrete3DMaterial 7017 // Massimo Petracca ASDEA Software
 
+#define ND_TAG_OrthotropicRotatingAngleConcreteT2DMaterial01 7018 // M. J. Nunez - UChile
+#define ND_TAG_SmearedSteelDoubleLayerT2DMaterial01 7019		  // M. J. Nunez - UChile
+
 #define FIBER_TAG_Uniaxial2d	1
 #define FIBER_TAG_Uniaxial3d	2
 #define FIBER_TAG_ND2d	3
@@ -855,14 +858,15 @@
 #define ELE_TAG_IGAKLShell_BendingStrip   254 // IGA Shell by Felipe Elgueta and jaabell (UANDES) 216 because 208 was taken
 #define ELE_TAG_PFEMContact3D             255
 #define ELE_TAG_TenNodeTetrahedron        256 //by jaabell and j0selarenas (UANDES)
-#define ELE_TAG_E_SFI        			257 // C. N. Lopez
-#define ELE_TAG_TripleFrictionPendulumX               258
+#define ELE_TAG_E_SFI        		  257 // C. N. Lopez
+#define ELE_TAG_TripleFrictionPendulumX   258
 #define ELE_TAG_E_SFI_MVLEM_3D	          259259 // Kristijan Kolozvari
 #define ELE_TAG_ExternalElement           99990
 #define ELE_TAG_PML2D_3                   259
 #define ELE_TAG_PML2D_5                   260
 #define ELE_TAG_PML2D_12                  261
 #define ELE_TAG_PML2DVISCOUS              262
+#define ELE_TAG_MEFI                      270 // C. N. Lopez
 
 
 #define FRN_TAG_Coulomb            1
