@@ -162,12 +162,11 @@ getRotationMatrixFromQuaternion(const Vector &q, Matrix3D& R)
 }
 
 
-const Vector &
+static inline const Vector &
 getQuaternionFromRotMatrix(const Matrix3D &R, Vector& q)
 {
     // obtains the normalised quaternion from the rotation matrix
     // using Spurrier's algorithm
-//  static Vector q(4);      // normalized quaternion
 
     const double trR = R(0,0) + R(1,1) + R(2,2);
 
@@ -198,7 +197,6 @@ getQuaternionFromRotMatrix(const Matrix3D &R, Vector& q)
               q(k) = (R(k,i) + R(i,k))/(4*q(i));
           }
     }
-
     return q;
 }
 
@@ -210,6 +208,7 @@ CorotCrdTransf3d02::getQuaternionFromPseudoRotVector(const Vector  &theta) const
     double t = theta.Norm();
     if (t == 0)
         q.Zero();
+
     else {
         const double factor = sin(t*0.5)/ t;
         for (int i = 0; i < 3; i++)
