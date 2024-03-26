@@ -357,6 +357,10 @@
 
 #define SEC_TAG_MCFTFiberSection2d 7601
 
+#define SEC_TAG_ReinforcedConcreteLayeredMembraneSection 7701 // M. J. Nunez - UChile
+#define SEC_TAG_LayeredMembraneSection 7702 // M. J. Nunez - UChile
+#define SEC_TAG_ElasticMembraneSection 7703 // M. J. Nunez - UChile
+
 #define SECTION_INTEGRATION_TAG_WideFlange 1
 #define SECTION_INTEGRATION_TAG_RC 2
 #define SECTION_INTEGRATION_TAG_RCT 3
@@ -920,6 +924,11 @@ enum {
         CRDTR_TAG_CorotCrdTransfWarping3d, //  61
         CRDTR_TAG_LinearCrdTransf2dInt,    // 7
 };
+
+#define DMP_TAG_UniformDamping 1
+#define DMP_TAG_SecStifDamping 2
+#define DMP_TAG_URDDamping 3
+#define DMP_TAG_URDDampingbeta 4
 
 #define DMP_TAG_UniformDamping 1
 #define DMP_TAG_SecStifDamping 2
