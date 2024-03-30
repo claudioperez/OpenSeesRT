@@ -128,7 +128,7 @@ GenericSectionNd::revertToStart ()
 }
 
 const ID&
-GenericSectionNd::getType ()
+GenericSectionNd::getType()
 {
     return *code;
 }

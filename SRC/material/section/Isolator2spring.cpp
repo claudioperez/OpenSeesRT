@@ -399,7 +399,7 @@ Isolator2spring::getCopy(void)
 }
 
 const ID&
-Isolator2spring::getType(void)
+Isolator2spring::getType()
 {
 	return code;
 }

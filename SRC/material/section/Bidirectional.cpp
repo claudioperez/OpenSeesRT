@@ -352,7 +352,7 @@ Bidirectional::getCopy(void)
 }
 
 const ID&
-Bidirectional::getType(void)
+Bidirectional::getType()
 {
   code(0) = code1;
   code(1) = code2;

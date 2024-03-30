@@ -151,7 +151,7 @@ GenericSection1d::revertToStart ()
 }
 
 const ID&
-GenericSection1d::getType ()
+GenericSection1d::getType()
 {
   c(0) = code;
 

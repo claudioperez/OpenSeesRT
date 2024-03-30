@@ -36,9 +36,12 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <ElasticMaterial.h>
+
+#include "FiberResponse.h"
 
 // #include <threads/thread_pool.hpp>
 // #define N_FIBER_THREADS 6
@@ -532,7 +535,7 @@ FiberSection3d::getCopy(void)
 }
 
 const ID&
-FiberSection3d::getType ()
+FiberSection3d::getType()
 {
   return code;
 }
@@ -1027,23 +1030,42 @@ FiberSection3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       output.endTag();
     }
     Vector theResponseData(numData);
-    theResponse = new MaterialResponse(this, 5, theResponseData);
+    theResponse = new SectionResponse(*this, FiberResponse::FiberData, theResponseData);
+
+  } else if (strcmp(argv[0],"fiberData2") == 0) {
+    int numData = numFibers*6;
+    for (int j = 0; j < numFibers; j++) {
+      output.tag("FiberOutput");
+      output.attr("yLoc", matData[3*j]);
+      output.attr("zLoc", matData[3*j+1]);
+      output.attr("area", matData[3*j+2]);    
+      output.attr("material", theMaterials[j]->getTag());
+      output.tag("ResponseType","yCoord");
+      output.tag("ResponseType","zCoord");
+      output.tag("ResponseType","area");
+      output.tag("ResponseType","material");
+      output.tag("ResponseType","stress");
+      output.tag("ResponseType","strain");
+      output.endTag();
+    }
+    Vector theResponseData(numData);
+    theResponse = new SectionResponse(*this, FiberResponse::FiberData02, theResponseData);
 
   } else if ((strcmp(argv[0],"numFailedFiber") == 0) || 
              (strcmp(argv[0],"numFiberFailed") == 0)) {
     int count = 0;
-    theResponse = new MaterialResponse(this, 6, count);
+    theResponse = new SectionResponse(*this, 6, count);
 
   } else if ((strcmp(argv[0],"sectionFailed") == 0) ||
              (strcmp(argv[0],"hasSectionFailed") == 0) ||
              (strcmp(argv[0],"hasFailed") == 0)) {
 
     int count = 0;
-    theResponse = new MaterialResponse(this, 7, count);
+    theResponse = new SectionResponse(*this, 7, count);
   }
   //by SAJalali
   else if ((strcmp(argv[0], "energy") == 0) || (strcmp(argv[0], "Energy") == 0)) {
-        theResponse = new MaterialResponse(this, 10, getEnergy());
+        theResponse = new SectionResponse(*this, 10, getEnergy());
   }
 
   if (theResponse == 0)
@@ -1058,7 +1080,7 @@ FiberSection3d::getResponse(int responseID, Information &sectInfo)
 {
   // Just call the base class method ... don't need to define
   // this function, but keeping it here just for clarity
-  if (responseID == 5) {
+  if (responseID == FiberResponse::FiberData) {
     int numData = 5*numFibers;
     Vector data(numData);
     int count = 0;
@@ -1072,7 +1094,23 @@ FiberSection3d::getResponse(int responseID, Information &sectInfo)
       data(count+3) = stress; data(count+4) = strain;
       count += 5;
     }
-    return sectInfo.setVector(data);      
+    return sectInfo.setVector(data);
+
+  } else if (responseID == FiberResponse::FiberData02) {
+    int numData = 6*numFibers;
+    Vector data(numData);
+    int count = 0;
+    for (int j = 0; j < numFibers; j++) {
+      data(count)   = matData[3*j  ]; // y
+      data(count+1) = matData[3*j+1]; // z
+      data(count+2) = matData[3*j+2]; // A
+      data(count+3) = (double)theMaterials[j]->getTag();
+      data(count+4) = theMaterials[j]->getStress();
+      data(count+5) = theMaterials[j]->getStrain();	    
+      count += 6;
+    }
+    return sectInfo.setVector(data);		  
+
   } else  if (responseID == 6) {
     int count = 0;
     for (int j = 0; j < numFibers; j++) {    

@@ -34,7 +34,8 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <math.h> //JZ
 #include <elementAPI.h>
@@ -643,7 +644,7 @@ FiberSection2dThermal::getCopy(void)
 }
 
 const ID&
-FiberSection2dThermal::getType ()
+FiberSection2dThermal::getType()
 {
   return code;
 }

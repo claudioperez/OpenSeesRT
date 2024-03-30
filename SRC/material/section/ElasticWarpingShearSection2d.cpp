@@ -271,7 +271,7 @@ ElasticWarpingShearSection2d::getCopy(void)
 }
 
 const ID&
-ElasticWarpingShearSection2d::getType(void)
+ElasticWarpingShearSection2d::getType()
 {
   return code;
 }

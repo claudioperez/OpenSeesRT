@@ -190,7 +190,7 @@ ElasticBDShearSection2d::getCopy(void)
 }
 
 const ID&
-ElasticBDShearSection2d::getType(void)
+ElasticBDShearSection2d::getType()
 {
   return code;
 }

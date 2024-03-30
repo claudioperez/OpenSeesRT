@@ -247,7 +247,7 @@ ElasticTubeSection3d::getCopy(void)
 }
 
 const ID&
-ElasticTubeSection3d::getType(void)
+ElasticTubeSection3d::getType()
 {
   return code;
 }

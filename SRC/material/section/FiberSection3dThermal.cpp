@@ -34,7 +34,8 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <math.h>
 
@@ -523,19 +524,19 @@ FiberSection3dThermal::getCopy(void)
 }
 
 const ID&
-FiberSection3dThermal::getType ()
+FiberSection3dThermal::getType()
 {
   return code;
 }
 
 int
-FiberSection3dThermal::getOrder () const
+FiberSection3dThermal::getOrder() const
 {
   return 3;
 }
 
 int
-FiberSection3dThermal::commitState(void)
+FiberSection3dThermal::commitState()
 {
   int err = 0;
 
@@ -952,7 +953,7 @@ FiberSection3dThermal::setResponse(const char **argv, int argc, OPS_Stream &outp
       output.endTag();
     }
     Vector theResponseData(numData);
-    theResponse = new MaterialResponse(this, 5, theResponseData);
+    theResponse = new SectionResponse(*this, 5, theResponseData);
   }
 
   if (theResponse == 0)

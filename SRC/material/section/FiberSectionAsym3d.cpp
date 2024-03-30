@@ -44,7 +44,8 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <ElasticMaterial.h>
 #include <elementAPI.h>
@@ -570,7 +571,7 @@ FiberSectionAsym3d::getCopy(void)
 }
 
 const ID&
-FiberSectionAsym3d::getType ()
+FiberSectionAsym3d::getType()
 {
   return code;
 }
@@ -1128,19 +1129,19 @@ FiberSectionAsym3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       output.endTag();
     }
     Vector theResponseData(numData);
-    theResponse = new MaterialResponse(this, 5, theResponseData);
+    theResponse = new SectionResponse(*this, 5, theResponseData);
 
   } else if ((strcmp(argv[0],"numFailedFiber") == 0) || 
 	     (strcmp(argv[0],"numFiberFailed") == 0)) {
     int count = 0;
-    theResponse = new MaterialResponse(this, 6, count);
+    theResponse = new SectionResponse(*this, 6, count);
 
   } else if ((strcmp(argv[0],"sectionFailed") == 0) ||
 	     (strcmp(argv[0],"hasSectionFailed") == 0) ||
 	     (strcmp(argv[0],"hasFailed") == 0)) {
 
     int count = 0;
-    theResponse = new MaterialResponse(this, 7, count);
+    theResponse = new SectionResponse(*this, 7, count);
   }
 
   if (theResponse == 0)
