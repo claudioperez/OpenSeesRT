@@ -81,6 +81,10 @@ extern OPS_Routine OPS_UniaxialSection;
 extern OPS_Routine OPS_ParallelSection;
 extern OPS_Routine OPS_Bidirectional;
 extern OPS_Routine OPS_Elliptical2;
+extern void *OPS_ReinforcedConcreteLayeredMembraneSection(void); // M. J. Nunez - UChile
+extern void *OPS_LayeredMembraneSection(void); // M. J. Nunez - UChile
+extern void *OPS_ElasticMembraneSection(void); // M. J. Nunez - UChile
+
 // extern OPS_Routine OPS_WFSection2d;
 // extern OPS_Routine OPS_RCCircularSection;
 // extern OPS_Routine OPS_RCSection2d;
@@ -192,6 +196,30 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     } else
       return TCL_OK;
   }
+
+    else if ((strcmp(argv[1], "ReinforcedConcreteLayeredMembraneSection") == 0) || (strcmp(argv[1], "RCLayeredMembraneSection") == 0) || (strcmp(argv[1], "RCLMS") == 0)) {
+        void* theMat = OPS_ReinforcedConcreteLayeredMembraneSection();
+        if (theMat != 0)
+            theSection = (SectionForceDeformation*)theMat;
+        else
+            return TCL_ERROR;
+    }
+
+    else if ((strcmp(argv[1], "LayeredMembraneSection") == 0) || (strcmp(argv[1], "LMS") == 0)) {
+        void* theMat = OPS_LayeredMembraneSection();
+        if (theMat != 0)
+            theSection = (SectionForceDeformation*)theMat;
+        else
+            return TCL_ERROR;
+    }
+
+    else if (strcmp(argv[1], "ElasticMembraneSection") == 0) {
+        void* theMat = OPS_ElasticMembraneSection();
+        if (theMat != 0)
+            theSection = (SectionForceDeformation*)theMat;
+        else
+            return TCL_ERROR;
+    }
 
   // created by Yuli Huang & Xinzheng Lu ----
   else if (strcmp(argv[1], "Bidirectional") == 0) {
@@ -812,6 +840,14 @@ static bool currentSectionIsAsym          = false;
 static bool currentSectionIsWarping       = false;
 static bool currentSectionIsThermal       = false;
 static bool currentSectionComputeCentroid = true;
+
+struct FiberSectionConfig {
+   bool isND            = false;
+   bool isAsym          = false;
+   bool isWarping       = false;
+   bool isThermal       = false;
+   bool computeCentroid = true;
+};
 
 
 // build the section
