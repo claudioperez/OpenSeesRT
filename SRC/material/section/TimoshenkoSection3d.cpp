@@ -312,7 +312,7 @@ TimoshenkoSection3d::getCopy(void)
 }
 
 const ID&
-TimoshenkoSection3d::getType ()
+TimoshenkoSection3d::getType()
 {
   return code;
 }
