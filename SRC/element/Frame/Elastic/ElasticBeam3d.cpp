@@ -611,7 +611,7 @@ ElasticBeam3d::addLoad(ElementalLoad *theLoad, double loadFactor)
     double Mz = Vy*L/6.0; // wy*L*L/12
     double Vz = 0.5*wz*L;
     double My = Vz*L/6.0; // wz*L*L/12
-    double P = wx*L;
+    double P  = wx*L;
 
     // Reactions in basic system
     p0[0] -= P;
@@ -1276,15 +1276,9 @@ ElasticBeam3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       }
     }   
   }
-  
-  else if (strcmp(argv[0],"xaxis") == 0 || strcmp(argv[0],"xlocal") == 0)
-    theResponse = new ElementResponse(this, 201, Vector(3));
-  
-  else if (strcmp(argv[0],"yaxis") == 0 || strcmp(argv[0],"ylocal") == 0)
-    theResponse = new ElementResponse(this, 202, Vector(3));
-  
-  else if (strcmp(argv[0],"zaxis") == 0 || strcmp(argv[0],"zlocal") == 0)
-    theResponse = new ElementResponse(this, 203, Vector(3));
+
+  if (theResponse == nullptr)
+    theResponse = theCoordTransf->setResponse(argv, argc, output);
 
   output.endTag(); // ElementOutput
 
@@ -1320,27 +1314,26 @@ ElasticBeam3d::getResponse (int responseID, Information &eleInfo)
     P(3) = -T;
     
     // Moments about z and shears along y
-    M1 = q(1);
-    M2 = q(2);
+    M1    = q(1);
+    M2    = q(2);
     P(5)  = M1;
     P(11) = M2;
-    V = (M1+M2)*oneOverL;
-    P(1) =  V+p0[1];
-    P(7) = -V+p0[2];
+    V     = (M1+M2)*oneOverL;
+    P(1)  =  V+p0[1];
+    P(7)  = -V+p0[2];
     
     // Moments about y and shears along z
-    M1 = q(3);
-    M2 = q(4);
+    M1    = q(3);
+    M2    = q(4);
     P(4)  = M1;
     P(10) = M2;
-    V = (M1+M2)*oneOverL;
-    P(2) = -V+p0[3];
-    P(8) =  V+p0[4];
+    V     = (M1 + M2)*oneOverL;
+    P(2)  = -V + p0[3];
+    P(8)  =  V + p0[4];
 
     return eleInfo.setVector(P);
     
   case 4: // basic forces
-
     return eleInfo.setVector(q);
 
   case 5:
@@ -1361,21 +1354,6 @@ ElasticBeam3d::getResponse (int responseID, Information &eleInfo)
   }
   default:
     break;
-  }
-
-  if (responseID >= 201 && responseID <= 203) {
-    static Vector xlocal(3);
-    static Vector ylocal(3);
-    static Vector zlocal(3);
-    
-    theCoordTransf->getLocalAxes(xlocal,ylocal,zlocal);
-    
-    if (responseID == 201)
-      return eleInfo.setVector(xlocal);
-    if (responseID == 202)
-      return eleInfo.setVector(ylocal);
-    if (responseID == 203)
-      return eleInfo.setVector(zlocal);    
   }
 
   return -1;

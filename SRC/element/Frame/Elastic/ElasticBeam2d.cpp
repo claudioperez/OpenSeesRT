@@ -1158,6 +1158,10 @@ ElasticBeam2d::setResponse(const char **argv, int argc, OPS_Stream &output)
 
     theResponse =  new ElementResponse(this, 5, Vector(3));
   }
+
+  if (theResponse == 0)
+    theResponse = theCoordTransf->setResponse(argv, argc, output);
+
   output.endTag(); // ElementOutput
   
   return theResponse;
@@ -1242,28 +1246,28 @@ ElasticBeam2d::setParameter(const char **argv, int argc, Parameter &param)
 int
 ElasticBeam2d::updateParameter (int parameterID, Information &info)
 {
-	switch (parameterID) {
-	case -1:
-		return -1;
-	case 1:
-		E = info.theDouble;
-		return 0;
-	case 2:
-		A = info.theDouble;
-		return 0;
-	case 3:
-		I = info.theDouble;
-		return 0;
-	case 4:
-		rho = info.theDouble;
-		return 0;
-	case 5:
-	  release = (int)info.theDouble;
-	  if (release < 0 || release > 3)
-	    release = 0;
-		return 0;				
-	default:
-		return -1;
-	}
+  switch (parameterID) {
+  case -1:
+    return -1;
+  case 1:
+    E = info.theDouble;
+    return 0;
+  case 2:
+    A = info.theDouble;
+    return 0;
+  case 3:
+    I = info.theDouble;
+    return 0;
+  case 4:
+    rho = info.theDouble;
+    return 0;
+  case 5:
+    release = (int)info.theDouble;
+    if (release < 0 || release > 3)
+      release = 0;
+    return 0;
+  default:
+    return -1;
+  }
 }
 
