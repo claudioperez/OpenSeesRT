@@ -887,8 +887,8 @@ LinearCrdTransf2d02::recvSelf(int cTag, Channel &theChannel,
 const Matrix &
 LinearCrdTransf2d02::getGlobalMatrixFromLocal(const Matrix &ml)
 {
-  this->compTransfMatrixLocalGlobal(Tlg);       // OPTIMIZE LATER
-  kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // OPTIMIZE LATER
+  this->compTransfMatrixLocalGlobal(Tlg);       // TODO: OPTIMIZE LATER
+  kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // TODO: OPTIMIZE LATER
 
   return kg;
 }
