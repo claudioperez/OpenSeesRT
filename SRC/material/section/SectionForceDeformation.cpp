@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:45:44 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/SectionForceDeformation.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: MHS 
 // Created: Feb 2000
 // Revision: A
@@ -35,7 +30,9 @@
 #include <Information.h>
 #include <Matrix.h>
 #include <Vector.h>
-#include <MaterialResponse.h>
+
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 
 #include <string.h>
 
@@ -101,13 +98,13 @@ void OPS_printSectionForceDeformation(OPS_Stream &s, int flag) {
 }
 
 SectionForceDeformation::SectionForceDeformation(int tag, int classTag)
-  :Material(tag,classTag), fDefault(0), sDefault(0)
+  :TaggedObject(tag), MovableObject(classTag), fDefault(0), sDefault(0)
 {
 
 }
 
 SectionForceDeformation::SectionForceDeformation()
-    : Material(0, 0), fDefault(0), sDefault(0)
+    : TaggedObject(0),MovableObject(0), fDefault(0), sDefault(0)
 {
 
 }
@@ -242,7 +239,7 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
 	output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 1, this->getSectionDeformation());
+    theResponse =  new SectionResponse(*this, 1, this->getSectionDeformation());
   
   // forces
   } else if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0) {
@@ -295,7 +292,7 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
 	output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 2, this->getStressResultant());
+    theResponse =  new SectionResponse(*this, 2, this->getStressResultant());
   
   // force and deformation
   } else if (strcmp(argv[0],"forceAndDeformation") == 0) { 
@@ -398,15 +395,15 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
       }
     }
     
-    theResponse =  new MaterialResponse(this, 4, Vector(2*this->getOrder()));
+    theResponse =  new SectionResponse(*this, 4, Vector(2*this->getOrder()));
   }
   
   else if (strcmp(argv[0],"stiffness") == 0) {
-    theResponse =  new MaterialResponse(this, 12, this->getSectionTangent());
+    theResponse =  new SectionResponse(*this, 12, this->getSectionTangent());
   }
 
   else if (strcmp(argv[0],"flexibility") == 0) {
-    theResponse =  new MaterialResponse(this, 13, this->getSectionFlexibility());
+    theResponse =  new SectionResponse(*this, 13, this->getSectionFlexibility());
   }
   
 
@@ -616,3 +613,4 @@ const Vector& SectionForceDeformation::getThermalElong(void)
   errRes.resize(this->getStressResultant().Size());
   return errRes;
 }
+
