@@ -1590,6 +1590,9 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
   else if (strcmp(argv[0],"sectionTags") == 0)
     theResponse = new ElementResponse(this, 110, ID(numSections));
 
+  if (theResponse == 0)
+    theResponse = crdTransf->setResponse(argv, argc, output);
+
   output.endTag();
   return theResponse;
 }

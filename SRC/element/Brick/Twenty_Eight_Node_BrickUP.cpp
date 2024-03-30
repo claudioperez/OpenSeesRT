@@ -22,7 +22,6 @@
 //
 // 20-8 Noded TwentyEightNodeBrickUP element
 //
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -185,10 +184,6 @@ connectedExternalNodes(20), applyLoad(0), load(0), Ki(0), kc(bulk), rho(rhof)
     // Allocate arrays of pointers to NDMaterials
     materialPointers = new NDMaterial *[nintu];
 
-    if (materialPointers == 0) {
-      opserr << "TwentyEightNodeBrickUP::TwentyEightNodeBrickUP - failed allocate material model pointer\n";
-      exit(-1);
-    }
     for (int i=0; i<nintu; i++ ) {
 
       materialPointers[i] = theMaterial.getCopy("ThreeDimensional") ;
@@ -1350,24 +1345,25 @@ TwentyEightNodeBrickUP::setResponse(const char **argv, int argc, OPS_Stream &out
   output.attr("eleType","Twenty_Eight_Node_BrickUP");
   output.attr("eleTag",this->getTag());
   for (int i=1; i<=20; i++) {
-    sprintf(outputData,"node%d",i);
+    snprintf(outputData, sizeof(outputData)/sizeof(char),"node%d",i);
     output.attr(outputData, nodePointers[i-1]->getTag());
   }
   if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0) {
 
     for (int i=1; i<=20; i++) {
-      sprintf(outputData,"P1_",i);
-      output.tag("ResponseType",outputData);
-      sprintf(outputData,"P2_",i);
-      output.tag("ResponseType",outputData);
-      sprintf(outputData,"P3_",i);
-      output.tag("ResponseType",outputData);
+      snprintf(outputData, sizeof(outputData)/sizeof(char), "P1_%d",i);
+      output.tag("ResponseType", outputData);
+      snprintf(outputData, sizeof(outputData)/sizeof(char), "P2_%d",i);
+      output.tag("ResponseType", outputData);
+      snprintf(outputData, sizeof(outputData)/sizeof(char), "P3_%d",i);
+      output.tag("ResponseType", outputData);
       if (i <= nenp) {
-    sprintf(outputData,"Pp_",i);
-    output.tag("ResponseType",outputData);
+        snprintf(outputData, sizeof(outputData)/sizeof(char), "Pp_%d",i);
+        output.tag("ResponseType",outputData);
       }
     }
     theResponse = new ElementResponse(this, 1, resid);
+
   } else if (strcmp(argv[0],"stiff") == 0 || strcmp(argv[0],"stiffness") == 0)
     theResponse = new ElementResponse(this, 2, stiff);
 
@@ -1385,6 +1381,7 @@ TwentyEightNodeBrickUP::setResponse(const char **argv, int argc, OPS_Stream &out
       theResponse =  materialPointers[pointNum-1]->setResponse(&argv[2], argc-2, output);
       output.endTag(); // GaussPoint
     }
+
   } else if (strcmp(argv[0],"stresses") ==0) {
     for (int i=0; i<nintu; i++) {
       output.tag("GaussPoint");
@@ -1443,7 +1440,6 @@ TwentyEightNodeBrickUP::getResponse(int responseID, Information &eleInfo)
 
     }
     else
-
         return -1;
 }
 
@@ -1451,33 +1447,33 @@ TwentyEightNodeBrickUP::getResponse(int responseID, Information &eleInfo)
 void
 TwentyEightNodeBrickUP::compuLocalShapeFunction() {
 
-    int i, k, j;
-    static double shl[4][20][27], w[27];
+    static double shl[4][20][27], 
+                    w[27];
+
     // solid phase
     brcshl(shl, w, nintu, nenu);
-    for(k = 0; k < nintu; k++) {
+    for (int k = 0; k < nintu; k++) {
         wu[k] = w[k];
-        for( j = 0; j < nenu; j++)
-            for( i = 0; i < 4; i++)
+        for (int j = 0; j < nenu; j++)
+            for (int i = 0; i < 4; i++)
                 shlu[i][j][k] = shl[i][j][k];
     }
     // fluid phase
     brcshl(shl, w, nintp, nenu);
-    for(k = 0; k < nintp; k++) {
+    for (int k = 0; k < nintp; k++) {
         wp[k] = w[k];
-        for( j = 0; j < nenu; j++)
-            for( i = 0; i < 4; i++)
+        for (int j = 0; j < nenu; j++)
+            for (int i = 0; i < 4; i++)
                 shlq[i][j][k] = shl[i][j][k];
     }
     // coupling term
     brcshl(shl, w, nintp, nenp);
-    for(k = 0; k < nintp; k++) {
+    for (int k = 0; k < nintp; k++) {
         wp[k] = w[k];
-        for( j = 0; j < nenp; j++)
-            for( i = 0; i < 4; i++)
+        for (int j = 0; j < nenp; j++)
+            for (int i = 0; i < 4; i++)
                 shlp[i][j][k] = shl[i][j][k];
     }
-
 }
 
 void
@@ -1503,41 +1499,37 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
     }
     else {
         opserr <<"TwentyEightNodeBrickUP::Jacobian3d - illegal mode: " << mode << "\n";
-        exit(-1);
-    } //end if
+    }
 
-    for( j = 0; j < nen; j++) {
-        for( i = 0; i < 4; i++) {
-            if( mode == 0 )
+    for (int j = 0; j < nen; j++) {
+        for (int i = 0; i < 4; i++) {
+            if ( mode == 0 )
                 shp[i][j] = shlu[i][j][gaussPoint];
-            else if( mode == 1 )
+            else if ( mode == 1 )
                 shp[i][j] = shlp[i][j][gaussPoint];
-            else if( mode == 2 )
+            else if ( mode == 2 )
                 shp[i][j] = shlq[i][j][gaussPoint];
             else {
                 opserr <<"TwentyEightNodeBrickUP::Jacobian3d - illegal mode: " << mode << "\n";
-                exit(-1);
-            } //end if
+            } // end if
         }
     }
 
 
 
 
-    //Compute jacobian transformation
-
-    for ( j=0; j<3; j++ ) {
-        for( k = 0; k < 3; k++ ) {
+    // Compute jacobian transformation
+    for (int j=0; j<3; j++ ) {
+        for (int k = 0; k < 3; k++ ) {
             xs[j][k] = 0;
-            for( i = 0; i < nen; i++ ) {
+            for (int i = 0; i < nen; i++ ) {
                 xs[j][k] += xl[j][i] * shp[k][i];
             }
         }
     }
 
 
-    //Compute adjoint to jacobian
-
+    // Compute adjoint to jacobian
     ad[0][0] = xs[1][1]*xs[2][2] - xs[1][2]*xs[2][1] ;
     ad[0][1] = xs[2][1]*xs[0][2] - xs[2][2]*xs[0][1] ;
     ad[0][2] = xs[0][1]*xs[1][2] - xs[0][2]*xs[1][1] ;
@@ -1550,33 +1542,31 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
     ad[2][1] = xs[2][0]*xs[0][1] - xs[2][1]*xs[0][0] ;
     ad[2][2] = xs[0][0]*xs[1][1] - xs[0][1]*xs[1][0] ;
 
-    //Compute determinant of jacobian
+    // Compute determinant of jacobian
 
     xsj  = xs[0][0]*ad[0][0] + xs[0][1]*ad[1][0] + xs[0][2]*ad[2][0] ;
     if (xsj<=0) {
         opserr <<"TwentyEightNodeBrickUP::Jacobian3d - Non-positive Jacobian: " << xsj << "\n";
-        for( i = 0; i < nen; i++ ) {
+        for ( i = 0; i < nen; i++ ) {
             printf("%5d %15.6e %15.6e %15.6e %15.6e\n", i,
                 shp[0][i], shp[1][i], shp[2][i], shp[3][i]);
         }
-
-        exit(-1);
     }
 
     rxsj = 1.0/xsj ;
 
     // Compute jacobian inverse
 
-    for ( j=0; j<3; j++ ) {
-        for ( i=0; i<3; i++ )
+    for (int j=0; j<3; j++ ) {
+        for (int i=0; i<3; i++ )
             xs[i][j] = ad[i][j]*rxsj ;
 
-    } //end for j
+    }
 
 
     // Compute derivatives with repect to global coords.
 
-    for ( k=0; k<nen; k++) {
+    for (int k=0; k<nen; k++) {
 
         c1 = shp[0][k]*xs[0][0] + shp[1][k]*xs[1][0] + shp[2][k]*xs[2][0] ;
         c2 = shp[0][k]*xs[0][1] + shp[1][k]*xs[1][1] + shp[2][k]*xs[2][1] ;
@@ -1588,9 +1578,9 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
 
     } //end for k
 
-    for( j = 0; j < nen; j++) {
-        for( i = 0; i < 4; i++) {
-            if( mode == 0 )
+    for (int j = 0; j < nen; j++) {
+        for (int i = 0; i < 4; i++) {
+            if ( mode == 0 )
                 shgu[i][j][gaussPoint] = shp[i][j];
             else if( mode == 1 )
                 shgp[i][j][gaussPoint] = shp[i][j];
@@ -1598,11 +1588,8 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
                 shgq[i][j][gaussPoint] = shp[i][j];
             else {
                 opserr <<"TwentyEightNodeBrickUP::Jacobian3d - illegal mode: " << mode << "\n";
-                exit(-1);
-            } //end if
+            }
         }
     }
-
-
 }
 

@@ -315,7 +315,6 @@ getKs2Matrix(Matrix3D& A, const Vector3D<double>& e1, const Vector3D<double>& r1
     static Matrix U(3,3);
 
     U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
-
     U.addMatrixProduct(1.0, A, ze1t,   rite1/(2*Ln));
     U.addMatrixProduct(1.0, A, rie1t, (zte1 + ztr1)/(2*Ln));
 
@@ -643,6 +642,7 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, const
       for (int j = 0; j < 3; j++)
         A(i,j) = (double(i==j) - e1[i]*e1[j])/Ln;
 
+    // This must be called up here
     getLMatrix(A, e1, r1, r2, Lr2);
     getLMatrix(A, e1, r1, r3, Lr3);
 

@@ -28,7 +28,7 @@
 // Source: /usr/local/cvs/OpenSees/SRC/element/mvlem/E_SFI_MVLEM_3D.cpp
 //
 // Rev: 1.0
-#include <G3Globals.h>
+// #include <G3Globals.h>
 #include <UniaxialMaterial.h>
 
 #include <math.h>
@@ -51,7 +51,7 @@
 #include <elementAPI.h>
 
 // Read input parameters and build the element
-void* OPS_E_SFI_MVLEM_3D(void)
+void *OPS_ADD_RUNTIME_VPV(OPS_E_SFI_MVLEM_3D)
 {
 	// Pointer to a uniaxial material that will be returned                       
 	Element* theElement = 0;

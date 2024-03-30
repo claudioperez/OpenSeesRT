@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2010-05-04 17:14:45 $
-// $Source: /scratch/slocal/chroot/cvsroot/openseescomp/CompositePackages/mixedBeamColumn/MixedBeamColumn2d.cpp,v $
-
+//
+//
 #include <MixedBeamColumn2d.h>
 #include <BeamIntegration.h>
 #include <SectionForceDeformation.h>
@@ -1303,6 +1300,9 @@ Response* MixedBeamColumn2d::setResponse(const char **argv, int argc,
       }
     }
   }
+
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
 
   output.endTag();
   return theResponse;
