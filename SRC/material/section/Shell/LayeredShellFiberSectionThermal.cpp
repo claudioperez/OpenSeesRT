@@ -35,7 +35,8 @@ Earthquake Engineering & Structural Dynamics, 2013, 42(5): 705-723*/
 #include <LayeredShellFiberSectionThermal.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <Information.h>
 
 //static vector and matrices
