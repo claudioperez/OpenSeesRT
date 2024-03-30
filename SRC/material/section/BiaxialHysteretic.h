@@ -68,7 +68,7 @@ public:
     int   revertToStart(void);
  
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
+    const ID &getType(void);
     int getOrder (void) const;
 
     int sendSelf(int cTag, Channel &theChannel);

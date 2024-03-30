@@ -58,7 +58,7 @@ class ElasticShearSection3d : public SectionForceDeformation
   const Matrix &getInitialFlexibility(void);
   
   SectionForceDeformation *getCopy(void);
-  const ID &getType(void);
+  const ID &getType();
   int getOrder(void) const;
   
   int sendSelf(int commitTag, Channel &theChannel);
