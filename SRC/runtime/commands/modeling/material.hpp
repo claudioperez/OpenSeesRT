@@ -45,10 +45,12 @@ extern OPS_Routine OPS_AcousticMedium;
 extern OPS_Routine OPS_UVCmultiaxial;
 extern OPS_Routine OPS_UVCplanestress;
 extern OPS_Routine OPS_SAniSandMSMaterial;
+extern OPS_Routine OPS_OrthotropicRotatingAngleConcreteT2DMaterial01;	// M. J. Nunez - UChile
+extern OPS_Routine OPS_SmearedSteelDoubleLayerT2DMaterial01;		// M. J. Nunez - UChile
 
 extern OPS_Routine OPS_ElasticIsotropicMaterialThermal;           // L.Jiang [SIF]
 extern OPS_Routine OPS_DruckerPragerMaterialThermal;              // L.Jiang [SIF]
-extern  OPS_Routine OPS_PlasticDamageConcretePlaneStressThermal;  // L.Jiang [SIF]
+extern OPS_Routine OPS_PlasticDamageConcretePlaneStressThermal;   // L.Jiang [SIF]
 
 #ifdef _HAVE_Faria1998
 extern OPS_Routine OPS_NewFaria1998Material;
@@ -73,8 +75,6 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"PlasticDamageConcrete",         OPS_NewPlasticDamageConcrete3d},
 
   {"PlasticDamageConcretePlaneStress", OPS_NewPlasticDamageConcretePlaneStress},
-
-
 
 
   {"J2PlateFibre", OPS_J2PlateFibreMaterial}, 
@@ -161,6 +161,9 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"ElasticIsotropic3DThermal", OPS_ElasticIsotropicMaterialThermal},
 
   {"IncrementalElasticIsotropic3D", OPS_IncrementalElasticIsotropicThreeDimensional},
+
+  {"OrthotropicRAConcrete",         OPS_OrthotropicRotatingAngleConcreteT2DMaterial01},
+  {"SmearedSteelDoubleLayer",       OPS_SmearedSteelDoubleLayerT2DMaterial01},
 
   {"SAniSandMS",                    OPS_SAniSandMSMaterial},
 };
