@@ -70,6 +70,9 @@ extern OPS_Routine OPS_MVLEM;        // Kristijan Kolozvari
 extern OPS_Routine OPS_SFI_MVLEM;    // Kristijan Kolozvari
 extern OPS_Routine OPS_MVLEM_3D;     // Kristijan Kolozvari
 extern OPS_Routine OPS_SFI_MVLEM_3D; // Kristijan Kolozvari
+extern OPS_Routine OPS_E_SFI_MVLEM_3D;
+extern OPS_Routine OPS_E_SFI;
+extern OPS_Routine OPS_MEFI;
 extern OPS_Routine OPS_ElastomericBearingBoucWenMod3d;
 extern OPS_Routine OPS_InertiaTrussElement; // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
 extern OPS_Routine OPS_CatenaryCableElement;
@@ -127,10 +130,13 @@ std::unordered_map<std::string, OPS_Routine *> element_dispatch = {
   {"LeadRubberX",                  OPS_LeadRubberX},
   {"ElastomericX",                 OPS_ElastomericX},
   {"AxEqDispBeamColumn2d",         OPS_AxEqDispBeamColumn2d},
-  {"MVLEM",                        OPS_MVLEM}, // Kristijan Kolozvari
-  {"SFI_MVLEM",                    OPS_SFI_MVLEM}, // Kristijan Kolozvari
-  {"MVLEM_3D",                     OPS_MVLEM_3D}, // Kristijan Kolozvari
+  {"MVLEM",                        OPS_MVLEM},        // Kristijan Kolozvari
+  {"SFI_MVLEM",                    OPS_SFI_MVLEM},    // Kristijan Kolozvari
+  {"MVLEM_3D",                     OPS_MVLEM_3D},     // Kristijan Kolozvari
   {"SFI_MVLEM_3D",                 OPS_SFI_MVLEM_3D}, // Kristijan Kolozvari
+  {"E_SFI_MVLEM_3D",               OPS_E_SFI_MVLEM_3D},
+  {"E_SFI",                        OPS_E_SFI},
+  {"MEFI",                         OPS_MEFI},
   {"MasonPan12",                   OPS_MasonPan12},
   {"MasonPan3D",                   OPS_MasonPan3D},
   {"BeamGT",                       OPS_BeamGT},
