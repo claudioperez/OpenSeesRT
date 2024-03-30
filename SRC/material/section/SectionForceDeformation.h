@@ -131,9 +131,7 @@ class SectionForceDeformation : public TaggedObject, public MovableObject
 
 };
 
-extern bool OPS_addSectionForceDeformation(SectionForceDeformation *newComponent);
 extern bool OPS_removeSectionForceDeformation(int tag);
 extern void OPS_clearAllSectionForceDeformation(void);
-extern void OPS_printSectionForceDeformation(OPS_Stream &s, int flag=0);
 
 #endif
