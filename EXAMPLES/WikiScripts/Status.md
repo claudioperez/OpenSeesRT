@@ -13,6 +13,7 @@
 |  0  | [`Ex5`](./Ex5) |  |
 |  0  | [`Ex6`](./Ex6) |  |
 |  0  | [`Ex7`](./Ex7) |  |
+|  0  | [`Ex9`](./Ex9) |  |
 |  255  | [`Excavation`](./Excavation) | "source Excavation.tcl" |
 |  0  | [`FatigueMaterial`](./FatigueMaterial) |  |
 |  0  | [`ForceDisplBeam`](./ForceDisplBeam) |  |
@@ -52,6 +53,6 @@
 |  0  | [`RCFrameGravity.tcl`](./RCFrameGravity.tcl) |  |
 |  0  | [`RCFramePushover.tcl`](./RCFramePushover.tcl) |  |
 |  0  | [`Truss.tcl`](./Truss.tcl) |  |
+|  255  | [`Wall01.tcl`](./Wall01.tcl) |    ..." |
 |  0  | [`WSection.tcl`](./WSection.tcl) |  |
 |  0  | [`YamamotoBiaxialHDR_Sample.tcl`](./YamamotoBiaxialHDR_Sample.tcl) |  |
-
