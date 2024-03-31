@@ -83,30 +83,31 @@ c
        if ( istp.eq.1 .and. iitr.eq.0 ) eps(i) = 0.d0
     5  continue                                                        
 c                                                                      
-       ec     = props(11) / ( 1.d0 - props(11))
-       prefe  = 98.1d0
-       fact   = props(38)                                               
-       c1     = 0.d0
-       c2     = 0.d0
-       fmuc   = props(27)
-       fmuf   = props(29)                                               
-       fmyu0  = props(30)                                              
-       sc     = props(31)                                               
+        ec     = props(11) / ( 1.d0 - props(11))
+        prefe  = 98.1d0
+        fact   = props(38)                                               
+        c1     = 0.d0
+        c2     = 0.d0
+        fmuc   = props(27)
+        fmuf   = props(29)                                               
+        fmyu0  = props(30)                                              
+        sc     = props(31)                                               
 c                                                                       
-          eqzxp    = oths(1)
-	  eqzx     = oths(2)
-	  eqyzp    = oths(3)
-	  eqyz     = oths(4)
-          svin     = oths(5)                            
-	  if ( oths(8).gt.1.d-05 ) 
-     1                               props(6) = oths(8)
+        eqzxp    = oths(1)
+        eqzx     = oths(2)
+        eqyzp    = oths(3)
+        eqyz     = oths(4)
+        svin     = oths(5)                            
+        if ( oths(8).gt.1.d-05 ) 
+     1    props(6) = oths(8)
 c
 c      fmuf1  = oths(6,ielem)                               
 c      rvol   = oths(7,ielem)                           
 c
-         do 95 i = 1,3
-          iflag(i) = int(strhs(i)+.1)                     
- 95       rna(i)   = strhs(i+3)
+         do    i = 1,3
+          iflag(i) = int(strhs(i)+.1)
+          rna(i)   = strhs(i+3)
+         end do
 c
           eta(1)    = strhs(7)
           eta(2)    = strhs(8)
@@ -130,35 +131,36 @@ c
 c
 c
        k = 1
-	do 65 i = 1,3  
-	do 65 j = 1,80
-	  m = (i-1)*80+40+j
-	  if (j .le. 20)             x(i,k)  = strhs0(m)
-	  if (j.gt.20 .and. j.le.40) y(i,k)  = strhs0(m)
-	  if (j.gt.40 .and. j.le.60) cx(i,k) = strhs0(m)
-	  if (j.gt.60 .and. j.le.80) cy(i,k) = strhs0(m)
-        k = k + 1
-	if (k .eq. 21) k = 1
- 65     continue
+        do i = 1,3  
+          do j = 1,80
+            m = (i-1)*80+40+j
+            if (j .le. 20)             x(i,k)  = strhs0(m)
+            if (j.gt.20 .and. j.le.40) y(i,k)  = strhs0(m)
+            if (j.gt.40 .and. j.le.60) cx(i,k) = strhs0(m)
+            if (j.gt.60 .and. j.le.80) cy(i,k) = strhs0(m)
+            k = k + 1
+            if (k .eq. 21) k = 1
+          end do
+        end do
 c
 c
         if ( eta(1).le.0.00100d0 .and. iflag(1) .gt. 1 ) then
             coef2 = 2.d0
           elseif ( eta(1).gt.0.00100d0 .and. eta(1).lt.0.00300d0 .and. 
      1             iflag(1).gt.1 ) then
-	    coef2 =  2.d0 - (( eta(1) - 0.00100d0 ) / 0.00200d0 ) 
+            coef2 =  2.d0 - (( eta(1) - 0.00100d0 ) / 0.00200d0 ) 
           else
             coef2  = 1.d0
-	end if
+        end if
 c
 ccc21JAN16
        if  (iflag(1).eq.1 .and. etarev(1).lt.1.d-05) then
           fmu0   = fmyu0
-	if ( eta(1).le.0.000100d0 ) fmu0 = 0.05d0
-	if (eta(1) .gt. 0.000100d0 .and. eta(1) .lt. 0.0011d0) then
-	 fmu0 =  0.05d0 + (( eta(1) - 0.000100d0 ) / 0.00100d0 ) * fmyu0
+        if ( eta(1).le.0.000100d0 ) fmu0 = 0.05d0
+        if (eta(1) .gt. 0.000100d0 .and. eta(1) .lt. 0.0011d0) then
+         fmu0 =  0.05d0 + (( eta(1) - 0.000100d0 ) / 0.00100d0 ) * fmyu0
         end if
-          coef6(1)  = 1.0d0
+        coef6(1)  = 1.0d0
 c      elseif ( (iflag.eq.1 .and. etarev.gt.1.d-05) .or.
 c    1         (iflag.eq.1 .and. rvol.gt.0.25d0) ) then
 c            fmu0   = 0.d0
@@ -173,21 +175,23 @@ c      if (rvol.le.0.15d0) fmu0 = fmuc/2.d0
 ccc21JAN16
 c
         rvolc = dsqrt( x(1,1)**2 + y(1,1)**2 )
-	if (rvol.lt.rvolc) rvol = rvolc
+        if (rvol.lt.rvolc) rvol = rvolc
 c
 c
 c     write(*,*)'istep',istep
 c     write(*,*)'eta(1)',eta(1)
 c     write(*,*)'ceta',ceta
 c     write(*,*)'etar(1)',etar(1)
-	  do 85 i = 1,3
-	  do 85 j = 1,20
-	     if ( iflag(i).eq.j.and.eta(i).lt.etahs(i,j)) then
+      do i = 1,3
+        do j = 1,20
+          if ( iflag(i).eq.j.and.eta(i).lt.etahs(i,j)) then
 c        if ( iflag(i).ge.1 ) eta(i) = etahs(i,j,ielem)
             if ( iflag(i).gt.1 ) eta(i) = etahs(i,j)
                 etar(i) = etahs(i,j+20)
-         end if
- 85   continue
+              
+          end if
+        end do
+      end do
 c
 c
        call strinc ( depsx, depsy, incrmt, ddeps, deps )
@@ -225,9 +229,10 @@ c      write(*,*)'dbigx,dbigy',dbigx,dbigy
        go to 45                                                         
 c                                                                       
    35  bs     = 0.d0                                                 
-c      write(*,*)'went to 35'
-	do 125 i = 1,3
- 125    rna(i) = 0.d0                                                
+
+       do i = 1,3
+         rna(i) = 0.d0
+       end do
        go to 55                                                         
 c                                                                       
    15  bs = datan2(bigy,bigx)                                           
@@ -429,56 +434,58 @@ c       write(*,*)'ceta',ceta
 c       write(*,*)'etar(1)',etar(1)
 c       write(*,*)' '
  188   if (incfai.lt.incrmt) go to 100                                 
-          if ( ialarm .eq. 1) then
-            go to 199
-          end if
+       if ( ialarm .eq. 1) then
+         go to 199
+       end if
 c                                                                       
 c
-          oths(1)   = eqzxp
-	  oths(2)   = eqzx
-	  oths(3)   = eqyzp
-	  oths(4)   = eqyz
-	  oths(5)   = svin
+        oths(1)   = eqzxp
+        oths(2)   = eqzx
+        oths(3)   = eqyzp
+        oths(4)   = eqyz
+        oths(5)   = svin
 c
 c      oths(6)  = fmuf1
 c      oths(7)  = rvol
-	  oths(8)   = props(6)
+        oths(8)   = props(6)
 c                                                                       
-         do 96 i = 1,3
-          strhs(i)   = dfloat(iflag(i))
- 96       strhs(i+3) = rna(i)
+        do i = 1,3
+         strhs(i)   = dfloat(iflag(i))
+         strhs(i+3) = rna(i)
+        end do
 c
-          strhs(7)   = eta(1)
-          strhs(8)   = eta(2)
-          strhs(9)   = eta(3)
-          strhs(10)  = etacum(1)
-          strhs(11)  = etacum(2)
-          strhs(12)  = etacum(3)
-          strhs(13)  = etarev(1)
-          strhs(14)  = etarev(2)
-          strhs(15)  = etarev(3)
-          strhs(16)  = etad(1)
-          strhs(17)  = etad(2)
-          strhs(18)  = etad(3)
-          strhs(19)  = ceta
-          strhs(20)  = fis
-          strhs(21)  = xn
-          strhs(22)  = etar(1)
-          strhs(23)  = etar(2)
-          strhs(24)  = etar(3)
-          strhs(25)  = rvol
+        strhs(7)   = eta(1)
+        strhs(8)   = eta(2)
+        strhs(9)   = eta(3)
+        strhs(10)  = etacum(1)
+        strhs(11)  = etacum(2)
+        strhs(12)  = etacum(3)
+        strhs(13)  = etarev(1)
+        strhs(14)  = etarev(2)
+        strhs(15)  = etarev(3)
+        strhs(16)  = etad(1)
+        strhs(17)  = etad(2)
+        strhs(18)  = etad(3)
+        strhs(19)  = ceta
+        strhs(20)  = fis
+        strhs(21)  = xn
+        strhs(22)  = etar(1)
+        strhs(23)  = etar(2)
+        strhs(24)  = etar(3)
+        strhs(25)  = rvol
 c
 c                                                                       
        k = 1
-	do 66 i = 1,3  
-	do 66 j = 1,80
-	  if (j .le. 20)             hdp(i,j) = x(i,k)
-	  if (j.gt.20 .and. j.le.40) hdp(i,j) = y(i,k)
-	  if (j.gt.40 .and. j.le.60) hdp(i,j) = cx(i,k)
-	  if (j.gt.60 .and. j.le.80) hdp(i,j) = cy(i,k)
-        k = k + 1
-	if (k .eq. 21) k = 1
- 66     continue
+        do i = 1,3  
+        do j = 1,80
+          if (j .le. 20)             hdp(i,j) = x(i,k)
+          if (j.gt.20 .and. j.le.40) hdp(i,j) = y(i,k)
+          if (j.gt.40 .and. j.le.60) hdp(i,j) = cx(i,k)
+          if (j.gt.60 .and. j.le.80) hdp(i,j) = cy(i,k)
+          k = k + 1
+          if (k .eq. 21) k = 1
+        end do
+        end do
 c
 c                                                                       
  199   continue
@@ -648,10 +655,11 @@ c
 c
 c
        if(xlamda.lt.0.d0) then                                        
-c                                                                     
-       do 15 k = 1,3                                                  
-   15  dsig(k) = 0.d0                                                  
-       go to 50                                                       
+c
+         do k = 1,3                                                  
+           dsig(k) = 0.d0
+         end do
+         go to 50                                                       
 c                                                                      
        end if                                                          
 c                                                                    
@@ -813,22 +821,23 @@ c       next stress state
 c       -----------------                                             
 c                                                                       
 c
-	do 77 j = iflag(i),20
-	x(i,j) = 0.d0
-        y(i,j) = 0.d0
-	cx(i,j) = 0.d0
-  77    cy(i,j) = 0.d0
+        do j = iflag(i),20
+          x(i,j)  = 0.d0
+          y(i,j)  = 0.d0
+          cx(i,j) = 0.d0
+          cy(i,j) = 0.d0
+        end do
 c
         bnx = bx + dbx                                             
         bny = by + dby                                              
 c                                                                     
         if (iflag(i).eq.0) iflag(i) = 1
-	k   = iflag(i)
-c                                                                      
+        k   = iflag(i)
+c 
        if (iflag(i) .eq. 1 ) then
-	  go to 10
+          go to 10
        elseif (iflag(i) .gt. 1 .and. iflag(i) .lt. 21 ) then
-	  go to 20
+          go to 20
        else
           rna(i) = dsqrt((x(i,k-1)-cx(i,k-1))**2 + 
      1                              (y(i,k-1)-cy(i,k-1))**2)
@@ -859,8 +868,8 @@ c       back-bone curve
 ccc21JAN16	if (iflag(1) .eq. 2) ceta = eta(i)
 ccc21JAN16        if (iflag(i) .eq. 2) eta(i) = etad(i)
         iflag(i) = 1                                                 
-	x(i,1) = 0.d0
-	y(i,1) = 0.d0
+        x(i,1) = 0.d0
+        y(i,1) = 0.d0
 c                                                iflag = 1            
         return                                                       
 c                                                                     
@@ -870,11 +879,12 @@ c
 ccc21JAN16  110   if (iflag(i) .eq. 1) etad(i) = eta(i)
  110       iflag(i) = 2                                                  
 c           write(*,*)'reversal'
-	do 12 j = 2,20
-	x(i,j) = 0.d0
-  12    y(i,j) = 0.d0
+        do j = 2,20
+          x(i,j) = 0.d0
+          y(i,j) = 0.d0
+        end do
 c                                                                      
-	if ( (x(i,1).eq.0.d0 .and. y(i,1).eq.0.d0) .or. ical.eq.1 ) then
+        if ( (x(i,1).eq.0.d0 .and. y(i,1).eq.0.d0) .or. ical.eq.1 ) then
            x(i,1)  = bx                                             
            y(i,1)  = by                                        
            rna(i)  = 0.d0                                               
@@ -888,9 +898,10 @@ c
           etahs(i,21) = etar(i)
         end if
 c
-        do 15 j=2,20
-	etahs(i,j) = 0.d0
- 15     etahs(i,j+20) = 0.d0
+        do j=2,20
+          etahs(i,j) = 0.d0
+          etahs(i,j+20) = 0.d0
+        end do
 c                                                iflag = 2            
 c
         return                                                        
@@ -907,14 +918,14 @@ c        write(*,*)'iflag(1)',iflag(1)
 c                                                                       
         if ( ical.eq.1 .and. k.eq.2 ) go to 10
         if ( ical.eq.1 .and. k.gt.2 ) then
-	   k = k - 1
-           iflag(i) = k
-	   go to 20
+          k = k - 1
+          iflag(i) = k
+          go to 20
         end if
 c
         ro = r                                                         
         rn = dsqrt( (bnx-cxx)**2 + (bny-cyy)**2 )                      
-	rna(i) = r
+        rna(i) = r
 c                                                                       
         if(rn.ge.ro) go to 210                                       
 c                                                                      
@@ -923,19 +934,20 @@ c       ----------------------------------
 c                                                                       
         iflag(i) = iflag(i) + 1
 c
-	do 22 j = k+1,20
-	x(i,j) = 0.d0
-        y(i,j) = 0.d0
-	cx(i,j) = 0.d0
-  22    cy(i,j) = 0.d0
+        do  j = k+1,20
+          x(i,j) = 0.d0
+          y(i,j) = 0.d0
+          cx(i,j) = 0.d0
+          cy(i,j) = 0.d0
+        end do
 c
 c                                                                      
-	if ( (x(i,k).eq.0.d0 .and. y(i,k).eq.0.d0) .or. ical.eq.1 ) then
+        if ( (x(i,k).eq.0.d0 .and. y(i,k).eq.0.d0) .or. ical.eq.1 ) then
            x(i,k)  = bx                                              
            y(i,k)  = by                                           
            cx(i,k) = cxx                                          
            cy(i,k) = cyy                                       
-	end if
+        end if
 c                                                                      
         rna(i)  = 0.d0                                                
         if (iflag(i) .eq. 21)  rna(i) = dsqrt((x(i,k)-cx(i,k))**2 + 
@@ -943,13 +955,14 @@ c
 c
 ccc     if ( eta(i) .gt. etahs(i,k,ielem) .and. iflag(i) .ne. 20 ) then
         if ( eta(i) .gt. etahs(i,k) ) then
-	      etahs(i,k)    = eta(i)
+          etahs(i,k)    = eta(i)
           etahs(i,k+20) = etar(i)
         end if
 c
-        do 25 j=k+1,20
-	      etahs(i,j) = 0.d0
- 25       etahs(i,j+20) = 0.d0
+        do j=k+1,20
+          etahs(i,j) = 0.d0
+          etahs(i,j+20) = 0.d0
+        end do
 c                                      
 c                                                iflag = iflag + 1
         return                                                          
@@ -963,22 +976,24 @@ c        write(*,*)'previous'
 ccccc   rgn = dsqrt( (bnx-cx(i,k-1))**2 + (bny-cy(i,k-1))**2 )      
 c                                                                      
         if (rgn.ge.rgo) then
-                 rna(i) = rgo
+          rna(i) = rgo
 ccccccc   rna(i) = dsqrt( (bx-cx(i,k-1))**2 + (by-cy(i,k-1))**2 )      
 ccccccc   rna(i) = rgn
-           iflag(i) = iflag(i) - 1
-	   if ( iflag(i) .eq. 20 ) eta(i) = 0.d0
-	   k = k - 1
+          iflag(i) = iflag(i) - 1
+          if ( iflag(i) .eq. 20 ) eta(i) = 0.d0
+          k = k - 1
 c
-	do 32 j = k,20
-	x(i,j) = 0.d0
-        y(i,j) = 0.d0
-	cx(i,j) = 0.d0
-  32    cy(i,j) = 0.d0
+          do    j = k,20
+            x(i,j) = 0.d0
+            y(i,j) = 0.d0
+            cx(i,j) = 0.d0
+            cy(i,j) = 0.d0
+          end do
 c
 ccccc   if ( k .eq. 1 ) return
-	   if ( k .eq. 1 ) go to 10
-	   go to 210
+          if ( k .eq. 1 ) go to 10
+
+          go to 210
         end if
 ccccif ( iflag(i) .eq. 21 ) rna(i) = rgn
 c                                                                       
@@ -1250,8 +1265,8 @@ c
        implicit real*8 ( a-h, o-z )
 c
        if ( y .eq. 0.d0) then
-	  angl = 0.d0
-	  return
+          angl = 0.d0
+          return
        end if
 c
        if ( dabs(x).lt.cr .or. ( dabs(x).ne.0.d0 .and. 
@@ -1282,9 +1297,9 @@ c
        common / elmnt / ielem, istep,iiter,incfai,sig1,sig2,sig3, igaus
        common / elpar /  ae, be, xgi, xg2, eyng, pora, xn, coef2
        common / axil  /  svin, rf0in, pwpr, ainp
-        common / strn  / eta(3), etacum(3), etarev(3), etar(3), etad(3)
+       common / strn  / eta(3), etacum(3), etarev(3), etar(3), etad(3)
        common / tstr  / fmuf, depsx, depsy
-       dimension props(nmats), oths(10)
+       dimension props(nmats), oths(12)
 
 c
        iitr = oths(11)
@@ -1380,8 +1395,9 @@ c
        end if
        incfai = 0                                                      
 c                                                                      
-       do 11 i = 1,3
- 11    ddeps(i) = deps(i) / incrmt  
+       do i = 1,3
+         ddeps(i) = deps(i) / incrmt  
+       end do
 c       write(*,*)'dincr',dincr
 c       write(*,*)'incrmt',incrmt
 c       write(*,*)'ddeps',ddeps
@@ -1418,7 +1434,7 @@ c      ry   = dabs( qy/pk )
 c                                                                     
        if ( sig(1).lt.1.d-11 .or. sig(2).lt.1.d-11 ) then
 c         write (14,*)' negative sigma', istep, iiter, ielem, idn
-	  ialarm = 1
+          ialarm = 1
 c         write (14,*) 'before correction',sig(1), sig(2), sig(3)
 c        if ( sig(1).gt.1.d-11 .and. sig(2).lt.1.d-11 ) then
 c         write (14,*)' negative sigma 1', istep, iiter, ielem, idn
@@ -1439,12 +1455,12 @@ c
 c      ialarm = 1
 cccc          qnk  = rf0*(1.d0-0.0005d0)*pk
 cccc        qnk  = rf0*(1.d0-0.05d0)*pk
-       qrat = qnk/qk                                                 
+         qrat = qnk/qk                                                 
 c                                                                     
-       stdf   = (sig(2) - sig(1)) / 2.0d0 
-       sig(1) = dabs ( pk - qrat*stdf )  
-       sig(2) = dabs ( pk + qrat*stdf )                                
-       sig(3) = qrat * sig(3)        
+         stdf   = (sig(2) - sig(1)) / 2.0d0 
+         sig(1) = dabs ( pk - qrat*stdf )  
+         sig(2) = dabs ( pk + qrat*stdf )                                
+         sig(3) = qrat * sig(3)        
        end if                                                           
 c
 c      if ( rz.gt.rl .or. ry.gt.rl) then
