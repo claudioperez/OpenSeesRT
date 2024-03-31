@@ -29,12 +29,12 @@
 #ifndef LinearCrdTransf2d02_h
 #define LinearCrdTransf2d02_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 
-class LinearCrdTransf2d02: public CrdTransf
+class LinearCrdTransf2d02: public FrameTransform<2>
 {
 public:
     LinearCrdTransf2d02();

@@ -21,6 +21,7 @@ target_sources(coordTransformation
     CorotCrdTransf3d.cpp
     CorotCrdTransf3d02.cpp
     CorotCrdTransfWarping2d.cpp
+    LinearCrdTransf2dInt.cpp
   PUBLIC
     CrdTransf.h
     LinearCrdTransf2d.h
@@ -33,6 +34,7 @@ target_sources(coordTransformation
     CorotCrdTransf3d.h
     CorotCrdTransf3d02.h
     CorotCrdTransfWarping2d.h
+    LinearCrdTransf2dInt.h
 
     ASDEICR.h
     ASDShellQ4CorotationalTransformation.h

@@ -31,11 +31,11 @@
 #ifndef CorotCrdTransf3d_h
 #define CorotCrdTransf3d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class CorotCrdTransf3d: public CrdTransf
+class CorotCrdTransf3d: public FrameTransform<3>
 {
 public:
     CorotCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
@@ -58,8 +58,8 @@ public:
     const Vector &getBasicTrialDisp(void);
     const Vector &getBasicIncrDisp(void);
     const Vector &getBasicIncrDeltaDisp(void);
-	const Vector &getBasicTrialVel(void);
-	const Vector &getBasicTrialAccel(void);
+    const Vector &getBasicTrialVel(void);
+    const Vector &getBasicTrialAccel(void);
     
     const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
@@ -81,7 +81,7 @@ public:
     const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps);    
     
     int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
-  int getRigidOffsets(Vector &offsets);
+    int getRigidOffsets(Vector &offsets);
   
 private:
     void compTransfMatrixBasicGlobal(void);

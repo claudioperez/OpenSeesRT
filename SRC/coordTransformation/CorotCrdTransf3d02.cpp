@@ -394,7 +394,7 @@ getKs2Matrix(Matrix3D& A, const Vector3D<double>& e1, const Vector3D<double>& r1
 CorotCrdTransf3d02::CorotCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
                                    const Vector &rigJntOffsetI,
                                    const Vector &rigJntOffsetJ):
-CrdTransf(tag, CRDTR_TAG_CorotCrdTransf3d02),
+FrameTransform(tag, CRDTR_TAG_CorotCrdTransf3d02),
 vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
 nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
 alphaIq(4), alphaJq(4),
@@ -470,7 +470,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransf3d02::CorotCrdTransf3d02():
-  CrdTransf(0, CRDTR_TAG_CorotCrdTransf3d02),
+  FrameTransform(0, CRDTR_TAG_CorotCrdTransf3d02),
   vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
   nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
   alphaIq(4), alphaJq(4),

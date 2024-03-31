@@ -36,12 +36,12 @@
 #ifndef LinearCrdTransf2dInt_h
 #define LinearCrdTransf2dInt_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 
-class LinearCrdTransf2dInt: public CrdTransf
+class LinearCrdTransf2dInt: public FrameTransform<2>
 {
  public:
   LinearCrdTransf2dInt (int tag);
