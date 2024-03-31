@@ -29,12 +29,12 @@
 #ifndef LinearShearTransf2d_h
 #define LinearShearTransf2d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 
-class LinearShearTransf2d: public CrdTransf
+class LinearShearTransf2d: public FrameTransform<2>
 {
  public:
   LinearShearTransf2d (int tag);
