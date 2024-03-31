@@ -35,7 +35,6 @@
 #include <VectorND.h>
 #include <memory>
 
-
 class Response;
 class UniaxialMaterial;
 
@@ -68,6 +67,7 @@ class FiberSection3d : public SectionForceDeformation
     SectionForceDeformation *getCopy(void);
     const ID &getType();
     int getOrder (void) const;
+    unsigned long getScheme(void) const;
     
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, 

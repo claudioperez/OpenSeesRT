@@ -540,6 +540,13 @@ FiberSection3d::getType()
   return code;
 }
 
+unsigned long
+FiberSection3d::getScheme() const
+{
+  // using enum FrameKeys;
+  return N|Mz|My|T;
+}
+
 int
 FiberSection3d::getOrder () const
 {
