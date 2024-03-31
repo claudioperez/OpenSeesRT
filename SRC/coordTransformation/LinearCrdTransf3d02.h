@@ -19,32 +19,32 @@
 ** ****************************************************************** */
 //
 // Description: This file contains the class definition for
-// LinearCrdTransf3d.h. LinearCrdTransf3d provides the
+// LinearCrdTransf3d02.h. LinearCrdTransf3d02 provides the
 // abstraction of a linear transformation for a spatial frame
 // between the global and basic coordinate systems
 //
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 04/2000
 //
-#ifndef LinearCrdTransf3d_h
-#define LinearCrdTransf3d_h
+#ifndef LinearCrdTransf3d02_h
+#define LinearCrdTransf3d02_h
 
 #include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class LinearCrdTransf3d: public FrameTransform<3>
+class LinearCrdTransf3d02: public FrameTransform<3>
 {
 public:
-    LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane);
-    LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
+    LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane);
+    LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
         const Vector &rigJntOffsetI,
         const Vector &rigJntOffsetJ);
     
-    LinearCrdTransf3d();
-    ~LinearCrdTransf3d();
+    LinearCrdTransf3d02();
+    ~LinearCrdTransf3d02();
     
-    const char *getClassType() const {return "LinearCrdTransf3d";};
+    const char *getClassType() const {return "LinearCrdTransf3d02";};
     
     int initialize(Node *node1Pointer, Node *node2Pointer);
     int update(void);
@@ -95,6 +95,9 @@ private:
     double *nodeIOffset, *nodeJOffset;	// rigid joint offsets
     
     double R[3][3];	 // rotation matrix
+    double RWI[3][3];
+    double RWJ[3][3];
+
     double L;        // undeformed element length
 
     static Matrix Tlg;  // matrix that transforms from global to local coordinates

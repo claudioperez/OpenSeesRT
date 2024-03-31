@@ -36,11 +36,11 @@
 #include <Channel.h>
 #include <elementAPI.h>
 #include <string>
-#include <LinearCrdTransf3d.h>
+#include <LinearCrdTransf3d02.h>
 
 // initialize static variables
-Matrix LinearCrdTransf3d::Tlg(12, 12);
-Matrix LinearCrdTransf3d::kg(12, 12);
+Matrix LinearCrdTransf3d02::Tlg(12, 12);
+Matrix LinearCrdTransf3d02::kg(12, 12);
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf3d)
@@ -76,11 +76,46 @@ OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf3d)
     }
   }
 
-  return new LinearCrdTransf3d(tag, vec, jntOffsetI, jntOffsetJ);
+  return new LinearCrdTransf3d02(tag, vec, jntOffsetI, jntOffsetJ);
+}
+
+static inline void 
+form_offsets(const double R[3][3], const double nodeIOffset[3], const double nodeJOffset[3], 
+             double RWI[3][3], double RWJ[3][3])
+{
+  if (nodeIOffset) {
+    // Compute RWI
+    RWI[0][0] = -R[0][1] * nodeIOffset[2] + R[0][2] * nodeIOffset[1];
+    RWI[1][0] = -R[1][1] * nodeIOffset[2] + R[1][2] * nodeIOffset[1];
+    RWI[2][0] = -R[2][1] * nodeIOffset[2] + R[2][2] * nodeIOffset[1];
+
+    RWI[0][1] =  R[0][0] * nodeIOffset[2] - R[0][2] * nodeIOffset[0];
+    RWI[1][1] =  R[1][0] * nodeIOffset[2] - R[1][2] * nodeIOffset[0];
+    RWI[2][1] =  R[2][0] * nodeIOffset[2] - R[2][2] * nodeIOffset[0];
+
+    RWI[0][2] = -R[0][0] * nodeIOffset[1] + R[0][1] * nodeIOffset[0];
+    RWI[1][2] = -R[1][0] * nodeIOffset[1] + R[1][1] * nodeIOffset[0];
+    RWI[2][2] = -R[2][0] * nodeIOffset[1] + R[2][1] * nodeIOffset[0];
+  }
+
+  if (nodeJOffset) {
+    // Compute RWJ
+    RWJ[0][0] = -R[0][1] * nodeJOffset[2] + R[0][2] * nodeJOffset[1];
+    RWJ[1][0] = -R[1][1] * nodeJOffset[2] + R[1][2] * nodeJOffset[1];
+    RWJ[2][0] = -R[2][1] * nodeJOffset[2] + R[2][2] * nodeJOffset[1];
+
+    RWJ[0][1] =  R[0][0] * nodeJOffset[2] - R[0][2] * nodeJOffset[0];
+    RWJ[1][1] =  R[1][0] * nodeJOffset[2] - R[1][2] * nodeJOffset[0];
+    RWJ[2][1] =  R[2][0] * nodeJOffset[2] - R[2][2] * nodeJOffset[0];
+
+    RWJ[0][2] = -R[0][0] * nodeJOffset[1] + R[0][1] * nodeJOffset[0];
+    RWJ[1][2] = -R[1][0] * nodeJOffset[1] + R[1][1] * nodeJOffset[0];
+    RWJ[2][2] = -R[2][0] * nodeJOffset[1] + R[2][1] * nodeJOffset[0];
+  }
 }
 
 // constructor:
-LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
+LinearCrdTransf3d02::LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane)
     : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
@@ -92,12 +127,10 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
   R[2][0] = vecInLocXZPlane(0);
   R[2][1] = vecInLocXZPlane(1);
   R[2][2] = vecInLocXZPlane(2);
-
-  // Does nothing
 }
 
 // constructor:
-LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
+LinearCrdTransf3d02::LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
                                      const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
     : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
@@ -114,9 +147,10 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
 
   // check rigid joint offset for node I
   if (rigJntOffset1.Size() != 3) {
-    opserr << "LinearCrdTransf3d::LinearCrdTransf3d:  Invalid rigid joint "
+    opserr << "LinearCrdTransf3d02::LinearCrdTransf3d:  Invalid rigid joint "
               "offset vector for node I\n";
     opserr << "Size must be 3\n";
+
   } else if (rigJntOffset1.Norm() > 0.0) {
     nodeIOffset    = new double[3];
     nodeIOffset[0] = rigJntOffset1(0);
@@ -126,9 +160,10 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
 
   // check rigid joint offset for node J
   if (rigJntOffset2.Size() != 3) {
-    opserr << "LinearCrdTransf3d::LinearCrdTransf3d:  Invalid rigid joint "
+    opserr << "LinearCrdTransf3d02::LinearCrdTransf3d:  Invalid rigid joint "
               "offset vector for node J\n";
     opserr << "Size must be 3\n";
+
   } else if (rigJntOffset2.Norm() > 0.0) {
     nodeJOffset    = new double[3];
     nodeJOffset[0] = rigJntOffset2(0);
@@ -139,7 +174,7 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
 
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
-LinearCrdTransf3d::LinearCrdTransf3d()
+LinearCrdTransf3d02::LinearCrdTransf3d02()
     : FrameTransform(0, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
@@ -150,7 +185,7 @@ LinearCrdTransf3d::LinearCrdTransf3d()
 }
 
 // destructor:
-LinearCrdTransf3d::~LinearCrdTransf3d()
+LinearCrdTransf3d02::~LinearCrdTransf3d02()
 {
   if (nodeIOffset)
     delete[] nodeIOffset;
@@ -163,25 +198,25 @@ LinearCrdTransf3d::~LinearCrdTransf3d()
 }
 
 int
-LinearCrdTransf3d::commitState(void)
+LinearCrdTransf3d02::commitState(void)
 {
   return 0;
 }
 
 int
-LinearCrdTransf3d::revertToLastCommit(void)
+LinearCrdTransf3d02::revertToLastCommit(void)
 {
   return 0;
 }
 
 int
-LinearCrdTransf3d::revertToStart(void)
+LinearCrdTransf3d02::revertToStart(void)
 {
   return 0;
 }
 
 int
-LinearCrdTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
+LinearCrdTransf3d02::initialize(Node *nodeIPointer, Node *nodeJPointer)
 {
   int error;
 
@@ -189,7 +224,7 @@ LinearCrdTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
   nodeJPtr = nodeJPointer;
 
   if ((!nodeIPtr) || (!nodeJPtr)) {
-    opserr << "\nLinearCrdTransf3d::initialize";
+    opserr << "\nLinearCrdTransf3d02::initialize";
     opserr << "\ninvalid pointers to the element nodes\n";
     return -1;
   }
@@ -233,13 +268,13 @@ LinearCrdTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
 }
 
 int
-LinearCrdTransf3d::update(void)
+LinearCrdTransf3d02::update(void)
 {
   return 0;
 }
 
 int
-LinearCrdTransf3d::computeElemtLengthAndOrient()
+LinearCrdTransf3d02::computeElemtLengthAndOrient()
 {
   // element projection
   static Vector dx(3);
@@ -279,7 +314,7 @@ LinearCrdTransf3d::computeElemtLengthAndOrient()
   L = dx.Norm();
 
   if (L == 0.0) {
-    opserr << "\nLinearCrdTransf3d::computeElemtLengthAndOrien: 0 length\n";
+    opserr << "\nLinearCrdTransf3d02::computeElemtLengthAndOrien: 0 length\n";
     return -2;
   }
 
@@ -293,24 +328,24 @@ LinearCrdTransf3d::computeElemtLengthAndOrient()
 }
 
 void
-LinearCrdTransf3d::compTransfMatrixLocalGlobal(Matrix &Tlg)
+LinearCrdTransf3d02::compTransfMatrixLocalGlobal(Matrix &Tlg)
 {
   // setup transformation matrix from local to global
   Tlg.Zero();
 
-  Tlg(0, 0) = Tlg(3, 3) = Tlg(6, 6) = Tlg(9, 9) = R[0][0];
-  Tlg(0, 1) = Tlg(3, 4) = Tlg(6, 7) = Tlg(9, 10) = R[0][1];
-  Tlg(0, 2) = Tlg(3, 5) = Tlg(6, 8) = Tlg(9, 11) = R[0][2];
-  Tlg(1, 0) = Tlg(4, 3) = Tlg(7, 6) = Tlg(10, 9) = R[1][0];
+  Tlg(0, 0) = Tlg(3, 3) = Tlg(6, 6) = Tlg( 9,  9) = R[0][0];
+  Tlg(0, 1) = Tlg(3, 4) = Tlg(6, 7) = Tlg( 9, 10) = R[0][1];
+  Tlg(0, 2) = Tlg(3, 5) = Tlg(6, 8) = Tlg( 9, 11) = R[0][2];
+  Tlg(1, 0) = Tlg(4, 3) = Tlg(7, 6) = Tlg(10,  9) = R[1][0];
   Tlg(1, 1) = Tlg(4, 4) = Tlg(7, 7) = Tlg(10, 10) = R[1][1];
   Tlg(1, 2) = Tlg(4, 5) = Tlg(7, 8) = Tlg(10, 11) = R[1][2];
-  Tlg(2, 0) = Tlg(5, 3) = Tlg(8, 6) = Tlg(11, 9) = R[2][0];
+  Tlg(2, 0) = Tlg(5, 3) = Tlg(8, 6) = Tlg(11,  9) = R[2][0];
   Tlg(2, 1) = Tlg(5, 4) = Tlg(8, 7) = Tlg(11, 10) = R[2][1];
   Tlg(2, 2) = Tlg(5, 5) = Tlg(8, 8) = Tlg(11, 11) = R[2][2];
 }
 
 int
-LinearCrdTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
+LinearCrdTransf3d02::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
 {
   // Compute y = v cross x
   // Note: v(i) is stored in R[2][i]
@@ -335,7 +370,7 @@ LinearCrdTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
   double ynorm = yAxis.Norm();
 
   if (ynorm == 0) {
-    opserr << "\nLinearCrdTransf3d::getLocalAxes";
+    opserr << "\nLinearCrdTransf3d02::getLocalAxes";
     opserr << "\nvector v that defines plane xz is parallel to x axis\n";
     return -3;
   }
@@ -365,17 +400,19 @@ LinearCrdTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
   R[2][1] = zAxis(1);
   R[2][2] = zAxis(2);
 
+  form_offsets(R, nodeIOffset, nodeJOffset, this->RWI, this->RWJ);
+
   return 0;
 }
 
 double
-LinearCrdTransf3d::getInitialLength(void)
+LinearCrdTransf3d02::getInitialLength(void)
 {
   return L;
 }
 
 double
-LinearCrdTransf3d::getDeformedLength(void)
+LinearCrdTransf3d02::getDeformedLength(void)
 {
   return L;
 }
@@ -438,7 +475,7 @@ getBasic(double ug[12], double R[3][3], double nodeIOffset[], double nodeJOffset
 }
 
 const Vector &
-LinearCrdTransf3d::getBasicTrialDisp(void)
+LinearCrdTransf3d02::getBasicTrialDisp(void)
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -468,7 +505,7 @@ LinearCrdTransf3d::getBasicTrialDisp(void)
 }
 
 const Vector &
-LinearCrdTransf3d::getBasicIncrDisp(void)
+LinearCrdTransf3d02::getBasicIncrDisp(void)
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getIncrDisp();
@@ -485,67 +522,10 @@ LinearCrdTransf3d::getBasicIncrDisp(void)
   static Vector ub //(6);
     = getBasic(ug, R, nodeIOffset, nodeJOffset, oneOverL);
   return ub;
-  //
-  //
-  //
-/*
-  static Vector ub(6);
-
-  static double ul[12];
-
-  ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
-  ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  ul[2] = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
-
-  ul[3] = R[0][0] * ug[3] + R[0][1] * ug[4] + R[0][2] * ug[5];
-  ul[4] = R[1][0] * ug[3] + R[1][1] * ug[4] + R[1][2] * ug[5];
-  ul[5] = R[2][0] * ug[3] + R[2][1] * ug[4] + R[2][2] * ug[5];
-
-  ul[6] = R[0][0] * ug[6] + R[0][1] * ug[7] + R[0][2] * ug[8];
-  ul[7] = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  ul[8] = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
-
-  ul[9]  = R[0][0] * ug[9] + R[0][1] * ug[10] + R[0][2] * ug[11];
-  ul[10] = R[1][0] * ug[9] + R[1][1] * ug[10] + R[1][2] * ug[11];
-  ul[11] = R[2][0] * ug[9] + R[2][1] * ug[10] + R[2][2] * ug[11];
-
-  static double Wu[3];
-  if (nodeIOffset) {
-    Wu[0] = nodeIOffset[2] * ug[4] - nodeIOffset[1] * ug[5];
-    Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
-    Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
-
-    ul[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
-  }
-
-  if (nodeJOffset) {
-    Wu[0] = nodeJOffset[2] * ug[10] - nodeJOffset[1] * ug[11];
-    Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
-    Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
-
-    ul[6] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
-  }
-
-  ub(0) = ul[6] - ul[0];
-  double tmp;
-  tmp   = oneOverL * (ul[1] - ul[7]);
-  ub(1) = ul[5] + tmp;
-  ub(2) = ul[11] + tmp;
-  tmp   = oneOverL * (ul[8] - ul[2]);
-  ub(3) = ul[4] + tmp;
-  ub(4) = ul[10] + tmp;
-  ub(5) = ul[9] - ul[3];
-
-  return ub;
-  */
 }
 
 const Vector &
-LinearCrdTransf3d::getBasicIncrDeltaDisp(void)
+LinearCrdTransf3d02::getBasicIncrDeltaDisp(void)
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getIncrDeltaDisp();
@@ -565,7 +545,7 @@ LinearCrdTransf3d::getBasicIncrDeltaDisp(void)
 }
 
 const Vector &
-LinearCrdTransf3d::getBasicTrialVel(void)
+LinearCrdTransf3d02::getBasicTrialVel(void)
 {
   // determine global velocities
   const Vector &vel1 = nodeIPtr->getTrialVel();
@@ -584,7 +564,7 @@ LinearCrdTransf3d::getBasicTrialVel(void)
 }
 
 const Vector &
-LinearCrdTransf3d::getBasicTrialAccel(void)
+LinearCrdTransf3d02::getBasicTrialAccel(void)
 {
   // determine global accelerations
   const Vector &accel1 = nodeIPtr->getTrialAccel();
@@ -603,7 +583,7 @@ LinearCrdTransf3d::getBasicTrialAccel(void)
 }
 
 const Vector &
-LinearCrdTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
+LinearCrdTransf3d02::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 {
   // transform resisting forces from the basic system to local coordinates
   static double pl[12];
@@ -671,12 +651,12 @@ LinearCrdTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 }
 
 const Matrix &
-LinearCrdTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
+LinearCrdTransf3d02::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
 {
   static double kb[6][6];    // Basic stiffness
   static double kl[12][12];  // Local stiffness
   static double tmp[12][12]; // Temporary storage
-  const double oneOverL = 1.0 / L;
+  const  double oneOverL = 1.0 / L;
 
   for (int i = 0; i < 6; i++)
     for (int j = 0; j < 6; j++)
@@ -715,44 +695,9 @@ LinearCrdTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
     kl[11][i] = tmp[2][i];
   }
 
-  static double RWI[3][3];
-
-  if (nodeIOffset) {
-    // Compute RWI
-    RWI[0][0] = -R[0][1] * nodeIOffset[2] + R[0][2] * nodeIOffset[1];
-    RWI[1][0] = -R[1][1] * nodeIOffset[2] + R[1][2] * nodeIOffset[1];
-    RWI[2][0] = -R[2][1] * nodeIOffset[2] + R[2][2] * nodeIOffset[1];
-
-    RWI[0][1] = R[0][0] * nodeIOffset[2] - R[0][2] * nodeIOffset[0];
-    RWI[1][1] = R[1][0] * nodeIOffset[2] - R[1][2] * nodeIOffset[0];
-    RWI[2][1] = R[2][0] * nodeIOffset[2] - R[2][2] * nodeIOffset[0];
-
-    RWI[0][2] = -R[0][0] * nodeIOffset[1] + R[0][1] * nodeIOffset[0];
-    RWI[1][2] = -R[1][0] * nodeIOffset[1] + R[1][1] * nodeIOffset[0];
-    RWI[2][2] = -R[2][0] * nodeIOffset[1] + R[2][1] * nodeIOffset[0];
-  }
-
-  static double RWJ[3][3];
-
-  if (nodeJOffset) {
-    // Compute RWJ
-    RWJ[0][0] = -R[0][1] * nodeJOffset[2] + R[0][2] * nodeJOffset[1];
-    RWJ[1][0] = -R[1][1] * nodeJOffset[2] + R[1][2] * nodeJOffset[1];
-    RWJ[2][0] = -R[2][1] * nodeJOffset[2] + R[2][2] * nodeJOffset[1];
-
-    RWJ[0][1] = R[0][0] * nodeJOffset[2] - R[0][2] * nodeJOffset[0];
-    RWJ[1][1] = R[1][0] * nodeJOffset[2] - R[1][2] * nodeJOffset[0];
-    RWJ[2][1] = R[2][0] * nodeJOffset[2] - R[2][2] * nodeJOffset[0];
-
-    RWJ[0][2] = -R[0][0] * nodeJOffset[1] + R[0][1] * nodeJOffset[0];
-    RWJ[1][2] = -R[1][0] * nodeJOffset[1] + R[1][1] * nodeJOffset[0];
-    RWJ[2][2] = -R[2][0] * nodeJOffset[1] + R[2][1] * nodeJOffset[0];
-  }
-
   // Transform local stiffness to global system
   // First compute kl*T_{lg}
-  int m;
-  for (m = 0; m < 12; m++) {
+  for (int m = 0; m < 12; m++) {
     tmp[m][0] = kl[m][0] * R[0][0] + kl[m][1] * R[1][0] + kl[m][2] * R[2][0];
     tmp[m][1] = kl[m][0] * R[0][1] + kl[m][1] * R[1][1] + kl[m][2] * R[2][1];
     tmp[m][2] = kl[m][0] * R[0][2] + kl[m][1] * R[1][2] + kl[m][2] * R[2][2];
@@ -789,7 +734,7 @@ LinearCrdTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
   }
 
   // Now compute T'_{lg}*(kl*T_{lg})
-  for (m = 0; m < 12; m++) {
+  for (int m = 0; m < 12; m++) {
     kg(0, m) = R[0][0] * tmp[0][m] + R[1][0] * tmp[1][m] + R[2][0] * tmp[2][m];
     kg(1, m) = R[0][1] * tmp[0][m] + R[1][1] * tmp[1][m] + R[2][1] * tmp[2][m];
     kg(2, m) = R[0][2] * tmp[0][m] + R[1][2] * tmp[1][m] + R[2][2] * tmp[2][m];
@@ -832,89 +777,53 @@ LinearCrdTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
 }
 
 const Matrix &
-LinearCrdTransf3d::getInitialGlobalStiffMatrix(const Matrix &KB)
+LinearCrdTransf3d02::getInitialGlobalStiffMatrix(const Matrix &KB)
 {
   static double kb[6][6];    // Basic stiffness
   static double kl[12][12];  // Local stiffness
   static double tmp[12][12]; // Temporary storage
   double oneOverL = 1.0 / L;
 
-  int i, j;
-  for (i = 0; i < 6; i++)
-    for (j = 0; j < 6; j++)
+  for (int i = 0; i < 6; i++)
+    for (int j = 0; j < 6; j++)
       kb[i][j] = KB(i, j);
 
   // Transform basic stiffness to local system
   // First compute kb*T_{bl}
-  for (i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; i++) {
     tmp[i][0]  = -kb[i][0];
     tmp[i][1]  = oneOverL * (kb[i][1] + kb[i][2]);
     tmp[i][2]  = -oneOverL * (kb[i][3] + kb[i][4]);
     tmp[i][3]  = -kb[i][5];
-    tmp[i][4]  = kb[i][3];
-    tmp[i][5]  = kb[i][1];
-    tmp[i][6]  = kb[i][0];
+    tmp[i][4]  =  kb[i][3];
+    tmp[i][5]  =  kb[i][1];
+    tmp[i][6]  =  kb[i][0];
     tmp[i][7]  = -tmp[i][1];
     tmp[i][8]  = -tmp[i][2];
-    tmp[i][9]  = kb[i][5];
-    tmp[i][10] = kb[i][4];
-    tmp[i][11] = kb[i][2];
+    tmp[i][9]  =  kb[i][5];
+    tmp[i][10] =  kb[i][4];
+    tmp[i][11] =  kb[i][2];
   }
 
   // Now compute T'_{bl}*(kb*T_{bl})
-  for (i = 0; i < 12; i++) {
-    kl[0][i]  = -tmp[0][i];
-    kl[1][i]  = oneOverL * (tmp[1][i] + tmp[2][i]);
-    kl[2][i]  = -oneOverL * (tmp[3][i] + tmp[4][i]);
-    kl[3][i]  = -tmp[5][i];
-    kl[4][i]  = tmp[3][i];
-    kl[5][i]  = tmp[1][i];
-    kl[6][i]  = tmp[0][i];
-    kl[7][i]  = -kl[1][i];
-    kl[8][i]  = -kl[2][i];
-    kl[9][i]  = tmp[5][i];
+  for (int i = 0; i < 12; i++) {
+    kl[ 0][i] = -tmp[0][i];
+    kl[ 1][i] = oneOverL * (tmp[1][i] + tmp[2][i]);
+    kl[ 2][i] = -oneOverL * (tmp[3][i] + tmp[4][i]);
+    kl[ 3][i] = -tmp[5][i];
+    kl[ 4][i] = tmp[3][i];
+    kl[ 5][i] = tmp[1][i];
+    kl[ 6][i] = tmp[0][i];
+    kl[ 7][i] = -kl[1][i];
+    kl[ 8][i] = -kl[2][i];
+    kl[ 9][i] = tmp[5][i];
     kl[10][i] = tmp[4][i];
     kl[11][i] = tmp[2][i];
   }
 
-  static double RWI[3][3];
-
-  if (nodeIOffset) {
-    // Compute RWI
-    RWI[0][0] = -R[0][1] * nodeIOffset[2] + R[0][2] * nodeIOffset[1];
-    RWI[1][0] = -R[1][1] * nodeIOffset[2] + R[1][2] * nodeIOffset[1];
-    RWI[2][0] = -R[2][1] * nodeIOffset[2] + R[2][2] * nodeIOffset[1];
-
-    RWI[0][1] = R[0][0] * nodeIOffset[2] - R[0][2] * nodeIOffset[0];
-    RWI[1][1] = R[1][0] * nodeIOffset[2] - R[1][2] * nodeIOffset[0];
-    RWI[2][1] = R[2][0] * nodeIOffset[2] - R[2][2] * nodeIOffset[0];
-
-    RWI[0][2] = -R[0][0] * nodeIOffset[1] + R[0][1] * nodeIOffset[0];
-    RWI[1][2] = -R[1][0] * nodeIOffset[1] + R[1][1] * nodeIOffset[0];
-    RWI[2][2] = -R[2][0] * nodeIOffset[1] + R[2][1] * nodeIOffset[0];
-  }
-
-  static double RWJ[3][3];
-
-  if (nodeJOffset) {
-    // Compute RWJ
-    RWJ[0][0] = -R[0][1] * nodeJOffset[2] + R[0][2] * nodeJOffset[1];
-    RWJ[1][0] = -R[1][1] * nodeJOffset[2] + R[1][2] * nodeJOffset[1];
-    RWJ[2][0] = -R[2][1] * nodeJOffset[2] + R[2][2] * nodeJOffset[1];
-
-    RWJ[0][1] = R[0][0] * nodeJOffset[2] - R[0][2] * nodeJOffset[0];
-    RWJ[1][1] = R[1][0] * nodeJOffset[2] - R[1][2] * nodeJOffset[0];
-    RWJ[2][1] = R[2][0] * nodeJOffset[2] - R[2][2] * nodeJOffset[0];
-
-    RWJ[0][2] = -R[0][0] * nodeJOffset[1] + R[0][1] * nodeJOffset[0];
-    RWJ[1][2] = -R[1][0] * nodeJOffset[1] + R[1][1] * nodeJOffset[0];
-    RWJ[2][2] = -R[2][0] * nodeJOffset[1] + R[2][1] * nodeJOffset[0];
-  }
-
   // Transform local stiffness to global system
   // First compute kl*T_{lg}
-  int m;
-  for (m = 0; m < 12; m++) {
+  for (int m = 0; m < 12; m++) {
     tmp[m][0] = kl[m][0] * R[0][0] + kl[m][1] * R[1][0] + kl[m][2] * R[2][0];
     tmp[m][1] = kl[m][0] * R[0][1] + kl[m][1] * R[1][1] + kl[m][2] * R[2][1];
     tmp[m][2] = kl[m][0] * R[0][2] + kl[m][1] * R[1][2] + kl[m][2] * R[2][2];
@@ -951,7 +860,7 @@ LinearCrdTransf3d::getInitialGlobalStiffMatrix(const Matrix &KB)
   }
 
   // Now compute T'_{lg}*(kl*T_{lg})
-  for (m = 0; m < 12; m++) {
+  for (int m = 0; m < 12; m++) {
     kg(0, m) = R[0][0] * tmp[0][m] + R[1][0] * tmp[1][m] + R[2][0] * tmp[2][m];
     kg(1, m) = R[0][1] * tmp[0][m] + R[1][1] * tmp[1][m] + R[2][1] * tmp[2][m];
     kg(2, m) = R[0][2] * tmp[0][m] + R[1][2] * tmp[1][m] + R[2][2] * tmp[2][m];
@@ -994,11 +903,11 @@ LinearCrdTransf3d::getInitialGlobalStiffMatrix(const Matrix &KB)
 }
 
 CrdTransf *
-LinearCrdTransf3d::getCopy3d(void)
+LinearCrdTransf3d02::getCopy3d(void)
 {
   // create a new instance of LinearCrdTransf3d
 
-  LinearCrdTransf3d *theCopy;
+  LinearCrdTransf3d02 *theCopy = nullptr;
 
   static Vector xz(3);
   xz(0) = R[2][0];
@@ -1020,7 +929,7 @@ LinearCrdTransf3d::getCopy3d(void)
     offsetJ(2) = nodeJOffset[2];
   }
 
-  theCopy = new LinearCrdTransf3d(this->getTag(), xz, offsetI, offsetJ);
+  theCopy = new LinearCrdTransf3d02(this->getTag(), xz, offsetI, offsetJ);
 
   theCopy->nodeIPtr = nodeIPtr;
   theCopy->nodeJPtr = nodeJPtr;
@@ -1033,7 +942,7 @@ LinearCrdTransf3d::getCopy3d(void)
 }
 
 int
-LinearCrdTransf3d::sendSelf(int cTag, Channel &theChannel)
+LinearCrdTransf3d02::sendSelf(int cTag, Channel &theChannel)
 {
   int res = 0;
 
@@ -1099,7 +1008,7 @@ LinearCrdTransf3d::sendSelf(int cTag, Channel &theChannel)
 
   res += theChannel.sendVector(this->getDbTag(), cTag, data);
   if (res < 0) {
-    opserr << "LinearCrdTransf3d::sendSelf - failed to send Vector\n";
+    opserr << "LinearCrdTransf3d02::sendSelf - failed to send Vector\n";
 
     return res;
   }
@@ -1108,7 +1017,7 @@ LinearCrdTransf3d::sendSelf(int cTag, Channel &theChannel)
 }
 
 int
-LinearCrdTransf3d::recvSelf(int cTag, Channel &theChannel,
+LinearCrdTransf3d02::recvSelf(int cTag, Channel &theChannel,
                             FEM_ObjectBroker &theBroker)
 {
   int res = 0;
@@ -1117,7 +1026,7 @@ LinearCrdTransf3d::recvSelf(int cTag, Channel &theChannel,
 
   res += theChannel.recvVector(this->getDbTag(), cTag, data);
   if (res < 0) {
-    opserr << "LinearCrdTransf3d::recvSelf - failed to receive Vector\n";
+    opserr << "LinearCrdTransf3d02::recvSelf - failed to receive Vector\n";
 
     return res;
   }
@@ -1183,7 +1092,7 @@ LinearCrdTransf3d::recvSelf(int cTag, Channel &theChannel,
 }
 
 const Matrix &
-LinearCrdTransf3d::getGlobalMatrixFromLocal(const Matrix &ml)
+LinearCrdTransf3d02::getGlobalMatrixFromLocal(const Matrix &ml)
 {
   this->compTransfMatrixLocalGlobal(Tlg);       // TODO: OPTIMIZE LATER
   kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // TODO: OPTIMIZE LATER
@@ -1191,7 +1100,7 @@ LinearCrdTransf3d::getGlobalMatrixFromLocal(const Matrix &ml)
 }
 
 const Vector &
-LinearCrdTransf3d::getPointGlobalCoordFromLocal(const Vector &xl)
+LinearCrdTransf3d02::getPointGlobalCoordFromLocal(const Vector &xl)
 {
   static Vector xg(3);
 
@@ -1220,7 +1129,7 @@ LinearCrdTransf3d::getPointGlobalCoordFromLocal(const Vector &xl)
 }
 
 const Vector &
-LinearCrdTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
+LinearCrdTransf3d02::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -1292,7 +1201,7 @@ LinearCrdTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
 }
 
 const Vector &
-LinearCrdTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
+LinearCrdTransf3d02::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -1356,7 +1265,7 @@ LinearCrdTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 }
 
 void
-LinearCrdTransf3d::Print(OPS_Stream &s, int flag)
+LinearCrdTransf3d02::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nCrdTransf: " << this->getTag() << " Type: LinearCrdTransf3d";
@@ -1385,7 +1294,7 @@ LinearCrdTransf3d::Print(OPS_Stream &s, int flag)
 
 ////////////////////////////////// sensitivity //////////////////////////////////
 const Vector &
-LinearCrdTransf3d::getBasicDisplSensitivity(int gradNumber)
+LinearCrdTransf3d02::getBasicDisplSensitivity(int gradNumber)
 {
 
   static double ug[12];
