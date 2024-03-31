@@ -79,7 +79,7 @@ NodeRecorder::NodeRecorder(const ID &dofs,
  theDofs(0), theNodalTags(0), theNodes(0), response(0),
  theDomain(&theDom), theOutputHandler(&theOutput),
  echoTimeFlag(timeFlag), dataFlag(_dataFlag), dataIndex(_dataIndex),
- deltaT(dT), relDeltaTTol(relDeltaTTol), nextTimeStampToRecord(0.0), 
+ deltaT(dT), relDeltaTTol(_relDeltaTTol), nextTimeStampToRecord(0.0), 
  gradIndex(pgradIndex), 
  initializationDone(false), numValidNodes(0), addColumnInfo(0), 
  theTimeSeries(theSeries), timeSeriesValues(0)
