@@ -29,11 +29,11 @@
 #ifndef LinearCrdTransf3d_h
 #define LinearCrdTransf3d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class LinearCrdTransf3d: public CrdTransf
+class LinearCrdTransf3d: public FrameTransform<3>
 {
 public:
     LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane);

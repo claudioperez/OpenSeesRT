@@ -705,7 +705,7 @@ ForceBeamColumn3d::update()
     static Vector SeTrial(NEBD);
     static Matrix kvTrial(NEBD, NEBD);
 
-    dvToDo = dv;
+    dvToDo  = dv;
     dvTrial = dvToDo;
 
     const double factor = 10.0;
@@ -839,10 +839,9 @@ ForceBeamColumn3d::update()
               
               // compute section deformation increments
               if (l == 0) {
-                
                 //  regular newton 
                 //    vs += fs * dSs;     
-                
+
                 dvs.addMatrixVector(0.0, fsSubdivide[i], dSs, 1.0);
                 
               } else if (l == 2) {

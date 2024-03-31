@@ -14,7 +14,7 @@
 #ifndef CorotCrdTransf3d02_h
 #define CorotCrdTransf3d02_h
 
-#include <CrdTransf.h>
+#include "FrameTransform.h"
 #include <Vector.h>
 #include <Matrix.h>
 #include <Matrix3D.h>
@@ -22,7 +22,7 @@
 class Triad;
 namespace OpenSees {class Matrix3D;}
 
-class CorotCrdTransf3d02: public CrdTransf
+class CorotCrdTransf3d02: public FrameTransform<3>
 {
 public:
     CorotCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,

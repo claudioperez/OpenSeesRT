@@ -23,7 +23,8 @@
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
 #include <Parameter.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <algorithm>				/*min, max*/
 #include <DummyStream.h>
 
@@ -809,7 +810,7 @@ Response* ReinforcedConcreteLayeredMembraneSection::setResponse(const char** arg
 		Vector data1(3);
 		data1.Zero();
 
-		theResponse = new MaterialResponse(this, 1, data1);
+		theResponse = new SectionResponse(*this, 1, data1);
 
 	}
 	else if (strcmp(argv[0], "cracking_pattern") == 0 || strcmp(argv[0], "Cracking_pattern") == 0) {
@@ -825,7 +826,7 @@ Response* ReinforcedConcreteLayeredMembraneSection::setResponse(const char** arg
 		Vector data2(4);
 		data2.Zero();
 
-		theResponse = new MaterialResponse(this, 2, data2);
+		theResponse = new SectionResponse(*this, 2, data2);
 
 	}
 	else if (strcmp(argv[0], "thetaPD_angle") == 0 || strcmp(argv[0], "ThetaPD") == 0 || strcmp(argv[0],"thetaPD") == 0) {
@@ -835,7 +836,7 @@ Response* ReinforcedConcreteLayeredMembraneSection::setResponse(const char** arg
 		s.tag("ResponseType", "thetaPD");
 		s.endTag();
 
-		theResponse = new MaterialResponse(this, 3, 0.0);
+		theResponse = new SectionResponse(*this, 3, 0.0);
 
 	}
 	else if (strcmp(argv[0], "getBendingParameters") == 0) {
@@ -849,7 +850,7 @@ Response* ReinforcedConcreteLayeredMembraneSection::setResponse(const char** arg
 		Vector data3(2);
 		data3.Zero();
 
-		theResponse = new MaterialResponse(this, 4, data3);
+		theResponse = new SectionResponse(*this, 4, data3);
 	}
 	else if (strcmp(argv[0], "panel_force") == 0 || strcmp(argv[0], "Panel_Force") == 0 || strcmp(argv[0], "Panel_force") == 0) {
 		s.tag("SectionOutput");
@@ -863,7 +864,7 @@ Response* ReinforcedConcreteLayeredMembraneSection::setResponse(const char** arg
 		Vector data4(3);
 		data4.Zero();
 
-		theResponse = new MaterialResponse(this, 5, data4);
+		theResponse = new SectionResponse(*this, 5, data4);
 	}
 	else if (strcmp(argv[0], "panel_strain") == 0 || strcmp(argv[0], "Panel_Strain") == 0 || strcmp(argv[0], "Panel_strain") == 0) {
 		s.tag("SectionOutput");
@@ -877,7 +878,7 @@ Response* ReinforcedConcreteLayeredMembraneSection::setResponse(const char** arg
 		Vector data5(3);
 		data5.Zero();
 
-		theResponse = new MaterialResponse(this, 6, data5);
+		theResponse = new SectionResponse(*this, 6, data5);
 	}
 	else if (strcmp(argv[0], "CLayer") == 0 || strcmp(argv[0], "ConcLayer") == 0) {
 		if (argc != 3) {

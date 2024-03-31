@@ -76,7 +76,7 @@ OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf2d02)
 
 // constructor:
 LinearCrdTransf2d02::LinearCrdTransf2d02(int tag) // TODO: CLASS TAG
-    : CrdTransf(tag, CRDTR_TAG_LinearCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset{0.0}, nodeJOffset{0.0}, cosTheta(0), sinTheta(0), L(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -86,7 +86,7 @@ LinearCrdTransf2d02::LinearCrdTransf2d02(int tag) // TODO: CLASS TAG
 // constructor:
 LinearCrdTransf2d02::LinearCrdTransf2d02(int tag, const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
-    : CrdTransf(tag, CRDTR_TAG_LinearCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset{0.0}, nodeJOffset{0.0}, cosTheta(0), sinTheta(0), L(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -115,7 +115,7 @@ LinearCrdTransf2d02::LinearCrdTransf2d02(int tag, const Vector &rigJntOffset1,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 LinearCrdTransf2d02::LinearCrdTransf2d02()
-    : CrdTransf(0, CRDTR_TAG_LinearCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform(0, CRDTR_TAG_LinearCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset{0.0}, nodeJOffset{0.0}, cosTheta(0), sinTheta(0), L(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -887,8 +887,8 @@ LinearCrdTransf2d02::recvSelf(int cTag, Channel &theChannel,
 const Matrix &
 LinearCrdTransf2d02::getGlobalMatrixFromLocal(const Matrix &ml)
 {
-  this->compTransfMatrixLocalGlobal(Tlg);       // OPTIMIZE LATER
-  kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // OPTIMIZE LATER
+  this->compTransfMatrixLocalGlobal(Tlg);       // TODO: OPTIMIZE LATER
+  kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // TODO: OPTIMIZE LATER
 
   return kg;
 }

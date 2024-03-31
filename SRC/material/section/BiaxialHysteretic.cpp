@@ -39,7 +39,6 @@
 #include <Matrix.h>
 #include <classTags.h>
 #include <BiaxialHysteretic.h>
-#include <MaterialResponse.h>
 #include <Parameter.h>
 #include <ID.h>
 
@@ -297,7 +296,7 @@ BiaxialHysteretic::getCopy(void)
 }
 
 const ID&
-BiaxialHysteretic::getType ()
+BiaxialHysteretic::getType()
 {
     return code;
 }

@@ -13,7 +13,6 @@
 #define GenericResponse_h
 
 #include <Response.h>
-#include <Information.h>
 
 class ID;
 class Vector;
@@ -23,21 +22,21 @@ template <typename T>
 class GenericResponse : public Response
 {
  public:
-  GenericResponse(T * const obj, int id)                    : Response(),    theObject(obj), responseID(id) {};
-  GenericResponse(T * const obj, int id, int val)           : Response(val), theObject(obj), responseID(id) {};
-  GenericResponse(T * const obj, int id, double val)        : Response(val), theObject(obj), responseID(id) {};
-  GenericResponse(T * const obj, int id, const ID &val)     : Response(val), theObject(obj), responseID(id) {};
-  GenericResponse(T * const obj, int id, const Vector &val) : Response(val), theObject(obj), responseID(id) {};
-  GenericResponse(T * const obj, int id, const Matrix &val) : Response(val), theObject(obj), responseID(id) {};
+  GenericResponse(T &obj, int id)                    : Response(),    theObject(obj), responseID(id) {};
+  GenericResponse(T &obj, int id, int val)           : Response(val), theObject(obj), responseID(id) {};
+  GenericResponse(T &obj, int id, double val)        : Response(val), theObject(obj), responseID(id) {};
+  GenericResponse(T &obj, int id, const ID &val)     : Response(val), theObject(obj), responseID(id) {};
+  GenericResponse(T &obj, int id, const Vector &val) : Response(val), theObject(obj), responseID(id) {};
+  GenericResponse(T &obj, int id, const Matrix &val) : Response(val), theObject(obj), responseID(id) {};
 
-  ~GenericResponse();
+  ~GenericResponse() {};
   
   int getResponse(void) {
-    return theObject->getResponse(responseID, myInfo);
+    return theObject.getResponse(responseID, myInfo);
   }
 
-private:
-  T * const theObject;
+protected:
+  T & theObject;
   const int responseID;
 };
 

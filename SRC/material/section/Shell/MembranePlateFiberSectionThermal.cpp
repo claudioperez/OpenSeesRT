@@ -33,7 +33,8 @@
 #include <MembranePlateFiberSectionThermal.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <Information.h>
 
 

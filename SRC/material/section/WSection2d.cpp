@@ -332,7 +332,7 @@ WSection2d::getCopy(void)
 }
 
 const ID&
-WSection2d::getType(void)
+WSection2d::getType()
 {
   return code;
 }

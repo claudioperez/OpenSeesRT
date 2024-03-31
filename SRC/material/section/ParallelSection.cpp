@@ -40,7 +40,8 @@
 #include <Matrix.h>
 #include <classTags.h>
 #include <ParallelSection.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <ID.h>
 
 #include <classTags.h>
@@ -356,7 +357,7 @@ ParallelSection::getCopy(void)
 }
 
 const ID&
-ParallelSection::getType ()
+ParallelSection::getType()
 {
   return *theCode;
 }

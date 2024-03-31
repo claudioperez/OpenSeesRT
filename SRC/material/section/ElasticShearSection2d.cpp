@@ -202,7 +202,7 @@ ElasticShearSection2d::getCopy(void)
 }
 
 const ID&
-ElasticShearSection2d::getType(void)
+ElasticShearSection2d::getType()
 {
   return code;
 }

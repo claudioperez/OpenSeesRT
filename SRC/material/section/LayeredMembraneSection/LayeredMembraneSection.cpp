@@ -23,7 +23,8 @@
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
 #include <Parameter.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <algorithm>				/*min, max*/
 #include <DummyStream.h>
 
@@ -576,7 +577,7 @@ Response* LayeredMembraneSection::setResponse(const char** argv, int argc, OPS_S
 		Vector data1(3);
 		data1.Zero();
 
-		theResponse = new MaterialResponse(this, 1,data1);
+		theResponse = new SectionResponse(*this, 1,data1);
 
 	}
 	else if (strcmp(argv[0], "panel_force") == 0 || strcmp(argv[0], "Panel_Force") == 0 || strcmp(argv[0], "Panel_force") == 0) {
@@ -591,7 +592,7 @@ Response* LayeredMembraneSection::setResponse(const char** argv, int argc, OPS_S
 		Vector data2(3);
 		data2.Zero();
 
-		theResponse = new MaterialResponse(this,2,data2);
+		theResponse = new SectionResponse(*this,2,data2);
 
 	}
 	else if (strcmp(argv[0], "getBendingParameters") == 0) {
@@ -605,7 +606,7 @@ Response* LayeredMembraneSection::setResponse(const char** argv, int argc, OPS_S
 		Vector data3(2);
 		data3.Zero();
 
-		theResponse = new MaterialResponse(this, 3, data3);
+		theResponse = new SectionResponse(*this, 3, data3);
 	}
 	else if (strcmp(argv[0], "panel_avg_stress") == 0 || strcmp(argv[0], "Panel_AvgStress") == 0) {
 		s.tag("SectionOutput");
@@ -619,7 +620,7 @@ Response* LayeredMembraneSection::setResponse(const char** argv, int argc, OPS_S
 		Vector data4(3);
 		data4.Zero();
 
-		theResponse = new MaterialResponse(this, 4, data4);
+		theResponse = new SectionResponse(*this, 4, data4);
 	}
 	else if (strcmp(argv[0], "Layer") == 0 || strcmp(argv[0], "layer") == 0 || strcmp(argv[0], "matLayer") == 0 || strcmp(argv[0], "MatLayer") == 0) {
 		if (argc != 3) {

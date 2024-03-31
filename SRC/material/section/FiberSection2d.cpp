@@ -35,34 +35,14 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
-#include <elementAPI.h>
+
+#include "FiberResponse.h"
 
 ID FiberSection2d::code(2);
 
-void * OPS_ADD_RUNTIME_VPV(OPS_FiberSection2d)
-{
-    int numData = OPS_GetNumRemainingInputArgs();
-    if(numData < 1) {
-	opserr<<"insufficient arguments for FiberSection2d\n";
-	return 0;
-    }
-
-    numData = 1;
-    int tag;
-    if (OPS_GetIntInput(&numData,&tag) < 0) return 0;
-
-    bool computeCentroid = true;
-    if (OPS_GetNumRemainingInputArgs() > 0) {
-      const char* opt = OPS_GetString();
-      if (strcmp(opt, "-noCentroid") == 0)
-	computeCentroid = false;
-    }
-    
-    int num = 30;
-    return new FiberSection2d(tag, num, computeCentroid);
-}
 
 // allocate memory for fibers
 FiberSection2d::FiberSection2d(int tag, int num, bool compCentroid): 
@@ -323,7 +303,7 @@ FiberSection2d::getCopy(void)
 }
 
 const ID&
-FiberSection2d::getType ()
+FiberSection2d::getType()
 {
   return code;
 }
@@ -730,21 +710,41 @@ FiberSection2d::setResponse(const char **argv, int argc,
       output.endTag();
     }
     Vector theResponseData(numData);
-    theResponse = new MaterialResponse(this, 5, theResponseData);
-  
-  } else if ((strcmp(argv[0],"numFailedFiber") == 0) || (strcmp(argv[0],"numFiberFailed") == 0)) {
+    theResponse = new SectionResponse(*this, FiberResponse::FiberData, theResponseData);
+  }
+
+  else if (strcmp(argv[0],"fiberData2") == 0) {
+    
+    int numData = numFibers*6;
+    for (int j = 0; j < numFibers; j++) {
+      output.tag("FiberOutput");
+      output.attr("yLoc", matData[2*j]);
+      output.attr("zLoc", 0.0);
+      output.attr("area", matData[2*j+1]);    
+      output.tag("ResponseType","yCoord");
+      output.tag("ResponseType","zCoord");
+      output.tag("ResponseType","area");
+      output.tag("ResponseType","stress");
+      output.tag("ResponseType","strain");
+      output.endTag();
+    }
+    Vector theResponseData(numData);
+    theResponse = new SectionResponse(*this, FiberResponse::FiberData02, theResponseData);
+  }
+
+  else if ((strcmp(argv[0],"numFailedFiber") == 0) || (strcmp(argv[0],"numFiberFailed") == 0)) {
     int count = 0;
-    theResponse = new MaterialResponse(this, 6, count);
+    theResponse = new SectionResponse(*this, 6, count);
 
   } else if ((strcmp(argv[0],"sectionFailed") == 0) || 
 	     (strcmp(argv[0],"hasSectionFailed") == 0) ||
 	     (strcmp(argv[0],"hasFailed") == 0)) {
     int count = 0;
-    theResponse = new MaterialResponse(this, 7, count);
+    theResponse = new SectionResponse(*this, 7, count);
   }
   //by SAJalali
   else if ((strcmp(argv[0], "energy") == 0) || (strcmp(argv[0], "Energy") == 0)) {
-	  theResponse = new MaterialResponse(this, 8, getEnergy());
+	  theResponse = new SectionResponse(*this, 8, getEnergy());
   }
 
   if (theResponse == 0)
@@ -757,7 +757,7 @@ FiberSection2d::setResponse(const char **argv, int argc,
 int 
 FiberSection2d::getResponse(int responseID, Information &sectInfo)
 {
-  if (responseID == 5) {
+  if (responseID == FiberResponse::FiberData) {
     int numData = 5*numFibers;
     Vector data(numData);
     int count = 0;
@@ -775,6 +775,22 @@ FiberSection2d::getResponse(int responseID, Information &sectInfo)
       count += 5;
     }
     return sectInfo.setVector(data);	
+  }
+
+  if (responseID == FiberResponse::FiberData02) {
+    int numData = 6*numFibers;
+    Vector data(numData);
+    int count = 0;
+    for (int j = 0; j < numFibers; j++) {
+      data(count)   = matData[2*j];   // y
+      data(count+1) = 0.0;            // z
+      data(count+2) = matData[2*j+1]; // A
+      data(count+3) = (double)theMaterials[j]->getTag();
+      data(count+4) = theMaterials[j]->getStress();
+      data(count+5) = theMaterials[j]->getStrain();
+      count += 6;      
+    }
+    return sectInfo.setVector(data);
 
   } else  if (responseID == 6) {
     

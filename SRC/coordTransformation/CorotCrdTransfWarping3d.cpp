@@ -108,7 +108,7 @@ CorotCrdTransfWarping3d::CorotCrdTransfWarping3d(int tag,
                                                  const Vector &vecInLocXZPlane,
                                                  const Vector &rigJntOffsetI,
                                                  const Vector &rigJntOffsetJ)
-    : CrdTransf(tag, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3),
+    : FrameTransform(tag, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3),
       nodeIOffset(3), nodeJOffset(3), xAxis(3), nodeIPtr(0), nodeJPtr(0),
       R0(3, 3), L(0), Ln(0), alphaIq(4), alphaJq(4), alphaIqcommit(4),
       alphaJqcommit(4), alphaI(3), alphaJ(3), ulcommit(9), ul(9), ulpr(9),
@@ -180,7 +180,7 @@ CorotCrdTransfWarping3d::CorotCrdTransfWarping3d(int tag,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransfWarping3d::CorotCrdTransfWarping3d()
-    : CrdTransf(0, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3), nodeIOffset(3),
+    : FrameTransform(0, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3), nodeIOffset(3),
       nodeJOffset(3), xAxis(3), nodeIPtr(0), nodeJPtr(0), R0(3, 3), L(0), Ln(0),
       alphaIq(4), alphaJq(4), alphaIqcommit(4), alphaJqcommit(4), alphaI(3),
       alphaJ(3), ulcommit(9), ul(9), ulpr(9), nodeIInitialDisp(0),

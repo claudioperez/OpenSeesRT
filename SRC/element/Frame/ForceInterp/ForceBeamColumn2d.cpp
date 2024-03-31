@@ -2287,7 +2287,6 @@ void ForceBeamColumn2d::compSectionDisplacements(Vector sectionCoords[], Vector 
 
        if (ii == code.Size()) {
          opserr << "FATAL NLBeamColumn2d::compSectionDispls - section does not provide Mz response\n";
-         exit(-1);
        }
                         
        // get section deformations
@@ -2466,10 +2465,10 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
   Response *theResponse = 0;
 
   output.tag("ElementOutput");
-  output.attr("eleType","ForceBeamColumn2d");
-  output.attr("eleTag",this->getTag());
-  output.attr("node1",connectedExternalNodes[0]);
-  output.attr("node2",connectedExternalNodes[1]);
+  output.attr("eleType", "ForceBeamColumn2d");
+  output.attr("eleTag",  this->getTag());
+  output.attr("node1",   connectedExternalNodes[0]);
+  output.attr("node2",   connectedExternalNodes[1]);
 
   // global force - 
   if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0
@@ -2688,10 +2687,12 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
     }
   }
   //by SAJalali
-  else if (strcmp(argv[0], "energy") == 0)
-  {
-          return new ElementResponse(this, 14, 0.0);
+  else if (strcmp(argv[0], "energy") == 0) {
+    return new ElementResponse(this, 14, 0.0);
   }
+
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
 
   output.endTag(); // ElementOutput
 

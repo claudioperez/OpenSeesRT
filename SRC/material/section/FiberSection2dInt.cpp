@@ -19,7 +19,8 @@
 
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 
 #include <float.h>
@@ -1135,7 +1136,7 @@ for (int j = 0; j < NStrip; j++) {
 }
 
 const ID&
-FiberSection2dInt::getType ()            
+FiberSection2dInt::getType()
 {
   return code;
 }
@@ -1720,7 +1721,7 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 1, this->getSectionDeformation());
+    theResponse =  new SectionResponse(*this, 1, this->getSectionDeformation());
     return theResponse;
 
   // forces
@@ -1750,7 +1751,7 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 2, this->getStressResultant());
+    theResponse =  new SectionResponse(*this, 2, this->getStressResultant());
     return theResponse;
 
   // force and deformation
@@ -1805,45 +1806,45 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 4, Vector(2*this->getOrder()));
+    theResponse =  new SectionResponse(*this, 4, Vector(2*this->getOrder()));
     return theResponse;
   }  
   // strip sigma y
   else if (strcmp(argv[0],"sigmaY") == 0)
-    return new MaterialResponse(this, 105, this->getSigmaY());
+    return new SectionResponse(*this, 105, this->getSigmaY());
   // strip Tau
   else if (strcmp(argv[0],"tau") == 0)
-    return new MaterialResponse(this, 106, this->getTau());
+    return new SectionResponse(*this, 106, this->getTau());
   // strip Alpha 
   else if (strcmp(argv[0],"alpha") == 0)
-    return new MaterialResponse(this, 107, this->getAlpha());
+    return new SectionResponse(*this, 107, this->getAlpha());
   // strip Alpha iter
   else if (strcmp(argv[0],"iter") == 0)
-    return new MaterialResponse(this, 108, this->getIter());
+    return new SectionResponse(*this, 108, this->getIter());
   // strip eX
   else if (strcmp(argv[0],"eX") == 0)
-    return new MaterialResponse(this, 109, this->getEX());
+    return new SectionResponse(*this, 109, this->getEX());
   // strip ey
   else if (strcmp(argv[0],"eY") == 0)
-    return new MaterialResponse(this, 110, this->getEY());
+    return new SectionResponse(*this, 110, this->getEY());
   // strip e1
   else if (strcmp(argv[0],"e1") == 0)
-    return new MaterialResponse(this, 111, this->getE1());
+    return new SectionResponse(*this, 111, this->getE1());
   // strip e2 
   else if (strcmp(argv[0],"e2") == 0)
-    return new MaterialResponse(this, 112, this->getE2());
+    return new SectionResponse(*this, 112, this->getE2());
   // strip sX
   else if (strcmp(argv[0],"sX") == 0)
-    return new MaterialResponse(this, 113, this->getSX());
+    return new SectionResponse(*this, 113, this->getSX());
   // strip sy
   else if (strcmp(argv[0],"sY") == 0)
-    return new MaterialResponse(this, 114, this->getSY());
+    return new SectionResponse(*this, 114, this->getSY());
   // strip s1
   else if (strcmp(argv[0],"s1") == 0)
-    return new MaterialResponse(this, 115, this->getS1());
+    return new SectionResponse(*this, 115, this->getS1());
   // strip s2                                                                                     
   else if (strcmp(argv[0],"s2") == 0)
-    return new MaterialResponse(this, 116, this->getS2());
+    return new SectionResponse(*this, 116, this->getS2());
   // Check if fiber response is requested
   else if ((strcmp(argv[0],"fiber") == 0) || (strcmp(argv[0],"fiber1") == 0)) {    
     int key = numFibers;

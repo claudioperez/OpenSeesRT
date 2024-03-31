@@ -29,11 +29,11 @@
 #ifndef CorotCrdTransfWarping3d_h
 #define CorotCrdTransfWarping3d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class CorotCrdTransfWarping3d: public CrdTransf
+class CorotCrdTransfWarping3d: public FrameTransform<3>
 {
 public:
     CorotCrdTransfWarping3d(int tag, const Vector &vecInLocXZPlane,

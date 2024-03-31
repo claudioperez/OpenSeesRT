@@ -35,7 +35,8 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <NDMaterial.h>
 #include <Parameter.h>
 #include <elementAPI.h>
@@ -522,7 +523,7 @@ NDFiberSection2d::getCopy(void)
 }
 
 const ID&
-NDFiberSection2d::getType ()
+NDFiberSection2d::getType()
 {
   return code;
 }

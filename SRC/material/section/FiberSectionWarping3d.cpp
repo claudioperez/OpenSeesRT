@@ -36,7 +36,8 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <ElasticMaterial.h>
 #include <math.h>
@@ -578,7 +579,7 @@ FiberSectionWarping3d::getCopy(void)
 }
 
 const ID&
-FiberSectionWarping3d::getType ()
+FiberSectionWarping3d::getType()
 {
   return code;
 }
@@ -1006,7 +1007,7 @@ FiberSectionWarping3d::setResponse(const char **argv, int argc, OPS_Stream &outp
 	output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 1, this->getSectionDeformation());
+    theResponse =  new SectionResponse(*this, 1, this->getSectionDeformation());
   
   // forces
   } else if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0) {
@@ -1035,7 +1036,7 @@ FiberSectionWarping3d::setResponse(const char **argv, int argc, OPS_Stream &outp
 	output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 2, this->getStressResultant());
+    theResponse =  new SectionResponse(*this, 2, this->getStressResultant());
   
   // force and deformation
   } else if (strcmp(argv[0],"forceAndDeformation") == 0) { 
@@ -1090,7 +1091,7 @@ FiberSectionWarping3d::setResponse(const char **argv, int argc, OPS_Stream &outp
       }
     }
 
-    theResponse =  new MaterialResponse(this, 4, Vector(2*this->getOrder()));
+    theResponse =  new SectionResponse(*this, 4, Vector(2*this->getOrder()));
   
   }  
   

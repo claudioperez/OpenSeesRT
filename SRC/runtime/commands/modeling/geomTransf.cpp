@@ -97,7 +97,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // construct the transformation
 
-    CrdTransf *crdTransf2d = nullptr;
+    FrameTransform<2> *crdTransf2d = nullptr;
 
     if (strcmp(argv[1], "Linear") == 0)
       if (getenv("CRD")) {
@@ -226,7 +226,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // construct the transformation object
-    CrdTransf *crdTransf3d;
+    FrameTransform<3> *crdTransf3d;
 
     if (strcmp(argv[1], "Linear") == 0)
       crdTransf3d = new LinearCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
