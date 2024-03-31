@@ -113,7 +113,8 @@ See also:
 - [`mdof`](https://pypi.org/project/mdof) Optimized system identification library
 - [`sdof`](https://pypi.org/project/sdof) Optimized integration for single degree of freedom systems
 
-To cite this project, use [https://doi.org/10.5281/zenodo.10456866](https://doi.org/10.5281/zenodo.10456866)
+To cite this project, use [https://doi.org/10.5281/zenodo.10456866](https://doi.org/10.5281/zenodo.10456866).
+For more projects by the STAIRlab, visit https://github.com/STAIRlab .
 
 ## Support
 
