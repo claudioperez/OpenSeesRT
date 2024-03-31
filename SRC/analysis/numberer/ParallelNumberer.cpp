@@ -485,11 +485,8 @@ ParallelNumberer::numberDOF(ID &lastDOFs)
 
   // get a pointer to the model & check its not null
   AnalysisModel *theModel = this->getAnalysisModelPtr();
-  Domain *theDomain = 0;
-  if (theModel != 0)
-    theDomain = theModel->getDomainPtr();
   
-  assert(theModel != nullptr && theDomain != nullptr);
+  assert(theModel != nullptr);
   
   Graph &theGraph = theModel->getDOFGroupGraph();
   
