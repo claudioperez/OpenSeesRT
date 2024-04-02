@@ -6,10 +6,12 @@
 #==============================================================================
 target_sources(OPS_Material
   PRIVATE
+    FeapMaterial.cpp
     FeapMaterial01.cpp
     FeapMaterial02.cpp
     FeapMaterial03.cpp
   PUBLIC
+    FeapMaterial.h
     FeapMaterial01.h
     FeapMaterial02.h
     FeapMaterial03.h
