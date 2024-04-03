@@ -236,7 +236,11 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       crdTransf3d = new PDeltaCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "Corotational") == 0)
-      crdTransf3d = new CorotCrdTransf3d02(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      // By default use new faster version
+      if (getenv("CRD"))
+        crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      else
+        crdTransf3d = new CorotCrdTransf3d02(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";

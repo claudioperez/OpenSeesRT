@@ -126,7 +126,7 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
 
   {"UVCmultiaxial", OPS_UVCmultiaxial},
 
-  {"MaterialCMM", OPS_MaterialCMM},
+//{"MaterialCMM", OPS_MaterialCMM},
 
   {"CycLiqCP",    OPS_CycLiqCPMaterial},
 

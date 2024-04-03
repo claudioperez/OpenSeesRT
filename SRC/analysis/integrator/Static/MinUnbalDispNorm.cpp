@@ -604,6 +604,7 @@ MinUnbalDispNorm::formdLambdaDh(int gradNumber)
   //return 0.0;
   if(dLAMBDAdh != 0)
     return (*dLAMBDAdh)(gradNumber);
+  return 0.0;
 }
 
 

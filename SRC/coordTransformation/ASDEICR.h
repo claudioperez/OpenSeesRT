@@ -56,7 +56,7 @@ namespace EICR
 
     typedef std::size_t size_t;
 
-    typedef Vector3D<double> Vector3Type;
+    typedef Vector3D Vector3Type;
 
     typedef std::vector<Vector3Type> NodeContainerType;
 

@@ -20,7 +20,6 @@ G3Parse_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int argc
   int argi = 2;
   int dispFlag = 1;
   double dData[2];
-  int numData = 2;
   for (; argi < 4; argi++)
     if (Tcl_GetDouble(interp, argv[argi], &dData[argi-2]) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid arg at position '" << argi << "'. Expected:\n";

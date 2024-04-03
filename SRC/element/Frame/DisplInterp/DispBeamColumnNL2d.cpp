@@ -1490,7 +1490,7 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
   }
 
   // section response -
-  else if (strstr(argv[0],"sectionX") != 0) {
+  else if (strcmp(argv[0],"sectionX") == 0) {
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
@@ -1516,7 +1516,7 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
       theResponse = theSections[sectionNum]->setResponse(&argv[2], argc-2, output);
     }
   }
-  else if (strstr(argv[0],"section") != 0) {
+  else if (strcmp(argv[0],"section") == 0) {
 
     if (argc > 1) {
 
@@ -1533,6 +1533,7 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
 
         if (strcmp(argv[2],"dsdh") != 0) {
           theResponse = theSections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
+
         } else {
           int order = theSections[sectionNum-1]->getOrder();
           theResponse = new ElementResponse(this, 76, Vector(order));
@@ -2136,10 +2137,9 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
 
       continue;
 
-      double si;
       for(int j = 0; j < order; j++) {
+        double si = s(j)*wt[i];
         switch(code(j)) {
-          si = s(j)*wt[i];
         case SECTION_RESPONSE_P:
           dqdh(0) += -dLdh/(L*L);
           dqdh(1) += (-6*xi[i]+4.0)*xi[i]/L*theta*si*L*dLdh;

@@ -59,13 +59,16 @@ RaynorBackbone::getStress (double strain)
 {
   double Epsilony = fy/Es;
   double fsh = fy + (Epsilonsh - Epsilony)*Ey;
+
   if( fabs(strain) <= Epsilony )
     return Es*strain;
-  else if( strain> Epsilony && strain<=Epsilonsh )
-    return fy+(strain-Epsilony)*Ey;
-  else if( strain<-Epsilony && strain>=-Epsilonsh )
+  else if ( strain> Epsilony && strain<=Epsilonsh )
+    return  fy+(strain-Epsilony)*Ey;
+
+  else if ( strain<-Epsilony && strain>=-Epsilonsh )
     return -fy+(strain+Epsilony)*Ey;
-  else if( strain>Epsilonsh && strain<=Epsilonsm )
+
+  else if ( strain>Epsilonsh && strain<=Epsilonsm )
   {
      return fsu-(fsu-fsh)*pow((Epsilonsm-strain)/(Epsilonsm-Epsilonsh),C1);
   }
@@ -75,7 +78,7 @@ RaynorBackbone::getStress (double strain)
   }
   else if (strain < -Epsilonsm)
     return -fsu;
-  else if (strain > Epsilonsm)
+  else // if (strain > Epsilonsm)
     return fsu;
 }
 

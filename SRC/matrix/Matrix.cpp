@@ -1360,7 +1360,7 @@ Matrix::operator/(double fact) const
 // MATRIX_VECTOR OPERATIONS
 //
 Vector
-Matrix::operator*(const Vector3D<double> &V) const
+Matrix::operator*(const Vector3D &V) const
 {
     Vector result(numRows);
 

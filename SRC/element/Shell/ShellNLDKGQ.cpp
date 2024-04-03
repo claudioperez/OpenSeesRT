@@ -1588,7 +1588,7 @@ void ShellNLDKGQ::updateBasis()
   //and use those as basis vectors but this is easier
   //and the shell is flat anyway.
 
-  Vector3D<double> coor[4];
+  Vector3D coor[4];
   for (int i=0; i<4; i++) {
     coor[i] = nodePointers[i]->getCrds();
     const Vector& displ = nodePointers[i]->getTrialDisp();

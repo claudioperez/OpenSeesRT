@@ -1349,6 +1349,7 @@ XmlFileStream::mergeXML()
       if (data != 0)
         delete [] data;
     }
+
   } else  if (sendSelfCount > 0) {      
 
       ifstream theFile0;
@@ -1356,7 +1357,7 @@ XmlFileStream::mergeXML()
       theFile0.open(fileName, ios::in);
 
       int fileNameLength = int(strlen(fileName));
-      sprintf(&fileName[fileNameLength-2],"");
+      fileName[fileNameLength-2] = '\0';
       
       theFile.open(fileName, ios::out);
       fileOpen = 1;

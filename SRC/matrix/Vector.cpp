@@ -1087,31 +1087,26 @@ Vector operator*(double a, const Vector &V)
 int
 Vector::Assemble(const Vector &V, int init_pos, double fact) 
 {
-  int res = 0;
-  int cur_pos   = init_pos;  
-  int final_pos = init_pos + V.sz - 1;
-  
-  assert((init_pos >= 0) && (final_pos < sz));
+  assert((init_pos >= 0) && ((init_pos + V.sz - 1) < sz));
 
+  int cur_pos = init_pos;
   for (int j=0; j<V.sz; j++) 
      (*this)(cur_pos++) += V(j)*fact;
 
-  return res;
+  return 0;
 }
 
 int
 Vector::Extract(const Vector &V, int init_pos, double fact) 
 {
-  int res = 0;
-  int cur_pos   = init_pos;  
-  int final_pos = init_pos + sz - 1;
-  
-  assert((init_pos >= 0) && (final_pos < V.sz));
 
+  assert((init_pos >= 0) && ((init_pos + sz - 1) < V.sz));
+
+  int cur_pos   = init_pos;  
   for (int j=0; j<sz; j++) 
      (*this)(j) = V(cur_pos++)*fact;
 
-  return res;
+  return 0;
 }
 
 Matrix

@@ -726,68 +726,70 @@ int SPSW02::sendSelf(int commitTag, Channel & theChannel)
 
 int SPSW02::recvSelf(int commitTag, Channel & theChannel, FEM_ObjectBroker & theBroker)
 {
-	int res = 0;
-	static Vector data(38);
-	res = theChannel.recvVector(this->getDbTag(), commitTag, data);
+    int res = 0;
+    static Vector data(38);
+    res = theChannel.recvVector(this->getDbTag(), commitTag, data);
 
-	if (res < 0) {
-		opserr << "SPSW02::recvSelf() - failed to receive data\n";
-		this->setTag(0);
-		return res;
-	}
-	this->setTag(int(data(0)));
-	t = data(1);
-	hs = data(2);
-	l = data(3);
-	fpy = data(4);
-	E0 = data(5);
-	b = data(6);
-	R = data(7);
-	Fts = data(8);
-	Fcs = data(9);
-	FTS = data(10);
-	FCS = data(11);
-	epsPCFac = data(12);
-	pstcpEFac = data(13);
-	gama = data(14);
-	FailEnerg = data(15);
-	c = data(16);
-	resFac = data(17);
-	givenParams = data(18);
-	cmpUnldngEFac = data(19);
-	sigTEFac = data(20);
-	sigTFfac = data(21);
-	epsTFfac = data(22);
-	epsmaxP = data(23);
-	sigmaxP = data(24);
-	epss0P = data(25);
-	sigs0P = data(26);
-	epssrP = data(27);
-	sigsrP = data(28);
-	epsTFP = data(29);
-	plstrP = data(30);
-	konP = data(31);
-	epsP = data(32);
-	sigP = data(33);
-	eP = data(34);
-	excurEnergP = data(35);
-	totalEnergP = data(36);
-	betaP = data(37);
-	epsmax = epsmaxP;
-	sigmax = sigmaxP;
-	epss0 = epss0P;
-	sigs0 = sigs0P;
-	epsr = epssrP;
-	sigr = sigsrP;
-	epsTF = epsTFP;
-	plstr = plstrP;
-	kon = konP;
-	eps = epsP;
-	sig = sigP;
-	e = eP;
-	excurEnerg = excurEnergP;
-	totalEnerg = totalEnergP;
-	beta = betaP;
+    if (res < 0) {
+        opserr << "SPSW02::recvSelf() - failed to receive data\n";
+        this->setTag(0);
+        return res;
+    }
+    this->setTag(int(data(0)));
+    t = data(1);
+    hs = data(2);
+    l = data(3);
+    fpy = data(4);
+    E0 = data(5);
+    b = data(6);
+    R = data(7);
+    Fts = data(8);
+    Fcs = data(9);
+    FTS = data(10);
+    FCS = data(11);
+    epsPCFac = data(12);
+    pstcpEFac = data(13);
+    gama = data(14);
+    FailEnerg = data(15);
+    c = data(16);
+    resFac = data(17);
+    givenParams = data(18);
+    cmpUnldngEFac = data(19);
+    sigTEFac = data(20);
+    sigTFfac = data(21);
+    epsTFfac = data(22);
+    epsmaxP = data(23);
+    sigmaxP = data(24);
+    epss0P = data(25);
+    sigs0P = data(26);
+    epssrP = data(27);
+    sigsrP = data(28);
+    epsTFP = data(29);
+    plstrP = data(30);
+    konP = data(31);
+    epsP = data(32);
+    sigP = data(33);
+    eP = data(34);
+    excurEnergP = data(35);
+    totalEnergP = data(36);
+    betaP = data(37);
+    epsmax = epsmaxP;
+    sigmax = sigmaxP;
+    epss0 = epss0P;
+    sigs0 = sigs0P;
+    epsr = epssrP;
+    sigr = sigsrP;
+    epsTF = epsTFP;
+    plstr = plstrP;
+    kon = konP;
+    eps = epsP;
+    sig = sigP;
+    e = eP;
+    excurEnerg = excurEnergP;
+    totalEnerg = totalEnergP;
+    beta = betaP;
+
+    return res;
 }
 
 void SPSW02::Print(OPS_Stream & s, int flag)
