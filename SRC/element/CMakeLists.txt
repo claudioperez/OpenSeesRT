@@ -109,3 +109,4 @@ add_subdirectory(community/HUelements)
 add_subdirectory(community/XMUelements)
 add_subdirectory(community/UWelements)
 
+add_subdirectory(mefi)
