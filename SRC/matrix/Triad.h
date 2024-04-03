@@ -30,7 +30,7 @@ struct Triad {
   }
 
   constexpr inline
-  const Vector3D<double>& operator[](int i) const {
+  const Vector3D& operator[](int i) const {
     return e[i-1];
   }
 
@@ -39,6 +39,6 @@ struct Triad {
     return e[i-1][j];
   }
 
-  const Vector3D<double> e[3];
+  const Vector3D e[3];
 };
 #endif // Triad_H
