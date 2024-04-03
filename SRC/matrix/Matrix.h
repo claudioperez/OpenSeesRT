@@ -42,7 +42,7 @@ namespace OpenSees {
   template<int n, typename T> struct VectorND;
   template<int, int, typename T> struct MatrixND;
 };
-template <typename T> class Vector3D;
+class Vector3D;
 
 
 class Matrix
@@ -143,7 +143,7 @@ class Matrix
     // Matrix-vector operations
     Vector operator^(const Vector           &V) const;
     Vector operator*(const Vector           &V) const;
-    Vector operator*(const Vector3D<double> &V) const;
+    Vector operator*(const Vector3D &V) const;
 
     
     // matrix-matrix operations
