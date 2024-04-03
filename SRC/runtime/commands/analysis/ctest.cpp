@@ -59,7 +59,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
   double tol2    = 0.0;
 //double tolp    = 0.0;
 //double tolp2   = 0.0;
-  double tolrel  = 0.0;
+//double tolrel  = 0.0;
 //double tolprel = 0.0;
   double maxTol  = OPS_MAXTOL;
 
