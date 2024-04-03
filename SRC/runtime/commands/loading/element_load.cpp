@@ -1386,4 +1386,5 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // if get here we have successfully created the load and added it to the domain
+  return TCL_OK;
 }
