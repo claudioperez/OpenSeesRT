@@ -339,13 +339,13 @@ BeamColumnwLHNMYS::commitState()
 int
 BeamColumnwLHNMYS::revertToLastCommit()
 {
-    return theCoordTransf->revertToLastCommit();
+  return theCoordTransf->revertToLastCommit();
 }
 
 int
 BeamColumnwLHNMYS::revertToStart()
 {
-    return theCoordTransf->revertToStart();
+  return theCoordTransf->revertToStart();
 }
 
 int
@@ -648,7 +648,8 @@ BeamColumnwLHNMYS::update(void)
             Ra = alphapast - alpha + Dbeta;
             Rb = qbpast - qb + (Hk*g*Dbeta);
             DW = fabs((DDq^Rv) + (DDbeta^yftr) + (Dalpha^Ra) + (Dqb^Rb));
-            if (iter==1) DW0 = std::max(DW,1e-6);
+            if (iter==1) 
+              DW0 = std::max(DW,1e-6);
             DWr = DW/DW0;
         }
         // Update plastic deformation
