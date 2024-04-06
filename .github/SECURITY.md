@@ -1,3 +1,3 @@
 # Reporting Security Issues
 
-Open and issue.
+Open an issue on Github.
