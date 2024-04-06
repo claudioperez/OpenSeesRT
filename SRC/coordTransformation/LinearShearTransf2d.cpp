@@ -2,13 +2,13 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 ** ****************************************************************** */
-// 
-// Modified: May 2001 for matrix-multiply unrolling
 //
 // Purpose: This file contains the implementation for the 
 // LinearShearTransf2d class. LinearShearTransf2d is a linear
 // transformation for a planar frame between the global 
 // and basic coordinate systems
+// 
+// Modified: May 2001 for matrix-multiply unrolling
 //
 #include <ID.h>
 #include <Vector.h>
@@ -26,7 +26,7 @@ Matrix LinearShearTransf2d::kg(6,6);
 
 // constructor:
 LinearShearTransf2d::LinearShearTransf2d(int tag):
-  CrdTransf(tag, CRDTR_TAG_LinearShearTransf2d),
+  FrameTransform(tag, CRDTR_TAG_LinearShearTransf2d),
   nodeIPtr(0), nodeJPtr(0),
   nodeIOffset(0), nodeJOffset(0),
   cosTheta(0), sinTheta(0), L(0)
@@ -38,7 +38,7 @@ LinearShearTransf2d::LinearShearTransf2d(int tag):
 LinearShearTransf2d::LinearShearTransf2d(int tag,
                      const Vector &rigJntOffset1,
                      const Vector &rigJntOffset2):
-  CrdTransf(tag, CRDTR_TAG_LinearShearTransf2d),
+  FrameTransform(tag, CRDTR_TAG_LinearShearTransf2d),
   nodeIPtr(0), nodeJPtr(0),
   nodeIOffset(0), nodeJOffset(0),
   cosTheta(0), sinTheta(0), L(0)
@@ -72,7 +72,7 @@ LinearShearTransf2d::LinearShearTransf2d(int tag,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 LinearShearTransf2d::LinearShearTransf2d():
-  CrdTransf(0, CRDTR_TAG_LinearShearTransf2d),
+  FrameTransform(0, CRDTR_TAG_LinearShearTransf2d),
   nodeIPtr(0), nodeJPtr(0),
   nodeIOffset(0), nodeJOffset(0),
   cosTheta(0), sinTheta(0), L(0)

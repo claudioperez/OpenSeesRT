@@ -38,28 +38,29 @@
 #include <math.h>
 #include <elementAPI.h>
 
-void* OPS_ConcentratedPlasticityBeamIntegration(int& integrationTag, ID& secTags)
+void*
+OPS_ConcentratedPlasticityBeamIntegration(int& integrationTag, ID& secTags)
 {
     if(OPS_GetNumRemainingInputArgs() < 4) {
-	opserr<<"insufficient arguments:integrationTag,secTagI,secTagJ,secTagE\n";
-	return 0;
+      opserr<<"insufficient arguments:integrationTag,secTagI,secTagJ,secTagE\n";
+      return 0;
     }
 
     // inputs: 
     int iData[4];
     int numData = 2;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {   
-	opserr << "WARNING: failed to get tag and secTagI\n";
-	return 0;
+      opserr << "WARNING: failed to get tag and secTagI\n";
+      return 0;
     }
     numData = 1;
     if(OPS_GetIntInput(&numData,&iData[2]) < 0) {
-	opserr << "WARNING: failed to get secTagJ\n";
-	return 0;
+      opserr << "WARNING: failed to get secTagJ\n";
+      return 0;
     }
     if(OPS_GetIntInput(&numData,&iData[3]) < 0) {
-	opserr << "WARNING: failed to get secTagE\n";
-	return 0;
+      opserr << "WARNING: failed to get secTagE\n";
+      return 0;
     }
 
     
@@ -72,10 +73,6 @@ void* OPS_ConcentratedPlasticityBeamIntegration(int& integrationTag, ID& secTags
     secTags(3) = iData[3];
     secTags(4) = iData[2];
 
-
-    
-    
-    
     return new ConcentratedPlasticityBeamIntegration();
 }
 
@@ -83,8 +80,6 @@ ConcentratedPlasticityBeamIntegration::ConcentratedPlasticityBeamIntegration():
   BeamIntegration(BEAM_INTEGRATION_TAG_ConcentratedPlasticity)
 {
   // Nothing to do
-
-
 }
 
 ConcentratedPlasticityBeamIntegration::~ConcentratedPlasticityBeamIntegration()
@@ -94,9 +89,9 @@ ConcentratedPlasticityBeamIntegration::~ConcentratedPlasticityBeamIntegration()
 
 void
 ConcentratedPlasticityBeamIntegration::getSectionLocations(int numSections, double L,
-					       double *xi)
+                           double *xi) const
 {
-	
+    
     // section locations
     xi[0] = 0.0; // node I
     xi[1] = 0.0; // elastic
@@ -107,10 +102,10 @@ ConcentratedPlasticityBeamIntegration::getSectionLocations(int numSections, doub
 
 void
 ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double L,
-					     double *wt)
+                         double *wt) const
 {
-	double oneOverL = 1.0/L;
-	int N = 5 ;
+    double oneOverL = 1.0/L;
+    int N = 5 ;
     
     // start with the two end nodes at the first two indices, then put them back
     Vector pt(N);
@@ -127,19 +122,19 @@ ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double
     wc[1] = 1.0*oneOverL; // node J
 
     // fill in the rest using low-order integration:
-	int nf = N-nc;
+    int nf = N-nc;
     Vector R(nf);
     for (int i = 0; i < nf; i++) {
-    	double sum = 0.0;
-    	for (int j = 0; j < nc; j++)
-	    sum += pow(pt(j),i)*wc(j);
-	R(i) = 1.0/(i+1) - sum;
+        double sum = 0.0;
+        for (int j = 0; j < nc; j++)
+          sum += pow(pt(j),i)*wc(j);
+        R(i) = 1.0/(i+1) - sum;
     }
     
     Matrix J(nf,nf);
     for (int i = 0; i < nf; i++)
       for (int j = 0; j < nf; j++)
-	J(i,j) = pow(pt(nc+j),i);
+        J(i,j) = pow(pt(nc+j),i);
     
     Vector wf(nf);
     
@@ -157,7 +152,6 @@ ConcentratedPlasticityBeamIntegration::getSectionWeights(int numSections, double
 BeamIntegration*
 ConcentratedPlasticityBeamIntegration::getCopy(void)
 {
-
   return new ConcentratedPlasticityBeamIntegration();
 }
 
@@ -182,7 +176,7 @@ ConcentratedPlasticityBeamIntegration::sendSelf(int cTag, Channel &theChannel)
 
 int
 ConcentratedPlasticityBeamIntegration::recvSelf(int cTag, Channel &theChannel,
-				  FEM_ObjectBroker &theBroker)
+                  FEM_ObjectBroker &theBroker)
 {
   static Vector data(2);
 
@@ -192,53 +186,47 @@ ConcentratedPlasticityBeamIntegration::recvSelf(int cTag, Channel &theChannel,
     opserr << "ConcentratedPlasticityBeamIntegration::recvSelf() - failed to receive Vector data\n";
     return -1;
   }
-  
 
   return 0;
 }
 
 int
 ConcentratedPlasticityBeamIntegration::setParameter(const char **argv, int argc,
-				      Parameter &param)
-{
-	
-	// there really aren't any parameters that you can change!
+                      Parameter &param)
+{    
+  // there really aren't any parameters that you can change!
 
-	return 0;
+  return 0;
 }
 
 int
 ConcentratedPlasticityBeamIntegration::updateParameter(int parameterID,
-					 Information &info)
+                     Information &info)
 {
-
-	return 0;
+    return 0;
 }
 
 int
 ConcentratedPlasticityBeamIntegration::activateParameter(int paramID)
-{
-  
-
+{  
   return 0;
 }
 
 void
 ConcentratedPlasticityBeamIntegration::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "{\"type\": \"ConcentratedPlasticity\", ";
-	}
-	
-	else {
-		s << "ConcentratedPlasticity" << endln;
-	}
-	return;
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << "{\"type\": \"ConcentratedPlasticity\", ";
+    }
+    else {
+        s << "ConcentratedPlasticity" << endln;
+    }
+    return;
 }
 
 void 
 ConcentratedPlasticityBeamIntegration::getLocationsDeriv(int numSections, double L,
-					   double dLdh, double *dptsdh)
+                       double dLdh, double *dptsdh)
 {
 
     dptsdh[0] =  0.0;
@@ -259,10 +247,8 @@ ConcentratedPlasticityBeamIntegration::getLocationsDeriv(int numSections, double
 
 void
 ConcentratedPlasticityBeamIntegration::getWeightsDeriv(int numSections, double L,
-					 double dLdh, double *dwtsdh)
+                     double dLdh, double *dwtsdh)
 {
-
-
     dwtsdh[0] = 0.;
     dwtsdh[1] = 0.;
     dwtsdh[2] = 0.;

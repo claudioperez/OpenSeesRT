@@ -191,33 +191,19 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     // Retrieve section I from the model builder
-    SectionForceDeformation *sectionI = builder->getSection(secTagI);
-
-    if (sectionI == nullptr) {
-      opserr << "WARNING section I does not exist\n";
-      opserr << "section: " << secTagI;
-      opserr << "\nBeamWithHinges: " << tag << endln;
+    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
+    if (sectionI == nullptr)
       return TCL_ERROR;
-    }
 
     // Retrieve section J from the model builder
-    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
-
-    if (sectionJ == 0) {
-      opserr << "WARNING section J does not exist\n";
-      opserr << "section: " << secTagJ;
-      opserr << "\nBeamWithHinges: " << tag << endln;
+    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
+    if (sectionJ == nullptr)
       return TCL_ERROR;
-    }
 
-    CrdTransf *theTransf = builder->getCrdTransf(transfTag);
 
-    if (theTransf == 0) {
-      opserr << "WARNING geometric transformation does not exist\n";
-      opserr << "geometric transformation: " << transfTag;
-      opserr << "\nBeamWithHinges: " << tag << endln;
+    CrdTransf *theTransf = builder->getTypedObject<CrdTransf>(transfTag);
+    if (theTransf == nullptr)
       return TCL_ERROR;
-    }
 
     Element *theElement = nullptr;
     int numSections = 0;
@@ -235,6 +221,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
       sections[1] = &elastic;
       sections[2] = &elastic;
       sections[3] = sectionJ;
+
     } else if (strcmp(argv[1], "beamWithHinges2") == 0) {
       theBeamIntegr = new HingeRadauTwoBeamIntegration(lenI, lenJ);
 
@@ -272,14 +259,10 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     if (isShear) {
-      SectionForceDeformation *sectionL = builder->getSection(shearTag);
-
-      if (sectionL == nullptr) {
-        opserr << "WARNING section L does not exist\n";
-        opserr << "section: " << shearTag;
-        opserr << "\nBeamWithHinges: " << tag << endln;
+      SectionForceDeformation *sectionL = builder->getTypedObject<SectionForceDeformation>(shearTag);
+      if (sectionL == nullptr)
         return TCL_ERROR;
-      }
+
       sections[numSections++] = sectionL;
     }
 
@@ -420,7 +403,6 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
         if (strcmp(argv[i], "-shear") == 0 && ++i < argc) {
           if (Tcl_GetDouble(interp, argv[i], &shearLength) != TCL_OK) {
             opserr << "WARNING invalid shearLength\n";
-            opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
           }
         }
@@ -428,12 +410,10 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
         if (strcmp(argv[i], "-iter") == 0 && i + 2 < argc) {
           if (Tcl_GetInt(interp, argv[++i], &numIters) != TCL_OK) {
             opserr << "WARNING invalid maxIters\n";
-            opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
           }
           if (Tcl_GetDouble(interp, argv[++i], &tol) != TCL_OK) {
             opserr << "WARNING invalid tolerance\n";
-            opserr << "BeamWithHinges: " << tag << endln;
             return TCL_ERROR;
           }
         }
@@ -441,38 +421,25 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     // Retrieve section I from the model builder
-    SectionForceDeformation *sectionI = builder->getSection(secTagI);
-
-    if (sectionI == nullptr) {
-      opserr << "WARNING section I does not exist\n";
-      opserr << "section: " << secTagI;
-      opserr << "\nBeamWithHinges: " << tag << endln;
+    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
+    if (sectionI == nullptr)
       return TCL_ERROR;
-    }
 
     // Retrieve section J from the model builder
-    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
-
-    if (sectionJ == nullptr) {
-      opserr << "WARNING section J does not exist\n";
-      opserr << "section: " << secTagJ;
-      opserr << "\nBeamWithHinges: " << tag << endln;
+    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
+    if (sectionJ == nullptr)
       return TCL_ERROR;
-    }
 
-    CrdTransf *theTransf = builder->getCrdTransf(transfTag);
 
-    if (theTransf == nullptr) {
-      opserr << "WARNING geometric transformation does not exist\n";
-      opserr << "geometric transformation: " << transfTag;
-      opserr << "\nBeamWithHinges: " << tag << endln;
+    CrdTransf *theTransf = builder->getTypedObject<CrdTransf>(transfTag);
+    if (theTransf == nullptr)
       return TCL_ERROR;
-    }
 
-    Element *theElement = 0;
+
+    Element *theElement = nullptr;
     int numSections = 0;
     SectionForceDeformation *sections[10];
-    BeamIntegration *theBeamIntegr = 0;
+    BeamIntegration *theBeamIntegr = nullptr;
 
     ElasticSection3d elastic(0, E, A, Iz, Iy, G, J);
 
@@ -522,7 +489,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
     /*
     if (isShear) {
-      SectionForceDeformation *sectionL = builder->getSection(shearTag);
+      SectionForceDeformation *sectionL = builder->getTypedObject<SectionForceDeformation>(shearTag);
 
       if (sectionL == 0) {
         opserr << "WARNING section L does not exist\n";

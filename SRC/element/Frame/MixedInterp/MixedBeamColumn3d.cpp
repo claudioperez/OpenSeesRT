@@ -18,65 +18,6 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-#include <MixedBeamColumn3d.h>
-#include <elementAPI.h>
-#include <OPS_Globals.h>
-
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <float.h>
-#include <iomanip>
-
-#include <Information.h>
-#include <interpolate/cbdi.h>
-#include <Domain.h>
-#include <Channel.h>
-#include <FEM_ObjectBroker.h>
-#include <Renderer.h>
-#include <math.h>
-#include <ElementResponse.h>
-#include <ElementalLoad.h>
-#include <iostream>
-#include <fstream>
-#include <Node.h>
-#include <Message.h>
-
-#include <SectionForceDeformation.h>
-#include <BeamIntegration.h>
-#include <LobattoBeamIntegration.h>
-#include <LegendreBeamIntegration.h>
-#include <RadauBeamIntegration.h>
-#include <NewtonCotesBeamIntegration.h>
-#include <TrapezoidalBeamIntegration.h>
-#include <RegularizedHingeIntegration.h>
-
-// Constants that define the dimensionality
-#define  NDM   3                       // dimension of the problem (3d)
-#define  NND   6                       // number of nodal dof's
-#define  NEGD  12                      // number of element global dof's
-#define  NDM_SECTION  3                // number of section dof's without torsion
-#define  NDM_NATURAL  5                // number of element dof's in the basic system without torsion
-#define  NDM_NATURAL_WITH_TORSION  6   // number of element dof's in the basic system with torsion
-#define  MAX_NUM_SECTIONS  10          // maximum number of sections allowed
-
-using namespace std;
-
-
-Matrix MixedBeamColumn3d::theMatrix(NEGD,NEGD);
-Vector MixedBeamColumn3d::theVector(NEGD);
-double MixedBeamColumn3d::workArea[400];
-Matrix MixedBeamColumn3d::transformNaturalCoords(NDM_NATURAL_WITH_TORSION,NDM_NATURAL_WITH_TORSION);
-Matrix MixedBeamColumn3d::transformNaturalCoordsT(NDM_NATURAL_WITH_TORSION,NDM_NATURAL_WITH_TORSION);
-
-Vector *MixedBeamColumn3d::sectionDefShapeFcn = 0;
-Vector* MixedBeamColumn3d::sectionForceShapeFcn = 0;
-Matrix *MixedBeamColumn3d::nldhat = 0;
-Matrix *MixedBeamColumn3d::nd1 = 0;
-Matrix *MixedBeamColumn3d::nd2 = 0;
-Matrix *MixedBeamColumn3d::nd1T = 0;
-Matrix *MixedBeamColumn3d::nd2T = 0;
-
 // Documentation: Three Dimensional Mixed Beam Column Element
 // element MixedBeamColumn3d $tag $iNode $jNode $numIntgrPts $secTag $transfTag <-mass $massDens>
 //   <-integration $intType> <-doRayleigh $rFlag> <-geomNonlinear>
@@ -112,6 +53,61 @@ Matrix *MixedBeamColumn3d::nd2T = 0;
 //      (ISSN 1940-9826), Department of Civil and Environmental Engineering, University of Illinois at
 //      Urbana-Champaign, Urbana, Illinois, March.
 //
+#include <MixedBeamColumn3d.h>
+#include <elementAPI.h>
+#include <OPS_Globals.h>
+
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <float.h>
+#include <iomanip>
+
+#include <Information.h>
+#include <interpolate/cbdi.h>
+#include <Domain.h>
+#include <Channel.h>
+#include <FEM_ObjectBroker.h>
+#include <math.h>
+#include <ElementResponse.h>
+#include <ElementalLoad.h>
+#include <iostream>
+#include <fstream>
+#include <Node.h>
+#include <Message.h>
+
+#include <SectionForceDeformation.h>
+#include <BeamIntegration.h>
+#include <LobattoBeamIntegration.h>
+#include <LegendreBeamIntegration.h>
+#include <RadauBeamIntegration.h>
+#include <NewtonCotesBeamIntegration.h>
+#include <TrapezoidalBeamIntegration.h>
+#include <RegularizedHingeIntegration.h>
+
+// Constants that define the dimensionality
+#define  NDM   3                       // dimension of the problem (3d)
+#define  NND   6                       // number of nodal dof's
+#define  NEGD  12                      // number of element global dof's
+#define  NDM_SECTION  3                // number of section dof's without torsion
+#define  NDM_NATURAL  5                // number of element dof's in the basic system without torsion
+#define  NDM_NATURAL_WITH_TORSION  6   // number of element dof's in the basic system with torsion
+#define  MAX_NUM_SECTIONS  10          // maximum number of sections allowed
+
+
+Matrix MixedBeamColumn3d::theMatrix(NEGD,NEGD);
+Vector MixedBeamColumn3d::theVector(NEGD);
+double MixedBeamColumn3d::workArea[400];
+Matrix MixedBeamColumn3d::transformNaturalCoords(NDM_NATURAL_WITH_TORSION,NDM_NATURAL_WITH_TORSION);
+Matrix MixedBeamColumn3d::transformNaturalCoordsT(NDM_NATURAL_WITH_TORSION,NDM_NATURAL_WITH_TORSION);
+
+Vector *MixedBeamColumn3d::sectionDefShapeFcn = 0;
+Vector* MixedBeamColumn3d::sectionForceShapeFcn = 0;
+Matrix *MixedBeamColumn3d::nldhat = 0;
+Matrix *MixedBeamColumn3d::nd1 = 0;
+Matrix *MixedBeamColumn3d::nd2 = 0;
+Matrix *MixedBeamColumn3d::nd1T = 0;
+Matrix *MixedBeamColumn3d::nd2T = 0;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumn3d) 
 {
@@ -154,14 +150,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumn3d)
   int beamIntTag = iData[4];
 
   // Get the coordinate transformation
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING geometric transformation with tag " << transfTag << "not found for element " << eleTag << endln;
     return 0;
   }
 
   // Get beam integrataion
-  BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", beamIntTag));
+  BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(beamIntTag);
   if(theRule == 0) {
     opserr<<"beam integration not found\n";
     return 0;
@@ -671,7 +667,8 @@ int MixedBeamColumn3d::commitState() {
 }
 
 
-int MixedBeamColumn3d::revertToLastCommit() {
+int MixedBeamColumn3d::revertToLastCommit() 
+{
   int err;
   int i = 0;
 
@@ -756,14 +753,14 @@ int MixedBeamColumn3d::revertToStart()
   // Set initial and committed section flexibility and GJ
   Matrix ks(NDM_SECTION,NDM_SECTION);
   double GJ;
-  for ( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     getSectionTangent(i,2,ks,GJ);
     ks.Invert(sectionFlexibility[i]);
     commitedSectionFlexibility[i] = sectionFlexibility[i];
   }
 
   // Set initial and committed section forces and deformations
-  for ( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     sectionForceFibers[i].Zero();
     commitedSectionForceFibers[i].Zero();
     sectionDefFibers[i].Zero();
@@ -786,7 +783,7 @@ int MixedBeamColumn3d::revertToStart()
   H22.Zero();
   Md.Zero();
   Kg.Zero();
-  for( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     G   = G   + initialLength * wt[i] * nd1T[i] * nldhat[i];
     G2  = G2  + initialLength * wt[i] * nd2T[i] * nldhat[i];
     H   = H   + initialLength * wt[i] * nd1T[i] * sectionFlexibility[i] * nd1[i];
@@ -808,8 +805,8 @@ int MixedBeamColumn3d::revertToStart()
   // Compute the transposes of the following matrices: G2, GMH
   Matrix G2T(NDM_NATURAL,NDM_NATURAL);
   Matrix GMHT(NDM_NATURAL,NDM_NATURAL);
-  for( i = 0; i < NDM_NATURAL; i++ ){
-    for( j = 0; j < NDM_NATURAL; j++ ){
+  for(int i = 0; i < NDM_NATURAL; i++ ){
+    for(int j = 0; j < NDM_NATURAL; j++ ){
       G2T(i,j) = G2(j,i);
       GMHT(i,j) = GMH(j,i);
     }
@@ -822,8 +819,8 @@ int MixedBeamColumn3d::revertToStart()
 
   // Add in the torsional stiffness term
   kv.Zero();
-  for( i = 0; i < NDM_NATURAL; i++ ) {
-    for( j = 0; j < NDM_NATURAL; j++ ) {
+  for (int i = 0; i < NDM_NATURAL; i++ ) {
+    for (int j = 0; j < NDM_NATURAL; j++ ) {
       kv(i,j) = K_temp_noT(i,j);
     }
   }
@@ -859,9 +856,9 @@ int MixedBeamColumn3d::revertToStart()
 
 const Matrix & MixedBeamColumn3d::getInitialStiff(void) {
   // If things haven't be initialized, then do so
-  if (initialFlag == 0) {
+  if (initialFlag == 0)
     this->revertToStart();
-  }
+
   return *Ki;
 }
 
@@ -888,8 +885,6 @@ int MixedBeamColumn3d::update() {
     this->revertToStart();
   }
 
-  int i,j,k; // integers for loops
-
   // Update iteration counter
   // says how many times update has been called since the last commit state
   itr++;
@@ -911,9 +906,9 @@ int MixedBeamColumn3d::update() {
     // convert to the arrangement of natural deformations that the element likes
 
   Vector naturalDisp(NDM_NATURAL);
-  for ( i = 0; i < NDM_NATURAL; i++ ) {
+  for (int i = 0; i < NDM_NATURAL; i++ )
     naturalDisp(i) = naturalDispWithTorsion(i); //all but the torsional component
-  }
+
   double twist = naturalDispWithTorsion(5);
 
   Vector naturalIncrDeltaDisp(NDM_NATURAL);
@@ -924,15 +919,12 @@ int MixedBeamColumn3d::update() {
   double wt[MAX_NUM_SECTIONS]; // weights of sections or gauss points of integration points
   beamIntegr->getSectionWeights(numSections, initialLength, wt);
 
-  // Define Variables
-  double GJ;
-  double torsionalForce;
-  for ( i = 0; i < numSections; i++ ) {
+
+  for (int i = 0; i < numSections; i++ )
     sectionForceShapeFcn[i] = Vector(NDM_SECTION);
-  }
 
   // Compute shape functions and their transposes
-  for ( i = 0; i < numSections; i++ ){
+  for (int i = 0; i < numSections; i++ ){
     // Shape Functions
     nldhat[i] = this->getNld_hat(i, naturalDisp, currentLength, geomLinear);
     sectionDefShapeFcn[i] = this->getd_hat(i, naturalDisp, currentLength, geomLinear);
@@ -944,8 +936,8 @@ int MixedBeamColumn3d::update() {
     }
 
     // Transpose of shape functions
-    for( j = 0; j < NDM_SECTION; j++ ){
-      for( k = 0; k < NDM_NATURAL; k++ ){
+    for(int j = 0; j < NDM_SECTION; j++ ){
+      for(int k = 0; k < NDM_NATURAL; k++ ){
         nd1T[i](k,j) = nd1[i](j,k);
         nd2T[i](k,j) = nd2[i](j,k);
       }
@@ -960,13 +952,14 @@ int MixedBeamColumn3d::update() {
   }
 
 
+  double GJ, torsionalForce;
   // Update sections
-  for ( i = 0; i < numSections; i++){
+  for (int i = 0; i < numSections; i++){
     // Compute section deformations
     sectionForceShapeFcn[i] = nd1[i] * naturalForce;
     if (sp != 0) {
       const Matrix &s_p = *sp;
-      for ( j = 0; j < NDM_SECTION; j++ ) {
+      for (int j = 0; j < NDM_SECTION; j++ ) {
         sectionForceShapeFcn[i](j) += s_p(j,i);
       }
     }
@@ -979,9 +972,8 @@ int MixedBeamColumn3d::update() {
     // Get section force vector
     double tempTorsionalForce;
     getSectionStress(i,sectionForceFibers[i],tempTorsionalForce);
-    if (i == 0) {
+    if (i == 0)
       torsionalForce = tempTorsionalForce;
-    }
 
     // Get section tangent matrix
     Matrix ks(NDM_SECTION,NDM_SECTION);
@@ -1011,7 +1003,7 @@ int MixedBeamColumn3d::update() {
   Md.Zero();
   Kg.Zero();
 
-  for( i = 0; i < numSections; i++ ){
+  for(int i = 0; i < numSections; i++ ){
     V   = V   + initialLength * wt[i] * nd1T[i] * (sectionDefShapeFcn[i] - sectionDefFibers[i] - sectionFlexibility[i] * ( sectionForceShapeFcn[i] - sectionForceFibers[i] ) );
     V2  = V2  + initialLength * wt[i] * nd2T[i] * (sectionDefShapeFcn[i] - sectionDefFibers[i]);
     G   = G   + initialLength * wt[i] * nd1T[i] * nldhat[i];
@@ -1037,8 +1029,8 @@ int MixedBeamColumn3d::update() {
   Matrix GT(NDM_NATURAL,NDM_NATURAL);
   Matrix G2T(NDM_NATURAL,NDM_NATURAL);
   Matrix GMHT(NDM_NATURAL,NDM_NATURAL);
-  for( i = 0; i < NDM_NATURAL; i++ ){
-    for( j = 0; j < NDM_NATURAL; j++ ){
+  for (int i = 0; i < NDM_NATURAL; i++ ){
+    for (int j = 0; j < NDM_NATURAL; j++ ){
       GT(i,j) = G(j,i);
       G2T(i,j) = G2(j,i);
       GMHT(i,j) = GMH(j,i);
@@ -1056,9 +1048,9 @@ int MixedBeamColumn3d::update() {
   }
 
   // Compute internal force for OpenSees ( i.e., add torsion and rearrange )
-  for ( i = 0; i < NDM_NATURAL; i++ ) {
+  for (int i = 0; i < NDM_NATURAL; i++ )
     internalForceOpenSees(i) = internalForce(i);
-  }
+
   internalForceOpenSees(5) = torsionalForce; // Add in torsional force
   internalForceOpenSees = transformNaturalCoordsT*internalForceOpenSees;
 
@@ -1072,8 +1064,8 @@ int MixedBeamColumn3d::update() {
 
   // Add in the torsional stiffness term
   kv.Zero();
-  for( i = 0; i < NDM_NATURAL; i++ ) {
-    for( j = 0; j< NDM_NATURAL; j++ ) {
+  for (int i = 0; i < NDM_NATURAL; i++ ) {
+    for (int j = 0; j< NDM_NATURAL; j++ ) {
       kv(i,j) = K_temp(i,j);
     }
   }
@@ -1154,8 +1146,7 @@ int MixedBeamColumn3d::addLoad(ElementalLoad *theLoad, double loadFactor) {
 
     // Accumulate reactions in basic system
     p0[0] -= wx*L;
-    double V;
-    V = 0.5*wy*L;
+    double V = 0.5*wy*L;
     p0[1] -= V;
     p0[2] -= V;
     V = 0.5*wz*L;
@@ -1422,15 +1413,6 @@ Response* MixedBeamColumn3d::setResponse(const char **argv, int argc,
     else
       theResponse = new ElementResponse(this, 111, Matrix(numSections,3));
   }
-  
-    else if (strcmp(argv[0],"xaxis") == 0 || strcmp(argv[0],"xlocal") == 0)
-      theResponse = new ElementResponse(this, 201, Vector(3));
-
-    else if (strcmp(argv[0],"yaxis") == 0 || strcmp(argv[0],"ylocal") == 0)
-      theResponse = new ElementResponse(this, 202, Vector(3));
-
-    else if (strcmp(argv[0],"zaxis") == 0 || strcmp(argv[0],"zlocal") == 0)
-      theResponse = new ElementResponse(this, 203, Vector(3));  
 
   else if (strcmp(argv[0],"section") ==0) {
     if (argc > 2) {
@@ -1452,6 +1434,9 @@ Response* MixedBeamColumn3d::setResponse(const char **argv, int argc,
       }
     }
   }
+
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
 
   output.endTag();
   return theResponse;
@@ -1619,26 +1604,13 @@ int MixedBeamColumn3d::getResponse(int responseID, Information &eleInfo) {
     }
     return eleInfo.setMatrix(disps);
   }
-  
-  else if (responseID >= 201 && responseID <= 203) {
-    static Vector xlocal(3);
-    static Vector ylocal(3);
-    static Vector zlocal(3);
-
-    crdTransf->getLocalAxes(xlocal,ylocal,zlocal);
-    
-    if (responseID == 201)
-      return eleInfo.setVector(xlocal);
-    if (responseID == 202)
-      return eleInfo.setVector(ylocal);
-    if (responseID == 203)
-      return eleInfo.setVector(zlocal);    
-  }
 
   return -1;
 }
 
-Vector MixedBeamColumn3d::getd_hat(int sec, const Vector &v, double L, bool geomLinear) {
+Vector
+MixedBeamColumn3d::getd_hat(int sec, const Vector &v, double L, bool geomLinear) 
+{
   double xi[MAX_NUM_SECTIONS];
   beamIntegr->getSectionLocations(numSections, L, xi);
 
@@ -1676,7 +1648,9 @@ Vector MixedBeamColumn3d::getd_hat(int sec, const Vector &v, double L, bool geom
   return D_hat;
 }
 
-Matrix MixedBeamColumn3d::getKg(int sec, double P, double L) {
+Matrix
+MixedBeamColumn3d::getKg(int sec, double P, double L) 
+{
   double xi[MAX_NUM_SECTIONS];
   beamIntegr->getSectionLocations(numSections, L, xi);
 
@@ -1988,13 +1962,3 @@ int MixedBeamColumn3d::recvSelf(int commitTag, Channel &theChannel,
   return -1;
 }
 
-int MixedBeamColumn3d::displaySelf(Renderer& theViewer, int displayMode, float fact, const char** modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}

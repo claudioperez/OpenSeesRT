@@ -69,7 +69,6 @@ int
 SymArpackSOE::setSize(Graph &theGraph)
 {
     int result = 0;
-    int oldSize = size;
     size = theGraph.getNumVertex();
 
     // fist itearte through the vertices of the graph to get nnz
@@ -204,12 +203,11 @@ SymArpackSOE::addA(const Matrix &m, const ID &id, double fact)
 	       newID[i] = invp[newID[i]];
     }
        
-   long int  i_eq, j_eq, iadd;
+   long int  i_eq, j_eq;
    int  j, nee, lnee;
    int  k, ipos, jpos;
    int  it, jt;
    int  iblk;
-   int  jblk;
    OFFDBLK  *ptr;
    OFFDBLK  *saveblk;
    double  *fpt, *iloc, *loc;

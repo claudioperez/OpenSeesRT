@@ -28,16 +28,13 @@
 // Revision: A
 //
 #include <StaticIntegrator.h>
-#include <FE_Element.h>
 #include <LinearSOE.h>
 #include <AnalysisModel.h>
 #include <Vector.h>
-#include <DOF_Group.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-#include <Domain.h>
-#include <Node.h>
+#include <DOF_Group.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
 #include <DOF_Group.h>
@@ -81,7 +78,7 @@ StaticIntegrator::formEleResidual(FE_Element *theEle)
     // only elements residual needed
     theEle->zeroResidual();
     theEle->addRtoResidual();
-         return 0;
+    return 0;
 }    
 
 int

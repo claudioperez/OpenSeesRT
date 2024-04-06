@@ -104,5 +104,5 @@ Beam2dTempLoad::Print(OPS_Stream &s, int flag)
 {
   s << "Beam2dTempLoad - reference load : " << Ttop1 << " change in temp at top of node 1 : " << Tbot1 << " change in temp at bottom of node 1\n";
   s <<  Ttop2 << " change in temp at top of node 2 : " << Tbot2 << " change in temp at bottom of node 2\n";
-  s << "  element acted on: " << eleTag << endln;
+  s << "  element acted on: " << eleTag << "\n";
 }

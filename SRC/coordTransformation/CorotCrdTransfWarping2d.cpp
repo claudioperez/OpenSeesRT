@@ -41,8 +41,9 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <Node.h>
+#include <Print.h>
 #include <Channel.h>
-
+#include <OPS_ErrorStream.h>
 #include <CorotCrdTransfWarping2d.h>
 
 // initialize static variables
@@ -58,7 +59,7 @@ Matrix CorotCrdTransfWarping2d::kg(8, 8);
 CorotCrdTransfWarping2d::CorotCrdTransfWarping2d(int tag,
                                                  const Vector &rigJntOffsetI,
                                                  const Vector &rigJntOffsetJ)
-    : CrdTransf(tag, CRDTR_TAG_CorotCrdTransfWarping2d), nodeIOffset(2),
+    : FrameTransform(tag, CRDTR_TAG_CorotCrdTransfWarping2d), nodeIOffset(2),
       nodeJOffset(2), cosTheta(0), sinTheta(0), cosAlpha(0), sinAlpha(0),
       nodeIPtr(0), nodeJPtr(0), L(0), Ln(0), ub(5), ubcommit(5), ubpr(5),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
@@ -91,7 +92,7 @@ CorotCrdTransfWarping2d::CorotCrdTransfWarping2d(int tag,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransfWarping2d::CorotCrdTransfWarping2d()
-    : CrdTransf(0, CRDTR_TAG_CorotCrdTransfWarping2d), nodeIOffset(2),
+    : FrameTransform(0, CRDTR_TAG_CorotCrdTransfWarping2d), nodeIOffset(2),
       nodeJOffset(2), cosTheta(0), sinTheta(0), cosAlpha(0), sinAlpha(0),
       nodeIPtr(0), nodeJPtr(0), L(0), Ln(0), ub(5), ubcommit(5), ubpr(5),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
@@ -118,7 +119,6 @@ int
 CorotCrdTransfWarping2d::revertToLastCommit(void)
 {
   ub = ubcommit;
-
   this->update();
   return 0;
 }

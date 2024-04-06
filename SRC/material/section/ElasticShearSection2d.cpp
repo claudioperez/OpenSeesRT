@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-08-26 16:49:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticShearSection2d.cpp,v $
-
+//
+//
 #include <ElasticShearSection2d.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -205,7 +202,7 @@ ElasticShearSection2d::getCopy(void)
 }
 
 const ID&
-ElasticShearSection2d::getType(void)
+ElasticShearSection2d::getType()
 {
   return code;
 }

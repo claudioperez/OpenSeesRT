@@ -357,6 +357,10 @@
 
 #define SEC_TAG_MCFTFiberSection2d 7601
 
+#define SEC_TAG_ReinforcedConcreteLayeredMembraneSection 7701 // M. J. Nunez - UChile
+#define SEC_TAG_LayeredMembraneSection 7702 // M. J. Nunez - UChile
+#define SEC_TAG_ElasticMembraneSection 7703 // M. J. Nunez - UChile
+
 #define SECTION_INTEGRATION_TAG_WideFlange 1
 #define SECTION_INTEGRATION_TAG_RC 2
 #define SECTION_INTEGRATION_TAG_RCT 3
@@ -535,6 +539,9 @@
 #define ND_TAG_VonPapaDamage 7016
 
 #define ND_TAG_ASDConcrete3DMaterial 7017 // Massimo Petracca ASDEA Software
+
+#define ND_TAG_OrthotropicRotatingAngleConcreteT2DMaterial01 7018 // M. J. Nunez - UChile
+#define ND_TAG_SmearedSteelDoubleLayerT2DMaterial01 7019		  // M. J. Nunez - UChile
 
 #define FIBER_TAG_Uniaxial2d	1
 #define FIBER_TAG_Uniaxial3d	2
@@ -851,14 +858,15 @@
 #define ELE_TAG_IGAKLShell_BendingStrip   254 // IGA Shell by Felipe Elgueta and jaabell (UANDES) 216 because 208 was taken
 #define ELE_TAG_PFEMContact3D             255
 #define ELE_TAG_TenNodeTetrahedron        256 //by jaabell and j0selarenas (UANDES)
-#define ELE_TAG_E_SFI        			257 // C. N. Lopez
-#define ELE_TAG_TripleFrictionPendulumX               258
+#define ELE_TAG_E_SFI        		  257 // C. N. Lopez
+#define ELE_TAG_TripleFrictionPendulumX   258
 #define ELE_TAG_E_SFI_MVLEM_3D	          259259 // Kristijan Kolozvari
 #define ELE_TAG_ExternalElement           99990
 #define ELE_TAG_PML2D_3                   259
 #define ELE_TAG_PML2D_5                   260
 #define ELE_TAG_PML2D_12                  261
 #define ELE_TAG_PML2DVISCOUS              262
+#define ELE_TAG_MEFI                      270 // C. N. Lopez
 
 
 #define FRN_TAG_Coulomb            1
@@ -906,18 +914,25 @@
 #define BEAM_INTEGRATION_TAG_UserHinge3d     34
 #define BEAM_INTEGRATION_TAG_DistHinge3d     35
 
+enum {
+        CRDTR_TAG_LinearCrdTransf2d,       // 1
+        CRDTR_TAG_PDeltaCrdTransf2d,       // 2
+        CRDTR_TAG_ModerateDispCrdTransf2d, // 8
+        CRDTR_TAG_CorotCrdTransf2d,        // 3
+        CRDTR_TAG_CorotCrdTransfWarping2d, // 31
+        CRDTR_TAG_LinearCrdTransf3d,       // 4
+        CRDTR_TAG_PDeltaCrdTransf3d,       // 5
+        CRDTR_TAG_ModerateDispCrdTransf3d, // 9
+        CRDTR_TAG_CorotCrdTransf3d,        // 6
+        CRDTR_TAG_CorotCrdTransf3d02,
+        CRDTR_TAG_CorotCrdTransfWarping3d, //  61
+        CRDTR_TAG_LinearCrdTransf2dInt,    // 7
+};
 
-#define CRDTR_TAG_LinearCrdTransf2d 1
-#define CRDTR_TAG_PDeltaCrdTransf2d 2
-#define CRDTR_TAG_ModerateDispCrdTransf2d 8
-#define CRDTR_TAG_CorotCrdTransf2d  3
-#define CRDTR_TAG_CorotCrdTransfWarping2d 31
-#define CRDTR_TAG_LinearCrdTransf3d 4
-#define CRDTR_TAG_PDeltaCrdTransf3d 5
-#define CRDTR_TAG_ModerateDispCrdTransf3d 9
-#define CRDTR_TAG_CorotCrdTransf3d  6
-#define CRDTR_TAG_CorotCrdTransfWarping3d  61
-#define CRDTR_TAG_LinearCrdTransf2dInt 7
+#define DMP_TAG_UniformDamping 1
+#define DMP_TAG_SecStifDamping 2
+#define DMP_TAG_URDDamping 3
+#define DMP_TAG_URDDampingbeta 4
 
 #define DMP_TAG_UniformDamping 1
 #define DMP_TAG_SecStifDamping 2
@@ -944,9 +959,7 @@
 
 
 #define MATRIX_TAG_Matrix 	1
-
 #define VECTOR_TAG_Vector 	1
-
 #define ID_TAG_ID 		1
 
 #define HANDLER_TAG_PlainHandler 			1

@@ -1,4 +1,3 @@
-
 //
 // COPYRIGHT (C):     :-))
 // PROJECT:           Object Oriented Finite Element Program
@@ -18,13 +17,6 @@
 // DATE:              Aug. 2001
 // UPDATE HISTORY:    May 2004 Guanzhou added update()
 //
-//
-//
-//
-
-#ifndef TWENTYNODEBRICK_CPP
-#define TWENTYNODEBRICK_CPP
-
 #include <NDMaterial.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -88,28 +80,22 @@ TwentyNodeBrick::TwentyNodeBrick(int element_number,
     int total_number_of_Gauss_points = r_integration_order*s_integration_order*t_integration_order;
 
 
-    if ( total_number_of_Gauss_points != 0 )
-      {
+    if ( total_number_of_Gauss_points != 0 ) {
         matpoint  = new MatPoint3D * [total_number_of_Gauss_points];
-      }
-    else
-      {
+    } else {
         matpoint  = 0;
-      }
-    short where = 0;
+    }
 
-    for( short GP_c_r = 1 ; GP_c_r <= r_integration_order ; GP_c_r++ )
-      {
+    short where = 0;
+    for( short GP_c_r = 1 ; GP_c_r <= r_integration_order ; GP_c_r++ ) {
         double r = get_Gauss_p_c( r_integration_order, GP_c_r );
         double rw = get_Gauss_p_w( r_integration_order, GP_c_r );
 
-        for( short GP_c_s = 1 ; GP_c_s <= s_integration_order ; GP_c_s++ )
-          {
+        for( short GP_c_s = 1 ; GP_c_s <= s_integration_order ; GP_c_s++ ) {
             double s = get_Gauss_p_c( s_integration_order, GP_c_s );
             double sw = get_Gauss_p_w( s_integration_order, GP_c_s );
 
-            for( short GP_c_t = 1 ; GP_c_t <= t_integration_order ; GP_c_t++ )
-              {
+            for( short GP_c_t = 1 ; GP_c_t <= t_integration_order ; GP_c_t++ ) {
                 double t = get_Gauss_p_c( t_integration_order, GP_c_t );
                 double tw = get_Gauss_p_w( t_integration_order, GP_c_t );
 
@@ -117,21 +103,6 @@ TwentyNodeBrick::TwentyNodeBrick(int element_number,
                 // Gauss point from 3D array of short's
                 where =
                 ((GP_c_r-1)*s_integration_order+GP_c_s-1)*t_integration_order+GP_c_t-1;
-
-                //DB::printf("\n\nBefore Initialization **************** where = %d \n",where);
-                //DB::printf("GP_c_r = %d,  GP_c_s = %d,  GP_c_t = %d\n",
-                //DB            GP_c_r,GP_c_s,GP_c_t);
-                //DB
-                //DBGPstress[where].reportshort("stress within before Initialization");
-                //DBGPstrain[where].reportshort("strain within before Initialization");
-                //DB
-                //DB// I suspect that [] should be overloaded so that compiler knows which
-                //DB// material model is returning a pointer and fot the purpose
-                //DB//matpoint[where].report("mmodel within before Initialization");
-                //DB//matpoint[where].report("mmodel within before Initialization"); // operator[] overloaded
-                //DB(matpoint)->operator[](where).report("mmodel within before Initialization"); // operator[] overloaded
-                //DB                                                               // for NDMaterial and
-                //DB                                                               // derived types!
 
                 matpoint[where] = new MatPoint3D(GP_c_r,
                                                  GP_c_s,
@@ -174,7 +145,7 @@ TwentyNodeBrick::TwentyNodeBrick(int element_number,
       connectedExternalNodes(19) = node_numb_20;
 
       for (int i=0; i<20; i++)
- theNodes[i] = 0;
+        theNodes[i] = nullptr;
 
       nodes_in_brick = 20;
 
@@ -199,11 +170,10 @@ TwentyNodeBrick::~TwentyNodeBrick ()
 
     int total_number_of_Gauss_points = r_integration_order*s_integration_order*t_integration_order;
 
-    for (int i = 0; i < total_number_of_Gauss_points; i++)
-    {
+    for (int i = 0; i < total_number_of_Gauss_points; i++) {
  // Delete the NDMaterials at each integration point
- if (matpoint[i])
-    delete matpoint[i];
+     if (matpoint[i])
+        delete matpoint[i];
     }
 
     // Delete the array of pointers to NDMaterial pointer arrays
@@ -216,7 +186,7 @@ TwentyNodeBrick::~TwentyNodeBrick ()
 }
 
 void TwentyNodeBrick::incremental_Update()
-  {
+{
     double r  = 0.0;
     // double rw = 0.0;
     double s  = 0.0;
@@ -277,13 +247,7 @@ void TwentyNodeBrick::incremental_Update()
                 //....                dhGlobal.print("dh","dhGlobal");
                 //weight
                 //                weight = rw * sw * tw * det_of_Jacobian;
-                //::::::   ::printf("\n\nIN THE STIFFNESS TENSOR INTEGRATOR ----**************** where = %d \n", where);
-                //::::::   ::printf(" void TwentyNodeBrick::incremental_Update()\n");
-                //::::::   ::printf(" GP_c_r = %d,  GP_c_s = %d,  GP_c_t = %d    --->>>  where = %d \n",
-                //::::::                      GP_c_r,GP_c_s,GP_c_t,where);
-                //::::::   ::printf("WEIGHT = %f", weight);
-                //::::::   ::printf("determinant of Jacobian = %f", determinant_of_Jacobian);
-                //::::::   matpoint[where].report("Gauss Point\n");
+
                 // incremental straines at this Gauss point
                 // now in Update we know the incremental displacements so let's find
                 // the incremental strain
@@ -306,10 +270,10 @@ void TwentyNodeBrick::incremental_Update()
 
 
 //#############################################################################
-//#############################################################################
 //***************************************************************
+// Shape functions
 tensor TwentyNodeBrick::H_3D(double r1, double r2, double r3)
-  {
+{
 
     int dimension[] = {60,3};
 
@@ -403,26 +367,8 @@ tensor TwentyNodeBrick::H_3D(double r1, double r2, double r3)
     H.val(2,2) =H.val(1,1); //(1.0+r1)*(1.0+r2)*(1.0+r3)/8.0 - (H.val(36,3)+H.val(51,3)+H.val(27,3))/2.0;
     H.val(3,3) =H.val(1,1); //(1.0+r1)*(1.0+r2)*(1.0+r3)/8.0 - (H.val(36,3)+H.val(51,3)+H.val(27,3))/2.0;
 
-    //         double sum = 0;
-    //
-    //  for (int i=1; i<=60 ; i++)
-    //           {
-    // //       sum+=H.cval(i,1);
-    //      for (int j=1; j<= 1; j++)
-    //         {
-    //                   sum+=H.cval(i,1);
-    //            ::printf( "  %+9.2e", H.cval(i,j) );
-    //          }
-    //            // ::printf( "  %d \n", i);
-    //     }
-    //      ::printf( " \n sum= %+6.2e\n", sum );
-
-
-    //    printf("r1 = %lf, r2 = %lf, r3 = %lf\n", r1, r2, r3);
-    //    H.print("h");
-
     return H;
-  }
+}
 
 //#############################################################################
 //***************************************************************
@@ -462,25 +408,16 @@ tensor TwentyNodeBrick::interp_poli_at(double r1, double r2, double r3)
         h.val( 9)=(1.0-r1*r1)*(1.0+r2)*(1.0+r3)*0.25;
 
       // influence of the node number 8
-    //h.val(8)=(1.0+r1)*(1.0-r2)*(1.0-r3)/8.0 - (h.val(15)+h.val(16)+h.val(20))/2.0;
+  //h.val(8)=(1.0+r1)*(1.0-r2)*(1.0-r3)/8.0 - (h.val(15)+h.val(16)+h.val(20))/2.0;
     h.val(8)=(1.0+r1)*(1.0-r2)*(1.0-r3)*0.125 - (h.val(15)+h.val(16)+h.val(20))*0.5;
-      // influence of the node number 7
     h.val(7)=(1.0-r1)*(1.0-r2)*(1.0-r3)*0.125 - (h.val(14)+h.val(15)+h.val(19))*0.5;
-      // influence of the node number 6
     h.val(6)=(1.0-r1)*(1.0+r2)*(1.0-r3)*0.125 - (h.val(13)+h.val(14)+h.val(18))*0.5;
-      // influence of the node number 5
     h.val(5)=(1.0+r1)*(1.0+r2)*(1.0-r3)*0.125 - (h.val(13)+h.val(16)+h.val(17))*0.5;
 
-      // influence of the node number 4
     h.val(4)=(1.0+r1)*(1.0-r2)*(1.0+r3)*0.125 - (h.val(11)+h.val(12)+h.val(20))*0.5;
-      // influence of the node number 3
     h.val(3)=(1.0-r1)*(1.0-r2)*(1.0+r3)*0.125 - (h.val(10)+h.val(11)+h.val(19))*0.5;
-      // influence of the node number 2
     h.val(2)=(1.0-r1)*(1.0+r2)*(1.0+r3)*0.125 - (h.val(10)+h.val(18)+h.val( 9))*0.5;
-      // influence of the node number 1
     h.val(1)=(1.0+r1)*(1.0+r2)*(1.0+r3)*0.125 - (h.val(12)+h.val(17)+h.val( 9))*0.5;
-    //    printf("r1 = %lf, r2 = %lf, r3 = %lf\n", r1, r2, r3);
-    //    h.print("h");
 
     return h;
   }
@@ -581,7 +518,7 @@ tensor TwentyNodeBrick::dh_drst_at(double r1, double r2, double r3)
     dh.val(1,3)= (1.0+r1)*(1.0+r2)*0.125 - (dh.val(12,3)+dh.val(17,3)+dh.val( 9,3))*0.50; 
 
     return dh;
-  }
+}
 
 
 
@@ -2657,7 +2594,7 @@ int TwentyNodeBrick::commitState ()
 //out22Jan2001   }
 //out22Jan2001   else
 //out22Jan2001   {
-//out22Jan2001           st = matpoint[i]->getStressTensor();
+//out22Jan2001          st = matpoint[i]->getStressTensor();
 //out22Jan2001          prin = st.principal();
 //out22Jan2001
 //out22Jan2001   }
@@ -2708,8 +2645,7 @@ int TwentyNodeBrick::commitState ()
 int TwentyNodeBrick::revertToLastCommit ()
 {
   //  int order = theQuadRule->getOrder(); // Commented by Xiaoyan
-    int i;
-    //int j, k;     // Xiaoyan added k for three dimension
+
     int retVal = 0;
 
     // Loop over the integration points and revert to last committed material states
@@ -2720,7 +2656,7 @@ int TwentyNodeBrick::revertToLastCommit ()
                 // added t_integration_order,
      //retVal += (theMaterial[i][j][k]).revertToLastCommit();
 
-    for (i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
        retVal += matpoint[i]->revertToLastCommit();
 
 
@@ -2730,19 +2666,9 @@ int TwentyNodeBrick::revertToLastCommit ()
 //=============================================================================
 int TwentyNodeBrick::revertToStart ()
 {
-    int i;     // Xiaoyan added k for three dimension
     int retVal = 0;
-
-    // Loop over the integration points and revert to last committed material states
-    //for (i = 0; i < r_integration_order; i++)     // Xiaoyan chaneged order to
-    // for (j = 0; j < s_integration_order; j++)    // r_integration_order,
-    //     for (k = 0; k < t_integration_order; k++)    // s_integration_order, and
-          // added t_integration_order,
-    //     retVal += (theMaterial[i][j][k]).revertToLastCommit();
-
     int count  = r_integration_order* s_integration_order * t_integration_order;
-
-    for (i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
        retVal += matpoint[i]->revertToStart();
 
 
@@ -2774,9 +2700,6 @@ const Matrix &TwentyNodeBrick::getTangentStiff ()
            }
         }
      }
-
-     //opserr << " K " << K << endln;
-     //K.Output(opserr);
      return K;
 }
 
@@ -2800,28 +2723,19 @@ const Matrix &TwentyNodeBrick::getConsMass ()
      //double diag_mass = 0.0;
      double column_mass;
 
-     for ( int i=1 ; i<=nodes_in_brick*3 ; i++ )
-     {
+     for ( int i=1 ; i<=nodes_in_brick*3 ; i++ ) {
         column_mass = 0.0;
- for ( int j=1 ; j<=nodes_in_brick*3 ; j++ )
-        {
+        for ( int j=1 ; j<=nodes_in_brick*3 ; j++ ) {
+          //M( i-1 , j-1 ) = masstensor.cval(i,j);
 
-    //M( i-1 , j-1 ) = masstensor.cval(i,j);
-
-    column_mass += masstensor.cval(i,j);
-    M( i-1 , j-1 ) = 0;
-    //tot_mass += M( i-1 , j-1 );
-    //if (i == j)
-    //   diag_mass += M( i-1 , j-1 );
+          column_mass += masstensor.cval(i,j);
+          M( i-1 , j-1 ) = 0;
+          //tot_mass += M( i-1 , j-1 );
+          //if (i == j)
+          //   diag_mass += M( i-1 , j-1 );
         }
- M( i-1 , i-1 ) = column_mass;
-
+        M( i-1 , i-1 ) = column_mass;
      }
-
-     //opserr << " tot_mass= "<< tot_mass << " column_mass =" << column_mass << " diag_mass= " <<  diag_mass << endln;
-     //opserr << "" << M.Output(opserr);
-     //opserr << " M " << M;
-
      return M;
 }
 
@@ -2841,23 +2755,18 @@ const Matrix &TwentyNodeBrick::getMass ()
      for ( int i=1 ; i<=nodes_in_brick*3 ; i++ )
      {
         //column_mass = 0.0;
- for ( int j=1 ; j<=nodes_in_brick*3 ; j++ )
-        {
-    M( i-1 , j-1 ) = masstensor.cval(i,j);
+        for ( int j=1 ; j<=nodes_in_brick*3 ; j++ ) {
+          M( i-1 , j-1 ) = masstensor.cval(i,j);
 
-    //column_mass += masstensor.cval(i,j);
-    //M( i-1 , j-1 ) = 0;
-    //tot_mass += M( i-1 , j-1 );
-    //if (i == j)
-    //   diag_mass += M( i-1 , j-1 );
+          //column_mass += masstensor.cval(i,j);
+          //M( i-1 , j-1 ) = 0;
+          //tot_mass += M( i-1 , j-1 );
+          //if (i == j)
+          //   diag_mass += M( i-1 , j-1 );
         }
  //M( i-1 , i-1 ) = column_mass;
 
      }
-
-     //opserr << " tot_mass= "<< tot_mass << " column_mass =" << column_mass << " diag_mass= " <<  diag_mass << endln;
-     //opserr << "" << M.Output(opserr);
-     //opserr << " M " << M;
 
      return M;
 }
@@ -2957,8 +2866,7 @@ TwentyNodeBrick::addLoad(ElementalLoad *theLoad, double loadFactor)
       bforce.addMatrixVector(0.0, M, ba, 1.0);
       Q.addVector(1.0, bforce, 1.0);
     } else  {
-      opserr << "TwentyNodeBrick::addLoad() - 20NodeBrick " << this->getTag() <<
- ",load type " << type << " unknown\n";
+      opserr << "TwentyNodeBrick::addLoad() - 20NodeBrick " << this->getTag() << ",load type " << type << " unknown\n";
       return -1;
     }
 
@@ -2983,41 +2891,41 @@ TwentyNodeBrick::addLoad(ElementalLoad *theLoad, double loadFactor)
 //=============================================================================
 int TwentyNodeBrick::addInertiaLoadToUnbalance(const Vector &accel)
 {
- // Check for a quick return
- if (rho == 0.0)
-  return 0;
+   // Check for a quick return
+   if (rho == 0.0)
+    return 0;
 
- // Get R * accel from the nodes
- const Vector &Raccel1  = theNodes[0]->getRV(accel);
- const Vector &Raccel2  = theNodes[1]->getRV(accel);
- const Vector &Raccel3  = theNodes[2]->getRV(accel);
- const Vector &Raccel4  = theNodes[3]->getRV(accel);
- const Vector &Raccel5  = theNodes[4]->getRV(accel);
- const Vector &Raccel6  = theNodes[5]->getRV(accel);
- const Vector &Raccel7  = theNodes[6]->getRV(accel);
- const Vector &Raccel8  = theNodes[7]->getRV(accel);
- const Vector &Raccel9  = theNodes[8]->getRV(accel);
- const Vector &Raccel10 = theNodes[9]->getRV(accel);
- const Vector &Raccel11 = theNodes[10]->getRV(accel);
- const Vector &Raccel12 = theNodes[11]->getRV(accel);
- const Vector &Raccel13 = theNodes[12]->getRV(accel);
- const Vector &Raccel14 = theNodes[13]->getRV(accel);
- const Vector &Raccel15 = theNodes[14]->getRV(accel);
- const Vector &Raccel16 = theNodes[15]->getRV(accel);
- const Vector &Raccel17 = theNodes[16]->getRV(accel);
- const Vector &Raccel18 = theNodes[17]->getRV(accel);
- const Vector &Raccel19 = theNodes[18]->getRV(accel);
- const Vector &Raccel20 = theNodes[19]->getRV(accel);
+   // Get R * accel from the nodes
+   const Vector &Raccel1  = theNodes[0]->getRV(accel);
+   const Vector &Raccel2  = theNodes[1]->getRV(accel);
+   const Vector &Raccel3  = theNodes[2]->getRV(accel);
+   const Vector &Raccel4  = theNodes[3]->getRV(accel);
+   const Vector &Raccel5  = theNodes[4]->getRV(accel);
+   const Vector &Raccel6  = theNodes[5]->getRV(accel);
+   const Vector &Raccel7  = theNodes[6]->getRV(accel);
+   const Vector &Raccel8  = theNodes[7]->getRV(accel);
+   const Vector &Raccel9  = theNodes[8]->getRV(accel);
+   const Vector &Raccel10 = theNodes[9]->getRV(accel);
+   const Vector &Raccel11 = theNodes[10]->getRV(accel);
+   const Vector &Raccel12 = theNodes[11]->getRV(accel);
+   const Vector &Raccel13 = theNodes[12]->getRV(accel);
+   const Vector &Raccel14 = theNodes[13]->getRV(accel);
+   const Vector &Raccel15 = theNodes[14]->getRV(accel);
+   const Vector &Raccel16 = theNodes[15]->getRV(accel);
+   const Vector &Raccel17 = theNodes[16]->getRV(accel);
+   const Vector &Raccel18 = theNodes[17]->getRV(accel);
+   const Vector &Raccel19 = theNodes[18]->getRV(accel);
+   const Vector &Raccel20 = theNodes[19]->getRV(accel);
 
     if (3 != Raccel1.Size()  || 3 != Raccel2.Size()  || 3 != Raccel3.Size()  || 3 != Raccel4.Size() ||
         3 != Raccel5.Size()  || 3 != Raccel6.Size()  || 3 != Raccel7.Size()  || 3 != Raccel8.Size() ||
         3 != Raccel9.Size()  || 3 != Raccel10.Size() || 3 != Raccel11.Size() || 3 != Raccel12.Size()||
         3 != Raccel13.Size() || 3 != Raccel14.Size() || 3 != Raccel15.Size() || 3 != Raccel16.Size()||
         3 != Raccel17.Size() || 3 != Raccel18.Size() || 3 != Raccel19.Size() || 3 != Raccel20.Size()   ){
- // Xiaoyan changed 2 to 3 and added Racce15-18  09/27/00
-opserr << "TwentyNodeBrick::addInertiaLoadToUnbalance " <<
-  "matrix and vector sizes are incompatable\n";
-  return -1;
+       // Xiaoyan changed 2 to 3 and added Racce15-18  09/27/00
+      opserr << "TwentyNodeBrick::addInertiaLoadToUnbalance " <<
+        "matrix and vector sizes are incompatable\n";
+      return -1;
     }
 
  static Vector ra(60);  // Changed form 8 to 24(3*8)  Xiaoyan 09/27/00
@@ -3092,8 +3000,6 @@ opserr << "TwentyNodeBrick::addInertiaLoadToUnbalance " <<
     //for (int i = 0; i < 24; i++)
     //   column_mass += M(1,i);
     //column_mass = column_mass/3.0;
-
-    //opserr << " addInerti... column_mass " << column_mass << endln;
 
     //for (int i = 0; i < nodes_in_brick*3; i++)
     //  Q(i) += -M(i,i)*ra(i);
@@ -4662,6 +4568,3 @@ int TwentyNodeBrick::update() //Added by Guanzhou, May 7 2004
     return 0;
 
   }
-
-
-#endif

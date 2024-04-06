@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:47:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection3dThermal.h,v $
-
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -47,7 +43,6 @@ class FiberSection3dThermal : public SectionForceDeformation
 {
   public:
     FiberSection3dThermal();
-    FiberSection3dThermal(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection3dThermal(int tag, int numFibers, bool compCentroid=true);
     ~FiberSection3dThermal();
 
@@ -56,7 +51,7 @@ class FiberSection3dThermal : public SectionForceDeformation
     int   setTrialSectionDeformation(const Vector &deforms);
     const Vector &getSectionDeformation(void);
 
-	const Vector &getTemperatureStress(const Vector& dataMixed); //JJadd to get Ft=EA*Elongation//
+    const Vector &getTemperatureStress(const Vector& dataMixed); //JJadd to get Ft=EA*Elongation//
 
     const Vector &getStressResultant(void);
     const Matrix &getSectionTangent(void);
@@ -67,7 +62,7 @@ class FiberSection3dThermal : public SectionForceDeformation
     int   revertToStart(void);
 
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
+    const ID &getType();
     int getOrder (void) const;
 
     int sendSelf(int cTag, Channel &theChannel);
@@ -79,7 +74,7 @@ class FiberSection3dThermal : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial& theMat, const double Area, const double yLoc, const double zLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);

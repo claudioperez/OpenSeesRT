@@ -23,29 +23,21 @@
 // transformation for a planar frame between the global
 // and basic coordinate systems.
 //
-// $Revision: 1.4 $
-// $Date: 2008-12-03 23:40:07 $
-// $Source: /usr/local/cvs/OpenSees/SRC/coordTransformation/CorotCrdTransf2d.cpp,v $
-
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 05/2000
 // Revision: rms 06/2000 (using Assemble, and AssembleTranspose)
 //
 // Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
 //
-/*
- * References
- *
-
-General Formulation and Analytical Response Sensitivity
----
-Scott, M. H. and F. C. Filippou (2007).
-"Response Gradients for Nonlinear Beam-Column Elements under Large Displacements."
-Journal of Structural Engineering, 133(2):155-165.
-
- *
- */
-
+//
+// References
+//
+//  General Formulation and Analytical Response Sensitivity
+//  ---
+//  Scott, M. H. and F. C. Filippou (2007).
+//  "Response Gradients for Nonlinear Beam-Column Elements under Large Displacements."
+//  Journal of Structural Engineering, 133(2):155-165.
+//
 #include <math.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -98,7 +90,7 @@ OPS_ADD_RUNTIME_VPV(OPS_CorotCrdTransf2d)
 // constructor:
 CorotCrdTransf2d::CorotCrdTransf2d(int tag, const Vector &rigJntOffsetI,
                                    const Vector &rigJntOffsetJ)
-    : CrdTransf(tag, CRDTR_TAG_CorotCrdTransf2d), nodeIOffset(2),
+    : FrameTransform(tag, CRDTR_TAG_CorotCrdTransf2d), nodeIOffset(2),
       nodeJOffset(2), cosTheta(0), sinTheta(0), cosAlpha(0), sinAlpha(0),
       nodeIPtr(0), nodeJPtr(0), L(0), Ln(0), ub(3), ubcommit(3), ubpr(3),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
@@ -131,7 +123,7 @@ CorotCrdTransf2d::CorotCrdTransf2d(int tag, const Vector &rigJntOffsetI,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransf2d::CorotCrdTransf2d()
-    : CrdTransf(0, CRDTR_TAG_CorotCrdTransf2d), nodeIOffset(2), nodeJOffset(2),
+    : FrameTransform(0, CRDTR_TAG_CorotCrdTransf2d), nodeIOffset(2), nodeJOffset(2),
       cosTheta(0), sinTheta(0), cosAlpha(0), sinAlpha(0), nodeIPtr(0),
       nodeJPtr(0), L(0), Ln(0), ub(3), ubcommit(3), ubpr(3),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
@@ -384,9 +376,7 @@ void
 CorotCrdTransf2d::transfLocalDisplsToBasic(const Vector &ul)
 {
   // Eliminate rigid body modes, determining displacements wrt the basic system
-  double alpha;
-
-  alpha = atan2(sinAlpha, cosAlpha);
+  const double alpha = atan2(sinAlpha, cosAlpha);
 
   ub(0) = Ln - L;
   ub(1) = ul(2) - alpha;
@@ -544,9 +534,7 @@ CorotCrdTransf2d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 #endif
 
   // transform resisting forces  from local to global coordinates
-  //this->compTransfMatrixLocalGlobal(Tlg);     // OPTIMIZE LATER
-  //pg.addMatrixTransposeVector(0.0, Tlg, pl, 1.0);   // pg = Tlg ^ pl; residual
-
+  // pg = Tlg' * pl;
   pg(0) = cosTheta * pl[0] - sinTheta * pl[1];
   pg(1) = sinTheta * pl[0] + cosTheta * pl[1];
 
@@ -1524,3 +1512,34 @@ CorotCrdTransf2d::getd1overLdh(void)
 }
 
 // AddingSensitivity:END /////////////////////////////////////
+
+int
+CorotCrdTransf2d::getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis)
+{
+  xAxis(0) = cosTheta;
+  xAxis(1) = sinTheta;
+  xAxis(2) = 0;
+
+  yAxis(0) = -sinTheta;
+  yAxis(1) =  cosTheta;
+  yAxis(2) =  0;    
+  
+  zAxis(0) = 0.0;
+  zAxis(1) = 0.0;
+  zAxis(2) = 1.0;
+
+  return 0;
+}
+
+int
+CorotCrdTransf2d::getRigidOffsets(Vector &offsets)
+{
+  offsets(0) = nodeIOffset(0);
+  offsets(1) = nodeIOffset(1);
+  offsets(2) = 0.0;
+  offsets(3) = nodeJOffset(0);
+  offsets(4) = nodeJOffset(1);
+  offsets(5) = 0.0;
+
+  return 0;
+}

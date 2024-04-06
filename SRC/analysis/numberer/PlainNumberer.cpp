@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:00:51 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/numberer/PlainNumberer.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/numberer/PlainNumberer.C
 // 
 // Written: fmk 
@@ -36,7 +31,7 @@
 // as it iterates through the iter.
 //
 // What: "@(#) PlainNumberer.C, revA"
-
+#include <assert.h>
 #include <PlainNumberer.h>
 #include <AnalysisModel.h>
 
@@ -82,14 +77,11 @@ PlainNumberer::numberDOF(int lastDOF)
 
     // get a pointer to the model & check its not null
     AnalysisModel *theModel = this->getAnalysisModelPtr();
-    Domain *theDomain = 0;
-    if (theModel != 0) theDomain = theModel->getDomainPtr();
+    Domain *theDomain = nullptr;
+    if (theModel != nullptr)
+      theDomain = theModel->getDomainPtr();
 
-    if (theModel == 0 || theDomain == 0) {
-	opserr << "WARNING PlainNumberer::numberDOF(int) -";
-	opserr << " - no AnalysisModel - has setLinks() been invoked?\n";
-	return -1;
-    }
+    assert(theModel != nullptr && theDomain != nullptr);
     
     if (lastDOF != -1) {
 	opserr << "WARNING PlainNumberer::numberDOF(int lastDOF):";
@@ -120,11 +112,12 @@ PlainNumberer::numberDOF(int lastDOF)
     DOF_GrpIter &tDOFs = theModel->getDOFs();
     while ((dofPtr = tDOFs()) != 0) {
     	const ID &theID = dofPtr->getID();
-    	int have4s = 0;
+    	bool have4s = false;
 	for (int i=0; i<theID.Size(); i++)
-	    if (theID(i) == -4) have4s = 1;
+	    if (theID(i) == -4) 
+              have4s = true;
 
-	if (have4s == 1) {
+	if (have4s == true) {
 		int nodeID = dofPtr->getNodeTag();
 		// loop through the MP_Constraints to see if any of the
 		// DOFs are constrained, note constraint matrix must be diagonal
@@ -225,11 +218,12 @@ PlainNumberer::numberDOF(ID &lastDOFs)
     DOF_GrpIter &tDOFs = theModel->getDOFs();
     while ((dofPtr = tDOFs()) != 0) {
     	const ID &theID = dofPtr->getID();
-    	int have4s = 0;
+    	bool have4s = false;
 	for (int i=0; i<theID.Size(); i++)
-	    if (theID(i) == -4) have4s = 1;
+	    if (theID(i) == -4)
+              have4s = true;
 
-	if (have4s == 1) {
+	if (have4s == true) {
 		int nodeID = dofPtr->getNodeTag();
 		// loop through the MP_Constraints to see if any of the
 		// DOFs are constrained, note constraint matrix must be diagonal
@@ -254,7 +248,7 @@ PlainNumberer::numberDOF(ID &lastDOFs)
 	    			}
 	    		}
 		}		
-	}	
+	}
     }
 
     eqnNumber--;

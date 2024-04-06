@@ -12,12 +12,6 @@
 ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2008-10-20 22:23:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/J2PlasticityThermal.cpp,v $
-
-// Written: Ed "C++" Love
 //
 // J2 isotropic hardening material class
 // 
@@ -44,7 +38,8 @@
 
 //Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io]
 //
-
+// Written: Ed "C++" Love
+//
 #include <J2PlasticityThermal.h>
 #include <J2PlaneStress.h>
 #include <J2PlaneStrain.h>
@@ -53,6 +48,7 @@
 
 #include <J2ThreeDimensional.h> 
 #include <J2ThreeDimensionalThermal.h> 
+#include <OPS_Globals.h>
 #include <string.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -383,18 +379,18 @@ J2PlasticityThermal :: getCopy (const char *type)
 //print out material data
 void J2PlasticityThermal :: Print( OPS_Stream &s, int flag )
 {
-  s << endln ;
+  s << "\n" ;
   s << "J2-Plasticity : " ; 
-  s << this->getType( ) << endln ;
-  s << "Bulk Modulus =   " << bulk        << endln ;
-  s << "Shear Modulus =  " << shear       << endln ;
-  s << "sigma_y =        " << sigma_y     << endln ;
-  s << "Sigma_infty =    " << sigma_infty << endln ;
-  s << "Delta =          " << delta       << endln ;
-  s << "H =              " << Hard        << endln ;
-  s << "Eta =            " << eta         << endln ;
-  s << "Rho =            " << rho         << endln ;
-  s << endln ;
+  s << this->getType( ) << "\n" ;
+  s << "Bulk Modulus =   " << bulk        << "\n" ;
+  s << "Shear Modulus =  " << shear       << "\n" ;
+  s << "sigma_y =        " << sigma_y     << "\n" ;
+  s << "Sigma_infty =    " << sigma_infty << "\n" ;
+  s << "Delta =          " << delta       << "\n" ;
+  s << "H =              " << Hard        << "\n" ;
+  s << "Eta =            " << eta         << "\n" ;
+  s << "Rho =            " << rho         << "\n" ;
+  s << "\n" ;
 }
 
 
@@ -821,7 +817,7 @@ return ;
 
 
 NDMaterial*
-J2PlasticityThermal::getCopy (void)
+J2PlasticityThermal::getCopy(void)
 {
   opserr << "J2PlasticityThermal::getCopy -- subclass responsibility\n"; 
   exit(-1);
@@ -850,7 +846,6 @@ J2PlasticityThermal::commitState( )
 {
   epsilon_p_n = epsilon_p_nplus1 ;
   xi_n        = xi_nplus1 ;
-
   return 0;
 }
 

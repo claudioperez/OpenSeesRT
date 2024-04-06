@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2005-11-03 23:11:55 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/DOF_GroupGraph.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Revision: A
 //
@@ -30,9 +25,6 @@
 // DOF_GroupGraph is a graph of the DOF_Groups in the domain. It is used by the
 // DOF_Numberer to assign equation numbers to the DOFs.
 //
-// What: "@(#) DOF_GroupGraph.C, revA"
-
-
 #include <DOF_GroupGraph.h>
 #include <Vertex.h>
 #include <AnalysisModel.h>
@@ -40,6 +32,7 @@
 #include <DOF_Group.h>
 #include <FE_EleIter.h>
 #include <DOF_GrpIter.h>
+#include <OPS_ErrorStream.h>
 
 // constructs the Graph
 DOF_GroupGraph::DOF_GroupGraph(AnalysisModel &theModel)
@@ -62,19 +55,11 @@ DOF_GroupGraph::DOF_GroupGraph(AnalysisModel &theModel)
 
     DOF_GrpIter &dofIter2 = theModel.getDOFs();
     int count = START_VERTEX_NUM;
-    while ((dofPtr = dofIter2()) != 0) {
+    while ((dofPtr = dofIter2()) != nullptr) {
 	int DOF_GroupTag = dofPtr->getTag();
 	int DOF_GroupNodeTag = dofPtr->getNodeTag();
 	int numDOF = dofPtr->getNumFreeDOF();
-	Vertex *vertexPtr = new Vertex(DOF_GroupTag, DOF_GroupNodeTag, 0, numDOF);
-
-	if (vertexPtr == 0) {
-	    opserr << "WARNING DOF_GroupGraph::DOF_GroupGraph";
-	    opserr << " - Not Enough Memory to create ";
-	    opserr << count << "th Vertex\n";
-	    return;
-	}
-	
+	Vertex *vertexPtr = new Vertex(DOF_GroupTag, DOF_GroupNodeTag, 0, numDOF);	
 	this->addVertex(vertexPtr);
     }
 
@@ -103,5 +88,4 @@ DOF_GroupGraph::~DOF_GroupGraph()
 {
 
 }    
-
 

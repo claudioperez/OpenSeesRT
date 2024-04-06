@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2020/05/18 22:51:21 $
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of the EICR (Element Independent CoRotational) formulation
@@ -42,6 +39,7 @@
 
 #include <Quaternion.h>
 #include <Vector3D.h>
+#include <Matrix3D.h>
 #include <vector>
 
 /** \brief EICR Element Independent CoRotational formulation
@@ -51,148 +49,27 @@
 * This class implements methods that do not depend on the element type,
 * and so they can be used by any implementation of a corotational coordinate transformation.
 */
-class EICR
+namespace EICR
 {
 
-public:
+// public:
 
     typedef std::size_t size_t;
 
-    typedef Vector3D<double> Vector3Type;
+    typedef Vector3D Vector3Type;
 
     typedef std::vector<Vector3Type> NodeContainerType;
 
     typedef Vector VectorType;
 
     typedef Matrix MatrixType;
+    
+    using OpenSees::Matrix3D;
 
     typedef ASDQuaternion<double> QuaternionType;
 
-public:
+// public:
 
-    /**
-    * Computes the Spin of the input vector V, and saves the result into the output matrix S.
-    * Note: no check is made on the size of the input-output arguments.
-    * @param V the input vector (assumed size: >= 3)
-    * @param S the output matrix (assumed size: >= 3x3)
-    */
-    template< class TVec, class TMat>
-    inline static void Spin(const TVec& V, TMat& S)
-    {
-        S(0, 0) = 0.00;        S(0, 1) = -V(2);    S(0, 2) = V(1);
-        S(1, 0) = V(2);        S(1, 1) = 0.00;        S(1, 2) = -V(0);
-        S(2, 0) = -V(1);    S(2, 1) = V(0);        S(2, 2) = 0.00;
-    }
-
-    /**
-    * Computes the Spin of the input vector V, and saves the result into the output matrix S,
-    * at the specified row index.
-    * Note: no check is made on the size of the input-output arguments.
-    * @param V the input vector (assumed size: >= 3)
-    * @param S the output matrix (assumed size: >= 3x3)
-    * @param row_index the index of the first row in the output matrix where the spin has to be saved
-    */
-    template< class TVec, class TMat>
-    inline static void Spin_AtRow(const TVec& V, TMat& S, size_t row_index)
-    {
-        size_t i0 = row_index;
-        size_t i1 = 1 + row_index;
-        size_t i2 = 2 + row_index;
-        double v0 = V(i0);
-        double v1 = V(i1);
-        double v2 = V(i2);
-        S(i0, 0) = 0.00;    S(i0, 1) = -v2;        S(i0, 2) = v1;
-        S(i1, 0) = v2;        S(i1, 1) = 0.00;    S(i1, 2) = -v0;
-        S(i2, 0) = -v1;        S(i2, 1) = v0;        S(i2, 2) = 0.00;
-    }
-
-    /**
-    * Computes the Spin of the input vector V, from the specified index, and saves the result into the output matrix S,
-    * at the specified row index.
-    * Note: no check is made on the size of the input-output arguments.
-    * @param V the input vector (assumed size: >= 3)
-    * @param S the output matrix (assumed size: >= 3x3)
-    * @param vector_index the index of the first component of the input vector to be used to compute the spin
-    * @param row_index the index of the first row in the output matrix where the spin has to be saved
-    */
-    template< class TVec, class TMat>
-    inline static void Spin_AtRow(const TVec& V, TMat& S, size_t vector_index, size_t matrix_row_index)
-    {
-        size_t i0 = matrix_row_index;
-        size_t i1 = 1 + matrix_row_index;
-        size_t i2 = 2 + matrix_row_index;
-        double v0 = V(vector_index);
-        double v1 = V(vector_index + 1);
-        double v2 = V(vector_index + 2);
-        S(i0, 0) = 0.00;    S(i0, 1) = -v2;        S(i0, 2) = v1;
-        S(i1, 0) = v2;        S(i1, 1) = 0.00;    S(i1, 2) = -v0;
-        S(i2, 0) = -v1;        S(i2, 1) = v0;        S(i2, 2) = 0.00;
-    }
-
-    /**
-    * Computes the Spin of the input vector V, and saves the result into the output matrix S.
-    * This version uses a multiplier for the output values.
-    * Note: no check is made on the size of the input-output arguments.
-    * @param V the input vector (assumed size: >= 3)
-    * @param S the output matrix (assumed size: >= 3x3)
-    * @param mult the multiplier for the output values
-    */
-    template< class TVec, class TMat>
-    inline static void Spin(const TVec& V, TMat& S, double mult)
-    {
-        S(0, 0) = 0.00;            S(0, 1) = -mult * V(2);    S(0, 2) = mult * V(1);
-        S(1, 0) = mult * V(2);    S(1, 1) = 0.00;            S(1, 2) = -mult * V(0);
-        S(2, 0) = -mult * V(1);    S(2, 1) = mult * V(0);    S(2, 2) = 0.00;
-    }
-
-    /**
-    * Computes the Spin of the input vector V, and saves the result into the output matrix S,
-    * at the specified row index.
-    * This version uses a multiplier for the output values.
-    * Note: no check is made on the size of the input-output arguments.
-    * @param V the input vector (assumed size: >= 3)
-    * @param S the output matrix (assumed size: >= 3x3)
-    * @param mult the multiplier for the output values
-    * @param row_index the index of the first row in the output matrix where the spin has to be saved
-    */
-    template< class TVec, class TMat>
-    inline static void Spin_AtRow(const TVec& V, TMat& S, double mult, size_t row_index)
-    {
-        size_t i0 = row_index;
-        size_t i1 = 1 + row_index;
-        size_t i2 = 2 + row_index;
-        double v0 = mult * V(i0);
-        double v1 = mult * V(i1);
-        double v2 = mult * V(i2);
-        S(i0, 0) = 0.00;    S(i0, 1) = -v2;        S(i0, 2) = v1;
-        S(i1, 0) = v2;        S(i1, 1) = 0.00;    S(i1, 2) = -v0;
-        S(i2, 0) = -v1;        S(i2, 1) = v0;        S(i2, 2) = 0.00;
-    }
-
-    /**
-    * Computes the Spin of the input vector V, from the specified index, and saves the result into the output matrix S,
-    * at the specified row index.
-    * This version uses a multiplier for the output values.
-    * Note: no check is made on the size of the input-output arguments.
-    * @param V the input vector (assumed size: >= 3)
-    * @param S the output matrix (assumed size: >= 3x3)
-    * @param mult the multiplier for the output values
-    * @param vector_index the index of the first component of the input vector to be used to compute the spin
-    * @param row_index the index of the first row in the output matrix where the spin has to be saved
-    */
-    template< class TVec, class TMat>
-    inline static void Spin_AtRow(const TVec& V, TMat& S, double mult, size_t vector_index, size_t matrix_row_index)
-    {
-        size_t i0 = matrix_row_index;
-        size_t i1 = 1 + matrix_row_index;
-        size_t i2 = 2 + matrix_row_index;
-        double v0 = mult * V(vector_index);
-        double v1 = mult * V(vector_index + 1);
-        double v2 = mult * V(vector_index + 2);
-        S(i0, 0) = 0.00;    S(i0, 1) = -v2;        S(i0, 2) = v1;
-        S(i1, 0) = v2;        S(i1, 1) = 0.00;    S(i1, 2) = -v0;
-        S(i2, 0) = -v1;        S(i2, 1) = v0;        S(i2, 2) = 0.00;
-    }
 
     /**
     * Sets the input matrix to the zero matrix of requested size. Resize is done if necessary
@@ -228,7 +105,8 @@ public:
     * @param end the last+1 index
     * @param B the second vector
     */
-    inline static void GetBlock(const VectorType& A, size_t begin, size_t end, VectorType& B)
+    template <typename VectType>
+    inline static void GetBlock(const VectorType& A, size_t begin, size_t end, VectType& B)
     {
         size_t n = end - begin;
         for (size_t i = 0; i < n; ++i)
@@ -259,7 +137,8 @@ public:
     * @param end the last+1 index
     * @param B the second vector
     */
-    inline static void SetBlock(MatrixType& A, size_t begin, size_t end, const MatrixType& B)
+    template<class MatT>
+    inline static void SetBlock(MatrixType& A, size_t begin, size_t end, const MatT& B)
     {
         size_t n = end - begin;
         for (size_t i = 0; i < n; ++i)
@@ -281,7 +160,7 @@ public:
                 C(i, j) = A(i) * B(j);
     }
 
-public:
+// public:
 
     /**
     * Computes the Translational Projector Matrix.
@@ -342,7 +221,7 @@ public:
         {
             size_t j = i * 6;
 
-            Spin_AtRow(nodes[i], S, -1.0, 0, j);
+            S.addSpinAtRow(nodes[i], -1.0, 0, j);
 
             S(j + 3, 0) = 1.0;
             S(j + 4, 1) = 1.0;
@@ -364,10 +243,10 @@ public:
 
         SetIdentity(num_dofs, H);
 
-        static MatrixType Omega(3, 3);
-        static MatrixType Omega2(3, 3);
-        static MatrixType Hi(3, 3);
-        static VectorType rv(3);
+        // static MatrixType Omega(3, 3);
+        // static MatrixType Omega2(3, 3);
+        static Matrix3D Hi;
+        static Vector3D rv;
 
         for (size_t i = 0; i < num_nodes; i++)
         {
@@ -375,29 +254,33 @@ public:
 
             GetBlock(displacements, index + 3, index + 6, rv);
 
-            double angle = rv.Norm();
+            double angle = rv.norm();
 
             if (angle >= 2.0 * M_PI)
                 angle = std::fmod(angle, 2.0 * M_PI);
 
             double eta;
             if (angle < 0.05) {
-                double angle2 = angle * angle;
+                double angle2 = angle  * angle;
                 double angle4 = angle2 * angle2;
                 double angle6 = angle4 * angle2;
-                eta = 1.0 / 12.0 + 1.0 / 270.0 * angle2 + 1.0 / 30240.0 * angle4 + 1.0 / 1209600.0 * angle6;
+                eta = 1.0 / 12.0 + 1.0 / 720.0 * angle2 + 1.0 / 30240.0 * angle4 + 1.0 / 1209600.0 * angle6;
             }
             else {
                 eta = (1.0 - 0.5 * angle * std::tan(0.5 * M_PI - 0.5 * angle)) / (angle * angle);
             }
 
-            Spin(rv, Omega);
-            Omega2.addMatrixProduct(0.0, Omega, Omega, 1.0);
+            // SO3::Spin(rv, Omega);
+            // Omega2.addMatrixProduct(0.0, Omega, Omega, 1.0);
 
             // Hi = I - 0.5*Omega + eta*Omega*Omega
-            SetIdentity(3, Hi);
-            Hi.addMatrix(1.0, Omega, -0.5);
-            Hi.addMatrix(1.0, Omega2, eta);
+            // SetIdentity(3, Hi);
+            Hi.zero();
+            Hi.addDiagonal(1.0);
+            Hi.addSpin(rv, -0.5);
+            Hi.addSpinSquare(rv, eta);
+//          Hi.addMatrix(1.0, Omega, -0.5);
+//          Hi.addMatrix(1.0, Omega2, eta);
 
             SetBlock(H, index + 3, index + 6, Hi);
         }
@@ -421,8 +304,7 @@ public:
 
         static VectorType rotationVector(3);
         static VectorType momentVector(3);
-        static MatrixType Omega(3, 3);
-        static MatrixType Omega2(3, 3);
+        static Matrix3D   Omega2;
         static MatrixType Li(3, 3);
         static MatrixType LiTemp1(3, 3);
         static MatrixType MxR(3, 3);
@@ -434,21 +316,21 @@ public:
             size_t index = i * 6;
 
             GetBlock(displacements, index + 3, index + 6, rotationVector);
-            GetBlock(forces, index + 3, index + 6, momentVector);
+            GetBlock(forces,        index + 3, index + 6, momentVector);
 
             double angle = rotationVector.Norm();
 
             if (angle >= 2.0 * M_PI)
                 angle = std::fmod(angle, 2.0 * M_PI);
 
-            double angle2 = angle * angle;
+            double angle2 = angle  * angle;
             double angle4 = angle2 * angle2;
             double angle6 = angle4 * angle2;
 
-            double eta;
             double mu;
+            double eta;
             if (angle < 0.05) {
-                eta = 1.0 / 12.0 + angle2 / 270.0 + angle4 / 30240.0 + angle6 / 1209600.0;
+                eta = 1.0 / 12.0 + angle2 / 720.0 + angle4 / 30240.0 + angle6 / 1209600.0;
                 mu = 1.0 / 360.0 + angle2 / 7560.0 + angle4 / 201600.0 + angle6 / 5987520.0;
             }
             else {
@@ -457,19 +339,19 @@ public:
                 mu = (angle2 + 4.0 * std::cos(angle) + angle * std::sin(angle) - 4.0) / (4.0 * angle4 * sin_h_angle * sin_h_angle);
             }
 
-            Spin(rotationVector, Omega);
-            Omega2.addMatrixProduct(0.0, Omega, Omega, 1.0);
-
-            OuterProd(momentVector, rotationVector, MxR);
+            OuterProd(momentVector,   rotationVector, MxR);
             OuterProd(rotationVector, momentVector, RxM);
             
             SetIdentity(3, Li, (rotationVector ^ momentVector));
-            Li.addMatrix(1.0, RxM, 1.0);
+            Li.addMatrix(1.0, RxM,  1.0);
             Li.addMatrix(1.0, MxR, -1.0);
 
+
+            Omega2.zero();
+            Omega2.addSpinSquare(rotationVector, 1.0);
+
             LiTemp1.addMatrixProduct(0.0, Omega2, MxR, mu);
-            Spin(momentVector, MxR, 0.5);
-            LiTemp1.addMatrix(1.0, MxR, -1.0);
+            LiTemp1.addSpin(momentVector, -0.5);
 
             LiTemp1.addMatrix(1.0, Li, eta);
 
@@ -479,8 +361,6 @@ public:
             SetBlock(L, index + 3, index + 6, Li);
         }
     }
-
-
 };
 
 #endif // !ASDEICR_h

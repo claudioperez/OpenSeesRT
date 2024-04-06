@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: MHS
-// Created: Feb 2001
 //
 // Description: This file contains the class definition for DispBeamColumn3d.
 // The element displacement field gives rise to constant axial strain,
 // linear curvature, and constant twist angle.
-
+//
+// Written: MHS
+// Created: Feb 2001
+//
 #ifndef DispBeamColumn3d_h
 #define DispBeamColumn3d_h
 
@@ -51,9 +47,9 @@ class DispBeamColumn3d : public Element
 {
   public:
     DispBeamColumn3d(int tag, int nd1, int nd2,
-		     int numSections, SectionForceDeformation **s,
-		     BeamIntegration &bi, CrdTransf &coordTransf,
-             double rho = 0.0, int cMass = 0);
+                     int numSections, SectionForceDeformation **s,
+                     BeamIntegration &bi, CrdTransf &coordTransf,
+                     double rho = 0.0, int cMass = 0);
     DispBeamColumn3d();
     ~DispBeamColumn3d();
 
@@ -88,8 +84,8 @@ class DispBeamColumn3d : public Element
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes=0, int numModes=0);
+                 &theBroker);
+
     void Print(OPS_Stream &s, int flag =0);
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
@@ -105,15 +101,15 @@ class DispBeamColumn3d : public Element
     int            commitSensitivity(int gradNumber, int numGrads);
     // AddingSensitivity:END ///////////////////////////////////////////
 
-  protected:
-    
-  private:
+protected:
+
+private:
     const Matrix &getInitialBasicStiff(void);
 
-	int numSections;
-	SectionForceDeformation** theSections; // pointer to the ND material objects
-	CrdTransf* crdTransf;        // pointer to coordinate tranformation object 
-	BeamIntegration* beamInt;
+    int numSections;
+    SectionForceDeformation **theSections; // pointer to the ND material objects
+    CrdTransf *crdTransf;        // pointer to coordinate tranformation object 
+    BeamIntegration *beamInt;
 
     ID connectedExternalNodes; // Tags of quad nodes
 
@@ -130,7 +126,7 @@ class DispBeamColumn3d : public Element
     double rho;    // Mass density per unit length
     int cMass;     // consistent mass flag
 
-	int parameterID;
+    int parameterID;
 
     enum {maxNumSections = 20};
 

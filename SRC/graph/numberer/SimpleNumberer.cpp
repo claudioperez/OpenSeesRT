@@ -17,21 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2006-01-12 23:39:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/numberer/SimpleNumberer.cpp,v $
-
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the class definition for SimpleNumberer.
 // SimpleNumberer is an object to perform a simple numbering of the vertices.
 // It does this by using the graphs VertexIter and assigning the numbers as
 // it comes across the vertices.
 //
-// What: "@(#) SimpleNumberer.C, revA"
-
+// Written: fmk 
+// Revision: A
+//
 #include <SimpleNumberer.h>
 #include <Graph.h>
 #include <Vertex.h>
@@ -39,6 +33,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <assert.h>
 
 // Constructor
 SimpleNumberer::SimpleNumberer()
@@ -51,8 +46,8 @@ SimpleNumberer::SimpleNumberer()
 // Destructor
 SimpleNumberer::~SimpleNumberer()
 {
-    if (theRefResult != 0)
-	delete theRefResult;
+  if (theRefResult != nullptr)
+    delete theRefResult;
 }
 
 // const ID &number(Graph &theGraph)
@@ -62,39 +57,35 @@ SimpleNumberer::~SimpleNumberer()
 const ID &
 SimpleNumberer::number(Graph &theGraph, int lastVertex)
 {
+    assert(lastVertex == -1);
+
     // first check our size, if not same make new
-    
+ 
     if (numVertex != theGraph.getNumVertex()) {
 
-	if (theRefResult != 0)
-	    delete theRefResult;
-	
-	numVertex = theGraph.getNumVertex();
-	theRefResult = new ID(numVertex);
+        if (theRefResult != nullptr)
+            delete theRefResult;
+
+        numVertex = theGraph.getNumVertex();
+        theRefResult = new ID(numVertex);
 
     }
 
     // see if we can do quick return
-    
-    if (numVertex == 0) 
-	return *theRefResult;
-	    
+
+    if (numVertex == 0)
+      return *theRefResult;
+
 
     // Now we go through the iter and assign the numbers
 
-    if (lastVertex != -1) {
-	opserr << "WARNING:  SimpleNumberer::number -";
-	opserr << " - does not deal with lastVertex";
-    }
-    
     Vertex *vertexPtr;
     VertexIter &vertexIter = theGraph.getVertices();
     int count = 0;
-    
-    while ((vertexPtr = vertexIter()) != 0) {
 
-	(*theRefResult)(count++) = vertexPtr->getTag();
-	vertexPtr->setTmp(count);
+    while ((vertexPtr = vertexIter()) != nullptr) {
+        (*theRefResult)(count++) = vertexPtr->getTag();
+        vertexPtr->setTmp(count);
     }
     
     return *theRefResult;

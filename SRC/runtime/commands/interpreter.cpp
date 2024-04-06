@@ -36,12 +36,6 @@ Tcl_CmdProc convertBinaryToText;
 Tcl_CmdProc convertTextToBinary;
 Tcl_CmdProc stripOpenSeesXML;
 
-static int
-debug(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-
-}
-
 //
 // Consider reimplmenting to use Tcl built-ins; see
 // https://wiki.tcl-lang.org/page/timers

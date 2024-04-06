@@ -6,14 +6,12 @@
 struct SparseMatrix
 {
     struct triplet_t {
-        int i;
-        int j;
+        int i,j;
         double val;
         triplet_t() = default;
         triplet_t(int r, int c, double v)
-          : i(r), j(c), val(v)
-        {
-        }
+          : i(r), j(c), val(v) {}
+
         inline bool operator < (const triplet_t& b) const {
             if (i < b.i) return true;
             if (i > b.i) return false;

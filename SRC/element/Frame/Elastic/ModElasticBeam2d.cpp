@@ -17,20 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
-// Written: fmk 11/95
-// Revised: Dimitrios G. Lignos 01/31/2011
 //
 // Purpose: This file contains the class definition for ModElasticBeam2d.
 // ModElasticBeam2d is a 2d beam element that considers modified elastic stiffness
 // coefficients for nonprismatic sections
 // Modification is done for "n" stiff springs adjustments 
 // based on Zareian and Medina (2010), Computers and Structures, Vol. 88(1-2)
-
+//
+// Written: fmk 11/95
+// Revised: Dimitrios G. Lignos 01/31/2011
+//
 #include "ModElasticBeam2d.h"
 #include <elementAPI.h>
 
@@ -44,7 +40,6 @@
 #include <Information.h>
 #include <Parameter.h>
 #include <ElementResponse.h>
-#include <Renderer.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -140,11 +135,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam2d)
     numRemainingArgs = OPS_GetNumRemainingInputArgs();      
   }
 
-  CrdTransf *theTransf = OPS_getCrdTransf(iData[3]);
-  if (theTransf == 0) {
-    opserr << "WARNING error could not find a transformation with tag: " << iData[3] << "element ElasticBeamColumn2d " << eleTag << endln;
-    return 0;
-  } 
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
+  if (theTransf == nullptr)
+    return nullptr;
+
 
   theEle = new ModElasticBeam2d(iData[0], dData[0], dData[1], dData[2],
 				iData[1], iData[2],
@@ -806,17 +800,6 @@ ModElasticBeam2d::Print(OPS_Stream &s, int flag)
   }
 }
 
-int
-ModElasticBeam2d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 ModElasticBeam2d::setResponse(const char **argv, int argc, OPS_Stream &output)

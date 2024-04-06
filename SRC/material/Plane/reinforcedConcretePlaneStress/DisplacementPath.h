@@ -17,9 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-                                                                        
-                                                                        
+//
 // File: ~/analysis/integrator/DisplacementPath.h
 // 
 // Written: JZhong 

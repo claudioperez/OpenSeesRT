@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/ArrayGraph.cpp,v $
-                                                                        
-                                                                        
-// File: ~/graph/ArrayGraph.C
 // 
 // Written: fmk 
 // Created: Sun Sept 15 11:47:47: 1996
@@ -34,8 +27,7 @@
 // than holding them in a List data structure, but problems can arise with
 // large Graphs in getting enough contiguous memory for the array.
 //
-// What: "@(#) ArrayGraph.C, revA"
-
+#include <assert.h>
 #include <ArrayGraph.h>
 #include <Vertex.h>
 #include <AnalysisModel.h>
@@ -47,26 +39,15 @@ ArrayGraph::ArrayGraph(int arraySize)
  theVertices(0), myIter(*this) 
 {
     // we now try and get an array of size arraySize
-    theVertices = new Vertex *[arraySize];
-    if (theVertices == 0)  {
-	opserr << "Warning ArrayGraph::ArrayGraph";
-	opserr << " - no contiguous memory block big enough available\n";
-	sizeVertices = 0;
-    }
-    
-    // zero the pointers
-    
-    for (int i=0; i<arraySize; i++)
-	theVertices[i] = 0;
+    theVertices = new Vertex *[arraySize]{};
 }
 
 ArrayGraph::~ArrayGraph()
 {
-    // delete all the vertices, then delete theVertices array
-    
-    if (theVertices != 0) {
+    // delete all the vertices, then delete theVertices array 
+    if (theVertices != nullptr) {
 	for (int i=0; i<numVertex; i++)
-	    if (theVertices[i] != 0)
+	    if (theVertices[i] != nullptr)
 		delete theVertices[i];
 	delete [] theVertices;
     }
@@ -87,16 +68,11 @@ ArrayGraph::~ArrayGraph()
 // empty location it comes to. Returns a 0 if successfull addition, a
 // $-1$ otherwise and a message to opserr explaining the problem. \\ 
 
-
 bool
 ArrayGraph::addVertex(Vertex *vertexPtr)
 {
     // check the vertex * and its adjacency list
-    if (vertexPtr == 0) {
-	opserr << "WARNING ArrayGraph::addVertex";
-	opserr << " - attempting to add a NULL vertex*\n";
-	return false;
-    }
+    assert(vertexPtr != nullptr);
     
     if (vertexPtr->getDegree() != 0) {
 	const ID &adjacency = vertexPtr->getAdjacency();
@@ -116,19 +92,12 @@ ArrayGraph::addVertex(Vertex *vertexPtr)
 
 	int newSize = sizeVertices*2;
 	Vertex **newVertices = new Vertex *[newSize];
-	
-	if (newVertices == 0) {
-	    opserr << "WARNING ArrayGraph::addVertex";
-	    opserr << " - out of contiguous memory could not create a new array";
-	    delete vertexPtr;
-	    return false;
-	}
 
 	// copy the old and 0 the extra, then delete the old
 	for (int i=0; i<sizeVertices; i++)
 	    newVertices[i] = theVertices[i];
 	for (int j=sizeVertices; j<newSize; j++)
-	    newVertices[j] = 0;
+	    newVertices[j] = nullptr;
 
 	delete [] theVertices;
 	
@@ -143,15 +112,12 @@ ArrayGraph::addVertex(Vertex *vertexPtr)
 
 	theVertices[vertexTag]= vertexPtr;
 	numVertex++;
-	return 0;
+	return false;
 
     } else {
-	
-	// we have to serach through the array till we find an empty spot
-	
+	// we have to search through the array till we find an empty spot
 	for (int i=0; i<sizeVertices; i++) 
-	    if (theVertices[i] == 0) {
-		
+	    if (theVertices[i] == nullptr) {
 		lastEmpty = i+1; // stores the lastEmpty place
 		theVertices[i] = vertexPtr;
 		numVertex++;
@@ -182,8 +148,7 @@ ArrayGraph::getVertexPtr(int vertexTag)
 	return theVertices[vertexTag];	
     }
     // it's not nicely positioned, we have to search
-    // through theVertices until we find it
-    
+    // through theVertices until we find it 
     else 
 	for (int i=0; i<sizeVertices; i++)
 	    if ((theVertices[i] != 0) && 
@@ -192,9 +157,8 @@ ArrayGraph::getVertexPtr(int vertexTag)
 		return theVertices[i];
 	    }
 
-    // else the vertex is not there
-    
-    return 0;
+    // else the vertex is not there 
+    return nullptr;
 }
 
 // int addEdge(int vertexTag, int otherVertexTag);

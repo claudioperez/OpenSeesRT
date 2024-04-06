@@ -17,21 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2009-10-13 21:17:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/DataFileStreamAdd.cpp,v $
-
-
+//
+//
 #include <DataFileStreamAdd.h>
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <string.h>
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
 #include <Matrix.h>
+#include <OPS_ErrorStream.h>
 
 using std::cerr;
 using std::ios;
@@ -313,7 +311,7 @@ DataFileStreamAdd::write(Vector &data)
       if (numColumns != 0) {
 	Vector *theV = theRemoteData[i];
 	if (theChannels[i-1]->recvVector(0, 0, *theV) < 0) {
-	  opserr << "DataFileStreamAdd::write - failed to recv data\n";
+	  // opserr << "DataFileStreamAdd::write - failed to recv data\n";
 	}
       } 
     }
@@ -333,9 +331,6 @@ DataFileStreamAdd::write(Vector &data)
       currentColLoc(i) = -1;
     }
   }
-
-  //  opserr << "CurrentCOL: " << currentCol;
-  //  opserr << "MaxCOUNT: " << maxCount << endln;
 
   for (int i=0; i<maxCount+1; i++) {
     double val = 0;
@@ -690,14 +685,14 @@ DataFileStreamAdd::sendSelf(int commitTag, Channel &theChannel)
   idData(2) = sendSelfCount;
 
   if (theChannel.sendID(0, commitTag, idData) < 0) {
-    opserr << "DataFileStreamAdd::sendSelf() - failed to send id data\n";
+    // opserr << "DataFileStreamAdd::sendSelf() - failed to send id data\n";
     return -1;
   }
 
   if (fileNameLength != 0) {
     Message theMessage(fileName, fileNameLength);
     if (theChannel.sendMsg(0, commitTag, theMessage) < 0) {
-      opserr << "DataFileStreamAdd::sendSelf() - failed to send message\n";
+      // opserr << "DataFileStreamAdd::sendSelf() - failed to send message\n";
       return -1;
     }
   }
@@ -715,7 +710,7 @@ DataFileStreamAdd::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
   theChannels[0] = &theChannel;
 
   if (theChannel.recvID(0, commitTag, idData) < 0) {
-    opserr << "DataFileStreamAdd::recvSelf() - failed to recv id data\n";
+    // opserr << "DataFileStreamAdd::recvSelf() - failed to recv id data\n";
     return -1;
   }
 
@@ -729,14 +724,10 @@ DataFileStreamAdd::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
     if (fileName != 0)
       delete [] fileName;
     fileName = new char[fileNameLength+10];
-    if (fileName == 0) {
-      opserr << "DataFileStreamAdd::recvSelf() - out of memory\n";
-      return -1;
-    }
 
     Message theMessage(fileName, fileNameLength);
     if (theChannel.recvMsg(0, commitTag, theMessage) < 0) {
-      opserr << "DataFileStreamAdd::recvSelf() - failed to recv message\n";
+      // opserr << "DataFileStreamAdd::recvSelf() - failed to recv message\n";
       return -1;
     }
 
@@ -745,7 +736,7 @@ DataFileStreamAdd::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
     sprintf(&fileName[fileNameLength],".%d",tag);
 
     if (this->setFile(fileName, theOpenMode) < 0) {
-      opserr << "DataFileStreamAdd::DataFileStreamAdd() - setFile() failed\n";
+      // opserr << "DataFileStreamAdd::DataFileStreamAdd() - setFile() failed\n";
       if (fileName != 0) {
 	delete [] fileName;
 	fileName = 0;

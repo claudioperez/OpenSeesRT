@@ -17,29 +17,30 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2008-06-13 22:24:48 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/Vector.h,v $
-
-// Written: fmk 
-// Created: 11/96
 //
 // Description: This file contains the class definition for Vector.
 // Vector is a concrete class implementing the vector abstraction.
-
+//
+// Written: fmk 
+// Created: 11/96
+//
 #ifndef Vector_h
 #define Vector_h 
 
-#include <OPS_Globals.h>
+#include <memory>
+#include <assert.h>
 
 #define VECTOR_VERY_LARGE_VALUE 1.0e200
 
 class Matrix; 
 class Message;
 class SystemOfEqn;
+class OPS_Stream;
 class ID;
-namespace OpenSees {template<int n, typename T> struct VectorND;};
+namespace OpenSees {
+  template<int n, typename T> struct VectorND;
+  template<int nr, int nc, typename T> struct MatrixND;
+};
 
 class Vector
 {
@@ -48,11 +49,16 @@ class Vector
     Vector();
     Vector(int);
     Vector(const Vector &);    
+    template <int n> Vector(OpenSees::VectorND<n,double>& v)
+      : sz(v.size()), theData(v.values), fromFree(1)
+    {
+    }
+    Vector(double *data, int size);
+    Vector(std::shared_ptr<double[]>, int size);
 #if !defined(NO_CXX11_MOVE)
     Vector(Vector &&);    
 #endif
 
-    Vector(double *data, int size);
     ~Vector();
 
     // utility methods
@@ -73,8 +79,8 @@ class Vector
     // overloaded operators
     inline double operator()(int x) const;
     inline double &operator()(int x);
-    double operator[](int x) const;  // these two operator do bounds checks
-    double &operator[](int x);
+    inline double operator[](int x) const;  
+    double &operator[](int x); // this operator does bounds checks
     Vector operator()(const ID &rows) const;
     Vector &operator=(const Vector  &V);
 #if !defined(NO_CXX11_MOVE)   
@@ -89,7 +95,7 @@ class Vector
     Vector operator-(double fact) const;
     Vector operator*(double fact) const;
     Vector operator/(double fact) const;
-    
+
     Vector &operator+=(const Vector &V);
     Vector &operator-=(const Vector &V);
     
@@ -119,6 +125,7 @@ class Vector
     friend class Matrix;
 //  template<int n> friend struct OpenSees::VectorND;
     template<int n, typename> friend struct OpenSees::VectorND;
+    template<int nr, int nc, typename> friend struct OpenSees::MatrixND;
     friend class UDP_Socket;
     friend class TCP_Socket;
     friend class TCP_SocketSSL;
@@ -131,7 +138,6 @@ class Vector
     int sz;
     double *theData;
     int fromFree;
-//  static double VECTOR_NOT_VALID_ENTRY;
 };
 
 
@@ -145,21 +151,23 @@ Vector::Size(void) const
 
 inline void
 Vector::Zero(void){
-  for (int i=0; i<sz; i++) theData[i] = 0.0;
+  for (int i=0; i<sz; i++)
+    theData[i] = 0.0;
 }
 
 
 inline double 
 Vector::operator()(int x) const
 {
-#ifdef _G3DEBUG
-  // check if it is inside range [0,sz-1]
-  if (x < 0 || x >= sz) {
-      opserr << "Vector::(loc) - loc " << x << " outside range [0, " << sz-1 << endln;
-      return VECTOR_NOT_VALID_ENTRY;
-  }
-#endif
+  assert(x >= 0 && x < sz);
+  return theData[x];
+}
 
+inline double
+Vector::operator[](int x) const
+{
+  // check if it is inside range [0,sz-1]
+  assert(x >= 0 && x < sz);
   return theData[x];
 }
 
@@ -167,14 +175,7 @@ Vector::operator()(int x) const
 inline double &
 Vector::operator()(int x)
 {
-#ifdef _G3DEBUG
-  // check if it is inside range [0,sz-1]
-  if (x < 0 || x >= sz) {
-      opserr << "Vector::(loc) - loc " << x << " outside range [0, " << sz-1 << endln;
-      return VECTOR_NOT_VALID_ENTRY;
-  }
-#endif
-  
+  assert(x >= 0 && x < sz);
   return theData[x];
 }
 

@@ -129,14 +129,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticForceBeamColumnWarping2d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
 	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
 	opserr<<"beam integration not found\n";
 	return 0;
@@ -1627,6 +1627,10 @@ ElasticForceBeamColumnWarping2d::setParameter(const char **argv, int argc, Param
     ok += beamIntegr->setParameter(argv, argc, param);
     return ok;
   }
+
+  // This return is just to silence the return-type warning;
+  // it is not expected to be used
+  return 0;
 }
 
 int

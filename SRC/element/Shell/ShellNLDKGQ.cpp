@@ -32,6 +32,7 @@
 
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
@@ -630,15 +631,14 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
   Tmat(5, 4) = g2[2];
   Tmat(5, 5) = g3[2];
 
-  //transpose TmatTran=transpose(Tmat)
-  for (p2 = 0; p2 < 6; p2++) {
-    for (q2 = 0; q2 < 6; q2++) {
+  for (int p2 = 0; p2 < 6; p2++) {
+    for (int q2 = 0; q2 < 6; q2++) {
       TmatTran(p2, q2) = Tmat(q2, p2);
     }
   } //end for p2
 
   //------------gauss loop--------------------------
-  for (i = 0; i < ngauss; i++) {
+  for (int i = 0; i < ngauss; i++) {
 
     //get shape functions
     shape2d(pts[i][0], pts[i][1], xl, shp, xsj, sx);
@@ -790,7 +790,6 @@ const Matrix &ShellNLDKGQ::getInitialStiff()
           BJ(p, q) *= (-1.0);
       } //end for p
 
-      //transpose BJtran=transpose(BJ);
       for (p = 0; p < ndf; p++) {
         for (q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
@@ -1401,22 +1400,22 @@ void ShellNLDKGQ::formResidAndTangent(int tang_flag)
 
     //jj loop----------------
     jj = 0;
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
       //extract BJ
-      for (p = 0; p < nstress; p++) {
+      for (int p = 0; p < nstress; p++) {
         for (q = 0; q < ndf; q++)
           BJ(p, q) = saveB[p][q][j];
       } // end for p
       //multiply bending terms by -1.0 for correct statement of equilibrium
-      for (p = 3; p < 6; p++) {
+      for (int p = 3; p < 6; p++) {
         for (q = 3; q < 6; q++)
           BJ(p, q) *= (-1.0);
       } //end for p
 
       //transpose BJtran=transpose(BJ);
-      for (p = 0; p < ndf; p++) {
-        for (q = 0; q < nstress; q++)
+      for (int p = 0; p < ndf; p++) {
+        for (int q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
       } //end for p
 
@@ -1430,8 +1429,8 @@ void ShellNLDKGQ::formResidAndTangent(int tang_flag)
       //add for geometric nonlinearity
       BGJ = computeBG(j, shpBend);
       //transpose BGJ
-      for (p3 = 0; p3 < 3; p3++) {
-        for (q3 = 0; q3 < 2; q3++)
+      for (int p3 = 0; p3 < 3; p3++) {
+        for (int q3 = 0; q3 < 2; q3++)
           BGJtran(p3, q3) = BGJ(q3, p3);
       } //end for p3
       stiffBGM.addMatrixProduct(0.0, BGJtran, membraneForce, 1.0);
@@ -1574,7 +1573,7 @@ void ShellNLDKGQ::computeBasis()
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } //end for i
+  }
 }
 
 //start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
@@ -1589,35 +1588,31 @@ void ShellNLDKGQ::updateBasis()
   //and use those as basis vectors but this is easier
   //and the shell is flat anyway.
 
-  static Vector temp(3);
+  Vector3D coor[4];
+  for (int i=0; i<4; i++) {
+    coor[i] = nodePointers[i]->getCrds();
+    const Vector& displ = nodePointers[i]->getTrialDisp();
+    for (int j=0; j<3; j++)
+      coor[i][j] += displ[j];
+  }
 
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
+  Vector3D v1;
+  Vector3D v2;
+  Vector3D temp;
 
-  const Vector &coor0 =
-      nodePointers[0]->getCrds() + nodePointers[0]->getTrialDisp();
-  const Vector &coor1 =
-      nodePointers[1]->getCrds() + nodePointers[1]->getTrialDisp();
-  const Vector &coor2 =
-      nodePointers[2]->getCrds() + nodePointers[2]->getTrialDisp();
-  const Vector &coor3 =
-      nodePointers[3]->getCrds() + nodePointers[3]->getTrialDisp();
-
-  v1.Zero();
   //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
-  v1 = coor2;
-  v1 += coor1;
-  v1 -= coor3;
-  v1 -= coor0;
+  v1  = coor[2];
+  v1 += coor[1];
+  v1 -= coor[3];
+  v1 -= coor[0];
   v1 *= 0.50;
 
-  v2.Zero();
+
   //v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
-  v2 = coor3;
-  v2 += coor2;
-  v2 -= coor1;
-  v2 -= coor0;
+  v2  = coor[3];
+  v2 += coor[2];
+  v2 -= coor[1];
+  v2 -= coor[0];
   v2 *= 0.50;
   /*//normalize v1 
   double length = v1.Norm( ) ;
@@ -1640,46 +1635,44 @@ void ShellNLDKGQ::updateBasis()
   v3 = LovelyCrossProduct( v1, v2 ) ;*/
 
   // this procesure is simplified by Lisha Wang
-  v3      = LovelyCrossProduct(v1, v2);
-  v2      = LovelyCrossProduct(v3, v1);
-  temp(0) = v1.Norm();
-  temp(1) = v2.Norm();
-  temp(2) = v3.Norm();
+  Vector3D v3 = v1.cross(v2);
 
-  v1 /= temp(0);
-  v2 /= temp(1);
-  v3 /= temp(2);
+  v2      = v3.cross(v1);
+  temp[0] = v1.norm();
+  temp[1] = v2.norm();
+  temp[2] = v3.norm();
+
+  v1 /= temp[0];
+  v2 /= temp[1];
+  v3 /= temp[2];
 
   // local nodal coordinates in plane of shell
   for (int i = 0; i < 4; i++) {
-
+#if 0
+    // modify by Lisha Wang
     const Vector &coorI = nodePointers[i]->getCrds() +
-                          nodePointers[i]->getDisp(); //modify by Lisha Wang
-    xl[0][i] = coorI ^ v1;
-    xl[1][i] = coorI ^ v2;
+                          nodePointers[i]->getDisp(); 
+#endif
+    xl[0][i] = v1.dot(coor[i]);
+    xl[1][i] = v2.dot(coor[i]);
 
   }
 
   // basis vectors stored as array of doubles
   for (int i = 0; i < 3; i++) {
-    g1[i] = v1(i);
-    g2[i] = v2(i);
-    g3[i] = v3(i);
+    g1[i] = v1[i];
+    g2[i] = v2[i];
+    g3[i] = v3[i];
   }
 }
-//end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
 //********************************************************************
-//assemble a B matrix
+// assemble a B matrix
 
 const Matrix &ShellNLDKGQ::assembleB(const Matrix &Bmembrane,
                                      const Matrix &Bbend, const Matrix &Bshear)
 {
   static Matrix B(8, 6);
-
-  int p, q;
-
-  int pp;
 
   // For Shell :
   //
@@ -1705,16 +1698,16 @@ const Matrix &ShellNLDKGQ::assembleB(const Matrix &Bmembrane,
 
   //bending parts
   for (int p = 3; p < 6; p++) {
-    pp = p - 3;
+    int pp = p - 3;
     for (int q = 3; q < 6; q++)
       B(p, q) = Bbend(pp, q - 3);
   } //end for p
 
   //shear parts
   for (int p = 0; p < 2; p++) {
-    pp = p + 6;
+    int pp = p + 6;
 
-    for (q = 3; q < 6; q++)
+    for (int q = 3; q < 6; q++)
       B(pp, q) = Bshear(p, q - 3);
   } //end for p
 
@@ -1898,26 +1891,6 @@ void ShellNLDKGQ::shape2d(double ss, double tt, const double x[2][4],
 }
 
 //**********************************************************************
-
-/*Matrix  
-ShellNLDKGQ::transpose( int dim1, 
-                                       int dim2, 
-		                       const Matrix &M ) 
-{
-  int i ;
-  int j ;
-
-  Matrix Mtran( dim2, dim1 ) ;
-
-  for ( i = 0; i < dim1; i++ ) {
-     for ( j = 0; j < dim2; j++ ) 
-         Mtran(j,i) = M(i,j) ;
-  } // end for i
-
-  return Mtran ;
-}
-*/
-//**********************************************************************
 // shape function for drill dof
 void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
                              double sx[2][2], double shpDrill[4][4])
@@ -1930,7 +1903,6 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
 
   double shptemp[4][4]; //derivative to xi,eta
 
-  int i, j, k;
 
   const double one_over_four  = 1 / 4.0;
   const double one_over_eight = 1 / 8.0;
@@ -1941,7 +1913,8 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   b1 = 0.0;
   b2 = 0.0;
   b3 = 0.0;
-  for (i = 0; i < 4; i++) {
+
+  for (int i = 0; i < 4; i++) {
     a1 += s[i] * x[0][i] * one_over_four;
     a2 += t[i] * x[0][i] * one_over_four;
     a3 += s[i] * t[i] * x[0][i] * one_over_four;
@@ -1953,7 +1926,7 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   //compute the derivatives of shape function to xi, eta
   // shptemp[0][j] = Nu,xi   shptemp[1][j] = Nu,eta
   // shptemp[2][j] = Nv,xi   shptemp[3][j] = Nv,eta
-  for (j = 0; j < 4; j++) {
+  for (int j = 0; j < 4; j++) {
     shptemp[0][j] = one_over_eight *
                     (-2.0 * s[j] * ss * (b1 + b3 * t[j]) * (1.0 + t[j] * tt) +
                      s[j] * t[j] * (1.0 - tt * tt) * (b2 + b3 * s[j]));
@@ -1973,7 +1946,7 @@ void ShellNLDKGQ::shapeDrill(double ss, double tt, const double x[2][4],
   //shpDrill = |  Nu,2  |
   //           |  Nv,1  |
   //           |  Nv,2  |
-  for (k = 0; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
 
     shpDrill[0][k] = shptemp[0][k] * sx[0][0] + shptemp[1][k] * sx[1][0];
     shpDrill[1][k] = shptemp[0][k] * sx[0][1] + shptemp[1][k] * sx[1][1];

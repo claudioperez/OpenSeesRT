@@ -17,20 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2007-10-26 04:29:24 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/ContinuumUniaxial.cpp,v $
-
-// Written: MHS
-// Created: June 2002
 //
 // Description: This file contains the class definition of ContinuumUniaxial.
 // The ContinuumUniaxial class is a wrapper class that performs static
 // condensation on a three-dimensional material model to give the 11
 // uniaxial stress component.
-
+//
+// Written: MHS
+// Created: June 2002
+//
 #include <ContinuumUniaxial.h>
+#include <OPS_ErrorStream.h>
 #include <NDMaterial.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>

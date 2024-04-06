@@ -17,17 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2006-08-17 22:25:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/EnvelopeDriftRecorder.cpp,v $
-
+//
 // Written: fmk
 // Created: 08/06
 //
 // Description: This file contains the class definition for EnvelopeDriftRecorder.
 
 #include <math.h>
+#include <assert.h>
 
 #include <EnvelopeDriftRecorder.h>
 #include <Domain.h>
@@ -38,6 +35,7 @@
 #include <string.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 EnvelopeDriftRecorder::EnvelopeDriftRecorder()
   :Recorder(RECORDER_TAGS_EnvelopeDriftRecorder),
@@ -129,19 +127,16 @@ EnvelopeDriftRecorder::~EnvelopeDriftRecorder()
 int 
 EnvelopeDriftRecorder::record(int commitTag, double timeStamp)
 {
+  assert(theOutputHandler != nullptr);
   
   if (theDomain == 0 || ndI == 0 || ndJ == 0) {
     return 0;
   }
   
-  if (theOutputHandler == 0) {
-    opserr << "EnvelopeDriftRecorder::record() - no DataOutputHandler has been set\n";
-    return -1;
-  }
-  
+
   if (initializationDone != true) 
     if (this->initialize() != 0) {
-      opserr << "EnvelopeDriftRecorder::record() - failed in initialize()\n";
+      // opserr << "EnvelopeDriftRecorder::record() - failed in initialize()\n";
       return -1;
     }
   
@@ -275,25 +270,25 @@ EnvelopeDriftRecorder::sendSelf(int commitTag, Channel &theChannel)
     idData(5) = 1;    
 
   if (theChannel.sendID(0, commitTag, idData) < 0) {
-    opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send idData\n";
+    // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send idData\n";
     return -1;
   }
 
   if (ndI != 0) 
     if (theChannel.sendID(0, commitTag, *ndI) < 0) {
-      opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send dof id's\n";
+      // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send dof id's\n";
       return -1;
     }
 
   if (ndJ != 0) 
     if (theChannel.sendID(0, commitTag, *ndJ) < 0) {
-      opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send dof id's\n";
+      // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send dof id's\n";
       return -1;
     }
 
 
   if (theOutputHandler->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send the DataOutputHandler\n";
+    // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send the DataOutputHandler\n";
     return -1;
   }
 
@@ -306,18 +301,15 @@ EnvelopeDriftRecorder::recvSelf(int commitTag, Channel &theChannel,
 {
   static ID idData(6); 
   if (theChannel.recvID(0, commitTag, idData) < 0) {
-    opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send idData\n";
+    // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send idData\n";
     return -1;
   }
   
   if (idData(0) != 0) {
     ndI = new ID(idData(0));
-    if (ndI == 0) {
-      opserr << "EnvelopeDriftRecorder::sendSelf() - out of memory\n";
-      return -1;
-    }
+
     if (theChannel.recvID(0, commitTag, *ndI) < 0) {
-      opserr << "EnvelopeDriftRecorder::sendSelf() - failed to recv dof id's\n";
+      // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to recv dof id's\n";
       return -1;
     } 
   }
@@ -325,12 +317,9 @@ EnvelopeDriftRecorder::recvSelf(int commitTag, Channel &theChannel,
   if (idData(1) != 0) {
 
     ndJ = new ID(idData(1));
-    if (ndJ == 0) {
-      opserr << "EnvelopeDriftRecorder::sendSelf() - out of memory\n";
-      return -1;
-    }
+
     if (theChannel.recvID(0, commitTag, *ndJ) < 0) {
-      opserr << "EnvelopeDriftRecorder::sendSelf() - failed to recv dof id's\n";
+      // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to recv dof id's\n";
       return -1;
     } 
   }
@@ -347,13 +336,13 @@ EnvelopeDriftRecorder::recvSelf(int commitTag, Channel &theChannel,
     delete theOutputHandler;
 
   theOutputHandler = theBroker.getPtrNewStream(idData(4));
-  if (theOutputHandler == 0) {
-    opserr << "EnvelopeDriftRecorder::sendSelf() - failed to get a data output handler\n";
+  if (theOutputHandler == nullptr) {
+    // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to get a data output handler\n";
     return -1;
   }
 
   if (theOutputHandler->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send the DataOutputHandler\n";
+    // opserr << "EnvelopeDriftRecorder::sendSelf() - failed to send the DataOutputHandler\n";
     return -1;
   }
 
@@ -374,11 +363,11 @@ EnvelopeDriftRecorder::initialize(void)
 
   if (theNodes != 0) {
     delete [] theNodes;
-    theNodes = 0;
+    theNodes = nullptr;
   }
   if (currentData != 0) {
     delete currentData;
-    currentData = 0;
+    currentData = nullptr;
   }
   if (oneOverL != 0) {
     delete oneOverL;
@@ -388,8 +377,7 @@ EnvelopeDriftRecorder::initialize(void)
   //
   // check valid node ID's
   //
-
-  if (ndI == 0 || ndJ == 0) {
+  if (ndI == nullptr || ndJ == nullptr) {
     opserr << "EnvelopeDriftRecorder::initialize() - no nodal id's set\n";
     return -1;
   }
@@ -450,22 +438,17 @@ EnvelopeDriftRecorder::initialize(void)
   data->Zero();
   theNodes = new Node *[2*numNodes];
   oneOverL = new Vector(numNodes);
-  if (theNodes == 0  || oneOverL == 0 || currentData == 0) {
-    opserr << "EnvelopeDriftRecorder::initialize() - out of memory\n";
-    return -3;
-  }
 
   //
   // set node pointers and determine one over L
   //
-
   int counter = 0;
   int counterI = 0;
   int counterJ = 1;
   for (int j=0; j<ndIsize; j++) {
     int ni = (*ndI)(j);
     int nj = (*ndJ)(j);
-    
+
     Node *nodeI = theDomain->getNode(ni);
     Node *nodeJ = theDomain->getNode(nj);
 

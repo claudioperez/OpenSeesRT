@@ -31,7 +31,7 @@
 #include <ReeseSandBackbone.h>
 #include <Vector.h>
 #include <Channel.h>
-
+#include <OPS_Stream.h>
 #include <math.h>
 
 ReeseSandBackbone::ReeseSandBackbone(int tag, double KX, 
@@ -131,12 +131,12 @@ ReeseSandBackbone::getCopy(void)
 void
 ReeseSandBackbone::Print(OPS_Stream &s, int flag)
 {
-  s << "ReeseSandBackbone, tag: " << this->getTag() << endln;
-  s << "\tkx: " << kx << endln;
-  s << "\tym: " << ym << endln;
-  s << "\tpm: " << pm << endln;
-  s << "\tyu: " << yu << endln;
-  s << "\tpu: " << pu << endln;
+  s << "ReeseSandBackbone, tag: " << this->getTag() << "\n";
+  s << "\tkx: " << kx << "\n";
+  s << "\tym: " << ym << "\n";
+  s << "\tpm: " << pm << "\n";
+  s << "\tyu: " << yu << "\n";
+  s << "\tpu: " << pu << "\n";
 }
 
 int
@@ -167,8 +167,6 @@ ReeseSandBackbone::sendSelf(int commitTag, Channel &theChannel)
   
   res += theChannel.sendVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ReeseSandBackbone::sendSelf -- could not send Vector" << endln;
-
     return res;
   }
   
@@ -185,8 +183,6 @@ ReeseSandBackbone::recvSelf(int commitTag, Channel &theChannel,
   
   res += theChannel.recvVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ReeseSandBackbone::recvSelf -- could not receive Vector" << endln;
-
     return res;
   }
   

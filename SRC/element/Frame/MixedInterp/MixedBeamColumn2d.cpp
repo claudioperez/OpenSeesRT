@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2010-05-04 17:14:45 $
-// $Source: /scratch/slocal/chroot/cvsroot/openseescomp/CompositePackages/mixedBeamColumn/MixedBeamColumn2d.cpp,v $
-
+//
+//
 #include <MixedBeamColumn2d.h>
 #include <BeamIntegration.h>
 #include <SectionForceDeformation.h>
@@ -174,14 +171,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumn2d) {
   int beamIntTag = iData[4];
   
   // Get the coordinate transformation
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING geometric transformation with tag " << transfTag << "not found for element " << eleTag << endln;
     return 0;
   }
 
   // Get beam integrataion
-  BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", beamIntTag));
+  BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(beamIntTag);
   if(theRule == 0) {
     opserr<<"beam integration not found\n";
     return 0;
@@ -1303,6 +1300,9 @@ Response* MixedBeamColumn2d::setResponse(const char **argv, int argc,
       }
     }
   }
+
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
 
   output.endTag();
   return theResponse;

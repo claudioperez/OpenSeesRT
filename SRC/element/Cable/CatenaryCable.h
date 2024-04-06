@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 6049 $
-// $Date: 2015-07-17 01:56:36 -0300 (Fri, 17 Jul 2015) $
-// $URL: svn://peera.berkeley.edu/usr/local/svn/OpenSees/trunk/SRC/element/CatenaryCable/CatenaryCable.h $
-                                                                        
-                                                                        
+//
 #ifndef CatenaryCable_h
 #define CatenaryCable_h
 
@@ -41,8 +36,6 @@
 // 
 //  Verification suite can be found in www.joseabell.com
 //
-// What: "@(#) CatenaryCable.h, revA"
-
 // #define USE_QUADMATH 0
 
 #ifdef USE_QUADMATH
@@ -103,7 +96,6 @@ class CatenaryCable : public Element
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
     void Print(OPS_Stream &s, int flag =0);    
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
@@ -169,3 +161,4 @@ class CatenaryCable : public Element
 };
 
 #endif
+

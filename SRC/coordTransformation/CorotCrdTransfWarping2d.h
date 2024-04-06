@@ -29,11 +29,11 @@
 #ifndef CorotCrdTransfWarping2d_h
 #define CorotCrdTransfWarping2d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class CorotCrdTransfWarping2d: public CrdTransf
+class CorotCrdTransfWarping2d: public FrameTransform<2>
 {
 public:
     CorotCrdTransfWarping2d(int tag, const Vector &rigJntOffsetI, const Vector &rigJntOffsetJ);

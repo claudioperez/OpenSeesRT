@@ -215,7 +215,7 @@ ElasticSection2d::getCopy(void)
 }
 
 const ID&
-ElasticSection2d::getType(void)
+ElasticSection2d::getType()
 {
     return code;
 }

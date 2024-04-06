@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2011-07-18 10:11:35 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/FiberSection2dThermal.h,v $
-
-//Modified by Jian Zhang, [University of Edinburgh]
-//Modified by Panagiotis Kotsovinos, [University of Edinburgh]
-
+//
 // Description: This file contains the class definition for FiberSection2dThermal
 // FiberSection2dThermal provides the abstraction of a 2d beam section discretized by fibers.
 // The section stiffness and stress resultants are obtained by summing fiber contributions.
 // Also the thermal stress are integrated through section.
-
+//
+// Modified by Jian Zhang, [University of Edinburgh]
+// Modified by Panagiotis Kotsovinos, [University of Edinburgh]
+//
 #ifndef FiberSection2dThermal_h
 #define FiberSection2dThermal_h
 
@@ -41,16 +37,17 @@
 class UniaxialMaterial;
 class Fiber;
 class Response;
-class SectionIntegration;
 
 class FiberSection2dThermal : public SectionForceDeformation
 {
   public:
     FiberSection2dThermal();
-    FiberSection2dThermal(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2dThermal(int tag, int num, bool compCentroid=true);
+#if 0
+    FiberSection2dThermal(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2dThermal(int tag, int numFibers, UniaxialMaterial **mats,
 			  SectionIntegration &si, bool compCentroid=true);
+#endif
     ~FiberSection2dThermal();
 
     const char *getClassType(void) const {return "FiberSection2dThermal";};
@@ -70,8 +67,8 @@ class FiberSection2dThermal : public SectionForceDeformation
     int   revertToStart(void);
 
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
-    int getOrder (void) const;
+    const ID &getType();
+    int getOrder(void) const;
 
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel,
@@ -82,7 +79,7 @@ class FiberSection2dThermal : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial& theMat, const double Area, const double yLoc);
     //double getMaterialPara(void);
 
 
@@ -110,8 +107,6 @@ class FiberSection2dThermal : public SectionForceDeformation
     double QzBar, ABar, yBar;       // Section centroid
     bool computeCentroid;
     
-    SectionIntegration *sectionIntegr;
-
     static ID code;
 
     Vector e;          // trial section deformations
@@ -120,8 +115,8 @@ class FiberSection2dThermal : public SectionForceDeformation
     Matrix *ks;        // section stiffness
     Vector DataMixed;
 
-    double   sTData[2];   //Data for section resisting force due to thermal load
-    Vector  *sT;  //  Pointer to sTData
+    double   sTData[2];   // Data for section resisting force due to thermal load
+    Vector  *sT;          // Pointer to sTData
     double *Fiber_Tangent;
     double *Fiber_ElongP;
     Vector AverageThermalElong;

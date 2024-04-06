@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-08-26 16:20:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/Material.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 05/98
 // Revision: A
 //
 // Description: This file contains the class implementation for MaterialModel.
 //
-// What: "@(#) MaterialModel.C, revA"
-
 #include <Material.h>
 
 Material::Material(int tag, int clasTag)

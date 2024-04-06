@@ -30,8 +30,7 @@
 #include <ProfileSPDLinDirectBlockSolver.h>
 #include <ProfileSPDLinSOE.h>
 #include <math.h>
-#include <stdlib.h>
-
+#include <assert.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
@@ -55,15 +54,12 @@ int
 ProfileSPDLinDirectBlockSolver::setSize(void)
 {
 
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectBlockSolver::setSize()";
-	opserr << " No system has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
 
     // check for quick return 
     if (theSOE->size == 0)
 	return 0;
+
     if (size != theSOE->size) {    
       size = theSOE->size;
     
@@ -77,12 +73,6 @@ ProfileSPDLinDirectBlockSolver::setSize(void)
       topRowPtr = (double **)malloc(size *sizeof(double *));
 
       invD = new double[size]; 
-	
-      if (RowTop == 0 || topRowPtr == 0 || invD == 0) {
-	opserr << "Warning :ProfileSPDLinDirectBlockSolver::ProfileSPDLinDirectBlockSolver :";
-	opserr << " ran out of memory for work areas \n";
-	return -1;
-      }
     }
 
 
@@ -110,13 +100,9 @@ ProfileSPDLinDirectBlockSolver::setSize(void)
 int 
 ProfileSPDLinDirectBlockSolver::solve(void)
 {
-    // check for quick returns
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectBlockSolver::solve(void): ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
-    
+    assert(theSOE != nullptr);
+
+    // check for quick returns 
     if (theSOE->size == 0)
 	return 0;
 
@@ -198,14 +184,14 @@ ProfileSPDLinDirectBlockSolver::solve(void)
 
 	      // check that the diag > the tolerance specified
 	      if (ajj <= 0.0) {
-		opserr << "ProfileSPDLinDirectBlockSolver::solve() - ";
-		opserr << " aii < 0 (i, aii): (" << currentRow << ", " << ajj << ")\n"; 
+		// opserr << "ProfileSPDLinDirectBlockSolver::solve() - ";
+		// opserr << " aii < 0 (i, aii): (" << currentRow << ", " << ajj << ")\n"; 
 		return(-2);
 	      }
 	      if (ajj <= minDiagTol) {
-		opserr << "ProfileSPDLinDirectBlockSolver::solve() - ";
-		opserr << " aii < minDiagTol (i, aii): (" << currentRow;
-		opserr << ", " << ajj << ")\n"; 
+		// opserr << "ProfileSPDLinDirectBlockSolver::solve() - ";
+		// opserr << " aii < minDiagTol (i, aii): (" << currentRow;
+		// opserr << ", " << ajj << ")\n"; 
 		return(-2);
 	      }		
 	      invD[currentRow] = 1.0/ajj; 
@@ -279,8 +265,7 @@ ProfileSPDLinDirectBlockSolver::solve(void)
 
     
 	// now do the back substitution storing result in X
-	for (int k=(n-1); k>0; k--) {
-      
+	for (int k=(n-1); k>0; k--) {      
 	  int rowktop = RowTop[k];
 	  double bk = X[k];
 	  double *ajiPtr = topRowPtr[k]; 		
@@ -325,6 +310,7 @@ ProfileSPDLinDirectBlockSolver::solve(void)
     return 0;
 }
 
+#if 0
 int 
 ProfileSPDLinDirectBlockSolver::setProfileSOE(ProfileSPDLinSOE &theNewSOE)
 {
@@ -337,12 +323,13 @@ ProfileSPDLinDirectBlockSolver::setProfileSOE(ProfileSPDLinSOE &theNewSOE)
     theSOE = &theNewSOE;
     return 0;
 }
+#endif
 	
 int
 ProfileSPDLinDirectBlockSolver::sendSelf(int cTag, Channel &theChannel)
 {
-    if (size != 0)
-	opserr << "ProfileSPDLinDirectBlockSolver::sendSelf - does not send itself YET\n"; 
+//    if (size != 0)
+//	opserr << "ProfileSPDLinDirectBlockSolver::sendSelf - does not send itself YET\n"; 
     return 0;
 }
 

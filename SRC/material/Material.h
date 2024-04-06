@@ -17,26 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2008-08-26 16:20:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/Material.h,v $
-                                                                        
-                                                                        
+//
 #ifndef Material_h
 #define Material_h
-
-// Written: fmk 
-// Created: 05/98
-// Revision: A
 //
 // Description: This file contains the class definition for Material.
 // Material is an abstract base class and thus no objects of it's type
 // can be instantiated. It has pure virtual functions which must be
 // implemented in it's derived classes. 
 //
-// What: "@(#) Material.h, revA"
-
+// Written: fmk 
+// Created: 05/98
+// Revision: A
+//
 #include <DomainComponent.h>
 #include <MovableObject.h>
 

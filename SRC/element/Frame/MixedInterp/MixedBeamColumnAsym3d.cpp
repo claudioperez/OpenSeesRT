@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2010-05-04 17:14:45 $
-// $Source: /scratch/slocal/chroot/cvsroot/openseescomp/CompositePackages/MixedBeamColumnAsym3d/MixedBeamColumnAsym3d.cpp,v $
-
+//
 // Modified by: Xinlong Du and Jerome F. Hajjar, Northeastern University, USA; Year 2020
 // Description: Adapted for analysis of asymmetric sections with introducing
 // high-order axial terms for the basic element formulation
@@ -71,7 +67,6 @@
 //#define  NDM_NATURAL_WITH_TORSION  6   // number of element dof's in the basic system with torsion
 //#define  MAX_NUM_SECTIONS  10          // maximum number of sections allowed
 
-using namespace std;
 
 
 Matrix MixedBeamColumnAsym3d::theMatrix(NEGD,NEGD);
@@ -81,12 +76,12 @@ double MixedBeamColumnAsym3d::workArea[400];
 //Matrix MixedBeamColumnAsym3d::transformNaturalCoordsT(NDM_NATURAL_WITH_TORSION,NDM_NATURAL_WITH_TORSION);
 //int MixedBeamColumnAsym3d::maxNumSections = 10;
 
-Vector *MixedBeamColumnAsym3d::sectionDefShapeFcn = 0;
-Matrix *MixedBeamColumnAsym3d::nldhat = 0;
-Matrix *MixedBeamColumnAsym3d::nd1 = 0;
-Matrix *MixedBeamColumnAsym3d::nd2 = 0;
-Matrix *MixedBeamColumnAsym3d::nd1T = 0;
-Matrix *MixedBeamColumnAsym3d::nd2T = 0;
+Vector *MixedBeamColumnAsym3d::sectionDefShapeFcn = nullptr;
+Matrix *MixedBeamColumnAsym3d::nldhat = nullptr;
+Matrix *MixedBeamColumnAsym3d::nd1    = nullptr;
+Matrix *MixedBeamColumnAsym3d::nd2    = nullptr;
+Matrix *MixedBeamColumnAsym3d::nd1T   = nullptr;
+Matrix *MixedBeamColumnAsym3d::nd2T   = nullptr;
 
 
 /*
@@ -201,16 +196,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumnAsym3d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if (theTransf == 0) {
-        opserr << "coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if (theRule == 0) {
-        opserr << "beam integration not found\n";
         return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
@@ -223,7 +216,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumnAsym3d)
     const ID& secTags = theRule->getSectionTags();
     SectionForceDeformation** sections = new SectionForceDeformation * [secTags.Size()];
     for (int i = 0; i < secTags.Size(); i++) {
-        sections[i] = OPS_getSectionForceDeformation(secTags(i));
+        sections[i] = (SectionForceDeformation*)(G3_getSafeBuilder(rt)->getTypedObject<SectionForceDeformation>(secTags(i)));
         if (sections[i] == 0) {
             opserr << "section " << secTags(i) << "not found\n";
             delete[] sections;
@@ -278,9 +271,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumnAsym3dTcl) {
   int transfTag = iData[5];
 
   // Get the section
-  SectionForceDeformation *theSection = OPS_getSectionForceDeformation(secTag);
-  if (theSection == 0) {
-    opserr << "WARNING section with tag " << secTag << "not found for element " << eleTag << endln;
+  SectionForceDeformation *theSection =
+          (SectionForceDeformation*)(G3_getSafeBuilder(rt)->getTypedObject<SectionForceDeformation>(secTag));
+  if (theSection == nullptr) {
+    opserr << "WARNING section with tag " << secTag << " not found for element " << eleTag << endln;
     return 0;
   }
 
@@ -290,7 +284,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MixedBeamColumnAsym3dTcl) {
   }
 
   // Get the coordinate transformation
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTransf == 0) {
     opserr << "WARNING geometric transformation with tag " << transfTag << "not found for element " << eleTag << endln;
     return 0;

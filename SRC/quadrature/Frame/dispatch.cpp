@@ -37,7 +37,7 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
   if (argc < 2) {
-    opserr << "WARNING: want beamIntegration type tag...\n";
+    opserr << G3_ERROR_PROMPT << "want beamIntegration type tag...\n";
     return TCL_ERROR;
   }
 
@@ -45,7 +45,7 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
 
   int iTag;
   ID secTags;
-  BeamIntegration *bi = 0;
+  BeamIntegration *bi = nullptr;
   if (strcmp(argv[1], "Lobatto") == 0) {
     bi = (BeamIntegration *)OPS_LobattoBeamIntegration(iTag, secTags);
   } else if (strcmp(argv[1], "Legendre") == 0) {
@@ -77,28 +77,19 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
   } else if (strcmp(argv[1], "HingeEndpoint") == 0) {
     bi = (BeamIntegration *)OPS_HingeEndpointBeamIntegration(iTag, secTags);
   } else if (strcmp(argv[1],"ConcentratedPlasticity") == 0) {
-      bi = (BeamIntegration*)OPS_ConcentratedPlasticityBeamIntegration(iTag,secTags);
+    bi = (BeamIntegration*)OPS_ConcentratedPlasticityBeamIntegration(iTag,secTags);
   } else if (strcmp(argv[1],"ConcentratedCurvature") == 0) {
-      bi = (BeamIntegration*)OPS_ConcentratedCurvatureBeamIntegration(iTag,secTags);
+    bi = (BeamIntegration*)OPS_ConcentratedCurvatureBeamIntegration(iTag,secTags);
   } else {
     opserr << "WARNING: integration type " << argv[1] << " is unknown\n";
     return TCL_ERROR;
   }
 
-  if (bi == 0) {
-    opserr << "WARNING: failed to create beam integration\n";
-    return TCL_ERROR;
-  }
-
+  assert(bi);
   BeamIntegrationRule *rule = new BeamIntegrationRule(iTag, bi, secTags);
-  if (rule == 0) {
-    opserr << "WARNING: failed to create beam integration\n";
-    delete bi;
-    return TCL_ERROR;
-  }
 
-//if (OPS_addBeamIntegrationRule(rule) == false) {
-  if (!builder->addRegistryObject("BeamIntegrationRule", iTag, rule)) {
+
+  if (builder->addTypedObject<BeamIntegrationRule>(iTag, rule) < 0) {
     opserr << G3_ERROR_PROMPT << "could not add BeamIntegrationRule.";
     delete rule;
     return TCL_ERROR;

@@ -194,7 +194,7 @@ ElasticIsotropicPlaneStrain2D::sendSelf(int commitTag, Channel &theChannel)
   
   int res = theChannel.sendVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ElasticIsotropicPlaneStrain2D::sendSelf -- could not send Vector\n";
+    // opserr << "ElasticIsotropicPlaneStrain2D::sendSelf -- could not send Vector\n";
     return res;
   }
   
@@ -209,7 +209,7 @@ ElasticIsotropicPlaneStrain2D::recvSelf(int commitTag, Channel &theChannel,
   
   int res = theChannel.recvVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ElasticIsotropicPlaneStrain2D::sendSelf -- could not send Vector\n";
+    // opserr << "ElasticIsotropicPlaneStrain2D::sendSelf -- could not send Vector\n";
     return res;
   }
 

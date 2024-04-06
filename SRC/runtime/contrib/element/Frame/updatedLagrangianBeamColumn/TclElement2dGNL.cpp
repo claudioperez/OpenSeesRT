@@ -37,7 +37,7 @@ TclBasicBuilder_addElastic2dGNL(ClientData clientData, Tcl_Interp *interp, int a
 
   int tag, ndI, ndJ;
   double E, A, I;
-  double massDens = 0.0;
+//double massDens = 0.0;
   bool linear = false;
 
   if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {

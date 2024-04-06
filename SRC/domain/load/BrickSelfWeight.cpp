@@ -23,10 +23,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-#ifndef BRICKSELFWEIGHT_CPP
-#define BRICKSELFWEIGHT_CPP
-
-                                                                        
 // Written: ZHYang UC Davis
 // Purpose: This file contains the class definition for 8 node brick self weight load.
 
@@ -77,8 +73,7 @@ void
 BrickSelfWeight::Print(OPS_Stream &s, int flag)
 {
   s << "BrickSelfWeight...";
-  s << "  element acted on: " << eleTag << endln;;
+  s << "  element acted on: " << eleTag << "\n";
 }
 
-#endif
 

@@ -53,10 +53,10 @@ class FourNodeTetrahedron : public Element {
 
   public :
     
-    //null constructor
+    // null constructor
     FourNodeTetrahedron();
   
-    //full constructor
+    // full constructor
     FourNodeTetrahedron(int tag, 
 	  int node1,
 	  int node2,
@@ -65,52 +65,52 @@ class FourNodeTetrahedron : public Element {
 	  NDMaterial &theMaterial,
 	  double b1 = 0.0, double b2 = 0.0, double b3 = 0.0);
     
-    //destructor 
+    // destructor 
     virtual ~FourNodeTetrahedron( ) ;
 
     const char *getClassType(void) const {return "FourNodeTetrahedron";};
 
-    //set domain
+    // set domain
     void setDomain( Domain *theDomain ) ;
 
-    //get the number of external nodes
+    // get the number of external nodes
     int getNumExternalNodes( ) const ;
 
-    //return connected external nodes
+    // return connected external nodes
     const ID &getExternalNodes( ) ;
     Node **getNodePtrs(void);
 
-    //return number of dofs
+    // return number of dofs
     int getNumDOF( ) ;
 
-    //commit state
+    // commit state
     int commitState( ) ;
     
-    //revert to last commit 
+    // revert to last commit 
     int revertToLastCommit( ) ;
     
-    //revert to start 
+    // revert to start 
     int revertToStart( ) ;
 
     // update
     int update(void);
 
-    //print out element data
+    // print out element data
     void Print( OPS_Stream &s, int flag ) ;
 	
-    //return stiffness matrix 
+    // return stiffness matrix 
     const Matrix &getTangentStiff();
     const Matrix &getInitialStiff();    
     const Matrix &getMass();    
 
     void zeroLoad( ) ;
-    int addLoad(ElementalLoad *theLoad, double loadFactor);
-    int addInertiaLoadToUnbalance(const Vector &accel);
+    int  addLoad(ElementalLoad *theLoad, double loadFactor);
+    int  addInertiaLoadToUnbalance(const Vector &accel);
 
-    //get residual
+    // get residual
     const Vector &getResistingForce( ) ;
     
-    //get residual with inertia terms
+    // get residual with inertia terms
     const Vector &getResistingForceIncInertia( ) ;
 
     // public methods for element output
@@ -125,26 +125,20 @@ class FourNodeTetrahedron : public Element {
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
 
-    //plotting 
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
     void onActivate();
     void onDeactivate();
 
   private : 
 
-  //Number of Gauss-points  
-  enum {NumGaussPoints=1};
-  enum {NumNodes=4};
-  enum {NumDOFsPerNode=3};
-  enum {NumStressComponents=6};
-  enum {NumDOFsTotal=NumNodes*NumDOFsPerNode};
-  
-    void shp3d( const double ss[4], double &xsj, double shp[4][4], const double xl[3][4]   );
-
+    // Number of Gauss-points  
+    static constexpr int NumGaussPoints = 1,
+                         NumNodes = 4,
+                         NumDOFsPerNode = 3,
+                         NumStressComponents = 6,
+                         NumDOFsTotal = NumNodes*NumDOFsPerNode;
     //
     // private attributes
     //
-
     ID connectedExternalNodes ;  //four node numbers
     Node *nodePointers[4] ;      //pointers to eight nodes
 
@@ -161,44 +155,44 @@ class FourNodeTetrahedron : public Element {
     //
     // static attributes
     //
-
     static Matrix stiff ;
     static Vector resid ;
     static Matrix mass ;
     static Matrix damping ;
-  static Matrix B;
+    static Matrix B;
   
-    //quadrature data
+    // quadrature data
     static const double root3 ;
     static const double one_over_root3 ;    
     static const double sg[1] ;
     static const double wg[1] ;
   
-    //local nodal coordinates, three coordinates for each of four nodes
+    // local nodal coordinates, three coordinates for each of four nodes
     static double xl[3][NumNodes] ; 
+
+    Vector initDisp[NumNodes];
+
+    int do_update;
 
     //
     // private methods
     //
 
-    //inertia terms
+    // inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
-    //form residual and tangent					  
+    // form residual and tangent					  
     void formResidAndTangent( int tang_flag ) ;
 
-    //compute coordinate system
+    // compute coordinate system
     void computeBasis( ) ;
 
-    //compute B matrix
+    // compute B matrix
     const Matrix& computeB( int node, const double shp[4][NumNodes] ) ;
-  
-    //Matrix transpose
-    Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
-    Vector initDisp[NumNodes];
 
-    int do_update;
-} ; 
+    void shp3d( const double ss[4], double &xsj, double shp[4][4], const double xl[3][4]   );
+
+}; 
 
 #endif
 

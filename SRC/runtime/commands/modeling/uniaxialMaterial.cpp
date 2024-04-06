@@ -186,8 +186,7 @@ UniaxialMaterial *TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_I
 UniaxialMaterial *TclBasicBuilder_FRPCnfinedConcrete(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
                                                      Domain *theDomain);
 
-UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
-                                                       int, TCL_Char **);
+UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *, int, TCL_Char **);
 
 int
 TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, Domain *theDomain)
@@ -860,14 +859,9 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *material = builder->getUniaxialMaterial(matTag);
-
-    if (material == 0) {
-      opserr << "WARNING material does not exist\n";
-      opserr << "material: " << matTag;
-      opserr << "\nuniaxialMaterial PathIndependent: " << tag << endln;
+    UniaxialMaterial *material = builder->getTypedObject<UniaxialMaterial>(matTag);
+    if (material == nullptr)
       return TCL_ERROR;
-    }
 
     theMaterial = new PathIndependentMaterial(tag, *material);
   }
@@ -975,14 +969,9 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp
       j++;
     }
 
-    UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
-
-    if (theMat == 0) {
-      opserr << "WARNING component material does not exist\n";
-      opserr << "Component material: " << matTag;
-      opserr << "\nuniaxialMaterial Fatigue: " << tag << endln;
+    UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matTag);
+    if (theMat == nullptr)
       return TCL_ERROR;
-    }
 
     // Parsing was successful, allocate the material
     theMaterial =

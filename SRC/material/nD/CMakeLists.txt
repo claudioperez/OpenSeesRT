@@ -19,7 +19,6 @@ target_sources(OPS_Material
     ElasticOrthotropicMaterial.cpp
     ElasticOrthotropicPlaneStress.cpp
     PressureDependentElastic3D.cpp
-    FeapMaterial.cpp
     J2AxiSymm.cpp
     J2Plasticity.cpp
 
@@ -72,7 +71,6 @@ target_sources(OPS_Material
     ElasticPlaneStress.h
     VonPapaDamage.h
     PressureDependentElastic3D.h
-    FeapMaterial.h
     J2AxiSymm.h
     J2Plasticity.h
     J2PlateFiber.h
@@ -113,7 +111,9 @@ add_subdirectory(soil)
 add_subdirectory(feap)
 add_subdirectory(cyclicSoil)
 add_subdirectory(UWmaterials)
-add_subdirectory(matCMM)
+# add_subdirectory(matCMM)
 add_subdirectory(stressDensityModel)
 add_subdirectory(UANDESmaterials)
+add_subdirectory(OrthotropicRotatingAngleConcreteT2DMaterial01)
+add_subdirectory(SmearedSteelDoubleLayerT2DMaterial01)
 

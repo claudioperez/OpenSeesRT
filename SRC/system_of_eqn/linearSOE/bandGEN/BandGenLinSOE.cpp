@@ -33,7 +33,7 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <iostream>
-using std::nothrow;
+#include <assert.h>
 
 BandGenLinSOE::BandGenLinSOE(BandGenLinSolver &theSolvr)
 :LinearSOE(theSolvr, LinSOE_TAGS_BandGenLinSOE),
@@ -90,8 +90,8 @@ BandGenLinSOE::BandGenLinSOE(int N, int numSuperDiag, int numSubDiag,
     
     int solverOK = theSolvr.setSize();
     if (solverOK < 0) {
-        opserr << "WARNING BandGenLinSOE::BandGenLinSOE :";
-        opserr << " solver failed setSize() in constructor\n";
+        // opserr << "WARNING BandGenLinSOE::BandGenLinSOE :";
+        // opserr << " solver failed setSize() in constructor\n";
     }    
 }
 
@@ -196,8 +196,8 @@ BandGenLinSOE::setSize(Graph &theGraph)
     LinearSOESolver *theSolvr = this->getSolver();
     int solverOK = theSolvr->setSize();
     if (solverOK < 0) {
-        opserr << "WARNING:BandGenLinSOE::setSize :";
-        opserr << " solver failed setSize()\n";
+        // opserr << "WARNING:BandGenLinSOE::setSize :";
+        // opserr << " solver failed setSize()\n";
         return solverOK;
     }    
 
@@ -207,16 +207,14 @@ BandGenLinSOE::setSize(Graph &theGraph)
 int 
 BandGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+    assert(id.Size() == m.noRows() && id.Size() == m.noCols());
+
     // check for a quick return 
     if (fact == 0.0)  return 0;
     
     // check that m and id are of similar size
     int idSize = id.Size();    
-    if (idSize != m.noRows() && idSize != m.noCols()) {
-        opserr << "BandGenLinSOE::addA        - Matrix and ID not of similar sizes\n";
-        return -1;
-    }
-    
+
     int ldA = 2*numSubD + numSuperD + 1;
 
 
@@ -281,18 +279,12 @@ BandGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
 int 
 BandGenLinSOE::addColA(const Vector &colData, int col, double fact)
 {
-  if (fact == 0.0)  return 0;
-  
-  if (colData.Size() != size) {
-    opserr << "BandGenLinSOE::addColA() - colData size not equal to n\n";
-    return -1;
-  }
+  assert(colData.Size() == size);
+  assert(col <= size && col >= 0);
 
-  if (col > size && col < 0) {
-    opserr << "BandGenLinSOE::addColA() - col " << col << "outside range 0 to " << size << endln;
-    return -1;
-  }
-    
+  if (fact == 0.0)
+    return 0;
+
   int ldA = 2*numSubD + numSuperD + 1;
   
   if (fact == 1.0) { // do not need to multiply 
@@ -343,17 +335,15 @@ BandGenLinSOE::addColA(const Vector &colData, int col, double fact)
 int 
 BandGenLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
-    // check for a quick return 
-    if (fact == 0.0)  return 0;
+    assert(id.Size() == v.Size() );
 
+    // check for a quick return 
+    if (fact == 0.0)
+      return 0;
 
     // check that m and id are of similar size
-    int idSize = id.Size();        
-    if (idSize != v.Size() ) {
-        opserr << "BandGenLinSOE::addB()        - Vector and ID not of similar sizes\n";
-        return -1;
-    }    
-    
+    const int idSize = id.Size();        
+
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
         for (int i=0; i<idSize; i++) {
             int pos = id(i);
@@ -380,24 +370,22 @@ BandGenLinSOE::addB(const Vector &v, const ID &id, double fact)
 int
 BandGenLinSOE::setB(const Vector &v, double fact)
 {
+    assert(v.Size() == size);
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
-
-    if (v.Size() != size) {
-        opserr << "WARNING BandGenLinSOE::setB() -";
-        opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-        return -1;
-    }
-    
-    if (fact == 1.0) { // do not need to multiply if fact == 1.0
+    else if (fact == 1.0) { // do not need to multiply if fact == 1.0
         for (int i=0; i<size; i++) {
             B[i] = v(i);
         }
+
     } else if (fact == -1.0) {
         for (int i=0; i<size; i++) {
             B[i] = -v(i);
         }
+
     } else {
         for (int i=0; i<size; i++) {
             B[i] = v(i) * fact;
@@ -430,24 +418,16 @@ BandGenLinSOE::zeroB(void)
 const Vector &
 BandGenLinSOE::getX(void)
 {
-    if (vectX == 0) {
-        opserr << "FATAL BandGenLinSOE::getX - vectX == 0!";
-        exit(-1);
-    }    
-    
-    return *vectX;
+  assert(vectX != nullptr);
+  return *vectX;
 }
 
 
 const Vector &
 BandGenLinSOE::getB(void)
 {
-    if (vectB == 0) {
-        opserr << "FATAL BandGenLinSOE::getB - vectB == 0!";
-        exit(-1);
-    }    
-
-    return *vectB;
+  assert(vectB != nullptr);
+  return *vectB;
 }
 
 
@@ -487,8 +467,8 @@ BandGenLinSOE::setBandGenSolver(BandGenLinSolver &newSolver)
     if (size != 0) {
         int solverOK = newSolver.setSize();
         if (solverOK < 0) {
-            opserr << "WARNING:BandGenLinSOE::setSolver :";
-            opserr << "the new solver could not setSeize() - staying with old\n";
+            // opserr << "WARNING:BandGenLinSOE::setSolver :";
+            // opserr << "the new solver could not setSeize() - staying with old\n";
             return solverOK;
         }
     }        

@@ -39,6 +39,7 @@
 #include <DamageModel.h>
 
 class DamageResponse;
+class Element;
 
 
 class ParkAng : public DamageModel

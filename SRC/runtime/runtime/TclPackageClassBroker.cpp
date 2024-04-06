@@ -42,7 +42,6 @@ using namespace OpenSees::Hash::literals;
 
 // graph numbering schemes
 #include "graph/numberer/RCM.h"
-#include "graph/numberer/MyRCM.h"
 #include "graph/numberer/SimpleNumberer.h"
 
 // uniaxial material model header files
@@ -188,9 +187,6 @@ using namespace OpenSees::Hash::literals;
 #include "stressDensityModel/stressDensity.h"
 #include "InitStressNDMaterial.h"
 
-// Fibers
-#include "fiber/UniaxialFiber2d.h"
-#include "fiber/UniaxialFiber3d.h"
 //
 // element header files
 //
@@ -592,9 +588,6 @@ TclPackageClassBroker::getPtrNewGraphNumberer(int classTag)
   switch (classTag) {
   case GraphNUMBERER_TAG_RCM:
     return new RCM();
-
-  case GraphNUMBERER_TAG_MyRCM:
-    return new MyRCM();
 
   case GraphNUMBERER_TAG_SimpleNumberer:
     return new SimpleNumberer();
@@ -1389,12 +1382,6 @@ Fiber *
 TclPackageClassBroker::getNewFiber(int classTag)
 {
   switch (classTag) {
-  case FIBER_TAG_Uniaxial2d:
-    return new UniaxialFiber2d();
-
-  case FIBER_TAG_Uniaxial3d:
-    return new UniaxialFiber3d();
-
   default:
     opserr << "TclPackageClassBroker::getNewFiber - ";
     opserr << " - no Fiber type exists for class tag ";

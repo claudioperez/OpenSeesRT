@@ -51,7 +51,7 @@ DegradingUniaxialWrapper::parseNew(Tcl_Interp* interp, void *cd, int argc,
 #ifdef OPS_USE_RUNTIME
   theWrappedMaterial = G3_getUniaxialMaterialInstance(G3_getRuntime(interp), tags[1]);
 #else
-  theWrappedMaterial = builder->getUniaxialMaterial(tags[1]);
+  theWrappedMaterial = builder->getTypedObject<UniaxialMaterial>(tags[1]);
 #endif
   if (theWrappedMaterial == 0) {
     opserr << "WARNING unable to retrieve uniaxialMaterial with tag" WRAPPER_CMD
@@ -73,8 +73,9 @@ DegradingUniaxialWrapper::parseNew(Tcl_Interp* interp, void *cd, int argc,
       *wrapper = *(StateOperator *)Tcl_GetAssocData(interp, 
                                                     "fedeas::damage::UniaxialDamage", NULL);
 
-      wrapper->call(wrapper, interp, ISW_CREATE, argc - argn, &argv[++argn], 0, 0, 0, 0, 0);
+      wrapper->call(wrapper, interp, ISW_CREATE, argc - argn, &argv[1+argn], 0, 0, 0, 0, 0);
       wrapper->call(wrapper, interp, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
+      argn++;
 
     } else if ((strcmp(param, "-couple") == 0) ||
                (strcmp(param, "-ccd") == 0) || 

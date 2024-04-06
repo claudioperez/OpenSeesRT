@@ -17,21 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2010-02-04 19:10:34 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/WSection2d.cpp,v $
-                                                                        
+//
 // Written: MHS
 // Created: Aug 2001
 //
 // Description: This file contains the class definition for 
 // WSection2d.h. WSection2d provides the abstraction of a 
-// rectangular section discretized by fibers. The section stiffness and
-// stress resultants are obtained by summing fiber contributions.
+// wide-flange shear section discretized by multiaxial fibers. 
+// The section stiffness and stress resultants are obtained by 
+// summing fiber contributions.
 // The fiber stresses are the 11, 12, and 13 components of stress, from
 // which all six beam stress resultants are obtained.
-
+//
 #include <stdlib.h>
 #include <math.h>
 
@@ -69,8 +66,7 @@ WSection2d::WSection2d(int tag, NDMaterial &theMat,
       opserr << "WSection2d::WSection2d -- failed to get copy of beam fiber" << endln;
   }
   
-  double dw = d-2*tf;
-  
+  double dw  = d-2*tf; 
   double a_f = bf*tf/nftf;
   double a_w = dw*tw/nfdw;
   
@@ -146,22 +142,19 @@ WSection2d::~WSection2d()
 //        0  0 0         0 sqrt(5/6)  y]
 int WSection2d::setTrialSectionDeformation (const Vector &deforms)
 {
-  int res = 0;
   
-  e = deforms;
-  
+  e = deforms; 
   // Material strain vector
   static Vector eps(3);
-  
-  double y, z;
-  
+
   double root56 = sqrt(shapeFactor);
 
   int numFibers = nfdw + 2*nftf;
   
+  int res = 0;
   for (int i = 0; i < numFibers; i++) {
-    y = yFibers[i];
-    z = 0.0;
+    double y = yFibers[i];
+    double z = 0.0;
       
     eps(0) = e(0) - y*e(1) + z*e(2);
     eps(1) = root56*e(3) - z*e(5);
@@ -190,9 +183,6 @@ WSection2d::getSectionTangent(void)
 {
   ks.Zero();
  
-  double y, z, w;
-  double y2, z2, yz;
-  
   double d00, d01, d02;
   double d10, d11, d12;
   double d20, d21, d22;
@@ -206,13 +196,13 @@ WSection2d::getSectionTangent(void)
   
   for (int i = 0; i < numFibers; i++) {
     
-    y = yFibers[i];
-    z = 0.0;
-    w = AFibers[i];
+    double y = yFibers[i];
+    double z = 0.0;
+    double w = AFibers[i];
 
-    y2 = y*y;
-    z2 = z*z;
-    yz = y*z;
+    double y2 = y*y;
+    double z2 = z*z;
+    double yz = y*z;
     
     const Matrix &Dt = theFibers[i]->getTangent();
 
@@ -342,7 +332,7 @@ WSection2d::getCopy(void)
 }
 
 const ID&
-WSection2d::getType(void)
+WSection2d::getType()
 {
   return code;
 }

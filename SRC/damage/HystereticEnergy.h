@@ -36,7 +36,7 @@
 
 #include <ErrorHandler.h>
 #include <DamageModel.h>
-
+class Element;
 class DamageResponse;
 
 

@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/fullGEN/FullGenLinLapackSolver.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: Tue Sep 26 16:27:47: 1996
 //
@@ -31,10 +26,12 @@
 // Lapack routines.
 //
 // What: "@(#) FullGenLinLapackSolver.h, revA"
-
+//
 #include <FullGenLinLapackSolver.h>
 #include <FullGenLinSOE.h>
 #include <math.h>
+#include <assert.h>
+
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
@@ -52,7 +49,7 @@ FullGenLinLapackSolver::FullGenLinLapackSolver()
 
 FullGenLinLapackSolver::~FullGenLinLapackSolver()
 {
-    if (iPiv != 0)
+    if (iPiv != nullptr)
 	delete [] iPiv;
 }
 
@@ -74,24 +71,17 @@ extern "C" int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA,
 int
 FullGenLinLapackSolver::solve(void)
 {
-    if (theSOE == 0) {
-	opserr << "WARNING FullGenLinLapackSolver::solve(void)- ";
-	opserr << " No LinearSOE object has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
     
     int n = theSOE->size;
     
     // check for quick return
     if (n == 0)
-	return 0;
+      return 0;
     
     // check iPiv is large enough
-    if (sizeIpiv < n) {
-	opserr << "WARNING FullGenLinLapackSolver::solve(void)- ";
-	opserr << " iPiv not large enough - has setSize() been called?\n";
-	return -1;
-    }	
+    assert(!(sizeIpiv < n));
+    //  opserr << " iPiv not large enough - has setSize() been called?\n";
 	
     int ldA = n;
     int nrhs = 1;
@@ -107,8 +97,9 @@ FullGenLinLapackSolver::solve(void)
 	*(Xptr++) = *(Bptr++);
     Xptr = theSOE->X;
 
+    //
     // now solve AX = Y
-
+    //
 #ifdef _WIN32
     {if (theSOE->factored == false)  
 	// factor and solve 
@@ -129,16 +120,15 @@ FullGenLinLapackSolver::solve(void)
     // check if successful
     if (info != 0) {
       if (info > 0) {
-	opserr << "WARNING FullGenLinLapackSolver::solve() -";
-	opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
+	// opserr << "WARNING FullGenLinLapackSolver::solve() -";
+	// opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
 	return -info+1;
       } else {
-	opserr << "WARNING FullGenLinLapackSolver::solve() - OpenSees code error\n";
+	// opserr << "WARNING FullGenLinLapackSolver::solve() - OpenSees code error\n";
 	return info;
       }      
     }
 
-    
     theSOE->factored = true;
     return 0;
 }
@@ -150,23 +140,13 @@ FullGenLinLapackSolver::setSize()
     int n = theSOE->size;
     if (n > 0) {
 	if (sizeIpiv < n) {
-	    if (iPiv != 0)
+	    if (iPiv != nullptr)
 		delete [] iPiv;
 	    iPiv = new int[n];		
-	    if (iPiv == 0) {
-		opserr << "WARNING FullGenLinLapackSolver::setSize()";
-		opserr << " - ran out of memory\n";
-		return -1;
-	    }		
 	    sizeIpiv = n;
 	}
     } else if (n == 0)
 	return 0;
-    else {
-	opserr << "WARNING FullGenLinLapackSolver::setSize()";
-	opserr << " - ran out of memory\n";
-	return -1;	
-    }
 	
     return 0;
 }
@@ -174,7 +154,6 @@ FullGenLinLapackSolver::setSize()
 int
 FullGenLinLapackSolver::sendSelf(int commitTag,
 				 Channel &theChannel)
-
 {
     // nothing to do
     return 0;

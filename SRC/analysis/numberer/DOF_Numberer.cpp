@@ -17,21 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2005-11-28 21:28:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/numberer/DOF_Numberer.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 9/96
-// Revision: A
 //
 // Description: This file contains the class implementation for DOF_Numberer.
 // DOF_Numberer is an abstract base class, i.e. no objects of it's
 // type can be created. 
 //
-// What: "@(#) DOF_Numberer.h, revA"
+// Written: fmk 
+// Created: 9/96
+// Revision: A
+//
+#include <assert.h>
 
 #include <DOF_Numberer.h>
 #include <AnalysisModel.h>
@@ -41,11 +36,9 @@
 #include <FE_Element.h>
 #include <FE_EleIter.h>
 #include <Channel.h>
-#include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-
 #include <Graph.h>
 
 #include <Domain.h>
@@ -53,8 +46,8 @@
 #include <Node.h>
 #include <MP_ConstraintIter.h>
 #include <DOF_GrpIter.h>
-// Constructor
 
+// Constructor
 DOF_Numberer::DOF_Numberer(int clsTag) 
 :MovableObject(clsTag),
  theAnalysisModel(0), theGraphNumberer(0)
@@ -101,18 +94,12 @@ DOF_Numberer::numberDOF(int lastDOF_Group)
 {
     // check we have a model and a numberer
     Domain *theDomain = 0;
-    if (theAnalysisModel != 0) theDomain = theAnalysisModel->getDomainPtr();
-    if ((theAnalysisModel == 0) || (theDomain == 0)) {
-	opserr << "WARNING DOF_Numberer::numberDOF - ";
-	opserr << "Pointers are not set\n";
-	return -1;
-    }
-    
-    if (theGraphNumberer == 0) {
-	opserr << "WARNING DOF_Numberer::numberDOF - ";
-	opserr << "subclasses must provide own implementation\n";
-	return -2;
-    }    
+    if (theAnalysisModel != 0) 
+      theDomain = theAnalysisModel->getDomainPtr();
+
+    assert((theAnalysisModel != 0) && 
+           (theDomain != 0) && 
+           (theGraphNumberer != nullptr));
 
     // check we can't do quick return
     
@@ -130,11 +117,8 @@ DOF_Numberer::numberDOF(int lastDOF_Group)
 
     int eqnNumber = 0;
     
-    if (orderedRefs.Size() != theAnalysisModel->getNumDOF_Groups()) {
-	opserr << "WARNING DOF_Numberer::numberDOF - ";
-	opserr << "Incompatible Sizes\n";
-	return -3;
-    }
+    assert(orderedRefs.Size() == theAnalysisModel->getNumDOF_Groups());
+
     int result = 0;
     
     int size = orderedRefs.Size();
@@ -142,16 +126,12 @@ DOF_Numberer::numberDOF(int lastDOF_Group)
 	int dofTag = orderedRefs(i);
 	DOF_Group *dofPtr;	
 	dofPtr = theAnalysisModel->getDOF_GroupPtr(dofTag);
-	if (dofPtr == 0) {
-	    opserr << "WARNING DOF_Numberer::numberDOF - ";
-	    opserr << "DOF_Group " << dofTag << "not in AnalysisModel!\n";
-	    result = -4;
-	} else {
-	    const ID &theID = dofPtr->getID();
-	    int idSize = theID.Size();
-	    for (int j=0; j<idSize; j++)
-		if (theID(j) == -2) dofPtr->setID(j,eqnNumber++);
-	}
+	assert(dofPtr != 0);
+        const ID &theID = dofPtr->getID();
+        int idSize = theID.Size();
+        for (int j=0; j<idSize; j++)
+          if (theID(j) == -2) 
+            dofPtr->setID(j,eqnNumber++);
     }
 
     // iterate through  the DOFs second time setting -3 values
@@ -232,20 +212,15 @@ DOF_Numberer::numberDOF(int lastDOF_Group)
 int 
 DOF_Numberer::numberDOF(ID &lastDOFs) 
 {
-    // check we have a model and a numberer
-    	Domain *theDomain = 0;
-   if (theAnalysisModel != 0) theDomain = theAnalysisModel->getDomainPtr();
-   if ((theAnalysisModel == 0) || (theDomain == 0)) {
-	opserr << "WARNING DOF_Numberer::numberDOF - ";
-	opserr << "Pointers are not set\n";
-	return -1;
-    }
-    
-    if ((theGraphNumberer == 0)) {
-	opserr << "WARNING DOF_Numberer::numberDOF - ";
-	opserr << "subclasses must provide own implementation\n";
-	return -2;
-    }    
+   // check we have a model and a numberer
+   Domain *theDomain = 0;
+
+   if (theAnalysisModel != 0) 
+     theDomain = theAnalysisModel->getDomainPtr();
+
+   assert((theAnalysisModel != 0) && 
+          (theDomain != 0) && 
+          (theGraphNumberer != nullptr));
 
     // check we can't do quick return
     if (theAnalysisModel->getNumDOF_Groups() == 0)
@@ -261,11 +236,7 @@ DOF_Numberer::numberDOF(ID &lastDOFs)
     // we now iterate through the DOFs first time setting -2 values
 
     int eqnNumber = 0;
-    if (orderedRefs.Size() != theAnalysisModel->getNumDOF_Groups()) {
-	opserr << "WARNING DOF_Numberer::numberDOF - ";
-	opserr << "Incompatible Sizes\n";
-	return -3;
-    }
+    assert(orderedRefs.Size() == theAnalysisModel->getNumDOF_Groups());
 
     int result =0;
     int size = orderedRefs.Size();
@@ -273,16 +244,12 @@ DOF_Numberer::numberDOF(ID &lastDOFs)
 	int dofTag = orderedRefs(i);
 	DOF_Group *dofPtr;	
 	dofPtr = theAnalysisModel->getDOF_GroupPtr(dofTag);
-	if (dofPtr == 0) {
-	    opserr << "WARNING DOF_Numberer::numberDOF - ";
-	    opserr << "DOF_Group " << dofTag << "not in AnalysisModel!\n";
-	    result = -4;
-	} else {
-	    const ID &theID = dofPtr->getID();
-	    int idSize = theID.Size();
-	    for (int j=0; j<idSize; j++)
-		if (theID(j) == -2) dofPtr->setID(j,eqnNumber++);
-	}	
+        assert(dofPtr != nullptr);
+
+        const ID &theID = dofPtr->getID();
+        int idSize = theID.Size();
+        for (int j=0; j<idSize; j++)
+            if (theID(j) == -2) dofPtr->setID(j,eqnNumber++);
     }
 
     // iterate through  the DOFs first time setting -3 values
@@ -386,17 +353,11 @@ DOF_Numberer::recvSelf(int cTag, Channel &theChannel,
   int dataTag = this->getDbTag();
   theChannel.recvID(dataTag, cTag, data);    
 
-  // get a graphNumberer
+  // get a GraphNumberer
   if (data(0) != -1) {
     theGraphNumberer = theBroker.getPtrNewGraphNumberer(data(0));
-    if (theGraphNumberer != 0) {
-      theGraphNumberer->setDbTag(data(1));
-      theGraphNumberer->recvSelf(cTag, theChannel,theBroker);
-    }
-    else {
-      opserr << "DOF_Numberer::recvSelf() - failed to get GraphNumberer\n";
-      return -1;
-    }
+    theGraphNumberer->setDbTag(data(1));
+    theGraphNumberer->recvSelf(cTag, theChannel,theBroker);
   }
 
   return 0;

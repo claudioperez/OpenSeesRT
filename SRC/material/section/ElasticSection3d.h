@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2008-08-26 16:46:59 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticSection3d.h,v $
-
+//
+//
 #ifndef ElasticSection3d_h
 #define ElasticSection3d_h
 
@@ -58,7 +55,7 @@ class ElasticSection3d : public SectionForceDeformation
   const Matrix &getInitialFlexibility(void);
   
   SectionForceDeformation *getCopy(void);
-  const ID &getType(void);
+  const ID &getType();
   int getOrder(void) const;
   
   int sendSelf(int commitTag, Channel &theChannel);

@@ -9,13 +9,13 @@ target_sources(OPS_Recorder
         Response.cpp
         MaterialResponse.cpp
         ElementResponse.cpp
-        FiberResponse.cpp
+#       FiberResponse.cpp
         CompositeResponse.cpp
     PUBLIC 
         Response.h
         MaterialResponse.h
         ElementResponse.h
-        FiberResponse.h
+#       FiberResponse.h
         CompositeResponse.h
 )
 

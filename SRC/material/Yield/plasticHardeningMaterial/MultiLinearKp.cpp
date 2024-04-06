@@ -4,6 +4,8 @@
 
 #include "MultiLinearKp.h"
 #include <stdlib.h>
+#include <Print.h>
+#include <OPS_ErrorStream.h>
 
 #define MAT_TAG_MULTILINEAR -1
 #define DEBG 0
@@ -94,30 +96,35 @@ double sumDisp = val_trial;
 }
 
 
-void MultiLinearKp::Print(OPS_Stream &s, int flag)
+void
+MultiLinearKp::Print(OPS_Stream &s, int flag)
 {
-	this->PlasticHardeningMaterial::Print(s, flag);
-	
-	s << "+-MultiLinear" << endln;
-	s << "    Kp = " << this->getTrialPlasticStiffness();
-	s << "    SumPlasDefo Vector = " <<  sumPlasDefo;
-	s << "    Kp Vector          = " <<  Kp << endln;
+    this->PlasticHardeningMaterial::Print(s, flag);
+
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {  
+      s << "{}";
+    } else {
+      s << "+-MultiLinear" << "\n";
+      s << "    Kp = " << this->getTrialPlasticStiffness();
+      s << "    SumPlasDefo Vector = " <<  sumPlasDefo;
+      s << "    Kp Vector          = " <<  Kp << "\n";
+    }
 }
 
-PlasticHardeningMaterial *MultiLinearKp::getCopy(void)
+PlasticHardeningMaterial *
+MultiLinearKp::getCopy(void)
 {
-	Vector spd(numPoints);
+    Vector spd(numPoints);
     Vector kp(numPoints);
 
-    for(int i =0; i < numPoints; i++)
-    {
+    for(int i =0; i < numPoints; i++) {
     	spd(i) =  sumPlasDefo(i);
     	kp(i)  =  Kp(i);
     }
 
     // Don't want to pass the actual vectors or else the size will
     // keep on increasing by 1
- 	PlasticHardeningMaterial *theMat = new MultiLinearKp(getTag(), spd, kp);
+    PlasticHardeningMaterial *theMat = new MultiLinearKp(getTag(), spd, kp);
     return theMat;
 }
 

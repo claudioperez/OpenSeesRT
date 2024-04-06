@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.13 $
-// $Date: 2009-02-05 16:28:20 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/ForceBeamColumnCBDI2d.h,v $
-
+//
 /*
  * References
  *
@@ -113,7 +109,6 @@ class ForceBeamColumnCBDI2d: public Element
   
   int sendSelf(int cTag, Channel &theChannel);
   int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-  int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes=0, int numModes=0);
   
   friend OPS_Stream &operator<<(OPS_Stream &s, ForceBeamColumnCBDI2d &E);        
   void Print(OPS_Stream &s, int flag =0);    

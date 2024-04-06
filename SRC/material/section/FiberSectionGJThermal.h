@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2007-02-02 01:18:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSectionGJThermal.h,v $
-
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -69,7 +65,7 @@ class FiberSectionGJThermal : public SectionForceDeformation
   int   revertToStart(void);
 
   SectionForceDeformation *getCopy(void);
-  const ID &getType (void);
+  const ID &getType();
   int getOrder (void) const;
 
   int sendSelf(int cTag, Channel &theChannel);

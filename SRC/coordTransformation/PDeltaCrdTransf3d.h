@@ -30,11 +30,11 @@
 #ifndef PDeltaCrdTransf3d_h
 #define PDeltaCrdTransf3d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class PDeltaCrdTransf3d: public CrdTransf
+class PDeltaCrdTransf3d: public FrameTransform<3>
 {
 public:
     PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane);

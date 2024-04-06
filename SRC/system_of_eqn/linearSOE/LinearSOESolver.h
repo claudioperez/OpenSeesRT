@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-05-11 20:52:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/LinearSOESolver.h,v $
-                                                                        
+//
 // Written: fmk 
 // Created: Tue Sep 26 16:27:47: 1996
 // Revision: A
@@ -57,4 +53,4 @@ class LinearSOESolver : public MovableObject
 };
 
 #endif
-    
+

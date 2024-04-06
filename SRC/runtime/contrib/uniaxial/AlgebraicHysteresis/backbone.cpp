@@ -400,7 +400,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
       return TCL_ERROR;
     }
 
-    UniaxialMaterial *material = builder->getUniaxialMaterial(matTag);
+    UniaxialMaterial *material = builder->getTypedObject<UniaxialMaterial>(matTag);
 
     if (material == 0) {
       opserr << "WARNING material does not exist\n";
@@ -429,18 +429,8 @@ TclCommand_addHystereticBackbone(ClientData clientData,
   }
 
   // Now add the material to the modelBuilder
-  // if (OPS_addHystereticBackbone(theBackbone) == false) {
-  //   opserr << "WARNING could not add hystereticBackbone to the domain\n";
-  //   opserr << *theBackbone << endln;
-  //   delete theBackbone; // invoke the material objects destructor, otherwise mem
-  //                       // leak
-  //   return TCL_ERROR;
-  // }
-  if (!builder->addHystereticBackbone(std::string(argv[2]), *theBackbone)) {
-    opserr << "WARNING could not add hystereticBackbone to the domain\n";
-    opserr << *theBackbone << endln;
-    delete theBackbone; // invoke the material objects destructor, otherwise mem
-                        // leak
+  if (!builder->addTypedObject<HystereticBackbone>(std::atoi(argv[2]), theBackbone)) {
+    delete theBackbone; // invoke the material objects destructor, otherwise mem leak
     return TCL_ERROR;
   }
 

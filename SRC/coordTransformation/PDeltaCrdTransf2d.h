@@ -32,11 +32,11 @@
 #ifndef PDeltaCrdTransf2d_h
 #define PDeltaCrdTransf2d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class PDeltaCrdTransf2d: public CrdTransf
+class PDeltaCrdTransf2d: public FrameTransform<2>
 {
 public:
     PDeltaCrdTransf2d(int tag);

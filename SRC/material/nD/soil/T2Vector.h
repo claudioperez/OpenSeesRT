@@ -35,7 +35,6 @@ double operator && (const Vector &, const Vector &);
 void doubledotProduct (Vector & c, const Vector & a, const Matrix & b);
 void tensorProduct(Matrix & c, const Vector & a, const Vector & b);
 void doubledotMatrixProduct (Matrix & c, const Matrix & a, const Matrix & b);
-double delta(int i,int j);
 
 // define second order tensor vector class
 class T2Vector 

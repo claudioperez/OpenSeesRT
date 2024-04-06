@@ -7983,7 +7983,7 @@ int cmx_inv6_v1(const double const a[6][6], double *ainv, int*ok_flag__)
 #define a65  a[29]
 #define a66  a[35]
 
-int cmx_inv6(const double const a[36], double *ainv, int*ok_flag__)
+int cmx_inv6(const double a[36], double *ainv, int*ok_flag__)
 {
     double cofactor[36];
 

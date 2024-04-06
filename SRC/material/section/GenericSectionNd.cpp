@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2003-02-14 23:01:34 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/GenericSectionNd.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/material/GenericSectionNd.C
 //
 // Written: MHS 
@@ -133,7 +128,7 @@ GenericSectionNd::revertToStart ()
 }
 
 const ID&
-GenericSectionNd::getType ()
+GenericSectionNd::getType()
 {
     return *code;
 }

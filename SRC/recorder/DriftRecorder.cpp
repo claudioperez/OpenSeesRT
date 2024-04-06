@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.16 $
-// $Date: 2007-11-30 19:24:52 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/DriftRecorder.cpp,v $
-
+//
 // Written: MHS
 // Created: Oct 2001
 //
 // Description: This file contains the class definition for DriftRecorder.
-
+//
 #include <math.h>
 
 #include <DriftRecorder.h>
@@ -38,6 +34,7 @@
 #include <string.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 DriftRecorder::DriftRecorder()
   :Recorder(RECORDER_TAGS_DriftRecorder),

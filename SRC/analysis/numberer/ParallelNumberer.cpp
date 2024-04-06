@@ -17,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2007-02-14 18:43:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/numberer/ParallelNumberer.cpp,v $                                                                        
-
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the implementation for ParallelNumberer.
 //
-// What: "@(#) ParallelNumberer.C, revA"
-
+// Written: fmk 
+// Revision: A
+//
+#include <assert.h>
 #include <ParallelNumberer.h>
 #include <AnalysisModel.h>
 
@@ -120,19 +115,12 @@ ParallelNumberer::numberDOF(int lastDOF)
 
   // get a pointer to the model & check its not null
   AnalysisModel *theModel = this->getAnalysisModelPtr();
-  Domain *theDomain = 0;
-  if (theModel != 0) theDomain = theModel->getDomainPtr();
+  Domain *theDomain = nullptr;
+  if (theModel != 0) 
+    theDomain = theModel->getDomainPtr();
   
-  if (theModel == 0 || theDomain == 0) {
-    opserr << "WARNING ParallelNumberer::numberDOF(int) -";
-    opserr << " - no AnalysisModel - has setLinks() been invoked?\n";
-    return -1;
-  }
-  
-  if (lastDOF != -1) {
-    opserr << "WARNING ParallelNumberer::numberDOF(int lastDOF):";
-    opserr << " does not use the lastDOF as requested\n";
-  }
+  assert(theModel != nullptr && theDomain != nullptr);
+  assert(lastDOF  != -1);
 
   Graph &theGraph = theModel->getDOFGroupGraph();
 
@@ -151,23 +139,17 @@ ParallelNumberer::numberDOF(int lastDOF)
 
     // set vertex numbering based on ID received
     for (int i=0; i<numVertex; i ++) {
-      int vertexTag = theID(i);
-      int startID = theID(i+numVertex);
       //      Vertex *vertexPtr = theGraph.getVertexPtr(vertexTag);
-      int dofTag = vertexTag;
-      DOF_Group *dofPtr;	
-      dofPtr = theModel->getDOF_GroupPtr(dofTag);
-      if (dofPtr == 0) {
-	opserr << "WARNING ParallelNumberer::numberDOF - ";
-	opserr << "DOF_Group " << dofTag << "not in AnalysisModel!\n";
-	result = -4;
-      } else {
-	const ID &theDOFID = dofPtr->getID();
-	int idSize = theDOFID.Size();
-	for (int j=0; j<idSize; j++)
-	  if (theDOFID(j) == -2 || theDOFID(j) == -3)
-            dofPtr->setID(j, startID++);
-      }
+      DOF_Group *dofPtr = theModel->getDOF_GroupPtr(theID(i));
+      assert(dofPtr != nullptr);
+
+      int startID = theID(i+numVertex);
+
+      const ID &theDOFID = dofPtr->getID();
+      int idSize = theDOFID.Size();
+      for (int j=0; j<idSize; j++)
+        if (theDOFID(j) == -2 || theDOFID(j) == -3)
+          dofPtr->setID(j, startID++);
     }
 
     theChannel->sendID(0, 0, theID);
@@ -273,16 +255,13 @@ ParallelNumberer::numberDOF(int lastDOF)
       int dofTag = vertexTag;
       DOF_Group *dofPtr;	
       dofPtr = theModel->getDOF_GroupPtr(dofTag);
-      if (dofPtr == 0) {
-	opserr << "WARNING ParallelNumberer::numberDOF - ";
-	opserr << "DOF_Group (P0) " << dofTag << "not in AnalysisModel!\n";
-	result = -4;
-      } else {
-	const ID &theDOFID = dofPtr->getID();
-	int idSize = theDOFID.Size();
-	for (int j=0; j<idSize; j++)
-	  if (theDOFID(j) == -2 || theDOFID(j) == -3) dofPtr->setID(j, startID++);
-      }
+      assert(dofPtr != nullptr);
+
+      const ID &theDOFID = dofPtr->getID();
+      int idSize = theDOFID.Size();
+      for (int j=0; j<idSize; j++)
+        if (theDOFID(j) == -2 || theDOFID(j) == -3) 
+          dofPtr->setID(j, startID++);
     }
 
     // now given the ordered refs we determine the mapping for each subdomain
@@ -445,11 +424,7 @@ ParallelNumberer::sendSelf(int cTag, Channel &theChannel)
     if (found == false) {
       int nextNumChannels = numChannels + 1;
       Channel **nextChannels = new Channel *[nextNumChannels];
-      if (nextNumChannels == 0) {
-	opserr << "ParalellNumberer::sendSelf() - failed to allocate channel array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
+
       for (int i=0; i<numChannels; i++)
 	nextChannels[i] = theChannels[i];
       nextChannels[numChannels] = &theChannel;
@@ -475,7 +450,7 @@ ParallelNumberer::sendSelf(int cTag, Channel &theChannel)
   
   int res = theChannel.sendID(0, cTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedSparseGenColLinSOE::sendSelf() - failed to send data\n";
+    // opserr <<"WARNING DistributedSparseGenColLinSOE::sendSelf() - failed to send data\n";
     return -1;
   }
 
@@ -490,7 +465,7 @@ ParallelNumberer::recvSelf(int cTag,
   ID idData(1);
   int res = theChannel.recvID(0, cTag, idData);
   if (res < 0) {
-    opserr <<"WARNING Parallel::recvSelf() - failed to send data\n";
+    // opserr <<"WARNING Parallel::recvSelf() - failed to send data\n";
     return -1;
   }	      
   processID = idData(0);
@@ -510,14 +485,8 @@ ParallelNumberer::numberDOF(ID &lastDOFs)
 
   // get a pointer to the model & check its not null
   AnalysisModel *theModel = this->getAnalysisModelPtr();
-  Domain *theDomain = 0;
-  if (theModel != 0) theDomain = theModel->getDomainPtr();
   
-  if (theModel == 0 || theDomain == 0) {
-    opserr << "WARNING ParallelNumberer::numberDOF(int) -";
-    opserr << " - no AnalysisModel - has setLinks() been invoked?\n";
-    return -1;
-  }
+  assert(theModel != nullptr);
   
   Graph &theGraph = theModel->getDOFGroupGraph();
   
@@ -535,8 +504,6 @@ ParallelNumberer::numberDOF(ID &lastDOFs)
       DOF_Group *dofPtr;	
       dofPtr = theModel->getDOF_GroupPtr(dofTag);
       if (dofPtr == 0) {
-	opserr << "WARNING ParallelNumberer::numberDOF - ";
-	opserr << "DOF_Group " << dofTag << "not in AnalysisModel!\n";
 	result = -4;
       } else {
 	const ID &theID = dofPtr->getID();

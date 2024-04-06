@@ -124,14 +124,9 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == nullptr) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nFourNodeQuad element: " << FourNodeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
 
   // now create the FourNodeQuad and add it to the Domain
   FourNodeQuad *theFourNodeQuad =
@@ -223,15 +218,10 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nConstantPressureVolumeQuad element: "
-           << ConstantPressureVolumeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the ConstantPressureVolumeQuad and add it to the Domain
   ConstantPressureVolumeQuad *theConstantPressureVolumeQuad =
@@ -326,14 +316,10 @@ TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nEnhancedQuad element: " << EnhancedQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the EnhancedQuad and add it to the Domain
   EnhancedQuad *theEnhancedQuad =
@@ -455,14 +441,10 @@ TclBasicBuilder_addNineNodeMixedQuad(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nNineNodeMixedQuad element: " << NineNodeMixedQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the NineNodeMixedQuad and add it to the Domain
   NineNodeMixedQuad *theNineNodeMixed = new NineNodeMixedQuad(
@@ -595,14 +577,10 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nFourNodeQuad element: " << FourNodeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the FourNodeQuad and add it to the Domain
   FourNodeQuadWithSensitivity *theFourNodeQuadWithSensitivity =
@@ -764,14 +742,10 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nNineNodeQuad element: " << NineNodeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the NineNodeQuad and add it to the Domain
   NineNodeQuad *theNineNodeQuad = new NineNodeQuad(
@@ -920,14 +894,10 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nEightNodeQuad element: " << EightNodeQuadId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the EightNodeQuad and add it to the Domain
   EightNodeQuad *theEightNodeQuad = new EightNodeQuad(
@@ -1063,14 +1033,10 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nSixNodeTri element: " << SixNodeTriId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the SixNodeTri and add it to the Domain
   SixNodeTri *theSixNodeTri =
@@ -1238,14 +1204,10 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nFourNodeQuadUP element: " << FourNodeQuadUPId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the FourNodeQuadUP and add it to the Domain
   FourNodeQuadUP *theFourNodeQuadUP = new FourNodeQuadUP(
@@ -1375,14 +1337,10 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nFourNodeQuadUP element: " << NineFourNodeQuadUPId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the FourNodeQuadUP and add it to the Domain
   NineFourNodeQuadUP *theNineFourNodeQuadUP = new NineFourNodeQuadUP(
@@ -1537,14 +1495,10 @@ TclBasicBuilder_addBBarFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
-
-  if (theMaterial == nullptr) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matID;
-    opserr << "\nBBarFourNodeQuadUP element: " << BBarFourNodeQuadUPId << endln;
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr)
     return TCL_ERROR;
-  }
+
 
   // now create the BBarFourNodeQuadUP and add it to the Domain
   BBarFourNodeQuadUP *theBBarFourNodeQuadUP = new BBarFourNodeQuadUP(

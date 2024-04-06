@@ -17,13 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2002-12-05 22:49:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/ElasticIsotropicPlaneStress2D.cpp,v $
-                                                                        
-                                                                        
-
+//
+//
 #include <ElasticIsotropicPlaneStress2D.h>           
 #include <Channel.h>
 
@@ -193,7 +188,7 @@ ElasticIsotropicPlaneStress2D::sendSelf(int commitTag, Channel &theChannel)
   
  int res = theChannel.sendVector(this->getDbTag(), commitTag, data);
  if (res < 0) {
-   opserr << "ElasticIsotropicPlaneStress2D::sendSelf -- could not send Vector\n";
+   // opserr << "ElasticIsotropicPlaneStress2D::sendSelf -- could not send Vector\n";
    return res;
  }
 
@@ -208,7 +203,7 @@ ElasticIsotropicPlaneStress2D::recvSelf(int commitTag, Channel &theChannel,
   
   int res = theChannel.recvVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ElasticIsotropicPlaneStress2D::sendSelf -- could not send Vector\n";
+    // opserr << "ElasticIsotropicPlaneStress2D::sendSelf -- could not send Vector\n";
     return res;
   }
 

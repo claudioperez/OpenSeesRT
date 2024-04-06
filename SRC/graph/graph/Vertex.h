@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-08-25 22:07:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/Vertex.h,v $
-                                                                        
-                                                                        
+//
 #ifndef Vertex_h
 #define Vertex_h
 
@@ -32,8 +27,6 @@
 // Description: This file contains the class definition for Vertex.
 // Vertex is an element of a graph.
 //
-// What: "@(#) Vertex.h, revA"
-
 #include <TaggedObject.h>
 #include <ID.h>
 
@@ -41,29 +34,31 @@
 class Channel;
 class FEM_ObjectBroker;
 
+#define VIRTUAL
+
 class Vertex: public TaggedObject
 {
   public:
     Vertex(int tag, int ref, double weight=0, int color =0);
     Vertex(const Vertex &other);
 
-    virtual ~Vertex();
+    VIRTUAL ~Vertex();
 
-    virtual void setWeight(double newWeight);
-    virtual void setColor(int newColor);
-    virtual void setTmp(int newTmp);    
+    VIRTUAL void setWeight(double newWeight);
+    VIRTUAL void setColor(int newColor);
+    VIRTUAL void setTmp(int newTmp);    
     
-    virtual int getRef(void) const;
-    virtual double getWeight(void) const;
-    virtual int getColor(void) const;
-    virtual int getTmp(void) const;    
+    VIRTUAL int getRef(void) const;
+    VIRTUAL double getWeight(void) const;
+    VIRTUAL int getColor(void) const;
+    VIRTUAL int getTmp(void) const;    
 
-    virtual int addEdge(int otherTag);
-    virtual int getDegree(void) const;
-    virtual const ID &getAdjacency(void) const;
-    virtual void setAdjacency(const ID& adj) {myAdjacency = adj;}
+    VIRTUAL int addEdge(int otherTag);
+    VIRTUAL int getDegree(void) const;
+    VIRTUAL const ID &getAdjacency(void) const;
+    VIRTUAL void setAdjacency(const ID& adj) {myAdjacency = adj;}
 
-    virtual  void Print(OPS_Stream &s, int flag =0);
+    VIRTUAL  void Print(OPS_Stream &s, int flag =0);
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
   

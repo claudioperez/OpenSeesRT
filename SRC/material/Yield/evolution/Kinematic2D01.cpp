@@ -4,6 +4,9 @@
 
 #include "Kinematic2D01.h"
 #include <math.h>
+#include <Print.h>
+#include <OPS_Stream.h>
+#include <OPS_ErrorStream.h>
 
 #define evolDebug 0
 #define KINEMATIC2D01_CLASSTAG -1
@@ -27,22 +30,23 @@ Kinematic2D01::~Kinematic2D01()
 
 YS_Evolution *Kinematic2D01::getCopy(void)
 {
-	Kinematic2D01 *theCopy = new  Kinematic2D01(this->getTag(), minIsoFactor, *kpMatXPos, *kpMatYPos, direction);
-	if(theCopy==0)
-	{
-		opserr << "WARNING - Kinematic2D01, unable to get copy\n";
-	}
-	
-	return theCopy;
+    Kinematic2D01 *theCopy = new  Kinematic2D01(this->getTag(), minIsoFactor, *kpMatXPos, *kpMatYPos, direction);
+    if (theCopy == nullptr) {
+        opserr << "WARNING - Kinematic2D01, unable to get copy\n";
+    } 
+    return theCopy;
 }
 
 void Kinematic2D01::Print(OPS_Stream &s, int flag)
 {
-	s << "Kinematic2D01 \n";
-	s << "iso_Ratio = " << isotropicRatio << "\n";
-	s << "isotropicFactor_hist = " << isotropicFactor_hist;
-	s << "translateX       = " << translate(0) << ",\ttranslateY = " << translate(1) << "\n";
-	s << "\n";
-
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "{}";
+  } else {
+    s << "Kinematic2D01 \n";
+    s << "iso_Ratio = " << isotropicRatio << "\n";
+    s << "isotropicFactor_hist = " << isotropicFactor_hist;
+    s << "translateX       = " << translate(0) << ",\ttranslateY = " << translate(1) << "\n";
+    s << "\n";
+  }
 }
 	

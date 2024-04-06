@@ -31,7 +31,6 @@
 #include <Domain.h>
 #include <G3_Logging.h>
 
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
 #include <ForceBeamColumn2d.h>
@@ -84,17 +83,14 @@ class TclBasicBuilder;
 
 int
 TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
-                                   int inArgc, TCL_Char **const inArgv,
-                                   Domain *theTclDomain,
-                                   TclBasicBuilder *theTclBuilder)
+                                   int inArgc, TCL_Char **const inArgv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain *domain = builder->getDomain();
+  assert(domain != nullptr);
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << G3_ERROR_PROMPT << "builder has been destroyed\n";
-    return TCL_ERROR;
-  }
+  bool deleteBeamIntegr = true;
 
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -211,12 +207,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       } else
         argi++;
 
-      if (Tcl_GetVar(interp, "opensees::pragma::openseespy", 0) == nullptr) { // (0) { // (Tcl_Eval(interp, "expr [pragma openseespy check] == 1") != TCL_OK) {
+      if (Tcl_GetVar(interp, "opensees::pragma::openseespy", 0) == nullptr) { 
+        // (0) { // (Tcl_Eval(interp, "expr [pragma openseespy check] == 1") != TCL_OK) {
       // OpenSees Tcl behavior
 
-        SectionForceDeformation *theSection = builder->getSection(secTag);
+        SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
         if (theSection == nullptr) {
-          opserr << G3_ERROR_PROMPT << "section not found with tag " << secTag << endln;
           return TCL_ERROR;
         }
         sections = new SectionForceDeformation *[nIP];
@@ -233,18 +229,19 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
       } else {
         transfTag = nIP;
-        BeamIntegrationRule* theRule = (BeamIntegrationRule*)builder->getRegistryObject("BeamIntegrationRule", secTag);
+        BeamIntegrationRule* theRule = builder->getTypedObject<BeamIntegrationRule>(secTag);
         if (theRule == nullptr) {
-          opserr << G3_ERROR_PROMPT << "integration not found with tag " << secTag << endln;
           return TCL_ERROR;
         }
+        // theRule->Print(opserr, 0);
 
+        deleteBeamIntegr = false;
         beamIntegr = theRule->getBeamIntegration();
         const ID& secTags = theRule->getSectionTags();
         nIP = secTags.Size();
         sections = new SectionForceDeformation *[nIP];
         for (int i=0; i < secTags.Size(); i++) {
-          sections[i] = builder->getSection(secTags(i));
+          sections[i] = builder->getTypedObject<SectionForceDeformation>(secTags(i));
           if (sections[i] == nullptr) {
             opserr << "section " << secTags(i) << "not found\n";
             return TCL_ERROR;
@@ -265,7 +262,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         } else
           argi++;
 
-        SectionForceDeformation *theSection = builder->getSection(secTag);
+        SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
         if (theSection == nullptr) {
           opserr << G3_ERROR_PROMPT << "section not found\n";
           opserr << "Section: " << secTag;
@@ -353,7 +350,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     //
     switch (ndm) {
       case 2:
-        theTransf2d = builder->getCrdTransf(transfTag);
+        theTransf2d = builder->getTypedObject<CrdTransf>(transfTag);
         if (theTransf2d == nullptr) {
           opserr << G3_ERROR_PROMPT << "transformation not found with tag " << transfTag << endln;
           return TCL_ERROR;
@@ -361,7 +358,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         break;
 
       case 3:
-        theTransf3d = builder->getCrdTransf(transfTag);
+        theTransf3d = builder->getTypedObject<CrdTransf>(transfTag);
         if (theTransf3d == nullptr) {
           opserr << G3_ERROR_PROMPT << "transformation not found with tag " << transfTag << endln;
           return TCL_ERROR;
@@ -436,10 +433,11 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                            numIter, tol);
     }
 
-    delete beamIntegr;
     delete[] sections;
+    if (deleteBeamIntegr)
+      delete beamIntegr;
 
-    if (theTclDomain->addElement(theElement) == false) {
+    if (domain->addElement(theElement) == false) {
       opserr << G3_ERROR_PROMPT << "could not add element to the domain\n";
       delete theElement;
       return TCL_ERROR;
@@ -463,13 +461,13 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   }
 
   if (ndm == 2) {
-    theTransf2d = builder->getCrdTransf(transfTag);
+    theTransf2d = builder->getTypedObject<CrdTransf>(transfTag);
     if (theTransf2d == nullptr) {
       opserr << G3_ERROR_PROMPT << "transformation not found\n";
       return TCL_ERROR;
     }
   } else if (ndm == 3) {
-    theTransf3d = builder->getCrdTransf(transfTag);
+    theTransf3d = builder->getTypedObject<CrdTransf>(transfTag);
     if (theTransf3d == nullptr) {
       opserr << G3_ERROR_PROMPT << "transformation not found\n";
       return TCL_ERROR;
@@ -503,7 +501,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *theSection = builder->getSection(secTag);
+    SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
     if (theSection == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found with tag " << secTag << endln;
       return TCL_ERROR;
@@ -554,7 +552,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *theSection = builder->getSection(secTag);
+    SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
     if (theSection == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTag;
@@ -610,7 +608,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = builder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secs(i));
       if (theSection == nullptr) {
         opserr << G3_ERROR_PROMPT << "section not found\n";
         opserr << "Section: " << secs(i);
@@ -659,20 +657,20 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionI = builder->getSection(secTagI);
+    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
     if (sectionI == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagI;
       return TCL_ERROR;
     }
-    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
     if (sectionJ == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagJ;
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionE = builder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getTypedObject<SectionForceDeformation>(secTagE);
     if (sectionJ == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagE;
@@ -798,7 +796,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     sections = new SectionForceDeformation *[numSections + 2];
 
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = builder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secs(i));
       if (theSection == nullptr) {
         opserr << G3_ERROR_PROMPT << "section not found\n";
         opserr << "Section: " << secs(i);
@@ -807,7 +805,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       sections[i] = theSection;
     }
 
-    SectionForceDeformation *sectionE = builder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getTypedObject<SectionForceDeformation>(secTagE);
     if (sectionE == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagE;
@@ -880,20 +878,20 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionI = builder->getSection(secTagI);
+    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
     if (sectionI == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagI;
       return TCL_ERROR;
     }
-    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
     if (sectionJ == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagJ;
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionE = builder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getTypedObject<SectionForceDeformation>(secTagE);
     if (sectionJ == nullptr) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagE;
@@ -984,20 +982,20 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionI = builder->getSection(secTagI);
+    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
     if (sectionI == 0) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagI;
       return TCL_ERROR;
     }
-    SectionForceDeformation *sectionJ = builder->getSection(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
     if (sectionJ == 0) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagJ;
       return TCL_ERROR;
     }
 
-    SectionForceDeformation *sectionE = builder->getSection(secTagE);
+    SectionForceDeformation *sectionE = builder->getTypedObject<SectionForceDeformation>(secTagE);
     if (sectionJ == 0) {
       opserr << G3_ERROR_PROMPT << "section not found\n";
       opserr << "Section: " << secTagE;
@@ -1061,7 +1059,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = builder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secs(i));
       if (theSection == nullptr) {
         opserr << G3_ERROR_PROMPT << "section not found\n";
         opserr << "Section: " << secs(i);
@@ -1122,7 +1120,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = builder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secs(i));
       if (theSection == nullptr) {
         opserr << G3_ERROR_PROMPT << "section not found\n";
         opserr << "Section: " << secs(i);
@@ -1171,7 +1169,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
     sections = new SectionForceDeformation *[numSections];
     for (i = 0; i < numSections; i++) {
-      SectionForceDeformation *theSection = builder->getSection(secs(i));
+      SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secs(i));
       if (theSection == nullptr) {
         opserr << G3_ERROR_PROMPT << "section not found\n";
         opserr << "Section: " << secs(i);
@@ -1299,6 +1297,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       theElement = new ElasticForceBeamColumn3d(
           eleTag, iNode, jNode, numSections, sections, *beamIntegr,
           *theTransf3d, mass);
+
     else if (strcmp(argv[1], "dispBeamColumn") == 0)
       theElement =
           new DispBeamColumn3d(eleTag, iNode, jNode, numSections, sections,
@@ -1311,6 +1310,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
   if (beamIntegr != nullptr)
     delete beamIntegr;
+
   if (sections != nullptr)
     delete[] sections;
 
@@ -1319,7 +1319,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  if (theTclDomain->addElement(theElement) == false) {
+  if (domain->addElement(theElement) == false) {
     opserr << G3_ERROR_PROMPT << "could not add element to the domain\n";
     delete theElement;
     return TCL_ERROR;

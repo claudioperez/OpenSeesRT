@@ -26,12 +26,13 @@
 //
 #include <MP_Constraint.h>
 #include <string.h>
-#include <stdlib.h>
 #include <Matrix.h>
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <Domain.h>
+#include <assert.h>
+#include <Print.h>
 
 static int numMPs = 0;
 static int nextTag = 0;
@@ -40,7 +41,7 @@ static int nextTag = 0;
 // constructor for FEM_ObjectBroker			// Arash
 MP_Constraint::MP_Constraint(int clasTag )		
 :DomainComponent(nextTag++, clasTag),
- nodeRetained(0),nodeConstrained(0),constraint(0),constrDOF(0),retainDOF(0),
+ nodeRetained(0),nodeConstrained(0),constraint(nullptr),constrDOF(0),retainDOF(0),
  dbTag1(0), dbTag2(0)
 {
   numMPs++;
@@ -52,17 +53,12 @@ MP_Constraint::MP_Constraint(int nodeRetain, int nodeConstr,
 			     ID &retainedDOF, int clasTag)
 :DomainComponent(nextTag++, clasTag),
  nodeRetained(nodeRetain), nodeConstrained(nodeConstr), 
- constraint(0), constrDOF(0), retainDOF(0),  dbTag1(0), dbTag2(0)
+ constraint(nullptr), constrDOF(0), retainDOF(0),  dbTag1(0), dbTag2(0)
 {
   numMPs++;
   
   constrDOF = new ID(constrainedDOF);
-  retainDOF = new ID(retainedDOF);    
-  if (constrDOF == 0 || constrainedDOF.Size() != constrDOF->Size() ||
-      retainDOF == 0 || retainedDOF.Size() != retainDOF->Size()) { 
-    opserr << "MP_Constraint::MP_Constraint - ran out of memory 1\n";
-    exit(-1);
-  }    
+  retainDOF = new ID(retainedDOF);
 }
 
 
@@ -76,17 +72,8 @@ MP_Constraint::MP_Constraint(int nodeRetain, int nodeConstr, Matrix &constr,
   numMPs++;    
   constrDOF = new ID(constrainedDOF);
   retainDOF = new ID(retainedDOF);    
-  if (constrDOF == 0 || constrainedDOF.Size() != constrDOF->Size() ||
-      retainDOF == 0 || retainedDOF.Size() != retainDOF->Size()) { 
-    opserr << "MP_Constraint::MP_Constraint - ran out of memory 1\n";
-    exit(-1);
-  }    
   
   constraint = new Matrix(constr);
-  if (constraint == 0 || constr.noCols() != constr.noCols()) { 
-    opserr << "MP_Constraint::MP_Constraint - ran out of memory 2\n";
-    exit(-1);
-  }        
 }
 
 
@@ -125,34 +112,24 @@ MP_Constraint::getNodeConstrained(void) const
 const ID &
 MP_Constraint::getConstrainedDOFs(void) const
 {
-    if (constrDOF == 0) {
-	opserr << "MP_Constraint::getConstrainedDOF - no ID was set, ";
-	opserr << "was recvSelf() ever called? or subclass incorrect?\n";	
-	exit(-1);
-    }
-
-    // return the ID corresponding to constrained DOF of Ccr
-    return *constrDOF;    
+  assert(constrDOF != nullptr);
+  // return the ID corresponding to constrained DOF of Ccr
+  return *constrDOF;    
 }
 
 
+// return the ID corresponding to retained DOF of Ccr
 const ID &
 MP_Constraint::getRetainedDOFs(void) const
 {
-    if (retainDOF == 0) {
-	opserr << "MP_Constraint::getRetainedDOFs - no ID was set\n ";
-	opserr << "was recvSelf() ever called? or subclass incorrect?\n";		
-	exit(-1);
-    }
-
-    // return the ID corresponding to retained DOF of Ccr
+    assert(retainDOF != nullptr);
     return *retainDOF;    
 }
 
+// does nothing MP_Constraint objects are time invariant
 int 
 MP_Constraint::applyConstraint(double timeStamp)
 {
-    // does nothing MP_Constraint objects are time invariant
     return 0;
 }
 
@@ -163,15 +140,11 @@ MP_Constraint::isTimeVarying(void) const
 }
 
 
+// return the constraint matrix Ccr
 const Matrix &
 MP_Constraint::getConstraint(void)
 {
-    if (constraint == 0) {
-	opserr << "MP_Constraint::getConstraint - no Matrix was set\n";
-	exit(-1);
-    }    
-
-    // return the constraint matrix Ccr
+    assert(constraint != nullptr);
     return *constraint;    
 }
 
@@ -201,15 +174,15 @@ MP_Constraint::sendSelf(int cTag, Channel &theChannel)
 
     int result = theChannel.sendID(dataTag, cTag, data);
     if (result < 0) {
-	opserr << "WARNING MP_Constraint::sendSelf - error sending ID data\n";
+	// opserr << "WARNING MP_Constraint::sendSelf - error sending ID data\n";
 	return result;  
     }    
     
     if (constraint != 0 && constraint->noRows() != 0) {
 	int result = theChannel.sendMatrix(dataTag, cTag, *constraint);
 	if (result < 0) {
-	    opserr << "WARNING MP_Constraint::sendSelf ";
-	    opserr << "- error sending Matrix data\n"; 
+	    // opserr << "WARNING MP_Constraint::sendSelf ";
+	    // opserr << "- error sending Matrix data\n"; 
 	    return result;  
 	}
     }
@@ -217,8 +190,8 @@ MP_Constraint::sendSelf(int cTag, Channel &theChannel)
     if (constrDOF != 0 && constrDOF->Size() != 0) {
 	int result = theChannel.sendID(dbTag1, cTag, *constrDOF);
 	if (result < 0) {
-	    opserr << "WARNING MP_Constraint::sendSelf ";
-	    opserr << "- error sending constrained data\n"; 
+	    // opserr << "WARNING MP_Constraint::sendSelf ";
+	    // opserr << "- error sending constrained data\n"; 
 	    return result;  
 	}
     }
@@ -226,8 +199,8 @@ MP_Constraint::sendSelf(int cTag, Channel &theChannel)
     if (retainDOF != 0 && retainDOF->Size() != 0) {
 	int result = theChannel.sendID(dbTag2, cTag, *retainDOF);
 	if (result < 0) {
-	    opserr << "WARNING MP_Constraint::sendSelf ";
-	    opserr << "- error sending retained data\n"; 
+	    // opserr << "WARNING MP_Constraint::sendSelf ";
+	    // opserr << "- error sending retained data\n"; 
 	    return result;  
 	}
     }
@@ -244,7 +217,7 @@ MP_Constraint::recvSelf(int cTag, Channel &theChannel,
     static ID data(10);
     int result = theChannel.recvID(dataTag, cTag, data);
     if (result < 0) {
-	opserr << "WARNING MP_Constraint::recvSelf - error receiving ID data\n";
+	// opserr << "WARNING MP_Constraint::recvSelf - error receiving ID data\n";
 	return result;  
     }    
 
@@ -262,8 +235,8 @@ MP_Constraint::recvSelf(int cTag, Channel &theChannel,
 	
 	int result = theChannel.recvMatrix(dataTag, cTag, *constraint);
 	if (result < 0) {
-	    opserr << "WARNING MP_Constraint::recvSelf ";
-	    opserr << "- error receiving Matrix data\n"; 
+	    // opserr << "WARNING MP_Constraint::recvSelf ";
+	    // opserr << "- error receiving Matrix data\n"; 
 	    return result;  
 	}
     }    
@@ -272,8 +245,8 @@ MP_Constraint::recvSelf(int cTag, Channel &theChannel,
 	constrDOF = new ID(size);
 	int result = theChannel.recvID(dbTag1, cTag, *constrDOF);
 	if (result < 0) {
-	    opserr << "WARNING MP_Constraint::recvSelf ";
-	    opserr << "- error receiving constrained data\n"; 
+	    // opserr << "WARNING MP_Constraint::recvSelf ";
+	    // opserr << "- error receiving constrained data\n"; 
 	    return result;  
 	}	
     }
@@ -283,8 +256,8 @@ MP_Constraint::recvSelf(int cTag, Channel &theChannel,
 	retainDOF = new ID(size);
 	int result = theChannel.recvID(dbTag2, cTag, *retainDOF);
 	if (result < 0) {
-	    opserr << "WARNING MP_Retainaint::recvSelf ";
-	    opserr << "- error receiving retained data\n"; 
+	    // opserr << "WARNING MP_Retainaint::recvSelf ";
+	    // opserr << "- error receiving retained data\n"; 
 	    return result;  
 	}	
     }    
@@ -307,7 +280,6 @@ MP_Constraint::Print(OPS_Stream &s, int flag)
       s << indent << "\"node_constrained\": " << nodeConstrained << "," << newln;
       s << indent << "\"node_retained\": " << nodeRetained << "," << newln;
       if (constrDOF != 0 && retainDOF != 0) {
-
         s << indent << "\"constrained_dof\": [";
         const int nc = (*constrDOF).Size();
         for (int i=0; i < nc; i++)
@@ -338,11 +310,11 @@ MP_Constraint::Print(OPS_Stream &s, int flag)
         s << " constrained dof: ";
         for (int i=0; i<(*constrDOF).Size(); i++)
           s << (*constrDOF)(i)+1 << " ";
-        s << endln;
+        s << "\n";
           s << " retained dof: ";        
         for (int i=0; i<(*retainDOF).Size(); i++)
           s << (*retainDOF)(i)+1 << " ";
-        s << endln;
+        s << "\n";
         if (constraint != 0)
           s << " constraint matrix: " << *constraint << "\n";
       }

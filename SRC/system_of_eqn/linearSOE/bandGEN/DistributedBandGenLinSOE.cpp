@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/bandGEN/DistributedBandGenLinSOE.cpp,v $
-                                                                        
+//
 // Written: fmk 
 //
 // Description: This file contains the implementation for BandGenLinSOE
-
-
+//
+#include <assert.h>
 #include <DistributedBandGenLinSOE.h>
 #include <BandGenLinLapackSolver.h>
 #include <BandGenLinSolver.h>
@@ -131,9 +127,6 @@ DistributedBandGenLinSOE::setSize(Graph &theGraph)
 
     size = theGraph.getNumVertex();
 
-    //opserr << "\n\n\n**********************************************\n"; 
-    //theGraph.Print(opserr); 
-    //opserr << "\n**********************************************\n\n\n"; 
     //
     // determine the number of superdiagonals and subdiagonals
     //
@@ -214,16 +207,7 @@ DistributedBandGenLinSOE::setSize(Graph &theGraph)
       delete [] A;
 
     A = new double[newSize];
-    
-    if (A == 0) {
-      opserr << "WARNING DistributedBandGenLinSOE::DistributedBandGenLinSOE :";
-      opserr << " ran out of memory for A (size,super,sub) (";
-      opserr << size <<", " << numSuperD << ", " << numSubD << ") \n";
-      Asize = 0; size = 0; numSubD = 0; numSuperD = 0;
-      result= -1;
-    }
-    else  
-      Asize = newSize;
+    Asize = newSize;
   }
   
   // zero the matrix
@@ -245,16 +229,8 @@ DistributedBandGenLinSOE::setSize(Graph &theGraph)
     B = new double[size];
     X = new double[size];
     myB = new double[size];
-    
-    if (B == 0 || X == 0 || myB == 0) {
-      opserr << "WARNING DistributedBandGenLinSOE::DistributedBandGenLinSOE :";
-      opserr << " ran out of memory for vectors (size) (";
-      opserr << size << ") \n";
-      Bsize = 0; size = 0; numSubD = 0; numSuperD = 0;
-      result = -1;
-    }
-    else 
-      Bsize = size;
+
+    Bsize = size;
   }
   
   // zero the vectors
@@ -282,19 +258,12 @@ DistributedBandGenLinSOE::setSize(Graph &theGraph)
 
     // invoke setSize() on the Solver
   LinearSOESolver *theSolvr = this->getSolver();
-  if (theSolvr == 0) {
-	opserr << "WARNING:DistributedBandGenLinSOE::setSize :";
-    opserr << " no solver set\n";
-    return -2;
-  }    
+  assert(theSolvr != nullptr);
 
   int solverOK = theSolvr->setSize();
-  if (solverOK < 0) {
-    opserr << "WARNING:DistributedBandGenLinSOE::setSize :";
-    opserr << " solver failed setSize()\n";
+  if (solverOK < 0)
     return solverOK;
-  }    
-  
+
   return result;    
 }
 
@@ -302,15 +271,14 @@ DistributedBandGenLinSOE::setSize(Graph &theGraph)
 int 
 DistributedBandGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+  assert(id.Size() == m.noRows() && id.Size() == m.noCols());
+
   // check for a quick return 
-  if (fact == 0.0)  return 0;
+  if (fact == 0.0)
+    return 0;
   
   // check that m and id are of similar size
-  int idSize = id.Size();    
-  if (idSize != m.noRows() && idSize != m.noCols()) {
-    opserr << "BandGenLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-    return -1;
-  }
+  const int idSize = id.Size();    
   
   int ldA = 2*numSubD + numSuperD + 1;
   ID *theMap = 0;
@@ -470,17 +438,15 @@ DistributedBandGenLinSOE::solve(void)
 int 
 DistributedBandGenLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
-    
+    assert(id.Size() == v.Size());
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
     // check that m and id are of similar size
-    int idSize = id.Size();        
-    if (idSize != v.Size() ) {
-	opserr << "BandSPDLinSOE::addB() - Vector and ID not of similar sizes\n";
-	return -1;
-    }    
-    
+    const int idSize = id.Size();        
+
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<idSize; i++) {
 	    int pos = id(i);
@@ -507,16 +473,13 @@ DistributedBandGenLinSOE::addB(const Vector &v, const ID &id, double fact)
 int
 DistributedBandGenLinSOE::setB(const Vector &v, double fact)
 {
+    assert(v.Size() == size);
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
 
-    if (v.Size() != size) {
-	opserr << "WARNING DistributedBandGenLinSOE::setB() -";
-	opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-	return -1;
-    }
-    
     if (fact == 1.0) { // do not need to multiply if fact == 1.0
 	for (int i=0; i<size; i++) {
 	    myB[i] = v(i);
@@ -606,11 +569,7 @@ DistributedBandGenLinSOE::sendSelf(int commitTag, Channel &theChannel)
     if (found == false) {
       int nextNumChannels = numChannels + 1;
       Channel **nextChannels = new Channel *[nextNumChannels];
-      if (nextNumChannels == 0) {
-	opserr << "DistributedBandGenLinSOE::sendSelf() - failed to allocate channel array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
+
       for (int i=0; i<numChannels; i++)
 	nextChannels[i] = theChannels[i];
       nextChannels[numChannels] = &theChannel;
@@ -625,11 +584,7 @@ DistributedBandGenLinSOE::sendSelf(int commitTag, Channel &theChannel)
       if (localCol != 0)
 	delete [] localCol;
       localCol = new ID *[numChannels];
-      if (localCol == 0) {
-	opserr << "DistributedBandGenLinSOE::sendSelf() - failed to allocate id array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
-      }
+
       for (int i=0; i<numChannels; i++)
 	localCol[i] = 0;    
 
@@ -647,18 +602,18 @@ DistributedBandGenLinSOE::sendSelf(int commitTag, Channel &theChannel)
   
   int res = theChannel.sendID(0, commitTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedBandGenLinSOE::sendSelf() - failed to send data\n";
+    //opserr <<"WARNING DistributedBandGenLinSOE::sendSelf() - failed to send data\n";
     return -1;
   }
 
   LinearSOESolver *theSoeSolver = this->getSolver();
   if (theSoeSolver != 0) {
     if (theSoeSolver->sendSelf(commitTag, theChannel) < 0) {
-      opserr <<"WARNING DistributedBandGenLinSOE::sendSelf() - failed to send solver\n";
+      //opserr <<"WARNING DistributedBandGenLinSOE::sendSelf() - failed to send solver\n";
       return -1;
     } 
   } else {
-    opserr <<"WARNING DistributedBandGenLinSOE::sendSelf() - no solver to send!\n";
+    //opserr <<"WARNING DistributedBandGenLinSOE::sendSelf() - no solver to send!\n";
     return -1;
   }
 
@@ -672,7 +627,7 @@ DistributedBandGenLinSOE::recvSelf(int commitTag, Channel &theChannel, FEM_Objec
   ID idData(1);
   int res = theChannel.recvID(0, commitTag, idData);
   if (res < 0) {
-    opserr <<"WARNING DistributedBandGenLinSOE::recvSelf() - failed to send data\n";
+    //opserr <<"WARNING DistributedBandGenLinSOE::recvSelf() - failed to send data\n";
     return -1;
   }	      
   processID = idData(0);
@@ -687,7 +642,7 @@ DistributedBandGenLinSOE::recvSelf(int commitTag, Channel &theChannel, FEM_Objec
 
   BandGenLinSolver *theBandGenSolver = new BandGenLinLapackSolver();
   if (theBandGenSolver->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr <<"WARNING DistributedBandgenLinSOE::sendSelf() - failed to recv solver\n";
+    //opserr <<"WARNING DistributedBandgenLinSOE::sendSelf() - failed to recv solver\n";
     return -1;
   }
   theBandGenSolver->setLinearSOE(*this);

@@ -40,6 +40,7 @@
 #include <fstream>
 
 class DRMInputHandler;
+class Element;
 class Domain;
 
 class DRMLoadPattern : public LoadPattern

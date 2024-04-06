@@ -1,4 +1,3 @@
-
 //
 // COPYRIGHT (C):     :-))
 // PROJECT:           Object Oriented Finite Element Program
@@ -19,9 +18,6 @@
 // UPDATE HISTORY:                       
 //
 //
-
-
-
 #ifndef TWENTYNODEBRICK_H
 #define TWENTYNODEBRICK_H
 
@@ -54,7 +50,6 @@
 
 #include <MatPoint3D.h>
 
-#include <Template3Dep.h>
 
 #include <NDMaterial.h>
 #include <Matrix.h>

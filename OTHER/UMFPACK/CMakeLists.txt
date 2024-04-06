@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.16)
 # project(UMFPACK)
 include_directories(. ../AMD)
 if (UNIX)
-  add_compile_options(-fexceptions -march=haswell -mtune=native -msse4 -Ofast) # -fPIC)
+  add_compile_options(-fexceptions -mtune=native) # -Ofast -march=haswell -msse4 ) # -fPIC)
 endif()
 add_compile_definitions(NCHOLMOD)
 

@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectThreadSolver.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectThreadSolver.h
 //
 // Written: fmk 
@@ -72,7 +67,6 @@ class ProfileSPDLinDirectThreadSolver : public ProfileSPDLinSolver
   private:
 
 };
-
 
 #endif
 

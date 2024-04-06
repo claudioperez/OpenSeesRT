@@ -38,7 +38,6 @@
 
 
 // static variables initialisation
-Vector DOF_Group::errVect(1);
 Matrix **DOF_Group::theMatrices; // array of pointers to class wide matrices
 Vector **DOF_Group::theVectors;  // array of pointers to class widde vectors
 int DOF_Group::numDOFs(0);       // number of objects
@@ -421,11 +420,7 @@ DOF_Group::getC_Force(const Vector &Udotdot, double fact)
 const Vector & 
 DOF_Group::getCommittedDisp(void)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getCommittedDisp: no associated Node ";
-	opserr << " returning the error Vector\n";
-	return errVect;
-    }
+    assert(myNode != nullptr);
     return myNode->getDisp();
 }
 
@@ -433,11 +428,7 @@ DOF_Group::getCommittedDisp(void)
 const Vector & 
 DOF_Group::getCommittedVel(void)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getCommittedVel: no associated Node ";
-	opserr << " returning the error Vector\n";
-	return errVect;	
-    }
+    assert(myNode != nullptr);
     return myNode->getVel();
 }
 
@@ -445,35 +436,29 @@ DOF_Group::getCommittedVel(void)
 const Vector & 
 DOF_Group::getCommittedAccel(void)
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getCommittedAccel: no associated Node ";
-	opserr << " returning the error Vector\n";
-	return errVect;	
-    }
+    assert(myNode != nullptr);
     return myNode->getAccel();
 }
 
 // void setNodeDisp(const Vector &u);
 //	Method to set the corresponding nodes displacements to the
 //	values in u, components identified by myID;
-
 void
 DOF_Group::setNodeDisp(const Vector &u)
 {
-  assert(myNode != nullptr);
-    
-    Vector &disp = *unbalance;
-    disp = myNode->getTrialDisp();
-    int i;
-    
-    // get disp for my dof out of vector u
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);
-	if (loc >= 0)
-	    disp(i) = u(loc);  
-    }
+  assert(myNode != nullptr); 
+  Vector &disp = *unbalance;
+  disp = myNode->getTrialDisp();
+  int i;
+  
+  // get disp for my dof out of vector u
+  for (i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+          disp(i) = u(loc);  
+  }
 
-    myNode->setTrialDisp(disp);
+  myNode->setTrialDisp(disp);
 }
 	
 	
@@ -534,16 +519,12 @@ DOF_Group::incrNodeDisp(const Vector &u)
 {
   assert(myNode != nullptr);
 
-  Vector &disp = *unbalance;;
+  Vector &disp = *unbalance;
 
-  if (disp.Size() == 0) {
-    opserr << "DOF_Group::setNodeIncrDisp - out of space\n";
-    return;
-  }
-  int i;
+  assert(disp.Size() != 0);
 
   // get disp for my dof out of vector u
-  for (i=0; i<numDOF; i++) {
+  for (int i=0; i<numDOF; i++) {
       int loc = myID(i);	    			
       if (loc >= 0)
         disp(i) = u(loc);  
@@ -562,20 +543,19 @@ DOF_Group::incrNodeDisp(const Vector &u)
 void
 DOF_Group::incrNodeVel(const Vector &udot)
 {
-
   assert(myNode != nullptr);
     
-    Vector &vel = *unbalance;
-    int i;
-    
-    // get vel for my dof out of vector udot
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);
-	if (loc >= 0)
-	    vel(i) = udot(loc);  // -1 for dof labelled 1 through ndof
-	else  vel(i) = 0.0;
-    }
-    myNode->incrTrialVel(vel);
+  Vector &vel = *unbalance;
+  
+  // get vel for my dof out of vector udot
+  for (int i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+        vel(i) = udot(loc);  // -1 for dof labelled 1 through ndof
+      else
+        vel(i) = 0.0;
+  }
+  myNode->incrTrialVel(vel);
 }
 
 
@@ -590,52 +570,40 @@ DOF_Group::incrNodeAccel(const Vector &udotdot)
 
   assert(myNode != nullptr);
 
-    Vector &accel = *unbalance;
-    int i;
-    
-    // get disp for the unconstrained dof
-    for (i=0; i<numDOF; i++) {
-	int loc = myID(i);
-	if (loc >= 0)
-	    accel(i) = udotdot(loc); 
-	else accel(i) = 0.0;
-    }    
-    myNode->incrTrialAccel(accel);
+  Vector &accel = *unbalance;
+  
+  // get disp for the unconstrained dof
+  for (int i=0; i<numDOF; i++) {
+      int loc = myID(i);
+      if (loc >= 0)
+        accel(i) = udotdot(loc); 
+      else 
+        accel(i) = 0.0;
+  }    
+  myNode->incrTrialAccel(accel);
 }
 
 const Vector & 
 DOF_Group::getTrialDisp()
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getTrialDisp: no associated Node ";
-	opserr << " returning the error Vector\n";
-	return errVect;
-    }
-    return myNode->getTrialDisp();
+  assert(myNode != nullptr);
+  return myNode->getTrialDisp();
 }
 
 
 const Vector & 
 DOF_Group::getTrialVel()
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getTrialVel: no associated Node ";
-	opserr << " returning the error Vector\n";
-	return errVect;	
-    }
-    return myNode->getTrialVel();
+  assert(myNode != nullptr);
+  return myNode->getTrialVel();
 }
 
 
 const Vector & 
 DOF_Group::getTrialAccel()
 {
-    if (myNode == 0) {
-	opserr << "DOF_Group::getTrialAccel: no associated Node ";
-	opserr << " returning the error Vector\n";
-	return errVect;	
-    }
-    return myNode->getTrialAccel();
+  assert(myNode != nullptr);
+  return myNode->getTrialAccel();
 }
 
 
@@ -643,12 +611,10 @@ void
 DOF_Group::setEigenvector(int mode, const Vector &theVector)
 {
   assert(myNode != nullptr);
-
   Vector &eigenvector = *unbalance;
-  int i;
   
   // get disp for the unconstrained dof
-  for (i=0; i<numDOF; i++) {
+  for (int i=0; i<numDOF; i++) {
       int loc = myID(i);
       if (loc >= 0)
           eigenvector(i) = theVector(loc); 
@@ -699,20 +665,20 @@ const Vector &
 DOF_Group::getVelSensitivity(int gradNumber)
 {
     Vector &result = *unbalance;
-	for (int i=0; i<numDOF; i++) {
-		result(i) = myNode->getVelSensitivity(i+1,gradNumber);
-	}
-	return result;
+    for (int i=0; i<numDOF; i++)
+      result(i) = myNode->getVelSensitivity(i+1,gradNumber);
+
+    return result;
 }
 	
 const Vector &
 DOF_Group::getAccSensitivity(int gradNumber)
 {
     Vector &result = *unbalance;
-	for (int i=0; i<numDOF; i++) {
-		result(i) = myNode->getAccSensitivity(i+1,gradNumber);
-	}
-	return result;
+    for (int i=0; i<numDOF; i++)
+      result(i) = myNode->getAccSensitivity(i+1,gradNumber);
+
+    return result;
 }
 	
 	

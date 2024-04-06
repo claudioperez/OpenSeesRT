@@ -7,6 +7,9 @@
 // The file contains the routine TclElementCommands which is invoked by the
 // TclBasicBuilder.
 //
+// cmp
+//
+#include "element.hpp"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -26,9 +29,10 @@
 #include <packages.h>
 #include <Domain.h>
 #include <Element.h>
+#include <CrdTransf.h>
+#include <NDMaterial.h>
 
 class TclBasicBuilder;
-class CrdTransf;
 
 #include <UniaxialMaterial.h>
 #include <MultipleShearSpring.h>
@@ -47,98 +51,11 @@ typedef struct elementPackageCommand {
 static ElementPackageCommand *theElementPackageCommands = nullptr;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char ** const argv, Domain *domain);
+                          int mArg, TCL_Char ** const argv, Domain *);
 
 //
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
-typedef void *OPS_Routine(G3_Runtime* , int, const char** const);
-extern OPS_Routine OPS_ComponentElement2d;
-extern OPS_Routine OPS_ComponentElement3d;
-// extern  void *OPS_ComponentElementDamp2d(G3_Runtime*);
-extern OPS_Routine OPS_TrussElement;
-extern OPS_Routine OPS_TrussSectionElement;
-extern OPS_Routine OPS_CorotTrussElement;
-extern OPS_Routine OPS_CorotTrussSectionElement;
-extern OPS_Routine OPS_ElasticTubularJoint;
-extern OPS_Routine OPS_ZeroLength;
-extern OPS_Routine OPS_ZeroLengthContactNTS2D;
-extern OPS_Routine OPS_ZeroLengthVG_HG;
-extern OPS_Routine OPS_ZeroLengthInterface2D;
-extern OPS_Routine OPS_ZeroLengthImpact3D;
-extern OPS_Routine OPS_ZeroLengthContactASDimplex; 
-extern "C" OPS_Routine OPS_PY_Macro2D;
-extern OPS_Routine OPS_SimpleContact2D;
-extern OPS_Routine OPS_SimpleContact3D;
-
-extern OPS_Routine OPS_SurfaceLoad;
-extern OPS_Routine OPS_TriSurfaceLoad;
-
-extern OPS_Routine OPS_ModElasticBeam2d;
-extern OPS_Routine OPS_ModElasticBeam3d;
-extern void *OPS_ElasticBeam2d(G3_Runtime *, const ID &);
-extern OPS_Routine OPS_ElasticBeam3d;
-extern OPS_Routine OPS_ElasticTimoshenkoBeam2d;
-extern OPS_Routine OPS_ElasticTimoshenkoBeam3d;
-extern OPS_Routine OPS_AxEqDispBeamColumn2d;
-extern OPS_Routine OPS_BeamGT;
-// extern void* OPS_GradientInelasticBeamColumn2d();
-// extern void* OPS_GradientInelasticBeamColumn3d();
-extern OPS_Routine OPS_DispBeamColumnAsym3dTcl;  // Xinlong Du
-extern OPS_Routine OPS_MixedBeamColumnAsym3dTcl; // Xinlong Du
-#if defined(_HAVE_LHNMYS) || defined(OPSDEF_ELEMENT_LHNMYS)
-  extern void *OPS_BeamColumn2DwLHNMYS(G3_Runtime*);
-  extern void *OPS_Beam2dDamage(G3_Runtime*);
-  extern void *OPS_BeamColumn2DwLHNMYS_Damage(G3_Runtime*);
-  extern void *OPS_BeamColumn3DwLHNMYS(G3_Runtime*);
-#endif
-
-extern OPS_Routine OPS_TPB1D;
-extern OPS_Routine OPS_TFP_Bearing;
-extern OPS_Routine OPS_FPBearingPTV;
-extern OPS_Routine OPS_MultiFP2d;
-extern OPS_Routine OPS_CoupledZeroLength;
-extern OPS_Routine OPS_FourNodeQuad3d;
-extern OPS_Routine OPS_Quad4FiberOverlay;
-extern OPS_Routine OPS_QuadBeamEmbedContact;
-extern OPS_Routine OPS_ASID8QuadWithSensitivity;
-extern OPS_Routine OPS_AV3D4QuadWithSensitivity;
-
-extern OPS_Routine OPS_Brick8FiberOverlay;
-extern OPS_Routine OPS_TripleFrictionPendulum;
-extern OPS_Routine OPS_Truss2;
-extern OPS_Routine OPS_PML3D;
-extern OPS_Routine OPS_PML2D;
-extern OPS_Routine OPS_CorotTruss2;
-extern OPS_Routine OPS_HDR;
-extern OPS_Routine OPS_LeadRubberX;
-extern OPS_Routine OPS_ElastomericX;
-extern OPS_Routine OPS_N4BiaxialTruss;
-extern OPS_Routine OPS_AC3D8HexWithSensitivity;
-extern OPS_Routine OPS_VS3D4WuadWithSensitivity;
-extern OPS_Routine OPS_MVLEM;        // Kristijan Kolozvari
-extern OPS_Routine OPS_SFI_MVLEM;    // Kristijan Kolozvari
-extern OPS_Routine OPS_MVLEM_3D;     // Kristijan Kolozvari
-extern OPS_Routine OPS_SFI_MVLEM_3D; // Kristijan Kolozvari
-extern OPS_Routine OPS_ElastomericBearingBoucWenMod3d;
-extern OPS_Routine OPS_InertiaTrussElement; // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
-extern OPS_Routine OPS_CatenaryCableElement;
-extern OPS_Routine OPS_ASDEmbeddedNodeElement; // Massimo Petracca (ASDEA)
-extern OPS_Routine OPS_FourNodeTetrahedron;
-extern OPS_Routine OPS_LysmerTriangle;
-extern OPS_Routine OPS_ASDAbsorbingBoundary2D; // Massimo Petracca (ASDEA)
-extern OPS_Routine OPS_ASDAbsorbingBoundary3D; // Massimo Petracca (ASDEA)
-extern OPS_Routine OPS_TwoNodeLink;
-extern OPS_Routine OPS_LinearElasticSpring;
-extern OPS_Routine OPS_Inerter;
-extern OPS_Routine OPS_Adapter;
-extern OPS_Routine OPS_Actuator;
-extern OPS_Routine OPS_ActuatorCorot;
-extern OPS_Routine OPS_ElastomericBearingPlasticity2d;
-extern OPS_Routine OPS_ElastomericBearingPlasticity3d;
-extern OPS_Routine OPS_ElastomericBearingBoucWen2d;
-extern OPS_Routine OPS_ElastomericBearingBoucWen3d;
-extern OPS_Routine OPS_ElastomericBearingUFRP2d;
 
 Tcl_CmdProc TclCommand_addFlatSliderBearing;
 // extern OPS_Routine OPS_FlatSliderSimple2d;
@@ -148,12 +65,6 @@ Tcl_CmdProc TclCommand_addSingleFPBearing;
 // extern OPS_Routine OPS_SingleFPSimple2d;
 // extern OPS_Routine OPS_SingleFPSimple3d;
 
-extern OPS_Routine OPS_RJWatsonEQS2d;
-extern OPS_Routine OPS_RJWatsonEQS3d;
-extern OPS_Routine OPS_RockingBC;
-extern OPS_Routine OPS_LehighJoint2d;
-extern OPS_Routine OPS_MasonPan12;
-extern OPS_Routine OPS_MasonPan3D;
 
 #if 0 // cmp - commented out to eliminate use of TclBasicBuilder
 extern int TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, Domain *, TclBasicBuilder *, int argStart);
@@ -162,24 +73,40 @@ extern int Tcl_addWrapperElement(eleObj *, ClientData clientData, Tcl_Interp *in
 int TclBasicBuilder_addWheelRail(ClientData, Tcl_Interp *, int, TCL_Char **, Domain *, TclBasicBuilder *, int);
 #endif
 
-extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int,
-                                      TCL_Char **const, Domain *);
+
+
+extern void *OPS_ElasticBeam2d(G3_Runtime *, const ID &);
 
 typedef int (G3_TclElementCommand)(ClientData, Tcl_Interp*, int, const char** const, Domain*, TclBasicBuilder*);
 
 // Zero-length
-G3_TclElementCommand TclBasicBuilder_addZeroLength;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthContact2D;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthContact3D;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthRocking;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthSection;
-G3_TclElementCommand TclBasicBuilder_addZeroLengthND;
+Tcl_CmdProc TclCommand_addZeroLength;
+Tcl_CmdProc TclCommand_addZeroLengthSection;
+Tcl_CmdProc TclCommand_addZeroLengthContact2D;
+Tcl_CmdProc TclCommand_addZeroLengthContact3D;
+Tcl_CmdProc TclCommand_addZeroLengthRocking;
+Tcl_CmdProc TclCommand_addZeroLengthND;
 
 G3_TclElementCommand TclBasicBuilder_addBeamWithHinges;
 G3_TclElementCommand TclBasicBuilder_addDispBeamColumnInt;
-G3_TclElementCommand TclBasicBuilder_addForceBeamColumn;
-G3_TclElementCommand TclBasicBuilder_addGradientInelasticBeamColumn;
 
+
+// Other
+extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *);
+G3_TclElementCommand TclBasicBuilder_addJoint3D;
+G3_TclElementCommand TclBasicBuilder_addElastic2dGNL;
+G3_TclElementCommand TclBasicBuilder_addElement2dYS;
+G3_TclElementCommand TclBasicBuilder_addMultipleShearSpring;
+G3_TclElementCommand TclBasicBuilder_addMultipleNormalSpring;
+Tcl_CmdProc          TclBasicBuilder_addKikuchiBearing;
+G3_TclElementCommand TclBasicBuilder_addYamamotoBiaxialHDR;
+G3_TclElementCommand TclBasicBuilder_addMasonPan12;
+G3_TclElementCommand TclBasicBuilder_addMasonPan3D;
+G3_TclElementCommand TclBasicBuilder_addBeamGT;
+
+int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *, int);
+
+Tcl_CmdProc TclBasicBuilder_addGradientInelasticBeamColumn;
 Tcl_CmdProc TclBasicBuilder_addEnhancedQuad;
 Tcl_CmdProc TclBasicBuilder_addNineNodeMixedQuad;
 Tcl_CmdProc TclBasicBuilder_addNineNodeQuad;
@@ -192,23 +119,17 @@ Tcl_CmdProc TclBasicBuilder_addBBarFourNodeQuadUP;
 Tcl_CmdProc TclBasicBuilder_addConstantPressureVolumeQuad;
 Tcl_CmdProc TclBasicBuilder_addSixNodeTri;
 
+Tcl_CmdProc TclBasicBuilder_addForceBeamColumn;
 
+// Brick
+Tcl_CmdProc TclBasicBuilder_addBrickUP;
+Tcl_CmdProc TclBasicBuilder_addBBarBrickUP;
+Tcl_CmdProc TclBasicBuilder_addTwentyEightNodeBrickUP;
+Tcl_CmdProc TclBasicBuilder_addTwentyNodeBrick;
+Tcl_CmdProc TclBasicBuilder_addBrick;
 
-// Other
-G3_TclElementCommand TclBasicBuilder_addJoint3D;
-G3_TclElementCommand TclBasicBuilder_addElastic2dGNL;
-G3_TclElementCommand TclBasicBuilder_addElement2dYS;
-G3_TclElementCommand TclBasicBuilder_addMultipleShearSpring;
-G3_TclElementCommand TclBasicBuilder_addMultipleNormalSpring;
-G3_TclElementCommand TclBasicBuilder_addKikuchiBearing;
-G3_TclElementCommand TclBasicBuilder_addYamamotoBiaxialHDR;
-G3_TclElementCommand TclBasicBuilder_addMasonPan12;
-G3_TclElementCommand TclBasicBuilder_addMasonPan3D;
-G3_TclElementCommand TclBasicBuilder_addBeamGT;
-
-int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *, int);
-
-Element* TclDispatch_newTri31(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
+Tcl_CmdProc TclBasicBuilder_addGenericCopy;
+Tcl_CmdProc TclBasicBuilder_addGenericClient;
 
 
 // Shells
@@ -223,15 +144,7 @@ Element* TclDispatch_newShellNLDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** con
 Element* TclDispatch_newShellNLDKGQThermal(ClientData, Tcl_Interp*, int, TCL_Char** const);
 Element* TclDispatch_newShellNLDKGT(ClientData, Tcl_Interp*, int, TCL_Char** const);
 
-// Brick
-int TclBasicBuilder_addBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);
-int TclBasicBuilder_addBBarBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);
-int TclBasicBuilder_addTwentyEightNodeBrickUP(ClientData, Tcl_Interp *, int , TCL_Char ** const);
-int TclBasicBuilder_addTwentyNodeBrick(ClientData, Tcl_Interp *, int , TCL_Char ** const);
-int TclBasicBuilder_addBrick(ClientData, Tcl_Interp *, int , TCL_Char ** const);
-
-Tcl_CmdProc TclBasicBuilder_addGenericCopy;
-Tcl_CmdProc TclBasicBuilder_addGenericClient;
+Element* TclDispatch_newTri31(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
 
 int
@@ -257,87 +170,21 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   Element *theElement = nullptr;
   int ndm = builder->getNDM();
 
-  if (strcasecmp(argv[1], "truss") == 0) {
+  auto tcl_cmd = element_dispatch.find(std::string(argv[1]));
+  if (tcl_cmd != element_dispatch.end()) {
+    theEle = (*tcl_cmd->second)(rt, argc, &argv[0]);
+  }
 
+  else if (strcasecmp(argv[1], "truss") == 0) {
     theEle = OPS_TrussElement(rt, argc, argv);
 
     // for backward compatibility
-    if (theEle == nullptr) {
-      theEle = OPS_TrussSectionElement(rt, argc, argv);
-    }
-
-  } else if (strcasecmp(argv[1], "TrussSection") == 0) {
-
-    theEle = OPS_TrussSectionElement(rt, argc, argv);
-  }
-
-  else if (strcasecmp(argv[1], "CorotTruss") == 0) {
-    theEle = OPS_CorotTrussElement(rt, argc, argv);
-
-    // for backward compatibility
     if (theEle == nullptr)
-      theEle = OPS_CorotTrussSectionElement(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "CorotTrussSection") == 0) {
-    theEle = OPS_CorotTrussSectionElement(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "N4BiaxialTruss") == 0)) {
-
-    theEle = OPS_N4BiaxialTruss(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "Truss2") == 0) {
-    theEle = OPS_Truss2(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "CorotTruss2") == 0) {
-    theEle = OPS_CorotTruss2(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "InertiaTruss") == 0) {
-
-    theEle = OPS_InertiaTrussElement(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "zeroLengthContactNTS2D") == 0) {
-    theEle = OPS_ZeroLengthContactNTS2D(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "zeroLengthInterface2D") == 0) {
-    theEle = OPS_ZeroLengthInterface2D(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "componentElement2d") == 0) {
-    theEle = OPS_ComponentElement2d(rt, argc, argv);
-  }
-  else if (strcmp(argv[1], "componentElement3d") == 0) {
-    theEle = OPS_ComponentElement3d(rt, argc, argv);
-  }
-
-#if 0
-  else if (strcmp(argv[1],"componentElementDamp2d") == 0) {
-    theEle = OPS_ComponentElementDamp2d(rt, argc, argv);
-  }
-#endif
-
-  else if (strcmp(argv[1], "zeroLengthImpact3D") == 0) {
-    theEle = OPS_ZeroLengthImpact3D(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "ModElasticBeam2d") == 0) ||
-             (strcmp(argv[1], "modElasticBeam2d")) == 0) {
-    theEle = OPS_ModElasticBeam2d(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "ModElasticBeam3d") == 0) ||
-             (strcmp(argv[1], "modElasticBeam3d")) == 0) {
-    theEle = OPS_ModElasticBeam3d(rt, argc, argv);
+      theEle = OPS_TrussSectionElement(rt, argc, argv);
   }
 
   else if ((strcasecmp(argv[1], "elasticBeamColumn") == 0) ||
-             (strcasecmp(argv[1], "elasticBeam")) == 0) {
+           (strcasecmp(argv[1], "elasticBeam")) == 0) {
 
     ID info;
     if (ndm == 2)
@@ -363,7 +210,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       if (theEle != 0)
         theElement = theEle;
       else {
-        
         return TCL_ERROR;
       }
     }
@@ -372,10 +218,13 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 #if defined(_HAVE_LHNMYS) || defined(OPSDEF_ELEMENT_LHNMYS)
   } else if (strcmp(argv[1], "beamColumn2DwLHNMYS") == 0) {
     theEle = OPS_BeamColumn2DwLHNMYS(rt, argc, argv);
+
   } else if (strcmp(argv[1], "beamColumn2dDamage") == 0) {
     theEle = OPS_Beam2dDamage(rt, argc, argv);
+
   } else if (strcmp(argv[1], "beamColumn2DwLHNMYS_Damage") == 0) {
     theEle = OPS_BeamColumn2DwLHNMYS_Damage(rt, argc, argv);
+
   } else if (strcmp(argv[1], "beamColumn3DwLHNMYS") == 0) {
     theEle = OPS_BeamColumn3DwLHNMYS(rt, argc, argv);
 #endif
@@ -401,71 +250,16 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     theEle = OPS_TFP_Bearing(rt, argc, argv);
   }
 
-  else if ((strcmp(argv[1], "FPBearingPTV") == 0)) {
+  else if (strcasecmp(argv[1], "CorotTruss") == 0) {
+    theEle = OPS_CorotTrussElement(rt, argc, argv);
 
-    theEle = OPS_FPBearingPTV(rt, argc, argv);
+    // for backward compatibility
+    if (theEle == nullptr)
+      theEle = OPS_CorotTrussSectionElement(rt, argc, argv);
   }
 
-  else if (strcmp(argv[1], "TripleFrictionPendulum") == 0) {
-
-    theEle = OPS_TripleFrictionPendulum(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "HDR") == 0) {
-
-    theEle = OPS_HDR(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "LeadRubberX") == 0) {
-
-    theEle = OPS_LeadRubberX(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ElastomericX") == 0) {
-
-    theEle = OPS_ElastomericX(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "AxEqDispBeamColumn2d") == 0) {
-
-    theEle = OPS_AxEqDispBeamColumn2d(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "MVLEM") == 0) { // Kristijan Kolozvari
-
-    theEle = OPS_MVLEM(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "SFI_MVLEM") == 0) { // Kristijan Kolozvari
-
-    theEle = OPS_SFI_MVLEM(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "MVLEM_3D") == 0) { // Kristijan Kolozvari
-
-    theEle = OPS_MVLEM_3D(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "SFI_MVLEM_3D") == 0) { // Kristijan Kolozvari
-
-    theEle = OPS_SFI_MVLEM_3D(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "MasonPan12") == 0)) {
-
-    theEle = OPS_MasonPan12(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "MasonPan3D") == 0)) {
-
-    theEle = OPS_MasonPan3D(rt, argc, argv);
-
-  } else if ((strcmp(argv[1], "BeamGT") == 0)) {
-
-    theEle = OPS_BeamGT(rt, argc, argv);
-
-  } else if ((strcmp(argv[1], "MultiFP2d") == 0) ||
-             (strcmp(argv[1], "MultiFPB2d") == 0)) {
+  else if ((strcmp(argv[1], "MultiFP2d") == 0) ||
+            (strcmp(argv[1], "MultiFPB2d") == 0)) {
 
     theEle = OPS_MultiFP2d(rt, argc, argv);
   }
@@ -474,104 +268,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   else if ((strcmp(argv[1], "CoupledZeroLength") == 0) ||
              (strcmp(argv[1], "ZeroLengthCoupled") == 0)) {
     theEle = OPS_CoupledZeroLength(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ZeroLengthVG_HG") == 0) {
-    theEle = OPS_ZeroLengthVG_HG(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ZeroLengthContactASDimplex") == 0) {
-    theEle = OPS_ZeroLengthContactASDimplex(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "twoNodeLink") == 0) {
-    theEle = OPS_TwoNodeLink(rt, argc, argv);
-  }
-  
-  else if ((strcmp(argv[1], "SurfaceLoad") == 0)) {
-    theEle = OPS_SurfaceLoad(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "TriSurfaceLoad") == 0)) {
-    theEle = OPS_TriSurfaceLoad(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "TPB1D") == 0)) {
-    theEle = OPS_TPB1D(rt, argc, argv);
-  }
-
-  else if ((strcmp(argv[1], "elasticTubularJoint") == 0) ||
-           (strcmp(argv[1], "ElasticTubularJoint") == 0)) {
-    theEle = OPS_ElasticTubularJoint(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "quad3d") == 0) {
-    theEle = OPS_FourNodeQuad3d(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "AC3D8") == 0) {
-    theEle = OPS_AC3D8HexWithSensitivity(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ASI3D8") == 0) {
-    theEle = OPS_ASID8QuadWithSensitivity(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "AV3D4") == 0) {
-    theEle = OPS_AV3D4QuadWithSensitivity(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ElastomericBearingBoucWenMod") == 0) {
-    theEle = OPS_ElastomericBearingBoucWenMod3d(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "VS3D4") == 0) {
-    theEle = OPS_VS3D4WuadWithSensitivity(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "CatenaryCable") == 0) {
-    theEle = OPS_CatenaryCableElement(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ASDEmbeddedNodeElement") == 0) {
-    theEle = OPS_ASDEmbeddedNodeElement(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "LysmerTriangle") == 0) {
-    theEle = OPS_LysmerTriangle(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ASDAbsorbingBoundary2D") == 0) {
-    theEle = OPS_ASDAbsorbingBoundary2D(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "ASDAbsorbingBoundary3D") == 0) {
-    theEle = OPS_ASDAbsorbingBoundary3D(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "FourNodeTetrahedron") == 0) {
-    theEle = OPS_FourNodeTetrahedron(rt, argc, argv);
-  }
-
-
-  else if (strcmp(argv[1], "LinearElasticSpring") == 0) {
-    theEle = OPS_LinearElasticSpring(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "Inerter") == 0) {
-    theEle = OPS_Inerter(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "Adapter") == 0) {
-    theEle = OPS_Adapter(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "Actuator") == 0) {
-    theEle = OPS_Actuator(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "CorotActuator") == 0) {
-    theEle = OPS_ActuatorCorot(rt, argc, argv);
   }
 
   else if (strcmp(argv[1], "ElastomericBearing") == 0 ||
@@ -632,10 +328,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       theEle = OPS_RJWatsonEQS3d(rt, argc, argv);
   }
 
-  else if ((strcmp(argv[1], "RockingBC") == 0)) {
-    theEle = OPS_RockingBC(rt, argc, argv);
-  }
-
   // Xinlong Du
   else if ((strcmp(argv[1], "DispBeamColumnAsym") == 0) ||
            (strcmp(argv[1], "DispBeamAsym")) == 0) {
@@ -650,11 +342,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
       theEle = OPS_MixedBeamColumnAsym3dTcl(rt, argc, argv);
   }
   // Xinlong Du
-
-
-  else if (strcmp(argv[1], "LehighJoint2D") == 0) {
-    theEle = OPS_LehighJoint2d(rt, argc, argv);
-  }
 
 //
 // Shells
@@ -744,9 +431,11 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     int eleArgStart = 1;
     int result = TclBasicBuilder_addWheelRail(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder, eleArgStart);
-
 #endif
 
+  //
+  // Beams
+  //
   else if (strcmp(argv[1], "dispBeamColumnInt") == 0) {
     return TclBasicBuilder_addDispBeamColumnInt(
         clientData, interp, argc, argv, theTclDomain, theTclBuilder);
@@ -766,17 +455,19 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
              strcmp(argv[1], "NonlinearBeamColumn") == 0 ||
              strcmp(argv[1], "DispBeamColumnWithSensitivity") == 0) {
 
-    return TclBasicBuilder_addForceBeamColumn(clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    return TclBasicBuilder_addForceBeamColumn(clientData, interp, argc, argv);
 
   } else if ((strstr(argv[1], "BeamWithHinges") != 0) ||
              (strcmp(argv[1], "BeamWithHinges") == 0)) {
     return TclBasicBuilder_addBeamWithHinges(clientData, interp, argc, argv,
                                              theTclDomain, theTclBuilder);
 
+  //
+  //
+  //
   } else if ((strcmp(argv[1], "Quad") == 0) ||
              (strcmp(argv[1], "stdQuad") == 0)) {
     return TclBasicBuilder_addFourNodeQuad(clientData, interp, argc, argv);
-
 
   } else if (strcmp(argv[1], "quadWithSensitivity") == 0) {
     return TclBasicBuilder_addFourNodeQuadWithSensitivity(
@@ -842,30 +533,26 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 // Zero-Length
 //
   else if (strcmp(argv[1], "zeroLength") == 0) {
-    return TclBasicBuilder_addZeroLength(
-        clientData, interp, argc, argv, nullptr, nullptr);
+    return TclCommand_addZeroLength(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthSection") == 0) {
-    return TclBasicBuilder_addZeroLengthSection(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    return TclCommand_addZeroLengthSection(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthRocking") == 0) {
-    int result = TclBasicBuilder_addZeroLengthRocking(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclCommand_addZeroLengthRocking(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "zeroLengthContact2D") == 0) {
-    int result = TclBasicBuilder_addZeroLengthContact2D(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclCommand_addZeroLengthContact2D(clientData, interp, argc, argv);
     return result;
   } else if (strcmp(argv[1], "zeroLengthContact3D") == 0) {
-    int result = TclBasicBuilder_addZeroLengthContact3D(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
-    return result;
+    return TclCommand_addZeroLengthContact3D(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthND") == 0) {
-    int result = TclBasicBuilder_addZeroLengthND(clientData, interp, argc, argv,
-                                                 theTclDomain, theTclBuilder);
-    return result;
+    return TclCommand_addZeroLengthND(clientData, interp, argc, argv);
+
+  //
+  // Joints
+  //
   } else if ((strcmp(argv[1], "Joint2D") == 0) ||
              (strcmp(argv[1], "Joint2d") == 0)) {
     int result =
@@ -925,9 +612,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   }
 
   else if (strcmp(argv[1], "KikuchiBearing") == 0) {
-    int result = TclBasicBuilder_addKikuchiBearing(clientData, interp, argc, argv,
-                                                   theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addKikuchiBearing(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "YamamotoBiaxialHDR") == 0) {
@@ -938,8 +623,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   // MSN
   else if (strcmp(argv[1], "gradientInelasticBeamColumn") == 0) {
-    int result = TclBasicBuilder_addGradientInelasticBeamColumn(
-        clientData, interp, argc, argv, theTclDomain, theTclBuilder);
+    int result = TclBasicBuilder_addGradientInelasticBeamColumn(clientData, interp, argc, argv);
     return result;
   }
 
@@ -1143,7 +827,7 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
           ifNoError = false;
         }
 
-        material = builder->getUniaxialMaterial(matTag);
+        material = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (material == 0) {
           opserr << "WARNING material model not found\n";
           opserr << "uniaxialMaterial: " << matTag << endln;
@@ -1151,7 +835,6 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
           return TCL_ERROR;
         }
 
-        // opserr << "org material " << material->getClassType() << "\n";
         recvMat++;
         i += 1;
 
@@ -1165,7 +848,7 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
             ifNoError = false;
           }
 
-          theMaterials[j] = builder->getUniaxialMaterial(matTag);
+          theMaterials[j] = builder->getTypedObject<UniaxialMaterial>(matTag);
           if (theMaterials[j] == 0) {
             opserr << "WARNING material model not found\n";
             opserr << "uniaxialMaterial: " << matTag << endln;
@@ -1391,7 +1074,7 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *inter
           ifNoError = errDetected(ifNoError, "invalid matTag");
         }
 
-        material = builder->getUniaxialMaterial(matTag);
+        material = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (material == nullptr) {
           ifNoError = errDetected(ifNoError, "material model not found");
         }
@@ -1579,15 +1262,10 @@ error:
 
 int
 TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv,
-                                  Domain *theTclDomain, TclBasicBuilder* unused)
+                                  int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (builder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - KikuchiBearing\n";
-    return TCL_ERROR;
-  }
 
   // 3-dim, 6dof
   int ndm = builder->getNDM();
@@ -1660,7 +1338,6 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
   bool ifNoError = true;
 
   if (argc < 5) { // element KikuchiBearing eleTag? iNode? jNode?
-
     ifNoError = errDetected(ifNoError, "insufficient arguments");
 
   } else {
@@ -1742,7 +1419,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
           ifNoError = errDetected(ifNoError, "invalid matMSSTag");
         }
 
-        matMSS = builder->getUniaxialMaterial(matMSSTag);
+        matMSS = builder->getTypedObject<UniaxialMaterial>(matMSSTag);
         if (matMSS == 0) {
           ifNoError =
               errDetected(ifNoError, "material for MSS model not found");
@@ -1779,7 +1456,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
           ifNoError = errDetected(ifNoError, "invalid matMNSTag");
         }
 
-        matMNS = builder->getUniaxialMaterial(matMNSTag);
+        matMNS = builder->getTypedObject<UniaxialMaterial>(matMNSTag);
         if (matMNS == 0) {
           ifNoError =
               errDetected(ifNoError, "material for MNS model not found");
@@ -2115,8 +1792,7 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
   oriYp(2) = 0.0;
   double mass = 0.0;
 
-  //
-  Element *theElement = 0;
+  Element *theElement = nullptr;
 
   // error flag
   bool ifNoError = true;
@@ -2374,7 +2050,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
              << " iNode jNode A E I\n";
       return TCL_ERROR;
     }
-    CrdTransf *theTransRWheel = builder->getCrdTransf(transTag);
+    CrdTransf *theTransRWheel = builder->getTypedObject<CrdTransf>(transTag);
 
     if (Tcl_GetInt(interp, argv[11 + eleArgStart], &pnLoad) != TCL_OK) {
       opserr << "WARNING invalid I - WheelRail " << pTag
@@ -2524,7 +2200,7 @@ TclDispatch_newTri31(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
   }
   int matID = iData[4];
   
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == 0) {
     opserr << "WARNING element Tri31 " << iData[0] << endln;
     opserr << " Material: " << matID << "not found\n";

@@ -43,6 +43,7 @@
 #include <MovableObject.h>
 #include <Vector.h>
 
+class Domain;
 class NodalLoad;
 class TimeSeries;
 class ElementalLoad;

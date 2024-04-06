@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
-                                                                        
-// File: ~/model/ElasticBeam3d.C
-//
-// Written: fmk 11/95
-// Revised:
 //
 // Purpose: This file contains the class definition for ElasticBeam3d.
 // ElasticBeam3d is a 3d beam element. As such it can only
 // connect to a node with 6-dof. 
-
+//
+// Written: fmk 11/95
+// Revised:
+//
 #include <ElasticBeam3d.h>
 #include <Domain.h>
 #include <Channel.h>
@@ -91,19 +84,21 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeam3d)
 	    opserr<<"no section is found\n";
 	    return 0;
 	}
-	theTrans = OPS_getCrdTransf(transfTag);
+	theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
 	if(theTrans == 0) {
-	    opserr<<"no CrdTransf is found\n";
 	    return 0;
 	}
+
     } else {
 	numData = 6;
-	if(OPS_GetDoubleInput(&numData,&data[0]) < 0) return 0;
+	if (OPS_GetDoubleInput(&numData,&data[0]) < 0) 
+          return 0;
 	numData = 1;
-	if(OPS_GetIntInput(&numData,&transfTag) < 0) return 0;
-	theTrans = OPS_getCrdTransf(transfTag);
+	if (OPS_GetIntInput(&numData,&transfTag) < 0) 
+          return 0;
+
+	theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
 	if(theTrans == 0) {
-	    opserr<<"no CrdTransf is found\n";
 	    return 0;
 	}
     }
@@ -114,8 +109,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeam3d)
     while(OPS_GetNumRemainingInputArgs() > 0) {
 	std::string theType = OPS_GetString();
 	if (theType == "-mass") {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&mass) < 0) return 0;
+	    if (OPS_GetNumRemainingInputArgs() > 0) {
+		if(OPS_GetDoubleInput(&numData,&mass) < 0) 
+                  return 0;
 	    }
 	} else if (theType == "-cMass") {
 	    cMass = 1;
@@ -615,7 +611,7 @@ ElasticBeam3d::addLoad(ElementalLoad *theLoad, double loadFactor)
     double Mz = Vy*L/6.0; // wy*L*L/12
     double Vz = 0.5*wz*L;
     double My = Vz*L/6.0; // wz*L*L/12
-    double P = wx*L;
+    double P  = wx*L;
 
     // Reactions in basic system
     p0[0] -= P;
@@ -732,7 +728,7 @@ ElasticBeam3d::addLoad(ElementalLoad *theLoad, double loadFactor)
     q0[4] -= M2;
   }
   else {
-    opserr << "ElasticBeam3d::addLoad()  -- load type unknown for element with tag: " << this->getTag() << endln;
+    opserr << "ElasticBeam3d::addLoad()  -- load type unknown for element with tag: " << this->getTag() << "\n";
     return -1;
   }
 
@@ -1046,15 +1042,15 @@ ElasticBeam3d::Print(OPS_Stream &s, int flag)
 		T = q(5);
 
 		s << "FORCE\t" << eleTag << "\t" << counter << "\t0";
-		s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << endln;
+		s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << "\n";
 		s << "FORCE\t" << eleTag << "\t" << counter << "\t1";
-		s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << endln;
+		s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << "\n";
 		s << "MOMENT\t" << eleTag << "\t" << counter << "\t0";
-		s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << endln;
+		s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << "\n";
 		s << "MOMENT\t" << eleTag << "\t" << counter << "\t1";
-		s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << endln;
+		s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << "\n";
 	}
-	
+
 	else if (flag == 2) {
 		this->getResistingForce(); // in case linear algo
 
@@ -1067,7 +1063,7 @@ ElasticBeam3d::Print(OPS_Stream &s, int flag)
 		s << "#ElasticBeamColumn3D\n";
 		s << "#LocalAxis " << xAxis(0) << " " << xAxis(1) << " " << xAxis(2);
 		s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
-		s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << endln;
+		s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
 
 		const Vector &node1Crd = theNodes[0]->getCrds();
 		const Vector &node2Crd = theNodes[1]->getCrds();
@@ -1076,11 +1072,11 @@ ElasticBeam3d::Print(OPS_Stream &s, int flag)
 
 		s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2)
 			<< " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
-			<< " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << endln;
+			<< " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << "\n";
 
 		s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2)
 			<< " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
-			<< " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << endln;
+			<< " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << "\n";
 
 		double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
 		double L = theCoordTransf->getInitialLength();
@@ -1096,21 +1092,21 @@ ElasticBeam3d::Print(OPS_Stream &s, int flag)
 		T = q(5);
 
 		s << "#END_FORCES " << -N + p0[0] << ' ' << Vy + p0[1] << ' ' << Vz + p0[3] << ' '
-			<< -T << ' ' << My1 << ' ' << Mz1 << endln;
+			<< -T << ' ' << My1 << ' ' << Mz1 << "\n";
 		s << "#END_FORCES " << N << ' ' << -Vy + p0[2] << ' ' << -Vz + p0[4] << ' '
-			<< T << ' ' << My2 << ' ' << Mz2 << endln;
+			<< T << ' ' << My2 << ' ' << Mz2 << "\n";
 	}
 	
 	if (flag == OPS_PRINT_CURRENTSTATE) {
 
 		this->getResistingForce(); // in case linear algo
 
-		s << "\nElasticBeam3d: " << this->getTag() << endln;
+		s << "\n  ElasticBeam3d: " << this->getTag() << "\n";
 		s << "\tConnected Nodes: " << connectedExternalNodes;
-		s << "\tCoordTransf: " << theCoordTransf->getTag() << endln;
-		s << "\tmass density:  " << rho << ", cMass: " << cMass << endln;
-		s << "\trelease about z:  " << releasez << endln;
-		s << "\trelease about y:  " << releasey << endln;		
+		s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
+		s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
+		s << "\trelease about z:  " << releasez << "\n";
+		s << "\trelease about y:  " << releasey << "\n";		
 		double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
 		double L = theCoordTransf->getInitialLength();
 		double oneOverL = 1.0 / L;
@@ -1125,9 +1121,9 @@ ElasticBeam3d::Print(OPS_Stream &s, int flag)
 		T = q(5);
 
 		s << "\tEnd 1 Forces (P Mz Vy My Vz T): "
-			<< -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << endln;
+			<< -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << "\n";
 		s << "\tEnd 2 Forces (P Mz Vy My Vz T): "
-			<< N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << endln;
+			<< N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << "\n";
 	}
 	
 	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
@@ -1280,15 +1276,9 @@ ElasticBeam3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       }
     }   
   }
-  
-  else if (strcmp(argv[0],"xaxis") == 0 || strcmp(argv[0],"xlocal") == 0)
-    theResponse = new ElementResponse(this, 201, Vector(3));
-  
-  else if (strcmp(argv[0],"yaxis") == 0 || strcmp(argv[0],"ylocal") == 0)
-    theResponse = new ElementResponse(this, 202, Vector(3));
-  
-  else if (strcmp(argv[0],"zaxis") == 0 || strcmp(argv[0],"zlocal") == 0)
-    theResponse = new ElementResponse(this, 203, Vector(3));
+
+  if (theResponse == nullptr)
+    theResponse = theCoordTransf->setResponse(argv, argc, output);
 
   output.endTag(); // ElementOutput
 
@@ -1324,27 +1314,26 @@ ElasticBeam3d::getResponse (int responseID, Information &eleInfo)
     P(3) = -T;
     
     // Moments about z and shears along y
-    M1 = q(1);
-    M2 = q(2);
+    M1    = q(1);
+    M2    = q(2);
     P(5)  = M1;
     P(11) = M2;
-    V = (M1+M2)*oneOverL;
-    P(1) =  V+p0[1];
-    P(7) = -V+p0[2];
+    V     = (M1+M2)*oneOverL;
+    P(1)  =  V+p0[1];
+    P(7)  = -V+p0[2];
     
     // Moments about y and shears along z
-    M1 = q(3);
-    M2 = q(4);
+    M1    = q(3);
+    M2    = q(4);
     P(4)  = M1;
     P(10) = M2;
-    V = (M1+M2)*oneOverL;
-    P(2) = -V+p0[3];
-    P(8) =  V+p0[4];
+    V     = (M1 + M2)*oneOverL;
+    P(2)  = -V + p0[3];
+    P(8)  =  V + p0[4];
 
     return eleInfo.setVector(P);
     
   case 4: // basic forces
-
     return eleInfo.setVector(q);
 
   case 5:
@@ -1365,21 +1354,6 @@ ElasticBeam3d::getResponse (int responseID, Information &eleInfo)
   }
   default:
     break;
-  }
-
-  if (responseID >= 201 && responseID <= 203) {
-    static Vector xlocal(3);
-    static Vector ylocal(3);
-    static Vector zlocal(3);
-    
-    theCoordTransf->getLocalAxes(xlocal,ylocal,zlocal);
-    
-    if (responseID == 201)
-      return eleInfo.setVector(xlocal);
-    if (responseID == 202)
-      return eleInfo.setVector(ylocal);
-    if (responseID == 203)
-      return eleInfo.setVector(zlocal);    
   }
 
   return -1;

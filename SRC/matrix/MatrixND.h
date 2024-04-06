@@ -51,6 +51,26 @@ struct MatrixND {
 
   // Convert to regular Matrix class
   operator Matrix() { return Matrix(&values[0][0], NR, NC);}
+  operator const Matrix() const { return Matrix(&values[0][0], NR, NC);}
+
+  void addDiagonal(const double vol) requires(NR == NC);
+
+  template <class MatT>
+  void addMatrix(const MatT& A, const double scale);
+
+  template <class VecA, class VecB>  void addTensorProduct(const VecA& V, const VecB& W, const double scale);
+  template <class MatT, int nk> void addMatrixProduct(const MatrixND<NR, nk, T> &, const MatT&, const double scale);
+
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, size_t row_index);
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, size_t vector_index, size_t matrix_row_index);
+  template<class VecT>
+  void addSpin(const VecT& V, double mult);
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, double mult, size_t row_index);
+  template<class VecT>
+  void addSpinAtRow(const VecT& V, double mult, size_t vector_index, size_t matrix_row_index);
 
   //
   // Indexing
@@ -97,13 +117,14 @@ struct MatrixND {
   }
 
   consteval VectorND<2,int>
-  size() const {return {NR, NC};}
+  size() const {
+    return {NR, NC};
+  }
 
   //
   //
   //
-  void zero(void)
-  {
+  void zero(void) {
     for (index_t j = 0; j < NC; ++j) {
       for (index_t i = 0; i < NR; ++i) {
         values[j][i] = 0.0;
@@ -172,7 +193,7 @@ struct MatrixND {
   {
     MatrixND<NR,NC> work = *this;
     int pivot_ind[NR];
-    int *nrhs = M.noCols();
+    int nrhs = M.noCols();
     int nr = NR;
     int nc = NC;
     int info = 0;
@@ -296,16 +317,28 @@ struct MatrixND {
 // - define friend operators inside class for use as header-only library
 // - LHS is passed by (copied) value
   friend constexpr MatrixND
-  operator+(MatrixND left, const MatrixND &right) {left += right; return left;}
+  operator+(MatrixND left, const MatrixND &right) {
+    left += right; 
+    return left;
+  }
 
   friend constexpr MatrixND
-  operator-(MatrixND left, const MatrixND &right) {left -= right; return left;}
+  operator-(MatrixND left, const MatrixND &right) {
+    left -= right; 
+    return left;
+  }
   
   friend constexpr MatrixND // scalar * Matrix
-  operator*(T scalar, MatrixND mat) {mat *= scalar; return mat;}
+  operator*(T scalar, MatrixND mat) {
+    mat *= scalar;
+    return mat;
+  }
 
   friend constexpr MatrixND // Matrix * scalar
-  operator*(MatrixND mat, T scalar) {mat *= scalar; return mat;}
+  operator*(MatrixND mat, T scalar) {
+    mat *= scalar;
+    return mat;
+  }
   
   template <index_t J>
   constexpr friend MatrixND<NR, J>
@@ -324,7 +357,20 @@ struct MatrixND {
   }
 
   friend  VectorND<NR>
-  operator*(const MatrixND<NR, NC> &left, Vector &right) {
+  operator*(const MatrixND<NR, NC> &left, const VectorND<NC> &right) {
+    VectorND<NR> prod;
+    for (index_t i = 0; i < NR; ++i) {
+        prod[i] = 0.0;
+        for (index_t k = 0; k < NC; ++k) {
+          prod[i] += left(i,k) * right[k];
+        }
+    }
+    return prod;
+  }
+
+
+  friend  VectorND<NR>
+  operator*(const MatrixND<NR, NC> &left, const Vector &right) {
     VectorND<NR> prod;
     for (index_t i = 0; i < NR; ++i) {
         prod[i] = 0.0;
@@ -352,7 +398,10 @@ struct MatrixND {
   }
 
   friend constexpr MatrixND
-  operator/(MatrixND mat, T scalar) {mat /= scalar; return mat;}
+  operator/(MatrixND mat, T scalar) {
+    mat /= scalar; 
+    return mat;
+  }
   
   friend std::ostream &
   operator<<(std::ostream &out, MatrixND const &mat) {
@@ -365,8 +414,44 @@ struct MatrixND {
     }
     return out << "}\n";
   }
+}; // class MatrixND
 
-};
+template <index_t nr, index_t nc, typename T> inline
+void MatrixND<nr, nc, T>::addDiagonal(const double diag)
+{
+  for (int i=0; i<nr; i++)
+    (*this)(i,i) += diag;
+}
+
+template <index_t nr, index_t nc, typename T>
+template <class MatT> inline
+void MatrixND<nr, nc, T>::addMatrix(const MatT& A, const double scale)
+{
+  for (int i=0; i<nr; i++)
+    for (int j=0; j<nc; j++)
+      (*this)(i,j) += A(i,j)*scale;
+}
+
+template <index_t nr, index_t nc, class T> 
+template <class VecA, class VecB> inline
+void MatrixND<nr, nc, T>::addTensorProduct(const VecA& a, const VecB& b, const double scale)
+{
+  // Chrystal's bun order
+  for (int j=0; j<nc; j++)
+    for (int i=0; i<nr; i++)
+      (*this)(i,j) += a[i]*b[j]*scale;
+}
+
+template <index_t nr, index_t nc, class T> 
+template <class MatT, int nk> inline
+void MatrixND<nr, nc, T>::addMatrixProduct(const MatrixND<nr, nk, T>& A, const MatT& B, const double scale)
+{
+  for (int i=0; i<nr; i++)
+    for (int j=0; j<nc; j++)
+      for (int k=0; k < nk; k++)
+        (*this)(i,j) += A(i,k)*B(k,j)*scale;
+}
+
 
 template <int nr, int nc, typename T=double>
 MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;

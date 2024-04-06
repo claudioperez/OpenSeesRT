@@ -81,7 +81,9 @@ endif()
 #
 # Parallel
 #
-if (MPI_FOUND)
+if (FALSE) # (MPI_FOUND)
+  add_library(OpenSeesRT_Parallel SHARED)
   add_subdirectory(parallel)
+  target_sources(OpenSeesRT_Parallel PRIVATE OpenSeesPRT.cpp)
 endif()
 

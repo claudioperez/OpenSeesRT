@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.35 $
-// $Date: 2008-11-04 21:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection2d.cpp,v $
-                                                                        
+//
+// Description: This file contains the class implementation of FiberSection2d.
+//
 // Written: fmk
 // Created: 04/04
 //
-// Description: This file contains the class implementation of FiberSection2d.
-
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -34,132 +30,35 @@
 #include <Channel.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <Fiber.h>
 #include <classTags.h>
 #include <FiberSection2d.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
-#include <SectionIntegration.h>
-#include <elementAPI.h>
+
+#include "FiberResponse.h"
 
 ID FiberSection2d::code(2);
 
-void * OPS_ADD_RUNTIME_VPV(OPS_FiberSection2d)
-{
-    int numData = OPS_GetNumRemainingInputArgs();
-    if(numData < 1) {
-	opserr<<"insufficient arguments for FiberSection2d\n";
-	return 0;
-    }
-
-    numData = 1;
-    int tag;
-    if (OPS_GetIntInput(&numData,&tag) < 0) return 0;
-
-    bool computeCentroid = true;
-    if (OPS_GetNumRemainingInputArgs() > 0) {
-      const char* opt = OPS_GetString();
-      if (strcmp(opt, "-noCentroid") == 0)
-	computeCentroid = false;
-    }
-    
-    int num = 30;
-    return new FiberSection2d(tag, num, computeCentroid);
-}
-
-// constructors:
-FiberSection2d::FiberSection2d(int tag, int num, Fiber **fibers, bool compCentroid): 
-  SectionForceDeformation(tag, SEC_TAG_FiberSection2d),
-  numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
-  QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
-  sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
-
-{
-  if (numFibers > 0) {
-    theMaterials = new UniaxialMaterial *[numFibers];
-
-    if (theMaterials == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate Material pointers";
-      exit(-1);
-    }
-
-    matData = new double [numFibers*2];
-
-    if (matData == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
-
-    for (int i = 0; i < numFibers; i++) {
-      Fiber *theFiber = fibers[i];
-      double yLoc, zLoc, Area;
-      theFiber->getFiberLocation(yLoc, zLoc);
-      Area = theFiber->getArea();
-      ABar  += Area;
-      QzBar += yLoc*Area;
-      matData[i*2] = yLoc;
-      matData[i*2+1] = Area;
-      UniaxialMaterial *theMat = theFiber->getMaterial();
-      theMaterials[i] = theMat->getCopy();
-
-      if (theMaterials[i] == 0) {
-	opserr << "FiberSection2d::FiberSection2d -- failed to get copy of a Material\n";
-	exit(-1);
-      }
-    }    
-
-    if (computeCentroid)
-      yBar = QzBar/ABar;
-  }
-
-  s = new Vector(sData, 2);
-  ks = new Matrix(kData, 2, 2);
-
-  sData[0] = 0.0;
-  sData[1] = 0.0;
-
-  kData[0] = 0.0;
-  kData[1] = 0.0;
-  kData[2] = 0.0;
-  kData[3] = 0.0;
-
-  code(0) = SECTION_RESPONSE_P;
-  code(1) = SECTION_RESPONSE_MZ;
-}
 
 // allocate memory for fibers
 FiberSection2d::FiberSection2d(int tag, int num, bool compCentroid): 
   SectionForceDeformation(tag, SEC_TAG_FiberSection2d),
-  numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
+  numFibers(0), sizeFibers(num), theMaterials(0), matData(new double [num*2]{}),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
-  sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
+  e(2), s(0), ks(0), dedh(2)
 {
-    if(sizeFibers > 0) {
-	theMaterials = new UniaxialMaterial *[sizeFibers];
-
-	if(theMaterials == 0) {
-	    opserr << "FiberSection2d::FiberSection2d -- failed to allocate Material pointers";
-	    exit(-1);
-	}
-
-	matData = new double [sizeFibers*2];
-
-	if(matData == 0) {
-	    opserr << "FiberSection2d::FiberSection2d -- failed to allocate double array for material data\n";
-	    exit(-1);
-	}
-
-	for(int i = 0; i < sizeFibers; i++) {
-	    matData[i*2] = 0.0;
-	    matData[i*2+1] = 0.0;
-	    theMaterials[i] = 0;
-	}    
+    if (sizeFibers > 0) {
+      theMaterials = new UniaxialMaterial *[sizeFibers]{};
+//    matData      = new double [sizeFibers*2]{};
+//    matData = std::make_shared<double[]>(new double [numFibers*2]{});
+      // matData.reset();
     }
 
-    s = new Vector(sData, 2);
+    s  = new Vector(sData, 2);
     ks = new Matrix(kData, 2, 2);
 
     sData[0] = 0.0;
@@ -174,77 +73,12 @@ FiberSection2d::FiberSection2d(int tag, int num, bool compCentroid):
     code(1) = SECTION_RESPONSE_MZ;
 }
 
-FiberSection2d::FiberSection2d(int tag, int num, UniaxialMaterial **mats,
-			       SectionIntegration &si, bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_FiberSection2d),
-  numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
-  QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
-  sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
-{
-  if (numFibers != 0) {
-    theMaterials = new UniaxialMaterial *[numFibers];
-
-    if (theMaterials == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate Material pointers";
-      exit(-1);
-    }
-    matData = new double [numFibers*2];
-
-    if (matData == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
-  }
-
-  sectionIntegr = si.getCopy();
-  if (sectionIntegr == 0) {
-    opserr << "Error: FiberSection2d::FiberSection2d: could not create copy of section integration object" << endln;
-    exit(-1);
-  }
-
-  static double fiberLocs[10000];
-  sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-  
-  static double fiberArea[10000];
-  sectionIntegr->getFiberWeights(numFibers, fiberArea);
-
-  for (int i = 0; i < numFibers; i++) {
-
-    ABar  += fiberArea[i];
-    QzBar += fiberLocs[i]*fiberArea[i];
-
-    theMaterials[i] = mats[i]->getCopy();
-    
-    if (theMaterials[i] == 0) {
-      opserr << "FiberSection2d::FiberSection2d -- failed to get copy of a Material\n";
-      exit(-1);
-    }
-  }    
-
-  if (computeCentroid)
-    yBar = QzBar/ABar;
-  
-  s = new Vector(sData, 2);
-  ks = new Matrix(kData, 2, 2);
-  
-  sData[0] = 0.0;
-  sData[1] = 0.0;
-  
-  kData[0] = 0.0;
-  kData[1] = 0.0;
-  kData[2] = 0.0;
-  kData[3] = 0.0;
-  
-  code(0) = SECTION_RESPONSE_P;
-  code(1) = SECTION_RESPONSE_MZ;
-}
-
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection2d::FiberSection2d():
   SectionForceDeformation(0, SEC_TAG_FiberSection2d),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(true),
-  sectionIntegr(0), e(2), s(0), ks(0), dedh(2)
+  e(2), s(0), ks(0), dedh(2)
 {
   s = new Vector(sData, 2);
   ks = new Matrix(kData, 2, 2);
@@ -262,40 +96,37 @@ FiberSection2d::FiberSection2d():
 }
 
 int
-FiberSection2d::addFiber(Fiber &newFiber)
+FiberSection2d::addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc)
 {
   // need to create larger arrays
-  if(numFibers == sizeFibers) {
+  if (numFibers == sizeFibers) {
       int newsize = 2*sizeFibers;
-      if(newsize == 0) newsize = 30;
+      if (newsize == 0) 
+        newsize = 30;
       UniaxialMaterial **newArray = new UniaxialMaterial *[newsize]; 
-      double *newMatData = new double [2 * newsize];
-      if (newArray == 0 || newMatData == 0) {
-	  opserr <<"FiberSection2d::addFiber -- failed to allocate Fiber pointers\n";
-	  return -1;
-      }
+      // std::shared_ptr<double[]> newMatData = std::make_shared<double[]>(new double [2 * newsize]);
+      std::shared_ptr<double[]> newMatData(new double [2 * newsize]);
 
       // copy the old pointers and data
-      int i;
-      for (i = 0; i < sizeFibers; i++) {
-	  newArray[i] = theMaterials[i];
-	  newMatData[2*i] = matData[2*i];
+      for (int i = 0; i < sizeFibers; i++) {
+	  newArray[i]       = theMaterials[i];
+	  newMatData[2*i]   = matData[2*i];
 	  newMatData[2*i+1] = matData[2*i+1];
       }
 
       // initialize new memory
-      for(i = sizeFibers; i<newsize; i++) {
-	  newArray[i] = 0;
-	  newMatData[2*i] = 0.0;
+      for(int i = sizeFibers; i<newsize; i++) {
+	  newArray[i]       = nullptr;
+	  newMatData[2*i]   = 0.0;
 	  newMatData[2*i+1] = 0.0;
       }
 
       sizeFibers = newsize;
 
       // set new memory
-      if (theMaterials != 0) {
+      if (theMaterials != nullptr) {
 	  delete [] theMaterials;
-	  delete [] matData;
+	  // delete [] matData;
       }
 
       theMaterials = newArray;
@@ -303,13 +134,9 @@ FiberSection2d::addFiber(Fiber &newFiber)
   }
 
   // set the new pointers and data
-  double yLoc, zLoc, Area;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
   matData[numFibers*2] = yLoc;
   matData[numFibers*2+1] = Area;
-  UniaxialMaterial *theMat = newFiber.getMaterial();
-  theMaterials[numFibers] = theMat->getCopy();
+  theMaterials[numFibers] = theMat.getCopy();
 
   if(theMaterials[numFibers] == 0) {
     opserr <<"FiberSection2d::addFiber -- failed to get copy of a Material\n";
@@ -332,58 +159,39 @@ FiberSection2d::addFiber(Fiber &newFiber)
 // destructor:
 FiberSection2d::~FiberSection2d()
 {
-  if (theMaterials != 0) {
+  if (theMaterials != nullptr) {
     for (int i = 0; i < numFibers; i++)
-      if (theMaterials[i] != 0)
+      if (theMaterials[i] != nullptr)
 	delete theMaterials[i];
       
     delete [] theMaterials;
   }
-
-  if (matData != 0)
-    delete [] matData;
 
   if (s != 0)
     delete s;
 
   if (ks != 0)
     delete ks;
-
-  if (sectionIntegr != 0)
-    delete sectionIntegr;
 }
 
 int
 FiberSection2d::setTrialSectionDeformation (const Vector &deforms)
 {
-  int res = 0;
 
   e = deforms;
 
   kData[0] = 0.0; kData[1] = 0.0; kData[2] = 0.0; kData[3] = 0.0;
   sData[0] = 0.0; sData[1] = 0.0;
 
-  double d0 = deforms(0);
-  double d1 = deforms(1);
+  const double d0 = deforms(0),
+               d1 = deforms(1);
 
-  static double fiberLocs[10000];
-  static double fiberArea[10000];
-
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
-    for (int i = 0; i < numFibers; i++) {
-      fiberLocs[i] = matData[2*i];
-      fiberArea[i] = matData[2*i+1];
-    }
-  }
   
+  int res = 0;
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
-    double y = fiberLocs[i] - yBar;
-    double A = fiberArea[i];
+    const double y = matData[2*i] - yBar;
+    const double A = matData[2*i+1];
 
     // determine material strain and set it
     double strain = d0 - y*d1;
@@ -392,9 +200,9 @@ FiberSection2d::setTrialSectionDeformation (const Vector &deforms)
 
     double ks0 = tangent * A;
     double ks1 = ks0 * -y;
-    kData[0] += ks0;
-    kData[1] += ks1;
-    kData[3] += ks1 * -y;
+    kData[0]  += ks0;
+    kData[1]  += ks1;
+    kData[3]  += ks1 * -y;
 
     double fs0 = stress * A;
     sData[0] += fs0;
@@ -419,24 +227,11 @@ FiberSection2d::getInitialTangent(void)
   static Matrix kInitialMatrix(kInitial, 2, 2);
   kInitial[0] = 0.0; kInitial[1] = 0.0; kInitial[2] = 0.0; kInitial[3] = 0.0;
 
-  static double fiberLocs[10000];
-  static double fiberArea[10000];
-  
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);    
-  }  
-  else {
-    for (int i = 0; i < numFibers; i++) {
-      fiberLocs[i] = matData[2*i];
-      fiberArea[i] = matData[2*i+1];      
-    }
-  }
 
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
-    double y = fiberLocs[i] - yBar;
-    double A = fiberArea[i];
+    const double y = matData[2*i] - yBar;
+    const double A = matData[2*i+1];
 
     double tangent = theMat->getInitialTangent();
 
@@ -467,43 +262,32 @@ FiberSection2d::getStressResultant(void)
 SectionForceDeformation*
 FiberSection2d::getCopy(void)
 {
-  FiberSection2d *theCopy = new FiberSection2d ();
+  FiberSection2d *theCopy = new FiberSection2d();
   theCopy->setTag(this->getTag());
-
-  theCopy->numFibers = numFibers;
+  theCopy->numFibers  = numFibers;
   theCopy->sizeFibers = numFibers;
 
   if (numFibers != 0) {
-    theCopy->theMaterials = new UniaxialMaterial *[numFibers];
+    theCopy->theMaterials = new UniaxialMaterial *[numFibers]; 
+    theCopy->matData = matData; // new double [numFibers*2];
 
-    if (theCopy->theMaterials == 0) {
-      opserr <<"FiberSection2d::getCopy -- failed to allocate Material pointers\n";
-      exit(-1);
-    }
-  
-    theCopy->matData = new double [numFibers*2];
-
-    if (theCopy->matData == 0) {
-      opserr << "FiberSection2d::getCopy -- failed to allocate double array for material data\n";
-      exit(-1);
-    }
-			    
     for (int i = 0; i < numFibers; i++) {
-      theCopy->matData[i*2] = matData[i*2];
-      theCopy->matData[i*2+1] = matData[i*2+1];
+//    theCopy->matData[i*2] = matData[i*2];
+//    theCopy->matData[i*2+1] = matData[i*2+1];
       theCopy->theMaterials[i] = theMaterials[i]->getCopy();
 
       if (theCopy->theMaterials[i] == 0) {
 	opserr <<"FiberSection2d::getCopy -- failed to get copy of a Material";
-	exit(-1);
+        delete theCopy;
+        return nullptr;
       }
     }  
   }
 
   theCopy->e = e;
   theCopy->QzBar = QzBar;
-  theCopy->ABar = ABar;
-  theCopy->yBar = yBar;
+  theCopy->ABar  = ABar;
+  theCopy->yBar  = yBar;
 
   theCopy->kData[0] = kData[0];
   theCopy->kData[1] = kData[1];
@@ -515,16 +299,11 @@ FiberSection2d::getCopy(void)
 
   theCopy->computeCentroid = computeCentroid;
   
-  if (sectionIntegr != 0)
-    theCopy->sectionIntegr = sectionIntegr->getCopy();
-  else
-    theCopy->sectionIntegr = 0;
-
   return theCopy;
 }
 
 const ID&
-FiberSection2d::getType ()
+FiberSection2d::getType()
 {
   return code;
 }
@@ -553,25 +332,11 @@ FiberSection2d::revertToLastCommit(void)
 
   kData[0] = 0.0; kData[1] = 0.0; kData[2] = 0.0; kData[3] = 0.0;
   sData[0] = 0.0; sData[1] = 0.0;
-  
-  static double fiberLocs[10000];
-  static double fiberArea[10000];
-
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
-    for (int i = 0; i < numFibers; i++) {
-      fiberLocs[i] = matData[2*i];
-      fiberArea[i] = matData[2*i+1];
-    }
-  }
 
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
-    double y = fiberLocs[i] - yBar;
-    double A = fiberArea[i];
+    const double y = matData[2*i] - yBar;
+    const double A = matData[2*i+1];
 
     // invoke revertToLast on the material
     err += theMat->revertToLastCommit();
@@ -607,11 +372,7 @@ FiberSection2d::revertToStart(void)
   static double fiberLocs[10000];
   static double fiberArea[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       fiberLocs[i] = matData[2*i];
       fiberArea[i] = matData[2*i+1];
@@ -734,10 +495,10 @@ FiberSection2d::recvSelf(int commitTag, Channel &theChannel,
 	for (int i=0; i<numFibers; i++)
 	  delete theMaterials[i];
 	delete [] theMaterials;
-	if (matData != 0)
-	  delete [] matData;
-	matData = 0;
-	theMaterials = 0;
+	theMaterials = nullptr;
+	// if (matData != 0)
+	//   delete [] matData;
+	// matData = 0;
       }
 
       // create memory to hold material pointers and fiber data
@@ -745,21 +506,12 @@ FiberSection2d::recvSelf(int commitTag, Channel &theChannel,
       sizeFibers = data(1);
       if (numFibers != 0) {
 	theMaterials = new UniaxialMaterial *[numFibers];
-	
-	if (theMaterials == 0) {
-	  opserr <<"FiberSection2d::recvSelf -- failed to allocate Material pointers\n";
-	  exit(-1);
-	}
-	
 	for (int j=0; j<numFibers; j++)
 	  theMaterials[j] = 0;
 
-	matData = new double [numFibers*2];
+	// matData = std::make_shared<double[]>(new double [numFibers*2]);
+	matData.reset(new double [numFibers*2]);
 
-	if (matData == 0) {
-	  opserr <<"FiberSection2d::recvSelf  -- failed to allocate double array for material data\n";
-	  exit(-1);
-	}
       }
     }
 
@@ -782,11 +534,6 @@ FiberSection2d::recvSelf(int commitTag, Channel &theChannel,
       else if (theMaterials[i]->getClassTag() != classTag) {
 	delete theMaterials[i];
 	theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);      
-      }
-
-      if (theMaterials[i] == 0) {
-	opserr <<"FiberSection2d::recvSelf -- failed to allocate double array for material data\n";
-	exit(-1);
       }
 
       theMaterials[i]->setDbTag(dbTag);
@@ -861,11 +608,7 @@ FiberSection2d::setResponse(const char **argv, int argc,
   if (argc > 2 && strcmp(argv[0],"fiber") == 0) {
 
     static double fiberLocs[10000];
-    
-    if (sectionIntegr != 0) {
-      sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    }  
-    else {
+    { // TODO
       for (int i = 0; i < numFibers; i++) {
 	fiberLocs[i] = matData[2*i];
       }
@@ -967,21 +710,41 @@ FiberSection2d::setResponse(const char **argv, int argc,
       output.endTag();
     }
     Vector theResponseData(numData);
-    theResponse = new MaterialResponse(this, 5, theResponseData);
-  
-  } else if ((strcmp(argv[0],"numFailedFiber") == 0) || (strcmp(argv[0],"numFiberFailed") == 0)) {
+    theResponse = new SectionResponse(*this, FiberResponse::FiberData, theResponseData);
+  }
+
+  else if (strcmp(argv[0],"fiberData2") == 0) {
+    
+    int numData = numFibers*6;
+    for (int j = 0; j < numFibers; j++) {
+      output.tag("FiberOutput");
+      output.attr("yLoc", matData[2*j]);
+      output.attr("zLoc", 0.0);
+      output.attr("area", matData[2*j+1]);    
+      output.tag("ResponseType","yCoord");
+      output.tag("ResponseType","zCoord");
+      output.tag("ResponseType","area");
+      output.tag("ResponseType","stress");
+      output.tag("ResponseType","strain");
+      output.endTag();
+    }
+    Vector theResponseData(numData);
+    theResponse = new SectionResponse(*this, FiberResponse::FiberData02, theResponseData);
+  }
+
+  else if ((strcmp(argv[0],"numFailedFiber") == 0) || (strcmp(argv[0],"numFiberFailed") == 0)) {
     int count = 0;
-    theResponse = new MaterialResponse(this, 6, count);
+    theResponse = new SectionResponse(*this, 6, count);
 
   } else if ((strcmp(argv[0],"sectionFailed") == 0) || 
 	     (strcmp(argv[0],"hasSectionFailed") == 0) ||
 	     (strcmp(argv[0],"hasFailed") == 0)) {
     int count = 0;
-    theResponse = new MaterialResponse(this, 7, count);
+    theResponse = new SectionResponse(*this, 7, count);
   }
   //by SAJalali
   else if ((strcmp(argv[0], "energy") == 0) || (strcmp(argv[0], "Energy") == 0)) {
-	  theResponse = new MaterialResponse(this, 8, getEnergy());
+	  theResponse = new SectionResponse(*this, 8, getEnergy());
   }
 
   if (theResponse == 0)
@@ -994,22 +757,41 @@ FiberSection2d::setResponse(const char **argv, int argc,
 int 
 FiberSection2d::getResponse(int responseID, Information &sectInfo)
 {
-  if (responseID == 5) {
+  if (responseID == FiberResponse::FiberData) {
     int numData = 5*numFibers;
     Vector data(numData);
     int count = 0;
     for (int j = 0; j < numFibers; j++) {
-      double yLoc, zLoc, A, stress, strain;
-      yLoc = matData[2*j];
-      zLoc = 0.0;
-      A = matData[2*j+1];
-      stress = theMaterials[j]->getStress();
-      strain = theMaterials[j]->getStrain();
-      data(count) = yLoc; data(count+1) = zLoc; data(count+2) = A;
-      data(count+3) = stress; data(count+4) = strain;
+      double yLoc = matData[2*j];
+      double zLoc = 0.0;
+      double A    = matData[2*j+1];
+      double stress = theMaterials[j]->getStress();
+      double strain = theMaterials[j]->getStrain();
+      data(count)   = yLoc;
+      data(count+1) = zLoc;
+      data(count+2) = A;
+      data(count+3) = stress;
+      data(count+4) = strain;
       count += 5;
     }
     return sectInfo.setVector(data);	
+  }
+
+  if (responseID == FiberResponse::FiberData02) {
+    int numData = 6*numFibers;
+    Vector data(numData);
+    int count = 0;
+    for (int j = 0; j < numFibers; j++) {
+      data(count)   = matData[2*j];   // y
+      data(count+1) = 0.0;            // z
+      data(count+2) = matData[2*j+1]; // A
+      data(count+3) = (double)theMaterials[j]->getTag();
+      data(count+4) = theMaterials[j]->getStress();
+      data(count+5) = theMaterials[j]->getStrain();
+      count += 6;      
+    }
+    return sectInfo.setVector(data);
+
   } else  if (responseID == 6) {
     
     int count = 0;
@@ -1120,9 +902,6 @@ FiberSection2d::setParameter(const char **argv, int argc, Parameter &param)
 
   // Check if it belongs to the section integration
   if (strstr(argv[0],"integration") != 0) {
-    if (sectionIntegr != 0)
-      return sectionIntegr->setParameter(&argv[1], argc-1, param);
-    else
       return -1;
   }
 
@@ -1130,12 +909,6 @@ FiberSection2d::setParameter(const char **argv, int argc, Parameter &param)
 
   for (int i = 0; i < numFibers; i++) {
     ok = theMaterials[i]->setParameter(argv, argc, param);
-    if (ok != -1)
-      result = ok;
-  }
-
-  if (sectionIntegr != 0) {
-    ok = sectionIntegr->setParameter(argv, argc, param);
     if (ok != -1)
       result = ok;
   }
@@ -1164,28 +937,10 @@ FiberSection2d::getStressResultantSensitivity(int gradIndex, bool conditional)
   double tangent = 0.0;
   double sig_dAdh = 0.0;
 
-  static double fiberLocs[10000];
-  static double fiberArea[10000];
-
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
-    for (int i = 0; i < numFibers; i++) {
-      fiberLocs[i] = matData[2*i];
-      fiberArea[i] = matData[2*i+1];
-    }
-  }
-
   static double locsDeriv[10000];
   static double areaDeriv[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getLocationsDeriv(numFibers, locsDeriv);  
-    sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
-  }
-  else {
+  { // TODO
     for (int i = 0; i < numFibers; i++) {
       locsDeriv[i] = 0.0;
       areaDeriv[i] = 0.0;
@@ -1193,8 +948,8 @@ FiberSection2d::getStressResultantSensitivity(int gradIndex, bool conditional)
   }
   
   for (int i = 0; i < numFibers; i++) {
-    y = fiberLocs[i] - yBar;
-    A = fiberArea[i];
+    const double y = matData[2*i] - yBar;
+    const double A = matData[2*i+1];
     
     stressGradient = theMaterials[i]->getStressSensitivity(gradIndex,true);
     stressGradient = stressGradient * A;
@@ -1219,11 +974,9 @@ FiberSection2d::getStressResultantSensitivity(int gradIndex, bool conditional)
       tangent = theMaterials[i]->getTangent();
       tangent = tangent * A * e(1);
       
-      ds(0) += -locsDeriv[i]*tangent;
-      ds(1) += fiberLocs[i]*locsDeriv[i]*tangent;
+      ds(0) +=  -locsDeriv[i]*tangent;
+      ds(1) += y*locsDeriv[i]*tangent;
     }
-
-    //opserr << locsDeriv[i] << ' ' << areaDeriv[i] << endln;
   }
   
   return ds;
@@ -1240,37 +993,19 @@ FiberSection2d::getInitialTangentSensitivity(int gradIndex)
   double tangent = 0.0;
   double dtangentdh = 0.0;
 
-  static double fiberLocs[10000];
-  static double fiberArea[10000];
-
-  if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
-  }  
-  else {
-    for (int i = 0; i < numFibers; i++) {
-      fiberLocs[i] = matData[2*i];
-      fiberArea[i] = matData[2*i+1];
-    }
-  }
-
   static double locsDeriv[10000];
   static double areaDeriv[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getLocationsDeriv(numFibers, locsDeriv);  
-    sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
-  }
-  else {
+  { // TODO; removing SectionIntegration
     for (int i = 0; i < numFibers; i++) {
       locsDeriv[i] = 0.0;
       areaDeriv[i] = 0.0;
     }
   }
-  
+
   for (int i = 0; i < numFibers; i++) {
-    y = fiberLocs[i] - yBar;
-    A = fiberArea[i];
+    const double y = matData[2*i] - yBar;
+    const double A = matData[2*i+1];
     dydh = locsDeriv[i];
     dAdh = areaDeriv[i];
     
@@ -1298,35 +1033,19 @@ FiberSection2d::commitSensitivity(const Vector& defSens,
 
   dedh = defSens;
 
-  static double fiberLocs[10000];
-
-  if (sectionIntegr != 0)
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-  else {
-    for (int i = 0; i < numFibers; i++)
-      fiberLocs[i] = matData[2*i];
-  }
-
   static double locsDeriv[10000];
   static double areaDeriv[10000];
 
-  if (sectionIntegr != 0) {
-    sectionIntegr->getLocationsDeriv(numFibers, locsDeriv);  
-    sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
-  }
-  else {
-    for (int i = 0; i < numFibers; i++) {
-      locsDeriv[i] = 0.0;
-      areaDeriv[i] = 0.0;
-    }
+  for (int i = 0; i < numFibers; i++) {
+    locsDeriv[i] = 0.0;
+    areaDeriv[i] = 0.0;
   }
 
-  double y;
   double kappa = e(1);
 
   for (int i = 0; i < numFibers; i++) {
     UniaxialMaterial *theMat = theMaterials[i];
-    y = fiberLocs[i] - yBar;
+    const double y = matData[2*i] - yBar;
 
     // determine material strain and set it
     double strainSens = d0 - y*d1 - locsDeriv[i]*kappa;
@@ -1341,21 +1060,10 @@ FiberSection2d::commitSensitivity(const Vector& defSens,
 //by SAJalali
 double FiberSection2d::getEnergy() const
 {
-	static double fiberArea[10000];
-
-	if (sectionIntegr != 0) {
-		sectionIntegr->getFiberWeights(numFibers, fiberArea);
-	}
-	else {
-		for (int i = 0; i < numFibers; i++) {
-			fiberArea[i] = matData[2 * i + 1];
-		}
-	}
-	double energy = 0;
-	for (int i = 0; i < numFibers; i++)
-	{
-		double A = fiberArea[i];
-		energy += A * theMaterials[i]->getEnergy();
-	}
-	return energy;
+    double energy = 0;
+    for (int i = 0; i < numFibers; i++) {
+      const double A = matData[2*i+1];
+      energy += A * theMaterials[i]->getEnergy();
+    }
+    return energy;
 }

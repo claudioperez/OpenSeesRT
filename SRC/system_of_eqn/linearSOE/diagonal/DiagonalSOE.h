@@ -17,21 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2005-01-27 22:22:50 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/diagonal/DiagonalSOE.h,v $
-                                                                        
-// Written: fmk 
-// Created: Jan 2005
-// Revision: A
 //
 // Description: This file contains the class definition for DiagonalSOE
 // DiagonalSOE is a subclass of LinearSOE. It stores a diagonal system
 // of equation, i.e. just the diagonal
-
-// What: "@(#) DiagonalSOE.h, revA"
-
+//
+// Written: fmk 
+// Created: Jan 2005
+// Revision: A
+//
 #ifndef DiagonalSOE_h
 #define DiagonalSOE_h
 
@@ -82,9 +76,5 @@ class DiagonalSOE : public LinearSOE
     Vector *vectB;
     bool isAfactored;
 };
-
-
 #endif
-
-
 

@@ -153,16 +153,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_GradientInelasticBeamColumn2d)
 	}
 
 	// check transf
-	CrdTransf* theTransf = OPS_getCrdTransf(transfTag);
+	CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
 	if (theTransf == 0) {
-		opserr << "WARNING! gradientInelasticBeamColumn2d - CrdTransf with tag " << transfTag << " not found\n";
 		return 0;
 	}
 
 	// check beam integrataion
-	BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", integrTag));
+	BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(integrTag);
 	if (theRule == 0) {
-		opserr << "WARNING! gradientInelasticBeamColumn2d - BeamIntegrationRule with tag " << integrTag << " not found\n";
 		return 0;
 	}
 

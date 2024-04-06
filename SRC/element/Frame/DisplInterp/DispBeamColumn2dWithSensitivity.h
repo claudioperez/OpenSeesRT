@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-08-19 17:52:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/dispBeamColumn/DispBeamColumn2dWithSensitivity.h,v $
-
-// Written: MHS
-// Created: Feb 2001
 //
 // Description: This file contains the class definition for DispBeamColumn2dWithSensitivity.
 // The element displacement field gives rise to constant axial strain and
 // linear curvature.
-
+//
+// Written: MHS
+// Created: Feb 2001
+//
 #ifndef DispBeamColumn2dWithSensitivity_h
 #define DispBeamColumn2dWithSensitivity_h
 
@@ -86,8 +82,6 @@ class DispBeamColumn2dWithSensitivity : public Element
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker
 		  &theBroker);
-    
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes =0, int numMode = 0);        
 
     void Print(OPS_Stream &s, int flag =0);
 

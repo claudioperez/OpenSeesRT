@@ -6,6 +6,7 @@
 // Description: This file implements the selection of a convergence test.
 //
 #include <assert.h>
+#include <string.h>
 #include <tcl.h>
 #include <G3_Logging.h>
 #include "runtime/BasicAnalysisBuilder.h"
@@ -31,7 +32,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
 
 
 int
-specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+specifyCTest(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest* theNewTest = TclDispatch_newConvergenceTest(clientData, interp, argc, argv);
@@ -56,10 +57,10 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
   // get the tolerence first
   double tol     = 1e-12;
   double tol2    = 0.0;
-  double tolp    = 0.0;
-  double tolp2   = 0.0;
-  double tolrel  = 0.0;
-  double tolprel = 0.0;
+//double tolp    = 0.0;
+//double tolp2   = 0.0;
+//double tolrel  = 0.0;
+//double tolprel = 0.0;
   double maxTol  = OPS_MAXTOL;
 
   int numIter  = 10;
@@ -272,7 +273,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
 
 int
 getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char ** const argv)
+              G3_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest *theTest =
@@ -296,7 +297,7 @@ getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+getCTestIter(ClientData clientData, Tcl_Interp *interp, int argc, G3_Char ** const argv)
 {
   assert(clientData != nullptr);
   ConvergenceTest *theTest =

@@ -66,7 +66,7 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Matrix.h>
 #include <Vector.h>
 #include <Channel.h>
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 
 class Response;
 class ElementalLoad;
@@ -155,7 +155,7 @@ class ForceBeamColumn3d: public Element
   BeamIntegration* beamIntegr;
   int numSections;
   SectionForceDeformation** sections;          // array of pointers to sections
-  CrdTransf* crdTransf;        // pointer to coordinate tranformation object 
+  CrdTransf* crdTransf;                        // pointer to coordinate tranformation object 
 
   // (performs the transformation between the global and basic system)
   double rho;                    // mass density per unit length
@@ -193,7 +193,7 @@ class ForceBeamColumn3d: public Element
   Matrix *Ki;
 
   bool isTorsion;
-  
+
   static Matrix theMatrix;
   static Vector theVector;
   static double workArea[];

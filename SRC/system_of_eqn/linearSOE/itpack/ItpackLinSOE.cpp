@@ -17,24 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2006-10-02 20:23:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/itpack/ItpackLinSOE.cpp,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/umfGEN/ItpackLinSOE.h
-//
-// Written: fmk 
-// Created: 11/98
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // ItpackLinSolver. It solves the ItpackLinSOEobject by calling
 // UMFPACK2.2.1 routines.
 //
-// What: "@(#) ItpackLinSolver.h, revA"
-
+// Written: fmk 
+// Created: 11/98
+// Revision: A
+//
 #include <ItpackLinSOE.h>
 #include <ItpackLinSolver.h>
 #include <Matrix.h>
@@ -46,7 +37,7 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-#include <stdlib.h>
+#include <assert.h>
 
 ItpackLinSOE::ItpackLinSOE(ItpackLinSolver &the_Solver)
 :LinearSOE(the_Solver, LinSOE_TAGS_ItpackLinSOE),
@@ -90,7 +81,6 @@ ItpackLinSOE::setSize(Graph &theGraph)
   }
   nnz = newNNZ;
   
-  opserr << "ItpackLinSOE::setSize - n " << size << " nnz " << nnz << endln;
   
   if (nnz > Asize) { // we have to get more space for A and colA
     
@@ -101,15 +91,7 @@ ItpackLinSOE::setSize(Graph &theGraph)
     
     A = new double[nnz];
     colA = new int[nnz];
-    
-    if (A == 0 || colA == 0) {
-      opserr << "WARNING ItpackLinSOE::ItpackLinSOE :";
-      opserr << " ran out of memory for A and colA with nnz = ";
-      opserr << newNNZ << " \n";
-      size = 0; Asize = 0; nnz = 0;
-      result =  -1;
-    } 
-    
+
     Asize = nnz;
   }
   
@@ -128,16 +110,8 @@ ItpackLinSOE::setSize(Graph &theGraph)
     B = new double[size];
     X = new double[size];
     rowStartA = new int[size+1]; 
-    
-    if (B == 0 || X == 0 || rowStartA == 0) {
-      opserr << "WARNING ItpackLinSOE::ItpackLinSOE :";
-      opserr << " ran out of memory for vectors (size) (";
-      opserr << size << ") \n";
-      size = 0; Bsize = 0;
-      result =  -1;
-    }
-    else
-      Bsize = size;
+
+    Bsize = size;
   }
   
   // zero the vectors
@@ -167,9 +141,9 @@ ItpackLinSOE::setSize(Graph &theGraph)
       
       theVertex = theGraph.getVertexPtr(a);
       if (theVertex == 0) {
-	opserr << "WARNING:ItpackLinSOE::setSize :";
-	opserr << " vertex " << a << " not in graph! - size set to 0\n";
-	size = 0;
+	// opserr << "WARNING:ItpackLinSOE::setSize :";
+	// opserr << " vertex " << a << " not in graph! - size set to 0\n";
+	// size = 0;
 	return -1;
       }
       
@@ -225,8 +199,8 @@ ItpackLinSOE::setSize(Graph &theGraph)
   LinearSOESolver *the_Solver = this->getSolver();
   int solverOK = the_Solver->setSize();
   if (solverOK < 0) {
-    opserr << "WARNING:ItpackLinSOE::setSize :";
-    opserr << " solver failed setSize()\n";
+    // opserr << "WARNING:ItpackLinSOE::setSize :";
+    // opserr << " solver failed setSize()\n";
     return solverOK;
   }    
   return result;
@@ -243,8 +217,8 @@ ItpackLinSOE::addA(const Matrix &m, const ID &id, double fact)
   
   // check that m and id are of similar size
   if (idSize != m.noRows() && idSize != m.noCols()) {
-    opserr << "ItpackLinSOE::addA() ";
-    opserr << " - Matrix and ID not of similar sizes\n";
+    // opserr << "ItpackLinSOE::addA() ";
+    // opserr << " - Matrix and ID not of similar sizes\n";
     return -1;
   }
   
@@ -295,6 +269,7 @@ ItpackLinSOE::addA(const Matrix &m, const ID &id, double fact)
 int
 ItpackLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
+  assert(id.Size() == v.Size() );
 
   // check for a quick return 
   if (fact == 0.0)
@@ -302,11 +277,6 @@ ItpackLinSOE::addB(const Vector &v, const ID &id, double fact)
   
   int idSize = id.Size();    
   // check that m and id are of similar size
-  if (idSize != v.Size() ) {
-    opserr << "ItpackLinSOE::addB() ";
-    opserr << " - Vector and ID not of similar sizes\n";
-    return -1;
-  }    
   
   if (fact == 1.0) { // do not need to multiply if fact == 1.0
     for (int i=0; i<idSize; i++) {
@@ -336,12 +306,8 @@ ItpackLinSOE::addB(const Vector &v, const ID &id, double fact)
 int
 ItpackLinSOE::setB(const Vector &v, double fact)
 {
-  if (v.Size() != size) {
-    opserr << "WARNING ItpackLinSOE::setB() -";
-    opserr << " incompatible sizes " << size << " and " << v.Size() << endln;
-    return -1;
-  }
-  
+  assert(v.Size() == size);
+
   if (fact == 0.0) {
     for (int i=0; i<size; i++)
       B[i] = 0.0;
@@ -388,33 +354,23 @@ ItpackLinSOE::setX(int loc, double value)
 void
 ItpackLinSOE::setX(const Vector &x)
 {
-  if (x.Size() != size) {
-    opserr << "WARNING ItpackLinSOE::setX() -";
-    opserr << " incompatible sizes " << size << " and " << x.Size() << endln;
-  }
-  else {
-    for (int i = 0; i < size; i++)
-      X[i] = x(i);
-  }
+  assert(x.Size() == size);
+
+  for (int i = 0; i < size; i++)
+    X[i] = x(i);
 }
 
 const Vector &
 ItpackLinSOE::getX(void)
 {
-  if (vectX == 0) {
-    opserr << "FATAL ItpackLinSOE::getX - vectX == 0";
-    exit(-1);
-  }
+  assert(vectX != nullptr);
   return *vectX;
 }
 
 const Vector &
 ItpackLinSOE::getB(void)
 {
-  if (vectB == 0) {
-    opserr << "FATAL ItpackLinSOE::getB - vectB == 0";
-    exit(-1);
-  }        
+  assert(vectB != nullptr);
   return *vectB;
 }
 
@@ -437,8 +393,8 @@ ItpackLinSOE::setItpackLinSolver(ItpackLinSolver &newSolver)
   if (size != 0) {
     int solverOK = newSolver.setSize();
     if (solverOK < 0) {
-      opserr << "WARNING:ItpackLinSOE::setSolver :";
-      opserr << "the new solver could not setSeize() - staying with old\n";
+      // opserr << "WARNING:ItpackLinSOE::setSolver :";
+      // opserr << "the new solver could not setSeize() - staying with old\n";
       return -1;
     }
   }

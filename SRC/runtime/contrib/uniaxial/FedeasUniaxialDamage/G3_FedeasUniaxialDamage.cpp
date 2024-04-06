@@ -42,7 +42,6 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv
   }
 
   int argn = 4;
-  const char *dmgtag = 0;
   double Ccd = 0.5;
   StateOperator *damage = new StateOperator;
   while (argn < argc) {
@@ -55,8 +54,9 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv
                                                   "fedeas::damage::UniaxialDamage", NULL);
       Tcl_Interp* interp = G3_getInterpreter(rt);
       
-      damage->call(damage, interp, ISW_CREATE, argc - argn, &argv[++argn], 0, 0, 0, 0, 0);
+      damage->call(damage, interp, ISW_CREATE, argc - argn, &argv[1+argn], 0, 0, 0, 0, 0);
       damage->call(damage, interp, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
+      argn++;
 
     } else if ((strcmp(param, "-couple") == 0) || 
                (strcmp(param, "-ccd") == 0)    ||

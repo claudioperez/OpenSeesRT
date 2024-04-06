@@ -17,22 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2003-10-06 20:54:08 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/numberer/RCM.cpp,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Revision: A
 //
 // Description: This file contains the class definition for RCM.
 // RCM is an object to perform the Reverse Cuthill-McKee numbering
 // scheme on the vertices of a graph. This is done by invoking the
 // number() method with the Graph.
 //
-// What: "@(#) RCM.C, revA"
-
+// Written: fmk 
+// Revision: A
+//
 #include <RCM.h>
 #include <Graph.h>
 #include <Vertex.h>
@@ -40,6 +33,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 
 // Constructor
 RCM::RCM(bool gps)
@@ -68,7 +62,7 @@ RCM::~RCM()
 // enough memory to allocate a new ID an ID of size 0 is returned.
 //
 // side effects: this routine changes the color of the vertices.
-
+//
 const ID &
 RCM::number(Graph &theGraph, int startVertex)
 {
@@ -81,13 +75,6 @@ RCM::number(Graph &theGraph, int startVertex)
 	
 	numVertex = theGraph.getNumVertex();
 	theRefResult = new ID(numVertex);
-
-	if (theRefResult == 0) {
-	    opserr << "ERROR:  RCM::number - Out of Memory\n";
-	    theRefResult = new ID(0);
-	    numVertex = 0;
-	    return *theRefResult;
-	}
     }
 
     // see if we can do quick return
@@ -292,20 +279,12 @@ RCM::number(Graph &theGraph, const ID &startVertices)
 
     // first check our size, if not same make new
     if (numVertex != theGraph.getNumVertex()) {
-
 	// delete the old
 	if (theRefResult != 0)
 	    delete theRefResult;
 	
 	numVertex = theGraph.getNumVertex();
 	theRefResult = new ID(numVertex);
-
-	if (theRefResult == 0) {
-	    opserr << "ERROR:  RCM::number - Out of Memory\n";
-	    theRefResult = new ID(0);
-	    numVertex = 0;
-	    return *theRefResult;
-	}
     }
 
     // see if we can do quick return
@@ -479,5 +458,4 @@ RCM::number(Graph &theGraph, const ID &startVertices)
 
     return *theRefResult;
 }
-
 

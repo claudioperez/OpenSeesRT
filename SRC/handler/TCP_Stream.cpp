@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2010-02-25 20:46:25 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/TCP_Stream.cpp,v $
-
+//
 // Written: fmk
 
 #include <TCP_Stream.h>
@@ -32,6 +28,7 @@
 #include <Channel.h>
 #include <Message.h>
 
+#include <OPS_ErrorStream.h>
 #include <TCP_Socket.h>
 
 TCP_Stream::TCP_Stream()

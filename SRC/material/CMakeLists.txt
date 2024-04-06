@@ -43,7 +43,6 @@ target_include_directories(OPS_Material PRIVATE
 add_subdirectory(Frame)
 add_subdirectory(uniaxial)
 add_subdirectory(section)
-add_subdirectory(Shell)
 add_subdirectory(Solid)
 add_subdirectory(Plane)
 add_subdirectory(Yield)

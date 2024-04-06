@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/TransientIntegrator.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/integrator/TransientIntegrator.C
 // 
 // Written: fmk 
 // Created: Tue Sept 17 15:54:47: 1996
@@ -56,6 +49,7 @@ TransientIntegrator::~TransientIntegrator()
 
 }
 
+#if 0
 int 
 TransientIntegrator::formTangent(int statFlag, double iFact, double cFact)
 {
@@ -63,6 +57,7 @@ TransientIntegrator::formTangent(int statFlag, double iFact, double cFact)
   cFactor = cFact;
   return this->formTangent(statFlag);
 }
+#endif
 
 int 
 TransientIntegrator::formTangent(int statFlag)
@@ -95,8 +90,7 @@ TransientIntegrator::formTangent(int statFlag)
 
     // loop through the DOF_Groups and add the unbalance
     DOF_GrpIter &theDOFs = theModel->getDOFs();
-    DOF_Group *dofPtr;
-    
+    DOF_Group *dofPtr; 
     while ((dofPtr = theDOFs()) != 0) {
 	if (theLinSOE->addA(dofPtr->getTangent(this),dofPtr->getID()) <0) {
 	    opserr << "TransientIntegrator::formTangent() - failed to addA:dof\n";
@@ -107,7 +101,7 @@ TransientIntegrator::formTangent(int statFlag)
     // loop through the FE_Elements getting them to add the tangent    
     FE_EleIter &theEles2 = theModel->getFEs();    
     FE_Element *elePtr;    
-    while((elePtr = theEles2()) != 0)     {
+    while((elePtr = theEles2()) != 0) {
 	if (theLinSOE->addA(elePtr->getTangent(this),elePtr->getID()) < 0) {
 	    opserr << "TransientIntegrator::formTangent() - failed to addA:ele\n";
 	    result = -2;
@@ -151,7 +145,7 @@ TransientIntegrator::formUnbalance(void) {
 
     return 0;
 }
-    
+
 int
 TransientIntegrator::formEleResidual(FE_Element *theEle)
 {
@@ -167,6 +161,5 @@ TransientIntegrator::formNodUnbalance(DOF_Group *theDof)
   theDof->addPIncInertiaToUnbalance();
   return 0;
 }    
-
 
 

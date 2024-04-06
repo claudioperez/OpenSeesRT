@@ -66,11 +66,11 @@ TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   // check argv[1] for type of ModelBuilder and create the object
   if ((strcmp(argv[1], "basic") == 0)        ||
       (strcmp(argv[1], "Basic") == 0)        ||
-      (strcmp(argv[1], "safe") == 0)         ||
+      (strcmp(argv[1], "-ndm") == 0)         ||
       (strcmp(argv[1], "BasicBuilder") == 0) ||
       (strcmp(argv[1], "basicBuilder") == 0)) {
 
-    if (argc < 4) {
+    if (argc < 3) {
       opserr << G3_ERROR_PROMPT << "incorrect number of command arguments, expected:\n";
       opserr << "\tmodel modelBuilderType -ndm ndm? <-ndf ndf?> \n";
       return TCL_ERROR;

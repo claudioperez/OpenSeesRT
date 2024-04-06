@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.42 $
-// $Date: 2010-05-13 00:16:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/ForceBeamColumnCBDI2d.cpp,v $
-
+//
 /*
  * References
  *
@@ -70,7 +66,6 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Renderer.h>
 #include <math.h>
 
 #include <ElementResponse.h>
@@ -140,22 +135,20 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI2d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
-    if (theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
-    }
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
+    if (theTransf == nullptr)
+	return nullptr;
+
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
-    if (theRule == 0) {
-	opserr<<"beam integration not found\n";
-	return 0;
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
+    if (theRule == nullptr) {
+	return nullptr;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
-    if (bi == 0) {
+    if (bi == nullptr) {
 	opserr<<"beam integration is null\n";
-	return 0;
+	return nullptr;
     }
 
     // check sections
@@ -227,17 +220,15 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI2d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
-    if (theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
+    if (theTransf == nullptr) {
+	return nullptr;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
-    if (theRule == 0) {
-	opserr<<"beam integration not found\n";
-	return 0;
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
+    if (theRule == nullptr) {
+	return nullptr;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
     if (bi == 0) {
@@ -2851,17 +2842,6 @@ ForceBeamColumnCBDI2d::setSectionPointers(int numSec, SectionForceDeformation **
   
 }
 
-int
-ForceBeamColumnCBDI2d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 ForceBeamColumnCBDI2d::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -3072,6 +3052,9 @@ ForceBeamColumnCBDI2d::setResponse(const char **argv, int argc, OPS_Stream &outp
       }
     }
   }
+
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
   
   output.endTag(); // ElementOutput
 

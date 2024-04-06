@@ -61,7 +61,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_BeamContact3D)
   if (num_BeamContact3D == 0) {
     num_BeamContact3D++;
     //OPS_Error("BeamContact3D element - Written: K.Petek, P.Arduino, P.Mackenzie-Helnwein, U.Washington\n", 1);
-    opserr<<"BeamContact3D element - Written: K.Petek, P.Arduino, P.Mackenzie-Helnwein, U.Washington\n";
+    opserr << "BeamContact3D element - Written: K.Petek, P.Arduino, P.Mackenzie-Helnwein, U.Washington\n";
   }
 
   // Pointer to a uniaxial material that will be returned
@@ -103,19 +103,15 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_BeamContact3D)
   }
 
   int transfTag = iData[5];
-  CrdTransf *theTransf = OPS_getCrdTransf(transfTag);
-  if (theTransf == 0) {
-    opserr << "WARNING element BeamContact3D " << iData[0] << endln;
-    opserr << " coordTransf: " << transfTag << "not found\n";
-    return 0;
+  CrdTransf *theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+  if (theTransf == nullptr) {
+    return nullptr;
   }
 
   int matID = iData[6];
-  NDMaterial *theMaterial = OPS_getNDMaterial(matID);
-  if (theMaterial == 0) {
-    opserr << "WARNING element BeamContact3D " << iData[0] << endln;
-    opserr << " Material: " << matID << "not found\n";
-    return 0;
+  NDMaterial *theMaterial = G3_getSafeBuilder(rt)->getTypedObject<NDMaterial>(matID);
+  if (theMaterial == nullptr) {
+    return nullptr;
   }
 
   numRemainingInputArgs -= 10;

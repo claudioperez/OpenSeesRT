@@ -2,6 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <OPS_Stream.h>
 #include "PlasticHardeningMaterial.h"
 #include <math.h>
 
@@ -82,9 +83,9 @@ int PlasticHardeningMaterial::getResponse (int responseID, Information &matInfor
 
 void PlasticHardeningMaterial::Print(OPS_Stream &s, int flag)
 {
-	s << "+Plastic Material: " << getTag() << endln;
-	s << "|  sFactor =  " << sFactor << endln;
-	s << "|  val_hist = " << val_hist << ", val_trial = " << val_trial << endln;
+	s << "+Plastic Material: " << getTag() << "\n";
+	s << "|  sFactor =  " << sFactor << "\n";
+	s << "|  val_hist = " << val_hist << ", val_trial = " << val_trial << "\n";
 	return;
 }
 

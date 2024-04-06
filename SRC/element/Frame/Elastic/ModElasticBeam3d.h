@@ -17,30 +17,25 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: fmk 11/95
-// Revised:
 //
 // Purpose: This file contains the class definition for ModElasticBeam3d.
 // ModElasticBeam3d is a plane frame member.
-
+//
+// Written: fmk 11/95
+// Revised:
+//
 #ifndef ModElasticBeam3d_h
 #define ModElasticBeam3d_h
 
 #include <Element.h>
-#include <Node.h>
 #include <Matrix.h>
+#include <Node.h>
 #include <Vector.h>
 
 class Channel;
 class Information;
 class CrdTransf;
 class Response;
-class Renderer;
 class SectionForceDeformation;
 
 class ModElasticBeam3d : public Element {
@@ -83,8 +78,6 @@ public:
   int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
   void Print(OPS_Stream &s, int flag = 0);
-  int displaySelf(Renderer &theViewer, int displayMode, float fact,
-                  const char **modes = 0, int numModes = 0);
 
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
   int getResponse(int responseID, Information &info);

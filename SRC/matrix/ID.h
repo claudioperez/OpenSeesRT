@@ -30,6 +30,7 @@
 #define ID_h
 
 #include <OPS_Globals.h>
+#include <OPS_Stream.h>
 
 class ID
 {

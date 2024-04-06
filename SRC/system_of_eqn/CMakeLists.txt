@@ -24,12 +24,12 @@ target_include_directories(OPS_SysOfEqn PUBLIC
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/umfGEN
 )
 
-target_sources(OPS_SysOfEqn
-    PRIVATE
-    PUBLIC
-    Solver.h
-    SystemOfEqn.h
-)
+# target_sources(OPS_SysOfEqn
+#     PRIVATE
+#     PUBLIC
+# #   Solver.h
+#     SystemOfEqn.h
+# )
 
 add_subdirectory(linearSOE)
 add_subdirectory(eigenSOE)

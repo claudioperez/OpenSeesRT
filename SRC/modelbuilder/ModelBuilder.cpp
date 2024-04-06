@@ -17,25 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/ModelBuilder.cpp,v $
-                                                                        
-                                                                        
-// File: ~/model/ModelBuilder.C
-//
-// Written: fmk 
-// Created: Mon Sept 15 14:47:47: 1996
-// Revision: A
 //
 // Description: This file contains the class definition for ModelBuilder
 // ModelBuilder is a class used to model a structure with a plane frame. 
 // The object creates the components of the model and adds these to the
 // Domain with which it is associated.
-
-
-
+//
+// Written: fmk 
+// Created: Mon Sept 15 14:47:47: 1996
+// Revision: A
+//
 #include <ModelBuilder.h>
 #include <Domain.h>
 

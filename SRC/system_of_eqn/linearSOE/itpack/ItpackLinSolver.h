@@ -17,21 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2002-06-08 16:17:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/itpack/ItpackLinSolver.h,v $
-
+//
 #ifndef ItpackLinSolver_h
 #define ItpackLinSolver_h
-
-// Written: MHS
-// Created: Sept 2001
 //
 // Description: This file contains the class definition for ItpackLinSolver.
 // ItpackLinSolver is a concrete subclass of LinearSOE. It stores full
 // unsymmetric linear system of equations using 1d arrays in Fortran style
-
+//
+// Written: MHS
+// Created: Sept 2001
+//
 #include <LinearSOESolver.h>
 
 // Adaptive methods

@@ -121,11 +121,14 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
     if ((mat_name = strstr((char *)argv[1], "::"))) {
       // TODO: clean this up!!!!!!!!!!!!!!
       char **new_argv = new char*[argc];
-      for (int i=0; i<argc; i++) new_argv[i] = (char*)argv[i];
+      for (int i=0; i<argc; i++)
+        new_argv[i] = (char*)argv[i];
       new_argv[1] = mat_name+2;
       char pack_name[40];
       int i = 0;
-      while (argv[1][i] != ':') pack_name[i] = argv[1][i], i++;
+      while (argv[1][i] != ':')
+        pack_name[i] = argv[1][i], i++;
+
       pack_name[i] = '\0';
       theMaterial = (*tcl_uniaxial_package_table[pack_name])
                     (clientData,interp,argc,(const char**)new_argv);
@@ -236,7 +239,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   }
 
   // Now add the material to the modelBuilder
-  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+  if (builder->addTaggedObject<UniaxialMaterial>(*theMaterial) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
     delete theMaterial;
     return TCL_ERROR;
@@ -320,7 +323,7 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
     j++;
   }
 
-  UniaxialMaterial *theMat = builder->getUniaxialMaterial(matTag);
+  UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matTag);
 
   if (theMat == nullptr) {
     opserr << G3_ERROR_PROMPT << "component material does not exist\n";
@@ -333,8 +336,7 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
   UniaxialMaterial *theMaterial =
       new FatigueMaterial(tag, *theMat, Dmax, E0, m, epsmin, epsmax);
 
-  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "Could not add Fatigue UniaxialMaterial to the model builder.\n";
+  if (builder->addTaggedObject<UniaxialMaterial>(*theMaterial) != TCL_OK) {
     delete theMaterial;
     return TCL_ERROR;
   }
@@ -942,8 +944,7 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
   if (theMaterial == nullptr)
     return TCL_ERROR;
 
-  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
+  if (builder->addTaggedObject<UniaxialMaterial>(*theMaterial) != TCL_OK) {
     delete theMaterial;
     return TCL_ERROR;
   }
@@ -1246,8 +1247,7 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
             gammaE, tDmg);
       }
   }
-  if (!theMaterial || (builder->addUniaxialMaterial(theMaterial) != TCL_OK)) {
-    opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
+  if (!theMaterial || (builder->addTaggedObject<UniaxialMaterial>(*theMaterial) != TCL_OK)) {
     delete theMaterial;
     return TCL_ERROR;
   }

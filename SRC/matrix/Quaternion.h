@@ -101,6 +101,17 @@ public:
         return *this;
     }
 
+
+    inline ASDQuaternion<T> &operator*= (const ASDQuaternion<T>& b)
+    {
+
+            mW = w() * b.w() - x() * b.x() - y() * b.y() - z() * b.z();
+            mX = w() * b.x() + x() * b.w() + y() * b.z() - z() * b.y();
+            mY = w() * b.y() + y() * b.w() + z() * b.x() - x() * b.z();
+            mZ = w() * b.z() + z() * b.w() + x() * b.y() - y() * b.x();
+            return *this;
+    }
+
 public:
 
     /**
@@ -134,7 +145,7 @@ public:
     x*x + y*y + z*z + w*w
     @return the squared norm of this quaternion.
     */
-    inline const T squaredNorm()const
+    inline const T squaredNorm() const
     {
         return mX * mX + mY * mY + mZ * mZ + mW * mW;
     }
@@ -253,7 +264,7 @@ public:
     @param v the output rotation vector
     */
     template<class TVector3>
-    inline void toRotationVector(TVector3& v)const
+    inline void toRotationVector(TVector3& v) const
     {
         toRotationVector(v(0), v(1), v(2));
     }
@@ -383,7 +394,7 @@ public:
         T halfAngle = rModulus * 0.5;
 
         T q0 = std::cos(halfAngle);
-        T s = std::sin(halfAngle);
+        T s  = std::sin(halfAngle);
 
         ASDQuaternion result(q0, rx * s, ry * s, rz * s);
         result.normalize();

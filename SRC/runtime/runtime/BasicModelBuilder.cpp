@@ -31,7 +31,6 @@
 
 #include <CrdTransf.h>
 #include <SectionForceDeformation.h>
-#include <SectionRepres.h>
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <runtime/BasicModelBuilder.h>
@@ -39,8 +38,7 @@
 
 #include <TimeSeries.h>
 
-#include "Storage/G3_Table.h"
-
+#include <tcl.h> // For TCL_OK/ERROR
 
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
@@ -66,8 +64,8 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
 
   nodeLoadTag = 0;
   eleArgStart = 0;
-  registry  = G3_NewTable();
-  shared_registry  = G3_NewTable();
+//registry  = G3_NewTable();
+//shared_registry  = G3_NewTable();
 
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
@@ -79,41 +77,16 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
 
 BasicModelBuilder::~BasicModelBuilder()
 {
-  for (auto type: {"UniaxialMaterial", "BeamIntegrationRule", "CrossSection", "SectionRepres",
-                   // "TimeSeries",
-                   "YS_PlasticMaterial", "YieldSurface_BC", "YieldSurface_BC", "YS_EvolutionModel",
-                   "FrictionModel", "CyclicModel"}) {
-    G3_TableIterator iter = this->iterate(type);  
-    while (G3_NextTableEntry(&iter))
-      delete ((TaggedObject*)iter.value);
+
+  for (auto& [part, val] : m_registry ) {
+    for (auto& [tag, obj] : val)
+      delete obj;
   }
-
-  // OPS_clearAllTimeSeries();
-  // OPS_clearAllUniaxialMaterial();
-  // OPS_clearAllNDMaterial();
-  // OPS_clearAllSectionForceDeformation();
-  // OPS_clearAllCrdTransf();
-
-  // OPS_clearAllHystereticBackbone();
-  // OPS_clearAllFrictionModel();
-  // OPS_clearAllLimitCurve();
-  // OPS_clearAllDamageModel();
-
-/*
-  theSections->clearAll();
-  theSectionRepresents->clearAll();
-  delete theSections;
-  delete theSectionRepresents;
-*/
 
   // set the pointers to 0
   theTclDomain = nullptr;
   theTclBuilder = nullptr;
   tclEnclosingPattern = nullptr;
-  
-  // TODO
-  // G3_DelTable(registry);
-  // G3_DelTable(shared_registry);
 
   // theTclMultiSupportPattern = 0;
 
@@ -129,7 +102,9 @@ void
 BasicModelBuilder::letClobber(bool let_clobber) {no_clobber = !let_clobber;};
 
 bool
-BasicModelBuilder::canClobber() {return !no_clobber;};
+BasicModelBuilder::canClobber() {
+  return !no_clobber;
+};
 
 int BasicModelBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
 int BasicModelBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
@@ -142,316 +117,55 @@ BasicModelBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fi
 }
 
 LoadPattern *
-BasicModelBuilder::getEnclosingPattern(void) {return tclEnclosingPattern;};
+BasicModelBuilder::getEnclosingPattern(void)
+{
+  return tclEnclosingPattern;
+};
 
 int
-BasicModelBuilder::setEnclosingPattern(LoadPattern* pat){
+BasicModelBuilder::setEnclosingPattern(LoadPattern* pat)
+{
   tclEnclosingPattern = pat;
   return 1;
 }
 
 Domain *
-BasicModelBuilder::getDomain(void) const {return theTclDomain;}
+BasicModelBuilder::getDomain(void) const 
+{
+  return theTclDomain;
+}
 
 BasicModelBuilder *
-BasicModelBuilder::getBuilder(void) const {return theTclBuilder;}
-
-G3_TableIterator
-BasicModelBuilder::iterate(const char* partition)
-{
-  return G3_IteratePartition(registry, partition);
+BasicModelBuilder::getBuilder(void) const {
+  return theTclBuilder;
 }
 
 
 void* 
-BasicModelBuilder::getRegistryObject(const char* partition, int tag)
+BasicModelBuilder::getRegistryObject(const char* partition, int tag) const
 {
-  return G3_GetTableEntry(registry, partition, tag);
+
+  auto iter = m_registry.find(std::string{partition});
+  if (iter == m_registry.end()) {
+    opserr << "No partition named \"" << partition << "\"\n";
+    return nullptr;
+  }
+
+  auto iter_objs = iter->second.find(tag) ;
+  if (iter_objs == iter->second.end()) {
+    opserr << "No object with tag \"" << tag << " \"in partition \"" << partition << "\"\n";
+    return nullptr;
+  }
+
+  return (void*)iter_objs->second;
+
 }
 
 int
 BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
 {
-  G3_AddTableEntry(registry, partition, tag, obj);
-  return 1;
-}
-
-TimeSeries *
-BasicModelBuilder::getTimeSeries(const std::string &name)
-{
-  return this->getTimeSeries(std::stoi(name));
-}
-
-TimeSeries *
-BasicModelBuilder::getTimeSeries(int tag)
-{
-  return ((TimeSeries*)getRegistryObject("TimeSeries", tag))->getCopy();
-}
-
-int
-BasicModelBuilder::addTimeSeries(const std::string &name, TimeSeries *series)
-{
-//  m_TimeSeriesMap[name] = series;
-  int tag = std::stoi(name);
-  G3_AddTableEntry(registry, "TimeSeries", tag, (void*)series);
-  return 1;
-}
-
-int
-BasicModelBuilder::addTimeSeries(TimeSeries *series)
-{
-  const std::string &name = std::to_string(series->getTag());
-  addTimeSeries(name, series);
-//  m_TimeSeriesMap[name] = series;
-  return 1;
-}
-
-//
-// SectionForceDeformation Operations
-//
-
-// Retrieve a SectionForceDeformation instance from the model runtime
-SectionForceDeformation*
-BasicModelBuilder::getSection(const std::string &name)
-{
-  // SectionForceDeformation *instance = m_SectionForceDeformationMap.at(name);
-
-  return (SectionForceDeformation*)getRegistryObject("CrossSection", std::stoi(name));
-}
-
-SectionForceDeformation*
-BasicModelBuilder::getSection(int tag)
-{
-  const std::string &name = std::to_string(tag);
-  return this->getSection(name);
-}
-
-// Add a new SectionForceDeformation to the model runtime
-int
-BasicModelBuilder::addSection(const std::string &name, SectionForceDeformation &instance)
-{
-//  m_SectionForceDeformationMap[name] = &instance;
-  G3_AddTableEntry(registry, "CrossSection", std::stoi(name), (void*)&instance);
-  return 1;
-}
-
-// Add a new SectionForceDeformation to the model runtime
-int
-BasicModelBuilder::addSection(SectionForceDeformation &instance)
-{
-  const std::string &name = std::to_string(instance.getTag());
-  return addSection(name, instance);
-}
-
-//
-// SectionRepres Operations
-//
-
-// Retrieve a SectionRepres instance from the model runtime
-SectionRepres*
-BasicModelBuilder::getSectionRepres(const std::string &name)
-{
-//  // SectionRepres *instance = m_SectionRepresMap.at(name);
-//  auto iter = m_SectionRepresMap.find(name);
-//  if (iter != m_SectionRepresMap.end()) {
-//    return iter->second ;
-//  } else {
-//    return nullptr;
-//  }
-  return (SectionRepres*)getRegistryObject("SectionRepres", std::stoi(name));
-}
-
-SectionRepres*
-BasicModelBuilder::getSectionRepres(int tag)
-{
-  const std::string &name = std::to_string(tag);
-  return this->getSectionRepres(name);
-}
-
-// Add a new SectionRepres to the model runtime
-int
-BasicModelBuilder::addSectionRepres(const std::string &name, SectionRepres &instance)
-{
-  G3_AddTableEntry(registry, "SectionRepres", std::stoi(name), (void*)&instance);
-  return 1;
-}
-
-// Add a new SectionRepres to the model runtime
-int
-BasicModelBuilder::addSectionRepres(SectionRepres &instance)
-{
-  const std::string &name = std::to_string(instance.getTag());
-//  m_SectionRepresMap[name] = &instance;
-  addSectionRepres(name, instance);
-  return 1;
-}
-
-//
-// NDMaterial Operations
-//
-
-// Retrieve a NDMaterial instance from the model runtime
-NDMaterial*
-BasicModelBuilder::getNDMaterial(const std::string &name)
-{
-  auto iter = m_NDMaterialMap.find(name);
-  if (iter != m_NDMaterialMap.end()) {
-    return iter->second;
-  } else {
-    return nullptr;
-  }
-}
-
-NDMaterial*
-BasicModelBuilder::getNDMaterial(int tag)
-{
-  const std::string &name = std::to_string(tag);
-  return this->getNDMaterial(name);
-}
-
-// Add a new NDMaterial to the model runtime
-int
-BasicModelBuilder::addNDMaterial(const std::string &name, NDMaterial &instance)
-{
-  m_NDMaterialMap[name] = &instance;
-  G3_AddTableEntry(registry, "NDMaterial", std::stoi(name), (void*)&instance);
+  // TODO: Change void*obj to TaggedObject*
+  m_registry[std::string{partition}][tag] = (TaggedObject*)obj;
   return TCL_OK;
 }
-
-// Add a new NDMaterial to the model runtime
-int
-BasicModelBuilder::addNDMaterial(NDMaterial &instance)
-{
-  const std::string &name = std::to_string(instance.getTag());
-  return this->addNDMaterial(name, instance);
-}
-
-//
-// UniaxialMaterial Operations
-//
-
-// Retrieve a UniaxialMaterial instance from the model runtime
-UniaxialMaterial*
-BasicModelBuilder::getUniaxialMaterial(const std::string &name)
-{
-  return (UniaxialMaterial*)getRegistryObject("UniaxialMaterial", std::stoi(name));
-// auto iter = m_UniaxialMaterialMap.find(name);
-// if (iter != m_UniaxialMaterialMap.end()) {
-//   return iter->second->getCopy();
-// } else {
-//   return nullptr;
-// }
-}
-
-UniaxialMaterial*
-BasicModelBuilder::getUniaxialMaterial(int tag)
-{
-  const std::string &name = std::to_string(tag);
-  return this->getUniaxialMaterial(name);
-}
-
-int
-BasicModelBuilder::addUniaxialMaterial(UniaxialMaterial *mat)
-{
-  assert(mat != nullptr);
-  return this->addUniaxialMaterial(*mat);
-}
-
-// Add a new UniaxialMaterial to the model runtime
-int
-BasicModelBuilder::addUniaxialMaterial(UniaxialMaterial &instance)
-{
-  const std::string &name = std::to_string(instance.getTag());
-  return this->addUniaxialMaterial(name, instance);
-}
-
-// Add a new UniaxialMaterial to the model runtime
-int
-BasicModelBuilder::addUniaxialMaterial(const std::string &name, UniaxialMaterial &instance)
-{
-  if (!canClobber() && (m_UniaxialMaterialMap.find(name) != m_UniaxialMaterialMap.end())) {
-    opserr // << G3_ERROR_PROMPT 
-           << "Cannot add new material with tag " << name << " as one already exists.\n";
-    return -1;
-  }
-
-  // m_UniaxialMaterialMap[name] = &instance;
-  G3_AddTableEntry(registry, "UniaxialMaterial", std::stoi(name), (void*)&instance);
-  return TCL_OK;
-}
-
-
-HystereticBackbone*
-BasicModelBuilder::getHystereticBackbone(const std::string &name)
-{
-  // HystereticBackbone *instance = m_HystereticBackboneMap.at(name);
-  auto iter = m_HystereticBackboneMap.find(name);
-  if (iter != m_HystereticBackboneMap.end()) {
-    return iter->second;
-  } else {
-    return nullptr;
-  }
-}
-
-// Add a new HystereticBackbone to the model runtime
-int
-BasicModelBuilder::addHystereticBackbone(const std::string &name, HystereticBackbone &instance)
-{
-  m_HystereticBackboneMap[name] = &instance;
-  G3_AddTableEntry(registry, "HystereticBackbone", std::stoi(name), (void*)&instance);
-  return 1;
-}
-
-//
-// CrdTransf Operations
-//
-
-// Retrieve a CrdTransf instance from the model
-// runtime
-CrdTransf*
-BasicModelBuilder::getCrdTransf(const std::string &name)
-{
-  // CrdTransf *instance = m_CrdTransfMap.at(name);
-  auto iter = m_CrdTransfMap.find(name);
-  if (iter != m_CrdTransfMap.end()) {
-    return iter->second;
-  } else {
-    return nullptr;
-  }
-}
-
-CrdTransf*
-BasicModelBuilder::getCrdTransf(int tag)
-{
-  const std::string &name = std::to_string(tag);
-  return this->getCrdTransf(name);
-}
-
-// Add a new CrdTransf to the model runtime
-int
-BasicModelBuilder::addCrdTransf(const std::string name, CrdTransf *instance)
-{
-  // m_CrdTransfMap[name] = instance;
-  m_CrdTransfMap.insert({name, instance});
-  G3_AddTableEntry(registry, "CoordinateTransform", std::stoi(name), (void*)instance);
-  return 1;
-}
-
-// Add a new CrdTransf to the model runtime
-int
-BasicModelBuilder::addCrdTransf(CrdTransf *instance)
-{
-  const key_t name = std::to_string(instance->getTag());
-  return this->addCrdTransf(name, instance);
-}
-
-
-#if 0
-int
-BasicModelBuilder_addRemoHFiber(ClientData clientData, Tcl_Interp *interp,
-int argc, TCL_Char **argv)
-{
-  return TclCommand_addHFiber(clientData, interp, argc,argv,theTclBuilder);
-}
-#endif
 

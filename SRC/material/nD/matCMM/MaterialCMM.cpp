@@ -17,7 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
+
 #include "MaterialCMM.h"
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>

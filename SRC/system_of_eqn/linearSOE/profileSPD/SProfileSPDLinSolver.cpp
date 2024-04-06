@@ -32,6 +32,7 @@
 #include <SProfileSPDLinSOE.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -60,12 +61,7 @@ SProfileSPDLinSolver::~SProfileSPDLinSolver()
 int
 SProfileSPDLinSolver::setSize(void)
 {
-
-    if (theSOE == 0) {
-	opserr << "SProfileSPDLinSolver::setSize()";
-	opserr << " No system has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
 
     // check for quick return 
     if (theSOE->size == 0)
@@ -82,14 +78,7 @@ SProfileSPDLinSolver::setSize(void)
     // we cannot use topRowPtr = new (double *)[size] with the cxx compiler
     topRowPtr = (float **)malloc(size *sizeof(double *));
 
-    invD = new float[size]; 
-	
-    if (RowTop == 0 || topRowPtr == 0 || invD == 0) {
-	opserr << "Warning :SProfileSPDLinSolver::SProfileSPDLinSolver :";
-	opserr << " ran out of memory for work areas \n";
-	return -1;
-    }
-
+    invD = new float[size];
 
     // set some pointers
     float *A = theSOE->A;
@@ -113,13 +102,9 @@ SProfileSPDLinSolver::setSize(void)
 int 
 SProfileSPDLinSolver::solve(void)
 {
+    assert(theSOE != nullptr);
+
     // check for quick returns
-    if (theSOE == 0) {
-	opserr << "SProfileSPDLinSolver::solve(void): ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
-    
     if (theSOE->size == 0)
 	return 0;
 
@@ -133,25 +118,8 @@ SProfileSPDLinSolver::solve(void)
     for (int ii=0; ii<theSize; ii++)  {
 	X[ii] = B[ii];
 	doubleB[ii] = B[ii];
-    }
+    } 
 
-    /*
-      for (int iii=0; iii<theSize; iii++) {
-      int rowiiitop = RowTop[iii];
-      float *ajiptr = topRowPtr[iii];
-      opserr << "\n COLUMN " << iii << " TopRow " << rowiiitop << " -> ";
-      for (int jjj = rowiiitop; jjj <=iii; jjj++)
-      opserr << *ajiptr++ << " ";
-      }
-      opserr << endln;
-      
-      for (int iii=0; iii<theSOE->size; iii++) {
-      opserr << "COLUMN " << iii << " Biii -> " << X[iii] << endln;
-      }
-      opserr << endln;
-    */
-    
-    
     if (theSOE->isAfactored == false)  {
       
       // FACTOR & SOLVE
@@ -162,9 +130,9 @@ SProfileSPDLinSolver::solve(void)
       
       float a00 = theSOE->A[0];
       if (a00 <= 0.0) {
-	opserr << "SProfileSPDLinSolver::solve() - ";
-	opserr << " aii < 0 (i, aii): (0,0)\n"; 
-	return(-2);
+	// opserr << "SProfileSPDLinSolver::solve() - ";
+	// opserr << " aii < 0 (i, aii): (0,0)\n"; 
+	return -2;
       }    
       
       invD[0] = 1.0/theSOE->A[0];	
@@ -217,15 +185,15 @@ SProfileSPDLinSolver::solve(void)
 	
 	// check that the diag > the tolerance specified
 	if (aii == 0.0) {
-	  opserr << "SProfileSPDLinSolver::solve() - ";
-	  opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
-	  return(-2);
+	  // opserr << "SProfileSPDLinSolver::solve() - ";
+	  // opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
+	  return -2;
 	}
 	if (fabs(aii) <= minDiagTol) {
-	  opserr << "SProfileSPDLinSolver::solve() - ";
-	  opserr << " aii < minDiagTol (i, aii): (" << i;
-	  opserr << ", " << aii << ")\n"; 
-	  return(-2);
+	  // opserr << "SProfileSPDLinSolver::solve() - ";
+	  // opserr << " aii < minDiagTol (i, aii): (" << i;
+	  // opserr << ", " << aii << ")\n"; 
+	  return -2;
 	}		
 	invD[i] = 1.0/aii; 
 	X[i] += tmp;	    
@@ -255,9 +223,7 @@ SProfileSPDLinSolver::solve(void)
     }
     
     else {
-      
       // JUST DO SOLVE
-      
       // do forward substitution 
       for (int i=1; i<theSize; i++) {
 	
@@ -265,20 +231,19 @@ SProfileSPDLinSolver::solve(void)
 	float *ajiPtr = topRowPtr[i];
 	float *bjPtr  = &X[rowitop];  
 	float tmp = 0;	    
-	
+
 	for (int j=rowitop; j<i; j++) 
 	  tmp -= *ajiPtr++ * *bjPtr++; 
-	
+
 	X[i] += tmp;
       }
-      
+
       // divide by diag term 
       float *bjPtr = X; 
       float *aiiPtr = invD;
       for (int j=0; j<theSize; j++) 
-	*bjPtr++ = *aiiPtr++ * X[j];
-      
-      
+	*bjPtr++ = *aiiPtr++ * X[j];   
+
       // now do the back substitution storing result in X
       for (int k=(theSize-1); k>0; k--) {
 	
@@ -309,38 +274,26 @@ SProfileSPDLinSolver::getDeterminant(void)
    return determinant;
 }
 
+#if 1
 int 
 SProfileSPDLinSolver::setLinearSOE(SProfileSPDLinSOE &theNewSOE)
 {
-    if (theSOE != 0) {
-	opserr << "SProfileSPDLinSolver::setProfileSOE() - ";
-	opserr << " has already been called \n";	
-	return -1;
-    }
-    
+    assert(theSOE == nullptr);
     theSOE = &theNewSOE;
     return 0;
 }
+#endif
 	
 
 int 
 SProfileSPDLinSolver::factor(int n)
 {
-
-    // check for quick returns
-    if (theSOE == 0) {
-	opserr << "SProfileSPDLinSolver::factor: ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
 
     int theSize = theSOE->size;    
-    if (n > theSize) {
-	opserr << "SProfileSPDLinSolver::factor: ";
-	opserr << " - n " << n << " greater than size of system" << theSize << endln;
-	return -1;
-    }
+    assert(!(n > theSize));
 
+    // check for quick returns
     if (theSize == 0 || n == 0)
 	return 0;
 
@@ -367,7 +320,6 @@ SProfileSPDLinSolver::factor(int n)
 		int rowjtop = RowTop[j];
 
 		if (rowitop > rowjtop) {
-
 		    akjPtr = topRowPtr[j] + (rowitop-rowjtop);
 		    akiPtr = topRowPtr[i];
 
@@ -401,15 +353,15 @@ SProfileSPDLinSolver::factor(int n)
 	    
 	    // check that the diag > the tolerance specified
 	    if (aii <= 0.0) {
-		opserr << "SProfileSPDLinSolver::solve() - ";
-		opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
-		return(-2);
+		// opserr << "SProfileSPDLinSolver::solve() - ";
+		// opserr << " aii < 0 (i, aii): (" << i << ", " << aii << ")\n"; 
+		return -2;
 	    }
 	    if (aii <= minDiagTol) {
-		opserr << "SProfileSPDLinSolver::solve() - ";
-		opserr << " aii < minDiagTol (i, aii): (" << i;
-		opserr << ", " << aii << ")\n"; 
-		return(-2);
+		// opserr << "SProfileSPDLinSolver::solve() - ";
+		// opserr << " aii < minDiagTol (i, aii): (" << i;
+		// opserr << ", " << aii << ")\n"; 
+		return -2;
 	    }		
 	    
 
@@ -509,5 +461,4 @@ SProfileSPDLinSolver::recvSelf(int cTag,
 {
     return 0;
 }
-
 

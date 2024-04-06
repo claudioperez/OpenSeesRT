@@ -13,14 +13,14 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <interpolate/cbdi.h>
-#include <Fiber.h>
 #include <classTags.h>
 #include "FiberSection2dInt.h"
 #include <ID.h>
 
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 
 #include <float.h>
@@ -30,6 +30,9 @@
 
 ID FiberSection2dInt::code(2);
 
+
+#ifdef UseUniaxialFiber
+#include <UniaxialFiber2d.h>
 // constructors:
 FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum, Fiber **Hfibers, int strip1, double t1, int strip2, double t2, int strip3, double t3): 
   SectionForceDeformation(tag, SEC_TAG_FiberSection2dInt),
@@ -40,32 +43,22 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
   yBar(0.0), ymax(0.0), ymin(0.0), e(3), eCommit(3), s(0), ks(0), sigmaY(0), tau(0), alpha(0), alphaCommit(0), 
   iterFile(0),exf(0),e1f(0),e2f(0),eyf(0),sxf(0),s1f(0),s2f(0),syf(0)
 {
-  
+
   if (numFibers != 0) {
      theMaterials1 = new UniaxialMaterial *[numFibers];
      theMaterials2 = new UniaxialMaterial *[numFibers];
 
-     if (theMaterials1 == 0) {
-       opserr << "FiberSection2dInt::FiberSection2dInt -- failed to allocate Material pointers";
-       exit(-1);
-     }
-
      matData = new double [numFibers*2];
-
-     if (matData == 0) {
-       opserr << "FiberSection2dInt::FiberSection2dInt -- failed to allocate double array for material data\n";
-       exit(-1);
-     }
 
 
      double Qz = 0.0;
      double A  = 0.0;
-     ymax=-10000.0;    //initial guess
-     ymin=10000.0;
+     ymax = -10000.0;    //initial guess
+     ymin =  10000.0;
 
-    
+
      for (int i = 0; i < numFibers; i++) {
-       Fiber *theFiber = fibers[i];
+       UniaxialFiber2d *theFiber = (UniaxialFiber2d *)fibers[i];
        double yLoc, zLoc, Area;
        theFiber->getFiberLocation(yLoc, zLoc);
        Area = theFiber->getArea();
@@ -75,7 +68,7 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
        matData[i*2+1] = Area;
        UniaxialMaterial *theMat1 = theFiber->getMaterial();        
        theMaterials1[i] = theMat1->getCopy();
- 
+
        UniaxialMaterial *theMat2 = theFiber->getMaterial();
        theMaterials2[i] = theMat2->getCopy();
 
@@ -84,40 +77,27 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
          exit(-1);
        }
 
-       if (-yLoc>ymax) ymax=-yLoc;
-       if (-yLoc<ymin) ymin=-yLoc;
-
+       if (-yLoc>ymax)
+         ymax = -yLoc;
+       if (-yLoc<ymin)
+         ymin = -yLoc;
      }
 
-    yBar = -Qz/A;  
+     yBar = -Qz/A;  
   }
 
-
- 
 
   if (numHFibers != 0) {
 
     theHMaterials = new UniaxialMaterial *[numHFibers*NStrip];
 
-
-    if (theHMaterials == 0) {
-      opserr << "FiberSection2dInt::FiberSection2dInt -- failed to allocate HMaterial pointers";
-      exit(-1);
-    }
-    
     matHData = new double [numHFibers*2];
-    
-    if (matHData == 0) {
-      opserr << "FiberSection2dInt::FiberSection2dInt -- failed to allocate double array for Hmaterial data\n";
-      exit(-1);
-    }
-    
-    
+
     double HQz = 0.0;
     double HA  = 0.0;
-    
+
     for (int i = 0; i < numHFibers; i++) {
-      Fiber *theHFiber = Hfibers[i];
+      UniaxialFiber2d *theHFiber = (UniaxialFiber2d *)Hfibers[i];
       double yHLoc, zHLoc, HArea;
       theHFiber->getFiberLocation(yHLoc, zHLoc);
       HArea = theHFiber->getArea();
@@ -126,21 +106,16 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
       matHData[i*2] = -yHLoc;
       matHData[i*2+1] = HArea;
       UniaxialMaterial *theHMat = theHFiber->getMaterial();
-      
-      for (int jj = 0; jj < NStrip; jj++) {
-    theHMaterials[i*numHFibers + jj] = theHMat->getCopy();
 
-    if (theHMaterials[i*numHFibers + jj] == 0) {
-      opserr << "FiberSection2dInt::FiberSection2dInt -- failed to get copy of a HMaterial\n";
-      exit(-1);
-    }
+      for (int jj = 0; jj < NStrip; jj++) {
+        theHMaterials[i*numHFibers + jj] = theHMat->getCopy();
       }
     }
   }
 
 
   double YLoc[100];
-  
+
   int ycount = 0;
   int loc = 0;
   for (int i = 0; i < numFibers; i++) {
@@ -152,41 +127,41 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
     }
     else {
       if (fabs(YLoc[ycount-1] - y) >= DBL_EPSILON) {
-    YLoc[ycount] = y;
-    ycount += 1;
+        YLoc[ycount] = y;
+        ycount += 1;
       }
     }
     FiberLoc(i)=ycount-1;
   }
-  
+
   if (ycount != NStrip) {
     opserr <<  "\n Failed - Not consistent number of fibers \n";
     exit(-1);
   }
-    
-  for (int j = 0; j < NStrip; j++) StripCenterLoc(j) = +(YLoc[j] - yBar);
-  
+
+  for (int j = 0; j < NStrip; j++)
+    StripCenterLoc(j) = +(YLoc[j] - yBar);
+
   for (int k = 0; k < NStrip; k++) {
     int count=0;
     double Ac=0.0;
     for (int i = 0; i < numFibers; i++) {
       if (FiberLoc(i)==k){
-    count++;    
-    StripLoc(k,count+1)=i;
-    Ac += matData[2*i+1];
+        count++;    
+        StripLoc(k,count+1)=i;
+        Ac += matData[2*i+1];
       }
     }
-    StripLoc(k,0)=count;    //num fibers in strip
-    StripLoc(k,1)=Ac;        //total concrete area in strip
+    StripLoc(k,0) = count;     // num fibers in strip
+    StripLoc(k,1) = Ac;        // total concrete area in strip
   }
-  
-  
+
   for (int kk = 0; kk < NStrip; kk++) {
     exCommit[kk]=0.0;
   }
-  
-  
-  s = new Vector(sData, 3);
+
+
+  s  = new Vector(sData, 3);
   ks = new Matrix(kData, 3, 3);
 
   sData[0] = 0.0;
@@ -214,6 +189,7 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
 // AddingSensitivity:END //////////////////////////////////////
 
 }
+#endif
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection2dInt::FiberSection2dInt():
@@ -245,12 +221,12 @@ FiberSection2dInt::FiberSection2dInt():
 
 
 // AddingSensitivity:BEGIN ////////////////////////////////////
-    parameterID = 0;
+  parameterID = 0;
 // AddingSensitivity:END //////////////////////////////////////
 }
 
 int
-FiberSection2dInt::addFiber(Fiber &newFiber)        
+FiberSection2dInt::addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc)        
 {
   // need to create larger arrays
   int newSize = numFibers+1;
@@ -258,10 +234,6 @@ FiberSection2dInt::addFiber(Fiber &newFiber)
   UniaxialMaterial **newArray2 = new UniaxialMaterial *[newSize]; 
 
   double *newMatData = new double [2 * newSize];
-  if (newArray1 == 0 || newMatData == 0) {
-    opserr <<"FiberSection2d::addFiber -- failed to allocate Fiber pointers\n";
-    return -1;
-  }
 
   // copy the old pointers and data
   int i;
@@ -274,14 +246,14 @@ FiberSection2dInt::addFiber(Fiber &newFiber)
   }
 
   // set the new pointers and data
-  double yLoc, zLoc, Area;
-  newFiber.getFiberLocation(yLoc, zLoc);
-  Area = newFiber.getArea();
+//double yLoc, zLoc, Area;
+//newFiber.getFiberLocation(yLoc, zLoc);
+//Area = newFiber.getArea();
   newMatData[numFibers*2] = -yLoc;
   newMatData[numFibers*2+1] = Area;
-  UniaxialMaterial *theMat = newFiber.getMaterial();
-  newArray1[numFibers] = theMat->getCopy();
-  newArray2[numFibers] = theMat->getCopy();
+//UniaxialMaterial *theMat = newFiber.getMaterial();
+  newArray1[numFibers] = theMat.getCopy();
+  newArray2[numFibers] = theMat.getCopy();
 
   if (newArray1[numFibers] == 0) {
     opserr <<"FiberSection2dInt::addFiber -- failed to get copy of a Material\n";
@@ -306,24 +278,24 @@ FiberSection2dInt::addFiber(Fiber &newFiber)
 
   ymax=-10000.0;    //initial guess
   ymin=10000.0;
-  
+
   // Recompute centroid
   for (i = 0; i < numFibers; i++) {
-    yLoc = -matData[2*i];
-    Area = matData[2*i+1];
+    double yLoc = -matData[2*i];
+    double Area = matData[2*i+1];
     A  += Area;
     Qz += yLoc*Area;
-    if (-yLoc>ymax) ymax=-yLoc;
-    if (-yLoc<ymin) ymin=-yLoc;
-
+    if (-yLoc>ymax) 
+      ymax=-yLoc;
+    if (-yLoc<ymin) 
+      ymin=-yLoc;
   }
 
   yBar = -Qz/A;
 
 
-
   double YLoc[100];
-  
+
   int ycount = 0;
   int loc = 0;
   for (int ii = 0; ii < numFibers; ii++) {
@@ -335,35 +307,74 @@ FiberSection2dInt::addFiber(Fiber &newFiber)
     }
     else {
       if (fabs(YLoc[ycount-1] - y) >= DBL_EPSILON) {
-    YLoc[ycount] = y;
-    ycount += 1;
+        YLoc[ycount] = y;
+        ycount += 1;
       }
     }
     FiberLoc(ii)=ycount-1;
   }
-  
+
   if (ycount != NStrip) {
     opserr <<  "\n Failed - Not consistent number of fibers \n";
     exit(-1);
   }
-  
-  for (int j = 0; j < NStrip; j++) StripCenterLoc(j) = YLoc[j] - yBar;
-  
-  
+
+  for (int j = 0; j < NStrip; j++)
+    StripCenterLoc(j) = YLoc[j] - yBar;
+
+
   for (int k = 0; k < NStrip; k++) {
     int count=0;
     double Ac=0.0;
     for (int i = 0; i < numFibers; i++) {
       if (FiberLoc(i)==k){
-    count++;    
-    StripLoc(k,count+1)=i;
-    Ac += matData[2*i+1];
+        count++;    
+        StripLoc(k,count+1)=i;
+        Ac += matData[2*i+1];
       }
     }
     StripLoc(k,0)=count;    //num fibers in strip
     StripLoc(k,1)=Ac;        //total concrete area in strip
   }
-  
+
+  return 0;
+}
+
+int
+FiberSection2dInt::addHFiber(UniaxialMaterial &theMat, const double Area, const double yLoc)        
+{
+  // need to create larger arrays
+  int newSize = numFibers+1;
+  UniaxialMaterial **newArray = new UniaxialMaterial *[newSize]; 
+  double *newMatData = new double [2 * newSize];
+
+  // copy the old pointers and data
+  for (int i = 0; i < numHFibers; i++) {
+    newArray[i]       = theHMaterials[i];
+
+    newMatData[2*i]   = matData[2*i];
+    newMatData[2*i+1] = matData[2*i+1];
+  }
+
+  // set the new pointers and data
+  newMatData[numFibers*2]   = -yLoc;
+  newMatData[numFibers*2+1] = Area;
+  newArray[numFibers]       = theMat.getCopy();
+
+  if (newArray[numFibers] == nullptr) {
+    opserr <<"FiberSection2dInt::addHFiber -- failed to get copy of a Material\n";
+    delete [] newMatData;
+    return -1;
+  }
+
+  if (theHMaterials != nullptr) {
+    delete [] theHMaterials;
+    delete [] matData;
+  }
+
+  theHMaterials  = newArray;
+  matHData       = newMatData;
+
   return 0;
 }
 
@@ -375,73 +386,72 @@ FiberSection2dInt::~FiberSection2dInt()
   if (theMaterials1 != 0) {
     for (int i = 0; i < numFibers; i++)
       if (theMaterials1[i] != 0) {
-    delete theMaterials1[i];
-    delete theMaterials2[i];
+        delete theMaterials1[i];
+        delete theMaterials2[i];
       }
-    delete [] theMaterials1;
-    delete [] theMaterials2;
+      delete [] theMaterials1;
+      delete [] theMaterials2;
   }
-  
+
   if (matData != 0)
     delete [] matData;
-  
-  
+
+
   if (theHMaterials != 0) {
     for (int i = 0; i < numHFibers; i++)
       if (theHMaterials[i*numHFibers +0] != 0)
     for (int jj = 0; jj < NStrip; jj++) 
       if (theHMaterials[i * numHFibers + jj] != 0)
         delete theHMaterials[i * numHFibers + jj];
-    
+
     delete [] theHMaterials;
   }
-  
+
   if (matHData != 0)
     delete [] matHData;
-  
-  
+
   if (s != 0)
     delete s;
-  
+
   if (ks != 0)
     delete ks;
-  
+
   if (sigmaY != 0)
     delete sigmaY;
-  
+
   if (tau != 0)
     delete tau;
-  
+
   if (alpha != 0)
     delete alpha;
-  
+
   if (alphaCommit != 0)
     delete alphaCommit;
-  
+
   if (iterFile != 0)
     delete iterFile;
-  
+
   if (exf != 0)
     delete exf;
-  
+
   if (e1f != 0)
     delete e1f;
-  
+
   if (e2f != 0)
     delete e2f;
-  
+
   if (eyf != 0)
     delete eyf;
-  
+
   if (sxf != 0)
     delete sxf;
-  
+
   if (s1f != 0)
     delete s1f;
-  
+
   if (s2f != 0)
     delete s2f;
-  
+
   if (syf != 0)
     delete syf;
 }
@@ -542,7 +552,7 @@ const Vector&
 FiberSection2dInt::getS2(void)    
 {
   return *s2f;
-  
+
 }
 
 
@@ -550,7 +560,7 @@ FiberSection2dInt::getS2(void)
 void
 FiberSection2dInt::beta(double e0, double e2, double &sc1, double &tc1, double &tc12, double &beta)    
 {
-    
+
 double Kc=0.27*(-e2/e0-0.37);    //compression softening parameter by Vecchio and Collins (1993)
 beta= 1.0/(1.0+Kc);
 double delbeta=beta*beta*0.27/e0;
@@ -582,10 +592,10 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
 {
   int res = 0;
 
-  
+
   e = deforms;    // axial strain, curvature and shear strain
-  
-  
+
+
   kData[0] = 0.0; kData[1] = 0.0; kData[2] = 0.0; kData[3] = 0.0; kData[4] = 0.0; kData[5] = 0.0;
   kData[6] = 0.0; kData[7] = 0.0; kData[8] = 0.0;
   sData[0] = 0.0; sData[1] = 0.0; sData[2] = 0.0;
@@ -594,24 +604,24 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
   double d2 = deforms(2);                        // shear strain
   double iterMax = 200;
   double tol = 1e-8;
-  
+
   for (int jj = 0; jj < NStrip; jj++) {
-    
+
     double tavg;
     if (jj<NStrip1)
       tavg=tavg1;
     else {
       if (jj<NStrip2+NStrip1)
-    tavg=tavg2;
+        tavg=tavg2;
       else
-    tavg=tavg3;
+        tavg=tavg3;
     }
-    
+
     double ey=d0 + StripCenterLoc(jj)*d1;
     double gamma=d2;
-    
+
     if ((fabs(gamma) <= DBL_EPSILON) && (fabs(ey) <= DBL_EPSILON) ) {
-      *ks = this->    getInitialTangent();
+      *ks = this->getInitialTangent();
       sData[0] = 0.0;
       sData[1] = 0.0;
       sData[2] = 0.0;
@@ -624,40 +634,39 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
       eyf = new Vector(eyCommit, NStrip);
       e1f = new Vector(e1Commit, NStrip);
       e2f = new Vector(e2Commit, NStrip);
-      
+
       sxf = new Vector(sxCommit, NStrip);
       syf = new Vector(syCommit, NStrip);
       s1f = new Vector(s1Commit, NStrip);
       s2f = new Vector(s2Commit, NStrip);
-      
+
       break;
     }
-    
+
     //    double ex=0;
     double ex=exCommit[jj];
-    
+
     double XPrevPos = -1.0; 
     double XPrevNeg = -1.0;   
-    
+
     double root;
     double e1;                          
     double e2; 
     double fx=0.0;
     double Fy;
     double Fxy;
-    
+
     double Xmax = +1.0;     
     double Xmin = -1.0;     
-    
-    
-    
+
+
     double stifstxF, stifstyF, stifcu11F, stifcu12F, stifcu22F, stifcu21F, Fcu1F, Fcu2F;
 
     int iter;
     for (iter = 1; iter <= iterMax; iter++) {
-      
+
       root = sqrt(pow(-ex + ey,2) + pow(gamma,2));
-      
+
       if (fabs(gamma) <= DBL_EPSILON) {
     if ((ey - ex)*eCommit(2) > 0) {
       alfa[jj]=PI/2.0;
@@ -672,7 +681,7 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
       }
       else {
     alfa[jj]=atan((-ex + ey)/gamma + sqrt(pow((-ex + ey)/gamma,2) + 1));
-    
+
     if (fabs(alfa[jj]-PI/2.0) <= DBL_EPSILON) {
       e1 = ex; 
       e2 = ey; 
@@ -681,23 +690,23 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
       e1 = ey - gamma/2.0*tan(alfa[jj]);                          
       e2 = ex + gamma/2.0*tan(alfa[jj]);
     }
-    
+
       }
-      
-      
+
+
       fx =0.0;
       Fy = 0.0;
       Fxy = 0.0;
-      
+
       syCommit[jj]=0.0;
       s1Commit[jj]=0.0;
       s2Commit[jj]=0.0;
       sxCommit[jj] = 0.0;
-      
+
       double HAtot=0.0;
       double Atot=0.0;
       double Actot=0.0;
-      
+
       stifstxF =0.0;
       stifstyF =0.0;
       stifcu11F =0.0;
@@ -706,33 +715,33 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
       stifcu21F =0.0;
       Fcu1F =0.0;
       Fcu2F =0.0;
-      
-      
+
+
       for (int i = 2; i <= StripLoc(jj,0)+1; i++) {
-    
+
     int fibNum=StripLoc(jj,i);
     UniaxialMaterial *theMat1 = theMaterials1[fibNum];  
     UniaxialMaterial *theMat2 = theMaterials2[fibNum];  
-    
+
     int tag=theMat1->getTag();
     double tsy, ssy;
     double tc1, sc1, tc2, sc2;
     double tc12=0.0;
     double tc21=0.0;
     double beta1, beta2;
-    
+
     if (tag>1000){            // to distinguish concrete & steel tag>1000 => steel
       //      double y = matData[2*fibNum] - yBar;        
       double A = matData[2*fibNum+1];    
       res = theMat1->setTrial(ey, ssy, tsy);
-      
+
       fx += 0.0;
       Fy += ssy*A;
       Fxy += 0.0;
       syCommit[jj] += ssy*A;
       Atot += A; 
       stifstyF +=tsy*A;
-      
+
     }
     else{            // concrete
       //double y = matData[2*fibNum] - yBar;
@@ -742,34 +751,34 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
 
       static Information theInfo;
       double e0 = 0.0;
-      
+
       const char *theData = "ec";
       if (theMat1->getVariable(theData, theInfo) == 0)
         e0 = theInfo.theDouble;
 
       this -> beta(e0, e2, sc1, tc1, tc12, beta1);
       this -> beta(e0, e1, sc2, tc2, tc21, beta2);
-      
+
       s1Commit[jj] += sc1*A;
       s2Commit[jj] += sc2*A;
       Actot += A; 
-      
+
       fx += ((sc1+sc2)*0.5-(sc1-sc2)*0.5*cos(2.0*alfa[jj]))*A;
       Fy += ((sc1+sc2)*0.5+(sc1-sc2)*0.5*cos(2.0*alfa[jj]))*A;
       Fxy += -((sc1-sc2)*0.5*sin(2.0*alfa[jj]))*A;
-      
+
       stifcu11F +=tc1*A;
       stifcu12F +=tc12*A; 
       stifcu22F +=tc2*A;
       stifcu21F +=tc21*A; 
-      
+
       Fcu1F += sc1*A;
       Fcu2F += sc2*A;
-      
+
     }
-    
+
       }
-      
+
       int Hloc = 0;
       for (int H = 0; H < numHFibers; H++) {                
     UniaxialMaterial *theHMat = theHMaterials[H*numHFibers + jj];
@@ -781,43 +790,43 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
     HAtot += HA;
     sxCommit[jj] += Hs*HA*StripLoc(jj,1)/(L*tavg);
     stifstxF += Ht*HA*StripLoc(jj,1)/(L*tavg);
-    
+
       }
-      
+
       sxCommit[jj] = sxCommit[jj]/HAtot;
       syCommit[jj] = syCommit[jj]/Atot;
       s1Commit[jj] = s1Commit[jj]/Actot;
       s2Commit[jj] = s2Commit[jj]/Actot;
-      
+
       // ex iteration...
-      
+
       double signGamma;
       if (fabs(gamma) <= DBL_EPSILON) signGamma=1.0;
       else signGamma=fabs(gamma)/gamma;
-      
+
       double de2 = (1.0 - (-ex + ey)*signGamma/root)*0.5;
       double de1 = (1.0 + (-ex + ey)*signGamma/root)*0.5;
       double dalfa = -gamma*0.5/pow(root,2.0);
-      
+
       double Bgrad=stifstxF + ((stifcu11F*de1+stifcu12F*de2+stifcu22F*de2+stifcu21F*de1)/2.0-
                    (stifcu11F*de1+stifcu12F*de2-(stifcu22F*de2+stifcu21F*de1))/2.0*cos(2.0*alfa[jj])+
                    (Fcu1F-Fcu2F)*sin(2.0*alfa[jj])*dalfa);                   
-      
-      
+
+
       // Check the residual
       double err = fabs(fx);
-      
+
       if (err < tol) break;
-      
+
       if (fx>0.0) XPrevPos=ex;
       else XPrevNeg=ex;
-      
+
       if (!(XPrevPos == -1.0) && !(XPrevNeg == -1.0)) { // assumes 1 solution available
-    
+
     Xmax=MyMIN(MyMAX(XPrevPos,XPrevNeg),Xmax);
     Xmin=MyMAX(MyMIN(XPrevPos,XPrevNeg),Xmin);
       }
-      
+
       if ((iter>50) && (!(XPrevPos == -1.0) && !(XPrevNeg == -1.0))) {    
     ex = (Xmax + Xmin)/2.0;
       }                                                        // midpoint
@@ -826,18 +835,18 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
     ex = ex + dex;
       }
     }
-    
+
     iterOut[jj]=iter;
     exOut[jj]=ex;
     eyCommit[jj]=ey;
     e1Commit[jj]=e1;
     e2Commit[jj]=e2;
-    
+
     double dTdEy;
     double dTdGamma;
     double dSydGamma;
     double dSydEy;
-    
+
     if ((fabs(gamma) <= DBL_EPSILON)||(fabs(alfa[jj]) <= DBL_EPSILON)||(fabs(alfa[jj]-PI/2.0) <= DBL_EPSILON)) {
       dTdEy = 0;
       dTdGamma = (-Fcu1F + Fcu2F)/(2.*sqrt(pow(ex - ey,2)));
@@ -845,9 +854,9 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
       dSydEy = stifcu22F - (stifcu12F*stifcu21F)/(stifcu11F + stifstxF) + stifstyF;
     }
     else {
-      
+
       double R2=sqrt(1.0 + pow(ex - ey,2)/pow(gamma,2));
-      
+
       dTdEy = (-((Fcu1F - Fcu2F)*(pow(ex,2) - 2*ex*ey + pow(ey,2) + pow(gamma,2))*
          (stifcu11F + stifcu12F - 3*stifcu21F - 3*stifcu22F - 2*stifstxF)) + 
            4*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu21F + stifcu22F + stifstxF)*cos(2*alfa[jj]) + 
@@ -864,8 +873,8 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
                                (-pow(-ex + ey,2) - pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                                                   2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) +
                                                        (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)))));
-      
-      
+
+
       dTdGamma = ((-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(-stifcu11F + 3*stifcu21F + 2*stifstxF) + 
           4*(-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu21F + stifstxF)*cos(2*alfa[jj]) + 
           (-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu11F + stifcu21F + 2*stifstxF)*cos(4*alfa[jj]) + 
@@ -882,8 +891,8 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
                     2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
            (pow(ex - ey,2) + pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                             2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)))));
-      
-      
+
+
       dSydGamma = (4*(-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu11F + stifcu21F + stifstxF)*sin(2*alfa[jj]) + 
            2*(-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu11F + stifcu21F + stifstxF)*sin(4*alfa[jj]) + 
            R2*(2*pow(gamma,4)*(-stifcu11F + stifcu12F - stifcu21F + stifcu22F)*stifstxF + 
@@ -898,8 +907,8 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
                     2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
            (pow(ex - ey,2) + pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                             2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)))));
-      
-      
+
+
       dSydEy = (-(gamma*(pow(ex - ey,2) + pow(gamma,2))*((stifcu11F + stifcu12F + stifcu21F + stifcu22F)*stifstyF + 
                              stifstxF*(stifcu11F + stifcu12F + stifcu21F + stifcu22F + 4*stifstyF))) + 
         gamma*(pow(ex - ey,2) + pow(gamma,2))*(-stifcu11F - stifcu12F + stifcu21F + stifcu22F)*(stifstxF - stifstyF)*cos(2*alfa[jj]) + 
@@ -916,24 +925,24 @@ int FiberSection2dInt::setTrialSectionDeformationB (const Vector &deforms, doubl
                   2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
      (-pow(-ex + ey,2) - pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                         2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2))));
-      
+
     }
-    
+
     kData[0] += dSydEy;
     kData[1] += dSydEy*StripCenterLoc(jj);
     kData[2] += dSydGamma;
     kData[3] += dSydEy*StripCenterLoc(jj);
-    
+
     kData[4] += dSydEy*StripCenterLoc(jj)*StripCenterLoc(jj);
     kData[5] += dSydGamma*StripCenterLoc(jj);
     kData[6] += dTdEy;
     kData[7] += dTdEy*StripCenterLoc(jj);
     kData[8] += dTdGamma;
-    
+
     sData[0] += Fy;
     sData[1] += Fy*StripCenterLoc(jj);
     sData[2] += Fxy;
-    
+
     sy[jj] = Fy/StripLoc(jj,1); // avg stresses 
     txy[jj] = Fxy/StripLoc(jj,1);
   }
@@ -951,19 +960,19 @@ FiberSection2dInt::getInitialTangent(void)
   kData[6] = 0.0; kData[7] = 0.0; kData[8] = 0.0;
 
   for (int i = 0; i < numFibers; i++) {
-    
+
     double stifstyF, stifcu22F;
     stifstyF =0.0;
     stifcu22F =0.0;
-    
+
     UniaxialMaterial *theMat1 = theMaterials1[i];  
-    
+
     int tag=theMat1->getTag();
     double y = StripCenterLoc(FiberLoc(i));
     double A = matData[2*i+1];
-    
+
     if (tag>1000){            // to distinguish concrete & steel tag>1000 => steel
-      
+
       double tsy = theMat1->getInitialTangent();
       stifstyF =tsy*A;
     }
@@ -971,12 +980,12 @@ FiberSection2dInt::getInitialTangent(void)
       double tc1 = theMat1->getInitialTangent();
       stifcu22F =tc1*A;
     }
-    
+
     double dTdEy = 0.0;
     double dTdGamma = stifcu22F/2.0;
     double dSydGamma = 0.0;
     double dSydEy = stifcu22F + stifstyF;
-    
+
     kData[0] += dSydEy;
     kData[1] += dSydEy*y;
     kData[2] += dSydGamma;
@@ -987,14 +996,14 @@ FiberSection2dInt::getInitialTangent(void)
     kData[7] += dTdEy*y;
     kData[8] += dTdGamma;
   }
-  
+
   return *ks;
 }
 
 const Matrix&
 FiberSection2dInt::getSectionTangent(void)    
 {
-  
+
   return *ks;
 }
 
@@ -1020,20 +1029,20 @@ FiberSection2dInt::getCopy(void)
       opserr <<"FiberSection2dInt::getCopy -- failed to allocate Material pointers\n";
       exit(-1);
     }
-  
+
     theCopy->matData = new double [numFibers*2];
 
     if (theCopy->matData == 0) {
       opserr << "FiberSection2dInt::getCopy -- failed to allocate double array for material data\n";
       exit(-1);
     }
-                
+
     for (int i = 0; i < numFibers; i++) {
       theCopy->matData[i*2] = matData[i*2];
       theCopy->matData[i*2+1] = matData[i*2+1];
       theCopy->theMaterials1[i] = theMaterials1[i]->getCopy();
       theCopy->theMaterials2[i] = theMaterials2[i]->getCopy();
-        
+
       if (theCopy->theMaterials1[i] == 0) {
     opserr <<"FiberSection2dInt::getCopy -- failed to get copy of a Material";
     exit(-1);
@@ -1051,14 +1060,14 @@ FiberSection2dInt::getCopy(void)
       opserr <<"FiberSection2dInt::getCopy -- failed to allocate HMaterial pointers\n";
       exit(-1);
     }
-  
+
     theCopy->matHData = new double [numHFibers*2];
 
     if (theCopy->matHData == 0) {
       opserr << "FiberSection2dInt::getCopy -- failed to allocate double array for Hmaterial data\n";
       exit(-1);
     }
-                
+
     for (int i = 0; i < numHFibers; i++) {
       theCopy->matHData[i*2] = matHData[i*2];
       theCopy->matHData[i*2+1] = matHData[i*2+1];
@@ -1080,7 +1089,7 @@ FiberSection2dInt::getCopy(void)
   theCopy->tavg1 = tavg1;
   theCopy->tavg2 = tavg2;
   theCopy->tavg3 = tavg3;
-  
+
 for (int j = 0; j < NStrip; j++) {
   theCopy->sy[j] = sy[j];
   theCopy->txy[j] = txy[j];
@@ -1127,7 +1136,7 @@ for (int j = 0; j < NStrip; j++) {
 }
 
 const ID&
-FiberSection2dInt::getType ()            
+FiberSection2dInt::getType()
 {
   return code;
 }
@@ -1224,38 +1233,38 @@ for (int jj = 0; jj < NStrip; jj++) {
 
 
     for (int i = 2; i <= StripLoc(jj,0)+1; i++) {
-    
+
       int fibNum=StripLoc(jj,i);
       UniaxialMaterial *theMat1 = theMaterials1[fibNum];  
       UniaxialMaterial *theMat2 = theMaterials2[fibNum];  
-      
+
       int tag=theMat1->getTag();
-      
+
       if (tag>1000){            // to distinguish concrete & steel tag>1000 => steel
         double y = matData[2*fibNum] - yBar;
         double A = matData[2*fibNum+1];    
         err += theMat1->revertToLastCommit();
         double tsy = theMat1->getTangent();
         double ssy = theMat1->getStress();
-        
+
         Fy += ssy*A;
         Fxy += 0.0;
-        
+
         stifstyF +=tsy*A;
-        
+
       }
       else{            // concrete
         double y = matData[2*fibNum] - yBar;
         double A = matData[2*fibNum+1];    
-        
+
         err += theMat1->revertToLastCommit();
         double tc1 = theMat1->getTangent();
         double sc1 = theMat1->getStress();
-        
+
         err += theMat2->revertToLastCommit();
         double tc2 = theMat2->getTangent();
         double sc2 = theMat2->getStress();
-        
+
         double tc12=0.0;
         double tc21=0.0;
         double beta1, beta2;
@@ -1265,21 +1274,21 @@ for (int jj = 0; jj < NStrip; jj++) {
         static Information theInfo;
         if (theMat1->getVariable(theData, theInfo) == 0)
           e0 = theInfo.theDouble;
-        
+
         this -> beta(e0, e2, sc1, tc1, tc12, beta1);
         this -> beta(e0, e1, sc2, tc2, tc21, beta2);
-        
+
         Fy += ((sc1+sc2)*0.5+(sc1-sc2)*0.5*cos(2.0*alfa[jj]))*A;
         Fxy += -((sc1-sc2)*0.5*sin(2.0*alfa[jj]))*A;
-        
+
         stifcu11F +=tc1*A;
         stifcu12F +=tc12*A; 
         stifcu22F +=tc2*A;
         stifcu21F +=tc21*A; 
-        
+
         Fcu1F += sc1*A;
         Fcu2F += sc2*A;
-            
+
       }
     }
     int Hloc = 0;
@@ -1287,21 +1296,21 @@ for (int jj = 0; jj < NStrip; jj++) {
       UniaxialMaterial *theHMat = theHMaterials[H * numHFibers + jj];
       double Hy = matHData[Hloc++];
       double HA = matHData[Hloc++];
-      
+
       err += theHMat->revertToLastCommit();
       double Ht = theHMat->getTangent();
       double Hs = theHMat->getStress();
-      
+
       stifstxF += Ht*HA*StripLoc(jj,1)/(L*tavg);
-      
+
     }
-    
-    
+
+
     double dTdEy;
     double dTdGamma;
     double dSydGamma;
     double dSydEy;
-    
+
     if ((fabs(gamma) <= DBL_EPSILON)||(fabs(alfa[jj]) <= DBL_EPSILON)||(fabs(alfa[jj]-PI/2.0) <= DBL_EPSILON)) {
       dTdEy = 0;
       dTdGamma = (-Fcu1F + Fcu2F)/(2.*sqrt(pow(ex - ey,2)));
@@ -1309,9 +1318,9 @@ for (int jj = 0; jj < NStrip; jj++) {
       dSydEy = stifcu22F - (stifcu12F*stifcu21F)/(stifcu11F + stifstxF) + stifstyF;
     }
     else {
-      
+
       double R2=sqrt(1 + pow(ex - ey,2)/pow(gamma,2));
-      
+
       dTdEy = (-((Fcu1F - Fcu2F)*(pow(ex,2) - 2*ex*ey + pow(ey,2) + pow(gamma,2))*
              (stifcu11F + stifcu12F - 3*stifcu21F - 3*stifcu22F - 2*stifstxF)) + 
            4*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu21F + stifcu22F + stifstxF)*cos(2*alfa[jj]) + 
@@ -1326,8 +1335,8 @@ for (int jj = 0; jj < NStrip; jj++) {
                                             2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
                                    (-pow(-ex + ey,2) - pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                                                   2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)))));
-      
-      
+
+
       dTdGamma = ((-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(-stifcu11F + 3*stifcu21F + 2*stifstxF) + 
               4*(-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu21F + stifstxF)*cos(2*alfa[jj]) + 
               (-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu11F + stifcu21F + 2*stifstxF)*cos(4*alfa[jj]) + 
@@ -1344,8 +1353,8 @@ for (int jj = 0; jj < NStrip; jj++) {
                         2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
                (pow(ex - ey,2) + pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                             2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)))));
-      
-      
+
+
       dSydGamma = (4*(-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu11F + stifcu21F + stifstxF)*sin(2*alfa[jj]) + 
                2*(-ex + ey)*(Fcu1F - Fcu2F)*(pow(ex - ey,2) + pow(gamma,2))*(stifcu11F + stifcu21F + stifstxF)*sin(4*alfa[jj]) + 
                R2*(2*pow(gamma,4)*(-stifcu11F + stifcu12F - stifcu21F + stifcu22F)*stifstxF + 
@@ -1360,8 +1369,8 @@ for (int jj = 0; jj < NStrip; jj++) {
                         2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
                (pow(ex - ey,2) + pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                             2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)))));
-      
-      
+
+
       dSydEy = (-(gamma*(pow(ex - ey,2) + pow(gamma,2))*((stifcu11F + stifcu12F + stifcu21F + stifcu22F)*stifstyF + 
                                  stifstxF*(stifcu11F + stifcu12F + stifcu21F + stifcu22F + 4*stifstyF))) + 
             gamma*(pow(ex - ey,2) + pow(gamma,2))*(-stifcu11F - stifcu12F + stifcu21F + stifcu22F)*(stifstxF - stifstyF)*cos(2*alfa[jj]) + 
@@ -1378,30 +1387,30 @@ for (int jj = 0; jj < NStrip; jj++) {
                   2*gamma*(-stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2)) + 
          (-pow(-ex + ey,2) - pow(gamma,2))*(8*(-Fcu1F + Fcu2F)*pow(cos(alfa[jj]),3)*sin(alfa[jj]) + 
                         2*gamma*(2*stifstxF + stifcu22F*pow(cos(alfa[jj]),2) + (stifcu11F + stifcu12F)*pow(sin(alfa[jj]),2))));
-      
-      
+
+
     }
-    
+
     kData[0] += dSydEy;
     kData[1] += dSydEy*StripCenterLoc(jj);
     kData[2] += dSydGamma;
     kData[3] += dSydEy*StripCenterLoc(jj);
-    
+
     kData[4] += dSydEy*StripCenterLoc(jj)*StripCenterLoc(jj);
     kData[5] += dSydGamma*StripCenterLoc(jj);
     kData[6] += dTdEy;
     kData[7] += dTdEy*StripCenterLoc(jj);
     kData[8] += dTdGamma;
-    
+
     sData[0] += Fy;
     sData[1] += Fy*StripCenterLoc(jj);
     sData[2] += Fxy;
-    
+
     sy[jj] = Fy/StripLoc(jj,1); // avg stresses 
     txy[jj] = Fxy/StripLoc(jj,1);
-    
+
  }
- 
+
   return err;
 }
 
@@ -1417,8 +1426,8 @@ FiberSection2dInt::revertToStartB(void)
   kData[6] = 0.0; kData[7] = 0.0; kData[8] = 0.0;
 
   sData[0] = 0.0; sData[1] = 0.0;    sData[2] = 0.0;
-  
-    
+
+
   for (int i = 0; i < numFibers; i++) {
 
         double stifstyF, stifcu22F;
@@ -1510,7 +1519,7 @@ FiberSection2dInt::sendSelf(int commitTag, Channel &theChannel)
       }
       materialData(2*i+1) = matDbTag;
     }    
-    
+
     res += theChannel.sendID(dbTag, commitTag, materialData);
     if (res < 0) {
       opserr <<  "FiberSection2dInt::sendSelf - failed to send material data\n";
@@ -1540,7 +1549,7 @@ FiberSection2dInt::recvSelf(int commitTag, Channel &theChannel,
 {
   int res = 0;
   static ID data(3);
-  
+
   int dbTag = this->getDbTag();
   res += theChannel.recvID(dbTag, commitTag, data);
   if (res < 0) {
@@ -1585,7 +1594,7 @@ FiberSection2dInt::recvSelf(int commitTag, Channel &theChannel,
       opserr <<"FiberSection2dInt::recvSelf -- failed to allocate Material pointers\n";
       exit(-1);
     }
-    
+
     for (int j=0; j<numFibers; j++){
       theMaterials1[j] = 0;
       theMaterials2[j] = 0;
@@ -1623,7 +1632,7 @@ FiberSection2dInt::recvSelf(int commitTag, Channel &theChannel,
     theMaterials1[i] = theBroker.getNewUniaxialMaterial(classTag);    
     delete theMaterials2[i];
     theMaterials2[i] = theBroker.getNewUniaxialMaterial(classTag);      
-    
+
       }
 
       if (theMaterials1[i] == 0) {
@@ -1648,7 +1657,7 @@ FiberSection2dInt::recvSelf(int commitTag, Channel &theChannel,
       A  += Area;
       Qz += yLoc*Area;
     }
-    
+
     yBar = -Qz/A;
   }    
 
@@ -1679,9 +1688,9 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
   const ID &type = this->getType();
   int typeSize = this->getOrder();
-  
+
   Response *theResponse =0;
-  
+
   output.tag("SectionOutput");
   output.attr("secType", this->getClassType());
   output.attr("secTag", this->getTag());
@@ -1712,9 +1721,9 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 1, this->getSectionDeformation());
+    theResponse =  new SectionResponse(*this, 1, this->getSectionDeformation());
     return theResponse;
-  
+
   // forces
   } else if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0) {
     for (int i=0; i<typeSize; i++) {
@@ -1742,9 +1751,9 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 2, this->getStressResultant());
+    theResponse =  new SectionResponse(*this, 2, this->getStressResultant());
     return theResponse;
-  
+
   // force and deformation
   } else if (strcmp(argv[0],"forceAndDeformation") == 0) { 
     for (int j=0; j<typeSize; j++) {
@@ -1797,45 +1806,45 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","Unknown");
       }
     }
-    theResponse =  new MaterialResponse(this, 4, Vector(2*this->getOrder()));
+    theResponse =  new SectionResponse(*this, 4, Vector(2*this->getOrder()));
     return theResponse;
   }  
   // strip sigma y
   else if (strcmp(argv[0],"sigmaY") == 0)
-    return new MaterialResponse(this, 105, this->getSigmaY());
+    return new SectionResponse(*this, 105, this->getSigmaY());
   // strip Tau
   else if (strcmp(argv[0],"tau") == 0)
-    return new MaterialResponse(this, 106, this->getTau());
+    return new SectionResponse(*this, 106, this->getTau());
   // strip Alpha 
   else if (strcmp(argv[0],"alpha") == 0)
-    return new MaterialResponse(this, 107, this->getAlpha());
+    return new SectionResponse(*this, 107, this->getAlpha());
   // strip Alpha iter
   else if (strcmp(argv[0],"iter") == 0)
-    return new MaterialResponse(this, 108, this->getIter());
+    return new SectionResponse(*this, 108, this->getIter());
   // strip eX
   else if (strcmp(argv[0],"eX") == 0)
-    return new MaterialResponse(this, 109, this->getEX());
+    return new SectionResponse(*this, 109, this->getEX());
   // strip ey
   else if (strcmp(argv[0],"eY") == 0)
-    return new MaterialResponse(this, 110, this->getEY());
+    return new SectionResponse(*this, 110, this->getEY());
   // strip e1
   else if (strcmp(argv[0],"e1") == 0)
-    return new MaterialResponse(this, 111, this->getE1());
+    return new SectionResponse(*this, 111, this->getE1());
   // strip e2 
   else if (strcmp(argv[0],"e2") == 0)
-    return new MaterialResponse(this, 112, this->getE2());
+    return new SectionResponse(*this, 112, this->getE2());
   // strip sX
   else if (strcmp(argv[0],"sX") == 0)
-    return new MaterialResponse(this, 113, this->getSX());
+    return new SectionResponse(*this, 113, this->getSX());
   // strip sy
   else if (strcmp(argv[0],"sY") == 0)
-    return new MaterialResponse(this, 114, this->getSY());
+    return new SectionResponse(*this, 114, this->getSY());
   // strip s1
   else if (strcmp(argv[0],"s1") == 0)
-    return new MaterialResponse(this, 115, this->getS1());
+    return new SectionResponse(*this, 115, this->getS1());
   // strip s2                                                                                     
   else if (strcmp(argv[0],"s2") == 0)
-    return new MaterialResponse(this, 116, this->getS2());
+    return new SectionResponse(*this, 116, this->getS2());
   // Check if fiber response is requested
   else if ((strcmp(argv[0],"fiber") == 0) || (strcmp(argv[0],"fiber1") == 0)) {    
     int key = numFibers;
@@ -1844,11 +1853,11 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       return 0;
     if (argc <= 3) {          
       key = atoi(argv[1]);
-      
+
       if (key < numFibers)
-    return theMaterials1[key]->setResponse(&argv[passarg],argc-passarg,output);
+        return theMaterials1[key]->setResponse(&argv[passarg],argc-passarg,output);
       else
-         return 0;
+        return 0;
     }
     if (argc > 4) {         // find fiber closest to coord. with mat tag
       int matTag = atoi(argv[3]);
@@ -1859,25 +1868,25 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       int j;
       // Find first fiber with specified material tag
       for (j = 0; j < numFibers; j++) {
-    if (matTag == theMaterials1[j]->getTag()) {
-      ySearch = -matData[2*j];
-      dy = ySearch-yCoord;
-      closestDist = fabs(dy);
-      key = j;
-      break;
-    }
+        if (matTag == theMaterials1[j]->getTag()) {
+          ySearch = -matData[2*j];
+          dy = ySearch-yCoord;
+          closestDist = fabs(dy);
+          key = j;
+          break;
+        }
       }
       // Search the remaining fibers
       for ( ; j < numFibers; j++) {
-    if (matTag == theMaterials1[j]->getTag()) {
-      ySearch = -matData[2*j];
-      dy = ySearch-yCoord;
-      distance = fabs(dy);
-      if (distance < closestDist) {
-        closestDist = distance;
-        key = j;
-      }
-    }
+        if (matTag == theMaterials1[j]->getTag()) {
+          ySearch = -matData[2*j];
+          dy = ySearch-yCoord;
+          distance = fabs(dy);
+          if (distance < closestDist) {
+            closestDist = distance;
+            key = j;
+          }
+        }
       }
       passarg = 4;
     }
@@ -1891,27 +1900,27 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       closestDist = fabs(dy);
       key = 0;
       for (int j = 1; j < numFibers; j++) {
-    ySearch = -matData[2*j];
-    dy = ySearch-yCoord;
-    distance = fabs(dy);
-    if (distance < closestDist) {
-      closestDist = distance;
-      key = j;
-    }
+        ySearch = -matData[2*j];
+        dy = ySearch-yCoord;
+        distance = fabs(dy);
+        if (distance < closestDist) {
+          closestDist = distance;
+          key = j;
+        }
       }
       passarg = 3;
     }
-    
+
     if (key < numFibers)
       return theMaterials1[key]->setResponse(&argv[passarg],argc-passarg,output);
     else
       return 0;
   }
-  
+
   else if (strcmp(argv[0],"fiber2") == 0) {
     int key = numFibers;
     int passarg = 2;
-    
+
     if (argc <= 2)          
       return 0;
     if (argc <= 3) {          
@@ -1930,25 +1939,25 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       int j;
       // Find first fiber with specified material tag
       for (j = 0; j < numFibers; j++) {
-    if (matTag == theMaterials2[j]->getTag()) {
-      ySearch = -matData[2*j];
-      dy = ySearch-yCoord;
-      closestDist = fabs(dy);
-      key = j;
-      break;
-    }
+        if (matTag == theMaterials2[j]->getTag()) {
+          ySearch = -matData[2*j];
+          dy = ySearch-yCoord;
+          closestDist = fabs(dy);
+          key = j;
+          break;
+        }
       }
       // Search the remaining fibers
       for ( ; j < numFibers; j++) {
-    if (matTag == theMaterials2[j]->getTag()) {
-      ySearch = -matData[2*j];
-      dy = ySearch-yCoord;
-      distance = fabs(dy);
-      if (distance < closestDist) {
-        closestDist = distance;
-        key = j;
-      }
-    }
+        if (matTag == theMaterials2[j]->getTag()) {
+          ySearch = -matData[2*j];
+          dy = ySearch-yCoord;
+          distance = fabs(dy);
+          if (distance < closestDist) {
+            closestDist = distance;
+            key = j;
+          }
+        }
       }
       passarg = 4;
     }
@@ -1962,30 +1971,30 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       closestDist = fabs(dy);
       key = 0;
       for (int j = 1; j < numFibers; j++) {
-    ySearch = -matData[2*j];
-    dy = ySearch-yCoord;
-    distance = fabs(dy);
-    if (distance < closestDist) {
-      closestDist = distance;
-      key = j;
-    }
+        ySearch = -matData[2*j];
+        dy = ySearch-yCoord;
+        distance = fabs(dy);
+        if (distance < closestDist) {
+          closestDist = distance;
+          key = j;
+        }
       }
       passarg = 3;
     }
-    
+
     if (key < numFibers)
       return theMaterials2[key]->setResponse(&argv[passarg],argc-passarg,output);
     else
       return 0;
   }
-  
+
 
   // Check if fiber response is requested
   else if (strcmp(argv[0],"Hfiber") == 0) {
     int HFibOut=atoi(argv[1])-1;
     int key = numHFibers;
     int passarg = 3;
-    
+
     if (argc <= 3)          
       return 0;
     if (argc <= 4) {          
@@ -2004,25 +2013,25 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       int j;
       // Find first fiber with specified material tag
       for (j = 0; j < numHFibers; j++) {
-    if (matTag == theHMaterials[j * numHFibers + HFibOut]->getTag()) {
-      ySearch = -matHData[2*j];
-      dy = ySearch-yCoord;
-      closestDist = fabs(dy);
-      key = j;
-      break;
-    }
+        if (matTag == theHMaterials[j * numHFibers + HFibOut]->getTag()) {
+          ySearch = -matHData[2*j];
+          dy = ySearch-yCoord;
+          closestDist = fabs(dy);
+          key = j;
+          break;
+        }
       }
       // Search the remaining fibers
       for ( ; j < numHFibers; j++) {
-    if (matTag == theHMaterials[j * numHFibers + HFibOut]->getTag()) {
-      ySearch = -matHData[2*j];
-      dy = ySearch-yCoord;
-      distance = fabs(dy);
-      if (distance < closestDist) {
-        closestDist = distance;
-        key = j;
-      }
-    }
+        if (matTag == theHMaterials[j * numHFibers + HFibOut]->getTag()) {
+          ySearch = -matHData[2*j];
+          dy = ySearch-yCoord;
+          distance = fabs(dy);
+          if (distance < closestDist) {
+            closestDist = distance;
+            key = j;
+          }
+        }
       }
       passarg = 5;
     }
@@ -2036,23 +2045,23 @@ FiberSection2dInt::setResponse(const char **argv, int argc, OPS_Stream &output)
       closestDist = fabs(dy);
       key = 0;
       for (int j = 1; j < numHFibers; j++) {
-    ySearch = -matHData[2*j];
-    dy = ySearch-yCoord;
-    distance = fabs(dy);
-    if (distance < closestDist) {
-      closestDist = distance;
-      key = j;
-    }
+        ySearch = -matHData[2*j];
+        dy = ySearch-yCoord;
+        distance = fabs(dy);
+        if (distance < closestDist) {
+          closestDist = distance;
+          key = j;
+        }
       }
       passarg = 4;
     }
-    
+
     if (key < numHFibers)
       return theHMaterials[key * numHFibers + HFibOut]->setResponse(&argv[passarg],argc-passarg,output);
     else
       return 0;
   }
- 
+
   else
     return 0;
 }
@@ -2062,16 +2071,16 @@ int
 FiberSection2dInt::getResponse(int responseID, Information &sectInfo)
 {
   switch (responseID) {
-    
+
   case 1:
     return sectInfo.setVector(this->getSectionDeformation());
-    
+
   case 2:
     return sectInfo.setVector(this->getStressResultant());
-    
+
   case 3:
     return sectInfo.setMatrix(this->getSectionTangent());
-    
+
   case 4: {
     Vector &theVec = *(sectInfo.theVector);
     const Vector &e = this->getSectionDeformation();
@@ -2083,43 +2092,43 @@ FiberSection2dInt::getResponse(int responseID, Information &sectInfo)
     }
     return sectInfo.setVector(theVec);
   }
-    
+
   case 105:
     return sectInfo.setVector(this->getSigmaY());
-    
+
   case 106:
     return sectInfo.setVector(this->getTau());
-    
+
   case 107:
     return sectInfo.setVector(this->getAlpha());
-    
+
   case 108:
     return sectInfo.setVector(this->getIter());
-    
+
   case 109:
     return sectInfo.setVector(this->getEX());
-    
+
   case 110:
     return sectInfo.setVector(this->getEY());
-    
+
   case 111:
     return sectInfo.setVector(this->getE1());
-    
+
   case 112:
     return sectInfo.setVector(this->getE2());
-    
+
   case 113:
     return sectInfo.setVector(this->getSX());
-    
+
   case 114:
     return sectInfo.setVector(this->getSY());
-    
+
   case 115:
     return sectInfo.setVector(this->getS1());
-    
+
   case 116:
     return sectInfo.setVector(this->getS2());
-    
+
   default:
     return -1;
   }
@@ -2149,6 +2158,7 @@ FiberSection2dInt::getSectionTangentSensitivity(int gradNumber)
     something.Zero();
     return something;
 }
+
 int
 FiberSection2dInt::commitSensitivity(const Vector& defSens, int gradNumber, int numGrads)
 {

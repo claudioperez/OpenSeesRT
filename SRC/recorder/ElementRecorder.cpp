@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.34 $
-// $Date: 2009-04-30 23:25:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/ElementRecorder.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Created: 09/99
 //
@@ -337,32 +333,21 @@ ElementRecorder::ElementRecorder(const ID *ele,
   if (ele != 0) {
     numEle = ele->Size();
     eleID = new ID(*ele);
-    if (eleID == 0 || eleID->Size() != numEle)
-      opserr << "ElementRecorder::ElementRecorder() - out of memory\n";
   } 
 
   if (theDOFs != 0) {
     dof = new ID(*theDOFs);
     numDOF = dof->Size();
-  } 
+  }
 
   //
   // create a copy of the response request
   //
 
   responseArgs = new char *[argc];
-  if (responseArgs == 0) {
-    opserr << "ElementRecorder::ElementRecorder() - out of memory\n";
-    numEle = 0;
-  }
   
   for (int i=0; i<argc; i++) {
     responseArgs[i] = new char[strlen(argv[i])+1];
-    if (responseArgs[i] == 0) {
-      delete [] responseArgs;
-      opserr << "ElementRecorder::ElementRecorder() - out of memory\n";
-      numEle = 0;
-    }
     strcpy(responseArgs[i], argv[i]);
   }
   

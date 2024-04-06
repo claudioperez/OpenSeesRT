@@ -3,6 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "PeakOriented2D01.h"
+#include <OPS_Stream.h>
+#include <OPS_ErrorStream.h>
+#include <Print.h>
 #include <math.h>
 
 #define evolDebug 0
@@ -27,22 +30,24 @@ PeakOriented2D01::~PeakOriented2D01()
 	
 YS_Evolution *PeakOriented2D01::getCopy(void)
 {
-	PeakOriented2D01 *theCopy = new  PeakOriented2D01(this->getTag(), minIsoFactor, *kpMatXPos, *kpMatYPos);
-	if(theCopy==0)
-	{
-		opserr << "WARNING - PeakOriented2D, unable to get copy\n";
-	}
-	
-	return theCopy;
+    PeakOriented2D01 *theCopy = new  PeakOriented2D01(this->getTag(), minIsoFactor, *kpMatXPos, *kpMatYPos);
+    if (theCopy==nullptr) {
+            opserr << "WARNING - PeakOriented2D, unable to get copy\n";
+    }
+    
+    return theCopy;
 }
 
 void PeakOriented2D01::Print(OPS_Stream &s, int flag)
 {
-	s << "PeakOriented2D \n";
-	s << "iso_Ratio = " << isotropicRatio << "\n";
-	s << "isotropicFactor_hist = " << isotropicFactor_hist;
-	s << "translateX       = " << translate(0) << ",\ttranslateY = " << translate(1) << "\n";
-	s << "\n";
-
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "{}";
+  } else {
+      s << "PeakOriented2D \n";
+      s << "iso_Ratio = " << isotropicRatio << "\n";
+      s << "isotropicFactor_hist = " << isotropicFactor_hist;
+      s << "translateX       = " << translate(0) << ",\ttranslateY = " << translate(1) << "\n";
+      s << "\n";
+  }
 }
 	

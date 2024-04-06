@@ -1,12 +1,9 @@
-// $Source: /usr/local/cvs/OpenSees/SRC/element/dispBeamColumnInt/FiberSection2dInt.h,v $
-// $Revision: 1.3 $
-// $Date: 2008-04-14 21:22:20 $
-
+//
 // Created: 07/04
 // Modified by: LMS 
-// Description: This file contains the class implementation of FiberSection2dInt.Based on FiberSection2d.cpp.
-
-                                                                        
+// Description: This file contains the class implementation of FiberSection2dInt. 
+// Based on FiberSection2d.cpp.
+//
 #ifndef FiberSection2dInt_h
 #define FiberSection2dInt_h
 
@@ -22,6 +19,7 @@ class FiberSection2dInt : public SectionForceDeformation
 {
   public:
     FiberSection2dInt(); 
+#if 0
     FiberSection2dInt(int tag, 
 		      int numFibers, 
 		      Fiber **fibers, 
@@ -33,6 +31,7 @@ class FiberSection2dInt : public SectionForceDeformation
 		      double tavg2, 
 		      int NStrip3, 
 		      double tavg3); 
+#endif
     ~FiberSection2dInt();
 
     int   setTrialSectionDeformation(const Vector &deforms); 
@@ -67,7 +66,7 @@ class FiberSection2dInt : public SectionForceDeformation
     int   revertToStart(void);
 
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
+    const ID &getType();
     int getOrder (void) const;
 
     int sendSelf(int cTag, Channel &theChannel);
@@ -77,7 +76,8 @@ class FiberSection2dInt : public SectionForceDeformation
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &info);
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc);
+    int addHFiber(UniaxialMaterial &theMat, const double Area, const double yLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     const Vector & getStressResultantSensitivity(int gradNumber, bool conditional);

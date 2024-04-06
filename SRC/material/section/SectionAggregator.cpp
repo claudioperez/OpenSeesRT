@@ -39,7 +39,8 @@
 #include <Matrix.h>
 #include <classTags.h>
 #include <SectionAggregator.h>
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <ID.h>
 #include <FiberSection2d.h>			//by SAJalali
 #include <string.h>
@@ -624,7 +625,7 @@ SectionAggregator::getCopy(void)
 }
 
 const ID&
-SectionAggregator::getType ()
+SectionAggregator::getType()
 {
   int i = 0;
 

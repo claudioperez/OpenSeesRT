@@ -32,7 +32,6 @@
 #include <Vector.h>
 #include <VectorND.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -42,72 +41,6 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 using namespace OpenSees;
-#if 0
-void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuad)
-{
-    int ndm = OPS_GetNDM();
-    int ndf = OPS_GetNDF();
-
-    if (ndm != 2 || ndf != 2) {
-        opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
-        return 0;
-    }
-    
-    if (OPS_GetNumRemainingInputArgs() < 8) {
-        opserr << "WARNING insufficient arguments\n";
-        opserr << "Want: element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? thk? type? matTag? <pressure? rho? b1? b2?>\n";
-        return 0;
-    }
-
-    // FourNodeQuadId, iNode, jNode, kNode, lNode
-    int idata[5];
-    int num = 5;
-    if (OPS_GetIntInput(&num,idata) < 0) {
-        opserr<<"WARNING: invalid integer inputs\n";
-        return 0;
-    }
-
-    double thk = 1.0;
-    num = 1;
-    if (OPS_GetDoubleInput(&num,&thk) < 0) {
-        opserr<<"WARNING: invalid double inputs\n";
-        return 0;
-    }
-
-    const char* type = OPS_GetString();
-
-    int matTag;
-    num = 1;
-    if (OPS_GetIntInput(&num,&matTag) < 0) {
-        opserr<<"WARNING: invalid matTag\n";
-        return 0;
-    }
-
-    NDMaterial* mat = OPS_getNDMaterial(matTag);
-    if (mat == 0) {
-        opserr << "WARNING material not found\n";
-        opserr << "Material: " << matTag;
-        opserr << "\nFourNodeQuad element: " << idata[0] << endln;
-        return 0;
-    }
-
-    // p, rho, b1, b2
-    double data[4] = {0,0,0,0};
-    num = OPS_GetNumRemainingInputArgs();
-    if (num > 4) {
-        num = 4;
-    }
-    if (num > 0) {
-        if (OPS_GetDoubleInput(&num,data) < 0) {
-            opserr<<"WARNING: invalid integer data\n";
-            return 0;
-        }        
-    }
-
-    return new FourNodeQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
-                                        *mat,type,thk,data[0],data[1],data[2],data[3]);
-}
-#endif
 
 
 double FourNodeQuad::matrixData[64];
@@ -900,59 +833,19 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
   }
   
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << "\t\t\t{";
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
       s << "\"name\": " << this->getTag() << ", ";
       s << "\"type\": \"" << this->class_name << "\", ";
       s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-      s << connectedExternalNodes(1) << ", ";
-      s << connectedExternalNodes(2) << ", ";
-      s << connectedExternalNodes(3) << "], ";
+                        s << connectedExternalNodes(1) << ", ";
+                        s << connectedExternalNodes(2) << ", ";
+                        s << connectedExternalNodes(3) << "], ";
       s << "\"thickness\": " << thickness << ", ";
       s << "\"surfacePressure\": " << pressure << ", ";
       s << "\"masspervolume\": " << rho << ", ";
       s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
       s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
   }
-}
-
-int
-FourNodeQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-    theNodes[2]->getDisplayCrds(v3, fact, displayMode);
-    theNodes[3]->getDisplayCrds(v4, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(4, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-    }
-
-// set the quantity to be displayed at the nodes;
-// if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
-    static Vector values(4);
-    if (displayMode < 4 && displayMode > 0) {
-        for (int i = 0; i < 4; i++) {
-              const Vector& stress = theMaterial[i]->getStress();
-              values(i) = stress(displayMode - 1);
-        }
-    }
-    else {
-        for (int i = 0; i < 4; i++)
-            values(i) = 0.0;
-    }
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
 }
 
 Response*

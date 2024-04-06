@@ -1,13 +1,11 @@
-// Date: 12/08/2004
-//
-// File name: SoilFootingSection2d.cpp
-//
-// Coded by: Sivapalan Gajan <sgajan@ucdavis.edu>
 //
 // Description: This file contains the members and methods for 
 // SoilFootingSection2d class.
-
-
+//
+// Coded by: Sivapalan Gajan <sgajan@ucdavis.edu>
+//
+// Date: 12/08/2004
+//
 #include <math.h>
 #include <stdlib.h>
 
@@ -16,7 +14,7 @@
 #include <Vector.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
-// #include <MatrixUtil.h>
+#include <OPS_ErrorStream.h>
 
 #include <classTags.h>
 
@@ -391,15 +389,12 @@ int
 SoilFootingSection2d::setTrialSectionDeformation (const Vector &def)
 {
 
-   int temp = 0;
    Vector de(3), ds(3);
    double epsilon = pow(10.0, -20.0);
 
 
-
    e = def;
    de = e - eCommit;
-
 
 
    if (fabs(de(0)) < epsilon) de(0) = 0.0;
@@ -407,20 +402,21 @@ SoilFootingSection2d::setTrialSectionDeformation (const Vector &def)
    if (fabs(de(2)) < epsilon) de(2) = 0.0;
 
 
-
    deModel.Zero();
 
    dThP = dTh;
    dTh = de(2);
 
-   if (de(0) == 0.0 && de(1) == 0.0 && de(2) == 0.0)
-   {
+/*
+   int temp = 0;
+   if (de(0) == 0.0 && de(1) == 0.0 && de(2) == 0.0) {
 
    // give out the previous ks rather than ks_elastic
 
    }
    else 
       temp = applyLoading(de);
+*/
 
 
    ds = ks * deModel;
@@ -454,12 +450,11 @@ SoilFootingSection2d::applyLoading(Vector de)
 
    soilFree = 0.0;
 
-   double ds, du, dTheta1, dss, theta;
+   double ds;
    double dVt, dHt, dMt, dHt1;
    double Vinit, dMcal;
    double epsilon = pow(10.0, -20.0);
    char tempKey;
-   double detKs;
    double expo = 0;
    double n_load, n_unload;
    double e_2;
@@ -469,11 +464,11 @@ SoilFootingSection2d::applyLoading(Vector de)
    if (fabs(de(2)) < epsilon) de(2) = 0.0;
 
 
-   du = de(1);
+   double du = de(1);
    dTheta = de(2);
-   dTheta1 = de(2);
-   theta = eCommit(2);
-   dss = 0.0;
+   double dTheta1 = de(2);
+   double theta = eCommit(2);
+// double dss = 0.0;
 
 
    c1 = c1Commit;
@@ -1366,7 +1361,7 @@ SoilFootingSection2d::applyLoading(Vector de)
 
          hNew = 0.0;
 
-         int gate = 1;
+//       int gate = 1;
          dHt = dMt / ((hCurr+hPrev)/2.0);
          dHt1 = dMt / ((hCurr+hPrev)/2.0);
 
@@ -1745,11 +1740,9 @@ SoilFootingSection2d::applyLoading(Vector de)
 
 //          gate = 0;
          }
-         else
-            gate = 101;
+//       else
+//          gate = 101;
 
-
-//            cout <<"gate = "<<gate<<endl;
 
 
 /*
@@ -1776,8 +1769,8 @@ SoilFootingSection2d::applyLoading(Vector de)
 
 
    
-       if ((dHt - dHt1 > 0.0) && (hNew < 0.0))
-            gate = 0;
+//     if ((dHt - dHt1 > 0.0) && (hNew < 0.0))
+//          gate = 0;
 
 
 
@@ -1985,14 +1978,10 @@ SoilFootingSection2d::applyLoading(Vector de)
 
 
 
- // make sure det|ks| is non-zero
-
-   detKs = ks(0,0) * (ks(1,1)*ks(2,2) - ks(1,2)*ks(2,1))
-         + ks(0,1) * (ks(2,0)*ks(1,2) - ks(1,0)*ks(2,2))
-         + ks(0,2) * (ks(1,0)*ks(2,1) - ks(2,0)*ks(1,1));
-
-
-
+// make sure det|ks| is non-zero
+// double detKs = ks(0,0) * (ks(1,1)*ks(2,2) - ks(1,2)*ks(2,1))
+//              + ks(0,1) * (ks(2,0)*ks(1,2) - ks(1,0)*ks(2,2))
+//              + ks(0,2) * (ks(1,0)*ks(2,1) - ks(2,0)*ks(1,1));
 
 
    delete [] footTemp;
@@ -2071,7 +2060,7 @@ SoilFootingSection2d::recvSelf(int commitTag, Channel &theChannel,
 void
 SoilFootingSection2d::Print(OPS_Stream &s, int flag)
 {
-  s << "YieldSurfaceSection2d, tag: " << this->getTag() << endln;
+  s << "YieldSurfaceSection2d, tag: " << this->getTag() << "\n";
   s << "\tSection Force:" << sCommit;
   s << "\tSection Defom:" << eCommit;
 }

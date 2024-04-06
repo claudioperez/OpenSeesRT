@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/SPSW02.cpp,v $
-//
-//
 // 
+// Purpose: This file contains the implementation for the SPSW02 class.
 //
 // Written: S. A. Jalalli 03/2015
-//Reference: S.A. Jalali and M. Banazadeh, "Development of a new deteriorating hysteresis model for seismic collapse assessment of thin steel plate shear walls"
-//link to reference: http://www.sciencedirect.com/science/article/pii/S026382311630249X
-// Purpose: This file contains the implementation for the SPSW02 class.
+// Reference: S.A. Jalali and M. Banazadeh, "Development of a new deteriorating hysteresis model for seismic collapse assessment of thin steel plate shear walls"
+// link to reference: http://www.sciencedirect.com/science/article/pii/S026382311630249X
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -125,8 +121,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SPSW02)
 			return 0;
 		}
 		curArg ++;
-	} else if (strcmp(str , "-params") == 0)
-	{
+	} else if (strcmp(str , "-params") == 0) {
 		paramsSet = true;
 		//Fts, Fcs, cmpUnldngEFac, sigTEFac, sigTFfac, epsTFfac
 		if (OPS_GetDoubleInput (&numData, &Fts) != 0) {
@@ -731,73 +726,79 @@ int SPSW02::sendSelf(int commitTag, Channel & theChannel)
 
 int SPSW02::recvSelf(int commitTag, Channel & theChannel, FEM_ObjectBroker & theBroker)
 {
-	int res = 0;
-	static Vector data(38);
-	res = theChannel.recvVector(this->getDbTag(), commitTag, data);
+    int res = 0;
+    static Vector data(38);
+    res = theChannel.recvVector(this->getDbTag(), commitTag, data);
 
-	if (res < 0) {
-		opserr << "SPSW02::recvSelf() - failed to receive data\n";
-		this->setTag(0);
-		return res;
-	}
-	this->setTag(int(data(0)));
-	t = data(1);
-	hs = data(2);
-	l = data(3);
-	fpy = data(4);
-	E0 = data(5);
-	b = data(6);
-	R = data(7);
-	Fts = data(8);
-	Fcs = data(9);
-	FTS = data(10);
-	FCS = data(11);
-	epsPCFac = data(12);
-	pstcpEFac = data(13);
-	gama = data(14);
-	FailEnerg = data(15);
-	c = data(16);
-	resFac = data(17);
-	givenParams = data(18);
-	cmpUnldngEFac = data(19);
-	sigTEFac = data(20);
-	sigTFfac = data(21);
-	epsTFfac = data(22);
-	epsmaxP = data(23);
-	sigmaxP = data(24);
-	epss0P = data(25);
-	sigs0P = data(26);
-	epssrP = data(27);
-	sigsrP = data(28);
-	epsTFP = data(29);
-	plstrP = data(30);
-	konP = data(31);
-	epsP = data(32);
-	sigP = data(33);
-	eP = data(34);
-	excurEnergP = data(35);
-	totalEnergP = data(36);
-	betaP = data(37);
-	epsmax = epsmaxP;
-	sigmax = sigmaxP;
-	epss0 = epss0P;
-	sigs0 = sigs0P;
-	epsr = epssrP;
-	sigr = sigsrP;
-	epsTF = epsTFP;
-	plstr = plstrP;
-	kon = konP;
-	eps = epsP;
-	sig = sigP;
-	e = eP;
-	excurEnerg = excurEnergP;
-	totalEnerg = totalEnergP;
-	beta = betaP;
+    if (res < 0) {
+        opserr << "SPSW02::recvSelf() - failed to receive data\n";
+        this->setTag(0);
+        return res;
+    }
+    this->setTag(int(data(0)));
+    t = data(1);
+    hs = data(2);
+    l = data(3);
+    fpy = data(4);
+    E0 = data(5);
+    b = data(6);
+    R = data(7);
+    Fts = data(8);
+    Fcs = data(9);
+    FTS = data(10);
+    FCS = data(11);
+    epsPCFac = data(12);
+    pstcpEFac = data(13);
+    gama = data(14);
+    FailEnerg = data(15);
+    c = data(16);
+    resFac = data(17);
+    givenParams = data(18);
+    cmpUnldngEFac = data(19);
+    sigTEFac = data(20);
+    sigTFfac = data(21);
+    epsTFfac = data(22);
+    epsmaxP = data(23);
+    sigmaxP = data(24);
+    epss0P = data(25);
+    sigs0P = data(26);
+    epssrP = data(27);
+    sigsrP = data(28);
+    epsTFP = data(29);
+    plstrP = data(30);
+    konP = data(31);
+    epsP = data(32);
+    sigP = data(33);
+    eP = data(34);
+    excurEnergP = data(35);
+    totalEnergP = data(36);
+    betaP = data(37);
+    epsmax = epsmaxP;
+    sigmax = sigmaxP;
+    epss0 = epss0P;
+    sigs0 = sigs0P;
+    epsr = epssrP;
+    sigr = sigsrP;
+    epsTF = epsTFP;
+    plstr = plstrP;
+    kon = konP;
+    eps = epsP;
+    sig = sigP;
+    e = eP;
+    excurEnerg = excurEnergP;
+    totalEnerg = totalEnergP;
+    beta = betaP;
+
+    return res;
 }
 
 void SPSW02::Print(OPS_Stream & s, int flag)
 {
-	s << "SPSW02:(strain, stress, tangent)" << eps << " " << sig << " " << e << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{}";
+  } else {
+    s << "SPSW02:(strain, stress, tangent)" << eps << " " << sig << " " << e << endln;
+  }
 }
 
 void SPSW02::Calc_sigcr(/*double & _Fts, double &_Fcs*/)

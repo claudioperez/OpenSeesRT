@@ -111,9 +111,9 @@ if (UNIX)
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak,undefined")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -fno-omit-frame-pointer") # ,leak,
       add_link_options(
-        $<$<CONFIG:DEBUG>:-fsanitize=address,leak,undefined>
+        $<$<CONFIG:DEBUG>:-fsanitize=address,undefined> # , leak
       )
     endif()
     add_compile_options(
@@ -130,7 +130,7 @@ if (UNIX)
 
     $<$<CONFIG:RELEASE>:-O3>
     $<$<CONFIG:RELEASE>:-mtune=native>
-    $<$<CONFIG:RELEASE>:-msse4>
+#   $<$<CONFIG:RELEASE>:-msse4>
 #   $<$<CONFIG:RELEASE>:-fno-rtti>
   )
   if (DEFINED ProfileBuild)
@@ -149,7 +149,7 @@ endif()
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (FALSE) #has_ipo)
+if (False) #has_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 #==============================================================================
@@ -174,6 +174,7 @@ add_compile_options(
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
   "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-Wno-reorder>"
   "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-reorder>"
+  "$<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-unused-dummy-argument>"
   # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wsign-conversion>
   # $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wconversion>
 )
@@ -229,7 +230,6 @@ include_directories(
   ${OPS_SRC_DIR}/material/nD
   ${OPS_SRC_DIR}/material/Solid
   ${OPS_SRC_DIR}/material/section
-  ${OPS_SRC_DIR}/material/section/fiber
   ${OPS_SRC_DIR}/material/section/yieldSurface
   ${OPS_SRC_DIR}/material/uniaxial
   ${OPS_SRC_DIR}/matrix
@@ -461,6 +461,14 @@ get_target_property(OPS_Material_COMPILE_OPTIONS OPS_Material COMPILE_OPTIONS)
   string(REPLACE "-Wall" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
   string(REPLACE "-Wextra" "" OPS_Material_COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
   set_target_properties(OPS_Material PROPERTIES COMPILE_OPTIONS "${OPS_Material_COMPILE_OPTIONS}")
+
+get_target_property(OPS_MaterialFortran_COMPILE_OPTIONS OPS_MaterialFortran COMPILE_OPTIONS)
+  string(REPLACE "-Wall" "" OPS_MaterialFortran_COMPILE_OPTIONS   "${OPS_MaterialFortran_COMPILE_OPTIONS}")
+  string(REPLACE "-Wextra" "" OPS_MaterialFortran_COMPILE_OPTIONS "${OPS_MaterialFortran_COMPILE_OPTIONS}")
+  set_target_properties(OPS_MaterialFortran PROPERTIES COMPILE_OPTIONS   "${OPS_MaterialFortran_COMPILE_OPTIONS}")
+  target_compile_options(OPS_MaterialFortran PRIVATE
+    "$<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-unused-variable>"
+  )
 
 get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
   string(REPLACE "-Wall" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")

@@ -138,6 +138,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ShearPanelMaterial)
 				      data[0], data[0], data[0], data[0], data[0],
 				      data[15], data[16]);
     }
+    return nullptr;
 }
 
 

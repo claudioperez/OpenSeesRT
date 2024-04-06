@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-25 23:34:45 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectSkypackSolver.h,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectSkypackSolver.h
 //
 // Written: fmk 
 // Created: 03/98
@@ -34,7 +27,7 @@
 // is a subclass of LinearSOESOlver. It solves a ProfileSPDLinSOE object using
 // the Skypack library developed by Osni Marques, software available at
 //   http://www.nersc.gov/research/SCG/Osni/marques_software.html
-
+//
 // What: "@(#) ProfileSPDLinDirectSkypackSolver.h, revA"
 
 #ifndef ProfileSPDLinDirectSkypackSolver_h

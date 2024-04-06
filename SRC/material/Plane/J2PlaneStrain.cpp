@@ -12,12 +12,6 @@
 ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2008-10-20 22:23:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/J2PlaneStrain.cpp,v $
-
-// Written: Ed "C++" Love
 //
 // J2PlaneStrain isotropic hardening material class
 // 
@@ -48,11 +42,12 @@
 // 
 //  set eta := 0 for rate independent case
 //
-
+// Written: Ed "C++" Love
+//
 #include <J2PlaneStrain.h>
 #include <Channel.h>
-#include  <FEM_ObjectBroker.h>
-
+#include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 //static vectors and matrices
 Vector J2PlaneStrain :: strain_vec(3) ;
 Vector J2PlaneStrain :: stress_vec(3) ;

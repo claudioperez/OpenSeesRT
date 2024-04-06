@@ -6,20 +6,20 @@
 #==============================================================================
 
 target_sources(OPS_Domain
-    PRIVATE
+  PRIVATE
     Subdomain.cpp
     SubdomainNodIter.cpp 
     ActorSubdomain.cpp
-    PUBLIC
+  PUBLIC
     Subdomain.h
     SubdomainNodIter.h 
     ActorSubdomain.h
 )
 
 target_sources(OPS_Domain
-    PRIVATE
+  PRIVATE
     ShadowSubdomain.cpp 
-    PUBLIC
+  PUBLIC
     ShadowSubdomain.h 
 )
 

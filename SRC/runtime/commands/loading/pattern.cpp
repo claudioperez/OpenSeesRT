@@ -130,7 +130,6 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
         commandEndMarker++;
 
       } else if (series_arg == nullptr) {
-//      opserr << commandEndMarker << ": " << argv[commandEndMarker] << "\n";
         series_arg = argv[commandEndMarker];
         commandEndMarker++;
 
@@ -149,8 +148,6 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       // clean up the memory and return an error
       if (thePattern != nullptr)
         delete thePattern;
-      if (theSeries != nullptr)
-        delete theSeries;
       return TCL_ERROR;
     }
 

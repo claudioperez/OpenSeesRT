@@ -18,9 +18,6 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// $Revision: 1.7 $
-// $Date: 2006-12-20 17:21:39 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/Bidirectional.cpp,v $
 //
 #include <Bidirectional.h>           
 #include <Channel.h>
@@ -355,7 +352,7 @@ Bidirectional::getCopy(void)
 }
 
 const ID&
-Bidirectional::getType(void)
+Bidirectional::getType()
 {
   code(0) = code1;
   code(1) = code2;

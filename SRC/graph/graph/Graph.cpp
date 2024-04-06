@@ -17,20 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-01-09 19:20:18 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/Graph.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
 // Description: This file contains the class implementation for Graph.
 //
-// What: "@(#) Graph.C, revA"
-
 #include <stdlib.h>
 
 #include <Graph.h>
@@ -262,14 +255,16 @@ Graph::addEdgeFast(int vertexTag, int otherVertexTag)
 			opserr << " WARNING Graph::addEdge() - " << vertexTag;
 			opserr << " added to " << otherVertexTag;
 			opserr << " adjacency - but already there in otherVertexTag!.\n";
-			opserr << *this; exit(0);
+			opserr << *this; 
+                        exit(0);
 			return -2;
 		}
 	} else {
 			opserr << " WARNING Graph::addEdge() - " << vertexTag;
 			opserr << " added to " << otherVertexTag;
 			opserr << " adjacency - but not vica versa!.\n";
-			opserr << *this; exit(0);
+			opserr << *this; 
+                        exit(0);
 			return -2;
 	}
     return result;

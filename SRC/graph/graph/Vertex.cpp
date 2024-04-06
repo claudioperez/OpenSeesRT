@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2009-05-11 21:37:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/graph/graph/Vertex.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Created: 11/96
 // Revision: A
@@ -29,11 +25,10 @@
 // Description: This file contains the class implementation for Vertex.
 // Vertex is an element of a graph.
 //
-// What: "@(#) Vertex.C, revA"
-
 #include <Vertex.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
+#include <OPS_ErrorStream.h>
 #include <Vector.h>
 
 Vertex::Vertex(int tag, int ref, double weight, int color)
@@ -129,7 +124,7 @@ Vertex::Print(OPS_Stream &s, int flag)
     s << myRef << " ";
     if (flag == 1) 
 	s << myWeight << " " ;
-    else if (flag ==2) 
+    else if (flag == 2)
 	s << myColor << " " ;
     else if (flag == 3)
         s << myWeight << " " << myColor << " " ;    

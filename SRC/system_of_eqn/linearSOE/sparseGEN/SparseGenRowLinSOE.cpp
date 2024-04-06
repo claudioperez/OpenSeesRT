@@ -17,16 +17,12 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2006-10-02 20:23:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/sparseGEN/SparseGenRowLinSOE.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Created: 04/05
 //
 // Description: This file contains the implementation for SparseGenRowLinSOE
-
+//
 #include <SparseGenRowLinSOE.h>
 #include <SparseGenRowLinSolver.h>
 #include <Matrix.h>
@@ -34,7 +30,7 @@
 #include <Vertex.h>
 #include <VertexIter.h>
 #include <math.h>
-#include <stdlib.h>
+#include <assert.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -151,21 +147,13 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
 	A = new double[newNNZ];
 	colA = new int[newNNZ];
 	
-        if (A == 0 || colA == 0) {
-            opserr << "WARNING SparseGenRowLinSOE::SparseGenRowLinSOE :";
-	    opserr << " ran out of memory for A and colA with nnz = ";
-	    opserr << newNNZ << " \n";
-	    size = 0; Asize = 0; nnz = 0;
-	    result =  -1;
-        } 
-	
 	Asize = newNNZ;
     }
 
     // zero the matrix
     for (int i=0; i<Asize; i++)
 	A[i] = 0;
-	
+
     factored = false;
     
     if (size > Bsize) { // we have to get space for the vectors
@@ -179,16 +167,8 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
 	B = new double[size];
 	X = new double[size];
 	rowStartA = new int[size+1]; 
-	
-        if (B == 0 || X == 0 || rowStartA == 0) {
-            opserr << "WARNING SparseGenRowLinSOE::SparseGenRowLinSOE :";
-	    opserr << " ran out of memory for vectors (size) (";
-	    opserr << size << ") \n";
-	    size = 0; Bsize = 0;
-	    result =  -1;
-        }
-	else
-	    Bsize = size;
+
+	Bsize = size;
     }
 
     // zero the vectors
@@ -218,8 +198,8 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
 
 	theVertex = theGraph.getVertexPtr(a);
 	if (theVertex == 0) {
-	  opserr << "WARNING:SparseGenRowLinSOE::setSize :";
-	  opserr << " vertex " << a << " not in graph! - size set to 0\n";
+	  // opserr << "WARNING:SparseGenRowLinSOE::setSize :";
+	  // opserr << " vertex " << a << " not in graph! - size set to 0\n";
 	  size = 0;
 	  return -1;
 	}
@@ -231,7 +211,7 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
 	// now we have to place the entries in the ID into order in colA
 	for (int i=0; i<idSize; i++) {
 
-	  int row = theAdjacency(i);
+	  int  row = theAdjacency(i);
 	  bool foundPlace = false;
 	  // find a place in colA for current col
 	  for (int j=startLoc; j<lastLoc; j++)
@@ -239,7 +219,6 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
 	      // move the entries already there one further on
 	      // and place col in current location
 	      for (int k=lastLoc; k>j; k--)
-		
 		colA[k] = colA[k-1];
 	      colA[j] = row;
 	      foundPlace = true;
@@ -259,8 +238,8 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
      LinearSOESolver *the_Solver = this->getSolver();
     int solverOK = the_Solver->setSize();
     if (solverOK < 0) {
-	opserr << "WARNING:SparseGenRowLinSOE::setSize :";
-	opserr << " solver failed setSize()\n";
+	// opserr << "WARNING:SparseGenRowLinSOE::setSize :";
+	// opserr << " solver failed setSize()\n";
 	return solverOK;
     }    
     return result;
@@ -269,19 +248,16 @@ SparseGenRowLinSOE::setSize(Graph &theGraph)
 int 
 SparseGenRowLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+    assert(id.Size() == m.noRows() && id.Size() == m.noCols());
+
     // check for a quick return 
     if (fact == 0.0)  
 	return 0;
 
-    int idSize = id.Size();
+    const int idSize = id.Size();
     
     // check that m and id are of similar size
-    if (idSize != m.noRows() && idSize != m.noCols()) {
-	opserr << "SparseGenRowLinSOE::addA() ";
-	opserr << " - Matrix and ID not of similar sizes\n";
-	return -1;
-    }
-    
+
     if (fact == 1.0) { // do not need to multiply 
 	for (int i=0; i<idSize; i++) {
 	    int row = id(i);

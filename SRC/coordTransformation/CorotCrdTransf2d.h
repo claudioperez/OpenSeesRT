@@ -28,11 +28,11 @@
 #ifndef CorotCrdTransf2d_h
 #define CorotCrdTransf2d_h
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
 
-class CorotCrdTransf2d: public CrdTransf
+class CorotCrdTransf2d: public FrameTransform<2>
 {
 public:
     CorotCrdTransf2d(int tag, const Vector &rigJntOffsetI, const Vector &rigJntOffsetJ);
@@ -86,7 +86,10 @@ public:
     const Vector &getPointGlobalCoordFromLocal(const Vector &localCoords);
     const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps);
     const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps);    
-    
+
+    int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
+  int getRigidOffsets(Vector &offsets);
+  
 private:
     int compElemtLengthAndOrient(void);
     int compElemtLengthAndOrientWRTLocalSystem(const Vector &ul);
@@ -109,7 +112,7 @@ private:
     double Lxdotdot, Lydotdot; // double time derivatives of components of the deformed member
     
     Vector ub;                 // basic displacements
-    Vector ubcommit;           // commited basic displacements
+    Vector ubcommit;           // committed basic displacements
     Vector ubpr;               // previous basic displacements
     
     static Matrix Tlg;         // matrix that transforms from global to local coordinates

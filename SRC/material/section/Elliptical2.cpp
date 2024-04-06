@@ -24,7 +24,8 @@
 #include <float.h>
 #include <elementAPI.h>
 
-#include <MaterialResponse.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <Information.h>
 #include <Parameter.h>
 
@@ -486,7 +487,7 @@ Elliptical2::getCopy(void)
 }
 
 const ID&
-Elliptical2::getType(void)
+Elliptical2::getType()
 {
   code(0) = code1;
   code(1) = code2;
@@ -579,7 +580,7 @@ Response*
 Elliptical2::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
   if (strcmp(argv[0],"plasticDeformation") == 0)
-    return new MaterialResponse(this, 123, Vector(2));
+    return new SectionResponse(*this, 123, Vector(2));
   else
     return SectionForceDeformation::setResponse(argv, argc, output);
 }

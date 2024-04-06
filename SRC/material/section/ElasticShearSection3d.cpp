@@ -252,7 +252,7 @@ ElasticShearSection3d::getCopy ()
 }
 
 const ID&
-ElasticShearSection3d::getType ()
+ElasticShearSection3d::getType()
 {
     return code;
 }

@@ -17,11 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2008-08-26 16:46:09 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticBDShearSection2d.h,v $
-
+//
+//
 #ifndef ElasticBDShearSection2d_h
 #define ElasticBDShearSection2d_h
 
@@ -57,7 +54,7 @@ class ElasticBDShearSection2d: public SectionForceDeformation
   const Matrix &getInitialFlexibility(void);
   
   SectionForceDeformation *getCopy(void);
-  const ID &getType(void);
+  const ID &getType();
   int getOrder(void) const;
   
   int sendSelf(int commitTag, Channel &theChannel);

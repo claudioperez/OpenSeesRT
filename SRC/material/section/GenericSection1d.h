@@ -68,7 +68,7 @@ class GenericSection1d : public SectionForceDeformation
     int revertToStart (void);
     
     SectionForceDeformation *getCopy (void);
-    const ID &getType (void);
+    const ID &getType();
     int getOrder (void) const;
     
     int sendSelf (int commitTag, Channel &theChannel);

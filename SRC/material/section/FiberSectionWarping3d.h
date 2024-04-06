@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008/08/26 16:47:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSectionWarping3d.h,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -38,18 +34,19 @@
 #include <Matrix.h>
 
 class UniaxialMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
 
 class FiberSectionWarping3d : public SectionForceDeformation
 {
   public:
     FiberSectionWarping3d(); 
+#if 0
     FiberSectionWarping3d(int tag, int numFibers, Fiber **fibers, UniaxialMaterial &torsion);
-    FiberSectionWarping3d(int tag, int numFibers, UniaxialMaterial &torsion);
     FiberSectionWarping3d(int tag, int numFibers, UniaxialMaterial **mats,
 			  SectionIntegration &si, UniaxialMaterial &torsion);    
+#endif
+    FiberSectionWarping3d(int tag, int numFibers, UniaxialMaterial &torsion);
+
     ~FiberSectionWarping3d();
 
     const char *getClassType(void) const {return "FiberSectionWarping3d";};
@@ -66,7 +63,7 @@ class FiberSectionWarping3d : public SectionForceDeformation
     int   revertToStart(void);
  
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
+    const ID &getType();
     int getOrder (void) const;
     
     int sendSelf(int cTag, Channel &theChannel);
@@ -78,7 +75,8 @@ class FiberSectionWarping3d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    // TODO: How is Height usually given?
+    int addFiber(UniaxialMaterial &theFiber, const double Area, const double yLoc, const double zLoc, const double Height=1.0);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -95,11 +93,11 @@ class FiberSectionWarping3d : public SectionForceDeformation
   protected:
     
   private:
-    int numFibers, sizeFibers;                   // number of fibers in the section
-    UniaxialMaterial **theMaterials; // array of pointers to materials
-    double   *matData;               // data for the materials [yloc and area]
-    double   kData[25];               // data for ks matrix 
-    double   sData[6];               // data for s vector 
+    int numFibers, sizeFibers;        // number of fibers in the section
+    UniaxialMaterial **theMaterials;  // array of pointers to materials
+    double   *matData;                // data for the materials [yloc and area]
+    double   kData[36];               // data for ks matrix 
+    double   sData[6];                // data for s vector 
    // double   Height;
     double yBar;       // Section centroid
     double zBar;

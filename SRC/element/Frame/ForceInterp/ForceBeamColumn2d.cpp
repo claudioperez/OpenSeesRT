@@ -143,14 +143,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumn2d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -287,14 +287,14 @@ void *OPS_DECL_RUNTIME_VPID(OPS_ForceBeamColumn2d, const ID &info)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return 0;
@@ -354,14 +354,14 @@ int OPS_DECL_RUNTIME(OPS_ForceBeamColumn2d, Domain& theDomain, const ID& elenode
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[0]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[0]);
     if(theTransf == 0) {
         opserr<<"coord transfomration not found\n";
         return -1;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[1]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[1]);
     if(theRule == 0) {
         opserr<<"beam integration not found\n";
         return -1;
@@ -2287,7 +2287,6 @@ void ForceBeamColumn2d::compSectionDisplacements(Vector sectionCoords[], Vector 
 
        if (ii == code.Size()) {
          opserr << "FATAL NLBeamColumn2d::compSectionDispls - section does not provide Mz response\n";
-         exit(-1);
        }
                         
        // get section deformations
@@ -2466,10 +2465,10 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
   Response *theResponse = 0;
 
   output.tag("ElementOutput");
-  output.attr("eleType","ForceBeamColumn2d");
-  output.attr("eleTag",this->getTag());
-  output.attr("node1",connectedExternalNodes[0]);
-  output.attr("node2",connectedExternalNodes[1]);
+  output.attr("eleType", "ForceBeamColumn2d");
+  output.attr("eleTag",  this->getTag());
+  output.attr("node1",   connectedExternalNodes[0]);
+  output.attr("node2",   connectedExternalNodes[1]);
 
   // global force - 
   if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0
@@ -2688,10 +2687,12 @@ ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
     }
   }
   //by SAJalali
-  else if (strcmp(argv[0], "energy") == 0)
-  {
-          return new ElementResponse(this, 14, 0.0);
+  else if (strcmp(argv[0], "energy") == 0) {
+    return new ElementResponse(this, 14, 0.0);
   }
+
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
 
   output.endTag(); // ElementOutput
 

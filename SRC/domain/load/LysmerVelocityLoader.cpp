@@ -68,7 +68,7 @@ LysmerVelocityLoader::sendSelf(int commitTag, Channel &theChannel)
 
     res = theChannel.sendID(dataTag, commitTag, iddata);
     if (res < 0) {
-        opserr << "WARNING LysmerVelocityLoader::sendSelf() - " << this->getTag() << " failed to send iddata\n";
+        // opserr << "WARNING LysmerVelocityLoader::sendSelf() - " << this->getTag() << " failed to send iddata\n";
         return res;
     }
 
@@ -84,7 +84,7 @@ LysmerVelocityLoader::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBro
 
     res = theChannel.recvID(dataTag, commitTag, iddata);
     if (res < 0) {
-        opserr << "WARNING LysmerVelocityLoader::recvSelf() - " << this->getTag() << " failed to receive iddata\n";
+        // opserr << "WARNING LysmerVelocityLoader::recvSelf() - " << this->getTag() << " failed to receive iddata\n";
         return res;
     }
      this->setTag(iddata(0));
@@ -98,7 +98,7 @@ LysmerVelocityLoader::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBro
 void
 LysmerVelocityLoader::Print(OPS_Stream &s, int flag)
 {
-	s << "LysmerVelocityLoader...";
-	s << "  element acted on: " << eleTag << " dir = " << dir << endln;
+    s << "LysmerVelocityLoader...";
+    s << "  element acted on: " << eleTag << " dir = " << dir << "\n";
 }
 

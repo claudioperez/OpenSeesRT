@@ -5,8 +5,10 @@
 #
 #==============================================================================
 
+target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+
 target_sources(OPS_Element
-    PRIVATE
+  PRIVATE
     ZeroLength.cpp
     CoupledZeroLength.cpp
     ZeroLengthContact2D.cpp
@@ -19,7 +21,7 @@ target_sources(OPS_Element
     ZeroLengthRocking.cpp
     ZeroLengthSection.cpp
     ZeroLengthVG_HG.cpp
-    PUBLIC
+  PUBLIC
     ZeroLength.h
     CoupledZeroLength.h
     ZeroLengthContact2D.h

@@ -31,7 +31,6 @@
 // What: "@(#) Shadow.C, revA"
 
 #include <Shadow.h>
-#include <stdlib.h>
 
 #include <Channel.h>
 #include <MachineBroker.h>
@@ -41,6 +40,9 @@
 #include <Vector.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
+
+#include <OPS_ErrorStream.h>
+#include <stdlib.h> // TODO: remove use of std::exit
 
 Shadow::Shadow(Channel &theChan, 
 	       FEM_ObjectBroker &myBroker)
@@ -77,9 +79,9 @@ Shadow::Shadow(int actorType,
 {
     // start the remote actor process running
   theChannel = theMachineBroker->startActor(actorType, compDemand);
-  if (theChannel == 0) {
+  if (theChannel == nullptr) {
     opserr << "Shadow::Shadow - could not start remote actor\n";
-    opserr << " using program " << actorType << endln;
+    opserr << " using program " << actorType << "\n";
     exit(-1);
   }
   

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
 #include <CompositeSimpsonBeamIntegration.h>
 #include <elementAPI.h>
 #include <ID.h>
@@ -107,7 +103,7 @@ CompositeSimpsonBeamIntegration::getCopy(void)
 
 void
 CompositeSimpsonBeamIntegration::getSectionLocations(int numSections, double L,
-						double *xi)
+						double *xi) const
 {
   // Check that num sections is odd
   if (numSections % 2 == 1) {
@@ -125,7 +121,7 @@ CompositeSimpsonBeamIntegration::getSectionLocations(int numSections, double L,
 
 void
 CompositeSimpsonBeamIntegration::getSectionWeights(int numSections, double L,
-					      double *wt)
+					      double *wt) const
 {
   // Check that num sections is odd
   if (numSections % 2 == 1) {

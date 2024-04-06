@@ -164,7 +164,7 @@ dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const ar
   G3_Runtime *rt = G3_getRuntime(interp);
   UniaxialMaterial* theMaterial = (UniaxialMaterial*)fn( rt, argc, argv );
 
-  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+  if (builder->addTaggedObject<UniaxialMaterial>(*theMaterial) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
     delete theMaterial;
     return TCL_ERROR;
@@ -180,7 +180,7 @@ dispatch(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const a
   G3_Runtime *rt = G3_getRuntime(interp);
   UniaxialMaterial* theMaterial = fn( rt, argc, argv );
 
-  if (builder->addUniaxialMaterial(theMaterial) != TCL_OK) {
+  if (builder->addTaggedObject<UniaxialMaterial>(*theMaterial) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "Could not add uniaxialMaterial to the model builder.\n";
     delete theMaterial;
     return TCL_ERROR;
@@ -195,6 +195,22 @@ dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const ar
   assert(clientData != nullptr);
   return fn( clientData, interp, argc, argv );
 }
+
+#if 0
+class broker_ {
+ Tcl_CmdProc*      parse;
+ virtual UniaxialMaterial* alloc();
+};
+
+template <class C> class broker: public broker_ {
+  broker(Tcl_CmdProc* parse_): parse(parse_) {};
+};
+
+std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch_2 {
+    {"Concrete01",             broker<>(dispatch<OPS_Concrete01>)      },
+    {"Concrete02",             dispatch<OPS_Concrete02>                },
+};
+#endif
 
 std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
 

@@ -17,39 +17,36 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:47:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection2d.h,v $
-                                                                        
-// Written: fmk
-// Created: 04/01
 //
 // Description: This file contains the class definition for 
 // FiberSection2d.h. FiberSection2d provides the abstraction of a 
 // 2d beam section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
-
+//
+// Written: fmk
+// Created: 04/01
+//
 #ifndef FiberSection2d_h
 #define FiberSection2d_h
 
 #include <SectionForceDeformation.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <memory>
 
 class UniaxialMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
 
 class FiberSection2d : public SectionForceDeformation
 {
   public:
     FiberSection2d(); 
-    FiberSection2d(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2d(int tag, int numFibers, bool compCentroid=true);
+#if 0
+    FiberSection2d(int tag, int numFibers, Fiber **fibers, bool compCentroid=true);
     FiberSection2d(int tag, int numFibers, UniaxialMaterial **mats,
 		   SectionIntegration &si, bool compCentroid=true);
+#endif
     ~FiberSection2d();
 
     const char *getClassType(void) const {return "FiberSection2d";};
@@ -66,7 +63,7 @@ class FiberSection2d : public SectionForceDeformation
     int   revertToStart(void);
  
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
+    const ID &getType(void);
     int getOrder (void) const;
     
     int sendSelf(int cTag, Channel &theChannel);
@@ -78,7 +75,7 @@ class FiberSection2d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &theMat, const double area, const double yLoc);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -89,26 +86,24 @@ class FiberSection2d : public SectionForceDeformation
     int commitSensitivity(const Vector& sectionDeformationGradient,
 			  int gradIndex, int numGrads);
     // AddingSensitivity:END ///////////////////////////////////////////
-	//by SAJalali
-	double getEnergy() const;
+
+    double getEnergy() const; // by SAJalali
 
   protected:
     
     //  private:
-    int numFibers, sizeFibers;       // number of fibers in the section
-    UniaxialMaterial **theMaterials; // array of pointers to materials
-    double   *matData;               // data for the materials [yloc and area]
-    double   kData[4];               // data for ks matrix 
-    double   sData[2];               // data for s vector 
+    int numFibers, sizeFibers;         // number of fibers in the section
+    UniaxialMaterial **theMaterials;   // array of pointers to materials
+    std::shared_ptr<double[]> matData; // data for the materials [yloc and area]
+    double   kData[4];                 // data for ks matrix 
+    double   sData[2];                 // data for s vector 
     
     double QzBar, ABar, yBar;       // Section centroid
     bool computeCentroid;
-      
-    SectionIntegration *sectionIntegr;
 
     static ID code;
 
-    Vector e;          // trial section deformations 
+    Vector  e;         // trial section deformations 
     Vector *s;         // section resisting forces  (axial force, bending moment)
     Matrix *ks;        // section stiffness
 

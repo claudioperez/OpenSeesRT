@@ -18,21 +18,20 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// $Revision: 1.13 $
-// $Date: 2009-10-13 21:17:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/XmlFileStream.cpp,v $
-//
 #include <XmlFileStream.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <string.h>
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
 
-using std::cerr;
+#include <OPS_ErrorStream.h>
+
+using std::cerr; // TODO: why use both opserr and cerr?
 using std::ios;
 using std::setiosflags;
 using std::string;
@@ -1086,14 +1085,14 @@ XmlFileStream::sendSelf(int commitTag, Channel &theChannel)
   idData(2) = sendSelfCount;
 
   if (theChannel.sendID(0, commitTag, idData) < 0) {
-    opserr << "XmlFileStream::sendSelf() - failed to send id data\n";
+    //opserr << "XmlFileStream::sendSelf() - failed to send id data\n";
     return -1;
   }
 
   if (fileNameLength != 0) {
     Message theMessage(fileName, fileNameLength);
     if (theChannel.sendMsg(0, commitTag, theMessage) < 0) {
-      opserr << "XmlFileStream::sendSelf() - failed to send message\n";
+      // opserr << "XmlFileStream::sendSelf() - failed to send message\n";
       return -1;
     }
   }
@@ -1111,7 +1110,7 @@ XmlFileStream::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &th
   theChannels[0] = &theChannel;
 
   if (theChannel.recvID(0, commitTag, idData) < 0) {
-    opserr << "XmlFileStream::recvSelf() - failed to recv id data\n";
+    // opserr << "XmlFileStream::recvSelf() - failed to recv id data\n";
     return -1;
   }
 
@@ -1125,14 +1124,10 @@ XmlFileStream::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &th
     if (fileName != 0)
       delete [] fileName;
     fileName = new char[fileNameLength+5];
-    if (fileName == 0) {
-      opserr << "XmlFileStream::recvSelf() - out of memory\n";
-      return -1;
-    }
 
     Message theMessage(fileName, fileNameLength);
     if (theChannel.recvMsg(0, commitTag, theMessage) < 0) {
-      opserr << "XmlFileStream::recvSelf() - failed to recv message\n";
+      // opserr << "XmlFileStream::recvSelf() - failed to recv message\n";
       return -1;
     }
 
@@ -1354,6 +1349,7 @@ XmlFileStream::mergeXML()
       if (data != 0)
         delete [] data;
     }
+
   } else  if (sendSelfCount > 0) {      
 
       ifstream theFile0;
@@ -1361,7 +1357,7 @@ XmlFileStream::mergeXML()
       theFile0.open(fileName, ios::in);
 
       int fileNameLength = int(strlen(fileName));
-      sprintf(&fileName[fileNameLength-2],"");
+      fileName[fileNameLength-2] = '\0';
       
       theFile.open(fileName, ios::out);
       fileOpen = 1;

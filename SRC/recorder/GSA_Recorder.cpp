@@ -17,18 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-
-
-// $Revision: 1.5 $
-// $Date: 2004-11-24 22:45:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/GSA_Recorder.cpp,v $
-
+//
 // Written: fmk 
 // Created: 02/03
 //
-// What: "@(#) GSA_Recorder.C, revA"
-
 #include <GSA_Recorder.h>
 #include <Domain.h>
 #include <Node.h>
@@ -40,6 +32,7 @@
 #include <Vector.h>
 #include <ID.h>
 #include <Matrix.h>
+#include <OPS_ErrorStream.h>
 
 GSA_Recorder::GSA_Recorder(Domain &theDom, 
 			   const char *fileName, 

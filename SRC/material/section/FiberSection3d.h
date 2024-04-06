@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-08-26 16:47:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/FiberSection3d.h,v $
-                                                                        
+//
 // Written: fmk
 // Created: 04/01
 //
@@ -36,26 +32,28 @@
 #include <SectionForceDeformation.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <VectorND.h>
+#include <memory>
 
-class UniaxialMaterial;
-class Fiber;
 class Response;
-class SectionIntegration;
+class UniaxialMaterial;
 
 class FiberSection3d : public SectionForceDeformation
 {
   public:
     FiberSection3d(); 
+    FiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, bool compCentroid=true);
+#if 0
     FiberSection3d(int tag, int numFibers, Fiber **fibers, 
 		   UniaxialMaterial &torsion, bool compCentroid=true);
-    FiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, bool compCentroid=true);
     FiberSection3d(int tag, int numFibers, UniaxialMaterial **mats,
 		   SectionIntegration &si, UniaxialMaterial &torsion, bool compCentroid=true);
+#endif
     ~FiberSection3d();
 
     const char *getClassType(void) const {return "FiberSection3d";};
 
-    int   setTrialSectionDeformation(const Vector &deforms); 
+    int   setTrialSectionDeformation(const Vector &deforms);
     const Vector &getSectionDeformation(void);
 
     const Vector &getStressResultant(void);
@@ -67,8 +65,9 @@ class FiberSection3d : public SectionForceDeformation
     int   revertToStart(void);
  
     SectionForceDeformation *getCopy(void);
-    const ID &getType (void);
+    const ID &getType();
     int getOrder (void) const;
+    unsigned long getScheme(void) const;
     
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, 
@@ -79,7 +78,7 @@ class FiberSection3d : public SectionForceDeformation
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(Fiber &theFiber);
+    int addFiber(UniaxialMaterial &theMat, const double area, const double y, const double z);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
@@ -91,8 +90,8 @@ class FiberSection3d : public SectionForceDeformation
     const Vector & getSectionDeformationSensitivity(int gradIndex);
     // AddingSensitivity:END ///////////////////////////////////////////
 
-	//by SAJalali
-	double getEnergy() const;
+    //by SAJalali
+    double getEnergy() const;
 
 
   protected:
@@ -100,24 +99,25 @@ class FiberSection3d : public SectionForceDeformation
   private:
     int numFibers, sizeFibers;       // number of fibers in the section
     UniaxialMaterial **theMaterials; // array of pointers to materials
-    double   *matData;               // data for the materials [yloc, zloc, area]
+//  double   *matData;               // data for the materials [yloc, zloc, area]
+    std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
     double   kData[16];              // data for ks matrix 
-    double   sData[4];               // data for s vector 
+//  double   sData[4];               // data for s vector 
 
     double QzBar, QyBar, Abar;
     double yBar;       // Section centroid
     double zBar;
     bool computeCentroid;
-    
-    SectionIntegration *sectionIntegr;
 
     static ID code;
 
-    Vector e;          // trial section deformations 
-    Vector *s;         // section resisting forces  (axial force, bending moment)
-    Matrix *ks;        // section stiffness
+    Vector  e;         // trial section deformations 
+    Vector  s;         // section resisting forces  (axial force, bending moment)
+    Matrix  ks;        // section stiffness
 
+    OpenSees::VectorND<4> eData, sData;
     UniaxialMaterial *theTorsion;
+    void *pool;        // thread pool
 };
 
 #endif

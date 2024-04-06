@@ -12,25 +12,30 @@
 
 #include <math.h>
 #include <float.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <T2Vector.h>
 #include <Matrix.h>
+#include <OPS_ErrorStream.h>
 
+static double
+delta(int i,int j) {
+    if (i==j) return 1.0;
+    else return 0.0;
+}
 
 
 Vector T2Vector::engrgStrain(6);
 
 double operator && (const Vector & a, const Vector & b)
 {
-  if (a.Size() !=6 || b.Size() !=6) {
-    opserr << "FATAL:operator && (Vector &, Vector &): vector size not equal 6" << endln;
-    exit(-1);
-  }
+  assert(a.Size() ==6 && b.Size() ==6);
 
   double result = 0.;  
 
   for (int i=0; i<3; i++)
     result += a[i]*b[i] + 2*a[i+3]*b[i+3];
+
   return result;
 }
 
@@ -38,16 +43,13 @@ double operator && (const Vector & a, const Vector & b)
 // ---------------- c=a:b, c(k,l)=a(i,j)*b(i,j,k,l)-------------
 void doubledotProduct (Vector & c, const Vector & a, const Matrix & b)
 {
-  if (c.Size() !=6 || a.Size() !=6 || b.noCols() !=6|| b.noRows() !=6) {
-    opserr << "FATAL:operator && (Vector &, Matrix &): vector or Matrix size not equal 6" << endln;
-    exit(-1);
-  }
-	
+  assert(c.Size() ==6 && a.Size() ==6 && b.noCols() ==6&& b.noRows() ==6);
+
   c.Zero();
-  for(int j=0;j<6;j++){
-	  for (int i=0; i<3; i++){
-		c[j] += a[i]*b(i,j) + 2*a[i+3]*b(i+3,j);
-	  }
+  for (int j=0;j<6;j++){
+      for (int i=0; i<3; i++){
+            c[j] += a[i]*b(i,j) + 2*a[i+3]*b(i+3,j);
+      }
   }
   return;
 }
@@ -57,11 +59,13 @@ void doubledotProduct (Vector & c, const Vector & a, const Matrix & b)
 // ---------------- c=a:b, c(i,j,k,l)=a(i,j,m,n)*b(m,n,k,l)-------------
 void doubledotMatrixProduct (Matrix & c, const Matrix & a, const Matrix & b)
 {
-  if (c.noCols() !=6 ||c.noRows() !=6 || a.noCols() !=6 ||a.noRows() !=6 || b.noCols() !=6|| b.noRows() !=6) {
-    opserr << "FATAL: doubledotproduct(Matrix &, Matrix &): Matrix size not equal 6" << endln;
-    exit(-1);
-  }
-	
+  assert(c.noCols() == 6 &&
+         c.noRows() == 6 &&
+         a.noCols() == 6 &&
+         a.noRows() == 6 &&
+         b.noCols() == 6 &&
+         b.noRows() == 6);
+
   c.Zero();
   for(int i=0;i<6;i++){
 	for(int j=0;j<6;j++){
@@ -77,23 +81,18 @@ void doubledotMatrixProduct (Matrix & c, const Matrix & a, const Matrix & b)
 // ---------------- c=a*b, c(i,j,k,l)=a(i,j)*b(k,l)-------------
 void tensorProduct(Matrix & c, const Vector & a, const Vector & b)
 {
-  if (b.Size() !=6 || a.Size() !=6 || c.noCols() !=6|| c.noRows() !=6) {
-    opserr << "FATAL:operator && (Vector &, Matrix &): vector or Matrix size not equal 6" << endln;
-    exit(-1);
-  }
-	
+  assert(b.Size()   ==6 &&
+         a.Size()   ==6 &&
+         c.noCols() ==6 &&
+         c.noRows() ==6);
+
   c.Zero();
-  for(int j=0;j<6;j++){
-	  for (int i=0; i<6; i++){
-		c(i,j) = a[i]*b[j];
-	  }
+  for (int j=0;j<6;j++){
+      for (int i=0; i<6; i++){
+          c(i,j) = a[i]*b[j];
+      }
   }
   return;
-}
-
-double delta(int i,int j){
-	if (i==j) return 1.0;
-	else return 0.0;
 }
 
 
@@ -108,10 +107,8 @@ T2Vector::T2Vector()
 T2Vector::T2Vector(const Vector &init, int isEngrgStrain)
 :theT2Vector(6), theDeviator(6), theVolume(0)
 {
-  if (init.Size() != 6) {
-    opserr << "FATAL:T2Vector::T2Vector(Vector &): vector size not equal to 6" << endln;
-    exit(-1);
-  }
+  assert(init.Size() == 6);
+
   theT2Vector = init;
 
   theVolume = (theT2Vector[0]+theT2Vector[1]+theT2Vector[2])/3.0;
@@ -130,10 +127,7 @@ T2Vector::T2Vector(const Vector &init, int isEngrgStrain)
 T2Vector::T2Vector(const Vector & deviat_init, double volume_init)
  : theT2Vector(6), theDeviator(6), theVolume(volume_init)
 {
-  if (deviat_init.Size() != 6) {
-    opserr << "FATAL:T2Vector::T2Vector(Vector &, double): vector size not equal 6" << endln;
-    exit(-1);
-  }
+  assert(deviat_init.Size() == 6);
 
   //make sure the deviator has truely volume=0 
   double devolum = (deviat_init[0]+deviat_init[1]+deviat_init[2])/3.;
@@ -156,10 +150,8 @@ T2Vector::~T2Vector()
 void
 T2Vector::setData(const Vector &init, int isEngrgStrain)
 {
-  if ( init.Size() != 6) {
-    opserr << "FATAL:T2Vector::T2Vector(Vector &): vector size not equal to 6" << endln;
-    exit(-1);
-  }
+  assert( init.Size() == 6);
+
   theT2Vector = init;
 
   theVolume = (theT2Vector[0]+theT2Vector[1]+theT2Vector[2])/3.0;
@@ -178,10 +170,7 @@ T2Vector::setData(const Vector & deviat, double volume)
 {
   theVolume = volume;
   
-  if (deviat.Size() != 6) {
-    opserr << "FATAL:T2Vector::T2Vector(Vector &, double): vector size not equal 6" << endln;
-    exit(-1);
-  }
+  assert(deviat.Size() == 6);
 
   //make sure the deviator has truely volume=0 
   double devolum = (deviat[0]+deviat[1]+deviat[2])/3.;
@@ -246,10 +235,7 @@ T2Vector::octahedralShear(int isEngrgStain) const
 double 
 T2Vector::deviatorRatio(double residualPress) const
 {
-  if ((fabs(theVolume)+fabs(residualPress)) <= LOW_LIMIT) {
-	opserr << "FATAL:T2Vector::deviatorRatio(): volume <=" << LOW_LIMIT << endln;
-	exit(-1);
-  }
+  assert((fabs(theVolume)+fabs(residualPress)) >  LOW_LIMIT);
   return sqrt(3./2.* (theDeviator && theDeviator)) / (fabs(theVolume)+fabs(residualPress));
 }
 
@@ -288,10 +274,8 @@ T2Vector::unitDeviator() const
 double 
 T2Vector::angleBetweenT2Vector(const T2Vector & a) const
 {
-  if (t2VectorLength() <= LOW_LIMIT || a.t2VectorLength() <= LOW_LIMIT) {
-    opserr << "FATAL:T2Vector::angleBetweenT2Vector(T2Vector &): vector length <=" << LOW_LIMIT << endln;
-    exit(-1);
-  }
+  assert( t2VectorLength() >  LOW_LIMIT &&
+          a.t2VectorLength() >  LOW_LIMIT);
 
   double angle = (theT2Vector && a.theT2Vector) / (t2VectorLength() * a.t2VectorLength());
   if(angle > 1.) angle = 1.;
@@ -304,10 +288,8 @@ T2Vector::angleBetweenT2Vector(const T2Vector & a) const
 double 
 T2Vector::angleBetweenDeviator(const T2Vector & a) const
 {
-  if (deviatorLength() <= LOW_LIMIT || a.deviatorLength() <= LOW_LIMIT) {
-    opserr << "FATAL:T2Vector::angleBetweenDeviator(T2Vector &): vector length <=" << LOW_LIMIT << endln;
-    exit(-1);
-  }
+  assert(deviatorLength() >  LOW_LIMIT 
+      && a.deviatorLength() >  LOW_LIMIT);
 
   double angle = (theDeviator && a.theDeviator) / (deviatorLength() * a.deviatorLength());
   if(angle > 1.) angle = 1.;

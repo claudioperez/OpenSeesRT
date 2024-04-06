@@ -17,47 +17,36 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-// File: ~/model/ModElasticBeam3d.C
-//
-// Written: fmk 11/95
-// Revised:
 //
 // Purpose: This file contains the class definition for ModElasticBeam3d.
 // ModElasticBeam3d is a 3d beam element. As such it can only
 // connect to a node with 6-dof.
-
-#include <ModElasticBeam3d.h>
-#include <elementAPI.h>
-
-#include <ElementalLoad.h>
-
-#include <Domain.h>
+//
+// Written: fmk 11/95
+// Revised:
+//
 #include <Channel.h>
+#include <Domain.h>
 #include <FEM_ObjectBroker.h>
+#include <ModElasticBeam3d.h>
 
 #include <CrdTransf.h>
+#include <ElementResponse.h>
+#include <ElementalLoad.h>
+#include <ID.h>
 #include <Information.h>
 #include <Parameter.h>
-#include <ElementResponse.h>
-#include <Renderer.h>
-
+#include <SectionForceDeformation.h>
+#include <elementAPI.h>
 #include <math.h>
 #include <stdlib.h>
-
-#include <ID.h>
-#include <SectionForceDeformation.h>
 #include <string>
 
 Matrix ModElasticBeam3d::K(12, 12);
 Vector ModElasticBeam3d::P(12);
 Matrix ModElasticBeam3d::kb(6, 6);
 
-void * OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam3d) {
+void *OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam3d) {
   int numArgs = OPS_GetNumRemainingInputArgs();
 
   // Read the optional arguments first
@@ -87,14 +76,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam3d) {
   numArgs = numArgs - numOptionalArgs;
 
   if (numArgs != 16) {
-    opserr << "ERROR not enough args provided, want: element ModElasticBeam3d tag? iNode? jNode? A? E? G? J? Ix? Iy? K11x? K33x? K44x? K11y? K33y? K44y? transfType? <-rho rho?> <-cMass>" << endln;
+    opserr << "ERROR not enough args provided, want: element ModElasticBeam3d tag? iNode? jNode? A? E? G? J? Ix? Iy? K11x? K33x? K44x? K11y? K33y? K44y? transfType? <-rho rho?> <-cMass>" << "\n";
     return 0;
   }
 
   int ndm = OPS_GetNDM();
   int ndf = OPS_GetNDF();
   if (ndm != 3 || ndf != 6) {
-    opserr << "ndm must be 3 and ndf must be 6"  << endln;
+    opserr << "ndm must be 3 and ndf must be 6"  << "\n";
     return 0;
   }
 
@@ -115,9 +104,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam3d) {
   numData = 1;
   if (OPS_GetIntInput(&numData, &transfTag) < 0)
 	return 0;
-  theTrans = OPS_getCrdTransf(transfTag);
+  theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
   if (theTrans == 0) {
-	opserr << "no CrdTransf is found" << endln;
+	opserr << "no CrdTransf is found" << "\n";
 	return 0;
   }
 
@@ -185,7 +174,7 @@ ModElasticBeam3d::ModElasticBeam3d(int tag, double a, double e, double g,
 
   if (!theCoordTransf) {
     opserr << "ModElasticBeam3d::ModElasticBeam3d -- failed to get copy of "
-              "coordinate transformation" << endln;
+              "coordinate transformation" << "\n";
     exit(-1);
   }
 
@@ -223,7 +212,7 @@ int ModElasticBeam3d::getNumDOF(void) { return 12; }
 
 void ModElasticBeam3d::setDomain(Domain *theDomain) {
   if (theDomain == 0) {
-    opserr << "ModElasticBeam3d::setDomain -- Domain is null" << endln;
+    opserr << "ModElasticBeam3d::setDomain -- Domain is null" << "\n";
     exit(-1);
   }
 
@@ -233,14 +222,14 @@ void ModElasticBeam3d::setDomain(Domain *theDomain) {
   if (theNodes[0] == 0) {
     opserr << "ModElasticBeam3d::setDomain  tag: " << this->getTag()
            << " -- Node 1: " << connectedExternalNodes(0)
-           << " does not exist" << endln;
+           << " does not exist" << "\n";
     exit(-1);
   }
 
   if (theNodes[1] == 0) {
     opserr << "ModElasticBeam3d::setDomain  tag: " << this->getTag()
            << " -- Node 2: " << connectedExternalNodes(1)
-           << " does not exist" << endln;
+           << " does not exist" << "\n";
     exit(-1);
   }
 
@@ -250,14 +239,14 @@ void ModElasticBeam3d::setDomain(Domain *theDomain) {
   if (dofNd1 != 6) {
     opserr << "ModElasticBeam3d::setDomain  tag: " << this->getTag()
            << " -- Node 1: " << connectedExternalNodes(0)
-           << " has incorrect number of DOF" << endln;
+           << " has incorrect number of DOF" << "\n";
     exit(-1);
   }
 
   if (dofNd2 != 6) {
     opserr << "ModElasticBeam3d::setDomain  tag: " << this->getTag()
            << " -- Node 2: " << connectedExternalNodes(1)
-           << " has incorrect number of DOF" << endln;
+           << " has incorrect number of DOF" << "\n";
     exit(-1);
   }
 
@@ -265,7 +254,7 @@ void ModElasticBeam3d::setDomain(Domain *theDomain) {
 
   if (theCoordTransf->initialize(theNodes[0], theNodes[1]) != 0) {
     opserr << "ModElasticBeam3d::setDomain  tag: " << this->getTag()
-           << " -- Error initializing coordinate transformation" << endln;
+           << " -- Error initializing coordinate transformation" << "\n";
     exit(-1);
   }
 
@@ -273,7 +262,7 @@ void ModElasticBeam3d::setDomain(Domain *theDomain) {
 
   if (L == 0.0) {
     opserr << "ModElasticBeam3d::setDomain  tag: " << this->getTag()
-           << " -- Element has zero length" << endln;
+           << " -- Element has zero length" << "\n";
     exit(-1);
   }
 }
@@ -368,9 +357,9 @@ const Matrix &ModElasticBeam3d::getInitialStiff(void) {
   double EIyoverL2 = K44y * Iy * EoverL;   // 2EIy/L, modified
   double EIyoverL4 = K11y * Iy * EoverL;   // 4EIy/L, modified
   double EIyoverL6 = K33y * Iy * EoverL;   // 4EIy/L, modified
-  kb(1, 1) = EIyoverL4;
-  kb(2, 2) = EIyoverL6;
-  kb(2, 1) = kb(1, 2) = EIyoverL2;
+  kb(3, 3) = EIyoverL4;
+  kb(4, 4) = EIyoverL6;
+  kb(4, 3) = kb(3, 4) = EIyoverL2;
 
   return theCoordTransf->getInitialGlobalStiffMatrix(kb);
 }
@@ -564,7 +553,7 @@ int ModElasticBeam3d::addLoad(ElementalLoad *theLoad, double loadFactor) {
   } else {
     opserr << "ModElasticBeam3d::addLoad()  -- load type unknown for element "
               "with tag: "
-           << this->getTag() << endln;
+           << this->getTag() << "\n";
     return -1;
   }
 
@@ -581,7 +570,7 @@ int ModElasticBeam3d::addInertiaLoadToUnbalance(const Vector &accel) {
 
   if (6 != Raccel1.Size() || 6 != Raccel2.Size()) {
     opserr << "ModElasticBeam3d::addInertiaLoadToUnbalance matrix and vector "
-              "sizes are incompatible" << endln;
+              "sizes are incompatible" << "\n";
     return -1;
   }
 
@@ -735,14 +724,14 @@ int ModElasticBeam3d::sendSelf(int cTag, Channel &theChannel) {
   // Send the data vector
   res += theChannel.sendVector(this->getDbTag(), cTag, data);
   if (res < 0) {
-    opserr << "ModElasticBeam3d::sendSelf -- could not send data Vector" << endln;
+    opserr << "ModElasticBeam3d::sendSelf -- could not send data Vector" << "\n";
     return res;
   }
 
   // Ask the CoordTransf to send itself
   res += theCoordTransf->sendSelf(cTag, theChannel);
   if (res < 0) {
-    opserr << "ModElasticBeam3d::sendSelf -- could not send CoordTransf" << endln;
+    opserr << "ModElasticBeam3d::sendSelf -- could not send CoordTransf" << "\n";
     return res;
   }
 
@@ -756,7 +745,7 @@ int ModElasticBeam3d::recvSelf(int cTag, Channel &theChannel,
 
   res += theChannel.recvVector(this->getDbTag(), cTag, data);
   if (res < 0) {
-    opserr << "ModElasticBeam3d::recvSelf -- could not receive data Vector" << endln;
+    opserr << "ModElasticBeam3d::recvSelf -- could not receive data Vector" << "\n";
     return res;
   }
 
@@ -787,7 +776,7 @@ int ModElasticBeam3d::recvSelf(int cTag, Channel &theChannel,
 
   res += theCoordTransf->recvSelf(cTag, theChannel, theBroker);
   if (res < 0) {
-    opserr << "ModElasticBeam3d::recvSelf -- could not receive CoordTransf" << endln;
+    opserr << "ModElasticBeam3d::recvSelf -- could not receive CoordTransf" << "\n";
     return res;
   }
 
@@ -801,7 +790,7 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
     int eleTag = this->getTag();
     s << "EL_BEAM\t" << eleTag << "\t";
     s << "\t" << connectedExternalNodes(0) << "\t" << connectedExternalNodes(1);
-    s << "\t0\t0.0000000" << endln;
+    s << "\t0\t0.0000000" << "\n";
   }
 
   else if (flag < -1) {
@@ -824,13 +813,13 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
 
     s << "FORCE\t" << eleTag << "\t" << counter << "\t0";
     s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3]
-      << endln;
+      << "\n";
     s << "FORCE\t" << eleTag << "\t" << counter << "\t1";
-    s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << endln;
+    s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << "\n";
     s << "MOMENT\t" << eleTag << "\t" << counter << "\t0";
-    s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << endln;
+    s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << "\n";
     s << "MOMENT\t" << eleTag << "\t" << counter << "\t1";
-    s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << endln;
+    s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << "\n";
   }
 
   else if (flag == 2) {
@@ -842,10 +831,10 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
 
     theCoordTransf->getLocalAxes(xAxis, yAxis, zAxis);
 
-    s << "#ElasticBeamColumn3D" << endln;
+    s << "#ElasticBeamColumn3D" << "\n";
     s << "#LocalAxis " << xAxis(0) << " " << xAxis(1) << " " << xAxis(2);
     s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
-    s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << endln;
+    s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
 
     const Vector &node1Crd = theNodes[0]->getCrds();
     const Vector &node2Crd = theNodes[1]->getCrds();
@@ -855,12 +844,12 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
     s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2)
       << " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
       << " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5)
-      << endln;
+      << "\n";
 
     s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2)
       << " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
       << " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5)
-      << endln;
+      << "\n";
 
     double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
     double L = theCoordTransf->getInitialLength();
@@ -876,19 +865,19 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
     T = q(5);
 
     s << "#END_FORCES " << -N + p0[0] << ' ' << Vy + p0[1] << ' ' << Vz + p0[3]
-      << ' ' << -T << ' ' << My1 << ' ' << Mz1 << endln;
+      << ' ' << -T << ' ' << My1 << ' ' << Mz1 << "\n";
     s << "#END_FORCES " << N << ' ' << -Vy + p0[2] << ' ' << -Vz + p0[4] << ' '
-      << T << ' ' << My2 << ' ' << Mz2 << endln;
+      << T << ' ' << My2 << ' ' << Mz2 << "\n";
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
 
     this->getResistingForce(); // in case linear algo
 
-    s << "\nModElasticBeam3d: " << this->getTag() << endln;
+    s << "\nModElasticBeam3d: " << this->getTag() << "\n";
     s << "\tConnected Nodes: " << connectedExternalNodes;
-    s << "\tCoordTransf: " << theCoordTransf->getTag() << endln;
-    s << "\tmass density:  " << rho << ", cMass: " << cMass << endln;
+    s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
+    s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
     double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
     double L = theCoordTransf->getInitialLength();
     double oneOverL = 1.0 / L;
@@ -903,9 +892,9 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
     T = q(5);
 
     s << "\tEnd 1 Forces (P Mz Vy My Vz T): " << -N + p0[0] << ' ' << Mz1 << ' '
-      << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << endln;
+      << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << "\n";
     s << "\tEnd 2 Forces (P Mz Vy My Vz T): " << N << ' ' << Mz2 << ' '
-      << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << endln;
+      << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << "\n";
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
@@ -913,7 +902,7 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
     s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"ModElasticBeam3d\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", "
-      << connectedExternalNodes(1) << "], ";
+                        << connectedExternalNodes(1) << "], ";
     s << "\"E\": " << E << ", ";
     s << "\"G\": " << G << ", ";
     s << "\"A\": " << A << ", ";
@@ -931,50 +920,6 @@ void ModElasticBeam3d::Print(OPS_Stream &s, int flag) {
   }
 }
 
-int ModElasticBeam3d::displaySelf(Renderer &theViewer, int displayMode,
-                                  float fact, const char **modes, int numMode) {
-  static Vector v1(3);
-  static Vector v2(3);
-
-  theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-  theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-  float d1 = 0.0;
-  float d2 = 0.0;
-  int res = 0;
-
-  if (displayMode > 0 && numMode == 0)
-    res += theViewer.drawLine(v1, v2, d1, d1, this->getTag(), 0);
-  else if (displayMode < 0)
-    return theViewer.drawLine(v1, v2, 0.0, 0.0, this->getTag(), 0);
-
-  if (numMode > 0) {
-    // calculate q for potential need below
-    this->getResistingForce();
-  }
-
-  for (int i = 0; i < numMode; i++) {
-
-    const char *theMode = modes[i];
-    if (strcmp(theMode, "axialForce") == 0) {
-      d1 = q(0);
-      d2 = q(0);
-      ;
-
-      res += theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-
-    } else if (strcmp(theMode, "endMoments") == 0) {
-      d1 = q(1);
-      d2 = q(2);
-      static Vector delta(3);
-      delta = v2 - v1;
-      delta /= 10;
-      res += theViewer.drawPoint(v1 + delta, d1, this->getTag(), i);
-      res += theViewer.drawPoint(v2 - delta, d2, this->getTag(), i);
-    }
-  }
-
-  return res;
-}
 
 Response *ModElasticBeam3d::setResponse(const char **argv, int argc,
                                         OPS_Stream &output) {

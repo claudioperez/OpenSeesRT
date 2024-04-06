@@ -10,6 +10,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <OPS_Globals.h>
 #include "NullEvolution.h"
 #define NULL_EVOL_CLASS_TAG -1
 

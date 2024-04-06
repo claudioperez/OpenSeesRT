@@ -165,11 +165,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
     Matrix GPYSC(coefData,nrow,3);
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(transfTag);
-    if(theTransf == 0) {
-	opserr<<"coord transformation not found\n";
-	return 0;
-    }
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+    if(theTransf == nullptr)
+	return nullptr;
     
     return new BeamColumnwLHNMYS(iData[0],iData[1],iData[2],data[0],data[1],data[2],data[3],data[4], data[5],data[6],*theTransf,yftol,Wtol,MaxIter,Hir,Hkr,nrow,GPYSC,mass,cMass);
     
@@ -341,13 +339,13 @@ BeamColumnwLHNMYS::commitState()
 int
 BeamColumnwLHNMYS::revertToLastCommit()
 {
-    return theCoordTransf->revertToLastCommit();
+  return theCoordTransf->revertToLastCommit();
 }
 
 int
 BeamColumnwLHNMYS::revertToStart()
 {
-    return theCoordTransf->revertToStart();
+  return theCoordTransf->revertToStart();
 }
 
 int
@@ -650,7 +648,8 @@ BeamColumnwLHNMYS::update(void)
             Ra = alphapast - alpha + Dbeta;
             Rb = qbpast - qb + (Hk*g*Dbeta);
             DW = fabs((DDq^Rv) + (DDbeta^yftr) + (Dalpha^Ra) + (Dqb^Rb));
-            if (iter==1) DW0 = std::max(DW,1e-6);
+            if (iter==1) 
+              DW0 = std::max(DW,1e-6);
             DWr = DW/DW0;
         }
         // Update plastic deformation

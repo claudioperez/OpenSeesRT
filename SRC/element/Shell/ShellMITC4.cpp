@@ -572,6 +572,7 @@ const Matrix &ShellMITC4::getInitialStiff()
 
     // get shape functions
     shape2d(pts[i][0], pts[i][1], xl, shp, xsj);
+
     // volume element to also be saved
     dvol[i] = wts[i] * xsj;
     volume += dvol[i];
@@ -606,11 +607,10 @@ const Matrix &ShellMITC4::getInitialStiff()
       computeBdrill(j, shp, BdrillJ);
     }
 
-    dd = materialPointers[i]->getInitialTangent();
+    dd  = materialPointers[i]->getInitialTangent();
     dd *= dvol[i];
 
     // residual and tangent calculations node loops
-
     jj = 0;
     for (int j = 0; j < numnodes; j++) {
 
@@ -804,9 +804,6 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
   OPS_STATIC double shp[nShape][numberNodes]; // shape functions at a gauss point
 
   static Vector momentum(ndf);
-
-  int i, j, k, p;
-  int jj, kk;
 
   double temp, rhoH, massJK;
 
@@ -1282,41 +1279,30 @@ void ShellMITC4::updateBasis()
   
   // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
-
-  Vector id0(6), id1(6), id2(6), id3(6);
-  for (int dof = 0; dof < 6; ++dof) {
-    id0(dof) = init_disp[0][dof];
-    id1(dof) = init_disp[1][dof];
-    id2(dof) = init_disp[2][dof];
-    id3(dof) = init_disp[3][dof];
+  Vector3D coor[4];
+  for (int i=0; i<4; i++) {
+    coor[i] = nodePointers[i]->getCrds();
+    const Vector& displ = nodePointers[i]->getTrialDisp();
+    for (int j=0; j<3; j++)
+      coor[i][j] += displ[j] - init_disp[i][j];
   }
-  const Vector &coor0 =
-      nodePointers[0]->getCrds() + nodePointers[0]->getTrialDisp() - id0;
-  const Vector &coor1 =
-      nodePointers[1]->getCrds() + nodePointers[1]->getTrialDisp() - id1;
-  const Vector &coor2 =
-      nodePointers[2]->getCrds() + nodePointers[2]->getTrialDisp() - id2;
-  const Vector &coor3 =
-      nodePointers[3]->getCrds() + nodePointers[3]->getTrialDisp() - id3;
 
-  // double v[4][3];
-  Vector3D v1; // (&v[0], 3);
-  Vector3D v2; // (&v[1], 3);
-  Vector3D temp; // (&v[3], 3);
-
+  Vector3D v1;
+  Vector3D v2;
+  Vector3D temp;
 
   // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
-  v1 = coor2;
-  v1 += coor1;
-  v1 -= coor3;
-  v1 -= coor0;
+  v1  = coor[2];
+  v1 += coor[1];
+  v1 -= coor[3];
+  v1 -= coor[0];
   v1 *= 0.50;
 
   // v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
-  v2 = coor3;
-  v2 += coor2;
-  v2 -= coor1;
-  v2 -= coor0;
+  v2  = coor[3];
+  v2 += coor[2];
+  v2 -= coor[1];
+  v2 -= coor[0];
   v2 *= 0.50;
 
   // normalize v1
@@ -1354,7 +1340,6 @@ void ShellMITC4::updateBasis()
     g3[i] = v3(i);
   }
 }
-// end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
 //*************************************************************************
 // compute Bdrill
@@ -1767,44 +1752,4 @@ int ShellMITC4::recvSelf(int commitTag, Channel &theChannel,
 
   return res;
 }
-//**************************************************************************
 
-int ShellMITC4::displaySelf(Renderer &theViewer, int displayMode, float fact,
-                            const char **modes, int numMode)
-{
-  // get the end point display coords
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-  static Vector v4(3);
-  nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-  nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-  nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-  nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-
-  // place values in coords matrix
-  static Matrix coords(4, 3);
-  for (int i = 0; i < 3; i++) {
-    coords(0, i) = v1(i);
-    coords(1, i) = v2(i);
-    coords(2, i) = v3(i);
-    coords(3, i) = v4(i);
-  }
-
-  // Display mode is positive:
-  // display mode = 0 -> plot no contour
-  // display mode = 1-8 -> plot 1-8 stress resultant
-  static Vector values(4);
-  if (displayMode < 8 && displayMode > 0) {
-    for (int i = 0; i < 4; i++) {
-      const Vector &stress = materialPointers[i]->getStressResultant();
-      values(i)            = stress(displayMode - 1);
-    }
-  } else {
-    for (int i = 0; i < 4; i++)
-      values(i) = 0.0;
-  }
-
-  // draw the polygon
-  return theViewer.drawPolygon(coords, values, this->getTag());
-}

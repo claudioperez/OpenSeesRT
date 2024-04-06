@@ -26,10 +26,10 @@ Matrix ElasticOrthotropicThreeDimensional::D(6,6);
 
 ElasticOrthotropicThreeDimensional::ElasticOrthotropicThreeDimensional
 (int tag, double Ex, double Ey, double Ez,
-double vxy, double vyz, double vzx,
-double Gxy, double Gyz, double Gzx, double rho) :
- ElasticOrthotropicMaterial (tag, 
-ND_TAG_ElasticOrthotropicThreeDimensional, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, Gzx, rho),
+ double vxy, double vyz, double vzx,
+ double Gxy, double Gyz, double Gzx, double rho) :
+ ElasticOrthotropicMaterial(tag, 
+ ND_TAG_ElasticOrthotropicThreeDimensional, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, Gzx, rho),
  epsilon(6), Cepsilon(6)
 {
   epsilon.Zero();
@@ -38,7 +38,7 @@ ND_TAG_ElasticOrthotropicThreeDimensional, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, 
 
 ElasticOrthotropicThreeDimensional::ElasticOrthotropicThreeDimensional():
  ElasticOrthotropicMaterial (0, ND_TAG_ElasticOrthotropicThreeDimensional, 
-0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0),
+  0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0),
  epsilon(6), Cepsilon(6)
 {
   epsilon.Zero();
@@ -228,7 +228,7 @@ ElasticOrthotropicThreeDimensional::sendSelf(int commitTag, Channel &theChannel)
   
   int res = theChannel.sendVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ElasticOrthotropicThreeDimensional::sendSelf -- could not send Vector\n";
+    // opserr << "ElasticOrthotropicThreeDimensional::sendSelf -- could not send Vector\n";
     return res;
   }
   
@@ -243,7 +243,7 @@ ElasticOrthotropicThreeDimensional::recvSelf(int commitTag, Channel &theChannel,
   
   int res = theChannel.recvVector(this->getDbTag(), commitTag, data);
   if (res < 0) {
-    opserr << "ElasticOrthotropicThreeDimensional::sendSelf -- could not send Vector\n";
+    // opserr << "ElasticOrthotropicThreeDimensional::sendSelf -- could not send Vector\n";
     return res;
   }
 

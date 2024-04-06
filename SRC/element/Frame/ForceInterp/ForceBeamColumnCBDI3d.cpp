@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $Source$
-
+//
 /*
  * References
  *
@@ -70,7 +66,6 @@ Journal of Structural Engineering, Approved for publication, February 2007.
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Renderer.h>
 #include <math.h>
 
 #include <ElementResponse.h>
@@ -140,16 +135,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCBDI3d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
-	opserr<<"beam integration not found\n";
 	return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
@@ -199,7 +192,8 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI3d)
     }
 
     // options
-    double mass = 0.0, tol=1e-12;
+    double mass = 0.0;
+    double tol  = 1e-12;
     int maxIter = 10;
     numData = 1;
     bool includeShear = false;
@@ -227,16 +221,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ForceBeamColumnCSBDI3d)
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
 	return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
-	opserr<<"beam integration not found\n";
 	return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
@@ -2165,52 +2157,30 @@ ForceBeamColumnCBDI3d::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBr
 
     // Allocate the right number
     vscommit = new Vector[numSections];
-    if (vscommit == 0) {
-      opserr << "ForceBeamColumnCBDI3d::recvSelf -- failed to allocate vscommit array\n";
-			      
-      return -1;
-    }
 
     // Delete the old
     if (fs != 0)
       delete [] fs;
 
     // Allocate the right number
-    fs = new Matrix[numSections];  
-    if (fs == 0) {
-      opserr << "ForceBeamColumnCBDI3d::recvSelf -- failed to allocate fs array\n";
-      return -1;
-    }
+    fs = new Matrix[numSections];
 
     // Delete the old
     if (vs != 0)
       delete [] vs;
 
     // Allocate the right number
-    vs = new Vector[numSections];  
-    if (vs == 0) {
-      opserr << "ForceBeamColumnCBDI3d::recvSelf -- failed to allocate vs array\n";
-      return -1;
-    }
+    vs = new Vector[numSections];
 
     // Delete the old
     if (Ssr != 0)
       delete [] Ssr;
     
     // Allocate the right number
-    Ssr = new Vector[numSections];  
-    if (Ssr == 0) {
-      opserr << "ForceBeamColumnCBDI3d::recvSelf -- failed to allocate Ssr array\n";
-      return -1;
-    }
+    Ssr = new Vector[numSections];
 
     // create a new array to hold pointers
     sections = new SectionForceDeformation *[idData(3)];
-    if (sections == 0) {
-      opserr << "ForceBeamColumnCBDI3d::recvSelf() - " << 
-	"out of memory creating sections array of size" << idData(3) << endln;
-      exit(-1);
-    }    
 
     loc = 0;
     
@@ -3121,7 +3091,7 @@ void ForceBeamColumnCBDI3d::compSectionDisplacements(Vector sectionCoords[], Vec
    Vector kappa(numSections);  // curvature
    static Vector vs;              // section deformations 
 
-   for (i=0; i<numSections; i++)
+   for (int i=0; i<numSections; i++)
    {
        // THIS IS VERY INEFFICIENT ... CAN CHANGE LATER
        int sectionKey = 0;
@@ -3136,7 +3106,6 @@ void ForceBeamColumnCBDI3d::compSectionDisplacements(Vector sectionCoords[], Vec
 
        if (ii == code.Size()) {
 	 opserr << "FATAL NLBeamColumnCBDI3d::compSectionDispls - section does not provide Mz response\n";
-	 exit(-1);
        }
 			
        // get section deformations
@@ -3219,33 +3188,24 @@ ForceBeamColumnCBDI3d::Print(OPS_Stream &s, int flag)
     if (maxNumSections < numSections) {
       if (coords != 0) 
 	delete [] coords;
+
       if (displs != 0)
 	delete [] displs;
       
       coords = new Vector [numSections];
       displs = new Vector [numSections];
-      
-      if (!coords) {
-	opserr << "NLBeamColumn3d::Print() -- failed to allocate coords array";   
-	exit(-1);
-      }
-      
+
       int i;
-      for (i = 0; i < numSections; i++)
+      for (int i = 0; i < numSections; i++)
 	coords[i] = Vector(NDM);
       
-      if (!displs) {
-	opserr << "NLBeamColumn3d::Print() -- failed to allocate coords array";   
-	exit(-1);
-      }
       
       for (i = 0; i < numSections; i++)
 	displs[i] = Vector(NDM);
-      
-      
+
       maxNumSections = numSections;
     }
-    
+
     // compute section location & displacements
     this->compSectionDisplacements(coords, displs);
     
@@ -3270,8 +3230,9 @@ ForceBeamColumnCBDI3d::Print(OPS_Stream &s, int flag)
     double M2 = Secommit(2);
     double L = crdTransf->getInitialLength();
     double V = (M1+M2)/L;
-    theVector(1) = V;
+    theVector(1) =  V;
     theVector(4) = -V;
+
     double p0[6];
     p0[0] = 0.0; p0[1] = 0.0; p0[2] = 0.0;
     p0[3] = 0.0; p0[4] = 0.0; p0[5] = 0.0;    
@@ -3324,10 +3285,7 @@ ForceBeamColumnCBDI3d::setSectionPointers(int numSec, SectionForceDeformation **
   }	  
   
   sections = new SectionForceDeformation *[numSections];
-  if (sections == 0) {
-    opserr << "Error: ForceBeamColumnCBDI3d::setSectionPointers -- could not allocate section pointers";
-  }  
-  
+
   for (int i = 0; i < numSections; i++) {
     
     if (secPtrs[i] == 0) {
@@ -3342,39 +3300,12 @@ ForceBeamColumnCBDI3d::setSectionPointers(int numSec, SectionForceDeformation **
   }
   
   // allocate section flexibility matrices and section deformation vectors
-  fs  = new Matrix [numSections];
-  if (fs == 0) {
-    opserr << "ForceBeamColumnCBDI3d::setSectionPointers -- failed to allocate fs array";
-  }
-  
-  vs = new Vector [numSections];
-  if (vs == 0) {
-    opserr << "ForceBeamColumnCBDI3d::setSectionPointers -- failed to allocate vs array";
-  }
-  
-  Ssr  = new Vector [numSections];
-  if (Ssr == 0) {
-    opserr << "ForceBeamColumnCBDI3d::setSectionPointers -- failed to allocate Ssr array";
-  }
-  
-  vscommit = new Vector [numSections];
-  if (vscommit == 0) {
-    opserr << "ForceBeamColumnCBDI3d::setSectionPointers -- failed to allocate vscommit array";   
-  }
-  
+  fs   = new Matrix [numSections]; 
+  vs   = new Vector [numSections]; 
+  Ssr  = new Vector [numSections]; 
+  vscommit = new Vector [numSections]; 
 }
 
-int
-ForceBeamColumnCBDI3d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 ForceBeamColumnCBDI3d::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -3489,16 +3420,7 @@ ForceBeamColumnCBDI3d::setResponse(const char **argv, int argc, OPS_Stream &outp
   
   else if (strcmp(argv[0],"cbdiDisplacements") == 0)
     theResponse = new ElementResponse(this, 112, Matrix(20,3));
-  
-  else if (strcmp(argv[0],"xaxis") == 0 || strcmp(argv[0],"xlocal") == 0)
-    theResponse = new ElementResponse(this, 201, Vector(3));
-  
-  else if (strcmp(argv[0],"yaxis") == 0 || strcmp(argv[0],"ylocal") == 0)
-    theResponse = new ElementResponse(this, 202, Vector(3));
-  
-  else if (strcmp(argv[0],"zaxis") == 0 || strcmp(argv[0],"zlocal") == 0)
-    theResponse = new ElementResponse(this, 203, Vector(3));
-  
+
   // section response -
   else if (strstr(argv[0],"sectionX") != 0) {
     if (argc > 2) {
@@ -3513,23 +3435,23 @@ ForceBeamColumnCBDI3d::setResponse(const char **argv, int argc, OPS_Stream &outp
       float minDistance = fabs(xi[0]-sectionLoc);
       int sectionNum = 0;
       for (int i = 1; i < numSections; i++) {
-	if (fabs(xi[i]-sectionLoc) < minDistance) {
-	  minDistance = fabs(xi[i]-sectionLoc);
-	  sectionNum = i;
-	}
-	  }
+        if (fabs(xi[i]-sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i]-sectionLoc);
+          sectionNum = i;
+        }
+      }
 
       output.tag("GaussPointOutput");
       output.attr("number",sectionNum+1);
       output.attr("eta",xi[sectionNum]*L);
       
       if (strcmp(argv[2],"dsdh") != 0) {
-	theResponse = sections[sectionNum]->setResponse(&argv[2], argc-2, output);
+        theResponse = sections[sectionNum]->setResponse(&argv[2], argc-2, output);
       } else {
-	int order = sections[sectionNum]->getOrder();
-	theResponse = new ElementResponse(this, 76, Vector(order));
-	Information &info = theResponse->getInformation();
-	info.theInt = sectionNum;
+        int order = sections[sectionNum]->getOrder();
+        theResponse = new ElementResponse(this, 76, Vector(order));
+        Information &info = theResponse->getInformation();
+        info.theInt = sectionNum;
       }
     }
   }
@@ -3595,6 +3517,9 @@ ForceBeamColumnCBDI3d::setResponse(const char **argv, int argc, OPS_Stream &outp
     }
   }
   
+  if (theResponse == nullptr)
+    theResponse = crdTransf->setResponse(argv, argc, output);
+
   output.endTag(); // ElementOutput
 
   return theResponse;
@@ -3851,21 +3776,6 @@ ForceBeamColumnCBDI3d::getResponse(int responseID, Information &eleInfo)
       disps(i,2) = uxg(2);            
     }
     return eleInfo.setMatrix(disps);
-  }
-
-  else if (responseID >= 201 && responseID <= 203) {
-    static Vector xlocal(3);
-    static Vector ylocal(3);
-    static Vector zlocal(3);
-
-    crdTransf->getLocalAxes(xlocal,ylocal,zlocal);
-    
-    if (responseID == 201)
-      return eleInfo.setVector(xlocal);
-    if (responseID == 202)
-      return eleInfo.setVector(ylocal);
-    if (responseID == 203)
-      return eleInfo.setVector(zlocal);    
   }
     
   return -1;

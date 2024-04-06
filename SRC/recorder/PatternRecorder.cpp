@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2004-11-24 22:45:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/recorder/PatternRecorder.cpp,v $
-
+//
 // Written: MHS 
 // Created: 2002
 //
@@ -31,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <OPS_ErrorStream.h>
 #include <PatternRecorder.h>
 #include <Domain.h>
 #include <LoadPattern.h>
@@ -58,10 +55,7 @@ PatternRecorder::PatternRecorder(int pattern,
   // create char array to store file name
   int fileNameLength = strlen(theFileName) + 1;
   fileName = new char[fileNameLength];
-  if (fileName == 0) {
-    opserr << "PatternRecorder::PatternRecorder - out of memory creating string" << endln;
-  }
-  
+
   // copy the strings
   strcpy(fileName, theFileName);    
   
@@ -90,7 +84,7 @@ PatternRecorder::record(int commitTag, double timeStamp)
   
   // where relDeltaTTol is the maximum reliable ratio between analysis time step and deltaT
   // and provides tolerance for floating point precision (see floating-point-tolerance-for-recorder-time-step.md)
-    if (deltaT == 0.0 || timeStamp - nextTimeStampToRecord >= -deltaT * relDeltaTTol) {
+  if (deltaT == 0.0 || timeStamp - nextTimeStampToRecord >= -deltaT * relDeltaTTol) {
 
     if (deltaT != 0.0)
       nextTimeStampToRecord = timeStamp + deltaT;

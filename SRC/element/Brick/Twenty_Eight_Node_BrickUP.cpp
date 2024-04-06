@@ -22,7 +22,6 @@
 //
 // 20-8 Noded TwentyEightNodeBrickUP element
 //
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -37,7 +36,6 @@
 #include <Twenty_Eight_Node_BrickUP.h>
 #include <shp3d.h>
 #include <shp3dv.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 #include <Information.h>
@@ -107,10 +105,6 @@ Vector  TwentyEightNodeBrickUP::resid(68) ;
 Matrix  TwentyEightNodeBrickUP::mass(68,68) ;
 Matrix  TwentyEightNodeBrickUP::damp(68,68) ;
 
-const int TwentyEightNodeBrickUP::nintu=27;
-const int TwentyEightNodeBrickUP::nintp=8;
-const int TwentyEightNodeBrickUP::nenu=20;
-const int TwentyEightNodeBrickUP::nenp=8;
 double TwentyEightNodeBrickUP::shgu[4][20][27];
 double TwentyEightNodeBrickUP::shgp[4][8][8];
 double TwentyEightNodeBrickUP::shgq[4][20][8];
@@ -123,7 +117,7 @@ double TwentyEightNodeBrickUP::dvolu[27];
 double TwentyEightNodeBrickUP::dvolp[8];
 double TwentyEightNodeBrickUP::dvolq[8];
 
-//null constructor
+// null constructor
 TwentyEightNodeBrickUP::TwentyEightNodeBrickUP( ) :
 Element( 0, ELE_TAG_Twenty_Eight_Node_BrickUP ), materialPointers(0),
 connectedExternalNodes(20), applyLoad(0), load(0), Ki(0), kc(0), rho(0)
@@ -166,16 +160,16 @@ TwentyEightNodeBrickUP::TwentyEightNodeBrickUP(int tag,
                            double b1, double b2, double b3) :Element( tag, ELE_TAG_Twenty_Eight_Node_BrickUP ),
 connectedExternalNodes(20), applyLoad(0), load(0), Ki(0), kc(bulk), rho(rhof)
 {
-    connectedExternalNodes(0) = node1 ;
-    connectedExternalNodes(1) = node2 ;
-    connectedExternalNodes(2) = node3 ;
-    connectedExternalNodes(3) = node4 ;
-    connectedExternalNodes(4) = node5 ;
-    connectedExternalNodes(5) = node6 ;
-    connectedExternalNodes(6) = node7 ;
-    connectedExternalNodes(7) = node8 ;
-    connectedExternalNodes(8) = node9 ;
-    connectedExternalNodes(9) = node10 ;
+    connectedExternalNodes( 0) = node1 ;
+    connectedExternalNodes( 1) = node2 ;
+    connectedExternalNodes( 2) = node3 ;
+    connectedExternalNodes( 3) = node4 ;
+    connectedExternalNodes( 4) = node5 ;
+    connectedExternalNodes( 5) = node6 ;
+    connectedExternalNodes( 6) = node7 ;
+    connectedExternalNodes( 7) = node8 ;
+    connectedExternalNodes( 8) = node9 ;
+    connectedExternalNodes( 9) = node10 ;
     connectedExternalNodes(10) = node11 ;
     connectedExternalNodes(11) = node12 ;
     connectedExternalNodes(12) = node13 ;
@@ -187,21 +181,16 @@ connectedExternalNodes(20), applyLoad(0), load(0), Ki(0), kc(bulk), rho(rhof)
     connectedExternalNodes(18) = node19 ;
     connectedExternalNodes(19) = node20 ;
 
-    int i ;
     // Allocate arrays of pointers to NDMaterials
     materialPointers = new NDMaterial *[nintu];
 
-    if (materialPointers == 0) {
-      opserr << "TwentyEightNodeBrickUP::TwentyEightNodeBrickUP - failed allocate material model pointer\n";
-      exit(-1);
-    }
-    for ( i=0; i<nintu; i++ ) {
+    for (int i=0; i<nintu; i++ ) {
 
       materialPointers[i] = theMaterial.getCopy("ThreeDimensional") ;
 
       if (materialPointers[i] == 0) {
-    opserr <<"TwentyEightNodeBrickUP::constructor - failed to get a material of type: ThreeDimensional\n";
-    exit(-1);
+        opserr <<"TwentyEightNodeBrickUP::constructor - failed to get a material of type: ThreeDimensional\n";
+        exit(-1);
       } //end if
 
     } //end for i
@@ -210,11 +199,12 @@ connectedExternalNodes(20), applyLoad(0), load(0), Ki(0), kc(bulk), rho(rhof)
     b[0] = b1;
     b[1] = b2;
     b[2] = b3;
+
     // Permeabilities
     perm[0] = p1;
     perm[1] = p2;
     perm[2] = p3;
-    //printf("b %15.6e %15.6e %15.6e perm %15.6e %15.6e %15.6e\n", b1, b2,b3,p1,p2,p3);
+
     // calculate local shape functions and derivatives
     compuLocalShapeFunction();
 
@@ -1301,131 +1291,6 @@ int  TwentyEightNodeBrickUP::recvSelf (int commitTag,
 }
 //**************************************************************************
 
-int
-TwentyEightNodeBrickUP::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    static Vector v5(3);
-    static Vector v6(3);
-    static Vector v7(3);
-    static Vector v8(3);
-    static Vector v9(3);
-    static Vector v10(3);
-    static Vector v11(3);
-    static Vector v12(3);
-    static Vector v13(3);
-    static Vector v14(3);
-    static Vector v15(3);
-    static Vector v16(3);
-    static Vector v17(3);
-    static Vector v18(3);
-    static Vector v19(3);
-    static Vector v20(3);
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-    nodePointers[4]->getDisplayCrds(v5, fact, displayMode);
-    nodePointers[5]->getDisplayCrds(v6, fact, displayMode);
-    nodePointers[6]->getDisplayCrds(v7, fact, displayMode);
-    nodePointers[7]->getDisplayCrds(v8, fact, displayMode);
-    nodePointers[8]->getDisplayCrds(v9, fact, displayMode);
-    nodePointers[9]->getDisplayCrds(v10, fact, displayMode);
-    nodePointers[10]->getDisplayCrds(v11, fact, displayMode);
-    nodePointers[11]->getDisplayCrds(v12, fact, displayMode);
-    nodePointers[12]->getDisplayCrds(v13, fact, displayMode);
-    nodePointers[13]->getDisplayCrds(v14, fact, displayMode);
-    nodePointers[14]->getDisplayCrds(v15, fact, displayMode);
-    nodePointers[15]->getDisplayCrds(v16, fact, displayMode);
-    nodePointers[16]->getDisplayCrds(v17, fact, displayMode);
-    nodePointers[17]->getDisplayCrds(v18, fact, displayMode);
-    nodePointers[18]->getDisplayCrds(v19, fact, displayMode);
-    nodePointers[19]->getDisplayCrds(v20, fact, displayMode);
-    // color vector
-    static Vector values(8);
-    for (int i = 0; i < 8; i++)
-        values(i) = 1.0;
-    // draw the 6 faces
-    static Matrix coords(8, 3);
-    int res = 0;
-    // Face 1 (1 9 2 18 6 13 5 17)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v9(i);
-        coords(2, i) = v2(i);
-        coords(3, i) = v18(i);
-        coords(4, i) = v6(i);
-        coords(5, i) = v13(i);
-        coords(6, i) = v5(i);
-        coords(7, i) = v17(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    // Face 2 (1 12 4 11 3 10 2 9)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v12(i);
-        coords(2, i) = v4(i);
-        coords(3, i) = v11(i);
-        coords(4, i) = v3(i);
-        coords(5, i) = v10(i);
-        coords(6, i) = v2(i);
-        coords(7, i) = v9(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    // Face 3 (1 12 4 20 8 16 5 17)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v12(i);
-        coords(2, i) = v4(i);
-        coords(3, i) = v20(i);
-        coords(4, i) = v8(i);
-        coords(5, i) = v16(i);
-        coords(6, i) = v5(i);
-        coords(7, i) = v17(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    // Face 4 (7 15 8 16 5 13 6 14)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v7(i);
-        coords(1, i) = v15(i);
-        coords(2, i) = v8(i);
-        coords(3, i) = v16(i);
-        coords(4, i) = v5(i);
-        coords(5, i) = v13(i);
-        coords(6, i) = v6(i);
-        coords(7, i) = v14(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    // Face 5 (7 15 8 20 4 11 3 19)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v7(i);
-        coords(1, i) = v15(i);
-        coords(2, i) = v8(i);
-        coords(3, i) = v20(i);
-        coords(4, i) = v4(i);
-        coords(5, i) = v11(i);
-        coords(6, i) = v3(i);
-        coords(7, i) = v19(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    // Face 6 (7 14 6 18 2 10 3 19)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v7(i);
-        coords(1, i) = v14(i);
-        coords(2, i) = v6(i);
-        coords(3, i) = v18(i);
-        coords(4, i) = v2(i);
-        coords(5, i) = v10(i);
-        coords(6, i) = v3(i);
-        coords(7, i) = v19(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    return res;
-}
 
 int
 TwentyEightNodeBrickUP::setParameter(const char **argv, int argc, Parameter &param)
@@ -1480,24 +1345,25 @@ TwentyEightNodeBrickUP::setResponse(const char **argv, int argc, OPS_Stream &out
   output.attr("eleType","Twenty_Eight_Node_BrickUP");
   output.attr("eleTag",this->getTag());
   for (int i=1; i<=20; i++) {
-    sprintf(outputData,"node%d",i);
+    snprintf(outputData, sizeof(outputData)/sizeof(char),"node%d",i);
     output.attr(outputData, nodePointers[i-1]->getTag());
   }
   if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0) {
 
     for (int i=1; i<=20; i++) {
-      sprintf(outputData,"P1_",i);
-      output.tag("ResponseType",outputData);
-      sprintf(outputData,"P2_",i);
-      output.tag("ResponseType",outputData);
-      sprintf(outputData,"P3_",i);
-      output.tag("ResponseType",outputData);
+      snprintf(outputData, sizeof(outputData)/sizeof(char), "P1_%d",i);
+      output.tag("ResponseType", outputData);
+      snprintf(outputData, sizeof(outputData)/sizeof(char), "P2_%d",i);
+      output.tag("ResponseType", outputData);
+      snprintf(outputData, sizeof(outputData)/sizeof(char), "P3_%d",i);
+      output.tag("ResponseType", outputData);
       if (i <= nenp) {
-    sprintf(outputData,"Pp_",i);
-    output.tag("ResponseType",outputData);
+        snprintf(outputData, sizeof(outputData)/sizeof(char), "Pp_%d",i);
+        output.tag("ResponseType",outputData);
       }
     }
     theResponse = new ElementResponse(this, 1, resid);
+
   } else if (strcmp(argv[0],"stiff") == 0 || strcmp(argv[0],"stiffness") == 0)
     theResponse = new ElementResponse(this, 2, stiff);
 
@@ -1515,6 +1381,7 @@ TwentyEightNodeBrickUP::setResponse(const char **argv, int argc, OPS_Stream &out
       theResponse =  materialPointers[pointNum-1]->setResponse(&argv[2], argc-2, output);
       output.endTag(); // GaussPoint
     }
+
   } else if (strcmp(argv[0],"stresses") ==0) {
     for (int i=0; i<nintu; i++) {
       output.tag("GaussPoint");
@@ -1573,7 +1440,6 @@ TwentyEightNodeBrickUP::getResponse(int responseID, Information &eleInfo)
 
     }
     else
-
         return -1;
 }
 
@@ -1581,33 +1447,33 @@ TwentyEightNodeBrickUP::getResponse(int responseID, Information &eleInfo)
 void
 TwentyEightNodeBrickUP::compuLocalShapeFunction() {
 
-    int i, k, j;
-    static double shl[4][20][27], w[27];
+    static double shl[4][20][27], 
+                    w[27];
+
     // solid phase
     brcshl(shl, w, nintu, nenu);
-    for(k = 0; k < nintu; k++) {
+    for (int k = 0; k < nintu; k++) {
         wu[k] = w[k];
-        for( j = 0; j < nenu; j++)
-            for( i = 0; i < 4; i++)
+        for (int j = 0; j < nenu; j++)
+            for (int i = 0; i < 4; i++)
                 shlu[i][j][k] = shl[i][j][k];
     }
     // fluid phase
     brcshl(shl, w, nintp, nenu);
-    for(k = 0; k < nintp; k++) {
+    for (int k = 0; k < nintp; k++) {
         wp[k] = w[k];
-        for( j = 0; j < nenu; j++)
-            for( i = 0; i < 4; i++)
+        for (int j = 0; j < nenu; j++)
+            for (int i = 0; i < 4; i++)
                 shlq[i][j][k] = shl[i][j][k];
     }
     // coupling term
     brcshl(shl, w, nintp, nenp);
-    for(k = 0; k < nintp; k++) {
+    for (int k = 0; k < nintp; k++) {
         wp[k] = w[k];
-        for( j = 0; j < nenp; j++)
-            for( i = 0; i < 4; i++)
+        for (int j = 0; j < nenp; j++)
+            for (int i = 0; i < 4; i++)
                 shlp[i][j][k] = shl[i][j][k];
     }
-
 }
 
 void
@@ -1633,41 +1499,37 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
     }
     else {
         opserr <<"TwentyEightNodeBrickUP::Jacobian3d - illegal mode: " << mode << "\n";
-        exit(-1);
-    } //end if
+    }
 
-    for( j = 0; j < nen; j++) {
-        for( i = 0; i < 4; i++) {
-            if( mode == 0 )
+    for (int j = 0; j < nen; j++) {
+        for (int i = 0; i < 4; i++) {
+            if ( mode == 0 )
                 shp[i][j] = shlu[i][j][gaussPoint];
-            else if( mode == 1 )
+            else if ( mode == 1 )
                 shp[i][j] = shlp[i][j][gaussPoint];
-            else if( mode == 2 )
+            else if ( mode == 2 )
                 shp[i][j] = shlq[i][j][gaussPoint];
             else {
                 opserr <<"TwentyEightNodeBrickUP::Jacobian3d - illegal mode: " << mode << "\n";
-                exit(-1);
-            } //end if
+            } // end if
         }
     }
 
 
 
 
-    //Compute jacobian transformation
-
-    for ( j=0; j<3; j++ ) {
-        for( k = 0; k < 3; k++ ) {
+    // Compute jacobian transformation
+    for (int j=0; j<3; j++ ) {
+        for (int k = 0; k < 3; k++ ) {
             xs[j][k] = 0;
-            for( i = 0; i < nen; i++ ) {
+            for (int i = 0; i < nen; i++ ) {
                 xs[j][k] += xl[j][i] * shp[k][i];
             }
         }
     }
 
 
-    //Compute adjoint to jacobian
-
+    // Compute adjoint to jacobian
     ad[0][0] = xs[1][1]*xs[2][2] - xs[1][2]*xs[2][1] ;
     ad[0][1] = xs[2][1]*xs[0][2] - xs[2][2]*xs[0][1] ;
     ad[0][2] = xs[0][1]*xs[1][2] - xs[0][2]*xs[1][1] ;
@@ -1680,33 +1542,31 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
     ad[2][1] = xs[2][0]*xs[0][1] - xs[2][1]*xs[0][0] ;
     ad[2][2] = xs[0][0]*xs[1][1] - xs[0][1]*xs[1][0] ;
 
-    //Compute determinant of jacobian
+    // Compute determinant of jacobian
 
     xsj  = xs[0][0]*ad[0][0] + xs[0][1]*ad[1][0] + xs[0][2]*ad[2][0] ;
     if (xsj<=0) {
         opserr <<"TwentyEightNodeBrickUP::Jacobian3d - Non-positive Jacobian: " << xsj << "\n";
-        for( i = 0; i < nen; i++ ) {
+        for ( i = 0; i < nen; i++ ) {
             printf("%5d %15.6e %15.6e %15.6e %15.6e\n", i,
                 shp[0][i], shp[1][i], shp[2][i], shp[3][i]);
         }
-
-        exit(-1);
     }
 
     rxsj = 1.0/xsj ;
 
     // Compute jacobian inverse
 
-    for ( j=0; j<3; j++ ) {
-        for ( i=0; i<3; i++ )
+    for (int j=0; j<3; j++ ) {
+        for (int i=0; i<3; i++ )
             xs[i][j] = ad[i][j]*rxsj ;
 
-    } //end for j
+    }
 
 
     // Compute derivatives with repect to global coords.
 
-    for ( k=0; k<nen; k++) {
+    for (int k=0; k<nen; k++) {
 
         c1 = shp[0][k]*xs[0][0] + shp[1][k]*xs[1][0] + shp[2][k]*xs[2][0] ;
         c2 = shp[0][k]*xs[0][1] + shp[1][k]*xs[1][1] + shp[2][k]*xs[2][1] ;
@@ -1718,9 +1578,9 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
 
     } //end for k
 
-    for( j = 0; j < nen; j++) {
-        for( i = 0; i < 4; i++) {
-            if( mode == 0 )
+    for (int j = 0; j < nen; j++) {
+        for (int i = 0; i < 4; i++) {
+            if ( mode == 0 )
                 shgu[i][j][gaussPoint] = shp[i][j];
             else if( mode == 1 )
                 shgp[i][j][gaussPoint] = shp[i][j];
@@ -1728,13 +1588,8 @@ TwentyEightNodeBrickUP::Jacobian3d(int gaussPoint, double& xsj, int mode)
                 shgq[i][j][gaussPoint] = shp[i][j];
             else {
                 opserr <<"TwentyEightNodeBrickUP::Jacobian3d - illegal mode: " << mode << "\n";
-                exit(-1);
-            } //end if
+            }
         }
     }
-
-
 }
-
-
 

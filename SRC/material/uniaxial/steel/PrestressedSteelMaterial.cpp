@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2007-10-26 04:32:06 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/PrestressedSteelMaterial.cpp,v $
-
+//
 // Written: MHS
 // Created: Aug 2001
 //
@@ -31,6 +27,7 @@
 #include <PrestressedSteelMaterial.h>
 #include <Vector.h>
 #include <Channel.h>
+#include <OPS_Stream.h>
 #include <math.h>
 #include <float.h>
 

@@ -39,7 +39,6 @@
 #include <ErrorHandler.h>
 #include <FourNodeTetrahedron.h>
 // #include <shp3d.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <Parameter.h>
 #include <ElementalLoad.h>
@@ -487,21 +486,15 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
   static const int ndm = 3 ;
   static const int ndf = NumDOFsPerNode ; 
   static const int nstress = NumStressComponents ;
-  static const int numberNodes = NumNodes ;
-  static const int numberGauss = NumGaussPoints ;
   static const int nShape = 4 ;
-
-  int i, j, k, p, q ;
-  int jj, kk ;
-
   
   static double volume ;
   static double xsj ;  // determinant jacaobian matrix 
-  static double dvol[numberGauss] ; //volume element
+  static double dvol[NumGaussPoints] ; //volume element
   static double gaussPoint[ndm] ;
   static Vector strain(nstress) ;  //strain
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
-  static double Shape[nShape][numberNodes][numberGauss] ; //all the shape functions
+  static double shp[nShape][NumNodes] ;  //shape functions at a gauss point
+  static double Shape[nShape][NumNodes][NumGaussPoints] ; //all the shape functions
   static Matrix stiffJK(ndf,ndf) ; //nodeJK stiffness 
   static Matrix dd(nstress,nstress) ;  //material tangent
 
@@ -530,14 +523,9 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
   int count = 0 ;
   volume = 0.0 ;
 
-  // for ( i = 0; i < NumGaussPointsm; i++ ) 
-  {
-    // for ( j = 0; j < NumGaussPointsm; j++ ) 
-    {
-      // for ( k = 0; k < NumGaussPointsm; k++ ) 
-      {
-
-        i = j = k = 0; // Just one Gauss point in a tet
+  for (int i = 0; i < NumGaussPoints; i++ ) {
+    for (int j = 0; j < NumGaussPoints; j++ ) {
+      for (int k = 0; k < NumGaussPoints; k++ ) {
 
         gaussPoint[0] = sg[i] ;        
         gaussPoint[1] = sg[j] ;        
@@ -547,8 +535,8 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
         shp3d( gaussPoint, xsj, shp, xl ) ;
 
         //save shape functions
-        for ( p = 0; p < nShape; p++ ) {
-          for ( q = 0; q < numberNodes; q++ ) {
+        for (int p = 0; p < nShape; p++ ) {
+          for (int q = 0; q < NumNodes; q++ ) {
             Shape[p][q][count] = shp[p][q] ;
           }
          }
@@ -565,14 +553,11 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
   
 
   //gauss loop 
-  for ( i = 0; i < numberGauss; i++ ) 
-  {
+  for (int i = 0; i < NumGaussPoints; i++ ) {
 
     //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) 
-    {
-       for ( q = 0; q < numberNodes; q++ )
-       {
+    for (int p = 0; p < nShape; p++ ) {
+       for (int q = 0; q < NumNodes; q++ ) {
          shp[p][q]  = Shape[p][q][i] ;
        }
     } // end for p
@@ -581,18 +566,15 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
     dd = materialPointers[i]->getInitialTangent( ) ;
     dd *= dvol[i] ;
     
-    jj = 0;
-    for ( j = 0; j < numberNodes; j++ ) 
-    {
+    int jj = 0;
+    for (int j = 0; j < NumNodes; j++ ) {
 
       BJ = computeB( j, shp ) ;
    
       //transpose 
       //BJtran = transpose( nstress, ndf, BJ ) ;
-      for (p=0; p<ndf; p++) 
-      {
-        for (q=0; q<nstress; q++) 
-        {
+      for (int p=0; p<ndf; p++) {
+        for (int q=0; q<nstress; q++) {
           BJtran(p,q) = BJ(q,p) ;
         }
       }//end for p
@@ -600,9 +582,8 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
       //BJtranD = BJtran * dd ;
       BJtranD.addMatrixProduct(0.0,  BJtran, dd, 1.0) ;
       
-      kk = 0 ;
-      for ( k = 0; k < numberNodes; k++ ) 
-      {
+      int kk = 0 ;
+      for (int k = 0; k < NumNodes; k++ ) {
   
          BK = computeB( k, shp ) ;
   
@@ -610,10 +591,8 @@ const Matrix&  FourNodeTetrahedron::getInitialStiff( )
         //stiffJK =  BJtranD * BK  ;
         stiffJK.addMatrixProduct(0.0,  BJtranD, BK, 1.0) ;
         
-        for ( p = 0; p < ndf; p++ )  
-        {
-          for ( q = 0; q < ndf; q++ )
-          {
+        for (int p = 0; p < ndf; p++ ) {
+          for (int q = 0; q < ndf; q++ ) {
             stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
           }
         } //end for p
@@ -698,7 +677,7 @@ FourNodeTetrahedron::addLoad(ElementalLoad *theLoad, double loadFactor)
 int
 FourNodeTetrahedron::addInertiaLoadToUnbalance(const Vector &accel)
 {
-  static const int numberNodes = 4 ;
+  static const int NumNodes = 4 ;
   static const int numberGauss = 1 ;
   static const int ndf = 3 ; 
 
@@ -720,7 +699,7 @@ FourNodeTetrahedron::addInertiaLoadToUnbalance(const Vector &accel)
 
   // store computed RV for nodes in resid vector
   int count = 0;
-  for (i=0; i<numberNodes; i++) 
+  for (i=0; i<NumNodes; i++) 
   {
     const Vector &Raccel = nodePointers[i]->getRV(accel);
     for (int j=0; j<ndf; j++)
@@ -729,7 +708,7 @@ FourNodeTetrahedron::addInertiaLoadToUnbalance(const Vector &accel)
 
   // create the load vector if one does not exist
   if (load == 0) 
-    load = new Vector(numberNodes*ndf);
+    load = new Vector(NumNodes*ndf);
 
   // add -M * RV(accel) to the load vector
   load->addMatrixVector(1.0, mass, resid, -1.0);
@@ -784,26 +763,18 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
 {
 
   static const int ndm = 3 ;
-
   static const int ndf = NumDOFsPerNode ; 
-
-  static const int numberNodes = NumNodes ;
-
   static const int numberGauss = NumGaussPoints ;
-
   static const int nShape = 4 ;
-
   static const int massIndex = nShape - 1 ;
 
-  double xsj ;  // determinant jacaobian matrix 
-
   double dvol[numberGauss] ; //volume element
-
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
-
-  static double Shape[nShape][numberNodes][numberGauss] ; //all the shape functions
+  static double shp[nShape][NumNodes] ;  //shape functions at a gauss point
+  static double Shape[nShape][NumNodes][numberGauss] ; //all the shape functions
 
   static double gaussPoint[ndm] ;
+
+  double xsj ;  // determinant jacaobian matrix 
 
   static Vector momentum(ndf) ;
 
@@ -816,8 +787,7 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
   //zero mass 
   mass.Zero( ) ;
 
-  if(do_update == 0)
-  {
+  if(do_update == 0) {
     return ;
   }
 
@@ -829,13 +799,9 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
 
   int count = 0 ;
 
-  // for ( i = 0; i < 2; i++ ) 
-  {
-    // for ( j = 0; j < 2; j++ ) 
-    {
-      // for ( k = 0; k < 2; k++ ) 
-      {
-        i = j = k = 0;
+  for (int i = 0; i < NumGaussPoints; i++ )  {
+    for (int j = 0; j < NumGaussPoints; j++ ) {
+      for (int k = 0; k < NumGaussPoints; k++ ) {
 
         gaussPoint[0] = sg[i] ;        
         gaussPoint[1] = sg[j] ;        
@@ -845,10 +811,8 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
         shp3d( gaussPoint, xsj, shp, xl ) ;
 
         //save shape functions
-        for ( p = 0; p < nShape; p++ ) 
-        {
-          for ( q = 0; q < numberNodes; q++ )
-          {
+        for (int p = 0; p < nShape; p++ ) {
+          for (int q = 0; q < NumNodes; q++ ) {
             Shape[p][q][count] = shp[p][q] ;
           }
         } // end for p
@@ -871,7 +835,7 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
     //extract shape functions from saved array
     for ( p = 0; p < nShape; p++ ) 
     {
-        for ( q = 0; q < numberNodes; q++ )
+        for ( q = 0; q < NumNodes; q++ )
         {
           shp[p][q]  = Shape[p][q][i] ;
         }
@@ -880,7 +844,7 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
 
     //node loop to compute acceleration
     momentum.Zero( ) ;
-    for ( j = 0; j < numberNodes; j++ ) 
+    for ( j = 0; j < NumNodes; j++ ) 
     {
       momentum.addVector( 1.0, nodePointers[j]->getTrialAccel(), shp[massIndex][j] ) ;
     }
@@ -896,7 +860,7 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
 
     //residual and tangent calculations node loops
     jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) 
+    for ( j = 0; j < NumNodes; j++ ) 
     {
 
       temp = shp[massIndex][j] * dvol[i] ;
@@ -914,7 +878,7 @@ void   FourNodeTetrahedron::formInertiaTerms( int tangFlag )
 
          //node-node mass
          kk = 0 ;
-         for ( k = 0; k < numberNodes; k++ ) 
+         for ( k = 0; k < NumNodes; k++ ) 
          {
             massJK = temp * shp[massIndex][k] ;
             for ( p = 0; p < ndf; p++ )  
@@ -954,8 +918,6 @@ FourNodeTetrahedron::update(void)
 
   static const int nstress = NumStressComponents ;
  
-  static const int numberNodes = NumNodes ;
-
   static const int numberGauss = NumGaussPoints ;
 
   static const int nShape = 4 ;
@@ -973,9 +935,9 @@ FourNodeTetrahedron::update(void)
 
   static Vector strain(nstress) ;  //strain
 
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
+  static double shp[nShape][NumNodes] ;  //shape functions at a gauss point
 
-  static double Shape[nShape][numberNodes][numberGauss] ; //all the shape functions
+  static double Shape[nShape][NumNodes][numberGauss] ; //all the shape functions
 
   //---------B-matrices------------------------------------
 
@@ -1016,7 +978,7 @@ FourNodeTetrahedron::update(void)
         //save shape functions
         for ( p = 0; p < nShape; p++ ) 
         {
-          for ( q = 0; q < numberNodes; q++ )
+          for ( q = 0; q < NumNodes; q++ )
           {
             Shape[p][q][count] = shp[p][q] ;
           }
@@ -1037,7 +999,7 @@ FourNodeTetrahedron::update(void)
     //extract shape functions from saved array
     for ( p = 0; p < nShape; p++ ) 
     {
-      for ( q = 0; q < numberNodes; q++ )
+      for ( q = 0; q < NumNodes; q++ )
       {
         shp[p][q]  = Shape[p][q][i] ;
       }
@@ -1047,7 +1009,7 @@ FourNodeTetrahedron::update(void)
     strain.Zero( ) ;
 
     // j-node loop to compute strain 
-    for ( j = 0; j < numberNodes; j++ )  {
+    for ( j = 0; j < NumNodes; j++ )  {
 
       /**************** fmk - unwinding for performance
       //compute B matrix 
@@ -1116,68 +1078,47 @@ FourNodeTetrahedron::update(void)
 
 
 //*********************************************************************
-//form residual and tangent
+// form residual and tangent
 void  FourNodeTetrahedron::formResidAndTangent( int tang_flag ) 
 {
 
-  //strains ordered : eps11, eps22, eps33, 2*eps12, 2*eps23, 2*eps31 
+  // strains ordered : eps11, eps22, eps33, 2*eps12, 2*eps23, 2*eps31 
 
   static const int ndm = 3 ;
-
   static const int ndf = NumDOFsPerNode ; 
-
   static const int nstress = NumStressComponents ;
- 
-  static const int numberNodes = NumNodes ;
-
   static const int numberGauss = NumGaussPoints ;
 
   static const int nShape = 4 ;
 
-  int i, j, k, p, q ;
-
-
   static double volume ;
 
   static double xsj ;  // determinant jacaobian matrix 
-
   static double dvol[numberGauss] ; //volume element
-
   static double gaussPoint[ndm] ;
-
-  static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
-
-  static double Shape[nShape][numberNodes][numberGauss] ; //all the shape functions
+  static double shp[nShape][NumNodes] ;  //shape functions at a gauss point
+  static double Shape[nShape][NumNodes][numberGauss] ; //all the shape functions
 
   static Vector residJ(ndf) ; //nodeJ residual 
-
   static Matrix stiffJK(ndf,ndf) ; //nodeJK stiffness 
-
   static Vector stress(nstress) ;  //stress
-
   static Matrix dd(nstress,nstress) ;  //material tangent
-
 
   //---------B-matrices------------------------------------
 
-    static Matrix BJ(nstress,ndf) ;      // B matrix node J
-
-    static Matrix BJtran(ndf,nstress) ;
-
-    static Matrix BK(nstress,ndf) ;      // B matrix node k
-
-    static Matrix BJtranD(ndf,nstress) ;
+  static Matrix BJ(nstress,ndf) ;      // B matrix node J
+  static Matrix BJtran(ndf,nstress) ;
+  static Matrix BK(nstress,ndf) ;      // B matrix node k
+  static Matrix BJtranD(ndf,nstress) ;
 
   //-------------------------------------------------------
 
-  // opserr << "DEBUGME!" << endln;
 
   //zero stiffness and residual 
   stiff.Zero( ) ;
   resid.Zero( ) ;
 
-  if (do_update == 0)
-  {
+  if (do_update == 0) {
     return ;
   }
 
@@ -1185,30 +1126,24 @@ void  FourNodeTetrahedron::formResidAndTangent( int tang_flag )
   computeBasis( ) ;
 
   //gauss loop to compute and save shape functions 
-
-  // opserr << "DEBUGME!" << endln;
-
   int count = 0 ;
   volume = 0.0 ;
 
-  // for ( i = 0; i < 2; i++ ) 
-  {
-    // for ( j = 0; j < 2; j++ ) 
-    {
-      // for ( k = 0; k < 2; k++ ) 
-      {
-        i = j = k = 0;
+  int i, j, k, p, q ;
+  for (int i = 0; i < NumGaussPoints; i++ ) {
+    for (int j = 0; j < NumGaussPoints; j++ ) {
+      for (int k = 0; k < NumGaussPoints; k++ ) {
 
         gaussPoint[0] = sg[i] ;        
         gaussPoint[1] = sg[j] ;        
         gaussPoint[2] = sg[k] ;
 
-        //get shape functions    
+        // get shape functions    
         shp3d( gaussPoint, xsj, shp, xl ) ;
 
-        //save shape functions
-        for ( p = 0; p < nShape; p++ ) {
-          for ( q = 0; q < numberNodes; q++ )
+        // save shape functions
+        for (int p = 0; p < nShape; p++ ) {
+          for (int q = 0; q < NumNodes; q++ )
             Shape[p][q][count] = shp[p][q] ;
         } // end for p
 
@@ -1222,22 +1157,17 @@ void  FourNodeTetrahedron::formResidAndTangent( int tang_flag )
   
 
   //gauss loop 
-  for ( i = 0; i < numberGauss; i++ ) 
-  {
+  for (int i = 0; i < NumGaussPoints; i++ ) {
 
     //extract shape functions from saved array
-    for ( p = 0; p < nShape; p++ ) 
-    {
-      for ( q = 0; q < numberNodes; q++ )
-      {
+    for (int p = 0; p < nShape; p++ ) {
+      for (int q = 0; q < NumNodes; q++ ) {
         shp[p][q]  = Shape[p][q][i] ;
       }
     } // end for p
 
-
     //compute the stress
     stress = materialPointers[i]->getStress( ) ;
-
 
     //multiply by volume element
     stress  *= dvol[i] ;
@@ -1257,8 +1187,7 @@ void  FourNodeTetrahedron::formResidAndTangent( int tang_flag )
     //residual and tangent calculations node loops
 
     int jj = 0 ;
-    for ( j = 0; j < numberNodes; j++ ) 
-    {
+    for (int j = 0; j < NumNodes; j++ ) {
 
       /* ************** fmk - unwinding for performance 
       ************************************************* */
@@ -1298,31 +1227,24 @@ void  FourNodeTetrahedron::formResidAndTangent( int tang_flag )
    
       //transpose 
       //BJtran = transpose( nstress, ndf, BJ ) ;
-      for (p=0; p<ndf; p++) 
-      {
-        for (q=0; q<nstress; q++) 
-        {
+      for (int p=0; p<ndf; p++)  {
+        for (int q=0; q<nstress; q++) {
           BJtran(p,q) = BJ(q,p) ;
         }
       }//end for p
 
 
       //residual 
-      for ( p = 0; p < ndf; p++ ) 
-      {
+      for (int p = 0; p < ndf; p++ ) {
         resid( jj + p ) += residJ(p)  ;
-        if (applyLoad == 0)
-        {
+        if (applyLoad == 0) {
           resid( jj + p ) -= dvol[i]*b[p]*shp[3][j];
-        }
-        else
-        {
+        } else {
           resid( jj + p ) -= dvol[i]*appliedB[p]*shp[3][j];
         }
       }
 
-      if ( tang_flag == 1 ) 
-      {
+      if ( tang_flag == 1 ) {
 
         //BJtranD = BJtran * dd ;
         BJtranD.addMatrixProduct(0.0,  BJtran, dd,1.0) ;
@@ -1330,47 +1252,34 @@ void  FourNodeTetrahedron::formResidAndTangent( int tang_flag )
         // opserr << "DEBUUG!! dd = " << dd << endln;
 
         int kk = 0 ;
-        for ( k = 0; k < numberNodes; k++ ) 
-        {
-          // opserr << "DEBUUG!! k = " << k << endln;
+        for (int k = 0; k < NumNodes; k++ ) {
 
           BK = computeB( k, shp ) ;
           stiffJK.addMatrixProduct(0.0,  BJtranD, BK,1.0) ;
 
-          // opserr << "DEBUUG!! BK = " << BK << endln;
-          // opserr << "DEBUUG!! stiffJK = " << stiffJK << endln;
-
-          for ( p = 0; p < ndf; p++ )  
-          {
-            for ( q = 0; q < ndf; q++ )
-            {
+          for (int p = 0; p < ndf; p++ ) {
+            for (int q = 0; q < ndf; q++ ) {
               stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
             }
-          } //end for p
+          } // end for p
           kk += ndf ;
         } // end for k loop
-        // opserr << "STIFF = " << stiff << endln;
       } // end if tang_flag 
       jj += ndf ;
     } // end for j loop
-  } //end for i gauss loop 
-
-  
-  
-
+  } // end for i gauss loop
 
   return ;
 }
 
 
 //************************************************************************
-//compute local coordinates and basis
+// compute local coordinates and basis
 
-void   FourNodeTetrahedron::computeBasis( ) 
+void FourNodeTetrahedron::computeBasis( ) 
 {
   //nodal coordinates 
-  int i ;
-  for ( i = 0; i < 4; i++ ) {
+  for (int i = 0; i < 4; i++ ) {
        const Vector &coorI = nodePointers[i]->getCrds( ) ;
        xl[0][i] = coorI(0) ;
        xl[1][i] = coorI(1) ;
@@ -1416,21 +1325,6 @@ FourNodeTetrahedron::computeB( int node, const double shp[4][4] )
 
 }
 
-//***********************************************************************
-
-Matrix  FourNodeTetrahedron::transpose( int dim1, int dim2,  const Matrix &M ) 
-{
-  int i, j ;
-
-  Matrix Mtran( dim2, dim1 ) ;
-
-  for ( i = 0; i < dim1; i++ ) {
-     for ( j = 0; j < dim2; j++ ) 
-         Mtran(j,i) = M(i,j) ;
-  } // end for i
-
-  return Mtran ;
-}
 
 //**********************************************************************
 
@@ -1621,63 +1515,6 @@ int  FourNodeTetrahedron::recvSelf (int commitTag,
 }
 //**************************************************************************
 
-int
-FourNodeTetrahedron::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-
-    // color vector
-    static Vector values(3);
-    values(0) = 0;
-    values(1) = 0;
-    values(2) = 0;
-
-    // draw polygons for each tetrahedron face -ambaker1
-    int res = 0;
-    static Matrix coords(3, 3); // rows are face nodes
-
-    // face 1 (1 3 2)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v3(i);
-        coords(2, i) = v2(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-
-    // face 2 (1 2 4)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v4(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-
-    // face 3 (1 4 3)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v4(i);
-        coords(2, i) = v3(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-
-    // face 4 (2 3 4)
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v2(i);
-        coords(1, i) = v3(i);
-        coords(2, i) = v4(i);
-    }
-    res += theViewer.drawPolygon(coords, values, this->getTag());
-    
-    return res;
-}
 
 Response*
 FourNodeTetrahedron::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -1838,12 +1675,9 @@ FourNodeTetrahedron::setParameter(const char **argv, int argc, Parameter &param)
     }
 
     int pointNum = atoi(argv[1]);
-    if (pointNum > 0 && pointNum <= 1)
-    {
+    if (pointNum > 0 && pointNum <= 1) {
       return materialPointers[pointNum-1]->setParameter(&argv[2], argc-2, param);
-    }
-    else 
-    {
+    } else {
       return -1;
     }
   }
@@ -1876,19 +1710,15 @@ FourNodeTetrahedron::updateParameter(int parameterID, Information &info)
     int res = -1;
     int matRes = res;
 
-    if (parameterID == res) 
-    {
+    if (parameterID == res) {
         return -1;
-    } 
-    else if (parameterID == 1313)
-    {
+
+    } else if (parameterID == 1313) {
       int doit = info.theDouble;
-      if (doit == 1)
-      {
+      if (doit == 1) {
         Domain * mydomain = this->getDomain();
         opserr << "FourNodeTetrahedron::updateParameter - ele tag = " << this->getTag()  << " - sets init disp ";
-        for ( int i = 0; i < NumNodes; i++ ) 
-        {
+        for ( int i = 0; i < NumNodes; i++ ) {
             nodePointers[i] = mydomain->getNode( connectedExternalNodes(i) ) ;
             initDisp[i] = nodePointers[i]->getDisp();
             opserr << " (" << initDisp[i](0) << " " << initDisp[i](1) << " " << initDisp[i](1) << ") ";
@@ -1896,34 +1726,28 @@ FourNodeTetrahedron::updateParameter(int parameterID, Information &info)
         opserr << endln;
       }
       return 0;
-    }
-    else if (parameterID == 1414)
-    {
+
+    } else if (parameterID == 1414) {
       int new_do_update = info.theDouble;
-      if (do_update == 0 && new_do_update == 1)
-      {
+      if (do_update == 0 && new_do_update == 1) {
         do_update = 1;
         Domain * mydomain = this->getDomain();
         opserr << "4Ntet::updateParameter - ele tag = " << this->getTag()  << " - sets to update and init disp ";
-        for ( int i = 0; i < NumNodes; i++ ) 
-        {
+        for ( int i = 0; i < NumNodes; i++ ) {
             nodePointers[i] = mydomain->getNode( connectedExternalNodes(i) ) ;
             initDisp[i] = nodePointers[i]->getDisp();
             opserr << " (" << initDisp[i](0) << " " << initDisp[i](1) << " " << initDisp[i](1) << ") ";
         }
-        opserr << endln;
+        opserr << "\n";
       }
-      if(new_do_update == 0)
-      {
+      if(new_do_update == 0) {
         opserr << "4Ntet::updateParameter - ele tag = " << this->getTag()  << " - will not update\n";
       }
       do_update = new_do_update;
       return 0;
-    }
-    else 
-    {
-      for (int i = 0; i<1; i++) 
-      {
+
+    } else {
+      for (int i = 0; i<1; i++) {
         matRes = materialPointers[i]->updateParameter(parameterID, info);
       }
       if (matRes != -1) {
@@ -1949,6 +1773,7 @@ FourNodeTetrahedron::updateParameter(int parameterID, Information &info)
 void  
 FourNodeTetrahedron::shp3d( const double ss[4], double &xsj, double shp[4][4], const double xl[3][4]   )
 {
+    //
     // Mathematica formulation by Carlos Felippa.
     //
     // IsoTet4ShapeFunDer[xyztet_,numer_]:= Module[{
@@ -1984,12 +1809,12 @@ FourNodeTetrahedron::shp3d( const double ss[4], double &xsj, double shp[4][4], c
     double y24 = xl[1][1]-xl[1][3];
     double y34 = xl[1][2]-xl[1][3];
   
-    double y21=-y12;
-    double y31=-y13;
-    double y41=-y14;
-    double y32=-y23;
-    double y42=-y24;
-    double y43=-y34;
+    double y21 = -y12;
+    double y31 = -y13;
+    double y41 = -y14;
+    double y32 = -y23;
+    double y42 = -y24;
+    double y43 = -y34;
   
     double z12 = xl[2][0]-xl[2][1];
     double z13 = xl[2][0]-xl[2][2];
@@ -1998,12 +1823,12 @@ FourNodeTetrahedron::shp3d( const double ss[4], double &xsj, double shp[4][4], c
     double z24 = xl[2][1]-xl[2][3];
     double z34 = xl[2][2]-xl[2][3];
   
-    double z21=-z12;
-    double z31=-z13;
-    double z41=-z14;
-    double z32=-z23;
-    double z42=-z24;
-    double z43=-z34;
+    double z21 = -z12;
+    double z31 = -z13;
+    double z41 = -z14;
+    double z32 = -z23;
+    double z42 = -z24;
+    double z43 = -z34;
     
     // Jdet=x21*(y23*z34-y34*z23)+x32*(y34*z12-y12*z34)+x43*(y12*z23-y23*z12);
     double Jdet=x21*(y23*z34-y34*z23)+x32*(y34*z12-y12*z34)+x43*(y12*z23-y23*z12);
@@ -2017,7 +1842,7 @@ FourNodeTetrahedron::shp3d( const double ss[4], double &xsj, double shp[4][4], c
     double a3=y24*z14-y14*z24; double b3=x14*z24-x24*z14; double c3=x24*y14-x14*y24;
     double a4=y13*z21-y12*z31; double b4=x21*z13-x31*z12; double c4=x13*y21-x12*y31;
 
-    xsj=Jdet;
+    xsj = Jdet;
 
     // Nfx={a1,a2,a3,a4}; Nfy={b1,b2,b3,b4}; Nfz={c1,c2,c3,c4};
     shp[0][0] = a1/Jdet;
@@ -2040,25 +1865,6 @@ FourNodeTetrahedron::shp3d( const double ss[4], double &xsj, double shp[4][4], c
     shp[3][2] = ss[2];
     shp[3][3] = 1 - ss[0] - ss[1] - ss[2];
 
-
-    // opserr << "ss = " << ss[0] << " "
-    //   << ss[1] << " "
-    //   << ss[2] << " "
-    //   << shp[3][4] << endln;
-
-    // opserr << "Jdet = " << Jdet << endln;
-
-    // opserr << "shp = " <<  endln;
-    // for(int i = 0; i <= 4; i++)
-    // {
-    //   for(int j = 0; j <= 4; j++)
-    //   {
-    //     opserr << shp[i][j] << " ";
-    //   }
-    //   opserr << endln;
-    // }
-
-    // Return[{Nfx,Nfy,Nfz,Jdet}]];
    return ;
 }
 
@@ -2066,7 +1872,6 @@ FourNodeTetrahedron::shp3d( const double ss[4], double &xsj, double shp[4][4], c
 void
 FourNodeTetrahedron::onActivate()
 {
-
     Domain* theDomain = this->getDomain();
     this->setDomain(theDomain);
     this->update();
@@ -2077,3 +1882,4 @@ FourNodeTetrahedron::onDeactivate()
 {
 
 }
+

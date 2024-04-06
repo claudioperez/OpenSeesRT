@@ -17,19 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $Source$
-
+//
 // Written: MHS
 // Created: Feb 2001
 //
 // Description: This file contains the class definition for DispBeamColumnNL2d.
-
+//
 #include <DispBeamColumnNL2d.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
+#include <BeamIntegration.h>
 #include <CrdTransf.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -37,6 +34,7 @@
 #include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
+#include <assert.h>
 #include <Information.h>
 #include <Parameter.h>
 #include <Channel.h>
@@ -46,6 +44,7 @@
 #include <math.h>
 #include <ElementalLoad.h>
 #include <elementAPI.h>
+#include <string.h>
 #include <map>
 
 Matrix DispBeamColumnNL2d::K(6,6);
@@ -55,16 +54,16 @@ double DispBeamColumnNL2d::workArea[100];
 void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumnNL2d)
 {
     if(OPS_GetNumRemainingInputArgs() < 5) {
-	opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
-	return 0;
+        opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
+        return 0;
     }
 
     // inputs: 
     int iData[5];
     int numData = 5;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
-	opserr<<"WARNING: invalid integer inputs\n";
-	return 0;
+        opserr<<"WARNING: invalid integer inputs\n";
+        return 0;
     }
 
     // options
@@ -72,52 +71,52 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumnNL2d)
     int cmass = 0;
     numData = 1;
     while(OPS_GetNumRemainingInputArgs() > 0) {
-	const char* type = OPS_GetString();
-	if(strcmp(type, "-cMass") == 0) {
-	    cmass = 1;
-	} else if(strcmp(type,"-mass") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&mass) < 0) {
-		    opserr<<"WARNING: invalid mass\n";
-		    return 0;
-		}
-	    }
-	}
+        const char* type = OPS_GetString();
+        if(strcmp(type, "-cMass") == 0) {
+            cmass = 1;
+        } else if(strcmp(type,"-mass") == 0) {
+            if(OPS_GetNumRemainingInputArgs() > 0) {
+                if(OPS_GetDoubleInput(&numData,&mass) < 0) {
+                    opserr<<"WARNING: invalid mass\n";
+                    return 0;
+                }
+            }
+        }
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
+        opserr<<"coord transfomration not found\n";
+        return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
-	opserr<<"beam integration not found\n";
-	return 0;
+        opserr<<"beam integration not found\n";
+        return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
     if(bi == 0) {
-	opserr<<"beam integration is null\n";
-	return 0;
+        opserr<<"beam integration is null\n";
+        return 0;
     }
 
     // check sections
     const ID& secTags = theRule->getSectionTags();
     SectionForceDeformation** sections = new SectionForceDeformation *[secTags.Size()];
     for(int i=0; i<secTags.Size(); i++) {
-	sections[i] = OPS_getSectionForceDeformation(secTags(i));
-	if(sections[i] == 0) {
-	    opserr<<"section "<<secTags(i)<<"not found\n";
-		delete [] sections;
-	    return 0;
-	}
+        sections[i] = OPS_getSectionForceDeformation(secTags(i));
+        if(sections[i] == 0) {
+            opserr<<"section "<<secTags(i)<<"not found\n";
+                delete [] sections;
+            return 0;
+        }
     }
-    
+
     Element *theEle =  new DispBeamColumnNL2d(iData[0],iData[1],iData[2],secTags.Size(),sections,
-					    *bi,*theTransf,mass);
+                                            *bi,*theTransf,mass);
     delete [] sections;
     return theEle;
 }
@@ -132,133 +131,133 @@ void *OPS_DECL_RUNTIME_VPID(OPS_DispBeamColumnNL2d, const ID &info)
 
     // regular element, not in a mesh, get tags
     if (info.Size() == 0) {
-	if(OPS_GetNumRemainingInputArgs() < 5) {
-	    opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
-	    return 0;
-	}
+        if(OPS_GetNumRemainingInputArgs() < 5) {
+            opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
+            return 0;
+        }
 
-	int ndm = OPS_GetNDM();
-	int ndf = OPS_GetNDF();
-	if(ndm != 2 || ndf != 3) {
-	    opserr<<"ndm must be 2 and ndf must be 3\n";
-	    return 0;
-	}
+        int ndm = OPS_GetNDM();
+        int ndf = OPS_GetNDF();
+        if(ndm != 2 || ndf != 3) {
+            opserr<<"ndm must be 2 and ndf must be 3\n";
+            return 0;
+        }
 
-	// inputs:
-	numData = 3;
-	if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
-	    opserr<<"WARNING: invalid integer inputs\n";
-	    return 0;
-	}
+        // inputs:
+        numData = 3;
+        if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
+            opserr<<"WARNING: invalid integer inputs\n";
+            return 0;
+        }
     }
 
     // regular element, or in a mesh
     if (info.Size()==0 || info(0)==1) {
-	if(OPS_GetNumRemainingInputArgs() < 2) {
-	    opserr<<"insufficient arguments: transfTag,integrationTag\n";
-	    return 0;
-	}
+        if(OPS_GetNumRemainingInputArgs() < 2) {
+            opserr<<"insufficient arguments: transfTag,integrationTag\n";
+            return 0;
+        }
 
-	numData = 2;
-	if(OPS_GetIntInput(&numData,&iData[3]) < 0) {
-	    opserr << "WARNING invalid int inputs\n";
-	    return 0;
-	}
+        numData = 2;
+        if(OPS_GetIntInput(&numData,&iData[3]) < 0) {
+            opserr << "WARNING invalid int inputs\n";
+            return 0;
+        }
 
-	// options
-	numData = 1;
-	while(OPS_GetNumRemainingInputArgs() > 0) {
-	    const char* type = OPS_GetString();
-	    if(strcmp(type, "-cMass") == 0) {
-		cmass = 1;
-	    } else if(strcmp(type,"-mass") == 0) {
-		if(OPS_GetNumRemainingInputArgs() > 0) {
-		    if(OPS_GetDoubleInput(&numData,&mass) < 0) {
-			opserr<<"WARNING: invalid mass\n";
-			return 0;
-		    }
-		}
-	    }
-	}
+        // options
+        numData = 1;
+        while(OPS_GetNumRemainingInputArgs() > 0) {
+            const char* type = OPS_GetString();
+            if(strcmp(type, "-cMass") == 0) {
+                cmass = 1;
+            } else if(strcmp(type,"-mass") == 0) {
+                if(OPS_GetNumRemainingInputArgs() > 0) {
+                    if(OPS_GetDoubleInput(&numData,&mass) < 0) {
+                        opserr<<"WARNING: invalid mass\n";
+                        return 0;
+                    }
+                }
+            }
+        }
     }
 
     // store data for different mesh
     static std::map<int, Vector> meshdata;
     if (info.Size()>0 && info(0)==1) {
-	if (info.Size() < 2) {
-	    opserr << "WARNING: need info -- inmesh, meshtag\n";
-	    return 0;
-	}
+        if (info.Size() < 2) {
+            opserr << "WARNING: need info -- inmesh, meshtag\n";
+            return 0;
+        }
 
-	// save the data for a mesh
-	Vector& mdata = meshdata[info(1)];
-	mdata.resize(4);
-	mdata(0) = iData[3];
-	mdata(1) = iData[4];
-	mdata(2) = mass;
-	mdata(3) = cmass;
-	return &meshdata;
+        // save the data for a mesh
+        Vector& mdata = meshdata[info(1)];
+        mdata.resize(4);
+        mdata(0) = iData[3];
+        mdata(1) = iData[4];
+        mdata(2) = mass;
+        mdata(3) = cmass;
+        return &meshdata;
 
     } else if (info.Size()>0 && info(0)==2) {
-	if (info.Size() < 5) {
-	    opserr << "WARNING: need info -- inmesh, meshtag, eleTag, nd1, nd2\n";
-	    return 0;
-	}
+        if (info.Size() < 5) {
+            opserr << "WARNING: need info -- inmesh, meshtag, eleTag, nd1, nd2\n";
+            return 0;
+        }
 
-	// get the data for a mesh
-	Vector& mdata = meshdata[info(1)];
-	if (mdata.Size() < 4) return 0;
+        // get the data for a mesh
+        Vector& mdata = meshdata[info(1)];
+        if (mdata.Size() < 4) return 0;
 
-	iData[0] = info(2);
-	iData[1] = info(3);
-	iData[2] = info(4);
-	iData[3] = mdata(0);
-	iData[4] = mdata(1);
-	mass = mdata(2);
-	cmass = mdata(3);
+        iData[0] = info(2);
+        iData[1] = info(3);
+        iData[2] = info(4);
+        iData[3] = mdata(0);
+        iData[4] = mdata(1);
+        mass = mdata(2);
+        cmass = mdata(3);
     }
 
     // check transf
-    CrdTransf* theTransf = OPS_getCrdTransf(iData[3]);
+    CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
+        opserr<<"coord transfomration not found\n";
+        return 0;
     }
 
     // check beam integrataion
-    BeamIntegrationRule* theRule = (BeamIntegrationRule*)(G3_getSafeBuilder(rt)->getRegistryObject("BeamIntegrationRule", iData[4]));
+    BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
-	opserr<<"beam integration not found\n";
-	return 0;
+        opserr<<"beam integration not found\n";
+        return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
     if(bi == 0) {
-	opserr<<"beam integration is null\n";
-	return 0;
+        opserr<<"beam integration is null\n";
+        return 0;
     }
 
     // check sections
     const ID& secTags = theRule->getSectionTags();
     SectionForceDeformation** sections = new SectionForceDeformation *[secTags.Size()];
     for(int i=0; i<secTags.Size(); i++) {
-	sections[i] = OPS_getSectionForceDeformation(secTags(i));
-	if(sections[i] == 0) {
-	    opserr<<"section "<<secTags(i)<<"not found\n";
-		delete [] sections;
-	    return 0;
-	}
+        sections[i] = OPS_getSectionForceDeformation(secTags(i));
+        if(sections[i] == 0) {
+            opserr<<"section "<<secTags(i)<<"not found\n";
+                delete [] sections;
+            return 0;
+        }
     }
-    
+
     Element *theEle =  new DispBeamColumnNL2d(iData[0],iData[1],iData[2],secTags.Size(),sections,
-					    *bi,*theTransf,mass);
+                                            *bi,*theTransf,mass);
     delete [] sections;
     return theEle;
 }
 
 DispBeamColumnNL2d::DispBeamColumnNL2d(int tag, int nd1, int nd2,
-				   int numSec, SectionForceDeformation **s,
-				   BeamIntegration& bi,
-				   CrdTransf &coordTransf, double r)
+                                   int numSec, SectionForceDeformation **s,
+                                   BeamIntegration& bi,
+                                   CrdTransf &coordTransf, double r)
 :Element (tag, ELE_TAG_DispBeamColumnNL2d), 
  numSections(numSec), theSections(0), crdTransf(0), beamInt(0),
   connectedExternalNodes(2),
@@ -266,49 +265,44 @@ DispBeamColumnNL2d::DispBeamColumnNL2d(int tag, int nd1, int nd2,
 {
   // Allocate arrays of pointers to SectionForceDeformations
   theSections = new SectionForceDeformation *[numSections];
-    
-  if (theSections == 0) {
-    opserr << "DispBeamColumnNL2d::DispBeamColumnNL2d - failed to allocate section model pointer\n";
-    exit(-1);
-  }
 
   for (int i = 0; i < numSections; i++) {
-    
+
     // Get copies of the material model for each integration point
     theSections[i] = s[i]->getCopy();
-    
+
     // Check allocation
     if (theSections[i] == 0) {
       opserr << "DispBeamColumnNL2d::DispBeamColumnNL2d -- failed to get a copy of section model\n";
       exit(-1);
     }
   }
-  
+
   beamInt = bi.getCopy();
-  
+
   if (beamInt == 0) {
     opserr << "DispBeamColumnNL2d::DispBeamColumnNL2d - failed to copy beam integration\n";
     exit(-1);
   }
 
   crdTransf = coordTransf.getCopy2d();
-  
+
   if (crdTransf == 0) {
     opserr << "DispBeamColumnNL2d::DispBeamColumnNL2d - failed to copy coordinate transformation\n";
     exit(-1);
   }
-  
+
   // Set connected external node IDs
   connectedExternalNodes(0) = nd1;
   connectedExternalNodes(1) = nd2;
 
   theNodes[0] = 0;
   theNodes[1] = 0;
-  
+
   q0[0] = 0.0;
   q0[1] = 0.0;
   q0[2] = 0.0;
-  
+
   p0[0] = 0.0;
   p0[1] = 0.0;
   p0[2] = 0.0;
@@ -338,11 +332,11 @@ DispBeamColumnNL2d::~DispBeamColumnNL2d()
     if (theSections[i])
       delete theSections[i];
   }
-  
+
   // Delete the array of pointers to SectionForceDeformation pointer arrays
   if (theSections)
     delete [] theSections;
-  
+
   if (crdTransf)
     delete crdTransf;
 
@@ -377,11 +371,11 @@ DispBeamColumnNL2d::getNumDOF()
 void
 DispBeamColumnNL2d::setDomain(Domain *theDomain)
 {
-	// Check Domain is not null - invoked when object removed from a domain
+        // Check Domain is not null - invoked when object removed from a domain
     if (theDomain == 0) {
-	theNodes[0] = 0;
-	theNodes[1] = 0;
-	return;
+        theNodes[0] = 0;
+        theNodes[1] = 0;
+        return;
     }
 
     int Nd1 = connectedExternalNodes(0);
@@ -391,33 +385,26 @@ DispBeamColumnNL2d::setDomain(Domain *theDomain)
     theNodes[1] = theDomain->getNode(Nd2);
 
     if (theNodes[0] == 0 || theNodes[1] == 0) {
-      opserr << "WARNING DispBeamColumnNL2d (tag: %d), node not found in domain" << this->getTag() << endln;;
+      opserr << "WARNING Element (tag: %d), node not found in domain" << this->getTag() << endln;;
       return;
     }
 
-    int dofNd1 = theNodes[0]->getNumberDOF();
-    int dofNd2 = theNodes[1]->getNumberDOF();
-    
-    if (dofNd1 != 3 || dofNd2 != 3) {
-	//opserr << "FATAL ERROR DispBeamColumnNL2d (tag: %d), has differing number of DOFs at its nodes",
-	//	this->getTag());
-	
-	return;
+    assert(theNodes[0]->getNumberDOF() == 3);
+    assert(theNodes[1]->getNumberDOF() == 3);
+
+    if (crdTransf->initialize(theNodes[0], theNodes[1])) {
+      // Add some error check
     }
 
-	if (crdTransf->initialize(theNodes[0], theNodes[1])) {
-		// Add some error check
-	}
+    double L = crdTransf->getInitialLength();
 
-	double L = crdTransf->getInitialLength();
-
-	if (L == 0.0) {
-		// Add some error check
-	}
+    if (L == 0.0) {
+      // Add some error check
+    }
 
     this->DomainComponent::setDomain(theDomain);
 
-	this->update();
+    this->update();
 }
 
 int
@@ -432,7 +419,7 @@ DispBeamColumnNL2d::commitState()
 
     // Loop over the integration points and commit the material states
     for (int i = 0; i < numSections; i++)
-		retVal += theSections[i]->commitState();
+                  retVal += theSections[i]->commitState();
 
     retVal += crdTransf->commitState();
 
@@ -446,7 +433,7 @@ DispBeamColumnNL2d::revertToLastCommit()
 
     // Loop over the integration points and revert to last committed state
     for (int i = 0; i < numSections; i++)
-		retVal += theSections[i]->revertToLastCommit();
+                retVal += theSections[i]->revertToLastCommit();
 
     retVal += crdTransf->revertToLastCommit();
 
@@ -460,7 +447,7 @@ DispBeamColumnNL2d::revertToStart()
 
     // Loop over the integration points and revert states to start
     for (int i = 0; i < numSections; i++)
-		retVal += theSections[i]->revertToStart();
+                retVal += theSections[i]->revertToStart();
 
     retVal += crdTransf->revertToStart();
 
@@ -474,47 +461,45 @@ DispBeamColumnNL2d::update(void)
 
   // Update the transformation
   crdTransf->update();
-  
+
   // Get basic deformations
   const Vector &v = crdTransf->getBasicTrialDisp();
-  
+
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
 
   //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
   double xi[maxNumSections];
   beamInt->getSectionLocations(numSections, L, xi);
-  
+
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
-    
+
     Vector e(workArea, order);
-    
-    //double xi6 = 6.0*pts(i,0);
+
     double xi6 = 6.0*xi[i];
     double zeta = xi[i];
 
     double theta = (3*zeta*zeta-4*zeta+1)*v(1) + (3*zeta*zeta-2*zeta)*v(2);
 
-    int j;
-    for (j = 0; j < order; j++) {
+    for (int j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	e(j) = oneOverL*v(0) + 0.5*theta*theta; break;
+        e(j) = oneOverL*v(0) + 0.5*theta*theta; break;
       case SECTION_RESPONSE_MZ:
-	e(j) = oneOverL*((xi6-4.0)*v(1) + (xi6-2.0)*v(2)); break;
+        e(j) = oneOverL*((xi6-4.0)*v(1) + (xi6-2.0)*v(2)); break;
       default:
-	e(j) = 0.0; break;
+        e(j) = 0.0; break;
       }
     }
-    
+
     // Set the section deformations
     err += theSections[i]->setTrialSectionDeformation(e);
   }
-  
+
   if (err != 0) {
     opserr << "DispBeamColumnNL2d::update() - failed setTrialSectionDeformations()\n";
     return err;
@@ -528,16 +513,16 @@ DispBeamColumnNL2d::getBasicStiff(Matrix &kb, int initial)
 {
   // Zero for integral
   kb.Zero();
-  
+
   // Update the transformation
   crdTransf->update();
-  
+
   // Get basic deformations
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
-  
+
   double xi[maxNumSections];
   beamInt->getSectionLocations(numSections, L, xi);
   double wt[maxNumSections];
@@ -545,7 +530,7 @@ DispBeamColumnNL2d::getBasicStiff(Matrix &kb, int initial)
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
 
@@ -574,12 +559,12 @@ DispBeamColumnNL2d::getBasicStiff(Matrix &kb, int initial)
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	tmp = s(j)*wt[i]*L;
-	kb(1,1) += tmp*c1*c1;
-	kb(2,1) += tmp*c2*c1;
-	kb(1,2) += tmp*c1*c2;
-	kb(2,2) += tmp*c2*c2;
-	break;
+        tmp = s(j)*wt[i]*L;
+        kb(1,1) += tmp*c1*c1;
+        kb(2,1) += tmp*c2*c1;
+        kb(1,2) += tmp*c1*c2;
+        kb(2,2) += tmp*c2*c2;
+        break;
       }
     }
 
@@ -589,24 +574,24 @@ DispBeamColumnNL2d::getBasicStiff(Matrix &kb, int initial)
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	B(j,0) = 1.0;
-	C(j,1) = c1;
-	C(j,2) = c2;
-	C1(0,1) = c1;
-	C1(0,2) = c2;
-	break;
+        B(j,0) = 1.0;
+        C(j,1) = c1;
+        C(j,2) = c2;
+        C1(0,1) = c1;
+        C1(0,2) = c2;
+        break;
       case SECTION_RESPONSE_MZ:
-	B(j,1) = xi6-4.0;
-	B(j,2) = xi6-2.0;
-	break;
+        B(j,1) = xi6-4.0;
+        B(j,2) = xi6-2.0;
+        break;
       default:
-	break;
+        break;
       }
     }
 
     // B'*ks*B
     kb.addMatrixTripleProduct(1.0, B, ks, wti);
-    
+
     Matrix kC(order,3);
 
     // B'*ks*C*theta
@@ -618,62 +603,62 @@ DispBeamColumnNL2d::getBasicStiff(Matrix &kb, int initial)
 
     for (j = 0; j < order; j++) {
       if (code(j) == SECTION_RESPONSE_P) {
-	for (int jj = 0; jj < order; jj++)
-	  ks1(0,jj) = ks(j,jj);
+        for (int jj = 0; jj < order; jj++)
+          ks1(0,jj) = ks(j,jj);
 
-	ksB.addMatrixProduct(0.0, ks1, B, 1.0);
+        ksB.addMatrixProduct(0.0, ks1, B, 1.0);
 
-	kb.addMatrixTransposeProduct(1.0, C1, ksB, theta*wt[i]);
+        kb.addMatrixTransposeProduct(1.0, C1, ksB, theta*wt[i]);
 
-	ksB.addMatrixProduct(0.0, ks1, C, 1.0);
+        ksB.addMatrixProduct(0.0, ks1, C, 1.0);
 
-	kb.addMatrixTransposeProduct(1.0, C1, ksB, theta*theta*wt[i]*L);
+        kb.addMatrixTransposeProduct(1.0, C1, ksB, theta*theta*wt[i]*L);
       }
     }
 
     continue;
-    
+
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < order; k++)
-	  ka(k,0) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,0) += ks(k,j)*wti;
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,1) += (xi6-4.0)*tmp;
-	  ka(k,2) += (xi6-2.0)*tmp;
-	}
-	for (int jj = 0; jj < order; jj++) {
-	  switch(code(jj)) {
-	  case SECTION_RESPONSE_P:
-	    tmp = ks(k,jj)*wt[i]*theta;
-	    ka(k,1) += tmp*c1;
-	    ka(k,2) += tmp*c2;
-	    break;
-	  }
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,1) += (xi6-4.0)*tmp;
+          ka(k,2) += (xi6-2.0)*tmp;
+        }
+        for (int jj = 0; jj < order; jj++) {
+          switch(code(jj)) {
+          case SECTION_RESPONSE_P:
+            tmp = ks(k,jj)*wt[i]*theta;
+            ka(k,1) += tmp*c1;
+            ka(k,2) += tmp*c2;
+            break;
+          }
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
     for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < 3; k++)
-	  kb(0,k) += ka(j,k);
-	break;
+        for (k = 0; k < 3; k++)
+          kb(0,k) += ka(j,k);
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < 3; k++) {
-	  tmp = ka(j,k);
-	  kb(1,k) += (xi6-4.0)*tmp;
-	  kb(2,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 3; k++) {
+          tmp = ka(j,k);
+          kb(1,k) += (xi6-4.0)*tmp;
+          kb(2,k) += (xi6-2.0)*tmp;
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
   }
@@ -688,15 +673,15 @@ DispBeamColumnNL2d::getTangentStiff()
 
   // Zero for integral
   q.Zero();
-  
+
   // Update the transformation
   crdTransf->update();
-  
+
   // Get basic deformations
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   double L = crdTransf->getInitialLength();
-  
+
   //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
   //const Vector &wts = quadRule.getIntegrPointWeights(numSections);
   double xi[maxNumSections];
@@ -706,7 +691,7 @@ DispBeamColumnNL2d::getTangentStiff()
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
 
@@ -718,7 +703,7 @@ DispBeamColumnNL2d::getTangentStiff()
 
     // Get the section tangent stiffness and stress resultant
     const Vector &s = theSections[i]->getStressResultant();
-        
+
     // Perform numerical integration
     //q.addMatrixTransposeVector(1.0, *B, s, wts(i));
     double si;
@@ -727,26 +712,26 @@ DispBeamColumnNL2d::getTangentStiff()
       si = s(j)*wt[i];
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	q(0) += si; break;
+        q(0) += si; break;
       case SECTION_RESPONSE_MZ:
-	q(1) += (xi6-4.0)*si;
-	q(2) += (xi6-2.0)*si; 
-	for (int jj = 0; jj < order; jj++) {
-	  switch(code(jj)) {
-	  case SECTION_RESPONSE_P:
-	    q(1) += (3*zeta*zeta-4*zeta+1)*theta*s(jj)*wt[i]*L;
-	    q(2) += (3*zeta*zeta-2*zeta)*theta*s(jj)*wt[i]*L;
-	    break;
-	  }
-	}
-	break;
+        q(1) += (xi6-4.0)*si;
+        q(2) += (xi6-2.0)*si; 
+        for (int jj = 0; jj < order; jj++) {
+          switch(code(jj)) {
+          case SECTION_RESPONSE_P:
+            q(1) += (3*zeta*zeta-4*zeta+1)*theta*s(jj)*wt[i]*L;
+            q(2) += (3*zeta*zeta-2*zeta)*theta*s(jj)*wt[i]*L;
+            break;
+          }
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
-    
+
   }
-  
+
   // Add effects of element loads, q = q(v) + q0
   q(0) += q0[0];
   q(1) += q0[1];
@@ -765,10 +750,10 @@ DispBeamColumnNL2d::getInitialBasicStiff()
 
   // Zero for integral
   kb.Zero();
-  
+
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
-  
+
   //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
   //const Vector &wts = quadRule.getIntegrPointWeights(numSections);
   double xi[maxNumSections];
@@ -778,19 +763,19 @@ DispBeamColumnNL2d::getInitialBasicStiff()
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
-  
+
     Matrix ka(workArea, order, 3);
     ka.Zero();
 
     //double xi6 = 6.0*pts(i,0);
     double xi6 = 6.0*xi[i];
-    
+
     // Get the section tangent stiffness and stress resultant
     const Matrix &ks = theSections[i]->getInitialTangent();
-    
+
     // Perform numerical integration
     //kb.addMatrixTripleProduct(1.0, *B, ks, wts(i)/L);
     //double wti = wts(i)*oneOverL;
@@ -800,38 +785,38 @@ DispBeamColumnNL2d::getInitialBasicStiff()
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < order; k++)
-	  ka(k,0) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,0) += ks(k,j)*wti;
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,1) += (xi6-4.0)*tmp;
-	  ka(k,2) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,1) += (xi6-4.0)*tmp;
+          ka(k,2) += (xi6-2.0)*tmp;
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
     for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < 3; k++)
-	  kb(0,k) += ka(j,k);
-	break;
+        for (k = 0; k < 3; k++)
+          kb(0,k) += ka(j,k);
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < 3; k++) {
-	  tmp = ka(j,k);
-	  kb(1,k) += (xi6-4.0)*tmp;
-	  kb(2,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 3; k++) {
+          tmp = ka(j,k);
+          kb(1,k) += (xi6-4.0)*tmp;
+          kb(2,k) += (xi6-2.0)*tmp;
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
-    
+
   }
 
   return kb;
@@ -855,12 +840,12 @@ DispBeamColumnNL2d::getMass()
 
   if (rho == 0.0)
     return K;
-  
+
   double L = crdTransf->getInitialLength();
   double m = 0.5*rho*L;
-  
+
   K(0,0) = K(1,1) = K(3,3) = K(4,4) = m;
-  
+
   return K;
 }
 
@@ -872,11 +857,11 @@ DispBeamColumnNL2d::zeroLoad(void)
   q0[0] = 0.0;
   q0[1] = 0.0;
   q0[2] = 0.0;
-  
+
   p0[0] = 0.0;
   p0[1] = 0.0;
   p0[2] = 0.0;
-  
+
   return;
 }
 
@@ -886,7 +871,7 @@ DispBeamColumnNL2d::addLoad(ElementalLoad *theLoad, double loadFactor)
   int type;
   const Vector &data = theLoad->getData(type, loadFactor);
   double L = crdTransf->getInitialLength();
-  
+
   if (type == LOAD_TAG_Beam2dUniformLoad) {
     double wt = data(0)*loadFactor;  // Transverse (+ve upward)
     double wa = data(1)*loadFactor;  // Axial (+ve from node I to J)
@@ -936,8 +921,8 @@ DispBeamColumnNL2d::addLoad(ElementalLoad *theLoad, double loadFactor)
   }
   else {
     opserr << "DispBeamColumnNL2d::DispBeamColumnNL2d -- load type unknown for element with tag: "
-	   << this->getTag() << "DispBeamColumnNL2d::addLoad()\n"; 
-			    
+           << this->getTag() << "DispBeamColumnNL2d::addLoad()\n"; 
+                            
     return -1;
   }
 
@@ -947,28 +932,28 @@ DispBeamColumnNL2d::addLoad(ElementalLoad *theLoad, double loadFactor)
 int 
 DispBeamColumnNL2d::addInertiaLoadToUnbalance(const Vector &accel)
 {
-	// Check for a quick return
-	if (rho == 0.0) 
-		return 0;
+        // Check for a quick return
+        if (rho == 0.0) 
+                return 0;
 
-	// Get R * accel from the nodes
-	const Vector &Raccel1 = theNodes[0]->getRV(accel);
-	const Vector &Raccel2 = theNodes[1]->getRV(accel);
+        // Get R * accel from the nodes
+        const Vector &Raccel1 = theNodes[0]->getRV(accel);
+        const Vector &Raccel2 = theNodes[1]->getRV(accel);
 
     if (3 != Raccel1.Size() || 3 != Raccel2.Size()) {
       opserr << "DispBeamColumnNL2d::addInertiaLoadToUnbalance matrix and vector sizes are incompatible\n";
       return -1;
     }
 
-	double L = crdTransf->getInitialLength();
-	double m = 0.5*rho*L;
+        double L = crdTransf->getInitialLength();
+        double m = 0.5*rho*L;
 
     // Want to add ( - fact * M R * accel ) to unbalance
-	// Take advantage of lumped mass matrix
-	Q(0) -= m*Raccel1(0);
-	Q(1) -= m*Raccel1(1);
-	Q(3) -= m*Raccel2(0);
-	Q(4) -= m*Raccel2(1);
+        // Take advantage of lumped mass matrix
+        Q(0) -= m*Raccel1(0);
+        Q(1) -= m*Raccel1(1);
+        Q(3) -= m*Raccel2(0);
+        Q(4) -= m*Raccel2(1);
 
     return 0;
 }
@@ -978,12 +963,12 @@ DispBeamColumnNL2d::getResistingForce()
 {
   // Update the transformation
   crdTransf->update();
-  
+
   // Get basic deformations
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   double L = crdTransf->getInitialLength();
-  
+
   //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
   //const Vector &wts = quadRule.getIntegrPointWeights(numSections);  
   double xi[maxNumSections];
@@ -993,13 +978,13 @@ DispBeamColumnNL2d::getResistingForce()
 
   // Zero for integration
   q.Zero();
-  
+
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
-  
+
     //double xi6 = 6.0*pts(i,0);
     double xi6 = 6.0*xi[i];
     double zeta = xi[i];
@@ -1007,39 +992,39 @@ DispBeamColumnNL2d::getResistingForce()
     double c1 = 3*zeta*zeta-4*zeta+1;
     double c2 = 3*zeta*zeta-2*zeta;
     double theta = c1*v(1) + c2*v(2);
-    
+
     // Get section stress resultant
     const Vector &s = theSections[i]->getStressResultant();
-    
+
     // Perform numerical integration on internal force
     //q.addMatrixTransposeVector(1.0, *B, s, wts(i));
-    
+
     double si;
     for (int j = 0; j < order; j++) {
       //si = s(j)*wts(i);
       si = s(j)*wt[i];
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	q(0) += si; break;
+        q(0) += si; break;
       case SECTION_RESPONSE_MZ:
-	q(1) += (xi6-4.0)*si; 
-	q(2) += (xi6-2.0)*si; 
-	for (int jj = 0; jj < order; jj++) {
-	  switch(code(jj)) {
-	  case SECTION_RESPONSE_P:
-	    q(1) += c1*theta*s(jj)*wt[i]*L;
-	    q(2) += c2*theta*s(jj)*wt[i]*L;
-	    break;
-	  }
-	}
-	break;
+        q(1) += (xi6-4.0)*si; 
+        q(2) += (xi6-2.0)*si; 
+        for (int jj = 0; jj < order; jj++) {
+          switch(code(jj)) {
+          case SECTION_RESPONSE_P:
+            q(1) += c1*theta*s(jj)*wt[i]*L;
+            q(2) += c2*theta*s(jj)*wt[i]*L;
+            break;
+          }
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
-    
+
   }
-  
+
   // Add effects of element loads, q = q(v) + q0
   q(0) += q0[0];
   q(1) += q0[1];
@@ -1049,7 +1034,7 @@ DispBeamColumnNL2d::getResistingForce()
   Vector p0Vec(p0, 3);
 
   P = crdTransf->getGlobalResistingForce(q, p0Vec);
-  
+
   // Subtract other external nodal loads ... P_res = P_int - P_ext
   //P.addVector(1.0, Q, -1.0);
   P(0) -= Q(0);
@@ -1058,7 +1043,7 @@ DispBeamColumnNL2d::getResistingForce()
   P(3) -= Q(3);
   P(4) -= Q(4);
   P(5) -= Q(5);
-  
+
   return P;
 }
 
@@ -1067,28 +1052,28 @@ DispBeamColumnNL2d::getResistingForceIncInertia()
 {
 
   this->getResistingForce();
-  
+
   if (rho != 0.0) {
     const Vector &accel1 = theNodes[0]->getTrialAccel();
     const Vector &accel2 = theNodes[1]->getTrialAccel();
-    
+
     // Compute the current resisting force
     this->getResistingForce();
-    
+
     double L = crdTransf->getInitialLength();
     double m = 0.5*rho*L;
-    
+
     P(0) += m*accel1(0);
     P(1) += m*accel1(1);
     P(3) += m*accel2(0);
     P(4) += m*accel2(1);
-    
+
     // add the damping forces if rayleigh damping
     if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
       P += this->getRayleighDampingForces();
 
   } else {
-    
+
     // add the damping forces if rayleigh damping
     if (betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
       P += this->getRayleighDampingForces();
@@ -1105,7 +1090,7 @@ DispBeamColumnNL2d::sendSelf(int commitTag, Channel &theChannel)
   int dbTag = this->getDbTag();
   int i, j;
   int loc = 0;
-  
+
   static ID idData(9);  // one bigger than needed so no clash later
   idData(0) = this->getTag();
   idData(1) = connectedExternalNodes(0);
@@ -1191,11 +1176,11 @@ DispBeamColumnNL2d::sendSelf(int commitTag, Channel &theChannel)
   //
   // send the sections
   //
-  
+
   for (j = 0; j<numSections; j++) {
     if (theSections[j]->sendSelf(commitTag, theChannel) < 0) {
       opserr << "DispBeamColumnNL2d::sendSelf() - section " << 
-	j << "failed to send itself\n";
+        j << "failed to send itself\n";
       return -1;
     }
   }
@@ -1205,14 +1190,14 @@ DispBeamColumnNL2d::sendSelf(int commitTag, Channel &theChannel)
 
 int
 DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
-			   FEM_ObjectBroker &theBroker)
+                           FEM_ObjectBroker &theBroker)
 {
   //
   // receive the integer data containing tag, numSections and coord transformation info
   //
   int dbTag = this->getDbTag();
   int i;
-  
+
   static ID idData(9); // one bigger than needed so no clash with section ID
 
   if (theChannel.recvID(dbTag, commitTag, idData) < 0)  {
@@ -1223,7 +1208,7 @@ DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
   this->setTag(idData(0));
   connectedExternalNodes(0) = idData(1);
   connectedExternalNodes(1) = idData(2);
-  
+
   int crdTransfClassTag = idData(4);
   int crdTransfDbTag = idData(5);
 
@@ -1247,14 +1232,14 @@ DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
   // create a new crdTransf object if one needed
   if (crdTransf == 0 || crdTransf->getClassTag() != crdTransfClassTag) {
       if (crdTransf != 0)
-	  delete crdTransf;
+          delete crdTransf;
 
       crdTransf = theBroker.getNewCrdTransf(crdTransfClassTag);
 
       if (crdTransf == 0) {
-	opserr << "DispBeamColumnNL2d::recvSelf() - failed to obtain a CrdTrans object with classTag " <<
-	  crdTransfClassTag << endln;
-	  return -2;	  
+        opserr << "DispBeamColumnNL2d::recvSelf() - failed to obtain a CrdTrans object with classTag " <<
+          crdTransfClassTag << endln;
+          return -2;          
       }
   }
   crdTransf->setDbTag(crdTransfDbTag);
@@ -1268,14 +1253,14 @@ DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
   // create a new beamInt object if one needed
   if (beamInt == 0 || beamInt->getClassTag() != beamIntClassTag) {
       if (beamInt != 0)
-	  delete beamInt;
+          delete beamInt;
 
       beamInt = theBroker.getNewBeamIntegration(beamIntClassTag);
 
       if (beamInt == 0) {
-	opserr << "DispBeamColumnNL2d::recvSelf() - failed to obtain the beam integration object with classTag" <<
-	  beamIntClassTag << endln;
-	exit(-1);
+        opserr << "DispBeamColumnNL2d::recvSelf() - failed to obtain the beam integration object with classTag" <<
+          beamIntClassTag << endln;
+        exit(-1);
       }
   }
 
@@ -1288,7 +1273,7 @@ DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
      return -3;
   }      
 
-  
+
   //
   // recv an ID for the sections containing each sections dbTag and classTag
   //
@@ -1304,7 +1289,7 @@ DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
   //
   // now receive the sections
   //
-  
+
   if (numSections != idData(3)) {
 
     //
@@ -1315,7 +1300,7 @@ DispBeamColumnNL2d::recvSelf(int commitTag, Channel &theChannel,
     // delete the old
     if (numSections != 0) {
       for (int i=0; i<numSections; i++)
-	delete theSections[i];
+        delete theSections[i];
       delete [] theSections;
     }
 
@@ -1330,21 +1315,21 @@ opserr << "DispBeamColumnNL2d::recvSelf() - out of memory creating sections arra
     // create a section and recvSelf on it
     numSections = idData(3);
     loc = 0;
-    
+
     for (i=0; i<numSections; i++) {
       int sectClassTag = idSections(loc);
       int sectDbTag = idSections(loc+1);
       loc += 2;
       theSections[i] = theBroker.getNewSection(sectClassTag);
       if (theSections[i] == 0) {
-	opserr << "DispBeamColumnNL2d::recvSelf() - Broker could not create Section of class type " <<
-	  sectClassTag << endln;
-	exit(-1);
+        opserr << "DispBeamColumnNL2d::recvSelf() - Broker could not create Section of class type " <<
+          sectClassTag << endln;
+        exit(-1);
       }
       theSections[i]->setDbTag(sectDbTag);
       if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-	opserr << "DispBeamColumnNL2d::recvSelf() - section " << i << " failed to recv itself\n";
-	return -1;
+        opserr << "DispBeamColumnNL2d::recvSelf() - section " << i << " failed to recv itself\n";
+        return -1;
       }     
     }
 
@@ -1354,7 +1339,7 @@ opserr << "DispBeamColumnNL2d::recvSelf() - out of memory creating sections arra
     // for each existing section, check it is of correct type
     // (if not delete old & create a new one) then recvSelf on it
     //
-    
+
     loc = 0;
     for (i=0; i<numSections; i++) {
       int sectClassTag = idSections(loc);
@@ -1363,21 +1348,21 @@ opserr << "DispBeamColumnNL2d::recvSelf() - out of memory creating sections arra
 
       // check of correct type
       if (theSections[i]->getClassTag() !=  sectClassTag) {
-	// delete the old section[i] and create a new one
-	delete theSections[i];
-	theSections[i] = theBroker.getNewSection(sectClassTag);
-	if (theSections[i] == 0) {
-	opserr << "DispBeamColumnNL2d::recvSelf() - Broker could not create Section of class type " <<
-	  sectClassTag << endln;
-	exit(-1);
-	}
+        // delete the old section[i] and create a new one
+        delete theSections[i];
+        theSections[i] = theBroker.getNewSection(sectClassTag);
+        if (theSections[i] == 0) {
+        opserr << "DispBeamColumnNL2d::recvSelf() - Broker could not create Section of class type " <<
+          sectClassTag << endln;
+        exit(-1);
+        }
       }
 
       // recvSelf on it
       theSections[i]->setDbTag(sectDbTag);
       if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-	opserr << "DispBeamColumnNL2d::recvSelf() - section " << i << " failed to recv itself\n";
-	return -1;
+        opserr << "DispBeamColumnNL2d::recvSelf() - section " << i << " failed to recv itself\n";
+        return -1;
       }     
     }
   }
@@ -1393,7 +1378,7 @@ DispBeamColumnNL2d::Print(OPS_Stream &s, int flag)
   s << "\tCoordTransf: " << crdTransf->getTag() << endln;
   s << "\tmass density:  " << rho << endln;
   s << "\tNum sections:  " << numSections << endln;
-  
+
   double L = crdTransf->getInitialLength();
   double P  = q(0);
   double M1 = q(1);
@@ -1425,7 +1410,7 @@ DispBeamColumnNL2d::displaySelf(Renderer &theViewer, int displayMode, float fact
 
 Response*
 DispBeamColumnNL2d::setResponse(const char **argv, int argc,
-			      OPS_Stream &output)
+                              OPS_Stream &output)
 {
   Response *theResponse = 0;
 
@@ -1447,8 +1432,8 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
     output.tag("ResponseType","Mz_2");
 
     theResponse =  new ElementResponse(this, 1, P);
-  
-  
+
+
   // local force -
   } else if (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0) {
 
@@ -1460,7 +1445,7 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
     output.tag("ResponseType","M2");
 
     theResponse =  new ElementResponse(this, 2, P);
-  
+
 
   // basic force -
   } else if (strcmp(argv[0],"basicForce") == 0 || strcmp(argv[0],"basicForces") == 0) {
@@ -1482,14 +1467,14 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
 
   // chord rotation -
   } else if (strcmp(argv[0],"chordRotation") == 0 || strcmp(argv[0],"chordDeformation") == 0 
-	     || strcmp(argv[0],"basicDeformation") == 0) {
+             || strcmp(argv[0],"basicDeformation") == 0) {
 
     output.tag("ResponseType","eps");
     output.tag("ResponseType","theta1");
     output.tag("ResponseType","theta2");
 
     theResponse =  new ElementResponse(this, 3, Vector(3));
-  
+
   // plastic rotation -
   } else if (strcmp(argv[0],"plasticRotation") == 0 || strcmp(argv[0],"plasticDeformation") == 0) {
 
@@ -1505,106 +1490,110 @@ DispBeamColumnNL2d::setResponse(const char **argv, int argc,
   }
 
   // section response -
-  else if (strstr(argv[0],"sectionX") != 0) {
+  else if (strcmp(argv[0],"sectionX") == 0) {
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
       double xi[maxNumSections];
       double L = crdTransf->getInitialLength();
       beamInt->getSectionLocations(numSections, L, xi);
-      
+
       sectionLoc /= L;
 
       float minDistance = fabs(xi[0]-sectionLoc);
       int sectionNum = 0;
       for (int i = 1; i < numSections; i++) {
-	if (fabs(xi[i]-sectionLoc) < minDistance) {
-	  minDistance = fabs(xi[i]-sectionLoc);
-	  sectionNum = i;
-	}
-	  }
+        if (fabs(xi[i]-sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i]-sectionLoc);
+          sectionNum = i;
+        }
+          }
 
       output.tag("GaussPointOutput");
       output.attr("number",sectionNum+1);
       output.attr("eta",xi[sectionNum]*L);
-      
+
       theResponse = theSections[sectionNum]->setResponse(&argv[2], argc-2, output);
     }
   }
-  else if (strstr(argv[0],"section") != 0) {
+  else if (strcmp(argv[0],"section") == 0) {
 
     if (argc > 1) {
-      
+
       int sectionNum = atoi(argv[1]);
-      
+
       if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
 
-	output.tag("GaussPointOutput");
-	output.attr("number",sectionNum);
-	double xi[maxNumSections];
-	double L = crdTransf->getInitialLength();
-	beamInt->getSectionLocations(numSections, L, xi);
-	output.attr("eta",xi[sectionNum-1]*L);
+        output.tag("GaussPointOutput");
+        output.attr("number",sectionNum);
+        double xi[maxNumSections];
+        double L = crdTransf->getInitialLength();
+        beamInt->getSectionLocations(numSections, L, xi);
+        output.attr("eta",xi[sectionNum-1]*L);
 
-	if (strcmp(argv[2],"dsdh") != 0) {
-	  theResponse = theSections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
-	} else {
-	  int order = theSections[sectionNum-1]->getOrder();
-	  theResponse = new ElementResponse(this, 76, Vector(order));
-	  Information &info = theResponse->getInformation();
-	  info.theInt = sectionNum;
-	}
-	
-	output.endTag();
-      
+        if (strcmp(argv[2],"dsdh") != 0) {
+          theResponse = theSections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
+
+        } else {
+          int order = theSections[sectionNum-1]->getOrder();
+          theResponse = new ElementResponse(this, 76, Vector(order));
+          Information &info = theResponse->getInformation();
+          info.theInt = sectionNum;
+        }
+        
+        output.endTag();
+
       } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections, 
-	
-	CompositeResponse *theCResponse = new CompositeResponse();
-	int numResponse = 0;
-	double xi[maxNumSections];
-	double L = crdTransf->getInitialLength();
-	beamInt->getSectionLocations(numSections, L, xi);
-	
-	for (int i=0; i<numSections; i++) {
-	  
-	  output.tag("GaussPointOutput");
-	  output.attr("number",i+1);
-	  output.attr("eta",xi[i]*L);
-	  
-	  Response *theSectionResponse = theSections[i]->setResponse(&argv[1], argc-1, output);
+        
+        CompositeResponse *theCResponse = new CompositeResponse();
+        int numResponse = 0;
+        double xi[maxNumSections];
+        double L = crdTransf->getInitialLength();
+        beamInt->getSectionLocations(numSections, L, xi);
+        
+        for (int i=0; i<numSections; i++) {
+          
+          output.tag("GaussPointOutput");
+          output.attr("number",i+1);
+          output.attr("eta",xi[i]*L);
+          
+          Response *theSectionResponse = theSections[i]->setResponse(&argv[1], argc-1, output);
 
-	  output.endTag();	  
+          output.endTag();          
 
-	  if (theSectionResponse != 0) {
-	    numResponse = theCResponse->addResponse(theSectionResponse);
-	  }
-	}
-	
-	if (numResponse == 0) // no valid responses found
-	  delete theCResponse;
-	else
-	  theResponse = theCResponse;
+          if (theSectionResponse != 0) {
+            numResponse = theCResponse->addResponse(theSectionResponse);
+          }
+        }
+        
+        if (numResponse == 0) // no valid responses found
+          delete theCResponse;
+        else
+          theResponse = theCResponse;
       }
     }
   }
-  
+
   // curvature sensitivity along element length
   else if (strcmp(argv[0],"dcurvdh") == 0)
     return new ElementResponse(this, 5, Vector(numSections));
-  
+
   // basic deformation sensitivity
   else if (strcmp(argv[0],"dvdh") == 0)
     return new ElementResponse(this, 6, Vector(3));
-  
+
   else if (strcmp(argv[0],"integrationPoints") == 0)
     return new ElementResponse(this, 7, Vector(numSections));
-  
+
   else if (strcmp(argv[0],"integrationWeights") == 0)
     return new ElementResponse(this, 8, Vector(numSections));
 
   else if (strcmp(argv[0],"sectionTags") == 0)
     theResponse = new ElementResponse(this, 110, ID(numSections));
-  
+
+  if (theResponse == 0)
+    theResponse = crdTransf->setResponse(argv, argc, output);
+
   output.endTag();
   return theResponse;
 }
@@ -1662,23 +1651,23 @@ DispBeamColumnNL2d::getResponse(int responseID, Information &eleInfo)
     /*
       Vector curv(numSections);
       const Vector &v = crdTransf->getBasicDispGradient(1);
-      
+
       double L = crdTransf->getInitialLength();
       double oneOverL = 1.0/L;
       //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
       double pts[2];
       pts[0] = 0.0;
       pts[1] = 1.0;
-      
+
       // Loop over the integration points
       for (int i = 0; i < numSections; i++) {
-	int order = theSections[i]->getOrder();
-	const ID &code = theSections[i]->getType();
-	//double xi6 = 6.0*pts(i,0);
-	double xi6 = 6.0*pts[i];
-	curv(i) = oneOverL*((xi6-4.0)*v(1) + (xi6-2.0)*v(2));
+        int order = theSections[i]->getOrder();
+        const ID &code = theSections[i]->getType();
+        //double xi6 = 6.0*pts(i,0);
+        double xi6 = 6.0*pts[i];
+        curv(i) = oneOverL*((xi6-4.0)*v(1) + (xi6-2.0)*v(2));
       }
-      
+
       return eleInfo.setVector(curv);
     */
 
@@ -1691,8 +1680,8 @@ DispBeamColumnNL2d::getResponse(int responseID, Information &eleInfo)
       const ID &code = theSections[i]->getType();
       const Vector &dedh = theSections[i]->getdedh();
       for (int j = 0; j < order; j++) {
-	if (code(j) == SECTION_RESPONSE_MZ)
-	  curv(i) = dedh(j);
+        if (code(j) == SECTION_RESPONSE_MZ)
+          curv(i) = dedh(j);
       }
     }
     */
@@ -1732,14 +1721,14 @@ DispBeamColumnNL2d::getResponse(int responseID, Information &eleInfo)
       tags(i) = theSections[i]->getTag();
     return eleInfo.setID(tags);
   }
-  
+
   else
     return Element::getResponse(responseID, eleInfo);
 }
 
 int 
 DispBeamColumnNL2d::getResponseSensitivity(int responseID, int gradNumber,
-					   Information &eleInfo)
+                                           Information &eleInfo)
 {
   // Basic deformation sensitivity
   if (responseID == 3) {  
@@ -1789,15 +1778,14 @@ DispBeamColumnNL2d::getResponseSensitivity(int responseID, int gradNumber,
     double theta = (3*zeta*zeta-4*zeta+1)*v(1) + (3*zeta*zeta-2*zeta)*v(2);
     double dthetadh = (3*zeta*zeta-4*zeta+1)*dvdh(1) + (3*zeta*zeta-2*zeta)*dvdh(2);
 
-    int j;
-    for (j = 0; j < order; j++) {
+    for (int j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	dedh(j) = oneOverL*dvdh(0) + theta*dthetadh; break;
+        dedh(j) = oneOverL*dvdh(0) + theta*dthetadh; break;
       case SECTION_RESPONSE_MZ:
-	dedh(j) = oneOverL*((xi6-4.0)*dvdh(1) + (xi6-2.0)*dvdh(2)); break;
+        dedh(j) = oneOverL*((xi6-4.0)*dvdh(1) + (xi6-2.0)*dvdh(2)); break;
       default:
-	dedh(j) = 0.0; break;
+        dedh(j) = 0.0; break;
       }
     }
 
@@ -1816,51 +1804,51 @@ DispBeamColumnNL2d::setParameter(const char **argv, int argc, Parameter &param)
 {
   if (argc < 1)
     return -1;
-  
+
   // If the parameter belongs to the element itself
   if (strcmp(argv[0],"rho") == 0)
     return param.addObject(1, this);
-  
+
   if (strstr(argv[0],"sectionX") != 0) {
     if (argc < 3)
-		return -1;
-      
-	float sectionLoc = atof(argv[1]);
+                return -1;
+
+        float sectionLoc = atof(argv[1]);
 
       double xi[maxNumSections];
       double L = crdTransf->getInitialLength();
       beamInt->getSectionLocations(numSections, L, xi);
-      
+
       sectionLoc /= L;
 
       float minDistance = fabs(xi[0]-sectionLoc);
       int sectionNum = 0;
       for (int i = 1; i < numSections; i++) {
-	if (fabs(xi[i]-sectionLoc) < minDistance) {
-	  minDistance = fabs(xi[i]-sectionLoc);
-	  sectionNum = i;
-	}
-	  }  
-	return theSections[sectionNum]->setParameter(&argv[2], argc-2, param);
+        if (fabs(xi[i]-sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i]-sectionLoc);
+          sectionNum = i;
+        }
+          }  
+        return theSections[sectionNum]->setParameter(&argv[2], argc-2, param);
   }
   // If the parameter belongs to a section or lower
   if (strstr(argv[0],"section") != 0) {
-    
+
     if (argc < 3)
       return -1;
-    
+
     // Get section number: 1...Np
     int sectionNum = atoi(argv[1]);
-    
+
     if (sectionNum > 0 && sectionNum <= numSections)
       return theSections[sectionNum-1]->setParameter(&argv[2], argc-2, param);
-    
+
     else
       return -1;
   }
-  
+
   else if (strstr(argv[0],"integration") != 0) {
-    
+
     if (argc < 2)
       return -1;
 
@@ -1899,7 +1887,7 @@ int
 DispBeamColumnNL2d::activateParameter(int passedParameterID)
 {
   parameterID = passedParameterID;
-  
+
   return 0;
 }
 
@@ -1912,10 +1900,10 @@ DispBeamColumnNL2d::getInitialStiffSensitivity(int gradNumber)
 
   // Zero for integral
   kb.Zero();
-  
+
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
-  
+
   //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
   //const Vector &wts = quadRule.getIntegrPointWeights(numSections);
   double xi[maxNumSections];
@@ -1925,19 +1913,18 @@ DispBeamColumnNL2d::getInitialStiffSensitivity(int gradNumber)
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
-  
+
     Matrix ka(workArea, order, 3);
     ka.Zero();
 
-    //double xi6 = 6.0*pts(i,0);
     double xi6 = 6.0*xi[i];
-    
+
     // Get the section tangent stiffness and stress resultant
     const Matrix &ks = theSections[i]->getInitialTangentSensitivity(gradNumber);
-    
+
     // Perform numerical integration
     //kb.addMatrixTripleProduct(1.0, *B, ks, wts(i)/L);
     //double wti = wts(i)*oneOverL;
@@ -1947,51 +1934,51 @@ DispBeamColumnNL2d::getInitialStiffSensitivity(int gradNumber)
     for (j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < order; k++)
-	  ka(k,0) += ks(k,j)*wti;
-	break;
+        for (k = 0; k < order; k++)
+          ka(k,0) += ks(k,j)*wti;
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < order; k++) {
-	  tmp = ks(k,j)*wti;
-	  ka(k,1) += (xi6-4.0)*tmp;
-	  ka(k,2) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < order; k++) {
+          tmp = ks(k,j)*wti;
+          ka(k,1) += (xi6-4.0)*tmp;
+          ka(k,2) += (xi6-2.0)*tmp;
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
     for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:
-	for (k = 0; k < 3; k++)
-	  kb(0,k) += ka(j,k);
-	break;
+        for (k = 0; k < 3; k++)
+          kb(0,k) += ka(j,k);
+        break;
       case SECTION_RESPONSE_MZ:
-	for (k = 0; k < 3; k++) {
-	  tmp = ka(j,k);
-	  kb(1,k) += (xi6-4.0)*tmp;
-	  kb(2,k) += (xi6-2.0)*tmp;
-	}
-	break;
+        for (k = 0; k < 3; k++) {
+          tmp = ka(j,k);
+          kb(1,k) += (xi6-4.0)*tmp;
+          kb(2,k) += (xi6-2.0)*tmp;
+        }
+        break;
       default:
-	break;
+        break;
       }
     }
-    
+
   }
 
   // Transform to global stiffness
   K = crdTransf->getInitialGlobalStiffMatrix(kb);
-  
+
   return K;
 }
 
 const Matrix &
 DispBeamColumnNL2d::getMassSensitivity(int gradNumber)
 {
-	K.Zero();
-	return K;
+        K.Zero();
+        return K;
 }
 
 
@@ -2001,12 +1988,12 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
 {
   // Update the transformation
   crdTransf->update();
-  
+
   // Get basic deformations
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   double L = crdTransf->getInitialLength();
-  
+
   double xi[maxNumSections];
   beamInt->getSectionLocations(numSections, L, xi);
 
@@ -2016,13 +2003,13 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
   // Zero for integration
   static Vector dqdh(3);
   dqdh.Zero();
-  
+
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
-    
+
     //double xi6 = 6.0*pts(i,0);
     double xi6 = 6.0*xi[i];
     double zeta = xi[i];
@@ -2033,30 +2020,30 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
 
     //double wti = wts(i);
     double wti = wt[i];
-    
+
     // Get section stress resultant gradient
     const Vector &dsdh = theSections[i]->getStressResultantSensitivity(gradNumber,true);
-    
+
     // Perform numerical integration on internal force gradient
     double sensi;
     for (int j = 0; j < order; j++) {
       sensi = dsdh(j)*wti;
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	dqdh(0) += sensi; // 1
-	dqdh(1) += c1*theta*sensi*L; // 2
-	dqdh(2) += c2*theta*sensi*L; // 2
-	break;
+        dqdh(0) += sensi; // 1
+        dqdh(1) += c1*theta*sensi*L; // 2
+        dqdh(2) += c2*theta*sensi*L; // 2
+        break;
       case SECTION_RESPONSE_MZ:
-	dqdh(1) += (xi6-4.0)*sensi; // 1
-	dqdh(2) += (xi6-2.0)*sensi; // 1
-	break;
+        dqdh(1) += (xi6-4.0)*sensi; // 1
+        dqdh(2) += (xi6-2.0)*sensi; // 1
+        break;
       default:
-	break;
+        break;
       }
     }
   }
-  
+
 
 
   if (crdTransf->isShapeSensitivity()) {
@@ -2097,30 +2084,30 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
       double N = 0.0;
 
       for(int j = 0; j < order; j++) {
-	switch(code(j)) {
-	case SECTION_RESPONSE_P:
-	  N += s(j);
+        switch(code(j)) {
+        case SECTION_RESPONSE_P:
+          N += s(j);
 
-	  B(j,0) = 1.0/L;
-	  dBdh(j,0) = -dLdh/(L*L);
+          B(j,0) = 1.0/L;
+          dBdh(j,0) = -dLdh/(L*L);
 
-	  C(j,1) = c1;
-	  C(j,2) = c2;
-	  dCdh(j,1) = -(xi6-4.0)*xi[i]/L*dLdh + (xi6-4.0)/L*dptLdh;
-	  dCdh(j,2) = -(xi6-2.0)*xi[i]/L*dLdh + (xi6-2.0)/L*dptLdh;
+          C(j,1) = c1;
+          C(j,2) = c2;
+          dCdh(j,1) = -(xi6-4.0)*xi[i]/L*dLdh + (xi6-4.0)/L*dptLdh;
+          dCdh(j,2) = -(xi6-2.0)*xi[i]/L*dLdh + (xi6-2.0)/L*dptLdh;
 
-	  C1(0,1) = c1;
-	  C1(0,2) = c2;
-	  dC1dh(0,1) = -(xi6-4.0)*xi[i]/L*dLdh + (xi6-4.0)/L*dptLdh;
-	  dC1dh(0,2) = -(xi6-2.0)*xi[i]/L*dLdh + (xi6-2.0)/L*dptLdh;
-	  break;
-	case SECTION_RESPONSE_MZ:
-	  B(j,1) = (xi6-4.0)/L;
-	  B(j,2) = (xi6-2.0)/L;
-	  dBdh(j,1) = -(12*xi[i]-4.0)/(L*L)*dLdh + 6/(L*L)*dptLdh;
-	  dBdh(j,2) = -(12*xi[i]-2.0)/(L*L)*dLdh + 6/(L*L)*dptLdh;
-	  break;
-	}
+          C1(0,1) = c1;
+          C1(0,2) = c2;
+          dC1dh(0,1) = -(xi6-4.0)*xi[i]/L*dLdh + (xi6-4.0)/L*dptLdh;
+          dC1dh(0,2) = -(xi6-2.0)*xi[i]/L*dLdh + (xi6-2.0)/L*dptLdh;
+          break;
+        case SECTION_RESPONSE_MZ:
+          B(j,1) = (xi6-4.0)/L;
+          B(j,2) = (xi6-2.0)/L;
+          dBdh(j,1) = -(12*xi[i]-4.0)/(L*L)*dLdh + 6/(L*L)*dptLdh;
+          dBdh(j,2) = -(12*xi[i]-2.0)/(L*L)*dLdh + 6/(L*L)*dptLdh;
+          break;
+        }
       }
 
       dqdh.addMatrixTransposeVector(1.0, dBdh, s, wt[i]*L); // 3
@@ -2150,22 +2137,21 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
 
       continue;
 
-      double si;
       for(int j = 0; j < order; j++) {
-	switch(code(j)) {
-	  si = s(j)*wt[i];
-	case SECTION_RESPONSE_P:
-	  dqdh(0) += -dLdh/(L*L);
-	  dqdh(1) += (-6*xi[i]+4.0)*xi[i]/L*theta*si*L*dLdh;
-	  dqdh(2) += (-6*xi[i]+2.0)*xi[i]/L*theta*si*L*dLdh;
-	  break;
-	case SECTION_RESPONSE_MZ:
-	  dqdh(1) += (-12*xi[i]+4.0)/(L*L)*si*L*dLdh; 
-	  dqdh(2) += (-12*xi[i]+2.0)/(L*L)*si*L*dLdh; 
-	  break;
-	default:
-	  break;
-	}
+        double si = s(j)*wt[i];
+        switch(code(j)) {
+        case SECTION_RESPONSE_P:
+          dqdh(0) += -dLdh/(L*L);
+          dqdh(1) += (-6*xi[i]+4.0)*xi[i]/L*theta*si*L*dLdh;
+          dqdh(2) += (-6*xi[i]+2.0)*xi[i]/L*theta*si*L*dLdh;
+          break;
+        case SECTION_RESPONSE_MZ:
+          dqdh(1) += (-12*xi[i]+4.0)/(L*L)*si*L*dLdh; 
+          dqdh(2) += (-12*xi[i]+2.0)/(L*L)*si*L*dLdh; 
+          break;
+        default:
+          break;
+        }
       }
 
     }
@@ -2174,7 +2160,7 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
 
 
   // Transform forces
-  static Vector dp0dh(3);		// No distributed loads
+  static Vector dp0dh(3);                // No distributed loads
   dp0dh.Zero();
 
   P.Zero();
@@ -2182,12 +2168,12 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
   //////////////////////////////////////////////////////////////
 
   if (crdTransf->isShapeSensitivity()) {
-    
+
     // Perform numerical integration to obtain basic stiffness matrix
     // Some extra declarations
     static Matrix kbmine(3,3);
     this->getBasicStiff(kbmine);
-    
+
     // k dAdh u
     const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
     //dqdh.addMatrixVector(1.0, kbmine, dAdh_u, oneOverL);
@@ -2196,10 +2182,10 @@ DispBeamColumnNL2d::getResistingForceSensitivity(int gradNumber)
     // dAdh^T q
     P += crdTransf->getGlobalResistingForceShapeSensitivity(q, dp0dh, gradNumber);
   }
-  
+
   // A^T (dqdh + k dAdh u)
   P += crdTransf->getGlobalResistingForce(dqdh, dp0dh);
-  
+
   return P;
 }
 
@@ -2211,10 +2197,10 @@ DispBeamColumnNL2d::commitSensitivity(int gradNumber, int numGrads)
 {
   // Get basic deformation and sensitivities
   const Vector &v = crdTransf->getBasicTrialDisp();
-  
+
   static Vector dvdh(3);
   dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
-  
+
   double L = crdTransf->getInitialLength();
   double oneOverL = 1.0/L;
 
@@ -2223,17 +2209,17 @@ DispBeamColumnNL2d::commitSensitivity(int gradNumber, int numGrads)
 
   // Some extra declarations
   double d1oLdh = crdTransf->getd1overLdh();
-  
+
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = theSections[i]->getOrder();
     const ID &code = theSections[i]->getType();
-    
+
     Vector e(workArea, order);
-    
+
     double xi6 = 6.0*xi[i];
-    
+
     double zeta = xi[i];
 
     double c1 = 3*zeta*zeta-4*zeta+1;
@@ -2243,24 +2229,24 @@ DispBeamColumnNL2d::commitSensitivity(int gradNumber, int numGrads)
     for (int j = 0; j < order; j++) {
       switch(code(j)) {
       case SECTION_RESPONSE_P:
-	e(j) = oneOverL*dvdh(0)
-	  + d1oLdh*v(0)
-	  + theta*(c1*dvdh(1)+c2*dvdh(2)); 
-	break;
+        e(j) = oneOverL*dvdh(0)
+          + d1oLdh*v(0)
+          + theta*(c1*dvdh(1)+c2*dvdh(2)); 
+        break;
       case SECTION_RESPONSE_MZ:
-	e(j) = oneOverL*((xi6-4.0)*dvdh(1) + (xi6-2.0)*dvdh(2))
-	  + d1oLdh*((xi6-4.0)*v(1) + (xi6-2.0)*v(2)); 
-	break;
+        e(j) = oneOverL*((xi6-4.0)*dvdh(1) + (xi6-2.0)*dvdh(2))
+          + d1oLdh*((xi6-4.0)*v(1) + (xi6-2.0)*v(2)); 
+        break;
       default:
-	e(j) = 0.0; 
-	break;
+        e(j) = 0.0; 
+        break;
       }
     }
-    
+
     // Set the section deformations
     theSections[i]->commitSensitivity(e,gradNumber,numGrads);
   }
-  
+
   return 0;
 }
 

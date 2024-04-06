@@ -809,7 +809,6 @@ int
 GmshRecorder::write_element_graph()
 {
 
-
 #ifdef _PARALLEL_PROCESSING
     int rank = 0; 
     int nproc = 1; 
@@ -822,15 +821,12 @@ GmshRecorder::write_element_graph()
     //     return 0;  // Only do this on proc0
     // }
 
-    // DEBUGSTREAM << "Saving mesh for rank ---> " << rank << endln;
-
     if (theDomain == 0) {
         opserr << "WARNING: setDomain has not been called -- GmshRecorder\n";
         return -1;
     }
 
-    if(do_only_once)        
-    {
+    if (do_only_once) {
         // get time and part
         std::stringstream ss;
         ss.precision(precision);
@@ -868,7 +864,7 @@ GmshRecorder::write_element_graph()
 
         theFile << numvertex << endln;
 
-        //Iterate the graph, get the vertices (which correspond to the elements)
+        // Iterate the graph, get the vertices (which correspond to the elements)
         VertexIter vertices = theGraph.getVertices();
         Vertex *v = vertices();
         while(v != 0)
@@ -974,7 +970,6 @@ GmshRecorder::write_element_graph()
 
 #endif
 
-
         write_header_now = true;
         write_header();
         theFile << "$Elements\n";
@@ -982,12 +977,10 @@ GmshRecorder::write_element_graph()
         vertices.reset();
         v = vertices();
         int neweletag = start_tag;
-        while(v != 0)
-        {
+        while(v != 0) {
             int eletag = v->getRef();
             const ID& adjacent_vertices = v->getAdjacency();
-            for (int i = 0; i <= adjacent_vertices.Size(); i++)
-            {
+            for (int i = 0; i <= adjacent_vertices.Size(); i++) {
                 theFile << neweletag << " " << GMSH_LINE << " " << "2 " << rank+1 << " " << rank+1 << " " << eletag << " " << adjacent_vertices(i) <<endln; 
                 neweletag++;
             }
@@ -1429,6 +1422,7 @@ GmshRecorder::setGMSHType()
     gmshtypes[ELE_TAG_SFI_MVLEM_3D] = GMSH_POLY_VERTEX;
     gmshtypes[ELE_TAG_E_SFI_MVLEM_3D] = GMSH_POLY_VERTEX;
 	gmshtypes[ELE_TAG_E_SFI] = GMSH_POLY_VERTEX;
+        gmshtypes[ELE_TAG_MEFI] = GMSH_POLY_VERTEX;
     gmshtypes[ELE_TAG_PFEMElement2DFIC] = GMSH_TRIANGLE;
     gmshtypes[ELE_TAG_CatenaryCable] = GMSH_LINE;
     gmshtypes[ELE_TAG_FourNodeTetrahedron] = GMSH_TETRA;

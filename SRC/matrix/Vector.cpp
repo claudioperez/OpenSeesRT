@@ -28,7 +28,6 @@
 #include "Matrix.h"
 #include "ID.h"
 #include <iostream>
-using std::nothrow;
 
 #include <math.h>
 #include <assert.h>
@@ -59,7 +58,17 @@ Vector::Vector(int size)
   //  theData = (double *)malloc(size*sizeof(double));
   if (size > 0)
     theData = new double [size]{};
+}
 
+Vector::Vector(std::shared_ptr<double[]> data, int size)
+: sz(size), theData(0), fromFree(0)
+{
+  if (size > 0) {
+    theData = new double [size];
+
+    for (int i=0; i<sz; i++)
+      theData[i] = data[i];
+  }
 }
 
 
@@ -76,7 +85,6 @@ Vector::Vector(double *data, int size)
 #endif
 }
  
-
 
 // Vector(const Vector&):
 //        Constructor to init a vector from another.
@@ -117,6 +125,16 @@ Vector::~Vector()
 
 int 
 Vector::setData(double *newData, int size){
+//assert(size >= 0);
+  assert(size >  0);
+#if 0
+  if (size <= 0) {
+    opserr << " Vector::Vector(double *, size) - size specified: " << size << " <= 0\n";
+    size = 0;
+  }
+#endif
+
+
   if (theData != 0 && fromFree == 0) {
     delete [] theData;      
     theData = 0;
@@ -125,11 +143,6 @@ Vector::setData(double *newData, int size){
   theData = newData;
   fromFree = 1;
 
-  if (sz <= 0) {
-    opserr << " Vector::Vector(double *, size) - size specified: " << size << " <= 0\n";
-    sz = 0;
-  }
-
   return 0;
 }
 
@@ -137,15 +150,11 @@ Vector::setData(double *newData, int size){
 
 int 
 Vector::resize(int newSize){
-
   // first check that newSize is valid
-  if (newSize < 0) {
-    opserr << "Vector::resize) - size specified " << newSize << " <= 0\n";
-    return -1;
-  } 
+  assert(newSize >= 0);
   
   // otherwise if newSize is gretaer than oldSize free old space and get new space
-  else if (newSize > sz) {
+  if (newSize > sz) {
 
     // delete the old array
     if (theData != 0 && fromFree == 0) {
@@ -186,15 +195,10 @@ Vector::Assemble(const Vector &V, const ID &l, double fact )
     
     if (pos < 0)
       ;
-    else if ((pos < sz) && (i < V.Size()))
+    else {
+      assert((pos < sz) && (i < V.Size()));
       // assemble into vector
       theData[pos] += V.theData[i] *fact;
-    else {
-      result = -1;
-      if (pos < sz)
-        opserr << "Vector::Assemble() " << pos << " out of range [1, " << sz-1 << "]\n";
-      else
-        opserr << "Vector::Assemble() " << pos << " out of range [1, "<< V.Size()-1 << "]\n";
     }
   }
 
@@ -332,8 +336,7 @@ Vector::addVector(double thisFact, const Vector &other, double otherFact )
   // successfull
   return 0;
 }
-            
-        
+
 
 int
 Vector::addMatrixVector(double thisFact, const Matrix &m, const Vector &v, double otherFact )
@@ -678,7 +681,7 @@ Vector::operator[](int x)
   
   if (x >= sz) {
     // TODO: Is this expected?
-    double *dataNew = new (nothrow) double[x+1];
+    double *dataNew = new double[x+1];
     for (int i=0; i<sz; i++)
       dataNew[i] = theData[i];
     for (int j=sz; j<x; j++)
@@ -696,19 +699,11 @@ Vector::operator[](int x)
   return theData[x];
 }
 
-double Vector::operator[](int x) const
-{
-  // check if it is inside range [0,sz-1]
-  assert(x >= 0 && x < sz);
-  return theData[x];
-}
 
 
 // operator()(const ID &rows) const
 //        Method to return a vector whose components are the components of the
 //        current vector located in positions given by the ID rows.
-
-
 Vector 
 Vector::operator()(const ID &rows) const
 {
@@ -719,10 +714,8 @@ Vector::operator()(const ID &rows) const
   int pos;
   for (int i=0; i<rows.Size(); i++) {
     pos = rows(i);
-    if (pos <0 || pos >= sz) {
-      opserr << "Vector::()(ID) - invalid location " << pos << " outside range [0, " << sz-1 << "]\n";
-    } else
-      result(i) = (*this)(pos);
+    assert(pos >= 0 && pos < sz);
+    result(i) = (*this)(pos);
   }
   return result;
 }
@@ -737,24 +730,22 @@ Vector::operator()(const ID &rows) const
 Vector &
 Vector::operator=(const Vector &V) 
 {
+  // assert(sz == V.sz); // TODO
   // first check we are not trying v = v
   if (this != &V) {
 
       if (sz != V.sz)  {
-#ifdef _G3DEBUG
-          opserr << "Vector::operator=() - vectors of differing sizes\n";
-#endif
-
           // Check that we are not deleting an empty Vector
-          if (this->theData != 0){
+          if (this->theData != nullptr){
             delete [] this->theData;
-            this->theData = 0;
+            this->theData = nullptr;
           }
           this->sz = V.sz;
           
           // Check that we are not creating an empty Vector
-          theData = (sz != 0) ? new double[sz] : nullptr;
+          this->theData = (sz != 0) ? new double[sz] : nullptr;
       }
+
       // copy the data
       for (int i=0; i<sz; i++)
         theData[i] = V.theData[i];
@@ -832,10 +823,13 @@ Vector &Vector::operator*=(double fact)
 
 Vector &Vector::operator/=(double fact)
 {
+#if 0
   if (fact == 0.0) { // instead of divide-by-zero error set to VECTOR_VERY_LARGE_VALUE
     for (int i=0; i<sz; i++)
       theData[i] = VECTOR_VERY_LARGE_VALUE;
-  } else {
+  } else 
+#endif
+  {
     for (int i=0; i<sz; i++)
       theData[i] /= fact;
   }
@@ -854,9 +848,6 @@ Vector
 Vector::operator+(double fact) const
 {
   Vector result(*this);
-  if (result.Size() != sz) 
-    opserr << "Vector::operator+(double) - ran out of memory for new Vector\n";
-
   result += fact;
   return result;
 }
@@ -871,9 +862,6 @@ Vector
 Vector::operator-(double fact) const
 {
     Vector result(*this);
-    if (result.Size() != sz) 
-      opserr << "Vector::operator-(double) - ran out of memory for new Vector\n";
-
     result -= fact;
     return result;
 }
@@ -888,9 +876,6 @@ Vector
 Vector::operator*(double fact) const
 {
     Vector result(*this);
-    if (result.Size() != sz) 
-      opserr << "Vector::operator*(double) - ran out of memory for new Vector\n";
-
     result *= fact;
     return result;
 }
@@ -903,13 +888,8 @@ Vector::operator*(double fact) const
 Vector 
 Vector::operator/(double fact) const
 {
-    if (fact == 0.0) 
-      opserr << "Vector::operator/(double fact) - divide-by-zero error coming\n";
-
+    assert(fact != 0.0);
     Vector result(*this);
-    if (result.Size() != sz) 
-      opserr << "Vector::operator/(double) - ran out of memory for new Vector\n";
-
     result /= fact;
     return result;
 }
@@ -923,39 +903,24 @@ Vector::operator/(double fact) const
 Vector &
 Vector::operator+=(const Vector &other)
 {
-#ifdef _G3DEBUG
-  if (sz != other.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << other.sz << endln;
-    return *this;
-  }    
-#endif
-
+  assert(sz == other.sz);
   for (int i=0; i<sz; i++)
     theData[i] += other.theData[i];
-  return *this;            
+  return *this;
 }
-
 
 
 // Vector &operator-=(const Vector &V):
 //        The -= operator subtracts V's data from  data, data[i]+=V(i). A check 
 //           to see if vectors are of same size is performed if VECTOR_CHECK is defined.
-
 Vector &
 Vector::operator-=(const Vector &other)
 {
-#ifdef _G3DEBUG
-  if (sz != other.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << other.sz << endln;
-    return *this;
-  }
-#endif
-  
+  assert(sz == other.sz);
   for (int i=0; i<sz; i++)
     theData[i] -= other.theData[i];
   return *this;    
 }
-
 
 
 // Vector operator+(const Vector &V):
@@ -965,20 +930,8 @@ Vector::operator-=(const Vector &other)
 Vector 
 Vector::operator+(const Vector &b) const
 {
-#ifdef _G3DEBUG
-  if (sz != b.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << b.sz << endln;
-    return *this;
-  }
-#endif
-
-    Vector result(*this);
-
-    // check new Vector of correct size
-  if (result.Size() != sz) {
-    opserr << "Vector::operator-(Vector): new Vector not of correct size \n";
-    return result;
-  }
+  assert(sz == b.sz);
+  Vector result(*this);
   result += b;
   return result;
 }
@@ -991,21 +944,8 @@ Vector::operator+(const Vector &b) const
 Vector 
 Vector::operator-(const Vector &b) const
 {
-#ifdef _G3DEBUG
-  if (sz != b.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << b.sz << endln;
-    return *this;
-  }
-#endif
-
+  assert(sz == b.sz);
   Vector result(*this);
-
-  // check new Vector of correct size
-  if (result.Size() != sz) {
-    opserr << "Vector::operator-(Vector): new Vector not of correct size \n";
-    return result;
-  }
-
   result -= b;
   return result;
 }
@@ -1017,12 +957,7 @@ Vector::operator-(const Vector &b) const
 double
 Vector::operator^(const Vector &V) const
 {
-#ifdef _G3DEBUG
-  if (sz != V.sz) {
-    opserr << "WARNING Vector::operator+=(Vector):Vectors not of same sizes: " << sz << " != " << V.sz << endln;
-    return 0.0;
-  }
-#endif
+  assert(sz == V.sz);
 
   double result = 0.0;
   double *dataThis = theData;
@@ -1125,14 +1060,7 @@ Vector::operator!=(double value) const
 
 OPS_Stream &operator<<(OPS_Stream &s, const Vector &V)
 {
-  /*
-  for (int i=0; i<V.Size(); i++) 
-      s << V(i) << " ";
-
-  return s << endln;
-  */
   return s.write(V.theData, V.sz);
-
 }
 
 // friend istream &operator>>(istream &s, Vector &V)
@@ -1159,46 +1087,30 @@ Vector operator*(double a, const Vector &V)
 int
 Vector::Assemble(const Vector &V, int init_pos, double fact) 
 {
-  int res = 0;
-  int cur_pos   = init_pos;  
-  int final_pos = init_pos + V.sz - 1;
-  
-  if ((init_pos >= 0) && (final_pos < sz)) {
-     for (int j=0; j<V.sz; j++) 
-        (*this)(cur_pos++) += V(j)*fact;
-  }
-  else {
-     opserr << "WARNING: Vector::Assemble(const Vector &V, int init_pos, double fact): ";
-     opserr << "position outside bounds \n";
-     res = -1;
-  }
+  assert((init_pos >= 0) && ((init_pos + V.sz - 1) < sz));
 
-  return res;
+  int cur_pos = init_pos;
+  for (int j=0; j<V.sz; j++) 
+     (*this)(cur_pos++) += V(j)*fact;
+
+  return 0;
 }
 
 int
 Vector::Extract(const Vector &V, int init_pos, double fact) 
 {
-  int res = 0;
-  int cur_pos   = init_pos;  
-  int final_pos = init_pos + sz - 1;
-  
-  if ((init_pos >= 0) && (final_pos < V.sz))
-  {
-     for (int j=0; j<sz; j++) 
-        (*this)(j) = V(cur_pos++)*fact;
-  }
-  else 
-  {
-     opserr << "WARNING: Vector::Assemble(const Vector &V, int init_pos, double fact): ";
-     opserr << "position outside bounds \n";
-     res = -1;
-  }
 
-  return res;
+  assert((init_pos >= 0) && ((init_pos + sz - 1) < V.sz));
+
+  int cur_pos   = init_pos;  
+  for (int j=0; j<sz; j++) 
+     (*this)(j) = V(cur_pos++)*fact;
+
+  return 0;
 }
 
-Matrix Vector::operator%(const Vector &V) const
+Matrix
+Vector::operator%(const Vector &V) const
 {
   // if sizes are compatable add
 #ifdef _G3DEBUG
@@ -1217,5 +1129,4 @@ Matrix Vector::operator%(const Vector &V) const
       result(i,j)=theData[i]*V.theData[j];
   
   return result;
-  
 }

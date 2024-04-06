@@ -5,6 +5,7 @@
 //
 //
 #include <G3_Runtime.h>
+#include <OPS_Globals.h> // Tcl_Char
 #include <G3_Logging.h>
 #include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
@@ -1005,6 +1006,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             eleLoadTag++;
           } //end of loop tf all elements defined
           return 0;
+
         } //end for defing thermal action with nodal input
         else {
 #ifdef SIMULATIN_INFO
@@ -1012,7 +1014,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           simulationInfo.addInputFile(argv[count], pwd);
 #endif
           count++;
-          bool using2Ddata = false;
+          // bool using2Ddata = false;
 
           double RcvLoc1, RcvLoc2, RcvLoc3, RcvLoc4;
           TimeSeries *theSeries;
@@ -1020,7 +1022,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           if (argc - count == 4) {
             theSeries =
                 new PathTimeSeriesThermal(eleLoadTag, argv[count - 1], 15);
-            using2Ddata = false;
+            // using2Ddata = false;
 
             if (Tcl_GetDouble(interp, argv[count], &RcvLoc1) != TCL_OK) {
               opserr << "WARNING eleLoad - invalid single loc  " << argv[count]
@@ -1071,7 +1073,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           else if (argc - count == 2 || argc - count == 9) {
             // for receiving data which has the similar structure as 2D beam section
             Vector locs(9);
-            using2Ddata = true;
+            // using2Ddata = true;
             TimeSeries *theSeries =
                 new PathTimeSeriesThermal(eleLoadTag, argv[count - 1], 9);
             if (argc - count == 2) {
@@ -1384,4 +1386,5 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // if get here we have successfully created the load and added it to the domain
+  return TCL_OK;
 }

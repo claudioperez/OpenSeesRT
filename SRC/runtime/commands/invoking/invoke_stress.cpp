@@ -12,6 +12,9 @@
 #include <Matrix.h>
 #include <NDMaterial.h>
 #include <BasicModelBuilder.h>
+#include <G3_Logging.h>
+
+typedef const char TCL_Char;
 
 Tcl_CmdProc PlaneStress_usePlaneStressMaterial;
 static Tcl_CmdProc PlaneStress_setStrainPlaneStressMaterial;
@@ -37,7 +40,7 @@ int TclCommand_usePlaneStress(ClientData clientData, Tcl_Interp *interp, int arg
 
   // get the material from the modelbuilder with matID
   // and set the testing material to point to a copy of it
-  NDMaterial *theMaterial = builder->getNDMaterial(matID);
+  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
   if (theMaterial == nullptr) {
     opserr << "WARNING no material found with matID\n";
     return TCL_ERROR;

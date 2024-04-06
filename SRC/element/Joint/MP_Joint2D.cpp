@@ -17,15 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2010-04-23 22:53:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/joint/MP_Joint2D.cpp,v $
-
+//
 // Written: Arash Altoontash, Gregory Deierlein
 // Created: 08/01
 // Revision: Arash
-
+//
 // Purpose: This file contains the implementation of class MP_TimeVary.
 
 
@@ -38,8 +34,9 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
- 
-				// main degree of freedom for rotation
+#include <OPS_ErrorStream.h> 
+
+// main degree of freedom for rotation
 
 // constructor for FEM_ObjectBroker
 MP_Joint2D::MP_Joint2D()
@@ -62,7 +59,7 @@ MP_Joint2D::MP_Joint2D(Domain *theDomain, int nodeRetain, int nodeConstr,
  LargeDisplacement( LrgDsp ), Length0(0.0)
 {
 
-  if( thisDomain == NULL ) {
+  if( thisDomain == nullptr ) {
     opserr << "WARNING MP_Joint2D(): Specified domain does not exist";
     opserr << "Domain = 0\n";
     return;

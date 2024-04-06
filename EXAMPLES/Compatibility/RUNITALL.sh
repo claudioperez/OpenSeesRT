@@ -1,8 +1,14 @@
 #!/bin/bash
 #
-Results="README.md"
-OPENSEES="python -m opensees"
+
 #OPENSEES=OpenSees
+OPENSEES="python -m opensees"
+
+#Results="README.md"
+Results="Memory.md"
+export LD_PRELOAD=/home/claudio/mambaforge/envs/py39/x86_64-conda-linux-gnu/lib/libasan.so
+export OPENSEESRT_LIB=/home/claudio/packages/opensees-pypi/build/temp.linux-x86_64-cpython-39_debug/src/libg3/SRC/runtime/libOpenSeesRT.so
+export OPENSEESRT_LIB="/home/claudio/opensees/OpenSeesRT/build/temp.linux-x86_64-cpython-39_stack/src/libg3/SRC/runtime/libOpenSeesRT.so"
 
 cat - > $Results <<EOF
 # Examples

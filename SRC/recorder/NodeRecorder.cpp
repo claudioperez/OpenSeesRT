@@ -79,7 +79,7 @@ NodeRecorder::NodeRecorder(const ID &dofs,
  theDofs(0), theNodalTags(0), theNodes(0), response(0),
  theDomain(&theDom), theOutputHandler(&theOutput),
  echoTimeFlag(timeFlag), dataFlag(_dataFlag), dataIndex(_dataIndex),
- deltaT(dT), relDeltaTTol(relDeltaTTol), nextTimeStampToRecord(0.0), 
+ deltaT(dT), relDeltaTTol(_relDeltaTTol), nextTimeStampToRecord(0.0), 
  gradIndex(pgradIndex), 
  initializationDone(false), numValidNodes(0), addColumnInfo(0), 
  theTimeSeries(theSeries), timeSeriesValues(0)
@@ -826,8 +826,8 @@ NodeRecorder::initialize(void)
   // need to create the data description, i.e. what each column of data is
   //
   
-  char outputData[32];
-  char dataType[32];
+  char outputData[64];
+  char dataType[64];
 
   if (dataFlag == NodeData::DisplTrial) {
     strcpy(dataType,"D");

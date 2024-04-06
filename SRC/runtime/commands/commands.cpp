@@ -60,7 +60,6 @@
 #include <Information.h>
 #include <Response.h>
 #include <packages.h>
-#include <TclPackageClassBroker.h>
 //
 // Global variables
 //

@@ -103,7 +103,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SAniSandMSMaterial)
 
 	int    tag;
 	double dData[19];
-	int flags[3];
+	int flags[5];
 	double oData[2];
 
 	flags[0] = 3;          // IntScheme
@@ -154,7 +154,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SAniSandMSMaterial)
 		dData[6], dData[7], dData[8], dData[9], dData[10], dData[11],
 		dData[12], dData[13], dData[14], dData[15], dData[16],
 		dData[17], dData[18], 
-		flags[2], flags[3], flags[4],
+		flags[0], flags[1], flags[2],
 		oData[0], oData[1]);
 
 
@@ -312,31 +312,31 @@ SAniSandMS::SAniSandMS(int tag, int classTag, double G0, double nu,
 	mMM_minus = 0;
 	mMM_minus_n = 0;
 
-	opserr << "SAniSandMS::SAniSandMS(1)" << endln;
-	opserr << "G0 = " << G0 << endln;
-	opserr << "nu = " << nu << endln;
-	opserr << "e_init = " << e_init << endln;
-	opserr << "Mc = " << Mc << endln;
-	opserr << "c = " << c << endln;
-	opserr << "lambda_c = " << lambda_c << endln;
-	opserr << "e0 = " << e0 << endln;
-	opserr << "ksi = " << ksi << endln;
-	opserr << "P_atm = " << P_atm << endln;
-	opserr << "m = " << m << endln;
-	opserr << "h0 = " << h0 << endln;
-	opserr << "ch = " << ch << endln;
-	opserr << "nb = " << nb << endln;
-	opserr << "A0 = " << A0 << endln;
-	opserr << "nd = " << nd << endln;
-	opserr << "zeta = " << zeta << endln;
-	opserr << "mu0 = " << mu0 << endln;
-	opserr << "beta = " << m_beta << endln;
-	opserr << "mDen = " << mDen << endln;
-	opserr << "integrationScheme = " << integrationScheme << endln;
-	opserr << "tangentType = " << tangentType << endln;
-	opserr << "JacoType = " << JacoType << endln;
-	opserr << "TolF = " << TolF << endln;
-	opserr << "TolR = " << TolR << endln;
+//	opserr << "SAniSandMS::SAniSandMS(1)" << endln;
+//	opserr << "G0 = " << G0 << endln;
+//	opserr << "nu = " << nu << endln;
+//	opserr << "e_init = " << e_init << endln;
+//	opserr << "Mc = " << Mc << endln;
+//	opserr << "c = " << c << endln;
+//	opserr << "lambda_c = " << lambda_c << endln;
+//	opserr << "e0 = " << e0 << endln;
+//	opserr << "ksi = " << ksi << endln;
+//	opserr << "P_atm = " << P_atm << endln;
+//	opserr << "m = " << m << endln;
+//	opserr << "h0 = " << h0 << endln;
+//	opserr << "ch = " << ch << endln;
+//	opserr << "nb = " << nb << endln;
+//	opserr << "A0 = " << A0 << endln;
+//	opserr << "nd = " << nd << endln;
+//	opserr << "zeta = " << zeta << endln;
+//	opserr << "mu0 = " << mu0 << endln;
+//	opserr << "beta = " << m_beta << endln;
+//	opserr << "mDen = " << mDen << endln;
+//	opserr << "integrationScheme = " << integrationScheme << endln;
+//	opserr << "tangentType = " << tangentType << endln;
+//	opserr << "JacoType = " << JacoType << endln;
+//	opserr << "TolF = " << TolF << endln;
+//	opserr << "TolR = " << TolR << endln;
 	
 
 	massDen = mDen;

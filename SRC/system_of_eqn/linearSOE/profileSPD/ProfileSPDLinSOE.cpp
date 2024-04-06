@@ -17,18 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2009-05-20 17:30:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinSOE.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Revision: A
 //
 // Description: This file contains the implementation for ProfileSPDLinSOE
-
-#include <stdlib.h>
+//
+#include <assert.h>
 #include <ProfileSPDLinSOE.h>
 #include <ProfileSPDLinSolver.h>
 #include <Matrix.h>
@@ -84,39 +79,15 @@ ProfileSPDLinSOE::ProfileSPDLinSOE(int N, int *iLoc,
     size = N;
     profileSize = iLoc[N-1];
     
-    A = new (nothrow) double[iLoc[N-1]];
-	
-    if (A == 0) {
-	opserr << "FATAL:BandSPDLinSOE::BandSPDLinSOE :";
-	opserr << " ran out of memory for A (profileSize) (";
-	opserr << size <<", " << profileSize << ") \n";
-	size = 0; profileSize = 0;
-    }
-    else {
-	// zero the matrix
-	Asize = iLoc[N-1];
-	for (int k=0; k<Asize; k++)
-	    A[k] = 0;
-    
-	B = new (nothrow) double[size];
-	X = new (nothrow) double[size];
-	iDiagLoc = new (nothrow) int[size];
-    
-	if (B == 0 || X == 0 || iDiagLoc == 0 ) {
-	    opserr << "WARNING ProfileSPDLinSOE::ProfileSPDLinSOE :";
-	    opserr << " ran out of memory for vectors (size) (";
-	    opserr << size << ") \n";
-	    size = 0; Bsize = 0;
-	} else
-	    Bsize = size;
+    A = new  double[iLoc[N-1]]{};
+    // zero the matrix
+    Asize = iLoc[N-1];
 
-	// zero the vectors
-	for (int i=0; i<size; i++) {
-	    B[i] = 0;
-	    X[i] = 0;
-	    iDiagLoc[i] = iLoc[i];
-	}
-    }
+    B = new  double[size]{};
+    X = new  double[size]{};
+    iDiagLoc = new  int[size]{};
+
+    Bsize = size;
 
     vectX = new Vector(X,size);
     vectB = new Vector(B,size);
@@ -260,8 +231,8 @@ ProfileSPDLinSOE::setSize(Graph &theGraph)
     LinearSOESolver *the_Solver = this->getSolver();
     int solverOK = the_Solver->setSize();
     if (solverOK < 0) {
-	opserr << "WARNING ProfileSPDLinSOE::setSize :";
-	opserr << " solver failed setSize()\n";
+	// opserr << "WARNING ProfileSPDLinSOE::setSize :";
+	// opserr << " solver failed setSize()\n";
 	return solverOK;
     }    
 
@@ -271,15 +242,13 @@ ProfileSPDLinSOE::setSize(Graph &theGraph)
 int 
 ProfileSPDLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
+    assert(id.Size() == m.noRows() && id.Size() == m.noCols());
+
     // check for a quick return 
     if (fact == 0.0)  return 0;
     
     // check that m and id are of similar size
     int idSize = id.Size();    
-    if (idSize != m.noRows() && idSize != m.noCols()) {
-	opserr << "ProfileSPDLinSOE::addA()	- Matrix and ID not of similar sizes\n";
-	return -1;
-    }
 
     if (fact == 1.0) { // do not need to multiply 
 	for (int i=0; i<idSize; i++) {
@@ -499,21 +468,15 @@ ProfileSPDLinSOE::setX(const Vector &x)
 const Vector &
 ProfileSPDLinSOE::getX(void)
 {
-    if (vectX == 0) {
-	opserr << "FATAL ProfileSPDLinSOE::getX - vectX == 0";
-	exit(-1);
-    }    
-    return *vectX;
+  assert(vectX != nullptr);
+  return *vectX;
 }
 
 const Vector &
 ProfileSPDLinSOE::getB(void)
 {
-    if (vectB == 0) {
-	opserr << "FATAL ProfileSPDLinSOE::getB - vectB == 0";
-	exit(-1);
-    }        
-    return *vectB;
+  assert(vectB != nullptr);
+  return *vectB;
 }
 
 double 

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2009-08-25 22:33:11 $
-// $Source: /usr/local/cvs/OpenSees/SRC/handler/DatabaseStream.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Date: 10/04
 //
@@ -31,6 +27,7 @@
 // What: "@(#) DatabaseStream.C, revA"
 
 #include "DatabaseStream.h"
+#include <OPS_ErrorStream.h>
 #include <FE_Datastore.h>
 #include <Vector.h>
 #include <string.h>
@@ -46,9 +43,6 @@ DatabaseStream::DatabaseStream(FE_Datastore *database, const char *tName)
   if (tName != 0) {
     tableName = new char [strlen(tName)+1];
     strcpy(tableName, tName);
-    if (tableName == 0) {
-      opserr << "DatabaseStream::DatabaseStream - out of memory creating copy of tableName: " << tName << endln;
-    }
   }
 }
 
@@ -78,7 +72,7 @@ DatabaseStream::write(Vector &data)
   if (data.Size() == numColumns)
     if (theDatabase != 0)
       result = theDatabase->insertData(tableName, columns, commitTag, data);
-      else {
+    else {
       opserr << "DatabaseStream::write() - database has not been set\n";
       return -1;
     } 
@@ -106,10 +100,6 @@ DatabaseStream::setDatabase(FE_Datastore &database, const char *tName)
   
   tableName = new char [strlen(tName)+1];
   strcpy(tableName, tName);
-  if (tableName == 0) {
-    opserr << "DatabaseStream::DatabaseStream - out of memory creating copy of tableName: " << tName << endln;
-    return -1;
-  }
 
   theDatabase = &database;
   return 0;

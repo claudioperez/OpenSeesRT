@@ -23,7 +23,7 @@
 // Created: Aug 2020
 //
 // Description: This file contains the class definition for NineNodeQuad.
-
+//
 #include "NineNodeQuad.h"
 #include <Node.h>
 #include <NDMaterial.h>
@@ -598,10 +598,10 @@ NineNodeQuad::getResistingForce()
             //P = P - (N^ b) * intWt(i)*intWt(j) * detJ;
             //P.addMatrixTransposeVector(1.0, N, b, -intWt(i)*intWt(j)*detJ);
             if (applyLoad == 0) {
-                P(ia) -= dvol*(shp[2][alpha]*b[0]);
+                P(ia)   -= dvol*(shp[2][alpha]*b[0]);
                 P(ia+1) -= dvol*(shp[2][alpha]*b[1]);
             } else {
-                P(ia) -= dvol*(shp[2][alpha]*appliedB[0]);
+                P(ia)   -= dvol*(shp[2][alpha]*appliedB[0]);
                 P(ia+1) -= dvol*(shp[2][alpha]*appliedB[1]);
             }
         }
@@ -1399,7 +1399,7 @@ double NineNodeQuad::shapeFunction(double s, double t)
 void
 NineNodeQuad::setPressureLoadAtNodes(void)
 {
-        pressureLoad.Zero();
+    pressureLoad.Zero();
 
     if (pressure == 0.0)
         return;
@@ -1467,9 +1467,9 @@ NineNodeQuad::setPressureLoadAtNodes(void)
     pressureLoad(3) += pressure*fac1*-dx52;
 
     // Contribution from side 26
-    pressureLoad(2) += pressure*fac1*dy26;
+    pressureLoad( 2) += pressure*fac1*dy26;
     pressureLoad(10) += pressure*fac2*dy26;
-    pressureLoad(3) += pressure*fac1*-dx26;
+    pressureLoad( 3) += pressure*fac1*-dx26;
     pressureLoad(11) += pressure*fac2*-dx26;
 
     // Contribution from side 63
@@ -1479,28 +1479,28 @@ NineNodeQuad::setPressureLoadAtNodes(void)
     pressureLoad(5) += pressure*fac1*-dx63;
 
     // Contribution from side 37
-    pressureLoad(4) += pressure*fac1*dy37;
+    pressureLoad( 4) += pressure*fac1*dy37;
     pressureLoad(12) += pressure*fac2*dy37;
-    pressureLoad(5) += pressure*fac1*-dx37;
+    pressureLoad( 5) += pressure*fac1*-dx37;
     pressureLoad(13) += pressure*fac2*-dx37;
 
     // Contribution from side 74
     pressureLoad(12) += pressure*fac2*dy74;
-    pressureLoad(6) += pressure*fac1*dy74;
+    pressureLoad( 6) += pressure*fac1*dy74;
     pressureLoad(13) += pressure*fac2*-dx74;
-    pressureLoad(7) += pressure*fac1*-dx74;
+    pressureLoad( 7) += pressure*fac1*-dx74;
 
     // Contribution from side 48
-    pressureLoad(6) += pressure*fac1*dy48;
+    pressureLoad( 6) += pressure*fac1*dy48;
     pressureLoad(14) += pressure*fac2*dy48;
-    pressureLoad(7) += pressure*fac1*-dx48;
+    pressureLoad( 7) += pressure*fac1*-dx48;
     pressureLoad(15) += pressure*fac2*-dx48;
 
     // Contribution from side 81
     pressureLoad(14) += pressure*fac2*dy81;
-    pressureLoad(0) += pressure*fac1*dy81;
+    pressureLoad( 0) += pressure*fac1*dy81;
     pressureLoad(15) += pressure*fac2*-dx81;
-    pressureLoad(1) += pressure*fac1*-dx81;
+    pressureLoad( 1) += pressure*fac1*-dx81;
 
     //pressureLoad = pressureLoad*thickness;
 }

@@ -38,7 +38,6 @@
 class Node;
 class Vector;
 class Matrix;
-class TransientIntegrator;
 class Integrator;
 
 class DOF_Group: public TaggedObject
@@ -138,8 +137,6 @@ class DOF_Group: public TaggedObject
     int numDOF;
 
     // static variables - single copy for all objects of the class	    
-//  static Matrix errMatrix;
-    static Vector errVect;
     static Matrix **theMatrices; // array of pointers to class wide matrices
     static Vector **theVectors;  // array of pointers to class widde vectors
     static int numDOFs;          // number of objects    
