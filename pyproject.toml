@@ -125,6 +125,9 @@ manylinux-x86_64-image="manylinux2014"
 # before-build="pip install delvewheel"
 # repair-wheel-command="delvewheel repair -w {dest_dir} {wheel}"
 
+[tool.cibuildwheel.macos]
+skip = ["*arm64*", "pp*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*"] # "cp311*", "cp312*"
+
 [tool.cibuildwheel.linux]
 # before-all = "yum install -y tcl-devel mysql-devel lapack-devel"
 before-all = "yum install -y tcl-devel mysql-devel openblas-devel"
