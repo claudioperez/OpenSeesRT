@@ -152,14 +152,16 @@ void * OPS_ADD_RUNTIME_VPV(OPS_AxialCurve)
     // Parsing was successful, allocate the limit curve
     // Subtract one from dof and perpDirn for C indexing
     Domain* theDomain = OPS_GetDomain();
-    if (theDomain == 0) return 0;
-    //return new AxialCurve(interp, tag, eleTag, theDomain, Fsw, //SDK
-    // 			  Kdeg, Fres, defType, forType, ndI, ndJ, dof-1, perpDirn-1,
-    // 			  delta, eleRemove);
+    if (theDomain == 0) 
+      return 0;
+
+    return new AxialCurve(tag, eleTag, theDomain, Fsw, //SDK
+     			  Kdeg, Fres, defType, forType, ndI, ndJ, dof-1, perpDirn-1,
+     			  delta, eleRemove);
 }
 
 
-AxialCurve::AxialCurve(Tcl_Interp *passedTclInterp, int tag, int eTag, Domain *theDom, 
+AxialCurve::AxialCurve(int tag, int eTag, Domain *theDom, 
 			double Fsw, double Kd, double Fr, //SDK 
 			int dType, int fType, 
 			int ni, int nj, int df, int dirn, 
@@ -168,7 +170,6 @@ LimitCurve(tag, TAG_AxialCurve), eleTag(eTag), theDomain(theDom), theElement(0),
 Fsw(Fsw), Kdeg(Kd), Fres(Fr), defType(dType), forType(fType), //SDK
 ndI(ni), ndJ(nj), dof(df), perpDirn(dirn), eleRemove(eleRem), delta(del)
 {
-	theTclInterp = passedTclInterp;
 	stateFlag = 0;
 	theta2 = -1.45 ; //SDK
 	sigma = 0.40;    //SDK
@@ -205,7 +206,7 @@ AxialCurve::~AxialCurve()
 LimitCurve*
 AxialCurve::getCopy(void)
 {
-	AxialCurve *theCopy = new AxialCurve(theTclInterp,this->getTag(),
+	AxialCurve *theCopy = new AxialCurve(this->getTag(),
 		eleTag, theDomain, Fsw, Kdeg, Fres, defType, forType, //SDK
 		ndI, ndJ, dof, perpDirn, delta, eleRemove);
 

@@ -88,7 +88,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ASDShellQ4)
 // anonymous namespace for utilities
 namespace {
 // some typedefs
-typedef Vector3D<double> Vector3Type;
+typedef Vector3D Vector3Type;
 
 // calculation options
 constexpr int OPT_NONE           = 0;

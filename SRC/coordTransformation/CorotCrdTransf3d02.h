@@ -77,8 +77,6 @@ private:
     void compTransfMatrixLocalGlobal(Matrix &Tlg);
     void compTransfMatrixBasicLocal(Matrix &Tbl);
 
-    const Vector &getQuaternionFromPseudoRotVector(const Vector &theta) const;
-    const Vector &quaternionProduct(const Vector &q1, const Vector &q2) const;
 
     //
     // internal data
@@ -94,10 +92,10 @@ private:
     double Ln;                  // deformed element length
     
                                 // (the columns of which are the element local axes)
-    Vector alphaIq;             // quaternion for node I
-    Vector alphaJq;             // quaternion for node I 
-    Vector alphaIqcommit;       // commited quaternion for node I
-    Vector alphaJqcommit;       // commited quaternion for node J
+    OpenSees::VectorND<4> alphaIq;             // quaternion for node I
+    OpenSees::VectorND<4> alphaJq;             // quaternion for node I 
+    OpenSees::VectorND<4> alphaIqcommit;       // commited quaternion for node I
+    OpenSees::VectorND<4> alphaJqcommit;       // commited quaternion for node J
     Vector alphaI;              // last trial rotations end i
     Vector alphaJ;              // last trial rotatations end j
 

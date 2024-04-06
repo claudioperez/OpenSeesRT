@@ -15,18 +15,30 @@ public:
   template<class VecT> void addSpin(const VecT& V);
   template<class VecT> void addSpin(const VecT& V, const double scale);
   template<class VecT> void addSpinSquare(const VecT& V, const double scale);
-  template<class VecT> void addSpinProduct(const VecT& a, const Vector3D<double>& b, const double scale);
+  template<class VecT> void addSpinProduct(const VecT& a, const Vector3D& b, const double scale);
   template<class VecT> void addMatrixSpinProduct(const Matrix3D& A, const VecT& b, const double scale);
-  template<class MatT> void addSpinMatrixProduct(const Vector3D<double>& a, const MatT& B, const double scale);
-  // inline void addEye(Vector3D<double>& v, double scale);
+  template<class MatT> void addSpinMatrixProduct(const Vector3D& a, const MatT& B, const double scale);
+  // inline void addEye(Vector3D& v, double scale);
   // void addDev;
 
-  int symeig(Vector3D<double>& vals) {
+  Vector3D operator*(const Vector3D&v);
+
+  int symeig(Vector3D& vals) {
     double work[3][3];
     cmx_eigSY3(values, work, vals.values);
     return 0;
   }
 };
+
+inline Vector3D
+Matrix3D::operator*(const Vector3D&v)
+{
+  return Vector3D{
+    (*this)(0,0)*v[0] + (*this)(0,1)*v[1] + (*this)(0,2)*v[2],
+    (*this)(1,0)*v[0] + (*this)(1,1)*v[1] + (*this)(1,2)*v[2],
+    (*this)(2,0)*v[0] + (*this)(2,1)*v[1] + (*this)(2,2)*v[2]
+  };
+}
 
 template< class VecT> inline void 
 Matrix3D::addSpin(const VecT& v)
@@ -74,7 +86,7 @@ void Matrix3D::addSpinSquare(const VecT& v, const double scale)
 
 
 template<class VecT> inline
-void Matrix3D::addSpinProduct(const VecT& a, const Vector3D<double>& b, const double scale)
+void Matrix3D::addSpinProduct(const VecT& a, const Vector3D& b, const double scale)
 {
   // a^b^ = boa - a.b 1
   // where 'o' denotes the tensor product and '.' the dot product
@@ -102,7 +114,7 @@ void Matrix3D::addMatrixSpinProduct(const Matrix3D& A, const VecT& b, const doub
 }
 
 template<class MatT> inline
-void Matrix3D::addSpinMatrixProduct(const Vector3D<double>& a, const MatT& B, const double scale)
+void Matrix3D::addSpinMatrixProduct(const Vector3D& a, const MatT& B, const double scale)
 {
   // this += s*[a^]*B
   // where a^ is the skew-symmetric representation of the three-vector a, s is a scalar,

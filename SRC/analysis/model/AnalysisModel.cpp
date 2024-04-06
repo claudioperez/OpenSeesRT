@@ -356,12 +356,9 @@ Graph &
 AnalysisModel::getDOFGroupGraph(void)
 {
   if (myGroupGraph == 0) {
-    int numVertex = this->getNumDOF_Groups();
-
-    assert(numVertex != 0);
-
-
-    //    myGroupGraph = new Graph(numVertex);
+    // int numVertex = this->getNumDOF_Groups();
+    // assert(numVertex != 0);
+    // myGroupGraph = new Graph(numVertex);
     MapOfTaggedObjects *graphStorage = new MapOfTaggedObjects();
     myGroupGraph = new Graph(*graphStorage);
 	
@@ -370,7 +367,7 @@ AnalysisModel::getDOFGroupGraph(void)
     // and a tag which ranges from 0 through numVertex-1
     DOF_Group   *dofPtr;
     DOF_GrpIter &dofIter2 = this->getDOFs();
-    int count = START_VERTEX_NUM;
+    // int count = START_VERTEX_NUM;
     while ((dofPtr = dofIter2()) != 0) {
 	int DOF_GroupTag = dofPtr->getTag();
 	int DOF_GroupNodeTag = dofPtr->getNodeTag();

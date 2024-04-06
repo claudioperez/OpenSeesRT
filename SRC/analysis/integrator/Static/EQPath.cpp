@@ -115,12 +115,12 @@ EQPath::newStep(void)
 
     uq0=new Vector(du->Size());
     (*uq0) = theLinSOE->getX();
-    int size = theModel->getNumEqn();
+    // int size = theModel->getNumEqn();
     // determine delta lambda(1) == dlambda
     
    double a=(*du)^(*uq0);
  
-   if(a>=0)
+   if (a>=0)
 	  sign=1;
    else
 	  sign=-1;
@@ -345,13 +345,13 @@ EQPath::update(const Vector &dU)
 	   }
 	   else if (type==9) // local minimum residual displacement
 	   {
-		   AnalysisModel *am=this->getAnalysisModel();
 		   Domain *theDomain=theModel->getDomainPtr();
 		   Element *elePtr;
 		   ElementIter &theElemIter = theDomain->getElements();    
 		   while ((elePtr = theElemIter()) != 0)
 		   {
-			   Node	**nodes=elePtr->getNodePtrs();
+                         // cmp: removed to silence unused variable warning
+                         // Node **nodes=elePtr->getNodePtrs();
 			   
 		   }
 	   }

@@ -1279,7 +1279,7 @@ void ShellMITC4::updateBasis()
   
   // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
-  Vector3D<double> coor[4];
+  Vector3D coor[4];
   for (int i=0; i<4; i++) {
     coor[i] = nodePointers[i]->getCrds();
     const Vector& displ = nodePointers[i]->getTrialDisp();

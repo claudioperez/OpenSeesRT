@@ -57,10 +57,10 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
   // get the tolerence first
   double tol     = 1e-12;
   double tol2    = 0.0;
-  double tolp    = 0.0;
-  double tolp2   = 0.0;
-  double tolrel  = 0.0;
-  double tolprel = 0.0;
+//double tolp    = 0.0;
+//double tolp2   = 0.0;
+//double tolrel  = 0.0;
+//double tolprel = 0.0;
   double maxTol  = OPS_MAXTOL;
 
   int numIter  = 10;

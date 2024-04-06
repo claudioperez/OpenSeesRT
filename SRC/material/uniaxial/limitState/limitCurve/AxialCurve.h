@@ -46,7 +46,7 @@ class Domain;
 class AxialCurve : public LimitCurve
 {
   public:
-	AxialCurve (Tcl_Interp *theTclInterp, int tag, int eleTag, Domain *theDomain, 
+	AxialCurve (int tag, int eleTag, Domain *theDomain, 
 		    double Fsw, double Kdeg, double Fres, //SDK
 		    int defType, int forType, 
 		    int ndI = 0, int ndJ = 0, int dof = 0, int perpDirn = 0,

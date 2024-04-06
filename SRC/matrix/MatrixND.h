@@ -414,7 +414,6 @@ struct MatrixND {
     }
     return out << "}\n";
   }
-
 }; // class MatrixND
 
 template <index_t nr, index_t nc, typename T> inline

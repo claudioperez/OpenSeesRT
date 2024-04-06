@@ -96,6 +96,10 @@ private :
     double matPar[MaterialCMM_NumParameters];
 
     double stressC[5], strainC[5], stateVarC[MaterialCMM_NumParameters], tangentC[9]; // committed data
-    double stressT[5], strainT[5], dStrain[5], stateVarT[MaterialCMM_NumStateVar], tangentT[9]; // trial values
+    double stressT[5], 
+           strainT[5], 
+           dStrain[5], 
+           stateVarT[MaterialCMM_NumStateVar], 
+           tangentT[9]; // trial values
     double tangentI[9]; // initial values
 } ;

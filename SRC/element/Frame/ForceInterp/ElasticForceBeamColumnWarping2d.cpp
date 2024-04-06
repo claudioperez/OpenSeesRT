@@ -1627,6 +1627,10 @@ ElasticForceBeamColumnWarping2d::setParameter(const char **argv, int argc, Param
     ok += beamIntegr->setParameter(argv, argc, param);
     return ok;
   }
+
+  // This return is just to silence the return-type warning;
+  // it is not expected to be used
+  return 0;
 }
 
 int

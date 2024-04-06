@@ -11,8 +11,8 @@ extern OPS_Routine OPS_PrestressedConcretePlaneStressMaterial;
 extern OPS_Routine OPS_FAPrestressedConcretePlaneStressMaterial;
 extern OPS_Routine OPS_FAFourSteelPCPlaneStressMaterial;
 extern OPS_Routine OPS_RAFourSteelPCPlaneStressMaterial;
-extern OPS_Routine OPS_MaterialCMM;
-extern OPS_Routine OPS_NewMaterialCMM;
+// extern OPS_Routine OPS_MaterialCMM;
+// extern OPS_Routine OPS_NewMaterialCMM;
 extern OPS_Routine OPS_NewPlasticDamageConcrete3d;
 extern OPS_Routine OPS_NewPlasticDamageConcretePlaneStress;
 extern OPS_Routine OPS_ElasticIsotropicMaterial;
@@ -126,7 +126,7 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
 
   {"UVCmultiaxial", OPS_UVCmultiaxial},
 
-  {"MaterialCMM", OPS_MaterialCMM},
+//{"MaterialCMM", OPS_MaterialCMM},
 
   {"CycLiqCP",    OPS_CycLiqCPMaterial},
 

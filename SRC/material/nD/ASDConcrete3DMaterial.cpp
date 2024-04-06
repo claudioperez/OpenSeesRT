@@ -41,8 +41,6 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <Hash.h>
-using namespace OpenSees::Hash;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -1514,7 +1512,7 @@ ASDConcrete3DMaterial::ASDConcrete3DMaterial(
 	int _nct,
 	int _ncc,
 	double _smoothing_angle)
-	: NDMaterial(_tag, "ASDConcrete3DMaterial"_hash)
+	: NDMaterial(_tag, ND_TAG_ASDConcrete3DMaterial)
 	, E(_E)
 	, v(_v)
 	, rho(_rho)
@@ -1549,7 +1547,7 @@ ASDConcrete3DMaterial::ASDConcrete3DMaterial(
 }
 
 ASDConcrete3DMaterial::ASDConcrete3DMaterial()
-	: NDMaterial(0, "ASDConcrete3DMaterial"_hash)
+	: NDMaterial(0, ND_TAG_ASDConcrete3DMaterial)
 {
 }
 

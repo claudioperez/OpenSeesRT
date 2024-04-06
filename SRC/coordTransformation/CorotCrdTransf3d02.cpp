@@ -84,29 +84,27 @@ Matrix CorotCrdTransf3d02::Lr3(12,3);
 
 
 template <class VecT> static inline void
-getTangScaledPseudoVectorFromQuaternion(const Vector &q, VecT& w)
+getTangScaledPseudoVectorFromQuaternion(const VectorND<4> &q, VecT& w)
 {
-  const double q0 = q(3);
+  const double q0 = q[3];
 
   for (int i = 0; i < 3; i++)
-    w[i] = 2.0 * q(i)/q0;
+    w[i] = 2.0 * q[i]/q0;
 
   return ;
 }
 
-const Vector &
-CorotCrdTransf3d02::quaternionProduct(const Vector &qa, const Vector &qb) const
+static inline VectorND<4>
+quaternionProduct(const VectorND<4> &qa, const VectorND<4> &qb)
 {
-
-
-    const double qa0 = qa(0),
-                 qa1 = qa(1),
-                 qa2 = qa(2),
-                 qa3 = qa(3),
-                 qb0 = qb(0),
-                 qb1 = qb(1),
-                 qb2 = qb(2),
-                 qb3 = qb(3);
+    const double qa0 = qa[0],
+                 qa1 = qa[1],
+                 qa2 = qa[2],
+                 qa3 = qa[3],
+                 qb0 = qb[0],
+                 qb1 = qb[1],
+                 qb2 = qb[2],
+                 qb3 = qb[3];
 
     // calculate the dot product qa.qb
     const double qaTqb = qa0*qb0 + qa1*qb1 + qa2*qb2;
@@ -118,39 +116,39 @@ CorotCrdTransf3d02::quaternionProduct(const Vector &qa, const Vector &qb) const
       qaxqb2 = qa0*qb1 - qa1*qb0;
 
     // calculate the quaternion product
-    static Vector q12(4);
-    q12(0) = qa3*qb0 + qb3*qa0 - qaxqb0;
-    q12(1) = qa3*qb1 + qb3*qa1 - qaxqb1;
-    q12(2) = qa3*qb2 + qb3*qa2 - qaxqb2;
-    q12(3) = qa3*qb3 - qaTqb;
-
+    VectorND<4> q12;
+    q12[0] = qa3*qb0 + qb3*qa0 - qaxqb0;
+    q12[1] = qa3*qb1 + qb3*qa1 - qaxqb1;
+    q12[2] = qa3*qb2 + qb3*qa2 - qaxqb2;
+    q12[3] = qa3*qb3 - qaTqb;
     return q12;
 }
 
 
 
-static inline void
-CaySO3(const Vector3D<double> &w, Matrix3D& R)
+static inline Matrix3D
+CaySO3(const Vector3D &w)
 {
   // Cayley map: for a rotation matrix given the tangent-scaled pseudo-vector
 
   // R = I + (S + S*S/2)/(1 + w' * w / 4);
-  const double normw2 = w.dot(w);
+  const double c = 1.0/(1 + w.dot(w)/4.0);
 
+  Matrix3D R;
   R.zero();
   R.addDiagonal(1.0);
-  R.addSpin(w, 1.0/(1 + normw2/4.0));
-  R.addSpinSquare(w, 0.5/(1 + normw2/4.0));
+  R.addSpin(w, c);
+  R.addSpinSquare(w, 0.5*c);
 
-  return;
+  return R;
 }
 
 static inline void 
-getRotationMatrixFromQuaternion(const Vector &q, Matrix3D& R)
+getRotationMatrixFromQuaternion(const VectorND<4> &q, Matrix3D& R)
 {
     // R = (q0^2 - q' * q) * I + 2 * q * q' + 2*q0*S(q);
 
-    const double factor = q(3)*q(3) - (q(0)*q(0) + q(1)*q(1) + q(2)*q(2));
+    const double factor = q[3]*q[3] - (q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 
     R.zero();
 
@@ -158,13 +156,14 @@ getRotationMatrixFromQuaternion(const Vector &q, Matrix3D& R)
       R(i,i) = factor;
 
     R.addTensorProduct(q, q, 2.0);
-    R.addSpin(q, 2.0*q(3));
+    R.addSpin(q, 2.0*q[3]);
 }
 
 
-static inline const Vector &
-getQuaternionFromRotMatrix(const Matrix3D &R, Vector& q)
+static inline VectorND<4>
+VersorFromMatrix(const Matrix3D &R)
 {
+    VectorND<4> q;
     // obtains the normalised quaternion from the rotation matrix
     // using Spurrier's algorithm
 
@@ -177,12 +176,12 @@ getQuaternionFromRotMatrix(const Matrix3D &R, Vector& q)
             a = R(i,i);
 
     if (a == trR) {
-        q(3) = sqrt(1+a)*0.5;
+        q[3] = sqrt(1+a)*0.5;
 
         for (int i = 0; i < 3; i++) {
             int j = (i+1)%3;
             int k = (i+2)%3;
-            q(i) = (R(k,j) - R(j,k))/(4*q(3));
+            q[i] = (R(k,j) - R(j,k))/(4*q[3]);
         }
     }
     else {
@@ -191,31 +190,31 @@ getQuaternionFromRotMatrix(const Matrix3D &R, Vector& q)
               int j = (i+1)%3;
               int k = (i+2)%3;
 
-              q(i) = sqrt(a*0.5 + (1 - trR)/4.0);
-              q(3) = (R(k,j) - R(j,k))/(4*q(i));
-              q(j) = (R(j,i) + R(i,j))/(4*q(i));
-              q(k) = (R(k,i) + R(i,k))/(4*q(i));
+              q[i] = sqrt(a*0.5 + (1 - trR)/4.0);
+              q[3] = (R(k,j) - R(j,k))/(4*q[i]);
+              q[j] = (R(j,i) + R(i,j))/(4*q[i]);
+              q[k] = (R(k,i) + R(i,k))/(4*q[i]);
           }
     }
     return q;
 }
 
-const Vector &
-CorotCrdTransf3d02::getQuaternionFromPseudoRotVector(const Vector  &theta) const
+static inline VectorND<4>
+getQuaternionFromPseudoRotVector(const Vector  &theta)
 {
-    static Vector q(4);      // normalized quaternion
+    VectorND<4> q;      // normalized quaternion
 
     double t = theta.Norm();
     if (t == 0)
-        q.Zero();
+        q.zero();
 
     else {
         const double factor = sin(t*0.5)/ t;
         for (int i = 0; i < 3; i++)
-            q(i) = theta(i) * factor;
+            q[i] = theta(i) * factor;
     }
 
-    q(3) = cos(t*0.5);
+    q[3] = cos(t*0.5);
 
     return q;
 }
@@ -223,9 +222,9 @@ CorotCrdTransf3d02::getQuaternionFromPseudoRotVector(const Vector  &theta) const
 
 
 static inline void
-getLMatrix(const Matrix3D& A, const Vector3D<double>& e1, const Vector3D<double>& r1, const Vector3D<double> &ri, Matrix& L)
+getLMatrix(const Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const Vector3D &ri, Matrix& L)
 {
-  static Matrix3D L1,L2;
+  static Matrix3D L1, L2;
   static Matrix rie1r1(3,3);
   static Matrix e1e1r1(3,3);
 
@@ -264,7 +263,7 @@ getLMatrix(const Matrix3D& A, const Vector3D<double>& e1, const Vector3D<double>
 }
 
 static inline const Matrix &
-getKs2Matrix(Matrix3D& A, const Vector3D<double>& e1, const Vector3D<double>& r1, const double Ln, const Vector3D<double> &ri, const Vector3D<double> &z)
+getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double Ln, const Vector3D &ri, const Vector3D &z)
 {
     static Matrix ks2(12,12);
 
@@ -397,8 +396,8 @@ CorotCrdTransf3d02::CorotCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
 FrameTransform(tag, CRDTR_TAG_CorotCrdTransf3d02),
 vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
 nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
-alphaIq(4), alphaJq(4),
-alphaIqcommit(4), alphaJqcommit(4), alphaI(3), alphaJ(3),
+// alphaIq(4), alphaJq(4), alphaIqcommit(4), alphaJqcommit(4), 
+alphaI(3), alphaJ(3),
 ulcommit(7), ul(7),  ulpr(7), T(7,12),
 nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -473,8 +472,8 @@ CorotCrdTransf3d02::CorotCrdTransf3d02():
   FrameTransform(0, CRDTR_TAG_CorotCrdTransf3d02),
   vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
   nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
-  alphaIq(4), alphaJq(4),
-  alphaIqcommit(4), alphaJqcommit(4), alphaI(3), alphaJ(3),
+//  alphaIq(4), alphaJq(4),  alphaIqcommit(4), alphaJqcommit(4), 
+  alphaI(3), alphaJ(3),
   ulcommit(7), ul(7),  ulpr(7), T(7,12),
   nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -562,8 +561,8 @@ int
 CorotCrdTransf3d02::revertToStart(void)
 {
   ul.Zero();
-  getQuaternionFromRotMatrix(R0, alphaIq);    // pseudo-vector for node 1
-  getQuaternionFromRotMatrix(R0, alphaJq);    // pseudo-vector for node J
+  alphaIq = VersorFromMatrix(R0);    // pseudo-vector for node 1
+  alphaJq = VersorFromMatrix(R0);    // pseudo-vector for node J
 
   alphaI.Zero();
   alphaJ.Zero();
@@ -618,8 +617,8 @@ CorotCrdTransf3d02::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return error;
 
     // compute initial pseudo-vectors for nodal triads
-    getQuaternionFromRotMatrix(R0, alphaIq); // pseudo-vector for node I
-    getQuaternionFromRotMatrix(R0, alphaJq); // pseudo-vector for node J
+    alphaIq = VersorFromMatrix(R0); // pseudo-vector for node I
+    alphaJq = VersorFromMatrix(R0); // pseudo-vector for node J
 
     this->commitState();
 
@@ -630,11 +629,12 @@ void inline
 CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, const Triad& __restrict E, const Triad&__restrict rI, const Triad& __restrict rJ)
 {
     // extract columns of rotation matrices
-    const Vector3D<double>  r1 = r[1],  r2 = r[2],  r3 = r[3],
-                            e1 = E[1],  e2 = E[2],  e3 = E[3],
-                            rI1=rI[1],  rI2=rI[2],  rI3=rI[3],
-                            rJ1=rJ[1],  rJ2=rJ[2],  rJ3=rJ[3];
+    const Vector3D  r1 = r[1],  r2 = r[2],  r3 = r[3],
+                    e1 = E[1],  e2 = E[2],  e3 = E[3],
+                    rI1=rI[1],  rI2=rI[2],  rI3=rI[3],
+                    rJ1=rJ[1],  rJ2=rJ[2],  rJ3=rJ[3];
 
+//  Matrix3D A;
     // compute the transformation matrix from the basic to the
     // global system
     //   A = (1/Ln)*(I - e1*e1');
@@ -655,12 +655,11 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, const
     //   T6 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
 
     T.Zero();
-    Vector3D Se, At;
 
     //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O', O']';
 
     // (-S(rI3)*e2 + S(rI2)*e3)
-    Se  = rI2.cross(e3);
+    Vector3D Se  = rI2.cross(e3);
     Se -= rI3.cross(e2);
 
     for (int i = 0; i < 3; i++)
@@ -668,7 +667,7 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, const
 
     //   T2 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
 
-    At = A*rI2;
+    Vector3D At = A*rI2;
 
     // (-S(rI2)*e1 + S(rI1)*e2)'
     Se  = rI1.cross(e2);
@@ -842,14 +841,12 @@ CorotCrdTransf3d02::update(void)
       /************** END OF REPLACEMENT **************************/
 
       // update the nodal triads TI and RJ using quaternions
-      static Vector dAlphaIq(4);
-      static Vector dAlphaJq(4);
 
-      dAlphaIq = this->getQuaternionFromPseudoRotVector (dAlphaI);
-      dAlphaJq = this->getQuaternionFromPseudoRotVector (dAlphaJ);
+      const VectorND<4> dAlphaIq = getQuaternionFromPseudoRotVector(dAlphaI);
+      const VectorND<4> dAlphaJq = getQuaternionFromPseudoRotVector(dAlphaJ);
 
-      alphaIq = this->quaternionProduct (alphaIq, dAlphaIq);
-      alphaJq = this->quaternionProduct (alphaJq, dAlphaJq);
+      alphaIq = quaternionProduct(alphaIq, dAlphaIq);
+      alphaJq = quaternionProduct(alphaJq, dAlphaJq);
 
       getRotationMatrixFromQuaternion(alphaIq, this->RI);
       getRotationMatrixFromQuaternion(alphaJq, this->RJ);
@@ -868,15 +865,14 @@ CorotCrdTransf3d02::update(void)
         }
 
       // pseudo-vector for node J
-      static Vector gammaq(4);
-      getQuaternionFromRotMatrix(dRgamma, gammaq);
+      VectorND<4> gammaq = VersorFromMatrix(dRgamma);
 
       OPS_STATIC Vector3D gammaw;
       getTangScaledPseudoVectorFromQuaternion(gammaq, gammaw);
 
       gammaw *= 0.5;
 
-      CaySO3(gammaw, dRgamma);
+      dRgamma = CaySO3(gammaw);
 
       Rbar.zero();
       Rbar.addMatrixProduct(dRgamma, RI, 1.0);
@@ -896,13 +892,13 @@ CorotCrdTransf3d02::update(void)
     OPS_STATIC Vector3D xJI;
     xJI  = nodeJPtr->getCrds() - nodeIPtr->getCrds();
 
-    if (nodeIInitialDisp != 0) {
+    if (nodeIInitialDisp != nullptr) {
       xJI[0] -= nodeIInitialDisp[0];
       xJI[1] -= nodeIInitialDisp[1];
       xJI[2] -= nodeIInitialDisp[2];
     }
 
-    if (nodeJInitialDisp != 0) {
+    if (nodeJInitialDisp != nullptr) {
       xJI[0] += nodeJInitialDisp[0];
       xJI[1] += nodeJInitialDisp[1];
       xJI[2] += nodeJInitialDisp[2];
@@ -961,7 +957,7 @@ CorotCrdTransf3d02::update(void)
       // -----------------------------------------------
       // compute the basic rotations
       // -----------------------------------------------
-      const Vector3D<double> &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
+      const Vector3D &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
                              &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
 
       ulpr = ul;
@@ -1045,7 +1041,7 @@ CorotCrdTransf3d02::getBasicIncrDeltaDisp(void)
 
     // dul = ul - ulpr;
     dul = ul;
-    dul.addVector (1.0, ulpr, -1.0);
+    dul.addVector(1.0, ulpr, -1.0);
 
     // use transformation matrix to renumber the degrees of freedom
     dub.addMatrixVector(0.0, Tp, dul, 1.0);
@@ -1162,29 +1158,10 @@ const Matrix &
 CorotCrdTransf3d02::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
 {
     const Triad r{Rbar}, rI{RI}, rJ{RJ}, E{e};
-    const Vector3D<double> &r1 = r[1], &r2 = r[2], &r3 = r[3],
-                           &e1 = E[1], &e2 = E[2], &e3 = E[3],
-                           &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
-                           &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
-#if 0
-    for (int k = 0; k < 3; k ++) {
-      e1[k] = e(k,0);
-      e2[k] = e(k,1);
-      e3[k] = e(k,2);
-
-      r1[k] = Rbar(k,0);
-      r2[k] = Rbar(k,1);
-      r3[k] = Rbar(k,2);
-
-      rI1[k] = RI(k,0);
-      rI2[k] = RI(k,1);
-      rI3[k] = RI(k,2);
-
-      rJ1[k] = RJ(k,0);
-      rJ2[k] = RJ(k,1);
-      rJ3[k] = RJ(k,2);
-    }
-#endif
+    const Vector3D &r1 = r[1], &r2 = r[2], &r3 = r[3],
+                   &e1 = E[1], &e2 = E[2], &e3 = E[3],
+                   &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
+                   &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
 
 #if 0
 // NOTE[cmp] CorotCrdTransf3d02::compTransfMatrixBasicGlobal must be called first
@@ -1548,8 +1525,8 @@ CorotCrdTransf3d02::sendSelf(int cTag, Channel &theChannel)
     data(i) = ulcommit(i);
 
   for (int j = 0; j<4; j++) {
-    data(7+j) = alphaIqcommit(j);
-    data(11+j) = alphaJqcommit(j);
+    data(7+j) = alphaIqcommit[j];
+    data(11+j) = alphaJqcommit[j];
   }
 
   for (int k=0; k<3; k++) {
@@ -1617,8 +1594,8 @@ CorotCrdTransf3d02::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &th
     ulcommit(i) = data(i);
 
   for (int j = 0; j<4; j++) {
-    alphaIqcommit(j) = data(7+j);
-    alphaJqcommit(j) = data(11+j);
+    alphaIqcommit[j] = data(7+j);
+    alphaJqcommit[j] = data(11+j);
   }
 
   for (int k=0; k<3; k++) {

@@ -44,7 +44,7 @@ class ASDShellQ4LocalCoordinateSystem
 
 public:
 
-	typedef Vector3D<double> Vector3Type;
+	typedef Vector3D Vector3Type;
 
 	typedef ASDQuaternion<double> QuaternionType;
 

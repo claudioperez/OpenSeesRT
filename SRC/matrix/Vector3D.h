@@ -40,10 +40,12 @@
 
 namespace OpenSees {class Matrix3D;};
 
-template<class scalar_t=double>
+// template<class scalar_t=double>
 class Vector3D: public OpenSees::VectorND<3>
 {
 public:
+    typedef double scalar_t;
+
     friend class OpenSees::Matrix3D;
 
     /**
@@ -132,19 +134,19 @@ public:
     Returns the X coefficient of this vector.
     @return the X coefficient of this vector.
     */
-    inline const scalar_t x() const { return values[0]; }
+    inline double x() const { return values[0]; }
 
     /**
     Returns the Y coefficient of this vector.
     @return the Y coefficient of this vector.
     */
-    inline const scalar_t y()const { return values[1]; }
+    inline double y() const { return values[1]; }
 
     /**
     Returns the Z coefficient of this vector.
     @return the Z coefficient of this vector.
     */
-    inline const scalar_t z()const { return values[2]; }
+    inline double z() const { return values[2]; }
 
     /**
     Returns the i-th coefficient of this vector.
@@ -242,7 +244,7 @@ public:
     }
 
 #if 0
-    void addCrossProduct(const Vector3D<double>& a, const Vector3D& b, const double scale) {
+    void addCrossProduct(const Vector3D& a, const Vector3D& b, const double scale) {
         values[0] += scale*(a.values[1] * b.values[2] - a.values[2] * b.values[1]);
         values[1] += scale*(a.values[2] * b.values[0] - a.values[0] * b.values[2]);
         values[2] += scale*(a.values[0] * b.values[1] - a.values[1] * b.values[0]);
@@ -300,8 +302,8 @@ public:
     }
 };
 
-template<class scalar_t>
-inline Vector3D<scalar_t> operator * (scalar_t a, const Vector3D<scalar_t>& b) {
+
+inline Vector3D operator * (double a, const Vector3D& b) {
     return b * a;
 }
 
@@ -312,7 +314,7 @@ Prints this vector to a input stream
 @return the stream
 */
 template<class TStream, class T>
-inline TStream& operator << (TStream& s, const Vector3D<T>& v) {
+inline TStream& operator << (TStream& s, const Vector3D& v) {
     return (s << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")");
 }
 

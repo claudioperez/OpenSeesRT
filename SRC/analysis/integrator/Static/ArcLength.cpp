@@ -538,33 +538,26 @@ ArcLength::formTangDispSensitivity(int gradNumber)
 ArcLength::formdLambdaDh(int gradNumber)
 {
   
-double dUhatTdUhat=((*deltaUhat)^(*deltaUhat));
-double dUhatTUhatdh=(*deltaUhat)^(*dUhatdh);
-//opserr<<"deltaUhat="<<*deltaUhat<<endln;
-//opserr<<"dUhatdh= "<<*dUhatdh<<endln;
-if(dLAMBDA==0.0 )
-{
-dlambda1dh=0.0;
-//opserr<<"ArcLength: dLAMBDA=0 !!!!!!!!!!!!!!!!!!!"<<endln;
-} else {
-double ALPHA2=alpha2*alpha2;
-double denomerator=pow((dUhatTdUhat+alpha2),2.0);
-      dlambda1dh=signLastDeltaLambdaStep *1.0/(dLAMBDA)*(-arcLength2*dUhatTUhatdh/(denomerator));
-    //  opserr<<"first dLambda1dh= "<<dlambda1dh<<endln;
- //dlambda1dh=1.0/(2.0)*dLAMBDA*(-sqrt(arcLength2)*dUhatTUhatdh/(dUhatTdUhat+alpha2));
-//opserr<<"second dlambdadh: "<<dlambda1dh<<".......................,,,,,,,,,,,,////////////"<<endln;
+  double dUhatTdUhat=((*deltaUhat)^(*deltaUhat));
+  double dUhatTUhatdh=(*deltaUhat)^(*dUhatdh);
 
- //dlambda1dh *=signLastDeltaLambdaStep;
-//opserr<<"formdLAmbdaDh:   dLAMBDA= "<<dLAMBDA<<endln;
-//opserr<<"denomerator= "<<denomerator<<endln;
-//opserr<<"ArcLength2= "<<arcLength2<<endln;
-//opserr<<"dUhatTUhatdh= "<<dUhatTUhatdh<<endln;
-//opserr<<"dUhatTdUhat= "<<dUhatTdUhat<<endln;
-}
-//opserr<<"formdLambdaDh= "<<signLastDeltaLambdaStep<<endln;
+  if(dLAMBDA==0.0 ) {
+    dlambda1dh=0.0;
+
+  } else {
+  // double ALPHA2=alpha2*alpha2;
+  double denomerator=pow((dUhatTdUhat+alpha2),2.0);
+         dlambda1dh=signLastDeltaLambdaStep *1.0/(dLAMBDA)*(-arcLength2*dUhatTUhatdh/(denomerator));
+
+   //dlambda1dh=1.0/(2.0)*dLAMBDA*(-sqrt(arcLength2)*dUhatTUhatdh/(dUhatTdUhat+alpha2));
+
+   //dlambda1dh *=signLastDeltaLambdaStep;
+
+  }
+
    if(dLAMBDAdh != 0) {
       (*dLAMBDAdh)(gradNumber) = (*dLAMBDAdh)(gradNumber) + dlambda1dh;
-  //    opserr<<"1st iteration "<<(*dLAMBDAdh)(gradNumber)<<endln;
+
       return (*dLAMBDAdh)(gradNumber);
    } else {
       return 0.0;
@@ -572,7 +565,7 @@ double denomerator=pow((dUhatTdUhat+alpha2),2.0);
 }
 
 // dLambdadh of the subsequent iterations (J>1)
-   double 
+double 
 ArcLength::getLambdaSensitivity(int gradNumber)
 {
 
@@ -598,21 +591,18 @@ ArcLength::getLambdaSensitivity(int gradNumber)
       opserr << " alpha was set to 0.0 and zero reference load\n";
       return -2;
     }			       
- double dAdh;
- double dBdh;
- double dCdh;
- dAdh =2.0*((*deltaUhat)^(*dUhatdh));
- dBdh = 2.0*(((*dUIJdh)^(*deltaUhat))+((*deltaUbar)^(*dUhatdh))+((*deltaUstep2)^(*dUhatdh))+((*dDeltaUstepdh)^(*deltaUhat))+alpha2*dDeltaLambdaStepdh);
- dCdh=2.0*(((*deltaUstep2)^(*dUIJdh))+((*dDeltaUstepdh)^(*deltaUbar))+((*deltaUbar)^(*dUIJdh)));//+2.0*((*deltaUstep)^(*dDeltaUstepdh));//+alpha2*dDeltaLambdaStepdh*((*phat)^(*phat)));
 
-   
-// opserr<<":a is "<<a<<endln;
+    double dAdh = 2.0*((*deltaUhat)^(*dUhatdh));
+    double dBdh = 2.0*(((*dUIJdh)^(*deltaUhat))+((*deltaUbar)^(*dUhatdh))+((*deltaUstep2)^(*dUhatdh))+((*dDeltaUstepdh)^(*deltaUhat))+alpha2*dDeltaLambdaStepdh);
+    double dCdh = 2.0*(((*deltaUstep2)^(*dUIJdh))+((*dDeltaUstepdh)^(*deltaUbar))+((*deltaUbar)^(*dUIJdh)));//+2.0*((*deltaUstep)^(*dDeltaUstepdh));//+alpha2*dDeltaLambdaStepdh*((*phat)^(*phat)));
+
+
     double sqrtb24ac = sqrt(b24ac);
-    double dSqrtb24acdh=(2.0*b*dBdh-4.0*(a*dCdh+dAdh*c))/(2.0*sqrtb24ac);
-    double dlambda1 = (-b + sqrtb24ac)/a2;
-    double dlambdaj1dh=(a2*(-dBdh+dSqrtb24acdh)-((-b+sqrtb24ac)*2.0*dAdh))/(4.0*a*a);
+    double dSqrtb24acdh = (2.0*b*dBdh-4.0*(a*dCdh+dAdh*c))/(2.0*sqrtb24ac);
+    double dlambda1     = (-b + sqrtb24ac)/a2;
+    double dlambdaj1dh  = (a2*(-dBdh+dSqrtb24acdh)-((-b+sqrtb24ac)*2.0*dAdh))/(4.0*a*a);
 
-    double dlambda2 = (-b - sqrtb24ac)/a2;
+    // double dlambda2 = (-b - sqrtb24ac)/a2;
     double dlambdaj2dh= (a2*(-dBdh-dSqrtb24acdh)-((-b-sqrtb24ac)*2.0*dAdh))/(4.0*a*a);
    
     double val = (*deltaUhat)^(*deltaUstep2);
@@ -621,8 +611,8 @@ ArcLength::getLambdaSensitivity(int gradNumber)
 
     double dTheta1dh=2*((*deltaUstep2)^(*dDeltaUstepdh))+((*deltaUbar)^(*dDeltaUstepdh))+((*dUIJdh)^(*deltaUstep2));
     //    double theta2 = theta1 + dlambda2*val;
-      double dvaldh= ((*deltaUhat)^(*dDeltaUstepdh))+((*dUhatdh)^(*deltaUstep2));
-     dTheta1dh +=dlambdaj1dh*val+dlambda1*dvaldh;
+    double dvaldh= ((*deltaUhat)^(*dDeltaUstepdh))+((*dUhatdh)^(*deltaUstep2));
+    dTheta1dh +=dlambdaj1dh*val+dlambda1*dvaldh;
     // choose dLambda based on angle between incremental displacement before
     // and after this step -- want positive
     
@@ -630,8 +620,8 @@ ArcLength::getLambdaSensitivity(int gradNumber)
       dlambdaJdh = dlambdaj1dh;
     else
       dlambdaJdh = dlambdaj2dh;
+
   //  double dResultdh=a*2*dlambdaJdh*dLAMBDA2+dAdh*(dLAMBDA2*dLAMBDA2)+b*dlambdaJdh+dBdh*dLAMBDA2+dCdh;
-//    opserr<<"dRdh= "<<dResultdh<<",,.,.,.,.,.,.,.,.,.,.,.,.,,.,.,.,.,.,.,.,.,///////"<<endln;
 ///////////////
    // determine delta U(i)
   ////////////////
@@ -650,9 +640,6 @@ ArcLength::getLambdaSensitivity(int gradNumber)
 
 
     dDeltaLambdaStepdh +=dlambdaJdh;
-
-//opserr<<"Ok....."<<2.0*((*deltaUstep)^(*dDeltaUstepdh))<<"......//////////"<<endln;
-//..............
 
   // dDeltaLambdaStepdh +=dlambdaJdh;
   // Now update Lambda_ij

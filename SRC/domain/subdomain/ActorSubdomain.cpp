@@ -101,7 +101,7 @@ ActorSubdomain::run(void)
       Matrix *theM;
       Vector *theV;
       ID     *theI, *theNodeTags, *theEleTags;
-      PartitionedModelBuilder *theBuilder;
+//    PartitionedModelBuilder *theBuilder;
       IncrementalIntegrator *theIntegrator;
       EquiSolnAlgo *theAlgorithm;
       LinearSOE *theSOE;

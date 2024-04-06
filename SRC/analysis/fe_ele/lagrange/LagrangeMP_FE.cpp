@@ -17,19 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2006-02-08 20:20:00 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/fe_ele/lagrange/LagrangeMP_FE.cpp,v $
-                                                                        
-                                                                        
+//
+// Purpose: This file contains the code for implementing the methods
+// of the LagrangeMP_FE class interface.
+//
 // Written: fmk 
 // Created: 02/99
 // Revision: A
 //
-// Purpose: This file contains the code for implementing the methods
-// of the LagrangeMP_FE class interface.
-
 #include <LagrangeMP_FE.h>
 #include <stdlib.h>
 
@@ -48,9 +43,9 @@
 
 LagrangeMP_FE::LagrangeMP_FE(int tag, Domain &theDomain, MP_Constraint &TheMP,
 			     DOF_Group &theGroup, double Alpha)
-:FE_Element(tag, 3,(tag, TheMP.getConstrainedDOFs()).Size()+
-	      (TheMP.getRetainedDOFs()).Size() + 
-	      (TheMP.getRetainedDOFs()).Size()),
+:FE_Element(tag, 3,  TheMP.getConstrainedDOFs().Size()
+	           + TheMP.getRetainedDOFs().Size()
+	           + TheMP.getRetainedDOFs().Size()),
  alpha(Alpha), theMP(&TheMP), 
  theConstrainedNode(0), theRetainedNode(0),
  theDofGroup(&theGroup), tang(0), resid(0)
