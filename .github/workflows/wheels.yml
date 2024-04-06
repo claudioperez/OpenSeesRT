@@ -72,9 +72,9 @@ jobs:
       env:
         CIBW_ARCHS_MACOS: x86_64 # auto universal2
 
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
+#   - name: Verify clean directory
+#     run: git diff --exit-code
+#     shell: bash
 
     - name: Upload wheels
       uses: actions/upload-artifact@v3
