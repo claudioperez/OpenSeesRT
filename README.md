@@ -58,6 +58,8 @@ Project objectives include:
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
 
+- **Semantics** Unlike interfaces which rely on global state, this package can be used
+  with true library semantics.
 
 <!--
 - **Library semantics**
@@ -101,6 +103,8 @@ Additional features include:
   ```python
   import opensees.openseespy
   ```
+  For true stateless modeling, the `Model` class should be used instead of the legacy
+  `model` function; documentation is under development.
 
 
 <!-- Badge links -->
