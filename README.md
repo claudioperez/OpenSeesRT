@@ -46,12 +46,17 @@ Project objectives include:
   [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
   analysis kernel which
   eliminates reliance on global variables for state and memory management. 
-  Furthermore, new template classes allow for stack-allocated
+  New template classes in [`matrix/`](https://github.com/STAIRLab/OpenSeesRT/tree/master/SRC/matrix/)
+  allow for stack-allocated
   matrices and vectors and eliminate the need for static local variables 
-  furnishing substantial performance improvements.
+  which is leveraged to furnish substantial performance improvements. 
+  Switching Python scripts
+  to use `opensees` typically results in a 4x to 5x performance boost.
 
-- **Robustness** All program state is encapsulated in user-instantiated classes,
-  and global variables/singletons are avoided. This eliminates several preexisting vulnerabilities to inadvertent state corruption.
+- **Reliability** The core OpenSees runtime has been redesigned so that all program 
+  state is encapsulated in user-instantiated classes,
+  and global variables/singletons are avoided. 
+  This eliminates several preexisting vulnerabilities to inadvertent state corruption.
 
 
 <!--
