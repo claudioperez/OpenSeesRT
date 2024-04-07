@@ -58,8 +58,8 @@ Project objectives include:
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
 
-- **Semantics** Unlike interfaces which rely on global state, this package can be used
-  with true library semantics.
+- **Semantics** ... <!-- Unlike interfaces which rely on global state, this package can be used 
+  with true library semantics. -->
 
 <!--
 - **Library semantics**
