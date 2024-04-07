@@ -1,8 +1,8 @@
-      SUBROUTINE ELMT05(d,ul,xl,ix,tl,s,r,ndf,ndm,nst,isw,dm,
+      SUBROUTINE ELMT06(d,ul,xl,ix,tl,s,r,ndf,ndm,nst,isw,dm,
      1                   nen,n,nh1,nh2,nh3,h,ctan,ior,iow)
 
 c .....................................................................
-c     elmt05 - Two dimensional truss element
+c     elmt06 - Two dimensional truss element
 c
 c     written:  fmk
 c     created:  03/99
