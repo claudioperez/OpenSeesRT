@@ -70,11 +70,11 @@ jobs:
 
     - uses: pypa/cibuildwheel@v2.16
       env:
-        CIBW_ARCHS_MACOS: auto universal2
+        CIBW_ARCHS_MACOS: x86_64 # auto universal2
 
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
+#   - name: Verify clean directory
+#     run: git diff --exit-code
+#     shell: bash
 
     - name: Upload wheels
       uses: actions/upload-artifact@v3

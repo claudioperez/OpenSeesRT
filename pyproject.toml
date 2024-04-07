@@ -109,18 +109,16 @@ where = ["src"]
 exclude = ["libg3*", "site*"]
 
 [tool.setuptools.package-data]
-opensees = ["*.py", "*.so", "*.dll"]
+opensees = ["*.py", "*.so", "*.dll", "*.dylib"]
 
 [tool.setuptools.exclude-package-data]
 opensees = ["site*", "docs*", "*.html", "*.cmake"]
 
 
 [tool.cibuildwheel]
-skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
-# manylinux-x86_64-image = "manylinux_2_28"
-manylinux-x86_64-image="manylinux2014"
-
+# manylinux-x86_64-image="manylinux_2_28"
 # manylinux-x86_64-image="manylinux_2_24"
+manylinux-x86_64-image="manylinux2014"
 
 # [tool.cibuildwheel.windows]
 # before-build="pip install delvewheel"
@@ -130,9 +128,7 @@ manylinux-x86_64-image="manylinux2014"
 skip = ["*arm64*", "pp*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*"] # "cp311*", "cp312*"
 
 [tool.cibuildwheel.linux]
-# before-all = "yum install -y tcl-devel mysql-devel lapack-devel"
-before-all = "yum install -y tcl-devel mysql-devel openblas-devel"
-#before-all = "yum-config-manager --add-repo https://yum.repos.intel.com/setup/intelproducts.repo && yum install intel-mkl-2020.0-088"
-# before-all = "rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && yum install intel-mkl"
+skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
+before-all = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
 repair-wheel-command = "auditwheel repair --exclude libOpenSeesRT.so  -w {dest_dir} {wheel}"
 
