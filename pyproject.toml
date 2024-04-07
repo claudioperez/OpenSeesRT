@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.0.56"
+version = "0.0.59"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
@@ -93,6 +93,7 @@ docs = [
 
 [project.urls]
 Repository = "http://github.com/claudioperez/OpenSeesRT"
+Organization = "http://stairlab.berkeley.edu"
 # Documentation = "https://brace2.github.io/OpenSeesRT"
 
 [build-system]
@@ -125,10 +126,10 @@ manylinux-x86_64-image="manylinux2014"
 # repair-wheel-command="delvewheel repair -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
-skip = ["*arm64*", "pp*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*"] # "cp311*", "cp312*"
+skip = ["*arm64*", "pp*", "cp36*", "*i686*", "UNKNOWN*", "cp37*"] # "cp311*", "cp312*"
 
 [tool.cibuildwheel.linux]
-skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
+skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*"] # "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
 before-all = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
 repair-wheel-command = "auditwheel repair --exclude libOpenSeesRT.so  -w {dest_dir} {wheel}"
 
