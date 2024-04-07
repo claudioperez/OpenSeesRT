@@ -119,6 +119,7 @@ opensees = ["site*", "docs*", "*.html", "*.cmake"]
 skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
 # manylinux-x86_64-image = "manylinux_2_28"
 manylinux-x86_64-image="manylinux2014"
+
 # manylinux-x86_64-image="manylinux_2_24"
 
 # [tool.cibuildwheel.windows]
