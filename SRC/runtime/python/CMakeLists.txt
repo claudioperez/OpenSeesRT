@@ -5,8 +5,10 @@
 #
 #=====================================================================
 #find_package(PythonExtensions REQUIRED)
-find_package(Python COMPONENTS Interpreter Development)
-find_package(pybind11 CONFIG)
+
+# find_package(Python COMPONENTS Interpreter Development)
+# find_package(pybind11 CONFIG)
+
 # add_library(OpenSeesPyRT SHARED)
 pybind11_add_module(OpenSeesPyRT)
 

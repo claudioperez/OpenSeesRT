@@ -73,8 +73,10 @@ target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime ${TCL_STUB_LIBRARY})
 #
 # Python
 #
+find_package(Python COMPONENTS Interpreter Development)
+find_package(pybind11 CONFIG)
+if (${pybind11_FOUND} AND NOT DEFINED NoOpenSeesPyRT)
   message(" :: Configuring Pyton extension")
-if (NOT DEFINED NoOpenSeesPyRT)
   add_subdirectory(python)
 endif()
 
