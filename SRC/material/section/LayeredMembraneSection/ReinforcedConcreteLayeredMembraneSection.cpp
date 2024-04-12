@@ -31,7 +31,7 @@ typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 using namespace std;
 
 // Read input parameters and build the section
-void* OPS_ReinforcedConcreteLayeredMembraneSection()
+void* OPS_ADD_RUNTIME_VPV(OPS_ReinforcedConcreteLayeredMembraneSection)
 {
 	int numArgs = OPS_GetNumRemainingInputArgs();
 
