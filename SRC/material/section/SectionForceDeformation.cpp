@@ -24,8 +24,7 @@
 //
 // Description: This file contains the class implementation for SectionForceDeformation.
 //
-// What: "@(#) SectionForceDeformation.C, revA"
-
+//
 #include <SectionForceDeformation.h>
 #include <Information.h>
 #include <Matrix.h>
@@ -37,65 +36,8 @@ typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <string.h>
 
 #include <TaggedObject.h>
-#include <MapOfTaggedObjects.h>
-#include <MapOfTaggedObjectsIter.h>
 #include <api/runtimeAPI.h>
 
-static MapOfTaggedObjects theSectionForceDeformationObjects;
-
-bool OPS_addSectionForceDeformation(SectionForceDeformation *newComponent) {
-  return theSectionForceDeformationObjects.addComponent(newComponent);
-}
-
-bool OPS_removeSectionForceDeformation(int tag)
-{
-    TaggedObject* obj = theSectionForceDeformationObjects.removeComponent(tag);
-    if (obj != 0) {
-	delete obj;
-	return true;
-    }
-    return false;
-}
-
-#undef OPS_getSectionForceDeformation
-SectionForceDeformation *OPS_getSectionForceDeformation(int tag) {
-
-  TaggedObject *theResult = theSectionForceDeformationObjects.getComponentPtr(tag);
-
-  if (theResult == 0) {
-    opserr << "SectionForceDeformation *getSectionForceDeformation(int tag) - none found with tag: " << tag << endln;
-    return 0;
-  }
-  SectionForceDeformation *theMat = (SectionForceDeformation *)theResult;
-
-  return theMat;
-}
-
-void
-OPS_ADD_RUNTIME_VXV(OPS_clearAllSectionForceDeformation)
-{
-  theSectionForceDeformationObjects.clearAll();
-}
-
-void OPS_printSectionForceDeformation(OPS_Stream &s, int flag) {
-
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\"sections\": [\n";    
-    MapOfTaggedObjectsIter theObjects = theSectionForceDeformationObjects.getIter();
-    theObjects.reset();
-    TaggedObject *theObject;
-    int count = 0;
-    int numComponents = theSectionForceDeformationObjects.getNumComponents();
-    while ((theObject = theObjects()) != 0) {
-      SectionForceDeformation *theSection = (SectionForceDeformation *)theObject;
-      theSection->Print(s, flag);
-      if (count < numComponents-1)
-	s << ",\n";
-      count++;
-    }
-    s << "\n\t\t]";
-  }
-}
 
 SectionForceDeformation::SectionForceDeformation(int tag, int classTag)
   :TaggedObject(tag), MovableObject(classTag), fDefault(0), sDefault(0)
