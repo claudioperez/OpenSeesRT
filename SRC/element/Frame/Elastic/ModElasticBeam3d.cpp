@@ -289,16 +289,19 @@ int ModElasticBeam3d::revertToStart() {
   return retVal;
 }
 
-int ModElasticBeam3d::update(void) { return theCoordTransf->update(); }
+int ModElasticBeam3d::update(void) { 
+  return theCoordTransf->update(); 
+}
 
-const Matrix &ModElasticBeam3d::getTangentStiff(void) {
+const Matrix &ModElasticBeam3d::getTangentStiff(void)
+{
   const Vector &v = theCoordTransf->getBasicTrialDisp();
 
   double L = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
-  double EoverL = E * oneOverL;
-  double EAoverL = A * EoverL;        // EA/L
-  double GJoverL = G * Jx * oneOverL; // GJ/L
+  double EoverL   = E * oneOverL;
+  double EAoverL  = A * EoverL;        // EA/L
+  double GJoverL  = G * Jx * oneOverL; // GJ/L
 
   q(0) = EAoverL * v(0);
   q(5) = GJoverL * v(5);
@@ -333,13 +336,14 @@ const Matrix &ModElasticBeam3d::getTangentStiff(void) {
   return theCoordTransf->getGlobalStiffMatrix(kb, q);
 }
 
-const Matrix &ModElasticBeam3d::getInitialStiff(void) {
+const Matrix &ModElasticBeam3d::getInitialStiff(void) 
+{
   //  const Vector &v = theCoordTransf->getBasicTrialDisp();
 
   double L = theCoordTransf->getInitialLength();
 
   double oneOverL = 1.0 / L;
-  double EoverL = E * oneOverL;
+  double EoverL  = E * oneOverL;
   double EAoverL = A * EoverL;        // EA/L
   double GJoverL = G * Jx * oneOverL; // GJ/L
 
@@ -350,6 +354,7 @@ const Matrix &ModElasticBeam3d::getInitialStiff(void) {
   double EIzoverL2 = K44z * Iz * EoverL;   // 2EIz/L, modified
   double EIzoverL4 = K11z * Iz * EoverL;   // 4EIz/L, modified
   double EIzoverL6 = K33z * Iz * EoverL;   // 4EIz/L, modified
+
   kb(1, 1) = EIzoverL4;
   kb(2, 2) = EIzoverL6;
   kb(2, 1) = kb(1, 2) = EIzoverL2;

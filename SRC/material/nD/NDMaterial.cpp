@@ -32,8 +32,6 @@
 //
 // Description: This file contains the class implementation for NDMaterial.
 //
-// What: "@(#) NDMaterial.C, revA"
-
 #include <NDMaterial.h>
 #include <Information.h>
 #include <OPS_Globals.h>
@@ -46,66 +44,11 @@
 #include <BeamFiberMaterial2d.h>
 #include <PlateFiberMaterial.h>
 #include <string.h>
-#include <TaggedObject.h>
-#include <MapOfTaggedObjects.h>
 #include <api/runtimeAPI.h>
 
 Matrix NDMaterial::errMatrix(1,1);
 Vector NDMaterial::errVector(1);
 
-static MapOfTaggedObjects theNDMaterialObjects;
-
-bool OPS_addNDMaterial(NDMaterial *newComponent)
-{
-    return theNDMaterialObjects.addComponent(newComponent);
-}
-
-bool OPS_removeNDMaterial(int tag)
-{
-    TaggedObject* obj = theNDMaterialObjects.removeComponent(tag);
-    if (obj != 0) {
-	delete obj;
-	return true;
-    }
-    return false;
-}
-
-NDMaterial *OPS_getNDMaterial(int tag)
-{
-  TaggedObject *theResult = theNDMaterialObjects.getComponentPtr(tag);
-  if(theResult == 0) {
-      opserr << "NDMaterial no found with tag: " << tag << "\n";
-      return 0;
-  }
-  NDMaterial *theMat = (NDMaterial *)theResult;
-
-  return theMat;
-}
-
-void
-OPS_ADD_RUNTIME_VXV(OPS_clearAllNDMaterial)
-{
-    theNDMaterialObjects.clearAll();
-}
-
-void OPS_printNDMaterial(OPS_Stream &s, int flag) {
-    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\"ndMaterials\": [\n";
-        MapOfTaggedObjectsIter theObjects = theNDMaterialObjects.getIter();
-        theObjects.reset();
-        TaggedObject *theObject;
-        int count = 0;
-        int numComponents = theNDMaterialObjects.getNumComponents();
-        while ((theObject = theObjects()) != 0) {
-            NDMaterial *theMaterial = (NDMaterial *)theObject;
-            theMaterial->Print(s, flag);
-            if (count < numComponents - 1)
-                s << ",\n";
-            count++;
-        }
-        s << "\n\t\t]";
-    }
-}
 
 NDMaterial::NDMaterial(int tag, int classTag)
 :Material(tag,classTag)
@@ -196,6 +139,7 @@ NDMaterial::getTangent(void)
    return errMatrix;    
 }
 
+#if 1
 const Vector &
 NDMaterial::getStress(void)
 {
@@ -209,27 +153,28 @@ NDMaterial::getStrain(void)
    opserr << "NDMaterial::getStrain -- subclass responsibility\n";
    return errVector;    
 }
+#endif
 
 //Functions for obtaining and updating temperature-dependent information Added by L.Jiang [SIF]
 double
 NDMaterial::getThermalTangentAndElongation(double &TempT, double &ET, double &Elong)
 {
-	opserr << "NDMaterial::getThermalTangentAndElongation -- subclass responsibility\n";
-	return -1;
+  opserr << "NDMaterial::getThermalTangentAndElongation -- subclass responsibility\n";
+  return -1;
 }
 
 double
 NDMaterial::setThermalTangentAndElongation(double &TempT, double &ET, double &Elong)
 {
-	opserr << "NDMaterial::setThermalTangentAndElongation -- subclass responsibility\n";
-	return -1;
+    opserr << "NDMaterial::setThermalTangentAndElongation -- subclass responsibility\n";
+    return -1;
 }
 
 const Vector&
 NDMaterial::getTempAndElong()
 {
-	opserr << "NDMaterial::getTempAndElong -- subclass responsibility\n";
-	return errVector;
+    opserr << "NDMaterial::getTempAndElong -- subclass responsibility\n";
+    return errVector;
 }
 //end of adding thermo-mechanical functions, L.Jiang [SIF]
 
@@ -387,5 +332,4 @@ NDMaterial::commitSensitivity(const Vector & strainSensitivity, int gradIndex, i
 	return 0;
 }
 // AddingSensitivity:END //////////////////////////////////////////
-
 

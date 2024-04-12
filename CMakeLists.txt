@@ -111,34 +111,41 @@ if (UNIX)
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -fno-omit-frame-pointer") # ,leak,
+      add_compile_options(
+        $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> #, leak
+        $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fno-omit-frame-pointer>
+      )
       add_link_options(
-        $<$<CONFIG:DEBUG>:-fsanitize=address,undefined> # , leak
+        -fsanitize=address,undefined> # , leak
+      )
+    elseif (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+      # Some x86_64 optimizations
+      add_compile_options(
+        $<$<CONFIG:RELEASE>:-march=haswell>
+        $<$<CONFIG:RELEASE>:-msse4>
+        $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-mavx2>
+#       $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-ftree-vectorize>
       )
     endif()
-    add_compile_options(
-      $<$<CONFIG:RELEASE>:-march=haswell>
-    )
   endif()
 
-  # Debug / Optimization options
+  # More general debug / optimization options
   add_compile_options(
-    # -pg # Profiling with gprof
     $<$<CONFIG:DEBUG>:-ggdb>
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
 
     $<$<CONFIG:RELEASE>:-O3>
     $<$<CONFIG:RELEASE>:-mtune=native>
-#   $<$<CONFIG:RELEASE>:-msse4>
-#   $<$<CONFIG:RELEASE>:-fno-rtti>
   )
+
   if (DEFINED ProfileBuild)
+    # Profiling with gprof
     add_compile_options(-fno-omit-frame-pointer -g -p)
   endif()
-endif()
 
-if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
+elseif (WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
+
   include(OpenSeesDependenciesWin)
   add_compile_definitions(_WIN32 _TCL85)
   add_compile_options(/favor:INTEL64)
@@ -146,10 +153,11 @@ if(WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
 endif()
 
 
-
+# Check for IPO and maybe use it; this can significantly slow down linking 
+# and can be problematic on slow or memory constrained machines (e.g., my laptop)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (False) #has_ipo)
+if (has_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 #==============================================================================
@@ -169,6 +177,8 @@ enable_language(Fortran)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
+
+# Compiler warnings
 add_compile_options(
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
@@ -288,6 +298,7 @@ set(TCL_INCLUDE_PATH ${TCL_INCLUDE_DIRS})
 
 include_directories(${TCL_INCLUDE_PATH})
 
+# Print out a summary of build configuration
 message("\n:: OpenSees Summary")
 message("  :: BLAS:      ${BLAS_LIBRARIES}")
 message("  :: LAPACK:    ${LAPACK_LIBRARIES}")
