@@ -91,6 +91,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeTetrahedron)
     return new FourNodeTetrahedron(idata[0],idata[1],idata[2],idata[3],idata[4],*mat,data[0],data[1],data[2]);
 }
 
+#if 0
 void* OPS_FourNodeTetrahedron(const ID& info)
 {
     if (info.Size() == 0) {
@@ -180,6 +181,7 @@ void* OPS_FourNodeTetrahedron(const ID& info)
     return 0;
     
 }
+#endif
 
 //static data
 double  FourNodeTetrahedron::xl[3][NumNodes] ;
