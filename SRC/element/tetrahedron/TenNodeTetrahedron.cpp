@@ -48,7 +48,7 @@
 #include <elementAPI.h>
 #include <map>
 
-void* OPS_TenNodeTetrahedron()
+void* OPS_ADD_RUNTIME_VPV(OPS_TenNodeTetrahedron)
 {
 	if (OPS_GetNumRemainingInputArgs() < 12)
 	{
@@ -95,6 +95,7 @@ void* OPS_TenNodeTetrahedron()
 	return new TenNodeTetrahedron(idata[0], idata[1], idata[2], idata[3], idata[4], idata[5], idata[6], idata[7], idata[8], idata[9], idata[10], *mat, data[0], data[1], data[2]);
 }
 
+#if 0
 void* OPS_TenNodeTetrahedron(const ID& info)
 {
 	if (info.Size() == 0) {
@@ -184,6 +185,7 @@ void* OPS_TenNodeTetrahedron(const ID& info)
 	return 0;
 
 }
+#endif
 
 //static data
 double  TenNodeTetrahedron::xl[3][NumNodes] ;
