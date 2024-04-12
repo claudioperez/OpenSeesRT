@@ -31,14 +31,14 @@ typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 using namespace std;
 
 // Read input parameters and build the section
-void* OPS_LayeredMembraneSection()
+void* OPS_ADD_RUNTIME_VPV(OPS_LayeredMembraneSection)
 {
 	int numArgs = OPS_GetNumRemainingInputArgs();
 
 	// Parse the script for material parameters
 	if (numArgs < 7) {
-		opserr << "Want: LayeredMembraneSection $secTag $total_thickness $nLayers -mat{$Material_tags} -thick{$Thicknesses} <-Eout $YoungModulus>" << endln;
-		return 0;
+            opserr << "Want: LayeredMembraneSection $secTag $total_thickness $nLayers -mat{$Material_tags} -thick{$Thicknesses} <-Eout $YoungModulus>" << endln;
+            return 0;
 	}
 
 	int tag, nLayers;
@@ -52,22 +52,22 @@ void* OPS_LayeredMembraneSection()
 	// section tag
 	int numdata = 1;
 	if (OPS_GetIntInput(&numdata, &tag) < 0) {
-		opserr << "WARNING invalid section LayeredMembraneSection tag" << endln;
-		return 0;
+            opserr << "WARNING invalid section LayeredMembraneSection tag" << endln;
+            return 0;
 	}
 
 	// section total thickness
 	if (OPS_GetDouble(&numdata, &totalThickness) != 0) {
-		opserr << "WARNING invalid tota_thickness" << endln;
-		opserr << "LayeredMembraneSection section: " << tag << endln;
-		return 0;
+            opserr << "WARNING invalid tota_thickness" << endln;
+            opserr << "LayeredMembraneSection section: " << tag << endln;
+            return 0;
 	}
 
 	// layers number
 	if (OPS_GetIntInput(&numdata, &nLayers) < 0) {
-		opserr << "WARNING invalid nLayers" << endln;
-		opserr << "LayeredMembraneSection section: " << tag << endln;
-		return 0;
+            opserr << "WARNING invalid nLayers" << endln;
+            opserr << "LayeredMembraneSection section: " << tag << endln;
+            return 0;
 	}
 
 	theMats = new NDMaterial * [nLayers];
