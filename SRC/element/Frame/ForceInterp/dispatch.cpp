@@ -207,7 +207,8 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       } else
         argi++;
 
-      if (Tcl_GetVar(interp, "opensees::pragma::openseespy", 0) == nullptr) { 
+      const char *openseespy = Tcl_GetVar(interp, "opensees::pragma::openseespy", 0);
+      if (openseespy == nullptr || strcmp(openseespy, "0")==0) { 
         // (0) { // (Tcl_Eval(interp, "expr [pragma openseespy check] == 1") != TCL_OK) {
       // OpenSees Tcl behavior
 
