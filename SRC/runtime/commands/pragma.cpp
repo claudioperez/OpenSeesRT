@@ -19,7 +19,7 @@ TclObjCommand_pragma([[maybe_unused]] ClientData clientData,
   const char* pragma = Tcl_GetString(objv[argi++]);
 
   if (strcmp(pragma, "analysis") == 0) {
-    if (strcmp(Tcl_GetString(objv[argi]), "off") == 0) {
+    if (argi < objc && strcmp(Tcl_GetString(objv[argi]), "off") == 0) {
       Tcl_Eval(interp,
         "proc loadConst {args} {}\n"
         "proc wipeAnalysis	{args} {}\n"
@@ -38,7 +38,15 @@ TclObjCommand_pragma([[maybe_unused]] ClientData clientData,
     } 
   }
   else if (strcmp(pragma, "openseespy") == 0) {
-    Tcl_Eval(interp, "namespace eval opensees::pragma {set openseespy 1}");
+    if (argi < objc && strcmp(Tcl_GetString(objv[argi]), "off") == 0) {
+      Tcl_Eval(interp, "namespace eval opensees::pragma {set openseespy 0}");
+
+    } else if (argi < objc && strcmp(Tcl_GetString(objv[argi]), "on") == 0) {
+      Tcl_Eval(interp, "namespace eval opensees::pragma {set openseespy 1}");
+
+    } else {
+      Tcl_Eval(interp, "namespace eval opensees::pragma {set openseespy 1}");
+    }
   }
   return TCL_OK;
 }
