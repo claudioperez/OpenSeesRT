@@ -26,17 +26,12 @@ add_compile_definitions(OPS_USE_RUNTIME USE_TCL_STUBS _TCL85 _NOGRAPHICS) # _THR
 # add Conan stuff for external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    message(":: Using Conan")
-   set(USE_CONAN TRUE)
+#  set(USE_CONAN TRUE)
    include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-   conan_basic_setup(TARGETS)
+   conan_basic_setup() # TARGETS)
    set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
-
-   message(":: TCL :: ${TCL_INCLUDE_DIRS}\n${CONAN_INCLUDE_DIRS_TCL}")
-   message(":: TCL :: ${TCL_INCLUDE_PATH}\n${CONAN_INCLUDE_DIRS_TCL}")
-   message(":: TCL :: ${TCL_LIBRARIES}   \n${CONAN_PKG_LIBS_TCL}")
-
 
 elseif(WIN32)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
@@ -61,13 +56,22 @@ elseif(WIN32)
                       REMOTE conancenter
                       SETTINGS ${settings})
 
-  include(${CMAKE_BINARY_DIR}/src/libg3/conanbuildinfo.cmake)
+  if (EXISTS  "${CMAKE_BINARY_DIR}/src/libg3/conanbuildinfo.cmake")
+    include(${CMAKE_BINARY_DIR}/src/libg3/conanbuildinfo.cmake)
+  else()
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  endif()
   conan_basic_setup() # TARGETS)
 
 
   set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
   set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
   set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
+  set(TCL_LIBRARY      "${CONAN_PKG_LIBS_TCL}")
+
+  message(":: TCL :: ${TCL_INCLUDE_DIRS}\n${CONAN_INCLUDE_DIRS_TCL}")
+  message(":: TCL :: ${TCL_INCLUDE_PATH}\n${CONAN_INCLUDE_DIRS_TCL}")
+  message(":: TCL :: ${TCL_LIBRARIES}   \n${CONAN_PKG_LIBS_TCL}")
   
   message("Win: TCL_LIBRARY:     ${TCL_LIBRARY}")
   message("Win: Env:TCL_LIBRARY: $ENV{TCL_LIBRARY}")

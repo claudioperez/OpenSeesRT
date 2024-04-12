@@ -42,6 +42,7 @@ archive/
 .vs
 obj
 *.exp
+out/
 
 # CLion
 .idea

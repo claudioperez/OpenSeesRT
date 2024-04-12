@@ -469,26 +469,30 @@ init_obj_module(py::module &m)
         return std::unique_ptr<BasicModelBuilder, py::nodelete>((BasicModelBuilder*)builder_addr);
       }) // , py::return_value_policy::reference
     )
-    .def ("getSection", [](BasicModelBuilder& builder, py::str id){
-        return builder.getSection(id);
+    .def ("getSection", [](BasicModelBuilder& builder, int id){
+        return builder.getTypedObject<SectionForceDeformation>(id);
     })
+    /*
     .def ("getNDMaterial", [](BasicModelBuilder& builder, py::str tag){
-        return builder.getNDMaterial(tag);
+        return builder.getTypedObject<NDMaterial>(tag);
     })
+    */
     .def ("getNDMaterial", [](BasicModelBuilder& builder, int tag){
-        return builder.getNDMaterial(tag);
+        return builder.getTypedObject<NDMaterial>(tag);
     })
+    /*
     .def ("getUniaxialMaterial", [](BasicModelBuilder& builder, py::str tag){
-        return builder.getUniaxialMaterial(tag);
+        return builder.getTypedObject<UniaxialMaterial>(tag);
     })
+    */
     .def ("getUniaxialMaterial", [](BasicModelBuilder& builder, int tag){
-        return builder.getUniaxialMaterial(tag);
+        return builder.getTypedObject<UniaxialMaterial>(tag);
     })
-    .def ("addPythonObject", [](BasicModelBuilder& builder, py::str tag, PyUniaxialMaterial& material){
-        return builder.addUniaxialMaterial(tag, material);
+    .def ("addPythonObject", [](BasicModelBuilder& builder, int tag, PyUniaxialMaterial& material){
+        return builder.addTypedObject<UniaxialMaterial>(tag, &material);
     })
-    .def ("getHystereticBackbone", [](BasicModelBuilder& builder, std::string tag){
-        return std::unique_ptr<HystereticBackbone, py::nodelete>(builder.getHystereticBackbone(tag));
+    .def ("getHystereticBackbone", [](BasicModelBuilder& builder, int tag){
+        return std::unique_ptr<HystereticBackbone, py::nodelete>(builder.getTypedObject<HystereticBackbone>(tag));
     })
   ;
 

@@ -50,7 +50,10 @@ version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 //
 // Called when the library is loaded as a Tcl extension.
 //
-extern "C" int DLLEXPORT
+extern "C" int 
+#ifdef _WIN32
+__declspec(dllexport) // DLLEXPORT
+#endif
 Openseesrt_Init(Tcl_Interp *interp)
 {
   if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)

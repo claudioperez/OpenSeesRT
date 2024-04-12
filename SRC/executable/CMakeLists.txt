@@ -7,5 +7,9 @@
 
 add_executable(OpenSees tclMain.cpp)
 
-target_link_libraries(OpenSees PRIVATE ${TCL_LIBRARY} OpenSeesRT)
+if (WIN32)
+  target_link_libraries(OpenSees PRIVATE Netapi32.lib)
+endif()
+
+target_link_libraries(OpenSees PRIVATE ${TCL_LIBRARIES} OpenSeesRT)
 
