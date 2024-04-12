@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-04-14 21:41:12 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/repres/patch/QuadPatch.cpp,v $
-                                                                        
-                                                                        
+//
 // File: QuadPatch.C
 // Written by Remo M. de Souza
 // December 1998
-
+//
 #include <Matrix.h>
 #include <Patch.h>
 #include <QuadPatch.h>

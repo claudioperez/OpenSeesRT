@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:01:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/repres/patch/CircPatch.cpp,v $
-                                                                        
-                                                                        
+//
 // File: CircPatch.C
 // Written by Remo M. de Souza
 // December 1998
@@ -128,7 +123,6 @@ CircPatch::getCells (void) const
    double rad_j, rad_j1, theta_i, theta_i1;
    Matrix cellVertCoord(4,2);
 
-   int    i, j, k;
    int    numCells;
    Cell   **cells;
 
@@ -137,9 +131,6 @@ CircPatch::getCells (void) const
       numCells  = this->getNumCells();
 
       cells = new Cell* [numCells];
-      
-      if (!cells)
-         return 0;
 
       initAngRadians  = pi * initAng  / 180.0;
       finalAngRadians = pi * finalAng / 180.0;
@@ -147,13 +138,13 @@ CircPatch::getCells (void) const
       deltaRad   = (extRad - intRad) / nDivRad;
       deltaTheta = (finalAngRadians - initAngRadians) / nDivCirc;
 
-      k = 0;
-      for (j = 0; j < nDivRad; j++)
+      int k = 0;
+      for (int j = 0; j < nDivRad; j++)
       {
          rad_j  = intRad + deltaRad*j;
          rad_j1 = rad_j + deltaRad;
 
-         for (i = 0; i < nDivCirc; i++)
+         for (int i = 0; i < nDivCirc; i++)
          {
             // compute coordinates
                        
