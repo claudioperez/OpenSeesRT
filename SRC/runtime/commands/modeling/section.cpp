@@ -1011,8 +1011,8 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   UniaxialMaterial *torsion = nullptr;
   bool deleteTorsion = false;
   bool shearParsed = false;
-  double Ys, Zs; // Xinlong: input of coords of shear center relative to
-                 // centroid
+  double Ys=0.0, Zs=0.0; // Xinlong: input of coords of shear center relative to
+                         // centroid
 
 //// Interaction parameters
 //int NStrip1, NStrip2, NStrip3;
