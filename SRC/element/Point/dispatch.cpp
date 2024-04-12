@@ -868,17 +868,14 @@ TclCommand_addZeroLengthND(ClientData clientData, Tcl_Interp *interp, int argc,
   // now we create the element and add it to the domain
   //
 
-  NDMaterial *theNDMat = OPS_getNDMaterial(NDTag);
-
-  if (theNDMat == 0) {
-    opserr << "zeroLengthND -- no NDMaterial with tag " << NDTag
-           << " exists in Domain\n";
+  NDMaterial *theNDMat = builder->getTypedObject<NDMaterial>(NDTag); // OPS_getNDMaterial(NDTag);
+  if (theNDMat == nullptr)
     return TCL_ERROR;
-  }
 
-  Element *theEle = 0;
 
-  if (the1DMat == 0)
+  Element *theEle = nullptr;
+
+  if (the1DMat == nullptr)
     theEle = new ZeroLengthND(eleTag, ndm, iNode, jNode, x, y, *theNDMat);
   else
     theEle =
