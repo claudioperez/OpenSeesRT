@@ -29,10 +29,10 @@
 #  undef  OPS_GetUniaxialMaterial
 #  define OPS_GetUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
 #  define OPS_getUniaxialMaterial(tag) G3_getUniaxialMaterialInstance(rt, (tag))
+
 // Time series
-#  define OPS_addTimeSeries(series) G3_addTimeSeries(rt, (series))
 #  define OPS_getTimeSeries(tag) G3_getTimeSeries(rt, (tag))
-// #  define OPS_removeTimeSeries(tag) G3_removeTimeSeries(rt, (tag))
+
 
 // Coordinate Transforms
 #  undef  OPS_getCrdTransf
@@ -47,13 +47,19 @@ SectionForceDeformation *G3_getSectionForceDeformation(G3_Runtime *, int);
 #  undef  OPS_GetSectionForceDeformation
 #  define OPS_GetSectionForceDeformation(tag) G3_getSectionForceDeformation(rt, (tag))
 
+// NDMaterial
+NDMaterial *G3_GetNDMaterial(G3_Runtime *, int);
+#  undef  OPS_getNDMaterial
+#  define OPS_getNDMaterial(tag) G3_GetNDMaterial(rt, (tag))
+#  undef  OPS_GetNDMaterial
+#  define OPS_GetNDMaterial(tag) G3_GetNDMaterial(rt, (tag))
 
 typedef int G3_Tag;
 #  define G3_Char TCL_Char
 #  define G3_getDouble Tcl_GetDoubleFromObj
 class G3_Runtime;
 class ModelBuilder;
-class TclBuilder;
+// class TclBuilder;
 #include <runtime/BasicModelBuilder.h>
 class AnalysisModel;
 class EquiSolnAlgo;
@@ -112,14 +118,12 @@ LinearSOE **G3_getLinearSoePtr(G3_Runtime* );
 // RUNTIME
 //
 // Time Series
-int G3_addTimeSeries(G3_Runtime *, TimeSeries *);
+// int         G3_addTimeSeries(G3_Runtime *, TimeSeries *);
 TimeSeries *G3_getTimeSeries(G3_Runtime *, G3_Tag);
-int G3_removeTimeSeries(G3_Runtime *, G3_Tag);
+// int         G3_removeTimeSeries(G3_Runtime *, G3_Tag);
+
 // Analysis
 AnalysisModel **G3_getAnalysisModelPtr(G3_Runtime *);
-// StaticAnalysis *G3_getStaticAnalysis(G3_Runtime *);
-// int G3_setStaticAnalysis(G3_Runtime *, StaticAnalysis *);
-// int G3_delStaticAnalysis(G3_Runtime *);
 StaticIntegrator *G3_getStaticIntegrator(G3_Runtime *);
 int G3_setStaticIntegrator(G3_Runtime *, StaticIntegrator *);
 
