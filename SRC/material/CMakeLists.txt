@@ -21,7 +21,6 @@ target_include_directories(OPS_Material PRIVATE
   ${OPS_SRC_DIR}/material/nD/feap
   ${OPS_SRC_DIR}/material/nD/matCMM
   ${OPS_SRC_DIR}/material/nD/soil
-  ${OPS_SRC_DIR}/material/section/fiber
   ${OPS_SRC_DIR}/material/section/yieldSurface
   ${OPS_SRC_DIR}/material/Yield/evolution
   ${OPS_SRC_DIR}/material/Yield/plasticHardeningMaterial
