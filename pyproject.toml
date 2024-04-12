@@ -117,7 +117,7 @@ opensees = ["site*", "docs*", "*.html", "*.cmake"]
 
 
 [tool.cibuildwheel]
-# manylinux-x86_64-image = "manylinux_2_28"
+# manylinux-x86_64-image="manylinux_2_28"
 # manylinux-x86_64-image="manylinux_2_24"
 manylinux-x86_64-image="manylinux2014"
 
