@@ -45,13 +45,6 @@ struct cmp_str {
   }
 };
 
-// std::map<char *, eleFunct, cmp_str>
-//     theEleFunctions; // map of user added ele functions
-// std::map<char *, eleFunct, cmp_str>
-//     theUniaxialMaterialFunctions; // map of user added material functions
-
-// std::map<int, UniaxialMaterial *>theUniaxialMaterials;           // map for
-// UniaxialMaterial objects needed by user added ele functions'
 
 extern "C" int
 OPS_Error(const char *errorMessage, int length)
@@ -372,19 +365,14 @@ G3_GetNDMaterial(G3_Runtime* rt, int matTag)
   assert(builder != nullptr);
   return builder->getTypedObject<NDMaterial>(matTag);
 }
-
-NDMaterial *
-OPS_GetNDMaterial(int matTag)
-{
-  return OPS_getNDMaterial(matTag);
-}
-
-
+/*
 FrictionModel *
 OPS_GetFrictionModel(int frnTag)
 {
   return OPS_getFrictionModel(frnTag);
 }
+
+*/
 
 int
 OPS_GetNDF()

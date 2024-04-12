@@ -58,7 +58,7 @@ double CircSectionCell::getArea (void) const
 
 double CircSectionCell::getdValue (void) const
 {
-  return 1.0; // Should be something meaningful -- MHS
+  return 1.0; // TODO: Should be something meaningful -- MHS
 }
 
 const Vector & 
