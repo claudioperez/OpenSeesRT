@@ -81,8 +81,10 @@ extern OPS_Routine OPS_UniaxialSection;
 extern OPS_Routine OPS_ParallelSection;
 extern OPS_Routine OPS_Bidirectional;
 extern OPS_Routine OPS_Elliptical2;
-extern void *OPS_ReinforcedConcreteLayeredMembraneSection(void); // M. J. Nunez - UChile
-extern void *OPS_LayeredMembraneSection(void); // M. J. Nunez - UChile
+extern OPS_Routine OPS_ReinforcedConcreteLayeredMembraneSection; // M. J. Nunez - UChile
+extern OPS_Routine OPS_LayeredMembraneSection; // M. J. Nunez - UChile
+
+// TODO: Make OPS_Routine
 extern void *OPS_ElasticMembraneSection(void); // M. J. Nunez - UChile
 
 // extern OPS_Routine OPS_WFSection2d;
@@ -198,7 +200,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
   }
 
     else if ((strcmp(argv[1], "ReinforcedConcreteLayeredMembraneSection") == 0) || (strcmp(argv[1], "RCLayeredMembraneSection") == 0) || (strcmp(argv[1], "RCLMS") == 0)) {
-        void* theMat = OPS_ReinforcedConcreteLayeredMembraneSection();
+        void* theMat = OPS_ReinforcedConcreteLayeredMembraneSection(rt, argc, argv);
         if (theMat != 0)
             theSection = (SectionForceDeformation*)theMat;
         else
@@ -206,7 +208,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     }
 
     else if ((strcmp(argv[1], "LayeredMembraneSection") == 0) || (strcmp(argv[1], "LMS") == 0)) {
-        void* theMat = OPS_LayeredMembraneSection();
+        void* theMat = OPS_LayeredMembraneSection(rt, argc, argv);
         if (theMat != 0)
             theSection = (SectionForceDeformation*)theMat;
         else
@@ -379,7 +381,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
     // Now add the material to the modelBuilder
     if (builder->addTaggedObject<SectionForceDeformation>(*theSection) < 0) {
-      delete theSection; // invoke the material objects destructor, otherwise mem leak
+      delete theSection;
       return TCL_ERROR;
     } else
       return TCL_OK;
@@ -835,11 +837,10 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
 
 // TODO: remove this junk
-static bool currentSectionIsND            = false;
-static bool currentSectionIsAsym          = false;
-static bool currentSectionIsWarping       = false;
-static bool currentSectionIsThermal       = false;
-static bool currentSectionComputeCentroid = true;
+// static bool currentSectionIsND            = false;
+// static bool currentSectionIsAsym          = false;
+// static bool currentSectionIsWarping       = false;
+// static bool currentSectionIsThermal       = false;
 
 struct FiberSectionConfig {
    bool isND            = false;
@@ -847,13 +848,40 @@ struct FiberSectionConfig {
    bool isWarping       = false;
    bool isThermal       = false;
    bool computeCentroid = true;
+   double xz[2];
+   double alpha;
 };
+
+static SectionBuilder* 
+findSectionBuilder(BasicModelBuilder* builder, Tcl_Interp *interp, int argc, const char** const argv)
+{
+  int tag = -1;
+  for (int i = 0; i<argc; i++) {
+    if (strcmp(argv[i], "-section") == 0) {
+      if (Tcl_GetInt(interp, argv[i+1], &tag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to parse section tag \"" << argv[i+1] << "\"\n";
+        return nullptr;
+      } else {
+        break;
+      }
+    }
+  }
+
+  if (tag == -1)
+   tag = builder->currentSectionTag;
+
+  if (tag == -1)
+    return nullptr;
+
+  return builder->getTypedObject<SectionBuilder>(tag);
+
+}
 
 
 // build the section
 static int
 initSectionCommands(ClientData clientData, Tcl_Interp *interp,
-                    int secTag, UniaxialMaterial &theTorsion, double Ys, double Zs, double alpha)
+                    int secTag, UniaxialMaterial &theTorsion, double Ys, double Zs, double alpha, const FiberSectionConfig& options)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -865,46 +893,46 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
   SectionForceDeformation *section  = nullptr;
   // create 2d section
   if (ndm == 2) {
-    if (currentSectionIsND) {
-      if (currentSectionIsWarping) {
+    if (options.isND) {
+      if (options.isWarping) {
         auto sec = new NDFiberSectionWarping2d(secTag, 30, alpha);
         sbuilder = new FiberSectionBuilder<2, NDMaterial, NDFiberSectionWarping2d>(*builder, *sec);
         section = sec;
       } else {
-        auto sec = new NDFiberSection2d(secTag, currentSectionComputeCentroid);
+        auto sec = new NDFiberSection2d(secTag, options.computeCentroid);
         sbuilder = new FiberSectionBuilder<2, NDMaterial, NDFiberSection2d>(*builder, *sec);
         section = sec;
       }
     } else {
-      if (currentSectionIsThermal) {
-        auto sec = new FiberSection2dThermal(secTag, currentSectionComputeCentroid);
+      if (options.isThermal) {
+        auto sec = new FiberSection2dThermal(secTag, options.computeCentroid);
         sbuilder = new FiberSectionBuilder<2, UniaxialMaterial, FiberSection2dThermal>(*builder, *sec);
         section = sec;
       } else {
-        auto sec = new FiberSection2d(secTag, currentSectionComputeCentroid);
+        auto sec = new FiberSection2d(secTag, options.computeCentroid);
         sbuilder = new FiberSectionBuilder<2, UniaxialMaterial, FiberSection2d>(*builder, *sec);
         section = sec;
       }
     }
   } else if (ndm == 3) {
-    if (currentSectionIsND) {
+    if (options.isND) {
       auto sec = new NDFiberSection3d(secTag,
-                                      currentSectionComputeCentroid);
+                                      options.computeCentroid);
       sbuilder = new FiberSectionBuilder<3, NDMaterial, NDFiberSection3d>(*builder, *sec);
       section = sec;
 
     } else {
-      if (currentSectionIsThermal) {
+      if (options.isThermal) {
         auto sec = new FiberSection3dThermal(secTag, /* TODO: torsion */
-                                            currentSectionComputeCentroid);
+                                            options.computeCentroid);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSection3dThermal>(*builder, *sec);
         section = sec;
-      } else if (currentSectionIsAsym) {
+      } else if (options.isAsym) {
         auto sec = new FiberSectionAsym3d(secTag, 30, &theTorsion, Ys, Zs);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSectionAsym3d>(*builder, *sec);
         section = sec;
       } else {
-        auto sec = new FiberSection3d(secTag, 30, theTorsion, currentSectionComputeCentroid);
+        auto sec = new FiberSection3d(secTag, 30, theTorsion, options.computeCentroid);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSection3d>(*builder, *sec);
         section = sec;
       }
@@ -934,6 +962,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
+  // Check if we are being invoked from Python or Tcl
   bool openseespy = false;
   if (Tcl_GetVar(interp, "opensees::pragma::openseespy", 0) != nullptr) { 
     openseespy = true;
@@ -941,7 +970,9 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int ndm = builder->getNDM();
 
-  // Check argument count for Tcl version
+  // Check argument counts; In Tcl we require the brace argument
+  // in Python it can be omitted, but only for legacy reasons
+  // - cmp
   if (argc < 4 && !openseespy) {
     opserr << "Insufficient arguments, expected at least 4\n";
     return TCL_ERROR;
@@ -960,30 +991,26 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   builder->currentSectionTag = secTag;
-  currentSectionIsND      = false;
-  currentSectionIsAsym    = false;
-  currentSectionIsWarping = false;
-  currentSectionIsThermal = false;
-  currentSectionComputeCentroid = true;
+
+  FiberSectionConfig options;
   if (strcmp(argv[1], "NDFiber") == 0)
-    currentSectionIsND = true;
+    options.isND = true;
   if (strcmp(argv[1], "NDFiberWarping") == 0) {
-    currentSectionIsND = true;
-    currentSectionIsWarping = true;
+    options.isND = true;
+    options.isWarping = true;
   } else if (strcmp(argv[1], "FiberThermal") == 0 ||
             strcmp(argv[1], "fiberSecThermal") == 0)
-    currentSectionIsThermal = true;
+    options.isThermal = true;
   else if (strstr(argv[1], "Asym") != nullptr)
-    currentSectionIsAsym    = true;
+    options.isAsym    = true;
 
 
-  int brace = 3; // Start of recursive parse
+  int brace = 3;
   int iarg = brace;
   double GJ;
-  UniaxialMaterial *torsion = 0;
+  UniaxialMaterial *torsion = nullptr;
   bool deleteTorsion = false;
   bool shearParsed = false;
-  currentSectionComputeCentroid = true;
   double Ys, Zs; // Xinlong: input of coords of shear center relative to
                  // centroid
 
@@ -994,7 +1021,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   while (iarg < argc) {
 
     if (strcmp(argv[iarg], "-noCentroid") == 0) {
-      currentSectionComputeCentroid = false;
+      options.computeCentroid = false;
       brace += 1;
       iarg += 1;
     }
@@ -1062,8 +1089,8 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // init  the fiber section (for building)                           // TODO, alpha
-  if (initSectionCommands(clientData, interp, secTag, *torsion, Ys, Zs, 1.0) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "- error constructing the section\n";
+  if (initSectionCommands(clientData, interp, secTag, *torsion, Ys, Zs, 1.0, options) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "error constructing the section\n";
     return TCL_ERROR;
   }
 
@@ -1071,7 +1098,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   // Parse the information inside the braces (fibers, patches, and reinforcing layers)
   //
   if (brace < argc && Tcl_Eval(interp, argv[brace]) != TCL_OK) {
-    // Assume the subcommands have printed a message
+    // Assume the subcommands have printed a message regarding the error
     return TCL_ERROR;
   }
 
@@ -1210,32 +1237,6 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
     delete torsion;
 
   return TCL_OK;
-}
-
-
-static SectionBuilder* 
-findSectionBuilder(BasicModelBuilder* builder, Tcl_Interp *interp, int argc, const char** const argv)
-{
-  int tag = -1;
-  for (int i = 0; i<argc; i++) {
-    if (strcmp(argv[i], "-section") == 0) {
-      if (Tcl_GetInt(interp, argv[i+1], &tag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "failed to parse section tag \"" << argv[i+1] << "\"\n";
-        return nullptr;
-      } else {
-        break;
-      }
-    }
-  }
-
-  if (tag == -1)
-   tag = builder->currentSectionTag;
-
-  if (tag == -1)
-    return nullptr;
-
-  return builder->getTypedObject<SectionBuilder>(tag);
-
 }
 
 //
@@ -1835,21 +1836,22 @@ TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
   SectionForceDeformation *section = nullptr;
   FiberSection2d *section2d = nullptr;
   FiberSection3d *section3d = nullptr;
+  bool computeCentroid = false;
 
   int NDM = builder->getNDM();
   if (NDM == 2) {
-    section2d = new FiberSection2d(secTag, 30, currentSectionComputeCentroid);
+    section2d = new FiberSection2d(secTag, 30, computeCentroid);
     section = section2d;
     // SectionForceDeformation *section = new FiberSection(secTag, 0, 0);
   } else if (NDM == 3) {
     UniaxialMaterial *theGJ = new ElasticMaterial(0, 1e10);
     section3d =
-        new FiberSection3d(secTag, 30, *theGJ, currentSectionComputeCentroid);
+        new FiberSection3d(secTag, 30, *theGJ, computeCentroid);
     section = section3d;
     delete theGJ;
   }
 
-  if (section == 0) {
+  if (section == nullptr) {
     return TCL_ERROR;
   }
 
@@ -2093,7 +2095,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
 
       SectionForceDeformation *section = 0;
       section = new FiberSection3d(secTag, numFibers, fiber, theTorsion,
-                                   currentSectionComputeCentroid);
+                                   options.computeCentroid);
 
       // Delete fibers
       for (i = 0; i < numFibers; i++)
