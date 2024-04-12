@@ -58,8 +58,8 @@ static int num_SSPbrickUP = 0;
 OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_SSPbrickUP)
 {
 	if (num_SSPbrickUP == 0) {
-    	num_SSPbrickUP++;
-    	opserr<<"SSPbrickUP element - Written: C.McGann, P.Arduino, P.Mackenzie-Helnwein, U.Washington\n";
+          num_SSPbrickUP++;
+          opserr<<"SSPbrickUP element - Written: C.McGann, P.Arduino, P.Mackenzie-Helnwein, U.Washington\n";
   	}
 
   	// Pointer to an element that will be returned

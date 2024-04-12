@@ -114,9 +114,9 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_SSPquad)
 
     return theElement;
 }
-#endif
 
-void *OPS_SSPquad(const ID &info) {
+void *OPS_SSPquad(const ID &info) 
+{
 		if (info.Size() == 0) {
 				opserr << "WARNING: info is empty -- SSPquad\n";
 				return 0;
@@ -233,6 +233,7 @@ void *OPS_SSPquad(const ID &info) {
 
   	return 0;
 }
+#endif
 
 // full constructor
 SSPquad::SSPquad(int tag, int Nd1, int Nd2, int Nd3, int Nd4, NDMaterial &theMat, 
