@@ -881,7 +881,7 @@ findSectionBuilder(BasicModelBuilder* builder, Tcl_Interp *interp, int argc, con
 // build the section
 static int
 initSectionCommands(ClientData clientData, Tcl_Interp *interp,
-                    int secTag, UniaxialMaterial &theTorsion, double Ys, double Zs, double alpha, const FiberSectionConfig& options)
+                    int secTag, UniaxialMaterial *theTorsion, double Ys, double Zs, double alpha, const FiberSectionConfig& options)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -915,6 +915,9 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
       }
     }
   } else if (ndm == 3) {
+    // This function is not called when torsion is NULL and num==3
+    assert(theTorsion != nullptr);
+
     if (options.isND) {
       auto sec = new NDFiberSection3d(secTag,
                                       options.computeCentroid);
@@ -928,11 +931,11 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSection3dThermal>(*builder, *sec);
         section = sec;
       } else if (options.isAsym) {
-        auto sec = new FiberSectionAsym3d(secTag, 30, &theTorsion, Ys, Zs);
+        auto sec = new FiberSectionAsym3d(secTag, 30, theTorsion, Ys, Zs);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSectionAsym3d>(*builder, *sec);
         section = sec;
       } else {
-        auto sec = new FiberSection3d(secTag, 30, theTorsion, options.computeCentroid);
+        auto sec = new FiberSection3d(secTag, 30, *theTorsion, options.computeCentroid);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSection3d>(*builder, *sec);
         section = sec;
       }
@@ -1046,7 +1049,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       torsion = builder->getTypedObject<UniaxialMaterial>(torsionTag);
-      if (torsion == 0) {
+      if (torsion == nullptr) {
         opserr << G3_ERROR_PROMPT << "uniaxial material does not exist\n";
         opserr << "uniaxial material: " << torsionTag;
         opserr << "\nFiberSection3d: " << secTag << endln;
@@ -1081,7 +1084,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
-  if (torsion == 0 && ndm == 3) {
+  if (torsion == nullptr && ndm == 3) {
     opserr << G3_ERROR_PROMPT << "- no torsion specified for 3D fiber section, use -GJ or "
               "-torsion\n";
     opserr << "\nFiberSection3d: " << secTag << endln;
@@ -1089,7 +1092,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // init  the fiber section (for building)                           // TODO, alpha
-  if (initSectionCommands(clientData, interp, secTag, *torsion, Ys, Zs, 1.0, options) != TCL_OK) {
+  if (initSectionCommands(clientData, interp, secTag, torsion, Ys, Zs, 1.0, options) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "error constructing the section\n";
     return TCL_ERROR;
   }
