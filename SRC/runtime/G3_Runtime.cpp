@@ -50,7 +50,8 @@ T* G3Object_newParsed(G3_Runtime *rt, G3_Char* command, std::vector<std::string>
     std::vector<G3_Char *> cstrs;
     cstrs.reserve(args.size()+1);
     cstrs.push_back(command);
-    for (auto &s : args) cstrs.push_back(const_cast<char *>(s.c_str()));
+    for (auto &s : args)
+      cstrs.push_back(const_cast<char *>(s.c_str()));
     return (*fn)(rt, cstrs.size(), cstrs.data());
 }
 
@@ -58,8 +59,6 @@ DOF_Numberer*        G3Parse_newNumberer(G3_Runtime*, int, G3_Char**const);
 EquiSolnAlgo*        G3Parse_newEquiSolnAlgo(G3_Runtime*, int, G3_Char **const);
 TransientIntegrator* G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, G3_Char**const);
 StaticIntegrator*    G3Parse_newStaticIntegrator(G3_Runtime*, int, G3_Char**const);
-// LinearSOE*           G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char**);
-// ConvergenceTest*     TclDispatch_newConvergenceTest(G3_Runtime* rt, int argc, G3_Char** argv);
 
 
 
@@ -85,13 +84,6 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
 
   // ALGORITHM
   EquiSolnAlgo* the_algorithm = nullptr;
-  /* TODO
-  if (G3Config_keyExists(conf, "algorithm"))
-    the_algorithm = 
-      G3Object_newParsed<EquiSolnAlgo, G3Parse_newEquiSolnAlgo>(this, "algorithm", conf["algorithm"]);
-  else
-    the_algorithm = this->m_global_strategy.m_algorithm;
-  */
   if (the_algorithm == nullptr)
     the_algorithm = new NewtonRaphson(*test);
   else
