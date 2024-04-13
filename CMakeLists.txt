@@ -157,9 +157,10 @@ endif()
 # and can be problematic on slow or memory constrained machines (e.g., my laptop)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT has_ipo OUTPUT error)
-if (has_ipo)
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+if (NOT has_ipo)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 endif ()
+
 #==============================================================================
 #                            General Setup
 #
