@@ -87,16 +87,16 @@ extern OPS_Routine OPS_LayeredMembraneSection; // M. J. Nunez - UChile
 // TODO: Make OPS_Routine
 extern void *OPS_ElasticMembraneSection(void); // M. J. Nunez - UChile
 
+Tcl_CmdProc TclCommand_addFiberSection;
+Tcl_CmdProc TclCommand_addFiberIntSection;
+Tcl_CmdProc TclCommand_addUCFiberSection;
+
 // extern OPS_Routine OPS_WFSection2d;
 // extern OPS_Routine OPS_RCCircularSection;
 // extern OPS_Routine OPS_RCSection2d;
 // extern OPS_Routine OPS_RCTBeamSection2d;
 // extern OPS_Routine OPS_RCTunnelSection;
 // extern OPS_Routine OPS_TubeSection;
-
-Tcl_CmdProc TclCommand_addFiberSection;
-Tcl_CmdProc TclCommand_addFiberIntSection;
-Tcl_CmdProc TclCommand_addUCFiberSection;
 
 SectionForceDeformation *
 TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
@@ -322,11 +322,11 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
           opserr << G3_ERROR_PROMPT << "invalid Aggregator tag" << endln;
           return TCL_ERROR;
         }
-
+        
         theSec = builder->getTypedObject<SectionForceDeformation>(secTag);
         if (theSec == 0)
           return TCL_ERROR;
-
+        
         nArgs -= 2;
       }
     }
