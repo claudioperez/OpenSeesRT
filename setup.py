@@ -8,11 +8,28 @@ from os.path import basename, splitext
 import amoeba
 import setuptools
 
+#--------------------------------------------------
+
+version    = "0.0.59"
+build_type = "local"
+
+#--------------------------------------------------
+
 options = {
-    "PyPI":  "Unix",
-    "Unix":  "Unix",
-    "Conda": "",
-    "Win32": ""
+        "release": [
+            "-DCMAKE_BUILD_TYPE=RELEASE",
+            "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION:BOOL=TRUE",
+        ],
+        # 
+        "local": [
+            "-DCMAKE_BUILD_TYPE=RELEASE",
+            "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION:BOOL=FALSE",
+#           "-DProfileBuild:BOOL=TRUE",
+        ],
+        "debug": [
+            "-DCMAKE_BUILD_TYPE=DEBUG",
+            "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION:BOOL=FALSE",
+        ],
 }
 
 if os.name == "nt":
@@ -45,33 +62,30 @@ except (AssertionError,ImportError):
     OpenSeesPyRT_Config = ["-DNoOpenSeesPyRT=True"]
     OpenSeesPyRT_Target = []
 
+
 if __name__ == "__main__":
     setuptools.setup(
-        data_files=[('bin', [*map(str,Path("win32/").glob("*.*"))]),
-        ] if os.name == "nt" else [],
-        cmdclass = {"build_ext": amoeba.BuildExtension,
-                    "cmake": amoeba.CMakeCommand},
-        ext_modules = [
-            amoeba.CMakeExtension(
-                name = "local",
-#               name = "debug",
-#               name = "pypa",        # PyPA
-                install_prefix="opensees",
-                cmake_configure_options = [
-                    "-G", "Unix Makefiles",
-                    *EnvArgs,
-#                   "-DCMAKE_BUILD_TYPE=DEBUG",
-                    "-DCMAKE_BUILD_TYPE=RELEASE",
-                    "-DOPENSEESRT_VERSION=0.0.59",
-#                   "-DProfileBuild:BOOL=TRUE",
-                    *OpenSeesPyRT_Config,
+       data_files=[('bin', [*map(str,Path("win32/").glob("*.*"))]),
+       ] if os.name == "nt" else [],
+       cmdclass = {"build_ext": amoeba.BuildExtension,
+                   "cmake": amoeba.CMakeCommand},
+       ext_modules = [
+           amoeba.CMakeExtension(
+               name = build_type,
+               install_prefix="opensees",
+               cmake_configure_options = [
+                   "-G", "Unix Makefiles",
+                   *EnvArgs,
+                   *options[build_type],
+                   f"-DOPENSEESRT_VERSION={version}",
+                   *OpenSeesPyRT_Config,
 
-                ],
-                cmake_build_options=["-j15",
-                    "--target", "OpenSeesRT",
-                    *OpenSeesPyRT_Target
-                ]
-            )
-        ]
+               ],
+               cmake_build_options=["-j15",
+                   "--target", "OpenSeesRT",
+                   *OpenSeesPyRT_Target
+               ]
+           )
+       ]
     )
 

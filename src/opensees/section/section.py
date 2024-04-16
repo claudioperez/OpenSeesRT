@@ -327,6 +327,7 @@ def sect2shapely(section):
         patches = section.patches
     else:
         patches = [section]
+
     for patch in patches:
         name = patch.__class__.__name__.lower()
         if name in ["quad", "poly", "rect", "_polygon"]:
@@ -361,8 +362,11 @@ def sect2shapely(section):
 def sect2gmsh(sect, size, **kwds):
     import pygmsh
     import numpy as np
-    if isinstance(size, int): size = [size]*2
+    if isinstance(size, int):
+        size = [size]*2
+
     shape = sect2shapely(sect)
+
     with pygmsh.geo.Geometry() as geom:
         geom.characteristic_length_min = size[0]
         geom.characteristic_length_max = size[1]
@@ -377,6 +381,7 @@ def sect2gmsh(sect, size, **kwds):
         poly = geom.add_polygon(coords[:-1], size[1], holes=holes)
         # geom.set_recombined_surfaces([poly.surface])
         mesh = geom.generate_mesh(**kwds)
+
     mesh.points = mesh.points[:,:2]
     for blk in mesh.cells:
         blk.data = blk.data.astype(int)

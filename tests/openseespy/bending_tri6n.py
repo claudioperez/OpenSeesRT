@@ -42,7 +42,7 @@ ops.analysis('Static')
 
 ops.analyze(1)
 
-ops.printModel()
+ops.print()
 
 stressAtNodes_ele1 = ops.eleResponse(1, 'stressAtNodes')
 
@@ -53,4 +53,3 @@ print(f'Stress sigma_xx at node 1 is {stressAtNodes_ele1[0]:.1f}')
 # tip vertical displacement (node 2 and 3) = 0.0075
 # bottom extreme stress_xx (extrapolated) = 60000.0
 
-exit()

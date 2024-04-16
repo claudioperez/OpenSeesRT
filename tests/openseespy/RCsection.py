@@ -45,42 +45,43 @@
 from opensees.openseespy import *
 
 def create(id, h, b, cover, coreID, coverID, steelID, numBars, barArea, nfCoreY, nfCoreZ, nfCoverY, nfCoverZ, GJ):
-    
+
     # The distance from the section z-axis to the edge of the cover concrete
     # in the positive y direction
     coverY = h/2.0
-    
+
     # The distance from the section y-axis to the edge of the cover concrete
     # in the positive z direction
     coverZ = b/2.0
-    
+
     # Determine the corresponding values from the respective axes to the
     # edge of the core concrete
     coreY = coverY - cover
     coreZ = coverZ - cover
-    
+
     # Define the fiber section
     section("Fiber", id, "-GJ", GJ)
-    
+
     # Define the core patch
     patch("quad", coreID, nfCoreZ, nfCoreY, -coreY, coreZ, -coreY, -coreZ, coreY, -coreZ, coreY, coreZ)
-    
+
     # Define the four cover patches
     patch("quad", coverID, 1,        nfCoverY, -coverY,  coverZ, -coreY,   coreZ,   coreY,   coreZ,   coverY,  coverZ)
     patch("quad", coverID, 1,        nfCoverY, -coreY,  -coreZ,  -coverY, -coverZ,  coverY, -coverZ,  coreY,  -coreZ)
     patch("quad", coverID, nfCoverZ, 1,        -coverY,  coverZ, -coverY, -coverZ, -coreY,  -coreZ,  -coreY,   coreZ)
     patch("quad", coverID, nfCoverZ, 1,         coreY,   coreZ,   coreY,  -coreZ,   coverY, -coverZ,  coverY,  coverZ)
-    
+
     # Define the steel along constant values of y (in the z direction)
     layer("straight", steelID, numBars, barArea, -coreY, coreZ, -coreY, -coreZ)
     layer("straight", steelID, numBars, barArea,  coreY, coreZ,  coreY, -coreZ)
-    
+
     # Determine the spacing for the remaining bars in the y direction
     spacingY = (2.0*coreY)/(numBars-1)
-    
+
     # Avoid double counting bars
     numBars = numBars-2
-    
+
     # Define remaining steel in the y direction
     layer("straight", steelID, numBars, barArea, (coreY-spacingY),  coreZ, (-coreY+spacingY),  coreZ)
     layer("straight", steelID, numBars, barArea, (coreY-spacingY), -coreZ, (-coreY+spacingY), -coreZ)
+

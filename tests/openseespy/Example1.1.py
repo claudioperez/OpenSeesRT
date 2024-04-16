@@ -27,10 +27,10 @@ import opensees.openseespy as ops
 # ------------------------------
 
 # remove existing model
-ops.wipe()
+# ops.wipe()
 
 # create ModelBuilder (with two-dimensions and 2 DOF/node)
-ops.model("BasicBuilder", "-ndm", 2, "-ndf", 2)
+ops = ops.Model("BasicBuilder", "-ndm", 2, "-ndf", 2)
 
 # create nodes & add to Domain - command: node nodeId xCrd yCrd
 ops.node(1, 0.0,    0.0)

@@ -24,7 +24,7 @@ declare -a OPS_CMDS=(
 
 cat - <<EOF
 from math import cos,sin,sqrt,pi
-import opensees as ${OPS_PREFIX}
+import opensees.openseespy as ${OPS_PREFIX}
 EOF
 
 cat $1 | {

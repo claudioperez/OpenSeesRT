@@ -94,7 +94,7 @@ def main(argc:int, argv:list)->int:
     theAnalysis.analyze(numSteps)
     print("Analysis complete")
 #    return 0
- 
+
 main(0,0)
 
 
