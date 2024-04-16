@@ -1,13 +1,14 @@
 # https://github.com/pybind/python_example/blob/master/.github/workflows/wheels.yml
 name: Wheels
 
-on:
-  push:
-    branches:
-     - master
-
 # workflow_dispatch:
-# pull_request:
+on:
+# push:
+#   branches:
+#    - master
+
+  pull_request:
+     branches: [master]
 # release:
 #   types:
 #     - published
