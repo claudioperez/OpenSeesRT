@@ -38,25 +38,28 @@ This is an experimental package that provides an *optimized* OpenSees Tcl interp
 as well as a new set of Python bindings that is both idiomatic, and free
 of global state.
 
-The package may be used as a drop-in replacement for both OpenSees and
-OpenSeesPy, and generally provides a substantial performance boost.
+The package may be used as a drop-in replacement for both OpenSees.exe and
+OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
 Project objectives include:
 
 - **Performance** The `opensees` package uses the experimental 
   [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
   analysis kernel which
   eliminates reliance on global variables for state and memory management. 
-  Furthermore, new template classes allow for stack-allocated
+  New template classes in [`matrix/`](https://github.com/STAIRLab/OpenSeesRT/tree/master/SRC/matrix/)
+  allow for stack-allocated
   matrices and vectors and eliminate the need for static local variables 
-  furnishing substantial performance improvements.
+  which is leveraged to furnish substantial performance improvements. 
+  Switching Python scripts
+  to use `opensees` typically results in a 4x to 5x performance boost.
 
-- **Robustness** All program state is encapsulated in user-instantiated classes,
-  and global variables/singletons are avoided. This eliminates several preexisting vulnerabilities to inadvertent state corruption.
+- **Reliability** The core OpenSees runtime has been redesigned so that all program 
+  state is encapsulated in user-instantiated classes,
+  and global variables/singletons are avoided. 
+  This eliminates several preexisting vulnerabilities to inadvertent state corruption.
 
-- **Simplicity** With a single `pip`-install, run any OpenSees Tcl 
-  script *and* most OpenSeesPy scripts on a wide variety of Python versions.
-  No fidling with compilers or `PATH` variables.
-
+- **Semantics** ... <!-- Unlike interfaces which rely on global state, this package can be used 
+  with true library semantics. -->
 
 <!--
 - **Library semantics**
@@ -65,9 +68,11 @@ Project objectives include:
 Additional features include:
 
 - Convert OpenSeesPy scripts into equivalent Tcl files that can be used
-  for faster processing or serialization.
+  for faster processing or serialization. Unlike most conversion utilities,
+  this conversion is done *exactly* and does not rely on hand-rolled parsing.
 
-- Python versions 3.7 - 3.12 are supported on Linux.
+- The package can be installed with `pip` for Python versions 3.7 - 3.12 on Linux, MacOS and
+  Windows, but eigenvalue analysis is currently broken on Windows.
 
 > [!NOTE]
 > This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
@@ -88,7 +93,9 @@ Additional features include:
   python -m opensees
   ```
 
-- To run Python scripts, just change the import:
+- The `opensees` package exposes a compatibility layer that exactly reproduces
+  the original *OpenSeesPy* functions, but does so without mandating a single
+  global program state. To run OpenSeesPy scripts, just change the import:
   ```python
   import openseespy.opensees
   ```
@@ -96,6 +103,9 @@ Additional features include:
   ```python
   import opensees.openseespy
   ```
+  For true stateless modeling, the `Model` class should be used instead of the legacy
+  `model` function; documentation is under development.
+
 
 <!-- Badge links -->
 
@@ -113,7 +123,6 @@ See also:
 - [`mdof`](https://pypi.org/project/mdof) Optimized system identification library
 - [`sdof`](https://pypi.org/project/sdof) Optimized integration for single degree of freedom systems
 
-To cite this project, use [https://doi.org/10.5281/zenodo.10456866](https://doi.org/10.5281/zenodo.10456866).
 For more projects by the STAIRlab, visit https://github.com/STAIRlab .
 
 ## Support
