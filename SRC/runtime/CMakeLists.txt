@@ -31,7 +31,7 @@ add_subdirectory(runtime/)
 
 target_sources(OPS_Runtime PRIVATE
     "G3_Runtime.cpp"
-    "elementAPI_PYG3.cpp"
+    "InterpreterAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
 
     "${CMAKE_CURRENT_LIST_DIR}/contrib/packages/optimization/TclParameterCommands.cpp"
@@ -39,7 +39,6 @@ target_sources(OPS_Runtime PRIVATE
     #
     # OTHER
     #
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/KikuchiAiken/G3_KikuchiAiken.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
