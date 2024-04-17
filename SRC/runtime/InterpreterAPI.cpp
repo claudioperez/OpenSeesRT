@@ -365,14 +365,6 @@ G3_GetNDMaterial(G3_Runtime* rt, int matTag)
   assert(builder != nullptr);
   return builder->getTypedObject<NDMaterial>(matTag);
 }
-/*
-FrictionModel *
-OPS_GetFrictionModel(int frnTag)
-{
-  return OPS_getFrictionModel(frnTag);
-}
-
-*/
 
 int
 OPS_GetNDF()
