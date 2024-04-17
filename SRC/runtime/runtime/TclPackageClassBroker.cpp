@@ -45,7 +45,7 @@ using namespace OpenSees::Hash::literals;
 #include "graph/numberer/SimpleNumberer.h"
 
 // uniaxial material model header files
-#include "BoucWenMaterial.h"
+#include "BoucWen/BoucWenMaterial.h"
 #include "SPSW02.h"
 #include "ElasticMaterial.h"
 #include "ElasticMultiLinear.h"
