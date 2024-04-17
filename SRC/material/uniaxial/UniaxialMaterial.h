@@ -91,11 +91,4 @@ class UniaxialMaterial : public Material
  private:
 };
 
-extern bool OPS_addUniaxialMaterial(UniaxialMaterial *newComponent);
-// extern UniaxialMaterial *OPS_getUniaxialMaterial(int tag);
-// extern UniaxialMaterial* G3_getUniaxialMaterialInstance(G3_Runtime*, int tag);
-extern bool OPS_removeUniaxialMaterial(int tag);
-extern void OPS_clearAllUniaxialMaterial(void);
-// extern void OPS_printUniaxialMaterial(OPS_Stream &s, int flag = 0);
-
 #endif
