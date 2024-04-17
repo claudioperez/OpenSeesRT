@@ -23,7 +23,7 @@
 // Written: fmk
 // Created: 03/01
 //
-#include <InputAPI.h>
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
