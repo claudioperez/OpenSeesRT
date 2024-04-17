@@ -4,7 +4,6 @@
 ** ****************************************************************** */
 //
 //
-#include <G3_Runtime.h>
 #include <OPS_Globals.h> // Tcl_Char
 #include <G3_Logging.h>
 #include <runtime/BasicModelBuilder.h>
