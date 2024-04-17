@@ -95,7 +95,9 @@ class Matrix
     // Inline operations
     //
 
-    // 
+    template<int NR, int NC>
+    void addMatrix(const OpenSees::MatrixND<NR, NC, double>& M, double fact);
+
     template<class VecT>
     void addTensorProduct(const VecT& V, const VecT& W);
     template<class VecT>
@@ -241,6 +243,14 @@ Matrix::operator()(int row, int col) const
   }
 #endif
   return data[col*numRows + row];
+}
+
+template<int NR, int NC>
+void Matrix::addMatrix(const OpenSees::MatrixND<NR, NC, double>& M, double fact)
+{
+  for (int i = 0; i< NR; i++)
+    for (int j = 0; j< NC; j++)
+      (*this)(i,j) += fact*M(i,j);
 }
 
 template <int nr, int nc>
