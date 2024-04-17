@@ -1,5 +1,8 @@
-#include <G3_Runtime.h>
+#include <cstdarg>
 #include <OPS_Globals.h>
+#include <tcl.h>
+#include <elementAPI.h>
+class G3_Runtime;
 
 // the following is a little kludgy but it works!
 // #ifdef _USING_STL_STREAMS
