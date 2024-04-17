@@ -1119,7 +1119,7 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
   G3_Runtime *rt = G3_getRuntime(interp);
-  int NDM = G3_getNDM(rt);
+  int NDM = builder->getNDM();
 
   if (argc < 4)
     return TCL_ERROR;
