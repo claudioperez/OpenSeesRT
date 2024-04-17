@@ -27,7 +27,7 @@ class ConvergenceTest;
 class StaticIntegrator;
 class TransientIntegrator;
 
-class G3_Interpreter;
+
 #define G3_Builder G3_Runtime
 
 class G3_Runtime {
