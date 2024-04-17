@@ -9,6 +9,7 @@
 //
 // cmp
 //
+#include <tcl.h>
 #include "element.hpp"
 #include <assert.h>
 #include <stdlib.h>
@@ -57,15 +58,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
 // THE PROTOTYPES OF THE FUNCTIONS INVOKED BY THE INTERPRETER
 //
 
-Tcl_CmdProc TclCommand_addFlatSliderBearing;
-// extern OPS_Routine OPS_FlatSliderSimple2d;
-// extern OPS_Routine OPS_FlatSliderSimple3d;
-
-Tcl_CmdProc TclCommand_addSingleFPBearing;
-// extern OPS_Routine OPS_SingleFPSimple2d;
-// extern OPS_Routine OPS_SingleFPSimple3d;
-
-
 #if 0 // cmp - commented out to eliminate use of TclBasicBuilder
 extern int TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, Domain *, TclBasicBuilder *, int argStart);
 extern int Tcl_addWrapperElement(eleObj *, ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, Domain *, TclBuilder *);
@@ -78,6 +70,15 @@ int TclBasicBuilder_addWheelRail(ClientData, Tcl_Interp *, int, TCL_Char **, Dom
 extern void *OPS_ElasticBeam2d(G3_Runtime *, const ID &);
 
 typedef int (G3_TclElementCommand)(ClientData, Tcl_Interp*, int, const char** const, Domain*, TclBasicBuilder*);
+
+Tcl_CmdProc TclCommand_addFlatSliderBearing;
+// extern OPS_Routine OPS_FlatSliderSimple2d;
+// extern OPS_Routine OPS_FlatSliderSimple3d;
+
+Tcl_CmdProc TclCommand_addSingleFPBearing;
+// extern OPS_Routine OPS_SingleFPSimple2d;
+// extern OPS_Routine OPS_SingleFPSimple3d;
+
 
 // Zero-length
 Tcl_CmdProc TclCommand_addZeroLength;
@@ -107,26 +108,8 @@ G3_TclElementCommand TclBasicBuilder_addBeamGT;
 int TclBasicBuilder_addBeamColumnJoint(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *, int);
 
 Tcl_CmdProc TclBasicBuilder_addGradientInelasticBeamColumn;
-Tcl_CmdProc TclBasicBuilder_addEnhancedQuad;
-Tcl_CmdProc TclBasicBuilder_addNineNodeMixedQuad;
-Tcl_CmdProc TclBasicBuilder_addNineNodeQuad;
-Tcl_CmdProc TclBasicBuilder_addEightNodeQuad;
-Tcl_CmdProc TclBasicBuilder_addFourNodeQuadWithSensitivity;
-Tcl_CmdProc TclBasicBuilder_addFourNodeQuad;
-Tcl_CmdProc TclBasicBuilder_addFourNodeQuadUP;
-Tcl_CmdProc TclBasicBuilder_addNineFourNodeQuadUP;
-Tcl_CmdProc TclBasicBuilder_addBBarFourNodeQuadUP;
-Tcl_CmdProc TclBasicBuilder_addConstantPressureVolumeQuad;
-Tcl_CmdProc TclBasicBuilder_addSixNodeTri;
 
 Tcl_CmdProc TclBasicBuilder_addForceBeamColumn;
-
-// Brick
-Tcl_CmdProc TclBasicBuilder_addBrickUP;
-Tcl_CmdProc TclBasicBuilder_addBBarBrickUP;
-Tcl_CmdProc TclBasicBuilder_addTwentyEightNodeBrickUP;
-Tcl_CmdProc TclBasicBuilder_addTwentyNodeBrick;
-Tcl_CmdProc TclBasicBuilder_addBrick;
 
 Tcl_CmdProc TclBasicBuilder_addGenericCopy;
 Tcl_CmdProc TclBasicBuilder_addGenericClient;
@@ -170,12 +153,18 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   Element *theElement = nullptr;
   int ndm = builder->getNDM();
 
-  auto tcl_cmd = element_dispatch.find(std::string(argv[1]));
-  if (tcl_cmd != element_dispatch.end()) {
-    theEle = (*tcl_cmd->second)(rt, argc, &argv[0]);
+  auto cmd = element_dispatch.find(std::string(argv[1]));
+  if (cmd != element_dispatch.end()) {
+    theEle = (*cmd->second)(rt, argc, &argv[0]);
   }
 
-  else if (strcasecmp(argv[1], "truss") == 0) {
+  // Try Tcl element library
+  auto tcl_cmd = element_dispatch_tcl.find(std::string(argv[1]));
+  if (tcl_cmd != element_dispatch_tcl.end()) {
+    return (*tcl_cmd->second)(clientData, interp, argc, &argv[0]);
+  }
+
+  if (strcasecmp(argv[1], "truss") == 0) {
     theEle = OPS_TrussElement(rt, argc, argv);
 
     // for backward compatibility
@@ -464,75 +453,13 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 
   //
   //
-  //
-  } else if ((strcmp(argv[1], "Quad") == 0) ||
-             (strcmp(argv[1], "stdQuad") == 0)) {
-    return TclBasicBuilder_addFourNodeQuad(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "quadWithSensitivity") == 0) {
-    return TclBasicBuilder_addFourNodeQuadWithSensitivity(
-        clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "enhancedQuad") == 0) {
-    return TclBasicBuilder_addEnhancedQuad(clientData, interp, argc, argv);
-
-  } else if ((strcmp(argv[1], "bbarQuad") == 0) ||
-             (strcmp(argv[1], "mixedQuad") == 0)) {
-    return TclBasicBuilder_addConstantPressureVolumeQuad(clientData, interp, argc, argv);
-
-  } else if ((strcmp(argv[1], "nineNodeMixedQuad") == 0) ||
-             (strcmp(argv[1], "nineNodeQuad") == 0)) {
-    return TclBasicBuilder_addNineNodeMixedQuad(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "quad9n") == 0) {
-    return TclBasicBuilder_addNineNodeQuad(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "quad8n") == 0) {
-    return TclBasicBuilder_addEightNodeQuad(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "tri6n") == 0) {
-    return TclBasicBuilder_addSixNodeTri(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "quadUP") == 0) {
-    return TclBasicBuilder_addFourNodeQuadUP(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "9_4_QuadUP") == 0) {
-    return TclBasicBuilder_addNineFourNodeQuadUP(
-        clientData, interp, argc, argv);
-  } else if (strcmp(argv[1], "bbarQuadUP") == 0) {
-    return TclBasicBuilder_addBBarFourNodeQuadUP(clientData, interp, argc, argv);
 //
 // Brick
 //
-  } else if (strcmp(argv[1], "BrickUP") == 0) {
-    return TclBasicBuilder_addBrickUP(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "20_8_BrickUP") == 0) {
-    return TclBasicBuilder_addTwentyEightNodeBrickUP(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "20NodeBrick") == 0) {
-    return TclBasicBuilder_addTwentyNodeBrick(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "bbarBrickUP") == 0) {
-    return TclBasicBuilder_addBBarBrickUP(clientData, interp, argc, argv);
-
-  } else if (strcmp(argv[1], "stdBrick") == 0 ||
-             strcmp(argv[1], "bbarBrick") == 0 ||
-             strcmp(argv[1], "bbarBrickWithSensitivity") == 0 ||
-             strcmp(argv[1], "flBrick") == 0) {
-
-    return TclBasicBuilder_addBrick(clientData, interp, argc, argv);
-  
-  } else if ((strcasecmp(argv[1], "SSPquad")==0)   ||
-             (strcasecmp(argv[1], "SSPquadUP")==0) ||
-             (strcasecmp(argv[1], "SSPbrick")==0)) {
-    int TclCommand_SSP_Element(ClientData, Tcl_Interp*, int, TCL_Char** const);
-    return TclCommand_SSP_Element(clientData, interp, argc, argv);
-  }
 //
 // Zero-Length
 //
-  else if (strcmp(argv[1], "zeroLength") == 0) {
+  } else if (strcmp(argv[1], "zeroLength") == 0) {
     return TclCommand_addZeroLength(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "zeroLengthSection") == 0) {
