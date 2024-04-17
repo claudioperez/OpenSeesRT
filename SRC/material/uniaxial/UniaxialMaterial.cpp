@@ -35,66 +35,6 @@
 #include <Vector.h>
 #include <stdlib.h>
 
-#include <TaggedObject.h>
-#include <MapOfTaggedObjects.h>
-#include <api/runtimeAPI.h>
-
-static MapOfTaggedObjects theUniaxialMaterialObjects;
-
-bool OPS_addUniaxialMaterial(UniaxialMaterial *newComponent) {
-  return theUniaxialMaterialObjects.addComponent(newComponent);
-}
-
-bool OPS_removeUniaxialMaterial(int tag)
-{
-    TaggedObject* obj = theUniaxialMaterialObjects.removeComponent(tag);
-    if (obj != 0) {
-	delete obj;
-	return true;
-    }
-    return false;
-}
-
-#if 0
-UniaxialMaterial *OPS_getUniaxialMaterial(int tag) {
-
-  TaggedObject *theResult = theUniaxialMaterialObjects.getComponentPtr(tag);
-  if (theResult == 0) {
-    opserr << "UniaxialMaterial *getUniaxialMaterial(int tag) - none found with tag: " << tag << endln;
-    return 0;
-  }
-  UniaxialMaterial *theMat = (UniaxialMaterial *)theResult;
-
-  return theMat;
-}
-#endif
-
-void
-OPS_ADD_RUNTIME_VXV(OPS_clearAllUniaxialMaterial)
-{
-  theUniaxialMaterialObjects.clearAll();
-}
-
-#if 0
-void OPS_printUniaxialMaterial(OPS_Stream &s, int flag) {
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\"uniaxialMaterials\": [\n";        
-    MapOfTaggedObjectsIter theObjects = theUniaxialMaterialObjects.getIter();
-    theObjects.reset();
-    TaggedObject *theObject;
-    int count = 0;
-    int numComponents = theUniaxialMaterialObjects.getNumComponents();    
-    while ((theObject = theObjects()) != 0) {
-      UniaxialMaterial *theMaterial = (UniaxialMaterial *)theObject;
-      theMaterial->Print(s, flag);
-      if (count < numComponents-1)
-	s << ",\n";
-      count++;      
-    }
-    s << "\n\t\t]";
-  }
-}
-#endif
 
 UniaxialMaterial::UniaxialMaterial(int tag, int clasTag)
 :Material(tag,clasTag)
