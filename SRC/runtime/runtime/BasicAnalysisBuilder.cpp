@@ -653,8 +653,11 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 
 
   if (theHandler == nullptr) {
-    opserr << G3_WARN_PROMPT << "no ConstraintHandler has been specified, \n";
-    opserr << "        PlainHandler default will be used\n";
+    // Dont show a warning if the user has no constraints
+    if (theDomain->getNumMPs() > 0) {
+      opserr << G3_WARN_PROMPT << "constraints were used but no ConstraintHandler has been specified; \n";
+      opserr << "        PlainHandler default will be used\n";
+    }
     theHandler = new PlainHandler();
   }
 
@@ -667,27 +670,10 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 
 }
 
-#if 0
-void BasicAnalysisBuilder::newStaticAnalysis()
-{
-    assert(theDomain != nullptr);
-
-    this->fillDefaults(CURRENT_STATIC_ANALYSIS);
-
-    if (theStaticAnalysis != nullptr) {
-      delete theStaticAnalysis;
-      theStaticAnalysis = nullptr;
-    }
-    theStaticAnalysis = new StaticAnalysis(*theDomain,*theHandler,*theNumberer,*theAnalysisModel,
-                                           *theAlgorithm,*theSOE,*theStaticIntegrator,theTest);
-}
-#endif
 
 int
 BasicAnalysisBuilder::setStaticAnalysis()
 {
-//if (theStaticAnalysis == nullptr)
-//  this->newStaticAnalysis();
   domainStamp = 0;
   this->fillDefaults(CURRENT_STATIC_ANALYSIS);
   this->setLinks(CURRENT_STATIC_ANALYSIS);
@@ -700,9 +686,6 @@ BasicAnalysisBuilder::setStaticAnalysis()
 int
 BasicAnalysisBuilder::setTransientAnalysis()
 {
-//  if (theTransientAnalysis == nullptr)
-//    this->newTransientAnalysis();
-
   domainStamp = 0;
   this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
   this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
