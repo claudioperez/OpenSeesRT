@@ -146,7 +146,4 @@ class SectionForceDeformation : public TaggedObject, public MovableObject
 
 };
 
-extern bool OPS_removeSectionForceDeformation(int tag);
-extern void OPS_clearAllSectionForceDeformation(void);
-
 #endif
