@@ -17,24 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:00:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/MinUnbalDispNorm.h,v $
-                                                                        
-                                                                        
-// File: ~/analysis/integrator/MinUnbalDispNorm.h
-// 
-// Written: fmk 
-// Created: 07/99
-// Revision: A
 //
 // Description: This file contains the class definition for MinUnbalDispNorm.
 // MinUnbalDispNorm is an algorithmic class for perfroming a static analysis
 // using the minimum unbalanced displacement norm (Chan IJNME 26(2657:2669)1988
 //
 // What: "@(#) MinUnbalDispNorm.h, revA"
-
+// 
+// Written: fmk 
+// Created: 07/99
+// Revision: A
+//
 #ifndef MinUnbalDispNorm_h
 #define MinUnbalDispNorm_h
 
@@ -45,12 +38,15 @@ class AnalysisModel;
 class FE_Element;
 class Vector;
 class Domain;
-#define SIGN_LAST_STEP      1
-#define CHANGE_DETERMINANT  2
 
 class MinUnbalDispNorm : public StaticIntegrator
 {
   public:
+    enum IncrementMethod {
+        SIGN_LAST_STEP     =1,
+        CHANGE_DETERMINANT =2
+    };
+
     MinUnbalDispNorm(double lambda1, int specNumIterStep, 
 		     double dlambda1min, double dlambda1max,
 		     int signFirstStepMethod = SIGN_LAST_STEP);
