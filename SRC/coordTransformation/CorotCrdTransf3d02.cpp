@@ -19,15 +19,15 @@
 ** ****************************************************************** */
 //
 // Description: This file contains the implementation for the
-// CorotCrdTransf3d02 class. CorotCrdTransf3d02 is a Corot
+// CorotCrdTransf3d02 class. CorotCrdTransf3d02 is a Corotational
 // transformation for a spatial frame between the global
-// and basic coordinate systems.
+// and basic coordinate systems. The formulation is derived from
+// Crisfield (1991) and employs a heuristic approximation to the
 //
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 05/2000
-// Revision: rms 06/2000 (using Assemble, and AssembleTranspose)
+// Written: Claudio Perez
+// Created: 05/2024
 //
-// Modified: 04/2005 Andreas Schellenberg (getBasicTrialVel, getBasicTrialAccel)
+// Adapted from: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 //
 #include <math.h>
 #include <Triad.h>
@@ -45,15 +45,9 @@ using namespace OpenSees;
 #include <CorotCrdTransf3d02.h>
 
 #undef OPS_STATIC
-#define OPS_STATIC static 
+#define OPS_STATIC // static 
 // initialize static variables
-// Matrix CorotCrdTransf3d02::RI(3,3);
-// Matrix CorotCrdTransf3d02::RJ(3,3);
-// Matrix CorotCrdTransf3d02::e(3,3);
 Matrix CorotCrdTransf3d02::Tp(6,7);
-// Matrix CorotCrdTransf3d02::T(7,12);
-// Matrix CorotCrdTransf3d02::Tlg(12,12);
-// Matrix CorotCrdTransf3d02::TlgInv(12, 12);
 Matrix CorotCrdTransf3d02::Tbl(6,12);
 Matrix CorotCrdTransf3d02::kg(12,12);
 Matrix CorotCrdTransf3d02::Lr2(12,3);
@@ -124,7 +118,15 @@ quaternionProduct(const VectorND<4> &qa, const VectorND<4> &qb)
     return q12;
 }
 
-
+static inline Vector3D
+LogC90(const MatrixND<3,3> &R)
+{
+  return Vector3D {
+    std::asin(0.5*(R(1,2) - R(2,1))),
+    std::asin(0.5*(R(0,1) - R(1,0))),
+    std::asin(0.5*(R(0,2) - R(2,0))),
+  };
+}
 
 static inline Matrix3D
 CaySO3(const Vector3D &w)
@@ -172,29 +174,29 @@ VersorFromMatrix(const Matrix3D &R)
     // a = max ([trR R(0,0) R(1,1) R(2,2)]);
     double a = trR;
     for (int i = 0; i < 3; i++)
-        if (R(i,i) > a)
-            a = R(i,i);
+      if (R(i,i) > a)
+        a = R(i,i);
 
     if (a == trR) {
-        q[3] = sqrt(1+a)*0.5;
+      q[3] = sqrt(1+a)*0.5;
 
-        for (int i = 0; i < 3; i++) {
-            int j = (i+1)%3;
-            int k = (i+2)%3;
-            q[i] = (R(k,j) - R(j,k))/(4*q[3]);
-        }
+      for (int i = 0; i < 3; i++) {
+        int j = (i+1)%3;
+        int k = (i+2)%3;
+        q[i] = (R(k,j) - R(j,k))/(4*q[3]);
+      }
     }
     else {
-        for (int i = 0; i < 3; i++)
-          if (a == R(i,i)) {
-              int j = (i+1)%3;
-              int k = (i+2)%3;
+      for (int i = 0; i < 3; i++)
+        if (a == R(i,i)) {
+          int j = (i+1)%3;
+          int k = (i+2)%3;
 
-              q[i] = sqrt(a*0.5 + (1 - trR)/4.0);
-              q[3] = (R(k,j) - R(j,k))/(4*q[i]);
-              q[j] = (R(j,i) + R(i,j))/(4*q[i]);
-              q[k] = (R(k,i) + R(i,k))/(4*q[i]);
-          }
+          q[i] = sqrt(a*0.5 + (1 - trR)/4.0);
+          q[3] = (R(k,j) - R(j,k))/(4*q[i]);
+          q[j] = (R(j,i) + R(i,j))/(4*q[i]);
+          q[k] = (R(k,i) + R(i,k))/(4*q[i]);
+        }
     }
     return q;
 }
@@ -220,13 +222,12 @@ getQuaternionFromPseudoRotVector(const Vector  &theta)
 }
 
 
-
 static inline void
 getLMatrix(const Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const Vector3D &ri, Matrix& L)
 {
-  static Matrix3D L1, L2;
-  static Matrix rie1r1(3,3);
-  static Matrix e1e1r1(3,3);
+  OPS_STATIC Matrix3D L1, L2;
+  OPS_STATIC Matrix3D rie1r1;
+  OPS_STATIC Matrix3D e1e1r1;
 
   const double rie1 = ri.dot(e1);
 
@@ -262,10 +263,12 @@ getLMatrix(const Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const Vect
 
 }
 
-static inline const Matrix &
+static inline const MatrixND<12,12> &
+// static inline const Matrix &
 getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double Ln, const Vector3D &ri, const Vector3D &z)
 {
-    static Matrix ks2(12,12);
+    static MatrixND<12,12> ks2;
+//  static Matrix ks2(12,12);
 
     //  Ksigma2 = [ K11   K12 -K11   K12;
     //              K12t  K22 -K12t  K22;
@@ -285,23 +288,14 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
       ztr1  += z(i)*r1[i];
     }
 
-    static Matrix zrit(3,3), ze1t(3,3);
-    static Matrix rizt(3,3), rie1t(3,3);
-    static Matrix e1zt(3,3); // r1e1t(3,3),
+    OPS_STATIC Matrix zrit(3,3), ze1t(3,3);
+    OPS_STATIC Matrix rizt(3,3), rie1t(3,3);
+    OPS_STATIC Matrix3D e1zt; // r1e1t(3,3),
 
-#if 0
-    for (int i = 0; i < 3; i++)
-      for (int j = 0; j < 3; j++) {
-        zrit(i,j) = z(i)*ri(j);
-        rizt(i,j) = ri(i)*z(j);
-        ze1t(i,j) = z(i)*e1(j);
-        e1zt(i,j) = e1[i]*z(j);
-        r1e1t(i,j) = r1(i)*e1(j);
-        rie1t(i,j) = ri(i)*e1(j);
-      }
-#else
+//  const Matrix3D e1zt = e1.bun(z);
+
     // Chrystal's bun order
-    for (int j = 0; j < 3; j++)
+    for (int j = 0; j < 3; j++) {
       for (int i = 0; i < 3; i++) {
         zrit(i,j)  = z(i)*ri(j);
         rizt(i,j)  = ri(i)*z(j);
@@ -310,15 +304,16 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
         // r1e1t(i,j) = r1(i)*e1(j);
         rie1t(i,j) = ri(i)*e1(j);
       }
-#endif
-    static Matrix U(3,3);
+    }
+
+    OPS_STATIC Matrix U(3,3);
 
     U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
     U.addMatrixProduct(1.0, A, ze1t,   rite1/(2*Ln));
     U.addMatrixProduct(1.0, A, rie1t, (zte1 + ztr1)/(2*Ln));
 
-    static Matrix3D ks;
-    static Matrix3D m1;
+    OPS_STATIC Matrix3D ks;
+    OPS_STATIC Matrix3D m1;
 
     //K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
     ks.zero();
@@ -326,16 +321,16 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
 
     // add matrix U transpose
     for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            ks(i,j) += U(j,i);
+      for (int j = 0; j < 3; j++)
+        ks(i,j) += U(j,i);
 
     ks.addMatrix(A, rite1*(2*zte1 + ztr1)/(2*Ln));
 
-    ks2.Zero();
-    ks2.Assemble(ks, 0, 0,  1.0);
-    ks2.Assemble(ks, 0, 6, -1.0);
-    ks2.Assemble(ks, 6, 0, -1.0);
-    ks2.Assemble(ks, 6, 6,  1.0);
+    ks2.zero();
+    ks2.assemble(ks, 0, 0,  1.0);
+    ks2.assemble(ks, 0, 6, -1.0);
+    ks2.assemble(ks, 6, 0, -1.0);
+    ks2.assemble(ks, 6, 6,  1.0);
 
     //K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
     m1.zero();
@@ -348,18 +343,18 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     ks.addMatrixSpinProduct(m1, r1, 0.25);
     ks.addMatrixSpinProduct(A, ri, -0.25*(zte1+ztr1));
 
-    ks2.Assemble(ks, 0, 3,  1.0);
-    ks2.Assemble(ks, 0, 9,  1.0);
-    ks2.Assemble(ks, 6, 3, -1.0);
-    ks2.Assemble(ks, 6, 9, -1.0);
+    ks2.assemble(ks, 0, 3,  1.0);
+    ks2.assemble(ks, 0, 9,  1.0);
+    ks2.assemble(ks, 6, 3, -1.0);
+    ks2.assemble(ks, 6, 9, -1.0);
 
-    ks2.AssembleTranspose(ks, 3, 0,  1.0);
-    ks2.AssembleTranspose(ks, 3, 6, -1.0);
-    ks2.AssembleTranspose(ks, 9, 0,  1.0);
-    ks2.AssembleTranspose(ks, 9, 6, -1.0);
+    ks2.assembleTranspose(ks, 3, 0,  1.0);
+    ks2.assembleTranspose(ks, 3, 6, -1.0);
+    ks2.assembleTranspose(ks, 9, 0,  1.0);
+    ks2.assembleTranspose(ks, 9, 6, -1.0);
 
-    //K22 = (1/8)*((-ri'*e1)*Sz*Sr1 + Sr1*z*e1'*Sri + ...
-    //      Sri*e1*z'*Sr1 - (e1+r1)'*z*S(e1)*Sri + 2*Sz*Sri);
+    // K22 = (1/8)*((-ri'*e1)*Sz*Sr1 + Sr1*z*e1'*Sri + ...
+    //       Sri*e1*z'*Sr1 - (e1+r1)'*z*S(e1)*Sri + 2*Sz*Sri);
 
     ks.zero();
     ks.addSpinProduct(z, r1, -0.125*(rite1));
@@ -375,15 +370,15 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     ks.addSpinProduct(e1, ri, -0.125*(zte1 + ztr1));
     ks.addSpinProduct( z, ri, 0.25);
 
-    //  Ksigma2 = [ K11   K12 -K11   K12;
-    //              K12t  K22 -K12t  K22;
-    //             -K11  -K12  K11  -K12;
-    //              K12t  K22 -K12t  K22];
+    // Ksigma2 = [ K11   K12 -K11   K12;
+    //             K12t  K22 -K12t  K22;
+    //            -K11  -K12  K11  -K12;
+    //             K12t  K22 -K12t  K22];
 
-    ks2.Assemble(ks, 3, 3, 1.0);
-    ks2.Assemble(ks, 3, 9, 1.0);
-    ks2.Assemble(ks, 9, 3, 1.0);
-    ks2.Assemble(ks, 9, 9, 1.0);
+    ks2.assemble(ks, 3, 3, 1.0);
+    ks2.assemble(ks, 3, 9, 1.0);
+    ks2.assemble(ks, 9, 3, 1.0);
+    ks2.assemble(ks, 9, 9, 1.0);
 
     return ks2;
 }
@@ -626,13 +621,16 @@ CorotCrdTransf3d02::initialize(Node *nodeIPointer, Node *nodeJPointer)
 }
 
 void inline
-CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, const Triad& __restrict E, const Triad&__restrict rI, const Triad& __restrict rJ)
+CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, 
+                                                const Triad& __restrict E, 
+                                                const Triad&__restrict rI, const Triad& __restrict rJ)
 {
+
     // extract columns of rotation matrices
-    const Vector3D  r1 = r[1],  r2 = r[2],  r3 = r[3],
-                    e1 = E[1],  e2 = E[2],  e3 = E[3],
-                    rI1=rI[1],  rI2=rI[2],  rI3=rI[3],
-                    rJ1=rJ[1],  rJ2=rJ[2],  rJ3=rJ[3];
+    const Vector3D &r1 = r[1], &r2 = r[2], &r3 = r[3],
+                   &e1 = E[1], &e2 = E[2], &e3 = E[3],
+                   &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
+                   &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
 
 //  Matrix3D A;
     // compute the transformation matrix from the basic to the
@@ -774,9 +772,12 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, const
     }
 
     for (int j = 0; j < 6; j++) {
-        const double c = 2 * cos(ul(j));
+//      const double c = 2 * cos(ul(j));
+        const double c = 0.5 / cos(ul(j));
+//      const double c = 0.5 / std::sqrt(1-sn[j]*sn[j]);
         for (int i = 0; i < 12; i++)
-          T(j,i) /= c;
+          T(j,i) *= c;
+//        T(j,i) /= c;
     }
 
     // T(:,7) = [-e1' O' e1' O']';
@@ -921,60 +922,62 @@ CorotCrdTransf3d02::update(void)
     // compute the base vectors e1, e2, e3
     // -----------------------------------------------
     const Triad rI{RI}, rJ{RJ};
-    {
-      OPS_STATIC Vector3D e1, e2, e3;
 
-      e1  = dx;
-      e1 /= Ln;
+    OPS_STATIC Vector3D e1, e2, e3;
 
-      // 'rotate' the mean rotation matrix Rbar on to e1 to
-      // obtain e2 and e3 (using the 'mid-point' procedure)
+    e1  = dx;
+    e1 /= Ln;
 
-      // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
-      // e3 = r3 - (e1 + r1)*((r3^e1)*0.5);
+    // 'rotate' the mean rotation matrix Rbar on to e1 to
+    // obtain e2 and e3 (using the 'mid-point' procedure)
 
-      OPS_STATIC Vector3D tmp;
-      tmp  = e1;
-      tmp += r[1];
+    // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
+    // e3 = r3 - (e1 + r1)*((r3^e1)*0.5);
 
-      e2 = tmp;
-      e3 = tmp;
+    OPS_STATIC Vector3D tmp;
+    tmp  = e1;
+    tmp += r[1];
 
-      e2 *= 0.5*r[2].dot(e1);
-      e2.addVector(-1.0,  r[2], 1.0);
+    e2 = tmp;
+    e3 = tmp;
 
-      // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
+    e2 *= 0.5*r[2].dot(e1);
+    e2.addVector(-1.0,  r[2], 1.0);
 
-      e3 *= r[3].dot(e1)*0.5;
-      e3.addVector(-1.0,  r[3], 1.0);
+    // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
 
-      for (int k = 0; k < 3; k ++) {
-        e(k,0) = e1[k];
-        e(k,1) = e2[k];
-        e(k,2) = e3[k];
-      }
+    e3 *= r[3].dot(e1)*0.5;
+    e3.addVector(-1.0,  r[3], 1.0);
 
-      // -----------------------------------------------
-      // compute the basic rotations
-      // -----------------------------------------------
-      const Vector3D &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
-                             &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
-
-      ulpr = ul;
-      // approximation to LogSO3(thI)
-      ul(0) = asin((rI2.dot(e3) - rI3.dot(e2))*0.5);
-      ul(1) = asin((rI1.dot(e2) - rI2.dot(e1))*0.5);
-      ul(2) = asin((rI1.dot(e3) - rI3.dot(e1))*0.5);
-      // approximation to LogSO3(thJ)
-      ul(3) = asin((rJ2.dot(e3) - rJ3.dot(e2))*0.5);
-      ul(4) = asin((rJ1.dot(e2) - rJ2.dot(e1))*0.5);
-      ul(5) = asin((rJ1.dot(e3) - rJ3.dot(e1))*0.5);
+    for (int k = 0; k < 3; k ++) {
+      e(k,0) = e1[k];
+      e(k,1) = e2[k];
+      e(k,2) = e3[k];
     }
 
+    // -----------------------------------------------
+    // compute the basic deformations
+    // -----------------------------------------------
+
+    // save previous deformations
+    ulpr = ul;
+
+    // Rotations
+    {
+      Vector3D thetaI = LogC90(RI^e);
+      for (int i=0; i<3; i++)
+        ul(i) = thetaI[i];
+
+      thetaI = LogC90(RJ^e);
+      for (int i=3; i<6; i++)
+        ul(i) = thetaI[i-3];
+    }
+
+    // Axial
     // ul = Ln - L;
     // ul(6) = 2 * ((xJI + dJI/2)^ dJI) / (Ln + L);  //mid-point formula
-    xJI.addVector(1.0, dJI, 0.5);
-    ul(6) = 2. * xJI.dot(dJI) / (Ln + L);  //mid-point formula
+//  xJI.addVector(1.0, dJI, 0.5);
+    ul(6) = Ln - L; // 2. * xJI.dot(dJI) / (Ln + L);  //mid-point formula
 
     // compute the transformation matrix
     this->compTransfMatrixBasicGlobal(r, Triad{e}, rI, rJ);
@@ -1352,17 +1355,17 @@ CorotCrdTransf3d02::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     OPS_STATIC Vector3D rm;
 
     rm = rI3;
-    rm.addVector (1.0, rJ3, -1.0);
-    kg.addMatrix (1.0, getKs2Matrix(A, e1, r1, Ln, r2, rm), m(3));
+    rm.addVector(1.0, rJ3, -1.0);
+    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rm), m(3));
 
 //  rm = rJ2;
     rm.addVector(0.0, rJ2, -1.0);
     rm.addVector(1.0, rI2, -1.0);
-    kg.addMatrix(1.0, getKs2Matrix(A, e1, r1, Ln, r3,  rm), m(3));
-    kg.addMatrix(1.0, getKs2Matrix(A, e1, r1, Ln, r2, rI1), m(1));
-    kg.addMatrix(1.0, getKs2Matrix(A, e1, r1, Ln, r3, rI1), m(2));
-    kg.addMatrix(1.0, getKs2Matrix(A, e1, r1, Ln, r2, rJ1), m(4));
-    kg.addMatrix(1.0, getKs2Matrix(A, e1, r1, Ln, r3, rJ1), m(5));
+    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3,  rm), m(3));
+    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rI1), m(1));
+    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3, rI1), m(2));
+    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rJ1), m(4));
+    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3, rJ1), m(5));
 
     //  T * diag (M .* tan(thetal))*T'
 

@@ -71,8 +71,6 @@ public:
     
 private:
     // compute the transformation matrix
-    // compTransfMatrixBasicGlobal(this->ul, e, r, rI, rJ, Ln,  
-    //                             this->Lr2, this->Lr3, this->A, this->T);
     void compTransfMatrixBasicGlobal(const Triad&  r, const Triad&  E, const Triad&  rI, const Triad&  rJ);
     void compTransfMatrixLocalGlobal(Matrix &Tlg);
     void compTransfMatrixBasicLocal(Matrix &Tbl);
