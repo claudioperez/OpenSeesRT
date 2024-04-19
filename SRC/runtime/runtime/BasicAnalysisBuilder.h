@@ -12,6 +12,25 @@
      and/or other materials provided with the distribution.
 
 *************************************************************************** */
+// 
+// BasicAnalysisBuilder is an aggregate class which manages the analysis objects:
+//
+// - LinearSOE
+// - Domain                    *theDomain;
+// - ConstraintHandler 	      *theHandler;
+// - DOF_Numberer 	      *theNumberer;
+// - AnalysisModel 	      *theAnalysisModel;
+// - EquiSolnAlgo 	      *theAlgorithm;
+// - EigenSOE 		      *theEigenSOE;
+// - StaticIntegrator          *theStaticIntegrator;
+// - TransientIntegrator       *theTransientIntegrator;
+// - ConvergenceTest           *theTest;
+// - DirectIntegrationAnalysis *theTransientAnalysis;
+//
+// The BasicAnalysisBuilder assumes responsibility for
+// deleting these objects, but ownership of the SOE may be
+// given up.
+//
 //
 // Written: Minjie Zhu, cmp
 //
@@ -104,7 +123,6 @@ private:
     EquiSolnAlgo 	      *theAlgorithm;
     LinearSOE 		      *theSOE;
     EigenSOE 		      *theEigenSOE;
-//  Integrator                *theIntegrator;
     StaticIntegrator          *theStaticIntegrator;
     TransientIntegrator       *theTransientIntegrator;
     ConvergenceTest           *theTest;
