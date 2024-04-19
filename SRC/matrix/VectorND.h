@@ -55,9 +55,9 @@ struct VectorND {
 
   template<int n, int m, typename> friend struct MatrixND;
 
-  constexpr T&
+  inline constexpr T&
   operator[](index_t index) {return values[index];}
-  constexpr const T&
+  inline constexpr const T&
   operator[](index_t index) const {return values[index];}
 
   constexpr int
@@ -187,7 +187,7 @@ struct VectorND {
 
 
   template <int NC>
-  int
+  inline int
   addMatrixVector(double thisFact, const MatrixND<N, NC, double> &m, const Vector &v, double otherFact)
   {
     // check the sizes are compatable
@@ -213,7 +213,7 @@ struct VectorND {
   }
 
   template <int NR>
-  int
+  inline int
   addMatrixTransposeVector(double thisFact, const MatrixND<NR, N, double> &m, const Vector &v, double otherFact)
   {
     // check the sizes are compatable
@@ -240,7 +240,7 @@ struct VectorND {
 
 
 
-  int
+  inline int
   addMatrixVector(const double thisFact, const Matrix &m, const Vector &v, const double otherFact)
   {
     // check the sizes are compatable
@@ -386,6 +386,19 @@ struct VectorND {
       sum += values[i] * other[i];
     }
     return sum;
+  }
+
+  // Tensor product, also known as the "bun" product
+  template <int nc>
+  inline OpenSees::MatrixND<N,nc,double>
+  bun(const VectorND<nc> &other) const {
+    OpenSees::MatrixND<N,nc,double> prod;
+
+    for (int j = 0; j < 3; ++j)
+      for (int i = 0; i < 3; ++i)
+        prod(i,j) = values[i] * other.values[j];
+
+    return prod;
   }
 
   constexpr T
