@@ -33,12 +33,6 @@
 #include <math.h>
 #include <assert.h>
 
-void* OPS_BandGenLinLapack()
-{
-    BandGenLinSolver *theSolver = new BandGenLinLapackSolver();
-    BandGenLinSOE *theSOE = new BandGenLinSOE(*theSolver);
-    return theSOE;
-}
 
 BandGenLinLapackSolver::BandGenLinLapackSolver()
 :BandGenLinSolver(SOLVER_TAGS_BandGenLinLapackSolver),
@@ -49,8 +43,8 @@ BandGenLinLapackSolver::BandGenLinLapackSolver()
 
 BandGenLinLapackSolver::~BandGenLinLapackSolver()
 {
-    if (iPiv != 0)
-	delete [] iPiv;
+  if (iPiv != 0)
+     delete [] iPiv;
 }
 
 #ifdef _WIN32
@@ -116,11 +110,12 @@ BandGenLinLapackSolver::solve(void)
     {if (theSOE->factored == false)  
 	// factor and solve 
 	DGBSV(&n,&kl,&ku,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);	
+
     else  {
 	// solve only using factored matrix
 	unsigned int sizeC = 1;
 	//DGBTRS("N",&sizeC,&n,&kl,&ku,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
-    char type[] = "N";
+        char type[] = "N";
 	DGBTRS(type,&n,&kl,&ku,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
     }}
 #else
