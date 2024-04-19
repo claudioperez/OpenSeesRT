@@ -116,7 +116,7 @@ class Interpreter:
             print(self._tcl.getvar("errorInfo"), file=sys.stderr)
             raise e
 
-    def serialize(self):
+    def serialize(self)->dict:
         # TODO: use tempfile or pipe
         import tempfile
         tmp = tempfile.NamedTemporaryFile(delete=False)
@@ -148,6 +148,7 @@ class Interpreter:
         else:
             fmt = "vtk"
 
+        # create a meshio object
         mesh = opensees.emit.mesh.dump(model, args[0], fmt)
 
         try:

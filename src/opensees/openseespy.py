@@ -9,11 +9,6 @@ from openseespy, for example:
 
 >>> from opensees.openseespy import *
 
-
-The fiber section API is one of the only unsupported
-features. This may be implemented in the
-near future, but even then, using it would be strongly
-discouraged.
 """
 import json
 from functools import partial
@@ -254,7 +249,7 @@ def _as_str_arg(arg):
     Tcl semantics.
     """
     if isinstance(arg, list):
-        return f"{{{''.join(_as_str_arg(a) for a in arg)}}}"
+        return f"{{{' '.join(_as_str_arg(a) for a in arg)}}}"
 
     elif isinstance(arg, bool):
         return str(int(arg))
@@ -285,12 +280,6 @@ class OpenSeesPy:
 
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
-
-    def eval(self, cmd: str) -> str:
-        "Evaluate a Tcl command"
-        if self._echo is not None:
-            print(cmd, file=self._echo)
-        return self._interp.eval(cmd)
 
     def _str_call(self, proc_name: str, *args, **kwds)->str:
         """
@@ -330,12 +319,61 @@ class OpenSeesPy:
             try:    return json.loads(ret)
             except: return ret
 
+
+    def eval(self, cmd: str) -> str:
+        "Evaluate a Tcl command"
+        if self._echo is not None:
+            print(cmd, file=self._echo)
+        return self._interp.eval(cmd)
+
+
+    def block2D(self, *args, **kwds):
+        if isinstance(args[5], list):
+            return self._str_call("block2D", *args, **kwds)
+
+        # We have to imitate the OpenSeesPy parser, which
+        # *requires* hard-coding the number of element args
+        # expected by each element type. This is terribly
+        # unstable and limited and should only be used when 
+        # backwards compatibility with the original OpenSeesPy 
+        # is absolutely necessary.
+        elem_name = args[4]
+        elem_argc = {
+            "quad":         9,
+            "stdquad":      9,
+
+            "shell":        7,
+            "shellmitc4":   7,
+
+            "shellnldkgq":  7,
+            "shelldkgq":    7,
+
+            "bbarquad":     8,
+
+            "enhancedquad": 9,
+
+            "sspquad":      9
+        }[elem_name.lower()] -1
+
+        elem_args = list(args[5:elem_argc])
+
+        nl  = '\n'
+        ndm = self._str_call("getNDM")
+        # loop over remaining args to form node coords
+        node_args = f"""{{
+            {nl.join(" ".join(map(str,args[elem_argc+i*(ndm+1):elem_argc+(i+1)*(ndm+1)])) for i in range(int(len(args[elem_argc:])/(ndm+1))))}
+        }}"""
+
+        return self._str_call("block2D", *args[:5], elem_args, node_args)
+
+
     def pattern(self, *args, **kwds):
         self._current_pattern = args[1]
         return self._str_call("pattern", *args, **kwds)
 
-    def load(self, *args, **kwds):
-        pattern = self._current_pattern
+    def load(self, *args, pattern=None, **kwds):
+        if pattern is None:
+            pattern = self._current_pattern
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
     def section(self, *args, **kwds):
@@ -356,13 +394,41 @@ class OpenSeesPy:
         return self._str_call("fiber", *args, "-section", section, **kwds)
 
 
+_OVERWRITTEN = {
+    "pattern", "load",
+    "eval",
+    "section", "patch", "layer", "fiber",
+    "block2D"
+}
+
 class Model:
     def __init__(self, *args, echo_file=None, **kwds):
         self._openseespy = OpenSeesPy(echo_file=echo_file)
         self._openseespy._str_call("model", *args, **kwds)
 
+    def asdict(self):
+        """April 2024"""
+        return self._openseespy._interp.serialize()
+
+    def setFactor(self, factor):
+        pass
+
+    def getIterationCount(self):
+        return self._openseespy._str_call("numIter")
+
+    def getResidual(self):
+        return self._openseespy._str_call("printB", "-ret")
+
+    def getTangent(self):
+        import numpy as np
+        # TODO
+#       self._openseespy.eval("system FullGeneral")
+        A = np.array(self._openseespy._str_call("printA", "-ret"))
+#       self._openseespy.eval("system ProfileSPD")
+        return A.reshape([int(np.sqrt(len(A)))]*2)
+
     def __getattr__(self, name: str):
-        if name in {"pattern", "load", "eval", "section", "patch", "layer", "fiber"}:
+        if name in _OVERWRITTEN:
             return getattr(self._openseespy, name)
         else:
             return self._openseespy._partial(self._openseespy._str_call, name)
@@ -376,7 +442,7 @@ _tcl_echo   = None
 def __getattr__(name: str):
     # For reference:
     #   https://peps.python.org/pep-0562/#id4
-    if name in {"pattern", "load", "eval", "section", "patch", "layer", "fiber"}:
+    if name in _OVERWRITTEN:
         return getattr(_openseespy, name)
     else:
         return _openseespy._partial(_openseespy._str_call, name)

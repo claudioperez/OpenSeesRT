@@ -19,6 +19,7 @@
 
 # import the OpenSees Python module
 from opensees.openseespy import *
+from opensees.units.english import g
 
 # ----------------------------
 # Start of model generation
@@ -36,7 +37,7 @@ model("BasicBuilder", "-ndm",2, "-ndf",2)
 # Define the material
 # -------------------
 #                               matTag  E      nu      rho
-nDMaterial("ElasticIsotropic", 1, 1000.0, 0.25, 6.75/g) 
+nDMaterial("ElasticIsotropic", 1, 1000.0, 0.25, 6.75/g)
 
 # Define geometry
 # ---------------

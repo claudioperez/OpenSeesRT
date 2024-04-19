@@ -42,11 +42,10 @@ ops.analysis('Static')
 
 ops.analyze(1)
 
-ops.printModel()
+ops.print()
 
 # verification:
 # tip vertical displacement (node 2 and 3) = 0.0075
 # bottom Gauss Point stress_xx = 46475.8
 # bottom extreme stress_xx (extrapolated) = 60000.0
 
-exit()

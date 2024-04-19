@@ -65,8 +65,8 @@ def torsion_element(xyz):
                                 [k13, k23, k33]])
 
     fe = -1/6.*np.array([
-         ((y1*y32 - z1*z23) + (y2*y32 - z2*z23) + (y3*y32 - z3*z23)), 
-         ((y1*y13 - z1*z31) + (y2*y13 - z2*z31) + (y3*y13 - z3*z31)), 
+         ((y1*y32 - z1*z23) + (y2*y32 - z2*z23) + (y3*y32 - z3*z23)),
+         ((y1*y13 - z1*z31) + (y2*y13 - z2*z31) + (y3*y13 - z3*z31)),
          ((y1*y21 - z1*z12) + (y2*y21 - z2*z12) + (y3*y21 - z3*z12))])
 
     return ke, fe
@@ -78,30 +78,31 @@ def solve_torsion(section, mesh):
     nf = ndf*len(nodes)
     Ka = np.zeros((nf, nf))
     Fa = np.zeros(nf)
-    A  = section.area
-    Iy = section.iyc
-    Iz = section.ixc
-    thetaPrincipal = 0.0
 
     connectivity = mesh.cells[1].data
     for conn in connectivity:
         ((y1, y2, y3), (z1, z2, z3)) = (nodes[conn] - section.centroid).T
         ke, fe = torsion_element((nodes[conn] - section.centroid).T)
         nodeList = conn + 1
-        Ka = assembleStiffnessMatrix(Ka, ke, nodeList, nde, ndf)
-        Fa = assembleLoadVector(Fa, fe, nodeList, nde, ndf)
+        Ka  = assembleStiffnessMatrix(Ka, ke, nodeList, nde, ndf)
+        Fa  = assembleLoadVector(Fa, fe, nodeList, nde, ndf)
 
     # Lock the warping at one node and solve for the others
     Pf = Fa[:nf-1]
     for i in range(nf-1):
         Pf[i] -= Ka[i, nf-1]
+
     Kf = Ka[:nf-1, :nf-1]
     Uf = np.linalg.solve(Kf, Pf)
     ua = np.append(Uf, 1.0)
     #return ua
 
-#def shear_centre():
+
+#def shear_centre(section, mesh, ua):
     # Determine shear centre coordinates
+    A  = section.area
+    Iy = section.iyc
+    Iz = section.ixc
     warpIntegral = 0
     yscIntegral = 0
     zscIntegral = 0
@@ -116,36 +117,43 @@ def solve_torsion(section, mesh):
         zscIntegral  += area/12.0*(u1*(2*y1+y2+y3) + u2*(y1+2*y2+y3) + u3*(y1+y2+2*y3))
 
 #def normalize_shear():
+    thetaPrincipal = 0.0
     # Normalizing constant and shear centre coordinates
     # normalizingConstant = -warpIntegral / A
     if np.abs(thetaPrincipal) > 1e-3:
         ysc = -yscIntegral / IyRotated
         zsc =  zscIntegral / IzRotated
+
     else:
         ysc = -yscIntegral / Iy
         zsc =  zscIntegral / Iz
 
     # Finalize
-    finalWarp = ua[:nf] - warpIntegral / A + np.array([ysc, -zsc])@(mesh.points[:nf] - section.centroid).T
+    finalWarp =   ua[:nf] - warpIntegral / A \
+                + np.array([ysc, -zsc])@(mesh.points[:nf] - section.centroid).T
+
+    return np.array(finalWarp)
+
+
+def torsion_constants(section, mesh, sc, warp):
     # for i in range(nf):
     #     yValue = (nodes[i])[0]
     #     zValue = (nodes[i])[1]
-    #     finalWarp.append(ua[i] + normalizingConstant + ysc*(zValue-zCentroid) - zsc*(yValue-yCentroid))
+    #     warp.append(ua[i] + normalizingConstant + ysc*(zValue-zCentroid) - zsc*(yValue-yCentroid))
 
     # Shear center coordinates in original axis system
     zCentroid, yCentroid = section.centroid
+
+    ysc, zsc = sc
     ysc = yCentroid + ysc
     zsc = zCentroid + zsc
-    # return np.array(finalWarp)
-    finalWarp = np.array(finalWarp)
-
 
     # ------------------------------------------------------------------------
     # WARPING CONSTANT and ST. VENANT CONSTANT
     # ------------------------------------------------------------------------
 
     Cw = 0
-    J = 0
+    J  = 0
     for conn in connectivity:
         ((y1, y2, y3), (z1, z2, z3)) = (nodes[conn] - section.centroid).T
 
@@ -157,10 +165,10 @@ def solve_torsion(section, mesh):
         y21 = y2 - y1
 
         # Warping values
-        u1, u2, u3 = finalWarp[conn]
+        u1, u2, u3 = warp[conn]
+
         # Warping constant
-        dA = 0.5 * ((y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1))
-        # assert dA > 0.
+        dA  = 0.5 * ((y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1))
         Cw += dA / 6.0 * (u1**2 + u2**2 + u3**2 + u1*u2 + u1*u3 + u2*u3)
 
         # St. Venant constant
@@ -173,10 +181,11 @@ def solve_torsion(section, mesh):
         Czeta1s =   y1**2 +   z1**2
         Czeta2s =   y2**2 +   z2**2
         Czeta3s =   y3**2 +   z3**2
-        J += ((Czeta1+Czeta2+Czeta3)/3. + (Czeta12+Czeta13+Czeta23)/12. + (Czeta1s+Czeta2s+Czeta3s)/6.)*dA
+        J += ((Czeta1+Czeta2+Czeta3)/3. \
+            + (Czeta12+Czeta13+Czeta23)/12. \
+            + (Czeta1s+Czeta2s+Czeta3s)/6.)*dA
 
-#   print(J)
-    return np.array(finalWarp)
+    return J, Cw
 
 #
 #  # ------------------------------------------------------------------------
@@ -196,8 +205,8 @@ def solve_torsion(section, mesh):
 #          zOld = (nodes[i])[1]
 #          (nodes[i])[0] = yOld * np.cos(thetaPrincipal) - zOld * np.sin(thetaPrincipal) + yCentroid
 #          (nodes[i])[1] = yOld * np.sin(thetaPrincipal) + zOld * np.cos(thetaPrincipal) + zCentroid
-#  
-#  
+#
+#
 #  # ------------------------------------------------------------------------
 #  # PRINT RESULTS
 #  # ------------------------------------------------------------------------
@@ -317,6 +326,7 @@ def plot(mesh, values=None, scale=1.0, show_edges=None, savefig:str=None,**kwds)
         mesh.set_active_scalars("u")
     if show_edges is None:
         show_edges = True #if sum(len(c.data) for c in mesh.cells) < 1000 else False
+
     if not pv.OFF_SCREEN:
         plotter = pv.Plotter(notebook=True)
         plotter.add_mesh(mesh,
