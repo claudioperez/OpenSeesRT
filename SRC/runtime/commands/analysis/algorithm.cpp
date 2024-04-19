@@ -11,9 +11,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <G3_Logging.h>
-// #include "analysis.h"
 #include <tcl.h>
-#include <api/InputAPI.h>
 #include "runtime/BasicAnalysisBuilder.h"
 
 // soln algorithms
