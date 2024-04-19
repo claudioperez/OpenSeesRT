@@ -116,11 +116,6 @@ SymSparseLinSolver::solve(void)
     // the Xptr to ge the wanted X.
 
     double *tempX = new double[neq];
-    if (tempX == 0) {
-        opserr << "WARNING SymSparseLinSover::SymSparseLinSolver :";
-	opserr << " ran out of memory for vectors (tempX) ";
-	return -1;
-    } 
 
     for (int m=0; m<neq; m++) {
         tempX[m] = Xptr[invp[m]];
