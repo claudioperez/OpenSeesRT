@@ -63,9 +63,10 @@ def arch_model():
     # Add a nodal load to the pattern
     model.load(mid, 0.0, -1.0, 0.0, pattern=1)
     
-    model.system("FullGeneral")
+    # "ProfileSPD" is currently the only one with nice results
+    model.system("ProfileSPD")
     model.test("NormUnbalance", 1e-6, 25, 9)
-    # model.test("NormDispIncr", 1e-8, 25, 9)
+    # model.test("NormDispIncr", 1e-6, 25, 9)
 
     return model, mid
 
