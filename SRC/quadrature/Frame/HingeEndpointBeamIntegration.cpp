@@ -257,7 +257,7 @@ HingeEndpointBeamIntegration::getLocationsDeriv(int numSections, double L,
 						double dLdh, double *dptsdh)
 {
   double oneOverL = 1.0/L;
-  double halfOneOverL = 0.5*oneOverL;
+//double halfOneOverL = 0.5*oneOverL;
 
   for (int i = 0; i < numSections; i++)
     dptsdh[i] = 0.0;
