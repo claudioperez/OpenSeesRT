@@ -83,6 +83,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
         return nullptr;
       if (Tcl_GetInt(interp, argv[4], &numIter) != TCL_OK)
         return nullptr;
+
     } else if (argc == 6) {
       if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
@@ -119,7 +120,7 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
     }
 
   } else if (strcmp(argv[1], "FixedNumIter") == 0) {
-
+    // test FixedNumIter $iter <$pFlag> <$nType>
     if (argc == 3) {
       if (Tcl_GetInt(interp, argv[2], &numIter) != TCL_OK)
         return nullptr;
@@ -147,6 +148,10 @@ TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int ar
     }
 
   } else {
+    //
+    // All others
+    //
+    // test <type> $tol $iter < $pFlag > < $nType >
     if (argc == 4) {
       if (Tcl_GetDouble(interp, argv[2], &tol) != TCL_OK)
         return nullptr;
