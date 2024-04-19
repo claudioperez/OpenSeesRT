@@ -17,12 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2009-05-20 17:30:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/sparseGEN/SuperLU.cpp,v $
-                                                                        
-                                                                        
 //
 // Written: fmk 
 // Created: Tue 11/96
@@ -58,7 +52,7 @@ void* OPS_SuperLUSolver()
     
     int numData = 1;
 
-    while(OPS_GetNumRemainingInputArgs() > 1) {
+    while (OPS_GetNumRemainingInputArgs() > 1) {
 	std::string type = OPS_GetString();
 	if(type=="p"||type=="piv"||type=="-piv") {
 //        thresh = 1.0;
