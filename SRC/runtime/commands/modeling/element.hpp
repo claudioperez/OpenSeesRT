@@ -101,21 +101,152 @@ extern OPS_Routine OPS_MasonPan12;
 extern OPS_Routine OPS_MasonPan3D;
 
 
+#include <functional>
+#include <algorithm>
+#include <string>
 static
-std::unordered_map<std::string, OPS_Routine *> element_dispatch = {
-  {"TrussSection", OPS_TrussSectionElement},
-  {"CorotTrussSection", OPS_CorotTrussSectionElement},
-  {"N4BiaxialTruss", OPS_N4BiaxialTruss},
-  {"Truss2", OPS_Truss2},
-  {"CorotTruss2",                 OPS_CorotTruss2},
-  {"InertiaTruss",                OPS_InertiaTrussElement},
+std::string toLower( const std::string & s )
+{
+    std::string copy = s;
+    transform( copy.begin( ), copy.end( ), copy.begin( ), std::ptr_fun<int, int>( std::tolower ) );
+    return copy;
+}
 
-  {"zeroLengthContactNTS2D",      OPS_ZeroLengthContactNTS2D},
-  {"zeroLengthInterface2D",       OPS_ZeroLengthInterface2D},
-  {"zeroLengthImpact3D",          OPS_ZeroLengthImpact3D},
+static bool 
+equalsIgnoreCase( const std::string & lhs, const std::string & rhs )
+{
+    return toLower( lhs ) == toLower( rhs );
+}
 
-  {"componentElement2d",          OPS_ComponentElement2d},
-  {"componentElement3d",          OPS_ComponentElement3d},
+class CaseInsensitive
+{
+  public:
+    size_t operator( ) ( const std::string & s ) const
+    {  
+        static std::hash<std::string> hf;
+        return hf( toLower( s ) );
+    }
+    
+    bool operator( ) ( const std::string & lhs, const std::string & rhs ) const
+    {
+        return equalsIgnoreCase( lhs, rhs );
+    }
+};
+
+#if 0
+// template <OPS_Routine fn2d, OPS_Routine fn3d> static int
+class BasicModelBuilder;
+struct Tcl_Interp;
+class Domain;
+template <OPS_Routine fn> static int
+dispatch(BasicModelBuilder* builder, Tcl_Interp* interp, int argc, const char** const argv)
+{
+  int ndm = builder->getNDM();
+  Domain* domain = builder->getDomain();
+  G3_Runtime *rt = G3_getRuntime(interp);
+
+  Element* theElement = (Element*)fn( rt, argc, argv );
+
+  if (domain->addElement(*theElement) == false) {
+    opserr << G3_ERROR_PROMPT << "Could not add element to the domain.\n";
+    delete theElement;
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
+#endif
+
+Tcl_CmdProc TclBasicBuilder_addFourNodeQuad;
+Tcl_CmdProc TclBasicBuilder_addFourNodeQuadWithSensitivity;
+Tcl_CmdProc TclBasicBuilder_addEnhancedQuad;
+Tcl_CmdProc TclBasicBuilder_addConstantPressureVolumeQuad;
+Tcl_CmdProc TclBasicBuilder_addNineNodeMixedQuad;
+Tcl_CmdProc TclBasicBuilder_addNineNodeQuad;
+Tcl_CmdProc TclBasicBuilder_addSixNodeTri;
+Tcl_CmdProc TclBasicBuilder_addEightNodeQuad;
+Tcl_CmdProc TclBasicBuilder_addFourNodeQuadUP;
+Tcl_CmdProc TclBasicBuilder_addNineFourNodeQuadUP;
+Tcl_CmdProc TclBasicBuilder_addBBarFourNodeQuadUP;
+// Brick
+Tcl_CmdProc TclBasicBuilder_addBrickUP;
+Tcl_CmdProc TclBasicBuilder_addBBarBrickUP;
+Tcl_CmdProc TclBasicBuilder_addTwentyEightNodeBrickUP;
+Tcl_CmdProc TclBasicBuilder_addTwentyNodeBrick;
+Tcl_CmdProc TclBasicBuilder_addBrick;
+Tcl_CmdProc TclCommand_SSP_Element;
+
+static
+std::unordered_map<std::string, Tcl_CmdProc *, CaseInsensitive, CaseInsensitive> 
+element_dispatch_tcl = {
+
+//
+// Plane
+//
+  {"Quad",                      TclBasicBuilder_addFourNodeQuad},
+  {"stdQuad",                   TclBasicBuilder_addFourNodeQuad},
+
+  {"quadWithSensitivity",       TclBasicBuilder_addFourNodeQuadWithSensitivity},
+
+  {"enhancedQuad",              TclBasicBuilder_addEnhancedQuad},
+
+  {"bbarQuad",                  TclBasicBuilder_addConstantPressureVolumeQuad},
+  {"mixedQuad",                 TclBasicBuilder_addConstantPressureVolumeQuad},
+
+  {"nineNodeMixedQuad",         TclBasicBuilder_addNineNodeMixedQuad},
+  {"nineNodeQuad",              TclBasicBuilder_addNineNodeMixedQuad},
+
+  {"quad9n",                    TclBasicBuilder_addNineNodeQuad},
+
+  {"quad8n",                    TclBasicBuilder_addEightNodeQuad},
+
+  {"tri6n",                     TclBasicBuilder_addSixNodeTri},
+
+  {"quadUP",                    TclBasicBuilder_addFourNodeQuadUP},
+
+  {"9_4_QuadUP",                TclBasicBuilder_addNineFourNodeQuadUP},
+
+  {"bbarQuadUP",                TclBasicBuilder_addBBarFourNodeQuadUP},
+//
+// Brick
+//
+  {"BrickUP",                   TclBasicBuilder_addBrickUP},
+
+  {"20_8_BrickUP",              TclBasicBuilder_addTwentyEightNodeBrickUP},
+
+  {"20NodeBrick",               TclBasicBuilder_addTwentyNodeBrick},
+
+  {"bbarBrickUP",               TclBasicBuilder_addBBarBrickUP},
+
+  {"stdBrick",                  TclBasicBuilder_addBrick},
+  {"bbarBrick",                 TclBasicBuilder_addBrick},
+  {"bbarBrickWithSensitivity",  TclBasicBuilder_addBrick},
+  {"flBrick",                   TclBasicBuilder_addBrick},
+  
+  {"SSPquad",                   TclCommand_SSP_Element},
+  {"SSPquadUP",                 TclCommand_SSP_Element},
+  {"SSPbrick",                  TclCommand_SSP_Element},
+};
+
+static
+std::unordered_map<std::string, OPS_Routine *, CaseInsensitive, CaseInsensitive> 
+element_dispatch = {
+// Truss
+  {"TrussSection",                 OPS_TrussSectionElement},
+  {"CorotTrussSection",            OPS_CorotTrussSectionElement},
+  {"N4BiaxialTruss",               OPS_N4BiaxialTruss},
+  {"Truss2",                       OPS_Truss2},
+  {"CorotTruss2",                  OPS_CorotTruss2},
+  {"InertiaTruss",                 OPS_InertiaTrussElement},
+
+// Shell
+
+// Point
+  {"zeroLengthContactNTS2D",       OPS_ZeroLengthContactNTS2D},
+  {"zeroLengthInterface2D",        OPS_ZeroLengthInterface2D},
+  {"zeroLengthImpact3D",           OPS_ZeroLengthImpact3D},
+
+  {"componentElement2d",           OPS_ComponentElement2d},
+  {"componentElement3d",           OPS_ComponentElement3d},
 
 #if 0
   {"componentElementDamp2d", OPS_ComponentElementDamp2d},
@@ -124,12 +255,17 @@ std::unordered_map<std::string, OPS_Routine *> element_dispatch = {
   {"ModElasticBeam2d",             OPS_ModElasticBeam2d},
   {"ModElasticBeam3d",             OPS_ModElasticBeam3d},
 
+
+
+
   {"FPBearingPTV",                 OPS_FPBearingPTV},
   {"TripleFrictionPendulum",       OPS_TripleFrictionPendulum},
   {"HDR",                          OPS_HDR},
   {"LeadRubberX",                  OPS_LeadRubberX},
   {"ElastomericX",                 OPS_ElastomericX},
+
   {"AxEqDispBeamColumn2d",         OPS_AxEqDispBeamColumn2d},
+
   {"MVLEM",                        OPS_MVLEM},        // Kristijan Kolozvari
   {"SFI_MVLEM",                    OPS_SFI_MVLEM},    // Kristijan Kolozvari
   {"MVLEM_3D",                     OPS_MVLEM_3D},     // Kristijan Kolozvari
@@ -137,6 +273,7 @@ std::unordered_map<std::string, OPS_Routine *> element_dispatch = {
   {"E_SFI_MVLEM_3D",               OPS_E_SFI_MVLEM_3D},
   {"E_SFI",                        OPS_E_SFI},
   {"MEFI",                         OPS_MEFI},
+
   {"MasonPan12",                   OPS_MasonPan12},
   {"MasonPan3D",                   OPS_MasonPan3D},
   {"BeamGT",                       OPS_BeamGT},
