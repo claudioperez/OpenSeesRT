@@ -45,12 +45,14 @@ namespace py = pybind11;
 #define ARRAY_FLAGS py::array::c_style|py::array::forcecast
 
 
+#if 0
 std::unique_ptr<G3_Runtime, py::nodelete> 
 getRuntime(py::object interpaddr) {
       void *interp_addr;
       interp_addr = (void*)PyLong_AsVoidPtr(interpaddr.ptr());
       return std::unique_ptr<G3_Runtime, py::nodelete>(G3_getRuntime((Tcl_Interp*)interp_addr));
 } // , py::return_value_policy::reference
+#endif
 
 
 std::unique_ptr<BasicModelBuilder, py::nodelete> 
@@ -122,9 +124,9 @@ public:
   }
   int commitState (void) override {
       PYBIND11_OVERRIDE_PURE(
-          int,                      /* Return type */
-          UniaxialMaterial,         /* Parent class */
-          commitState               /* Name of function in C++ (must match Python name) */
+          int,                      // Return type
+          UniaxialMaterial,         // Parent class
+          commitState               // Name of function in C++ (must match Python name)
       );
   }
   int revertToLastCommit (void) override {
@@ -142,7 +144,6 @@ public:
 
     auto self = py::cast(this);
     auto cloned = self.attr("getCopy")();
-    // auto cloned = m_object.attr("getCopy")();
 
     auto keep_python_state_alive = std::make_shared<py::object>(cloned);
     // auto ptr = cloned.cast<UniaxialMaterial*>();
@@ -302,7 +303,6 @@ init_obj_module(py::module &m)
         py::array_t<double, py::array::c_style|py::array::forcecast> array,
         int assert_size
       ) -> Vector {
-        bool verbose = true;
         py::buffer_info info = array.request();
         if (info.shape[0] != assert_size)
           throw std::runtime_error("Incompatible buffer dimension.");
@@ -311,7 +311,7 @@ init_obj_module(py::module &m)
   ;
   py::class_<Matrix, std::unique_ptr<Matrix, py::nodelete>>(m, "Matrix", py::buffer_protocol())
     .def (py::init([](
-        py::array_t<double, py::array::c_style|py::array::forcecast> array,
+        py::array_t<double, ARRAY_FLAGS> array,
         int assert_size
     ) -> Matrix {
       bool verbose = true;
@@ -472,14 +472,11 @@ init_obj_module(py::module &m)
     .def ("getSection", [](BasicModelBuilder& builder, int id){
         return builder.getTypedObject<SectionForceDeformation>(id);
     })
-    /*
-    .def ("getNDMaterial", [](BasicModelBuilder& builder, py::str tag){
-        return builder.getTypedObject<NDMaterial>(tag);
-    })
-    */
+
     .def ("getNDMaterial", [](BasicModelBuilder& builder, int tag){
         return builder.getTypedObject<NDMaterial>(tag);
     })
+
     /*
     .def ("getUniaxialMaterial", [](BasicModelBuilder& builder, py::str tag){
         return builder.getTypedObject<UniaxialMaterial>(tag);
@@ -519,12 +516,11 @@ init_obj_module(py::module &m)
     .def ("analyze", &StaticAnalysis::analyze)
   ;
 
-//py::class_<TransientAnalysis>(m, "TransientAnalysis");
   py::class_<DirectIntegrationAnalysis//, TransientAnalysis
                                       >(m, "_DirectIntegrationAnalysis")
     .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
       return *((DirectIntegrationAnalysis*)runtime->newTransientAnalysis(conf));
-    }))
+   }))
     //.def ("analyze", &TransientAnalysis::analyze)
     .def ("analyze", &DirectIntegrationAnalysis::analyze)
   ;
@@ -533,7 +529,7 @@ init_obj_module(py::module &m)
   // Module-Level Functions
   //
   m.def ("get_builder", &get_builder);
-  m.def ("getRuntime",  &getRuntime);
+//m.def ("getRuntime",  &getRuntime);
   m.def ("get_domain", [](G3_Runtime *rt)->std::unique_ptr<Domain, py::nodelete>{
       Domain *domain_addr = rt->m_domain;
       return std::unique_ptr<Domain, py::nodelete>((Domain*)domain_addr);
