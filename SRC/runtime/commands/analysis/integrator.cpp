@@ -5,6 +5,7 @@
 //
 // Description: This file implements selection of an integrator object.
 //
+#include <G3_Logging.h>
 #include "integrator.h"
 #include <assert.h>
 #include <tcl.h>
@@ -443,34 +444,53 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 StaticIntegrator*
 G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
-    double lambda11, minlambda, maxlambda;
-    int numIter;
     if (argc < 3) {
       opserr << "WARNING integrator MinUnbalDispNorm lambda11 <Jd minLambda1j "
                 "maxLambda1j>\n";
       return nullptr;
     }
-    if (Tcl_GetDouble(interp, argv[2], &lambda11) != TCL_OK)
+
+    double lambda11;
+    if (Tcl_GetDouble(interp, argv[2], &lambda11) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "expected float for lambda11 but got " << argv[2] << "\n";
       return nullptr;
-    if (argc > 5) {
-      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
-        return nullptr;
-      if (Tcl_GetDouble(interp, argv[4], &minlambda) != TCL_OK)
-        return nullptr;
-      if (Tcl_GetDouble(interp, argv[5], &maxlambda) != TCL_OK)
-        return nullptr;
-    } else {
-      minlambda = lambda11;
-      maxlambda = lambda11;
-      numIter = 1;
-      argc += 3;
     }
 
-    int signFirstStepMethod = SIGN_LAST_STEP;
-    if (argc == 7)
-      if ((strcmp(argv[argc - 1], "-determinant") == 0) ||
-          (strcmp(argv[argc - 1], "-det") == 0))
-        signFirstStepMethod = CHANGE_DETERMINANT;
+    // 
+    // Optional Arguments
+    //
+    enum {
+      NumIter = 1<<1,
+      MinLamb = 1<<2,
+      MaxLamb = 1<<3
+    };
+    int recvd = 0;
+
+    // set defaults
+    double minlambda = lambda11;
+    double maxlambda = lambda11;
+    int numIter = 1;
+    int signFirstStepMethod = MinUnbalDispNorm::SIGN_LAST_STEP;
+
+    for (int i=3; i < argc; i++) {
+      if ((strcmp(argv[i], "-determinant") == 0) || 
+          (strcmp(argv[i], "-det") == 0)) {
+          signFirstStepMethod = MinUnbalDispNorm::CHANGE_DETERMINANT;
+
+      } else if ((recvd&NumIter) == 0) {
+        if (Tcl_GetInt(interp, argv[i], &numIter) != TCL_OK)
+          return nullptr;
+        recvd |= NumIter;
+
+      } else if ((recvd&MinLamb) == 0) {
+        if (Tcl_GetDouble(interp, argv[i], &minlambda) != TCL_OK)
+          return nullptr;
+
+      } else if ((recvd&MaxLamb) == 0) {
+        if (Tcl_GetDouble(interp, argv[i], &maxlambda) != TCL_OK)
+          return nullptr;
+      }
+    }
 
     return new MinUnbalDispNorm(lambda11, numIter, minlambda,
                                                maxlambda, signFirstStepMethod);
