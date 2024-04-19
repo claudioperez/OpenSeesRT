@@ -51,9 +51,11 @@ G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char ** const argv)
   // check argv[1] for type of Numberer and create the object
   if (strcmp(argv[1], "Plain") == 0) {
     theNumberer = new PlainNumberer();
+
   } else if (strcmp(argv[1], "RCM") == 0) {
     RCM *theRCM = new RCM(false);
     theNumberer = new DOF_Numberer(*theRCM);
+
   } else if (strcmp(argv[1], "AMD") == 0) {
     AMD *theAMD = new AMD();
     theNumberer = new DOF_Numberer(*theAMD);
@@ -66,6 +68,7 @@ G3Parse_newNumberer(G3_Runtime* rt, int argc, TCL_Char ** const argv)
     theNumberer = theParallelNumberer;
     theParallelNumberer->setProcessID(OPS_rank);
     theParallelNumberer->setChannels(numChannels, theChannels);
+
   } else if (strcmp(argv[1], "ParallelRCM") == 0) {
     RCM *theRCM = new RCM(false);
     ParallelNumberer *theParallelNumberer = new ParallelNumberer(*theRCM);
