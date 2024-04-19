@@ -17,21 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/MinUnbalDispNorm.cpp,v $
-                                                                        
-                                                                        
-// File: ~/analysis/integrator/MinUnbalDispNorm.C
 // 
 // Written: fmk 
 // Created: 07/99
 // Revision: A
 //
-// What: "@(#) MinUnbalDispNorm.C, revA"
-
-
 #include <MinUnbalDispNorm.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -39,69 +29,21 @@
 #include <Channel.h>
 #include <math.h>
 #include <Domain.h>
-#include<Node.h>
-#include<DOF_Group.h>
-#include<DOF_GrpIter.h>
-#include<ID.h>
+#include <Node.h>
+#include <DOF_Group.h>
+#include <DOF_GrpIter.h>
+#include <ID.h>
 #include <stdlib.h>
-#include<FE_Element.h>
-#include<FE_EleIter.h>
-#include<LoadPattern.h>
-#include<LoadPatternIter.h>
-#include<Parameter.h>
-#include<ParameterIter.h>
-#include<EquiSolnAlgo.h>
-#include<TaggedObjectStorage.h>
-#include <elementAPI.h>
+#include <FE_Element.h>
+#include <FE_EleIter.h>
+#include <LoadPattern.h>
+#include <LoadPatternIter.h>
+#include <Parameter.h>
+#include <ParameterIter.h>
+#include <EquiSolnAlgo.h>
+#include <TaggedObjectStorage.h>
 #include <Matrix.h>
-void *
-OPS_ADD_RUNTIME_VPV(OPS_MinUnbalDispNorm)
-{
-    double lambda11, minlambda, maxlambda;
-    int numIter;
-    if (OPS_GetNumRemainingInputArgs() < 1) {
-	opserr << "WARNING integrator MinUnbalDispNorm lambda11 <Jd minLambda1j maxLambda1j>\n";
-	return 0;
-    }
 
-    int numdata = 1;
-    if (OPS_GetDoubleInput(&numdata, &lambda11) < 0) {
-	opserr << "WARNING integrator MinUnbalDispNorm invalid lambda11\n";
-	return 0;
-    }
-
-    if (OPS_GetNumRemainingInputArgs() >= 3) {
-	if (OPS_GetIntInput(&numdata, &numIter) < 0) {
-	    opserr << "WARNING integrator MinUnbalDispNorm invalid numIter\n";
-	    return 0;
-	}
-	if (OPS_GetDoubleInput(&numdata, &minlambda) < 0) {
-	    opserr << "WARNING integrator MinUnbalDispNorm invalid minlambda\n";
-	    return 0;
-	}
-	if (OPS_GetDoubleInput(&numdata, &maxlambda) < 0) {
-	    opserr << "WARNING integrator MinUnbalDispNorm invalid maxlambda\n";
-	    return 0;
-	}
-    }
-    else {
-	minlambda = lambda11;
-	maxlambda = lambda11;
-	numIter = 1;
-    }
-
-    int signFirstStepMethod = SIGN_LAST_STEP;
-    if (OPS_GetNumRemainingInputArgs() > 0) {
-	const char* flag = OPS_GetString();
-	if ((strcmp(flag,"-determinant") == 0) ||
-	    (strcmp(flag,"-det") == 0)) {
-	    signFirstStepMethod = CHANGE_DETERMINANT;
-	}
-    }
-
-    return new MinUnbalDispNorm(lambda11,numIter,minlambda,maxlambda,signFirstStepMethod);
-
-}
 
 MinUnbalDispNorm::MinUnbalDispNorm(double lambda1, int specNumIter,
 		     double min, double max, int signFirstStep)
@@ -151,8 +93,6 @@ MinUnbalDispNorm::~MinUnbalDispNorm()
 
    dLAMBDAdh=0;
    dUhatdh=0;
-
-
 }
 
 int
@@ -187,6 +127,7 @@ MinUnbalDispNorm::newStep(void)
   // check aaint min and max values specified in constructor
   if (dLambda < dLambda1min)
     dLambda = dLambda1min;
+
   else if (dLambda > dLambda1max)
     dLambda = dLambda1max;
 
@@ -200,9 +141,9 @@ MinUnbalDispNorm::newStep(void)
       signLastDeltaLambdaStep = +1;
     
     dLambda *= signLastDeltaLambdaStep; // base sign of load change
-                                      // on what was happening last step
+                                        // on what was happening last step
   } else {
-  
+
     double det = theLinSOE->getDeterminant();
     int signDeterminant = 1;
     if (det < 0)
@@ -213,16 +154,16 @@ MinUnbalDispNorm::newStep(void)
     signLastDeterminant = signDeterminant;
   }
 
-    /*
-    double work = (*phat)^(dUhat);
-    int signCurrentWork = 1;
-    if (work < 0) signCurrentWork = -1;
+  /*
+  double work = (*phat)^(dUhat);
+  int signCurrentWork = 1;
+  if (work < 0) signCurrentWork = -1;
 
-    if (signCurrentWork != signLastDeltaStep)
-    */
+  if (signCurrentWork != signLastDeltaStep)
+  */
 
   deltaLambdaStep = dLambda;
-  currentLambda += dLambda;
+  currentLambda  += dLambda;
   numIncrLastStep = 0;
 
   // determine delta U(1) == dU
@@ -256,8 +197,7 @@ MinUnbalDispNorm::newStep(void)
       this->formTangDispSensitivity(dUhatdh,gradNumber);
       this->formdLambdaDh(gradNumber);
 
-      
-           sensU->addVector(1.0, *dUhatdh ,dLambda);
+      sensU->addVector(1.0, *dUhatdh ,dLambda);
 
       theParam->activate(false);
     } 
@@ -277,9 +217,7 @@ MinUnbalDispNorm::newStep(void)
 
 int
 MinUnbalDispNorm::update(const Vector &dU)
-{
- //  opserr<<"Update Function.............................."<<endln;
- 
+{ 
   
    AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();    
@@ -305,15 +243,15 @@ MinUnbalDispNorm::update(const Vector &dU)
     }
 
     double dLambda = -a/b;
-    dLambdaj = dLambda;//Abbas
+    dLambdaj = dLambda; //Abbas
     // determine delta U(i)
     (*deltaU) = (*deltaUbar);    
     deltaU->addVector(1.0, *deltaUhat,dLambda);
     
     // update dU and dlambda
-    (*deltaUstep) += *deltaU;
+    (*deltaUstep)   += *deltaU;
     deltaLambdaStep += dLambda;
-    currentLambda += dLambda;
+    currentLambda   += dLambda;
     // update the model
     theModel->incrDisp(*deltaU);    
     theModel->applyLoadDomain(currentLambda);    
