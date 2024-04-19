@@ -646,7 +646,7 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
   }
 
   if (theTest == nullptr)
-    theTest = new CTestNormUnbalance(1.0e-6,25,0);
+    theTest = new CTestNormUnbalance(1.0e-6, 25, ConvergenceTest::PrintFailure);
 
   if (theAlgorithm == nullptr)
     theAlgorithm = new NewtonRaphson(*theTest);
