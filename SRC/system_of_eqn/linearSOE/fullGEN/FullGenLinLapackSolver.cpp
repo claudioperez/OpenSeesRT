@@ -25,21 +25,14 @@
 // FullGenLinLapackSolver. It solves the FullGenLinSOE object by calling
 // Lapack routines.
 //
-// What: "@(#) FullGenLinLapackSolver.h, revA"
-//
 #include <FullGenLinLapackSolver.h>
 #include <FullGenLinSOE.h>
 #include <math.h>
 #include <assert.h>
-
+#include <Matrix.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-void* OPS_FullGenLinLapackSolver()
-{
-    FullGenLinLapackSolver *theSolver = new FullGenLinLapackSolver();
-    return new FullGenLinSOE(*theSolver);
-}
 
 FullGenLinLapackSolver::FullGenLinLapackSolver()
 :FullGenLinSolver(SOLVER_TAGS_FullGenLinLapackSolver),iPiv(0),sizeIpiv(0)
@@ -51,6 +44,28 @@ FullGenLinLapackSolver::~FullGenLinLapackSolver()
 {
     if (iPiv != nullptr)
 	delete [] iPiv;
+}
+
+void
+FullGenLinLapackSolver::setDeterminant()
+{
+
+  det = 1.0;
+  const Matrix* Amat = theSOE->getA();
+
+  for (int i=0; i < theSOE->size; i++)
+    det *= (*Amat)(i, i);
+
+  for (int i=0; i < sizeIpiv; i++)
+    if (i != iPiv[i]) {
+      det = -det;
+    }
+}
+
+double
+FullGenLinLapackSolver::getDeterminant() const
+{
+  return det;
 }
 
 
@@ -100,6 +115,7 @@ FullGenLinLapackSolver::solve(void)
     //
     // now solve AX = Y
     //
+    char tran[] = "N";
 #ifdef _WIN32
     {if (theSOE->factored == false)  
 	// factor and solve 
@@ -107,13 +123,13 @@ FullGenLinLapackSolver::solve(void)
      else {
 	// solve only using factored matrix	 
 	 unsigned int sizeC = 1;
-	 DGETRS("N", &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);	 
+	 DGETRS(tran, &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);	 
      }}
 #else
     {if (theSOE->factored == false)      
 	dgesv_(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
      else
-	dgetrs_("N", &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
+	dgetrs_(tran, &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
     }
 #endif
     
@@ -130,6 +146,9 @@ FullGenLinLapackSolver::solve(void)
     }
 
     theSOE->factored = true;
+
+    // we must call setDeterminant while A is factored
+    this->setDeterminant();
     return 0;
 }
 
