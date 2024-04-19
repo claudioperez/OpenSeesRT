@@ -281,12 +281,6 @@ class OpenSeesPy:
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
 
-    def eval(self, cmd: str) -> str:
-        "Evaluate a Tcl command"
-        if self._echo is not None:
-            print(cmd, file=self._echo)
-        return self._interp.eval(cmd)
-
     def _str_call(self, proc_name: str, *args, **kwds)->str:
         """
         Invoke the Interpreter's eval method, calling
@@ -324,6 +318,14 @@ class OpenSeesPy:
         else:
             try:    return json.loads(ret)
             except: return ret
+
+
+    def eval(self, cmd: str) -> str:
+        "Evaluate a Tcl command"
+        if self._echo is not None:
+            print(cmd, file=self._echo)
+        return self._interp.eval(cmd)
+
 
     def block2D(self, *args, **kwds):
         if isinstance(args[5], list):
@@ -369,8 +371,9 @@ class OpenSeesPy:
         self._current_pattern = args[1]
         return self._str_call("pattern", *args, **kwds)
 
-    def load(self, *args, **kwds):
-        pattern = self._current_pattern
+    def load(self, *args, pattern=None, **kwds):
+        if pattern is None:
+            pattern = self._current_pattern
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
     def section(self, *args, **kwds):
@@ -402,6 +405,27 @@ class Model:
     def __init__(self, *args, echo_file=None, **kwds):
         self._openseespy = OpenSeesPy(echo_file=echo_file)
         self._openseespy._str_call("model", *args, **kwds)
+
+    def asdict(self):
+        """April 2024"""
+        return self._openseespy._interp.serialize()
+
+    def setFactor(self, factor):
+        pass
+
+    def getIterationCount(self):
+        return self._openseespy._str_call("numIter")
+
+    def getResidual(self):
+        return self._openseespy._str_call("printB", "-ret")
+
+    def getTangent(self):
+        import numpy as np
+        # TODO
+#       self._openseespy.eval("system FullGeneral")
+        A = np.array(self._openseespy._str_call("printA", "-ret"))
+#       self._openseespy.eval("system ProfileSPD")
+        return A.reshape([int(np.sqrt(len(A)))]*2)
 
     def __getattr__(self, name: str):
         if name in _OVERWRITTEN:

@@ -57,11 +57,12 @@ integrator LoadControl 0.1;
 
 ## Theory
 
-<p>In Load Control the time in the domain is set to $t +
-\lambda_{t+1}$ where,</p>
-<dl>
-<dt></dt>
-<dd>
+### Incrementation
+In Load Control the time in the domain is set to $\lambda + \lambda_{t+1}$ where,
+
+$$
+\Delta \lambda_i^1=\Delta \lambda_{i-1}^1\left(\frac{J_{\mathrm{d}}}{J_{i-1}}\right)
+$$
 
 $$\lambda_{t+1} = \max \left ( \lambda_{\text{min}}, \min \left (
 \lambda_{\text{max}}, \frac{\text{numIter}}{\text{lastNumIter}} \lambda_{t}

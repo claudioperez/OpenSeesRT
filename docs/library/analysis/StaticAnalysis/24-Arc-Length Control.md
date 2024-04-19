@@ -67,5 +67,10 @@ at the specified node is:
 
 <hr />
 
+On the first equilibrium iteration within a load step, both arc length integrators compute the change in load factor, $\Delta \lambda^1$, from the "tangent displacements", $\mathbf{U}_{f T}=\mathbf{K}_T \backslash \mathbf{P}_{r e f}$ , and the user specified arc length and $\alpha$.
+$$
+\Delta \lambda^1=\sqrt{\frac{s^2}{\mathbf{U}_{f T} \cdot \mathbf{U}_{f T}+\alpha^2}}
+$$
+
 <p>Code Developed by: <span style="color:blue"> fmk</span></p>
 

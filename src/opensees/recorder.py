@@ -1,5 +1,5 @@
-from opensees.ast import *
-from opensees.obj import LibCmd
+from opensees.library.ast import *
+from opensees.library.obj import LibCmd
 
 recorder = LibCmd("recorder")
 

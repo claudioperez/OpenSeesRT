@@ -1,8 +1,7 @@
 # Displacement Control
 
-This command is used to construct a DisplacementControl integrator
-object. In an analysis step with Displacement Control we seek to
-determine the time step that will result in a displacement increment for
+In an analysis step with Displacement Control we seek to
+determine the time step $\Delta \lambda$ that will result in a displacement increment for
 a particular degree-of-freedom at a node to be a prescribed value.
 
 ```tcl
@@ -59,7 +58,7 @@ integrator DisplacementControl 1 2 0.1;
 
 ## Theory
 
-If we write the governing finite element equation at $t + \Delta t$as:
+If we write the governing finite element equation at $t + \Delta t$ as:
 
 $$ 
 R(\boldsymbol{u}_{n}, \lambda_{n}) = \lambda_{t+\Delta
@@ -67,14 +66,14 @@ t} \boldsymbol{p}_f - \boldsymbol{p}_{\sigma}(\boldsymbol{u}_{n})
 $$
 
 
-where \(\boldsymbol{p}_{\sigma}(\boldsymbol{u}_{n})\) are the internal
-forces which are a function of the displacements \(\boldsymbol{u}_{n}\), \(\boldsymbol{p}_f\) is the set of
+where \(\mathbf{f}_{\sigma}(\mathbf{u}_{n})\) are the internal
+forces which are a function of the displacements \(\mathbf{u}_{n}\), \(\boldsymbol{p}_f\) is the set of
 reference loads and \(\lambda\) is the load
 multiplier. Linearizing the equation results in:
 
 
 $$
-\boldsymbol{K}_{n}^{*i} \Delta U_{n}^{i+1} = \left(
+\mathbf{K}_{n}^{*i} \Delta \mathbf{u}_{n}^{i+1} = \left(
 \lambda^i_{n} + \Delta \lambda^i \right) \boldsymbol{p}_f -
 \boldsymbol{p}_{\sigma}(\boldsymbol{u}_{n})
 $$
@@ -88,14 +87,15 @@ increment for the degree-of-freedom $\text{dof}$
 at the specified node is:
 
 $$
-\Delta U_\text{dof} = \text{incr}
+\Delta u_\text{dof} = \text{incr}
 $$
 
+### Incrementation
 
-In Displacement Control the $\Delta_U\text{dof}$ set to $t + \lambda_{t+1}$ where,
+In Displacement Control $\Delta u_{\text{dof}}$ is incremented at $t +\Delta t$ to
 
 $$
-\Delta U_\text{dof}^{t+1} = \max \left( \Delta U_{\text{min}},
+\Delta u_\text{dof}^{t+1} = \max \left( \Delta U_{\text{min}},
 \min \left( \Delta U_{\text{max}},
 \frac{\text{numIter}}{\text{lastNumIter}} \Delta U_\text{dof}^{t} \right) \right)
 $$
