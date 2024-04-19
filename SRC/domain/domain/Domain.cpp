@@ -1768,11 +1768,11 @@ Domain::getCreep(void) const
 }
 
 void
-Domain::applyLoad(double timeStep)
+Domain::applyLoad(double scale)
 {
 
-    // set the current pseudo time in the domai to be newTime
-    currentTime = timeStep;
+    // set the current pseudo time in the domain to be newTime
+    currentTime = scale;
     dT = currentTime - committedTime;
 
     //
@@ -1794,7 +1794,7 @@ Domain::applyLoad(double timeStep)
     LoadPattern *thePattern;
     LoadPatternIter &thePatterns = this->getLoadPatterns();
     while((thePattern = thePatterns()) != 0)
-      thePattern->applyLoad(timeStep);
+      thePattern->applyLoad(scale);
 
     //
     // finally loop over the MP_Constraints and SP_Constraints of the domain
@@ -1803,12 +1803,12 @@ Domain::applyLoad(double timeStep)
     MP_ConstraintIter &theMPs = this->getMPs();
     MP_Constraint *theMP;
     while ((theMP = theMPs()) != nullptr)
-      theMP->applyConstraint(timeStep);
+      theMP->applyConstraint(scale);
     
     SP_ConstraintIter &theSPs = this->getSPs();
     SP_Constraint *theSP;
     while ((theSP = theSPs()) != nullptr) {
-      theSP->applyConstraint(timeStep);
+      theSP->applyConstraint(scale);
     }
 
     ops_Dt = dT;
