@@ -582,9 +582,9 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     outputFile.close();
   }
 
+  // put the original SOE back.
   if (oldSOE != nullptr)
     builder->set(oldSOE);
-//builder->domainChanged();
 
   return res;
 }
