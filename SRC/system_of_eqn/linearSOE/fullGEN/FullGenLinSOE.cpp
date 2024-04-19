@@ -143,7 +143,7 @@ FullGenLinSOE::setSize(Graph &theGraph)
 	if (vectB != 0)
 	    delete vectB;
 
-	if (matA != 0)
+	if (matA != nullptr)
 	    delete matA;
 	
 	vectX = new Vector(X,Bsize);
