@@ -17,16 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:00:48 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/LoadControl.h,v $
-                                                                        
-                                                                        
+//
 #ifndef LoadControl_h
 #define LoadControl_h
-
-// File: ~/analysis/integrator/LoadControl.h
 // 
 // Written: fmk 
 // Created: 07/98
