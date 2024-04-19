@@ -67,23 +67,6 @@ struct matObject {
 
 typedef struct matObject matObj;
 
-/*
-typedef void (*limCrvFunct)(struct limCrvObject*, modelState*, double* strain, double* tang, double* stress, int* isw, int* error);
-
-struct limCrvObject {
-    int tag;
-    int nParam;
-    int nState;
-    double* theParam;
-    double* cState;
-    double* tState;
-    limCrvFunct limCrvFunctPtr;
-    void* limCrvObjectPtr;
-};
-
-typedef struct limCrvObject limCrvObj;
-*/
-
 typedef void (*eleFunct)(struct eleObject*, modelState*, double* tang, double* resid, int* isw, int* error);
 
 struct eleObject {
@@ -106,9 +89,7 @@ typedef struct eleObject eleObj;
 
 #define OPS_Error ops_error_
 #define OPS_GetIntInput ops_getintinput_
-// #define OPS_SetIntOutput ops_setintoutput_
 #define OPS_GetDoubleInput ops_getdoubleinput_
-// #define OPS_SetDoubleOutput ops_setdoubleoutput_
 #define OPS_SetDoubleListsOutput ops_setdoublelistsoutput_
 #define OPS_SetDoubleDictOutput ops_setdoubledictoutput_
 #define OPS_SetDoubleDictListOutput ops_setdoubledictlistoutput_
@@ -119,7 +100,6 @@ typedef struct eleObject eleObj;
 #define OPS_GetMaterial ops_getmaterial_
 #define OPS_GetMaterialPtr ops_getmaterialptr_
 #define OPS_GetCrdTransf ops_getcrdtransf_
-// #define OPS_GetFrictionModel ops_getfrictionmodel_
 #define OPS_GetNodeCrd ops_getnodecrd_
 #define OPS_GetNodeDisp ops_getnodedisp_
 #define OPS_GetNodeVel ops_getnodevel_
@@ -142,7 +122,6 @@ typedef struct eleObject eleObj;
 // #define OPS_GetVariableTimeStepTransientAnalysis ops_getvariabletimesteptransientanalysis_
 #define OPS_GetNumEigen ops_getnumeigen_
 #define OPS_GetStaticIntegrator ops_getstaticintegrator_
-// #define OPS_GetTest ops_gettest_
 #define OPS_builtModel ops_builtmodel_
 #define OPS_GetDomain ops_getdomain_
 
@@ -153,14 +132,11 @@ typedef struct eleObject eleObj;
 #include <vector>
 class AnalysisModel;
 class LinearSOE;
-// class EigenSOE;
 
 class UniaxialMaterial;
 class NDMaterial;
 class SectionForceDeformation;
 class CrdTransf;
-// class FrictionModel;
-// class LimitCurve;
 class Domain;
 class FE_Datastore;
 //
