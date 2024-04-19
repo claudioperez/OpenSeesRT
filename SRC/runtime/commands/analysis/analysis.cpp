@@ -25,6 +25,8 @@
 
 #include <EigenSOE.h>
 #include <LinearSOE.h>
+#include <FullGenLinLapackSolver.h>
+#include <FullGenLinSOE.h>
 
 #include <LoadControl.h>
 #include <EquiSolnAlgo.h>
@@ -511,11 +513,19 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   FileStream outputFile;
   OPS_Stream *output = &opserr;
-  LinearSOE  *theSOE = builder->getLinearSOE();
-  if (theSOE == nullptr) {
-    opserr << G3_ERROR_PROMPT << "Cannot find an active system of equations\n";
-    return TCL_ERROR;
-  }
+  LinearSOE  *oldSOE = builder->getLinearSOE();
+
+
+  // Cant allocate theSolver on stack because theSOE is going to 
+  // delete it
+  FullGenLinLapackSolver *theSolver = new FullGenLinLapackSolver();
+  FullGenLinSOE theSOE(*theSolver);
+
+  builder->set(&theSOE, false);
+  // invoke domainChange which constructs a graph and passes
+  // it to the SOE. Otherwise, getA() returns null
+  builder->domainChanged();
+
 
   bool ret = false;
   int currentArg = 1;
@@ -525,7 +535,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
       currentArg++;
 
       if (outputFile.setFile(argv[currentArg]) != 0) {
-        opserr << "print <filename> .. - failed to open file: "
+        opserr << "printA <filename> .. - failed to open file: "
                << argv[currentArg] << endln;
         return TCL_ERROR;
       }
@@ -533,17 +543,21 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     } else if ((strcmp(argv[currentArg], "ret") == 0) ||
                (strcmp(argv[currentArg], "-ret") == 0)) {
       ret = true;
+    } else if ((strcmp(argv[currentArg], "-mck") == 0)) {
     }
     currentArg++;
   }
-
-  if (builder->getStaticIntegrator() != nullptr)
+  
+  // Form the tangent
+  if (builder->getStaticIntegrator() != nullptr) {
     builder->getStaticIntegrator()->formTangent();
+  }
 
   else if (builder->getTransientIntegrator() != nullptr)
     builder->getTransientIntegrator()->formTangent(0);
 
-  const Matrix *A = theSOE->getA();
+
+  const Matrix *A = theSOE.getA();
   if (A == nullptr) {
     opserr << G3_ERROR_PROMPT << "Could not get matrix from linear system\n";
     return TCL_ERROR;
@@ -561,11 +575,16 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
         }
       }
     }
+
   } else {
     *output << *A;
     // close the output file
     outputFile.close();
   }
+
+  if (oldSOE != nullptr)
+    builder->set(oldSOE);
+//builder->domainChanged();
 
   return res;
 }
