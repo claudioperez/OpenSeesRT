@@ -102,7 +102,7 @@ TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = (FrictionModel*)builder->getRegistryObject("FrictionModel", frnMdlTag);
+    FrictionModel *theFrnMdl = builder->getTypedObject<FrictionModel>(frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -309,7 +309,7 @@ TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "flatSliderBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = (FrictionModel*)builder->getRegistryObject("FrictionModel", frnMdlTag);
+    FrictionModel *theFrnMdl = builder->getTypedObject<FrictionModel>(frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -538,29 +538,7 @@ TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
   // to the domain
   return TCL_OK;
 }
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
 
-// $Revision$
-// $Date$
-// $URL$
 
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 12/13
@@ -652,7 +630,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = OPS_getFrictionModel(frnMdlTag);
+    FrictionModel *theFrnMdl = builder->getTypedObject<FrictionModel>(frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -886,7 +864,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = OPS_getFrictionModel(frnMdlTag);
+    FrictionModel *theFrnMdl = builder->getTypedObject<FrictionModel>(frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -1257,7 +1235,7 @@ TclCommand_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "singleFPBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = (FrictionModel*)builder->getRegistryObject("FrictionModel", frnMdlTag);
+    FrictionModel *theFrnMdl = builder->getTypedObject<FrictionModel>(frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -1485,7 +1463,7 @@ TclCommand_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
       opserr << "singleFPBearing element: " << tag << endln;
       return TCL_ERROR;
     }
-    FrictionModel *theFrnMdl = (FrictionModel*)builder->getRegistryObject("FrictionModel", frnMdlTag);
+    FrictionModel *theFrnMdl = builder->getTypedObject<FrictionModel>(frnMdlTag);
     if (theFrnMdl == 0) {
       opserr << "WARNING friction model not found\n";
       opserr << "frictionModel: " << frnMdlTag << endln;
@@ -1838,13 +1816,13 @@ TclCommand_addFrictionModel(ClientData clientData, Tcl_Interp *interp,
   }
 
   // ----------------------------------------------------------------------------
-  if (theFrnMdl == 0) {
+  if (theFrnMdl == nullptr) {
     opserr << "WARNING could not create friction model " << argv[1] << endln;
     return TCL_ERROR;
   }
 
   // now add the friction model to the modelBuilder
-  if (builder->addRegistryObject("FrictionModel", theFrnMdl->getTag(), (void*)theFrnMdl) == false) {
+  if (builder->addTypedObject<FrictionModel>(theFrnMdl->getTag(), theFrnMdl) == false) {
     opserr << "WARNING could not add friction model to the domain\n";
     opserr << *theFrnMdl << endln;
     delete theFrnMdl; // invoke the destructor, otherwise mem leak
