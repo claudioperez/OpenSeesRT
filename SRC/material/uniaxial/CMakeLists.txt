@@ -72,7 +72,6 @@ target_sources(OPS_Material
       BarSlipMaterial.cpp
       BilinearOilDamper.cpp
       Bond_SP01.cpp
-      BoucWenMaterial.cpp
       BoucWenOriginal.cpp
       CFSSSWP.cpp
       CFSWSWP.cpp
@@ -100,8 +99,6 @@ target_sources(OPS_Material
       ImpactMaterial.cpp
       InitStrainMaterial.cpp
       InitStressMaterial.cpp
-      KikuchiAikenHDR.cpp
-      KikuchiAikenLRB.cpp
       Maxwell.cpp                      # Uses ops_Dt
       MinMaxMaterial.cpp
       ModIMKPeakOriented.cpp
@@ -139,7 +136,6 @@ target_sources(OPS_Material
       BarSlipMaterial.h
       BilinearOilDamper.h
       Bond_SP01.h
-      BoucWenMaterial.h
       BoucWenOriginal.h
       CFSSSWP.h
       CFSWSWP.h
@@ -184,8 +180,6 @@ target_sources(OPS_Material
       ImpactMaterial.h
       InitStrainMaterial.h
       InitStressMaterial.h
-      KikuchiAikenHDR.h
-      KikuchiAikenLRB.h
       Maxwell.h
       MinMaxMaterial.h
       ModIMKPeakOriented.h
@@ -269,7 +263,9 @@ endif()
 
 target_link_libraries(OPS_Material PUBLIC OPS_Material_f)
 
+add_subdirectory(BoucWen)
 add_subdirectory(backbone)
+add_subdirectory(bearing)
 add_subdirectory(stiffness)
 add_subdirectory(strength)
 add_subdirectory(unloading)
@@ -281,6 +277,5 @@ add_subdirectory(PY)
 add_subdirectory(snap)
 add_subdirectory(fedeas)
 add_subdirectory(drain)
-
 
 
