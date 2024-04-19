@@ -69,7 +69,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
       //
       loc++;
 
-      if (theElements == 0)
+      if (theElements == nullptr)
         theElements = new ID(0, 64);
       int eleTag;
 
@@ -114,8 +114,9 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       int numEle = end - start + 1;
 
-      if (theElements == 0)
+      if (theElements == nullptr)
         theElements = new ID(0, numEle);
+
       for (int i = start; i <= end; i++)
         (*theElements)[numElements++] = i;
 
@@ -222,7 +223,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[loc], "getNodeTags") == 0) {
 
       MeshRegion *region = theDomain.getRegion(tag);
-      if (region == 0) {
+      if (region == nullptr) {
         opserr << "WARNING: region " << tag << "does not exist\n";
         return TCL_ERROR;
       }
@@ -239,7 +240,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[loc], "getConnectedEleTags") == 0) {
 
       MeshRegion *region = theDomain.getRegion(tag);
-      if (region == 0) {
+      if (region == nullptr) {
         opserr << "WARNING: region " << tag << "does not exist\n";
         return TCL_ERROR;
       }
@@ -257,7 +258,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
     } else if (strcmp(argv[loc], "getEleTags") == 0) {
 
       MeshRegion *region = theDomain.getRegion(tag);
-      if (region == 0) {
+      if (region == nullptr) {
         opserr << "WARNING: region " << tag << "does not exist\n";
         return TCL_ERROR;
       }
@@ -278,12 +279,9 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 
   MeshRegion *theRegion = new MeshRegion(tag);
 
-  if ((theRegion == 0) || (theDomain.addRegion(*theRegion)) < 0) {
+  if (theDomain.addRegion(*theRegion) < 0) {
     opserr << "WARNING could not add to domain - region " << tag << endln;
-    if (theRegion == 0)
-      opserr << "could not create region\n";
-    else
-      delete theRegion;
+    delete theRegion;
     return TCL_ERROR;
   }
 
