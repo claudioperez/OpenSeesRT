@@ -52,12 +52,11 @@ public:
     
     Domain* getDomain(void);
     int initialize(void);
-#if 0
-    void newStaticAnalysis();
-#endif
+
     int  newTransientAnalysis();
     int  setStaticAnalysis();
     int  setTransientAnalysis();
+
     //   Eigen
     void newEigenAnalysis(int typeSolver, double shift);
     int  eigen(int numMode, bool generalized, bool findSmallest);
@@ -65,10 +64,6 @@ public:
 
     void formUnbalance();
 
-    /*
-    StaticAnalysis* getStaticAnalysis() {return theStaticAnalysis;}
-    DirectIntegrationAnalysis* getTransientAnalysis() {return theTransientAnalysis;}
-    */
     VariableTimeStepDirectIntegrationAnalysis* getVariableTimeStepDirectIntegrationAnalysis() {
 	return theVariableTimeStepTransientAnalysis;
     }
