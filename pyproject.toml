@@ -49,21 +49,9 @@ keywords = [
 ] 
 
 dependencies = [
-    "sees",
-#   "sdof",
-#   "mdof", # System identification
-#   "shps", # Shape functions and quadrature
-
+    "shps", # Shape functions and quadrature
     "numpy < 1.20.0; python_version<'3.8'",
     "numpy ; python_version>='3.8'",
-    # "scipy < 1.6.0 ; python_version=='3.6'",
-    # "scipy < 1.8   ; python_version=='3.7'",
-    # "scipy > 1.6.0 ; python_version>'3.7'",
-#   "pyyaml",
-
-# Plotting
-#   "matplotlib",
-#   "panel",
 
 # Full-featured REPL
     "pyparsing",
