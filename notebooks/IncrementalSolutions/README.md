@@ -1,3 +1,0 @@
-# Snap
-
-![Snap](snap.gif)
