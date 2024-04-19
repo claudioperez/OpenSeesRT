@@ -166,7 +166,7 @@ NewtonRaphson::solveCurrentStep(void)
         }
 
       } else {
-        
+
         SOLUTION_ALGORITHM_tangentFlag = tangent;
         if (theIntegrator->formTangent(tangent, iFactor, cFactor) < 0)
           return SolutionAlgorithm::BadFormTangent;
