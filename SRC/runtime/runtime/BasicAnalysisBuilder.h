@@ -43,7 +43,7 @@ public:
     void set(ConstraintHandler* obj);
     void set(DOF_Numberer* obj);
     void set(EquiSolnAlgo* obj);
-    void set(LinearSOE* obj);
+    void set(LinearSOE* obj, bool free=true);
     void set(Integrator* obj, int isstatic);
     void set(ConvergenceTest* obj);
     void set(EigenSOE& obj);
@@ -117,6 +117,8 @@ private:
 
     int numSubLevels = 0;
     int numSubSteps = 0;
+
+    bool freeSOE = true;
 };
 
 #endif

@@ -107,7 +107,7 @@ BasicAnalysisBuilder::wipe()
       delete theTransientIntegrator;
       theTransientIntegrator = nullptr;
   }
-  if (theSOE != nullptr) {
+  if ((theSOE != nullptr) && freeSOE) {
       delete theSOE;
       theSOE = nullptr;
   }
@@ -536,15 +536,20 @@ BasicAnalysisBuilder::set(EquiSolnAlgo* obj)
 }
 
 void
-BasicAnalysisBuilder::set(LinearSOE* obj)
+BasicAnalysisBuilder::set(LinearSOE* obj, bool free)
 {
 
-  if (theSOE != nullptr)
+
+  // if free is false then we cant free either
+  if ((theSOE != nullptr) && free && freeSOE)
     delete theSOE;
+
+  freeSOE = free;
+
 
   theSOE = obj;
 
-  this->setLinks();
+  this->setLinks(this->CurrentAnalysisFlag);
 
   if (theEigenSOE != nullptr)
     theEigenSOE->setLinearSOE(*theSOE);
