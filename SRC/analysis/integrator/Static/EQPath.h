@@ -50,12 +50,15 @@ class AnalysisModel;
 class FE_Element;
 class Vector;
 
-#define SIGN_LAST_STEP      1
-#define CHANGE_DETERMINANT  2
 
 class EQPath : public StaticIntegrator
 {
   public:
+    enum IncrementMethod {
+        SIGN_LAST_STEP     =1,
+        CHANGE_DETERMINANT =2
+    };
+
     EQPath(double arcLeng,int type);
 
     ~EQPath();
