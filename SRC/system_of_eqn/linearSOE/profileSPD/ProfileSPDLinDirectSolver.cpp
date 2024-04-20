@@ -36,12 +36,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-void* OPS_ProfileSPDLinDirectSolver()
-{
-    ProfileSPDLinSolver *theSolver = new ProfileSPDLinDirectSolver();
-    ProfileSPDLinSOE* theSOE = new ProfileSPDLinSOE(*theSolver);
-    return theSOE;
-}
 
 ProfileSPDLinDirectSolver::ProfileSPDLinDirectSolver(double tol)
 :ProfileSPDLinSolver(SOLVER_TAGS_ProfileSPDLinDirectSolver),

@@ -1,9 +1,4 @@
-// $Revision: 1.3 $
-// $Date: 2008-11-24 17:12:12 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/uniaxial/backbone/TclBasicBuilderBackboneCommand.cpp,v
-// $
-
+//
 // Written: MHS
 // Created: Aug 2000
 //

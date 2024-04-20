@@ -70,7 +70,7 @@ LinearSOE::formAp(const Vector &p, Vector &Ap)
 double
 LinearSOE::getDeterminant(void)
 {
-  if (theSolver != 0)
+  if (theSolver != nullptr)
     return theSolver->getDeterminant();
   else 
     return 0;
