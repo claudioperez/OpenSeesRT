@@ -43,12 +43,16 @@ class FullGenLinLapackSolver : public FullGenLinSolver
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, 
 		 FEM_ObjectBroker &theBroker);
+
+    double getDeterminant() const;
     
   protected:
 
   private:
     int *iPiv;
     int sizeIpiv;
+    double det;
+    void setDeterminant();
 };
 
 #endif
