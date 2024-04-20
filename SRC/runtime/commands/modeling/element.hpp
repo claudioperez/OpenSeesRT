@@ -100,15 +100,14 @@ extern OPS_Routine OPS_LehighJoint2d;
 extern OPS_Routine OPS_MasonPan12;
 extern OPS_Routine OPS_MasonPan3D;
 
-
-#include <functional>
 #include <algorithm>
 #include <string>
 static
 std::string toLower( const std::string & s )
 {
     std::string copy = s;
-    transform( copy.begin( ), copy.end( ), copy.begin( ), std::ptr_fun<int, int>( std::tolower ) );
+    transform( copy.begin( ), copy.end( ), copy.begin( ), 
+        [](unsigned char c) { return std::tolower(c); });
     return copy;
 }
 
