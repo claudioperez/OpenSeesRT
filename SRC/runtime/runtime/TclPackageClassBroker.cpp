@@ -804,20 +804,6 @@ TclPackageClassBroker::getNewPC(int classTag)
   }
 }
 
-NodalLoad *
-TclPackageClassBroker::getNewNodalLoad(int classTag)
-{
-  switch (classTag) {
-  case LOAD_TAG_NodalLoad:
-    return new NodalLoad(classTag);
-
-  default:
-    opserr << "TclPackageClassBroker::getNewNodalLoad - ";
-    opserr << " - no NodalLoad type exists for class tag ";
-    opserr << classTag << endln;
-    return 0;
-  }
-}
 
 ElementalLoad *
 TclPackageClassBroker::getNewElementalLoad(int classTag)
