@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:00:48 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/Integrator.h,v $
-                                                                        
-                                                                        
+//
 #ifndef Integrator_h
 #define Integrator_h
 
