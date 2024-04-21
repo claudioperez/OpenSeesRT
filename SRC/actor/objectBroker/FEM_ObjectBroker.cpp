@@ -110,12 +110,6 @@ FEM_ObjectBroker::getNewPC(int classTag)
   return 0;
 }
 
-NodalLoad     *
-FEM_ObjectBroker::getNewNodalLoad(int classTag)
-{
-  return 0;
-}
-
 
 ElementalLoad *
 FEM_ObjectBroker::getNewElementalLoad(int classTag)
