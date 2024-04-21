@@ -1160,23 +1160,6 @@ FEM_ObjectBrokerAllClasses::getNewPC(int classTag)
     }    
 }
 
-NodalLoad     *
-FEM_ObjectBrokerAllClasses::getNewNodalLoad(int classTag)
-{
-    switch(classTag) {
-	case LOAD_TAG_NodalLoad:  
-	     return new NodalLoad(classTag);
-	     
-	     
-	default:
-	     opserr << "FEM_ObjectBrokerAllClasses::getNewNodalLoad - ";
-	     opserr << " - no NodalLoad type exists for class tag ";
-	     opserr << classTag << endln;
-	     return 0;
-	     
-	 }    
-}
-
 
 ElementalLoad *
 FEM_ObjectBrokerAllClasses::getNewElementalLoad(int classTag)
@@ -1205,7 +1188,7 @@ FEM_ObjectBrokerAllClasses::getNewElementalLoad(int classTag)
       return new SurfaceLoader();     	     
         
   default:
-    opserr << "FEM_ObjectBrokerAllClasses::getNewNodalLoad - ";
+    opserr << "FEM_ObjectBrokerAllClasses::getNewElementalLoad - ";
     opserr << " - no NodalLoad type exists for class tag ";
     opserr << classTag << endln;
     return 0;
