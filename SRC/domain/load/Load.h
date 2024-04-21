@@ -30,20 +30,11 @@
 #define Load_h
 
 #include <ID.h>
-#if 1
 #include <TaggedObject.h>
 #include <MovableObject.h>
-#else
-#include <DomainComponent.h>
-#endif
 
-class Load :
-#if 0
-public DomainComponent
-#else
-public TaggedObject,
-public MovableObject
-#endif
+
+class Load : public TaggedObject, public MovableObject
 {
   public:
     Load(int tag, int classTag);
@@ -60,7 +51,6 @@ public MovableObject
 #if 1
     virtual void setDomain(Domain *theDomain);
     virtual Domain *getDomain(void) const final;
-    // virtual int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
   private:
     Domain* theDomain;
 #endif
