@@ -112,7 +112,6 @@ class FEM_ObjectBroker
     virtual MP_Constraint *getNewMP(int classTag);
     virtual SP_Constraint *getNewSP(int classTag);
     virtual Pressure_Constraint *getNewPC(int classTag);
-    virtual NodalLoad     *getNewNodalLoad(int classTag);
     virtual ElementalLoad *getNewElementalLoad(int classTag);
     
     virtual CrdTransf *getNewCrdTransf(int classTag);
