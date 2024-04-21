@@ -117,7 +117,7 @@ NodalLoad::getNodeTag(void) const
 void
 NodalLoad::applyLoad(double loadFactor)
 {
-    if (myNodePtr == 0) {
+    if (myNodePtr == nullptr) {
       Domain *theDomain=this->getDomain();
       if ((theDomain == 0) || 
 	  (myNodePtr = theDomain->getNode(myNode)) == 0) {
@@ -151,8 +151,10 @@ NodalLoad::applyLoadSensitivity(double loadFactor)
 
     // load sensitivity
     Vector loadsens(load->Size());
-    if(parameterID == 0) return;
-    if(parameterID > loadsens.Size()) return;
+    if(parameterID == 0)
+      return;
+    if(parameterID > loadsens.Size())
+      return;
     loadsens(parameterID-1) = 1;
 
     // add the load times the loadfactor to nodal unbalanced load
