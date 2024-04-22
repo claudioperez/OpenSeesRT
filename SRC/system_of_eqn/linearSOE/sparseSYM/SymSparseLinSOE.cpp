@@ -186,7 +186,7 @@ int SymSparseLinSOE::setSize(Graph &theGraph)
 	   const ID &theAdjacency = theVertex->getAdjacency();
 	   int idSize = theAdjacency.Size();
 	
-	// now we have to place the entries in the ID into order in colA
+           // now we have to place the entries in the ID into order in colA
 	   for (int i=0; i<idSize; i++) {
 	      int row = theAdjacency(i);
 	      bool foundPlace = false;
@@ -280,7 +280,7 @@ int SymSparseLinSOE::addA(const Matrix &in_m, const ID &in_id, double fact)
    }
    
    long int  i_eq, j_eq;
-   int  i, j, nee, lnee;
+   int  j;
    int  k, ipos, jpos;
    int  it, jt;
    int  iblk;
@@ -288,22 +288,22 @@ int SymSparseLinSOE::addA(const Matrix &in_m, const ID &in_id, double fact)
    OFFDBLK  *saveblk;
    double  *fpt, *iloc, *loc;
 
-   nee = idSize;
-   lnee = nee;
+   int nee = idSize;
+   int lnee = nee;
    
    /* initialize isort */
-   for( i = 0, k = 0; i < lnee ; i++ )
+   for(int i = 0, k = 0; i < lnee ; i++ )
    {
        if( newID[i] >= 0 ) {
 	   isort[k] = i;
 	   k++;
        }
    }
-      
+
    lnee = k;
 
    /* perform the sorting of isort here */
-   i = k - 1;
+   int i = k - 1;
    do
    {
        k = 0 ;
