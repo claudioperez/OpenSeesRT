@@ -529,8 +529,6 @@ void
 AnalysisModel::applyLoadDomain(double pseudoTime)
 {
     assert(myDomain != nullptr);
-
-    // invoke the method
     myDomain->applyLoad(pseudoTime);
     myHandler->applyLoad();
 }
