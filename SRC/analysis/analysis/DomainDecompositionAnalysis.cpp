@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2009-05-11 21:32:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/DomainDecompositionAnalysis.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/Analysis/DomainDecompositionAnalysis.C
 // 
 // Written: fmk 
@@ -280,6 +275,7 @@ DomainDecompositionAnalysis::getNumInternalEqn(void)
   return numEqn-numExtEqn;
 }
 
+#if 0
 int  
 DomainDecompositionAnalysis::newStep(double dT)
 {
@@ -291,6 +287,7 @@ DomainDecompositionAnalysis::analysisStep(double dT)
 {
   return theIntegrator->newStep(dT);
 }
+#endif
 
 int  
 DomainDecompositionAnalysis::eigenAnalysis(int numMode, bool generalized, bool findSmallest)

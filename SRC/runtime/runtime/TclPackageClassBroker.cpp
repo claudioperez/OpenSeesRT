@@ -2114,8 +2114,8 @@ TclPackageClassBroker::getNewDomainDecompAnalysis(int classTag,
                                                   Subdomain &theSubdomain)
 {
   switch (classTag) {
-  case DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis:
-    return new DomainDecompositionAnalysis(theSubdomain);
+//case DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis:
+//  return new DomainDecompositionAnalysis(theSubdomain);
 
 #ifdef _PARALLEL_PROCESSING
   case ANALYSIS_TAGS_StaticDomainDecompositionAnalysis:

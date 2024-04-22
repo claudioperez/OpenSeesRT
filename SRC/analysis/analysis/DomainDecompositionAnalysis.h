@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2009-08-25 22:34:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/DomainDecompositionAnalysis.h,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: Tue Sept 17 16:34:47: 1996
 // Revision: A
@@ -90,8 +85,8 @@ class DomainDecompositionAnalysis: public Analysis, public MovableObject
     virtual int  getNumExternalEqn(void);
     virtual int  getNumInternalEqn(void);
 
-    virtual int  newStep(double dT);
-    virtual int  analysisStep(double dT);
+//  virtual int  newStep(double dT);
+    virtual int  analysisStep(double dT) = 0;
     virtual int  eigenAnalysis(int numMode, bool generalized, bool findSmallest);
     virtual int  computeInternalResponse(void);
     virtual int  formTangent(void);
