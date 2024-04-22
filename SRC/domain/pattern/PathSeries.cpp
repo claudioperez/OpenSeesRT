@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
+//
 // Written: fmk 
 // Created: 07/99
 // Revision: A
@@ -209,7 +205,7 @@ OPS_ADD_RUNTIME_VPV(OPS_PathSeries)
 	theSeries = new PathTimeSeries(tag,timefile,valfile,factor);
     }
 
-    if(theSeries == 0) {
+    if (theSeries == 0) {
 	opserr<<"choice of options for PathSeries is invalid\n";
 	return 0;
     }
@@ -223,6 +219,7 @@ OPS_ADD_RUNTIME_VPV(OPS_PathSeries)
     return theSeries;
 }
 
+
 PathSeries::PathSeries()	
   :TimeSeries(TSERIES_TAG_PathSeries),
    thePath(0), pathTimeIncr(0.0), cFactor(0.0), otherDbTag(0), lastSendCommitTag(-1)
@@ -230,13 +227,14 @@ PathSeries::PathSeries()
   // does nothing
 }
 
+
 PathSeries::PathSeries(int tag,
-		       const Vector &theLoadPath, 
-		       double theTimeIncr, 
-		       double theFactor,
-		       bool last,
-               bool prependZero,
-               double tStart)
+                       const Vector &theLoadPath, 
+                       double theTimeIncr, 
+                       double theFactor,
+                       bool last,
+                       bool prependZero,
+                       double tStart)
   :TimeSeries(tag, TSERIES_TAG_PathSeries),
    thePath(0), pathTimeIncr(theTimeIncr), cFactor(theFactor),
    otherDbTag(0), lastSendCommitTag(-1), useLast(last), startTime(tStart)
@@ -253,13 +251,14 @@ PathSeries::PathSeries(int tag,
 
 }
 
+
 PathSeries::PathSeries(int tag,
-		       const char *fileName, 
-		       double theTimeIncr, 
-		       double theFactor,
-		       bool last,
-               bool prependZero,
-               double tStart)
+                       const char *fileName, 
+                       double theTimeIncr, 
+                       double theFactor,
+                       bool last,
+                       bool prependZero,
+                       double tStart)
   :TimeSeries(tag, TSERIES_TAG_PathSeries),
    thePath(0), pathTimeIncr(theTimeIncr), cFactor(theFactor),
    otherDbTag(0), lastSendCommitTag(-1), useLast(last), startTime(tStart)
@@ -280,50 +279,41 @@ PathSeries::PathSeries(int tag,
   }   
   theFile.close();
 
+  //
   // create a vector and read in the data
-  if (numDataPoints != 0) {
+  //
+  if (numDataPoints == 0)
+    return;
 
-    // increment size if we need to prepend a zero value
-    if (prependZero == true)
-      numDataPoints++;
-    
-    // first open the file
-    ifstream theFile1;
-    theFile1.open(fileName, ios::in);
-    if (theFile1.bad() || !theFile1.is_open()) {
-      opserr << "WARNING - PathSeries::PathSeries()";
-      opserr << " - could not open file " << fileName << endln;
-    } else {
+  // increment size if we need to prepend a zero value
+  if (prependZero == true)
+    numDataPoints++;
+  
+  // first open the file
+  ifstream theFile1;
+  theFile1.open(fileName, ios::in);
+  if (theFile1.bad() || !theFile1.is_open()) {
+    opserr << "WARNING - PathSeries::PathSeries()";
+    opserr << " - could not open file " << fileName << endln;
 
-      // now create the vector
-      thePath = new Vector(numDataPoints);
-
-      // ensure we did not run out of memory
-      if (thePath == 0 || thePath->Size() == 0) {
-	opserr << "PathSeries::PathSeries() - ran out of memory constructing";
-	opserr << " a Vector of size: " << numDataPoints << endln;
-
-	if (thePath != 0)
-	  delete thePath;
-	thePath = 0;
-      }
-
-      // read the data from the file
-      else {
-	int count = 0;
-    if (prependZero == true)
-      count++;
-	while (theFile1 >> dataPoint) {
-	  (*thePath)(count) = dataPoint;
-	  count++;
-	}
-      }
-
-      // finally close the file
-      theFile1.close();
-    }
   }
+
+  // now create the vector
+  thePath = new Vector(numDataPoints);
+
+  // read the data from the file
+  int count = 0;
+  if (prependZero == true)
+    count++;
+  while (theFile1 >> dataPoint) {
+    (*thePath)(count) = dataPoint;
+    count++;
+  }
+
+  // finally close the file
+  theFile1.close();
 }
+
 
 PathSeries::~PathSeries()
 {
@@ -387,9 +377,9 @@ PathSeries::getPeakFactor()
   double temp;
 
   for (int i = 1; i < num; i++) {
-	temp = fabs((*thePath)[i]);
-	if (temp > peak)
-	  peak = temp;
+    temp = fabs((*thePath)[i]);
+    if (temp > peak)
+      peak = temp;
   }
   
   return (peak*cFactor);
@@ -439,9 +429,9 @@ PathSeries::sendSelf(int commitTag, Channel &theChannel)
     if (thePath != 0) {
       result = theChannel.sendVector(otherDbTag, commitTag, *thePath);
       if (result < 0) {
-	opserr << "PathSeries::sendSelf() - ";
-	opserr << "channel failed to send the Path Vector\n";
-	return result;  
+        opserr << "PathSeries::sendSelf() - ";
+        opserr << "channel failed to send the Path Vector\n";
+        return result;  
       }
     }
   }
