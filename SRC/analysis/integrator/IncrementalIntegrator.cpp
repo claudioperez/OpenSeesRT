@@ -32,12 +32,11 @@
 #include <DOF_Group.h>
 #include <FE_EleIter.h>
 #include <DOF_GrpIter.h>
-#include <EigenSOE.h>
 #include <cmath>
 
 IncrementalIntegrator::IncrementalIntegrator(int clasTag)
 :Integrator(clasTag),
- statusFlag(CURRENT_TANGENT), theEigenSOE(0), 
+ statusFlag(CURRENT_TANGENT), //theEigenSOE(0), 
  eigenVectors(0), eigenValues(0), dampingForces(0),isDiagonal(false),diagMass(0),
  mV(0),tmpV1(0),tmpV2(0),
  theSOE(0), theAnalysisModel(0), theTest(0)
@@ -69,11 +68,6 @@ IncrementalIntegrator::setLinks(AnalysisModel &theModel, LinearSOE &theLinSOE, C
     theTest = theConvergenceTest;
 }
 
-
-void
-IncrementalIntegrator::setEigenSOE(EigenSOE *theEigSOE) {
-  theEigenSOE = theEigSOE;
-}
 
 int 
 IncrementalIntegrator::formTangent(int statFlag)
@@ -120,36 +114,10 @@ IncrementalIntegrator::formIndependentSensitivityLHS(int statFlag)
     return this->formTangent(statFlag);
 }
 
-int 
-IncrementalIntegrator::formUnbalance(void)
-{
-    if (theAnalysisModel == 0 || theSOE == 0) {
-	opserr << "WARNING IncrementalIntegrator::formUnbalance -";
-	opserr << " no AnalysisModel or LinearSOE has been set\n";
-	return -1;
-    }
-    
-    theSOE->zeroB();
 
-    if (this->formElementResidual() < 0) {
-	opserr << "WARNING IncrementalIntegrator::formUnbalance ";
-	opserr << " - this->formElementResidual failed\n";
-	return -1;
-    }
-    
-    if (this->formNodalUnbalance() < 0) {
-	opserr << "WARNING IncrementalIntegrator::formUnbalance ";
-	opserr << " - this->formNodalUnbalance failed\n";
-	return -2;
-    }    
-
-    return 0;
-}
-    
 int
 IncrementalIntegrator::getLastResponse(Vector &result, const ID &id)
-{
-  
+{  
     if (theSOE == 0) {
 	opserr << "WARNING IncrementalIntegrator::getLastResponse() -";
 	opserr << "no LineaerSOE object associated with this object\n";	
@@ -174,13 +142,6 @@ IncrementalIntegrator::getLastResponse(Vector &result, const ID &id)
 	}
     }	    
     return res;
-}
-
-
-int
-IncrementalIntegrator::newStep(double deltaT)
-{
-  return 0;
 }
 
 
@@ -245,11 +206,11 @@ IncrementalIntegrator::formNodalUnbalance(void)
     int res = 0;
 
     while ((dofPtr = theDOFs()) != nullptr) {
-	if (theSOE->addB(dofPtr->getUnbalance(this),dofPtr->getID()) <0) {
-	    opserr << "WARNING IncrementalIntegrator::formNodalUnbalance -";
-	    opserr << " failed in addB for ID " << dofPtr->getID();
-	    res = -2;
-	}
+      if (theSOE->addB(dofPtr->getUnbalance(this),dofPtr->getID()) <0) {
+          opserr << "WARNING IncrementalIntegrator::formNodalUnbalance -";
+          opserr << " failed in addB for ID " << dofPtr->getID();
+          res = -2;
+      }
     }
 	
     return res;
@@ -336,92 +297,6 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
   return res;
 }
 */
-
-/*
-int 
-IncrementalIntegrator::addModalDampingForce(void)
-{
-  int res = 0;
-  
-  if (modalDampingValues == 0)
-    return 0;
-
-  int numModes = modalDampingValues->Size();
-
-  const Vector &eigenvalues = theAnalysisModel->getEigenvalues();
-  int numEigen = eigenvalues.Size();
-
-  if (numEigen < numModes) 
-    numModes = numEigen;
-
-  int numDOF = theSOE->getNumEqn();
-
-  if (eigenValues == 0 || *eigenValues != eigenvalues) {
-    if (eigenValues != 0)
-      delete eigenValues;
-    if (eigenVectors != 0)
-      delete [] eigenVectors;
-    if (dampingForces != 0)
-      delete dampingForces;
-    if (mV != 0)
-      delete mV;
-    if (tmpV1 != 0)
-      delete tmpV1;
-    if (tmpV2 != 0)
-      delete tmpV2;
-    
-    eigenValues = new Vector(eigenvalues);
-    dampingForces = new Vector(numDOF);
-    eigenVectors = new double[numDOF*numModes];
-    mV = new Vector(numDOF);
-    tmpV1 = new Vector(numDOF);
-    tmpV2 = new Vector(numDOF);
-    
-    DOF_GrpIter &theDOFs2 = theAnalysisModel->getDOFs();
-    DOF_Group *dofPtr;
-    while ((dofPtr = theDOFs2()) != 0) { 
-      const Matrix &dofEigenvectors =dofPtr->getEigenvectors();
-      const ID &dofID = dofPtr->getID();
-      for (int j=0; j<numModes; j++) {
-	for (int i=0; i<dofID.Size(); i++) {
-	  int id = dofID(i);
-	  if (id >= 0) 
-	    eigenVectors[j*numDOF + id] = dofEigenvectors(i,j);
-	}
-      }
-    }
-  }
-
-  dampingForces->Zero();
-
-
-  this->doMv(this->getVel(), *mV);
-
-  for (int i=0; i<numModes; i++) {
-    double eigenvalue = (*eigenValues)(i);
-    if (eigenvalue > 0) {
-      double wn = sqrt(eigenvalue);
-      double *eigenVectorI = &eigenVectors[numDOF*i];
-      double beta = 0.0;
-	for (int j=0; j<numDOF; j++) {
-	  double eij = eigenVectorI[j];
-	  (*tmpV1)(j) = eij;
-	  beta += eij * (*mV)(j);
-	}
-      beta = -2.0 * (*modalDampingValues)(i) * wn * beta;
-      opserr << i << " " << beta << endln;
-      *tmpV1 *= beta;
-      this->doMv(*tmpV1, *tmpV2);      
-      
-      *dampingForces += *tmpV2;
-      opserr << *dampingForces;
-    }
-  }
-  theSOE->setB(*dampingForces);
-
-  return res;
-}
- */
 
 
 int 
