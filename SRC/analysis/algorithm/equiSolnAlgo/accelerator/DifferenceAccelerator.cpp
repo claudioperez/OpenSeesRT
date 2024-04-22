@@ -17,19 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $Source$
-                                                                        
-// Written: MHS
-// Created: April 2002
-
+//
 // Description: This file contains the class implementation for 
 // DifferenceAccelerator. 
-
+//
+// Written: MHS
+// Created: April 2002
+//
 #include <DifferenceAccelerator.h>
-
+#include <OPS_ErrorStream.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <LinearSOE.h>

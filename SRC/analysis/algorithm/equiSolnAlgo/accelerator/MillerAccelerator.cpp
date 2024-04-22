@@ -151,7 +151,7 @@ MillerAccelerator::updateTangent(IncrementalIntegrator &theIntegrator)
     if (theTangent != NO_TANGENT) {
       iteration = 1; // reset Newton iteration if tangent is formed
       theIntegrator.formTangent(theTangent);
-      //opserr << "MillerAccelerator::updateTangent() tangent formed" << endln;
+      //opserr << "MillerAccelerator::updateTangent() tangent formed" << "\n";
       return 1;
     }
     else
@@ -200,9 +200,9 @@ MillerAccelerator::updateTangent(void)
 void
 MillerAccelerator::Print(OPS_Stream &s, int flag)
 {
-  s << "MillerAccelerator" << endln;
-  s << "\tMax subspace dimension: " << maxDimension << endln;
-  s << "\tTolerance: " << tolerance << endln;
+  s << "MillerAccelerator" << "\n";
+  s << "\tMax subspace dimension: " << maxDimension << "\n";
+  s << "\tTolerance: " << tolerance << "\n";
 }
 
 int

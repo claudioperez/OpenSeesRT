@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $Source$
-                                                                        
+//
 // Written: MHS
 // Created: April 2002
 
@@ -29,7 +25,7 @@
 // DifferenceAccelerator2. 
 
 #include <DifferenceAccelerator2.h>
-
+#include <OPS_ErrorStream.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <LinearSOE.h>
@@ -246,7 +242,7 @@ DifferenceAccelerator2::updateTangent(IncrementalIntegrator &theIntegrator)
   if (dimension > maxDimension) {
     dimension = 0;
     if (theTangent != NO_TANGENT) {
-      //opserr << "DifferenceAccelerator2::updateTangent() tangent formed" << endln;
+      //opserr << "DifferenceAccelerator2::updateTangent() tangent formed" << "\n";
       theIntegrator.formTangent(theTangent);
       return 1;
     }
@@ -260,8 +256,8 @@ DifferenceAccelerator2::updateTangent(IncrementalIntegrator &theIntegrator)
 void
 DifferenceAccelerator2::Print(OPS_Stream &s, int flag)
 {
-  s << "DifferenceAccelerator2" << endln;
-  s << "\tMax subspace dimension: " << maxDimension << endln;
+  s << "DifferenceAccelerator2" << "\n";
+  s << "\tMax subspace dimension: " << maxDimension << "\n";
 }
 
 int
