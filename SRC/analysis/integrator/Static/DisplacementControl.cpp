@@ -52,76 +52,6 @@
 #include <EquiSolnAlgo.h>
 #include <Matrix.h>
 #include <TaggedObjectStorage.h>
-#if 0
-#include <elementAPI.h>
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_DisplacementControlIntegrator)
-{
-    if(OPS_GetNumRemainingInputArgs() < 3) {
-       opserr<<"insufficient arguments for DisplacementControl\n";
-       return 0;
-    }
-
-    // node, dof
-    int iData[2];
-    int numData = 2;
-    if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
-	opserr << "WARNING failed to read node tag and ndf\n";
-	return 0;
-    }
-
-    double incr;
-    numData = 1;
-    if(OPS_GetDoubleInput(&numData,&incr) < 0) {
-	opserr << "WARNING failed to read incr\n";
-	return 0;
-    }
-
-    // numIter,dumin,dumax
-    int numIter = 1;
-    int formTangent = 0;
-    double data[2] = {incr,incr};
-    if(OPS_GetNumRemainingInputArgs() > 2) {
-       numData = 1;
-       if(OPS_GetIntInput(&numData,&numIter) < 0) {
-	   opserr << "WARNING failed to read numIter\n";
-	   return 0;
-       }
-       numData = 2;
-       if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	   opserr << "WARNING failed to read dumin and dumax\n";
-	   return 0;
-       }
-    }
-
-    if (OPS_GetNumRemainingInputArgs() == 1) {
-      	std::string type = OPS_GetString();
-	if(type=="-initial" || type=="-Initial") {
-	    formTangent = 1;
-	} 
-    }
-
-    // check node
-    Domain* theDomain = OPS_GetDomain();
-    Node *theNode = theDomain->getNode(iData[0]);
-    if(theNode == 0) {
-       opserr << "WARNING integrator DisplacementControl node dof dU : Node does not exist\n";
-       return 0;
-    }
-
-    int numDOF = theNode->getNumberDOF();
-    if(iData[1] <= 0 || iData[1] > numDOF) {
-       opserr << "WARNING integrator DisplacementControl node dof dU : invalid dof given\n";
-       return 0;
-    }
-
-    return new DisplacementControl(iData[0],iData[1]-1,
-				   incr,theDomain,
-				   numIter,data[0],data[1], 
-				   formTangent);
-}
-#endif
 
 
 DisplacementControl::DisplacementControl(int node, int dof, 
@@ -135,7 +65,9 @@ DisplacementControl::DisplacementControl(int node, int dof,
    deltaUhat(0), deltaUbar(0), deltaU(0), deltaUstep(0),dUhatdh(0),
    phat(0), deltaLambdaStep(0.0), currentLambda(0.0), dLambdaStepDh(0.0),dUIJdh(0),Dlambdadh(0.0),
    specNumIncrStep(numIncr), numIncrLastStep(numIncr),
-   minIncrement(min), maxIncrement(max),sensitivityFlag(0),Residual(0),dlambdadh(0.0),
+   minIncrement(min), maxIncrement(max),
+
+   sensitivityFlag(0),Residual(0),dlambdadh(0.0),
    dLambda(0.0),  sensU(0),d_deltaU_dh(0),Residual2(0),gradNumber(0),dLAMBDAdh(0),dphatdh(0)
 {
   tangFlag = tang;
@@ -183,121 +115,122 @@ DisplacementControl::~DisplacementControl()
    dUhatdh=0;
 }
  
-   int
+int
 DisplacementControl::newStep(void)
 {
 
   if (theDofID == -1) {
     opserr << "DisplacementControl::newStep - dof is fixed or constrained (or domainChanged has not been called!)\n";
     return -1;
-   }
-
-   // get pointers to AnalysisModel and LinearSOE
-   AnalysisModel *theModel = this->getAnalysisModel();
-   LinearSOE *theLinSOE = this->getLinearSOE();    
-   if (theModel == 0 || theLinSOE == 0) {
-      opserr << "WARNING DisplacementControl::newStep ";
-      opserr << "No AnalysisModel or LinearSOE has been set\n";
-      return -1;
-   }
-
-   // determine increment for this iteration
-   double factor = specNumIncrStep/numIncrLastStep;
-   theIncrement *=factor;
-
-   if (theIncrement < minIncrement)
-      theIncrement = minIncrement;
-   else if (theIncrement > maxIncrement)
-      theIncrement = maxIncrement;
-
-
-   // get the current load factor
-   currentLambda = theModel->getCurrentDomainTime();
-
-   // determine dUhat
-   this->formTangent(tangFlag);
-   theLinSOE->setB(*phat);
-   if (theLinSOE->solve() < 0) {
-      opserr << "DisplacementControl::newStep(void) - failed in solver\n";
-      return -1;
-   }
-
-   (*deltaUhat) = theLinSOE->getX();
-   Vector &dUhat = *deltaUhat;// this is the Uft in the nonlinear lecture notes
-   double dUahat = dUhat(theDofID);// this is the component of the Uft in our nonlinear lecture notes
-
-   if (dUahat == 0.0) {
-      opserr << "WARNING DisplacementControl::newStep() ";
-      opserr << "dUahat is zero -- zero reference displacement at control node DOF\n";
-      return -1;
-   }
-
-   // determine delta lambda(1) == dlambda    
-   double dlambda = theIncrement/dUahat; // this is the dlambda of the 1st step
-
-  // calldLambda1dh=theIncrement;
-   deltaLambdaStep = dlambda;
-   currentLambda += dlambda;
-
-   // determine delta U(1) == dU
-   (*deltaU) = dUhat;
-   (*deltaU) *= dlambda;// this is eq(4) in the paper {dU}_1=dLAmbda1*Uft.
-   (*deltaUstep) = (*deltaU);
-
-
-   ////////////////Abbas////////////////////////////
-
-  if (this->activateSensitivity()==true) { 
-    Domain *theDomain=theModel->getDomainPtr();
-    ParameterIter &paramIter = theDomain->getParameters();
-    Parameter *theParam;
-
-    // De-activate all parameters
-     
-    // Now, compute sensitivity wrt each parameter
-    while ((theParam = paramIter()) != nullptr)
-      theParam->activate(false);
-    
-    paramIter = theDomain->getParameters();
-    while ((theParam = paramIter()) != nullptr) {
-      // Activate this parameter
-      theParam->activate(true);
-      // Get the grad index for this parameter
-      gradNumber = theParam->getGradIndex();
-      
-      this->formTangDispSensitivity(dUhatdh,gradNumber);
-
-      this->formdLambdaDh(gradNumber);
-      theParam->activate(false);
-    } 
   }
-  ///////////////Abbas/////////////////////////////
 
-   // update model with delta lambda and delta U
-   theModel->incrDisp(*deltaU); 
-   theModel->applyLoadDomain(currentLambda);
-   if (theModel->updateDomain() < 0) {
-      opserr << "DisplacementControl::newStep - model failed to update for new dU\n";
-      return -1;
-   }
+  // get pointers to AnalysisModel and LinearSOE
+  AnalysisModel *theModel = this->getAnalysisModel();
+  LinearSOE *theLinSOE = this->getLinearSOE();    
+  if (theModel == 0 || theLinSOE == 0) {
+     opserr << "WARNING DisplacementControl::newStep ";
+     opserr << "No AnalysisModel or LinearSOE has been set\n";
+     return -1;
+  }
 
-   numIncrLastStep = 0;
-   return 0;
+  // determine increment for this step
+  double gamma = 1.0;
+  double factor = pow(specNumIncrStep/numIncrLastStep, gamma);
+  theIncrement *= factor;
+
+  if (theIncrement < minIncrement)
+     theIncrement = minIncrement;
+
+  else if (theIncrement > maxIncrement)
+     theIncrement = maxIncrement;
+
+
+  // get the current load factor
+  currentLambda = theModel->getCurrentDomainTime();
+
+  // determine dUhat
+  this->formTangent(tangFlag);
+  theLinSOE->setB(*phat);
+  if (theLinSOE->solve() < 0) {
+     opserr << "DisplacementControl::newStep(void) - failed in solver\n";
+     return -1;
+  }
+
+  (*deltaUhat) = theLinSOE->getX();
+  Vector &dUhat = *deltaUhat;     // this is the Uft in the nonlinear lecture notes
+  double dUahat = dUhat(theDofID);// this is the component of the Uft in our nonlinear lecture notes
+
+  if (dUahat == 0.0) {
+     opserr << "WARNING DisplacementControl::newStep() ";
+     opserr << "dUahat is zero -- zero reference displacement at control node DOF\n";
+     return -1;
+  }
+
+  // determine delta lambda(1) == dlambda    
+  double dlambda = theIncrement/dUahat; // this is the dlambda of the 1st step
+
+ // calldLambda1dh=theIncrement;
+  deltaLambdaStep = dlambda;
+  currentLambda += dlambda;
+
+  // determine delta U(1) == dU
+  (*deltaU) = dUhat;
+  (*deltaU) *= dlambda;// this is eq(4) in the paper {dU}_1=dLAmbda1*Uft.
+  (*deltaUstep) = (*deltaU);
+
+
+  ////////////////Abbas////////////////////////////
+
+ if (this->activateSensitivity()==true) { 
+   Domain *theDomain=theModel->getDomainPtr();
+   ParameterIter &paramIter = theDomain->getParameters();
+   Parameter *theParam;
+
+   // De-activate all parameters 
+   while ((theParam = paramIter()) != nullptr)
+     theParam->activate(false);
+   
+   // Now, compute sensitivity wrt each parameter
+   paramIter = theDomain->getParameters();
+   while ((theParam = paramIter()) != nullptr) {
+     // Activate this parameter
+     theParam->activate(true);
+     // Get the grad index for this parameter
+     gradNumber = theParam->getGradIndex();
+     
+     this->formTangDispSensitivity(dUhatdh,gradNumber);
+
+     this->formdLambdaDh(gradNumber);
+     theParam->activate(false);
+   } 
+ }
+ ///////////////Abbas/////////////////////////////
+
+  // update model with delta lambda and delta U
+  theModel->incrDisp(*deltaU); 
+  theModel->applyLoadDomain(currentLambda);
+  if (theModel->updateDomain() < 0) {
+     opserr << "DisplacementControl::newStep - model failed to update for new dU\n";
+     return -1;
+  }
+
+  numIncrLastStep = 0;
+  return 0;
 }
 
+// Update iteration
 int DisplacementControl::update(const Vector &dU)
 {
 
    if (theDofID == -1) {
-      opserr << "DisplacementControl::newStep() - domainChanged has not been called\n";
+      opserr << "DisplacementControl::update() - domainChanged has not been called\n";
       return -1;
-   } 
+   }
    AnalysisModel *theModel = this->getAnalysisModel();
    LinearSOE *theLinSOE = this->getLinearSOE();    
    if (theModel == 0 || theLinSOE == 0) {
       opserr << "WARNING DisplacementControl::update() ";
       opserr << "No AnalysisModel or LinearSOE has been set\n";
-
       return -1;
    }
 
@@ -533,7 +466,7 @@ DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
    //call the tangent (K)
    this->formTangent(tangFlag);
    theLinSOE->setB(*dphatdh);
-   if(theLinSOE->solve()<0) {
+   if (theLinSOE->solve()<0) {
       opserr<<"SOE failed to obtained dUhatdh ";
       exit(-1);
    }
@@ -555,7 +488,7 @@ DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
    Domain *theDomain = theModel->getDomainPtr();
    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
   
-while((loadPatternPtr = thePatterns()) != 0) {
+   while((loadPatternPtr = thePatterns()) != 0) {
      const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
       sizeRandomLoads = randomLoads.Size();
       if (sizeRandomLoads == 1) {
@@ -601,20 +534,21 @@ DisplacementControl::formdLambdaDh(int gradNumber)
   Vector &duHatdh=*dUhatdh;
 
   //the component of the duHatdh vector
-  double duHatdh_Comp=duHatdh(theDofID);
+  double duHatdh_Comp = duHatdh(theDofID);
 
   // call the deltaUhat component
   Vector &UFT=(*deltaUhat);
 
-  double UFT_Comp=UFT(theDofID);// cll the component of the dUhat again
+  double UFT_Comp = UFT(theDofID);// cll the component of the dUhat again
   if(UFT_Comp == 0.0)
-    dlambdadh=0.0;// to avoid dividing by zero
+    dlambdadh = 0.0;// to avoid dividing by zero
   else
-    dlambdadh=-(theIncrement*duHatdh_Comp)/(UFT_Comp*UFT_Comp);
+    dlambdadh = -(theIncrement*duHatdh_Comp)/(UFT_Comp*UFT_Comp);
 
   if(dLAMBDAdh != 0) {
     (*dLAMBDAdh)(gradNumber) = (*dLAMBDAdh)(gradNumber) + dlambdadh;
     return (*dLAMBDAdh)(gradNumber);
+
   } else {
     return 0.0;
   }
@@ -668,17 +602,20 @@ DisplacementControl::getLambdaSensitivity(int gradNumber)
 
 
 
+#if 0
 int
 DisplacementControl::formEleResidual(FE_Element* theEle)
 {
-   if(sensitivityFlag == 0) {  // no sensitivity
+   if (sensitivityFlag == 0) {  // no sensitivity
      this->StaticIntegrator::formEleResidual(theEle);
+
    } else {
      theEle->zeroResidual();
      theEle->addResistingForceSensitivity(gradNumber);
    }
    return 0;
 }
+#endif
 
 int
 DisplacementControl::formIndependentSensitivityRHS()
@@ -715,7 +652,7 @@ DisplacementControl::formSensitivityRHS(int passedGradNumber)
   //   (*Residual2)=theSOE->getB();
 
   
-  //    if(CallParam==1) {
+  // if(CallParam==1) {
   //  opserr<<"inside if statement of gradIndex # "<<gradNumber<<endln;
   //  this->formTangDispSensitivity(dUhatdh,gradNumber);
   //  this->formdLambdaDh(gradNumber);
