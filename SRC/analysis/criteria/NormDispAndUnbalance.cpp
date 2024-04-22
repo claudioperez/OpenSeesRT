@@ -24,33 +24,7 @@
 #include <Channel.h>
 #include <EquiSolnAlgo.h>
 #include <LinearSOE.h>
-#if 0
-#include <elementAPI.h>
-
-void* OPS_NormDispAndUnbalance()
-{
-    double data[2] = {0,0};
-
-    if (OPS_GetNumRemainingInputArgs() >= 2) {
-        int numdata = 2;
-        if (OPS_GetDoubleInput(&numdata, data) < 0) {
-            opserr << "WARNING NormDispAndUnbalance failed to get tolerance\n";
-            return 0;
-        }
-    }
-
-    int idata[4] = {0,0,2,-1};
-    if (OPS_GetNumRemainingInputArgs() >= 4) {
-        int numdata = 4;
-        if (OPS_GetIntInput(&numdata, idata) < 0) {
-            opserr << "WARNING NormDispAndUnbalance failed to get int values\n";
-            return 0;
-        }
-    }
-
-    return new NormDispAndUnbalance(data[0],data[1],idata[0],idata[1],idata[2],idata[3]);
-}
-#endif
+#include <OPS_ErrorStream.h>
 
 NormDispAndUnbalance::NormDispAndUnbalance()
   : ConvergenceTest(CONVERGENCE_TEST_NormDispAndUnbalance),

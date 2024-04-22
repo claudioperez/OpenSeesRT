@@ -24,7 +24,7 @@
 #include <Channel.h>
 #include <EquiSolnAlgo.h>
 #include <LinearSOE.h>
-
+#include <OPS_ErrorStream.h>
 
 CTestRelativeNormDispIncr::CTestRelativeNormDispIncr()
     : ConvergenceTest(CONVERGENCE_TEST_CTestRelativeNormDispIncr),
@@ -80,7 +80,7 @@ int CTestRelativeNormDispIncr::test(void)
 {
     // check to ensure the SOE has been set - this should not happen if the
     // return from start() is checked
-    if (theSOE == 0)  {
+    if (theSOE == nullptr)  {
         opserr << "WARNING: CTestRelativeNormDispIncr::test() - no SOE set.\n";
         return -1;
     }
