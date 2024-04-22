@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-05-11 20:57:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/sparseGEN/DistributedSparseGenColLinSOE.cpp,v $
-                                                                        
+//
 // Written: fmk 
 // Revision: A
 //
@@ -111,30 +107,15 @@ DistributedSparseGenColLinSOE::setSize(Graph &theGraph)
       if (rowA != 0)
 	delete [] rowA;
       
-      rowA = new int[nnz];
-	
-      if (rowA == 0) {
-	opserr << "WARNING SparseGenColLinSOE::SparseGenColLinSOE :";
-	opserr << " ran out of memory for A and rowA with nnz = ";
-	opserr << nnz << " \n";
-	size = 0; Asize = 0; nnz = 0;
-	result =  -1;
-      } 
+      rowA = new int[nnz];	
     }
 
     if (size > Bsize) { // we have to get space for the vectors
 	
       if (colStartA != 0) 
 	delete [] colStartA;
-      colStartA = new int[size+1]; 
-      
-      if (colStartA == 0) {
-	opserr << "WARNING SparseGenColLinSOE::SparseGenColLinSOE :";
-	opserr << " ran out of memory for vectors (size) (";
-	opserr << size << ") \n";
-	size = 0; Bsize = 0;
-	result =  -1;
-      }    
+
+      colStartA = new int[size+1];
     }
 
     ID rowAdata(rowA, nnz);
@@ -204,29 +185,14 @@ DistributedSparseGenColLinSOE::setSize(Graph &theGraph)
       workArea = new double[nnz];
 
       sizeWork = nnz;
-	
-      if (rowA == 0 || workArea == 0) {
-	opserr << "WARNING SparseGenColLinSOE::SparseGenColLinSOE :";
-	opserr << " ran out of memory for A and rowA with nnz = ";
-	opserr << nnz << " \n";
-	size = 0; Asize = 0; nnz = 0;
-	result =  -1;
-      } 
     }
 
     if (size > Bsize) { // we have to get space for the vectors
 	
       if (colStartA != 0) 
 	delete [] colStartA;
-      colStartA = new int[size+1]; 
-      
-      if (colStartA == 0) {
-	opserr << "WARNING SparseGenColLinSOE::SparseGenColLinSOE :";
-	opserr << " ran out of memory for vectors (size) (";
-	opserr << size << ") \n";
-	size = 0; Bsize = 0;
-	result =  -1;
-      }    
+
+      colStartA = new int[size+1];
     }
 
     // fill in colStartA and rowA
