@@ -32,7 +32,6 @@
 #include <Vector.h>
 #include <TaggedObject.h>
 
-class TransientIntegrator;
 class Element;
 class Integrator;
 class AnalysisModel;
