@@ -164,7 +164,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int result = 0;
   switch (builder->CurrentAnalysisFlag) {
-    case BasicAnalysisBuilder::CURRENT_STATIC_ANALYSIS: {
+    case BasicAnalysisBuilder::STATIC_ANALYSIS: {
       int numIncr;
       if (argc < 2) {
         opserr << G3_ERROR_PROMPT << "static analysis: analysis numIncr?\n";
@@ -177,7 +177,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
       result = builder->analyze(numIncr, 0.0);
       break;
     }
-    case BasicAnalysisBuilder::CURRENT_TRANSIENT_ANALYSIS: {
+    case BasicAnalysisBuilder::TRANSIENT_ANALYSIS: {
       double dT;
       int numIncr;
       if (argc < 3) {
@@ -480,7 +480,7 @@ printIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
   if (the_static_integrator == nullptr && theTransientIntegrator == nullptr)
     return TCL_OK;
 
-  IncrementalIntegrator *theIntegrator;
+  Integrator *theIntegrator;
   if (the_static_integrator != 0)
     theIntegrator = the_static_integrator;
   else
@@ -529,6 +529,8 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   bool ret = false;
   int currentArg = 1;
+  double m, c, k;
+  bool do_mck = false;
   while (currentArg < argc) {
     if ((strcmp(argv[currentArg], "file") == 0) ||
         (strcmp(argv[currentArg], "-file") == 0)) {
@@ -543,7 +545,30 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     } else if ((strcmp(argv[currentArg], "ret") == 0) ||
                (strcmp(argv[currentArg], "-ret") == 0)) {
       ret = true;
-    } else if ((strcmp(argv[currentArg], "-mck") == 0)) {
+
+    } else if ((strcmp(argv[currentArg], "-m") == 0)) {
+      currentArg++;
+      if (Tcl_GetDouble(interp, argv[currentArg], &m) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read float following flag -m\n";
+        return TCL_ERROR;
+      }
+      do_mck = true;
+
+    } else if ((strcmp(argv[currentArg], "-c") == 0)) {
+      currentArg++;
+      if (Tcl_GetDouble(interp, argv[currentArg], &c) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read float following flag -c\n";
+        return TCL_ERROR;
+      }
+      do_mck = true;
+
+    } else if ((strcmp(argv[currentArg], "-k") == 0)) {
+      currentArg++;
+      if (Tcl_GetDouble(interp, argv[currentArg], &k) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read float following flag -k\n";
+        return TCL_ERROR;
+      }
+      do_mck = true;
     }
     currentArg++;
   }
@@ -551,10 +576,14 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   // Form the tangent
   if (builder->getStaticIntegrator() != nullptr) {
     builder->getStaticIntegrator()->formTangent();
+    builder->getStaticIntegrator()->revertToLastStep();
   }
 
-  else if (builder->getTransientIntegrator() != nullptr)
+  else if (builder->getTransientIntegrator() != nullptr) {
     builder->getTransientIntegrator()->formTangent(0);
+    builder->getTransientIntegrator()->revertToLastStep();
+  }
+  builder->getDomain()->revertToLastCommit();
 
 
   const Matrix *A = theSOE.getA();
@@ -584,7 +613,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   // put the original SOE back.
   if (oldSOE != nullptr)
-    builder->set(oldSOE);
+    builder->set(oldSOE, true);
 
   return res;
 }
