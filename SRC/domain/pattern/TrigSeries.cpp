@@ -142,3 +142,4 @@ void TrigSeries::Print(OPS_Stream &s, int flag)
     s << "\tPhase Shift: " << phaseShift << endln;
     s << "\tZero Shift: " << zeroShift << endln;
 }
+
