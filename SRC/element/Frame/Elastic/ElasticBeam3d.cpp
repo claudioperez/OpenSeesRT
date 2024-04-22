@@ -35,7 +35,6 @@
 #include <Parameter.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <Renderer.h>
 #include <SectionForceDeformation.h>
 #include <ID.h>
 #include <math.h>
@@ -1144,49 +1143,6 @@ ElasticBeam3d::Print(OPS_Stream &s, int flag)
 	}
 }
 
-int
-ElasticBeam3d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-    float d1 = 0.0;
-    float d2 = 0.0;
-    int res = 0;
-
-    if (displayMode > 0 && numMode == 0)
-        res += theViewer.drawLine(v1, v2, d1, d1, this->getTag(), 0);
-    else if (displayMode < 0)
-        return theViewer.drawLine(v1, v2, 0.0, 0.0, this->getTag(), 0);
-
-    if (numMode > 0) {
-      // calculate q for potential need below
-      this->getResistingForce();
-    }
-
-  for (int i=0; i<numMode; i++) {
-
-    const char *theMode = modes[i];
-    if (strcmp(theMode, "axialForce") == 0) {
-      d1 = q(0); 
-      d2 = q(0);;
-
-      res +=theViewer.drawLine(v1, v2, d1, d1, this->getTag(), i);
-      
-    } else if (strcmp(theMode, "endMoments") == 0) {
-      d1 = q(1);
-      d2 = q(2);
-      static Vector delta(3); delta = v2-v1; delta/=10;
-      res += theViewer.drawPoint(v1+delta, d1, this->getTag(), i);
-      res += theViewer.drawPoint(v2-delta, d2, this->getTag(), i);
-      
-    }
-  }    
-
-  return res;
-}
 
 Response*
 ElasticBeam3d::setResponse(const char **argv, int argc, OPS_Stream &output)
