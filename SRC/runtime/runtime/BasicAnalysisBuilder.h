@@ -25,7 +25,6 @@
 // - StaticIntegrator          *theStaticIntegrator;
 // - TransientIntegrator       *theTransientIntegrator;
 // - ConvergenceTest           *theTest;
-// - DirectIntegrationAnalysis *theTransientAnalysis;
 //
 // The BasicAnalysisBuilder assumes responsibility for
 // deleting these objects, but ownership of the SOE may be
@@ -48,8 +47,6 @@ class EigenSOE;
 class StaticIntegrator;
 class TransientIntegrator;
 class ConvergenceTest;
-class StaticAnalysis;
-class DirectIntegrationAnalysis;
 class VariableTimeStepDirectIntegrationAnalysis;
 class Integrator;
 
@@ -59,16 +56,29 @@ public:
     BasicAnalysisBuilder(Domain* domain);
     ~BasicAnalysisBuilder();
 
+//  enum NoDelete {
+//    StaticIntegrator    = 1<<0,
+//    TransientIntegrator = 1<<1,
+//    LinearSOE           = 1<<2,
+//  };
+
+    enum CurrentAnalysis {
+      EMPTY_ANALYSIS,
+      STATIC_ANALYSIS, 
+      TRANSIENT_ANALYSIS
+    };
+
     void set(ConstraintHandler* obj);
     void set(DOF_Numberer* obj);
     void set(EquiSolnAlgo* obj);
-    void set(LinearSOE* obj, bool free=true);
-    void set(Integrator* obj, int isstatic);
+    void set(LinearSOE*  obj, bool free=true);
+    void set(StaticIntegrator& obj);
+    void set(TransientIntegrator& obj, bool free=true);
     void set(ConvergenceTest* obj);
     void set(EigenSOE& obj);
 
     LinearSOE* getLinearSOE();
-    
+
     Domain* getDomain(void);
     int initialize(void);
 
@@ -94,12 +104,6 @@ public:
 
     int domainChanged(void);
 
-    enum CurrentAnalysis {
-      CURRENT_EMPTY_ANALYSIS,
-      CURRENT_STATIC_ANALYSIS, 
-      CURRENT_TRANSIENT_ANALYSIS
-    } current_analysis;
-
     int analyze(int num_steps, double size_steps=0.0);
     int analyzeStatic(int num_steps);
     
@@ -110,10 +114,10 @@ public:
     void wipe();
 
     
-    enum CurrentAnalysis  CurrentAnalysisFlag = CURRENT_EMPTY_ANALYSIS;
+    enum CurrentAnalysis  CurrentAnalysisFlag = EMPTY_ANALYSIS;
 
 private:
-    void setLinks(CurrentAnalysis flag = CURRENT_EMPTY_ANALYSIS);
+    void setLinks(CurrentAnalysis flag = EMPTY_ANALYSIS);
     void fillDefaults(enum CurrentAnalysis flag);
 
     Domain                    *theDomain;
@@ -126,8 +130,6 @@ private:
     StaticIntegrator          *theStaticIntegrator;
     TransientIntegrator       *theTransientIntegrator;
     ConvergenceTest           *theTest;
-    StaticAnalysis            *theStaticAnalysis;
-    DirectIntegrationAnalysis *theTransientAnalysis;
     VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 
     int domainStamp;
@@ -136,7 +138,8 @@ private:
     int numSubLevels = 0;
     int numSubSteps = 0;
 
-    bool freeSOE = true;
+    int freeSOE = true;
+
 };
 
 #endif
