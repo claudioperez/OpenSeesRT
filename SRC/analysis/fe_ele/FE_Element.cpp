@@ -52,7 +52,7 @@ FE_Element::FE_Element(int tag, Element *ele)
   :TaggedObject(tag),
    myDOF_Groups((ele->getExternalNodes()).Size()), myID(ele->getNumDOF()),
    numDOF(ele->getNumDOF()), theModel(0), myEle(ele),
-   theResidual(0), theTangent(0), theIntegrator(0)
+   theResidual(nullptr), theTangent(nullptr), theIntegrator(nullptr)
 {
     assert(numDOF > 0);
 
@@ -81,8 +81,8 @@ FE_Element::FE_Element(int tag, Element *ele)
         theVectors  = new Vector *[MAX_NUM_DOF+1];
 
         for (int i=0; i<MAX_NUM_DOF; i++) {
-            theMatrices[i] = 0;
-            theVectors[i]  = 0;
+            theMatrices[i] = nullptr;
+            theVectors[i]  = nullptr;
         }
     }
 
@@ -139,8 +139,8 @@ FE_Element::FE_Element(int tag, int numDOF_Group, int ndof)
         theVectors  = new Vector *[MAX_NUM_DOF+1];
 
         for (int i=0; i<MAX_NUM_DOF; i++) {
-            theMatrices[i] = nullptr;
-            theVectors[i]  = nullptr;
+          theMatrices[i] = nullptr;
+          theVectors[i]  = nullptr;
         }
     }
 
@@ -159,17 +159,19 @@ FE_Element::~FE_Element()
 
     // delete tangent and residual if created specially
     if (numDOF > MAX_NUM_DOF) {
-        if (theTangent != 0) delete theTangent;
-        if (theResidual != 0) delete theResidual;
+        if (theTangent != nullptr)
+          delete theTangent;
+        if (theResidual != nullptr) 
+          delete theResidual;
     }
 
     // if this is the last FE_Element, clean up the
     // storage for the matrix and vector objects
     if (numFEs == 0) {
         for (int i=0; i<MAX_NUM_DOF; i++) {
-            if (theVectors[i] != 0)
+            if (theVectors[i] != nullptr)
                 delete theVectors[i];
-            if (theMatrices[i] != 0)
+            if (theMatrices[i] != nullptr)
                 delete theMatrices[i];
         }
         delete [] theMatrices;
@@ -239,6 +241,7 @@ FE_Element::getTangent(Integrator *theNewIntegrator)
   if (myEle->isSubdomain() == false) {
     if (theNewIntegrator != nullptr)
       theNewIntegrator->formEleTangent(this);
+
     return *theTangent;
 
   } else {
@@ -248,26 +251,6 @@ FE_Element::getTangent(Integrator *theNewIntegrator)
   }
 }
 
-const Vector &
-FE_Element::getResidual(Integrator *theNewIntegrator)
-{
-    theIntegrator = theNewIntegrator;
-
-    if (theIntegrator == nullptr)
-      return *theResidual;
-
-    assert(myEle != nullptr);
-
-    if (myEle->isSubdomain() == false) {
-      theNewIntegrator->formEleResidual(this);
-      return *theResidual;
-
-    } else {
-      Subdomain *theSub = (Subdomain *)myEle;
-      theSub->computeResidual();
-      return theSub->getResistingForce();
-    }
-}
 
 
 
@@ -379,6 +362,29 @@ FE_Element::storePreviousK(int numP)
   return res;
 }
 
+//
+// RESIDUAL
+//
+const Vector &
+FE_Element::getResidual(Integrator *theNewIntegrator)
+{
+    theIntegrator = theNewIntegrator;
+
+    if (theIntegrator == nullptr)
+      return *theResidual;
+
+    assert(myEle != nullptr);
+
+    if (myEle->isSubdomain() == false) {
+      theNewIntegrator->formEleResidual(this);
+      return *theResidual;
+
+    } else {
+      Subdomain *theSub = (Subdomain *)myEle;
+      theSub->computeResidual();
+      return theSub->getResistingForce();
+    }
+}
 
 void
 FE_Element::zeroResidual(void)
@@ -388,6 +394,7 @@ FE_Element::zeroResidual(void)
 
   theResidual->Zero();
 }
+
 
 void
 FE_Element::addRtoResidual(double fact)
@@ -548,36 +555,36 @@ FE_Element::getM_Force(const Vector &disp, double fact)
 const Vector &
 FE_Element::getC_Force(const Vector &disp, double fact)
 {
-    assert(myEle != nullptr);
+  assert(myEle != nullptr);
 
-    // zero out the force vector
-    theResidual->Zero();
+  // zero out the force vector
+  theResidual->Zero();
 
-    // check for a quick return
-    if (fact == 0.0)
-        return *theResidual;
+  // check for a quick return
+  if (fact == 0.0)
+      return *theResidual;
 
-    // get the components we need out of the vector
-    // and place in a temporary vector
-    Vector tmp(numDOF);
-    for (int i=0; i<numDOF; i++) {
-      int dof = myID(i);
-      if (dof >= 0)
-        tmp(i) = disp(myID(i));
-      else
-        tmp(i) = 0.0;
-    }
+  // get the components we need out of the vector
+  // and place in a temporary vector
+  Vector tmp(numDOF);
+  for (int i=0; i<numDOF; i++) {
+    int dof = myID(i);
+    if (dof >= 0)
+      tmp(i) = disp(myID(i));
+    else
+      tmp(i) = 0.0;
+  }
 
-    theResidual->addMatrixVector(1.0, myEle->getDamp(), tmp, fact);
+  theResidual->addMatrixVector(1.0, myEle->getDamp(), tmp, fact);
 
-    return *theResidual;
+  return *theResidual;
 }
 
 
 Integrator *
 FE_Element::getLastIntegrator(void)
 {
-    return theIntegrator;
+  return theIntegrator;
 }
 
 
@@ -773,6 +780,7 @@ FE_Element::addD_ForceSensitivity(int gradNumber, const Vector &vect, double fac
     // check for a quick return
     if (fact == 0.0)
       return;
+
     if (myEle->isSubdomain() == false) {
       // get the components we need out of the vector
       // and place in a temporary vector
@@ -798,7 +806,7 @@ FE_Element::addD_ForceSensitivity(int gradNumber, const Vector &vect, double fac
 void
 FE_Element::addLocalD_ForceSensitivity(int gradNumber, const Vector &accel, double fact)
 {
-    if (myEle != 0) {
+    if (myEle != nullptr) {
 
         // check for a quick return
         if (fact == 0.0)
