@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2008-08-26 18:26:07 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/accelerator/SecantAccelerator1.cpp,v $
-                                                                        
+//
 // Written: MHS
 // Created: April 2002
 
@@ -113,7 +109,7 @@ SecantAccelerator1::accelerate(Vector &vStar, LinearSOE &theSOE,
     // Check "cut-out" criteria
     if (cutOut && (A > R1 || A < 1.0/R1)) {
       // do nothing
-      //opserr << "SecantAccelerator1::accelerate() -- cut out, A = " << A << endln;
+      //opserr << "SecantAccelerator1::accelerate() -- cut out, A = " << A << "\n";
     }
     else
       vStar *= A;
@@ -132,7 +128,7 @@ int
 SecantAccelerator1::updateTangent(IncrementalIntegrator &theIntegrator)
 {
   if (iteration > maxIterations) {
-    //opserr << "SecantAccelerator1::updateTangent() tangent formed" << endln;
+    //opserr << "SecantAccelerator1::updateTangent() tangent formed" << "\n";
     iteration = 0;
     if (theTangent != NO_TANGENT) {
       theIntegrator.formTangent(theTangent);
@@ -148,12 +144,12 @@ SecantAccelerator1::updateTangent(IncrementalIntegrator &theIntegrator)
 void
 SecantAccelerator1::Print(OPS_Stream &s, int flag)
 {
-  s << "SecantAccelerator1" << endln;
-  s << "\tIterations till reform tangent: " << maxIterations << endln;
+  s << "SecantAccelerator1" << "\n";
+  s << "\tIterations till reform tangent: " << maxIterations << "\n";
   if (cutOut)
-    s << "\tCut-out factors -- R1: " << R1 << ", R2: " << R2 << endln;
+    s << "\tCut-out factors -- R1: " << R1 << ", R2: " << R2 << "\n";
   else
-    s << "\tNo cut-outs" << endln;
+    s << "\tNo cut-outs" << "\n";
 }
 
 int
