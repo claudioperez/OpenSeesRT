@@ -19,7 +19,6 @@
 #include <G3_Logging.h>
 
 #include <EquiSolnAlgo.h>
-#include <IncrementalIntegrator.h>
 #include <StaticIntegrator.h>
 #include <TransientIntegrator.h>
 #include <LinearSOE.h>
@@ -69,10 +68,8 @@ BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
   theStaticIntegrator(nullptr),
   theTransientIntegrator(nullptr),
   theTest(nullptr),
-  theStaticAnalysis(nullptr),
-  theTransientAnalysis(nullptr),
   theVariableTimeStepTransientAnalysis(nullptr),
- CurrentAnalysisFlag(CURRENT_EMPTY_ANALYSIS)
+ CurrentAnalysisFlag(EMPTY_ANALYSIS)
 {
   theAnalysisModel = new AnalysisModel();
 }
@@ -91,10 +88,6 @@ void
 BasicAnalysisBuilder::wipe()
 {
 
-  if (theStaticAnalysis != nullptr) {
-      delete theStaticAnalysis;
-      theStaticAnalysis = nullptr;
-  }
   if (theAlgorithm != nullptr) {
       delete theAlgorithm;
       theAlgorithm = nullptr;
@@ -151,9 +144,9 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
 
 
   switch (flag) {
-  case CURRENT_EMPTY_ANALYSIS:
+  case EMPTY_ANALYSIS:
     break;
-  case CURRENT_TRANSIENT_ANALYSIS:
+  case TRANSIENT_ANALYSIS:
     if (theDomain && theAnalysisModel && theTransientIntegrator && theHandler)
       theHandler->setLinks(*theDomain, *theAnalysisModel, *theTransientIntegrator);
     if (theAnalysisModel && theTransientIntegrator && theSOE && theTest && theAlgorithm)
@@ -168,7 +161,7 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
     // domainStamp  = 0;
     break;
   
-  case CURRENT_STATIC_ANALYSIS:
+  case STATIC_ANALYSIS:
     // opserr << "setLinks(STATIC)\n";
     if (theDomain && theAnalysisModel && theStaticIntegrator && theHandler)
       theHandler->setLinks(*theDomain, *theAnalysisModel, *theStaticIntegrator);
@@ -198,10 +191,10 @@ BasicAnalysisBuilder::initialize(void)
   }
 
   switch (this->CurrentAnalysisFlag) {
-    case CURRENT_EMPTY_ANALYSIS:
+    case EMPTY_ANALYSIS:
       break;
 
-    case CURRENT_STATIC_ANALYSIS:
+    case STATIC_ANALYSIS:
       if (theStaticIntegrator->initialize() < 0) {
           opserr << G3_WARN_PROMPT << "integrator initialize() failed\n";
           return -2;
@@ -209,7 +202,7 @@ BasicAnalysisBuilder::initialize(void)
         theStaticIntegrator->commit();
       break;
 
-    case CURRENT_TRANSIENT_ANALYSIS:
+    case TRANSIENT_ANALYSIS:
       if (theTransientIntegrator->initialize() < 0) {
           opserr << "integrator initialize() failed\n";
           return -2;
@@ -281,14 +274,14 @@ BasicAnalysisBuilder::domainChanged(void)
   // objects .. informing them that the model has changed
   switch (this->CurrentAnalysisFlag) {
   //if (theStaticIntegrator != nullptr) {
-  case CURRENT_STATIC_ANALYSIS:
+  case STATIC_ANALYSIS:
     if (theStaticIntegrator->domainChanged() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange - Integrator::domainChanged() failed\n";
       return -4;
     }
     break;
   //}
-  case CURRENT_TRANSIENT_ANALYSIS:
+  case TRANSIENT_ANALYSIS:
   //if (theTransientIntegrator != nullptr) {
     if (theTransientIntegrator->domainChanged() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange - Integrator::domainChanged() failed\n";
@@ -313,18 +306,13 @@ BasicAnalysisBuilder::analyze(int num_steps, double size_steps)
 
   switch (this->CurrentAnalysisFlag) {
 
-    case CURRENT_STATIC_ANALYSIS:
+    case STATIC_ANALYSIS:
       return this->analyzeStatic(num_steps);
       break;
 
-    case CURRENT_TRANSIENT_ANALYSIS: {
+    case TRANSIENT_ANALYSIS: {
       // TODO: Set global timestep variable
       ops_Dt = size_steps;
-//    DirectIntegrationAnalysis   aTransientAnalysis(*theDomain,*theHandler,*theNumberer,
-//                                                   *theAnalysisModel,*theAlgorithm,
-//                                                   *theSOE,*theTransientIntegrator,
-//                                                   theTest);
-//    return aTransientAnalysis.analyze(num_steps, size_steps);
       return this->analyzeTransient(num_steps, size_steps);
       break;
     }
@@ -539,7 +527,6 @@ void
 BasicAnalysisBuilder::set(LinearSOE* obj, bool free)
 {
 
-
   // if free is false then we cant free either
   if ((theSOE != nullptr) && free && freeSOE)
     delete theSOE;
@@ -565,38 +552,39 @@ BasicAnalysisBuilder::getLinearSOE() {
 
 // TODO: set(Integrator) is hideous
 void
-BasicAnalysisBuilder::set(Integrator* obj, int isstatic)
+BasicAnalysisBuilder::set(StaticIntegrator& obj)
 {
+    if (theStaticIntegrator != nullptr)
+      delete theStaticIntegrator;
 
-  if (isstatic == 1) {
-      if (theStaticIntegrator != nullptr)
-        delete theStaticIntegrator;
+    theStaticIntegrator = &obj;
 
-      theStaticIntegrator = dynamic_cast<StaticIntegrator*>(obj);
+    this->setLinks(STATIC_ANALYSIS);
 
-      this->setLinks(CURRENT_STATIC_ANALYSIS);
+    if (domainStamp != 0 && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
+      theStaticIntegrator->domainChanged();
 
-      if (domainStamp != 0 && this->CurrentAnalysisFlag != CURRENT_EMPTY_ANALYSIS)
-        theStaticIntegrator->domainChanged();
-      else
-        domainStamp = 0;
-
-  } else {
-
-      if (theTransientIntegrator != nullptr)
-        delete theTransientIntegrator;
-
-      theTransientIntegrator = dynamic_cast<TransientIntegrator*>(obj);
-      
-      this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
-
-      if (domainStamp != 0  && this->CurrentAnalysisFlag != CURRENT_EMPTY_ANALYSIS)
-        theTransientIntegrator->domainChanged();
-      else
-        domainStamp = 0;
-  }
+    else
+      domainStamp = 0;
 }
 
+void
+BasicAnalysisBuilder::set(TransientIntegrator& obj, bool free)
+{
+
+    if (theTransientIntegrator != nullptr)
+      delete theTransientIntegrator;
+
+    theTransientIntegrator = &obj;
+    
+    this->setLinks(TRANSIENT_ANALYSIS);
+
+    if (domainStamp != 0  && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
+      theTransientIntegrator->domainChanged();
+    else
+      domainStamp = 0;
+
+}
 
 void
 BasicAnalysisBuilder::set(ConvergenceTest* obj)
@@ -636,15 +624,15 @@ BasicAnalysisBuilder::fillDefaults(BasicAnalysisBuilder::CurrentAnalysis flag)
 {
 
   switch (flag) {
-    case CURRENT_EMPTY_ANALYSIS:
+    case EMPTY_ANALYSIS:
       break;
 
-    case CURRENT_STATIC_ANALYSIS:
+    case STATIC_ANALYSIS:
       if (theStaticIntegrator == nullptr)
         theStaticIntegrator = new LoadControl(1, 1, 1, 1);
       break;
 
-    case CURRENT_TRANSIENT_ANALYSIS:
+    case TRANSIENT_ANALYSIS:
       if (theTransientIntegrator == nullptr)
           theTransientIntegrator = new Newmark(0.5,0.25);
       break;
@@ -680,10 +668,10 @@ int
 BasicAnalysisBuilder::setStaticAnalysis()
 {
   domainStamp = 0;
-  this->fillDefaults(CURRENT_STATIC_ANALYSIS);
-  this->setLinks(CURRENT_STATIC_ANALYSIS);
+  this->fillDefaults(STATIC_ANALYSIS);
+  this->setLinks(STATIC_ANALYSIS);
 
-  this->CurrentAnalysisFlag = CURRENT_STATIC_ANALYSIS;
+  this->CurrentAnalysisFlag = STATIC_ANALYSIS;
 
   return 0;
 }
@@ -692,9 +680,9 @@ int
 BasicAnalysisBuilder::setTransientAnalysis()
 {
   domainStamp = 0;
-  this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
-  this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
-  this->setLinks(CURRENT_TRANSIENT_ANALYSIS);
+  this->CurrentAnalysisFlag = TRANSIENT_ANALYSIS;
+  this->fillDefaults(TRANSIENT_ANALYSIS);
+  this->setLinks(TRANSIENT_ANALYSIS);
 
   return 1;
 }
@@ -704,18 +692,8 @@ BasicAnalysisBuilder::newTransientAnalysis()
 {
     assert(theDomain != nullptr);
 
-    this->fillDefaults(CURRENT_TRANSIENT_ANALYSIS);
-#if 0
-    if (theTransientAnalysis != nullptr) {
-      delete theTransientAnalysis;
-      theTransientAnalysis = nullptr;
-    }
+    this->fillDefaults(TRANSIENT_ANALYSIS);
 
-    theTransientAnalysis=new DirectIntegrationAnalysis(*theDomain,*theHandler,*theNumberer,
-                                                       *theAnalysisModel,*theAlgorithm,
-                                                       *theSOE,*theTransientIntegrator,
-                                                       theTest);
-#endif
     return 1;
 }
 
@@ -728,11 +706,11 @@ BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
   if (theHandler == nullptr)
     theHandler = new TransformationConstraintHandler();
 
-  // this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
-  if (this->CurrentAnalysisFlag == CURRENT_EMPTY_ANALYSIS)
-    this->CurrentAnalysisFlag = CURRENT_TRANSIENT_ANALYSIS;
-  this->fillDefaults(this->CurrentAnalysisFlag); //CURRENT_TRANSIENT_ANALYSIS);
-  this->setLinks(this->CurrentAnalysisFlag); //CURRENT_TRANSIENT_ANALYSIS);
+  // this->CurrentAnalysisFlag = TRANSIENT_ANALYSIS;
+  if (this->CurrentAnalysisFlag == EMPTY_ANALYSIS)
+    this->CurrentAnalysisFlag = TRANSIENT_ANALYSIS;
+  this->fillDefaults(this->CurrentAnalysisFlag); //TRANSIENT_ANALYSIS);
+  this->setLinks(this->CurrentAnalysisFlag); //TRANSIENT_ANALYSIS);
 
   // create a new eigen system and solver
   if (theEigenSOE != nullptr) {
