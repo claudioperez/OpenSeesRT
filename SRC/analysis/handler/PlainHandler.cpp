@@ -111,7 +111,7 @@ PlainHandler::handle(const ID *nodesLast)
 	int nodeID = nodPtr->getTag();
 	std::multimap<int,SP_Constraint*>::iterator first = allSPs.lower_bound(nodeID);
 	std::multimap<int,SP_Constraint*>::iterator last = allSPs.upper_bound(nodeID);
-	for(std::multimap<int,SP_Constraint*>::iterator it=first; it!=last; it++) {
+	for (auto it=first; it!=last; it++) {
 	    spPtr = it->second;
 	    const ID &id = dofPtr->getID();
 	    int dof = spPtr->getDOF_Number();		
@@ -192,7 +192,7 @@ PlainHandler::handle(const ID *nodesLast)
 	for (int i=0; i<nodesLast->Size(); i++) {
 	    int nodeID = (*nodesLast)(i);
 	    Node *nodPtr = theDomain->getNode(nodeID);
-	    if (nodPtr != 0) {
+	    if (nodPtr != nullptr) {
 		dofPtr = nodPtr->getDOF_GroupPtr();
 		
 		const ID &id = dofPtr->getID();
