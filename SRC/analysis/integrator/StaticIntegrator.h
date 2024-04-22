@@ -35,7 +35,6 @@
 class LinearSOE;
 class AnalysisModel;
 class FE_Element;
-class Vector;
 
 
 class StaticIntegrator : public IncrementalIntegrator
@@ -52,7 +51,7 @@ class StaticIntegrator : public IncrementalIntegrator
     virtual int formNodTangent(DOF_Group *theDof);        
     virtual int formNodUnbalance(DOF_Group *theDof);    
     virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
-   
+
     using IncrementalIntegrator::newStep;
     virtual int newStep(void) =0;    
 
