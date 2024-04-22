@@ -389,7 +389,7 @@ ActorSubdomain::run(void)
 	    dbTag = msgData(2);
 	    loadPatternTag = msgData(3);
 	    
-	    theNodalLoad = theBroker->getNewNodalLoad(theType);
+	    theNodalLoad = new NodalLoad(theType); //theBroker->getNewNodalLoad(theType);
 
 	    if (theNodalLoad != 0) {
 		theNodalLoad->setDbTag(dbTag);
