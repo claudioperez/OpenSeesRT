@@ -84,7 +84,7 @@ class LoadPattern :
     virtual NodalLoadIter     &getNodalLoads(void);
     virtual ElementalLoadIter &getElementalLoads(void);    
     virtual SP_ConstraintIter &getSPs(void);        
-    
+
     // methods to remove loads
     virtual void clearAll(void);
     virtual NodalLoad *removeNodalLoad(int tag);
@@ -121,7 +121,7 @@ class LoadPattern :
     // AddingSensitivity:END ///////////////////////////////////////////
 
   protected:
-    int    isConstant;     // to indictae whether setConstant has been called
+    bool   isConstant;     // to indictae whether setConstant has been called
 	
   private:
     double loadFactor;     // current load factor

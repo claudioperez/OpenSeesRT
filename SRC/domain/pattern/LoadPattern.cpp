@@ -47,29 +47,23 @@
 
 
 LoadPattern::LoadPattern(int tag, int clasTag, double fact)
-    : TaggedObject(tag), MovableObject(clasTag), isConstant(1), loadFactor(0),
-      scaleFactor(fact), theSeries(0), currentGeoTag(0), lastGeoSendTag(-1),
-      theNodalLoads(0), theElementalLoads(0), theSPs(0), theNodIter(0),
-      theEleIter(0), theSpIter(0), lastChannel(0)
+    : TaggedObject(tag), MovableObject(clasTag), 
+      isConstant(false), 
+      loadFactor(0.0), scaleFactor(fact), 
+      theSeries(nullptr), 
+      currentGeoTag(0), lastGeoSendTag(-1),
+      theNodalLoads(nullptr), theElementalLoads(nullptr), theSPs(nullptr), theNodIter(nullptr),
+      theEleIter(nullptr), theSpIter(nullptr), lastChannel(0)
 {
   // constructor for subclass
   theNodalLoads     = new MapOfTaggedObjects();
   theElementalLoads = new MapOfTaggedObjects();
   theSPs            = new MapOfTaggedObjects();
 
-  if (theNodalLoads == 0 || theElementalLoads == 0 || theSPs == 0) {
-    opserr << " LoadPattern::LoadPattern() - ran out of memory\n";
-    exit(-1);
-  }
-
   theEleIter = new ElementalLoadIter(theElementalLoads);
   theNodIter = new NodalLoadIter(theNodalLoads);
   theSpIter  = new SingleDomSP_Iter(theSPs);
 
-  if (theEleIter == 0 || theNodIter == 0 || theSpIter == 0) {
-    opserr << " LoadPattern::LoadPattern() - ran out of memory\n";
-    exit(-1);
-  }
   // AddingSensitivity:BEGIN /////////////////////////////
   randomLoads = 0;
   dLambdadh   = 0;
@@ -77,14 +71,12 @@ LoadPattern::LoadPattern(int tag, int clasTag, double fact)
 }
 
 LoadPattern::LoadPattern()
-#if 0
-:DomainComponent(0,PATTERN_TAG_LoadPattern),
-#else
     : TaggedObject(0), MovableObject(PATTERN_TAG_LoadPattern),
-#endif
-    isConstant(1),
-    loadFactor(0), scaleFactor(1.0), theSeries(0), currentGeoTag(0),
-    lastGeoSendTag(-1), dbSPs(0), dbNod(0), dbEle(0), theNodalLoads(0),
+    isConstant(false),
+    loadFactor(0.0), scaleFactor(1.0), 
+    theSeries(0), 
+    currentGeoTag(0), lastGeoSendTag(-1), 
+    dbSPs(0), dbNod(0), dbEle(0), theNodalLoads(0),
     theElementalLoads(0), theSPs(0), theNodIter(0), theEleIter(0), theSpIter(0),
     lastChannel(0)
 {
@@ -112,14 +104,12 @@ LoadPattern::LoadPattern()
 }
 
 LoadPattern::LoadPattern(int tag, double fact)
-#if 0
-:DomainComponent(tag,PATTERN_TAG_LoadPattern),
-#else
     : TaggedObject(tag), MovableObject(PATTERN_TAG_LoadPattern),
-#endif
-    isConstant(1),
-    loadFactor(0.), scaleFactor(fact), theSeries(0), currentGeoTag(0),
-    lastGeoSendTag(-1), dbSPs(0), dbNod(0), dbEle(0), theNodalLoads(0),
+    isConstant(false),
+    loadFactor(0.0), scaleFactor(fact), 
+    theSeries(nullptr), 
+    currentGeoTag(0), lastGeoSendTag(-1), 
+    dbSPs(0), dbNod(0), dbEle(0), theNodalLoads(0),
     theElementalLoads(0), theSPs(0), theNodIter(0), theEleIter(0), theSpIter(0),
     lastChannel(0)
 {
@@ -210,12 +200,8 @@ void LoadPattern::setDomain(Domain *theDomain)
       theSP->setDomain(theDomain);
   }
 
-  // now we set this load patterns domain
-#if 0
-    this->DomainComponent::setDomain(theDomain);
-#else
   this->theDomain = theDomain;
-#endif
+
 }
 
 bool LoadPattern::addNodalLoad(NodalLoad *load)
@@ -223,14 +209,17 @@ bool LoadPattern::addNodalLoad(NodalLoad *load)
   Domain *theDomain = this->getDomain();
 
   bool result = theNodalLoads->addComponent(load);
-  if (result == true) {
-    if (theDomain != 0)
-      load->setDomain(theDomain);
-    load->setLoadPatternTag(this->getTag());
-    currentGeoTag++;
-  } else
-    opserr
-        << "WARNING: LoadPattern::addNodalLoad() - load could not be added\n";
+
+  if (result != true) {
+    opserr << "WARNING: LoadPattern::addNodalLoad() - load could not be added\n";
+    return result;
+  }
+
+  if (theDomain != nullptr)
+    load->setDomain(theDomain);
+
+  load->setLoadPatternTag(this->getTag());
+  currentGeoTag++;
 
   return result;
 }
@@ -304,7 +293,7 @@ NodalLoad *LoadPattern::removeNodalLoad(int tag)
   if (obj == 0)
     return 0;
   NodalLoad *result = (NodalLoad *)obj;
-  result->setDomain(0);
+  result->setDomain(nullptr);
   currentGeoTag++;
   return result;
 }
@@ -321,35 +310,41 @@ ElementalLoad *LoadPattern::removeElementalLoad(int tag)
   return result;
 }
 
-SP_Constraint *LoadPattern::removeSP_Constraint(int tag)
+SP_Constraint *
+LoadPattern::removeSP_Constraint(int tag)
 {
   TaggedObject *obj = theSPs->removeComponent(tag);
-  if (obj == 0)
-    return 0;
+  if (obj == nullptr)
+    return nullptr;
   SP_Constraint *result = (SP_Constraint *)obj;
-  result->setDomain(0);
+  result->setDomain(nullptr);
   currentGeoTag++;
   return result;
 }
 
-void LoadPattern::applyLoad(double pseudoTime)
+void
+LoadPattern::applyLoad(double pseudoTime)
 {
   // first determine the load factor
-  if (theSeries != 0 && isConstant != 0) {
+  if (theSeries != nullptr && isConstant != true) {
     loadFactor = theSeries->getFactor(pseudoTime);
     loadFactor *= scaleFactor;
   }
 
-  NodalLoad *nodLoad;
-  NodalLoadIter &theNodalIter = this->getNodalLoads();
+  {
+    Load *nodLoad;
+    NodalLoadIter &theNodalIter = this->getNodalLoads();
 
-  while ((nodLoad = theNodalIter()) != 0)
-    nodLoad->applyLoad(loadFactor);
+    while ((nodLoad = theNodalIter()) != 0)
+      nodLoad->applyLoad(loadFactor);
+  }
 
-  ElementalLoad *eleLoad;
-  ElementalLoadIter &theElementalIter = this->getElementalLoads();
-  while ((eleLoad = theElementalIter()) != 0)
-    eleLoad->applyLoad(loadFactor);
+  {
+    Load *eleLoad;
+    ElementalLoadIter &theElementalIter = this->getElementalLoads();
+    while ((eleLoad = theElementalIter()) != 0)
+      eleLoad->applyLoad(loadFactor);
+  }
 
   SP_Constraint *sp;
   SP_ConstraintIter &theIter = this->getSPs();
@@ -357,13 +352,13 @@ void LoadPattern::applyLoad(double pseudoTime)
     sp->applyConstraint(loadFactor);
 }
 
-void LoadPattern::setLoadConstant(void) { isConstant = 0; }
+void LoadPattern::setLoadConstant(void) { isConstant = true; }
 
-void LoadPattern::unsetLoadConstant(void) { isConstant = 1; }
+void LoadPattern::unsetLoadConstant(void) { isConstant = false; }
 
 double LoadPattern::getLoadFactor(void)
 {
-  if (theSeries != 0)
+  if (theSeries != nullptr)
     return loadFactor;
   else
     return 0.0;
@@ -399,7 +394,7 @@ int LoadPattern::sendSelf(int cTag, Channel &theChannel)
   lpData(5) = dbEle;
   lpData(6) = dbSPs;
 
-  lpData(7) = isConstant;
+  lpData(7) = static_cast<int>(isConstant);
 
   if (theSeries != 0) {
     int dbtag    = theSeries->getDbTag();
@@ -462,14 +457,14 @@ int LoadPattern::sendSelf(int cTag, Channel &theChannel)
     // create the ID and get the node iter
     if (numNodLd != 0) {
       ID nodeData(numNodLd * 2);
-      NodalLoad *theNode;
+      Load *theNodalLoad;
       NodalLoadIter &theNodes = this->getNodalLoads();
       int loc                 = 0;
 
       // loop over nodes in domain adding their classTag and dbTag to the ID
-      while ((theNode = theNodes()) != 0) {
-        nodeData(loc) = theNode->getClassTag();
-        int dbTag     = theNode->getDbTag();
+      while ((theNodalLoad = theNodes()) != 0) {
+        nodeData(loc) = theNodalLoad->getClassTag();
+        int dbTag     = theNodalLoad->getDbTag();
 
         // if dbTag still 0 get one from Channel;
         // if this tag != 0 set the dbTag in node
@@ -478,7 +473,7 @@ int LoadPattern::sendSelf(int cTag, Channel &theChannel)
                 0) { // go get a new tag and setDbTag in ele if this not 0
           dbTag = theChannel.getDbTag();
           if (dbTag != 0)
-            theNode->setDbTag(dbTag);
+            theNodalLoad->setDbTag(dbTag);
         }
 
         nodeData(loc + 1) = dbTag;
@@ -566,7 +561,7 @@ int LoadPattern::sendSelf(int cTag, Channel &theChannel)
 
   // now we invoke sendSelf on all the NodalLoads, ElementalLoads and SP_Constraints
   // which have been added to the LoadCase
-  NodalLoad *theNode;
+  Load *theNode;
   NodalLoadIter &theNodes = this->getNodalLoads();
   while ((theNode = theNodes()) != 0) {
     if (theNode->sendSelf(cTag, theChannel) < 0) {
@@ -618,7 +613,7 @@ int LoadPattern::recvSelf(int cTag, Channel &theChannel,
     return -1;
   }
 
-  isConstant = lpData(7);
+  isConstant = static_cast<bool>(lpData(7));
 
   this->setTag(lpData(10));
 
@@ -689,9 +684,11 @@ int LoadPattern::recvSelf(int cTag, Channel &theChannel,
         return -2;
       }
 
-      // now for each NodalLoad we 1) get a new node of the correct type from the ObjectBroker
-      // 2) ensure the node exists and set it's dbTag, 3) we invoke recvSelf on this new
-      // blank node and 4) add this node to the domain
+      // now for each NodalLoad we 
+      // 1) get a new node of the correct type from the ObjectBroker
+      // 2) ensure the node exists and set it's dbTag, 
+      // 3) we invoke recvSelf on this new blank node and 
+      // 4) add this node to the domain
 
       int loc = 0;
 
@@ -699,25 +696,19 @@ int LoadPattern::recvSelf(int cTag, Channel &theChannel,
         int classTag = nodeData(loc);
         int dbTag    = nodeData(loc + 1);
 
-        NodalLoad *theNode = theBroker.getNewNodalLoad(classTag);
+        NodalLoad *theNodalLoad = new NodalLoad(classTag); //theBroker.getNewNodalLoad(classTag);
 
-        if (theNode == 0) {
-          opserr << "LoadPattern::recv - cannot create NodalLoad with classTag "
-                 << classTag << endln;
-          return -2;
-        }
+        theNodalLoad->setDbTag(dbTag);
 
-        theNode->setDbTag(dbTag);
-
-        if (theNode->recvSelf(cTag, theChannel, theBroker) < 0) {
+        if (theNodalLoad->recvSelf(cTag, theChannel, theBroker) < 0) {
           opserr << "LoadPattern::recvSelf - NodalLoad with dbTag " << dbTag
                  << " failed in recvSelf\n";
           return -2;
         }
 
-        if (this->addNodalLoad(theNode) == false) {
+        if (this->addNodalLoad(theNodalLoad) == false) {
           opserr << "LoadPattern::recvSelf - failed adding NodalLoad tagged "
-                 << theNode->getTag() << " into LP!\n";
+                 << theNodalLoad->getTag() << " into LP!\n";
           return -3;
         }
 
@@ -901,7 +892,7 @@ GroundMotion *LoadPattern::getMotion(int tag) { return 0; }
 void LoadPattern::applyLoadSensitivity(double pseudoTime)
 {
   // P*dfactor/dh
-  if (theSeries != 0 && isConstant != 0) {
+  if (theSeries != 0 && isConstant != true) {
     loadFactor = theSeries->getFactorSensitivity(pseudoTime);
     loadFactor *= scaleFactor;
   }
@@ -912,7 +903,7 @@ void LoadPattern::applyLoadSensitivity(double pseudoTime)
     nodLoad->applyLoad(loadFactor);
 
   // factor*dP/dh
-  if (theSeries != 0 && isConstant != 0) {
+  if (theSeries != 0 && isConstant != true) {
     loadFactor = theSeries->getFactor(pseudoTime);
     loadFactor *= scaleFactor;
   }
