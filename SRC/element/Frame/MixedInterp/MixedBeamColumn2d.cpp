@@ -817,12 +817,12 @@ const Matrix & MixedBeamColumn2d::getTangentStiff(void) {
   if (initialFlag == 0) {
     this->revertToStart();
   }
-  crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
+  // crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
   return crdTransf->getGlobalStiffMatrix(kv,internalForce);
 }
 
 const Vector & MixedBeamColumn2d::getResistingForce(void) {
-  crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
+  // crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
   Vector p0Vec(p0, NDM_NATURAL);
   return crdTransf->getGlobalResistingForce(internalForce, p0Vec);
 }
