@@ -67,6 +67,8 @@ class TransientIntegrator : public IncrementalIntegrator
     
     virtual int initialize(void) {return 0;};
 
+    virtual int newStep(double dT) = 0;
+
   protected:
     
   private:
