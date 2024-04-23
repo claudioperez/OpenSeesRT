@@ -28,14 +28,16 @@
 #define FE_Element_h
 
 #include <ID.h>
-#include <Matrix.h>
-#include <Vector.h>
 #include <TaggedObject.h>
 
+class Vector;
+class Matrix;
 class Element;
 class Integrator;
+class StaticIntegrator;
 class AnalysisModel;
 
+// template <int Order, int NDF>
 class FE_Element: public TaggedObject
 {
   public:
@@ -45,21 +47,22 @@ class FE_Element: public TaggedObject
 
     // public methods for setting/obtaining mapping information
     virtual const ID &getDOFtags(void) const;
-    virtual const ID &getID(void) const;
+    virtual const ID &getID() const;
     void setAnalysisModel(AnalysisModel &theModel);
-    virtual int  setID(void);
-    
+    virtual int  setID();
+
     // methods to form and obtain the tangent and residual
     virtual const Matrix &getTangent(Integrator *theIntegrator);
     virtual const Vector &getResidual(Integrator *theIntegrator);
+//  virtual const Vector &getResidual(StaticIntegrator &theIntegrator);
 
     // methods to allow integrator to build tangent
-    virtual void  zeroTangent(void);
-    virtual void  addKtToTang(double fact = 1.0);
-    virtual void  addKiToTang(double fact = 1.0);
-    virtual void  addKgToTang(double fact = 1.0);
-    virtual void  addCtoTang(double fact = 1.0);    
-    virtual void  addMtoTang(double fact = 1.0);    
+    virtual void  zeroTangent()                  final;
+    virtual void  addKtToTang(double fact = 1.0) final;
+    virtual void  addKiToTang(double fact = 1.0) final;
+    virtual void  addKgToTang(double fact = 1.0) final;
+    virtual void  addCtoTang(double fact = 1.0)  final;
+    virtual void  addMtoTang(double fact = 1.0)  final;
     virtual void  addKpToTang(double fact = 1.0, int numP = 0);
     virtual int   storePreviousK(int numP);
     
@@ -79,7 +82,7 @@ class FE_Element: public TaggedObject
     virtual void  addK_Force(const Vector &disp, double fact = 1.0);
     virtual void  addKg_Force(const Vector &disp, double fact = 1.0);    
 
-    virtual int updateElement(void);
+    virtual int updateElement();
 
     virtual Integrator *getLastIntegrator(void);
     virtual const Vector &getLastResponse(void);
@@ -94,11 +97,6 @@ class FE_Element: public TaggedObject
     virtual int  commitSensitivity           (int gradNum, int numGrads);
     // AddingSensitivity:END //////////////////////////////////////
    
-#if 0
-    void activate();
-    void deactivate();
-    bool isActive();
-#endif
   protected:
     void  addLocalM_Force(const Vector &accel, double fact = 1.0);
     void  addLocalD_Force(const Vector &vel, double fact = 1.0);
@@ -119,8 +117,6 @@ class FE_Element: public TaggedObject
     Integrator *theIntegrator; // need for Subdomain
     
     // static variables - single copy for all objects of the class	
-//  static Matrix errMatrix;
-//  static Vector errVector;
     static Matrix **theMatrices; // array of pointers to class wide matrices
     static Vector **theVectors;  // array of pointers to class widde vectors
     static int numFEs;           // number of objects
