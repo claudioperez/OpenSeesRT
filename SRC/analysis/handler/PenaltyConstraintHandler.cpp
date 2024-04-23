@@ -23,7 +23,6 @@
 // Revision: A
 //
 #include <PenaltyConstraintHandler.h>
-// #include <stdlib.h>
 
 #include <AnalysisModel.h>
 #include <Domain.h>
@@ -56,10 +55,12 @@ OPS_ADD_RUNTIME_VPV(OPS_PenaltyConstraintHandler)
 
     double data[2];
     int numData = 2;
-    if(OPS_GetDoubleInput(&numData, &data[0]) < 0) return 0;
+    if (OPS_GetDoubleInput(&numData, &data[0]) < 0) 
+      return nullptr;
 
     return new PenaltyConstraintHandler(data[0], data[1]);
 }
+
 
 PenaltyConstraintHandler::PenaltyConstraintHandler(double sp, double mp)
 :ConstraintHandler(HANDLER_TAG_PenaltyConstraintHandler),
@@ -68,10 +69,12 @@ PenaltyConstraintHandler::PenaltyConstraintHandler(double sp, double mp)
 
 }
 
+
 PenaltyConstraintHandler::~PenaltyConstraintHandler()
 {
 
 }
+
 
 int
 PenaltyConstraintHandler::handle(const ID *nodesLast)
@@ -240,3 +243,4 @@ PenaltyConstraintHandler::recvSelf(int cTag,
     opserr << "PenaltyConstraintHandler::recvSelf() - error receiving Vector\n";
   return result;
 }
+
