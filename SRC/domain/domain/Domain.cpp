@@ -60,11 +60,6 @@
 #include <SingleDomAllSP_Iter.h>
 #include <SingleDomParamIter.h>
 
-// #include <UniaxialMaterial.h>
-// #include <NDMaterial.h>
-// #include <SectionForceDeformation.h>
-// #include <CrdTransf.h>
-
 #include <Vertex.h>
 #include <Matrix.h>
 #include <Graph.h>
@@ -80,7 +75,7 @@
 // global variables
 //
 
-Domain       *ops_TheActiveDomain = 0;
+Domain       *ops_TheActiveDomain = nullptr;
 double        ops_Dt = 0.0;
 bool          ops_InitialStateAnalysis = false;
 int           ops_Creep = 0;
@@ -824,7 +819,7 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint, int pattern)
 
   // now add it to the pattern
   TaggedObject *thePattern = theLoadPatterns->getComponentPtr(pattern);
-  if (thePattern == 0) {
+  if (thePattern == nullptr) {
       opserr << "Domain::addSP_Constraint - cannot add as pattern with tag " <<
 	pattern << " does not exist in domain\n"; 
 
@@ -857,17 +852,20 @@ Domain::addNodalLoad(NodalLoad *load, int pattern)
 
     // now add it to the pattern
     TaggedObject *thePattern = theLoadPatterns->getComponentPtr(pattern);
-    if (thePattern == 0) {
-      opserr << "Domain::addNodalLoad() - no pattern with tag " << 
-	pattern << " in the model, not adding the nodal load "  << *load << endln;
+    if (thePattern == nullptr) {
+      opserr << "Domain::addNodalLoad() - no pattern with tag "
+	     << pattern << " in the model, not adding the nodal load "  
+             << *load << "\n";
 
-	return false;
+      return false;
     }
+
     LoadPattern *theLoadPattern = (LoadPattern *)thePattern;
     bool result = theLoadPattern->addNodalLoad(load);
     if (result == false) {
-      opserr << "Domain::addNodalLoad() - pattern with tag " << 
-	pattern << " could not add the load " << *load << endln;
+      opserr << "Domain::addNodalLoad() - pattern with tag " 
+             << pattern << " could not add the load " << *load 
+             << "\n";
 
       return false;
     }
@@ -884,7 +882,7 @@ Domain::addElementalLoad(ElementalLoad *load, int pattern)
 {
     // now add it to the pattern
     TaggedObject *thePattern = theLoadPatterns->getComponentPtr(pattern);
-    if (thePattern == 0) {
+    if (thePattern == nullptr) {
       opserr << "Domain::addElementalLoad() - no pattern with tag " << pattern << 
 	"exits in  the model, not adding the ele load " << *load << endln;
 
@@ -974,11 +972,12 @@ Domain::clearAll(void) {
   nodeGraphBuiltFlag = false;
   eleGraphBuiltFlag = false;
   
-  dbEle =0; dbNod =0; dbSPs =0; dbPCs = 0; dbMPs =0; dbLPs = 0; dbParam = 0;
+  dbEle =0; dbNod =0; dbSPs =0; dbPCs = 0; 
+  dbMPs =0; dbLPs = 0; dbParam = 0;
 
-  currentGeoTag  = 0;
+  currentGeoTag  =  0;
   lastGeoSendTag = -1;
-  lastChannel    = 0;
+  lastChannel    =  0;
 
   if (theNodeGraph != nullptr)
     delete theNodeGraph;
@@ -997,10 +996,10 @@ Domain::removeElement(int tag)
 {
   // remove the object from the container    
   TaggedObject *mc = theElements->removeComponent(tag);
-  
-  // if not there return 0
-  if (mc == 0) 
-      return 0;
+
+  // if not there return NULL
+  if (mc == nullptr)
+      return nullptr;
 
   // otherwise mark the domain as having changed
   this->domainChange();
@@ -1018,9 +1017,9 @@ Domain::removeNode(int tag)
   // remove the object from the container
   TaggedObject *mc = theNodes->removeComponent(tag);
   
-  // if not there return 0
-  if (mc == 0) 
-      return 0;  
+  // if not there return NULL
+  if (mc == nullptr)
+      return nullptr;
 
   // mark the domain has having changed 
   this->domainChange();
@@ -1040,7 +1039,7 @@ Domain::removeNode(int tag)
 int
 Domain::removeSP_Constraint(int theNode, int theDOF, int loadPatternTag)
 {
-  SP_Constraint *theSP =0;
+  SP_Constraint *theSP = nullptr;
   bool found = false;
   int spTag = 0;
 
@@ -1058,7 +1057,7 @@ Domain::removeSP_Constraint(int theNode, int theDOF, int loadPatternTag)
   } else {
 
     LoadPattern *thePattern = this->getLoadPattern(loadPatternTag);
-    if (thePattern != 0) {
+    if (thePattern != nullptr) {
       SP_ConstraintIter &theSPs = thePattern->getSPs();
       while ((found == false) && ((theSP = theSPs()) != 0)) {
 	int nodeTag = theSP->getNodeTag();
@@ -1074,10 +1073,11 @@ Domain::removeSP_Constraint(int theNode, int theDOF, int loadPatternTag)
   if (found == true)
     theSP = this->removeSP_Constraint(spTag);
 
-  // mark the domain has having changed regardless if SP constrain was there or not
+  // mark the domain has having changed regardless if SP constraint
+  // was there or not
   this->domainChange();
 
-  if (theSP != 0) {
+  if (theSP != nullptr) {
     delete theSP;
     return 1;
   }
@@ -1091,9 +1091,9 @@ Domain::removeSP_Constraint(int tag)
     // remove the object from the container    
     TaggedObject *mc = theSPs->removeComponent(tag);
     
-    // if not there return 0    
-    if (mc == 0) 
-	return 0;
+    // if not there return nullptr    
+    if (mc == nullptr) 
+	return nullptr;
 
     // mark the domain as having changed    
     this->domainChange();
@@ -1113,9 +1113,9 @@ Domain::removePressure_Constraint(int tag)
     // remove the object from the container    
     TaggedObject *mc = thePCs->removeComponent(tag);
     
-    // if not there return 0    
-    if (mc == 0) 
-	return 0;
+    // if not there return nullptr    
+    if (mc == nullptr) 
+	return nullptr;
 
     // mark the domain as having changed    
     this->domainChange();
@@ -1135,9 +1135,9 @@ Domain::removeMP_Constraint(int tag)
     // remove the object from the container        
     TaggedObject *mc = theMPs->removeComponent(tag);
     
-    // if not there return 0    
-    if (mc == 0) 
-	return 0;
+    // if not there return nullptr    
+    if (mc == nullptr) 
+	return nullptr;
 
     // mark the domain as having changed    
     this->domainChange();
@@ -1153,8 +1153,9 @@ Domain::removeMP_Constraint(int tag)
 int
 Domain::removeMP_Constraints(int nodeTag)
 {
-  ID tagsToRemove(0); int sizeTags = 0;
-  MP_Constraint *theMP = 0;
+  ID tagsToRemove(0);
+  int sizeTags = 0;
+  MP_Constraint *theMP = nullptr;
   MP_ConstraintIter &theMPIter = this->getMPs();
   while ((theMP = theMPIter()) != nullptr) {
     int cNode = theMP->getNodeConstrained();
@@ -1171,7 +1172,7 @@ Domain::removeMP_Constraints(int nodeTag)
   for (int i=0; i<sizeTags; i++) {
     int  tag = tagsToRemove(i);
     TaggedObject *mc = theMPs->removeComponent(tag);
-    if (mc != 0)
+    if (mc != nullptr)
       delete mc;
   }
     
@@ -1236,9 +1237,9 @@ Domain::removeLoadPattern(int tag)
     // remove the object from the container            
     TaggedObject *obj = theLoadPatterns->removeComponent(tag);
     
-    // if not there return 0    
-    if (obj == 0)
-	return 0;
+    // if not there return nullptr    
+    if (obj == nullptr)
+	return nullptr;
     
     // perform a downward cast, set the objects domain pointer to 0
     // and return the result of the cast            
@@ -1288,7 +1289,7 @@ Domain::removeNodalLoad(int tag, int loadPattern)
     
   // if not there return 0    
   if (theLoadPattern == nullptr)
-    return 0;
+    return nullptr;
     
   return theLoadPattern->removeNodalLoad(tag);
 }    
@@ -1300,9 +1301,9 @@ Domain::removeElementalLoad(int tag, int loadPattern)
   // remove the object from the container            
   LoadPattern *theLoadPattern = this->getLoadPattern(loadPattern);
     
-  // if not there return 0    
-  if (theLoadPattern == 0)
-    return 0;
+  // if not there return nullptr    
+  if (theLoadPattern == nullptr)
+    return nullptr;
     
   return theLoadPattern->removeElementalLoad(tag);
 }    
@@ -1776,7 +1777,7 @@ Domain::applyLoad(double scale)
     dT = currentTime - committedTime;
 
     //
-    // first loop over nodes and elements getting them to first zero their loads
+    // first zero all loads
     //
 
     Node *nodePtr;
@@ -1790,10 +1791,12 @@ Domain::applyLoad(double scale)
 	if (elePtr->isSubdomain() == false)
 	    elePtr->zeroLoad();    
 
+    //
     // now loop over load patterns, invoking applyLoad on them
+    //
     LoadPattern *thePattern;
     LoadPatternIter &thePatterns = this->getLoadPatterns();
-    while((thePattern = thePatterns()) != 0)
+    while((thePattern = thePatterns()) != nullptr)
       thePattern->applyLoad(scale);
 
     //
@@ -1804,7 +1807,7 @@ Domain::applyLoad(double scale)
     MP_Constraint *theMP;
     while ((theMP = theMPs()) != nullptr)
       theMP->applyConstraint(scale);
-    
+
     SP_ConstraintIter &theSPs = this->getSPs();
     SP_Constraint *theSP;
     while ((theSP = theSPs()) != nullptr) {
@@ -1816,26 +1819,26 @@ Domain::applyLoad(double scale)
 
 
 void
-Domain::setLoadConstant(void)
+Domain::setLoadConstant()
 {
-    // loop over all the load patterns that are currently added to the domain
-    // getting them to set their loads as now constant
-    LoadPattern *thePattern;
-    LoadPatternIter &thePatterns = this->getLoadPatterns();
-    while((thePattern = thePatterns()) != 0)
-      thePattern->setLoadConstant();
+  // loop over all the load patterns that are currently added to the domain
+  // getting them to set their loads as now constant
+  LoadPattern *thePattern;
+  LoadPatternIter &thePatterns = this->getLoadPatterns();
+  while((thePattern = thePatterns()) != nullptr)
+    thePattern->setLoadConstant();
 }
 
 
 void
-Domain::unsetLoadConstant(void)
+Domain::unsetLoadConstant()
 {
-    // loop over all the load patterns that are currently added to the domain
-    // getting them to set their loads as now constant
-    LoadPattern *thePattern;
-    LoadPatternIter &thePatterns = this->getLoadPatterns();
-    while((thePattern = thePatterns()) != 0)
-      thePattern->unsetLoadConstant();
+  // loop over all the load patterns that are currently added to the domain
+  // getting them to set their loads as now constant
+  LoadPattern *thePattern;
+  LoadPatternIter &thePatterns = this->getLoadPatterns();
+  while((thePattern = thePatterns()) != nullptr)
+    thePattern->unsetLoadConstant();
 }
 
 
@@ -1974,7 +1977,7 @@ Domain::revertToStart(void)
     // ADDED BY TERJE //////////////////////////////////
     // invoke 'restart' on all recorders
     for (int i=0; i<numRecorders; i++) 
-      if (theRecorders[i] != 0)
+      if (theRecorders[i] != nullptr)
 	theRecorders[i]->restart();
     /////////////////////////////////////////////////////
 
@@ -1987,6 +1990,7 @@ Domain::revertToStart(void)
 
     return this->update();
 }
+
 
 int
 Domain::update(void)
@@ -2061,6 +2065,7 @@ Domain::analysisStep(double dT)
   return 0;
 }
 
+
 int
 Domain::eigenAnalysis(int nuMode, bool generalized, bool findSmallest)
 {
@@ -2095,10 +2100,10 @@ Domain::setEigenvalues(const Vector &theValues)
 
 
 const Vector &
-Domain::getEigenvalues(void) 
+Domain::getEigenvalues() 
 {
   // ensure the eigen values were set
-  if (theEigenvalues == 0) {
+  if (theEigenvalues == nullptr) {
     opserr << "Domain::getEigenvalues - Eigenvalues were never set\n";
     exit(-1);
   }
@@ -2107,39 +2112,39 @@ Domain::getEigenvalues(void)
 }  
 
 double 
-Domain::getTimeEigenvaluesSet(void) 
+Domain::getTimeEigenvaluesSet() 
 {
   return theEigenvalueSetTime;
 }
 
 void Domain::setModalProperties(const DomainModalProperties& dmp)
 {
-    if (theModalProperties) {
-        *theModalProperties = dmp;
-    }
-    else {
-        theModalProperties = new DomainModalProperties(dmp);
-    }
+  if (theModalProperties) {
+    *theModalProperties = dmp;
+  }
+  else {
+    theModalProperties = new DomainModalProperties(dmp);
+  }
 }
 
 void Domain::unsetModalProperties(void)
 {
-    if (theModalProperties) {
-        delete theModalProperties;
-        theModalProperties = nullptr;
-    }
+  if (theModalProperties) {
+      delete theModalProperties;
+      theModalProperties = nullptr;
+  }
 }
 
 int Domain::getModalProperties(DomainModalProperties &dmp) const
 {
-    if (theModalProperties == 0) {
-      opserr << "Domain::getModalProperties - DomainModalProperties were never set" << endln;
-      return -1;
-    }
-    else {
-      dmp = *theModalProperties;
-      return 0;
-    }
+  if (theModalProperties == nullptr) {
+    opserr << "Domain::getModalProperties - DomainModalProperties were never set" << endln;
+    return -1;
+  }
+  else {
+    dmp = *theModalProperties;
+    return 0;
+  }
 }
 
 int
@@ -2156,7 +2161,7 @@ Domain::setModalDampingFactors(Vector *theValues, bool inclMatrix)
 
   // make sure the eigen value vector is large enough
   if (theModalDampingFactors == nullptr || theModalDampingFactors->Size() != theValues->Size()) {
-    if (theModalDampingFactors != 0)
+    if (theModalDampingFactors != nullptr)
       delete theModalDampingFactors;
     theModalDampingFactors = new Vector(*theValues);
   } else {
@@ -2342,7 +2347,7 @@ Domain::addRecorder(Recorder &theRecorder)
   }
 
   for (int i=0; i<numRecorders; i++) {
-    if (theRecorders[i] == 0) {
+    if (theRecorders[i] == nullptr) {
       theRecorders[i] = &theRecorder;
       return 0;
     }
@@ -2354,7 +2359,7 @@ Domain::addRecorder(Recorder &theRecorder)
     newRecorders[i] = theRecorders[i];
   newRecorders[numRecorders] = &theRecorder;
   
-  if (theRecorders != 0)
+  if (theRecorders != nullptr)
     delete [] theRecorders;
   
   theRecorders = newRecorders;
@@ -2367,14 +2372,14 @@ int
 Domain::removeRecorders(void)
 {
     for (int i=0; i<numRecorders; i++)  
-      if (theRecorders[i] != 0)
+      if (theRecorders[i] != nullptr)
 	delete theRecorders[i];
     
-    if (theRecorders != 0) {
+    if (theRecorders != nullptr) {
       delete [] theRecorders;
     }
   
-    theRecorders = 0;
+    theRecorders = nullptr;
     numRecorders = 0;
     return 0;
 }
@@ -2464,7 +2469,7 @@ Domain::buildEleGraph(Graph *theEleGraph)
       return 0;
 
   //
-  // iterate over the lements of the domain
+  // iterate over the elements of the domain
   //  create a vertex with a unique tag for each element
   //  also create a map to hold element tag - vertex tag mapping
   //
