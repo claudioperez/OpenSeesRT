@@ -122,7 +122,7 @@ TransientIntegrator::formUnbalance(void) {
 	opserr << " no AnalysisModel or LinearSOE has been set\n";
 	return -1;
     }
-    
+
     theLinSOE->zeroB();
 
     // do modal damping
@@ -161,5 +161,4 @@ TransientIntegrator::formNodUnbalance(DOF_Group *theDof)
   theDof->addPIncInertiaToUnbalance();
   return 0;
 }    
-
 
