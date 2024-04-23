@@ -54,8 +54,7 @@ class EigenIntegrator : public Integrator
      EigenIntegrator();
      virtual ~EigenIntegrator();
      
-     virtual void setLinks(AnalysisModel &theModel,
-			   EigenSOE &theSOE);
+     void setLinks(AnalysisModel &theModel, EigenSOE &theSOE);
        
      // methods to form the M and K matrices.
      virtual int formK();
