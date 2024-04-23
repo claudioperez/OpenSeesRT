@@ -44,7 +44,7 @@ class FullGenLinLapackSolver : public FullGenLinSolver
     int recvSelf(int commitTag, Channel &theChannel, 
 		 FEM_ObjectBroker &theBroker);
 
-    double getDeterminant() const;
+    virtual double getDeterminant() override;
     
   protected:
 
