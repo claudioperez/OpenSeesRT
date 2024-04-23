@@ -26,9 +26,6 @@
 #include <ParkLMS3.h>
 #include <BackwardEuler.h>
 
-// extern TransientIntegrator *theTransientIntegrator;
-// extern StaticAnalysis *theStaticAnalysis;
-// extern DirectIntegrationAnalysis *theTransientAnalysis;
 extern VariableTimeStepDirectIntegrationAnalysis
            *theVariableTimeStepTransientAnalysis;
 
@@ -59,7 +56,7 @@ TransientIntegrator*
 G3Parse_newTransientIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 
 //
-// command invoked to allow the Integrator object to be built
+// command invoked to select and construct an integrator
 //
 int
 specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
@@ -81,10 +78,10 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
     G3Parse_newTransientIntegrator(clientData, interp, argc, argv);
 
   if (static_integrator != nullptr) {
-    builder->set(static_integrator, true);
+    builder->set(*static_integrator);
 
   } else if (transient_integrator != nullptr)
-    builder->set(transient_integrator, false);
+    builder->set(*transient_integrator);
 
   return TCL_OK;
 }
@@ -426,19 +423,45 @@ StaticIntegrator *
 G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   double arcLength;
-  double alpha;
-  if (argc != 4) {
-    opserr << "WARNING integrator ArcLength arcLength alpha \n";
+  double alpha   = 1.0;
+  double expon   = 1.0;
+  bool   use_det = false;
+  int    numIter = 5;
+  
+  // parser variables
+  bool got_alpha = false;
+  
+  // Begin parse
+  if (argc < 3) {
+    opserr << G3_ERROR_PROMPT << "integrator ArcLength arcLength alpha \n";
     return nullptr;
   }
+
   if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
     return nullptr;
 
-  if (Tcl_GetDouble(interp, argv[3], &alpha) != TCL_OK)
-    return nullptr;
+  for (int i=3; i<argc; i++) {
+    if (strcmp(argv[i], "-det") == 0) {
+      use_det = true;
+    }
+    else if (strcmp(argv[i], "-exp") == 0) {
+      i++;
+      if (Tcl_GetDouble(interp, argv[i], &expon) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read expon\n";
+        return nullptr;
+      }
+    }
+    else if (!got_alpha) {
+      if (Tcl_GetDouble(interp, argv[i], &alpha) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read alpha, got " << argv[i] << "\n";
+        return nullptr;
+      }
+    }
+  }
 
-  return new ArcLength(arcLength, alpha);
+  return new ArcLength(arcLength, alpha, numIter, expon, use_det);
 }
+
 
 #include <MinUnbalDispNorm.h>
 StaticIntegrator*
