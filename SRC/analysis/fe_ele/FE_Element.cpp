@@ -340,6 +340,7 @@ FE_Element::addKpToTang(double fact, int numP)
     // check for a quick return
     if (fact == 0.0)
       return;
+
     else if (myEle->isSubdomain() == false) {
       const Matrix *thePrevMat = myEle->getPreviousK(numP);
       if (thePrevMat != nullptr)
