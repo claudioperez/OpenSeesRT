@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2007-04-02 23:42:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/LoadPath.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/integrator/LoadPath.h
 // 
 // Written: fmk 
@@ -33,9 +28,7 @@
 // LoadPath is an algorithmic class for performing a static analysis
 // using a load control integration scheme.
 //
-// What: "@(#) LoadPath.h, revA"
-
-
+//
 #include <LoadPath.h>
 #include <AnalysisModel.h>
 #include <Vector.h>
