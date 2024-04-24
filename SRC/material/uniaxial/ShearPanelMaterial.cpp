@@ -128,7 +128,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ShearPanelMaterial)
 				      data[0], data[0], data[0], data[0], data[0],
 				      data[15], data[16]);
     }
-    if (argc == 31) {
+    else {
 	return new ShearPanelMaterial(tag,
 				      datap[0], datap[1], datap[2], datap[3], 
 				      datap[4], datap[5], datap[6], datap[7],
@@ -194,7 +194,7 @@ ShearPanelMaterial::ShearPanelMaterial(int tag,
 	if (strain4n >= 0.0)
 		error = true;
 
-	if (error){
+	if (error) {
 		opserr << "ERROR: -- input backbone is not unique (one-to-one) , ShearPanelMaterial::ShearPanelMaterial" << "\a";
 	}
 
