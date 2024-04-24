@@ -165,10 +165,11 @@ UniaxialMaterial::setResponse(const char **argv, int argc,
        (strcmp(argv[0],"stressANDstrainANDtangent") == 0) ||
        (strstr(argv[0],"stressSensitivity") != 0) ||
        (strstr(argv[0],"strainSensitivity") != 0)||
-	  (strstr(argv[0], "TempElong") != 0)
-	  //by SAJalali
-	  || (strstr(argv[0], "energy") != 0) ||
-	  (strstr(argv[0], "Energy") != 0)
+       (strstr(argv[0], "TempElong") == 0) ||
+       (strstr(argv[0], "tempANDelong") == 0) ||
+       //by SAJalali
+       (strstr(argv[0], "energy") == 0) ||
+       (strstr(argv[0], "Energy") == 0)
 	  
 	  ) {
     
@@ -232,19 +233,20 @@ UniaxialMaterial::setResponse(const char **argv, int argc,
       theOutput.tag("ResponseType", "epssens11");
       theResponse =  new MaterialResponse(this, gradient+20000, this->getStrain());
     }
-	//Added by Liming, UoE, for temperature and elongation output,[SIF]2017
-	else if ((strcmp(argv[0], "TempElong") == 0) ||
-		(strcmp(argv[0], "tempANDelong") == 0)) {
-		theOutput.tag("ResponseType", "temp11");
-		theOutput.tag("ResponseType", "Elong11");
-		theResponse = new MaterialResponse(this, 7, Vector(2));
-	}
-	// by SAJalali:
-	else if ((strcmp(argv[0], "energy") == 0) ||
-		(strcmp(argv[0], "Energy") == 0)) {
-		theOutput.tag("ResponseType", "energy");
-		theResponse = new MaterialResponse(this, 9, 0.0);
-	}
+
+    //Added by Liming, UoE, for temperature and elongation output,[SIF]2017
+    else if ((strcmp(argv[0], "TempElong") == 0) ||
+         (strcmp(argv[0], "tempANDelong") == 0)) {
+         theOutput.tag("ResponseType", "temp11");
+         theOutput.tag("ResponseType", "Elong11");
+         theResponse = new MaterialResponse(this, 7, Vector(2));
+    }
+    // by SAJalali:
+    else if ((strcmp(argv[0], "energy") == 0) ||
+         (strcmp(argv[0], "Energy") == 0)) {
+         theOutput.tag("ResponseType", "energy");
+         theResponse = new MaterialResponse(this, 9, 0.0);
+    }
 
     theOutput.endTag();
   }
@@ -291,7 +293,7 @@ UniaxialMaterial::getResponse(int responseID, Information &matInfo)
       matInfo.setDouble(this->getStrain());
       return 0;      
 
-  case 6: // an approx to plastic strain
+    case 6: // an approx to plastic strain
       strain = this->getStrain();
       stress = this->getStress();
       kInit = this->getTangent();
@@ -305,28 +307,29 @@ UniaxialMaterial::getResponse(int responseID, Information &matInfo)
       matInfo.setVector(stressStrain);
       return 0;
       
-	  case 5:
+    case 5:
       stressStrainTangent(0) = this->getStress();
       stressStrainTangent(1) = this->getStrain();
       stressStrainTangent(2) = this->getTangent();
       matInfo.setVector(stressStrainTangent);
       return 0;
 	 
-	  //Added by Liming, UoE, for temperature and elongation output,[SIF]2017
-	  case 7:
-		  if ((this->getVariable("TempAndElong", infoData)) != 0) {
-			  opserr << "Warning: invalid tag in uniaxialMaterial:getVariable" << endln;
-			  return -1;
-		  }
-		  tempData = infoData.getData();
-		  matInfo.setVector(tempData);
-		  return 0;
-	  //by SAJalali
-	  case 9:
-		  matInfo.setDouble(this->getEnergy());
-		  return 0;
-	  default:
-    return -1;
+    //Added by Liming, UoE, for temperature and elongation output,[SIF]2017
+    case 7:
+      if ((this->getVariable("TempAndElong", infoData)) != 0) {
+        opserr << "Warning: invalid tag in uniaxialMaterial:getVariable" << endln;
+        return -1;
+      }
+      tempData = infoData.getData();
+      matInfo.setVector(tempData);
+      return 0;
+
+     // by SAJalali
+     case 9:
+       matInfo.setDouble(this->getEnergy());
+       return 0;
+     default:
+       return -1;
   }
 }
 
