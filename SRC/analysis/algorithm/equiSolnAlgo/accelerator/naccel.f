@@ -59,15 +59,15 @@
    20   link(k) = k + 1
         link(max+1) = 0
         return
-        endif
+      endif
 *     ==================================================================
 *      Compute w_1.
 *     ==================================================================
       do 100 j=1,n
-  100 u(j,2,head) = u(j,2,head) - f(j)
+  100   u(j,2,head) = u(j,2,head) - f(j)
       t = 0.0d0
       do 101 j=1,n
-  101 t = t + u(j,2,head)**2
+  101   t = t + u(j,2,head)**2
       t = 1.0d0/sqrt(t)
 
 *     Normalize w_1 and apply same factor to z_1.
@@ -109,7 +109,7 @@
 *       Remove w_k from linked list.
         km1ptr = head
         do 230 j=2,k-1
-  230   km1ptr = link(km1ptr)      
+  230     km1ptr = link(km1ptr)      
         kptr = link(km1ptr)
         link(km1ptr) = link(kptr)
         nvec = nvec - 1
@@ -155,38 +155,44 @@
 *      Compute the projection of f onto {w_1, ... , w_nvec}.
 *     ==================================================================
       jptr = head
-      do 300 j=1,nvec
+      do j=1,nvec
        c(j) = 0.0d0
-       do 301 i=1,n
-  301  c(j) = c(j) + f(i)*u(i,2,jptr)
+       do i=1,n
+         c(j) = c(j) + f(i)*u(i,2,jptr)
+       end do
        jptr = link(jptr)
-       do 310 i=1,j-1
-  310  c(j) = c(j) - h(j,i)*c(i)
+       do i=1,j-1
+         c(j) = c(j) - h(j,i)*c(i)
+       end do
        c(j) = c(j)/h(j,j)
-  300 continue
+      end do
 
-      do 320 j=nvec,1,-1
-       do 321 i=j+1,nvec
-  321  c(j) = c(j) - h(i,j)*c(i)
-       c(j) = c(j)/h(j,j)
-  320 continue
+      do j=nvec,1,-1
+        do i=j+1,nvec
+          c(j) = c(j) - h(i,j)*c(i)
+        end do
+        c(j) = c(j)/h(j,j)
+      end do
 *     ==================================================================
 *      Compute the accelerated correction.
 *     ==================================================================
 *     Save f for the next call.
       do 410 j=1,n
-  410 u(j,2,next) = f(j)
+        u(j,2,next) = f(j)
+      end do
 
       kptr = head
-      do 420 k=1,nvec
-       do 421 j=1,n
-  421  f(j) = f(j) - c(k)*u(j,2,kptr) + c(k)*u(j,1,kptr)
+      do k=1,nvec
+       do j=1,n
+         f(j) = f(j) - c(k)*u(j,2,kptr) + c(k)*u(j,1,kptr)
+       end do
        kptr = link(kptr)
-  420 continue
+      end do
 
 *     Save the correction for the next call.
       do 430 j=1,n
-  430 u(j,1,next) = f(j)
+        u(j,1,next) = f(j)
+      end do
 *     ==================================================================
 *      Shift the vectors to the right.
 *     ==================================================================
