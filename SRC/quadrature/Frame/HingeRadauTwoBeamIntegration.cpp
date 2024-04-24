@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.5 $
-// $Date: 2008-12-03 23:43:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/HingeRadauTwoBeamIntegration.cpp,v $
-
+//
 /*
  * Reference
 
@@ -44,6 +40,8 @@ Force-Based Beam-Column Elements." Journal of Structural Engineering,
 #include <Parameter.h>
 #include <elementAPI.h>
 #include <ID.h>
+#include <Constants.h>
+using OpenSees::Constants::inv_sqrt3;
 
 void* OPS_HingeRadauTwoBeamIntegration(int& integrationTag, ID& secTags)
 {
@@ -119,12 +117,10 @@ HingeRadauTwoBeamIntegration::getSectionLocations(int numSections, double L,
   xi[4] = 1.0-2.0/3*lpJ*oneOverL;
   xi[5] = 1.0;
 
-  static const double oneRoot3 = 1.0/sqrt(3.0);
-
   double alpha = 0.5 - 0.5*(lpI+lpJ)*oneOverL;
   double beta  = 0.5 + 0.5*(lpI-lpJ)*oneOverL;
-  xi[2] = alpha*(-oneRoot3) + beta;
-  xi[3] = alpha*(oneRoot3) + beta;
+  xi[2] = alpha*(-inv_sqrt3) + beta;
+  xi[3] = alpha*(inv_sqrt3) + beta;
 
   for (int i = 6; i < numSections; i++)
     xi[i] = 0.0;
@@ -268,24 +264,22 @@ HingeRadauTwoBeamIntegration::getLocationsDeriv(int numSections,
 
   //return;
 
-  static const double oneRoot3 = 1.0/sqrt(3.0);
-
   if (parameterID == 1) { // lpI
     dptsdh[1] = 2.0/3*oneOverL;
-    dptsdh[2] = 0.5*oneOverL*(1.0+oneRoot3);
-    dptsdh[3] = 0.5*oneOverL*(1.0-oneRoot3);
+    dptsdh[2] = 0.5*oneOverL*(1.0+inv_sqrt3);
+    dptsdh[3] = 0.5*oneOverL*(1.0-inv_sqrt3);
   }
 
   if (parameterID == 2) { // lpJ
-    dptsdh[2] = -0.5*oneOverL*(1.0-oneRoot3);
-    dptsdh[3] = -0.5*oneOverL*(1.0+oneRoot3);
+    dptsdh[2] = -0.5*oneOverL*(1.0-inv_sqrt3);
+    dptsdh[3] = -0.5*oneOverL*(1.0+inv_sqrt3);
     dptsdh[4] = -2.0/3*oneOverL;
   }
 
   if (parameterID == 3) { // lpI and lpJ
     dptsdh[1] = 2.0/3*oneOverL;
-    dptsdh[2] =  oneOverL*oneRoot3;
-    dptsdh[3] = -oneOverL*oneRoot3;
+    dptsdh[2] =  oneOverL*inv_sqrt3;
+    dptsdh[3] = -oneOverL*inv_sqrt3;
     dptsdh[4] = -2.0/3*oneOverL;
   }
 
@@ -295,12 +289,12 @@ HingeRadauTwoBeamIntegration::getLocationsDeriv(int numSections,
     dptsdh[1] = -2.0/3*lpI*dLdh/(L*L);
     double dalphadh =  0.5*(lpI+lpJ)*dLdh/(L*L);
     double dbetadh  = -0.5*(lpI-lpJ)*dLdh/(L*L);
-    dptsdh[2] = -oneRoot3*dalphadh + dbetadh;
-    dptsdh[3] =  oneRoot3*dalphadh + dbetadh;
+    dptsdh[2] = -inv_sqrt3*dalphadh + dbetadh;
+    dptsdh[3] =  inv_sqrt3*dalphadh + dbetadh;
     double alpha = 0.5*L - 0.5*(lpI+lpJ);
     double beta  = 0.5*L + 0.5*(lpI-lpJ);
-    dptsdh[2] = -(-oneRoot3*alpha+beta)*dLdh/(L*L) + 0.5*dLdh;///(L*L);
-    dptsdh[3] = -( oneRoot3*alpha+beta)*dLdh/(L*L) + 0.5*dLdh;///(L*L);
+    dptsdh[2] = -(-inv_sqrt3*alpha+beta)*dLdh/(L*L) + 0.5*dLdh;///(L*L);
+    dptsdh[3] = -( inv_sqrt3*alpha+beta)*dLdh/(L*L) + 0.5*dLdh;///(L*L);
     dptsdh[4] = -(L-2.0/3*lpJ)*dLdh/(L*L);
     dptsdh[5] =  -L*dLdh/(L*L);
     // STILL TO DO
