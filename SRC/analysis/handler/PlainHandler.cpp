@@ -25,7 +25,7 @@
 //
 #include <PlainHandler.h>
 #include <stdlib.h>
-
+#include <Matrix.h>
 #include <AnalysisModel.h>
 #include <Domain.h>
 #include <FE_Element.h>
