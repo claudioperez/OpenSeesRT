@@ -37,6 +37,7 @@ target_sources(OPS_Material
     CycLiqCPSP3D.cpp
     # WrapperNDMaterial.cpp
     InitStressNDMaterial.cpp
+    InitStrainNDMaterial.cpp
     ConcreteMcftNonLinear5.cpp
     ConcreteMcftNonLinear7.cpp
     CapPlasticity.cpp
@@ -83,6 +84,7 @@ target_sources(OPS_Material
     CycLiqCPSP3D.h
     # WrapperNDMaterial.h
     InitStressNDMaterial.h
+    InitStrainNDMaterial.h
     ConcreteMcftNonLinear5.h
     ConcreteMcftNonLinear7.h
     CapPlasticity.h
@@ -111,6 +113,7 @@ add_subdirectory(soil)
 add_subdirectory(feap)
 add_subdirectory(cyclicSoil)
 add_subdirectory(UWmaterials)
+#add_subdirectory(ASDPlasticMaterial)
 # add_subdirectory(matCMM)
 add_subdirectory(stressDensityModel)
 add_subdirectory(UANDESmaterials)
