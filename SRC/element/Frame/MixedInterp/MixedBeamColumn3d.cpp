@@ -829,7 +829,9 @@ int MixedBeamColumn3d::revertToStart()
   kvcommit = kv;
 
   Matrix kvOpenSees = transformNaturalCoordsT*kv*transformNaturalCoords;
-  Ki = new Matrix(crdTransf->getInitialGlobalStiffMatrix(kvOpenSees));
+  if (Ki == nullptr)
+    Ki = new Matrix(NEGD, NEGD);
+  *Ki = crdTransf->getInitialGlobalStiffMatrix(kvOpenSees);
 
   // Vector V is zero at initial state
   V.Zero();
@@ -867,18 +869,19 @@ const Matrix & MixedBeamColumn3d::getTangentStiff(void) {
   if (initialFlag == 0) {
     this->revertToStart();
   }
-  crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
+  // crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
   Matrix ktOpenSees = transformNaturalCoordsT*kv*transformNaturalCoords;
   return crdTransf->getGlobalStiffMatrix(ktOpenSees,internalForceOpenSees);
 }
 
 const Vector & MixedBeamColumn3d::getResistingForce(void) {
-  crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
+  // crdTransf->update();  // Will remove once we clean up the corotational 3d transformation -- MHS
   Vector p0Vec(p0, NDM_NATURAL);
   return crdTransf->getGlobalResistingForce(internalForceOpenSees, p0Vec);
 }
 
-int MixedBeamColumn3d::update() {
+int MixedBeamColumn3d::update()
+{
 
   // If things haven't be initialized, then do so
   if (initialFlag == 0) {
