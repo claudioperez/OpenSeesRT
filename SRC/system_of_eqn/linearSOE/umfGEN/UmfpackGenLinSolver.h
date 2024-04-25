@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2009-05-11 20:56:31 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/umfGEN/UmfpackGenLinSolver.h,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 11/98
 //
 // Description: This file contains the class definition for 
 // UmfpackGenLinSolver. It solves the UmfpackGenLinSOEobject by calling
 // UMFPACK5.7.1 routines.
 //
-// What: "@(#) UmfpackGenLinSolver.h, revA"
-
+// Written: fmk 
+// Created: 11/98
+//
 #ifndef UmfpackGenLinSolver_h
 #define UmfpackGenLinSolver_h
 
@@ -43,7 +36,7 @@ class UmfpackGenLinSOE;
 class UmfpackGenLinSolver : public LinearSOESolver
 {
   public:
-    UmfpackGenLinSolver();     
+    UmfpackGenLinSolver(bool doDet = false);     
     ~UmfpackGenLinSolver();
 
     int solve(void);
@@ -54,6 +47,8 @@ class UmfpackGenLinSolver : public LinearSOESolver
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, 
 		 FEM_ObjectBroker &theBroker);    
+
+    virtual double getDeterminant() override;
     
   protected:
 
@@ -61,6 +56,8 @@ class UmfpackGenLinSolver : public LinearSOESolver
     void *Symbolic;
     double Control[UMFPACK_CONTROL], Info[UMFPACK_INFO];
     UmfpackGenLinSOE *theSOE;
+    double det;
+    bool doDet;
 };
 
 #endif

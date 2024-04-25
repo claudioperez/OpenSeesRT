@@ -1,5 +1,6 @@
 #include <tcl.h>
 #include <string.h>
+#include <OPS_ErrorStream.h>
 #include <UmfpackGenLinSOE.h>
 #include <UmfpackGenLinSolver.h>
 
@@ -12,6 +13,7 @@ TclDispatch_newUmfpackLinearSOE(ClientData clientData, Tcl_Interp* interp, int a
     int factLVALUE = 10;
     int factorOnce = 0;
     int count = 2;
+    bool doDet = false;
 
     while (count < argc) {
       if ((strcmp(argv[count], "-lValueFact") == 0) ||
@@ -27,9 +29,12 @@ TclDispatch_newUmfpackLinearSOE(ClientData clientData, Tcl_Interp* interp, int a
       } else if ((strcmp(argv[count], "-printTime") == 0) ||
                  (strcmp(argv[count], "-time") == 0)) {
         count++;
+      } else if (strcmp(argv[count], "-det") == 0) {
+        doDet = true;
+        count++;
       }
     }
-    UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver();
+    UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver(doDet);
 //  return new UmfpackGenLinSOE(*theSolver, factLVALUE, factorOnce, false);
     return new UmfpackGenLinSOE(*theSolver);
 }

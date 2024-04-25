@@ -29,32 +29,34 @@
 #include <UmfpackGenLinSolver.h>
 #include <math.h>
 #include <assert.h>
-
+#include <Constants.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-void* OPS_UmfpackGenLinSolver()
-{
-    UmfpackGenLinSolver *theSolver = new UmfpackGenLinSolver();
-    return new UmfpackGenLinSOE(*theSolver);  
-}
 
-UmfpackGenLinSolver::
-UmfpackGenLinSolver()
-    :LinearSOESolver(SOLVER_TAGS_UmfpackGenLinSolver), Symbolic(0), theSOE(0)
+UmfpackGenLinSolver::UmfpackGenLinSolver(bool doDet_)
+    :LinearSOESolver(SOLVER_TAGS_UmfpackGenLinSolver), 
+     Symbolic(nullptr), theSOE(nullptr),
+     det(0.0), doDet(doDet_)
 {
 }
 
 
 UmfpackGenLinSolver::~UmfpackGenLinSolver()
 {
-    if (Symbolic != 0) {
+    if (Symbolic != nullptr) {
 	umfpack_di_free_symbolic(&Symbolic);
     }
 }
 
+double
+UmfpackGenLinSolver::getDeterminant()
+{
+  return doDet? det : OpenSees::Constants::nan;
+}
+
 int
-UmfpackGenLinSolver::solve(void)
+UmfpackGenLinSolver::solve()
 {
     int n = theSOE->X.Size();
     int nnz = (int)theSOE->Ai.size();
@@ -73,8 +75,9 @@ UmfpackGenLinSolver::solve(void)
     //     return -1;
     // }
     
+    //  perform the numerical factorization
     // numerical analysis
-    void* Numeric = 0;
+    void* Numeric = nullptr;
     int status = umfpack_di_numeric(Ap,Ai,Ax,Symbolic,&Numeric,Control,Info);
 
     // check error
@@ -86,14 +89,17 @@ UmfpackGenLinSolver::solve(void)
 
     // solve
     status = umfpack_di_solve(UMFPACK_A,Ap,Ai,Ax,X,B,Numeric,Control,Info);
+    
+    if (doDet == true)
+      umfpack_di_get_determinant(&det, nullptr, Numeric, Info);
 
     // delete Numeric
-    if (Numeric != 0) {
+    if (Numeric != nullptr) {
 	umfpack_di_free_numeric(&Numeric);
     }
-    
+
     // check error
-    if (status!=UMFPACK_OK) {
+    if (status != UMFPACK_OK) {
       // opserr<<"WARNING: solving returns "<<status<<" -- Umfpackgenlinsolver::solve\n";
       return -1;
     }
@@ -119,9 +125,12 @@ UmfpackGenLinSolver::setSize()
     double* Ax = &(theSOE->Ax[0]);
 
     // symbolic analysis
-    if (Symbolic != 0) {
+    if (Symbolic != nullptr) {
 	umfpack_di_free_symbolic(&Symbolic);
     }
+
+    //  perform a column pre-ordering to reduce fill-in
+    //  and a symbolic factorization.
     int status = umfpack_di_symbolic(n,n,Ap,Ai,Ax,&Symbolic,Control,Info);
 
     // check error
