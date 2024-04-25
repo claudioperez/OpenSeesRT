@@ -18,19 +18,17 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-#ifndef LoadControl_h
-#define LoadControl_h
+// Description: This file contains the class definition for LoadControl.
+// LoadControl is an algorithmic class for performing a static analysis
+// using a load control integration scheme.
 // 
 // Written: fmk 
 // Created: 07/98
 // Revision: A
 //
-// Description: This file contains the class definition for LoadControl.
-// LoadControl is an algorithmic class for performing a static analysis
-// using a load control integration scheme.
+#ifndef LoadControl_h
+#define LoadControl_h
 //
-// What: "@(#) LoadControl.h, revA"
-
 #include <StaticIntegrator.h>
 #include <classTags.h>
 
@@ -60,7 +58,7 @@ class LoadControl : public StaticIntegrator
 
     void Print(OPS_Stream &s, int flag =0);
 
-    int formEleResidual(FE_Element *theEle);
+//  int formEleResidual(FE_Element *theEle);
     
     // Adding sensitivity
     int formSensitivityRHS(int gradNum);
@@ -70,23 +68,22 @@ class LoadControl : public StaticIntegrator
     int computeSensitivities(void);//Abbas
     bool computeSensitivityAtEachIteration();
 
-
     ///////////////////////
     
 protected:
     
   private:
-    double deltaLambda;  // dlambda at step (i-1)
-    
+    double deltaLambda;                      // dlambda at step (i-1)
+    double expon;                            // exponent for J(i-1)/Jd
     double specNumIncrStep, numIncrLastStep; // Jd & J(i-1) 
-    double dLambdaMin, dLambdaMax; // min & max values for dlambda at step (i)
-    
+    double dLambdaMin, dLambdaMax;           // min & max values for dlambda at step (i)
+
     // Adding sensitivity
     int gradNumber;
     int sensitivityFlag;
-   // EquiSolnAlgo *theAlgorithm;
+
     ReliabilityDomain *theDomain;
-    ////////////////////
+
 };
 
 #endif
