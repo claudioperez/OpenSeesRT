@@ -28,7 +28,7 @@
 
 #ifndef ASDShellT3CorotationalTransformation_h
 #define ASDShellT3CorotationalTransformation_h
-
+#include <Vector3D.h>
 #include <ASDEICR.h>
 #include <ASDShellT3Transformation.h>
 
@@ -65,7 +65,7 @@ class ASDShellT3CorotationalTransformation : public ASDShellT3Transformation
 
 public:
 
-    typedef ASDVector3<double> Vector3Type;
+    typedef Vector3D Vector3Type;
 
     typedef ASDQuaternion<double> QuaternionType;
 
@@ -333,9 +333,9 @@ public:
 
         static MatrixType Fnm(18, 3);
         Fnm.Zero();
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 0);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 6);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 12);
+        Fnm.addSpinAtRow(projectedLocalForces,  0);
+        Fnm.addSpinAtRow(projectedLocalForces,  6);
+        Fnm.addSpinAtRow(projectedLocalForces, 12);
 
         static MatrixType FnmT(3, 18);
         FnmT.addMatrixTranspose(0.0, Fnm, 1.0);
@@ -348,9 +348,9 @@ public:
         // At this point 'LHS' contains also this term of the Geometric stiffness
         // (Ke = (P' * Km * H * P) - (G' * Fn' * P) - (Fnm * G))
 
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 3);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 9);
-        EICR::Spin_AtRow(projectedLocalForces, Fnm, 15);
+        Fnm.addSpinAtRow(projectedLocalForces,   3);
+        Fnm.addSpinAtRow(projectedLocalForces,   9);
+        Fnm.addSpinAtRow(projectedLocalForces,  15);
 
         LHS.addMatrixProduct(1.0, Fnm, G, 1.0); // note: '+' not '-' because the RHS already has the negative sign
 

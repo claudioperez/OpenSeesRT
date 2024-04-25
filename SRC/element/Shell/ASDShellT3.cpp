@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2024/03
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // A 3-node general shear-deformable (thick) shell element based on 
@@ -30,12 +27,14 @@
 // drilling DOF to improve the membrane behavior.
 // 
 // It supports both linear and corotational kinematics.
-
+//
 #include <ASDShellT3.h>
 #include <ASDShellT3CorotationalTransformation.h>
 
 #include <SectionForceDeformation.h>
 #include <Domain.h>
+#include <Matrix.h>
+#include <Vector3D.h>
 #include <ErrorHandler.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
@@ -48,8 +47,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+class Damping;
+
 void*
-OPS_ASDShellT3(void)
+OPS_ADD_RUNTIME_VPV(OPS_ASDShellT3)
 {
     static bool first_done = false;
     if (!first_done) {
@@ -76,7 +77,7 @@ OPS_ASDShellT3(void)
     bool reduced_int = false;
     ASDShellT3::DrillingDOFMode drill_mode = ASDShellT3::DrillingDOF_Elastic;
     int dampingTag = 0;
-    Damping* m_damping = 0;
+    Damping* m_damping = nullptr;
     Vector local_x(3);
 
     while (OPS_GetNumRemainingInputArgs() > 0) {
@@ -110,12 +111,15 @@ OPS_ASDShellT3(void)
         else if (strcmp(type, "-damp") == 0) {
             if (OPS_GetNumRemainingInputArgs() > 0) {
                 numData = 1;
-                if (OPS_GetIntInput(&numData, &dampingTag) < 0) return 0;
+                if (OPS_GetIntInput(&numData, &dampingTag) < 0)
+                  return 0;
+#ifdef OPS_USE_DAMPING // TODO(cmp)!!
                 m_damping = OPS_getDamping(dampingTag);
                 if (m_damping == 0) {
                     opserr << "Error: element ASDShellT3: damping not found\n";
                     return 0;
                 }
+#endif
             }
         }
     }
@@ -136,7 +140,7 @@ OPS_ASDShellT3(void)
 namespace
 {
     // some typedefs
-    typedef ASDVector3<double> Vector3Type;
+    typedef Vector3D Vector3Type;
 
     // calculation options
     constexpr int OPT_NONE = 0;
@@ -585,7 +589,7 @@ ASDShellT3::ASDShellT3(
         m_local_x = new Vector(local_x);
         m_local_x->Normalize();
     }
-
+#ifdef OPS_USE_DAMPING
     // damping
     if (theDamping) {
         for (int i = 0; i < 3; i++) {
@@ -596,6 +600,7 @@ ASDShellT3::ASDShellT3(
             }
         }
     }
+#endif
 }
 
 ASDShellT3::~ASDShellT3()
@@ -619,11 +624,12 @@ ASDShellT3::~ASDShellT3()
     // clean up local axes
     if (m_local_x)
         delete m_local_x;
-
+#ifdef OPS_USE_DAMPING
     // clean up damping
     for (int i = 0; i < 3; i++)
         if (m_damping[i])
             delete m_damping[i];
+#endif
 }
 
 void ASDShellT3::setDomain(Domain* theDomain)
@@ -688,14 +694,14 @@ void ASDShellT3::setDomain(Domain* theDomain)
             if ((e1(0) * R(1, 0) + e1(1) * R(1, 1) + e1(2) * R(1, 2)) < 0.0)
                 m_angle = -m_angle;
         }
-
+#ifdef OPS_USE_DAMPING
         for (int i = 0; i < 3; i++) {
             if (m_damping[i] && m_damping[i]->setDomain(theDomain, 8)) {
                 opserr << "ASDShellT3::setDomain -- Error initializing damping\n";
                 exit(-1);
             }
         }
-
+#endif
         // initialized
         m_initialized = true;
     }
@@ -760,6 +766,7 @@ void ASDShellT3::Print(OPS_Stream& s, int flag)
 int
 ASDShellT3::setDamping(Domain* theDomain, Damping* damping)
 {
+#ifdef OPS_USE_DAMPING
     if (theDomain && damping)
     {
         for (int i = 0; i < 3; i++) {
@@ -776,6 +783,7 @@ ASDShellT3::setDamping(Domain* theDomain, Damping* damping)
             }
         }
     }
+#endif
     return 0;
 }
 
@@ -816,12 +824,12 @@ int ASDShellT3::commitState()
         m_nldrill->strain_comm = m_sections[0]->getSectionDeformation();
         m_nldrill->damage_comm = m_nldrill->damage;
     }
-
+#ifdef OPS_USE_DAMPING
     // damping
     for (int i = 0; i < 3; i++)
         if (m_damping[i]) 
             success += m_damping[i]->commitState();
-
+#endif
     // done
     return success;
 }
@@ -842,12 +850,12 @@ int ASDShellT3::revertToLastCommit()
         m_nldrill->strain_comm = m_sections[0]->getSectionDeformation();
         m_nldrill->damage = m_nldrill->damage_comm;
     }
-
+#ifdef OPS_USE_DAMPING
     // damping
     for (int i = 0; i < 3; i++)
         if (m_damping[i]) 
             success += m_damping[i]->revertToLastCommit();
-
+#endif
     // done
     return success;
 }
@@ -867,12 +875,12 @@ int  ASDShellT3::revertToStart()
         m_nldrill->strain_comm.Zero();
         m_nldrill->damage = m_nldrill->damage_comm = 0.0;
     }
-
+#ifdef OPS_USE_DAMPING
     // damping
     for (int i = 0; i < 3; i++)
         if (m_damping[i])
             success += m_damping[i]->revertToStart();
-
+#endif
     return success;
 }
 
@@ -1055,6 +1063,7 @@ int  ASDShellT3::sendSelf(int commitTag, Channel& theChannel)
         idData(counter++) = matDbTag;
     }
     if (m_damping[0]) {
+#ifdef OPS_USE_DAMPING
         idData(counter++) = m_damping[0]->getClassTag();
         int dbTag = m_damping[0]->getDbTag();
         if (dbTag == 0) {
@@ -1064,6 +1073,7 @@ int  ASDShellT3::sendSelf(int commitTag, Channel& theChannel)
                     m_damping[i]->setDbTag(dbTag);
         }
         idData(counter++) = dbTag;
+#endif
     }
     else {
         idData(counter++) = 0;
@@ -1138,6 +1148,7 @@ int  ASDShellT3::sendSelf(int commitTag, Channel& theChannel)
 
     // Ask the Damping to send itself
     if (m_damping[0]) {
+#ifdef OPS_USE_DAMPING
         for (int i = 0; i < 3; i++) {
             res += m_damping[i]->sendSelf(commitTag, theChannel);
             if (res < 0) {
@@ -1145,6 +1156,7 @@ int  ASDShellT3::sendSelf(int commitTag, Channel& theChannel)
                 return res;
             }
         }
+#endif
     }
 
     // done
@@ -1293,6 +1305,7 @@ int  ASDShellT3::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& 
         }
     }
 
+#ifdef OPS_USE_DAMPING
     if (dmpTag) {
         for (int i = 0; i < 3; i++) {
             // Check if the Damping is null; if so, get a new one
@@ -1334,6 +1347,7 @@ int  ASDShellT3::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& 
             }
         }
     }
+#endif
 
     // done
     return res;
@@ -1518,6 +1532,7 @@ ASDShellT3::getResponse(int responseID, Information& eleInfo)
         }
         return eleInfo.setVector(strains);
         break;
+#ifdef OPS_USE_DAMPING
     case 4: // damping stresses
         for (int i = 0; i < 3; i++) {
 
@@ -1535,6 +1550,7 @@ ASDShellT3::getResponse(int responseID, Information& eleInfo)
         }
         return eleInfo.setVector(stresses);
         break;
+#endif
     default:
         return -1;
     }
@@ -1705,18 +1721,22 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
             if (m_angle != 0.0) {
                 auto& Ssection = m_sections[igauss]->getStressResultant();
                 S.addMatrixVector(0.0, Rs, Ssection, 1.0);
+#ifdef OPS_USE_DAMPING
                 if (m_damping[igauss]) {
                     m_damping[igauss]->update(Ssection);
                     auto& Sdsection = m_damping[igauss]->getDampingForce();
                     S.addMatrixVector(1.0, Rs, Sdsection, 1.0);
                 }
+#endif
             }
             else {
+#ifdef OPS_USE_DAMPING
                 S = m_sections[igauss]->getStressResultant();
                 if (m_damping[igauss]) {
                     m_damping[igauss]->update(S);
                     S += m_damping[igauss]->getDampingForce();
                 }
+#endif
             }
 
             // apply Stenberg stabilization
@@ -1776,8 +1796,10 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
                 Dsection = (options & OPT_LHS_IS_INITIAL) ?
                     m_sections[igauss]->getInitialTangent() :
                     m_sections[igauss]->getSectionTangent();
+#ifdef OPS_USE_DAMPING
                 if (m_damping[igauss]) 
                     Dsection *= m_damping[igauss]->getStiffnessMultiplier();
+#endif
                 auto& RsT = ASDShellT3Globals::instance().RsT;
                 RsT.addMatrixTranspose(0.0, Rs, 1.0);
                 auto& DRsT = ASDShellT3Globals::instance().DRsT;
@@ -1788,8 +1810,10 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
                 D = (options & OPT_LHS_IS_INITIAL) ?
                     m_sections[igauss]->getInitialTangent() :
                     m_sections[igauss]->getSectionTangent();
+#ifdef OPS_USE_DAMPING
                 if (m_damping[igauss])
                     D *= m_damping[igauss]->getStiffnessMultiplier();
+#endif
             }
 
             // apply Stenberg stabilization
