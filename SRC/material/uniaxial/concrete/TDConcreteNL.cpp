@@ -77,6 +77,7 @@
 
 //Added by AMK to use dylib:
 //-----------------------------------------------------------------------
+#ifndef OPS_Export
 	#ifdef _USRDLL
 	#define OPS_Export extern "C" _declspec(dllexport)
 	#elif _MACOSX
@@ -84,7 +85,7 @@
 	#else
 	#define OPS_Export extern "C"
 	#endif
-
+#endif
 	static int numTDConcreteNL = 0;
 
 //	OPS_Export void *
