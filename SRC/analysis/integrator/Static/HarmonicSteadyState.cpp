@@ -249,18 +249,6 @@ HarmonicSteadyState::formEleTangent(FE_Element *theEle)
 
 
 int
-HarmonicSteadyState::formEleResidual(FE_Element* theEle)
-{
-    if(sensitivityFlag == 0) {  // no sensitivity
-	this->StaticIntegrator::formEleResidual(theEle);
-    } else {
-	theEle->zeroResidual();
-	theEle->addResistingForceSensitivity(gradNumber);
-    }
-    return 0;
-}
-
-int
 HarmonicSteadyState::formIndependentSensitivityRHS()
 {
     return 0;
