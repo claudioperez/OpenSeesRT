@@ -58,20 +58,16 @@ using std::setw;
 #include <ObjectiveFunction.h>
 
 #ifdef _HAVESNOPT
-SNOPTAnalysis *theSNOPTAnalysis = 0;
+SNOPTAnalysis *theSNOPTAnalysis = nullptr;
 #endif
 
-static Domain *theStructuralDomain = 0;
-OptimizationDomain *theOptimizationDomain = 0;
+static Domain *theStructuralDomain = nullptr;
+OptimizationDomain *theOptimizationDomain = nullptr;
 
-int TclOptimizationModelBuilder_addDesignVariable(ClientData clientData,
-                                                  Tcl_Interp *interp, int argc,
-                                                  TCL_Char ** const argv);
-int TclOptimizationModelBuilder_addDesignVariablePositioner(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
-int TclOptimizationModelBuilder_addObjectiveFunction(ClientData clientData,
-                                                     Tcl_Interp *interp,
-                                                     int argc, TCL_Char ** const argv);
+Tcl_CmdProc TclOptimizationModelBuilder_addDesignVariable;
+Tcl_CmdProc TclOptimizationModelBuilder_addDesignVariablePositioner;
+Tcl_CmdProc TclOptimizationModelBuilder_addObjectiveFunction;
+
 int TclOptimizationModelBuilder_addConstraintFunction(ClientData clientData,
                                                       Tcl_Interp *interp,
                                                       int argc,
