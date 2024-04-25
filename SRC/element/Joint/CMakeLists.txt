@@ -17,6 +17,7 @@ target_sources(OPS_Element
     LehighJoint2d.cpp
     MP_Joint2D.cpp
     MP_Joint3D.cpp
+    Inno3DPnPJoint.cpp
   PUBLIC
     BeamColumnJoint2d.h
     BeamColumnJoint3d.h
@@ -26,6 +27,7 @@ target_sources(OPS_Element
     LehighJoint2d.h
     MP_Joint2D.h
     MP_Joint3D.h
+    Inno3DPnPJoint.h
 )
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
