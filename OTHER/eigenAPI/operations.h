@@ -17,47 +17,23 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-// 
-// Description: This file contains the class definition for StaticIntegrator.
-// StaticIntegrator is an algorithmic class for setting up the finite element
-// equations for a static analysis and for Incrementing the nodal displacements
-// with the values in the soln vector to the LinearSOE object. 
+
+// Jose Abell (UANDES, github.com/jaabell)
+// Massimo Petracca - ASDEA Software, Italy (2022)
 //
-// Written: fmk 
-// Created: 11/96
-// File: ~/analysis/integrator/StaticIntegrator.h
-//
-#ifndef StaticIntegrator_h
-#define StaticIntegrator_h
+#include "EigenAPI.h"
 
-#include <IncrementalIntegrator.h>
+#ifndef EigenAPI_operations_h
+#define EigenAPI_operations_h
 
-class FE_Element;
-class DOF_Group;
 
-class StaticIntegrator : public IncrementalIntegrator
-{
-  public:
-    StaticIntegrator(int classTag);    
 
-    virtual ~StaticIntegrator();
+template<class T>
+inline void printNorm(const T& x) {
+    std::cout << x.norm() << "\n";
+}
 
-    // methods which define what the FE_Element and DOF_Groups add
-    // to the system of equation object.
-    virtual int formUnbalance() final;
-    virtual int formEleTangent(FE_Element *theEle);
-    virtual int formEleResidual(FE_Element *theEle)   final;
-    virtual int formNodTangent(DOF_Group *theDof)     final;
-    virtual int formNodUnbalance(DOF_Group *theDof)   final;    
-    virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
 
-    virtual int newStep() = 0;
+#endif // EigenAPI_operations_h
 
-  protected:
-
- 
-  private:
-};
-
-#endif
 

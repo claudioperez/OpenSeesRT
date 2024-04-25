@@ -80,7 +80,7 @@ class TransientDomainDecompositionAnalysis: public DomainDecompositionAnalysis
     // that do some form of condensation to the tangent
     int  getNumExternalEqn(void);
     int  getNumInternalEqn(void);
-    int  analysisStep(double dT);
+    virtual int  analysisStep(double dT) final;
     int  eigenAnalysis(int numMode, bool generalized, bool findSmallest);
     int  computeInternalResponse(void);
     int  formTangent(void);

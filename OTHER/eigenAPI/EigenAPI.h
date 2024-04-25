@@ -17,47 +17,42 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-// 
-// Description: This file contains the class definition for StaticIntegrator.
-// StaticIntegrator is an algorithmic class for setting up the finite element
-// equations for a static analysis and for Incrementing the nodal displacements
-// with the values in the soln vector to the LinearSOE object. 
+
+// Jose Abell (UANDES, github.com/jaabell)
+// Massimo Petracca - ASDEA Software, Italy (2022)
 //
-// Written: fmk 
-// Created: 11/96
-// File: ~/analysis/integrator/StaticIntegrator.h
+// Utility header file to interface with the Eigen library
 //
-#ifndef StaticIntegrator_h
-#define StaticIntegrator_h
 
-#include <IncrementalIntegrator.h>
+#ifndef EigenAPI_h
+#define EigenAPI_h
 
-class FE_Element;
-class DOF_Group;
+#include <OPS_Globals.h>
+#include <Matrix.h>
+#include <Vector.h>
 
-class StaticIntegrator : public IncrementalIntegrator
-{
-  public:
-    StaticIntegrator(int classTag);    
+// MACROS that should be defined before including ANY eigen file
 
-    virtual ~StaticIntegrator();
+/*
+The macro EIGEN_DONT_ALIGN is deprecated (it is a synonim of EIGEN_MAX_ALIGN_BYTES=0).
+It disables automatic allignment of fixed size arrays.
+It is necessary to do so to avoid problems using those types as member of structures.
+More information here:
+https://eigen.tuxfamily.org/dox/group__TopicStructHavingEigenMembers.html
+*/
 
-    // methods which define what the FE_Element and DOF_Groups add
-    // to the system of equation object.
-    virtual int formUnbalance() final;
-    virtual int formEleTangent(FE_Element *theEle);
-    virtual int formEleResidual(FE_Element *theEle)   final;
-    virtual int formNodTangent(DOF_Group *theDof)     final;
-    virtual int formNodUnbalance(DOF_Group *theDof)   final;    
-    virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
+#define EIGEN_MAX_ALIGN_BYTES 0
+#define EIGEN_MAX_CPP_VER 14
 
-    virtual int newStep() = 0;
 
-  protected:
+#include "Eigen/Dense"
 
- 
-  private:
-};
+// namespace EigenAPI {
 
-#endif
+#include "converters.h"
+#include "typedefs.h"
+#include "operations.h"
 
+// }
+
+#endif // EigenAPI_h

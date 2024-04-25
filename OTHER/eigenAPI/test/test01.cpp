@@ -17,47 +17,30 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-// 
-// Description: This file contains the class definition for StaticIntegrator.
-// StaticIntegrator is an algorithmic class for setting up the finite element
-// equations for a static analysis and for Incrementing the nodal displacements
-// with the values in the soln vector to the LinearSOE object. 
+
+// Jose Abell (UANDES, github.com/jaabell)
+// Massimo Petracca - ASDEA Software, Italy (2022)
 //
-// Written: fmk 
-// Created: 11/96
-// File: ~/analysis/integrator/StaticIntegrator.h
+// Basic test of the EigenAPI
 //
-#ifndef StaticIntegrator_h
-#define StaticIntegrator_h
 
-#include <IncrementalIntegrator.h>
 
-class FE_Element;
-class DOF_Group;
-
-class StaticIntegrator : public IncrementalIntegrator
-{
-  public:
-    StaticIntegrator(int classTag);    
-
-    virtual ~StaticIntegrator();
-
-    // methods which define what the FE_Element and DOF_Groups add
-    // to the system of equation object.
-    virtual int formUnbalance() final;
-    virtual int formEleTangent(FE_Element *theEle);
-    virtual int formEleResidual(FE_Element *theEle)   final;
-    virtual int formNodTangent(DOF_Group *theDof)     final;
-    virtual int formNodUnbalance(DOF_Group *theDof)   final;    
-    virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
-
-    virtual int newStep() = 0;
-
-  protected:
+#include <iostream>
+#include "../EigenAPI.h"
+ 
+using Eigen::MatrixXd;
+using Eigen::Matrix2d;
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
 
  
-  private:
-};
-
-#endif
-
+int main()
+{
+  // MatrixXd m(2,2);
+  Matrix2d m(2,2);
+  m(0,0) = 3;
+  m(1,0) = 2.5;
+  m(0,1) = -1;
+  m(1,1) = m(1,0) + m(0,1);
+  std::cout << m << std::endl;
+}

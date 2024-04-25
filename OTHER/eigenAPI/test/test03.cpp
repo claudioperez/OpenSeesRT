@@ -17,47 +17,65 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-// 
-// Description: This file contains the class definition for StaticIntegrator.
-// StaticIntegrator is an algorithmic class for setting up the finite element
-// equations for a static analysis and for Incrementing the nodal displacements
-// with the values in the soln vector to the LinearSOE object. 
+
+// Jose Abell (UANDES, github.com/jaabell)
+// Massimo Petracca - ASDEA Software, Italy (2022)
 //
-// Written: fmk 
-// Created: 11/96
-// File: ~/analysis/integrator/StaticIntegrator.h
+// Test interface between eigen and opensees matrices. 
 //
-#ifndef StaticIntegrator_h
-#define StaticIntegrator_h
+// testing: copyToMatrixReference
+//
 
-#include <IncrementalIntegrator.h>
 
-class FE_Element;
-class DOF_Group;
+#include <iostream>
+#include "../EigenAPI.h"
+#include <StandardStream.h>
 
-class StaticIntegrator : public IncrementalIntegrator
+StandardStream sserr;
+OPS_Stream *opserrPtr = &sserr;
+
+
+using Eigen::MatrixXd;
+using Eigen::Matrix2d;
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
+
+template <typename Derived>
+void test_copyToMatrixReference(const Eigen::DenseBase<Derived> &m, Matrix &ops_mat)
 {
-  public:
-    StaticIntegrator(int classTag);    
+	std::cout << std::endl;
 
-    virtual ~StaticIntegrator();
+	*opserrPtr << "OPS matrix before copy:" ;
+	*opserrPtr << ops_mat ;
 
-    // methods which define what the FE_Element and DOF_Groups add
-    // to the system of equation object.
-    virtual int formUnbalance() final;
-    virtual int formEleTangent(FE_Element *theEle);
-    virtual int formEleResidual(FE_Element *theEle)   final;
-    virtual int formNodTangent(DOF_Group *theDof)     final;
-    virtual int formNodUnbalance(DOF_Group *theDof)   final;    
-    virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
+	std::cout << "Eigen matrix :\n";
+	std::cout << m << std::endl;
 
-    virtual int newStep() = 0;
+	std::cout << std::endl;
 
-  protected:
+	copyToMatrixReference(m, ops_mat);
 
- 
-  private:
-};
+	*opserrPtr << "OPS matrix after copy:" ;
+	*opserrPtr << ops_mat ;
 
-#endif
+	return ;
+}
 
+
+int main()
+{
+	Matrix ops_m2x2(2,2);
+	test_copyToMatrixReference(Matrix2d::Random().eval(), ops_m2x2);
+	test_copyToMatrixReference(Matrix2d::Random().eval(), ops_m2x2);
+
+	Matrix ops_m3x3(3,3);
+	test_copyToMatrixReference(Matrix3d::Random().eval(), ops_m3x3);
+	test_copyToMatrixReference(Matrix3d::Random().eval(), ops_m3x3);
+
+	Matrix ops_m4x4(4,4);
+	test_copyToMatrixReference(Matrix4d::Random().eval(), ops_m4x4);
+
+	Matrix ops_m2x5(2,6);
+	test_copyToMatrixReference(MatrixXd::Random(2,5).eval(), ops_m2x5);
+
+}

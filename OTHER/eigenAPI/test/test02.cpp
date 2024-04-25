@@ -17,47 +17,55 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-// 
-// Description: This file contains the class definition for StaticIntegrator.
-// StaticIntegrator is an algorithmic class for setting up the finite element
-// equations for a static analysis and for Incrementing the nodal displacements
-// with the values in the soln vector to the LinearSOE object. 
+
+// Jose Abell (UANDES, github.com/jaabell)
+// Massimo Petracca - ASDEA Software, Italy (2022)
 //
-// Written: fmk 
-// Created: 11/96
-// File: ~/analysis/integrator/StaticIntegrator.h
+// Test interface between eigen and opensees matrices. 
 //
-#ifndef StaticIntegrator_h
-#define StaticIntegrator_h
+// testing: copyToNewMatrix
+//
 
-#include <IncrementalIntegrator.h>
 
-class FE_Element;
-class DOF_Group;
+#include <iostream>
+#include "../EigenAPI.h"
+#include <StandardStream.h>
 
-class StaticIntegrator : public IncrementalIntegrator
+StandardStream sserr;
+OPS_Stream *opserrPtr = &sserr;
+
+
+using Eigen::MatrixXd;
+using Eigen::Matrix2d;
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
+
+template <typename Derived>
+void test_copyToNewMatrix(const Eigen::DenseBase<Derived> &m)
 {
-  public:
-    StaticIntegrator(int classTag);    
+	std::cout << std::endl;
 
-    virtual ~StaticIntegrator();
+	std::cout << "Eigen matrix :\n";
+	std::cout << m << std::endl;
 
-    // methods which define what the FE_Element and DOF_Groups add
-    // to the system of equation object.
-    virtual int formUnbalance() final;
-    virtual int formEleTangent(FE_Element *theEle);
-    virtual int formEleResidual(FE_Element *theEle)   final;
-    virtual int formNodTangent(DOF_Group *theDof)     final;
-    virtual int formNodUnbalance(DOF_Group *theDof)   final;    
-    virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
+	std::cout << std::endl;
 
-    virtual int newStep() = 0;
+	Matrix ops_mat = copyToNewMatrix(m);
 
-  protected:
+	*opserrPtr << "OPS matrix:" ;
+	*opserrPtr << ops_mat ;
 
- 
-  private:
-};
+	return ;
+}
 
-#endif
 
+int main()
+{
+	test_copyToNewMatrix(Matrix2d::Random());
+	test_copyToNewMatrix(Matrix3d::Random());
+	test_copyToNewMatrix(Matrix4d::Random());
+	test_copyToNewMatrix(MatrixXd::Random(3,8));  
+	
+	typedef Eigen::Matrix<double, 3, 8> myCustomMatrix;
+	test_copyToNewMatrix(myCustomMatrix::Random());
+}

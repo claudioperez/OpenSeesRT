@@ -29,18 +29,12 @@
 //
 #include <StaticIntegrator.h>
 #include <LinearSOE.h>
-#include <AnalysisModel.h>
-#include <Vector.h>
-#include <Channel.h>
-#include <FEM_ObjectBroker.h>
 
 #include <DOF_Group.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
 #include <DOF_Group.h>
 #include <DOF_GrpIter.h>
-#include <LoadPattern.h>
-#include <LoadPatternIter.h>
 
 StaticIntegrator::StaticIntegrator(int clasTag)
  :IncrementalIntegrator(clasTag)
@@ -50,7 +44,37 @@ StaticIntegrator::StaticIntegrator(int clasTag)
 
 StaticIntegrator::~StaticIntegrator()
 {
+
 }
+
+int 
+StaticIntegrator::formUnbalance()
+{
+  LinearSOE* theLinSOE = this->getLinearSOE();
+
+  if (theLinSOE == nullptr) {
+      opserr << "WARNING IncrementalIntegrator::formUnbalance -";
+      opserr << " no LinearSOE has been set\n";
+      return -1;
+  }
+  
+  theLinSOE->zeroB();
+
+  if (this->formElementResidual() < 0) {
+      opserr << "WARNING IncrementalIntegrator::formUnbalance ";
+      opserr << " - this->formElementResidual failed\n";
+      return -1;
+  }
+  
+  if (this->formNodalUnbalance() < 0) {
+      opserr << "WARNING IncrementalIntegrator::formUnbalance ";
+      opserr << " - this->formNodalUnbalance failed\n";
+      return -2;
+  }    
+
+  return 0;
+}
+    
 
 int
 StaticIntegrator::formEleTangent(FE_Element *theEle)
@@ -63,40 +87,40 @@ StaticIntegrator::formEleTangent(FE_Element *theEle)
     theEle->zeroTangent();
     theEle->addKiToTang();
 
-  } else if (statusFlag == HALL_TANGENT)  {
+  } else if (statusFlag == HALL_TANGENT) {
     theEle->zeroTangent();
     theEle->addKtToTang(cFactor);
     theEle->addKiToTang(iFactor);
   } 
 
   return 0;
-}    
+}
 
 int
 StaticIntegrator::formEleResidual(FE_Element *theEle)
 {
-    // only elements residual needed
-    theEle->zeroResidual();
-    theEle->addRtoResidual();
-    return 0;
+  // only elements residual needed
+  theEle->zeroResidual();
+  theEle->addRtoResidual();
+  return 0;
 }    
 
 int
 StaticIntegrator::formNodTangent(DOF_Group *theDof)
 {
-    // should never be called
-    opserr << "StaticIntegrator::formNodTangent() -";
-    opserr << " this method should never have been called!\n";
-    return -1;
+  // should never be called
+  opserr << "StaticIntegrator::formNodTangent() -";
+  opserr << " this method should never have been called!\n";
+  return -1;
 }    
 
 int
 StaticIntegrator::formNodUnbalance(DOF_Group *theDof)
 {
-    // only nodes unbalance need be added
-    theDof->zeroUnbalance();
-    theDof->addPtoUnbalance();
-    return 0;
+  // only nodes unbalance need be added
+  theDof->zeroUnbalance();
+  theDof->addPtoUnbalance();
+  return 0;
 }    
 
 
