@@ -54,7 +54,7 @@ MinUnbalDispNorm::MinUnbalDispNorm(double lambda1, int specNumIter,
  dLambdaj(0.0),
  phat(nullptr), deltaLambdaStep(0.0), currentLambda(0.0), 
  dLambda1min(min), dLambda1max(max), signLastDeterminant(1), 
- signFirstStepMethod(signFirstStep)
+ signFirstStepMethod(signFirstStep),
  dLambdaStepDh(0.0),dUIJdh(0),Dlambdadh(0.0),dphatdh(0),Residual2(0),
  signLastDeltaLambdaStep(1), sensitivityFlag(0),Residual(0), 
  dlambdadh(0.0), dLambda(0.0), sensU(0),d_deltaU_dh(0),gradNumber(0),dLAMBDAdh(0)
