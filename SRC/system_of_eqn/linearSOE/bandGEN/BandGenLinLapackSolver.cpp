@@ -33,9 +33,9 @@
 #include <BandGenLinSOE.h>
 
 
-BandGenLinLapackSolver::BandGenLinLapackSolver()
+BandGenLinLapackSolver::BandGenLinLapackSolver(bool doDet_)
 :BandGenLinSolver(SOLVER_TAGS_BandGenLinLapackSolver),
- iPiv(0), iPivSize(0)
+ iPiv(0), iPivSize(0), doDet(doDet_)
 {
 
 }
@@ -46,7 +46,8 @@ BandGenLinLapackSolver::~BandGenLinLapackSolver()
      delete [] iPiv;
 }
 
-static inline double *index(double* A, int kl, int ku, int i, int j)
+static inline double *
+index(double* A, int kl, int ku, int i, int j)
 {
   int ldA = 2*kl + ku + 1;
   double *coliiptr = A + j*ldA + kl + ku;
@@ -151,7 +152,8 @@ BandGenLinLapackSolver::solve(void)
     }
 
     theSOE->factored = true;
-    this->setDeterminant();
+    if (doDet)
+      this->setDeterminant();
     return 0;
 }
 

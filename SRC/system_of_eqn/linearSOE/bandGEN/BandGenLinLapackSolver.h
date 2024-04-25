@@ -36,11 +36,11 @@
 class BandGenLinLapackSolver : public BandGenLinSolver
 {
   public:
-    BandGenLinLapackSolver();    
+    BandGenLinLapackSolver(bool doDet=true);
     ~BandGenLinLapackSolver();
 
-    int solve(void);
-    int setSize(void);
+    int solve();
+    int setSize();
 
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, 
@@ -54,6 +54,7 @@ class BandGenLinLapackSolver : public BandGenLinSolver
     int *iPiv;
     int iPivSize;
     double det;
+    bool doDet;
     void setDeterminant();
 };
 
