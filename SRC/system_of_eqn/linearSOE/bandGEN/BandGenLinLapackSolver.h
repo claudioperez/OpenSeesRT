@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/bandGEN/BandGenLinLapackSolver.h,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/bandGEN/BandGenLinLapackSolver.h
 //
 // Written: fmk 
 // Created: Tue Sep 26 16:27:47: 1996
@@ -52,12 +45,16 @@ class BandGenLinLapackSolver : public BandGenLinSolver
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, 
 		 FEM_ObjectBroker &theBroker);
+
+    virtual double getDeterminant() override;
     
   protected:
 
   private:
     int *iPiv;
     int iPivSize;
+    double det;
+    void setDeterminant();
 };
 
 #endif
