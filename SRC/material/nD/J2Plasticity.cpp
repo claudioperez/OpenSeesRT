@@ -12,11 +12,7 @@
 ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2008-10-20 22:23:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/J2Plasticity.cpp,v $
-
+//
 // Written: Ed "C++" Love
 //
 // J2 isotropic hardening material class
@@ -203,7 +199,9 @@ parameterID(0)
 
 //destructor
 J2Plasticity :: ~J2Plasticity( ) 
-{  } 
+{
+
+}
 
 
 
@@ -347,7 +345,6 @@ void J2Plasticity :: plastic_integrator( )
 
   phi = norm_tau -  root23 * q(xi_n) ;
 
-  
   if ( phi > 0.0 ) { //plastic
 
      //solve for gamma 
