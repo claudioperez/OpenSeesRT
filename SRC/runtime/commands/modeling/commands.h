@@ -148,8 +148,8 @@ struct char_cmd {
   {"hystereticBackbone",   TclCommand_addHystereticBackbone},
   {          "backbone",   TclCommand_addHystereticBackbone},
 
-
   {"frictionModel",        TclCommand_addFrictionModel},
+
 #if 0
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
@@ -163,11 +163,6 @@ struct char_cmd {
   {"loadPackage",          TclCommand_Package},
 #endif
 
-#if 0
-  {"parameter",            TclCommand_addParameter},
-  {"addToParameter",       TclCommand_addParameter},
-  {"updateParameter",      TclCommand_addParameter},
-#endif
 
 // command for elast2plast in Multi-yield plasticity, by ZHY
   {"updateMaterialStage", TclCommand_updateMaterialStage},

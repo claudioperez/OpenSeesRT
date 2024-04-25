@@ -33,7 +33,6 @@
 #include <LoadPatternIter.h>
 #include <ElementalLoad.h>
 #include <ElementalLoadIter.h>
-#include <ParameterIter.h>
 #include <SP_Constraint.h>
 #include <SP_ConstraintIter.h>
 #include <MP_Constraint.h>
@@ -132,15 +131,19 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "nodeReaction",        &nodeReaction,            domain, nullptr);
   Tcl_CreateCommand(interp, "reactions",           &calculateNodalReactions, domain, nullptr);
 
-  Tcl_CreateCommand(interp, "setNodeVel",          &setNodeVel,          domain, nullptr);
-  Tcl_CreateCommand(interp, "setNodeDisp",         &setNodeDisp,         domain, nullptr);
-  Tcl_CreateCommand(interp, "setNodeAccel",        &setNodeAccel,        domain, nullptr);
-  Tcl_CreateCommand(interp, "setNodeCoord",        &setNodeCoord,        domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeVel",          &setNodeVel,              domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeDisp",         &setNodeDisp,             domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeAccel",        &setNodeAccel,            domain, nullptr);
+  Tcl_CreateCommand(interp, "setNodeCoord",        &setNodeCoord,            domain, nullptr);
 
-  Tcl_CreateCommand(interp, "getEleTags",          &getEleTags,          domain, nullptr);
-  Tcl_CreateCommand(interp, "getNodeTags",         &getNodeTags,         domain, nullptr);
-  Tcl_CreateCommand(interp, "getParamTags",        &getParamTags,        domain, nullptr);
-  Tcl_CreateCommand(interp, "getParamValue",       &getParamValue,       domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleTags",          &getEleTags,              domain, nullptr);
+  Tcl_CreateCommand(interp, "getNodeTags",         &getNodeTags,             domain, nullptr);
+
+  Tcl_CreateCommand(interp, "getParamTags",        &getParamTags,            domain, nullptr);
+  Tcl_CreateCommand(interp, "getParamValue",       &getParamValue,           domain, nullptr);
+  Tcl_CreateCommand(interp, "parameter",           &TclCommand_parameter,    domain, nullptr);
+  Tcl_CreateCommand(interp, "addToParameter",      &TclCommand_parameter,    domain, nullptr);
+  Tcl_CreateCommand(interp, "updateParameter",     &TclCommand_parameter,    domain, nullptr);
 
   Tcl_CreateObjCommand(interp, "fixedNodes",          &fixedNodes,          domain, nullptr);
   Tcl_CreateObjCommand(interp, "fixedDOFs",           &fixedDOFs,           domain, nullptr);
@@ -1392,54 +1395,6 @@ getEleTags(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 }
 
 
-int
-getParamTags(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  Domain* the_domain = (Domain*)clientData; 
-
-  Parameter *theParam;
-  ParameterIter &paramIter = the_domain->getParameters();
-
-  char buffer[20];
-
-  while ((theParam = paramIter()) != nullptr) {
-    sprintf(buffer, "%d ", theParam->getTag());
-    Tcl_AppendResult(interp, buffer, NULL);
-  }
-
-  return TCL_OK;
-}
-
-int
-getParamValue(ClientData clientData, Tcl_Interp *interp, int argc,
-              TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  Domain* the_domain = (Domain*)clientData; 
-
-  if (argc < 2) {
-    opserr << "Insufficient arguments to getParamValue" << endln;
-    return TCL_ERROR;
-  }
-
-  int paramTag;
-
-  if (Tcl_GetInt(interp, argv[1], &paramTag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "getParamValue -- could not read paramTag \n";
-    return TCL_ERROR;
-  }
-
-  Parameter *theEle = the_domain->getParameter(paramTag);
-
-  char buffer[40];
-
-  sprintf(buffer, "%35.20f", theEle->getValue());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
-
-  return TCL_OK;
-}
 
 extern int TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char ** const argv, Domain &theDomain);

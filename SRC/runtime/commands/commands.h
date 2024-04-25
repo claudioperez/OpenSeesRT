@@ -96,15 +96,19 @@ Tcl_ObjCmdProc fixedDOFs;
 Tcl_ObjCmdProc constrainedDOFs;
 Tcl_ObjCmdProc domainChange;
 
+// parameter.cpp
+Tcl_CmdProc getParamTags;
+Tcl_CmdProc TclCommand_parameter;
+Tcl_CmdProc getParamValue;
+
+
+//
 Tcl_CmdProc retainedDOFs;
 Tcl_CmdProc nodeDOFs;
 Tcl_CmdProc nodeMass;
 
 Tcl_CmdProc nodePressure;
 
-Tcl_CmdProc getParamTags;
-
-Tcl_CmdProc getParamValue;
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
 Tcl_CmdProc computeGradients;
