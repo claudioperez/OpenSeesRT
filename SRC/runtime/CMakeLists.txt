@@ -34,8 +34,6 @@ target_sources(OPS_Runtime PRIVATE
     "InterpreterAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
 
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/packages/optimization/TclParameterCommands.cpp"
-
     #
     # OTHER
     #
