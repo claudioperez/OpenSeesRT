@@ -55,10 +55,10 @@
 
 
 DisplacementControl::DisplacementControl(int node, int dof, 
-					 double increment, 
-					 Domain *domain,
-					 int numIncr,
-					 double min, double max, int tang) 
+                                         double increment, 
+                                         Domain *domain,
+                                         int numIncr,
+                                         double min, double max, int tang) 
 :StaticIntegrator(INTEGRATOR_TAGS_DisplacementControl),
    theNode(node), theDof(dof), theIncrement(increment), theDomain(domain),
    theDofID(-1),
@@ -378,17 +378,15 @@ DisplacementControl::domainChanged(void)
    theModel->applyLoadDomain(currentLambda);    
    this->formUnbalance(); // NOTE: this assumes unbalance at last was 0
    (*phat) = theLinSOE->getB();
-
    currentLambda -= 1.0;
-   theModel->setCurrentDomainTime(currentLambda);    
-
+   theModel->setCurrentDomainTime(currentLambda);
 
    // check there is a reference load
    int haveLoad = 0;
    for (int i=0; i<size; i++)
       if ( (*phat)(i) != 0.0 ) {
 	 haveLoad = 1;
-	 i = size;
+         break;
       }
 
    if (haveLoad == 0) {
@@ -447,7 +445,6 @@ DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
    LinearSOE *theLinSOE = this->getLinearSOE(); 
    dUhatdh->Zero();
    dphatdh->Zero();
-//   opserr<<"DisplacementControl::dUhatdh is  "<<*dUhatdh<<endln;//
 
    // To get the structural stiffness Matrix using the full general system of equations
    //...............................................................
@@ -488,7 +485,7 @@ DisplacementControl::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
    Domain *theDomain = theModel->getDomainPtr();
    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
   
-   while((loadPatternPtr = thePatterns()) != 0) {
+   while ((loadPatternPtr = thePatterns()) != nullptr) {
      const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
       sizeRandomLoads = randomLoads.Size();
       if (sizeRandomLoads == 1) {
@@ -600,22 +597,6 @@ DisplacementControl::getLambdaSensitivity(int gradNumber)
    }
 }
 
-
-
-#if 0
-int
-DisplacementControl::formEleResidual(FE_Element* theEle)
-{
-   if (sensitivityFlag == 0) {  // no sensitivity
-     this->StaticIntegrator::formEleResidual(theEle);
-
-   } else {
-     theEle->zeroResidual();
-     theEle->addResistingForceSensitivity(gradNumber);
-   }
-   return 0;
-}
-#endif
 
 int
 DisplacementControl::formIndependentSensitivityRHS()
