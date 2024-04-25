@@ -26,6 +26,7 @@
 #include "fullGEN/FullGenLinLapackSolver.h"
 #include <AnalysisModel.h>
 #include <Vector.h>
+#include <Matrix.h>
 #include <DOF_Group.h>
 #include <DOF_GrpIter.h>
 #include <AnalysisModel.h>
