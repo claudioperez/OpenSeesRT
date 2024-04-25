@@ -1,3 +1,11 @@
+/* ****************************************************************** **
+**    OpenSees - Open System for Earthquake Engineering Simulation    **
+**          Pacific Earthquake Engineering Research Center            **
+**                                                                    **
+** (C) Copyright 2024, All Rights Reserved.                           **
+**                                                                    **
+** ****************************************************************** */
+//
 #ifndef Constants_h
 #define Constants_h
 
