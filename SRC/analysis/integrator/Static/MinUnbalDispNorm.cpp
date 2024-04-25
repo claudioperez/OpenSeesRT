@@ -51,7 +51,7 @@ MinUnbalDispNorm::MinUnbalDispNorm(double lambda1, int specNumIter,
  dLambda1LastStep(lambda1), 
  specNumIncrStep(specNumIter), numIncrLastStep(specNumIter),
  deltaUhat(0), deltaUbar(0), deltaU(0), deltaUstep(0), dUhatdh(0), dLambdaj(0.0),
- phat(0), deltaLambdaStep(0.0), currentLambda(0.0), dLambdaStepDh(0.0),dUIJdh(0),Dlambdadh(0.0),dphatdh(0),Residual2(0),
+ phat(nullptr), deltaLambdaStep(0.0), currentLambda(0.0), dLambdaStepDh(0.0),dUIJdh(0),Dlambdadh(0.0),dphatdh(0),Residual2(0),
  signLastDeltaLambdaStep(1), sensitivityFlag(0),Residual(0), dlambdadh(0.0),dLambda(0.0), sensU(0),d_deltaU_dh(0),gradNumber(0),dLAMBDAdh(0),
  dLambda1min(min), dLambda1max(max), signLastDeterminant(1), signFirstStepMethod(signFirstStep)
 {
@@ -65,38 +65,38 @@ MinUnbalDispNorm::MinUnbalDispNorm(double lambda1, int specNumIter,
 
 MinUnbalDispNorm::~MinUnbalDispNorm()
 {
-    // delete any vector object created
-    if (deltaUhat != 0)
+    if (deltaUhat != nullptr)
 	delete deltaUhat;
-    if (deltaU != 0)
+    if (deltaU != nullptr)
 	delete deltaU;
-    if (deltaUstep != 0)
+    if (deltaUstep != nullptr)
 	delete deltaUstep;
-    if (deltaUbar != 0)
+    if (deltaUbar != nullptr)
 	delete deltaUbar;
-    if (phat != 0)
+    if (phat != nullptr)
 	delete phat;
-    if(dUhatdh !=0)
-     delete dUhatdh;
-   if(dUIJdh !=0)
-     delete dUIJdh; 
-   if(Residual !=0)
-     delete Residual;
-   if(sensU !=0)
-     delete sensU;
-   if(Residual2 !=0)
-     delete Residual2;
-   if(dLAMBDAdh !=0) 
-     delete dLAMBDAdh;
-   if(dphatdh !=0)
+
+    if (dUhatdh !=0)
+      delete dUhatdh;
+    if (dUIJdh !=0)
+      delete dUIJdh; 
+    if (Residual !=0)
+      delete Residual;
+    if (sensU !=0)
+      delete sensU;
+    if (Residual2 !=0)
+      delete Residual2;
+    if (dLAMBDAdh !=0) 
+      delete dLAMBDAdh;
+    if (dphatdh !=0)
       delete dphatdh;
 
-   dLAMBDAdh=0;
-   dUhatdh=0;
+    dLAMBDAdh=0;
+    dUhatdh=0;
 }
 
 int
-MinUnbalDispNorm::newStep(void)
+MinUnbalDispNorm::newStep()
 {
   // get pointers to AnalysisModel and LinearSOE
   AnalysisModel *theModel = this->getAnalysisModel();
@@ -121,7 +121,7 @@ MinUnbalDispNorm::newStep(void)
   Vector &dUhat = *deltaUhat;
 
   // determine delta lambda(1) == dlambda
-  double factor = specNumIncrStep/numIncrLastStep;
+  double factor = pow(specNumIncrStep/numIncrLastStep, 1.0);
   double dLambda = dLambda1LastStep*factor;
 
   // check aaint min and max values specified in constructor
@@ -237,7 +237,7 @@ MinUnbalDispNorm::update(const Vector &dU)
     // determine delta lambda(i)
     double a = (*deltaUhat)^(*deltaUbar);
     double b = (*deltaUhat)^(*deltaUhat);
-    if (b == 0) {
+    if (b == 0.0) {
       opserr << "MinUnbalDispNorm::update() - zero denominator\n";
       return -1;
     }
@@ -274,120 +274,130 @@ MinUnbalDispNorm::update(const Vector &dU)
 int 
 MinUnbalDispNorm::domainChanged(void)
 {
-    // we first create the Vectors needed
-    AnalysisModel *theModel = this->getAnalysisModel();
-    LinearSOE *theLinSOE = this->getLinearSOE();    
-    if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING MinUnbalDispNorm::update() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
-    }    
-    int size = theModel->getNumEqn(); // ask model in case N+1 space
+   // we first create the Vectors needed
+   AnalysisModel *theModel = this->getAnalysisModel();
+   LinearSOE *theLinSOE = this->getLinearSOE();    
+   if (theModel == 0 || theLinSOE == 0) {
+       opserr << "WARNING MinUnbalDispNorm::update() ";
+       opserr << "No AnalysisModel or LinearSOE has been set\n";
+       return -1;
+   }    
+   int size = theModel->getNumEqn(); // ask model in case N+1 space
 
-    if (deltaUhat == 0 || deltaUhat->Size() != size) { // create new Vector
-	if (deltaUhat != 0)
-	    delete deltaUhat;   // delete the old
-	deltaUhat = new Vector(size);
-    }
+   if (deltaUhat == 0 || deltaUhat->Size() != size) { // create new Vector
+       if (deltaUhat != 0)
+           delete deltaUhat;   // delete the old
+       deltaUhat = new Vector(size);
+   }
 
-    if (deltaUbar == 0 || deltaUbar->Size() != size) { // create new Vector
-	if (deltaUbar != 0)
-	    delete deltaUbar;   // delete the old
-	deltaUbar = new Vector(size);
-    }
+   if (deltaUbar == 0 || deltaUbar->Size() != size) { // create new Vector
+       if (deltaUbar != 0)
+           delete deltaUbar;   // delete the old
+       deltaUbar = new Vector(size);
+   }
 
-    
-    if (deltaU == 0 || deltaU->Size() != size) { // create new Vector
-	if (deltaU != 0)
-	    delete deltaU;   // delete the old
-	deltaU = new Vector(size);
-    }
+   
+   if (deltaU == 0 || deltaU->Size() != size) { // create new Vector
+       if (deltaU != 0)
+           delete deltaU;   // delete the old
+       deltaU = new Vector(size);
+   }
 
-    if (deltaUstep == 0 || deltaUstep->Size() != size) { 
-	if (deltaUstep != 0)
-	    delete deltaUstep;  
-	deltaUstep = new Vector(size);
-    }
+   if (deltaUstep == 0 || deltaUstep->Size() != size) { 
+       if (deltaUstep != 0)
+           delete deltaUstep;  
+       deltaUstep = new Vector(size);
+   }
 
-    if (phat == 0 || phat->Size() != size) { 
-	if (phat != 0)
-	    delete phat;  
-	phat = new Vector(size);
-    }    
-  if (dphatdh == 0 || dphatdh->Size() != size) { 
-     if (dphatdh != 0)
-       delete dphatdh;  
-     dphatdh = new Vector(size);
+   if (phat == nullptr || phat->Size() != size) { 
+       if (phat != nullptr)
+           delete phat;  
+       phat = new Vector(size);
+   }    
+
+   if (dphatdh == 0 || dphatdh->Size() != size) { 
+      if (dphatdh != 0)
+        delete dphatdh;  
+      dphatdh = new Vector(size);
    }
 
 
-   if (dUhatdh == 0 || dUhatdh->Size() != size) { 
-     if (dUhatdh != 0)
-       delete dUhatdh;  
-     dUhatdh = new Vector(size);
-   } 
-   
-   if (dUIJdh == 0 || dUIJdh->Size() != size) { 
-      if (dUIJdh != 0)
-	 delete dUIJdh;  
-      dUIJdh = new Vector(size);
-   }
-
-   if (Residual == 0 || Residual->Size() != size) { 
-      if (Residual != 0)
-	 delete Residual;  
-      Residual = new Vector(size);
-   } 
-   
-   if (Residual2 == 0 || Residual2->Size() != size) { 
-     if (Residual2 != 0)
-       delete Residual2;  
-     Residual2 = new Vector(size);
-   } 
-
-   if (sensU == 0 || sensU->Size() != size) { 
-      if (sensU != 0)
-	 delete sensU;  
-      sensU = new Vector(size);
-   } 
-
-   Domain *theDomain=theModel->getDomainPtr();//Abbas
-   int numGrads = theDomain->getNumParameters();
-
-   if (dLAMBDAdh == 0 || dLAMBDAdh->Size() != (numGrads)) { 
-     if (dLAMBDAdh != 0 )  
-       delete dLAMBDAdh;
-     dLAMBDAdh = new Vector(numGrads);
-   } 
+  if (dUhatdh == 0 || dUhatdh->Size() != size) { 
+    if (dUhatdh != 0)
+      delete dUhatdh;  
+    dUhatdh = new Vector(size);
+  } 
   
-    // now we have to determine phat
-    // do this by incrementing lambda by 1, applying load
-    // and getting phat from unbalance.
+  if (dUIJdh == 0 || dUIJdh->Size() != size) { 
+     if (dUIJdh != 0)
+        delete dUIJdh;  
+     dUIJdh = new Vector(size);
+  }
+
+  if (Residual == 0 || Residual->Size() != size) { 
+     if (Residual != 0)
+        delete Residual;  
+     Residual = new Vector(size);
+  } 
+  
+  if (Residual2 == 0 || Residual2->Size() != size) { 
+    if (Residual2 != 0)
+      delete Residual2;  
+    Residual2 = new Vector(size);
+  } 
+
+  if (sensU == 0 || sensU->Size() != size) { 
+     if (sensU != 0)
+        delete sensU;  
+     sensU = new Vector(size);
+  } 
+
+  Domain *theDomain=theModel->getDomainPtr();//Abbas
+  int numGrads = theDomain->getNumParameters();
+
+  if (dLAMBDAdh == 0 || dLAMBDAdh->Size() != (numGrads)) { 
+    if (dLAMBDAdh != 0 )  
+      delete dLAMBDAdh;
+    dLAMBDAdh = new Vector(numGrads);
+  } 
+ 
+   // now we have to determine phat
+   // do this by incrementing lambda by 1, applying load
+   // and getting phat from unbalance.
+  if (false) {
     currentLambda = theModel->getCurrentDomainTime();
     currentLambda += 1.0;
-    theModel->applyLoadDomain(currentLambda);    
+    theModel->applyLoadDomain(currentLambda);
     this->formUnbalance(); // NOTE: this assumes unbalance at last was 0
-    (*phat) = theLinSOE->getB();
+    (*phat) = theLinSOE->getB();// - *phat;
     currentLambda -= 1.0;
+    theModel->setCurrentDomainTime(currentLambda);
+
+  } else {
+    // need to save currentLambda because calling
+    // applyLoadDomain will change it (in the domain)
+    currentLambda = theModel->getCurrentDomainTime();
+    theModel->applyLoadDomain(1.0);
+    theLinSOE->zeroB();
+    this->formNodalUnbalance();
+    (*phat) = theLinSOE->getB();
     theModel->setCurrentDomainTime(currentLambda);    
+  }
 
-
-    // check there is a reference load
-    int haveLoad = 0;
-    for (int i=0; i<size; i++)
-      if ( (*phat)(i) != 0.0 ) {
-	haveLoad = 1;
-	i = size;
-      }
-
-    if (haveLoad == 0) {
-      opserr << "WARNING ArcLength::domainChanged() - zero reference load";
-      return -1;
+  // check there is a reference load
+  bool hasLoad = false;
+  for (int i=0; i<size; i++)
+    if ( (*phat)(i) != 0.0 ) {
+      hasLoad = true;
+      break; // i = size;
     }
 
-    
-    
-    return 0;
+  if (hasLoad == false) {
+    opserr << "WARNING ArcLength::domainChanged() - zero reference load";
+    return -1;
+  }
+
+  return 0;
 }
 
 int
@@ -446,7 +456,7 @@ void
 MinUnbalDispNorm::Print(OPS_Stream &s, int flag)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != 0) {
+    if (theModel != nullptr) {
 	double cLambda = theModel->getCurrentDomainTime();
 	s << "\t MinUnbalDispNorm - currentLambda: " << cLambda;
     } else 
@@ -456,8 +466,8 @@ MinUnbalDispNorm::Print(OPS_Stream &s, int flag)
 
 ///////////////////////////Sensitivity Begin///////////////////////
 
-////obtain the derivative of the tangent displacement (dUhatdh)
-   Vector *
+// obtain the derivative of the tangent displacement (dUhatdh)
+Vector *
 MinUnbalDispNorm::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
 {
    LinearSOE *theLinSOE = this->getLinearSOE(); 
@@ -492,45 +502,39 @@ MinUnbalDispNorm::formTangDispSensitivity(Vector *dUhatdh,int gradNumber)
    Domain *theDomain = theModel->getDomainPtr();
    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
   
-while((loadPatternPtr = thePatterns()) != 0) {
-  // opserr<<"Inside While loop"<<endln;
+   while((loadPatternPtr = thePatterns()) != nullptr) {
+
      const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
       sizeRandomLoads = randomLoads.Size();
       if (sizeRandomLoads == 1) {
 	 // No random loads in this load pattern
-
+         continue;
       }
-      else {
-//	 opserr<<"there is sensitivity load parameter"<<endln;//Abbas.............
-	 // Random loads: add contributions to the 'B' vector
-	 numRandomLoads = (int)(sizeRandomLoads/2);
-	 for (i=0; i<numRandomLoads*2; i=i+2) {
-	    nodeNumber = (int)randomLoads(i);
-	    dofNumber = (int)randomLoads(i+1);
-	    aNode = theDomain->getNode(nodeNumber);
-	    aDofGroup = aNode->getDOF_GroupPtr();
-	    const ID &anID = aDofGroup->getID();
-	    relevantID = anID(dofNumber-1);
-	    oneDimID(0) = relevantID;
-	    theLinSOE->addB(oneDimVectorWithOne, oneDimID);
-	    (*dphatdh)=theLinSOE->getB();
-// dphatdh->addMatrixVector(1.0,dKdh,*deltaUhat,1.0);
-
-
-	 }
+      // Random loads: add contributions to the 'B' vector
+      numRandomLoads = (int)(sizeRandomLoads/2);
+      for (i=0; i<numRandomLoads*2; i=i+2) {
+         nodeNumber = (int)randomLoads(i);
+         dofNumber = (int)randomLoads(i+1);
+         aNode = theDomain->getNode(nodeNumber);
+         aDofGroup = aNode->getDOF_GroupPtr();
+         const ID &anID = aDofGroup->getID();
+         relevantID = anID(dofNumber-1);
+         oneDimID(0) = relevantID;
+         theLinSOE->addB(oneDimVectorWithOne, oneDimID);
+         (*dphatdh)=theLinSOE->getB();
+         // dphatdh->addMatrixVector(1.0,dKdh,*deltaUhat,1.0);
       }
    }
 
- if(theLinSOE->solve()<0) {
-   opserr<<"SOE failed to obtained dUhatdh ";
-   exit(-1);
- }
+   if(theLinSOE->solve()<0) {
+     opserr<<"SOE failed to obtained dUhatdh ";
+     exit(-1);
+   }
 
-    (*dUhatdh)=theLinSOE->getX();
+   (*dUhatdh)=theLinSOE->getX();
 
-// opserr<<"MinUnbalDispNorm::dUhatdh is  "<<*dUhatdh<<endln;//
 
-/////////////////////////////////////////////////////////
+
    return dUhatdh;
 }
 
@@ -539,8 +543,7 @@ double
 MinUnbalDispNorm::formdLambdaDh(int gradNumber)
 {
   // Here dLambda1dh=0 because its constant.
-  //return 0.0;
-  if(dLAMBDAdh != 0)
+  if (dLAMBDAdh != 0)
     return (*dLAMBDAdh)(gradNumber);
   return 0.0;
 }
@@ -551,29 +554,21 @@ double
 MinUnbalDispNorm::getLambdaSensitivity(int gradNumber)
 {
 
-   //opserr<<"getLambdaSensitivityFunction:   deltaUhat= "<<(*deltaUhat)<<" Pref= "<<*phat<<endln; 
  
  //  Vector &dufRdh=*dUIJdh;// component of the dUfrDh: derivative of the residual displacement
- 
 
-  //  opserr<<" LambdaFunction.....Uft= "<<*deltaUhat<<endln;
-// opserr<<"LambdaFunation.... deltaUbar= "<<*deltaUbar<<endln;
-    double temp= (*deltaUhat)^(*deltaUhat);
+   double temp= (*deltaUhat)^(*deltaUhat);
    double denomerator= pow(temp,2.0);
    double a= (*deltaUhat)^(*dUIJdh);
    double b= (*dUhatdh)^(*deltaUbar);
    double c= (*deltaUhat)^(*deltaUbar);
    double d= (*deltaUhat)^(*dUhatdh);
    double Numerator= -(temp*(a+b)-(c*2.0*d));
-     Dlambdadh=Numerator/denomerator;  //   
-
- //opserr<<"dLambdadh=    "<<Dlambdadh<<" a= "<<a<< " b= "<<b <<" c= "<<c << " d= "<<d<< "temp= "<<temp<< " denomera= "<<denomerator<<endln;
-// opserr<<"Numerator= "<<Numerator<<endln;
+   Dlambdadh = Numerator/denomerator;  //   
 
    // Now update Lambda_ij
    if(dLAMBDAdh !=0) {
      (*dLAMBDAdh)(gradNumber) = (*dLAMBDAdh)(gradNumber)+ Dlambdadh;
-     //opserr << gradNumber << ' ' << deltaLambdaStep << ' ' << Dlambdadh << endln;
      return (*dLAMBDAdh)(gradNumber);
    } else {
      return 0.0;
@@ -581,26 +576,11 @@ MinUnbalDispNorm::getLambdaSensitivity(int gradNumber)
 }
 
 
-
-int
-MinUnbalDispNorm::formEleResidual(FE_Element* theEle)
-{
-   if(sensitivityFlag == 0) {  // no sensitivity
-     this->StaticIntegrator::formEleResidual(theEle);
-   } else {
-  //    opserr<<"formEleResidual:    else condition lllllllllllllllllllllllllllllllllllllllllllllllllllll"<<endln;
-     theEle->zeroResidual();
-     theEle->addResistingForceSensitivity(gradNumber);
-   }
-   return 0;
-}
-
 int
 MinUnbalDispNorm::formIndependentSensitivityRHS()
 {
    return 0;
 }
-
 
    
 int
@@ -611,7 +591,7 @@ MinUnbalDispNorm::formSensitivityRHS(int passedGradNumber)
   //this->Activatesensitivity();//Abbas
   // Set a couple of data members
   gradNumber = passedGradNumber;
-//opserr<<" RHS..."<<"gradNumber= "<<gradNumber<<endln;
+
   // get model
   AnalysisModel* theAnalysisModel = this->getAnalysisModel();
   LinearSOE* theSOE = this->getLinearSOE();
@@ -625,53 +605,25 @@ MinUnbalDispNorm::formSensitivityRHS(int passedGradNumber)
     theSOE->addB(elePtr->getResidual(this) ,elePtr->getID()  );
   }
 
-  //  opserr<<" dKdh*deltaUbar after while loop is "<<*dUIJdh<<endln;
+
   (*Residual)=theSOE->getB();
-//opserr<<"RHS.....Residual= ..... "<<*Residual<<endln;
-//////////////////////////
+
  int size=theAnalysisModel->getNumEqn();
   Matrix dKdh(size,size);
   dKdh.Zero();
   //dKdh=this->getdKdh(gradNumber);
     
-//////////////////////////
-/*
-  opserr<<"RHS sensitivity function:    dKdh= "<<endln;
- for(int i=0;i<size;i++)
- {
- for(int j=0; j<size;j++)
- {
- opserr<<dKdh(i,j)<<"   ";
 
- 
-  }
- opserr<<endln;
- 
- } 
-*/ 
-  
-
-
-
-//////////////////
    //call the tangent (K)
  //  this->formTangent();
 
 
 //   Residual->addMatrixVector(1.0,dKdh,*deltaUbar,-1.0);
 
-//opserr<<"RHS.....Residual22222222= ..... "<<*Residual<<endln;
-
-///////////////////////
-
   // double CallDlambda1dh=this->getLambdaSensitivity(gradNumber);
      
   double CallDlambda1dh=(*dLAMBDAdh)(gradNumber);
-  // opserr<<"RHS:: dphatdh is ....................................//"<<*dphatdh<<endln;
   Residual->addVector(1.0,*phat, CallDlambda1dh ); 
-//opserr<<"RHS..............Pref= "<<*phat<<endln;
-//opserr<<"RHS............ ...........................= "<<CallDlambda1dh<<endln;
-// opserr<<"RHS.....Residual333333333333= ..... "<<*Residual<<endln;
   Residual->addVector(1.0,*dphatdh,currentLambda);
 
   theSOE->setB(*Residual);
@@ -695,7 +647,6 @@ MinUnbalDispNorm::formSensitivityRHS(int passedGradNumber)
       	 //opserr<<"No sensitivity Load Parameter is involved"<<endln;
     }
     else {
-      //	 opserr<<"there is sensitivity load parameter"<<endln;//Abbas.............
       // Random loads: add contributions to the 'B' vector
       numRandomLoads = (int)(sizeRandomLoads/2);
       for (i=0; i<numRandomLoads*2; i=i+2) {
@@ -707,21 +658,16 @@ MinUnbalDispNorm::formSensitivityRHS(int passedGradNumber)
 	relevantID = anID(dofNumber-1);
 	oneDimID(0) = relevantID;
 	theSOE->addB(oneDimVectorWithOne, oneDimID);
-	
-	
+
       }
     }
     //  (*Residual) =theSOE->getB();
   }
-  
-  
+
   theSOE->setB(*Residual);
-  
-    
-  
+ 
   //reset sensitivity flag
-  sensitivityFlag=0;
-  //  opserr<<"RHS :Ends"<<endln;
+  sensitivityFlag = 0;
   return 0;
 }
 
@@ -735,9 +681,7 @@ MinUnbalDispNorm::saveSensitivity(const Vector &v, int gradNum, int numGrads)
    DOF_Group 	*dofPtr;
 
    while ( (dofPtr = theDOFGrps() ) != 0)  {
-      //	dofPtr->saveSensitivity(v,0,0,gradNum,numGrads);
       dofPtr->saveDispSensitivity(v,gradNum,numGrads);
-
    }
 
    return 0;
@@ -753,7 +697,7 @@ MinUnbalDispNorm::saveLambdaSensitivity(double dlambdadh, int gradNum, int numGr
    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
    while ( (lpPtr = thePatterns() ) != 0)
      lpPtr->saveLoadFactorSensitivity(dlambdadh, gradNum, numGrads);
-//opserr<<"saveLambdaSensitivity....."<<dlambdadh<<endln;
+
    return 0;
 }
 
@@ -774,19 +718,17 @@ MinUnbalDispNorm::commitSensitivity(int gradNum, int numGrads)
 
 
 
-   bool 
+bool 
 MinUnbalDispNorm::computeSensitivityAtEachIteration()
 {
-
    return true;     
 }
 
 
-   int 
+int 
 MinUnbalDispNorm::computeSensitivities(void)
 {
 
-  // opserr<<"Compute Sensitivity................////////////////////"<<endln;
   LinearSOE *theSOE = this->getLinearSOE();
   
   // Zero out the old right-hand side of the SOE
@@ -803,6 +745,7 @@ MinUnbalDispNorm::computeSensitivities(void)
   // De-activate all parameters
   while ((theParam = paramIter()) != 0)
     theParam->activate(false);
+
   // Now, compute sensitivity wrt each parameter
   int  numGrads = theDomain->getNumParameters();
   
@@ -818,19 +761,15 @@ MinUnbalDispNorm::computeSensitivities(void)
     
     // Get the grad index for this parameter
     int gradIndex = theParam->getGradIndex();
-               // this->formResidualDispSensitivity( dUIJdh, gradIndex);//./.
-// opserr<<"B.........BBBBBBBBBBB"<<endln;
+    // this->formResidualDispSensitivity( dUIJdh, gradIndex);
+
+
     // Form the RHS
 
-//	opserr<<"CCCCCCCCCCCCC"<<endln;
-  //   opserr<<"DDDDDDDD"<<endln;
 
     this->formSensitivityRHS(gradIndex);
 
-
-
-
-         this->formTangent();
+    this->formTangent();
 	 //theSOE->setX(*dUIJdh);
     theSOE->solve();
     *dUIJdh=theSOE->getX();// sensitivity of the residual displacement
@@ -838,33 +777,23 @@ MinUnbalDispNorm::computeSensitivities(void)
     this->formTangDispSensitivity(dUhatdh,gradIndex);
     double dlamdh = this->getLambdaSensitivity(gradIndex);
     //double dlamdh=(*dLAMBDAdh)(gradIndex);
-//opserr<<" EEEEEEEEEEEEEEEE  dLambdaijdh= "<<dlamdh<<endln;
 
-    //  opserr<<"computeSensitivities: dUfRdh is  "<<*dUIJdh<<endln;//
-       //   this->formTangDispSensitivity(dUhatdh,gradIndex);
+    //   this->formTangDispSensitivity(dUhatdh,gradIndex);
    
     // To obtain the response sensitivity 
     theSOE->setB(*Residual);
 
-
-
-
-
     theSOE->solve();
     
-//  opserr<<"FFFFFFFFFFFFFFFFFFF"<<endln;
 
   //  dUIJdh->addVector(1.0, *dUhatdh,dLambdaj);
 //    dUIJdh->addVector(1.0, *deltaUhat, Dlambdadh);
-  //  opserr<<" GGGGGGGGGGGGGGGGGG"<<endln;
 //(*sensU)=(*dUIJdh); //theSOE->getX();
   //sensU->addVector(1.0,*dUIJdh,1.0);
-    (*sensU) = theSOE->getX();//.................................
- // opserr<<"JJJJJJJJJJJJJ"<<endln; 
+    (*sensU) = theSOE->getX();
     //(*sensU) =(*dUIJdh);
 
 
-   // opserr<<" gradNumber= "<<gradIndex<<endln;
     // Save sensitivity to nodes
     this->saveSensitivity( (*sensU), gradIndex, numGrads );
     this->saveLambdaSensitivity(dlamdh, gradIndex, numGrads);
@@ -873,7 +802,6 @@ MinUnbalDispNorm::computeSensitivities(void)
     this->commitSensitivity(gradIndex, numGrads);
     // De-activate this parameter for next sensitivity calc
     theParam->activate(false);
-//opserr<<"KKKKKKKKKKKKKKKKKKKKKKK:   Lambda= "<<currentLambda<<endln;
     theSOE->zeroB();//reset the SOE to zero ;Abbas
  
   } 
