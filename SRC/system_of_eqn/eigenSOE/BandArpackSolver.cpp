@@ -122,12 +122,12 @@ extern "C" int dseupd_(bool *rvec, char *howmny, int *select, double *d, double 
 int
 BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 {
-  if (generalized == false) {
-    opserr << "BandArpackSolver::solve(int numMode, bool generalized) - only solves generalized problem\n";
-    return -1;
-  }
+    if (generalized == false) {
+      opserr << "BandArpackSolver::solve(int numMode, bool generalized) - only solves generalized problem\n";
+      return -1;
+    }
 
-    if (theSOE == 0) {
+    if (theSOE == nullptr) {
 	opserr << "WARNING BandGenLinLapackSolver::solve(void)- ";
 	opserr << " No LinearSOE object has been set\n";
 	return -1;
@@ -230,6 +230,8 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 	      iparam, ipntr, workd, workl, &lworkl, &info);
 #endif
       
+      char Nchar[] = "N";
+
       if (ido == -1) {
 
 	  myMv(n, &workd[ipntr[0]-1], &workd[ipntr[1]-1]); 
@@ -238,10 +240,10 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 	  DGBTRS("N", &sizeOne, &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
 		 &workd[ipntr[1] - 1], &ldB, &ierr);
 		 */
-	  DGBTRS("N", &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
+	  DGBTRS(Nchar, &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
 		 &workd[ipntr[1] - 1], &ldB, &ierr);
 #else
-	  dgbtrs_("N", &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
+	  dgbtrs_(Nchar, &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
 		  &workd[ipntr[1] - 1], &ldB, &ierr);
 #endif
 
@@ -250,6 +252,7 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 	      std::exit(0);
 	  }
 	  continue;
+
       } else if (ido == 1) {
 
 	//          double ratio = 1.0;
@@ -260,10 +263,10 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 	  DGBTRS("N", &sizeOne, &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
 		 &workd[ipntr[1] - 1], &ldB, &ierr);
 		 */
-	  DGBTRS("N", &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
+	  DGBTRS(Nchar, &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
 		 &workd[ipntr[1] - 1], &ldB, &ierr);
 #else
-	  dgbtrs_("N", &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
+	  dgbtrs_(Nchar, &n, &kl, &ku, &nrhs, Aptr, &ldA, iPIV, 
 		  &workd[ipntr[1] - 1], &ldB, &ierr);
 #endif
 
@@ -271,7 +274,9 @@ BandArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 	      opserr << "BandArpackSolver::Error with dgbtrs_ 2" <<endln;
 	      std::exit(0);
 	  }
+
 	  continue;
+
       } else if (ido == 2) {     
 
 	  myMv(n, &workd[ipntr[0]-1], &workd[ipntr[1]-1]);
