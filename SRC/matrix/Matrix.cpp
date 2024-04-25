@@ -27,6 +27,8 @@
 #include "Matrix.h"
 #include "Vector.h"
 #include "Vector3D.h"
+#include "routines/cmx.h"
+#include "blasdecl.h"
 #include "ID.h"
 
 #include <stdlib.h>
@@ -36,8 +38,6 @@
 
 #include <math.h>
 #include <assert.h>
-#include "routines/cmx.h"
-#include "blasdecl.h"
 
 #ifndef NO_STATIC_WORK
 # define MATRIX_WORK_AREA 400
