@@ -42,6 +42,7 @@
 #include <Node.h>
 #include <NodeIter.h>
 #include <ConstraintHandler.h>
+#include <Flag.h>
 
 
 #include <MapOfTaggedObjects.h>
@@ -246,8 +247,8 @@ DOF_Group *
 AnalysisModel::getDOF_GroupPtr(int tag)
 {
   TaggedObject *other = theDOFs->getComponentPtr(tag);
-  if (other == 0) {
-    return 0;
+  if (other == nullptr) {
+    return nullptr;
   }
   DOF_Group *result = (DOF_Group *)other;
   return result;
@@ -521,7 +522,7 @@ AnalysisModel::setEigenvector(int mode, const Vector &eigenvalue)
     DOF_GrpIter &theDOFGrps = this->getDOFs();
     DOF_Group 	*dofPtr;
     
-    while ((dofPtr = theDOFGrps()) != 0) 
+    while ((dofPtr = theDOFGrps()) != nullptr) 
 	dofPtr->setEigenvector(mode, eigenvalue);	
 }	
 
@@ -571,8 +572,8 @@ AnalysisModel::updateDomain(double newTime, double dT)
 int
 AnalysisModel::analysisStep(double dT)
 {
-    assert(myDomain != nullptr);
-    return myDomain->analysisStep(dT);
+  assert(myDomain != nullptr);
+  return myDomain->analysisStep(dT);
 }
 
 int
@@ -580,7 +581,7 @@ AnalysisModel::eigenAnalysis(int numMode, bool generalized, bool findSmallest)
 {
     // check to see there is a Domain linked to the Model
 
-    if (myDomain == 0) {
+    if (myDomain == nullptr) {
 	opserr << "WARNING: AnalysisModel::newStep. No Domain linked.\n";
 	return -1;
     }
@@ -592,29 +593,29 @@ AnalysisModel::eigenAnalysis(int numMode, bool generalized, bool findSmallest)
 
 
 int
-AnalysisModel::commitDomain(void)
+AnalysisModel::commitDomain()
 {
-    // check to see there is a Domain linked to the Model
-    if (myDomain == 0) {
-	opserr << "WARNING: AnalysisModel::commitDomain. No Domain linked.\n";
-	return -1;
-    }
+  // check to see there is a Domain linked to the Model
+  if (myDomain == nullptr) {
+    opserr << "WARNING: AnalysisModel::commitDomain. No Domain linked.\n";
+    return -1;
+  }
 
-    // invoke the method
-    if (myDomain->commit() < 0) {
-	opserr << "WARNING: AnalysisModel::commitDomain - Domain::commit() failed\n";
-	return -2;
-    }
+  // commit the domain state
+  if (myDomain->commit() < 0) {
+    opserr << "WARNING: AnalysisModel::commitDomain - Domain::commit() failed\n";
+    return -2;
+  }
 
-    return 0;
+  return OpenSees::Flag::Success;
 }
 
 int
-AnalysisModel::revertDomainToLastCommit(void)
+AnalysisModel::revertDomainToLastCommit()
 {
     // check to see there is a Domain linked to the Model
 
-    if (myDomain == 0) {
+    if (myDomain == nullptr) {
 	opserr << "WARNING: AnalysisModel::revertDomainToLastCommit.";
 	opserr << " No Domain linked.\n";
 	return -1;
@@ -626,7 +627,7 @@ AnalysisModel::revertDomainToLastCommit(void)
 	opserr << " Domain::revertToLastCommit() failed.\n";
 	return -2;
     }	
-    return 0;
+    return OpenSees::Flag::Success;
 }
 
 double
@@ -634,7 +635,7 @@ AnalysisModel::getCurrentDomainTime(void)
 {
     // check to see there is a Domain linked to the Model
 
-    if (myDomain == 0) {
+    if (myDomain == nullptr) {
 	opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
 	opserr << " No Domain linked.\n";
 	return 0.0;
@@ -648,7 +649,7 @@ AnalysisModel::getCurrentDomainTime(void)
 void
 AnalysisModel::setCurrentDomainTime(double newTime)
 {
-    if (myDomain == 0) {
+    if (myDomain == nullptr) {
 	opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
 	opserr << " No Domain linked.\n";
     }
@@ -684,7 +685,7 @@ AnalysisModel::getDomainPtr(void) const
 int
 AnalysisModel::sendSelf(int cTag, Channel &theChannel)
 {
-    return 0;
+    return OpenSees::Flag::Success;
 }
 
 
@@ -692,6 +693,6 @@ int
 AnalysisModel::recvSelf(int cTag, Channel &theChannel, 
 			FEM_ObjectBroker &theBroker) 
 {
-    return 0;
+    return OpenSees::Flag::Success;
 }
 
