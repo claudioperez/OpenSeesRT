@@ -17,18 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2009-08-25 23:18:16 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/model/AnalysisModel.h,v $
-                                                                        
-                                                                        
-#ifndef AnalysisModel_h
-#define AnalysisModel_h
-
-// Written: fmk 
-// Created: 9/96
-// Revision: A
 //
 // Description: This file contains the class definition for AnalysisModel.
 // AnalysisModel is a container class. This class is responsible for holding
@@ -37,7 +25,12 @@
 // response quantities at the DOF_Groups and for triggering methods 
 // in the associated Domain.
 //
-// What: "@(#) AnalysisModel.h, revA"
+// Written: fmk 
+// Created: 9/96
+// Revision: A
+//
+#ifndef AnalysisModel_h
+#define AnalysisModel_h
 
 #include <MovableObject.h>
 #define VIRTUAL
