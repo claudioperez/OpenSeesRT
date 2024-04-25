@@ -1,17 +1,14 @@
 //
-//
-// extern int OPS_LineMesh(Domain& domain, int ndm);
-// extern int OPS_TriMesh(Domain& domain);
-// extern int OPS_TriReMesh(Domain& domain, int ndf);
+extern int OPS_LineMesh(Domain& domain, int ndm);
+extern int OPS_TriMesh(Domain& domain);
+extern int OPS_TriReMesh(Domain& domain, int ndf);
+
 int
 TclCommand_mesh(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char ** const argv)
 {
   // ensure the destructor has not been called -
-  if (theTclBuilder == 0) {
-    opserr << "WARNING builder has been destroyed" << endln;
-    return TCL_ERROR;
-  }
+  assert(clientData != nullptr);
 
   // make sure corect number of arguments on command line
   if (argc < 2) {
@@ -64,14 +61,14 @@ TclCommand_remesh(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // mesh type
   int res = 0;
-  // if (strcmp(argv[1], "line") == 0) {
-  // 	//res = OPS_LineMesh(*theTclDomain,ndm);
-  // } else if (strcmp(argv[1], "tri") == 0) {
-  // 	res = OPS_TriReMesh(*theTclDomain,ndf);
-  // } else {
-  // 	opserr<<"WARNING: remesh type "<<argv[1]<<" is unknown\n";
-  // 	return TCL_ERROR;
-  // }
+  if (strcmp(argv[1], "line") == 0) {
+  	//res = OPS_LineMesh(*theTclDomain,ndm);
+  } else if (strcmp(argv[1], "tri") == 0) {
+  	res = OPS_TriReMesh(*theTclDomain,ndf);
+  } else {
+  	opserr<<"WARNING: remesh type "<<argv[1]<<" is unknown\n";
+  	return TCL_ERROR;
+  }
 
   if (res < 0) {
     return TCL_ERROR;
