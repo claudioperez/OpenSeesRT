@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2009-01-08 22:00:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/TclHyperbolicGapMaterial.cpp,v $
-
+//
 // Written: MD
 // Created: April 2008
 //
 
 #include <HyperbolicGapMaterial.h>
-
+#include <BasicModelBuilder.h>
 #include <Vector.h>
 #include <string.h>
 #include <tcl.h>
@@ -77,12 +73,11 @@ TclCommand_HyperbolicGapMaterial(ClientData clientData, Tcl_Interp *interp, int 
   
   theMaterial = new HyperbolicGapMaterial(tag, Kmax, Kur, Rf, Fult, gap);
 
-  if (theMaterial != 0)  {
-    if (OPS_addUniaxialMaterial(theMaterial) == true)
-      return 0;
-    else
-      return -1;
-  }
+  BasicModelBuilder* builder = (BasicModelBuilder*)(clientData);
+  if (builder->addTaggedObject<UniaxialMaterial>(theMaterial) == TCL_OK)
+    return TCL_OK;
+  else
+    return -1;
 
   return -1;
 }
