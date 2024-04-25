@@ -39,7 +39,8 @@ class FullGenLinSolver : public LinearSOESolver
     virtual ~FullGenLinSolver();
 
     virtual int setLinearSOE(FullGenLinSOE &theSOE);
-    
+
+
   protected:
     FullGenLinSOE *theSOE;
 
