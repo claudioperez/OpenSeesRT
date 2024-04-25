@@ -24,6 +24,7 @@ target_sources(OPS_Runtime PRIVATE
     "domain/TclUpdateMaterialStageCommand.cpp"
     "domain/TclUpdateMaterialCommand.cpp"
     "domain/parameter.cpp"
+    "domain/sensitivity.cpp"
 
 # Modeling
     "modeling/model.cpp"
