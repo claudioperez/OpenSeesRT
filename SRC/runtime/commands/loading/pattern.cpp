@@ -87,7 +87,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
                       TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   Domain* domain = builder->getDomain();
   LoadPattern *thePattern = nullptr;
 
@@ -800,7 +800,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 //Domain *theTclDomain = G3_getDomain(rt);
   
   // TODO!!!
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   LoadPattern *theTclLoadPattern = builder->getEnclosingPattern();
   int nodeLoadTag = builder->getNodalLoadTag();
 
