@@ -11,6 +11,8 @@ target_sources(OPS_Runtime PRIVATE dispatch.cpp)
 target_sources(OPS_Element
     PRIVATE
       ASDShellQ4.cpp
+      ASDShellT3.cpp
+
       ShellANDeS.cpp
       ShellDKGQ.cpp
       ShellDKGT.cpp
@@ -21,6 +23,13 @@ target_sources(OPS_Element
       ShellNLDKGQThermal.cpp
       ShellNLDKGT.cpp
     PUBLIC
+      ASDShellQ4.h
+      ASDShellT3.h
+
+      ASDShellT3CorotationalTransformation.h
+      ASDShellT3LocalCoordinateSystem.h
+      ASDShellT3Transformation.h
+
       ShellANDeS.h
       ShellDKGQ.h
       ShellDKGT.h
