@@ -22,7 +22,7 @@
 // Created: February 1997
 //
 // Description: This file contains the implementation for BandSPDLinSOE
-
+//
 #include <stdlib.h>
 
 #include <BandSPDLinSOE.h>
@@ -286,14 +286,15 @@ BandSPDLinSOE::addColA(const Vector &colData, int col, double fact)
   return 0;
 }
 
-    
+
 int 
 BandSPDLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
     assert(id.Size() == v.Size());
-    
+
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
     // check that m and id are of similar size
     int idSize = id.Size();        
