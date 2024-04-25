@@ -713,7 +713,7 @@ TclCommand_addTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc,
 {
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc - 1, &argv[1]);
 
-  BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (theSeries != nullptr) {
     int tag;
