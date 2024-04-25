@@ -71,7 +71,7 @@ class DisplacementControl : public StaticIntegrator
       void Print(OPS_Stream &s, int flag);   
 
       //////////////////Sensitivity Begin//////////////////////////////////
-      int formEleResidual(FE_Element *theEle);
+//    int formEleResidual(FE_Element *theEle);
       int formSensitivityRHS(int gradNum);// it's been modified to compute dLambdadh and dUdh
       int formIndependentSensitivityRHS();
       int saveSensitivity(const Vector &v, int gradNum, int numGrads);
@@ -104,21 +104,22 @@ class DisplacementControl : public StaticIntegrator
       double theIncrement;  // deltaU at step (i)
       Domain *theDomain;    // the domain containing the node being followed
       int theDofID;         // the system level id of the dof being followed
+
       Vector *deltaUhat, *deltaUbar, *deltaU,*phat,*deltaUstep,*dphatdh;
       //  Vector *deltaUhat_newStep ;
       Vector *dLAMBDAdh; 
-      ///////////////////////////////////////Abbas/////////////////////////////////////////
-      // Pointers used for sensitivity analysis
-      Vector  *dUhatdh,*dUIJdh, *Residual,*Residual2, *sensU,*d_deltaU_dh ;
-      // the created pointers shown above are
-      // *dUhatdh     : The derivative of the tangent displacement w/r to parameter h
-      // *sensU       : Displacement sensitivity using displacement control scheme
-      // *d_deltaU_dh : The derivative of the residual displacement
-      // *dUIJdh      : The sensitivity of the residual displacement
-      // *Residual    : the residual forces that are required to obtain the dLambdadh
-      // *Residual2   : the residual forces required to obtain dUdh
 
-      // the reference load vector
+
+      // Pointers used for sensitivity analysis
+      Vector
+         *dUhatdh     , // The derivative of the tangent displacement w/r to parameter h
+         *sensU       , // Displacement sensitivity using displacement control scheme
+         *d_deltaU_dh , // The derivative of the residual displacement
+         *dUIJdh      , // The sensitivity of the residual displacement
+         *Residual    , // the residual forces that are required to obtain the dLambdadh
+         *Residual2   ; // the residual forces required to obtain dUdh
+
+
       double deltaLambdaStep, currentLambda;  // dLambda(i) & current value of lambda  
       double dLambdaStepDh ;//Abbas
       double specNumIncrStep, numIncrLastStep; // Jd & J(i-1) 
