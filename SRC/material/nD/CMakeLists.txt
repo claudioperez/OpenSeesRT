@@ -55,6 +55,7 @@ target_sources(OPS_Material
     PlateRebarMaterialThermal.cpp
     OrthotropicMaterial.cpp
     Series3DMaterial.cpp
+    Parallel3DMaterial.cpp
   PUBLIC
     NDMaterial.h
     PlasticDamageConcrete3d.h
@@ -63,7 +64,6 @@ target_sources(OPS_Material
     AcousticMedium.h
     ASDConcrete3DMaterial.h
     ElasticIsotropicAxiSymm.h
-
 
     ElasticIsotropicMaterial.h
     ElasticIsotropicPlateFiber.h
@@ -105,6 +105,7 @@ target_sources(OPS_Material
     PlateFromPlaneStressMaterialThermal.h
     OrthotropicMaterial.h
     Series3DMaterial.h
+    Parallel3DMaterial.h
 )
 
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
@@ -113,7 +114,7 @@ add_subdirectory(soil)
 add_subdirectory(feap)
 add_subdirectory(cyclicSoil)
 add_subdirectory(UWmaterials)
-#add_subdirectory(ASDPlasticMaterial)
+add_subdirectory(ASDPlasticMaterial)
 # add_subdirectory(matCMM)
 add_subdirectory(stressDensityModel)
 add_subdirectory(UANDESmaterials)
