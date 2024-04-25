@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2009-05-11 20:56:31 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/umfGEN/UmfpackGenLinSOE.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 11/98
 // Revision: A
@@ -147,7 +142,8 @@ int
 UmfpackGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
 {
     // check for a quick return
-    if (fact == 0.0) return 0;
+    if (fact == 0.0)
+      return 0;
 
     int idSize = id.Size();
 
@@ -211,7 +207,8 @@ int
 UmfpackGenLinSOE::addB(const Vector &v, const ID &id, double fact)
 {
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)
+      return 0;
 
     int idSize = id.Size();    
     // check that m and id are of similar size

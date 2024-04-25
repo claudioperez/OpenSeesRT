@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-05-11 20:56:31 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/umfGEN/UmfpackGenLinSOE.h,v $
-                                                                        
-// Written: fmk 
-// Created: 11/98
 //
 // Description: This file contains the class definition for 
 // UmfpackGenLinSOE. It stores the sparse matrix A in a fashion
 // required by the UmfpackLinSolver object.
 //
-// What: "@(#) UmfpackGenLinSOE.h, revA"
-
-
+// Written: fmk 
+// Created: 11/98
+//
 #ifndef UmfpackGenLinSOE_h
 #define UmfpackGenLinSOE_h
 
