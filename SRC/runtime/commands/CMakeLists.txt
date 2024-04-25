@@ -23,6 +23,7 @@ target_sources(OPS_Runtime PRIVATE
     "domain/recorder.cpp"
     "domain/TclUpdateMaterialStageCommand.cpp"
     "domain/TclUpdateMaterialCommand.cpp"
+    "domain/parameter.cpp"
 
 # Modeling
     "modeling/model.cpp"
