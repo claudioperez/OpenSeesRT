@@ -15,6 +15,7 @@ target_sources(OPS_Analysis
         HSConstraint.cpp
         LoadControl.cpp
         LoadPath.cpp
+        DisplacementPath.cpp
         MinUnbalDispNorm.cpp
     PUBLIC
         ArcLength1.h
@@ -26,6 +27,7 @@ target_sources(OPS_Analysis
         HSConstraint.h
         LoadControl.h
         LoadPath.h
+        DisplacementPath.h
         MinUnbalDispNorm.h
 )
 target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
