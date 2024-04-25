@@ -50,10 +50,14 @@ MinUnbalDispNorm::MinUnbalDispNorm(double lambda1, int specNumIter,
 :StaticIntegrator(INTEGRATOR_TAGS_MinUnbalDispNorm),
  dLambda1LastStep(lambda1), 
  specNumIncrStep(specNumIter), numIncrLastStep(specNumIter),
- deltaUhat(0), deltaUbar(0), deltaU(0), deltaUstep(0), dUhatdh(0), dLambdaj(0.0),
- phat(nullptr), deltaLambdaStep(0.0), currentLambda(0.0), dLambdaStepDh(0.0),dUIJdh(0),Dlambdadh(0.0),dphatdh(0),Residual2(0),
- signLastDeltaLambdaStep(1), sensitivityFlag(0),Residual(0), dlambdadh(0.0),dLambda(0.0), sensU(0),d_deltaU_dh(0),gradNumber(0),dLAMBDAdh(0),
- dLambda1min(min), dLambda1max(max), signLastDeterminant(1), signFirstStepMethod(signFirstStep)
+ deltaUhat(0), deltaUbar(0), deltaU(0), deltaUstep(0), dUhatdh(0), 
+ dLambdaj(0.0),
+ phat(nullptr), deltaLambdaStep(0.0), currentLambda(0.0), 
+ dLambda1min(min), dLambda1max(max), signLastDeterminant(1), 
+ signFirstStepMethod(signFirstStep)
+ dLambdaStepDh(0.0),dUIJdh(0),Dlambdadh(0.0),dphatdh(0),Residual2(0),
+ signLastDeltaLambdaStep(1), sensitivityFlag(0),Residual(0), 
+ dlambdadh(0.0), dLambda(0.0), sensU(0),d_deltaU_dh(0),gradNumber(0),dLAMBDAdh(0)
 {
   // to avoid divide-by-zero error on first update() ensure numIncr != 0
   if (specNumIncrStep == 0) {
@@ -121,8 +125,8 @@ MinUnbalDispNorm::newStep()
   Vector &dUhat = *deltaUhat;
 
   // determine delta lambda(1) == dlambda
-  double factor = pow(specNumIncrStep/numIncrLastStep, 1.0);
-  double dLambda = dLambda1LastStep*factor;
+  double expon   = 1.0;
+  double dLambda = dLambda1LastStep*pow(specNumIncrStep/numIncrLastStep, expon);
 
   // check aaint min and max values specified in constructor
   if (dLambda < dLambda1min)
@@ -132,7 +136,6 @@ MinUnbalDispNorm::newStep()
     dLambda = dLambda1max;
 
   dLambda1LastStep = dLambda;
-
 
   if (signFirstStepMethod == SIGN_LAST_STEP) {
     if (deltaLambdaStep < 0)
