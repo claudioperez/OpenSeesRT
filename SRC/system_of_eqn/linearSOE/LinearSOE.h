@@ -72,7 +72,7 @@ class LinearSOE : public MovableObject
     virtual const Vector &getX(void) = 0;
     virtual const Vector &getB(void) = 0;    
     virtual const Matrix *getA(void) {return 0;};    
-    virtual double getDeterminant(void);
+            double getDeterminant(void);
     virtual double normRHS(void) = 0;
 
     virtual void setX(int loc, double value) =0;
