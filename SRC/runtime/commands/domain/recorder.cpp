@@ -717,7 +717,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
   }
 
-  else if ((strcmp(argv[1], "Remove") == 0) ||
+  else if (/* (strcmp(argv[1], "Remove") == 0) || */
            (strcmp(argv[1], "ElementRemoval") == 0) ||
            (strcmp(argv[1], "NodeRemoval") == 0) ||
            (strcmp(argv[1], "Collapse") == 0)) {
