@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:17 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/Integrator.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/integrator/Integrator.C
 // 
 // Written: fmk 
@@ -39,13 +34,8 @@
  Integrator::Integrator(int clasTag)
      :MovableObject(clasTag), analysisTypeTag(0), SensitivityKey(false)
 {
+
 }
-
-
-
-
-//////////////////////////////////
-
 
 
 Integrator::~Integrator()
@@ -53,17 +43,19 @@ Integrator::~Integrator()
 
 }
 
+#if 1
 int
 Integrator::domainChanged()
 {
     return 0;
 }
+#endif
 
 
 int
 Integrator::formSensitivityRHS(int gradNum)
 {
-    return 0;
+  return 0;
 }
 
 int
@@ -85,34 +77,33 @@ Integrator::commitSensitivity(int gradNum, int numGrads)
 }
 ///////////////////////Abbas///////////////////////////////////////////
 
- int Integrator:: formEleTangentSensitivity(FE_Element 
-      *theEle, int gradNumber)
+int Integrator:: formEleTangentSensitivity(FE_Element 
+     *theEle, int gradNumber)
 {
-return 0;
+  return 0;
 }
 
+#if 0
 double 
 Integrator::getLambdaSensitivity(int gradNumber)
 {
-return 0.0;
-
-
+  return 0.0;
 }
+#endif
 
 
 int
 Integrator::computeSensitivities()
 {
-
-//should not be called
-return 0;
-
+  //should not be called
+  return 0;
 }
+
 int 
 Integrator::sensitivityDomainChanged()
 {
-// I do not think I need it
-return 0;
+  // I do not think I need it
+  return 0;
 }
 
 bool
@@ -133,4 +124,3 @@ Integrator::setComputeType(int flag)
     analysisTypeTag = flag;
 }
 
- ////////////////////////Abbas/////////////////////////////////////

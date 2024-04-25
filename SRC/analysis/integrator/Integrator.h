@@ -18,29 +18,28 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-#ifndef Integrator_h
-#define Integrator_h
-
-// File: ~/analysis/integrator/Integrator.h
+// Description: This file contains the class interface for Integrator.
+// Integrator encapsulates the interface provided to FE_Elements and
+// DOF_Groups.
+//
+// For the interface used by the Algorithm and Analysis, 
+// see IncrementalIntegrator
+//
+// Integrator is an abstract base class.
 // 
 // Written: fmk 
 // Created: 11/96
 // Revision: A
 //
-// Description: This file contains the class interface for Integrator.
-// Integrator is an abstract base class, i.e. no objects of it's
-// type can be created. 
-//
-// What: "@(#) Integrator.h, revA"
+#ifndef Integrator_h
+#define Integrator_h
 
 #include <MovableObject.h>
-#include <OPS_Globals.h>
+class OPS_Stream;
 class FE_Element;
 class DOF_Group;
 class Vector;
 class ID;
-class FEM_ObjectBroker;
-class Matrix;
 
 class Integrator: public MovableObject
 {
@@ -48,14 +47,17 @@ public:
     Integrator(int classTag);
     virtual ~Integrator();
     
-    virtual int domainChanged(void);
-    
-    virtual int formEleTangent(FE_Element *theEle) =0;
-    virtual int formNodTangent(DOF_Group *theDof) =0;    
+
+    virtual int formEleTangent(FE_Element *theEle)  =0;
+    virtual int formNodTangent(DOF_Group *theDof)   =0;
     virtual int formEleResidual(FE_Element *theEle) =0;
     virtual int formNodUnbalance(DOF_Group *theDof) =0;    
 
-    // Methods provided for Domain Decomposition
+    virtual int domainChanged() ;
+
+    // Methods provided for Domain Decomposition. This
+    // is implemented in IncrementalIntegrator, but is
+    // part of the Integrator interface for FE_Elements
     virtual int getLastResponse(Vector &result, const ID &id) =0;
 
     // Method provided for Output
@@ -68,20 +70,19 @@ public:
     virtual int commitSensitivity (int gradNum, int numGrads);
     ////////////////////////////////Abbas//////////////////
     virtual int formEleTangentSensitivity(FE_Element *theEle, int gradNumber);  
-    virtual double getLambdaSensitivity(int gradNumber);
-    virtual int computeSensitivities();//Abbas
-    int sensitivityDomainChanged();//Abbass
+//  virtual double getLambdaSensitivity(int gradNumber);
+    virtual int computeSensitivities();
+    int sensitivityDomainChanged();
     bool shouldComputeAtEachStep(void);
     void setComputeType(int flag);
     bool newAlgorithm(void) {return true;}
     virtual  bool computeSensitivityAtEachIteration();    
     void activateSensitivityKey() {SensitivityKey=true;}
     bool activateSensitivity() {return SensitivityKey;};
-     ///////////////////////////////Abbas//////////////////
+    ///////////////////////////////Abbas//////////////////
 
 protected:
 private:
-
 
     int analysisTypeTag;
     bool SensitivityKey;
