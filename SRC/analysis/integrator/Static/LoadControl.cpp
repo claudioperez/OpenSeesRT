@@ -25,6 +25,7 @@
 // Written: fmk 
 // Created: 07/98
 //
+#include <cmath>
 #include <LoadControl.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
@@ -47,7 +48,7 @@
 void *
 OPS_ADD_RUNTIME_VPV(OPS_LoadControlIntegrator)
 {
-    if(OPS_GetNumRemainingInputArgs() < 1) {
+    if (OPS_GetNumRemainingInputArgs() < 1) {
 	opserr<<"insufficient arguments\n";
 	return 0;
     }
@@ -96,6 +97,7 @@ LoadControl::~LoadControl()
     
 }
 
+// increment
 int 
 LoadControl::newStep(void)
 {
@@ -106,7 +108,9 @@ LoadControl::newStep(void)
     }
 
     // determine delta lambda for this step based on dLambda and #iter of last step
-    double factor = specNumIncrStep/numIncrLastStep;
+    double expon  = 1.0;
+    double factor = std::pow(specNumIncrStep/numIncrLastStep, expon);
+
     deltaLambda *= factor;
 
     if (deltaLambda < dLambdaMin)
@@ -114,7 +118,8 @@ LoadControl::newStep(void)
 
     else if (deltaLambda > dLambdaMax)
       deltaLambda = dLambdaMax;
-    
+
+
     double currentLambda = theModel->getCurrentDomainTime();
 
     currentLambda += deltaLambda;
@@ -212,17 +217,6 @@ LoadControl::Print(OPS_Stream &s, int flag)
     
 }
 
-int
-LoadControl::formEleResidual(FE_Element* theEle)
-{
-    if (sensitivityFlag == 0) {  // no sensitivity
-	this->StaticIntegrator::formEleResidual(theEle);
-    } else {
-	theEle->zeroResidual();
-	theEle->addResistingForceSensitivity(gradNumber);
-    }
-    return 0;
-}
 
 int
 LoadControl::formIndependentSensitivityRHS()
@@ -245,7 +239,7 @@ LoadControl::formSensitivityRHS(int passedGradNumber)
     // Loop through elements
     FE_Element *elePtr;
     FE_EleIter &theEles = theAnalysisModel->getFEs();   
-    while((elePtr = theEles()) != 0) {
+    while((elePtr = theEles()) != nullptr) {
       theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
     }
 
@@ -261,7 +255,7 @@ LoadControl::formSensitivityRHS(int passedGradNumber)
 
     Domain *theDomain = theAnalysisModel->getDomainPtr();
     LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
-    while((loadPatternPtr = thePatterns()) != 0) {
+    while((loadPatternPtr = thePatterns()) != nullptr) {
 	const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
 	int sizeRandomLoads = randomLoads.Size();
 	if (sizeRandomLoads == 1) {
