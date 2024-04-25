@@ -32,6 +32,7 @@ extern OPS_Routine OPS_J2CyclicBoundingSurfaceMaterial;
 extern OPS_Routine OPS_CycLiqCPMaterial;
 extern OPS_Routine OPS_CycLiqCPSPMaterial;
 extern OPS_Routine OPS_InitStressNDMaterial;
+extern OPS_Routine OPS_InitStrainNDMaterial;
 extern OPS_Routine OPS_StressDensityMaterial;
 extern OPS_Routine OPS_J2PlateFibreMaterial;
 extern OPS_Routine OPS_PlaneStressLayeredMaterial;
@@ -52,6 +53,12 @@ extern OPS_Routine OPS_ElasticIsotropicMaterialThermal;           // L.Jiang [SI
 extern OPS_Routine OPS_DruckerPragerMaterialThermal;              // L.Jiang [SIF]
 extern OPS_Routine OPS_PlasticDamageConcretePlaneStressThermal;   // L.Jiang [SIF]
 
+extern OPS_Routine OPS_ElasticOrthotropicPlaneStress;
+extern OPS_Routine OPS_OrthotropicMaterial;
+extern OPS_Routine OPS_Series3DMaterial;
+extern OPS_Routine OPS_Parallel3DMaterial;
+
+
 #ifdef _HAVE_Faria1998
 extern OPS_Routine OPS_NewFaria1998Material;
 extern OPS_Routine OPS_NewConcreteMaterial;
@@ -65,6 +72,7 @@ extern OPS_Routine OPS_Damage2p;
 
 static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"InitStressMaterial",            OPS_InitStressNDMaterial},
+  {"InitStrainMaterial",            OPS_InitStrainNDMaterial},
 
   {"ReinforcedConcretePlaneStress", OPS_ReinforcedConcretePlaneStressMaterial},
   {"PlaneStressLayeredMaterial",    OPS_PlaneStressLayeredMaterial},
@@ -90,9 +98,6 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
 #if 0
   {"CDPPlaneStressThermal", OPS_PlasticDamageConcretePlaneStressThermal},
 #endif
-
-  
-
 
 
 #ifdef _HAVE_Faria1998
@@ -166,5 +171,10 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"SmearedSteelDoubleLayer",       OPS_SmearedSteelDoubleLayerT2DMaterial01},
 
   {"SAniSandMS",                    OPS_SAniSandMSMaterial},
+
+  {"OrthotropicMaterial",           OPS_OrthotropicMaterial},
+  {"ElasticOrthotropicPlaneStress", OPS_ElasticOrthotropicPlaneStress},
+  {"Series3DMaterial",              OPS_Series3DMaterial},
+  {"Parallel3DMaterial",            OPS_Parallel3DMaterial},
 };
 
