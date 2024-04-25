@@ -33,7 +33,7 @@ int
 TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **const argv)
 {
-  BasicModelBuilder *builder     = (BasicModelBuilder *)clientData;
+  BasicModelBuilder *builder     = static_cast<BasicModelBuilder*>(clientData);
   LoadPattern *theTclLoadPattern = builder->getEnclosingPattern();
   Domain *theTclDomain           = builder->getDomain();
   static int eleLoadTag          = 0;
