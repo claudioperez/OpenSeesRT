@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2007-06-08 00:39:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/actor/actor/MovableObject.h,v $
-                                                                        
-                                                                        
+//
 #ifndef MovableObject_h
 #define MovableObject_h
 
