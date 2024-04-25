@@ -31,7 +31,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char ** const argv)
 { 
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theTclDomain = builder->getDomain();
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -238,7 +238,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theTclDomain = builder->getDomain();
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -414,7 +414,7 @@ TclCommand_doBlock(ClientData clientData, Tcl_Interp *interp, int argc,
                           TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   int ndm = builder->getNDM();
 
   if (argc < 1) {

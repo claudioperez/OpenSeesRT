@@ -233,7 +233,7 @@ TclCommand_wipeModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
 {
   Tcl_Eval(interp, "_clearAnalysis");
 
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (theDatabase != nullptr)
     delete theDatabase;

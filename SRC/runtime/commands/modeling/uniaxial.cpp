@@ -95,7 +95,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv) {
 
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theDomain = builder->getDomain();
 
   // Make sure there is a minimum number of arguments
@@ -253,7 +253,7 @@ int
 TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (argc < 4) {
     opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
@@ -349,7 +349,7 @@ static int
 TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   UniaxialMaterial  *theMaterial = nullptr;
 
   if (strcmp(argv[1], "Elastic2") == 0) {
@@ -957,7 +957,7 @@ static int
 TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
    assert(clientData != nullptr);
-   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
    UniaxialMaterial* theMaterial = nullptr;
 
    if (strcmp(argv[1], "Pinching4") == 0) {

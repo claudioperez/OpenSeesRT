@@ -137,7 +137,7 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   TclBasicBuilder *theTclBuilder = (TclBasicBuilder*)G3_getSafeBuilder(rt);
 
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theTclDomain = builder->getDomain();
 
   OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, theTclDomain);
@@ -666,7 +666,7 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
                                        Domain *theTclDomain, 
                                        [[maybe_unused]] TclBasicBuilder* unused)
 {
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (builder == 0 || clientData == 0) {
     opserr << "WARNING builder has been destroyed - multipleShearSpring\n";
@@ -917,7 +917,7 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *inter
 {
 
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   // 3-dim, 6-dof
   int ndm = builder->getNDM();
@@ -1192,7 +1192,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   // 3-dim, 6dof
   int ndm = builder->getNDM();
@@ -1684,7 +1684,7 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
                                       [[maybe_unused]] TclBasicBuilder *unused)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theTclDomain = builder->getDomain();
   
 
@@ -1887,7 +1887,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
                              TclBasicBuilder *unused, int eleArgStart)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -2088,7 +2088,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
 Element *
 TclDispatch_newTri31(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **const argv)
 {
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   // Pointer to an element that will be returned
   Element *theElement = nullptr;

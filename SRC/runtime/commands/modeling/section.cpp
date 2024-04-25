@@ -107,7 +107,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 {
   assert(clientData != nullptr);
   G3_Runtime *rt = G3_getRuntime(interp);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theDomain = builder->getDomain();
 
   // Make sure there is a minimum number of arguments
@@ -884,7 +884,7 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
                     int secTag, UniaxialMaterial *theTorsion, double Ys, double Zs, double alpha, const FiberSectionConfig& options)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   // dimension of the structure (1d, 2d, or 3d)
   int ndm = builder->getNDM();
@@ -963,7 +963,7 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   // Check if we are being invoked from Python or Tcl
   bool openseespy = false;
@@ -1117,7 +1117,7 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder *)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   int NDM = builder->getNDM();
 
   if (argc < 4)
@@ -1251,7 +1251,7 @@ TclCommand_addPatch(ClientData clientData,
                     TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
   if (fiberSectionRepr == nullptr) {
@@ -1493,7 +1493,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   // check if a section is being processed
   if (builder->currentSectionTag == 0) {
@@ -1569,7 +1569,7 @@ TclCommand_addHFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                      TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
 
   SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
@@ -1626,7 +1626,7 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
                          TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   SectionBuilder* fiberSectionRepr = findSectionBuilder(builder, interp, argc, argv);
   if (fiberSectionRepr == nullptr) {
@@ -1819,7 +1819,7 @@ TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
                              int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   G3_Runtime *rt = G3_getRuntime(interp);
   int secTag;
 
@@ -1925,7 +1925,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
                 double t1, int NStrip2, double t2, int NStrip3, double t3)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   SectionRepres *sectionRepres = theTclBasicBuilder->getSectionRepres(secTag);
 
   if (sectionRepres == nullptr) {

@@ -127,7 +127,7 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
 
 
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   // TODO: Why not add SP to Domain directly?
   builder->addSP_Constraint(0, xLoc, fixity, tol);
 
@@ -139,7 +139,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   int ndf = argc - 2;
   if (strcmp(argv[argc-2],"-tol") == 0)
@@ -189,7 +189,7 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
 {
 
   assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   int ndf = argc - 2;
   if (strcmp(argv[argc-2],"-tol") == 0)
@@ -241,7 +241,7 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
 {
 //G3_Runtime *rt = G3_getRuntime(interp);
   assert(clientData != nullptr);
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *theTclDomain = builder->getDomain();
 
   if (argc > 1 && (strcmp(argv[1], "remove") == 0)) {
@@ -373,7 +373,7 @@ int
 TclCommand_addEqualDOF_MP(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char ** const argv)
 {
-    BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+    BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
     Domain     *theTclDomain   = builder->getDomain();
 
 
@@ -445,7 +445,7 @@ TclCommand_addEqualDOF_MP_Mixed(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char ** const argv)
 {
         // Ensure the destructor has not been called
-        BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+        BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
         if (theTclBuilder == 0 || clientData == 0) {
           opserr << G3_ERROR_PROMPT << "builder has been destroyed - equalDOF \n";
@@ -541,7 +541,7 @@ TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
 
   // BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(G3_getRuntime(interp));
   // // ensure the destructor has not been called -
-  // BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  // BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
 
   // check number of arguments

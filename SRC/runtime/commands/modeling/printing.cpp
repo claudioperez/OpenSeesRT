@@ -183,7 +183,7 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
 {
   assert(clientData != nullptr);
 
-  BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   Domain * domain = builder->getDomain();
 
   int currentArg = 1;
