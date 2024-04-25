@@ -28,6 +28,7 @@
 #include <FE_Element.h>
 #include <LinearSOE.h>
 #include <AnalysisModel.h>
+#include <Matrix.h>
 #include <Vector.h>
 #include <DOF_Group.h>
 #include <FE_EleIter.h>
