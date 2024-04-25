@@ -58,6 +58,7 @@ extern OPS_Routine OPS_OrthotropicMaterial;
 extern OPS_Routine OPS_Series3DMaterial;
 extern OPS_Routine OPS_Parallel3DMaterial;
 
+extern OPS_Routine OPS_AllASDPlasticMaterials;
 
 #ifdef _HAVE_Faria1998
 extern OPS_Routine OPS_NewFaria1998Material;
@@ -77,6 +78,10 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"ReinforcedConcretePlaneStress", OPS_ReinforcedConcretePlaneStressMaterial},
   {"PlaneStressLayeredMaterial",    OPS_PlaneStressLayeredMaterial},
   {"PlaneStressRebarMaterial",      OPS_PlaneStressRebarMaterial},
+
+#ifdef OPS_USE_ASDPlasticMaterials
+  {"ASDPlasticMaterial",            OPS_AllASDPlasticMaterials},
+#endif
 
   {"ASDConcrete3D",                 OPS_ASDConcrete3DMaterial},
 
@@ -101,7 +106,8 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
 
 
 #ifdef _HAVE_Faria1998
-  {"Faria1998", OPS_NewFaria1998Material},  {"Concrete", OPS_NewConcreteMaterial},
+  {"Faria1998", OPS_NewFaria1998Material},  
+  {"Concrete", OPS_NewConcreteMaterial},
 #endif
 
   {"FAReinforcedConcretePlaneStress", OPS_FAReinforcedConcretePlaneStressMaterial},
@@ -114,28 +120,28 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
 
   {"PrestressedConcretePlaneStress",   OPS_PrestressedConcretePlaneStressMaterial},
   {"FAPrestressedConcretePlaneStress", OPS_FAPrestressedConcretePlaneStressMaterial},
-  {"RAFourSteetPCPlaneStress", OPS_RAFourSteelPCPlaneStressMaterial},
+  {"RAFourSteetPCPlaneStress",         OPS_RAFourSteelPCPlaneStressMaterial},
 
-  {"FAFourSteelPCPlaneStress", OPS_FAFourSteelPCPlaneStressMaterial},
+  {"FAFourSteelPCPlaneStress",         OPS_FAFourSteelPCPlaneStressMaterial},
 
-  {"DruckerPrager", OPS_DruckerPragerMaterial},
+  {"DruckerPrager",  OPS_DruckerPragerMaterial},
 
-  {"TruncatedDP", OPS_LinearCap},
+  {"TruncatedDP",    OPS_LinearCap},
 
   // K Kolozvari
-  {"FSAM", OPS_FSAMMaterial},
+  {"FSAM",           OPS_FSAMMaterial},
 
   {"AcousticMedium", OPS_AcousticMedium},
 
   {"UVCplanestress", OPS_UVCplanestress},
 
-  {"UVCmultiaxial", OPS_UVCmultiaxial},
+  {"UVCmultiaxial",  OPS_UVCmultiaxial},
 
-//{"MaterialCMM", OPS_MaterialCMM},
+//{"MaterialCMM",    OPS_MaterialCMM},
 
-  {"CycLiqCP",    OPS_CycLiqCPMaterial},
+  {"CycLiqCP",        OPS_CycLiqCPMaterial},
 
-  {"CycLiqCPSP",  OPS_CycLiqCPSPMaterial},
+  {"CycLiqCPSP",      OPS_CycLiqCPSPMaterial},
 
   {"BoundingCamClay", OPS_BoundingCamClayMaterial},
 
