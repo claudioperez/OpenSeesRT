@@ -34,7 +34,7 @@
 #include <Integrator.h>
 
 class LinearSOE;
-class EigenSOE;
+// class EigenSOE;
 class AnalysisModel;
 class ConvergenceTest;
 class FE_Element;
@@ -42,13 +42,13 @@ class DOF_Group;
 class Vector;
 
 enum TangentFlag {
- CURRENT_TANGENT =0,
- INITIAL_TANGENT =1,
- CURRENT_SECANT  =2,
+ CURRENT_TANGENT               =0,
+ INITIAL_TANGENT               =1,
+ CURRENT_SECANT                =2,
  INITIAL_THEN_CURRENT_TANGENT  =3,
- NO_TANGENT  =4,
- SECOND_TANGENT =5,
- HALL_TANGENT =6
+ NO_TANGENT                    =4,
+ SECOND_TANGENT                =5,
+ HALL_TANGENT                  =6
 };
 
 class IncrementalIntegrator : public Integrator
@@ -57,63 +57,62 @@ class IncrementalIntegrator : public Integrator
     IncrementalIntegrator(int classTag);
     virtual ~IncrementalIntegrator();
 
-    virtual void setLinks(AnalysisModel &theModel,
-			  LinearSOE &theSOE,
-			  ConvergenceTest *theTest);
+    void setLinks(AnalysisModel &theModel,
+        	  LinearSOE &theSOE,
+        	  ConvergenceTest *theTest);
 
-    virtual void setEigenSOE(EigenSOE *theSOE);
-
-
-    // methods to set up the system of equations
+    // methods to set up the system of equations, called by
+    // the Algorithm
+    virtual int  formUnbalance() = 0;
     virtual int  formTangent(int statusFlag = CURRENT_TANGENT);
-    virtual int  formTangent(int statusFlag, 
+            int  formTangent(int statusFlag, 
 			     double iFactor,
 			     double cFactor);    
-    virtual int  formUnbalance(void);
-
-    // pure virtual methods to define the FE_ELe and DOF_Group contributions
-    virtual int formEleTangent(FE_Element *theEle) =0;
-    virtual int formNodTangent(DOF_Group *theDof) =0;    
-    virtual int formEleResidual(FE_Element *theEle) =0;
-    virtual int formNodUnbalance(DOF_Group *theDof) =0;    
 
     // methods to update the domain
-    virtual int newStep(double deltaT);
+//  virtual int newStep(double deltaT);
     virtual int update(const Vector &deltaU) =0;
-    virtual int commit(void);
-    virtual int revertToLastStep(void);
-    virtual int initialize(void);
+    virtual int commit();
+    virtual int revertToLastStep();
+    virtual int initialize();
 
-    //    int setModalDampingFactors(const Vector &);
-    int setupModal(const Vector *modalDampingValues);
-    int addModalDampingForce(const Vector *modalDampingValues);
-    int addModalDampingMatrix(const Vector *modalDampingValues);
-    virtual double getCFactor(void);
-    
-    virtual const Vector &getVel(void);
+
+    virtual double getCFactor();
+
+    virtual const Vector &getVel();
     int doMv(const Vector &v, Vector &res);
+
+
+    // pure virtual methods to define the FE_ELe and DOF_Group contributions
+    virtual int formEleTangent(FE_Element *theEle)  =0;
+    virtual int formNodTangent(DOF_Group *theDof)   =0;    
+    virtual int formEleResidual(FE_Element *theEle) =0;
+    virtual int formNodUnbalance(DOF_Group *theDof) =0;    
 
 // AddingSensitivity:BEGIN //////////////////////////////////
     virtual int revertToStart();
     virtual int formIndependentSensitivityLHS(int statusFlag = CURRENT_TANGENT);
 // AddingSensitivity:END ////////////////////////////////////
-    
-    // method introduced for domain decomposition
-    virtual int getLastResponse(Vector &result, const ID &id);
-    
+ 
   protected:
+    // TODO(cmp): Move to TransientIntegrator
+    // int setModalDampingFactors(const Vector &);
+    int setupModal(const Vector *modalDampingValues);
+    int addModalDampingForce(const Vector *modalDampingValues);
+    int addModalDampingMatrix(const Vector *modalDampingValues);
+
+            int  formNodalUnbalance(void);
+    virtual int  formElementResidual(void);
+
     LinearSOE       *getLinearSOE(void) const;
     AnalysisModel   *getAnalysisModel(void) const;
     ConvergenceTest *getConvergenceTest(void) const;
 
-    virtual int  formNodalUnbalance(void);        
-    virtual int  formElementResidual(void);            
     int statusFlag;
     double iFactor;
     double cFactor;
 
     //    Vector *modalDampingValues;
-    EigenSOE *theEigenSOE;
     double   *eigenVectors;
     Vector   *eigenValues;
     Vector   *dampingForces;
@@ -127,6 +126,14 @@ class IncrementalIntegrator : public Integrator
     LinearSOE *theSOE;
     AnalysisModel *theAnalysisModel;
     ConvergenceTest *theTest;
+
+    // method introduced for domain decomposition
+    // This is private here because it should only be called by
+    // classes using the `Integrator` interface (where it is public), 
+    // not `IncrementalIntegrator`. The only reason it is not implemented
+    // in Integrator is that it needs the LinearSOE
+    // - cmp
+    virtual int getLastResponse(Vector &result, const ID &id) final;
 
 };
 
