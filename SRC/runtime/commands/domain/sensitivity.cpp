@@ -1,7 +1,11 @@
 #include <tcl.h>
+#include <assert.h>
 #include <Domain.h>
 #include <Element.h>
 #include <Node.h>
+#include <BasicAnalysisBuilder.h>
+#include <LoadPattern.h>
+#include <Pressure_Constraint.h>
 #include <InitialStateParameter.h>
 #include <ElementStateParameter.h>
 
@@ -11,8 +15,8 @@ int
 sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -64,8 +68,8 @@ int
 sensNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -119,8 +123,8 @@ int
 sensNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
               TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
@@ -174,8 +178,8 @@ int
 sensNodePressure(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain *)clientData;
 
   // make sure at least one other argument to contain type of system
   if (argc < 3) {
@@ -229,19 +233,15 @@ sensSectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char ** const argv)
 {
 #ifdef _RELIABILITY
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
+  assert(clientData != nullptr);
+  Domain *theDomain = (Domain *)clientData;
+
   // make sure at least one other argument to contain type of system
   if (argc < 4) {
     opserr
         << "WARNING want - sensSectionForce eleTag? <secNum?> dof? paramTag?\n";
     return TCL_ERROR;
   }
-
-  // opserr << "sensSectionForce: ";
-  // for (int i = 0; i < argc; i++)
-  //  opserr << argv[i] << ' ' ;
-  // opserr << endln;
 
   int tag, dof, paramTag;
   int secNum = 0;
@@ -332,10 +332,8 @@ sensSectionForce(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain* domain = G3_getDomain(rt);
-  StaticAnalysis* the_static_analysis = G3_getStaticAnalysis(rt);
-  StaticIntegrator* the_static_integrator = G3_getStaticIntegrator(rt);
+  BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
+
 
   if (argc < 3) {
     opserr << "WARNING no load pattern supplied -- getLoadFactor\n";
@@ -348,7 +346,7 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
     return TCL_ERROR;
   }
 
-  LoadPattern *thePattern = domain->getLoadPattern(pattern);
+  LoadPattern *thePattern = builder->getDomain()->getLoadPattern(pattern);
   if (thePattern == 0) {
     opserr << "ERROR load pattern with tag " << pattern
            << " not found in domain -- getLoadFactor\n";
@@ -359,19 +357,22 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
               "paramTag? ";
     return TCL_ERROR;
   }
-  Parameter *theParam = domain->getParameter(paramTag);
+  Parameter *theParam = builder->getDomain()->getParameter(paramTag);
   if (theParam == 0) {
     opserr << "sensLambda: parameter " << paramTag << " not found" << endln;
     return TCL_ERROR;
   }
 
-  IncrementalIntegrator *theIntegrator = 0;
+#if 0
+  IncrementalIntegrator *theIntegrator = nullptr;
 
-  if (the_static_analysis != 0 && the_static_integrator != 0) {
+  if (the_static_integrator != nullptr) {
     theIntegrator = the_static_integrator;
-  } else if (theTransientAnalysis != 0 && theTransientIntegrator != 0) {
+
+  } else if (theTransientIntegrator != nullptr) {
     theIntegrator = theTransientIntegrator;
   }
+#endif
 
   int gradIndex = theParam->getGradIndex();
   double factor = thePattern->getLoadFactorSensitivity(gradIndex);
@@ -387,98 +388,3 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 
 
 
-int
-setParameter(ClientData clientData, Tcl_Interp *interp, int argc,
-             TCL_Char ** const argv)
-{
-  G3_Runtime *rt = G3_getRuntime(interp);
-  Domain *theDomain = G3_getDomain(rt);
-
-  int argLoc = 1;
-  double newValue = 0.0;
-  ID eleIDs(0, 32);
-  int numEle = 0;
-  int flag = 0;
-
-  if (strstr(argv[argLoc], "-val") != 0) {
-    if (Tcl_GetDouble(interp, argv[argLoc + 1], &newValue) != TCL_OK) {
-      opserr << "WARNING setParameter: invalid parameter value\n";
-      return TCL_ERROR;
-    }
-  } else {
-    opserr << "WARNING setParameter:  -val not found " << endln;
-    return TCL_ERROR;
-  }
-
-  argLoc += 2;
-
-  if (strstr(argv[argLoc], "-ele") != 0) {
-
-    if ((strcmp(argv[argLoc], "-ele") == 0) ||
-        (strcmp(argv[argLoc], "-eles") == 0) ||
-        (strcmp(argv[argLoc], "-element") == 0)) {
-
-      //
-      // read in a list of ele until end of command or other flag
-      //
-
-      argLoc++;
-      int eleTag;
-
-      while (argLoc < argc &&
-             Tcl_GetInt(interp, argv[argLoc], &eleTag) == TCL_OK) {
-        eleIDs[numEle] = eleTag;
-        numEle++;
-        argLoc++;
-      }
-
-      if (numEle > 0)
-        flag = 1;
-
-    } else if (strcmp(argv[argLoc], "-eleRange") == 0) {
-
-      flag = 2;
-
-      // ensure no segmentation fault if user messes up
-      if (argc < argLoc + 3) {
-        opserr << "WARNING recorder Element .. -eleRange start? end?  .. - no "
-                  "ele tags specified\n";
-        return TCL_ERROR;
-      }
-
-      //
-      // read in start and end tags of two elements & add set [start,end]
-      //
-
-      int start, end;
-      if (Tcl_GetInt(interp, argv[argLoc + 1], &start) != TCL_OK) {
-        opserr
-            << "WARNING recorder Element -eleRange start? end? - invalid start "
-            << argv[argLoc + 1] << endln;
-        return TCL_ERROR;
-      }
-      if (Tcl_GetInt(interp, argv[argLoc + 2], &end) != TCL_OK) {
-        opserr
-            << "WARNING recorder Element -eleRange start? end? - invalid end "
-            << argv[argLoc + 2] << endln;
-        return TCL_ERROR;
-      }
-      if (start > end) {
-        int swap = end;
-        end = start;
-        start = swap;
-      }
-      eleIDs[0] = start;
-      eleIDs[1] = end;
-
-      argLoc += 3;
-    }
-
-    ElementStateParameter theParameter(newValue, &argv[argLoc], argc - argLoc,
-                                       flag, &eleIDs);
-
-    theDomain->addParameter(&theParameter);
-  }
-
-  return TCL_OK;
-}
