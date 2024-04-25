@@ -210,7 +210,8 @@ BandGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
     assert(id.Size() == m.noRows() && id.Size() == m.noCols());
 
     // check for a quick return 
-    if (fact == 0.0)  return 0;
+    if (fact == 0.0)  
+      return 0;
     
     // check that m and id are of similar size
     int idSize = id.Size();    
@@ -225,13 +226,13 @@ BandGenLinSOE::addA(const Matrix &m, const ID &id, double fact)
                 double *coliiPtr = A + col*ldA + numSubD + numSuperD;
                 for (int j=0; j<idSize; j++) {
                     int row = id(j);
-                    if (row <size && row >= 0) {                    
+                    if (row < size && row >= 0) {
                         int diff = col - row;
                         if (diff > 0) {
                             if (diff <= numSuperD) {
                                 double *APtr = coliiPtr - diff;
                                 *APtr += m(j,i);
-                            }                        
+                            }
 
                         } else {
                             diff *= -1;
