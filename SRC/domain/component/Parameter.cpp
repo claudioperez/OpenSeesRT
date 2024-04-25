@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2008-08-26 15:43:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/component/Parameter.cpp,v $
-
+//
 #include <classTags.h>
 #include <Parameter.h>
-#include <DomainComponent.h>
+#include <MovableObject.h>
 
 Parameter::Parameter(int passedTag,
-		     DomainComponent *parentObject,
+		     MovableObject *parentObject,
 		     const char **argv, int argc)
   :TaggedObject(passedTag), MovableObject(PARAMETER_TAG_Parameter),
    parameterID(0), theObjects(0), numObjects(0), maxNumObjects(0),
@@ -40,7 +36,7 @@ Parameter::Parameter(int passedTag,
   maxNumObjects = initialSize;
   maxNumComponents = initialSize;
 
-  theComponents = new DomainComponent *[maxNumComponents];
+  theComponents = new MovableObject *[maxNumComponents];
 
   theObjects = new MovableObject *[maxNumObjects];
 
@@ -79,7 +75,7 @@ Parameter::Parameter(const Parameter &param):
   maxNumObjects = param.maxNumObjects;
   gradIndex = param.gradIndex;
 
-  theComponents = new DomainComponent *[maxNumComponents];
+  theComponents = new MovableObject *[maxNumComponents];
   int i;
   for (i = 0; i < numComponents; i++)
     theComponents[i] = param.theComponents[i];
@@ -137,12 +133,12 @@ Parameter::addComponent(int tag, const char **argv, int argc)
 }
 
 int
-Parameter::addComponent(DomainComponent *parentObject,
+Parameter::addComponent(MovableObject *parentObject,
 			const char **argv, int argc)
 {
   if (numComponents == maxNumComponents) {
     maxNumComponents += expandSize;
-    DomainComponent **newComponents = new DomainComponent *[maxNumComponents];
+    MovableObject **newComponents = new MovableObject *[maxNumComponents];
 
     for (int i = 0; i < numComponents; i++) 
       newComponents[i] = theComponents[i];
@@ -240,8 +236,11 @@ Parameter::addObject(int paramID, MovableObject *object)
       newParameterID[i] = parameterID[i];
     }
 
-    if (theObjects != 0) delete [] theObjects;
-    if (parameterID != 0) delete [] parameterID;
+    if (theObjects != nullptr) 
+      delete [] theObjects;
+
+    if (parameterID != nullptr) 
+      delete [] parameterID;
 
     theObjects = newObjects;
     parameterID = newParameterID;

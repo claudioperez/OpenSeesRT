@@ -17,19 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2008-08-26 15:38:37 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/component/Parameter.h,v $
-
+//
 #ifndef Parameter_h
 #define Parameter_h
 
 #include <Information.h>
 #include <TaggedObject.h>
-#include <string.h>
 
-class DomainComponent;
 class MovableObject;
 class Channel;
 class FEM_ObjectBroker;
@@ -39,9 +33,10 @@ class Parameter : public TaggedObject, public MovableObject
 {
  public:
   Parameter(int tag, 
-	    DomainComponent *theObject,
+	    MovableObject *theObject,
 	    const char **argv, 
 	    int argc);
+
   Parameter(const Parameter &param);
   Parameter(int tag, int classTag = PARAMETER_TAG_Parameter);
   Parameter();
@@ -55,7 +50,7 @@ class Parameter : public TaggedObject, public MovableObject
   virtual double getValue(void) {return theInfo.theDouble;}
   virtual void setValue(double newValue) {theInfo.theDouble = newValue;}
 
-  virtual int addComponent(DomainComponent *theObject, const char **argv, int argc);  
+  virtual int addComponent(MovableObject *theObject, const char **argv, int argc);  
   virtual int addComponent(int, const char **argv, int argc);  
   virtual int addObject(int parameterID, MovableObject *object);
 
@@ -89,7 +84,7 @@ class Parameter : public TaggedObject, public MovableObject
   enum {initialSize = 64};
   enum {expandSize = 128};
 
-  DomainComponent **theComponents;
+  MovableObject **theComponents;
   int numComponents;
   int maxNumComponents;
 
