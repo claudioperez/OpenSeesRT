@@ -31,7 +31,7 @@
 
 
 #include "NDMaterial.h"
-#include <G3Globals.h>
+// #include <G3Globals.h>
 #include <iostream>
 #include <Channel.h>
 #include <Information.h>
