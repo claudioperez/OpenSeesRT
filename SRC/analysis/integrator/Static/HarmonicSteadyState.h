@@ -63,7 +63,7 @@ class HarmonicSteadyState : public StaticIntegrator
     void Print(OPS_Stream &s, int flag =0);
 
     int formEleTangent(FE_Element *theEle);
-    int formEleResidual(FE_Element *theEle);
+//  int formEleResidual(FE_Element *theEle);
 
     // Adding sensitivity
     int formSensitivityRHS(int gradNum);
