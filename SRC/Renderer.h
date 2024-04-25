@@ -17,28 +17,19 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2003-05-15 21:42:43 $
-// $Source: /usr/local/cvs/OpenSees/SRC/renderer/Renderer.h,v $
-                                                                        
-                                                                        
-// File: ~/renderer/Renderer.h
-//
-// Written: fmk 
-// Created: 10/98
-// Revision: A
 //
 // Description: This file contains the class definition for Renderer.
 // Renderer is an abstract base class. An Renderer object is used
 // to process 3d graphics.
 //
-// What: "@(#) Renderer.h, revA"
-
+// Written: fmk 
+// Created: 10/98
+// Revision: A
+//
 #ifndef Renderer_h
 #define Renderer_h
 
-#include <OPS_Globals.h>
+// #include <OPS_Globals.h>
 
 class Vector;
 class Matrix;
@@ -78,14 +69,13 @@ class Renderer
     virtual int drawPolygon(const Matrix &points, const Matrix &rgbValues, int tag = 0, int mode = 0) =0;
 
     virtual int drawVector(const Vector &position, const Vector &value, double fcator = 1.0, int tag = 0);
-
-    
+ 
     virtual int drawText(const Vector &posGlobal, char *string, int length, 
 			 char horizontalJustify = 'l', 
 			 char verticalJustify = 'b') =0;    
 
     // 
-    // the following are for setting up the vieing system
+    // the following are for setting up the viewing system
     //
 
     // the following are in world coordinates & define view coord system
@@ -109,7 +99,7 @@ class Renderer
 
     // the following are in normalized coordinates
     virtual int setPortWindow(float, float, float, float) =0; // view port
-                              // left, right, bottom, top [-1,1,-1,1]
+                            // left, right, bottom, top [-1,1,-1,1]
 
 
   protected:
