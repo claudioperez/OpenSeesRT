@@ -74,7 +74,7 @@ void print_usage(void)
        "\n";
 }
 
-void *OPS_AllASDPlasticMaterials(void)
+void *OPS_ADD_RUNTIME_VPV(OPS_AllASDPlasticMaterials)
 {
     // some kudos
     static bool first_done = false;
