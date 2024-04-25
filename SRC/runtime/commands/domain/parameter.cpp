@@ -23,8 +23,9 @@
 #include <string.h>
 #include <OPS_Stream.h>
 #include <G3_Logging.h>
-#include <DomainComponent.h>
 #include <Domain.h>
+#include <MovableObject.h>
+#include <Element.h>
 #include <Node.h>
 #include <NodeData.h>
 
@@ -37,6 +38,7 @@ class TclBasicBuilder;
 
 #include <NodeResponseParameter.h>
 #include <LoadFactorParameter.h>
+#include <LoadPattern.h>
 
 #ifdef _RELIABILITY
 #include <RandomVariable.h>
@@ -158,7 +160,7 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
     // RandomVariable *theRV = 0;
     void *theRV = 0;
 
-    DomainComponent *theObject = nullptr;
+    MovableObject *theObject = nullptr;
 
     if (strstr(argv[2], "randomVariable") != 0) {
 #ifdef _RELIABILITY
@@ -200,8 +202,8 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
       isele = true;
 
       // Retrieve element from domain
-      //  FMK theObject = (DomainComponent *) theTclDomain->getElement(eleTag);
-      theObject = (DomainComponent *)domain->getElement(eleTag);
+      //  FMK theObject = (MovableObject *) theTclDomain->getElement(eleTag);
+      theObject = static_cast<MovableObject *>(domain->getElement(eleTag));
 
       argStart = (theRV) ? 6 : 4;
 
@@ -219,13 +221,14 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      // Retrieve element from domain
-      theObject = (DomainComponent *)domain->getNode(nodeTag);
+      // Retrieve node from domain
+      theObject = static_cast<MovableObject *>(domain->getNode(nodeTag));
 
       argStart = (theRV) ? 6 : 4;
+
     } else if (argc > argStart && strstr(argv[argStart], "loadPattern") != 0) {
 
-#if 0
+
       if (argc < 4) {
         opserr << "WARNING parameter -- insufficient number of arguments for "
                   "parameter with tag "
@@ -240,10 +243,10 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       // Retrieve element from domain
-      theObject = static_cast<DomainComponent *>(domain->getLoadPattern(loadTag));
+      theObject = static_cast<MovableObject *>(domain->getLoadPattern(loadTag));
 
       argStart = (theRV) ? 6 : 4;
-#endif
+
 
     } else if (argc > argStart) {
       opserr << "WARNING - unable to assign parameter to object of type "
@@ -268,6 +271,7 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
           newParameter =
               new Parameter(paramTag, theObject, (const char **)&argv[argStart],
                             argc - argStart);
+
         } else {
           newParameter = new ElementParameter(paramTag, eleTag,
                                               (const char **)&argv[argStart],
@@ -294,18 +298,19 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // Add to an existing parameter
-    if (strcmp(argv[0], "addToParameter") == 0) {
+    else if (strcmp(argv[0], "addToParameter") == 0) {
 
       if (theParameter == 0) {
         opserr << "WARNING addToParameter -- parameter with tag " << paramTag
                << " not found in domain\n";
         return TCL_ERROR;
+
       } else {
         if (isele == false)
           theParameter->addComponent(theObject, (const char **)&argv[argStart],
                                      argc - argStart);
         else {
-          theObject = (DomainComponent *)domain->getElement(eleTag);
+          theObject = static_cast<MovableObject *>(domain->getElement(eleTag));
           theParameter->addComponent(theObject, (const char **)&argv[argStart],
                                      argc - argStart);
           // Sorry, Frank, had to change this -- MHS
@@ -318,7 +323,7 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
   }
 
-  if (strcmp(argv[0], "updateParameter") == 0) {
+  else if (strcmp(argv[0], "updateParameter") == 0) {
 
     // Cannot update a parameter that is not present
     if (theParameter == 0) {
