@@ -25,17 +25,18 @@
 // FullGenLinLapackSolver. It solves the FullGenLinSOE object by calling
 // Lapack routines.
 //
-#include <FullGenLinLapackSolver.h>
-#include <FullGenLinSOE.h>
 #include <math.h>
 #include <assert.h>
+#include <blasdecl.h>
+#include <FullGenLinLapackSolver.h>
+#include <FullGenLinSOE.h>
 #include <Matrix.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
 
 FullGenLinLapackSolver::FullGenLinLapackSolver()
-:FullGenLinSolver(SOLVER_TAGS_FullGenLinLapackSolver),iPiv(0),sizeIpiv(0)
+:FullGenLinSolver(SOLVER_TAGS_FullGenLinLapackSolver),iPiv(0),sizeIpiv(0),det(1.0)
 {
     
 }
@@ -43,7 +44,7 @@ FullGenLinLapackSolver::FullGenLinLapackSolver()
 FullGenLinLapackSolver::~FullGenLinLapackSolver()
 {
     if (iPiv != nullptr)
-	delete [] iPiv;
+     delete [] iPiv;
 }
 
 void
@@ -57,32 +58,18 @@ FullGenLinLapackSolver::setDeterminant()
     det *= (*Amat)(i, i);
 
   for (int i=0; i < sizeIpiv; i++)
-    if (i != iPiv[i]) {
+    if (i+1 != iPiv[i]) {
       det = -det;
     }
 }
 
 double
-FullGenLinLapackSolver::getDeterminant() const
+FullGenLinLapackSolver::getDeterminant()
 {
   return det;
 }
 
 
-#ifdef _WIN32
-extern "C" int  DGESV(int *N, int *NRHS, double *A, int *LDA, 
-			      int *iPiv, double *B, int *LDB, int *INFO);
-			     
-extern "C" int  DGETRS(char *TRANS,
-			       int *N, int *NRHS, double *A, int *LDA, 
-			       int *iPiv, double *B, int *LDB, int *INFO);
-#else
-extern "C" int dgesv_(int *N, int *NRHS, double *A, int *LDA, int *iPiv, 
-		      double *B, int *LDB, int *INFO);
-
-extern "C" int dgetrs_(char *TRANS, int *N, int *NRHS, double *A, int *LDA, 
-		       int *iPiv, double *B, int *LDB, int *INFO);		       
-#endif
 int
 FullGenLinLapackSolver::solve(void)
 {
@@ -97,7 +84,7 @@ FullGenLinLapackSolver::solve(void)
     // check iPiv is large enough
     assert(!(sizeIpiv < n));
     //  opserr << " iPiv not large enough - has setSize() been called?\n";
-	
+     
     int ldA = n;
     int nrhs = 1;
     int ldB = n;
@@ -109,39 +96,31 @@ FullGenLinLapackSolver::solve(void)
     
     // first copy B into X
     for (int i=0; i<n; i++)
-	*(Xptr++) = *(Bptr++);
+     *(Xptr++) = *(Bptr++);
     Xptr = theSOE->X;
 
     //
     // now solve AX = Y
     //
     char tran[] = "N";
-#ifdef _WIN32
-    {if (theSOE->factored == false)  
-	// factor and solve 
-	DGESV(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
-     else {
-	// solve only using factored matrix	 
-	 unsigned int sizeC = 1;
-	 DGETRS(tran, &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);	 
-     }}
-#else
-    {if (theSOE->factored == false)      
-	dgesv_(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
-     else
-	dgetrs_(tran, &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
+    if (theSOE->factored == false)  
+     // factor and solve 
+      DGESV(&n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);
+    else {
+     // solve only using factored matrix      
+      DGETRS(tran, &n,&nrhs,Aptr,&ldA,iPIV,Xptr,&ldB,&info);      
     }
-#endif
+
     
     // check if successful
     if (info != 0) {
       if (info > 0) {
-	// opserr << "WARNING FullGenLinLapackSolver::solve() -";
-	// opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
-	return -info+1;
+     // opserr << "WARNING FullGenLinLapackSolver::solve() -";
+     // opserr << "factorization failed, matrix singular U(i,i) = 0, i= " << info-1 << endln;
+     return -info+1;
       } else {
-	// opserr << "WARNING FullGenLinLapackSolver::solve() - OpenSees code error\n";
-	return info;
+     // opserr << "WARNING FullGenLinLapackSolver::solve() - OpenSees code error\n";
+     return info;
       }      
     }
 
@@ -158,21 +137,21 @@ FullGenLinLapackSolver::setSize()
 {
     int n = theSOE->size;
     if (n > 0) {
-	if (sizeIpiv < n) {
-	    if (iPiv != nullptr)
-		delete [] iPiv;
-	    iPiv = new int[n];		
-	    sizeIpiv = n;
-	}
+     if (sizeIpiv < n) {
+         if (iPiv != nullptr)
+          delete [] iPiv;
+         iPiv = new int[n];          
+         sizeIpiv = n;
+     }
     } else if (n == 0)
-	return 0;
-	
+     return 0;
+     
     return 0;
 }
 
 int
 FullGenLinLapackSolver::sendSelf(int commitTag,
-				 Channel &theChannel)
+                     Channel &theChannel)
 {
     // nothing to do
     return 0;
@@ -180,8 +159,8 @@ FullGenLinLapackSolver::sendSelf(int commitTag,
 
 int
 FullGenLinLapackSolver::recvSelf(int commitTag,
-				 Channel &theChannel, 
-				 FEM_ObjectBroker &theBroker)
+                     Channel &theChannel, 
+                     FEM_ObjectBroker &theBroker)
 {
     // nothing to do
     return 0;
