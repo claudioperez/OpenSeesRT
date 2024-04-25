@@ -81,7 +81,7 @@ typedef struct ndMaterialPackageCommand {
   struct ndMaterialPackageCommand *next;
 } NDMaterialPackageCommand;
 
-static NDMaterialPackageCommand *theNDMaterialPackageCommands = NULL;
+static NDMaterialPackageCommand *theNDMaterialPackageCommands = nullptr;
 
 int
 TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
@@ -1499,6 +1499,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     theMaterial = new PlateRebarMaterialThermal(tag, *theMat, angle);
+//
   } else if ((strcmp(argv[1], "J2PlasticityThermal") == 0) ||
              (strcmp(argv[1], "J2Thermal") == 0)) {
     if (argc < 9) {
@@ -1560,6 +1561,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
     theMaterial =
         new J2PlasticityThermal(tag, 0, K, G, sig0, sigInf, delta, H, eta);
+
   } else if (strcmp(argv[1], "PlateFiberMaterialThermal") == 0 ||
              strcmp(argv[1], "PlateFiberThermal") == 0) {
     if (argc < 4) {
@@ -1621,7 +1623,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   //   the proc may already have been loaded from a package or may exist in a
   //   package yet to be loaded
   //
-  if (theMaterial == 0) {
+  if (theMaterial == nullptr) {
 #if 0
     // maybe material in a routine
     //
@@ -1687,8 +1689,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
     opserr << "WARNING could not add material to the domain\n";
     opserr << *theMaterial << endln;
-    delete theMaterial; // invoke the material objects destructor, otherwise mem
-                        // leak
+    delete theMaterial;
     return TCL_ERROR;
   }
 
