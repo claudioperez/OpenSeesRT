@@ -68,7 +68,7 @@ namespace Parallel3DUtils {
 
 }
 
-void *OPS_Parallel3DMaterial(void)
+void *OPS_ADD_RUNTIME_VPV(OPS_Parallel3DMaterial)
 {
 	// info
 	const char* info = "nDMaterial Parallel3D $tag    $tag1 $tag2 ... $tagN   <-weights $w1 $w2 ... $wN>";
