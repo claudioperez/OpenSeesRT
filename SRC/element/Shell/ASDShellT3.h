@@ -17,10 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2024/03
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // A 3-node general shear-deformable (thick) shell element based on 
@@ -56,8 +53,8 @@
 #include <ID.h>
 #include <Vector.h>
 #include <Matrix.h>
-#include <Damping.h>
-
+// #include <Damping.h>
+class Damping;
 class SectionForceDeformation;
 class ASDShellT3Transformation;
 class ASDShellT3LocalCoordinateSystem;
