@@ -32,6 +32,7 @@
 #include <ASDShellT3LocalCoordinateSystem.h>
 #include <Node.h>
 #include <Domain.h>
+#include <Vector3D.h>
 
 /** \brief ASDShellT3Transformation
 *
@@ -47,7 +48,7 @@ class ASDShellT3Transformation
 
 public:
 
-    typedef ASDVector3<double> Vector3Type;
+    typedef Vector3D Vector3Type;
 
     typedef ASDQuaternion<double> QuaternionType;
 
