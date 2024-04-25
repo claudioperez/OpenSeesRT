@@ -6,36 +6,22 @@
 ** (C) Copyright 1999, The Regents of the University of California    **
 ** All Rights Reserved.                                               **
 **                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.13 $
-// $Date: 2007/09/29 01:54:39 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/TclPatternCommand.cpp,v $
-
-// Written: fmk
-// Created: 07/99
-//
-// Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
-// procedure Revision: B
-//
-//  Modified:  Nov.    2002,  Zhaohui  Yang and Boris Jeremic added Plastic Bowl
-//  loading (aka Domain Reduction Method) commands
 //
 // Description: This file contains the function invoked when the user invokes
 // the Pattern command in the interpreter. It is invoked by the
 // TclBasicBuilder_addPattern function in the TclBasicBuilder.C file. Current
 // valid Pattern types are:
-
+//
+// Written: fmk
+// Created: 07/99
+//
+// Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
+// procedure
+//
+// Modified:  Nov.    2002,  Zhaohui  Yang and Boris Jeremic added Plastic Bowl
+// loading (aka Domain Reduction Method) commands
+//
 #include <runtime/BasicModelBuilder.h>
 
 #include <g3_api.h>
@@ -61,7 +47,7 @@
 
 #include <SimulationInformation.h>
 extern SimulationInformation simulationInfo;
-extern const char *getInterpPWD(Tcl_Interp *interp); // commands.cpp
+extern const char *getInterpPWD(Tcl_Interp *interp); // interpreter.cpp
 
 LoadPattern *theTclLoadPattern = 0;
 MultiSupportPattern *theTclMultiSupportPattern = 0;
@@ -138,10 +124,10 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
     dir--; // subtract 1 for c indexing
 
-    TimeSeries *accelSeries = 0;
-    TimeSeries *velSeries = 0;
-    TimeSeries *dispSeries = 0;
-    TimeSeriesIntegrator *seriesIntegrator = 0;
+    TimeSeries *accelSeries = nullptr;
+    TimeSeries *velSeries = nullptr;
+    TimeSeries *dispSeries = nullptr;
+    TimeSeriesIntegrator *seriesIntegrator = nullptr;
     double vel0 = 0.0;
 
     int currentArg = 4;
