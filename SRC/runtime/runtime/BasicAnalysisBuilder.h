@@ -136,9 +136,10 @@ private:
     int numEigen = 0;
 
     int numSubLevels = 0;
-    int numSubSteps = 0;
+    int numSubSteps  = 0;
 
-    int freeSOE = true;
+    bool freeSOE = true;
+    bool freeTI  = true;
 
 };
 

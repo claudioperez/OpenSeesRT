@@ -533,7 +533,6 @@ BasicAnalysisBuilder::set(LinearSOE* obj, bool free)
 
   freeSOE = free;
 
-
   theSOE = obj;
 
   this->setLinks(this->CurrentAnalysisFlag);
@@ -545,12 +544,13 @@ BasicAnalysisBuilder::set(LinearSOE* obj, bool free)
   domainStamp = 0;
 }
 
+
 LinearSOE*
 BasicAnalysisBuilder::getLinearSOE() {
   return theSOE;
 }
 
-// TODO: set(Integrator) is hideous
+
 void
 BasicAnalysisBuilder::set(StaticIntegrator& obj)
 {
@@ -572,15 +572,18 @@ void
 BasicAnalysisBuilder::set(TransientIntegrator& obj, bool free)
 {
 
-    if (theTransientIntegrator != nullptr)
+    if ((theTransientIntegrator != nullptr) && free && freeTI)
       delete theTransientIntegrator;
 
+    freeTI = free;
+
     theTransientIntegrator = &obj;
-    
+
     this->setLinks(TRANSIENT_ANALYSIS);
 
     if (domainStamp != 0  && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
       theTransientIntegrator->domainChanged();
+
     else
       domainStamp = 0;
 
