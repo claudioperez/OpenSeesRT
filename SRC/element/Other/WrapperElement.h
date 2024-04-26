@@ -17,13 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2008-12-09 00:14:39 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/WrapperElement.h,v $
-
+//
 // Written: fmk                                                                         
-                                                                        
+//
 #ifndef WrapperElement_h
 #define WrapperElement_h
 
@@ -31,6 +27,7 @@
 #include <Matrix.h>
 
 #include <elementAPI.h>
+#include <OpenSeesFFI.h>
 
 class Node;
 class Channel;
