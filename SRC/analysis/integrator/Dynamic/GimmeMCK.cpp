@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: MHS
 // Created: May 2020
 // Revision: A
 //
 // Description: This file contains the implementation of the GimmeMCK class.
-
+//
 #include <GimmeMCK.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
