@@ -99,7 +99,6 @@ static TimeSeries *
 TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-//  Domain *theDomain = G3_getDomain(rt);
 
   // note the 1 instead of usual 2
   OPS_ResetInputNoBuilder(clientData, interp, 1, argc, argv, nullptr);
@@ -113,7 +112,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     if (theResult != nullptr)
       theSeries = (TimeSeries *)theResult;
   }
-// #if 0
+
     else if (strcmp(argv[0],"Trig") == 0 || 
              strcmp(argv[0],"Sine") == 0) {
      // LoadPattern and TrigSeries - read args & create TrigSeries object
@@ -193,7 +192,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
      theSeries = new TrigSeries(tag, tStart, tFinish, period, shift, cFactor);
          
    }
-// #endif
+
 #if 0
    else if ((strcmp(argv[0], "Trig") == 0) ||
              (strcmp(argv[0], "TrigSeries") == 0) ||
@@ -211,6 +210,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
            (strcmp(argv[0], "LinearSeries") == 0)) {
 
     void *theResult = TclDispatch_newLinearSeries(clientData, interp, argc - 1, &argv[1]);
+
     if (theResult != nullptr)
       theSeries = (TimeSeries *)theResult;
     else
@@ -226,7 +226,6 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       theSeries = (TimeSeries *)theResult;
 
   }
-
   else if ((strcmp(argv[0], "Pulse") == 0) ||
            (strcmp(argv[0], "PulseSeries") == 0)) {
 
@@ -235,7 +234,6 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       theSeries = (TimeSeries *)theResult;
 
   }
-
   else if ((strcmp(argv[0], "Triangle") == 0) ||
            (strcmp(argv[0], "TriangleSeries") == 0)) {
 
