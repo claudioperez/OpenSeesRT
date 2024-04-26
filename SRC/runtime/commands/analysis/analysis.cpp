@@ -25,8 +25,10 @@
 
 #include <EigenSOE.h>
 #include <LinearSOE.h>
+// for printA
 #include <FullGenLinLapackSolver.h>
 #include <FullGenLinSOE.h>
+#include <GimmeMCK.h>
 
 #include <LoadControl.h>
 #include <EquiSolnAlgo.h>
@@ -529,7 +531,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   bool ret = false;
   int currentArg = 1;
-  double m, c, k;
+  double m = 0.0, c = 0.0, k = 0.0;
   bool do_mck = false;
   while (currentArg < argc) {
     if ((strcmp(argv[currentArg], "file") == 0) ||
@@ -573,8 +575,21 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     currentArg++;
   }
   
+  //
   // Form the tangent
-  if (builder->getStaticIntegrator() != nullptr) {
+  //
+  TransientIntegrator *oldint = nullptr;
+  // construct integrator here so that it is not
+  // destructed when the `if` scope ends
+  GimmeMCK integrator(m, c, k, 0.0);
+  if (do_mck) {
+    oldint = builder->getTransientIntegrator();
+    builder->set(integrator, false);
+    integrator.formTangent(0);
+    integrator.revertToLastStep();
+  }
+
+  else if (builder->getStaticIntegrator() != nullptr) {
     builder->getStaticIntegrator()->formTangent();
     builder->getStaticIntegrator()->revertToLastStep();
   }
@@ -584,7 +599,6 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     builder->getTransientIntegrator()->revertToLastStep();
   }
   builder->getDomain()->revertToLastCommit();
-
 
   const Matrix *A = theSOE.getA();
   if (A == nullptr) {
@@ -614,6 +628,9 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   // put the original SOE back.
   if (oldSOE != nullptr)
     builder->set(oldSOE, true);
+
+  if (oldint != nullptr)
+    builder->set(*oldint, true);
 
   return res;
 }
