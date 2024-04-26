@@ -164,7 +164,7 @@ BasicModelBuilder::getRegistryObject(const char* partition, int tag) const
 int
 BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
 {
-  // TODO: Change void*obj to TaggedObject*
+  // TODO: Change void* obj to TaggedObject*
   m_registry[std::string{partition}][tag] = (TaggedObject*)obj;
   return TCL_OK;
 }
