@@ -440,43 +440,60 @@ int Pinching4Material::revertToLastCommit(void)
 int Pinching4Material::revertToStart(void)
 {
     Cstate = 0;
-	Cstrain = 0.0;
-	Cstress = 0.0;
-	CstrainRate = 0.0;
-	lowCstateStrain = envlpNegStrain(0);
-	lowCstateStress = envlpNegStress(0);
-	hghCstateStrain = envlpPosStrain(0);
-	hghCstateStress = envlpPosStress(0);
-	CminStrainDmnd = envlpNegStrain(1);
-	CmaxStrainDmnd = envlpPosStrain(1);
-	Cenergy = 0.0;
-	CgammaK = 0.0;
-	CgammaD = 0.0;
-	CgammaF = 0.0;
-	CnCycle = 0.0;
+    Cstrain = 0.0;
+    Cstress = 0.0;
+    CstrainRate = 0.0;
+    
+    this->SetEnvelope();
 
-	Ttangent = envlpPosStress(0)/envlpPosStrain(0);
-	dstrain = 0.0;       
-	gammaKUsed = 0.0;
-	gammaFUsed = 0.0;
-	
-	kElasticPosDamgd = kElasticPos;
-	kElasticNegDamgd = kElasticNeg;
-	uMaxDamgd = CmaxStrainDmnd;
-	uMinDamgd = CminStrainDmnd;
+    lowCstateStrain = envlpNegStrain(0);
+    lowCstateStress = envlpNegStress(0);
+    hghCstateStrain = envlpPosStrain(0);
+    hghCstateStress = envlpPosStress(0);
+    CminStrainDmnd = envlpNegStrain(1);
+    CmaxStrainDmnd = envlpPosStrain(1);
+    Cenergy = 0.0;
+    CgammaK = 0.0;
+    CgammaD = 0.0;
+    CgammaF = 0.0;
+    CnCycle = 0.0;
 
-	return 0;
+    
+    TnCycle = CnCycle;
+    Tstrain = Cstrain;
+    Tstress = Cstress;
+    Ttangent = envlpPosStress(0)/envlpPosStrain(0);
+    dstrain = 0.0;       
+    gammaKUsed = 0.0;
+    gammaFUsed = 0.0;
+
+    
+    state3Stress.Zero();
+    state3Strain.Zero();
+    state4Stress.Zero();
+    state4Strain.Zero();	
+
+    envlpPosDamgdStress = envlpPosStress;
+    envlpNegDamgdStress = envlpNegStress;
+    
+    kElasticPosDamgd = kElasticPos;
+    kElasticNegDamgd = kElasticNeg;
+    uMaxDamgd = CmaxStrainDmnd;
+    uMinDamgd = CminStrainDmnd;
+
+    return 0;
 }
+
 
 UniaxialMaterial* Pinching4Material::getCopy(void)
 {
-	Pinching4Material *theCopy = new Pinching4Material (this->getTag(),
-		stress1p, strain1p, stress2p, strain2p, stress3p, strain3p, stress4p, strain4p,
-        stress1n, strain1n, stress2n, strain2n, stress3n, strain3n, stress4n, strain4n,
-        rDispP, rForceP, uForceP, rDispN, rForceN, uForceN,gammaK1,gammaK2,gammaK3,gammaK4,
-		gammaKLimit,gammaD1,gammaD2,gammaD3,gammaD4,gammaDLimit,gammaF1,gammaF2,gammaF3,gammaF4,
-		gammaFLimit,gammaE,DmgCyc);
-	
+       Pinching4Material *theCopy = new Pinching4Material (this->getTag(),
+                stress1p, strain1p, stress2p, strain2p, stress3p, strain3p, stress4p, strain4p,
+                stress1n, strain1n, stress2n, strain2n, stress3n, strain3n, stress4n, strain4n,
+                rDispP, rForceP, uForceP, rDispN, rForceN, uForceN,gammaK1,gammaK2,gammaK3,gammaK4,
+                gammaKLimit,gammaD1,gammaD2,gammaD3,gammaD4,gammaDLimit,gammaF1,gammaF2,gammaF3,gammaF4,
+                gammaFLimit,gammaE,DmgCyc);
+
 	theCopy->rDispN = rDispN;
 	theCopy->rDispP = rDispP;
 	theCopy->rForceN = rForceN;
