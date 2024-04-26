@@ -25,68 +25,6 @@
 #ifndef _eleAPI
 #define _eleAPI
 
-#define ISW_INIT 0
-#define ISW_COMMIT 1
-#define ISW_REVERT 2
-#define ISW_FORM_TANG_AND_RESID 3
-#define ISW_FORM_MASS 4
-#define ISW_REVERT_TO_START 5
-#define ISW_DELETE 6
-
-#define ISW_SET_RESPONSE 7
-#define ISW_GET_RESPONSE 8
-
-#define OPS_UNIAXIAL_MATERIAL_TYPE 1
-#define OPS_SECTION2D_TYPE 2
-#define OPS_SECTION3D_TYPE 3
-#define OPS_PLANESTRESS_TYPE 4
-#define OPS_PLANESTRAIN_TYPE 5
-#define OPS_THREEDIMENSIONAL_TYPE 6
-#define OPS_SECTION_TYPE 7
-
-struct modState {
-    double time;
-    double dt;
-};
-
-typedef struct modState modelState;
-
-typedef void (*matFunct)(struct matObject*, modelState*, double* strain, double* tang, double* stress, int* isw, int* error);
-
-struct matObject {
-    int tag;
-    int matType;
-    int nParam;
-    int nState;
-    double* theParam;
-    double* cState;
-    double* tState;
-    matFunct matFunctPtr;
-    void* matObjectPtr;
-};
-
-typedef struct matObject matObj;
-
-typedef void (*eleFunct)(struct eleObject*, modelState*, double* tang, double* resid, int* isw, int* error);
-
-struct eleObject {
-    int tag;
-    int nNode;
-    int nDOF;
-    int nParam;
-    int nState;
-    int nMat;
-    int* node;
-    double* param;
-    double* cState;
-    double* tState;
-    matObj** mats;
-    eleFunct eleFunctPtr;
-};
-
-typedef struct eleObject eleObj;
-
-
 #define OPS_Error ops_error_
 #define OPS_GetIntInput ops_getintinput_
 #define OPS_GetDoubleInput ops_getdoubleinput_
@@ -106,8 +44,6 @@ typedef struct eleObject eleObj;
 #define OPS_GetNodeAccel ops_getnodeaccel_
 #define OPS_GetNodeIncrDisp ops_getnodeincrdisp_
 #define OPS_GetNodeIncrDeltaDisp ops_getnodeincrdeltadisp_
-#define OPS_InvokeMaterial ops_invokematerial_
-#define OPS_InvokeMaterialDirectly ops_invokematerialdirectly_
 #define OPS_GetInt ops_getintinput_
 #define OPS_GetDouble ops_getdoubleinput_
 #define OPS_GetString ops_getstring
@@ -119,7 +55,6 @@ typedef struct eleObject eleObj;
 #define OPS_GetInterpPWD ops_getinterppwd_
 
 #define OPS_GetAnalysisModel ops_getanalysismodel_
-// #define OPS_GetVariableTimeStepTransientAnalysis ops_getvariabletimesteptransientanalysis_
 #define OPS_GetNumEigen ops_getnumeigen_
 #define OPS_GetStaticIntegrator ops_getstaticintegrator_
 #define OPS_builtModel ops_builtmodel_
@@ -140,9 +75,9 @@ class CrdTransf;
 class Domain;
 class FE_Datastore;
 //
-extern "C" int         OPS_SetDoubleListsOutput(std::vector<std::vector<double>>& data);
-extern "C" int         OPS_SetDoubleDictOutput(std::map<const char*, double>& data);
-extern "C" int         OPS_SetDoubleDictListOutput(std::map<const char*, std::vector<double>>& data);
+extern "C" int  OPS_SetDoubleListsOutput(std::vector<std::vector<double>>& data);
+extern "C" int  OPS_SetDoubleDictOutput(std::map<const char*, double>& data);
+extern "C" int  OPS_SetDoubleDictListOutput(std::map<const char*, std::vector<double>>& data);
 
 extern NDMaterial* OPS_GetNDMaterial(int matTag);
 extern SectionForceDeformation* OPS_GetSectionForceDeformation(int secTag);
@@ -175,11 +110,6 @@ const char* OPS_GetInterpPWD();
 // extern "C" int       OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp * interp, int cArg, int mArg, TCL_Char * *argv, Domain * domain);
 // extern "C" int       OPS_GetString(char *cArray, int sizeArray); // does a strcpy
 
-
-
-// int*    OPS_GetNumEigen(void);
-// ConstraintHandler** OPS_GetHandler(void);
-// EigenSOE** OPS_GetEigenSOE(void);
 
 #ifdef __cplusplus
 }

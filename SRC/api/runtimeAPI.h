@@ -12,6 +12,7 @@ class G3_Runtime;
 #  undef OPS_GetDomain
 #  include <g3_api.h>
 typedef void *OPS_Routine(G3_Runtime* , int, const char** const);
+
 #else
 #  define OPS_ADD_RUNTIME_VPV(func) (func)()
 #  define OPS_CALL_RUNTIME_VPV(func) (func)()
