@@ -18,7 +18,6 @@
 // ANALYSIS RUNTIME
 //
 #  undef  OPS_GetDomain
-// #  define ops_getdomain_
 #  define OPS_GetDomain()        G3_getDomain(rt)
 #  undef  OPS_GetAnalysisModel
 #  define OPS_GetAnalysisModel() G3_getAnalysisModelPtr(rt)
@@ -59,7 +58,6 @@ typedef int G3_Tag;
 #  define G3_getDouble Tcl_GetDoubleFromObj
 class G3_Runtime;
 class ModelBuilder;
-// class TclBuilder;
 #include <runtime/BasicModelBuilder.h>
 class AnalysisModel;
 class EquiSolnAlgo;
@@ -70,7 +68,6 @@ class EigenSOE;
 class AnalysisModel;
 class StaticAnalysis;
 class DirectIntegrationAnalysis;
-class VariableTimeStepDirectIntegrationAnalysis;
 class StaticIntegrator;
 class TransientIntegrator;
 class ConvergenceTest;
