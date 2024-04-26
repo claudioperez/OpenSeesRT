@@ -214,12 +214,14 @@ public:
     @param b the other vector
     @return the dot product.
     */
-    inline constexpr scalar_t dot(const Vector3D& b) const {
+    inline constexpr scalar_t 
+    dot(const Vector3D& b) const {
         return
             values[0] * b.values[0] +
             values[1] * b.values[1] +
             values[2] * b.values[2];
     }
+
 
     /**
     Returns the cross product this vector with another vector.
@@ -233,6 +235,7 @@ public:
         c[2] = values[0] * b[1] - values[1] * b[0];
         return c;
     }
+
 
     template <class Vec3T> inline
     Vector3D cross(const Vec3T& b) const {
