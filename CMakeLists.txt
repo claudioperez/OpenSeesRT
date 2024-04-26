@@ -114,17 +114,19 @@ if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
     if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
       add_compile_options(
+        $<$<CONFIG:DEBUG>:-ggdb>
         $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> #, leak
         $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fno-omit-frame-pointer>
       )
       add_link_options(
-        -fsanitize=address,undefined> # , leak
+        "-fsanitize=address,undefined>" # , leak
       )
     elseif (CMAKE_BUILD_TYPE EQUAL "RELEASE")
       # Some x86_64 optimizations
       add_compile_options(
         $<$<CONFIG:RELEASE>:-march=haswell>
         $<$<CONFIG:RELEASE>:-msse4>
+        $<$<CONFIG:RELEASE>:-mtune=native>
         $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-mavx2>
 #       $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-ftree-vectorize>
       )
@@ -133,12 +135,10 @@ if (UNIX)
 
   # More general debug / optimization options
   add_compile_options(
-    $<$<CONFIG:DEBUG>:-ggdb>
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
 
     $<$<CONFIG:RELEASE>:-O3>
-    $<$<CONFIG:RELEASE>:-mtune=native>
   )
 
   if (DEFINED ProfileBuild)
