@@ -19,6 +19,11 @@ from .tcl import Interpreter
 # from this module. All of these are dynamically
 # resolved by the function __getattr__ below.
 __all__ = [
+# 
+    "tcl"
+    "OpenSeesError"
+
+# OpenSeesPy attributes
     "uniaxialMaterial",
     "testUniaxialMaterial",
     "setStrain",
@@ -232,18 +237,19 @@ __all__ = [
     "partition",
     "pressureConstraint",
     "domainCommitTag",
-    "runFOSMAnalysis",
+#   "runFOSMAnalysis",
     "findDesignPoint",
     "runFORMAnalysis",
     "getLSFTags",
     "runImportanceSamplingAnalysis",
     "IGA",
     "NDTest",
-
-    "tcl"
 ]
 
-def _as_str_arg(arg):
+class OpenSeesError(Exception):
+    pass
+
+def _as_str_arg(arg, name: str = None):
     """
     Convert arg to a string that represents
     Tcl semantics.
@@ -251,14 +257,18 @@ def _as_str_arg(arg):
     if isinstance(arg, list):
         return f"{{{' '.join(_as_str_arg(a) for a in arg)}}}"
 
-    elif isinstance(arg, bool):
-        return str(int(arg))
+#   elif isinstance(arg, bool):
+#       if name is None:
+#           return str(int(arg))
+#       else:
+#           return f"-{name.replace('_','-')}"
 
     elif isinstance(arg, dict):
         return "{\n" + "\n".join([
           f"{cmd} " + " ".join(_as_str_arg(a) for a in val)
               for cmd, val in kwds
-    ]) + "}"
+        ]) + "}"
+
     else:
         return str(arg)
 
@@ -293,18 +303,19 @@ class OpenSeesPy:
         strings.
         """
 
-        tcl_args = [_as_str_arg(i) for i in args]
-        tcl_args += [
-          f"-{key} " + _as_str_arg(val)
+        tcl_args = (_as_str_arg(i) for i in args)
+        tcl_kwds = (
+          (f"-{key.replace('_','-')}" if val else "") if isinstance(val, bool)
+          else f"-{key} " + _as_str_arg(val)
               for key, val in kwds.items()
-        ]
-        cmd = f"{proc_name} " + " ".join(tcl_args)
+        )
+        cmd = f"{proc_name} {' '.join(tcl_args)} {' '.join(tcl_kwds)}"
 
         # TODO: make sure errors print nicely
         try:
             ret = self.eval(cmd)
         except Exception as e:
-            raise e
+            raise OpenSeesError() from e
 
         if ret is None or ret == "":
             return None
@@ -421,10 +432,7 @@ class Model:
 
     def getTangent(self):
         import numpy as np
-        # TODO
-#       self._openseespy.eval("system FullGeneral")
         A = np.array(self._openseespy._str_call("printA", "-ret"))
-#       self._openseespy.eval("system ProfileSPD")
         return A.reshape([int(np.sqrt(len(A)))]*2)
 
     def __getattr__(self, name: str):
