@@ -19,7 +19,7 @@
 #include <NodeIter.h>
 #include <Pressure_Constraint.h>
 
-// TODO: Remove global var - CMP
+// TODO(cmp): Remove global vars
 static char *resDataPtr  = nullptr;
 static int   resDataSize = 0;
 
