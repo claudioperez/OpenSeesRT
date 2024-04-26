@@ -195,8 +195,6 @@ OneBasisFun(int p, int m, Vector U, int i, double u)
     Compute an individual B-spline function
   */
 
-  double *N = (double*)malloc(sizeof(double) * (p + 1));
-
   if ((i == 0 && u == U[0] ) ||
       (i == (m - p - 1) && u == U[m]))
     return 1.0;
@@ -204,13 +202,14 @@ OneBasisFun(int p, int m, Vector U, int i, double u)
   if (u < U[i] || u >= U[i + p + 1])
     return 0.0;
 
+  double *N = (double*)malloc(sizeof(double) * (p + 1));
+
   for (int j = 0; j <= p; j++) {
     if (u >= U[i + j] && u < U[i + j + 1])
       N[j] = 1.0;
     else
       N[j] = 0.0;
   }
-
 
   for (int k = 1; k <= p; k++) {
     double saved, Uleft, Uright, temp;
@@ -234,8 +233,10 @@ OneBasisFun(int p, int m, Vector U, int i, double u)
     }
   }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
   double Nip = N[0];
-
+#pragma GCC diagnostic pop
   free(N);
 
   return Nip;
