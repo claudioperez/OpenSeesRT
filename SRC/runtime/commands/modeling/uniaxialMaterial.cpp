@@ -2,20 +2,6 @@
 **    Opensee - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 **                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the function invoked when the user invokes
@@ -29,8 +15,6 @@
 #include <unordered_map> // std::unordered_map
 #include <g3_api.h>
 #include <elementAPI.h>
-extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg, TCL_Char ** const argv, Domain *domain);
-
 #include <Elastic2Material.h>   // ZHY
 #include <HardeningMaterial.h>  // MHS
 #include <HardeningMaterial2.h> // MHS
@@ -55,12 +39,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp
 #include <SteelMP.h>               //Quan & Michele
 #include <SmoothPSConcrete.h>      //Quan & Michele
 #include <SelfCenteringMaterial.h> //JAE
-// #include <ASD_SMA_3K.h>            //LA
-
-// #include <KikuchiAikenHDR.h>
-// #include <KikuchiAikenLRB.h>
-// #include <AxialSp.h>
-// #include <AxialSpHD.h>
 
 #include <SMAMaterial.h> // Davide Fugazza
 #include <Masonry.h>
@@ -147,8 +125,6 @@ extern OPS_Routine OPS_Masonryt;
 
 extern UniaxialMaterial *Tcl_AddLimitStateMaterial(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **arg);
 
-extern UniaxialMaterial *
-Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv);
 
 #include <packages.h>
 
@@ -185,6 +161,8 @@ UniaxialMaterial *TclBasicBuilder_FRPCnfinedConcrete(ClientData clientData, Tcl_
                                                      Domain *theDomain);
 
 UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *, int, TCL_Char **);
+
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg, TCL_Char ** const argv, Domain *domain);
 
 int
 TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv, Domain *theDomain)
@@ -2228,36 +2206,10 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp
     }
   }
 
-  //
-  // check to see if element is a procedure
-  //   the proc may already have been loaded from a package or may exist in a
-  //   package yet to be loaded
-  //
-  if (theMaterial == nullptr) {
-#if 0
-    // maybe material in a routine
-    //
-    char *matType = new char[strlen(argv[1]) + 1];
-    strcpy(matType, argv[1]);
-    matObj *matObject = OPS_GetMaterialType(matType, strlen(matType));
-
-    delete[] matType;
-
-    if (matObject != 0) {
-
-      theMaterial = Tcl_addWrapperUniaxialMaterial(matObject, clientData,
-                                                   interp,argc, argv);
-
-      if (theMaterial == 0)
-        delete matObject;
-    }
-#endif
-  }
 
   //
   // if still here the element command does not exist
   //
-
   if (theMaterial == nullptr) {
     opserr << "WARNING could not create uniaxialMaterial " << argv[1] << endln;
     return TCL_ERROR;
