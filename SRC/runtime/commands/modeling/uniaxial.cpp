@@ -55,10 +55,11 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 //                                                    Tcl_Interp *interp, int argc,
 //                                                    TCL_Char **arg);
 
+#if 0
 extern UniaxialMaterial *
 Tcl_addWrapperUniaxialMaterial(matObj *, ClientData clientData,
                                Tcl_Interp *interp, int argc, TCL_Char ** const argv);
-
+#endif
 typedef struct uniaxialPackageCommand {
   char *funcName;
   void *(*funcPtr)();
@@ -71,7 +72,7 @@ static void printCommand(int argc, TCL_Char ** const argv) {
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
     opserr << argv[i] << " ";
-  opserr << endln;
+  opserr << "\n";
 }
 
 //
@@ -92,7 +93,8 @@ UniaxialMaterial *TclBasicBuilder_addDegradingMaterial(ClientData, Tcl_Interp *,
 
 int
 TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv) {
+                                  int argc, TCL_Char ** const argv)
+{
 
   assert(clientData != nullptr);
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
@@ -102,7 +104,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   if (argc < 3) {
     opserr << G3_ERROR_PROMPT << "insufficient number of uniaxial material arguments\n";
     opserr << "Want: uniaxialMaterial type? tag? <specific material args>"
-           << endln;
+           << "\n";
     return TCL_ERROR;
   }
 
@@ -234,7 +236,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   // if still here the element command does not exist
   //
   if (theMaterial == nullptr) {
-    opserr << G3_ERROR_PROMPT << "Could not create uniaxialMaterial " << argv[1] << endln;
+    opserr << G3_ERROR_PROMPT << "Could not create uniaxialMaterial " << argv[1] << "\n";
     return TCL_ERROR;
   }
 
@@ -259,21 +261,21 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
     opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
     printCommand(argc, argv);
     opserr << "Want: uniaxialMaterial Fatigue tag? matTag?";
-    opserr << " <-D_max dmax?> <-e0 e0?> <-m m?>" << endln;
-    opserr << " <-min min?> <-max max?>" << endln;
+    opserr << " <-D_max dmax?> <-e0 e0?> <-m m?>" << "\n";
+    opserr << " <-min min?> <-max max?>" << "\n";
     return TCL_ERROR;
   }
 
   int tag, matTag;
 
   if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Fatigue tag" << endln;
+    opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Fatigue tag" << "\n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "invalid component tag\n";
-    opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+    opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
     return TCL_ERROR;
   }
 
@@ -288,35 +290,35 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
       if ((j + 1 >= argc) ||
           (Tcl_GetDouble(interp, argv[j + 1], &Dmax) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -Dmax";
-        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-E0") == 0) {
       if ((j + 1 >= argc) ||
           (Tcl_GetDouble(interp, argv[j + 1], &E0) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -E0";
-        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-m") == 0) {
       if ((j + 1 >= argc) ||
           (Tcl_GetDouble(interp, argv[j + 1], &m) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -m";
-        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-min") == 0) {
       if ((j + 1 >= argc) ||
           (Tcl_GetDouble(interp, argv[j + 1], &epsmin) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -min ";
-        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-max") == 0) {
       if ((j + 1 >= argc) ||
           (Tcl_GetDouble(interp, argv[j + 1], &epsmax) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -max";
-        opserr << "uniaxialMaterial Fatigue: " << tag << endln;
+        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     }
@@ -328,7 +330,7 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
   if (theMat == nullptr) {
     opserr << G3_ERROR_PROMPT << "component material does not exist\n";
     opserr << "Component material: " << matTag;
-    opserr << "\nuniaxialMaterial Fatigue: " << tag << endln;
+    opserr << "\nuniaxialMaterial Fatigue: " << tag << "\n";
     return TCL_ERROR;
   }
 
@@ -356,7 +358,7 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
     if (argc < 4 || argc > 5) {
       opserr << G3_ERROR_PROMPT << "invalid number of arguments\n";
       printCommand(argc, argv);
-      opserr << "Want: uniaxialMaterial Elastic tag? E? <eta?>" << endln;
+      opserr << "Want: uniaxialMaterial Elastic tag? E? <eta?>" << "\n";
       return TCL_ERROR;
     }
 
@@ -365,20 +367,20 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
     double eta = 0.0;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Elastic tag" << endln;
+      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Elastic tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid E\n";
-      opserr << "uniaxiaMaterial Elastic: " << tag << endln;
+      opserr << "uniaxiaMaterial Elastic: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (argc == 5) {
       if (Tcl_GetDouble(interp, argv[4], &eta) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid eta\n";
-        opserr << "uniaxialMaterial Elastic: " << tag << endln;
+        opserr << "uniaxialMaterial Elastic: " << tag << "\n";
         return TCL_ERROR;
       }
     }
@@ -390,7 +392,7 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
     if (argc < 4) {
       opserr << G3_ERROR_PROMPT << "invalid number of arguments\n";
       printCommand(argc, argv);
-      opserr << "Want: uniaxialMaterial ENT tag? E?" << endln;
+      opserr << "Want: uniaxialMaterial ENT tag? E?" << "\n";
       return TCL_ERROR;
     }
 
@@ -398,13 +400,13 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
     double E;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial ENT tag" << endln;
+      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial ENT tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid E\n";
-      opserr << "uniaxiaMaterial ENT: " << tag << endln;
+      opserr << "uniaxiaMaterial ENT: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -419,7 +421,7 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
       printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial BarSlip tag? fc? fy? Es? fu? Eh? db? "
                 "ld? nb? width? depth? bsflag? type? <damage? unit?>"
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
@@ -634,231 +636,231 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
     int i = 2;
 
     if (Tcl_GetInt(interp, argv[i++], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial ShearPanel tag" << endln;
+      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial ShearPanel tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &stress1p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid stress1p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &strain1p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid strain1p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &stress2p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid stress2p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &strain2p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid strain2p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &stress3p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid stress3p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &strain3p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid strain3p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &stress4p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid stress4p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &strain4p) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid strain4p\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (argc == 42) {
       if (Tcl_GetDouble(interp, argv[i++], &stress1n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress1n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain1n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain1n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress2n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress2n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain2n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain2n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress3n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress3n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain3n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain3n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress4n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress4n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain4n) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain4n\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &rDispP) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid rDispP\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &rForceP) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid rForceP\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &uForceP) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid uForceP\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (argc == 42) {
       if (Tcl_GetDouble(interp, argv[i++], &rDispN) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid rDispN\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &rForceN) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid rForceN\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &uForceN) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid uForceN\n";
-        opserr << "ShearPanel material: " << tag << endln;
+        opserr << "ShearPanel material: " << tag << "\n";
         return TCL_ERROR;
       }
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &gammaK1) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaK1\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaK2) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaK2\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaK3) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaK3\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaK4) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaK4\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaKLimit) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaKLimit\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaD1) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaD1\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaD2) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaD2\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaD3) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaD3\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaD4) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaD4\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaDLimit) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaDLimit\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaF1) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaF1\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaF2) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaF2\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaF3) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaF3\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaF4) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaF4\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[i++], &gammaFLimit) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaFLimit\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &gammaE) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid gammaE\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[i++], &yStr) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid yield stress\n";
-      opserr << "ShearPanel material: " << tag << endln;
+      opserr << "ShearPanel material: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -888,14 +890,14 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
       printCommand(argc, argv);
       opserr << "Want: uniaxialMaterial Concrete01 tag? fpc? epsc0? fpcu? "
                 "epscu? <endStrainSITC?>"
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
     int tag;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Concrete01 tag" << endln;
+      opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Concrete01 tag" << "\n";
       return TCL_ERROR;
     }
 
@@ -904,25 +906,25 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
 
     if (Tcl_GetDouble(interp, argv[3], &fpc) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fpc\n";
-      opserr << "Concrete01 material: " << tag << endln;
+      opserr << "Concrete01 material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &epsc0) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid epsc0\n";
-      opserr << "Concrete01 material: " << tag << endln;
+      opserr << "Concrete01 material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[5], &fpcu) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fpcu\n";
-      opserr << "Concrete01 material: " << tag << endln;
+      opserr << "Concrete01 material: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[6], &epscu) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid epscu\n";
-      opserr << "Concrete01 material: " << tag << endln;
+      opserr << "Concrete01 material: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -933,7 +935,7 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
       double endStrainSITC;
       if (Tcl_GetDouble(interp, argv[7], &endStrainSITC) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid epscu\n";
-        opserr << "Concrete01 material: " << tag << endln;
+        opserr << "Concrete01 material: " << tag << "\n";
         return TCL_ERROR;
       }
       theMaterial =
@@ -988,225 +990,225 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
       int i = 2;
 
       if (Tcl_GetInt(interp, argv[i++], &tag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Pinching4 tag" << endln;
+        opserr << G3_ERROR_PROMPT << "invalid uniaxialMaterial Pinching4 tag" << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress1p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress1p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain1p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain1p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress2p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress2p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain2p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain2p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress3p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress3p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain3p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain3p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &stress4p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid stress4p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &strain4p) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid strain4p\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (argc == 42) {
         if (Tcl_GetDouble(interp, argv[i++], &stress1n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid stress1n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &strain1n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid strain1n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &stress2n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid stress2n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &strain2n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid strain2n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &stress3n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid stress3n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &strain3n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid strain3n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &stress4n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid stress4n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &strain4n) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid strain4n\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &rDispP) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid rDispP\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &rForceP) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid rForceP\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &uForceP) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid uForceP\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (argc == 42) {
         if (Tcl_GetDouble(interp, argv[i++], &rDispN) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid rDispN\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &rForceN) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid rForceN\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
 
         if (Tcl_GetDouble(interp, argv[i++], &uForceN) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid uForceN\n";
-          opserr << "Pinching4 material: " << tag << endln;
+          opserr << "Pinching4 material: " << tag << "\n";
           return TCL_ERROR;
         }
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &gammaK1) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid gammaK1\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaK2) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid gammaK2\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaK3) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid gammaK3\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaK4) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid gammaK4\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaKLimit) != TCL_OK) {
         opserr << "WARNING invalid gammaKLimit\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaD1) != TCL_OK) {
         opserr << "WARNING invalid gammaD1\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaD2) != TCL_OK) {
         opserr << "WARNING invalid gammaD2\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaD3) != TCL_OK) {
         opserr << "WARNING invalid gammaD3\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaD4) != TCL_OK) {
         opserr << "WARNING invalid gammaD4\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaDLimit) != TCL_OK) {
         opserr << "WARNING invalid gammaDLimit\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaF1) != TCL_OK) {
         opserr << "WARNING invalid gammaF1\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaF2) != TCL_OK) {
         opserr << "WARNING invalid gammaF2\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaF3) != TCL_OK) {
         opserr << "WARNING invalid gammaF3\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaF4) != TCL_OK) {
         opserr << "WARNING invalid gammaF4\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[i++], &gammaFLimit) != TCL_OK) {
         opserr << "WARNING invalid gammaFLimit\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[i++], &gammaE) != TCL_OK) {
         opserr << "WARNING invalid gammaE\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
@@ -1224,7 +1226,7 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
         tDmg = 0;
       } else {
         opserr << "WARNING invalid type of damage calculation specified\n";
-        opserr << "Pinching4 material: " << tag << endln;
+        opserr << "Pinching4 material: " << tag << "\n";
         return TCL_ERROR;
       }
 
@@ -1260,7 +1262,7 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
       if (argc < 4) {
         opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
         printCommand(argc, argv);
-        opserr << "Want: uniaxialMaterial Backbone tag? bbTag?" << endln;
+        opserr << "Want: uniaxialMaterial Backbone tag? bbTag?" << "\n";
         return TCL_ERROR;
       }
 
@@ -1268,13 +1270,13 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
 
       if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid tag\n";
-        opserr << "Backbone material: " << tag << endln;
+        opserr << "Backbone material: " << tag << "\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetInt(interp, argv[3], &bbTag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid bTag\n";
-        opserr << "Backbone material: " << tag << endln;
+        opserr << "Backbone material: " << tag << "\n";
         return TCL_ERROR;
       }
 
@@ -1283,7 +1285,7 @@ TclDispatch_newUniaxialPinching4(ClientData clientData, Tcl_Interp* interp, int 
       if (backbone == 0) {
         opserr << G3_ERROR_PROMPT << "backbone does not exist\n";
         opserr << "backbone: " << bbTag;
-        opserr << "\nuniaxialMaterial Backbone: " << tag << endln;
+        opserr << "\nuniaxialMaterial Backbone: " << tag << "\n";
         return TCL_ERROR;
       }
 
