@@ -794,12 +794,8 @@ int
 TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-
-//G3_Runtime *rt = G3_getRuntime(interp);
-//BasicModelBuilder *theTclBuilder = G3_getSafeBuilder(rt);
-//Domain *theTclDomain = G3_getDomain(rt);
   
-  // TODO!!!
+  // TODO
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   LoadPattern *theTclLoadPattern = builder->getEnclosingPattern();
   int nodeLoadTag = builder->getNodalLoadTag();
@@ -809,9 +805,9 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
   bool isLoadConst = false;
   bool userSpecifiedPattern = false;
-  int loadPatternTag = 0;
+  int  loadPatternTag = 0;
 
-  if (1) {
+  if (true) {
     // make sure at least one other argument to contain type
     if (argc < (2 + ndf)) {
       opserr << "WARNING bad command - want: load nodeId " << ndf << "forces\n";
