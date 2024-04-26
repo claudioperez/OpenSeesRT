@@ -3,6 +3,7 @@
 #include <LimitCurve.h>
 #include <tcl.h>
 #include <elementAPI.h>
+#include <OpenSeesFFI.h>
 
 struct limCrvObject;
 
