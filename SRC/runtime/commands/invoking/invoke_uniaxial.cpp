@@ -59,8 +59,8 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
   // Directly calling `getRegistryObject` as opposed to `getUniaxialMaterial`
   // prevents a copy from being created. This way, the state of the material
   // is preserved between invocations.
-  UniaxialMaterial *theMaterial = (UniaxialMaterial*)
-    ((BasicModelBuilder*)clientData)->getRegistryObject("UniaxialMaterial", tag);
+  UniaxialMaterial *theMaterial =
+    ((BasicModelBuilder*)clientData)->getTypedObject<UniaxialMaterial>(tag);
   // UniaxialMaterial *theMaterial = 
   // ((BasicModelBuilder*)clientData)->getTypedObject<UniaxialMaterial>(argv[2]);
 
