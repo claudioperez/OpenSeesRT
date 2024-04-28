@@ -6,8 +6,8 @@ import opensees.openseespy
 def arch_model():
 
     # Define model parameters
-    L = 5000
-    Rise = 500
+    L      = 5000
+    Rise   = 500
     Offset = 200
 
     # Define material parameters
@@ -28,7 +28,7 @@ def arch_model():
     ne  = 10
     nen = 2
     nn  = ne*(nen-1)+1
-    mid = (nn+1)//2    # midpoint node
+    mid = (nn+1)//2      # midpoint node
 
     for i, angle in enumerate(np.linspace(-th/2, th/2, nn)):
         tag = i + 1
@@ -62,6 +62,16 @@ def arch_model():
 
     # Add a nodal load to the pattern
     model.load(mid, 0.0, -1.0, 0.0, pattern=1)
+
+    
+    model.system("ProfileSPD")
+    # model.system("FullGeneral")
+    # model.system("BandGeneral")
+    # model.system("Umfpack", det=True)
+
+    model.test("NormUnbalance", 1e-6, 25, 0)
+    model.algorithm("Newton")
+    model.analysis("Static")
 
 
     return model, mid
