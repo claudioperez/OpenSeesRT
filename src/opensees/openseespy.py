@@ -254,19 +254,19 @@ def _as_str_arg(arg, name: str = None):
     Convert arg to a string that represents
     Tcl semantics.
     """
-    if isinstance(arg, list):
+    import numpy as np
+    if isinstance(arg, (list,np.ndarray)):
         return f"{{{' '.join(_as_str_arg(a) for a in arg)}}}"
 
-#   elif isinstance(arg, bool):
-#       if name is None:
-#           return str(int(arg))
-#       else:
-#           return f"-{name.replace('_','-')}"
+    elif isinstance(arg, tuple):
+        return " ".join(map(str, arg))
 
+    # parse commands like `section Fiber {...}`
     elif isinstance(arg, dict):
+        print(arg)
         return "{\n" + "\n".join([
           f"{cmd} " + " ".join(_as_str_arg(a) for a in val)
-              for cmd, val in kwds
+              for cmd, val in arg.items()
         ]) + "}"
 
     else:
@@ -291,7 +291,7 @@ class OpenSeesPy:
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
 
-    def _str_call(self, proc_name: str, *args, **kwds)->str:
+    def _str_call(self, proc_name: str, *args, _final=None, **kwds)->str:
         """
         Invoke the Interpreter's eval method, calling
         a procedure named `proc_name` with arguments
@@ -310,6 +310,9 @@ class OpenSeesPy:
               for key, val in kwds.items()
         )
         cmd = f"{proc_name} {' '.join(tcl_args)} {' '.join(tcl_kwds)}"
+
+        if _final is not None:
+            cmd += _as_str_arg(_final)
 
         # TODO: make sure errors print nicely
         try:
@@ -378,13 +381,20 @@ class OpenSeesPy:
         return self._str_call("block2D", *args[:5], elem_args, node_args)
 
 
-    def pattern(self, *args, **kwds):
+    def pattern(self, *args, load=None, **kwds):
         self._current_pattern = args[1]
-        return self._str_call("pattern", *args, **kwds)
+        if load is not None:
+            loads = [
+                    ("load", k, *v) for k,v in load.items()
+            ]
+            return self._str_call("pattern", *args, **kwds, _final=loads)
+        else:
+            return self._str_call("pattern", *args, **kwds)
 
-    def load(self, *args, pattern=None, **kwds):
+    def load(self, *args, pattern=None, load=None, **kwds):
         if pattern is None:
             pattern = self._current_pattern
+
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
     def section(self, *args, **kwds):
@@ -430,9 +440,9 @@ class Model:
     def getResidual(self):
         return self._openseespy._str_call("printB", "-ret")
 
-    def getTangent(self):
+    def getTangent(self, **kwds):
         import numpy as np
-        A = np.array(self._openseespy._str_call("printA", "-ret"))
+        A = np.array(self._openseespy._str_call("printA", "-ret", **kwds))
         return A.reshape([int(np.sqrt(len(A)))]*2)
 
     def __getattr__(self, name: str):
