@@ -1,6 +1,7 @@
-imageio[ffmpeg]
+# imageio[ffmpeg]
 opensees
 sees
 mdof
 SciencePlots
+nbconvert[webpdf]
 
