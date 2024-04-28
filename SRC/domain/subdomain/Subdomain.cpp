@@ -937,7 +937,7 @@ Subdomain::getDDAnalysis(void)
 }
 
 int 
-Subdomain::addResistingForceToNodalReaction(bool inclInertia)
+Subdomain::addResistingForceToNodalReaction(int inclInertia)
 {
   return 0;
 }
