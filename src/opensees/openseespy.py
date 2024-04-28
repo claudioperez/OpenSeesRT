@@ -246,32 +246,18 @@ __all__ = [
     "NDTest",
 ]
 
+# 
+_OVERWRITTEN = {
+    "timeSeries",
+    "pattern", "load",
+    "eval",
+    "section", "patch", "layer", "fiber",
+    "block2D"
+}
+
+
 class OpenSeesError(Exception):
     pass
-
-def _as_str_arg(arg, name: str = None):
-    """
-    Convert arg to a string that represents
-    Tcl semantics.
-    """
-    import numpy as np
-    if isinstance(arg, (list,np.ndarray)):
-        return f"{{{' '.join(_as_str_arg(a) for a in arg)}}}"
-
-    elif isinstance(arg, tuple):
-        return " ".join(map(str, arg))
-
-    # parse commands like `section Fiber {...}`
-    elif isinstance(arg, dict):
-        print(arg)
-        return "{\n" + "\n".join([
-          f"{cmd} " + " ".join(_as_str_arg(a) for a in val)
-              for cmd, val in arg.items()
-        ]) + "}"
-
-    else:
-        return str(arg)
-
 
 
 class OpenSeesPy:
@@ -381,8 +367,17 @@ class OpenSeesPy:
         return self._str_call("block2D", *args[:5], elem_args, node_args)
 
 
+    def timeSeries(self, *args, **kwds):
+        if "-values" in args:
+            iv = list(args).index("-values")
+            values = list(args[iv+1:])
+            args = [a for a in args[:iv+1]] + [values]
+
+        return self._str_call("timeSeries", *args, **kwds)
+
     def pattern(self, *args, load=None, **kwds):
         self._current_pattern = args[1]
+
         if load is not None:
             loads = [
                     ("load", k, *v) for k,v in load.items()
@@ -415,12 +410,6 @@ class OpenSeesPy:
         return self._str_call("fiber", *args, "-section", section, **kwds)
 
 
-_OVERWRITTEN = {
-    "pattern", "load",
-    "eval",
-    "section", "patch", "layer", "fiber",
-    "block2D"
-}
 
 class Model:
     def __init__(self, *args, echo_file=None, **kwds):
@@ -451,11 +440,35 @@ class Model:
         else:
             return self._openseespy._partial(self._openseespy._str_call, name)
 
+def _as_str_arg(arg, name: str = None):
+    """
+    Convert arg to a string that represents
+    Tcl semantics.
+    """
+    import numpy as np
+    if isinstance(arg, (list,np.ndarray)):
+        return f"{{{' '.join(_as_str_arg(a) for a in arg)}}}"
+
+    elif isinstance(arg, tuple):
+        return " ".join(map(str, arg))
+
+    # parse commands like `section Fiber {...}`
+    elif isinstance(arg, dict):
+        print(arg)
+        return "{\n" + "\n".join([
+          f"{cmd} " + " ".join(_as_str_arg(a) for a in val)
+              for cmd, val in arg.items()
+        ]) + "}"
+
+    else:
+        return str(arg)
+
+
+
 
 # The global singleton, for backwards compatibility
 _openseespy = OpenSeesPy()
-# 
-_tcl_echo   = None
+
 
 def __getattr__(name: str):
     # For reference:
