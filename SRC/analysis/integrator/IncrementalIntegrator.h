@@ -58,24 +58,24 @@ class IncrementalIntegrator : public Integrator
     virtual ~IncrementalIntegrator();
 
     void setLinks(AnalysisModel &theModel,
-        	  LinearSOE &theSOE,
-        	  ConvergenceTest *theTest);
+                  LinearSOE &theSOE,
+                  ConvergenceTest *theTest);
 
     // methods to set up the system of equations, called by
     // the Algorithm
+    virtual int  update(const Vector &deltaU) =0;
     virtual int  formUnbalance() = 0;
+
     virtual int  formTangent(int statusFlag = CURRENT_TANGENT);
-            int  formTangent(int statusFlag, 
-			     double iFactor,
-			     double cFactor);    
+    virtual int  formTangent(int statusFlag, 
+                             double iFactor,
+                             double cFactor);    
 
     // methods to update the domain
-//  virtual int newStep(double deltaT);
-    virtual int update(const Vector &deltaU) =0;
+//  virtual int newStep(double deltaT) =0;
     virtual int commit();
     virtual int revertToLastStep();
     virtual int initialize();
-
 
     virtual double getCFactor();
 
@@ -84,10 +84,10 @@ class IncrementalIntegrator : public Integrator
 
 
     // pure virtual methods to define the FE_ELe and DOF_Group contributions
-    virtual int formEleTangent(FE_Element *theEle)  =0;
-    virtual int formNodTangent(DOF_Group *theDof)   =0;    
-    virtual int formEleResidual(FE_Element *theEle) =0;
-    virtual int formNodUnbalance(DOF_Group *theDof) =0;    
+//  virtual int formEleTangent(FE_Element *theEle)  =0;
+//  virtual int formNodTangent(DOF_Group *theDof)   =0;    
+//  virtual int formEleResidual(FE_Element *theEle) =0;
+//  virtual int formNodUnbalance(DOF_Group *theDof) =0;    
 
 // AddingSensitivity:BEGIN //////////////////////////////////
     virtual int revertToStart();
@@ -101,12 +101,12 @@ class IncrementalIntegrator : public Integrator
     int addModalDampingForce(const Vector *modalDampingValues);
     int addModalDampingMatrix(const Vector *modalDampingValues);
 
-            int  formNodalUnbalance(void);
-    virtual int  formElementResidual(void);
+    virtual int  formNodalUnbalance();
+    virtual int  formElementResidual();
 
-    LinearSOE       *getLinearSOE(void) const;
-    AnalysisModel   *getAnalysisModel(void) const;
-    ConvergenceTest *getConvergenceTest(void) const;
+    LinearSOE       *getLinearSOE() const;
+    AnalysisModel   *getAnalysisModel() const;
+    ConvergenceTest *getConvergenceTest() const;
 
     int statusFlag;
     double iFactor;
