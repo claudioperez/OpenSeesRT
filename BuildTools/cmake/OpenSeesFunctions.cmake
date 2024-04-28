@@ -1,5 +1,14 @@
+#==============================================================================
+# 
+#        OpenSees -- Open System For Earthquake Engineering Simulation
+#                Pacific Earthquake Engineering Research Center
+#
+#==============================================================================
 # Claudio Perez
-#include(conan.cmake)
+#==============================================================================
+
+# pseudo target modeling all exteral packages
+#add_library(OPS_External_packages INTERFACE)
 
 function (opensees_library elemlib)
   # opensees_library(<lib_name> [REQUIRES <requirement>] <sources>...)
@@ -127,7 +136,5 @@ function (opensees_build lib_name)
     include_directories("${OPS_BUNDLED_DIR}/${lib_name}") 
     message(${${lib_name}_LIBRARIES})
 endfunction()
-
-
 
 
