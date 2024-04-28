@@ -322,9 +322,9 @@ ThermalActionWrapper::getData(int &type, double loadFactor)
 {
   type = ThermalActionType;
 
-  Vector data = 0;
+  static Vector data = 0;
 
-	return data;
+  return data;
 }
 
 
