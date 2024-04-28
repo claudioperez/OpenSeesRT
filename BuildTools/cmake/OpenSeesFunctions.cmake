@@ -6,6 +6,17 @@
 #==============================================================================
 # Claudio Perez
 #==============================================================================
+# Synopsis
+# - opensees_load(<PACKAGE> [BUILD|FIND|SEARCH|PATHS] [<PATHS>])
+#
+# Options:
+# - BUILD:  Build OpenSees provided library
+# - FIND:   Use CMake to find library, fail if not found
+# - SEARCH: Try finding library with CMake, build OpenSees
+#           Version if not found.
+# - BUNDLED:  Provide specific paths for library.
+#
+#==============================================================================
 
 # pseudo target modeling all exteral packages
 #add_library(OPS_External_packages INTERFACE)
