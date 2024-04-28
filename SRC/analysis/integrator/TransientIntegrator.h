@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2003-03-06 20:32:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/TransientIntegrator.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/integrator/TransientIntegrator.h
 // 
 // Written: fmk 
@@ -53,21 +48,23 @@ class TransientIntegrator : public IncrementalIntegrator
     TransientIntegrator(int classTag);
     virtual ~TransientIntegrator();
 
+    virtual int newStep(double dT) = 0;
+    virtual int formUnbalance();
     virtual int formTangent(int statusFlag);
-#if 0
+#if 1
     virtual int formTangent(int statusFlag, 
 			    double iFactor,
 			    double cFactor) final;
 #endif
-    virtual int formUnbalance(void);
+
+    // for Integrator
     virtual int formEleResidual(FE_Element *theEle);
     virtual int formNodUnbalance(DOF_Group *theDof);    
 
-    virtual const Vector& getVel(void) = 0; // For modal damping
-    
+
+    virtual const Vector& getVel(void) = 0; // For modal damping  
     virtual int initialize(void) {return 0;};
 
-    virtual int newStep(double dT) = 0;
 
   protected:
     

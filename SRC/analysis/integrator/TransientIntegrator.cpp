@@ -49,7 +49,7 @@ TransientIntegrator::~TransientIntegrator()
 
 }
 
-#if 0
+#if 1
 int 
 TransientIntegrator::formTangent(int statFlag, double iFact, double cFact)
 {
