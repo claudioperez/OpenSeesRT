@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.9 $
-// $Date: 2010-02-04 01:06:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/Newmark.h,v $
-
-
+//
 #ifndef Newmark_h
 #define Newmark_h
 
@@ -48,22 +43,22 @@ class Newmark : public TransientIntegrator
 public:
     // constructors
     Newmark(int classTag=INTEGRATOR_TAGS_Newmark);
-    Newmark(double gamma, double beta, bool disp = true, bool aflag=false, int classTag=INTEGRATOR_TAGS_Newmark);
+    Newmark(double gamma, double beta, int unknown=1, bool aflag=false, int classTag=INTEGRATOR_TAGS_Newmark);
 
     // destructor
     ~Newmark();
     
     // methods which define what the FE_Element and DOF_Groups add
     // to the system of equation object.
-    int formEleTangent(FE_Element *theEle);
-    int formNodTangent(DOF_Group *theDof);
-    int formEleResidual(FE_Element* theEle);
-    int formNodUnbalance(DOF_Group* theDof);
+    virtual int formEleTangent(FE_Element *theEle)  final;
+    virtual int formNodTangent(DOF_Group *theDof)   final;
+    virtual int formEleResidual(FE_Element* theEle) final;
+    virtual int formNodUnbalance(DOF_Group* theDof) final;
     
     int domainChanged(void);    
-    int newStep(double deltaT);    
-    int revertToLastStep(void);        
-    int update(const Vector &deltaU);
+    int newStep(double deltaT);
+    int revertToLastStep(void);
+    virtual int update(const Vector &deltaU);
 
     double getCFactor(void);
 
@@ -84,7 +79,13 @@ public:
     // AddingSensitivity:END ////////////////////////////////////
     
 protected:
-    int displ;      // a flag indicating whether displ(1), vel(2) or accel(3) increments
+    enum Unknown {
+      Displacement=1,
+      Velocity=2,
+      Acceleration=3
+    } ;
+    int unknown;      // a flag indicating whether displ(1), vel(2) or accel(3) increments
+
     double gamma;
     double beta;
     
