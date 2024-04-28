@@ -29,6 +29,8 @@
 #  define byte win_byte_override
 #  include <windows.h>
 #  include <elementAPI.h>
+#  include <OpenSeesFFI.h>
+   class VariableTimeStepDirectIntegrationAnalysis;
 #else
 #  include <dlfcn.h>
 #endif

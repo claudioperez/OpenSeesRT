@@ -208,16 +208,16 @@ DataFileStreamAdd::setPrecision(int prec)
 }
 
 int 
-DataFileStreamAdd::setFloatField(floatField field)
+DataFileStreamAdd::setFloatField(OPS_Stream::Float field)
 {
   if (fileOpen == 0)
     this->open();
 
-  if (field == FIXEDD) {
+  if (field == OPS_Stream::Float::Fixed) {
     if (fileOpen != 0)
       theFile << setiosflags(ios::fixed);
   }
-  else if (field == SCIENTIFIC) {
+  else if (field == OPS_Stream::Float::Scientific) {
     if (fileOpen != 0)
       theFile << setiosflags(ios::scientific);
   }

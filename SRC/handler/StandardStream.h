@@ -38,7 +38,7 @@ class StandardStream : public OPS_Stream
 
   int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echoApplication = true);
   int setPrecision(int precision);
-  int setFloatField(floatField);
+  int setFloatField(OPS_Stream::Float);
   int precision(int precision) {return 0;};
   int width(int width) {return 0;};
   int flush();

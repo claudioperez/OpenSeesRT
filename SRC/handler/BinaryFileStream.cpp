@@ -63,9 +63,10 @@ BinaryFileStream::~BinaryFileStream()
     static ID lastMsg(1);
     if (sendSelfCount > 0) {
       for (int i=0; i<sendSelfCount; i++) 
-	theChannels[i]->sendID(0, 0, lastMsg);
+	    theChannels[i]->sendID(0, 0, lastMsg);
     } else
-	theChannels[0]->recvID(0, 0, lastMsg);
+	  theChannels[0]->recvID(0, 0, lastMsg);
+
     delete [] theChannels;
   }
 
@@ -181,7 +182,7 @@ BinaryFileStream::setPrecision(int prec)
 }
 
 int 
-BinaryFileStream::setFloatField(floatField field)
+BinaryFileStream::setFloatField(OPS_Stream::Float field)
 {
   return 0;
 }
@@ -726,18 +727,18 @@ textToBinary(const char *inputFilename, const char *outputFilename)
       int dataCount = 0;
 
       while ((loc < endLoc) && 
-	     (*cNext != ' ') && 
-	     (*cNext != '\n')) {
-	data[dataCount++] = cNext[0];
-	cNext++;
-	loc++;
+	         (*cNext != ' ') && 
+	         (*cNext != '\n')) {
+	    data[dataCount++] = cNext[0];
+	    cNext++;
+	    loc++;
       }
       
       if (dataCount != 0) {
-	data[dataCount] = '\n';
-	d = strtod(&data[0], &dataNext);
-	output.write((char *)&d, 8);
-	numNumbers++;
+	    data[dataCount] = '\n';
+	    d = strtod(&data[0], &dataNext);
+	    output.write((char *)&d, 8);
+	    numNumbers++;
       }
       
       cNext++;
@@ -796,30 +797,29 @@ BinaryFileStream::setOrder(const ID &orderData)
     for (int i=0; i<sendSelfCount; i++) { 
       static ID numColumnID(1);	  
       if (theChannels[i]->recvID(0, 0, numColumnID) < 0) {
-	opserr << "BinaryFileStream::setOrder - failed to recv column size for process: " << i+1 << endln;
-	return -1;
+	    opserr << "BinaryFileStream::setOrder - failed to recv column size for process: " << i+1 << endln;
+	    return -1;
       }
 
       int numColumns = numColumnID(0);
 
       (*sizeColumns)(i+1) = numColumns;
       if (numColumns != 0) {
-	theColumns[i+1] = new ID(numColumns);
-	if (theChannels[i]->recvID(0, 0, *theColumns[i+1]) < 0) {
-	  opserr << "BinaryFileStream::setOrder - failed to recv column data for process: " << i+1 << endln;
-	  return -1;
-	}
+	    theColumns[i+1] = new ID(numColumns);
+	    if (theChannels[i]->recvID(0, 0, *theColumns[i+1]) < 0) {
+	      opserr << "BinaryFileStream::setOrder - failed to recv column data for process: " << i+1 << endln;
+	      return -1;
+	    }
 	
-	if (numColumns != 0 && (*theColumns[i+1])[numColumns-1] > maxCount)
-	  maxCount = (*theColumns[i+1])[numColumns-1];
-	
-	theData[i+1] = new double [numColumns];
-	theRemoteData[i+1] = new Vector(theData[i+1], numColumns);
-      } else {
-	theColumns[i+1] = 0;
-	theData[i+1] = 0;
-	theRemoteData[i+1] = 0;
-      }
+	    if (numColumns != 0 && (*theColumns[i+1])[numColumns-1] > maxCount)
+	        maxCount = (*theColumns[i+1])[numColumns-1];
+	        theData[i+1] = new double [numColumns];
+	        theRemoteData[i+1] = new Vector(theData[i+1], numColumns);
+         } else {
+	        theColumns[i+1] = 0;
+	        theData[i+1] = 0;
+	        theRemoteData[i+1] = 0;
+         }
     }
 
     ID currentLoc(sendSelfCount+1);

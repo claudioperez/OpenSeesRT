@@ -45,7 +45,7 @@ class XmlFileStream : public OPS_Stream
   int close(void);
 
   int setPrecision(int precision);
-  int setFloatField(floatField);
+  int setFloatField(OPS_Stream::Float);
   int precision(int precision) {return 0;};
   int width(int width) {return 0;};
   const char *getFileName(void) {return fileName;}

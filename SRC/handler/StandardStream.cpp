@@ -87,15 +87,15 @@ StandardStream::setPrecision(int prec)
 }
 
 int 
-StandardStream::setFloatField(floatField field)
+StandardStream::setFloatField(OPS_Stream::Float field)
 {
 #ifndef _WIN32
-  if (field == FIXEDD) {
+  if (field == OPS_Stream::Float::Fixed) {
       OPS_CONSOLE << std::setiosflags(ios::fixed);
     if (fileOpen != false)
       theFile << std::setiosflags(ios::fixed);
   }
-  else if (field == SCIENTIFIC) {
+  else if (field == OPS_Stream::Float::Scientific) {
     OPS_CONSOLE << std::setiosflags(ios::scientific);
     if (fileOpen != 0)
       theFile << std::setiosflags(ios::scientific);

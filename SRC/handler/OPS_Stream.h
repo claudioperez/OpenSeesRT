@@ -28,7 +28,6 @@
 #include <string>
 #include <MovableObject.h>
 enum class openMode  {OVERWRITE, APPEND};
-enum floatField {FIXEDD, SCIENTIFIC};
 class Vector;
 class ID;
 
@@ -38,10 +37,12 @@ class OPS_Stream:  public MovableObject
   OPS_Stream(int classTag);
   virtual ~OPS_Stream();
 
+  enum class Float { Fixed, Scientific };
+
   // output format
   virtual int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echo = false) {return 0;}
   virtual int setPrecision(int precision) {return 0;}
-  virtual int setFloatField(floatField) {return 0;}
+  virtual int setFloatField(Float) {return 0;}
   virtual int precision(int precision) {return 0;}
   virtual int width(int width) {return 0;}
 
