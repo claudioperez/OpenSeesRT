@@ -586,7 +586,6 @@ BasicAnalysisBuilder::set(TransientIntegrator& obj, bool free)
 
     else
       domainStamp = 0;
-
 }
 
 void
