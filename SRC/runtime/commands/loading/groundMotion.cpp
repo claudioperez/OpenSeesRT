@@ -207,7 +207,7 @@ TclCommand_newGroundMotion(G3_Runtime* rt, int argc,
       // TODO: LEAKED?
       theMotions = new GroundMotion *[numMotions];
       ID motionIDs(numMotions);
-      for (int i = 3; i < endMotionIDs; i++) {
+      for (int i = 3; i < endMotionIDs; ++i) {
 
         if (Tcl_GetInt(interp, argv[i], &motionID) != TCL_OK)
           return TCL_ERROR;
@@ -231,7 +231,7 @@ TclCommand_newGroundMotion(G3_Runtime* rt, int argc,
       return TCL_ERROR;
     }
     Vector facts(numMotions);
-    for (int i = 0; i < numMotions; i++) {
+    for (int i = 0; i < numMotions; ++i) {
       double fact;
       if (Tcl_GetDouble(interp, argv[i + endMotionIDs + 1], &fact) != TCL_OK)
         return TCL_ERROR;
