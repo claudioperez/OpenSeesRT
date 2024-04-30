@@ -68,7 +68,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     while (argi != argc) {
       if (strcmp(argv[argi], "-jntOffset") == 0) {
         argi++;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; ++i) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n"
@@ -77,7 +77,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         }
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; ++i) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n"
@@ -158,7 +158,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       int xznum;
       Tcl_SplitList(interp, argv[argi], &xznum, &xzarg);
       if (xznum == 3) {
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
            if (Tcl_GetDouble(interp, xzarg[i], &vecxzPlane(i)) != TCL_OK) {
              opserr << G3_ERROR_PROMPT << "Failed  to parse vectxz\n";
              return TCL_ERROR;
@@ -197,7 +197,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     while (argi != argc) {
       if (strcmp(argv[argi], "-jntOffset") == 0) {
         argi++;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; ++i) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetI(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n    Expected: geomTransf "
@@ -207,7 +207,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; ++i) {
           if (argi == argc ||
               Tcl_GetDouble(interp, argv[argi++], &jntOffsetJ(i)) != TCL_OK) {
             opserr << G3_ERROR_PROMPT << "invalid jntOffset value\n    Expected: geomTransf "
