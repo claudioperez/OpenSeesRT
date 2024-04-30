@@ -5,7 +5,6 @@
 //
 // Written: Claudio Perez
 //
-//
 //  ANALYSIS_TRANSIENT
 //  ANALYSIS_UNDEFINED
 //  ANALYSIS_STATIC
@@ -17,14 +16,13 @@
 #include <stdio.h>
 
 #include <G3_Logging.h>
-
+// Abstract classes
 #include <EquiSolnAlgo.h>
 #include <StaticIntegrator.h>
 #include <TransientIntegrator.h>
 #include <LinearSOE.h>
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
-// #include <VariableTimeStepDirectIntegrationAnalysis.h>
 #include <DOF_Numberer.h>
 #include <ConstraintHandler.h>
 #include <ConvergenceTest.h>
@@ -38,7 +36,7 @@
 #include <DOF_Group.h>
 #include <DOF_GrpIter.h>
 
-// Defaults analysis classes
+// Default concrete analysis classes
 #include <Newmark.h>
 #include <EigenSOE.h>
 #include <SymBandEigenSolver.h>
@@ -149,8 +147,10 @@ BasicAnalysisBuilder::setLinks(CurrentAnalysis flag)
   case TRANSIENT_ANALYSIS:
     if (theDomain && theAnalysisModel && theTransientIntegrator && theHandler)
       theHandler->setLinks(*theDomain, *theAnalysisModel, *theTransientIntegrator);
+
     if (theAnalysisModel && theTransientIntegrator && theSOE && theTest && theAlgorithm)
       theAlgorithm->setLinks(*theAnalysisModel, *theTransientIntegrator, *theSOE, theTest);
+
     if (theAnalysisModel && theSOE && theTest && theTransientIntegrator) {
       theTransientIntegrator->setLinks(*theAnalysisModel, *theSOE, theTest);
     }
@@ -228,14 +228,14 @@ BasicAnalysisBuilder::domainChanged(void)
   if (theHandler != nullptr) {
     theHandler->clearAll();
 
-    // invoke handle() on the constraint handler which
+    // Invoke handle() on the constraint handler which
     // causes the creation of FE_Element and DOF_Group objects
     // and their addition to the AnalysisModel.
     if (theHandler->handle() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange() - ConstraintHandler::handle() failed\n";
       return -1;
     }
-    // invoke number() on the numberer which causes
+    // Invoke number() on the numberer which causes
     // equation numbers to be assigned to all the DOFs in the
     // AnalysisModel.
     if (theNumberer != nullptr && theNumberer->numberDOF() < 0) {
@@ -250,7 +250,7 @@ BasicAnalysisBuilder::domainChanged(void)
   }
 
 
-  // invoke setSize() on the LinearSOE which
+  // Invoke setSize() on the LinearSOE which
   // causes that object to determine its size
   Graph &theGraph = theAnalysisModel->getDOFGraph();
 
@@ -273,16 +273,16 @@ BasicAnalysisBuilder::domainChanged(void)
   // finally we invoke domainChanged on the Integrator and Algorithm
   // objects .. informing them that the model has changed
   switch (this->CurrentAnalysisFlag) {
-  //if (theStaticIntegrator != nullptr) {
+
   case STATIC_ANALYSIS:
     if (theStaticIntegrator->domainChanged() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange - Integrator::domainChanged() failed\n";
       return -4;
     }
     break;
-  //}
+
   case TRANSIENT_ANALYSIS:
-  //if (theTransientIntegrator != nullptr) {
+
     if (theTransientIntegrator->domainChanged() < 0) {
       opserr << "BasicAnalysisBuilder::domainChange - Integrator::domainChanged() failed\n";
       return -4;
@@ -554,38 +554,38 @@ BasicAnalysisBuilder::getLinearSOE() {
 void
 BasicAnalysisBuilder::set(StaticIntegrator& obj)
 {
-    if (theStaticIntegrator != nullptr)
-      delete theStaticIntegrator;
+  if (theStaticIntegrator != nullptr)
+    delete theStaticIntegrator;
 
-    theStaticIntegrator = &obj;
+  theStaticIntegrator = &obj;
 
-    this->setLinks(STATIC_ANALYSIS);
+  this->setLinks(STATIC_ANALYSIS);
 
-    if (domainStamp != 0 && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
-      theStaticIntegrator->domainChanged();
+  if (domainStamp != 0 && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
+    theStaticIntegrator->domainChanged();
 
-    else
-      domainStamp = 0;
+  else
+    domainStamp = 0;
 }
 
 void
 BasicAnalysisBuilder::set(TransientIntegrator& obj, bool free)
 {
 
-    if ((theTransientIntegrator != nullptr) && free && freeTI)
-      delete theTransientIntegrator;
+  if ((theTransientIntegrator != nullptr) && free && freeTI)
+    delete theTransientIntegrator;
 
-    freeTI = free;
+  freeTI = free;
 
-    theTransientIntegrator = &obj;
+  theTransientIntegrator = &obj;
 
-    this->setLinks(TRANSIENT_ANALYSIS);
+  this->setLinks(TRANSIENT_ANALYSIS);
 
-    if (domainStamp != 0  && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
-      theTransientIntegrator->domainChanged();
+  if (domainStamp != 0  && this->CurrentAnalysisFlag != EMPTY_ANALYSIS)
+    theTransientIntegrator->domainChanged();
 
-    else
-      domainStamp = 0;
+  else
+    domainStamp = 0;
 }
 
 void
