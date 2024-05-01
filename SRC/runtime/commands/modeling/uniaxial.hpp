@@ -141,10 +141,10 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
 typedef UniaxialMaterial* (TclDispatch_UniaxialMaterial)(G3_Runtime*, int, TCL_Char ** const);
 TclDispatch_UniaxialMaterial G3Parse_newFedeasUniaxialDamage;
 TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
-TclDispatch_UniaxialMaterial TclCommand_AxialSp;
-TclDispatch_UniaxialMaterial TclCommand_AxialSpHD;
 static Tcl_CmdProc TclCommand_newFatigueMaterial;
 
+Tcl_CmdProc TclCommand_AxialSp;
+Tcl_CmdProc TclCommand_AxialSpHD;
 Tcl_CmdProc TclCommand_KikuchiAikenHDR;
 Tcl_CmdProc TclCommand_KikuchiAikenLRB;
 Tcl_CmdProc TclCommand_newUniaxialConcrete04;
