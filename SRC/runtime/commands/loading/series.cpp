@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 
 #include <string.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Logging.h>
 #include <runtime/BasicModelBuilder.h>
 #include <elementAPI.h>
@@ -366,7 +366,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
           }
 
           dataPath = new Vector(pathSize);
-          for (int i = 0; i < pathSize; i++) {
+          for (int i = 0; i < pathSize; ++i) {
             double value;
             if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
               opserr << G3_ERROR_PROMPT << "problem reading path data value "
@@ -399,7 +399,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
           }
 
           dataTime = new Vector(pathSize);
-          for (int i = 0; i < pathSize; i++) {
+          for (int i = 0; i < pathSize; ++i) {
             double value;
             if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
               opserr << G3_ERROR_PROMPT << "problem reading time path value "
@@ -593,7 +593,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
 
     // For each modulating function, get the tag and ensure it exists
     int tagI;
-    for (int i = 0; i < numModFuncs; i++) {
+    for (int i = 0; i < numModFuncs; ++i) {
       if (Tcl_GetInt(interp, argv[i + argsBeforeModList], &tagI) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid modulating function tag. " << endln;
         return 0;
@@ -667,7 +667,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
 #endif
 
   else {
-    for (int i = 0; i < argc; i++)
+    for (int i = 0; i < argc; ++i)
       opserr << argv[i] << ' ';
     opserr << endln;
     // type of load pattern type unknown

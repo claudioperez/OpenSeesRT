@@ -24,9 +24,9 @@
 //
 #include <assert.h>
 #include <runtime/BasicModelBuilder.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Logging.h>
 
 #include <Domain.h>
@@ -73,7 +73,7 @@ static void
 printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argc; ++i)
     opserr << argv[i] << " ";
   opserr << endln;
 }
@@ -285,7 +285,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     int numInputs = argc;
     TCL_Char *accelFileName = nullptr;
     double dt = 0.0;
-    for (int i = 5; i < argc; i++) {
+    for (int i = 5; i < argc; ++i) {
       if (strcmp(argv[i], "-accel") == 0 && i + 2 < argc) {
         // Read the input file name
         accelFileName = argv[i + 1];
@@ -395,7 +395,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       ifile >> ele_d[1];
       ifile >> ele_d[2];
       double *drm_box_crds = new double[6];
-      for (int i = 0; i < 6; i++)
+      for (int i = 0; i < 6; ++i)
         ifile >> drm_box_crds[i];
       int n1;
       ifile >> n1;
@@ -407,7 +407,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       char **files = new char *[nf];
       int *f_d = new int[3 * (nf - 1)];
       int ne1, ne2;
-      for (int i = 0; i < nf; i++) {
+      for (int i = 0; i < nf; ++i) {
         ifile >> inps;
         files[i] = (char *)inps.c_str();
         if (i < (nf - 1)) {
@@ -438,7 +438,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
       double dt = INVALID;
       double *ele_d = new double[3];
       double *drm_box_crds = new double[6];
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; ++i) {
         ele_d[i] = INVALID;
         drm_box_crds[2 * i] = INVALID;
         drm_box_crds[2 * i + 1] = INVALID;
@@ -825,7 +825,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
 
     // get the load vector
     Vector forces(ndf);
-    for (int i = 0; i < ndf; i++) {
+    for (int i = 0; i < ndf; ++i) {
       double theForce;
       if (Tcl_GetDouble(interp, argv[2 + i], &theForce) != TCL_OK) {
         opserr << "WARNING invalid force " << i + 1 << " in load " << nodeId;

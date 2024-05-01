@@ -73,7 +73,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           count++;
       }
       if (eleStart != eleEnd) {
-        for (int i = eleStart; i < eleEnd; i++) {
+        for (int i = eleStart; i < eleEnd; ++i) {
           Tcl_GetInt(interp, argv[i], &eleID);
           theEleTags[eleCount++] = eleID;
         }
@@ -93,7 +93,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
       count++;
-      for (int i = eleStart; i <= eleEnd; i++)
+      for (int i = eleStart; i <= eleEnd; ++i)
         theEleTags[eleCount++] = i;
     } else
       doneEle = 1;
@@ -145,7 +145,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         opserr << "WARNING eleLoad - invalid wa for beamUniform \n";
         return TCL_ERROR;
       }
-      for (int i = 0; i < theEleTags.Size(); i++) {
+      for (int i = 0; i < theEleTags.Size(); ++i) {
         if (aL > 0.0 || bL < 1.0 || wta != wtb || waa != wab)
           theLoad = new Beam2dPartialUniformLoad(eleLoadTag, wta, wtb, waa, wab,
                                                  aL, bL, theEleTags(i));
@@ -197,7 +197,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      for (int i = 0; i < theEleTags.Size(); i++) {
+      for (int i = 0; i < theEleTags.Size(); ++i) {
         if (aL > 0.0 || bL < 1.0)
           theLoad = new Beam3dPartialUniformLoad(eleLoadTag, wy, wz, wx, aL, bL,
                                                  theEleTags(i));
@@ -254,7 +254,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      for (int i = 0; i < theEleTags.Size(); i++) {
+      for (int i = 0; i < theEleTags.Size(); ++i) {
         theLoad = new Beam2dPointLoad(eleLoadTag, P, x, theEleTags(i), N);
 
         // get the current pattern tag if no tag given in i/p
@@ -302,7 +302,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }
 
-      for (int i = 0; i < theEleTags.Size(); i++) {
+      for (int i = 0; i < theEleTags.Size(); ++i) {
         theLoad = new Beam3dPointLoad(eleLoadTag, Py, Pz, x, theEleTags(i), N);
 
         // get the current pattern tag if no tag given in i/p
@@ -328,7 +328,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   // Added Joey Yang UC Davis
   else if (strcmp(argv[count], "-BrickW") == 0) {
 
-    for (int i = 0; i < theEleTags.Size(); i++) {
+    for (int i = 0; i < theEleTags.Size(); ++i) {
       theLoad = new BrickSelfWeight(eleLoadTag, theEleTags(i));
 
       // get the current pattern tag if no tag given in i/p
@@ -350,7 +350,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[count], "-surfaceLoad") == 0) ||
            (strcmp(argv[count], "-SurfaceLoad") == 0)) {
     count++;
-    for (int i = 0; i < theEleTags.Size(); i++) {
+    for (int i = 0; i < theEleTags.Size(); ++i) {
       theLoad = new SurfaceLoader(eleLoadTag, theEleTags(i));
 
       // get the current pattern tag if no tag given in i/p
@@ -392,7 +392,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    for (int i = 0; i < theEleTags.Size(); i++) {
+    for (int i = 0; i < theEleTags.Size(); ++i) {
       theLoad = new SelfWeight(eleLoadTag, xf, yf, zf, theEleTags(i));
 
       // get the current pattern tag if no tag given in i/p
@@ -455,7 +455,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           opserr << "WARNING eleLoad - invalid input for -shellThermal\n";
         }
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new ShellThermalAction(eleLoadTag, RcvLoc1, RcvLoc2,
                                            theSeries, theEleTags(i));
 
@@ -476,7 +476,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       //if not using nodal thermal action input
       else {
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new ShellThermalAction(eleLoadTag, theEleTags(i));
 
           // get the current pattern tag if no tag given in i/p
@@ -502,7 +502,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         double indata[18];
         double BufferData;
 
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < 18; ++i) {
           if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
             opserr << "WARNING eleLoad - invalid data " << argv[count]
                    << " for -beamThermal 3D\n";
@@ -514,7 +514,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
         //temp1,loc1,temp2,loc2...temp9,loc9
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new ShellThermalAction(
               eleLoadTag, indata[0], indata[1], indata[2], indata[3], indata[4],
               indata[5], indata[6], indata[7], indata[8], indata[9], indata[10],
@@ -542,7 +542,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         double indata[10];
         double BufferData;
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; ++i) {
           if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
             opserr << "WARNING eleLoad - invalid data " << argv[count]
                    << " for -beamThermal 3D\n";
@@ -554,7 +554,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
         //temp1,loc1,temp2,loc2...temp5,loc5
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new ShellThermalAction(eleLoadTag, indata[0], indata[1],
                                            indata[2], indata[3], indata[4],
                                            indata[5], indata[6], indata[7],
@@ -603,7 +603,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new ShellThermalAction(eleLoadTag, t1, locY1, t2, locY2,
                                            theEleTags(i));
 
@@ -650,7 +650,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       loc.resize(numNodal);
       NodalThermal.resize(numNodal);
 
-      for (int i = 0; i < numNodal; i++) {
+      for (int i = 0; i < numNodal; ++i) {
 
         double Dblloc;
         int NodalTtag;
@@ -678,7 +678,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       numNodal = argc - count;
       NodalThermal.resize(numNodal);
 
-      for (int i = 0; i < numNodal; i++) {
+      for (int i = 0; i < numNodal; ++i) {
 
         int NodalTtag;
 
@@ -698,7 +698,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     NodalThermalAction **theNodalThermals = 0;
     theNodalThermals                      = new NodalThermalAction *[numNodal];
 
-    for (int i = 0; i < numNodal; i++) {
+    for (int i = 0; i < numNodal; ++i) {
       theNode             = theTclDomain->getNode(NodalThermal(i));
       theNodalThermals[i] = theNode->getNodalThermalActionPtr();
       if (theNodalThermals[i] == 0) {
@@ -709,7 +709,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    for (int i = 0; i < theEleTags.Size(); i++) {
+    for (int i = 0; i < theEleTags.Size(); ++i) {
       if (numNodal == 2) {
         theLoad =
             new ThermalActionWrapper(eleLoadTag, theEleTags(i),
@@ -764,7 +764,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[count], "-source") == 0) {
 
         if (strcmp(argv[count + 1], "-node") == 0) {
-          for (int i = 0; i < theEleTags.Size(); i++) {
+          for (int i = 0; i < theEleTags.Size(); ++i) {
             theLoad = new Beam2dThermalAction(eleLoadTag, theEleTags(i));
 
             // get the current pattern tag if no tag given in i/p
@@ -812,7 +812,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
             locs(0) = RcvLoc1;
             locs(8) = RcvLoc2;
-            for (int i = 1; i < 8; i++) {
+            for (int i = 1; i < 8; ++i) {
               locs(i) = locs(0) - i * (locs(0) - locs(8)) / 8;
             }
           }
@@ -824,7 +824,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             double data;
 
             if (ArgStart != ArgEnd) {
-              for (int i = ArgStart; i < ArgEnd; i++) {
+              for (int i = ArgStart; i < ArgEnd; ++i) {
                 Tcl_GetDouble(interp, argv[i], &data);
                 locs(i - ArgStart) = data;
               }
@@ -839,7 +839,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 #ifdef _DEBUG
           opserr << "TclModelBuilder:: locs" << locs << endln;
 #endif
-          for (int i = 0; i < theEleTags.Size(); i++) {
+          for (int i = 0; i < theEleTags.Size(); ++i) {
             theLoad = new Beam2dThermalAction(eleLoadTag, locs, theSeries,
                                               theEleTags(i));
 
@@ -873,7 +873,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           double indata[18];
           double BufferData;
 
-          for (int i = 0; i < 18; i++) {
+          for (int i = 0; i < 18; ++i) {
             if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
               opserr << "WARNING eleLoad - invalid data " << argv[count]
                      << " for -beamThermal 3D\n";
@@ -883,7 +883,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             count++;
           }
 
-          for (int i = 0; i < 9; i++) {
+          for (int i = 0; i < 9; ++i) {
             Temp[i] = indata[2 * i];
             Loc[i]  = indata[2 * i + 1];
           }
@@ -896,7 +896,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           double indata[10];
           double BufferData;
 
-          for (int i = 0; i < 10; i++) {
+          for (int i = 0; i < 10; ++i) {
             if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
               opserr << "WARNING eleLoad - invalid data " << argv[count]
                      << " for -beamThermal 3D\n";
@@ -917,7 +917,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           Loc[6]  = indata[7];
           Loc[8]  = indata[9];
 
-          for (int i = 1; i < 5; i++) {
+          for (int i = 1; i < 5; ++i) {
             Temp[2 * i - 1] = (Temp[2 * i - 2] + Temp[2 * i]) / 2;
             Loc[2 * i - 1]  = (Loc[2 * i - 2] + Loc[2 * i]) / 2;
           }
@@ -930,7 +930,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           double indata[4];
           double BufferData;
 
-          for (int i = 0; i < 4; i++) {
+          for (int i = 0; i < 4; ++i) {
             if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
               opserr << "WARNING eleLoad - invalid data " << argv[count]
                      << " for -beamThermal 3D\n";
@@ -944,14 +944,14 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           Temp[8] = indata[2];
           Loc[0]  = indata[1];
           Loc[8]  = indata[3];
-          for (int i = 1; i < 8; i++) {
+          for (int i = 1; i < 8; ++i) {
             Temp[i] = Temp[0] - i * (Temp[0] - Temp[8]) / 8;
             Loc[i]  = Loc[0] - i * (Loc[0] - Loc[8]) / 8;
           }
         }
         //end for 2 inputs
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new Beam2dThermalAction(
               eleLoadTag, Temp[0], Loc[0], Temp[1], Loc[1], Temp[2], Loc[2],
               Temp[3], Loc[3], Temp[4], Loc[4], Temp[5], Loc[5], Temp[6],
@@ -988,7 +988,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[count], "-source") == 0) {
         count++;
         if (strcmp(argv[count], "-node") == 0) {
-          for (int i = 0; i < theEleTags.Size(); i++) {
+          for (int i = 0; i < theEleTags.Size(); ++i) {
             theLoad = new Beam3dThermalAction(eleLoadTag, theEleTags(i));
 
             // get the current pattern tag if no tag given in i/p
@@ -1045,7 +1045,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             }
 
             //end for receiving input
-            for (int i = 0; i < theEleTags.Size(); i++) {
+            for (int i = 0; i < theEleTags.Size(); ++i) {
 
               theLoad =
                   new Beam3dThermalAction(eleLoadTag, RcvLoc1, RcvLoc2, RcvLoc3,
@@ -1091,7 +1091,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
               locs(0) = RcvLoc1;
               locs(8) = RcvLoc2;
-              for (int i = 1; i < 8; i++) {
+              for (int i = 1; i < 8; ++i) {
                 locs(i) = locs(0) - i * (locs(0) - locs(8)) / 8;
               }
             }
@@ -1099,7 +1099,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             else {
               double indata[9];
               double BufferData;
-              for (int i = 0; i < 9; i++) {
+              for (int i = 0; i < 9; ++i) {
                 if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
                   opserr << "WARNING eleLoad - invalid data " << argv[count]
                          << " for -beamThermal 3D\n";
@@ -1109,13 +1109,13 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                 count++;
               }
 
-              for (int i = 0; i < 9; i++) {
+              for (int i = 0; i < 9; ++i) {
                 locs(i) = indata[i];
               }
             }
             //end of receiving 9data points
 
-            for (int i = 0; i < theEleTags.Size(); i++) {
+            for (int i = 0; i < theEleTags.Size(); ++i) {
               theLoad = new Beam3dThermalAction(eleLoadTag, locs, theSeries,
                                                 theEleTags(i));
 
@@ -1154,7 +1154,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           double indata[25];
           double BufferData;
 
-          for (int i = 0; i < 25; i++) {
+          for (int i = 0; i < 25; ++i) {
             if (Tcl_GetDouble(interp, argv[count], &BufferData) != TCL_OK) {
               opserr << "WARNING eleLoad - invalid data " << argv[count]
                      << " for -beamThermal 3D\n";
@@ -1164,7 +1164,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             count++;
           }
 
-          for (int i = 0; i < theEleTags.Size(); i++) {
+          for (int i = 0; i < theEleTags.Size(); ++i) {
             theLoad = new Beam3dThermalAction(
                 eleLoadTag, indata[0], indata[1], indata[2], indata[3],
                 indata[4], indata[5], indata[6], indata[7], indata[8],
@@ -1223,7 +1223,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           t6 = t7 = t8 = t9 = t10 = 0;
           t11 = t12 = t13 = t14 = t15 = 0;
 
-          for (int i = 0; i < theEleTags.Size(); i++) {
+          for (int i = 0; i < theEleTags.Size(); ++i) {
             theLoad = new Beam3dThermalAction(
                 eleLoadTag, t1, locY1, t2, locY2, t3, locY3, t4, locY4, t5,
                 locY5, t6, t7, locZ1, t8, t9, locZ2, t10, t11, locZ3, t12, t13,
@@ -1287,7 +1287,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, temp3, temp4,
                                        theEleTags(i));
 
@@ -1324,7 +1324,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, theEleTags(i));
 
           // get the current pattern tag if no tag given in i/p
@@ -1351,7 +1351,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         }
         theLoad = 0;
 
-        for (int i = 0; i < theEleTags.Size(); i++) {
+        for (int i = 0; i < theEleTags.Size(); ++i) {
           theLoad = new Beam2dTempLoad(eleLoadTag, temp1, theEleTags(i));
 
           // get the current pattern tag if no tag given in i/p
