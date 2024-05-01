@@ -68,7 +68,7 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     DOF_Group *theGroup = theNode->getDOF_GroupPtr();
     if (theGroup != nullptr) {
       const ID &nodeID = theGroup->getID();
-      for (int i = 0; i < nodeID.Size(); i++) {
+      for (int i = 0; i < nodeID.Size(); ++i) {
         if (nodeID(i) == tag) {
           sprintf(buffer, "%d ", theNode->getTag());
           Tcl_AppendResult(interp, buffer, NULL);
@@ -176,7 +176,7 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -267,7 +267,7 @@ nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
     resDataSize = requiredDataSize;
   }
 
-  for (int i = 0; i < requiredDataSize; i++)
+  for (int i = 0; i < requiredDataSize; ++i)
     resDataPtr[i] = '\n';
 
   const Vector &bounds = the_domain->getPhysicalBounds();
@@ -332,7 +332,7 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
   } else {
 
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -562,7 +562,7 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -620,7 +620,7 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -735,7 +735,7 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
   } else {
 
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       double value = theEigenvectors(i, eigenvector);
       sprintf(buffer, "%35.20f", value);
       Tcl_AppendResult(interp, buffer, NULL);
@@ -820,7 +820,7 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }

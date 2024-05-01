@@ -180,7 +180,7 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const a
 
     } else {
       char buffer[40];
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < size; ++i) {
         sprintf(buffer, "%35.20f", (*force)(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -240,7 +240,7 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const
 
     } else {
       char buffer[40];
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < size; ++i) {
         sprintf(buffer, "%35.20f", (*force)(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -295,7 +295,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", force(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -327,7 +327,7 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   if (data != 0) {
     int size = data->Size();
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%f ", (*data)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -362,7 +362,7 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
   }
   int numTags = theElement->getNumExternalNodes();
   const ID &tags = theElement->getExternalNodes();
-  for (int i = 0; i < numTags; i++) {
+  for (int i = 0; i < numTags; ++i) {
     sprintf(buffer, "%d ", tags(i));
     Tcl_AppendResult(interp, buffer, NULL);
   }

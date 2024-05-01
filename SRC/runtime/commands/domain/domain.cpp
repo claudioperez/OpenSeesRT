@@ -211,7 +211,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 //  args[0] = strdup(objv[1]);
 //  args[1] = strdup(objv[0]);
 //  opserr << args[0] << " " << args[1] << " ";
-//  for (int i=2; i<argc; i++) {
+//  for (int i=2; i<argc; ++i) {
 //    args[i] = strdup(objv[i]);
 //    opserr << args[i] << " ";
 //  }
@@ -221,7 +221,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 //  Tcl_CmdInfo info;
 //  assert(Tcl_GetCommandInfo(interp, args[0], &info) == 1);
 //  int status = info.proc(info.clientData, interp, argc, args);
-//  for (int i = 0; i < argc; i++)
+//  for (int i = 0; i < argc; ++i)
 //    free((void*)args[i]);
 //  delete[] args;
 //  return status;
@@ -364,7 +364,7 @@ fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const *o
   }
 
   char buffer[20];
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; ++i) {
     if (fixed(i) == 1) {
       sprintf(buffer, "%d ", i + 1);
       Tcl_AppendResult(interp, buffer, NULL);
@@ -469,12 +469,12 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
         const ID &cDOFs = theMP->getConstrainedDOFs();
         int n = cDOFs.Size();
         if (allDOFs) {
-          for (int i = 0; i < n; i++)
+          for (int i = 0; i < n; ++i)
             constrained[cDOFs(i)] = true;
 
         } else {
           const ID &rDOFs = theMP->getRetainedDOFs();
-          for (int i = 0; i < n; i++)
+          for (int i = 0; i < n; ++i)
             if (rDOF == rDOFs(i))
               constrained[cDOFs(i)] = true;
 
@@ -483,7 +483,7 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
   char buffer[20];
-  for (int i = 0; i < MAX_NDF; i++) {
+  for (int i = 0; i < MAX_NDF; ++i) {
     if (constrained[i]) {
       sprintf(buffer, "%d ", i + 1);
       Tcl_AppendResult(interp, buffer, NULL);

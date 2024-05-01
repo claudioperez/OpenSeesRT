@@ -486,7 +486,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         }
 
         eleIDs = new ID(end - start);
-        for (int i = start; i <= end; i++)
+        for (int i = start; i <= end; ++i)
           (*eleIDs)[numEle++] = i;
 
         loc += 3;
@@ -514,7 +514,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         const ID &eleRegion = theRegion->getElements();
 
         eleIDs = new ID(eleRegion.Size());
-        for (int i = 0; i < eleRegion.Size(); i++)
+        for (int i = 0; i < eleRegion.Size(); ++i)
           (*eleIDs)[numEle++] = eleRegion(i);
 
         loc += 2;
@@ -668,7 +668,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     ID secIDs(numSec);
 
     // read in the sec tags to the ID
-    for (int i = loc; i < endSecIDs; i++) {
+    for (int i = loc; i < endSecIDs; ++i) {
       if (Tcl_GetInt(interp, argv[i], &secID) != TCL_OK)
         return TCL_ERROR;
       secIDs[loc - i] = secID;
@@ -904,7 +904,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           start = swap;
         }
 
-        for (int i = start; i <= end; i++)
+        for (int i = start; i <= end; ++i)
           if (secondaryFlag == false)
             eleIDs[numEle++] = i;
           else
@@ -934,7 +934,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_OK;
         }
         const ID &eleRegion = theRegion->getElements();
-        for (int i = 0; i < eleRegion.Size(); i++)
+        for (int i = 0; i < eleRegion.Size(); ++i)
           if (secondaryFlag == false)
             eleIDs[numEle++] = eleRegion(i);
           else
@@ -972,7 +972,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
         if (loc < argc && Tcl_GetDouble(interp, argv[loc + 1], &eleM) != TCL_OK) {
           Tcl_GetDouble(interp, argv[loc], &eleM);
-          for (int i = 0; i < numEle; i++)
+          for (int i = 0; i < numEle; ++i)
             eleMass(i) = eleM;
           loc++;
         } else {
@@ -1031,7 +1031,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         secIDs = ID(numSec);
 
         // read in the sec tags to the ID
-        for (int i = loc; i < endSecIDs; i++) {
+        for (int i = loc; i < endSecIDs; ++i) {
           if (Tcl_GetInt(interp, argv[i], &secID) != TCL_OK)
             return TCL_ERROR;
           secIDs[i - loc] = secID;
@@ -1681,7 +1681,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       theNodes = new ID(end - start + 1);
-      for (int i = start; i <= end; i++)
+      for (int i = start; i <= end; ++i)
         (*theNodes)[numNodes++] = i;
 
       pos += 3;
@@ -1764,7 +1764,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   if (theTimeSeries != nullptr && theTimeSeriesID.Size() < theDofs.Size()) {
     opserr << G3_ERROR_PROMPT << "recorder Node/EnvelopNode # TimeSeries must equal # "
               "dof - IGNORING TimeSeries OPTION\n";
-    for (int i = 0; i < theTimeSeriesID.Size(); i++) {
+    for (int i = 0; i < theTimeSeriesID.Size(); ++i) {
       if (theTimeSeries[i] != nullptr)
         delete theTimeSeries[i];
       delete[] theTimeSeries;
