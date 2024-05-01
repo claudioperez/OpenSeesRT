@@ -130,7 +130,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
-    for (int i=0; i<ndm; i++) {
+    for (int i=0; i<ndm; ++i) {
       if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
         opserr << " : invalid node coordinate for node: " << argvNodes[count] << endln;
@@ -214,7 +214,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       strcpy(eleCommand, "element ");
       strcpy(&eleCommand[8], eleType);
       count += sprintf(&eleCommand[count], " %d ", eleID);
-      for (int i=0; i<numNodes; i++) {
+      for (int i=0; i<numNodes; ++i) {
         int nodeTag = nodeTags(i)+startNodeNum;
         count += sprintf(&eleCommand[count], " %d ", nodeTag);
       }
@@ -310,7 +310,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
-    for (int i=0; i<ndm; i++) {
+    for (int i=0; i<ndm; ++i) {
       if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
         opserr << " : invalid coordinate in node args: " << argvNodes[count] << endln;
@@ -389,7 +389,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
         strcpy(eleCommand, "element ");
         strcpy(&eleCommand[8], eleType);
         count += sprintf(&eleCommand[count], " %d ", eleID);
-        for (int i=0; i<numNodes; i++) {
+        for (int i=0; i<numNodes; ++i) {
           int nodeTag = nodeTags(i)+startNodeNum;
           count += sprintf(&eleCommand[count], " %d ", nodeTag);
         }

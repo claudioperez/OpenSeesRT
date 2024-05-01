@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Logging.h>
 #include <Domain.h>
 #include <FE_Datastore.h>

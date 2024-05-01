@@ -22,7 +22,7 @@
 #endif
 #define strcmp strcasecmp
 
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <runtime/BasicModelBuilder.h>
 
 #include <OPS_Stream.h>
@@ -742,7 +742,7 @@ TclBasicBuilder_addMultipleShearSpring(ClientData clientData, Tcl_Interp *interp
     }
 
     // argv[6~]
-    for (int i = 6; i <= (argc - 1); i++) {
+    for (int i = 6; i <= (argc - 1); ++i) {
 
       double value;
 
@@ -990,7 +990,7 @@ TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *inter
     }
 
     // argv[6~]
-    for (int i = 6; i <= (argc - 1); i++) {
+    for (int i = 6; i <= (argc - 1); ++i) {
 
       double value;
 
@@ -1283,7 +1283,7 @@ TclBasicBuilder_addKikuchiBearing(ClientData clientData, Tcl_Interp *interp,
     }
 
     // argv[5~]
-    for (int i = 5; i <= (argc - 1); i++) {
+    for (int i = 5; i <= (argc - 1); ++i) {
 
       double value;
 
@@ -1775,7 +1775,7 @@ TclBasicBuilder_addYamamotoBiaxialHDR(ClientData clientData, Tcl_Interp *interp,
     }
 
     // argv[9~]
-    for (int i = 9; i <= (argc - 1); i++) {
+    for (int i = 9; i <= (argc - 1); ++i) {
       double value;
 
       if (strcmp(argv[i], "-orient") == 0 && (i + 6) <= (argc - 1) &&
@@ -2004,7 +2004,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
         return TCL_OK;
       }
       pNodeList = new Vector(pathSize);
-      for (int i = 0; i < pathSize; i++) {
+      for (int i = 0; i < pathSize; ++i) {
         double value;
         // int debug = Tcl_GetDouble(interp, pathStrings[i], &value);
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
@@ -2027,7 +2027,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
         return TCL_OK;
       }
       pDeltaYList = new Vector(pathSize);
-      for (int i = 0; i < pathSize; i++) {
+      for (int i = 0; i < pathSize; ++i) {
         double value;
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
@@ -2049,7 +2049,7 @@ TclBasicBuilder_addWheelRail(ClientData clientData, Tcl_Interp *interp, int argc
         return TCL_OK;
       }
       pDeltaYLocationList = new Vector(pathSize);
-      for (int i = 0; i < pathSize; i++) {
+      for (int i = 0; i < pathSize; ++i) {
         double value;
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]

@@ -435,7 +435,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    for (int i = 3; (i < argc && i < 13); i++)
+    for (int i = 3; (i < argc && i < 13); ++i)
       if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
         opserr << "WARNING invalid " << arg[i - 3] << "\n";
         opserr << "nDMaterial PressureIndependMultiYield: " << tag << endln;
@@ -447,7 +447,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     if (param[9] < 0 && param[9] > -40) {
       param[9] = -int(param[9]);
       gredu = new double[int(2 * param[9])];
-      for (int i = 0; i < 2 * param[9]; i++)
+      for (int i = 0; i < 2 * param[9]; ++i)
         if (Tcl_GetDouble(interp, argv[i + 13], &gredu[i]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3] << "\n";
           opserr << "nDMaterial PressureIndependMultiYield: " << tag << endln;
@@ -505,7 +505,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    for (int i = 3; (i < argc && i < 13); i++)
+    for (int i = 3; (i < argc && i < 13); ++i)
       if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
         opserr << "WARNING invalid " << arg[i - 3] << "\n";
         opserr << "nDMaterial MultiYieldSurfaceClay: " << tag << endln;
@@ -517,7 +517,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     if (param[9] < 0 && param[9] > -40) {
       param[9] = -int(param[9]);
       gredu = new double[int(2 * param[9])];
-      for (int i = 0; i < 2 * param[9]; i++)
+      for (int i = 0; i < 2 * param[9]; ++i)
         if (Tcl_GetDouble(interp, argv[i + 13], &gredu[i]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3] << "\n";
           opserr << "nDMaterial MultiYieldSurfaceClay: " << tag << endln;
@@ -603,7 +603,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    for (int i = 3; (i < argc && i < 19); i++)
+    for (int i = 3; (i < argc && i < 19); ++i)
       if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
         opserr << "WARNING invalid " << arg[i - 3] << "\n";
         opserr << "nDMaterial PressureDependMultiYield: " << tag << endln;
@@ -616,7 +616,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       param[15] = -int(param[15]);
       gredu = new double[int(2 * param[15])];
 
-      for (int i = 0; i < 2 * param[15]; i++)
+      for (int i = 0; i < 2 * param[15]; ++i)
         if (Tcl_GetDouble(interp, argv[i + 19], &gredu[i]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3] << "\n";
           opserr << "nDMaterial PressureIndependMultiYield: " << tag << endln;
@@ -625,7 +625,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     if (gredu != 0) {
-      for (int i = 19 + int(2 * param[15]); i < argc; i++)
+      for (int i = 19 + int(2 * param[15]); i < argc; ++i)
         if (Tcl_GetDouble(interp, argv[i],
                           &param[i - 3 - int(2 * param[15])]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3 - int(2 * param[15])]
@@ -634,7 +634,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
           return TCL_ERROR;
         }
     } else {
-      for (int i = 19; i < argc; i++)
+      for (int i = 19; i < argc; ++i)
         if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3 - int(2 * param[15])]
                  << "\n";
@@ -713,7 +713,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     int in = 17;
-    for (int i = 3; (i < argc && i < in); i++)
+    for (int i = 3; (i < argc && i < in); ++i)
       if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
         opserr << "WARNING invalid " << arg[i - 3] << "\n";
         opserr << "nDMaterial PressureDependMultiYield02: " << tag << endln;
@@ -727,7 +727,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       param[numParam] = -int(param[numParam]);
       gredu = new double[int(2 * param[numParam])];
 
-      for (int i = 0; i < 2 * param[numParam]; i++)
+      for (int i = 0; i < 2 * param[numParam]; ++i)
         if (Tcl_GetDouble(interp, argv[i + in], &gredu[i]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3] << "\n";
           opserr << "nDMaterial PressureIndependMultiYield: " << tag << endln;
@@ -736,7 +736,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     if (gredu != 0) {
-      for (int i = in + int(2 * param[numParam]); i < argc; i++)
+      for (int i = in + int(2 * param[numParam]); i < argc; ++i)
         if (Tcl_GetDouble(interp, argv[i],
                           &param[i - 3 - int(2 * param[numParam])]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3 - int(2 * param[numParam])]
@@ -745,7 +745,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
           return TCL_ERROR;
         }
     } else {
-      for (int i = in; i < argc; i++)
+      for (int i = in; i < argc; ++i)
         if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3 - int(2 * param[numParam])]
                  << "\n";
@@ -837,7 +837,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     int in = 22;
-    for (int i = 3; (i < argc && i < in); i++)
+    for (int i = 3; (i < argc && i < in); ++i)
       if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
         opserr << "WARNING invalid " << arg[i - 3] << "\n";
         opserr << "nDMaterial PressureDependMultiYield03: " << tag << endln;
@@ -851,7 +851,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       param[numParam] = -int(param[numParam]);
       gredu = new double[int(2 * param[numParam])];
 
-      for (int i = 0; i < 2 * param[numParam]; i++)
+      for (int i = 0; i < 2 * param[numParam]; ++i)
         if (Tcl_GetDouble(interp, argv[i + in], &gredu[i]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3] << "\n";
           opserr << "nDMaterial PressureDependMultiYield03: " << tag << endln;
@@ -860,7 +860,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     if (gredu != 0) {
-      for (int i = in + int(2 * param[numParam]); i < argc; i++)
+      for (int i = in + int(2 * param[numParam]); i < argc; ++i)
         if (Tcl_GetDouble(interp, argv[i],
                           &param[i - 3 - int(2 * param[numParam])]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3 - int(2 * param[numParam])]
@@ -869,7 +869,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
           return TCL_ERROR;
         }
     } else {
-      for (int i = in; i < argc; i++)
+      for (int i = in; i < argc; ++i)
         if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
           opserr << "WARNING invalid " << arg[i - 3 - int(2 * param[numParam])]
                  << "\n";
@@ -912,7 +912,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    for (int i = 3; i < 6; i++)
+    for (int i = 3; i < 6; ++i)
       if (Tcl_GetDouble(interp, argv[i], &param[i - 3]) != TCL_OK) {
         opserr << "WARNING invalid " << arg[i - 3] << "\n";
         opserr << "nDMaterial FluidSolidPorous: " << tag << endln;
@@ -1327,7 +1327,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       nprops = 1;
 
     props = new double[nprops];
-    for (int i = 0; i < nprops; i++) {
+    for (int i = 0; i < nprops; ++i) {
       if (Tcl_GetDouble(interp, argv[5 + i], &p) != TCL_OK) {
         opserr << "WARNING invalid prop" << endln;
         opserr << "PlaneStressUserMaterial: " << tag << endln;

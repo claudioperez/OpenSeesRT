@@ -11,7 +11,7 @@
 //
 #include <assert.h>
 #include <tcl.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Logging.h>
 #include <elementAPI.h>
 #include <runtime/BasicModelBuilder.h>
@@ -856,7 +856,7 @@ static SectionBuilder*
 findSectionBuilder(BasicModelBuilder* builder, Tcl_Interp *interp, int argc, const char** const argv)
 {
   int tag = -1;
-  for (int i = 0; i<argc; i++) {
+  for (int i = 0; i<argc; ++i) {
     if (strcmp(argv[i], "-section") == 0) {
       if (Tcl_GetInt(interp, argv[i+1], &tag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "failed to parse section tag \"" << argv[i+1] << "\"\n";
@@ -1960,10 +1960,10 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
     Fiber **sectionRepresHFibers = fiberSectionRepr->getHFibers();
 
     numFibers = numSectionRepresFibers;
-    for (int i = 0; i < numPatches; i++)
+    for (int i = 0; i < numPatches; ++i)
       numFibers += patch[i]->getNumCells();
 
-    for (int i = 0; i < numReinfLayers; i++)
+    for (int i = 0; i < numReinfLayers; ++i)
       numFibers += reinfLayer[i]->getNumReinfBars();
 
     numHFibers = numSectionRepresHFibers;
@@ -1979,7 +1979,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
     Cell **cell;
 
     k = 0;
-    for (int i = 0; i < numPatches; i++) {
+    for (int i = 0; i < numPatches; ++i) {
       numCells = patch[i]->getNumCells();
       matTag = patch[i]->getMaterialID();
 
@@ -2003,7 +2003,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
     ReinfBar *reinfBar;
     int numReinfBars;
 
-    for (int i = 0; i < numReinfLayers; i++) {
+    for (int i = 0; i < numReinfLayers; ++i) {
       numReinfBars = reinfLayer[i]->getNumReinfBars();
       reinfBar = reinfLayer[i]->getReinfBars();
       matTag = reinfLayer[i]->getMaterialID();
@@ -2026,20 +2026,20 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
     Fiber **fiber = new Fiber *[numFibers];
 
     // copy the section repres fibers
-    for (i = 0; i < numSectionRepresFibers; i++)
+    for (i = 0; i < numSectionRepresFibers; ++i)
       fiber[i] = sectionRepresFibers[i];
 
     Fiber **Hfiber = new Fiber *[numHFibers];
 
     // copy the section repres fibers
-    for (int i = 0; i < numSectionRepresHFibers; i++)
+    for (int i = 0; i < numSectionRepresHFibers; ++i)
       Hfiber[i] = sectionRepresHFibers[i];
 
     // creates 2d section
     int NDM = builder->getNDM();
     if (NDM == 2) {
       k = 0;
-      for (int i = numSectionRepresFibers; i < numFibers; i++) {
+      for (int i = numSectionRepresFibers; i < numFibers; ++i) {
         material = builder->getUniaxialMaterial(fibersMaterial(k));
         if (material == nullptr) {
           opserr << G3_ERROR_PROMPT << "invalid material ID for patch\n";
@@ -2057,10 +2057,10 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
                                 NStrip1, t1, NStrip2, t2, NStrip3, t3);
 
       // Delete fibers
-      for (int i = 0; i < numFibers; i++)
+      for (int i = 0; i < numFibers; ++i)
         delete fiber[i];
 
-      for (int i = 0; i < numHFibers; i++)
+      for (int i = 0; i < numHFibers; ++i)
         delete Hfiber[i];
 
       if (section == nullptr) {
@@ -2077,7 +2077,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
 
       static Vector fiberPosition(2);
       k = 0;
-      for (i = numSectionRepresFibers; i < numFibers; i++) {
+      for (i = numSectionRepresFibers; i < numFibers; ++i) {
         material = builder->getUniaxialMaterial(fibersMaterial(k));
         if (material == nullptr) {
           opserr << G3_ERROR_PROMPT << "invalid material ID for patch\n";
@@ -2100,7 +2100,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
                                    options.computeCentroid);
 
       // Delete fibers
-      for (i = 0; i < numFibers; i++)
+      for (i = 0; i < numFibers; ++i)
         delete fiber[i];
 
       if (section == 0) {

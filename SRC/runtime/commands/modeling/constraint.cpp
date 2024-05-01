@@ -10,7 +10,7 @@
 #include <ID.h>
 #include <Node.h>
 #include <Domain.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Logging.h>
 #include <runtime/BasicModelBuilder.h>
 
@@ -53,7 +53,7 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
   strcpy(buffer, "");
 
   // get the fixity condition and add the constraint if fixed
-  for (int i = 0; i < ndf; i++) {
+  for (int i = 0; i < ndf; ++i) {
     int theFixity;
     if (Tcl_GetInt(interp, argv[2 + i], &theFixity) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fixity " << i + 1 << " - load " << nodeId;
@@ -106,7 +106,7 @@ TclCommand_addHomogeneousBC_X(ClientData clientData, Tcl_Interp *interp,
 
   // read in the fixities
   ID fixity(ndf);
-  for (int i=0; i<ndf; i++) {
+  for (int i=0; i<ndf; ++i) {
     if (Tcl_GetInt(interp, argv[2+i], &fixity(i)) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fixity " << i+1 << " - fixX " << xLoc;
       opserr << " " << ndf << " fixities\n";
@@ -159,7 +159,7 @@ TclCommand_addHomogeneousBC_Y(ClientData clientData, Tcl_Interp *interp,
 
   // read in the fixities
   ID fixity(ndf);
-  for (int i=0; i<ndf; i++) {
+  for (int i=0; i<ndf; ++i) {
     if (Tcl_GetInt(interp, argv[2+i], &fixity(i)) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fixity " << i+1 << " - fixY " << yLoc;
       opserr << " " << ndf << " fixities\n";
@@ -209,7 +209,7 @@ TclCommand_addHomogeneousBC_Z(ClientData clientData, Tcl_Interp *interp,
 
   // read in the fixities
   ID fixity(ndf);
-  for (int i=0; i<ndf; i++) {
+  for (int i=0; i<ndf; ++i) {
     if (Tcl_GetInt(interp, argv[2+i], &fixity(i)) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid fixity " << i+1 << " - fixZ " << zLoc;
       opserr << " " << ndf << " fixities\n";

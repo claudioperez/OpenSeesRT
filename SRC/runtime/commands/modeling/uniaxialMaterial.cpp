@@ -13,7 +13,7 @@
 //
 #include <runtime/BasicModelBuilder.h>
 #include <unordered_map> // std::unordered_map
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <elementAPI.h>
 #include <Elastic2Material.h>   // ZHY
 #include <HardeningMaterial.h>  // MHS
@@ -140,7 +140,7 @@ static void
 printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argc; ++i)
     opserr << argv[i] << " ";
   opserr << endln;
 }

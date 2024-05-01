@@ -117,7 +117,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
       if (theElements == nullptr)
         theElements = new ID(0, numEle);
 
-      for (int i = start; i <= end; i++)
+      for (int i = start; i <= end; ++i)
         (*theElements)[numElements++] = i;
 
       loc += 3;
@@ -183,7 +183,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 
       if (theNodes == 0)
         theNodes = new ID(0, numNode);
-      for (int i = start; i <= end; i++)
+      for (int i = start; i <= end; ++i)
         (*theNodes)[numNodes++] = i;
 
       loc += 3;
@@ -230,7 +230,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 
       const ID &nodes = region->getNodes();
       char buffer[20];
-      for (int i = 0; i < nodes.Size(); i++) {
+      for (int i = 0; i < nodes.Size(); ++i) {
         sprintf(buffer, "%d ", nodes(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -248,7 +248,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
       const ID &eles = region->getElements();
       char buffer[20];
 
-      for (int i = 0; i < eles.Size(); i++) {
+      for (int i = 0; i < eles.Size(); ++i) {
         sprintf(buffer, "%d ", eles(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -266,7 +266,7 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
       const ID &eles = region->getExtraEles();
       char buffer[20];
 
-      for (int i = 0; i < eles.Size(); i++) {
+      for (int i = 0; i < eles.Size(); ++i) {
         sprintf(buffer, "%d ", eles(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
