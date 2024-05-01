@@ -91,16 +91,16 @@ int pfsfct(int neqns, double *diag, double **penv, int nblks,
       update rows from row segments
       The function Dotrows();
       -------------------------------------------------------*/
-      while( js->row < blkend) {
+      while ( js->row < blkend) {
 	 jrow = js->row;
 	 jbeg = js->beg;
  
 	 jblk = rowblks[jbeg];
          ls = begblk[blk] ;
          ks = js->bnext ;
-/*    -------------------------------------------------------
-      update the diagonals from the off diagonal row segments
-      ------------------------------------------------------*/
+/*       -------------------------------------------------------
+         update the diagonals from the off diagonal row segments
+         ------------------------------------------------------*/
 	 
 	 iband = xblk[jblk+1] - jbeg;
 	 work = (double*) calloc(iband, sizeof(double)); 
@@ -271,8 +271,8 @@ void pfsslv(int neqns, double *diag, double **penv, int nblks,
          forward substitution: for each block, do ...
          --------------------------------------------
 */
-   for (blk = 0; blk < nblks ; blk++)
-   {  nextblk = blk + 1 ;
+   for (blk = 0; blk < nblks ; blk++) {
+      nextblk = blk + 1 ;
       blkbeg = xblk[blk] ;
       blkend = xblk[nextblk] ;
       blksze = blkend - blkbeg ;
@@ -288,7 +288,8 @@ void pfsslv(int neqns, double *diag, double **penv, int nblks,
       ----------------------------------------------------------
 */
       for (is = begblk[blk] ; is->beg < blkend ; is = is->bnext ) 
-      {  ptr = is->nz ;
+      {  
+         ptr = is->nz ;
          j = is->beg ;
          irow = is->row ;
          rhs[irow] -= dot_real(ptr, (rhs+j), (blkend-j)) ;
@@ -313,7 +314,8 @@ void pfsslv(int neqns, double *diag, double **penv, int nblks,
       }
       
       for (is=begblk[blk] ; is->beg < blkend ; is = is->bnext ) 
-      {  ptr = is->nz ;
+      {  
+         ptr = is->nz ;
          j = is->beg ;
          irow = is->row ;
 	 saxpy((rhs+j), ptr, -rhs[irow], (blkend-is->beg)) ;
@@ -349,14 +351,16 @@ void pflslv (int neqns, double **penv, double *diag, double *rhs)
 { 
   int i, iband ;
 
-   if ( neqns <= 1 )  return ;
+   if ( neqns <= 1 )
+     return ;
 /* -----------------------------------------------
         for each row i, do ...
    ----------------------------------------------- */
    for (i = 1; i < neqns; i++)
    {  
       iband = penv[i+1] - penv[i] ;
-      if (iband > i) iband = i ;
+      if (iband > i) 
+          iband = i ;
       if (iband > 0)
       {
          rhs[i] -= dot_real(penv[i+1] - iband, rhs+i-iband, iband) ;

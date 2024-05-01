@@ -34,25 +34,25 @@
 
 #ifdef _WIN32
 extern int MYGENMMD(int *neq, int *fxadj, int *adjncy, int *winvp,
-			     int *wperm, int *delta, int *fchild, int *parent,
-			     int *sibling, int *marker, int *maxint, int *nofsub,
-			     int *kdx);
+                             int *wperm, int *delta, int *fchild, int *parent,
+                             int *sibling, int *marker, int *maxint, int *nofsub,
+                             int *kdx);
 
 #else
 extern int mygenmmd_(int *neq, int *fxadj, int *adjncy, int *winvp,
-		     int *wperm, int *delta, int *fchild, int *parent,
-		     int *sibling, int *marker, int *maxint, int *nofsub,
-		     int *kdx);
+                     int *wperm, int *delta, int *fchild, int *parent,
+                     int *sibling, int *marker, int *maxint, int *nofsub,
+                     int *kdx);
 #endif
 
 // from newordr.c
 int  pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild, 
-	   int *sibling, int *winvp, int *wperm, int *list, int *rowblks);
+           int *sibling, int *winvp, int *wperm, int *list, int *rowblks);
 
 // from nnsim.c
 int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns, 
-	   int nblks, int *xblk, int *envlen, OFFDBLK **segfirst, 
-	   OFFDBLK **first, int *rowblks );
+           int nblks, int *xblk, int *envlen, OFFDBLK **segfirst, 
+           OFFDBLK **first, int *rowblks );
 
 int setenvlpe(int neqns, double **penv, int *envlen);
 
@@ -62,9 +62,9 @@ int setenvlpe(int neqns, double **penv, int *envlen);
 
 
 int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE, 
-		     int **xblkMY,
-		     int **invpMY, int **rowblksMY, OFFDBLK ***begblkMY,
-		     OFFDBLK **firstMY, double ***penvMY, double **diagMY)
+                     int **xblkMY,
+                     int **invpMY, int **rowblksMY, OFFDBLK ***begblkMY,
+                     OFFDBLK **firstMY, double ***penvMY, double **diagMY)
 {
     int delta, maxint;
     int nofsub, kdx;
@@ -95,7 +95,7 @@ int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE,
     wperm   = (int *)calloc(neq +1, sizeof(int)) ;
 
     assert( perm && invp && parent && fchild && sibling && marker
-	    && winvp && wperm != NULL) ;
+            && winvp && wperm != NULL) ;
 
     kdx = 0;
     delta = 1;
@@ -124,11 +124,11 @@ int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE,
        case 1:
    /* Now call minimum degree ordering  ( a fortran subroutine) */
 #ifdef WIN32 
-	 MYGENMMD( &neq, fxadj, adjncy, winvp, wperm, &delta, fchild, parent,
-		   sibling, marker, &maxint, &nofsub, &kdx ) ;
+         MYGENMMD( &neq, fxadj, adjncy, winvp, wperm, &delta, fchild, parent,
+                   sibling, marker, &maxint, &nofsub, &kdx ) ;
 #else
-	 mygenmmd_( &neq, fxadj, adjncy, winvp, wperm, &delta, fchild, parent,
-		    sibling, marker, &maxint, &nofsub, &kdx ) ;
+         mygenmmd_( &neq, fxadj, adjncy, winvp, wperm, &delta, fchild, parent,
+                    sibling, marker, &maxint, &nofsub, &kdx ) ;
 #endif
          /* reset subscripts for c rather than fortran */
          for (int i=0; i<=neq; i++) {
@@ -138,14 +138,14 @@ int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE,
          break ;
 
       case 2:
-	/* Now call the nested dissection ordering */
+        /* Now call the nested dissection ordering */
 
          gennd(neq,padj,marker,wperm,fchild,sibling,parent) ;
          forminv(neq,wperm,winvp) ;
          break ; 
 
       case 3:
-	/* Now call the general reverse chuthill-mckee ordering */
+        /* Now call the general reverse chuthill-mckee ordering */
 
          genrcm(neq, padj, wperm, marker, fchild, sibling ) ;
          forminv(neq,wperm, winvp) ;
@@ -161,17 +161,17 @@ int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE,
    rowblks = (int *)calloc(neq+1,sizeof(int)) ;
    assert(rowblks != 0) ;
 
-/* set up the elimination tree, perform postordering           */
+/* Set up the elimination tree, perform postordering           */
    if (LSPARSE < 4) {
        nblks = pfordr( neq, padj, perm, invp, parent, fchild, sibling,
-		       winvp, wperm, marker, rowblks ) ;
+                       winvp, wperm, marker, rowblks ) ;
    } 
    else { 
       for (int i=0;i<=neq;i++) {
-	 invp[i] = i ;   
-	 perm[i] = i ;
-	 parent[i] = neq ;
-	 rowblks[i] = 0 ;
+         invp[i] = i ;   
+         perm[i] = i ;
+         parent[i] = neq ;
+         rowblks[i] = 0 ;
       }
       marker[0] = 0 ;
       marker[1] = neq ;
@@ -185,29 +185,29 @@ int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE,
 /*  set up xblk profile blocks  and space for numerical values */
    xblk = (int *)calloc(nblks+1, sizeof(int)) ;
    begblk = (OFFDBLK **)  calloc(nblks+1, sizeof(OFFDBLK *)) ;
-   assert(xblk && begblk != NULL) ;
+   assert(xblk && begblk != NULL);
          
 /* set up xblk index: the beginning row/column of each block */      
         
    pfblk( nblks, xblk, marker );
         
-/*       -------------------------------------------------
-         perform the symbolic factorization and obtain the
-         number of nonzeros
-         -------------------------------------------------
+/* -------------------------------------------------
+   perform the symbolic factorization and obtain the
+   number of nonzeros
+   -------------------------------------------------
 */  
            
    nodfac(perm, invp, padj, parent, fchild , neq, nblks,
-	  xblk, marker, begblk, &first, rowblks) ;
+          xblk, marker, begblk, &first, rowblks);
 
-   free(perm) ;
-   free(parent) ;
-   free(fchild) ;
-   free(padj[0]) ;
+   free(perm);
+   free(parent);
+   free(fchild);
+   free(padj[0]);
    free(padj);
 
-   penv = (double **)calloc(neq + 1, sizeof(double *)) ;
-   diag = (double *) calloc(neq + 1, sizeof(double )) ;
+   penv = (double **)calloc(neq + 1, sizeof(double *));
+   diag = (double *) calloc(neq + 1, sizeof(double ));
    assert (penv && diag != NULL) ;
    ndnz = setenvlpe(neq, penv, marker) ;
         
@@ -231,8 +231,5 @@ int symFactorization(int *fxadj, int *adjncy, int neq, int LSPARSE,
 
    return nblks;
 }
-
-
-
 
 

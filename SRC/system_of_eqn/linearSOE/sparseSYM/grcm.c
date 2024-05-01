@@ -23,8 +23,8 @@ int rcm(int root, int **padj, int *mask, int *perm, int *deg, int *work);
 static int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work);
 
 /*************************************************************************
-***********************genrcm . . . general reverse cuthill mckee ********
-**************************************************************************
+ * genrcm . . . general reverse cuthill mckee
+ *************************************************************************
 
   purpose - genrcm finds the reverse cuthill-mckee
             ordering for a general graph. for each connected
@@ -47,7 +47,7 @@ static int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work
             work - a working vector
   program routines -
             fnroot, rcm
-*************************************************************************/
+ *************************************************************************/
 
 void genrcm(int neqns, int **padj, int *perm, int *mask, int *xls, int *work)
 {
@@ -58,27 +58,29 @@ void genrcm(int neqns, int **padj, int *perm, int *mask, int *xls, int *work)
    num = 0;
    for (i=0;i<neqns ; i++)
    {
-/*      ---------------------------------------------------
-        for each masked connected component
-        -------------------------------------------------*/
-        if (mask[i] < 0) continue ;
-        root = i ;
-/*    	------------------------------------------------------------
-	first find a pseudo-peripheral node root.  note that the level
-	structure found by fnroot is stored starting at perm[num].
-	then rcm is called to order the component using root as the
-	starting node.
-	----------------------------------------------------------*/
-        root = fnroot(root, padj, mask, &nlvl, xls, perm + num) ;
-	ccsize = rcm(root, padj, mask, perm+num,xls, work) ;
-	num += ccsize ;
-	if (num > neqns) return ;
+/*   ---------------------------------------------------
+     for each masked connected component
+     -------------------------------------------------*/
+     if (mask[i] < 0)
+       continue ;
+     root = i ;
+/*   ------------------------------------------------------------
+	   first find a pseudo-peripheral node root.  note that the level
+	   structure found by fnroot is stored starting at perm[num].
+	   then rcm is called to order the component using root as the
+	   starting node.
+	   ----------------------------------------------------------*/
+     root = fnroot(root, padj, mask, &nlvl, xls, perm + num) ;
+     ccsize = rcm(root, padj, mask, perm+num,xls, work) ;
+     num += ccsize ;
+     if (num > neqns) 
+       return ;
    }
    return;
 }
 
 /*************************************************************************
- *****************subrcm . . . substructure reverse cuthill mckee ********
+ **************** subrcm . . . substructure reverse cuthill mckee ********
  *************************************************************************
 
   purpose - subrcm finds the reverse cuthill-mckee
@@ -105,14 +107,15 @@ void genrcm(int neqns, int **padj, int *perm, int *mask, int *xls, int *work)
   program routines -
             fnroot, rcm
 *************************************************************************/
-void subrcm (int neqns, int root, int **padj, int *perm,
-	     int *mask, int *xls, int *work)
+void subrcm(int neqns, int root, int **padj, int *perm,
+	          int *mask, int *xls, int *work)
 {
    int num, nlvl, ccsize ;
    zeroi(neqns, work) ;
 
    num = 0 ;
-   if (mask[root] <0) return ;
+   if (mask[root] <0)
+     return ;
 /* ------------------------------------------------------------
    first find a pseudo-peripheral node root.  note that the level
    structure found by fnroot is stored starting at perm[num].
@@ -123,7 +126,8 @@ void subrcm (int neqns, int root, int **padj, int *perm,
    ccsize = rcm(root, padj, mask, perm+num,xls, work) ;
 
    num += ccsize ;
-   if (num > neqns) return ;
+   if (num > neqns) 
+     return ;
    return ;
 }
 
@@ -276,18 +280,18 @@ int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work)
    lbegin is the pointer to the beginning of the current
    level, and lvlend points to the end of this level.
    ------------------------------------------------------------*/
-   do
-   {  lbegin = lvlend ;
+   do {
+      lbegin = lvlend ;
       lvlend = ccsize ;
 /*    ---------------------------------------------------------
       find the degrees of nodes in the current level,
       and at the same time, generate the next level.
       --------------------------------------------------------*/
-      for (i=lbegin ; i < lvlend ; i++)
-      {  node = ls[i] ;
+      for (i=lbegin ; i < lvlend ; i++) {
+         node = ls[i] ;
          ideg = 0 ;
-         for (ptr = padj[node] ; ptr < padj[node+1] ; ptr++)
-         {  if (mask[*ptr] < 0) continue ;
+         for (ptr = padj[node] ; ptr < padj[node+1] ; ptr++) {
+            if (mask[*ptr] < 0) continue ;
             ideg++ ;
             if (work[*ptr] < 0) continue ;
             work[*ptr] |= minone ;
