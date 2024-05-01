@@ -145,7 +145,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
       double theMass;
       Matrix mass(ndf, ndf);
-      for (int i = 0; i < ndf; i++) {
+      for (int i = 0; i < ndf; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term";
           opserr << " at dof " << i + 1 << "\n";
@@ -164,7 +164,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       Vector displayLoc(ndm);
       double theCrd;
-      for (int i = 0; i < ndm; i++) {
+      for (int i = 0; i < ndm; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theCrd) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << "\n";
@@ -183,7 +183,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       Vector disp(ndf);
       double theDisp;
-      for (int i = 0; i < ndf; i++) {
+      for (int i = 0; i < ndf; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal disp term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << "\n";
@@ -204,7 +204,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
       double theDisp;
       Vector disp(ndf);
-      for (int i = 0; i < ndf; i++) {
+      for (int i = 0; i < ndf; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal vel term at ";
           opserr << " dof " << i + 1 << "\n";
@@ -258,7 +258,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check for mass terms
   Matrix mass(ndf,ndf);
-  for (int i=0; i<ndf; i++) {
+  for (int i=0; i<ndf; ++i) {
      double theMass;
      if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
