@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.0 $
-// $Date: 2013-06-03 00:00:00 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/AxialSpHD.cpp,v $
-
+//
 // Written: Kazuki Tanimoto
 // Created: June 2012
 //
@@ -39,7 +35,7 @@
 
 
 #include <string.h>
-#include <AxialSpHD.h>
+#include "AxialSpHD.h"
 #include <Vector.h>
 #include <Channel.h>
 #include <math.h>

@@ -70,7 +70,7 @@ static UniaxialPackageCommand *theUniaxialPackageCommands = NULL;
 
 static void printCommand(int argc, TCL_Char ** const argv) {
   opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argc; ++i)
     opserr << argv[i] << " ";
   opserr << "\n";
 }
@@ -123,7 +123,7 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
     if ((mat_name = strstr((char *)argv[1], "::"))) {
       // TODO: clean this up!!!!!!!!!!!!!!
       char **new_argv = new char*[argc];
-      for (int i=0; i<argc; i++)
+      for (int i=0; i<argc; ++i)
         new_argv[i] = (char*)argv[i];
       new_argv[1] = mat_name+2;
       char pack_name[40];

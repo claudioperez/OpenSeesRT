@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.0 $
-// $Date: 2012-06-04 00:00:00 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/AxialSp.cpp,v $
-
+//
 // Written: Kazuki Tanimoto
 // Created: June 2012
 //
@@ -40,7 +36,7 @@
 #include <Vector.h>
 #include <string.h>
 
-#include <AxialSp.h>
+#include "AxialSp.h"
 #include <Channel.h>
 #include <math.h>
 #include <float.h>
