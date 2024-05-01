@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2009-05-19 21:54:55 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/FullGenEigenSolver.cpp,v $
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmx.net)
 // Created: 11/07
 // Revision: A
