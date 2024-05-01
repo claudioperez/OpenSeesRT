@@ -19,7 +19,7 @@
 #==============================================================================
 
 # pseudo target modeling all exteral packages
-#add_library(OPS_External_packages INTERFACE)
+add_library(OPS_External_packages INTERFACE)
 
 function (opensees_library elemlib)
   # opensees_library(<lib_name> [REQUIRES <requirement>] <sources>...)
