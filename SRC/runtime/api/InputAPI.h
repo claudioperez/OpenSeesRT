@@ -22,12 +22,5 @@ enum SuccessFlag {
 };
 
 typedef enum SuccessFlag SuccessFlag;
-/*
-static void printCommand(int argc, TCL_Char **argv) {
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
-*/
+
 #endif // G3PARSE_H

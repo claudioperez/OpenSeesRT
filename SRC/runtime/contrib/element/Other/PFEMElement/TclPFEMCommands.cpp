@@ -139,7 +139,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -227,7 +227,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -346,7 +346,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -454,7 +454,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -580,7 +580,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -699,7 +699,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -819,7 +819,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -845,7 +845,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
         return TCL_ERROR;
       }
 
-      for (int i = 0; i < nodelist.Size(); i++) {
+      for (int i = 0; i < nodelist.Size(); ++i) {
         char buffer[100];
         sprintf(buffer, "%d ", nodelist(i));
         Tcl_AppendResult(interp, buffer, NULL);
@@ -929,7 +929,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
             idPtr->resize(num);
         }
         if (vecPtr != 0) {
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             if (eletype == 2 && i == 2) {
               type = argvPtr[i];
               continue;
@@ -943,7 +943,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
             (*vecPtr)(i) = x;
           }
         } else if (idPtr != 0) {
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             int x;
             if (Tcl_GetInt(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1036,7 +1036,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
         return TCL_ERROR;
       }
 
-      for (int i = 0; i < eles.Size(); i++) {
+      for (int i = 0; i < eles.Size(); ++i) {
         char buffer[100];
         sprintf(buffer, "%d ", eles(i));
         Tcl_AppendResult(interp, buffer, NULL);
@@ -1106,7 +1106,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     }
     if (num > 0)
       idPtr->resize(num);
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; ++i) {
       int tag;
       if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
         opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1172,7 +1172,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
             idPtr->resize(num);
         }
         if (vecPtr != 0) {
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1182,7 +1182,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
             (*vecPtr)(i) = x;
           }
         } else if (idPtr != 0) {
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             int x;
             if (Tcl_GetInt(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1203,7 +1203,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     Vector forces =
         theMesher2D.calculateForces(boundary, basenode, drag, lift, theDomain);
 
-    for (int i = 0; i < forces.Size(); i++) {
+    for (int i = 0; i < forces.Size(); ++i) {
       char buffer[60];
       sprintf(buffer, "%35.20f ", forces(i));
       Tcl_AppendResult(interp, buffer, NULL);
@@ -1225,7 +1225,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     }
     if (num > 0)
       nodes.resize(num);
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; ++i) {
       int tag;
       if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
         opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1286,7 +1286,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     }
     if (num > 0)
       nodes.resize(num);
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; ++i) {
       int tag;
       if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
         opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1301,7 +1301,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
 
     int action = 1;
     bool series = false;
-    for (int i = 4; i < argc; i++) {
+    for (int i = 4; i < argc; ++i) {
       if (strcmp(argv[i], "-append") == 0 || strcmp(argv[i], "-Append") == 0) {
         action = 1;
       } else if (strcmp(argv[i], "-remove") == 0 ||
@@ -1433,7 +1433,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1527,7 +1527,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1652,7 +1652,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1767,7 +1767,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -1899,7 +1899,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2025,7 +2025,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2152,7 +2152,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           }
           if (num > 0)
             vecPtr->resize(num);
-          for (int i = 0; i < num; i++) {
+          for (int i = 0; i < num; ++i) {
             double x;
             if (Tcl_GetDouble(interp, argvPtr[i], &x) != TCL_OK) {
               opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2265,7 +2265,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
               idPtr->resize(num);
           }
           if (vecPtr != 0) {
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < num; ++i) {
               if (eletype == 2 && i == 2) {
                 type = argvPtr[i];
                 continue;
@@ -2279,7 +2279,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
               (*vecPtr)(i) = x;
             }
           } else if (idPtr != 0) {
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < num; ++i) {
               int x;
               if (Tcl_GetInt(interp, argvPtr[i], &x) != TCL_OK) {
                 opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2442,7 +2442,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           return TCL_OK;
         const ID &regNodes = region->getNodes();
         char buffer[20];
-        for (int i = 0; i < regNodes.Size(); i++) {
+        for (int i = 0; i < regNodes.Size(); ++i) {
           sprintf(buffer, "%d ", regNodes(i));
           Tcl_AppendResult(interp, buffer, NULL);
         }
@@ -2476,7 +2476,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
       }
       if (num > 0)
         nodelist.resize(num);
-      for (int i = 0; i < num; i++) {
+      for (int i = 0; i < num; ++i) {
         int tag;
         if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2533,7 +2533,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
           return TCL_OK;
         const ID &regEles = region->getElements();
         char buffer[20];
-        for (int i = 0; i < regEles.Size(); i++) {
+        for (int i = 0; i < regEles.Size(); ++i) {
           sprintf(buffer, "%d ", regEles(i));
           Tcl_AppendResult(interp, buffer, NULL);
         }
@@ -2567,7 +2567,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
       }
       if (num > 0)
         elelist.resize(num);
-      for (int i = 0; i < num; i++) {
+      for (int i = 0; i < num; ++i) {
         int tag;
         if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2600,7 +2600,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
       }
       if (num > 0)
         nodeRegs.resize(num);
-      for (int i = 0; i < num; i++) {
+      for (int i = 0; i < num; ++i) {
         int tag;
         if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2618,7 +2618,7 @@ TclBasicBuilderPFEM2DCommand(ClientData clientData, Tcl_Interp *interp, int argc
       }
       if (num > 0)
         eleRegs.resize(num);
-      for (int i = 0; i < num; i++) {
+      for (int i = 0; i < num; ++i) {
         int tag;
         if (Tcl_GetInt(interp, argvPtr[i], &tag) != TCL_OK) {
           opserr << "WARNING: invalid input " << argvPtr[i];
@@ -2741,7 +2741,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc
         }
       }
       locs.push_back(argc);
-      for (int i = 0; i < (int)states.size(); i++) {
+      for (int i = 0; i < (int)states.size(); ++i) {
         int state = states[i];
         int l0 = locs[i] + 1;
         int l1 = locs[i + 1];
@@ -2905,7 +2905,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     int starteletag;
     bool pfem = false;
     double volthresh = 1e-6;
-    for (int i = 0; i < (int)states.size(); i++) {
+    for (int i = 0; i < (int)states.size(); ++i) {
       int state = states[i];
       int l0 = locs[i] + 1;
       int l1 = locs[i + 1];
@@ -2994,7 +2994,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     if (pfem) {
       Tcl_SetObjResult(interp, Tcl_NewIntObj(res));
     } else {
-      for (int i = 0; i < (int)eles.size(); i++) {
+      for (int i = 0; i < (int)eles.size(); ++i) {
         char buffer[100];
         sprintf(buffer, "%d ", eles[i]);
         Tcl_AppendResult(interp, buffer, NULL);
@@ -3018,7 +3018,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     if (argc > 6 && strcmp(argv[4], "-structure") == 0) {
       int numnodes = argc - 5;
       ID snodes(numnodes);
-      for (int i = 0; i < numnodes; i++) {
+      for (int i = 0; i < numnodes; ++i) {
         if (Tcl_GetInt(interp, argv[5 + i], &snodes(i)) != TCL_OK) {
           opserr << "WARNING: invalid strcutural node " << argv[4 + i]
                  << " -- PFEM3D save\n";
@@ -3054,7 +3054,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc
       return TCL_ERROR;
     }
     double bound[6];
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; ++i) {
       if (Tcl_GetDouble(interp, argv[i + 2], &bound[i]) != TCL_OK) {
         opserr << "WARNING: invalid coordinate " << argv[i + 2];
         opserr << " -- PFEM3D setBoundary\n";
@@ -3076,7 +3076,7 @@ TclBasicBuilderPFEM3DCommand(ClientData clientData, Tcl_Interp *interp, int argc
     if (argc > 4 && strcmp(argv[3], "-nodes") == 0) {
       int numnodes = argc - 3;
       ID nodes(numnodes);
-      for (int i = 0; i < numnodes; i++) {
+      for (int i = 0; i < numnodes; ++i) {
         if (Tcl_GetInt(interp, argv[3 + i], &nodes(i)) != TCL_OK) {
           opserr << "WARNING: invalid node " << argv[3 + i]
                  << " -- PFEM3D removeOutBoundNodes\n";

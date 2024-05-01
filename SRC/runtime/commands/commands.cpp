@@ -270,7 +270,7 @@ nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
   char buffer[40];
   int size = coords.Size();
   if (dim == -1) {
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", coords(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -385,12 +385,12 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
         const ID &rDOFs = theMP->getRetainedDOFs();
         n = rDOFs.Size();
         if (allDOFs) {
-          for (i = 0; i < n; i++) {
+          for (i = 0; i < n; ++i) {
             retained(rDOFs(i)) = 1;
           }
         } else {
           const ID &cDOFs = theMP->getConstrainedDOFs();
-          for (int i = 0; i < n; i++) {
+          for (int i = 0; i < n; ++i) {
             if (cDOF == cDOFs(i))
               retained(rDOFs(i)) = 1;
           }
@@ -399,7 +399,7 @@ retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
   char buffer[20];
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; ++i) {
     if (retained(i) == 1) {
       sprintf(buffer, "%d ", i + 1);
       Tcl_AppendResult(interp, buffer, NULL);
@@ -461,7 +461,7 @@ nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
 
   char buffer[40];
   const ID &eqnNumbers = theDOFgroup->getID();
-  for (int i = 0; i < numDOF; i++) {
+  for (int i = 0; i < numDOF; ++i) {
     sprintf(buffer, "%d ", eqnNumbers(i));
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -778,7 +778,7 @@ sectionStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   int nsdof = theMat.noCols();
 
   char buffer[200];
-  for (int i = 0; i < nsdof; i++) {
+  for (int i = 0; i < nsdof; ++i) {
     for (int j = 0; j < nsdof; j++) {
       sprintf(buffer, "%12.8g ", theMat(i, j));
       Tcl_AppendResult(interp, buffer, NULL);
@@ -847,7 +847,7 @@ sectionFlexibility(ClientData clientData, Tcl_Interp *interp, int argc,
   int nsdof = theMat.noCols();
 
   char buffer[200];
-  for (int i = 0; i < nsdof; i++) {
+  for (int i = 0; i < nsdof; ++i) {
     for (int j = 0; j < nsdof; j++) {
       sprintf(buffer, "%12.8g ", theMat(i, j));
       Tcl_AppendResult(interp, buffer, NULL);
@@ -911,7 +911,7 @@ basicDeformation(ClientData clientData, Tcl_Interp *interp, int argc,
   int nbf = theVec.Size();
 
   char buffer[200];
-  for (int i = 0; i < nbf; i++) {
+  for (int i = 0; i < nbf; ++i) {
     sprintf(buffer, "%12.8f ", theVec(i));
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -972,7 +972,7 @@ basicForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
   int nbf = theVec.Size();
 
   char buffer[200];
-  for (int i = 0; i < nbf; i++) {
+  for (int i = 0; i < nbf; ++i) {
     sprintf(buffer, "%12.8f ", theVec(i));
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -1034,7 +1034,7 @@ basicStiffness(ClientData clientData, Tcl_Interp *interp, int argc,
   int nbf = theMatrix.noCols();
 
   char buffer[200];
-  for (int i = 0; i < nbf; i++) {
+  for (int i = 0; i < nbf; ++i) {
     for (int j = 0; j < nbf; j++) {
       sprintf(buffer, "%12.8f ", theMatrix(i, j));
       Tcl_AppendResult(interp, buffer, NULL);
@@ -1327,7 +1327,7 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
 
         int eleLoadDataSize = eleLoadData.Size();
         opserr << "eleLoadDataSize: " << eleLoadDataSize << "\n";
-        for (int i = 0; i < eleLoadDataSize; i++) {
+        for (int i = 0; i < eleLoadDataSize; ++i) {
           sprintf(buffer, "%35.20f ", eleLoadData(i));
           Tcl_AppendResult(interp, buffer, NULL);
         }
@@ -1359,7 +1359,7 @@ getEleLoadData(ClientData clientData, Tcl_Interp *interp, int argc,
       const Vector &eleLoadData = theLoad->getData(typeEL, 1.0);
 
       int eleLoadDataSize = eleLoadData.Size();
-      for (int i = 0; i < eleLoadDataSize; i++) {
+      for (int i = 0; i < eleLoadDataSize; ++i) {
         sprintf(buffer, "%35.20f ", eleLoadData(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }

@@ -17,13 +17,9 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2005-07-25 18:06:09 $
-// $Source: /usr/local/cvs/OpenSees/SRC/database/TclMySQL.cpp,v $
-
+//
 // Written: fmk
-
+//
 // Description: This file contains the function invoked when the user invokes
 // the MySQL command in the interpreter.
 //

@@ -9,7 +9,7 @@
 
 #include <Domain.h>
 
-#include <TclBuilder.h>
+#include "TclBuilder.h"
 #include <MultiSupportPattern.h>
 
 extern MultiSupportPattern *theTclMultiSupportPattern;

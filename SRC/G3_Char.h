@@ -9,8 +9,9 @@
 // Author: cmp
 //
 #ifndef TCL_Char
-#define TCL_Char const char
+typedef const char TCL_Char;
 #endif
 #ifndef G3_Char
-#define G3_Char const char
+// #define G3_Char const char
+typedef const char G3_Char;
 #endif

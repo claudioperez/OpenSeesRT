@@ -8,60 +8,54 @@
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_sources(OPS_Material
-    PRIVATE
-      AxialSp.cpp
-      AxialSp.cpp
-      AxialSpHD.cpp
-      BWBN.cpp
-      Bilin.cpp
-      Bilin02.cpp
-      DowelType.cpp
-      Elastic2Material.cpp
-      ElasticBilin.cpp
-      ElasticMaterial.cpp
-      ElasticMultiLinear.cpp
-      ElasticPPMaterial.cpp
-      ElasticPowerFunc.cpp
-      IMKBilin.cpp
-      IMKPeakOriented.cpp
-      IMKPinching.cpp
-      JankowskiImpact.cpp
-      HystereticSMMaterial.cpp
-      HystereticSmooth.cpp
-      HystereticAsym.cpp
-      MaterialState.cpp
-      OriginCentered.cpp
-      ParallelMaterial.cpp
-      ResilienceLow.cpp
-      UVCuniaxial.cpp
-      UniaxialMaterial.cpp
-    PUBLIC
-      AxialSp.h
-      AxialSp.h
-      AxialSpHD.h
-      BWBN.h
-      Bilin.h
-      Bilin02.h
-      DowelType.h
-      Elastic2Material.h
-      ElasticBilin.h
-      ElasticMaterial.h
-      ElasticMultiLinear.h
-      ElasticPPMaterial.h
-      ElasticPowerFunc.h
-      IMKBilin.h
-      IMKPeakOriented.h
-      IMKPinching.h
-      JankowskiImpact.h
-      HystereticSMMaterial.h
-      HystereticSmooth.h
-      HystereticAsym.h
-      MaterialState.h
-      OriginCentered.h
-      ParallelMaterial.h
-      ResilienceLow.h
-      UVCuniaxial.h
-      UniaxialMaterial.h
+  PRIVATE
+    BWBN.cpp
+    Bilin.cpp
+    Bilin02.cpp
+    DowelType.cpp
+    Elastic2Material.cpp
+    ElasticBilin.cpp
+    ElasticMaterial.cpp
+    ElasticMultiLinear.cpp
+    ElasticPPMaterial.cpp
+    ElasticPowerFunc.cpp
+    IMKBilin.cpp
+    IMKPeakOriented.cpp
+    IMKPinching.cpp
+    JankowskiImpact.cpp
+    HystereticSMMaterial.cpp
+    HystereticSmooth.cpp
+    HystereticAsym.cpp
+    MaterialState.cpp
+    OriginCentered.cpp
+    ParallelMaterial.cpp
+    ResilienceLow.cpp
+    UVCuniaxial.cpp
+    UniaxialMaterial.cpp
+  PUBLIC
+    BWBN.h
+    Bilin.h
+    Bilin02.h
+    DowelType.h
+    Elastic2Material.h
+    ElasticBilin.h
+    ElasticMaterial.h
+    ElasticMultiLinear.h
+    ElasticPPMaterial.h
+    ElasticPowerFunc.h
+    IMKBilin.h
+    IMKPeakOriented.h
+    IMKPinching.h
+    JankowskiImpact.h
+    HystereticSMMaterial.h
+    HystereticSmooth.h
+    HystereticAsym.h
+    MaterialState.h
+    OriginCentered.h
+    ParallelMaterial.h
+    ResilienceLow.h
+    UVCuniaxial.h
+    UniaxialMaterial.h
 )
 
 
@@ -264,6 +258,7 @@ endif()
 target_link_libraries(OPS_Material PUBLIC OPS_Material_f)
 
 add_subdirectory(BoucWen)
+add_subdirectory(AxialSpring)
 add_subdirectory(backbone)
 add_subdirectory(bearing)
 add_subdirectory(stiffness)
@@ -277,5 +272,4 @@ add_subdirectory(PY)
 add_subdirectory(snap)
 add_subdirectory(fedeas)
 add_subdirectory(drain)
-
 

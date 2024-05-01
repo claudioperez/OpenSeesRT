@@ -4,8 +4,6 @@
 // models that can be generated using the elements released with the g3
 // framework. currently these elements include:
 //
-// What: "@(#) TclBuilder.h, revA"
-
 #ifndef TclBuilder_h
 #define TclBuilder_h
 

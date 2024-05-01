@@ -64,7 +64,7 @@ BinaryFileStream::~BinaryFileStream()
 
     static ID lastMsg(1);
     if (sendSelfCount > 0) {
-      for (int i=0; i<sendSelfCount; i++) 
+      for (int i=0; i<sendSelfCount; ++i) 
 	theChannels[i]->sendID(0, 0, lastMsg);
     } else
 	theChannels[0]->recvID(0, 0, lastMsg);
@@ -76,7 +76,7 @@ BinaryFileStream::~BinaryFileStream()
 
   if (sendSelfCount > 0) {
 
-    for (int i=0; i<=sendSelfCount; i++) {
+    for (int i=0; i<=sendSelfCount; ++i) {
       if (theColumns[i] != 0)
 	delete theColumns[i];
 
@@ -257,7 +257,7 @@ BinaryFileStream::write(Vector &data)
   //
 
   // recv data
-  for (int i=0; i<=sendSelfCount; i++) {
+  for (int i=0; i<=sendSelfCount; ++i) {
     int numColumns = (*sizeColumns)(i);
     double *dataI = theData[i];
     if (i == 0) {
@@ -274,7 +274,7 @@ BinaryFileStream::write(Vector &data)
   Matrix &printMapping = *mapping;
 
   // write data
-  for (int i=0; i<maxCount+1; i++) {
+  for (int i=0; i<maxCount+1; ++i) {
     int fileID = (int)printMapping(0,i);
     int startLoc = (int)printMapping(1,i);
     int numData = (int)printMapping(2,i);
@@ -323,7 +323,7 @@ BinaryFileStream::write(const double *s, int n)
     this->open();
 
   if (fileOpen != 0) {
-    //    for (int i=0; i<n; i++)
+    //    for (int i=0; i<n; ++i)
     theFile.write((char *)(&s[0]), 8*n);
 
     theFile << '\n';
@@ -494,7 +494,7 @@ BinaryFileStream::sendSelf(int commitTag, Channel &theChannel)
   sendSelfCount++;
 
   Channel **theNextChannels = new Channel *[sendSelfCount];
-  for (int i=0; i<sendSelfCount-1; i++)
+  for (int i=0; i<sendSelfCount-1; ++i)
     theNextChannels[i] = theChannels[i];
   theNextChannels[sendSelfCount-1] = &theChannel;
   if (theChannels != 0)
@@ -796,7 +796,7 @@ BinaryFileStream::setOrder(const ID &orderData)
       maxCount = orderData(numColumns-1);
 
     // now receive orderData from the other channels
-    for (int i=0; i<sendSelfCount; i++) { 
+    for (int i=0; i<sendSelfCount; ++i) { 
       static ID numColumnID(1);	  
       if (theChannels[i]->recvID(0, 0, numColumnID) < 0) {
 	opserr << "BinaryFileStream::setOrder - failed to recv column size for process: " << i+1 << endln;
@@ -835,7 +835,7 @@ BinaryFileStream::setOrder(const ID &orderData)
 
     Matrix &printMapping = *mapping;
 	
-    for (int i=0; i<=sendSelfCount; i++) {
+    for (int i=0; i<=sendSelfCount; ++i) {
       currentLoc(i) = 0;
       if (theColumns[i] != 0)
 	currentCount(i) = (*theColumns[i])[0];
@@ -845,7 +845,7 @@ BinaryFileStream::setOrder(const ID &orderData)
 
     int count =0;
     while (count <= maxCount) {
-      for (int i=0; i<=sendSelfCount; i++) {
+      for (int i=0; i<=sendSelfCount; ++i) {
 	if (currentCount(i) == count) {
 	  printMapping(0,count) = i;
 	  

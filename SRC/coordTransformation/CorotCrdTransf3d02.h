@@ -1,7 +1,9 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//    See https://opensees.berkeley.edu/OpenSees/copyright.php for license.
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class definition for
 // CorotCrdTransf3d02.h. CorotCrdTransf3d02 provides the

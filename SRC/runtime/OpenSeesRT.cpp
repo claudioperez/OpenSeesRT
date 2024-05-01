@@ -10,8 +10,7 @@
 #  define OPENSEESRT_VERSION "0.0.0"
 #endif
 //
-#include <g3_api.h>
-#undef G3_Runtime
+#include <runtimeAPI.h>
 #include "G3_Runtime.h"
 #include "Logging/G3_Logging.h"
 #include <handler/OPS_Stream.h>

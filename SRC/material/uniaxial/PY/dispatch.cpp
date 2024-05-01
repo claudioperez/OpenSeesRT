@@ -35,7 +35,8 @@
 #include <TzSimple1Gen.h>
 #include <TimeSeries.h>
 
-#include <g3_api.h>
+#include <BasicModelBuilder.h>
+#include <runtimeAPI.h>
 
 #include <Vector.h>
 #include <string.h>
@@ -51,8 +52,8 @@ UniaxialMaterial *
 TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv, Domain *theDomain)
 {
-  G3_Runtime *rt = G3_getRuntime(interp);
-  TimeSeries *theSeries = 0;
+  TimeSeries *theSeries = nullptr;
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (argc < 3) {
     opserr << "WARNING insufficient number of arguments\n";
@@ -217,7 +218,7 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
         return 0;
       }
 
-      theSeries = OPS_getTimeSeries(seriesTag);
+      theSeries = builder->getTypedObject<TimeSeries>(seriesTag);
 
       // Parsing was successful, allocate the material
       theMaterial = new PyLiq1(tag, MAT_TAG_PyLiq1, soilType, pult, y50, drag,
@@ -225,8 +226,7 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
     }
   }
 
-  //  INSERTING THE EXTRA LINES FOR QzSimple1 //////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+  //  INSERTING THE EXTRA LINES FOR QzSimple1   //
 
   else if ((strcmp(argv[1], "QzSimple1") == 0) ||
            (strcmp(argv[1], "QzSimple2") == 0)) {
@@ -371,7 +371,7 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
         opserr << "uniaxialMaterial QzLiq1: " << tag << endln;
         return 0;
       }
-      theSeries = OPS_getTimeSeries(seriesTag);
+      theSeries = builder->getTypedObject<TimeSeries>(seriesTag);
 
       // Parsing was successful, allocate the material
       theMaterial = new QzLiq1(tag, qzType, qult, z50, suction, dashpot, alpha,
@@ -508,7 +508,7 @@ TclBasicBuilder_addPyTzQzMaterial(ClientData clientData, Tcl_Interp *interp,
         opserr << "uniaxialMaterial TzLiq1: " << tag << endln;
         return 0;
       }
-      theSeries = OPS_getTimeSeries(seriesTag);
+      theSeries = builder->getTypedObject<TimeSeries>(seriesTag);
 
       // Parsing was successful, allocate the material
       theMaterial = new TzLiq1(tag, MAT_TAG_TzLiq1, tzType, tult, z50, dashpot,

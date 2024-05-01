@@ -91,7 +91,7 @@ SectionTest_setStrainSection(ClientData clientData, Tcl_Interp *interp,
   // "data(i-1) = strain"
   static Vector data(argc - 1);
   double strain;
-  for (int i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; ++i) {
     if (Tcl_GetDouble(interp, argv[i], &strain) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "could not read strain: strainSectionTest strain1? "
                 "strain2? ... strainN?\n";
@@ -117,7 +117,7 @@ SectionTest_getStressSection(ClientData clientData, Tcl_Interp *interp,
 {
   SectionForceDeformation *theSection = (SectionForceDeformation*)clientData;
   const Vector &stress = theSection->getStressResultant();
-  for (int i = 0; i < stress.Size(); i++) {
+  for (int i = 0; i < stress.Size(); ++i) {
     char buffer[40];
     sprintf(buffer, "%.10e ", stress(i));
     Tcl_AppendResult(interp, buffer, NULL);
@@ -132,7 +132,7 @@ SectionTest_getTangSection(ClientData clientData, Tcl_Interp *interp,
   SectionForceDeformation *theSection = (SectionForceDeformation*)clientData;
 
   const Matrix &tangent = theSection->getSectionTangent();
-  for (int i = 0; i < tangent.noRows(); i++)
+  for (int i = 0; i < tangent.noRows(); ++i)
     for (int j = 0; j < tangent.noCols(); j++) {
       char buffer[40];
       sprintf(buffer, "%.10e ", tangent(i, j));
@@ -161,7 +161,7 @@ SectionTest_getResponseSection(ClientData clientData, Tcl_Interp *interp,
   Information &eleInfo = theResponse->getInformation();
   const Vector &data = eleInfo.getData();
 
-  for (int i = 0; i < data.Size(); i++) {
+  for (int i = 0; i < data.Size(); ++i) {
     char buffer[40];
     sprintf(buffer, "%.10e ", data(i));
     Tcl_AppendResult(interp, buffer, NULL);

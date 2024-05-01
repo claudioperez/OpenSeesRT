@@ -1,26 +1,34 @@
-/* 
- * Objectives:
- * - little to no overhead above C-style arrays
- * - value semantics; objects do not decay to pointers;
- *
- * This code is influenced by the following sources
- *  list initialization:
- *  - https://stackoverflow.com/questions/42068882/list-initialization-for-a-matrix-class
- *
- *  style/practices
- *  - https://quuxplusone.github.io/blog/2021/04/03/static-constexpr-whittling-knife/
- * 
- *  Operator overloading / semantics
- *  - https://stackoverflow.com/questions/9851188/does-it-make-sense-to-use-move-semantics-for-operator-and-or-operator/9851423#9851423
- *
- *  compile-time template restrictions/concepts:
- *  - https://codereview.stackexchange.com/questions/259038/compile-time-matrix-class
- *    (C++ 20)
- *  - https://github.com/calebzulawski/cotila/
- *    (C++ 17)
- */
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//    See https://opensees.berkeley.edu/OpenSees/copyright.php for license.
+//
+//===--- MatrixND.h - Matrix with fixed size ------------------------------===//
+//
+// Objectives:
+// - little to no overhead above C-style arrays
+// - value semantics; objects do not decay to pointers;
+//
+// This code is influenced by the following sources
+//  List initialization:
+//  - https://stackoverflow.com/questions/42068882/list-initialization-for-a-matrix-class
+//
+//  Style/practices
+//  - https://quuxplusone.github.io/blog/2021/04/03/static-constexpr-whittling-knife/
+// 
+//  Operator overloading / semantics
+//  - https://stackoverflow.com/questions/9851188/does-it-make-sense-to-use-move-semantics-for-operator-and-or-operator/9851423#9851423
+//
+//  Compile-time template restrictions/concepts:
+//  - https://codereview.stackexchange.com/questions/259038/compile-time-matrix-class
+//    (C++ 20)
+//  - https://github.com/calebzulawski/cotila/
+//    (C++ 17)
+//
+//===----------------------------------------------------------------------===//
+//
 // Claudio Perez
+//
 #ifndef MatrixND_H
 #define MatrixND_H
 #include <math.h>

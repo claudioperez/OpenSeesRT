@@ -4,7 +4,6 @@
 ** ****************************************************************** */
 //
 #include <runtimeAPI.h>
-class G3_Runtime;
 
 OPS_Routine OPS_Newmark;
 OPS_Routine OPS_StagedNewmark;

@@ -26,12 +26,12 @@
 #include <ParkLMS3.h>
 #include <BackwardEuler.h>
 
-extern VariableTimeStepDirectIntegrationAnalysis
-           *theVariableTimeStepTransientAnalysis;
+class G3_Runtime;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
+
 
 StaticIntegrator*
 G3Parse_newHSIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
@@ -173,7 +173,6 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   else if (strcmp(argv[1], "Newmark") == 0) {
-    // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt, argc, argv);
     theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(clientData, interp, argc, argv);
   }
 
@@ -440,7 +439,7 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
     return nullptr;
 
-  for (int i=3; i<argc; i++) {
+  for (int i=3; i<argc; ++i) {
     if (strcmp(argv[i], "-det") == 0) {
       use_det = true;
     }
@@ -495,7 +494,7 @@ G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp,
     int numIter = 1;
     int signFirstStepMethod = MinUnbalDispNorm::SIGN_LAST_STEP;
 
-    for (int i=3; i < argc; i++) {
+    for (int i=3; i < argc; ++i) {
       if ((strcmp(argv[i], "-determinant") == 0) || 
           (strcmp(argv[i], "-det") == 0)) {
           signFirstStepMethod = MinUnbalDispNorm::CHANGE_DETERMINANT;

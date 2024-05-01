@@ -77,7 +77,7 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
   // Add commands
   //
   const int ncmd = sizeof(command_table)/sizeof(command_table[0]);
-  for (int i=0; i<ncmd; i++)
+  for (int i=0; i<ncmd; ++i)
     Tcl_CreateCommand(interp,
                       command_table[i].name,
                       command_table[i].func,
@@ -128,7 +128,7 @@ TclCommand_setStrainUniaxialMaterial(ClientData clientData,
   bool use_temp = false;
   bool commit = false;
   double temperature = 0.0;
-  for (int i=2; i < argc; i++) {
+  for (int i=2; i < argc; ++i) {
     if (strcmp(argv[i], "-commit")==0){
       commit = true;
     } else if (Tcl_GetDouble(interp, argv[2], &temperature) != TCL_OK) {
@@ -230,7 +230,7 @@ fsdof_integrate(struct generalized_alpha* conf,
     // const double C = material.getDampTangent() ;
     a[pres] = (p[i] - C*v[pres] - material.getStress())/M;
 
-    for (i = 1; i < n; i++) {
+    for (i = 1; i < n; ++i) {
       u += 3; v += 3; a += 3;
 
       // Predictor step
@@ -340,7 +340,7 @@ TclCommand_integrateUniaxialMaterial(ClientData clientData,
   
   // copy load vector strings into a double array
   double *load = new double[n];
-  for (int i=0; i<n; i++)
+  for (int i=0; i<n; ++i)
     Tcl_GetDouble(interp, str_values[i], &load[i]);
 
   auto  resp = new double[n][3];
@@ -351,7 +351,7 @@ TclCommand_integrateUniaxialMaterial(ClientData clientData,
   fsdof_integrate(&conf, *material, M, C, 1.0, n, load, dt, (double*)resp);
 
   Tcl_Obj *displ = Tcl_NewListObj(0, NULL);
-  for (int i=0; i<n; i++)
+  for (int i=0; i<n; ++i)
     Tcl_ListObjAppendElement(interp, displ, Tcl_NewDoubleObj(resp[i][0]));
 
   Tcl_SetObjResult(interp, displ);

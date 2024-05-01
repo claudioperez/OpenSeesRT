@@ -1,23 +1,26 @@
+#include <tcl.h>
 #include <ParallelMaterial.h>
-// #include <runtime/BasicModelBuilder.h>
-#include <InputAPI.h>
+#include <runtime/BasicModelBuilder.h>
+#include <runtimeAPI.h>
 
-UniaxialMaterial*
-G3Parse_newParallelMaterial(G3_Runtime* rt, int argc, G3_Char ** const argv)
+
+int
+TclCommand_newParallelMaterial(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
     if (argc < 4) {
         opserr << "WARNING insufficient arguments\n";
         opserr << "Want: uniaxialMaterial Parallel tag? tag1? tag2? ...";
         opserr << " <-min min?> <-max max?>" << endln;
-        return nullptr;
+        return TCL_ERROR;
     }
 
     int tag;
     UniaxialMaterial* theMaterial = nullptr;
+    BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
-    if (G3Parse_getInt(rt, argv[2], &tag) != TCL_OK) {
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
         opserr << "WARNING invalid uniaxialMaterial Parallel tag" << endln;
-        return nullptr;
+        return TCL_ERROR;
     }
 
     int numMaterials = argc-3;
@@ -25,7 +28,7 @@ G3Parse_newParallelMaterial(G3_Runtime* rt, int argc, G3_Char ** const argv)
     if (numMaterials == 0) {
         opserr << "WARNING no component material(s) provided\n";
         opserr << "uniaxialMaterial Parallel: " << tag << endln;
-        return nullptr;
+        return TCL_ERROR;
     }
 
     // Create an array to hold pointers to component materials
@@ -34,28 +37,26 @@ G3Parse_newParallelMaterial(G3_Runtime* rt, int argc, G3_Char ** const argv)
     // For each material get the tag and ensure it exists in model already
     for (int i=0; i<numMaterials; i++) {
       int tagI;
-      if (G3Parse_getInt(rt, argv[i+3], &tagI) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[i+3], &tagI) != TCL_OK) {
         opserr << "WARNING invalid component tag\n";
         opserr << "uniaxialMaterial Parallel: " << tag << endln;
-        return nullptr;
+        return TCL_ERROR;
       }
+
+      UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(tagI);
       
-      UniaxialMaterial *theMat = G3_getUniaxialMaterialInstance(rt, tagI);
-      
-      if (theMat == 0) {
-        opserr << "WARNING component material does not exist\n";
-        opserr << "Component material: " << argv[i+3]; 
-        opserr << "\nuniaxialMaterial Parallel: " << tag << endln;
+      if (theMat == nullptr) {
         delete [] theMats;
-        return nullptr;
+        return TCL_ERROR;
       } else
         theMats[i] = theMat;
     }
     
     // Parsing was successful, allocate the material
     theMaterial = new ParallelMaterial(tag, numMaterials, theMats);
+    builder->addTaggedObject<UniaxialMaterial>(*theMaterial);
     
     // Deallocate the temporary pointers
     delete [] theMats;
-    return theMaterial;
+    return TCL_OK;
 }

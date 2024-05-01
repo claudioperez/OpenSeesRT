@@ -238,7 +238,7 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
   int iterateTangent = CURRENT_TANGENT;
   int maxDim = 3;
   int numTerms = 2;
-  for (int i = 2; i < argc; i++) {
+  for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -296,7 +296,7 @@ G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 
     int formTangent = CURRENT_TANGENT;
     int count = -1;
-    for (int i = 2; i < argc; i++) {
+    for (int i = 2; i < argc; ++i) {
       if (strcmp(argv[i], "-secant") == 0) {
         formTangent = CURRENT_SECANT;
       } else if (strcmp(argv[i], "-initial") == 0) {
@@ -415,7 +415,7 @@ G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   int incrementTangent = CURRENT_TANGENT;
   int iterateTangent = CURRENT_TANGENT;
   int maxDim = 3;
-  for (int i = 2; i < argc; i++) {
+  for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -461,7 +461,7 @@ G3_newRaphsonNewton(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int incrementTangent = CURRENT_TANGENT;
   int iterateTangent = CURRENT_TANGENT;
-  for (int i = 2; i < argc; i++) {
+  for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -506,7 +506,7 @@ G3_newMillerNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   int iterateTangent = CURRENT_TANGENT;
   int maxDim = 3;
 
-  for (int i = 2; i < argc; i++) {
+  for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -553,7 +553,7 @@ G3_newPeriodicNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   int incrementTangent = CURRENT_TANGENT;
   int iterateTangent = CURRENT_TANGENT;
   int maxDim = 3;
-  for (int i = 2; i < argc; i++) {
+  for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-iterate") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -599,7 +599,7 @@ G3_newBroyden(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << G3_ERROR_PROMPT << "No ConvergenceTest yet specified\n";
     return nullptr;
   }
-  for (int i = 2; i < argc; i++) {
+  for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-secant") == 0) {
       formTangent = CURRENT_SECANT;
     } else if (strcmp(argv[i], "-initial") == 0) {

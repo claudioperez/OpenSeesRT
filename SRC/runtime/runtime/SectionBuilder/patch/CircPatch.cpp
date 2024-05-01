@@ -21,7 +21,7 @@
 // File: CircPatch.C
 // Written by Remo M. de Souza
 // December 1998
-
+//
 #include <math.h>
 #include <Matrix.h>
 #include <Patch.h>

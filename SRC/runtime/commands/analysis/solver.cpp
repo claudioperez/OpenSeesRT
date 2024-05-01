@@ -220,7 +220,7 @@ specify_SparseSPD(G3_Runtime *rt, int argc, G3_Char ** const argv)
 #else
 #  include <SuperLU.h>
 #endif
-// TODO: CMP
+// TODO(cmp): Threaded SuperLU?
 
 LinearSOE*
 specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
@@ -295,7 +295,7 @@ specifySparseGen(G3_Runtime* rt, int argc, G3_Char ** const argv)
       }
       count++;
     }
-    // TODO : CMP
+    // TODO(cmp) : SuperLU
     theSolver = new SuperLU(permSpec, drop_tol, panelSize, relax, symmetric);
 #endif
 

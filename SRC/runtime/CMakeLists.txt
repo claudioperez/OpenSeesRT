@@ -18,16 +18,14 @@ target_include_directories(OPS_Runtime PUBLIC
   ./api/
   ${OPS_SRC_DIR}/runtime/commands
   ${OPS_SRC_DIR}/runtime/commands/modeling
-  ${OPS_SRC_DIR}/runtime/runtime/modelbuilder
-  ${OPS_SRC_DIR}/runtime/runtime/modelbuilder/basic
   ${OPS_SRC_DIR}/runtime/runtime/
   ${OPS_SRC_DIR}/runtime/runtime/Logging/
 )
 target_link_libraries(OPS_Runtime PRIVATE G3)
 
-add_subdirectory(commands/)
+add_subdirectory(commands)
 
-add_subdirectory(runtime/)
+add_subdirectory(runtime)
 
 target_sources(OPS_Runtime PRIVATE
     "G3_Runtime.cpp"
@@ -37,9 +35,6 @@ target_sources(OPS_Runtime PRIVATE
     #
     # OTHER
     #
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
     # "contrib/uniaxial/TclAxialSp.cpp"
     # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"

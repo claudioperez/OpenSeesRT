@@ -17,25 +17,205 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 09/07
 // Revision: A
 //
 // Description: This file contains the function to parse the TCL input
-// for the adapter element.
-
+// for the actuator element.
+//
 class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
+
+#include <Actuator.h>
 #include <Adapter.h>
+#include <ActuatorCorot.h>
+
+
+int
+TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
+                            TCL_Char ** const argv, Domain *theTclDomain,
+                            TclBasicBuilder *theTclBuilder, int eleArgStart)
+{
+  // ensure the destructor has not been called
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
+    opserr << "WARNING builder has been destroyed - actuator\n";
+    return TCL_ERROR;
+  }
+
+  // check the number of arguments is correct
+  if ((argc - eleArgStart) < 6) {
+    opserr << "WARNING insufficient arguments\n";
+    opserr << "Want: element actuator eleTag iNode jNode EA ipPort "
+              "<-doRayleigh> <-rho rho>\n";
+    return TCL_ERROR;
+  }
+
+  Element *theElement = 0;
+  int ndm = builder->getNDM();
+
+  // get the id and end nodes
+  int tag, iNode, jNode;
+  double EA;
+  int ipPort;
+  int doRayleigh = 0;
+  double rho = 0.0;
+
+  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    opserr << "WARNING invalid actuator eleTag" << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    opserr << "WARNING invalid iNode\n";
+    opserr << "actuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    opserr << "WARNING invalid jNode\n";
+    opserr << "actuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &EA) != TCL_OK) {
+    opserr << "WARNING invalid EA\n";
+    opserr << "actuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[5 + eleArgStart], &ipPort) != TCL_OK) {
+    opserr << "WARNING invalid ipPort\n";
+    opserr << "actuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  for (int i = 6 + eleArgStart; i < argc; ++i) {
+    if (strcmp(argv[i], "-doRayleigh") == 0)
+      doRayleigh = 1;
+  }
+  for (int i = 6 + eleArgStart; i < argc; ++i) {
+    if (i + 1 < argc && strcmp(argv[i], "-rho") == 0) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &rho) != TCL_OK) {
+        opserr << "WARNING invalid rho\n";
+        opserr << "actuator element: " << tag << endln;
+        return TCL_ERROR;
+      }
+    }
+  }
+
+  // now create the actuator and add it to the Domain
+  theElement =
+      new Actuator(tag, ndm, iNode, jNode, EA, ipPort, doRayleigh, rho);
+
+  if (theElement == 0) {
+    opserr << "WARNING ran out of memory creating element\n";
+    opserr << "actuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+
+  if (theTclDomain->addElement(theElement) == false) {
+    opserr << "WARNING could not add element to the domain\n";
+    opserr << "actuator element: " << tag << endln;
+    delete theElement;
+    return TCL_ERROR;
+  }
+
+  // if get here we have successfully created the actuator and added it to the
+  // domain
+  return TCL_OK;
+}
+
+int
+TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
+                                 int argc, TCL_Char ** const argv,
+                                 Domain *theTclDomain,
+                                 TclBasicBuilder *theTclBuilder,
+                                 int eleArgStart)
+{
+  // ensure the destructor has not been called
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  if (theTclBuilder == 0 || clientData == 0) {
+    opserr << "WARNING builder has been destroyed - corotActuator\n";
+    return TCL_ERROR;
+  }
+
+  // check the number of arguments is correct
+  if ((argc - eleArgStart) < 6) {
+    opserr << "WARNING insufficient arguments\n";
+    opserr << "Want: element corotActuator eleTag iNode jNode EA ipPort "
+              "<-doRayleigh> <-rho rho>\n";
+    return TCL_ERROR;
+  }
+
+  Element *theElement = nullptr;
+  int ndm = builder->getNDM();
+
+  // get the id and end nodes
+  int tag, iNode, jNode;
+  double EA;
+  int ipPort;
+  int doRayleigh = 0;
+  double rho = 0.0;
+
+  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
+    opserr << "WARNING invalid corotActuator eleTag" << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    opserr << "WARNING invalid iNode\n";
+    opserr << "corotActuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    opserr << "WARNING invalid jNode\n";
+    opserr << "corotActuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &EA) != TCL_OK) {
+    opserr << "WARNING invalid EA\n";
+    opserr << "corotActuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[5 + eleArgStart], &ipPort) != TCL_OK) {
+    opserr << "WARNING invalid ipPort\n";
+    opserr << "corotActuator element: " << tag << endln;
+    return TCL_ERROR;
+  }
+  for (int i = 6 + eleArgStart; i < argc; ++i) {
+    if (strcmp(argv[i], "-doRayleigh") == 0)
+      doRayleigh = 1;
+  }
+  for (int i = 6 + eleArgStart; i < argc; ++i) {
+    if (i + 1 < argc && strcmp(argv[i], "-rho") == 0) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &rho) != TCL_OK) {
+        opserr << "WARNING invalid rho\n";
+        opserr << "corotActuator element: " << tag << endln;
+        return TCL_ERROR;
+      }
+    }
+  }
+
+  // now create the corotActuator and add it to the Domain
+  theElement =
+      new ActuatorCorot(tag, ndm, iNode, jNode, EA, ipPort, doRayleigh, rho);
+
+
+  if (theTclDomain->addElement(theElement) == false) {
+    opserr << "WARNING could not add element to the domain\n";
+    opserr << "corotActuator element: " << tag << endln;
+    delete theElement;
+    return TCL_ERROR;
+  }
+
+  // if get here we have successfully created the corotActuator and added it to
+  // the domain
+  return TCL_OK;
+}
 
 
 int
@@ -90,7 +270,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
   // fill in the nodes ID
-  for (i = 0; i < numNodes; i++) {
+  for (i = 0; i < numNodes; ++i) {
     if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
       opserr << "WARNING invalid node\n";
       opserr << "adapter element: " << tag << endln;
@@ -117,7 +297,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     // fill in the dofs ID array
     ID dofsj(numDOFj);
-    for (i = 0; i < numDOFj; i++) {
+    for (i = 0; i < numDOFj; ++i) {
       if (Tcl_GetInt(interp, argv[argi], &dof) != TCL_OK) {
         opserr << "WARNING invalid dof\n";
         opserr << "adapter element: " << tag << endln;
@@ -161,12 +341,12 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   argi++;
   // get optional rayleigh flag
-  for (int i = argi; i < argc; i++) {
+  for (int i = argi; i < argc; ++i) {
     if (strcmp(argv[i], "-doRayleigh") == 0)
       doRayleigh = 1;
   }
   // get optional mass matrix
-  for (int i = argi; i < argc; i++) {
+  for (int i = argi; i < argc; ++i) {
     if (strcmp(argv[i], "-mass") == 0) {
       if (argc - 1 < i + numDOF * numDOF) {
         opserr << "WARNING incorrect number of mass terms\n";

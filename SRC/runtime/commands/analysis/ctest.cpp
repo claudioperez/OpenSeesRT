@@ -289,7 +289,7 @@ getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[40];
     int size = data.Size();
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20e", data(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }

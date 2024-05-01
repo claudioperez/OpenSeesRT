@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.9 $
-// $Date: 2007-06-26 20:13:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/database/TclDatabaseCommands.cpp,v $
-
+//
 // Written: fmk
 // Created: 03/00
 // Revision: A

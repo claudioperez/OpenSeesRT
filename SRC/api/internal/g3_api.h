@@ -5,7 +5,7 @@
 //
 // Written: cmp
 //
-#ifndef G3_API_H_
+#if !defined(G3_API_H_) && defined(OPS_USE_RUNTIME)
 #define G3_API_H_
    struct Tcl_Interp;
    typedef void* ClientData;

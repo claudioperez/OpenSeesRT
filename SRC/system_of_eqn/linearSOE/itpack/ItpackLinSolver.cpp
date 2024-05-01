@@ -18,15 +18,15 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: Sept 2001
-//
 // Description: This file contains the class definition for ItpackLinSolver.
 // ItpackLinSolver is an abstract base class and thus no objects of it's type
 // can be instantiated. It has pure virtual functions which must be
 // implemented in it's derived classes.  Instances of ItpackLinSolver 
 // are used to solve a system of equations of type ItpackLinSOE.
-
+//
+// Written: MHS
+// Created: Sept 2001
+//
 #include <ItpackLinSolver.h>
 #include <ItpackLinSOE.h>
 #include <ID.h>
@@ -268,15 +268,23 @@ ItpackLinSolver::solve(void)
   // Override defaults for "textbook" methods
   switch (method) {
   case ItpackJ:
-    iparm[5] = 0; iparm[6] = 2; break;
+    iparm[5] = 0; 
+    iparm[6] = 2; 
+    break;
   case ItpackGS:
-    iparm[5] = 0; break;
+    iparm[5] = 0; 
+    break;
   case ItpackSORFixed:
-    iparm[5] = 0; rparm[4] = omega; break;
+    iparm[5] = 0; 
+    rparm[4] = omega;
+    break;
   case ItpackSSORFixed:
-    iparm[5] = 0; rparm[4] = omega; break;
+    iparm[5] = 0; 
+    rparm[4] = omega; 
+    break;
   case ItpackRS:
-    iparm[5] = 0; break;
+    iparm[5] = 0; 
+    break;
   default:
     break;
   }

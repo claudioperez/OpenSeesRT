@@ -1,28 +1,16 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//    See https://opensees.berkeley.edu/OpenSees/copyright.php for license.
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the implementation for the
 // CorotCrdTransf3d02 class. CorotCrdTransf3d02 is a Corotational
-// transformation for a spatial frame between the global
+// transformation for a spatial frame element between the global
 // and basic coordinate systems. The formulation is derived from
 // Crisfield (1991) and employs a heuristic approximation to the
+// logarithm on SO(3).
 //
 // Written: Claudio Perez
 // Created: 05/2024
@@ -1184,7 +1172,7 @@ CorotCrdTransf3d02::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     pl.addMatrixTransposeVector(0.0, Tp, pb, 1.0);    // pl = Tp ^ pb;
 
     // transform tangent  stiffness matrix from local to global coordinates
-    //static Matrix kg(12,12);
+    // static Matrix kg(12,12);
 
     // compute the tangent stiffness matrix in global coordinates
     kg.addMatrixTripleProduct(0.0, T, kl, 1.0);

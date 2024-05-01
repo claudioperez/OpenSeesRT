@@ -31,7 +31,6 @@ target_sources(OPS_Runtime PRIVATE
     "modeling/nodes.cpp"
     "modeling/constraint.cpp"
     "modeling/geomTransf.cpp"
-    #  "modeling/rigidLink.cpp"
     "modeling/element.cpp"
     "modeling/region.cpp"
     "modeling/nDMaterial.cpp"
@@ -42,15 +41,15 @@ target_sources(OPS_Runtime PRIVATE
     "modeling/blockND.cpp"
     "modeling/Block2D.cpp"
     "modeling/Block3D.cpp"
-
-    "invoking/invoke.cpp"
-    "invoking/invoke_uniaxial.cpp"
-    "invoking/invoke_section.cpp"
-    "invoking/invoke_stress.cpp"
+    "modeling/invoking/invoke.cpp"
+    "modeling/invoking/invoke_uniaxial.cpp"
+    "modeling/invoking/invoke_section.cpp"
+    "modeling/invoking/invoke_stress.cpp"
 
 # Analysis
     "analysis/algorithm.cpp"
     "analysis/integrator.cpp"
+    "analysis/transient.cpp"
     "analysis/analysis.cpp"
     "analysis/numberer.cpp"
     "analysis/ctest.cpp"

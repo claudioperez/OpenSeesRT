@@ -17,13 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2003-02-25 23:34:15 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/material/uniaxial/drain/TclDrainMaterialCommand.cpp,v
-// $
-
+//
 // Written: MHS
 // Created: Aug 2001
 //
@@ -38,7 +32,7 @@
 
 #include <Vector.h>
 #include <string.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <tcl.h>
 
 static void

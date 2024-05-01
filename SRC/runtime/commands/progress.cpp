@@ -8,10 +8,10 @@
 //
 // Author: Claudio Perez
 //
+#include <string>
 #include <string.h>
 #include <tcl.h>
 #include <runtime/ProgressBar.hpp>
-#include <string>
 
 
 ProgressBar* progress_bar_ptr;
