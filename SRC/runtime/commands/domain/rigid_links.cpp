@@ -86,7 +86,7 @@ createLinearRigidBeam(Domain &theDomain, int ret_tag, int con_tag)
     mat.Zero();
 
     // set the values
-    for (int i=0; i<numDOF; i++) {
+    for (int i=0; i<numDOF; ++i) {
       mat(i,i) = 1.0;
       id(i) = i;
     }
@@ -197,7 +197,7 @@ createLinearRigidRod(Domain &theDomain, int ret_tag, int con_tag)
     mat.Zero();
 
     // set the values
-    for (int i=0; i<dimR; i++) {
+    for (int i=0; i<dimR; ++i) {
       mat(i,i) = 1.0;
       id(i) = i;
     }
@@ -271,7 +271,7 @@ createLinearRigidDiaphragm(Domain &theDomain, int ret_tag, ID &nC,
     // 2. set the ID and transformation matrix,
     // 3. create the MP_Constrainet and add it to the domain
 
-    for (int i=0; i<nC.Size(); i++) {
+    for (int i=0; i<nC.Size(); ++i) {
 
       // get the constrained node
       int ndC = nC(i);
@@ -401,7 +401,7 @@ TclCommand_RigidDiaphragm(ClientData clientData, Tcl_Interp *interp, int argc, T
   // read in the constrained nodes
   int numConstrainedNodes = argc - 3;
   ID constrainedNodes(numConstrainedNodes);
-  for (int i=0; i<numConstrainedNodes; i++) {
+  for (int i=0; i<numConstrainedNodes; ++i) {
       int cNode;
       if (Tcl_GetInt(interp, argv[3+i], &cNode) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "rigidLink perpDirn rNode cNodes - could not read a cNode\n";
