@@ -12,7 +12,7 @@
 
 #include "DispBeamColumn2dInt.h"
 class TclBasicBuilder;
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <runtime/BasicModelBuilder.h>
 #include <SectionForceDeformation.h>
 
