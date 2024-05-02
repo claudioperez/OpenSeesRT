@@ -17,15 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2009-05-11 21:01:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/FullGenEigenSolver.h,v $
-
-
+//
 #ifndef FullGenEigenSolver_h
 #define FullGenEigenSolver_h
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmx.net)
 // Created: 11/07
 // Revision: A

@@ -17,23 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2007-11-29 19:31:08 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/FullGenEigenSOE.h,v $
-
-
+//
 #ifndef FullGenEigenSOE_h
 #define FullGenEigenSOE_h
-
-// Written: Andreas Schellenberg (andreas.schellenberg@gmx.net)
-// Created: 11/07
-// Revision: A
 //
 // Description: This file contains the class definition for
 // FullGenEigenSOE, which stores full nonsymmetric matrices,
 // A and M, for generalized eigenvalue computations.
-
+//
+// Written: Andreas Schellenberg (andreas.schellenberg@gmx.net)
+// Created: 11/07
+// Revision: A
+//
 #include <EigenSOE.h>
 #include <Vector.h>
 
