@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/DomainSolver.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/system_of_eqn/linearSOE/DomainSolver.h
 //
 // Written: fmk 
@@ -36,8 +31,6 @@
 // to solve a system of equations and to do static condensation operations on the
 // linear system of equations.
 //
-// What: "@(#) DomainSolver.h, revA"
-
 #ifndef DomainSolver_h
 #define DomainSolver_h
 
