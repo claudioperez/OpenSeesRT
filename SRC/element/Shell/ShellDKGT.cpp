@@ -1518,7 +1518,7 @@ int ShellDKGT::recvSelf(int commitTag, Channel &theChannel,
           opserr << "ShellDKGT::recvSelf() - Broker could not create "
                     "NDMaterial of class type"
                  << matClassTag << endln;
-          exit(-1);
+          return -1;
         }
       }
       // Receive the material

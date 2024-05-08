@@ -201,10 +201,10 @@ class ShellDKGT : public Element {
     int applyLoad;
 
 
-    static const int ndf         = 6;
-    static const int numberNodes = 3;
-    static const int numberGauss = 4;
-    static const int nShape      = 3;
-    static const int massIndex   = nShape - 1;
+    static constexpr int ndf         = 6;
+    static constexpr int numberNodes = 3;
+    static constexpr int numberGauss = 4;
+    static constexpr int nShape      = 3;
+    static constexpr int massIndex   = nShape - 1;
 
 } ; 
