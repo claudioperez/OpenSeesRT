@@ -255,7 +255,7 @@ int ElasticMembraneSection::revertToLastCommit(void)
 	// Revert the history variables to last commit
 	TSectionStrain = CSectionStrain;
 	TSectionStress = CSectionStress;
-	TSectionTangent = TSectionTangent;
+	TSectionTangent = CSectionTangent;
 
 	return success;
 }
@@ -322,9 +322,12 @@ int ElasticMembraneSection::recvSelf(int commitTag, Channel& theChannel, FEM_Obj
 
 void ElasticMembraneSection::Print(OPS_Stream& s, int flag)
 {
-	s << "ElasticMembraneSection tag: " << this->getTag() << endln;
-	s << "Young's Modulus E = " << E << endln;
-	s << "Poisson's Ratio v = " << nu << endln;
-	s << "Thickness t = " << t << endln;
-	s << "Density rho = " << rho << endln;
+  if (flag != OPS_PRINT_PRINTMODEL_JSON) {
+    s << "ElasticMembraneSection tag: " << this->getTag() << endln;
+    s << "Young's Modulus E = " << E << endln;
+    s << "Poisson's Ratio v = " << nu << endln;
+    s << "Thickness t = " << t << endln;
+    s << "Density rho = " << rho << endln;
+  }
 }
+
