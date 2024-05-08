@@ -38,8 +38,6 @@
 #include <Plane/FourNodeQuadUP.h>
 
 // Control on internal iteration between spring components
-const int QZmaxIterations = 20;
-const double QZtolerance = 1.0e-12;
 
 int QzLiq1::loadStage = 0;
 Vector QzLiq1::stressV3(3);
@@ -255,6 +253,8 @@ QzLiq1::setTrialStrain (double newz, double zRate)
 double 
 QzLiq1::getStress(void)
 {
+  const double QZtolerance = 1.0e-12;
+
 	double dashForce = getStrainRate()*this->getDampTangent();
 
 	// Limit the combined force to qult*(1-ru).
