@@ -24,7 +24,7 @@
 //
 #include <runtime/BasicModelBuilder.h>
 
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <Domain.h>
 #include <LoadPattern.h>
 #include <LinearSeries.h>
@@ -248,7 +248,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     int numInputs = argc;
     TCL_Char *accelFileName = 0;
     double dt = 0.0;
-    for (int i = 5; i < argc; i++) {
+    for (int i = 5; i < argc; ++i) {
       if (strcmp(argv[i], "-accel") == 0 && i + 2 < argc) {
         // Read the input file name
         accelFileName = argv[i + 1];
@@ -390,7 +390,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     ifile >> ele_d[1];
     ifile >> ele_d[2];
     double *drm_box_crds = new double[6];
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; ++i)
       ifile >> drm_box_crds[i];
     int n1;
     ifile >> n1;
@@ -402,7 +402,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     char **files = new char *[nf];
     int *f_d = new int[3 * (nf - 1)];
     int ne1, ne2;
-    for (int i = 0; i < nf; i++) {
+    for (int i = 0; i < nf; ++i) {
       ifile >> inps;
       files[i] = (char *)inps.c_str();
       if (i < (nf - 1)) {
