@@ -1072,10 +1072,15 @@ FiberSection3d::setResponse(const char **argv, int argc, OPS_Stream &output)
   }
   //by SAJalali
   else if ((strcmp(argv[0], "energy") == 0) || (strcmp(argv[0], "Energy") == 0)) {
-        theResponse = new SectionResponse(*this, 10, getEnergy());
+    output.tag("SectionOutput");
+    output.attr("secType", this->getClassType());
+    output.attr("secTag", this->getTag());
+    output.tag("ResponseType", "energy");
+    theResponse = new SectionResponse(*this, 10, getEnergy());
+    output.endTag();
   }
 
-  if (theResponse == 0)
+  if (theResponse == nullptr)
     return SectionForceDeformation::setResponse(argv, argc, output);
 
   return theResponse;
@@ -1382,7 +1387,7 @@ double FiberSection3d::getEnergy() const
 {
     double energy = 0;
     for (int i = 0; i < numFibers; i++) {
-        double A = matData[2 * i + 1];
+        double A = matData[3 * i + 2];
         energy += A * theMaterials[i]->getEnergy();
     }
     return energy;
