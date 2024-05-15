@@ -17,24 +17,18 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-05-29 19:10:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/UniaxialJ2Plasticity.cpp,v $
-
+//
 // Written: QGU. UCSD Group for response sensitivity analysis
 //  Contact: Quan Gu(guquan2005@gmail.com)  
 //           Joel P. Conte (jpconte@ucsd.edu)
 //           Michele Barbato (mbarbato@lsu.edu)
 //
 // Created: May 2009
-
+//
 // refer to paper:
 // Conte, J. P., Vijalapura, P., and Meghella, M., "Consistent Finite Element Response Sensitivities Analysis," 
 // Journal of Engineering Mechanics, ASCE, Vol. 129, No. 12, pp. 1380-1393, 2003.
 //
-
-
 #include <UniaxialJ2Plasticity.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -46,53 +40,53 @@
 #include <math.h>
 #include <float.h>
 
+
 void * OPS_ADD_RUNTIME_VPV(OPS_UniaxialJ2Plasticity)
 {
     int argc = OPS_GetNumRemainingInputArgs() + 2;
     if (argc < 7) {
-	opserr << "WARNING invalid number of arguments\n";
-	opserr << "Want: uniaxialMaterial UniaxialJ2Plasticity tag? E? sigmaY? Hkin? <Hiso?>\n";
-	return 0;
+      opserr << "WARNING invalid number of arguments\n";
+      opserr << "Want: uniaxialMaterial UniaxialJ2Plasticity tag? E? sigmaY? Hkin? <Hiso?>\n";
+      return 0;
     }    
       
     int tag;
     int numdata = 1;
     if (OPS_GetIntInput(&numdata, &tag) < 0) {
-	opserr << "WARNING invalid uniaxialMaterial UniaxialJ2Plasticity tag\n";
-	return 0;	
+      opserr << "WARNING invalid uniaxialMaterial UniaxialJ2Plasticity tag\n";
+      return 0;
     }
     
     // double E, sigmaY, Hkin, Hiso;
     // Hiso =0.0;
     double data[4] = {0,0,0,0};
     numdata = OPS_GetNumRemainingInputArgs();
-    if (numdata > 4) numdata = 4;
-	      
-    // Parsing was successful, allocate the material
-    return new UniaxialJ2Plasticity(tag, data[0], data[1], data[2], data[3]);
+    if (numdata > 4) numdata = 4; 
+      // Parsing was successful, allocate the material
+      return new UniaxialJ2Plasticity(tag, data[0], data[1], data[2], data[3]);
 }
 
 
 UniaxialJ2Plasticity::UniaxialJ2Plasticity(int pTag, double pE, double pSigmaY,
-				     double pHkin, double pHiso)
+                     double pHkin, double pHiso)
 :UniaxialMaterial(pTag,MAT_TAG_UniaxialJ2Plasticity),
  E(pE), sigmaY(pSigmaY), Hiso(pHiso), Hkin(pHkin)
 {
 // AddingSensitivity:BEGIN /////////////////////////////////////
-	parameterID = 0;
-	SHVs = 0;
+   parameterID = 0;
+   SHVs = 0;
 // AddingSensitivity:END //////////////////////////////////////
 
-	// Initialize variables
-    this->revertToStart();
+   // Initialize variables
+   this->revertToStart();
 }
 
 UniaxialJ2Plasticity::~UniaxialJ2Plasticity()
 {
 // AddingSensitivity:BEGIN /////////////////////////////////////
-	if (SHVs != 0) 
-		delete SHVs;
-	SHVs =0;
+    if (SHVs != 0) 
+        delete SHVs;
+    SHVs =0;
 // AddingSensitivity:END //////////////////////////////////////
 }
 
@@ -100,46 +94,44 @@ int
 UniaxialJ2Plasticity::setTrialStrain (double strain, double strainRate)
 {
 
-	TStrain = strain;
+    t_strain = strain;
 
     // ------ Elastic trial -------
 
-	
-	double deltaLambda = 0.0;
-	TPlasticStrain = CPlasticStrain;
-	TBackStress = CBackStress;
-	TAccumulatedPlasticStrain = CAccumulatedPlasticStrain;
-    TStress = E * (TStrain-CPlasticStrain);
-	double CSigmaY = sigmaY+Hiso*CAccumulatedPlasticStrain;
+    
+    TPlasticStrain = CPlasticStrain;
+    TBackStress = CBackStress;
+    TAccumulatedPlasticStrain = CAccumulatedPlasticStrain;
+    t_stress = E * (t_strain - CPlasticStrain);
+    double CSigmaY = sigmaY+Hiso*CAccumulatedPlasticStrain;
 
     // Compute trial stress relative to committed back stress
-    double xsi = TStress - TBackStress;
+    double xsi = t_stress - TBackStress;
 
     // Compute yield criterion
     double f = fabs(xsi) - (sigmaY + Hiso*TAccumulatedPlasticStrain);
 
     // Elastic step ... no updates required
     if (f <= -DBL_EPSILON * E) {
-		//if (f <= 1.0e-8) {
-		// Set trial tangent
-		TTangent = E;
+        // Set trial tangent
+        TTangent = E;
     }
 
     // ------- Plastic step ... perform return mapping algorithm ---
     else {
-      deltaLambda = (fabs(xsi)-CSigmaY)/(E+Hkin+Hiso);
+      double deltaLambda = (fabs(xsi)-CSigmaY)/(E+Hkin+Hiso);
 
       // Find sign of xsi
       int sign = (xsi < 0) ? -1 : 1;
 
-	  TPlasticStrain = CPlasticStrain +deltaLambda*sign;
+      TPlasticStrain = CPlasticStrain +deltaLambda*sign;
 
-	  TBackStress = CBackStress + Hkin*deltaLambda*sign;
+      TBackStress = CBackStress + Hkin*deltaLambda*sign;
 
-	  TAccumulatedPlasticStrain = CAccumulatedPlasticStrain + deltaLambda;
+      TAccumulatedPlasticStrain = CAccumulatedPlasticStrain + deltaLambda;
 
-	  TStress = E * (TStrain - TPlasticStrain);
-	
+      t_stress = E * (t_strain - TPlasticStrain);
+    
       TTangent = E*(Hkin+Hiso) / (E+Hkin+Hiso);
     }
 
@@ -150,7 +142,7 @@ UniaxialJ2Plasticity::setTrialStrain (double strain, double strainRate)
 double 
 UniaxialJ2Plasticity::getStress(void)
 {
-    return TStress;
+    return t_stress;
 }
 
 double 
@@ -162,22 +154,19 @@ UniaxialJ2Plasticity::getTangent(void)
 double 
 UniaxialJ2Plasticity::getStrain(void)
 {
-    return TStrain;
+    return t_strain;
 }
 
 int 
 UniaxialJ2Plasticity::commitState(void)
 {
-
-
-
     // Commit trial history variables
     CPlasticStrain = TPlasticStrain;
     CBackStress = TBackStress;
     CAccumulatedPlasticStrain = TAccumulatedPlasticStrain;
 
-    CStrain = TStrain;		// Committed strain
-    CStress = TStress;		// Committed stress
+    c_strain = t_strain;        // Committed strain
+    c_stress = t_stress;        // Committed stress
     CTangent = TTangent; 
     
     return 0;
@@ -202,19 +191,19 @@ UniaxialJ2Plasticity::revertToStart(void)
     TBackStress = 0.0;
     TAccumulatedPlasticStrain = 0.0;
 
-	// Initialize state variables
-	TStrain = 0.0;
-	TStress = 0.0;
-	TTangent = E;
+    // Initialize state variables
+    t_strain = 0.0;
+    t_stress = 0.0;
+    TTangent = E;
 
-	// Initialize committed variables
-	CStrain = 0.0;
-	CStress = 0.0;
-	CTangent = E;
+    // Initialize committed variables
+    c_strain = 0.0;
+    c_stress = 0.0;
+    CTangent = E;
 
 // AddingSensitivity:BEGIN /////////////////////////////////
-	if (SHVs != 0) 
-		SHVs->Zero();
+    if (SHVs != 0) 
+        SHVs->Zero();
 // AddingSensitivity:END //////////////////////////////////
 
     return 0;
@@ -224,7 +213,7 @@ UniaxialMaterial *
 UniaxialJ2Plasticity::getCopy(void)
 {
     UniaxialJ2Plasticity *theCopy =
-	new UniaxialJ2Plasticity(this->getTag(), E, sigmaY, Hkin, Hiso);
+    new UniaxialJ2Plasticity(this->getTag(), E, sigmaY, Hkin, Hiso);
 
     // Copy committed history variables
     theCopy->CPlasticStrain = CPlasticStrain;
@@ -237,11 +226,11 @@ UniaxialJ2Plasticity::getCopy(void)
     theCopy->TAccumulatedPlasticStrain = TAccumulatedPlasticStrain;
 
     // Copy trial state variables
-    theCopy->TStrain = TStrain;
-    theCopy->TStress = TStress;
+    theCopy->t_strain = t_strain;
+    theCopy->t_stress = t_stress;
     theCopy->TTangent = TTangent;
-    theCopy->CStrain = CStrain;
-    theCopy->CStress = CStress;
+    theCopy->c_strain = c_strain;
+    theCopy->c_stress = c_stress;
     theCopy->CTangent = CTangent;   
     return theCopy;
 }
@@ -261,11 +250,11 @@ UniaxialJ2Plasticity::sendSelf(int cTag, Channel &theChannel)
   data(5) = CPlasticStrain;
   data(6) = CBackStress;
   data(7) = CAccumulatedPlasticStrain;
-  data(8) = TStrain;
-  data(9) = TStress;
+  data(8) = t_strain;
+  data(9) = t_stress;
   data(10) = TTangent;
-  data(11) = CStrain;
-  data(12) = CStress;
+  data(11) = c_strain;
+  data(12) = c_stress;
   data(13) = CTangent;  
   res = theChannel.sendVector(this->getDbTag(), cTag, data);
   if (res < 0) 
@@ -276,7 +265,7 @@ UniaxialJ2Plasticity::sendSelf(int cTag, Channel &theChannel)
 
 int 
 UniaxialJ2Plasticity::recvSelf(int cTag, Channel &theChannel, 
-			       FEM_ObjectBroker &theBroker)
+                   FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   
@@ -297,11 +286,11 @@ UniaxialJ2Plasticity::recvSelf(int cTag, Channel &theChannel,
     CPlasticStrain = data(5);
     CBackStress = data(6);
     CAccumulatedPlasticStrain = data(7);
-    TStrain = data(8);
-    TStress = data(9);
+    t_strain = data(8);
+    t_stress = data(9);
     TTangent = data(10);
-    CStrain = data(11);
-    CStress = data(12);
+    c_strain = data(11);
+    c_stress = data(12);
     CTangent = data(13);  
   }
     
@@ -311,11 +300,21 @@ UniaxialJ2Plasticity::recvSelf(int cTag, Channel &theChannel,
 void 
 UniaxialJ2Plasticity::Print(OPS_Stream &s, int flag)
 {
-    s << "UniaxialJ2Plasticity, tag: " << this->getTag() << endln;
-    s << "  E: " << E << endln;
-    s << "  sigmaY: " << sigmaY << endln;
-    s << "  Hiso: " << Hiso << endln;
-    s << "  Hkin: " << Hkin << endln;
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": \"" << this->getTag() << "\", ";
+      s << "\"type\": \"" << this->getClassType() <<"\", ";
+      s << "\"E\": " << E << ", ";
+      s << "\"sigmaY\": " << sigmaY << ", ";
+      s << "\"Hiso\": " << Hiso << ", ";
+      s << "\"Hkin\": " << Hkin << "}";
+    } else {
+      s << "UniaxialJ2Plasticity, tag: " << this->getTag() << endln;
+      s << "  E: " << E << endln;
+      s << "  sigmaY: " << sigmaY << endln;
+      s << "  Hiso: " << Hiso << endln;
+      s << "  Hkin: " << Hkin << endln;
+    }
    
 }
 
@@ -342,26 +341,26 @@ UniaxialJ2Plasticity::setParameter(const char **argv, int argc, Parameter &param
 int
 UniaxialJ2Plasticity::updateParameter(int parameterID, Information &info)
 {
-	switch (parameterID) {
-	case -1:
-		return -1;
-	case 1:
-		this->sigmaY = info.theDouble;
-		break;
-	case 2:
-		this->E = info.theDouble;
-		break;
-	case 3:
-		this->Hkin = info.theDouble;
-		break;
-	case 4:
-		this->Hiso = info.theDouble;
-		break;
-	default:
-		return -1;
-	}
+    switch (parameterID) {
+    case -1:
+        return -1;
+    case 1:
+        this->sigmaY = info.theDouble;
+        break;
+    case 2:
+        this->E = info.theDouble;
+        break;
+    case 3:
+        this->Hkin = info.theDouble;
+        break;
+    case 4:
+        this->Hiso = info.theDouble;
+        break;
+    default:
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -369,9 +368,9 @@ UniaxialJ2Plasticity::updateParameter(int parameterID, Information &info)
 int
 UniaxialJ2Plasticity::activateParameter(int passedParameterID)
 {
-	parameterID = passedParameterID;
+    parameterID = passedParameterID;
 
-	return 0;
+    return 0;
 }
 
 
@@ -380,115 +379,115 @@ UniaxialJ2Plasticity::activateParameter(int passedParameterID)
 double
 UniaxialJ2Plasticity::getStrainSensitivity(int gradIndex)
 {
-	
-	if (SHVs ==0) return 0.0;
-	else{
-		double sensitivity =(*SHVs)(4,gradIndex-1); // unconditional stress sensitivity
-		return sensitivity;
-	}
+    
+    if (SHVs ==0) return 0.0;
+    else{
+        double sensitivity =(*SHVs)(4,gradIndex-1); // unconditional stress sensitivity
+        return sensitivity;
+    }
 }
 
 double
 UniaxialJ2Plasticity::getStressSensitivity(int gradIndex, bool conditional)
 {
-	
-	if (conditional == false) {  // return stress sensitivity for recorder purpose
-		if (SHVs ==0) return 0.0;
-		else {
-			double sensitivity =(*SHVs)(3,gradIndex-1); // unconditional stress sensitivity
-			return sensitivity;
-		}
-	}
+    
+    if (conditional == false) {  // return stress sensitivity for recorder purpose
+        if (SHVs ==0) return 0.0;
+        else {
+            double sensitivity =(*SHVs)(3,gradIndex-1); // unconditional stress sensitivity
+            return sensitivity;
+        }
+    }
 
-	// First set values depending on what is random
-	double SigmaYSensitivity = 0.0;
-	double ESensitivity = 0.0;
-	double HkinSensitivity = 0.0;
-	double HisoSensitivity = 0.0;
+    // First set values depending on what is random
+    double SigmaYSensitivity = 0.0;
+    double ESensitivity = 0.0;
+    double HkinSensitivity = 0.0;
+    double HisoSensitivity = 0.0;
 
-	if (parameterID == 1) {  // sigmaY
-		SigmaYSensitivity = 1.0;
-	}
-	else if (parameterID == 2) {  // E
-		ESensitivity = 1.0;
-	}
-	else if (parameterID == 3) {  // Hkin
-		HkinSensitivity = 1.0;
-	}
-	else if (parameterID == 4) {  // Hiso
-		HisoSensitivity = 1.0;
-	}
-	else {
-		// Nothing random here, but may have to return something in any case
-	}
+    if (parameterID == 1) {  // sigmaY
+        SigmaYSensitivity = 1.0;
+    }
+    else if (parameterID == 2) {  // E
+        ESensitivity = 1.0;
+    }
+    else if (parameterID == 3) {  // Hkin
+        HkinSensitivity = 1.0;
+    }
+    else if (parameterID == 4) {  // Hiso
+        HisoSensitivity = 1.0;
+    }
+    else {
+        // Nothing random here, but may have to return something in any case
+    }
 
-	double TStrainSensitivity = 0.0; 
+    double t_strainSensitivity = 0.0; 
 
-	// Then pick up history variables for this gradient number
-	double CPlasticStrainSensitivity = 0.0;
-	double CBackStressSensitivity	 = 0.0;
-	double CAccumulatedPlasticStrainSensitivity	 = 0.0;
-	if (SHVs != 0) {
-		CPlasticStrainSensitivity = (*SHVs)(0,gradIndex);
-		CBackStressSensitivity	 = (*SHVs)(1,gradIndex);
-		CAccumulatedPlasticStrainSensitivity = (*SHVs)(2,gradIndex);
-	}
+    // Then pick up history variables for this gradient number
+    double CPlasticStrainSensitivity = 0.0;
+    double CBackStressSensitivity     = 0.0;
+    double CAccumulatedPlasticStrainSensitivity     = 0.0;
+    if (SHVs != 0) {
+        CPlasticStrainSensitivity = (*SHVs)(0,gradIndex);
+        CBackStressSensitivity     = (*SHVs)(1,gradIndex);
+        CAccumulatedPlasticStrainSensitivity = (*SHVs)(2,gradIndex);
+    }
 
     // ------ Elastic trial -------
 
-	double deltaLambda = 0.0;
-	TPlasticStrain = CPlasticStrain;
-	TBackStress = CBackStress;
-	TAccumulatedPlasticStrain = CAccumulatedPlasticStrain;
-    TStress = E * (TStrain-CPlasticStrain);
-	double TStressSensitivity = E*(TStrainSensitivity-CPlasticStrainSensitivity)+ESensitivity*(TStrain-CPlasticStrain);
-	double CSigmaY = sigmaY+Hiso*CAccumulatedPlasticStrain;
+    double deltaLambda = 0.0;
+    TPlasticStrain = CPlasticStrain;
+    TBackStress = CBackStress;
+    TAccumulatedPlasticStrain = CAccumulatedPlasticStrain;
+    t_stress = E * (t_strain-CPlasticStrain);
+    double t_stressSensitivity = E*(t_strainSensitivity-CPlasticStrainSensitivity)+ESensitivity*(t_strain-CPlasticStrain);
+    double CSigmaY = sigmaY+Hiso*CAccumulatedPlasticStrain;
 
     // Compute trial stress relative to committed back stress
-    double xsi = TStress - TBackStress;
+    double xsi = t_stress - TBackStress;
 
     // Compute yield criterion
     double f = fabs(xsi) - (sigmaY + Hiso*TAccumulatedPlasticStrain);
 
-	double sensitivity;
+    double sensitivity;
 
 
     // Elastic step ... no updates required
     if (f <= -DBL_EPSILON * E) {
-		//if (f <= 1.0e-8) {
-		// Set trial tangent
-		TTangent = E;
-		sensitivity = TStressSensitivity;
-	}
+        //if (f <= 1.0e-8) {
+        // Set trial tangent
+        TTangent = E;
+        sensitivity = t_stressSensitivity;
+    }
 
     // ------- Plastic corrector ... perform return mapping algorithm ---
     else {
       deltaLambda = (fabs(xsi)-CSigmaY)/(E+Hkin+Hiso);
       
-	  // Find sign of xsi
+      // Find sign of xsi
       int sign = (xsi < 0) ? -1 : 1;
-	  TPlasticStrain = CPlasticStrain +deltaLambda*sign;
+      TPlasticStrain = CPlasticStrain +deltaLambda*sign;
 
-	  TBackStress = CBackStress + Hkin*deltaLambda*sign;
+      TBackStress = CBackStress + Hkin*deltaLambda*sign;
 
-	  TAccumulatedPlasticStrain = CAccumulatedPlasticStrain + deltaLambda;
+      TAccumulatedPlasticStrain = CAccumulatedPlasticStrain + deltaLambda;
 
-	  TStress = E * (TStrain - TPlasticStrain);
-	
+      t_stress = E * (t_strain - TPlasticStrain);
+    
       TTangent = E*(Hkin+Hiso) / (E+Hkin+Hiso);
 
-	  double CSigmaYSensitivity = SigmaYSensitivity + HisoSensitivity*CAccumulatedPlasticStrain
-		   + Hiso*CAccumulatedPlasticStrainSensitivity;
+      double CSigmaYSensitivity = SigmaYSensitivity + HisoSensitivity*CAccumulatedPlasticStrain
+           + Hiso*CAccumulatedPlasticStrainSensitivity;
 
-	  double deltaLambdaSensitivity = ((TStressSensitivity-CBackStressSensitivity)*sign-CSigmaYSensitivity)/(E+Hkin+Hiso)
-		  - (ESensitivity+HkinSensitivity+HisoSensitivity)*((E * (TStrain-CPlasticStrain)-CBackStress)*sign-CSigmaY)/pow((E+Hkin+Hiso),2.0);
+      double deltaLambdaSensitivity = ((t_stressSensitivity-CBackStressSensitivity)*sign-CSigmaYSensitivity)/(E+Hkin+Hiso)
+          - (ESensitivity+HkinSensitivity+HisoSensitivity)*((E * (t_strain-CPlasticStrain)-CBackStress)*sign-CSigmaY)/pow((E+Hkin+Hiso),2.0);
 
-	  double TPlasticStrainSensitivity = CPlasticStrainSensitivity + deltaLambdaSensitivity*sign;
+      double TPlasticStrainSensitivity = CPlasticStrainSensitivity + deltaLambdaSensitivity*sign;
 
-	  sensitivity = E * (TStrainSensitivity - TPlasticStrainSensitivity)+ESensitivity * (TStrain - TPlasticStrain);
+      sensitivity = E * (t_strainSensitivity - TPlasticStrainSensitivity)+ESensitivity * (t_strain - TPlasticStrain);
 
    }
-	return sensitivity;
+    return sensitivity;
 }
 
 
@@ -496,130 +495,130 @@ UniaxialJ2Plasticity::getStressSensitivity(int gradIndex, bool conditional)
 double
 UniaxialJ2Plasticity::getInitialTangentSensitivity(int gradIndex)
 {
-	// For now, assume that this is only called for initial stiffness 
-	if (parameterID == 2) {
-		return 1.0; 
-	}
-	else {
-		return 0.0;
-	}
+    // For now, assume that this is only called for initial stiffness 
+    if (parameterID == 2) {
+        return 1.0; 
+    }
+    else {
+        return 0.0;
+    }
 }
 
 
 int
-UniaxialJ2Plasticity::commitSensitivity(double TStrainSensitivity, int gradIndex, int numGrads)
+UniaxialJ2Plasticity::commitSensitivity(double t_strainSensitivity, int gradIndex, int numGrads)
 {
 
-		
-	if (SHVs == 0) {
-		SHVs = new Matrix(5,numGrads);
-		SHVs->Zero();
-	}
+        
+    if (SHVs == 0) {
+        SHVs = new Matrix(5,numGrads);
+        SHVs->Zero();
+    }
 
 
 
-	// First set values depending on what is random
-	double SigmaYSensitivity = 0.0;
-	double ESensitivity = 0.0;
-	double HkinSensitivity = 0.0;
-	double HisoSensitivity = 0.0;
+    // First set values depending on what is random
+    double SigmaYSensitivity = 0.0;
+    double ESensitivity = 0.0;
+    double HkinSensitivity = 0.0;
+    double HisoSensitivity = 0.0;
 
-	if (parameterID == 1) {  // sigmaY
-		SigmaYSensitivity = 1.0;
-	}
-	else if (parameterID == 2) {  // E
-		ESensitivity = 1.0;
-	}
-	else if (parameterID == 3) {  // Hkin
-		HkinSensitivity = 1.0;
-	}
-	else if (parameterID == 4) {  // Hiso
-		HisoSensitivity = 1.0;
-	}
-	else {
-		// Nothing random here, but may have to return something in any case
-	}
+    if (parameterID == 1) {  // sigmaY
+        SigmaYSensitivity = 1.0;
+    }
+    else if (parameterID == 2) {  // E
+        ESensitivity = 1.0;
+    }
+    else if (parameterID == 3) {  // Hkin
+        HkinSensitivity = 1.0;
+    }
+    else if (parameterID == 4) {  // Hiso
+        HisoSensitivity = 1.0;
+    }
+    else {
+        // Nothing random here, but may have to return something in any case
+    }
 
-	
-	// Then pick up history variables for this gradient number
+    
+    // Then pick up history variables for this gradient number
 
-	double CPlasticStrainSensitivity = (*SHVs)(0,gradIndex);
-	double CBackStressSensitivity	 = (*SHVs)(1,gradIndex);
-	double CAccumulatedPlasticStrainSensitivity = (*SHVs)(2,gradIndex);
+    double CPlasticStrainSensitivity = (*SHVs)(0,gradIndex);
+    double CBackStressSensitivity     = (*SHVs)(1,gradIndex);
+    double CAccumulatedPlasticStrainSensitivity = (*SHVs)(2,gradIndex);
 
 
     // ------ Elastic trial -------
 
-	double deltaLambda = 0.0;
-	TPlasticStrain = CPlasticStrain;
-	TBackStress = CBackStress;
-	TAccumulatedPlasticStrain = CAccumulatedPlasticStrain;
-    TStress = E * (TStrain-CPlasticStrain);
-	double TStressSensitivity = E*(TStrainSensitivity-CPlasticStrainSensitivity)+ESensitivity*(TStrain-CPlasticStrain);
-	double CSigmaY = sigmaY+Hiso*CAccumulatedPlasticStrain;
+    double deltaLambda = 0.0;
+    TPlasticStrain = CPlasticStrain;
+    TBackStress = CBackStress;
+    TAccumulatedPlasticStrain = CAccumulatedPlasticStrain;
+    t_stress = E * (t_strain-CPlasticStrain);
+    double t_stressSensitivity = E*(t_strainSensitivity-CPlasticStrainSensitivity)+ESensitivity*(t_strain-CPlasticStrain);
+    double CSigmaY = sigmaY+Hiso*CAccumulatedPlasticStrain;
 
     // Compute trial stress relative to committed back stress
-    double xsi = TStress - TBackStress;
+    double xsi = t_stress - TBackStress;
 
     // Compute yield criterion
     double f = fabs(xsi) - (sigmaY + Hiso*TAccumulatedPlasticStrain);
 
-	double sensitivity;
+    double sensitivity;
 
 
     // Elastic step ... no updates required
     if (f <= -DBL_EPSILON * E) {
-		//if (f <= 1.0e-8) {
-		// Set trial tangent
-		TTangent = E;
-		sensitivity = TStressSensitivity;
-	}
+        //if (f <= 1.0e-8) {
+        // Set trial tangent
+        TTangent = E;
+        sensitivity = t_stressSensitivity;
+    }
 
     // ------- Plastic step ... perform return mapping algorithm ---
     else {
       deltaLambda = (fabs(xsi)-CSigmaY)/(E+Hkin+Hiso);
       
-	  // Find sign of xsi
+      // Find sign of xsi
       int sign = (xsi < 0) ? -1 : 1;
-	  TPlasticStrain = CPlasticStrain +deltaLambda*sign;
+      TPlasticStrain = CPlasticStrain +deltaLambda*sign;
 
-	  TBackStress = CBackStress + Hkin*deltaLambda*sign;
+      TBackStress = CBackStress + Hkin*deltaLambda*sign;
 
-	  TAccumulatedPlasticStrain = CAccumulatedPlasticStrain + deltaLambda;
+      TAccumulatedPlasticStrain = CAccumulatedPlasticStrain + deltaLambda;
 
-	  TStress = E * (TStrain - TPlasticStrain);
-	
+      t_stress = E * (t_strain - TPlasticStrain);
+    
       TTangent = E*(Hkin+Hiso) / (E+Hkin+Hiso);
 
-	  double CSigmaYSensitivity = SigmaYSensitivity + HisoSensitivity*CAccumulatedPlasticStrain
-		   + Hiso*CAccumulatedPlasticStrainSensitivity;
+      double CSigmaYSensitivity = SigmaYSensitivity + HisoSensitivity*CAccumulatedPlasticStrain
+           + Hiso*CAccumulatedPlasticStrainSensitivity;
 
-	  double deltaLambdaSensitivity = ((TStressSensitivity-CBackStressSensitivity)*sign-CSigmaYSensitivity)/(E+Hkin+Hiso)
-		  - (ESensitivity+HkinSensitivity+HisoSensitivity)*((E * (TStrain-CPlasticStrain)-CBackStress)*sign-CSigmaY)/pow((E+Hkin+Hiso),2.0);
+      double deltaLambdaSensitivity = ((t_stressSensitivity-CBackStressSensitivity)*sign-CSigmaYSensitivity)/(E+Hkin+Hiso)
+          - (ESensitivity+HkinSensitivity+HisoSensitivity)*((E * (t_strain-CPlasticStrain)-CBackStress)*sign-CSigmaY)/pow((E+Hkin+Hiso),2.0);
 
-	  double TPlasticStrainSensitivity = CPlasticStrainSensitivity + deltaLambdaSensitivity*sign;
+      double TPlasticStrainSensitivity = CPlasticStrainSensitivity + deltaLambdaSensitivity*sign;
 
-	  sensitivity = E * (TStrainSensitivity - TPlasticStrainSensitivity)+ESensitivity * (TStrain - TPlasticStrain);
+      sensitivity = E * (t_strainSensitivity - TPlasticStrainSensitivity)+ESensitivity * (t_strain - TPlasticStrain);
 
-	  double TAccumulatedPlasticStrainSensitivity = CAccumulatedPlasticStrainSensitivity + deltaLambdaSensitivity;
+      double TAccumulatedPlasticStrainSensitivity = CAccumulatedPlasticStrainSensitivity + deltaLambdaSensitivity;
 
-	  double TBackStressSensitivity = CBackStressSensitivity + HkinSensitivity*deltaLambda*sign + Hkin*deltaLambdaSensitivity*sign;
+      double TBackStressSensitivity = CBackStressSensitivity + HkinSensitivity*deltaLambda*sign + Hkin*deltaLambdaSensitivity*sign;
 
 
-	  (*SHVs)(0,gradIndex) = TPlasticStrainSensitivity;
-	  (*SHVs)(1,gradIndex) = TBackStressSensitivity;
-	  (*SHVs)(2,gradIndex) = TAccumulatedPlasticStrainSensitivity;
-	  (*SHVs)(3,gradIndex) = sensitivity;      // for recorder purpose
-	  (*SHVs)(4,gradIndex) = TStrainSensitivity;  // for recorder purpose
+      (*SHVs)(0,gradIndex) = TPlasticStrainSensitivity;
+      (*SHVs)(1,gradIndex) = TBackStressSensitivity;
+      (*SHVs)(2,gradIndex) = TAccumulatedPlasticStrainSensitivity;
+      (*SHVs)(3,gradIndex) = sensitivity;      // for recorder purpose
+      (*SHVs)(4,gradIndex) = t_strainSensitivity;  // for recorder purpose
 
 
 
 
     }
 
-	  
+      
 
- 	return 0;
+    return 0;
 }
 // AddingSensitivity:END /////////////////////////////////////////////
 
