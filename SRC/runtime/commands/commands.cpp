@@ -106,7 +106,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "getLoadFactor",       &getLoadFactor, domain, nullptr);
   Tcl_CreateCommand(interp, "localForce",          &localForce,    domain, nullptr);
   Tcl_CreateCommand(interp, "eleType",             &eleType,       domain, nullptr);
-  Tcl_CreateCommand(interp, "eleNodes",            &eleNodes,      domain, nullptr);
+  Tcl_CreateCommand(interp, "eleNodes",            &eleNodes,            domain, nullptr);
   Tcl_CreateCommand(interp, "basicDeformation",    &basicDeformation,    domain, nullptr);
   Tcl_CreateCommand(interp, "basicForce",          &basicForce,          domain, nullptr);
   Tcl_CreateCommand(interp, "basicStiffness",      &basicStiffness,      domain, nullptr);
@@ -151,8 +151,8 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateObjCommand(interp, "constrainedDOFs",     &constrainedDOFs,     domain, nullptr);
   Tcl_CreateObjCommand(interp, "domainChange",        &domainChange,        domain, nullptr);
   Tcl_CreateObjCommand(interp, "remove",              &removeObject,        domain, nullptr);
-  Tcl_CreateCommand(interp, "retainedNodes",       &retainedNodes,       domain, nullptr);
-  Tcl_CreateCommand(interp, "retainedDOFs",        &retainedDOFs,        domain, nullptr);
+  Tcl_CreateCommand(interp,    "retainedNodes",       &retainedNodes,       domain, nullptr);
+  Tcl_CreateCommand(interp,    "retainedDOFs",        &retainedDOFs,        domain, nullptr);
 
   Tcl_CreateCommand(interp, "getNumElements",      &getNumElements,      domain, nullptr);
   Tcl_CreateCommand(interp, "getEleClassTags",     &getEleClassTags,     domain, nullptr);
