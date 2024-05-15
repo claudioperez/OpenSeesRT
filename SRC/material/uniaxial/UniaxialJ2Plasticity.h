@@ -93,18 +93,18 @@ class UniaxialJ2Plasticity : public UniaxialMaterial
     double CBackStress;		// Committed back stress;
     double CAccumulatedPlasticStrain;		// Committed accumulated plastic strain
 
-	// Trial history variables
+    // Trial history variables
     double TPlasticStrain;	// Trial plastic strain
     double TBackStress;		// Trial back stress
     double TAccumulatedPlasticStrain;		// Trial accumulated plastic strain
 
     // Trial state variables
-    double TStrain;		// Trial strain
-    double TStress;		// Trial stress
+    double t_strain;		// Trial strain
+    double t_stress;		// Trial stress
     double TTangent;	// Trial tangent
 
-    double CStrain;		// Committed strain
-    double CStress;		// Committed stress
+    double c_strain;		// Committed strain
+    double c_stress;		// Committed stress
     double CTangent;	// Committed tangent
 
 
