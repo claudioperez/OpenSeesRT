@@ -60,16 +60,18 @@ def eval(script: str):
     {script}
     """))
 
-def dumps(obj):
+def dumps(obj, skip_int_refs=False)->str:
 
 #   TODO: Move this function, maybe to emit
 
     if not isinstance(obj, (Component,list,tuple)):
+        # Build out a model
         from opensees.emit import OpenSeesWriter
         return OpenSeesWriter(obj).dump()
+
     else:
         from opensees.emit.opensees import TclScriptBuilder
-        writer = TclScriptBuilder()
+        writer = TclScriptBuilder(skip_int_refs=skip_int_refs)
         try:
             writer.send(obj)
             if not writer.python_objects:
@@ -78,7 +80,6 @@ def dumps(obj):
                 return writer
         except Exception as e:
             raise e
-            # print(writer.getScript(indexed=True), file=sys.stderr)
             # raise ValueError("Cannot dump model with binary objects")
 
 
