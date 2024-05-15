@@ -141,7 +141,9 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
 typedef UniaxialMaterial* (TclDispatch_UniaxialMaterial)(G3_Runtime*, int, TCL_Char ** const);
 TclDispatch_UniaxialMaterial G3Parse_newFedeasUniaxialDamage;
 TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
+
 static Tcl_CmdProc TclCommand_newFatigueMaterial;
+static Tcl_CmdProc TclCommand_newUniaxialJ2Plasticity;
 
 Tcl_CmdProc TclCommand_AxialSp;
 Tcl_CmdProc TclCommand_AxialSpHD;
@@ -413,6 +415,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"Masonryt",               dispatch<OPS_Masonryt>                  },
 
     {"ElasticPP",              dispatch<OPS_ElasticPPMaterial>         },
+    {"UniaxialJ2Plasticity",    dispatch<TclCommand_newUniaxialJ2Plasticity> },
 
     {"Hardening",              dispatch<OPS_HardeningMaterial>         },
     {"Hardening2",             dispatch<OPS_HardeningMaterial>         },
