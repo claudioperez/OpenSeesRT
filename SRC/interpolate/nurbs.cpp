@@ -40,11 +40,12 @@ free2Darray(double **array, int x) {
 
 int FindSpan(int n, int p, double u, Vector& U)
 {
-  /* This function determines the knot span.
-    ie. if we have a coordinate u which lies in the range u \in [u_i, u_{i+1})
-    we want to find i
-   Note that: u_i <= u < (not equal) u_{i+1}!!!
-   If we have knot = [0,0.5,1] then u=0.5 has span=1 not 0!!!
+  /* 
+   * This function determines the knot span.
+     ie. if we have a coordinate u which lies in the range u \in [u_i, u_{i+1})
+     we want to find i
+     Note that: u_i <= u < (not equal) u_{i+1}!!!
+     If we have knot = [0,0.5,1] then u=0.5 has span=1 not 0!!!
   */
 
   if ( u >= U[n + 1] )
@@ -53,7 +54,10 @@ int FindSpan(int n, int p, double u, Vector& U)
   if ( u <= U[p] )
     return p;
 
-  int low = p, high = n + 1, mid = (low + high) / 2;
+  int low  = p,
+      high = n + 1, 
+      mid  = (low + high) / 2;
+
   while ( u < U[mid] || u >= U[mid + 1] )
   {
     if ( u < U[mid] )
@@ -105,8 +109,8 @@ BasisFuns( int i, double u, int p, Vector& U, Vector& N)
 void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders)
 {
   /*
-    Calculate the non-zero derivatives of the b-spline functions
-  */
+   * Calculate the non-zero derivatives of the b-spline functions
+   */
 
   double saved, temp;
   int j, j1, j2, r;
@@ -127,10 +131,11 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
   ndu.resize(p+1,p+1);
   a.resize(p+1,p+1);
 
-  ndu(0,0) = 1.;
+  ndu(0,0) = 1.0;
   for ( j = 1; j <= p; j++ ) {
     left[j] = u - knot[i + 1 - j];
     right[j] = knot[i + j] - u;
+
     saved = 0.0;
     for ( r = 0; r < j; r++ ) {
       ndu(j,r) = right[r + 1] + left[j - r];
@@ -141,6 +146,7 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
     }
     ndu(j,j) = saved;
   }
+
   for (int j = 0; j <= p; j++ )
     ders(0,j) = ndu(j,p);
 
@@ -148,18 +154,24 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
     return;
 
   for (int r = 0; r <= p; r++ ) {
-    int s1 = 0, s2 = 1;
+    int s1 = 0, 
+        s2 = 1;
+
     a(0,0) = 1.0;
 
     for (int k = 1; k <= order; k++ ) {
       double d = 0.;
-      int rk = r - k, pk = p - k;
+      int rk = r - k, 
+          pk = p - k;
+
       if ( r >= k ) {
         a(s2,0) = a(s1,0) / ndu(pk + 1,rk);
         d = a(s2,0) * ndu(rk,pk);
       }
+
       j1 = rk >= -1 ? 1 : -rk;
       j2 = (r - 1 <= pk) ? k - 1 : p - r;
+
       for ( j = j1; j <= j2; j++ ) {
         a(s2,j) = (a(s1,j) - a(s1,j - 1)) / ndu(pk + 1,rk + j);
         d += a(s2,j) * ndu(rk + j,pk);
@@ -169,9 +181,12 @@ void dersBasisFuns(int i, double u, int p, int order, Vector& knot, Matrix& ders
         d += a(s2,k) * ndu(r,pk);
       }
       ders(k,r) = d;
-      j = s1; s1 = s2; s2 = j;
+      j  = s1; 
+      s1 = s2; 
+      s2 = j;
     }
   }
+
   r = p;
   for (int k = 1; k <= order; k++ ) {
     for (int j = 0; j <= p; j++ )
@@ -296,6 +311,7 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
       ND[j] = N[j][p - k];
 
     for (int jj = 1; jj <= k; jj++) {
+
       if (ND[0] == 0.0)
         saved = 0.0;
       else
@@ -321,4 +337,5 @@ void dersOneBasisFuns(int p, int m, Vector U, int i, double u, int order, double
   free2Darray(N, order + 1);
   free(ND);
 }
+
 
