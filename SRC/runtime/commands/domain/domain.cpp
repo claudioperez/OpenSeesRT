@@ -354,10 +354,15 @@ fixedDOFs(ClientData clientData, Tcl_Interp *interp, int argc, Tcl_Obj *const *o
   SP_Constraint *theSP;
   SP_ConstraintIter &spIter = theDomain->getDomainAndLoadPatternSPs();
 
-  int tag;
-  Vector fixed(6);
-  while ((theSP = spIter()) != 0) {
-    tag = theSP->getNodeTag();
+  Node *node = theDomain->getNode(fNode);
+  if (node == nullptr) {
+    opserr << G3_ERROR_PROMPT << " fixedDOFs fNode? - could not find node with tag " << fNode << "\n";
+    return TCL_ERROR;
+  }
+
+  Vector fixed(node->getNumberDOF());
+  while ((theSP = spIter()) != nullptr) {
+    int tag = theSP->getNodeTag();
     if (tag == fNode) {
       fixed(theSP->getDOF_Number()) = 1;
     }
