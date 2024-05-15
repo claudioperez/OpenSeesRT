@@ -382,14 +382,20 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (argc < 2) {
     opserr
-        << G3_ERROR_PROMPT << "modalDampingQ ?factor - not enough arguments to command\n";
+        << G3_ERROR_PROMPT << argv[0] << " ?factor - not enough arguments to command\n";
     return TCL_ERROR;
   }
 
+  int numModes = argc - 1;
+
   if (numEigen == 0) {
-    opserr << G3_ERROR_PROMPT 
-           << "- modalDampingQ - eigen command needs to be called first\n";
-    return TCL_ERROR;
+    opserr << G3_WARN_PROMPT 
+           << "- " << argv[0] << " - eigen command needs to be called first\n";
+
+    numEigen = numModes;
+    builder->newEigenAnalysis(EigenSOE_TAGS_ArpackSOE, 0.0);
+    builder->eigen(numModes, true, true);
+    // return TCL_ERROR;
   }
 
   /* 
@@ -402,11 +408,11 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcmp(argv[0], "modalDampingQ") == 0)
     do_tangent = false;
 
-  int numModes = argc - 1;
   double factor = 0;
   Vector modalDampingValues(numEigen);
 
   if (numModes != 1 && numModes != numEigen) {
+    // TODO: Just call eigen again?
     opserr << G3_ERROR_PROMPT << "modalDampingQ - same number of damping factors as modes must be "
               "specified\n";
 //  opserr << "                    - same damping ratio will be applied to all\n";
@@ -421,15 +427,14 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
     // read in all factors one at a time
     for (int i = 0; i < numEigen; ++i) {
       if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-                  "read betaK? \n";
+        opserr << G3_ERROR_PROMPT << argv[0] << " - could not read factor at position "
+               << i << "\n";
         return TCL_ERROR;
       }
       modalDampingValues[i] = factor;
     }
 
   } else {
-
     //  read in one & set all factors to that value
     if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
       opserr << G3_ERROR_PROMPT 
