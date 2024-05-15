@@ -61,7 +61,7 @@ OPS_MultilinearBackbone(void)
     opserr << "WARNING invalid data for hystereticBackbone Multilinear" << endln;
     return 0;
   }
-  for (int i = 0; i < numPoints; i++) {
+  for (int i = 0; i < numPoints; ++i) {
     e(i) = dData[2*i];
     s(i) = dData[2*i+1];
   }
@@ -104,12 +104,12 @@ MultilinearBackbone::MultilinearBackbone(int tag, int num,
   
   int i;
   
-  for (i = 1; i <= numPoints; i++) {
+  for (i = 1; i <= numPoints; ++i) {
     e[i] = def(i-1);
     s[i] = force(i-1);
   }
   
-  for (i = 1; i <= numPoints; i++)
+  for (i = 1; i <= numPoints; ++i)
     if (e[i] < e[i-1])
       error = true;
   
@@ -122,7 +122,7 @@ MultilinearBackbone::MultilinearBackbone(int tag, int num,
     opserr << "MultilinearBackbone::MultilinearBackbone -- input backbone is not unique (one-to-one)" << endln;
   }
   
-  for (i = 1; i <= numPoints; i++) {
+  for (i = 1; i <= numPoints; ++i) {
     E[i-1] = (s[i]-s[i-1])/(e[i]-e[i-1]);
     c[i] = c[i-1] + 0.5*(s[i]-s[i-1])*(e[i]-e[i-1]);
   }
@@ -153,7 +153,7 @@ MultilinearBackbone::~MultilinearBackbone()
 double
 MultilinearBackbone::getTangent (double strain)
 {
-  for (int i = 1; i <= numPoints; i++) {
+  for (int i = 1; i <= numPoints; ++i) {
     if (strain < e[i])
       return E[i-1];
   }
@@ -164,7 +164,7 @@ MultilinearBackbone::getTangent (double strain)
 double
 MultilinearBackbone::getStress (double strain)
 {
-  for (int i = 1; i <= numPoints; i++) {
+  for (int i = 1; i <= numPoints; ++i) {
     if (strain < e[i])
       return s[i-1] + E[i-1]*(strain-e[i-1]);
   }
@@ -175,7 +175,7 @@ MultilinearBackbone::getStress (double strain)
 double
 MultilinearBackbone::getEnergy (double strain)
 {
-  for (int i = 1; i <= numPoints; i++) {
+  for (int i = 1; i <= numPoints; ++i) {
     if (strain < e[i])
       return c[i-1] + 0.5*E[i-1]*(strain-e[i-1])*(strain-e[i-1]);
   }
