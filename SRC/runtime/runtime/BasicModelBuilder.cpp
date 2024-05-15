@@ -136,14 +136,13 @@ BasicModelBuilder::getBuilder(void) const {
   return theTclBuilder;
 }
 
-
 void* 
 BasicModelBuilder::getRegistryObject(const char* partition, int tag) const
 {
 
   auto iter = m_registry.find(std::string{partition});
   if (iter == m_registry.end()) {
-    opserr << "No partition named \"" << partition << "\"\n";
+    opserr << "No objects of type \"" << partition << "\" have been created.\n";
     return nullptr;
   }
 

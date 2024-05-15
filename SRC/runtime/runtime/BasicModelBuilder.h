@@ -25,6 +25,7 @@
 #include <TaggedObject.h>
 class MultiSupportPattern;
 class G3_Runtime;
+class OPS_Stream;
 class ID;
 struct Tcl_Interp;
 
@@ -55,6 +56,23 @@ public:
     m_registry[typeid(T).name()][tag] = &obj;
     return addRegistryObject(typeid(T).name(), tag, &obj);
   }
+
+//void printRegistry(const char* partition, OPS_Stream& stream, int flag) const;
+  template <class T>
+  void printRegistry(OPS_Stream& stream, int flag) const 
+  {
+    auto partition = typeid(T).name();
+    auto iter = m_registry.find(partition);
+    if (iter == m_registry.end()) {
+      // opserr << "No objects of type \"" << partition << "\" have been created.\n";
+      return;// nullptr;
+    }
+
+    for (auto const& [key, val] : iter->second) {
+      val->Print(stream, flag);
+    }
+  }
+
 
   void* getRegistryObject(const char*, int tag) const;
 
