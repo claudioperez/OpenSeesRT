@@ -11,8 +11,8 @@
 #include <UniaxialMaterial.h>
 #include <runtime/BasicModelBuilder.h>
 
-#include <g3_api.h>
-#include <elementAPI.h>
+#include <runtimeAPI.h>
+
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        G3_Runtime *rt, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
