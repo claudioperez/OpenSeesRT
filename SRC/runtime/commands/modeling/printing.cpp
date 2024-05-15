@@ -30,6 +30,10 @@
 #include <MP_Constraint.h>
 #include <MP_ConstraintIter.h>
 
+#include <UniaxialMaterial.h>
+#include <NDMaterial.h>
+#include <SectionForceDeformation.h>
+
 #include <Pressure_Constraint.h>
 #include <Element.h>
 #include <ElementIter.h>
@@ -56,6 +60,7 @@ printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *
   return TCL_OK;
 }
 
+
 static void
 printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag) 
 {
@@ -71,17 +76,18 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << tab << "\"properties\": {\n";
     //
     s << tab << tab << "\"sections\": [\n";        
-    printRegistry(builder, "CrossSection", flag, &s);
+    builder->printRegistry<SectionForceDeformation>(s, flag);
     s << "\n" << tab << tab << "]";
     s << ",\n";
     //
     s << tab << tab << "\"nDMaterials\": [\n";        
+    builder->printRegistry<NDMaterial>(s, flag);
     printRegistry(builder, "NDMaterial", flag, &s);
     s << "\n" << tab << tab << "]";
     s << ",\n";
     //
     s << tab << tab << "\"uniaxialMaterials\": [\n";        
-    printRegistry(builder, "UniaxialMaterial", flag, &s);
+    builder->printRegistry<UniaxialMaterial>(s, flag);
     s << "\n" << tab << tab << "]";
     s << ",\n";
     //
