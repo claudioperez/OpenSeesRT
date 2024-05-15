@@ -46,7 +46,7 @@ class FE_Element: public TaggedObject
     virtual ~FE_Element();    
 
     // public methods for setting/obtaining mapping information
-    virtual const ID &getDOFtags(void) const;
+    virtual const ID &getDOFtags() const;
     virtual const ID &getID() const;
     void setAnalysisModel(AnalysisModel &theModel);
     virtual int  setID();
@@ -54,20 +54,19 @@ class FE_Element: public TaggedObject
     // methods to form and obtain the tangent and residual
     virtual const Matrix &getTangent(Integrator *theIntegrator);
     virtual const Vector &getResidual(Integrator *theIntegrator);
-//  virtual const Vector &getResidual(StaticIntegrator &theIntegrator);
 
-    // methods to allow integrator to build tangent
-    virtual void  zeroTangent()                  final;
-    virtual void  addKtToTang(double fact = 1.0) final;
-    virtual void  addKiToTang(double fact = 1.0) final;
-    virtual void  addKgToTang(double fact = 1.0) final;
-    virtual void  addCtoTang(double fact = 1.0)  final;
-    virtual void  addMtoTang(double fact = 1.0)  final;
+    // methods called by integrator to build tangent
+            void  zeroTangent()                  ; // final;
+            void  addKtToTang(double fact = 1.0) ; // final;
+            void  addKiToTang(double fact = 1.0) ; // final;
+            void  addKgToTang(double fact = 1.0) ; // final;
+            void  addCtoTang (double fact = 1.0) ; // final;
+            void  addMtoTang (double fact = 1.0) ; // final;
     virtual void  addKpToTang(double fact = 1.0, int numP = 0);
     virtual int   storePreviousK(int numP);
-    
-    // methods to allow integrator to build residual    
-    virtual void  zeroResidual(void);    
+
+    // methods used by integrator to build residual    
+    virtual void  zeroResidual();    
     virtual void  addRtoResidual(double fact = 1.0);
     virtual void  addRIncInertiaToResidual(double fact = 1.0);    
 
@@ -84,9 +83,9 @@ class FE_Element: public TaggedObject
 
     virtual int updateElement();
 
-    virtual Integrator *getLastIntegrator(void);
-    virtual const Vector &getLastResponse(void);
-    Element *getElement(void);
+    virtual Integrator   *getLastIntegrator();
+    virtual const Vector &getLastResponse();
+    Element *getElement();
 
     virtual void  Print(OPS_Stream&, int = 0) {return;};
 
@@ -111,12 +110,14 @@ class FE_Element: public TaggedObject
     // private variables - a copy for each object of the class    
     int numDOF;
     AnalysisModel *theModel;
-    Element *myEle;
-    Vector *theResidual;
-    Matrix *theTangent;
-    Integrator *theIntegrator; // need for Subdomain
-    
-    // static variables - single copy for all objects of the class	
+    Element       *myEle;
+    Vector        *theResidual;
+    Matrix        *theTangent;
+    Integrator    *theIntegrator; // need for Subdomain
+
+    //
+    // static variables
+    //
     static Matrix **theMatrices; // array of pointers to class wide matrices
     static Vector **theVectors;  // array of pointers to class widde vectors
     static int numFEs;           // number of objects
