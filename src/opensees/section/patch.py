@@ -192,7 +192,9 @@ class rect(_Polygon):
                 (dx*dy*self.area  for dx,dy in itertools.product(*wght)),
                 float, len(x)
             )
-            self._fibers = [Fiber([xi,yi], dai, self.material) for yi,xi,dai in sorted(zip(y,x,da))]
+            self._fibers = [
+                Fiber([xi,yi], dai, self.material) for yi,xi,dai in sorted(zip(y,x,da))
+            ]
         return self._fibers
 
 
