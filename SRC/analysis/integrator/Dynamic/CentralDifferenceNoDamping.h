@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
+//
 #ifndef CentralDifferenceNoDamping_h
 #define CentralDifferenceNoDamping_h
 
@@ -53,10 +49,10 @@ class CentralDifferenceNoDamping : public TransientIntegrator
 
     // methods which define what the FE_Element and DOF_Groups add
     // to the system of equation object.
-    int formEleTangent(FE_Element *theEle);
-    int formNodTangent(DOF_Group *theDof);        
-    int formEleResidual(FE_Element *theEle);
-    int formNodUnbalance(DOF_Group *theDof);    
+    int formEleTangent(FE_Element *theEle) override;
+    int formNodTangent(DOF_Group *theDof);
+    int formEleResidual(FE_Element *theEle) override;
+    int formNodUnbalance(DOF_Group *theDof);
 
     int domainChanged(void);    
     int newStep(double deltaT);    
