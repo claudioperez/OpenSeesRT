@@ -63,7 +63,7 @@ void* OPS_ADD_RUNTIME_VPV(OPS_IGAQuad)
     num = (obfs1[0] + 1) * (obfs1[1] + 1);
     int* CPIds = new int[num];
     OPS_GetIntInput(&num, CPIds);
-    
+
     num = 1;
     int numKnotVect_x=0;
     OPS_GetIntInput(&num, &numKnotVect_x);
@@ -1329,15 +1329,21 @@ IGAQuad::setPressureLoadAtNodes(void)
 }
 
 
-Vector IGAQuad::shapeFunction(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, Vector KnotVect_y){
+Vector 
+IGAQuad::shapeFunction(int qx, int qy, ID& eleIdInfo, Vector& KnotVect_x, Vector& KnotVect_y)
+{
     //需要的输入：int obfs[2]: x,y方向的基函数阶次；int mults[2]：x,y方向重叠节点个数，目前可以假定为1
-    // Vector KnotVect_x/y: x/y方向的KnotVector; Vector Weights_x/y: x/y方向的控制点权重；int NumIntegPoints[2]: x,y方向的高斯点数目
+    // Vector KnotVect_x/y: x/y方向的KnotVector; 
+    // Vector Weights_x/y: x/y方向的控制点权重；
+    // int NumIntegPoints[2]: x,y方向的高斯点数目
     //const Vector& nd1Crds = theNodes[0]->getCrds();
     //const Vector& nd2Crds = theNodes[1]->getCrds();
     //const Vector& nd3Crds = theNodes[2]->getCrds();
     //const Vector& nd4Crds = theNodes[3]->getCrds();
-    int ex = eleIdInfo(0); int nex = eleIdInfo(1);
-    int ey = eleIdInfo(2); int ney = eleIdInfo(3);
+    int ex  = eleIdInfo(0); 
+    int nex = eleIdInfo(1);
+    int ey  = eleIdInfo(2); 
+    int ney = eleIdInfo(3);
     Matrix CtrlPts(numCPs, 2);
     Vector* ndCrds_temp = new Vector[numCPs];
     for (int i = 1; i <= numCPs; i++) {
@@ -1348,26 +1354,34 @@ Vector IGAQuad::shapeFunction(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, V
     }
     delete[] ndCrds_temp;
 
-    int nds[] = { 1,1 }; // maximum order of derivatives
-    //int obfs[] = { 1,1 }; // order of basis function
-    int ncps[] = { obfs[0]+1,obfs[1]+1 };//number of control points
+    int nds[] = { 1,1 };         // maximum order of derivatives
+    //int obfs[] = { 1,1 };      // order of basis function
+    int ncps[] = { obfs[0]+1,
+                   obfs[1]+1 };  // number of control points
+
     //double KnotVect1[] = { 0,0,1,1 };
     //Vector KnotVect(KnotVect1, 4);
     //Vector* KnotVects = new Vector[4];
     //for (int i = 1; i <= 2; i++) {
     //    KnotVects[i - 1] = KnotVect;// assume knot vector in x-y direction are same
     //}
-    int NGPss[] = { obfs[0]+1,obfs[1]+1 };
-    //calculate the shape function and derivatives of x and y directions
-    int obf_x = obfs[0]; int obf_y = obfs[1];
-    int ncp_x = ncps[0]; int ncp_y = ncps[1];
+    int NGPss[] = { obfs[0]+1,
+                    obfs[1]+1 };
+    // calculate the shape function and derivatives of x and y directions
+    int obf_x = obfs[0]; 
+    int obf_y = obfs[1];
+    int ncp_x = ncps[0]; 
+    int ncp_y = ncps[1];
     //Vector KnotVect_x = KnotVects[0]; Vector KnotVect_y = KnotVects[1];
-    int nd_x = nds[0]; int nd_y = nds[1];
-    int NGPs_x = NGPss[0]; int NGPs_y = NGPss[1];
-    int Idx_x = findSpan(obfs[0], ncp_x, ex, nex, KnotVect_x);
-    int Idx_y = findSpan(obfs[1], ncp_y, ey, ney, KnotVect_y);// find the knot span
+    int nd_x   = nds[0]; 
+    int nd_y   = nds[1];
+    int NGPs_x = NGPss[0]; 
+    int NGPs_y = NGPss[1];
+    int Idx_x  = findSpan(obfs[0], ncp_x, ex, nex, KnotVect_x);
+    int Idx_y  = findSpan(obfs[1], ncp_y, ey, ney, KnotVect_y);// find the knot span
 
-    double Jx=0., Jy=0.;
+    double Jx=0.,
+           Jy=0.;
     Vector Wx(NGPs_x), Wy(NGPs_y);
     //Matrix* N0nx, N0ny;
     calcDersBasisFunsAtGPs(obf_x, ncp_x, KnotVect_x, nd_x, NGPs_x, Idx_x,&Jx,&Wx,&N0nx);// return basis function and derivatives of GP
@@ -1391,8 +1405,8 @@ Vector IGAQuad::shapeFunction(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, V
     int k = 1;
     for (int j = 1;j <= obf_y + 1;j++) {
         for (int i = 1; i <= obf_x + 1;i++) {
-            N0(k - 1) = (N0nx[qx - 1])(i - 1, 0) * (N0ny[qy - 1])(j - 1, 0);//shape function
-            N1(0, k - 1) = (N0nx[qx - 1])(i - 1, 1) * (N0ny[qy - 1])(j - 1, 0);// 1st derivatives
+            N0(k - 1)    = (N0nx[qx - 1])(i - 1, 0) * (N0ny[qy - 1])(j - 1, 0); // shape function
+            N1(0, k - 1) = (N0nx[qx - 1])(i - 1, 1) * (N0ny[qy - 1])(j - 1, 0); // 1st derivatives
             N1(1, k - 1) = (N0nx[qx - 1])(i - 1, 0) * (N0ny[qy - 1])(j - 1, 1);
             k++;
         }
@@ -1401,13 +1415,13 @@ Vector IGAQuad::shapeFunction(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, V
     //delete[] Ny;
     Vector R0;
     Matrix R1;
-    Rationalize(WeightsCP, N0, N1, &R0, &R1);//obtaining the rationalized shape function
+    Rationalize(WeightsCP, N0, N1, &R0, &R1); // obtaining the rationalized shape function
 
     double J2 = Jx * Jy; // J2
     DataJ(1) = J2;
     double W = Wx(qx-1) * Wy(qy-1);
     wts[qx - 1 + (qy - 1) * (obfs[1] + 1)] = W;
-    //gradient of mapping from parametrical space to physical space
+    // gradient of mapping from parametrical space to physical space
     Matrix dxdxi(2, 2);
     dxdxi.Zero();
     for (int i = 1; i <= R1.noRows(); i++) {
@@ -1417,7 +1431,7 @@ Vector IGAQuad::shapeFunction(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, V
             }
         }
     }
-    double J1 = abs(dxdxi(0, 0) * dxdxi(1, 1) - dxdxi(0, 1) * dxdxi(1, 0));// J1
+    double J1 = fabs(dxdxi(0, 0) * dxdxi(1, 1) - dxdxi(0, 1) * dxdxi(1, 0));// J1
     DataJ(0) = J1;
     //static Matrix dxdxi1 = dxdxi;
     Matrix dxdxiInv;

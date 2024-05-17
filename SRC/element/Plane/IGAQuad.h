@@ -4,11 +4,8 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: Feb 2000
-// Revised: Dec 2000 for efficiency
-//
 // Description: This file contains the class definition for IGAQuad.
+//
 
 #ifndef IGAQuad_h
 #define IGAQuad_h
@@ -134,7 +131,7 @@ private:
     Vector KnotVect_y;
     ID eleIdInfo;// stores ex, nex, ey, ney
 
-    Vector shapeFunction(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, Vector KnotVect_y);
+    Vector shapeFunction(int qx, int qy, ID& eleIdInfo, Vector& KnotVect_x, Vector& KnotVect_y);
 
 };
 
