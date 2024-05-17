@@ -32,7 +32,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <ElasticShearSection2d.h>
 #include <ElasticShearSection3d.h>
 #include <ElasticWarpingShearSection2d.h>
-#include <ElasticTubeSection3d.h>
+// #include <ElasticTubeSection3d.h>
 #include <SectionAggregator.h>
 #include <ParallelSection.h>
 #include <FiberSection2d.h>
@@ -76,7 +76,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 extern OPS_Routine OPS_ElasticSection;
 extern OPS_Routine OPS_ElasticWarpingShearSection2d;
-extern OPS_Routine OPS_ElasticTubeSection3d;
+// extern OPS_Routine OPS_ElasticTubeSection3d;
 extern OPS_Routine OPS_UniaxialSection;
 extern OPS_Routine OPS_ParallelSection;
 extern OPS_Routine OPS_Bidirectional;
