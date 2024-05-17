@@ -107,6 +107,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "localForce",          &localForce,    domain, nullptr);
   Tcl_CreateCommand(interp, "eleType",             &eleType,       domain, nullptr);
   Tcl_CreateCommand(interp, "eleNodes",            &eleNodes,            domain, nullptr);
+  Tcl_CreateCommand(interp, "getEleTags",          &TclCommand_getEleTags, domain, nullptr);
   Tcl_CreateCommand(interp, "basicDeformation",    &basicDeformation,    domain, nullptr);
   Tcl_CreateCommand(interp, "basicForce",          &basicForce,          domain, nullptr);
   Tcl_CreateCommand(interp, "basicStiffness",      &basicStiffness,      domain, nullptr);
