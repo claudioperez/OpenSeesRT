@@ -20,10 +20,11 @@ from .tcl import Interpreter
 # resolved by the function __getattr__ below.
 __all__ = [
 # 
-    "tcl"
-    "OpenSeesError"
+    "tcl",
+    "OpenSeesError",
 
 # OpenSeesPy attributes
+
     "uniaxialMaterial",
     "testUniaxialMaterial",
     "setStrain",
@@ -370,8 +371,11 @@ class OpenSeesPy:
     def timeSeries(self, *args, **kwds):
         if "-values" in args:
             iv = list(args).index("-values")
-            values = list(args[iv+1:])
-            args = [a for a in args[:iv+1]] + [values]
+            for nv, value in enumerate(args[iv+1:]):
+                if not isinstance(value, float):
+                    break
+            values = list(args[iv+1:nv])
+            args = [a for a in args[:iv+1]] + [values] + [a for a in args[nv:]]
 
         return self._str_call("timeSeries", *args, **kwds)
 
@@ -454,7 +458,6 @@ def _as_str_arg(arg, name: str = None):
 
     # parse commands like `section Fiber {...}`
     elif isinstance(arg, dict):
-        print(arg)
         return "{\n" + "\n".join([
           f"{cmd} " + " ".join(_as_str_arg(a) for a in val)
               for cmd, val in arg.items()
@@ -464,7 +467,10 @@ def _as_str_arg(arg, name: str = None):
         return str(arg)
 
 
-
+class FedeasModel(Model):
+    @property
+    def nf(self):
+        return self.numDOF()
 
 # The global singleton, for backwards compatibility
 _openseespy = OpenSeesPy()
