@@ -96,7 +96,7 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
   // fill in the nodes ID
-  for (i = 0; i < numNodes; i++) {
+  for (i = 0; i < numNodes; ++i) {
     if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
       opserr << "WARNING invalid node\n";
       opserr << "genericClient element: " << tag << endln;
@@ -124,7 +124,7 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
     }
     // fill in the dofs ID array
     ID dofsj(numDOFj);
-    for (i = 0; i < numDOFj; i++) {
+    for (i = 0; i < numDOFj; ++i) {
       if (Tcl_GetInt(interp, argv[argi], &dof) != TCL_OK) {
         opserr << "WARNING invalid dof\n";
         opserr << "genericClient element: " << tag << endln;
@@ -154,7 +154,7 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
       ipAddr = new char[9 + 1];
       strcpy(ipAddr, "127.0.0.1");
     }
-    for (i = argi; i < argc; i++) {
+    for (i = argi; i < argc; ++i) {
       if (strcmp(argv[i], "-ssl") == 0) {
         ssl = 1;
         udp = 0;
@@ -175,7 +175,7 @@ TclBasicBuilder_addGenericClient(ClientData clientData, Tcl_Interp *interp,
     opserr << "genericClient element: " << tag << endln;
     return TCL_ERROR;
   }
-  for (i = argi; i < argc; i++) {
+  for (i = argi; i < argc; ++i) {
     if (strcmp(argv[i], "-doRayleigh") == 0) {
       doRayleigh = 1;
     } else if (strcmp(argv[i], "-noRayleigh") == 0) {
@@ -253,7 +253,7 @@ TclBasicBuilder_addGenericCopy(ClientData clientData, Tcl_Interp *interp, int ar
   }
   // create and fill in the ID array to hold the nodes
   ID nodes(numNodes);
-  for (i = 0; i < numNodes; i++) {
+  for (i = 0; i < numNodes; ++i) {
     if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
       opserr << "WARNING invalid node\n";
       opserr << "genericCopy element: " << tag << endln;
