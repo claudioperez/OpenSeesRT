@@ -51,7 +51,7 @@ void GPYS2d(const Matrix &GPYSC, const Vector &xyref, const Vector &ScVec, doubl
     
     if ((ScVec(0) < 0.0) || (ScVec(1) < 0.0)){
         std::cerr<<"Scaling factors must be positive numbers\n";
-        return ;
+        return;
     }
     
     // Get no. of columns and rows
@@ -63,7 +63,7 @@ void GPYS2d(const Matrix &GPYSC, const Vector &xyref, const Vector &ScVec, doubl
     
     // Scale xy
     for (int i=0; i<ncol; i++){
-        xy(i) = xy(i)/ScVec(i);
+        xy[i] = xy(i)/ScVec(i);
     }
     
     // Perturbation of Hessian when x = 0 or y = 0 raised to power < 2
@@ -79,13 +79,17 @@ void GPYS2d(const Matrix &GPYSC, const Vector &xyref, const Vector &ScVec, doubl
     double x = fabs(xy(0));
     double y = fabs(xy(1));
     
+    //
     // Get f
+    //
     f = 0.0;
     for (int i=0; i<nrow; i++){
         f += GPYSC(i,0)*pow(x,GPYSC(i,1))*pow(y,GPYSC(i,2));
     }
     
+    //
     // Get gradient g
+    //
     double dfdx = 0.0;
     double dfdy = 0.0;
     for (int i=0; i<nrow; i++){
@@ -146,6 +150,7 @@ void GPYS2d(const Matrix &GPYSC, const Vector &xyref, const Vector &ScVec, doubl
         h(0,1) = d2fdxdy/(ScVec(0)*ScVec(1));
     else
         h(0,1) = -d2fdxdy/(ScVec(0)*ScVec(1));
+
     h(1,0)=h(0,1);
     
 }
