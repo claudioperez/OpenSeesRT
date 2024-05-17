@@ -157,7 +157,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     int shearTag = 0;
 
     if (argc > 13) {
-      for (int i = 13; i < argc; i++) {
+      for (int i = 13; i < argc; ++i) {
         if (strcmp(argv[i], "-mass") == 0 && ++i < argc) {
           if (Tcl_GetDouble(interp, argv[i], &massDens) != TCL_OK) {
             opserr << "WARNING invalid massDens\n";
@@ -391,7 +391,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
 
     if (argc > 16) {
-      for (int i = 16; i < argc; i++) {
+      for (int i = 16; i < argc; ++i) {
         if (strcmp(argv[i], "-mass") == 0 && ++i < argc) {
           if (Tcl_GetDouble(interp, argv[i], &massDens) != TCL_OK) {
             opserr << "WARNING invalid massDens\n";
