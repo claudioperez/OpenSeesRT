@@ -18,18 +18,17 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// based on FourNodeQuad by MHS
+// Description: This file contains the class definition for SixNodeTri.
+//
 // Written: Seweryn Kokot, Opole University of Technology, Poland
 // Created: Sep 2020
 //
-// Description: This file contains the class definition for SixNodeTri.
-
+// based on FourNodeQuad by MHS
+//
 #ifndef SixNodeTri_h
 #define SixNodeTri_h
 
-#ifndef _bool_h
 #include <stdbool.h>
-#endif
 
 #include <Element.h>
 #include <ID.h>
@@ -49,39 +48,37 @@ public:
   SixNodeTri();
   ~SixNodeTri();
 
-  const char *getClassType(void) const { return "SixNodeTri"; };
+  const char *getClassType() const { return "SixNodeTri"; };
 
-  int getNumExternalNodes(void) const;
-  const ID &getExternalNodes(void);
-  Node **getNodePtrs(void);
+  int getNumExternalNodes() const;
+  const ID &getExternalNodes();
+  Node **getNodePtrs();
 
-  int getNumDOF(void);
+  int getNumDOF();
   void setDomain(Domain *theDomain);
 
   // public methods to set the state of the element
-  int commitState(void);
-  int revertToLastCommit(void);
-  int revertToStart(void);
-  int update(void);
+  int commitState();
+  int revertToLastCommit();
+  int revertToStart();
+  int update();
 
   // public methods to obtain stiffness, mass, damping and residual information
-  const Matrix &getTangentStiff(void);
-  const Matrix &getInitialStiff(void);
-  const Matrix &getMass(void);
+  const Matrix &getTangentStiff();
+  const Matrix &getInitialStiff();
+  const Matrix &getMass();
 
   void zeroLoad();
   int addLoad(ElementalLoad *theLoad, double loadFactor);
   int addInertiaLoadToUnbalance(const Vector &accel);
 
-  const Vector &getResistingForce(void);
-  const Vector &getResistingForceIncInertia(void);
+  const Vector &getResistingForce();
+  const Vector &getResistingForceIncInertia();
 
   // public methods for element output
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  int displaySelf(Renderer &, int mode, float fact,
-                  const char **displayModes = 0, int numModes = 0);
   void Print(OPS_Stream &s, int flag = 0);
 
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
@@ -124,15 +121,15 @@ private:
 
   double thickness; // Element thickness
   double pressure;  // Normal surface traction (pressure) over entire element
-                   // Note: positive for outward normal
+                    // Note: positive for outward normal
   double rho;
-  static double shp[3][nnodes]; // Stores shape functions and derivatives (overwritten)
-  static double pts[nip][2]; // Stores quadrature points
-  static double wts[nip];    // Stores quadrature weights
+  static double shp[3][nnodes]; // shape functions and derivatives (overwritten)
+  static double pts[nip][2];    // quadrature points
+  static double wts[nip];       // quadrature weights
 
-  // private member functions - only objects of this class can call these
+  // private member functions
+  void setPressureLoadAtNodes();
   double shapeFunction(double xi, double eta);
-  void setPressureLoadAtNodes(void);
 
   Matrix *Ki;
 };
