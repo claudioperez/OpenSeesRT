@@ -1,7 +1,6 @@
 
 #include <tcl.h>
 #include <runtimeAPI.h>
-// #include <InputAPI.h>
 #include <G3_Logging.h>
 
 #include <Newmark.h>
