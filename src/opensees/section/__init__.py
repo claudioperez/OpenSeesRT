@@ -16,17 +16,25 @@ def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeom
     tf = aisc_data['tf']
     tw = aisc_data['tw']
 
-    nft = mesh_data['nft']
-    nwl = mesh_data['nwl']
-    nfl = mesh_data.get('nfl', 1, ) #mesh_data['nft'])
-    nwt = mesh_data.get('nwt', 1, ) #mesh_data['nwl'])
+    if isinstance(mesh_data, dict):
+        nft = mesh_data['nft']
+        nwl = mesh_data['nwl']
+        nfl = mesh_data.get('nfl', 1, ) #mesh_data['nft'])
+        nwt = mesh_data.get('nwt', 1, ) #mesh_data['nwl'])
 
-    if ndm is None:
-        ndm = mesh_data.get("ndm", 3)
+        if ndm is None:
+            ndm = mesh_data.get("ndm", 3)
 
-    int_typ = mesh_data.get("IntTyp", None)
-    flg_opt = mesh_data.get('FlgOpt', True)
-    web_opt = mesh_data.get('WebOpt', False)
+        int_typ = mesh_data.get("IntTyp", None)
+        flg_opt = mesh_data.get('FlgOpt', True)
+#       web_opt = mesh_data.get('WebOpt', False)
+
+    else:
+        assert isinstance(mesh_data, tuple)
+        nft, nwl = mesh_data
+        nfl, nwt = 1, 1
+        int_typ = None
+        flg_opt = True
 
     yoff = ( d - tf) / 2
     zoff = (bf + tw) / 4
@@ -63,7 +71,7 @@ def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeom
 
 
 
-def from_aisc(type, identifier, material = None, tag: int = None, mesh:dict=None, units=None, ndm=None, **kwds):
+def from_aisc(type, identifier, material = None, mesh:dict=None, units=None, ndm=None, tag=None, **kwds):
     if mesh is None:
         mesh = {}
     if units is None:
