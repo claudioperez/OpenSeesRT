@@ -62,15 +62,9 @@ public:
   void printRegistry(OPS_Stream& stream, int flag) const 
   {
     auto partition = typeid(T).name();
-    auto iter = m_registry.find(partition);
-    if (iter == m_registry.end()) {
-      // opserr << "No objects of type \"" << partition << "\" have been created.\n";
-      return;// nullptr;
-    }
 
-    for (auto const& [key, val] : iter->second) {
-      val->Print(stream, flag);
-    }
+    printRegistry(partition, stream, flag);
+
   }
 
 
@@ -102,6 +96,9 @@ protected:
 
 // 
 private:
+  void printRegistry(const char *, OPS_Stream& stream, int flag) const ;
+
+
   int ndm; // space dimension of the mesh
   int ndf; // number of degrees of freedom per node
 

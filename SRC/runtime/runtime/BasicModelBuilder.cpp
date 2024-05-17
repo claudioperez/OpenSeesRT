@@ -136,6 +136,26 @@ BasicModelBuilder::getBuilder(void) const {
   return theTclBuilder;
 }
 
+void 
+BasicModelBuilder::printRegistry(const char *partition, OPS_Stream& stream, int flag) const 
+{
+    auto iter = m_registry.find(partition);
+    if (iter == m_registry.end()) {
+      // opserr << "No objects of type \"" << partition << "\" have been created.\n";
+      return;// nullptr;
+    }
+
+    bool first = true;
+    for (auto const& [key, val] : iter->second) {
+      if (!first)
+        stream << ",\n";
+
+      val->Print(stream, flag);
+
+      first = false;
+    }
+}
+
 void* 
 BasicModelBuilder::getRegistryObject(const char* partition, int tag) const
 {
@@ -148,7 +168,7 @@ BasicModelBuilder::getRegistryObject(const char* partition, int tag) const
 
   auto iter_objs = iter->second.find(tag) ;
   if (iter_objs == iter->second.end()) {
-    opserr << "No object with tag \"" << tag << " \"in partition \"" << partition << "\"\n";
+    opserr << "No object with tag \"" << tag << "\"in partition \"" << partition << "\"\n";
     return nullptr;
   }
 
