@@ -210,25 +210,25 @@ LinearCrdTransf2d02::computeElemtLengthAndOrient()
   dx(0) = ndJCoords(0) - ndICoords(0);
   dx(1) = ndJCoords(1) - ndICoords(1);
 
-  if (nodeIInitialDisp != 0) {
+//if (nodeIInitialDisp != 0) {
     dx(0) -= nodeIInitialDisp[0];
     dx(1) -= nodeIInitialDisp[1];
-  }
+//}
 
-  if (nodeJInitialDisp != 0) {
+//if (nodeJInitialDisp != 0) {
     dx(0) += nodeJInitialDisp[0];
     dx(1) += nodeJInitialDisp[1];
-  }
+//}
 
-  if (nodeJOffset != 0) {
+//if (nodeJOffset != 0) {
     dx(0) += nodeJOffset[0];
     dx(1) += nodeJOffset[1];
-  }
+//}
 
-  if (nodeIOffset != 0) {
+//if (nodeIOffset != 0) {
     dx(0) -= nodeIOffset[0];
     dx(1) -= nodeIOffset[1];
-  }
+//}
 
   // calculate the element length
   L = dx.Norm();
@@ -628,23 +628,23 @@ LinearCrdTransf2d02::getInitialGlobalStiffMatrix(const Matrix &kb)
   double t12 = 1.0;
   double t22 = 0.0;
 
-  if (nodeIOffset != 0) {
+//if (nodeIOffset != 0) {
     t02 = cosTheta * nodeIOffset[1] - sinTheta * nodeIOffset[0];
     t12 = oneOverL * (sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0]) +
           1.0;
     t22 = oneOverL * (sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0]);
-  }
+//}
 
   double t05 = 0.0;
   double t15 = 0.0;
   double t25 = 1.0;
 
-  if (nodeJOffset != 0) {
+//if (nodeJOffset != 0) {
     t05 = -cosTheta * nodeJOffset[1] + sinTheta * nodeJOffset[0];
     t15 = -oneOverL * (sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0]);
     t25 = -oneOverL * (sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0]) +
           1.0;
-  }
+//}
 
   double sl = sinTheta * oneOverL;
   double cl = cosTheta * oneOverL;
@@ -743,15 +743,15 @@ LinearCrdTransf2d02::getCopy2d(void)
   Vector offsetI(2);
   Vector offsetJ(2);
 
-  if (nodeIOffset != 0) {
+//if (nodeIOffset != 0) {
     offsetI(0) = nodeIOffset[0];
     offsetI(1) = nodeIOffset[1];
-  }
+//}
 
-  if (nodeJOffset != 0) {
+//if (nodeJOffset != 0) {
     offsetJ(0) = nodeJOffset[0];
     offsetJ(1) = nodeJOffset[1];
-  }
+//}
 
   theCopy = new LinearCrdTransf2d02(this->getTag(), offsetI, offsetJ);
 
@@ -780,33 +780,33 @@ LinearCrdTransf2d02::sendSelf(int cTag, Channel &theChannel)
     data(3) = 0.0;
   }
 
-  if (nodeJOffset != 0) {
+//if (nodeJOffset != 0) {
     data(4) = nodeJOffset[0];
     data(5) = nodeJOffset[1];
-  } else {
-    data(4) = 0.0;
-    data(5) = 0.0;
-  }
+//} else {
+//  data(4) = 0.0;
+//  data(5) = 0.0;
+//}
 
-  if (nodeIInitialDisp != 0) {
+//if (nodeIInitialDisp != 0) {
     data(6) = nodeIInitialDisp[0];
     data(7) = nodeIInitialDisp[1];
     data(8) = nodeIInitialDisp[2];
-  } else {
-    data(6) = 0.0;
-    data(7) = 0.0;
-    data(8) = 0.0;
-  }
+//} else {
+//  data(6) = 0.0;
+//  data(7) = 0.0;
+//  data(8) = 0.0;
+//}
 
-  if (nodeJInitialDisp != 0) {
+//if (nodeJInitialDisp != 0) {
     data(9)  = nodeJInitialDisp[0];
     data(10) = nodeJInitialDisp[1];
     data(11) = nodeJInitialDisp[2];
-  } else {
-    data(9)  = 0.0;
-    data(10) = 0.0;
-    data(11) = 0.0;
-  }
+//} else {
+//  data(9)  = 0.0;
+//  data(10) = 0.0;
+//  data(11) = 0.0;
+//}
 
   res += theChannel.sendVector(this->getDbTag(), cTag, data);
   if (res < 0) {
@@ -947,21 +947,21 @@ LinearCrdTransf2d02::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
   ul(4) = -sinTheta * ug(3) + cosTheta * ug(4);
   ul(5) = ug(5);
 
-  if (nodeIOffset != 0) {
+//if (nodeIOffset != 0) {
     double t02 = -cosTheta * nodeIOffset[1] + sinTheta * nodeIOffset[0];
     double t12 = sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0];
 
     ul(0) += t02 * ug(2);
     ul(1) += t12 * ug(2);
-  }
+//}
 
-  if (nodeJOffset != 0) {
+//if (nodeJOffset != 0) {
     double t35 = -cosTheta * nodeJOffset[1] + sinTheta * nodeJOffset[0];
     double t45 = sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0];
 
     ul(3) += t35 * ug(5);
     ul(4) += t45 * ug(5);
-  }
+//}
 
   // compute displacements at point xi, in local coordinates
   static Vector uxl(2), uxg(2);
@@ -1010,21 +1010,21 @@ LinearCrdTransf2d02::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
   ul(4) = -sinTheta * ug(3) + cosTheta * ug(4);
   ul(5) = ug(5);
 
-  if (nodeIOffset != 0) {
+//if (nodeIOffset != 0) {
     double t02 = -cosTheta * nodeIOffset[1] + sinTheta * nodeIOffset[0];
     double t12 = sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0];
 
     ul(0) += t02 * ug(2);
     ul(1) += t12 * ug(2);
-  }
+//}
 
-  if (nodeJOffset != 0) {
+//if (nodeJOffset != 0) {
     double t35 = -cosTheta * nodeJOffset[1] + sinTheta * nodeJOffset[0];
     double t45 = sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0];
 
     ul(3) += t35 * ug(5);
     ul(4) += t45 * ug(5);
-  }
+//}
 
   // compute displacements at point xi, in local coordinates
   static Vector uxl(2);
@@ -1040,10 +1040,10 @@ LinearCrdTransf2d02::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nCrdTransf: " << this->getTag() << " Type: LinearCrdTransf2d02";
-    if (nodeIOffset != 0)
+//  if (nodeIOffset != 0)
       s << "\tnodeI Offset: " << nodeIOffset[0] << ' ' << nodeIOffset[1]
         << endln;
-    if (nodeJOffset != 0)
+//  if (nodeJOffset != 0)
       s << "\tnodeJ Offset: " << nodeJOffset[0] << ' ' << nodeJOffset[1]
         << endln;
   }
@@ -1051,10 +1051,10 @@ LinearCrdTransf2d02::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << "\t\t\t{\"name\": \"" << this->getTag()
       << "\", \"type\": \"LinearCrdTransf2d02\"";
-    if (nodeIOffset != 0)
+//  if (nodeIOffset != 0)
       s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1]
         << "]";
-    if (nodeJOffset != 0)
+//  if (nodeJOffset != 0)
       s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1]
         << "]";
     s << "}";
