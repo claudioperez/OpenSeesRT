@@ -247,13 +247,15 @@ __all__ = [
     "NDTest",
 ]
 
-# 
+# Commands that are pre-processed in Python
+# before forwarding to the Tcl interpreter
 _OVERWRITTEN = {
     "timeSeries",
     "pattern", "load",
     "eval",
     "section", "patch", "layer", "fiber",
-    "block2D"
+    "block2D",
+    "mesh"
 }
 
 
@@ -396,10 +398,66 @@ class OpenSeesPy:
 
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
-    def section(self, *args, **kwds):
-        self._current_section = args[1]
+    def mesh(self, type, tag: int, *args, **kwds):
+        if type == "line":
+            return self._mesh_line(tag, 2, args[1:3], *args[3:7], args[7:])
+
+    def _mesh_line(self, tag, numnodes, ndtags, id, ndf:int, meshsize, eleType='', eleArgs=()):
+        import numpy as np
+        from itertools import count
+
+        ndI, ndJ = ndtags
+        add_node    = partial(self._str_call, "node")
+        add_element = partial(self._str_call, "element")
+
+        xi = np.array(self._str_call("nodeCoord", ndI))
+        xj = np.array(self._str_call("nodeCoord", ndJ))
+
+        L  = np.linalg.norm(xj - xi)
+        nn = int(L//meshsize) + 1
+
+        nodes = [None for _ in range(nn)]
+        nodes[0]    = ndI
+        nodes[nn-1] = ndJ
+
+        node_tags = set(self._str_call("getNodeTags"))
+        new_node  = filter(lambda i: i not in node_tags, count(1))
+        elem_tags = set(self._str_call("getEleTags") or [])
+        new_elem  = filter(lambda i: i not in elem_tags, count(1))
+
+        for i,x in enumerate(np.linspace(xi, xj, nn, endpoint=True)[1:]):
+
+            node_tag = next(new_node)
+            add_node(node_tag, *x)
+
+            nodes[i+1] = node_tag
+
+            elem_tag = next(new_elem)
+
+            if i < nn:
+                add_element(eleType,elem_tag,nodes[i],nodes[i+1],*eleArgs)
+
+
+
+    def section(self, type: str, sec_tag: int, *args, **kwds):
+        self._current_section = sec_tag
         # TODO: error handling
-        return self._str_call("section", *args, **kwds)
+
+        if "shape" in kwds:
+            from opensees.section import from_aisc
+            ndm = int(self.eval("getNDM"))
+            # kwds["shape"] looks like ("W14X90", matTag, (20,4))
+            shape = from_aisc("Fiber", *kwds.pop("shape"), ndm=ndm)
+        else:
+            shape = None
+
+        ret = self._str_call("section", type, sec_tag, *args, **kwds)
+
+        if shape is not None:
+            for fiber in shape.fibers:
+                self._str_call("fiber", *fiber.coord, fiber.area, fiber.material, section=sec_tag)
+
+        return ret
 
     def patch(self, *args, **kwds):
         section = self._current_section
