@@ -11,7 +11,7 @@ mm           = millimeter   = 0.039370079         # Milimeter
 cm           = centimeter   = 0.393700787         # Centimeter
 m            = meter        = 39.37007874         # Meter
 km           = kilometer    = 39370.07874         # Kilometer
-inch                        = 1.0                 
+inch                        = 1.0
 ft           = foot         = 12.0                # International foot
 yd           = yard         = 36.0                # International yard
 mi           = mile         = 63360.0             # Mile
@@ -45,15 +45,15 @@ yr           = year         = 31536000.0          # year
 N            = newton       = 0.000224809         # Newton (force)
 dyn          = dyne         = 2.24809e-09         # Dyne
 pdl          = poundal      = 3.10809e-05         # Poundal
-lbf          = poundf       = 0.001               
-kip          = klbf         = 1.0                 
+lbf          = poundf       = 0.001
+kip          = klbf         = 1.0
 
 #
 #  Mass 
 #
-slug                        = 8.33333e-05         
+slug                        = 8.33333e-05
 lbm          = lbm          = 2.59008e-06         # International avoirdupois pound
-g            = gram         = 5.71015e-09         
+gm           = gram         = 5.71015e-09
 kg           = kilogram     = 5.71015e-06         # Kilogram
 tonne                       = 0.005710147         # Metric tonne
 oz           = ounce        = 1.6188e-07          # International avoirdupois ounce
@@ -62,15 +62,15 @@ oz           = ounce        = 1.6188e-07          # International avoirdupois ou
 #  Pressure 
 #
 Pa           = pascal       = 1.45038e-07         # Pascal
-torr                        = 1.93368e-05         
-kPa          = kilopascal   = 0.000145038         
-bar                         = 0.014503774         
+torr                        = 1.93368e-05
+kPa          = kilopascal   = 0.000145038
+bar                         = 0.014503774
 atm          = atmosphere   = 0.014695949         # Standard atmosphere
-MPa          = megapascal   = 0.145037736         
-GPa          = gigapascal   = 145.0377364         
+MPa          = megapascal   = 0.145037736
+GPa          = gigapascal   = 145.0377364
 psi                         = 0.001               # Pound-square-inch
-ksi                         = 1.0                 
-pci                         = 0.001               
+ksi                         = 1.0
+pci                         = 0.001
 pcf                         = 5.78704e-07         # Pounds per cubic foot
 
 #
@@ -122,14 +122,14 @@ mph                         = 17.6                # mile per hour
 #
 #  Acceleration 
 #
-mmps2                       = 0.039370079         
-cps2         = cmps2        = 0.393700787         
-mps2                        = 39.37007874         
-kps2                        = 39370.07874         
-ips2         = inchps2      = 1.0                 
-fps2         = footps2      = 12.0                
-yps2                        = 36.0                
-mph2                        = 0.004888889         
+mmps2                       = 0.039370079
+cps2         = cmps2        = 0.393700787
+mps2                        = 39.37007874
+kps2                        = 39370.07874
+ips2         = inchps2      = 1.0
+fps2         = footps2      = 12.0
+yps2                        = 36.0
+mph2                        = 0.004888889
 gravity                     = 386.0885827         # Standard gravity
 
 #

@@ -53,7 +53,7 @@ kip          = klbf         = 444822165.7
 #
 slug                        = 14593.90307         
 lbm          = lbm          = 453.592368          # International avoirdupois pound
-g            = gram         = 1.0                 
+gm           = gram         = 1.0                 
 kg           = kilogram     = 1000.0              # Kilogram
 tonne                       = 1000000.0           # Metric tonne
 oz           = ounce        = 28.349523           # International avoirdupois ounce
