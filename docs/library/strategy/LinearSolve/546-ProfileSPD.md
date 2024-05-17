@@ -9,7 +9,7 @@ skyline storage scheme. The following command is used to construct such
 a system:
 
 ```tcl
-system ProfileSPD
+system ProfileSPD 
 ```
 
 <hr />

@@ -1,4 +1,4 @@
-# SparseSYM SOE
+# SparseSYM
 
 This command is used to construct a sparse symmetric system of
 equations which uses a row-oriented solution method in the solution
@@ -7,6 +7,7 @@ phase. The following command is used to construct such a system:
 ```tcl
 system SparseSYM
 ```
+
 <hr />
 <p>NOTES:</p>
 <ul>
@@ -15,6 +16,7 @@ as the option to the system command. For backward compatability this old
 option continues to work.</li>
 </ul>
 <hr />
+
 ## References
 <p>Kincho H. Law and David R. McKay, “A Parallel Row-Oriented Sparse
 Solution Method for Finite Element Structural Analysis,” International

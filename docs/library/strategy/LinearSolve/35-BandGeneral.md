@@ -9,7 +9,7 @@ SGBTRS are used. The following command is used to construct such a
 system:</p>
 
 ```tcl
-system BandGeneral
+system BandGeneral < -det >
 ```
 
 <hr />
@@ -25,8 +25,8 @@ diagonally bordered band whose range is determined by constants
 <dt></dt>
 <dd>
 
-$$a_{i,j}=0 \quad\mbox{if}\quad j<i-k_1 \quad\mbox{ or
-}\quad j>i+k_2; \quad k_1, k_2 \ge 0.\,$$
+$$a_{i,j}=0 \quad\texttt{if}\quad j<i-k_1 \quad\texttt{ or
+}\quad j>i+k_2; \quad k_1, k_2 \ge 0.$$
 
 </dd>
 </dl>
@@ -72,11 +72,11 @@ required, the Lapack routines DGBSV and SGBTRS  are used.
 
 ## Theory
 
-An $n\timesn$ matrix *A*=(*a*~*i,j*~) is a **band matrix** if all matrix
+An $n\times n$ matrix *A*=(*a*~*i,j*~) is a **band matrix** if all matrix
 elements are zero outside a diagonally bordered band whose range is
 determined by constants *k*~1~ and *k*~2~:
 
-$$a_{i,j}=0 \quad\mbox{if}\quad j<i-k_1 \quad\mbox{ or }\quad j>i+k_2; \quad k_1, k_2 \ge 0.\,$$
+$$a_{i,j}=0 \quad\texttt{if}\quad j<i-k_1 \quad\texttt{ or }\quad j>i+k_2; \quad k_1, k_2 \ge 0.$$
 
 The quantities *k*~1~ and *k*~2~ are the *left* and *right*
 *half-bandwidth*, respectively. The *bandwidth* of the matrix is
@@ -88,14 +88,16 @@ the rest is implicitly zero.
 
 For example, 6-by-6 a matrix with bandwidth 3:
 
-$$\begin{bmatrix}
+$$
+\begin{bmatrix}
  B_{11} & B_{12} & 0      & \cdots & \cdots & 0 \\
  B_{21} & B_{22} & B_{23} & \ddots & \ddots & \vdots \\
   0     & B_{32} & B_{33} & B_{34} & \ddots & \vdots \\
  \vdots & \ddots & B_{43} & B_{44} & B_{45} & 0 \\
  \vdots & \ddots & \ddots & B_{54} & B_{55} & B_{56} \\
  0      & \cdots & \cdots & 0      & B_{65} & B_{66}
-\end{bmatrix}$$ is stored as the 6-by-3 matrix
+\end{bmatrix}$$ 
+is stored as the 6-by-3 matrix
 
 $$\begin{bmatrix}
  0 & B_{11} & B_{12}\\

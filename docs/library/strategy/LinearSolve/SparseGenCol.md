@@ -7,7 +7,7 @@ class SparseGenColLinSolver: public LinearSOESolver
 ```
 
 
-SparseGenColLinSolver is an abstract class. The SparseGenColLinSolver
+`SparseGenColLinSolver` is an abstract class. The `SparseGenColLinSolver`
 class provides access for each subclass to the SparseGenColLinSOE object
 through the pointer *theSOE*, which is a protected pointer.
 
