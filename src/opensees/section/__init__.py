@@ -9,21 +9,24 @@ from .section import (
 
 SectionGeometry = FiberSection
 
-def _WideFlange(material, tag=None, ndm=3, **sec_data)->SectionGeometry:
+def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeometry:
 
-    d  = sec_data['d']
-    bf = sec_data['bf']
-    tf = sec_data['tf']
-    tw = sec_data['tw']
+    d  = aisc_data['d']
+    bf = aisc_data['bf']
+    tf = aisc_data['tf']
+    tw = aisc_data['tw']
 
-    nft = sec_data['nft']
-    nwl = sec_data['nwl']
-    nfl = sec_data.get('nfl', 1, ) #sec_data['nft'])
-    nwt = sec_data.get('nwt', 1, ) #sec_data['nwl'])
+    nft = mesh_data['nft']
+    nwl = mesh_data['nwl']
+    nfl = mesh_data.get('nfl', 1, ) #mesh_data['nft'])
+    nwt = mesh_data.get('nwt', 1, ) #mesh_data['nwl'])
 
-    int_typ = sec_data.get("IntTyp", None)
-    flg_opt = sec_data.get('FlgOpt', True)
-    web_opt = sec_data.get('WebOpt', False)
+    if ndm is None:
+        ndm = mesh_data.get("ndm", 3)
+
+    int_typ = mesh_data.get("IntTyp", None)
+    flg_opt = mesh_data.get('FlgOpt', True)
+    web_opt = mesh_data.get('WebOpt', False)
 
     yoff = ( d - tf) / 2
     zoff = (bf + tw) / 4
@@ -35,7 +38,7 @@ def _WideFlange(material, tag=None, ndm=3, **sec_data)->SectionGeometry:
         GJ =  1.0
 
     else:
-        J = kwds.get("J")
+        J = aisc_data.get("J")
 
         # return SectionGeometry(name=tag, GJ=GJ, areas=[
         #     patch.rect(vertices=[[-],[]], material=material)
@@ -60,7 +63,7 @@ def _WideFlange(material, tag=None, ndm=3, **sec_data)->SectionGeometry:
 
 
 
-def from_aisc(type, identifier, material = None, tag: int = None, mesh:dict=None, units=None, ndm=3, **kwds):
+def from_aisc(type, identifier, material = None, tag: int = None, mesh:dict=None, units=None, ndm=None, **kwds):
     if mesh is None:
         mesh = {}
     if units is None:
@@ -70,7 +73,7 @@ def from_aisc(type, identifier, material = None, tag: int = None, mesh:dict=None
 
 
     if identifier[0] == "W":
-        geom = _WideFlange(**aisc_data, **mesh, tag=tag, ndm=ndm, material=material)
+        geom = _WideFlange(aisc_data, mesh, tag=tag, ndm=ndm, material=material)
 
 
     if type == "Fiber":
