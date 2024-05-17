@@ -21,12 +21,6 @@
 **   Armen Der Kiureghian (adk@ce.berkeley.edu)                       **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.57 $
-// $Date: 2010-09-13 21:40:25 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/reliability/tcl/TclReliabilityBuilder.cpp,v $
-
 //
 // Written by Terje Haukaas (haukaas@ce.berkeley.edu)
 //
@@ -911,7 +905,7 @@ i++;
 */
   /*
 num = theReliabilityDomain->getNumberOfRandomVariablePositioners();
-for (i=1; i<=num; i++) {
+for (i=1; i<=num; ++i) {
 component = theReliabilityDomain->getRandomVariablePositionerPtr(i);
 if (component == 0) {
 opserr << "ERROR: Non-consecutive random variable positioner list." << endln;
@@ -921,7 +915,7 @@ return TCL_ERROR;
 */
 
   num = theReliabilityDomain->getNumberOfFilters();
-  for (i = 1; i <= num; i++) {
+  for (i = 1; i <= num; ++i) {
     component = theReliabilityDomain->getFilter(i);
     if (component == 0) {
       opserr << "ERROR: Non-consecutive filter list." << endln;
@@ -930,7 +924,7 @@ return TCL_ERROR;
   }
 
   num = theReliabilityDomain->getNumberOfModulatingFunctions();
-  for (i = 1; i <= num; i++) {
+  for (i = 1; i <= num; ++i) {
     component = theReliabilityDomain->getModulatingFunction(i);
     if (component == 0) {
       opserr << "ERROR: Non-consecutive modulating function list." << endln;
@@ -939,7 +933,7 @@ return TCL_ERROR;
   }
 
   num = theReliabilityDomain->getNumberOfSpectra();
-  for (i = 1; i <= num; i++) {
+  for (i = 1; i <= num; ++i) {
     component = theReliabilityDomain->getSpectrum(i);
     if (component == 0) {
       opserr << "ERROR: Non-consecutive spectrum list." << endln;
@@ -1248,7 +1242,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
       double x_old = 0.0;
 
       // Read the points
-      for (int i = 0; i < numPoints; i++) {
+      for (int i = 0; i < numPoints; ++i) {
         if (Tcl_GetDouble(interp, argv[4 + 2 * i], &x) != TCL_OK) {
           opserr << "ERROR: Invalid x point to user-defined random variable."
                  << endln;
@@ -1305,7 +1299,7 @@ TclReliabilityModelBuilder_addRandomVariable(ClientData clientData,
       Vector temp_PDFpoints(numPoints);
 
       // Store the vector
-      for (int i = 0; i < numPoints; i++) {
+      for (int i = 0; i < numPoints; ++i) {
         inputFile >> temp_xPoints(i);
         inputFile >> temp_PDFpoints(i);
       }
@@ -1549,7 +1543,7 @@ TclReliabilityModelBuilder_correlateGroup(ClientData clientData,
 
   // Assume that previous corr. coeffs. have been added in order
   char theCorrelateCommand[50];
-  for (int i = firstRV; i <= lastRV; i++) {
+  for (int i = firstRV; i <= lastRV; ++i) {
     for (int j = i + 1; j <= lastRV; j++) {
       sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
               correlationValue);
@@ -1591,7 +1585,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
   // Create appropriate correlation coefficients
   // DO NOT TYPE STUFF INTO THE INTERPRETER!
   if (strcmp(argv[1], "homogeneous1") == 0) {
-    for (int i = firstRV; i <= lastRV; i++) {
+    for (int i = firstRV; i <= lastRV; ++i) {
       for (int j = i + 1; j <= lastRV; j++) {
         correlationValue = exp(-abs(i - j) / theta);
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
@@ -1600,7 +1594,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
       }
     }
   } else if (strcmp(argv[1], "homogeneous2") == 0) {
-    for (int i = firstRV; i <= lastRV; i++) {
+    for (int i = firstRV; i <= lastRV; ++i) {
       for (int j = i + 1; j <= lastRV; j++) {
         correlationValue = exp(-pow((i - j) / theta, 2.0));
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
@@ -1609,7 +1603,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
       }
     }
   } else if (strcmp(argv[1], "homogeneous3") == 0) {
-    for (int i = firstRV; i <= lastRV; i++) {
+    for (int i = firstRV; i <= lastRV; ++i) {
       for (int j = i + 1; j <= lastRV; j++) {
         correlationValue = 1.0 / (theta * (i - j) * (i - j));
         sprintf(theCorrelateCommand, "correlate %d %d %10.5f", i, j,
@@ -1618,7 +1612,7 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
       }
     }
   } else if (strcmp(argv[1], "homogeneous4") == 0) {
-    for (int i = firstRV; i <= lastRV; i++) {
+    for (int i = firstRV; i <= lastRV; ++i) {
       for (int j = i + 1; j <= lastRV; j++) {
         if (abs(i - j) < theta) {
           correlationValue = 1.0 - (abs(i - j) / theta);
@@ -1671,12 +1665,12 @@ TclReliabilityModelBuilder_correlationStructure(ClientData clientData,
 
     // Store the vector
     Vector theVector(numEntries);
-    for (i = 0; i < numEntries; i++) {
+    for (i = 0; i < numEntries; ++i) {
       inputFile2 >> theVector(i);
     }
     inputFile2.close();
 
-    for (int i = firstRV; i <= lastRV; i++) {
+    for (int i = firstRV; i <= lastRV; ++i) {
       for (int j = i + 1; j <= lastRV; j++) {
         correlationValue =
             theta * theVector(i - firstRV + 1) * theVector(j - firstRV + 1);
@@ -2743,7 +2737,7 @@ TclReliabilityModelBuilder_addHessianEvaluator(ClientData clientData,
 
       int counter = 2;
 
-      for (int i = 1; i <= numExtras; i++) {
+      for (int i = 1; i <= numExtras; ++i) {
 
         if (strcmp(argv[counter], "-pert") == 0) {
           counter++;
@@ -3384,7 +3378,7 @@ TclReliabilityModelBuilder_addGradientEvaluator(ClientData clientData,
 
       int counter = 2;
 
-      for (int i = 1; i <= numExtras; i++) {
+      for (int i = 1; i <= numExtras; ++i) {
 
         if (strcmp(argv[counter], "-pert") == 0) {
           counter++;
@@ -3889,7 +3883,7 @@ TclReliabilityModelBuilder_addStartPoint(ClientData clientData,
 
     // rewind the file and pass values to the RVs
     inputFile.seekg(0, ios::beg);
-    for (int i = 0; i < nrv; i++) {
+    for (int i = 0; i < nrv; ++i) {
       aRandomVariable = theReliabilityDomain->getRandomVariablePtrFromIndex(i);
       inputFile >> dummy;
       aRandomVariable->setStartValue(dummy);
@@ -4166,7 +4160,7 @@ ParametricReliabilityAnalysis can be created" << endln; return TCL_ERROR;
         double last;
         int numIntervals;
         int counter = 3;
-        for (int i=1; i<=3; i++) {
+        for (int i=1; i<=3; ++i) {
 
                 if (strcmp(argv[counter-1],"-par") == 0) {
                         // GET INPUT PARAMETER (int)
@@ -4789,7 +4783,7 @@ TclReliabilityModelBuilder_runOrthogonalPlaneSamplingAnalysis(
   */
   // theReliabilityDomain->getStartPoint(*theDesignPoint);
   int nrv = theReliabilityDomain->getNumberOfRandomVariables();
-  for (int i = 0; i < nrv; i++) {
+  for (int i = 0; i < nrv; ++i) {
     RandomVariable *theRV =
         theReliabilityDomain->getRandomVariablePtrFromIndex(i);
     (*theDesignPoint)(i) = theRV->getStartValue();
@@ -5076,7 +5070,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
 
         // Store the vector
         Vector dummyDirectionVector(numRVs);
-        for (int i = 0; i < numRVs; i++) {
+        for (int i = 0; i < numRVs; ++i) {
           inputFile2 >> dummyDirectionVector(i);
         }
         inputFile2.close();
@@ -5262,7 +5256,7 @@ TclReliabilityModelBuilder_runGFunVisualizationAnalysis(ClientData clientData,
 
       // Store the vectors in a matrix
       Matrix dummyMatrix(numRVs, numVectors);
-      for (int i = 0; i < numVectors; i++) {
+      for (int i = 0; i < numVectors; ++i) {
         for (int j = 0; j < numRVs; j++) {
           inputFile2 >> dummyMatrix(j, i);
         }
@@ -5760,7 +5754,7 @@ TclReliabilityModelBuilder_computeHessian(ClientData clientData,
     // Matrix hessian=	theHessian->getHessianApproximation();
 
     //		resultsOutputFile <<"Hessian in U space: \n";
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       for (int j = 0; j < size; j++) {
         // resultsOutputFile <<hessian(i,j)<<"   ";
       }
@@ -5869,7 +5863,7 @@ TclReliabilityModelBuilder_MultiDimVisPrincPlane(ClientData clientData,
 
       gridInfo = new Vector(pathSize);
 
-      for (int i = 0; i < pathSize; i++) {
+      for (int i = 0; i < pathSize; ++i) {
         double value;
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
@@ -5988,7 +5982,7 @@ TclReliabilityModelBuilder_transformXtoU(ClientData clientData,
       opserr << "transformXtoU -- num X realizations not equal to nrv" << endln;
       return 0;
     }
-    for (int i = 0; i < nrv; i++) {
+    for (int i = 0; i < nrv; ++i) {
       double value;
       if (Tcl_GetDouble(interp, rvInput[i], &value) != TCL_OK) {
         opserr << "WARNING problem reading X realization " << rvInput[i]
@@ -6101,7 +6095,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
       return 0;
     }
     Vector u(nrv);
-    for (int i = 0; i < nrv; i++) {
+    for (int i = 0; i < nrv; ++i) {
       double value;
       if (Tcl_GetDouble(interp, rvInput[i], &value) != TCL_OK) {
         opserr << "WARNING problem reading U realization " << rvInput[i]
@@ -6116,7 +6110,7 @@ TclReliabilityModelBuilder_transformUtoX(ClientData clientData,
     theProbabilityTransformation->transform_u_to_x(u, x);
 
     char buffer[20];
-    for (int i = 0; i < nrv; i++) {
+    for (int i = 0; i < nrv; ++i) {
       sprintf(buffer, "%f ", x(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -6330,7 +6324,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeInvariantAnalysis(
 
       gridInfo = new Vector(pathSize);
 
-      for (int i = 0; i < pathSize; i++) {
+      for (int i = 0; i < pathSize; ++i) {
         double value;
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
@@ -6546,7 +6540,7 @@ TclReliabilityModelBuilder_runDP_RSM_SimTimeVariantAnalysis(
 
       gridInfo = new Vector(pathSize);
 
-      for (int i = 0; i < pathSize; i++) {
+      for (int i = 0; i < pathSize; ++i) {
         double value;
         if (Tcl_GetDouble(interp, pathStrings[i], &value) != TCL_OK) {
           opserr << "WARNING problem reading path data value " << pathStrings[i]
@@ -7062,7 +7056,7 @@ TclReliabilityModelBuilder_getCutsetComponents(ClientData clientData,
   const Vector &theComponents = theCutset->getComponents();
 
   char buffer[20];
-  for (int i = 0; i < numComponents; i++) {
+  for (int i = 0; i < numComponents; ++i) {
     sprintf(buffer, "%d ", int(theComponents(i)));
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -7219,33 +7213,36 @@ Tcl_Interp *interp, int argc, TCL_Char ** const argv)
                 argvCounter++;
                 while(argvCounter<argc){
                         if (strcmp(argv[argvCounter],"-print") == 0) {
-                                print=true;
-                                argvCounter++;
+                              print=true;
+                              argvCounter++;
                         }
                         else if (strcmp(argv[argvCounter],"-nstep") == 0) {
-                                argvCounter++;
-                                if (Tcl_GetInt(interp, argv[argvCounter],
-&nstep) != TCL_OK) { opserr << "ERROR: Invalid input"; opserr << " nstep for
-initial static analysis" << endln; return TCL_ERROR;
-                                }
-                                argvCounter++;
+                              argvCounter++;
+                              if (Tcl_GetInt(interp, argv[argvCounter], &nstep) != TCL_OK) {
+                                opserr << "ERROR: Invalid input"; opserr << " nstep for initial static analysis" << endln; 
+                                return TCL_ERROR;
+                              }
+                              argvCounter++;
                         }
                         else if (strcmp(argv[argvCounter],"-loads") == 0) {
                                 argvCounter++;
                                 numLoadPatterns=0;
                                 while(argvCounter<argc){
                                         if(argv[argvCounter][0]!= '-'){
-                                                if (Tcl_GetInt(interp,
-argv[argvCounter], &loadtag) != TCL_OK) { opserr << "Error invalid input for";
-                                                opserr << " LoadPattern ID for
-the initial static analysis"; opserr << endln; return TCL_ERROR;
+                                                if (Tcl_GetInt(interp, argv[argvCounter], &loadtag) != TCL_OK) { 
+                                                  opserr << "Error invalid input for";
+                                                  opserr << " LoadPattern ID for the initial static analysis"; 
+                                                  opserr << endln; 
+                                                  return TCL_ERROR;
                                                 }
                                                 argvCounter++;
-                                                LoadPatternIter& thePatterns =
-theStructuralDomain->getLoadPatterns(); loadfound = false; while((thePattern =
-thePatterns()) != 0){ int tag=thePattern->getTag(); if( tag == loadtag ) {
-                                                                loadfound =
-true; break;
+                                                LoadPatternIter& thePatterns = theStructuralDomain->getLoadPatterns(); 
+                                                loadfound = false; 
+                                                while((thePattern = thePatterns()) != 0) { 
+                                                  int tag=thePattern->getTag(); 
+                                                  if( tag == loadtag ) {
+                                                                loadfound = true; 
+                                                                break;
                                                         }
                                                 }
                                                 if(loadfound){
@@ -7256,20 +7253,20 @@ true; break;
                                         else break;
                                 }
                                 if( numLoadPatterns != 0 ){
-                                        StaticLoadPatterns = new
-int[numLoadPatterns]; for (int i=0; i<numLoadPatterns; i++) {
+                                        StaticLoadPatterns = new int[numLoadPatterns]; 
+                                        for (int i=0; i<numLoadPatterns; ++i) {
                                                 StaticLoadPatterns[i]=temploads[i];
                                         }
                                 }
                         }
                 }
                 if (theStructuralDomain== 0 ) {
-                        opserr << "Need StructuralDomain before a
-InitialStaticAnalysis can be created" << endln; return TCL_ERROR;
+                        opserr << "Need StructuralDomain before a InitialStaticAnalysis can be created" << endln; 
+                        return TCL_ERROR;
                 }
                 if (theReliabilityDomain== 0 ) {
-                        opserr << "Need ReliabilityDomain before a
-InitialStaticAnalysis can be created" << endln; return TCL_ERROR;
+                        opserr << "Need ReliabilityDomain before a InitialStaticAnalysis can be created" << endln; 
+                        return TCL_ERROR;
                 }
                 theInitialStaticAnalysis = new SelectLoadInitialStaticAnalysis
                                                                         (theReliabilityDomain,
@@ -7288,8 +7285,7 @@ InitialStaticAnalysis can be created" << endln; return TCL_ERROR;
 //		argvCounter++;
 //		ifstream inputFile( argv[argvCounter], ios::in );
 //		if (inputFile.fail()) {
-//			opserr << "File " << *argv[2] << " could not be opened.
-" << endln;
+//			opserr << "File " << *argv[2] << " could not be opened." << endln;
 //			return TCL_ERROR;
 //		}
 //		argvCounter++;
@@ -7318,7 +7314,9 @@ Analysis. " << endln; return TCL_ERROR;
         temploads=0;
         return TCL_OK;
 }
+*/
 
+/*
 /////////////////////////////////////////////////////////
 /// added by K Fujimura for Random Vibration Analysis ///
 /////////////////////////////////////////////////////////
@@ -7335,8 +7333,8 @@ Tcl_Interp *interp, int argc, TCL_Char ** const argv)
                 theInitialPointBuilder=0;
         }
         if (theReliabilityDomain == 0 ) {
-                opserr << "Need ReliabilityDomain before an
-RandomVibrationAnalysis can be created" << endln; return TCL_ERROR;
+                opserr << "Need ReliabilityDomain before an RandomVibrationAnalysis can be created" << endln; 
+                return TCL_ERROR;
         }
         if(theFunctionEvaluator==0){
                 opserr << "Need to define GFunEvaluator \n";
@@ -7357,32 +7355,24 @@ RandomVibrationAnalysis can be created" << endln; return TCL_ERROR;
 //			}
 //			else if (strcmp(argv[argvCounter],"-eps") == 0) {
 //				argvCounter++;
-//				if (Tcl_GetDouble(interp, argv[argvCounter],
-&eps) != TCL_OK) {
-//					opserr << "Invalid Input for threshold
-\n";
-//					opserr << "for InitialPointBuilder in
-tclModelbuidler \n";
+//				if (Tcl_GetDouble(interp, argv[argvCounter], &eps) != TCL_OK) {
+//					opserr << "Invalid Input for threshold \n";
+//					opserr << "for InitialPointBuilder in tclModelbuidler \n";
 //					return TCL_ERROR;
 //				}
 //				argvCounter++;
 //			}
-//			else if (strcmp(argv[argvCounter],"-maxlinesearch") ==
-0) {
+//			else if (strcmp(argv[argvCounter],"-maxlinesearch") == 0) {
 //				argvCounter++;
-//				if (Tcl_GetInt(interp, argv[argvCounter],
-&MaxLineSearch) != TCL_OK) {
-//					opserr << "Invalid Input for
-MaxLineSearch \n";
-//					opserr << "for InitialPointBuilder in
-tclModelbuidler \n";
+//				if (Tcl_GetInt(interp, argv[argvCounter], &MaxLineSearch) != TCL_OK) {
+//					opserr << "Invalid Input for MaxLineSearch \n";
+//					opserr << "for InitialPointBuilder in tclModelbuidler \n";
 //					return TCL_ERROR;
 //				}
 //				argvCounter++;
 //			}
 //			else{
-//				opserr << "ERROR: Invalid argument to
-InitialPointBuilder " << endln;
+//				opserr << "ERROR: Invalid argument to InitialPointBuilder " << endln;
 //				return TCL_ERROR;
 //			}
 //		}
@@ -7406,17 +7396,19 @@ InitialPointBuilder " << endln;
                         }
                         else if (strcmp(argv[argvCounter],"-eps") == 0) {
                                 argvCounter++;
-                                if (Tcl_GetDouble(interp, argv[argvCounter],
-&eps) != TCL_OK) { opserr << "Invalid Input for threshold \n"; opserr << "for
-InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
+                                if (Tcl_GetDouble(interp, argv[argvCounter], &eps) != TCL_OK) { 
+                                  opserr << "Invalid Input for threshold \n"; 
+                                  opserr << "for InitialPointBuilder in tclModelbuidler \n"; 
+                                  return TCL_ERROR;
                                 }
                                 argvCounter++;
                         }
                         else if (strcmp(argv[argvCounter],"-maxdivide") == 0) {
                                 argvCounter++;
-                                if (Tcl_GetInt(interp, argv[argvCounter],
-&maxDivide) != TCL_OK) { opserr << "Invalid Input for threshold \n"; opserr <<
-"for InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
+                                if (Tcl_GetInt(interp, argv[argvCounter], &maxDivide) != TCL_OK) { 
+                                  opserr << "Invalid Input for threshold \n"; 
+                                  opserr << "for InitialPointBuilder in tclModelbuidler \n"; 
+                                  return TCL_ERROR;
                                 }
                                 argvCounter++;
                         }
@@ -7424,37 +7416,39 @@ InitialPointBuilder in tclModelbuidler \n"; return TCL_ERROR;
                                 argvCounter++;
                                 if(strcmp(argv[argvCounter],"none")==0){
                                         start_mirror=false;
-                                }else if(strcmp(argv[argvCounter],"mirror")==0){
-                                        opserr << "Invalid Input for -stattpoint
-for initialpoint \n"; opserr << "mirror can not be selected\n"; return
-TCL_ERROR; start_mirror=true; argvCounter++; if (Tcl_GetDouble(interp,
-argv[argvCounter], &mirroreps) != TCL_OK) { opserr << "Invalid Input for
-threshold \n"; opserr << "for InitialPointBuilder in tclModelbuidler \n"; return
-TCL_ERROR;
+                                } else if (strcmp(argv[argvCounter],"mirror")==0) {
+                                        opserr << "Invalid Input for -stattpoint for initialpoint \n"; 
+                                        opserr << "mirror can not be selected\n"; 
+                                        return TCL_ERROR; 
+                                        start_mirror=true; 
+                                        argvCounter++; 
+                                        if (Tcl_GetDouble(interp, argv[argvCounter], &mirroreps) != TCL_OK) { 
+                                          opserr << "Invalid Input for threshold \n"; 
+                                          opserr << "for InitialPointBuilder in tclModelbuidler \n"; 
+                                          return TCL_ERROR;
                                         }
                                         argvCounter++;
-                                        if (Tcl_GetInt(interp,
-argv[argvCounter], &MaxLineSearch) != TCL_OK) { opserr << "Invalid Input for
-threshold \n"; opserr << "for InitialPointBuilder in tclModelbuidler \n"; return
-TCL_ERROR;
+                                        if (Tcl_GetInt(interp, argv[argvCounter], &MaxLineSearch) != TCL_OK) { 
+                                          opserr << "Invalid Input for threshold \n"; 
+                                          opserr << "for InitialPointBuilder in tclModelbuidler \n"; 
+                                          return TCL_ERROR;
                                         }
-                                }else{
-                                        opserr << "Invalid Input for threshold
-\n"; opserr << "for InitialPointBuilder in tclModelbuidler \n"; return
-TCL_ERROR;
+                                } else {
+                                        opserr << "Invalid Input for threshold\n"; 
+                                        opserr << "for InitialPointBuilder in tclModelbuidler \n"; 
+                                        return TCL_ERROR;
                                 }
                                 argvCounter++;
                         }
                         else{
-                                opserr << "ERROR: Invalid argument to
-InitialPointBuilder " << endln; return TCL_ERROR;
+                                opserr << "ERROR: Invalid argument to InitialPointBuilder " << endln; 
+                                return TCL_ERROR;
                         }
                 }
 
                 if (theFindDesignPointAlgorithm == 0 ) {
-                        opserr << "Need theNewSearchWithStepSizeAndStepDirection
-before a ThresholdIncInitialPointBuilder can be created" << endln; return
-TCL_ERROR;
+                  return TCL_ERROR;
+                        opserr << "Need theNewSearchWithStepSizeAndStepDirection before a ThresholdIncInitialPointBuilder can be created" << endln; 
                 }
 
                 theInitialPointBuilder = new ThresholdIncInitialPointBuilder
@@ -7467,14 +7461,16 @@ TCL_ERROR;
                                                                  MaxLineSearch,
                                                                  mirroreps,
                                                                  print);
-        }else{
-                opserr << "ERROR: Invalid argument to InitialPointBuilder " <<
-endln; opserr << argv[1]<< endln; return TCL_ERROR;
+        } else {
+                opserr << "ERROR: Invalid argument to InitialPointBuilder " << endln; 
+                opserr << argv[1]<< endln; 
+                return TCL_ERROR;
         }
         return TCL_OK;
 }
+*/
 
-
+/*
 int
 TclReliabilityModelBuilder_addCrossingRateAnalyzer(ClientData clientData,
 Tcl_Interp *interp, int argc, TCL_Char ** const argv)
@@ -7492,10 +7488,10 @@ Tcl_Interp *interp, int argc, TCL_Char ** const argv)
         while (argc > argvCounter) {
                 if (strcmp(argv[argvCounter],"-littledt") == 0) {
                         argvCounter++;
-                          // GET INPUT PARAMETER (double)
-                        if (Tcl_GetDouble(interp, argv[argvCounter], &littleDt)
-!= TCL_OK) { opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis
-\n"; return TCL_ERROR;
+                        // GET INPUT PARAMETER (double)
+                        if (Tcl_GetDouble(interp, argv[argvCounter], &littleDt)!= TCL_OK) { 
+                          opserr << "ERROR: invalid input littleDt to theOutCrossingAnalysis\n"; 
+                          return TCL_ERROR;
                         }
                         argvCounter++;
                 }
@@ -7512,27 +7508,27 @@ Tcl_Interp *interp, int argc, TCL_Char ** const argv)
                         print=true;
                 }
                 else {
-                        opserr << "ERROR: Invalid input to
-theOutCrossingAnalysis." << endln; return TCL_ERROR;
+                        opserr << "ERROR: Invalid input to theOutCrossingAnalysis." << endln; 
+                        return TCL_ERROR;
                 }
         }
         if(analysisType==1){
-                if (theReliabilityDomain== 0 ) {
-                opserr << "Need ReliabilityDomain before a CrossingRateAnalyzer
-can be created" << endln; return TCL_ERROR;
-                }
-                if (theFindDesignPointAlgorithm== 0 ) {
-                opserr << "Need FindDesignPointAlgorithm before a
-CrossingRateAnalyzer can be created" << endln; return TCL_ERROR;
-                }
-                if (theFunctionEvaluator == 0 ) {
-                opserr << "Need theGFunEvaluator before an CrossingRateAnalyzer
-can be created" << endln; return TCL_ERROR;
-                }
-                if (theGradientEvaluator == 0 ) {
-                opserr << "Need theGradientEvaluator before an
-CrossingRateAnalyzer can be created" << endln; return TCL_ERROR;
-                }
+              if (theReliabilityDomain== 0 ) {
+                opserr << "Need ReliabilityDomain before a CrossingRateAnalyzer can be created" << endln; 
+                return TCL_ERROR;
+              }
+              if (theFindDesignPointAlgorithm== 0 ) {
+                opserr << "Need FindDesignPointAlgorithm before a CrossingRateAnalyzer can be created" << endln; 
+                return TCL_ERROR;
+              }
+              if (theFunctionEvaluator == 0 ) {
+                opserr << "Need theGFunEvaluator before an CrossingRateAnalyzer can be created" << endln; 
+                return TCL_ERROR;
+              }
+              if (theGradientEvaluator == 0 ) {
+                opserr << "Need theGradientEvaluator before an CrossingRateAnalyzer can be created" << endln; 
+                return TCL_ERROR;
+              }
         }
         theCrossingRateAnalyzer = new CrossingRateAnalyzer
                                                                 (theReliabilityDomain,
@@ -8309,5 +8305,5 @@ theRandomVibrationAnalysis\n"; return TCL_ERROR;
 
         return TCL_OK;
 }
-
 */
+
