@@ -4,7 +4,7 @@
 
 #include "MultiLinearKp.h"
 #include <stdlib.h>
-#include <Print.h>
+#include <TaggedObject.h>
 #include <OPS_ErrorStream.h>
 
 #define MAT_TAG_MULTILINEAR -1
