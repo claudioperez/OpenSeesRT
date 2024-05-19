@@ -17,26 +17,26 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:02:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/tagged/TaggedObject.h,v $
-                                                                        
-                                                                        
-#ifndef TaggedObject_h
-#define TaggedObject_h
-
-// File: ~/tagged/TaggedObject.h
-//
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for TaggedObject.
 // A TaggedObject is an object with an integer identifier. It is used as
 // a base class by DomainComponent, Graph and other classes in the framework.
 //
-// What: "@(#) TaggedObject.h, revA"
+// Written: fmk 
+// Created: 11/96
+// Revision: A
+//
+#ifndef TaggedObject_h
+#define TaggedObject_h
+//
+#define OPS_PRINT_CURRENTSTATE 0
+#define OPS_PRINT_PRINTMODEL_SECTION  1
+#define OPS_PRINT_PRINTMODEL_MATERIAL 2
+#define OPS_PRINT_PRINTMODEL_JSON   25000
+
+#define OPS_PRINT_JSON_ELEM_INDENT "      "
+#define OPS_PRINT_JSON_NODE_INDENT "      "
+#define OPS_PRINT_JSON_MATE_INDENT "      "
 
 class OPS_Stream;
 
