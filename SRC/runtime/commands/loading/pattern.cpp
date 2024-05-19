@@ -105,7 +105,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 
   int patternID;
   if (Tcl_GetInt(interp, argv[2], &patternID) != TCL_OK) {
-    opserr << "WARNING invalid patternID: " << argv[2] << "\n";
+    opserr << G3_ERROR_PROMPT << "invalid patternID: " << argv[2] << "\n";
     return TCL_ERROR;
   }
 
@@ -159,7 +159,7 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     int dir;
 
     if (Tcl_GetInt(interp, argv[3], &dir) != TCL_OK) {
-      opserr << "WARNING invalid patternID: pattern type " << argv[2]
+      opserr << G3_ERROR_PROMPT << "invalid patternID: pattern type " << argv[2]
              << "<type args>\n";
       return TCL_ERROR;
     }
