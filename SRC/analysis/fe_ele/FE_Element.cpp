@@ -181,17 +181,17 @@ FE_Element::~FE_Element()
 
 
 const ID &
-FE_Element::getDOFtags(void) const
+FE_Element::getDOFtags() const
 {
   return myDOF_Groups;
 }
 
 
-// const ID &getID(void) const;
+// const ID &getID() const;
 //        Method to return the current ID.
 
 const ID &
-FE_Element::getID(void) const
+FE_Element::getID() const
 {
   return myID;
 }
@@ -206,7 +206,7 @@ FE_Element::setAnalysisModel(AnalysisModel &theAnalysisModel)
 //        Method to set the corresponding index of the ID to value.
 
 int
-FE_Element::setID(void)
+FE_Element::setID()
 {
   int current = 0;
 
@@ -255,7 +255,7 @@ FE_Element::getTangent(Integrator *theNewIntegrator)
 
 
 void
-FE_Element::zeroTangent(void)
+FE_Element::zeroTangent()
 {
     assert(myEle != nullptr);
     assert(myEle->isSubdomain() == false);
@@ -388,7 +388,7 @@ FE_Element::getResidual(Integrator *theNewIntegrator)
 }
 
 void
-FE_Element::zeroResidual(void)
+FE_Element::zeroResidual()
 {
   assert(myEle != nullptr);
   assert(myEle->isSubdomain() == false);
@@ -583,20 +583,20 @@ FE_Element::getC_Force(const Vector &disp, double fact)
 
 
 Integrator *
-FE_Element::getLastIntegrator(void)
+FE_Element::getLastIntegrator()
 {
   return theIntegrator;
 }
 
 
 const Vector &
-FE_Element::getLastResponse(void)
+FE_Element::getLastResponse()
 {
     assert(myEle != nullptr);
 
     if (theIntegrator != nullptr) {
       if (theIntegrator->getLastResponse(*theResidual,myID) < 0) {
-        opserr << "WARNING FE_Element::getLastResponse(void)";
+        opserr << "WARNING FE_Element::getLastResponse()";
         opserr << " - the Integrator had problems with getLastResponse()\n";
       }
     }
@@ -740,7 +740,7 @@ FE_Element::addLocalD_Force(const Vector &accel, double fact)
 
 
 Element *
-FE_Element::getElement(void)
+FE_Element::getElement()
 {
   return myEle;
 }
@@ -862,7 +862,7 @@ FE_Element::commitSensitivity(int gradNum, int numGrads)
 
 
 int
-FE_Element::updateElement(void)
+FE_Element::updateElement()
 {
   if (myEle != nullptr) {
     return myEle->update();
