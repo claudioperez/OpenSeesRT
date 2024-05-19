@@ -241,18 +241,25 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
   }
 
-#if 0 // TODO[cmp]: Keep names, but add removal message
+  else if (strcmp(argv[1], "WFSection2d") == 0 ||
+           strcmp(argv[1], "WSection2d") == 0) {
 
-  else if (strcmp(argv[1], "ElasticTube") == 0) {
-    void *theMat = OPS_ElasticTubeSection3d(rt, argc, argv);
+      opserr << "WFSection2d has been removed; use the from_aisc utility to "
+             << "generate AISC sections from Python.\n";
+      return TCL_ERROR;
+#if 0
+    void *theMat = OPS_WFSection2d(rt, argc, argv);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
       return TCL_ERROR;
+#endif
   }
-  else if (strcmp(argv[1], "WFSection2d") == 0 ||
-           strcmp(argv[1], "WSection2d") == 0) {
-    void *theMat = OPS_WFSection2d(rt, argc, argv);
+
+#if 0 // TODO[cmp]: Keep names, but add removal message
+
+  else if (strcmp(argv[1], "ElasticTube") == 0) {
+    void *theMat = OPS_ElasticTubeSection3d(rt, argc, argv);
     if (theMat != 0)
       theSection = (SectionForceDeformation *)theMat;
     else
