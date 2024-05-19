@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 // framework
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <OPS_Globals.h>
 #include <packages.h>
 // analysis
