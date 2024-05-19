@@ -458,6 +458,11 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       delete dataPath;
 
     } else if (dataPath != 0 && dataTime != 0) {
+      if (dataTime->Size() != dataPath->Size()) {
+        opserr << G3_ERROR_PROMPT << "size of time vector (" << dataTime->Size()
+               << ") must be equal to size of values (" << dataPath->Size() << ")\n";
+        return nullptr;
+      }
       theSeries =
           new PathTimeSeries(tag, *dataPath, *dataTime, cFactor, useLast);
       delete dataPath;
