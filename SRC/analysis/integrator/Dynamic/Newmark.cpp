@@ -18,14 +18,13 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// Description: This file contains the implementation of the Newmark class.
+//
 // Written : fmk
 // Created : 11/98
 // Modified: 02/05 ahs
 // Revision: A
 //
-// Description: This file contains the implementation of the Newmark class.
-//
-// What: "@(#) Newmark.C, revA"
 #include <stdexcept>
 #include <Newmark.h>
 #include <FE_Element.h>
@@ -46,17 +45,15 @@
 #include <LoadPatternIter.h>
 #include <elementAPI.h>
 #include <fstream>
-//#include<ReliabilityDomain.h>//Abbas
-#include<Parameter.h>
-#include<ParameterIter.h>//Abbas
-static bool converged = false;
-// static int count = 0;
+#include <Parameter.h>
+#include <ParameterIter.h>//Abbas
+
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_Newmark)
 {
   // Pointer to a uniaxial material that will be returned
-  TransientIntegrator *theIntegrator = 0;
+  TransientIntegrator *theIntegrator = nullptr;
 
   int argc = OPS_GetNumRemainingInputArgs();
   if (argc != 2 && argc != 4) {
@@ -74,10 +71,10 @@ OPS_ADD_RUNTIME_VPV(OPS_Newmark)
   
   if (argc == 2)
     theIntegrator = new Newmark(dData[0], dData[1]);
+
   else {
-    //    char nextString[10];
     const char *nextString = OPS_GetString();
-    //    OPS_GetString(nextString, 10);
+
     if (strcmp(nextString,"-form") == 0) {
       nextString = OPS_GetString();
       if ((nextString[0] == 'D') || (nextString[0] == 'd')) 
@@ -191,9 +188,9 @@ int Newmark::newStep(double deltaT)
       return -3;  
     }
     
-    // set response at t to be that at t+deltaT of previous step
-
-    converged = true;
+    //
+    // Set response at t to be that at t+deltaT of previous step
+    //
 
     (*Ut) = *U;        
     (*Utdot) = *Udot;  
@@ -204,7 +201,7 @@ int Newmark::newStep(double deltaT)
         double a1 = (1.0 - gamma/beta); 
         double a2 = (deltaT)*(1.0 - 0.5*gamma/beta);
         Udot->addVector(a1, *Utdotdot, a2);
-        
+
         double a3 = -1.0/(beta*deltaT);
         double a4 = 1.0 - 0.5/beta;
         Udotdot->addVector(a4, *Utdot, a3);
@@ -212,12 +209,13 @@ int Newmark::newStep(double deltaT)
         // set the trial response quantities
         theModel->setVel(*Udot);
         theModel->setAccel(*Udotdot);
-    } else  {
+
+    } else {
         // determine new displacements and velocities at t+deltaT      
         double a1 = (deltaT*deltaT/2.0);
         U->addVector(1.0, *Utdot, deltaT);
         U->addVector(1.0, *Utdotdot, a1);
-        
+
         Udot->addVector(1.0, *Utdotdot, deltaT);
 
         // set the trial response quantities
@@ -238,7 +236,7 @@ int Newmark::newStep(double deltaT)
 
 
 const Vector &
-Newmark::getVel(void)
+Newmark::getVel()
 {
   return *Udot;
 }
@@ -246,14 +244,13 @@ Newmark::getVel(void)
 int Newmark::revertToLastStep()
 {
   // set response at t+deltaT to be that at t .. for next newStep
-  converged = false;
   if (U != 0)  {
     (*U) = *Ut;        
     (*Udot) = *Utdot;  
     (*Udotdot) = *Utdotdot;  
   }
 
-    return 0;
+  return 0;
 }
 
 
@@ -360,7 +357,7 @@ int Newmark::domainChanged()
       const Vector &vel = dofPtr->getCommittedVel();
       for (i=0; i < idSize; i++)  {
           int loc = id(i);
-          if (loc >= 0)  {
+          if (loc >= 0) {
               (*Udot)(loc) = vel(i);
           }
       }
@@ -368,7 +365,7 @@ int Newmark::domainChanged()
       const Vector &accel = dofPtr->getCommittedAccel();  
       for (i=0; i < idSize; i++)  {
           int loc = id(i);
-          if (loc >= 0)  {
+          if (loc >= 0) {
               (*Udotdot)(loc) = accel(i);
           }
       }
@@ -557,6 +554,7 @@ int Newmark::formEleResidual(FE_Element* theEle)
           opserr << "ERROR: Newmark::formEleResidual() -- the implemented"
            << " scheme only works if the displ variable is set to true." << endln;
       }
+
       double a2 = -c3;
       double a3 = -c2/gamma;
       double a4 = 1.0 - 1.0/(2.0*beta);
@@ -576,7 +574,7 @@ int Newmark::formEleResidual(FE_Element* theEle)
       AnalysisModel *myModel = this->getAnalysisModel();
       DOF_GrpIter &theDOFs = myModel->getDOFs();
       DOF_Group *dofPtr;
-      while ((dofPtr = theDOFs()) != 0) {
+      while ((dofPtr = theDOFs()) != nullptr) {
 
         const ID &id = dofPtr->getID();
         int idSize = id.Size();
@@ -605,10 +603,8 @@ int Newmark::formEleResidual(FE_Element* theEle)
         }
       }
 
-
-
       // Pre-compute the vectors involving a2, a3, etc.
-      //Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
+      // Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
       Vector tmp1(vectorSize);
       tmp1.addVector(0.0, dUn, a2);
       tmp1.addVector(1.0, dVn, a3);
@@ -621,6 +617,7 @@ int Newmark::formEleResidual(FE_Element* theEle)
 
       if (massMatrixMultiplicator == 0)
           massMatrixMultiplicator = new Vector(tmp1.Size());
+
       if (dampingMatrixMultiplicator == 0)
           dampingMatrixMultiplicator = new Vector(tmp2.Size());
 
@@ -900,7 +897,7 @@ Newmark::getCFactor(void) {
 int 
 Newmark::computeSensitivities(void)
 {
-  //  opserr<<" computeSensitivity::start"<<endln; 
+
   LinearSOE *theSOE = this->getLinearSOE();
   
   /*
