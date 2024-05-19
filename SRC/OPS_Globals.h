@@ -50,12 +50,4 @@ extern Element *ops_TheActiveElement;  // current element undergoing an update
 // added: Chris McGann, University of Washington
 extern bool  ops_InitialStateAnalysis;
 
-#define OPS_PRINT_CURRENTSTATE 0
-#define OPS_PRINT_PRINTMODEL_SECTION  1
-#define OPS_PRINT_PRINTMODEL_MATERIAL 2
-#define OPS_PRINT_PRINTMODEL_JSON   25000
-
-#define OPS_PRINT_JSON_ELEM_INDENT "      "
-#define OPS_PRINT_JSON_NODE_INDENT "      "
-
 #endif
