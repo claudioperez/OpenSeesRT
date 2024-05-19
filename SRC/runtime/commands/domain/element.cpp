@@ -8,8 +8,29 @@
 #include <tcl.h>
 #include <Domain.h>
 #include <Element.h>
+#include <ElementIter.h>
 #include <Vector.h>
 #include <G3_Logging.h>
+
+int
+TclCommand_getEleTags(ClientData clientData, Tcl_Interp *interp, int argc,
+            TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  ElementIter &elemIter = the_domain->getElements();
+
+  Element *elem;
+  char buffer[20];
+  while ((elem = elemIter()) != nullptr) {
+    sprintf(buffer, "%d ", elem->getTag());
+    Tcl_AppendResult(interp, buffer, NULL);
+  }
+
+  return TCL_OK;
+}
+
 
 int
 TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,
