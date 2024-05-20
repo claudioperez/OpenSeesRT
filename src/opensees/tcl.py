@@ -118,7 +118,6 @@ class Interpreter:
             raise e
 
     def serialize(self)->dict:
-        # TODO: use tempfile or pipe
         import tempfile
         tmp = tempfile.NamedTemporaryFile(delete=False)
         tmp.close()
