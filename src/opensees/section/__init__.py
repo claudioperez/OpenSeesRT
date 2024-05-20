@@ -11,10 +11,11 @@ SectionGeometry = FiberSection
 
 def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeometry:
 
-    d  = aisc_data['d']
-    bf = aisc_data['bf']
-    tf = aisc_data['tf']
-    tw = aisc_data['tw']
+    if isinstance(aisc_data, dict):
+        d  = aisc_data['d']
+        bf = aisc_data['bf']
+        tf = aisc_data['tf']
+        tw = aisc_data['tw']
 
     if isinstance(mesh_data, dict):
         nft = mesh_data['nft']
@@ -33,8 +34,8 @@ def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeom
         assert isinstance(mesh_data, tuple)
         nft, nwl = mesh_data
         nfl, nwt = 1, 1
-        int_typ = None
-        flg_opt = True
+        int_typ  = None
+        flg_opt  = True
 
     yoff = ( d - tf) / 2
     zoff = (bf + tw) / 4
@@ -69,20 +70,28 @@ def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeom
             patch.rect(corners=[[ zoff-bi/4,-yoff-tf/2],[ zoff+bi/4, -yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
         ])
 
+def from_shape(type, identifier: str, material=None, mesh=None, units=None, ndm=None, tag=None, **kwds):
+    if identifier == "WF":
+        # TODO
+        return _WideFlange
+
+    else:
+        return from_aisc(type, identifier, material, mesh, units, ndm, tag, **kwds)
 
 
-def from_aisc(type, identifier, material = None, mesh:dict=None, units=None, ndm=None, tag=None, **kwds):
+def from_aisc(type, identifier: str, material = None, mesh:dict=None, units=None, ndm=None, tag=None, **kwds):
     if mesh is None:
         mesh = {}
     if units is None:
         import opensees.units.english as units
 
     aisc_data = load_aisc(identifier, units=units)
+    if aisc_data is None:
+        raise ValueError(f"Cannot find section with identifier {identifier}")
 
 
     if identifier[0] == "W":
         geom = _WideFlange(aisc_data, mesh, tag=tag, ndm=ndm, material=material)
-
 
     if type == "Fiber":
         return geom
@@ -102,6 +111,7 @@ def load_aisc(SectionName, props="", units=None)->dict:
 
     from .aisc_imperial import imperial
     SectData = imperial[SectionName.upper()]
+
     if props == "simple":
         props = ""
         return
@@ -112,11 +122,20 @@ def load_aisc(SectionName, props="", units=None)->dict:
         if "I" in props:
             sectData.update({"I": SectData["Ix"]})
         return sectData
-    
+
     for k,v in list(SectData.items()):
         try:
             SectData[k] = float(v)
         except:
-            pass
+            continue
+
+    if units is not None:
+        SectData["d"]  *= units.inch
+        SectData["bf"] *= units.inch
+        SectData["tw"] *= units.inch
+        SectData["tf"] *= units.inch
+        SectData["A"]  *= units.inch**2
+        SectData["Ix"] *= units.inch**4
+        SectData["Iy"] *= units.inch**4
 
     return SectData
