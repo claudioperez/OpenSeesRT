@@ -247,6 +247,9 @@ __all__ = [
     "NDTest",
 ]
 
+_PROTOTYPES = {
+}
+
 # Commands that are pre-processed in Python
 # before forwarding to the Tcl interpreter
 _OVERWRITTEN = {
@@ -262,6 +265,54 @@ _OVERWRITTEN = {
 class OpenSeesError(Exception):
     pass
 
+def _split_iter(source, sep=None, regex=False):
+    """
+    generator version of str.split()
+
+    :param source:
+        source string (unicode or bytes)
+
+    :param sep:
+        separator to split on.
+
+    :param regex:
+        if True, will treat sep as regular expression.
+
+    :returns:
+        generator yielding elements of string.
+    """
+    if sep is None:
+        # mimic default python behavior
+        source = source.strip()
+        sep = "\\s+"
+        if isinstance(source, bytes):
+            sep = sep.encode("ascii")
+        regex = True
+
+    if regex:
+        # version using re.finditer()
+        if not hasattr(sep, "finditer"):
+            sep = re.compile(sep)
+        start = 0
+        for m in sep.finditer(source):
+            idx = m.start()
+            assert idx >= start
+            yield source[start:idx]
+            start = m.end()
+        yield source[start:]
+
+    else:
+        # version using str.find(), less overhead than re.finditer()
+        sepsize = len(sep)
+        start = 0
+        while True:
+            idx = source.find(sep, start)
+            if idx == -1:
+                yield source[start:]
+                return
+            yield source[start:idx]
+            start = idx + sepsize
+
 
 class OpenSeesPy:
     """
@@ -272,10 +323,10 @@ class OpenSeesPy:
     OpenSees state.
     """
     def __init__(self, *args, save=False, echo_file=None, **kwds):
-        self._interp = Interpreter(*args,  **kwds)
+        self._interp  = Interpreter(*args,  **kwds)
         self._partial = partial
-        self._save = save
-        self._echo = echo_file # sys.stdout
+        self._save    = save
+        self._echo    = echo_file
 
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
@@ -316,8 +367,14 @@ class OpenSeesPy:
         # Use json parse to cast return values from string. 
         # This is faster than the standard ast module.
         if len(parts) > 1:
-            try:    return json.loads("[" + ",".join(parts) + "]")
+            try:    return list(map(json.loads, parts)) #json.loads("[" + ",".join(parts) + "]")
+#           try:    return json.loads("[" + ",".join(parts) + "]")
             except: return ret
+
+        elif proc_name == "eigen":
+            # "eigen" should always return a list
+            return [float(ret)]
+
         else:
             try:    return json.loads(ret)
             except: return ret
@@ -371,13 +428,38 @@ class OpenSeesPy:
 
 
     def timeSeries(self, *args, **kwds):
+        """
+        ['Path', 1, '-values', 0.0, 5.0, 8.0, 7.0, 5.0, 3.0, 2.0, 1.0, 0.0, '-time', 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        ['Path', 1, '-values', [0.0, 5.0, 8.0, 7.0, 5.0, 3.0, 2.0, 1.0, 0.0], '-time', [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
+        """
+
+        args = list(args)
         if "-values" in args:
-            iv = list(args).index("-values")
+            iv = args.index("-values")
+            # Count the number of floating-point arguments
             for nv, value in enumerate(args[iv+1:]):
                 if not isinstance(value, float):
+                    nv += 1
                     break
-            values = list(args[iv+1:nv])
-            args = [a for a in args[:iv+1]] + [values] + [a for a in args[nv:]]
+            else:
+                # if we didnt break out of the for loop
+                nv += 2
+
+            values = args[iv+1:iv+nv]
+            args = [a for a in args[:iv+1]] + [values] + [a for a in args[iv+nv:]]
+
+        if "-time" in args:
+            it = args.index("-time")
+            for nt, value in enumerate(args[it+1:]):
+                if not isinstance(value, float):
+                    nt += 1
+                    break
+            else:
+                # if we didnt break out of the for loop
+                nt += 2
+
+            time = args[it+1:it+nt]
+            args = [a for a in args[:it+1]] + [time] + [a for a in args[it+nt:]]
 
         return self._str_call("timeSeries", *args, **kwds)
 
@@ -444,10 +526,10 @@ class OpenSeesPy:
         # TODO: error handling
 
         if "shape" in kwds:
-            from opensees.section import from_aisc
+            from opensees.section import from_shape
             ndm = int(self.eval("getNDM"))
-            # kwds["shape"] looks like ("W14X90", matTag, (20,4))
-            shape = from_aisc("Fiber", *kwds.pop("shape"), ndm=ndm)
+            # kwds["shape"] looks like ("W14X90", matTag, (20,4), units?)
+            shape = from_shape(type, *kwds.pop("shape"), ndm=ndm)
         else:
             shape = None
 
