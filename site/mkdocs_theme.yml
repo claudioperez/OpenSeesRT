@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2022 Martin Donath <martin.donath@squidfunk.com>
+# Copyright (c) 2016-2023 Martin Donath <martin.donath@squidfunk.com>
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -28,16 +28,6 @@ direction:
 # may be a matter of taste
 features: []
 
-# Sets the primary and accent color palettes as defined in the Material Design
-# documentation - possible values can be looked up in the getting started guide
-palette:
-
-  # Primary color used for header, sidebar and links, default: indigo
-  primary:
-
-  # Accent color for highlighting user interaction, default: indigo
-  accent:
-
 # Fonts used by Material, automatically loaded from Google Fonts - see the site
 # for a list of available fonts
 font:
@@ -48,20 +38,12 @@ font:
   # Fixed-width font for code listings
   code: Roboto Mono
 
-# From Material 5.x on, icons are inlined into the HTML and CSS as SVGs. Some
-# icons that are part of the HTML can be configured and replaced
+# From Material 5.x on, icons are inlined into the HTML and CSS as SVGs.
+# Icons that are part of the HTML can be configured and replaced
 icon:
 
 # Favicon to be rendered
 favicon: assets/images/favicon.png
-
-# Material includes the search in the header as a partial, not as a separate
-# template, so it's correct that search.html is missing
-include_search_page: false
-
-# Material doesn't use MkDocs search functionality but provides its own. For
-# this reason, only the search index needs to be built
-search_index_only: true
 
 # Static pages to build
 static_templates:

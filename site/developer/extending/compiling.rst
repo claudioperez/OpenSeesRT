@@ -1,5 +1,0 @@
-.. _contribute:
-
-*****************
-Contributing Code
-*****************

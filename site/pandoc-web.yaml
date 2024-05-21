@@ -20,14 +20,14 @@ metadata:
 
 
 filters:
-  - tools/pandoc_plantuml_filter.py
+# - tools/pandoc_plantuml_filter.py
   - tools/apidoc.lua
 # - pygmentize; # slow!
-  - etc/doc-config/elstir.lua
+# - etc/doc-config/elstir.lua
   - citeproc
 # - image_center.lua
-  - include.lua
-  - include-code-files.lua
+# - include.lua
+# - include-code-files.lua
 ##- pandoc-crossref
 
 # method is plain, webtex, gladtex, mathml, mathjax, katex
