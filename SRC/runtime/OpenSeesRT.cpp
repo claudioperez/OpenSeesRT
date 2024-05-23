@@ -17,6 +17,7 @@
 #include <StandardStream.h>      
 #include "commands/strings.cpp"
 #include <stdio.h>
+#include <stdlib.h>
 
 // Determine when stdout is a TTY
 #ifdef _WIN32
@@ -70,9 +71,16 @@ Openseesrt_Init(Tcl_Interp *interp)
   G3_InitTclSequentialAPI(interp); // Add sequential API
   init_g3_tcl_utils(interp);       // Add utility commands (linspace, range, etc.)
 
+  char* verbosity = getenv("OPENSEESRT_VERBOSITY");
+  if (verbosity != nullptr) {
+    if (strcmp(verbosity, "DEBUG") == 0) {
+      G3_SetStreamLevel(G3_LevelDebug, true);
+    }
+  }
+
   // Prevent coloring output when stderr is not a TTY
   if (isatty(STDERR_FILENO))
-    G3_setStreamColor(nullptr, G3_Warn, 1);
+    G3_SetStreamColor(nullptr, G3_LevelWarn, 1);
 
 
   // Set some variables with package information

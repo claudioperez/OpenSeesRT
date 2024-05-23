@@ -4,23 +4,17 @@
 #include <elementAPI.h>
 class G3_Runtime;
 
-// the following is a little kludgy but it works!
-// #ifdef _USING_STL_STREAMS
-// #  include <iomanip>
-//    using std::ios;
-// #  include <iostream>
-//    using std::ofstream;
-// #else
-#  include <StandardStream.h>
-#  include <FileStream.h>
-#  include <DummyStream.h>
-   StandardStream sserr;
-   DummyStream    ssnul;
-   OPS_Stream *opserrPtr = &sserr;
-   OPS_Stream *opsdbgPtr = &ssnul;
-   OPS_Stream *opswrnPtr = &sserr;
-   OPS_Stream *opsmrdPtr = &sserr;
-// #endif
+
+#include <StandardStream.h>
+#include <FileStream.h>
+#include <DummyStream.h>
+StandardStream sserr;
+DummyStream    ssnul;
+OPS_Stream *opserrPtr = &sserr;
+OPS_Stream *opsdbgPtr = &ssnul;
+OPS_Stream *opswrnPtr = &sserr;
+OPS_Stream *opsmrdPtr = &sserr;
+
 
 #include <G3_Logging.h>
 
@@ -38,23 +32,24 @@ const char * G3_ERROR_PROMPT = G3_ErrorPromptNoColor;
 const char * G3_DEBUG_PROMPT = G3_DebugPromptNoColor;
 
 int
-G3_setStreamLevel(G3_Runtime* rt, int stream, int level)
+G3_SetStreamLevel(int stream, bool on)
 {
   OPS_Stream **theStream;
   switch (stream) {
-    case G3_Error: theStream = &opserrPtr; break;
-    case G3_Debug: theStream = &opsdbgPtr; break;
-    case G3_Warn : theStream = &opswrnPtr; break;
+    case G3_LevelError: theStream = &opserrPtr; break;
+    case G3_LevelDebug: theStream = &opsdbgPtr; break;
+    case G3_LevelWarn : theStream = &opswrnPtr; break;
   }
 
-  switch (level) {
-    case G3_Null: *theStream = &ssnul; break;
-    case G3_Log : *theStream = &sserr; break;
+  if (on) {
+    *theStream = &sserr;
+  } else {
+    *theStream = &ssnul;
   }
   return 0;
 }
 
-int G3_setStreamColor(G3_Runtime* rt, int strm, int flag)
+int G3_SetStreamColor(G3_Runtime* rt, int strm, int flag)
 {
   if (flag == 1) {
     G3_WARN_PROMPT = G3_WarnPromptColor;

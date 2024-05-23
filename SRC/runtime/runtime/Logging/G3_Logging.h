@@ -18,7 +18,11 @@ enum G3_Stream {
 };
 
 enum G3_StreamLevel {
-  G3_Error, G3_Debug, G3_Log, G3_Warn
+  G3_LevelError, 
+  G3_LevelDebug, 
+  G3_LevelLog, 
+  G3_LevelWarn
 };
 
-int G3_setStreamColor(G3_Runtime* rt, int strm, int flag);
+int G3_SetStreamColor(G3_Runtime* rt, int strm, int flag);
+int G3_SetStreamLevel(int stream, bool on);
