@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
 // Written: MHS
 // Created: Aug 2001
 //
@@ -30,8 +26,7 @@
 // condensation on a three-dimensional material model to give the 11 and 12
 // stress components which can then be integrated over an area to model a
 // shear flexible 2D beam.
-
-
+//
 #include <BeamFiberMaterial2d.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
