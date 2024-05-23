@@ -23,29 +23,14 @@ class Component:
         from opensees.tcl import TclRuntime
         rt = TclRuntime(3, 6)
         from opensees import OpenSeesPyRT as libOpenSeesRT
-        self.name = self.tag = tag = self.name if self.name is not None else "1"
+        if self.name is None:
+            self.name = 1984
+            self._exit_name_none = True
+        else:
+            self._exit_name_none = False
+
         rt.send(self)
         handle = rt.lift(self.tag_space, str(self.name))
-
-
-#       if self.tag_space == "uniaxialMaterial":
-#           self.name = self.tag = tag = self.name if self.name is not None else "1"
-#           rt.send(self, ndm=1, ndf=1)
-#           self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
-#           handle = self._builder.getUniaxialMaterial(tag)
-
-#       elif self.tag_space == "section":
-#           rt.send(self, ndm=2, ndf=3)
-#           self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
-#           handle = self._builder.getSection(str(self.name))
-
-#       elif self._cmd[0] == "backbone":
-#           rt.send(self)
-#           self._builder = libOpenSeesRT.get_builder(rt._interp.interpaddr())
-#           handle = self._builder.getHystereticBackbone(str(self.name))
-
-#       else:
-#           raise TypeError("Unimplemented type")
 
         self._rt = rt
         return handle
@@ -53,6 +38,8 @@ class Component:
     def __exit__(self, exception_type, exception_value, exception_traceback):
         assert self._rt is not None
         self._rt = None
+        if self._exit_name_none:
+            self.name = None
 
 
     def get_ast(self): ...
