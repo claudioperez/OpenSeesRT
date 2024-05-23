@@ -13,6 +13,10 @@ from .library.model import model
 
 import importlib
 
+# something to compare the output of model.analyze to:
+successful = 0
+
+
 _libs = ["model", "uniaxial", "element", "backbone", "pattern", "constraint"]
 
 def __getattr__(name):
