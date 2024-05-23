@@ -476,7 +476,6 @@ init_obj_module(py::module &m)
     .def ("getNDMaterial", [](BasicModelBuilder& builder, int tag){
         return builder.getTypedObject<NDMaterial>(tag);
     })
-
     /*
     .def ("getUniaxialMaterial", [](BasicModelBuilder& builder, py::str tag){
         return builder.getTypedObject<UniaxialMaterial>(tag);
