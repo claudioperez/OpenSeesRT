@@ -82,6 +82,8 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
 
   } else if (transient_integrator != nullptr)
     builder->set(*transient_integrator);
+  else
+    return TCL_ERROR;
 
   return TCL_OK;
 }
@@ -423,9 +425,10 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 {
   double arcLength;
   double alpha   = 1.0;
-  double expon   = 1.0;
+  double expon   = 0.0;
   bool   use_det = false;
-  int    numIter = 5;
+  double numIter = 5;
+  ReferencePattern reference = ReferencePattern::Full;
   
   // parser variables
   bool got_alpha = false;
@@ -443,22 +446,33 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
     if (strcmp(argv[i], "-det") == 0) {
       use_det = true;
     }
-    else if (strcmp(argv[i], "-exp") == 0) {
-      i++;
-      if (Tcl_GetDouble(interp, argv[i], &expon) != TCL_OK) {
+    else if ((strcmp(argv[i], "-exp") == 0)) {
+      if (++i >= argc || Tcl_GetDouble(interp, argv[i], &expon) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "failed to read expon\n";
         return nullptr;
       }
     }
-    else if (!got_alpha) {
+    else if ((strcmp(argv[i], "-j") == 0)) {
+      if (++i >= argc || Tcl_GetDouble(interp, argv[i], &numIter) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read iter\n";
+        return nullptr;
+      }
+    }
+    else if ((strcmp(argv[i], "-reference") == 0)) {
+      if (++i < argc && strcmp(argv[i], "point")==0) {
+        reference = ReferencePattern::Point;
+      }
+    } else if (!got_alpha) {
       if (Tcl_GetDouble(interp, argv[i], &alpha) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "failed to read alpha, got " << argv[i] << "\n";
         return nullptr;
       }
+      got_alpha = true;
     }
+
   }
 
-  return new ArcLength(arcLength, alpha, numIter, expon, use_det);
+  return new ArcLength(arcLength, alpha, numIter, expon, use_det, reference);
 }
 
 
@@ -515,7 +529,7 @@ G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp,
     }
 
     return new MinUnbalDispNorm(lambda11, numIter, minlambda,
-                                               maxlambda, signFirstStepMethod);
+                                maxlambda, signFirstStepMethod);
 }
 
 StaticIntegrator*
