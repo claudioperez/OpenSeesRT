@@ -223,7 +223,7 @@ BasicAnalysisBuilder::domainChanged(void)
   int stamp = domain->hasDomainChanged();
   domainStamp = stamp;
 
-  opsdbg << G3_DEBUG_PROMPT << "DomainChanged\n";
+  opsdbg << G3_DEBUG_PROMPT << "Domain changed\n";
 
   theAnalysisModel->clearAll();
   if (theHandler != nullptr) {
@@ -366,8 +366,8 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
 
       result = theAlgorithm->solveCurrentStep();
       if (result < 0) {
-        opserr << "StaticAnalysis::analyze - the Algorithm failed at step: " << i
-               << " with domain at load factor " << theDomain->getCurrentTime() << "\n";
+//      opserr << "StaticAnalysis::analyze - the Algorithm failed at step: " << i
+//             << " with domain at load factor " << theDomain->getCurrentTime() << "\n";
         theDomain->revertToLastCommit();
         theStaticIntegrator->revertToLastStep();
         return -3;
@@ -437,7 +437,7 @@ BasicAnalysisBuilder::analyzeStep(double dT)
   int result = 0;
   if (theAnalysisModel->analysisStep(dT) < 0) {
     opserr << "DirectIntegrationAnalysis::analyze() - the AnalysisModel failed";
-    opserr << " at time " << theDomain->getCurrentTime() << endln;
+    opserr << " at time " << theDomain->getCurrentTime() << "\n";
     theDomain->revertToLastCommit();
     return -2;
   }
@@ -462,8 +462,8 @@ BasicAnalysisBuilder::analyzeStep(double dT)
 
   result = theAlgorithm->solveCurrentStep();
   if (result < 0) {
-    opserr << "DirectIntegrationAnalysis::analyze() - the Algorithm failed";
-    opserr << " at time " << theDomain->getCurrentTime() << endln;
+//  opserr << "DirectIntegrationAnalysis::analyze() - the Algorithm failed";
+//  opserr << " at time " << theDomain->getCurrentTime() << endln;
     theDomain->revertToLastCommit();
     theTransientIntegrator->revertToLastStep();
     return -3;

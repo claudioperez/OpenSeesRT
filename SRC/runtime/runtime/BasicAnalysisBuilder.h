@@ -8,11 +8,11 @@
 //
 // - LinearSOE
 // - Domain                    *theDomain;
-// - ConstraintHandler 	      *theHandler;
-// - DOF_Numberer 	      *theNumberer;
-// - AnalysisModel 	      *theAnalysisModel;
-// - EquiSolnAlgo 	      *theAlgorithm;
-// - EigenSOE 		      *theEigenSOE;
+// - ConstraintHandler 	       *theHandler;
+// - DOF_Numberer 	           *theNumberer;
+// - AnalysisModel 	           *theAnalysisModel;
+// - EquiSolnAlgo 	           *theAlgorithm;
+// - EigenSOE 		             *theEigenSOE;
 // - StaticIntegrator          *theStaticIntegrator;
 // - TransientIntegrator       *theTransientIntegrator;
 // - ConvergenceTest           *theTest;
