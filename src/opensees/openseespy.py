@@ -15,6 +15,9 @@ from functools import partial
 
 from .tcl import Interpreter
 
+# something to compare the output of model.analyze to:
+successful = 0
+
 # A list of symbol names that are importable
 # from this module. All of these are dynamically
 # resolved by the function __getattr__ below.
@@ -559,6 +562,9 @@ class Model:
     def __init__(self, *args, echo_file=None, **kwds):
         self._openseespy = OpenSeesPy(echo_file=echo_file)
         self._openseespy._str_call("model", *args, **kwds)
+
+    def export(self, *args, **kwds):
+        return self._openseespy._interp.export(*args, **kwds)
 
     def asdict(self):
         """April 2024"""
