@@ -67,7 +67,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // make sure at least one other argument to contain integrator
   if (argc < 4) {
-    opserr << "WARNING invalid command - want: pattern type ";
+    opserr << G3_ERROR_PROMPT << "invalid command - want: pattern type ";
     opserr << " <type args> {list of load and sp constraints commands}\n";
     opserr
         << "           valid types: Plain, UniformExcitation, MultiSupport\n";
@@ -90,21 +90,18 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     thePattern = new LoadPattern(patternID);
     theSeries = TclSeriesCommand(clientData, interp, argv[3]);
 
-    if (thePattern == 0 || theSeries == 0) {
+    if (theSeries == nullptr) {
 
-      if (thePattern == 0) {
-        opserr << "WARNING - out of memory creating LoadPattern ";
-        opserr << patternID << endln;
-      } else {
-        opserr << "WARNING - problem creating TimeSeries for LoadPattern ";
-        opserr << patternID << endln;
-      }
+      opserr << "WARNING - problem creating TimeSeries for LoadPattern ";
+      opserr << patternID << endln;
 
       // clean up the memory and return an error
-      if (thePattern != 0)
+      if (thePattern != nullptr)
         delete thePattern;
-      if (theSeries != 0)
+
+      if (theSeries != nullptr)
         delete theSeries;
+
       return TCL_ERROR;
     }
 
@@ -193,7 +190,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         currentArg++;
         seriesIntegrator =
             TclDispatch_newSeriesIntegrator(clientData, interp, argv[currentArg]);
-        if (seriesIntegrator == 0) {
+        if (seriesIntegrator == nullptr) {
           opserr << "WARNING invalid series integrator: " << argv[currentArg];
           opserr << " - pattern UniformExcitation -int {Series Integrator}\n";
           return TCL_ERROR;
