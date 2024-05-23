@@ -35,6 +35,12 @@
 class FE_Element;
 class DOF_Group;
 
+enum class ReferencePattern {
+  Point,
+  Body,
+  Full
+};
+
 class StaticIntegrator : public IncrementalIntegrator
 {
   public:

@@ -17,13 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/OriginCentered.h,v $
-
 //
 // Description: This file contains the class definition for 
 // OriginCentered. 
-
+//
 #ifndef OriginCentered_h
 #define OriginCentered_h
 
@@ -65,10 +62,10 @@ class OriginCentered : public UniaxialMaterial
     // matpar : STEEL FIXED PROPERTIES
     double f1;  //  = matpar(1)
     double e1;  //  = matpar(2) 
-    double f2;   //  = matpar(3) 
+    double f2;  //  = matpar(3) 
     double e2;  //  = matpar(4) 
-    double f3; //  = matpar(5)
-    double e3; //  = matpar(6) 
+    double f3;  //  = matpar(5)
+    double e3;  //  = matpar(6) 
 
 	double E1;
 	double E2;

@@ -24,7 +24,7 @@
 #include <math.h>
 
 #include <stdlib.h>
-#include <OriginCentered.h>
+#include "OriginCentered.h"
 #include <OPS_Globals.h>
 #include <float.h>
 #include <Channel.h>
@@ -116,7 +116,7 @@ UniaxialMaterial*
 }
 
 double
-	OriginCentered::getInitialTangent(void)
+OriginCentered::getInitialTangent(void)
 {
 	return E1;
 }

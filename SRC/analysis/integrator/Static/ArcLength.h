@@ -35,13 +35,16 @@
 #define ArcLength_h
 
 #include <StaticIntegrator.h>
-// class FE_Element;
 class Vector;
 
 class ArcLength : public StaticIntegrator
 {
   public:
-    ArcLength(double arcLength, double alpha = 1.0, double numIter=5.0, double expon=1.0, bool use_det=false);
+    ArcLength(double arcLength, double alpha = 1.0, 
+              double numIter=1.0, double expon=0.0,
+              bool use_det=false, 
+              ReferencePattern reference_type=ReferencePattern::Full
+    );
 
     ~ArcLength();
 
@@ -53,7 +56,7 @@ class ArcLength : public StaticIntegrator
     int recvSelf(int commitTag, Channel &theChannel, 
 			 FEM_ObjectBroker &theBroker);
 
-    void Print(OPS_Stream &s, int flag =0);    
+    void Print(OPS_Stream &s, int flag =0);
 
    //////////////////////////Sensitivity Begin/////////////////
     void formTangDispSensitivity(int gradNumber);
@@ -77,7 +80,8 @@ class ArcLength : public StaticIntegrator
     double arcLength;
     double expon;          // exponent parameter
     double alpha2;
-    bool use_det;
+    bool   use_det;
+    ReferencePattern  reference_type;
 
     double a,b,c,b24ac;
     Vector *deltaUhat, *deltaUbar, *deltaU, *deltaUstep;

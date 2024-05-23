@@ -23,6 +23,7 @@
 static char *resDataPtr  = nullptr;
 static int   resDataSize = 0;
 
+
 int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
             TCL_Char ** const argv)
