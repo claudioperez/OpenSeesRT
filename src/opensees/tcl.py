@@ -230,14 +230,14 @@ class ModelRuntime:
 
         if type == "uniaxialmaterial":
             self.model(2,3)
-            return _builder.getUniaxialMaterial(tag)
+            return _builder.getUniaxialMaterial(int(tag))
 
         elif type == "section":
-            return _builder.getSection(tag)
+            return _builder.getSection(int(tag))
 
         elif type == "backbone":
 #           rt.send(self)
-            return _builder.getHystereticBackbone(tag)
+            return _builder.getHystereticBackbone(int(tag))
 
         else:
             raise TypeError("Unimplemented type")
@@ -309,7 +309,6 @@ def _build_extension_env():
 
             if path and pathlib.Path(path).is_absolute() and pathlib.Path(path).is_dir():
                 cookies.append(os.add_dll_directory(path))
-
     try:
         yield
 
