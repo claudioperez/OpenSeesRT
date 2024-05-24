@@ -74,8 +74,8 @@ void * OPS_ADD_RUNTIME_VPV(OPS_HookGap)
       opserr << "Invalid data for uniaxialMaterial HookGap " << iData[0] << endln;
       return 0;	
     }
-    dData[1] = -dData[2];
-    dData[2] =  dData[1];;
+    dData[2] = dData[1];
+    dData[1] = -dData[1];
   }
 
   // Parsing was successful, allocate the material
