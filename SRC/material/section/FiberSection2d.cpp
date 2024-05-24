@@ -589,7 +589,7 @@ FiberSection2d::Print(OPS_Stream &s, int flag)
     for (int i = 0; i < numFibers; i++) {
       s << "\t\t\t\t{\"coord\": [" << matData[2*i] << ", 0.0], ";
       s << "\"area\": " << matData[2*i+1] << ", ";
-      s << "\"material\": \"" << theMaterials[i]->getTag() << "\"";
+      s << "\"material\": " << theMaterials[i]->getTag();
       if (i < numFibers-1)
 	s << "},\n";
       else
