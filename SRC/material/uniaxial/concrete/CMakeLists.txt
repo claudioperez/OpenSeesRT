@@ -41,7 +41,6 @@ target_sources(OPS_Material
     TDConcreteMC10.cpp
     TDConcreteMC10NL.cpp
     TDConcreteNL.cpp
-    CreepMaterial.cpp
   PUBLIC
     Concrete01.h
     Concrete01WithSITC.h
@@ -69,6 +68,5 @@ target_sources(OPS_Material
     TDConcreteMC10.h
     TDConcreteMC10NL.h
     TDConcreteNL.h
-    CreepMaterial.h
 )
 
