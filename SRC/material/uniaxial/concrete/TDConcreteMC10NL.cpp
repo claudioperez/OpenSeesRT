@@ -69,10 +69,8 @@
 #include <float.h>
 #include <Channel.h>
 #include <Information.h>
-#include <iostream> //Added by AMK for debugging
 #include <elementAPI.h> //Added by AMK to use methods for parsing data line;
 #include <Domain.h> //Added by AMK to get current Domain time;
-using namespace std; //Added by AMK for debugging
 #include <MaterialResponse.h>
 #include <Vector.h>
 
@@ -141,7 +139,7 @@ TDConcreteMC10NL::TDConcreteMC10NL(int tag, double _fc, double _fcu, double _eps
   ecmaxP = 0.0; //ntosic
   deptP = 0.0;
 
-	sigCr = fabs(sigCr); //ntosic: CHANGE?
+  //sigCr = fabs(sigCr); //ntosic: CHANGE?
   eP = Ec; //Added by AMK
   epsP = 0.0;
   sigP = 0.0;
@@ -173,13 +171,13 @@ TDConcreteMC10NL::TDConcreteMC10NL(int tag, double _fc, double _fcu, double _eps
 	
 	
 	//Change inputs into the proper sign convention: ntosic: changed
-		fc = -1.0*fabs(fc);
-        fcu = -1.0*fabs(fcu);
-        epscu = -1.0*fabs(epscu);		
-		epsba = -1.0*fabs(epsba);
-		epsda = -1.0*fabs(epsda);
-		phiba = 1.0*fabs(phiba);
-		phida = 1.0*fabs(phida);
+    fc = -fabs(fc);
+    fcu = -fabs(fcu);
+    epscu = -fabs(epscu);		
+    epsba = -fabs(epsba);
+    epsda = -fabs(epsda);
+    phiba = fabs(phiba);
+    phida = fabs(phida);
 }
 
 TDConcreteMC10NL::TDConcreteMC10NL(void):
@@ -210,7 +208,7 @@ TDConcreteMC10NL::getInitialTangent(void)
 double
 TDConcreteMC10NL::getCurrentTime(void)
 {
-	double currentTime;
+	double currentTime = 0.0;
 	Domain * theDomain = ops_TheActiveDomain;
 
 	if (theDomain != 0) {
@@ -357,7 +355,7 @@ TDConcreteMC10NL::setTrialStrain(double trialStrain, double strainRate)
         		//	eps_cr = setCreepStrain(t,sig);
         		//}
         		//if (t < tcast) {
-        		//cout << "\nWARNING: TDConcrete loaded before tcast, creep and shrinkage not calculated";
+        		//opserr << "\nWARNING: TDConcrete loaded before tcast, creep and shrinkage not calculated" << endln;
         		//	eps_sh = epsP_sh;
         		//	eps_cr = epsP_cr;
         		//	eps_m = eps_total - eps_cr - eps_sh;
@@ -410,12 +408,12 @@ TDConcreteMC10NL::setStress(double strain, double &stiff)
     	} else { // either Tens Load, Tens Unload, or Tens reload
     		double et0 = ft/Ec;
     		if (strain >= ecmax) { //Tens Load or reload if strain is larger than before
-    		//Need to check whether cracking has occured or not
+    		//Need to check whether cracking has occurred or not
     		//If cracked, then reloading occurs along Et
     		//If not cracked, then loading occurs according to Tens_Envlp
     			ecmax = strain; // reset ecmax
     			this->Tens_Envlp(strain, stress, stiff);
-    			if (strain >= et0) {//cracking has occured, set cracking flag
+    			if (strain >= et0) {//cracking has occurred, set cracking flag
     				crack_flag = 1;
     			}
     		} else { //Tens Unload or Tens Reload
@@ -518,7 +516,7 @@ TDConcreteMC10NL::commitState(void)
   DSIG_i[count+1] = sig-sigP;
   
   //Secant Stiffness for determination of creep strain:
-      if (fabs(eps_m/sig)>Ec) {  //ntosic: originaly was eps_m/sig
+      if (fabs(eps_m/sig)>Ec) {  //ntosic: originally was eps_m/sig
           E_i[count+1] = Ec;
       } else {
           E_i[count+1] = fabs(sig/eps_m); //ADDED 7/22
@@ -545,7 +543,8 @@ TDConcreteMC10NL::commitState(void)
 	//ntosic: strain compression limit changed to 0.4fc/Ec; Include nonlinear creep coefficient?
     if (eps_m < 0 && fabs(eps_m)>0.40*fabs(fc/Ec)) {
         double s = fabs(eps_m/fc)*Ec;
-		cout<<"\n          Strain Compression Limit Exceeded: "<<s<<"fc'";
+	s = 0.4*fabs(fc/Ec);
+	opserr << "Strain Compression Limit Exceeded: " << eps_m << ' ' << -s << endln;
     }
 		//Cracking flags:
 		crackP_flag = crack_flag;
@@ -626,7 +625,7 @@ TDConcreteMC10NL::revertToStart(void)
 int 
 TDConcreteMC10NL::sendSelf(int commitTag, Channel &theChannel)
 {
-  static Vector data(24); //ntosic
+  static Vector data(26); //ntosic
   data(0) =fc;
   data(1) =fcu;
   data(2) = epscu;
@@ -651,6 +650,8 @@ TDConcreteMC10NL::sendSelf(int commitTag, Channel &theChannel)
   data(21) = sigP; //ntosic
   data(22) = eP; //ntosic
   data(23) = this->getTag();
+  data(24) = tcast;
+  data(25) = count;
 
   if (theChannel.sendVector(this->getDbTag(), commitTag, data) < 0) {
     opserr << "TDConcreteMC10NL::sendSelf() - failed to sendSelf\n";
@@ -664,7 +665,7 @@ TDConcreteMC10NL::recvSelf(int commitTag, Channel &theChannel,
 	     FEM_ObjectBroker &theBroker)
 {
 
-  static Vector data(24); //ntosic
+  static Vector data(26); //ntosic
 
   if (theChannel.recvVector(this->getDbTag(), commitTag, data) < 0) {
     opserr << "TDConcreteMC10NL::recvSelf() - failed to recvSelf\n";
@@ -695,7 +696,9 @@ TDConcreteMC10NL::recvSelf(int commitTag, Channel &theChannel,
   sigP = data(21); //ntosic
   eP = data(22); //ntosic
   this->setTag(data(23));
-
+  tcast = data(24);
+  count = (int)data(25);
+  
   e = eP;
   sig = sigP;
   eps = epsP;
