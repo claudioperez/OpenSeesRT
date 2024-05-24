@@ -7,7 +7,7 @@ relationships at beam-column and plate sample points.
 from math import pi, sin, cos
 from opensees.library import LibCmd, Cmd, Component
 from opensees.library import uniaxial
-from opensees.library.ast import *
+from opensees.library.ast import Tag, Num, Blk, Ref, Flg, Map
 from . import patch
 
 layer = patch.layer
@@ -61,6 +61,15 @@ class FiberSection(_FiberCollection):
     def add_patches(self, patch):
         self._fibers = None
         self.areas.extend(patch)
+
+    def __repr__(self):
+        import textwrap
+        return textwrap.dedent(f"""\
+        SectionGeometry
+            area: {self.area}
+            ixc:  {self.ixc}
+            iyc:  {self.iyc}
+        """)
 
     @property
     def patches(self):

@@ -1,7 +1,5 @@
 __version__  = "0.0.61"
 
-# from .patch import layer
-
 # Imports for this module
 import math
 import fnmatch
@@ -12,6 +10,8 @@ from .library import pattern
 from .library.model import model
 
 import importlib
+
+
 
 _libs = ["model", "uniaxial", "element", "backbone", "pattern", "constraint"]
 

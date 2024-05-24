@@ -115,7 +115,7 @@ class Node(Recorder):
     def parse_bin(self, stream):
         pass
 
-    def index(self, indices):
+    def _index(self, indices):
         pass
 
     @property

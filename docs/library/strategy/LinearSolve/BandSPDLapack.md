@@ -18,11 +18,14 @@ An *n*×*n* matrix *A*=(*a*~*i,j*~) is a **symmmetric banded matrix** if
 all matrix elements are zero outside a diagonally bordered band whose
 range is determined by constants *k*:
 
-$$a_{i,j}=0 \quad\mbox{if}\quad j<i-k \quad\mbox{ or }\quad j>i+k; \quad k \ge 0.\,$$
+$$
+a_{i,j}=0 \quad\texttt{if}\quad j<i-k \quad\texttt{ or }\quad j>i+k; \quad k \ge 0.$$
 
-$$a_{i,j} = a_{j,i}\,$$
+$$a_{i,j} = a_{j,i}$$
 
-$$y^T A y  != 0 \,$$ for all non-zero vectors *y* with real entries
+$$y^T A y  \ne 0 $$ 
+
+for all non-zero vectors *y* with real entries
 ($y \in \mathbb{R}^n$),
 
 The *bandwidth* of the matrix is *k* + *k* + 1.
@@ -36,7 +39,9 @@ $$\begin{bmatrix}
       &        &        & A_{44} & A_{45} & A_{46} \\
       & sym    &        &        & A_{55} & A_{56} \\
       &        &        &        &        & A_{66}
-\end{bmatrix}.$$ This matrix is stored as the 6-by-3 matrix:
+\end{bmatrix}.$$ 
+
+This matrix is stored as the 6-by-3 matrix:
 
 $$\begin{bmatrix}
  A_{11} & A_{12} & A_{13} \\
@@ -45,7 +50,8 @@ $$\begin{bmatrix}
  A_{44} & A_{45} & A_{46} \\
  A_{55} & A_{56} & 0 \\
  A_{66} & 0 & 0
-\end{bmatrix}.$$
+\end{bmatrix}.
+$$
 
 
 ## C++ Interface

@@ -9,7 +9,7 @@ program runs. When a solution is required, the Lapack routines `DGESV` and
 system:
 
 ```tcl
-system FullGeneral
+system FullGeneral < -det >
 ```
 
 <hr />

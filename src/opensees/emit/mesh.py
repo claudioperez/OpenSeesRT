@@ -4,6 +4,8 @@ def load(interp, file):
     mesh = meshio.read(file)
 
 def dump(model, file, format="vtk"):
+    if "StructuralAnalysisModel" in model:
+        model = model["StructuralAnalysisModel"]
 
     nodes = {
         int(n["name"]): i for i,n in enumerate(model["geometry"]["nodes"])
@@ -24,6 +26,11 @@ def dump(model, file, format="vtk"):
             [nodes[int(n)] for n in e["nodes"]]
                 for e in model["geometry"]["elements"]
                 if "tri" in e["type"] or ("shell" in e["type"].lower() and len(e["nodes"]) == 3)
+            ]),
+        ("tetra", [
+            [nodes[int(n)] for n in e["nodes"]]
+                for e in model["geometry"]["elements"]
+                if "tri" in e["type"] or ("tetrahedron" in e["type"].lower())
             ]),
         ("hexahedron", [
             [nodes[int(n)] for n in e["nodes"]]

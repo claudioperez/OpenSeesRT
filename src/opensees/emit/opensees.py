@@ -119,7 +119,7 @@ class TclWriter(Emitter):
 
         return this.write(self.flag, *vals)
 
-TclScriptBuilder = lambda : ScriptBuilder(TclWriter)
+TclScriptBuilder = lambda **kwds: ScriptBuilder(TclWriter, **kwds)
 
 class OpenSeesWriter(ModelWriter):
     def __init__(self, model=None):

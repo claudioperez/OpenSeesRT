@@ -6,14 +6,9 @@
 class ProfileSPDLinDirectSkypackSolver: public LinearSOESolver
 ```
 
-MovableObject\
-Solver\
-LinearSOESolver\
-ProfileSPDLinSolver\
 
-\
-A ProfileSPDLinDirectSkypackSolver object can be constructed to solve a
-ProfileSPDLinSOE object. It does this by direct means using the routines
+A `ProfileSPDLinDirectSkypackSolver` object can be constructed to solve a
+`ProfileSPDLinSOE` object. It does this by direct means using the routines
 supplied in the SKYPACK library, a library which uses the BLAS levels
 1,2 and 3 for the factorization and substitution.
 
@@ -27,20 +22,7 @@ mRows$$
 * and *int index\[max(mCols,mRows)$$
 * are created.
 
-Constructors\
 
-\
-
-Destructor\
-
-\
-Public Methods\
-
-\
-
-\
-
-\
 A unique class tag (defined in  `<classTags.h>`) is passed to the
 ProfileSPDLinSolver constructor. Sets *mCols* and *mRows* equal to $0$
 and does not try and allocate any memory for the work arrays.

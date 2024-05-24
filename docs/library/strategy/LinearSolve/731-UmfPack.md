@@ -1,20 +1,23 @@
 # UmfPack SOE
 
-<p>This command is used to construct a sparse system of equations which
+This command is used to construct a sparse system of equations which
 uses the <a
 href="http://www.cise.ufl.edu/research/sparse/umfpack/">UmfPack</a>
-solver. The following command is used to construct such a system:</p>
+solver. The following command is used to construct such a system:
 
 ```tcl
-system UmfPack &lt;-lvalueFact
-        $LVALUE&gt;
+system UmfPack  < -lvalueFact $LVALUE >
 ```
-<p>(LVALUE*the number of nonzero entries) is the amount of additional
+
+(LVALUE*the number of nonzero entries) is the amount of additional
 memory set aside for fill in during the matrix solution, by default the
 LVALUE factor is 10. You only need to experiment with this if you get
-error messages back about LVALUE being too small.</p>
+error messages back about LVALUE being too small.
+
 <hr />
+
 ## References
+
 <ul>
 <li>A column pre-ordering strategy for the unsymmetric-pattern
 multifrontal method, T. A. Davis, ACM Transactions on Mathematical

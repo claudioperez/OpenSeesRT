@@ -25,6 +25,7 @@ All patches have the following attributes:
 import sys
 import itertools
 from opensees.library.ast import *
+from opensees.library.ast import Grp, Num, Ref, Int
 from opensees.library.obj import LibCmd, cmd
 import numpy as np
 
@@ -49,8 +50,11 @@ class Fiber:
             about="material tag associated with this fiber (UniaxialMaterial tag"\
                   "for a FiberSection and NDMaterial tag for use in an NDFiberSection)."),
     ]
-    def getStress(self, strain, commit=False):
-        pass
+    
+    @property
+    def fibers(self):
+        yield self
+
 #)
 
 _patch = LibCmd("patch")
@@ -188,7 +192,9 @@ class rect(_Polygon):
                 (dx*dy*self.area  for dx,dy in itertools.product(*wght)),
                 float, len(x)
             )
-            self._fibers = [Fiber([xi,yi], dai, self.material) for yi,xi,dai in sorted(zip(y,x,da))]
+            self._fibers = [
+                Fiber([xi,yi], dai, self.material) for yi,xi,dai in sorted(zip(y,x,da))
+            ]
         return self._fibers
 
 
@@ -196,7 +202,7 @@ class rect(_Polygon):
 class quad(_Polygon):
     """A quadrilateral shaped patch.
     The geometry of the patch is defined by four vertices: I J K L. 
-    The coordinates of each of the four vertices is specified in *counter counter* sequence
+    The coordinates of each of the four vertices is specified in *counter clockwise* sequence
     """
     _img  = "quadPatch.svg"
     _args = [
@@ -230,7 +236,8 @@ class quad(_Polygon):
             interp = self._interp or lq4
             rule = self._rule
 
-            loc, wght = zip(iquad(rule=rule, n=self.divs[0]), iquad(rule=rule, n=self.divs[1]))
+            loc, wght = zip(iquad(rule=rule, n=self.divs[0]),
+                            iquad(rule=rule, n=self.divs[1]))
 
             x,y= zip(*(
                     interp(r,s)@self.vertices

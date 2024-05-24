@@ -14,7 +14,7 @@ class ProfileSPDLinDirectThreadSolver: public LinearSOESolver
 
 A `ProfileSPDLinDirectThreadSolver` object can be constructed to solve a
 ProfileSPDLinSOE object. It does this in parallel using threads by
-direct means, using the $LDL^t$ variation of the cholesky factorization.
+direct means, using the $LDL^t$ variation of the Cholesky factorization.
 The matrx $A$ is factored one row block at a time using a left-looking
 approach. Within a row block the factorization is performed by $NP$
 threads. No BLAS or LAPACK routines are called for the factorization or

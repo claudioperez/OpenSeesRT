@@ -40,10 +40,11 @@ class ScriptBuilder:
     # TAB = object()
     # RET = object()
 
-    def __init__(self, emitter):
+    def __init__(self, emitter, skip_int_refs: bool = False):
         self.emitter = emitter
         self.sent = set()
         self.python_objects = {}
+        self._skip_int_refs = skip_int_refs
 
         self.streams = [emitter(StringIO(), self)]
         self.stream_names = {"root": self.streams[0]}
@@ -102,7 +103,11 @@ class ScriptBuilder:
         elif not hasattr(obj,"_args"):
             raise ObjectSerializationError(f"object {obj} of type {type(obj)}")
 
+        # recurse into references
         for ref,tag_space in obj.get_refs():
+
+            if isinstance(ref, int) and self._skip_int_refs:
+                continue
 
             try:
                 self.send(ref)

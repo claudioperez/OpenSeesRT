@@ -11,7 +11,7 @@ mm           = millimeter   = 0.039370079         # Milimeter
 cm           = centimeter   = 0.393700787         # Centimeter
 m            = meter        = 39.37007874         # Meter
 km           = kilometer    = 39370.07874         # Kilometer
-inch                        = 1.0                 
+inch                        = 1.0
 ft           = foot         = 12.0                # International foot
 yd           = yard         = 36.0                # International yard
 mi           = mile         = 63360.0             # Mile
@@ -46,14 +46,14 @@ N            = newton       = 86.7961666          # Newton (force)
 dyn          = dyne         = 0.000867962         # Dyne
 pdl          = poundal      = 12.0                # Poundal
 lbf          = poundf       = 386.088588          
-kip          = klbf         = 386088.588          
+kip          = klbf         = 386088.588
 
 #
 #  Mass 
 #
-slug                        = 32.174049           
+slug                        = 32.174049
 lbm          = lbm          = 1.0                 # International avoirdupois pound
-g            = gram         = 0.002204623         
+gm           = gram         = 0.002204623
 kg           = kilogram     = 2.204622632         # Kilogram
 tonne                       = 2204.622632         # Metric tonne
 oz           = ounce        = 0.0625              # International avoirdupois ounce
@@ -81,7 +81,7 @@ mol          = mole         = 1.0                 # Mole
 #
 #  Frequency 
 #
-Hz           = hertz        = 1.0                 
+Hz           = hertz        = 1.0
 
 #
 #  Area 
@@ -98,7 +98,7 @@ mi2          = mile2        = 4014489600.0        # Square mile
 #
 #  Volume 
 #
-mm3                         = 6.10237e-05         
+mm3                         = 6.10237e-05
 m3                          = 0.061023744         
 cm3                         = 61023.74409         
 km3                         = 61023700000000.0    

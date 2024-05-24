@@ -60,16 +60,18 @@ def eval(script: str):
     {script}
     """))
 
-def dumps(obj):
+def dumps(obj, skip_int_refs=False)->str:
 
 #   TODO: Move this function, maybe to emit
 
     if not isinstance(obj, (Component,list,tuple)):
+        # Build out a model
         from opensees.emit import OpenSeesWriter
         return OpenSeesWriter(obj).dump()
+
     else:
         from opensees.emit.opensees import TclScriptBuilder
-        writer = TclScriptBuilder()
+        writer = TclScriptBuilder(skip_int_refs=skip_int_refs)
         try:
             writer.send(obj)
             if not writer.python_objects:
@@ -78,7 +80,6 @@ def dumps(obj):
                 return writer
         except Exception as e:
             raise e
-            # print(writer.getScript(indexed=True), file=sys.stderr)
             # raise ValueError("Cannot dump model with binary objects")
 
 
@@ -117,7 +118,6 @@ class Interpreter:
             raise e
 
     def serialize(self)->dict:
-        # TODO: use tempfile or pipe
         import tempfile
         tmp = tempfile.NamedTemporaryFile(delete=False)
         tmp.close()
@@ -230,14 +230,14 @@ class ModelRuntime:
 
         if type == "uniaxialmaterial":
             self.model(2,3)
-            return _builder.getUniaxialMaterial(tag)
+            return _builder.getUniaxialMaterial(int(tag))
 
         elif type == "section":
-            return _builder.getSection(tag)
+            return _builder.getSection(int(tag))
 
         elif type == "backbone":
 #           rt.send(self)
-            return _builder.getHystereticBackbone(tag)
+            return _builder.getHystereticBackbone(int(tag))
 
         else:
             raise TypeError("Unimplemented type")
@@ -309,7 +309,6 @@ def _build_extension_env():
 
             if path and pathlib.Path(path).is_absolute() and pathlib.Path(path).is_dir():
                 cookies.append(os.add_dll_directory(path))
-
     try:
         yield
 

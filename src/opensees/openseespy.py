@@ -15,15 +15,19 @@ from functools import partial
 
 from .tcl import Interpreter
 
+# something to compare the output of model.analyze to:
+successful = 0
+
 # A list of symbol names that are importable
 # from this module. All of these are dynamically
 # resolved by the function __getattr__ below.
 __all__ = [
 # 
-    "tcl"
-    "OpenSeesError"
+    "tcl",
+    "OpenSeesError",
 
 # OpenSeesPy attributes
+
     "uniaxialMaterial",
     "testUniaxialMaterial",
     "setStrain",
@@ -246,18 +250,71 @@ __all__ = [
     "NDTest",
 ]
 
-# 
+_PROTOTYPES = {
+}
+
+# Commands that are pre-processed in Python
+# before forwarding to the Tcl interpreter
 _OVERWRITTEN = {
     "timeSeries",
     "pattern", "load",
     "eval",
     "section", "patch", "layer", "fiber",
-    "block2D"
+    "block2D",
+    "mesh"
 }
 
 
 class OpenSeesError(Exception):
     pass
+
+def _split_iter(source, sep=None, regex=False):
+    """
+    generator version of str.split()
+
+    :param source:
+        source string (unicode or bytes)
+
+    :param sep:
+        separator to split on.
+
+    :param regex:
+        if True, will treat sep as regular expression.
+
+    :returns:
+        generator yielding elements of string.
+    """
+    if sep is None:
+        # mimic default python behavior
+        source = source.strip()
+        sep = "\\s+"
+        if isinstance(source, bytes):
+            sep = sep.encode("ascii")
+        regex = True
+
+    if regex:
+        # version using re.finditer()
+        if not hasattr(sep, "finditer"):
+            sep = re.compile(sep)
+        start = 0
+        for m in sep.finditer(source):
+            idx = m.start()
+            assert idx >= start
+            yield source[start:idx]
+            start = m.end()
+        yield source[start:]
+
+    else:
+        # version using str.find(), less overhead than re.finditer()
+        sepsize = len(sep)
+        start = 0
+        while True:
+            idx = source.find(sep, start)
+            if idx == -1:
+                yield source[start:]
+                return
+            yield source[start:idx]
+            start = idx + sepsize
 
 
 class OpenSeesPy:
@@ -269,10 +326,10 @@ class OpenSeesPy:
     OpenSees state.
     """
     def __init__(self, *args, save=False, echo_file=None, **kwds):
-        self._interp = Interpreter(*args,  **kwds)
+        self._interp  = Interpreter(*args,  **kwds)
         self._partial = partial
-        self._save = save
-        self._echo = echo_file # sys.stdout
+        self._save    = save
+        self._echo    = echo_file
 
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
@@ -313,8 +370,14 @@ class OpenSeesPy:
         # Use json parse to cast return values from string. 
         # This is faster than the standard ast module.
         if len(parts) > 1:
-            try:    return json.loads("[" + ",".join(parts) + "]")
+            try:    return list(map(json.loads, parts)) #json.loads("[" + ",".join(parts) + "]")
+#           try:    return json.loads("[" + ",".join(parts) + "]")
             except: return ret
+
+        elif proc_name == "eigen":
+            # "eigen" should always return a list
+            return [float(ret)]
+
         else:
             try:    return json.loads(ret)
             except: return ret
@@ -368,10 +431,38 @@ class OpenSeesPy:
 
 
     def timeSeries(self, *args, **kwds):
+        """
+        ['Path', 1, '-values', 0.0, 5.0, 8.0, 7.0, 5.0, 3.0, 2.0, 1.0, 0.0, '-time', 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        ['Path', 1, '-values', [0.0, 5.0, 8.0, 7.0, 5.0, 3.0, 2.0, 1.0, 0.0], '-time', [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]]
+        """
+
+        args = list(args)
         if "-values" in args:
-            iv = list(args).index("-values")
-            values = list(args[iv+1:])
-            args = [a for a in args[:iv+1]] + [values]
+            iv = args.index("-values")
+            # Count the number of floating-point arguments
+            for nv, value in enumerate(args[iv+1:]):
+                if not isinstance(value, float):
+                    nv += 1
+                    break
+            else:
+                # if we didnt break out of the for loop
+                nv += 2
+
+            values = args[iv+1:iv+nv]
+            args = [a for a in args[:iv+1]] + [values] + [a for a in args[iv+nv:]]
+
+        if "-time" in args:
+            it = args.index("-time")
+            for nt, value in enumerate(args[it+1:]):
+                if not isinstance(value, float):
+                    nt += 1
+                    break
+            else:
+                # if we didnt break out of the for loop
+                nt += 2
+
+            time = args[it+1:it+nt]
+            args = [a for a in args[:it+1]] + [time] + [a for a in args[it+nt:]]
 
         return self._str_call("timeSeries", *args, **kwds)
 
@@ -392,10 +483,66 @@ class OpenSeesPy:
 
         return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
 
-    def section(self, *args, **kwds):
-        self._current_section = args[1]
+    def mesh(self, type, tag: int, *args, **kwds):
+        if type == "line":
+            return self._mesh_line(tag, 2, args[1:3], *args[3:7], args[7:])
+
+    def _mesh_line(self, tag, numnodes, ndtags, id, ndf:int, meshsize, eleType='', eleArgs=()):
+        import numpy as np
+        from itertools import count
+
+        ndI, ndJ = ndtags
+        add_node    = partial(self._str_call, "node")
+        add_element = partial(self._str_call, "element")
+
+        xi = np.array(self._str_call("nodeCoord", ndI))
+        xj = np.array(self._str_call("nodeCoord", ndJ))
+
+        L  = np.linalg.norm(xj - xi)
+        nn = int(L//meshsize) + 1
+
+        nodes = [None for _ in range(nn)]
+        nodes[0]    = ndI
+        nodes[nn-1] = ndJ
+
+        node_tags = set(self._str_call("getNodeTags"))
+        new_node  = filter(lambda i: i not in node_tags, count(1))
+        elem_tags = set(self._str_call("getEleTags") or [])
+        new_elem  = filter(lambda i: i not in elem_tags, count(1))
+
+        for i,x in enumerate(np.linspace(xi, xj, nn, endpoint=True)[1:]):
+
+            node_tag = next(new_node)
+            add_node(node_tag, *x)
+
+            nodes[i+1] = node_tag
+
+            elem_tag = next(new_elem)
+
+            if i < nn:
+                add_element(eleType,elem_tag,nodes[i],nodes[i+1],*eleArgs)
+
+
+
+    def section(self, type: str, sec_tag: int, *args, **kwds):
+        self._current_section = sec_tag
         # TODO: error handling
-        return self._str_call("section", *args, **kwds)
+
+        if "shape" in kwds:
+            from opensees.section import from_shape
+            ndm = int(self.eval("getNDM"))
+            # kwds["shape"] looks like ("W14X90", matTag, (20,4), units?)
+            shape = from_shape(type, *kwds.pop("shape"), ndm=ndm)
+        else:
+            shape = None
+
+        ret = self._str_call("section", type, sec_tag, *args, **kwds)
+
+        if shape is not None:
+            for fiber in shape.fibers:
+                self._str_call("fiber", *fiber.coord, fiber.area, fiber.material, section=sec_tag)
+
+        return ret
 
     def patch(self, *args, **kwds):
         section = self._current_section
@@ -415,6 +562,9 @@ class Model:
     def __init__(self, *args, echo_file=None, **kwds):
         self._openseespy = OpenSeesPy(echo_file=echo_file)
         self._openseespy._str_call("model", *args, **kwds)
+
+    def export(self, *args, **kwds):
+        return self._openseespy._interp.export(*args, **kwds)
 
     def asdict(self):
         """April 2024"""
@@ -454,7 +604,6 @@ def _as_str_arg(arg, name: str = None):
 
     # parse commands like `section Fiber {...}`
     elif isinstance(arg, dict):
-        print(arg)
         return "{\n" + "\n".join([
           f"{cmd} " + " ".join(_as_str_arg(a) for a in val)
               for cmd, val in arg.items()
@@ -464,7 +613,10 @@ def _as_str_arg(arg, name: str = None):
         return str(arg)
 
 
-
+class FedeasModel(Model):
+    @property
+    def nf(self):
+        return self.numDOF()
 
 # The global singleton, for backwards compatibility
 _openseespy = OpenSeesPy()
