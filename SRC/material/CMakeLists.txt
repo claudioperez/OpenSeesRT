@@ -4,7 +4,6 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-#add_library(OPS_Material OBJECT)
 
 target_sources(OPS_Material
     PRIVATE
