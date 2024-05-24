@@ -9,6 +9,8 @@ target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_sources(OPS_Material
   PRIVATE
+#   APDMD.cpp
+#   APDVFD.cpp
     BWBN.cpp
     Bilin.cpp
     Bilin02.cpp
@@ -27,12 +29,13 @@ target_sources(OPS_Material
     HystereticSmooth.cpp
     HystereticAsym.cpp
     MaterialState.cpp
-    OriginCentered.cpp
     ParallelMaterial.cpp
     ResilienceLow.cpp
     UVCuniaxial.cpp
     UniaxialMaterial.cpp
   PUBLIC
+    APDMD.h
+    APDVFD.h
     BWBN.h
     Bilin.h
     Bilin02.h
@@ -51,7 +54,6 @@ target_sources(OPS_Material
     HystereticSmooth.h
     HystereticAsym.h
     MaterialState.h
-    OriginCentered.h
     ParallelMaterial.h
     ResilienceLow.h
     UVCuniaxial.h
@@ -135,15 +137,8 @@ target_sources(OPS_Material
       CFSWSWP.h
       CableMaterial.h
       Cast.h
-#     Concrete01.h
-#     Concrete01WithSITC.h
-#     Concrete02.h
 #     Concrete02IS.h
 #     Concrete02Thermal.h
-#     Concrete04.h
-#     Concrete05.h
-#     Concrete06.h
-#     Concrete07.h
 #     ConcreteECThermal.h
 #     ConcreteSakaiKawashima.h
 #     ConcretewBeta.h
@@ -272,4 +267,5 @@ add_subdirectory(PY)
 add_subdirectory(snap)
 add_subdirectory(fedeas)
 add_subdirectory(drain)
+add_subdirectory(legacy)
 
