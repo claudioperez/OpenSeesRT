@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.8 $
-// $Date: 2003/02/14 23:01:39 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/HardeningMaterial2.cpp,v $
-
+//
 // Written: MHS
 // Created: May 2000
 // Revision: A
@@ -74,7 +70,7 @@ HardeningMaterial2::setTrialStrain (double strain, double strainRate)
   Tstrain = strain;
   
   // Elastic trial stress
-  Tstress = E * (Tstrain-CplasticStrain);
+  Tstress = E * (Tstrain - CplasticStrain);
   
   // Compute trial stress relative to committed back stress
   double xsi = Tstress - CbackStress;
@@ -121,25 +117,25 @@ HardeningMaterial2::setTrialStrain (double strain, double strainRate)
 }
 
 double 
-HardeningMaterial2::getStress(void)
+HardeningMaterial2::getStress()
 {
   return Tstress;
 }
 
 double 
-HardeningMaterial2::getTangent(void)
+HardeningMaterial2::getTangent()
 {
   return Ttangent;
 }
 
 double 
-HardeningMaterial2::getStrain(void)
+HardeningMaterial2::getStrain()
 {
   return Tstrain;
 }
 
 int 
-HardeningMaterial2::commitState(void)
+HardeningMaterial2::commitState()
 {
   // Commit trial history variables
   CplasticStrain = TplasticStrain;
@@ -181,7 +177,7 @@ HardeningMaterial2::revertToStart(void)
 }
 
 UniaxialMaterial *
-HardeningMaterial2::getCopy(void)
+HardeningMaterial2::getCopy()
 {
   HardeningMaterial2 *theCopy =
     new HardeningMaterial2(this->getTag(), E, sigmaY, Hiso, Hkin, eta);
@@ -466,12 +462,24 @@ HardeningMaterial2::setStrainGradient(int gradIndex, double depsilondh)
 void
 HardeningMaterial2::Print(OPS_Stream &s, int flag)
 {
-  s << "HardeningMaterial2, tag: " << this->getTag() << endln;
-  s << "  E: " << E << endln;
-  s << "  sigmaY: " << sigmaY << endln;
-  s << "  Hiso: " << Hiso << endln;
-  s << "  Hkin: " << Hkin << endln;
-  s << "  eta: " << eta << endln;
+	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+		s << OPS_PRINT_JSON_MATE_INDENT << "{";
+		s << "\"name\": \"" << this->getTag() << "\", ";
+		s << "\"type\": \"HardeningMaterial2\", ";
+		s << "\"E\": " << E << ", ";
+		s << "\"fy\": " << sigmaY << ", ";
+		s << "\"Hiso\": " << Hiso << ", ";
+		s << "\"Hkin\": " << Hkin << ", ";
+		s << "\"eta\": " << eta << "}";
+
+	} else {
+    s << "HardeningMaterial2, tag: " << this->getTag() << "\n";
+    s << "  E: " << E << "\n";
+    s << "  sigmaY: " << sigmaY << "\n";
+    s << "  Hiso: " << Hiso << "\n";
+    s << "  Hkin: " << Hkin << "\n";
+    s << "  eta: " << eta << "\n";
+  }
 }
 
 double

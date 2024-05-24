@@ -62,7 +62,7 @@ ASD_SMA_3K matTag? k1? k2? k3? sigF? beta?
 /* static class instance counter */
 static int ASD_SMA3K_counter = 0;
 
-void * OPS_ADD_RUNTIME_VPV(OPS_ASD_SMA_3K)
+void* OPS_ADD_RUNTIME_VPV(OPS_ASD_SMA_3K)
 {
 
 
@@ -148,7 +148,8 @@ int
 ASD_SMA_3K::setTrialStrain(double strain, double strainRate)
 {
 
-    diffStrain = strain - Cstrain;
+
+  double diffStrain = strain - Cstrain;
 
     if (fabs(diffStrain) < DBL_EPSILON)
         return 0;

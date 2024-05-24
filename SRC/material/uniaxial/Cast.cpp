@@ -5,6 +5,7 @@
 **                                                                    **
 ** (C) Copyright 1999, The Regents of the University of California    **
 ** All Rights Reserved.                                               **
+**                                                                    **
 ** Commercial use of this program without express permission of the   **
 ** University of California, Berkeley, is strictly prohibited.  See   **
 ** file 'COPYRIGHT'  in main directory for information on usage and   **
@@ -16,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2011-04-16 00:04:05 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/Cast.cpp,v $
-                                                                      
+//
 // Written: Dimitrios Lignos
 // Created: 04/2011
 //

@@ -21,7 +21,6 @@
 // Written: MD
 // Created: April 2008
 //
-
 #include <HyperbolicGapMaterial.h>
 #include <BasicModelBuilder.h>
 #include <Vector.h>
