@@ -54,6 +54,47 @@ int printAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char ** const argv, OPS_Stream &output);
 
 
+int TclCommand_classType(ClientData clientData, Tcl_Interp *interp, int argc,
+             TCL_Char** const argv)
+{
+
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
+  if (argc < 3) {
+    opserr << "ERROR want - classType objectType tag?\n";
+    return TCL_ERROR;
+  }
+
+  std::string type = argv[1];
+
+  MovableObject* theObject = nullptr;
+  int tag;
+  if (Tcl_GetInt(interp, argv[2], &tag) < 0) {
+    opserr << G3_ERROR_PROMPT << "classType objectType tag? - unable to read tag" << "\n";
+    return TCL_ERROR;
+  }
+
+  if (type == "uniaxialMaterial")
+    theObject = builder->getTypedObject<UniaxialMaterial>(tag);
+
+  else if (type == "section")
+    theObject = builder->getTypedObject<SectionForceDeformation>(tag);
+
+  else if (type == "section")
+    theObject = builder->getTypedObject<SectionForceDeformation>(tag);
+
+  else {
+    opserr << G3_ERROR_PROMPT << "classType - " << type.c_str() << " not yet supported" << "\n";
+    return TCL_ERROR;
+  }
+
+  std::string classType = theObject->getClassType();
+  
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(classType.c_str(), strlen(classType.c_str())));
+
+  return TCL_OK;
+}
+
 static int
 printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *output)
 {

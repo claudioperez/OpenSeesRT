@@ -78,6 +78,7 @@ Tcl_CmdProc TclCommand_invoke;
 
 // printing.cpp
 Tcl_CmdProc TclCommand_print;
+Tcl_CmdProc TclCommand_classType;
 
 struct char_cmd {
   const char* name;
@@ -92,6 +93,7 @@ struct char_cmd {
   {"element",              TclCommand_addElement},
 
   {"print",                TclCommand_print},
+  {"classType",            TclCommand_classType},
   {"printModel",           TclCommand_print},
 
   {"fix",                  TclCommand_addHomogeneousBC},

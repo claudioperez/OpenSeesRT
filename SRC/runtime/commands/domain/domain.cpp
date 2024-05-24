@@ -45,58 +45,6 @@ domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-int OPS_classType(ClientData clientData, Tcl_Interp *interp, int argc,
-             const char *const *objv)
-{
-  if (argc < 3) {
-    opserr << "ERROR want - classType objectType tag?\n";
-    return -1;
-  }
-
-  std::string type = argv[1];
-  int tag;
-  if (Tcl_GetInt(interp, argv[2], &tag) < 0) {
-    opserr << G3_ERROR_PROMPT << "classType objectType tag? - unable to read tag" << "\n";
-    return -1;
-  }
-
-  if (type == "uniaxialMaterial") {
-    UniaxialMaterial *theMaterial = OPS_GetUniaxialMaterial(tag);
-    if (theMaterial == 0) {
-      opserr << "ERROR classType - uniaxialMaterial with tag " << tag << " not found" << "\n";
-      return -1;
-    }
-
-    std::string classType = theMaterial->getClassType();
-    if (OPS_SetString(classType.c_str()) < 0) {
-      opserr << "ERROR failed to set classType" << "\n";
-      return -1;
-    }      
-  }
-
-  else if (type == "section") {
-    SectionForceDeformation *theSection = OPS_getSectionForceDeformation(tag);
-    if (theSection == 0) {
-      opserr << "ERROR classType - section with tag " << tag << " not found" << "\n";
-      return -1;
-    }
-
-    std::string classType = theSection->getClassType();
-    if (OPS_SetString(classType.c_str()) < 0) {
-      opserr << "ERROR failed to set classType" << "\n";
-      return -1;
-    }      
-  }
-
-  else {
-    opserr << "WARNING classType - " << type.c_str() << " not yet supported" << "\n";
-    return 0;
-  }
-
-  return 0;
-}
-
-
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              Tcl_Obj *const *objv)
