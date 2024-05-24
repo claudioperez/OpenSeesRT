@@ -45,6 +45,58 @@ domainChange(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
+int OPS_classType(ClientData clientData, Tcl_Interp *interp, int argc,
+             const char *const *objv)
+{
+  if (argc < 3) {
+    opserr << "ERROR want - classType objectType tag?\n";
+    return -1;
+  }
+
+  std::string type = argv[1];
+  int tag;
+  if (Tcl_GetInt(interp, argv[2], &tag) < 0) {
+    opserr << G3_ERROR_PROMPT << "classType objectType tag? - unable to read tag" << "\n";
+    return -1;
+  }
+
+  if (type == "uniaxialMaterial") {
+    UniaxialMaterial *theMaterial = OPS_GetUniaxialMaterial(tag);
+    if (theMaterial == 0) {
+      opserr << "ERROR classType - uniaxialMaterial with tag " << tag << " not found" << "\n";
+      return -1;
+    }
+
+    std::string classType = theMaterial->getClassType();
+    if (OPS_SetString(classType.c_str()) < 0) {
+      opserr << "ERROR failed to set classType" << "\n";
+      return -1;
+    }      
+  }
+
+  else if (type == "section") {
+    SectionForceDeformation *theSection = OPS_getSectionForceDeformation(tag);
+    if (theSection == 0) {
+      opserr << "ERROR classType - section with tag " << tag << " not found" << "\n";
+      return -1;
+    }
+
+    std::string classType = theSection->getClassType();
+    if (OPS_SetString(classType.c_str()) < 0) {
+      opserr << "ERROR failed to set classType" << "\n";
+      return -1;
+    }      
+  }
+
+  else {
+    opserr << "WARNING classType - " << type.c_str() << " not yet supported" << "\n";
+    return 0;
+  }
+
+  return 0;
+}
+
+
 int
 removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
              Tcl_Obj *const *objv)
@@ -69,7 +121,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove element tag? failed to read tag: " 
-             << Tcl_GetString(objv[2]) << endln;
+             << Tcl_GetString(objv[2]) << "\n";
       return TCL_ERROR;
     }
     Element *theEle = the_domain->removeElement(tag);
@@ -113,7 +165,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove loadPattern tag? failed to read tag: "
-             << Tcl_GetString(objv[2]) << endln;
+             << Tcl_GetString(objv[2]) << "\n";
       return TCL_ERROR;
     }
     LoadPattern *thePattern = the_domain->removeLoadPattern(tag);
@@ -131,7 +183,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove loadPattern tag? failed to read tag: "
-             << Tcl_GetString(objv[2]) << endln;
+             << Tcl_GetString(objv[2]) << "\n";
       return TCL_ERROR;
     }
     bool ok = OPS_removeTimeSeries(tag);
@@ -148,7 +200,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove parameter tag? failed to read tag: " << Tcl_GetString(objv[2])
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
     Parameter *theParameter = the_domain->removeParameter(tag);
@@ -164,7 +216,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
       opserr << "WARNING remove node tag? failed to read tag: " 
-             << Tcl_GetString(objv[2]) << endln;
+             << Tcl_GetString(objv[2]) << "\n";
       return TCL_ERROR;
     }
     Node *theNode = the_domain->removeNode(tag);
@@ -190,7 +242,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT 
                << "remove recorder tag? failed to read tag: " << Tcl_GetString(objv[2])
-               << endln;
+               << "\n";
       return TCL_ERROR;
     }
     if (the_domain->removeRecorder(tag) != 0) {
@@ -240,7 +292,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     if (argc == 3) {
       if (Tcl_GetIntFromObj(interp, objv[2], &nodTag) != TCL_OK) {
         opserr << "WARNING remove mp nodeTag? failed to read nodeTag: "
-               << Tcl_GetString(objv[2]) << endln;
+               << Tcl_GetString(objv[2]) << "\n";
         return TCL_ERROR;
       }
 
@@ -250,7 +302,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
     if (strcmp(Tcl_GetString(objv[2]), "-tag") == 0 && argc > 3) {
       if (Tcl_GetIntFromObj(interp, objv[3], &nodTag) != TCL_OK) {
         opserr << "WARNING remove mp -tag mpTag? failed to read mpTag: "
-               << Tcl_GetString(objv[3]) << endln;
+               << Tcl_GetString(objv[3]) << "\n";
         return TCL_ERROR;
       }
 
@@ -300,7 +352,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 
   else
     opserr << "WARNING remove " 
-           << Tcl_GetString(objv[1]) << " not supported" << endln;
+           << Tcl_GetString(objv[1]) << " not supported" << "\n";
 
   return TCL_OK;
 }
