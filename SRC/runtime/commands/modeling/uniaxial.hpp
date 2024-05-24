@@ -86,6 +86,7 @@ extern OPS_Routine OPS_PinchingLimitState;
 extern OPS_Routine OPS_PinchingLimitStateMaterial;
 extern OPS_Routine OPS_PySimple3;
 extern OPS_Routine OPS_RambergOsgoodSteel;
+extern OPS_Routine OPS_Ratchet;
 extern OPS_Routine OPS_ReinforcingSteel;
 extern OPS_Routine OPS_ResilienceLow;
 extern OPS_Routine OPS_ResilienceMaterialHR;
@@ -145,6 +146,7 @@ TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
 static Tcl_CmdProc TclCommand_newFatigueMaterial;
 static Tcl_CmdProc TclCommand_newUniaxialJ2Plasticity;
 
+Tcl_CmdProc TclCommand_ContinuumUniaxialMaterial;
 Tcl_CmdProc TclCommand_AxialSp;
 Tcl_CmdProc TclCommand_AxialSpHD;
 Tcl_CmdProc TclCommand_KikuchiAikenHDR;
@@ -222,6 +224,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
 
     {"AxialSp",              dispatch<TclCommand_AxialSp>               },
     {"AxialSpHD",            dispatch<TclCommand_AxialSpHD>             },
+    {"ContinuumUniaxial",    dispatch<TclCommand_ContinuumUniaxialMaterial>},
 
     {"Concrete04",           dispatch<TclCommand_newUniaxialConcrete04> },
     {"Concrete06",           dispatch<TclCommand_newUniaxialConcrete06> },
@@ -229,6 +232,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
 #if 0
     { "ConcretewBeta",       dispatch<OPS_ConcretewBeta>    }
 #endif
+    {"Ratchet",              dispatch<OPS_Ratchet>                     },
 //  {"ReinforcingSteel",     dispatch<TclCommand_ReinforcingSteel>   }, 
     {"ReinforcingSteel",     dispatch< OPS_ReinforcingSteel>           },
     {"Parallel",             dispatch<TclCommand_newParallelMaterial>  },

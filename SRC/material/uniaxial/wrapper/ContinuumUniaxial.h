@@ -44,20 +44,22 @@ class NDMaterial;
 class ContinuumUniaxial: public UniaxialMaterial {
  public:
   ContinuumUniaxial(int tag, NDMaterial &theMat);
-  ContinuumUniaxial(void);
-  virtual ~ContinuumUniaxial(void);
+  ContinuumUniaxial();
+  virtual ~ContinuumUniaxial();
+
+  const char *getClassType() const {return "ContinuumUniaxial";}
   
   int setTrialStrain(double strain, double strainRate = 0.0);
-  double getStrain(void);
-  double getStress(void);
-  double getTangent(void);
-  double getInitialTangent(void);
+  double getStrain();
+  double getStress();
+  double getTangent();
+  double getInitialTangent();
   
-  int commitState(void);
-  int revertToLastCommit(void);
-  int revertToStart(void);
+  int commitState();
+  int revertToLastCommit();
+  int revertToStart();
   
-  UniaxialMaterial *getCopy(void);
+  UniaxialMaterial *getCopy();
   
   void Print(OPS_Stream &s, int flag);
   

@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2007-02-02 22:58:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/Concrete01WithSITC.h,v $
-                                                                        
-#ifndef Concrete01WithSITC_h
-#define Concrete01WithSITC_h
-
+//
 // Modified by: Won Lee
 // Created: 10/3/05
 // Modified from Concrete01.h (see details below)
@@ -50,16 +43,20 @@
 //   - Linear unloading/reloading
 //
 // What: "@(#) Concrete01.h, revA"
-
+//
+#ifndef Concrete01WithSITC_h
+#define Concrete01WithSITC_h
 
 #include <UniaxialMaterial.h>
 
 class Concrete01WithSITC : public UniaxialMaterial
 {
  public:
-  Concrete01WithSITC (int tag, double fpc, double eco, double fpcu, double ecu, double endStrainSITC = 0.03);
-  Concrete01WithSITC ();
-  ~Concrete01WithSITC();
+      Concrete01WithSITC (int tag, double fpc, double eco, double fpcu, double ecu, double endStrainSITC = 0.03);
+      Concrete01WithSITC ();
+      ~Concrete01WithSITC();
+
+      const char *getClassType(void) const {return "Concrete01WithSITC";}
 
       int setTrialStrain(double strain, double strainRate = 0.0); 
       int setTrial (double strain, double &stress, double &tangent, double strainRate = 0.0);

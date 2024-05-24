@@ -9,8 +9,9 @@ target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_sources(OPS_Material
   PRIVATE
-#   APDMD.cpp
-#   APDVFD.cpp
+    APDFMD.cpp
+    APDMD.cpp
+    APDVFD.cpp
     BWBN.cpp
     Bilin.cpp
     Bilin02.cpp
@@ -31,6 +32,7 @@ target_sources(OPS_Material
     MaterialState.cpp
     ParallelMaterial.cpp
     ResilienceLow.cpp
+    Ratchet.cpp
     UVCuniaxial.cpp
     UniaxialMaterial.cpp
   PUBLIC
@@ -56,6 +58,7 @@ target_sources(OPS_Material
     MaterialState.h
     ParallelMaterial.h
     ResilienceLow.h
+    Ratchet.h
     UVCuniaxial.h
     UniaxialMaterial.h
 )
@@ -73,7 +76,6 @@ target_sources(OPS_Material
       CFSWSWP.cpp
       CableMaterial.cpp
       Cast.cpp
-      ContinuumUniaxial.cpp
       CubicSpline.cpp
       DamperMaterial.cpp
       DegradingPinchedBW.cpp
@@ -143,7 +145,6 @@ target_sources(OPS_Material
 #     ConcreteSakaiKawashima.h
 #     ConcretewBeta.h
 #     ConfinedConcrete01.h
-      ContinuumUniaxial.h
       CubicSpline.h
       DamperMaterial.h
       DegradingPinchedBW.h
@@ -266,6 +267,7 @@ add_subdirectory(steel)
 add_subdirectory(PY)
 add_subdirectory(snap)
 add_subdirectory(fedeas)
+add_subdirectory(wrapper)
 add_subdirectory(drain)
 add_subdirectory(legacy)
 

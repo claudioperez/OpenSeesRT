@@ -32,6 +32,42 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
+#ifndef OPS_USE_RUNTIME
+#include <elementAPI.h>
+
+void* OPS_ContinuumUniaxialMaterial()
+{
+    int numdata = OPS_GetNumRemainingInputArgs();
+    if (numdata < 2) {
+	opserr << "WARNING insufficient arguments\n";
+	opserr << "Want: uniaxialMaterial Continuum tag? ndMatTag?" << endln;
+	return 0;
+    }
+
+    int tag[2];
+    numdata = 2;
+    if (OPS_GetIntInput(&numdata,tag) < 0) {
+	return 0;
+    }
+
+    NDMaterial* theMat = OPS_getNDMaterial(tag[1]);
+    if (theMat == 0) {
+	opserr << "WARNING material does not exist\n";
+	opserr << "material: " << tag[1]; 
+	opserr << "\nuniaxialMaterial Continuum: " << tag[0] << endln;
+	return 0;
+    }
+
+    UniaxialMaterial* mat = new ContinuumUniaxial(tag[0],*theMat);
+    if (mat == 0) {
+	opserr << "WARNING: failed to create ContinuumUniaxial material\n";
+	return 0;
+    }
+
+    return mat;
+}
+#endif
+
 ContinuumUniaxial::ContinuumUniaxial(void):
   UniaxialMaterial(0, MAT_TAG_ContinuumUniaxial), strain11(0.0),
   Tstrain22(0.0),Tstrain33(0.0),Tgamma12(0.0),Tgamma23(0.0),Tgamma31(0.0),
@@ -80,6 +116,8 @@ ContinuumUniaxial::getCopy(void)
   theCopy->Cgamma12  = Cgamma12;
   theCopy->Cgamma23  = Cgamma23;
   theCopy->Cgamma31  = Cgamma31;
+
+  theCopy->initialTangent = initialTangent;
   
   return theCopy;
 }
@@ -269,12 +307,13 @@ ContinuumUniaxial::sendSelf(int commitTag, Channel &theChannel)
   }
 
   // put the strains in a vector and send it
-  static Vector vecData(5);
+  static Vector vecData(6);
   vecData(0) = Cstrain22;
   vecData(1) = Cstrain33;
   vecData(2) = Cgamma12;
   vecData(3) = Cgamma23;
   vecData(4) = Cgamma31;
+  vecData(5) = initialTangent;
 
   res = theChannel.sendVector(this->getDbTag(), commitTag, vecData);
   if (res < 0) {
@@ -298,7 +337,7 @@ ContinuumUniaxial::recvSelf(int commitTag, Channel &theChannel,
 
   // recv an id containing the tag and associated materials class and db tags
   static ID idData(3);
-  res = theChannel.sendID(this->getDbTag(), commitTag, idData);
+  res = theChannel.recvID(this->getDbTag(), commitTag, idData);
   if (res < 0) {
     opserr << "ContinuumUniaxial::sendSelf() - failed to send id data" << endln;
     return res;
@@ -321,7 +360,7 @@ ContinuumUniaxial::recvSelf(int commitTag, Channel &theChannel,
   theMaterial->setDbTag(idData(2));
 
   // recv a vector containing strains and set the strains
-  static Vector vecData(5);
+  static Vector vecData(6);
   res = theChannel.recvVector(this->getDbTag(), commitTag, vecData);
   if (res < 0) {
     opserr << "ContinuumUniaxial::sendSelf() - failed to send vector data" << endln;
@@ -333,7 +372,8 @@ ContinuumUniaxial::recvSelf(int commitTag, Channel &theChannel,
   Cgamma12  = vecData(2);
   Cgamma23  = vecData(3);
   Cgamma31  = vecData(4);
-
+  initialTangent = vecData(5);
+  
   Tstrain22 = Cstrain22;
   Tstrain33 = Cstrain33;
   Tgamma12  = Cgamma12;

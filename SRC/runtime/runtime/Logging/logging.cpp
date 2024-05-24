@@ -39,6 +39,8 @@ G3_SetStreamLevel(int stream, bool on)
     case G3_LevelError: theStream = &opserrPtr; break;
     case G3_LevelDebug: theStream = &opsdbgPtr; break;
     case G3_LevelWarn : theStream = &opswrnPtr; break;
+    default:
+      return -1;
   }
 
   if (on) {

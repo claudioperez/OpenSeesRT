@@ -17,11 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2010-01-20 20:34:28 $
-                                                                        
-// File: ~/Bond_SP01.cpp
 //
 // Written: 		Jian Zhao, Iowa State University 		04/2004
 // Revision:		Jian Zhao, University of Wisconsin, Milwaukee 		04/2006
@@ -29,8 +24,7 @@
 //
 // Description: This file contains the class definition for Uniaxial material Bond_SP01. 
 // Bond_SP01: Strain penetration of fully anchored rebars w/o bond damage.
-
-
+//
 #include <Bond_SP01.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -123,7 +117,7 @@ UniaxialMaterial(tag,MAT_TAG_Bond_SP01),
 	E0 = fy/sy;
 
 	// bond condition (for calculation) 
-    la = fy*db*1000.0/40.0/pow(fc*1000,0.5);	// effective anchorage length
+  la = fy*db*1000.0/40.0/pow(fc*1000,0.5);	// effective anchorage length
 
 	// Set all history and state variables to initial values
 	this->revertToStart ();

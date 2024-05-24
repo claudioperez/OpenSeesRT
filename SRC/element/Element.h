@@ -17,28 +17,22 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.19 $
-// $Date: 2009-08-25 22:32:08 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/Element.h,v $
-                                                                        
-                                                                        
-// Written: fmk 
-// Created: 11/96
-// Revision: A
 //
 // Description: This file contains the class definition for Element.
 // Element is an abstract base class and thus no objects of it's type
 // can be instantiated. It has pure virtual functions which must be
 // implemented in it's derived classes. 
 //
-// What: "@(#) Element.h, revA"
-
+// Written: fmk 
+// Created: 11/96
+// Revision: A
+//
 #ifndef Element_h
 #define Element_h
 
 #include <DomainComponent.h>
 #include <ID.h>
+#include <vector>
 
 class Matrix;
 class Vector;
@@ -54,49 +48,47 @@ class Element : public DomainComponent
     virtual ~Element();
 
     // methods dealing with nodes and number of external dof
-    virtual int getNumExternalNodes(void) const =0;
-    virtual const ID &getExternalNodes(void)  =0;	
-    virtual Node **getNodePtrs(void)  =0;	
-    virtual int    getNumDOF(void) =0;
-    virtual double getCharacteristicLength(void);
+    virtual int getNumExternalNodes() const =0;
+    virtual const ID &getExternalNodes()  =0;	
+    virtual Node **getNodePtrs()  =0;	
+    virtual int    getNumDOF()    =0;
+    virtual double getCharacteristicLength();
 
     // methods dealing with committed state and update
-    virtual int commitState(void);    
-    virtual int revertToLastCommit(void) = 0;        
-    virtual int revertToStart(void);                
-    virtual int update(void);
-    virtual bool isSubdomain(void);
+    virtual int  commitState();
+    virtual int  revertToLastCommit() = 0;
+    virtual int  revertToStart();
+    virtual int  update();
+    virtual bool isSubdomain();
     
     // methods to return the current linearized stiffness,
     // damping and mass matrices
-    virtual const Matrix &getTangentStiff(void) =0;
-    virtual const Matrix &getInitialStiff(void) =0;
-    virtual const Matrix &getDamp(void);    
-    virtual const Matrix &getMass(void);
+    virtual const Matrix &getTangentStiff() =0;
+    virtual const Matrix &getInitialStiff() =0;
+    virtual const Matrix &getDamp();
+    virtual const Matrix &getMass();
     virtual const Matrix &getGeometricTangentStiff();
 
     // methods for applying loads
-    virtual void zeroLoad(void);	
-    virtual int addLoad(ElementalLoad *theLoad, double loadFactor);
-    virtual int addLoad(ElementalLoad *theLoad, const Vector &loadFactors);
+    virtual void zeroLoad();	
+    virtual int  addLoad(ElementalLoad *theLoad, double loadFactor);
+    virtual int  addLoad(ElementalLoad *theLoad, const Vector &loadFactors);
 
     virtual int addInertiaLoadToUnbalance(const Vector &accel);
     virtual int setRayleighDampingFactors(double alphaM, double betaK, double betaK0, double betaKc);
 
     // methods for obtaining resisting force (force includes elemental loads)
-    virtual const Vector &getResistingForce(void) =0;
-    virtual const Vector &getResistingForceIncInertia(void);        
+    virtual const Vector &getResistingForce() =0;
+    virtual const Vector &getResistingForceIncInertia();
 
     // method for obtaining information specific to an element
     virtual Response *setResponse(const char **argv, int argc, 
 				  OPS_Stream &theHandler);
     virtual int getResponse(int responseID, Information &eleInformation);
 
-    virtual int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
-
 // AddingSensitivity:BEGIN //////////////////////////////////////////
     virtual int getResponseSensitivity(int responseID, int gradIndex,
-				       Information &eleInformation);
+				                               Information &eleInformation);
     virtual int addInertiaLoadSensitivityToUnbalance(const Vector &accel, bool tag);
     virtual const Vector & getResistingForceSensitivity(int gradIndex);
     virtual const Matrix & getTangentStiffSensitivity(int gradIndex);
@@ -111,36 +103,26 @@ class Element : public DomainComponent
 
     virtual int storePreviousK(int numK);
     virtual const Matrix *getPreviousK(int num);
-#if 0
-    virtual void onActivate();
-    virtual void onDeactivate();
-
-    void activate();
-    void deactivate();
-
-    bool isActive();
-#endif
 
 
 protected:
-    const Vector& getRayleighDampingForces(void);
+    const Vector& getRayleighDampingForces();
 
     double alphaM, betaK, betaK0, betaKc;
     Matrix *Kc; // pointer to hold last committed matrix if needed for rayleigh damping
 
     Matrix **previousK;
-    int numPreviousK;
+    int   numPreviousK;
 
-  private:
+private:
+//  std::vector<Node*> nodes;
+    bool is_this_element_active;
 
     int index, nodeIndex;
     static Matrix ** theMatrices; 
     static Vector ** theVectors1; 
     static Vector ** theVectors2; 
     static int numMatrices;
-
-    bool is_this_element_active;
-
 };
 
 

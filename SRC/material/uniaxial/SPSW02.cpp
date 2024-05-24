@@ -21,11 +21,13 @@
 // Purpose: This file contains the implementation for the SPSW02 class.
 //
 // Written: S. A. Jalalli 03/2015
-// Reference: S.A. Jalali and M. Banazadeh, "Development of a new deteriorating hysteresis model for seismic collapse assessment of thin steel plate shear walls"
-// link to reference: http://www.sciencedirect.com/science/article/pii/S026382311630249X
+//
+// Reference: S.A. Jalali and M. Banazadeh,
+//            "Development of a new deteriorating hysteresis model for seismic collapse assessment of thin steel plate shear walls"
+//            http://www.sciencedirect.com/science/article/pii/S026382311630249X
 //
 //////////////////////////////////////////////////////////////////////
-
+//
 #include <elementAPI.h>
 #include "SPSW02.h"
 #include <MaterialResponse.h>

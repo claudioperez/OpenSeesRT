@@ -17,21 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.13 $
-// $Date: 2008-08-26 16:32:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/HardeningMaterial.h,v $
-
-#ifndef HardeningMaterial_h
-#define HardeningMaterial_h
-
+//
 // Written: MHS
 // Created: May 2000
 //
 // Description: This file contains the class definition for 
-// HardeningMaterial.  HardeningMaterial provides the abstraction
-// for a one-dimensional rate-independent plasticity model
+// HardeningMaterial.  HardeningMaterial implements a
+// one-dimensional rate-independent plasticity model
 // with combined isotropic and kinematic hardening.
+//
+#ifndef HardeningMaterial_h
+#define HardeningMaterial_h
 
 #include <UniaxialMaterial.h>
 #include <Matrix.h>
@@ -78,28 +74,27 @@ class HardeningMaterial : public UniaxialMaterial
     
   private:
     // Material parameters
-    double E;	// Elastic modulus
-    double sigmaY;	// Yield stress
-    double Hiso;	// Isotropic hardening parameter
-    double Hkin;	// Kinematic hardening parameter
-    double eta;
-	
-    // Committed history variables
-    double CplasticStrain;	// Committed plastic strain
-    double Chardening;		// Committed internal hardening variable
+    double E;        // Elastic modulus
+    double sigmaY;   // Yield stress
+    double Hiso;     // Isotropic hardening parameter
+    double Hkin;     // Kinematic hardening parameter
 
-	// Trial history variables
-    double TplasticStrain;	// Trial plastic strain
-    double Thardening;		// Trial internal hardening variable
+    // Committed history variables
+    double CplasticStrain;    // Committed plastic strain
+    double Chardening;        // Committed internal hardening variable
+
+    // Trial history variables
+    double TplasticStrain;    // Trial plastic strain
+    double Thardening;        // Trial internal hardening variable
 
     // Trial state variables
-    double Tstrain;		// Trial strain
-    double Tstress;		// Trial stress
-    double Ttangent;	// Trial tangent
+    double Tstrain;           // Trial strain
+    double Tstress;           // Trial stress
+    double Ttangent;          // Trial tangent
 
 // AddingSensitivity:BEGIN //////////////////////////////////////////
     int parameterID;
-	Matrix *SHVs;
+    Matrix *SHVs;
 // AddingSensitivity:END ///////////////////////////////////////////
 };
 
