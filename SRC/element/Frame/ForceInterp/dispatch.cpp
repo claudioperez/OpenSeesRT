@@ -27,6 +27,15 @@
 #include <utility>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _MSC_VER 
+#  include <string.h>
+#  define strcasecmp _stricmp
+#else
+#  include <strings.h>
+#endif
+#define strcmp strcasecmp
+
 #include <assert.h>
 #include <Domain.h>
 #include <G3_Logging.h>
@@ -199,7 +208,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     SectionForceDeformation **sections = nullptr;
 
     if (strcmp(argv[argi], "-sections") != 0) {
-      // ""
 
       if (Tcl_GetInt(interp, argv[argi], &secTag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid secTag\n";
@@ -207,10 +215,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       } else
         argi++;
 
+      // Check if we are being called from OpenSeesPy, in which case we need to parse things a little
+      // differently
       const char *openseespy = Tcl_GetVar(interp, "opensees::pragma::openseespy", 0);
       if (openseespy == nullptr || strcmp(openseespy, "0")==0) { 
-        // (0) { // (Tcl_Eval(interp, "expr [pragma openseespy check] == 1") != TCL_OK) {
-      // OpenSees Tcl behavior
+
+        // OpenSees Tcl behavior
 
         SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
         if (theSection == nullptr) {
@@ -229,12 +239,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
 
       } else {
+
+        // OpenSeesPy behavior with BeamIntegrations
+
         transfTag = nIP;
         BeamIntegrationRule* theRule = builder->getTypedObject<BeamIntegrationRule>(secTag);
         if (theRule == nullptr) {
           return TCL_ERROR;
         }
-        // theRule->Print(opserr, 0);
 
         deleteBeamIntegr = false;
         beamIntegr = theRule->getBeamIntegration();
@@ -932,7 +944,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     double zetaI, zetaJ;
     int nIP;
 
-    BeamIntegration *otherBeamInt = 0;
+    BeamIntegration *otherBeamInt = nullptr;
     if (strcmp(argv[7], "Lobatto") == 0)
       otherBeamInt = new LobattoBeamIntegration();
     else if (strcmp(argv[7], "Legendre") == 0)
