@@ -30,6 +30,7 @@ target_sources(OPS_Material
     HystereticSmooth.cpp
     HystereticAsym.cpp
     MaterialState.cpp
+    MultiplierMaterial.cpp
     ParallelMaterial.cpp
     ResilienceLow.cpp
     Ratchet.cpp
@@ -56,6 +57,7 @@ target_sources(OPS_Material
     HystereticSmooth.h
     HystereticAsym.h
     MaterialState.h
+    MultiplierMaterial.h
     ParallelMaterial.h
     ResilienceLow.h
     Ratchet.h
