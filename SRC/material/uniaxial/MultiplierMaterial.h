@@ -50,7 +50,7 @@ class MultiplierMaterial : public UniaxialMaterial
     double getStress(void);
     double getTangent(void);
     double getDampTangent(void);
-    double getInitialTangent(void) {return theMaterial->getInitialTangent();}
+  double getInitialTangent(void);
 
     int commitState(void);
     int revertToLastCommit(void);    
@@ -66,7 +66,7 @@ class MultiplierMaterial : public UniaxialMaterial
 
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
-    
+
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int activateParameter(int parameterID);
     double getStressSensitivity     (int gradIndex, bool conditional);
@@ -77,6 +77,8 @@ class MultiplierMaterial : public UniaxialMaterial
     int    commitSensitivity        (double strainGradient, int gradIndex, int numGrads);
     // AddingSensitivity:END ///////////////////////////////////////////
     
+    double getEnergy(void);
+
   protected:
     
   private:
