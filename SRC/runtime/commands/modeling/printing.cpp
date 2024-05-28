@@ -36,6 +36,9 @@
 
 #include <Pressure_Constraint.h>
 #include <Element.h>
+#ifdef OPS_USE_DAMPING
+#include <damping/Damping.h>
+#endif
 #include <ElementIter.h>
 
 #include <Node.h>
@@ -79,10 +82,10 @@ int TclCommand_classType(ClientData clientData, Tcl_Interp *interp, int argc,
 
   else if (type == "section")
     theObject = builder->getTypedObject<SectionForceDeformation>(tag);
-
-  else if (type == "section")
-    theObject = builder->getTypedObject<SectionForceDeformation>(tag);
-
+#ifdef OPS_USE_DAMPING
+  else if (type == "damping")
+    theObject = builder->getTypedObject<Damping>(tag);
+#endif
   else {
     opserr << G3_ERROR_PROMPT << "classType - " << type.c_str() << " not yet supported" << "\n";
     return TCL_ERROR;
