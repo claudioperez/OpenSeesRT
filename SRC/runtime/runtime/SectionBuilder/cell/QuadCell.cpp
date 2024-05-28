@@ -60,9 +60,10 @@ QuadCell::getVertCoords (void) const
 
 double QuadCell::getdValue (void) const
 {
-    double dVa=vertCoord(0,0);
+    double dVa = vertCoord(0,0);
     return dVa;
 }
+
 void QuadCell::setVertCoords (const Matrix &vertexCoords)
 {
    vertCoord = vertexCoords;
