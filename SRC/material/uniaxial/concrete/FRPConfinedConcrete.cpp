@@ -991,7 +991,7 @@ int FRPConfinedConcrete::recvSelf (int commitTag, Channel& theChannel,
 
 void FRPConfinedConcrete::Print (OPS_Stream& s, int flag)
 {
-  if (flag == OPS_PRINTMODEL_JSON) {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
   } else {
    s << "  FRPConfinedConcrete: Constitutive (FEM) Model for FRP and Tie - Confined Concrete for Circular Concrete Sections, tag: " << this->getTag() << endln;
    s << "  Compressive Strength of Concrete Core: "  << fpc1 << endln;
