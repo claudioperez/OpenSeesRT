@@ -130,23 +130,23 @@ public:
 
 public:
 
-    /**
-    Returns the X coefficient of this vector.
-    @return the X coefficient of this vector.
-    */
-    inline double x() const { return values[0]; }
+//  /**
+//  Returns the X coefficient of this vector.
+//  @return the X coefficient of this vector.
+//  */
+//  inline double x() const { return values[0]; }
 
-    /**
-    Returns the Y coefficient of this vector.
-    @return the Y coefficient of this vector.
-    */
-    inline double y() const { return values[1]; }
+//  /**
+//  Returns the Y coefficient of this vector.
+//  @return the Y coefficient of this vector.
+//  */
+//  inline double y() const { return values[1]; }
 
-    /**
-    Returns the Z coefficient of this vector.
-    @return the Z coefficient of this vector.
-    */
-    inline double z() const { return values[2]; }
+//  /**
+//  Returns the Z coefficient of this vector.
+//  @return the Z coefficient of this vector.
+//  */
+//  inline double z() const { return values[2]; }
 
     /**
     Returns the i-th coefficient of this vector.
@@ -160,17 +160,17 @@ public:
     */
     inline constexpr scalar_t& operator()(size_t i) { return values[i]; }
 
-    /**
-    Returns the i-th coefficient of this vector.
-    @return the i-th coefficient of this vector.
-    */
-    inline constexpr scalar_t operator[](size_t i) const { return values[i]; }
+//  /**
+//  Returns the i-th coefficient of this vector.
+//  @return the i-th coefficient of this vector.
+//  */
+//  inline constexpr scalar_t operator[](size_t i) const { return values[i]; }
 
-    /**
-    Returns the i-th coefficient of this vector.
-    @return the i-th coefficient of this vector.
-    */
-    inline constexpr scalar_t& operator[](size_t i) { return values[i]; }
+//  /**
+//  Returns the i-th coefficient of this vector.
+//  @return the i-th coefficient of this vector.
+//  */
+//  inline constexpr scalar_t& operator[](size_t i) { return values[i]; }
 
 public:
 
@@ -186,14 +186,14 @@ public:
             values[2] * values[2];
     }
 
-    /**
-    Returns the norm this vector.
-    @return the norm of this vector.
-    */
-    inline scalar_t norm() const
-    {
-        return std::sqrt(squaredNorm());
-    }
+//  /**
+//  Returns the norm this vector.
+//  @return the norm of this vector.
+//  */
+//  inline scalar_t norm() const
+//  {
+//      return std::sqrt(squaredNorm());
+//  }
 
     /**
     makes this vector a unit vector.
@@ -316,9 +316,9 @@ Prints this vector to a input stream
 @param v the vector
 @return the stream
 */
-template<class TStream, class T>
-inline TStream& operator << (TStream& s, const Vector3D& v) {
-    return (s << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")");
-}
+// template<class TStream, class T>
+// inline TStream& operator << (TStream& s, const Vector3D& v) {
+//     return (s << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")");
+// }
 
 #endif // Vector3D_h
