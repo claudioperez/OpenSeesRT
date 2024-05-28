@@ -18,15 +18,12 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// Description: This file contains the class implementation for GenericSection1d.
 //
 // Written: MHS 
 // Created: Apr 2000
 // Revision: A
 //
-// Description: This file contains the class implementation for GenericSection1d.
-//
-// What: "@(#) GenericSection1d.C, revA"
-
 #include <GenericSection1d.h>
 #include <UniaxialMaterial.h>
 #include <Channel.h>
