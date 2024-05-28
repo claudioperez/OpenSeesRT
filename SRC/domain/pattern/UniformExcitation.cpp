@@ -279,18 +279,20 @@ void
 UniformExcitation::applyLoad(double time)
 {
     Domain *theDomain = this->getDomain();
-    if (theDomain == 0)
+    if (theDomain == nullptr)
         return;
     
     NodeIter &theNodes = theDomain->getNodes();
     Node *theNode;
-    while ((theNode = theNodes()) != 0) {
+    while ((theNode = theNodes()) != nullptr) {
         theNode->setNumColR(1);
         const Vector &crds=theNode->getCrds();
         int ndm = crds.Size();
         
         if (ndm == 1) {
+          if (theDof < 1) {
             theNode->setR(theDof, 0, fact);
+          }
         }
         else if (ndm == 2) {
             if (theDof < 2) {
