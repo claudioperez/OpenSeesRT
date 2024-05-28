@@ -153,7 +153,10 @@ MaterialBackbone::sendSelf(int cTag, Channel &theChannel)
   }
   
   res += theMaterial->sendSelf(cTag, theChannel);
-  
+  if (res < 0) {
+    opserr << "MaterialBackbone::sendSelf -- failed to send material\n";
+  }
+ 
   return res;
 }
 
