@@ -279,6 +279,7 @@ ManzariDafalias ::ManzariDafalias(int classTag)
     mTangType    = 2;
     mIter        = 0;
     mUseElasticTan= false;
+    mStressCorrectionInUse = true;
     
     mElastFlag = 0;
 
