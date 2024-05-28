@@ -74,6 +74,7 @@ extern OPS_Routine OPS_Damage2p;
 static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"InitStressMaterial",            OPS_InitStressNDMaterial},
   {"InitStrainMaterial",            OPS_InitStrainNDMaterial},
+  {"InitStrain",                    OPS_InitStrainNDMaterial},
 
   {"ReinforcedConcretePlaneStress", OPS_ReinforcedConcretePlaneStressMaterial},
   {"PlaneStressLayeredMaterial",    OPS_PlaneStressLayeredMaterial},
@@ -182,5 +183,6 @@ static std::unordered_map<std::string, OPS_Routine*> material_dispatch = {
   {"ElasticOrthotropicPlaneStress", OPS_ElasticOrthotropicPlaneStress},
   {"Series3DMaterial",              OPS_Series3DMaterial},
   {"Parallel3DMaterial",            OPS_Parallel3DMaterial},
+  {"Parallel3D",                    OPS_Parallel3DMaterial},
 };
 
