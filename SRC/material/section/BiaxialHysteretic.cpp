@@ -17,13 +17,8 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.23 $
+//
 // $Date: 2009-10-02 20:48:34 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/BiaxialHysteretic.cpp,v $
-                                                                        
-                                                                        
-// File: ~/section/BiaxialHysteretic.C
 //
 // Written: MHS
 // Created: June 2000
