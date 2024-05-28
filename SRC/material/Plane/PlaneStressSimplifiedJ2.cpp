@@ -20,7 +20,8 @@
 
 #include <Hash.h>
 using namespace OpenSees::Hash::literals;
-#define ND_TAG_PlaneStress   "PlaneStressSimplifiedJ2"_hash
+// #include <classTags.h>
+#define ND_TAG_PlaneStress   3452
 
 
 Matrix PlaneStressSimplifiedJ2::tmpMatrix(3,3);
