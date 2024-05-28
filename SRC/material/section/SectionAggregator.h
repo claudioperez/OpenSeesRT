@@ -17,22 +17,15 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.17 $
-// $Date: 2009-10-01 23:04:32 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/SectionAggregator.h,v $
-                                                                        
-                                                                        
-// File: ~/section/SectionAggregator.h
-//
-// Written: MHS
-// Created: Jun 2000
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // SectionAggregator.  SectionAggregator decorates an MP
 // section (couple bending and axial) with an uncoupled shear
 // relation.
+//
+// Written: MHS
+// Created: Jun 2000
+// Revision: A
 //
 // What: "@(#) SectionAggregator.h, revA"
 
