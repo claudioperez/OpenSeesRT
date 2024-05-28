@@ -43,6 +43,7 @@ extern OPS_Routine OPS_MixedBeamColumnAsym3dTcl; // Xinlong Du
   extern void *OPS_BeamColumn3DwLHNMYS(G3_Runtime*);
 #endif
 
+extern OPS_Routine OPS_FourNodeTetrahedron;
 extern OPS_Routine OPS_TPB1D;
 extern OPS_Routine OPS_TFP_Bearing;
 extern OPS_Routine OPS_FPBearingPTV;
@@ -76,14 +77,18 @@ extern OPS_Routine OPS_MEFI;
 extern OPS_Routine OPS_ElastomericBearingBoucWenMod3d;
 extern OPS_Routine OPS_InertiaTrussElement; // Added by Xiaodong Ji, Yuhao Cheng, Yue Yu
 extern OPS_Routine OPS_CatenaryCableElement;
-extern OPS_Routine OPS_ASDEmbeddedNodeElement; // Massimo Petracca (ASDEA)
-extern OPS_Routine OPS_FourNodeTetrahedron;
 extern OPS_Routine OPS_LysmerTriangle;
-extern OPS_Routine OPS_ASDAbsorbingBoundary2D; // Massimo Petracca (ASDEA)
-extern OPS_Routine OPS_ASDAbsorbingBoundary3D; // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_ASDEmbeddedNodeElement;     // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_ASDAbsorbingBoundary2D;     // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_ASDAbsorbingBoundary3D;     // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_FSIInterfaceElement2D;      // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_FSIFluidBoundaryElement2D;  // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_FSIFluidElement2D;          // Massimo Petracca (ASDEA)
+extern OPS_Routine OPS_ASDShellT3;
 extern OPS_Routine OPS_TwoNodeLink;
 extern OPS_Routine OPS_LinearElasticSpring;
 extern OPS_Routine OPS_Inerter;
+extern OPS_Routine OPS_Inno3DPnPJoint;
 extern OPS_Routine OPS_Adapter;
 extern OPS_Routine OPS_Actuator;
 extern OPS_Routine OPS_ActuatorCorot;
@@ -237,7 +242,9 @@ element_dispatch = {
   {"CorotTruss2",                  OPS_CorotTruss2},
   {"InertiaTruss",                 OPS_InertiaTrussElement},
 
+
 // Shell
+  {"ASDShellT3",                   OPS_ASDShellT3},
 
 // Point
   {"zeroLengthContactNTS2D",       OPS_ZeroLengthContactNTS2D},
@@ -255,9 +262,8 @@ element_dispatch = {
   {"ModElasticBeam3d",             OPS_ModElasticBeam3d},
 
 
-
-
   {"FPBearingPTV",                 OPS_FPBearingPTV},
+
   {"TripleFrictionPendulum",       OPS_TripleFrictionPendulum},
   {"HDR",                          OPS_HDR},
   {"LeadRubberX",                  OPS_LeadRubberX},
@@ -265,6 +271,7 @@ element_dispatch = {
 
   {"AxEqDispBeamColumn2d",         OPS_AxEqDispBeamColumn2d},
 
+// MVLEM
   {"MVLEM",                        OPS_MVLEM},        // Kristijan Kolozvari
   {"SFI_MVLEM",                    OPS_SFI_MVLEM},    // Kristijan Kolozvari
   {"MVLEM_3D",                     OPS_MVLEM_3D},     // Kristijan Kolozvari
@@ -273,6 +280,16 @@ element_dispatch = {
   {"E_SFI",                        OPS_E_SFI},
   {"MEFI",                         OPS_MEFI},
 
+// Fluid
+  {"FSIFluidElement2D",            OPS_FSIFluidElement2D },
+  {"FSIInterfaceElement2D",        OPS_FSIInterfaceElement2D },
+  {"FSIFluidBoundaryElement2D",    OPS_FSIFluidBoundaryElement2D },
+
+// Joint
+  {"ElasticTubularJoint",          OPS_ElasticTubularJoint},
+  {"Inno3DPnPJoint",               OPS_Inno3DPnPJoint},
+
+// Other
   {"MasonPan12",                   OPS_MasonPan12},
   {"MasonPan3D",                   OPS_MasonPan3D},
   {"BeamGT",                       OPS_BeamGT},
@@ -282,7 +299,6 @@ element_dispatch = {
   {"SurfaceLoad",                  OPS_SurfaceLoad},
   {"TriSurfaceLoad",               OPS_TriSurfaceLoad},
   {"TPB1D",                        OPS_TPB1D},
-  {"ElasticTubularJoint",          OPS_ElasticTubularJoint},
   {"quad3d",                       OPS_FourNodeQuad3d},
   {"AC3D8",                        OPS_AC3D8HexWithSensitivity},
   {"ASI3D8",                       OPS_ASID8QuadWithSensitivity},
