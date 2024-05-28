@@ -1150,8 +1150,8 @@ Node::sendSelf(int cTag, Channel &theChannel)
       }
     }
 
-    if (R != 0) {
-      res = theChannel.sendMatrix(dataTag, cTag, *R);
+    if (R != nullptr) {
+      res = theChannel.sendMatrix(dbTag2, cTag, *R);
       if (res < 0) {
         opserr << " Node::sendSelf() - failed to send R data\n";
         return res;
@@ -1274,13 +1274,13 @@ Node::recvSelf(int cTag, Channel &theChannel,
     if (data(12) == 0) {
       // create a matrix for R
       int noCols = data(13);
-      if (R == 0) {
-      R = new Matrix(numberDOF, noCols);
+      if (R == nullptr) {
+        R = new Matrix(numberDOF, noCols);
       }
       // now recv the R matrix
-      if (theChannel.recvMatrix(dataTag, cTag, *R) < 0) {
-      opserr << "Node::recvSelf() - failed to receive R data\n";
-      return res;
+      if (theChannel.recvMatrix(dbTag2, cTag, *R) < 0) {
+        opserr << "Node::recvSelf() - failed to receive R data\n";
+        return res;
       }
     }
 
