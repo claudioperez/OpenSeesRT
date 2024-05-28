@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.6 $
-// $Date: 2003/02/14 23:01:39 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/HardeningMaterial2.h,v $
-
-#ifndef HardeningMaterial2_h
-#define HardeningMaterial2_h
-
+//
 // Written: MHS
 // Created: May 2000
 //
@@ -32,32 +25,36 @@
 // HardeningMaterial2.  HardeningMaterial2 provides the abstraction
 // for a one-dimensional rate-independent plasticity model
 // with combined isotropic and kinematic hardening.
+//
+#ifndef HardeningMaterial2_h
+#define HardeningMaterial2_h
 
 #include <UniaxialMaterial.h>
+class Matrix;
 
 class HardeningMaterial2 : public UniaxialMaterial
 {
  public:
   HardeningMaterial2(int tag, double E, double sigmaY,
-		    double K, double H, double eta = 0.0);
+                     double K, double H, double eta = 0.0);
   HardeningMaterial2();
   ~HardeningMaterial2();
   
   int setTrialStrain(double strain, double strainRate = 0.0); 
-  double getStrain(void);          
-  double getStress(void);
-  double getTangent(void);
-  double getInitialTangent(void) {return E;};
+  double getStrain();          
+  double getStress();
+  double getTangent();
+  double getInitialTangent() {return E;};
   
-  int commitState(void);
-  int revertToLastCommit(void);    
-  int revertToStart(void);        
+  int commitState();
+  int revertToLastCommit();    
+  int revertToStart();        
   
-  UniaxialMaterial *getCopy(void);
+  UniaxialMaterial *getCopy();
   
   int sendSelf(int commitTag, Channel &theChannel);  
   int recvSelf(int commitTag, Channel &theChannel, 
-	       FEM_ObjectBroker &theBroker);    
+               FEM_ObjectBroker &theBroker);    
   
   void Print(OPS_Stream &s, int flag =0);
   
@@ -75,26 +72,26 @@ class HardeningMaterial2 : public UniaxialMaterial
   
  private:
   // Material parameters
-  double E;	// Elastic modulus
-  double sigmaY;	// Yield stress
-  double Hiso;	// Isotropic hardening parameter
-  double Hkin;	// Kinematic hardening parameter
+  double E;           // Elastic modulus
+  double sigmaY;      // Yield stress
+  double Hiso;        // Isotropic hardening parameter
+  double Hkin;        // Kinematic hardening parameter
   double eta;
   
   // Committed history variables
-  double CplasticStrain;	// Committed plastic strain
-  double CbackStress;		// Committed back stress;
-  double Chardening;		// Committed internal hardening variable
+  double CplasticStrain;        // Committed plastic strain
+  double CbackStress;           // Committed back stress;
+  double Chardening;            // Committed internal hardening variable
   
   // Trial history variables
-  double TplasticStrain;	// Trial plastic strain
-  double TbackStress;		// Trial back stress
-  double Thardening;		// Trial internal hardening variable
+  double TplasticStrain;        // Trial plastic strain
+  double TbackStress;           // Trial back stress
+  double Thardening;            // Trial internal hardening variable
   
   // Trial state variables
-  double Tstrain;		// Trial strain
-  double Tstress;		// Trial stress
-  double Ttangent;	// Trial tangent
+  double Tstrain;               // Trial strain
+  double Tstress;               // Trial stress
+  double Ttangent;              // Trial tangent
   
   // AddingSensitivity:BEGIN //////////////////////////////////////////
   int parameterID;
