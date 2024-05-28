@@ -44,7 +44,7 @@
 #include <stdlib.h>
 
 void*
-OPS_FSIFluidElement2D(void)
+OPS_ADD_RUNTIME_VPV(OPS_FSIFluidElement2D)
 {
     const char* descr = 
         "Want: element FSIFluidElement2D $tag $n1 $n2 $n3 $n4   $c "

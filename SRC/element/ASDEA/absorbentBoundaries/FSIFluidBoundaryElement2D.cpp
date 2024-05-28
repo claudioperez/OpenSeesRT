@@ -45,7 +45,7 @@
 #include <array>
 
 void*
-OPS_FSIFluidBoundaryElement2D(void)
+OPS_ADD_RUNTIME_VPV(OPS_FSIFluidBoundaryElement2D)
 {
     const char* descr =
         "Want: element FSIFluidBoundaryElement2D $tag $n1 $n2   $c $alpha $g "

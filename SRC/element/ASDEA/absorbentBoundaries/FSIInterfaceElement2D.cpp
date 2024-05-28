@@ -45,7 +45,7 @@
 #include <array>
 
 void*
-OPS_FSIInterfaceElement2D(void)
+OPS_ADD_RUNTIME_VPV(OPS_FSIInterfaceElement2D)
 {
     const char* descr = 
         "Want: element FSIInterfaceElement2D $tag $n1 $n2   $rho "
