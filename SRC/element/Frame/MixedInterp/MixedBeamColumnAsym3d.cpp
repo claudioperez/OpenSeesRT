@@ -955,8 +955,10 @@ int MixedBeamColumnAsym3d::revertToStart()
   //perform transformation - transform axial force form centroid to shear center
   kr.addMatrixTripleProduct(0.0, Tr, kv, 1.0);
 
-  Ki = new Matrix(crdTransf->getInitialGlobalStiffMatrix(kr));
-
+  if (Ki == 0)
+    Ki = new Matrix(NEGD,NEGD);
+  *Ki = crdTransf->getInitialGlobalStiffMatrix(kr);
+	
   // Vector V is zero at initial state
   V.Zero();
   committedV.Zero();
@@ -1096,7 +1098,8 @@ int MixedBeamColumnAsym3d::update() {
   //double GJ;
   //double torsionalForce;
   //Vector sectionForceShapeFcn[numSections];
-  sectionForceShapeFcn = new Vector[numSections];
+  if (sectionForceShapeFcn == 0)
+    sectionForceShapeFcn = new Vector[numSections];
   for ( i = 0; i < numSections; i++ ) {
     sectionForceShapeFcn[i] = Vector(NSD);
   }
@@ -1546,13 +1549,13 @@ Response* MixedBeamColumnAsym3d::setResponse(const char **argv, int argc,
   } else if (strcmp(argv[0],"sectionDeformation_Force") == 0) {
 
     int i;
-    char *q  = new char[15];
+    char *q  = new char[80];
     for ( i = 0; i < numSections; i++ ){
-      sprintf(q,"axialStrain_%i",i+1);
+      sprintf(q,"axialStrain_%d",i+1);
       output.tag("ResponseType",q);
-      sprintf(q,"curvatureZ_%i",i+1);
+      sprintf(q,"curvatureZ_%d",i+1);
       output.tag("ResponseType",q);
-      sprintf(q,"curvatureY_%i",i+1);
+      sprintf(q,"curvatureY_%d",i+1);
       output.tag("ResponseType",q);
     }
     delete [] q;
@@ -1562,13 +1565,13 @@ Response* MixedBeamColumnAsym3d::setResponse(const char **argv, int argc,
   } else if (strcmp(argv[0],"plasticSectionDeformation_Force") == 0) {
 
     int i;
-    char *q  = new char[25];
+    char *q  = new char[80];
     for ( i = 0; i < numSections; i++ ){
-      sprintf(q,"plasticAxialStrain_%i",i+1);
+      sprintf(q,"plasticAxialStrain_%d",i+1);
       output.tag("ResponseType",q);
-      sprintf(q,"plasticCurvatureZ_%i",i+1);
+      sprintf(q,"plasticCurvatureZ_%d",i+1);
       output.tag("ResponseType",q);
-      sprintf(q,"plasticCurvatureY_%i",i+1);
+      sprintf(q,"plasticCurvatureY_%d",i+1);
       output.tag("ResponseType",q);
     }
     delete [] q;
@@ -1585,11 +1588,11 @@ Response* MixedBeamColumnAsym3d::setResponse(const char **argv, int argc,
     theResponse = new ElementResponse(this, 110, ID(numSections));
     
   } else if (strcmp(argv[0],"connectedNodes") == 0) {
-    theResponse =  new ElementResponse(this, 102, Vector(2));
+    theResponse =  new ElementResponse(this, 102, ID(2));
 
   } else if (strcmp(argv[0],"numSections") == 0 ||
              strcmp(argv[0],"numberOfSections") == 0 ) {
-    theResponse =  new ElementResponse(this, 103, Vector(1));
+    theResponse =  new ElementResponse(this, 103, ID(1));
 
   } else if (strcmp(argv[0],"section") ==0) {
     if (argc > 2) {
@@ -1719,15 +1722,15 @@ int MixedBeamColumnAsym3d::getResponse(int responseID, Information &eleInfo) {
     return eleInfo.setID(tags);
 
   } else if (responseID == 102) { // connected nodes
-    Vector tempVector(2);
+    ID tempVector(2);
     tempVector(0) = connectedExternalNodes(0);
     tempVector(1) = connectedExternalNodes(1);
-    return eleInfo.setVector(tempVector);
+    return eleInfo.setID(tempVector);
 
   } else if (responseID == 103) { // number of sections
-    Vector tempVector(1);
+    ID tempVector(1);
     tempVector(0) = numSections;
-    return eleInfo.setVector(tempVector);
+    return eleInfo.setID(tempVector);
 
   } else {
     return -1;
