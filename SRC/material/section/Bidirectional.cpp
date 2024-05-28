@@ -110,6 +110,7 @@ Bidirectional::Bidirectional(int tag, double e, double sy, double Hi, double Hk,
         eP_n1[i] = 0.0;
         q_n[i]   = 0.0;
         q_n1[i]  = 0.0;
+        e_n1[i]  = 0.0;
     }
 
     alpha_n  = 0.0;
@@ -123,8 +124,9 @@ Bidirectional::Bidirectional():
     for (int i = 0; i < 2; i++) {
         eP_n[i]  = 0.0;
         eP_n1[i] = 0.0;
-        q_n[i]  = 0.0;
-        q_n1[i] = 0.0;
+        q_n[i]   = 0.0;
+        q_n1[i]  = 0.0;
+        e_n1[i]  = 0.0;
     }
 
     alpha_n  = 0.0;
@@ -313,6 +315,13 @@ Bidirectional::commitState(void)
 int
 Bidirectional::revertToLastCommit(void)
 {
+    eP_n1[0] = eP_n[0];
+    eP_n1[1] = eP_n[1];
+
+    q_n1[0] = q_n[0];
+    q_n1[1] = q_n[1];
+
+    alpha_n1 = alpha_n;
     return 0;
 }
 
@@ -324,6 +333,7 @@ Bidirectional::revertToStart(void)
         eP_n1[i] = 0.0;
         q_n[i]  = 0.0;
         q_n1[i] = 0.0;
+        e_n1[i] = 0.0;
     }
 
     alpha_n  = 0.0;
@@ -343,6 +353,7 @@ Bidirectional::getCopy(void)
         theCopy->eP_n1[i] = eP_n1[i];
         theCopy->q_n[i]  = q_n[i];
         theCopy->q_n1[i] = q_n1[i];
+        theCopy->e_n1[i] = e_n1[i];
     }
 
     theCopy->alpha_n  = alpha_n;
@@ -432,11 +443,11 @@ void
 Bidirectional::Print(OPS_Stream &s, int flag)
 {
     if (flag == OPS_PRINT_PRINTMODEL_SECTION) {
-        s << "Bidirectional, tag: " << this->getTag() << endln;
-        s << "\tE:    " << E << endln;
-        s << "\tsigY: " << sigY << endln;
-        s << "\tHiso: " << Hiso << endln;
-        s << "\tHkin: " << Hkin << endln;
+        s << "Bidirectional, tag: " << this->getTag() << "\n";
+        s << "\tE:    " << E << "\n";
+        s << "\tsigY: " << sigY << "\n";
+        s << "\tHiso: " << Hiso << "\n";
+        s << "\tHkin: " << Hkin << "\n";
     }
     
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
