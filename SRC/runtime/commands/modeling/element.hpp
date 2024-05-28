@@ -57,6 +57,7 @@ extern OPS_Routine OPS_AV3D4QuadWithSensitivity;
 
 extern OPS_Routine OPS_Brick8FiberOverlay;
 extern OPS_Routine OPS_TripleFrictionPendulum;
+extern OPS_Routine OPS_TripleFrictionPendulumX;
 extern OPS_Routine OPS_Truss2;
 extern OPS_Routine OPS_PML3D;
 extern OPS_Routine OPS_PML2D;
@@ -265,6 +266,7 @@ element_dispatch = {
   {"FPBearingPTV",                 OPS_FPBearingPTV},
 
   {"TripleFrictionPendulum",       OPS_TripleFrictionPendulum},
+  {"TripleFrictionPendulumX",      OPS_TripleFrictionPendulumX},
   {"HDR",                          OPS_HDR},
   {"LeadRubberX",                  OPS_LeadRubberX},
   {"ElastomericX",                 OPS_ElastomericX},
