@@ -15,6 +15,9 @@
 #include <runtimeAPI.h>
 #include <BarSlipMaterial.h>
 extern OPS_Routine OPS_ASD_SMA_3K;
+extern OPS_Routine OPS_APDFMD;
+extern OPS_Routine OPS_APDMD;
+extern OPS_Routine OPS_APDVFD;
 extern OPS_Routine OPS_BWBN;
 extern OPS_Routine OPS_Bilin02;
 extern OPS_Routine OPS_Bilin;
@@ -217,6 +220,9 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch_2 {
 #endif
 
 std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
+    {"APDFMD", dispatch<OPS_APDFMD> },
+    {"APDMD",  dispatch<OPS_APDMD> },
+    {"APDVFD", dispatch<OPS_APDVFD> },
 
     {"FedeasUniaxialDamage", dispatch<G3Parse_newFedeasUniaxialDamage>  },
     {"KikuchiAikenHDR",      dispatch<TclCommand_KikuchiAikenHDR>       },
