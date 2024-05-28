@@ -1445,9 +1445,3 @@ int GmshRecorder::flush() {
     return 0;
 }
 
-int GmshRecorder::flush() {
-    if (theFile.is_open() && theFile.good()) {
-        theFile.flush();
-    }
-    return 0;
-}
