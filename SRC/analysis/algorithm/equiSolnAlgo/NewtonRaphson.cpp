@@ -115,7 +115,7 @@ NewtonRaphson::~NewtonRaphson()
 
 
 int 
-NewtonRaphson::solveCurrentStep(void)
+NewtonRaphson::solveCurrentStep()
 {
     // set up some pointers and check they are valid
     // NOTE this could be taken away if we set Ptrs as protecetd in superclass
@@ -132,6 +132,9 @@ NewtonRaphson::solveCurrentStep(void)
         return SolutionAlgorithm::BadAlgorithm;
     }        
 
+    //
+    // 1 Form unbalance
+    //
     if (theIntegrator->formUnbalance() < 0) {
       opserr << "WARNING NewtonRaphson::solveCurrentStep() - ";
       opserr << "the Integrator failed in formUnbalance()\n";        
@@ -150,7 +153,13 @@ NewtonRaphson::solveCurrentStep(void)
 
     numIterations = 0;
 
+    //
+    // 2 Corrections
+    //
     do {
+      //
+      // 2.1 Form tangent
+      //
       if (tangent == INITIAL_THEN_CURRENT_TANGENT) {
 
         if (numIterations == 0) {
@@ -171,17 +180,25 @@ NewtonRaphson::solveCurrentStep(void)
         if (theIntegrator->formTangent(tangent, iFactor, cFactor) < 0)
           return SolutionAlgorithm::BadFormTangent;
 
-      } 
-
+      }
+      //
+      // 2.2 Solve for dx
+      //
       if (theSOE->solve() < 0) 
         return SolutionAlgorithm::BadLinearSolve;
 
+      //
+      // 2.3 Form updated residual
+      //
       if (theIntegrator->update(theSOE->getX()) < 0)
         return SolutionAlgorithm::BadStepUpdate;
 
       if (theIntegrator->formUnbalance() < 0)
         return SolutionAlgorithm::BadFormResidual;
 
+      //
+      // 2.4 Test on updated residual
+      //
       result = theTest->test();
       numIterations++;
       this->record(numIterations);
