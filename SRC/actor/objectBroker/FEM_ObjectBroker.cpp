@@ -149,6 +149,25 @@ FEM_ObjectBroker::getNewHystereticBackbone(int classTag)
   return 0;
 }
 
+
+UnloadingRule *
+FEM_ObjectBroker::getNewUnloadingRule(int classTag)
+{
+  return 0;
+}
+
+StiffnessDegradation *
+FEM_ObjectBroker::getNewStiffnessDegradation(int classTag)
+{
+  return 0;
+}
+
+StrengthDegradation *
+FEM_ObjectBroker::getNewStrengthDegradation(int classTag)
+{
+  return 0;
+}
+
 UniaxialMaterial *
 FEM_ObjectBroker::getNewUniaxialMaterial(int classTag)
 {
