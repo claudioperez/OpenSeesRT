@@ -49,6 +49,7 @@
 
 class Damping;
 
+
 void*
 OPS_ADD_RUNTIME_VPV(OPS_ASDShellT3)
 {
@@ -320,18 +321,18 @@ namespace
         const auto& p1 = LCS.P1();
         const auto& p2 = LCS.P2();
         const auto& p3 = LCS.P3();
-        double y12 = p1.y() - p2.y();
-        double y23 = p2.y() - p3.y();
-        double y31 = p3.y() - p1.y();
-        double x23 = p2.x() - p3.x();
-        double x31 = p3.x() - p1.x();
-        double x12 = p1.x() - p2.x();
-        double x32 = p3.x() - p2.x();
-        double y32 = p3.y() - p2.y();
-        double x13 = p1.x() - p3.x();
-        double y13 = p1.y() - p3.y();
-        double x21 = p2.x() - p1.x();
-        double y21 = p2.y() - p1.y();
+        double y12 = p1[1] - p2[1];
+        double y23 = p2[1] - p3[1];
+        double y31 = p3[1] - p1[1];
+        double x23 = p2[0] - p3[0];
+        double x31 = p3[0] - p1[0];
+        double x12 = p1[0] - p2[0];
+        double x32 = p3[0] - p2[0];
+        double y32 = p3[1] - p2[1];
+        double x13 = p1[0] - p3[0];
+        double y13 = p1[1] - p3[1];
+        double x21 = p2[0] - p1[0];
+        double y21 = p2[1] - p1[1];
 
         // membrane part (ANDeS, basic)
         constexpr double alpha_membrane = 1.5;
