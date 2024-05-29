@@ -167,6 +167,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       return 0;
+
     } else if (ndm == 3) {
       double wy, wz;
       double wx = 0.0;
