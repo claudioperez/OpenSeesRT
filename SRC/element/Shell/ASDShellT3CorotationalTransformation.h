@@ -408,9 +408,9 @@ public:
 
         // 7*3 -> 7 3d vectors +
         auto lamv = [&v, &pos](const Vector3Type& x) {
-            v(pos++) = x.x();
-            v(pos++) = x.y();
-            v(pos++) = x.z();
+            v(pos++) = x[0];
+            v(pos++) = x[1];
+            v(pos++) = x[2];
         };
         lamv(m_C0);
         for (int i = 0; i < 3; i++)
