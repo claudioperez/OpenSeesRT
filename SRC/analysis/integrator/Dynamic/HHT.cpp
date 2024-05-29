@@ -40,7 +40,6 @@
 void *
 OPS_ADD_RUNTIME_VPV(OPS_HHT)
 {
-    // pointer to an integrator that will be returned
     
     int argc = OPS_GetNumRemainingInputArgs();
     if (argc != 1 && argc != 3) {

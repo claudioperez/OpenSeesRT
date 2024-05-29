@@ -169,7 +169,7 @@ int HHTGeneralized::newStep(double _deltaT)
     double a3 = -1.0/(beta*deltaT);
     double a4 = 1.0 - 0.5/beta;  
     Udotdot->addVector(a4, *Utdot, a3);
-    
+
     // determine the velocities and accelerations at t+alpha*deltaT
     (*Ualphadot) = *Utdot;
     Ualphadot->addVector((1.0-alphaF), *Udot, alphaF);

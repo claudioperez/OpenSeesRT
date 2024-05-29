@@ -119,7 +119,7 @@ int CentralDifference::newStep(double _deltaT)
     c2 = 0.5/deltaT;
     c3 = 1.0/(deltaT*deltaT);
     
-    if (Ut == 0)  {
+    if (Ut == nullptr) {
         opserr << "CentralDifference::newStep() - domainChange() failed or hasn't been called\n";
         return -2;
     }
@@ -183,8 +183,7 @@ int CentralDifference::domainChanged()
         theModel->setRayleighDampingFactors(alphaM, betaK, betaKi, betaKc);
     
     // create the new Vector objects
-    if (Ut == 0 || Ut->Size() != size)  {
-        
+    if (Ut == 0 || Ut->Size() != size) {
         if (Utm1 != 0)
             delete Utm1;
         if (Ut != 0)
@@ -332,7 +331,7 @@ int CentralDifference::update(const Vector &U)
 }
 
 
-int CentralDifference::commit(void)
+int CentralDifference::commit()
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0) {
@@ -366,7 +365,7 @@ int CentralDifference::sendSelf(int cTag, Channel &theChannel)
         opserr << "WARNING CentralDifference::sendSelf() - could not send data\n";
         return -1;
     }
-    
+
     return 0;
 }
 

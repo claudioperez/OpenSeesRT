@@ -18,13 +18,6 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-#ifndef CentralDifferenceNoDamping_h
-#define CentralDifferenceNoDamping_h
-
-// Written: fmk 
-// Created: 02/05
-// Revision: A
-//
 // Description: This file contains the class definition for CentralDifferenceNoDamping.
 // CentralDifferenceNoDamping is an algorithmic class for performing a transient 
 // analysis using the Central Difference Scheme as implemented in Dyna
@@ -34,6 +27,13 @@
 // which is an explicit direct integration scheme as outlined in the paper:
 // Goudreau, G.L. and J.O. Hallquist, "Recent Developments in Large Scale Finite Element Lagrangian 
 // Hydrocode Technology", Journal of Computer Methods in Applied Mechanics and Engineering, 30, 1982.
+//
+// Written: fmk 
+// Created: 02/05
+// Revision: A
+//
+#ifndef CentralDifferenceNoDamping_h
+#define CentralDifferenceNoDamping_h
 
 #include <TransientIntegrator.h>
 
@@ -54,17 +54,17 @@ class CentralDifferenceNoDamping : public TransientIntegrator
     int formEleResidual(FE_Element *theEle) override;
     int formNodUnbalance(DOF_Group *theDof);
 
-    int domainChanged(void);    
+    int domainChanged();    
     int newStep(double deltaT);    
     int update(const Vector &deltaU);
 
-    int commit(void);
+    int commit();
 
-    const Vector &getVel(void);
+    const Vector &getVel();
     
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker);
+                         FEM_ObjectBroker &theBroker);
 
     void Print(OPS_Stream &s, int flag =0);        
     

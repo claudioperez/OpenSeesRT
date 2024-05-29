@@ -30,6 +30,7 @@ target_sources(OPS_Analysis
         KRAlphaExplicit_TP.cpp
         Newmark1.cpp
         Newmark.cpp
+        GeneralizedNewmark.cpp
         NewmarkExplicit.cpp
         ParkLMS3.cpp
 #       PFEMIntegrator.cpp
@@ -62,6 +63,7 @@ target_sources(OPS_Analysis
         Newmark1.h
         NewmarkExplicit.h
         Newmark.h
+        GeneralizedNewmark.cpp
         ParkLMS3.h
 #       PFEMIntegrator.h
         TRBDF2.h

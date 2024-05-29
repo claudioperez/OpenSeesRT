@@ -17,59 +17,62 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-//
-// Written: MHS
-// Created: May 2020
+
+// $Revision: 1.0 $
+// $Date: 2019-01-28 17:53:01 $
+// $Source: /usr/local/cvs/OpenSees/SRC/damping/SecStifDamping.h,v $
+
+// Written: Yuli Huang (yulee@berkeley.edu)
+// Created: 02/2020
 // Revision: A
 //
-// Description: This file contains the class definition for GimmeMCK.
-// GimmeMCK is an algorithmic class for performing a transient analysis
-// using the explicit Newmark integration scheme (beta = 0).
+// Description: This file contains the definition for the SecStifDamping class.
+// FRDamping provides the abstraction of an elemental damping imposition
+// providing quasi tangent stiffness proportional damping
 //
-#ifndef GimmeMCK_h
-#define GimmeMCK_h
+// What: "@(#) FRDamping.h, revA"
 
-#include <TransientIntegrator.h>
+#ifndef SecStifDamping_h
+#define SecStifDamping_h
 
-class DOF_Group;
-class FE_Element;
-class Vector;
+#include <Damping.h>
+#include <Vector.h>
+#include <TimeSeries.h>
 
-class GimmeMCK : public TransientIntegrator
+class SecStifDamping: public Damping
 {
 public:
-    // constructors
-    GimmeMCK();
-    GimmeMCK(double m, double c, double k, double ki);
-    
-    // destructor
-    ~GimmeMCK();
-    
-    // methods which define what the FE_Element and DOF_Groups add
-    // to the system of equation object.
-    int formEleTangent(FE_Element *theEle);
-    int formNodTangent(DOF_Group *theDof);
-    
-    int domainChanged(void);
-    int newStep(double deltaT);
-    int revertToLastStep(void);
-    int update(const Vector &aiPlusOne);
-
-    const Vector &getVel(void);
-    
-    virtual int sendSelf(int commitTag, Channel &theChannel);
-    virtual int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-    
-    void Print(OPS_Stream &s, int flag = 0);
-    
-protected:
-    
+  SecStifDamping(int tag, double beta, double ta, double td, TimeSeries *fac);
+  
+  SecStifDamping();
+  ~SecStifDamping();
+  
+  const char *getClassType() const {return "SecStifDamping";};
+  
+  int setDomain(Domain *domain, int nComp);
+  int update(Vector q);
+  
+  int commitState(void);
+  int revertToLastCommit(void);    
+  int revertToStart(void);
+  
+  const Vector &getDampingForce(void);
+  double getStiffnessMultiplier(void);
+  
+  Damping *getCopy(void);
+  
+  int sendSelf(int cTag, Channel &theChannel);
+  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+  
+  void Print(OPS_Stream &s, int flag = 0);
+  
 private:
-    double m, c, k, ki;
-    
-    int updateCount;                // method should only have one update per step
-    Vector *Ut, *Utdot, *Utdotdot;  // response quantities at time t
-    Vector *U, *Udot, *Udotdot;     // response quantities at time t+deltaT
+  
+  // internal data
+  double beta, ta, td;
+  TimeSeries *fac;
+  Vector *qd, *q0, *q0C;
+  Domain *theDomain;
 };
 
 #endif

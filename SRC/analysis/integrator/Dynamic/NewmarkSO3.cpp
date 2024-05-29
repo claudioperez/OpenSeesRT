@@ -18,13 +18,14 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Description: This file contains the implementation of the Newmark class.
-//
 // Written : fmk
 // Created : 11/98
 // Modified: 02/05 ahs
 // Revision: A
 //
+// Description: This file contains the implementation of the Newmark class.
+//
+// What: "@(#) Newmark.C, revA"
 #include <stdexcept>
 #include <Newmark.h>
 #include <FE_Element.h>
@@ -40,21 +41,64 @@
 #include <string.h>
 #include <NodeIter.h>
 #include <Domain.h>
-#include <Node.h> // for sensitivity
 #include <LoadPattern.h>
 #include <LoadPatternIter.h>
+#include <elementAPI.h>
+#include <fstream>
 #include <Parameter.h>
 #include <ParameterIter.h>//Abbas
+static bool converged = false;
+// static int count = 0;
 
+void *
+OPS_ADD_RUNTIME_VPV(OPS_Newmark)
+{
+  // Pointer to a uniaxial material that will be returned
+  TransientIntegrator *theIntegrator = 0;
+
+  int argc = OPS_GetNumRemainingInputArgs();
+  if (argc != 2 && argc != 4) {
+    opserr << "WARNING - incorrect number of args want Newmark $gamma $beta <-form $typeUnknown>\n";
+    return 0;
+  }
+
+  int dispFlag = 1;
+  double dData[2];
+  int numData = 2;
+  if (OPS_GetDouble(&numData, dData) != 0) {
+    opserr << "WARNING - invalid args want Newmark $gamma $beta <-form $typeUnknown>\n";
+    return 0;
+  }
+  
+  if (argc == 2)
+    theIntegrator = new Newmark(dData[0], dData[1]);
+  else {
+    //    char nextString[10];
+    const char *nextString = OPS_GetString();
+    //    OPS_GetString(nextString, 10);
+    if (strcmp(nextString,"-form") == 0) {
+      nextString = OPS_GetString();
+      if ((nextString[0] == 'D') || (nextString[0] == 'd')) 
+        dispFlag = 1;
+      else if ((nextString[0] == 'A') || (nextString[0] == 'a')) 
+        dispFlag = 3;      
+      else if ((nextString[0] == 'V') || (nextString[0] == 'v')) 
+        dispFlag = 2;      
+    }    
+    theIntegrator = new Newmark(dData[0], dData[1], dispFlag);
+  }
+
+  return theIntegrator;
+}
 
 
 Newmark::Newmark(int classTag)
     : TransientIntegrator(classTag),
-      unknown(Unknown::Displacement), gamma(0), beta(0), 
+      displ(true), gamma(0), beta(0), 
       c1(0.0), c2(0.0), c3(0.0), 
       Ut(0), Utdot(0), Utdotdot(0), U(0), Udot(0), Udotdot(0),
       determiningMass(false),
-      sensitivityFlag(0), gradNumber(0), massMatrixMultiplicator(0),
+      massMatrixMultiplicator(0),
       dampingMatrixMultiplicator(0), assemblyFlag(0), independentRHS(),
       dUn(), dVn(), dAn()
 {
@@ -62,19 +106,17 @@ Newmark::Newmark(int classTag)
 }
 
 
-Newmark::Newmark(double _gamma, double _beta, int uFlag, int iFlag, bool aflag, int classTag_)
+Newmark::Newmark(double _gamma, double _beta, bool dispFlag, bool aflag, int classTag_)
     : TransientIntegrator(classTag_),
-      gamma(_gamma), beta(_beta), 
-      unknown(uFlag), unknown_initialize(iFlag),
+      displ(dispFlag), gamma(_gamma), beta(_beta), 
       c1(0.0), c2(0.0), c3(0.0), 
-      Ut(nullptr), Utdot(nullptr), Utdotdot(nullptr), 
-      U(nullptr),  Udot(nullptr),  Udotdot(nullptr),
+      Ut(0), Utdot(0), Utdotdot(0), U(0), Udot(0), Udotdot(0),
       determiningMass(false),
-      sensitivityFlag(0), gradNumber(0), massMatrixMultiplicator(0),
+      massMatrixMultiplicator(0),
       dampingMatrixMultiplicator(0), assemblyFlag(aflag), independentRHS(),
       dUn(), dVn(), dAn()
 {
-
+    
 }
 
 Newmark::~Newmark()
@@ -104,7 +146,12 @@ Newmark::~Newmark()
 
 int Newmark::newStep(double deltaT)
 {
-
+    if (beta == 0 || gamma == 0)  {
+        opserr << "Newmark::newStep() - error in variable\n";
+        opserr << "gamma = " << gamma << " beta = " << beta << endln;
+        return -1;
+    }
+    
     if (deltaT <= 0.0)  {
         opserr << "Newmark::newStep() - error in variable\n";
         opserr << "dT = " << deltaT << endln;
@@ -115,34 +162,18 @@ int Newmark::newStep(double deltaT)
     AnalysisModel *theModel = this->getAnalysisModel();
     
     // set the constants
-    switch (unknown) {
-    case Displacement:
-      if (beta == 0)  {
-          opserr << "Newmark::newStep() - error in variable\n";
-          opserr << "gamma = " << gamma << " beta = " << beta << endln;
-          return -1;
-      }
+    if (displ == 1)  {
       c1 = 1.0;
       c2 = gamma/(beta*deltaT);
       c3 = 1.0/(beta*deltaT*deltaT);
-      break;
-
-    case Velocity:
-      if (gamma == 0)  {
-          opserr << "Newmark::newStep() - error in variable\n";
-          opserr << "gamma = " << gamma << " beta = " << beta << endln;
-          return -1;
-      }
+    } else if (displ == 2) {
       c1 = deltaT*beta/gamma;
       c2 = 1.0;
       c3 = 1.0/(gamma*deltaT);
-      break;
-
-    case Acceleration:
+    } else if (displ == 3) {
       c1 = beta*deltaT*deltaT;
       c2 = gamma*deltaT;
       c3 = 1.0;
-      break;
     }
     
     if (U == nullptr)  {
@@ -150,21 +181,21 @@ int Newmark::newStep(double deltaT)
       // opserr << "Newmark::newStep() - domainChange() failed or hasn't been called\n";
       return -3;  
     }
+    
+    // set response at t to be that at t+deltaT of previous step
 
-    //
-    // Set response at t to be that at t+deltaT of previous step
-    //
+    converged = true;
 
     (*Ut) = *U;        
     (*Utdot) = *Udot;  
     (*Utdotdot) = *Udotdot;
-
-    if (unknown == Displacement || unknown == Velocity)  {    
+    
+    if (displ == 1 || displ == 2)  {    
         // determine new velocities and accelerations at t+deltaT
         double a1 = (1.0 - gamma/beta); 
-        double a2 = deltaT*(1.0 - 0.5*gamma/beta);
+        double a2 = (deltaT)*(1.0 - 0.5*gamma/beta);
         Udot->addVector(a1, *Utdotdot, a2);
-
+        
         double a3 = -1.0/(beta*deltaT);
         double a4 = 1.0 - 0.5/beta;
         Udotdot->addVector(a4, *Utdot, a3);
@@ -172,59 +203,17 @@ int Newmark::newStep(double deltaT)
         // set the trial response quantities
         theModel->setVel(*Udot);
         theModel->setAccel(*Udotdot);
+    } else  {
+        // determine new displacements and velocities at t+deltaT      
+        double a1 = (deltaT*deltaT/2.0);
+        U->addVector(1.0, *Utdot, deltaT);
+        U->addVector(1.0, *Utdotdot, a1);
+        
+        Udot->addVector(1.0, *Utdotdot, deltaT);
 
-    } else {
-      // determine new displacements and velocities at t+deltaT      
-
-      // U  = Uc + dt Vc + a1 Ac
-      //
-      double a1 = deltaT*deltaT/2.0;
-      double a2 = beta*deltaT*deltaT;
-
-      U->addVector(1.0, *Utdot,    deltaT); // buv
-      U->addVector(1.0, *Utdotdot,     a1); // bua + c1
-//    opserr << "\t2\t" << *U << "\n";
-    
-
-      Udot->addVector(1.0, *Utdotdot, deltaT);
-
-      // Choose how to initialize state
-      switch (unknown_initialize) {
-        case Acceleration:
-          // Initialize:  Udotdot == Utdotdot
-          // implying          Da = 0
-          theModel->setDisp(*U);
-          theModel->setVel(*Udot);
-          break;
-
-        case Velocity:
-          // Initialize  Udot == Utdot
-          // TODO
-          theModel->setDisp(*U);
-          theModel->setVel(*Udot);
-          break;
-
-        case Displacement:
-          // Initialize: U == Ut
-          // implying   Da = -vc/(beta dt) - ac/(2 beta)
-
-          // a += Da
-          Udotdot->addVector(*Utdot,    -c3/(beta*deltaT));
-          Udotdot->addVector(*Utdotdot, -c3/(2.0*beta));
-          theModel->setAccel(*Udotdot);
-
-          // v += a3*Da 
-          Udot->addVector(*Utdot,    -c2/(beta*deltaT));
-          Udot->addVector(*Utdotdot, -c2/(2.0*beta));
-          theModel->setVel(*Udot);
-
-          // u += c1*Da
-          U->addVector(*Utdot,    -c1/(beta*deltaT));
-          U->addVector(*Utdotdot, -c1/(2.0*beta));
-//        opsdbg << "\t3\t" << *U << "\n";
-//        opserr << *U - *Ut << "\n";
-          break; 
-      }
+        // set the trial response quantities
+        theModel->setDisp(*U);
+        theModel->setVel(*Udot);
     }
 
     // increment the time to t+deltaT and apply the load
@@ -240,7 +229,7 @@ int Newmark::newStep(double deltaT)
 
 
 const Vector &
-Newmark::getVel()
+Newmark::getVel(void)
 {
   return *Udot;
 }
@@ -248,17 +237,18 @@ Newmark::getVel()
 int Newmark::revertToLastStep()
 {
   // set response at t+deltaT to be that at t .. for next newStep
+  converged = false;
   if (U != 0)  {
     (*U) = *Ut;        
     (*Udot) = *Utdot;  
     (*Udotdot) = *Utdotdot;  
   }
 
-  return 0;
+    return 0;
 }
 
 
-int
+inline int
 Newmark::formEleTangent(FE_Element *theEle)
 {
     if (determiningMass == true)
@@ -288,7 +278,7 @@ Newmark::formEleTangent(FE_Element *theEle)
     return 0;
 }
 
-int
+inline int
 Newmark::formNodTangent(DOF_Group *theDof)
 {
     if (determiningMass == true)
@@ -325,7 +315,7 @@ int Newmark::domainChanged()
             delete Udot;
         if (Udotdot != 0)
             delete Udotdot;
-
+        
         // create the new
         Ut = new Vector(size);
         Utdot = new Vector(size);
@@ -348,7 +338,7 @@ int Newmark::domainChanged()
     while ((dofPtr = theDOFs()) != 0)  {
       const ID &id = dofPtr->getID();
       int idSize = id.Size();
-
+      
       int i;
       const Vector &disp = dofPtr->getCommittedDisp();  
       for (i=0; i < idSize; i++)  {
@@ -357,11 +347,11 @@ int Newmark::domainChanged()
               (*U)(loc) = disp(i);    
           }
       }
-
+      
       const Vector &vel = dofPtr->getCommittedVel();
       for (i=0; i < idSize; i++)  {
           int loc = id(i);
-          if (loc >= 0) {
+          if (loc >= 0)  {
               (*Udot)(loc) = vel(i);
           }
       }
@@ -369,39 +359,10 @@ int Newmark::domainChanged()
       const Vector &accel = dofPtr->getCommittedAccel();  
       for (i=0; i < idSize; i++)  {
           int loc = id(i);
-          if (loc >= 0) {
+          if (loc >= 0)  {
               (*Udotdot)(loc) = accel(i);
           }
-      }
-
-      // The remaining get**Sensitivity methods cause seg faults with Lagrange constraint
-      // handler in dynamic (transient) analysis even when there is no sensitivity algorithm.
-      // However, I don't think these methods need to be called in domainChanged -- MHS
-      continue;
-      
-      const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);  
-      for (i=0; i < idSize; i++) {
-          int loc = id(i);
-          if (loc >= 0) {
-            dUn(loc) = dispSens(i);    
-          }
-      }
-
-      const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
-      for (i=0; i < idSize; i++) {
-          int loc = id(i);
-          if (loc >= 0) {
-            dVn(loc) = velSens(i);
-          }
-      }
-
-      const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);  
-      for (i=0; i < idSize; i++) {
-          int loc = id(i);
-          if (loc >= 0) {
-            dAn(loc) = accelSens(i);
-          }
-      }
+      } 
     }    
     
     return 0;
@@ -411,13 +372,13 @@ int Newmark::domainChanged()
 int Newmark::update(const Vector &deltaU)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel == nullptr)  {
+    if (theModel == 0)  {
         opserr << "WARNING Newmark::update() - no AnalysisModel set\n";
         return -1;
     }  
     
     // check domainChanged() has been called, i.e. Ut will not be zero
-    if (Ut == nullptr)  {
+    if (Ut == 0)  {
         opserr << "WARNING Newmark::update() - domainChange() failed or not called\n";
         return -2;
     }  
@@ -430,12 +391,12 @@ int Newmark::update(const Vector &deltaU)
     }
     
     //  determine the response at t+deltaT
-    if (unknown == Displacement)  {
+    if (displ == 1)  {
       (*U) += deltaU;
       Udot->addVector(1.0, deltaU, c2);
       Udotdot->addVector(1.0, deltaU, c3);
 
-    } else if (unknown == Velocity) {
+    } else if (displ == 2) {
       U->addVector(1.0, deltaU, c1);
       (*Udot) += deltaU;
       Udotdot->addVector(1.0, deltaU, c3);
@@ -462,7 +423,7 @@ int Newmark::sendSelf(int cTag, Channel &theChannel)
     Vector data(3);
     data(0) = gamma;
     data(1) = beta;
-    data(2) = unknown;
+    data(2) = displ;
 
     
     if (theChannel.sendVector(this->getDbTag(), cTag, data) < 0)  {
@@ -486,7 +447,7 @@ int Newmark::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker
     
     gamma  = data(0);
     beta   = data(1);
-    unknown  = data(2);
+    displ  = data(2);
 
     return 0;
 }
@@ -554,11 +515,10 @@ int Newmark::formEleResidual(FE_Element* theEle)
       // c3 = 1.0/(beta*dt*dt)
 
       // So, the constants can be computed as follows:
-      if (unknown != Displacement) {
+      if (displ != 1) {
           opserr << "ERROR: Newmark::formEleResidual() -- the implemented"
            << " scheme only works if the displ variable is set to true." << endln;
       }
-
       double a2 = -c3;
       double a3 = -c2/gamma;
       double a4 = 1.0 - 1.0/(2.0*beta);
@@ -578,7 +538,7 @@ int Newmark::formEleResidual(FE_Element* theEle)
       AnalysisModel *myModel = this->getAnalysisModel();
       DOF_GrpIter &theDOFs = myModel->getDOFs();
       DOF_Group *dofPtr;
-      while ((dofPtr = theDOFs()) != nullptr) {
+      while ((dofPtr = theDOFs()) != 0) {
 
         const ID &id = dofPtr->getID();
         int idSize = id.Size();
@@ -607,8 +567,10 @@ int Newmark::formEleResidual(FE_Element* theEle)
         }
       }
 
+
+
       // Pre-compute the vectors involving a2, a3, etc.
-      // Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
+      //Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
       Vector tmp1(vectorSize);
       tmp1.addVector(0.0, dUn, a2);
       tmp1.addVector(1.0, dVn, a3);
@@ -621,7 +583,6 @@ int Newmark::formEleResidual(FE_Element* theEle)
 
       if (massMatrixMultiplicator == 0)
           massMatrixMultiplicator = new Vector(tmp1.Size());
-
       if (dampingMatrixMultiplicator == 0)
           dampingMatrixMultiplicator = new Vector(tmp2.Size());
 
@@ -901,7 +862,7 @@ Newmark::getCFactor(void) {
 int 
 Newmark::computeSensitivities(void)
 {
-
+  //  opserr<<" computeSensitivity::start"<<endln; 
   LinearSOE *theSOE = this->getLinearSOE();
   
   /*
@@ -978,7 +939,8 @@ Newmark::computeSensitivities(void)
     // Save sensitivity to nodes
     this->saveSensitivity( theSOE->getX(), gradIndex, numGrads );
     
-
+    
+    
     // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
     this->commitSensitivity(gradIndex, numGrads);
     

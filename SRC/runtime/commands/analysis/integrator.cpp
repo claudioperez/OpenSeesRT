@@ -78,10 +78,15 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
     G3Parse_newTransientIntegrator(clientData, interp, argc, argv);
 
   if (static_integrator != nullptr) {
+    opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";
+    static_integrator->Print(opsdbg);
     builder->set(*static_integrator);
 
-  } else if (transient_integrator != nullptr)
+  } else if (transient_integrator != nullptr) {
+    opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";
+    transient_integrator->Print(opsdbg);
     builder->set(*transient_integrator);
+  }
   else
     return TCL_ERROR;
 
@@ -395,15 +400,15 @@ G3Parse_newEQPathIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     if (argc != 4) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
       opserr << "REFS : \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.849         \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.879         \n";
       return nullptr;
     }
 
     if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.849         \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.879         \n";
       return nullptr;
     }
 
@@ -566,15 +571,15 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
 
     if (argc > 6) {
       if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK) {
-	opserr << "WARNING failed to read numIter\n";
+        opserr << "WARNING failed to read numIter\n";
         return nullptr;
       }
       if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK) {
-	opserr << "WARNING failed to read minIncr\n";
+        opserr << "WARNING failed to read minIncr\n";
         return nullptr;
       }
       if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK) {
-	opserr << "WARNING failed to read maxIncr\n";
+        opserr << "WARNING failed to read maxIncr\n";
         return nullptr;
       }
     } else {
@@ -636,54 +641,6 @@ G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp
 }
 #endif
 
-#include <Newmark1.h>
-TransientIntegrator*
-G3Parse_newNewmark1Integrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-    double gamma;
-    double beta;
-    double alphaM, betaK, betaKi, betaKc;
-    if (argc != 4 && argc != 8) {
-      opserr << "WARNING integrator Newmark1 gamma beta <alphaM> "
-                "<betaKcurrent> <betaKi> <betaKlastCommitted>\n";
-      return nullptr;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &gamma) != TCL_OK) {
-      opserr << "WARNING integrator Newmark1 gamma beta - undefined gamma\n";
-      return nullptr;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &beta) != TCL_OK) {
-      opserr << "WARNING integrator Newmark1 gamma beta - undefined beta\n";
-      return nullptr;
-    }
-
-    if (argc == 8 || argc == 7) {
-      if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - alphaM\n";
-        return nullptr;
-      }
-      if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaK\n";
-        return nullptr;
-      }
-      if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaKi\n";
-        return nullptr;
-      }
-      if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaKc\n";
-        return nullptr;
-      }
-    }
-    if (argc == 4)
-      return new Newmark1(gamma, beta);
-    else
-      return new Newmark1(gamma, beta, alphaM, betaK, betaKi, betaKc);
-}
 
 #ifdef _PARALLEL_INTERPRETERS
   else if ((strcmp(argv[1], "ParallelDisplacementControl") == 0) ||

@@ -115,11 +115,15 @@ public:
         }
     }
 
-    virtual void setDomain(Domain* domain, const ID& node_ids)
+    virtual void setDomain(Domain* domain, const ID& node_ids, bool initialized)
     {
         // call base class setDomain to
         // get nodes and save initial displacements and rotations
-        ASDShellQ4Transformation::setDomain(domain, node_ids);
+        ASDShellQ4Transformation::setDomain(domain, node_ids, initialized);
+
+        // quick return
+        if (domain == nullptr || initialized)
+            return;
 
         // init state variables
         revertToStart();
@@ -415,9 +419,9 @@ public:
 
         // 9*3 -> 9 3d vectors +
         auto lamv = [&v, &pos](const Vector3Type& x) {
-            v(pos++) = x.x();
-            v(pos++) = x.y();
-            v(pos++) = x.z();
+            v(pos++) = x[0];
+            v(pos++) = x[1];
+            v(pos++) = x[2];
         };
         lamv(m_C0);
         for (int i = 0; i < 4; i++)

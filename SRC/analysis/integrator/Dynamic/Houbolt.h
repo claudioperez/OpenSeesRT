@@ -17,22 +17,17 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-03-20 18:36:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/Houbolt.h,v $
-
-#ifndef Houbolt_h
-#define Houbolt_h
-
+//
 // Written : krm
 // Created : 11/2012
 //
 // Description: This file contains the class definition for Houbolt.
 // Houbolt is an algorithmic class for performing a transient analysis
 // using Houbolt linear multistep method.
+//
 // ref: J.C.Houbolt "A recurrence matrix solution for the dynamic response of 
 //      elastic aircraft". J. Aeronaut. Sci. 17 (1950): 540–550.
+//
 // It is 2nd order accurate and unconditionally stable, but may dissipate
 // too much energy in low frequency range for earthquake problems.  Useful 
 // for other dynamic problems, however.
@@ -41,7 +36,9 @@
 // the trapezoid rule. Note this should not be used with variable step size 
 // otherwise frequent step size changes will render this a trapezoidal integrator.
 //
-// What: "@(#) Houbolt.h, revA"
+//
+#ifndef Houbolt_h
+#define Houbolt_h
 
 #include <TransientIntegrator.h>
 
@@ -65,7 +62,7 @@ public:
     int revertToLastStep(void);        
     int update(const Vector &deltaU);
 
-    const Vector &getVel(void);
+    const Vector &getVel();
     
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);

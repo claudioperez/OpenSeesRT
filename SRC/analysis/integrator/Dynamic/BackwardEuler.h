@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-03-20 18:36:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/BackwardEuler.h,v $
-
-#ifndef BackwardEuler_h
-#define BackwardEuler_h
-
+//
 // Written : krm
 // Created : 11/2012
 //
@@ -42,7 +35,9 @@
 // the trapezoid rule. Note this should not be used with variable step size 
 // otherwise frequent step size changes will render this a trapezoidal integrator.
 //
-// What: "@(#) BackwardEuler.h, revA"
+//
+#ifndef BackwardEuler_h
+#define BackwardEuler_h
 
 #include <TransientIntegrator.h>
 
