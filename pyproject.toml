@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.0.59"
+version = "0.0.62"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
@@ -68,7 +68,9 @@ testing = [
     "nbmake"
 ]
 
-repl = [
+py = ["openseespy"]
+
+rt = [
     "pyparsing",
     "prompt_toolkit",
     "pygments"
@@ -80,8 +82,9 @@ docs = [
 ]
 
 [project.urls]
-Repository = "http://github.com/claudioperez/OpenSeesRT"
-Organization = "http://stairlab.berkeley.edu"
+Examples = "https://stairlab.github.io/opensees-gallery"
+Repository = "https://github.com/claudioperez/opensees"
+Organization = "https://stairlab.berkeley.edu"
 # Documentation = "https://brace2.github.io/OpenSeesRT"
 
 [build-system]
