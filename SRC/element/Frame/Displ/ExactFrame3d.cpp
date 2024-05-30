@@ -8,7 +8,7 @@
 #include <VectorND.h>
 
 #include <BeamIntegration.h>
-
+#if 0
 #include <Rotation.h>
 
 class ID;
@@ -101,4 +101,4 @@ class SimoFrame:
 
 
 typedef SimoFrame<2, 1> A;
-
+#endif
