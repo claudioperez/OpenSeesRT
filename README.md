@@ -58,11 +58,9 @@ Project objectives include:
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
 
-- **Semantics** ... <!-- Unlike interfaces which rely on global state, this package can be used 
-  with true library semantics. -->
-
-<!--
-- **Library semantics**
+<!-- 
+- **Semantics** Unlike interfaces which rely on global state, this package can be used 
+  with true library semantics. 
 -->
 
 Additional features include:
@@ -77,7 +75,11 @@ Additional features include:
 > [!NOTE]
 > This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
 > library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
-> website.
+> website. OpenSeesPy can be installed by running the following command:
+>
+> ```shell
+> pip install opensees[py]
+> ```
 
 
 <p style="text-align: center;">
@@ -106,6 +108,10 @@ Additional features include:
   For true stateless modeling, the `Model` class should be used instead of the legacy
   `model` function; documentation is under development.
 
+
+## Compiling
+
+To compile the project see [help/compiling](./help/compiling.md)
 
 <!-- Badge links -->
 
