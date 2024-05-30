@@ -615,7 +615,6 @@ class uniaxial:
     #     Grp("b", args=[Num("Enrgts"), Num("Enrgtd"), Num("Enrgtk"), Num("Enrgta")], about="hysteretic energy dissipation capacity")
     # ])
 
-
 class element:
     Iyc = lambda: Num("iyc", field="iyc",  about="Centroidal moment of inertia", alt="section")
     Ixc = lambda: Num("ixc", field="ixc",  about="", alt="section")
@@ -645,7 +644,7 @@ class element:
     class Truss:
         _args = [
             Tag(),
-            Grp("nodes", type=Node, 
+            Grp("nodes", type=Node,
                 args=[Ref("iNode", attr="name"), Ref("jNode", attr="name")], about="end nodes"),
             Num("A", about="cross-sectional area of element"),
             Ref("material", attr="name", type=Uni, about="tag associated with previously-defined UniaxialMaterial"),
