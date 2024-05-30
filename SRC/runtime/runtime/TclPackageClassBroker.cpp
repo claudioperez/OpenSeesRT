@@ -241,10 +241,11 @@ using namespace OpenSees::Hash::literals;
 #include "Other/PML/PML2D.h"
 #include "Other/PML/PML3D.h"
 
-#include "Frame/DisplInterp/DispBeamColumn2d.h"
-#include "Frame/DisplInterp/DispBeamColumn3d.h"
-#include "Frame/DisplInterp/DispBeamColumnAsym3d.h"   // Xinlong Du
-#include "Frame/MixedInterp/MixedBeamColumnAsym3d.h"  // Xinlong Du
+#include "Frame/Displ/DispBeamColumn2d.h"
+#include "Frame/Displ/DispBeamColumn3d.h"
+#include "Frame/Displ/DispBeamColumnAsym3d.h"   // Xinlong Du
+#include "Frame/Mixed/MixedBeamColumnAsym3d.h"  // Xinlong Du
+
 #include "Shell/ShellMITC4.h"
 #include "Shell/ShellMITC9.h"
 #include "Shell/ShellDKGQ.h"   // Added by Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
