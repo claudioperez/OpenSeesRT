@@ -7,6 +7,7 @@
 # TODO: Create new dispBeamColumn target
 target_sources(OPS_Element
   PRIVATE
+    SimoFrame.cpp
     DispBeamColumn2d.cpp
     DispBeamColumn3d.cpp
     DispBeamColumnAsym3d.cpp

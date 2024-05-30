@@ -1,24 +1,10 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
+//
 // Description: This file contains the function to parse the TCL input
-//              for the elasticBeamColumn element.
+//              for the ElasticBeamColumn element.
 //
 // Written: fmk
 // Created: 07/99
@@ -27,69 +13,94 @@
 #include <string.h>
 #include <Domain.h>
 
-#include <ElasticBeam2d.h>
-#include <ElasticBeam3d.h>
-#include <SectionForceDeformation.h>
-
 #include <CrdTransf.h>
+#include "ElasticBeam2d.h"
+#include "ElasticBeam3d.h"
+#include "PrismFrame3d.h"
+#include <SectionForceDeformation.h>
 
 #include <runtime/BasicModelBuilder.h>
 
-class TclBasicBuilder;
 
 int
 TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
-                               TCL_Char ** const argv, Domain *theTclDomain,
-                               TclBasicBuilder *theTclBuilder, int eleArgStart)
+                               TCL_Char ** const argv)
 {
 
-  // ensure the destructor has not been called -
+  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - elasticBeamColumn \n";
-    return TCL_ERROR;
-  }
+  struct BeamData {
+    double E, G, A, Iz, Iy, Ixy, J, Cw;
+  } beamData;
+  int beamId, iNode, jNode, transTag;
 
+  Element *theBeam = nullptr;
+
+  int eleArgStart = 1;
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
 
-  Element *theBeam = 0;
+  //
+  // Preliminary checks
+  //
+
+  // Check problem dimension
+  if (ndm != 2 && ndm != 3) {
+    opserr << "WARNING elasticBeamColumn command only works when ndm is 2 or "
+              "3, ndm: ";
+    opserr << ndm << "\n";
+    return TCL_ERROR;
+  }
+  // Check the number of arguments
+  if ((argc - eleArgStart) < 4) {
+    opserr << "WARNING bad command - want: element " << argv[1] << " beamId iNode jNode ...\n";
+    return TCL_ERROR;
+  }
+
+  //
+  // Parse common parameters
+  //
+
+  // tag, iNode, jNode, E
+  if (Tcl_GetInt(interp, argv[1 + eleArgStart], &beamId) != TCL_OK) {
+    opserr << "WARNING invalid beamId: " << argv[1 + eleArgStart];
+    opserr << " - elasticBeamColumn beamId iNode jNode A E I\n";
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
+    opserr << "WARNING invalid iNode - elasticBeamColumn " << beamId
+           << " iNode jNode A E I\n";
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
+    opserr << "WARNING invalid jNode - elasticBeamColumn " << beamId
+           << " iNode jNode A E I\n";
+    return TCL_ERROR;
+  }
+
+  //
+  // Parse unique to 2D or 3D
+  //
 
   if (ndm == 2) {
     // check plane frame problem has 3 dof per node
     if (ndf != 3) {
       opserr << "WARNING invalid ndf: " << ndf;
-      opserr << ", for plane problem need 3 - elasticBeamColumn \n";
+      opserr << ", for plane problem need 3 - ElasticBeamColumn \n";
       return TCL_ERROR;
     }
 
     // check the number of arguments
     if ((argc - eleArgStart) < 8) {
-      opserr << "WARNING bad command - want: elasticBeamColumn beamId iNode "
+      opserr << "WARNING bad command - want: ElasticBeamColumn beamId iNode "
                 "jNode A E I <alpha> <d> transTag <-mass m> <-cMass>\n";
       return TCL_ERROR;
     }
 
-    // get the id, end nodes, and section properties
-    int beamId, iNode, jNode, transTag;
+    // get the section properties
     double A, E, I;
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &beamId) != TCL_OK) {
-      opserr << "WARNING invalid beamId: " << argv[1 + eleArgStart];
-      opserr << " - elasticBeamColumn beamId iNode jNode A E I\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
-      opserr << "WARNING invalid iNode - elasticBeamColumn " << beamId
-             << " iNode jNode A E I\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
-      opserr << "WARNING invalid jNode - elasticBeamColumn " << beamId
-             << " iNode jNode A E I\n";
-      return TCL_ERROR;
-    }
-
     if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &A) != TCL_OK) {
       opserr << "WARNING invalid A - elasticBeamColumn " << beamId
              << " iNode jNode A E I\n";
@@ -109,16 +120,15 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
 
     double alpha = 0.0;
     double d = 0.0;
+    int argi;
     double mass = 0.0;
     int cMass = 0;
-    int argi = 0;
-
     if (((argc - eleArgStart) == 10) &&
         (strcmp(argv[eleArgStart + 8], "-mass") != 0)) {
 
       if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha) != TCL_OK) {
-        opserr << "WARNING invalid alpha - elasticBeamColumn " << beamId
-               << " iNode jNode A E I alpha d \n";
+        opserr << "WARNING invalid alpha - ElasticBeamColumn " << beamId
+               << " iNode jNode A E I alpha depth \n";
         return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &d) != TCL_OK) {
@@ -175,12 +185,6 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
     // now create the beam and add it to the Domain
     theBeam = new ElasticBeam2d(beamId, A, E, I, iNode, jNode, *theTrans, alpha,
                                 d, mass, cMass);
-
-    if (theBeam == 0) {
-      opserr << "WARNING ran out of memory creating beam - elasticBeamColumn ";
-      opserr << beamId << " iNode jNode A E I\n";
-      return TCL_ERROR;
-    }
   }
 
   else if (ndm == 3) {
@@ -199,25 +203,8 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       return TCL_ERROR;
     }
 
-    // get the id, end nodes, and section properties
-    int beamId, iNode, jNode, transTag;
+    // get the section properties
     double A, E, G, Jx, Iy, Iz;
-    if (Tcl_GetInt(interp, argv[1 + eleArgStart], &beamId) != TCL_OK) {
-      opserr << "WARNING invalid beamId: " << argv[1 + eleArgStart];
-      opserr << " - elasticBeamColumn beamId iNode jNode A E G Jx Iy Iz\n ";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
-      opserr << "WARNING invalid iNode - elasticBeamColumn " << beamId;
-      opserr << " iNode jNode A E G Jx Iy Iz\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
-      opserr << "WARNING invalid jNode - elasticBeamColumn " << beamId;
-      opserr << " iNode jNode A E G Jx Iy Iz\n";
-      return TCL_ERROR;
-    }
-
     if ((argc - eleArgStart) == 6) {
       int section;
       if (Tcl_GetInt(interp, argv[4 + eleArgStart], &section) != TCL_OK) {
@@ -235,11 +222,6 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         opserr << " iNode jNode sectionTag? transfTag?\n";
         return TCL_ERROR;
       }
-
-      CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
-      if (theTrans == nullptr)
-        return TCL_ERROR;
-
 
       double mass = 0.0;
       int cMass = 0;
@@ -270,9 +252,14 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
           argi++;
       }
 
+
+      CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
+      if (theTrans == nullptr)
+        return TCL_ERROR;
+
       // now create the beam and add it to the Domain
-      theBeam = new ElasticBeam3d(beamId, iNode, jNode, theSection, *theTrans,
-                                  mass, cMass);
+//    theBeam = new ElasticBeam3d(beamId, iNode, jNode, theSection, *theTrans, mass, cMass);
+      theBeam = new PrismFrame3d(beamId, iNode, jNode, theSection, *theTrans, mass, cMass);
 
     } else {
 
@@ -312,11 +299,6 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
         return TCL_ERROR;
       }
 
-      CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
-      if (theTrans == nullptr)
-        return TCL_ERROR;
-
-
       double mass = 0.0;
       int cMass = 0;
       int argi = 11 + eleArgStart;
@@ -346,35 +328,28 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
           argi++;
       }
 
+      CrdTransf *theTrans = builder->getTypedObject<CrdTransf>(transTag);
+      if (theTrans == nullptr)
+        return TCL_ERROR;
+
+
       // now create the beam and add it to the Domain
       theBeam = new ElasticBeam3d(beamId, A, E, G, Jx, Iy, Iz, iNode, jNode,
                                   *theTrans, mass, cMass);
-    }
-
-    if (theBeam == 0) {
-      opserr << "WARNING ran out of memory creating beam - elasticBeamColumn ";
-      opserr << beamId << " iNode jNode A E G Jx Iy Iz\n";
-      return TCL_ERROR;
+//    theBeam = new PrismFrame3d (beamId, A, E, G, Jx, Iy, Iz, iNode, jNode,
+//                                *theTrans, mass, cMass);
     }
   }
 
-  else {
-    opserr << "WARNING elasticBeamColumn command only works when ndm is 2 or "
-              "3, ndm: ";
-    opserr << ndm << endln;
-    return TCL_ERROR;
-  }
 
   // now add the beam to the domain
-  if (theTclDomain->addElement(theBeam) == false) {
+  if (builder->getDomain()->addElement(theBeam) == false) {
     opserr
         << "WARNING TclBasicBuilder - addBeam - could not add beam to domain ";
     opserr << *theBeam;
-    delete theBeam; // clean up the memory to avoid leaks
+    delete theBeam;
     return TCL_ERROR;
   }
 
-  // if get here we have successfully created the node and added it to the
-  // domain
   return TCL_OK;
 }
