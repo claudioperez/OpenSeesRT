@@ -4,10 +4,11 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+target_sources(OPS_Runtime PRIVATE commands.cpp)
 
 target_sources(OPS_Element
     PRIVATE
+      PrismFrame3d.cpp
       ElasticBeam2d.cpp
       ElasticBeam3d.cpp
       ElasticBeamWarping3d.cpp      
@@ -17,6 +18,7 @@ target_sources(OPS_Element
       ModElasticBeam3d.cpp
       WheelRail.cpp
     PUBLIC
+      PrismFrame3d.h
       ElasticBeam2d.h
       ElasticBeam3d.h
       ElasticBeamWarping3d.h      
