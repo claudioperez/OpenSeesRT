@@ -184,7 +184,7 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
 }
 
 const Matrix &
-Element::getDamp(void) 
+Element::getDamp() 
 {
   if (index  == -1) {
     this->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
@@ -733,11 +733,13 @@ Element::getPreviousK(int num) {
     return 0;
 }
 
+#if 0
 int 
 Element::displaySelf(Renderer &, int mode, float fact, const char **displayModes, int numModes)
 {
   return 0;
 }
+#endif
 
 
 const Matrix &
