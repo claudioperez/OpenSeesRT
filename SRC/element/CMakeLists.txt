@@ -8,7 +8,7 @@
 target_link_libraries(OPS_Element 
   PUBLIC  OPS_Domain 
 
-  PRIVATE coordTransformation
+  PRIVATE OPS_Transform
           OPS_FrameQuadrature
 )
 
