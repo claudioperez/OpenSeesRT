@@ -804,7 +804,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   NodalLoad *theLoad = nullptr;
 
   bool isLoadConst = false;
-  bool userSpecifiedPattern = false;
+  bool explicitPatternPassed = false;
   int  loadPatternTag = 0;
 
   if (true) {
@@ -844,7 +844,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
       } else if (strcmp(argv[endMarker], "-pattern") == 0) {
         // allow user to specify load pattern other than current
         endMarker++;
-        userSpecifiedPattern = true;
+        explicitPatternPassed = true;
         if (endMarker == argc ||
             Tcl_GetInt(interp, argv[endMarker], &loadPatternTag) != TCL_OK) {
 
@@ -857,7 +857,7 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     }
 
     // get the current pattern tag if no tag given in i/p
-    if (userSpecifiedPattern == false) {
+    if (explicitPatternPassed == false) {
       if (theTclLoadPattern == nullptr) {
         opserr << "WARNING no current load pattern - load " << nodeId;
         opserr << " " << ndf << " forces\n";
