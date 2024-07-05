@@ -113,7 +113,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
       theSeries = (TimeSeries *)theResult;
   }
 
-    else if (strcmp(argv[0],"Trig") == 0 || 
+  else if (strcmp(argv[0],"Trig") == 0 || 
              strcmp(argv[0],"Sine") == 0) {
      // LoadPattern and TrigSeries - read args & create TrigSeries object
      int tag = 0;
@@ -125,7 +125,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
        opserr << "WARNING not enough TimeSeries args - ";
        opserr << " Trig <tag?> tStart tFinish period <-shift shift> <-factor cFactor>\n";
        cleanup(argv);
-       return nullptr; 
+       return nullptr;
      }
      int argi = 1;
 
