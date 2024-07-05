@@ -225,8 +225,8 @@ struct VectorND {
 
     else {
       int incr = 1,
-             i = N,
-             n = NR;
+             i = NR,
+             n = N;
       DGEMV("T", &i, &n,
             &otherFact,
             &m.values[0][0], &i,
