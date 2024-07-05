@@ -135,7 +135,7 @@ Vector::setData(double *newData, int size){
 #endif
 
 
-  if (theData != 0 && fromFree == 0) {
+  if (theData != nullptr && fromFree == 0) {
     delete [] theData;      
     theData = 0;
   }
