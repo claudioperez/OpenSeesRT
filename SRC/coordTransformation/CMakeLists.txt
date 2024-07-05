@@ -4,11 +4,11 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-add_library(coordTransformation "")
+add_library(OPS_Transform "")
 
-target_link_libraries(coordTransformation PRIVATE OPS_Recorder)
+target_link_libraries(OPS_Transform PRIVATE OPS_Recorder)
 
-target_sources(coordTransformation
+target_sources(OPS_Transform
   PRIVATE
     CrdTransf.cpp
     LinearCrdTransf2d.cpp
@@ -21,6 +21,7 @@ target_sources(coordTransformation
     CorotCrdTransf3d.cpp
     CorotCrdTransf3d02.cpp
     CorotCrdTransfWarping2d.cpp
+    CorotCrdTransfWarping3d.cpp
     LinearCrdTransf2dInt.cpp
   PUBLIC
     CrdTransf.h
@@ -42,4 +43,5 @@ target_sources(coordTransformation
     ASDShellQ4Transformation.h
 )
 
-target_include_directories(coordTransformation PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Transform PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+add_subdirectory(Frame)

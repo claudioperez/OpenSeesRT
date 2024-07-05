@@ -42,6 +42,7 @@
 #include "Matrix.h"
 #include "Vector.h"
 #include "blasdecl.h"
+#include "routines/cmx.h"
 
 #if __cplusplus < 202000L
 #define consteval
@@ -57,6 +58,8 @@ requires(NR > 0 && NC > 0)
 struct MatrixND {
   double values[NC][NR];
 
+//MatrixND<NR, NC, T>(const MatrixND<NR, NC, T>&) = default;
+
   // Convert to regular Matrix class
   operator Matrix() { return Matrix(&values[0][0], NR, NC);}
   operator const Matrix() const { return Matrix(&values[0][0], NR, NC);}
@@ -64,13 +67,23 @@ struct MatrixND {
   MatrixND<NR,NC,T>& addDiagonal(const double vol) requires(NR == NC);
 
   template <class MatT>
-  void addMatrix(const MatT& A, const double scale);
+    void addMatrix(const MatT& A, const double scale);
 
   template <class VecA, class VecB>  MatrixND<NR,NC,T>& 
     addTensorProduct(const VecA& V, const VecB& W, const double scale);
 
   template <class MatT, int nk> void 
     addMatrixProduct(const MatrixND<NR, nk, T> &, const MatT&, const double scale);
+
+  // += A'B
+  template <class MatT, int nk> void 
+    addMatrixTransposeProduct(double thisFact, const MatrixND<nk, NR, T> &, const MatT&, double scale);
+
+  // += A'BA
+  template <int nk> int 
+    addMatrixTripleProduct(double thisFact, const MatrixND<nk, NR, T> &, const MatrixND<nk, nk, T>&, double scale);
+
+  int invert(MatrixND<NR, NC> &) const;
 
 //template<class VecT>
 //void addSpinAtRow(const VecT& V, size_t row_index);
@@ -196,7 +209,7 @@ struct MatrixND {
     int nc = NC;
     int info = 0;
     res = V; // X will be overwritten with the solution
-    DGESV(&nr, &nrhs, work.values, &nr, &pivot_ind, res.theData, &nc, &info);
+    DGESV(&nr, &nrhs, &work.values[0][0], &nr, &pivot_ind[0], res.theData, &nc, &info);
     return -abs(info);
   }
 
@@ -235,14 +248,6 @@ struct MatrixND {
   }
   // AB
   int addMatrixProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
-  {
-  }
-  // A'B
-  int addMatrixTransposeProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
-  {
-  }
-  // A'BA
-  int addMatrixTripleProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
   {
   }
   //A'BC
@@ -290,7 +295,7 @@ struct MatrixND {
 
   constexpr MatrixND &
   operator=(const Matrix &other)
-  {  
+  {
     for (index_t j = 0; j < NC; ++j) {
       for (index_t i = 0; i < NR; ++i) {
         values[j][i] = other(i,j);
@@ -298,7 +303,7 @@ struct MatrixND {
     }
     return *this;
   }
-
+/*
   constexpr MatrixND &
   operator=(const MatrixND<NR,NC> &other)
   {  
@@ -309,6 +314,7 @@ struct MatrixND {
     }
     return *this;
   }
+*/
 
   constexpr MatrixND &
   operator+=(const double value) {
@@ -420,6 +426,22 @@ struct MatrixND {
     return prod;
   }
 
+  VectorND<NR>
+  operator^(const VectorND<NR> &V) const
+  {
+      VectorND<NR> result;
+
+      const double *dataPtr = &values[0][0];
+      for (int i=0; i<NC; i++) {
+        result[i] = 0.0;
+        for (int j=0; j<NR; j++)
+          result[i] += *dataPtr++ * V[j];
+      }
+
+      return result;
+  }
+
+
   friend  VectorND<NR>
   operator*(const MatrixND<NR, NC> &left, const VectorND<NC> &right) {
     VectorND<NR> prod;
@@ -480,6 +502,14 @@ struct MatrixND {
   }
 }; // class MatrixND
 
+template<> inline int
+MatrixND<6,6>::invert(MatrixND<6,6> &M) const
+{
+  int status;
+  cmx_inv6(&this->values[0][0], &M.values[0][0], &status);
+  return status;
+}
+
 template <index_t nr, index_t nc, typename T> inline
 MatrixND<nr, nc, T>& 
 MatrixND<nr, nc, T>::addDiagonal(const double diag)
@@ -522,6 +552,120 @@ MatrixND<nr, nc, T>::addMatrixProduct(const MatrixND<nr, nk, T>& A, const MatT& 
         (*this)(i,j) += A(i,k)*B(k,j)*scale;
 }
 
+// B'*C
+template <index_t nr, index_t nc, class T> 
+template <class MatT, int nk> inline
+void
+MatrixND<nr, nc, T>::addMatrixTransposeProduct(double thisFact,
+                                               const MatrixND<nk, nr, T>& B,
+                                               const MatT& C,
+                                               const double otherFact)
+{
+  if (thisFact == 1.0) {
+    double *aijPtr = &values[0][0];
+    for (int j=0; j<nc; j++) {
+      for (int i=0; i<nr; i++) {
+        const double *bkiPtr  = &(&B.values[0][0])[i*nk];
+        const double *cjkPtr  = &(&C.values[0][0])[j*nk];
+        double sum = 0.0;
+        for (int k=0; k<nk; k++) {
+          sum += *bkiPtr++ * *cjkPtr++;
+        }
+        *aijPtr++ += sum * otherFact;
+      }
+    } 
+  } else if (thisFact == 0.0) {
+    double *aijPtr = &values[0][0];
+    for (int j=0; j<nc; j++) {
+      for (int i=0; i<nr; i++) {
+        const double *bkiPtr  = &(&B.values[0][0])[i*nk];
+        const double *cjkPtr  = &(&C.values[0][0])[j*nk];
+        double sum = 0.0;
+        for (int k=0; k<nk; k++) {
+          sum += *bkiPtr++ * *cjkPtr++;
+        }
+        *aijPtr++ = sum * otherFact;
+      }
+    } 
+  } else {
+    double *aijPtr = &values[0][0];
+    for (int j=0; j<nc; j++) {
+      for (int i=0; i<nr; i++) {
+        const double *bkiPtr  = &(&B.values[0][0])[i*nk];
+        const double *cjkPtr  = &(&C.values[0][0])[j*nk];
+        double sum = 0.0;
+        for (int k=0; k<nk; k++) {
+          sum += *bkiPtr++ * *cjkPtr++;
+        }
+        *aijPtr = *aijPtr * thisFact + sum * otherFact;
+        aijPtr++;
+      }
+    } 
+  }
+#if 0
+  if (thisFact == 1.0) {
+    for (int j=0; j<nc; j++)
+      for (int i=0; i<nr; i++)
+        for (int k=0; k < nk; k++)
+          (*this)(i,j) += A(k,i)*B(k,j)*scale;
+  } else if (thisFact == 0.0) {
+    for (int j=0; j<nc; j++)
+      for (int i=0; i<nr; i++) {
+        double sum = 0.0;
+        for (int k=0; k < nk; k++)
+          sum  += A(k,i)*B(k,j);
+        (*this)(i,j) = sum*scale;
+      }
+  } else {
+    for (int j=0; j<nc; j++)
+      for (int i=0; i<nr; i++)
+        for (int k=0; k < nk; k++)
+          (*this)(i,j)  = (*this)(i,j)*thisFact + A(k,i)*B(k,j)*scale;
+  }
+#endif
+}
+
+// A'BA
+template <int nr, int nc, class scalar_t> 
+template <int ncB> inline
+int
+MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct( 
+                               double thisFact,
+                               const  MatrixND<ncB, nr, scalar_t> &T, 
+                               const  MatrixND<ncB, ncB, scalar_t> &B, 
+                               double otherFact)
+  requires(nr == nc)
+{
+  if (otherFact == 0.0 && thisFact == 1.0)
+    return 0;
+
+  // check work area can hold the temporary matrix
+  MatrixND<ncB, nc> BT;
+  BT.zero();
+  BT.addMatrixProduct(B, T, otherFact);
+  this->addMatrixTransposeProduct(thisFact, T, BT, 1.0);
+
+//{
+//  int m   = B.numRows,
+//      n   = T.numCols,
+//      k   = B.numCols,
+//      nrT = T.numRows;
+//    //k = T.numRows;
+//  double zero = 0.0,
+//         one  = 1.0;
+
+//  DGEMM ("N", "N", &m      , &n      , &k,&one      , B.data, &m, // m
+//                                                      T.data, &nrT, // k
+//                                          &zero,  matrixWork, &m);
+
+//  DGEMM ("T", "N", &numRows, &numCols, &k,&otherFact, T.data, &nrT,
+//                                                  matrixWork, &m, // k
+//                                          &thisFact,    data, &numRows);
+//  return 0;
+//}
+
+  return 0;
+}
 
 template <int nr, int nc, typename T=double>
 MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;

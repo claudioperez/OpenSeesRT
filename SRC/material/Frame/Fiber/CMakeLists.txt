@@ -6,11 +6,21 @@
 #==============================================================================
 target_sources(OPS_Material
   PRIVATE
-    ElasticLinearFrameSection3d.cpp
+    ElasticIsotropicBeamFiber2d.cpp
+    ElasticIsotropicBeamFiber.cpp
+    J2BeamFiber2d.cpp
+    J2BeamFiber3d.cpp
+    BeamFiberMaterial.cpp
+    BeamFiberMaterial2d.cpp
+    BeamFiberMaterial2dPS.cpp
   PUBLIC
-    ElasticLinearFrameSection3d.h
+    J2BeamFiber2d.h
+    J2BeamFiber3d.h
+    BeamFiberMaterial.h
+    BeamFiberMaterial2d.h
+    BeamFiberMaterial2dPS.h
+    ElasticIsotropicBeamFiber2d.h
+    ElasticIsotropicBeamFiber.h
 )
 
-add_subdirectory(Fiber)
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})

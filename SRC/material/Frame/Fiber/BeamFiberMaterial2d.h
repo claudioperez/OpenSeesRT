@@ -18,15 +18,15 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: Aug 2001
-//
 // Description: This file contains the class definition of BeamFiberMaterial2d.
 // The BeamFiberMaterial2d class is a wrapper class that performs static
 // condensation on a three-dimensional material model to give the 11 and 12
 // stress components which can then be integrated over an area to model a
 // shear flexible 2D beam.
-
+//
+// Written: MHS
+// Created: Aug 2001
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -40,25 +40,25 @@ class BeamFiberMaterial2d: public NDMaterial {
 
   public:
     BeamFiberMaterial2d(int tag, NDMaterial &theMat);
-    BeamFiberMaterial2d(void);
-    virtual ~BeamFiberMaterial2d(void);
+    BeamFiberMaterial2d();
+    virtual ~BeamFiberMaterial2d();
 
-    int setTrialStrain( const Vector &strainFromElement);
-    const Vector& getStrain(void);
-    const Vector& getStress(void);
-    const Matrix& getTangent(void);
-    const Matrix& getInitialTangent(void);
+    int setTrialStrain(const Vector &strainFromElement);
+    const Vector& getStrain();
+    const Vector& getStress();
+    const Matrix& getTangent();
+    const Matrix& getInitialTangent();
 
-    double getRho(void);
+    double getRho();
 
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
 
-    NDMaterial *getCopy(void);
+    NDMaterial *getCopy();
     NDMaterial *getCopy(const char *type);
-    const char *getType(void) const;
-    int getOrder(void) const; 
+    const char *getType() const;
+    int getOrder() const; 
 
     void Print(OPS_Stream &s, int flag);
 
@@ -89,5 +89,4 @@ class BeamFiberMaterial2d: public NDMaterial {
     static Vector stress;
     static Matrix tangent;
 };
-
 

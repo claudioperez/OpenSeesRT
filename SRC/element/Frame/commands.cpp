@@ -1,30 +1,7 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.15 $
-// $Date: 2007-10-13 00:51:14 $
-// $Source:
-// /usr/local/cvs/OpenSees/SRC/element/beamWithHinges/TclBeamWithHingesBuilder.cpp,v
-// $
-
-// File: ~/tcl/TclElmtBuilder.C
 //
 // Description: This file contains the implementation of the commands used
 // to add sections and nonlinear frame elements to the model.
@@ -53,9 +30,9 @@
 #include <ElasticSection2d.h>
 #include <ElasticSection3d.h>
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 
 #include <runtime/BasicModelBuilder.h>
 
@@ -191,17 +168,17 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     // Retrieve section I from the model builder
-    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
+    SectionForceDeformation *sectionI = builder->getTypedObject<FrameSection>(secTagI);
     if (sectionI == nullptr)
       return TCL_ERROR;
 
     // Retrieve section J from the model builder
-    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getTypedObject<FrameSection>(secTagJ);
     if (sectionJ == nullptr)
       return TCL_ERROR;
 
 
-    CrdTransf *theTransf = builder->getTypedObject<CrdTransf>(transfTag);
+    FrameTransform2d *theTransf = builder->getTypedObject<FrameTransform2d>(transfTag);
     if (theTransf == nullptr)
       return TCL_ERROR;
 
@@ -259,7 +236,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     if (isShear) {
-      SectionForceDeformation *sectionL = builder->getTypedObject<SectionForceDeformation>(shearTag);
+      SectionForceDeformation *sectionL = builder->getTypedObject<FrameSection>(shearTag);
       if (sectionL == nullptr)
         return TCL_ERROR;
 
@@ -421,17 +398,17 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     // Retrieve section I from the model builder
-    SectionForceDeformation *sectionI = builder->getTypedObject<SectionForceDeformation>(secTagI);
+    SectionForceDeformation *sectionI = builder->getTypedObject<FrameSection>(secTagI);
     if (sectionI == nullptr)
       return TCL_ERROR;
 
     // Retrieve section J from the model builder
-    SectionForceDeformation *sectionJ = builder->getTypedObject<SectionForceDeformation>(secTagJ);
+    SectionForceDeformation *sectionJ = builder->getTypedObject<FrameSection>(secTagJ);
     if (sectionJ == nullptr)
       return TCL_ERROR;
 
 
-    CrdTransf *theTransf = builder->getTypedObject<CrdTransf>(transfTag);
+    FrameTransform3d *theTransf = builder->getTypedObject<FrameTransform3d>(transfTag);
     if (theTransf == nullptr)
       return TCL_ERROR;
 

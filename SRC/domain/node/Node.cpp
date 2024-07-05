@@ -946,7 +946,7 @@ int
 Node::setR(int row, int col, double Value)
 {
   // ensure R had been set
-  if (R == 0) {
+  if (R == nullptr) {
     opserr << "Node:setR() - R has not been initialised\n";
     return -1;
   }
