@@ -1,7 +1,6 @@
 /* ****************************************************************** **
 **    Opensee - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the function invoked when the user invokes
