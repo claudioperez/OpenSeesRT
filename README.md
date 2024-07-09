@@ -101,7 +101,7 @@ Additional features include:
   ```
   to
   ```python
-  import opensees.openseespy
+  import opensees.openseesrt
   ```
   For true stateless modeling, the `Model` class should be used instead of the legacy
   `model` function; documentation is under development.

@@ -16,13 +16,17 @@ def write_grp(a):
 def write_obj(v, w, qual=None):
     name = v.__name__
     if qual is not None:
-        qual = qual + "."
+        #qual = qual + "."
+        qual = qual + "(\""
     else:
         qual = ""
-    s = "(" + ", ".join(arg.name for arg in v._args if arg.reqd) + ", **kwds)"
+#   s = "(" + ", ".join(arg.name for arg in v._args if arg.reqd) + ", **kwds)"
+    s = "\", " + ", ".join(arg.name for arg in v._args if arg.reqd) + ")" #", **kwds)"
+
     #s = str(inspect.signature(v)).replace('=None','')
     if len(s) > 45:
         s = s.replace(", ", ",<br>&emsp;&emsp;&emsp;")
+
     w.write(textwrap.dedent(f"""
     <span style="font-feature-settings: kern; color: var(--md-code-fg-color) !important; font-family: var(--md-code-font-family);">
         {qual}<span style="color:#900">{name}</span>{s}
@@ -59,25 +63,26 @@ class ApiEmitter(Emitter):
         except:
             typ = f"<code>{a.__class__.__name__}</code>"
         if "enum" in a.kwds:
-            about += "<table>" + "".join(f"<tr><td>{k}</td><td>{v}</td></tr>" for k,v in a.kwds["enum"].items()) + "</table>"
-        this.write(f"<td>{name+default}</td><td>{typ}</td><td>{about}")
+            about += "<table>" + "".join(f"<tr><td><code>\"{k}\"</code></td><td>{v}</td></tr>" for k,v in a.kwds["enum"].items()) + "</table>"
+
+        this.write(f"<td><tt>{name+default}</tt></td><td>{typ}</td><td>{about}")
 
 
     def Lst(self, arg, value=None):
         name = arg.name or ""
         about = re.sub('[\s+]', ' ', arg.about.replace('\n',' '))
-        self.write(f"<td>{name}</td><td><code>Array[{arg.type.__name__}]</td></code><td>{about}</td>")
+        self.write(f"<td><tt>{name}</tt></td><td><code>Array[{arg.type.__name__}]</td></code><td>{about}</td>")
 
     def Tag(this, self, value=None):
         pass
 
 
-    def Flg(this, a, value=None): 
+    def Flg(this, a, value=None):
         name = a.name or ""
         default = " = "+str(a.default) if a.default is not None else ""
         about = re.sub('[\s+]', ' ', a.about.replace('\n',' '))
         typ = f"<code>bool</code>"
-        this.write(f"<td>{name+default}</td><td>{typ}</td><td>{about}")
+        this.write(f"<td><tt>{name+default}</tt></td><td>{typ}</td><td>{about}")
 
     def Grp(this, a, value=None):
         name = (a and a.name) or ""
@@ -174,10 +179,11 @@ class ApiDocWriter(ScriptBuilder):
 if __name__ == "__main__":
     import opensees
 
-    _, module, obj = sys.argv[1].split(".")
+    _, *module, obj = sys.argv[1].split(".")
+    module = ".".join(module)
 
     print(ApiDocWriter().send(
-        getattr(getattr(opensees, module), obj), qual="opensees."+module
+        getattr(getattr(opensees, module), obj), qual="Model."+module
     ))
 
 

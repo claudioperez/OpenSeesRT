@@ -87,7 +87,7 @@ def solve_torsion(section, mesh):
         Ka  = assembleStiffnessMatrix(Ka, ke, nodeList, nde, ndf)
         Fa  = assembleLoadVector(Fa, fe, nodeList, nde, ndf)
 
-    # Lock the warping at one node and solve for the others
+    # Lock the solution at one node and solve for the others
     Pf = Fa[:nf-1]
     for i in range(nf-1):
         Pf[i] -= Ka[i, nf-1]
@@ -135,11 +135,39 @@ def solve_torsion(section, mesh):
     return np.array(finalWarp)
 
 
-def torsion_constants(section, mesh, sc, warp):
+def warping_constant(section, mesh, warp, sc):
+    # ------------------------------------------------------------------------
+    # WARPING CONSTANT
+    # ------------------------------------------------------------------------
+
+    nodes        = mesh.points
+    connectivity = mesh.cells[1].data
+
+    Cw = 0.0
+    for conn in connectivity:
+        ((y1, y2, y3), (z1, z2, z3)) = (nodes[conn] - section.centroid).T
+
+        # Warping values
+        u1, u2, u3 = warp[conn]
+
+        # Warping constant
+        dA  = 0.5 * ((y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1))
+        Cw += dA / 6.0 * (u1**2 + u2**2 + u3**2 + u1*u2 + u1*u3 + u2*u3)
+
+    return Cw
+
+def torsion_constant(section, mesh, warp, sc):
+    # ------------------------------------------------------------------------
+    # ST. VENANT CONSTANT
+    # ------------------------------------------------------------------------
+
     # for i in range(nf):
     #     yValue = (nodes[i])[0]
     #     zValue = (nodes[i])[1]
     #     warp.append(ua[i] + normalizingConstant + ysc*(zValue-zCentroid) - zsc*(yValue-yCentroid))
+
+    nodes        = mesh.points
+    connectivity = mesh.cells[1].data
 
     # Shear center coordinates in original axis system
     zCentroid, yCentroid = section.centroid
@@ -148,12 +176,7 @@ def torsion_constants(section, mesh, sc, warp):
     ysc = yCentroid + ysc
     zsc = zCentroid + zsc
 
-    # ------------------------------------------------------------------------
-    # WARPING CONSTANT and ST. VENANT CONSTANT
-    # ------------------------------------------------------------------------
-
-    Cw = 0
-    J  = 0
+    J  = 0.0
     for conn in connectivity:
         ((y1, y2, y3), (z1, z2, z3)) = (nodes[conn] - section.centroid).T
 
@@ -167,9 +190,8 @@ def torsion_constants(section, mesh, sc, warp):
         # Warping values
         u1, u2, u3 = warp[conn]
 
-        # Warping constant
+        # Element area
         dA  = 0.5 * ((y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1))
-        Cw += dA / 6.0 * (u1**2 + u2**2 + u3**2 + u1*u2 + u1*u3 + u2*u3)
 
         # St. Venant constant
         Czeta1  = ( u2*y1 * y13 + u3 *  y1 * y21 + u1 * y1*y32 - u3 * z1 * z12 - u1*z1 * z23 - u2*z1*z31)/(2*dA)
@@ -185,7 +207,7 @@ def torsion_constants(section, mesh, sc, warp):
             + (Czeta12+Czeta13+Czeta23)/12. \
             + (Czeta1s+Czeta2s+Czeta3s)/6.)*dA
 
-    return J, Cw
+    return J
 
 #
 #  # ------------------------------------------------------------------------

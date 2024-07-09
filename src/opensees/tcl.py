@@ -82,6 +82,31 @@ def dumps(obj, skip_int_refs=False)->str:
             raise e
             # raise ValueError("Cannot dump model with binary objects")
 
+def _lift(interpaddr: int, type, tag: int):
+    type = type.lower()
+    # libOpenSeesRT must be imported by Python
+    # AFTER if has been loaded by Tcl (this was done
+    # when a TclRuntime() is created) so that Tcl stubs
+    # are initialized. Otherwise there will be a segfault
+    # when a python c-binding attempts to call a Tcl
+    # C function. Users should never import OpenSeesPyRT
+    # themselves
+    from opensees import OpenSeesPyRT as libOpenSeesRT
+
+    _builder = libOpenSeesRT.get_builder(interpaddr)
+
+    if type == "uniaxialmaterial":
+        return _builder.getUniaxialMaterial(int(tag))
+
+    elif type == "section":
+        return _builder.getSection(int(tag))
+
+    elif type == "backbone":
+        return _builder.getHystereticBackbone(int(tag))
+
+    else:
+        raise TypeError(f"Unimplemented type {type}")
+
 
 class Interpreter:
     def __init__(self,  model=None, verbose=False, safe=False, preload=True, enable_tk=False):
@@ -108,6 +133,13 @@ class Interpreter:
 
         if model is not None:
             self.send(model)
+
+    def __del__(self):
+        try:
+            # _tcl may already be deleted
+            self.eval("wipe")
+        except:
+            pass
 
     def eval(self, string):
         try:
@@ -216,32 +248,9 @@ class ModelRuntime:
         """
         Experimental
         """
-        type = type.lower()
-        # libOpenSeesRT must be imported by Python
-        # AFTER if has been loaded by Tcl (this was done
-        # when a TclRuntime() is created) so that Tcl stubs
-        # are initialized. Otherwise there will be a segfault
-        # when a python c-binding attempts to call a Tcl
-        # C function. Users should never import OpenSeesPyRT
-        # themselves
-        from opensees import OpenSeesPyRT as libOpenSeesRT
-
-        _builder = libOpenSeesRT.get_builder(self._tcl.interpaddr())
-
         if type == "uniaxialmaterial":
             self.model(2,3)
-            return _builder.getUniaxialMaterial(int(tag))
-
-        elif type == "section":
-            return _builder.getSection(int(tag))
-
-        elif type == "backbone":
-#           rt.send(self)
-            return _builder.getHystereticBackbone(int(tag))
-
-        else:
-            raise TypeError("Unimplemented type")
-
+        return _lift(self._tcl.interpaddr(), type, tag)
 
     def send(self, obj, ndm=2, ndf=3, **kwds):
         self.model(ndm=ndm, ndf=ndf)
@@ -252,6 +261,7 @@ class ModelRuntime:
             try:
                 self._interp.eval(m)
             except Exception as e:
+                raise e
                 print(e, file=sys.stderr)
         else:
             self.eval(m.getIndex())
@@ -259,9 +269,11 @@ class ModelRuntime:
             _builder = libOpenSeesRT.get_builder(self._tcl.interpaddr())
             for ident,obj in m.python_objects.items():
                 tag = self._interp.eval(f"set {ident.tclstr()}")
-                _builder.addPythonObject(tag, obj)
+                _builder.addPythonObject(int(tag), obj)
 
-            self._interp.eval(m.getScript())
+            script = m.getScript()
+            self._interp.eval(script)
+
         return self
 
     @property
