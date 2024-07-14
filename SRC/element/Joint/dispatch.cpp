@@ -44,20 +44,18 @@
 #include <tcl.h>
 #include <elementAPI.h>
 
-// static Domain *theTclBasicBuilderDomain = 0;
 
 int
 TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char ** const argv,
-                                   Domain *theTclDomain, int eleArgStart)
+                                   int argc, TCL_Char ** const argv)
 {
-  // theTclBasicBuilderDomain = theTclDomain;
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
 
-  int NDM, NDF;
+  constexpr static int eleArgStart = 1;
 
-  NDM = builder->getNDM(); // dimension of the structure (1d, 2d, or 3d)
-  NDF = builder->getNDF(); // number of degrees of freedom per node
+  int NDM = builder->getNDM(); // dimension of the structure (1d, 2d, or 3d)
+  int NDF = builder->getNDF(); // number of degrees of freedom per node
 
   if ((NDM == 2 && NDF == 3) || (NDM == 3 && NDF == 6)) {
 
@@ -390,7 +388,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    if (theTclDomain->addElement(theBeamColumnJoint) == false) {
+    if (domain->addElement(theBeamColumnJoint) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "beamColumnJoint element: " << id << endln;
       delete theBeamColumnJoint;
@@ -447,9 +445,10 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char ** const argv, Domain *theTclDomain)
+                           TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
   // check the number of arguments is correct
   int argStart = 2;
 
@@ -511,7 +510,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // check domain for existence of internal node tag
-  Node *CenterNode = theTclDomain->getNode(CenterNodeTag);
+  Node *CenterNode = domain->getNode(CenterNodeTag);
   if (CenterNode != 0) {
     opserr
         << "WARNING node tag specified for the center node already exists.\n";
@@ -641,7 +640,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
     UniaxialMaterial *springModels[5] = {MatI, MatJ, MatK, MatL, PanelMaterial};
     theJoint2D =
         new Joint2D(Joint2DId, iNode, jNode, kNode, lNode, CenterNodeTag,
-                    springModels, theTclDomain, LargeDisp);
+                    springModels, domain, LargeDisp);
 
     if (theJoint2D == 0) {
       opserr << "WARNING ran out of memory creating element\n";
@@ -649,7 +648,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    if (theTclDomain->addElement(theJoint2D) == false) {
+    if (domain->addElement(theJoint2D) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "Joint2D element: " << Joint2DId << endln;
       delete theJoint2D;
@@ -921,10 +920,10 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
     UniaxialMaterial *springModels[5] = {MatI, MatJ, MatK, MatL, PanelMaterial};
     theJoint2D =
         new Joint2D(Joint2DId, iNode, jNode, kNode, lNode, CenterNodeTag,
-                    springModels, theTclDomain, LargeDisp, damageModels);
+                    springModels, domain, LargeDisp, damageModels);
 
 
-    if (theTclDomain->addElement(theJoint2D) == false) {
+    if (domain->addElement(theJoint2D) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "Joint2D element: " << Joint2DId << endln;
       delete theJoint2D;
@@ -968,29 +967,25 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
 // Description: This file contains the implementation of the
 // TclBasicBuilder_addJoint3D() command.
 //
+#include <tcl.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
 
 #include <Joint3D.h>
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <UniaxialMaterial.h>
 
-// extern void printCommand(int argc, TCL_Char ** const argv);
 
 int
 TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char ** const argv, Domain *theTclDomain,
-                           TclBasicBuilder *theTclBuilder)
+                           TCL_Char ** const argv)
 {
-  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  Domain* domain = builder->getDomain();
 
-  if (builder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
 
   if (builder->getNDM() != 3 || builder->getNDF() != 6) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
@@ -1003,7 +998,6 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if ((argc - argStart) != 12 && (argc - argStart) != 16) {
     opserr << "WARNING incorrect number of arguments\n";
-    // printCommand(argc, argv);
     opserr << "Want:\n";
     opserr << "element Joint3D Tag? NodI? NodJ? NodK? NodL? NodM? NodN? NodC? "
               "MatX? MatY? MatZ? LrgDsp?\n";
@@ -1064,7 +1058,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // check domain for existence of internal node tag
-  Node *CenterNode = theTclDomain->getNode(CenterNodeTag);
+  Node *CenterNode = domain->getNode(CenterNodeTag);
   if (CenterNode != 0) {
     opserr
         << "WARNING node tag specified for the center node already exists.\n";
@@ -1135,7 +1129,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
     UniaxialMaterial *springModels[3] = {MatX, MatY, MatZ};
     theJoint3D =
         new Joint3D(Joint3DId, iNode, jNode, kNode, lNode, mNode, nNode,
-                    CenterNodeTag, springModels, theTclDomain, LargeDisp);
+                    CenterNodeTag, springModels, domain, LargeDisp);
 
     if (theJoint3D == 0) {
       opserr << "WARNING ran out of memory creating element\n";
@@ -1143,7 +1137,7 @@ TclBasicBuilder_addJoint3D(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    if (theTclDomain->addElement(theJoint3D) == false) {
+    if (domain->addElement(theJoint3D) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "Joint3D element: " << Joint3DId << endln;
       delete theJoint3D;
