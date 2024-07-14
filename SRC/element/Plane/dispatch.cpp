@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <Domain.h>
 
+#include <tcl.h>
 #include <FourNodeQuad.h>
 #include <FourNodeQuad3d.h>
 #include <FourNodeQuadWithSensitivity.h>
