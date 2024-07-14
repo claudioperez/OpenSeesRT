@@ -4,7 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-
+target_link_libraries(OPS_Material PRIVATE OPS_Domain)
 target_sources(OPS_Material
     PRIVATE
       Material.cpp
