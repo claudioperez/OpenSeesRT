@@ -38,6 +38,8 @@ target_sources(OPS_Domain
     LysmerVelocityLoader.h
 )
 
+
+target_link_libraries(OPS_Thermal PRIVATE OPS_Domain)
 target_sources(OPS_Thermal
     PRIVATE
         Beam2dTempLoad.cpp
